@@ -68,7 +68,6 @@ mod tests {
     //! Other `serde`-based codecs (e.g. `yaml`) do not have as comprehensive unit tests
     //! (although they do have round-trip prop tests) because they should work if these tests pass).
 
-    use common::indexmap::IndexMap;
     use common_dev::pretty_assertions::assert_eq;
     use schema::{
         Array, Article, ArticleOptions, Block, Boolean, Date, Emphasis, Inline, Integer,
@@ -97,29 +96,26 @@ mod tests {
             "Hello world".to_string()
         );
 
-        assert_eq!(Array::from_json("[]")?, vec![]);
+        assert_eq!(Array::from_json("[]")?, Array::new());
         assert_eq!(
             Array::from_json(r#"[false, 1, 1.23, "abc"]"#)?,
-            vec![
+            Array::from([
                 Primitive::Boolean(false),
                 Primitive::Integer(1),
                 Primitive::Number(1.23),
                 Primitive::String("abc".to_string())
-            ]
+            ])
         );
 
         assert_eq!(Object::from_json("{}")?, Object::default());
         assert_eq!(
-            Object::from_json(r#"{"a": 1, "b": [], "c": {"d": true}}"#)?,
-            IndexMap::from([
-                ("a".to_string(), Primitive::Integer(1)),
-                ("b".to_string(), Primitive::Array(vec![])),
+            Object::from_json(r#"{"a": 1, "b": [-1], "c": {"d": true}}"#)?,
+            Object::from([
+                ("a", Primitive::Integer(1)),
+                ("b", Primitive::Array(Array::from([Primitive::Integer(-1)]))),
                 (
-                    "c".to_string(),
-                    Primitive::Object(IndexMap::from([(
-                        "d".to_string(),
-                        Primitive::Boolean(true)
-                    )]))
+                    "c",
+                    Primitive::Object(Object::from([("d", Primitive::Boolean(true))]))
                 )
             ])
         );
@@ -138,13 +134,10 @@ mod tests {
             Primitive::from_json(r#""abc""#)?,
             Primitive::String("abc".to_string())
         );
-        assert_eq!(
-            Primitive::from_json("[]")?,
-            Primitive::Array(Vec::default())
-        );
+        assert_eq!(Primitive::from_json("[]")?, Primitive::Array(Array::new()));
         assert_eq!(
             Primitive::from_json("{}")?,
-            Primitive::Object(IndexMap::default())
+            Primitive::Object(Object::new())
         );
 
         Ok(())

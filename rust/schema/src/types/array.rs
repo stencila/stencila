@@ -13,3 +13,9 @@ impl Array {
         Self::default()
     }
 }
+
+impl<const N: usize> From<[Primitive; N]> for Array {
+    fn from(value: [Primitive; N]) -> Self {
+        Array(Vec::from(value))
+    }
+}

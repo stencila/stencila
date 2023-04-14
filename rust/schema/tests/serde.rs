@@ -1,10 +1,12 @@
 use common::eyre::{bail, Result};
 use schema::{Article, Block, Inline};
 
-/// Test deserialization and deserialization of a high level creative work type
+/// Test serialization and deserialization of a high level creative work type
 ///
 /// Mainly for testing correct ser/de of options including non-core options
 /// in the `options` property.
+///
+/// See the `codec-json` crate for more serialization/deserialization tests.
 #[test]
 fn article() -> Result<()> {
     use common::serde_json::{self, json};

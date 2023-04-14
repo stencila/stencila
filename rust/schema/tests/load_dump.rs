@@ -1,8 +1,10 @@
+use std::collections::HashMap;
+
 use codec_text::FromText;
-use common::{eyre::Result, indexmap::IndexMap, serde_json::json};
+use common::{eyre::Result, serde_json::json};
 use common_dev::pretty_assertions::assert_eq;
 
-use schema::{Article, Block, Inline, Node, Null, Object, Paragraph, Primitive, Text};
+use schema::{Array, Article, Block, Inline, Node, Null, Object, Paragraph, Primitive, Text};
 
 use node_store::{Read, Write, WriteStore};
 use node_strip::{Strip, Targets};
@@ -10,7 +12,7 @@ use node_strip::{Strip, Targets};
 /// Test loading & dumping of `Primitive` nodes
 #[test]
 fn primitives() -> Result<()> {
-    type Root = Object;
+    type Root = HashMap<String, Primitive>;
 
     // Create base store with various primitives
     let mut base = WriteStore::new();
@@ -23,11 +25,14 @@ fn primitives() -> Result<()> {
         ("str".to_string(), Primitive::String("abc".to_string())),
         (
             "array".to_string(),
-            Primitive::Array(vec![Primitive::Boolean(true), Primitive::Integer(456)]),
+            Primitive::Array(Array::from([
+                Primitive::Boolean(true),
+                Primitive::Integer(456),
+            ])),
         ),
         (
             "obj".to_string(),
-            Primitive::Object(IndexMap::from([("a".to_string(), Primitive::Integer(1))])),
+            Primitive::Object(Object::from([("a".to_string(), Primitive::Integer(1))])),
         ),
     ]);
     root.dump(&mut base)?;
@@ -50,7 +55,7 @@ fn primitives() -> Result<()> {
     root.insert("str".to_string(), Primitive::String("def".to_string()));
     root.insert(
         "obj".to_string(),
-        Primitive::Object(IndexMap::from([("b".to_string(), Primitive::Number(1.23))])),
+        Primitive::Object(Object::from([("b".to_string(), Primitive::Number(1.23))])),
     );
     root.dump(&mut fork)?;
     assert_eq!(Root::load(&fork)?, root);
@@ -74,7 +79,7 @@ fn primitives() -> Result<()> {
 /// Test loading & dumping of `Option`s
 #[test]
 fn option() -> Result<()> {
-    type Root = IndexMap<String, Option<i64>>;
+    type Root = HashMap<String, Option<i64>>;
 
     // Create base store
     let mut base = WriteStore::new();
@@ -105,7 +110,7 @@ fn option() -> Result<()> {
 /// Test loading & dumping of `Text` nodes
 #[test]
 fn text() -> Result<()> {
-    type Root = IndexMap<String, Text>;
+    type Root = HashMap<String, Text>;
 
     // Create base store with a few text nodes
     let mut base = WriteStore::new();
@@ -159,7 +164,7 @@ fn text() -> Result<()> {
 /// Test loading & dumping of `Vec`s
 #[test]
 fn vec() -> Result<()> {
-    type Root = IndexMap<String, Vec<Text>>;
+    type Root = HashMap<String, Vec<Text>>;
 
     // Create base store
     let mut base = WriteStore::new();
@@ -181,15 +186,15 @@ fn vec() -> Result<()> {
     // Remove an item
     root.get_mut("vec").unwrap().remove(1);
     root.dump(&mut base)?;
-    //assert_eq!(Root::load(&base)?.strip(Targets::Id), &root);
+    assert_eq!(Root::load(&base)?.strip(Targets::Id), &root);
 
     Ok(())
 }
 
-/// Test loading & dumping of `IndexMap`s
+/// Test loading & dumping of `HashMap`s
 #[test]
-fn indexmap() -> Result<()> {
-    type Root = IndexMap<String, String>;
+fn hash_map() -> Result<()> {
+    type Root = HashMap<String, String>;
 
     // Create base store with map of strings
     let mut base = WriteStore::new();

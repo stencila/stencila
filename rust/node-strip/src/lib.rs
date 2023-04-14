@@ -1,5 +1,6 @@
 //! Implements a `Strip` trait for removing properties from nodes
 
+mod hash_map;
 mod index_map;
 mod text;
 mod vec;
