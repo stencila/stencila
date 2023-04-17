@@ -1,3 +1,5 @@
+//! Provides the `ToHtml` trait for generating  HTML for Stencila Schema nodes
+
 use html_escape::{encode_double_quoted_attribute, encode_safe};
 
 use common::inflector::Inflector;

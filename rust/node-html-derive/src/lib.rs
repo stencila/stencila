@@ -4,6 +4,7 @@ use proc_macro2::TokenStream;
 use quote::quote;
 use syn::{parse_macro_input, Data, DeriveInput, Fields};
 
+/// Derive the `ToHtml` trait for a `struct` or an `enum`
 #[proc_macro_derive(ToHtml)]
 pub fn derive_to_html(input: proc_macro::TokenStream) -> proc_macro::TokenStream {
     let input = parse_macro_input!(input as DeriveInput);
