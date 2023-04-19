@@ -8,7 +8,7 @@ use common::{
     strum::{Display, EnumString},
 };
 
-#[derive(Debug, Display, Clone, ValueEnum, EnumString)]
+#[derive(Debug, Display, Clone, Copy, ValueEnum, EnumString)]
 #[strum(serialize_all = "lowercase", crate = "common::strum")]
 pub enum Format {
     Jats,
