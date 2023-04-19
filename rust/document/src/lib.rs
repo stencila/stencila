@@ -1,28 +1,34 @@
-use std::path::{Path, PathBuf};
+use std::{
+    path::{Path, PathBuf},
+    sync::Arc,
+};
 
 use codecs::{DecodeOptions, EncodeOptions};
 use common::{
     clap::{self, ValueEnum},
     eyre::{bail, Result},
     strum::{Display, EnumString},
-    tokio::sync::RwLock,
+    tokio::{
+        self,
+        sync::{mpsc, watch, RwLock},
+    },
     tracing,
 };
 use format::Format;
 use node_store::{inspect_store, load_store, Read, Write, WriteStore};
 use schema::{Article, Node};
 
-/// A document type
+/// The document type
 ///
 /// Defines which `CreativeWork` variants can be the root node of a document
 /// and the default file extension etc for each variant.
 #[derive(Debug, Display, Clone, PartialEq, ValueEnum, EnumString)]
 #[strum(serialize_all = "lowercase", crate = "common::strum")]
-pub enum Type {
+pub enum DocumentType {
     Article,
 }
 
-impl Type {
+impl DocumentType {
     /// Determine the document type from the type of a [`Node`]
     fn from_node(node: &Node) -> Result<Self> {
         match node {
@@ -60,31 +66,81 @@ impl Type {
     /// Get an empty root [`Node`] for the document type
     fn empty(&self) -> Node {
         match self {
-            Type::Article => Node::Article(Article::default()),
+            DocumentType::Article => Node::Article(Article::default()),
         }
     }
 }
 
+/// The synchronization mode between documents and external resources
+///
+/// Examples of extenral resources which may be synchonized with a document includ
+/// a file on the local file system or an editor in a web browser. This enum determines
+/// whether changes in the document chould be reflected in the resurces and vice versa.
+#[derive(Debug, Display, Default, Clone, Copy, ValueEnum, EnumString)]
+#[strum(serialize_all = "lowercase", crate = "common::strum")]
+pub enum SyncDirection {
+    In,
+    Out,
+    #[default]
+    InOut,
+}
+
+type DocumentStore = Arc<RwLock<WriteStore>>;
+
+type DocumentWatchSender = watch::Sender<Node>;
+type DocumentWatchReceiver = watch::Receiver<Node>;
+
+type DocumentUpdateSender = mpsc::Sender<Node>;
+type DocumentUpdateReceiver = mpsc::Receiver<Node>;
+
 /// A document
 pub struct Document {
-    /// The path to the document Automerge file
+    /// The path to the document's Automerge file
     path: PathBuf,
 
-    /// The document Automerge store
-    store: RwLock<WriteStore>,
+    /// The document's Automerge store
+    store: DocumentStore,
+
+    /// A watch channel for the root node
+    watch_receiver: DocumentWatchReceiver,
+
+    /// An update channel for the root node
+    update_sender: DocumentUpdateSender,
 }
 
 impl Document {
     /// Initialize a new document
+    #[tracing::instrument]
+    pub fn init(path: PathBuf, store: WriteStore) -> Result<Self> {
+        let node = Node::load(&store)?;
+        let store = Arc::new(RwLock::new(store));
+
+        let (watch_sender, watch_receiver) = watch::channel(node);
+        let (update_sender, update_receiver) = mpsc::channel(8);
+
+        let store_clone = store.clone();
+        tokio::spawn(
+            async move { Self::update_task(store_clone, update_receiver, watch_sender).await },
+        );
+
+        Ok(Self {
+            path,
+            store,
+            watch_receiver,
+            update_sender,
+        })
+    }
+
+    /// Create a new document
     ///
     /// Creates a new Automerge store of `type` at the `path`, optionally overwriting any
     /// existing file at the path.
     ///
     /// The document can be initialized from a `source` file, in which case `format` may
-    /// be used to specify the format of that file
+    /// be used to specify the format of that file.
     #[tracing::instrument]
-    pub async fn init(
-        r#type: Type,
+    pub async fn new(
+        r#type: DocumentType,
         path: Option<&Path>,
         overwrite: bool,
         source: Option<&Path>,
@@ -115,9 +171,7 @@ impl Document {
         let mut store = WriteStore::new();
         root.write(&mut store, &path, &message).await?;
 
-        let store = RwLock::new(store);
-
-        Ok(Self { path, store })
+        Self::init(path, store)
     }
 
     /// Open an existing document
@@ -136,9 +190,40 @@ impl Document {
 
         let store = load_store(&path).await?;
 
-        let store = RwLock::new(store);
+        Self::init(path, store)
+    }
 
-        Ok(Self { path, store })
+    pub async fn load(&self) -> Result<Node> {
+        let store = self.store.read().await;
+        Node::load(&*store)
+    }
+
+    pub async fn dump(&self, node: &Node) -> Result<()> {
+        let mut store = self.store.write().await;
+        node.dump(&mut store)
+    }
+
+    async fn update_task(
+        store: DocumentStore,
+        mut update_receiver: DocumentUpdateReceiver,
+        watch_sender: DocumentWatchSender,
+    ) {
+        tracing::debug!("Document update task started");
+
+        while let Some(node) = update_receiver.recv().await {
+            tracing::trace!("Document node updated, dumping to store");
+
+            let mut store = store.write().await;
+            if let Err(error) = node.dump(&mut store) {
+                tracing::error!("While dumping node to store: {error}");
+            }
+
+            if let Err(error) = watch_sender.send(node) {
+                tracing::error!("While notifying watchers: {error}");
+            }
+        }
+
+        tracing::debug!("Document update task stopped");
     }
 
     /// Inspect a document
@@ -167,14 +252,14 @@ impl Document {
         &self,
         source: &Path,
         format: Option<Format>,
-        r#type: Option<Type>,
+        r#type: Option<DocumentType>,
     ) -> Result<()> {
         let decode_options = Some(DecodeOptions { format });
 
         let root = codecs::from_path(source, decode_options).await?;
 
         if let Some(expected_type) = r#type {
-            let actual_type = Type::from_node(&root)?;
+            let actual_type = DocumentType::from_node(&root)?;
             if expected_type == actual_type {
                 bail!(
                     "The imported document is of type `{actual_type}` but expected type `{expected_type}`"
@@ -234,3 +319,5 @@ impl Document {
         Ok(())
     }
 }
+
+mod sync_file;

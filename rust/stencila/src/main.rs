@@ -6,7 +6,7 @@ use common::{
     eyre::Result,
     tokio, tracing,
 };
-use document::{Document, Type};
+use document::{Document, DocumentType, SyncDirection};
 use format::Format;
 
 mod errors;
@@ -34,12 +34,12 @@ struct Cli {
     #[arg(long, default_value = "info", global = true)]
     log_level: LoggingLevel,
 
-    /// The filter for log entries from crates other than Stencila
+    /// A filter for log entries
     ///
-    /// Default of `error` allows for `ERROR` level log entries from all other
-    /// crates. To additionally see lower level entries for a specific crates use
-    /// syntax such as `error,tokio_postgres=debug`.
-    #[arg(long, default_value = "error", global = true)]
+    /// Allows more fine-grained control over which log entries are shown.
+    /// To additionally see lower level entries for a specific crates use
+    /// syntax such as `tokio_postgres=debug`.
+    #[arg(long, default_value = "", global = true)]
     log_filter: String,
 
     /// The log format to use
@@ -65,8 +65,8 @@ enum Command {
     /// Create a new document
     New {
         /// The type of document to create
-        #[arg(default_value_t = Type::Article)]
-        r#type: Type,
+        #[arg(default_value_t = DocumentType::Article)]
+        r#type: DocumentType,
 
         /// The path of the document to create
         path: Option<PathBuf>,
@@ -87,7 +87,7 @@ enum Command {
     /// Import a file in another format into a new or existing document
     Import {
         /// The path of the document to create or import to
-        path: PathBuf,
+        doc: PathBuf,
 
         /// The source file to import from
         source: PathBuf,
@@ -101,13 +101,13 @@ enum Command {
         /// Defaults to determining the type based on the `format`, or for
         /// formats such as JSON and YAML, the value of the root `type` property.
         #[arg(long, short)]
-        r#type: Option<Type>,
+        r#type: Option<DocumentType>,
     },
 
     /// Export a document to a file in another format
     Export {
         /// The path of the document to export from
-        path: PathBuf,
+        doc: PathBuf,
 
         /// The destination file to export to
         dest: Option<PathBuf>,
@@ -117,10 +117,27 @@ enum Command {
         format: Option<Format>,
     },
 
+    /// Synchronize a document with one of more other files in other formats
+    Sync {
+        /// The path of the document to synchronize
+        doc: PathBuf,
+
+        /// The files to synchronize with
+        files: Vec<PathBuf>,
+
+        /// The formats of the files
+        #[arg(long, short)]
+        formats: Vec<Format>,
+
+        /// The synchronization directions to use for each file
+        #[arg(long = "dirs", short)]
+        directions: Vec<SyncDirection>,
+    },
+
     /// Display the history of commits to the document
     History {
         /// The path of the document to display the history for
-        path: PathBuf,
+        doc: PathBuf,
     },
 
     /// Inspect a document as JSON
@@ -129,7 +146,7 @@ enum Command {
     /// document from file storage.
     Inspect {
         /// The path of the document to inspect
-        path: PathBuf,
+        doc: PathBuf,
     },
 
     /// Convert a document between formats
@@ -174,6 +191,9 @@ enum Command {
 /// useful because then CLI arguments are captured in span traces.
 #[tracing::instrument(skip(cli))]
 async fn run(cli: Cli) -> Result<()> {
+    tracing::trace!("Running CLI command");
+
+    let mut wait = false;
     match cli.command {
         Command::New {
             r#type,
@@ -182,7 +202,7 @@ async fn run(cli: Cli) -> Result<()> {
             source,
             format,
         } => {
-            Document::init(
+            Document::new(
                 r#type,
                 path.as_deref(),
                 overwrite,
@@ -193,30 +213,45 @@ async fn run(cli: Cli) -> Result<()> {
         }
 
         Command::Import {
-            path,
+            doc,
             source,
             format,
             r#type,
         } => {
-            let doc = Document::open(&path).await?;
+            let doc = Document::open(&doc).await?;
             doc.import(&source, format, r#type).await?;
         }
 
-        Command::Export { path, dest, format } => {
-            let doc = Document::open(&path).await?;
+        Command::Export { doc, dest, format } => {
+            let doc = Document::open(&doc).await?;
             let content = doc.export(dest.as_deref(), format).await?;
             if !content.is_empty() {
                 println!("{}", content)
             }
         }
 
-        Command::History { path } => {
-            let doc = Document::open(&path).await?;
+        Command::Sync {
+            doc,
+            files,
+            formats,
+            directions,
+        } => {
+            let doc = Document::open(&doc).await?;
+            for (index, file) in files.iter().enumerate() {
+                let format = formats.get(index).copied();
+                let direction = directions.get(index).copied();
+                doc.sync_file(file, format, direction).await?;
+            }
+            wait = true;
+        }
+
+        Command::History { doc } => {
+            let doc = Document::open(&doc).await?;
             doc.history().await?;
         }
 
-        Command::Inspect { path } => {
-            let json = Document::inspect(&path).await?;
+        Command::Inspect { doc } => {
+            let json = Document::inspect(&doc).await?;
             println!("{}", json);
         }
 
@@ -245,6 +280,11 @@ async fn run(cli: Cli) -> Result<()> {
                 println!("{}", content)
             }
         }
+    }
+
+    if wait {
+        use tokio::time::{sleep, Duration};
+        sleep(Duration::from_secs(u64::MAX)).await;
     }
 
     Ok(())

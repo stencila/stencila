@@ -8,4 +8,5 @@ codecs = { path = "../codecs" }
 common = { path = "../common" }
 format = { path = "../format" }
 node-store = { path = "../node-store" }
+notify = { version = "5.1.0", default-features = false, features = ["macos_kqueue"] }
 schema = { path = "../schema" }
