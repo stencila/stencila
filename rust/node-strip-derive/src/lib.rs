@@ -42,7 +42,7 @@ fn derive_struct(input: &DeriveInput, data: &syn::DataStruct) -> TokenStream {
         } else {
             continue;
         };
-        
+
         fields.extend(field);
     }
 
