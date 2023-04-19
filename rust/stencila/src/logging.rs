@@ -4,7 +4,7 @@ use common::{
     clap::{self, ValueEnum},
     eyre::Result,
     strum::AsRefStr,
-    tracing::metadata::LevelFilter,
+    tracing::{self, metadata::LevelFilter},
 };
 
 /// Setup logging
@@ -37,7 +37,7 @@ pub fn setup(level: LoggingLevel, filter: &str, format: LoggingFormat) -> Result
     };
 
     let filter = format!(
-        "stencila={}{}{}",
+        "{}{}{}",
         level.as_ref(),
         if filter.is_empty() { "" } else { "," },
         filter
@@ -65,6 +65,8 @@ pub fn setup(level: LoggingLevel, filter: &str, format: LoggingFormat) -> Result
         LoggingFormat::Json => registry.with(fmt::layer().json()).init(),
         _ => bail!("Unhandled log format `{}`", format.as_ref()),
     };
+
+    tracing::trace!("Logging set up finished");
 
     Ok(())
 }
