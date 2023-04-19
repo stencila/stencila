@@ -14,7 +14,7 @@ use format::Format;
 use schema::Node;
 
 #[async_trait]
-pub trait Codec: Sync {
+pub trait Codec: Sync + Send {
     /// Decode a Stencila Schema node from a string
     #[allow(clippy::wrong_self_convention)]
     async fn from_str(&self, _str: &str, _options: Option<DecodeOptions>) -> Result<Node> {
