@@ -4,11 +4,12 @@ use std::path::Path;
 use std::time::SystemTime;
 
 use automerge::ROOT;
-use common::async_trait::async_trait;
-use common::tokio::fs::{read, write};
+use common::{
+    async_trait::async_trait,
+    eyre::{bail, Context, Result},
+    tokio::fs::{read, write},
+};
 use smol_str::SmolStr;
-
-use common::eyre::{bail, Result};
 
 pub use automerge::{self, AutoCommit as WriteStore, ObjId, ObjType, Prop, ReadDoc as ReadStore};
 pub(crate) use automerge::{transaction::CommitOptions, ScalarValue, Value};
@@ -237,7 +238,8 @@ pub trait Write {
 /// Load an Automerge store into memory
 pub async fn load_store(path: &Path) -> Result<WriteStore> {
     let bytes = read(path).await?;
-    let store = WriteStore::load(&bytes)?;
+    let store = WriteStore::load(&bytes)
+        .wrap_err_with(|| format!("unable to open file `{}`", path.display()))?;
     Ok(store)
 }
 
