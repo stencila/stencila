@@ -126,11 +126,15 @@ enum Command {
         files: Vec<PathBuf>,
 
         /// The formats of the files
-        #[arg(long, short)]
+        /// 
+        /// This option can be provided separately for each file.
+        #[arg(long = "format", short)]
         formats: Vec<Format>,
 
         /// The synchronization directions to use for each file
-        #[arg(long = "dirs", short)]
+        /// 
+        /// This option can be provided separately for each file.
+        #[arg(long = "dir", short)]
         directions: Vec<SyncDirection>,
     },
 
