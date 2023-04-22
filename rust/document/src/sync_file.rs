@@ -19,6 +19,16 @@ use format::Format;
 use crate::{Document, SyncDirection};
 
 impl Document {
+    /// Synchronize a file with a document
+    ///
+    /// This function spawns a task to synchronize with the file.
+    ///
+    /// # Arguments
+    ///
+    /// - `path`: The path to the file
+    /// - `format`: The format of the file (defaults to being inferred
+    ///             from the file extension of the path)
+    /// - `direction`: The direction of synchronization
     #[tracing::instrument(skip(self))]
     pub async fn sync_file(
         &self,
@@ -112,9 +122,17 @@ impl Document {
             let path_buf = path.to_path_buf();
             let update_sender = self.update_sender.clone();
             tokio::spawn(async move {
+                const DEBOUNCE_DELAY_MILLIS: u64 = 100;
+                const WRITE_IGNORE_MILLIS: u64 = 200;
+
                 let mut event = false;
                 loop {
-                    match time::timeout(Duration::from_millis(100), receiver.recv()).await {
+                    match time::timeout(
+                        Duration::from_millis(DEBOUNCE_DELAY_MILLIS),
+                        receiver.recv(),
+                    )
+                    .await
+                    {
                         Ok(None) => {
                             break;
                         }
@@ -130,7 +148,8 @@ impl Document {
                         }
                     }
 
-                    if now() - last_write.load(Ordering::SeqCst) < 200 {
+                    // Ignore event if we wrote to the file very recently
+                    if now() - last_write.load(Ordering::SeqCst) < WRITE_IGNORE_MILLIS {
                         continue;
                     }
 
