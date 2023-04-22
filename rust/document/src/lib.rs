@@ -59,7 +59,7 @@ impl DocumentType {
     }
 
     /// Get the default 'main' file name for the document type
-    /// 
+    ///
     /// This filename is the default used when creating a document
     /// of this type.
     fn main(&self) -> PathBuf {
@@ -223,11 +223,25 @@ impl Document {
         while let Some(node) = update_receiver.recv().await {
             tracing::trace!("Document node updated, dumping to store");
 
+            // Dump the node to the store
             let mut store = store.write().await;
             if let Err(error) = node.dump(&mut store) {
                 tracing::error!("While dumping node to store: {error}");
             }
 
+            // Load the node from the store. This is necessary, rather than just
+            // sending watchers the incoming node, because the incoming node
+            // may be partial (e.g. may be missing `id` or other fields) but watchers
+            // need complete nodes (e.g `id` for HTML)
+            let node = match Node::load(&*store) {
+                Ok(node) => node,
+                Err(error) => {
+                    tracing::error!("While loading node from store: {error}");
+                    continue;
+                }
+            };
+
+            // Send the node to watchers
             if let Err(error) = watch_sender.send(node) {
                 tracing::error!("While notifying watchers: {error}");
             }
