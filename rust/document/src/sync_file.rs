@@ -7,6 +7,7 @@ use std::{
     time::{Duration, SystemTime, UNIX_EPOCH},
 };
 
+use codecs::{DecodeOptions, EncodeOptions};
 use notify::{EventKind, RecursiveMode, Watcher};
 
 use common::{
@@ -14,7 +15,6 @@ use common::{
     tokio::{self, time},
     tracing,
 };
-use format::Format;
 
 use crate::{Document, SyncDirection};
 
@@ -33,8 +33,9 @@ impl Document {
     pub async fn sync_file(
         &self,
         path: &Path,
-        format: Option<Format>,
         direction: Option<SyncDirection>,
+        decode_options: Option<DecodeOptions>,
+        encode_options: Option<EncodeOptions>,
     ) -> Result<()> {
         tracing::trace!("Syncing file");
 
@@ -43,20 +44,20 @@ impl Document {
         // Before starting watches import and export as necessary.
         match direction {
             SyncDirection::In => {
-                let node = codecs::from_path_with(path, format).await?;
+                let node = codecs::from_path(path, decode_options).await?;
                 self.dump(&node).await?;
             }
             SyncDirection::Out => {
                 let node = self.load().await?;
-                codecs::to_path_with(&node, path, format).await?;
+                codecs::to_path(&node, path, encode_options).await?;
             }
             SyncDirection::InOut => {
                 if path.exists() {
-                    let node = codecs::from_path_with(path, format).await?;
+                    let node = codecs::from_path(path, decode_options).await?;
                     self.dump(&node).await?;
                 } else {
                     let node = self.load().await?;
-                    codecs::to_path_with(&node, path, format).await?;
+                    codecs::to_path(&node, path, encode_options).await?;
                 }
             }
         }
@@ -158,7 +159,7 @@ impl Document {
                         path_buf.display()
                     );
 
-                    match codecs::from_path_with(&path_buf, format).await {
+                    match codecs::from_path(&path_buf, decode_options).await {
                         Ok(node) => {
                             if let Err(error) = update_sender.send(node).await {
                                 tracing::error!("While sending node update: {error}");
@@ -185,7 +186,7 @@ impl Document {
 
                     let node = receiver.borrow_and_update().clone();
 
-                    if let Err(error) = codecs::to_path_with(&node, &path_buf, format).await {
+                    if let Err(error) = codecs::to_path(&node, &path_buf, encode_options).await {
                         tracing::error!("While exporting node to `{}`: {error}", path_buf.display())
                     }
 

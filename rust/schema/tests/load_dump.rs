@@ -121,7 +121,7 @@ fn text() -> Result<()> {
         ("varied".to_string(), Text::from_text("abcd")?),
     ]);
     root.dump(&mut base)?;
-    assert_eq!(Root::load(&base)?.strip(Targets::Id), &root);
+    assert_eq!(Root::load(&base)?.strip(&Targets::id()), &root);
 
     // Fork it
     let mut fork = base.fork();
@@ -173,7 +173,7 @@ fn vec() -> Result<()> {
         vec![Text::from_text("one")?, Text::from_text("two")?],
     )]);
     root.dump(&mut base)?;
-    assert_eq!(Root::load(&base)?.strip(Targets::Id), &root);
+    assert_eq!(Root::load(&base)?.strip(&Targets::id()), &root);
 
     // Make modifications, merge changes back into
     // store and check store for consistency
@@ -181,12 +181,12 @@ fn vec() -> Result<()> {
     // Add an item
     root.get_mut("vec").unwrap().push(Text::from_text("three")?);
     root.dump(&mut base)?;
-    assert_eq!(Root::load(&base)?.strip(Targets::Id), &root);
+    assert_eq!(Root::load(&base)?.strip(&Targets::id()), &root);
 
     // Remove an item
     root.get_mut("vec").unwrap().remove(1);
     root.dump(&mut base)?;
-    assert_eq!(Root::load(&base)?.strip(Targets::Id), &root);
+    assert_eq!(Root::load(&base)?.strip(&Targets::id()), &root);
 
     Ok(())
 }
@@ -246,12 +246,12 @@ fn article() -> Result<()> {
     // Default, empty article
     let mut article1 = Article::default();
     article1.dump(&mut base)?;
-    assert_eq!(Article::load(&base)?.strip(Targets::Id), &article1);
+    assert_eq!(Article::load(&base)?.strip(&Targets::id()), &article1);
 
     // Add an optional property
     article1.options.alternate_names = Some(vec!["some name".to_string()]);
     article1.dump(&mut base)?;
-    assert_eq!(Article::load(&base)?.strip(Targets::Id), &article1);
+    assert_eq!(Article::load(&base)?.strip(&Targets::id()), &article1);
 
     // Add some content
     article1.content.push(Block::Paragraph(Paragraph {
@@ -259,7 +259,7 @@ fn article() -> Result<()> {
         ..Default::default()
     }));
     article1.dump(&mut base)?;
-    assert_eq!(Article::load(&base)?.strip(Targets::Id), &article1);
+    assert_eq!(Article::load(&base)?.strip(&Targets::id()), &article1);
 
     Ok(())
 }
@@ -277,7 +277,7 @@ fn node() -> Result<()> {
         "content": []
     }))?;
     node1.dump(&mut base)?;
-    assert_eq!(Node::load(&base)?.strip(Targets::Id), &node1);
+    assert_eq!(Node::load(&base)?.strip(&Targets::id()), &node1);
 
     Ok(())
 }

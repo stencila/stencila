@@ -3,6 +3,7 @@ use std::path::Path;
 pub use codec::{Codec, DecodeOptions, EncodeOptions};
 use common::eyre::{bail, Result};
 use format::Format;
+use node_strip::Strip;
 use schema::Node;
 
 /// Get the codec for a given format
@@ -61,7 +62,30 @@ pub async fn to_string(node: &Node, options: Option<EncodeOptions>) -> Result<St
         None => Format::Json,
     };
 
-    get_codec(format)?.to_string(node, options).await
+    let codec = get_codec(format)?;
+
+    if let Some(EncodeOptions {
+        strip_id: id,
+        strip_code: code,
+        strip_derived: derived,
+        strip_outputs: outputs,
+        ..
+    }) = options
+    {
+        if id || code || outputs {
+            let mut node = node.clone();
+            node.strip(&node_strip::Targets {
+                id,
+                code,
+                derived,
+                outputs,
+            });
+
+            return codec.to_string(&node, options).await;
+        }
+    }
+
+    codec.to_string(node, options).await
 }
 
 /// Encode a Stencila Schema node to a file system path
@@ -71,7 +95,30 @@ pub async fn to_path(node: &Node, path: &Path, options: Option<EncodeOptions>) -
         None => Format::from_path(path)?,
     };
 
-    get_codec(format)?.to_path(node, path, options).await
+    let codec = get_codec(format)?;
+
+    if let Some(EncodeOptions {
+        strip_id: id,
+        strip_code: code,
+        strip_derived: derived,
+        strip_outputs: outputs,
+        ..
+    }) = options
+    {
+        if id || code || outputs {
+            let mut node = node.clone();
+            node.strip(&node_strip::Targets {
+                id,
+                code,
+                derived,
+                outputs,
+            });
+
+            return codec.to_path(&node, path, options).await;
+        }
+    }
+
+    codec.to_path(node, path, options).await
 }
 
 /// Encode a Stencila Schema node to a file system path with main options as arguments

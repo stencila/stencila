@@ -79,7 +79,7 @@ pub trait Codec: Sync + Send {
 }
 
 /// Decoding options
-#[derive(Debug, Default, Clone)]
+#[derive(Debug, Default, Clone, Copy)]
 pub struct DecodeOptions {
     /// The format to be decode from
     ///
@@ -89,7 +89,7 @@ pub struct DecodeOptions {
 }
 
 /// Encoding options
-#[derive(Debug, Defaults, Clone)]
+#[derive(Debug, Defaults, Clone, Copy)]
 pub struct EncodeOptions {
     /// The format to encode to
     ///
@@ -103,4 +103,20 @@ pub struct EncodeOptions {
     /// or "pretty-printed" (e.g. indented) forms.
     #[def = "false"]
     pub compact: bool,
+
+    /// Whether to strip the id property of nodes when encoding
+    #[def = "true"]
+    pub strip_id: bool,
+
+    /// Whether to strip the code of executable nodes when encoding
+    #[def = "false"]
+    pub strip_code: bool,
+
+    /// Whether to strip the derived properties of executable nodes when encoding
+    #[def = "false"]
+    pub strip_derived: bool,
+
+    /// Whether to strip the outputs of executable nodes when encoding
+    #[def = "false"]
+    pub strip_outputs: bool,
 }

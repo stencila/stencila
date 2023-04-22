@@ -12,4 +12,5 @@ codec-text = { path = "../codec-text" }
 codec-yaml = { path = "../codec-yaml" }
 common = { path = "../common" }
 format = { path = "../format" }
+node-strip = { path = "../node-strip" }
 schema = { path = "../schema" }

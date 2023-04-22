@@ -1,16 +1,29 @@
-//! Implements a `Strip` trait for removing properties from nodes
-
-mod r#box;
-mod hash_map;
-mod index_map;
-mod option;
-mod vec;
+//! Provides a `Strip` trait for removing properties from nodes
 
 /// The target properties for the strip e.g. identifiers, code execution related etc
-#[derive(Clone, Copy)]
-pub enum Targets {
-    /// Strip the `id` property of the node (ie. set to `None`)
-    Id,
+#[derive(Clone, Default)]
+pub struct Targets {
+    /// Whether to strip the `id` property of the node
+    pub id: bool,
+
+    /// Whether to strip code properties of executable nodes
+    pub code: bool,
+
+    /// Whether to strip derived properties of executable nodes
+    pub derived: bool,
+
+    /// Whether to strip output properties of executable nodes
+    pub outputs: bool,
+}
+
+impl Targets {
+    /// Strip the `id` property only
+    pub fn id() -> Self {
+        Self {
+            id: true,
+            ..Default::default()
+        }
+    }
 }
 
 pub trait Strip: Sized {
@@ -20,13 +33,14 @@ pub trait Strip: Sized {
     ///
     /// - `targets`: The target properties to be stripped
     #[allow(unused_variables)]
-    fn strip(&mut self, targets: Targets) -> &mut Self {
+    fn strip(&mut self, targets: &Targets) -> &mut Self {
         self
     }
 }
 
-impl Strip for bool {}
-impl Strip for i64 {}
-impl Strip for u64 {}
-impl Strip for f64 {}
-impl Strip for String {}
+mod r#box;
+mod hash_map;
+mod index_map;
+mod option;
+mod primitives;
+mod vec;

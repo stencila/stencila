@@ -196,8 +196,8 @@ impl Document {
     /// or is a directory.
     #[tracing::instrument]
     pub async fn open(path: &Path) -> Result<Self> {
-        let store = load_store(&path).await?;
-        Self::init(&path, store)
+        let store = load_store(path).await?;
+        Self::init(path, store)
     }
 
     /// Load the root [`Node`] from the document's Automerge store
@@ -270,12 +270,10 @@ impl Document {
     pub async fn import(
         &self,
         source: &Path,
-        format: Option<Format>,
+        options: Option<DecodeOptions>,
         r#type: Option<DocumentType>,
     ) -> Result<()> {
-        let decode_options = Some(DecodeOptions { format });
-
-        let root = codecs::from_path(source, decode_options).await?;
+        let root = codecs::from_path(source, options).await?;
 
         if let Some(expected_type) = r#type {
             let actual_type = DocumentType::from_node(&root)?;
@@ -307,19 +305,18 @@ impl Document {
     /// If `dest` is `None`, then the root node is encoded as a string and returned. This
     /// is usually only desireable for text-based formats (e.g. JSON, Markdown).
     #[tracing::instrument(skip(self))]
-    pub async fn export(&self, dest: Option<&Path>, format: Option<Format>) -> Result<String> {
+    pub async fn export(
+        &self,
+        dest: Option<&Path>,
+        options: Option<EncodeOptions>,
+    ) -> Result<String> {
         let root = self.load().await?;
 
-        let encode_options = Some(EncodeOptions {
-            format,
-            ..Default::default()
-        });
-
         if let Some(dest) = dest {
-            codecs::to_path(&root, dest, encode_options).await?;
+            codecs::to_path(&root, dest, options).await?;
             Ok(String::new())
         } else {
-            codecs::to_string(&root, encode_options).await
+            codecs::to_string(&root, options).await
         }
     }
 

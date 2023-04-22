@@ -1,8 +1,7 @@
 use std::path::PathBuf;
 
-use codecs::{DecodeOptions, EncodeOptions};
 use common::{
-    clap::{self, Parser, Subcommand},
+    clap::{self, Args, Parser, Subcommand},
     eyre::Result,
     tokio, tracing,
 };
@@ -102,6 +101,9 @@ enum Command {
         /// formats such as JSON and YAML, the value of the root `type` property.
         #[arg(long, short)]
         r#type: Option<DocumentType>,
+
+        #[command(flatten)]
+        options: DecodeOptions,
     },
 
     /// Export a document to a file in another format
@@ -115,6 +117,9 @@ enum Command {
         /// The format of the destination file
         #[arg(long, short)]
         format: Option<Format>,
+
+        #[command(flatten)]
+        options: EncodeOptions,
     },
 
     /// Synchronize a document with one of more other files in other formats
@@ -126,16 +131,22 @@ enum Command {
         files: Vec<PathBuf>,
 
         /// The formats of the files
-        /// 
+        ///
         /// This option can be provided separately for each file.
         #[arg(long = "format", short)]
         formats: Vec<Format>,
 
         /// The synchronization directions to use for each file
-        /// 
+        ///
         /// This option can be provided separately for each file.
         #[arg(long = "dir", short)]
         directions: Vec<SyncDirection>,
+
+        #[command(flatten)]
+        decode_options: DecodeOptions,
+
+        #[command(flatten)]
+        encode_options: EncodeOptions,
     },
 
     /// Display the history of commits to the document
@@ -179,13 +190,64 @@ enum Command {
         #[arg(long, short)]
         to: Option<Format>,
 
-        /// Use compact form of encoding if possible
-        ///
-        /// Use this flag to enable compact forms of encoding (i.e. no indentation)
-        /// which are supported by some formats (e.g. JSON, HTML).
-        #[arg(long, short)]
-        compact: bool,
+        #[command(flatten)]
+        decode_options: DecodeOptions,
+
+        #[command(flatten)]
+        encode_options: EncodeOptions,
     },
+}
+
+/// Command line arguments for decoding nodes to other formats
+#[derive(Debug, Args)]
+struct DecodeOptions {}
+
+impl DecodeOptions {
+    /// Build a set of [`codecs::DecodeOptions`] from command line arguments
+    fn build(&self, format: Option<Format>) -> codecs::DecodeOptions {
+        codecs::DecodeOptions { format }
+    }
+}
+
+/// Command line arguments for encoding nodes to other formats
+#[derive(Debug, Args)]
+struct EncodeOptions {
+    /// Use compact form of encoding if possible
+    ///
+    /// Use this flag to enable compact forms of encoding (i.e. no indentation)
+    /// which are supported by some formats (e.g. JSON, HTML).
+    #[arg(long, short)]
+    compact: bool,
+
+    /// Whether to strip the id property of nodes when encoding
+    #[arg(long)]
+    no_strip_id: bool,
+
+    /// Whether to strip the code of executable nodes when encoding
+    #[arg(long)]
+    strip_code: bool,
+
+    /// Whether to strip derived properties of executable nodes when encoding
+    #[arg(long)]
+    strip_derived: bool,
+
+    /// Whether to strip the outputs of executable nodes when encoding
+    #[arg(long)]
+    strip_outputs: bool,
+}
+
+impl EncodeOptions {
+    /// Build a set of [`codecs::EncodeOptions`] from command line arguments
+    fn build(&self, format: Option<Format>) -> codecs::EncodeOptions {
+        codecs::EncodeOptions {
+            format,
+            compact: self.compact,
+            strip_id: !self.no_strip_id,
+            strip_code: self.strip_code,
+            strip_derived: self.strip_derived,
+            strip_outputs: self.strip_outputs,
+        }
+    }
 }
 
 /// Run the CLI command
@@ -220,15 +282,27 @@ async fn run(cli: Cli) -> Result<()> {
             doc,
             source,
             format,
+            options,
             r#type,
         } => {
             let doc = Document::open(&doc).await?;
-            doc.import(&source, format, r#type).await?;
+
+            let options = options.build(format);
+
+            doc.import(&source, Some(options), r#type).await?;
         }
 
-        Command::Export { doc, dest, format } => {
+        Command::Export {
+            doc,
+            dest,
+            format,
+            options,
+        } => {
             let doc = Document::open(&doc).await?;
-            let content = doc.export(dest.as_deref(), format).await?;
+
+            let options = options.build(format);
+
+            let content = doc.export(dest.as_deref(), Some(options)).await?;
             if !content.is_empty() {
                 println!("{}", content)
             }
@@ -239,12 +313,20 @@ async fn run(cli: Cli) -> Result<()> {
             files,
             formats,
             directions,
+            decode_options,
+            encode_options,
         } => {
             let doc = Document::open(&doc).await?;
+
             for (index, file) in files.iter().enumerate() {
                 let format = formats.get(index).copied();
                 let direction = directions.get(index).copied();
-                doc.sync_file(file, format, direction).await?;
+
+                let decode_options = Some(decode_options.build(format));
+                let encode_options = Some(encode_options.build(format));
+
+                doc.sync_file(file, direction, decode_options, encode_options)
+                    .await?;
             }
             wait = true;
         }
@@ -264,14 +346,11 @@ async fn run(cli: Cli) -> Result<()> {
             output,
             from,
             to,
-            compact,
+            decode_options,
+            encode_options,
         } => {
-            let decode_options = DecodeOptions { format: from };
-
-            let encode_options = EncodeOptions {
-                format: to,
-                compact,
-            };
+            let decode_options = decode_options.build(from);
+            let encode_options = encode_options.build(to);
 
             let content = codecs::convert(
                 input.as_deref(),

@@ -425,6 +425,7 @@ dependencies = [
  "codec-yaml",
  "common",
  "format",
+ "node-strip",
  "schema",
 ]
 
