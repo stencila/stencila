@@ -58,7 +58,10 @@ impl DocumentType {
         }
     }
 
-    /// Get the default main file name for the document type
+    /// Get the default 'main' file name for the document type
+    /// 
+    /// This filename is the default used when creating a document
+    /// of this type.
     fn main(&self) -> PathBuf {
         PathBuf::from(format!("main.{}", self.extension()))
     }
@@ -73,9 +76,9 @@ impl DocumentType {
 
 /// The synchronization mode between documents and external resources
 ///
-/// Examples of extenral resources which may be synchonized with a document includ
+/// Examples of external resources which may be synchonized with a document include
 /// a file on the local file system or an editor in a web browser. This enum determines
-/// whether changes in the document chould be reflected in the resurces and vice versa.
+/// whether changes in the document chould be reflected in the resource and vice versa.
 #[derive(Debug, Display, Default, Clone, Copy, ValueEnum, EnumString)]
 #[strum(serialize_all = "lowercase", crate = "common::strum")]
 pub enum SyncDirection {
@@ -94,30 +97,46 @@ type DocumentUpdateSender = mpsc::Sender<Node>;
 type DocumentUpdateReceiver = mpsc::Receiver<Node>;
 
 /// A document
+///
+/// Each document has:
+///
+/// - An Automerge `store` that has a [`Node`] at its root.
+/// The `store` is read from, and written to, the document's `path`.
+///
+/// - A `watch_receiver` which can be cloned to watch
+/// for changes to the root [`Node`].
+///
+/// - An `update_sender` which can be cloned to send updates to the
+/// root [`Node`].
 pub struct Document {
-    /// The path to the document's Automerge file
-    path: PathBuf,
-
-    /// The document's Automerge store
+    /// The document's Automerge store with a [`Node`] to this root
     store: DocumentStore,
 
-    /// A watch channel for the root node
+    /// The filesystem path to the document's Automerge store
+    path: PathBuf,
+
+    /// A channel receiver for watching for changes to the root [`Node`]
     watch_receiver: DocumentWatchReceiver,
 
-    /// An update channel for the root node
+    /// A channel sender for sending updates to the root [`Node`]
     update_sender: DocumentUpdateSender,
 }
 
 impl Document {
     /// Initialize a new document
+    ///
+    /// This initializes the document's "watch" and "update" channels and starts the
+    /// `update_task` to respond to incoming updates to the root node of the document.
     #[tracing::instrument]
-    pub fn init(path: PathBuf, store: WriteStore) -> Result<Self> {
+    fn init(path: &Path, store: WriteStore) -> Result<Self> {
+        let path = path.canonicalize()?;
+
         let node = Node::load(&store)?;
-        let store = Arc::new(RwLock::new(store));
 
         let (watch_sender, watch_receiver) = watch::channel(node);
         let (update_sender, update_receiver) = mpsc::channel(8);
 
+        let store = Arc::new(RwLock::new(store));
         let store_clone = store.clone();
         tokio::spawn(
             async move { Self::update_task(store_clone, update_receiver, watch_sender).await },
@@ -133,8 +152,8 @@ impl Document {
 
     /// Create a new document
     ///
-    /// Creates a new Automerge store of `type` at the `path`, optionally overwriting any
-    /// existing file at the path.
+    /// Creates a new Automerge store with a document of `type` at the `path`,
+    /// optionally overwriting any existing file at the path by using the `overwrite` option.
     ///
     /// The document can be initialized from a `source` file, in which case `format` may
     /// be used to specify the format of that file.
@@ -146,10 +165,7 @@ impl Document {
         source: Option<&Path>,
         format: Option<Format>,
     ) -> Result<Self> {
-        let path = path.map_or_else(
-            || PathBuf::from(format!("main.{}", r#type.extension())),
-            PathBuf::from,
-        );
+        let path = path.map_or_else(|| r#type.main(), PathBuf::from);
 
         if path.exists() && !overwrite {
             bail!("Path already exists; remove the file or use the `--overwrite` option")
@@ -171,7 +187,7 @@ impl Document {
         let mut store = WriteStore::new();
         root.write(&mut store, &path, &message).await?;
 
-        Self::init(path, store)
+        Self::init(&path, store)
     }
 
     /// Open an existing document
@@ -180,29 +196,23 @@ impl Document {
     /// or is a directory.
     #[tracing::instrument]
     pub async fn open(path: &Path) -> Result<Self> {
-        if !path.exists() {
-            bail!("Path `{}` does not exist", path.display());
-        }
-        if path.is_dir() {
-            bail!("Path `{}` is a directory; expected a file", path.display());
-        }
-        let path = path.canonicalize()?;
-
         let store = load_store(&path).await?;
-
-        Self::init(path, store)
+        Self::init(&path, store)
     }
 
-    pub async fn load(&self) -> Result<Node> {
+    /// Load the root [`Node`] from the document's Automerge store
+    async fn load(&self) -> Result<Node> {
         let store = self.store.read().await;
         Node::load(&*store)
     }
 
-    pub async fn dump(&self, node: &Node) -> Result<()> {
+    /// Dump a [`Node`] to the root of the document's Automerge store
+    async fn dump(&self, node: &Node) -> Result<()> {
         let mut store = self.store.write().await;
         node.dump(&mut store)
     }
 
+    /// Async task to update the document's store and notify watchers of the update
     async fn update_task(
         store: DocumentStore,
         mut update_receiver: DocumentUpdateReceiver,
@@ -229,23 +239,18 @@ impl Document {
     /// Inspect a document
     ///
     /// Loads the Automerge store at the `path` (without attempting to load as a `Node`)
-    /// and returns a JSON representation of the contents of the store.
+    /// and returns a JSON representation of the contents of the store. This is mainly useful
+    /// during development to debug issues with loading a node from a store because it allows
+    /// us to inspect the "raw" structure in the store.
     #[tracing::instrument]
     pub async fn inspect(path: &Path) -> Result<String> {
-        if !path.exists() {
-            bail!("Path `{}` does not exist", path.display());
-        }
-        if path.is_dir() {
-            bail!("Path `{}` is a directory; expected a file", path.display());
-        }
-
         let store = load_store(path).await?;
         inspect_store(&store)
     }
 
     /// Import a file into a new, or existing, document
     ///
-    /// By default the format of the source file is inferred from its extension but
+    /// By default the format of the `source` file is inferred from its extension but
     /// this can be overridden by providing the `format` option.
     #[tracing::instrument(skip(self))]
     pub async fn import(
@@ -280,11 +285,16 @@ impl Document {
     }
 
     /// Export a document to a file in another format
+    ///
+    /// This loads the root [`Node`] from the document's store and encodes it to
+    /// the destination format. By default the format is inferred from the extension
+    /// of the `dest` file but this can be overridden by providing the `format` option.
+    ///
+    /// If `dest` is `None`, then the root node is encoded as a string and returned. This
+    /// is usually only desireable for text-based formats (e.g. JSON, Markdown).
     #[tracing::instrument(skip(self))]
     pub async fn export(&self, dest: Option<&Path>, format: Option<Format>) -> Result<String> {
-        let store = self.store.read().await;
-
-        let root = Node::load(&*store)?;
+        let root = self.load().await?;
 
         let encode_options = Some(EncodeOptions {
             format,
