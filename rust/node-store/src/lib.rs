@@ -176,10 +176,10 @@ pub trait Read: Sized {
     }
 }
 
-/// A trait for writing Stencila document nodes to an Automerge store
+/// A trait for writing a Stencila node to an Automerge store
 #[async_trait]
 pub trait Write {
-    /// Write a Stencila document node to an Automerge store
+    /// Write a Stencila node to an Automerge store
     async fn write(&self, store: &mut WriteStore, path: &Path, message: &str) -> Result<()> {
         self.dump(store)?;
 
@@ -199,7 +199,7 @@ pub trait Write {
         Ok(())
     }
 
-    /// Dump a Stencila document node to an Automerge store
+    /// Dump a Stencila node to an Automerge store
     ///
     /// Because Automerge stores must have a map at the root, this method calls
     /// the `dump_map` method. As such it will fail if that method is not
@@ -208,7 +208,7 @@ pub trait Write {
         self.sync_map(store, &ROOT)
     }
 
-    /// Dump a Stencila document node to an object in an Automerge store
+    /// Dump a Stencila node to a map in an Automerge store
     ///
     /// This method is used to dump a node to an existing object in an Automerge
     /// store. It only needs to be implemented for node types that are represented
@@ -237,9 +237,16 @@ pub trait Write {
 
 /// Load an Automerge store into memory
 pub async fn load_store(path: &Path) -> Result<WriteStore> {
+    if !path.exists() {
+        bail!("Path `{}` does not exist", path.display());
+    }
+    if path.is_dir() {
+        bail!("Path `{}` is a directory; expected a file", path.display());
+    }
+
     let bytes = read(path).await?;
     let store = WriteStore::load(&bytes)
-        .wrap_err_with(|| format!("unable to open file `{}`", path.display()))?;
+        .wrap_err_with(|| format!("Unable to open file `{}`", path.display()))?;
     Ok(store)
 }
 
