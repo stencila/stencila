@@ -30,8 +30,8 @@ impl Format {
             "json5" => Json5,
             "html" => Html,
             "md" | "markdown" => Markdown,
-            "yaml" => Yaml,
-            _ => bail!("Unknown extension for format: {ext}"),
+            "yaml" | "yml" => Yaml,
+            _ => bail!("No format matching file name extension `{ext}`"),
         })
     }
 
