@@ -34,7 +34,7 @@ use super::video_object::VideoObject;
 
 /// Union type for valid inline content.
 #[rustfmt::skip]
-#[derive(Debug, Clone, PartialEq, Display, Serialize, Deserialize, Strip, Defaults, Read, Write, ToHtml)]
+#[derive(Debug, Clone, PartialEq, Display, Serialize, Deserialize, Defaults, Strip, Read, Write, ToHtml)]
 #[serde(untagged, crate = "common::serde")]
 #[def = "String(String::default())"]
 pub enum Inline {

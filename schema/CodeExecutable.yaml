@@ -9,6 +9,7 @@ $comment: |
 required:
   - code
   - programmingLanguage
+core:
   - guessLanguage
 properties:
   code:

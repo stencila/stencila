@@ -100,18 +100,20 @@ use super::timestamp::Timestamp;
 use super::timestamp_validator::TimestampValidator;
 use super::tuple_validator::TupleValidator;
 use super::underline::Underline;
+use super::unsigned_integer::UnsignedInteger;
 use super::variable::Variable;
 use super::video_object::VideoObject;
 
 /// Union type for all types in this schema, including primitives and entities
 #[rustfmt::skip]
-#[derive(Debug, Clone, PartialEq, Display, Serialize, Deserialize, Strip, Read, Write, ToHtml)]
+#[derive(Debug, Clone, PartialEq, Display, Serialize, Deserialize, Strip, Write, ToHtml)]
 #[serde(untagged, crate = "common::serde")]
 
 pub enum Node {
     Null(Null),
     Boolean(Boolean),
     Integer(Integer),
+    UnsignedInteger(UnsignedInteger),
     Number(Number),
     String(String),
     Array(Array),

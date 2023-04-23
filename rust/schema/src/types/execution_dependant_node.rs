@@ -12,7 +12,7 @@ use super::variable::Variable;
 
 /// Node types that can be execution dependencies
 #[rustfmt::skip]
-#[derive(Debug, Clone, PartialEq, Display, Serialize, Deserialize, Strip, Defaults, Read, Write, ToHtml)]
+#[derive(Debug, Clone, PartialEq, Display, Serialize, Deserialize, Defaults, Strip, Read, Write, ToHtml)]
 #[serde(untagged, crate = "common::serde")]
 #[def = "CodeChunk(CodeChunk::default())"]
 pub enum ExecutionDependantNode {

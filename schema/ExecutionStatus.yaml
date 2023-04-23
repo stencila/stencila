@@ -2,7 +2,6 @@ title: ExecutionStatus
 '@id': stencila:ExecutionStatus
 extends: Enumeration
 description: Status of the most recent, including any current, execution of a document node.
-default: Unknown
 anyOf:
   - const: Scheduled
     '@id': stencila:executionStatusScheduled
@@ -18,5 +17,3 @@ anyOf:
     '@id': stencila:executionStatusFailed
   - const: Cancelled
     '@id': stencila:executionStatusCancelled
-  - const: Unknown
-    '@id': stencila:executionStatusUnknown

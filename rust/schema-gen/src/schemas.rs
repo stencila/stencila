@@ -352,13 +352,21 @@ impl Schemas {
         // serde attempts to deserialize in the order in the emum. We put primitives
         // first (for fast deserialization for kernel outputs) excecpt for `Object` which is
         // last so it does not "consume" entity types (which are also objects).
-        let mut any_of = ["Null", "Boolean", "Integer", "Number", "String", "Array"]
-            .iter()
-            .map(|name| Schema {
-                r#ref: Some(name.to_string()),
-                ..Default::default()
-            })
-            .collect_vec();
+        let mut any_of = [
+            "Null",
+            "Boolean",
+            "Integer",
+            "UnsignedInteger",
+            "Number",
+            "String",
+            "Array",
+        ]
+        .iter()
+        .map(|name| Schema {
+            r#ref: Some(name.to_string()),
+            ..Default::default()
+        })
+        .collect_vec();
 
         let mut entities = self
             .schemas

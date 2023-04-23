@@ -30,8 +30,14 @@ const NO_GENERATE_MODULE: &[&str] = &[
     "UnsignedInteger",
 ];
 
-/// Types that should not derive `Read` and `Write` traits because there are manual implementations
-const NO_DERIVE_STORE: &[&str] = &["Null", "Primitive", "TextValue"];
+/// Types that should not derive `Read` because there are manual implementations
+const NO_DERIVE_READ: &[&str] = &["Null", "Primitive", "TextValue", "Node"];
+
+/// Types that should not derive `Write` because there are manual implementations
+const NO_DERIVE_WRITE: &[&str] = &["Null", "Primitive", "TextValue"];
+
+/// Types that should not derive the `Strip` trait because there are manual implementations
+const NO_DERIVE_STRIP: &[&str] = &["CodeChunk", "CodeExpression"];
 
 /// Types that should not derive the `ToHtml` trait because there are manual implementations
 const NO_DERIVE_TO_HTML: &[&str] = &["Paragraph"];
@@ -173,11 +179,18 @@ impl Schemas {
         let description = schema.description.as_ref().unwrap_or(title);
 
         let mut derive_traits =
-            "Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Strip".to_string();
-        if !NO_DERIVE_STORE.contains(&title.as_str()) {
-            derive_traits += ", Read, Write";
+            "Debug, Defaults, Clone, PartialEq, Serialize, Deserialize".to_string();
+        let title = title.as_str();
+        if !NO_DERIVE_STRIP.contains(&title) {
+            derive_traits += ", Strip";
         }
-        if !NO_DERIVE_TO_HTML.contains(&title.as_str()) {
+        if !NO_DERIVE_READ.contains(&title) {
+            derive_traits += ", Read";
+        }
+        if !NO_DERIVE_WRITE.contains(&title) {
+            derive_traits += ", Write";
+        }
+        if !NO_DERIVE_TO_HTML.contains(&title) {
             derive_traits += ", ToHtml";
         }
 
@@ -496,14 +509,21 @@ pub struct {title} {{
         };
 
         let mut derive_traits =
-            "Debug, Clone, PartialEq, Display, Serialize, Deserialize, Strip".to_string();
+            "Debug, Clone, PartialEq, Display, Serialize, Deserialize".to_string();
+        let title = name.as_str();
         if !default.is_empty() {
             derive_traits += ", Defaults";
         };
-        if !NO_DERIVE_STORE.contains(&name.as_str()) {
-            derive_traits += ", Read, Write";
+        if !NO_DERIVE_STRIP.contains(&title) {
+            derive_traits += ", Strip";
         }
-        if !NO_DERIVE_TO_HTML.contains(&name.as_str()) {
+        if !NO_DERIVE_READ.contains(&title) {
+            derive_traits += ", Read";
+        }
+        if !NO_DERIVE_WRITE.contains(&title) {
+            derive_traits += ", Write";
+        }
+        if !NO_DERIVE_TO_HTML.contains(&title) {
             derive_traits += ", ToHtml";
         }
 

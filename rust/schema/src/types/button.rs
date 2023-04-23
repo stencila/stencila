@@ -28,18 +28,6 @@ pub struct Button {
     /// The identifier for this item
     pub id: Option<String>,
 
-    /// Under which circumstances the code should be automatically executed.
-    pub execution_auto: ExecutionAuto,
-
-    /// A count of the number of times that the node has been executed.
-    pub execution_count: Integer,
-
-    /// Whether, and why, the code requires execution or re-execution.
-    pub execution_required: ExecutionRequired,
-
-    /// Status of the most recent, including any current, execution.
-    pub execution_status: ExecutionStatus,
-
     /// The code.
     pub code: String,
 
@@ -47,7 +35,7 @@ pub struct Button {
     pub programming_language: String,
 
     /// Whether the programming language of the code should be guessed based on syntax and variables used
-    pub guess_language: Boolean,
+    pub guess_language: Option<Boolean>,
 
     /// The name of the variable associated with the button.
     pub name: String,
@@ -65,11 +53,14 @@ pub struct Button {
 #[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Strip, Read, Write, ToHtml)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 pub struct ButtonOptions {
+    /// Under which circumstances the code should be automatically executed.
+    pub execution_auto: Option<ExecutionAuto>,
+
     /// A digest of the content, semantics and dependencies of the node.
-    pub compile_digest: Option<ExecutionDigest>,
+    pub compilation_digest: Option<ExecutionDigest>,
 
     /// The `compileDigest` of the node when it was last executed.
-    pub execute_digest: Option<ExecutionDigest>,
+    pub execution_digest: Option<ExecutionDigest>,
 
     /// The upstream dependencies of this node.
     pub execution_dependencies: Option<Vec<ExecutionDependency>>,
@@ -80,8 +71,17 @@ pub struct ButtonOptions {
     /// Tags in the code which affect its execution
     pub execution_tags: Option<Vec<ExecutionTag>>,
 
+    /// A count of the number of times that the node has been executed.
+    pub execution_count: Option<Integer>,
+
+    /// Whether, and why, the code requires execution or re-execution.
+    pub execution_required: Option<ExecutionRequired>,
+
     /// The id of the kernel that the node was last executed in.
     pub execution_kernel: Option<String>,
+
+    /// Status of the most recent, including any current, execution.
+    pub execution_status: Option<ExecutionStatus>,
 
     /// The timestamp when the last execution ended.
     pub execution_ended: Option<Timestamp>,
@@ -99,4 +99,14 @@ pub struct ButtonOptions {
     pub is_disabled: Option<Boolean>,
 }
 
-impl Button {}
+impl Button {
+    #[rustfmt::skip]
+    pub fn new(code: String, programming_language: String, name: String) -> Self {
+        Self {
+            code,
+            programming_language,
+            name,
+            ..Default::default()
+        }
+    }
+}
