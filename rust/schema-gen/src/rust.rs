@@ -37,7 +37,16 @@ const NO_DERIVE_READ: &[&str] = &["Null", "Primitive", "TextValue", "Node"];
 const NO_DERIVE_WRITE: &[&str] = &["Null", "Primitive", "TextValue"];
 
 /// Types that should not derive the `Strip` trait because there are manual implementations
-const NO_DERIVE_STRIP: &[&str] = &["CodeChunk", "CodeExpression", "If", "IfClause"];
+const NO_DERIVE_STRIP: &[&str] = &[
+    "Call",
+    "CallArgument",
+    "CodeChunk",
+    "CodeExpression",
+    "For",
+    "If",
+    "IfClause",
+    "Include"
+];
 
 /// Types that should not derive the `ToHtml` trait because there are manual implementations
 const NO_DERIVE_TO_HTML: &[&str] = &["Paragraph"];

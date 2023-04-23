@@ -20,7 +20,7 @@ use super::timestamp::Timestamp;
 /// Call another document, optionally with arguments, and include its executed content.
 #[rustfmt::skip]
 #[skip_serializing_none]
-#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Strip, Read, Write, ToHtml)]
+#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Read, Write, ToHtml)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 pub struct Call {
     /// The type of this item
@@ -51,7 +51,7 @@ pub struct Call {
 
 #[rustfmt::skip]
 #[skip_serializing_none]
-#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Strip, Read, Write, ToHtml)]
+#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Read, Write, ToHtml)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 pub struct CallOptions {
     /// Under which circumstances the code should be automatically executed.
