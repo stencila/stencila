@@ -114,7 +114,7 @@ pub struct EncodeOptions {
 
     /// Whether to strip the derived properties of executable nodes when encoding
     #[def = "false"]
-    pub strip_derived: bool,
+    pub strip_execution: bool,
 
     /// Whether to strip the outputs of executable nodes when encoding
     #[def = "false"]

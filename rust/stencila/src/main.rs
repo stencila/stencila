@@ -92,7 +92,7 @@ enum Command {
         source: PathBuf,
 
         /// The format of the source file
-        #[arg(long, short)]
+        #[arg(long, short, alias = "from")]
         format: Option<Format>,
 
         /// The type of document to import
@@ -115,7 +115,7 @@ enum Command {
         dest: Option<PathBuf>,
 
         /// The format of the destination file
-        #[arg(long, short)]
+        #[arg(long, short, alias = "to")]
         format: Option<Format>,
 
         #[command(flatten)]
@@ -229,7 +229,7 @@ struct EncodeOptions {
 
     /// Strip derived properties of executable nodes when encoding
     #[arg(long)]
-    strip_derived: bool,
+    strip_execution: bool,
 
     /// Strip the outputs of executable nodes when encoding
     #[arg(long)]
@@ -244,7 +244,7 @@ impl EncodeOptions {
             compact: self.compact,
             strip_id: !self.no_strip_id,
             strip_code: self.strip_code,
-            strip_derived: self.strip_derived,
+            strip_execution: self.strip_execution,
             strip_outputs: self.strip_outputs,
         }
     }

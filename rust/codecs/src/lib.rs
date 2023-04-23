@@ -68,7 +68,7 @@ pub async fn to_string(node: &Node, options: Option<EncodeOptions>) -> Result<St
     if let Some(EncodeOptions {
         strip_id: id,
         strip_code: code,
-        strip_derived: derived,
+        strip_execution: execution,
         strip_outputs: outputs,
         ..
     }) = options
@@ -78,7 +78,7 @@ pub async fn to_string(node: &Node, options: Option<EncodeOptions>) -> Result<St
             node.strip(&node_strip::Targets {
                 id,
                 code,
-                derived,
+                execution,
                 outputs,
             });
 
@@ -101,7 +101,7 @@ pub async fn to_path(node: &Node, path: &Path, options: Option<EncodeOptions>) -
     if let Some(EncodeOptions {
         strip_id: id,
         strip_code: code,
-        strip_derived: derived,
+        strip_execution: execution,
         strip_outputs: outputs,
         ..
     }) = options
@@ -111,7 +111,7 @@ pub async fn to_path(node: &Node, path: &Path, options: Option<EncodeOptions>) -
             node.strip(&node_strip::Targets {
                 id,
                 code,
-                derived,
+                execution,
                 outputs,
             });
 

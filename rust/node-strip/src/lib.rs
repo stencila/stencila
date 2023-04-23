@@ -10,7 +10,7 @@ pub struct Targets {
     pub code: bool,
 
     /// Whether to strip derived properties of executable nodes
-    pub derived: bool,
+    pub execution: bool,
 
     /// Whether to strip output properties of executable nodes
     pub outputs: bool,
