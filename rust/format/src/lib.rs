@@ -11,6 +11,7 @@ use common::{
 #[derive(Debug, Display, Clone, Copy, ValueEnum, EnumString)]
 #[strum(serialize_all = "lowercase", crate = "common::strum")]
 pub enum Format {
+    Debug,
     Jats,
     Json,
     Json5,

@@ -9,6 +9,7 @@ use schema::Node;
 /// Get the codec for a given format
 fn get_codec(format: Format) -> Result<Box<dyn Codec>> {
     match format {
+        Format::Debug => Ok(Box::new(codec_debug::DebugCodec)),
         Format::Json => Ok(Box::new(codec_json::JsonCodec)),
         Format::Json5 => Ok(Box::new(codec_json5::Json5Codec)),
         Format::Html => Ok(Box::new(codec_html::HtmlCodec)),
@@ -145,6 +146,8 @@ pub async fn convert(
         Some(input) => from_path(input, decode_options).await?,
         None => from_stdin(decode_options).await?,
     };
+
+    println!("{:?}", node);
 
     match output {
         Some(output) => {
