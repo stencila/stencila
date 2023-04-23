@@ -5,8 +5,8 @@ use super::code_chunk::CodeChunk;
 use super::code_expression::CodeExpression;
 use super::division::Division;
 use super::file::File;
-use super::for_::For;
-use super::if_::If;
+use super::r#for::For;
+use super::r#if::If;
 use super::span::Span;
 use super::variable::Variable;
 

@@ -37,7 +37,7 @@ const NO_DERIVE_READ: &[&str] = &["Null", "Primitive", "TextValue", "Node"];
 const NO_DERIVE_WRITE: &[&str] = &["Null", "Primitive", "TextValue"];
 
 /// Types that should not derive the `Strip` trait because there are manual implementations
-const NO_DERIVE_STRIP: &[&str] = &["CodeChunk", "CodeExpression"];
+const NO_DERIVE_STRIP: &[&str] = &["CodeChunk", "CodeExpression", "If", "IfClause"];
 
 /// Types that should not derive the `ToHtml` trait because there are manual implementations
 const NO_DERIVE_TO_HTML: &[&str] = &["Paragraph"];
@@ -121,6 +121,10 @@ impl Schemas {
             .iter()
             .filter(|module| !module.is_empty())
             .sorted()
+            .map(|module| match module.as_str() {
+                "if" | "for" => format!("r#{module}"),
+                _ => module.to_string(),
+            })
             .collect_vec();
         let mods = modules
             .iter()
@@ -156,11 +160,6 @@ impl Schemas {
         };
 
         let module = title.to_snake_case();
-        let module = match module.as_str() {
-            "if" => "if_".to_string(),
-            "for" => "for_".to_string(),
-            _ => module,
-        };
 
         let path = dest.join(format!("{module}.rs"));
         if !path.exists() {
@@ -264,10 +263,12 @@ impl Schemas {
             .filter(|used_type| *used_type != title)
             .sorted()
             .map(|used_type| {
-                format!(
-                    "use super::{module}::{used_type};",
-                    module = used_type.to_snake_case()
-                )
+                let module = used_type.to_snake_case();
+                let module = match module.as_str() {
+                    "if" | "for" => format!("r#{module}"),
+                    _ => module,
+                };
+                format!("use super::{module}::{used_type};")
             })
             .join("\n");
 
@@ -468,16 +469,15 @@ pub struct {title} {{
 
         let mut uses = alternatives
             .iter()
+            .sorted()
             .filter_map(|(name, is_type)| {
                 let module = name.to_snake_case();
                 let module = match module.as_str() {
-                    "if" => "if_".to_string(),
-                    "for" => "for_".to_string(),
+                    "if" | "for" => format!("r#{module}"),
                     _ => module,
                 };
                 is_type.then_some(format!("use super::{module}::{name};",))
             })
-            .sorted()
             .join("\n");
         if !uses.is_empty() {
             uses.push_str("\n\n");

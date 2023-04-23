@@ -19,7 +19,7 @@ use super::timestamp::Timestamp;
 /// Show and execute alternative content conditional upon an executed expression
 #[rustfmt::skip]
 #[skip_serializing_none]
-#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Strip, Read, Write, ToHtml)]
+#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Read, Write, ToHtml)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 pub struct If {
     /// The type of this item
@@ -38,7 +38,7 @@ pub struct If {
 
 #[rustfmt::skip]
 #[skip_serializing_none]
-#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Strip, Read, Write, ToHtml)]
+#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Read, Write, ToHtml)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 pub struct IfOptions {
     /// Under which circumstances the code should be automatically executed.
