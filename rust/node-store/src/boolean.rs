@@ -4,6 +4,10 @@ impl Read for bool {
     fn load_boolean(value: &bool) -> Result<Self> {
         Ok(*value)
     }
+
+    fn load_none() -> Result<Self> {
+        Ok(Self::default())
+    }
 }
 
 impl Write for bool {

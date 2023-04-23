@@ -4,6 +4,10 @@ impl Read for f64 {
     fn load_f64(value: &f64) -> Result<Self> {
         Ok(*value)
     }
+
+    fn load_none() -> Result<Self> {
+        Ok(Self::default())
+    }
 }
 
 impl Write for f64 {

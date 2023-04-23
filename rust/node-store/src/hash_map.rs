@@ -15,6 +15,10 @@ where
 
         Ok(map)
     }
+
+    fn load_none() -> Result<Self> {
+        Ok(Self::default())
+    }
 }
 
 impl<T> Write for HashMap<String, T>

@@ -18,8 +18,7 @@ where
     }
 
     fn load_none() -> Result<Self> {
-        // If None where vec expected return empty vec
-        Ok(Vec::new())
+        Ok(Self::default())
     }
 }
 

@@ -6,6 +6,10 @@ impl Read for String {
     fn load_str(value: &SmolStr) -> Result<Self> {
         Ok(value.to_string())
     }
+
+    fn load_none() -> Result<Self> {
+        Ok(Self::default())
+    }
 }
 
 impl Write for String {

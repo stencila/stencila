@@ -4,6 +4,10 @@ impl Read for u64 {
     fn load_uint(value: &u64) -> Result<Self> {
         Ok(*value)
     }
+
+    fn load_none() -> Result<Self> {
+        Ok(Self::default())
+    }
 }
 
 impl Write for u64 {

@@ -4,6 +4,10 @@ impl Read for i64 {
     fn load_int(value: &i64) -> Result<Self> {
         Ok(*value)
     }
+
+    fn load_none() -> Result<Self> {
+        Ok(Self::default())
+    }
 }
 
 impl Write for i64 {

@@ -8,7 +8,7 @@ pub fn derive(input: proc_macro::TokenStream) -> proc_macro::TokenStream {
 
     let tokens = match &input.data {
         Data::Struct(data) => derive_struct(&input, data),
-        Data::Enum(data) => derive_enum(&input, data),
+        Data::Enum(data) => derive_enum(&input, data, &input.attrs),
         Data::Union(..) => return proc_macro::TokenStream::new(),
     };
 
@@ -24,23 +24,31 @@ pub fn derive_struct(input: &DeriveInput, data: &syn::DataStruct) -> TokenStream
     // Derive `load_map` method
     let mut fields = TokenStream::new();
     for field in &data.fields {
-        let field_name = &field.ident;
-        let field_name_string = &field
-            .ident
+        let field_ident = &field.ident;
+        let field_name = &field_ident
             .as_ref()
             .map(|ident| ident.to_string())
             .unwrap_or_default();
-        let field = if field_name_string == "r#type" {
+
+        let field = if field_name == "r#type" {
             quote! {}
-        } else if field_name_string == "id" {
+        } else if field_name == "id" {
             quote! {
                 node.id = Some(node_store::id_to_base64(obj_id));
             }
+        } else if field_name == "options" {
+            quote! {
+                let prop = node_store::Prop::Map("options".to_string());
+                if store.get(obj_id, prop.clone())?.is_some() {
+                    node.options.load_from(store, &obj_id, prop)?;
+                }
+            }
         } else {
             quote! {
-                node.#field_name.load_from(store, obj_id, stringify!(#field_name).into())?;
+                node.#field_ident.load_from(store, obj_id, stringify!(#field_ident).into())?;
             }
         };
+
         fields.extend(field);
     }
     methods.extend(quote! {
@@ -63,7 +71,11 @@ pub fn derive_struct(input: &DeriveInput, data: &syn::DataStruct) -> TokenStream
 }
 
 /// Derive the `Read` trait for an `enum`
-pub fn derive_enum(input: &DeriveInput, data: &syn::DataEnum) -> TokenStream {
+pub fn derive_enum(
+    input: &DeriveInput,
+    data: &syn::DataEnum,
+    attrs: &Vec<syn::Attribute>,
+) -> TokenStream {
     let enum_name = &input.ident;
 
     let mut methods = TokenStream::new();
@@ -95,6 +107,37 @@ pub fn derive_enum(input: &DeriveInput, data: &syn::DataEnum) -> TokenStream {
             }
         }
     });
+
+    // Derive `load_str` method for enums with all unit variants
+    if data
+        .variants
+        .iter()
+        .all(|variant| matches!(variant.fields, Fields::Unit))
+    {
+        methods.extend(quote! {
+            fn load_str(value: &smol_str::SmolStr) -> common::eyre::Result<Self> {
+                Ok(serde_json::from_str(&["\"", &value, "\""].concat())?)
+            }
+        });
+    }
+
+    // Derive `load_none` for enums that implement `Defaults` trait
+    // This is like using the `#serde[default]` attr.
+    // It seems that we are unable to check the `derive` attr, maybe because
+    // we are "in it" at this point in the code.
+    let mut impl_default = false;
+    for attr in attrs {
+        if attr.path().is_ident("def") {
+            impl_default = true;
+        }
+    }
+    if impl_default {
+        methods.extend(quote! {
+            fn load_none() -> common::eyre::Result<Self> {
+                Ok(Self::default())
+            }
+        });
+    }
 
     quote! {
         impl node_store::Read for #enum_name {
