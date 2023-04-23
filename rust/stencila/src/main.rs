@@ -219,19 +219,19 @@ struct EncodeOptions {
     #[arg(long, short)]
     compact: bool,
 
-    /// Whether to strip the id property of nodes when encoding
+    /// Do not strip the id property of nodes when encoding
     #[arg(long)]
     no_strip_id: bool,
 
-    /// Whether to strip the code of executable nodes when encoding
+    /// Strip the code of executable nodes when encoding
     #[arg(long)]
     strip_code: bool,
 
-    /// Whether to strip derived properties of executable nodes when encoding
+    /// Strip derived properties of executable nodes when encoding
     #[arg(long)]
     strip_derived: bool,
 
-    /// Whether to strip the outputs of executable nodes when encoding
+    /// Strip the outputs of executable nodes when encoding
     #[arg(long)]
     strip_outputs: bool,
 }
