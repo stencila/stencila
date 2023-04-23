@@ -127,7 +127,7 @@ impl Document {
     ///
     /// This initializes the document's "watch" and "update" channels and starts the
     /// `update_task` to respond to incoming updates to the root node of the document.
-    #[tracing::instrument]
+    #[tracing::instrument(skip(store))]
     fn init(path: &Path, store: WriteStore) -> Result<Self> {
         let path = path.canonicalize()?;
 
