@@ -3,7 +3,7 @@ use crate::prelude::*;
 /// The type of a `Claim`.
 #[rustfmt::skip]
 #[derive(Debug, Clone, PartialEq, Display, Serialize, Deserialize, Strip, Defaults, Read, Write, ToHtml)]
-#[serde(untagged, crate = "common::serde")]
+#[serde(crate = "common::serde")]
 #[def = "Statement"]
 pub enum ClaimType {
     Statement,

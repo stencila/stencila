@@ -470,10 +470,12 @@ pub struct {title} {{
             uses.push_str("\n\n");
         }
 
+        let mut unit_variants = true;
         let variants = alternatives
             .iter()
             .map(|(variant, is_type)| {
                 if *is_type {
+                    unit_variants = false;
                     format!("{variant}({variant}),")
                 } else {
                     format!("{variant},")
@@ -505,13 +507,18 @@ pub struct {title} {{
             derive_traits += ", ToHtml";
         }
 
+        let serde_tagged = match unit_variants {
+            false => "untagged, ",
+            true => "",
+        };
+
         let rust = format!(
             r#"use crate::prelude::*;
 
 {uses}/// {description}
 #[rustfmt::skip]
 #[derive({derive_traits})]
-#[serde(untagged, crate = "common::serde")]
+#[serde({serde_tagged}crate = "common::serde")]
 {default}
 pub enum {name} {{
     {variants}
