@@ -4,7 +4,7 @@ use common::{
     clap::{self, ValueEnum},
     eyre::Result,
     strum::AsRefStr,
-    tracing::{self, metadata::LevelFilter},
+    tracing::metadata::LevelFilter,
 };
 
 /// Setup logging
@@ -66,7 +66,7 @@ pub fn setup(level: LoggingLevel, filter: &str, format: LoggingFormat) -> Result
         _ => bail!("Unhandled log format `{}`", format.as_ref()),
     };
 
-    tracing::trace!("Logging set up finished");
+    common::tracing::trace!("Logging set up finished");
 
     Ok(())
 }
