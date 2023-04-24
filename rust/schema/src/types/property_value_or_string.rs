@@ -4,7 +4,6 @@ use super::property_value::PropertyValue;
 use super::string::String;
 
 /// [`PropertyValue`] or [`String`]
-#[rustfmt::skip]
 #[derive(Debug, Clone, PartialEq, Display, Serialize, Deserialize, Strip, Read, Write, ToHtml)]
 #[serde(untagged, crate = "common::serde")]
 

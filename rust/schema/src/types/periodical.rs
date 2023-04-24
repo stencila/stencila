@@ -18,7 +18,6 @@ use super::string_or_number::StringOrNumber;
 use super::thing_type::ThingType;
 
 /// A periodical publication.
-#[rustfmt::skip]
 #[skip_serializing_none]
 #[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Strip, Read, Write, ToHtml)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
@@ -34,7 +33,6 @@ pub struct Periodical {
     pub options: Box<PeriodicalOptions>,
 }
 
-#[rustfmt::skip]
 #[skip_serializing_none]
 #[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Strip, Read, Write, ToHtml)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
@@ -137,7 +135,6 @@ pub struct PeriodicalOptions {
 }
 
 impl Periodical {
-    #[rustfmt::skip]
     pub fn new() -> Self {
         Self {
             ..Default::default()

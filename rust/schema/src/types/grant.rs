@@ -10,7 +10,6 @@ use super::string::String;
 use super::thing::Thing;
 
 /// A grant, typically financial or otherwise quantifiable, of resources.
-#[rustfmt::skip]
 #[skip_serializing_none]
 #[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Strip, Read, Write, ToHtml)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
@@ -26,7 +25,6 @@ pub struct Grant {
     pub options: Box<GrantOptions>,
 }
 
-#[rustfmt::skip]
 #[skip_serializing_none]
 #[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Strip, Read, Write, ToHtml)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
@@ -57,7 +55,6 @@ pub struct GrantOptions {
 }
 
 impl Grant {
-    #[rustfmt::skip]
     pub fn new() -> Self {
         Self {
             ..Default::default()

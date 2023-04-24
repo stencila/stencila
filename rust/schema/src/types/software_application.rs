@@ -18,7 +18,6 @@ use super::string_or_number::StringOrNumber;
 use super::thing_type::ThingType;
 
 /// A software application.
-#[rustfmt::skip]
 #[skip_serializing_none]
 #[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Strip, Read, Write, ToHtml)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
@@ -37,7 +36,6 @@ pub struct SoftwareApplication {
     pub options: Box<SoftwareApplicationOptions>,
 }
 
-#[rustfmt::skip]
 #[skip_serializing_none]
 #[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Strip, Read, Write, ToHtml)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
@@ -134,7 +132,6 @@ pub struct SoftwareApplicationOptions {
 }
 
 impl SoftwareApplication {
-    #[rustfmt::skip]
     pub fn new(name: String) -> Self {
         Self {
             name,

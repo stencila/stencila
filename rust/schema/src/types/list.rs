@@ -7,7 +7,6 @@ use super::list_order::ListOrder;
 use super::string::String;
 
 /// A list of items.
-#[rustfmt::skip]
 #[skip_serializing_none]
 #[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Strip, Read, Write, ToHtml)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
@@ -26,7 +25,6 @@ pub struct List {
 }
 
 impl List {
-    #[rustfmt::skip]
     pub fn new(items: Vec<ListItem>, order: ListOrder) -> Self {
         Self {
             items,

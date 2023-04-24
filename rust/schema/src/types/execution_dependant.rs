@@ -7,7 +7,6 @@ use super::execution_dependant_relation::ExecutionDependantRelation;
 use super::integer::Integer;
 
 /// A downstream execution dependant of a node
-#[rustfmt::skip]
 #[skip_serializing_none]
 #[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Strip, Read, Write, ToHtml)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
@@ -23,7 +22,6 @@ pub struct ExecutionDependant {
 }
 
 impl ExecutionDependant {
-    #[rustfmt::skip]
     pub fn new(dependant_relation: ExecutionDependantRelation, dependant_node: ExecutionDependantNode) -> Self {
         Self {
             dependant_relation,

@@ -18,7 +18,6 @@ use super::string::String;
 use super::timestamp::Timestamp;
 
 /// Call another document, optionally with arguments, and include its executed content.
-#[rustfmt::skip]
 #[skip_serializing_none]
 #[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Read, Write, ToHtml)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
@@ -49,7 +48,6 @@ pub struct Call {
     pub options: Box<CallOptions>,
 }
 
-#[rustfmt::skip]
 #[skip_serializing_none]
 #[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Read, Write, ToHtml)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
@@ -95,7 +93,6 @@ pub struct CallOptions {
 }
 
 impl Call {
-    #[rustfmt::skip]
     pub fn new(source: String, arguments: Vec<CallArgument>) -> Self {
         Self {
             source,

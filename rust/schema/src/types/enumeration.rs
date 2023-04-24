@@ -8,7 +8,6 @@ use super::property_value_or_string::PropertyValueOrString;
 use super::string::String;
 
 /// Lists or enumerations, for example, a list of cuisines or music genres, etc.
-#[rustfmt::skip]
 #[skip_serializing_none]
 #[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Strip, Read, Write, ToHtml)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
@@ -24,7 +23,6 @@ pub struct Enumeration {
     pub options: Box<EnumerationOptions>,
 }
 
-#[rustfmt::skip]
 #[skip_serializing_none]
 #[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Strip, Read, Write, ToHtml)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
@@ -49,7 +47,6 @@ pub struct EnumerationOptions {
 }
 
 impl Enumeration {
-    #[rustfmt::skip]
     pub fn new() -> Self {
         Self {
             ..Default::default()

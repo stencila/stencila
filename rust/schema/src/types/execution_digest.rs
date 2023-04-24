@@ -5,7 +5,6 @@ use crate::prelude::*;
 use super::number::Number;
 
 /// A digest of the execution state of a node.
-#[rustfmt::skip]
 #[skip_serializing_none]
 #[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Strip, Read, Write, ToHtml)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]

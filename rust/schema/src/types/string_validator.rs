@@ -6,7 +6,6 @@ use super::integer::Integer;
 use super::string::String;
 
 /// A schema specifying constraints on a string node.
-#[rustfmt::skip]
 #[skip_serializing_none]
 #[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Strip, Read, Write, ToHtml)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
@@ -28,7 +27,6 @@ pub struct StringValidator {
 }
 
 impl StringValidator {
-    #[rustfmt::skip]
     pub fn new() -> Self {
         Self {
             ..Default::default()

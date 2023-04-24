@@ -7,7 +7,6 @@ use super::note_type::NoteType;
 use super::string::String;
 
 /// Additional content which is not part of the main content of a document.
-#[rustfmt::skip]
 #[skip_serializing_none]
 #[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Strip, Read, Write, ToHtml)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
@@ -26,7 +25,6 @@ pub struct Note {
 }
 
 impl Note {
-    #[rustfmt::skip]
     pub fn new(note_type: NoteType, content: Vec<Block>) -> Self {
         Self {
             note_type,

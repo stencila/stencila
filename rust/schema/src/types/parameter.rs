@@ -19,7 +19,6 @@ use super::timestamp::Timestamp;
 use super::validator::Validator;
 
 /// A parameter of a document.
-#[rustfmt::skip]
 #[skip_serializing_none]
 #[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Strip, Read, Write, ToHtml)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
@@ -50,7 +49,6 @@ pub struct Parameter {
     pub options: Box<ParameterOptions>,
 }
 
-#[rustfmt::skip]
 #[skip_serializing_none]
 #[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Strip, Read, Write, ToHtml)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
@@ -102,7 +100,6 @@ pub struct ParameterOptions {
 }
 
 impl Parameter {
-    #[rustfmt::skip]
     pub fn new(name: String) -> Self {
         Self {
             name,

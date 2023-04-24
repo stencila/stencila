@@ -5,7 +5,6 @@ use crate::prelude::*;
 use super::string::String;
 
 /// A calendar date encoded as a ISO 8601 string.
-#[rustfmt::skip]
 #[skip_serializing_none]
 #[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Strip, Read, Write, ToHtml)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
@@ -21,7 +20,6 @@ pub struct Date {
 }
 
 impl Date {
-    #[rustfmt::skip]
     pub fn new(value: String) -> Self {
         Self {
             value,

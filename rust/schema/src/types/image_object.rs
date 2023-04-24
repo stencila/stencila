@@ -19,7 +19,6 @@ use super::string_or_number::StringOrNumber;
 use super::thing_type::ThingType;
 
 /// An image file.
-#[rustfmt::skip]
 #[skip_serializing_none]
 #[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Strip, Read, Write, ToHtml)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
@@ -44,7 +43,6 @@ pub struct ImageObject {
     pub options: Box<ImageObjectOptions>,
 }
 
-#[rustfmt::skip]
 #[skip_serializing_none]
 #[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Strip, Read, Write, ToHtml)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
@@ -150,7 +148,6 @@ pub struct ImageObjectOptions {
 }
 
 impl ImageObject {
-    #[rustfmt::skip]
     pub fn new(content_url: String) -> Self {
         Self {
             content_url,

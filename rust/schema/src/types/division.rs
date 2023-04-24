@@ -18,7 +18,6 @@ use super::string::String;
 use super::timestamp::Timestamp;
 
 /// Styled block content
-#[rustfmt::skip]
 #[skip_serializing_none]
 #[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Strip, Read, Write, ToHtml)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
@@ -52,7 +51,6 @@ pub struct Division {
     pub options: Box<DivisionOptions>,
 }
 
-#[rustfmt::skip]
 #[skip_serializing_none]
 #[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Strip, Read, Write, ToHtml)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
@@ -101,7 +99,6 @@ pub struct DivisionOptions {
 }
 
 impl Division {
-    #[rustfmt::skip]
     pub fn new(code: String, programming_language: String, content: Vec<Block>) -> Self {
         Self {
             code,

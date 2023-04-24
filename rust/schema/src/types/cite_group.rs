@@ -6,7 +6,6 @@ use super::cite::Cite;
 use super::string::String;
 
 /// A group of Cite nodes.
-#[rustfmt::skip]
 #[skip_serializing_none]
 #[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Strip, Read, Write, ToHtml)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
@@ -22,7 +21,6 @@ pub struct CiteGroup {
 }
 
 impl CiteGroup {
-    #[rustfmt::skip]
     pub fn new(items: Vec<Cite>) -> Self {
         Self {
             items,

@@ -19,7 +19,6 @@ use super::string::String;
 use super::timestamp::Timestamp;
 
 /// A executable chunk of code.
-#[rustfmt::skip]
 #[skip_serializing_none]
 #[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Read, Write, ToHtml)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
@@ -47,7 +46,6 @@ pub struct CodeChunk {
     pub options: Box<CodeChunkOptions>,
 }
 
-#[rustfmt::skip]
 #[skip_serializing_none]
 #[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Read, Write, ToHtml)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
@@ -105,7 +103,6 @@ pub struct CodeChunkOptions {
 }
 
 impl CodeChunk {
-    #[rustfmt::skip]
     pub fn new(code: String, programming_language: String) -> Self {
         Self {
             code,

@@ -5,7 +5,6 @@ use crate::prelude::*;
 use super::string::String;
 
 /// A thematic break, such as a scene change in a story, a transition to another topic, or a new document.
-#[rustfmt::skip]
 #[skip_serializing_none]
 #[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Strip, Read, Write, ToHtml)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
@@ -18,7 +17,6 @@ pub struct ThematicBreak {
 }
 
 impl ThematicBreak {
-    #[rustfmt::skip]
     pub fn new() -> Self {
         Self {
             ..Default::default()

@@ -19,7 +19,6 @@ use super::string::String;
 use super::timestamp::Timestamp;
 
 /// A form to batch updates in document parameters
-#[rustfmt::skip]
 #[skip_serializing_none]
 #[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Strip, Read, Write, ToHtml)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
@@ -38,7 +37,6 @@ pub struct Form {
     pub options: Box<FormOptions>,
 }
 
-#[rustfmt::skip]
 #[skip_serializing_none]
 #[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Strip, Read, Write, ToHtml)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
@@ -93,7 +91,6 @@ pub struct FormOptions {
 }
 
 impl Form {
-    #[rustfmt::skip]
     pub fn new(content: Vec<Block>) -> Self {
         Self {
             content,

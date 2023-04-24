@@ -20,7 +20,6 @@ use super::string_or_number::StringOrNumber;
 use super::thing_type::ThingType;
 
 /// Computer programming source code. Example: Full (compile ready) solutions, code snippet samples, scripts, templates.
-#[rustfmt::skip]
 #[skip_serializing_none]
 #[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Strip, Read, Write, ToHtml)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
@@ -45,7 +44,6 @@ pub struct SoftwareSourceCode {
     pub options: Box<SoftwareSourceCodeOptions>,
 }
 
-#[rustfmt::skip]
 #[skip_serializing_none]
 #[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Strip, Read, Write, ToHtml)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
@@ -148,7 +146,6 @@ pub struct SoftwareSourceCodeOptions {
 }
 
 impl SoftwareSourceCode {
-    #[rustfmt::skip]
     pub fn new() -> Self {
         Self {
             ..Default::default()

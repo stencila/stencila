@@ -49,7 +49,6 @@ use super::time_unit::TimeUnit;
 use super::video_object::VideoObject;
 
 /// Union type for all types that are descended from `Thing`
-#[rustfmt::skip]
 #[derive(Debug, Clone, PartialEq, Display, Serialize, Deserialize, Strip, Read, Write, ToHtml)]
 #[serde(untagged, crate = "common::serde")]
 

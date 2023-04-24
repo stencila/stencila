@@ -6,7 +6,6 @@ use super::inline::Inline;
 use super::string::String;
 
 /// Paragraph
-#[rustfmt::skip]
 #[skip_serializing_none]
 #[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Strip, Read, Write)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
@@ -22,7 +21,6 @@ pub struct Paragraph {
 }
 
 impl Paragraph {
-    #[rustfmt::skip]
     pub fn new(content: Vec<Inline>) -> Self {
         Self {
             content,

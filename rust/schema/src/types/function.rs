@@ -7,7 +7,6 @@ use super::string::String;
 use super::validator::Validator;
 
 /// A function with a name, which might take Parameters and return a value of a certain type.
-#[rustfmt::skip]
 #[skip_serializing_none]
 #[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Strip, Read, Write, ToHtml)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
@@ -29,7 +28,6 @@ pub struct Function {
     pub options: Box<FunctionOptions>,
 }
 
-#[rustfmt::skip]
 #[skip_serializing_none]
 #[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Strip, Read, Write, ToHtml)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
@@ -39,7 +37,6 @@ pub struct FunctionOptions {
 }
 
 impl Function {
-    #[rustfmt::skip]
     pub fn new(name: String, parameters: Vec<Parameter>) -> Self {
         Self {
             name,

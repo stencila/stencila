@@ -7,7 +7,6 @@ use super::string::String;
 use super::time_unit::TimeUnit;
 
 /// A value that represents the difference between two timestamps
-#[rustfmt::skip]
 #[skip_serializing_none]
 #[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Strip, Read, Write, ToHtml)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
@@ -26,7 +25,6 @@ pub struct Duration {
 }
 
 impl Duration {
-    #[rustfmt::skip]
     pub fn new(value: Integer, time_unit: TimeUnit) -> Self {
         Self {
             value,

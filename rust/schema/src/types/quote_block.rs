@@ -7,7 +7,6 @@ use super::cite_or_string::CiteOrString;
 use super::string::String;
 
 /// A section quoted from somewhere else.
-#[rustfmt::skip]
 #[skip_serializing_none]
 #[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Strip, Read, Write, ToHtml)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
@@ -26,7 +25,6 @@ pub struct QuoteBlock {
 }
 
 impl QuoteBlock {
-    #[rustfmt::skip]
     pub fn new(content: Vec<Block>) -> Self {
         Self {
             content,

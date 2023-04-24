@@ -294,7 +294,6 @@ impl Schemas {
             format!(
                 r#"
 
-#[rustfmt::skip]
 #[skip_serializing_none]
 #[derive({derive_traits})]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
@@ -353,7 +352,6 @@ pub struct {title}Options {{
 
             format!(
                 r#"
-    #[rustfmt::skip]
     pub fn new({params}) -> Self {{
         Self {{
             {args}{defaults}
@@ -376,7 +374,6 @@ impl {title} {{{new}}}"#,
 {uses}
 
 /// {description}
-#[rustfmt::skip]
 #[skip_serializing_none]
 #[derive({derive_traits})]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
@@ -545,7 +542,6 @@ pub struct {title} {{
             r#"use crate::prelude::*;
 
 {uses}/// {description}
-#[rustfmt::skip]
 #[derive({derive_traits})]
 #[serde({serde_tagged}crate = "common::serde")]
 {default}

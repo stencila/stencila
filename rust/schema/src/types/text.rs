@@ -6,7 +6,6 @@ use super::string::String;
 use super::text_value::TextValue;
 
 /// Textual content
-#[rustfmt::skip]
 #[skip_serializing_none]
 #[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Strip, Read, Write, ToHtml)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
@@ -22,7 +21,6 @@ pub struct Text {
 }
 
 impl Text {
-    #[rustfmt::skip]
     pub fn new(value: TextValue) -> Self {
         Self {
             value,

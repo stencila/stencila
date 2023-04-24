@@ -6,7 +6,6 @@ use super::node::Node;
 use super::string::String;
 
 /// A variable representing a name / value pair.
-#[rustfmt::skip]
 #[skip_serializing_none]
 #[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Strip, Read, Write, ToHtml)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
@@ -31,7 +30,6 @@ pub struct Variable {
 }
 
 impl Variable {
-    #[rustfmt::skip]
     pub fn new(namespace: String, name: String) -> Self {
         Self {
             namespace,

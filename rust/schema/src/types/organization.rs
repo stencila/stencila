@@ -12,7 +12,6 @@ use super::property_value_or_string::PropertyValueOrString;
 use super::string::String;
 
 /// An organization such as a school, NGO, corporation, club, etc.
-#[rustfmt::skip]
 #[skip_serializing_none]
 #[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Strip, Read, Write, ToHtml)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
@@ -28,7 +27,6 @@ pub struct Organization {
     pub options: Box<OrganizationOptions>,
 }
 
-#[rustfmt::skip]
 #[skip_serializing_none]
 #[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Strip, Read, Write, ToHtml)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
@@ -80,7 +78,6 @@ pub struct OrganizationOptions {
 }
 
 impl Organization {
-    #[rustfmt::skip]
     pub fn new() -> Self {
         Self {
             ..Default::default()

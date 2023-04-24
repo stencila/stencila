@@ -19,7 +19,6 @@ use super::string::String;
 use super::timestamp::Timestamp;
 
 /// Repeat a block content for each item in an array.
-#[rustfmt::skip]
 #[skip_serializing_none]
 #[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Read, Write, ToHtml)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
@@ -56,7 +55,6 @@ pub struct For {
     pub options: Box<ForOptions>,
 }
 
-#[rustfmt::skip]
 #[skip_serializing_none]
 #[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Read, Write, ToHtml)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
@@ -105,7 +103,6 @@ pub struct ForOptions {
 }
 
 impl For {
-    #[rustfmt::skip]
     pub fn new(code: String, programming_language: String, symbol: String, content: Vec<Block>) -> Self {
         Self {
             code,

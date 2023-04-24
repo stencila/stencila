@@ -12,7 +12,6 @@ use super::property_value_or_string::PropertyValueOrString;
 use super::string::String;
 
 /// A single item in a list.
-#[rustfmt::skip]
 #[skip_serializing_none]
 #[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Strip, Read, Write, ToHtml)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
@@ -40,7 +39,6 @@ pub struct ListItem {
     pub options: Box<ListItemOptions>,
 }
 
-#[rustfmt::skip]
 #[skip_serializing_none]
 #[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Strip, Read, Write, ToHtml)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
@@ -65,7 +63,6 @@ pub struct ListItemOptions {
 }
 
 impl ListItem {
-    #[rustfmt::skip]
     pub fn new() -> Self {
         Self {
             ..Default::default()

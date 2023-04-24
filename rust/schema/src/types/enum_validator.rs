@@ -6,7 +6,6 @@ use super::node::Node;
 use super::string::String;
 
 /// A schema specifying that a node must be one of several values.
-#[rustfmt::skip]
 #[skip_serializing_none]
 #[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Strip, Read, Write, ToHtml)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
@@ -22,7 +21,6 @@ pub struct EnumValidator {
 }
 
 impl EnumValidator {
-    #[rustfmt::skip]
     pub fn new(values: Vec<Node>) -> Self {
         Self {
             values,

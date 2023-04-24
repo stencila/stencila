@@ -7,7 +7,6 @@ use super::inline::Inline;
 use super::string::String;
 
 /// Inline, quoted content.
-#[rustfmt::skip]
 #[skip_serializing_none]
 #[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Strip, Read, Write, ToHtml)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
@@ -26,7 +25,6 @@ pub struct Quote {
 }
 
 impl Quote {
-    #[rustfmt::skip]
     pub fn new(content: Vec<Inline>) -> Self {
         Self {
             content,

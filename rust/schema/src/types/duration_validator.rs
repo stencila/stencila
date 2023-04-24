@@ -7,7 +7,6 @@ use super::string::String;
 use super::time_unit::TimeUnit;
 
 /// A validator specifying the constraints on a duration.
-#[rustfmt::skip]
 #[skip_serializing_none]
 #[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Strip, Read, Write, ToHtml)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
@@ -29,7 +28,6 @@ pub struct DurationValidator {
 }
 
 impl DurationValidator {
-    #[rustfmt::skip]
     pub fn new() -> Self {
         Self {
             ..Default::default()
