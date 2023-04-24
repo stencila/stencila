@@ -6,13 +6,11 @@ edition = "2021"
 [dependencies]
 codec = { path = "../codec" }
 codec-debug = { path = "../codec-debug" }
+codec-html = { path = "../codec-html" }
+codec-jats = { path = "../codec-jats" }
 codec-json = { path = "../codec-json" }
 codec-json5 = { path = "../codec-json5" }
-codec-html = { path = "../codec-html" }
 codec-ron = { path = "../codec-ron" }
 codec-text = { path = "../codec-text" }
 codec-yaml = { path = "../codec-yaml" }
-common = { path = "../common" }
-format = { path = "../format" }
 node-strip = { path = "../node-strip" }
-schema = { path = "../schema" }

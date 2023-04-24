@@ -1,5 +1,7 @@
-use common::eyre::Result;
-use schema::{Text, TextValue};
+use codec::{
+    common::eyre::Result,
+    schema::{Text, TextValue},
+};
 
 use crate::{FromText, ToText};
 

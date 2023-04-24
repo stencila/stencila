@@ -5,5 +5,3 @@ edition = "2021"
 
 [dependencies]
 codec = { path = "../codec" }
-common = { path = "../common" }
-schema = { path = "../schema" }

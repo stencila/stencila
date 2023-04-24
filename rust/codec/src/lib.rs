@@ -13,8 +13,19 @@ use common::{
 use format::Format;
 use schema::Node;
 
+// Rexports for the convienience of internal crates implementing `Codec`
+pub use common;
+pub use format;
+pub use schema;
+
 #[async_trait]
 pub trait Codec: Sync + Send {
+    /// The formats that the codec is able to decode from, or encode to
+    ///
+    /// Most codecs only handle a single format, but multiple formats are
+    /// possible.
+    fn formats(&self) -> Vec<Format>;
+
     /// Decode a Stencila Schema node from a string
     #[allow(clippy::wrong_self_convention)]
     async fn from_str(&self, _str: &str, _options: Option<DecodeOptions>) -> Result<Node> {

@@ -1,6 +1,9 @@
-use codec::{Codec, EncodeOptions};
-use common::{async_trait::async_trait, eyre::Result};
-use schema::Node;
+use codec::{
+    common::{async_trait::async_trait, eyre::Result},
+    format::Format,
+    schema::Node,
+    Codec, EncodeOptions,
+};
 
 /// A codec for the Rust debug format
 ///
@@ -11,6 +14,10 @@ pub struct DebugCodec;
 
 #[async_trait]
 impl Codec for DebugCodec {
+    fn formats(&self) -> Vec<Format> {
+        vec![Format::Debug]
+    }
+
     async fn to_string(&self, node: &Node, options: Option<EncodeOptions>) -> Result<String> {
         let EncodeOptions { compact, .. } = options.unwrap_or_default();
 

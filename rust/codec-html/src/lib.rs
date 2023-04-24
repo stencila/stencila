@@ -1,12 +1,20 @@
-use codec::{Codec, EncodeOptions};
-use common::{async_trait::async_trait, eyre::Result};
+use codec::{
+    common::{async_trait::async_trait, eyre::Result},
+    format::Format,
+    schema::Node,
+    Codec, EncodeOptions,
+};
 use node_html::ToHtml;
-use schema::Node;
 
+/// A codec for HTML
 pub struct HtmlCodec;
 
 #[async_trait]
 impl Codec for HtmlCodec {
+    fn formats(&self) -> Vec<Format> {
+        vec![Format::Html]
+    }
+
     async fn to_string(&self, node: &Node, options: Option<EncodeOptions>) -> Result<String> {
         let EncodeOptions { compact, .. } = options.unwrap_or_default();
 

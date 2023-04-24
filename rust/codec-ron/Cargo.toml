@@ -5,6 +5,4 @@ edition = "2021"
 
 [dependencies]
 codec = { path = "../codec" }
-common = { path = "../common" }
 ron = "0.8.0"
-schema = { path = "../schema" }

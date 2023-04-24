@@ -1,12 +1,38 @@
-use codec::{Codec, DecodeOptions, EncodeOptions};
-use common::{
-    async_trait::async_trait,
-    eyre::Result,
-    json5,
-    serde::{de::DeserializeOwned, Serialize},
-    serde_json,
+use codec::{
+    common::{
+        async_trait::async_trait,
+        eyre::Result,
+        json5,
+        serde::{de::DeserializeOwned, Serialize},
+        serde_json,
+    },
+    format::Format,
+    schema::Node,
+    Codec, DecodeOptions, EncodeOptions,
 };
-use schema::Node;
+
+/// A codec for JSON5
+pub struct Json5Codec;
+
+#[async_trait]
+impl Codec for Json5Codec {
+    fn formats(&self) -> Vec<Format> {
+        vec![Format::Json5]
+    }
+
+    async fn from_str(&self, str: &str, _options: Option<DecodeOptions>) -> Result<Node> {
+        Node::from_json5(str)
+    }
+
+    async fn to_string(&self, node: &Node, options: Option<EncodeOptions>) -> Result<String> {
+        let EncodeOptions { compact, .. } = options.unwrap_or_default();
+
+        match compact {
+            true => node.to_json5(),
+            false => node.to_json5_pretty(),
+        }
+    }
+}
 
 pub trait FromJson5: DeserializeOwned {
     /// Decode a Stencila Schema node from JSON5
@@ -40,21 +66,3 @@ pub trait ToJson5: Serialize {
 }
 
 impl<T> ToJson5 for T where T: Serialize {}
-
-pub struct Json5Codec;
-
-#[async_trait]
-impl Codec for Json5Codec {
-    async fn from_str(&self, str: &str, _options: Option<DecodeOptions>) -> Result<Node> {
-        Node::from_json5(str)
-    }
-
-    async fn to_string(&self, node: &Node, options: Option<EncodeOptions>) -> Result<String> {
-        let EncodeOptions { compact, .. } = options.unwrap_or_default();
-
-        match compact {
-            true => node.to_json5(),
-            false => node.to_json5_pretty(),
-        }
-    }
-}

@@ -1,7 +1,9 @@
 [package]
-name = "codec-debug"
+name = "codec-jats"
 version = "0.0.0"
 edition = "2021"
 
 [dependencies]
 codec = { path = "../codec" }
+quick-xml = "0.28.2"
+roxmltree = "0.18.0"

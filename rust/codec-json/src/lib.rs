@@ -1,11 +1,37 @@
-use codec::{Codec, DecodeOptions, EncodeOptions};
-use common::{
-    async_trait::async_trait,
-    eyre::Result,
-    serde::{de::DeserializeOwned, Serialize},
-    serde_json,
+use codec::{
+    common::{
+        async_trait::async_trait,
+        eyre::Result,
+        serde::{de::DeserializeOwned, Serialize},
+        serde_json,
+    },
+    format::Format,
+    schema::Node,
+    Codec, DecodeOptions, EncodeOptions,
 };
-use schema::Node;
+
+/// A codec for JSON
+pub struct JsonCodec;
+
+#[async_trait]
+impl Codec for JsonCodec {
+    fn formats(&self) -> Vec<Format> {
+        vec![Format::Json]
+    }
+
+    async fn from_str(&self, str: &str, _options: Option<DecodeOptions>) -> Result<Node> {
+        Node::from_json(str)
+    }
+
+    async fn to_string(&self, node: &Node, options: Option<EncodeOptions>) -> Result<String> {
+        let EncodeOptions { compact, .. } = options.unwrap_or_default();
+
+        match compact {
+            true => node.to_json(),
+            false => node.to_json_pretty(),
+        }
+    }
+}
 
 pub trait FromJson: DeserializeOwned {
     /// Decode a Stencila Schema node from JSON
@@ -40,24 +66,6 @@ pub trait ToJson: Serialize {
 
 impl<T> ToJson for T where T: Serialize {}
 
-pub struct JsonCodec;
-
-#[async_trait]
-impl Codec for JsonCodec {
-    async fn from_str(&self, str: &str, _options: Option<DecodeOptions>) -> Result<Node> {
-        Node::from_json(str)
-    }
-
-    async fn to_string(&self, node: &Node, options: Option<EncodeOptions>) -> Result<String> {
-        let EncodeOptions { compact, .. } = options.unwrap_or_default();
-
-        match compact {
-            true => node.to_json(),
-            false => node.to_json_pretty(),
-        }
-    }
-}
-
 #[cfg(test)]
 mod tests {
     //! Most of these tests are trivial but are important given that we use
@@ -68,11 +76,11 @@ mod tests {
     //! Other `serde`-based codecs (e.g. `yaml`) do not have as comprehensive unit tests
     //! (although they do have round-trip prop tests) because they should work if these tests pass).
 
-    use common_dev::pretty_assertions::assert_eq;
-    use schema::{
+    use codec::schema::{
         Array, Article, ArticleOptions, Block, Boolean, Date, Emphasis, Inline, Integer,
         IntegerOrString, Node, Null, Number, Object, Paragraph, Primitive, Time,
     };
+    use common_dev::pretty_assertions::assert_eq;
 
     use super::*;
 

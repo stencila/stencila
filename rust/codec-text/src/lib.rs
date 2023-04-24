@@ -1,6 +1,6 @@
 //! Implements `FromText` and `ToText` traits for encoding and decoding nodes from/to UTF8 strings
 
-use common::eyre::Result;
+use codec::common::eyre::Result;
 
 mod text;
 

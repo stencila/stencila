@@ -370,8 +370,6 @@ name = "codec-debug"
 version = "0.0.0"
 dependencies = [
  "codec",
- "common",
- "schema",
 ]
 
 [[package]]
@@ -379,10 +377,17 @@ name = "codec-html"
 version = "0.0.0"
 dependencies = [
  "codec",
- "common",
  "node-html",
  "quick-xml",
- "schema",
+]
+
+[[package]]
+name = "codec-jats"
+version = "0.0.0"
+dependencies = [
+ "codec",
+ "quick-xml",
+ "roxmltree",
 ]
 
 [[package]]
@@ -390,9 +395,7 @@ name = "codec-json"
 version = "0.0.0"
 dependencies = [
  "codec",
- "common",
  "common-dev",
- "schema",
 ]
 
 [[package]]
@@ -400,8 +403,6 @@ name = "codec-json5"
 version = "0.0.0"
 dependencies = [
  "codec",
- "common",
- "schema",
 ]
 
 [[package]]
@@ -409,9 +410,7 @@ name = "codec-ron"
 version = "0.0.0"
 dependencies = [
  "codec",
- "common",
  "ron",
- "schema",
 ]
 
 [[package]]
@@ -419,8 +418,6 @@ name = "codec-text"
 version = "0.0.0"
 dependencies = [
  "codec",
- "common",
- "schema",
 ]
 
 [[package]]
@@ -428,8 +425,6 @@ name = "codec-yaml"
 version = "0.0.0"
 dependencies = [
  "codec",
- "common",
- "schema",
 ]
 
 [[package]]
@@ -439,15 +434,13 @@ dependencies = [
  "codec",
  "codec-debug",
  "codec-html",
+ "codec-jats",
  "codec-json",
  "codec-json5",
  "codec-ron",
  "codec-text",
  "codec-yaml",
- "common",
- "format",
  "node-strip",
- "schema",
 ]
 
 [[package]]
@@ -1914,6 +1907,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "roxmltree"
+version = "0.18.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "d8f595a457b6b8c6cda66a48503e92ee8d19342f905948f29c383200ec9eb1d8"
+dependencies = [
+ "xmlparser",
+]
+
+[[package]]
 name = "rustc-demangle"
 version = "0.1.22"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2991,6 +2993,12 @@ checksum = "ae8970b36c66498d8ff1d66685dc86b91b29db0c7739899012f63a63814b4b28"
 dependencies = [
  "memchr",
 ]
+
+[[package]]
+name = "xmlparser"
+version = "0.13.5"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "4d25c75bf9ea12c4040a97f829154768bbbce366287e2dc044af160cd79a13fd"
 
 [[package]]
 name = "yansi"

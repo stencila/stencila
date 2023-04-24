@@ -1,15 +1,18 @@
 use std::path::Path;
 
+use codec::{
+    common::eyre::{bail, Result},
+    format::Format,
+    schema::Node,
+};
 pub use codec::{Codec, DecodeOptions, EncodeOptions};
-use common::eyre::{bail, Result};
-use format::Format;
 use node_strip::Strip;
-use schema::Node;
 
 /// Get the codec for a given format
 fn get_codec(format: Format) -> Result<Box<dyn Codec>> {
     match format {
         Format::Debug => Ok(Box::new(codec_debug::DebugCodec)),
+        Format::Jats => Ok(Box::new(codec_jats::JatsCodec)),
         Format::Json => Ok(Box::new(codec_json::JsonCodec)),
         Format::Json5 => Ok(Box::new(codec_json5::Json5Codec)),
         Format::Html => Ok(Box::new(codec_html::HtmlCodec)),
