@@ -78,6 +78,10 @@ enum Command {
         #[arg(long, short)]
         format: Option<Format>,
 
+        /// The codec to use to decode the source
+        #[arg(long)]
+        codec: Option<String>,
+
         /// Overwrite the document if it already exists
         #[arg(long, short)]
         overwrite: bool,
@@ -94,6 +98,10 @@ enum Command {
         /// The format of the source file
         #[arg(long, short, alias = "from")]
         format: Option<Format>,
+
+        /// The codec to use to decode the source
+        #[arg(long)]
+        codec: Option<String>,
 
         /// The type of document to import
         ///
@@ -118,6 +126,10 @@ enum Command {
         #[arg(long, short, alias = "to")]
         format: Option<Format>,
 
+        /// The codec to use to encode to the destination
+        #[arg(long)]
+        codec: Option<String>,
+
         #[command(flatten)]
         options: EncodeOptions,
     },
@@ -130,11 +142,11 @@ enum Command {
         /// The files to synchronize with
         files: Vec<PathBuf>,
 
-        /// The formats of the files
+        /// The formats of the files (or the name of codecs to use)
         ///
         /// This option can be provided separately for each file.
         #[arg(long = "format", short)]
-        formats: Vec<Format>,
+        formats: Vec<String>,
 
         /// The synchronization directions to use for each file
         ///
@@ -176,25 +188,32 @@ enum Command {
         /// If not supplied the output content is written to `stdout`.
         output: Option<PathBuf>,
 
-        /// The format to encode from
+        /// The format to encode from (or codec to use)
         ///
         /// Defaults to inferring the format from the file name extension
         /// of the `input`.
         #[arg(long, short)]
-        from: Option<Format>,
+        from: Option<String>,
 
-        /// The format to encode to
+        /// The format to encode to (or codec to use)
         ///
         /// Defaults to inferring the format from the file name extension
         /// of the `output`. If no `output` is supplied, defaults to JSON.
         #[arg(long, short)]
-        to: Option<Format>,
+        to: Option<String>,
 
         #[command(flatten)]
         decode_options: DecodeOptions,
 
         #[command(flatten)]
         encode_options: EncodeOptions,
+    },
+
+    /// Get available format conversion codecs
+    #[command(alias = "codec")]
+    Codecs {
+        /// The name of the codec to show details for
+        name: Option<String>
     },
 }
 
@@ -204,8 +223,10 @@ struct DecodeOptions {}
 
 impl DecodeOptions {
     /// Build a set of [`codecs::DecodeOptions`] from command line arguments
-    fn build(&self, format: Option<Format>) -> codecs::DecodeOptions {
-        codecs::DecodeOptions { format }
+    fn build(&self, format_or_codec: Option<String>) -> codecs::DecodeOptions {
+        let (format, codec) = infer_format_or_codec(format_or_codec);
+
+        codecs::DecodeOptions { codec, format }
     }
 }
 
@@ -238,8 +259,11 @@ struct EncodeOptions {
 
 impl EncodeOptions {
     /// Build a set of [`codecs::EncodeOptions`] from command line arguments
-    fn build(&self, format: Option<Format>) -> codecs::EncodeOptions {
+    fn build(&self, format_or_codec: Option<String>) -> codecs::EncodeOptions {
+        let (format, codec) = infer_format_or_codec(format_or_codec);
+
         codecs::EncodeOptions {
+            codec,
             format,
             compact: self.compact,
             strip_id: !self.no_strip_id,
@@ -247,6 +271,17 @@ impl EncodeOptions {
             strip_execution: self.strip_execution,
             strip_outputs: self.strip_outputs,
         }
+    }
+}
+
+/// If the string matches the name of a format then assume it is a format, otherwise assume it is a codec name
+fn infer_format_or_codec(format_or_codec: Option<String>) -> (Option<Format>, Option<String>) {
+    match format_or_codec {
+        Some(format_or_codec) => match Format::from_name(&format_or_codec.to_lowercase()) {
+            Ok(format) => (Some(format), None),
+            Err(..) => (None, Some(format_or_codec)),
+        },
+        None => (None, None),
     }
 }
 
@@ -267,6 +302,7 @@ async fn run(cli: Cli) -> Result<()> {
             overwrite,
             source,
             format,
+            codec,
         } => {
             Document::new(
                 r#type,
@@ -274,6 +310,7 @@ async fn run(cli: Cli) -> Result<()> {
                 overwrite,
                 source.as_deref(),
                 format,
+                codec,
             )
             .await?;
         }
@@ -282,12 +319,13 @@ async fn run(cli: Cli) -> Result<()> {
             doc,
             source,
             format,
-            options,
+            codec,
             r#type,
+            ..
         } => {
             let doc = Document::open(&doc).await?;
 
-            let options = options.build(format);
+            let options = codecs::DecodeOptions { codec, format };
 
             doc.import(&source, Some(options), r#type).await?;
         }
@@ -296,11 +334,20 @@ async fn run(cli: Cli) -> Result<()> {
             doc,
             dest,
             format,
+            codec,
             options,
         } => {
             let doc = Document::open(&doc).await?;
 
-            let options = options.build(format);
+            let options = codecs::EncodeOptions {
+                codec,
+                format,
+                compact: options.compact,
+                strip_id: !options.no_strip_id,
+                strip_code: options.strip_code,
+                strip_execution: options.strip_execution,
+                strip_outputs: options.strip_outputs,
+            };
 
             let content = doc.export(dest.as_deref(), Some(options)).await?;
             if !content.is_empty() {
@@ -319,11 +366,11 @@ async fn run(cli: Cli) -> Result<()> {
             let doc = Document::open(&doc).await?;
 
             for (index, file) in files.iter().enumerate() {
-                let format = formats.get(index).copied();
+                let format_or_codec = formats.get(index).cloned();
                 let direction = directions.get(index).copied();
 
-                let decode_options = Some(decode_options.build(format));
-                let encode_options = Some(encode_options.build(format));
+                let decode_options = Some(decode_options.build(format_or_codec.clone()));
+                let encode_options = Some(encode_options.build(format_or_codec));
 
                 doc.sync_file(file, direction, decode_options, encode_options)
                     .await?;
@@ -363,6 +410,11 @@ async fn run(cli: Cli) -> Result<()> {
                 println!("{}", content)
             }
         }
+
+        Command::Codecs { name } => match name {
+            Some(name) => println!("{:#?}", codecs::spec(&name)?),
+            None => println!("{:#?}", codecs::specs()),
+        },
     }
 
     if wait {

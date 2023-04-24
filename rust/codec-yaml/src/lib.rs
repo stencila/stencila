@@ -7,6 +7,7 @@ use codec::{
     },
     format::Format,
     schema::Node,
+    status::Status,
     Codec, DecodeOptions, EncodeOptions,
 };
 
@@ -14,7 +15,15 @@ pub struct YamlCodec;
 
 #[async_trait]
 impl Codec for YamlCodec {
-    fn formats(&self) -> Vec<Format> {
+    fn name(&self) -> &str {
+        "yaml"
+    }
+
+    fn status(&self) -> Status {
+        Status::Stable
+    }
+
+    fn supported_formats(&self) -> Vec<Format> {
         vec![Format::Yaml]
     }
 

@@ -6,6 +6,7 @@ use codec::{
     },
     format::Format,
     schema::Node,
+    status::Status,
     Codec, DecodeOptions, EncodeOptions,
 };
 
@@ -17,7 +18,17 @@ pub struct RonCodec;
 
 #[async_trait]
 impl Codec for RonCodec {
-    fn formats(&self) -> Vec<Format> {
+    fn name(&self) -> &str {
+        "ron"
+    }
+
+    fn status(&self) -> Status {
+        // Considered unstable because RON does not appear to encode
+        // all nodes as expected.
+        Status::Unstable
+    }
+
+    fn supported_formats(&self) -> Vec<Format> {
         vec![Format::Ron]
     }
 

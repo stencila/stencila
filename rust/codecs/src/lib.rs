@@ -1,50 +1,79 @@
 use std::path::Path;
 
 use codec::{
-    common::eyre::{bail, Result},
+    common::{
+        eyre::{bail, eyre, Result},
+        itertools::Itertools,
+    },
     format::Format,
     schema::Node,
+    CodecSpec,
 };
 pub use codec::{Codec, DecodeOptions, EncodeOptions};
 use node_strip::Strip;
 
+/// Get a list of all codecs
+pub fn list() -> Vec<Box<dyn Codec>> {
+    vec![
+        Box::new(codec_debug::DebugCodec),
+        Box::new(codec_html::HtmlCodec),
+        Box::new(codec_jats::JatsCodec),
+        Box::new(codec_json::JsonCodec),
+        Box::new(codec_json5::Json5Codec),
+        Box::new(codec_ron::RonCodec),
+        Box::new(codec_yaml::YamlCodec),
+    ]
+}
+
+/// Get a list of all codec specifications
+pub fn specs() -> Vec<CodecSpec> {
+    list().iter().map(|codec| codec.spec()).collect_vec()
+}
+
 /// Get the codec for a given format
-fn get_codec(format: Format) -> Result<Box<dyn Codec>> {
-    match format {
-        Format::Debug => Ok(Box::new(codec_debug::DebugCodec)),
-        Format::Jats => Ok(Box::new(codec_jats::JatsCodec)),
-        Format::Json => Ok(Box::new(codec_json::JsonCodec)),
-        Format::Json5 => Ok(Box::new(codec_json5::Json5Codec)),
-        Format::Html => Ok(Box::new(codec_html::HtmlCodec)),
-        Format::Ron => Ok(Box::new(codec_ron::RonCodec)),
-        Format::Yaml => Ok(Box::new(codec_yaml::YamlCodec)),
-        _ => bail!("No codec available for format `{format}`"),
+fn get(name: Option<&String>, format: Option<Format>) -> Result<Box<dyn Codec>> {
+    if let Some(name) = name {
+        list()
+            .into_iter()
+            .find_map(|codec| (codec.name() == name).then_some(codec))
+            .ok_or_else(|| eyre!("Unable to find a codec with name `{name}`"))
+    } else if let Some(format) = format {
+        list()
+            .into_iter()
+            .find_map(|codec| codec.supported_formats().contains(&format).then_some(codec))
+            .ok_or_else(|| eyre!("Unable to find a codec supporting format `{format}`"))
+    } else {
+        bail!("One of `name` or `format` must be supplied")
     }
+}
+
+/// Get the specification for a codec
+pub fn spec(name: &str) -> Result<CodecSpec> {
+    Ok(get(Some(&name.to_string()), None)?.spec())
 }
 
 /// Decode a Stencila Schema node from a string
 pub async fn from_str(str: &str, options: Option<DecodeOptions>) -> Result<Node> {
-    let format = match options.as_ref().and_then(|options| options.format) {
-        Some(format) => format,
-        None => Format::Json,
-    };
+    let codec = options.as_ref().and_then(|options| options.codec.as_ref());
 
-    get_codec(format)?.from_str(str, options).await
+    let format = options
+        .as_ref()
+        .and_then(|options| options.format)
+        .or(Some(Format::Json));
+
+    get(codec, format)?.from_str(str, options).await
 }
 
 /// Decode a Stencila Schema node from a file system path
 pub async fn from_path(path: &Path, options: Option<DecodeOptions>) -> Result<Node> {
+    let codec = options.as_ref().and_then(|options| options.codec.as_ref());
+
     let format = match options.as_ref().and_then(|options| options.format) {
         Some(format) => format,
         None => Format::from_path(path)?,
     };
 
-    get_codec(format)?.from_path(path, options).await
-}
-
-/// Decode a Stencila Schema node from a file system path with main options as arguments
-pub async fn from_path_with(path: &Path, format: Option<Format>) -> Result<Node> {
-    from_path(path, Some(DecodeOptions { format })).await
+    get(codec, Some(format))?.from_path(path, options).await
 }
 
 /// Decode a Stencila Schema node from `stdin`
@@ -62,12 +91,14 @@ pub async fn from_stdin(options: Option<DecodeOptions>) -> Result<Node> {
 
 /// Encode a Stencila Schema node to a string
 pub async fn to_string(node: &Node, options: Option<EncodeOptions>) -> Result<String> {
-    let format = match options.as_ref().and_then(|options| options.format) {
-        Some(format) => format,
-        None => Format::Json,
-    };
+    let codec = options.as_ref().and_then(|options| options.codec.as_ref());
 
-    let codec = get_codec(format)?;
+    let format = options
+        .as_ref()
+        .and_then(|options| options.format)
+        .or(Some(Format::Json));
+
+    let codec = get(codec, format)?;
 
     if let Some(EncodeOptions {
         strip_id: id,
@@ -95,12 +126,14 @@ pub async fn to_string(node: &Node, options: Option<EncodeOptions>) -> Result<St
 
 /// Encode a Stencila Schema node to a file system path
 pub async fn to_path(node: &Node, path: &Path, options: Option<EncodeOptions>) -> Result<()> {
+    let codec = options.as_ref().and_then(|options| options.codec.as_ref());
+
     let format = match options.as_ref().and_then(|options| options.format) {
         Some(format) => format,
         None => Format::from_path(path)?,
     };
 
-    let codec = get_codec(format)?;
+    let codec = get(codec, Some(format))?;
 
     if let Some(EncodeOptions {
         strip_id: id,
@@ -124,19 +157,6 @@ pub async fn to_path(node: &Node, path: &Path, options: Option<EncodeOptions>) -
     }
 
     codec.to_path(node, path, options).await
-}
-
-/// Encode a Stencila Schema node to a file system path with main options as arguments
-pub async fn to_path_with(node: &Node, path: &Path, format: Option<Format>) -> Result<()> {
-    to_path(
-        node,
-        path,
-        Some(EncodeOptions {
-            format,
-            ..Default::default()
-        }),
-    )
-    .await
 }
 
 /// Convert a document from one format to another

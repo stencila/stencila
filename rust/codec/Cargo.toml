@@ -7,3 +7,4 @@ edition = "2021"
 common = { path = "../common" }
 format = { path = "../format" }
 schema = { path = "../schema" }
+status = { path = "../status" }

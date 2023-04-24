@@ -2,6 +2,7 @@ use codec::{
     common::{async_trait::async_trait, eyre::Result},
     format::Format,
     schema::Node,
+    status::Status,
     Codec, EncodeOptions,
 };
 
@@ -14,8 +15,24 @@ pub struct DebugCodec;
 
 #[async_trait]
 impl Codec for DebugCodec {
-    fn formats(&self) -> Vec<Format> {
+    fn name(&self) -> &str {
+        "debug"
+    }
+
+    fn status(&self) -> Status {
+        Status::Stable
+    }
+
+    fn supported_formats(&self) -> Vec<Format> {
         vec![Format::Debug]
+    }
+
+    fn supports_from_string(&self) -> bool {
+        false
+    }
+
+    fn supports_from_path(&self) -> bool {
+        false
     }
 
     async fn to_string(&self, node: &Node, options: Option<EncodeOptions>) -> Result<String> {

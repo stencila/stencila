@@ -2,6 +2,7 @@ use codec::{
     common::{async_trait::async_trait, eyre::Result},
     format::Format,
     schema::Node,
+    status::Status,
     Codec, EncodeOptions,
 };
 use node_html::ToHtml;
@@ -11,7 +12,15 @@ pub struct HtmlCodec;
 
 #[async_trait]
 impl Codec for HtmlCodec {
-    fn formats(&self) -> Vec<Format> {
+    fn name(&self) -> &str {
+        "html"
+    }
+
+    fn status(&self) -> Status {
+        Status::UnderDevelopment
+    }
+
+    fn supported_formats(&self) -> Vec<Format> {
         vec![Format::Html]
     }
 

@@ -56,34 +56,39 @@ The current crates include:
 
 #### Node traits
 
-- [`node-store`](node-store): Provides the `Read` and `Write` traits for reading and writing document nodes from/to Automerge stores.
+- [`node-html`](node-html) and [`node-html-derive`](node-html-derive): Provides the `ToHtml` trait and macro for generating HTML for document nodes.
 
-- [`node-store-derive`](node-store): Implements the `Read` and `Write` derive macros for `struct`s and `enum`s in the Stencila Schema.
+- [`node-store`](node-store) and [`node-store-derive`](node-store-derive): Provides the `Read` and `Write` traits and macros for reading and writing document nodes from/to Automerge stores.
 
-- [`node-strip`](node-strip): Implements the `Strip` trait which provides the `strip` method for removing one or properties of a document node.
+- [`node-strip`](node-strip) and [`node-strip-derive`](node-strip-derive): Provides the `Strip` trait and macro for removing properties of document nodes.
 
 #### Codecs
 
-- [`codec`](codec) `🏗️ In progress`: The `Codec` trait for encoding/decoding between the types in the `schema` crate and other external formats (i.e. a 'converter').
+- [`format`](format): Provides the `Format` enum which describes alternative document formats.
 
-- [`codec-utf8`](codec-utf8): A `Codec` for UTF8 strings.
+- [`codec`](codec): Provies the `Codec` trait for encoding/decoding between the types in the `schema` crate and other external formats (i.e. a 'converter').
 
-- [`codec-json`](codec-json): A `Codec` for [JSON](https://json.org/).
+- [`codec-debug`](codec-debug): A codec for the Rust [`Debug`](https://doc.rust-lang.org/std/fmt/trait.Debug.html) trait.
 
-- [`codec-json5`](codec-json5): A `Codec` for [JSON5](https://json5.org/).
+- [`codec-html`](codec-html) `🏗️ In progress`: A codec for [HTML](https://developer.mozilla.org/en-US/docs/Web/HTML).
 
-- [`codec-yaml`](codec-yaml): A `Codec` for [YAML](https://yaml.org/).
+- [`codec-jats`](codec-jats) `🏗️ In progress`: A codec for [JATS XML](https://jats.nlm.nih.gov/).
 
-- [`codec-jats`](codec-jats) `🏗️ In progress`: A `Codec` for [JATS XML](https://jats.nlm.nih.gov/).
+- [`codec-json`](codec-json): A codec for [JSON](https://json.org/).
 
-- [`codec-html`](codec-html) `🏗️ In progress`: A `Codec` for [HTML](https://developer.mozilla.org/en-US/docs/Web/HTML).
+- [`codec-json5`](codec-json5): A codec for [JSON5](https://json5.org/).
+
+- [`codec-ron`](codec-ron): A codec for [RON](https://github.com/ron-rs/ron).
+
+- [`codec-text`](codec-text): A codec for plain text.
+
+- [`codec-yaml`](codec-yaml): A codec for [YAML](https://yaml.org/).
 
 #### Utilities
 
 - [`common`](common): Common dependencies used across crates.
 
 - [`common-dev`](common-dev): Common development dependencies used across crates.
-
 
 ### Tokio console
 
@@ -98,7 +103,6 @@ and in another terminal run `tokio-console`
 ```console
 tokio-console
 ```
-
 
 ### Releases
 

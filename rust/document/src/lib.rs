@@ -46,7 +46,7 @@ impl DocumentType {
     /// type (e.g. [`Format::Json`]).
     fn from_format(format: &Format) -> Option<Self> {
         match format {
-            Format::Jats | Format::Markdown => Some(Self::Article),
+            Format::Jats | Format::Md => Some(Self::Article),
             _ => None,
         }
     }
@@ -156,7 +156,8 @@ impl Document {
     /// optionally overwriting any existing file at the path by using the `overwrite` option.
     ///
     /// The document can be initialized from a `source` file, in which case `format` may
-    /// be used to specify the format of that file.
+    /// be used to specify the format of that file, or `codec` the name of the codec to
+    /// decode it with.
     #[tracing::instrument]
     pub async fn new(
         r#type: DocumentType,
@@ -164,6 +165,7 @@ impl Document {
         overwrite: bool,
         source: Option<&Path>,
         format: Option<Format>,
+        codec: Option<String>,
     ) -> Result<Self> {
         let path = path.map_or_else(|| r#type.main(), PathBuf::from);
 
@@ -172,7 +174,7 @@ impl Document {
         }
 
         let (root, message) = if let Some(source) = source {
-            let decode_options = Some(DecodeOptions { format });
+            let decode_options = Some(DecodeOptions { format, codec });
             let filename = source
                 .file_name()
                 .map_or_else(|| "unnamed", |name| name.to_str().unwrap_or_default());

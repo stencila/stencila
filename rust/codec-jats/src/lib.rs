@@ -2,6 +2,7 @@ use codec::{
     common::{async_trait::async_trait, eyre::Result},
     format::Format,
     schema::Node,
+    status::Status,
     Codec, DecodeOptions, EncodeOptions,
 };
 
@@ -10,7 +11,15 @@ pub struct JatsCodec;
 
 #[async_trait]
 impl Codec for JatsCodec {
-    fn formats(&self) -> Vec<Format> {
+    fn name(&self) -> &str {
+        "jats"
+    }
+
+    fn status(&self) -> Status {
+        Status::UnderDevelopment
+    }
+
+    fn supported_formats(&self) -> Vec<Format> {
         vec![Format::Jats]
     }
 

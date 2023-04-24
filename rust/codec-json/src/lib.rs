@@ -7,6 +7,7 @@ use codec::{
     },
     format::Format,
     schema::Node,
+    status::Status,
     Codec, DecodeOptions, EncodeOptions,
 };
 
@@ -15,7 +16,15 @@ pub struct JsonCodec;
 
 #[async_trait]
 impl Codec for JsonCodec {
-    fn formats(&self) -> Vec<Format> {
+    fn name(&self) -> &str {
+        "json"
+    }
+
+    fn status(&self) -> Status {
+        Status::Unstable
+    }
+
+    fn supported_formats(&self) -> Vec<Format> {
         vec![Format::Json]
     }
 

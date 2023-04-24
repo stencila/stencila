@@ -44,20 +44,20 @@ impl Document {
         // Before starting watches import and export as necessary.
         match direction {
             SyncDirection::In => {
-                let node = codecs::from_path(path, decode_options).await?;
+                let node = codecs::from_path(path, decode_options.clone()).await?;
                 self.dump(&node).await?;
             }
             SyncDirection::Out => {
                 let node = self.load().await?;
-                codecs::to_path(&node, path, encode_options).await?;
+                codecs::to_path(&node, path, encode_options.clone()).await?;
             }
             SyncDirection::InOut => {
                 if path.exists() {
-                    let node = codecs::from_path(path, decode_options).await?;
+                    let node = codecs::from_path(path, decode_options.clone()).await?;
                     self.dump(&node).await?;
                 } else {
                     let node = self.load().await?;
-                    codecs::to_path(&node, path, encode_options).await?;
+                    codecs::to_path(&node, path, encode_options.clone()).await?;
                 }
             }
         }
@@ -159,7 +159,7 @@ impl Document {
                         path_buf.display()
                     );
 
-                    match codecs::from_path(&path_buf, decode_options).await {
+                    match codecs::from_path(&path_buf, decode_options.clone()).await {
                         Ok(node) => {
                             if let Err(error) = update_sender.send(node).await {
                                 tracing::error!("While sending node update: {error}");
@@ -186,7 +186,9 @@ impl Document {
 
                     let node = receiver.borrow_and_update().clone();
 
-                    if let Err(error) = codecs::to_path(&node, &path_buf, encode_options).await {
+                    if let Err(error) =
+                        codecs::to_path(&node, &path_buf, encode_options.clone()).await
+                    {
                         tracing::error!("While exporting node to `{}`: {error}", path_buf.display())
                     }
 

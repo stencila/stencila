@@ -8,6 +8,7 @@ use codec::{
     },
     format::Format,
     schema::Node,
+    status::Status,
     Codec, DecodeOptions, EncodeOptions,
 };
 
@@ -16,7 +17,16 @@ pub struct Json5Codec;
 
 #[async_trait]
 impl Codec for Json5Codec {
-    fn formats(&self) -> Vec<Format> {
+    fn name(&self) -> &str {
+        "json5"
+    }
+
+    fn status(&self) -> Status {
+        // Conidered unstable until `to_string` encodes JSON5, not JSON
+        Status::Unstable
+    }
+
+    fn supported_formats(&self) -> Vec<Format> {
         vec![Format::Json5]
     }
 

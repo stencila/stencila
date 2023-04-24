@@ -5,18 +5,24 @@ use std::path::Path;
 use common::{
     clap::{self, ValueEnum},
     eyre::{bail, Result},
+    serde::Serialize,
     strum::{Display, EnumString},
 };
 
-#[derive(Debug, Display, Clone, Copy, ValueEnum, EnumString)]
-#[strum(serialize_all = "lowercase", crate = "common::strum")]
+#[derive(Debug, Display, Clone, Copy, PartialEq, ValueEnum, EnumString, Serialize)]
+#[strum(
+    serialize_all = "lowercase",
+    ascii_case_insensitive,
+    crate = "common::strum"
+)]
+#[serde(rename_all = "lowercase", crate = "common::serde")]
 pub enum Format {
     Debug,
     Jats,
     Json,
     Json5,
     Html,
-    Markdown,
+    Md,
     Ron,
     Yaml,
 }
@@ -27,11 +33,13 @@ impl Format {
         use Format::*;
 
         Ok(match ext.to_lowercase().trim() {
+            "debug" => Debug,
             "jats" => Jats,
             "json" => Json,
             "json5" => Json5,
             "html" => Html,
-            "md" | "markdown" => Markdown,
+            "md" | "markdown" => Md,
+            "ron" => Ron,
             "yaml" | "yml" => Yaml,
             _ => bail!("No format matching file name extension `{ext}`"),
         })

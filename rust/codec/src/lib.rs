@@ -4,6 +4,7 @@ use common::{
     async_trait::async_trait,
     defaults::Defaults,
     eyre::{bail, Result},
+    serde::Serialize,
     tokio::{
         fs::{create_dir_all, File},
         io::{AsyncReadExt, AsyncWriteExt},
@@ -17,19 +18,81 @@ use schema::Node;
 pub use common;
 pub use format;
 pub use schema;
+pub use status;
+use status::Status;
 
+/// A codec for decoding/encdoing between Stencila Schema nodes and alternative formats
 #[async_trait]
 pub trait Codec: Sync + Send {
-    /// The formats that the codec is able to decode from, or encode to
+    /// The name of the codec
     ///
-    /// Most codecs only handle a single format, but multiple formats are
+    /// Used when listing codecs and to select a codec when the user specifies
+    /// the relevant options on the command line e.g. `--to jats-pandoc`.
+    /// Should be kebab-cased.
+    fn name(&self) -> &str;
+
+    /// The status of the codec
+    ///
+    /// Used when listing codecs and to warn users when using a codec that
+    /// is not stable.
+    fn status(&self) -> Status;
+
+    /// The formats that the codec supports
+    ///
+    /// Most codecs only support a single format, but multiple formats are
     /// possible.
-    fn formats(&self) -> Vec<Format>;
+    fn supported_formats(&self) -> Vec<Format>;
+
+    /// Whether the codec supports decoding from string content
+    fn supports_from_string(&self) -> bool {
+        true
+    }
+
+    /// Whether the codec supports decoding from a file system path
+    fn supports_from_path(&self) -> bool {
+        true
+    }
+
+    /// Whether the codec supports encoding to string content
+    fn supports_to_string(&self) -> bool {
+        true
+    }
+
+    /// Whether the codec supports encoding to a file system path
+    fn supports_to_path(&self) -> bool {
+        true
+    }
+
+    /// Whether the codec uses remote state
+    ///
+    /// Some formats (e.g. Google Docs) have their canonical state in a remote
+    /// location (e.g. Google's servers) and Stencila only "mirrors" them in a local
+    /// file containing an id or URL linking the file to the remote state.
+    fn has_remote_state(&self) -> bool {
+        false
+    }
+
+    /// Generate a [`CodecSpec`] for the codec
+    fn spec(&self) -> CodecSpec {
+        CodecSpec {
+            name: self.name().to_string(),
+            status: self.status(),
+            supported_formats: self.supported_formats(),
+            supports_from_string: self.supports_from_string(),
+            supports_from_path: self.supports_from_path(),
+            supports_to_string: self.supports_to_string(),
+            supports_to_path: self.supports_to_path(),
+            has_remote_state: self.has_remote_state(),
+        }
+    }
 
     /// Decode a Stencila Schema node from a string
     #[allow(clippy::wrong_self_convention)]
     async fn from_str(&self, _str: &str, _options: Option<DecodeOptions>) -> Result<Node> {
-        bail!("Decoding from string is not implemented for this format")
+        bail!(
+            "Decoding from string is not implemented for codec `{}`",
+            self.name()
+        )
     }
 
     /// Decode a Stencila Schema node from a file
@@ -57,7 +120,10 @@ pub trait Codec: Sync + Send {
 
     /// Encode a Stencila Schema node to a string
     async fn to_string(&self, _node: &Node, _options: Option<EncodeOptions>) -> Result<String> {
-        bail!("Encoding to a string is not implemented for this format")
+        bail!(
+            "Encoding to a string is not implemented for codec `{}`",
+            self.name()
+        )
     }
 
     /// Encode a Stencila Schema to a file
@@ -89,9 +155,30 @@ pub trait Codec: Sync + Send {
     }
 }
 
+/// A specification of a codec
+///
+/// Used to allow user inspection of the capabilities of a codec.
+#[derive(Debug, Serialize)]
+#[serde(crate = "common::serde")]
+pub struct CodecSpec {
+    name: String,
+    status: Status,
+    supported_formats: Vec<Format>,
+    supports_from_string: bool,
+    supports_from_path: bool,
+    supports_to_string: bool,
+    supports_to_path: bool,
+    has_remote_state: bool,
+}
+
 /// Decoding options
-#[derive(Debug, Default, Clone, Copy)]
+#[derive(Debug, Default, Clone)]
 pub struct DecodeOptions {
+    /// The name of the codec to use for decoding
+    ///
+    /// If not supplied then the format will be used to choose a codec.
+    pub codec: Option<String>,
+
     /// The format to be decode from
     ///
     /// Most codecs only decode one format. However, for those that handle multiple
@@ -100,8 +187,13 @@ pub struct DecodeOptions {
 }
 
 /// Encoding options
-#[derive(Debug, Defaults, Clone, Copy)]
+#[derive(Debug, Defaults, Clone)]
 pub struct EncodeOptions {
+    /// The name of the codec to use for encoding
+    ///
+    /// If not supplied then the format will be used to choose a codec.
+    pub codec: Option<String>,
+
     /// The format to encode to
     ///
     /// Most codecs only encode to one format. However, for those that handle multiple
