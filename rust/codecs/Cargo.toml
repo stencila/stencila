@@ -9,6 +9,7 @@ codec-debug = { path = "../codec-debug" }
 codec-json = { path = "../codec-json" }
 codec-json5 = { path = "../codec-json5" }
 codec-html = { path = "../codec-html" }
+codec-ron = { path = "../codec-ron" }
 codec-text = { path = "../codec-text" }
 codec-yaml = { path = "../codec-yaml" }
 common = { path = "../common" }

@@ -17,6 +17,7 @@ pub enum Format {
     Json5,
     Html,
     Markdown,
+    Ron,
     Yaml,
 }
 

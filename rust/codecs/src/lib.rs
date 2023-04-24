@@ -13,6 +13,7 @@ fn get_codec(format: Format) -> Result<Box<dyn Codec>> {
         Format::Json => Ok(Box::new(codec_json::JsonCodec)),
         Format::Json5 => Ok(Box::new(codec_json5::Json5Codec)),
         Format::Html => Ok(Box::new(codec_html::HtmlCodec)),
+        Format::Ron => Ok(Box::new(codec_ron::RonCodec)),
         Format::Yaml => Ok(Box::new(codec_yaml::YamlCodec)),
         _ => bail!("No codec available for format `{format}`"),
     }
