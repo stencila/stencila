@@ -45,7 +45,7 @@ const NO_DERIVE_STRIP: &[&str] = &[
     "For",
     "If",
     "IfClause",
-    "Include"
+    "Include",
 ];
 
 /// Types that should not derive the `ToHtml` trait because there are manual implementations

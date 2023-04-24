@@ -1,6 +1,6 @@
 use node_strip::{Strip, Targets};
 
-use crate::{If, strip_execution};
+use crate::{strip_execution, If};
 
 impl Strip for If {
     fn strip(&mut self, targets: &Targets) -> &mut Self {

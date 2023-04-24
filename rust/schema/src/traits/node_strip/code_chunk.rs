@@ -1,6 +1,6 @@
 use node_strip::{Strip, Targets};
 
-use crate::{CodeChunk, strip_execution, strip_code};
+use crate::{strip_code, strip_execution, CodeChunk};
 
 impl Strip for CodeChunk {
     fn strip(&mut self, targets: &Targets) -> &mut Self {

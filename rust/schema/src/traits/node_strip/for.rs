@@ -1,6 +1,6 @@
 use node_strip::{Strip, Targets};
 
-use crate::{For, strip_execution, strip_code};
+use crate::{strip_code, strip_execution, For};
 
 impl Strip for For {
     fn strip(&mut self, targets: &Targets) -> &mut Self {
