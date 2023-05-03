@@ -57,4 +57,9 @@ impl Format {
 
         Self::from_name(&name.to_string_lossy())
     }
+
+    /// Get the default file name extension for a format
+    pub fn get_extension(&self) -> String {
+        self.to_string()
+    }
 }

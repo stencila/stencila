@@ -52,6 +52,10 @@ install:
 generated:
 	cargo run -p schema-gen
 
+# Update derived examples
+examples:
+	UPDATE_EXAMPLES=true cargo test -p tests examples_encode_decode
+
 # Clean the ../target dir
 clean:
 	cargo clean --target-dir ../target

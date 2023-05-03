@@ -41,5 +41,9 @@ docker:
 generated:
 	make -C rust generated
 
+examples:
+	make -C rust examples
+.PHONY: examples
+
 clean:
 	make -C rust clean

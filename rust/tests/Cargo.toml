@@ -1,0 +1,10 @@
+[package]
+name = "tests"
+version = "0.0.0"
+edition = "2021"
+
+[dependencies]
+codecs = { path = "../codecs" }
+common = { path = "../common" }
+common-dev = { path = "../common-dev" }
+format = { path = "../format" }

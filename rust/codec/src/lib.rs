@@ -161,14 +161,14 @@ pub trait Codec: Sync + Send {
 #[derive(Debug, Serialize)]
 #[serde(crate = "common::serde")]
 pub struct CodecSpec {
-    name: String,
-    status: Status,
-    supported_formats: Vec<Format>,
-    supports_from_string: bool,
-    supports_from_path: bool,
-    supports_to_string: bool,
-    supports_to_path: bool,
-    has_remote_state: bool,
+    pub name: String,
+    pub status: Status,
+    pub supported_formats: Vec<Format>,
+    pub supports_from_string: bool,
+    pub supports_from_path: bool,
+    pub supports_to_string: bool,
+    pub supports_to_path: bool,
+    pub has_remote_state: bool,
 }
 
 /// Decoding options

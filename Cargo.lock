@@ -2292,6 +2292,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "tests"
+version = "0.0.0"
+dependencies = [
+ "codecs",
+ "common",
+ "common-dev",
+ "format",
+]
+
+[[package]]
 name = "thiserror"
 version = "1.0.40"
 source = "registry+https://github.com/rust-lang/crates.io-index"
