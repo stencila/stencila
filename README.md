@@ -5,7 +5,7 @@
 
 ## 👋 Introduction
 
-Stencila is a platform for authoring, collaborating on, and publishing dynamic, data-driven documents. Our aim is to lower the barriers for creating data-driven documents and make it easier to create beautiful, interactive, and semantically rich, articles, web pages and applications from them.
+Stencila is a platform for collaborating on, and publishing, dynamic, data-driven content. Our aim is to lower the barriers for creating data-driven documents and make it easier to create beautiful, interactive, and semantically rich, articles, web pages and applications from them.
 
 ## 📈 Status
 
@@ -13,9 +13,9 @@ This is `v2` of Stencila, a rewrite in Rust aimed at leveraging two relatively r
 
 - [Conflict-free replicated data types (CRDTs)](https://crdt.tech/), and specifically the production ready, Rust-based [Automerge `v2`](https://github.com/automerge/automerge), for de-centralized collaboration and version control.
 
-- [Generative pre-trained transformers (GPTs)](https://en.wikipedia.org/wiki/Generative_pre-trained_transformer), and large language models (LLMs) in general, for enhancing the authoring and coding productivity.
+- [Large language models (LLMs)](https://en.wikipedia.org/wiki/Large_language_model)for assisting in writing and editing, prose and code.
 
-We are embarking on a rewrite because CRDTs will now be the foundational synchronization and storage layer for Stencila documents which necessitates fundamental changes to other parts of the platform. Furthermore, a rewrite will allow us to leverage CRDTs to bake in mechanisms to mitigate the risks associated with using LLM assistants for authoring documents.
+We are embarking on a rewrite because CRDTs will now be the foundational synchronization and storage layer for Stencila documents. This requires fundamental changes to most other parts of the platform (e.g. how changes are applied to dynamic documents). Furthermore, a rewrite allow us to bake in, rather than bolt on, mechanisms to mitigate the risks associated with using LLM assistants for authoring documents (e.g. recording the actor, human or LLM, that made the change to a document).
 
 We're in the early stages of this rewrite, and this document will be updated with a roadmap and other details soon.
 
@@ -79,15 +79,15 @@ docker run -it --rm -v "$PWD":/work -w /work --network host ghcr.io/stencila/ste
 
 This repository is organized into the following modules. Please see their respective READMEs for guides to contributing.
 
-- `schema`: YAML files which define the Stencila Schema for dynamic documents.
+- [`schema`](schema): YAML files which define the Stencila Schema, an implementation of, and extensions to, https://schema.org, for documents.
 
-- `json-ld` `🏗️ In progress`: A [JSON LD](https://json-ld.org/) `@context` for Stencila Schema generated from the files in `schema`
+- `json-ld` `🏗️ In progress`: A [JSON LD](https://json-ld.org/) `@context` for Stencila Schema generated from the files in `schema`.
 
-- `json-schema` `🏗️ In progress`: A [JSON Schema](https://json-schema.org/) for Stencila Schema generated from the files in `schema`
+- `json-schema` `🏗️ In progress`: A [JSON Schema](https://json-schema.org/) for Stencila Schema generated from the files in `schema`.
 
-- `rust`: Several Rust crates implementing core functionality including generating language bindings for the schema (including for Rust itself), and for working with documents that adhere to that schema.
+- [`rust`](rust): Several Rust crates implementing core functionality and a CLI for working with documents that adhere to that Stencila Schema.
 
-- `docs` `🏗️ In progress`: Documentation, including reference documentation generated from `schema` and the `rust` CLI interface.
+- [`docs`](docs) `🏗️ In progress`: Documentation, including reference documentation generated from `schema` and the `rust` CLI interface.
 
 - `node` `🧭 Planned`: A Node.js package built on top of the Rust crates which provides interfaces to use Stencila from within Node.js.
 
