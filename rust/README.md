@@ -29,7 +29,7 @@ make setup
 If you are contributing code please run formatting, linting and tests before submitting PRs:
 
 ```sh
-make format lint test
+make fix test
 ```
 
 ### Code organization
@@ -92,13 +92,13 @@ The current crates include:
 
 ### Tokio console
 
-Turn on the `console-subscriber` feature to turn on the awesome [`tokio-console`](https://github.com/tokio-rs/console) for debugging async tasks and locks e.g.
+Turn on the `console-subscriber` feature to use [`tokio-console`](https://github.com/tokio-rs/console) for debugging async tasks and locks e.g.
 
 ```console
 cargo run --bin stencila --features=console-subscriber -- serve
 ```
 
-and in another terminal run `tokio-console`
+and in another terminal run `tokio-console`,
 
 ```console
 tokio-console
@@ -112,4 +112,4 @@ To create a release do,
 cargo release -p stencila --tag-prefix '' --no-publish alpha --execute
 ```
 
-This will increment the version of the `stencila` package, create a Git tag, and trigger the `release.yaml` Github Actions workflow. You'll also have to mark the release as 'Latest' on Github for it to be used by default by the `install.sh` script in the root of this repo.
+This will increment the version of the `stencila` package, create a Git tag, and trigger the `release.yaml` Github Actions workflow. You'll also have to mark the release as 'Latest' on Github (if it is not already) for it to be used by default by the `install.sh` script in the root of this repo.
