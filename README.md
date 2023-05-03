@@ -89,6 +89,8 @@ This repository is organized into the following modules. Please see their respec
 
 - [`docs`](docs) `🏗️ In progress`: Documentation, including reference documentation generated from `schema` and the `rust` CLI interface.
 
+- [`examples`](examples) `🏗️ In progress`: Example of documents conforming to Stencila Schema.
+
 - `node` `🧭 Planned`: A Node.js package built on top of the Rust crates which provides interfaces to use Stencila from within Node.js.
 
 - `python` `🧭 Planned`: A Python package built on top of the Rust crates which provides interfaces to use Stencila from within Python.
