@@ -213,7 +213,7 @@ enum Command {
     #[command(alias = "codec")]
     Codecs {
         /// The name of the codec to show details for
-        name: Option<String>
+        name: Option<String>,
     },
 }
 

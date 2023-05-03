@@ -1,5 +1,5 @@
 //! Provides the `ToHtml` trait for generating  HTML for Stencila Schema nodes
-//! 
+//!
 //! Note that this trait can not be in the `codec-html` crate (like, for examples, the
 //! `ToJSon` trait is in the `codec-json` crate) because `ToHtml` is required by
 //! the `schema` crate, which is itself a dependency of the `codec` crate (i.e. it woulf

@@ -21,7 +21,6 @@ fn examples() -> Result<Vec<PathBuf>> {
         .canonicalize()?;
 
     let files = read_dir(dir)?
-        .into_iter()
         .flatten()
         .map(|path| path.path())
         .collect_vec();
@@ -59,7 +58,7 @@ async fn examples_encode_decode() -> Result<()> {
     {
         let name = path.file_name().unwrap().to_string_lossy();
 
-        let node = codecs::from_path(&path, None).await?;
+        let node = codecs::from_path(path, None).await?;
 
         for format in FORMATS {
             let mut file = path.clone();
@@ -71,7 +70,7 @@ async fn examples_encode_decode() -> Result<()> {
             // for better comparison of differences
 
             let encode_options = EncodeOptions {
-                format: Some(format.clone()),
+                format: Some(*format),
                 ..Default::default()
             };
 
@@ -83,7 +82,7 @@ async fn examples_encode_decode() -> Result<()> {
                     let expected = read_to_string(&file).await?;
                     if actual != expected {
                         if std::env::var("UPDATE_EXAMPLES")
-                            .map(|value| value.to_string())
+                            .map(|value| value)
                             .unwrap_or_default()
                             == "true"
                         {
@@ -110,7 +109,7 @@ async fn examples_encode_decode() -> Result<()> {
             // Decoding: always from the file
 
             let decode_options = DecodeOptions {
-                format: Some(format.clone()),
+                format: Some(*format),
                 ..Default::default()
             };
             let actual = codecs::from_path(&file, Some(decode_options)).await?;
