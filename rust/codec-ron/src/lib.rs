@@ -10,7 +10,7 @@ use codec::{
     Codec, DecodeOptions, EncodeOptions,
 };
 
-/// A codec for the Rust Object Notation (RON)
+/// A codec for the Rusty Object Notation (RON)
 ///
 /// Mostly useful for Rust developers for for easily inspecting
 /// the structure of Stencila documents. See also [`Format::Debug`].
