@@ -8,6 +8,7 @@ use common::{
 use document::{Document, DocumentType, SyncDirection};
 use format::Format;
 
+mod display;
 mod errors;
 mod logging;
 
@@ -387,7 +388,8 @@ async fn run(cli: Cli) -> Result<()> {
 
             let content = doc.export(dest.as_deref(), Some(options)).await?;
             if !content.is_empty() {
-                println!("{}", content)
+                let format = format.unwrap_or(Format::Json);
+                display::highlighted(&content, format)?;
             }
         }
 
@@ -441,11 +443,12 @@ async fn run(cli: Cli) -> Result<()> {
                 input.as_deref(),
                 output.as_deref(),
                 Some(decode_options),
-                Some(encode_options),
+                Some(encode_options.clone()),
             )
             .await?;
             if !content.is_empty() {
-                println!("{}", content)
+                let format = encode_options.format.unwrap_or(Format::Json);
+                display::highlighted(&content, format)?;
             }
         }
 
