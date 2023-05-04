@@ -110,6 +110,10 @@ enum Command {
         #[arg(long, short)]
         r#type: Option<DocumentType>,
 
+        /// What to do if there are losses when decoding
+        #[arg(long, short, default_value_t = codecs::LossesResponse::Warn)]
+        losses: codecs::LossesResponse,
+
         #[command(flatten)]
         options: DecodeOptions,
     },
@@ -129,6 +133,10 @@ enum Command {
         /// The codec to use to encode to the destination
         #[arg(long)]
         codec: Option<String>,
+
+        /// What to do if there are losses when encoding
+        #[arg(long, short, default_value_t = codecs::LossesResponse::Warn)]
+        losses: codecs::LossesResponse,
 
         #[command(flatten)]
         options: EncodeOptions,
@@ -153,6 +161,10 @@ enum Command {
         /// This option can be provided separately for each file.
         #[arg(long = "dir", short)]
         directions: Vec<SyncDirection>,
+
+        /// What to do if there are losses when either encoding or decoding between any of the files
+        #[arg(long, short, default_value_t = codecs::LossesResponse::Warn)]
+        losses: codecs::LossesResponse,
 
         #[command(flatten)]
         decode_options: DecodeOptions,
@@ -202,6 +214,10 @@ enum Command {
         #[arg(long, short)]
         to: Option<String>,
 
+        /// What to do if there are losses when either decoding from the input, or encoding to the output
+        #[arg(long, short, default_value_t = codecs::LossesResponse::Warn)]
+        losses: codecs::LossesResponse,
+
         #[command(flatten)]
         decode_options: DecodeOptions,
 
@@ -217,16 +233,24 @@ enum Command {
     },
 }
 
-/// Command line arguments for decoding nodes to other formats
+/// Command line arguments for decoding nodes from other formats
 #[derive(Debug, Args)]
 struct DecodeOptions {}
 
 impl DecodeOptions {
     /// Build a set of [`codecs::DecodeOptions`] from command line arguments
-    fn build(&self, format_or_codec: Option<String>) -> codecs::DecodeOptions {
+    fn build(
+        &self,
+        format_or_codec: Option<String>,
+        losses: codecs::LossesResponse,
+    ) -> codecs::DecodeOptions {
         let (format, codec) = infer_format_or_codec(format_or_codec);
 
-        codecs::DecodeOptions { codec, format }
+        codecs::DecodeOptions {
+            codec,
+            format,
+            losses,
+        }
     }
 }
 
@@ -259,7 +283,11 @@ struct EncodeOptions {
 
 impl EncodeOptions {
     /// Build a set of [`codecs::EncodeOptions`] from command line arguments
-    fn build(&self, format_or_codec: Option<String>) -> codecs::EncodeOptions {
+    fn build(
+        &self,
+        format_or_codec: Option<String>,
+        losses: codecs::LossesResponse,
+    ) -> codecs::EncodeOptions {
         let (format, codec) = infer_format_or_codec(format_or_codec);
 
         codecs::EncodeOptions {
@@ -270,6 +298,7 @@ impl EncodeOptions {
             strip_code: self.strip_code,
             strip_execution: self.strip_execution,
             strip_outputs: self.strip_outputs,
+            losses,
         }
     }
 }
@@ -321,11 +350,16 @@ async fn run(cli: Cli) -> Result<()> {
             format,
             codec,
             r#type,
+            losses,
             ..
         } => {
             let doc = Document::open(&doc).await?;
 
-            let options = codecs::DecodeOptions { codec, format };
+            let options = codecs::DecodeOptions {
+                codec,
+                format,
+                losses,
+            };
 
             doc.import(&source, Some(options), r#type).await?;
         }
@@ -335,6 +369,7 @@ async fn run(cli: Cli) -> Result<()> {
             dest,
             format,
             codec,
+            losses,
             options,
         } => {
             let doc = Document::open(&doc).await?;
@@ -347,6 +382,7 @@ async fn run(cli: Cli) -> Result<()> {
                 strip_code: options.strip_code,
                 strip_execution: options.strip_execution,
                 strip_outputs: options.strip_outputs,
+                losses,
             };
 
             let content = doc.export(dest.as_deref(), Some(options)).await?;
@@ -360,6 +396,7 @@ async fn run(cli: Cli) -> Result<()> {
             files,
             formats,
             directions,
+            losses,
             decode_options,
             encode_options,
         } => {
@@ -369,8 +406,8 @@ async fn run(cli: Cli) -> Result<()> {
                 let format_or_codec = formats.get(index).cloned();
                 let direction = directions.get(index).copied();
 
-                let decode_options = Some(decode_options.build(format_or_codec.clone()));
-                let encode_options = Some(encode_options.build(format_or_codec));
+                let decode_options = Some(decode_options.build(format_or_codec.clone(), losses));
+                let encode_options = Some(encode_options.build(format_or_codec, losses));
 
                 doc.sync_file(file, direction, decode_options, encode_options)
                     .await?;
@@ -393,11 +430,12 @@ async fn run(cli: Cli) -> Result<()> {
             output,
             from,
             to,
+            losses,
             decode_options,
             encode_options,
         } => {
-            let decode_options = decode_options.build(from);
-            let encode_options = encode_options.build(to);
+            let decode_options = decode_options.build(from, losses);
+            let encode_options = encode_options.build(to, losses);
 
             let content = codecs::convert(
                 input.as_deref(),

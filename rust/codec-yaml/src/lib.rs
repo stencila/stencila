@@ -8,7 +8,7 @@ use codec::{
     format::Format,
     schema::Node,
     status::Status,
-    Codec, DecodeOptions, EncodeOptions,
+    Codec, DecodeOptions, EncodeOptions, Losses,
 };
 
 pub struct YamlCodec;
@@ -27,12 +27,20 @@ impl Codec for YamlCodec {
         vec![Format::Yaml]
     }
 
-    async fn from_str(&self, str: &str, _options: Option<DecodeOptions>) -> Result<Node> {
-        Node::from_yaml(str)
+    async fn from_str(&self, str: &str, _options: Option<DecodeOptions>) -> Result<(Node, Losses)> {
+        let node = Node::from_yaml(str)?;
+
+        Ok((node, Losses::new()))
     }
 
-    async fn to_string(&self, node: &Node, _options: Option<EncodeOptions>) -> Result<String> {
-        node.to_yaml()
+    async fn to_string(
+        &self,
+        node: &Node,
+        _options: Option<EncodeOptions>,
+    ) -> Result<(String, Losses)> {
+        let yaml = node.to_yaml()?;
+
+        Ok((yaml, Losses::new()))
     }
 }
 

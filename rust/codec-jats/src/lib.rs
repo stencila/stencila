@@ -1,9 +1,9 @@
 use codec::{
     common::{async_trait::async_trait, eyre::Result},
     format::Format,
-    schema::Node,
+    schema::{Article, Node},
     status::Status,
-    Codec, DecodeOptions, EncodeOptions,
+    Codec, DecodeOptions, EncodeOptions, Losses,
 };
 
 /// A codec for JATS XML
@@ -23,11 +23,29 @@ impl Codec for JatsCodec {
         vec![Format::Jats]
     }
 
-    async fn from_str(&self, _str: &str, _options: Option<DecodeOptions>) -> Result<Node> {
-        todo!()
+    async fn from_str(
+        &self,
+        _str: &str,
+        _options: Option<DecodeOptions>,
+    ) -> Result<(Node, Losses)> {
+        let mut losses = Losses::new();
+
+        let node = Node::Article(Article::default());
+        losses.register("Node", "*", "Under development");
+
+        Ok((node, losses))
     }
 
-    async fn to_string(&self, _node: &Node, _options: Option<EncodeOptions>) -> Result<String> {
-        todo!()
+    async fn to_string(
+        &self,
+        _node: &Node,
+        _options: Option<EncodeOptions>,
+    ) -> Result<(String, Losses)> {
+        let mut losses = Losses::new();
+
+        let jats = String::new();
+        losses.register("Node", "*", "Under development");
+
+        Ok((jats, losses))
     }
 }

@@ -174,7 +174,11 @@ impl Document {
         }
 
         let (root, message) = if let Some(source) = source {
-            let decode_options = Some(DecodeOptions { format, codec });
+            let decode_options = Some(DecodeOptions {
+                format,
+                codec,
+                ..Default::default()
+            });
             let filename = source
                 .file_name()
                 .map_or_else(|| "unnamed", |name| name.to_str().unwrap_or_default());

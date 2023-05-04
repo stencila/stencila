@@ -2,9 +2,13 @@ use std::path::Path;
 
 use common::{
     async_trait::async_trait,
+    clap::{self, ValueEnum},
     defaults::Defaults,
-    eyre::{bail, Result},
+    derive_more::{Deref, DerefMut},
+    eyre::{bail, eyre, Result},
+    itertools::Itertools,
     serde::Serialize,
+    strum::Display,
     tokio::{
         fs::{create_dir_all, File},
         io::{AsyncReadExt, AsyncWriteExt},
@@ -88,7 +92,11 @@ pub trait Codec: Sync + Send {
 
     /// Decode a Stencila Schema node from a string
     #[allow(clippy::wrong_self_convention)]
-    async fn from_str(&self, _str: &str, _options: Option<DecodeOptions>) -> Result<Node> {
+    async fn from_str(
+        &self,
+        _str: &str,
+        _options: Option<DecodeOptions>,
+    ) -> Result<(Node, Losses)> {
         bail!(
             "Decoding from string is not implemented for codec `{}`",
             self.name()
@@ -101,7 +109,11 @@ pub trait Codec: Sync + Send {
     /// for decoding. If working with binary formats, you should override this function
     /// to read the file as bytes instead.
     #[tracing::instrument(skip(self))]
-    async fn from_file(&self, file: &mut File, options: Option<DecodeOptions>) -> Result<Node> {
+    async fn from_file(
+        &self,
+        file: &mut File,
+        options: Option<DecodeOptions>,
+    ) -> Result<(Node, Losses)> {
         let mut content = String::new();
         file.read_to_string(&mut content).await?;
         self.from_str(&content, options).await
@@ -109,7 +121,11 @@ pub trait Codec: Sync + Send {
 
     /// Decode a Stencila Schema node from a file system path
     #[tracing::instrument(skip(self))]
-    async fn from_path(&self, path: &Path, options: Option<DecodeOptions>) -> Result<Node> {
+    async fn from_path(
+        &self,
+        path: &Path,
+        options: Option<DecodeOptions>,
+    ) -> Result<(Node, Losses)> {
         if !path.exists() {
             bail!("Path `{}` does not exist", path.display());
         }
@@ -119,7 +135,11 @@ pub trait Codec: Sync + Send {
     }
 
     /// Encode a Stencila Schema node to a string
-    async fn to_string(&self, _node: &Node, _options: Option<EncodeOptions>) -> Result<String> {
+    async fn to_string(
+        &self,
+        _node: &Node,
+        _options: Option<EncodeOptions>,
+    ) -> Result<(String, Losses)> {
         bail!(
             "Encoding to a string is not implemented for codec `{}`",
             self.name()
@@ -133,10 +153,10 @@ pub trait Codec: Sync + Send {
         node: &Node,
         file: &mut File,
         options: Option<EncodeOptions>,
-    ) -> Result<()> {
-        let content = self.to_string(node, options).await?;
+    ) -> Result<Losses> {
+        let (content, losses) = self.to_string(node, options).await?;
         file.write_all(content.as_bytes()).await?;
-        Ok(())
+        Ok(losses)
     }
 
     /// Encode a Stencila Schema to a file system path
@@ -146,7 +166,7 @@ pub trait Codec: Sync + Send {
         node: &Node,
         path: &Path,
         options: Option<EncodeOptions>,
-    ) -> Result<()> {
+    ) -> Result<Losses> {
         if let Some(parent) = path.parent() {
             create_dir_all(parent).await?;
         }
@@ -172,7 +192,7 @@ pub struct CodecSpec {
 }
 
 /// Decoding options
-#[derive(Debug, Default, Clone)]
+#[derive(Debug, Defaults, Clone)]
 pub struct DecodeOptions {
     /// The name of the codec to use for decoding
     ///
@@ -184,6 +204,10 @@ pub struct DecodeOptions {
     /// Most codecs only decode one format. However, for those that handle multiple
     /// format it may be necessary to specify this option.
     pub format: Option<Format>,
+
+    /// The response to take when there are losses in the decoding
+    #[def = "LossesResponse::Warn"]
+    pub losses: LossesResponse,
 }
 
 /// Encoding options
@@ -222,4 +246,130 @@ pub struct EncodeOptions {
     /// Whether to strip the outputs of executable nodes when encoding
     #[def = "false"]
     pub strip_outputs: bool,
+
+    /// The response to take when there are losses in the encoding
+    #[def = "LossesResponse::Warn"]
+    pub losses: LossesResponse,
+}
+
+/// The response to take when there are losses in decoding or encoding
+#[derive(Debug, Clone, Copy, ValueEnum, Display)]
+#[strum(ascii_case_insensitive, serialize_all = "lowercase")]
+pub enum LossesResponse {
+    /// Ignore the losses; do nothing
+    Ignore,
+    /// Log losses as spearate log entries with the `TRACE` severity level
+    Trace,
+    /// Log losses as spearate log entries with the `DEBUG` severity level
+    Debug,
+    /// Log losses as spearate log entries with the `INFO` severity level
+    Info,
+    /// Log losses as spearate log entries with the `WARN` severity level
+    Warn,
+    /// Log losses as spearate log entries with the `ERROR` severity level
+    Error,
+    /// Abort the current function call by returning a `Err` result with the losses enumerated
+    Abort,
+}
+
+/// A record of a loss during encoding or decoding
+#[derive(Debug)]
+pub struct Loss {
+    /// The type for which the loss occurred e.g. `Paragraph`
+    r#type: String,
+
+    /// The properties for which the loss occurred e.g. `authors`
+    ///
+    /// If empty, or an asterisk, then loss is assumed to be for all properties of the type.
+    properties: String,
+
+    /// A message explaining the loss
+    message: String,
+
+    /// A count of the number of times the loss occurred
+    count: usize,
+}
+
+/// Decoding and encoding losses
+#[derive(Debug, Default, Deref, DerefMut)]
+pub struct Losses {
+    inner: Vec<Loss>,
+}
+
+impl Losses {
+    /// Create a new, empty set of losses
+    pub fn new() -> Self {
+        Self::default()
+    }
+
+    /// Register a loss
+    ///
+    /// If the type of loss is already registered then increments the count by one.
+    pub fn register(&mut self, r#type: &str, properties: &str, message: &str) {
+        for loss in self.iter_mut() {
+            if loss.r#type == r#type && loss.properties == properties && loss.message == message {
+                loss.count += 1;
+                break;
+            }
+        }
+
+        self.push(Loss {
+            r#type: r#type.to_string(),
+            properties: properties.to_string(),
+            message: message.to_string(),
+            count: 1,
+        })
+    }
+
+    /// Respond to losses according to the `LossesResponse` variant
+    pub fn respond(&self, response: LossesResponse) -> Result<()> {
+        if self.is_empty() || matches!(response, LossesResponse::Ignore) {
+            return Ok(());
+        }
+
+        if matches!(response, LossesResponse::Abort) {
+            let summary = self
+                .iter()
+                .map(
+                    |Loss {
+                         r#type,
+                         properties,
+                         message,
+                         count,
+                     }| format!("{type}[{properties}]: {message} ({count})"),
+                )
+                .join("; ");
+            let error = eyre!(summary).wrap_err("Conversion losses occurred");
+            return Err(error);
+        }
+
+        for Loss {
+            r#type,
+            properties,
+            message,
+            count,
+        } in self.iter()
+        {
+            match response {
+                LossesResponse::Trace => {
+                    tracing::event!(tracing::Level::TRACE, "Conversion losses for {type}[{properties}]: {message} ({count})", type = r#type, properties = properties, message = message, count = count);
+                }
+                LossesResponse::Debug => {
+                    tracing::event!(tracing::Level::DEBUG, "Conversion losses for {type}[{properties}]: {message} ({count})", type = r#type, properties = properties, message = message, count = count);
+                }
+                LossesResponse::Info => {
+                    tracing::event!(tracing::Level::INFO, "Conversion losses for {type}[{properties}]: {message} ({count})", type = r#type, properties = properties, message = message, count = count);
+                }
+                LossesResponse::Warn => {
+                    tracing::event!(tracing::Level::WARN, "Conversion losses for {type}[{properties}]: {message} ({count})", type = r#type, properties = properties, message = message, count = count);
+                }
+                LossesResponse::Error => {
+                    tracing::event!(tracing::Level::ERROR, "Conversion losses for {type}[{properties}]: {message} ({count})", type = r#type, properties = properties, message = message, count = count);
+                }
+                _ => bail!("Should be unreachable"),
+            };
+        }
+
+        Ok(())
+    }
 }

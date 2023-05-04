@@ -9,7 +9,7 @@ use codec::{
     schema::Node,
     CodecSpec,
 };
-pub use codec::{Codec, DecodeOptions, EncodeOptions};
+pub use codec::{Codec, DecodeOptions, EncodeOptions, LossesResponse};
 use node_strip::Strip;
 
 /// Get a list of all codecs
@@ -61,7 +61,10 @@ pub async fn from_str(str: &str, options: Option<DecodeOptions>) -> Result<Node>
         .and_then(|options| options.format)
         .or(Some(Format::Json));
 
-    get(codec, format)?.from_str(str, options).await
+    let (node, losses) = get(codec, format)?.from_str(str, options.clone()).await?;
+    losses.respond(options.unwrap_or_default().losses)?;
+
+    Ok(node)
 }
 
 /// Decode a Stencila Schema node from a file system path
@@ -73,7 +76,12 @@ pub async fn from_path(path: &Path, options: Option<DecodeOptions>) -> Result<No
         None => Format::from_path(path)?,
     };
 
-    get(codec, Some(format))?.from_path(path, options).await
+    let (node, losses) = get(codec, Some(format))?
+        .from_path(path, options.clone())
+        .await?;
+    losses.respond(options.unwrap_or_default().losses)?;
+
+    Ok(node)
 }
 
 /// Decode a Stencila Schema node from `stdin`
@@ -106,9 +114,9 @@ pub async fn to_string(node: &Node, options: Option<EncodeOptions>) -> Result<St
         strip_execution: execution,
         strip_outputs: outputs,
         ..
-    }) = options
+    }) = options.clone()
     {
-        if id || code || outputs {
+        if id || code || execution || outputs {
             let mut node = node.clone();
             node.strip(&node_strip::Targets {
                 id,
@@ -117,11 +125,17 @@ pub async fn to_string(node: &Node, options: Option<EncodeOptions>) -> Result<St
                 outputs,
             });
 
-            return codec.to_string(&node, options).await;
+            let (content, losses) = codec.to_string(&node, options.clone()).await?;
+            losses.respond(options.unwrap_or_default().losses)?;
+
+            return Ok(content);
         }
     }
 
-    codec.to_string(node, options).await
+    let (content, losses) = codec.to_string(node, options.clone()).await?;
+    losses.respond(options.unwrap_or_default().losses)?;
+
+    Ok(content)
 }
 
 /// Encode a Stencila Schema node to a file system path
@@ -143,7 +157,7 @@ pub async fn to_path(node: &Node, path: &Path, options: Option<EncodeOptions>) -
         ..
     }) = options
     {
-        if id || code || outputs {
+        if id || code || execution || outputs {
             let mut node = node.clone();
             node.strip(&node_strip::Targets {
                 id,
@@ -152,11 +166,17 @@ pub async fn to_path(node: &Node, path: &Path, options: Option<EncodeOptions>) -
                 outputs,
             });
 
-            return codec.to_path(&node, path, options).await;
+            let losses = codec.to_path(&node, path, options.clone()).await?;
+            losses.respond(options.unwrap_or_default().losses)?;
+
+            return Ok(());
         }
     }
 
-    codec.to_path(node, path, options).await
+    let losses = codec.to_path(node, path, options.clone()).await?;
+    losses.respond(options.unwrap_or_default().losses)?;
+
+    Ok(())
 }
 
 /// Convert a document from one format to another
@@ -170,8 +190,6 @@ pub async fn convert(
         Some(input) => from_path(input, decode_options).await?,
         None => from_stdin(decode_options).await?,
     };
-
-    println!("{:?}", node);
 
     match output {
         Some(output) => {

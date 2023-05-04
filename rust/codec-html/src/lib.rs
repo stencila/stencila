@@ -3,7 +3,7 @@ use codec::{
     format::Format,
     schema::Node,
     status::Status,
-    Codec, EncodeOptions,
+    Codec, EncodeOptions, Losses,
 };
 use node_html::ToHtml;
 
@@ -24,15 +24,20 @@ impl Codec for HtmlCodec {
         vec![Format::Html]
     }
 
-    async fn to_string(&self, node: &Node, options: Option<EncodeOptions>) -> Result<String> {
+    async fn to_string(
+        &self,
+        node: &Node,
+        options: Option<EncodeOptions>,
+    ) -> Result<(String, Losses)> {
         let EncodeOptions { compact, .. } = options.unwrap_or_default();
 
         let html = node.to_html();
-
-        Ok(match compact {
+        let html = match compact {
             true => html,
             false => indent(&html),
-        })
+        };
+
+        Ok((html, Losses::new()))
     }
 }
 

@@ -7,7 +7,7 @@ use codec::{
     format::Format,
     schema::Node,
     status::Status,
-    Codec, DecodeOptions, EncodeOptions,
+    Codec, DecodeOptions, EncodeOptions, Losses,
 };
 
 /// A codec for the Rusty Object Notation (RON)
@@ -32,17 +32,25 @@ impl Codec for RonCodec {
         vec![Format::Ron]
     }
 
-    async fn from_str(&self, str: &str, _options: Option<DecodeOptions>) -> Result<Node> {
-        Node::from_ron(str)
+    async fn from_str(&self, str: &str, _options: Option<DecodeOptions>) -> Result<(Node, Losses)> {
+        let node = Node::from_ron(str)?;
+
+        Ok((node, Losses::new()))
     }
 
-    async fn to_string(&self, node: &Node, options: Option<EncodeOptions>) -> Result<String> {
+    async fn to_string(
+        &self,
+        node: &Node,
+        options: Option<EncodeOptions>,
+    ) -> Result<(String, Losses)> {
         let EncodeOptions { compact, .. } = options.unwrap_or_default();
 
-        match compact {
+        let ron = match compact {
             true => node.to_ron(),
             false => node.to_ron_pretty(),
-        }
+        }?;
+
+        Ok((ron, Losses::new()))
     }
 }
 

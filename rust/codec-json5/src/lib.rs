@@ -9,7 +9,7 @@ use codec::{
     format::Format,
     schema::Node,
     status::Status,
-    Codec, DecodeOptions, EncodeOptions,
+    Codec, DecodeOptions, EncodeOptions, Losses,
 };
 
 /// A codec for JSON5
@@ -22,7 +22,7 @@ impl Codec for Json5Codec {
     }
 
     fn status(&self) -> Status {
-        // Conidered unstable until `to_string` encodes JSON5, not JSON
+        // Considered unstable until `to_string` encodes JSON5, not JSON
         Status::Unstable
     }
 
@@ -30,17 +30,25 @@ impl Codec for Json5Codec {
         vec![Format::Json5]
     }
 
-    async fn from_str(&self, str: &str, _options: Option<DecodeOptions>) -> Result<Node> {
-        Node::from_json5(str)
+    async fn from_str(&self, str: &str, _options: Option<DecodeOptions>) -> Result<(Node, Losses)> {
+        let node = Node::from_json5(str)?;
+
+        Ok((node, Losses::new()))
     }
 
-    async fn to_string(&self, node: &Node, options: Option<EncodeOptions>) -> Result<String> {
+    async fn to_string(
+        &self,
+        node: &Node,
+        options: Option<EncodeOptions>,
+    ) -> Result<(String, Losses)> {
         let EncodeOptions { compact, .. } = options.unwrap_or_default();
 
-        match compact {
+        let json5 = match compact {
             true => node.to_json5(),
             false => node.to_json5_pretty(),
-        }
+        }?;
+
+        Ok((json5, Losses::new()))
     }
 }
 

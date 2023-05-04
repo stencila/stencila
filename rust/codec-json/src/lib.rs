@@ -8,7 +8,7 @@ use codec::{
     format::Format,
     schema::Node,
     status::Status,
-    Codec, DecodeOptions, EncodeOptions,
+    Codec, DecodeOptions, EncodeOptions, Losses,
 };
 
 /// A codec for JSON
@@ -28,17 +28,25 @@ impl Codec for JsonCodec {
         vec![Format::Json]
     }
 
-    async fn from_str(&self, str: &str, _options: Option<DecodeOptions>) -> Result<Node> {
-        Node::from_json(str)
+    async fn from_str(&self, str: &str, _options: Option<DecodeOptions>) -> Result<(Node, Losses)> {
+        let node = Node::from_json(str)?;
+
+        Ok((node, Losses::new()))
     }
 
-    async fn to_string(&self, node: &Node, options: Option<EncodeOptions>) -> Result<String> {
+    async fn to_string(
+        &self,
+        node: &Node,
+        options: Option<EncodeOptions>,
+    ) -> Result<(String, Losses)> {
         let EncodeOptions { compact, .. } = options.unwrap_or_default();
 
-        match compact {
+        let json = match compact {
             true => node.to_json(),
             false => node.to_json_pretty(),
-        }
+        }?;
+
+        Ok((json, Losses::new()))
     }
 }
 
