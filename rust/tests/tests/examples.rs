@@ -81,10 +81,7 @@ async fn examples_encode_decode() -> Result<()> {
                     // Exisiting file: compare string content of files
                     let expected = read_to_string(&file).await?;
                     if actual != expected {
-                        if std::env::var("UPDATE_EXAMPLES")
-                            .unwrap_or_default()
-                            == "true"
-                        {
+                        if std::env::var("UPDATE_EXAMPLES").unwrap_or_default() == "true" {
                             write(&file, actual).await?;
                         } else {
                             assert_eq!(
