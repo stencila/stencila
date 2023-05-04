@@ -152,7 +152,9 @@ pub struct Schema {
     pub status: Option<String>,
 
     /// The title of the schema that this schema extends
-    pub extends: Option<String>,
+    #[serde(default)]
+    #[serde(deserialize_with = "handle_string_or_array")]
+    pub extends: Option<Vec<String>>,
 
     /// Whether the schema is only an abstract base for other schemas
     ///
@@ -234,56 +236,54 @@ impl Schema {
     ///
     /// Also inherits `required` and `core` from parent.
     fn extend(&self, name: &str, schemas: &mut IndexMap<String, Schema>) -> Result<Schema> {
-        let parent = if let Some(extends) = &self.extends {
-            let mut parent = schemas
-                .get(extends)
-                .ok_or_else(|| eyre!("no schema matching `extends` keyword: {}", extends))?
-                .clone();
-            if !parent.is_extended {
-                parent = parent.extend(extends, schemas)?;
-            }
-            parent
-        } else {
-            // This branch is for "primitive structs" (e.g. `Date`) which do not
-            // extend anything but for which we want to do the following setting of `is_required` etc
-            Schema::default()
-        };
+        let mut parents: Vec<Schema> = self
+            .extends
+            .as_ref()
+            .unwrap_or(&vec![])
+            .iter()
+            .map(|extend| {
+                let mut parent = schemas
+                    .get(extend)
+                    .ok_or_else(|| eyre!("no schema matching `extends` keyword: {}", extend))
+                    .unwrap()
+                    .clone();
+                if !parent.is_extended {
+                    parent = parent.extend(extend, schemas).unwrap();
+                }
+                parent
+            })
+            .collect();
 
         let mut extended = self.clone();
 
-        let mut properties: IndexMap<String, Schema> = parent
-            .properties
-            .into_iter()
-            .flatten()
+        let mut properties: IndexMap<String, Schema> = parents
+            .iter_mut()
+            .flat_map(|parent| std::mem::take(&mut parent.properties).unwrap().into_iter())
             .chain(extended.properties.into_iter().flatten())
             .collect();
-
-        let required = parent
-            .required
-            .into_iter()
-            .flatten()
-            .chain(extended.required.into_iter().flatten())
-            .collect_vec();
-
-        let core = parent
-            .core
-            .into_iter()
-            .flatten()
+        let cores: Vec<String> = parents
+            .iter_mut()
+            .flat_map(|parent| std::mem::take(&mut parent.core).unwrap().into_iter())
             .chain(extended.core.into_iter().flatten())
-            .collect_vec();
+            .collect();
+        let requireds: Vec<String> = parents
+            .iter_mut()
+            .flat_map(|parent| std::mem::take(&mut parent.required).unwrap().into_iter())
+            .chain(extended.required.into_iter().flatten())
+            .collect();
 
         for (name, property) in properties.iter_mut() {
-            if required.contains(name) {
+            if requireds.contains(name) {
                 property.is_required = true;
             }
-            if core.contains(name) {
+            if cores.contains(name) {
                 property.is_core = true;
             }
         }
 
         extended.properties = Some(properties);
-        extended.required = Some(required);
-        extended.core = Some(core);
+        extended.required = Some(requireds);
+        extended.core = Some(cores);
         extended.is_extended = true;
 
         schemas.insert(name.to_string(), extended.clone());
@@ -405,17 +405,27 @@ impl Schemas {
         for base in ["Thing", "CreativeWork"] {
             let mut any_of = Vec::new();
             for (name, schema) in &self.schemas {
-                let mut is_descendent = false;
-                let mut parent = Some(schema);
-                while let Some(extends) = parent.and_then(|parent| parent.extends.as_ref()) {
-                    if extends == base {
-                        is_descendent = true;
-                        break;
+                fn is_descendent(
+                    schemas: &IndexMap<String, Schema>,
+                    base: &str,
+                    nest: &Schema,
+                ) -> bool {
+                    if nest
+                        .extends
+                        .as_ref()
+                        .unwrap_or(&vec![])
+                        .contains(&base.to_string())
+                    {
+                        return true;
                     }
-                    parent = self.schemas.get(extends);
+                    nest.extends
+                        .as_ref()
+                        .unwrap_or(&vec![])
+                        .iter()
+                        .any(|extend| is_descendent(schemas, base, &schemas[extend]))
                 }
 
-                if is_descendent {
+                if is_descendent(&self.schemas, base, schema) {
                     any_of.push(Schema {
                         r#ref: Some(name.to_string()),
                         ..Default::default()
@@ -439,5 +449,25 @@ impl Schemas {
         }
 
         Ok(())
+    }
+}
+
+fn handle_string_or_array<'de, D>(deserializer: D) -> Result<Option<Vec<String>>, D::Error>
+where
+    D: common::serde::Deserializer<'de>,
+{
+    #[derive(Debug, Deserialize)]
+    #[serde(untagged, crate = "common::serde")]
+    enum StringOrArray {
+        String(String),
+        Array(Vec<String>),
+    }
+    // Try to deserialize the value as a single string or an array of strings
+    match StringOrArray::deserialize(deserializer)? {
+        StringOrArray::String(s) => Ok(Some(vec![s])),
+        StringOrArray::Array(arr) => {
+            let result: Vec<String> = arr.into_iter().collect();
+            Ok(Some(result))
+        }
     }
 }
