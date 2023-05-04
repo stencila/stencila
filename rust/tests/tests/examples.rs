@@ -82,7 +82,6 @@ async fn examples_encode_decode() -> Result<()> {
                     let expected = read_to_string(&file).await?;
                     if actual != expected {
                         if std::env::var("UPDATE_EXAMPLES")
-                            .map(|value| value)
                             .unwrap_or_default()
                             == "true"
                         {
