@@ -221,7 +221,11 @@ impl Schema {
         let Some(description) = &mut self.description else {
             bail!("schema does not have a description")
         };
-        *description = description.replace('\n', " ").trim().to_string();
+        *description = description
+            .trim_end_matches('\n')
+            .replace('\n', if is_prop { "\n    /// " } else { "\n/// " })
+            .trim()
+            .to_string();
 
         if let Some(properties) = &mut self.properties {
             for (name, property) in properties.iter_mut() {
