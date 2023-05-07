@@ -377,6 +377,17 @@ pub struct {title}Options {{
 impl {title} {{{new}}}"#,
         );
 
+        let use_proc_macro = if let Some(ref parents) = schema.extends {
+            if parents.is_empty() {
+                "".to_string()
+            } else {
+                let targets = parents.join(", ");
+                format!("impl_into!({title}, {targets});\nimpl_merge!({title}, {targets});")
+            }
+        } else {
+            "".to_string()
+        };
+
         let rust = format!(
             r#"use crate::prelude::*;
 
@@ -390,6 +401,7 @@ pub struct {title} {{
     {core_fields}
 }}{options}
 {implem}
+{use_proc_macro}
 "#
         );
         Ok(rust)

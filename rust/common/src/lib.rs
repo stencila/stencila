@@ -27,6 +27,7 @@ pub use itertools;
 pub use json5;
 pub use maplit;
 pub use once_cell;
+pub use paste;
 pub use regex;
 pub use serde;
 pub use serde_json;
