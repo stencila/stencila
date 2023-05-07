@@ -109,11 +109,11 @@ pub fn check_type<T>(_: &T) -> String {
         .expect("Invalid type name")
         .to_string()
 }
-/// ```
+/// ```ignore
 /// impl_merge!(Dentist,LocalBusiness,MedicalBusiness,MedicalOrganization)
 /// ```
 /// generate
-/// ```
+/// ```ignore
 /// pub trait DentistParent: Serialize {}
 /// impl DentistParent for LocalBusiness {}
 /// impl DentistParent for MedicalBusiness {}

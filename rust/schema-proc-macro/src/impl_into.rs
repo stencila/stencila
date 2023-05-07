@@ -1,8 +1,8 @@
-/// ```
+/// ```ignore
 /// impl_into!(Dentist,LocalBusiness,MedicalBusiness,MedicalOrganization)
 /// ```
 /// generate
-/// ```
+/// ```ignore
 /// impl Into<LocalBusiness> for Dentist {
 /// fn into(self) -> LocalBusiness {
 ///     serde_json::from_value(serde_json::to_value(self).unwrap()).unwrap()
