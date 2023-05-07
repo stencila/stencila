@@ -10,6 +10,7 @@ use super::organization_or_person::OrganizationOrPerson;
 use super::postal_address_or_string::PostalAddressOrString;
 use super::property_value_or_string::PropertyValueOrString;
 use super::string::String;
+use super::thing::Thing;
 
 /// An organization such as a school, NGO, corporation, club, etc.
 #[skip_serializing_none]
@@ -84,3 +85,5 @@ impl Organization {
         }
     }
 }
+impl_into!(Organization, Thing);
+impl_merge!(Organization, Thing);

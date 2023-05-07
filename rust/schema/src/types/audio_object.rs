@@ -10,6 +10,7 @@ use super::date::Date;
 use super::grant_or_monetary_grant::GrantOrMonetaryGrant;
 use super::image_object_or_string::ImageObjectOrString;
 use super::inline::Inline;
+use super::media_object::MediaObject;
 use super::number::Number;
 use super::person::Person;
 use super::person_or_organization::PersonOrOrganization;
@@ -158,3 +159,5 @@ impl AudioObject {
         }
     }
 }
+impl_into!(AudioObject, MediaObject);
+impl_merge!(AudioObject, MediaObject);

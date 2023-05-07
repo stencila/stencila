@@ -6,6 +6,7 @@ use super::block::Block;
 use super::image_object_or_string::ImageObjectOrString;
 use super::property_value_or_string::PropertyValueOrString;
 use super::string::String;
+use super::thing::Thing;
 
 /// A contact point, usually within an organization.
 #[skip_serializing_none]
@@ -63,3 +64,5 @@ impl ContactPoint {
         }
     }
 }
+impl_into!(ContactPoint, Thing);
+impl_merge!(ContactPoint, Thing);

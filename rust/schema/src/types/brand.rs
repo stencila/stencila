@@ -6,6 +6,7 @@ use super::block::Block;
 use super::image_object_or_string::ImageObjectOrString;
 use super::property_value_or_string::PropertyValueOrString;
 use super::string::String;
+use super::thing::Thing;
 
 /// A brand used by an organization or person for labeling a product, product group, or similar.
 #[skip_serializing_none]
@@ -60,3 +61,5 @@ impl Brand {
         }
     }
 }
+impl_into!(Brand, Thing);
+impl_merge!(Brand, Thing);

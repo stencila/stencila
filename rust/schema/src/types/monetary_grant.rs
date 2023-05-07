@@ -3,6 +3,7 @@
 use crate::prelude::*;
 
 use super::block::Block;
+use super::grant::Grant;
 use super::image_object_or_string::ImageObjectOrString;
 use super::number::Number;
 use super::person_or_organization::PersonOrOrganization;
@@ -68,3 +69,5 @@ impl MonetaryGrant {
         }
     }
 }
+impl_into!(MonetaryGrant, Grant);
+impl_merge!(MonetaryGrant, Grant);

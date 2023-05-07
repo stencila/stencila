@@ -7,6 +7,7 @@ use super::brand::Brand;
 use super::image_object_or_string::ImageObjectOrString;
 use super::property_value_or_string::PropertyValueOrString;
 use super::string::String;
+use super::thing::Thing;
 
 /// Any offered product or service. For example, a pair of shoes;
 /// a haircut; or an episode of a TV show streamed online.
@@ -64,3 +65,5 @@ impl Product {
         }
     }
 }
+impl_into!(Product, Thing);
+impl_merge!(Product, Thing);

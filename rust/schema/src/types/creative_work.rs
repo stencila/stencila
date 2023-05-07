@@ -15,6 +15,7 @@ use super::person_or_organization::PersonOrOrganization;
 use super::property_value_or_string::PropertyValueOrString;
 use super::string::String;
 use super::string_or_number::StringOrNumber;
+use super::thing::Thing;
 use super::thing_type::ThingType;
 
 /// A creative work, including books, movies, photographs, software programs, etc.
@@ -135,3 +136,5 @@ impl CreativeWork {
         }
     }
 }
+impl_into!(CreativeWork, Thing);
+impl_merge!(CreativeWork, Thing);

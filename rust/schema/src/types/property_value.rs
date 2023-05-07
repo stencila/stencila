@@ -7,6 +7,7 @@ use super::image_object_or_string::ImageObjectOrString;
 use super::primitive::Primitive;
 use super::property_value_or_string::PropertyValueOrString;
 use super::string::String;
+use super::thing::Thing;
 
 /// A property-value pair.
 #[skip_serializing_none]
@@ -61,3 +62,5 @@ impl PropertyValue {
         }
     }
 }
+impl_into!(PropertyValue, Thing);
+impl_merge!(PropertyValue, Thing);

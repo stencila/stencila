@@ -5,6 +5,7 @@ use crate::prelude::*;
 use super::block::Block;
 use super::claim_type::ClaimType;
 use super::comment::Comment;
+use super::creative_work::CreativeWork;
 use super::creative_work_type::CreativeWorkType;
 use super::creative_work_type_or_string::CreativeWorkTypeOrString;
 use super::date::Date;
@@ -144,3 +145,5 @@ impl Claim {
         }
     }
 }
+impl_into!(Claim, CreativeWork);
+impl_merge!(Claim, CreativeWork);

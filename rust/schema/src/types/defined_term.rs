@@ -6,6 +6,7 @@ use super::block::Block;
 use super::image_object_or_string::ImageObjectOrString;
 use super::property_value_or_string::PropertyValueOrString;
 use super::string::String;
+use super::thing::Thing;
 
 /// A word, name, acronym, phrase, etc. with a formal definition.
 #[skip_serializing_none]
@@ -57,3 +58,5 @@ impl DefinedTerm {
         }
     }
 }
+impl_into!(DefinedTerm, Thing);
+impl_merge!(DefinedTerm, Thing);

@@ -8,6 +8,7 @@ use super::image_object_or_string::ImageObjectOrString;
 use super::primitive::Primitive;
 use super::property_value_or_string::PropertyValueOrString;
 use super::string::String;
+use super::thing::Thing;
 
 /// A column of data within a Datatable.
 #[skip_serializing_none]
@@ -63,3 +64,5 @@ impl DatatableColumn {
         }
     }
 }
+impl_into!(DatatableColumn, Thing);
+impl_merge!(DatatableColumn, Thing);

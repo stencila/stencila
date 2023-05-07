@@ -519,6 +519,7 @@ dependencies = [
  "json5",
  "maplit",
  "once_cell",
+ "paste",
  "regex",
  "serde",
  "serde_json",
@@ -1709,6 +1710,12 @@ dependencies = [
 ]
 
 [[package]]
+name = "paste"
+version = "1.0.12"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "9f746c4065a8fa3fe23974dd82f15431cc8d40779821001404d10d2e79ca7d79"
+
+[[package]]
 name = "percent-encoding"
 version = "2.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2068,6 +2075,7 @@ dependencies = [
  "node-store-derive",
  "node-strip",
  "node-strip-derive",
+ "schema-proc-macro",
  "similar",
  "smol_str",
 ]
@@ -2075,6 +2083,13 @@ dependencies = [
 [[package]]
 name = "schema-gen"
 version = "0.0.0"
+dependencies = [
+ "common",
+]
+
+[[package]]
+name = "schema-proc-macro"
+version = "0.0.1"
 dependencies = [
  "common",
 ]

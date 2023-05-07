@@ -10,6 +10,7 @@ use super::integer::Integer;
 use super::node::Node;
 use super::property_value_or_string::PropertyValueOrString;
 use super::string::String;
+use super::thing::Thing;
 
 /// A single item in a list.
 #[skip_serializing_none]
@@ -69,3 +70,5 @@ impl ListItem {
         }
     }
 }
+impl_into!(ListItem, Thing);
+impl_merge!(ListItem, Thing);

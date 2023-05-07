@@ -61,3 +61,5 @@ impl Grant {
         }
     }
 }
+impl_into!(Grant, Thing);
+impl_merge!(Grant, Thing);

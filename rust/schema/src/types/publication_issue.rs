@@ -4,6 +4,7 @@ use crate::prelude::*;
 
 use super::block::Block;
 use super::comment::Comment;
+use super::creative_work::CreativeWork;
 use super::creative_work_type::CreativeWorkType;
 use super::creative_work_type_or_string::CreativeWorkTypeOrString;
 use super::date::Date;
@@ -150,3 +151,5 @@ impl PublicationIssue {
         }
     }
 }
+impl_into!(PublicationIssue, CreativeWork);
+impl_merge!(PublicationIssue, CreativeWork);

@@ -4,6 +4,7 @@ use crate::prelude::*;
 
 use super::block::Block;
 use super::comment::Comment;
+use super::creative_work::CreativeWork;
 use super::creative_work_type::CreativeWorkType;
 use super::creative_work_type_or_string::CreativeWorkTypeOrString;
 use super::date::Date;
@@ -140,3 +141,5 @@ impl File {
         }
     }
 }
+impl_into!(File, CreativeWork);
+impl_merge!(File, CreativeWork);

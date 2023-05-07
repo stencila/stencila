@@ -6,6 +6,7 @@ use super::block::Block;
 use super::image_object_or_string::ImageObjectOrString;
 use super::property_value_or_string::PropertyValueOrString;
 use super::string::String;
+use super::thing::Thing;
 
 /// Lists or enumerations, for example, a list of cuisines or music genres, etc.
 #[skip_serializing_none]
@@ -53,3 +54,5 @@ impl Enumeration {
         }
     }
 }
+impl_into!(Enumeration, Thing);
+impl_merge!(Enumeration, Thing);

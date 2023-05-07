@@ -14,6 +14,7 @@ use super::execution_status::ExecutionStatus;
 use super::execution_tag::ExecutionTag;
 use super::integer::Integer;
 use super::node::Node;
+use super::parameter::Parameter;
 use super::string::String;
 use super::timestamp::Timestamp;
 use super::validator::Validator;
@@ -118,3 +119,5 @@ impl CallArgument {
         }
     }
 }
+impl_into!(CallArgument, Parameter);
+impl_merge!(CallArgument, Parameter);

@@ -3,6 +3,7 @@
 use crate::prelude::*;
 
 use super::block::Block;
+use super::collection::Collection;
 use super::comment::Comment;
 use super::creative_work_type::CreativeWorkType;
 use super::creative_work_type_or_string::CreativeWorkTypeOrString;
@@ -141,3 +142,5 @@ impl Directory {
         }
     }
 }
+impl_into!(Directory, Collection);
+impl_merge!(Directory, Collection);

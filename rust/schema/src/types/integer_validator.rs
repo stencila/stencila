@@ -3,6 +3,7 @@
 use crate::prelude::*;
 
 use super::number::Number;
+use super::number_validator::NumberValidator;
 use super::string::String;
 
 /// A validator specifying the constraints on an integer node.
@@ -39,3 +40,5 @@ impl IntegerValidator {
         }
     }
 }
+impl_into!(IntegerValidator, NumberValidator);
+impl_merge!(IntegerValidator, NumberValidator);

@@ -13,6 +13,7 @@ use super::execution_digest::ExecutionDigest;
 use super::execution_required::ExecutionRequired;
 use super::execution_status::ExecutionStatus;
 use super::execution_tag::ExecutionTag;
+use super::include::Include;
 use super::integer::Integer;
 use super::string::String;
 use super::timestamp::Timestamp;
@@ -101,3 +102,5 @@ impl Call {
         }
     }
 }
+impl_into!(Call, Include);
+impl_merge!(Call, Include);

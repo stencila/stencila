@@ -3,6 +3,7 @@
 use crate::prelude::*;
 
 use super::block::Block;
+use super::contact_point::ContactPoint;
 use super::image_object_or_string::ImageObjectOrString;
 use super::property_value_or_string::PropertyValueOrString;
 use super::string::String;
@@ -81,3 +82,5 @@ impl PostalAddress {
         }
     }
 }
+impl_into!(PostalAddress, ContactPoint);
+impl_merge!(PostalAddress, ContactPoint);

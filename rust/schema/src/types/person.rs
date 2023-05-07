@@ -9,6 +9,7 @@ use super::organization_or_person::OrganizationOrPerson;
 use super::postal_address_or_string::PostalAddressOrString;
 use super::property_value_or_string::PropertyValueOrString;
 use super::string::String;
+use super::thing::Thing;
 
 /// A person (alive, dead, undead, or fictional).
 #[skip_serializing_none]
@@ -90,3 +91,5 @@ impl Person {
         }
     }
 }
+impl_into!(Person, Thing);
+impl_merge!(Person, Thing);

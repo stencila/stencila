@@ -5,6 +5,7 @@ use crate::prelude::*;
 use super::block::Block;
 use super::blocks_or_string::BlocksOrString;
 use super::comment::Comment;
+use super::creative_work::CreativeWork;
 use super::creative_work_type::CreativeWorkType;
 use super::creative_work_type_or_string::CreativeWorkTypeOrString;
 use super::date::Date;
@@ -142,3 +143,5 @@ impl Figure {
         }
     }
 }
+impl_into!(Figure, CreativeWork);
+impl_merge!(Figure, CreativeWork);

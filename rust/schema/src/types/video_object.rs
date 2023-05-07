@@ -11,6 +11,7 @@ use super::grant_or_monetary_grant::GrantOrMonetaryGrant;
 use super::image_object::ImageObject;
 use super::image_object_or_string::ImageObjectOrString;
 use super::inline::Inline;
+use super::media_object::MediaObject;
 use super::number::Number;
 use super::person::Person;
 use super::person_or_organization::PersonOrOrganization;
@@ -162,3 +163,5 @@ impl VideoObject {
         }
     }
 }
+impl_into!(VideoObject, MediaObject);
+impl_merge!(VideoObject, MediaObject);
