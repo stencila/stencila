@@ -247,8 +247,10 @@ impl Schemas {
                 default
             });
 
-            // Wrap type and defaults in generic types as necessary
+            // Set the dependency for intoem
+            used_types.extend(schema.extends_without_abstract.clone().unwrap_or(vec![]));
 
+            // Wrap type and defaults in generic types as necessary
             if is_vec {
                 typ = format!("Vec<{typ}>");
             };
@@ -377,12 +379,12 @@ pub struct {title}Options {{
 impl {title} {{{new}}}"#,
         );
 
-        let use_proc_macro = if let Some(ref parents) = schema.extends {
+        let use_proc_macro = if let Some(ref parents) = schema.extends_without_abstract {
             if parents.is_empty() {
                 "".to_string()
             } else {
                 let targets = parents.join(", ");
-                format!("impl_into!({title}, {targets});\nimpl_merge!({title}, {targets});")
+                format!("\nimpl_into!({title}, {targets});\nimpl_merge!({title}, {targets});")
             }
         } else {
             "".to_string()
@@ -400,8 +402,7 @@ impl {title} {{{new}}}"#,
 pub struct {title} {{
     {core_fields}
 }}{options}
-{implem}
-{use_proc_macro}
+{implem}{use_proc_macro}
 "#
         );
         Ok(rust)

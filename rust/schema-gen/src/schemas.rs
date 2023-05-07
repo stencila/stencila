@@ -156,6 +156,11 @@ pub struct Schema {
     #[serde(deserialize_with = "handle_string_or_array")]
     pub extends: Option<Vec<String>>,
 
+    /// The title of the schema that this schema extends without abstract
+    #[serde(default)]
+    #[serde(deserialize_with = "handle_string_or_array")]
+    pub extends_without_abstract: Option<Vec<String>>,
+
     /// Whether the schema is only an abstract base for other schemas
     ///
     /// Types are usually not generated for abstract schemas.
@@ -450,6 +455,27 @@ impl Schemas {
                     ..Default::default()
                 },
             );
+
+            let abstract_set: Vec<String> = self
+                .schemas
+                .values()
+                .filter_map(|schema| {
+                    if schema.r#abstract {
+                        schema.title.clone()
+                    } else {
+                        None
+                    }
+                })
+                .collect();
+            self.schemas.iter_mut().for_each(|(_s, schema)| {
+                let result = schema.extends.clone().map(|parents| {
+                    parents
+                        .into_iter()
+                        .filter(|e| !abstract_set.contains(e))
+                        .collect()
+                });
+                schema.extends_without_abstract = result;
+            });
         }
 
         Ok(())
