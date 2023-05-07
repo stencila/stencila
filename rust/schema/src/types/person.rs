@@ -63,7 +63,8 @@ pub struct PersonOptions {
     /// Email addresses for the person.
     pub emails: Option<Vec<String>>,
 
-    /// A person or organization that supports (sponsors) something through some kind of financial contribution.
+    /// A person or organization that supports (sponsors) something through
+    /// some kind of financial contribution.
     pub funders: Option<Vec<OrganizationOrPerson>>,
 
     /// An honorific prefix preceding a person's name such as Dr/Mrs/Mr.

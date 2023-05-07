@@ -46,7 +46,8 @@ pub struct CiteOptions {
     /// The page on which the work ends; for example "138" or "xvi".
     pub page_end: Option<IntegerOrString>,
 
-    /// Any description of pages that is not separated into pageStart and pageEnd; for example, "1-6, 9, 55".
+    /// Any description of pages that is not separated into pageStart and pageEnd;
+    /// for example, "1-6, 9, 55".
     pub pagination: Option<String>,
 
     /// Text to show before the citation.

@@ -53,7 +53,8 @@ pub struct Article {
     /// Date of first publication.
     pub date_published: Option<Date>,
 
-    /// Keywords or tags used to describe this content. Multiple entries in a keywords list are typically delimited by commas.
+    /// Keywords or tags used to describe this content.
+    /// Multiple entries in a keywords list are typically delimited by commas.
     pub keywords: Option<Vec<String>>,
 
     /// The title of the creative work.
@@ -110,13 +111,15 @@ pub struct ArticleOptions {
     /// The people or organizations who maintain this CreativeWork.
     pub maintainers: Option<Vec<PersonOrOrganization>>,
 
-    /// Elements of the collection which can be a variety of different elements, such as Articles, Datatables, Tables and more.
+    /// Elements of the collection which can be a variety of different elements,
+    /// such as Articles, Datatables, Tables and more.
     pub parts: Option<Vec<CreativeWorkType>>,
 
     /// A publisher of the CreativeWork.
     pub publisher: Option<PersonOrOrganization>,
 
-    /// References to other creative works, such as another publication, web page, scholarly article, etc.
+    /// References to other creative works, such as another publication,
+    /// web page, scholarly article, etc.
     pub references: Option<Vec<CreativeWorkTypeOrString>>,
 
     /// The textual content of this creative work.
@@ -131,7 +134,8 @@ pub struct ArticleOptions {
     /// The page on which the article ends; for example "138" or "xvi".
     pub page_end: Option<IntegerOrString>,
 
-    /// Any description of pages that is not separated into pageStart and pageEnd; for example, "1-6, 9, 55".
+    /// Any description of pages that is not separated into pageStart and pageEnd;
+    /// for example, "1-6, 9, 55".
     pub pagination: Option<String>,
 }
 
