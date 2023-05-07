@@ -70,6 +70,24 @@ const BOX_PROPERTIES: &[&str] = &[
     "Variable.value",
 ];
 
+const KEYWORDS: &[&str; 52] = &[
+    "as", "break", "const", "continue", "crate", "else", "enum", "extern", "false", "fn", "for",
+    "if", "impl", "in", "let", "loop", "match", "mod", "move", "mut", "pub", "ref", "return",
+    "self", "Self", "static", "struct", "super", "trait", "true", "type", "unsafe", "union", "use",
+    "where", "while", // STRICT, 2018
+    "async", "await", "dyn", // RESERVED, 2015
+    "abstract", "become", "box", "do", "final", "macro", "override", "priv", "typeof", "unsized",
+    "virtual", "yield", "try",
+];
+
+fn handle_keyword(input: &String) -> String {
+    if KEYWORDS.contains(&input.as_str()) {
+        format!("r#{input}")
+    } else {
+        input.to_string()
+    }
+}
+
 impl Schemas {
     /// Generate Rust modules for each schema
     pub async fn rust(&self) -> Result<()> {
@@ -130,10 +148,7 @@ impl Schemas {
             .iter()
             .filter(|module| !module.is_empty())
             .sorted()
-            .map(|module| match module.as_str() {
-                "if" | "for" => format!("r#{module}"),
-                _ => module.to_string(),
-            })
+            .map(handle_keyword)
             .collect_vec();
         let mods = modules
             .iter()
@@ -211,10 +226,7 @@ impl Schemas {
 
             // Rewrite name as necessary for Rust compatibility
             let name = name.to_snake_case();
-            let name = match name.as_str() {
-                "type" => "r#type".to_string(),
-                _ => name,
-            };
+            let name = handle_keyword(&name);
 
             // Determine Rust type for the property
             let (mut typ, is_vec) = if name == "r#type" {
@@ -273,10 +285,7 @@ impl Schemas {
             .sorted()
             .map(|used_type| {
                 let module = used_type.to_snake_case();
-                let module = match module.as_str() {
-                    "if" | "for" => format!("r#{module}"),
-                    _ => module,
-                };
+                let module = handle_keyword(&module);
                 format!("use super::{module}::{used_type};")
             })
             .join("\n");
@@ -478,10 +487,7 @@ pub struct {title} {{
             .sorted()
             .filter_map(|(name, is_type)| {
                 let module = name.to_snake_case();
-                let module = match module.as_str() {
-                    "if" | "for" => format!("r#{module}"),
-                    _ => module,
-                };
+                let module = handle_keyword(&module);
                 is_type.then_some(format!("use super::{module}::{name};",))
             })
             .join("\n");
