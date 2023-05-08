@@ -361,7 +361,7 @@ impl Schemas {
         // serde attempts to deserialize in the order in the emum. We put primitives
         // first (for fast deserialization for kernel outputs) excecpt for `Object` which is
         // last so it does not "consume" entity types (which are also objects).
-        let mut any_of = [
+        let primitives_set = [
             "Null",
             "Boolean",
             "Integer",
@@ -369,23 +369,28 @@ impl Schemas {
             "Number",
             "String",
             "Array",
-        ]
-        .iter()
-        .map(|name| Schema {
-            r#ref: Some(name.to_string()),
-            ..Default::default()
-        })
-        .collect_vec();
+        ];
+        let mut any_of = primitives_set
+            .iter()
+            .map(|name| Schema {
+                r#ref: Some(name.to_string()),
+                ..Default::default()
+            })
+            .collect_vec();
 
         let mut entities = self
             .schemas
             .iter()
             .filter_map(|(name, schema)| {
-                (schema.r#type.is_none() && schema.any_of.is_none() && !schema.r#abstract)
-                    .then_some(Schema {
-                        r#ref: Some(name.to_string()),
-                        ..Default::default()
-                    })
+                (schema.r#type.is_none()
+                    && schema.any_of.is_none()
+                    && !schema.r#abstract
+                    && !primitives_set
+                        .contains(&schema.title.as_ref().unwrap_or(&"".to_string()).as_str()))
+                .then_some(Schema {
+                    r#ref: Some(name.to_string()),
+                    ..Default::default()
+                })
             })
             .collect_vec();
         entities.sort_by(|a, b| a.r#ref.cmp(&b.r#ref));
@@ -427,6 +432,7 @@ impl Schemas {
                     {
                         return true;
                     }
+
                     nest.extends
                         .as_ref()
                         .unwrap_or(&vec![])
