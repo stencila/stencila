@@ -94,7 +94,8 @@ pub struct SoftwareApplicationOptions {
     /// Genre of the creative work, broadcast channel or group.
     pub genre: Option<Vec<String>>,
 
-    /// Keywords or tags used to describe this content. Multiple entries in a keywords list are typically delimited by commas.
+    /// Keywords or tags used to describe this content.
+    /// Multiple entries in a keywords list are typically delimited by commas.
     pub keywords: Option<Vec<String>>,
 
     /// An item or other CreativeWork that this CreativeWork is a part of.
@@ -106,13 +107,15 @@ pub struct SoftwareApplicationOptions {
     /// The people or organizations who maintain this CreativeWork.
     pub maintainers: Option<Vec<PersonOrOrganization>>,
 
-    /// Elements of the collection which can be a variety of different elements, such as Articles, Datatables, Tables and more.
+    /// Elements of the collection which can be a variety of different elements,
+    /// such as Articles, Datatables, Tables and more.
     pub parts: Option<Vec<CreativeWorkType>>,
 
     /// A publisher of the CreativeWork.
     pub publisher: Option<PersonOrOrganization>,
 
-    /// References to other creative works, such as another publication, web page, scholarly article, etc.
+    /// References to other creative works, such as another publication,
+    /// web page, scholarly article, etc.
     pub references: Option<Vec<CreativeWorkTypeOrString>>,
 
     /// The textual content of this creative work.
@@ -124,7 +127,8 @@ pub struct SoftwareApplicationOptions {
     /// The version of the creative work.
     pub version: Option<StringOrNumber>,
 
-    /// Requirements for application, including shared libraries that are not included in the application distribution.
+    /// Requirements for application, including shared libraries that
+    /// are not included in the application distribution.
     pub software_requirements: Option<Vec<SoftwareApplication>>,
 
     /// Version of the software.

@@ -18,7 +18,8 @@ use super::string::String;
 use super::string_or_number::StringOrNumber;
 use super::thing_type::ThingType;
 
-/// A media object, such as an image, video, or audio object embedded in a web page or a downloadable dataset.
+/// A media object, such as an image, video, or audio object embedded in a web page or a
+/// downloadable dataset.
 #[skip_serializing_none]
 #[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Strip, Read, Write, ToHtml)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
@@ -101,7 +102,8 @@ pub struct MediaObjectOptions {
     /// Genre of the creative work, broadcast channel or group.
     pub genre: Option<Vec<String>>,
 
-    /// Keywords or tags used to describe this content. Multiple entries in a keywords list are typically delimited by commas.
+    /// Keywords or tags used to describe this content.
+    /// Multiple entries in a keywords list are typically delimited by commas.
     pub keywords: Option<Vec<String>>,
 
     /// An item or other CreativeWork that this CreativeWork is a part of.
@@ -113,13 +115,15 @@ pub struct MediaObjectOptions {
     /// The people or organizations who maintain this CreativeWork.
     pub maintainers: Option<Vec<PersonOrOrganization>>,
 
-    /// Elements of the collection which can be a variety of different elements, such as Articles, Datatables, Tables and more.
+    /// Elements of the collection which can be a variety of different elements,
+    /// such as Articles, Datatables, Tables and more.
     pub parts: Option<Vec<CreativeWorkType>>,
 
     /// A publisher of the CreativeWork.
     pub publisher: Option<PersonOrOrganization>,
 
-    /// References to other creative works, such as another publication, web page, scholarly article, etc.
+    /// References to other creative works, such as another publication,
+    /// web page, scholarly article, etc.
     pub references: Option<Vec<CreativeWorkTypeOrString>>,
 
     /// The textual content of this creative work.

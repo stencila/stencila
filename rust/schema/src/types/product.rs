@@ -8,7 +8,8 @@ use super::image_object_or_string::ImageObjectOrString;
 use super::property_value_or_string::PropertyValueOrString;
 use super::string::String;
 
-/// Any offered product or service. For example, a pair of shoes; a haircut; or an episode of a TV show streamed online.
+/// Any offered product or service. For example, a pair of shoes;
+/// a haircut; or an episode of a TV show streamed online.
 #[skip_serializing_none]
 #[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Strip, Read, Write, ToHtml)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]

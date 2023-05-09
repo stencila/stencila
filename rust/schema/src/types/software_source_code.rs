@@ -30,7 +30,8 @@ pub struct SoftwareSourceCode {
     /// The identifier for this item
     pub id: Option<String>,
 
-    /// Link to the repository where the un-compiled, human readable code and related code is located.
+    /// Link to the repository where the un-compiled, human readable code and related
+    /// code is located.
     pub code_repository: Option<String>,
 
     /// The computer programming language.
@@ -105,7 +106,8 @@ pub struct SoftwareSourceCodeOptions {
     /// Genre of the creative work, broadcast channel or group.
     pub genre: Option<Vec<String>>,
 
-    /// Keywords or tags used to describe this content. Multiple entries in a keywords list are typically delimited by commas.
+    /// Keywords or tags used to describe this content.
+    /// Multiple entries in a keywords list are typically delimited by commas.
     pub keywords: Option<Vec<String>>,
 
     /// An item or other CreativeWork that this CreativeWork is a part of.
@@ -117,13 +119,15 @@ pub struct SoftwareSourceCodeOptions {
     /// The people or organizations who maintain this CreativeWork.
     pub maintainers: Option<Vec<PersonOrOrganization>>,
 
-    /// Elements of the collection which can be a variety of different elements, such as Articles, Datatables, Tables and more.
+    /// Elements of the collection which can be a variety of different elements,
+    /// such as Articles, Datatables, Tables and more.
     pub parts: Option<Vec<CreativeWorkType>>,
 
     /// A publisher of the CreativeWork.
     pub publisher: Option<PersonOrOrganization>,
 
-    /// References to other creative works, such as another publication, web page, scholarly article, etc.
+    /// References to other creative works, such as another publication,
+    /// web page, scholarly article, etc.
     pub references: Option<Vec<CreativeWorkTypeOrString>>,
 
     /// The textual content of this creative work.
@@ -138,7 +142,8 @@ pub struct SoftwareSourceCodeOptions {
     /// What type of code sample: full (compile ready) solution, code snippet, inline code, scripts, template.
     pub code_sample_type: Option<String>,
 
-    /// Runtime platform or script interpreter dependencies (Example - Java v1, Python2.3, .Net Framework 3.0).
+    /// Runtime platform or script interpreter dependencies (Example - Java v1,
+    /// Python2.3, .Net Framework 3.0).
     pub runtime_platform: Option<Vec<String>>,
 
     /// Dependency requirements for the software.

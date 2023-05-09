@@ -469,7 +469,12 @@ pub struct {title} {{
         }
 
         let description = if let Some(title) = &schema.title {
-            schema.description.clone().unwrap_or(title.clone())
+            schema
+                .description
+                .clone()
+                .unwrap_or(title.clone())
+                // Any_of comes from prop and adds four spaces to schemas
+                .replace(r#"    ///"#, r#"///"#)
         } else {
             alternatives
                 .iter()

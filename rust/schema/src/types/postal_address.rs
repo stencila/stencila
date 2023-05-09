@@ -66,7 +66,8 @@ pub struct PostalAddressOptions {
     /// The URL of the item.
     pub url: Option<String>,
 
-    /// Languages (human not programming) in which it is possible to communicate with the organization/department etc.
+    /// Languages (human not programming) in which it is possible to communicate
+    /// with the organization/department etc.
     pub available_languages: Option<Vec<String>>,
 
     /// The post office box number.
