@@ -32,6 +32,7 @@ pub use serde;
 pub use serde_json;
 pub use serde_with;
 pub use serde_yaml;
+pub use similar;
 pub use slug;
 pub use strum;
 pub use tempfile;

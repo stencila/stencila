@@ -27,6 +27,7 @@ serde = { version = "1.0.160", features = ["derive", "rc"] }
 serde_json = { version = "1.0.96", features = ["preserve_order"] }
 serde_with = "3.0.0"
 serde_yaml = "0.9.21"
+similar = { version = "2.2.1", features = ["unicode"] }
 slug = "0.1.4"
 strum = { version = "0.24.1", features = ["derive"] }
 tempfile = "3.5.0"

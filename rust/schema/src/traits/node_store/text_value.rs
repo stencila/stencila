@@ -1,8 +1,9 @@
 use std::time::Duration;
 
-use similar::{Algorithm, DiffTag, TextDiffConfig};
-
-use common::eyre::Result;
+use common::{
+    eyre::Result,
+    similar::{Algorithm, DiffTag, TextDiffConfig},
+};
 use node_store::{
     automerge::{transaction::Transactable, ObjId, ObjType, Prop, Value},
     Read, ReadStore, Write, WriteStore, SIMILARITY_MAX,
