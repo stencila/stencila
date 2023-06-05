@@ -411,8 +411,19 @@ async fn run(cli: Cli) -> Result<()> {
                 let decode_options = Some(decode_options.build(format_or_codec.clone(), losses));
                 let encode_options = Some(encode_options.build(format_or_codec, losses));
 
-                doc.sync_file(file, direction, decode_options, encode_options)
-                    .await?;
+                if file.ends_with("-") {
+                    let (change_sender, mut change_receiver) = common::tokio::sync::mpsc::channel(32);
+                    tokio::spawn(async move {
+                        while let Some(change) = change_receiver.recv().await {
+                            tracing::info!("Change {change:?}");
+                        }
+                    });
+                    doc.sync_string(None, change_sender, decode_options, encode_options)
+                        .await?;
+                } else {
+                    doc.sync_file(file, direction, decode_options, encode_options)
+                        .await?;
+                }
             }
             wait = true;
         }
