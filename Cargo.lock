@@ -192,7 +192,11 @@ dependencies = [
  "pin-project-lite",
  "rustversion",
  "serde",
+ "serde_json",
+ "serde_path_to_error",
+ "serde_urlencoded",
  "sync_wrapper",
+ "tokio",
  "tower",
  "tower-layer",
  "tower-service",
@@ -524,6 +528,7 @@ dependencies = [
  "serde_json",
  "serde_with",
  "serde_yaml",
+ "similar",
  "slug",
  "strum",
  "tempfile",
@@ -2068,7 +2073,6 @@ dependencies = [
  "node-store-derive",
  "node-strip",
  "node-strip-derive",
- "similar",
  "smol_str",
 ]
 
@@ -2130,11 +2134,32 @@ dependencies = [
 ]
 
 [[package]]
+name = "serde_path_to_error"
+version = "0.1.11"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "f7f05c1d5476066defcdfacce1f52fc3cae3af1d3089727100c02ae92e5abbe0"
+dependencies = [
+ "serde",
+]
+
+[[package]]
 name = "serde_spanned"
 version = "0.6.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "0efd8caf556a6cebd3b285caf480045fcc1ac04f6bd786b09a6f11af30c4fcf4"
 dependencies = [
+ "serde",
+]
+
+[[package]]
+name = "serde_urlencoded"
+version = "0.7.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "d3491c14715ca2294c4d6a88f15e84739788c1d030eed8c110436aafdaa2f3fd"
+dependencies = [
+ "form_urlencoded",
+ "itoa",
+ "ryu",
  "serde",
 ]
 
@@ -2272,6 +2297,7 @@ dependencies = [
 name = "stencila"
 version = "2.0.0-alpha.4"
 dependencies = [
+ "axum",
  "codecs",
  "color-eyre",
  "common",

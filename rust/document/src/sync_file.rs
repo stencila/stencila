@@ -7,9 +7,9 @@ use std::{
     time::{Duration, SystemTime, UNIX_EPOCH},
 };
 
-use codecs::{DecodeOptions, EncodeOptions};
 use notify::{EventKind, RecursiveMode, Watcher};
 
+use codecs::{DecodeOptions, EncodeOptions};
 use common::{
     eyre::Result,
     tokio::{self, time},
@@ -19,16 +19,12 @@ use common::{
 use crate::{Document, SyncDirection};
 
 impl Document {
-    /// Synchronize a file with a document
+    /// Synchronize the document with a file
     ///
-    /// This function spawns a task to synchronize with the file.
-    ///
-    /// # Arguments
-    ///
-    /// - `path`: The path to the file
-    /// - `format`: The format of the file (defaults to being inferred
-    ///             from the file extension of the path)
-    /// - `direction`: The direction of synchronization
+    /// This function spawns a task to synchronize the document with a file:
+    /// changes in the content of the file result in an update being sent to
+    /// the document, and changes to the document result in an update to the
+    /// file (depending on the `direction` argument).
     #[tracing::instrument(skip(self))]
     pub async fn sync_file(
         &self,
