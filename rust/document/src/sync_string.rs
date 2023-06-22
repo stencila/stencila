@@ -1,10 +1,9 @@
 use std::{
-    path::Path,
     sync::{
-        atomic::{AtomicU64, Ordering, AtomicU32},
+        atomic::{AtomicU32, Ordering},
         Arc,
     },
-    time::{Duration, SystemTime, UNIX_EPOCH},
+    time::{Duration},
 };
 
 use codecs::{DecodeOptions, EncodeOptions};
@@ -19,7 +18,6 @@ use common::{
             mpsc::{Receiver, Sender},
             Mutex,
         },
-        time,
     },
     tracing,
 };
@@ -76,7 +74,7 @@ impl Document {
 
         // Create the buffer and initialize the version
         let buffer = Arc::new(Mutex::new(content.clone()));
-        let version = AtomicU32::new(1);
+        let version = Arc::new(AtomicU32::new(1));
 
         // Send initial patch of initial content
         let init = StringPatch {
@@ -94,6 +92,7 @@ impl Document {
         // Start task to receive any incoming changes
         if let Some(mut patch_receiver) = patch_receiver {
             let buffer_clone = buffer.clone();
+            let version_clone = version.clone();
             let update_sender = self.update_sender.clone();
             tokio::spawn(async move {
                 while let Some(patch) = patch_receiver.recv().await {
@@ -101,8 +100,7 @@ impl Document {
 
                     // If the patch is not for the current version then send an
                     // initialization patch
-                    if patch.version != version.load(Ordering::SeqCst) {
-
+                    if patch.version != version_clone.load(Ordering::SeqCst) {
                         continue;
                     }
 
