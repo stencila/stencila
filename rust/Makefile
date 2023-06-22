@@ -29,7 +29,7 @@ test:
 
 # List outdated dependencies
 outdated:
-	cargo outdated --workspace --all-features
+	cargo outdated -d 1
 
 # Audit dependencies
 audit:
