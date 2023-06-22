@@ -7,9 +7,9 @@ edition = "2021"
 Inflector = "0.11.4"
 async-recursion = "1.0.4"
 async-trait = "0.1.68"
-base64 = "0.21.0"
-chrono = { version = "0.4.24", features = ["serde"] }
-clap = { version = "4.2.7", features = ["derive", "color"] }
+base64 = "0.21.2"
+chrono = { version = "0.4.26", features = ["serde"] }
+clap = { version = "4.3.5", features = ["derive", "color"] }
 defaults = "0.2.0"
 derivative = "2.2.0"
 derive_more = "0.99.17"
@@ -21,15 +21,15 @@ indexmap = { version = "1.9.3", features = ["serde"] }
 itertools = "0.10.5"
 json5 = "0.4.1"
 maplit = "1.0.2"
-once_cell = "1.17.1"
-regex = "1.8.1"
-serde = { version = "1.0.160", features = ["derive", "rc"] }
-serde_json = { version = "1.0.96", features = ["preserve_order"] }
+once_cell = "1.18.0"
+regex = "1.8.4"
+serde = { version = "1.0.164", features = ["derive", "rc"] }
+serde_json = { version = "1.0.97", features = ["preserve_order"] }
 serde_with = "3.0.0"
 serde_yaml = "0.9.21"
 slug = "0.1.4"
-strum = { version = "0.24.1", features = ["derive"] }
-tempfile = "3.5.0"
-tokio = { version = "1.28.0", features = ["full"] }
-toml = "0.7.3"
+strum = { version = "0.25.0", features = ["derive"] }
+tempfile = "3.6.0"
+tokio = { version = "1.28.2", features = ["full"] }
+toml = "0.7.4"
 tracing = { version = "0.1.37", features = ["log"] }
