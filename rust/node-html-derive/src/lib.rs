@@ -1,8 +1,10 @@
 //! Provides `ToHtml` derive macro for structs and enums in Stencila Schema
 
-use proc_macro2::TokenStream;
-use quote::quote;
-use syn::{parse_macro_input, Data, DeriveInput, Fields};
+use common::{
+    proc_macro2::TokenStream,
+    quote::quote,
+    syn::{parse_macro_input, Data, DataEnum, DataStruct, DeriveInput, Fields},
+};
 
 /// Derive the `ToHtml` trait for a `struct` or an `enum`
 #[proc_macro_derive(ToHtml)]
@@ -21,7 +23,7 @@ pub fn derive_to_html(input: proc_macro::TokenStream) -> proc_macro::TokenStream
 /// Derive the `ToHtml` trait for a `struct`
 ///
 /// The implementation of methods is largely based on those for `IndexMap`.
-fn derive_struct(input: &DeriveInput, data: &syn::DataStruct) -> TokenStream {
+fn derive_struct(input: &DeriveInput, data: &DataStruct) -> TokenStream {
     let struct_name = &input.ident;
 
     let mut fields = TokenStream::new();
@@ -63,7 +65,7 @@ fn derive_struct(input: &DeriveInput, data: &syn::DataStruct) -> TokenStream {
 }
 
 /// Derive the `ToHtml` trait for an `enum`
-fn derive_enum(input: &DeriveInput, data: &syn::DataEnum) -> TokenStream {
+fn derive_enum(input: &DeriveInput, data: &DataEnum) -> TokenStream {
     let enum_name = &input.ident;
 
     let mut cases = TokenStream::new();

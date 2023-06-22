@@ -1,8 +1,10 @@
 //! Provides a `Strip` derive macro for structs and enums in Stencila Schema
 
-use proc_macro2::TokenStream;
-use quote::quote;
-use syn::{parse_macro_input, Data, DeriveInput, Fields};
+use common::{
+    proc_macro2::TokenStream,
+    quote::quote,
+    syn::{parse_macro_input, Data, DataEnum, DataStruct, DeriveInput, Fields},
+};
 
 /// Derive the `Strip` trait for a `struct` or `enum`
 #[proc_macro_derive(Strip)]
@@ -19,7 +21,7 @@ pub fn derive_strip(input: proc_macro::TokenStream) -> proc_macro::TokenStream {
 }
 
 /// Derive the `Strip` trait for a `struct`
-fn derive_struct(input: &DeriveInput, data: &syn::DataStruct) -> TokenStream {
+fn derive_struct(input: &DeriveInput, data: &DataStruct) -> TokenStream {
     let struct_name = &input.ident;
 
     let mut fields = TokenStream::new();
@@ -58,7 +60,7 @@ fn derive_struct(input: &DeriveInput, data: &syn::DataStruct) -> TokenStream {
 }
 
 /// Derive the `Strip` trait for an `enum`
-fn derive_enum(input: &DeriveInput, data: &syn::DataEnum) -> TokenStream {
+fn derive_enum(input: &DeriveInput, data: &DataEnum) -> TokenStream {
     let enum_name = &input.ident;
 
     let mut cases = TokenStream::new();

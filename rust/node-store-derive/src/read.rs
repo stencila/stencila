@@ -1,6 +1,8 @@
-use proc_macro2::TokenStream;
-use quote::quote;
-use syn::{parse_macro_input, Data, DeriveInput, Fields};
+use common::{
+    proc_macro2::TokenStream,
+    quote::quote,
+    syn::{parse_macro_input, Attribute, Data, DataEnum, DataStruct, DeriveInput, Fields},
+};
 
 /// Derive the `Read` trait
 pub fn derive(input: proc_macro::TokenStream) -> proc_macro::TokenStream {
@@ -16,7 +18,7 @@ pub fn derive(input: proc_macro::TokenStream) -> proc_macro::TokenStream {
 }
 
 /// Derive the `Read` trait for a `struct`
-pub fn derive_struct(input: &DeriveInput, data: &syn::DataStruct) -> TokenStream {
+pub fn derive_struct(input: &DeriveInput, data: &DataStruct) -> TokenStream {
     let struct_name = &input.ident;
 
     let mut methods = TokenStream::new();
@@ -71,11 +73,7 @@ pub fn derive_struct(input: &DeriveInput, data: &syn::DataStruct) -> TokenStream
 }
 
 /// Derive the `Read` trait for an `enum`
-pub fn derive_enum(
-    input: &DeriveInput,
-    data: &syn::DataEnum,
-    attrs: &Vec<syn::Attribute>,
-) -> TokenStream {
+pub fn derive_enum(input: &DeriveInput, data: &DataEnum, attrs: &Vec<Attribute>) -> TokenStream {
     let enum_name = &input.ident;
 
     let mut methods = TokenStream::new();
