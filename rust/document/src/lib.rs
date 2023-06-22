@@ -347,5 +347,5 @@ impl Document {
     }
 }
 
-mod sync_string;
 mod sync_file;
+mod sync_string;

@@ -412,7 +412,8 @@ async fn run(cli: Cli) -> Result<()> {
                 let encode_options = Some(encode_options.build(format_or_codec, losses));
 
                 if file.ends_with("-") {
-                    let (change_sender, mut change_receiver) = common::tokio::sync::mpsc::channel(32);
+                    let (change_sender, mut change_receiver) =
+                        common::tokio::sync::mpsc::channel(32);
                     tokio::spawn(async move {
                         while let Some(change) = change_receiver.recv().await {
                             tracing::info!("Change {change:?}");
