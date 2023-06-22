@@ -394,7 +394,7 @@ version = "0.0.0"
 dependencies = [
  "codec",
  "node-html",
- "quick-xml",
+ "quick-xml 0.29.0",
 ]
 
 [[package]]
@@ -402,7 +402,7 @@ name = "codec-jats"
 version = "0.0.0"
 dependencies = [
  "codec",
- "quick-xml",
+ "quick-xml 0.29.0",
  "roxmltree",
 ]
 
@@ -1801,7 +1801,7 @@ dependencies = [
  "base64 0.21.2",
  "indexmap",
  "line-wrap",
- "quick-xml",
+ "quick-xml 0.28.2",
  "serde",
  "time 0.3.20",
 ]
@@ -1870,6 +1870,15 @@ name = "quick-xml"
 version = "0.28.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "0ce5e73202a820a31f8a0ee32ada5e21029c81fd9e3ebf668a40832e4219d9d1"
+dependencies = [
+ "memchr",
+]
+
+[[package]]
+name = "quick-xml"
+version = "0.29.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "81b9228215d82c7b61490fec1de287136b5de6f5700f6e58ea9ad61a7964ca51"
 dependencies = [
  "memchr",
 ]
