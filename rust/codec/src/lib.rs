@@ -18,14 +18,14 @@ use common::{
 use format::Format;
 use schema::Node;
 
-// Rexports for the convienience of internal crates implementing `Codec`
+// Re-exports for the convenience of internal crates implementing `Codec`
 pub use common;
 pub use format;
 pub use schema;
 pub use status;
 use status::Status;
 
-/// A codec for decoding/encdoing between Stencila Schema nodes and alternative formats
+/// A codec for decoding/encoding between Stencila Schema nodes and alternative formats
 #[async_trait]
 pub trait Codec: Sync + Send {
     /// The name of the codec
@@ -258,15 +258,15 @@ pub struct EncodeOptions {
 pub enum LossesResponse {
     /// Ignore the losses; do nothing
     Ignore,
-    /// Log losses as spearate log entries with the `TRACE` severity level
+    /// Log losses as separate log entries with the `TRACE` severity level
     Trace,
-    /// Log losses as spearate log entries with the `DEBUG` severity level
+    /// Log losses as separate log entries with the `DEBUG` severity level
     Debug,
-    /// Log losses as spearate log entries with the `INFO` severity level
+    /// Log losses as separate log entries with the `INFO` severity level
     Info,
-    /// Log losses as spearate log entries with the `WARN` severity level
+    /// Log losses as separate log entries with the `WARN` severity level
     Warn,
-    /// Log losses as spearate log entries with the `ERROR` severity level
+    /// Log losses as separate log entries with the `ERROR` severity level
     Error,
     /// Abort the current function call by returning a `Err` result with the losses enumerated
     Abort,

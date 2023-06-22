@@ -37,10 +37,10 @@ fn examples() -> Result<Vec<PathBuf>> {
 /// with the corresponding file extension. If no such file exists then
 /// write the file.
 ///
-/// 2. Decode the existing file to a `Node` and compare it to the orginal
+/// 2. Decode the existing file to a `Node` and compare it to the original
 /// node (from the JSON example).
 ///
-/// Use the `UPDATE_EXAMPLES` environment vaiable to overwrite any existing
+/// Use the `UPDATE_EXAMPLES` environment variable to overwrite any existing
 /// files e.g.
 ///
 ///   UPDATE_EXAMPLES=true cargo test -p tests examples_encode_decode
@@ -78,7 +78,7 @@ async fn examples_encode_decode() -> Result<()> {
                 let actual = codecs::to_string(&node, Some(encode_options)).await?;
 
                 if file.exists() {
-                    // Exisiting file: compare string content of files
+                    // Existing file: compare string content of files
                     let expected = read_to_string(&file).await?;
                     if actual != expected {
                         if std::env::var("UPDATE_EXAMPLES").unwrap_or_default() == "true" {

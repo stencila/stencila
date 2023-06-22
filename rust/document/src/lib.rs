@@ -76,9 +76,9 @@ impl DocumentType {
 
 /// The synchronization mode between documents and external resources
 ///
-/// Examples of external resources which may be synchonized with a document include
+/// Examples of external resources which may be synchronized with a document include
 /// a file on the local file system or an editor in a web browser. This enum determines
-/// whether changes in the document chould be reflected in the resource and vice versa.
+/// whether changes in the document should be reflected in the resource and vice versa.
 #[derive(Debug, Display, Default, Clone, Copy, ValueEnum, EnumString)]
 #[strum(serialize_all = "lowercase", crate = "common::strum")]
 pub enum SyncDirection {

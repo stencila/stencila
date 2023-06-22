@@ -6,16 +6,27 @@
         "canonicalize",
         "chrono",
         "colspan",
+        "consts",
         "datatable",
         "dependants",
+        "implem",
         "indexmap",
         "inflector",
         "inlines",
         "itertools",
+        "jats",
+        "maplit",
         "mathml",
         "monostate",
+        "pandoc",
+        "requireds",
         "rowspan",
         "rustfmt",
-        "stencila"
+        "smol",
+        "SPANTRACE",
+        "stencila",
+        "tempfile",
+        "Transactable",
+        "yamls"
     ]
 }

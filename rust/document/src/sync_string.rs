@@ -3,7 +3,7 @@ use std::{
         atomic::{AtomicU32, Ordering},
         Arc,
     },
-    time::{Duration},
+    time::Duration,
 };
 
 use codecs::{DecodeOptions, EncodeOptions};

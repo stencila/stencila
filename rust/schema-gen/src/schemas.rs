@@ -353,8 +353,8 @@ impl Schemas {
     pub fn expand(&mut self) -> Result<()> {
         // Node union type
         // Order is important for deserialization correctness and performance since
-        // serde attempts to deserialize in the order in the emum. We put primitives
-        // first (for fast deserialization for kernel outputs) excecpt for `Object` which is
+        // serde attempts to deserialize in the order in the enum. We put primitives
+        // first (for fast deserialization for kernel outputs) except for `Object` which is
         // last so it does not "consume" entity types (which are also objects).
         let mut any_of = [
             "Null",
