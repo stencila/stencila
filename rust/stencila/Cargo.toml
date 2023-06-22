@@ -5,7 +5,7 @@ authors = ["Nokome Bentley <nokome@stencila.io"]
 edition = "2021"
 
 [features]
-tokio-console = ["console-subscriber", "tokio/tracing"]
+tokio-console = ["console-subscriber"]
 
 [dependencies]
 codecs = { path = "../codecs" }
@@ -16,7 +16,6 @@ document = { path = "../document" }
 format = { path = "../format" }
 is-terminal = "0.4.7"
 syntect = "5.0.0"
-tokio = { version = "1.27.0", features = ["full"] }
 tracing-error = "0.2.0"
 tracing-subscriber = { version = "0.3.17", features = ["env-filter", "json"] }
 

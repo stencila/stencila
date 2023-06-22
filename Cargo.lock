@@ -2261,7 +2261,6 @@ dependencies = [
  "format",
  "is-terminal",
  "syntect",
- "tokio",
  "tracing-error",
  "tracing-subscriber",
 ]
