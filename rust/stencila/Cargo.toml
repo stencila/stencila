@@ -12,7 +12,7 @@ axum = "0.6.18"
 codecs = { path = "../codecs" }
 color-eyre = { version = "0.6.2", features = ["issue-url"] }
 common = { path = "../common" }
-console-subscriber = { version = "0.1.9", optional = true }
+console-subscriber = { version = "0.1.10", optional = true }
 document = { path = "../document" }
 format = { path = "../format" }
 is-terminal = "0.4.7"
