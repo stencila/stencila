@@ -42,8 +42,9 @@ impl DocumentType {
 
     /// Determine the document type from the [`Format`]
     ///
-    /// Returns `None` is the format can be associated with more than one document
-    /// type (e.g. [`Format::Json`]).
+    /// Returns `None` if the format can be associated with more than one
+    /// document type (e.g. [`Format::Json`]).
+    #[allow(unused)]
     fn from_format(format: &Format) -> Option<Self> {
         match format {
             Format::Jats | Format::Md => Some(Self::Article),
@@ -101,15 +102,15 @@ type DocumentUpdateReceiver = mpsc::Receiver<Node>;
 /// Each document has:
 ///
 /// - An Automerge `store` that has a [`Node`] at its root.
-/// The `store` is read from, and written to, the document's `path`.
+///   The `store` is read from, and written to, the document's `path`.
 ///
-/// - A `watch_receiver` which can be cloned to watch
-/// for changes to the root [`Node`].
+/// - A `watch_receiver` which can be cloned to watch for changes
+///   to the root [`Node`].
 ///
 /// - An `update_sender` which can be cloned to send updates to the
-/// root [`Node`].
+///   root [`Node`].
 pub struct Document {
-    /// The document's Automerge store with a [`Node`] to this root
+    /// The document's Automerge store with a [`Node`] at its root
     store: DocumentStore,
 
     /// The filesystem path to the document's Automerge store
