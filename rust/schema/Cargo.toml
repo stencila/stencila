@@ -5,7 +5,7 @@ edition = "2021"
 
 [dependencies]
 common = { path = "../common" }
-monostate = "0.1"
+monostate = "0.1.9"
 node-html = { path = "../node-html" }
 node-html-derive = { path = "../node-html-derive" }
 node-strip = { path = "../node-strip" }

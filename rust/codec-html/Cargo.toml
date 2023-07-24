@@ -6,4 +6,4 @@ edition = "2021"
 [dependencies]
 codec = { path = "../codec" }
 node-html = { path = "../node-html" }
-quick-xml = "0.29.0"
+quick-xml = "0.30.0"

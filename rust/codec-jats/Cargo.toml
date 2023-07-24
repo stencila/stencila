@@ -5,5 +5,5 @@ edition = "2021"
 
 [dependencies]
 codec = { path = "../codec" }
-quick-xml = "0.29.0"
+quick-xml = "0.30.0"
 roxmltree = "0.18.0"
