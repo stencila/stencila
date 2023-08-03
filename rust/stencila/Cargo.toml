@@ -8,7 +8,7 @@ edition = "2021"
 tokio-console = ["console-subscriber"]
 
 [dependencies]
-axum = "0.6.19"
+axum = "0.6.20"
 codecs = { path = "../codecs" }
 color-eyre = { version = "0.6.2", features = ["issue-url"] }
 common = { path = "../common" }
