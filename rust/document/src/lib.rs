@@ -332,7 +332,7 @@ impl Document {
     pub async fn history(&self) -> Result<()> {
         let mut store = self.store.write().await;
 
-        let changes = store.get_changes(&[])?;
+        let changes = store.get_changes(&[]);
 
         for change in changes {
             let hash = change.hash();

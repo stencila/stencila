@@ -53,11 +53,11 @@ impl Write for TextValue {
                         store.splice_text(&prop_obj, pos, 0, insert)?;
                     }
                     DiffTag::Delete => {
-                        let delete = op.old_range().len();
+                        let delete = op.old_range().len() as isize;
                         store.splice_text(&prop_obj, pos, delete, "")?;
                     }
                     DiffTag::Replace => {
-                        let delete = op.old_range().len();
+                        let delete = op.old_range().len() as isize;
                         let insert = &self.0[op.new_range()];
                         store.splice_text(&prop_obj, pos, delete, insert)?;
                     }

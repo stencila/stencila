@@ -2,7 +2,7 @@ use std::collections::HashSet;
 
 use common::eyre::Result;
 use node_store::{
-    automerge::{transaction::Transactable, ObjId, ObjType, Prop, Value},
+    automerge::{iter::MapRangeItem, transaction::Transactable, ObjId, ObjType, Prop, Value},
     Read, ReadStore, Write, WriteStore,
 };
 
@@ -11,7 +11,7 @@ use crate::{Object, Primitive};
 impl Read for Object {
     fn load_map<S: ReadStore>(store: &S, obj_id: &ObjId) -> Result<Self> {
         let mut map = Self::new();
-        for (key, ..) in store.map_range(obj_id, ..) {
+        for MapRangeItem { key, .. } in store.map_range(obj_id, ..) {
             let node = Primitive::load_prop(store, obj_id, key.into())?;
             map.insert(key.to_string(), node);
         }
