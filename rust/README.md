@@ -42,6 +42,8 @@ The current crates include:
 
 - [`stencila`](stencila): The `stencila` CLI tool
 
+- [`stencila-gen`](stencila-gen): Generates documentation for the CLI
+
 #### Documents and formats
 
 - [`document`](document): A document representing one of the `CreativeWork` types in the Stencila Schema.

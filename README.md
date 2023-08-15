@@ -75,11 +75,15 @@ and use locally like this for example,
 docker run -it --rm -v "$PWD":/work -w /work --network host ghcr.io/stencila/stencila --help
 ```
 
+## ⚡ Usage
+
+See `stencila --help` or the reference documentation for the CLI [here](docs/reference/cli.md).
+
 ## 🛠️ Develop
 
 This repository is organized into the following modules. Please see their respective READMEs for guides to contributing.
 
-- [`schema`](schema): YAML files which define the Stencila Schema, an implementation of, and extensions to, https://schema.org, for documents.
+- [`schema`](schema): YAML files which define the Stencila Schema, an implementation of, and extensions to, https://schema.org, for programmable documents.
 
 - `json-ld` `🏗️ In progress`: A [JSON LD](https://json-ld.org/) `@context` for Stencila Schema generated from the files in `schema`.
 
