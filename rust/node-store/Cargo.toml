@@ -4,6 +4,6 @@ version = "0.0.0"
 edition = "2021"
 
 [dependencies]
-automerge = "0.4.1"
+automerge = "0.5.1"
 common = { path = "../common" }
 smol_str = "0.1.24"
