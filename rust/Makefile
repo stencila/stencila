@@ -51,6 +51,7 @@ install:
 # Build generated files
 generated:
 	cargo run -p schema-gen
+	cargo run -p stencila-gen > ../docs/reference/cli.md
 
 # Update derived examples
 examples:
