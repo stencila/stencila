@@ -5,25 +5,23 @@
 
 ## 👋 Introduction
 
-Stencila is a platform for collaborating on, and publishing, dynamic, data-driven content. Our aim is to lower the barriers for creating data-driven documents and make it easier to create beautiful, interactive, and semantically rich, articles, web pages and applications from them.
+Stencila is a platform for collaborating on, and publishing, dynamic, data-driven content. Our aim is to lower the barriers for creating programmable documents and make it easier to create beautiful, interactive, and semantically rich, articles, web pages and applications from them.
 
 ## 📈 Status
 
 This is `v2` of Stencila, a rewrite in Rust aimed at leveraging two relatively recent and impactful innovations:
 
-- [Conflict-free replicated data types (CRDTs)](https://crdt.tech/), and specifically the production ready, Rust-based [Automerge `v2`](https://github.com/automerge/automerge), for de-centralized collaboration and version control.
+- [Conflict-free replicated data types (CRDTs)](https://crdt.tech/), and specifically the production ready, Rust-based [Automerge](https://github.com/automerge/automerge), for de-centralized collaboration and version control.
 
-- [Large language models (LLMs)](https://en.wikipedia.org/wiki/Large_language_model)for assisting in writing and editing, prose and code.
+- [Large language models (LLMs)](https://en.wikipedia.org/wiki/Large_language_model) for assisting in writing and editing, prose and code.
 
 We are embarking on a rewrite because CRDTs will now be the foundational synchronization and storage layer for Stencila documents. This requires fundamental changes to most other parts of the platform (e.g. how changes are applied to dynamic documents). Furthermore, a rewrite allow us to bake in, rather than bolt on, mechanisms to mitigate the risks associated with using LLM assistants for authoring documents (e.g. recording the actor, human or LLM, that made the change to a document).
 
-We're in the early stages of this rewrite, and this document will be updated with a roadmap and other details soon.
-
-We are currently tagging releases using a `2.0.0-alpha.X` pattern (where we increment X on each release). The `v1` branch can be browsed [here](https://github.com/stencila/stencila/tree/v1).
+Having said that, much of the code in the [`v1` branch](https://github.com/stencila/stencila/tree/v1) will be reused (probably after some tidy-ups and refactoring), so `v2` is not a _complete_ rewrite.
 
 ## 📥 Install
 
-Although `v2` is in early stages of development, and functionality may be limited or buggy, we are taking a continuous delivery approach and releasing binary builds of alpha versions of the Stencila CLI tool and language packages. Doing so allows us to get early feedback and monitor what impact the addition of features has on build times and distribution sizes.
+Although `v2` is in early stages of development, and functionality may be limited or buggy, we are taking a "release early, release often" approach and releasing binary builds of alpha versions of the Stencila CLI tool and language packages. Doing so allows us to get early feedback and monitor what impact the addition of features has on build times and distribution sizes.
 
 ### CLI tool
 
@@ -83,23 +81,24 @@ See `stencila --help` or the reference documentation for the CLI [here](docs/ref
 
 This repository is organized into the following modules. Please see their respective READMEs for guides to contributing.
 
-- [`schema`](schema): YAML files which define the Stencila Schema, an implementation of, and extensions to, https://schema.org, for programmable documents.
+- [`schema`](schema): YAML files which define the Stencila Schema, an implementation of, and extensions to, [schema.org](https://schema.org), for programmable documents.
 
-- `json-ld` `🏗️ In progress`: A [JSON LD](https://json-ld.org/) `@context` for Stencila Schema generated from the files in `schema`.
+- `json-ld` [`🧭 Planned`]: A [JSON LD](https://json-ld.org/) `@context`, generated from Stencila Schema, which can be used to transform Stencila documents to other vocabularies.
 
-- `json-schema` `🏗️ In progress`: A [JSON Schema](https://json-schema.org/) for Stencila Schema generated from the files in `schema`.
+- `json-schema` [`🧭 Planned`]: A [JSON Schema](https://json-schema.org/), generated from Stencila Schema, which can be used to validate Stencila documents.
 
-- [`rust`](rust): Several Rust crates implementing core functionality and a CLI for working with documents that adhere to that Stencila Schema.
+- [`rust`](rust): Several Rust crates implementing core functionality and a CLI for working with Stencila documents.
 
-- [`docs`](docs) `🏗️ In progress`: Documentation, including reference documentation generated from `schema` and the `rust` CLI interface.
+- `python` [`🧭 Planned`](https://github.com/stencila/stencila/issues/1624): A Python package, with [Pydantic](https://docs.pydantic.dev/latest/) classes generated from Stencila Schema and bindings to Rust functions, so you can work with Stencila documents from within Python.
+
+- `typescript` [`🧭 Planned`](https://github.com/stencila/stencila/issues/1625): A package of TypeScript types generated from Stencila Schema so you can create type-safe Stencila documents in the browser, Node.js, Deno etc.
+
+- `node` [`🧭 Planned`](https://github.com/stencila/stencila/issues/1626): A Node.js package, using the generated TypeScript types and with runtime validation and bindings to Rust functions, so you can work with Stencila documents from within Node.js.
+
+- [`docs`](docs) `🏗️ In progress`: Documentation, including reference documentation generated from `schema` and the `rust` CLI tool.
 
 - [`examples`](examples) `🏗️ In progress`: Example of documents conforming to Stencila Schema.
 
-- `node` `🧭 Planned`: A Node.js package built on top of the Rust crates which provides interfaces to use Stencila from within Node.js.
-
-- `python` `🧭 Planned`: A Python package built on top of the Rust crates which provides interfaces to use Stencila from within Python.
-
-- `r` `🧭 Planned`: An R package built on top of the Rust crates which provides interfaces to use Stencila from within R.
 
 ## 💖 Supporters
 
