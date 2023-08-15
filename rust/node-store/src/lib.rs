@@ -1,14 +1,13 @@
 //! Interface between Stencila Schema and Automerge
 
-use std::path::Path;
-use std::time::SystemTime;
+use std::{
+    fs::{read, write},
+    path::Path,
+    time::SystemTime,
+};
 
 use automerge::ROOT;
-use common::{
-    async_trait::async_trait,
-    eyre::{bail, Context, Result},
-    tokio::fs::{read, write},
-};
+use common::eyre::{bail, Context, Result};
 use smol_str::SmolStr;
 
 pub use automerge::{self, AutoCommit as WriteStore, ObjId, ObjType, Prop, ReadDoc as ReadStore};
@@ -50,11 +49,10 @@ macro_rules! bail_load_unexpected {
 }
 
 /// A trait for reading Stencila document nodes from an Automerge store
-#[async_trait]
 pub trait Read: Sized {
     /// Read a Stencila document node from an Automerge file
-    async fn read(path: &Path) -> Result<(WriteStore, Self)> {
-        let store = load_store(path).await?;
+    fn read(path: &Path) -> Result<(WriteStore, Self)> {
+        let store = load_store(path)?;
 
         // If the following call to `Self::load` fails it can be useful to use `inspect_store(&store)?`
         // to inspect the shape of the data in the store
@@ -177,10 +175,9 @@ pub trait Read: Sized {
 }
 
 /// A trait for writing a Stencila node to an Automerge store
-#[async_trait]
 pub trait Write {
     /// Write a Stencila node to an Automerge store
-    async fn write(&self, store: &mut WriteStore, path: &Path, message: &str) -> Result<()> {
+    fn write(&self, store: &mut WriteStore, path: &Path, message: &str) -> Result<()> {
         self.dump(store)?;
 
         let time = SystemTime::now()
@@ -194,7 +191,7 @@ pub trait Write {
         store.commit_with(options);
 
         let bytes = store.save();
-        write(path, bytes).await?;
+        write(path, bytes)?;
 
         Ok(())
     }
@@ -236,7 +233,7 @@ pub trait Write {
 }
 
 /// Load an Automerge store into memory
-pub async fn load_store(path: &Path) -> Result<WriteStore> {
+pub fn load_store(path: &Path) -> Result<WriteStore> {
     if !path.exists() {
         bail!("Path `{}` does not exist", path.display());
     }
@@ -244,7 +241,7 @@ pub async fn load_store(path: &Path) -> Result<WriteStore> {
         bail!("Path `{}` is a directory; expected a file", path.display());
     }
 
-    let bytes = read(path).await?;
+    let bytes = read(path)?;
     let store = WriteStore::load(&bytes)
         .wrap_err_with(|| format!("Unable to open file `{}`", path.display()))?;
     Ok(store)

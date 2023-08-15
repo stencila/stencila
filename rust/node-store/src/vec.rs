@@ -1,3 +1,4 @@
+use automerge::iter::ListRangeItem;
 use common::eyre::Result;
 
 use crate::prelude::*;
@@ -9,7 +10,7 @@ where
     fn load_list<S: ReadStore>(store: &S, obj: &ObjId) -> Result<Self> {
         // Load the items into a new vec
         let mut vec = Vec::new();
-        for (index, ..) in store.list_range(obj, ..) {
+        for ListRangeItem { index, .. } in store.list_range(obj, ..) {
             let node = T::load_prop(store, obj, index.into())?;
             vec.push(node);
         }

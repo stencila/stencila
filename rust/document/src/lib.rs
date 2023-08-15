@@ -139,9 +139,9 @@ impl Document {
 
         let store = Arc::new(RwLock::new(store));
         let store_clone = store.clone();
-        tokio::spawn(
-            async move { Self::update_task(store_clone, update_receiver, watch_sender).await },
-        );
+        tokio::spawn(async move {
+            // Self::update_task(store_clone, update_receiver, watch_sender).await
+        });
 
         Ok(Self {
             path,
@@ -192,7 +192,7 @@ impl Document {
         };
 
         let mut store = WriteStore::new();
-        root.write(&mut store, &path, &message).await?;
+        root.write(&mut store, &path, &message)?;
 
         Self::init(&path, store)
     }
@@ -203,7 +203,7 @@ impl Document {
     /// or is a directory.
     #[tracing::instrument]
     pub async fn open(path: &Path) -> Result<Self> {
-        let store = load_store(path).await?;
+        let store = load_store(path)?;
         Self::init(path, store)
     }
 
@@ -265,7 +265,7 @@ impl Document {
     /// us to inspect the "raw" structure in the store.
     #[tracing::instrument]
     pub async fn inspect(path: &Path) -> Result<String> {
-        let store = load_store(path).await?;
+        let store = load_store(path)?;
         inspect_store(&store)
     }
 
@@ -297,8 +297,7 @@ impl Document {
             .file_name()
             .map_or_else(|| "unnamed", |name| name.to_str().unwrap_or_default());
 
-        root.write(&mut store, &self.path, &format!("Import from `{filename}`"))
-            .await?;
+        root.write(&mut store, &self.path, &format!("Import from `{filename}`"))?;
 
         Ok(())
     }
@@ -332,7 +331,7 @@ impl Document {
     pub async fn history(&self) -> Result<()> {
         let mut store = self.store.write().await;
 
-        let changes = store.get_changes(&[])?;
+        let changes = store.get_changes(&[]);
 
         for change in changes {
             let hash = change.hash();
