@@ -1,5 +1,7 @@
 use std::collections::{HashMap, HashSet};
 
+use automerge::iter::MapRangeItem;
+
 use crate::prelude::*;
 
 impl<T> Read for HashMap<String, T>
@@ -8,7 +10,7 @@ where
 {
     fn load_map<S: ReadStore>(store: &S, obj_id: &ObjId) -> Result<Self> {
         let mut map = Self::new();
-        for (key, ..) in store.map_range(obj_id, ..) {
+        for MapRangeItem { key, .. } in store.map_range(obj_id, ..) {
             let node = T::load_prop(store, obj_id, key.into())?;
             map.insert(key.to_string(), node);
         }
