@@ -8,7 +8,7 @@ edition = "2021"
 tokio-console = ["console-subscriber"]
 
 [dependencies]
-axum = "0.6.19"
+axum = "0.6.20"
 codecs = { path = "../codecs" }
 color-eyre = { version = "0.6.2", features = ["issue-url"] }
 common = { path = "../common" }
@@ -16,7 +16,7 @@ console-subscriber = { version = "0.1.10", optional = true }
 document = { path = "../document" }
 format = { path = "../format" }
 is-terminal = "0.4.9"
-syntect = "5.0.0"
+syntect = "5.1.0"
 tracing-error = "0.2.0"
 tracing-subscriber = { version = "0.3.17", features = ["env-filter", "json"] }
 
