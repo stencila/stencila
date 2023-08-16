@@ -208,7 +208,7 @@ impl Schema {
 
     /// Check and normalize the schema
     ///
-    /// This performs normalization on fields tat make subsequent steps, as well as
+    /// This performs normalization on fields to make subsequent steps, as well as
     /// code generation easier.
     fn normalize(&mut self, name: &str, is_prop: bool) -> Result<()> {
         if !is_prop {
@@ -220,14 +220,9 @@ impl Schema {
             }
         }
 
-        let Some(description) = &mut self.description else {
+        if self.description.is_none() {
             bail!("schema does not have a description")
         };
-        *description = description
-            .trim_end_matches('\n')
-            .replace('\n', if is_prop { "\n    /// " } else { "\n/// " })
-            .trim()
-            .to_string();
 
         if let Some(properties) = &mut self.properties {
             for (name, property) in properties.iter_mut() {

@@ -7,6 +7,7 @@
         "chrono",
         "colspan",
         "consts",
+        "CRDTs",
         "datatable",
         "dependants",
         "implem",

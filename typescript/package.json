@@ -1,0 +1,30 @@
+{
+  "name": "stencila-types",
+  "version": "2.0.0-alpha.1",
+  "description": "TypeScript types for the Stencila Schema",
+  "type": "module",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs",
+    "example": "examples"
+  },
+  "scripts": {
+    "build": "tsc"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/stencila/stencila.git"
+  },
+  "keywords": [
+    "types",
+    "programmable",
+    "executable",
+    "documents"
+  ],
+  "author": "Nokome Bentley <nokome@stenci.la>",
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/stencila/stencila/issues"
+  },
+  "homepage": "https://github.com/stencila/stencila#readme"
+}
