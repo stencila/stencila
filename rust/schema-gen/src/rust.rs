@@ -200,7 +200,13 @@ impl Schemas {
 
     /// Generate a Rust struct for a schema
     async fn rust_struct(dest: &Path, title: &String, schema: &Schema) -> Result<String> {
-        let description = schema.description.as_ref().unwrap_or(title);
+        let description = schema
+            .description
+            .as_ref()
+            .unwrap_or(title)
+            .trim_end_matches('\n')
+            .replace('\n', "\n/// ")
+            .to_string();
 
         let mut derive_traits =
             "Debug, Defaults, Clone, PartialEq, Serialize, Deserialize".to_string();
@@ -221,7 +227,13 @@ impl Schemas {
         let mut fields = Vec::new();
         let mut used_types = HashSet::new();
         for (name, property) in schema.properties.iter().flatten() {
-            let description = property.description.as_ref().unwrap_or(name);
+            let description = property
+                .description
+                .as_ref()
+                .unwrap_or(name)
+                .trim_end_matches('\n')
+                .replace('\n', "\n    /// ")
+                .to_string();
 
             let mut attrs = Vec::new();
 
@@ -472,10 +484,11 @@ pub struct {title} {{
         let description = if let Some(title) = &schema.title {
             schema
                 .description
-                .clone()
-                .unwrap_or(title.clone())
-                // Any_of comes from prop and adds four spaces to schemas
-                .replace(r#"    ///"#, r#"///"#)
+                .as_ref()
+                .unwrap_or(title)
+                .trim_end_matches('\n')
+                .replace('\n', "\n    /// ")
+                .to_string()
         } else {
             alternatives
                 .iter()
