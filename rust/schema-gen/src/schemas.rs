@@ -1,3 +1,5 @@
+//! Representation of Stencila Schema types in Rust
+
 use std::{fs::read_dir, path::PathBuf};
 
 use common::{
@@ -153,7 +155,7 @@ pub struct Schema {
 
     /// The title of the schema that this schema extends
     #[serde(default)]
-    #[serde(deserialize_with = "handle_string_or_array")]
+    #[serde(deserialize_with = "deserialize_string_or_array")]
     pub extends: Option<Vec<String>>,
 
     /// Whether the schema is only an abstract base for other schemas
@@ -456,7 +458,8 @@ impl Schemas {
     }
 }
 
-fn handle_string_or_array<'de, D>(deserializer: D) -> Result<Option<Vec<String>>, D::Error>
+/// Deserialize an optional string or array field into an `Option<Vec<String>>`
+fn deserialize_string_or_array<'de, D>(deserializer: D) -> Result<Option<Vec<String>>, D::Error>
 where
     D: common::serde::Deserializer<'de>,
 {

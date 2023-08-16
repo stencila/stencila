@@ -80,7 +80,8 @@ const KEYWORDS: &[&str; 52] = &[
     "virtual", "yield", "try",
 ];
 
-fn handle_keyword(input: &String) -> String {
+/// If the input is a keyword then escape it so it is valid Rust code
+fn escape_keyword(input: &String) -> String {
     if KEYWORDS.contains(&input.as_str()) {
         format!("r#{input}")
     } else {
@@ -148,7 +149,7 @@ impl Schemas {
             .iter()
             .filter(|module| !module.is_empty())
             .sorted()
-            .map(handle_keyword)
+            .map(escape_keyword)
             .collect_vec();
         let mods = modules
             .iter()
@@ -226,7 +227,7 @@ impl Schemas {
 
             // Rewrite name as necessary for Rust compatibility
             let name = name.to_snake_case();
-            let name = handle_keyword(&name);
+            let name = escape_keyword(&name);
 
             // Determine Rust type for the property
             let (mut typ, is_vec) = if name == "r#type" {
@@ -285,7 +286,7 @@ impl Schemas {
             .sorted()
             .map(|used_type| {
                 let module = used_type.to_snake_case();
-                let module = handle_keyword(&module);
+                let module = escape_keyword(&module);
                 format!("use super::{module}::{used_type};")
             })
             .join("\n");
@@ -492,7 +493,7 @@ pub struct {title} {{
             .sorted()
             .filter_map(|(name, is_type)| {
                 let module = name.to_snake_case();
-                let module = handle_keyword(&module);
+                let module = escape_keyword(&module);
                 is_type.then_some(format!("use super::{module}::{name};",))
             })
             .join("\n");
