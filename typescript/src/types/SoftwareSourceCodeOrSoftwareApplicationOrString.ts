@@ -1,0 +1,11 @@
+// Generated file. Do not edit; see `rust/schema-gen` crate.\n\n
+            
+import { SoftwareApplication } from './SoftwareApplication'
+import { SoftwareSourceCode } from './SoftwareSourceCode'
+import { String } from './String'
+
+// `SoftwareSourceCode` or `SoftwareApplication` or `String`
+export type SoftwareSourceCodeOrSoftwareApplicationOrString =
+  SoftwareSourceCode |
+  SoftwareApplication |
+  String;
