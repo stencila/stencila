@@ -3,7 +3,6 @@
 use std::{fs::read_dir, path::PathBuf};
 
 use common::{
-    defaults::Defaults,
     eyre::{bail, eyre, Context, Result},
     futures::future::try_join_all,
     indexmap::IndexMap,
@@ -73,7 +72,7 @@ pub struct ItemsAnyOf {
 
 /// A schema object
 #[skip_serializing_none]
-#[derive(Debug, Defaults, Clone, Serialize, Deserialize)]
+#[derive(Debug, Default, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 pub struct Schema {
     // JSONSchema7 properties
@@ -397,6 +396,7 @@ impl Schemas {
                     "Union type for all types in this schema, including primitives and entities"
                         .to_string(),
                 ),
+                default: Some(Value::Null),
                 any_of: Some(any_of),
                 ..Default::default()
             },

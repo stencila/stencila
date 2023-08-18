@@ -10,7 +10,6 @@ async-trait = "0.1.73"
 base64 = "0.21.2"
 chrono = { version = "0.4.26", features = ["serde"] }
 clap = { version = "4.3.21", features = ["derive", "color"] }
-defaults = "0.2.0"
 derivative = "2.2.0"
 derive_more = "0.99.17"
 dirs = "5.0.1"
@@ -31,6 +30,7 @@ serde_with = "3.2.0"
 serde_yaml = "0.9.25"
 similar = { version = "2.2.1", features = ["unicode"] }
 slug = "0.1.4"
+smart-default = "0.7.1"
 strum = { version = "0.25.0", features = ["derive"] }
 syn = "2.0.28"
 tempfile = "3.7.1"

@@ -3,11 +3,11 @@ use std::path::Path;
 use common::{
     async_trait::async_trait,
     clap::{self, ValueEnum},
-    defaults::Defaults,
     derive_more::{Deref, DerefMut},
     eyre::{bail, eyre, Result},
     itertools::Itertools,
     serde::Serialize,
+    smart_default::SmartDefault,
     strum::Display,
     tokio::{
         fs::{create_dir_all, File},
@@ -192,7 +192,7 @@ pub struct CodecSpec {
 }
 
 /// Decoding options
-#[derive(Debug, Defaults, Clone)]
+#[derive(Debug, SmartDefault, Clone)]
 pub struct DecodeOptions {
     /// The name of the codec to use for decoding
     ///
@@ -206,12 +206,12 @@ pub struct DecodeOptions {
     pub format: Option<Format>,
 
     /// The response to take when there are losses in the decoding
-    #[def = "LossesResponse::Warn"]
+    #[default(_code = "LossesResponse::Warn")]
     pub losses: LossesResponse,
 }
 
 /// Encoding options
-#[derive(Debug, Defaults, Clone)]
+#[derive(Debug, SmartDefault, Clone)]
 pub struct EncodeOptions {
     /// The name of the codec to use for encoding
     ///
@@ -228,27 +228,27 @@ pub struct EncodeOptions {
     ///
     /// Some formats (e.g HTML and JSON) can be encoded in either compact
     /// or "pretty-printed" (e.g. indented) forms.
-    #[def = "false"]
+    #[default = false]
     pub compact: bool,
 
     /// Whether to strip the id property of nodes when encoding
-    #[def = "true"]
+    #[default = true]
     pub strip_id: bool,
 
     /// Whether to strip the code of executable nodes when encoding
-    #[def = "false"]
+    #[default = false]
     pub strip_code: bool,
 
     /// Whether to strip the derived properties of executable nodes when encoding
-    #[def = "false"]
+    #[default = false]
     pub strip_execution: bool,
 
     /// Whether to strip the outputs of executable nodes when encoding
-    #[def = "false"]
+    #[default = false]
     pub strip_outputs: bool,
 
     /// The response to take when there are losses in the encoding
-    #[def = "LossesResponse::Warn"]
+    #[default(_code = "LossesResponse::Warn")]
     pub losses: LossesResponse,
 }
 

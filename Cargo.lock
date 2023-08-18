@@ -509,7 +509,6 @@ dependencies = [
  "base64 0.21.2",
  "chrono",
  "clap",
- "defaults",
  "derivative",
  "derive_more",
  "dirs",
@@ -530,6 +529,7 @@ dependencies = [
  "serde_yaml",
  "similar",
  "slug",
+ "smart-default",
  "strum",
  "syn 2.0.28",
  "tempfile",
@@ -717,17 +717,6 @@ dependencies = [
  "darling_core",
  "quote",
  "syn 2.0.28",
-]
-
-[[package]]
-name = "defaults"
-version = "0.2.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "40e9553d64f91aa22cb23a558a19108bce0f6854ef99a123b8c0a9b95a9ba267"
-dependencies = [
- "proc-macro2",
- "quote",
- "syn 1.0.109",
 ]
 
 [[package]]
@@ -2259,6 +2248,17 @@ name = "smallvec"
 version = "1.10.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "a507befe795404456341dfab10cef66ead4c041f62b8b11bbb92bffe5d0953e0"
+
+[[package]]
+name = "smart-default"
+version = "0.7.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "0eb01866308440fc64d6c44d9e86c5cc17adfe33c4d6eed55da9145044d0ffc1"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "syn 2.0.28",
+]
 
 [[package]]
 name = "smol_str"

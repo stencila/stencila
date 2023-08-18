@@ -209,7 +209,7 @@ impl Schemas {
             .to_string();
 
         let mut derive_traits =
-            "Debug, Defaults, Clone, PartialEq, Serialize, Deserialize".to_string();
+            "Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize".to_string();
         let title = title.as_str();
         if !NO_DERIVE_STRIP.contains(&title) {
             derive_traits += ", Strip";
@@ -251,14 +251,10 @@ impl Schemas {
             };
 
             // Does the field have a default?
-            let mut default = property.default.as_ref().map(|default| {
-                let mut default = Self::rust_value(default);
-                if default == "Null" {
-                    used_types.insert(default);
-                    default = "Node::Null(Null{})".to_string();
-                }
-                default
-            });
+            let mut default = property
+                .default
+                .as_ref()
+                .map(|default| Self::rust_value(default));
 
             // Wrap type and defaults in generic types as necessary
 
@@ -279,7 +275,7 @@ impl Schemas {
             }
 
             if let Some(default) = default {
-                attrs.push(format!("#[def = \"{default}\"]"));
+                attrs.push(format!("#[default = {default}]"));
             }
 
             // Generate the code for the field
@@ -514,36 +510,36 @@ pub struct {title} {{
             uses.push_str("\n\n");
         }
 
+        let default = schema
+            .default
+            .as_ref()
+            .map(|schema| Self::rust_value(schema));
+
         let mut unit_variants = true;
         let variants = alternatives
-            .iter()
+            .into_iter()
             .map(|(variant, is_type)| {
-                if *is_type {
+                let default = default
+                    .as_ref()
+                    .and_then(|default| {
+                        (default == &variant).then_some("#[default]\n    ".to_string())
+                    })
+                    .unwrap_or_default();
+
+                if is_type {
                     unit_variants = false;
-                    format!("{variant}({variant}),")
+                    format!("{default}{variant}({variant}),")
                 } else {
-                    format!("{variant},")
+                    format!("{default}{variant},")
                 }
             })
             .join("\n    ");
 
-        let default = match &schema.default {
-            Some(default) => {
-                let default = Self::rust_value(default);
-                if alternatives.iter().any(|(.., is_type)| *is_type) {
-                    format!(r#"#[def = "{default}({default}::default())"]"#)
-                } else {
-                    format!(r#"#[def = "{default}"]"#)
-                }
-            }
-            None => String::new(),
-        };
-
         let mut derive_traits =
             "Debug, Clone, PartialEq, Display, Serialize, Deserialize".to_string();
         let title = name.as_str();
-        if !default.is_empty() {
-            derive_traits += ", Defaults";
+        if default.is_some() {
+            derive_traits += ", SmartDefault";
         };
         if !NO_DERIVE_STRIP.contains(&title) {
             derive_traits += ", Strip";
@@ -569,7 +565,6 @@ pub struct {title} {{
 {uses}/// {description}
 #[derive({derive_traits})]
 #[serde({serde_tagged}crate = "common::serde")]
-{default}
 pub enum {name} {{
     {variants}
 }}
@@ -604,7 +599,7 @@ pub type {name} = Vec<{typ}>;
     /// Generate a Rust representation of a JSON schema value
     fn rust_value(value: &Value) -> String {
         match value {
-            Value::Null => "Null()".to_string(),
+            Value::Null => "Null".to_string(),
             Value::Boolean(inner) => inner.to_string(),
             Value::Integer(inner) => inner.to_string(),
             Value::Number(inner) => inner.to_string(),
