@@ -9,20 +9,20 @@ on:
     branches: ["main"]
   workflow_call:
 
+env:
+  RUST_VERSION: '1.71.0'
+  CARGO_TERM_COLOR: always
 
 jobs:
   lint-test:
     runs-on: ubuntu-latest
-
-    env:
-      CARGO_TERM_COLOR: always
 
     steps:
       - name: Checkout repo
         uses: actions/checkout@v3
 
       - name: Setup Rust
-        run: rustup update 1.68.2 --no-self-update && rustup default 1.68.2 && rustup component add clippy
+        run: rustup update ${{ env.RUST_VERSION }} --no-self-update && rustup default ${{ env.RUST_VERSION }} && rustup component add clippy
 
       - name: Enable Rust cache
         uses: Swatinem/rust-cache@v2

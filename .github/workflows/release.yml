@@ -41,6 +41,9 @@ on:
     tags:
       - '*-?v[0-9]+*'
 
+env:
+  RUST_VERSION: '1.71.0'
+
 jobs:
   # Run the test workflow
   test:
@@ -57,7 +60,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - name: Install Rust
-        run: rustup update 1.68.1 --no-self-update && rustup default 1.68.1
+        run: rustup update ${{ env.RUST_VERSION }} --no-self-update && rustup default ${{ env.RUST_VERSION }}
       - name: Install cargo-dist
         run: curl --proto '=https' --tlsv1.2 -LsSf https://github.com/axodotdev/cargo-dist/releases/download/v0.0.5/cargo-dist-v0.0.5-installer.sh | sh
       - id: create-release
@@ -106,7 +109,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - name: Install Rust
-        run: rustup update 1.68.1 --no-self-update && rustup default 1.68.1
+        run: rustup update ${{ env.RUST_VERSION }} --no-self-update && rustup default ${{ env.RUST_VERSION }}
       - name: Install cargo-dist
         run: ${{ matrix.install-dist }}
       - name: Run cargo-dist
