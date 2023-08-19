@@ -1,4 +1,4 @@
-// Generated file. Do not edit; see `schema-gen` crate.
+// Generated file; do not edit. See `schema-gen` crate.
 
 use crate::prelude::*;
 
@@ -8,7 +8,7 @@ use super::string::String;
 
 /// Additional content which is not part of the main content of a document.
 #[skip_serializing_none]
-#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Strip, Read, Write, ToHtml)]
+#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, Strip, Read, Write, ToHtml)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 pub struct Note {
     /// The type of this item
@@ -23,7 +23,6 @@ pub struct Note {
     /// Content of the note, usually a paragraph.
     pub content: Vec<Block>,
 }
-
 impl Note {
     pub fn new(note_type: NoteType, content: Vec<Block>) -> Self {
         Self {

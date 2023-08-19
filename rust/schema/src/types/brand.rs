@@ -1,4 +1,4 @@
-// Generated file. Do not edit; see `schema-gen` crate.
+// Generated file; do not edit. See `schema-gen` crate.
 
 use crate::prelude::*;
 
@@ -9,7 +9,7 @@ use super::string::String;
 
 /// A brand used by an organization or person for labeling a product, product group, or similar.
 #[skip_serializing_none]
-#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Strip, Read, Write, ToHtml)]
+#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, Strip, Read, Write, ToHtml)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 pub struct Brand {
     /// The type of this item
@@ -27,7 +27,7 @@ pub struct Brand {
 }
 
 #[skip_serializing_none]
-#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Strip, Read, Write, ToHtml)]
+#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, Strip, Read, Write, ToHtml)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 pub struct BrandOptions {
     /// Alternate names (aliases) for the item.

@@ -1,4 +1,4 @@
-// Generated file. Do not edit; see `schema-gen` crate.
+// Generated file; do not edit. See `schema-gen` crate.
 
 use crate::prelude::*;
 
@@ -7,7 +7,7 @@ use super::string::String;
 
 /// A fragment of math, e.g a variable name, to be treated as inline content.
 #[skip_serializing_none]
-#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Strip, Read, Write, ToHtml)]
+#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, Strip, Read, Write, ToHtml)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 pub struct MathFragment {
     /// The type of this item
@@ -31,7 +31,6 @@ pub struct MathFragment {
     /// The MathML transpiled from the `code`
     pub mathml: Option<String>,
 }
-
 impl MathFragment {
     pub fn new(math_language: String, code: String) -> Self {
         Self {

@@ -1,3 +1,5 @@
+// Generated file; do not edit. See `schema-gen` crate.
+
 use crate::prelude::*;
 
 use super::call::Call;
@@ -19,9 +21,8 @@ use super::table::Table;
 use super::thematic_break::ThematicBreak;
 
 /// Union type for block content node types.
-#[derive(Debug, Clone, PartialEq, Display, Serialize, Deserialize, Defaults, Strip, Read, Write, ToHtml)]
+#[derive(Debug, Clone, PartialEq, Display, Serialize, Deserialize, SmartDefault, Strip, Read, Write, ToHtml)]
 #[serde(untagged, crate = "common::serde")]
-#[def = "Paragraph(Paragraph::default())"]
 pub enum Block {
     Call(Call),
     Claim(Claim),
@@ -36,6 +37,7 @@ pub enum Block {
     Include(Include),
     List(List),
     MathBlock(MathBlock),
+    #[default]
     Paragraph(Paragraph),
     QuoteBlock(QuoteBlock),
     Table(Table),

@@ -1,4 +1,4 @@
-// Generated file. Do not edit; see `schema-gen` crate.
+// Generated file; do not edit. See `schema-gen` crate.
 
 use crate::prelude::*;
 
@@ -7,7 +7,7 @@ use super::string::String;
 
 /// A validator specifying the constraints on an integer node.
 #[skip_serializing_none]
-#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Strip, Read, Write, ToHtml)]
+#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, Strip, Read, Write, ToHtml)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 pub struct IntegerValidator {
     /// The type of this item
@@ -31,7 +31,6 @@ pub struct IntegerValidator {
     /// A number that a numeric node must be a multiple of.
     pub multiple_of: Option<Number>,
 }
-
 impl IntegerValidator {
     pub fn new() -> Self {
         Self {

@@ -1,9 +1,10 @@
+// Generated file; do not edit. See `schema-gen` crate.
+
 use crate::prelude::*;
 
 /// A unit in which time can be measured
-#[derive(Debug, Clone, PartialEq, Display, Serialize, Deserialize, Defaults, Strip, Read, Write, ToHtml)]
+#[derive(Debug, Clone, PartialEq, Display, Serialize, Deserialize, SmartDefault, Strip, Read, Write, ToHtml)]
 #[serde(crate = "common::serde")]
-#[def = "Millisecond"]
 pub enum TimeUnit {
     Year,
     Month,
@@ -12,6 +13,7 @@ pub enum TimeUnit {
     Hour,
     Minute,
     Second,
+    #[default]
     Millisecond,
     Microsecond,
     Nanosecond,

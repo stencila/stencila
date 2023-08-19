@@ -1,4 +1,4 @@
-// Generated file. Do not edit; see `schema-gen` crate.
+// Generated file; do not edit. See `schema-gen` crate.
 
 mod array;
 mod array_validator;

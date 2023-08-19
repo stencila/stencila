@@ -1,4 +1,4 @@
-// Generated file. Do not edit; see `schema-gen` crate.
+// Generated file; do not edit. See `schema-gen` crate.
 
 use crate::prelude::*;
 
@@ -9,7 +9,7 @@ use super::validator::Validator;
 
 /// A validator specifying constraints on an array node.
 #[skip_serializing_none]
-#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Strip, Read, Write, ToHtml)]
+#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, Strip, Read, Write, ToHtml)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 pub struct ArrayValidator {
     /// The type of this item
@@ -19,7 +19,7 @@ pub struct ArrayValidator {
     pub id: Option<String>,
 
     /// Whether items can have the value `Node::Null`
-    pub items_nullable: Boolean,
+    pub items_nullable: Option<Boolean>,
 
     /// Another validator node specifying the constraints on all items in the array.
     pub items_validator: Option<Box<Validator>>,
@@ -36,11 +36,9 @@ pub struct ArrayValidator {
     /// A flag to indicate that each value in the array should be unique.
     pub unique_items: Option<Boolean>,
 }
-
 impl ArrayValidator {
-    pub fn new(items_nullable: Boolean) -> Self {
+    pub fn new() -> Self {
         Self {
-            items_nullable,
             ..Default::default()
         }
     }

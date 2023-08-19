@@ -1,3 +1,5 @@
+// Generated file; do not edit. See `schema-gen` crate.
+
 use crate::prelude::*;
 
 use super::array_validator::ArrayValidator;
@@ -17,7 +19,6 @@ use super::tuple_validator::TupleValidator;
 /// Union type for validators.
 #[derive(Debug, Clone, PartialEq, Display, Serialize, Deserialize, Strip, Read, Write, ToHtml)]
 #[serde(untagged, crate = "common::serde")]
-
 pub enum Validator {
     ArrayValidator(ArrayValidator),
     BooleanValidator(BooleanValidator),

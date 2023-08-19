@@ -1,9 +1,10 @@
+// Generated file; do not edit. See `schema-gen` crate.
+
 use crate::prelude::*;
 
 /// The type or nature of a citation, both factually and rhetorically.
 #[derive(Debug, Clone, PartialEq, Display, Serialize, Deserialize, Strip, Read, Write, ToHtml)]
 #[serde(crate = "common::serde")]
-
 pub enum CitationIntent {
     AgreesWith,
     CitesAsAuthority,

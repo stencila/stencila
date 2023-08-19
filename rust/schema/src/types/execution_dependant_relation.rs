@@ -1,10 +1,12 @@
+// Generated file; do not edit. See `schema-gen` crate.
+
 use crate::prelude::*;
 
 /// The relation between a node and its execution dependant.
-#[derive(Debug, Clone, PartialEq, Display, Serialize, Deserialize, Defaults, Strip, Read, Write, ToHtml)]
+#[derive(Debug, Clone, PartialEq, Display, Serialize, Deserialize, SmartDefault, Strip, Read, Write, ToHtml)]
 #[serde(crate = "common::serde")]
-#[def = "Assigns"]
 pub enum ExecutionDependantRelation {
+    #[default]
     Assigns,
     Alters,
     Declares,

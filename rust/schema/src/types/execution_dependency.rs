@@ -1,4 +1,4 @@
-// Generated file. Do not edit; see `schema-gen` crate.
+// Generated file; do not edit. See `schema-gen` crate.
 
 use crate::prelude::*;
 
@@ -8,7 +8,7 @@ use super::integer::Integer;
 
 /// An upstream execution dependency of a node
 #[skip_serializing_none]
-#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Strip, Read, Write, ToHtml)]
+#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, Strip, Read, Write, ToHtml)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 pub struct ExecutionDependency {
     /// The relation to the dependency
@@ -20,7 +20,6 @@ pub struct ExecutionDependency {
     /// The location that the dependency is defined within code
     pub code_location: Option<Vec<Integer>>,
 }
-
 impl ExecutionDependency {
     pub fn new(dependency_relation: ExecutionDependencyRelation, dependency_node: ExecutionDependencyNode) -> Self {
         Self {

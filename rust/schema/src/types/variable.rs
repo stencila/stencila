@@ -1,4 +1,4 @@
-// Generated file. Do not edit; see `schema-gen` crate.
+// Generated file; do not edit. See `schema-gen` crate.
 
 use crate::prelude::*;
 
@@ -7,7 +7,7 @@ use super::string::String;
 
 /// A variable representing a name / value pair.
 #[skip_serializing_none]
-#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Strip, Read, Write, ToHtml)]
+#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, Strip, Read, Write, ToHtml)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 pub struct Variable {
     /// The type of this item
@@ -28,7 +28,6 @@ pub struct Variable {
     /// The value of the variable.
     pub value: Option<Box<Node>>,
 }
-
 impl Variable {
     pub fn new(namespace: String, name: String) -> Self {
         Self {

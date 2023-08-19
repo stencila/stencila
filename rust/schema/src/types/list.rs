@@ -1,4 +1,4 @@
-// Generated file. Do not edit; see `schema-gen` crate.
+// Generated file; do not edit. See `schema-gen` crate.
 
 use crate::prelude::*;
 
@@ -8,7 +8,7 @@ use super::string::String;
 
 /// A list of items.
 #[skip_serializing_none]
-#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Strip, Read, Write, ToHtml)]
+#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, Strip, Read, Write, ToHtml)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 pub struct List {
     /// The type of this item
@@ -23,7 +23,6 @@ pub struct List {
     /// The ordering of the list.
     pub order: ListOrder,
 }
-
 impl List {
     pub fn new(items: Vec<ListItem>, order: ListOrder) -> Self {
         Self {

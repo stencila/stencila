@@ -1,3 +1,5 @@
+// Generated file; do not edit. See `schema-gen` crate.
+
 use crate::prelude::*;
 
 use super::array::Array;
@@ -105,10 +107,10 @@ use super::variable::Variable;
 use super::video_object::VideoObject;
 
 /// Union type for all types in this schema, including primitives and entities
-#[derive(Debug, Clone, PartialEq, Display, Serialize, Deserialize, Strip, Write, ToHtml)]
+#[derive(Debug, Clone, PartialEq, Display, Serialize, Deserialize, SmartDefault, Strip, Write, ToHtml)]
 #[serde(untagged, crate = "common::serde")]
-
 pub enum Node {
+    #[default]
     Null(Null),
     Boolean(Boolean),
     Integer(Integer),

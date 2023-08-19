@@ -1,3 +1,5 @@
+// Generated file; do not edit. See `schema-gen` crate.
+
 use crate::prelude::*;
 
 use super::article::Article;
@@ -23,7 +25,6 @@ use super::video_object::VideoObject;
 /// Union type for all types that are descended from `CreativeWork`
 #[derive(Debug, Clone, PartialEq, Display, Serialize, Deserialize, Strip, Read, Write, ToHtml)]
 #[serde(untagged, crate = "common::serde")]
-
 pub enum CreativeWorkType {
     Article(Article),
     AudioObject(AudioObject),

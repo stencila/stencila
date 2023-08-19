@@ -1,3 +1,5 @@
+// Generated file; do not edit. See `schema-gen` crate.
+
 use crate::prelude::*;
 
 use super::call::Call;
@@ -13,7 +15,6 @@ use super::variable::Variable;
 /// Node types that can be execution dependants
 #[derive(Debug, Clone, PartialEq, Display, Serialize, Deserialize, Strip, Read, Write, ToHtml)]
 #[serde(untagged, crate = "common::serde")]
-
 pub enum ExecutionDependantTarget {
     Call(Call),
     CodeChunk(CodeChunk),

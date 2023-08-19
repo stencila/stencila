@@ -1,4 +1,4 @@
-// Generated file. Do not edit; see `schema-gen` crate.
+// Generated file; do not edit. See `schema-gen` crate.
 
 use crate::prelude::*;
 
@@ -8,7 +8,7 @@ use super::string::String;
 
 /// A section quoted from somewhere else.
 #[skip_serializing_none]
-#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Strip, Read, Write, ToHtml)]
+#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, Strip, Read, Write, ToHtml)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 pub struct QuoteBlock {
     /// The type of this item
@@ -23,7 +23,6 @@ pub struct QuoteBlock {
     /// The content of the quote.
     pub content: Vec<Block>,
 }
-
 impl QuoteBlock {
     pub fn new(content: Vec<Block>) -> Self {
         Self {

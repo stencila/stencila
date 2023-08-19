@@ -1,4 +1,4 @@
-// Generated file. Do not edit; see `schema-gen` crate.
+// Generated file; do not edit. See `schema-gen` crate.
 
 use crate::prelude::*;
 
@@ -7,7 +7,7 @@ use super::string::String;
 
 /// A schema specifying constraints on a string node.
 #[skip_serializing_none]
-#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Strip, Read, Write, ToHtml)]
+#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, Strip, Read, Write, ToHtml)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 pub struct StringValidator {
     /// The type of this item
@@ -25,7 +25,6 @@ pub struct StringValidator {
     /// A regular expression that a string node must match.
     pub pattern: Option<String>,
 }
-
 impl StringValidator {
     pub fn new() -> Self {
         Self {

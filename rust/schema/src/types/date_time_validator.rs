@@ -1,4 +1,4 @@
-// Generated file. Do not edit; see `schema-gen` crate.
+// Generated file; do not edit. See `schema-gen` crate.
 
 use crate::prelude::*;
 
@@ -7,7 +7,7 @@ use super::string::String;
 
 /// A validator specifying the constraints on a date-time.
 #[skip_serializing_none]
-#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Strip, Read, Write, ToHtml)]
+#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, Strip, Read, Write, ToHtml)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 pub struct DateTimeValidator {
     /// The type of this item
@@ -22,7 +22,6 @@ pub struct DateTimeValidator {
     /// The inclusive upper limit for a date-time.
     pub maximum: Option<DateTime>,
 }
-
 impl DateTimeValidator {
     pub fn new() -> Self {
         Self {

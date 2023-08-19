@@ -11,7 +11,7 @@ use crate::prelude::*;
 /// This is an empty struct, rather than a unit struct, because
 /// Autosurgeon will not work with unit structs.
 #[derive(Debug, Default, Clone, PartialEq)]
-pub struct Null {}
+pub struct Null;
 
 impl fmt::Display for Null {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {

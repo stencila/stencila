@@ -1,10 +1,12 @@
+// Generated file; do not edit. See `schema-gen` crate.
+
 use crate::prelude::*;
 
 /// The type of a `Claim`.
-#[derive(Debug, Clone, PartialEq, Display, Serialize, Deserialize, Defaults, Strip, Read, Write, ToHtml)]
+#[derive(Debug, Clone, PartialEq, Display, Serialize, Deserialize, SmartDefault, Strip, Read, Write, ToHtml)]
 #[serde(crate = "common::serde")]
-#[def = "Statement"]
 pub enum ClaimType {
+    #[default]
     Statement,
     Theorem,
     Lemma,

@@ -1,4 +1,4 @@
-// Generated file. Do not edit; see `schema-gen` crate.
+// Generated file; do not edit. See `schema-gen` crate.
 
 use crate::prelude::*;
 
@@ -8,7 +8,7 @@ use super::timestamp::Timestamp;
 
 /// A validator specifying the constraints on a timestamp.
 #[skip_serializing_none]
-#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Strip, Read, Write, ToHtml)]
+#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, Strip, Read, Write, ToHtml)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 pub struct TimestampValidator {
     /// The type of this item
@@ -26,7 +26,6 @@ pub struct TimestampValidator {
     /// The inclusive upper limit for a timestamp.
     pub maximum: Option<Timestamp>,
 }
-
 impl TimestampValidator {
     pub fn new() -> Self {
         Self {

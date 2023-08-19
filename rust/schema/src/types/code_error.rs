@@ -1,4 +1,4 @@
-// Generated file. Do not edit; see `schema-gen` crate.
+// Generated file; do not edit. See `schema-gen` crate.
 
 use crate::prelude::*;
 
@@ -6,7 +6,7 @@ use super::string::String;
 
 /// An error that occurred when parsing, compiling or executing a Code node.
 #[skip_serializing_none]
-#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Strip, Read, Write, ToHtml)]
+#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, Strip, Read, Write, ToHtml)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 pub struct CodeError {
     /// The type of this item
@@ -24,7 +24,6 @@ pub struct CodeError {
     /// Stack trace leading up to the error.
     pub stack_trace: Option<String>,
 }
-
 impl CodeError {
     pub fn new(error_message: String) -> Self {
         Self {

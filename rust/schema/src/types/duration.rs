@@ -1,4 +1,4 @@
-// Generated file. Do not edit; see `schema-gen` crate.
+// Generated file; do not edit. See `schema-gen` crate.
 
 use crate::prelude::*;
 
@@ -8,7 +8,7 @@ use super::time_unit::TimeUnit;
 
 /// A value that represents the difference between two timestamps
 #[skip_serializing_none]
-#[derive(Debug, Defaults, Clone, PartialEq, Serialize, Deserialize, Strip, Read, Write, ToHtml)]
+#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, Strip, Read, Write, ToHtml)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 pub struct Duration {
     /// The type of this item
@@ -23,7 +23,6 @@ pub struct Duration {
     /// The time unit that the `value` represents.
     pub time_unit: TimeUnit,
 }
-
 impl Duration {
     pub fn new(value: Integer, time_unit: TimeUnit) -> Self {
         Self {

@@ -1,3 +1,5 @@
+// Generated file; do not edit. See `schema-gen` crate.
+
 use crate::prelude::*;
 
 use super::audio_object::AudioObject;
@@ -33,9 +35,8 @@ use super::underline::Underline;
 use super::video_object::VideoObject;
 
 /// Union type for valid inline content.
-#[derive(Debug, Clone, PartialEq, Display, Serialize, Deserialize, Defaults, Strip, Read, Write, ToHtml)]
+#[derive(Debug, Clone, PartialEq, Display, Serialize, Deserialize, SmartDefault, Strip, Read, Write, ToHtml)]
 #[serde(untagged, crate = "common::serde")]
-#[def = "String(String::default())"]
 pub enum Inline {
     AudioObject(AudioObject),
     Button(Button),
@@ -67,5 +68,6 @@ pub enum Inline {
     Boolean(Boolean),
     Integer(Integer),
     Number(Number),
+    #[default]
     String(String),
 }

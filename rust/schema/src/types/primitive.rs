@@ -1,3 +1,5 @@
+// Generated file; do not edit. See `schema-gen` crate.
+
 use crate::prelude::*;
 
 use super::array::Array;
@@ -10,10 +12,10 @@ use super::string::String;
 use super::unsigned_integer::UnsignedInteger;
 
 /// Union type for all primitives values
-#[derive(Debug, Clone, PartialEq, Display, Serialize, Deserialize, Defaults, Strip, ToHtml)]
+#[derive(Debug, Clone, PartialEq, Display, Serialize, Deserialize, SmartDefault, Strip, ToHtml)]
 #[serde(untagged, crate = "common::serde")]
-#[def = "Null(Null::default())"]
 pub enum Primitive {
+    #[default]
     Null(Null),
     Boolean(Boolean),
     Integer(Integer),
