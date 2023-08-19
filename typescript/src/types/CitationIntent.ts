@@ -1,4 +1,4 @@
-// Generated file. Do not edit; see `rust/schema-gen` crate.\n\n
+// Generated file; do not edit. See `../rust/schema-gen` crate.
             
 // The type or nature of a citation, both factually and rhetorically.
 export type CitationIntent =

@@ -1,4 +1,4 @@
-// Generated file. Do not edit; see `rust/schema-gen` crate.\n\n
+// Generated file; do not edit. See `../rust/schema-gen` crate.
             
 // The type of a `Note` which determines where the note content is displayed within the document..
 export type NoteType =

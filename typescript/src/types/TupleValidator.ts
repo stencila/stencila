@@ -1,4 +1,4 @@
-// Generated file. Do not edit; see `rust/schema-gen` crate.
+// Generated file; do not edit. See `../rust/schema-gen` crate.
 
 import { String } from './String';
 import { Validator } from './Validator';
