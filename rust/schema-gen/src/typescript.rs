@@ -17,6 +17,9 @@ use common::{
 
 use crate::schemas::{Items, Schema, Schemas, Type, Value};
 
+/// Comment to place at top of a files to indicate it is generated
+const GENERATED_COMMENT: &str = "// Generated file; do not edit. See `../rust/schema-gen` crate.";
+
 /// Modules that should not be generated
 ///
 /// These modules are manually written, usually because they are
@@ -97,7 +100,7 @@ impl Schemas {
         write(
             dest.join("index.ts"),
             format!(
-                r"// Generated file. Do not edit; see `rust/schema-gen` crate.
+                r"{GENERATED_COMMENT}
 
 {exports}
 "
@@ -278,7 +281,7 @@ impl Schemas {
         write(
             path,
             &format!(
-                r#"// Generated file. Do not edit; see `rust/schema-gen` crate.
+                r#"{GENERATED_COMMENT}
 
 {imports}// {description}
 export class {title} {{
@@ -371,7 +374,7 @@ export class {title} {{
             .join(" |\n  ");
 
         let rust = format!(
-            r#"// Generated file. Do not edit; see `rust/schema-gen` crate.
+            r#"{GENERATED_COMMENT}
             
 {imports}// {description}
 export type {name} =
@@ -396,7 +399,7 @@ export type {name} =
         }
 
         let rust = format!(
-            r#"// Generated file. Do not edit; see `rust/schema-gen` crate.
+            r#"{GENERATED_COMMENT}
             
 import {{ {item_type} }} from './{item_type}';
 

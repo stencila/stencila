@@ -17,6 +17,9 @@ use common::{
 
 use crate::schemas::{Items, Schema, Schemas, Type, Value};
 
+/// Comment to place at top of a files to indicate it is generated
+const GENERATED_COMMENT: &str = "// Generated file; do not edit. See `schema-gen` crate.";
+
 /// Modules that should not be generated
 const NO_GENERATE_MODULE: &[&str] = &[
     "Array",
@@ -158,8 +161,7 @@ impl Schemas {
         write(
             dest.join("types.rs"),
             format!(
-                r"
-// Generated file. Do not edit; see `schema-gen` crate.
+                r"{GENERATED_COMMENT}
 
 {mods}
 
@@ -438,7 +440,7 @@ pub struct {title}Options {{
         write(
             path,
             &format!(
-                r#"// Generated file. Do not edit; see `rust/schema-gen` crate.
+                r#"{GENERATED_COMMENT}
 
 use crate::prelude::*;
 
@@ -574,7 +576,7 @@ impl {title} {{{new}}}
         };
 
         let rust = format!(
-            r#"// Generated file. Do not edit; see `rust/schema-gen` crate.
+            r#"{GENERATED_COMMENT}
 
 use crate::prelude::*;
 
@@ -605,7 +607,7 @@ pub enum {name} {{
 
         let module = item_type.to_snake_case();
         let rust = format!(
-            r#"// Generated file. Do not edit; see `rust/schema-gen` crate.
+            r#"{GENERATED_COMMENT}
 
 use super::{module}::{item_type};
 
