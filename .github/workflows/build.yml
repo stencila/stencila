@@ -16,6 +16,7 @@ env:
   RUST_VERSION: "1.71.0"
   CARGO_TERM_COLOR: always
   NODE_VERSION: '20'
+  PYTHON_VERSION: '3.11'
 
 jobs:
   build:
@@ -36,6 +37,15 @@ jobs:
         with:
           node-version: ${{ env.NODE_VERSION }}
 
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: 'poetry'
+
+      - name: Run image
+        uses: snok/install-poetry@v1
+          
       - name: Build CLI and packages
         run: make build
 
