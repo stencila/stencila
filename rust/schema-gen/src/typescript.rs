@@ -159,10 +159,6 @@ impl Schemas {
 
         let result = if let Some(r#type) = &schema.r#type {
             match r#type {
-                Null => ("null".to_string(), false, true),
-                Boolean => ("boolean".to_string(), false, true),
-                Number => ("number".to_string(), false, true),
-                String => ("string".to_string(), false, true),
                 Array => {
                     let items = match &schema.items {
                         Some(Items::Ref(inner)) => maybe_native_type(&inner.r#ref),
@@ -185,7 +181,7 @@ impl Schemas {
                     };
                     (items, true, true)
                 }
-                _ => (r#type.as_ref().to_string(), false, true),
+                _ => (maybe_native_type(r#type.as_ref()), false, true),
             }
         } else if let Some(r#ref) = &schema.r#ref {
             (maybe_native_type(r#ref), false, true)
@@ -399,15 +395,18 @@ export class {title} {{
             })
             .join(" |\n  ");
 
-        let rust = format!(
-            r#"{GENERATED_COMMENT}
+        write(
+            path,
+            format!(
+                r#"{GENERATED_COMMENT}
             
 {imports}// {description}
 export type {name} =
   {variants};
 "#
-        );
-        write(path, rust).await?;
+            ),
+        )
+        .await?;
 
         Ok(name)
     }
@@ -424,15 +423,18 @@ export type {name} =
             return Ok(name);
         }
 
-        let rust = format!(
-            r#"{GENERATED_COMMENT}
+        write(
+            path,
+            format!(
+                r#"{GENERATED_COMMENT}
             
 import {{ {item_type} }} from './{item_type}';
 
 export type {name} = {item_type}[];
 "#
-        );
-        write(path, rust).await?;
+            ),
+        )
+        .await?;
 
         Ok(name)
     }
