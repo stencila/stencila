@@ -206,7 +206,7 @@ impl Schemas {
                 Type::Array => {
                     let items = match &schema.items {
                         Some(Items::Ref(inner)) => inner.r#ref.to_string(),
-                        Some(Items::Type(inner)) => inner.r#type.to_class_case(),
+                        Some(Items::Type(inner)) => inner.r#type.to_pascal_case(),
                         Some(Items::AnyOf(inner)) => {
                             let schema = Schema {
                                 any_of: Some(inner.any_of.clone()),
