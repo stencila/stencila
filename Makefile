@@ -1,49 +1,54 @@
-# Welcome to the Stencila root Makefile!
-#
-# This file has several 'recipes' for development tasks which span
-# the different programming languages and tools.
-#
-# Some of the nice things about `Make` include that it, saves you from having
-# to remember various command line incantations, it is ubiquitous and it allows
-# you to run severval of these recipes, across several languages, at the same time e.g:
-#
-#   make fix lint docs
-#
-# This root Makefile delegates to the Makefiles in the language specific directories
-# e.g. `rust`. See those for what each recipe actually runs for each language.
-#
-# Having said all that, if you prefer, you can of course try to remember those incantations or
-# copy and paste and run them yourself 😼.
+all: fix test audit build
 
-all: fix lint test audit cli docs
-
+# Install dependencies
 setup:
 	make -C rust setup
+	make -C typescript setup
 
+# Make formatting and linting fixes
 fix:
 	make -C rust fix
+	make -C typescript fix
 
+# Run linting checks
 lint:
 	make -C rust lint
+	make -C typescript lint
 
+# Run tests
 test:
 	make -C rust test
+	make -C typescript test
 
+# List outdated dependencies
+outdated:
+	make -C rust outdated
+	make -C typescript outdated
+
+# Audit dependencies
 audit:
 	make -C rust audit
+	make -C typescript audit
 
-cli:
-	make -C rust cli
+# Build packages
+build:
+	make -C rust build
+	make -C typescript build
 
+# Build Docker image
 docker:
 	docker build --tag ghcr.io/stencila/stencila .
 
+# Generate generated source and docs
 generated:
 	make -C rust generated
 
+# Generate examples in alternative formats
 examples:
 	make -C rust examples
 .PHONY: examples
 
+# Clean up development artifacts
 clean:
 	make -C rust clean
+	make -C typescript clean
