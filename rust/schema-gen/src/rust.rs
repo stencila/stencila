@@ -138,17 +138,18 @@ impl Schemas {
             .context(format!("unable to read directory `{}`", types.display()))?
             .flatten()
             .map(|entry| {
-                let name = entry
+                entry
                     .path()
                     .file_name()
                     .unwrap()
                     .to_string_lossy()
                     .strip_suffix(".rs")
                     .unwrap()
-                    .to_string();
-                escape_keyword(&name)
+                    .to_string()
             })
             .sorted()
+            // Escape after sorting to ignore any `r#` prefix in escaped name
+            .map(|name| escape_keyword(&name))
             .collect_vec();
         let mods = modules
             .iter()
@@ -303,10 +304,7 @@ impl Schemas {
             };
 
             // Does the field have a default?
-            let mut default = property
-                .default
-                .as_ref()
-                .map(Self::rust_value);
+            let mut default = property.default.as_ref().map(Self::rust_value);
 
             // Wrap type and defaults in generic types as necessary
 
@@ -451,7 +449,6 @@ use crate::prelude::*;
 pub struct {title} {{
     {core_fields}
 }}{options}
-
 impl {title} {{{new}}}
 "#
             ),
@@ -526,10 +523,7 @@ impl {title} {{{new}}}
             uses.push_str("\n\n");
         }
 
-        let default = schema
-            .default
-            .as_ref()
-            .map(Self::rust_value);
+        let default = schema.default.as_ref().map(Self::rust_value);
 
         let mut unit_variants = true;
         let variants = alternatives
