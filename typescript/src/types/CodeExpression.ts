@@ -1,6 +1,5 @@
 // Generated file; do not edit. See `../rust/schema-gen` crate.
 
-import { Boolean } from './Boolean';
 import { CodeError } from './CodeError';
 import { Duration } from './Duration';
 import { ExecutionAuto } from './ExecutionAuto';
@@ -12,16 +11,14 @@ import { ExecutionStatus } from './ExecutionStatus';
 import { ExecutionTag } from './ExecutionTag';
 import { Integer } from './Integer';
 import { Node } from './Node';
-import { String } from './String';
 import { Timestamp } from './Timestamp';
 
 // An executable programming code expression.
 export class CodeExpression {
-  // The type of this item
   type = "CodeExpression";
 
   // The identifier for this item
-  id?: String;
+  id?: string;
 
   // Under which circumstances the code should be automatically executed.
   executionAuto?: ExecutionAuto;
@@ -48,7 +45,7 @@ export class CodeExpression {
   executionRequired?: ExecutionRequired;
 
   // The id of the kernel that the node was last executed in.
-  executionKernel?: String;
+  executionKernel?: string;
 
   // Status of the most recent, including any current, execution.
   executionStatus?: ExecutionStatus;
@@ -63,21 +60,21 @@ export class CodeExpression {
   errors?: CodeError[];
 
   // The code.
-  code: String;
+  code: string;
 
   // The programming language of the code.
-  programmingLanguage: String;
+  programmingLanguage: string;
 
   // Whether the programming language of the code should be guessed based on syntax and variables used
-  guessLanguage?: Boolean;
+  guessLanguage?: boolean;
 
   // Media type, typically expressed using a MIME format, of the code.
-  mediaType?: String;
+  mediaType?: string;
 
   // The value of the expression when it was last evaluated.
   output?: Node;
 
-  constructor(code: String, programmingLanguage: String, options?: CodeExpression) {
+  constructor(code: string, programmingLanguage: string, options?: CodeExpression) {
     if (options) Object.assign(this, options)
     this.code = code;
     this.programmingLanguage = programmingLanguage;

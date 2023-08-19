@@ -1,15 +1,13 @@
 // Generated file; do not edit. See `../rust/schema-gen` crate.
 
 import { Date } from './Date';
-import { String } from './String';
 
 // A validator specifying the constraints on a date.
 export class DateValidator {
-  // The type of this item
   type = "DateValidator";
 
   // The identifier for this item
-  id?: String;
+  id?: string;
 
   // The inclusive lower limit for a date.
   minimum?: Date;

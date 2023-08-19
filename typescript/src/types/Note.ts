@@ -2,15 +2,13 @@
 
 import { Block } from './Block';
 import { NoteType } from './NoteType';
-import { String } from './String';
 
 // Additional content which is not part of the main content of a document.
 export class Note {
-  // The type of this item
   type = "Note";
 
   // The identifier for this item
-  id?: String;
+  id?: string;
 
   // Determines where the note content is displayed within the document.
   noteType: NoteType;

@@ -8,24 +8,21 @@ import { Date } from './Date';
 import { GrantOrMonetaryGrant } from './GrantOrMonetaryGrant';
 import { ImageObjectOrString } from './ImageObjectOrString';
 import { Inline } from './Inline';
-import { Number } from './Number';
 import { Person } from './Person';
 import { PersonOrOrganization } from './PersonOrOrganization';
 import { PropertyValueOrString } from './PropertyValueOrString';
-import { String } from './String';
 import { StringOrNumber } from './StringOrNumber';
 import { ThingType } from './ThingType';
 
 // An image file.
 export class ImageObject {
-  // The type of this item
   type = "ImageObject";
 
   // The identifier for this item
-  id?: String;
+  id?: string;
 
   // Alternate names (aliases) for the item.
-  alternateNames?: String[];
+  alternateNames?: string[];
 
   // A description of the item.
   description?: Block[];
@@ -37,10 +34,10 @@ export class ImageObject {
   images?: ImageObjectOrString[];
 
   // The name of the item.
-  name?: String;
+  name?: string;
 
   // The URL of the item.
-  url?: String;
+  url?: string;
 
   // The subject matter of the content.
   about?: ThingType[];
@@ -79,11 +76,11 @@ export class ImageObject {
   fundedBy?: GrantOrMonetaryGrant[];
 
   // Genre of the creative work, broadcast channel or group.
-  genre?: String[];
+  genre?: string[];
 
   // Keywords or tags used to describe this content.
   // Multiple entries in a keywords list are typically delimited by commas.
-  keywords?: String[];
+  keywords?: string[];
 
   // An item or other CreativeWork that this CreativeWork is a part of.
   isPartOf?: CreativeWorkType;
@@ -106,7 +103,7 @@ export class ImageObject {
   references?: CreativeWorkTypeOrString[];
 
   // The textual content of this creative work.
-  text?: String;
+  text?: string;
 
   // The title of the creative work.
   title?: Inline[];
@@ -115,27 +112,27 @@ export class ImageObject {
   version?: StringOrNumber;
 
   // Bitrate in megabits per second (Mbit/s, Mb/s, Mbps).
-  bitrate?: Number;
+  bitrate?: number;
 
   // File size in megabits (Mbit, Mb).
-  contentSize?: Number;
+  contentSize?: number;
 
   // URL for the actual bytes of the media object, for example the image file or video file.
-  contentUrl: String;
+  contentUrl: string;
 
   // URL that can be used to embed the media on a web page via a specific media player.
-  embedUrl?: String;
+  embedUrl?: string;
 
   // IANA media type (MIME type).
-  mediaType?: String;
+  mediaType?: string;
 
   // The caption for this image.
-  caption?: String;
+  caption?: string;
 
   // Thumbnail image of this image.
   thumbnail?: ImageObject;
 
-  constructor(contentUrl: String, options?: ImageObject) {
+  constructor(contentUrl: string, options?: ImageObject) {
     if (options) Object.assign(this, options)
     this.contentUrl = contentUrl;
   }

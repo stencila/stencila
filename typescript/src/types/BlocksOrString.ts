@@ -1,9 +1,8 @@
 // Generated file; do not edit. See `../rust/schema-gen` crate.
             
 import { Blocks } from './Blocks'
-import { String } from './String'
 
-// `Blocks` or `String`
+// `Blocks` or `string`
 export type BlocksOrString =
   Blocks |
-  String;
+  string;

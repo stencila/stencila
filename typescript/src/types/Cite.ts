@@ -4,18 +4,16 @@ import { CitationIntent } from './CitationIntent';
 import { CitationMode } from './CitationMode';
 import { Inline } from './Inline';
 import { IntegerOrString } from './IntegerOrString';
-import { String } from './String';
 
 // A reference to a CreativeWork that is cited in another CreativeWork.
 export class Cite {
-  // The type of this item
   type = "Cite";
 
   // The identifier for this item
-  id?: String;
+  id?: string;
 
   // The target of the citation (URL or reference ID).
-  target: String;
+  target: string;
 
   // Determines how the citation is shown within the surrounding text.
   citationMode: CitationMode;
@@ -34,15 +32,15 @@ export class Cite {
 
   // Any description of pages that is not separated into pageStart and pageEnd;
   // for example, "1-6, 9, 55".
-  pagination?: String;
+  pagination?: string;
 
   // Text to show before the citation.
-  citationPrefix?: String;
+  citationPrefix?: string;
 
   // Text to show after the citation.
-  citationSuffix?: String;
+  citationSuffix?: string;
 
-  constructor(target: String, citationMode: CitationMode, options?: Cite) {
+  constructor(target: string, citationMode: CitationMode, options?: Cite) {
     if (options) Object.assign(this, options)
     this.target = target;
     this.citationMode = citationMode;

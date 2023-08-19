@@ -1,25 +1,22 @@
 // Generated file; do not edit. See `../rust/schema-gen` crate.
 
-import { String } from './String';
-
 // A code block.
 export class CodeBlock {
-  // The type of this item
   type = "CodeBlock";
 
   // The identifier for this item
-  id?: String;
+  id?: string;
 
   // The code.
-  code: String;
+  code: string;
 
   // The programming language of the code.
-  programmingLanguage?: String;
+  programmingLanguage?: string;
 
   // Media type, typically expressed using a MIME format, of the code.
-  mediaType?: String;
+  mediaType?: string;
 
-  constructor(code: String, options?: CodeBlock) {
+  constructor(code: string, options?: CodeBlock) {
     if (options) Object.assign(this, options)
     this.code = code;
   }

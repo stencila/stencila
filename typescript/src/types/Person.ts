@@ -6,18 +6,16 @@ import { Organization } from './Organization';
 import { OrganizationOrPerson } from './OrganizationOrPerson';
 import { PostalAddressOrString } from './PostalAddressOrString';
 import { PropertyValueOrString } from './PropertyValueOrString';
-import { String } from './String';
 
 // A person (alive, dead, undead, or fictional).
 export class Person {
-  // The type of this item
   type = "Person";
 
   // The identifier for this item
-  id?: String;
+  id?: string;
 
   // Alternate names (aliases) for the item.
-  alternateNames?: String[];
+  alternateNames?: string[];
 
   // A description of the item.
   description?: Block[];
@@ -29,10 +27,10 @@ export class Person {
   images?: ImageObjectOrString[];
 
   // The name of the item.
-  name?: String;
+  name?: string;
 
   // The URL of the item.
-  url?: String;
+  url?: string;
 
   // Postal address for the person.
   address?: PostalAddressOrString;
@@ -41,32 +39,32 @@ export class Person {
   affiliations?: Organization[];
 
   // Email addresses for the person.
-  emails?: String[];
+  emails?: string[];
 
   // Family name. In the U.S., the last name of a person.
-  familyNames?: String[];
+  familyNames?: string[];
 
   // A person or organization that supports (sponsors) something through
   // some kind of financial contribution.
   funders?: OrganizationOrPerson[];
 
   // Given name. In the U.S., the first name of a person.
-  givenNames?: String[];
+  givenNames?: string[];
 
   // An honorific prefix preceding a person's name such as Dr/Mrs/Mr.
-  honorificPrefix?: String;
+  honorificPrefix?: string;
 
   // An honorific suffix after a person's name such as MD/PhD/MSCSW.
-  honorificSuffix?: String;
+  honorificSuffix?: string;
 
   // The job title of the person (for example, Financial Manager).
-  jobTitle?: String;
+  jobTitle?: string;
 
   // An organization (or program membership) to which this person belongs.
   memberOf?: Organization[];
 
   // Telephone numbers for the person.
-  telephoneNumbers?: String[];
+  telephoneNumbers?: string[];
 
   constructor(options?: Person) {
     if (options) Object.assign(this, options)

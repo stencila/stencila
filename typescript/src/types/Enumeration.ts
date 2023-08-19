@@ -3,18 +3,16 @@
 import { Block } from './Block';
 import { ImageObjectOrString } from './ImageObjectOrString';
 import { PropertyValueOrString } from './PropertyValueOrString';
-import { String } from './String';
 
 // Lists or enumerations, for example, a list of cuisines or music genres, etc.
 export class Enumeration {
-  // The type of this item
   type = "Enumeration";
 
   // The identifier for this item
-  id?: String;
+  id?: string;
 
   // Alternate names (aliases) for the item.
-  alternateNames?: String[];
+  alternateNames?: string[];
 
   // A description of the item.
   description?: Block[];
@@ -26,10 +24,10 @@ export class Enumeration {
   images?: ImageObjectOrString[];
 
   // The name of the item.
-  name?: String;
+  name?: string;
 
   // The URL of the item.
-  url?: String;
+  url?: string;
 
   constructor(options?: Enumeration) {
     if (options) Object.assign(this, options)

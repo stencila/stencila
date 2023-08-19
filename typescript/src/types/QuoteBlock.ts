@@ -2,15 +2,13 @@
 
 import { Block } from './Block';
 import { CiteOrString } from './CiteOrString';
-import { String } from './String';
 
 // A section quoted from somewhere else.
 export class QuoteBlock {
-  // The type of this item
   type = "QuoteBlock";
 
   // The identifier for this item
-  id?: String;
+  id?: string;
 
   // The source of the quote.
   cite?: CiteOrString;

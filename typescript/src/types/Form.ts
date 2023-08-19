@@ -13,16 +13,14 @@ import { ExecutionTag } from './ExecutionTag';
 import { FormDeriveAction } from './FormDeriveAction';
 import { Integer } from './Integer';
 import { IntegerOrString } from './IntegerOrString';
-import { String } from './String';
 import { Timestamp } from './Timestamp';
 
 // A form to batch updates in document parameters
 export class Form {
-  // The type of this item
   type = "Form";
 
   // The identifier for this item
-  id?: String;
+  id?: string;
 
   // Under which circumstances the code should be automatically executed.
   executionAuto?: ExecutionAuto;
@@ -49,7 +47,7 @@ export class Form {
   executionRequired?: ExecutionRequired;
 
   // The id of the kernel that the node was last executed in.
-  executionKernel?: String;
+  executionKernel?: string;
 
   // Status of the most recent, including any current, execution.
   executionStatus?: ExecutionStatus;
@@ -67,7 +65,7 @@ export class Form {
   content: Block[];
 
   // The dotted path to the object (e.g a database table) that the form should be derived from
-  deriveFrom?: String;
+  deriveFrom?: string;
 
   // The action (create, update or delete) to derive for the form
   deriveAction?: FormDeriveAction;

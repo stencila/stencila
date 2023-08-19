@@ -1,9 +1,8 @@
 // Generated file; do not edit. See `../rust/schema-gen` crate.
             
 import { Integer } from './Integer'
-import { String } from './String'
 
-// `Integer` or `String`
+// `Integer` or `string`
 export type IntegerOrString =
   Integer |
-  String;
+  string;

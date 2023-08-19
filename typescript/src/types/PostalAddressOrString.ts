@@ -1,9 +1,8 @@
 // Generated file; do not edit. See `../rust/schema-gen` crate.
             
 import { PostalAddress } from './PostalAddress'
-import { String } from './String'
 
-// `PostalAddress` or `String`
+// `PostalAddress` or `string`
 export type PostalAddressOrString =
   PostalAddress |
-  String;
+  string;

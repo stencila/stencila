@@ -1,6 +1,5 @@
 // Generated file; do not edit. See `../rust/schema-gen` crate.
 
-import { Boolean } from './Boolean';
 import { CodeError } from './CodeError';
 import { Duration } from './Duration';
 import { ExecutionAuto } from './ExecutionAuto';
@@ -12,16 +11,14 @@ import { ExecutionStatus } from './ExecutionStatus';
 import { ExecutionTag } from './ExecutionTag';
 import { Inline } from './Inline';
 import { Integer } from './Integer';
-import { String } from './String';
 import { Timestamp } from './Timestamp';
 
 // Styled inline content
 export class Span {
-  // The type of this item
   type = "Span";
 
   // The identifier for this item
-  id?: String;
+  id?: string;
 
   // Under which circumstances the code should be automatically executed.
   executionAuto?: ExecutionAuto;
@@ -48,7 +45,7 @@ export class Span {
   executionRequired?: ExecutionRequired;
 
   // The id of the kernel that the node was last executed in.
-  executionKernel?: String;
+  executionKernel?: string;
 
   // Status of the most recent, including any current, execution.
   executionStatus?: ExecutionStatus;
@@ -63,27 +60,27 @@ export class Span {
   errors?: CodeError[];
 
   // The code.
-  code: String;
+  code: string;
 
   // The programming language of the code.
-  programmingLanguage: String;
+  programmingLanguage: string;
 
   // Whether the programming language of the code should be guessed based on syntax and variables used
-  guessLanguage?: Boolean;
+  guessLanguage?: boolean;
 
   // Media type, typically expressed using a MIME format, of the code.
-  mediaType?: String;
+  mediaType?: string;
 
   // A Cascading Style Sheet (CSS) transpiled from the output of evaluating the `text` property.
-  css?: String;
+  css?: string;
 
   // A list of class names associated with the document node
-  classes?: String[];
+  classes?: string[];
 
   // The content within the span
   content: Inline[];
 
-  constructor(code: String, programmingLanguage: String, content: Inline[], options?: Span) {
+  constructor(code: string, programmingLanguage: string, content: Inline[], options?: Span) {
     if (options) Object.assign(this, options)
     this.code = code;
     this.programmingLanguage = programmingLanguage;

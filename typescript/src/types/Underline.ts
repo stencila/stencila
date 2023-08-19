@@ -1,15 +1,13 @@
 // Generated file; do not edit. See `../rust/schema-gen` crate.
 
 import { Inline } from './Inline';
-import { String } from './String';
 
 // Inline text that is underlined.
 export class Underline {
-  // The type of this item
   type = "Underline";
 
   // The identifier for this item
-  id?: String;
+  id?: string;
 
   // The content that is marked.
   content: Inline[];

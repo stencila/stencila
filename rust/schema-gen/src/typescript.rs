@@ -31,10 +31,16 @@ const NO_GENERATE_MODULE: &[&str] = &[
     "Null",
     "Number",
     "Object",
+    "Primitive",
     "String",
     "TextValue",
     "UnsignedInteger",
 ];
+
+/// Types for which native to TypesScript types are used directly
+/// Note that this excludes `Integer`, `UnsignedInteger` and `Object`
+/// which although they are implemented as native types have different semantics.
+const NATIVE_TYPES: &[&str] = &["null", "boolean", "number", "string"];
 
 impl Schemas {
     /// Generate a TypeScript module for each schema
@@ -137,12 +143,30 @@ impl Schemas {
     ///  - it is a type (rather than an enum variant)
     #[async_recursion]
     async fn typescript_type(dest: &Path, schema: &Schema) -> Result<(String, bool, bool)> {
+        use Type::*;
+
+        // If the Stencila Schema type name corresponds to a TypeScript
+        // native type then return the name of the native type, otherwise
+        // return the pascal cased name (e.g. `integer` -> `Integer`)
+        let maybe_native_type = |type_name: &str| {
+            let lower = type_name.to_lowercase();
+            if NATIVE_TYPES.contains(&lower.as_str()) {
+                lower
+            } else {
+                type_name.to_pascal_case()
+            }
+        };
+
         let result = if let Some(r#type) = &schema.r#type {
             match r#type {
-                Type::Array => {
+                Null => ("null".to_string(), false, true),
+                Boolean => ("boolean".to_string(), false, true),
+                Number => ("number".to_string(), false, true),
+                String => ("string".to_string(), false, true),
+                Array => {
                     let items = match &schema.items {
-                        Some(Items::Ref(inner)) => inner.r#ref.to_string(),
-                        Some(Items::Type(inner)) => inner.r#type.to_class_case(),
+                        Some(Items::Ref(inner)) => maybe_native_type(&inner.r#ref),
+                        Some(Items::Type(inner)) => maybe_native_type(&inner.r#type),
                         Some(Items::AnyOf(inner)) => {
                             let schema = Schema {
                                 any_of: Some(inner.any_of.clone()),
@@ -164,7 +188,7 @@ impl Schemas {
                 _ => (r#type.as_ref().to_string(), false, true),
             }
         } else if let Some(r#ref) = &schema.r#ref {
-            (r#ref.to_string(), false, true)
+            (maybe_native_type(r#ref), false, true)
         } else if schema.any_of.is_some() {
             (Self::typescript_any_of(dest, schema).await?, false, true)
         } else if let Some(title) = &schema.title {
@@ -209,7 +233,7 @@ impl Schemas {
 
             // Early return for "type" property
             if name == "type" {
-                props.push(format!("  // {description}\n  type = \"{title}\";"));
+                props.push(format!("  type = \"{title}\";"));
                 continue;
             }
 
@@ -250,13 +274,10 @@ impl Schemas {
                 });
             }
 
-            // Does the field have a default?
+            // Does the property have a default?
             if let Some(default) = property.default.as_ref() {
                 let default = Self::typescript_value(default);
                 prop.push_str(&format!(" = {default}"));
-                if default == "Null" {
-                    used_types.insert(default);
-                }
             };
 
             props.push(format!("  // {description}\n  {prop};"));
@@ -269,8 +290,10 @@ impl Schemas {
             .join("\n    ");
 
         let mut imports = used_types
-            .iter()
-            .filter(|used_type| *used_type != title)
+            .into_iter()
+            .filter(|used_type| {
+                used_type != title && !NATIVE_TYPES.contains(&used_type.to_lowercase().as_str())
+            })
             .sorted()
             .map(|used_type| format!("import {{ {used_type} }} from './{used_type}';"))
             .join("\n");
@@ -322,10 +345,12 @@ export class {title} {{
             .into_iter()
             .unzip();
 
-        let name = schema
-            .title
-            .clone()
-            .unwrap_or_else(|| alternatives.join("Or"));
+        let name = schema.title.clone().unwrap_or_else(|| {
+            alternatives
+                .iter()
+                .map(|name| name.to_pascal_case())
+                .join("Or")
+        });
 
         let path = dest.join(format!("{}.ts", name));
         if path.exists() {
@@ -355,7 +380,8 @@ export class {title} {{
             .iter()
             .sorted()
             .filter_map(|(name, is_type)| {
-                is_type.then_some(format!("import {{ {name} }} from './{name}'",))
+                (*is_type && !NATIVE_TYPES.contains(&name.to_lowercase().as_str()))
+                    .then_some(format!("import {{ {name} }} from './{name}'",))
             })
             .join("\n");
         if !imports.is_empty() {

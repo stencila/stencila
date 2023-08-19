@@ -13,20 +13,18 @@ import { PersonOrOrganization } from './PersonOrOrganization';
 import { PropertyValueOrString } from './PropertyValueOrString';
 import { SoftwareApplication } from './SoftwareApplication';
 import { SoftwareSourceCodeOrSoftwareApplicationOrString } from './SoftwareSourceCodeOrSoftwareApplicationOrString';
-import { String } from './String';
 import { StringOrNumber } from './StringOrNumber';
 import { ThingType } from './ThingType';
 
 // Computer programming source code. Example: Full (compile ready) solutions, code snippet samples, scripts, templates.
 export class SoftwareSourceCode {
-  // The type of this item
   type = "SoftwareSourceCode";
 
   // The identifier for this item
-  id?: String;
+  id?: string;
 
   // Alternate names (aliases) for the item.
-  alternateNames?: String[];
+  alternateNames?: string[];
 
   // A description of the item.
   description?: Block[];
@@ -38,10 +36,10 @@ export class SoftwareSourceCode {
   images?: ImageObjectOrString[];
 
   // The name of the item.
-  name?: String;
+  name?: string;
 
   // The URL of the item.
-  url?: String;
+  url?: string;
 
   // The subject matter of the content.
   about?: ThingType[];
@@ -80,11 +78,11 @@ export class SoftwareSourceCode {
   fundedBy?: GrantOrMonetaryGrant[];
 
   // Genre of the creative work, broadcast channel or group.
-  genre?: String[];
+  genre?: string[];
 
   // Keywords or tags used to describe this content.
   // Multiple entries in a keywords list are typically delimited by commas.
-  keywords?: String[];
+  keywords?: string[];
 
   // An item or other CreativeWork that this CreativeWork is a part of.
   isPartOf?: CreativeWorkType;
@@ -107,7 +105,7 @@ export class SoftwareSourceCode {
   references?: CreativeWorkTypeOrString[];
 
   // The textual content of this creative work.
-  text?: String;
+  text?: string;
 
   // The title of the creative work.
   title?: Inline[];
@@ -117,17 +115,17 @@ export class SoftwareSourceCode {
 
   // Link to the repository where the un-compiled, human readable code and related
   // code is located.
-  codeRepository?: String;
+  codeRepository?: string;
 
   // What type of code sample: full (compile ready) solution, code snippet, inline code, scripts, template.
-  codeSampleType?: String;
+  codeSampleType?: string;
 
   // The computer programming language.
-  programmingLanguage?: String;
+  programmingLanguage?: string;
 
   // Runtime platform or script interpreter dependencies (Example - Java v1,
   // Python2.3, .Net Framework 3.0).
-  runtimePlatform?: String[];
+  runtimePlatform?: string[];
 
   // Dependency requirements for the software.
   softwareRequirements?: SoftwareSourceCodeOrSoftwareApplicationOrString[];

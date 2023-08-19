@@ -1,29 +1,27 @@
 // Generated file; do not edit. See `../rust/schema-gen` crate.
 
 import { Node } from './Node';
-import { String } from './String';
 
 // A variable representing a name / value pair.
 export class Variable {
-  // The type of this item
   type = "Variable";
 
   // The identifier for this item
-  id?: String;
+  id?: string;
 
   // The namespace, usually a document path, within which the variable resides
-  namespace: String;
+  namespace: string;
 
   // The name of the variable.
-  name: String;
+  name: string;
 
   // The expected type of variable e.g. `Number`, `Timestamp`, `Datatable`
-  kind?: String;
+  kind?: string;
 
   // The value of the variable.
   value?: Node;
 
-  constructor(namespace: String, name: String, options?: Variable) {
+  constructor(namespace: string, name: string, options?: Variable) {
     if (options) Object.assign(this, options)
     this.namespace = namespace;
     this.name = name;

@@ -1,19 +1,16 @@
 // Generated file; do not edit. See `../rust/schema-gen` crate.
 
-import { String } from './String';
-
 // A point in time recurring on multiple days
 export class Time {
-  // The type of this item
   type = "Time";
 
   // The identifier for this item
-  id?: String;
+  id?: string;
 
   // The time of day as a string in format `hh:mm:ss[Z|(+|-)hh:mm]`.
-  value: String;
+  value: string;
 
-  constructor(value: String, options?: Time) {
+  constructor(value: string, options?: Time) {
     if (options) Object.assign(this, options)
     this.value = value;
   }

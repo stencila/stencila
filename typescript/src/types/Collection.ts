@@ -11,20 +11,18 @@ import { Inline } from './Inline';
 import { Person } from './Person';
 import { PersonOrOrganization } from './PersonOrOrganization';
 import { PropertyValueOrString } from './PropertyValueOrString';
-import { String } from './String';
 import { StringOrNumber } from './StringOrNumber';
 import { ThingType } from './ThingType';
 
 // A collection of CreativeWorks or other artifacts.
 export class Collection {
-  // The type of this item
   type = "Collection";
 
   // The identifier for this item
-  id?: String;
+  id?: string;
 
   // Alternate names (aliases) for the item.
-  alternateNames?: String[];
+  alternateNames?: string[];
 
   // A description of the item.
   description?: Block[];
@@ -36,10 +34,10 @@ export class Collection {
   images?: ImageObjectOrString[];
 
   // The name of the item.
-  name?: String;
+  name?: string;
 
   // The URL of the item.
-  url?: String;
+  url?: string;
 
   // The subject matter of the content.
   about?: ThingType[];
@@ -78,11 +76,11 @@ export class Collection {
   fundedBy?: GrantOrMonetaryGrant[];
 
   // Genre of the creative work, broadcast channel or group.
-  genre?: String[];
+  genre?: string[];
 
   // Keywords or tags used to describe this content.
   // Multiple entries in a keywords list are typically delimited by commas.
-  keywords?: String[];
+  keywords?: string[];
 
   // An item or other CreativeWork that this CreativeWork is a part of.
   isPartOf?: CreativeWorkType;
@@ -105,7 +103,7 @@ export class Collection {
   references?: CreativeWorkTypeOrString[];
 
   // The textual content of this creative work.
-  text?: String;
+  text?: string;
 
   // The title of the creative work.
   title?: Inline[];

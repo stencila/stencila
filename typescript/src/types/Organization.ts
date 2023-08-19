@@ -7,18 +7,16 @@ import { ImageObjectOrString } from './ImageObjectOrString';
 import { OrganizationOrPerson } from './OrganizationOrPerson';
 import { PostalAddressOrString } from './PostalAddressOrString';
 import { PropertyValueOrString } from './PropertyValueOrString';
-import { String } from './String';
 
 // An organization such as a school, NGO, corporation, club, etc.
 export class Organization {
-  // The type of this item
   type = "Organization";
 
   // The identifier for this item
-  id?: String;
+  id?: string;
 
   // Alternate names (aliases) for the item.
-  alternateNames?: String[];
+  alternateNames?: string[];
 
   // A description of the item.
   description?: Block[];
@@ -30,10 +28,10 @@ export class Organization {
   images?: ImageObjectOrString[];
 
   // The name of the item.
-  name?: String;
+  name?: string;
 
   // The URL of the item.
-  url?: String;
+  url?: string;
 
   // Postal address for the organization.
   address?: PostalAddressOrString;
@@ -51,7 +49,7 @@ export class Organization {
   funders?: OrganizationOrPerson[];
 
   // The official name of the organization, e.g. the registered company name.
-  legalName?: String;
+  legalName?: string;
 
   // The logo of the organization.
   logo?: ImageObjectOrString;

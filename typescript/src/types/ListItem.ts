@@ -2,23 +2,20 @@
 
 import { Block } from './Block';
 import { BlocksOrInlines } from './BlocksOrInlines';
-import { Boolean } from './Boolean';
 import { ImageObjectOrString } from './ImageObjectOrString';
 import { Integer } from './Integer';
 import { Node } from './Node';
 import { PropertyValueOrString } from './PropertyValueOrString';
-import { String } from './String';
 
 // A single item in a list.
 export class ListItem {
-  // The type of this item
   type = "ListItem";
 
   // The identifier for this item
-  id?: String;
+  id?: string;
 
   // Alternate names (aliases) for the item.
-  alternateNames?: String[];
+  alternateNames?: string[];
 
   // A description of the item.
   description?: Block[];
@@ -30,10 +27,10 @@ export class ListItem {
   images?: ImageObjectOrString[];
 
   // The name of the item.
-  name?: String;
+  name?: string;
 
   // The URL of the item.
-  url?: String;
+  url?: string;
 
   // The content of the list item.
   content?: BlocksOrInlines;
@@ -42,7 +39,7 @@ export class ListItem {
   item?: Node;
 
   // A flag to indicate if this list item is checked.
-  isChecked?: Boolean;
+  isChecked?: boolean;
 
   // The position of the item in a series or sequence of items.
   position?: Integer;

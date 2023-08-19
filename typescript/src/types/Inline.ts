@@ -1,7 +1,6 @@
 // Generated file; do not edit. See `../rust/schema-gen` crate.
             
 import { AudioObject } from './AudioObject'
-import { Boolean } from './Boolean'
 import { Button } from './Button'
 import { Cite } from './Cite'
 import { CiteGroup } from './CiteGroup'
@@ -16,13 +15,10 @@ import { Integer } from './Integer'
 import { Link } from './Link'
 import { MathFragment } from './MathFragment'
 import { Note } from './Note'
-import { Null } from './Null'
-import { Number } from './Number'
 import { Parameter } from './Parameter'
 import { Quote } from './Quote'
 import { Span } from './Span'
 import { Strikeout } from './Strikeout'
-import { String } from './String'
 import { Strong } from './Strong'
 import { Subscript } from './Subscript'
 import { Superscript } from './Superscript'
@@ -60,8 +56,8 @@ export type Inline =
   Timestamp |
   Underline |
   VideoObject |
-  Null |
-  Boolean |
+  null |
+  boolean |
   Integer |
-  Number |
-  String;
+  number |
+  string;

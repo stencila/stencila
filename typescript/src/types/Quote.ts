@@ -2,15 +2,13 @@
 
 import { CiteOrString } from './CiteOrString';
 import { Inline } from './Inline';
-import { String } from './String';
 
 // Inline, quoted content.
 export class Quote {
-  // The type of this item
   type = "Quote";
 
   // The identifier for this item
-  id?: String;
+  id?: string;
 
   // The content that is marked.
   content: Inline[];

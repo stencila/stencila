@@ -2,19 +2,17 @@
 
 import { BlocksOrInlines } from './BlocksOrInlines';
 import { Integer } from './Integer';
-import { String } from './String';
 import { TableCellType } from './TableCellType';
 
 // A cell within a `Table`.
 export class TableCell {
-  // The type of this item
   type = "TableCell";
 
   // The identifier for this item
-  id?: String;
+  id?: string;
 
   // The name of the cell.
-  name?: String;
+  name?: string;
 
   // How many columns the cell extends.
   colspan?: Integer;

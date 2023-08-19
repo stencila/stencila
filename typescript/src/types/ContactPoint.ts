@@ -3,18 +3,16 @@
 import { Block } from './Block';
 import { ImageObjectOrString } from './ImageObjectOrString';
 import { PropertyValueOrString } from './PropertyValueOrString';
-import { String } from './String';
 
 // A contact point, usually within an organization.
 export class ContactPoint {
-  // The type of this item
   type = "ContactPoint";
 
   // The identifier for this item
-  id?: String;
+  id?: string;
 
   // Alternate names (aliases) for the item.
-  alternateNames?: String[];
+  alternateNames?: string[];
 
   // A description of the item.
   description?: Block[];
@@ -26,20 +24,20 @@ export class ContactPoint {
   images?: ImageObjectOrString[];
 
   // The name of the item.
-  name?: String;
+  name?: string;
 
   // The URL of the item.
-  url?: String;
+  url?: string;
 
   // Email address for correspondence.
-  emails?: String[];
+  emails?: string[];
 
   // Telephone numbers for the contact point.
-  telephoneNumbers?: String[];
+  telephoneNumbers?: string[];
 
   // Languages (human not programming) in which it is possible to communicate
   // with the organization/department etc.
-  availableLanguages?: String[];
+  availableLanguages?: string[];
 
   constructor(options?: ContactPoint) {
     if (options) Object.assign(this, options)

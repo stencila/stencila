@@ -4,18 +4,16 @@ import { Block } from './Block';
 import { ImageObjectOrString } from './ImageObjectOrString';
 import { Primitive } from './Primitive';
 import { PropertyValueOrString } from './PropertyValueOrString';
-import { String } from './String';
 
 // A property-value pair.
 export class PropertyValue {
-  // The type of this item
   type = "PropertyValue";
 
   // The identifier for this item
-  id?: String;
+  id?: string;
 
   // Alternate names (aliases) for the item.
-  alternateNames?: String[];
+  alternateNames?: string[];
 
   // A description of the item.
   description?: Block[];
@@ -27,13 +25,13 @@ export class PropertyValue {
   images?: ImageObjectOrString[];
 
   // The name of the item.
-  name?: String;
+  name?: string;
 
   // The URL of the item.
-  url?: String;
+  url?: string;
 
   // A commonly used identifier for the characteristic represented by the property.
-  propertyID?: String;
+  propertyID?: string;
 
   // The value of the property.
   value: Primitive;

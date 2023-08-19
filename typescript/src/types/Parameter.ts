@@ -1,6 +1,5 @@
 // Generated file; do not edit. See `../rust/schema-gen` crate.
 
-import { Boolean } from './Boolean';
 import { CodeError } from './CodeError';
 import { Duration } from './Duration';
 import { ExecutionAuto } from './ExecutionAuto';
@@ -12,17 +11,15 @@ import { ExecutionStatus } from './ExecutionStatus';
 import { ExecutionTag } from './ExecutionTag';
 import { Integer } from './Integer';
 import { Node } from './Node';
-import { String } from './String';
 import { Timestamp } from './Timestamp';
 import { Validator } from './Validator';
 
 // A parameter of a document.
 export class Parameter {
-  // The type of this item
   type = "Parameter";
 
   // The identifier for this item
-  id?: String;
+  id?: string;
 
   // Under which circumstances the code should be automatically executed.
   executionAuto?: ExecutionAuto;
@@ -49,7 +46,7 @@ export class Parameter {
   executionRequired?: ExecutionRequired;
 
   // The id of the kernel that the node was last executed in.
-  executionKernel?: String;
+  executionKernel?: string;
 
   // Status of the most recent, including any current, execution.
   executionStatus?: ExecutionStatus;
@@ -64,10 +61,10 @@ export class Parameter {
   errors?: CodeError[];
 
   // The name of the parameter.
-  name: String;
+  name: string;
 
   // A short label for the parameter.
-  label?: String;
+  label?: string;
 
   // The current value of the parameter.
   value?: Node;
@@ -79,12 +76,12 @@ export class Parameter {
   validator?: Validator;
 
   // Whether the parameter should be hidden.
-  hidden?: Boolean;
+  hidden?: boolean;
 
   // The dotted path to the object (e.g. a database table column) that the parameter should be derived from
-  derivedFrom?: String;
+  derivedFrom?: string;
 
-  constructor(name: String, options?: Parameter) {
+  constructor(name: string, options?: Parameter) {
     if (options) Object.assign(this, options)
     this.name = name;
   }

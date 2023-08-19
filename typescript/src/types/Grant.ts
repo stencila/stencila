@@ -4,19 +4,17 @@ import { Block } from './Block';
 import { ImageObjectOrString } from './ImageObjectOrString';
 import { PersonOrOrganization } from './PersonOrOrganization';
 import { PropertyValueOrString } from './PropertyValueOrString';
-import { String } from './String';
 import { Thing } from './Thing';
 
 // A grant, typically financial or otherwise quantifiable, of resources.
 export class Grant {
-  // The type of this item
   type = "Grant";
 
   // The identifier for this item
-  id?: String;
+  id?: string;
 
   // Alternate names (aliases) for the item.
-  alternateNames?: String[];
+  alternateNames?: string[];
 
   // A description of the item.
   description?: Block[];
@@ -28,10 +26,10 @@ export class Grant {
   images?: ImageObjectOrString[];
 
   // The name of the item.
-  name?: String;
+  name?: string;
 
   // The URL of the item.
-  url?: String;
+  url?: string;
 
   // Indicates an item funded or sponsored through a Grant.
   fundedItems?: Thing[];

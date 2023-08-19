@@ -3,18 +3,16 @@
 import { Block } from './Block';
 import { ImageObjectOrString } from './ImageObjectOrString';
 import { PropertyValueOrString } from './PropertyValueOrString';
-import { String } from './String';
 
 // A brand used by an organization or person for labeling a product, product group, or similar.
 export class Brand {
-  // The type of this item
   type = "Brand";
 
   // The identifier for this item
-  id?: String;
+  id?: string;
 
   // Alternate names (aliases) for the item.
-  alternateNames?: String[];
+  alternateNames?: string[];
 
   // A description of the item.
   description?: Block[];
@@ -26,18 +24,18 @@ export class Brand {
   images?: ImageObjectOrString[];
 
   // The name of the item.
-  name: String;
+  name: string;
 
   // The URL of the item.
-  url?: String;
+  url?: string;
 
   // A logo associated with the brand.
   logo?: ImageObjectOrString;
 
   // Reviews of the brand.
-  reviews?: String[];
+  reviews?: string[];
 
-  constructor(name: String, options?: Brand) {
+  constructor(name: string, options?: Brand) {
     if (options) Object.assign(this, options)
     this.name = name;
   }

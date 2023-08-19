@@ -1,9 +1,8 @@
 // Generated file; do not edit. See `../rust/schema-gen` crate.
             
 import { CreativeWorkType } from './CreativeWorkType'
-import { String } from './String'
 
-// `CreativeWorkType` or `String`
+// `CreativeWorkType` or `string`
 export type CreativeWorkTypeOrString =
   CreativeWorkType |
-  String;
+  string;

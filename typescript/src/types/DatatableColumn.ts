@@ -5,18 +5,16 @@ import { Block } from './Block';
 import { ImageObjectOrString } from './ImageObjectOrString';
 import { Primitive } from './Primitive';
 import { PropertyValueOrString } from './PropertyValueOrString';
-import { String } from './String';
 
 // A column of data within a Datatable.
 export class DatatableColumn {
-  // The type of this item
   type = "DatatableColumn";
 
   // The identifier for this item
-  id?: String;
+  id?: string;
 
   // Alternate names (aliases) for the item.
-  alternateNames?: String[];
+  alternateNames?: string[];
 
   // A description of the item.
   description?: Block[];
@@ -28,10 +26,10 @@ export class DatatableColumn {
   images?: ImageObjectOrString[];
 
   // The name of the item.
-  name: String;
+  name: string;
 
   // The URL of the item.
-  url?: String;
+  url?: string;
 
   // The data values of the column.
   values: Primitive[];
@@ -39,7 +37,7 @@ export class DatatableColumn {
   // The validator to use to validate data in the column.
   validator?: ArrayValidator;
 
-  constructor(name: String, values: Primitive[], options?: DatatableColumn) {
+  constructor(name: string, values: Primitive[], options?: DatatableColumn) {
     if (options) Object.assign(this, options)
     this.name = name;
     this.values = values;

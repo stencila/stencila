@@ -1,15 +1,13 @@
 // Generated file; do not edit. See `../rust/schema-gen` crate.
 
 import { DateTime } from './DateTime';
-import { String } from './String';
 
 // A validator specifying the constraints on a date-time.
 export class DateTimeValidator {
-  // The type of this item
   type = "DateTimeValidator";
 
   // The identifier for this item
-  id?: String;
+  id?: string;
 
   // The inclusive lower limit for a date-time.
   minimum?: DateTime;

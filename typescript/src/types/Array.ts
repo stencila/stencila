@@ -1,1 +1,3 @@
-export type Array = unknown[];
+import { Primitive } from "./Primitive";
+
+export type Array = Primitive[];

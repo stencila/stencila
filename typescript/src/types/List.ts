@@ -2,15 +2,13 @@
 
 import { ListItem } from './ListItem';
 import { ListOrder } from './ListOrder';
-import { String } from './String';
 
 // A list of items.
 export class List {
-  // The type of this item
   type = "List";
 
   // The identifier for this item
-  id?: String;
+  id?: string;
 
   // The items in the list.
   items: ListItem[];

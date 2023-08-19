@@ -1,6 +1,5 @@
 // Generated file; do not edit. See `../rust/schema-gen` crate.
 
-import { Boolean } from './Boolean';
 import { CodeError } from './CodeError';
 import { Duration } from './Duration';
 import { ExecutionAuto } from './ExecutionAuto';
@@ -11,16 +10,14 @@ import { ExecutionRequired } from './ExecutionRequired';
 import { ExecutionStatus } from './ExecutionStatus';
 import { ExecutionTag } from './ExecutionTag';
 import { Integer } from './Integer';
-import { String } from './String';
 import { Timestamp } from './Timestamp';
 
 // A button.
 export class Button {
-  // The type of this item
   type = "Button";
 
   // The identifier for this item
-  id?: String;
+  id?: string;
 
   // Under which circumstances the code should be automatically executed.
   executionAuto?: ExecutionAuto;
@@ -47,7 +44,7 @@ export class Button {
   executionRequired?: ExecutionRequired;
 
   // The id of the kernel that the node was last executed in.
-  executionKernel?: String;
+  executionKernel?: string;
 
   // Status of the most recent, including any current, execution.
   executionStatus?: ExecutionStatus;
@@ -62,27 +59,27 @@ export class Button {
   errors?: CodeError[];
 
   // The code.
-  code: String;
+  code: string;
 
   // The programming language of the code.
-  programmingLanguage: String;
+  programmingLanguage: string;
 
   // Whether the programming language of the code should be guessed based on syntax and variables used
-  guessLanguage?: Boolean;
+  guessLanguage?: boolean;
 
   // Media type, typically expressed using a MIME format, of the code.
-  mediaType?: String;
+  mediaType?: string;
 
   // The name of the variable associated with the button.
-  name: String;
+  name: string;
 
   // A label for the button
-  label?: String;
+  label?: string;
 
   // Whether the button is currently disabled
-  isDisabled?: Boolean;
+  isDisabled?: boolean;
 
-  constructor(code: String, programmingLanguage: String, name: String, options?: Button) {
+  constructor(code: string, programmingLanguage: string, name: string, options?: Button) {
     if (options) Object.assign(this, options)
     this.code = code;
     this.programmingLanguage = programmingLanguage;

@@ -12,16 +12,14 @@ import { ExecutionRequired } from './ExecutionRequired';
 import { ExecutionStatus } from './ExecutionStatus';
 import { ExecutionTag } from './ExecutionTag';
 import { Integer } from './Integer';
-import { String } from './String';
 import { Timestamp } from './Timestamp';
 
 // Call another document, optionally with arguments, and include its executed content.
 export class Call {
-  // The type of this item
   type = "Call";
 
   // The identifier for this item
-  id?: String;
+  id?: string;
 
   // Under which circumstances the code should be automatically executed.
   executionAuto?: ExecutionAuto;
@@ -48,7 +46,7 @@ export class Call {
   executionRequired?: ExecutionRequired;
 
   // The id of the kernel that the node was last executed in.
-  executionKernel?: String;
+  executionKernel?: string;
 
   // Status of the most recent, including any current, execution.
   executionStatus?: ExecutionStatus;
@@ -63,13 +61,13 @@ export class Call {
   errors?: CodeError[];
 
   // The external source of the content, a file path or URL.
-  source: String;
+  source: string;
 
   // Media type of the source content.
-  mediaType?: String;
+  mediaType?: string;
 
   // A query to select a subset of content from the source
-  select?: String;
+  select?: string;
 
   // The structured content decoded from the source.
   content?: Block[];
@@ -77,7 +75,7 @@ export class Call {
   // The value of the source document's parameters to call it with
   arguments: CallArgument[];
 
-  constructor(source: String, args: CallArgument[], options?: Call) {
+  constructor(source: string, args: CallArgument[], options?: Call) {
     if (options) Object.assign(this, options)
     this.source = source;
     this.arguments = args;

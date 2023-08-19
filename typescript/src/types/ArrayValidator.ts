@@ -1,20 +1,17 @@
 // Generated file; do not edit. See `../rust/schema-gen` crate.
 
-import { Boolean } from './Boolean';
 import { Integer } from './Integer';
-import { String } from './String';
 import { Validator } from './Validator';
 
 // A validator specifying constraints on an array node.
 export class ArrayValidator {
-  // The type of this item
   type = "ArrayValidator";
 
   // The identifier for this item
-  id?: String;
+  id?: string;
 
   // Whether items can have the value `Node::Null`
-  itemsNullable?: Boolean;
+  itemsNullable?: boolean;
 
   // Another validator node specifying the constraints on all items in the array.
   itemsValidator?: Validator;
@@ -29,7 +26,7 @@ export class ArrayValidator {
   maxItems?: Integer;
 
   // A flag to indicate that each value in the array should be unique.
-  uniqueItems?: Boolean;
+  uniqueItems?: boolean;
 
   constructor(options?: ArrayValidator) {
     if (options) Object.assign(this, options)

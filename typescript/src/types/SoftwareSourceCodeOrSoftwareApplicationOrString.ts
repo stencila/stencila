@@ -2,10 +2,9 @@
             
 import { SoftwareApplication } from './SoftwareApplication'
 import { SoftwareSourceCode } from './SoftwareSourceCode'
-import { String } from './String'
 
-// `SoftwareSourceCode` or `SoftwareApplication` or `String`
+// `SoftwareSourceCode` or `SoftwareApplication` or `string`
 export type SoftwareSourceCodeOrSoftwareApplicationOrString =
   SoftwareSourceCode |
   SoftwareApplication |
-  String;
+  string;

@@ -1,25 +1,22 @@
 // Generated file; do not edit. See `../rust/schema-gen` crate.
 
-import { String } from './String';
-
 // An error that occurred when parsing, compiling or executing a Code node.
 export class CodeError {
-  // The type of this item
   type = "CodeError";
 
   // The identifier for this item
-  id?: String;
+  id?: string;
 
   // The error message or brief description of the error.
-  errorMessage: String;
+  errorMessage: string;
 
   // The type of error e.g. "SyntaxError", "ZeroDivisionError".
-  errorType?: String;
+  errorType?: string;
 
   // Stack trace leading up to the error.
-  stackTrace?: String;
+  stackTrace?: string;
 
-  constructor(errorMessage: String, options?: CodeError) {
+  constructor(errorMessage: string, options?: CodeError) {
     if (options) Object.assign(this, options)
     this.errorMessage = errorMessage;
   }

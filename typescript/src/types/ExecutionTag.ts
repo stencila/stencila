@@ -1,20 +1,17 @@
 // Generated file; do not edit. See `../rust/schema-gen` crate.
 
-import { Boolean } from './Boolean';
-import { String } from './String';
-
 // A tag on code that affects its execution
 export class ExecutionTag {
   // The name of the tag
-  name: String;
+  name: string;
 
   // The value of the tag
-  value: String;
+  value: string;
 
   // Whether the tag is global to the document
-  isGlobal: Boolean;
+  isGlobal: boolean;
 
-  constructor(name: String, value: String, isGlobal: Boolean, options?: ExecutionTag) {
+  constructor(name: string, value: string, isGlobal: boolean, options?: ExecutionTag) {
     if (options) Object.assign(this, options)
     this.name = name;
     this.value = value;

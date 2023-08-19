@@ -4,19 +4,17 @@ import { Block } from './Block';
 import { Brand } from './Brand';
 import { ImageObjectOrString } from './ImageObjectOrString';
 import { PropertyValueOrString } from './PropertyValueOrString';
-import { String } from './String';
 
 // Any offered product or service. For example, a pair of shoes;
   // a haircut; or an episode of a TV show streamed online.
 export class Product {
-  // The type of this item
   type = "Product";
 
   // The identifier for this item
-  id?: String;
+  id?: string;
 
   // Alternate names (aliases) for the item.
-  alternateNames?: String[];
+  alternateNames?: string[];
 
   // A description of the item.
   description?: Block[];
@@ -28,10 +26,10 @@ export class Product {
   images?: ImageObjectOrString[];
 
   // The name of the item.
-  name?: String;
+  name?: string;
 
   // The URL of the item.
-  url?: String;
+  url?: string;
 
   // Brands that the product is labelled with.
   brands?: Brand[];
@@ -40,7 +38,7 @@ export class Product {
   logo?: ImageObjectOrString;
 
   // Product identification code.
-  productID?: String;
+  productID?: string;
 
   constructor(options?: Product) {
     if (options) Object.assign(this, options)

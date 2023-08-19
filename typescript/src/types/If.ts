@@ -11,16 +11,14 @@ import { ExecutionStatus } from './ExecutionStatus';
 import { ExecutionTag } from './ExecutionTag';
 import { IfClause } from './IfClause';
 import { Integer } from './Integer';
-import { String } from './String';
 import { Timestamp } from './Timestamp';
 
 // Show and execute alternative content conditional upon an executed expression
 export class If {
-  // The type of this item
   type = "If";
 
   // The identifier for this item
-  id?: String;
+  id?: string;
 
   // Under which circumstances the code should be automatically executed.
   executionAuto?: ExecutionAuto;
@@ -47,7 +45,7 @@ export class If {
   executionRequired?: ExecutionRequired;
 
   // The id of the kernel that the node was last executed in.
-  executionKernel?: String;
+  executionKernel?: string;
 
   // Status of the most recent, including any current, execution.
   executionStatus?: ExecutionStatus;

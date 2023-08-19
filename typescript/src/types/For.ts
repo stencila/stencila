@@ -2,7 +2,6 @@
 
 import { Array } from './Array';
 import { Block } from './Block';
-import { Boolean } from './Boolean';
 import { CodeError } from './CodeError';
 import { Duration } from './Duration';
 import { ExecutionAuto } from './ExecutionAuto';
@@ -13,16 +12,14 @@ import { ExecutionRequired } from './ExecutionRequired';
 import { ExecutionStatus } from './ExecutionStatus';
 import { ExecutionTag } from './ExecutionTag';
 import { Integer } from './Integer';
-import { String } from './String';
 import { Timestamp } from './Timestamp';
 
 // Repeat a block content for each item in an array.
 export class For {
-  // The type of this item
   type = "For";
 
   // The identifier for this item
-  id?: String;
+  id?: string;
 
   // Under which circumstances the code should be automatically executed.
   executionAuto?: ExecutionAuto;
@@ -49,7 +46,7 @@ export class For {
   executionRequired?: ExecutionRequired;
 
   // The id of the kernel that the node was last executed in.
-  executionKernel?: String;
+  executionKernel?: string;
 
   // Status of the most recent, including any current, execution.
   executionStatus?: ExecutionStatus;
@@ -64,19 +61,19 @@ export class For {
   errors?: CodeError[];
 
   // The code.
-  code: String;
+  code: string;
 
   // The programming language of the code.
-  programmingLanguage: String;
+  programmingLanguage: string;
 
   // Whether the programming language of the code should be guessed based on syntax and variables used
-  guessLanguage?: Boolean;
+  guessLanguage?: boolean;
 
   // Media type, typically expressed using a MIME format, of the code.
-  mediaType?: String;
+  mediaType?: string;
 
   // The name to give to the variable representing each item in the iterated array
-  symbol: String;
+  symbol: string;
 
   // The content to repeat for each item
   content: Block[];
@@ -87,7 +84,7 @@ export class For {
   // The content repeated for each iteration
   iterations?: Array[];
 
-  constructor(code: String, programmingLanguage: String, symbol: String, content: Block[], options?: For) {
+  constructor(code: string, programmingLanguage: string, symbol: string, content: Block[], options?: For) {
     if (options) Object.assign(this, options)
     this.code = code;
     this.programmingLanguage = programmingLanguage;

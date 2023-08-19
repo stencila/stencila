@@ -1,30 +1,26 @@
 // Generated file; do not edit. See `../rust/schema-gen` crate.
 
-import { Number } from './Number';
-import { String } from './String';
-
 // A validator specifying the constraints on a numeric node.
 export class NumberValidator {
-  // The type of this item
   type = "NumberValidator";
 
   // The identifier for this item
-  id?: String;
+  id?: string;
 
   // The inclusive lower limit for a numeric node.
-  minimum?: Number;
+  minimum?: number;
 
   // The exclusive lower limit for a numeric node.
-  exclusiveMinimum?: Number;
+  exclusiveMinimum?: number;
 
   // The inclusive upper limit for a numeric node.
-  maximum?: Number;
+  maximum?: number;
 
   // The exclusive upper limit for a numeric node.
-  exclusiveMaximum?: Number;
+  exclusiveMaximum?: number;
 
   // A number that a numeric node must be a multiple of.
-  multipleOf?: Number;
+  multipleOf?: number;
 
   constructor(options?: NumberValidator) {
     if (options) Object.assign(this, options)

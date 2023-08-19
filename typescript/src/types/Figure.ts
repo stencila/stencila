@@ -12,20 +12,18 @@ import { Inline } from './Inline';
 import { Person } from './Person';
 import { PersonOrOrganization } from './PersonOrOrganization';
 import { PropertyValueOrString } from './PropertyValueOrString';
-import { String } from './String';
 import { StringOrNumber } from './StringOrNumber';
 import { ThingType } from './ThingType';
 
 // Encapsulates one or more images, videos, tables, etc, and provides captions and labels for them.
 export class Figure {
-  // The type of this item
   type = "Figure";
 
   // The identifier for this item
-  id?: String;
+  id?: string;
 
   // Alternate names (aliases) for the item.
-  alternateNames?: String[];
+  alternateNames?: string[];
 
   // A description of the item.
   description?: Block[];
@@ -37,10 +35,10 @@ export class Figure {
   images?: ImageObjectOrString[];
 
   // The name of the item.
-  name?: String;
+  name?: string;
 
   // The URL of the item.
-  url?: String;
+  url?: string;
 
   // The subject matter of the content.
   about?: ThingType[];
@@ -79,11 +77,11 @@ export class Figure {
   fundedBy?: GrantOrMonetaryGrant[];
 
   // Genre of the creative work, broadcast channel or group.
-  genre?: String[];
+  genre?: string[];
 
   // Keywords or tags used to describe this content.
   // Multiple entries in a keywords list are typically delimited by commas.
-  keywords?: String[];
+  keywords?: string[];
 
   // An item or other CreativeWork that this CreativeWork is a part of.
   isPartOf?: CreativeWorkType;
@@ -106,7 +104,7 @@ export class Figure {
   references?: CreativeWorkTypeOrString[];
 
   // The textual content of this creative work.
-  text?: String;
+  text?: string;
 
   // The title of the creative work.
   title?: Inline[];
@@ -115,7 +113,7 @@ export class Figure {
   version?: StringOrNumber;
 
   // A short label for the figure.
-  label?: String;
+  label?: string;
 
   // A caption for the figure.
   caption?: BlocksOrString;

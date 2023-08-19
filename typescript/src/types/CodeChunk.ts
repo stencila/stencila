@@ -1,7 +1,6 @@
 // Generated file; do not edit. See `../rust/schema-gen` crate.
 
 import { BlocksOrString } from './BlocksOrString';
-import { Boolean } from './Boolean';
 import { CodeError } from './CodeError';
 import { Duration } from './Duration';
 import { ExecutionAuto } from './ExecutionAuto';
@@ -13,16 +12,14 @@ import { ExecutionStatus } from './ExecutionStatus';
 import { ExecutionTag } from './ExecutionTag';
 import { Integer } from './Integer';
 import { Node } from './Node';
-import { String } from './String';
 import { Timestamp } from './Timestamp';
 
 // A executable chunk of code.
 export class CodeChunk {
-  // The type of this item
   type = "CodeChunk";
 
   // The identifier for this item
-  id?: String;
+  id?: string;
 
   // Under which circumstances the code should be automatically executed.
   executionAuto?: ExecutionAuto;
@@ -49,7 +46,7 @@ export class CodeChunk {
   executionRequired?: ExecutionRequired;
 
   // The id of the kernel that the node was last executed in.
-  executionKernel?: String;
+  executionKernel?: string;
 
   // Status of the most recent, including any current, execution.
   executionStatus?: ExecutionStatus;
@@ -64,30 +61,30 @@ export class CodeChunk {
   errors?: CodeError[];
 
   // The code.
-  code: String;
+  code: string;
 
   // The programming language of the code.
-  programmingLanguage: String;
+  programmingLanguage: string;
 
   // Whether the programming language of the code should be guessed based on syntax and variables used
-  guessLanguage?: Boolean;
+  guessLanguage?: boolean;
 
   // Media type, typically expressed using a MIME format, of the code.
-  mediaType?: String;
+  mediaType?: string;
 
   // Whether the code should be treated as side-effect free when executed.
-  executionPure?: Boolean;
+  executionPure?: boolean;
 
   // Outputs from executing the chunk.
   outputs?: Node[];
 
   // A short label for the CodeChunk.
-  label?: String;
+  label?: string;
 
   // A caption for the CodeChunk.
   caption?: BlocksOrString;
 
-  constructor(code: String, programmingLanguage: String, options?: CodeChunk) {
+  constructor(code: string, programmingLanguage: string, options?: CodeChunk) {
     if (options) Object.assign(this, options)
     this.code = code;
     this.programmingLanguage = programmingLanguage;

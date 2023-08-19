@@ -1,14 +1,11 @@
 // Generated file; do not edit. See `../rust/schema-gen` crate.
 
-import { String } from './String';
-
 // A schema specifying that a node must be a boolean value.
 export class BooleanValidator {
-  // The type of this item
   type = "BooleanValidator";
 
   // The identifier for this item
-  id?: String;
+  id?: string;
 
   constructor(options?: BooleanValidator) {
     if (options) Object.assign(this, options)

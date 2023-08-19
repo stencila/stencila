@@ -11,20 +11,18 @@ import { Inline } from './Inline';
 import { Person } from './Person';
 import { PersonOrOrganization } from './PersonOrOrganization';
 import { PropertyValueOrString } from './PropertyValueOrString';
-import { String } from './String';
 import { StringOrNumber } from './StringOrNumber';
 import { ThingType } from './ThingType';
 
 // A file on the filesystem
 export class File {
-  // The type of this item
   type = "File";
 
   // The identifier for this item
-  id?: String;
+  id?: string;
 
   // Alternate names (aliases) for the item.
-  alternateNames?: String[];
+  alternateNames?: string[];
 
   // A description of the item.
   description?: Block[];
@@ -36,10 +34,10 @@ export class File {
   images?: ImageObjectOrString[];
 
   // The name of the item.
-  name: String;
+  name: string;
 
   // The URL of the item.
-  url?: String;
+  url?: string;
 
   // The subject matter of the content.
   about?: ThingType[];
@@ -78,11 +76,11 @@ export class File {
   fundedBy?: GrantOrMonetaryGrant[];
 
   // Genre of the creative work, broadcast channel or group.
-  genre?: String[];
+  genre?: string[];
 
   // Keywords or tags used to describe this content.
   // Multiple entries in a keywords list are typically delimited by commas.
-  keywords?: String[];
+  keywords?: string[];
 
   // An item or other CreativeWork that this CreativeWork is a part of.
   isPartOf?: CreativeWorkType;
@@ -105,7 +103,7 @@ export class File {
   references?: CreativeWorkTypeOrString[];
 
   // The textual content of this creative work.
-  text?: String;
+  text?: string;
 
   // The title of the creative work.
   title?: Inline[];
@@ -114,9 +112,9 @@ export class File {
   version?: StringOrNumber;
 
   // The path (absolute or relative) of the file on the filesystem
-  path: String;
+  path: string;
 
-  constructor(name: String, path: String, options?: File) {
+  constructor(name: string, path: string, options?: File) {
     if (options) Object.assign(this, options)
     this.name = name;
     this.path = path;

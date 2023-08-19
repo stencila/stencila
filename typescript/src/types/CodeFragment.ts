@@ -1,25 +1,22 @@
 // Generated file; do not edit. See `../rust/schema-gen` crate.
 
-import { String } from './String';
-
 // Inline code.
 export class CodeFragment {
-  // The type of this item
   type = "CodeFragment";
 
   // The identifier for this item
-  id?: String;
+  id?: string;
 
   // The code.
-  code: String;
+  code: string;
 
   // The programming language of the code.
-  programmingLanguage?: String;
+  programmingLanguage?: string;
 
   // Media type, typically expressed using a MIME format, of the code.
-  mediaType?: String;
+  mediaType?: string;
 
-  constructor(code: String, options?: CodeFragment) {
+  constructor(code: string, options?: CodeFragment) {
     if (options) Object.assign(this, options)
     this.code = code;
   }

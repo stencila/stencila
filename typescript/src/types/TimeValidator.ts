@@ -1,15 +1,13 @@
 // Generated file; do not edit. See `../rust/schema-gen` crate.
 
-import { String } from './String';
 import { Time } from './Time';
 
 // A validator specifying the constraints on a time.
 export class TimeValidator {
-  // The type of this item
   type = "TimeValidator";
 
   // The identifier for this item
-  id?: String;
+  id?: string;
 
   // The inclusive lower limit for a time.
   minimum?: Time;

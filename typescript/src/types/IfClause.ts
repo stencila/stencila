@@ -1,7 +1,6 @@
 // Generated file; do not edit. See `../rust/schema-gen` crate.
 
 import { Block } from './Block';
-import { Boolean } from './Boolean';
 import { CodeError } from './CodeError';
 import { Duration } from './Duration';
 import { ExecutionAuto } from './ExecutionAuto';
@@ -12,16 +11,14 @@ import { ExecutionRequired } from './ExecutionRequired';
 import { ExecutionStatus } from './ExecutionStatus';
 import { ExecutionTag } from './ExecutionTag';
 import { Integer } from './Integer';
-import { String } from './String';
 import { Timestamp } from './Timestamp';
 
 // A clause within a `If` node
 export class IfClause {
-  // The type of this item
   type = "IfClause";
 
   // The identifier for this item
-  id?: String;
+  id?: string;
 
   // Under which circumstances the code should be automatically executed.
   executionAuto?: ExecutionAuto;
@@ -48,7 +45,7 @@ export class IfClause {
   executionRequired?: ExecutionRequired;
 
   // The id of the kernel that the node was last executed in.
-  executionKernel?: String;
+  executionKernel?: string;
 
   // Status of the most recent, including any current, execution.
   executionStatus?: ExecutionStatus;
@@ -63,24 +60,24 @@ export class IfClause {
   errors?: CodeError[];
 
   // The code.
-  code: String;
+  code: string;
 
   // The programming language of the code.
-  programmingLanguage: String;
+  programmingLanguage: string;
 
   // Whether the programming language of the code should be guessed based on syntax and variables used
-  guessLanguage?: Boolean;
+  guessLanguage?: boolean;
 
   // Media type, typically expressed using a MIME format, of the code.
-  mediaType?: String;
+  mediaType?: string;
 
   // Whether this clause is the active clause in the parent `If` node
-  isActive?: Boolean;
+  isActive?: boolean;
 
   // The content to render if the result is true-thy
   content: Block[];
 
-  constructor(code: String, programmingLanguage: String, content: Block[], options?: IfClause) {
+  constructor(code: string, programmingLanguage: string, content: Block[], options?: IfClause) {
     if (options) Object.assign(this, options)
     this.code = code;
     this.programmingLanguage = programmingLanguage;

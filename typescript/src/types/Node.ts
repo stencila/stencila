@@ -4,7 +4,6 @@ import { Array } from './Array'
 import { ArrayValidator } from './ArrayValidator'
 import { Article } from './Article'
 import { AudioObject } from './AudioObject'
-import { Boolean } from './Boolean'
 import { BooleanValidator } from './BooleanValidator'
 import { Brand } from './Brand'
 import { Button } from './Button'
@@ -62,8 +61,6 @@ import { MathFragment } from './MathFragment'
 import { MediaObject } from './MediaObject'
 import { MonetaryGrant } from './MonetaryGrant'
 import { Note } from './Note'
-import { Null } from './Null'
-import { Number } from './Number'
 import { NumberValidator } from './NumberValidator'
 import { Object } from './Object'
 import { Organization } from './Organization'
@@ -83,7 +80,6 @@ import { SoftwareApplication } from './SoftwareApplication'
 import { SoftwareSourceCode } from './SoftwareSourceCode'
 import { Span } from './Span'
 import { Strikeout } from './Strikeout'
-import { String } from './String'
 import { StringValidator } from './StringValidator'
 import { Strong } from './Strong'
 import { Subscript } from './Subscript'
@@ -106,12 +102,12 @@ import { VideoObject } from './VideoObject'
 
 // Union type for all types in this schema, including primitives and entities
 export type Node =
-  Null |
-  Boolean |
+  null |
+  boolean |
   Integer |
   UnsignedInteger |
-  Number |
-  String |
+  number |
+  string |
   Array |
   ArrayValidator |
   Article |

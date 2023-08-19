@@ -12,21 +12,19 @@ import { IntegerOrString } from './IntegerOrString';
 import { Person } from './Person';
 import { PersonOrOrganization } from './PersonOrOrganization';
 import { PropertyValueOrString } from './PropertyValueOrString';
-import { String } from './String';
 import { StringOrNumber } from './StringOrNumber';
 import { ThingType } from './ThingType';
 
 // A part of a successively published publication such as a periodical or publication
   // volume, often numbered.
 export class PublicationIssue {
-  // The type of this item
   type = "PublicationIssue";
 
   // The identifier for this item
-  id?: String;
+  id?: string;
 
   // Alternate names (aliases) for the item.
-  alternateNames?: String[];
+  alternateNames?: string[];
 
   // A description of the item.
   description?: Block[];
@@ -38,10 +36,10 @@ export class PublicationIssue {
   images?: ImageObjectOrString[];
 
   // The name of the item.
-  name?: String;
+  name?: string;
 
   // The URL of the item.
-  url?: String;
+  url?: string;
 
   // The subject matter of the content.
   about?: ThingType[];
@@ -80,11 +78,11 @@ export class PublicationIssue {
   fundedBy?: GrantOrMonetaryGrant[];
 
   // Genre of the creative work, broadcast channel or group.
-  genre?: String[];
+  genre?: string[];
 
   // Keywords or tags used to describe this content.
   // Multiple entries in a keywords list are typically delimited by commas.
-  keywords?: String[];
+  keywords?: string[];
 
   // An item or other CreativeWork that this CreativeWork is a part of.
   isPartOf?: CreativeWorkType;
@@ -107,7 +105,7 @@ export class PublicationIssue {
   references?: CreativeWorkTypeOrString[];
 
   // The textual content of this creative work.
-  text?: String;
+  text?: string;
 
   // The title of the creative work.
   title?: Inline[];
@@ -126,7 +124,7 @@ export class PublicationIssue {
 
   // Any description of pages that is not separated into pageStart and pageEnd;
   // for example, "1-6, 9, 55".
-  pagination?: String;
+  pagination?: string;
 
   constructor(options?: PublicationIssue) {
     if (options) Object.assign(this, options)
