@@ -1,4 +1,4 @@
-all: format lint cover outdated audit build docs
+all: fix test audit build
 
 ifdef CI
   PROFILE:=ci
@@ -14,12 +14,12 @@ setup:
 	rustup toolchain install nightly
 	cargo install cargo-udeps --locked
 
-# Run formatting and linting fixes
+# Make formatting and linting fixes
 fix:
 	cargo fmt --all
 	cargo clippy --workspace --all-features --tests --fix --allow-dirty
 
-# Run clippy linting
+# Run linting checks
 lint:
 	cargo clippy --workspace --all-features --tests
 
@@ -33,16 +33,12 @@ outdated:
 
 # Audit dependencies
 audit:
-	cargo +nightly udeps --workspace --all-features
+	cargo +nightly udeps --workspace --all-targets --all-features
 	cargo audit -f ../Cargo.lock
 
 # Build CLI binary
-cli:
+build:
 	cargo build --bin stencila --release
-
-# Build `musl` CLI binary
-cli-musl:
-	cargo build --bin stencila --release --target x86_64-unknown-linux-musl
 
 # Use cargo to install the binary
 install:
