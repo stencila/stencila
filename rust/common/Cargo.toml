@@ -25,7 +25,7 @@ proc-macro2 = "1.0.66"
 quote = "1.0.32"
 regex = "1.9.3"
 serde = { version = "1.0.183", features = ["derive", "rc"] }
-serde_json = { version = "1.0.104", features = ["preserve_order"] }
+serde_json = { version = "1.0.105", features = ["preserve_order"] }
 serde_with = "3.2.0"
 serde_yaml = "0.9.25"
 similar = { version = "2.2.1", features = ["unicode"] }
