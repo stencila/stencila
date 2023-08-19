@@ -1,33 +1,40 @@
 all: fix audit build
 
 # Install dependencies
-setup:
+node_modules: package.json package-lock.json
+ifdef CI
+	npm ci
+else
 	npm install
+endif
+
+# Setup local development environment
+setup: node_modules
 
 # Make formatting and linting fixes
-fix:
+fix: node_modules
 	npm run fix
 
 # Run linting checks
-lint:
+lint: node_modules
 	npm run lint
 
 # Run tests
 # Currently this just checks that the TypeScript compiles
 # since there is not really any code here beyond type definitions
-test:
+test: node_modules
 	npx tsc
 
 # List outdated dependencies
-outdated:
+outdated: node_modules
 	npm outdated
 
 # Audit dependencies
-audit:
+audit: node_modules
 	npm audit fix
 
 # Build the package
-build:
+build: node_modules
 	npm run build
 
 # Clean up development artifacts
