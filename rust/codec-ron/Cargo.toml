@@ -5,4 +5,4 @@ edition = "2021"
 
 [dependencies]
 codec = { path = "../codec" }
-ron = "0.8.0"
+ron = "0.8.1"
