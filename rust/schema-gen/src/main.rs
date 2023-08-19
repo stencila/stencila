@@ -25,6 +25,7 @@ enum What {
     Docs,
     JsonLd,
     JsonSchema,
+    Python,
     Rust,
     Typescript,
 }
@@ -49,6 +50,7 @@ async fn main() -> Result<()> {
             Docs => schemas.docs().await?,
             JsonLd => schemas.json_ld().await?,
             JsonSchema => schemas.json_schema().await?,
+            Python => schemas.python().await?,
             Rust => schemas.rust().await?,
             Typescript => schemas.typescript().await?,
         }
