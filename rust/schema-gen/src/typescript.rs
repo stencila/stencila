@@ -96,7 +96,12 @@ impl Schemas {
             .join("\n");
         write(
             dest.join("index.ts"),
-            format!("// Generated file. Do not edit; see `rust/schema-gen` crate.\n\n{exports}\n"),
+            format!(
+                r"// Generated file. Do not edit; see `rust/schema-gen` crate.
+
+{exports}
+"
+            ),
         )
         .await?;
 
@@ -116,7 +121,7 @@ impl Schemas {
         if schema.any_of.is_some() {
             Self::typescript_any_of(dest, schema).await?;
         } else if schema.r#type.is_none() {
-            Self::typescript_struct(dest, title, schema).await?;
+            Self::typescript_object(dest, title, schema).await?;
         }
 
         Ok(())
@@ -124,8 +129,9 @@ impl Schemas {
 
     /// Generate a TypeScript type for a schema
     ///
-    /// Returns the name of the type and whether it is a vector and whether it is
-    /// a type (rather than an enum variant). Used in the functions below.
+    /// Returns the name of the type and whether:
+    ///  - it is an array
+    ///  - it is a type (rather than an enum variant)
     #[async_recursion]
     async fn typescript_type(dest: &Path, schema: &Schema) -> Result<(String, bool, bool)> {
         let result = if let Some(r#type) = &schema.r#type {
@@ -165,11 +171,14 @@ impl Schemas {
         } else {
             ("Unhandled".to_string(), false, true)
         };
+
         Ok(result)
     }
 
-    /// Generate a TypeScript class for a 'struct' schema (having 'properties')
-    async fn typescript_struct(dest: &Path, title: &String, schema: &Schema) -> Result<String> {
+    /// Generate a TypeScript `class` for an object schema with `properties`
+    ///
+    /// Returns the name of the generated `class`.
+    async fn typescript_object(dest: &Path, title: &String, schema: &Schema) -> Result<String> {
         let path = dest.join(format!("{}.ts", title));
         if path.exists() {
             return Ok(title.to_string());
@@ -288,7 +297,7 @@ export class {title} {{
         Ok(title.to_string())
     }
 
-    /// Generate a TypeScript enum for an `anyOf` root schema or property schema
+    /// Generate a TypeScript discriminated union `type` for an `anyOf` root schema or property schema
     ///
     /// Returns the name of the generated enum.
     async fn typescript_any_of(dest: &Path, schema: &Schema) -> Result<String> {
@@ -362,7 +371,7 @@ export class {title} {{
             .join(" |\n  ");
 
         let rust = format!(
-            r#"// Generated file. Do not edit; see `rust/schema-gen` crate.\n\n
+            r#"// Generated file. Do not edit; see `rust/schema-gen` crate.
             
 {imports}// {description}
 export type {name} =
@@ -376,10 +385,10 @@ export type {name} =
 
     /// Generate a TypeScript `type` for an "array of" type
     ///
-    /// Returns the name of the generated type (will the plural of the
-    /// type of the type of the array items).
-    async fn typescript_array_of(dest: &Path, typ: &str) -> Result<String> {
-        let name = typ.to_plural();
+    /// Returns the name of the generated type which will be the plural
+    /// of the type of the array items.
+    async fn typescript_array_of(dest: &Path, item_type: &str) -> Result<String> {
+        let name = item_type.to_plural();
 
         let path = dest.join(format!("{}.ts", name));
         if path.exists() {
@@ -389,9 +398,9 @@ export type {name} =
         let rust = format!(
             r#"// Generated file. Do not edit; see `rust/schema-gen` crate.
             
-import {{ {typ} }} from './{typ}';
+import {{ {item_type} }} from './{item_type}';
 
-export type {name} = {typ}[];
+export type {name} = {item_type}[];
 "#
         );
         write(path, rust).await?;
@@ -401,7 +410,7 @@ export type {name} = {typ}[];
 
     /// Generate a TypeScript representation of a JSON schema value
     ///
-    /// Returns the name of the type.
+    /// Returns a literal to the type of value.
     fn typescript_value(value: &Value) -> String {
         match value {
             Value::Null => "null".to_string(),

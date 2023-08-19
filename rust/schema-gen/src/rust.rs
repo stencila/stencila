@@ -80,9 +80,9 @@ const KEYWORDS: &[&str; 52] = &[
     "virtual", "yield", "try",
 ];
 
-/// If the input is a keyword then escape it so it is valid Rust code
-fn escape_keyword(input: &String) -> String {
-    if KEYWORDS.contains(&input.as_str()) {
+/// If the input is a Rust keyword then escape it so it is valid Rust code
+fn escape_keyword(input: &str) -> String {
+    if KEYWORDS.contains(&input) {
         format!("r#{input}")
     } else {
         input.to_string()
@@ -129,39 +129,43 @@ impl Schemas {
             .map(|schema| Self::rust_module(&types, schema));
         try_join_all(futures).await?;
 
+        // Create an types.rs which export types from all modules (including those
+        // that are not generated)
         let modules = read_dir(&types)
             .context(format!("unable to read directory `{}`", types.display()))?
             .flatten()
             .map(|entry| {
-                entry
+                let name = entry
                     .path()
                     .file_name()
                     .unwrap()
                     .to_string_lossy()
                     .strip_suffix(".rs")
                     .unwrap()
-                    .to_string()
+                    .to_string();
+                escape_keyword(&name)
             })
-            .collect_vec();
-
-        let path = dest.join("types.rs");
-        let modules = modules
-            .iter()
-            .filter(|module| !module.is_empty())
             .sorted()
-            .map(escape_keyword)
             .collect_vec();
         let mods = modules
             .iter()
-            .map(|module| format!("mod {module};\n"))
-            .join("");
+            .map(|module| format!("mod {module};"))
+            .join("\n");
         let uses = modules
             .iter()
-            .map(|module| format!("pub use {module}::*;\n"))
-            .join("");
+            .map(|module| format!("pub use {module}::*;"))
+            .join("\n");
         write(
-            path,
-            format!("// Generated file. Do not edit; see `schema-gen` crate.\n\n{mods}\n{uses}"),
+            dest.join("types.rs"),
+            format!(
+                r"
+// Generated file. Do not edit; see `schema-gen` crate.
+
+{mods}
+
+{uses}
+"
+            ),
         )
         .await?;
 
@@ -174,32 +178,78 @@ impl Schemas {
             bail!("Schema has no title");
         };
 
-        let rust = if NO_GENERATE_MODULE.contains(&title.as_str()) || schema.r#abstract {
+        if NO_GENERATE_MODULE.contains(&title.as_str()) || schema.r#abstract {
             return Ok(());
-        } else if schema.any_of.is_some() {
-            Self::rust_any_of(dest, schema).await?
+        }
+
+        if schema.any_of.is_some() {
+            Self::rust_any_of(dest, schema).await?;
         } else if schema.r#type.is_none() {
-            Self::rust_struct(dest, title, schema).await?
-        } else {
-            return Ok(());
-        };
-
-        let module = title.to_snake_case();
-
-        let path = dest.join(format!("{module}.rs"));
-        if !path.exists() {
-            write(
-                path,
-                &format!("// Generated file. Do not edit; see `schema-gen` crate.\n\n{rust}"),
-            )
-            .await?;
+            Self::rust_object(dest, title, schema).await?;
         }
 
         Ok(())
     }
 
-    /// Generate a Rust struct for a schema
-    async fn rust_struct(dest: &Path, title: &String, schema: &Schema) -> Result<String> {
+    /// Generate a Rust type for a schema
+    ///
+    /// Returns the name of the type and whether:
+    ///  - it is an array
+    ///  - it is a type (rather than an enum variant)
+    #[async_recursion]
+    async fn rust_type(dest: &Path, schema: &Schema) -> Result<(String, bool, bool)> {
+        let result = if let Some(r#type) = &schema.r#type {
+            match r#type {
+                Type::Array => {
+                    let items = match &schema.items {
+                        Some(Items::Ref(inner)) => inner.r#ref.to_string(),
+                        Some(Items::Type(inner)) => inner.r#type.to_class_case(),
+                        Some(Items::AnyOf(inner)) => {
+                            let schema = Schema {
+                                any_of: Some(inner.any_of.clone()),
+                                ..Default::default()
+                            };
+                            Self::rust_type(dest, &schema).await?.0
+                        }
+                        Some(Items::List(inner)) => {
+                            let schema = Schema {
+                                any_of: Some(inner.clone()),
+                                ..Default::default()
+                            };
+                            Self::rust_type(dest, &schema).await?.0
+                        }
+                        None => "Unhandled".to_string(),
+                    };
+                    (items, true, true)
+                }
+                _ => (r#type.as_ref().to_string(), false, true),
+            }
+        } else if let Some(r#ref) = &schema.r#ref {
+            (r#ref.to_string(), false, true)
+        } else if schema.any_of.is_some() {
+            (Self::rust_any_of(dest, schema).await?, false, true)
+        } else if let Some(title) = &schema.title {
+            (title.to_string(), false, true)
+        } else if let Some(r#const) = &schema.r#const {
+            (Self::rust_value(r#const), false, false)
+        } else {
+            ("Unhandled".to_string(), false, true)
+        };
+
+        Ok(result)
+    }
+
+    /// Generate a Rust `struct` for an object schema with `properties`
+    ///
+    /// Returns the name of the generated `struct`.
+    async fn rust_object(dest: &Path, title: &String, schema: &Schema) -> Result<String> {
+        let module = title.to_snake_case();
+
+        let path = dest.join(format!("{}.rs", module));
+        if path.exists() {
+            return Ok(title.to_string());
+        }
+
         let description = schema
             .description
             .as_ref()
@@ -254,7 +304,7 @@ impl Schemas {
             let mut default = property
                 .default
                 .as_ref()
-                .map(|default| Self::rust_value(default));
+                .map(Self::rust_value);
 
             // Wrap type and defaults in generic types as necessary
 
@@ -288,7 +338,7 @@ impl Schemas {
             fields.push((property.is_required, property.is_core, name, typ, code));
         }
 
-        let uses = used_types
+        let mut uses = used_types
             .iter()
             .filter(|used_type| *used_type != title)
             .sorted()
@@ -298,6 +348,9 @@ impl Schemas {
                 format!("use super::{module}::{used_type};")
             })
             .join("\n");
+        if !uses.is_empty() {
+            uses.push_str("\n\n");
+        }
 
         let optional_fields = fields
             .iter()
@@ -317,7 +370,8 @@ impl Schemas {
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 pub struct {title}Options {{
     {optional_fields}
-}}"#
+}}
+"#
             )
         };
 
@@ -381,73 +435,33 @@ pub struct {title}Options {{
             String::new()
         };
 
-        let implem = format!(
-            r#"
-impl {title} {{{new}}}"#,
-        );
+        write(
+            path,
+            &format!(
+                r#"// Generated file. Do not edit; see `rust/schema-gen` crate.
 
-        let rust = format!(
-            r#"use crate::prelude::*;
+use crate::prelude::*;
 
-{uses}
-
-/// {description}
+{uses}/// {description}
 #[skip_serializing_none]
 #[derive({derive_traits})]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 pub struct {title} {{
     {core_fields}
 }}{options}
-{implem}
+
+impl {title} {{{new}}}
 "#
-        );
-        Ok(rust)
+            ),
+        )
+        .await?;
+
+        Ok(title.to_string())
     }
 
-    /// Generate a Rust type for a schema
-    #[async_recursion]
-    async fn rust_type(dest: &Path, schema: &Schema) -> Result<(String, bool, bool)> {
-        let result = if let Some(r#type) = &schema.r#type {
-            match r#type {
-                Type::Array => {
-                    let items = match &schema.items {
-                        Some(Items::Ref(inner)) => inner.r#ref.to_string(),
-                        Some(Items::Type(inner)) => inner.r#type.to_class_case(),
-                        Some(Items::AnyOf(inner)) => {
-                            let schema = Schema {
-                                any_of: Some(inner.any_of.clone()),
-                                ..Default::default()
-                            };
-                            Self::rust_type(dest, &schema).await?.0
-                        }
-                        Some(Items::List(inner)) => {
-                            let schema = Schema {
-                                any_of: Some(inner.clone()),
-                                ..Default::default()
-                            };
-                            Self::rust_type(dest, &schema).await?.0
-                        }
-                        None => "Unhandled".to_string(),
-                    };
-                    (items, true, true)
-                }
-                _ => (r#type.as_ref().to_string(), false, true),
-            }
-        } else if let Some(r#ref) = &schema.r#ref {
-            (r#ref.to_string(), false, true)
-        } else if schema.any_of.is_some() {
-            (Self::rust_any_of(dest, schema).await?, false, true)
-        } else if let Some(title) = &schema.title {
-            (title.to_string(), false, true)
-        } else if let Some(r#const) = &schema.r#const {
-            (Self::rust_value(r#const), false, false)
-        } else {
-            ("Unhandled".to_string(), false, true)
-        };
-        Ok(result)
-    }
-
-    /// Generate a Rust enum for an `anyOf` root schema or property schema
+    /// Generate a Rust `enum` for an `anyOf` root schema or property schema.
+    ///
+    /// Returns the name of the generated enum.
     async fn rust_any_of(dest: &Path, schema: &Schema) -> Result<String> {
         let Some(any_of) = &schema.any_of else {
             bail!("Schema has no anyOf");
@@ -513,7 +527,7 @@ pub struct {title} {{
         let default = schema
             .default
             .as_ref()
-            .map(|schema| Self::rust_value(schema));
+            .map(Self::rust_value);
 
         let mut unit_variants = true;
         let variants = alternatives
@@ -560,7 +574,9 @@ pub struct {title} {{
         };
 
         let rust = format!(
-            r#"use crate::prelude::*;
+            r#"// Generated file. Do not edit; see `rust/schema-gen` crate.
+
+use crate::prelude::*;
 
 {uses}/// {description}
 #[derive({derive_traits})]
@@ -576,19 +592,24 @@ pub enum {name} {{
     }
 
     /// Generate a Rust `type` for an array of a type
-    async fn rust_array_of(dest: &Path, typ: &str) -> Result<String> {
-        let name = typ.to_plural();
+    ///
+    /// Returns the name of the generated type which will be the plural
+    /// of the type of the array items.
+    async fn rust_array_of(dest: &Path, item_type: &str) -> Result<String> {
+        let name = item_type.to_plural();
 
         let path = dest.join(format!("{}.rs", name.to_snake_case()));
         if path.exists() {
             return Ok(name);
         }
 
-        let module = typ.to_snake_case();
+        let module = item_type.to_snake_case();
         let rust = format!(
-            r#"use super::{module}::{typ};
+            r#"// Generated file. Do not edit; see `rust/schema-gen` crate.
 
-pub type {name} = Vec<{typ}>;
+use super::{module}::{item_type};
+
+pub type {name} = Vec<{item_type}>;
 "#
         );
         write(path, rust).await?;
@@ -597,6 +618,8 @@ pub type {name} = Vec<{typ}>;
     }
 
     /// Generate a Rust representation of a JSON schema value
+    ///
+    /// Returns a literal to the type of value.
     fn rust_value(value: &Value) -> String {
         match value {
             Value::Null => "Null".to_string(),
