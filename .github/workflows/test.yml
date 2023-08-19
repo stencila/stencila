@@ -12,6 +12,7 @@ on:
 env:
   RUST_VERSION: '1.71.0'
   CARGO_TERM_COLOR: always
+  NODE_VERSION: '20'
 
 jobs:
   lint-test:
@@ -26,6 +27,11 @@ jobs:
 
       - name: Enable Rust cache
         uses: Swatinem/rust-cache@v2
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ env.NODE_VERSION }}
 
       - name: Lint
         run: make lint
