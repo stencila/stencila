@@ -168,6 +168,15 @@ pub struct Schema {
     pub core: Option<Vec<String>>,
 
     // Stencila derived properties
+    /// The schema that the property is defined on
+    #[serde(skip)]
+    pub defined_on: String,
+
+    /// Whether this is a property schema and is inherited from another
+    /// schema that the _parent_ schema extends.
+    #[serde(skip)]
+    pub is_inherited: bool,
+
     /// Whether this is a property schema and is required (is in the `required` keyword
     /// of _parent_ schema).
     #[serde(skip)]
@@ -259,7 +268,7 @@ impl Schema {
         let mut properties: IndexMap<String, Schema> = parents
             .iter_mut()
             .flat_map(|parent| std::mem::take(&mut parent.properties).unwrap().into_iter())
-            .chain(extended.properties.into_iter().flatten())
+            .chain(extended.properties.clone().into_iter().flatten())
             .collect();
         let cores: Vec<String> = parents
             .iter_mut()
@@ -272,11 +281,18 @@ impl Schema {
             .chain(extended.required.into_iter().flatten())
             .collect();
 
-        for (name, property) in properties.iter_mut() {
-            if requireds.contains(name) {
+        for (property_name, property) in properties.iter_mut() {
+            if let Some(props) = &extended.properties {
+                if props.contains_key(property_name) {
+                    property.defined_on = name.to_string()
+                } else {
+                    property.is_inherited = true;
+                }
+            }
+            if requireds.contains(property_name) {
                 property.is_required = true;
             }
-            if cores.contains(name) {
+            if cores.contains(property_name) {
                 property.is_core = true;
             }
         }
