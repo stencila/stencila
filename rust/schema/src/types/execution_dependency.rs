@@ -5,12 +5,19 @@ use crate::prelude::*;
 use super::execution_dependency_node::ExecutionDependencyNode;
 use super::execution_dependency_relation::ExecutionDependencyRelation;
 use super::integer::Integer;
+use super::string::String;
 
 /// An upstream execution dependency of a node
 #[skip_serializing_none]
 #[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, Strip, Read, Write, ToHtml)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 pub struct ExecutionDependency {
+    /// The type of this item
+    pub r#type: MustBe!("ExecutionDependency"),
+
+    /// The identifier for this item
+    pub id: Option<String>,
+
     /// The relation to the dependency
     pub dependency_relation: ExecutionDependencyRelation,
 

@@ -1,5 +1,6 @@
 title: ExecutionDependant
 '@id': stencila:ExecutionDependant
+extends: Entity
 description: A downstream execution dependant of a node
 required:
   - dependantRelation

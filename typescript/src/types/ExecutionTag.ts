@@ -2,6 +2,11 @@
 
 // A tag on code that affects its execution
 export class ExecutionTag {
+  type = "ExecutionTag";
+
+  // The identifier for this item
+  id?: string;
+
   // The name of the tag
   name: string;
 

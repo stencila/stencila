@@ -6,6 +6,11 @@ import { Integer } from './Integer';
 
 // A downstream execution dependant of a node
 export class ExecutionDependant {
+  type = "ExecutionDependant";
+
+  // The identifier for this item
+  id?: string;
+
   // The relation to the dependant
   dependantRelation: ExecutionDependantRelation;
 

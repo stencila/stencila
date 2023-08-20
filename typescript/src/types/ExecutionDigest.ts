@@ -2,6 +2,11 @@
 
 // A digest of the execution state of a node.
 export class ExecutionDigest {
+  type = "ExecutionDigest";
+
+  // The identifier for this item
+  id?: string;
+
   // A digest of the state of a node.
   stateDigest: number;
 

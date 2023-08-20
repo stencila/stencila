@@ -10,6 +10,12 @@ use super::string::String;
 #[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, Strip, Read, Write, ToHtml)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 pub struct ExecutionTag {
+    /// The type of this item
+    pub r#type: MustBe!("ExecutionTag"),
+
+    /// The identifier for this item
+    pub id: Option<String>,
+
     /// The name of the tag
     pub name: String,
 
@@ -24,7 +30,8 @@ impl ExecutionTag {
         Self {
             name,
             value,
-            is_global
+            is_global,
+            ..Default::default()
         }
     }
 }
