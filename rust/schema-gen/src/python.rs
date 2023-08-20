@@ -24,10 +24,25 @@ const GENERATED_COMMENT: &str = "# Generated file; do not edit. See the Rust `sc
 ///
 /// These modules are manually written, usually because they are
 /// an alias for a native JavasScript type.
-const NO_GENERATE_MODULE: &[&str] = &["prelude.py"];
+const HANDWRITTEN_MODULES: &[&str] = &[
+    "array.py",
+    "object.py",
+    "prelude.py",
+    "text_value.py",
+    "unsigned_integer.py",
+];
 
 /// Native Python or Pydantic types which do not need to be imported
-const NATIVE_TYPES: &[&str] = &["bool", "int", "float", "str"];
+const NATIVE_TYPES: &[&str] = &["None", "bool", "int", "float", "str"];
+
+/// Types which need to be declared as forward refs to circular imports
+const FORWARD_REFS: &[&str] = &[
+    "Comment",
+    "Organization",
+    "ImageObject",
+    "SoftwareApplication",
+    "Validator",
+];
 
 // Generate a valid module name
 fn module_name(name: &str) -> String {
@@ -54,10 +69,13 @@ impl Schemas {
         let types = dest.join("types");
         if types.exists() {
             // Already exists, so clean up existing files, except for those that are not generated
-            for file in read_dir(&types)?.flatten() {
+            for file in read_dir(&types)?
+                .flatten()
+                .filter(|entry| entry.path().is_file())
+            {
                 let path = file.path();
 
-                if NO_GENERATE_MODULE
+                if HANDWRITTEN_MODULES
                     .contains(&path.file_name().unwrap().to_string_lossy().as_ref())
                 {
                     continue;
@@ -82,6 +100,7 @@ impl Schemas {
         let exports = read_dir(&types)
             .wrap_err(format!("unable to read directory `{}`", types.display()))?
             .flatten()
+            .filter(|entry| entry.path().is_file())
             .map(|entry| {
                 entry
                     .path()
@@ -92,8 +111,14 @@ impl Schemas {
                     .unwrap()
                     .to_string()
             })
+            .filter(|module| module != "prelude")
             .sorted()
-            .map(|module| format!("from {module} import *"))
+            .map(|module| {
+                format!(
+                    "from .{module} import {name}",
+                    name = module.to_pascal_case()
+                )
+            })
             .join("\n");
         write(
             types.join("__init__.py"),
@@ -115,7 +140,7 @@ impl Schemas {
             bail!("Schema has no title");
         };
 
-        if NO_GENERATE_MODULE.contains(&title.as_str()) || schema.r#abstract {
+        if HANDWRITTEN_MODULES.contains(&title.as_str()) {
             return Ok(());
         }
 
@@ -141,6 +166,7 @@ impl Schemas {
         // native type then return the name of the native type, otherwise
         // return the pascal cased name
         let maybe_native_type = |type_name: &str| match type_name.to_lowercase().as_str() {
+            "null" => "None".to_string(),
             "boolean" => "bool".to_string(),
             "integer" => "int".to_string(),
             "number" => "float".to_string(),
@@ -191,6 +217,12 @@ impl Schemas {
 
     /// Generate a Python `class` for an object schema with `properties`
     ///
+    /// Generates a `dataclass`. This needs to have `kw_only` for init function
+    /// due to the fact that some inherited fields are required.
+    /// 
+    /// Attempts to make this work with Pydantic `dataclass` and `BaseModel`
+    /// failed seemingly due to cyclic dependencies in types.
+    /// 
     /// Returns the name of the generated `class`.
     async fn python_object(dest: &Path, title: &String, schema: &Schema) -> Result<String> {
         let path = dest.join(format!("{}.py", module_name(title)));
@@ -198,12 +230,37 @@ impl Schemas {
             return Ok(title.to_string());
         }
 
-        let mut fields = Vec::new();
         let mut used_types = HashSet::new();
-        for (name, property) in schema.properties.iter().flatten() {
+
+        // Get the base class
+        let base = match schema
+            .extends
+            .as_ref()
+            .and_then(|bases| bases.first().cloned())
+        {
+            Some(base) => {
+                used_types.insert(base.clone());
+                base
+            }
+            None => String::new(),
+        };
+
+        let mut fields = Vec::new();
+
+        // Always add the `type` field as a literal
+        fields.push(format!(
+            r#"    type: Literal["{title}"] = field(default="{title}", init=False)"#
+        ));
+
+        for (name, property) in schema
+            .properties
+            .iter()
+            .flatten()
+            .filter(|(.., property)| !property.is_inherited)
+        {
             let name = name.to_snake_case();
 
-            // Skip the `type` property since it is available through `__class__.__name__`
+            // Skip the `type` field which we force above
             if name == "type" {
                 continue;
             }
@@ -224,10 +281,12 @@ impl Schemas {
 
             let mut field = format!("{name}: {field_type}");
 
-            // Does the property have a default?
+            // Does the property have a default or is optional?
             if let Some(default) = property.default.as_ref() {
                 let default = Self::python_value(default);
                 field.push_str(&format!(" = {default}"));
+            } else if !property.is_required {
+                field.push_str(" = None");
             };
 
             let description = property
@@ -236,22 +295,26 @@ impl Schemas {
                 .unwrap_or(name)
                 .trim_end_matches('\n')
                 .replace('\n', " ");
-            fields.push(format!(r#"    {field}
-    """{description}""""#));
+            fields.push(format!(
+                r#"    {field}
+    """{description}""""#
+            ));
         }
         let fields = fields.join("\n\n");
 
         let mut imports = used_types
             .into_iter()
-            .filter(|used_type| {
-                used_type != title && !NATIVE_TYPES.contains(&used_type.to_lowercase().as_str())
-            })
+            .filter(|used_type| !NATIVE_TYPES.contains(&used_type.as_str()))
             .sorted()
             .map(|used_type| {
-                format!(
-                    "from .{module} import {used_type}",
-                    module = used_type.to_snake_case()
-                )
+                if FORWARD_REFS.contains(&used_type.as_str()) {
+                    format!(r#"{used_type} = ForwardRef("{used_type}")"#,)
+                } else {
+                    format!(
+                        "from .{module} import {used_type}",
+                        module = used_type.to_snake_case()
+                    )
+                }
             })
             .join("\n");
         if !imports.is_empty() {
@@ -273,7 +336,8 @@ impl Schemas {
 from .prelude import *
 
 {imports}
-class {title}(BaseModel):
+@dataclass(kw_only=True, frozen=True)
+class {title}({base}):
     """
     {description}
     """
@@ -342,12 +406,9 @@ class {title}(BaseModel):
 
         let mut imports = alternatives
             .iter()
+            .filter(|(used_type, is_type)| *is_type && !NATIVE_TYPES.contains(&used_type.as_str()))
             .sorted()
-            .filter_map(|(name, is_type)| {
-                (*is_type && !NATIVE_TYPES.contains(&name.to_lowercase().as_str())).then_some(
-                    format!("from .{module} import {name}", module = module_name(name)),
-                )
-            })
+            .map(|(used_type, ..)| format!(r#"{used_type} = ForwardRef("{used_type}")"#,))
             .join("\n");
         if !imports.is_empty() {
             imports.push_str("\n\n");

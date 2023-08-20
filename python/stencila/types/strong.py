@@ -3,15 +3,16 @@
 from .prelude import *
 
 from .inline import Inline
+from .mark import Mark
 
 
-class Strong(BaseModel):
+@dataclass(kw_only=True, frozen=True)
+class Strong(Mark):
     """
     Strongly emphasised content.
     """
 
-    id: Optional[str]
-    """The identifier for this item"""
+    type: Literal["Strong"] = field(default="Strong", init=False)
 
     content: List[Inline]
     """The content that is marked."""

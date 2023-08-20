@@ -2,12 +2,12 @@
 
 from .prelude import *
 
-from .button import Button
-from .code_chunk import CodeChunk
-from .file import File
-from .parameter import Parameter
-from .software_source_code import SoftwareSourceCode
-from .variable import Variable
+Button = ForwardRef("Button")
+CodeChunk = ForwardRef("CodeChunk")
+File = ForwardRef("File")
+Parameter = ForwardRef("Parameter")
+SoftwareSourceCode = ForwardRef("SoftwareSourceCode")
+Variable = ForwardRef("Variable")
 
 
 ExecutionDependencyNode = Union[

@@ -2,15 +2,15 @@
 
 from .prelude import *
 
-from .call import Call
-from .code_chunk import CodeChunk
-from .code_expression import CodeExpression
-from .division import Division
-from .file import File
-from .for_ import For
-from .if_ import If
-from .span import Span
-from .variable import Variable
+Call = ForwardRef("Call")
+CodeChunk = ForwardRef("CodeChunk")
+CodeExpression = ForwardRef("CodeExpression")
+Division = ForwardRef("Division")
+File = ForwardRef("File")
+For = ForwardRef("For")
+If = ForwardRef("If")
+Span = ForwardRef("Span")
+Variable = ForwardRef("Variable")
 
 
 ExecutionDependantTarget = Union[

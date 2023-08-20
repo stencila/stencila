@@ -2,14 +2,13 @@
 
 from .prelude import *
 
-from .array import Array
-from .null import Null
-from .object import Object
-from .unsigned_integer import UnsignedInteger
+Array = ForwardRef("Array")
+Object = ForwardRef("Object")
+UnsignedInteger = ForwardRef("UnsignedInteger")
 
 
 Primitive = Union[
-    Null,
+    None,
     bool,
     int,
     UnsignedInteger,

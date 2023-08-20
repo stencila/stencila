@@ -2,16 +2,17 @@
 
 from .prelude import *
 
+from .entity import Entity
 from .time_unit import TimeUnit
 
 
-class Duration(BaseModel):
+@dataclass(kw_only=True, frozen=True)
+class Duration(Entity):
     """
     A value that represents the difference between two timestamps
     """
 
-    id: Optional[str]
-    """The identifier for this item"""
+    type: Literal["Duration"] = field(default="Duration", init=False)
 
     value: int
     """The time difference in `timeUnit`s."""

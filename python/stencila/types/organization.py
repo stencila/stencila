@@ -2,64 +2,46 @@
 
 from .prelude import *
 
-from .block import Block
 from .brand import Brand
 from .contact_point import ContactPoint
 from .image_object_or_str import ImageObjectOrStr
+Organization = ForwardRef("Organization")
 from .organization_or_person import OrganizationOrPerson
 from .postal_address_or_str import PostalAddressOrStr
-from .property_value_or_str import PropertyValueOrStr
+from .thing import Thing
 
 
-class Organization(BaseModel):
+@dataclass(kw_only=True, frozen=True)
+class Organization(Thing):
     """
     An organization such as a school, NGO, corporation, club, etc.
     """
 
-    id: Optional[str]
-    """The identifier for this item"""
+    type: Literal["Organization"] = field(default="Organization", init=False)
 
-    alternate_names: Optional[List[str]]
-    """Alternate names (aliases) for the item."""
-
-    description: Optional[List[Block]]
-    """A description of the item."""
-
-    identifiers: Optional[List[PropertyValueOrStr]]
-    """Any kind of identifier for any kind of Thing."""
-
-    images: Optional[List[ImageObjectOrStr]]
-    """Images of the item."""
-
-    name: Optional[str]
-    """The name of the item."""
-
-    url: Optional[str]
-    """The URL of the item."""
-
-    address: Optional[PostalAddressOrStr]
+    address: Optional[PostalAddressOrStr] = None
     """Postal address for the organization."""
 
-    brands: Optional[List[Brand]]
+    brands: Optional[List[Brand]] = None
     """Brands that the organization is connected with."""
 
-    contact_points: Optional[List[ContactPoint]]
+    contact_points: Optional[List[ContactPoint]] = None
     """Correspondence/Contact points for the organization."""
 
-    departments: Optional[List[Organization]]
+    departments: Optional[List[Organization]] = None
     """Departments within the organization. For example, Department of Computer Science, Research & Development etc."""
 
-    funders: Optional[List[OrganizationOrPerson]]
+    funders: Optional[List[OrganizationOrPerson]] = None
     """Organization(s) or person(s) funding the organization."""
 
-    legal_name: Optional[str]
+    legal_name: Optional[str] = None
     """The official name of the organization, e.g. the registered company name."""
 
-    logo: Optional[ImageObjectOrStr]
+    logo: Optional[ImageObjectOrStr] = None
     """The logo of the organization."""
 
-    members: Optional[List[OrganizationOrPerson]]
+    members: Optional[List[OrganizationOrPerson]] = None
     """Person(s) or organization(s) who are members of this organization."""
 
-    parent_organization: Optional[Organization]
+    parent_organization: Optional[Organization] = None
     """Entity that the Organization is a part of. For example, parentOrganization to a department is a university."""

@@ -3,15 +3,16 @@
 from .prelude import *
 
 from .inline import Inline
+from .mark import Mark
 
 
-class Strikeout(BaseModel):
+@dataclass(kw_only=True, frozen=True)
+class Strikeout(Mark):
     """
     Content that is marked as struck out
     """
 
-    id: Optional[str]
-    """The identifier for this item"""
+    type: Literal["Strikeout"] = field(default="Strikeout", init=False)
 
     content: List[Inline]
     """The content that is marked."""

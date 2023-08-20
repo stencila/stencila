@@ -3,18 +3,19 @@
 from .prelude import *
 
 from .date_time import DateTime
+from .entity import Entity
 
 
-class DateTimeValidator(BaseModel):
+@dataclass(kw_only=True, frozen=True)
+class DateTimeValidator(Entity):
     """
     A validator specifying the constraints on a date-time.
     """
 
-    id: Optional[str]
-    """The identifier for this item"""
+    type: Literal["DateTimeValidator"] = field(default="DateTimeValidator", init=False)
 
-    minimum: Optional[DateTime]
+    minimum: Optional[DateTime] = None
     """The inclusive lower limit for a date-time."""
 
-    maximum: Optional[DateTime]
+    maximum: Optional[DateTime] = None
     """The inclusive upper limit for a date-time."""

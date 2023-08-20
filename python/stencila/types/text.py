@@ -2,16 +2,17 @@
 
 from .prelude import *
 
+from .entity import Entity
 from .text_value import TextValue
 
 
-class Text(BaseModel):
+@dataclass(kw_only=True, frozen=True)
+class Text(Entity):
     """
     Textual content
     """
 
-    id: Optional[str]
-    """The identifier for this item"""
+    type: Literal["Text"] = field(default="Text", init=False)
 
     value: TextValue
     """The value of the text content"""

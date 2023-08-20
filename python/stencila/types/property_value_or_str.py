@@ -2,7 +2,7 @@
 
 from .prelude import *
 
-from .property_value import PropertyValue
+PropertyValue = ForwardRef("PropertyValue")
 
 
 PropertyValueOrStr = Union[

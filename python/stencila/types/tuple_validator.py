@@ -2,16 +2,17 @@
 
 from .prelude import *
 
-from .validator import Validator
+from .entity import Entity
+Validator = ForwardRef("Validator")
 
 
-class TupleValidator(BaseModel):
+@dataclass(kw_only=True, frozen=True)
+class TupleValidator(Entity):
     """
     A validator specifying constraints on an array of heterogeneous items.
     """
 
-    id: Optional[str]
-    """The identifier for this item"""
+    type: Literal["TupleValidator"] = field(default="TupleValidator", init=False)
 
-    items: Optional[List[Validator]]
+    items: Optional[List[Validator]] = None
     """An array of validators specifying the constraints on each successive item in the array."""

@@ -2,8 +2,8 @@
 
 from .prelude import *
 
-from .blocks import Blocks
-from .inlines import Inlines
+Blocks = ForwardRef("Blocks")
+Inlines = ForwardRef("Inlines")
 
 
 BlocksOrInlines = Union[

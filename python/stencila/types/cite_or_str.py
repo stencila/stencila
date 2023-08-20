@@ -2,7 +2,7 @@
 
 from .prelude import *
 
-from .cite import Cite
+Cite = ForwardRef("Cite")
 
 
 CiteOrStr = Union[

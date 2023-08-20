@@ -2,20 +2,22 @@
 
 from .prelude import *
 
+from .entity import Entity
 
-class StringValidator(BaseModel):
+
+@dataclass(kw_only=True, frozen=True)
+class StringValidator(Entity):
     """
     A schema specifying constraints on a string node.
     """
 
-    id: Optional[str]
-    """The identifier for this item"""
+    type: Literal["StringValidator"] = field(default="StringValidator", init=False)
 
-    min_length: Optional[int]
+    min_length: Optional[int] = None
     """The minimum length for a string node."""
 
-    max_length: Optional[int]
+    max_length: Optional[int] = None
     """The maximum length for a string node."""
 
-    pattern: Optional[str]
+    pattern: Optional[str] = None
     """A regular expression that a string node must match."""

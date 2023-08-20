@@ -2,25 +2,25 @@
 
 from .prelude import *
 
-from .article import Article
-from .audio_object import AudioObject
-from .claim import Claim
-from .collection import Collection
-from .comment import Comment
-from .datatable import Datatable
-from .directory import Directory
-from .figure import Figure
-from .file import File
-from .image_object import ImageObject
-from .media_object import MediaObject
-from .periodical import Periodical
-from .publication_issue import PublicationIssue
-from .publication_volume import PublicationVolume
-from .review import Review
-from .software_application import SoftwareApplication
-from .software_source_code import SoftwareSourceCode
-from .table import Table
-from .video_object import VideoObject
+Article = ForwardRef("Article")
+AudioObject = ForwardRef("AudioObject")
+Claim = ForwardRef("Claim")
+Collection = ForwardRef("Collection")
+Comment = ForwardRef("Comment")
+Datatable = ForwardRef("Datatable")
+Directory = ForwardRef("Directory")
+Figure = ForwardRef("Figure")
+File = ForwardRef("File")
+ImageObject = ForwardRef("ImageObject")
+MediaObject = ForwardRef("MediaObject")
+Periodical = ForwardRef("Periodical")
+PublicationIssue = ForwardRef("PublicationIssue")
+PublicationVolume = ForwardRef("PublicationVolume")
+Review = ForwardRef("Review")
+SoftwareApplication = ForwardRef("SoftwareApplication")
+SoftwareSourceCode = ForwardRef("SoftwareSourceCode")
+Table = ForwardRef("Table")
+VideoObject = ForwardRef("VideoObject")
 
 
 CreativeWorkType = Union[

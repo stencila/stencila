@@ -3,15 +3,16 @@
 from .prelude import *
 
 from .inline import Inline
+from .mark import Mark
 
 
-class Underline(BaseModel):
+@dataclass(kw_only=True, frozen=True)
+class Underline(Mark):
     """
     Inline text that is underlined.
     """
 
-    id: Optional[str]
-    """The identifier for this item"""
+    type: Literal["Underline"] = field(default="Underline", init=False)
 
     content: List[Inline]
     """The content that is marked."""

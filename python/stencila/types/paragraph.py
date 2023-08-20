@@ -2,16 +2,17 @@
 
 from .prelude import *
 
+from .entity import Entity
 from .inline import Inline
 
 
-class Paragraph(BaseModel):
+@dataclass(kw_only=True, frozen=True)
+class Paragraph(Entity):
     """
     Paragraph
     """
 
-    id: Optional[str]
-    """The identifier for this item"""
+    type: Literal["Paragraph"] = field(default="Paragraph", init=False)
 
     content: List[Inline]
     """The contents of the paragraph."""

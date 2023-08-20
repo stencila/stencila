@@ -3,15 +3,16 @@
 from .prelude import *
 
 from .inline import Inline
+from .mark import Mark
 
 
-class Emphasis(BaseModel):
+@dataclass(kw_only=True, frozen=True)
+class Emphasis(Mark):
     """
     Emphasized content.
     """
 
-    id: Optional[str]
-    """The identifier for this item"""
+    type: Literal["Emphasis"] = field(default="Emphasis", init=False)
 
     content: List[Inline]
     """The content that is marked."""

@@ -2,31 +2,16 @@
 
 from .prelude import *
 
-from .execution_digest import ExecutionDigest
+from .math import Math
 
 
-class MathBlock(BaseModel):
+@dataclass(kw_only=True, frozen=True)
+class MathBlock(Math):
     """
     A block of math, e.g an equation, to be treated as block content.
     """
 
-    id: Optional[str]
-    """The identifier for this item"""
+    type: Literal["MathBlock"] = field(default="MathBlock", init=False)
 
-    math_language: str
-    """The language used for the equation e.g tex, mathml, asciimath."""
-
-    code: str
-    """The code of the equation in the `mathLanguage`."""
-
-    compile_digest: Optional[ExecutionDigest]
-    """A digest of the `code` and `mathLanguage` used to avoid unnecessary transpilation to MathML"""
-
-    errors: Optional[List[str]]
-    """Errors that occurred when parsing the math equation."""
-
-    mathml: Optional[str]
-    """The MathML transpiled from the `code`"""
-
-    label: Optional[str]
+    label: Optional[str] = None
     """A short label for the math block."""

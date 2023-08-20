@@ -2,36 +2,16 @@
 
 from .prelude import *
 
-from .block import Block
-from .image_object_or_str import ImageObjectOrStr
-from .property_value_or_str import PropertyValueOrStr
+from .thing import Thing
 
 
-class DefinedTerm(BaseModel):
+@dataclass(kw_only=True, frozen=True)
+class DefinedTerm(Thing):
     """
     A word, name, acronym, phrase, etc. with a formal definition.
     """
 
-    id: Optional[str]
-    """The identifier for this item"""
+    type: Literal["DefinedTerm"] = field(default="DefinedTerm", init=False)
 
-    alternate_names: Optional[List[str]]
-    """Alternate names (aliases) for the item."""
-
-    description: Optional[List[Block]]
-    """A description of the item."""
-
-    identifiers: Optional[List[PropertyValueOrStr]]
-    """Any kind of identifier for any kind of Thing."""
-
-    images: Optional[List[ImageObjectOrStr]]
-    """Images of the item."""
-
-    name: str
-    """The name of the item."""
-
-    url: Optional[str]
-    """The URL of the item."""
-
-    term_code: Optional[str]
+    term_code: Optional[str] = None
     """A code that identifies this DefinedTerm within a DefinedTermSet"""

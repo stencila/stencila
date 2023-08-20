@@ -2,23 +2,24 @@
 
 from .prelude import *
 
+from .entity import Entity
 from .time_unit import TimeUnit
 from .timestamp import Timestamp
 
 
-class TimestampValidator(BaseModel):
+@dataclass(kw_only=True, frozen=True)
+class TimestampValidator(Entity):
     """
     A validator specifying the constraints on a timestamp.
     """
 
-    id: Optional[str]
-    """The identifier for this item"""
+    type: Literal["TimestampValidator"] = field(default="TimestampValidator", init=False)
 
-    time_units: Optional[List[TimeUnit]]
+    time_units: Optional[List[TimeUnit]] = None
     """The time units that the timestamp can have."""
 
-    minimum: Optional[Timestamp]
+    minimum: Optional[Timestamp] = None
     """The inclusive lower limit for a timestamp."""
 
-    maximum: Optional[Timestamp]
+    maximum: Optional[Timestamp] = None
     """The inclusive upper limit for a timestamp."""

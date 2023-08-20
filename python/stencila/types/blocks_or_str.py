@@ -2,7 +2,7 @@
 
 from .prelude import *
 
-from .blocks import Blocks
+Blocks = ForwardRef("Blocks")
 
 
 BlocksOrStr = Union[

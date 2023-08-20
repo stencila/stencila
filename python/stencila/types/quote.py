@@ -3,19 +3,16 @@
 from .prelude import *
 
 from .cite_or_str import CiteOrStr
-from .inline import Inline
+from .mark import Mark
 
 
-class Quote(BaseModel):
+@dataclass(kw_only=True, frozen=True)
+class Quote(Mark):
     """
     Inline, quoted content.
     """
 
-    id: Optional[str]
-    """The identifier for this item"""
+    type: Literal["Quote"] = field(default="Quote", init=False)
 
-    content: List[Inline]
-    """The content that is marked."""
-
-    cite: Optional[CiteOrStr]
+    cite: Optional[CiteOrStr] = None
     """The source of the quote."""

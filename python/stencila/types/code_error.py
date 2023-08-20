@@ -2,20 +2,22 @@
 
 from .prelude import *
 
+from .entity import Entity
 
-class CodeError(BaseModel):
+
+@dataclass(kw_only=True, frozen=True)
+class CodeError(Entity):
     """
     An error that occurred when parsing, compiling or executing a Code node.
     """
 
-    id: Optional[str]
-    """The identifier for this item"""
+    type: Literal["CodeError"] = field(default="CodeError", init=False)
 
     error_message: str
     """The error message or brief description of the error."""
 
-    error_type: Optional[str]
+    error_type: Optional[str] = None
     """The type of error e.g. "SyntaxError", "ZeroDivisionError"."""
 
-    stack_trace: Optional[str]
+    stack_trace: Optional[str] = None
     """Stack trace leading up to the error."""

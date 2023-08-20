@@ -2,14 +2,16 @@
 
 from .prelude import *
 
+from .entity import Entity
 
-class DateTime(BaseModel):
+
+@dataclass(kw_only=True, frozen=True)
+class DateTime(Entity):
     """
     A combination of date and time of day in the form `[-]CCYY-MM-DDThh:mm:ss[Z|(+|-)hh:mm]`.
     """
 
-    id: Optional[str]
-    """The identifier for this item"""
+    type: Literal["DateTime"] = field(default="DateTime", init=False)
 
     value: str
     """The date as an ISO 8601 string."""

@@ -3,32 +3,33 @@
 from .prelude import *
 
 from .block import Block
+from .entity import Entity
 from .image_object_or_str import ImageObjectOrStr
 from .property_value_or_str import PropertyValueOrStr
 
 
-class Thing(BaseModel):
+@dataclass(kw_only=True, frozen=True)
+class Thing(Entity):
     """
     The most generic type of item.
     """
 
-    id: Optional[str]
-    """The identifier for this item"""
+    type: Literal["Thing"] = field(default="Thing", init=False)
 
-    alternate_names: Optional[List[str]]
+    alternate_names: Optional[List[str]] = None
     """Alternate names (aliases) for the item."""
 
-    description: Optional[List[Block]]
+    description: Optional[List[Block]] = None
     """A description of the item."""
 
-    identifiers: Optional[List[PropertyValueOrStr]]
+    identifiers: Optional[List[PropertyValueOrStr]] = None
     """Any kind of identifier for any kind of Thing."""
 
-    images: Optional[List[ImageObjectOrStr]]
+    images: Optional[List[ImageObjectOrStr]] = None
     """Images of the item."""
 
-    name: Optional[str]
+    name: Optional[str] = None
     """The name of the item."""
 
-    url: Optional[str]
+    url: Optional[str] = None
     """The URL of the item."""

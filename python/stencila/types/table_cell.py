@@ -3,28 +3,29 @@
 from .prelude import *
 
 from .blocks_or_inlines import BlocksOrInlines
+from .entity import Entity
 from .table_cell_type import TableCellType
 
 
-class TableCell(BaseModel):
+@dataclass(kw_only=True, frozen=True)
+class TableCell(Entity):
     """
     A cell within a `Table`.
     """
 
-    id: Optional[str]
-    """The identifier for this item"""
+    type: Literal["TableCell"] = field(default="TableCell", init=False)
 
-    name: Optional[str]
+    name: Optional[str] = None
     """The name of the cell."""
 
-    colspan: Optional[int]
+    colspan: Optional[int] = None
     """How many columns the cell extends."""
 
-    cell_type: Optional[TableCellType]
+    cell_type: Optional[TableCellType] = None
     """The type of cell."""
 
-    rowspan: Optional[int]
+    rowspan: Optional[int] = None
     """How many columns the cell extends."""
 
-    content: Optional[BlocksOrInlines]
+    content: Optional[BlocksOrInlines] = None
     """Contents of the table cell."""

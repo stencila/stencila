@@ -1,4 +1,5 @@
+from abc import ABC
 from enum import StrEnum
-from typing import List, Optional, Union
+from typing import Any, ForwardRef, Literal, List, Optional, Union
 
-from pydantic import BaseModel
+from dataclasses import dataclass, field

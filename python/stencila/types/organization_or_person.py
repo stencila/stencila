@@ -2,8 +2,8 @@
 
 from .prelude import *
 
-from .organization import Organization
-from .person import Person
+Organization = ForwardRef("Organization")
+Person = ForwardRef("Person")
 
 
 OrganizationOrPerson = Union[

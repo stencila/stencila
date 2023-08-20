@@ -3,16 +3,17 @@
 from .prelude import *
 
 from .block import Block
+from .entity import Entity
 from .note_type import NoteType
 
 
-class Note(BaseModel):
+@dataclass(kw_only=True, frozen=True)
+class Note(Entity):
     """
     Additional content which is not part of the main content of a document.
     """
 
-    id: Optional[str]
-    """The identifier for this item"""
+    type: Literal["Note"] = field(default="Note", init=False)
 
     note_type: NoteType
     """Determines where the note content is displayed within the document."""

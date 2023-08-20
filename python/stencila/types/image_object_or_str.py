@@ -2,7 +2,7 @@
 
 from .prelude import *
 
-from .image_object import ImageObject
+ImageObject = ForwardRef("ImageObject")
 
 
 ImageObjectOrStr = Union[

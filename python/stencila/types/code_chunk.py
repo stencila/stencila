@@ -3,86 +3,26 @@
 from .prelude import *
 
 from .blocks_or_str import BlocksOrStr
-from .code_error import CodeError
-from .duration import Duration
-from .execution_auto import ExecutionAuto
-from .execution_dependant import ExecutionDependant
-from .execution_dependency import ExecutionDependency
-from .execution_digest import ExecutionDigest
-from .execution_required import ExecutionRequired
-from .execution_status import ExecutionStatus
-from .execution_tag import ExecutionTag
+from .code_executable import CodeExecutable
 from .node import Node
-from .timestamp import Timestamp
 
 
-class CodeChunk(BaseModel):
+@dataclass(kw_only=True, frozen=True)
+class CodeChunk(CodeExecutable):
     """
     A executable chunk of code.
     """
 
-    id: Optional[str]
-    """The identifier for this item"""
+    type: Literal["CodeChunk"] = field(default="CodeChunk", init=False)
 
-    execution_auto: Optional[ExecutionAuto]
-    """Under which circumstances the code should be automatically executed."""
-
-    compilation_digest: Optional[ExecutionDigest]
-    """A digest of the content, semantics and dependencies of the node."""
-
-    execution_digest: Optional[ExecutionDigest]
-    """The `compileDigest` of the node when it was last executed."""
-
-    execution_dependencies: Optional[List[ExecutionDependency]]
-    """The upstream dependencies of this node."""
-
-    execution_dependants: Optional[List[ExecutionDependant]]
-    """The downstream dependants of this node."""
-
-    execution_tags: Optional[List[ExecutionTag]]
-    """Tags in the code which affect its execution"""
-
-    execution_count: Optional[int]
-    """A count of the number of times that the node has been executed."""
-
-    execution_required: Optional[ExecutionRequired]
-    """Whether, and why, the code requires execution or re-execution."""
-
-    execution_kernel: Optional[str]
-    """The id of the kernel that the node was last executed in."""
-
-    execution_status: Optional[ExecutionStatus]
-    """Status of the most recent, including any current, execution."""
-
-    execution_ended: Optional[Timestamp]
-    """The timestamp when the last execution ended."""
-
-    execution_duration: Optional[Duration]
-    """Duration of the last execution."""
-
-    errors: Optional[List[CodeError]]
-    """Errors when compiling (e.g. syntax errors) or executing the node."""
-
-    code: str
-    """The code."""
-
-    programming_language: str
-    """The programming language of the code."""
-
-    guess_language: Optional[bool]
-    """Whether the programming language of the code should be guessed based on syntax and variables used"""
-
-    media_type: Optional[str]
-    """Media type, typically expressed using a MIME format, of the code."""
-
-    execution_pure: Optional[bool]
+    execution_pure: Optional[bool] = None
     """Whether the code should be treated as side-effect free when executed."""
 
-    outputs: Optional[List[Node]]
+    outputs: Optional[List[Node]] = None
     """Outputs from executing the chunk."""
 
-    label: Optional[str]
+    label: Optional[str] = None
     """A short label for the CodeChunk."""
 
-    caption: Optional[BlocksOrStr]
+    caption: Optional[BlocksOrStr] = None
     """A caption for the CodeChunk."""

@@ -2,19 +2,20 @@
 
 from .prelude import *
 
+from .entity import Entity
 from .time import Time
 
 
-class TimeValidator(BaseModel):
+@dataclass(kw_only=True, frozen=True)
+class TimeValidator(Entity):
     """
     A validator specifying the constraints on a time.
     """
 
-    id: Optional[str]
-    """The identifier for this item"""
+    type: Literal["TimeValidator"] = field(default="TimeValidator", init=False)
 
-    minimum: Optional[Time]
+    minimum: Optional[Time] = None
     """The inclusive lower limit for a time."""
 
-    maximum: Optional[Time]
+    maximum: Optional[Time] = None
     """The inclusive upper limit for a time."""

@@ -3,15 +3,16 @@
 from .prelude import *
 
 from .inline import Inline
+from .mark import Mark
 
 
-class Superscript(BaseModel):
+@dataclass(kw_only=True, frozen=True)
+class Superscript(Mark):
     """
     Superscripted content.
     """
 
-    id: Optional[str]
-    """The identifier for this item"""
+    type: Literal["Superscript"] = field(default="Superscript", init=False)
 
     content: List[Inline]
     """The content that is marked."""

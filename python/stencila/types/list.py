@@ -2,17 +2,18 @@
 
 from .prelude import *
 
+from .entity import Entity
 from .list_item import ListItem
 from .list_order import ListOrder
 
 
-class List(BaseModel):
+@dataclass(kw_only=True, frozen=True)
+class List(Entity):
     """
     A list of items.
     """
 
-    id: Optional[str]
-    """The identifier for this item"""
+    type: Literal["List"] = field(default="List", init=False)
 
     items: List[ListItem]
     """The items in the list."""

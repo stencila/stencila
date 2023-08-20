@@ -2,16 +2,17 @@
 
 from .prelude import *
 
+from .entity import Entity
 from .node import Node
 
 
-class ConstantValidator(BaseModel):
+@dataclass(kw_only=True, frozen=True)
+class ConstantValidator(Entity):
     """
     A validator specifying a constant value that a node must have.
     """
 
-    id: Optional[str]
-    """The identifier for this item"""
+    type: Literal["ConstantValidator"] = field(default="ConstantValidator", init=False)
 
     value: Node
     """The value that the node must have."""

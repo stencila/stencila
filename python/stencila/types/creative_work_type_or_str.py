@@ -2,7 +2,7 @@
 
 from .prelude import *
 
-from .creative_work_type import CreativeWorkType
+CreativeWorkType = ForwardRef("CreativeWorkType")
 
 
 CreativeWorkTypeOrStr = Union[

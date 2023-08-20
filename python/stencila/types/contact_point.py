@@ -2,42 +2,22 @@
 
 from .prelude import *
 
-from .block import Block
-from .image_object_or_str import ImageObjectOrStr
-from .property_value_or_str import PropertyValueOrStr
+from .thing import Thing
 
 
-class ContactPoint(BaseModel):
+@dataclass(kw_only=True, frozen=True)
+class ContactPoint(Thing):
     """
     A contact point, usually within an organization.
     """
 
-    id: Optional[str]
-    """The identifier for this item"""
+    type: Literal["ContactPoint"] = field(default="ContactPoint", init=False)
 
-    alternate_names: Optional[List[str]]
-    """Alternate names (aliases) for the item."""
-
-    description: Optional[List[Block]]
-    """A description of the item."""
-
-    identifiers: Optional[List[PropertyValueOrStr]]
-    """Any kind of identifier for any kind of Thing."""
-
-    images: Optional[List[ImageObjectOrStr]]
-    """Images of the item."""
-
-    name: Optional[str]
-    """The name of the item."""
-
-    url: Optional[str]
-    """The URL of the item."""
-
-    emails: Optional[List[str]]
+    emails: Optional[List[str]] = None
     """Email address for correspondence."""
 
-    telephone_numbers: Optional[List[str]]
+    telephone_numbers: Optional[List[str]] = None
     """Telephone numbers for the contact point."""
 
-    available_languages: Optional[List[str]]
+    available_languages: Optional[List[str]] = None
     """Languages (human not programming) in which it is possible to communicate with the organization/department etc."""

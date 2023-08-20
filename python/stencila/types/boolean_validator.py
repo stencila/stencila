@@ -2,11 +2,16 @@
 
 from .prelude import *
 
+from .entity import Entity
 
-class BooleanValidator(BaseModel):
+
+@dataclass(kw_only=True, frozen=True)
+class BooleanValidator(Entity):
     """
     A schema specifying that a node must be a boolean value.
     """
 
-    id: Optional[str]
+    type: Literal["BooleanValidator"] = field(default="BooleanValidator", init=False)
+
+    id: Optional[str] = None
     """The identifier for this item"""

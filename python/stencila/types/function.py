@@ -2,17 +2,18 @@
 
 from .prelude import *
 
+from .entity import Entity
 from .parameter import Parameter
-from .validator import Validator
+Validator = ForwardRef("Validator")
 
 
-class Function(BaseModel):
+@dataclass(kw_only=True, frozen=True)
+class Function(Entity):
     """
     A function with a name, which might take Parameters and return a value of a certain type.
     """
 
-    id: Optional[str]
-    """The identifier for this item"""
+    type: Literal["Function"] = field(default="Function", init=False)
 
     name: str
     """The name of the function."""
@@ -20,5 +21,5 @@ class Function(BaseModel):
     parameters: List[Parameter]
     """The parameters of the function."""
 
-    returns: Optional[Validator]
+    returns: Optional[Validator] = None
     """The return type of the function."""

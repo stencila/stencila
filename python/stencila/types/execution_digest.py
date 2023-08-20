@@ -2,11 +2,16 @@
 
 from .prelude import *
 
+from .entity import Entity
 
-class ExecutionDigest(BaseModel):
+
+@dataclass(kw_only=True, frozen=True)
+class ExecutionDigest(Entity):
     """
     A digest of the execution state of a node.
     """
+
+    type: Literal["ExecutionDigest"] = field(default="ExecutionDigest", init=False)
 
     state_digest: float
     """A digest of the state of a node."""

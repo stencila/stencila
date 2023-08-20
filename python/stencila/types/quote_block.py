@@ -4,17 +4,18 @@ from .prelude import *
 
 from .block import Block
 from .cite_or_str import CiteOrStr
+from .entity import Entity
 
 
-class QuoteBlock(BaseModel):
+@dataclass(kw_only=True, frozen=True)
+class QuoteBlock(Entity):
     """
     A section quoted from somewhere else.
     """
 
-    id: Optional[str]
-    """The identifier for this item"""
+    type: Literal["QuoteBlock"] = field(default="QuoteBlock", init=False)
 
-    cite: Optional[CiteOrStr]
+    cite: Optional[CiteOrStr] = None
     """The source of the quote."""
 
     content: List[Block]

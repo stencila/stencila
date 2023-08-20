@@ -2,60 +2,31 @@
 
 from .prelude import *
 
-from .block import Block
-from .image_object_or_str import ImageObjectOrStr
-from .property_value_or_str import PropertyValueOrStr
+from .contact_point import ContactPoint
 
 
-class PostalAddress(BaseModel):
+@dataclass(kw_only=True, frozen=True)
+class PostalAddress(ContactPoint):
     """
     A physical mailing address.
     """
 
-    id: Optional[str]
-    """The identifier for this item"""
+    type: Literal["PostalAddress"] = field(default="PostalAddress", init=False)
 
-    alternate_names: Optional[List[str]]
-    """Alternate names (aliases) for the item."""
-
-    description: Optional[List[Block]]
-    """A description of the item."""
-
-    identifiers: Optional[List[PropertyValueOrStr]]
-    """Any kind of identifier for any kind of Thing."""
-
-    images: Optional[List[ImageObjectOrStr]]
-    """Images of the item."""
-
-    name: Optional[str]
-    """The name of the item."""
-
-    url: Optional[str]
-    """The URL of the item."""
-
-    emails: Optional[List[str]]
-    """Email address for correspondence."""
-
-    telephone_numbers: Optional[List[str]]
-    """Telephone numbers for the contact point."""
-
-    available_languages: Optional[List[str]]
-    """Languages (human not programming) in which it is possible to communicate with the organization/department etc."""
-
-    street_address: Optional[str]
+    street_address: Optional[str] = None
     """The street address."""
 
-    post_office_box_number: Optional[str]
+    post_office_box_number: Optional[str] = None
     """The post office box number."""
 
-    address_locality: Optional[str]
+    address_locality: Optional[str] = None
     """The locality in which the street address is, and which is in the region."""
 
-    address_region: Optional[str]
+    address_region: Optional[str] = None
     """The region in which the locality is, and which is in the country."""
 
-    postal_code: Optional[str]
+    postal_code: Optional[str] = None
     """The postal code."""
 
-    address_country: Optional[str]
+    address_country: Optional[str] = None
     """The country."""

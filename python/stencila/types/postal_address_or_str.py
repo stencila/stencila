@@ -2,7 +2,7 @@
 
 from .prelude import *
 
-from .postal_address import PostalAddress
+PostalAddress = ForwardRef("PostalAddress")
 
 
 PostalAddressOrStr = Union[

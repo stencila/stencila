@@ -2,53 +2,53 @@
 
 from .prelude import *
 
-from .article import Article
-from .audio_object import AudioObject
-from .brand import Brand
-from .citation_intent import CitationIntent
-from .citation_mode import CitationMode
-from .claim import Claim
-from .claim_type import ClaimType
-from .collection import Collection
-from .comment import Comment
-from .contact_point import ContactPoint
-from .creative_work import CreativeWork
-from .datatable import Datatable
-from .datatable_column import DatatableColumn
-from .defined_term import DefinedTerm
-from .directory import Directory
-from .enumeration import Enumeration
-from .execution_auto import ExecutionAuto
-from .execution_dependant_relation import ExecutionDependantRelation
-from .execution_dependency_relation import ExecutionDependencyRelation
-from .execution_required import ExecutionRequired
-from .execution_status import ExecutionStatus
-from .figure import Figure
-from .file import File
-from .form_derive_action import FormDeriveAction
-from .grant import Grant
-from .image_object import ImageObject
-from .list_item import ListItem
-from .list_order import ListOrder
-from .media_object import MediaObject
-from .monetary_grant import MonetaryGrant
-from .note_type import NoteType
-from .organization import Organization
-from .periodical import Periodical
-from .person import Person
-from .postal_address import PostalAddress
-from .product import Product
-from .property_value import PropertyValue
-from .publication_issue import PublicationIssue
-from .publication_volume import PublicationVolume
-from .review import Review
-from .software_application import SoftwareApplication
-from .software_source_code import SoftwareSourceCode
-from .table import Table
-from .table_cell_type import TableCellType
-from .table_row_type import TableRowType
-from .time_unit import TimeUnit
-from .video_object import VideoObject
+Article = ForwardRef("Article")
+AudioObject = ForwardRef("AudioObject")
+Brand = ForwardRef("Brand")
+CitationIntent = ForwardRef("CitationIntent")
+CitationMode = ForwardRef("CitationMode")
+Claim = ForwardRef("Claim")
+ClaimType = ForwardRef("ClaimType")
+Collection = ForwardRef("Collection")
+Comment = ForwardRef("Comment")
+ContactPoint = ForwardRef("ContactPoint")
+CreativeWork = ForwardRef("CreativeWork")
+Datatable = ForwardRef("Datatable")
+DatatableColumn = ForwardRef("DatatableColumn")
+DefinedTerm = ForwardRef("DefinedTerm")
+Directory = ForwardRef("Directory")
+Enumeration = ForwardRef("Enumeration")
+ExecutionAuto = ForwardRef("ExecutionAuto")
+ExecutionDependantRelation = ForwardRef("ExecutionDependantRelation")
+ExecutionDependencyRelation = ForwardRef("ExecutionDependencyRelation")
+ExecutionRequired = ForwardRef("ExecutionRequired")
+ExecutionStatus = ForwardRef("ExecutionStatus")
+Figure = ForwardRef("Figure")
+File = ForwardRef("File")
+FormDeriveAction = ForwardRef("FormDeriveAction")
+Grant = ForwardRef("Grant")
+ImageObject = ForwardRef("ImageObject")
+ListItem = ForwardRef("ListItem")
+ListOrder = ForwardRef("ListOrder")
+MediaObject = ForwardRef("MediaObject")
+MonetaryGrant = ForwardRef("MonetaryGrant")
+NoteType = ForwardRef("NoteType")
+Organization = ForwardRef("Organization")
+Periodical = ForwardRef("Periodical")
+Person = ForwardRef("Person")
+PostalAddress = ForwardRef("PostalAddress")
+Product = ForwardRef("Product")
+PropertyValue = ForwardRef("PropertyValue")
+PublicationIssue = ForwardRef("PublicationIssue")
+PublicationVolume = ForwardRef("PublicationVolume")
+Review = ForwardRef("Review")
+SoftwareApplication = ForwardRef("SoftwareApplication")
+SoftwareSourceCode = ForwardRef("SoftwareSourceCode")
+Table = ForwardRef("Table")
+TableCellType = ForwardRef("TableCellType")
+TableRowType = ForwardRef("TableRowType")
+TimeUnit = ForwardRef("TimeUnit")
+VideoObject = ForwardRef("VideoObject")
 
 
 ThingType = Union[

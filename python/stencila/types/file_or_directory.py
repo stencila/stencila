@@ -2,8 +2,8 @@
 
 from .prelude import *
 
-from .directory import Directory
-from .file import File
+Directory = ForwardRef("Directory")
+File = ForwardRef("File")
 
 
 FileOrDirectory = Union[

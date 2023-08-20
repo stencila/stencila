@@ -2,109 +2,108 @@
 
 from .prelude import *
 
-from .array import Array
-from .array_validator import ArrayValidator
-from .article import Article
-from .audio_object import AudioObject
-from .boolean_validator import BooleanValidator
-from .brand import Brand
-from .button import Button
-from .call import Call
-from .call_argument import CallArgument
-from .cite import Cite
-from .cite_group import CiteGroup
-from .claim import Claim
-from .code_block import CodeBlock
-from .code_chunk import CodeChunk
-from .code_error import CodeError
-from .code_expression import CodeExpression
-from .code_fragment import CodeFragment
-from .collection import Collection
-from .comment import Comment
-from .constant_validator import ConstantValidator
-from .contact_point import ContactPoint
-from .creative_work import CreativeWork
-from .datatable import Datatable
-from .datatable_column import DatatableColumn
-from .date import Date
-from .date_time import DateTime
-from .date_time_validator import DateTimeValidator
-from .date_validator import DateValidator
-from .defined_term import DefinedTerm
-from .directory import Directory
-from .division import Division
-from .duration import Duration
-from .duration_validator import DurationValidator
-from .emphasis import Emphasis
-from .enum_validator import EnumValidator
-from .enumeration import Enumeration
-from .execution_dependant import ExecutionDependant
-from .execution_dependency import ExecutionDependency
-from .execution_digest import ExecutionDigest
-from .execution_tag import ExecutionTag
-from .figure import Figure
-from .file import File
-from .for_ import For
-from .form import Form
-from .function import Function
-from .grant import Grant
-from .heading import Heading
-from .if_ import If
-from .if_clause import IfClause
-from .image_object import ImageObject
-from .include import Include
-from .integer_validator import IntegerValidator
-from .link import Link
-from .list import List
-from .list_item import ListItem
-from .math_block import MathBlock
-from .math_fragment import MathFragment
-from .media_object import MediaObject
-from .monetary_grant import MonetaryGrant
-from .note import Note
-from .null import Null
-from .number_validator import NumberValidator
-from .object import Object
-from .organization import Organization
-from .paragraph import Paragraph
-from .parameter import Parameter
-from .periodical import Periodical
-from .person import Person
-from .postal_address import PostalAddress
-from .product import Product
-from .property_value import PropertyValue
-from .publication_issue import PublicationIssue
-from .publication_volume import PublicationVolume
-from .quote import Quote
-from .quote_block import QuoteBlock
-from .review import Review
-from .software_application import SoftwareApplication
-from .software_source_code import SoftwareSourceCode
-from .span import Span
-from .strikeout import Strikeout
-from .string_validator import StringValidator
-from .strong import Strong
-from .subscript import Subscript
-from .superscript import Superscript
-from .table import Table
-from .table_cell import TableCell
-from .table_row import TableRow
-from .text import Text
-from .thematic_break import ThematicBreak
-from .thing import Thing
-from .time import Time
-from .time_validator import TimeValidator
-from .timestamp import Timestamp
-from .timestamp_validator import TimestampValidator
-from .tuple_validator import TupleValidator
-from .underline import Underline
-from .unsigned_integer import UnsignedInteger
-from .variable import Variable
-from .video_object import VideoObject
+Array = ForwardRef("Array")
+ArrayValidator = ForwardRef("ArrayValidator")
+Article = ForwardRef("Article")
+AudioObject = ForwardRef("AudioObject")
+BooleanValidator = ForwardRef("BooleanValidator")
+Brand = ForwardRef("Brand")
+Button = ForwardRef("Button")
+Call = ForwardRef("Call")
+CallArgument = ForwardRef("CallArgument")
+Cite = ForwardRef("Cite")
+CiteGroup = ForwardRef("CiteGroup")
+Claim = ForwardRef("Claim")
+CodeBlock = ForwardRef("CodeBlock")
+CodeChunk = ForwardRef("CodeChunk")
+CodeError = ForwardRef("CodeError")
+CodeExpression = ForwardRef("CodeExpression")
+CodeFragment = ForwardRef("CodeFragment")
+Collection = ForwardRef("Collection")
+Comment = ForwardRef("Comment")
+ConstantValidator = ForwardRef("ConstantValidator")
+ContactPoint = ForwardRef("ContactPoint")
+CreativeWork = ForwardRef("CreativeWork")
+Datatable = ForwardRef("Datatable")
+DatatableColumn = ForwardRef("DatatableColumn")
+Date = ForwardRef("Date")
+DateTime = ForwardRef("DateTime")
+DateTimeValidator = ForwardRef("DateTimeValidator")
+DateValidator = ForwardRef("DateValidator")
+DefinedTerm = ForwardRef("DefinedTerm")
+Directory = ForwardRef("Directory")
+Division = ForwardRef("Division")
+Duration = ForwardRef("Duration")
+DurationValidator = ForwardRef("DurationValidator")
+Emphasis = ForwardRef("Emphasis")
+EnumValidator = ForwardRef("EnumValidator")
+Enumeration = ForwardRef("Enumeration")
+ExecutionDependant = ForwardRef("ExecutionDependant")
+ExecutionDependency = ForwardRef("ExecutionDependency")
+ExecutionDigest = ForwardRef("ExecutionDigest")
+ExecutionTag = ForwardRef("ExecutionTag")
+Figure = ForwardRef("Figure")
+File = ForwardRef("File")
+For = ForwardRef("For")
+Form = ForwardRef("Form")
+Function = ForwardRef("Function")
+Grant = ForwardRef("Grant")
+Heading = ForwardRef("Heading")
+If = ForwardRef("If")
+IfClause = ForwardRef("IfClause")
+ImageObject = ForwardRef("ImageObject")
+Include = ForwardRef("Include")
+IntegerValidator = ForwardRef("IntegerValidator")
+Link = ForwardRef("Link")
+List = ForwardRef("List")
+ListItem = ForwardRef("ListItem")
+MathBlock = ForwardRef("MathBlock")
+MathFragment = ForwardRef("MathFragment")
+MediaObject = ForwardRef("MediaObject")
+MonetaryGrant = ForwardRef("MonetaryGrant")
+Note = ForwardRef("Note")
+NumberValidator = ForwardRef("NumberValidator")
+Object = ForwardRef("Object")
+Organization = ForwardRef("Organization")
+Paragraph = ForwardRef("Paragraph")
+Parameter = ForwardRef("Parameter")
+Periodical = ForwardRef("Periodical")
+Person = ForwardRef("Person")
+PostalAddress = ForwardRef("PostalAddress")
+Product = ForwardRef("Product")
+PropertyValue = ForwardRef("PropertyValue")
+PublicationIssue = ForwardRef("PublicationIssue")
+PublicationVolume = ForwardRef("PublicationVolume")
+Quote = ForwardRef("Quote")
+QuoteBlock = ForwardRef("QuoteBlock")
+Review = ForwardRef("Review")
+SoftwareApplication = ForwardRef("SoftwareApplication")
+SoftwareSourceCode = ForwardRef("SoftwareSourceCode")
+Span = ForwardRef("Span")
+Strikeout = ForwardRef("Strikeout")
+StringValidator = ForwardRef("StringValidator")
+Strong = ForwardRef("Strong")
+Subscript = ForwardRef("Subscript")
+Superscript = ForwardRef("Superscript")
+Table = ForwardRef("Table")
+TableCell = ForwardRef("TableCell")
+TableRow = ForwardRef("TableRow")
+Text = ForwardRef("Text")
+ThematicBreak = ForwardRef("ThematicBreak")
+Thing = ForwardRef("Thing")
+Time = ForwardRef("Time")
+TimeValidator = ForwardRef("TimeValidator")
+Timestamp = ForwardRef("Timestamp")
+TimestampValidator = ForwardRef("TimestampValidator")
+TupleValidator = ForwardRef("TupleValidator")
+Underline = ForwardRef("Underline")
+UnsignedInteger = ForwardRef("UnsignedInteger")
+Variable = ForwardRef("Variable")
+VideoObject = ForwardRef("VideoObject")
 
 
 Node = Union[
-    Null,
+    None,
     bool,
     int,
     UnsignedInteger,

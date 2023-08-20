@@ -2,11 +2,16 @@
 
 from .prelude import *
 
+from .entity import Entity
 
-class ThematicBreak(BaseModel):
+
+@dataclass(kw_only=True, frozen=True)
+class ThematicBreak(Entity):
     """
     A thematic break, such as a scene change in a story, a transition to another topic, or a new document.
     """
 
-    id: Optional[str]
+    type: Literal["ThematicBreak"] = field(default="ThematicBreak", init=False)
+
+    id: Optional[str] = None
     """The identifier for this item"""

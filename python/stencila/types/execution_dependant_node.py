@@ -2,15 +2,15 @@
 
 from .prelude import *
 
-from .button import Button
-from .call import Call
-from .code_chunk import CodeChunk
-from .code_expression import CodeExpression
-from .division import Division
-from .file import File
-from .parameter import Parameter
-from .span import Span
-from .variable import Variable
+Button = ForwardRef("Button")
+Call = ForwardRef("Call")
+CodeChunk = ForwardRef("CodeChunk")
+CodeExpression = ForwardRef("CodeExpression")
+Division = ForwardRef("Division")
+File = ForwardRef("File")
+Parameter = ForwardRef("Parameter")
+Span = ForwardRef("Span")
+Variable = ForwardRef("Variable")
 
 
 ExecutionDependantNode = Union[

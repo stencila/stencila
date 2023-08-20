@@ -2,14 +2,16 @@
 
 from .prelude import *
 
+from .entity import Entity
 
-class Date(BaseModel):
+
+@dataclass(kw_only=True, frozen=True)
+class Date(Entity):
     """
     A calendar date encoded as a ISO 8601 string.
     """
 
-    id: Optional[str]
-    """The identifier for this item"""
+    type: Literal["Date"] = field(default="Date", init=False)
 
     value: str
     """The date as an ISO 8601 string."""

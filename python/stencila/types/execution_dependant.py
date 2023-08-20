@@ -2,14 +2,18 @@
 
 from .prelude import *
 
+from .entity import Entity
 from .execution_dependant_node import ExecutionDependantNode
 from .execution_dependant_relation import ExecutionDependantRelation
 
 
-class ExecutionDependant(BaseModel):
+@dataclass(kw_only=True, frozen=True)
+class ExecutionDependant(Entity):
     """
     A downstream execution dependant of a node
     """
+
+    type: Literal["ExecutionDependant"] = field(default="ExecutionDependant", init=False)
 
     dependant_relation: ExecutionDependantRelation
     """The relation to the dependant"""
@@ -17,5 +21,5 @@ class ExecutionDependant(BaseModel):
     dependant_node: ExecutionDependantNode
     """The node that is the dependant"""
 
-    code_location: Optional[List[int]]
+    code_location: Optional[List[int]] = None
     """The location that the dependant is defined within code"""

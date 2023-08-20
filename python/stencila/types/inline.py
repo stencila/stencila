@@ -2,33 +2,32 @@
 
 from .prelude import *
 
-from .audio_object import AudioObject
-from .button import Button
-from .cite import Cite
-from .cite_group import CiteGroup
-from .code_expression import CodeExpression
-from .code_fragment import CodeFragment
-from .date import Date
-from .date_time import DateTime
-from .duration import Duration
-from .emphasis import Emphasis
-from .image_object import ImageObject
-from .link import Link
-from .math_fragment import MathFragment
-from .note import Note
-from .null import Null
-from .parameter import Parameter
-from .quote import Quote
-from .span import Span
-from .strikeout import Strikeout
-from .strong import Strong
-from .subscript import Subscript
-from .superscript import Superscript
-from .text import Text
-from .time import Time
-from .timestamp import Timestamp
-from .underline import Underline
-from .video_object import VideoObject
+AudioObject = ForwardRef("AudioObject")
+Button = ForwardRef("Button")
+Cite = ForwardRef("Cite")
+CiteGroup = ForwardRef("CiteGroup")
+CodeExpression = ForwardRef("CodeExpression")
+CodeFragment = ForwardRef("CodeFragment")
+Date = ForwardRef("Date")
+DateTime = ForwardRef("DateTime")
+Duration = ForwardRef("Duration")
+Emphasis = ForwardRef("Emphasis")
+ImageObject = ForwardRef("ImageObject")
+Link = ForwardRef("Link")
+MathFragment = ForwardRef("MathFragment")
+Note = ForwardRef("Note")
+Parameter = ForwardRef("Parameter")
+Quote = ForwardRef("Quote")
+Span = ForwardRef("Span")
+Strikeout = ForwardRef("Strikeout")
+Strong = ForwardRef("Strong")
+Subscript = ForwardRef("Subscript")
+Superscript = ForwardRef("Superscript")
+Text = ForwardRef("Text")
+Time = ForwardRef("Time")
+Timestamp = ForwardRef("Timestamp")
+Underline = ForwardRef("Underline")
+VideoObject = ForwardRef("VideoObject")
 
 
 Inline = Union[
@@ -58,7 +57,7 @@ Inline = Union[
     Timestamp,
     Underline,
     VideoObject,
-    Null,
+    None,
     bool,
     int,
     float,

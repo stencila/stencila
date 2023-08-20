@@ -2,16 +2,17 @@
 
 from .prelude import *
 
+from .entity import Entity
 from .inline import Inline
 
 
-class Link(BaseModel):
+@dataclass(kw_only=True, frozen=True)
+class Link(Entity):
     """
     A hyperlink to other pages, sections within the same document, resources, or any URL.
     """
 
-    id: Optional[str]
-    """The identifier for this item"""
+    type: Literal["Link"] = field(default="Link", init=False)
 
     content: List[Inline]
     """The textual content of the link."""
@@ -19,8 +20,8 @@ class Link(BaseModel):
     target: str
     """The target of the link."""
 
-    title: Optional[str]
+    title: Optional[str] = None
     """A title for the link."""
 
-    rel: Optional[str]
+    rel: Optional[str] = None
     """The relation between the target and the current thing."""

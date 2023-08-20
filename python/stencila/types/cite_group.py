@@ -3,15 +3,16 @@
 from .prelude import *
 
 from .cite import Cite
+from .entity import Entity
 
 
-class CiteGroup(BaseModel):
+@dataclass(kw_only=True, frozen=True)
+class CiteGroup(Entity):
     """
     A group of Cite nodes.
     """
 
-    id: Optional[str]
-    """The identifier for this item"""
+    type: Literal["CiteGroup"] = field(default="CiteGroup", init=False)
 
     items: List[Cite]
     """One or more `Cite`s to be referenced in the same surrounding text."""

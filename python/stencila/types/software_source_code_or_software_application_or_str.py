@@ -2,8 +2,8 @@
 
 from .prelude import *
 
-from .software_application import SoftwareApplication
-from .software_source_code import SoftwareSourceCode
+SoftwareApplication = ForwardRef("SoftwareApplication")
+SoftwareSourceCode = ForwardRef("SoftwareSourceCode")
 
 
 SoftwareSourceCodeOrSoftwareApplicationOrStr = Union[

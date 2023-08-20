@@ -2,47 +2,20 @@
 
 from .prelude import *
 
-from .block import Block
-from .image_object_or_str import ImageObjectOrStr
+from .grant import Grant
 from .person_or_organization import PersonOrOrganization
-from .property_value_or_str import PropertyValueOrStr
-from .thing import Thing
 
 
-class MonetaryGrant(BaseModel):
+@dataclass(kw_only=True, frozen=True)
+class MonetaryGrant(Grant):
     """
     A monetary grant.
     """
 
-    id: Optional[str]
-    """The identifier for this item"""
+    type: Literal["MonetaryGrant"] = field(default="MonetaryGrant", init=False)
 
-    alternate_names: Optional[List[str]]
-    """Alternate names (aliases) for the item."""
-
-    description: Optional[List[Block]]
-    """A description of the item."""
-
-    identifiers: Optional[List[PropertyValueOrStr]]
-    """Any kind of identifier for any kind of Thing."""
-
-    images: Optional[List[ImageObjectOrStr]]
-    """Images of the item."""
-
-    name: Optional[str]
-    """The name of the item."""
-
-    url: Optional[str]
-    """The URL of the item."""
-
-    funded_items: Optional[List[Thing]]
-    """Indicates an item funded or sponsored through a Grant."""
-
-    sponsors: Optional[List[PersonOrOrganization]]
-    """A person or organization that supports a thing through a pledge, promise, or financial contribution."""
-
-    amounts: Optional[float]
+    amounts: Optional[float] = None
     """The amount of money."""
 
-    funders: Optional[List[PersonOrOrganization]]
+    funders: Optional[List[PersonOrOrganization]] = None
     """A person or organization that supports (sponsors) something through some kind of financial contribution."""

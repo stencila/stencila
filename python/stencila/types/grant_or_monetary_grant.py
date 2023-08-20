@@ -2,8 +2,8 @@
 
 from .prelude import *
 
-from .grant import Grant
-from .monetary_grant import MonetaryGrant
+Grant = ForwardRef("Grant")
+MonetaryGrant = ForwardRef("MonetaryGrant")
 
 
 GrantOrMonetaryGrant = Union[

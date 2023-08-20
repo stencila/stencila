@@ -2,16 +2,17 @@
 
 from .prelude import *
 
+from .entity import Entity
 from .time_unit import TimeUnit
 
 
-class Timestamp(BaseModel):
+@dataclass(kw_only=True, frozen=True)
+class Timestamp(Entity):
     """
     A value that represents a point in time
     """
 
-    id: Optional[str]
-    """The identifier for this item"""
+    type: Literal["Timestamp"] = field(default="Timestamp", init=False)
 
     value: int
     """The time, in `timeUnit`s, before or after the Unix Epoch (1970-01-01T00:00:00Z)."""

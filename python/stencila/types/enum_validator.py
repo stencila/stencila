@@ -2,16 +2,17 @@
 
 from .prelude import *
 
+from .entity import Entity
 from .node import Node
 
 
-class EnumValidator(BaseModel):
+@dataclass(kw_only=True, frozen=True)
+class EnumValidator(Entity):
     """
     A schema specifying that a node must be one of several values.
     """
 
-    id: Optional[str]
-    """The identifier for this item"""
+    type: Literal["EnumValidator"] = field(default="EnumValidator", init=False)
 
     values: List[Node]
     """A node is valid if it is equal to any of these values."""

@@ -2,16 +2,17 @@
 
 from .prelude import *
 
+from .entity import Entity
 from .node import Node
 
 
-class Variable(BaseModel):
+@dataclass(kw_only=True, frozen=True)
+class Variable(Entity):
     """
     A variable representing a name / value pair.
     """
 
-    id: Optional[str]
-    """The identifier for this item"""
+    type: Literal["Variable"] = field(default="Variable", init=False)
 
     namespace: str
     """The namespace, usually a document path, within which the variable resides"""
@@ -19,8 +20,8 @@ class Variable(BaseModel):
     name: str
     """The name of the variable."""
 
-    kind: Optional[str]
+    kind: Optional[str] = None
     """The expected type of variable e.g. `Number`, `Timestamp`, `Datatable`"""
 
-    value: Optional[Node]
+    value: Optional[Node] = None
     """The value of the variable."""
