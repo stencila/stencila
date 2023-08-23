@@ -1,12 +1,14 @@
 use std::path::PathBuf;
 
 use common::{
+    chrono::{DateTime, NaiveDateTime, SecondsFormat, Utc},
     clap::{self, Args, Parser, Subcommand},
-    eyre::Result,
+    eyre::{eyre, Result},
     tokio, tracing,
 };
 use document::{Document, DocumentType, SyncDirection};
 use format::Format;
+use yansi::Color;
 
 use crate::{
     display,
@@ -165,7 +167,7 @@ enum Command {
     },
 
     /// Display the history of commits to the document
-    History {
+    Log {
         /// The path of the document to display the history for
         doc: PathBuf,
     },
@@ -421,9 +423,29 @@ impl Cli {
                 wait = true;
             }
 
-            Command::History { doc } => {
+            Command::Log { doc } => {
                 let doc = Document::open(&doc).await?;
-                doc.history().await?;
+                let log = doc.log().await?;
+
+                for entry in log {
+                    let date = NaiveDateTime::from_timestamp_millis(entry.timestamp * 1000)
+                        .ok_or_else(|| eyre!("invalid timestamp"))?;
+                    let date = DateTime::<Utc>::from_utc(date, Utc)
+                        .to_rfc3339_opts(SecondsFormat::Secs, true);
+                    let date = Color::Blue.paint(date);
+
+                    let author = Color::Green.paint(entry.author);
+                    let hash = Color::White.style().dimmed().paint(entry.hash);
+                    let message = entry.message;
+
+                    println!(
+                        "{date} {author}
+{hash}
+
+{message}
+"
+                    )
+                }
             }
 
             Command::Inspect { doc } => {
