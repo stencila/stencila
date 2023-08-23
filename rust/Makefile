@@ -6,7 +6,7 @@ else
   PROFILE:=dev
 endif 
 
-# Install Rust tools used during development
+# Setup local development environment
 # Nightly toolchain is required to run `cargo udeps`
 setup:
 	cargo install cargo-binstall
