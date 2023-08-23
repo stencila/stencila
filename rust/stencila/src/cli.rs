@@ -428,7 +428,7 @@ impl Cli {
 
             Command::Inspect { doc } => {
                 let json = Document::inspect(&doc).await?;
-                println!("{}", json);
+                display::highlighted(&json, Format::Json)?;
             }
 
             Command::Convert {
