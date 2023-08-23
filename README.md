@@ -77,6 +77,90 @@ docker run -it --rm -v "$PWD":/work -w /work --network host ghcr.io/stencila/ste
 
 See `stencila --help` or the reference documentation for the CLI [here](docs/reference/cli.md).
 
+## 🚴 Roadmap
+
+We'll be releasing early and often across all products: initial versions will have limited functionality and be buggy but will establish a deployment pipeline that can be rapidly iterated on.
+
+We're aiming for a `v2` release at the end of Q3 2024. Development priorities for later quarters can't be know until user testing of initial version has been done.
+
+### Q3 2023: First alpha releases
+
+Focus on re-establishing continuous deployments of CLI, Python and Node packages, and JSON Schema and JSON-LD contexts.
+
+Feature additions:
+
+- [ ] Code editor interface, based on [CodeMirror](https://codemirror.net/) and served by CLI, with live sync between alternative formats in editor and on disk. Doing this early ensures the basic architecture is in place for format-agnostic reactivity of documents.
+
+- [ ] HTML codec for live preview in page served by CLI
+
+- [ ] Markdown codec based on [`v1`](https://github.com/stencila/stencila/tree/v1/rust/codec-md) implementation.
+
+- [ ] JATS codec on par with [`encoda`](https://github.com/stencila/encoda)'s implementation and using its test suite.
+
+Release first `v2.0.0-alpha.x` versions of:
+
+- [x] CLI
+- [ ] Python package
+- [ ] Node package
+- [ ] JSON Schema & JSON-LD `@context`
+
+### Q4 2023: Final alpha release
+
+Focus on an initial deployment of desktop application.
+
+Feature additions:
+
+- [ ]
+
+- [ ] Desktop application built with [Tauri](https://tauri.app/), bundling web interface and the core functionality in Rust crates
+
+Release last `v2.0.0-alpha.x` versions of:
+
+- [ ] Desktop
+- [ ] CLI
+- [ ] Python package
+- [ ] Node package
+- [ ] JSON Schema & JSON-LD `@context`
+
+
+### Q1 2024: First beta release
+
+User testing of `v2.0.0-alpha.x`. Development priorities to be determined based on user feedback.
+
+Release `v2.0.0-beta.1` versions of:
+
+- [ ] Desktop
+- [ ] CLI
+- [ ] Python package
+- [ ] Node package
+- [ ] JSON Schema & JSON-LD `@context`
+
+
+### Q2 2024: Second beta release
+
+User testing of `v2.0.0-beta.1`. Development priorities to be determined based on user feedback.
+
+Release `v2.0.0-beta.2` versions of:
+
+- [ ] Desktop
+- [ ] CLI
+- [ ] Python package
+- [ ] Node package
+- [ ] JSON Schema & JSON-LD `@context`
+
+### Q3 2024: Version 2.0.0
+
+User testing of `v2.0.0-beta.2`. Development priorities to be determined based on user feedback.
+
+Release `v2.0.0` versions of:
+
+- [ ] Desktop
+- [ ] CLI
+- [ ] Python package
+- [ ] Node package
+- [ ] JSON Schema & JSON-LD `@context`
+
+
 ## 🛠️ Develop
 
 This repository is organized into the following modules. Please see their respective READMEs for guides to contributing.
@@ -91,7 +175,7 @@ This repository is organized into the following modules. Please see their respec
 
 - `python` [`🧭 Planned`](https://github.com/stencila/stencila/issues/1624): A Python package, with [Pydantic](https://docs.pydantic.dev/latest/) classes generated from Stencila Schema and bindings to Rust functions, so you can work with Stencila documents from within Python.
 
-- `typescript` [`🧭 Planned`](https://github.com/stencila/stencila/issues/1625): A package of TypeScript types generated from Stencila Schema so you can create type-safe Stencila documents in the browser, Node.js, Deno etc.
+- `typescript` [`🏗️ In progress`](https://github.com/stencila/stencila/issues/1625): A package of TypeScript types generated from Stencila Schema so you can create type-safe Stencila documents in the browser, Node.js, Deno etc.
 
 - `node` [`🧭 Planned`](https://github.com/stencila/stencila/issues/1626): A Node.js package, using the generated TypeScript types and with runtime validation and bindings to Rust functions, so you can work with Stencila documents from within Node.js.
 
