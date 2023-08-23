@@ -7,6 +7,8 @@ use codecs::{DecodeOptions, EncodeOptions};
 use common::{
     clap::{self, ValueEnum},
     eyre::{bail, Result},
+    itertools::Itertools,
+    serde::Serialize,
     strum::{Display, EnumString},
     tokio::{
         self,
@@ -17,6 +19,9 @@ use common::{
 use format::Format;
 use node_store::{inspect_store, load_store, Read, Write, WriteStore};
 use schema::{Article, Node};
+
+mod sync_file;
+mod sync_string;
 
 /// The document type
 ///
@@ -87,6 +92,20 @@ pub enum SyncDirection {
     Out,
     #[default]
     InOut,
+}
+
+/// An entry in the log of a document
+///
+/// Made `Serialize` so that, if desired, the log can be obtained
+/// as JSON from the CLI.
+#[derive(Serialize)]
+#[serde(crate = "common::serde")]
+pub struct LogEntry {
+    pub hash: String,
+    pub parents: Vec<String>,
+    pub timestamp: i64,
+    pub author: String,
+    pub message: String,
 }
 
 type DocumentStore = Arc<RwLock<WriteStore>>;
@@ -185,7 +204,7 @@ impl Document {
                 .map_or_else(|| "unnamed", |name| name.to_str().unwrap_or_default());
             (
                 codecs::from_path(source, decode_options).await?,
-                format!("Initial commit of imported {type} from `{filename}`"),
+                format!("Initial commit of {type} imported from `{filename}`"),
             )
         } else {
             (r#type.empty(), format!("Initial commit of empty {type}"))
@@ -320,7 +339,17 @@ impl Document {
         let root = self.load().await?;
 
         if let Some(dest) = dest {
+            let mut store = self.store.write().await;
+            let commit = root
+                .write(
+                    &mut store,
+                    &self.path,
+                    &format!("Export to `{}`", dest.display()),
+                )
+                .await?;
+
             codecs::to_path(&root, dest, options).await?;
+
             Ok(String::new())
         } else {
             codecs::to_string(&root, options).await
@@ -329,24 +358,34 @@ impl Document {
 
     /// Get the history of commits to the document
     #[tracing::instrument(skip(self))]
-    pub async fn history(&self) -> Result<()> {
+    pub async fn log(&self) -> Result<Vec<LogEntry>> {
         let mut store = self.store.write().await;
 
         let changes = store.get_changes(&[]);
 
-        for change in changes {
-            let hash = change.hash();
-            let prev = change.deps();
-            let timestamp = change.timestamp();
-            let actor = change.actor_id();
-            let message = change.message().cloned().unwrap_or_default();
+        let entries = changes
+            .iter()
+            .map(|change| {
+                let hash = change.hash().to_string();
+                let parents = change
+                    .deps()
+                    .iter()
+                    .map(|hash| hash.to_string())
+                    .collect_vec();
+                let timestamp = change.timestamp();
+                let author = change.actor_id().to_hex_string();
+                let message = change.message().cloned().unwrap_or_default();
 
-            println!("{hash} {prev:?} {timestamp} {actor} {message}\n")
-        }
+                LogEntry {
+                    hash,
+                    parents,
+                    timestamp,
+                    author,
+                    message,
+                }
+            })
+            .collect_vec();
 
-        Ok(())
+        Ok(entries)
     }
 }
-
-mod sync_file;
-mod sync_string;
