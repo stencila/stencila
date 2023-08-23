@@ -11,7 +11,10 @@ use common::{
 };
 use smol_str::SmolStr;
 
-pub use automerge::{self, AutoCommit as WriteStore, ObjId, ObjType, Prop, ReadDoc as ReadStore};
+pub use automerge::{
+    self, AutoCommit as WriteStore, ChangeHash as CommitHash, ObjId, ObjType, Prop,
+    ReadDoc as ReadStore,
+};
 pub(crate) use automerge::{transaction::CommitOptions, ScalarValue, Value};
 
 /// The maximum similarity index between to nodes
@@ -180,7 +183,12 @@ pub trait Read: Sized {
 #[async_trait]
 pub trait Write {
     /// Write a Stencila node to an Automerge store
-    async fn write(&self, store: &mut WriteStore, path: &Path, message: &str) -> Result<()> {
+    async fn write(
+        &self,
+        store: &mut WriteStore,
+        path: &Path,
+        message: &str,
+    ) -> Result<CommitHash> {
         self.dump(store)?;
 
         let time = SystemTime::now()
@@ -195,16 +203,17 @@ pub trait Write {
                 .with_time(time)
                 .with_message(message)
         };
-        if store.commit_with(options()).is_none() {
+
+        let change = store.commit_with(options()).unwrap_or_else(|| {
             // If there were no changes to commit, then
-            // create an "empty commit"
-            store.empty_change(options());
-        }
+            // create an "empty change"
+            store.empty_change(options())
+        });
 
         let bytes = store.save();
         write(path, bytes).await?;
 
-        Ok(())
+        Ok(change)
     }
 
     /// Dump a Stencila node to an Automerge store
