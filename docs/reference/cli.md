@@ -9,7 +9,7 @@ This document contains the help content for the `stencila` command-line program.
 * [`stencila import`↴](#stencila-import)
 * [`stencila export`↴](#stencila-export)
 * [`stencila sync`↴](#stencila-sync)
-* [`stencila history`↴](#stencila-history)
+* [`stencila log`↴](#stencila-log)
 * [`stencila inspect`↴](#stencila-inspect)
 * [`stencila convert`↴](#stencila-convert)
 * [`stencila codecs`↴](#stencila-codecs)
@@ -26,7 +26,7 @@ CLI subcommands and global options
 * `import` — Import a file in another format into a new or existing document
 * `export` — Export a document to a file in another format
 * `sync` — Synchronize a document with one of more other files in other formats
-* `history` — Display the history of commits to the document
+* `log` — Display the history of commits to the document
 * `inspect` — Inspect a document as JSON
 * `convert` — Convert a document between formats
 * `codecs` — Get available format conversion codecs
@@ -220,11 +220,11 @@ Synchronize a document with one of more other files in other formats
 
 
 
-## `stencila history`
+## `stencila log`
 
 Display the history of commits to the document
 
-**Usage:** `stencila history <DOC>`
+**Usage:** `stencila log <DOC>`
 
 ###### **Arguments:**
 

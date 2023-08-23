@@ -2316,6 +2316,7 @@ dependencies = [
  "syntect",
  "tracing-error",
  "tracing-subscriber",
+ "yansi",
 ]
 
 [[package]]
