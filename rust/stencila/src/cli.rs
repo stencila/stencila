@@ -1,7 +1,7 @@
 use std::path::PathBuf;
 
 use common::{
-    chrono::{DateTime, NaiveDateTime, SecondsFormat, Utc},
+    chrono::{DateTime, Local, NaiveDateTime, SecondsFormat, Utc},
     clap::{self, Args, Parser, Subcommand},
     eyre::{eyre, Result},
     tokio, tracing,
@@ -431,6 +431,7 @@ impl Cli {
                     let date = NaiveDateTime::from_timestamp_millis(entry.timestamp * 1000)
                         .ok_or_else(|| eyre!("invalid timestamp"))?;
                     let date = DateTime::<Utc>::from_utc(date, Utc)
+                        .with_timezone(&Local)
                         .to_rfc3339_opts(SecondsFormat::Secs, true);
                     let date = Color::Blue.paint(date);
 
