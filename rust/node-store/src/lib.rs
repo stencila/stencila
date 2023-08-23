@@ -188,10 +188,18 @@ pub trait Write {
             .expect("Time went backwards?!")
             .as_secs() as i64;
 
-        let options = CommitOptions::default()
-            .with_time(time)
-            .with_message(message);
-        store.commit_with(options);
+        // Create commit options: `CommitOptions` is not `Clone`,
+        // so this closure is just to keep the following DRY
+        let options = || {
+            CommitOptions::default()
+                .with_time(time)
+                .with_message(message)
+        };
+        if store.commit_with(options()).is_none() {
+            // If there were no changes to commit, then
+            // create an "empty commit"
+            store.empty_change(options());
+        }
 
         let bytes = store.save();
         write(path, bytes).await?;
