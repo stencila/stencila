@@ -110,8 +110,6 @@ Focus on an initial deployment of desktop application.
 
 Feature additions:
 
-- [ ]
-
 - [ ] Desktop application built with [Tauri](https://tauri.app/), bundling web interface and the core functionality in Rust crates
 
 Release last `v2.0.0-alpha.x` versions of:
