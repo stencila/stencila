@@ -219,10 +219,10 @@ impl Schemas {
     ///
     /// Generates a `dataclass`. This needs to have `kw_only` for init function
     /// due to the fact that some inherited fields are required.
-    /// 
+    ///
     /// Attempts to make this work with Pydantic `dataclass` and `BaseModel`
     /// failed seemingly due to cyclic dependencies in types.
-    /// 
+    ///
     /// Returns the name of the generated `class`.
     async fn python_object(dest: &Path, title: &String, schema: &Schema) -> Result<String> {
         let path = dest.join(format!("{}.py", module_name(title)));
