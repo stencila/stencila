@@ -30,7 +30,7 @@ impl Codec for YamlCodec {
     async fn from_str(&self, str: &str, _options: Option<DecodeOptions>) -> Result<(Node, Losses)> {
         let node = Node::from_yaml(str)?;
 
-        Ok((node, Losses::new()))
+        Ok((node, Losses::none()))
     }
 
     async fn to_string(
@@ -40,7 +40,7 @@ impl Codec for YamlCodec {
     ) -> Result<(String, Losses)> {
         let yaml = node.to_yaml()?;
 
-        Ok((yaml, Losses::new()))
+        Ok((yaml, Losses::none()))
     }
 }
 

@@ -297,8 +297,16 @@ pub struct Losses {
 }
 
 impl Losses {
-    /// Create a new, empty set of losses
+    /// Create a new set of losses
     pub fn new() -> Self {
+        Self::default()
+    }
+
+    /// Create an empty set of losses
+    /// 
+    /// Equivalent to [`Losses::new`] but provided to make it more explicit
+    /// when a codec is lossless (i.e. it returns `Losses::none()`)
+    pub fn none() -> Self {
         Self::default()
     }
 

@@ -31,7 +31,7 @@ impl Codec for JsonCodec {
     async fn from_str(&self, str: &str, _options: Option<DecodeOptions>) -> Result<(Node, Losses)> {
         let node = Node::from_json(str)?;
 
-        Ok((node, Losses::new()))
+        Ok((node, Losses::none()))
     }
 
     async fn to_string(
@@ -46,7 +46,7 @@ impl Codec for JsonCodec {
             false => node.to_json_pretty(),
         }?;
 
-        Ok((json, Losses::new()))
+        Ok((json, Losses::none()))
     }
 }
 

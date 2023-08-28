@@ -33,7 +33,7 @@ impl Codec for Json5Codec {
     async fn from_str(&self, str: &str, _options: Option<DecodeOptions>) -> Result<(Node, Losses)> {
         let node = Node::from_json5(str)?;
 
-        Ok((node, Losses::new()))
+        Ok((node, Losses::none()))
     }
 
     async fn to_string(
@@ -48,7 +48,7 @@ impl Codec for Json5Codec {
             false => node.to_json5_pretty(),
         }?;
 
-        Ok((json5, Losses::new()))
+        Ok((json5, Losses::none()))
     }
 }
 
