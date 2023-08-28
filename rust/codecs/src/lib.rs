@@ -29,6 +29,19 @@ pub fn specs() -> Vec<CodecSpec> {
     list().iter().map(|codec| codec.spec()).collect_vec()
 }
 
+/// Resolve whether an optional string is a format or codec name
+///
+/// If the string matches the name of a format then assume it is a format, otherwise assume it is a codec name
+pub fn format_or_codec(format_or_codec: Option<String>) -> (Option<Format>, Option<String>) {
+    match format_or_codec {
+        Some(format_or_codec) => match Format::from_name(&format_or_codec.to_lowercase()) {
+            Ok(format) => (Some(format), None),
+            Err(..) => (None, Some(format_or_codec)),
+        },
+        None => (None, None),
+    }
+}
+
 /// Get the codec for a given format
 fn get(name: Option<&String>, format: Option<Format>) -> Result<Box<dyn Codec>> {
     if let Some(name) = name {

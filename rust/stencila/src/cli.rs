@@ -237,7 +237,7 @@ impl DecodeOptions {
         format_or_codec: Option<String>,
         losses: codecs::LossesResponse,
     ) -> codecs::DecodeOptions {
-        let (format, codec) = infer_format_or_codec(format_or_codec);
+        let (format, codec) = codecs::format_or_codec(format_or_codec);
 
         codecs::DecodeOptions {
             codec,
@@ -281,7 +281,7 @@ impl EncodeOptions {
         format_or_codec: Option<String>,
         losses: codecs::LossesResponse,
     ) -> codecs::EncodeOptions {
-        let (format, codec) = infer_format_or_codec(format_or_codec);
+        let (format, codec) = codecs::format_or_codec(format_or_codec);
 
         codecs::EncodeOptions {
             codec,
@@ -293,17 +293,6 @@ impl EncodeOptions {
             strip_outputs: self.strip_outputs,
             losses,
         }
-    }
-}
-
-/// If the string matches the name of a format then assume it is a format, otherwise assume it is a codec name
-fn infer_format_or_codec(format_or_codec: Option<String>) -> (Option<Format>, Option<String>) {
-    match format_or_codec {
-        Some(format_or_codec) => match Format::from_name(&format_or_codec.to_lowercase()) {
-            Ok(format) => (Some(format), None),
-            Err(..) => (None, Some(format_or_codec)),
-        },
-        None => (None, None),
     }
 }
 
