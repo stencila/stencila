@@ -10,7 +10,6 @@ codec-html = { path = "../codec-html" }
 codec-jats = { path = "../codec-jats" }
 codec-json = { path = "../codec-json" }
 codec-json5 = { path = "../codec-json5" }
-codec-ron = { path = "../codec-ron" }
 codec-text = { path = "../codec-text" }
 codec-yaml = { path = "../codec-yaml" }
 node-strip = { path = "../node-strip" }

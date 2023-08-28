@@ -1,8 +1,0 @@
-[package]
-name = "codec-ron"
-version = "0.0.0"
-edition = "2021"
-
-[dependencies]
-codec = { path = "../codec" }
-ron = "0.8.1"
