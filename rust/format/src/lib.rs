@@ -18,12 +18,12 @@ use common::{
 #[serde(rename_all = "lowercase", crate = "common::serde")]
 pub enum Format {
     Debug,
+    Html,
     Jats,
     Json,
     Json5,
-    Html,
     Md,
-    Ron,
+    Text,
     Yaml,
 }
 
@@ -34,12 +34,12 @@ impl Format {
 
         Ok(match ext.to_lowercase().trim() {
             "debug" => Debug,
+            "html" => Html,
             "jats" => Jats,
             "json" => Json,
             "json5" => Json5,
-            "html" => Html,
             "md" | "markdown" => Md,
-            "ron" => Ron,
+            "text" | "txt" => Text,
             "yaml" | "yml" => Yaml,
             _ => bail!("No format matching file name extension `{ext}`"),
         })

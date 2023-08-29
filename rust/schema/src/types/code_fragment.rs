@@ -6,7 +6,7 @@ use super::string::String;
 
 /// Inline code.
 #[skip_serializing_none]
-#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, Strip, Read, Write, ToHtml)]
+#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, Strip, Read, Write, ToHtml, ToText)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 pub struct CodeFragment {
     /// The type of this item
@@ -27,7 +27,7 @@ pub struct CodeFragment {
 }
 
 #[skip_serializing_none]
-#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, Strip, Read, Write, ToHtml)]
+#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, Strip, Read, Write, ToHtml, ToText)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 pub struct CodeFragmentOptions {
     /// Media type, typically expressed using a MIME format, of the code.

@@ -19,7 +19,7 @@ use super::thing_type::ThingType;
 
 /// A software application.
 #[skip_serializing_none]
-#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, Strip, Read, Write, ToHtml)]
+#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, Strip, Read, Write, ToHtml, ToText)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 pub struct SoftwareApplication {
     /// The type of this item
@@ -37,7 +37,7 @@ pub struct SoftwareApplication {
 }
 
 #[skip_serializing_none]
-#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, Strip, Read, Write, ToHtml)]
+#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, Strip, Read, Write, ToHtml, ToText)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 pub struct SoftwareApplicationOptions {
     /// Alternate names (aliases) for the item.

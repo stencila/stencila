@@ -3,7 +3,7 @@
 use crate::prelude::*;
 
 /// The relation between a node and its execution dependency.
-#[derive(Debug, Clone, PartialEq, Display, Serialize, Deserialize, SmartDefault, Strip, Read, Write, ToHtml)]
+#[derive(Debug, Clone, PartialEq, Display, Serialize, Deserialize, SmartDefault, Strip, Read, Write, ToHtml, ToText)]
 #[serde(crate = "common::serde")]
 pub enum ExecutionDependencyRelation {
     Calls,

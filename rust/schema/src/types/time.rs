@@ -6,7 +6,7 @@ use super::string::String;
 
 /// A point in time recurring on multiple days
 #[skip_serializing_none]
-#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, Strip, Read, Write, ToHtml)]
+#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, Strip, Read, Write, ToHtml, ToText)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 pub struct Time {
     /// The type of this item

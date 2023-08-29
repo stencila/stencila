@@ -8,7 +8,7 @@ use super::timestamp::Timestamp;
 
 /// A validator specifying the constraints on a timestamp.
 #[skip_serializing_none]
-#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, Strip, Read, Write, ToHtml)]
+#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, Strip, Read, Write, ToHtml, ToText)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 pub struct TimestampValidator {
     /// The type of this item

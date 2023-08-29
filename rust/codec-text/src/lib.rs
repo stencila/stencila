@@ -1,15 +1,43 @@
-//! Implements `FromText` and `ToText` traits for encoding and decoding nodes from/to UTF8 strings
+use codec::{
+    common::{async_trait::async_trait, eyre::Result},
+    format::Format,
+    schema::Node,
+    status::Status,
+    Codec, EncodeOptions, Losses,
+};
 
-use codec::common::eyre::Result;
+use codec_text_traits::ToText;
 
-mod text;
+/// A codec for plain text
+pub struct TextCodec;
 
-pub trait FromText: Sized {
-    /// Decode a node from a UTF8 string of text
-    fn from_text(text: &str) -> Result<Self>;
-}
+#[async_trait]
+impl Codec for TextCodec {
+    fn name(&self) -> &str {
+        "text"
+    }
 
-pub trait ToText {
-    /// Encode a node as a UTF8 string of text
-    fn to_text(&self) -> Result<String>;
+    fn status(&self) -> Status {
+        Status::Unstable
+    }
+
+    fn supported_formats(&self) -> Vec<Format> {
+        vec![Format::Text]
+    }
+
+    fn supports_from_string(&self) -> bool {
+        false
+    }
+
+    fn supports_from_path(&self) -> bool {
+        false
+    }
+
+    async fn to_string(
+        &self,
+        node: &Node,
+        _options: Option<EncodeOptions>,
+    ) -> Result<(String, Losses)> {
+        Ok(node.to_text())
+    }
 }

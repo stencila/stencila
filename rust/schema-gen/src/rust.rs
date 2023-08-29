@@ -34,13 +34,13 @@ const NO_GENERATE_MODULE: &[&str] = &[
 ];
 
 /// Types that should not derive `Read` because there are manual implementations
-const NO_DERIVE_READ: &[&str] = &["Null", "Primitive", "TextValue", "Node"];
+const NO_READ: &[&str] = &["Null", "Primitive", "TextValue", "Node"];
 
 /// Types that should not derive `Write` because there are manual implementations
-const NO_DERIVE_WRITE: &[&str] = &["Null", "Primitive", "TextValue"];
+const NO_WRITE: &[&str] = &["Null", "Primitive", "TextValue"];
 
 /// Types that should not derive the `Strip` trait because there are manual implementations
-const NO_DERIVE_STRIP: &[&str] = &[
+const NO_STRIP: &[&str] = &[
     "Call",
     "CallArgument",
     "CodeChunk",
@@ -52,7 +52,7 @@ const NO_DERIVE_STRIP: &[&str] = &[
 ];
 
 /// Types that should not derive the `ToHtml` trait because there are manual implementations
-const NO_DERIVE_TO_HTML: &[&str] = &["Paragraph"];
+const NO_TO_HTML: &[&str] = &["Paragraph"];
 
 /// Properties that need to be boxed to avoid recursive types
 const BOX_PROPERTIES: &[&str] = &[
@@ -264,18 +264,19 @@ impl Schemas {
         let mut derive_traits =
             "Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize".to_string();
         let title = title.as_str();
-        if !NO_DERIVE_STRIP.contains(&title) {
+        if !NO_STRIP.contains(&title) {
             derive_traits += ", Strip";
         }
-        if !NO_DERIVE_READ.contains(&title) {
+        if !NO_READ.contains(&title) {
             derive_traits += ", Read";
         }
-        if !NO_DERIVE_WRITE.contains(&title) {
+        if !NO_WRITE.contains(&title) {
             derive_traits += ", Write";
         }
-        if !NO_DERIVE_TO_HTML.contains(&title) {
+        if !NO_TO_HTML.contains(&title) {
             derive_traits += ", ToHtml";
         }
+        derive_traits += ", ToText";
 
         let mut fields = Vec::new();
         let mut used_types = HashSet::new();
@@ -551,18 +552,19 @@ impl {title} {{{new}}}
         if default.is_some() {
             derive_traits += ", SmartDefault";
         };
-        if !NO_DERIVE_STRIP.contains(&title) {
+        if !NO_STRIP.contains(&title) {
             derive_traits += ", Strip";
         }
-        if !NO_DERIVE_READ.contains(&title) {
+        if !NO_READ.contains(&title) {
             derive_traits += ", Read";
         }
-        if !NO_DERIVE_WRITE.contains(&title) {
+        if !NO_WRITE.contains(&title) {
             derive_traits += ", Write";
         }
-        if !NO_DERIVE_TO_HTML.contains(&title) {
+        if !NO_TO_HTML.contains(&title) {
             derive_traits += ", ToHtml";
         }
+        derive_traits += ", ToText";
 
         let serde_tagged = match unit_variants {
             false => "untagged, ",

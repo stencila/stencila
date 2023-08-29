@@ -3,7 +3,7 @@
 use crate::prelude::*;
 
 /// The type of a `Note` which determines where the note content is displayed within the document..
-#[derive(Debug, Clone, PartialEq, Display, Serialize, Deserialize, SmartDefault, Strip, Read, Write, ToHtml)]
+#[derive(Debug, Clone, PartialEq, Display, Serialize, Deserialize, SmartDefault, Strip, Read, Write, ToHtml, ToText)]
 #[serde(crate = "common::serde")]
 pub enum NoteType {
     #[default]

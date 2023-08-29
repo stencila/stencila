@@ -370,6 +370,7 @@ checksum = "2da6da31387c7e4ef160ffab6d5e7f00c42626fe39aea70a7b0f1773f7dd6c1b"
 name = "codec"
 version = "0.0.0"
 dependencies = [
+ "codec-losses",
  "common",
  "format",
  "schema",
@@ -414,6 +415,15 @@ name = "codec-json5"
 version = "0.0.0"
 dependencies = [
  "codec",
+ "json5",
+ "json5format",
+]
+
+[[package]]
+name = "codec-losses"
+version = "0.0.0"
+dependencies = [
+ "common",
 ]
 
 [[package]]
@@ -421,6 +431,22 @@ name = "codec-text"
 version = "0.0.0"
 dependencies = [
  "codec",
+ "codec-text-traits",
+]
+
+[[package]]
+name = "codec-text-derive"
+version = "0.0.0"
+dependencies = [
+ "common",
+]
+
+[[package]]
+name = "codec-text-traits"
+version = "0.0.0"
+dependencies = [
+ "codec-losses",
+ "common",
 ]
 
 [[package]]
@@ -507,7 +533,6 @@ dependencies = [
  "glob",
  "indexmap 2.0.0",
  "itertools 0.11.0",
- "json5",
  "maplit",
  "once_cell",
  "proc-macro2",
@@ -1312,6 +1337,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "json5format"
+version = "0.2.6"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "b2894a72f82fa9f20e628bf4329cd0fb8e9fd5e87cc35944665a42b25bae9902"
+dependencies = [
+ "lazy_static",
+ "regex",
+]
+
+[[package]]
 name = "kqueue"
 version = "1.0.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2024,7 +2059,9 @@ dependencies = [
 name = "schema"
 version = "0.0.0"
 dependencies = [
- "codec-text",
+ "codec-losses",
+ "codec-text-derive",
+ "codec-text-traits",
  "common",
  "common-dev",
  "monostate",
@@ -2794,9 +2831,9 @@ checksum = "c0edd1e5b14653f783770bce4a4dabb4a5108a5370a5f5d8cfe8710c361f6c8b"
 
 [[package]]
 name = "unsafe-libyaml"
-version = "0.2.8"
+version = "0.2.9"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "1865806a559042e51ab5414598446a5871b561d21b6764f2eabb0dd481d880a6"
+checksum = "f28467d3e1d3c6586d8f25fa243f544f5800fec42d97032474e17222c2b75cfa"
 
 [[package]]
 name = "url"

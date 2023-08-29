@@ -13,7 +13,7 @@ use super::span::Span;
 use super::variable::Variable;
 
 /// Node types that can be execution dependencies
-#[derive(Debug, Clone, PartialEq, Display, Serialize, Deserialize, SmartDefault, Strip, Read, Write, ToHtml)]
+#[derive(Debug, Clone, PartialEq, Display, Serialize, Deserialize, SmartDefault, Strip, Read, Write, ToHtml, ToText)]
 #[serde(untagged, crate = "common::serde")]
 pub enum ExecutionDependantNode {
     Button(Button),

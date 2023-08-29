@@ -1,13 +1,18 @@
 use std::collections::HashMap;
 
-use codec_text::FromText;
 use common::{eyre::Result, serde_json::json};
 use common_dev::pretty_assertions::assert_eq;
 
-use schema::{Array, Article, Block, Inline, Node, Null, Object, Paragraph, Primitive, Text};
+use schema::{
+    Array, Article, Block, Inline, Node, Null, Object, Paragraph, Primitive, Text, TextValue,
+};
 
 use node_store::{Read, Write, WriteStore};
 use node_strip::{Strip, Targets};
+
+fn txt(value: &str) -> Text {
+    Text::new(TextValue(value.to_string()))
+}
 
 /// Test loading & dumping of `Primitive` nodes
 #[test]
@@ -115,10 +120,10 @@ fn text() -> Result<()> {
     // Create base store with a few text nodes
     let mut base = WriteStore::new();
     let root = Root::from([
-        ("insert".to_string(), Text::from_text("abcd")?),
-        ("delete".to_string(), Text::from_text("abcd")?),
-        ("replace".to_string(), Text::from_text("abcd")?),
-        ("varied".to_string(), Text::from_text("abcd")?),
+        ("insert".to_string(), txt("abcd")),
+        ("delete".to_string(), txt("abcd")),
+        ("replace".to_string(), txt("abcd")),
+        ("varied".to_string(), txt("abcd")),
     ]);
     root.dump(&mut base)?;
     assert_eq!(Root::load(&base)?.strip(&Targets::id()), &root);
@@ -168,10 +173,7 @@ fn vec() -> Result<()> {
 
     // Create base store
     let mut base = WriteStore::new();
-    let mut root = Root::from([(
-        "vec".to_string(),
-        vec![Text::from_text("one")?, Text::from_text("two")?],
-    )]);
+    let mut root = Root::from([("vec".to_string(), vec![txt("one"), txt("two")])]);
     root.dump(&mut base)?;
     assert_eq!(Root::load(&base)?.strip(&Targets::id()), &root);
 
@@ -179,7 +181,7 @@ fn vec() -> Result<()> {
     // store and check store for consistency
 
     // Add an item
-    root.get_mut("vec").unwrap().push(Text::from_text("three")?);
+    root.get_mut("vec").unwrap().push(txt("three"));
     root.dump(&mut base)?;
     assert_eq!(Root::load(&base)?.strip(&Targets::id()), &root);
 
@@ -255,7 +257,7 @@ fn article() -> Result<()> {
 
     // Add some content
     article1.content.push(Block::Paragraph(Paragraph {
-        content: vec![Inline::Text(Text::from_text("Hello world")?)],
+        content: vec![Inline::Text(txt("Hello world"))],
         ..Default::default()
     }));
     article1.dump(&mut base)?;

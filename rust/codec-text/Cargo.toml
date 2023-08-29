@@ -5,3 +5,4 @@ edition = "2021"
 
 [dependencies]
 codec = { path = "../codec" }
+codec-text-traits = { path = "../codec-text-traits" }

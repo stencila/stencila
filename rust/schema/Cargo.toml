@@ -4,6 +4,9 @@ version = "0.0.0"
 edition = "2021"
 
 [dependencies]
+codec-losses = { path = "../codec-losses" }
+codec-text-derive = { path = "../codec-text-derive" }
+codec-text-traits = { path = "../codec-text-traits" }
 common = { path = "../common" }
 monostate = "0.1.9"
 node-html = { path = "../node-html" }
@@ -16,4 +19,3 @@ smol_str = "0.1.24"
 
 [dev-dependencies]
 common-dev = { path = "../common-dev" }
-codec-text = { path = "../codec-text" }

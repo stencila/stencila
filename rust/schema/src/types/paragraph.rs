@@ -7,7 +7,7 @@ use super::string::String;
 
 /// Paragraph
 #[skip_serializing_none]
-#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, Strip, Read, Write)]
+#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, Strip, Read, Write, ToText)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 pub struct Paragraph {
     /// The type of this item

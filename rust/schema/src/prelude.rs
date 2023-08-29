@@ -9,6 +9,9 @@ pub use common::{
     strum::Display,
 };
 
+pub use codec_losses::{Loss, LossDirection, Losses};
+pub use codec_text_derive::ToText;
+pub use codec_text_traits::ToText;
 pub use node_html_derive::ToHtml;
 pub use node_store_derive::{Read, Write};
 pub use node_strip_derive::Strip;
