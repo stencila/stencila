@@ -1,4 +1,4 @@
-use node_html::{text, ToHtml};
+use codec_html_traits::to_html::{text, ToHtml};
 
 use crate::TextValue;
 

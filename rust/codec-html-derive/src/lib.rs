@@ -49,9 +49,9 @@ fn derive_struct(input: &DeriveInput, data: &DataStruct) -> TokenStream {
     }
 
     quote! {
-        impl node_html::ToHtml for #struct_name {
+        impl codec_html_traits::ToHtml for #struct_name {
             fn to_html(&self) -> String {
-                use node_html::{attr, elem, name};
+                use codec_html_traits::to_html::{attr, elem, name};
 
                 let mut attrs = Vec::new();
                 let mut children = Vec::new();
@@ -83,7 +83,7 @@ fn derive_enum(input: &DeriveInput, data: &DataEnum) -> TokenStream {
     }
 
     quote! {
-        impl node_html::ToHtml for #enum_name {
+        impl codec_html_traits::ToHtml for #enum_name {
             fn to_html(&self) -> String {
                 match self {
                     #cases

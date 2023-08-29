@@ -389,8 +389,23 @@ name = "codec-html"
 version = "0.0.0"
 dependencies = [
  "codec",
- "node-html",
+ "codec-html-traits",
  "quick-xml 0.30.0",
+]
+
+[[package]]
+name = "codec-html-derive"
+version = "0.0.0"
+dependencies = [
+ "common",
+]
+
+[[package]]
+name = "codec-html-traits"
+version = "0.0.0"
+dependencies = [
+ "common",
+ "html-escape",
 ]
 
 [[package]]
@@ -1524,21 +1539,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "node-html"
-version = "0.0.0"
-dependencies = [
- "common",
- "html-escape",
-]
-
-[[package]]
-name = "node-html-derive"
-version = "0.0.0"
-dependencies = [
- "common",
-]
-
-[[package]]
 name = "node-store"
 version = "0.0.0"
 dependencies = [
@@ -2059,14 +2059,14 @@ dependencies = [
 name = "schema"
 version = "0.0.0"
 dependencies = [
+ "codec-html-derive",
+ "codec-html-traits",
  "codec-losses",
  "codec-text-derive",
  "codec-text-traits",
  "common",
  "common-dev",
  "monostate",
- "node-html",
- "node-html-derive",
  "node-store",
  "node-store-derive",
  "node-strip",

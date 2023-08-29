@@ -1,4 +1,4 @@
-use node_html::{attr_maybe, elem, ToHtml};
+use codec_html_traits::to_html::{attr_maybe, elem, ToHtml};
 
 use crate::Paragraph;
 

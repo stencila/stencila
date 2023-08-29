@@ -47,7 +47,7 @@ fn derive_struct(input: &DeriveInput, data: &DataStruct) -> TokenStream {
     }
 
     quote! {
-        impl ToText for #struct_name {
+        impl codec_text_traits::ToText for #struct_name {
             fn to_text(&self) -> (String, Losses) {
                 let mut text = String::new();
                 let mut losses = Losses::new([Loss::of_structure(
@@ -82,7 +82,7 @@ fn derive_enum(input: &DeriveInput, data: &DataEnum) -> TokenStream {
     }
 
     quote! {
-        impl ToText for #enum_name {
+        impl codec_text_traits::ToText for #enum_name {
             fn to_text(&self) -> (String, Losses) {
                 match self {
                     #cases

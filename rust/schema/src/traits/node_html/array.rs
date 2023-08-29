@@ -1,5 +1,5 @@
+use codec_html_traits::to_html::{elem, name, ToHtml};
 use common::itertools::Itertools;
-use node_html::{elem, name, ToHtml};
 
 use crate::Array;
 

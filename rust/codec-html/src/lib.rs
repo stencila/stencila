@@ -5,7 +5,7 @@ use codec::{
     status::Status,
     Codec, EncodeOptions, Losses,
 };
-use node_html::ToHtml;
+use codec_html_traits::to_html::ToHtml;
 
 /// A codec for HTML
 pub struct HtmlCodec;

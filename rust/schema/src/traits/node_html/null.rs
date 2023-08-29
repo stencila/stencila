@@ -1,4 +1,4 @@
-use node_html::{elem, name, ToHtml};
+use codec_html_traits::to_html::{elem, name, ToHtml};
 
 use crate::Null;
 

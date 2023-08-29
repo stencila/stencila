@@ -1,6 +1,6 @@
 use common::itertools::Itertools;
 
-use node_html::{attr, elem, name, ToHtml};
+use codec_html_traits::to_html::{attr, elem, name, ToHtml};
 
 use crate::Object;
 
