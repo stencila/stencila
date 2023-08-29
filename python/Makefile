@@ -5,12 +5,12 @@ setup:
 	poetry install
 
 # Make formatting and linting fixes
-fix:
-	poetry run black stencila --exclude types/software_source_code.py
+fix: setup
+	poetry run black stencila --exclude types
 
 # Run linting checks
-lint:
-	poetry run black stencila --exclude types/software_source_code.py --check --diff
+lint: setup
+	poetry run black stencila --exclude types --check --diff
 
 # List outdated dependencies
 outdated:
