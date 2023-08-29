@@ -1,0 +1,9 @@
+[package]
+name = "codec-text-trait"
+version = "0.0.0"
+edition = "2021"
+
+[dependencies]
+codec-losses = { path = "../codec-losses" }
+codec-text-derive = { path = "../codec-text-derive" }
+common = { path = "../common" }

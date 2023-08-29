@@ -6,7 +6,7 @@ use codec::{
     Codec, EncodeOptions, Losses,
 };
 
-use codec_text_traits::ToText;
+use codec_text_trait::TextCodec as _;
 
 /// A codec for plain text
 pub struct TextCodec;

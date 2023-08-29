@@ -1,4 +1,4 @@
-//! Provides `ToText` derive macro for structs and enums in Stencila Schema
+//! Provides the `TextCodec` derive macro for structs and enums in Stencila Schema
 
 use common::{
     proc_macro2::TokenStream,
@@ -6,8 +6,8 @@ use common::{
     syn::{parse_macro_input, Data, DataEnum, DataStruct, DeriveInput, Fields},
 };
 
-/// Derive the `ToText` trait for a `struct` or an `enum`
-#[proc_macro_derive(ToText)]
+/// Derive the `TextCodec` trait for a `struct` or an `enum`
+#[proc_macro_derive(TextCodec)]
 pub fn derive_to_html(input: proc_macro::TokenStream) -> proc_macro::TokenStream {
     let input = parse_macro_input!(input as DeriveInput);
 
@@ -20,7 +20,7 @@ pub fn derive_to_html(input: proc_macro::TokenStream) -> proc_macro::TokenStream
     proc_macro::TokenStream::from(tokens)
 }
 
-/// Derive the `ToText` trait for a `struct`
+/// Derive the `TextCodec` trait for a `struct`
 fn derive_struct(input: &DeriveInput, data: &DataStruct) -> TokenStream {
     let struct_name = &input.ident;
 
@@ -47,7 +47,7 @@ fn derive_struct(input: &DeriveInput, data: &DataStruct) -> TokenStream {
     }
 
     quote! {
-        impl codec_text_traits::ToText for #struct_name {
+        impl TextCodec for #struct_name {
             fn to_text(&self) -> (String, Losses) {
                 let mut text = String::new();
                 let mut losses = Losses::new([Loss::of_structure(
@@ -63,7 +63,7 @@ fn derive_struct(input: &DeriveInput, data: &DataStruct) -> TokenStream {
     }
 }
 
-/// Derive the `ToText` trait for an `enum`
+/// Derive the `TextCodec` trait for an `enum`
 fn derive_enum(input: &DeriveInput, data: &DataEnum) -> TokenStream {
     let enum_name = &input.ident;
 
@@ -82,7 +82,7 @@ fn derive_enum(input: &DeriveInput, data: &DataEnum) -> TokenStream {
     }
 
     quote! {
-        impl codec_text_traits::ToText for #enum_name {
+        impl TextCodec for #enum_name {
             fn to_text(&self) -> (String, Losses) {
                 match self {
                     #cases

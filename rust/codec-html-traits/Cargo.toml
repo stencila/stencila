@@ -1,8 +1,0 @@
-[package]
-name = "codec-html-traits"
-version = "0.0.0"
-edition = "2021"
-
-[dependencies]
-common = { path = "../common" }
-html-escape = "0.2.13"

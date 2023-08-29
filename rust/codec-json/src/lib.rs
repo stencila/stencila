@@ -6,11 +6,8 @@ use codec::{
     Codec, DecodeOptions, EncodeOptions, Losses,
 };
 
-mod from_json;
-mod to_json;
-
-pub use from_json::FromJson;
-pub use to_json::ToJson;
+pub mod r#trait;
+use r#trait::JsonCodec as _;
 
 #[cfg(test)]
 mod tests;
@@ -53,3 +50,4 @@ impl Codec for JsonCodec {
         Ok((json, Losses::none()))
     }
 }
+

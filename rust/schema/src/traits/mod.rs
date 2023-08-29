@@ -1,4 +1,4 @@
-mod node_html;
+mod codec_html;
+mod codec_text;
 mod node_store;
 mod node_strip;
-mod to_text;

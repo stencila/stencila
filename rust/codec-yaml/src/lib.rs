@@ -6,11 +6,8 @@ use codec::{
     Codec, DecodeOptions, EncodeOptions, Losses,
 };
 
-mod from_yaml;
-mod to_yaml;
-
-pub use from_yaml::FromYaml;
-pub use to_yaml::ToYaml;
+pub mod r#trait;
+use r#trait::YamlCodec as _;
 
 /// A codec for YAML
 pub struct YamlCodec;

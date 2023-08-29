@@ -1,4 +1,4 @@
-//! Provides `ToHtml` derive macro for structs and enums in Stencila Schema
+//! Provides `HtmlCodec` derive macro for structs and enums in Stencila Schema
 
 use common::{
     proc_macro2::TokenStream,
@@ -6,8 +6,8 @@ use common::{
     syn::{parse_macro_input, Data, DataEnum, DataStruct, DeriveInput, Fields},
 };
 
-/// Derive the `ToHtml` trait for a `struct` or an `enum`
-#[proc_macro_derive(ToHtml)]
+/// Derive the `HtmlCodec` trait for a `struct` or an `enum`
+#[proc_macro_derive(HtmlCodec)]
 pub fn derive_to_html(input: proc_macro::TokenStream) -> proc_macro::TokenStream {
     let input = parse_macro_input!(input as DeriveInput);
 
@@ -20,9 +20,7 @@ pub fn derive_to_html(input: proc_macro::TokenStream) -> proc_macro::TokenStream
     proc_macro::TokenStream::from(tokens)
 }
 
-/// Derive the `ToHtml` trait for a `struct`
-///
-/// The implementation of methods is largely based on those for `IndexMap`.
+/// Derive the `HtmlCodec` trait for a `struct`
 fn derive_struct(input: &DeriveInput, data: &DataStruct) -> TokenStream {
     let struct_name = &input.ident;
 
@@ -49,9 +47,9 @@ fn derive_struct(input: &DeriveInput, data: &DataStruct) -> TokenStream {
     }
 
     quote! {
-        impl codec_html_traits::ToHtml for #struct_name {
+        impl HtmlCodec for #struct_name {
             fn to_html(&self) -> String {
-                use codec_html_traits::to_html::{attr, elem, name};
+                use codec_html_trait::encode::{attr, elem, name};
 
                 let mut attrs = Vec::new();
                 let mut children = Vec::new();
@@ -64,7 +62,7 @@ fn derive_struct(input: &DeriveInput, data: &DataStruct) -> TokenStream {
     }
 }
 
-/// Derive the `ToHtml` trait for an `enum`
+/// Derive the `HtmlCodec` trait for an `enum`
 fn derive_enum(input: &DeriveInput, data: &DataEnum) -> TokenStream {
     let enum_name = &input.ident;
 
@@ -83,7 +81,7 @@ fn derive_enum(input: &DeriveInput, data: &DataEnum) -> TokenStream {
     }
 
     quote! {
-        impl codec_html_traits::ToHtml for #enum_name {
+        impl HtmlCodec for #enum_name {
             fn to_html(&self) -> String {
                 match self {
                     #cases

@@ -12,7 +12,7 @@ use super::string::String;
 use super::unsigned_integer::UnsignedInteger;
 
 /// Union type for all primitives values
-#[derive(Debug, Clone, PartialEq, Display, Serialize, Deserialize, SmartDefault, Strip, ToHtml, ToText)]
+#[derive(Debug, Clone, PartialEq, Display, Serialize, Deserialize, SmartDefault, Strip, HtmlCodec, TextCodec)]
 #[serde(untagged, crate = "common::serde")]
 pub enum Primitive {
     #[default]

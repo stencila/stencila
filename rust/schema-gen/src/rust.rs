@@ -51,9 +51,6 @@ const NO_STRIP: &[&str] = &[
     "Include",
 ];
 
-/// Types that should not derive the `ToHtml` trait because there are manual implementations
-const NO_TO_HTML: &[&str] = &["Paragraph"];
-
 /// Properties that need to be boxed to avoid recursive types
 const BOX_PROPERTIES: &[&str] = &[
     "*.is_part_of",
@@ -273,10 +270,7 @@ impl Schemas {
         if !NO_WRITE.contains(&title) {
             derive_traits += ", Write";
         }
-        if !NO_TO_HTML.contains(&title) {
-            derive_traits += ", ToHtml";
-        }
-        derive_traits += ", ToText";
+        derive_traits += ", HtmlCodec, TextCodec";
 
         let mut fields = Vec::new();
         let mut used_types = HashSet::new();
@@ -436,6 +430,12 @@ pub struct {title}Options {{
             String::new()
         };
 
+        let html = schema
+            .html
+            .as_ref()
+            .map(|html| format!("#[html(elem = \"{html}\")]\n"))
+            .unwrap_or_default();
+
         write(
             path,
             &format!(
@@ -561,10 +561,7 @@ impl {title} {{{new}}}
         if !NO_WRITE.contains(&title) {
             derive_traits += ", Write";
         }
-        if !NO_TO_HTML.contains(&title) {
-            derive_traits += ", ToHtml";
-        }
-        derive_traits += ", ToText";
+        derive_traits += ", HtmlCodec, TextCodec";
 
         let serde_tagged = match unit_variants {
             false => "untagged, ",

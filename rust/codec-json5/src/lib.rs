@@ -6,11 +6,8 @@ use codec::{
     Codec, DecodeOptions, EncodeOptions, Losses,
 };
 
-mod from_json5;
-mod to_json5;
-
-pub use from_json5::FromJson5;
-pub use to_json5::ToJson5;
+pub mod r#trait;
+use r#trait::Json5Codec as _;
 
 /// A codec for JSON5
 pub struct Json5Codec;
