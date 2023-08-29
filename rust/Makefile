@@ -16,8 +16,8 @@ setup:
 
 # Make formatting and linting fixes
 fix:
-	cargo fmt --all
 	cargo clippy --workspace --all-features --tests --fix --allow-dirty
+	cargo fmt --all
 
 # Run linting checks
 lint:
