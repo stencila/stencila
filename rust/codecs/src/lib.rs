@@ -9,7 +9,7 @@ use codec::{
     schema::Node,
     CodecSpec,
 };
-pub use codec::{Codec, DecodeOptions, EncodeOptions, LossesResponse};
+pub use codec::{Codec, DecodeOptions, EncodeOptions, Losses, LossesResponse};
 use node_strip::Strip;
 
 /// Get a list of all codecs
@@ -20,6 +20,7 @@ pub fn list() -> Vec<Box<dyn Codec>> {
         Box::new(codec_jats::JatsCodec),
         Box::new(codec_json::JsonCodec),
         Box::new(codec_json5::Json5Codec),
+        Box::new(codec_text::TextCodec),
         Box::new(codec_yaml::YamlCodec),
     ]
 }

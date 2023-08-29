@@ -37,7 +37,7 @@ impl Codec for HtmlCodec {
             false => indent(&html),
         };
 
-        Ok((html, Losses::new()))
+        Ok((html, Losses::none()))
     }
 }
 

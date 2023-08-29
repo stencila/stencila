@@ -28,12 +28,9 @@ impl Codec for JatsCodec {
         _str: &str,
         _options: Option<DecodeOptions>,
     ) -> Result<(Node, Losses)> {
-        let mut losses = Losses::new();
-
         let node = Node::Article(Article::default());
-        losses.register("Node", "*", "Under development");
 
-        Ok((node, losses))
+        Ok((node, Losses::none()))
     }
 
     async fn to_string(
@@ -41,11 +38,8 @@ impl Codec for JatsCodec {
         _node: &Node,
         _options: Option<EncodeOptions>,
     ) -> Result<(String, Losses)> {
-        let mut losses = Losses::new();
-
         let jats = String::new();
-        losses.register("Node", "*", "Under development");
 
-        Ok((jats, losses))
+        Ok((jats, Losses::none()))
     }
 }

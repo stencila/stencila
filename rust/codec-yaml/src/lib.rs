@@ -1,16 +1,18 @@
 use codec::{
-    common::{
-        async_trait::async_trait,
-        eyre::Result,
-        serde::{de::DeserializeOwned, Serialize},
-        serde_yaml,
-    },
+    common::{async_trait::async_trait, eyre::Result},
     format::Format,
     schema::Node,
     status::Status,
     Codec, DecodeOptions, EncodeOptions, Losses,
 };
 
+mod from_yaml;
+mod to_yaml;
+
+pub use from_yaml::FromYaml;
+pub use to_yaml::ToYaml;
+
+/// A codec for YAML
 pub struct YamlCodec;
 
 #[async_trait]
@@ -43,24 +45,3 @@ impl Codec for YamlCodec {
         Ok((yaml, Losses::none()))
     }
 }
-
-pub trait FromYaml: DeserializeOwned {
-    /// Decode a Stencila Schema node from YAML
-    fn from_yaml(yaml: &str) -> Result<Self> {
-        Ok(serde_yaml::from_str(yaml)?)
-    }
-}
-
-impl<T> FromYaml for T where T: DeserializeOwned {}
-
-pub trait ToYaml: Serialize {
-    /// Encode a Stencila Schema node to YAML
-    fn to_yaml(&self) -> Result<String>
-    where
-        Self: Sized,
-    {
-        Ok(serde_yaml::to_string(self)?)
-    }
-}
-
-impl<T> ToYaml for T where T: Serialize {}

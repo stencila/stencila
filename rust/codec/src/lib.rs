@@ -2,13 +2,9 @@ use std::path::Path;
 
 use common::{
     async_trait::async_trait,
-    clap::{self, ValueEnum},
-    derive_more::{Deref, DerefMut},
-    eyre::{bail, eyre, Result},
-    itertools::Itertools,
+    eyre::{bail, Result},
     serde::Serialize,
     smart_default::SmartDefault,
-    strum::Display,
     tokio::{
         fs::{create_dir_all, File},
         io::{AsyncReadExt, AsyncWriteExt},
@@ -19,6 +15,7 @@ use format::Format;
 use schema::Node;
 
 // Re-exports for the convenience of internal crates implementing `Codec`
+pub use codec_losses::{Loss, LossKind, Losses, LossesResponse};
 pub use common;
 pub use format;
 pub use schema;
@@ -250,134 +247,4 @@ pub struct EncodeOptions {
     /// The response to take when there are losses in the encoding
     #[default(_code = "LossesResponse::Warn")]
     pub losses: LossesResponse,
-}
-
-/// The response to take when there are losses in decoding or encoding
-#[derive(Debug, Clone, Copy, ValueEnum, Display)]
-#[strum(ascii_case_insensitive, serialize_all = "lowercase")]
-pub enum LossesResponse {
-    /// Ignore the losses; do nothing
-    Ignore,
-    /// Log losses as separate log entries with the `TRACE` severity level
-    Trace,
-    /// Log losses as separate log entries with the `DEBUG` severity level
-    Debug,
-    /// Log losses as separate log entries with the `INFO` severity level
-    Info,
-    /// Log losses as separate log entries with the `WARN` severity level
-    Warn,
-    /// Log losses as separate log entries with the `ERROR` severity level
-    Error,
-    /// Abort the current function call by returning a `Err` result with the losses enumerated
-    Abort,
-}
-
-/// A record of a loss during encoding or decoding
-#[derive(Debug)]
-pub struct Loss {
-    /// The type for which the loss occurred e.g. `Paragraph`
-    r#type: String,
-
-    /// The properties for which the loss occurred e.g. `authors`
-    ///
-    /// If empty, or an asterisk, then loss is assumed to be for all properties of the type.
-    properties: String,
-
-    /// A message explaining the loss
-    message: String,
-
-    /// A count of the number of times the loss occurred
-    count: usize,
-}
-
-/// Decoding and encoding losses
-#[derive(Debug, Default, Deref, DerefMut)]
-pub struct Losses {
-    inner: Vec<Loss>,
-}
-
-impl Losses {
-    /// Create a new set of losses
-    pub fn new() -> Self {
-        Self::default()
-    }
-
-    /// Create an empty set of losses
-    /// 
-    /// Equivalent to [`Losses::new`] but provided to make it more explicit
-    /// when a codec is lossless (i.e. it returns `Losses::none()`)
-    pub fn none() -> Self {
-        Self::default()
-    }
-
-    /// Register a loss
-    ///
-    /// If the type of loss is already registered then increments the count by one.
-    pub fn register(&mut self, r#type: &str, properties: &str, message: &str) {
-        for loss in self.iter_mut() {
-            if loss.r#type == r#type && loss.properties == properties && loss.message == message {
-                loss.count += 1;
-                break;
-            }
-        }
-
-        self.push(Loss {
-            r#type: r#type.to_string(),
-            properties: properties.to_string(),
-            message: message.to_string(),
-            count: 1,
-        })
-    }
-
-    /// Respond to losses according to the `LossesResponse` variant
-    pub fn respond(&self, response: LossesResponse) -> Result<()> {
-        if self.is_empty() || matches!(response, LossesResponse::Ignore) {
-            return Ok(());
-        }
-
-        if matches!(response, LossesResponse::Abort) {
-            let summary = self
-                .iter()
-                .map(
-                    |Loss {
-                         r#type,
-                         properties,
-                         message,
-                         count,
-                     }| format!("{type}[{properties}]: {message} ({count})"),
-                )
-                .join("; ");
-            let error = eyre!(summary).wrap_err("Conversion losses occurred");
-            return Err(error);
-        }
-
-        for Loss {
-            r#type,
-            properties,
-            message,
-            count,
-        } in self.iter()
-        {
-            match response {
-                LossesResponse::Trace => {
-                    tracing::event!(tracing::Level::TRACE, "Conversion losses for {type}[{properties}]: {message} ({count})", type = r#type, properties = properties, message = message, count = count);
-                }
-                LossesResponse::Debug => {
-                    tracing::event!(tracing::Level::DEBUG, "Conversion losses for {type}[{properties}]: {message} ({count})", type = r#type, properties = properties, message = message, count = count);
-                }
-                LossesResponse::Info => {
-                    tracing::event!(tracing::Level::INFO, "Conversion losses for {type}[{properties}]: {message} ({count})", type = r#type, properties = properties, message = message, count = count);
-                }
-                LossesResponse::Warn => {
-                    tracing::event!(tracing::Level::WARN, "Conversion losses for {type}[{properties}]: {message} ({count})", type = r#type, properties = properties, message = message, count = count);
-                }
-                LossesResponse::Error => {
-                    tracing::event!(tracing::Level::ERROR, "Conversion losses for {type}[{properties}]: {message} ({count})", type = r#type, properties = properties, message = message, count = count);
-                }
-                _ => bail!("Should be unreachable"),
-            };
-        }
-
-        Ok(())
-    }
 }

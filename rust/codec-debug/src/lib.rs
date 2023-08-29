@@ -47,6 +47,6 @@ impl Codec for DebugCodec {
             false => format!("{node:#?}"),
         };
 
-        Ok((debug, Losses::new()))
+        Ok((debug, Losses::none()))
     }
 }
