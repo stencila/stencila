@@ -1,10 +1,11 @@
 //! Tests on examples of Stencila documents
 
-use std::{fs::read_dir, path::PathBuf};
+use std::path::PathBuf;
 
 use codecs::{DecodeOptions, EncodeOptions};
 use common::{
     eyre::Result,
+    glob::glob,
     itertools::Itertools,
     tokio::{
         self,
@@ -14,16 +15,16 @@ use common::{
 use common_dev::pretty_assertions::assert_eq;
 use format::Format;
 
-/// Get a list of all files in the `examples` folder
+/// Get a list of JSON files in the `examples` folder
 fn examples() -> Result<Vec<PathBuf>> {
     let dir = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
         .join("../../examples")
         .canonicalize()?;
 
-    let files = read_dir(dir)?
-        .flatten()
-        .map(|path| path.path())
-        .collect_vec();
+    let pattern = dir.join("**/*.json");
+    let pattern = pattern.to_str().unwrap_or_default();
+
+    let files = glob(pattern)?.into_iter().flatten().collect_vec();
 
     Ok(files)
 }
@@ -33,7 +34,7 @@ fn examples() -> Result<Vec<PathBuf>> {
 /// For each `examples/*.json` file, load it as a `Node`, and then for
 /// each format:
 ///
-/// 1. Encode to the format and compare the current file
+/// 1. Encode to the format and compare any existing file
 /// with the corresponding file extension. If no such file exists then
 /// write the file.
 ///
@@ -46,73 +47,98 @@ fn examples() -> Result<Vec<PathBuf>> {
 ///   UPDATE_EXAMPLES=true cargo test -p tests examples_encode_decode
 #[tokio::test]
 async fn examples_encode_decode() -> Result<()> {
-    // Excludes developer focussed and/or unstable formats `Debug` and `Ron`
-    // as well as those under development.
-    const FORMATS: &[Format] = &[Format::Json5, Format::Yaml];
+    // Formats to encode examples to
+    //
+    // Excludes developer focussed and/or unstable formats e.g. `Debug`
+    let formats: &[(&str, Format, Option<EncodeOptions>, Option<DecodeOptions>)] = &[
+        (
+            "json5",
+            Format::Json5,
+            Some(EncodeOptions::default()),
+            Some(DecodeOptions::default()),
+        ),
+        (
+            "compact.json5",
+            Format::Json5,
+            Some(EncodeOptions {
+                compact: true,
+                ..Default::default()
+            }),
+            Some(DecodeOptions::default()),
+        ),
+        ("text", Format::Text, Some(EncodeOptions::default()), None),
+        (
+            "yaml",
+            Format::Yaml,
+            Some(EncodeOptions::default()),
+            Some(DecodeOptions::default()),
+        ),
+    ];
 
     let examples = examples()?;
 
-    for path in examples
-        .iter()
-        .filter(|path| path.to_string_lossy().ends_with(".json"))
-    {
+    for path in examples {
         let name = path.file_name().unwrap().to_string_lossy();
 
-        let node = codecs::from_path(path, None).await?;
+        let node = codecs::from_path(&path, None).await?;
 
-        for format in FORMATS {
+        for (extension, format, encode_options, decode_options) in formats {
             let mut file = path.clone();
-            file.set_extension(&format.get_extension());
+            file.set_extension(extension);
 
             let codec = codecs::spec(&format.to_string())?;
 
-            // Encoding: encode to string, rather than direct to file, if possible
-            // for better comparison of differences
+            if let Some(options) = encode_options {
+                // Encoding: encode to string, rather than direct to file, if possible
+                // for better comparison of differences
 
-            let encode_options = EncodeOptions {
-                format: Some(*format),
-                ..Default::default()
-            };
+                let options = EncodeOptions {
+                    format: Some(*format),
+                    ..options.clone()
+                };
 
-            if codec.supports_to_string {
-                let actual = codecs::to_string(&node, Some(encode_options)).await?;
+                if codec.supports_to_string {
+                    let actual = codecs::to_string(&node, Some(options)).await?;
 
-                if file.exists() {
-                    // Existing file: compare string content of files
-                    let expected = read_to_string(&file).await?;
-                    if actual != expected {
-                        if std::env::var("UPDATE_EXAMPLES").unwrap_or_default() == "true" {
-                            write(&file, actual).await?;
-                        } else {
-                            assert_eq!(
-                                actual, expected,
-                                "Example `{name}`, format `{format}`: encoded file differs",
-                            );
+                    if file.exists() {
+                        // Existing file: compare string content of files
+                        let expected = read_to_string(&file).await?;
+                        if actual != expected {
+                            if std::env::var("UPDATE_EXAMPLES").unwrap_or_default() == "true" {
+                                write(&file, actual).await?;
+                            } else {
+                                assert_eq!(
+                                    actual, expected,
+                                    "Example `{name}`, format `{format}`: encoded file differs",
+                                );
+                            }
                         }
+                    } else {
+                        // No existing file: write a new one
+                        write(&file, actual).await?;
                     }
                 } else {
-                    // No existing file: write a new one
-                    write(&file, actual).await?;
-                }
-            } else {
-                // Just file if it does not yet exists. At present not attempting
-                // to compared binary files (e.g. may include timestamps and change each run)
-                if !file.exists() {
-                    codecs::to_path(&node, &file, Some(encode_options)).await?;
+                    // Just encode to file if it does not yet exist. At present not attempting
+                    // to compared binary files (e.g. may include timestamps and change each run)
+                    if !file.exists() {
+                        codecs::to_path(&node, &file, Some(options)).await?;
+                    }
                 }
             }
 
-            // Decoding: always from the file
+            if let Some(options) = decode_options {
+                // Decoding: always from the file
 
-            let decode_options = DecodeOptions {
-                format: Some(*format),
-                ..Default::default()
-            };
-            let actual = codecs::from_path(&file, Some(decode_options)).await?;
-            assert_eq!(
-                actual, node,
-                "Example `{name}`, format `{format}`: decoded node differs"
-            );
+                let options = DecodeOptions {
+                    format: Some(*format),
+                    ..options.clone()
+                };
+                let actual = codecs::from_path(&file, Some(options)).await?;
+                assert_eq!(
+                    actual, node,
+                    "Example `{name}`, format `{format}`: decoded node differs"
+                );
+            }
         }
     }
 
