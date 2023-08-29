@@ -24,7 +24,7 @@ fn examples() -> Result<Vec<PathBuf>> {
     let pattern = dir.join("**/*.json");
     let pattern = pattern.to_str().unwrap_or_default();
 
-    let files = glob(pattern)?.into_iter().flatten().collect_vec();
+    let files = glob(pattern)?.flatten().collect_vec();
 
     Ok(files)
 }

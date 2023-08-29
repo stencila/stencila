@@ -340,7 +340,7 @@ impl Document {
 
         if let Some(dest) = dest {
             let mut store = self.store.write().await;
-            let commit = root
+            let _commit = root
                 .write(
                     &mut store,
                     &self.path,
