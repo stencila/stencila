@@ -23,7 +23,6 @@ pub use glob;
 pub use indexmap;
 pub use inflector;
 pub use itertools;
-pub use json5;
 pub use maplit;
 pub use once_cell;
 pub use proc_macro2;
