@@ -39,18 +39,6 @@ const NO_READ: &[&str] = &["Null", "Primitive", "TextValue", "Node"];
 /// Types that should not derive `Write` because there are manual implementations
 const NO_WRITE: &[&str] = &["Null", "Primitive", "TextValue"];
 
-/// Types that should not derive the `Strip` trait because there are manual implementations
-const NO_STRIP: &[&str] = &[
-    "Call",
-    "CallArgument",
-    "CodeChunk",
-    "CodeExpression",
-    "For",
-    "If",
-    "IfClause",
-    "Include",
-];
-
 /// Properties that need to be boxed to avoid recursive types
 const BOX_PROPERTIES: &[&str] = &[
     "*.is_part_of",
@@ -258,19 +246,38 @@ impl Schemas {
             .replace('\n', "\n/// ")
             .to_string();
 
-        let mut derive_traits =
-            "Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize".to_string();
+        let mut attrs = vec![
+            // skip_serializing_none has to come before derives
+            "#[skip_serializing_none]".to_string(),
+        ];
+
+        let mut derives = vec![
+            "Debug",
+            "SmartDefault",
+            "Clone",
+            "PartialEq",
+            "Serialize",
+            "Deserialize",
+            "HtmlCodec",
+            "TextCodec",
+            "StripNode",
+        ];
         let title = title.as_str();
-        if !NO_STRIP.contains(&title) {
-            derive_traits += ", Strip";
-        }
         if !NO_READ.contains(&title) {
-            derive_traits += ", Read";
+            derives.push("Read");
         }
         if !NO_WRITE.contains(&title) {
-            derive_traits += ", Write";
+            derives.push("Write");
         }
-        derive_traits += ", HtmlCodec, TextCodec";
+        attrs.push(format!("#[derive({})]", derives.join(", ")));
+
+        attrs.push("#[serde(rename_all = \"camelCase\", crate = \"common::serde\")]".to_string());
+
+        if let Some(strip) = &schema.strip {
+            attrs.push(format!("#[strip({})]", strip.join(", ")));
+        }
+
+        let attrs = attrs.join("\n");
 
         let mut fields = Vec::new();
         let mut used_types = HashSet::new();
@@ -323,6 +330,10 @@ impl Schemas {
                 attrs.push(format!("#[default = {default}]"));
             }
 
+            if let Some(strip) = &property.strip {
+                attrs.push(format!("#[strip({})]", strip.join(", ")));
+            }
+
             // Generate the code for the field
             let attrs = match attrs.is_empty() {
                 true => String::new(),
@@ -360,9 +371,7 @@ impl Schemas {
             format!(
                 r#"
 
-#[skip_serializing_none]
-#[derive({derive_traits})]
-#[serde(rename_all = "camelCase", crate = "common::serde")]
+{attrs}
 pub struct {title}Options {{
     {optional_fields}
 }}
@@ -430,12 +439,6 @@ pub struct {title}Options {{
             String::new()
         };
 
-        let html = schema
-            .html
-            .as_ref()
-            .map(|html| format!("#[html(elem = \"{html}\")]\n"))
-            .unwrap_or_default();
-
         write(
             path,
             &format!(
@@ -444,9 +447,7 @@ pub struct {title}Options {{
 use crate::prelude::*;
 
 {uses}/// {description}
-#[skip_serializing_none]
-#[derive({derive_traits})]
-#[serde(rename_all = "camelCase", crate = "common::serde")]
+{attrs}
 pub struct {title} {{
     {core_fields}
 }}{options}
@@ -546,27 +547,46 @@ impl {title} {{{new}}}
             })
             .join("\n    ");
 
-        let mut derive_traits =
-            "Debug, Clone, PartialEq, Display, Serialize, Deserialize".to_string();
-        let title = name.as_str();
+        let mut attrs = vec![];
+
+        let mut derives = vec![
+            "Debug",
+            "Display",
+            "Clone",
+            "PartialEq",
+            "Serialize",
+            "Deserialize",
+            "HtmlCodec",
+            "TextCodec",
+            "StripNode",
+        ];
+        
         if default.is_some() {
-            derive_traits += ", SmartDefault";
+            derives.push("SmartDefault");
         };
-        if !NO_STRIP.contains(&title) {
-            derive_traits += ", Strip";
-        }
+
+        let title = name.as_str();
         if !NO_READ.contains(&title) {
-            derive_traits += ", Read";
+            derives.push("Read");
         }
         if !NO_WRITE.contains(&title) {
-            derive_traits += ", Write";
+            derives.push("Write");
         }
-        derive_traits += ", HtmlCodec, TextCodec";
+        attrs.push(format!("#[derive({})]", derives.join(", ")));
 
-        let serde_tagged = match unit_variants {
-            false => "untagged, ",
-            true => "",
-        };
+        attrs.push(format!(
+            "#[serde({}crate = \"common::serde\")]",
+            match unit_variants {
+                false => "untagged, ",
+                true => "",
+            }
+        ));
+
+        if let Some(strip) = &schema.strip {
+            attrs.push(format!("#[strip({})]", strip.join(", ")));
+        }
+
+        let attrs = attrs.join("\n");
 
         let rust = format!(
             r#"{GENERATED_COMMENT}
@@ -574,8 +594,7 @@ impl {title} {{{new}}}
 use crate::prelude::*;
 
 {uses}/// {description}
-#[derive({derive_traits})]
-#[serde({serde_tagged}crate = "common::serde")]
+{attrs}
 pub enum {name} {{
     {variants}
 }}

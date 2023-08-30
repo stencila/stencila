@@ -7,13 +7,14 @@ use super::string::String;
 
 /// A tag on code that affects its execution
 #[skip_serializing_none]
-#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, Strip, Read, Write, HtmlCodec, TextCodec)]
+#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, HtmlCodec, TextCodec, StripNode, Read, Write)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 pub struct ExecutionTag {
     /// The type of this item
     pub r#type: MustBe!("ExecutionTag"),
 
     /// The identifier for this item
+    #[strip(id)]
     pub id: Option<String>,
 
     /// The name of the tag

@@ -12,13 +12,14 @@ use super::string::String;
 
 /// A person (alive, dead, undead, or fictional).
 #[skip_serializing_none]
-#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, Strip, Read, Write, HtmlCodec, TextCodec)]
+#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, HtmlCodec, TextCodec, StripNode, Read, Write)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 pub struct Person {
     /// The type of this item
     pub r#type: MustBe!("Person"),
 
     /// The identifier for this item
+    #[strip(id)]
     pub id: Option<String>,
 
     /// Organizations that the person is affiliated with.
@@ -36,7 +37,7 @@ pub struct Person {
 }
 
 #[skip_serializing_none]
-#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, Strip, Read, Write, HtmlCodec, TextCodec)]
+#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, HtmlCodec, TextCodec, StripNode, Read, Write)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 pub struct PersonOptions {
     /// Alternate names (aliases) for the item.

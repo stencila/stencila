@@ -21,13 +21,14 @@ use super::thing_type::ThingType;
 
 /// Computer programming source code. Example: Full (compile ready) solutions, code snippet samples, scripts, templates.
 #[skip_serializing_none]
-#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, Strip, Read, Write, HtmlCodec, TextCodec)]
+#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, HtmlCodec, TextCodec, StripNode, Read, Write)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 pub struct SoftwareSourceCode {
     /// The type of this item
     pub r#type: MustBe!("SoftwareSourceCode"),
 
     /// The identifier for this item
+    #[strip(id)]
     pub id: Option<String>,
 
     /// Link to the repository where the un-compiled, human readable code and related
@@ -46,7 +47,7 @@ pub struct SoftwareSourceCode {
 }
 
 #[skip_serializing_none]
-#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, Strip, Read, Write, HtmlCodec, TextCodec)]
+#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, HtmlCodec, TextCodec, StripNode, Read, Write)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 pub struct SoftwareSourceCodeOptions {
     /// Alternate names (aliases) for the item.

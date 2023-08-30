@@ -11,13 +11,14 @@ use super::string::String;
 
 /// A column of data within a Datatable.
 #[skip_serializing_none]
-#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, Strip, Read, Write, HtmlCodec, TextCodec)]
+#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, HtmlCodec, TextCodec, StripNode, Read, Write)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 pub struct DatatableColumn {
     /// The type of this item
     pub r#type: MustBe!("DatatableColumn"),
 
     /// The identifier for this item
+    #[strip(id)]
     pub id: Option<String>,
 
     /// The name of the item.
@@ -35,7 +36,7 @@ pub struct DatatableColumn {
 }
 
 #[skip_serializing_none]
-#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, Strip, Read, Write, HtmlCodec, TextCodec)]
+#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, HtmlCodec, TextCodec, StripNode, Read, Write)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 pub struct DatatableColumnOptions {
     /// Alternate names (aliases) for the item.

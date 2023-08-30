@@ -9,13 +9,14 @@ use super::string::String;
 
 /// A word, name, acronym, phrase, etc. with a formal definition.
 #[skip_serializing_none]
-#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, Strip, Read, Write, HtmlCodec, TextCodec)]
+#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, HtmlCodec, TextCodec, StripNode, Read, Write)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 pub struct DefinedTerm {
     /// The type of this item
     pub r#type: MustBe!("DefinedTerm"),
 
     /// The identifier for this item
+    #[strip(id)]
     pub id: Option<String>,
 
     /// The name of the item.
@@ -27,7 +28,7 @@ pub struct DefinedTerm {
 }
 
 #[skip_serializing_none]
-#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, Strip, Read, Write, HtmlCodec, TextCodec)]
+#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, HtmlCodec, TextCodec, StripNode, Read, Write)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 pub struct DefinedTermOptions {
     /// Alternate names (aliases) for the item.

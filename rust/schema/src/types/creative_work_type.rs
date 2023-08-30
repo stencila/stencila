@@ -23,7 +23,7 @@ use super::table::Table;
 use super::video_object::VideoObject;
 
 /// Union type for all types that are descended from `CreativeWork`
-#[derive(Debug, Clone, PartialEq, Display, Serialize, Deserialize, Strip, Read, Write, HtmlCodec, TextCodec)]
+#[derive(Debug, Display, Clone, PartialEq, Serialize, Deserialize, HtmlCodec, TextCodec, StripNode, Read, Write)]
 #[serde(untagged, crate = "common::serde")]
 pub enum CreativeWorkType {
     Article(Article),

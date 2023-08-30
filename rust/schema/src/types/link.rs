@@ -7,13 +7,14 @@ use super::string::String;
 
 /// A hyperlink to other pages, sections within the same document, resources, or any URL.
 #[skip_serializing_none]
-#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, Strip, Read, Write, HtmlCodec, TextCodec)]
+#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, HtmlCodec, TextCodec, StripNode, Read, Write)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 pub struct Link {
     /// The type of this item
     pub r#type: MustBe!("Link"),
 
     /// The identifier for this item
+    #[strip(id)]
     pub id: Option<String>,
 
     /// The textual content of the link.
@@ -28,7 +29,7 @@ pub struct Link {
 }
 
 #[skip_serializing_none]
-#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, Strip, Read, Write, HtmlCodec, TextCodec)]
+#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, HtmlCodec, TextCodec, StripNode, Read, Write)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 pub struct LinkOptions {
     /// A title for the link.

@@ -19,13 +19,14 @@ use super::thing_type::ThingType;
 
 /// A creative work, including books, movies, photographs, software programs, etc.
 #[skip_serializing_none]
-#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, Strip, Read, Write, HtmlCodec, TextCodec)]
+#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, HtmlCodec, TextCodec, StripNode, Read, Write)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 pub struct CreativeWork {
     /// The type of this item
     pub r#type: MustBe!("CreativeWork"),
 
     /// The identifier for this item
+    #[strip(id)]
     pub id: Option<String>,
 
     /// Non-core optional fields
@@ -34,7 +35,7 @@ pub struct CreativeWork {
 }
 
 #[skip_serializing_none]
-#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, Strip, Read, Write, HtmlCodec, TextCodec)]
+#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, HtmlCodec, TextCodec, StripNode, Read, Write)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 pub struct CreativeWorkOptions {
     /// Alternate names (aliases) for the item.

@@ -3,7 +3,7 @@
 use crate::prelude::*;
 
 /// A unit in which time can be measured
-#[derive(Debug, Clone, PartialEq, Display, Serialize, Deserialize, SmartDefault, Strip, Read, Write, HtmlCodec, TextCodec)]
+#[derive(Debug, Display, Clone, PartialEq, Serialize, Deserialize, HtmlCodec, TextCodec, StripNode, SmartDefault, Read, Write)]
 #[serde(crate = "common::serde")]
 pub enum TimeUnit {
     Year,

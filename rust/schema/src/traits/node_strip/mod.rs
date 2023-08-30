@@ -1,11 +1,8 @@
-mod macros;
+use node_strip::StripNode;
 
-mod call;
-mod call_argument;
-mod code_chunk;
-mod code_expression;
-mod r#for;
-mod r#if;
-mod if_clause;
-mod include;
-mod primitives;
+use crate::{Array, Null, Object, TextValue};
+
+impl StripNode for Array {}
+impl StripNode for Null {}
+impl StripNode for Object {}
+impl StripNode for TextValue {}

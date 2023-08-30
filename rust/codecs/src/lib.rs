@@ -10,7 +10,7 @@ use codec::{
     CodecSpec,
 };
 pub use codec::{Codec, DecodeOptions, EncodeOptions, Losses, LossesResponse};
-use node_strip::Strip;
+use node_strip::StripNode;
 
 /// Get a list of all codecs
 pub fn list() -> Vec<Box<dyn Codec>> {
@@ -135,7 +135,7 @@ pub async fn to_string(node: &Node, options: Option<EncodeOptions>) -> Result<St
                 id,
                 code,
                 execution,
-                outputs,
+                output: outputs,
             });
 
             let (content, losses) = codec.to_string(&node, options.clone()).await?;
@@ -176,7 +176,7 @@ pub async fn to_path(node: &Node, path: &Path, options: Option<EncodeOptions>) -
                 id,
                 code,
                 execution,
-                outputs,
+                output: outputs,
             });
 
             let losses = codec.to_path(&node, path, options.clone()).await?;

@@ -13,26 +13,34 @@ properties:
   source:
     '@id': stencila:source
     description: The external source of the content, a file path or URL.
+    strip:
+      - code
     type: string
   mediaType:
     '@id': schema:encodingFormat
     aliases:
       - encodingFormat
     description: Media type of the source content.
-    type: string
     $comment: |
       Typically expressed using a file name extensions (e.g. `md`) or a
       MIME type (e.g. `text/md`).
+    strip:
+      - code
+    type: string
   select:
     '@id': stencila:select
     description: A query to select a subset of content from the source
+    strip:
+      - code
     type: string
   content:
     '@id': stencila:content
     description: The structured content decoded from the source.
-    type: array
-    items:
-      $ref: Block
     $comment: |
       Assumes that included content will be block content i.e. that there will be limited
       instances where a user would want to use an `Include` node to transclude inline content.
+    strip:
+      - output
+    type: array
+    items:
+      $ref: Block

@@ -1,56 +1,123 @@
-//! Provides a `Strip` derive macro for structs and enums in Stencila Schema
+//! Provides a `StripNode` derive macro for structs and enums in Stencila Schema
+
+use darling::{self, FromDeriveInput, FromField};
 
 use common::{
     proc_macro2::TokenStream,
     quote::quote,
-    syn::{parse_macro_input, Data, DataEnum, DataStruct, DeriveInput, Fields},
+    syn::{parse_macro_input, Data, DataEnum, DeriveInput, Fields, Ident, PathSegment, Type},
 };
 
-/// Derive the `Strip` trait for a `struct` or `enum`
-#[proc_macro_derive(Strip)]
-pub fn derive_strip(input: proc_macro::TokenStream) -> proc_macro::TokenStream {
-    let input = parse_macro_input!(input as DeriveInput);
-
-    let tokens = match &input.data {
-        Data::Struct(data) => derive_struct(&input, data),
-        Data::Enum(data) => derive_enum(&input, data),
-        Data::Union(..) => return proc_macro::TokenStream::new(),
-    };
-
-    proc_macro::TokenStream::from(tokens)
+#[derive(FromDeriveInput)]
+#[darling(attributes(strip))]
+struct TypeAttr {
+    ident: Ident,
+    data: darling::ast::Data<darling::util::Ignored, FieldAttr>,
 }
 
-/// Derive the `Strip` trait for a `struct`
-fn derive_struct(input: &DeriveInput, data: &DataStruct) -> TokenStream {
-    let struct_name = &input.ident;
+#[derive(FromField)]
+#[darling(attributes(strip))]
+struct FieldAttr {
+    ident: Option<Ident>,
+    ty: Type,
+
+    #[darling(default)]
+    id: bool,
+    #[darling(default)]
+    code: bool,
+    #[darling(default)]
+    execution: bool,
+    #[darling(default)]
+    output: bool,
+}
+
+/// Derive the `StripNode` trait for a `struct` or `enum`
+#[proc_macro_derive(StripNode, attributes(strip))]
+pub fn derive(input: proc_macro::TokenStream) -> proc_macro::TokenStream {
+    use proc_macro::TokenStream;
+
+    let input = parse_macro_input!(input as DeriveInput);
+
+    let attr = match TypeAttr::from_derive_input(&input) {
+        Ok(value) => value,
+        Err(error) => {
+            return TokenStream::from(error.write_errors());
+        }
+    };
+
+    let tokens = match &input.data {
+        Data::Struct(..) => derive_struct(attr),
+        Data::Enum(data) => derive_enum(attr, data),
+        Data::Union(..) => return TokenStream::new(),
+    };
+
+    TokenStream::from(tokens)
+}
+
+/// Derive the `StripNode` trait for a `struct`
+fn derive_struct(type_attr: TypeAttr) -> TokenStream {
+    let struct_name = type_attr.ident;
 
     let mut fields = TokenStream::new();
-    for field in &data.fields {
-        let field_ident = &field.ident;
-        let field_name = &field_ident
-            .as_ref()
-            .map(|ident| ident.to_string())
-            .unwrap_or_default();
+    type_attr.data.map_struct_fields(|field| {
+        let field_name = field.ident;
 
-        let field = if field_name == "id" {
-            quote! {
-                if targets.id {
-                    self.id = None;
-                }
-            }
-        } else if field_name != "r#type" {
-            quote! {
-                self.#field_ident.strip(targets);
-            }
-        } else {
-            continue;
+        let Type::Path(type_path) = field.ty else {
+            return
+        };
+        let Some(PathSegment{ident: field_type,..}) = type_path.path.segments.last() else {
+           return
         };
 
-        fields.extend(field);
-    }
+        // The tokens needed to strip the field
+        let strip = if field_type == "Option" {
+            quote! { = None; }
+        } else {
+            quote! { .clear() }
+        };
+
+        // Strip the field if it is targeted
+
+        if field.id {
+            fields.extend(quote! {
+                if targets.id {
+                    self.#field_name #strip;
+                }
+            })
+        }
+
+        if field.code {
+            fields.extend(quote! {
+                if targets.code {
+                    self.#field_name #strip;
+                }
+            })
+        }
+
+        if field.execution {
+            fields.extend(quote! {
+                if targets.execution {
+                    self.#field_name #strip;
+                }
+            })
+        }
+
+        if field.output {
+            fields.extend(quote! {
+                if targets.output {
+                    self.#field_name #strip;
+                }
+            })
+        }
+
+        // For all fields, recursively call strip
+        fields.extend(quote! {
+            self.#field_name.strip(targets);
+        })
+    });
 
     quote! {
-        impl node_strip::Strip for #struct_name {
+        impl node_strip::StripNode for #struct_name {
             fn strip(&mut self, targets: &node_strip::Targets) -> &mut Self {
                 #fields
                 self
@@ -59,11 +126,11 @@ fn derive_struct(input: &DeriveInput, data: &DataStruct) -> TokenStream {
     }
 }
 
-/// Derive the `Strip` trait for an `enum`
-fn derive_enum(input: &DeriveInput, data: &DataEnum) -> TokenStream {
-    let enum_name = &input.ident;
+/// Derive the `StripNode` trait for an `enum`
+fn derive_enum(type_attr: TypeAttr, data: &DataEnum) -> TokenStream {
+    let enum_name = type_attr.ident;
 
-    let mut cases = TokenStream::new();
+    let mut variants = TokenStream::new();
     for variant in &data.variants {
         let variant_name = &variant.ident;
         let case = match &variant.fields {
@@ -72,19 +139,19 @@ fn derive_enum(input: &DeriveInput, data: &DataEnum) -> TokenStream {
             },
             Fields::Unit => continue,
         };
-        cases.extend(case)
+        variants.extend(case)
     }
 
-    if cases.is_empty() {
+    if variants.is_empty() {
         quote! {
-            impl node_strip::Strip for #enum_name {}
+            impl node_strip::StripNode for #enum_name {}
         }
     } else {
         quote! {
-            impl node_strip::Strip for #enum_name {
+            impl node_strip::StripNode for #enum_name {
                 fn strip(&mut self, targets: &node_strip::Targets) -> &mut Self {
                     match self {
-                        #cases
+                        #variants
                     }
                     self
                 }

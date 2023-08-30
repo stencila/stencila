@@ -552,7 +552,6 @@ dependencies = [
  "base64 0.21.3",
  "chrono",
  "clap",
- "darling",
  "derivative",
  "derive_more",
  "dirs",
@@ -1607,6 +1606,7 @@ name = "node-strip"
 version = "0.0.0"
 dependencies = [
  "common",
+ "node-strip-derive",
 ]
 
 [[package]]
@@ -1614,6 +1614,7 @@ name = "node-strip-derive"
 version = "0.0.0"
 dependencies = [
  "common",
+ "darling",
 ]
 
 [[package]]
@@ -2133,7 +2134,6 @@ dependencies = [
  "node-store",
  "node-store-derive",
  "node-strip",
- "node-strip-derive",
  "smol_str",
 ]
 

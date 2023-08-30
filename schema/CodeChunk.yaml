@@ -8,10 +8,14 @@ properties:
   executionPure:
     '@id': stencila:executionPure
     description: Whether the code should be treated as side-effect free when executed.
+    strip:
+      - execution
     type: boolean
   outputs:
     '@id': stencila:outputs
     description: Outputs from executing the chunk.
+    strip:
+      - output
     type: array
     items:
       $ref: Node

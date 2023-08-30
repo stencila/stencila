@@ -3,7 +3,7 @@
 use crate::prelude::*;
 
 /// The type of a `Claim`.
-#[derive(Debug, Clone, PartialEq, Display, Serialize, Deserialize, SmartDefault, Strip, Read, Write, HtmlCodec, TextCodec)]
+#[derive(Debug, Display, Clone, PartialEq, Serialize, Deserialize, HtmlCodec, TextCodec, StripNode, SmartDefault, Read, Write)]
 #[serde(crate = "common::serde")]
 pub enum ClaimType {
     #[default]

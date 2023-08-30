@@ -50,4 +50,3 @@ impl Codec for JsonCodec {
         Ok((json, Losses::none()))
     }
 }
-

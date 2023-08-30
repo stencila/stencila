@@ -167,6 +167,9 @@ pub struct Schema {
     /// the `options` field of generated Rust types
     pub core: Option<Vec<String>>,
 
+    /// The property stripping targets that the property should be removed for
+    pub strip: Option<Vec<String>>,
+
     // Stencila derived properties
     /// The schema that the property is defined on
     #[serde(skip)]

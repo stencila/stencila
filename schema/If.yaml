@@ -9,6 +9,8 @@ properties:
   clauses:
     '@id': 'stencila:clauses'
     description: The clauses making up the `If` node
+    strip:
+      - code
     type: array
     items:
       $ref: IfClause

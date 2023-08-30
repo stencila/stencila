@@ -7,13 +7,14 @@ use super::string::String;
 
 /// A validator specifying the constraints on a numeric node.
 #[skip_serializing_none]
-#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, Strip, Read, Write, HtmlCodec, TextCodec)]
+#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, HtmlCodec, TextCodec, StripNode, Read, Write)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 pub struct NumberValidator {
     /// The type of this item
     pub r#type: MustBe!("NumberValidator"),
 
     /// The identifier for this item
+    #[strip(id)]
     pub id: Option<String>,
 
     /// The inclusive lower limit for a numeric node.

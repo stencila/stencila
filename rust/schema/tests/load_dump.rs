@@ -8,7 +8,7 @@ use schema::{
 };
 
 use node_store::{Read, Write, WriteStore};
-use node_strip::{Strip, Targets};
+use node_strip::{StripNode, Targets};
 
 fn txt(value: &str) -> Text {
     Text::new(TextValue(value.to_string()))

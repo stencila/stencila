@@ -20,13 +20,14 @@ use super::timestamp::Timestamp;
 
 /// A executable chunk of code.
 #[skip_serializing_none]
-#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, Read, Write, HtmlCodec, TextCodec)]
+#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, HtmlCodec, TextCodec, StripNode, Read, Write)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 pub struct CodeChunk {
     /// The type of this item
     pub r#type: MustBe!("CodeChunk"),
 
     /// The identifier for this item
+    #[strip(id)]
     pub id: Option<String>,
 
     /// The code.
@@ -39,6 +40,7 @@ pub struct CodeChunk {
     pub guess_language: Option<Boolean>,
 
     /// Outputs from executing the chunk.
+    #[strip(output)]
     pub outputs: Option<Vec<Node>>,
 
     /// Non-core optional fields
@@ -47,52 +49,66 @@ pub struct CodeChunk {
 }
 
 #[skip_serializing_none]
-#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, Read, Write, HtmlCodec, TextCodec)]
+#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, HtmlCodec, TextCodec, StripNode, Read, Write)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 pub struct CodeChunkOptions {
     /// Under which circumstances the code should be automatically executed.
+    #[strip(execution)]
     pub execution_auto: Option<ExecutionAuto>,
 
     /// A digest of the content, semantics and dependencies of the node.
+    #[strip(execution)]
     pub compilation_digest: Option<ExecutionDigest>,
 
     /// The `compileDigest` of the node when it was last executed.
+    #[strip(execution)]
     pub execution_digest: Option<ExecutionDigest>,
 
     /// The upstream dependencies of this node.
+    #[strip(execution)]
     pub execution_dependencies: Option<Vec<ExecutionDependency>>,
 
     /// The downstream dependants of this node.
+    #[strip(execution)]
     pub execution_dependants: Option<Vec<ExecutionDependant>>,
 
     /// Tags in the code which affect its execution
+    #[strip(execution)]
     pub execution_tags: Option<Vec<ExecutionTag>>,
 
     /// A count of the number of times that the node has been executed.
+    #[strip(execution)]
     pub execution_count: Option<Integer>,
 
     /// Whether, and why, the code requires execution or re-execution.
+    #[strip(execution)]
     pub execution_required: Option<ExecutionRequired>,
 
     /// The id of the kernel that the node was last executed in.
+    #[strip(execution)]
     pub execution_kernel: Option<String>,
 
     /// Status of the most recent, including any current, execution.
+    #[strip(execution)]
     pub execution_status: Option<ExecutionStatus>,
 
     /// The timestamp when the last execution ended.
+    #[strip(execution)]
     pub execution_ended: Option<Timestamp>,
 
     /// Duration of the last execution.
+    #[strip(execution)]
     pub execution_duration: Option<Duration>,
 
     /// Errors when compiling (e.g. syntax errors) or executing the node.
+    #[strip(execution)]
     pub errors: Option<Vec<CodeError>>,
 
     /// Media type, typically expressed using a MIME format, of the code.
     pub media_type: Option<String>,
 
     /// Whether the code should be treated as side-effect free when executed.
+    #[strip(execution)]
     pub execution_pure: Option<Boolean>,
 
     /// A short label for the CodeChunk.

@@ -9,13 +9,14 @@ use super::validator::Validator;
 
 /// A validator specifying constraints on an array node.
 #[skip_serializing_none]
-#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, Strip, Read, Write, HtmlCodec, TextCodec)]
+#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, HtmlCodec, TextCodec, StripNode, Read, Write)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 pub struct ArrayValidator {
     /// The type of this item
     pub r#type: MustBe!("ArrayValidator"),
 
     /// The identifier for this item
+    #[strip(id)]
     pub id: Option<String>,
 
     /// Whether items can have the value `Node::Null`

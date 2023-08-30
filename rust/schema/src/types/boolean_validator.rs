@@ -6,13 +6,14 @@ use super::string::String;
 
 /// A schema specifying that a node must be a boolean value.
 #[skip_serializing_none]
-#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, Strip, Read, Write, HtmlCodec, TextCodec)]
+#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, HtmlCodec, TextCodec, StripNode, Read, Write)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 pub struct BooleanValidator {
     /// The type of this item
     pub r#type: MustBe!("BooleanValidator"),
 
     /// The identifier for this item
+    #[strip(id)]
     pub id: Option<String>,
 }
 impl BooleanValidator {

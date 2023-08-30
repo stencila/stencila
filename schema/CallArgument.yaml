@@ -15,12 +15,18 @@ properties:
   code:
     '@id': stencila:code
     description: The code to be evaluated for the parameter.
+    strip:
+      - code
     type: string
   programmingLanguage:
     '@id': schema:programmingLanguage
     description: The programming language of the code.
+    strip:
+      - code
     type: string
   guessLanguage:
     '@id': stencila:guessLanguage
     description: Whether the programming language of the code should be guessed based on syntax and variables used
+    strip:
+      - code
     type: boolean

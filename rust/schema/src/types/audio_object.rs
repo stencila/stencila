@@ -20,13 +20,14 @@ use super::thing_type::ThingType;
 
 /// An audio file
 #[skip_serializing_none]
-#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, Strip, Read, Write, HtmlCodec, TextCodec)]
+#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, HtmlCodec, TextCodec, StripNode, Read, Write)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 pub struct AudioObject {
     /// The type of this item
     pub r#type: MustBe!("AudioObject"),
 
     /// The identifier for this item
+    #[strip(id)]
     pub id: Option<String>,
 
     /// URL for the actual bytes of the media object, for example the image file or video file.
@@ -41,7 +42,7 @@ pub struct AudioObject {
 }
 
 #[skip_serializing_none]
-#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, Strip, Read, Write, HtmlCodec, TextCodec)]
+#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, HtmlCodec, TextCodec, StripNode, Read, Write)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 pub struct AudioObjectOptions {
     /// Alternate names (aliases) for the item.

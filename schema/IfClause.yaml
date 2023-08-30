@@ -7,6 +7,8 @@ properties:
   isActive:
     '@id': stencila:isActive
     description: Whether this clause is the active clause in the parent `If` node
+    strip:
+      - output
     type: boolean
   content:
     '@id': stencila:content
