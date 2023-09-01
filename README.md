@@ -167,19 +167,19 @@ This repository is organized into the following modules. Please see their respec
 
 - `json-ld` [`🧭 Planned`]: A [JSON LD](https://json-ld.org/) `@context`, generated from Stencila Schema, which can be used to transform Stencila documents to other vocabularies.
 
-- `json-schema` [`🧭 Planned`]: A [JSON Schema](https://json-schema.org/), generated from Stencila Schema, which can be used to validate Stencila documents.
+- [`json-schema`](json-schema) [`🏗️ In progress`]: A [JSON Schema](https://json-schema.org/), generated from Stencila Schema, which can be used to validate Stencila documents.
 
 - [`rust`](rust): Several Rust crates implementing core functionality and a CLI for working with Stencila documents.
 
-- `python` [`🧭 Planned`](https://github.com/stencila/stencila/issues/1624): A Python package, with [Pydantic](https://docs.pydantic.dev/latest/) classes generated from Stencila Schema and bindings to Rust functions, so you can work with Stencila documents from within Python.
+- [`python`](python) [`🏗️ In progress`](https://github.com/stencila/stencila/issues/1624): A Python package, with [Pydantic](https://docs.pydantic.dev/latest/) classes generated from Stencila Schema and bindings to Rust functions, so you can work with Stencila documents from within Python.
 
-- `typescript` [`🏗️ In progress`](https://github.com/stencila/stencila/issues/1625): A package of TypeScript types generated from Stencila Schema so you can create type-safe Stencila documents in the browser, Node.js, Deno etc.
+- [`typescript`](typescript) [`🏗️ In progress`](https://github.com/stencila/stencila/issues/1625): A package of TypeScript types generated from Stencila Schema so you can create type-safe Stencila documents in the browser, Node.js, Deno etc.
 
 - `node` [`🧭 Planned`](https://github.com/stencila/stencila/issues/1626): A Node.js package, using the generated TypeScript types and with runtime validation and bindings to Rust functions, so you can work with Stencila documents from within Node.js.
 
 - [`docs`](docs) `🏗️ In progress`: Documentation, including reference documentation generated from `schema` and the `rust` CLI tool.
 
-- [`examples`](examples) `🏗️ In progress`: Example of documents conforming to Stencila Schema.
+- [`examples`](examples) `🏗️ In progress`: Example of documents conforming to Stencila Schema, mostly for testing purposes.
 
 
 ## 💖 Supporters
