@@ -18,6 +18,9 @@ jobs:
       id-token: write
 
     steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
       - name: Create archive to upload
         run: |
           tar \
