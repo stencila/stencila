@@ -2,20 +2,17 @@
 
 use std::path::PathBuf;
 
-use schemars::{gen::SchemaSettings, JsonSchema};
+use schemars::JsonSchema;
 
 use common::{
     eyre::{bail, eyre, Context, Result},
     indexmap::IndexMap,
-    serde::Deserialize,
+    serde::{Deserialize, Serialize},
     serde_json::{self, json},
     serde_with::skip_serializing_none,
     serde_yaml,
     strum::{AsRefStr, Display},
-    tokio::{
-        fs::{read_to_string, File},
-        io::AsyncWriteExt,
-    },
+    tokio::fs::read_to_string,
 };
 
 /// A schema in the Stencila Schema
@@ -40,7 +37,7 @@ use common::{
 /// to this meta-schema. Amongst other things, this provides useful tool tips and input validation
 /// in several commonly used code editors.
 #[skip_serializing_none]
-#[derive(Debug, Default, Clone, Deserialize, JsonSchema)]
+#[derive(Debug, Default, Clone, Deserialize, Serialize, JsonSchema)]
 #[serde(
     default,
     rename_all = "camelCase",
@@ -200,6 +197,7 @@ pub struct Schema {
     /// and MUST be unique. An object instance is valid against this keyword if every item in the array
     /// is the name of a property in the instance. Omitting this keyword has the same behavior
     /// as an empty array.
+    #[serde(skip_serializing_if = "Vec::is_empty")]
     pub required: Vec<String>,
 
     /// The properties of an object schema
@@ -210,6 +208,7 @@ pub struct Schema {
     /// schema. The annotation result of this keyword is the set of instance property names matched by this keyword.
     ///
     /// Omitting this keyword has the same assertion behavior as an empty object.
+    #[serde(skip_serializing_if = "IndexMap::is_empty")]
     pub properties: IndexMap<String, Schema>,
 
     /// The subschema for additional properties
@@ -257,23 +256,30 @@ pub struct Schema {
     pub status: Option<String>,
 
     /// The title of the schema that this schema extends
-    #[serde(deserialize_with = "deserialize_string_or_array")]
+    #[serde(
+        deserialize_with = "deserialize_string_or_array",
+        skip_serializing_if = "Vec::is_empty"
+    )]
     #[schemars(schema_with = "schema_string_or_array")]
     pub extends: Vec<String>,
 
     /// Whether the schema is only an abstract base for other schemas
     ///
     /// Types are usually not generated for abstract schemas.
+    #[serde(skip_serializing_if = "is_false")]
     pub r#abstract: bool,
 
     /// Core properties, which although optional, should not be placed in
     /// the `options` field of generated Rust types
+    #[serde(skip_serializing_if = "Vec::is_empty")]
     pub core: Vec<String>,
 
     /// Aliases which may be used for a property name
+    #[serde(skip_serializing_if = "Vec::is_empty")]
     pub aliases: Vec<String>,
 
     /// The stripping scopes that the property should be stripped for
+    #[serde(skip_serializing_if = "Vec::is_empty")]
     pub strip: Vec<StripScopes>,
 
     /// Options for converting the type or property to/from HTML
@@ -307,7 +313,7 @@ pub struct Schema {
     pub is_extended: bool,
 }
 
-#[derive(Debug, Clone, Deserialize, AsRefStr, JsonSchema)]
+#[derive(Debug, Clone, Deserialize, Serialize, AsRefStr, JsonSchema)]
 #[serde(rename_all = "lowercase", crate = "common::serde")]
 pub enum Type {
     String,
@@ -319,7 +325,7 @@ pub enum Type {
     Null,
 }
 
-#[derive(Debug, Clone, Deserialize, JsonSchema)]
+#[derive(Debug, Clone, Deserialize, Serialize, JsonSchema)]
 #[serde(untagged, crate = "common::serde")]
 pub enum Value {
     String(String),
@@ -332,7 +338,7 @@ pub enum Value {
     Null,
 }
 
-#[derive(Debug, Clone, Deserialize, JsonSchema)]
+#[derive(Debug, Clone, Deserialize, Serialize, JsonSchema)]
 #[serde(untagged, crate = "common::serde")]
 pub enum Items {
     // This should be `Option<Box<Schema>>` but serde have difficulty resolving
@@ -343,28 +349,28 @@ pub enum Items {
     List(Vec<Schema>),
 }
 
-#[derive(Debug, Clone, Deserialize, JsonSchema)]
+#[derive(Debug, Clone, Deserialize, Serialize, JsonSchema)]
 #[serde(crate = "common::serde")]
 pub struct ItemsRef {
     #[serde(rename = "$ref")]
     pub r#ref: String,
 }
 
-#[derive(Debug, Clone, Deserialize, JsonSchema)]
+#[derive(Debug, Clone, Deserialize, Serialize, JsonSchema)]
 #[serde(crate = "common::serde")]
 pub struct ItemsType {
     pub r#type: String,
 }
 
-#[derive(Debug, Clone, Deserialize, JsonSchema)]
+#[derive(Debug, Clone, Deserialize, Serialize, JsonSchema)]
 #[serde(crate = "common::serde")]
 pub struct ItemsAnyOf {
-    #[serde(rename = "anyOf")]
+    #[serde(rename = "anyOf", skip_serializing_if = "Vec::is_empty")]
     pub r#any_of: Vec<Schema>,
 }
 
 /// Targets for stripping properties
-#[derive(Debug, Clone, Deserialize, JsonSchema, Display)]
+#[derive(Debug, Clone, Deserialize, Serialize, JsonSchema, Display)]
 #[serde(rename_all = "lowercase", crate = "common::serde")]
 #[strum(serialize_all = "lowercase")]
 pub enum StripScopes {
@@ -399,7 +405,8 @@ pub enum StripScopes {
 }
 
 /// Options for conversion to/from HTML
-#[derive(Debug, Clone, Default, Deserialize, JsonSchema)]
+#[skip_serializing_none]
+#[derive(Debug, Clone, Default, Deserialize, Serialize, JsonSchema)]
 #[serde(default, rename_all = "camelCase", crate = "common::serde")]
 pub struct HtmlOptions {
     /// The name of the HTML element to use for a type or property
@@ -409,6 +416,7 @@ pub struct HtmlOptions {
     ///
     /// If this is `true`, then, if `elem` is not `None`, the HTML `is` attribute
     /// will be set to the kebab-cased type name.
+    #[serde(skip_serializing_if = "is_false")]
     pub custom: bool,
 
     /// The HTML attribute name for a property
@@ -418,6 +426,7 @@ pub struct HtmlOptions {
     pub attr: Option<String>,
 
     /// Whether a property should be encoded as content of the parent element
+    #[serde(skip_serializing_if = "is_false")]
     pub content: bool,
 
     /// Whether a property should be encoded as a slot of the parent element
@@ -426,24 +435,6 @@ pub struct HtmlOptions {
 }
 
 impl Schema {
-    /// Generate the meta-schema
-    pub async fn meta_schema() -> Result<()> {
-        let path =
-            PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../json-schema/meta.schema.json");
-        let mut file = File::create(path).await?;
-
-        let settings = SchemaSettings::draft07().with(|s| {
-            s.option_add_null_type = false;
-        });
-        let gen = settings.into_generator();
-        let schema = gen.into_root_schema_for::<Self>();
-
-        let json = serde_json::to_string_pretty(&schema)?;
-        file.write_all(json.as_bytes()).await?;
-
-        Ok(())
-    }
-
     /// Read a `schema/*.yaml` file into a [`Schema`] object
     pub async fn read(file: PathBuf) -> Result<(String, Schema)> {
         let yaml = read_to_string(&file)
@@ -591,4 +582,9 @@ fn schema_string_or_array(_: &mut schemars::gen::SchemaGenerator) -> schemars::s
         ]
     }))
     .expect("invalid JSON Schema")
+}
+
+/// Is a boolean false?
+fn is_false(bool: &bool) -> bool {
+    *bool == false
 }
