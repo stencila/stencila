@@ -2,14 +2,13 @@
 
 use common::eyre::Result;
 
-use crate::schemas::Schemas;
+use crate::{schema::Schema, schemas::Schemas};
 
 impl Schemas {
     /// Generate JSON Schema for the schemas
     pub async fn json_schema(&self) -> Result<()> {
-        eprintln!("Generating JSON Schema: not yet implemented");
-
-        // TODO
+        // Generate the meta schema
+        Schema::meta_schema().await?;
 
         Ok(())
     }

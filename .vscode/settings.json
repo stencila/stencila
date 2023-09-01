@@ -1,4 +1,7 @@
 {
+    "yaml.schemas": {
+        "json-schema/meta.schema.json": "schema/*.yaml"
+    },
     "cSpell.words": [
         "asciimath",
         "automerge",
@@ -26,9 +29,12 @@
         "requireds",
         "rowspan",
         "rustfmt",
+        "schemars",
         "smol",
         "SPANTRACE",
         "stencila",
+        "subschema",
+        "subschemas",
         "tempfile",
         "Transactable",
         "yamls"
