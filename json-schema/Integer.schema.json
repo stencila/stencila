@@ -1,0 +1,8 @@
+{
+  "$schema": "https://stencila.dev/meta.schema.json",
+  "$id": "https://stencila.dev/Integer.schema.json",
+  "@id": "schema:Integer",
+  "title": "Integer",
+  "description": "A value that is a integer",
+  "type": "integer"
+}

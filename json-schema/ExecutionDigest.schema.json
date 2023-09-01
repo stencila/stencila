@@ -1,0 +1,66 @@
+{
+  "$schema": "https://stencila.dev/meta.schema.json",
+  "$id": "https://stencila.dev/ExecutionDigest.schema.json",
+  "@id": "stencila:ExecutionDigest",
+  "title": "ExecutionDigest",
+  "extends": [
+    "Entity"
+  ],
+  "description": "A digest of the execution state of a node.",
+  "required": [
+    "type",
+    "stateDigest",
+    "semanticDigest",
+    "dependenciesDigest",
+    "dependenciesStale",
+    "dependenciesFailed"
+  ],
+  "core": [
+    "id"
+  ],
+  "properties": {
+    "type": {
+      "@id": "schema:type",
+      "description": "The type of this item",
+      "$comment": "This is a special property analogous to JSON-LD's `@type` keyword.\n",
+      "type": "string"
+    },
+    "id": {
+      "@id": "schema:id",
+      "description": "The identifier for this item",
+      "$comment": "This is a special property analogous to JSON-LD's `@id` keyword.\n",
+      "strip": [
+        "id"
+      ],
+      "html": {
+        "attr": "id"
+      },
+      "type": "string"
+    },
+    "stateDigest": {
+      "@id": "stencila:stateDigest",
+      "description": "A digest of the state of a node.",
+      "type": "number"
+    },
+    "semanticDigest": {
+      "@id": "stencila:semanticDigest",
+      "description": "A digest of the \"semantic intent\" of the resource with respect to the dependency graph",
+      "type": "number"
+    },
+    "dependenciesDigest": {
+      "@id": "stencila:dependenciesDigest",
+      "description": "A digest of the semantic digests the dependencies of a resource.",
+      "type": "number"
+    },
+    "dependenciesStale": {
+      "@id": "stencila:dependenciesStale",
+      "description": "A count of the number of execution dependencies that are stale",
+      "type": "number"
+    },
+    "dependenciesFailed": {
+      "@id": "stencila:dependenciesFailed",
+      "description": "A count of the number of execution dependencies that failed",
+      "type": "number"
+    }
+  }
+}

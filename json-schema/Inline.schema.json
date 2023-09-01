@@ -1,0 +1,102 @@
+{
+  "$schema": "https://stencila.dev/meta.schema.json",
+  "$id": "https://stencila.dev/Inline.schema.json",
+  "title": "Inline",
+  "description": "Union type for valid inline content.",
+  "anyOf": [
+    {
+      "$ref": "AudioObject"
+    },
+    {
+      "$ref": "Button"
+    },
+    {
+      "$ref": "Cite"
+    },
+    {
+      "$ref": "CiteGroup"
+    },
+    {
+      "$ref": "CodeExpression"
+    },
+    {
+      "$ref": "CodeFragment"
+    },
+    {
+      "$ref": "Date"
+    },
+    {
+      "$ref": "DateTime"
+    },
+    {
+      "$ref": "Duration"
+    },
+    {
+      "$ref": "Emphasis"
+    },
+    {
+      "$ref": "ImageObject"
+    },
+    {
+      "$ref": "Link"
+    },
+    {
+      "$ref": "MathFragment"
+    },
+    {
+      "$ref": "Note"
+    },
+    {
+      "$ref": "Parameter"
+    },
+    {
+      "$ref": "Quote"
+    },
+    {
+      "$ref": "Span"
+    },
+    {
+      "$ref": "Strikeout"
+    },
+    {
+      "$ref": "Strong"
+    },
+    {
+      "$ref": "Subscript"
+    },
+    {
+      "$ref": "Superscript"
+    },
+    {
+      "$ref": "Text"
+    },
+    {
+      "$ref": "Time"
+    },
+    {
+      "$ref": "Timestamp"
+    },
+    {
+      "$ref": "Underline"
+    },
+    {
+      "$ref": "VideoObject"
+    },
+    {
+      "$ref": "Null"
+    },
+    {
+      "$ref": "Boolean"
+    },
+    {
+      "$ref": "Integer"
+    },
+    {
+      "$ref": "Number"
+    },
+    {
+      "$ref": "String"
+    }
+  ],
+  "default": "String"
+}

@@ -1,0 +1,43 @@
+{
+  "$schema": "https://stencila.dev/meta.schema.json",
+  "$id": "https://stencila.dev/ConstantValidator.schema.json",
+  "@id": "stencila:ConstantValidator",
+  "title": "ConstantValidator",
+  "extends": [
+    "Entity"
+  ],
+  "description": "A validator specifying a constant value that a node must have.",
+  "$comment": "A node will be valid against this validator if it is equal to the\n`value` property. Analogous to the JSON Schema [`const` keyword](https://json-schema.org/draft/2019-09/json-schema-validation.html#rfc.section.6.1.3).\n",
+  "required": [
+    "type",
+    "value"
+  ],
+  "core": [
+    "id"
+  ],
+  "properties": {
+    "type": {
+      "@id": "schema:type",
+      "description": "The type of this item",
+      "$comment": "This is a special property analogous to JSON-LD's `@type` keyword.\n",
+      "type": "string"
+    },
+    "id": {
+      "@id": "schema:id",
+      "description": "The identifier for this item",
+      "$comment": "This is a special property analogous to JSON-LD's `@id` keyword.\n",
+      "strip": [
+        "id"
+      ],
+      "html": {
+        "attr": "id"
+      },
+      "type": "string"
+    },
+    "value": {
+      "@id": "schema:value",
+      "description": "The value that the node must have.",
+      "$ref": "Node"
+    }
+  }
+}

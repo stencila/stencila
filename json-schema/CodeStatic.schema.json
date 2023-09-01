@@ -1,0 +1,62 @@
+{
+  "$schema": "https://stencila.dev/meta.schema.json",
+  "$id": "https://stencila.dev/CodeStatic.schema.json",
+  "@id": "stencila:CodeStatic",
+  "title": "CodeStatic",
+  "extends": [
+    "Entity"
+  ],
+  "abstract": true,
+  "description": "Abstract base type for non-executable code nodes (e.g. `CodeBlock`).",
+  "$comment": "The most important, and only required, property of a `CodeStatic` node is `code`, a `string` of the source code.\nThere are no restrictions on the length or content of `code` and it is possible for it to be syntactically\ninvalid for the specified `programmingLanguage`.\n",
+  "required": [
+    "type",
+    "code"
+  ],
+  "core": [
+    "id",
+    "programmingLanguage"
+  ],
+  "properties": {
+    "type": {
+      "@id": "schema:type",
+      "description": "The type of this item",
+      "$comment": "This is a special property analogous to JSON-LD's `@type` keyword.\n",
+      "type": "string"
+    },
+    "id": {
+      "@id": "schema:id",
+      "description": "The identifier for this item",
+      "$comment": "This is a special property analogous to JSON-LD's `@id` keyword.\n",
+      "strip": [
+        "id"
+      ],
+      "html": {
+        "attr": "id"
+      },
+      "type": "string"
+    },
+    "code": {
+      "@id": "stencila:code",
+      "description": "The code.",
+      "html": {
+        "content": true
+      },
+      "type": "string"
+    },
+    "programmingLanguage": {
+      "@id": "schema:programmingLanguage",
+      "description": "The programming language of the code.",
+      "type": "string"
+    },
+    "mediaType": {
+      "@id": "schema:encodingFormat",
+      "description": "Media type, typically expressed using a MIME format, of the code.",
+      "$comment": "This property allows the differentiation of formats using the same programming language\nor variants of a programming language. An example is using `programmingLanguage` \"json\" and\n`encodingFormat` \"application/ld+json\" for JSON-LD code examples.\n",
+      "aliases": [
+        "encodingFormat"
+      ],
+      "type": "string"
+    }
+  }
+}

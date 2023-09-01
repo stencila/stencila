@@ -9,7 +9,7 @@
       "type": "string"
     },
     "$id": {
-      "description": "The id of the schema\n\nThe value of this keyword MUST be a URI. It is automatically generated for each schema.Stencila Schema authors should use the `@id` property instead.",
+      "description": "The JSON Schema id for the schema\n\nThe value of this keyword MUST be a URI. It is automatically generated for each schema.Stencila Schema authors should use the `@id` property instead.",
       "type": "string"
     },
     "$ref": {
@@ -26,7 +26,6 @@
     },
     "abstract": {
       "description": "Whether the schema is only an abstract base for other schemas\n\nTypes are usually not generated for abstract schemas.",
-      "default": false,
       "type": "boolean"
     },
     "additionalProperties": {
@@ -39,7 +38,6 @@
     },
     "aliases": {
       "description": "Aliases which may be used for a property name",
-      "default": [],
       "type": "array",
       "items": {
         "type": "string"
@@ -62,7 +60,6 @@
     },
     "core": {
       "description": "Core properties, which although optional, should not be placed in the `options` field of generated Rust types",
-      "default": [],
       "type": "array",
       "items": {
         "type": "string"
@@ -99,7 +96,6 @@
     },
     "extends": {
       "description": "The title of the schema that this schema extends",
-      "default": [],
       "anyOf": [
         {
           "type": "string"
@@ -167,7 +163,6 @@
     },
     "required": {
       "description": "The names of required properties of an object schema\n\nThe value of this keyword MUST be an array. Elements of this array, if any, MUST be strings, and MUST be unique. An object instance is valid against this keyword if every item in the array is the name of a property in the instance. Omitting this keyword has the same behavior as an empty array.",
-      "default": [],
       "type": "array",
       "items": {
         "type": "string"
@@ -205,27 +200,22 @@
       "properties": {
         "attr": {
           "description": "The HTML attribute name for a property\n\nShould only be used when `elem` is not `None`. When `elem` is `None`, the name of the attribute will be the name of the property.",
-          "default": null,
           "type": "string"
         },
         "content": {
           "description": "Whether a property should be encoded as content of the parent element",
-          "default": false,
           "type": "boolean"
         },
         "custom": {
           "description": "Whether a custom element is defined for the node type\n\nIf this is `true`, then, if `elem` is not `None`, the HTML `is` attribute will be set to the kebab-cased type name.",
-          "default": false,
           "type": "boolean"
         },
         "elem": {
           "description": "The name of the HTML element to use for a type or property",
-          "default": null,
           "type": "string"
         },
         "slot": {
           "description": "Whether a property should be encoded as a slot of the parent element and the HTML element (e.g. `div`) to use for that slot",
-          "default": null,
           "type": "string"
         }
       }
@@ -294,7 +284,7 @@
           "type": "string"
         },
         "$id": {
-          "description": "The id of the schema\n\nThe value of this keyword MUST be a URI. It is automatically generated for each schema.Stencila Schema authors should use the `@id` property instead.",
+          "description": "The JSON Schema id for the schema\n\nThe value of this keyword MUST be a URI. It is automatically generated for each schema.Stencila Schema authors should use the `@id` property instead.",
           "type": "string"
         },
         "$ref": {
@@ -311,7 +301,6 @@
         },
         "abstract": {
           "description": "Whether the schema is only an abstract base for other schemas\n\nTypes are usually not generated for abstract schemas.",
-          "default": false,
           "type": "boolean"
         },
         "additionalProperties": {
@@ -324,7 +313,6 @@
         },
         "aliases": {
           "description": "Aliases which may be used for a property name",
-          "default": [],
           "type": "array",
           "items": {
             "type": "string"
@@ -347,7 +335,6 @@
         },
         "core": {
           "description": "Core properties, which although optional, should not be placed in the `options` field of generated Rust types",
-          "default": [],
           "type": "array",
           "items": {
             "type": "string"
@@ -384,7 +371,6 @@
         },
         "extends": {
           "description": "The title of the schema that this schema extends",
-          "default": [],
           "anyOf": [
             {
               "type": "string"
@@ -452,7 +438,6 @@
         },
         "required": {
           "description": "The names of required properties of an object schema\n\nThe value of this keyword MUST be an array. Elements of this array, if any, MUST be strings, and MUST be unique. An object instance is valid against this keyword if every item in the array is the name of a property in the instance. Omitting this keyword has the same behavior as an empty array.",
-          "default": [],
           "type": "array",
           "items": {
             "type": "string"

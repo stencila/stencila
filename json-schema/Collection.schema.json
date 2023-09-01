@@ -1,0 +1,328 @@
+{
+  "$schema": "https://stencila.dev/meta.schema.json",
+  "$id": "https://stencila.dev/Collection.schema.json",
+  "@id": "schema:Collection",
+  "title": "Collection",
+  "extends": [
+    "CreativeWork"
+  ],
+  "description": "A collection of CreativeWorks or other artifacts.",
+  "$comment": "This is an implementation of schema.org [`Collection`](https://schema.org/Collection).\nThe `Collection` type allows you to represent a collection of various `CreativeWork`\nnode types, such as [`Article`](./Article), [`Datatable`](./Datatable) or [`Table`](./Table).\n\nThe schema.org `Collection` has a `collectionSize` property but has not been added here\nbecause it is somewhat redundant e.g. a developer could use `collection.parts.length` instead.\n",
+  "required": [
+    "type",
+    "parts"
+  ],
+  "core": [
+    "id"
+  ],
+  "properties": {
+    "type": {
+      "@id": "schema:type",
+      "description": "The type of this item",
+      "$comment": "This is a special property analogous to JSON-LD's `@type` keyword.\n",
+      "type": "string"
+    },
+    "id": {
+      "@id": "schema:id",
+      "description": "The identifier for this item",
+      "$comment": "This is a special property analogous to JSON-LD's `@id` keyword.\n",
+      "strip": [
+        "id"
+      ],
+      "html": {
+        "attr": "id"
+      },
+      "type": "string"
+    },
+    "alternateNames": {
+      "@id": "schema:alternateName",
+      "description": "Alternate names (aliases) for the item.",
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "description": {
+      "@id": "schema:description",
+      "description": "A description of the item.",
+      "type": "array",
+      "items": {
+        "$ref": "Block"
+      }
+    },
+    "identifiers": {
+      "@id": "schema:identifier",
+      "description": "Any kind of identifier for any kind of Thing.",
+      "$comment": "Some identifiers have specific properties e.g the `issn` property for\nthe `Periodical` type. These should be used in preference to this\nproperty which is intended for identifiers that do not yet have a\nspecific property. Identifiers can be represented as strings, but\nusing a `PropertyValue` will usually be better because it allows\nfor `propertyID` (i.e. the type of identifier).\n",
+      "type": "array",
+      "items": {
+        "anyOf": [
+          {
+            "$ref": "PropertyValue"
+          },
+          {
+            "type": "string"
+          }
+        ]
+      }
+    },
+    "images": {
+      "@id": "schema:image",
+      "description": "Images of the item.",
+      "type": "array",
+      "items": {
+        "anyOf": [
+          {
+            "$ref": "ImageObject"
+          },
+          {
+            "type": "string",
+            "format": "uri"
+          }
+        ]
+      }
+    },
+    "name": {
+      "@id": "schema:name",
+      "description": "The name of the item.",
+      "type": "string"
+    },
+    "url": {
+      "@id": "schema:url",
+      "description": "The URL of the item.",
+      "type": "string",
+      "format": "uri"
+    },
+    "about": {
+      "@id": "schema:about",
+      "description": "The subject matter of the content.",
+      "$comment": "Consistent with https://schema.org/about, this property allows for\nlinking to one of more `Thing` nodes. This could for example include\na `Person` (e.g for a bibliography) or a `DefinedTerm` (e.g. for\nsubject areas the creative work relates to).\n",
+      "type": "array",
+      "items": {
+        "$ref": "ThingType"
+      }
+    },
+    "authors": {
+      "@id": "schema:author",
+      "description": "The authors of this creative work.",
+      "type": "array",
+      "items": {
+        "anyOf": [
+          {
+            "$ref": "Person"
+          },
+          {
+            "$ref": "Organization"
+          }
+        ]
+      }
+    },
+    "comments": {
+      "@id": "schema:comment",
+      "description": "Comments about this creative work.",
+      "type": "array",
+      "items": {
+        "$ref": "Comment"
+      }
+    },
+    "content": {
+      "@id": "stencila:content",
+      "description": "The structured content of this creative work c.f. property `text`.",
+      "type": "array",
+      "items": {
+        "$ref": "Block"
+      }
+    },
+    "dateCreated": {
+      "@id": "schema:dateCreated",
+      "description": "Date/time of creation.",
+      "$ref": "Date"
+    },
+    "dateReceived": {
+      "@id": "schema:dateReceived",
+      "description": "Date/time that work was received.",
+      "$ref": "Date"
+    },
+    "dateAccepted": {
+      "@id": "stencila:dateAccepted",
+      "description": "Date/time of acceptance.",
+      "$comment": "This is not yet a schema.org property but the term is used\n[in Dublin Core](http://purl.org/dc/terms/dateAccepted).\n",
+      "$ref": "Date"
+    },
+    "dateModified": {
+      "@id": "schema:dateModified",
+      "description": "Date/time of most recent modification.",
+      "$ref": "Date"
+    },
+    "datePublished": {
+      "@id": "schema:datePublished",
+      "description": "Date of first publication.",
+      "aliases": [
+        "date"
+      ],
+      "$ref": "Date"
+    },
+    "editors": {
+      "@id": "schema:editor",
+      "description": "People who edited the `CreativeWork`.",
+      "type": "array",
+      "items": {
+        "$ref": "Person"
+      }
+    },
+    "funders": {
+      "@id": "schema:funder",
+      "description": "People or organizations that funded the `CreativeWork`.",
+      "type": "array",
+      "items": {
+        "anyOf": [
+          {
+            "$ref": "Person"
+          },
+          {
+            "$ref": "Organization"
+          }
+        ]
+      }
+    },
+    "fundedBy": {
+      "@id": "stencila:fundedBy",
+      "description": "Grants that funded the `CreativeWork`; reverse of `fundedItems`.",
+      "$comment": "This follows the proposal [here](https://github.com/schemaorg/schemaorg/issues/2258)\nfor a property that is the reverse of `fundedItems`.\nIt is an any because a `CreativeWork` may have been funded through more than\none `Grant`.\n",
+      "type": "array",
+      "items": {
+        "anyOf": [
+          {
+            "$ref": "Grant"
+          },
+          {
+            "$ref": "MonetaryGrant"
+          }
+        ]
+      }
+    },
+    "genre": {
+      "@id": "schema:genre",
+      "description": "Genre of the creative work, broadcast channel or group.",
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "keywords": {
+      "@id": "schema:keywords",
+      "description": "Keywords or tags used to describe this content.\nMultiple entries in a keywords list are typically delimited by commas.\n",
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "isPartOf": {
+      "@id": "schema:isPartOf",
+      "description": "An item or other CreativeWork that this CreativeWork is a part of.\n",
+      "$ref": "CreativeWorkType"
+    },
+    "licenses": {
+      "@id": "schema:license",
+      "description": "License documents that applies to this content, typically indicated by URL.\n",
+      "type": "array",
+      "items": {
+        "anyOf": [
+          {
+            "$ref": "CreativeWorkType"
+          },
+          {
+            "type": "string",
+            "format": "uri"
+          }
+        ]
+      }
+    },
+    "maintainers": {
+      "@id": "schema:maintainer",
+      "description": "The people or organizations who maintain this CreativeWork.",
+      "$comment": "A maintainer of a Dataset, SoftwareApplication, or other CreativeWork.\nA maintainer is a Person or Organization that manages contributions to,\nand/or publication of, some (typically complex) artifact. It is common for\ndistributions of software and data to be based on \"upstream\" sources.\nWhen maintainer is applied to a specific version of something e.g. a particular\nversion or packaging of a Dataset, it is always possible that the upstream\nsource has a different maintainer. The isBasedOn property can be used to\nindicate such relationships between datasets to make the different maintenance\nroles clear. Similarly in the case of software, a package may have dedicated\nmaintainers working on integration into software distributions such as Ubuntu,\nas well as upstream maintainers of the underlying work.\n",
+      "type": "array",
+      "items": {
+        "anyOf": [
+          {
+            "$ref": "Person"
+          },
+          {
+            "$ref": "Organization"
+          }
+        ]
+      }
+    },
+    "parts": {
+      "@id": "schema:hasParts",
+      "description": "Elements of the collection which can be a variety of different elements,\nsuch as Articles, Datatables, Tables and more.\n",
+      "aliases": [
+        "hasParts"
+      ],
+      "type": "array",
+      "items": {
+        "$ref": "CreativeWorkType"
+      }
+    },
+    "publisher": {
+      "@id": "schema:publisher",
+      "description": "A publisher of the CreativeWork.\n",
+      "anyOf": [
+        {
+          "$ref": "Person"
+        },
+        {
+          "$ref": "Organization"
+        }
+      ]
+    },
+    "references": {
+      "@id": "schema:citation",
+      "description": "References to other creative works, such as another publication,\nweb page, scholarly article, etc.\n",
+      "aliases": [
+        "citations"
+      ],
+      "type": "array",
+      "items": {
+        "anyOf": [
+          {
+            "$ref": "CreativeWorkType"
+          },
+          {
+            "type": "string"
+          }
+        ]
+      }
+    },
+    "text": {
+      "@id": "schema:text",
+      "description": "The textual content of this creative work.",
+      "type": "string"
+    },
+    "title": {
+      "@id": "schema:headline",
+      "description": "The title of the creative work.",
+      "aliases": [
+        "headline"
+      ],
+      "type": "array",
+      "items": {
+        "$ref": "Inline"
+      }
+    },
+    "version": {
+      "@id": "schema:version",
+      "description": "The version of the creative work.",
+      "$comment": "In this case `string` is listed as an alternative before `number` to\navoid semantic version numbers e.g. `1.0` being parsed, and subsequently\nencoded, as `1` thereby resulting in loss of information.\n",
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "number"
+        }
+      ]
+    }
+  }
+}

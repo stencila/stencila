@@ -1,0 +1,73 @@
+{
+  "$schema": "https://stencila.dev/meta.schema.json",
+  "$id": "https://stencila.dev/IntegerValidator.schema.json",
+  "@id": "stencila:IntegerValidator",
+  "title": "IntegerValidator",
+  "extends": [
+    "NumberValidator"
+  ],
+  "description": "A validator specifying the constraints on an integer node.",
+  "$comment": "A node will be valid if it is a number with no fractional part and meets any additional constraints,\nsuch as `multipleOf`, specified in the validator.\nAnalogous to the JSON Schema `integer` validation [type](https://json-schema.org/draft/2019-09/json-schema-validation.html#rfc.section.6.1.1).\n",
+  "required": [
+    "type"
+  ],
+  "core": [
+    "id",
+    "minimum",
+    "exclusiveMinimum",
+    "maximum",
+    "exclusiveMaximum",
+    "multipleOf"
+  ],
+  "properties": {
+    "type": {
+      "@id": "schema:type",
+      "description": "The type of this item",
+      "$comment": "This is a special property analogous to JSON-LD's `@type` keyword.\n",
+      "type": "string"
+    },
+    "id": {
+      "@id": "schema:id",
+      "description": "The identifier for this item",
+      "$comment": "This is a special property analogous to JSON-LD's `@id` keyword.\n",
+      "strip": [
+        "id"
+      ],
+      "html": {
+        "attr": "id"
+      },
+      "type": "string"
+    },
+    "minimum": {
+      "@id": "stencila:minimum",
+      "description": "The inclusive lower limit for a numeric node.",
+      "$comment": "A number is valid if it is greater than, or exactly equal to, `minimum`.\n",
+      "type": "number"
+    },
+    "exclusiveMinimum": {
+      "@id": "stencila:exclusiveMinimum",
+      "description": "The exclusive lower limit for a numeric node.",
+      "$comment": "A number is valid only if it has a value greater than (not equal to) `exclusiveMinimum`.\n",
+      "type": "number"
+    },
+    "maximum": {
+      "@id": "stencila:maximum",
+      "description": "The inclusive upper limit for a numeric node.",
+      "$comment": "A number is valid if it is less than, or exactly equal to, `maximum`.\n",
+      "type": "number"
+    },
+    "exclusiveMaximum": {
+      "@id": "stencila:exclusiveMaximum",
+      "description": "The exclusive upper limit for a numeric node.",
+      "$comment": "A number is valid only if it has a value less than (not equal to) `exclusiveMaximum`.\n",
+      "type": "number"
+    },
+    "multipleOf": {
+      "@id": "stencila:multipleOf",
+      "description": "A number that a numeric node must be a multiple of.",
+      "$comment": "A number is valid only if division by this value results in an integer.\n",
+      "type": "number",
+      "exclusiveMinimum": 0.0
+    }
+  }
+}

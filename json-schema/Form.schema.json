@@ -1,0 +1,186 @@
+{
+  "$schema": "https://stencila.dev/meta.schema.json",
+  "$id": "https://stencila.dev/Form.schema.json",
+  "@id": "stencila:Form",
+  "title": "Form",
+  "extends": [
+    "Executable"
+  ],
+  "description": "A form to batch updates in document parameters",
+  "status": "experimental",
+  "required": [
+    "type",
+    "content"
+  ],
+  "core": [
+    "id"
+  ],
+  "properties": {
+    "type": {
+      "@id": "schema:type",
+      "description": "The type of this item",
+      "$comment": "This is a special property analogous to JSON-LD's `@type` keyword.\n",
+      "type": "string"
+    },
+    "id": {
+      "@id": "schema:id",
+      "description": "The identifier for this item",
+      "$comment": "This is a special property analogous to JSON-LD's `@id` keyword.\n",
+      "strip": [
+        "id"
+      ],
+      "html": {
+        "attr": "id"
+      },
+      "type": "string"
+    },
+    "executionAuto": {
+      "@id": "stencila:executionAuto",
+      "description": "Under which circumstances the code should be automatically executed.",
+      "strip": [
+        "execution"
+      ],
+      "$ref": "ExecutionAuto"
+    },
+    "compilationDigest": {
+      "@id": "stencila:compilationDigest",
+      "description": "A digest of the content, semantics and dependencies of the node.",
+      "strip": [
+        "execution"
+      ],
+      "$ref": "ExecutionDigest"
+    },
+    "executionDigest": {
+      "@id": "stencila:executionDigest",
+      "description": "The `compileDigest` of the node when it was last executed.",
+      "strip": [
+        "execution"
+      ],
+      "$ref": "ExecutionDigest"
+    },
+    "executionDependencies": {
+      "@id": "stencila:executionDependencies",
+      "description": "The upstream dependencies of this node.",
+      "strip": [
+        "execution"
+      ],
+      "type": "array",
+      "items": {
+        "$ref": "ExecutionDependency"
+      }
+    },
+    "executionDependants": {
+      "@id": "stencila:executionDependants",
+      "description": "The downstream dependants of this node.",
+      "strip": [
+        "execution"
+      ],
+      "type": "array",
+      "items": {
+        "$ref": "ExecutionDependant"
+      }
+    },
+    "executionTags": {
+      "@id": "stencila:executionTags",
+      "description": "Tags in the code which affect its execution",
+      "strip": [
+        "execution"
+      ],
+      "type": "array",
+      "items": {
+        "$ref": "ExecutionTag"
+      }
+    },
+    "executionCount": {
+      "@id": "stencila:executionCount",
+      "description": "A count of the number of times that the node has been executed.",
+      "$comment": "Intended to increment with each successive execution of the node, including across sessions.\nNote that this differs to the `execution_count` in Jupyter Notebook format which is\nthe \"code cell's prompt number\" and which resets at the start of each new session.\n",
+      "strip": [
+        "execution"
+      ],
+      "type": "integer",
+      "minimum": 0.0
+    },
+    "executionRequired": {
+      "@id": "stencila:executionRequired",
+      "description": "Whether, and why, the code requires execution or re-execution.",
+      "strip": [
+        "execution"
+      ],
+      "$ref": "ExecutionRequired"
+    },
+    "executionKernel": {
+      "@id": "stencila:executionKernel",
+      "description": "The id of the kernel that the node was last executed in.",
+      "strip": [
+        "execution"
+      ],
+      "type": "string"
+    },
+    "executionStatus": {
+      "@id": "stencila:executionStatus",
+      "description": "Status of the most recent, including any current, execution.",
+      "strip": [
+        "execution"
+      ],
+      "$ref": "ExecutionStatus"
+    },
+    "executionEnded": {
+      "@id": "stencila:executionEnded",
+      "description": "The timestamp when the last execution ended.",
+      "strip": [
+        "execution"
+      ],
+      "$ref": "Timestamp"
+    },
+    "executionDuration": {
+      "@id": "stencila:executionDuration",
+      "description": "Duration of the last execution.",
+      "strip": [
+        "execution"
+      ],
+      "$ref": "Duration"
+    },
+    "errors": {
+      "@id": "stencila:errors",
+      "description": "Errors when compiling (e.g. syntax errors) or executing the node.",
+      "strip": [
+        "execution"
+      ],
+      "type": "array",
+      "items": {
+        "$ref": "CodeError"
+      }
+    },
+    "content": {
+      "@id": "stencila:content",
+      "description": "The content within the form, usually containing at least one `Parameter`.",
+      "type": "array",
+      "items": {
+        "$ref": "Block"
+      }
+    },
+    "deriveFrom": {
+      "@id": "stencila:deriveFrom",
+      "description": "The dotted path to the object (e.g a database table) that the form should be derived from",
+      "type": "string"
+    },
+    "deriveAction": {
+      "@id": "stencila:deriveAction",
+      "description": "The action (create, update or delete) to derive for the form",
+      "$ref": "FormDeriveAction"
+    },
+    "deriveItem": {
+      "@id": "stencila:deriveItem",
+      "description": "An identifier for the item to be the target of Update or Delete actions",
+      "anyOf": [
+        {
+          "type": "integer"
+        },
+        {
+          "type": "string"
+        }
+      ]
+    }
+  }
+}

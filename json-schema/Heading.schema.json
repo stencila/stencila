@@ -1,0 +1,55 @@
+{
+  "$schema": "https://stencila.dev/meta.schema.json",
+  "$id": "https://stencila.dev/Heading.schema.json",
+  "@id": "stencila:Heading",
+  "title": "Heading",
+  "extends": [
+    "Entity"
+  ],
+  "description": "A heading.",
+  "$comment": "Analogues of `Heading` in other schemas include:\n  - HTML [`<h1>` to `<h6>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/h1)\n  - JATS XML [`<title>`](https://jats.nlm.nih.gov/archiving/tag-library/1.1/element/title.html)\n  - Pandoc [`Header`](https://github.com/jgm/pandoc-types/blob/1.17.5.4/Text/Pandoc/Definition.hs#L233)\n",
+  "required": [
+    "type",
+    "depth",
+    "content"
+  ],
+  "core": [
+    "id"
+  ],
+  "properties": {
+    "type": {
+      "@id": "schema:type",
+      "description": "The type of this item",
+      "$comment": "This is a special property analogous to JSON-LD's `@type` keyword.\n",
+      "type": "string"
+    },
+    "id": {
+      "@id": "schema:id",
+      "description": "The identifier for this item",
+      "$comment": "This is a special property analogous to JSON-LD's `@id` keyword.\n",
+      "strip": [
+        "id"
+      ],
+      "html": {
+        "attr": "id"
+      },
+      "type": "string"
+    },
+    "depth": {
+      "@id": "stencila:depth",
+      "description": "The depth of the heading.",
+      "type": "integer",
+      "minimum": 1.0,
+      "maximum": 6.0,
+      "default": 1.0
+    },
+    "content": {
+      "@id": "stencila:content",
+      "description": "Content of the heading.",
+      "type": "array",
+      "items": {
+        "$ref": "Inline"
+      }
+    }
+  }
+}

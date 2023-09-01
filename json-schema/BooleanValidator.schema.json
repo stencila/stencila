@@ -1,0 +1,37 @@
+{
+  "$schema": "https://stencila.dev/meta.schema.json",
+  "$id": "https://stencila.dev/BooleanValidator.schema.json",
+  "@id": "stencila:BooleanValidator",
+  "title": "BooleanValidator",
+  "extends": [
+    "Entity"
+  ],
+  "description": "A schema specifying that a node must be a boolean value.",
+  "$comment": "A node will be valid against this schema if it is either `true` or `false.\nAnalogous to the JSON Schema `boolean` validation [type](https://json-schema.org/draft/2019-09/json-schema-validation.html#rfc.section.6.1.1).\n",
+  "required": [
+    "type"
+  ],
+  "core": [
+    "id"
+  ],
+  "properties": {
+    "type": {
+      "@id": "schema:type",
+      "description": "The type of this item",
+      "$comment": "This is a special property analogous to JSON-LD's `@type` keyword.\n",
+      "type": "string"
+    },
+    "id": {
+      "@id": "schema:id",
+      "description": "The identifier for this item",
+      "$comment": "This is a special property analogous to JSON-LD's `@id` keyword.\n",
+      "strip": [
+        "id"
+      ],
+      "html": {
+        "attr": "id"
+      },
+      "type": "string"
+    }
+  }
+}

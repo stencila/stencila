@@ -1,0 +1,35 @@
+{
+  "$schema": "https://stencila.dev/meta.schema.json",
+  "$id": "https://stencila.dev/ExecutionDependantTarget.schema.json",
+  "title": "ExecutionDependantTarget",
+  "description": "Node types that can be execution dependants",
+  "anyOf": [
+    {
+      "$ref": "Call"
+    },
+    {
+      "$ref": "CodeChunk"
+    },
+    {
+      "$ref": "CodeExpression"
+    },
+    {
+      "$ref": "Division"
+    },
+    {
+      "$ref": "If"
+    },
+    {
+      "$ref": "File"
+    },
+    {
+      "$ref": "For"
+    },
+    {
+      "$ref": "Span"
+    },
+    {
+      "$ref": "Variable"
+    }
+  ]
+}

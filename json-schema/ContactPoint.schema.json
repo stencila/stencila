@@ -1,0 +1,125 @@
+{
+  "$schema": "https://stencila.dev/meta.schema.json",
+  "$id": "https://stencila.dev/ContactPoint.schema.json",
+  "@id": "schema:ContactPoint",
+  "title": "ContactPoint",
+  "extends": [
+    "Thing"
+  ],
+  "description": "A contact point, usually within an organization.",
+  "$comment": "This is an implementation of schema.org [`ContactPoint`](https://schema.org/ContactPoint). It extends schema.org `ContactPoint` by, adding a `content` property which must be an array of [`Block`](./Block), as well as the properties added by [`CreativeWork`](./CreativeWork) which it extends.\n`ContactPoint` is analogous, and structurally similar to, the JATS XML [`<corresp>`](https://jats.nlm.nih.gov/archiving/tag-library/1.1/element/corresp.html) element and the HTML5 [`<address>`](https://dev.w3.org/html5/html-author/#the-address-element) element.",
+  "required": [
+    "type"
+  ],
+  "core": [
+    "id",
+    "emails",
+    "telephoneNumbers"
+  ],
+  "properties": {
+    "type": {
+      "@id": "schema:type",
+      "description": "The type of this item",
+      "$comment": "This is a special property analogous to JSON-LD's `@type` keyword.\n",
+      "type": "string"
+    },
+    "id": {
+      "@id": "schema:id",
+      "description": "The identifier for this item",
+      "$comment": "This is a special property analogous to JSON-LD's `@id` keyword.\n",
+      "strip": [
+        "id"
+      ],
+      "html": {
+        "attr": "id"
+      },
+      "type": "string"
+    },
+    "alternateNames": {
+      "@id": "schema:alternateName",
+      "description": "Alternate names (aliases) for the item.",
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "description": {
+      "@id": "schema:description",
+      "description": "A description of the item.",
+      "type": "array",
+      "items": {
+        "$ref": "Block"
+      }
+    },
+    "identifiers": {
+      "@id": "schema:identifier",
+      "description": "Any kind of identifier for any kind of Thing.",
+      "$comment": "Some identifiers have specific properties e.g the `issn` property for\nthe `Periodical` type. These should be used in preference to this\nproperty which is intended for identifiers that do not yet have a\nspecific property. Identifiers can be represented as strings, but\nusing a `PropertyValue` will usually be better because it allows\nfor `propertyID` (i.e. the type of identifier).\n",
+      "type": "array",
+      "items": {
+        "anyOf": [
+          {
+            "$ref": "PropertyValue"
+          },
+          {
+            "type": "string"
+          }
+        ]
+      }
+    },
+    "images": {
+      "@id": "schema:image",
+      "description": "Images of the item.",
+      "type": "array",
+      "items": {
+        "anyOf": [
+          {
+            "$ref": "ImageObject"
+          },
+          {
+            "type": "string",
+            "format": "uri"
+          }
+        ]
+      }
+    },
+    "name": {
+      "@id": "schema:name",
+      "description": "The name of the item.",
+      "type": "string"
+    },
+    "url": {
+      "@id": "schema:url",
+      "description": "The URL of the item.",
+      "type": "string",
+      "format": "uri"
+    },
+    "emails": {
+      "@id": "schema:email",
+      "description": "Email address for correspondence.",
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "telephoneNumbers": {
+      "@id": "schema:telephone",
+      "description": "Telephone numbers for the contact point.",
+      "aliases": [
+        "telephone"
+      ],
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "availableLanguages": {
+      "@id": "schema:availableLanguage",
+      "description": "Languages (human not programming) in which it is possible to communicate\nwith the organization/department etc.\n",
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  }
+}

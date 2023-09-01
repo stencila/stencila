@@ -1,0 +1,48 @@
+{
+  "$schema": "https://stencila.dev/meta.schema.json",
+  "$id": "https://stencila.dev/Strong.schema.json",
+  "@id": "stencila:Strong",
+  "title": "Strong",
+  "extends": [
+    "Mark"
+  ],
+  "description": "Strongly emphasised content.",
+  "html": {
+    "elem": "strong"
+  },
+  "required": [
+    "type",
+    "content"
+  ],
+  "core": [
+    "id"
+  ],
+  "properties": {
+    "type": {
+      "@id": "schema:type",
+      "description": "The type of this item",
+      "$comment": "This is a special property analogous to JSON-LD's `@type` keyword.\n",
+      "type": "string"
+    },
+    "id": {
+      "@id": "schema:id",
+      "description": "The identifier for this item",
+      "$comment": "This is a special property analogous to JSON-LD's `@id` keyword.\n",
+      "strip": [
+        "id"
+      ],
+      "html": {
+        "attr": "id"
+      },
+      "type": "string"
+    },
+    "content": {
+      "@id": "stencila:content",
+      "description": "The content that is marked.",
+      "type": "array",
+      "items": {
+        "$ref": "Inline"
+      }
+    }
+  }
+}

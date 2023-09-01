@@ -1,0 +1,210 @@
+{
+  "$schema": "https://stencila.dev/meta.schema.json",
+  "$id": "https://stencila.dev/Person.schema.json",
+  "@id": "schema:Person",
+  "title": "Person",
+  "extends": [
+    "Thing"
+  ],
+  "description": "A person (alive, dead, undead, or fictional).",
+  "required": [
+    "type"
+  ],
+  "core": [
+    "id",
+    "affiliations",
+    "givenNames",
+    "familyNames"
+  ],
+  "properties": {
+    "type": {
+      "@id": "schema:type",
+      "description": "The type of this item",
+      "$comment": "This is a special property analogous to JSON-LD's `@type` keyword.\n",
+      "type": "string"
+    },
+    "id": {
+      "@id": "schema:id",
+      "description": "The identifier for this item",
+      "$comment": "This is a special property analogous to JSON-LD's `@id` keyword.\n",
+      "strip": [
+        "id"
+      ],
+      "html": {
+        "attr": "id"
+      },
+      "type": "string"
+    },
+    "alternateNames": {
+      "@id": "schema:alternateName",
+      "description": "Alternate names (aliases) for the item.",
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "description": {
+      "@id": "schema:description",
+      "description": "A description of the item.",
+      "type": "array",
+      "items": {
+        "$ref": "Block"
+      }
+    },
+    "identifiers": {
+      "@id": "schema:identifier",
+      "description": "Any kind of identifier for any kind of Thing.",
+      "$comment": "Some identifiers have specific properties e.g the `issn` property for\nthe `Periodical` type. These should be used in preference to this\nproperty which is intended for identifiers that do not yet have a\nspecific property. Identifiers can be represented as strings, but\nusing a `PropertyValue` will usually be better because it allows\nfor `propertyID` (i.e. the type of identifier).\n",
+      "type": "array",
+      "items": {
+        "anyOf": [
+          {
+            "$ref": "PropertyValue"
+          },
+          {
+            "type": "string"
+          }
+        ]
+      }
+    },
+    "images": {
+      "@id": "schema:image",
+      "description": "Images of the item.",
+      "type": "array",
+      "items": {
+        "anyOf": [
+          {
+            "$ref": "ImageObject"
+          },
+          {
+            "type": "string",
+            "format": "uri"
+          }
+        ]
+      }
+    },
+    "name": {
+      "@id": "schema:name",
+      "description": "The name of the item.",
+      "type": "string"
+    },
+    "url": {
+      "@id": "schema:url",
+      "description": "The URL of the item.",
+      "type": "string",
+      "format": "uri"
+    },
+    "address": {
+      "@id": "schema:address",
+      "description": "Postal address for the person.",
+      "anyOf": [
+        {
+          "$ref": "PostalAddress"
+        },
+        {
+          "type": "string"
+        }
+      ]
+    },
+    "affiliations": {
+      "@id": "schema:affiliation",
+      "description": "Organizations that the person is affiliated with.",
+      "type": "array",
+      "items": {
+        "$ref": "Organization"
+      }
+    },
+    "emails": {
+      "@id": "schema:email",
+      "description": "Email addresses for the person.",
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "familyNames": {
+      "@id": "schema:familyName",
+      "description": "Family name. In the U.S., the last name of a person.",
+      "$comment": "This can be used along with givenName instead of the name property.",
+      "aliases": [
+        "familyName",
+        "surname",
+        "surnames",
+        "lastName",
+        "lastNames"
+      ],
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "funders": {
+      "@id": "schema:funder",
+      "description": "A person or organization that supports (sponsors) something through\nsome kind of financial contribution.\n",
+      "type": "array",
+      "items": {
+        "anyOf": [
+          {
+            "$ref": "Organization"
+          },
+          {
+            "$ref": "Person"
+          }
+        ]
+      }
+    },
+    "givenNames": {
+      "@id": "schema:givenName",
+      "description": "Given name. In the U.S., the first name of a person.",
+      "$comment": "This can be used along with familyName instead of the name property.",
+      "aliases": [
+        "firstName",
+        "firstNames"
+      ],
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "honorificPrefix": {
+      "@id": "schema:honorificPrefix",
+      "description": "An honorific prefix preceding a person's name such as Dr/Mrs/Mr.",
+      "aliases": [
+        "prefix"
+      ],
+      "type": "string"
+    },
+    "honorificSuffix": {
+      "@id": "schema:honorificSuffix",
+      "description": "An honorific suffix after a person's name such as MD/PhD/MSCSW.",
+      "aliases": [
+        "suffix"
+      ],
+      "type": "string"
+    },
+    "jobTitle": {
+      "@id": "schema:jobTitle",
+      "description": "The job title of the person (for example, Financial Manager).",
+      "type": "string"
+    },
+    "memberOf": {
+      "@id": "schema:memberOf",
+      "description": "An organization (or program membership) to which this person belongs.",
+      "type": "array",
+      "items": {
+        "$ref": "Organization"
+      }
+    },
+    "telephoneNumbers": {
+      "@id": "schema:telephone",
+      "description": "Telephone numbers for the person.",
+      "aliases": [
+        "telephone"
+      ],
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  }
+}

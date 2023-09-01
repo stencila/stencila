@@ -1,0 +1,27 @@
+{
+  "$schema": "https://stencila.dev/meta.schema.json",
+  "$id": "https://stencila.dev/ExecutionDependencyNode.schema.json",
+  "title": "ExecutionDependencyNode",
+  "description": "Node types that can be execution dependencies",
+  "anyOf": [
+    {
+      "$ref": "Button"
+    },
+    {
+      "$ref": "CodeChunk"
+    },
+    {
+      "$ref": "File"
+    },
+    {
+      "$ref": "Parameter"
+    },
+    {
+      "$ref": "SoftwareSourceCode"
+    },
+    {
+      "$ref": "Variable"
+    }
+  ],
+  "default": "CodeChunk"
+}

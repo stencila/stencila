@@ -1,0 +1,71 @@
+{
+  "$schema": "https://stencila.dev/meta.schema.json",
+  "$id": "https://stencila.dev/Link.schema.json",
+  "@id": "stencila:Link",
+  "title": "Link",
+  "extends": [
+    "Entity"
+  ],
+  "description": "A hyperlink to other pages, sections within the same document, resources, or any URL.",
+  "$comment": "Analogues of `Link` in other schema include:\n  - HTML [`<a>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/a)\n  - JATS XML [`<ext-link>`](https://jats.nlm.nih.gov/articleauthoring/tag-library/1.2/element/ext-link.html)\n  - MDAST [`Link`](https://github.com/syntax-tree/mdast#link)\n  - OpenDocument [`<text:a>`](http://docs.oasis-open.org/office/v1.2/os/OpenDocument-v1.2-os-part1.html#__RefHeading__1415212_253892949)\n  - Pandoc [`Link`](https://github.com/jgm/pandoc-types/blob/1.17.5.4/Text/Pandoc/Definition.hs#L270)\n",
+  "html": {
+    "elem": "a"
+  },
+  "required": [
+    "type",
+    "content",
+    "target"
+  ],
+  "core": [
+    "id"
+  ],
+  "properties": {
+    "type": {
+      "@id": "schema:type",
+      "description": "The type of this item",
+      "$comment": "This is a special property analogous to JSON-LD's `@type` keyword.\n",
+      "type": "string"
+    },
+    "id": {
+      "@id": "schema:id",
+      "description": "The identifier for this item",
+      "$comment": "This is a special property analogous to JSON-LD's `@id` keyword.\n",
+      "strip": [
+        "id"
+      ],
+      "html": {
+        "attr": "id"
+      },
+      "type": "string"
+    },
+    "content": {
+      "@id": "stencila:content",
+      "description": "The textual content of the link.",
+      "type": "array",
+      "items": {
+        "$ref": "Inline"
+      }
+    },
+    "target": {
+      "@id": "stencila:target",
+      "description": "The target of the link.",
+      "$comment": "Note that this is equivalent to the `href` attribute on a HTML `<a>` element,\nnot the `target` attribute (which is used to defined where to display the linked content,\ne.g. in a new browser window).\n",
+      "html": {
+        "attr": "href"
+      },
+      "type": "string",
+      "format": "uri-reference"
+    },
+    "title": {
+      "@id": "schema:headline",
+      "description": "A title for the link.",
+      "$comment": "This property is analogous to the HTML `title` global attribute which\nrepresents [\"advisory information related to the element\"](https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes/title)\n",
+      "type": "string"
+    },
+    "rel": {
+      "@id": "schema:linkRelationship",
+      "description": "The relation between the target and the current thing.",
+      "type": "string"
+    }
+  }
+}

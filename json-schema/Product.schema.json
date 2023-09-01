@@ -1,0 +1,122 @@
+{
+  "$schema": "https://stencila.dev/meta.schema.json",
+  "$id": "https://stencila.dev/Product.schema.json",
+  "@id": "schema:Product",
+  "title": "Product",
+  "extends": [
+    "Thing"
+  ],
+  "description": "Any offered product or service. For example, a pair of shoes;\na haircut; or an episode of a TV show streamed online.\n",
+  "$comment": "The `Product` type allows you to provide details about a product such as the product\nbrand, logo and ID. This type can be used as any kind of product that is not [`CreativeWork`](./CreativeWork) item.\n\n`Product` is analogous, and structurally similar to, the \nJATS XML [`<product>`](https://jats.nlm.nih.gov/archiving/tag-library/1.1/element/product.html) element which\ncontains the metadata concerning one product (for example, a book, software package, website, or\nhardware component) discussed in an article.\n\nTo meet Google's guidelines for [`Product`](https://developers.google.com/search/docs/data-types/product#product)\ninstances are required to have `image` and `name` properties.\n",
+  "required": [
+    "type"
+  ],
+  "core": [
+    "id"
+  ],
+  "properties": {
+    "type": {
+      "@id": "schema:type",
+      "description": "The type of this item",
+      "$comment": "This is a special property analogous to JSON-LD's `@type` keyword.\n",
+      "type": "string"
+    },
+    "id": {
+      "@id": "schema:id",
+      "description": "The identifier for this item",
+      "$comment": "This is a special property analogous to JSON-LD's `@id` keyword.\n",
+      "strip": [
+        "id"
+      ],
+      "html": {
+        "attr": "id"
+      },
+      "type": "string"
+    },
+    "alternateNames": {
+      "@id": "schema:alternateName",
+      "description": "Alternate names (aliases) for the item.",
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "description": {
+      "@id": "schema:description",
+      "description": "A description of the item.",
+      "type": "array",
+      "items": {
+        "$ref": "Block"
+      }
+    },
+    "identifiers": {
+      "@id": "schema:identifier",
+      "description": "Any kind of identifier for any kind of Thing.",
+      "$comment": "Some identifiers have specific properties e.g the `issn` property for\nthe `Periodical` type. These should be used in preference to this\nproperty which is intended for identifiers that do not yet have a\nspecific property. Identifiers can be represented as strings, but\nusing a `PropertyValue` will usually be better because it allows\nfor `propertyID` (i.e. the type of identifier).\n",
+      "type": "array",
+      "items": {
+        "anyOf": [
+          {
+            "$ref": "PropertyValue"
+          },
+          {
+            "type": "string"
+          }
+        ]
+      }
+    },
+    "images": {
+      "@id": "schema:image",
+      "description": "Images of the item.",
+      "type": "array",
+      "items": {
+        "anyOf": [
+          {
+            "$ref": "ImageObject"
+          },
+          {
+            "type": "string",
+            "format": "uri"
+          }
+        ]
+      }
+    },
+    "name": {
+      "@id": "schema:name",
+      "description": "The name of the item.",
+      "type": "string"
+    },
+    "url": {
+      "@id": "schema:url",
+      "description": "The URL of the item.",
+      "type": "string",
+      "format": "uri"
+    },
+    "brands": {
+      "@id": "schema:brand",
+      "description": "Brands that the product is labelled with.",
+      "type": "array",
+      "items": {
+        "$ref": "Brand"
+      }
+    },
+    "logo": {
+      "@id": "schema:logo",
+      "description": "The logo of the product.",
+      "anyOf": [
+        {
+          "$ref": "ImageObject"
+        },
+        {
+          "type": "string",
+          "format": "uri"
+        }
+      ]
+    },
+    "productID": {
+      "@id": "schema:productID",
+      "description": "Product identification code.",
+      "type": "string"
+    }
+  }
+}

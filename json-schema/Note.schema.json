@@ -1,0 +1,53 @@
+{
+  "$schema": "https://stencila.dev/meta.schema.json",
+  "$id": "https://stencila.dev/Note.schema.json",
+  "@id": "stencila:Note",
+  "title": "Note",
+  "extends": [
+    "Entity"
+  ],
+  "description": "Additional content which is not part of the main content of a document.",
+  "$comment": "A note is usually associated with a word or paragraph using a number or other symbol. \nIt can be displayed as a footnote, endnote, or side note, or in interactive elements.\nFor analogues, see \n- [JATS `<fn>`](https://jats.nlm.nih.gov/publishing/tag-library/1.2/element/fn.html)\n- [Pandoc footnotes](https://pandoc.org/MANUAL.html#footnotes)\n- [HTML `<aside>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/aside)\n",
+  "required": [
+    "type",
+    "noteType",
+    "content"
+  ],
+  "core": [
+    "id"
+  ],
+  "properties": {
+    "type": {
+      "@id": "schema:type",
+      "description": "The type of this item",
+      "$comment": "This is a special property analogous to JSON-LD's `@type` keyword.\n",
+      "type": "string"
+    },
+    "id": {
+      "@id": "schema:id",
+      "description": "The identifier for this item",
+      "$comment": "This is a special property analogous to JSON-LD's `@id` keyword.\n",
+      "strip": [
+        "id"
+      ],
+      "html": {
+        "attr": "id"
+      },
+      "type": "string"
+    },
+    "noteType": {
+      "@id": "stencila:noteType",
+      "description": "Determines where the note content is displayed within the document.",
+      "$ref": "NoteType"
+    },
+    "content": {
+      "@id": "stencila:content",
+      "description": "Content of the note, usually a paragraph.",
+      "$comment": "Most notes will have a single paragraph but could have multiple\nparagraphs, tables and even figures.\n",
+      "type": "array",
+      "items": {
+        "$ref": "Block"
+      }
+    }
+  }
+}

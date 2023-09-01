@@ -1,0 +1,59 @@
+{
+  "$schema": "https://stencila.dev/meta.schema.json",
+  "$id": "https://stencila.dev/QuoteBlock.schema.json",
+  "@id": "stencila:QuoteBlock",
+  "title": "QuoteBlock",
+  "extends": [
+    "Entity"
+  ],
+  "description": "A section quoted from somewhere else.\n",
+  "required": [
+    "type",
+    "content"
+  ],
+  "core": [
+    "id",
+    "cite"
+  ],
+  "properties": {
+    "type": {
+      "@id": "schema:type",
+      "description": "The type of this item",
+      "$comment": "This is a special property analogous to JSON-LD's `@type` keyword.\n",
+      "type": "string"
+    },
+    "id": {
+      "@id": "schema:id",
+      "description": "The identifier for this item",
+      "$comment": "This is a special property analogous to JSON-LD's `@id` keyword.\n",
+      "strip": [
+        "id"
+      ],
+      "html": {
+        "attr": "id"
+      },
+      "type": "string"
+    },
+    "cite": {
+      "@id": "stencila:cite",
+      "description": "The source of the quote.",
+      "anyOf": [
+        {
+          "$ref": "Cite"
+        },
+        {
+          "type": "string",
+          "format": "uri"
+        }
+      ]
+    },
+    "content": {
+      "@id": "stencila:content",
+      "description": "The content of the quote.",
+      "type": "array",
+      "items": {
+        "$ref": "Block"
+      }
+    }
+  }
+}

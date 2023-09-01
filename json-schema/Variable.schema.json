@@ -1,0 +1,63 @@
+{
+  "$schema": "https://stencila.dev/meta.schema.json",
+  "$id": "https://stencila.dev/Variable.schema.json",
+  "@id": "stencila:Variable",
+  "title": "Variable",
+  "extends": [
+    "Entity"
+  ],
+  "description": "A variable representing a name / value pair.",
+  "status": "experimental",
+  "required": [
+    "type",
+    "namespace",
+    "name"
+  ],
+  "core": [
+    "id",
+    "kind",
+    "value"
+  ],
+  "properties": {
+    "type": {
+      "@id": "schema:type",
+      "description": "The type of this item",
+      "$comment": "This is a special property analogous to JSON-LD's `@type` keyword.\n",
+      "type": "string"
+    },
+    "id": {
+      "@id": "schema:id",
+      "description": "The identifier for this item",
+      "$comment": "This is a special property analogous to JSON-LD's `@id` keyword.\n",
+      "strip": [
+        "id"
+      ],
+      "html": {
+        "attr": "id"
+      },
+      "type": "string"
+    },
+    "namespace": {
+      "@id": "stencila:namespace",
+      "description": "The namespace, usually a document path, within which the variable resides",
+      "type": "string"
+    },
+    "name": {
+      "@id": "schema:name",
+      "description": "The name of the variable.",
+      "$comment": "This regex allows for snake_case and camelCase names but excludes\nPascalCase for names.\n",
+      "type": "string",
+      "pattern": "[a-zA-Z][a-zA-Z0-9_]*"
+    },
+    "kind": {
+      "@id": "stencila:kind",
+      "description": "The expected type of variable e.g. `Number`, `Timestamp`, `Datatable`",
+      "type": "string"
+    },
+    "value": {
+      "@id": "schema:value",
+      "description": "The value of the variable.",
+      "$ref": "Node"
+    }
+  }
+}

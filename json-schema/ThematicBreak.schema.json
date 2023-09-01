@@ -1,0 +1,40 @@
+{
+  "$schema": "https://stencila.dev/meta.schema.json",
+  "$id": "https://stencila.dev/ThematicBreak.schema.json",
+  "@id": "stencila:ThematicBreak",
+  "title": "ThematicBreak",
+  "extends": [
+    "Entity"
+  ],
+  "description": "A thematic break, such as a scene change in a story, a transition to another topic, or a new document.\n",
+  "$comment": "Analogues of `ThematicBreak` in other schema include:\n  - JATS XML [`<hr>`](https://jats.nlm.nih.gov/articleauthoring/tag-library/1.2/element/hr.html)\n  - MDAST [`ThematicBreak`](https://github.com/syntax-tree/mdast#ThematicBreak)\n  - OpenDocument OpenDocument [`<text:soft-page-break>`](http://docs.oasis-open.org/office/v1.2/os/OpenDocument-v1.2-os-part1.html#element-text_soft-page-break)\n",
+  "html": {
+    "elem": "hr"
+  },
+  "required": [
+    "type"
+  ],
+  "core": [
+    "id"
+  ],
+  "properties": {
+    "type": {
+      "@id": "schema:type",
+      "description": "The type of this item",
+      "$comment": "This is a special property analogous to JSON-LD's `@type` keyword.\n",
+      "type": "string"
+    },
+    "id": {
+      "@id": "schema:id",
+      "description": "The identifier for this item",
+      "$comment": "This is a special property analogous to JSON-LD's `@id` keyword.\n",
+      "strip": [
+        "id"
+      ],
+      "html": {
+        "attr": "id"
+      },
+      "type": "string"
+    }
+  }
+}

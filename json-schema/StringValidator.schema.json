@@ -1,0 +1,60 @@
+{
+  "$schema": "https://stencila.dev/meta.schema.json",
+  "$id": "https://stencila.dev/StringValidator.schema.json",
+  "@id": "stencila:StringValidator",
+  "title": "StringValidator",
+  "extends": [
+    "Entity"
+  ],
+  "description": "A schema specifying constraints on a string node.",
+  "$comment": "A node will be valid against the schema if it is a string that\nmeets the schemas `minLength`, `maxLength` and `pattern` properties.\nAnalogous to the JSON Schema `string` validation [type](https://json-schema.org/draft/2019-09/json-schema-validation.html#rfc.section.6.1.1).\n",
+  "required": [
+    "type"
+  ],
+  "core": [
+    "id",
+    "minLength",
+    "maxLength",
+    "pattern"
+  ],
+  "properties": {
+    "type": {
+      "@id": "schema:type",
+      "description": "The type of this item",
+      "$comment": "This is a special property analogous to JSON-LD's `@type` keyword.\n",
+      "type": "string"
+    },
+    "id": {
+      "@id": "schema:id",
+      "description": "The identifier for this item",
+      "$comment": "This is a special property analogous to JSON-LD's `@id` keyword.\n",
+      "strip": [
+        "id"
+      ],
+      "html": {
+        "attr": "id"
+      },
+      "type": "string"
+    },
+    "minLength": {
+      "@id": "stencila:minLength",
+      "description": "The minimum length for a string node.",
+      "$comment": "A string is valid if its length is greater than, or exactly equal to, `minLength`.\n",
+      "type": "integer",
+      "minimum": 0.0
+    },
+    "maxLength": {
+      "@id": "stencila:maxLength",
+      "description": "The maximum length for a string node.",
+      "$comment": "A string is valid if its length is less than, or exactly equal to, `maxLength`.\n",
+      "type": "integer",
+      "minimum": 0.0
+    },
+    "pattern": {
+      "@id": "stencila:pattern",
+      "description": "A regular expression that a string node must match.",
+      "$comment": "A string is valid if it is matched by the regular expression.\n",
+      "type": "string"
+    }
+  }
+}

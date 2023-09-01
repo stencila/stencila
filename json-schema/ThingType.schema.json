@@ -1,0 +1,147 @@
+{
+  "title": "ThingType",
+  "description": "Union type for all types that are descended from `Thing`",
+  "anyOf": [
+    {
+      "$ref": "Article"
+    },
+    {
+      "$ref": "AudioObject"
+    },
+    {
+      "$ref": "Brand"
+    },
+    {
+      "$ref": "CitationIntent"
+    },
+    {
+      "$ref": "CitationMode"
+    },
+    {
+      "$ref": "Claim"
+    },
+    {
+      "$ref": "ClaimType"
+    },
+    {
+      "$ref": "Collection"
+    },
+    {
+      "$ref": "Comment"
+    },
+    {
+      "$ref": "ContactPoint"
+    },
+    {
+      "$ref": "CreativeWork"
+    },
+    {
+      "$ref": "Datatable"
+    },
+    {
+      "$ref": "DatatableColumn"
+    },
+    {
+      "$ref": "DefinedTerm"
+    },
+    {
+      "$ref": "Directory"
+    },
+    {
+      "$ref": "Enumeration"
+    },
+    {
+      "$ref": "ExecutionAuto"
+    },
+    {
+      "$ref": "ExecutionDependantRelation"
+    },
+    {
+      "$ref": "ExecutionDependencyRelation"
+    },
+    {
+      "$ref": "ExecutionRequired"
+    },
+    {
+      "$ref": "ExecutionStatus"
+    },
+    {
+      "$ref": "Figure"
+    },
+    {
+      "$ref": "File"
+    },
+    {
+      "$ref": "FormDeriveAction"
+    },
+    {
+      "$ref": "Grant"
+    },
+    {
+      "$ref": "ImageObject"
+    },
+    {
+      "$ref": "ListItem"
+    },
+    {
+      "$ref": "ListOrder"
+    },
+    {
+      "$ref": "MediaObject"
+    },
+    {
+      "$ref": "MonetaryGrant"
+    },
+    {
+      "$ref": "NoteType"
+    },
+    {
+      "$ref": "Organization"
+    },
+    {
+      "$ref": "Periodical"
+    },
+    {
+      "$ref": "Person"
+    },
+    {
+      "$ref": "PostalAddress"
+    },
+    {
+      "$ref": "Product"
+    },
+    {
+      "$ref": "PropertyValue"
+    },
+    {
+      "$ref": "PublicationIssue"
+    },
+    {
+      "$ref": "PublicationVolume"
+    },
+    {
+      "$ref": "Review"
+    },
+    {
+      "$ref": "SoftwareApplication"
+    },
+    {
+      "$ref": "SoftwareSourceCode"
+    },
+    {
+      "$ref": "Table"
+    },
+    {
+      "$ref": "TableCellType"
+    },
+    {
+      "$ref": "TableRowType"
+    },
+    {
+      "$ref": "TimeUnit"
+    },
+    {
+      "$ref": "VideoObject"
+    }
+  ]
+}

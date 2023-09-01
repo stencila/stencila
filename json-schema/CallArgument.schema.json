@@ -1,0 +1,226 @@
+{
+  "$schema": "https://stencila.dev/meta.schema.json",
+  "$id": "https://stencila.dev/CallArgument.schema.json",
+  "@id": "stencila:CallArgument",
+  "title": "CallArgument",
+  "extends": [
+    "Parameter"
+  ],
+  "description": "The value of a `Parameter` to call a document with",
+  "$comment": "A `CallArgument` extends `Parameter` by also has some of the same properties as `CodeExecutable` allowing\nan expression to be used to set the value of the parameter.\n",
+  "status": "experimental",
+  "required": [
+    "type",
+    "name",
+    "code",
+    "programmingLanguage"
+  ],
+  "core": [
+    "id",
+    "label",
+    "value",
+    "default",
+    "validator",
+    "guessLanguage"
+  ],
+  "properties": {
+    "type": {
+      "@id": "schema:type",
+      "description": "The type of this item",
+      "$comment": "This is a special property analogous to JSON-LD's `@type` keyword.\n",
+      "type": "string"
+    },
+    "id": {
+      "@id": "schema:id",
+      "description": "The identifier for this item",
+      "$comment": "This is a special property analogous to JSON-LD's `@id` keyword.\n",
+      "strip": [
+        "id"
+      ],
+      "html": {
+        "attr": "id"
+      },
+      "type": "string"
+    },
+    "executionAuto": {
+      "@id": "stencila:executionAuto",
+      "description": "Under which circumstances the code should be automatically executed.",
+      "strip": [
+        "execution"
+      ],
+      "$ref": "ExecutionAuto"
+    },
+    "compilationDigest": {
+      "@id": "stencila:compilationDigest",
+      "description": "A digest of the content, semantics and dependencies of the node.",
+      "strip": [
+        "execution"
+      ],
+      "$ref": "ExecutionDigest"
+    },
+    "executionDigest": {
+      "@id": "stencila:executionDigest",
+      "description": "The `compileDigest` of the node when it was last executed.",
+      "strip": [
+        "execution"
+      ],
+      "$ref": "ExecutionDigest"
+    },
+    "executionDependencies": {
+      "@id": "stencila:executionDependencies",
+      "description": "The upstream dependencies of this node.",
+      "strip": [
+        "execution"
+      ],
+      "type": "array",
+      "items": {
+        "$ref": "ExecutionDependency"
+      }
+    },
+    "executionDependants": {
+      "@id": "stencila:executionDependants",
+      "description": "The downstream dependants of this node.",
+      "strip": [
+        "execution"
+      ],
+      "type": "array",
+      "items": {
+        "$ref": "ExecutionDependant"
+      }
+    },
+    "executionTags": {
+      "@id": "stencila:executionTags",
+      "description": "Tags in the code which affect its execution",
+      "strip": [
+        "execution"
+      ],
+      "type": "array",
+      "items": {
+        "$ref": "ExecutionTag"
+      }
+    },
+    "executionCount": {
+      "@id": "stencila:executionCount",
+      "description": "A count of the number of times that the node has been executed.",
+      "$comment": "Intended to increment with each successive execution of the node, including across sessions.\nNote that this differs to the `execution_count` in Jupyter Notebook format which is\nthe \"code cell's prompt number\" and which resets at the start of each new session.\n",
+      "strip": [
+        "execution"
+      ],
+      "type": "integer",
+      "minimum": 0.0
+    },
+    "executionRequired": {
+      "@id": "stencila:executionRequired",
+      "description": "Whether, and why, the code requires execution or re-execution.",
+      "strip": [
+        "execution"
+      ],
+      "$ref": "ExecutionRequired"
+    },
+    "executionKernel": {
+      "@id": "stencila:executionKernel",
+      "description": "The id of the kernel that the node was last executed in.",
+      "strip": [
+        "execution"
+      ],
+      "type": "string"
+    },
+    "executionStatus": {
+      "@id": "stencila:executionStatus",
+      "description": "Status of the most recent, including any current, execution.",
+      "strip": [
+        "execution"
+      ],
+      "$ref": "ExecutionStatus"
+    },
+    "executionEnded": {
+      "@id": "stencila:executionEnded",
+      "description": "The timestamp when the last execution ended.",
+      "strip": [
+        "execution"
+      ],
+      "$ref": "Timestamp"
+    },
+    "executionDuration": {
+      "@id": "stencila:executionDuration",
+      "description": "Duration of the last execution.",
+      "strip": [
+        "execution"
+      ],
+      "$ref": "Duration"
+    },
+    "errors": {
+      "@id": "stencila:errors",
+      "description": "Errors when compiling (e.g. syntax errors) or executing the node.",
+      "strip": [
+        "execution"
+      ],
+      "type": "array",
+      "items": {
+        "$ref": "CodeError"
+      }
+    },
+    "name": {
+      "@id": "schema:name",
+      "description": "The name of the parameter.",
+      "$comment": "This regex allows for snake_case and camelCase names but excludes\nPascalCase for names.\n",
+      "type": "string",
+      "pattern": "[a-zA-Z][a-zA-Z0-9_]*"
+    },
+    "label": {
+      "@id": "stencila:label",
+      "description": "A short label for the parameter.",
+      "type": "string"
+    },
+    "value": {
+      "@id": "schema:value",
+      "description": "The current value of the parameter.",
+      "$ref": "Node"
+    },
+    "default": {
+      "@id": "schema:defaultValue",
+      "description": "The default value of the parameter.",
+      "$ref": "Node"
+    },
+    "validator": {
+      "@id": "stencila:validator",
+      "description": "The validator that the value is validated against.",
+      "$ref": "Validator"
+    },
+    "hidden": {
+      "@id": "stencila:hidden",
+      "description": "Whether the parameter should be hidden.",
+      "$comment": "For HTML renderings of a document it is often desirable to hide parameters of a\ndocument that are already represented in the URL of the document.\n",
+      "type": "boolean"
+    },
+    "derivedFrom": {
+      "@id": "stencila:derivedFrom",
+      "description": "The dotted path to the object (e.g. a database table column) that the parameter should be derived from",
+      "type": "string"
+    },
+    "code": {
+      "@id": "stencila:code",
+      "description": "The code to be evaluated for the parameter.",
+      "strip": [
+        "code"
+      ],
+      "type": "string"
+    },
+    "programmingLanguage": {
+      "@id": "schema:programmingLanguage",
+      "description": "The programming language of the code.",
+      "strip": [
+        "code"
+      ],
+      "type": "string"
+    },
+    "guessLanguage": {
+      "@id": "stencila:guessLanguage",
+      "description": "Whether the programming language of the code should be guessed based on syntax and variables used",
+      "strip": [
+        "code"
+      ],
+      "type": "boolean"
+    }
+  }
+}

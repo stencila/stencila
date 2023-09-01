@@ -1,0 +1,60 @@
+{
+  "$schema": "https://stencila.dev/meta.schema.json",
+  "$id": "https://stencila.dev/ExecutionDependant.schema.json",
+  "@id": "stencila:ExecutionDependant",
+  "title": "ExecutionDependant",
+  "extends": [
+    "Entity"
+  ],
+  "description": "A downstream execution dependant of a node",
+  "required": [
+    "type",
+    "dependantRelation",
+    "dependantNode"
+  ],
+  "core": [
+    "id",
+    "codeLocation"
+  ],
+  "properties": {
+    "type": {
+      "@id": "schema:type",
+      "description": "The type of this item",
+      "$comment": "This is a special property analogous to JSON-LD's `@type` keyword.\n",
+      "type": "string"
+    },
+    "id": {
+      "@id": "schema:id",
+      "description": "The identifier for this item",
+      "$comment": "This is a special property analogous to JSON-LD's `@id` keyword.\n",
+      "strip": [
+        "id"
+      ],
+      "html": {
+        "attr": "id"
+      },
+      "type": "string"
+    },
+    "dependantRelation": {
+      "@id": "stencila:dependantRelation",
+      "description": "The relation to the dependant",
+      "$ref": "ExecutionDependantRelation"
+    },
+    "dependantNode": {
+      "@id": "stencila:dependantNode",
+      "description": "The node that is the dependant",
+      "$ref": "ExecutionDependantNode"
+    },
+    "codeLocation": {
+      "@id": "stencila:codeLocation",
+      "description": "The location that the dependant is defined within code",
+      "$comment": "An array of four zero indexed integers: [startRow, startColumn, endRow, endColumn]\n",
+      "type": "array",
+      "items": {
+        "type": "integer"
+      },
+      "minItems": 4,
+      "maxItems": 4
+    }
+  }
+}

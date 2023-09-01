@@ -1,0 +1,135 @@
+{
+  "$schema": "https://stencila.dev/meta.schema.json",
+  "$id": "https://stencila.dev/ListItem.schema.json",
+  "@id": "schema:ListItem",
+  "title": "ListItem",
+  "extends": [
+    "Thing"
+  ],
+  "description": "A single item in a list.",
+  "$comment": "This is an implementation, and extension, of schema.org [`ListItem`](https://schema.org/ListItem).\nIt extends schema.ord `ListItem` by adding `content` and `isChecked` properties.\n\nAnalogues of `ListItem` in other schema include:\n  - JATS XML `<list-item>`](https://jats.nlm.nih.gov/articleauthoring/tag-library/1.2/element/list-item.html)\n  - HTML [`<li>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/li)\n  - MDAST [`ListItem`](https://github.com/syntax-tree/mdast#listitem)\n  - OpenDocument [`<text:list-item>`](http://docs.oasis-open.org/office/v1.2/os/OpenDocument-v1.2-os-part1.html#__RefHeading__1415154_253892949)\n",
+  "required": [
+    "type"
+  ],
+  "core": [
+    "id",
+    "content",
+    "item",
+    "isChecked",
+    "position"
+  ],
+  "properties": {
+    "type": {
+      "@id": "schema:type",
+      "description": "The type of this item",
+      "$comment": "This is a special property analogous to JSON-LD's `@type` keyword.\n",
+      "type": "string"
+    },
+    "id": {
+      "@id": "schema:id",
+      "description": "The identifier for this item",
+      "$comment": "This is a special property analogous to JSON-LD's `@id` keyword.\n",
+      "strip": [
+        "id"
+      ],
+      "html": {
+        "attr": "id"
+      },
+      "type": "string"
+    },
+    "alternateNames": {
+      "@id": "schema:alternateName",
+      "description": "Alternate names (aliases) for the item.",
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "description": {
+      "@id": "schema:description",
+      "description": "A description of the item.",
+      "type": "array",
+      "items": {
+        "$ref": "Block"
+      }
+    },
+    "identifiers": {
+      "@id": "schema:identifier",
+      "description": "Any kind of identifier for any kind of Thing.",
+      "$comment": "Some identifiers have specific properties e.g the `issn` property for\nthe `Periodical` type. These should be used in preference to this\nproperty which is intended for identifiers that do not yet have a\nspecific property. Identifiers can be represented as strings, but\nusing a `PropertyValue` will usually be better because it allows\nfor `propertyID` (i.e. the type of identifier).\n",
+      "type": "array",
+      "items": {
+        "anyOf": [
+          {
+            "$ref": "PropertyValue"
+          },
+          {
+            "type": "string"
+          }
+        ]
+      }
+    },
+    "images": {
+      "@id": "schema:image",
+      "description": "Images of the item.",
+      "type": "array",
+      "items": {
+        "anyOf": [
+          {
+            "$ref": "ImageObject"
+          },
+          {
+            "type": "string",
+            "format": "uri"
+          }
+        ]
+      }
+    },
+    "name": {
+      "@id": "schema:name",
+      "description": "The name of the item.",
+      "type": "string"
+    },
+    "url": {
+      "@id": "schema:url",
+      "description": "The URL of the item.",
+      "type": "string",
+      "format": "uri"
+    },
+    "content": {
+      "@id": "stencila:content",
+      "description": "The content of the list item.",
+      "$comment": "Use either `content` or `item`, not both.",
+      "anyOf": [
+        {
+          "type": "array",
+          "items": {
+            "$ref": "Block"
+          }
+        },
+        {
+          "type": "array",
+          "items": {
+            "$ref": "Inline"
+          }
+        }
+      ]
+    },
+    "item": {
+      "@id": "schema:item",
+      "description": "The item represented by this list item.",
+      "$comment": "Use either `item` or `content`, not both.",
+      "$ref": "Node"
+    },
+    "isChecked": {
+      "@id": "stencila:isChecked",
+      "description": "A flag to indicate if this list item is checked.",
+      "type": "boolean"
+    },
+    "position": {
+      "@id": "schema:position",
+      "description": "The position of the item in a series or sequence of items.",
+      "type": "integer"
+    }
+  }
+}

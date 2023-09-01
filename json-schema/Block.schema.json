@@ -1,0 +1,60 @@
+{
+  "$schema": "https://stencila.dev/meta.schema.json",
+  "$id": "https://stencila.dev/Block.schema.json",
+  "title": "Block",
+  "description": "Union type for block content node types.",
+  "anyOf": [
+    {
+      "$ref": "Call"
+    },
+    {
+      "$ref": "Claim"
+    },
+    {
+      "$ref": "CodeBlock"
+    },
+    {
+      "$ref": "CodeChunk"
+    },
+    {
+      "$ref": "Division"
+    },
+    {
+      "$ref": "Figure"
+    },
+    {
+      "$ref": "For"
+    },
+    {
+      "$ref": "Form"
+    },
+    {
+      "$ref": "Heading"
+    },
+    {
+      "$ref": "If"
+    },
+    {
+      "$ref": "Include"
+    },
+    {
+      "$ref": "List"
+    },
+    {
+      "$ref": "MathBlock"
+    },
+    {
+      "$ref": "Paragraph"
+    },
+    {
+      "$ref": "QuoteBlock"
+    },
+    {
+      "$ref": "Table"
+    },
+    {
+      "$ref": "ThematicBreak"
+    }
+  ],
+  "default": "Paragraph"
+}

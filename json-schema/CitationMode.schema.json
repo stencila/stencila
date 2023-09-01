@@ -1,0 +1,111 @@
+{
+  "$schema": "https://stencila.dev/meta.schema.json",
+  "$id": "https://stencila.dev/CitationMode.schema.json",
+  "@id": "stencila:CitationMode",
+  "title": "CitationMode",
+  "extends": [
+    "Enumeration"
+  ],
+  "description": "The mode of a `Cite`.",
+  "$comment": "There are two main citation modes: parenthetical and narrative (a.k.a textual).\nSee https://apastyle.apa.org/style-grammar-guidelines/citations/basic-principles/parenthetical-versus-narrative\nfor an explanation.\n\nThis property is optional and tools are recommended to assume `parenthetical` if missing.\n\nNarrative citations will usually be of form \"As noted by Smith (1992),\" but `narrative-author`\nallows for \"In the early nineties, Smith noted\" and `narrative-year` allows for \"As noted by Smith in 1992 and 1993\".\n\nPandoc's `CitationMode` enumeration has `Normal` (for `parenthetical`), `AuthorInText` (for `textual`),\nand `SuppressAuthor` (for `textual-year`).\nSee https://github.com/jgm/pandoc-types/blob/0158cd0e2a2ca9d6f14389a1a57bc64cab45a7dd/src/Text/Pandoc/Definition.hs#L353.\n\nLaTeX's `natbib` package has `\\citep{}` (for `parenthetical`), `\\citet{}` (for `textual`),\n`\\citeauthor{}` (for `textual-author`), `\\citeyear{}` (for `textual-year`).\nSee https://www.overleaf.com/learn/latex/Natbib_citation_styles.\n",
+  "required": [
+    "type"
+  ],
+  "core": [
+    "id"
+  ],
+  "properties": {
+    "type": {
+      "@id": "schema:type",
+      "description": "The type of this item",
+      "$comment": "This is a special property analogous to JSON-LD's `@type` keyword.\n",
+      "type": "string"
+    },
+    "id": {
+      "@id": "schema:id",
+      "description": "The identifier for this item",
+      "$comment": "This is a special property analogous to JSON-LD's `@id` keyword.\n",
+      "strip": [
+        "id"
+      ],
+      "html": {
+        "attr": "id"
+      },
+      "type": "string"
+    },
+    "alternateNames": {
+      "@id": "schema:alternateName",
+      "description": "Alternate names (aliases) for the item.",
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "description": {
+      "@id": "schema:description",
+      "description": "A description of the item.",
+      "type": "array",
+      "items": {
+        "$ref": "Block"
+      }
+    },
+    "identifiers": {
+      "@id": "schema:identifier",
+      "description": "Any kind of identifier for any kind of Thing.",
+      "$comment": "Some identifiers have specific properties e.g the `issn` property for\nthe `Periodical` type. These should be used in preference to this\nproperty which is intended for identifiers that do not yet have a\nspecific property. Identifiers can be represented as strings, but\nusing a `PropertyValue` will usually be better because it allows\nfor `propertyID` (i.e. the type of identifier).\n",
+      "type": "array",
+      "items": {
+        "anyOf": [
+          {
+            "$ref": "PropertyValue"
+          },
+          {
+            "type": "string"
+          }
+        ]
+      }
+    },
+    "images": {
+      "@id": "schema:image",
+      "description": "Images of the item.",
+      "type": "array",
+      "items": {
+        "anyOf": [
+          {
+            "$ref": "ImageObject"
+          },
+          {
+            "type": "string",
+            "format": "uri"
+          }
+        ]
+      }
+    },
+    "name": {
+      "@id": "schema:name",
+      "description": "The name of the item.",
+      "type": "string"
+    },
+    "url": {
+      "@id": "schema:url",
+      "description": "The URL of the item.",
+      "type": "string",
+      "format": "uri"
+    }
+  },
+  "anyOf": [
+    {
+      "@id": "stencila:CitationModeParenthetical",
+      "const": "Parenthetical"
+    },
+    {
+      "@id": "stencila:CitationModeNarrative",
+      "const": "Narrative"
+    },
+    {
+      "@id": "stencila:CitationModeNarrativeAuthor",
+      "const": "NarrativeAuthor"
+    }
+  ],
+  "default": "Parenthetical"
+}

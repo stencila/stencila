@@ -1,0 +1,50 @@
+{
+  "$schema": "https://stencila.dev/meta.schema.json",
+  "$id": "https://stencila.dev/TimeValidator.schema.json",
+  "@id": "stencila:TimeValidator",
+  "title": "TimeValidator",
+  "extends": [
+    "Entity"
+  ],
+  "description": "A validator specifying the constraints on a time.",
+  "required": [
+    "type"
+  ],
+  "core": [
+    "id",
+    "minimum",
+    "maximum"
+  ],
+  "properties": {
+    "type": {
+      "@id": "schema:type",
+      "description": "The type of this item",
+      "$comment": "This is a special property analogous to JSON-LD's `@type` keyword.\n",
+      "type": "string"
+    },
+    "id": {
+      "@id": "schema:id",
+      "description": "The identifier for this item",
+      "$comment": "This is a special property analogous to JSON-LD's `@id` keyword.\n",
+      "strip": [
+        "id"
+      ],
+      "html": {
+        "attr": "id"
+      },
+      "type": "string"
+    },
+    "minimum": {
+      "@id": "stencila:minimum",
+      "description": "The inclusive lower limit for a time.",
+      "$comment": "A time is valid if it is greater than, or exactly equal to, `minimum`.\n",
+      "$ref": "Time"
+    },
+    "maximum": {
+      "@id": "stencila:maximum",
+      "description": "The inclusive upper limit for a time.",
+      "$comment": "A time is valid if it is less than, or exactly equal to, `maximum`.\n",
+      "$ref": "Time"
+    }
+  }
+}

@@ -1,0 +1,63 @@
+{
+  "title": "CreativeWorkType",
+  "description": "Union type for all types that are descended from `CreativeWork`",
+  "anyOf": [
+    {
+      "$ref": "Article"
+    },
+    {
+      "$ref": "AudioObject"
+    },
+    {
+      "$ref": "Claim"
+    },
+    {
+      "$ref": "Collection"
+    },
+    {
+      "$ref": "Comment"
+    },
+    {
+      "$ref": "Datatable"
+    },
+    {
+      "$ref": "Directory"
+    },
+    {
+      "$ref": "Figure"
+    },
+    {
+      "$ref": "File"
+    },
+    {
+      "$ref": "ImageObject"
+    },
+    {
+      "$ref": "MediaObject"
+    },
+    {
+      "$ref": "Periodical"
+    },
+    {
+      "$ref": "PublicationIssue"
+    },
+    {
+      "$ref": "PublicationVolume"
+    },
+    {
+      "$ref": "Review"
+    },
+    {
+      "$ref": "SoftwareApplication"
+    },
+    {
+      "$ref": "SoftwareSourceCode"
+    },
+    {
+      "$ref": "Table"
+    },
+    {
+      "$ref": "VideoObject"
+    }
+  ]
+}

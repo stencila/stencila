@@ -1,0 +1,46 @@
+{
+  "$schema": "https://stencila.dev/meta.schema.json",
+  "$id": "https://stencila.dev/CiteGroup.schema.json",
+  "@id": "stencila:CiteGroup",
+  "title": "CiteGroup",
+  "extends": [
+    "Entity"
+  ],
+  "description": "A group of Cite nodes.",
+  "$comment": "This type allows you to group associated citations together.\nWhen some content in a [`Creative Work`](./CreativeWork) cites more than one\nreference for a particular piece of text, use a `CiteGroup` to encapsulate\nmultiple [`Cite`](./Cite) nodes.\n\nAt present we do not give a `citationMode` property to a `CiteGroup` since\nthey will almost always be parenthetical as opposed to narrative.\nIn other words, it usually only makes sense for individual `Cite` nodes to be\nnarrative (although they may be connected together within `content` using words\nsuch as \"and\").\n",
+  "required": [
+    "type",
+    "items"
+  ],
+  "core": [
+    "id"
+  ],
+  "properties": {
+    "type": {
+      "@id": "schema:type",
+      "description": "The type of this item",
+      "$comment": "This is a special property analogous to JSON-LD's `@type` keyword.\n",
+      "type": "string"
+    },
+    "id": {
+      "@id": "schema:id",
+      "description": "The identifier for this item",
+      "$comment": "This is a special property analogous to JSON-LD's `@id` keyword.\n",
+      "strip": [
+        "id"
+      ],
+      "html": {
+        "attr": "id"
+      },
+      "type": "string"
+    },
+    "items": {
+      "@id": "schema:itemListElement",
+      "description": "One or more `Cite`s to be referenced in the same surrounding text.",
+      "type": "array",
+      "items": {
+        "$ref": "Cite"
+      }
+    }
+  }
+}

@@ -1,0 +1,43 @@
+{
+  "$schema": "https://stencila.dev/meta.schema.json",
+  "$id": "https://stencila.dev/Date.schema.json",
+  "@id": "schema:Date",
+  "title": "Date",
+  "extends": [
+    "Entity"
+  ],
+  "description": "A calendar date encoded as a ISO 8601 string.",
+  "required": [
+    "type",
+    "value"
+  ],
+  "core": [
+    "id"
+  ],
+  "properties": {
+    "type": {
+      "@id": "schema:type",
+      "description": "The type of this item",
+      "$comment": "This is a special property analogous to JSON-LD's `@type` keyword.\n",
+      "type": "string"
+    },
+    "id": {
+      "@id": "schema:id",
+      "description": "The identifier for this item",
+      "$comment": "This is a special property analogous to JSON-LD's `@id` keyword.\n",
+      "strip": [
+        "id"
+      ],
+      "html": {
+        "attr": "id"
+      },
+      "type": "string"
+    },
+    "value": {
+      "@id": "schema:value",
+      "description": "The date as an ISO 8601 string.",
+      "type": "string",
+      "format": "date"
+    }
+  }
+}

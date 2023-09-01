@@ -1,0 +1,198 @@
+{
+  "$schema": "https://stencila.dev/meta.schema.json",
+  "$id": "https://stencila.dev/CodeExpression.schema.json",
+  "@id": "stencila:CodeExpression",
+  "title": "CodeExpression",
+  "extends": [
+    "CodeExecutable"
+  ],
+  "description": "An executable programming code expression.",
+  "$comment": "Note that `CodeExpression` nodes lack the `executionPure` property that `CodeChunk` nodes have because they should be side-effect free.",
+  "html": {
+    "elem": "span",
+    "custom": true
+  },
+  "required": [
+    "type",
+    "code",
+    "programmingLanguage"
+  ],
+  "core": [
+    "id",
+    "guessLanguage",
+    "output"
+  ],
+  "properties": {
+    "type": {
+      "@id": "schema:type",
+      "description": "The type of this item",
+      "$comment": "This is a special property analogous to JSON-LD's `@type` keyword.\n",
+      "type": "string"
+    },
+    "id": {
+      "@id": "schema:id",
+      "description": "The identifier for this item",
+      "$comment": "This is a special property analogous to JSON-LD's `@id` keyword.\n",
+      "strip": [
+        "id"
+      ],
+      "html": {
+        "attr": "id"
+      },
+      "type": "string"
+    },
+    "executionAuto": {
+      "@id": "stencila:executionAuto",
+      "description": "Under which circumstances the code should be automatically executed.",
+      "strip": [
+        "execution"
+      ],
+      "$ref": "ExecutionAuto"
+    },
+    "compilationDigest": {
+      "@id": "stencila:compilationDigest",
+      "description": "A digest of the content, semantics and dependencies of the node.",
+      "strip": [
+        "execution"
+      ],
+      "$ref": "ExecutionDigest"
+    },
+    "executionDigest": {
+      "@id": "stencila:executionDigest",
+      "description": "The `compileDigest` of the node when it was last executed.",
+      "strip": [
+        "execution"
+      ],
+      "$ref": "ExecutionDigest"
+    },
+    "executionDependencies": {
+      "@id": "stencila:executionDependencies",
+      "description": "The upstream dependencies of this node.",
+      "strip": [
+        "execution"
+      ],
+      "type": "array",
+      "items": {
+        "$ref": "ExecutionDependency"
+      }
+    },
+    "executionDependants": {
+      "@id": "stencila:executionDependants",
+      "description": "The downstream dependants of this node.",
+      "strip": [
+        "execution"
+      ],
+      "type": "array",
+      "items": {
+        "$ref": "ExecutionDependant"
+      }
+    },
+    "executionTags": {
+      "@id": "stencila:executionTags",
+      "description": "Tags in the code which affect its execution",
+      "strip": [
+        "execution"
+      ],
+      "type": "array",
+      "items": {
+        "$ref": "ExecutionTag"
+      }
+    },
+    "executionCount": {
+      "@id": "stencila:executionCount",
+      "description": "A count of the number of times that the node has been executed.",
+      "$comment": "Intended to increment with each successive execution of the node, including across sessions.\nNote that this differs to the `execution_count` in Jupyter Notebook format which is\nthe \"code cell's prompt number\" and which resets at the start of each new session.\n",
+      "strip": [
+        "execution"
+      ],
+      "type": "integer",
+      "minimum": 0.0
+    },
+    "executionRequired": {
+      "@id": "stencila:executionRequired",
+      "description": "Whether, and why, the code requires execution or re-execution.",
+      "strip": [
+        "execution"
+      ],
+      "$ref": "ExecutionRequired"
+    },
+    "executionKernel": {
+      "@id": "stencila:executionKernel",
+      "description": "The id of the kernel that the node was last executed in.",
+      "strip": [
+        "execution"
+      ],
+      "type": "string"
+    },
+    "executionStatus": {
+      "@id": "stencila:executionStatus",
+      "description": "Status of the most recent, including any current, execution.",
+      "strip": [
+        "execution"
+      ],
+      "$ref": "ExecutionStatus"
+    },
+    "executionEnded": {
+      "@id": "stencila:executionEnded",
+      "description": "The timestamp when the last execution ended.",
+      "strip": [
+        "execution"
+      ],
+      "$ref": "Timestamp"
+    },
+    "executionDuration": {
+      "@id": "stencila:executionDuration",
+      "description": "Duration of the last execution.",
+      "strip": [
+        "execution"
+      ],
+      "$ref": "Duration"
+    },
+    "errors": {
+      "@id": "stencila:errors",
+      "description": "Errors when compiling (e.g. syntax errors) or executing the node.",
+      "strip": [
+        "execution"
+      ],
+      "type": "array",
+      "items": {
+        "$ref": "CodeError"
+      }
+    },
+    "code": {
+      "@id": "stencila:code",
+      "description": "The code.",
+      "type": "string"
+    },
+    "programmingLanguage": {
+      "@id": "schema:programmingLanguage",
+      "description": "The programming language of the code.",
+      "type": "string"
+    },
+    "guessLanguage": {
+      "@id": "stencila:guessLanguage",
+      "description": "Whether the programming language of the code should be guessed based on syntax and variables used",
+      "type": "boolean"
+    },
+    "mediaType": {
+      "@id": "schema:encodingFormat",
+      "description": "Media type, typically expressed using a MIME format, of the code.",
+      "$comment": "This property allows the differentiation of formats using the same programming language\nor variants of a programming language. An example is using `programmingLanguage` \"json\" and\n`encodingFormat` \"application/ld+json\" for JSON-LD code examples.\n",
+      "aliases": [
+        "encodingFormat"
+      ],
+      "type": "string"
+    },
+    "output": {
+      "@id": "stencila:output",
+      "description": "The value of the expression when it was last evaluated.",
+      "strip": [
+        "output"
+      ],
+      "html": {
+        "slot": "span"
+      },
+      "$ref": "Node"
+    }
+  }
+}

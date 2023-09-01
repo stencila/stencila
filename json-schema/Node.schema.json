@@ -1,0 +1,316 @@
+{
+  "title": "Node",
+  "description": "Union type for all types in this schema, including primitives and entities",
+  "anyOf": [
+    {
+      "$ref": "Null"
+    },
+    {
+      "$ref": "Boolean"
+    },
+    {
+      "$ref": "Integer"
+    },
+    {
+      "$ref": "UnsignedInteger"
+    },
+    {
+      "$ref": "Number"
+    },
+    {
+      "$ref": "String"
+    },
+    {
+      "$ref": "Array"
+    },
+    {
+      "$ref": "ArrayValidator"
+    },
+    {
+      "$ref": "Article"
+    },
+    {
+      "$ref": "AudioObject"
+    },
+    {
+      "$ref": "BooleanValidator"
+    },
+    {
+      "$ref": "Brand"
+    },
+    {
+      "$ref": "Button"
+    },
+    {
+      "$ref": "Call"
+    },
+    {
+      "$ref": "CallArgument"
+    },
+    {
+      "$ref": "Cite"
+    },
+    {
+      "$ref": "CiteGroup"
+    },
+    {
+      "$ref": "Claim"
+    },
+    {
+      "$ref": "CodeBlock"
+    },
+    {
+      "$ref": "CodeChunk"
+    },
+    {
+      "$ref": "CodeError"
+    },
+    {
+      "$ref": "CodeExpression"
+    },
+    {
+      "$ref": "CodeFragment"
+    },
+    {
+      "$ref": "Collection"
+    },
+    {
+      "$ref": "Comment"
+    },
+    {
+      "$ref": "ConstantValidator"
+    },
+    {
+      "$ref": "ContactPoint"
+    },
+    {
+      "$ref": "CreativeWork"
+    },
+    {
+      "$ref": "Datatable"
+    },
+    {
+      "$ref": "DatatableColumn"
+    },
+    {
+      "$ref": "Date"
+    },
+    {
+      "$ref": "DateTime"
+    },
+    {
+      "$ref": "DateTimeValidator"
+    },
+    {
+      "$ref": "DateValidator"
+    },
+    {
+      "$ref": "DefinedTerm"
+    },
+    {
+      "$ref": "Directory"
+    },
+    {
+      "$ref": "Division"
+    },
+    {
+      "$ref": "Duration"
+    },
+    {
+      "$ref": "DurationValidator"
+    },
+    {
+      "$ref": "Emphasis"
+    },
+    {
+      "$ref": "EnumValidator"
+    },
+    {
+      "$ref": "Enumeration"
+    },
+    {
+      "$ref": "ExecutionDependant"
+    },
+    {
+      "$ref": "ExecutionDependency"
+    },
+    {
+      "$ref": "ExecutionDigest"
+    },
+    {
+      "$ref": "ExecutionTag"
+    },
+    {
+      "$ref": "Figure"
+    },
+    {
+      "$ref": "File"
+    },
+    {
+      "$ref": "For"
+    },
+    {
+      "$ref": "Form"
+    },
+    {
+      "$ref": "Function"
+    },
+    {
+      "$ref": "Grant"
+    },
+    {
+      "$ref": "Heading"
+    },
+    {
+      "$ref": "If"
+    },
+    {
+      "$ref": "IfClause"
+    },
+    {
+      "$ref": "ImageObject"
+    },
+    {
+      "$ref": "Include"
+    },
+    {
+      "$ref": "IntegerValidator"
+    },
+    {
+      "$ref": "Link"
+    },
+    {
+      "$ref": "List"
+    },
+    {
+      "$ref": "ListItem"
+    },
+    {
+      "$ref": "MathBlock"
+    },
+    {
+      "$ref": "MathFragment"
+    },
+    {
+      "$ref": "MediaObject"
+    },
+    {
+      "$ref": "MonetaryGrant"
+    },
+    {
+      "$ref": "Note"
+    },
+    {
+      "$ref": "NumberValidator"
+    },
+    {
+      "$ref": "Organization"
+    },
+    {
+      "$ref": "Paragraph"
+    },
+    {
+      "$ref": "Parameter"
+    },
+    {
+      "$ref": "Periodical"
+    },
+    {
+      "$ref": "Person"
+    },
+    {
+      "$ref": "PostalAddress"
+    },
+    {
+      "$ref": "Product"
+    },
+    {
+      "$ref": "PropertyValue"
+    },
+    {
+      "$ref": "PublicationIssue"
+    },
+    {
+      "$ref": "PublicationVolume"
+    },
+    {
+      "$ref": "Quote"
+    },
+    {
+      "$ref": "QuoteBlock"
+    },
+    {
+      "$ref": "Review"
+    },
+    {
+      "$ref": "SoftwareApplication"
+    },
+    {
+      "$ref": "SoftwareSourceCode"
+    },
+    {
+      "$ref": "Span"
+    },
+    {
+      "$ref": "Strikeout"
+    },
+    {
+      "$ref": "StringValidator"
+    },
+    {
+      "$ref": "Strong"
+    },
+    {
+      "$ref": "Subscript"
+    },
+    {
+      "$ref": "Superscript"
+    },
+    {
+      "$ref": "Table"
+    },
+    {
+      "$ref": "TableCell"
+    },
+    {
+      "$ref": "TableRow"
+    },
+    {
+      "$ref": "Text"
+    },
+    {
+      "$ref": "ThematicBreak"
+    },
+    {
+      "$ref": "Thing"
+    },
+    {
+      "$ref": "Time"
+    },
+    {
+      "$ref": "TimeValidator"
+    },
+    {
+      "$ref": "Timestamp"
+    },
+    {
+      "$ref": "TimestampValidator"
+    },
+    {
+      "$ref": "TupleValidator"
+    },
+    {
+      "$ref": "Underline"
+    },
+    {
+      "$ref": "Variable"
+    },
+    {
+      "$ref": "VideoObject"
+    },
+    {
+      "$ref": "Object"
+    }
+  ],
+  "default": null
+}
