@@ -8,14 +8,16 @@ use super::table_row_type::TableRowType;
 
 /// A row within a Table.
 #[skip_serializing_none]
-#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, HtmlCodec, TextCodec, StripNode, Read, Write)]
+#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, HtmlCodec, TextCodec, Read, Write)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
+#[html(elem = "tr")]
 pub struct TableRow {
     /// The type of this item
     pub r#type: MustBe!("TableRow"),
 
     /// The identifier for this item
     #[strip(id)]
+    #[html(attr = "id")]
     pub id: Option<String>,
 
     /// An array of cells in the row.
@@ -27,8 +29,9 @@ pub struct TableRow {
 }
 
 #[skip_serializing_none]
-#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, HtmlCodec, TextCodec, StripNode, Read, Write)]
+#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, HtmlCodec, TextCodec, Read, Write)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
+#[html(elem = "tr")]
 pub struct TableRowOptions {
     /// The type of row.
     pub row_type: Option<TableRowType>,

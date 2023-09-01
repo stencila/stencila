@@ -2,6 +2,8 @@ title: Table
 '@id': schema:Table
 extends: CreativeWork
 description: A table.
+html:
+  elem: table
 required:
   - rows
 core:

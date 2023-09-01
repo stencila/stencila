@@ -20,7 +20,7 @@ use super::thing_type::ThingType;
 
 /// A part of a successively published publication such as a periodical or multi-volume work.
 #[skip_serializing_none]
-#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, HtmlCodec, TextCodec, StripNode, Read, Write)]
+#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, HtmlCodec, TextCodec, Read, Write)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 pub struct PublicationVolume {
     /// The type of this item
@@ -28,6 +28,7 @@ pub struct PublicationVolume {
 
     /// The identifier for this item
     #[strip(id)]
+    #[html(attr = "id")]
     pub id: Option<String>,
 
     /// An item or other CreativeWork that this CreativeWork is a part of.
@@ -42,7 +43,7 @@ pub struct PublicationVolume {
 }
 
 #[skip_serializing_none]
-#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, HtmlCodec, TextCodec, StripNode, Read, Write)]
+#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, HtmlCodec, TextCodec, Read, Write)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 pub struct PublicationVolumeOptions {
     /// Alternate names (aliases) for the item.

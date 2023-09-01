@@ -19,7 +19,7 @@ use super::timestamp::Timestamp;
 
 /// Call another document, optionally with arguments, and include its executed content.
 #[skip_serializing_none]
-#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, HtmlCodec, TextCodec, StripNode, Read, Write)]
+#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, HtmlCodec, TextCodec, Read, Write)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 pub struct Call {
     /// The type of this item
@@ -27,6 +27,7 @@ pub struct Call {
 
     /// The identifier for this item
     #[strip(id)]
+    #[html(attr = "id")]
     pub id: Option<String>,
 
     /// The external source of the content, a file path or URL.
@@ -55,7 +56,7 @@ pub struct Call {
 }
 
 #[skip_serializing_none]
-#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, HtmlCodec, TextCodec, StripNode, Read, Write)]
+#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, HtmlCodec, TextCodec, Read, Write)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 pub struct CallOptions {
     /// Under which circumstances the code should be automatically executed.

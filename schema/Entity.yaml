@@ -23,4 +23,6 @@ properties:
       This is a special property analogous to JSON-LD's `@id` keyword.
     strip:
       - id
+    html:
+      attr: id
     type: string

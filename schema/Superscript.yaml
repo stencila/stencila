@@ -2,3 +2,5 @@ title: Superscript
 '@id': stencila:Superscript
 extends: Mark
 description: Superscripted content.
+html:
+  elem: sup

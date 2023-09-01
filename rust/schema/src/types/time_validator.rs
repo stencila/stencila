@@ -7,7 +7,7 @@ use super::time::Time;
 
 /// A validator specifying the constraints on a time.
 #[skip_serializing_none]
-#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, HtmlCodec, TextCodec, StripNode, Read, Write)]
+#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, HtmlCodec, TextCodec, Read, Write)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 pub struct TimeValidator {
     /// The type of this item
@@ -15,6 +15,7 @@ pub struct TimeValidator {
 
     /// The identifier for this item
     #[strip(id)]
+    #[html(attr = "id")]
     pub id: Option<String>,
 
     /// The inclusive lower limit for a time.

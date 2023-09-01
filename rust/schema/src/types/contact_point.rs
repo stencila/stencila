@@ -9,7 +9,7 @@ use super::string::String;
 
 /// A contact point, usually within an organization.
 #[skip_serializing_none]
-#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, HtmlCodec, TextCodec, StripNode, Read, Write)]
+#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, HtmlCodec, TextCodec, Read, Write)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 pub struct ContactPoint {
     /// The type of this item
@@ -17,6 +17,7 @@ pub struct ContactPoint {
 
     /// The identifier for this item
     #[strip(id)]
+    #[html(attr = "id")]
     pub id: Option<String>,
 
     /// Email address for correspondence.
@@ -31,7 +32,7 @@ pub struct ContactPoint {
 }
 
 #[skip_serializing_none]
-#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, HtmlCodec, TextCodec, StripNode, Read, Write)]
+#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, HtmlCodec, TextCodec, Read, Write)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 pub struct ContactPointOptions {
     /// Alternate names (aliases) for the item.

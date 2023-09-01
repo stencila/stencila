@@ -6,7 +6,7 @@ use super::image_object::ImageObject;
 use super::string::String;
 
 /// [`ImageObject`] or [`String`]
-#[derive(Debug, Display, Clone, PartialEq, Serialize, Deserialize, HtmlCodec, TextCodec, StripNode, Read, Write)]
+#[derive(Debug, Display, Clone, PartialEq, Serialize, Deserialize, StripNode, HtmlCodec, TextCodec, Read, Write)]
 #[serde(untagged, crate = "common::serde")]
 pub enum ImageObjectOrString {
     ImageObject(ImageObject),

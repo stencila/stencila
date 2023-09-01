@@ -51,6 +51,16 @@ async fn examples_encode_decode() -> Result<()> {
     //
     // Excludes developer focussed and/or unstable formats e.g. `Debug`
     let formats: &[(&str, Format, Option<EncodeOptions>, Option<DecodeOptions>)] = &[
+        ("html", Format::Html, Some(EncodeOptions::default()), None),
+        (
+            "compact.html",
+            Format::Html,
+            Some(EncodeOptions {
+                compact: true,
+                ..Default::default()
+            }),
+            None,
+        ),
         (
             "json5",
             Format::Json5,

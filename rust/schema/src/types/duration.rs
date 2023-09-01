@@ -8,7 +8,7 @@ use super::time_unit::TimeUnit;
 
 /// A value that represents the difference between two timestamps
 #[skip_serializing_none]
-#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, HtmlCodec, TextCodec, StripNode, Read, Write)]
+#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, HtmlCodec, TextCodec, Read, Write)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 pub struct Duration {
     /// The type of this item
@@ -16,6 +16,7 @@ pub struct Duration {
 
     /// The identifier for this item
     #[strip(id)]
+    #[html(attr = "id")]
     pub id: Option<String>,
 
     /// The time difference in `timeUnit`s.

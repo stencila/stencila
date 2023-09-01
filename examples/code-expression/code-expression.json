@@ -1,0 +1,24 @@
+{
+  "type": "Article",
+  "content": [
+    {
+      "type": "Paragraph",
+      "content": [
+        {
+          "type": "Text",
+          "value": "A code expression with an output: "
+        },
+        {
+          "type": "CodeExpression",
+          "programmingLanguage": "python",
+          "code": "6 * 7",
+          "output": 42
+        },
+        {
+          "type": "Text",
+          "value": "."
+        }
+      ]
+    }
+  ]
+}

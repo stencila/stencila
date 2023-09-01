@@ -3,7 +3,7 @@
 use crate::prelude::*;
 
 /// Under which circumstances the document node should be automatically executed.
-#[derive(Debug, Display, Clone, PartialEq, Serialize, Deserialize, HtmlCodec, TextCodec, StripNode, SmartDefault, Read, Write)]
+#[derive(Debug, Display, Clone, PartialEq, Serialize, Deserialize, StripNode, HtmlCodec, TextCodec, SmartDefault, Read, Write)]
 #[serde(crate = "common::serde")]
 pub enum ExecutionRequired {
     No,

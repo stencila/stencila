@@ -15,7 +15,10 @@ use common::{
     tokio::fs::{create_dir_all, remove_file, write},
 };
 
-use crate::schemas::{Items, Schema, Schemas, Type, Value};
+use crate::{
+    schema::{Items, Schema, Type, Value},
+    schemas::Schemas,
+};
 
 /// Comment to place at top of a files to indicate it is generated
 const GENERATED_COMMENT: &str = "# Generated file; do not edit. See the Rust `schema-gen` crate.";
@@ -233,11 +236,7 @@ impl Schemas {
         let mut used_types = HashSet::new();
 
         // Get the base class
-        let base = match schema
-            .extends
-            .as_ref()
-            .and_then(|bases| bases.first().cloned())
-        {
+        let base = match schema.extends.first().cloned() {
             Some(base) => {
                 used_types.insert(base.clone());
                 base
@@ -255,7 +254,6 @@ impl Schemas {
         for (name, property) in schema
             .properties
             .iter()
-            .flatten()
             .filter(|(.., property)| !property.is_inherited)
         {
             let name = name.to_snake_case();

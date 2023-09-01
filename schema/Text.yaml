@@ -10,10 +10,14 @@ $comment: |
   for better diffing.
   
   Also, in Rust, the `value` property is implemented as a CRDT.
+html:
+  elem: span
 required:
   - value
 properties:
   value:
     '@id': 'schema:value'
     description: The value of the text content
+    html:
+      content: true
     $ref: TextValue

@@ -20,14 +20,16 @@ use super::thing_type::ThingType;
 
 /// An article, including news and scholarly articles.
 #[skip_serializing_none]
-#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, HtmlCodec, TextCodec, StripNode, Read, Write)]
+#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, HtmlCodec, TextCodec, Read, Write)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
+#[html(elem = "article")]
 pub struct Article {
     /// The type of this item
     pub r#type: MustBe!("Article"),
 
     /// The identifier for this item
     #[strip(id)]
+    #[html(attr = "id")]
     pub id: Option<String>,
 
     /// A description of the item.
@@ -67,8 +69,9 @@ pub struct Article {
 }
 
 #[skip_serializing_none]
-#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, HtmlCodec, TextCodec, StripNode, Read, Write)]
+#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, HtmlCodec, TextCodec, Read, Write)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
+#[html(elem = "article")]
 pub struct ArticleOptions {
     /// Alternate names (aliases) for the item.
     pub alternate_names: Option<Vec<String>>,

@@ -15,7 +15,10 @@ use common::{
     tokio::fs::{create_dir_all, remove_file, write},
 };
 
-use crate::schemas::{Items, Schema, Schemas, Type, Value};
+use crate::{
+    schema::{HtmlOptions, Items, Schema, Type, Value},
+    schemas::Schemas,
+};
 
 /// Comment to place at top of a files to indicate it is generated
 const GENERATED_COMMENT: &str = "// Generated file; do not edit. See `schema-gen` crate.";
@@ -258,9 +261,9 @@ impl Schemas {
             "PartialEq",
             "Serialize",
             "Deserialize",
+            "StripNode",
             "HtmlCodec",
             "TextCodec",
-            "StripNode",
         ];
         let title = title.as_str();
         if !NO_READ.contains(&title) {
@@ -273,15 +276,36 @@ impl Schemas {
 
         attrs.push("#[serde(rename_all = \"camelCase\", crate = \"common::serde\")]".to_string());
 
-        if let Some(strip) = &schema.strip {
-            attrs.push(format!("#[strip({})]", strip.join(", ")));
+        fn html_attr(options: &HtmlOptions) -> String {
+            let mut attrs = Vec::new();
+            if let Some(elem) = &options.elem {
+                attrs.push(format!("elem = \"{elem}\""));
+            }
+            if options.custom {
+                attrs.push("custom".to_string());
+            }
+            if let Some(attr) = &options.attr {
+                attrs.push(format!("attr = \"{attr}\""));
+            }
+            if options.content {
+                attrs.push("content".to_string());
+            }
+            if let Some(slot) = &options.slot {
+                attrs.push(format!("slot = \"{slot}\""));
+            }
+
+            format!("#[html({})]", attrs.join(", "))
+        }
+
+        if let Some(html) = &schema.html {
+            attrs.push(html_attr(html));
         }
 
         let attrs = attrs.join("\n");
 
         let mut fields = Vec::new();
         let mut used_types = HashSet::new();
-        for (name, property) in schema.properties.iter().flatten() {
+        for (name, property) in schema.properties.iter() {
             let description = property
                 .description
                 .as_ref()
@@ -330,8 +354,12 @@ impl Schemas {
                 attrs.push(format!("#[default = {default}]"));
             }
 
-            if let Some(strip) = &property.strip {
-                attrs.push(format!("#[strip({})]", strip.join(", ")));
+            if !property.strip.is_empty() {
+                attrs.push(format!("#[strip({})]", property.strip.iter().join(", ")));
+            }
+
+            if let Some(html) = &property.html {
+                attrs.push(html_attr(html));
             }
 
             // Generate the code for the field
@@ -556,11 +584,11 @@ impl {title} {{{new}}}
             "PartialEq",
             "Serialize",
             "Deserialize",
+            "StripNode",
             "HtmlCodec",
             "TextCodec",
-            "StripNode",
         ];
-        
+
         if default.is_some() {
             derives.push("SmartDefault");
         };
@@ -581,10 +609,6 @@ impl {title} {{{new}}}
                 true => "",
             }
         ));
-
-        if let Some(strip) = &schema.strip {
-            attrs.push(format!("#[strip({})]", strip.join(", ")));
-        }
 
         let attrs = attrs.join("\n");
 

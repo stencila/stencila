@@ -9,6 +9,8 @@ $comment: |
     - MDAST [`Link`](https://github.com/syntax-tree/mdast#link)
     - OpenDocument [`<text:a>`](http://docs.oasis-open.org/office/v1.2/os/OpenDocument-v1.2-os-part1.html#__RefHeading__1415212_253892949)
     - Pandoc [`Link`](https://github.com/jgm/pandoc-types/blob/1.17.5.4/Text/Pandoc/Definition.hs#L270)
+html:
+  elem: a
 required:
   - content
   - target
@@ -22,6 +24,12 @@ properties:
   target:
     '@id': stencila:target
     description: The target of the link.
+    $comment: |
+      Note that this is equivalent to the `href` attribute on a HTML `<a>` element,
+      not the `target` attribute (which is used to defined where to display the linked content,
+      e.g. in a new browser window).
+    html:
+      attr: href
     type: string
     # See http://json-schema.org/draft-06/json-schema-release-notes.html#formats-uri-vs-uri-reference
     # for the difference between `uri` and `uri-reference`. The latter is more permissive, and is

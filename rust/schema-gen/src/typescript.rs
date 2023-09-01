@@ -15,7 +15,10 @@ use common::{
     tokio::fs::{create_dir_all, remove_file, write},
 };
 
-use crate::schemas::{Items, Schema, Schemas, Type, Value};
+use crate::{
+    schema::{Items, Schema, Type, Value},
+    schemas::Schemas,
+};
 
 /// Comment to place at top of a files to indicate it is generated
 const GENERATED_COMMENT: &str = "// Generated file; do not edit. See `../rust/schema-gen` crate.";
@@ -217,7 +220,7 @@ impl Schemas {
         let mut props = Vec::new();
         let mut required_props = Vec::new();
         let mut used_types = HashSet::new();
-        for (name, property) in schema.properties.iter().flatten() {
+        for (name, property) in schema.properties.iter() {
             let description = property
                 .description
                 .as_ref()

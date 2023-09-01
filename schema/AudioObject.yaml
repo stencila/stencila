@@ -2,6 +2,8 @@ title: AudioObject
 '@id': schema:AudioObject
 extends: MediaObject
 description: An audio file
+html:
+  elem: audio
 properties:
   caption:
     '@id': schema:caption

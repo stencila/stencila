@@ -4,13 +4,15 @@ extends: CreativeWork
 description: An article, including news and scholarly articles.
 $comment: |
   This is an implementation, and extension, of schema.org [`Article`](https://schema.org/Article).
-  It extends schema.org `Article` by, adding a `content` property which must be
+  It extends schema.org `Article` by adding a `content` property which must be
   an array of [`Block`](./Block), as well as the properties added by
   [`CreativeWork`](./CreativeWork) which it extends.
 
   An `Article` is analogous, and structurally similar to, the JATS XML
   [`<article>`](https://jats.nlm.nih.gov/articleauthoring/tag-library/1.2/element/article.html)
   element.
+html:
+  elem: article
 required:
   - content
 core:

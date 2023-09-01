@@ -19,14 +19,16 @@ use super::timestamp::Timestamp;
 
 /// An executable programming code expression.
 #[skip_serializing_none]
-#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, HtmlCodec, TextCodec, StripNode, Read, Write)]
+#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, HtmlCodec, TextCodec, Read, Write)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
+#[html(elem = "span", custom)]
 pub struct CodeExpression {
     /// The type of this item
     pub r#type: MustBe!("CodeExpression"),
 
     /// The identifier for this item
     #[strip(id)]
+    #[html(attr = "id")]
     pub id: Option<String>,
 
     /// The code.
@@ -40,6 +42,7 @@ pub struct CodeExpression {
 
     /// The value of the expression when it was last evaluated.
     #[strip(output)]
+    #[html(slot = "span")]
     pub output: Option<Box<Node>>,
 
     /// Non-core optional fields
@@ -48,8 +51,9 @@ pub struct CodeExpression {
 }
 
 #[skip_serializing_none]
-#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, HtmlCodec, TextCodec, StripNode, Read, Write)]
+#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, HtmlCodec, TextCodec, Read, Write)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
+#[html(elem = "span", custom)]
 pub struct CodeExpressionOptions {
     /// Under which circumstances the code should be automatically executed.
     #[strip(execution)]

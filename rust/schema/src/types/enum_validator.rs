@@ -7,7 +7,7 @@ use super::string::String;
 
 /// A schema specifying that a node must be one of several values.
 #[skip_serializing_none]
-#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, HtmlCodec, TextCodec, StripNode, Read, Write)]
+#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, HtmlCodec, TextCodec, Read, Write)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 pub struct EnumValidator {
     /// The type of this item
@@ -15,6 +15,7 @@ pub struct EnumValidator {
 
     /// The identifier for this item
     #[strip(id)]
+    #[html(attr = "id")]
     pub id: Option<String>,
 
     /// A node is valid if it is equal to any of these values.

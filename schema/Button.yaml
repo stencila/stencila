@@ -3,6 +3,8 @@ title: Button
 extends: CodeExecutable
 status: experimental
 description: A button.
+html:
+  elem: button
 required:
   - name
 core:

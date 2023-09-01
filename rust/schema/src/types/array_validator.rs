@@ -9,7 +9,7 @@ use super::validator::Validator;
 
 /// A validator specifying constraints on an array node.
 #[skip_serializing_none]
-#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, HtmlCodec, TextCodec, StripNode, Read, Write)]
+#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, HtmlCodec, TextCodec, Read, Write)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 pub struct ArrayValidator {
     /// The type of this item
@@ -17,6 +17,7 @@ pub struct ArrayValidator {
 
     /// The identifier for this item
     #[strip(id)]
+    #[html(attr = "id")]
     pub id: Option<String>,
 
     /// Whether items can have the value `Node::Null`

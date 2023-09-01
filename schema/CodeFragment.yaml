@@ -2,3 +2,7 @@ title: CodeFragment
 '@id': stencila:CodeFragment
 extends: CodeStatic
 description: Inline code.
+html:
+  elem: code
+  custom: true
+

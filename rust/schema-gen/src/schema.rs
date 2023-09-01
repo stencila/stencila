@@ -2,7 +2,7 @@
 
 use std::path::PathBuf;
 
-use schemars::{schema_for, JsonSchema};
+use schemars::{gen::SchemaSettings, JsonSchema};
 
 use common::{
     eyre::{bail, eyre, Context, Result},
@@ -12,7 +12,10 @@ use common::{
     serde_with::skip_serializing_none,
     serde_yaml,
     strum::{AsRefStr, Display},
-    tokio::{fs::{read_to_string, File}, io::AsyncWriteExt},
+    tokio::{
+        fs::{read_to_string, File},
+        io::AsyncWriteExt,
+    },
 };
 
 /// A schema in the Stencila Schema
@@ -26,7 +29,7 @@ use common::{
 ///
 /// Much of the documentation provided here for JSON Schema properties is
 /// drawn directly from
-/// https://json-schema.org/draft/2020-12/json-schema-core.html and 
+/// https://json-schema.org/draft/2020-12/json-schema-core.html and
 /// https://json-schema.org/draft/2020-12/json-schema-validation.html.
 ///
 /// The current version of this meta-schema is published a https://stencila.dev/meta.schema.json.
@@ -38,21 +41,26 @@ use common::{
 /// in several commonly used code editors.
 #[skip_serializing_none]
 #[derive(Debug, Default, Clone, Deserialize, JsonSchema)]
-#[serde(default, rename_all = "camelCase", deny_unknown_fields, crate = "common::serde")]
+#[serde(
+    default,
+    rename_all = "camelCase",
+    deny_unknown_fields,
+    crate = "common::serde"
+)]
 pub struct Schema {
     /// The meta-schema of the schema
-    /// 
+    ///
     /// The value of this keyword MUST be "https://stencila.dev/meta.schema.json".
     #[serde(rename = "$schema")]
     pub schema: Option<String>,
 
     /// A description of the schema
-    /// 
+    ///
     /// The value of this keyword MUST be a string.
     pub title: Option<String>,
 
     /// The id of the schema
-    /// 
+    ///
     /// The value of this keyword MUST be a URI. It is automatically
     /// generated for each schema.Stencila Schema authors should use
     /// the `@id` property instead.
@@ -60,22 +68,22 @@ pub struct Schema {
     pub id: Option<String>,
 
     /// A description of the schema
-    /// 
+    ///
     /// The value of this keyword MUST be a string.
     /// The description SHOULD be short, use `$comment` for more extensive
     /// descriptive content.
     pub description: Option<String>,
 
     /// Comments for the schema
-    /// 
+    ///
     /// The value of this keyword MUST be a string.
     /// Use this for more extensive descriptive content such as the
     /// decisions made in the design of the schema.
     #[serde(rename = "$comment")]
     pub comment: Option<String>,
-    
+
     /// A reference to another schema in Stencila Schema
-    /// 
+    ///
     /// The value of this keyword MUST be a string of the
     /// title of the schema being referenced.
     #[serde(rename = "$ref")]
@@ -114,7 +122,6 @@ pub struct Schema {
     /// is equal to the value of the keyword.
     pub r#const: Option<Value>,
 
-
     #[rustfmt::skip]
     // Validation keywords for numeric instances (number and integer)
 
@@ -126,26 +133,25 @@ pub struct Schema {
     pub exclusive_minimum: Option<f64>,
 
     /// The minimum valid value
-    /// 
+    ///
     /// The value of "minimum" MUST be a number, representing an inclusive lower limit for a numeric instance.
     /// If the instance is a number, then this keyword validates only if the instance is greater than or exactly
     /// equal to "minimum".
     pub minimum: Option<f64>,
 
     /// The exclusive maximum valid value
-    /// 
+    ///
     /// The value of "exclusiveMaximum" MUST be a number, representing an exclusive upper limit for a numeric instance.
     /// If the instance is a number, then the instance is valid only if it has a value strictly less than
     /// (not equal to) "exclusiveMaximum".
     pub exclusive_maximum: Option<f64>,
 
     /// The maximum valid value
-    /// 
+    ///
     /// The value of "maximum" MUST be a number, representing an inclusive upper limit for a numeric instance.
     /// If the instance is a number, then this keyword validates only if the instance is less than or exactly
     /// equal to "maximum".
     pub maximum: Option<f64>,
-
 
     #[rustfmt::skip]
     // Validation keywords for strings
@@ -161,7 +167,6 @@ pub struct Schema {
     /// The expected format of the value
     pub format: Option<String>,
 
-
     #[rustfmt::skip]
     // Validation keywords for arrays
 
@@ -172,7 +177,7 @@ pub struct Schema {
     pub items: Option<Items>,
 
     /// The minimum number of items in the array
-    /// 
+    ///
     /// The value of this keyword MUST be a non-negative integer. An array instance
     /// is valid against "minItems" if its size is greater than, or equal to, the
     /// value of this keyword. Omitting this keyword has the same behavior as a
@@ -180,16 +185,15 @@ pub struct Schema {
     pub min_items: Option<usize>,
 
     /// The maximum number of items in the array
-    /// 
+    ///
     /// The value of this keyword MUST be a non-negative integer. An array instance
     /// is valid against "maxItems" if its size is less than, or equal to, the value
     /// of this keyword.
     pub max_items: Option<usize>,
 
-
     #[rustfmt::skip]
     // Validation keywords for objects
-    
+
     /// The names of required properties of an object schema
     /// 
     /// The value of this keyword MUST be an array. Elements of this array, if any, MUST be strings,
@@ -199,17 +203,17 @@ pub struct Schema {
     pub required: Vec<String>,
 
     /// The properties of an object schema
-    /// 
+    ///
     /// The value of "properties" MUST be an object. Each value of this object MUST be a valid JSON Schema.
     /// Validation succeeds if, for each name that appears in both the instance and as a name within this
     /// keyword's value, the child instance for that name successfully validates against the corresponding
     /// schema. The annotation result of this keyword is the set of instance property names matched by this keyword.
-    /// 
+    ///
     /// Omitting this keyword has the same assertion behavior as an empty object.
     pub properties: IndexMap<String, Schema>,
 
     /// The subschema for additional properties
-    /// 
+    ///
     /// The value of "additionalProperties" MUST be a valid JSON Schema. The behavior of this keyword
     /// depends on the presence and annotation results of "properties" and "patternProperties" within
     /// the same schema object. Validation with "additionalProperties" applies only to the child
@@ -217,7 +221,6 @@ pub struct Schema {
     /// or "patternProperties". For all such properties, validation succeeds if the child instance
     /// validates against the "additionalProperties" schema.
     pub additional_properties: Option<Box<Schema>>,
-
 
     #[rustfmt::skip]
     // Validation keywords for unions
@@ -232,17 +235,16 @@ pub struct Schema {
     pub any_of: Option<Vec<Schema>>,
 
     /// A default value for the schema
-    /// 
+    ///
     /// There are no restrictions placed on the value of this keyword. When multiple occurrences
     /// of this keyword are applicable to a single sub-instance, implementations SHOULD remove
-    /// duplicates. This keyword can be used to supply a default JSON value associated with a 
+    /// duplicates. This keyword can be used to supply a default JSON value associated with a
     /// particular schema. It is RECOMMENDED that a default value be valid against the associated schema.
     pub default: Option<Value>,
 
-
     #[rustfmt::skip]
     // Stencila extensions to JSON Schema
-    
+
     /// The JSON-LD id for the schema
     /// 
     /// The value of this keyword MUST be a string.
@@ -276,7 +278,6 @@ pub struct Schema {
 
     /// Options for converting the type or property to/from HTML
     pub html: Option<HtmlOptions>,
-
 
     #[rustfmt::skip]
     // Derived properties, not intended to be specified in schema, but
@@ -401,20 +402,42 @@ pub enum StripScopes {
 #[derive(Debug, Clone, Default, Deserialize, JsonSchema)]
 #[serde(default, rename_all = "camelCase", crate = "common::serde")]
 pub struct HtmlOptions {
-    /// The name of the element to use for a type or property
+    /// The name of the HTML element to use for a type or property
     pub elem: Option<String>,
 
-    /// Whether a property should be represented as a HTML element attribute
-    pub attr: bool,
+    /// Whether a custom element is defined for the node type
+    ///
+    /// If this is `true`, then, if `elem` is not `None`, the HTML `is` attribute
+    /// will be set to the kebab-cased type name.
+    pub custom: bool,
+
+    /// The HTML attribute name for a property
+    ///
+    /// Should only be used when `elem` is not `None`. When `elem` is `None`,
+    /// the name of the attribute will be the name of the property.
+    pub attr: Option<String>,
+
+    /// Whether a property should be encoded as content of the parent element
+    pub content: bool,
+
+    /// Whether a property should be encoded as a slot of the parent element
+    /// and the HTML element (e.g. `div`) to use for that slot
+    pub slot: Option<String>,
 }
 
 impl Schema {
     /// Generate the meta-schema
-    pub async fn meta_schema()-> Result<()> {
-        let path = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../json-schema/meta.schema.json");
+    pub async fn meta_schema() -> Result<()> {
+        let path =
+            PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../json-schema/meta.schema.json");
         let mut file = File::create(path).await?;
 
-        let schema = schema_for!(Self);
+        let settings = SchemaSettings::draft07().with(|s| {
+            s.option_add_null_type = false;
+        });
+        let gen = settings.into_generator();
+        let schema = gen.into_root_schema_for::<Self>();
+
         let json = serde_json::to_string_pretty(&schema)?;
         file.write_all(json.as_bytes()).await?;
 
@@ -566,5 +589,6 @@ fn schema_string_or_array(_: &mut schemars::gen::SchemaGenerator) -> schemars::s
                 }
             }
         ]
-    })).expect("invalid JSON Schema")
+    }))
+    .expect("invalid JSON Schema")
 }

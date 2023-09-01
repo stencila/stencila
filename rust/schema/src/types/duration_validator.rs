@@ -8,7 +8,7 @@ use super::time_unit::TimeUnit;
 
 /// A validator specifying the constraints on a duration.
 #[skip_serializing_none]
-#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, HtmlCodec, TextCodec, StripNode, Read, Write)]
+#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, HtmlCodec, TextCodec, Read, Write)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 pub struct DurationValidator {
     /// The type of this item
@@ -16,6 +16,7 @@ pub struct DurationValidator {
 
     /// The identifier for this item
     #[strip(id)]
+    #[html(attr = "id")]
     pub id: Option<String>,
 
     /// The time units that the duration can have.
