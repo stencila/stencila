@@ -11,6 +11,7 @@ use common::{
     serde_json::{self, json},
     serde_with::skip_serializing_none,
     serde_yaml,
+    smart_default::SmartDefault,
     strum::{AsRefStr, Display},
     tokio::fs::read_to_string,
 };
@@ -37,7 +38,7 @@ use common::{
 /// to this meta-schema. Amongst other things, this provides useful tool tips and input validation
 /// in several commonly used code editors.
 #[skip_serializing_none]
-#[derive(Debug, Default, Clone, Deserialize, Serialize, JsonSchema)]
+#[derive(Debug, SmartDefault, Clone, Deserialize, Serialize, JsonSchema)]
 #[serde(
     default,
     rename_all = "camelCase",
@@ -51,18 +52,40 @@ pub struct Schema {
     #[serde(rename = "$schema")]
     pub schema: Option<String>,
 
-    /// A description of the schema
-    ///
-    /// The value of this keyword MUST be a string.
-    pub title: Option<String>,
-
-    /// The id of the schema
+    /// The JSON Schema id for the schema
     ///
     /// The value of this keyword MUST be a URI. It is automatically
     /// generated for each schema.Stencila Schema authors should use
     /// the `@id` property instead.
     #[serde(rename = "$id")]
     pub id: Option<String>,
+
+    /// The JSON-LD id for the schema
+    ///
+    /// The value of this keyword MUST be a string.
+    /// If the schema belongs to another vocabulary such as schema.org, prefix the
+    /// id which that. e.g. `schema:Person`, otherwise, prefix it with `stencila`.
+    #[serde(rename = "@id")]
+    pub jid: Option<String>,
+
+    /// A description of the schema
+    ///
+    /// The value of this keyword MUST be a string.
+    pub title: Option<String>,
+
+    /// The title of the schema that this schema extends
+    #[serde(
+        deserialize_with = "deserialize_string_or_array",
+        skip_serializing_if = "Vec::is_empty"
+    )]
+    #[schemars(schema_with = "schema_string_or_array")]
+    pub extends: Vec<String>,
+
+    /// Whether the schema is only an abstract base for other schemas
+    ///
+    /// Types are usually not generated for abstract schemas.
+    #[serde(skip_serializing_if = "is_false")]
+    pub r#abstract: bool,
 
     /// A description of the schema
     ///
@@ -78,6 +101,20 @@ pub struct Schema {
     /// decisions made in the design of the schema.
     #[serde(rename = "$comment")]
     pub comment: Option<String>,
+
+    /// The status of the schema
+    pub status: Option<String>,
+
+    /// Aliases which may be used for a property name
+    #[serde(skip_serializing_if = "Vec::is_empty")]
+    pub aliases: Vec<String>,
+
+    /// The stripping scopes that the property should be stripped for
+    #[serde(skip_serializing_if = "Vec::is_empty")]
+    pub strip: Vec<StripScopes>,
+
+    /// Options for converting the type or property to/from HTML
+    pub html: Option<HtmlOptions>,
 
     /// A reference to another schema in Stencila Schema
     ///
@@ -200,6 +237,11 @@ pub struct Schema {
     #[serde(skip_serializing_if = "Vec::is_empty")]
     pub required: Vec<String>,
 
+    /// Core properties, which although optional, should not be placed in
+    /// the `options` field of generated Rust types
+    #[serde(skip_serializing_if = "Vec::is_empty")]
+    pub core: Vec<String>,
+
     /// The properties of an object schema
     ///
     /// The value of "properties" MUST be an object. Each value of this object MUST be a valid JSON Schema.
@@ -240,50 +282,6 @@ pub struct Schema {
     /// duplicates. This keyword can be used to supply a default JSON value associated with a
     /// particular schema. It is RECOMMENDED that a default value be valid against the associated schema.
     pub default: Option<Value>,
-
-    #[rustfmt::skip]
-    // Stencila extensions to JSON Schema
-
-    /// The JSON-LD id for the schema
-    /// 
-    /// The value of this keyword MUST be a string.
-    /// If the schema belongs to another vocabulary such as schema.org, prefix the
-    /// id which that. e.g. `schema:Person`, otherwise, prefix it with `stencila`.
-    #[serde(rename = "@id")]
-    pub jid: Option<String>,
-
-    /// The status of the schema
-    pub status: Option<String>,
-
-    /// The title of the schema that this schema extends
-    #[serde(
-        deserialize_with = "deserialize_string_or_array",
-        skip_serializing_if = "Vec::is_empty"
-    )]
-    #[schemars(schema_with = "schema_string_or_array")]
-    pub extends: Vec<String>,
-
-    /// Whether the schema is only an abstract base for other schemas
-    ///
-    /// Types are usually not generated for abstract schemas.
-    #[serde(skip_serializing_if = "is_false")]
-    pub r#abstract: bool,
-
-    /// Core properties, which although optional, should not be placed in
-    /// the `options` field of generated Rust types
-    #[serde(skip_serializing_if = "Vec::is_empty")]
-    pub core: Vec<String>,
-
-    /// Aliases which may be used for a property name
-    #[serde(skip_serializing_if = "Vec::is_empty")]
-    pub aliases: Vec<String>,
-
-    /// The stripping scopes that the property should be stripped for
-    #[serde(skip_serializing_if = "Vec::is_empty")]
-    pub strip: Vec<StripScopes>,
-
-    /// Options for converting the type or property to/from HTML
-    pub html: Option<HtmlOptions>,
 
     #[rustfmt::skip]
     // Derived properties, not intended to be specified in schema, but
@@ -441,7 +439,7 @@ impl Schema {
             .await
             .context(format!("unable to read file `{}`", file.display()))?;
 
-        let schema = serde_yaml::from_str(&yaml)
+        let mut schema: Self = serde_yaml::from_str(&yaml)
             .context(format!("unable to deserialize file `{}`", file.display()))?;
 
         let title = file
@@ -452,6 +450,9 @@ impl Schema {
                     .map(String::from)
             })
             .expect("all files to have a prefix");
+
+        schema.schema = Some("https://stencila.dev/meta.schema.json".to_string());
+        schema.id = Some(format!("https://stencila.dev/{title}.schema.json"));
 
         Ok((title, schema))
     }
@@ -586,5 +587,5 @@ fn schema_string_or_array(_: &mut schemars::gen::SchemaGenerator) -> schemars::s
 
 /// Is a boolean false?
 fn is_false(bool: &bool) -> bool {
-    *bool == false
+    !(*bool)
 }
