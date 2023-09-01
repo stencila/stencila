@@ -1,0 +1,36 @@
+# Workflow for publishing docs and other artifacts to GitHub Pages
+
+name: Pages
+
+on:
+  push:
+    branches: ["main"]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    environment:
+      name: github-pages
+
+    permissions:
+      pages: write
+      id-token: write
+
+    steps:
+      - name: Create archive to upload
+        run: |
+          tar \
+              -cvf "$RUNNER_TEMP/artifact.tar" \
+              -C json-schema .
+
+      - name: Upload the archive as a `github-pages` artifact
+        uses: actions/upload-artifact@v3
+        with:
+            name: github-pages
+            path: ${{ runner.temp }}/archive.tar
+            retention-days: 1
+            if-no-files-found: error
+
+      - name: Deploy to GitHub Pages
+        uses: actions/deploy-pages@v2
