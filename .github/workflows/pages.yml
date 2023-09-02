@@ -25,7 +25,7 @@ jobs:
         run: |
           tar \
               -cvf ${{ runner.temp }}/archive.tar \
-              -C json-schema .
+              -C json .
 
       - name: Upload the archive as a `github-pages` artifact
         uses: actions/upload-artifact@v3

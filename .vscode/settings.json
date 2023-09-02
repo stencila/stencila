@@ -1,6 +1,6 @@
 {
     "yaml.schemas": {
-        "json-schema/meta.schema.json": "schema/*.yaml"
+        "json/meta.schema.json": "schema/*.yaml"
     },
     "cSpell.words": [
         "asciimath",

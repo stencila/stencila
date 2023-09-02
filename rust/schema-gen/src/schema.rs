@@ -31,7 +31,7 @@ use common::{
 /// https://json-schema.org/draft/2020-12/json-schema-validation.html.
 ///
 /// The current version of this meta-schema is published a https://stencila.dev/meta.schema.json.
-/// Previous versions are available via https://raw.github.com/stencila/stencila/<version>/json-schema/meta.schema.json
+/// Previous versions are available via https://raw.github.com/stencila/stencila/<version>/json/meta.schema.json
 /// (replace `<version>` with the version tag name e.g. `v2.0.0-alpha.6`).
 ///
 /// Stencila Schema authors should start the schema with the `$schema` keyword pointing

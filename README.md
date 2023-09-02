@@ -165,9 +165,7 @@ This repository is organized into the following modules. Please see their respec
 
 - [`schema`](schema): YAML files which define the Stencila Schema, an implementation of, and extensions to, [schema.org](https://schema.org), for programmable documents.
 
-- `json-ld` [`🧭 Planned`]: A [JSON LD](https://json-ld.org/) `@context`, generated from Stencila Schema, which can be used to transform Stencila documents to other vocabularies.
-
-- [`json-schema`](json-schema) [`🏗️ In progress`]: A [JSON Schema](https://json-schema.org/), generated from Stencila Schema, which can be used to validate Stencila documents.
+- [`json`](json) [`🏗️ In progress`]: A [JSON Schema](https://json-schema.org/) and [JSON LD](https://json-ld.org/) `@context`, generated from Stencila Schema, which can be used to validate Stencila documents and transform them to other vocabularies
 
 - [`rust`](rust): Several Rust crates implementing core functionality and a CLI for working with Stencila documents.
 
