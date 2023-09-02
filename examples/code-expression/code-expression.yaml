@@ -1,3 +1,4 @@
+$schema: https://stencila.dev/Article.schema.json
 type: Article
 content:
 - type: Paragraph

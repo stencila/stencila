@@ -1,5 +1,9 @@
 use codec::{
-    common::{async_trait::async_trait, eyre::Result},
+    common::{
+        async_trait::async_trait,
+        eyre::Result,
+        serde_yaml::{self, Mapping, Value},
+    },
     format::Format,
     schema::Node,
     status::Status,
@@ -37,7 +41,32 @@ impl Codec for YamlCodec {
         node: &Node,
         _options: Option<EncodeOptions>,
     ) -> Result<(String, Losses)> {
-        let yaml = node.to_yaml()?;
+        let value = node.to_yaml_value()?;
+
+        let value = if let Some(r#type) = value
+            .as_mapping()
+            .and_then(|mapping| mapping.get("type"))
+            .and_then(|r#type| r#type.as_str())
+            .map(String::from)
+        {
+            let object = value.as_mapping().expect("checked above").to_owned();
+
+            // Insert the `$schema` and `@context` at the top of the root
+            let mut root = Mapping::with_capacity(object.len() + 1);
+            root.insert(
+                Value::String(String::from("$schema")),
+                Value::String(format!("https://stencila.dev/{type}.schema.json")),
+            );
+            for (key, value) in object.into_iter() {
+                root.insert(key, value);
+            }
+
+            Value::Mapping(root)
+        } else {
+            value
+        };
+
+        let yaml = serde_yaml::to_string(&value)?;
 
         Ok((yaml, Losses::none()))
     }

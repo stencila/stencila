@@ -19,4 +19,12 @@ pub trait YamlCodec: DeserializeOwned + Serialize {
     {
         Ok(serde_yaml::to_string(self)?)
     }
+
+    /// Encode a Stencila Schema node to a YAML value
+    fn to_yaml_value(&self) -> Result<serde_yaml::Value>
+    where
+        Self: Sized,
+    {
+        Ok(serde_yaml::to_value(self)?)
+    }
 }
