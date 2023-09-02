@@ -1,3 +1,1 @@
-from pydantic import NonNegativeInt
-
-UnsignedInteger = NonNegativeInt
+from typing import UnsignedInteger
