@@ -46,7 +46,7 @@
       "description": "A description of the item.",
       "type": "array",
       "items": {
-        "$ref": "Block"
+        "$ref": "Block.schema.json"
       }
     },
     "identifiers": {
@@ -57,7 +57,7 @@
       "items": {
         "anyOf": [
           {
-            "$ref": "PropertyValue"
+            "$ref": "PropertyValue.schema.json"
           },
           {
             "type": "string"
@@ -72,7 +72,7 @@
       "items": {
         "anyOf": [
           {
-            "$ref": "ImageObject"
+            "$ref": "ImageObject.schema.json"
           },
           {
             "type": "string",
@@ -97,7 +97,7 @@
       "description": "Postal address for the organization.\n",
       "anyOf": [
         {
-          "$ref": "PostalAddress"
+          "$ref": "PostalAddress.schema.json"
         },
         {
           "type": "string"
@@ -109,7 +109,7 @@
       "description": "Brands that the organization is connected with.\n",
       "type": "array",
       "items": {
-        "$ref": "Brand"
+        "$ref": "Brand.schema.json"
       }
     },
     "contactPoints": {
@@ -117,7 +117,7 @@
       "description": "Correspondence/Contact points for the organization.\n",
       "type": "array",
       "items": {
-        "$ref": "ContactPoint"
+        "$ref": "ContactPoint.schema.json"
       }
     },
     "departments": {
@@ -125,7 +125,7 @@
       "description": "Departments within the organization. For example, Department of Computer Science, Research & Development etc.\n",
       "type": "array",
       "items": {
-        "$ref": "Organization"
+        "$ref": "Organization.schema.json"
       }
     },
     "funders": {
@@ -135,10 +135,10 @@
       "items": {
         "anyOf": [
           {
-            "$ref": "Organization"
+            "$ref": "Organization.schema.json"
           },
           {
-            "$ref": "Person"
+            "$ref": "Person.schema.json"
           }
         ]
       }
@@ -154,7 +154,7 @@
       "$comment": "This is a singleton property because, at any one time, an organization\nwill usually only have one logo.\n",
       "anyOf": [
         {
-          "$ref": "ImageObject"
+          "$ref": "ImageObject.schema.json"
         },
         {
           "type": "string",
@@ -169,10 +169,10 @@
       "items": {
         "anyOf": [
           {
-            "$ref": "Organization"
+            "$ref": "Organization.schema.json"
           },
           {
-            "$ref": "Person"
+            "$ref": "Person.schema.json"
           }
         ]
       }
@@ -180,7 +180,7 @@
     "parentOrganization": {
       "@id": "schema:parentOrganization",
       "description": "Entity that the Organization is a part of. For example, parentOrganization to a department is a university.\n",
-      "$ref": "Organization"
+      "$ref": "Organization.schema.json"
     }
   }
 }

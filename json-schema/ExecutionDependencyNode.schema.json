@@ -5,22 +5,22 @@
   "description": "Node types that can be execution dependencies",
   "anyOf": [
     {
-      "$ref": "Button"
+      "$ref": "Button.schema.json"
     },
     {
-      "$ref": "CodeChunk"
+      "$ref": "CodeChunk.schema.json"
     },
     {
-      "$ref": "File"
+      "$ref": "File.schema.json"
     },
     {
-      "$ref": "Parameter"
+      "$ref": "Parameter.schema.json"
     },
     {
-      "$ref": "SoftwareSourceCode"
+      "$ref": "SoftwareSourceCode.schema.json"
     },
     {
-      "$ref": "Variable"
+      "$ref": "Variable.schema.json"
     }
   ],
   "default": "CodeChunk"

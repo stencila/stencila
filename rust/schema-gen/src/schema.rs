@@ -7,7 +7,7 @@ use schemars::JsonSchema;
 use common::{
     eyre::{bail, eyre, Context, Result},
     indexmap::IndexMap,
-    serde::{Deserialize, Serialize},
+    serde::{self, Deserialize, Serialize, Serializer},
     serde_json::{self, json},
     serde_with::skip_serializing_none,
     serde_yaml,
@@ -120,7 +120,7 @@ pub struct Schema {
     ///
     /// The value of this keyword MUST be a string of the
     /// title of the schema being referenced.
-    #[serde(rename = "$ref")]
+    #[serde(rename = "$ref", serialize_with = "serialize_ref_option")]
     pub r#ref: Option<String>,
 
     #[rustfmt::skip]
@@ -350,7 +350,7 @@ pub enum Items {
 #[derive(Debug, Clone, Deserialize, Serialize, JsonSchema)]
 #[serde(crate = "common::serde")]
 pub struct ItemsRef {
-    #[serde(rename = "$ref")]
+    #[serde(rename = "$ref", serialize_with = "serialize_ref")]
     pub r#ref: String,
 }
 
@@ -583,6 +583,25 @@ fn schema_string_or_array(_: &mut schemars::gen::SchemaGenerator) -> schemars::s
         ]
     }))
     .expect("invalid JSON Schema")
+}
+
+/// Serialize the `$ref` property with the `.schema.json` extension so that it
+/// is valid in the published schema
+fn serialize_ref<S>(value: &String, serializer: S) -> Result<S::Ok, S::Error>
+where
+    S: Serializer,
+{
+    serializer.serialize_str(&format!("{value}.schema.json"))
+}
+
+fn serialize_ref_option<S>(value: &Option<String>, serializer: S) -> Result<S::Ok, S::Error>
+where
+    S: Serializer,
+{
+    match value {
+        Some(r#ref) => serializer.serialize_str(&format!("{ref}.schema.json")),
+        None => serializer.serialize_none(),
+    }
 }
 
 /// Is a boolean false?

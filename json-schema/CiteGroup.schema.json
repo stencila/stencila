@@ -39,7 +39,7 @@
       "description": "One or more `Cite`s to be referenced in the same surrounding text.",
       "type": "array",
       "items": {
-        "$ref": "Cite"
+        "$ref": "Cite.schema.json"
       }
     }
   }

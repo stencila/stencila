@@ -43,14 +43,14 @@
     "citationMode": {
       "@id": "stencila:citationMode",
       "description": "Determines how the citation is shown within the surrounding text.",
-      "$ref": "CitationMode"
+      "$ref": "CitationMode.schema.json"
     },
     "citationIntent": {
       "@id": "stencila:citationIntent",
       "description": "The type/s of the citation, both factually and rhetorically.",
       "type": "array",
       "items": {
-        "$ref": "CitationIntent"
+        "$ref": "CitationIntent.schema.json"
       }
     },
     "content": {
@@ -58,7 +58,7 @@
       "description": "Optional structured content/text of this citation.",
       "type": "array",
       "items": {
-        "$ref": "Inline"
+        "$ref": "Inline.schema.json"
       }
     },
     "pageStart": {

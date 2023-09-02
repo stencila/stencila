@@ -41,7 +41,7 @@
       "description": "The content that is marked.",
       "type": "array",
       "items": {
-        "$ref": "Inline"
+        "$ref": "Inline.schema.json"
       }
     }
   }

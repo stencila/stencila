@@ -42,7 +42,7 @@
     "timeUnit": {
       "@id": "stencila:timeUnit",
       "description": "The time unit that the `value` represents.",
-      "$ref": "TimeUnit"
+      "$ref": "TimeUnit.schema.json"
     }
   }
 }

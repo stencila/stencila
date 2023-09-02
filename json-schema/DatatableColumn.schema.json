@@ -48,7 +48,7 @@
       "description": "A description of the item.",
       "type": "array",
       "items": {
-        "$ref": "Block"
+        "$ref": "Block.schema.json"
       }
     },
     "identifiers": {
@@ -59,7 +59,7 @@
       "items": {
         "anyOf": [
           {
-            "$ref": "PropertyValue"
+            "$ref": "PropertyValue.schema.json"
           },
           {
             "type": "string"
@@ -74,7 +74,7 @@
       "items": {
         "anyOf": [
           {
-            "$ref": "ImageObject"
+            "$ref": "ImageObject.schema.json"
           },
           {
             "type": "string",
@@ -100,13 +100,13 @@
       "$comment": "Previously, any `Node` type was allowed in values. However, for some implementations\nthis was inefficient (e.g. in Rust a `enum Node` is >500 bytes whereas a `enum Primitive` is 32 bytes).\n",
       "type": "array",
       "items": {
-        "$ref": "Primitive"
+        "$ref": "Primitive.schema.json"
       }
     },
     "validator": {
       "@id": "stencila:validator",
       "description": "The validator to use to validate data in the column.",
-      "$ref": "ArrayValidator"
+      "$ref": "ArrayValidator.schema.json"
     }
   }
 }

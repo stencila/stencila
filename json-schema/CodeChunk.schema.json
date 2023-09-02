@@ -42,7 +42,7 @@
       "strip": [
         "execution"
       ],
-      "$ref": "ExecutionAuto"
+      "$ref": "ExecutionAuto.schema.json"
     },
     "compilationDigest": {
       "@id": "stencila:compilationDigest",
@@ -50,7 +50,7 @@
       "strip": [
         "execution"
       ],
-      "$ref": "ExecutionDigest"
+      "$ref": "ExecutionDigest.schema.json"
     },
     "executionDigest": {
       "@id": "stencila:executionDigest",
@@ -58,7 +58,7 @@
       "strip": [
         "execution"
       ],
-      "$ref": "ExecutionDigest"
+      "$ref": "ExecutionDigest.schema.json"
     },
     "executionDependencies": {
       "@id": "stencila:executionDependencies",
@@ -68,7 +68,7 @@
       ],
       "type": "array",
       "items": {
-        "$ref": "ExecutionDependency"
+        "$ref": "ExecutionDependency.schema.json"
       }
     },
     "executionDependants": {
@@ -79,7 +79,7 @@
       ],
       "type": "array",
       "items": {
-        "$ref": "ExecutionDependant"
+        "$ref": "ExecutionDependant.schema.json"
       }
     },
     "executionTags": {
@@ -90,7 +90,7 @@
       ],
       "type": "array",
       "items": {
-        "$ref": "ExecutionTag"
+        "$ref": "ExecutionTag.schema.json"
       }
     },
     "executionCount": {
@@ -109,7 +109,7 @@
       "strip": [
         "execution"
       ],
-      "$ref": "ExecutionRequired"
+      "$ref": "ExecutionRequired.schema.json"
     },
     "executionKernel": {
       "@id": "stencila:executionKernel",
@@ -125,7 +125,7 @@
       "strip": [
         "execution"
       ],
-      "$ref": "ExecutionStatus"
+      "$ref": "ExecutionStatus.schema.json"
     },
     "executionEnded": {
       "@id": "stencila:executionEnded",
@@ -133,7 +133,7 @@
       "strip": [
         "execution"
       ],
-      "$ref": "Timestamp"
+      "$ref": "Timestamp.schema.json"
     },
     "executionDuration": {
       "@id": "stencila:executionDuration",
@@ -141,7 +141,7 @@
       "strip": [
         "execution"
       ],
-      "$ref": "Duration"
+      "$ref": "Duration.schema.json"
     },
     "errors": {
       "@id": "stencila:errors",
@@ -151,7 +151,7 @@
       ],
       "type": "array",
       "items": {
-        "$ref": "CodeError"
+        "$ref": "CodeError.schema.json"
       }
     },
     "code": {
@@ -194,7 +194,7 @@
       ],
       "type": "array",
       "items": {
-        "$ref": "Node"
+        "$ref": "Node.schema.json"
       }
     },
     "label": {
@@ -210,7 +210,7 @@
         {
           "type": "array",
           "items": {
-            "$ref": "Block"
+            "$ref": "Block.schema.json"
           }
         },
         {

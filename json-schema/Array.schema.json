@@ -7,6 +7,6 @@
   "$comment": "Note that the items in the array are restricted to primitive node\ntypes including `Array` (ie. an `Array` as an item of another `Array`) and `Object`.\n",
   "type": "array",
   "items": {
-    "$ref": "Primitive"
+    "$ref": "Primitive.schema.json"
   }
 }

@@ -43,7 +43,7 @@
       "description": "The textual content of the link.",
       "type": "array",
       "items": {
-        "$ref": "Inline"
+        "$ref": "Inline.schema.json"
       }
     },
     "target": {

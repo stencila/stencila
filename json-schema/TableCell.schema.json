@@ -52,7 +52,7 @@
     "cellType": {
       "@id": "stencila:cellType",
       "description": "The type of cell.",
-      "$ref": "TableCellType"
+      "$ref": "TableCellType.schema.json"
     },
     "rowspan": {
       "@id": "stencila:rowspan",
@@ -69,13 +69,13 @@
         {
           "type": "array",
           "items": {
-            "$ref": "Block"
+            "$ref": "Block.schema.json"
           }
         },
         {
           "type": "array",
           "items": {
-            "$ref": "Inline"
+            "$ref": "Inline.schema.json"
           }
         }
       ]

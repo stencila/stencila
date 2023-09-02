@@ -5,55 +5,55 @@
   "description": "Union type for block content node types.",
   "anyOf": [
     {
-      "$ref": "Call"
+      "$ref": "Call.schema.json"
     },
     {
-      "$ref": "Claim"
+      "$ref": "Claim.schema.json"
     },
     {
-      "$ref": "CodeBlock"
+      "$ref": "CodeBlock.schema.json"
     },
     {
-      "$ref": "CodeChunk"
+      "$ref": "CodeChunk.schema.json"
     },
     {
-      "$ref": "Division"
+      "$ref": "Division.schema.json"
     },
     {
-      "$ref": "Figure"
+      "$ref": "Figure.schema.json"
     },
     {
-      "$ref": "For"
+      "$ref": "For.schema.json"
     },
     {
-      "$ref": "Form"
+      "$ref": "Form.schema.json"
     },
     {
-      "$ref": "Heading"
+      "$ref": "Heading.schema.json"
     },
     {
-      "$ref": "If"
+      "$ref": "If.schema.json"
     },
     {
-      "$ref": "Include"
+      "$ref": "Include.schema.json"
     },
     {
-      "$ref": "List"
+      "$ref": "List.schema.json"
     },
     {
-      "$ref": "MathBlock"
+      "$ref": "MathBlock.schema.json"
     },
     {
-      "$ref": "Paragraph"
+      "$ref": "Paragraph.schema.json"
     },
     {
-      "$ref": "QuoteBlock"
+      "$ref": "QuoteBlock.schema.json"
     },
     {
-      "$ref": "Table"
+      "$ref": "Table.schema.json"
     },
     {
-      "$ref": "ThematicBreak"
+      "$ref": "ThematicBreak.schema.json"
     }
   ],
   "default": "Paragraph"

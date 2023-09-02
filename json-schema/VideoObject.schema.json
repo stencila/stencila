@@ -49,7 +49,7 @@
       "description": "A description of the item.",
       "type": "array",
       "items": {
-        "$ref": "Block"
+        "$ref": "Block.schema.json"
       }
     },
     "identifiers": {
@@ -60,7 +60,7 @@
       "items": {
         "anyOf": [
           {
-            "$ref": "PropertyValue"
+            "$ref": "PropertyValue.schema.json"
           },
           {
             "type": "string"
@@ -75,7 +75,7 @@
       "items": {
         "anyOf": [
           {
-            "$ref": "ImageObject"
+            "$ref": "ImageObject.schema.json"
           },
           {
             "type": "string",
@@ -101,7 +101,7 @@
       "$comment": "Consistent with https://schema.org/about, this property allows for\nlinking to one of more `Thing` nodes. This could for example include\na `Person` (e.g for a bibliography) or a `DefinedTerm` (e.g. for\nsubject areas the creative work relates to).\n",
       "type": "array",
       "items": {
-        "$ref": "ThingType"
+        "$ref": "ThingType.schema.json"
       }
     },
     "authors": {
@@ -111,10 +111,10 @@
       "items": {
         "anyOf": [
           {
-            "$ref": "Person"
+            "$ref": "Person.schema.json"
           },
           {
-            "$ref": "Organization"
+            "$ref": "Organization.schema.json"
           }
         ]
       }
@@ -124,7 +124,7 @@
       "description": "Comments about this creative work.",
       "type": "array",
       "items": {
-        "$ref": "Comment"
+        "$ref": "Comment.schema.json"
       }
     },
     "content": {
@@ -132,29 +132,29 @@
       "description": "The structured content of this creative work c.f. property `text`.",
       "type": "array",
       "items": {
-        "$ref": "Block"
+        "$ref": "Block.schema.json"
       }
     },
     "dateCreated": {
       "@id": "schema:dateCreated",
       "description": "Date/time of creation.",
-      "$ref": "Date"
+      "$ref": "Date.schema.json"
     },
     "dateReceived": {
       "@id": "schema:dateReceived",
       "description": "Date/time that work was received.",
-      "$ref": "Date"
+      "$ref": "Date.schema.json"
     },
     "dateAccepted": {
       "@id": "stencila:dateAccepted",
       "description": "Date/time of acceptance.",
       "$comment": "This is not yet a schema.org property but the term is used\n[in Dublin Core](http://purl.org/dc/terms/dateAccepted).\n",
-      "$ref": "Date"
+      "$ref": "Date.schema.json"
     },
     "dateModified": {
       "@id": "schema:dateModified",
       "description": "Date/time of most recent modification.",
-      "$ref": "Date"
+      "$ref": "Date.schema.json"
     },
     "datePublished": {
       "@id": "schema:datePublished",
@@ -162,14 +162,14 @@
       "aliases": [
         "date"
       ],
-      "$ref": "Date"
+      "$ref": "Date.schema.json"
     },
     "editors": {
       "@id": "schema:editor",
       "description": "People who edited the `CreativeWork`.",
       "type": "array",
       "items": {
-        "$ref": "Person"
+        "$ref": "Person.schema.json"
       }
     },
     "funders": {
@@ -179,10 +179,10 @@
       "items": {
         "anyOf": [
           {
-            "$ref": "Person"
+            "$ref": "Person.schema.json"
           },
           {
-            "$ref": "Organization"
+            "$ref": "Organization.schema.json"
           }
         ]
       }
@@ -195,10 +195,10 @@
       "items": {
         "anyOf": [
           {
-            "$ref": "Grant"
+            "$ref": "Grant.schema.json"
           },
           {
-            "$ref": "MonetaryGrant"
+            "$ref": "MonetaryGrant.schema.json"
           }
         ]
       }
@@ -222,7 +222,7 @@
     "isPartOf": {
       "@id": "schema:isPartOf",
       "description": "An item or other CreativeWork that this CreativeWork is a part of.\n",
-      "$ref": "CreativeWorkType"
+      "$ref": "CreativeWorkType.schema.json"
     },
     "licenses": {
       "@id": "schema:license",
@@ -231,7 +231,7 @@
       "items": {
         "anyOf": [
           {
-            "$ref": "CreativeWorkType"
+            "$ref": "CreativeWorkType.schema.json"
           },
           {
             "type": "string",
@@ -248,10 +248,10 @@
       "items": {
         "anyOf": [
           {
-            "$ref": "Person"
+            "$ref": "Person.schema.json"
           },
           {
-            "$ref": "Organization"
+            "$ref": "Organization.schema.json"
           }
         ]
       }
@@ -264,7 +264,7 @@
       ],
       "type": "array",
       "items": {
-        "$ref": "CreativeWorkType"
+        "$ref": "CreativeWorkType.schema.json"
       }
     },
     "publisher": {
@@ -272,10 +272,10 @@
       "description": "A publisher of the CreativeWork.\n",
       "anyOf": [
         {
-          "$ref": "Person"
+          "$ref": "Person.schema.json"
         },
         {
-          "$ref": "Organization"
+          "$ref": "Organization.schema.json"
         }
       ]
     },
@@ -289,7 +289,7 @@
       "items": {
         "anyOf": [
           {
-            "$ref": "CreativeWorkType"
+            "$ref": "CreativeWorkType.schema.json"
           },
           {
             "type": "string"
@@ -310,7 +310,7 @@
       ],
       "type": "array",
       "items": {
-        "$ref": "Inline"
+        "$ref": "Inline.schema.json"
       }
     },
     "version": {
@@ -365,7 +365,7 @@
     "thumbnail": {
       "@id": "schema:thumbnail",
       "description": "Thumbnail image of this video recording.",
-      "$ref": "ImageObject"
+      "$ref": "ImageObject.schema.json"
     },
     "transcript": {
       "@id": "schema:transcript",

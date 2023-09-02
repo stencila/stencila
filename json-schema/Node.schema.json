@@ -3,313 +3,313 @@
   "description": "Union type for all types in this schema, including primitives and entities",
   "anyOf": [
     {
-      "$ref": "Null"
+      "$ref": "Null.schema.json"
     },
     {
-      "$ref": "Boolean"
+      "$ref": "Boolean.schema.json"
     },
     {
-      "$ref": "Integer"
+      "$ref": "Integer.schema.json"
     },
     {
-      "$ref": "UnsignedInteger"
+      "$ref": "UnsignedInteger.schema.json"
     },
     {
-      "$ref": "Number"
+      "$ref": "Number.schema.json"
     },
     {
-      "$ref": "String"
+      "$ref": "String.schema.json"
     },
     {
-      "$ref": "Array"
+      "$ref": "Array.schema.json"
     },
     {
-      "$ref": "ArrayValidator"
+      "$ref": "ArrayValidator.schema.json"
     },
     {
-      "$ref": "Article"
+      "$ref": "Article.schema.json"
     },
     {
-      "$ref": "AudioObject"
+      "$ref": "AudioObject.schema.json"
     },
     {
-      "$ref": "BooleanValidator"
+      "$ref": "BooleanValidator.schema.json"
     },
     {
-      "$ref": "Brand"
+      "$ref": "Brand.schema.json"
     },
     {
-      "$ref": "Button"
+      "$ref": "Button.schema.json"
     },
     {
-      "$ref": "Call"
+      "$ref": "Call.schema.json"
     },
     {
-      "$ref": "CallArgument"
+      "$ref": "CallArgument.schema.json"
     },
     {
-      "$ref": "Cite"
+      "$ref": "Cite.schema.json"
     },
     {
-      "$ref": "CiteGroup"
+      "$ref": "CiteGroup.schema.json"
     },
     {
-      "$ref": "Claim"
+      "$ref": "Claim.schema.json"
     },
     {
-      "$ref": "CodeBlock"
+      "$ref": "CodeBlock.schema.json"
     },
     {
-      "$ref": "CodeChunk"
+      "$ref": "CodeChunk.schema.json"
     },
     {
-      "$ref": "CodeError"
+      "$ref": "CodeError.schema.json"
     },
     {
-      "$ref": "CodeExpression"
+      "$ref": "CodeExpression.schema.json"
     },
     {
-      "$ref": "CodeFragment"
+      "$ref": "CodeFragment.schema.json"
     },
     {
-      "$ref": "Collection"
+      "$ref": "Collection.schema.json"
     },
     {
-      "$ref": "Comment"
+      "$ref": "Comment.schema.json"
     },
     {
-      "$ref": "ConstantValidator"
+      "$ref": "ConstantValidator.schema.json"
     },
     {
-      "$ref": "ContactPoint"
+      "$ref": "ContactPoint.schema.json"
     },
     {
-      "$ref": "CreativeWork"
+      "$ref": "CreativeWork.schema.json"
     },
     {
-      "$ref": "Datatable"
+      "$ref": "Datatable.schema.json"
     },
     {
-      "$ref": "DatatableColumn"
+      "$ref": "DatatableColumn.schema.json"
     },
     {
-      "$ref": "Date"
+      "$ref": "Date.schema.json"
     },
     {
-      "$ref": "DateTime"
+      "$ref": "DateTime.schema.json"
     },
     {
-      "$ref": "DateTimeValidator"
+      "$ref": "DateTimeValidator.schema.json"
     },
     {
-      "$ref": "DateValidator"
+      "$ref": "DateValidator.schema.json"
     },
     {
-      "$ref": "DefinedTerm"
+      "$ref": "DefinedTerm.schema.json"
     },
     {
-      "$ref": "Directory"
+      "$ref": "Directory.schema.json"
     },
     {
-      "$ref": "Division"
+      "$ref": "Division.schema.json"
     },
     {
-      "$ref": "Duration"
+      "$ref": "Duration.schema.json"
     },
     {
-      "$ref": "DurationValidator"
+      "$ref": "DurationValidator.schema.json"
     },
     {
-      "$ref": "Emphasis"
+      "$ref": "Emphasis.schema.json"
     },
     {
-      "$ref": "EnumValidator"
+      "$ref": "EnumValidator.schema.json"
     },
     {
-      "$ref": "Enumeration"
+      "$ref": "Enumeration.schema.json"
     },
     {
-      "$ref": "ExecutionDependant"
+      "$ref": "ExecutionDependant.schema.json"
     },
     {
-      "$ref": "ExecutionDependency"
+      "$ref": "ExecutionDependency.schema.json"
     },
     {
-      "$ref": "ExecutionDigest"
+      "$ref": "ExecutionDigest.schema.json"
     },
     {
-      "$ref": "ExecutionTag"
+      "$ref": "ExecutionTag.schema.json"
     },
     {
-      "$ref": "Figure"
+      "$ref": "Figure.schema.json"
     },
     {
-      "$ref": "File"
+      "$ref": "File.schema.json"
     },
     {
-      "$ref": "For"
+      "$ref": "For.schema.json"
     },
     {
-      "$ref": "Form"
+      "$ref": "Form.schema.json"
     },
     {
-      "$ref": "Function"
+      "$ref": "Function.schema.json"
     },
     {
-      "$ref": "Grant"
+      "$ref": "Grant.schema.json"
     },
     {
-      "$ref": "Heading"
+      "$ref": "Heading.schema.json"
     },
     {
-      "$ref": "If"
+      "$ref": "If.schema.json"
     },
     {
-      "$ref": "IfClause"
+      "$ref": "IfClause.schema.json"
     },
     {
-      "$ref": "ImageObject"
+      "$ref": "ImageObject.schema.json"
     },
     {
-      "$ref": "Include"
+      "$ref": "Include.schema.json"
     },
     {
-      "$ref": "IntegerValidator"
+      "$ref": "IntegerValidator.schema.json"
     },
     {
-      "$ref": "Link"
+      "$ref": "Link.schema.json"
     },
     {
-      "$ref": "List"
+      "$ref": "List.schema.json"
     },
     {
-      "$ref": "ListItem"
+      "$ref": "ListItem.schema.json"
     },
     {
-      "$ref": "MathBlock"
+      "$ref": "MathBlock.schema.json"
     },
     {
-      "$ref": "MathFragment"
+      "$ref": "MathFragment.schema.json"
     },
     {
-      "$ref": "MediaObject"
+      "$ref": "MediaObject.schema.json"
     },
     {
-      "$ref": "MonetaryGrant"
+      "$ref": "MonetaryGrant.schema.json"
     },
     {
-      "$ref": "Note"
+      "$ref": "Note.schema.json"
     },
     {
-      "$ref": "NumberValidator"
+      "$ref": "NumberValidator.schema.json"
     },
     {
-      "$ref": "Organization"
+      "$ref": "Organization.schema.json"
     },
     {
-      "$ref": "Paragraph"
+      "$ref": "Paragraph.schema.json"
     },
     {
-      "$ref": "Parameter"
+      "$ref": "Parameter.schema.json"
     },
     {
-      "$ref": "Periodical"
+      "$ref": "Periodical.schema.json"
     },
     {
-      "$ref": "Person"
+      "$ref": "Person.schema.json"
     },
     {
-      "$ref": "PostalAddress"
+      "$ref": "PostalAddress.schema.json"
     },
     {
-      "$ref": "Product"
+      "$ref": "Product.schema.json"
     },
     {
-      "$ref": "PropertyValue"
+      "$ref": "PropertyValue.schema.json"
     },
     {
-      "$ref": "PublicationIssue"
+      "$ref": "PublicationIssue.schema.json"
     },
     {
-      "$ref": "PublicationVolume"
+      "$ref": "PublicationVolume.schema.json"
     },
     {
-      "$ref": "Quote"
+      "$ref": "Quote.schema.json"
     },
     {
-      "$ref": "QuoteBlock"
+      "$ref": "QuoteBlock.schema.json"
     },
     {
-      "$ref": "Review"
+      "$ref": "Review.schema.json"
     },
     {
-      "$ref": "SoftwareApplication"
+      "$ref": "SoftwareApplication.schema.json"
     },
     {
-      "$ref": "SoftwareSourceCode"
+      "$ref": "SoftwareSourceCode.schema.json"
     },
     {
-      "$ref": "Span"
+      "$ref": "Span.schema.json"
     },
     {
-      "$ref": "Strikeout"
+      "$ref": "Strikeout.schema.json"
     },
     {
-      "$ref": "StringValidator"
+      "$ref": "StringValidator.schema.json"
     },
     {
-      "$ref": "Strong"
+      "$ref": "Strong.schema.json"
     },
     {
-      "$ref": "Subscript"
+      "$ref": "Subscript.schema.json"
     },
     {
-      "$ref": "Superscript"
+      "$ref": "Superscript.schema.json"
     },
     {
-      "$ref": "Table"
+      "$ref": "Table.schema.json"
     },
     {
-      "$ref": "TableCell"
+      "$ref": "TableCell.schema.json"
     },
     {
-      "$ref": "TableRow"
+      "$ref": "TableRow.schema.json"
     },
     {
-      "$ref": "Text"
+      "$ref": "Text.schema.json"
     },
     {
-      "$ref": "ThematicBreak"
+      "$ref": "ThematicBreak.schema.json"
     },
     {
-      "$ref": "Thing"
+      "$ref": "Thing.schema.json"
     },
     {
-      "$ref": "Time"
+      "$ref": "Time.schema.json"
     },
     {
-      "$ref": "TimeValidator"
+      "$ref": "TimeValidator.schema.json"
     },
     {
-      "$ref": "Timestamp"
+      "$ref": "Timestamp.schema.json"
     },
     {
-      "$ref": "TimestampValidator"
+      "$ref": "TimestampValidator.schema.json"
     },
     {
-      "$ref": "TupleValidator"
+      "$ref": "TupleValidator.schema.json"
     },
     {
-      "$ref": "Underline"
+      "$ref": "Underline.schema.json"
     },
     {
-      "$ref": "Variable"
+      "$ref": "Variable.schema.json"
     },
     {
-      "$ref": "VideoObject"
+      "$ref": "VideoObject.schema.json"
     },
     {
-      "$ref": "Object"
+      "$ref": "Object.schema.json"
     }
   ],
   "default": null

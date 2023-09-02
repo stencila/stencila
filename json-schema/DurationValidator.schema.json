@@ -41,20 +41,20 @@
       "$comment": "A duration is valid if its `timeUnit` is amongst the `timeUnits` of the validator.\n",
       "type": "array",
       "items": {
-        "$ref": "TimeUnit"
+        "$ref": "TimeUnit.schema.json"
       }
     },
     "minimum": {
       "@id": "stencila:minimum",
       "description": "The inclusive lower limit for a duration.",
       "$comment": "A duration is valid if it is greater than, or exactly equal to, `minimum`.\n",
-      "$ref": "Duration"
+      "$ref": "Duration.schema.json"
     },
     "maximum": {
       "@id": "stencila:maximum",
       "description": "The inclusive upper limit for a duration.",
       "$comment": "A duration is valid if it is less than, or exactly equal to, `maximum`.\n",
-      "$ref": "Duration"
+      "$ref": "Duration.schema.json"
     }
   }
 }

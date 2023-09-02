@@ -52,7 +52,7 @@
     "compileDigest": {
       "@id": "stencila:compileDigest",
       "description": "A digest of the `code` and `mathLanguage` used to avoid unnecessary transpilation to MathML",
-      "$ref": "ExecutionDigest"
+      "$ref": "ExecutionDigest.schema.json"
     },
     "errors": {
       "@id": "stencila:errors",

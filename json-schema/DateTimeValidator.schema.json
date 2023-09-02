@@ -38,13 +38,13 @@
       "@id": "stencila:minimum",
       "description": "The inclusive lower limit for a date-time.",
       "$comment": "A date-time is valid if it is greater than, or exactly equal to, `minimum`.\n",
-      "$ref": "DateTime"
+      "$ref": "DateTime.schema.json"
     },
     "maximum": {
       "@id": "stencila:maximum",
       "description": "The inclusive upper limit for a date-time.",
       "$comment": "A date-time is valid if it is less than, or exactly equal to, `maximum`.\n",
-      "$ref": "DateTime"
+      "$ref": "DateTime.schema.json"
     }
   }
 }

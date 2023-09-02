@@ -3,61 +3,61 @@
   "description": "Union type for all types that are descended from `CreativeWork`",
   "anyOf": [
     {
-      "$ref": "Article"
+      "$ref": "Article.schema.json"
     },
     {
-      "$ref": "AudioObject"
+      "$ref": "AudioObject.schema.json"
     },
     {
-      "$ref": "Claim"
+      "$ref": "Claim.schema.json"
     },
     {
-      "$ref": "Collection"
+      "$ref": "Collection.schema.json"
     },
     {
-      "$ref": "Comment"
+      "$ref": "Comment.schema.json"
     },
     {
-      "$ref": "Datatable"
+      "$ref": "Datatable.schema.json"
     },
     {
-      "$ref": "Directory"
+      "$ref": "Directory.schema.json"
     },
     {
-      "$ref": "Figure"
+      "$ref": "Figure.schema.json"
     },
     {
-      "$ref": "File"
+      "$ref": "File.schema.json"
     },
     {
-      "$ref": "ImageObject"
+      "$ref": "ImageObject.schema.json"
     },
     {
-      "$ref": "MediaObject"
+      "$ref": "MediaObject.schema.json"
     },
     {
-      "$ref": "Periodical"
+      "$ref": "Periodical.schema.json"
     },
     {
-      "$ref": "PublicationIssue"
+      "$ref": "PublicationIssue.schema.json"
     },
     {
-      "$ref": "PublicationVolume"
+      "$ref": "PublicationVolume.schema.json"
     },
     {
-      "$ref": "Review"
+      "$ref": "Review.schema.json"
     },
     {
-      "$ref": "SoftwareApplication"
+      "$ref": "SoftwareApplication.schema.json"
     },
     {
-      "$ref": "SoftwareSourceCode"
+      "$ref": "SoftwareSourceCode.schema.json"
     },
     {
-      "$ref": "Table"
+      "$ref": "Table.schema.json"
     },
     {
-      "$ref": "VideoObject"
+      "$ref": "VideoObject.schema.json"
     }
   ]
 }

@@ -39,7 +39,7 @@
       "description": "The source of the quote.",
       "anyOf": [
         {
-          "$ref": "Cite"
+          "$ref": "Cite.schema.json"
         },
         {
           "type": "string",
@@ -52,7 +52,7 @@
       "description": "The content of the quote.",
       "type": "array",
       "items": {
-        "$ref": "Block"
+        "$ref": "Block.schema.json"
       }
     }
   }

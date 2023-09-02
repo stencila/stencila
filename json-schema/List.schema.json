@@ -40,13 +40,13 @@
       "description": "The items in the list.",
       "type": "array",
       "items": {
-        "$ref": "ListItem"
+        "$ref": "ListItem.schema.json"
       }
     },
     "order": {
       "@id": "schema:itemListOrder",
       "description": "The ordering of the list.",
-      "$ref": "ListOrder"
+      "$ref": "ListOrder.schema.json"
     }
   }
 }

@@ -5,43 +5,43 @@
   "description": "Union type for validators.",
   "anyOf": [
     {
-      "$ref": "ArrayValidator"
+      "$ref": "ArrayValidator.schema.json"
     },
     {
-      "$ref": "BooleanValidator"
+      "$ref": "BooleanValidator.schema.json"
     },
     {
-      "$ref": "ConstantValidator"
+      "$ref": "ConstantValidator.schema.json"
     },
     {
-      "$ref": "DateTimeValidator"
+      "$ref": "DateTimeValidator.schema.json"
     },
     {
-      "$ref": "DateValidator"
+      "$ref": "DateValidator.schema.json"
     },
     {
-      "$ref": "DurationValidator"
+      "$ref": "DurationValidator.schema.json"
     },
     {
-      "$ref": "EnumValidator"
+      "$ref": "EnumValidator.schema.json"
     },
     {
-      "$ref": "IntegerValidator"
+      "$ref": "IntegerValidator.schema.json"
     },
     {
-      "$ref": "NumberValidator"
+      "$ref": "NumberValidator.schema.json"
     },
     {
-      "$ref": "StringValidator"
+      "$ref": "StringValidator.schema.json"
     },
     {
-      "$ref": "TimeValidator"
+      "$ref": "TimeValidator.schema.json"
     },
     {
-      "$ref": "TimestampValidator"
+      "$ref": "TimestampValidator.schema.json"
     },
     {
-      "$ref": "TupleValidator"
+      "$ref": "TupleValidator.schema.json"
     }
   ]
 }

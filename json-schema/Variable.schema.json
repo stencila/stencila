@@ -57,7 +57,7 @@
     "value": {
       "@id": "schema:value",
       "description": "The value of the variable.",
-      "$ref": "Node"
+      "$ref": "Node.schema.json"
     }
   }
 }

@@ -45,7 +45,7 @@
       "description": "A description of the item.",
       "type": "array",
       "items": {
-        "$ref": "Block"
+        "$ref": "Block.schema.json"
       }
     },
     "identifiers": {
@@ -56,7 +56,7 @@
       "items": {
         "anyOf": [
           {
-            "$ref": "PropertyValue"
+            "$ref": "PropertyValue.schema.json"
           },
           {
             "type": "string"
@@ -71,7 +71,7 @@
       "items": {
         "anyOf": [
           {
-            "$ref": "ImageObject"
+            "$ref": "ImageObject.schema.json"
           },
           {
             "type": "string",
@@ -97,7 +97,7 @@
       "$comment": "An array because a grant may have more than one funded item.\n",
       "type": "array",
       "items": {
-        "$ref": "Thing"
+        "$ref": "Thing.schema.json"
       }
     },
     "sponsors": {
@@ -108,10 +108,10 @@
       "items": {
         "anyOf": [
           {
-            "$ref": "Person"
+            "$ref": "Person.schema.json"
           },
           {
-            "$ref": "Organization"
+            "$ref": "Organization.schema.json"
           }
         ]
       }
@@ -130,10 +130,10 @@
       "items": {
         "anyOf": [
           {
-            "$ref": "Person"
+            "$ref": "Person.schema.json"
           },
           {
-            "$ref": "Organization"
+            "$ref": "Organization.schema.json"
           }
         ]
       }

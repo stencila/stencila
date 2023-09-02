@@ -38,7 +38,7 @@
     "noteType": {
       "@id": "stencila:noteType",
       "description": "Determines where the note content is displayed within the document.",
-      "$ref": "NoteType"
+      "$ref": "NoteType.schema.json"
     },
     "content": {
       "@id": "stencila:content",
@@ -46,7 +46,7 @@
       "$comment": "Most notes will have a single paragraph but could have multiple\nparagraphs, tables and even figures.\n",
       "type": "array",
       "items": {
-        "$ref": "Block"
+        "$ref": "Block.schema.json"
       }
     }
   }

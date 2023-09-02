@@ -39,7 +39,7 @@
       "description": "A node is valid if it is equal to any of these values.",
       "type": "array",
       "items": {
-        "$ref": "Node"
+        "$ref": "Node.schema.json"
       }
     }
   }

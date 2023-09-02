@@ -6,28 +6,28 @@
   "$comment": "Analogous to JSON values but adds `Integer` and `UnsignedInteger`.\n\nSimilar to https://schema.org/DataType \"The basic data types such as Integers, Strings, etc.\"\nbut includes `Array` and `Object` and excludes `Date`, `Time` and `DateTime` (which are\ntreated in this schema as `Entity`s having a `type` property to disambiguate them from strings).\n",
   "anyOf": [
     {
-      "$ref": "Null"
+      "$ref": "Null.schema.json"
     },
     {
-      "$ref": "Boolean"
+      "$ref": "Boolean.schema.json"
     },
     {
-      "$ref": "Integer"
+      "$ref": "Integer.schema.json"
     },
     {
-      "$ref": "UnsignedInteger"
+      "$ref": "UnsignedInteger.schema.json"
     },
     {
-      "$ref": "Number"
+      "$ref": "Number.schema.json"
     },
     {
-      "$ref": "String"
+      "$ref": "String.schema.json"
     },
     {
-      "$ref": "Array"
+      "$ref": "Array.schema.json"
     },
     {
-      "$ref": "Object"
+      "$ref": "Object.schema.json"
     }
   ],
   "default": "Null"

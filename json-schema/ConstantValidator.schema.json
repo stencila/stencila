@@ -37,7 +37,7 @@
     "value": {
       "@id": "schema:value",
       "description": "The value that the node must have.",
-      "$ref": "Node"
+      "$ref": "Node.schema.json"
     }
   }
 }

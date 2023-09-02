@@ -50,7 +50,7 @@
       "description": "A description of the item.",
       "type": "array",
       "items": {
-        "$ref": "Block"
+        "$ref": "Block.schema.json"
       }
     },
     "identifiers": {
@@ -61,7 +61,7 @@
       "items": {
         "anyOf": [
           {
-            "$ref": "PropertyValue"
+            "$ref": "PropertyValue.schema.json"
           },
           {
             "type": "string"
@@ -76,7 +76,7 @@
       "items": {
         "anyOf": [
           {
-            "$ref": "ImageObject"
+            "$ref": "ImageObject.schema.json"
           },
           {
             "type": "string",
@@ -104,13 +104,13 @@
         {
           "type": "array",
           "items": {
-            "$ref": "Block"
+            "$ref": "Block.schema.json"
           }
         },
         {
           "type": "array",
           "items": {
-            "$ref": "Inline"
+            "$ref": "Inline.schema.json"
           }
         }
       ]
@@ -119,7 +119,7 @@
       "@id": "schema:item",
       "description": "The item represented by this list item.",
       "$comment": "Use either `item` or `content`, not both.",
-      "$ref": "Node"
+      "$ref": "Node.schema.json"
     },
     "isChecked": {
       "@id": "stencila:isChecked",

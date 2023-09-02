@@ -46,12 +46,12 @@
     "itemsValidator": {
       "@id": "stencila:itemsValidator",
       "description": "Another validator node specifying the constraints on all items in the array.",
-      "$ref": "Validator"
+      "$ref": "Validator.schema.json"
     },
     "contains": {
       "@id": "stencila:contains",
       "description": "An array node is valid if at least one of its items is valid against the `contains` schema.",
-      "$ref": "Validator"
+      "$ref": "Validator.schema.json"
     },
     "minItems": {
       "@id": "stencila:minItems",

@@ -5,97 +5,97 @@
   "description": "Union type for valid inline content.",
   "anyOf": [
     {
-      "$ref": "AudioObject"
+      "$ref": "AudioObject.schema.json"
     },
     {
-      "$ref": "Button"
+      "$ref": "Button.schema.json"
     },
     {
-      "$ref": "Cite"
+      "$ref": "Cite.schema.json"
     },
     {
-      "$ref": "CiteGroup"
+      "$ref": "CiteGroup.schema.json"
     },
     {
-      "$ref": "CodeExpression"
+      "$ref": "CodeExpression.schema.json"
     },
     {
-      "$ref": "CodeFragment"
+      "$ref": "CodeFragment.schema.json"
     },
     {
-      "$ref": "Date"
+      "$ref": "Date.schema.json"
     },
     {
-      "$ref": "DateTime"
+      "$ref": "DateTime.schema.json"
     },
     {
-      "$ref": "Duration"
+      "$ref": "Duration.schema.json"
     },
     {
-      "$ref": "Emphasis"
+      "$ref": "Emphasis.schema.json"
     },
     {
-      "$ref": "ImageObject"
+      "$ref": "ImageObject.schema.json"
     },
     {
-      "$ref": "Link"
+      "$ref": "Link.schema.json"
     },
     {
-      "$ref": "MathFragment"
+      "$ref": "MathFragment.schema.json"
     },
     {
-      "$ref": "Note"
+      "$ref": "Note.schema.json"
     },
     {
-      "$ref": "Parameter"
+      "$ref": "Parameter.schema.json"
     },
     {
-      "$ref": "Quote"
+      "$ref": "Quote.schema.json"
     },
     {
-      "$ref": "Span"
+      "$ref": "Span.schema.json"
     },
     {
-      "$ref": "Strikeout"
+      "$ref": "Strikeout.schema.json"
     },
     {
-      "$ref": "Strong"
+      "$ref": "Strong.schema.json"
     },
     {
-      "$ref": "Subscript"
+      "$ref": "Subscript.schema.json"
     },
     {
-      "$ref": "Superscript"
+      "$ref": "Superscript.schema.json"
     },
     {
-      "$ref": "Text"
+      "$ref": "Text.schema.json"
     },
     {
-      "$ref": "Time"
+      "$ref": "Time.schema.json"
     },
     {
-      "$ref": "Timestamp"
+      "$ref": "Timestamp.schema.json"
     },
     {
-      "$ref": "Underline"
+      "$ref": "Underline.schema.json"
     },
     {
-      "$ref": "VideoObject"
+      "$ref": "VideoObject.schema.json"
     },
     {
-      "$ref": "Null"
+      "$ref": "Null.schema.json"
     },
     {
-      "$ref": "Boolean"
+      "$ref": "Boolean.schema.json"
     },
     {
-      "$ref": "Integer"
+      "$ref": "Integer.schema.json"
     },
     {
-      "$ref": "Number"
+      "$ref": "Number.schema.json"
     },
     {
-      "$ref": "String"
+      "$ref": "String.schema.json"
     }
   ],
   "default": "String"

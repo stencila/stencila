@@ -48,7 +48,7 @@
       "description": "Content of the heading.",
       "type": "array",
       "items": {
-        "$ref": "Inline"
+        "$ref": "Inline.schema.json"
       }
     }
   }

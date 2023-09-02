@@ -43,7 +43,7 @@
       "html": {
         "content": true
       },
-      "$ref": "TextValue"
+      "$ref": "TextValue.schema.json"
     }
   }
 }

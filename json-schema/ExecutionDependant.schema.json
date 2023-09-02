@@ -38,12 +38,12 @@
     "dependantRelation": {
       "@id": "stencila:dependantRelation",
       "description": "The relation to the dependant",
-      "$ref": "ExecutionDependantRelation"
+      "$ref": "ExecutionDependantRelation.schema.json"
     },
     "dependantNode": {
       "@id": "stencila:dependantNode",
       "description": "The node that is the dependant",
-      "$ref": "ExecutionDependantNode"
+      "$ref": "ExecutionDependantNode.schema.json"
     },
     "codeLocation": {
       "@id": "stencila:codeLocation",

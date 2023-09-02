@@ -7,6 +7,6 @@
   "$comment": "Note that keys are strings and values are restricted to primitive node\ntypes including `Object` (ie. an `Object` as a value of another `Object`) and `Array`.\n",
   "type": "object",
   "additionalProperties": {
-    "$ref": "Primitive"
+    "$ref": "Primitive.schema.json"
   }
 }

@@ -42,7 +42,7 @@
       "description": "The contents of the paragraph.",
       "type": "array",
       "items": {
-        "$ref": "Inline"
+        "$ref": "Inline.schema.json"
       }
     }
   }

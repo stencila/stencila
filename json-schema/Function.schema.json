@@ -47,13 +47,13 @@
       "description": "The parameters of the function.",
       "type": "array",
       "items": {
-        "$ref": "Parameter"
+        "$ref": "Parameter.schema.json"
       }
     },
     "returns": {
       "@id": "stencila:returns",
       "description": "The return type of the function.",
-      "$ref": "Validator"
+      "$ref": "Validator.schema.json"
     }
   }
 }
