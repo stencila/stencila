@@ -12,18 +12,3 @@ class IntegerValidator(NumberValidator):
     """
 
     type: Literal["IntegerValidator"] = field(default="IntegerValidator", init=False)
-
-    minimum: Optional[float] = None
-    """The inclusive lower limit for a numeric node."""
-
-    exclusive_minimum: Optional[float] = None
-    """The exclusive lower limit for a numeric node."""
-
-    maximum: Optional[float] = None
-    """The inclusive upper limit for a numeric node."""
-
-    exclusive_maximum: Optional[float] = None
-    """The exclusive upper limit for a numeric node."""
-
-    multiple_of: Optional[float] = None
-    """A number that a numeric node must be a multiple of."""

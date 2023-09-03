@@ -12,6 +12,3 @@ class ThematicBreak(Entity):
     """
 
     type: Literal["ThematicBreak"] = field(default="ThematicBreak", init=False)
-
-    id: Optional[str] = None
-    """The identifier for this item"""

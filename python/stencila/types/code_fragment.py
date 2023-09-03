@@ -12,12 +12,3 @@ class CodeFragment(CodeStatic):
     """
 
     type: Literal["CodeFragment"] = field(default="CodeFragment", init=False)
-
-    code: str
-    """The code."""
-
-    programming_language: Optional[str] = None
-    """The programming language of the code."""
-
-    media_type: Optional[str] = None
-    """Media type, typically expressed using a MIME format, of the code."""

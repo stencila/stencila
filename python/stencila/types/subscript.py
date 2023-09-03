@@ -2,7 +2,6 @@
 
 from .prelude import *
 
-from .inline import Inline
 from .mark import Mark
 
 
@@ -13,6 +12,3 @@ class Subscript(Mark):
     """
 
     type: Literal["Subscript"] = field(default="Subscript", init=False)
-
-    content: List[Inline]
-    """The content that is marked."""

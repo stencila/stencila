@@ -12,6 +12,3 @@ class BooleanValidator(Entity):
     """
 
     type: Literal["BooleanValidator"] = field(default="BooleanValidator", init=False)
-
-    id: Optional[str] = None
-    """The identifier for this item"""

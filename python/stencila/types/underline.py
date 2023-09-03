@@ -2,7 +2,6 @@
 
 from .prelude import *
 
-from .inline import Inline
 from .mark import Mark
 
 
@@ -13,6 +12,3 @@ class Underline(Mark):
     """
 
     type: Literal["Underline"] = field(default="Underline", init=False)
-
-    content: List[Inline]
-    """The content that is marked."""
