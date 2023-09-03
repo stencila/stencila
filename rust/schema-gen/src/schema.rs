@@ -357,7 +357,7 @@ pub struct ItemsRef {
 #[derive(Debug, Clone, Deserialize, Serialize, JsonSchema)]
 #[serde(crate = "common::serde")]
 pub struct ItemsType {
-    pub r#type: String,
+    pub r#type: Type,
 }
 
 #[derive(Debug, Clone, Deserialize, Serialize, JsonSchema)]

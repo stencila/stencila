@@ -165,7 +165,7 @@ impl Schemas {
                 Array => {
                     let items = match &schema.items {
                         Some(Items::Ref(inner)) => maybe_native_type(&inner.r#ref),
-                        Some(Items::Type(inner)) => maybe_native_type(&inner.r#type),
+                        Some(Items::Type(inner)) => maybe_native_type(inner.r#type.as_ref()),
                         Some(Items::AnyOf(inner)) => {
                             let schema = Schema {
                                 any_of: Some(inner.any_of.clone()),
