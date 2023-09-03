@@ -1,0 +1,84 @@
+{
+  "@context": {
+    "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
+    "schema": "https://schema.org/",
+    "stencila": "https://stencila.dev/"
+  },
+  "@graph": [
+    {
+      "@id": "stencila:ArrayValidator",
+      "@type": "rdfs:Class",
+      "rdfs:label": "ArrayValidator",
+      "rdfs:comment": "A validator specifying constraints on an array node.",
+      "rdfs:subClassOf": {
+        "@id": "Entity"
+      }
+    },
+    {
+      "@id": "stencila:itemsNullable",
+      "@type": "rdfs:Property",
+      "rdfs:label": "itemsNullable",
+      "rdfs:comment": "Whether items can have the value `Node::Null`",
+      "schema:domainIncludes": {
+        "@id": "stencila:ArrayValidator"
+      },
+      "schema:rangeIncludes": {
+        "@id": "schema:Boolean"
+      }
+    },
+    {
+      "@id": "stencila:itemsValidator",
+      "@type": "rdfs:Property",
+      "rdfs:label": "itemsValidator",
+      "rdfs:comment": "Another validator node specifying the constraints on all items in the array.",
+      "schema:domainIncludes": {
+        "@id": "stencila:ArrayValidator"
+      }
+    },
+    {
+      "@id": "stencila:contains",
+      "@type": "rdfs:Property",
+      "rdfs:label": "contains",
+      "rdfs:comment": "An array node is valid if at least one of its items is valid against the `contains` schema.",
+      "schema:domainIncludes": {
+        "@id": "stencila:ArrayValidator"
+      }
+    },
+    {
+      "@id": "stencila:minItems",
+      "@type": "rdfs:Property",
+      "rdfs:label": "minItems",
+      "rdfs:comment": "An array node is valid if its size is greater than, or equal to, this value.",
+      "schema:domainIncludes": {
+        "@id": "stencila:ArrayValidator"
+      },
+      "schema:rangeIncludes": {
+        "@id": "schema:Number"
+      }
+    },
+    {
+      "@id": "stencila:maxItems",
+      "@type": "rdfs:Property",
+      "rdfs:label": "maxItems",
+      "rdfs:comment": "An array node is valid if its size is less than, or equal to, this value.",
+      "schema:domainIncludes": {
+        "@id": "stencila:ArrayValidator"
+      },
+      "schema:rangeIncludes": {
+        "@id": "schema:Number"
+      }
+    },
+    {
+      "@id": "stencila:uniqueItems",
+      "@type": "rdfs:Property",
+      "rdfs:label": "uniqueItems",
+      "rdfs:comment": "A flag to indicate that each value in the array should be unique.",
+      "schema:domainIncludes": {
+        "@id": "stencila:ArrayValidator"
+      },
+      "schema:rangeIncludes": {
+        "@id": "schema:Boolean"
+      }
+    }
+  ]
+}

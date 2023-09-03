@@ -1,0 +1,115 @@
+{
+  "@context": {
+    "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
+    "schema": "https://schema.org/",
+    "stencila": "https://stencila.dev/"
+  },
+  "@graph": [
+    {
+      "@id": "stencila:Variable",
+      "@type": "rdfs:Class",
+      "rdfs:label": "Variable",
+      "rdfs:comment": "A variable representing a name / value pair.",
+      "rdfs:subClassOf": {
+        "@id": "Entity"
+      }
+    },
+    {
+      "@id": "stencila:namespace",
+      "@type": "rdfs:Property",
+      "rdfs:label": "namespace",
+      "rdfs:comment": "The namespace, usually a document path, within which the variable resides",
+      "schema:domainIncludes": {
+        "@id": "stencila:Variable"
+      },
+      "schema:rangeIncludes": {
+        "@id": "schema:Text"
+      }
+    },
+    {
+      "@id": "schema:name",
+      "@type": "rdfs:Property",
+      "rdfs:label": "name",
+      "rdfs:comment": "The name of the variable.",
+      "schema:domainIncludes": [
+        {
+          "@id": "stencila:Function"
+        },
+        {
+          "@id": "schema:Thing"
+        },
+        {
+          "@id": "stencila:Parameter"
+        },
+        {
+          "@id": "stencila:Variable"
+        },
+        {
+          "@id": "stencila:ExecutionTag"
+        },
+        {
+          "@id": "stencila:Button"
+        },
+        {
+          "@id": "stencila:TableCell"
+        }
+      ],
+      "schema:rangeIncludes": {
+        "@id": "schema:Text"
+      }
+    },
+    {
+      "@id": "stencila:kind",
+      "@type": "rdfs:Property",
+      "rdfs:label": "kind",
+      "rdfs:comment": "The expected type of variable e.g. `Number`, `Timestamp`, `Datatable`",
+      "schema:domainIncludes": {
+        "@id": "stencila:Variable"
+      },
+      "schema:rangeIncludes": {
+        "@id": "schema:Text"
+      }
+    },
+    {
+      "@id": "schema:value",
+      "@type": "rdfs:Property",
+      "rdfs:label": "value",
+      "rdfs:comment": "The value of the variable.",
+      "schema:domainIncludes": [
+        {
+          "@id": "schema:DateTime"
+        },
+        {
+          "@id": "stencila:ConstantValidator"
+        },
+        {
+          "@id": "schema:Timestamp"
+        },
+        {
+          "@id": "schema:Duration"
+        },
+        {
+          "@id": "schema:Date"
+        },
+        {
+          "@id": "stencila:Parameter"
+        },
+        {
+          "@id": "schema:Time"
+        },
+        {
+          "@id": "stencila:Variable"
+        },
+        {
+          "@id": "schema:Text"
+        },
+        {
+          "@id": "schema:PropertyValue"
+        },
+        {
+          "@id": "stencila:ExecutionTag"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,80 @@
+{
+  "@context": {
+    "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
+    "schema": "https://schema.org/",
+    "stencila": "https://stencila.dev/"
+  },
+  "@graph": [
+    {
+      "@id": "stencila:Mark",
+      "@type": "rdfs:Class",
+      "rdfs:label": "Mark",
+      "rdfs:comment": "Abstract base class for nodes that mark some other inline content\nin some way (e.g. as being emphasised, or quoted).\n",
+      "rdfs:subClassOf": {
+        "@id": "Entity"
+      }
+    },
+    {
+      "@id": "stencila:content",
+      "@type": "rdfs:Property",
+      "rdfs:label": "content",
+      "rdfs:comment": "The content that is marked.",
+      "schema:domainIncludes": [
+        {
+          "@id": "stencila:Include"
+        },
+        {
+          "@id": "stencila:Paragraph"
+        },
+        {
+          "@id": "stencila:Note"
+        },
+        {
+          "@id": "stencila:QuoteBlock"
+        },
+        {
+          "@id": "schema:ListItem"
+        },
+        {
+          "@id": "stencila:Form"
+        },
+        {
+          "@id": "stencila:Span"
+        },
+        {
+          "@id": "stencila:Heading"
+        },
+        {
+          "@id": "stencila:Link"
+        },
+        {
+          "@id": "stencila:Cite"
+        },
+        {
+          "@id": "stencila:Mark"
+        },
+        {
+          "@id": "stencila:IfClause"
+        },
+        {
+          "@id": "schema:Claim"
+        },
+        {
+          "@id": "schema:CreativeWork"
+        },
+        {
+          "@id": "stencila:For"
+        },
+        {
+          "@id": "stencila:Division"
+        },
+        {
+          "@id": "stencila:TableCell"
+        }
+      ],
+      "schema:rangeIncludes": {
+        "@id": "stencila:Inline"
+      }
+    }
+  ]
+}

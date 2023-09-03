@@ -1,0 +1,87 @@
+{
+  "@context": {
+    "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
+    "schema": "https://schema.org/",
+    "stencila": "https://stencila.dev/"
+  },
+  "@graph": [
+    {
+      "@id": "stencila:CodeStatic",
+      "@type": "rdfs:Class",
+      "rdfs:label": "CodeStatic",
+      "rdfs:comment": "Abstract base type for non-executable code nodes (e.g. `CodeBlock`).",
+      "rdfs:subClassOf": {
+        "@id": "Entity"
+      }
+    },
+    {
+      "@id": "stencila:code",
+      "@type": "rdfs:Property",
+      "rdfs:label": "code",
+      "rdfs:comment": "The code.",
+      "schema:domainIncludes": [
+        {
+          "@id": "stencila:CodeStatic"
+        },
+        {
+          "@id": "stencila:CodeExecutable"
+        },
+        {
+          "@id": "stencila:Math"
+        },
+        {
+          "@id": "stencila:CallArgument"
+        }
+      ],
+      "schema:rangeIncludes": {
+        "@id": "schema:Text"
+      }
+    },
+    {
+      "@id": "schema:programmingLanguage",
+      "@type": "rdfs:Property",
+      "rdfs:label": "programmingLanguage",
+      "rdfs:comment": "The programming language of the code.",
+      "schema:domainIncludes": [
+        {
+          "@id": "stencila:CodeStatic"
+        },
+        {
+          "@id": "stencila:CodeExecutable"
+        },
+        {
+          "@id": "schema:SoftwareSourceCode"
+        },
+        {
+          "@id": "stencila:CallArgument"
+        }
+      ],
+      "schema:rangeIncludes": {
+        "@id": "schema:Text"
+      }
+    },
+    {
+      "@id": "schema:encodingFormat",
+      "@type": "rdfs:Property",
+      "rdfs:label": "mediaType",
+      "rdfs:comment": "Media type, typically expressed using a MIME format, of the code.",
+      "schema:domainIncludes": [
+        {
+          "@id": "stencila:CodeStatic"
+        },
+        {
+          "@id": "stencila:Include"
+        },
+        {
+          "@id": "stencila:CodeExecutable"
+        },
+        {
+          "@id": "schema:MediaObject"
+        }
+      ],
+      "schema:rangeIncludes": {
+        "@id": "schema:Text"
+      }
+    }
+  ]
+}

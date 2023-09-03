@@ -1,0 +1,429 @@
+{
+  "@context": {
+    "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
+    "schema": "https://schema.org/",
+    "stencila": "https://stencila.dev/"
+  },
+  "@graph": [
+    {
+      "@id": "schema:CreativeWork",
+      "@type": "rdfs:Class",
+      "rdfs:label": "CreativeWork",
+      "rdfs:comment": "A creative work, including books, movies, photographs, software programs, etc.",
+      "rdfs:subClassOf": {
+        "@id": "Thing"
+      }
+    },
+    {
+      "@id": "schema:alternateName",
+      "@type": "rdfs:Property",
+      "rdfs:label": "alternateNames",
+      "rdfs:comment": "Alternate names (aliases) for the item.",
+      "schema:domainIncludes": {
+        "@id": "schema:Thing"
+      },
+      "schema:rangeIncludes": {
+        "@id": "schema:Text"
+      }
+    },
+    {
+      "@id": "schema:description",
+      "@type": "rdfs:Property",
+      "rdfs:label": "description",
+      "rdfs:comment": "A description of the item.",
+      "schema:domainIncludes": {
+        "@id": "schema:Thing"
+      },
+      "schema:rangeIncludes": {
+        "@id": "stencila:Block"
+      }
+    },
+    {
+      "@id": "schema:identifier",
+      "@type": "rdfs:Property",
+      "rdfs:label": "identifiers",
+      "rdfs:comment": "Any kind of identifier for any kind of Thing.",
+      "schema:domainIncludes": {
+        "@id": "schema:Thing"
+      },
+      "schema:rangeIncludes": {
+        "@id": "schema:Text"
+      }
+    },
+    {
+      "@id": "schema:image",
+      "@type": "rdfs:Property",
+      "rdfs:label": "images",
+      "rdfs:comment": "Images of the item.",
+      "schema:domainIncludes": {
+        "@id": "schema:Thing"
+      },
+      "schema:rangeIncludes": {
+        "@id": "schema:Text"
+      }
+    },
+    {
+      "@id": "schema:name",
+      "@type": "rdfs:Property",
+      "rdfs:label": "name",
+      "rdfs:comment": "The name of the item.",
+      "schema:domainIncludes": [
+        {
+          "@id": "stencila:Function"
+        },
+        {
+          "@id": "schema:Thing"
+        },
+        {
+          "@id": "stencila:Parameter"
+        },
+        {
+          "@id": "stencila:Variable"
+        },
+        {
+          "@id": "stencila:ExecutionTag"
+        },
+        {
+          "@id": "stencila:Button"
+        },
+        {
+          "@id": "stencila:TableCell"
+        }
+      ],
+      "schema:rangeIncludes": {
+        "@id": "schema:Text"
+      }
+    },
+    {
+      "@id": "schema:url",
+      "@type": "rdfs:Property",
+      "rdfs:label": "url",
+      "rdfs:comment": "The URL of the item.",
+      "schema:domainIncludes": {
+        "@id": "schema:Thing"
+      },
+      "schema:rangeIncludes": {
+        "@id": "schema:Text"
+      }
+    },
+    {
+      "@id": "schema:about",
+      "@type": "rdfs:Property",
+      "rdfs:label": "about",
+      "rdfs:comment": "The subject matter of the content.",
+      "schema:domainIncludes": {
+        "@id": "schema:CreativeWork"
+      },
+      "schema:rangeIncludes": {
+        "@id": "stencila:ThingType"
+      }
+    },
+    {
+      "@id": "schema:author",
+      "@type": "rdfs:Property",
+      "rdfs:label": "authors",
+      "rdfs:comment": "The authors of this creative work.",
+      "schema:domainIncludes": {
+        "@id": "schema:CreativeWork"
+      }
+    },
+    {
+      "@id": "schema:comment",
+      "@type": "rdfs:Property",
+      "rdfs:label": "comments",
+      "rdfs:comment": "Comments about this creative work.",
+      "schema:domainIncludes": {
+        "@id": "schema:CreativeWork"
+      },
+      "schema:rangeIncludes": {
+        "@id": "stencila:Comment"
+      }
+    },
+    {
+      "@id": "stencila:content",
+      "@type": "rdfs:Property",
+      "rdfs:label": "content",
+      "rdfs:comment": "The structured content of this creative work c.f. property `text`.",
+      "schema:domainIncludes": [
+        {
+          "@id": "stencila:Include"
+        },
+        {
+          "@id": "stencila:Paragraph"
+        },
+        {
+          "@id": "stencila:Note"
+        },
+        {
+          "@id": "stencila:QuoteBlock"
+        },
+        {
+          "@id": "schema:ListItem"
+        },
+        {
+          "@id": "stencila:Form"
+        },
+        {
+          "@id": "stencila:Span"
+        },
+        {
+          "@id": "stencila:Heading"
+        },
+        {
+          "@id": "stencila:Link"
+        },
+        {
+          "@id": "stencila:Cite"
+        },
+        {
+          "@id": "stencila:Mark"
+        },
+        {
+          "@id": "stencila:IfClause"
+        },
+        {
+          "@id": "schema:Claim"
+        },
+        {
+          "@id": "schema:CreativeWork"
+        },
+        {
+          "@id": "stencila:For"
+        },
+        {
+          "@id": "stencila:Division"
+        },
+        {
+          "@id": "stencila:TableCell"
+        }
+      ],
+      "schema:rangeIncludes": {
+        "@id": "stencila:Block"
+      }
+    },
+    {
+      "@id": "schema:dateCreated",
+      "@type": "rdfs:Property",
+      "rdfs:label": "dateCreated",
+      "rdfs:comment": "Date/time of creation.",
+      "schema:domainIncludes": {
+        "@id": "schema:CreativeWork"
+      }
+    },
+    {
+      "@id": "schema:dateReceived",
+      "@type": "rdfs:Property",
+      "rdfs:label": "dateReceived",
+      "rdfs:comment": "Date/time that work was received.",
+      "schema:domainIncludes": {
+        "@id": "schema:CreativeWork"
+      }
+    },
+    {
+      "@id": "stencila:dateAccepted",
+      "@type": "rdfs:Property",
+      "rdfs:label": "dateAccepted",
+      "rdfs:comment": "Date/time of acceptance.",
+      "schema:domainIncludes": {
+        "@id": "schema:CreativeWork"
+      }
+    },
+    {
+      "@id": "schema:dateModified",
+      "@type": "rdfs:Property",
+      "rdfs:label": "dateModified",
+      "rdfs:comment": "Date/time of most recent modification.",
+      "schema:domainIncludes": {
+        "@id": "schema:CreativeWork"
+      }
+    },
+    {
+      "@id": "schema:datePublished",
+      "@type": "rdfs:Property",
+      "rdfs:label": "datePublished",
+      "rdfs:comment": "Date of first publication.",
+      "schema:domainIncludes": {
+        "@id": "schema:CreativeWork"
+      }
+    },
+    {
+      "@id": "schema:editor",
+      "@type": "rdfs:Property",
+      "rdfs:label": "editors",
+      "rdfs:comment": "People who edited the `CreativeWork`.",
+      "schema:domainIncludes": {
+        "@id": "schema:CreativeWork"
+      },
+      "schema:rangeIncludes": {
+        "@id": "stencila:Person"
+      }
+    },
+    {
+      "@id": "schema:funder",
+      "@type": "rdfs:Property",
+      "rdfs:label": "funders",
+      "rdfs:comment": "People or organizations that funded the `CreativeWork`.",
+      "schema:domainIncludes": [
+        {
+          "@id": "schema:Person"
+        },
+        {
+          "@id": "schema:Organization"
+        },
+        {
+          "@id": "schema:CreativeWork"
+        },
+        {
+          "@id": "schema:MonetaryGrant"
+        }
+      ]
+    },
+    {
+      "@id": "stencila:fundedBy",
+      "@type": "rdfs:Property",
+      "rdfs:label": "fundedBy",
+      "rdfs:comment": "Grants that funded the `CreativeWork`; reverse of `fundedItems`.",
+      "schema:domainIncludes": {
+        "@id": "schema:CreativeWork"
+      }
+    },
+    {
+      "@id": "schema:genre",
+      "@type": "rdfs:Property",
+      "rdfs:label": "genre",
+      "rdfs:comment": "Genre of the creative work, broadcast channel or group.",
+      "schema:domainIncludes": {
+        "@id": "schema:CreativeWork"
+      },
+      "schema:rangeIncludes": {
+        "@id": "schema:Text"
+      }
+    },
+    {
+      "@id": "schema:keywords",
+      "@type": "rdfs:Property",
+      "rdfs:label": "keywords",
+      "rdfs:comment": "Keywords or tags used to describe this content.\nMultiple entries in a keywords list are typically delimited by commas.\n",
+      "schema:domainIncludes": {
+        "@id": "schema:CreativeWork"
+      },
+      "schema:rangeIncludes": {
+        "@id": "schema:Text"
+      }
+    },
+    {
+      "@id": "schema:isPartOf",
+      "@type": "rdfs:Property",
+      "rdfs:label": "isPartOf",
+      "rdfs:comment": "An item or other CreativeWork that this CreativeWork is a part of.\n",
+      "schema:domainIncludes": {
+        "@id": "schema:CreativeWork"
+      }
+    },
+    {
+      "@id": "schema:license",
+      "@type": "rdfs:Property",
+      "rdfs:label": "licenses",
+      "rdfs:comment": "License documents that applies to this content, typically indicated by URL.\n",
+      "schema:domainIncludes": {
+        "@id": "schema:CreativeWork"
+      },
+      "schema:rangeIncludes": {
+        "@id": "schema:Text"
+      }
+    },
+    {
+      "@id": "schema:maintainer",
+      "@type": "rdfs:Property",
+      "rdfs:label": "maintainers",
+      "rdfs:comment": "The people or organizations who maintain this CreativeWork.",
+      "schema:domainIncludes": {
+        "@id": "schema:CreativeWork"
+      }
+    },
+    {
+      "@id": "schema:hasParts",
+      "@type": "rdfs:Property",
+      "rdfs:label": "parts",
+      "rdfs:comment": "Elements of the collection which can be a variety of different elements,\nsuch as Articles, Datatables, Tables and more.\n",
+      "schema:domainIncludes": [
+        {
+          "@id": "stencila:Directory"
+        },
+        {
+          "@id": "schema:CreativeWork"
+        }
+      ],
+      "schema:rangeIncludes": {
+        "@id": "stencila:CreativeWorkType"
+      }
+    },
+    {
+      "@id": "schema:publisher",
+      "@type": "rdfs:Property",
+      "rdfs:label": "publisher",
+      "rdfs:comment": "A publisher of the CreativeWork.\n",
+      "schema:domainIncludes": {
+        "@id": "schema:CreativeWork"
+      }
+    },
+    {
+      "@id": "schema:citation",
+      "@type": "rdfs:Property",
+      "rdfs:label": "references",
+      "rdfs:comment": "References to other creative works, such as another publication,\nweb page, scholarly article, etc.\n",
+      "schema:domainIncludes": {
+        "@id": "schema:CreativeWork"
+      },
+      "schema:rangeIncludes": {
+        "@id": "schema:Text"
+      }
+    },
+    {
+      "@id": "schema:text",
+      "@type": "rdfs:Property",
+      "rdfs:label": "text",
+      "rdfs:comment": "The textual content of this creative work.",
+      "schema:domainIncludes": {
+        "@id": "schema:CreativeWork"
+      },
+      "schema:rangeIncludes": {
+        "@id": "schema:Text"
+      }
+    },
+    {
+      "@id": "schema:headline",
+      "@type": "rdfs:Property",
+      "rdfs:label": "title",
+      "rdfs:comment": "The title of the creative work.",
+      "schema:domainIncludes": [
+        {
+          "@id": "stencila:Link"
+        },
+        {
+          "@id": "schema:CreativeWork"
+        }
+      ],
+      "schema:rangeIncludes": {
+        "@id": "stencila:Inline"
+      }
+    },
+    {
+      "@id": "schema:version",
+      "@type": "rdfs:Property",
+      "rdfs:label": "version",
+      "rdfs:comment": "The version of the creative work.",
+      "schema:domainIncludes": {
+        "@id": "schema:CreativeWork"
+      },
+      "schema:rangeIncludes": [
+        {
+          "@id": "schema:Text"
+        },
+        {
+          "@id": "schema:Number"
+        }
+      ]
+    }
+  ]
+}

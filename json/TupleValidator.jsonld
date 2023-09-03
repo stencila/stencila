@@ -1,0 +1,38 @@
+{
+  "@context": {
+    "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
+    "schema": "https://schema.org/",
+    "stencila": "https://stencila.dev/"
+  },
+  "@graph": [
+    {
+      "@id": "stencila:TupleValidator",
+      "@type": "rdfs:Class",
+      "rdfs:label": "TupleValidator",
+      "rdfs:comment": "A validator specifying constraints on an array of heterogeneous items.",
+      "rdfs:subClassOf": {
+        "@id": "Entity"
+      }
+    },
+    {
+      "@id": "schema:itemListElement",
+      "@type": "rdfs:Property",
+      "rdfs:label": "items",
+      "rdfs:comment": "An array of validators specifying the constraints on each successive item in the array.",
+      "schema:domainIncludes": [
+        {
+          "@id": "stencila:CiteGroup"
+        },
+        {
+          "@id": "stencila:TupleValidator"
+        },
+        {
+          "@id": "schema:ItemList"
+        }
+      ],
+      "schema:rangeIncludes": {
+        "@id": "stencila:Validator"
+      }
+    }
+  ]
+}

@@ -1,0 +1,156 @@
+{
+  "@context": {
+    "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
+    "schema": "https://schema.org/",
+    "stencila": "https://stencila.dev/"
+  },
+  "@graph": [
+    {
+      "@id": "schema:ContactPoint",
+      "@type": "rdfs:Class",
+      "rdfs:label": "ContactPoint",
+      "rdfs:comment": "A contact point, usually within an organization.",
+      "rdfs:subClassOf": {
+        "@id": "Thing"
+      }
+    },
+    {
+      "@id": "schema:alternateName",
+      "@type": "rdfs:Property",
+      "rdfs:label": "alternateNames",
+      "rdfs:comment": "Alternate names (aliases) for the item.",
+      "schema:domainIncludes": {
+        "@id": "schema:Thing"
+      },
+      "schema:rangeIncludes": {
+        "@id": "schema:Text"
+      }
+    },
+    {
+      "@id": "schema:description",
+      "@type": "rdfs:Property",
+      "rdfs:label": "description",
+      "rdfs:comment": "A description of the item.",
+      "schema:domainIncludes": {
+        "@id": "schema:Thing"
+      },
+      "schema:rangeIncludes": {
+        "@id": "stencila:Block"
+      }
+    },
+    {
+      "@id": "schema:identifier",
+      "@type": "rdfs:Property",
+      "rdfs:label": "identifiers",
+      "rdfs:comment": "Any kind of identifier for any kind of Thing.",
+      "schema:domainIncludes": {
+        "@id": "schema:Thing"
+      },
+      "schema:rangeIncludes": {
+        "@id": "schema:Text"
+      }
+    },
+    {
+      "@id": "schema:image",
+      "@type": "rdfs:Property",
+      "rdfs:label": "images",
+      "rdfs:comment": "Images of the item.",
+      "schema:domainIncludes": {
+        "@id": "schema:Thing"
+      },
+      "schema:rangeIncludes": {
+        "@id": "schema:Text"
+      }
+    },
+    {
+      "@id": "schema:name",
+      "@type": "rdfs:Property",
+      "rdfs:label": "name",
+      "rdfs:comment": "The name of the item.",
+      "schema:domainIncludes": [
+        {
+          "@id": "stencila:Function"
+        },
+        {
+          "@id": "schema:Thing"
+        },
+        {
+          "@id": "stencila:Parameter"
+        },
+        {
+          "@id": "stencila:Variable"
+        },
+        {
+          "@id": "stencila:ExecutionTag"
+        },
+        {
+          "@id": "stencila:Button"
+        },
+        {
+          "@id": "stencila:TableCell"
+        }
+      ],
+      "schema:rangeIncludes": {
+        "@id": "schema:Text"
+      }
+    },
+    {
+      "@id": "schema:url",
+      "@type": "rdfs:Property",
+      "rdfs:label": "url",
+      "rdfs:comment": "The URL of the item.",
+      "schema:domainIncludes": {
+        "@id": "schema:Thing"
+      },
+      "schema:rangeIncludes": {
+        "@id": "schema:Text"
+      }
+    },
+    {
+      "@id": "schema:email",
+      "@type": "rdfs:Property",
+      "rdfs:label": "emails",
+      "rdfs:comment": "Email address for correspondence.",
+      "schema:domainIncludes": [
+        {
+          "@id": "schema:Person"
+        },
+        {
+          "@id": "schema:ContactPoint"
+        }
+      ],
+      "schema:rangeIncludes": {
+        "@id": "schema:Text"
+      }
+    },
+    {
+      "@id": "schema:telephone",
+      "@type": "rdfs:Property",
+      "rdfs:label": "telephoneNumbers",
+      "rdfs:comment": "Telephone numbers for the contact point.",
+      "schema:domainIncludes": [
+        {
+          "@id": "schema:Person"
+        },
+        {
+          "@id": "schema:ContactPoint"
+        }
+      ],
+      "schema:rangeIncludes": {
+        "@id": "schema:Text"
+      }
+    },
+    {
+      "@id": "schema:availableLanguage",
+      "@type": "rdfs:Property",
+      "rdfs:label": "availableLanguages",
+      "rdfs:comment": "Languages (human not programming) in which it is possible to communicate\nwith the organization/department etc.\n",
+      "schema:domainIncludes": {
+        "@id": "schema:ContactPoint"
+      },
+      "schema:rangeIncludes": {
+        "@id": "schema:Text"
+      }
+    }
+  ]
+}

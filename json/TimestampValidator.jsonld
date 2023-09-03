@@ -1,0 +1,87 @@
+{
+  "@context": {
+    "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
+    "schema": "https://schema.org/",
+    "stencila": "https://stencila.dev/"
+  },
+  "@graph": [
+    {
+      "@id": "stencila:TimestampValidator",
+      "@type": "rdfs:Class",
+      "rdfs:label": "TimestampValidator",
+      "rdfs:comment": "A validator specifying the constraints on a timestamp.",
+      "rdfs:subClassOf": {
+        "@id": "Entity"
+      }
+    },
+    {
+      "@id": "stencila:timeUnits",
+      "@type": "rdfs:Property",
+      "rdfs:label": "timeUnits",
+      "rdfs:comment": "The time units that the timestamp can have.",
+      "schema:domainIncludes": [
+        {
+          "@id": "stencila:DurationValidator"
+        },
+        {
+          "@id": "stencila:TimestampValidator"
+        }
+      ],
+      "schema:rangeIncludes": {
+        "@id": "stencila:TimeUnit"
+      }
+    },
+    {
+      "@id": "stencila:minimum",
+      "@type": "rdfs:Property",
+      "rdfs:label": "minimum",
+      "rdfs:comment": "The inclusive lower limit for a timestamp.",
+      "schema:domainIncludes": [
+        {
+          "@id": "stencila:TimeValidator"
+        },
+        {
+          "@id": "stencila:DurationValidator"
+        },
+        {
+          "@id": "stencila:TimestampValidator"
+        },
+        {
+          "@id": "stencila:NumberValidator"
+        },
+        {
+          "@id": "stencila:DateValidator"
+        },
+        {
+          "@id": "stencila:DateTimeValidator"
+        }
+      ]
+    },
+    {
+      "@id": "stencila:maximum",
+      "@type": "rdfs:Property",
+      "rdfs:label": "maximum",
+      "rdfs:comment": "The inclusive upper limit for a timestamp.",
+      "schema:domainIncludes": [
+        {
+          "@id": "stencila:TimeValidator"
+        },
+        {
+          "@id": "stencila:DurationValidator"
+        },
+        {
+          "@id": "stencila:TimestampValidator"
+        },
+        {
+          "@id": "stencila:NumberValidator"
+        },
+        {
+          "@id": "stencila:DateValidator"
+        },
+        {
+          "@id": "stencila:DateTimeValidator"
+        }
+      ]
+    }
+  ]
+}

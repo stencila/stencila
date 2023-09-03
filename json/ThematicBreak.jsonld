@@ -1,0 +1,18 @@
+{
+  "@context": {
+    "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
+    "schema": "https://schema.org/",
+    "stencila": "https://stencila.dev/"
+  },
+  "@graph": [
+    {
+      "@id": "stencila:ThematicBreak",
+      "@type": "rdfs:Class",
+      "rdfs:label": "ThematicBreak",
+      "rdfs:comment": "A thematic break, such as a scene change in a story, a transition to another topic, or a new document.\n",
+      "rdfs:subClassOf": {
+        "@id": "Entity"
+      }
+    }
+  ]
+}

@@ -1,0 +1,38 @@
+{
+  "@context": {
+    "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
+    "schema": "https://schema.org/",
+    "stencila": "https://stencila.dev/"
+  },
+  "@graph": [
+    {
+      "@id": "stencila:CiteGroup",
+      "@type": "rdfs:Class",
+      "rdfs:label": "CiteGroup",
+      "rdfs:comment": "A group of Cite nodes.",
+      "rdfs:subClassOf": {
+        "@id": "Entity"
+      }
+    },
+    {
+      "@id": "schema:itemListElement",
+      "@type": "rdfs:Property",
+      "rdfs:label": "items",
+      "rdfs:comment": "One or more `Cite`s to be referenced in the same surrounding text.",
+      "schema:domainIncludes": [
+        {
+          "@id": "stencila:CiteGroup"
+        },
+        {
+          "@id": "stencila:TupleValidator"
+        },
+        {
+          "@id": "schema:ItemList"
+        }
+      ],
+      "schema:rangeIncludes": {
+        "@id": "stencila:Cite"
+      }
+    }
+  ]
+}

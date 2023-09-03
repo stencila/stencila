@@ -1,0 +1,18 @@
+{
+  "@context": {
+    "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
+    "schema": "https://schema.org/",
+    "stencila": "https://stencila.dev/"
+  },
+  "@graph": [
+    {
+      "@id": "stencila:BooleanValidator",
+      "@type": "rdfs:Class",
+      "rdfs:label": "BooleanValidator",
+      "rdfs:comment": "A schema specifying that a node must be a boolean value.",
+      "rdfs:subClassOf": {
+        "@id": "Entity"
+      }
+    }
+  ]
+}

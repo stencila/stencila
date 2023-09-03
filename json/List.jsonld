@@ -1,0 +1,47 @@
+{
+  "@context": {
+    "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
+    "schema": "https://schema.org/",
+    "stencila": "https://stencila.dev/"
+  },
+  "@graph": [
+    {
+      "@id": "schema:ItemList",
+      "@type": "rdfs:Class",
+      "rdfs:label": "List",
+      "rdfs:comment": "A list of items.",
+      "rdfs:subClassOf": {
+        "@id": "Entity"
+      }
+    },
+    {
+      "@id": "schema:itemListElement",
+      "@type": "rdfs:Property",
+      "rdfs:label": "items",
+      "rdfs:comment": "The items in the list.",
+      "schema:domainIncludes": [
+        {
+          "@id": "stencila:CiteGroup"
+        },
+        {
+          "@id": "stencila:TupleValidator"
+        },
+        {
+          "@id": "schema:ItemList"
+        }
+      ],
+      "schema:rangeIncludes": {
+        "@id": "stencila:ListItem"
+      }
+    },
+    {
+      "@id": "schema:itemListOrder",
+      "@type": "rdfs:Property",
+      "rdfs:label": "order",
+      "rdfs:comment": "The ordering of the list.",
+      "schema:domainIncludes": {
+        "@id": "schema:ItemList"
+      }
+    }
+  ]
+}

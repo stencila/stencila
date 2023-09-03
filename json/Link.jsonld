@@ -1,0 +1,126 @@
+{
+  "@context": {
+    "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
+    "schema": "https://schema.org/",
+    "stencila": "https://stencila.dev/"
+  },
+  "@graph": [
+    {
+      "@id": "stencila:Link",
+      "@type": "rdfs:Class",
+      "rdfs:label": "Link",
+      "rdfs:comment": "A hyperlink to other pages, sections within the same document, resources, or any URL.",
+      "rdfs:subClassOf": {
+        "@id": "Entity"
+      }
+    },
+    {
+      "@id": "stencila:content",
+      "@type": "rdfs:Property",
+      "rdfs:label": "content",
+      "rdfs:comment": "The textual content of the link.",
+      "schema:domainIncludes": [
+        {
+          "@id": "stencila:Include"
+        },
+        {
+          "@id": "stencila:Paragraph"
+        },
+        {
+          "@id": "stencila:Note"
+        },
+        {
+          "@id": "stencila:QuoteBlock"
+        },
+        {
+          "@id": "schema:ListItem"
+        },
+        {
+          "@id": "stencila:Form"
+        },
+        {
+          "@id": "stencila:Span"
+        },
+        {
+          "@id": "stencila:Heading"
+        },
+        {
+          "@id": "stencila:Link"
+        },
+        {
+          "@id": "stencila:Cite"
+        },
+        {
+          "@id": "stencila:Mark"
+        },
+        {
+          "@id": "stencila:IfClause"
+        },
+        {
+          "@id": "schema:Claim"
+        },
+        {
+          "@id": "schema:CreativeWork"
+        },
+        {
+          "@id": "stencila:For"
+        },
+        {
+          "@id": "stencila:Division"
+        },
+        {
+          "@id": "stencila:TableCell"
+        }
+      ],
+      "schema:rangeIncludes": {
+        "@id": "stencila:Inline"
+      }
+    },
+    {
+      "@id": "stencila:target",
+      "@type": "rdfs:Property",
+      "rdfs:label": "target",
+      "rdfs:comment": "The target of the link.",
+      "schema:domainIncludes": [
+        {
+          "@id": "stencila:Link"
+        },
+        {
+          "@id": "stencila:Cite"
+        }
+      ],
+      "schema:rangeIncludes": {
+        "@id": "schema:Text"
+      }
+    },
+    {
+      "@id": "schema:headline",
+      "@type": "rdfs:Property",
+      "rdfs:label": "title",
+      "rdfs:comment": "A title for the link.",
+      "schema:domainIncludes": [
+        {
+          "@id": "stencila:Link"
+        },
+        {
+          "@id": "schema:CreativeWork"
+        }
+      ],
+      "schema:rangeIncludes": {
+        "@id": "schema:Text"
+      }
+    },
+    {
+      "@id": "schema:linkRelationship",
+      "@type": "rdfs:Property",
+      "rdfs:label": "rel",
+      "rdfs:comment": "The relation between the target and the current thing.",
+      "schema:domainIncludes": {
+        "@id": "stencila:Link"
+      },
+      "schema:rangeIncludes": {
+        "@id": "schema:Text"
+      }
+    }
+  ]
+}

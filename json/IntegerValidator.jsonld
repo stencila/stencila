@@ -1,0 +1,112 @@
+{
+  "@context": {
+    "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
+    "schema": "https://schema.org/",
+    "stencila": "https://stencila.dev/"
+  },
+  "@graph": [
+    {
+      "@id": "stencila:IntegerValidator",
+      "@type": "rdfs:Class",
+      "rdfs:label": "IntegerValidator",
+      "rdfs:comment": "A validator specifying the constraints on an integer node.",
+      "rdfs:subClassOf": {
+        "@id": "NumberValidator"
+      }
+    },
+    {
+      "@id": "stencila:minimum",
+      "@type": "rdfs:Property",
+      "rdfs:label": "minimum",
+      "rdfs:comment": "The inclusive lower limit for a numeric node.",
+      "schema:domainIncludes": [
+        {
+          "@id": "stencila:TimeValidator"
+        },
+        {
+          "@id": "stencila:DurationValidator"
+        },
+        {
+          "@id": "stencila:TimestampValidator"
+        },
+        {
+          "@id": "stencila:NumberValidator"
+        },
+        {
+          "@id": "stencila:DateValidator"
+        },
+        {
+          "@id": "stencila:DateTimeValidator"
+        }
+      ],
+      "schema:rangeIncludes": {
+        "@id": "schema:Number"
+      }
+    },
+    {
+      "@id": "stencila:exclusiveMinimum",
+      "@type": "rdfs:Property",
+      "rdfs:label": "exclusiveMinimum",
+      "rdfs:comment": "The exclusive lower limit for a numeric node.",
+      "schema:domainIncludes": {
+        "@id": "stencila:NumberValidator"
+      },
+      "schema:rangeIncludes": {
+        "@id": "schema:Number"
+      }
+    },
+    {
+      "@id": "stencila:maximum",
+      "@type": "rdfs:Property",
+      "rdfs:label": "maximum",
+      "rdfs:comment": "The inclusive upper limit for a numeric node.",
+      "schema:domainIncludes": [
+        {
+          "@id": "stencila:TimeValidator"
+        },
+        {
+          "@id": "stencila:DurationValidator"
+        },
+        {
+          "@id": "stencila:TimestampValidator"
+        },
+        {
+          "@id": "stencila:NumberValidator"
+        },
+        {
+          "@id": "stencila:DateValidator"
+        },
+        {
+          "@id": "stencila:DateTimeValidator"
+        }
+      ],
+      "schema:rangeIncludes": {
+        "@id": "schema:Number"
+      }
+    },
+    {
+      "@id": "stencila:exclusiveMaximum",
+      "@type": "rdfs:Property",
+      "rdfs:label": "exclusiveMaximum",
+      "rdfs:comment": "The exclusive upper limit for a numeric node.",
+      "schema:domainIncludes": {
+        "@id": "stencila:NumberValidator"
+      },
+      "schema:rangeIncludes": {
+        "@id": "schema:Number"
+      }
+    },
+    {
+      "@id": "stencila:multipleOf",
+      "@type": "rdfs:Property",
+      "rdfs:label": "multipleOf",
+      "rdfs:comment": "A number that a numeric node must be a multiple of.",
+      "schema:domainIncludes": {
+        "@id": "stencila:NumberValidator"
+      },
+      "schema:rangeIncludes": {
+        "@id": "schema:Number"
+      }
+    }
+  ]
+}

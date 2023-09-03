@@ -1,0 +1,15 @@
+{
+  "@context": {
+    "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
+    "schema": "https://schema.org/",
+    "stencila": "https://stencila.dev/"
+  },
+  "@graph": [
+    {
+      "@id": "schema:Number",
+      "@type": "rdfs:Class",
+      "rdfs:label": "Number",
+      "rdfs:comment": "A value that is a number"
+    }
+  ]
+}

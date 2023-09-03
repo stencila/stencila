@@ -1,0 +1,62 @@
+{
+  "@context": {
+    "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
+    "schema": "https://schema.org/",
+    "stencila": "https://stencila.dev/"
+  },
+  "@graph": [
+    {
+      "@id": "schema:Date",
+      "@type": "rdfs:Class",
+      "rdfs:label": "Date",
+      "rdfs:comment": "A calendar date encoded as a ISO 8601 string.",
+      "rdfs:subClassOf": {
+        "@id": "Entity"
+      }
+    },
+    {
+      "@id": "schema:value",
+      "@type": "rdfs:Property",
+      "rdfs:label": "value",
+      "rdfs:comment": "The date as an ISO 8601 string.",
+      "schema:domainIncludes": [
+        {
+          "@id": "schema:DateTime"
+        },
+        {
+          "@id": "stencila:ConstantValidator"
+        },
+        {
+          "@id": "schema:Timestamp"
+        },
+        {
+          "@id": "schema:Duration"
+        },
+        {
+          "@id": "schema:Date"
+        },
+        {
+          "@id": "stencila:Parameter"
+        },
+        {
+          "@id": "schema:Time"
+        },
+        {
+          "@id": "stencila:Variable"
+        },
+        {
+          "@id": "schema:Text"
+        },
+        {
+          "@id": "schema:PropertyValue"
+        },
+        {
+          "@id": "stencila:ExecutionTag"
+        }
+      ],
+      "schema:rangeIncludes": {
+        "@id": "schema:Text"
+      }
+    }
+  ]
+}

@@ -1,0 +1,91 @@
+{
+  "@context": {
+    "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
+    "schema": "https://schema.org/",
+    "stencila": "https://stencila.dev/"
+  },
+  "@graph": [
+    {
+      "@id": "stencila:Math",
+      "@type": "rdfs:Class",
+      "rdfs:label": "Math",
+      "rdfs:comment": "Abstract base type for a mathematical variable or equation.",
+      "rdfs:subClassOf": {
+        "@id": "Entity"
+      }
+    },
+    {
+      "@id": "stencila:mathLanguage",
+      "@type": "rdfs:Property",
+      "rdfs:label": "mathLanguage",
+      "rdfs:comment": "The language used for the equation e.g tex, mathml, asciimath.",
+      "schema:domainIncludes": {
+        "@id": "stencila:Math"
+      },
+      "schema:rangeIncludes": {
+        "@id": "schema:Text"
+      }
+    },
+    {
+      "@id": "stencila:code",
+      "@type": "rdfs:Property",
+      "rdfs:label": "code",
+      "rdfs:comment": "The code of the equation in the `mathLanguage`.",
+      "schema:domainIncludes": [
+        {
+          "@id": "stencila:CodeStatic"
+        },
+        {
+          "@id": "stencila:CodeExecutable"
+        },
+        {
+          "@id": "stencila:Math"
+        },
+        {
+          "@id": "stencila:CallArgument"
+        }
+      ],
+      "schema:rangeIncludes": {
+        "@id": "schema:Text"
+      }
+    },
+    {
+      "@id": "stencila:compileDigest",
+      "@type": "rdfs:Property",
+      "rdfs:label": "compileDigest",
+      "rdfs:comment": "A digest of the `code` and `mathLanguage` used to avoid unnecessary transpilation to MathML",
+      "schema:domainIncludes": {
+        "@id": "stencila:Math"
+      }
+    },
+    {
+      "@id": "stencila:errors",
+      "@type": "rdfs:Property",
+      "rdfs:label": "errors",
+      "rdfs:comment": "Errors that occurred when parsing the math equation.",
+      "schema:domainIncludes": [
+        {
+          "@id": "stencila:Math"
+        },
+        {
+          "@id": "stencila:Executable"
+        }
+      ],
+      "schema:rangeIncludes": {
+        "@id": "schema:Text"
+      }
+    },
+    {
+      "@id": "stencila:mathml",
+      "@type": "rdfs:Property",
+      "rdfs:label": "mathml",
+      "rdfs:comment": "The MathML transpiled from the `code`",
+      "schema:domainIncludes": {
+        "@id": "stencila:Math"
+      },
+      "schema:rangeIncludes": {
+        "@id": "schema:Text"
+      }
+    }
+  ]
+}

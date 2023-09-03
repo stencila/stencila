@@ -1,0 +1,54 @@
+{
+  "@context": {
+    "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
+    "schema": "https://schema.org/",
+    "stencila": "https://stencila.dev/"
+  },
+  "@graph": [
+    {
+      "@id": "stencila:CodeError",
+      "@type": "rdfs:Class",
+      "rdfs:label": "CodeError",
+      "rdfs:comment": "An error that occurred when parsing, compiling or executing a Code node.",
+      "rdfs:subClassOf": {
+        "@id": "Entity"
+      }
+    },
+    {
+      "@id": "stencila:errorMessage",
+      "@type": "rdfs:Property",
+      "rdfs:label": "errorMessage",
+      "rdfs:comment": "The error message or brief description of the error.",
+      "schema:domainIncludes": {
+        "@id": "stencila:CodeError"
+      },
+      "schema:rangeIncludes": {
+        "@id": "schema:Text"
+      }
+    },
+    {
+      "@id": "stencila:errorType",
+      "@type": "rdfs:Property",
+      "rdfs:label": "errorType",
+      "rdfs:comment": "The type of error e.g. \"SyntaxError\", \"ZeroDivisionError\".",
+      "schema:domainIncludes": {
+        "@id": "stencila:CodeError"
+      },
+      "schema:rangeIncludes": {
+        "@id": "schema:Text"
+      }
+    },
+    {
+      "@id": "stencila:stackTrace",
+      "@type": "rdfs:Property",
+      "rdfs:label": "stackTrace",
+      "rdfs:comment": "Stack trace leading up to the error.",
+      "schema:domainIncludes": {
+        "@id": "stencila:CodeError"
+      },
+      "schema:rangeIncludes": {
+        "@id": "schema:Text"
+      }
+    }
+  ]
+}

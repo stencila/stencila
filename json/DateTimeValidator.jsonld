@@ -1,0 +1,70 @@
+{
+  "@context": {
+    "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
+    "schema": "https://schema.org/",
+    "stencila": "https://stencila.dev/"
+  },
+  "@graph": [
+    {
+      "@id": "stencila:DateTimeValidator",
+      "@type": "rdfs:Class",
+      "rdfs:label": "DateTimeValidator",
+      "rdfs:comment": "A validator specifying the constraints on a date-time.",
+      "rdfs:subClassOf": {
+        "@id": "Entity"
+      }
+    },
+    {
+      "@id": "stencila:minimum",
+      "@type": "rdfs:Property",
+      "rdfs:label": "minimum",
+      "rdfs:comment": "The inclusive lower limit for a date-time.",
+      "schema:domainIncludes": [
+        {
+          "@id": "stencila:TimeValidator"
+        },
+        {
+          "@id": "stencila:DurationValidator"
+        },
+        {
+          "@id": "stencila:TimestampValidator"
+        },
+        {
+          "@id": "stencila:NumberValidator"
+        },
+        {
+          "@id": "stencila:DateValidator"
+        },
+        {
+          "@id": "stencila:DateTimeValidator"
+        }
+      ]
+    },
+    {
+      "@id": "stencila:maximum",
+      "@type": "rdfs:Property",
+      "rdfs:label": "maximum",
+      "rdfs:comment": "The inclusive upper limit for a date-time.",
+      "schema:domainIncludes": [
+        {
+          "@id": "stencila:TimeValidator"
+        },
+        {
+          "@id": "stencila:DurationValidator"
+        },
+        {
+          "@id": "stencila:TimestampValidator"
+        },
+        {
+          "@id": "stencila:NumberValidator"
+        },
+        {
+          "@id": "stencila:DateValidator"
+        },
+        {
+          "@id": "stencila:DateTimeValidator"
+        }
+      ]
+    }
+  ]
+}

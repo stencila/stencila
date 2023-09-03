@@ -1,0 +1,265 @@
+{
+  "@context": {
+    "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
+    "schema": "https://schema.org/",
+    "stencila": "https://stencila.dev/"
+  },
+  "@graph": [
+    {
+      "@id": "schema:Person",
+      "@type": "rdfs:Class",
+      "rdfs:label": "Person",
+      "rdfs:comment": "A person (alive, dead, undead, or fictional).",
+      "rdfs:subClassOf": {
+        "@id": "Thing"
+      }
+    },
+    {
+      "@id": "schema:alternateName",
+      "@type": "rdfs:Property",
+      "rdfs:label": "alternateNames",
+      "rdfs:comment": "Alternate names (aliases) for the item.",
+      "schema:domainIncludes": {
+        "@id": "schema:Thing"
+      },
+      "schema:rangeIncludes": {
+        "@id": "schema:Text"
+      }
+    },
+    {
+      "@id": "schema:description",
+      "@type": "rdfs:Property",
+      "rdfs:label": "description",
+      "rdfs:comment": "A description of the item.",
+      "schema:domainIncludes": {
+        "@id": "schema:Thing"
+      },
+      "schema:rangeIncludes": {
+        "@id": "stencila:Block"
+      }
+    },
+    {
+      "@id": "schema:identifier",
+      "@type": "rdfs:Property",
+      "rdfs:label": "identifiers",
+      "rdfs:comment": "Any kind of identifier for any kind of Thing.",
+      "schema:domainIncludes": {
+        "@id": "schema:Thing"
+      },
+      "schema:rangeIncludes": {
+        "@id": "schema:Text"
+      }
+    },
+    {
+      "@id": "schema:image",
+      "@type": "rdfs:Property",
+      "rdfs:label": "images",
+      "rdfs:comment": "Images of the item.",
+      "schema:domainIncludes": {
+        "@id": "schema:Thing"
+      },
+      "schema:rangeIncludes": {
+        "@id": "schema:Text"
+      }
+    },
+    {
+      "@id": "schema:name",
+      "@type": "rdfs:Property",
+      "rdfs:label": "name",
+      "rdfs:comment": "The name of the item.",
+      "schema:domainIncludes": [
+        {
+          "@id": "stencila:Function"
+        },
+        {
+          "@id": "schema:Thing"
+        },
+        {
+          "@id": "stencila:Parameter"
+        },
+        {
+          "@id": "stencila:Variable"
+        },
+        {
+          "@id": "stencila:ExecutionTag"
+        },
+        {
+          "@id": "stencila:Button"
+        },
+        {
+          "@id": "stencila:TableCell"
+        }
+      ],
+      "schema:rangeIncludes": {
+        "@id": "schema:Text"
+      }
+    },
+    {
+      "@id": "schema:url",
+      "@type": "rdfs:Property",
+      "rdfs:label": "url",
+      "rdfs:comment": "The URL of the item.",
+      "schema:domainIncludes": {
+        "@id": "schema:Thing"
+      },
+      "schema:rangeIncludes": {
+        "@id": "schema:Text"
+      }
+    },
+    {
+      "@id": "schema:address",
+      "@type": "rdfs:Property",
+      "rdfs:label": "address",
+      "rdfs:comment": "Postal address for the person.",
+      "schema:domainIncludes": [
+        {
+          "@id": "schema:Person"
+        },
+        {
+          "@id": "schema:Organization"
+        }
+      ],
+      "schema:rangeIncludes": {
+        "@id": "schema:Text"
+      }
+    },
+    {
+      "@id": "schema:affiliation",
+      "@type": "rdfs:Property",
+      "rdfs:label": "affiliations",
+      "rdfs:comment": "Organizations that the person is affiliated with.",
+      "schema:domainIncludes": {
+        "@id": "schema:Person"
+      },
+      "schema:rangeIncludes": {
+        "@id": "stencila:Organization"
+      }
+    },
+    {
+      "@id": "schema:email",
+      "@type": "rdfs:Property",
+      "rdfs:label": "emails",
+      "rdfs:comment": "Email addresses for the person.",
+      "schema:domainIncludes": [
+        {
+          "@id": "schema:Person"
+        },
+        {
+          "@id": "schema:ContactPoint"
+        }
+      ],
+      "schema:rangeIncludes": {
+        "@id": "schema:Text"
+      }
+    },
+    {
+      "@id": "schema:familyName",
+      "@type": "rdfs:Property",
+      "rdfs:label": "familyNames",
+      "rdfs:comment": "Family name. In the U.S., the last name of a person.",
+      "schema:domainIncludes": {
+        "@id": "schema:Person"
+      },
+      "schema:rangeIncludes": {
+        "@id": "schema:Text"
+      }
+    },
+    {
+      "@id": "schema:funder",
+      "@type": "rdfs:Property",
+      "rdfs:label": "funders",
+      "rdfs:comment": "A person or organization that supports (sponsors) something through\nsome kind of financial contribution.\n",
+      "schema:domainIncludes": [
+        {
+          "@id": "schema:Person"
+        },
+        {
+          "@id": "schema:Organization"
+        },
+        {
+          "@id": "schema:CreativeWork"
+        },
+        {
+          "@id": "schema:MonetaryGrant"
+        }
+      ]
+    },
+    {
+      "@id": "schema:givenName",
+      "@type": "rdfs:Property",
+      "rdfs:label": "givenNames",
+      "rdfs:comment": "Given name. In the U.S., the first name of a person.",
+      "schema:domainIncludes": {
+        "@id": "schema:Person"
+      },
+      "schema:rangeIncludes": {
+        "@id": "schema:Text"
+      }
+    },
+    {
+      "@id": "schema:honorificPrefix",
+      "@type": "rdfs:Property",
+      "rdfs:label": "honorificPrefix",
+      "rdfs:comment": "An honorific prefix preceding a person's name such as Dr/Mrs/Mr.",
+      "schema:domainIncludes": {
+        "@id": "schema:Person"
+      },
+      "schema:rangeIncludes": {
+        "@id": "schema:Text"
+      }
+    },
+    {
+      "@id": "schema:honorificSuffix",
+      "@type": "rdfs:Property",
+      "rdfs:label": "honorificSuffix",
+      "rdfs:comment": "An honorific suffix after a person's name such as MD/PhD/MSCSW.",
+      "schema:domainIncludes": {
+        "@id": "schema:Person"
+      },
+      "schema:rangeIncludes": {
+        "@id": "schema:Text"
+      }
+    },
+    {
+      "@id": "schema:jobTitle",
+      "@type": "rdfs:Property",
+      "rdfs:label": "jobTitle",
+      "rdfs:comment": "The job title of the person (for example, Financial Manager).",
+      "schema:domainIncludes": {
+        "@id": "schema:Person"
+      },
+      "schema:rangeIncludes": {
+        "@id": "schema:Text"
+      }
+    },
+    {
+      "@id": "schema:memberOf",
+      "@type": "rdfs:Property",
+      "rdfs:label": "memberOf",
+      "rdfs:comment": "An organization (or program membership) to which this person belongs.",
+      "schema:domainIncludes": {
+        "@id": "schema:Person"
+      },
+      "schema:rangeIncludes": {
+        "@id": "stencila:Organization"
+      }
+    },
+    {
+      "@id": "schema:telephone",
+      "@type": "rdfs:Property",
+      "rdfs:label": "telephoneNumbers",
+      "rdfs:comment": "Telephone numbers for the person.",
+      "schema:domainIncludes": [
+        {
+          "@id": "schema:Person"
+        },
+        {
+          "@id": "schema:ContactPoint"
+        }
+      ],
+      "schema:rangeIncludes": {
+        "@id": "schema:Text"
+      }
+    }
+  ]
+}

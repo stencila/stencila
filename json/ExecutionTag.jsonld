@@ -1,0 +1,106 @@
+{
+  "@context": {
+    "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
+    "schema": "https://schema.org/",
+    "stencila": "https://stencila.dev/"
+  },
+  "@graph": [
+    {
+      "@id": "stencila:ExecutionTag",
+      "@type": "rdfs:Class",
+      "rdfs:label": "ExecutionTag",
+      "rdfs:comment": "A tag on code that affects its execution",
+      "rdfs:subClassOf": {
+        "@id": "Entity"
+      }
+    },
+    {
+      "@id": "schema:name",
+      "@type": "rdfs:Property",
+      "rdfs:label": "name",
+      "rdfs:comment": "The name of the tag",
+      "schema:domainIncludes": [
+        {
+          "@id": "stencila:Function"
+        },
+        {
+          "@id": "schema:Thing"
+        },
+        {
+          "@id": "stencila:Parameter"
+        },
+        {
+          "@id": "stencila:Variable"
+        },
+        {
+          "@id": "stencila:ExecutionTag"
+        },
+        {
+          "@id": "stencila:Button"
+        },
+        {
+          "@id": "stencila:TableCell"
+        }
+      ],
+      "schema:rangeIncludes": {
+        "@id": "schema:Text"
+      }
+    },
+    {
+      "@id": "schema:value",
+      "@type": "rdfs:Property",
+      "rdfs:label": "value",
+      "rdfs:comment": "The value of the tag",
+      "schema:domainIncludes": [
+        {
+          "@id": "schema:DateTime"
+        },
+        {
+          "@id": "stencila:ConstantValidator"
+        },
+        {
+          "@id": "schema:Timestamp"
+        },
+        {
+          "@id": "schema:Duration"
+        },
+        {
+          "@id": "schema:Date"
+        },
+        {
+          "@id": "stencila:Parameter"
+        },
+        {
+          "@id": "schema:Time"
+        },
+        {
+          "@id": "stencila:Variable"
+        },
+        {
+          "@id": "schema:Text"
+        },
+        {
+          "@id": "schema:PropertyValue"
+        },
+        {
+          "@id": "stencila:ExecutionTag"
+        }
+      ],
+      "schema:rangeIncludes": {
+        "@id": "schema:Text"
+      }
+    },
+    {
+      "@id": "stencila:isGlobal",
+      "@type": "rdfs:Property",
+      "rdfs:label": "isGlobal",
+      "rdfs:comment": "Whether the tag is global to the document",
+      "schema:domainIncludes": {
+        "@id": "stencila:ExecutionTag"
+      },
+      "schema:rangeIncludes": {
+        "@id": "schema:Boolean"
+      }
+    }
+  ]
+}

@@ -1,0 +1,15 @@
+{
+  "@context": {
+    "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
+    "schema": "https://schema.org/",
+    "stencila": "https://stencila.dev/"
+  },
+  "@graph": [
+    {
+      "@id": "stencila:Object",
+      "@type": "rdfs:Class",
+      "rdfs:label": "Object",
+      "rdfs:comment": "A value comprised of keyed primitive nodes."
+    }
+  ]
+}

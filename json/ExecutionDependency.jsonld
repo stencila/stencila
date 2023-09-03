@@ -1,0 +1,53 @@
+{
+  "@context": {
+    "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
+    "schema": "https://schema.org/",
+    "stencila": "https://stencila.dev/"
+  },
+  "@graph": [
+    {
+      "@id": "stencila:ExecutionDependency",
+      "@type": "rdfs:Class",
+      "rdfs:label": "ExecutionDependency",
+      "rdfs:comment": "An upstream execution dependency of a node",
+      "rdfs:subClassOf": {
+        "@id": "Entity"
+      }
+    },
+    {
+      "@id": "stencila:dependencyRelation",
+      "@type": "rdfs:Property",
+      "rdfs:label": "dependencyRelation",
+      "rdfs:comment": "The relation to the dependency",
+      "schema:domainIncludes": {
+        "@id": "stencila:ExecutionDependency"
+      }
+    },
+    {
+      "@id": "stencila:dependencyNode",
+      "@type": "rdfs:Property",
+      "rdfs:label": "dependencyNode",
+      "rdfs:comment": "The node that is the dependency",
+      "schema:domainIncludes": {
+        "@id": "stencila:ExecutionDependency"
+      }
+    },
+    {
+      "@id": "stencila:codeLocation",
+      "@type": "rdfs:Property",
+      "rdfs:label": "codeLocation",
+      "rdfs:comment": "The location that the dependency is defined within code",
+      "schema:domainIncludes": [
+        {
+          "@id": "stencila:ExecutionDependant"
+        },
+        {
+          "@id": "stencila:ExecutionDependency"
+        }
+      ],
+      "schema:rangeIncludes": {
+        "@id": "schema:Number"
+      }
+    }
+  ]
+}

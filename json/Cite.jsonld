@@ -1,0 +1,221 @@
+{
+  "@context": {
+    "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
+    "schema": "https://schema.org/",
+    "stencila": "https://stencila.dev/"
+  },
+  "@graph": [
+    {
+      "@id": "stencila:Cite",
+      "@type": "rdfs:Class",
+      "rdfs:label": "Cite",
+      "rdfs:comment": "A reference to a CreativeWork that is cited in another CreativeWork.",
+      "rdfs:subClassOf": {
+        "@id": "Entity"
+      }
+    },
+    {
+      "@id": "stencila:target",
+      "@type": "rdfs:Property",
+      "rdfs:label": "target",
+      "rdfs:comment": "The target of the citation (URL or reference ID).",
+      "schema:domainIncludes": [
+        {
+          "@id": "stencila:Link"
+        },
+        {
+          "@id": "stencila:Cite"
+        }
+      ],
+      "schema:rangeIncludes": {
+        "@id": "schema:Text"
+      }
+    },
+    {
+      "@id": "stencila:citationMode",
+      "@type": "rdfs:Property",
+      "rdfs:label": "citationMode",
+      "rdfs:comment": "Determines how the citation is shown within the surrounding text.",
+      "schema:domainIncludes": {
+        "@id": "stencila:Cite"
+      }
+    },
+    {
+      "@id": "stencila:citationIntent",
+      "@type": "rdfs:Property",
+      "rdfs:label": "citationIntent",
+      "rdfs:comment": "The type/s of the citation, both factually and rhetorically.",
+      "schema:domainIncludes": {
+        "@id": "stencila:Cite"
+      },
+      "schema:rangeIncludes": {
+        "@id": "stencila:CitationIntent"
+      }
+    },
+    {
+      "@id": "stencila:content",
+      "@type": "rdfs:Property",
+      "rdfs:label": "content",
+      "rdfs:comment": "Optional structured content/text of this citation.",
+      "schema:domainIncludes": [
+        {
+          "@id": "stencila:Include"
+        },
+        {
+          "@id": "stencila:Paragraph"
+        },
+        {
+          "@id": "stencila:Note"
+        },
+        {
+          "@id": "stencila:QuoteBlock"
+        },
+        {
+          "@id": "schema:ListItem"
+        },
+        {
+          "@id": "stencila:Form"
+        },
+        {
+          "@id": "stencila:Span"
+        },
+        {
+          "@id": "stencila:Heading"
+        },
+        {
+          "@id": "stencila:Link"
+        },
+        {
+          "@id": "stencila:Cite"
+        },
+        {
+          "@id": "stencila:Mark"
+        },
+        {
+          "@id": "stencila:IfClause"
+        },
+        {
+          "@id": "schema:Claim"
+        },
+        {
+          "@id": "schema:CreativeWork"
+        },
+        {
+          "@id": "stencila:For"
+        },
+        {
+          "@id": "stencila:Division"
+        },
+        {
+          "@id": "stencila:TableCell"
+        }
+      ],
+      "schema:rangeIncludes": {
+        "@id": "stencila:Inline"
+      }
+    },
+    {
+      "@id": "schema:pageStart",
+      "@type": "rdfs:Property",
+      "rdfs:label": "pageStart",
+      "rdfs:comment": "The page on which the work starts; for example \"135\" or \"xiii\".",
+      "schema:domainIncludes": [
+        {
+          "@id": "schema:PublicationVolume"
+        },
+        {
+          "@id": "schema:PublicationIssue"
+        },
+        {
+          "@id": "schema:Article"
+        },
+        {
+          "@id": "stencila:Cite"
+        }
+      ],
+      "schema:rangeIncludes": [
+        {
+          "@id": "schema:Number"
+        },
+        {
+          "@id": "schema:Text"
+        }
+      ]
+    },
+    {
+      "@id": "schema:pageEnd",
+      "@type": "rdfs:Property",
+      "rdfs:label": "pageEnd",
+      "rdfs:comment": "The page on which the work ends; for example \"138\" or \"xvi\".",
+      "schema:domainIncludes": [
+        {
+          "@id": "schema:PublicationVolume"
+        },
+        {
+          "@id": "schema:PublicationIssue"
+        },
+        {
+          "@id": "schema:Article"
+        },
+        {
+          "@id": "stencila:Cite"
+        }
+      ],
+      "schema:rangeIncludes": [
+        {
+          "@id": "schema:Number"
+        },
+        {
+          "@id": "schema:Text"
+        }
+      ]
+    },
+    {
+      "@id": "schema:pagination",
+      "@type": "rdfs:Property",
+      "rdfs:label": "pagination",
+      "rdfs:comment": "Any description of pages that is not separated into pageStart and pageEnd;\nfor example, \"1-6, 9, 55\".\n",
+      "schema:domainIncludes": [
+        {
+          "@id": "schema:PublicationVolume"
+        },
+        {
+          "@id": "schema:PublicationIssue"
+        },
+        {
+          "@id": "schema:Article"
+        },
+        {
+          "@id": "stencila:Cite"
+        }
+      ],
+      "schema:rangeIncludes": {
+        "@id": "schema:Text"
+      }
+    },
+    {
+      "@id": "stencila:citationPrefix",
+      "@type": "rdfs:Property",
+      "rdfs:label": "citationPrefix",
+      "rdfs:comment": "Text to show before the citation.",
+      "schema:domainIncludes": {
+        "@id": "stencila:Cite"
+      },
+      "schema:rangeIncludes": {
+        "@id": "schema:Text"
+      }
+    },
+    {
+      "@id": "stencila:citationSuffix",
+      "@type": "rdfs:Property",
+      "rdfs:label": "citationSuffix",
+      "rdfs:comment": "Text to show after the citation.",
+      "schema:domainIncludes": {
+        "@id": "stencila:Cite"
+      },
+      "schema:rangeIncludes": {
+        "@id": "schema:Text"
+      }
+    }
+  ]
+}

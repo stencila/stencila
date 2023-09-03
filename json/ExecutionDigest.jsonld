@@ -1,0 +1,78 @@
+{
+  "@context": {
+    "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
+    "schema": "https://schema.org/",
+    "stencila": "https://stencila.dev/"
+  },
+  "@graph": [
+    {
+      "@id": "stencila:ExecutionDigest",
+      "@type": "rdfs:Class",
+      "rdfs:label": "ExecutionDigest",
+      "rdfs:comment": "A digest of the execution state of a node.",
+      "rdfs:subClassOf": {
+        "@id": "Entity"
+      }
+    },
+    {
+      "@id": "stencila:stateDigest",
+      "@type": "rdfs:Property",
+      "rdfs:label": "stateDigest",
+      "rdfs:comment": "A digest of the state of a node.",
+      "schema:domainIncludes": {
+        "@id": "stencila:ExecutionDigest"
+      },
+      "schema:rangeIncludes": {
+        "@id": "schema:Number"
+      }
+    },
+    {
+      "@id": "stencila:semanticDigest",
+      "@type": "rdfs:Property",
+      "rdfs:label": "semanticDigest",
+      "rdfs:comment": "A digest of the \"semantic intent\" of the resource with respect to the dependency graph",
+      "schema:domainIncludes": {
+        "@id": "stencila:ExecutionDigest"
+      },
+      "schema:rangeIncludes": {
+        "@id": "schema:Number"
+      }
+    },
+    {
+      "@id": "stencila:dependenciesDigest",
+      "@type": "rdfs:Property",
+      "rdfs:label": "dependenciesDigest",
+      "rdfs:comment": "A digest of the semantic digests the dependencies of a resource.",
+      "schema:domainIncludes": {
+        "@id": "stencila:ExecutionDigest"
+      },
+      "schema:rangeIncludes": {
+        "@id": "schema:Number"
+      }
+    },
+    {
+      "@id": "stencila:dependenciesStale",
+      "@type": "rdfs:Property",
+      "rdfs:label": "dependenciesStale",
+      "rdfs:comment": "A count of the number of execution dependencies that are stale",
+      "schema:domainIncludes": {
+        "@id": "stencila:ExecutionDigest"
+      },
+      "schema:rangeIncludes": {
+        "@id": "schema:Number"
+      }
+    },
+    {
+      "@id": "stencila:dependenciesFailed",
+      "@type": "rdfs:Property",
+      "rdfs:label": "dependenciesFailed",
+      "rdfs:comment": "A count of the number of execution dependencies that failed",
+      "schema:domainIncludes": {
+        "@id": "stencila:ExecutionDigest"
+      },
+      "schema:rangeIncludes": {
+        "@id": "schema:Number"
+      }
+    }
+  ]
+}

@@ -1,0 +1,76 @@
+{
+  "@context": {
+    "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
+    "schema": "https://schema.org/",
+    "stencila": "https://stencila.dev/"
+  },
+  "@graph": [
+    {
+      "@id": "schema:Duration",
+      "@type": "rdfs:Class",
+      "rdfs:label": "Duration",
+      "rdfs:comment": "A value that represents the difference between two timestamps",
+      "rdfs:subClassOf": {
+        "@id": "Entity"
+      }
+    },
+    {
+      "@id": "schema:value",
+      "@type": "rdfs:Property",
+      "rdfs:label": "value",
+      "rdfs:comment": "The time difference in `timeUnit`s.",
+      "schema:domainIncludes": [
+        {
+          "@id": "schema:DateTime"
+        },
+        {
+          "@id": "stencila:ConstantValidator"
+        },
+        {
+          "@id": "schema:Timestamp"
+        },
+        {
+          "@id": "schema:Duration"
+        },
+        {
+          "@id": "schema:Date"
+        },
+        {
+          "@id": "stencila:Parameter"
+        },
+        {
+          "@id": "schema:Time"
+        },
+        {
+          "@id": "stencila:Variable"
+        },
+        {
+          "@id": "schema:Text"
+        },
+        {
+          "@id": "schema:PropertyValue"
+        },
+        {
+          "@id": "stencila:ExecutionTag"
+        }
+      ],
+      "schema:rangeIncludes": {
+        "@id": "schema:Number"
+      }
+    },
+    {
+      "@id": "stencila:timeUnit",
+      "@type": "rdfs:Property",
+      "rdfs:label": "timeUnit",
+      "rdfs:comment": "The time unit that the `value` represents.",
+      "schema:domainIncludes": [
+        {
+          "@id": "schema:Timestamp"
+        },
+        {
+          "@id": "schema:Duration"
+        }
+      ]
+    }
+  ]
+}

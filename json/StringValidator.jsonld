@@ -1,0 +1,54 @@
+{
+  "@context": {
+    "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
+    "schema": "https://schema.org/",
+    "stencila": "https://stencila.dev/"
+  },
+  "@graph": [
+    {
+      "@id": "stencila:StringValidator",
+      "@type": "rdfs:Class",
+      "rdfs:label": "StringValidator",
+      "rdfs:comment": "A schema specifying constraints on a string node.",
+      "rdfs:subClassOf": {
+        "@id": "Entity"
+      }
+    },
+    {
+      "@id": "stencila:minLength",
+      "@type": "rdfs:Property",
+      "rdfs:label": "minLength",
+      "rdfs:comment": "The minimum length for a string node.",
+      "schema:domainIncludes": {
+        "@id": "stencila:StringValidator"
+      },
+      "schema:rangeIncludes": {
+        "@id": "schema:Number"
+      }
+    },
+    {
+      "@id": "stencila:maxLength",
+      "@type": "rdfs:Property",
+      "rdfs:label": "maxLength",
+      "rdfs:comment": "The maximum length for a string node.",
+      "schema:domainIncludes": {
+        "@id": "stencila:StringValidator"
+      },
+      "schema:rangeIncludes": {
+        "@id": "schema:Number"
+      }
+    },
+    {
+      "@id": "stencila:pattern",
+      "@type": "rdfs:Property",
+      "rdfs:label": "pattern",
+      "rdfs:comment": "A regular expression that a string node must match.",
+      "schema:domainIncludes": {
+        "@id": "stencila:StringValidator"
+      },
+      "schema:rangeIncludes": {
+        "@id": "schema:Text"
+      }
+    }
+  ]
+}

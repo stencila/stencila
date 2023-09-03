@@ -1,0 +1,59 @@
+{
+  "@context": {
+    "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
+    "schema": "https://schema.org/",
+    "stencila": "https://stencila.dev/"
+  },
+  "@graph": [
+    {
+      "@id": "stencila:ConstantValidator",
+      "@type": "rdfs:Class",
+      "rdfs:label": "ConstantValidator",
+      "rdfs:comment": "A validator specifying a constant value that a node must have.",
+      "rdfs:subClassOf": {
+        "@id": "Entity"
+      }
+    },
+    {
+      "@id": "schema:value",
+      "@type": "rdfs:Property",
+      "rdfs:label": "value",
+      "rdfs:comment": "The value that the node must have.",
+      "schema:domainIncludes": [
+        {
+          "@id": "schema:DateTime"
+        },
+        {
+          "@id": "stencila:ConstantValidator"
+        },
+        {
+          "@id": "schema:Timestamp"
+        },
+        {
+          "@id": "schema:Duration"
+        },
+        {
+          "@id": "schema:Date"
+        },
+        {
+          "@id": "stencila:Parameter"
+        },
+        {
+          "@id": "schema:Time"
+        },
+        {
+          "@id": "stencila:Variable"
+        },
+        {
+          "@id": "schema:Text"
+        },
+        {
+          "@id": "schema:PropertyValue"
+        },
+        {
+          "@id": "stencila:ExecutionTag"
+        }
+      ]
+    }
+  ]
+}

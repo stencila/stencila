@@ -1,0 +1,71 @@
+{
+  "@context": {
+    "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
+    "schema": "https://schema.org/",
+    "stencila": "https://stencila.dev/"
+  },
+  "@graph": [
+    {
+      "@id": "stencila:Function",
+      "@type": "rdfs:Class",
+      "rdfs:label": "Function",
+      "rdfs:comment": "A function with a name, which might take Parameters and return a value of a certain type.",
+      "rdfs:subClassOf": {
+        "@id": "Entity"
+      }
+    },
+    {
+      "@id": "schema:name",
+      "@type": "rdfs:Property",
+      "rdfs:label": "name",
+      "rdfs:comment": "The name of the function.",
+      "schema:domainIncludes": [
+        {
+          "@id": "stencila:Function"
+        },
+        {
+          "@id": "schema:Thing"
+        },
+        {
+          "@id": "stencila:Parameter"
+        },
+        {
+          "@id": "stencila:Variable"
+        },
+        {
+          "@id": "stencila:ExecutionTag"
+        },
+        {
+          "@id": "stencila:Button"
+        },
+        {
+          "@id": "stencila:TableCell"
+        }
+      ],
+      "schema:rangeIncludes": {
+        "@id": "schema:Text"
+      }
+    },
+    {
+      "@id": "stencila:parameters",
+      "@type": "rdfs:Property",
+      "rdfs:label": "parameters",
+      "rdfs:comment": "The parameters of the function.",
+      "schema:domainIncludes": {
+        "@id": "stencila:Function"
+      },
+      "schema:rangeIncludes": {
+        "@id": "stencila:Parameter"
+      }
+    },
+    {
+      "@id": "stencila:returns",
+      "@type": "rdfs:Property",
+      "rdfs:label": "returns",
+      "rdfs:comment": "The return type of the function.",
+      "schema:domainIncludes": {
+        "@id": "stencila:Function"
+      }
+    }
+  ]
+}

@@ -1,0 +1,15 @@
+{
+  "@context": {
+    "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
+    "schema": "https://schema.org/",
+    "stencila": "https://stencila.dev/"
+  },
+  "@graph": [
+    {
+      "@id": "stencila:Entity",
+      "@type": "rdfs:Class",
+      "rdfs:label": "Entity",
+      "rdfs:comment": "Abstract base type for compound (ie. non-atomic) nodes."
+    }
+  ]
+}

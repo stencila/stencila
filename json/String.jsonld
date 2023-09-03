@@ -1,0 +1,15 @@
+{
+  "@context": {
+    "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
+    "schema": "https://schema.org/",
+    "stencila": "https://stencila.dev/"
+  },
+  "@graph": [
+    {
+      "@id": "schema:Text",
+      "@type": "rdfs:Class",
+      "rdfs:label": "String",
+      "rdfs:comment": "A value comprised of a string of characters"
+    }
+  ]
+}

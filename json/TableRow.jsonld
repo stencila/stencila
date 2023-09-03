@@ -1,0 +1,39 @@
+{
+  "@context": {
+    "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
+    "schema": "https://schema.org/",
+    "stencila": "https://stencila.dev/"
+  },
+  "@graph": [
+    {
+      "@id": "stencila:TableRow",
+      "@type": "rdfs:Class",
+      "rdfs:label": "TableRow",
+      "rdfs:comment": "A row within a Table.",
+      "rdfs:subClassOf": {
+        "@id": "Entity"
+      }
+    },
+    {
+      "@id": "stencila:cells",
+      "@type": "rdfs:Property",
+      "rdfs:label": "cells",
+      "rdfs:comment": "An array of cells in the row.",
+      "schema:domainIncludes": {
+        "@id": "stencila:TableRow"
+      },
+      "schema:rangeIncludes": {
+        "@id": "stencila:TableCell"
+      }
+    },
+    {
+      "@id": "stencila:rowType",
+      "@type": "rdfs:Property",
+      "rdfs:label": "rowType",
+      "rdfs:comment": "The type of row.",
+      "schema:domainIncludes": {
+        "@id": "stencila:TableRow"
+      }
+    }
+  ]
+}
