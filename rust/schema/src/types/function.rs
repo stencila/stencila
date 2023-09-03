@@ -33,6 +33,7 @@ pub struct Function {
 #[skip_serializing_none]
 #[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, HtmlCodec, TextCodec, Read, Write)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
+#[html(flatten)]
 pub struct FunctionOptions {
     /// The return type of the function.
     pub returns: Option<Validator>,

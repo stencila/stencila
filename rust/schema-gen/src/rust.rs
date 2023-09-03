@@ -16,7 +16,7 @@ use common::{
 };
 
 use crate::{
-    schema::{HtmlOptions, Items, Schema, Type, Value},
+    schema::{Items, Schema, Type, Value},
     schemas::Schemas,
 };
 
@@ -276,32 +276,28 @@ impl Schemas {
 
         attrs.push("#[serde(rename_all = \"camelCase\", crate = \"common::serde\")]".to_string());
 
-        fn html_attr(options: &HtmlOptions) -> String {
-            let mut attrs = Vec::new();
-            if let Some(elem) = &options.elem {
-                attrs.push(format!("elem = \"{elem}\""));
-            }
-            if options.custom {
-                attrs.push("custom".to_string());
-            }
-            if let Some(attr) = &options.attr {
-                attrs.push(format!("attr = \"{attr}\""));
-            }
-            if options.content {
-                attrs.push("content".to_string());
-            }
-            if let Some(slot) = &options.slot {
-                attrs.push(format!("slot = \"{slot}\""));
-            }
+        // Clone attrs for options before adding codec related attrs
+        let mut options_attrs = attrs.clone();
 
-            format!("#[html({})]", attrs.join(", "))
-        }
-
+        // Add #[html] attribute for main struct if necessary
         if let Some(html) = &schema.html {
-            attrs.push(html_attr(html));
+            let mut args = Vec::new();
+
+            if let Some(elem) = &html.elem {
+                args.push(format!("elem = \"{elem}\""));
+            }
+            if html.custom {
+                args.push("custom".to_string());
+            }
+
+            attrs.push(format!("#[html({})]", args.join(", ")));
         }
+
+        // Add #[html] attribute for options struct to flatten it into main struct
+        options_attrs.push(format!("#[html(flatten)]"));
 
         let attrs = attrs.join("\n");
+        let options_attrs = options_attrs.join("\n");
 
         let mut fields = Vec::new();
         let mut used_types = HashSet::new();
@@ -358,8 +354,21 @@ impl Schemas {
                 attrs.push(format!("#[strip({})]", property.strip.iter().join(", ")));
             }
 
+            // Add #[html] attribute for field if necessary
             if let Some(html) = &property.html {
-                attrs.push(html_attr(html));
+                let mut args = Vec::new();
+
+                if let Some(attr) = &html.attr {
+                    args.push(format!("attr = \"{attr}\""));
+                }
+                if html.content {
+                    args.push("content".to_string());
+                }
+                if let Some(slot) = &html.slot {
+                    args.push(format!("slot = \"{slot}\""));
+                }
+
+                attrs.push(format!("#[html({})]", args.join(", ")))
             }
 
             // Generate the code for the field
@@ -399,7 +408,7 @@ impl Schemas {
             format!(
                 r#"
 
-{attrs}
+{options_attrs}
 pub struct {title}Options {{
     {optional_fields}
 }}

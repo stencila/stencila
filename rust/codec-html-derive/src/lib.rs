@@ -20,6 +20,9 @@ struct TypeAttr {
 
     #[darling(default)]
     custom: bool,
+
+    #[darling(default)]
+    flatten: bool,
 }
 
 #[derive(FromField)]
@@ -66,16 +69,15 @@ fn derive_struct(type_attr: TypeAttr) -> TokenStream {
 
     let custom_elem = ["stencila-", &struct_name.to_string().to_kebab_case()].concat();
 
-    let (elem, attrs) = match &type_attr.elem {
-        Some(elem) => (
-            elem.to_string(),
-            if type_attr.custom && !struct_name.to_string().ends_with("Options") {
-                quote!(vec![attr("is", #custom_elem)])
-            } else {
-                quote!(vec![])
-            },
-        ),
-        None => (custom_elem, quote!(vec![])),
+    let elem = type_attr
+        .elem
+        .clone()
+        .unwrap_or_else(|| custom_elem.clone());
+
+    let mut attrs = quote!();
+
+    if (type_attr.elem.is_none() || type_attr.custom) && !type_attr.flatten {
+        attrs.extend(quote!(attr("is", #custom_elem),))
     };
 
     let mut fields = TokenStream::new();
@@ -134,7 +136,7 @@ fn derive_struct(type_attr: TypeAttr) -> TokenStream {
             fn to_html_parts(&self) -> (&str, Vec<String>, Vec<String>) {
                 use codec_html_trait::encode::{attr, elem};
 
-                let mut attrs = #attrs;
+                let mut attrs = vec![#attrs];
                 let mut children = Vec::new();
 
                 #fields

@@ -29,7 +29,7 @@ pub struct TableCell {
 #[skip_serializing_none]
 #[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, HtmlCodec, TextCodec, Read, Write)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
-#[html(elem = "td")]
+#[html(flatten)]
 pub struct TableCellOptions {
     /// The name of the cell.
     pub name: Option<String>,

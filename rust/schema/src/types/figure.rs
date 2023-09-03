@@ -45,6 +45,7 @@ pub struct Figure {
 #[skip_serializing_none]
 #[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, HtmlCodec, TextCodec, Read, Write)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
+#[html(flatten)]
 pub struct FigureOptions {
     /// Alternate names (aliases) for the item.
     pub alternate_names: Option<Vec<String>>,

@@ -34,7 +34,7 @@ pub struct Link {
 #[skip_serializing_none]
 #[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, HtmlCodec, TextCodec, Read, Write)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
-#[html(elem = "a")]
+#[html(flatten)]
 pub struct LinkOptions {
     /// A title for the link.
     pub title: Option<String>,
