@@ -15,6 +15,8 @@ use crate::{schema::Schema, schemas::Schemas};
 impl Schemas {
     /// Generate a JSON Schema meta-schema and a JSON Schema for each schema
     pub async fn json_schema(&self) -> Result<()> {
+        eprintln!("Generating JSON Schema");
+        
         let dir = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../json/");
 
         // Generate the meta schema
