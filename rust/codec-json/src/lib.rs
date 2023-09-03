@@ -62,6 +62,10 @@ impl Codec for JsonCodec {
                 String::from("$schema"),
                 Value::String(format!("https://stencila.dev/{type}.schema.json")),
             );
+            root.insert(
+                String::from("@context"),
+                Value::String(format!("https://stencila.dev/{type}.jsonld")),
+            );
             for (key, value) in object.into_iter() {
                 root.insert(key, value);
             }

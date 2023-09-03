@@ -1,4 +1,5 @@
 $schema: https://stencila.dev/Article.schema.json
+'@context': https://stencila.dev/Article.jsonld
 type: Article
 content:
 - type: Paragraph
