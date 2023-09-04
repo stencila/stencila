@@ -1,4 +1,19 @@
 {
+    "[html]": {
+        "editor.tabSize": 2,
+    },
+    "[javascript]": {
+        "editor.tabSize": 2
+    },
+    "[typescript]": {
+        "editor.tabSize": 2
+    },
+    "[python]": {
+        "editor.tabSize": 4,
+    },
+    "[rust]": {
+        "editor.tabSize": 4,
+    },
     "yaml.schemas": {
         "json/meta.schema.json": "schema/*.yaml"
     },
