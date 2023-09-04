@@ -3,6 +3,13 @@
 </div>
 <br>
 
+<div align="center">
+	<a href="https://discord.gg/GADr6Jv">
+		<img src="https://dcbadge.vercel.app/api/server/GADr6Jv">
+	</a>
+</div>
+<br>
+
 ## 👋 Introduction
 
 Stencila is a platform for collaborating on, and publishing, dynamic, data-driven content. Our aim is to lower the barriers for creating programmable documents and make it easier to create beautiful, interactive, and semantically rich, articles, web pages and applications from them.
@@ -120,7 +127,6 @@ Release last `v2.0.0-alpha.x` versions of:
 - [ ] Node package
 - [ ] JSON Schema & JSON-LD `@context`
 
-
 ### Q1 2024: First beta release
 
 User testing of `v2.0.0-alpha.x`. Development priorities to be determined based on user feedback.
@@ -132,7 +138,6 @@ Release `v2.0.0-beta.1` versions of:
 - [ ] Python package
 - [ ] Node package
 - [ ] JSON Schema & JSON-LD `@context`
-
 
 ### Q2 2024: Second beta release
 
@@ -158,7 +163,6 @@ Release `v2.0.0` versions of:
 - [ ] Node package
 - [ ] JSON Schema & JSON-LD `@context`
 
-
 ## 🛠️ Develop
 
 This repository is organized into the following modules. Please see their respective READMEs for guides to contributing.
@@ -178,7 +182,6 @@ This repository is organized into the following modules. Please see their respec
 - [`docs`](docs) `🏗️ In progress`: Documentation, including reference documentation generated from `schema` and the `rust` CLI tool.
 
 - [`examples`](examples) `🏗️ In progress`: Example of documents conforming to Stencila Schema, mostly for testing purposes.
-
 
 ## 💖 Supporters
 
