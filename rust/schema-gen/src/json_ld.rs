@@ -17,7 +17,7 @@ impl Schemas {
     /// Generate JSON-LD context for the schemas
     pub async fn json_ld(&self) -> Result<()> {
         eprintln!("Generating JSON-LD");
-        
+
         let dir = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../json/");
 
         // For each property determine its `domainIncludes` (type it exists on)

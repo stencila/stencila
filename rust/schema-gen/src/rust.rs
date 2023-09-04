@@ -294,7 +294,7 @@ impl Schemas {
         }
 
         // Add #[html] attribute for options struct to flatten it into main struct
-        options_attrs.push(format!("#[html(flatten)]"));
+        options_attrs.push("#[html(flatten)]".to_string());
 
         let attrs = attrs.join("\n");
         let options_attrs = options_attrs.join("\n");
