@@ -116,6 +116,9 @@ pub struct Schema {
     /// Options for converting the type or property to/from HTML
     pub html: Option<HtmlOptions>,
 
+    /// Options for converting the type or property to Markdown
+    pub markdown: Option<MarkdownOptions>,
+
     /// A reference to another schema in Stencila Schema
     ///
     /// The value of this keyword MUST be a string of the
@@ -430,6 +433,19 @@ pub struct HtmlOptions {
     /// Whether a property should be encoded as a slot of the parent element
     /// and the HTML element (e.g. `div`) to use for that slot
     pub slot: Option<String>,
+}
+
+
+/// Options for conversion to Markdown
+#[skip_serializing_none]
+#[derive(Debug, Clone, Default, Deserialize, Serialize, JsonSchema)]
+#[serde(default, rename_all = "camelCase", crate = "common::serde")]
+pub struct MarkdownOptions {
+    /// The formatting string to use to encode a Markdown
+    pub format: Option<String>,
+    
+    /// The function to use to encode as Markdown
+    pub with: Option<String>,
 }
 
 impl Schema {

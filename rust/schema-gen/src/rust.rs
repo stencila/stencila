@@ -263,6 +263,7 @@ impl Schemas {
             "Deserialize",
             "StripNode",
             "HtmlCodec",
+            "MarkdownCodec",
             "TextCodec",
         ];
         let title = title.as_str();
@@ -291,6 +292,17 @@ impl Schemas {
             }
 
             attrs.push(format!("#[html({})]", args.join(", ")));
+        }
+
+        // Add #[markdown] attribute for main struct if necessary
+        if let Some(markdown) = &schema.markdown {
+            let mut args = Vec::new();
+
+            if let Some(format) = &markdown.format {
+                args.push(format!("format = \"{format}\""));
+            }
+
+            attrs.push(format!("#[markdown({})]", args.join(", ")))
         }
 
         // Add #[html] attribute for options struct to flatten it into main struct
@@ -595,6 +607,7 @@ impl {title} {{{new}}}
             "Deserialize",
             "StripNode",
             "HtmlCodec",
+            "MarkdownCodec",
             "TextCodec",
         ];
 

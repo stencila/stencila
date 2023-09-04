@@ -1,0 +1,8 @@
+[package]
+name = "codec-markdown"
+version = "0.0.0"
+edition = "2021"
+
+[dependencies]
+codec = { path = "../codec" }
+codec-markdown-trait = { path = "../codec-markdown-trait" }

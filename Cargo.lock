@@ -453,6 +453,31 @@ dependencies = [
 ]
 
 [[package]]
+name = "codec-markdown"
+version = "0.0.0"
+dependencies = [
+ "codec",
+ "codec-markdown-trait",
+]
+
+[[package]]
+name = "codec-markdown-derive"
+version = "0.0.0"
+dependencies = [
+ "common",
+ "darling",
+]
+
+[[package]]
+name = "codec-markdown-trait"
+version = "0.0.0"
+dependencies = [
+ "codec-losses",
+ "codec-markdown-derive",
+ "common",
+]
+
+[[package]]
 name = "codec-text"
 version = "0.0.0"
 dependencies = [
@@ -493,6 +518,7 @@ dependencies = [
  "codec-jats",
  "codec-json",
  "codec-json5",
+ "codec-markdown",
  "codec-text",
  "codec-yaml",
  "node-strip",
@@ -2133,6 +2159,7 @@ version = "0.0.0"
 dependencies = [
  "codec-html-trait",
  "codec-losses",
+ "codec-markdown-trait",
  "codec-text-trait",
  "common",
  "common-dev",
