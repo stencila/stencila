@@ -250,6 +250,10 @@ impl DecodeOptions {
 /// Command line arguments for encoding nodes to other formats
 #[derive(Debug, Args)]
 struct EncodeOptions {
+    /// Do not encode as a standalone document when writing to file
+    #[arg(long)]
+    not_standalone: bool,
+
     /// Use compact form of encoding if possible
     ///
     /// Use this flag to enable compact forms of encoding (i.e. no indentation)
@@ -287,6 +291,7 @@ impl EncodeOptions {
             codec,
             format,
             compact: self.compact,
+            standalone: self.not_standalone.then_some(false),
             strip_id: !self.no_strip_id,
             strip_code: self.strip_code,
             strip_execution: self.strip_execution,
@@ -360,6 +365,7 @@ impl Cli {
                 let options = codecs::EncodeOptions {
                     codec,
                     format,
+                    standalone: options.not_standalone.then_some(false),
                     compact: options.compact,
                     strip_id: !options.no_strip_id,
                     strip_code: options.strip_code,

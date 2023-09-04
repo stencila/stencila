@@ -39,16 +39,20 @@ impl Codec for YamlCodec {
     async fn to_string(
         &self,
         node: &Node,
-        _options: Option<EncodeOptions>,
+        options: Option<EncodeOptions>,
     ) -> Result<(String, Losses)> {
+        let EncodeOptions { standalone, .. } = options.unwrap_or_default();
+
         let value = node.to_yaml_value()?;
 
-        let value = if let Some(r#type) = value
-            .as_mapping()
-            .and_then(|mapping| mapping.get("type"))
-            .and_then(|r#type| r#type.as_str())
-            .map(String::from)
-        {
+        let value = if let (Some(true), Some(r#type)) = (
+            standalone,
+            value
+                .as_mapping()
+                .and_then(|mapping| mapping.get("type"))
+                .and_then(|r#type| r#type.as_str())
+                .map(String::from),
+        ) {
             let object = value.as_mapping().expect("checked above").to_owned();
 
             // Insert the `$schema` and `@context` at the top of the root

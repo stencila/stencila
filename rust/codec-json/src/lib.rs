@@ -44,16 +44,22 @@ impl Codec for JsonCodec {
         node: &Node,
         options: Option<EncodeOptions>,
     ) -> Result<(String, Losses)> {
-        let EncodeOptions { compact, .. } = options.unwrap_or_default();
+        let EncodeOptions {
+            standalone,
+            compact,
+            ..
+        } = options.unwrap_or_default();
 
         let value = node.to_json_value()?;
 
-        let value = if let Some(r#type) = value
-            .as_object()
-            .and_then(|object| object.get("type"))
-            .and_then(|r#type| r#type.as_str())
-            .map(String::from)
-        {
+        let value = if let (Some(true), Some(r#type)) = (
+            standalone,
+            value
+                .as_object()
+                .and_then(|object| object.get("type"))
+                .and_then(|r#type| r#type.as_str())
+                .map(String::from),
+        ) {
             let object = value.as_object().expect("checked above").to_owned();
 
             // Insert the `$schema` and `@context` at the top of the root

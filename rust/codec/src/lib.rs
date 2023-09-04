@@ -151,7 +151,12 @@ pub trait Codec: Sync + Send {
         file: &mut File,
         options: Option<EncodeOptions>,
     ) -> Result<Losses> {
-        let (content, losses) = self.to_string(node, options).await?;
+        let mut options = options.unwrap_or_default();
+        if options.standalone.is_none() {
+            options.standalone = Some(true);
+        }
+
+        let (content, losses) = self.to_string(node, Some(options)).await?;
         file.write_all(content.as_bytes()).await?;
         Ok(losses)
     }
@@ -220,6 +225,12 @@ pub struct EncodeOptions {
     /// Most codecs only encode to one format. However, for those that handle multiple
     /// formats it may be necessary to specify this option.
     pub format: Option<Format>,
+
+    /// Whether to encode as a standalone document
+    ///
+    /// Unless specified otherwise, this is the default when encoding to a file
+    /// (as opposed to a string).
+    pub standalone: Option<bool>,
 
     /// Whether to encode in compact form
     ///
