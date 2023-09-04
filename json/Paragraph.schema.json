@@ -11,6 +11,9 @@
   "html": {
     "elem": "p"
   },
+  "markdown": {
+    "format": "\\n\\n{content}"
+  },
   "required": [
     "type",
     "content"

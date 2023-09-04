@@ -10,3 +10,5 @@ $comment: |
     - Pandoc [`Emph`](https://github.com/jgm/pandoc-types/blob/1.17.5.4/Text/Pandoc/Definition.hs#L256)
 html:
   elem: em
+markdown:
+  format: '*{content}*'

@@ -10,6 +10,9 @@
   "html": {
     "elem": "sup"
   },
+  "markdown": {
+    "format": "^{content}^"
+  },
   "required": [
     "type",
     "content"

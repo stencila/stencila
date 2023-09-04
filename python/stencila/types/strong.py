@@ -8,7 +8,7 @@ from .mark import Mark
 @dataclass(kw_only=True, frozen=True)
 class Strong(Mark):
     """
-    Strongly emphasised content.
+    Strongly emphasized content.
     """
 
     type: Literal["Strong"] = field(default="Strong", init=False)

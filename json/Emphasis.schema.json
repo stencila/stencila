@@ -11,6 +11,9 @@
   "html": {
     "elem": "em"
   },
+  "markdown": {
+    "format": "*{content}*"
+  },
   "required": [
     "type",
     "content"

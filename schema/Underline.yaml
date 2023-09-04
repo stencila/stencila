@@ -6,3 +6,7 @@ $comment: |
   Analogues of `Underline` in other schema include:
   - JATS XML [`<underline>`](https://jats.nlm.nih.gov/archiving/tag-library/1.1/element/underline.html)
   - Pandoc [`Underline`](https://github.com/jgm/pandoc-types/blob/master/src/Text/Pandoc/Definition.hs)
+html:
+  elem: u
+markdown:
+  format: '[{content}]{{.underline}}'
