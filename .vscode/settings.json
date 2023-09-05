@@ -47,6 +47,7 @@
         "rowspan",
         "rustfmt",
         "schemars",
+        "serde",
         "smol",
         "SPANTRACE",
         "stencila",
