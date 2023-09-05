@@ -1,12 +1,11 @@
 use smol_str::SmolStr;
 
-use common::eyre::Result;
 use node_store::{
     automerge::{ObjId, Prop},
     Read, ReadStore, Write, WriteStore,
 };
 
-use crate::{Array, Null, Object, Primitive};
+use crate::{prelude::*, Array, Null, Object, Primitive};
 
 impl Read for Primitive {
     fn load_null() -> Result<Self> {

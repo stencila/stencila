@@ -1,15 +1,15 @@
 use std::time::Duration;
 
-use common::{
-    eyre::Result,
-    similar::{Algorithm, DiffTag, TextDiffConfig},
-};
+use codec_html_trait::encode::text;
+use common::similar::{Algorithm, DiffTag, TextDiffConfig};
 use node_store::{
     automerge::{transaction::Transactable, ObjId, ObjType, Prop, Value},
     Read, ReadStore, Write, WriteStore, SIMILARITY_MAX,
 };
 
-use crate::TextValue;
+use crate::{prelude::*, TextValue};
+
+impl StripNode for TextValue {}
 
 impl Read for TextValue {
     fn load_text<S: ReadStore>(store: &S, obj_id: &ObjId) -> Result<Self> {
@@ -91,5 +91,31 @@ impl Write for TextValue {
         }
 
         Ok(0)
+    }
+}
+
+impl HtmlCodec for TextValue {
+    fn to_html(&self) -> String {
+        text(&self.0)
+    }
+
+    fn to_html_parts(&self) -> (&str, Vec<String>, Vec<String>) {
+        unreachable!("should not be called for text value")
+    }
+
+    fn to_html_attr(&self) -> String {
+        serde_json::to_string(self).unwrap_or_default()
+    }
+}
+
+impl MarkdownCodec for TextValue {
+    fn to_markdown(&self) -> (String, Losses) {
+        (self.0.to_string(), Losses::none())
+    }
+}
+
+impl TextCodec for TextValue {
+    fn to_text(&self) -> (String, Losses) {
+        (self.0.to_string(), Losses::none())
     }
 }

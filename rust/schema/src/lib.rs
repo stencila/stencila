@@ -5,4 +5,3 @@ mod types;
 pub use types::*;
 
 mod implem;
-mod traits;

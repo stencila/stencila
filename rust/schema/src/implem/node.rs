@@ -1,9 +1,8 @@
 use smol_str::SmolStr;
 
-use common::eyre::Result;
 use node_store::{automerge::ObjId, Read, ReadStore};
 
-use crate::{Array, Node, Null, Object};
+use crate::{prelude::*, Array, Node, Null, Object};
 
 impl Read for Node {
     fn load_null() -> Result<Self> {

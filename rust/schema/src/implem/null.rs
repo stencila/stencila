@@ -1,10 +1,12 @@
-use common::eyre::Result;
+use codec_html_trait::encode::attr;
 use node_store::{
     automerge::{transaction::Transactable, ObjId, Prop, ScalarValue, Value},
     Read, ReadStore, Write, WriteStore, SIMILARITY_MAX,
 };
 
-use crate::Null;
+use crate::{prelude::*, Null};
+
+impl StripNode for Null {}
 
 impl Read for Null {
     fn load_null() -> Result<Self> {
@@ -32,5 +34,37 @@ impl Write for Null {
             }
         }
         Ok(0)
+    }
+}
+
+impl HtmlCodec for Null {
+    fn to_html_parts(&self) -> (&str, Vec<String>, Vec<String>) {
+        (
+            "span",
+            vec![attr("is", "stencila-null")],
+            vec!["null".to_string()],
+        )
+    }
+
+    fn to_html_attr(&self) -> String {
+        serde_json::to_string(self).unwrap_or_default()
+    }
+}
+
+impl MarkdownCodec for Null {
+    fn to_markdown(&self) -> (String, Losses) {
+        (
+            self.to_string(),
+            Losses::new([Loss::of_type(LossDirection::Encode, "Null")]),
+        )
+    }
+}
+
+impl TextCodec for Null {
+    fn to_text(&self) -> (String, Losses) {
+        (
+            self.to_string(),
+            Losses::new([Loss::of_type(LossDirection::Encode, "Null")]),
+        )
     }
 }

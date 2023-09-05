@@ -1,12 +1,14 @@
 use std::collections::HashSet;
 
-use common::eyre::Result;
+use codec_html_trait::encode::{attr, elem};
 use node_store::{
     automerge::{iter::MapRangeItem, transaction::Transactable, ObjId, ObjType, Prop, Value},
     Read, ReadStore, Write, WriteStore,
 };
 
-use crate::{Object, Primitive};
+use crate::{prelude::*, Object, Primitive};
+
+impl StripNode for Object {}
 
 impl Read for Object {
     fn load_map<S: ReadStore>(store: &S, obj_id: &ObjId) -> Result<Self> {
@@ -79,5 +81,75 @@ impl Write for Object {
             // TODO
         }
         Ok(0)
+    }
+}
+
+impl HtmlCodec for Object {
+    fn to_html_parts(&self) -> (&str, Vec<String>, Vec<String>) {
+        // Uses spans, rather than say <ul>/<li> because needs to be
+        // include e.g for output of a `CodeExpression`
+        (
+            "span",
+            vec![attr("is", "stencila-object")],
+            self.iter()
+                .map(|(key, value)| {
+                    elem(
+                        "span",
+                        &[attr("is", "stencila-object-item"), attr("key", key)],
+                        &[value.to_html()],
+                    )
+                })
+                .collect_vec(),
+        )
+    }
+
+    fn to_html_attr(&self) -> String {
+        serde_json::to_string(self).unwrap_or_default()
+    }
+}
+
+impl MarkdownCodec for Object {
+    fn to_markdown(&self) -> (String, Losses) {
+        let mut text = String::new();
+        let mut losses = Losses::new([Loss::of_structure(LossDirection::Encode, "Object")]);
+
+        for (name, value) in self.iter() {
+            if !text.is_empty() {
+                text.push(' ');
+            }
+
+            text.push_str(name);
+
+            text.push(' ');
+
+            let (value_text, mut value_losses) = value.to_markdown();
+            text.push_str(&value_text);
+            losses.add_all(&mut value_losses);
+        }
+
+        (text, losses)
+    }
+}
+
+impl TextCodec for Object {
+    fn to_text(&self) -> (String, Losses) {
+        let mut text = String::new();
+        let mut losses = Losses::new([Loss::of_structure(LossDirection::Encode, "Object")]);
+
+        for (name, value) in self.iter() {
+            if !text.is_empty() {
+                text.push(' ');
+            }
+
+            text.push_str(name);
+
+            text.push(' ');
+
+            let (value_text, mut value_losses) = value.to_text();
+            text.push_str(&value_text);
+            losses.add_all(&mut value_losses);
+        }
+
+        (text, losses)
     }
 }
