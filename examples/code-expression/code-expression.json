@@ -7,17 +7,101 @@
       "content": [
         {
           "type": "Text",
-          "value": "A code expression with an output: "
+          "value": "With a number output: "
         },
         {
           "type": "CodeExpression",
           "programmingLanguage": "python",
           "code": "6 * 7",
           "output": 42
-        },
+        }
+      ]
+    },
+    {
+      "type": "Paragraph",
+      "content": [
         {
           "type": "Text",
-          "value": "."
+          "value": "With a string output: "
+        },
+        {
+          "type": "CodeExpression",
+          "programmingLanguage": "python",
+          "code": "'a string'"
+        }
+      ]
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        {
+          "type": "Text",
+          "value": "With an array output: "
+        },
+        {
+          "type": "CodeExpression",
+          "programmingLanguage": "python",
+          "code": "[1, 2, 3]",
+          "output": [1, 2, 3]
+        }
+      ]
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        {
+          "type": "Text",
+          "value": "With an object output: "
+        },
+        {
+          "type": "CodeExpression",
+          "programmingLanguage": "python",
+          "code": "dict(a=1,b=dict())",
+          "output": { "a": 1, "b": {} }
+        }
+      ]
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        {
+          "type": "Text",
+          "value": "With an empty language: "
+        },
+        {
+          "type": "CodeExpression",
+          "programmingLanguage": "",
+          "code": "a + b"
+        }
+      ]
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        {
+          "type": "Text",
+          "value": "With a language and `guessLanguage` set to true: "
+        },
+        {
+          "type": "CodeExpression",
+          "programmingLanguage": "c++",
+          "code": "a + b",
+          "guessLanguage": true
+        }
+      ]
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        {
+          "type": "Text",
+          "value": "With automatic execution behavior specified "
+        },
+        {
+          "type": "CodeExpression",
+          "programmingLanguage": "javascript",
+          "code": "c * d",
+          "executionAuto": "Never"
         }
       ]
     }

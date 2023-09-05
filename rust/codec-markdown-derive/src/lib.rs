@@ -16,6 +16,12 @@ struct TypeAttr {
 
     #[darling(default)]
     format: Option<String>,
+
+    #[darling(default)]
+    escape: Option<String>,
+
+    #[darling(default)]
+    special: bool,
 }
 
 #[derive(FromField)]
@@ -51,32 +57,61 @@ pub fn derive(input: proc_macro::TokenStream) -> proc_macro::TokenStream {
 fn derive_struct(type_attr: TypeAttr) -> TokenStream {
     let struct_name = type_attr.ident;
 
-    if let Some(format) = type_attr.format {
+    if type_attr.special {
+        quote! {
+            impl MarkdownCodec for #struct_name {
+                fn to_markdown(&self) -> (String, Losses) {
+                    self.to_markdown_special()
+                }
+            }
+        }
+    } else if let Some(format) = type_attr.format {
         let mut fields = TokenStream::new();
         type_attr.data.map_struct_fields(|field_attr| {
             let Some(field_name) = field_attr.ident else {
                 return
             };
 
-            if field_name == "r#type" || field_name == "id" {
+            if field_name == "r#type" {
                 // Skip the type field
                 return;
             }
 
-            fields.extend(quote! {
-                let (#field_name, mut field_losses) = self.#field_name.to_markdown();
-                losses.append(&mut field_losses);
-            })
+            let field_tokens = if format.contains(&["{", &field_name.to_string(), "}"].concat()) {
+                let mut tokens = quote! {
+                    let (#field_name, mut field_losses) = self.#field_name.to_markdown();
+                    losses.append(&mut field_losses);
+                };
+                if let Some(escape) = &type_attr.escape {
+                    tokens.extend(quote! {
+                        let #field_name = #field_name.replace(#escape, &[r"\", #escape].concat());
+                    });
+                }
+                tokens
+            } else {
+                quote! {
+                    lost_properties.push(stringify!(#field_name).to_string());
+                }
+            };
+            fields.extend(field_tokens);
         });
 
         quote! {
             impl MarkdownCodec for #struct_name {
                 fn to_markdown(&self) -> (String, Losses) {
                     let mut losses = Losses::none();
+                    let mut lost_properties = Vec::new();
 
                     #fields
 
                     let markdown = format!(#format);
+                    if !lost_properties.is_empty() {
+                        losses.push(Loss::of_properties(
+                            LossDirection::Encode,
+                            stringify!(#struct_name),
+                            lost_properties
+                        ));
+                    }
 
                     (markdown, losses)
                 }

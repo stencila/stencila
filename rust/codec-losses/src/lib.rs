@@ -100,6 +100,21 @@ impl Loss {
         }
     }
 
+    /// Create a loss with [`LossKind::Properties`]
+    pub fn of_properties<T, I>(direction: LossDirection, r#type: T, properties: I) -> Self
+    where
+        T: AsRef<str>,
+        I: IntoIterator<Item = String>,
+    {
+        let properties = properties.into_iter().collect_vec();
+        Loss {
+            direction,
+            r#type: r#type.as_ref().to_string(),
+            kind: LossKind::Properties(properties),
+            ..Default::default()
+        }
+    }
+
     /// Create a loss with [`LossKind::Todo`]
     pub fn todo<T>(direction: LossDirection, r#type: T) -> Self
     where
@@ -157,6 +172,21 @@ impl Losses {
     /// when a codec is lossless (i.e. it returns `Losses::none()`)
     pub fn none() -> Self {
         Self::default()
+    }
+
+    /// Create a set of losses with one entry for the loss of the id property
+    ///
+    /// This is a convenience function provided because often, `id` is the
+    /// only property that is potentially lost.
+    pub fn of_id<S>(r#type: S) -> Self
+    where
+        S: AsRef<str>,
+    {
+        Self::new([Loss::of_properties(
+            LossDirection::Encode,
+            r#type,
+            ["id".to_string()],
+        )])
     }
 
     /// Push a loss onto this list of losses

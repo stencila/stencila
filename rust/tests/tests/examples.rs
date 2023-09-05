@@ -76,7 +76,8 @@ async fn examples_encode_decode() -> Result<()> {
             }),
             Some(DecodeOptions::default()),
         ),
-        ("text", Format::Text, Some(EncodeOptions::default()), None),
+        ("md", Format::Markdown, Some(EncodeOptions::default()), None),
+        ("txt", Format::Text, Some(EncodeOptions::default()), None),
         (
             "yaml",
             Format::Yaml,

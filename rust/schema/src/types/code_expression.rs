@@ -22,6 +22,7 @@ use super::timestamp::Timestamp;
 #[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, HtmlCodec, MarkdownCodec, TextCodec, Read, Write)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 #[html(elem = "span", custom)]
+#[markdown(special)]
 pub struct CodeExpression {
     /// The type of this item
     pub r#type: MustBe!("CodeExpression"),
