@@ -20,7 +20,7 @@ use super::thing_type::ThingType;
 
 /// A part of a successively published publication such as a periodical or multi-volume work.
 #[skip_serializing_none]
-#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, HtmlCodec, MarkdownCodec, TextCodec, Read, Write)]
+#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, HtmlCodec, MarkdownCodec, TextCodec, ReadNode, WriteNode)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 pub struct PublicationVolume {
     /// The type of this item
@@ -43,7 +43,7 @@ pub struct PublicationVolume {
 }
 
 #[skip_serializing_none]
-#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, HtmlCodec, MarkdownCodec, TextCodec, Read, Write)]
+#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, HtmlCodec, MarkdownCodec, TextCodec, ReadNode, WriteNode)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 #[html(flatten)]
 pub struct PublicationVolumeOptions {

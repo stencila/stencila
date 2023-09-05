@@ -6,4 +6,5 @@ edition = "2021"
 [dependencies]
 automerge = "0.5.1"
 common = { path = "../common" }
+node-store-derive = { path = "../node-store-derive" }
 smol_str = "0.1.24"

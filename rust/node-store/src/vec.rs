@@ -3,9 +3,9 @@ use common::eyre::Result;
 
 use crate::prelude::*;
 
-impl<T> Read for Vec<T>
+impl<T> ReadNode for Vec<T>
 where
-    T: Read + std::fmt::Debug,
+    T: ReadNode + std::fmt::Debug,
 {
     fn load_list<S: ReadStore>(store: &S, obj: &ObjId) -> Result<Self> {
         // Load the items into a new vec
@@ -23,9 +23,9 @@ where
     }
 }
 
-impl<T> Write for Vec<T>
+impl<T> WriteNode for Vec<T>
 where
-    T: Write + std::fmt::Debug,
+    T: WriteNode + std::fmt::Debug,
 {
     fn insert_prop(&self, store: &mut WriteStore, obj_id: &ObjId, prop: Prop) -> Result<()> {
         // Create the new list in the store

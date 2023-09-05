@@ -8,7 +8,7 @@ use super::validator::Validator;
 
 /// A function with a name, which might take Parameters and return a value of a certain type.
 #[skip_serializing_none]
-#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, HtmlCodec, MarkdownCodec, TextCodec, Read, Write)]
+#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, HtmlCodec, MarkdownCodec, TextCodec, ReadNode, WriteNode)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 pub struct Function {
     /// The type of this item
@@ -31,7 +31,7 @@ pub struct Function {
 }
 
 #[skip_serializing_none]
-#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, HtmlCodec, MarkdownCodec, TextCodec, Read, Write)]
+#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, HtmlCodec, MarkdownCodec, TextCodec, ReadNode, WriteNode)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 #[html(flatten)]
 pub struct FunctionOptions {

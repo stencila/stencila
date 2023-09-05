@@ -4,20 +4,20 @@ use codec_html_trait::encode::text;
 use common::similar::{Algorithm, DiffTag, TextDiffConfig};
 use node_store::{
     automerge::{transaction::Transactable, ObjId, ObjType, Prop, Value},
-    Read, ReadStore, Write, WriteStore, SIMILARITY_MAX,
+    ReadNode, ReadStore, WriteNode, WriteStore, SIMILARITY_MAX,
 };
 
 use crate::{prelude::*, TextValue};
 
 impl StripNode for TextValue {}
 
-impl Read for TextValue {
+impl ReadNode for TextValue {
     fn load_text<S: ReadStore>(store: &S, obj_id: &ObjId) -> Result<Self> {
         Ok(Self(store.text(obj_id)?))
     }
 }
 
-impl Write for TextValue {
+impl WriteNode for TextValue {
     fn insert_prop(&self, store: &mut WriteStore, obj_id: &ObjId, prop: Prop) -> Result<()> {
         // Create the new text object in the store
         let prop_obj_id = match prop {

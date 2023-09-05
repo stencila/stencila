@@ -5,4 +5,4 @@ pub(crate) use automerge::{
 
 pub(crate) use common::eyre::Result;
 
-pub(crate) use crate::{Read, Write, SIMILARITY_MAX};
+pub(crate) use crate::{ReadNode, WriteNode, SIMILARITY_MAX};

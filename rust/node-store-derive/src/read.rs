@@ -4,7 +4,7 @@ use common::{
     syn::{parse_macro_input, Attribute, Data, DataEnum, DataStruct, DeriveInput, Fields},
 };
 
-/// Derive the `Read` trait
+/// Derive the `ReadNode` trait
 pub fn derive(input: proc_macro::TokenStream) -> proc_macro::TokenStream {
     let input = parse_macro_input!(input as DeriveInput);
 
@@ -17,7 +17,7 @@ pub fn derive(input: proc_macro::TokenStream) -> proc_macro::TokenStream {
     proc_macro::TokenStream::from(tokens)
 }
 
-/// Derive the `Read` trait for a `struct`
+/// Derive the `ReadNode` trait for a `struct`
 pub fn derive_struct(input: &DeriveInput, data: &DataStruct) -> TokenStream {
     let struct_name = &input.ident;
 
@@ -66,13 +66,13 @@ pub fn derive_struct(input: &DeriveInput, data: &DataStruct) -> TokenStream {
     });
 
     quote! {
-        impl node_store::Read for #struct_name {
+        impl node_store::ReadNode for #struct_name {
             #methods
         }
     }
 }
 
-/// Derive the `Read` trait for an `enum`
+/// Derive the `ReadNode` trait for an `enum`
 pub fn derive_enum(input: &DeriveInput, data: &DataEnum, attrs: &Vec<Attribute>) -> TokenStream {
     let enum_name = &input.ident;
 
@@ -138,7 +138,7 @@ pub fn derive_enum(input: &DeriveInput, data: &DataEnum, attrs: &Vec<Attribute>)
     }
 
     quote! {
-        impl node_store::Read for #enum_name {
+        impl node_store::ReadNode for #enum_name {
             #methods
         }
     }

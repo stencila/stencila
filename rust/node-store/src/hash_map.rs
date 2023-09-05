@@ -4,9 +4,9 @@ use automerge::iter::MapRangeItem;
 
 use crate::prelude::*;
 
-impl<T> Read for HashMap<String, T>
+impl<T> ReadNode for HashMap<String, T>
 where
-    T: Read,
+    T: ReadNode,
 {
     fn load_map<S: ReadStore>(store: &S, obj_id: &ObjId) -> Result<Self> {
         let mut map = Self::new();
@@ -23,9 +23,9 @@ where
     }
 }
 
-impl<T> Write for HashMap<String, T>
+impl<T> WriteNode for HashMap<String, T>
 where
-    T: Write,
+    T: WriteNode,
 {
     fn sync_map(&self, store: &mut WriteStore, obj_id: &ObjId) -> Result<()> {
         // Get all the keys for the map in the store

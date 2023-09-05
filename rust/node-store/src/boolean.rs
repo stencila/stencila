@@ -1,6 +1,6 @@
 use crate::prelude::*;
 
-impl Read for bool {
+impl ReadNode for bool {
     fn load_boolean(value: &bool) -> Result<Self> {
         Ok(*value)
     }
@@ -10,7 +10,7 @@ impl Read for bool {
     }
 }
 
-impl Write for bool {
+impl WriteNode for bool {
     fn insert_prop(&self, store: &mut WriteStore, obj_id: &ObjId, prop: Prop) -> Result<()> {
         match prop {
             Prop::Map(key) => store.put(obj_id, key, *self)?,

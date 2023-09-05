@@ -4,7 +4,7 @@ use common::{
     syn::{parse_macro_input, Data, DataEnum, DataStruct, DeriveInput, Fields},
 };
 
-/// Derive the `Write` trait
+/// Derive the `WriteNode` trait
 pub fn derive(input: proc_macro::TokenStream) -> proc_macro::TokenStream {
     let input = parse_macro_input!(input as DeriveInput);
 
@@ -17,7 +17,7 @@ pub fn derive(input: proc_macro::TokenStream) -> proc_macro::TokenStream {
     proc_macro::TokenStream::from(tokens)
 }
 
-/// Derive the `Write` trait for a `struct`
+/// Derive the `WriteNode` trait for a `struct`
 ///
 /// The implementation of methods is largely based on those for `IndexMap`.
 pub fn derive_struct(input: &DeriveInput, data: &DataStruct) -> TokenStream {
@@ -137,13 +137,13 @@ pub fn derive_struct(input: &DeriveInput, data: &DataStruct) -> TokenStream {
     });
 
     quote! {
-        impl node_store::Write for #struct_name {
+        impl node_store::WriteNode for #struct_name {
             #methods
         }
     }
 }
 
-/// Derive the `Write` trait for an `enum`
+/// Derive the `WriteNode` trait for an `enum`
 pub fn derive_enum(input: &DeriveInput, data: &DataEnum) -> TokenStream {
     let enum_name = &input.ident;
 
@@ -220,7 +220,7 @@ pub fn derive_enum(input: &DeriveInput, data: &DataEnum) -> TokenStream {
     });
 
     quote! {
-        impl node_store::Write for #enum_name {
+        impl node_store::WriteNode for #enum_name {
             #methods
         }
     }

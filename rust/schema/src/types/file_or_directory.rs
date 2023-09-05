@@ -6,7 +6,7 @@ use super::directory::Directory;
 use super::file::File;
 
 /// [`File`] or [`Directory`]
-#[derive(Debug, Display, Clone, PartialEq, Serialize, Deserialize, StripNode, HtmlCodec, MarkdownCodec, TextCodec, Read, Write)]
+#[derive(Debug, Display, Clone, PartialEq, Serialize, Deserialize, StripNode, HtmlCodec, MarkdownCodec, TextCodec, ReadNode, WriteNode)]
 #[serde(untagged, crate = "common::serde")]
 pub enum FileOrDirectory {
     File(File),

@@ -1,14 +1,14 @@
 use codec_html_trait::encode::{attr, elem};
 use node_store::{
     automerge::{ObjId, Prop},
-    Read, ReadStore, Write, WriteStore,
+    ReadNode, ReadStore, WriteNode, WriteStore,
 };
 
 use crate::{prelude::*, Array, Primitive};
 
 impl StripNode for Array {}
 
-impl Read for Array {
+impl ReadNode for Array {
     fn load_list<S: ReadStore>(store: &S, obj_id: &ObjId) -> Result<Self> {
         Ok(Self(Vec::<Primitive>::load_list(store, obj_id)?))
     }
@@ -18,7 +18,7 @@ impl Read for Array {
     }
 }
 
-impl Write for Array {
+impl WriteNode for Array {
     fn insert_prop(&self, store: &mut WriteStore, obj_id: &ObjId, prop: Prop) -> Result<()> {
         self.0.insert_prop(store, obj_id, prop)
     }

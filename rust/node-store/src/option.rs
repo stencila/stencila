@@ -2,9 +2,9 @@ use common::eyre::Result;
 
 use crate::prelude::*;
 
-impl<T> Read for Option<T>
+impl<T> ReadNode for Option<T>
 where
-    T: Read,
+    T: ReadNode,
 {
     fn load_prop<S: ReadStore>(store: &S, obj_id: &ObjId, prop: Prop) -> Result<Self> {
         match store.get(obj_id, prop.clone())? {
@@ -16,9 +16,9 @@ where
     }
 }
 
-impl<T> Write for Option<T>
+impl<T> WriteNode for Option<T>
 where
-    T: Write,
+    T: WriteNode,
 {
     fn insert_prop(&self, store: &mut WriteStore, obj_id: &ObjId, prop: Prop) -> Result<()> {
         match self {

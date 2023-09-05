@@ -1,20 +1,20 @@
 use codec_html_trait::encode::attr;
 use node_store::{
     automerge::{transaction::Transactable, ObjId, Prop, ScalarValue, Value},
-    Read, ReadStore, Write, WriteStore, SIMILARITY_MAX,
+    ReadNode, ReadStore, WriteNode, WriteStore, SIMILARITY_MAX,
 };
 
 use crate::{prelude::*, Null};
 
 impl StripNode for Null {}
 
-impl Read for Null {
+impl ReadNode for Null {
     fn load_null() -> Result<Self> {
         Ok(Self {})
     }
 }
 
-impl Write for Null {
+impl WriteNode for Null {
     fn insert_prop(&self, store: &mut WriteStore, obj_id: &ObjId, prop: Prop) -> Result<()> {
         match prop {
             Prop::Map(key) => store.put(obj_id, key, ScalarValue::Null)?,

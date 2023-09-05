@@ -1,10 +1,10 @@
 use smol_str::SmolStr;
 
-use node_store::{automerge::ObjId, Read, ReadStore};
+use node_store::{automerge::ObjId, ReadNode, ReadStore};
 
 use crate::{prelude::*, Array, Node, Null, Object};
 
-impl Read for Node {
+impl ReadNode for Node {
     fn load_null() -> Result<Self> {
         Ok(Node::Null(Null {}))
     }

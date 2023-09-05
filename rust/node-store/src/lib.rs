@@ -17,6 +17,8 @@ pub use automerge::{
 };
 pub(crate) use automerge::{transaction::CommitOptions, ScalarValue, Value};
 
+pub use node_store_derive::{ReadNode, WriteNode};
+
 /// The maximum similarity index between to nodes
 pub const SIMILARITY_MAX: usize = 1000;
 
@@ -54,7 +56,7 @@ macro_rules! bail_load_unexpected {
 
 /// A trait for reading Stencila document nodes from an Automerge store
 #[async_trait]
-pub trait Read: Sized {
+pub trait ReadNode: Sized {
     /// Read a Stencila document node from an Automerge file
     async fn read(path: &Path) -> Result<(WriteStore, Self)> {
         let store = load_store(path).await?;
@@ -181,7 +183,7 @@ pub trait Read: Sized {
 
 /// A trait for writing a Stencila node to an Automerge store
 #[async_trait]
-pub trait Write {
+pub trait WriteNode {
     /// Write a Stencila node to an Automerge store
     async fn write(
         &self,

@@ -3,7 +3,7 @@
 use crate::prelude::*;
 
 /// The mode of a `Cite`.
-#[derive(Debug, Display, Clone, PartialEq, Serialize, Deserialize, StripNode, HtmlCodec, MarkdownCodec, TextCodec, SmartDefault, Read, Write)]
+#[derive(Debug, Display, Clone, PartialEq, Serialize, Deserialize, StripNode, HtmlCodec, MarkdownCodec, TextCodec, SmartDefault, ReadNode, WriteNode)]
 #[serde(crate = "common::serde")]
 pub enum CitationMode {
     #[default]

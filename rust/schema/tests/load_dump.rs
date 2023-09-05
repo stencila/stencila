@@ -7,7 +7,7 @@ use schema::{
     Array, Article, Block, Inline, Node, Null, Object, Paragraph, Primitive, Text, TextValue,
 };
 
-use node_store::{Read, Write, WriteStore};
+use node_store::{ReadNode, WriteNode, WriteStore};
 use node_strip::{StripNode, Targets};
 
 fn txt(value: &str) -> Text {

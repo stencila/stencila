@@ -3,14 +3,14 @@ use std::collections::HashSet;
 use codec_html_trait::encode::{attr, elem};
 use node_store::{
     automerge::{iter::MapRangeItem, transaction::Transactable, ObjId, ObjType, Prop, Value},
-    Read, ReadStore, Write, WriteStore,
+    ReadNode, ReadStore, WriteNode, WriteStore,
 };
 
 use crate::{prelude::*, Object, Primitive};
 
 impl StripNode for Object {}
 
-impl Read for Object {
+impl ReadNode for Object {
     fn load_map<S: ReadStore>(store: &S, obj_id: &ObjId) -> Result<Self> {
         let mut map = Self::new();
         for MapRangeItem { key, .. } in store.map_range(obj_id, ..) {
@@ -22,7 +22,7 @@ impl Read for Object {
     }
 }
 
-impl Write for Object {
+impl WriteNode for Object {
     fn sync_map(&self, store: &mut WriteStore, obj_id: &ObjId) -> Result<()> {
         // Get all the keys for the map in the store
         let mut keys: HashSet<String> = store.keys(obj_id).collect();

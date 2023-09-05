@@ -21,7 +21,7 @@ use super::table::Table;
 use super::thematic_break::ThematicBreak;
 
 /// Union type for block content node types.
-#[derive(Debug, Display, Clone, PartialEq, Serialize, Deserialize, StripNode, HtmlCodec, MarkdownCodec, TextCodec, SmartDefault, Read, Write)]
+#[derive(Debug, Display, Clone, PartialEq, Serialize, Deserialize, StripNode, HtmlCodec, MarkdownCodec, TextCodec, SmartDefault, ReadNode, WriteNode)]
 #[serde(untagged, crate = "common::serde")]
 pub enum Block {
     Call(Call),

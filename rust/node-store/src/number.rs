@@ -1,6 +1,6 @@
 use crate::prelude::*;
 
-impl Read for f64 {
+impl ReadNode for f64 {
     fn load_f64(value: &f64) -> Result<Self> {
         Ok(*value)
     }
@@ -10,7 +10,7 @@ impl Read for f64 {
     }
 }
 
-impl Write for f64 {
+impl WriteNode for f64 {
     fn insert_prop(&self, store: &mut WriteStore, obj_id: &ObjId, prop: Prop) -> Result<()> {
         match prop {
             Prop::Map(key) => store.put(obj_id, key, *self)?,

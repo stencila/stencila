@@ -17,7 +17,7 @@ use common::{
     tracing,
 };
 use format::Format;
-use node_store::{inspect_store, load_store, Read, Write, WriteStore};
+use node_store::{inspect_store, load_store, ReadNode, WriteNode, WriteStore};
 use schema::{Article, Node};
 
 mod sync_file;

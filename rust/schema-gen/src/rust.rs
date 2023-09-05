@@ -36,11 +36,11 @@ const NO_GENERATE_MODULE: &[&str] = &[
     "UnsignedInteger",
 ];
 
-/// Types that should not derive `Read` because there are manual implementations
-const NO_READ: &[&str] = &["Null", "Primitive", "TextValue", "Node"];
+/// Types that should not derive `ReadNode` because there are manual implementations
+const NO_READ: &[&str] = &["Primitive", "Node"];
 
-/// Types that should not derive `Write` because there are manual implementations
-const NO_WRITE: &[&str] = &["Null", "Primitive", "TextValue"];
+/// Types that should not derive `WriteNode` because there are manual implementations
+const NO_WRITE: &[&str] = &["Primitive"];
 
 /// Properties that need to be boxed to avoid recursive types
 const BOX_PROPERTIES: &[&str] = &[
@@ -268,10 +268,10 @@ impl Schemas {
         ];
         let title = title.as_str();
         if !NO_READ.contains(&title) {
-            derives.push("Read");
+            derives.push("ReadNode");
         }
         if !NO_WRITE.contains(&title) {
-            derives.push("Write");
+            derives.push("WriteNode");
         }
         attrs.push(format!("#[derive({})]", derives.join(", ")));
 
@@ -626,10 +626,10 @@ impl {title} {{{new}}}
 
         let title = name.as_str();
         if !NO_READ.contains(&title) {
-            derives.push("Read");
+            derives.push("ReadNode");
         }
         if !NO_WRITE.contains(&title) {
-            derives.push("Write");
+            derives.push("WriteNode");
         }
         attrs.push(format!("#[derive({})]", derives.join(", ")));
 

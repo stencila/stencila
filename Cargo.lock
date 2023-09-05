@@ -1631,6 +1631,7 @@ version = "0.0.0"
 dependencies = [
  "automerge",
  "common",
+ "node-store-derive",
  "smol_str",
 ]
 
@@ -2174,7 +2175,6 @@ dependencies = [
  "common-dev",
  "monostate",
  "node-store",
- "node-store-derive",
  "node-strip",
  "smol_str",
 ]

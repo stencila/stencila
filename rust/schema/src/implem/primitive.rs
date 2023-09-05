@@ -2,12 +2,12 @@ use smol_str::SmolStr;
 
 use node_store::{
     automerge::{ObjId, Prop},
-    Read, ReadStore, Write, WriteStore,
+    ReadNode, ReadStore, WriteNode, WriteStore,
 };
 
 use crate::{prelude::*, Array, Null, Object, Primitive};
 
-impl Read for Primitive {
+impl ReadNode for Primitive {
     fn load_null() -> Result<Self> {
         Ok(Primitive::Null(Null {}))
     }
@@ -41,7 +41,7 @@ impl Read for Primitive {
     }
 }
 
-impl Write for Primitive {
+impl WriteNode for Primitive {
     fn insert_prop(&self, store: &mut WriteStore, obj_id: &ObjId, prop: Prop) -> Result<()> {
         match self {
             Primitive::Null(value) => value.insert_prop(store, obj_id, prop),
