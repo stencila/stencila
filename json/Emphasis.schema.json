@@ -12,7 +12,8 @@
     "elem": "em"
   },
   "markdown": {
-    "format": "*{content}*"
+    "format": "_{content}_",
+    "escape": "_"
   },
   "required": [
     "type",

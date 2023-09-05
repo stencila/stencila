@@ -225,8 +225,13 @@
         "slot": {
           "description": "Whether a property should be encoded as a slot of the parent element and the HTML element (e.g. `div`) to use for that slot",
           "type": "string"
+        },
+        "special": {
+          "description": "Whether the node type has a special function for encoding to HTML",
+          "type": "boolean"
         }
-      }
+      },
+      "additionalProperties": false
     },
     "Items": {
       "anyOf": [
@@ -287,15 +292,20 @@
       "description": "Options for conversion to Markdown",
       "type": "object",
       "properties": {
+        "escape": {
+          "description": "Character to escape when using `format` to encode to Markdown",
+          "type": "string"
+        },
         "format": {
           "description": "The formatting string to use to encode a Markdown",
           "type": "string"
         },
-        "with": {
-          "description": "The function to use to encode as Markdown",
-          "type": "string"
+        "special": {
+          "description": "Whether the node type has a special function for encoding to Markdown",
+          "type": "boolean"
         }
-      }
+      },
+      "additionalProperties": false
     },
     "Schema": {
       "description": "A schema in the Stencila Schema\n\nThis meta-schema is based on JSON Schema with custom extensions to meet the needs of Stencila Schema.\n\nOnly the JSON Schema properties actually used by Stencila Schema, are included in the meta-schema. An error will be thrown if a schema as an unknown property.\n\nMuch of the documentation provided here for JSON Schema properties is drawn directly from https://json-schema.org/draft/2020-12/json-schema-core.html and https://json-schema.org/draft/2020-12/json-schema-validation.html.\n\nThe current version of this meta-schema is published a https://stencila.dev/meta.schema.json. Previous versions are available via https://raw.github.com/stencila/stencila/<version>/json/meta.schema.json (replace `<version>` with the version tag name e.g. `v2.0.0-alpha.6`).\n\nStencila Schema authors should start the schema with the `$schema` keyword pointing to this meta-schema. Amongst other things, this provides useful tool tips and input validation in several commonly used code editors.",

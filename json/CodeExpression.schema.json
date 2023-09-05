@@ -12,6 +12,9 @@
     "elem": "span",
     "custom": true
   },
+  "markdown": {
+    "special": true
+  },
   "required": [
     "type",
     "code",

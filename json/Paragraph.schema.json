@@ -12,7 +12,7 @@
     "elem": "p"
   },
   "markdown": {
-    "format": "\\n\\n{content}"
+    "format": "{content}\\n\\n"
   },
   "required": [
     "type",

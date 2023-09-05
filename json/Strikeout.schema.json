@@ -12,7 +12,8 @@
     "elem": "s"
   },
   "markdown": {
-    "format": "~~{content}~~"
+    "format": "~~{content}~~",
+    "escape": "~"
   },
   "required": [
     "type",

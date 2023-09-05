@@ -12,7 +12,8 @@
     "elem": "u"
   },
   "markdown": {
-    "format": "[{content}]{{.underline}}"
+    "format": "[{content}]{{underline}}",
+    "escape": "]"
   },
   "required": [
     "type",
