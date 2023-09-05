@@ -444,7 +444,6 @@ pub struct HtmlOptions {
     pub slot: Option<String>,
 }
 
-
 /// Options for conversion to Markdown
 #[skip_serializing_none]
 #[derive(Debug, Clone, Default, Deserialize, Serialize, JsonSchema)]

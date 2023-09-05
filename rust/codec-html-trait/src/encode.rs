@@ -28,9 +28,9 @@ pub fn text(value: &str) -> String {
 /// Generate a HTML element with given name, attributes and children
 pub fn elem(name: &str, attrs: &[String], children: &[String]) -> String {
     if name.is_empty() {
-        return String::new()
+        return String::new();
     }
-    
+
     let attrs = attrs
         .iter()
         .filter(|attr| !attr.trim().is_empty())
