@@ -10,7 +10,7 @@ use super::string::String;
 #[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, HtmlCodec, MarkdownCodec, TextCodec, Read, Write)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 #[html(elem = "p")]
-#[markdown(format = "\n\n{content}")]
+#[markdown(format = "{content}\n\n")]
 pub struct Paragraph {
     /// The type of this item
     pub r#type: MustBe!("Paragraph"),
