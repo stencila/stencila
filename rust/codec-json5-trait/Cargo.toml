@@ -1,0 +1,9 @@
+[package]
+name = "codec-json5-trait"
+version = "0.0.0"
+edition = "2021"
+
+[dependencies]
+common = { path = "../common" }
+json5 = "0.4.1"
+json5format = "0.2.6"

@@ -441,6 +441,14 @@ name = "codec-json5"
 version = "0.0.0"
 dependencies = [
  "codec",
+ "codec-json5-trait",
+]
+
+[[package]]
+name = "codec-json5-trait"
+version = "0.0.0"
+dependencies = [
+ "common",
  "json5",
  "json5format",
 ]
@@ -2158,6 +2166,7 @@ name = "schema"
 version = "0.0.0"
 dependencies = [
  "codec-html-trait",
+ "codec-json5-trait",
  "codec-losses",
  "codec-markdown-trait",
  "codec-text-trait",
