@@ -290,6 +290,9 @@ impl Schemas {
             if html.custom {
                 args.push("custom".to_string());
             }
+            if html.special {
+                args.push("special".to_string());
+            }
 
             attrs.push(format!("#[html({})]", args.join(", ")));
         }
@@ -300,6 +303,12 @@ impl Schemas {
 
             if let Some(format) = &markdown.format {
                 args.push(format!("format = \"{format}\""));
+            }
+            if let Some(escape) = &markdown.escape {
+                args.push(format!("escape = \"{escape}\""));
+            }
+            if markdown.special {
+                args.push("special".to_string());
             }
 
             attrs.push(format!("#[markdown({})]", args.join(", ")))
