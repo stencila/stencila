@@ -250,8 +250,12 @@ impl DecodeOptions {
 /// Command line arguments for encoding nodes to other formats
 #[derive(Debug, Args)]
 struct EncodeOptions {
+    /// Encode as a standalone document
+    #[arg(long, conflicts_with = "not_standalone")]
+    standalone: bool,
+
     /// Do not encode as a standalone document when writing to file
-    #[arg(long)]
+    #[arg(long, conflicts_with = "standalone")]
     not_standalone: bool,
 
     /// Use compact form of encoding if possible
@@ -286,12 +290,16 @@ impl EncodeOptions {
         losses: codecs::LossesResponse,
     ) -> codecs::EncodeOptions {
         let (format, codec) = codecs::format_or_codec(format_or_codec);
+        let standalone = self
+            .standalone
+            .then_some(true)
+            .or(self.not_standalone.then_some(false));
 
         codecs::EncodeOptions {
             codec,
             format,
             compact: self.compact,
-            standalone: self.not_standalone.then_some(false),
+            standalone,
             strip_id: !self.no_strip_id,
             strip_code: self.strip_code,
             strip_execution: self.strip_execution,

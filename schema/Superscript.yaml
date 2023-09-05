@@ -4,3 +4,6 @@ extends: Mark
 description: Superscripted content.
 html:
   elem: sup
+markdown:
+  format: '^{content}^'
+  escape: '^'

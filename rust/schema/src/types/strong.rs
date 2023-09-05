@@ -5,11 +5,12 @@ use crate::prelude::*;
 use super::inline::Inline;
 use super::string::String;
 
-/// Strongly emphasised content.
+/// Strongly emphasized content.
 #[skip_serializing_none]
-#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, HtmlCodec, TextCodec, Read, Write)]
+#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, HtmlCodec, MarkdownCodec, TextCodec, Read, Write)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 #[html(elem = "strong")]
+#[markdown(format = "**{content}**", escape = "*")]
 pub struct Strong {
     /// The type of this item
     pub r#type: MustBe!("Strong"),

@@ -6,7 +6,7 @@ use super::blocks::Blocks;
 use super::inlines::Inlines;
 
 /// [`Blocks`] or [`Inlines`]
-#[derive(Debug, Display, Clone, PartialEq, Serialize, Deserialize, StripNode, HtmlCodec, TextCodec, Read, Write)]
+#[derive(Debug, Display, Clone, PartialEq, Serialize, Deserialize, StripNode, HtmlCodec, MarkdownCodec, TextCodec, Read, Write)]
 #[serde(untagged, crate = "common::serde")]
 pub enum BlocksOrInlines {
     Blocks(Blocks),

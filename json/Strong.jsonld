@@ -9,7 +9,7 @@
       "@id": "stencila:Strong",
       "@type": "rdfs:Class",
       "rdfs:label": "Strong",
-      "rdfs:comment": "Strongly emphasised content.",
+      "rdfs:comment": "Strongly emphasized content.",
       "rdfs:subClassOf": {
         "@id": "Mark"
       }

@@ -2,7 +2,7 @@
 
 import { Inline } from './Inline';
 
-// Strongly emphasised content.
+// Strongly emphasized content.
 export class Strong {
   type = "Strong";
 

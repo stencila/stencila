@@ -7,9 +7,10 @@ use super::string::String;
 
 /// Emphasized content.
 #[skip_serializing_none]
-#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, HtmlCodec, TextCodec, Read, Write)]
+#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, HtmlCodec, MarkdownCodec, TextCodec, Read, Write)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 #[html(elem = "em")]
+#[markdown(format = "_{content}_", escape = "_")]
 pub struct Emphasis {
     /// The type of this item
     pub r#type: MustBe!("Emphasis"),

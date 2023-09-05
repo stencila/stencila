@@ -1,6 +1,9 @@
 title: Strong
 '@id': stencila:Strong
 extends: Mark
-description: Strongly emphasised content.
+description: Strongly emphasized content.
 html:
   elem: strong
+markdown:
+  format: '**{content}**'
+  escape: '*'

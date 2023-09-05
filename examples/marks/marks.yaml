@@ -1,0 +1,86 @@
+type: Article
+content:
+- type: Paragraph
+  content:
+  - type: Text
+    value: 'This is '
+  - type: Emphasis
+    content:
+    - type: Text
+      value: emphasized
+  - type: Text
+    value: ', and this is '
+  - type: Strong
+    content:
+    - type: Text
+      value: strongly emphasized
+  - type: Text
+    value: ', and this is '
+  - type: Underline
+    content:
+    - type: Text
+      value: underlined
+  - type: Text
+    value: .
+- type: Paragraph
+  content:
+  - type: Text
+    value: 'This is '
+  - type: Subscript
+    content:
+    - type: Text
+      value: subscripted
+  - type: Text
+    value: ', and this is '
+  - type: Superscript
+    content:
+    - type: Text
+      value: superscripted
+  - type: Text
+    value: ', and this is '
+  - type: Strikeout
+    content:
+    - type: Text
+      value: struck out
+  - type: Text
+    value: .
+- type: Paragraph
+  content:
+  - type: Text
+    value: 'This paragraph tests escaping within marks. '
+  - type: Emphasis
+    content:
+    - type: Text
+      value: _ under_scores _
+  - type: Text
+    value: ', '
+  - type: Strong
+    content:
+    - type: Text
+      value: '* aster*isks *'
+  - type: Text
+    value: ', '
+  - type: Subscript
+    content:
+    - type: Text
+      value: ~ til~des ~
+  - type: Text
+    value: ', '
+  - type: Superscript
+    content:
+    - type: Text
+      value: ^ care^ts ^
+  - type: Text
+    value: ', '
+  - type: Strikeout
+    content:
+    - type: Text
+      value: ~~ tilde~~es ~~
+  - type: Text
+    value: ', '
+  - type: Underline
+    content:
+    - type: Text
+      value: '] square bra]ck[ets ]'
+  - type: Text
+    value: .

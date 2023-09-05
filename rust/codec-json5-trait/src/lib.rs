@@ -1,6 +1,6 @@
 use json5format::{FormatOptions, Json5Format, ParsedDocument};
 
-use codec::common::{
+use common::{
     eyre::Result,
     serde::{de::DeserializeOwned, Serialize},
 };
@@ -35,7 +35,7 @@ pub trait Json5Codec: DeserializeOwned + Serialize {
             },
         )?;
 
-        let compacted = json5.replace('\n', "");
+        let compacted = json5.replace('\n', "").trim().to_string();
 
         Ok(compacted)
     }

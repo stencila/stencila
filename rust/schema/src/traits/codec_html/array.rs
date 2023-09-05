@@ -4,13 +4,15 @@ use super::prelude::*;
 
 impl HtmlCodec for Array {
     fn to_html_parts(&self) -> (&str, Vec<String>, Vec<String>) {
+        // Uses spans, rather than say <ol>/<li> because needs to be
+        // include e.g for output of a `CodeExpression`
         (
-            "ol",
+            "span",
             vec![attr("is", "stencila-array")],
             self.iter()
                 .map(|value| {
                     elem(
-                        "li",
+                        "span",
                         &[attr("is", "stencila-array-item")],
                         &[value.to_html()],
                     )

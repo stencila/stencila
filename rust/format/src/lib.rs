@@ -22,7 +22,7 @@ pub enum Format {
     Jats,
     Json,
     Json5,
-    Md,
+    Markdown,
     Text,
     Yaml,
 }
@@ -38,7 +38,7 @@ impl Format {
             "jats" => Jats,
             "json" => Json,
             "json5" => Json5,
-            "md" | "markdown" => Md,
+            "md" | "markdown" => Markdown,
             "text" | "txt" => Text,
             "yaml" | "yml" => Yaml,
             _ => bail!("No format matching file name extension `{ext}`"),

@@ -441,6 +441,14 @@ name = "codec-json5"
 version = "0.0.0"
 dependencies = [
  "codec",
+ "codec-json5-trait",
+]
+
+[[package]]
+name = "codec-json5-trait"
+version = "0.0.0"
+dependencies = [
+ "common",
  "json5",
  "json5format",
 ]
@@ -449,6 +457,31 @@ dependencies = [
 name = "codec-losses"
 version = "0.0.0"
 dependencies = [
+ "common",
+]
+
+[[package]]
+name = "codec-markdown"
+version = "0.0.0"
+dependencies = [
+ "codec",
+ "codec-markdown-trait",
+]
+
+[[package]]
+name = "codec-markdown-derive"
+version = "0.0.0"
+dependencies = [
+ "common",
+ "darling",
+]
+
+[[package]]
+name = "codec-markdown-trait"
+version = "0.0.0"
+dependencies = [
+ "codec-losses",
+ "codec-markdown-derive",
  "common",
 ]
 
@@ -493,6 +526,7 @@ dependencies = [
  "codec-jats",
  "codec-json",
  "codec-json5",
+ "codec-markdown",
  "codec-text",
  "codec-yaml",
  "node-strip",
@@ -2132,7 +2166,9 @@ name = "schema"
 version = "0.0.0"
 dependencies = [
  "codec-html-trait",
+ "codec-json5-trait",
  "codec-losses",
+ "codec-markdown-trait",
  "codec-text-trait",
  "common",
  "common-dev",

@@ -1,0 +1,9 @@
+[package]
+name = "codec-markdown-trait"
+version = "0.0.0"
+edition = "2021"
+
+[dependencies]
+codec-losses = { path = "../codec-losses" }
+codec-markdown-derive = { path = "../codec-markdown-derive" }
+common = { path = "../common" }

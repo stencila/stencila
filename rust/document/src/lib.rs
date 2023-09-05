@@ -52,7 +52,7 @@ impl DocumentType {
     #[allow(unused)]
     fn from_format(format: &Format) -> Option<Self> {
         match format {
-            Format::Jats | Format::Md => Some(Self::Article),
+            Format::Jats | Format::Markdown => Some(Self::Article),
             _ => None,
         }
     }

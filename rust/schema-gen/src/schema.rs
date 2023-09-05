@@ -116,6 +116,9 @@ pub struct Schema {
     /// Options for converting the type or property to/from HTML
     pub html: Option<HtmlOptions>,
 
+    /// Options for converting the type or property to Markdown
+    pub markdown: Option<MarkdownOptions>,
+
     /// A reference to another schema in Stencila Schema
     ///
     /// The value of this keyword MUST be a string of the
@@ -405,7 +408,12 @@ pub enum StripScopes {
 /// Options for conversion to/from HTML
 #[skip_serializing_none]
 #[derive(Debug, Clone, Default, Deserialize, Serialize, JsonSchema)]
-#[serde(default, rename_all = "camelCase", crate = "common::serde")]
+#[serde(
+    default,
+    rename_all = "camelCase",
+    deny_unknown_fields,
+    crate = "common::serde"
+)]
 pub struct HtmlOptions {
     /// The name of the HTML element to use for a type or property
     pub elem: Option<String>,
@@ -416,6 +424,10 @@ pub struct HtmlOptions {
     /// will be set to the kebab-cased type name.
     #[serde(skip_serializing_if = "is_false")]
     pub custom: bool,
+
+    /// Whether the node type has a special function for encoding to HTML
+    #[serde(skip_serializing_if = "is_false")]
+    pub special: bool,
 
     /// The HTML attribute name for a property
     ///
@@ -430,6 +442,28 @@ pub struct HtmlOptions {
     /// Whether a property should be encoded as a slot of the parent element
     /// and the HTML element (e.g. `div`) to use for that slot
     pub slot: Option<String>,
+}
+
+
+/// Options for conversion to Markdown
+#[skip_serializing_none]
+#[derive(Debug, Clone, Default, Deserialize, Serialize, JsonSchema)]
+#[serde(
+    default,
+    rename_all = "camelCase",
+    deny_unknown_fields,
+    crate = "common::serde"
+)]
+pub struct MarkdownOptions {
+    /// The formatting string to use to encode a Markdown
+    pub format: Option<String>,
+
+    /// Character to escape when using `format` to encode to Markdown
+    pub escape: Option<String>,
+
+    /// Whether the node type has a special function for encoding to Markdown
+    #[serde(skip_serializing_if = "is_false")]
+    pub special: bool,
 }
 
 impl Schema {

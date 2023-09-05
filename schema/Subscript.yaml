@@ -4,3 +4,6 @@ extends: Mark
 description: Subscripted content.
 html:
   elem: sub
+markdown:
+  format: '~{content}~'
+  escape: '~'

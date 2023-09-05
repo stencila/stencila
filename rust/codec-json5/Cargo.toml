@@ -5,5 +5,4 @@ edition = "2021"
 
 [dependencies]
 codec = { path = "../codec" }
-json5 = "0.4.1"
-json5format = "0.2.6"
+codec-json5-trait = { path = "../codec-json5-trait" }

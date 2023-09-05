@@ -1,11 +1,72 @@
 <article>
   <p>
-    <span>A code expression with an output:</span>
+    <span>With a number output:</span>
     <span is="stencila-code-expression" code="6 * 7" programming-language="python">
       <span slot="output">
         <span is="stencila-integer">42</span>
       </span>
     </span>
-    <span>.</span>
+  </p>
+  <p>
+    <span>With a string output:</span>
+    <span is="stencila-code-expression" code="'a string'" programming-language="python">
+      <span slot="output">
+      </span>
+    </span>
+  </p>
+  <p>
+    <span>With an array output:</span>
+    <span is="stencila-code-expression" code="[1, 2, 3]" programming-language="python">
+      <span slot="output">
+        <span is="stencila-array">
+          <span is="stencila-array-item">
+            <span is="stencila-integer">1</span>
+          </span>
+          <span is="stencila-array-item">
+            <span is="stencila-integer">2</span>
+          </span>
+          <span is="stencila-array-item">
+            <span is="stencila-integer">3</span>
+          </span>
+        </span>
+      </span>
+    </span>
+  </p>
+  <p>
+    <span>With an object output:</span>
+    <span is="stencila-code-expression" code="dict(a=1,b=dict())" programming-language="python">
+      <span slot="output">
+        <span is="stencila-object">
+          <span is="stencila-object-item" key="a">
+            <span is="stencila-integer">1</span>
+          </span>
+          <span is="stencila-object-item" key="b">
+            <span is="stencila-object">
+            </span>
+          </span>
+        </span>
+      </span>
+    </span>
+  </p>
+  <p>
+    <span>With an empty language:</span>
+    <span is="stencila-code-expression" code="a + b" programming-language="">
+      <span slot="output">
+      </span>
+    </span>
+  </p>
+  <p>
+    <span>With a language and `guessLanguage` set to true:</span>
+    <span is="stencila-code-expression" code="a + b" programming-language="c++" guess-language="true">
+      <span slot="output">
+      </span>
+    </span>
+  </p>
+  <p>
+    <span>With automatic execution behavior specified</span>
+    <span is="stencila-code-expression" code="c * d" programming-language="javascript" execution-auto="Never">
+      <span slot="output">
+      </span>
+    </span>
   </p>
 </article>

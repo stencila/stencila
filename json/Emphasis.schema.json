@@ -11,6 +11,10 @@
   "html": {
     "elem": "em"
   },
+  "markdown": {
+    "format": "_{content}_",
+    "escape": "_"
+  },
   "required": [
     "type",
     "content"

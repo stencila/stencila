@@ -11,6 +11,9 @@
   "html": {
     "elem": "hr"
   },
+  "markdown": {
+    "format": "---\\n\\n"
+  },
   "required": [
     "type"
   ],
