@@ -5,4 +5,5 @@ description: Inline code.
 html:
   elem: code
   custom: true
-
+markdown:
+  special: true
