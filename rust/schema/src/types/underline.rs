@@ -10,7 +10,7 @@ use super::string::String;
 #[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, HtmlCodec, MarkdownCodec, TextCodec, Read, Write)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 #[html(elem = "u")]
-#[markdown(format = "[{content}]{{.underline}}")]
+#[markdown(format = "[{content}]{{underline}}", escape = "]")]
 pub struct Underline {
     /// The type of this item
     pub r#type: MustBe!("Underline"),

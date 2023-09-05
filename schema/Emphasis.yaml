@@ -11,4 +11,5 @@ $comment: |
 html:
   elem: em
 markdown:
-  format: '*{content}*'
+  format: '_{content}_'
+  escape: '_'

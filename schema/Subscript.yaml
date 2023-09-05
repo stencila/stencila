@@ -6,3 +6,4 @@ html:
   elem: sub
 markdown:
   format: '~{content}~'
+  escape: '~'

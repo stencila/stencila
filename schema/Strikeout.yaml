@@ -13,3 +13,4 @@ html:
   elem: s
 markdown:
   format: '~~{content}~~'
+  escape: '~'

@@ -6,3 +6,4 @@ html:
   elem: sup
 markdown:
   format: '^{content}^'
+  escape: '^'

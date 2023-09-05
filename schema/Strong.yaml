@@ -6,3 +6,4 @@ html:
   elem: strong
 markdown:
   format: '**{content}**'
+  escape: '*'

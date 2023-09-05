@@ -10,7 +10,7 @@ use super::string::String;
 #[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, HtmlCodec, MarkdownCodec, TextCodec, Read, Write)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 #[html(elem = "strong")]
-#[markdown(format = "**{content}**")]
+#[markdown(format = "**{content}**", escape = "*")]
 pub struct Strong {
     /// The type of this item
     pub r#type: MustBe!("Strong"),

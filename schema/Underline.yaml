@@ -9,4 +9,5 @@ $comment: |
 html:
   elem: u
 markdown:
-  format: '[{content}]{{.underline}}'
+  format: '[{content}]{{underline}}'
+  escape: ']'

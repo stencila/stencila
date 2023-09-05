@@ -10,7 +10,7 @@ use super::string::String;
 #[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, HtmlCodec, MarkdownCodec, TextCodec, Read, Write)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 #[html(elem = "sub")]
-#[markdown(format = "~{content}~")]
+#[markdown(format = "~{content}~", escape = "~")]
 pub struct Subscript {
     /// The type of this item
     pub r#type: MustBe!("Subscript"),
