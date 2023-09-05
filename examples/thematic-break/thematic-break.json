@@ -1,0 +1,36 @@
+{
+  "$schema": "https://stencila.dev/Article.schema.json",
+  "type": "Article",
+  "content": [
+    {
+      "type": "ThematicBreak"
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        {
+          "type": "Text",
+          "value": "A paragraph after first thematic break."
+        }
+      ]
+    },
+    {
+      "type": "ThematicBreak"
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        {
+          "type": "Text",
+          "value": "Two consecutive thematic breaks follow this paragraph."
+        }
+      ]
+    },
+    {
+      "type": "ThematicBreak"
+    },
+    {
+      "type": "ThematicBreak"
+    }
+  ]
+}

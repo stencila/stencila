@@ -9,6 +9,7 @@ use super::string::String;
 #[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, HtmlCodec, MarkdownCodec, TextCodec, Read, Write)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 #[html(elem = "hr")]
+#[markdown(format = "---\n\n")]
 pub struct ThematicBreak {
     /// The type of this item
     pub r#type: MustBe!("ThematicBreak"),
