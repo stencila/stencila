@@ -22,6 +22,9 @@ struct TypeAttr {
     custom: bool,
 
     #[darling(default)]
+    special: bool,
+
+    #[darling(default)]
     flatten: bool,
 }
 
@@ -66,6 +69,24 @@ pub fn derive(input: proc_macro::TokenStream) -> proc_macro::TokenStream {
 /// Derive the `HtmlCodec` trait for a `struct`
 fn derive_struct(type_attr: TypeAttr) -> TokenStream {
     let struct_name = type_attr.ident;
+
+    if type_attr.special {
+        return quote! {
+            impl codec_html_trait::HtmlCodec for #struct_name {
+                fn to_html(&self) -> String {
+                    self.to_html_special()
+                }
+
+                fn to_html_parts(&self) -> (&str, Vec<String>, Vec<String>) {
+                    unreachable!()
+                }
+
+                fn to_html_attr(&self) -> String {
+                    unreachable!()
+                }
+            }
+        };
+    }
 
     let custom_elem = ["stencila-", &struct_name.to_string().to_kebab_case()].concat();
 
