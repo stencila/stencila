@@ -22,6 +22,8 @@ use super::thing_type::ThingType;
 #[skip_serializing_none]
 #[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, HtmlCodec, MarkdownCodec, TextCodec, Read, Write)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
+#[html(elem = "img", custom)]
+#[markdown(format = "![]({content_url})")]
 pub struct ImageObject {
     /// The type of this item
     pub r#type: MustBe!("ImageObject"),
@@ -32,12 +34,14 @@ pub struct ImageObject {
     pub id: Option<String>,
 
     /// URL for the actual bytes of the media object, for example the image file or video file.
+    #[html(attr = "src")]
     pub content_url: String,
 
     /// IANA media type (MIME type).
     pub media_type: Option<String>,
 
     /// The caption for this image.
+    #[html(attr = "alt")]
     pub caption: Option<String>,
 
     /// Non-core optional fields

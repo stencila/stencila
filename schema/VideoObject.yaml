@@ -6,12 +6,19 @@ $comment: |
   The `VideoObject` type allows you to provide details such as caption and transcript,
   and the details which are included in [`MediaObject`](./MediaObject)
   which `VideoObject` extends.
+html:
+  elem: video
+  custom: true
+markdown:
+  format: '![]({content_url})'
 core:
   - caption
 properties:
   caption:
     '@id': schema:caption
     description: The caption for this video recording.
+    html:
+      attr: alt
     type: string
   thumbnail:
     '@id': schema:thumbnail

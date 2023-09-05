@@ -32,6 +32,8 @@ properties:
 
       See https://github.com/schemaorg/schemaorg/issues/462#issuecomment-98243384
       for why it is useful to have both `contentUrl` and `embedUrl` in addition to `url`.
+    html:
+      attr: src
     type: string
   embedUrl:
     '@id': schema:embedUrl

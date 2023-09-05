@@ -1,0 +1,63 @@
+{
+  type: "Article",
+  content: [
+    {
+      type: "Paragraph",
+      content: [
+        {
+          type: "Text",
+          value: "An image "
+        },
+        {
+          type: "ImageObject",
+          contentUrl: "https:\/\/example.org\/cat.jpg"
+        },
+        {
+          type: "Text",
+          value: ", with a caption "
+        },
+        {
+          type: "ImageObject",
+          contentUrl: "https:\/\/example.org\/cat.jpg",
+          caption: "A cat"
+        },
+        {
+          type: "Text",
+          value: ", with a caption and other attributes "
+        },
+        {
+          type: "ImageObject",
+          contentUrl: "https:\/\/example.org\/cat.jpg",
+          caption: "A cat",
+          contentSize: 100
+        }
+      ]
+    },
+    {
+      type: "Paragraph",
+      content: [
+        {
+          type: "Text",
+          value: "Some audio "
+        },
+        {
+          type: "AudioObject",
+          contentUrl: "https:\/\/example.org\/cat.mp3"
+        }
+      ]
+    },
+    {
+      type: "Paragraph",
+      content: [
+        {
+          type: "Text",
+          value: "A video "
+        },
+        {
+          type: "AudioObject",
+          contentUrl: "https:\/\/example.org\/cat.mp4"
+        }
+      ]
+    }
+  ]
+}

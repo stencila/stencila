@@ -22,7 +22,8 @@ use super::thing_type::ThingType;
 #[skip_serializing_none]
 #[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, HtmlCodec, MarkdownCodec, TextCodec, Read, Write)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
-#[html(elem = "audio")]
+#[html(elem = "audio", custom)]
+#[markdown(format = "![]({content_url})")]
 pub struct AudioObject {
     /// The type of this item
     pub r#type: MustBe!("AudioObject"),
@@ -33,6 +34,7 @@ pub struct AudioObject {
     pub id: Option<String>,
 
     /// URL for the actual bytes of the media object, for example the image file or video file.
+    #[html(attr = "src")]
     pub content_url: String,
 
     /// IANA media type (MIME type).
@@ -148,6 +150,7 @@ pub struct AudioObjectOptions {
     pub embed_url: Option<String>,
 
     /// The caption for this audio recording.
+    #[html(attr = "alt")]
     pub caption: Option<String>,
 
     /// The transcript of this audio recording.

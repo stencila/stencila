@@ -33,6 +33,7 @@ pub struct MediaObject {
     pub id: Option<String>,
 
     /// URL for the actual bytes of the media object, for example the image file or video file.
+    #[html(attr = "src")]
     pub content_url: String,
 
     /// IANA media type (MIME type).

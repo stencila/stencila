@@ -4,10 +4,15 @@ extends: MediaObject
 description: An audio file
 html:
   elem: audio
+  custom: true
+markdown:
+  format: '![]({content_url})'
 properties:
   caption:
     '@id': schema:caption
     description: The caption for this audio recording.
+    html:
+      attr: alt
     type: string
   transcript:
     '@id': schema:transcript

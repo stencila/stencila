@@ -2,12 +2,19 @@ title: ImageObject
 '@id': schema:ImageObject
 extends: MediaObject
 description: An image file.
+html:
+  elem: img
+  custom: true
+markdown:
+  format: '![]({content_url})'
 core:
   - caption
 properties:
   caption:
     '@id': schema:caption
     description: The caption for this image.
+    html:
+      attr: alt
     type: string
   thumbnail:
     '@id': schema:thumbnail
