@@ -72,3 +72,4 @@ Stencila also support links and media objects:
 
 - `ImageObject`, `AudioObject` and `VideoObject` nodes are all encoded like so: `![caption](contentUrl)`; during decoding the type is determined by the file extension of the `contentUrl`, falling back to `ImageObject`.
 
+Inline `CodeFragment` nodes are surrounded by backticks: ``code``. If the `CodeFragment` has a programming language then it will be added within curly braces following the code: ``code`{programmingLanguage}`.
