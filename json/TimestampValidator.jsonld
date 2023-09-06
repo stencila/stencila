@@ -38,22 +38,22 @@
       "rdfs:comment": "The inclusive lower limit for a timestamp.",
       "schema:domainIncludes": [
         {
-          "@id": "stencila:TimeValidator"
+          "@id": "stencila:DateTimeValidator"
         },
         {
           "@id": "stencila:DurationValidator"
         },
         {
-          "@id": "stencila:TimestampValidator"
+          "@id": "stencila:NumberValidator"
         },
         {
-          "@id": "stencila:NumberValidator"
+          "@id": "stencila:TimestampValidator"
         },
         {
           "@id": "stencila:DateValidator"
         },
         {
-          "@id": "stencila:DateTimeValidator"
+          "@id": "stencila:TimeValidator"
         }
       ]
     },
@@ -64,22 +64,22 @@
       "rdfs:comment": "The inclusive upper limit for a timestamp.",
       "schema:domainIncludes": [
         {
-          "@id": "stencila:TimeValidator"
+          "@id": "stencila:DateTimeValidator"
         },
         {
           "@id": "stencila:DurationValidator"
         },
         {
-          "@id": "stencila:TimestampValidator"
+          "@id": "stencila:NumberValidator"
         },
         {
-          "@id": "stencila:NumberValidator"
+          "@id": "stencila:TimestampValidator"
         },
         {
           "@id": "stencila:DateValidator"
         },
         {
-          "@id": "stencila:DateTimeValidator"
+          "@id": "stencila:TimeValidator"
         }
       ]
     }

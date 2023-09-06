@@ -69,25 +69,25 @@
       "rdfs:comment": "The name of the item.",
       "schema:domainIncludes": [
         {
+          "@id": "stencila:Variable"
+        },
+        {
           "@id": "stencila:Function"
+        },
+        {
+          "@id": "stencila:Button"
+        },
+        {
+          "@id": "stencila:ExecutionTag"
+        },
+        {
+          "@id": "stencila:TableCell"
         },
         {
           "@id": "schema:Thing"
         },
         {
           "@id": "stencila:Parameter"
-        },
-        {
-          "@id": "stencila:Variable"
-        },
-        {
-          "@id": "stencila:ExecutionTag"
-        },
-        {
-          "@id": "stencila:Button"
-        },
-        {
-          "@id": "stencila:TableCell"
         }
       ],
       "schema:rangeIncludes": {
@@ -130,13 +130,13 @@
       "rdfs:comment": "The logo of the product.",
       "schema:domainIncludes": [
         {
-          "@id": "schema:Brand"
-        },
-        {
           "@id": "schema:Product"
         },
         {
           "@id": "schema:Organization"
+        },
+        {
+          "@id": "schema:Brand"
         }
       ],
       "schema:rangeIncludes": {

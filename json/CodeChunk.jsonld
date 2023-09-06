@@ -144,10 +144,10 @@
       "rdfs:comment": "Errors when compiling (e.g. syntax errors) or executing the node.",
       "schema:domainIncludes": [
         {
-          "@id": "stencila:Math"
+          "@id": "stencila:Executable"
         },
         {
-          "@id": "stencila:Executable"
+          "@id": "stencila:Math"
         }
       ],
       "schema:rangeIncludes": {
@@ -161,16 +161,16 @@
       "rdfs:comment": "The code.",
       "schema:domainIncludes": [
         {
-          "@id": "stencila:CodeStatic"
-        },
-        {
-          "@id": "stencila:CodeExecutable"
+          "@id": "stencila:CallArgument"
         },
         {
           "@id": "stencila:Math"
         },
         {
-          "@id": "stencila:CallArgument"
+          "@id": "stencila:CodeStatic"
+        },
+        {
+          "@id": "stencila:CodeExecutable"
         }
       ],
       "schema:rangeIncludes": {
@@ -184,16 +184,16 @@
       "rdfs:comment": "The programming language of the code.",
       "schema:domainIncludes": [
         {
-          "@id": "stencila:CodeStatic"
-        },
-        {
-          "@id": "stencila:CodeExecutable"
+          "@id": "stencila:CallArgument"
         },
         {
           "@id": "schema:SoftwareSourceCode"
         },
         {
-          "@id": "stencila:CallArgument"
+          "@id": "stencila:CodeStatic"
+        },
+        {
+          "@id": "stencila:CodeExecutable"
         }
       ],
       "schema:rangeIncludes": {
@@ -207,10 +207,10 @@
       "rdfs:comment": "Whether the programming language of the code should be guessed based on syntax and variables used",
       "schema:domainIncludes": [
         {
-          "@id": "stencila:CodeExecutable"
+          "@id": "stencila:CallArgument"
         },
         {
-          "@id": "stencila:CallArgument"
+          "@id": "stencila:CodeExecutable"
         }
       ],
       "schema:rangeIncludes": {
@@ -227,13 +227,13 @@
           "@id": "stencila:CodeStatic"
         },
         {
-          "@id": "stencila:Include"
-        },
-        {
           "@id": "stencila:CodeExecutable"
         },
         {
           "@id": "schema:MediaObject"
+        },
+        {
+          "@id": "stencila:Include"
         }
       ],
       "schema:rangeIncludes": {
@@ -271,25 +271,25 @@
       "rdfs:comment": "A short label for the CodeChunk.",
       "schema:domainIncludes": [
         {
-          "@id": "stencila:MathBlock"
+          "@id": "stencila:Figure"
         },
         {
-          "@id": "stencila:Figure"
+          "@id": "stencila:Button"
         },
         {
           "@id": "stencila:CodeChunk"
         },
         {
-          "@id": "stencila:Parameter"
+          "@id": "schema:Table"
         },
         {
-          "@id": "schema:Table"
+          "@id": "stencila:MathBlock"
         },
         {
           "@id": "schema:Claim"
         },
         {
-          "@id": "stencila:Button"
+          "@id": "stencila:Parameter"
         }
       ],
       "schema:rangeIncludes": {
@@ -306,19 +306,19 @@
           "@id": "stencila:Figure"
         },
         {
-          "@id": "schema:VideoObject"
+          "@id": "stencila:CodeChunk"
         },
         {
-          "@id": "stencila:CodeChunk"
+          "@id": "schema:VideoObject"
         },
         {
           "@id": "schema:Table"
         },
         {
-          "@id": "schema:AudioObject"
+          "@id": "schema:ImageObject"
         },
         {
-          "@id": "schema:ImageObject"
+          "@id": "schema:AudioObject"
         }
       ],
       "schema:rangeIncludes": [

@@ -21,16 +21,16 @@
       "rdfs:comment": "The code.",
       "schema:domainIncludes": [
         {
-          "@id": "stencila:CodeStatic"
-        },
-        {
-          "@id": "stencila:CodeExecutable"
+          "@id": "stencila:CallArgument"
         },
         {
           "@id": "stencila:Math"
         },
         {
-          "@id": "stencila:CallArgument"
+          "@id": "stencila:CodeStatic"
+        },
+        {
+          "@id": "stencila:CodeExecutable"
         }
       ],
       "schema:rangeIncludes": {
@@ -44,16 +44,16 @@
       "rdfs:comment": "The programming language of the code.",
       "schema:domainIncludes": [
         {
-          "@id": "stencila:CodeStatic"
-        },
-        {
-          "@id": "stencila:CodeExecutable"
+          "@id": "stencila:CallArgument"
         },
         {
           "@id": "schema:SoftwareSourceCode"
         },
         {
-          "@id": "stencila:CallArgument"
+          "@id": "stencila:CodeStatic"
+        },
+        {
+          "@id": "stencila:CodeExecutable"
         }
       ],
       "schema:rangeIncludes": {
@@ -70,13 +70,13 @@
           "@id": "stencila:CodeStatic"
         },
         {
-          "@id": "stencila:Include"
-        },
-        {
           "@id": "stencila:CodeExecutable"
         },
         {
           "@id": "schema:MediaObject"
+        },
+        {
+          "@id": "stencila:Include"
         }
       ],
       "schema:rangeIncludes": {

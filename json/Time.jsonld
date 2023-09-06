@@ -21,37 +21,37 @@
       "rdfs:comment": "The time of day as a string in format `hh:mm:ss[Z|(+|-)hh:mm]`.",
       "schema:domainIncludes": [
         {
-          "@id": "schema:DateTime"
+          "@id": "stencila:Variable"
         },
         {
           "@id": "stencila:ConstantValidator"
         },
         {
-          "@id": "schema:Timestamp"
+          "@id": "schema:DateTime"
         },
         {
           "@id": "schema:Duration"
         },
         {
-          "@id": "schema:Date"
+          "@id": "stencila:ExecutionTag"
         },
         {
-          "@id": "stencila:Parameter"
+          "@id": "schema:Date"
         },
         {
           "@id": "schema:Time"
         },
         {
-          "@id": "stencila:Variable"
-        },
-        {
-          "@id": "schema:Text"
-        },
-        {
           "@id": "schema:PropertyValue"
         },
         {
-          "@id": "stencila:ExecutionTag"
+          "@id": "schema:Timestamp"
+        },
+        {
+          "@id": "stencila:Parameter"
+        },
+        {
+          "@id": "schema:Text"
         }
       ],
       "schema:rangeIncludes": {

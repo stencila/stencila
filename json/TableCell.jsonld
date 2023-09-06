@@ -21,25 +21,25 @@
       "rdfs:comment": "The name of the cell.",
       "schema:domainIncludes": [
         {
+          "@id": "stencila:Variable"
+        },
+        {
           "@id": "stencila:Function"
+        },
+        {
+          "@id": "stencila:Button"
+        },
+        {
+          "@id": "stencila:ExecutionTag"
+        },
+        {
+          "@id": "stencila:TableCell"
         },
         {
           "@id": "schema:Thing"
         },
         {
           "@id": "stencila:Parameter"
-        },
-        {
-          "@id": "stencila:Variable"
-        },
-        {
-          "@id": "stencila:ExecutionTag"
-        },
-        {
-          "@id": "stencila:Button"
-        },
-        {
-          "@id": "stencila:TableCell"
         }
       ],
       "schema:rangeIncludes": {
@@ -86,28 +86,10 @@
       "rdfs:comment": "Contents of the table cell.",
       "schema:domainIncludes": [
         {
-          "@id": "stencila:Include"
-        },
-        {
-          "@id": "stencila:Paragraph"
-        },
-        {
-          "@id": "stencila:Note"
-        },
-        {
-          "@id": "stencila:QuoteBlock"
+          "@id": "stencila:Division"
         },
         {
           "@id": "schema:ListItem"
-        },
-        {
-          "@id": "stencila:Form"
-        },
-        {
-          "@id": "stencila:Span"
-        },
-        {
-          "@id": "stencila:Heading"
         },
         {
           "@id": "stencila:Link"
@@ -116,25 +98,43 @@
           "@id": "stencila:Cite"
         },
         {
+          "@id": "stencila:Heading"
+        },
+        {
+          "@id": "stencila:Form"
+        },
+        {
           "@id": "stencila:Mark"
         },
         {
-          "@id": "stencila:IfClause"
-        },
-        {
-          "@id": "schema:Claim"
+          "@id": "stencila:Note"
         },
         {
           "@id": "schema:CreativeWork"
         },
         {
+          "@id": "stencila:Paragraph"
+        },
+        {
           "@id": "stencila:For"
         },
         {
-          "@id": "stencila:Division"
+          "@id": "stencila:TableCell"
         },
         {
-          "@id": "stencila:TableCell"
+          "@id": "stencila:Include"
+        },
+        {
+          "@id": "schema:Claim"
+        },
+        {
+          "@id": "stencila:Span"
+        },
+        {
+          "@id": "stencila:IfClause"
+        },
+        {
+          "@id": "stencila:QuoteBlock"
         }
       ],
       "schema:rangeIncludes": [

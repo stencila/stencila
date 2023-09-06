@@ -21,13 +21,13 @@
       "rdfs:comment": "One or more `Cite`s to be referenced in the same surrounding text.",
       "schema:domainIncludes": [
         {
+          "@id": "schema:ItemList"
+        },
+        {
           "@id": "stencila:CiteGroup"
         },
         {
           "@id": "stencila:TupleValidator"
-        },
-        {
-          "@id": "schema:ItemList"
         }
       ],
       "schema:rangeIncludes": {

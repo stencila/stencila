@@ -33,25 +33,25 @@
       "rdfs:comment": "The name of the variable.",
       "schema:domainIncludes": [
         {
+          "@id": "stencila:Variable"
+        },
+        {
           "@id": "stencila:Function"
+        },
+        {
+          "@id": "stencila:Button"
+        },
+        {
+          "@id": "stencila:ExecutionTag"
+        },
+        {
+          "@id": "stencila:TableCell"
         },
         {
           "@id": "schema:Thing"
         },
         {
           "@id": "stencila:Parameter"
-        },
-        {
-          "@id": "stencila:Variable"
-        },
-        {
-          "@id": "stencila:ExecutionTag"
-        },
-        {
-          "@id": "stencila:Button"
-        },
-        {
-          "@id": "stencila:TableCell"
         }
       ],
       "schema:rangeIncludes": {
@@ -77,37 +77,37 @@
       "rdfs:comment": "The value of the variable.",
       "schema:domainIncludes": [
         {
-          "@id": "schema:DateTime"
+          "@id": "stencila:Variable"
         },
         {
           "@id": "stencila:ConstantValidator"
         },
         {
-          "@id": "schema:Timestamp"
+          "@id": "schema:DateTime"
         },
         {
           "@id": "schema:Duration"
         },
         {
-          "@id": "schema:Date"
+          "@id": "stencila:ExecutionTag"
         },
         {
-          "@id": "stencila:Parameter"
+          "@id": "schema:Date"
         },
         {
           "@id": "schema:Time"
         },
         {
-          "@id": "stencila:Variable"
-        },
-        {
-          "@id": "schema:Text"
-        },
-        {
           "@id": "schema:PropertyValue"
         },
         {
-          "@id": "stencila:ExecutionTag"
+          "@id": "schema:Timestamp"
+        },
+        {
+          "@id": "stencila:Parameter"
+        },
+        {
+          "@id": "schema:Text"
         }
       ]
     }

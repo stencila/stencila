@@ -21,10 +21,10 @@
       "rdfs:comment": "A node is valid if it is equal to any of these values.",
       "schema:domainIncludes": [
         {
-          "@id": "stencila:EnumValidator"
+          "@id": "stencila:DatatableColumn"
         },
         {
-          "@id": "stencila:DatatableColumn"
+          "@id": "stencila:EnumValidator"
         }
       ],
       "schema:rangeIncludes": {

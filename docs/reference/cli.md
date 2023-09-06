@@ -76,7 +76,7 @@ Create a new document
 * `-s`, `--source <SOURCE>` — The source file to import from
 * `-f`, `--format <FORMAT>` — The format of the source file
 
-  Possible values: `debug`, `jats`, `json`, `json5`, `html`, `md`, `ron`, `yaml`
+  Possible values: `debug`, `html`, `jats`, `json`, `json5`, `markdown`, `text`, `yaml`
 
 * `--codec <CODEC>` — The codec to use to decode the source
 * `-o`, `--overwrite` — Overwrite the document if it already exists
@@ -98,7 +98,7 @@ Import a file in another format into a new or existing document
 
 * `-f`, `--format <FORMAT>` — The format of the source file
 
-  Possible values: `debug`, `jats`, `json`, `json5`, `html`, `md`, `ron`, `yaml`
+  Possible values: `debug`, `html`, `jats`, `json`, `json5`, `markdown`, `text`, `yaml`
 
 * `--codec <CODEC>` — The codec to use to decode the source
 * `-t`, `--type <TYPE>` — The type of document to import
@@ -143,7 +143,7 @@ Export a document to a file in another format
 
 * `-f`, `--format <FORMAT>` — The format of the destination file
 
-  Possible values: `debug`, `jats`, `json`, `json5`, `html`, `md`, `ron`, `yaml`
+  Possible values: `debug`, `html`, `jats`, `json`, `json5`, `markdown`, `text`, `yaml`
 
 * `--codec <CODEC>` — The codec to use to encode to the destination
 * `-l`, `--losses <LOSSES>` — What to do if there are losses when encoding
@@ -166,6 +166,8 @@ Export a document to a file in another format
   - `abort`:
     Abort the current function call by returning a `Err` result with the losses enumerated
 
+* `--standalone` — Encode as a standalone document
+* `--not-standalone` — Do not encode as a standalone document when writing to file
 * `-c`, `--compact` — Use compact form of encoding if possible
 * `--no-strip-id` — Do not strip the id property of nodes when encoding
 * `--strip-code` — Strip the code of executable nodes when encoding
@@ -212,6 +214,8 @@ Synchronize a document with one of more other files in other formats
   - `abort`:
     Abort the current function call by returning a `Err` result with the losses enumerated
 
+* `--standalone` — Encode as a standalone document
+* `--not-standalone` — Do not encode as a standalone document when writing to file
 * `-c`, `--compact` — Use compact form of encoding if possible
 * `--no-strip-id` — Do not strip the id property of nodes when encoding
 * `--strip-code` — Strip the code of executable nodes when encoding
@@ -281,6 +285,8 @@ Convert a document between formats
   - `abort`:
     Abort the current function call by returning a `Err` result with the losses enumerated
 
+* `--standalone` — Encode as a standalone document
+* `--not-standalone` — Do not encode as a standalone document when writing to file
 * `-c`, `--compact` — Use compact form of encoding if possible
 * `--no-strip-id` — Do not strip the id property of nodes when encoding
 * `--strip-code` — Strip the code of executable nodes when encoding

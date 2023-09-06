@@ -39,10 +39,10 @@
       "rdfs:comment": "The location that the dependency is defined within code",
       "schema:domainIncludes": [
         {
-          "@id": "stencila:ExecutionDependant"
+          "@id": "stencila:ExecutionDependency"
         },
         {
-          "@id": "stencila:ExecutionDependency"
+          "@id": "stencila:ExecutionDependant"
         }
       ],
       "schema:rangeIncludes": {

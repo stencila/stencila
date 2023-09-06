@@ -69,25 +69,25 @@
       "rdfs:comment": "The name of the item.",
       "schema:domainIncludes": [
         {
+          "@id": "stencila:Variable"
+        },
+        {
           "@id": "stencila:Function"
+        },
+        {
+          "@id": "stencila:Button"
+        },
+        {
+          "@id": "stencila:ExecutionTag"
+        },
+        {
+          "@id": "stencila:TableCell"
         },
         {
           "@id": "schema:Thing"
         },
         {
           "@id": "stencila:Parameter"
-        },
-        {
-          "@id": "stencila:Variable"
-        },
-        {
-          "@id": "stencila:ExecutionTag"
-        },
-        {
-          "@id": "stencila:Button"
-        },
-        {
-          "@id": "stencila:TableCell"
         }
       ],
       "schema:rangeIncludes": {
@@ -146,28 +146,10 @@
       "rdfs:comment": "The structured content of this creative work c.f. property `text`.",
       "schema:domainIncludes": [
         {
-          "@id": "stencila:Include"
-        },
-        {
-          "@id": "stencila:Paragraph"
-        },
-        {
-          "@id": "stencila:Note"
-        },
-        {
-          "@id": "stencila:QuoteBlock"
+          "@id": "stencila:Division"
         },
         {
           "@id": "schema:ListItem"
-        },
-        {
-          "@id": "stencila:Form"
-        },
-        {
-          "@id": "stencila:Span"
-        },
-        {
-          "@id": "stencila:Heading"
         },
         {
           "@id": "stencila:Link"
@@ -176,25 +158,43 @@
           "@id": "stencila:Cite"
         },
         {
+          "@id": "stencila:Heading"
+        },
+        {
+          "@id": "stencila:Form"
+        },
+        {
           "@id": "stencila:Mark"
         },
         {
-          "@id": "stencila:IfClause"
-        },
-        {
-          "@id": "schema:Claim"
+          "@id": "stencila:Note"
         },
         {
           "@id": "schema:CreativeWork"
         },
         {
+          "@id": "stencila:Paragraph"
+        },
+        {
           "@id": "stencila:For"
         },
         {
-          "@id": "stencila:Division"
+          "@id": "stencila:TableCell"
         },
         {
-          "@id": "stencila:TableCell"
+          "@id": "stencila:Include"
+        },
+        {
+          "@id": "schema:Claim"
+        },
+        {
+          "@id": "stencila:Span"
+        },
+        {
+          "@id": "stencila:IfClause"
+        },
+        {
+          "@id": "stencila:QuoteBlock"
         }
       ],
       "schema:rangeIncludes": {
@@ -265,6 +265,9 @@
       "rdfs:comment": "People or organizations that funded the `CreativeWork`.",
       "schema:domainIncludes": [
         {
+          "@id": "schema:MonetaryGrant"
+        },
+        {
           "@id": "schema:Person"
         },
         {
@@ -272,9 +275,6 @@
         },
         {
           "@id": "schema:CreativeWork"
-        },
-        {
-          "@id": "schema:MonetaryGrant"
         }
       ]
     },
@@ -429,10 +429,10 @@
       "rdfs:comment": "The path (absolute or relative) of the file on the filesystem",
       "schema:domainIncludes": [
         {
-          "@id": "stencila:File"
+          "@id": "stencila:Directory"
         },
         {
-          "@id": "stencila:Directory"
+          "@id": "stencila:File"
         }
       ],
       "schema:rangeIncludes": {

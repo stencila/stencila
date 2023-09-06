@@ -21,28 +21,10 @@
       "rdfs:comment": "The content that is marked.",
       "schema:domainIncludes": [
         {
-          "@id": "stencila:Include"
-        },
-        {
-          "@id": "stencila:Paragraph"
-        },
-        {
-          "@id": "stencila:Note"
-        },
-        {
-          "@id": "stencila:QuoteBlock"
+          "@id": "stencila:Division"
         },
         {
           "@id": "schema:ListItem"
-        },
-        {
-          "@id": "stencila:Form"
-        },
-        {
-          "@id": "stencila:Span"
-        },
-        {
-          "@id": "stencila:Heading"
         },
         {
           "@id": "stencila:Link"
@@ -51,25 +33,43 @@
           "@id": "stencila:Cite"
         },
         {
+          "@id": "stencila:Heading"
+        },
+        {
+          "@id": "stencila:Form"
+        },
+        {
           "@id": "stencila:Mark"
         },
         {
-          "@id": "stencila:IfClause"
-        },
-        {
-          "@id": "schema:Claim"
+          "@id": "stencila:Note"
         },
         {
           "@id": "schema:CreativeWork"
         },
         {
+          "@id": "stencila:Paragraph"
+        },
+        {
           "@id": "stencila:For"
         },
         {
-          "@id": "stencila:Division"
+          "@id": "stencila:TableCell"
         },
         {
-          "@id": "stencila:TableCell"
+          "@id": "stencila:Include"
+        },
+        {
+          "@id": "schema:Claim"
+        },
+        {
+          "@id": "stencila:Span"
+        },
+        {
+          "@id": "stencila:IfClause"
+        },
+        {
+          "@id": "stencila:QuoteBlock"
         }
       ],
       "schema:rangeIncludes": {
@@ -83,10 +83,10 @@
       "rdfs:comment": "The source of the quote.",
       "schema:domainIncludes": [
         {
-          "@id": "stencila:QuoteBlock"
+          "@id": "stencila:Quote"
         },
         {
-          "@id": "stencila:Quote"
+          "@id": "stencila:QuoteBlock"
         }
       ],
       "schema:rangeIncludes": {
