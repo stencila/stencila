@@ -11,3 +11,17 @@ content:
     target: https://example.org
   - type: Text
     value: .
+- type: Paragraph
+  content:
+  - type: Text
+    value: 'With a title and styled content '
+  - type: Link
+    content:
+    - type: Strong
+      content:
+      - type: Text
+        value: example.org
+    target: https://example.org
+    title: a title
+  - type: Text
+    value: .

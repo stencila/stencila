@@ -24,6 +24,35 @@
           "value": "."
         }
       ]
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        {
+          "type": "Text",
+          "value": "With a title and styled content "
+        },
+        {
+          "type": "Link",
+          "target": "https://example.org",
+          "title": "a title",
+          "content": [
+            {
+              "type": "Strong",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": "example.org"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "Text",
+          "value": "."
+        }
+      ]
     }
   ]
 }
