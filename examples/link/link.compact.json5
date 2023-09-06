@@ -1,0 +1,1 @@
+{type: "Article",content: [{type: "Paragraph",content: [{type: "Text",value: "A link "},{type: "Link",content: [{type: "Text",value: "example.org"}],target: "https:\/\/example.org"},{type: "Text",value: "."}]}]}

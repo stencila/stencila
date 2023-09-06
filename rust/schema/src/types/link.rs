@@ -10,6 +10,7 @@ use super::string::String;
 #[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, HtmlCodec, MarkdownCodec, TextCodec, ReadNode, WriteNode)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 #[html(elem = "a")]
+#[markdown(format = "[{content}]({target})")]
 pub struct Link {
     /// The type of this item
     pub r#type: MustBe!("Link"),

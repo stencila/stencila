@@ -1,0 +1,29 @@
+{
+  "$schema": "https://stencila.dev/Article.schema.json",
+  "type": "Article",
+  "content": [
+    {
+      "type": "Paragraph",
+      "content": [
+        {
+          "type": "Text",
+          "value": "A link "
+        },
+        {
+          "type": "Link",
+          "target": "https://example.org",
+          "content": [
+            {
+              "type": "Text",
+              "value": "example.org"
+            }
+          ]
+        },
+        {
+          "type": "Text",
+          "value": "."
+        }
+      ]
+    }
+  ]
+}
