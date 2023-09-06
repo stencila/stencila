@@ -52,8 +52,6 @@ The conversion from Markdown to a Stencila document is not yet re-implemented. T
 
 ### Static inline nodes
 
-Stencila supports the usual Markdown for styled inline content:
-
 - `Emphasis` nodes are encoded using surrounding single underscores: `_content_`.
 
 - `Strong` nodes are encoded using surrounding double asterisks: `**content**`.
@@ -66,10 +64,10 @@ Stencila supports the usual Markdown for styled inline content:
 
 - `Underline` nodes are encoded using bracketed spans with the `underline` keyword: `[content]{underline}`.
 
-Stencila also support links and media objects:
-
 - `Link` nodes are encoded like so: `[content](target)` where `target` is the URL targeted by the link.
+
+- `Quote` nodes are encoded as HTML `<q>` elements.
 
 - `ImageObject`, `AudioObject` and `VideoObject` nodes are all encoded like so: `![caption](contentUrl)`; during decoding the type is determined by the file extension of the `contentUrl`, falling back to `ImageObject`.
 
-Inline `CodeFragment` nodes are surrounded by backticks: ``code``. If the `CodeFragment` has a programming language then it will be added within curly braces following the code: ``code`{programmingLanguage}`.
+- `CodeFragment` nodes are surrounded by backticks: ``code``. If the `CodeFragment` has a programming language then it will be added within curly braces following the code: ``code`{programmingLanguage}`.
