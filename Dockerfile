@@ -11,7 +11,7 @@ COPY . /build
 RUN cargo build --release
 
 # Use small distroless image
-FROM gcr.io/distroless/cc-debian11
+FROM gcr.io/distroless/cc-debian12
 
 # Copy the binary into the image from the build stage
 COPY --from=build /build/target/release/stencila /
