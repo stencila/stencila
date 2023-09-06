@@ -48,6 +48,7 @@ To install a specific version, append `-s vX.X.X`. Or, if you'd prefer to do it 
 
 ```console
 tar xvf stencila-*.tar.xz
+cd stencila-*/
 sudo mv -f stencila /usr/local/bin # or wherever you prefer
 ```
 
