@@ -36,13 +36,13 @@
           "@id": "stencila:CallArgument"
         },
         {
-          "@id": "stencila:Math"
+          "@id": "stencila:CodeExecutable"
         },
         {
           "@id": "stencila:CodeStatic"
         },
         {
-          "@id": "stencila:CodeExecutable"
+          "@id": "stencila:Math"
         }
       ],
       "schema:rangeIncludes": {

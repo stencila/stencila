@@ -21,10 +21,7 @@
       "rdfs:comment": "The value that the node must have.",
       "schema:domainIncludes": [
         {
-          "@id": "stencila:Variable"
-        },
-        {
-          "@id": "stencila:ConstantValidator"
+          "@id": "schema:Date"
         },
         {
           "@id": "schema:DateTime"
@@ -33,25 +30,28 @@
           "@id": "schema:Duration"
         },
         {
-          "@id": "stencila:ExecutionTag"
+          "@id": "schema:PropertyValue"
         },
         {
-          "@id": "schema:Date"
+          "@id": "schema:Text"
         },
         {
           "@id": "schema:Time"
         },
         {
-          "@id": "schema:PropertyValue"
+          "@id": "schema:Timestamp"
         },
         {
-          "@id": "schema:Timestamp"
+          "@id": "stencila:ConstantValidator"
+        },
+        {
+          "@id": "stencila:ExecutionTag"
         },
         {
           "@id": "stencila:Parameter"
         },
         {
-          "@id": "schema:Text"
+          "@id": "stencila:Variable"
         }
       ]
     }

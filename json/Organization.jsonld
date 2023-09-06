@@ -69,10 +69,7 @@
       "rdfs:comment": "The name of the item.",
       "schema:domainIncludes": [
         {
-          "@id": "stencila:Variable"
-        },
-        {
-          "@id": "stencila:Function"
+          "@id": "schema:Thing"
         },
         {
           "@id": "stencila:Button"
@@ -81,13 +78,16 @@
           "@id": "stencila:ExecutionTag"
         },
         {
-          "@id": "stencila:TableCell"
-        },
-        {
-          "@id": "schema:Thing"
+          "@id": "stencila:Function"
         },
         {
           "@id": "stencila:Parameter"
+        },
+        {
+          "@id": "stencila:TableCell"
+        },
+        {
+          "@id": "stencila:Variable"
         }
       ],
       "schema:rangeIncludes": {
@@ -113,10 +113,10 @@
       "rdfs:comment": "Postal address for the organization.\n",
       "schema:domainIncludes": [
         {
-          "@id": "schema:Person"
+          "@id": "schema:Organization"
         },
         {
-          "@id": "schema:Organization"
+          "@id": "schema:Person"
         }
       ],
       "schema:rangeIncludes": {
@@ -130,10 +130,10 @@
       "rdfs:comment": "Brands that the organization is connected with.\n",
       "schema:domainIncludes": [
         {
-          "@id": "schema:Product"
+          "@id": "schema:Organization"
         },
         {
-          "@id": "schema:Organization"
+          "@id": "schema:Product"
         }
       ],
       "schema:rangeIncludes": {
@@ -171,16 +171,16 @@
       "rdfs:comment": "Organization(s) or person(s) funding the organization.\n",
       "schema:domainIncludes": [
         {
-          "@id": "schema:MonetaryGrant"
+          "@id": "schema:CreativeWork"
         },
         {
-          "@id": "schema:Person"
+          "@id": "schema:MonetaryGrant"
         },
         {
           "@id": "schema:Organization"
         },
         {
-          "@id": "schema:CreativeWork"
+          "@id": "schema:Person"
         }
       ]
     },
@@ -203,13 +203,13 @@
       "rdfs:comment": "The logo of the organization.",
       "schema:domainIncludes": [
         {
-          "@id": "schema:Product"
+          "@id": "schema:Brand"
         },
         {
           "@id": "schema:Organization"
         },
         {
-          "@id": "schema:Brand"
+          "@id": "schema:Product"
         }
       ],
       "schema:rangeIncludes": {

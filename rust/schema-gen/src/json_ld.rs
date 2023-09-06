@@ -5,7 +5,7 @@ use std::{collections::HashMap, fs::File, io::Write, path::PathBuf};
 use common::{
     eyre::Result,
     itertools::Itertools,
-    serde_json::{self, json, Value},
+    serde_json::{self, json},
 };
 
 use crate::{
@@ -32,11 +32,10 @@ impl Schemas {
                     continue;
                 };
 
-                let item = json!({ "@id": jid });
                 domains
                     .entry(property_name)
-                    .and_modify(|entry: &mut Vec<Value>| entry.push(item.clone()))
-                    .or_insert_with(|| vec![item]);
+                    .and_modify(|entry: &mut Vec<String>| entry.push(jid.clone()))
+                    .or_insert_with(|| vec![jid.clone()]);
             }
         }
 
@@ -83,9 +82,15 @@ impl Schemas {
 
                 let domains = &domains[property_name];
                 prop["schema:domainIncludes"] = if domains.len() == 1 {
-                    json!(domains[0])
+                    json!({ "@id": domains[0] })
                 } else {
-                    json!(domains)
+                    // Sort lexically to avoid reordering on each generation
+                    let sorted = domains
+                        .into_iter()
+                        .sorted()
+                        .map(|id| json!({ "@id": id }))
+                        .collect_vec();
+                    json!(sorted)
                 };
 
                 if !ranges.is_empty() {

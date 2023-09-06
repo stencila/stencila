@@ -69,10 +69,7 @@
       "rdfs:comment": "The name of the item.",
       "schema:domainIncludes": [
         {
-          "@id": "stencila:Variable"
-        },
-        {
-          "@id": "stencila:Function"
+          "@id": "schema:Thing"
         },
         {
           "@id": "stencila:Button"
@@ -81,13 +78,16 @@
           "@id": "stencila:ExecutionTag"
         },
         {
-          "@id": "stencila:TableCell"
-        },
-        {
-          "@id": "schema:Thing"
+          "@id": "stencila:Function"
         },
         {
           "@id": "stencila:Parameter"
+        },
+        {
+          "@id": "stencila:TableCell"
+        },
+        {
+          "@id": "stencila:Variable"
         }
       ],
       "schema:rangeIncludes": {
@@ -113,10 +113,10 @@
       "rdfs:comment": "Postal address for the person.",
       "schema:domainIncludes": [
         {
-          "@id": "schema:Person"
+          "@id": "schema:Organization"
         },
         {
-          "@id": "schema:Organization"
+          "@id": "schema:Person"
         }
       ],
       "schema:rangeIncludes": {
@@ -142,10 +142,10 @@
       "rdfs:comment": "Email addresses for the person.",
       "schema:domainIncludes": [
         {
-          "@id": "schema:Person"
+          "@id": "schema:ContactPoint"
         },
         {
-          "@id": "schema:ContactPoint"
+          "@id": "schema:Person"
         }
       ],
       "schema:rangeIncludes": {
@@ -171,16 +171,16 @@
       "rdfs:comment": "A person or organization that supports (sponsors) something through\nsome kind of financial contribution.\n",
       "schema:domainIncludes": [
         {
-          "@id": "schema:MonetaryGrant"
+          "@id": "schema:CreativeWork"
         },
         {
-          "@id": "schema:Person"
+          "@id": "schema:MonetaryGrant"
         },
         {
           "@id": "schema:Organization"
         },
         {
-          "@id": "schema:CreativeWork"
+          "@id": "schema:Person"
         }
       ]
     },
@@ -251,10 +251,10 @@
       "rdfs:comment": "Telephone numbers for the person.",
       "schema:domainIncludes": [
         {
-          "@id": "schema:Person"
+          "@id": "schema:ContactPoint"
         },
         {
-          "@id": "schema:ContactPoint"
+          "@id": "schema:Person"
         }
       ],
       "schema:rangeIncludes": {

@@ -21,10 +21,10 @@
       "rdfs:comment": "The target of the citation (URL or reference ID).",
       "schema:domainIncludes": [
         {
-          "@id": "stencila:Link"
+          "@id": "stencila:Cite"
         },
         {
-          "@id": "stencila:Cite"
+          "@id": "stencila:Link"
         }
       ],
       "schema:rangeIncludes": {
@@ -59,22 +59,37 @@
       "rdfs:comment": "Optional structured content/text of this citation.",
       "schema:domainIncludes": [
         {
-          "@id": "stencila:Division"
+          "@id": "schema:Claim"
+        },
+        {
+          "@id": "schema:CreativeWork"
         },
         {
           "@id": "schema:ListItem"
         },
         {
-          "@id": "stencila:Link"
+          "@id": "stencila:Cite"
         },
         {
-          "@id": "stencila:Cite"
+          "@id": "stencila:Division"
+        },
+        {
+          "@id": "stencila:For"
+        },
+        {
+          "@id": "stencila:Form"
         },
         {
           "@id": "stencila:Heading"
         },
         {
-          "@id": "stencila:Form"
+          "@id": "stencila:IfClause"
+        },
+        {
+          "@id": "stencila:Include"
+        },
+        {
+          "@id": "stencila:Link"
         },
         {
           "@id": "stencila:Mark"
@@ -83,31 +98,16 @@
           "@id": "stencila:Note"
         },
         {
-          "@id": "schema:CreativeWork"
-        },
-        {
           "@id": "stencila:Paragraph"
         },
         {
-          "@id": "stencila:For"
-        },
-        {
-          "@id": "stencila:TableCell"
-        },
-        {
-          "@id": "stencila:Include"
-        },
-        {
-          "@id": "schema:Claim"
+          "@id": "stencila:QuoteBlock"
         },
         {
           "@id": "stencila:Span"
         },
         {
-          "@id": "stencila:IfClause"
-        },
-        {
-          "@id": "stencila:QuoteBlock"
+          "@id": "stencila:TableCell"
         }
       ],
       "schema:rangeIncludes": {
@@ -124,13 +124,13 @@
           "@id": "schema:Article"
         },
         {
-          "@id": "stencila:Cite"
+          "@id": "schema:PublicationIssue"
         },
         {
           "@id": "schema:PublicationVolume"
         },
         {
-          "@id": "schema:PublicationIssue"
+          "@id": "stencila:Cite"
         }
       ],
       "schema:rangeIncludes": [
@@ -152,13 +152,13 @@
           "@id": "schema:Article"
         },
         {
-          "@id": "stencila:Cite"
+          "@id": "schema:PublicationIssue"
         },
         {
           "@id": "schema:PublicationVolume"
         },
         {
-          "@id": "schema:PublicationIssue"
+          "@id": "stencila:Cite"
         }
       ],
       "schema:rangeIncludes": [
@@ -180,13 +180,13 @@
           "@id": "schema:Article"
         },
         {
-          "@id": "stencila:Cite"
+          "@id": "schema:PublicationIssue"
         },
         {
           "@id": "schema:PublicationVolume"
         },
         {
-          "@id": "schema:PublicationIssue"
+          "@id": "stencila:Cite"
         }
       ],
       "schema:rangeIncludes": {

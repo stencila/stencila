@@ -69,10 +69,7 @@
       "rdfs:comment": "The name of the item.",
       "schema:domainIncludes": [
         {
-          "@id": "stencila:Variable"
-        },
-        {
-          "@id": "stencila:Function"
+          "@id": "schema:Thing"
         },
         {
           "@id": "stencila:Button"
@@ -81,13 +78,16 @@
           "@id": "stencila:ExecutionTag"
         },
         {
-          "@id": "stencila:TableCell"
-        },
-        {
-          "@id": "schema:Thing"
+          "@id": "stencila:Function"
         },
         {
           "@id": "stencila:Parameter"
+        },
+        {
+          "@id": "stencila:TableCell"
+        },
+        {
+          "@id": "stencila:Variable"
         }
       ],
       "schema:rangeIncludes": {
@@ -146,22 +146,37 @@
       "rdfs:comment": "The structured content of this creative work c.f. property `text`.",
       "schema:domainIncludes": [
         {
-          "@id": "stencila:Division"
+          "@id": "schema:Claim"
+        },
+        {
+          "@id": "schema:CreativeWork"
         },
         {
           "@id": "schema:ListItem"
         },
         {
-          "@id": "stencila:Link"
+          "@id": "stencila:Cite"
         },
         {
-          "@id": "stencila:Cite"
+          "@id": "stencila:Division"
+        },
+        {
+          "@id": "stencila:For"
+        },
+        {
+          "@id": "stencila:Form"
         },
         {
           "@id": "stencila:Heading"
         },
         {
-          "@id": "stencila:Form"
+          "@id": "stencila:IfClause"
+        },
+        {
+          "@id": "stencila:Include"
+        },
+        {
+          "@id": "stencila:Link"
         },
         {
           "@id": "stencila:Mark"
@@ -170,31 +185,16 @@
           "@id": "stencila:Note"
         },
         {
-          "@id": "schema:CreativeWork"
-        },
-        {
           "@id": "stencila:Paragraph"
         },
         {
-          "@id": "stencila:For"
-        },
-        {
-          "@id": "stencila:TableCell"
-        },
-        {
-          "@id": "stencila:Include"
-        },
-        {
-          "@id": "schema:Claim"
+          "@id": "stencila:QuoteBlock"
         },
         {
           "@id": "stencila:Span"
         },
         {
-          "@id": "stencila:IfClause"
-        },
-        {
-          "@id": "stencila:QuoteBlock"
+          "@id": "stencila:TableCell"
         }
       ],
       "schema:rangeIncludes": {
@@ -265,16 +265,16 @@
       "rdfs:comment": "People or organizations that funded the `CreativeWork`.",
       "schema:domainIncludes": [
         {
-          "@id": "schema:MonetaryGrant"
+          "@id": "schema:CreativeWork"
         },
         {
-          "@id": "schema:Person"
+          "@id": "schema:MonetaryGrant"
         },
         {
           "@id": "schema:Organization"
         },
         {
-          "@id": "schema:CreativeWork"
+          "@id": "schema:Person"
         }
       ]
     },
@@ -348,10 +348,10 @@
       "rdfs:comment": "Elements of the collection which can be a variety of different elements,\nsuch as Articles, Datatables, Tables and more.\n",
       "schema:domainIncludes": [
         {
-          "@id": "stencila:Directory"
+          "@id": "schema:CreativeWork"
         },
         {
-          "@id": "schema:CreativeWork"
+          "@id": "stencila:Directory"
         }
       ],
       "schema:rangeIncludes": {
@@ -398,10 +398,10 @@
       "rdfs:comment": "The title of the creative work.",
       "schema:domainIncludes": [
         {
-          "@id": "stencila:Link"
+          "@id": "schema:CreativeWork"
         },
         {
-          "@id": "schema:CreativeWork"
+          "@id": "stencila:Link"
         }
       ],
       "schema:rangeIncludes": {
@@ -432,10 +432,10 @@
       "rdfs:comment": "Requirements for application, including shared libraries that\nare not included in the application distribution.\n",
       "schema:domainIncludes": [
         {
-          "@id": "schema:SoftwareSourceCode"
+          "@id": "schema:SoftwareApplication"
         },
         {
-          "@id": "schema:SoftwareApplication"
+          "@id": "schema:SoftwareSourceCode"
         }
       ],
       "schema:rangeIncludes": {

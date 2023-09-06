@@ -24,19 +24,19 @@
           "@id": "stencila:DateTimeValidator"
         },
         {
+          "@id": "stencila:DateValidator"
+        },
+        {
           "@id": "stencila:DurationValidator"
         },
         {
           "@id": "stencila:NumberValidator"
         },
         {
-          "@id": "stencila:TimestampValidator"
-        },
-        {
-          "@id": "stencila:DateValidator"
-        },
-        {
           "@id": "stencila:TimeValidator"
+        },
+        {
+          "@id": "stencila:TimestampValidator"
         }
       ]
     },
@@ -50,19 +50,19 @@
           "@id": "stencila:DateTimeValidator"
         },
         {
+          "@id": "stencila:DateValidator"
+        },
+        {
           "@id": "stencila:DurationValidator"
         },
         {
           "@id": "stencila:NumberValidator"
         },
         {
-          "@id": "stencila:TimestampValidator"
-        },
-        {
-          "@id": "stencila:DateValidator"
-        },
-        {
           "@id": "stencila:TimeValidator"
+        },
+        {
+          "@id": "stencila:TimestampValidator"
         }
       ]
     }
