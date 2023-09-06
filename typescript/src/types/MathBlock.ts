@@ -15,13 +15,13 @@ export class MathBlock {
   // The code of the equation in the `mathLanguage`.
   code: string;
 
-  // A digest of the `code` and `mathLanguage` used to avoid unnecessary transpilation to MathML
+  // A digest of the `code` and `mathLanguage`.
   compileDigest?: ExecutionDigest;
 
   // Errors that occurred when parsing the math equation.
   errors?: string[];
 
-  // The MathML transpiled from the `code`
+  // The MathML transpiled from the `code`.
   mathml?: string;
 
   // A short label for the math block.

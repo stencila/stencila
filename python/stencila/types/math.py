@@ -21,10 +21,10 @@ class Math(Entity):
     """The code of the equation in the `mathLanguage`."""
 
     compile_digest: Optional[ExecutionDigest] = None
-    """A digest of the `code` and `mathLanguage` used to avoid unnecessary transpilation to MathML"""
+    """A digest of the `code` and `mathLanguage`."""
 
     errors: Optional[List[str]] = None
     """Errors that occurred when parsing the math equation."""
 
     mathml: Optional[str] = None
-    """The MathML transpiled from the `code`"""
+    """The MathML transpiled from the `code`."""

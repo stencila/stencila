@@ -9,6 +9,8 @@ use super::string::String;
 #[skip_serializing_none]
 #[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, HtmlCodec, MarkdownCodec, TextCodec, ReadNode, WriteNode)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
+#[html(elem = "math", custom)]
+#[markdown(special)]
 pub struct MathBlock {
     /// The type of this item
     pub r#type: MustBe!("MathBlock"),
@@ -24,13 +26,14 @@ pub struct MathBlock {
     /// The code of the equation in the `mathLanguage`.
     pub code: String,
 
-    /// A digest of the `code` and `mathLanguage` used to avoid unnecessary transpilation to MathML
+    /// A digest of the `code` and `mathLanguage`.
     pub compile_digest: Option<ExecutionDigest>,
 
     /// Errors that occurred when parsing the math equation.
     pub errors: Option<Vec<String>>,
 
-    /// The MathML transpiled from the `code`
+    /// The MathML transpiled from the `code`.
+    #[html(content)]
     pub mathml: Option<String>,
 
     /// A short label for the math block.

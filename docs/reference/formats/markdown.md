@@ -50,24 +50,57 @@ The conversion from Markdown to a Stencila document is not yet re-implemented. T
 
 ## Encodings
 
-### Static inline nodes
+### Inlines
 
-- `Emphasis` nodes are encoded using surrounding single underscores: `_content_`.
+#### Marks
 
-- `Strong` nodes are encoded using surrounding double asterisks: `**content**`.
+`Emphasis` nodes are encoded using surrounding single underscores: `_content_`.
 
-- `Strikeout` nodes are encoded using surrounding double tildes: `~~content~~`.
+`Strong` nodes are encoded using surrounding double asterisks: `**content**`.
 
-- `Subscript` nodes are encoded using surrounding single tildes: `~content~`.
+`Strikeout` nodes are encoded using surrounding double tildes: `~~content~~`.
 
-- `Superscript` nodes are encoded using surrounding single carets: `^content^`.
+`Subscript` nodes are encoded using surrounding single tildes: `~content~`.
 
-- `Underline` nodes are encoded using bracketed spans with the `underline` keyword: `[content]{underline}`.
+`Superscript` nodes are encoded using surrounding single carets: `^content^`.
 
-- `Link` nodes are encoded like so: `[content](target)` where `target` is the URL targeted by the link.
+`Underline` nodes are encoded using bracketed spans with the `underline` keyword: `[content]{underline}`.
 
-- `Quote` nodes are encoded as HTML `<q>` elements.
+#### Quotes, links, and media objects
 
-- `ImageObject`, `AudioObject` and `VideoObject` nodes are all encoded like so: `![caption](contentUrl)`; during decoding the type is determined by the file extension of the `contentUrl`, falling back to `ImageObject`.
+`Quote` nodes are encoded as HTML `<q>` elements.
 
-- `CodeFragment` nodes are surrounded by backticks: ``code``. If the `CodeFragment` has a programming language then it will be added within curly braces following the code: ``code`{programmingLanguage}`.
+`Link` nodes are encoded like so: `[content](target)` where `target` is the URL targeted by the link.
+
+`ImageObject`, `AudioObject` and `VideoObject` nodes are all encoded like so: `![caption](contentUrl)`; during decoding the type is determined by the file extension of the `contentUrl`, falling back to `ImageObject`.
+
+### Code and math fragments
+
+`CodeFragment` nodes are surrounded by backticks: ``code``. If the `CodeFragment` has a programming language then it will be added within curly braces following the code: ``code`{programmingLanguage}`.
+
+`MathFragment` nodes are encoded differently depending on the `mathLanguage`. If a node uses TeX it is encoded using surrounding dollar signs e.g. `$\pi$`. Otherwise, it will be surrounded by backticks with the language in curly braces (as for `CodeFragments`). e.g. AsciiMath `2 pi r^2`{asciimath}.
+
+
+### Blocks
+
+#### Math blocks
+
+TeX `MathBlock` are encoded as Markdown paragraphs starting and ending with `$$` (no blank lines between them). e.g.
+
+$$
+2 \pi r^2
+$$
+
+Alternatively, code blocks with one of `asciimath`, `latex`, or `tex` as the language are interpreted as math blocks. e.g.
+
+AsciiMath:
+
+```asciimath
+2 pi r^2
+```
+
+TeX:
+
+```tex
+2 \pi r^2
+```
