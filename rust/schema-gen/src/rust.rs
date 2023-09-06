@@ -452,8 +452,7 @@ pub enum NodeType {{
 {options_attrs}
 pub struct {title}Options {{
     {optional_fields}
-}}
-"#
+}}"#
             )
         };
 
@@ -529,6 +528,7 @@ use crate::prelude::*;
 pub struct {title} {{
     {core_fields}
 }}{options}
+
 impl {title} {{{new}}}
 "#
             ),
