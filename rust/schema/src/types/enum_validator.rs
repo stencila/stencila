@@ -21,6 +21,7 @@ pub struct EnumValidator {
     /// A node is valid if it is equal to any of these values.
     pub values: Vec<Node>,
 }
+
 impl EnumValidator {
     pub fn new(values: Vec<Node>) -> Self {
         Self {

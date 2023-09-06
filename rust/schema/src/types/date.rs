@@ -20,6 +20,7 @@ pub struct Date {
     /// The date as an ISO 8601 string.
     pub value: String,
 }
+
 impl Date {
     pub fn new(value: String) -> Self {
         Self {

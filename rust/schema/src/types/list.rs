@@ -25,6 +25,7 @@ pub struct List {
     /// The ordering of the list.
     pub order: ListOrder,
 }
+
 impl List {
     pub fn new(items: Vec<ListItem>, order: ListOrder) -> Self {
         Self {

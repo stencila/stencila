@@ -23,6 +23,7 @@ pub struct Underline {
     /// The content that is marked.
     pub content: Vec<Inline>,
 }
+
 impl Underline {
     pub fn new(content: Vec<Inline>) -> Self {
         Self {

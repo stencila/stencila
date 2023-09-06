@@ -27,6 +27,7 @@ pub struct StringValidator {
     /// A regular expression that a string node must match.
     pub pattern: Option<String>,
 }
+
 impl StringValidator {
     pub fn new() -> Self {
         Self {

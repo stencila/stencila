@@ -23,6 +23,7 @@ pub struct Strong {
     /// The content that is marked.
     pub content: Vec<Inline>,
 }
+
 impl Strong {
     pub fn new(content: Vec<Inline>) -> Self {
         Self {

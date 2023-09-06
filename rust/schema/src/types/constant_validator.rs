@@ -21,6 +21,7 @@ pub struct ConstantValidator {
     /// The value that the node must have.
     pub value: Box<Node>,
 }
+
 impl ConstantValidator {
     pub fn new(value: Box<Node>) -> Self {
         Self {

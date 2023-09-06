@@ -28,6 +28,7 @@ pub struct Heading {
     /// Content of the heading.
     pub content: Vec<Inline>,
 }
+
 impl Heading {
     pub fn new(depth: Integer, content: Vec<Inline>) -> Self {
         Self {

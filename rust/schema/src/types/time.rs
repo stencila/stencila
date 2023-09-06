@@ -20,6 +20,7 @@ pub struct Time {
     /// The time of day as a string in format `hh:mm:ss[Z|(+|-)hh:mm]`.
     pub value: String,
 }
+
 impl Time {
     pub fn new(value: String) -> Self {
         Self {

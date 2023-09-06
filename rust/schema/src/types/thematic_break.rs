@@ -19,6 +19,7 @@ pub struct ThematicBreak {
     #[html(attr = "id")]
     pub id: Option<String>,
 }
+
 impl ThematicBreak {
     pub fn new() -> Self {
         Self {

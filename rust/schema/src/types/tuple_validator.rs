@@ -21,6 +21,7 @@ pub struct TupleValidator {
     /// An array of validators specifying the constraints on each successive item in the array.
     pub items: Option<Vec<Validator>>,
 }
+
 impl TupleValidator {
     pub fn new() -> Self {
         Self {

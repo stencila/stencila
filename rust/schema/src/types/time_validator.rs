@@ -24,6 +24,7 @@ pub struct TimeValidator {
     /// The inclusive upper limit for a time.
     pub maximum: Option<Time>,
 }
+
 impl TimeValidator {
     pub fn new() -> Self {
         Self {

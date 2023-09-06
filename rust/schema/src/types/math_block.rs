@@ -36,6 +36,7 @@ pub struct MathBlock {
     /// A short label for the math block.
     pub label: Option<String>,
 }
+
 impl MathBlock {
     pub fn new(math_language: String, code: String) -> Self {
         Self {

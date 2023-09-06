@@ -28,6 +28,7 @@ pub struct DurationValidator {
     /// The inclusive upper limit for a duration.
     pub maximum: Option<Duration>,
 }
+
 impl DurationValidator {
     pub fn new() -> Self {
         Self {

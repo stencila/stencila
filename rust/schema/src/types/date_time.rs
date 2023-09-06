@@ -20,6 +20,7 @@ pub struct DateTime {
     /// The date as an ISO 8601 string.
     pub value: String,
 }
+
 impl DateTime {
     pub fn new(value: String) -> Self {
         Self {

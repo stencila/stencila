@@ -9,6 +9,8 @@ use super::string::String;
 #[skip_serializing_none]
 #[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, HtmlCodec, MarkdownCodec, TextCodec, ReadNode, WriteNode)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
+#[html(special)]
+#[markdown(special)]
 pub struct MathFragment {
     /// The type of this item
     pub r#type: MustBe!("MathFragment"),
@@ -33,6 +35,7 @@ pub struct MathFragment {
     /// The MathML transpiled from the `code`
     pub mathml: Option<String>,
 }
+
 impl MathFragment {
     pub fn new(math_language: String, code: String) -> Self {
         Self {

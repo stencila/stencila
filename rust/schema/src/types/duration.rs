@@ -25,6 +25,7 @@ pub struct Duration {
     /// The time unit that the `value` represents.
     pub time_unit: TimeUnit,
 }
+
 impl Duration {
     pub fn new(value: Integer, time_unit: TimeUnit) -> Self {
         Self {

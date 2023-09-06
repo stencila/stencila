@@ -23,6 +23,7 @@ pub struct Emphasis {
     /// The content that is marked.
     pub content: Vec<Inline>,
 }
+
 impl Emphasis {
     pub fn new(content: Vec<Inline>) -> Self {
         Self {

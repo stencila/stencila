@@ -30,6 +30,7 @@ pub struct Variable {
     /// The value of the variable.
     pub value: Option<Box<Node>>,
 }
+
 impl Variable {
     pub fn new(namespace: String, name: String) -> Self {
         Self {

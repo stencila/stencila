@@ -26,6 +26,7 @@ pub struct CodeError {
     /// Stack trace leading up to the error.
     pub stack_trace: Option<String>,
 }
+
 impl CodeError {
     pub fn new(error_message: String) -> Self {
         Self {

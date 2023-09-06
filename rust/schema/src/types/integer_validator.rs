@@ -33,6 +33,7 @@ pub struct IntegerValidator {
     /// A number that a numeric node must be a multiple of.
     pub multiple_of: Option<Number>,
 }
+
 impl IntegerValidator {
     pub fn new() -> Self {
         Self {

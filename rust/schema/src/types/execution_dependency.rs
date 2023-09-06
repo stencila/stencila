@@ -29,6 +29,7 @@ pub struct ExecutionDependency {
     /// The location that the dependency is defined within code
     pub code_location: Option<Vec<Integer>>,
 }
+
 impl ExecutionDependency {
     pub fn new(dependency_relation: ExecutionDependencyRelation, dependency_node: ExecutionDependencyNode) -> Self {
         Self {

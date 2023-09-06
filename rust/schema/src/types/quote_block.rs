@@ -25,6 +25,7 @@ pub struct QuoteBlock {
     /// The content of the quote.
     pub content: Vec<Block>,
 }
+
 impl QuoteBlock {
     pub fn new(content: Vec<Block>) -> Self {
         Self {

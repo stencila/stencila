@@ -33,4 +33,5 @@ pub struct ExecutionDigest {
     /// A count of the number of execution dependencies that failed
     pub dependencies_failed: Number,
 }
+
 impl ExecutionDigest {}

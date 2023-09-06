@@ -23,6 +23,7 @@ pub struct Strikeout {
     /// The content that is marked.
     pub content: Vec<Inline>,
 }
+
 impl Strikeout {
     pub fn new(content: Vec<Inline>) -> Self {
         Self {

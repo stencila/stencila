@@ -27,6 +27,7 @@ pub struct Quote {
     /// The source of the quote.
     pub cite: Option<CiteOrString>,
 }
+
 impl Quote {
     pub fn new(content: Vec<Inline>) -> Self {
         Self {
