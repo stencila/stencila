@@ -71,13 +71,19 @@ mv -f stencila ~/.local/bin/ # or wherever you prefer
 The CLI is also available in a Docker image you can pull from the Github Container Registry,
 
 ```console
-docker pull ghcr.io/stencila/stencila
+docker pull stencila/stencila
 ```
 
 and use locally like this for example,
 
 ```console
-docker run -it --rm -v "$PWD":/work -w /work --network host ghcr.io/stencila/stencila --help
+docker run -it --rm -v "$PWD":/work -w /work --network host stencila/stencila --help
+```
+
+The same image is also published to the Github Container Registry if you'd prefer to use that,
+
+```console
+docker pull ghcr.io/stencila/stencila
 ```
 
 ## ⚡ Usage

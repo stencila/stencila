@@ -41,7 +41,7 @@ build:
 
 # Build Docker image
 docker:
-	docker build --tag ghcr.io/stencila/stencila .
+	docker build --tag stencila/stencila .
 
 # Generate generated source and docs
 generated:
