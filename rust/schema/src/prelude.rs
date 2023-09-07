@@ -2,7 +2,7 @@ pub use monostate::MustBe;
 
 pub use common::{
     derive_more::Deref,
-    eyre::Result,
+    eyre::{bail, Result},
     itertools::Itertools,
     serde::{self, Deserialize, Serialize},
     serde_json,

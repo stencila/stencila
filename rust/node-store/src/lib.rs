@@ -276,23 +276,31 @@ pub fn inspect_store<S: ReadStore>(store: &S) -> Result<String> {
     )?)
 }
 
-/// Get the `type` property of an object in an Automerge store
-pub fn get_type<T, S: ReadStore>(store: &S, obj_id: &ObjId) -> Result<String> {
-    let type_name = std::any::type_name::<T>();
+/// Get the `NodeType` of an object in an Automerge store
+pub fn get_type<S: ReadStore>(store: &S, obj_id: &ObjId) -> Result<Option<String>> {
+    // This function is normally only be called for Stencila struct types (not for primitives)
+    // However, if the Automerge object is not a `Map` the following `get` call will panic!
+    // So its important to do this check, and return the closest Stencila type to the
+    // Automerge type.
+    match store.object_type(obj_id)? {
+        ObjType::List => return Ok(Some("Array".to_string())),
+        ObjType::Text => return Ok(Some("String".to_string())),
+        _ => {}
+    };
 
     let Some((value,..)) = store.get(obj_id, Prop::from("type"))? else {
-        bail!("No `type` property in Automerge store for type `{type_name}`");
+        return Ok(None)
     };
 
     let Value::Scalar(value) = value else {
-        bail!("Expected `type` property for type `{type_name}` in Automerge store to be a scalar");
+        bail!("Expected `type` property to be a scalar");
     };
 
     let ScalarValue::Str(value) = value.as_ref() else {
-        bail!("Expected `type` property for type `{type_name}` in Automerge store to be a string");
+        bail!("Expected `type` property to be a string");
     };
 
-    Ok(value.to_string())
+    Ok(Some(value.to_string()))
 }
 
 /// Serialize an Automerge object id as a Base64 string

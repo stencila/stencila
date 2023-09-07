@@ -2,7 +2,7 @@ use smol_str::SmolStr;
 
 use node_store::{automerge::ObjId, ReadNode, ReadStore};
 
-use crate::{prelude::*, Array, Node, Null, Object};
+use crate::{node_type, prelude::*, Array, Node, NodeType, Null, Object};
 
 impl ReadNode for Node {
     fn load_null() -> Result<Self> {
@@ -34,17 +34,31 @@ impl ReadNode for Node {
     }
 
     fn load_map<S: ReadStore>(store: &S, obj_id: &ObjId) -> Result<Self> {
-        let r#type = node_store::get_type::<Self, _>(store, obj_id).unwrap_or_default();
+        let node_type = node_type(store, obj_id)?;
+
+        let Some(node_type) = node_type else {
+            // There is no type, or it does not match any known type, so load as an `Object`
+            return Ok(Node::Object(Object::load_map(store, obj_id)?));
+        };
 
         macro_rules! load_map_variants {
             ($( $variant:ident ),*) => {
-                match r#type.as_str() {
+                match node_type {
                     $(
-                        stringify!($variant) => Ok(Node::$variant(crate::$variant::load_map(store, obj_id)?)),
+                        NodeType::$variant => Ok(Node::$variant(crate::$variant::load_map(store, obj_id)?)),
                     )*
 
-                    // There is no type, or it does not match any known type, so load as an `Object`
-                    _ => Ok(Node::Object(Object::load_map(store, obj_id)?)),
+                    // It is not expected to have a map with type: "Object", but if there is,
+                    // then treat it as such
+                    NodeType::Object => Ok(Node::Object(Object::load_map(store, obj_id)?)),
+
+                    NodeType::Null |
+                    NodeType::Boolean |
+                    NodeType::Integer |
+                    NodeType::UnsignedInteger |
+                    NodeType::Number |
+                    NodeType::String |
+                    NodeType::Array => bail!("Node::load_map unexpectedly called for {node_type}")
                 }
             };
         }

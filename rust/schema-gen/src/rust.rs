@@ -147,15 +147,35 @@ impl Schemas {
             .iter()
             .map(|module| format!("pub use {module}::*;"))
             .join("\n");
+
+        // Create an enum with unit variants for each node type
+        let nodes = self
+            .schemas
+            .get("Node")
+            .and_then(|schema| schema.any_of.as_ref())
+            .expect("should always exist");
+        let node_types = nodes
+            .iter()
+            .filter_map(|schema| schema.r#ref.as_ref())
+            .map(|title| format!("    {title}"))
+            .join(",\n");
+
         write(
             dest.join("types.rs"),
             format!(
-                r"{GENERATED_COMMENT}
+                r#"{GENERATED_COMMENT}
+use common::strum::{{Display, EnumString}};
 
 {mods}
 
 {uses}
-"
+
+#[derive(Debug, Display, EnumString)]
+#[strum(crate="common::strum")]
+pub enum NodeType {{
+{node_types}
+}}
+"#
             ),
         )
         .await?;

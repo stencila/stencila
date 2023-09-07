@@ -98,10 +98,12 @@ pub fn derive_enum(input: &DeriveInput, data: &DataEnum, attrs: &Vec<Attribute>)
     }
     methods.extend(quote! {
         fn load_map<S: node_store::ReadStore>(store: &S, obj_id: &node_store::ObjId) -> common::eyre::Result<Self> {
-            let r#type = node_store::get_type::<Self,_>(store, obj_id)?;
-            match r#type.as_str() {
+            let Some(node_type) = node_store::get_type(store, obj_id)? else {
+                common::eyre::bail!("Automerge object has no `type` property needed for loading enum `{}`", stringify!(#enum_name));
+            };
+            match node_type.as_str() {
                 #cases
-                _ => common::eyre::bail!("Unexpected type `{}` in Automerge store for enum `{}`", r#type, stringify!(#enum_name))
+                _ => common::eyre::bail!("Unexpected type `{}` in Automerge store for enum `{}`", node_type, stringify!(#enum_name))
             }
         }
     });
