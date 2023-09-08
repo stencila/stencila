@@ -27,9 +27,14 @@
           "@id": "stencila:QuoteBlock"
         }
       ],
-      "schema:rangeIncludes": {
-        "@id": "schema:Text"
-      }
+      "schema:rangeIncludes": [
+        {
+          "@id": "Cite"
+        },
+        {
+          "@id": "schema:Text"
+        }
+      ]
     },
     {
       "@id": "stencila:content",

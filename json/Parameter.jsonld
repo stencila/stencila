@@ -21,6 +21,9 @@
       "rdfs:comment": "Under which circumstances the code should be automatically executed.",
       "schema:domainIncludes": {
         "@id": "stencila:Executable"
+      },
+      "schema:rangeIncludes": {
+        "@id": "ExecutionAuto"
       }
     },
     {
@@ -30,6 +33,9 @@
       "rdfs:comment": "A digest of the content, semantics and dependencies of the node.",
       "schema:domainIncludes": {
         "@id": "stencila:Executable"
+      },
+      "schema:rangeIncludes": {
+        "@id": "ExecutionDigest"
       }
     },
     {
@@ -39,6 +45,9 @@
       "rdfs:comment": "The `compileDigest` of the node when it was last executed.",
       "schema:domainIncludes": {
         "@id": "stencila:Executable"
+      },
+      "schema:rangeIncludes": {
+        "@id": "ExecutionDigest"
       }
     },
     {
@@ -96,6 +105,9 @@
       "rdfs:comment": "Whether, and why, the code requires execution or re-execution.",
       "schema:domainIncludes": {
         "@id": "stencila:Executable"
+      },
+      "schema:rangeIncludes": {
+        "@id": "ExecutionRequired"
       }
     },
     {
@@ -117,6 +129,9 @@
       "rdfs:comment": "Status of the most recent, including any current, execution.",
       "schema:domainIncludes": {
         "@id": "stencila:Executable"
+      },
+      "schema:rangeIncludes": {
+        "@id": "ExecutionStatus"
       }
     },
     {
@@ -126,6 +141,9 @@
       "rdfs:comment": "The timestamp when the last execution ended.",
       "schema:domainIncludes": {
         "@id": "stencila:Executable"
+      },
+      "schema:rangeIncludes": {
+        "@id": "Timestamp"
       }
     },
     {
@@ -135,6 +153,9 @@
       "rdfs:comment": "Duration of the last execution.",
       "schema:domainIncludes": {
         "@id": "stencila:Executable"
+      },
+      "schema:rangeIncludes": {
+        "@id": "Duration"
       }
     },
     {
@@ -257,7 +278,10 @@
         {
           "@id": "stencila:Variable"
         }
-      ]
+      ],
+      "schema:rangeIncludes": {
+        "@id": "Node"
+      }
     },
     {
       "@id": "schema:defaultValue",
@@ -266,6 +290,9 @@
       "rdfs:comment": "The default value of the parameter.",
       "schema:domainIncludes": {
         "@id": "stencila:Parameter"
+      },
+      "schema:rangeIncludes": {
+        "@id": "Node"
       }
     },
     {
@@ -280,7 +307,10 @@
         {
           "@id": "stencila:Parameter"
         }
-      ]
+      ],
+      "schema:rangeIncludes": {
+        "@id": "Validator"
+      }
     },
     {
       "@id": "stencila:hidden",

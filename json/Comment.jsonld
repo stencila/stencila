@@ -46,9 +46,14 @@
       "schema:domainIncludes": {
         "@id": "schema:Thing"
       },
-      "schema:rangeIncludes": {
-        "@id": "schema:Text"
-      }
+      "schema:rangeIncludes": [
+        {
+          "@id": "PropertyValue"
+        },
+        {
+          "@id": "schema:Text"
+        }
+      ]
     },
     {
       "@id": "schema:image",
@@ -58,9 +63,14 @@
       "schema:domainIncludes": {
         "@id": "schema:Thing"
       },
-      "schema:rangeIncludes": {
-        "@id": "schema:Text"
-      }
+      "schema:rangeIncludes": [
+        {
+          "@id": "ImageObject"
+        },
+        {
+          "@id": "schema:Text"
+        }
+      ]
     },
     {
       "@id": "schema:name",
@@ -125,7 +135,15 @@
       "rdfs:comment": "The authors of this creative work.",
       "schema:domainIncludes": {
         "@id": "schema:CreativeWork"
-      }
+      },
+      "schema:rangeIncludes": [
+        {
+          "@id": "Person"
+        },
+        {
+          "@id": "Organization"
+        }
+      ]
     },
     {
       "@id": "schema:comment",
@@ -208,6 +226,9 @@
       "rdfs:comment": "Date/time of creation.",
       "schema:domainIncludes": {
         "@id": "schema:CreativeWork"
+      },
+      "schema:rangeIncludes": {
+        "@id": "Date"
       }
     },
     {
@@ -217,6 +238,9 @@
       "rdfs:comment": "Date/time that work was received.",
       "schema:domainIncludes": {
         "@id": "schema:CreativeWork"
+      },
+      "schema:rangeIncludes": {
+        "@id": "Date"
       }
     },
     {
@@ -226,6 +250,9 @@
       "rdfs:comment": "Date/time of acceptance.",
       "schema:domainIncludes": {
         "@id": "schema:CreativeWork"
+      },
+      "schema:rangeIncludes": {
+        "@id": "Date"
       }
     },
     {
@@ -235,6 +262,9 @@
       "rdfs:comment": "Date/time of most recent modification.",
       "schema:domainIncludes": {
         "@id": "schema:CreativeWork"
+      },
+      "schema:rangeIncludes": {
+        "@id": "Date"
       }
     },
     {
@@ -244,6 +274,9 @@
       "rdfs:comment": "Date of first publication.",
       "schema:domainIncludes": {
         "@id": "schema:CreativeWork"
+      },
+      "schema:rangeIncludes": {
+        "@id": "Date"
       }
     },
     {
@@ -276,6 +309,14 @@
         {
           "@id": "schema:Person"
         }
+      ],
+      "schema:rangeIncludes": [
+        {
+          "@id": "Person"
+        },
+        {
+          "@id": "Organization"
+        }
       ]
     },
     {
@@ -285,7 +326,15 @@
       "rdfs:comment": "Grants that funded the `CreativeWork`; reverse of `fundedItems`.",
       "schema:domainIncludes": {
         "@id": "schema:CreativeWork"
-      }
+      },
+      "schema:rangeIncludes": [
+        {
+          "@id": "Grant"
+        },
+        {
+          "@id": "MonetaryGrant"
+        }
+      ]
     },
     {
       "@id": "schema:genre",
@@ -318,6 +367,9 @@
       "rdfs:comment": "An item or other CreativeWork that this CreativeWork is a part of.\n",
       "schema:domainIncludes": {
         "@id": "schema:CreativeWork"
+      },
+      "schema:rangeIncludes": {
+        "@id": "CreativeWorkType"
       }
     },
     {
@@ -328,9 +380,14 @@
       "schema:domainIncludes": {
         "@id": "schema:CreativeWork"
       },
-      "schema:rangeIncludes": {
-        "@id": "schema:Text"
-      }
+      "schema:rangeIncludes": [
+        {
+          "@id": "CreativeWorkType"
+        },
+        {
+          "@id": "schema:Text"
+        }
+      ]
     },
     {
       "@id": "schema:maintainer",
@@ -339,7 +396,15 @@
       "rdfs:comment": "The people or organizations who maintain this CreativeWork.",
       "schema:domainIncludes": {
         "@id": "schema:CreativeWork"
-      }
+      },
+      "schema:rangeIncludes": [
+        {
+          "@id": "Person"
+        },
+        {
+          "@id": "Organization"
+        }
+      ]
     },
     {
       "@id": "schema:hasParts",
@@ -365,7 +430,15 @@
       "rdfs:comment": "A publisher of the CreativeWork.\n",
       "schema:domainIncludes": {
         "@id": "schema:CreativeWork"
-      }
+      },
+      "schema:rangeIncludes": [
+        {
+          "@id": "Person"
+        },
+        {
+          "@id": "Organization"
+        }
+      ]
     },
     {
       "@id": "schema:citation",
@@ -375,9 +448,14 @@
       "schema:domainIncludes": {
         "@id": "schema:CreativeWork"
       },
-      "schema:rangeIncludes": {
-        "@id": "schema:Text"
-      }
+      "schema:rangeIncludes": [
+        {
+          "@id": "CreativeWorkType"
+        },
+        {
+          "@id": "schema:Text"
+        }
+      ]
     },
     {
       "@id": "schema:text",
@@ -432,6 +510,9 @@
       "rdfs:comment": "The parent comment of this comment.",
       "schema:domainIncludes": {
         "@id": "schema:Comment"
+      },
+      "schema:rangeIncludes": {
+        "@id": "Comment"
       }
     },
     {

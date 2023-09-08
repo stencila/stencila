@@ -65,6 +65,9 @@
       "rdfs:comment": "The return type of the function.",
       "schema:domainIncludes": {
         "@id": "stencila:Function"
+      },
+      "schema:rangeIncludes": {
+        "@id": "Validator"
       }
     }
   ]

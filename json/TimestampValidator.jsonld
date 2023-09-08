@@ -55,7 +55,10 @@
         {
           "@id": "stencila:TimestampValidator"
         }
-      ]
+      ],
+      "schema:rangeIncludes": {
+        "@id": "Timestamp"
+      }
     },
     {
       "@id": "stencila:maximum",
@@ -81,7 +84,10 @@
         {
           "@id": "stencila:TimestampValidator"
         }
-      ]
+      ],
+      "schema:rangeIncludes": {
+        "@id": "Timestamp"
+      }
     }
   ]
 }

@@ -33,6 +33,9 @@
       "rdfs:comment": "The type of row.",
       "schema:domainIncludes": {
         "@id": "stencila:TableRow"
+      },
+      "schema:rangeIncludes": {
+        "@id": "TableRowType"
       }
     }
   ]

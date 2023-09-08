@@ -53,7 +53,10 @@
         {
           "@id": "stencila:Variable"
         }
-      ]
+      ],
+      "schema:rangeIncludes": {
+        "@id": "Cord"
+      }
     }
   ]
 }

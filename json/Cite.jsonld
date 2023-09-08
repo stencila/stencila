@@ -38,6 +38,9 @@
       "rdfs:comment": "Determines how the citation is shown within the surrounding text.",
       "schema:domainIncludes": {
         "@id": "stencila:Cite"
+      },
+      "schema:rangeIncludes": {
+        "@id": "CitationMode"
       }
     },
     {

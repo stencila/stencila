@@ -46,9 +46,14 @@
       "schema:domainIncludes": {
         "@id": "schema:Thing"
       },
-      "schema:rangeIncludes": {
-        "@id": "schema:Text"
-      }
+      "schema:rangeIncludes": [
+        {
+          "@id": "PropertyValue"
+        },
+        {
+          "@id": "schema:Text"
+        }
+      ]
     },
     {
       "@id": "schema:image",
@@ -58,9 +63,14 @@
       "schema:domainIncludes": {
         "@id": "schema:Thing"
       },
-      "schema:rangeIncludes": {
-        "@id": "schema:Text"
-      }
+      "schema:rangeIncludes": [
+        {
+          "@id": "ImageObject"
+        },
+        {
+          "@id": "schema:Text"
+        }
+      ]
     },
     {
       "@id": "schema:name",
@@ -125,7 +135,15 @@
       "rdfs:comment": "A person or organization that supports a thing through a pledge, promise, or financial contribution.",
       "schema:domainIncludes": {
         "@id": "schema:Grant"
-      }
+      },
+      "schema:rangeIncludes": [
+        {
+          "@id": "Person"
+        },
+        {
+          "@id": "Organization"
+        }
+      ]
     },
     {
       "@id": "schema:amount",
@@ -156,6 +174,14 @@
         },
         {
           "@id": "schema:Person"
+        }
+      ],
+      "schema:rangeIncludes": [
+        {
+          "@id": "Person"
+        },
+        {
+          "@id": "Organization"
         }
       ]
     }

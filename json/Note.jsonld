@@ -21,6 +21,9 @@
       "rdfs:comment": "Determines where the note content is displayed within the document.",
       "schema:domainIncludes": {
         "@id": "stencila:Note"
+      },
+      "schema:rangeIncludes": {
+        "@id": "NoteType"
       }
     },
     {

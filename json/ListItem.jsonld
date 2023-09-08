@@ -46,9 +46,14 @@
       "schema:domainIncludes": {
         "@id": "schema:Thing"
       },
-      "schema:rangeIncludes": {
-        "@id": "schema:Text"
-      }
+      "schema:rangeIncludes": [
+        {
+          "@id": "PropertyValue"
+        },
+        {
+          "@id": "schema:Text"
+        }
+      ]
     },
     {
       "@id": "schema:image",
@@ -58,9 +63,14 @@
       "schema:domainIncludes": {
         "@id": "schema:Thing"
       },
-      "schema:rangeIncludes": {
-        "@id": "schema:Text"
-      }
+      "schema:rangeIncludes": [
+        {
+          "@id": "ImageObject"
+        },
+        {
+          "@id": "schema:Text"
+        }
+      ]
     },
     {
       "@id": "schema:name",
@@ -180,6 +190,9 @@
       "rdfs:comment": "The item represented by this list item.",
       "schema:domainIncludes": {
         "@id": "schema:ListItem"
+      },
+      "schema:rangeIncludes": {
+        "@id": "Node"
       }
     },
     {

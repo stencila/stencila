@@ -46,9 +46,14 @@
       "schema:domainIncludes": {
         "@id": "schema:Thing"
       },
-      "schema:rangeIncludes": {
-        "@id": "schema:Text"
-      }
+      "schema:rangeIncludes": [
+        {
+          "@id": "PropertyValue"
+        },
+        {
+          "@id": "schema:Text"
+        }
+      ]
     },
     {
       "@id": "schema:image",
@@ -58,9 +63,14 @@
       "schema:domainIncludes": {
         "@id": "schema:Thing"
       },
-      "schema:rangeIncludes": {
-        "@id": "schema:Text"
-      }
+      "schema:rangeIncludes": [
+        {
+          "@id": "ImageObject"
+        },
+        {
+          "@id": "schema:Text"
+        }
+      ]
     },
     {
       "@id": "schema:name",
@@ -119,9 +129,14 @@
           "@id": "schema:Person"
         }
       ],
-      "schema:rangeIncludes": {
-        "@id": "schema:Text"
-      }
+      "schema:rangeIncludes": [
+        {
+          "@id": "PostalAddress"
+        },
+        {
+          "@id": "schema:Text"
+        }
+      ]
     },
     {
       "@id": "schema:brand",
@@ -182,6 +197,14 @@
         {
           "@id": "schema:Person"
         }
+      ],
+      "schema:rangeIncludes": [
+        {
+          "@id": "Organization"
+        },
+        {
+          "@id": "Person"
+        }
       ]
     },
     {
@@ -212,9 +235,14 @@
           "@id": "schema:Product"
         }
       ],
-      "schema:rangeIncludes": {
-        "@id": "schema:Text"
-      }
+      "schema:rangeIncludes": [
+        {
+          "@id": "ImageObject"
+        },
+        {
+          "@id": "schema:Text"
+        }
+      ]
     },
     {
       "@id": "schema:member",
@@ -223,7 +251,15 @@
       "rdfs:comment": "Person(s) or organization(s) who are members of this organization.\n",
       "schema:domainIncludes": {
         "@id": "schema:Organization"
-      }
+      },
+      "schema:rangeIncludes": [
+        {
+          "@id": "Organization"
+        },
+        {
+          "@id": "Person"
+        }
+      ]
     },
     {
       "@id": "schema:parentOrganization",
@@ -232,6 +268,9 @@
       "rdfs:comment": "Entity that the Organization is a part of. For example, parentOrganization to a department is a university.\n",
       "schema:domainIncludes": {
         "@id": "schema:Organization"
+      },
+      "schema:rangeIncludes": {
+        "@id": "Organization"
       }
     }
   ]

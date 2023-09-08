@@ -56,6 +56,9 @@
       "rdfs:comment": "A digest of the `code` and `mathLanguage` used to avoid unnecessary transpilation to MathML",
       "schema:domainIncludes": {
         "@id": "stencila:Math"
+      },
+      "schema:rangeIncludes": {
+        "@id": "ExecutionDigest"
       }
     },
     {

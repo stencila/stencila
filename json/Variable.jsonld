@@ -109,7 +109,10 @@
         {
           "@id": "stencila:Variable"
         }
-      ]
+      ],
+      "schema:rangeIncludes": {
+        "@id": "Node"
+      }
     }
   ]
 }

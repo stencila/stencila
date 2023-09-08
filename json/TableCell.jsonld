@@ -65,6 +65,9 @@
       "rdfs:comment": "The type of cell.",
       "schema:domainIncludes": {
         "@id": "stencila:TableCell"
+      },
+      "schema:rangeIncludes": {
+        "@id": "TableCellType"
       }
     },
     {

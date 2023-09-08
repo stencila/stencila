@@ -41,6 +41,9 @@
       "rdfs:comment": "The ordering of the list.",
       "schema:domainIncludes": {
         "@id": "schema:ItemList"
+      },
+      "schema:rangeIncludes": {
+        "@id": "ListOrder"
       }
     }
   ]

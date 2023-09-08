@@ -33,6 +33,9 @@
       "rdfs:comment": "Another validator node specifying the constraints on all items in the array.",
       "schema:domainIncludes": {
         "@id": "stencila:ArrayValidator"
+      },
+      "schema:rangeIncludes": {
+        "@id": "Validator"
       }
     },
     {
@@ -42,6 +45,9 @@
       "rdfs:comment": "An array node is valid if at least one of its items is valid against the `contains` schema.",
       "schema:domainIncludes": {
         "@id": "stencila:ArrayValidator"
+      },
+      "schema:rangeIncludes": {
+        "@id": "Validator"
       }
     },
     {

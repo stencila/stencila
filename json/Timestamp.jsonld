@@ -70,7 +70,10 @@
         {
           "@id": "schema:Timestamp"
         }
-      ]
+      ],
+      "schema:rangeIncludes": {
+        "@id": "TimeUnit"
+      }
     }
   ]
 }

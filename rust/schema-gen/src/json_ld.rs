@@ -155,6 +155,8 @@ impl Schemas {
                     }
                     _ => {}
                 }
+            } else if let Some(r#ref) = &property.r#ref {
+                ids.push(r#ref.to_owned())
             } else if let Some(any_of) = &property.any_of {
                 ids.append(&mut any_of.iter().flat_map(ranges).collect_vec())
             }

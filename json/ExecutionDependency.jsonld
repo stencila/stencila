@@ -21,6 +21,9 @@
       "rdfs:comment": "The relation to the dependency",
       "schema:domainIncludes": {
         "@id": "stencila:ExecutionDependency"
+      },
+      "schema:rangeIncludes": {
+        "@id": "ExecutionDependencyRelation"
       }
     },
     {
@@ -30,6 +33,9 @@
       "rdfs:comment": "The node that is the dependency",
       "schema:domainIncludes": {
         "@id": "stencila:ExecutionDependency"
+      },
+      "schema:rangeIncludes": {
+        "@id": "ExecutionDependencyNode"
       }
     },
     {
