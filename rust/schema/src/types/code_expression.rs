@@ -4,6 +4,7 @@ use crate::prelude::*;
 
 use super::boolean::Boolean;
 use super::code_error::CodeError;
+use super::cord::Cord;
 use super::duration::Duration;
 use super::execution_auto::ExecutionAuto;
 use super::execution_dependant::ExecutionDependant;
@@ -33,7 +34,7 @@ pub struct CodeExpression {
     pub id: Option<String>,
 
     /// The code.
-    pub code: String,
+    pub code: Cord,
 
     /// The programming language of the code.
     pub programming_language: String,
@@ -113,7 +114,7 @@ pub struct CodeExpressionOptions {
 }
 
 impl CodeExpression {
-    pub fn new(code: String, programming_language: String) -> Self {
+    pub fn new(code: Cord, programming_language: String) -> Self {
         Self {
             code,
             programming_language,

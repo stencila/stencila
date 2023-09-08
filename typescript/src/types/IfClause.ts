@@ -2,6 +2,7 @@
 
 import { Block } from './Block';
 import { CodeError } from './CodeError';
+import { Cord } from './Cord';
 import { Duration } from './Duration';
 import { ExecutionAuto } from './ExecutionAuto';
 import { ExecutionDependant } from './ExecutionDependant';
@@ -60,7 +61,7 @@ export class IfClause {
   errors?: CodeError[];
 
   // The code.
-  code: string;
+  code: Cord;
 
   // The programming language of the code.
   programmingLanguage: string;
@@ -77,7 +78,7 @@ export class IfClause {
   // The content to render if the result is true-thy
   content: Block[];
 
-  constructor(code: string, programmingLanguage: string, content: Block[], options?: IfClause) {
+  constructor(code: Cord, programmingLanguage: string, content: Block[], options?: IfClause) {
     if (options) Object.assign(this, options)
     this.code = code;
     this.programmingLanguage = programmingLanguage;

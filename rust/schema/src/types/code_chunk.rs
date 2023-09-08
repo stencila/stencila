@@ -5,6 +5,7 @@ use crate::prelude::*;
 use super::blocks_or_string::BlocksOrString;
 use super::boolean::Boolean;
 use super::code_error::CodeError;
+use super::cord::Cord;
 use super::duration::Duration;
 use super::execution_auto::ExecutionAuto;
 use super::execution_dependant::ExecutionDependant;
@@ -32,7 +33,7 @@ pub struct CodeChunk {
     pub id: Option<String>,
 
     /// The code.
-    pub code: String,
+    pub code: Cord,
 
     /// The programming language of the code.
     pub programming_language: String,
@@ -121,7 +122,7 @@ pub struct CodeChunkOptions {
 }
 
 impl CodeChunk {
-    pub fn new(code: String, programming_language: String) -> Self {
+    pub fn new(code: Cord, programming_language: String) -> Self {
         Self {
             code,
             programming_language,

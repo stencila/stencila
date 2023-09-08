@@ -1,6 +1,7 @@
 // Generated file; do not edit. See `../rust/schema-gen` crate.
 
 import { CodeError } from './CodeError';
+import { Cord } from './Cord';
 import { Duration } from './Duration';
 import { ExecutionAuto } from './ExecutionAuto';
 import { ExecutionDependant } from './ExecutionDependant';
@@ -59,7 +60,7 @@ export class Button {
   errors?: CodeError[];
 
   // The code.
-  code: string;
+  code: Cord;
 
   // The programming language of the code.
   programmingLanguage: string;
@@ -79,7 +80,7 @@ export class Button {
   // Whether the button is currently disabled
   isDisabled?: boolean;
 
-  constructor(code: string, programmingLanguage: string, name: string, options?: Button) {
+  constructor(code: Cord, programmingLanguage: string, name: string, options?: Button) {
     if (options) Object.assign(this, options)
     this.code = code;
     this.programmingLanguage = programmingLanguage;

@@ -2,6 +2,7 @@
 
 import { BlocksOrString } from './BlocksOrString';
 import { CodeError } from './CodeError';
+import { Cord } from './Cord';
 import { Duration } from './Duration';
 import { ExecutionAuto } from './ExecutionAuto';
 import { ExecutionDependant } from './ExecutionDependant';
@@ -61,7 +62,7 @@ export class CodeChunk {
   errors?: CodeError[];
 
   // The code.
-  code: string;
+  code: Cord;
 
   // The programming language of the code.
   programmingLanguage: string;
@@ -84,7 +85,7 @@ export class CodeChunk {
   // A caption for the CodeChunk.
   caption?: BlocksOrString;
 
-  constructor(code: string, programmingLanguage: string, options?: CodeChunk) {
+  constructor(code: Cord, programmingLanguage: string, options?: CodeChunk) {
     if (options) Object.assign(this, options)
     this.code = code;
     this.programmingLanguage = programmingLanguage;

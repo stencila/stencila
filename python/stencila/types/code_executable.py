@@ -2,6 +2,7 @@
 
 from .prelude import *
 
+from .cord import Cord
 from .executable import Executable
 
 
@@ -13,7 +14,7 @@ class CodeExecutable(Executable):
 
     type: Literal["CodeExecutable"] = field(default="CodeExecutable", init=False)
 
-    code: str
+    code: Cord
     """The code."""
 
     programming_language: str

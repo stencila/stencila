@@ -6,6 +6,7 @@ use super::array::Array;
 use super::block::Block;
 use super::boolean::Boolean;
 use super::code_error::CodeError;
+use super::cord::Cord;
 use super::duration::Duration;
 use super::execution_auto::ExecutionAuto;
 use super::execution_dependant::ExecutionDependant;
@@ -32,7 +33,7 @@ pub struct For {
     pub id: Option<String>,
 
     /// The code.
-    pub code: String,
+    pub code: Cord,
 
     /// The programming language of the code.
     pub programming_language: String,
@@ -123,7 +124,7 @@ pub struct ForOptions {
 }
 
 impl For {
-    pub fn new(code: String, programming_language: String, symbol: String, content: Vec<Block>) -> Self {
+    pub fn new(code: Cord, programming_language: String, symbol: String, content: Vec<Block>) -> Self {
         Self {
             code,
             programming_language,

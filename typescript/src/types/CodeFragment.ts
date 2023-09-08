@@ -1,5 +1,7 @@
 // Generated file; do not edit. See `../rust/schema-gen` crate.
 
+import { Cord } from './Cord';
+
 // Inline code.
 export class CodeFragment {
   type = "CodeFragment";
@@ -8,7 +10,7 @@ export class CodeFragment {
   id?: string;
 
   // The code.
-  code: string;
+  code: Cord;
 
   // The programming language of the code.
   programmingLanguage?: string;
@@ -16,7 +18,7 @@ export class CodeFragment {
   // Media type, typically expressed using a MIME format, of the code.
   mediaType?: string;
 
-  constructor(code: string, options?: CodeFragment) {
+  constructor(code: Cord, options?: CodeFragment) {
     if (options) Object.assign(this, options)
     this.code = code;
   }

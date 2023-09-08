@@ -17,7 +17,7 @@ properties:
     description: The code.
     html:
       content: true
-    type: string
+    $ref: Cord
   programmingLanguage:
     '@id': schema:programmingLanguage
     description: The programming language of the code.

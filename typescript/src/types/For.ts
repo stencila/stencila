@@ -3,6 +3,7 @@
 import { Array } from './Array';
 import { Block } from './Block';
 import { CodeError } from './CodeError';
+import { Cord } from './Cord';
 import { Duration } from './Duration';
 import { ExecutionAuto } from './ExecutionAuto';
 import { ExecutionDependant } from './ExecutionDependant';
@@ -61,7 +62,7 @@ export class For {
   errors?: CodeError[];
 
   // The code.
-  code: string;
+  code: Cord;
 
   // The programming language of the code.
   programmingLanguage: string;
@@ -84,7 +85,7 @@ export class For {
   // The content repeated for each iteration
   iterations?: Array[];
 
-  constructor(code: string, programmingLanguage: string, symbol: string, content: Block[], options?: For) {
+  constructor(code: Cord, programmingLanguage: string, symbol: string, content: Block[], options?: For) {
     if (options) Object.assign(this, options)
     this.code = code;
     this.programmingLanguage = programmingLanguage;

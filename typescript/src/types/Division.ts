@@ -2,6 +2,7 @@
 
 import { Block } from './Block';
 import { CodeError } from './CodeError';
+import { Cord } from './Cord';
 import { Duration } from './Duration';
 import { ExecutionAuto } from './ExecutionAuto';
 import { ExecutionDependant } from './ExecutionDependant';
@@ -60,7 +61,7 @@ export class Division {
   errors?: CodeError[];
 
   // The code.
-  code: string;
+  code: Cord;
 
   // The programming language of the code.
   programmingLanguage: string;
@@ -80,7 +81,7 @@ export class Division {
   // The content within the division
   content: Block[];
 
-  constructor(code: string, programmingLanguage: string, content: Block[], options?: Division) {
+  constructor(code: Cord, programmingLanguage: string, content: Block[], options?: Division) {
     if (options) Object.assign(this, options)
     this.code = code;
     this.programmingLanguage = programmingLanguage;

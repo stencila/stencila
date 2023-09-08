@@ -15,7 +15,7 @@ properties:
   code:
     '@id': stencila:code
     description: The code.
-    type: string
+    $ref: Cord
   programmingLanguage:
     '@id': schema:programmingLanguage
     description: The programming language of the code.

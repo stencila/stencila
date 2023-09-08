@@ -2,6 +2,7 @@
 
 from .prelude import *
 
+from .cord import Cord
 from .entity import Entity
 
 
@@ -13,7 +14,7 @@ class CodeStatic(Entity):
 
     type: Literal["CodeStatic"] = field(default="CodeStatic", init=False)
 
-    code: str
+    code: Cord
     """The code."""
 
     programming_language: Optional[str] = None

@@ -157,7 +157,7 @@
     "code": {
       "@id": "stencila:code",
       "description": "The code.",
-      "type": "string"
+      "$ref": "Cord.schema.json"
     },
     "programmingLanguage": {
       "@id": "schema:programmingLanguage",

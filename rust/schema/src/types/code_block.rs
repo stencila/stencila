@@ -2,6 +2,7 @@
 
 use crate::prelude::*;
 
+use super::cord::Cord;
 use super::string::String;
 
 /// A code block.
@@ -20,7 +21,7 @@ pub struct CodeBlock {
 
     /// The code.
     #[html(content)]
-    pub code: String,
+    pub code: Cord,
 
     /// The programming language of the code.
     pub programming_language: Option<String>,
@@ -40,7 +41,7 @@ pub struct CodeBlockOptions {
 }
 
 impl CodeBlock {
-    pub fn new(code: String) -> Self {
+    pub fn new(code: Cord) -> Self {
         Self {
             code,
             ..Default::default()

@@ -42,7 +42,7 @@
       "html": {
         "content": true
       },
-      "type": "string"
+      "$ref": "Cord.schema.json"
     },
     "programmingLanguage": {
       "@id": "schema:programmingLanguage",

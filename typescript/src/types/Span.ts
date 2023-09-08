@@ -1,6 +1,7 @@
 // Generated file; do not edit. See `../rust/schema-gen` crate.
 
 import { CodeError } from './CodeError';
+import { Cord } from './Cord';
 import { Duration } from './Duration';
 import { ExecutionAuto } from './ExecutionAuto';
 import { ExecutionDependant } from './ExecutionDependant';
@@ -60,7 +61,7 @@ export class Span {
   errors?: CodeError[];
 
   // The code.
-  code: string;
+  code: Cord;
 
   // The programming language of the code.
   programmingLanguage: string;
@@ -80,7 +81,7 @@ export class Span {
   // The content within the span
   content: Inline[];
 
-  constructor(code: string, programmingLanguage: string, content: Inline[], options?: Span) {
+  constructor(code: Cord, programmingLanguage: string, content: Inline[], options?: Span) {
     if (options) Object.assign(this, options)
     this.code = code;
     this.programmingLanguage = programmingLanguage;

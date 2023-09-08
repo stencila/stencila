@@ -4,6 +4,7 @@ use crate::prelude::*;
 
 use super::boolean::Boolean;
 use super::code_error::CodeError;
+use super::cord::Cord;
 use super::duration::Duration;
 use super::execution_auto::ExecutionAuto;
 use super::execution_dependant::ExecutionDependant;
@@ -31,7 +32,7 @@ pub struct Span {
     pub id: Option<String>,
 
     /// The code.
-    pub code: String,
+    pub code: Cord,
 
     /// The programming language of the code.
     pub programming_language: String,
@@ -115,7 +116,7 @@ pub struct SpanOptions {
 }
 
 impl Span {
-    pub fn new(code: String, programming_language: String, content: Vec<Inline>) -> Self {
+    pub fn new(code: Cord, programming_language: String, content: Vec<Inline>) -> Self {
         Self {
             code,
             programming_language,

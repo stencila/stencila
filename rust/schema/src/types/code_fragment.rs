@@ -2,6 +2,7 @@
 
 use crate::prelude::*;
 
+use super::cord::Cord;
 use super::string::String;
 
 /// Inline code.
@@ -21,7 +22,7 @@ pub struct CodeFragment {
 
     /// The code.
     #[html(content)]
-    pub code: String,
+    pub code: Cord,
 
     /// The programming language of the code.
     pub programming_language: Option<String>,
@@ -41,7 +42,7 @@ pub struct CodeFragmentOptions {
 }
 
 impl CodeFragment {
-    pub fn new(code: String) -> Self {
+    pub fn new(code: Cord) -> Self {
         Self {
             code,
             ..Default::default()
