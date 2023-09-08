@@ -30,13 +30,13 @@ const GENERATED_COMMENT: &str = "// Generated file; do not edit. See `../rust/sc
 const NO_GENERATE_MODULE: &[&str] = &[
     "Array",
     "Boolean",
+    "Cord",
     "Integer",
     "Null",
     "Number",
     "Object",
     "Primitive",
     "String",
-    "TextValue",
     "UnsignedInteger",
 ];
 

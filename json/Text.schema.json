@@ -43,7 +43,7 @@
       "html": {
         "content": true
       },
-      "$ref": "TextValue.schema.json"
+      "$ref": "Cord.schema.json"
     }
   }
 }

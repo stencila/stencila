@@ -31,6 +31,7 @@ from .collection import Collection
 from .comment import Comment
 from .constant_validator import ConstantValidator
 from .contact_point import ContactPoint
+from .cord import Cord
 from .creative_work import CreativeWork
 from .creative_work_type import CreativeWorkType
 from .creative_work_type_or_str import CreativeWorkTypeOrStr
@@ -131,7 +132,6 @@ from .table_cell_type import TableCellType
 from .table_row import TableRow
 from .table_row_type import TableRowType
 from .text import Text
-from .text_value import TextValue
 from .thematic_break import ThematicBreak
 from .thing import Thing
 from .thing_type import ThingType

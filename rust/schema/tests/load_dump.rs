@@ -3,15 +3,13 @@ use std::collections::HashMap;
 use common::{eyre::Result, serde_json::json};
 use common_dev::pretty_assertions::assert_eq;
 
-use schema::{
-    Array, Article, Block, Inline, Node, Null, Object, Paragraph, Primitive, Text, TextValue,
-};
+use schema::{Array, Article, Block, Cord, Inline, Node, Null, Object, Paragraph, Primitive, Text};
 
 use node_store::{ReadNode, WriteNode, WriteStore};
 use node_strip::{StripNode, Targets};
 
 fn txt(value: &str) -> Text {
-    Text::new(TextValue(value.to_string()))
+    Text::new(Cord(value.to_string()))
 }
 
 /// Test loading & dumping of `Primitive` nodes

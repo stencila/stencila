@@ -20,4 +20,4 @@ properties:
     description: The value of the text content
     html:
       content: true
-    $ref: TextValue
+    $ref: Cord

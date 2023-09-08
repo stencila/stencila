@@ -1,7 +1,0 @@
-title: TextValue
-"@id": stencila:TextValue
-description: The value of text content
-$comment: |
-  This type exists only as an implementation detail so that we can
-  store these text values as a CRDT.
-type: string

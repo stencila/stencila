@@ -1,6 +1,6 @@
 // Generated file; do not edit. See `../rust/schema-gen` crate.
 
-import { TextValue } from './TextValue';
+import { Cord } from './Cord';
 
 // Textual content
 export class Text {
@@ -10,9 +10,9 @@ export class Text {
   id?: string;
 
   // The value of the text content
-  value: TextValue;
+  value: Cord;
 
-  constructor(value: TextValue, options?: Text) {
+  constructor(value: Cord, options?: Text) {
     if (options) Object.assign(this, options)
     this.value = value;
   }

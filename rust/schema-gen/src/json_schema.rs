@@ -5,8 +5,12 @@ use std::path::PathBuf;
 use common::{
     eyre::{ErrReport, Result},
     futures::future::try_join_all,
+    glob::glob,
     serde_json,
-    tokio::{fs::File, io::AsyncWriteExt},
+    tokio::{
+        fs::{remove_file, File},
+        io::AsyncWriteExt,
+    },
 };
 use schemars::gen::SchemaSettings;
 
@@ -18,6 +22,12 @@ impl Schemas {
         eprintln!("Generating JSON Schema");
 
         let dir = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../json/");
+
+        // Remove all existing *.schema.json files
+        let futures = glob(&dir.join("*.schema.json").to_string_lossy())?
+            .flatten()
+            .map(|file| async { remove_file(file).await });
+        try_join_all(futures).await?;
 
         // Generate the meta schema
         let path = dir.join("meta.schema.json");

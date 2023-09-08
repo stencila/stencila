@@ -29,9 +29,9 @@ const GENERATED_COMMENT: &str = "# Generated file; do not edit. See the Rust `sc
 /// an alias for a native JavasScript type.
 const HANDWRITTEN_MODULES: &[&str] = &[
     "array.py",
+    "cord.py",
     "object.py",
     "prelude.py",
-    "text_value.py",
     "unsigned_integer.py",
 ];
 

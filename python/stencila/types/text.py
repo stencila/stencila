@@ -2,8 +2,8 @@
 
 from .prelude import *
 
+from .cord import Cord
 from .entity import Entity
-from .text_value import TextValue
 
 
 @dataclass(kw_only=True, frozen=True)
@@ -14,5 +14,5 @@ class Text(Entity):
 
     type: Literal["Text"] = field(default="Text", init=False)
 
-    value: TextValue
+    value: Cord
     """The value of the text content"""

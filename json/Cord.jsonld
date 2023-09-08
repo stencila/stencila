@@ -6,10 +6,10 @@
   },
   "@graph": [
     {
-      "@id": "stencila:TextValue",
+      "@id": "stencila:Cord",
       "@type": "rdfs:Class",
-      "rdfs:label": "TextValue",
-      "rdfs:comment": "The value of text content"
+      "rdfs:label": "Cord",
+      "rdfs:comment": "A value comprised of a sequence of characters"
     }
   ]
 }

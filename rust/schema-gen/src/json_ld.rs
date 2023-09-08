@@ -1,11 +1,17 @@
 //! Generation of a JSON-LD context from Stencila Schema
 
-use std::{collections::HashMap, fs::File, io::Write, path::PathBuf};
+use std::{collections::HashMap, path::PathBuf};
 
 use common::{
     eyre::Result,
+    futures::future::try_join_all,
+    glob::glob,
     itertools::Itertools,
     serde_json::{self, json},
+    tokio::{
+        fs::{remove_file, File},
+        io::AsyncWriteExt,
+    },
 };
 
 use crate::{
@@ -19,6 +25,12 @@ impl Schemas {
         eprintln!("Generating JSON-LD");
 
         let dir = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../json/");
+
+        // Remove all existing *.jsonld files
+        let futures = glob(&dir.join("*.jsonld").to_string_lossy())?
+            .flatten()
+            .map(|file| async { remove_file(file).await });
+        try_join_all(futures).await?;
 
         // For each property determine its `domainIncludes` (type it exists on)
         // and `rangeIncludes` (types it can have).
@@ -42,7 +54,7 @@ impl Schemas {
         // Generate a schema for each schema
         for (title, schema) in self.schemas.iter() {
             let path = dir.join(format!("{title}.jsonld"));
-            let mut file = File::create(path)?;
+            let mut file = File::create(path).await?;
 
             let context = json!({
                 "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
@@ -86,7 +98,7 @@ impl Schemas {
                 } else {
                     // Sort lexically to avoid reordering on each generation
                     let sorted = domains
-                        .into_iter()
+                        .iter()
                         .sorted()
                         .map(|id| json!({ "@id": id }))
                         .collect_vec();
@@ -111,7 +123,7 @@ impl Schemas {
 
             let jsonld = serde_json::to_string_pretty(&jsonld)?;
 
-            file.write_all(jsonld.as_bytes())?;
+            file.write_all(jsonld.as_bytes()).await?;
         }
 
         fn ranges(property: &Schema) -> Vec<String> {

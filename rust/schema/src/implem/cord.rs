@@ -7,17 +7,17 @@ use node_store::{
     ReadNode, ReadStore, WriteNode, WriteStore, SIMILARITY_MAX,
 };
 
-use crate::{prelude::*, TextValue};
+use crate::{prelude::*, Cord};
 
-impl StripNode for TextValue {}
+impl StripNode for Cord {}
 
-impl ReadNode for TextValue {
+impl ReadNode for Cord {
     fn load_text<S: ReadStore>(store: &S, obj_id: &ObjId) -> Result<Self> {
         Ok(Self(store.text(obj_id)?))
     }
 }
 
-impl WriteNode for TextValue {
+impl WriteNode for Cord {
     fn insert_prop(&self, store: &mut WriteStore, obj_id: &ObjId, prop: Prop) -> Result<()> {
         // Create the new text object in the store
         let prop_obj_id = match prop {
@@ -94,7 +94,7 @@ impl WriteNode for TextValue {
     }
 }
 
-impl HtmlCodec for TextValue {
+impl HtmlCodec for Cord {
     fn to_html(&self) -> String {
         text(&self.0)
     }
@@ -108,13 +108,13 @@ impl HtmlCodec for TextValue {
     }
 }
 
-impl MarkdownCodec for TextValue {
+impl MarkdownCodec for Cord {
     fn to_markdown(&self) -> (String, Losses) {
         (self.0.to_string(), Losses::none())
     }
 }
 
-impl TextCodec for TextValue {
+impl TextCodec for Cord {
     fn to_text(&self) -> (String, Losses) {
         (self.0.to_string(), Losses::none())
     }

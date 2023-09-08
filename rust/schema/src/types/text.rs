@@ -2,8 +2,8 @@
 
 use crate::prelude::*;
 
+use super::cord::Cord;
 use super::string::String;
-use super::text_value::TextValue;
 
 /// Textual content
 #[skip_serializing_none]
@@ -21,10 +21,10 @@ pub struct Text {
 
     /// The value of the text content
     #[html(content)]
-    pub value: TextValue,
+    pub value: Cord,
 }
 impl Text {
-    pub fn new(value: TextValue) -> Self {
+    pub fn new(value: Cord) -> Self {
         Self {
             value,
             ..Default::default()
