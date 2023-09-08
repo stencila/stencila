@@ -4,3 +4,5 @@ extends: CodeStatic
 description: A code block.
 html:
   elem: pre
+markdown:
+  special: true

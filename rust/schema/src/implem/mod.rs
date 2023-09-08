@@ -1,6 +1,7 @@
 //! Implementations of traits for types
 
 mod array;
+mod code_block;
 mod code_expression;
 mod code_fragment;
 mod cord;

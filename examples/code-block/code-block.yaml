@@ -1,0 +1,13 @@
+type: Article
+content:
+- type: CodeBlock
+  code: |
+    # Some python code
+    a = 3
+  programmingLanguage: python
+- type: CodeBlock
+  code: |
+    No language
+- type: CodeBlock
+  code: '# No newline at end'
+  programmingLanguage: python
