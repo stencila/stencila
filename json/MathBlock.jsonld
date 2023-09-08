@@ -43,6 +43,9 @@
         },
         {
           "@id": "stencila:Math"
+        },
+        {
+          "@id": "stencila:Styled"
         }
       ],
       "schema:rangeIncludes": {
@@ -54,9 +57,14 @@
       "@type": "rdfs:Property",
       "rdfs:label": "compileDigest",
       "rdfs:comment": "A digest of the `code` and `mathLanguage`.",
-      "schema:domainIncludes": {
-        "@id": "stencila:Math"
-      },
+      "schema:domainIncludes": [
+        {
+          "@id": "stencila:Math"
+        },
+        {
+          "@id": "stencila:Styled"
+        }
+      ],
       "schema:rangeIncludes": {
         "@id": "ExecutionDigest"
       }
@@ -72,6 +80,9 @@
         },
         {
           "@id": "stencila:Math"
+        },
+        {
+          "@id": "stencila:Styled"
         }
       ],
       "schema:rangeIncludes": {

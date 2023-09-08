@@ -55,6 +55,7 @@
         "subschemas",
         "tempfile",
         "Transactable",
+        "transpiling",
         "yamls"
     ]
 }

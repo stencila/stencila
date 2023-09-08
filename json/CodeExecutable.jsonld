@@ -169,6 +169,9 @@
         },
         {
           "@id": "stencila:Math"
+        },
+        {
+          "@id": "stencila:Styled"
         }
       ],
       "schema:rangeIncludes": {
@@ -192,6 +195,9 @@
         },
         {
           "@id": "stencila:Math"
+        },
+        {
+          "@id": "stencila:Styled"
         }
       ],
       "schema:rangeIncludes": {

@@ -4,19 +4,21 @@
   "@id": "stencila:Styled",
   "title": "Styled",
   "extends": [
-    "CodeExecutable"
+    "Entity"
   ],
   "abstract": true,
   "description": "An abstract base class for a document node that has styling applied to it and/or its content",
+  "$comment": "This class is very similar to the `Math` abstract base class but has `styleLanguage` instead\nof `mathLanguage` and compiled `css` instead of `mathml`.\n\nNote also that `styleLanguage` is optional.\n",
   "status": "experimental",
   "required": [
     "type",
-    "code",
-    "programmingLanguage"
+    "code"
   ],
   "core": [
     "id",
-    "guessLanguage",
+    "styleLanguage",
+    "compileDigest",
+    "errors",
     "css",
     "classes"
   ],
@@ -39,156 +41,39 @@
       },
       "type": "string"
     },
-    "executionAuto": {
-      "@id": "stencila:executionAuto",
-      "description": "Under which circumstances the code should be automatically executed.",
-      "strip": [
-        "execution"
-      ],
-      "$ref": "ExecutionAuto.schema.json"
+    "code": {
+      "@id": "stencila:code",
+      "description": "The code of the equation in the `styleLanguage`.",
+      "$ref": "Cord.schema.json"
     },
-    "compilationDigest": {
-      "@id": "stencila:compilationDigest",
-      "description": "A digest of the content, semantics and dependencies of the node.",
-      "strip": [
-        "execution"
-      ],
-      "$ref": "ExecutionDigest.schema.json"
-    },
-    "executionDigest": {
-      "@id": "stencila:executionDigest",
-      "description": "The `compileDigest` of the node when it was last executed.",
-      "strip": [
-        "execution"
-      ],
-      "$ref": "ExecutionDigest.schema.json"
-    },
-    "executionDependencies": {
-      "@id": "stencila:executionDependencies",
-      "description": "The upstream dependencies of this node.",
-      "strip": [
-        "execution"
-      ],
-      "type": "array",
-      "items": {
-        "$ref": "ExecutionDependency.schema.json"
-      }
-    },
-    "executionDependants": {
-      "@id": "stencila:executionDependants",
-      "description": "The downstream dependants of this node.",
-      "strip": [
-        "execution"
-      ],
-      "type": "array",
-      "items": {
-        "$ref": "ExecutionDependant.schema.json"
-      }
-    },
-    "executionTags": {
-      "@id": "stencila:executionTags",
-      "description": "Tags in the code which affect its execution",
-      "strip": [
-        "execution"
-      ],
-      "type": "array",
-      "items": {
-        "$ref": "ExecutionTag.schema.json"
-      }
-    },
-    "executionCount": {
-      "@id": "stencila:executionCount",
-      "description": "A count of the number of times that the node has been executed.",
-      "$comment": "Intended to increment with each successive execution of the node, including across sessions.\nNote that this differs to the `execution_count` in Jupyter Notebook format which is\nthe \"code cell's prompt number\" and which resets at the start of each new session.\n",
-      "strip": [
-        "execution"
-      ],
-      "type": "integer",
-      "minimum": 0.0
-    },
-    "executionRequired": {
-      "@id": "stencila:executionRequired",
-      "description": "Whether, and why, the code requires execution or re-execution.",
-      "strip": [
-        "execution"
-      ],
-      "$ref": "ExecutionRequired.schema.json"
-    },
-    "executionKernel": {
-      "@id": "stencila:executionKernel",
-      "description": "The id of the kernel that the node was last executed in.",
-      "strip": [
-        "execution"
-      ],
+    "styleLanguage": {
+      "@id": "stencila:styleLanguage",
+      "description": "The language used for the style specification e.g. css, tailwind, classes.",
       "type": "string"
     },
-    "executionStatus": {
-      "@id": "stencila:executionStatus",
-      "description": "Status of the most recent, including any current, execution.",
-      "strip": [
-        "execution"
-      ],
-      "$ref": "ExecutionStatus.schema.json"
-    },
-    "executionEnded": {
-      "@id": "stencila:executionEnded",
-      "description": "The timestamp when the last execution ended.",
-      "strip": [
-        "execution"
-      ],
-      "$ref": "Timestamp.schema.json"
-    },
-    "executionDuration": {
-      "@id": "stencila:executionDuration",
-      "description": "Duration of the last execution.",
-      "strip": [
-        "execution"
-      ],
-      "$ref": "Duration.schema.json"
+    "compileDigest": {
+      "@id": "stencila:compileDigest",
+      "description": "A digest of the `code` and `styleLanguage`.",
+      "$comment": "Used to avoid unnecessary transpilation to CSS.",
+      "$ref": "ExecutionDigest.schema.json"
     },
     "errors": {
       "@id": "stencila:errors",
-      "description": "Errors when compiling (e.g. syntax errors) or executing the node.",
-      "strip": [
-        "execution"
-      ],
+      "description": "Errors that occurred when transpiling the `code`.",
+      "$comment": "This property is an array of strings. Compare this to `CodeChunk.errors`\nwhich is an array of `CodeError` nodes. Strings are considered to\nbe sufficient for style parsing errors which usually won't have stack traces,\nline numbers etc.\n",
       "type": "array",
       "items": {
-        "$ref": "CodeError.schema.json"
+        "type": "string"
       }
-    },
-    "code": {
-      "@id": "stencila:code",
-      "description": "The code.",
-      "$ref": "Cord.schema.json"
-    },
-    "programmingLanguage": {
-      "@id": "schema:programmingLanguage",
-      "description": "The programming language of the code.",
-      "type": "string"
-    },
-    "guessLanguage": {
-      "@id": "stencila:guessLanguage",
-      "description": "Whether the programming language of the code should be guessed based on syntax and variables used",
-      "type": "boolean"
-    },
-    "mediaType": {
-      "@id": "schema:encodingFormat",
-      "description": "Media type, typically expressed using a MIME format, of the code.",
-      "$comment": "This property allows the differentiation of formats using the same programming language\nor variants of a programming language. An example is using `programmingLanguage` \"json\" and\n`encodingFormat` \"application/ld+json\" for JSON-LD code examples.\n",
-      "aliases": [
-        "encodingFormat"
-      ],
-      "type": "string"
     },
     "css": {
       "@id": "stencila:css",
-      "description": "A Cascading Style Sheet (CSS) transpiled from the output of evaluating the `text` property.",
+      "description": "A Cascading Style Sheet (CSS) transpiled from the `code` property.",
       "type": "string"
     },
     "classes": {
       "@id": "stencila:classes",
-      "description": "A list of class names associated with the document node",
+      "description": "A list of class names associated with the node",
       "$comment": "Analogous to the [`classList` property of an `Element`](https://developer.mozilla.org/en-US/docs/Web/API/Element/classList)\nin the Web API.\n",
       "type": "array",
       "items": {

@@ -1,0 +1,1 @@
+A  text-green-600styled span Containing other inline nodes  text-blue-600emphasis ,  linkhttps://example.org Containing other spans  text-blue-600blue  text-red-600red  blue

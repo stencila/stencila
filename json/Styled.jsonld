@@ -11,175 +11,14 @@
       "rdfs:label": "Styled",
       "rdfs:comment": "An abstract base class for a document node that has styling applied to it and/or its content",
       "rdfs:subClassOf": {
-        "@id": "CodeExecutable"
-      }
-    },
-    {
-      "@id": "stencila:executionAuto",
-      "@type": "rdfs:Property",
-      "rdfs:label": "executionAuto",
-      "rdfs:comment": "Under which circumstances the code should be automatically executed.",
-      "schema:domainIncludes": {
-        "@id": "stencila:Executable"
-      },
-      "schema:rangeIncludes": {
-        "@id": "ExecutionAuto"
-      }
-    },
-    {
-      "@id": "stencila:compilationDigest",
-      "@type": "rdfs:Property",
-      "rdfs:label": "compilationDigest",
-      "rdfs:comment": "A digest of the content, semantics and dependencies of the node.",
-      "schema:domainIncludes": {
-        "@id": "stencila:Executable"
-      },
-      "schema:rangeIncludes": {
-        "@id": "ExecutionDigest"
-      }
-    },
-    {
-      "@id": "stencila:executionDigest",
-      "@type": "rdfs:Property",
-      "rdfs:label": "executionDigest",
-      "rdfs:comment": "The `compileDigest` of the node when it was last executed.",
-      "schema:domainIncludes": {
-        "@id": "stencila:Executable"
-      },
-      "schema:rangeIncludes": {
-        "@id": "ExecutionDigest"
-      }
-    },
-    {
-      "@id": "stencila:executionDependencies",
-      "@type": "rdfs:Property",
-      "rdfs:label": "executionDependencies",
-      "rdfs:comment": "The upstream dependencies of this node.",
-      "schema:domainIncludes": {
-        "@id": "stencila:Executable"
-      },
-      "schema:rangeIncludes": {
-        "@id": "stencila:ExecutionDependency"
-      }
-    },
-    {
-      "@id": "stencila:executionDependants",
-      "@type": "rdfs:Property",
-      "rdfs:label": "executionDependants",
-      "rdfs:comment": "The downstream dependants of this node.",
-      "schema:domainIncludes": {
-        "@id": "stencila:Executable"
-      },
-      "schema:rangeIncludes": {
-        "@id": "stencila:ExecutionDependant"
-      }
-    },
-    {
-      "@id": "stencila:executionTags",
-      "@type": "rdfs:Property",
-      "rdfs:label": "executionTags",
-      "rdfs:comment": "Tags in the code which affect its execution",
-      "schema:domainIncludes": {
-        "@id": "stencila:Executable"
-      },
-      "schema:rangeIncludes": {
-        "@id": "stencila:ExecutionTag"
-      }
-    },
-    {
-      "@id": "stencila:executionCount",
-      "@type": "rdfs:Property",
-      "rdfs:label": "executionCount",
-      "rdfs:comment": "A count of the number of times that the node has been executed.",
-      "schema:domainIncludes": {
-        "@id": "stencila:Executable"
-      },
-      "schema:rangeIncludes": {
-        "@id": "schema:Number"
-      }
-    },
-    {
-      "@id": "stencila:executionRequired",
-      "@type": "rdfs:Property",
-      "rdfs:label": "executionRequired",
-      "rdfs:comment": "Whether, and why, the code requires execution or re-execution.",
-      "schema:domainIncludes": {
-        "@id": "stencila:Executable"
-      },
-      "schema:rangeIncludes": {
-        "@id": "ExecutionRequired"
-      }
-    },
-    {
-      "@id": "stencila:executionKernel",
-      "@type": "rdfs:Property",
-      "rdfs:label": "executionKernel",
-      "rdfs:comment": "The id of the kernel that the node was last executed in.",
-      "schema:domainIncludes": {
-        "@id": "stencila:Executable"
-      },
-      "schema:rangeIncludes": {
-        "@id": "schema:Text"
-      }
-    },
-    {
-      "@id": "stencila:executionStatus",
-      "@type": "rdfs:Property",
-      "rdfs:label": "executionStatus",
-      "rdfs:comment": "Status of the most recent, including any current, execution.",
-      "schema:domainIncludes": {
-        "@id": "stencila:Executable"
-      },
-      "schema:rangeIncludes": {
-        "@id": "ExecutionStatus"
-      }
-    },
-    {
-      "@id": "stencila:executionEnded",
-      "@type": "rdfs:Property",
-      "rdfs:label": "executionEnded",
-      "rdfs:comment": "The timestamp when the last execution ended.",
-      "schema:domainIncludes": {
-        "@id": "stencila:Executable"
-      },
-      "schema:rangeIncludes": {
-        "@id": "Timestamp"
-      }
-    },
-    {
-      "@id": "stencila:executionDuration",
-      "@type": "rdfs:Property",
-      "rdfs:label": "executionDuration",
-      "rdfs:comment": "Duration of the last execution.",
-      "schema:domainIncludes": {
-        "@id": "stencila:Executable"
-      },
-      "schema:rangeIncludes": {
-        "@id": "Duration"
-      }
-    },
-    {
-      "@id": "stencila:errors",
-      "@type": "rdfs:Property",
-      "rdfs:label": "errors",
-      "rdfs:comment": "Errors when compiling (e.g. syntax errors) or executing the node.",
-      "schema:domainIncludes": [
-        {
-          "@id": "stencila:Executable"
-        },
-        {
-          "@id": "stencila:Math"
-        }
-      ],
-      "schema:rangeIncludes": {
-        "@id": "stencila:CodeError"
+        "@id": "Entity"
       }
     },
     {
       "@id": "stencila:code",
       "@type": "rdfs:Property",
       "rdfs:label": "code",
-      "rdfs:comment": "The code.",
+      "rdfs:comment": "The code of the equation in the `styleLanguage`.",
       "schema:domainIncludes": [
         {
           "@id": "stencila:CallArgument"
@@ -192,6 +31,9 @@
         },
         {
           "@id": "stencila:Math"
+        },
+        {
+          "@id": "stencila:Styled"
         }
       ],
       "schema:rangeIncludes": {
@@ -199,62 +41,48 @@
       }
     },
     {
-      "@id": "schema:programmingLanguage",
+      "@id": "stencila:styleLanguage",
       "@type": "rdfs:Property",
-      "rdfs:label": "programmingLanguage",
-      "rdfs:comment": "The programming language of the code.",
-      "schema:domainIncludes": [
-        {
-          "@id": "schema:SoftwareSourceCode"
-        },
-        {
-          "@id": "stencila:CallArgument"
-        },
-        {
-          "@id": "stencila:CodeExecutable"
-        },
-        {
-          "@id": "stencila:CodeStatic"
-        }
-      ],
+      "rdfs:label": "styleLanguage",
+      "rdfs:comment": "The language used for the style specification e.g. css, tailwind, classes.",
+      "schema:domainIncludes": {
+        "@id": "stencila:Styled"
+      },
       "schema:rangeIncludes": {
         "@id": "schema:Text"
       }
     },
     {
-      "@id": "stencila:guessLanguage",
+      "@id": "stencila:compileDigest",
       "@type": "rdfs:Property",
-      "rdfs:label": "guessLanguage",
-      "rdfs:comment": "Whether the programming language of the code should be guessed based on syntax and variables used",
+      "rdfs:label": "compileDigest",
+      "rdfs:comment": "A digest of the `code` and `styleLanguage`.",
       "schema:domainIncludes": [
         {
-          "@id": "stencila:CallArgument"
+          "@id": "stencila:Math"
         },
         {
-          "@id": "stencila:CodeExecutable"
+          "@id": "stencila:Styled"
         }
       ],
       "schema:rangeIncludes": {
-        "@id": "schema:Boolean"
+        "@id": "ExecutionDigest"
       }
     },
     {
-      "@id": "schema:encodingFormat",
+      "@id": "stencila:errors",
       "@type": "rdfs:Property",
-      "rdfs:label": "mediaType",
-      "rdfs:comment": "Media type, typically expressed using a MIME format, of the code.",
+      "rdfs:label": "errors",
+      "rdfs:comment": "Errors that occurred when transpiling the `code`.",
       "schema:domainIncludes": [
         {
-          "@id": "schema:MediaObject"
+          "@id": "stencila:Executable"
         },
         {
-          "@id": "stencila:CodeExecutable"
+          "@id": "stencila:Math"
         },
         {
-          "@id": "stencila:CodeStatic"
-        },
-        {
-          "@id": "stencila:Include"
+          "@id": "stencila:Styled"
         }
       ],
       "schema:rangeIncludes": {
@@ -265,7 +93,7 @@
       "@id": "stencila:css",
       "@type": "rdfs:Property",
       "rdfs:label": "css",
-      "rdfs:comment": "A Cascading Style Sheet (CSS) transpiled from the output of evaluating the `text` property.",
+      "rdfs:comment": "A Cascading Style Sheet (CSS) transpiled from the `code` property.",
       "schema:domainIncludes": {
         "@id": "stencila:Styled"
       },
@@ -277,7 +105,7 @@
       "@id": "stencila:classes",
       "@type": "rdfs:Property",
       "rdfs:label": "classes",
-      "rdfs:comment": "A list of class names associated with the document node",
+      "rdfs:comment": "A list of class names associated with the node",
       "schema:domainIncludes": {
         "@id": "stencila:Styled"
       },

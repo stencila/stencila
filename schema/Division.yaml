@@ -12,3 +12,8 @@ properties:
     type: array
     items:
       $ref: Block
+html:
+  elem: div
+  custom: true
+markdown:
+  format: '::: {{{code}}}\n\n{content}:::\n\n'

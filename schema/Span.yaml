@@ -12,3 +12,8 @@ properties:
     type: array
     items:
       $ref: Inline
+html:
+  elem: span
+  custom: true
+markdown:
+  format: '[{content}]{{{code}}}'
