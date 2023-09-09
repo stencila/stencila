@@ -298,7 +298,7 @@ pub enum NodeType {{
         attrs.push("#[serde(rename_all = \"camelCase\", crate = \"common::serde\")]".to_string());
 
         // Clone attrs for options before adding codec related attrs
-        let mut options_attrs = attrs.clone();
+        let options_attrs = attrs.clone();
 
         // Add #[html] attribute for main struct if necessary
         if let Some(html) = &schema.html {
