@@ -1,0 +1,259 @@
+{
+  "$schema": "https://stencila.dev/Article.schema.json",
+  "type": "Article",
+  "content": [
+    {
+      "type": "Paragraph",
+      "content": [
+        {
+          "type": "Text",
+          "value": "A boolean parameter "
+        },
+        {
+          "type": "Parameter",
+          "name": "par_bool_1",
+          "validator": {
+            "type": "BooleanValidator"
+          }
+        },
+        {
+          "type": "Text",
+          "value": ", with a default "
+        },
+        {
+          "type": "Parameter",
+          "name": "par_bool_2",
+          "default": true,
+          "validator": {
+            "type": "BooleanValidator"
+          }
+        },
+        {
+          "type": "Text",
+          "value": ", with a default and value "
+        },
+        {
+          "type": "Parameter",
+          "name": "par_bool_3",
+          "default": false,
+          "value": true,
+          "validator": {
+            "type": "BooleanValidator"
+          }
+        }
+      ]
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        {
+          "type": "Text",
+          "value": "An integer parameter "
+        },
+        {
+          "type": "Parameter",
+          "name": "par_int_1",
+          "validator": {
+            "type": "IntegerValidator"
+          }
+        },
+        {
+          "type": "Text",
+          "value": ", with a default "
+        },
+        {
+          "type": "Parameter",
+          "name": "par_int_2",
+          "default": 123,
+          "validator": {
+            "type": "IntegerValidator"
+          }
+        },
+        {
+          "type": "Text",
+          "value": ", with a default and value "
+        },
+        {
+          "type": "Parameter",
+          "name": "par_int_3",
+          "default": 123,
+          "value": 456,
+          "validator": {
+            "type": "IntegerValidator"
+          }
+        },
+        {
+          "type": "Text",
+          "value": ", with min, max and mult options "
+        },
+        {
+          "type": "Parameter",
+          "name": "par_int_4",
+          "default": 123,
+          "value": 45,
+          "validator": {
+            "type": "IntegerValidator",
+            "minimum": -100,
+            "maximum": 100,
+            "multipleOf": 2
+          }
+        }
+      ]
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        {
+          "type": "Text",
+          "value": "A number parameter "
+        },
+        {
+          "type": "Parameter",
+          "name": "par_num_1",
+          "default": 1.23,
+          "value": 4.5,
+          "validator": {
+            "type": "NumberValidator",
+            "minimum": -10.1,
+            "exclusiveMinimum": -10.1,
+            "maximum": 10.1,
+            "exclusiveMaximum": 10.1,
+            "multipleOf": 2.2
+          }
+        }
+      ]
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        {
+          "type": "Text",
+          "value": "A string parameter "
+        },
+        {
+          "type": "Parameter",
+          "name": "par_str_1",
+          "default": "hello",
+          "value": "hi",
+          "validator": {
+            "type": "StringValidator",
+            "min_length": 0,
+            "max_length": 10,
+            "pattern": "[a-z]+"
+          }
+        },
+        {
+          "type": "Text",
+          "value": " with quotes in properties "
+        },
+        {
+          "type": "Parameter",
+          "name": "par_str_2",
+          "default": "a\"b",
+          "value": "a\"b",
+          "validator": {
+            "type": "StringValidator",
+            "pattern": "a\"b"
+          }
+        }
+      ]
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        {
+          "type": "Text",
+          "value": "A date parameter "
+        },
+        {
+          "type": "Parameter",
+          "name": "par_date",
+          "default": "2022-02-22",
+          "value": "2022-02-23",
+          "validator": {
+            "type": "DateValidator",
+            "minimum": {
+              "type": "Date",
+              "value": "2022-02-20"
+            },
+            "maximum": {
+              "type": "Date",
+              "value": "2022-02-24"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        {
+          "type": "Text",
+          "value": "A time parameter "
+        },
+        {
+          "type": "Parameter",
+          "name": "par_time",
+          "default": "22:22",
+          "value": "22:23",
+          "validator": {
+            "type": "TimeValidator",
+            "minimum": {
+              "type": "Time",
+              "value": "22:20"
+            },
+            "maximum": {
+              "type": "Time",
+              "value": "22:24"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        {
+          "type": "Text",
+          "value": "A date-time parameter "
+        },
+        {
+          "type": "Parameter",
+          "name": "par_date_time",
+          "default": "2022-02-22T22:22",
+          "value": "2022-02-22T22:23",
+          "validator": {
+            "type": "DateTimeValidator",
+            "minimum": {
+              "type": "DateTime",
+              "value": "2022-02-22T22:20"
+            },
+            "maximum": {
+              "type": "DateTime",
+              "value": "2022-02-22T22:24"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        {
+          "type": "Text",
+          "value": "An enum parameter "
+        },
+        {
+          "type": "Parameter",
+          "name": "par_enum",
+          "default": "green",
+          "value": "red",
+          "validator": {
+            "type": "EnumValidator",
+            "values": ["blue", "red", "green"]
+          }
+        }
+      ]
+    }
+  ]
+}

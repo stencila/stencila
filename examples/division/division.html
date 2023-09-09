@@ -7,8 +7,10 @@
   <div is="stencila-division" code="bg-$color-100 p-2">
     <p>
       <span>A division with this parameter</span>
-      <stencila-parameter is="stencila-parameter" name="color" validator="{&quot;type&quot;:&quot;EnumValidator&quot;,&quot;values&quot;:[&quot;red&quot;,&quot;blue&quot;,&quot;green&quot;]}">
-      </stencila-parameter>
+      <span is="stencila-parameter" name="color">
+        <stencila-enum-validator values="[&quot;red&quot;,&quot;blue&quot;,&quot;green&quot;]">
+        </stencila-enum-validator>
+      </span>
       <span>interpolated into background color</span>
     </p>
   </div>

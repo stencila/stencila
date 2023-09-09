@@ -8,6 +8,13 @@
   ],
   "description": "A parameter of a document.",
   "status": "experimental",
+  "html": {
+    "elem": "span",
+    "custom": true
+  },
+  "markdown": {
+    "special": true
+  },
   "required": [
     "type",
     "name"
@@ -181,6 +188,9 @@
     "validator": {
       "@id": "stencila:validator",
       "description": "The validator that the value is validated against.",
+      "html": {
+        "content": true
+      },
       "$ref": "Validator.schema.json"
     },
     "hidden": {

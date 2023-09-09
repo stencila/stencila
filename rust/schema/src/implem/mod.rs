@@ -11,4 +11,5 @@ mod math_fragment;
 mod node;
 mod null;
 mod object;
+mod parameter;
 mod primitive;
