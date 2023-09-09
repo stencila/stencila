@@ -243,29 +243,6 @@
       "schema:rangeIncludes": {
         "@id": "schema:Boolean"
       }
-    },
-    {
-      "@id": "schema:encodingFormat",
-      "@type": "rdfs:Property",
-      "rdfs:label": "mediaType",
-      "rdfs:comment": "Media type, typically expressed using a MIME format, of the code.",
-      "schema:domainIncludes": [
-        {
-          "@id": "schema:MediaObject"
-        },
-        {
-          "@id": "stencila:CodeExecutable"
-        },
-        {
-          "@id": "stencila:CodeStatic"
-        },
-        {
-          "@id": "stencila:Include"
-        }
-      ],
-      "schema:rangeIncludes": {
-        "@id": "schema:Text"
-      }
     }
   ]
 }

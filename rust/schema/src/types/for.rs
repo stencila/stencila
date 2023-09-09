@@ -33,12 +33,15 @@ pub struct For {
     pub id: Option<String>,
 
     /// The code.
+    #[strip(code)]
     pub code: Cord,
 
     /// The programming language of the code.
+    #[strip(code)]
     pub programming_language: String,
 
     /// Whether the programming language of the code should be guessed based on syntax and variables used
+    #[strip(code)]
     pub guess_language: Option<Boolean>,
 
     /// The name to give to the variable representing each item in the iterated array
@@ -117,9 +120,6 @@ pub struct ForOptions {
     /// Errors when compiling (e.g. syntax errors) or executing the node.
     #[strip(execution)]
     pub errors: Option<Vec<CodeError>>,
-
-    /// Media type, typically expressed using a MIME format, of the code.
-    pub media_type: Option<String>,
 }
 
 impl For {

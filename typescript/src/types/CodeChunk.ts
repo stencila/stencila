@@ -70,9 +70,6 @@ export class CodeChunk {
   // Whether the programming language of the code should be guessed based on syntax and variables used
   guessLanguage?: boolean;
 
-  // Media type, typically expressed using a MIME format, of the code.
-  mediaType?: string;
-
   // Whether the code should be treated as side-effect free when executed.
   executionPure?: boolean;
 

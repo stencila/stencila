@@ -33,12 +33,15 @@ pub struct CodeChunk {
     pub id: Option<String>,
 
     /// The code.
+    #[strip(code)]
     pub code: Cord,
 
     /// The programming language of the code.
+    #[strip(code)]
     pub programming_language: String,
 
     /// Whether the programming language of the code should be guessed based on syntax and variables used
+    #[strip(code)]
     pub guess_language: Option<Boolean>,
 
     /// Outputs from executing the chunk.
@@ -105,9 +108,6 @@ pub struct CodeChunkOptions {
     /// Errors when compiling (e.g. syntax errors) or executing the node.
     #[strip(execution)]
     pub errors: Option<Vec<CodeError>>,
-
-    /// Media type, typically expressed using a MIME format, of the code.
-    pub media_type: Option<String>,
 
     /// Whether the code should be treated as side-effect free when executed.
     #[strip(execution)]

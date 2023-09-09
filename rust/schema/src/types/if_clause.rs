@@ -32,12 +32,15 @@ pub struct IfClause {
     pub id: Option<String>,
 
     /// The code.
+    #[strip(code)]
     pub code: Cord,
 
     /// The programming language of the code.
+    #[strip(code)]
     pub programming_language: String,
 
     /// Whether the programming language of the code should be guessed based on syntax and variables used
+    #[strip(code)]
     pub guess_language: Option<Boolean>,
 
     /// The content to render if the result is true-thy
@@ -103,9 +106,6 @@ pub struct IfClauseOptions {
     /// Errors when compiling (e.g. syntax errors) or executing the node.
     #[strip(execution)]
     pub errors: Option<Vec<CodeError>>,
-
-    /// Media type, typically expressed using a MIME format, of the code.
-    pub media_type: Option<String>,
 
     /// Whether this clause is the active clause in the parent `If` node
     #[strip(output)]

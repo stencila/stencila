@@ -200,12 +200,6 @@
           "@id": "schema:MediaObject"
         },
         {
-          "@id": "stencila:CodeExecutable"
-        },
-        {
-          "@id": "stencila:CodeStatic"
-        },
-        {
           "@id": "stencila:Include"
         }
       ],
