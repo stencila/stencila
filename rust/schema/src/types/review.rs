@@ -33,6 +33,7 @@ pub struct Review {
 
     /// Non-core optional fields
     #[serde(flatten)]
+    #[html(flatten)]
     pub options: Box<ReviewOptions>,
 }
 

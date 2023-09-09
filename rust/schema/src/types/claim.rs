@@ -42,6 +42,7 @@ pub struct Claim {
 
     /// Non-core optional fields
     #[serde(flatten)]
+    #[html(flatten)]
     pub options: Box<ClaimOptions>,
 }
 

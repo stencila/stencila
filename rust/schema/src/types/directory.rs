@@ -42,6 +42,7 @@ pub struct Directory {
 
     /// Non-core optional fields
     #[serde(flatten)]
+    #[html(flatten)]
     pub options: Box<DirectoryOptions>,
 }
 

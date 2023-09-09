@@ -38,6 +38,7 @@ pub struct ListItem {
 
     /// Non-core optional fields
     #[serde(flatten)]
+    #[html(flatten)]
     pub options: Box<ListItemOptions>,
 }
 

@@ -44,6 +44,7 @@ pub struct Table {
 
     /// Non-core optional fields
     #[serde(flatten)]
+    #[html(flatten)]
     pub options: Box<TableOptions>,
 }
 

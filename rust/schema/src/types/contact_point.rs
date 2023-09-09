@@ -28,6 +28,7 @@ pub struct ContactPoint {
 
     /// Non-core optional fields
     #[serde(flatten)]
+    #[html(flatten)]
     pub options: Box<ContactPointOptions>,
 }
 

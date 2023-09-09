@@ -40,6 +40,7 @@ pub struct PublicationIssue {
 
     /// Non-core optional fields
     #[serde(flatten)]
+    #[html(flatten)]
     pub options: Box<PublicationIssueOptions>,
 }
 

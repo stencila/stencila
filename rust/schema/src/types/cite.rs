@@ -29,6 +29,7 @@ pub struct Cite {
 
     /// Non-core optional fields
     #[serde(flatten)]
+    #[html(flatten)]
     pub options: Box<CiteOptions>,
 }
 

@@ -43,6 +43,7 @@ pub struct PostalAddress {
 
     /// Non-core optional fields
     #[serde(flatten)]
+    #[html(flatten)]
     pub options: Box<PostalAddressOptions>,
 }
 

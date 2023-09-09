@@ -38,6 +38,9 @@ struct FieldAttr {
 
     #[darling(default)]
     slot: Option<String>,
+
+    #[darling(default)]
+    flatten: bool
 }
 
 /// Derive the `HtmlCodec` trait for a `struct` or an `enum`
@@ -109,7 +112,7 @@ fn derive_struct(type_attr: TypeAttr) -> TokenStream {
             return;
         }
 
-        let field_tokens = if field_name == "options" {
+        let field_tokens = if field_attr.flatten {
             // Flatten out the attributes and children of the options field
             quote! {
                 let mut parts = self.#field_name.to_html_parts();

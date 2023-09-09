@@ -39,6 +39,7 @@ pub struct Figure {
 
     /// Non-core optional fields
     #[serde(flatten)]
+    #[html(flatten)]
     pub options: Box<FigureOptions>,
 }
 

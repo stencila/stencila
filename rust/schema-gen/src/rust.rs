@@ -465,6 +465,7 @@ pub struct {title}Options {{
 
     /// Non-core optional fields
     #[serde(flatten)]
+    #[html(flatten)]
     pub options: Box<{title}Options>,"
             );
         }

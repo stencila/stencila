@@ -29,6 +29,7 @@ pub struct PropertyValue {
 
     /// Non-core optional fields
     #[serde(flatten)]
+    #[html(flatten)]
     pub options: Box<PropertyValueOptions>,
 }
 
