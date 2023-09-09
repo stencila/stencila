@@ -9,7 +9,7 @@ use super::string::String;
 #[skip_serializing_none]
 #[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, HtmlCodec, MarkdownCodec, TextCodec, ReadNode, WriteNode)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
-#[html(elem = "pre")]
+#[html(elem = "pre", custom)]
 #[markdown(special)]
 pub struct CodeBlock {
     /// The type of this item
