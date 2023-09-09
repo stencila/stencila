@@ -110,12 +110,12 @@ impl HtmlCodec for Cord {
 
 impl MarkdownCodec for Cord {
     fn to_markdown(&self) -> (String, Losses) {
-        (self.0.to_string(), Losses::none())
+        (self.to_string(), Losses::none())
     }
 }
 
 impl TextCodec for Cord {
     fn to_text(&self) -> (String, Losses) {
-        (self.0.to_string(), Losses::none())
+        (self.to_string(), Losses::none())
     }
 }

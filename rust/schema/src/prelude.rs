@@ -1,7 +1,7 @@
 pub use monostate::MustBe;
 
 pub use common::{
-    derive_more::Deref,
+    derive_more::{Deref, DerefMut},
     eyre::{bail, Result},
     itertools::Itertools,
     serde::{self, Deserialize, Serialize},
