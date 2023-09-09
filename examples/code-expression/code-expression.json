@@ -27,7 +27,8 @@
         {
           "type": "CodeExpression",
           "programmingLanguage": "python",
-          "code": "'a string'"
+          "code": "'a string'",
+          "output": "a string"
         }
       ]
     },

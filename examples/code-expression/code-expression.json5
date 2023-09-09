@@ -26,7 +26,8 @@
         {
           type: "CodeExpression",
           code: "'a string'",
-          programmingLanguage: "python"
+          programmingLanguage: "python",
+          output: "a string"
         }
       ]
     },

@@ -127,11 +127,14 @@ fn derive_struct(type_attr: TypeAttr) -> TokenStream {
         } else if let Some(slot) = field_attr.slot {
             // Wrap the field in a slot
             quote! {
-                children.push(elem(
-                    #slot,
-                    &[attr("slot", stringify!(#field_name))],
-                    &[self.#field_name.to_html()]
-                ));
+                let slot_html = self.#field_name.to_html();
+                if !slot_html.is_empty() {
+                    children.push(elem(
+                        #slot,
+                        &[attr("slot", stringify!(#field_name))],
+                        &[slot_html]
+                    ));
+                }
             }
         } else {
             let attr_name = if let Some(attr_name) = field_attr.attr {
