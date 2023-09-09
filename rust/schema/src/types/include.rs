@@ -53,7 +53,6 @@ pub struct Include {
 #[skip_serializing_none]
 #[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, HtmlCodec, MarkdownCodec, TextCodec, ReadNode, WriteNode)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
-#[html(flatten)]
 pub struct IncludeOptions {
     /// Under which circumstances the code should be automatically executed.
     #[strip(execution)]

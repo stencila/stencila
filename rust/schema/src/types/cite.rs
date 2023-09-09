@@ -35,7 +35,6 @@ pub struct Cite {
 #[skip_serializing_none]
 #[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, HtmlCodec, MarkdownCodec, TextCodec, ReadNode, WriteNode)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
-#[html(flatten)]
 pub struct CiteOptions {
     /// The type/s of the citation, both factually and rhetorically.
     pub citation_intent: Option<Vec<CitationIntent>>,

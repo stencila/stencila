@@ -34,7 +34,6 @@ pub struct ContactPoint {
 #[skip_serializing_none]
 #[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, HtmlCodec, MarkdownCodec, TextCodec, ReadNode, WriteNode)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
-#[html(flatten)]
 pub struct ContactPointOptions {
     /// Alternate names (aliases) for the item.
     pub alternate_names: Option<Vec<String>>,

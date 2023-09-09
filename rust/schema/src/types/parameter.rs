@@ -22,6 +22,8 @@ use super::validator::Validator;
 #[skip_serializing_none]
 #[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, HtmlCodec, MarkdownCodec, TextCodec, ReadNode, WriteNode)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
+#[html(elem = "span", custom)]
+#[markdown(special)]
 pub struct Parameter {
     /// The type of this item
     pub r#type: MustBe!("Parameter"),
@@ -44,6 +46,7 @@ pub struct Parameter {
     pub default: Option<Box<Node>>,
 
     /// The validator that the value is validated against.
+    #[html(content)]
     pub validator: Option<Validator>,
 
     /// Non-core optional fields
@@ -54,7 +57,6 @@ pub struct Parameter {
 #[skip_serializing_none]
 #[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, HtmlCodec, MarkdownCodec, TextCodec, ReadNode, WriteNode)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
-#[html(flatten)]
 pub struct ParameterOptions {
     /// Under which circumstances the code should be automatically executed.
     #[strip(execution)]

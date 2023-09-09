@@ -22,10 +22,7 @@ struct TypeAttr {
     custom: bool,
 
     #[darling(default)]
-    special: bool,
-
-    #[darling(default)]
-    flatten: bool,
+    special: bool
 }
 
 #[derive(FromField)]
@@ -97,7 +94,7 @@ fn derive_struct(type_attr: TypeAttr) -> TokenStream {
 
     let mut attrs = quote!();
 
-    if (type_attr.elem.is_none() || type_attr.custom) && !type_attr.flatten {
+    if type_attr.custom {
         attrs.extend(quote!(attr("is", #custom_elem),))
     };
 
