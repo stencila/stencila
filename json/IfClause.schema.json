@@ -8,6 +8,10 @@
   ],
   "description": "A clause within a `If` node",
   "status": "experimental",
+  "html": {
+    "elem": "div",
+    "custom": true
+  },
   "required": [
     "type",
     "code",

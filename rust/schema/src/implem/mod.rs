@@ -7,6 +7,7 @@ mod code_fragment;
 mod cord;
 mod r#for;
 mod heading;
+mod r#if;
 mod math_block;
 mod math_fragment;
 mod node;

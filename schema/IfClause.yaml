@@ -1,8 +1,13 @@
 title: IfClause
 '@id': stencila:IfClause
+extends: CodeExecutable
 description: A clause within a `If` node
 status: experimental
-extends: CodeExecutable
+html:
+  elem: div
+  custom: true
+required:
+  - content
 properties:
   isActive:
     '@id': stencila:isActive
@@ -16,5 +21,3 @@ properties:
     type: array
     items:
       $ref: Block
-required:
-  - content

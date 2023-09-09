@@ -22,6 +22,7 @@ use super::timestamp::Timestamp;
 #[skip_serializing_none]
 #[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, HtmlCodec, MarkdownCodec, TextCodec, ReadNode, WriteNode)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
+#[html(elem = "div", custom)]
 pub struct IfClause {
     /// The type of this item
     pub r#type: MustBe!("IfClause"),

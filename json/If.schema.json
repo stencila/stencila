@@ -8,6 +8,13 @@
   ],
   "description": "Show and execute alternative content conditional upon an executed expression",
   "status": "experimental",
+  "html": {
+    "elem": "div",
+    "custom": true
+  },
+  "markdown": {
+    "special": true
+  },
   "required": [
     "type",
     "clauses"
@@ -158,6 +165,9 @@
       "strip": [
         "code"
       ],
+      "html": {
+        "content": true
+      },
       "type": "array",
       "items": {
         "$ref": "IfClause.schema.json"

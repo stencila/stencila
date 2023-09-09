@@ -1,8 +1,13 @@
 title: If
 '@id': stencila:If
+extends: Executable
 description: Show and execute alternative content conditional upon an executed expression
 status: experimental
-extends: Executable
+html:
+  elem: div
+  custom: true
+markdown:
+  special: true
 required:
   - clauses
 properties:
@@ -11,6 +16,8 @@ properties:
     description: The clauses making up the `If` node
     strip:
       - code
+    html:
+      content: true
     type: array
     items:
       $ref: IfClause
