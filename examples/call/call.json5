@@ -1,0 +1,40 @@
+{
+  type: "Article",
+  content: [
+    {
+      type: "Paragraph",
+      content: [
+        {
+          type: "Text",
+          value: "A call of sibling document"
+        }
+      ]
+    },
+    {
+      type: "Call",
+      source: "..\/parameter\/parameter.md",
+      arguments: []
+    },
+    {
+      type: "Paragraph",
+      content: [
+        {
+          type: "Text",
+          value: "A call with arguments"
+        }
+      ]
+    },
+    {
+      type: "Call",
+      source: "..\/parameter\/parameter.md",
+      arguments: [
+        {
+          type: "CallArgument",
+          name: "arg1",
+          code: "123",
+          programmingLanguage: ""
+        }
+      ]
+    }
+  ]
+}
