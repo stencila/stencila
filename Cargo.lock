@@ -234,9 +234,9 @@ checksum = "9e1b586273c5702936fe7b7d6896644d8be71e6314cfe09d3167c95f712589e8"
 
 [[package]]
 name = "base64"
-version = "0.21.3"
+version = "0.21.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "414dcefbc63d77c526a76b3afcf6fbb9b5e2791c19c3aa2297733208750c6e53"
+checksum = "9ba43ea6f343b788c8764558649e08df62f86c6ef251fdaeb1ffd010a9ae50a2"
 
 [[package]]
 name = "bincode"
@@ -582,7 +582,7 @@ dependencies = [
  "Inflector",
  "async-recursion",
  "async-trait",
- "base64 0.21.3",
+ "base64 0.21.4",
  "chrono",
  "clap",
  "derivative",
@@ -1896,7 +1896,7 @@ version = "1.4.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "9bd9647b268a3d3e14ff09c23201133a62589c658db02bb7388c7246aafe0590"
 dependencies = [
- "base64 0.21.3",
+ "base64 0.21.4",
  "indexmap 1.9.3",
  "line-wrap",
  "quick-xml 0.28.2",
@@ -2308,7 +2308,7 @@ version = "3.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "1ca3b16a3d82c4088f343b7480a93550b3eabe1a358569c2dfe38bbcead07237"
 dependencies = [
- "base64 0.21.3",
+ "base64 0.21.4",
  "chrono",
  "hex",
  "indexmap 1.9.3",
@@ -2770,7 +2770,7 @@ checksum = "3082666a3a6433f7f511c7192923fa1fe07c69332d3c6a2e6bb040b569199d5a"
 dependencies = [
  "async-trait",
  "axum",
- "base64 0.21.3",
+ "base64 0.21.4",
  "bytes",
  "futures-core",
  "futures-util",
