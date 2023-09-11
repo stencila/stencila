@@ -11,7 +11,7 @@ packages = [{include = "stencila"}]
 python = "^3.11"
 
 [tool.poetry.group.dev.dependencies]
-black = "^23.7.0"
+black = "^23.9.1"
 
 [build-system]
 requires = ["poetry-core"]
