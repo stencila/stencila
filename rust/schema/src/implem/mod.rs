@@ -10,6 +10,8 @@ mod r#for;
 mod heading;
 mod r#if;
 mod include;
+mod list;
+mod list_items;
 mod math_block;
 mod math_fragment;
 mod node;

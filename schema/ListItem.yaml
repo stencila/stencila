@@ -11,6 +11,11 @@ $comment: |
     - HTML [`<li>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/li)
     - MDAST [`ListItem`](https://github.com/syntax-tree/mdast#listitem)
     - OpenDocument [`<text:list-item>`](http://docs.oasis-open.org/office/v1.2/os/OpenDocument-v1.2-os-part1.html#__RefHeading__1415154_253892949)
+html:
+  elem: li
+  custom: true
+markdown:
+  special: true
 core:
   - content
   - item
