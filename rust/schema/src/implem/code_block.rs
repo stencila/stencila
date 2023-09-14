@@ -5,7 +5,7 @@ impl CodeBlock {
         let mut md = "```".to_string();
 
         if let Some(lang) = &self.programming_language {
-            md.push_str(&lang);
+            md.push_str(lang);
         }
 
         md.push('\n');

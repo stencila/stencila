@@ -22,7 +22,7 @@ struct TypeAttr {
     custom: bool,
 
     #[darling(default)]
-    special: bool
+    special: bool,
 }
 
 #[derive(FromField)]
@@ -40,7 +40,7 @@ struct FieldAttr {
     slot: Option<String>,
 
     #[darling(default)]
-    flatten: bool
+    flatten: bool,
 }
 
 /// Derive the `HtmlCodec` trait for a `struct` or an `enum`
