@@ -8,15 +8,15 @@ This Rust crate generates the following from the YAML files in `../../schema`:
 
   - [ ] Markdown documentation: [`src/docs.rs`](src/docs.rs)
 
-  - [ ] Python types: [`src/python.rs`](src/python.rs)
+  - [x] Python types: [`src/python.rs`](src/python.rs)
 
   - [x] Rust types: [`src/rust.rs`](src/rust.rs)
 
-  - [ ] TypeScript types: [`src/typescript.rs`](src/typescript.rs)
+  - [x] TypeScript types: [`src/typescript.rs`](src/typescript.rs)
 
-  - [ ] JSON-LD context: [`src/json_ld.rs`](src/json_ld.rs)
+  - [x] JSON-LD context: [`src/json_ld.rs`](src/json_ld.rs)
 
-  - [ ] JSON Schema: [`src/json_schema.rs`](src/json_schema.rs)
+  - [x] JSON Schema: [`src/json_schema.rs`](src/json_schema.rs)
 
 ## Adding a new type of generated output
 
@@ -26,9 +26,9 @@ This Rust crate generates the following from the YAML files in `../../schema`:
 
 - In `src/main.rs` add:
 
-  - a new variant to `What` to enable the new output
+  - a new variant to `enum What` to enable the new output
 
-  - a new case for the `match` in `async fn main()` to handle the new varant
+  - a new case for the `match` in `async fn main()` to handle the new variant
 
 - Test by generating the new output. By default all outputs are generated. To generated only some, list them e.g.
 
