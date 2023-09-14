@@ -79,7 +79,7 @@ pub fn setup(level: LoggingLevel, filter: &str, format: LoggingFormat) -> Result
 /// stderr with all the `tokio` trace entries. e.g.
 ///
 /// ```sh
-/// cargo run --bin stencila --features=console-subscriber -- --log-level=debug ...
+/// cargo run --bin cli --features=console-subscriber -- --log-level=debug ...
 /// ```
 #[cfg(feature = "console-subscriber")]
 pub fn setup(level: LoggingLevel, _filter: &str, _format: LoggingFormat) -> Result<()> {

@@ -374,6 +374,33 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "2da6da31387c7e4ef160ffab6d5e7f00c42626fe39aea70a7b0f1773f7dd6c1b"
 
 [[package]]
+name = "cli"
+version = "2.0.0-alpha.7"
+dependencies = [
+ "axum",
+ "codecs",
+ "color-eyre",
+ "common",
+ "common-dev",
+ "console-subscriber",
+ "document",
+ "format",
+ "is-terminal",
+ "syntect",
+ "tracing-error",
+ "tracing-subscriber",
+ "yansi",
+]
+
+[[package]]
+name = "cli-gen"
+version = "0.1.0"
+dependencies = [
+ "clap-markdown",
+ "cli",
+]
+
+[[package]]
 name = "codec"
 version = "0.0.0"
 dependencies = [
@@ -2452,33 +2479,6 @@ name = "status"
 version = "0.0.0"
 dependencies = [
  "common",
-]
-
-[[package]]
-name = "stencila"
-version = "2.0.0-alpha.7"
-dependencies = [
- "axum",
- "codecs",
- "color-eyre",
- "common",
- "common-dev",
- "console-subscriber",
- "document",
- "format",
- "is-terminal",
- "syntect",
- "tracing-error",
- "tracing-subscriber",
- "yansi",
-]
-
-[[package]]
-name = "stencila-gen"
-version = "0.1.0"
-dependencies = [
- "clap-markdown",
- "stencila",
 ]
 
 [[package]]

@@ -1,8 +1,12 @@
 [package]
-name = "stencila"
+name = "cli"
 version = "2.0.0-alpha.7"
 authors = ["Nokome Bentley <nokome@stencila.io"]
 edition = "2021"
+
+[[bin]]
+name = "stencila"
+path = "src/main.rs"
 
 [features]
 tokio-console = ["console-subscriber"]

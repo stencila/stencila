@@ -38,16 +38,16 @@ audit:
 
 # Build CLI binary
 build:
-	cargo build --bin stencila --release
+	cargo build --bin cli --release
 
-# Use cargo to install the binary
+# Use cargo to install the CLI binary
 install:
-	cargo install --path stencila
+	cargo install --path cli
 
 # Build generated files
 generated:
 	cargo run -p schema-gen
-	cargo run -p stencila-gen > ../docs/reference/cli.md
+	cargo run -p cli-gen > ../docs/reference/cli.md
 
 # Update derived examples
 examples:

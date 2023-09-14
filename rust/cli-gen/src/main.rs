@@ -1,4 +1,4 @@
-use stencila::cli::Cli;
+use cli::Cli;
 
 /// Generates documentation for the CLI in the sibling `stencila` crate
 fn main() {

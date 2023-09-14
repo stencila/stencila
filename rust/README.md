@@ -40,9 +40,9 @@ The current crates include:
 
 #### CLI
 
-- [`stencila`](stencila): The `stencila` CLI tool
+- [`cli`](cli): The `stencila` CLI tool
 
-- [`stencila-gen`](stencila-gen): Generates documentation for the CLI
+- [`cli-gen`](cli-gen): Generates reference documentation for the CLI
 
 #### Documents and formats
 

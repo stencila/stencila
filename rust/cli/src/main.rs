@@ -1,6 +1,6 @@
 use common::{clap::Parser, eyre::Result, tokio};
 
-use stencila::{cli::Cli, errors, logging};
+use cli::{errors, logging, Cli};
 
 /// Main entry function
 #[tokio::main]
