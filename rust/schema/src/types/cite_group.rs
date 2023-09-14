@@ -21,6 +21,7 @@ pub struct CiteGroup {
     /// One or more `Cite`s to be referenced in the same surrounding text.
     pub items: Vec<Cite>,
 }
+
 impl CiteGroup {
     pub fn new(items: Vec<Cite>) -> Self {
         Self {

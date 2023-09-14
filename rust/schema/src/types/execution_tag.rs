@@ -27,6 +27,7 @@ pub struct ExecutionTag {
     /// Whether the tag is global to the document
     pub is_global: Boolean,
 }
+
 impl ExecutionTag {
     pub fn new(name: String, value: String, is_global: Boolean) -> Self {
         Self {

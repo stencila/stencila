@@ -1,8 +1,10 @@
 title: For
 '@id': stencila:For
+extends: CodeExecutable
 description: Repeat a block content for each item in an array.
 status: experimental
-extends: CodeExecutable
+markdown:
+  special: true
 required:
   - symbol
   - content

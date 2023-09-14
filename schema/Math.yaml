@@ -26,7 +26,8 @@ properties:
     type: string
   compileDigest:
     '@id': stencila:compileDigest
-    description: A digest of the `code` and `mathLanguage` used to avoid unnecessary transpilation to MathML
+    description: A digest of the `code` and `mathLanguage`.
+    $comment: Used to avoid unnecessary transpilation to MathML.
     $ref: ExecutionDigest
   errors:
     '@id': stencila:errors
@@ -41,5 +42,8 @@ properties:
       type: string
   mathml:
     '@id': stencila:mathml
-    description: The MathML transpiled from the `code`
+    description: The MathML transpiled from the `code`.
+    $comment: Used along with `compileDigest` to avoid unnecessary transpilation to MathML.
+    html:
+      content: true
     type: string

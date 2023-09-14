@@ -11,6 +11,8 @@ $comment: |
     - Pandoc [`Link`](https://github.com/jgm/pandoc-types/blob/1.17.5.4/Text/Pandoc/Definition.hs#L270)
 html:
   elem: a
+markdown:
+  format: '[{content}]({target})'
 required:
   - content
   - target

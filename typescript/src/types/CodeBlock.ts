@@ -15,9 +15,6 @@ export class CodeBlock {
   // The programming language of the code.
   programmingLanguage?: string;
 
-  // Media type, typically expressed using a MIME format, of the code.
-  mediaType?: string;
-
   constructor(code: Cord, options?: CodeBlock) {
     if (options) Object.assign(this, options)
     this.code = code;

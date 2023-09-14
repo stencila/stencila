@@ -34,12 +34,15 @@ pub struct CodeExpression {
     pub id: Option<String>,
 
     /// The code.
+    #[strip(code)]
     pub code: Cord,
 
     /// The programming language of the code.
+    #[strip(code)]
     pub programming_language: String,
 
     /// Whether the programming language of the code should be guessed based on syntax and variables used
+    #[strip(code)]
     pub guess_language: Option<Boolean>,
 
     /// The value of the expression when it was last evaluated.
@@ -49,13 +52,13 @@ pub struct CodeExpression {
 
     /// Non-core optional fields
     #[serde(flatten)]
+    #[html(flatten)]
     pub options: Box<CodeExpressionOptions>,
 }
 
 #[skip_serializing_none]
 #[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, HtmlCodec, MarkdownCodec, TextCodec, ReadNode, WriteNode)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
-#[html(flatten)]
 pub struct CodeExpressionOptions {
     /// Under which circumstances the code should be automatically executed.
     #[strip(execution)]
@@ -108,9 +111,6 @@ pub struct CodeExpressionOptions {
     /// Errors when compiling (e.g. syntax errors) or executing the node.
     #[strip(execution)]
     pub errors: Option<Vec<CodeError>>,
-
-    /// Media type, typically expressed using a MIME format, of the code.
-    pub media_type: Option<String>,
 }
 
 impl CodeExpression {

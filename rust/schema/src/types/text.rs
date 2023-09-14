@@ -23,6 +23,7 @@ pub struct Text {
     #[html(content)]
     pub value: Cord,
 }
+
 impl Text {
     pub fn new(value: Cord) -> Self {
         Self {

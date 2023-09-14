@@ -23,6 +23,7 @@ use super::timestamp::Timestamp;
 #[skip_serializing_none]
 #[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, HtmlCodec, MarkdownCodec, TextCodec, ReadNode, WriteNode)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
+#[markdown(special)]
 pub struct For {
     /// The type of this item
     pub r#type: MustBe!("For"),
@@ -33,12 +34,15 @@ pub struct For {
     pub id: Option<String>,
 
     /// The code.
+    #[strip(code)]
     pub code: Cord,
 
     /// The programming language of the code.
+    #[strip(code)]
     pub programming_language: String,
 
     /// Whether the programming language of the code should be guessed based on syntax and variables used
+    #[strip(code)]
     pub guess_language: Option<Boolean>,
 
     /// The name to give to the variable representing each item in the iterated array
@@ -59,13 +63,13 @@ pub struct For {
 
     /// Non-core optional fields
     #[serde(flatten)]
+    #[html(flatten)]
     pub options: Box<ForOptions>,
 }
 
 #[skip_serializing_none]
 #[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, HtmlCodec, MarkdownCodec, TextCodec, ReadNode, WriteNode)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
-#[html(flatten)]
 pub struct ForOptions {
     /// Under which circumstances the code should be automatically executed.
     #[strip(execution)]
@@ -118,9 +122,6 @@ pub struct ForOptions {
     /// Errors when compiling (e.g. syntax errors) or executing the node.
     #[strip(execution)]
     pub errors: Option<Vec<CodeError>>,
-
-    /// Media type, typically expressed using a MIME format, of the code.
-    pub media_type: Option<String>,
 }
 
 impl For {

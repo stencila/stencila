@@ -25,6 +25,7 @@ pub struct Note {
     /// Content of the note, usually a paragraph.
     pub content: Vec<Block>,
 }
+
 impl Note {
     pub fn new(note_type: NoteType, content: Vec<Block>) -> Self {
         Self {

@@ -1,6 +1,6 @@
 With a number output: `6 * 7`{python exec output=42}
 
-With a string output: `'a string'`{python exec}
+With a string output: `'a string'`{python exec output="a string"}
 
 With an array output: `[1, 2, 3]`{python exec output=[1,2,3]}
 

@@ -8,6 +8,9 @@
   ],
   "description": "Call another document, optionally with arguments, and include its executed content.",
   "status": "experimental",
+  "markdown": {
+    "special": true
+  },
   "required": [
     "type",
     "source",

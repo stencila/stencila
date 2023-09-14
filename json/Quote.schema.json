@@ -8,7 +8,10 @@
   ],
   "description": "Inline, quoted content.",
   "html": {
-    "elem": "quote"
+    "elem": "q"
+  },
+  "markdown": {
+    "format": "<q>{content}</q>"
   },
   "required": [
     "type",

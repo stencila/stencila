@@ -28,6 +28,7 @@ pub struct TimestampValidator {
     /// The inclusive upper limit for a timestamp.
     pub maximum: Option<Timestamp>,
 }
+
 impl TimestampValidator {
     pub fn new() -> Self {
         Self {

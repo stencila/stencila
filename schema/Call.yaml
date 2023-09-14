@@ -1,8 +1,10 @@
 title: Call
 '@id': stencila:Call
+extends: Include
 description: Call another document, optionally with arguments, and include its executed content.
 status: experimental
-extends: Include
+markdown:
+  special: true
 required:
   - arguments
 properties:

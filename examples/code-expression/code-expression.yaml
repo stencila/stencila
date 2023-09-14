@@ -15,6 +15,7 @@ content:
   - type: CodeExpression
     code: '''a string'''
     programmingLanguage: python
+    output: a string
 - type: Paragraph
   content:
   - type: Text

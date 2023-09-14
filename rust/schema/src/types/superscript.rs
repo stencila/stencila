@@ -23,6 +23,7 @@ pub struct Superscript {
     /// The content that is marked.
     pub content: Vec<Inline>,
 }
+
 impl Superscript {
     pub fn new(content: Vec<Inline>) -> Self {
         Self {

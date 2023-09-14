@@ -23,6 +23,7 @@ pub struct Paragraph {
     /// The contents of the paragraph.
     pub content: Vec<Inline>,
 }
+
 impl Paragraph {
     pub fn new(content: Vec<Inline>) -> Self {
         Self {

@@ -1,0 +1,20 @@
+{
+  "$schema": "https://stencila.dev/Article.schema.json",
+  "type": "Article",
+  "content": [
+    {
+      "type": "CodeBlock",
+      "programmingLanguage": "python",
+      "code": "# Some python code\na = 3\n"
+    },
+    {
+      "type": "CodeBlock",
+      "code": "No language\n"
+    },
+    {
+      "type": "CodeBlock",
+      "programmingLanguage": "python",
+      "code": "# No newline at end"
+    }
+  ]
+}

@@ -23,6 +23,7 @@ pub struct Subscript {
     /// The content that is marked.
     pub content: Vec<Inline>,
 }
+
 impl Subscript {
     pub fn new(content: Vec<Inline>) -> Self {
         Self {

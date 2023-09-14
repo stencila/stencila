@@ -14,6 +14,10 @@ $comment: |
     - HTML [`<ul>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/ul) and [`<ol>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/ol)
     - MDAST [`List`](https://github.com/syntax-tree/mdast#list)
     - OpenDocument [`<text:list>`](http://docs.oasis-open.org/office/v1.2/os/OpenDocument-v1.2-os-part1.html#__RefHeading__1415148_253892949)
+html:
+  special: true
+markdown:
+  special: true
 required:
   - items
   - order

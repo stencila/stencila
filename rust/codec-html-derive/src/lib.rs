@@ -22,10 +22,7 @@ struct TypeAttr {
     custom: bool,
 
     #[darling(default)]
-    special: bool,
-
-    #[darling(default)]
-    flatten: bool,
+    special: bool
 }
 
 #[derive(FromField)]
@@ -41,6 +38,9 @@ struct FieldAttr {
 
     #[darling(default)]
     slot: Option<String>,
+
+    #[darling(default)]
+    flatten: bool
 }
 
 /// Derive the `HtmlCodec` trait for a `struct` or an `enum`
@@ -97,7 +97,7 @@ fn derive_struct(type_attr: TypeAttr) -> TokenStream {
 
     let mut attrs = quote!();
 
-    if (type_attr.elem.is_none() || type_attr.custom) && !type_attr.flatten {
+    if type_attr.custom {
         attrs.extend(quote!(attr("is", #custom_elem),))
     };
 
@@ -112,7 +112,7 @@ fn derive_struct(type_attr: TypeAttr) -> TokenStream {
             return;
         }
 
-        let field_tokens = if field_name == "options" {
+        let field_tokens = if field_attr.flatten {
             // Flatten out the attributes and children of the options field
             quote! {
                 let mut parts = self.#field_name.to_html_parts();
@@ -127,11 +127,14 @@ fn derive_struct(type_attr: TypeAttr) -> TokenStream {
         } else if let Some(slot) = field_attr.slot {
             // Wrap the field in a slot
             quote! {
-                children.push(elem(
-                    #slot,
-                    &[attr("slot", stringify!(#field_name))],
-                    &[self.#field_name.to_html()]
-                ));
+                let slot_html = self.#field_name.to_html();
+                if !slot_html.is_empty() {
+                    children.push(elem(
+                        #slot,
+                        &[attr("slot", stringify!(#field_name))],
+                        &[slot_html]
+                    ));
+                }
             }
         } else {
             let attr_name = if let Some(attr_name) = field_attr.attr {

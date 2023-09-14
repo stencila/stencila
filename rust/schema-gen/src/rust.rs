@@ -298,7 +298,7 @@ pub enum NodeType {{
         attrs.push("#[serde(rename_all = \"camelCase\", crate = \"common::serde\")]".to_string());
 
         // Clone attrs for options before adding codec related attrs
-        let mut options_attrs = attrs.clone();
+        let options_attrs = attrs.clone();
 
         // Add #[html] attribute for main struct if necessary
         if let Some(html) = &schema.html {
@@ -333,9 +333,6 @@ pub enum NodeType {{
 
             attrs.push(format!("#[markdown({})]", args.join(", ")))
         }
-
-        // Add #[html] attribute for options struct to flatten it into main struct
-        options_attrs.push("#[html(flatten)]".to_string());
 
         let attrs = attrs.join("\n");
         let options_attrs = options_attrs.join("\n");
@@ -452,8 +449,7 @@ pub enum NodeType {{
 {options_attrs}
 pub struct {title}Options {{
     {optional_fields}
-}}
-"#
+}}"#
             )
         };
 
@@ -469,6 +465,7 @@ pub struct {title}Options {{
 
     /// Non-core optional fields
     #[serde(flatten)]
+    #[html(flatten)]
     pub options: Box<{title}Options>,"
             );
         }
@@ -529,6 +526,7 @@ use crate::prelude::*;
 pub struct {title} {{
     {core_fields}
 }}{options}
+
 impl {title} {{{new}}}
 "#
             ),

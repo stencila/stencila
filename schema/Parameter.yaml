@@ -3,6 +3,11 @@ title: Parameter
 extends: Executable
 status: experimental
 description: A parameter of a document.
+html:
+  elem: span
+  custom: true
+markdown:
+  special: true
 required:
   - name
 core:
@@ -34,6 +39,8 @@ properties:
   validator:
     '@id': stencila:validator
     description: The validator that the value is validated against.
+    html:
+      content: true
     $ref: Validator
   hidden:
     '@id': stencila:hidden

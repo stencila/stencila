@@ -1,0 +1,353 @@
+{
+  type: "Article",
+  content: [
+    {
+      type: "Paragraph",
+      content: [ "Simple lists" ]
+    },
+    {
+      type: "List",
+      items: [
+        {
+          type: "ListItem",
+          content: [
+            {
+              type: "Paragraph",
+              content: [ "apple" ]
+            }
+          ]
+        },
+        {
+          type: "ListItem",
+          content: [
+            {
+              type: "Paragraph",
+              content: [ "pear" ]
+            }
+          ]
+        },
+        {
+          type: "ListItem",
+          content: [
+            {
+              type: "Paragraph",
+              content: [ "orange" ]
+            }
+          ]
+        }
+      ],
+      order: "Unordered"
+    },
+    {
+      type: "List",
+      items: [
+        {
+          type: "ListItem",
+          content: [
+            {
+              type: "Paragraph",
+              content: [ "first" ]
+            }
+          ]
+        },
+        {
+          type: "ListItem",
+          content: [
+            {
+              type: "Paragraph",
+              content: [ "second" ]
+            }
+          ]
+        },
+        {
+          type: "ListItem",
+          content: [
+            {
+              type: "Paragraph",
+              content: [ "third" ]
+            }
+          ]
+        }
+      ],
+      order: "Ascending"
+    },
+    {
+      type: "Paragraph",
+      content: [ "Nested lists" ]
+    },
+    {
+      type: "List",
+      items: [
+        {
+          type: "ListItem",
+          content: [
+            {
+              type: "Paragraph",
+              content: [ "1" ]
+            },
+            {
+              type: "List",
+              items: [
+                {
+                  type: "ListItem",
+                  content: [
+                    {
+                      type: "Paragraph",
+                      content: [ "2a" ]
+                    },
+                    {
+                      type: "List",
+                      items: [
+                        {
+                          type: "ListItem",
+                          content: [
+                            {
+                              type: "Paragraph",
+                              content: [ "3a" ]
+                            }
+                          ]
+                        }
+                      ],
+                      order: "Unordered"
+                    }
+                  ]
+                },
+                {
+                  type: "ListItem",
+                  content: [
+                    {
+                      type: "Paragraph",
+                      content: [ "2b" ]
+                    }
+                  ]
+                },
+                {
+                  type: "ListItem",
+                  content: [
+                    {
+                      type: "Paragraph",
+                      content: [ "2c" ]
+                    },
+                    {
+                      type: "List",
+                      items: [
+                        {
+                          type: "ListItem",
+                          content: [
+                            {
+                              type: "Paragraph",
+                              content: [ "3b" ]
+                            },
+                            {
+                              type: "List",
+                              items: [
+                                {
+                                  type: "ListItem",
+                                  content: [
+                                    {
+                                      type: "Paragraph",
+                                      content: [ "4a" ]
+                                    }
+                                  ]
+                                }
+                              ],
+                              order: "Unordered"
+                            }
+                          ]
+                        }
+                      ],
+                      order: "Unordered"
+                    }
+                  ]
+                }
+              ],
+              order: "Unordered"
+            }
+          ]
+        }
+      ],
+      order: "Unordered"
+    },
+    {
+      type: "Paragraph",
+      content: [ "Lists with check boxes" ]
+    },
+    {
+      type: "List",
+      items: [
+        {
+          type: "ListItem",
+          content: [
+            {
+              type: "Paragraph",
+              content: [ "first" ]
+            }
+          ],
+          isChecked: false
+        },
+        {
+          type: "ListItem",
+          content: [
+            {
+              type: "Paragraph",
+              content: [ "second" ]
+            }
+          ],
+          isChecked: true
+        },
+        {
+          type: "ListItem",
+          content: [
+            {
+              type: "Paragraph",
+              content: [ "third" ]
+            }
+          ],
+          isChecked: false
+        }
+      ],
+      order: "Ascending"
+    },
+    {
+      type: "List",
+      items: [
+        {
+          type: "ListItem",
+          content: [
+            {
+              type: "Paragraph",
+              content: [ "done" ]
+            }
+          ],
+          isChecked: true
+        },
+        {
+          type: "ListItem",
+          content: [
+            {
+              type: "Paragraph",
+              content: [ "todo" ]
+            }
+          ],
+          isChecked: false
+        },
+        {
+          type: "ListItem",
+          content: [
+            {
+              type: "Paragraph",
+              content: [ "still todo" ]
+            }
+          ],
+          isChecked: false
+        }
+      ],
+      order: "Unordered"
+    },
+    {
+      type: "Paragraph",
+      content: [ "A paragraph to keep the previous and following lists separate (otherwise they get merged)." ]
+    },
+    {
+      type: "List",
+      items: [
+        {
+          type: "ListItem",
+          content: [
+            {
+              type: "Paragraph",
+              content: [
+                "an item with an image ",
+                {
+                  type: "ImageObject",
+                  contentUrl: "image.png"
+                },
+                ", see!"
+              ]
+            }
+          ]
+        },
+        {
+          type: "ListItem",
+          content: [
+            {
+              type: "Paragraph",
+              content: [
+                "an item with ",
+                {
+                  type: "Emphasis",
+                  content: [ "emphasis" ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          type: "ListItem",
+          content: [
+            {
+              type: "Paragraph",
+              content: [
+                "an item with HTML ",
+                {
+                  type: "Underline",
+                  content: [ "underlined" ]
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      order: "Unordered"
+    },
+    {
+      type: "Paragraph",
+      content: [ "A list with multiple paragraphs in each item" ]
+    },
+    {
+      type: "List",
+      items: [
+        {
+          type: "ListItem",
+          content: [
+            {
+              type: "Paragraph",
+              content: [ "para 1a" ]
+            },
+            {
+              type: "Paragraph",
+              content: [ "para 1b" ]
+            },
+            {
+              type: "Paragraph",
+              content: [ "para 1c" ]
+            }
+          ]
+        },
+        {
+          type: "ListItem",
+          content: [
+            {
+              type: "Paragraph",
+              content: [ "para 2a" ]
+            },
+            {
+              type: "Paragraph",
+              content: [ "para 2b" ]
+            }
+          ]
+        },
+        {
+          type: "ListItem",
+          content: [
+            {
+              type: "Paragraph",
+              content: [ "para 3" ]
+            }
+          ]
+        }
+      ],
+      order: "Unordered"
+    }
+  ]
+}

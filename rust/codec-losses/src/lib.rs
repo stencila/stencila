@@ -174,6 +174,11 @@ impl Losses {
         Self::default()
     }
 
+    /// Indicate that enumerating the losses for a codec is yet to be implemented
+    pub fn todo() -> Self {
+        Self::default()
+    }
+
     /// Create a set of losses with one entry for the loss of the id property
     ///
     /// This is a convenience function provided because often, `id` is the

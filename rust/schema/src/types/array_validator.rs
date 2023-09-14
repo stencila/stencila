@@ -38,6 +38,7 @@ pub struct ArrayValidator {
     /// A flag to indicate that each value in the array should be unique.
     pub unique_items: Option<Boolean>,
 }
+
 impl ArrayValidator {
     pub fn new() -> Self {
         Self {

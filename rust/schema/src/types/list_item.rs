@@ -15,6 +15,8 @@ use super::string::String;
 #[skip_serializing_none]
 #[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, HtmlCodec, MarkdownCodec, TextCodec, ReadNode, WriteNode)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
+#[html(elem = "li", custom)]
+#[markdown(special)]
 pub struct ListItem {
     /// The type of this item
     pub r#type: MustBe!("ListItem"),
@@ -38,13 +40,13 @@ pub struct ListItem {
 
     /// Non-core optional fields
     #[serde(flatten)]
+    #[html(flatten)]
     pub options: Box<ListItemOptions>,
 }
 
 #[skip_serializing_none]
 #[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, HtmlCodec, MarkdownCodec, TextCodec, ReadNode, WriteNode)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
-#[html(flatten)]
 pub struct ListItemOptions {
     /// Alternate names (aliases) for the item.
     pub alternate_names: Option<Vec<String>>,

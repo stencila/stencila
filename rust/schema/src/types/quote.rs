@@ -10,7 +10,8 @@ use super::string::String;
 #[skip_serializing_none]
 #[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, HtmlCodec, MarkdownCodec, TextCodec, ReadNode, WriteNode)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
-#[html(elem = "quote")]
+#[html(elem = "q")]
+#[markdown(format = "<q>{content}</q>")]
 pub struct Quote {
     /// The type of this item
     pub r#type: MustBe!("Quote"),
@@ -26,6 +27,7 @@ pub struct Quote {
     /// The source of the quote.
     pub cite: Option<CiteOrString>,
 }
+
 impl Quote {
     pub fn new(content: Vec<Inline>) -> Self {
         Self {

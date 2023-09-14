@@ -24,6 +24,7 @@ pub struct DateTimeValidator {
     /// The inclusive upper limit for a date-time.
     pub maximum: Option<DateTime>,
 }
+
 impl DateTimeValidator {
     pub fn new() -> Self {
         Self {

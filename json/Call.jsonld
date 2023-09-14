@@ -169,6 +169,9 @@
         },
         {
           "@id": "stencila:Math"
+        },
+        {
+          "@id": "stencila:Styled"
         }
       ],
       "schema:rangeIncludes": {
@@ -195,12 +198,6 @@
       "schema:domainIncludes": [
         {
           "@id": "schema:MediaObject"
-        },
-        {
-          "@id": "stencila:CodeExecutable"
-        },
-        {
-          "@id": "stencila:CodeStatic"
         },
         {
           "@id": "stencila:Include"

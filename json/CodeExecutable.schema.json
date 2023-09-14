@@ -158,26 +158,26 @@
     "code": {
       "@id": "stencila:code",
       "description": "The code.",
+      "strip": [
+        "code"
+      ],
       "$ref": "Cord.schema.json"
     },
     "programmingLanguage": {
       "@id": "schema:programmingLanguage",
       "description": "The programming language of the code.",
+      "strip": [
+        "code"
+      ],
       "type": "string"
     },
     "guessLanguage": {
       "@id": "stencila:guessLanguage",
       "description": "Whether the programming language of the code should be guessed based on syntax and variables used",
-      "type": "boolean"
-    },
-    "mediaType": {
-      "@id": "schema:encodingFormat",
-      "description": "Media type, typically expressed using a MIME format, of the code.",
-      "$comment": "This property allows the differentiation of formats using the same programming language\nor variants of a programming language. An example is using `programmingLanguage` \"json\" and\n`encodingFormat` \"application/ld+json\" for JSON-LD code examples.\n",
-      "aliases": [
-        "encodingFormat"
+      "strip": [
+        "code"
       ],
-      "type": "string"
+      "type": "boolean"
     }
   }
 }

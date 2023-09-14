@@ -1,20 +1,54 @@
 title: Styled
 '@id': stencila:Styled
+extends: Entity
 abstract: true
 status: experimental
 description: An abstract base class for a document node that has styling applied to it and/or its content
-extends: CodeExecutable
+$comment: |
+  This class is very similar to the `Math` abstract base class but has `styleLanguage` instead
+  of `mathLanguage` and compiled `css` instead of `mathml`.
+
+  Note also that `styleLanguage` is optional.
+required:
+  - code
 core:
+  - styleLanguage
+  - compileDigest
+  - errors
   - css
   - classes
 properties:
+  code:
+    '@id': stencila:code
+    description: The code of the equation in the `styleLanguage`.
+    $ref: Cord
+  styleLanguage:
+    '@id': stencila:styleLanguage
+    description: The language used for the style specification e.g. css, tailwind, classes.
+    type: string
+  compileDigest:
+    '@id': stencila:compileDigest
+    description: A digest of the `code` and `styleLanguage`.
+    $comment: Used to avoid unnecessary transpilation to CSS.
+    $ref: ExecutionDigest
+  errors:
+    '@id': stencila:errors
+    description: Errors that occurred when transpiling the `code`.
+    $comment: |
+      This property is an array of strings. Compare this to `CodeChunk.errors`
+      which is an array of `CodeError` nodes. Strings are considered to
+      be sufficient for style parsing errors which usually won't have stack traces,
+      line numbers etc.
+    type: array
+    items:
+      type: string
   css:
     '@id': stencila:css
-    description: A Cascading Style Sheet (CSS) transpiled from the output of evaluating the `text` property.
+    description: A Cascading Style Sheet (CSS) transpiled from the `code` property.
     type: string
   classes:
     '@id': stencila:classes
-    description: A list of class names associated with the document node
+    description: A list of class names associated with the node
     type: array
     items:
       type: string

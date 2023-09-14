@@ -24,6 +24,7 @@ pub struct DateValidator {
     /// The inclusive upper limit for a date.
     pub maximum: Option<Date>,
 }
+
 impl DateValidator {
     pub fn new() -> Self {
         Self {

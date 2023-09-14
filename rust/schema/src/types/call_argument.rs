@@ -44,6 +44,7 @@ pub struct CallArgument {
     pub default: Option<Box<Node>>,
 
     /// The validator that the value is validated against.
+    #[html(content)]
     pub validator: Option<Validator>,
 
     /// The code to be evaluated for the parameter.
@@ -60,13 +61,13 @@ pub struct CallArgument {
 
     /// Non-core optional fields
     #[serde(flatten)]
+    #[html(flatten)]
     pub options: Box<CallArgumentOptions>,
 }
 
 #[skip_serializing_none]
 #[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, HtmlCodec, MarkdownCodec, TextCodec, ReadNode, WriteNode)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
-#[html(flatten)]
 pub struct CallArgumentOptions {
     /// Under which circumstances the code should be automatically executed.
     #[strip(execution)]

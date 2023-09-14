@@ -43,6 +43,9 @@
         },
         {
           "@id": "stencila:Math"
+        },
+        {
+          "@id": "stencila:Styled"
         }
       ],
       "schema:rangeIncludes": {
@@ -53,10 +56,15 @@
       "@id": "stencila:compileDigest",
       "@type": "rdfs:Property",
       "rdfs:label": "compileDigest",
-      "rdfs:comment": "A digest of the `code` and `mathLanguage` used to avoid unnecessary transpilation to MathML",
-      "schema:domainIncludes": {
-        "@id": "stencila:Math"
-      },
+      "rdfs:comment": "A digest of the `code` and `mathLanguage`.",
+      "schema:domainIncludes": [
+        {
+          "@id": "stencila:Math"
+        },
+        {
+          "@id": "stencila:Styled"
+        }
+      ],
       "schema:rangeIncludes": {
         "@id": "ExecutionDigest"
       }
@@ -72,6 +80,9 @@
         },
         {
           "@id": "stencila:Math"
+        },
+        {
+          "@id": "stencila:Styled"
         }
       ],
       "schema:rangeIncludes": {
@@ -82,7 +93,7 @@
       "@id": "stencila:mathml",
       "@type": "rdfs:Property",
       "rdfs:label": "mathml",
-      "rdfs:comment": "The MathML transpiled from the `code`",
+      "rdfs:comment": "The MathML transpiled from the `code`.",
       "schema:domainIncludes": {
         "@id": "stencila:Math"
       },

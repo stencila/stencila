@@ -3,7 +3,9 @@ title: Quote
 extends: Mark
 description: Inline, quoted content.
 html:
-  elem: quote
+  elem: q
+markdown:
+  format: '<q>{content}</q>'
 core:
   - cite
 properties:

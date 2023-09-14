@@ -68,9 +68,6 @@ export class Button {
   // Whether the programming language of the code should be guessed based on syntax and variables used
   guessLanguage?: boolean;
 
-  // Media type, typically expressed using a MIME format, of the code.
-  mediaType?: string;
-
   // The name of the variable associated with the button.
   name: string;
 

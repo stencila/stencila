@@ -26,19 +26,6 @@ pub struct CodeFragment {
 
     /// The programming language of the code.
     pub programming_language: Option<String>,
-
-    /// Non-core optional fields
-    #[serde(flatten)]
-    pub options: Box<CodeFragmentOptions>,
-}
-
-#[skip_serializing_none]
-#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, HtmlCodec, MarkdownCodec, TextCodec, ReadNode, WriteNode)]
-#[serde(rename_all = "camelCase", crate = "common::serde")]
-#[html(flatten)]
-pub struct CodeFragmentOptions {
-    /// Media type, typically expressed using a MIME format, of the code.
-    pub media_type: Option<String>,
 }
 
 impl CodeFragment {

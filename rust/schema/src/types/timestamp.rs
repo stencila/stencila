@@ -25,6 +25,7 @@ pub struct Timestamp {
     /// The time unit that the `value` represents.
     pub time_unit: TimeUnit,
 }
+
 impl Timestamp {
     pub fn new(value: Integer, time_unit: TimeUnit) -> Self {
         Self {

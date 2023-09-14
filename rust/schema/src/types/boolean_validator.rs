@@ -17,6 +17,7 @@ pub struct BooleanValidator {
     #[html(attr = "id")]
     pub id: Option<String>,
 }
+
 impl BooleanValidator {
     pub fn new() -> Self {
         Self {

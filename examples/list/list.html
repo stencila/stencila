@@ -1,0 +1,110 @@
+<article>
+  <p>Simple lists</p>
+  <ul is="stencila-list">
+    <li is="stencila-list-item">
+      <p>apple</p>
+    </li>
+    <li is="stencila-list-item">
+      <p>pear</p>
+    </li>
+    <li is="stencila-list-item">
+      <p>orange</p>
+    </li>
+  </ul>
+  <ol is="stencila-list">
+    <li is="stencila-list-item">
+      <p>first</p>
+    </li>
+    <li is="stencila-list-item">
+      <p>second</p>
+    </li>
+    <li is="stencila-list-item">
+      <p>third</p>
+    </li>
+  </ol>
+  <p>Nested lists</p>
+  <ul is="stencila-list">
+    <li is="stencila-list-item">
+      <p>1</p>
+      <ul is="stencila-list">
+        <li is="stencila-list-item">
+          <p>2a</p>
+          <ul is="stencila-list">
+            <li is="stencila-list-item">
+              <p>3a</p>
+            </li>
+          </ul>
+        </li>
+        <li is="stencila-list-item">
+          <p>2b</p>
+        </li>
+        <li is="stencila-list-item">
+          <p>2c</p>
+          <ul is="stencila-list">
+            <li is="stencila-list-item">
+              <p>3b</p>
+              <ul is="stencila-list">
+                <li is="stencila-list-item">
+                  <p>4a</p>
+                </li>
+              </ul>
+            </li>
+          </ul>
+        </li>
+      </ul>
+    </li>
+  </ul>
+  <p>Lists with check boxes</p>
+  <ol is="stencila-list">
+    <li is="stencila-list-item" is-checked="false">
+      <p>first</p>
+    </li>
+    <li is="stencila-list-item" is-checked="true">
+      <p>second</p>
+    </li>
+    <li is="stencila-list-item" is-checked="false">
+      <p>third</p>
+    </li>
+  </ol>
+  <ul is="stencila-list">
+    <li is="stencila-list-item" is-checked="true">
+      <p>done</p>
+    </li>
+    <li is="stencila-list-item" is-checked="false">
+      <p>todo</p>
+    </li>
+    <li is="stencila-list-item" is-checked="false">
+      <p>still todo</p>
+    </li>
+  </ul>
+  <p>A paragraph to keep the previous and following lists separate (otherwise they get merged).</p>
+  <ul is="stencila-list">
+    <li is="stencila-list-item">
+      <p>an item with an image<img is="stencila-image-object" src="image.png">
+        </img>, see!</p>
+    </li>
+    <li is="stencila-list-item">
+      <p>an item with<em>emphasis</em>
+      </p>
+    </li>
+    <li is="stencila-list-item">
+      <p>an item with HTML<u>underlined</u>
+      </p>
+    </li>
+  </ul>
+  <p>A list with multiple paragraphs in each item</p>
+  <ul is="stencila-list">
+    <li is="stencila-list-item">
+      <p>para 1a</p>
+      <p>para 1b</p>
+      <p>para 1c</p>
+    </li>
+    <li is="stencila-list-item">
+      <p>para 2a</p>
+      <p>para 2b</p>
+    </li>
+    <li is="stencila-list-item">
+      <p>para 3</p>
+    </li>
+  </ul>
+</article>

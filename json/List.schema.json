@@ -8,6 +8,12 @@
   ],
   "description": "A list of items.",
   "$comment": "This is an implementation, and renaming, of schema.org [`ItemList`](https://schema.org/ItemList).\nRenaming was done as `List` was considered a more developer friendly alternative. Similarly,\nschema.org properties `itemListElement` and `itemListOrder` were renamed to `items` and `order`.\nNote that, as with every other such renaming in Stencila Schema, a mapping between names is\ndefined and it is trivial to save Stencila Schema documents using the schema.org vocabulary if so desired.\n\nAnalogues of `List` in other schema include:\n  - JATS XML [`<list>`](https://jats.nlm.nih.gov/articleauthoring/tag-library/1.2/element/list.html)\n  - HTML [`<ul>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/ul) and [`<ol>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/ol)\n  - MDAST [`List`](https://github.com/syntax-tree/mdast#list)\n  - OpenDocument [`<text:list>`](http://docs.oasis-open.org/office/v1.2/os/OpenDocument-v1.2-os-part1.html#__RefHeading__1415148_253892949)\n",
+  "html": {
+    "special": true
+  },
+  "markdown": {
+    "special": true
+  },
   "required": [
     "type",
     "items",

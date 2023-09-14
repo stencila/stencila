@@ -8,6 +8,9 @@
   ],
   "description": "Include content from an external source (e.g. file, URL).",
   "status": "experimental",
+  "markdown": {
+    "special": true
+  },
   "required": [
     "type",
     "source"
