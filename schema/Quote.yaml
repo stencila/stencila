@@ -1,6 +1,7 @@
 title: Quote
 '@id': stencila:Quote
 extends: Mark
+category: prose
 description: Inline, quoted content.
 html:
   elem: q

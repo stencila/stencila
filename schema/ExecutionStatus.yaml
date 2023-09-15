@@ -1,6 +1,7 @@
 title: ExecutionStatus
 '@id': stencila:ExecutionStatus
 extends: Enumeration
+category: flow
 description: Status of the most recent, including any current, execution of a document node.
 anyOf:
   - const: Scheduled

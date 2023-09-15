@@ -1,6 +1,7 @@
 title: Collection
 '@id': schema:Collection
 extends: CreativeWork
+category: works
 description: A collection of CreativeWorks or other artifacts.
 $comment: |
   This is an implementation of schema.org [`Collection`](https://schema.org/Collection).

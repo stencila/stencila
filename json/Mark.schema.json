@@ -6,6 +6,7 @@
   "extends": [
     "Entity"
   ],
+  "category": "prose",
   "abstract": true,
   "description": "Abstract base class for nodes that mark some other inline content\nin some way (e.g. as being emphasised, or quoted).\n",
   "required": [
@@ -18,12 +19,14 @@
   "properties": {
     "type": {
       "@id": "schema:type",
+      "category": "other",
       "description": "The type of this item",
       "$comment": "This is a special property analogous to JSON-LD's `@type` keyword.\n",
       "type": "string"
     },
     "id": {
       "@id": "schema:id",
+      "category": "other",
       "description": "The identifier for this item",
       "$comment": "This is a special property analogous to JSON-LD's `@id` keyword.\n",
       "strip": [
@@ -36,6 +39,7 @@
     },
     "content": {
       "@id": "stencila:content",
+      "category": "other",
       "description": "The content that is marked.",
       "type": "array",
       "items": {

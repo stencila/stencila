@@ -6,6 +6,7 @@
   "extends": [
     "Enumeration"
   ],
+  "category": "flow",
   "description": "Status of the most recent, including any current, execution of a document node.",
   "required": [
     "type"
@@ -16,12 +17,14 @@
   "properties": {
     "type": {
       "@id": "schema:type",
+      "category": "other",
       "description": "The type of this item",
       "$comment": "This is a special property analogous to JSON-LD's `@type` keyword.\n",
       "type": "string"
     },
     "id": {
       "@id": "schema:id",
+      "category": "other",
       "description": "The identifier for this item",
       "$comment": "This is a special property analogous to JSON-LD's `@id` keyword.\n",
       "strip": [
@@ -34,6 +37,7 @@
     },
     "alternateNames": {
       "@id": "schema:alternateName",
+      "category": "other",
       "description": "Alternate names (aliases) for the item.",
       "type": "array",
       "items": {
@@ -42,6 +46,7 @@
     },
     "description": {
       "@id": "schema:description",
+      "category": "other",
       "description": "A description of the item.",
       "type": "array",
       "items": {
@@ -50,15 +55,18 @@
     },
     "identifiers": {
       "@id": "schema:identifier",
+      "category": "other",
       "description": "Any kind of identifier for any kind of Thing.",
       "$comment": "Some identifiers have specific properties e.g the `issn` property for\nthe `Periodical` type. These should be used in preference to this\nproperty which is intended for identifiers that do not yet have a\nspecific property. Identifiers can be represented as strings, but\nusing a `PropertyValue` will usually be better because it allows\nfor `propertyID` (i.e. the type of identifier).\n",
       "type": "array",
       "items": {
         "anyOf": [
           {
+            "category": "other",
             "$ref": "PropertyValue.schema.json"
           },
           {
+            "category": "other",
             "type": "string"
           }
         ]
@@ -66,14 +74,17 @@
     },
     "images": {
       "@id": "schema:image",
+      "category": "other",
       "description": "Images of the item.",
       "type": "array",
       "items": {
         "anyOf": [
           {
+            "category": "other",
             "$ref": "ImageObject.schema.json"
           },
           {
+            "category": "other",
             "type": "string",
             "format": "uri"
           }
@@ -82,11 +93,13 @@
     },
     "name": {
       "@id": "schema:name",
+      "category": "other",
       "description": "The name of the item.",
       "type": "string"
     },
     "url": {
       "@id": "schema:url",
+      "category": "other",
       "description": "The URL of the item.",
       "type": "string",
       "format": "uri"
@@ -95,30 +108,37 @@
   "anyOf": [
     {
       "@id": "stencila:executionStatusScheduled",
+      "category": "other",
       "const": "Scheduled"
     },
     {
       "@id": "stencila:executionStatusScheduledPreviouslyFailed",
+      "category": "other",
       "const": "ScheduledPreviouslyFailed"
     },
     {
       "@id": "stencila:executionStatusRunning",
+      "category": "other",
       "const": "Running"
     },
     {
       "@id": "stencila:executionStatusRunningPreviouslyFailed",
+      "category": "other",
       "const": "RunningPreviouslyFailed"
     },
     {
       "@id": "stencila:executionStatusSucceeded",
+      "category": "other",
       "const": "Succeeded"
     },
     {
       "@id": "stencila:executionStatusFailed",
+      "category": "other",
       "const": "Failed"
     },
     {
       "@id": "stencila:executionStatusCancelled",
+      "category": "other",
       "const": "Cancelled"
     }
   ]

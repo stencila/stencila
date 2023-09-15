@@ -6,6 +6,7 @@
   "extends": [
     "Entity"
   ],
+  "category": "data",
   "description": "A schema specifying that a node must be one of several values.",
   "$comment": "Analogous to the JSON Schema [`enum` keyword](https://json-schema.org/draft/2019-09/json-schema-validation.html#rfc.section.6.1.2).",
   "required": [
@@ -18,12 +19,14 @@
   "properties": {
     "type": {
       "@id": "schema:type",
+      "category": "other",
       "description": "The type of this item",
       "$comment": "This is a special property analogous to JSON-LD's `@type` keyword.\n",
       "type": "string"
     },
     "id": {
       "@id": "schema:id",
+      "category": "other",
       "description": "The identifier for this item",
       "$comment": "This is a special property analogous to JSON-LD's `@id` keyword.\n",
       "strip": [
@@ -36,6 +39,7 @@
     },
     "values": {
       "@id": "stencila:values",
+      "category": "other",
       "description": "A node is valid if it is equal to any of these values.",
       "type": "array",
       "items": {

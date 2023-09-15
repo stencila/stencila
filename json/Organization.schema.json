@@ -6,6 +6,7 @@
   "extends": [
     "Thing"
   ],
+  "category": "other",
   "description": "An organization such as a school, NGO, corporation, club, etc.",
   "$comment": "This is an implementation of schema.org [`Organization`](https://schema.org/Organization).\n\nAn `Organization` node is analogous, and structurally similar to:\n- Crossref Organization element [`<crossref:organization>`](https://data.crossref.org/reports/help/schema_doc/4.4.0/relations_xsd.html#http___www.crossref.org_relations.xsd_organization)\n- JATS XML [`<institution-wrap>`](https://jats.nlm.nih.gov/archiving/tag-library/1.1/element/institution-wrap.html)\n- Open Document [`<text:organizations>`](http://docs.oasis-open.org/office/v1.2/os/OpenDocument-v1.2-os-part1.html#__RefHeading__1419060_253892949) and [`<text:institutions>`](http://docs.oasis-open.org/office/v1.2/os/OpenDocument-v1.2-os-part1.html#__RefHeading__1418948_253892949)\n",
   "required": [
@@ -17,12 +18,14 @@
   "properties": {
     "type": {
       "@id": "schema:type",
+      "category": "other",
       "description": "The type of this item",
       "$comment": "This is a special property analogous to JSON-LD's `@type` keyword.\n",
       "type": "string"
     },
     "id": {
       "@id": "schema:id",
+      "category": "other",
       "description": "The identifier for this item",
       "$comment": "This is a special property analogous to JSON-LD's `@id` keyword.\n",
       "strip": [
@@ -35,6 +38,7 @@
     },
     "alternateNames": {
       "@id": "schema:alternateName",
+      "category": "other",
       "description": "Alternate names (aliases) for the item.",
       "type": "array",
       "items": {
@@ -43,6 +47,7 @@
     },
     "description": {
       "@id": "schema:description",
+      "category": "other",
       "description": "A description of the item.",
       "type": "array",
       "items": {
@@ -51,15 +56,18 @@
     },
     "identifiers": {
       "@id": "schema:identifier",
+      "category": "other",
       "description": "Any kind of identifier for any kind of Thing.",
       "$comment": "Some identifiers have specific properties e.g the `issn` property for\nthe `Periodical` type. These should be used in preference to this\nproperty which is intended for identifiers that do not yet have a\nspecific property. Identifiers can be represented as strings, but\nusing a `PropertyValue` will usually be better because it allows\nfor `propertyID` (i.e. the type of identifier).\n",
       "type": "array",
       "items": {
         "anyOf": [
           {
+            "category": "other",
             "$ref": "PropertyValue.schema.json"
           },
           {
+            "category": "other",
             "type": "string"
           }
         ]
@@ -67,14 +75,17 @@
     },
     "images": {
       "@id": "schema:image",
+      "category": "other",
       "description": "Images of the item.",
       "type": "array",
       "items": {
         "anyOf": [
           {
+            "category": "other",
             "$ref": "ImageObject.schema.json"
           },
           {
+            "category": "other",
             "type": "string",
             "format": "uri"
           }
@@ -83,29 +94,35 @@
     },
     "name": {
       "@id": "schema:name",
+      "category": "other",
       "description": "The name of the item.",
       "type": "string"
     },
     "url": {
       "@id": "schema:url",
+      "category": "other",
       "description": "The URL of the item.",
       "type": "string",
       "format": "uri"
     },
     "address": {
       "@id": "schema:address",
+      "category": "other",
       "description": "Postal address for the organization.\n",
       "anyOf": [
         {
+          "category": "other",
           "$ref": "PostalAddress.schema.json"
         },
         {
+          "category": "other",
           "type": "string"
         }
       ]
     },
     "brands": {
       "@id": "schema:brand",
+      "category": "other",
       "description": "Brands that the organization is connected with.\n",
       "type": "array",
       "items": {
@@ -114,6 +131,7 @@
     },
     "contactPoints": {
       "@id": "schema:contactPoint",
+      "category": "other",
       "description": "Correspondence/Contact points for the organization.\n",
       "type": "array",
       "items": {
@@ -122,6 +140,7 @@
     },
     "departments": {
       "@id": "schema:department",
+      "category": "other",
       "description": "Departments within the organization. For example, Department of Computer Science, Research & Development etc.\n",
       "type": "array",
       "items": {
@@ -130,14 +149,17 @@
     },
     "funders": {
       "@id": "schema:funder",
+      "category": "other",
       "description": "Organization(s) or person(s) funding the organization.\n",
       "type": "array",
       "items": {
         "anyOf": [
           {
+            "category": "other",
             "$ref": "Organization.schema.json"
           },
           {
+            "category": "other",
             "$ref": "Person.schema.json"
           }
         ]
@@ -145,18 +167,22 @@
     },
     "legalName": {
       "@id": "schema:legalName",
+      "category": "other",
       "description": "The official name of the organization, e.g. the registered company name.",
       "type": "string"
     },
     "logo": {
       "@id": "schema:logo",
+      "category": "other",
       "description": "The logo of the organization.",
       "$comment": "This is a singleton property because, at any one time, an organization\nwill usually only have one logo.\n",
       "anyOf": [
         {
+          "category": "other",
           "$ref": "ImageObject.schema.json"
         },
         {
+          "category": "other",
           "type": "string",
           "format": "uri"
         }
@@ -164,14 +190,17 @@
     },
     "members": {
       "@id": "schema:member",
+      "category": "other",
       "description": "Person(s) or organization(s) who are members of this organization.\n",
       "type": "array",
       "items": {
         "anyOf": [
           {
+            "category": "other",
             "$ref": "Organization.schema.json"
           },
           {
+            "category": "other",
             "$ref": "Person.schema.json"
           }
         ]
@@ -179,6 +208,7 @@
     },
     "parentOrganization": {
       "@id": "schema:parentOrganization",
+      "category": "other",
       "description": "Entity that the Organization is a part of. For example, parentOrganization to a department is a university.\n",
       "$ref": "Organization.schema.json"
     }

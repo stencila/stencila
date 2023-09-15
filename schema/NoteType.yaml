@@ -1,6 +1,7 @@
 title: NoteType
 '@id': stencila:NoteType
 extends: Enumeration
+category: prose
 description: The type of a `Note` which determines where the note content is displayed within the document..
 default: Footnote
 anyOf:

@@ -1,4 +1,5 @@
 title: Inline
+category: prose
 description: Union type for valid inline content.
 default: String
 anyOf:

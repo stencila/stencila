@@ -1,6 +1,7 @@
 title: For
 '@id': stencila:For
 extends: CodeExecutable
+category: flow
 description: Repeat a block content for each item in an array.
 status: experimental
 markdown:

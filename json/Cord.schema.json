@@ -3,6 +3,7 @@
   "$id": "https://stencila.dev/Cord.schema.json",
   "@id": "stencila:Cord",
   "title": "Cord",
+  "category": "data",
   "description": "A value comprised of a sequence of characters",
   "$comment": "This type exists to differentiate between between a plain string of characters\n(which is modified by complete replacement) and a sequence of characters stored and\nsynchronized as a CRDT (which is is modified by insertions and deletions).\n\nIts use includes the `value` property of the `Text` type and the `code`\nproperty of `CodeExecutable` nodes.\n",
   "type": "string"

@@ -1,6 +1,7 @@
 title: IfClause
 '@id': stencila:IfClause
 extends: CodeExecutable
+category: flow
 description: A clause within a `If` node
 status: experimental
 html:

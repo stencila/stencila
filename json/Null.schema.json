@@ -3,6 +3,7 @@
   "$id": "https://stencila.dev/Null.schema.json",
   "@id": "stencila:Null",
   "title": "Null",
+  "category": "data",
   "description": "The null value",
   "type": "null"
 }

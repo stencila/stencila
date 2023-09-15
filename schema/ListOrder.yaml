@@ -1,6 +1,7 @@
 title: ListOrder
 '@id': schema:ItemListOrderType
 extends: Enumeration
+category: prose
 description: Indicates how a `List` is ordered.
 default: Unordered
 anyOf:

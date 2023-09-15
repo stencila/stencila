@@ -1,6 +1,7 @@
 title: Thing
 '@id': schema:Thing
 extends: Entity
+category: other
 description: The most generic type of item.
 properties:
   alternateNames:

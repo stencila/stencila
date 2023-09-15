@@ -1,6 +1,7 @@
 title: DurationValidator
 '@id': stencila:DurationValidator
 extends: Entity
+category: data
 description: A validator specifying the constraints on a duration.
 core:
   - timeUnits

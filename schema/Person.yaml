@@ -1,6 +1,7 @@
 title: Person
 '@id': schema:Person
 extends: Thing
+category: other
 description: A person (alive, dead, undead, or fictional).
 core:
   - affiliations

@@ -3,6 +3,7 @@ title: Form
 description: A form to batch updates in document parameters
 status: experimental
 extends: Executable
+category: flow
 required:
   - content
 properties:

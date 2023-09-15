@@ -1,6 +1,7 @@
 title: Mark
 '@id': stencila:Mark
 extends: Entity
+category: prose
 abstract: true
 description: |
   Abstract base class for nodes that mark some other inline content

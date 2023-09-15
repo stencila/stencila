@@ -1,6 +1,7 @@
 title: Directory
 '@id': stencila:Directory
 extends: Collection
+category: works
 description: A directory on the filesystem
 required:
   - path

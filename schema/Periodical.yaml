@@ -1,6 +1,7 @@
 title: Periodical
 '@id': schema:Periodical
 extends: CreativeWork
+category: works
 description: A periodical publication.
 $comment: |
   A publication in any medium issued in successive parts bearing numerical or chronological designations and intended,

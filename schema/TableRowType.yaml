@@ -1,6 +1,7 @@
 title: TableRowType
 '@id': stencila:TableRowType
 extends: Enumeration
+category: works
 description: Indicates whether the row is in the header, body or footer of the table.
 default: Body
 anyOf:

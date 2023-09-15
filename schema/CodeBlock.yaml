@@ -1,6 +1,7 @@
 title: CodeBlock
 '@id': stencila:CodeBlock
 extends: CodeStatic
+category: code
 description: A code block.
 html:
   elem: pre

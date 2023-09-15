@@ -1,6 +1,7 @@
 title: Styled
 '@id': stencila:Styled
 extends: Entity
+category: style
 abstract: true
 status: experimental
 description: An abstract base class for a document node that has styling applied to it and/or its content

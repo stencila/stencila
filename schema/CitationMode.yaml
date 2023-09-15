@@ -1,6 +1,7 @@
 title: CitationMode
 '@id': stencila:CitationMode
 extends: Enumeration
+category: prose
 description: The mode of a `Cite`.
 $comment: |
   There are two main citation modes: parenthetical and narrative (a.k.a textual).

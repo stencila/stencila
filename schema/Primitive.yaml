@@ -1,4 +1,5 @@
 title: Primitive
+category: data
 description: Union type for all primitives values
 $comment: |
   Analogous to JSON values but adds `Integer` and `UnsignedInteger`.

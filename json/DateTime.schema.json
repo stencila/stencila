@@ -6,6 +6,7 @@
   "extends": [
     "Entity"
   ],
+  "category": "data",
   "description": "A combination of date and time of day in the form `[-]CCYY-MM-DDThh:mm:ss[Z|(+|-)hh:mm]`.",
   "required": [
     "type",
@@ -17,12 +18,14 @@
   "properties": {
     "type": {
       "@id": "schema:type",
+      "category": "other",
       "description": "The type of this item",
       "$comment": "This is a special property analogous to JSON-LD's `@type` keyword.\n",
       "type": "string"
     },
     "id": {
       "@id": "schema:id",
+      "category": "other",
       "description": "The identifier for this item",
       "$comment": "This is a special property analogous to JSON-LD's `@id` keyword.\n",
       "strip": [
@@ -35,6 +38,7 @@
     },
     "value": {
       "@id": "schema:value",
+      "category": "other",
       "description": "The date as an ISO 8601 string.",
       "type": "string",
       "format": "date-time"

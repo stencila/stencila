@@ -1,6 +1,7 @@
 title: DateValidator
 '@id': stencila:DateValidator
 extends: Entity
+category: data
 description: A validator specifying the constraints on a date.
 core:
   - minimum

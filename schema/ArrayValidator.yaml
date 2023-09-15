@@ -1,6 +1,7 @@
 title: ArrayValidator
 '@id': stencila:ArrayValidator
 extends: Entity
+category: data
 description: A validator specifying constraints on an array node.
 core:
   - itemsNullable

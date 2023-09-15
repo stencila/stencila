@@ -1,6 +1,7 @@
 title: ClaimType
 '@id': stencila:ClaimType
 extends: Enumeration
+category: works
 description: The type of a `Claim`.
 default: Statement
 anyOf:

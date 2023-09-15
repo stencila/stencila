@@ -1,6 +1,7 @@
 title: Variable
 '@id': stencila:Variable
 extends: Entity
+category: flow
 status: experimental
 description: A variable representing a name / value pair.
 required:

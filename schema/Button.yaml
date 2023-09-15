@@ -1,6 +1,7 @@
 title: Button
 '@id': stencila:Button
 extends: CodeExecutable
+category: flow
 status: experimental
 description: A button.
 html:

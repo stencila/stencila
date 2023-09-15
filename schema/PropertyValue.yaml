@@ -1,6 +1,7 @@
 title: PropertyValue
 '@id': schema:PropertyValue
 extends: Thing
+category: other
 description: A property-value pair.
 $comment: |
   Always use specific properties when they exist and you can populate them.

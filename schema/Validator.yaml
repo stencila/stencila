@@ -1,4 +1,5 @@
 title: Validator
+category: data
 description: Union type for validators.
 anyOf:
   - $ref: ArrayValidator

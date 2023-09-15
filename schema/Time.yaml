@@ -1,6 +1,7 @@
 title: Time
 '@id': schema:Time
 extends: Entity
+category: data
 description: A point in time recurring on multiple days
 required:
   - value

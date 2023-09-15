@@ -1,4 +1,5 @@
 title: 'Null'
 '@id': stencila:Null
+category: data
 description: The null value
 type: 'null'

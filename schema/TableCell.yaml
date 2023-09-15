@@ -1,6 +1,7 @@
 title: TableCell
 '@id': stencila:TableCell
 extends: Entity
+category: works
 description: A cell within a `Table`.
 html:
   elem: td

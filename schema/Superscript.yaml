@@ -1,6 +1,7 @@
 title: Superscript
 '@id': stencila:Superscript
 extends: Mark
+category: prose
 description: Superscripted content.
 html:
   elem: sup

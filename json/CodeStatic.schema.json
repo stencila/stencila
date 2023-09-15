@@ -6,6 +6,7 @@
   "extends": [
     "Entity"
   ],
+  "category": "code",
   "abstract": true,
   "description": "Abstract base type for non-executable code nodes (e.g. `CodeBlock`).",
   "$comment": "The most important, and only required, property of a `CodeStatic` node is `code`, a `string` of the source code.\nThere are no restrictions on the length or content of `code` and it is possible for it to be syntactically\ninvalid for the specified `programmingLanguage`.\n",
@@ -20,12 +21,14 @@
   "properties": {
     "type": {
       "@id": "schema:type",
+      "category": "other",
       "description": "The type of this item",
       "$comment": "This is a special property analogous to JSON-LD's `@type` keyword.\n",
       "type": "string"
     },
     "id": {
       "@id": "schema:id",
+      "category": "other",
       "description": "The identifier for this item",
       "$comment": "This is a special property analogous to JSON-LD's `@id` keyword.\n",
       "strip": [
@@ -38,6 +41,7 @@
     },
     "code": {
       "@id": "stencila:code",
+      "category": "other",
       "description": "The code.",
       "html": {
         "content": true
@@ -46,6 +50,7 @@
     },
     "programmingLanguage": {
       "@id": "schema:programmingLanguage",
+      "category": "other",
       "description": "The programming language of the code.",
       "type": "string"
     }

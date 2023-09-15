@@ -6,6 +6,7 @@
   "extends": [
     "Thing"
   ],
+  "category": "other",
   "description": "A brand used by an organization or person for labeling a product, product group, or similar.",
   "required": [
     "type",
@@ -17,12 +18,14 @@
   "properties": {
     "type": {
       "@id": "schema:type",
+      "category": "other",
       "description": "The type of this item",
       "$comment": "This is a special property analogous to JSON-LD's `@type` keyword.\n",
       "type": "string"
     },
     "id": {
       "@id": "schema:id",
+      "category": "other",
       "description": "The identifier for this item",
       "$comment": "This is a special property analogous to JSON-LD's `@id` keyword.\n",
       "strip": [
@@ -35,6 +38,7 @@
     },
     "alternateNames": {
       "@id": "schema:alternateName",
+      "category": "other",
       "description": "Alternate names (aliases) for the item.",
       "type": "array",
       "items": {
@@ -43,6 +47,7 @@
     },
     "description": {
       "@id": "schema:description",
+      "category": "other",
       "description": "A description of the item.",
       "type": "array",
       "items": {
@@ -51,15 +56,18 @@
     },
     "identifiers": {
       "@id": "schema:identifier",
+      "category": "other",
       "description": "Any kind of identifier for any kind of Thing.",
       "$comment": "Some identifiers have specific properties e.g the `issn` property for\nthe `Periodical` type. These should be used in preference to this\nproperty which is intended for identifiers that do not yet have a\nspecific property. Identifiers can be represented as strings, but\nusing a `PropertyValue` will usually be better because it allows\nfor `propertyID` (i.e. the type of identifier).\n",
       "type": "array",
       "items": {
         "anyOf": [
           {
+            "category": "other",
             "$ref": "PropertyValue.schema.json"
           },
           {
+            "category": "other",
             "type": "string"
           }
         ]
@@ -67,14 +75,17 @@
     },
     "images": {
       "@id": "schema:image",
+      "category": "other",
       "description": "Images of the item.",
       "type": "array",
       "items": {
         "anyOf": [
           {
+            "category": "other",
             "$ref": "ImageObject.schema.json"
           },
           {
+            "category": "other",
             "type": "string",
             "format": "uri"
           }
@@ -83,23 +94,28 @@
     },
     "name": {
       "@id": "schema:name",
+      "category": "other",
       "description": "The name of the item.",
       "type": "string"
     },
     "url": {
       "@id": "schema:url",
+      "category": "other",
       "description": "The URL of the item.",
       "type": "string",
       "format": "uri"
     },
     "logo": {
       "@id": "schema:logo",
+      "category": "other",
       "description": "A logo associated with the brand.",
       "anyOf": [
         {
+          "category": "other",
           "$ref": "ImageObject.schema.json"
         },
         {
+          "category": "other",
           "type": "string",
           "format": "uri"
         }
@@ -107,6 +123,7 @@
     },
     "reviews": {
       "@id": "schema:review",
+      "category": "other",
       "description": "Reviews of the brand.",
       "type": "array",
       "items": {

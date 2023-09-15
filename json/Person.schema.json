@@ -6,6 +6,7 @@
   "extends": [
     "Thing"
   ],
+  "category": "other",
   "description": "A person (alive, dead, undead, or fictional).",
   "required": [
     "type"
@@ -19,12 +20,14 @@
   "properties": {
     "type": {
       "@id": "schema:type",
+      "category": "other",
       "description": "The type of this item",
       "$comment": "This is a special property analogous to JSON-LD's `@type` keyword.\n",
       "type": "string"
     },
     "id": {
       "@id": "schema:id",
+      "category": "other",
       "description": "The identifier for this item",
       "$comment": "This is a special property analogous to JSON-LD's `@id` keyword.\n",
       "strip": [
@@ -37,6 +40,7 @@
     },
     "alternateNames": {
       "@id": "schema:alternateName",
+      "category": "other",
       "description": "Alternate names (aliases) for the item.",
       "type": "array",
       "items": {
@@ -45,6 +49,7 @@
     },
     "description": {
       "@id": "schema:description",
+      "category": "other",
       "description": "A description of the item.",
       "type": "array",
       "items": {
@@ -53,15 +58,18 @@
     },
     "identifiers": {
       "@id": "schema:identifier",
+      "category": "other",
       "description": "Any kind of identifier for any kind of Thing.",
       "$comment": "Some identifiers have specific properties e.g the `issn` property for\nthe `Periodical` type. These should be used in preference to this\nproperty which is intended for identifiers that do not yet have a\nspecific property. Identifiers can be represented as strings, but\nusing a `PropertyValue` will usually be better because it allows\nfor `propertyID` (i.e. the type of identifier).\n",
       "type": "array",
       "items": {
         "anyOf": [
           {
+            "category": "other",
             "$ref": "PropertyValue.schema.json"
           },
           {
+            "category": "other",
             "type": "string"
           }
         ]
@@ -69,14 +77,17 @@
     },
     "images": {
       "@id": "schema:image",
+      "category": "other",
       "description": "Images of the item.",
       "type": "array",
       "items": {
         "anyOf": [
           {
+            "category": "other",
             "$ref": "ImageObject.schema.json"
           },
           {
+            "category": "other",
             "type": "string",
             "format": "uri"
           }
@@ -85,29 +96,35 @@
     },
     "name": {
       "@id": "schema:name",
+      "category": "other",
       "description": "The name of the item.",
       "type": "string"
     },
     "url": {
       "@id": "schema:url",
+      "category": "other",
       "description": "The URL of the item.",
       "type": "string",
       "format": "uri"
     },
     "address": {
       "@id": "schema:address",
+      "category": "other",
       "description": "Postal address for the person.",
       "anyOf": [
         {
+          "category": "other",
           "$ref": "PostalAddress.schema.json"
         },
         {
+          "category": "other",
           "type": "string"
         }
       ]
     },
     "affiliations": {
       "@id": "schema:affiliation",
+      "category": "other",
       "description": "Organizations that the person is affiliated with.",
       "type": "array",
       "items": {
@@ -116,6 +133,7 @@
     },
     "emails": {
       "@id": "schema:email",
+      "category": "other",
       "description": "Email addresses for the person.",
       "type": "array",
       "items": {
@@ -124,6 +142,7 @@
     },
     "familyNames": {
       "@id": "schema:familyName",
+      "category": "other",
       "description": "Family name. In the U.S., the last name of a person.",
       "$comment": "This can be used along with givenName instead of the name property.",
       "aliases": [
@@ -140,14 +159,17 @@
     },
     "funders": {
       "@id": "schema:funder",
+      "category": "other",
       "description": "A person or organization that supports (sponsors) something through\nsome kind of financial contribution.\n",
       "type": "array",
       "items": {
         "anyOf": [
           {
+            "category": "other",
             "$ref": "Organization.schema.json"
           },
           {
+            "category": "other",
             "$ref": "Person.schema.json"
           }
         ]
@@ -155,6 +177,7 @@
     },
     "givenNames": {
       "@id": "schema:givenName",
+      "category": "other",
       "description": "Given name. In the U.S., the first name of a person.",
       "$comment": "This can be used along with familyName instead of the name property.",
       "aliases": [
@@ -168,6 +191,7 @@
     },
     "honorificPrefix": {
       "@id": "schema:honorificPrefix",
+      "category": "other",
       "description": "An honorific prefix preceding a person's name such as Dr/Mrs/Mr.",
       "aliases": [
         "prefix"
@@ -176,6 +200,7 @@
     },
     "honorificSuffix": {
       "@id": "schema:honorificSuffix",
+      "category": "other",
       "description": "An honorific suffix after a person's name such as MD/PhD/MSCSW.",
       "aliases": [
         "suffix"
@@ -184,11 +209,13 @@
     },
     "jobTitle": {
       "@id": "schema:jobTitle",
+      "category": "other",
       "description": "The job title of the person (for example, Financial Manager).",
       "type": "string"
     },
     "memberOf": {
       "@id": "schema:memberOf",
+      "category": "other",
       "description": "An organization (or program membership) to which this person belongs.",
       "type": "array",
       "items": {
@@ -197,6 +224,7 @@
     },
     "telephoneNumbers": {
       "@id": "schema:telephone",
+      "category": "other",
       "description": "Telephone numbers for the person.",
       "aliases": [
         "telephone"

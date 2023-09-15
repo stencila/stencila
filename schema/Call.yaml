@@ -1,6 +1,7 @@
 title: Call
 '@id': stencila:Call
 extends: Include
+category: flow
 description: Call another document, optionally with arguments, and include its executed content.
 status: experimental
 markdown:

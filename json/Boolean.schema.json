@@ -3,6 +3,7 @@
   "$id": "https://stencila.dev/Boolean.schema.json",
   "@id": "schema:Boolean",
   "title": "Boolean",
+  "category": "data",
   "description": "A value that is either true or false.",
   "type": "boolean"
 }

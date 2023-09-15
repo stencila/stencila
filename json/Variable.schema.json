@@ -6,6 +6,7 @@
   "extends": [
     "Entity"
   ],
+  "category": "flow",
   "description": "A variable representing a name / value pair.",
   "status": "experimental",
   "required": [
@@ -21,12 +22,14 @@
   "properties": {
     "type": {
       "@id": "schema:type",
+      "category": "other",
       "description": "The type of this item",
       "$comment": "This is a special property analogous to JSON-LD's `@type` keyword.\n",
       "type": "string"
     },
     "id": {
       "@id": "schema:id",
+      "category": "other",
       "description": "The identifier for this item",
       "$comment": "This is a special property analogous to JSON-LD's `@id` keyword.\n",
       "strip": [
@@ -39,11 +42,13 @@
     },
     "namespace": {
       "@id": "stencila:namespace",
+      "category": "other",
       "description": "The namespace, usually a document path, within which the variable resides",
       "type": "string"
     },
     "name": {
       "@id": "schema:name",
+      "category": "other",
       "description": "The name of the variable.",
       "$comment": "This regex allows for snake_case and camelCase names but excludes\nPascalCase for names.\n",
       "type": "string",
@@ -51,11 +56,13 @@
     },
     "kind": {
       "@id": "stencila:kind",
+      "category": "other",
       "description": "The expected type of variable e.g. `Number`, `Timestamp`, `Datatable`",
       "type": "string"
     },
     "value": {
       "@id": "schema:value",
+      "category": "other",
       "description": "The value of the variable.",
       "$ref": "Node.schema.json"
     }

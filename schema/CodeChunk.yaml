@@ -1,6 +1,7 @@
 title: CodeChunk
 '@id': stencila:CodeChunk
 extends: CodeExecutable
+category: code
 description: A executable chunk of code.
 core:
   - outputs

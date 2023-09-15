@@ -3,6 +3,7 @@
   "$id": "https://stencila.dev/Integer.schema.json",
   "@id": "schema:Integer",
   "title": "Integer",
+  "category": "data",
   "description": "A value that is a integer",
   "type": "integer"
 }

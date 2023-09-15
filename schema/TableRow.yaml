@@ -1,6 +1,7 @@
 title: TableRow
 '@id': stencila:TableRow
 extends: Entity
+category: works
 description: A row within a Table.
 html:
   elem: tr

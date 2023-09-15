@@ -6,6 +6,7 @@
   "extends": [
     "Entity"
   ],
+  "category": "prose",
   "description": "A section quoted from somewhere else.\n",
   "required": [
     "type",
@@ -18,12 +19,14 @@
   "properties": {
     "type": {
       "@id": "schema:type",
+      "category": "other",
       "description": "The type of this item",
       "$comment": "This is a special property analogous to JSON-LD's `@type` keyword.\n",
       "type": "string"
     },
     "id": {
       "@id": "schema:id",
+      "category": "other",
       "description": "The identifier for this item",
       "$comment": "This is a special property analogous to JSON-LD's `@id` keyword.\n",
       "strip": [
@@ -36,12 +39,15 @@
     },
     "cite": {
       "@id": "stencila:cite",
+      "category": "other",
       "description": "The source of the quote.",
       "anyOf": [
         {
+          "category": "other",
           "$ref": "Cite.schema.json"
         },
         {
+          "category": "other",
           "type": "string",
           "format": "uri"
         }
@@ -49,6 +55,7 @@
     },
     "content": {
       "@id": "stencila:content",
+      "category": "other",
       "description": "The content of the quote.",
       "type": "array",
       "items": {

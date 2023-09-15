@@ -1,6 +1,7 @@
 title: ListItem
 "@id": schema:ListItem
 extends: Thing
+category: prose
 description: A single item in a list.
 $comment: |
   This is an implementation, and extension, of schema.org [`ListItem`](https://schema.org/ListItem).

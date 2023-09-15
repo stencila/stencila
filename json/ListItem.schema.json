@@ -6,6 +6,7 @@
   "extends": [
     "Thing"
   ],
+  "category": "prose",
   "description": "A single item in a list.",
   "$comment": "This is an implementation, and extension, of schema.org [`ListItem`](https://schema.org/ListItem).\nIt extends schema.ord `ListItem` by adding `content` and `isChecked` properties.\n\nAnalogues of `ListItem` in other schema include:\n  - JATS XML `<list-item>`](https://jats.nlm.nih.gov/articleauthoring/tag-library/1.2/element/list-item.html)\n  - HTML [`<li>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/li)\n  - MDAST [`ListItem`](https://github.com/syntax-tree/mdast#listitem)\n  - OpenDocument [`<text:list-item>`](http://docs.oasis-open.org/office/v1.2/os/OpenDocument-v1.2-os-part1.html#__RefHeading__1415154_253892949)\n",
   "html": {
@@ -28,12 +29,14 @@
   "properties": {
     "type": {
       "@id": "schema:type",
+      "category": "other",
       "description": "The type of this item",
       "$comment": "This is a special property analogous to JSON-LD's `@type` keyword.\n",
       "type": "string"
     },
     "id": {
       "@id": "schema:id",
+      "category": "other",
       "description": "The identifier for this item",
       "$comment": "This is a special property analogous to JSON-LD's `@id` keyword.\n",
       "strip": [
@@ -46,6 +49,7 @@
     },
     "alternateNames": {
       "@id": "schema:alternateName",
+      "category": "other",
       "description": "Alternate names (aliases) for the item.",
       "type": "array",
       "items": {
@@ -54,6 +58,7 @@
     },
     "description": {
       "@id": "schema:description",
+      "category": "other",
       "description": "A description of the item.",
       "type": "array",
       "items": {
@@ -62,15 +67,18 @@
     },
     "identifiers": {
       "@id": "schema:identifier",
+      "category": "other",
       "description": "Any kind of identifier for any kind of Thing.",
       "$comment": "Some identifiers have specific properties e.g the `issn` property for\nthe `Periodical` type. These should be used in preference to this\nproperty which is intended for identifiers that do not yet have a\nspecific property. Identifiers can be represented as strings, but\nusing a `PropertyValue` will usually be better because it allows\nfor `propertyID` (i.e. the type of identifier).\n",
       "type": "array",
       "items": {
         "anyOf": [
           {
+            "category": "other",
             "$ref": "PropertyValue.schema.json"
           },
           {
+            "category": "other",
             "type": "string"
           }
         ]
@@ -78,14 +86,17 @@
     },
     "images": {
       "@id": "schema:image",
+      "category": "other",
       "description": "Images of the item.",
       "type": "array",
       "items": {
         "anyOf": [
           {
+            "category": "other",
             "$ref": "ImageObject.schema.json"
           },
           {
+            "category": "other",
             "type": "string",
             "format": "uri"
           }
@@ -94,27 +105,32 @@
     },
     "name": {
       "@id": "schema:name",
+      "category": "other",
       "description": "The name of the item.",
       "type": "string"
     },
     "url": {
       "@id": "schema:url",
+      "category": "other",
       "description": "The URL of the item.",
       "type": "string",
       "format": "uri"
     },
     "content": {
       "@id": "stencila:content",
+      "category": "other",
       "description": "The content of the list item.",
       "$comment": "Use either `content` or `item`, not both.",
       "anyOf": [
         {
+          "category": "other",
           "type": "array",
           "items": {
             "$ref": "Block.schema.json"
           }
         },
         {
+          "category": "other",
           "type": "array",
           "items": {
             "$ref": "Inline.schema.json"
@@ -124,17 +140,20 @@
     },
     "item": {
       "@id": "schema:item",
+      "category": "other",
       "description": "The item represented by this list item.",
       "$comment": "Use either `item` or `content`, not both.",
       "$ref": "Node.schema.json"
     },
     "isChecked": {
       "@id": "stencila:isChecked",
+      "category": "other",
       "description": "A flag to indicate if this list item is checked.",
       "type": "boolean"
     },
     "position": {
       "@id": "schema:position",
+      "category": "other",
       "description": "The position of the item in a series or sequence of items.",
       "type": "integer"
     }

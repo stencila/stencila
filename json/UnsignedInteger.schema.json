@@ -3,6 +3,7 @@
   "$id": "https://stencila.dev/UnsignedInteger.schema.json",
   "@id": "stencila:UnsignedInteger",
   "title": "UnsignedInteger",
+  "category": "data",
   "description": "An integer value that is greater or equal to zero",
   "type": "integer",
   "minimum": 0.0

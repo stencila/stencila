@@ -1,6 +1,7 @@
 title: ImageObject
 '@id': schema:ImageObject
 extends: MediaObject
+category: works
 description: An image file.
 html:
   elem: img

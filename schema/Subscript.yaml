@@ -1,6 +1,7 @@
 title: Subscript
 '@id': stencila:Subscript
 extends: Mark
+category: prose
 description: Subscripted content.
 html:
   elem: sub

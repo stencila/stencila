@@ -1,6 +1,7 @@
 title: ExecutionDigest
 '@id': stencila:ExecutionDigest
 extends: Entity
+category: flow
 description: A digest of the execution state of a node.
 required:
   - stateDigest

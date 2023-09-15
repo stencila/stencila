@@ -1,6 +1,7 @@
 title: Entity
 '@id': stencila:Entity
 abstract: true
+category: other
 description: Abstract base type for compound (ie. non-atomic) nodes.
 $comment: |
   This type exists mainly to have a more simple base class than schema.org's `Thing`.

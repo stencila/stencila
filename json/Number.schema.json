@@ -3,6 +3,7 @@
   "$id": "https://stencila.dev/Number.schema.json",
   "@id": "schema:Number",
   "title": "Number",
+  "category": "data",
   "description": "A value that is a number",
   "type": "number"
 }

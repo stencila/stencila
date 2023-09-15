@@ -6,6 +6,7 @@
   "extends": [
     "CodeExecutable"
   ],
+  "category": "flow",
   "description": "A clause within a `If` node",
   "status": "experimental",
   "html": {
@@ -25,12 +26,14 @@
   "properties": {
     "type": {
       "@id": "schema:type",
+      "category": "other",
       "description": "The type of this item",
       "$comment": "This is a special property analogous to JSON-LD's `@type` keyword.\n",
       "type": "string"
     },
     "id": {
       "@id": "schema:id",
+      "category": "other",
       "description": "The identifier for this item",
       "$comment": "This is a special property analogous to JSON-LD's `@id` keyword.\n",
       "strip": [
@@ -43,6 +46,7 @@
     },
     "executionAuto": {
       "@id": "stencila:executionAuto",
+      "category": "other",
       "description": "Under which circumstances the code should be automatically executed.",
       "strip": [
         "execution"
@@ -51,6 +55,7 @@
     },
     "compilationDigest": {
       "@id": "stencila:compilationDigest",
+      "category": "other",
       "description": "A digest of the content, semantics and dependencies of the node.",
       "strip": [
         "execution"
@@ -59,6 +64,7 @@
     },
     "executionDigest": {
       "@id": "stencila:executionDigest",
+      "category": "other",
       "description": "The `compileDigest` of the node when it was last executed.",
       "strip": [
         "execution"
@@ -67,6 +73,7 @@
     },
     "executionDependencies": {
       "@id": "stencila:executionDependencies",
+      "category": "other",
       "description": "The upstream dependencies of this node.",
       "strip": [
         "execution"
@@ -78,6 +85,7 @@
     },
     "executionDependants": {
       "@id": "stencila:executionDependants",
+      "category": "other",
       "description": "The downstream dependants of this node.",
       "strip": [
         "execution"
@@ -89,6 +97,7 @@
     },
     "executionTags": {
       "@id": "stencila:executionTags",
+      "category": "other",
       "description": "Tags in the code which affect its execution",
       "strip": [
         "execution"
@@ -100,6 +109,7 @@
     },
     "executionCount": {
       "@id": "stencila:executionCount",
+      "category": "other",
       "description": "A count of the number of times that the node has been executed.",
       "$comment": "Intended to increment with each successive execution of the node, including across sessions.\nNote that this differs to the `execution_count` in Jupyter Notebook format which is\nthe \"code cell's prompt number\" and which resets at the start of each new session.\n",
       "strip": [
@@ -110,6 +120,7 @@
     },
     "executionRequired": {
       "@id": "stencila:executionRequired",
+      "category": "other",
       "description": "Whether, and why, the code requires execution or re-execution.",
       "strip": [
         "execution"
@@ -118,6 +129,7 @@
     },
     "executionKernel": {
       "@id": "stencila:executionKernel",
+      "category": "other",
       "description": "The id of the kernel that the node was last executed in.",
       "strip": [
         "execution"
@@ -126,6 +138,7 @@
     },
     "executionStatus": {
       "@id": "stencila:executionStatus",
+      "category": "other",
       "description": "Status of the most recent, including any current, execution.",
       "strip": [
         "execution"
@@ -134,6 +147,7 @@
     },
     "executionEnded": {
       "@id": "stencila:executionEnded",
+      "category": "other",
       "description": "The timestamp when the last execution ended.",
       "strip": [
         "execution"
@@ -142,6 +156,7 @@
     },
     "executionDuration": {
       "@id": "stencila:executionDuration",
+      "category": "other",
       "description": "Duration of the last execution.",
       "strip": [
         "execution"
@@ -150,6 +165,7 @@
     },
     "errors": {
       "@id": "stencila:errors",
+      "category": "other",
       "description": "Errors when compiling (e.g. syntax errors) or executing the node.",
       "strip": [
         "execution"
@@ -161,6 +177,7 @@
     },
     "code": {
       "@id": "stencila:code",
+      "category": "other",
       "description": "The code.",
       "strip": [
         "code"
@@ -169,6 +186,7 @@
     },
     "programmingLanguage": {
       "@id": "schema:programmingLanguage",
+      "category": "other",
       "description": "The programming language of the code.",
       "strip": [
         "code"
@@ -177,6 +195,7 @@
     },
     "guessLanguage": {
       "@id": "stencila:guessLanguage",
+      "category": "other",
       "description": "Whether the programming language of the code should be guessed based on syntax and variables used",
       "strip": [
         "code"
@@ -185,6 +204,7 @@
     },
     "isActive": {
       "@id": "stencila:isActive",
+      "category": "other",
       "description": "Whether this clause is the active clause in the parent `If` node",
       "strip": [
         "output"
@@ -193,6 +213,7 @@
     },
     "content": {
       "@id": "stencila:content",
+      "category": "other",
       "description": "The content to render if the result is true-thy",
       "type": "array",
       "items": {

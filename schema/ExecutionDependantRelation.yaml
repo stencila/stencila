@@ -1,6 +1,7 @@
 title: ExecutionDependantRelation
 '@id': stencila:ExecutionDependantRelation
 extends: Enumeration
+category: flow
 description: The relation between a node and its execution dependant.
 default: Assigns
 anyOf:

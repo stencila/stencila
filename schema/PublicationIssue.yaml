@@ -1,6 +1,7 @@
 title: PublicationIssue
 '@id': schema:PublicationIssue
 extends: CreativeWork
+category: works
 description: |
   A part of a successively published publication such as a periodical or publication
   volume, often numbered.

@@ -1,6 +1,7 @@
 title: Datatable
 '@id': stencila:Datatable
 extends: CreativeWork
+category: data
 description: A table of data.
 required:
   - columns

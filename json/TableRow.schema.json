@@ -6,6 +6,7 @@
   "extends": [
     "Entity"
   ],
+  "category": "works",
   "description": "A row within a Table.",
   "html": {
     "elem": "tr"
@@ -20,12 +21,14 @@
   "properties": {
     "type": {
       "@id": "schema:type",
+      "category": "other",
       "description": "The type of this item",
       "$comment": "This is a special property analogous to JSON-LD's `@type` keyword.\n",
       "type": "string"
     },
     "id": {
       "@id": "schema:id",
+      "category": "other",
       "description": "The identifier for this item",
       "$comment": "This is a special property analogous to JSON-LD's `@id` keyword.\n",
       "strip": [
@@ -38,6 +41,7 @@
     },
     "cells": {
       "@id": "stencila:cells",
+      "category": "other",
       "description": "An array of cells in the row.",
       "type": "array",
       "items": {
@@ -46,6 +50,7 @@
     },
     "rowType": {
       "@id": "stencila:rowType",
+      "category": "other",
       "description": "The type of row.",
       "$ref": "TableRowType.schema.json"
     }

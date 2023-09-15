@@ -1,6 +1,7 @@
 title: Timestamp
 '@id': schema:Timestamp
 extends: Entity
+category: data
 description: A value that represents a point in time
 required:
   - value

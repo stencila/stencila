@@ -1,6 +1,7 @@
 title: CiteGroup
 '@id': stencila:CiteGroup
 extends: Entity
+category: prose
 description: A group of Cite nodes.
 $comment: |
   This type allows you to group associated citations together.

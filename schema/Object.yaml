@@ -1,5 +1,6 @@
 title: Object
 '@id': stencila:Object
+category: data
 description: A value comprised of keyed primitive nodes.
 $comment: |
   Note that keys are strings and values are restricted to primitive node

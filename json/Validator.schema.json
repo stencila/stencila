@@ -2,45 +2,59 @@
   "$schema": "https://stencila.dev/meta.schema.json",
   "$id": "https://stencila.dev/Validator.schema.json",
   "title": "Validator",
+  "category": "data",
   "description": "Union type for validators.",
   "anyOf": [
     {
+      "category": "other",
       "$ref": "ArrayValidator.schema.json"
     },
     {
+      "category": "other",
       "$ref": "BooleanValidator.schema.json"
     },
     {
+      "category": "other",
       "$ref": "ConstantValidator.schema.json"
     },
     {
+      "category": "other",
       "$ref": "DateTimeValidator.schema.json"
     },
     {
+      "category": "other",
       "$ref": "DateValidator.schema.json"
     },
     {
+      "category": "other",
       "$ref": "DurationValidator.schema.json"
     },
     {
+      "category": "other",
       "$ref": "EnumValidator.schema.json"
     },
     {
+      "category": "other",
       "$ref": "IntegerValidator.schema.json"
     },
     {
+      "category": "other",
       "$ref": "NumberValidator.schema.json"
     },
     {
+      "category": "other",
       "$ref": "StringValidator.schema.json"
     },
     {
+      "category": "other",
       "$ref": "TimeValidator.schema.json"
     },
     {
+      "category": "other",
       "$ref": "TimestampValidator.schema.json"
     },
     {
+      "category": "other",
       "$ref": "TupleValidator.schema.json"
     }
   ]

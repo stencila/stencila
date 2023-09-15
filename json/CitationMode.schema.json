@@ -6,6 +6,7 @@
   "extends": [
     "Enumeration"
   ],
+  "category": "prose",
   "description": "The mode of a `Cite`.",
   "$comment": "There are two main citation modes: parenthetical and narrative (a.k.a textual).\nSee https://apastyle.apa.org/style-grammar-guidelines/citations/basic-principles/parenthetical-versus-narrative\nfor an explanation.\n\nThis property is optional and tools are recommended to assume `parenthetical` if missing.\n\nNarrative citations will usually be of form \"As noted by Smith (1992),\" but `narrative-author`\nallows for \"In the early nineties, Smith noted\" and `narrative-year` allows for \"As noted by Smith in 1992 and 1993\".\n\nPandoc's `CitationMode` enumeration has `Normal` (for `parenthetical`), `AuthorInText` (for `textual`),\nand `SuppressAuthor` (for `textual-year`).\nSee https://github.com/jgm/pandoc-types/blob/0158cd0e2a2ca9d6f14389a1a57bc64cab45a7dd/src/Text/Pandoc/Definition.hs#L353.\n\nLaTeX's `natbib` package has `\\citep{}` (for `parenthetical`), `\\citet{}` (for `textual`),\n`\\citeauthor{}` (for `textual-author`), `\\citeyear{}` (for `textual-year`).\nSee https://www.overleaf.com/learn/latex/Natbib_citation_styles.\n",
   "required": [
@@ -17,12 +18,14 @@
   "properties": {
     "type": {
       "@id": "schema:type",
+      "category": "other",
       "description": "The type of this item",
       "$comment": "This is a special property analogous to JSON-LD's `@type` keyword.\n",
       "type": "string"
     },
     "id": {
       "@id": "schema:id",
+      "category": "other",
       "description": "The identifier for this item",
       "$comment": "This is a special property analogous to JSON-LD's `@id` keyword.\n",
       "strip": [
@@ -35,6 +38,7 @@
     },
     "alternateNames": {
       "@id": "schema:alternateName",
+      "category": "other",
       "description": "Alternate names (aliases) for the item.",
       "type": "array",
       "items": {
@@ -43,6 +47,7 @@
     },
     "description": {
       "@id": "schema:description",
+      "category": "other",
       "description": "A description of the item.",
       "type": "array",
       "items": {
@@ -51,15 +56,18 @@
     },
     "identifiers": {
       "@id": "schema:identifier",
+      "category": "other",
       "description": "Any kind of identifier for any kind of Thing.",
       "$comment": "Some identifiers have specific properties e.g the `issn` property for\nthe `Periodical` type. These should be used in preference to this\nproperty which is intended for identifiers that do not yet have a\nspecific property. Identifiers can be represented as strings, but\nusing a `PropertyValue` will usually be better because it allows\nfor `propertyID` (i.e. the type of identifier).\n",
       "type": "array",
       "items": {
         "anyOf": [
           {
+            "category": "other",
             "$ref": "PropertyValue.schema.json"
           },
           {
+            "category": "other",
             "type": "string"
           }
         ]
@@ -67,14 +75,17 @@
     },
     "images": {
       "@id": "schema:image",
+      "category": "other",
       "description": "Images of the item.",
       "type": "array",
       "items": {
         "anyOf": [
           {
+            "category": "other",
             "$ref": "ImageObject.schema.json"
           },
           {
+            "category": "other",
             "type": "string",
             "format": "uri"
           }
@@ -83,11 +94,13 @@
     },
     "name": {
       "@id": "schema:name",
+      "category": "other",
       "description": "The name of the item.",
       "type": "string"
     },
     "url": {
       "@id": "schema:url",
+      "category": "other",
       "description": "The URL of the item.",
       "type": "string",
       "format": "uri"
@@ -96,14 +109,17 @@
   "anyOf": [
     {
       "@id": "stencila:CitationModeParenthetical",
+      "category": "other",
       "const": "Parenthetical"
     },
     {
       "@id": "stencila:CitationModeNarrative",
+      "category": "other",
       "const": "Narrative"
     },
     {
       "@id": "stencila:CitationModeNarrativeAuthor",
+      "category": "other",
       "const": "NarrativeAuthor"
     }
   ],

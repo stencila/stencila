@@ -1,6 +1,7 @@
 title: Figure
 '@id': stencila:Figure
 extends: CreativeWork
+category: works
 description: Encapsulates one or more images, videos, tables, etc, and provides captions and labels for them.
 core:
   - label

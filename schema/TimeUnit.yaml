@@ -1,6 +1,7 @@
 title: TimeUnit
 '@id': stencila:TimeUnit
 extends: Enumeration
+category: data
 description: A unit in which time can be measured
 default: Millisecond
 anyOf:

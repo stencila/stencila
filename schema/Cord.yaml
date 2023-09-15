@@ -1,6 +1,7 @@
 title: Cord
 "@id": stencila:Cord
 description: A value comprised of a sequence of characters
+category: data
 $comment: |
   This type exists to differentiate between between a plain string of characters
   (which is modified by complete replacement) and a sequence of characters stored and

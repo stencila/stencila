@@ -6,6 +6,7 @@
   "extends": [
     "Entity"
   ],
+  "category": "prose",
   "description": "A reference to a CreativeWork that is cited in another CreativeWork.",
   "$comment": "A `Cite` node is used within a [`CreativeWork`](./CreativeWork), usually an\n[`Article`](./Article), to refer to an other `CreativeWork`.\nOften a `Cite` will be associated with other citations, in a [`CiteGroup`](./CiteGroup).\n",
   "required": [
@@ -19,12 +20,14 @@
   "properties": {
     "type": {
       "@id": "schema:type",
+      "category": "other",
       "description": "The type of this item",
       "$comment": "This is a special property analogous to JSON-LD's `@type` keyword.\n",
       "type": "string"
     },
     "id": {
       "@id": "schema:id",
+      "category": "other",
       "description": "The identifier for this item",
       "$comment": "This is a special property analogous to JSON-LD's `@id` keyword.\n",
       "strip": [
@@ -37,16 +40,19 @@
     },
     "target": {
       "@id": "stencila:target",
+      "category": "other",
       "description": "The target of the citation (URL or reference ID).",
       "type": "string"
     },
     "citationMode": {
       "@id": "stencila:citationMode",
+      "category": "other",
       "description": "Determines how the citation is shown within the surrounding text.",
       "$ref": "CitationMode.schema.json"
     },
     "citationIntent": {
       "@id": "stencila:citationIntent",
+      "category": "other",
       "description": "The type/s of the citation, both factually and rhetorically.",
       "type": "array",
       "items": {
@@ -55,6 +61,7 @@
     },
     "content": {
       "@id": "stencila:content",
+      "category": "other",
       "description": "Optional structured content/text of this citation.",
       "type": "array",
       "items": {
@@ -63,41 +70,50 @@
     },
     "pageStart": {
       "@id": "schema:pageStart",
+      "category": "other",
       "description": "The page on which the work starts; for example \"135\" or \"xiii\".",
       "anyOf": [
         {
+          "category": "other",
           "type": "integer"
         },
         {
+          "category": "other",
           "type": "string"
         }
       ]
     },
     "pageEnd": {
       "@id": "schema:pageEnd",
+      "category": "other",
       "description": "The page on which the work ends; for example \"138\" or \"xvi\".",
       "anyOf": [
         {
+          "category": "other",
           "type": "integer"
         },
         {
+          "category": "other",
           "type": "string"
         }
       ]
     },
     "pagination": {
       "@id": "schema:pagination",
+      "category": "other",
       "description": "Any description of pages that is not separated into pageStart and pageEnd;\nfor example, \"1-6, 9, 55\".\n",
       "type": "string"
     },
     "citationPrefix": {
       "@id": "stencila:citationPrefix",
+      "category": "other",
       "description": "Text to show before the citation.",
       "$comment": "Previously this was name `prefix` but for consistency with `citationMode`\nand `honorificPrefix`, to avoid ambiguity with other prefixes was renamed\nto `citationPrefix`.\n",
       "type": "string"
     },
     "citationSuffix": {
       "@id": "stencila:citationSuffix",
+      "category": "other",
       "description": "Text to show after the citation.",
       "$comment": "See comment on `citationPrefix` regarding naming.\n",
       "type": "string"

@@ -12,7 +12,7 @@ use common::{
     serde_with::skip_serializing_none,
     serde_yaml,
     smart_default::SmartDefault,
-    strum::{AsRefStr, Display},
+    strum::{AsRefStr, Display, EnumVariantNames},
     tokio::fs::read_to_string,
 };
 
@@ -80,6 +80,9 @@ pub struct Schema {
     )]
     #[schemars(schema_with = "schema_string_or_array")]
     pub extends: Vec<String>,
+
+    /// The category of the schema
+    pub category: Category,
 
     /// Whether the schema is only an abstract base for other schemas
     ///
@@ -312,6 +315,29 @@ pub struct Schema {
     /// Whether the `extend()` method has been run on this schema yet
     #[serde(skip)]
     pub is_extended: bool,
+}
+
+#[derive(Debug, Default, Clone, Deserialize, Serialize, Display, JsonSchema, EnumVariantNames)]
+#[serde(rename_all = "lowercase", crate = "common::serde")]
+#[strum(serialize_all = "lowercase", crate = "common::strum")]
+pub enum Category {
+    /// Node types related to code in a programming language
+    Code,
+    /// Node types related to data and its validation
+    Data,
+    /// Node types related to control flow and execution of documents
+    Flow,
+    /// Node types related to prose
+    Prose,
+    /// Node types that are creative works or related to them
+    Works,
+    /// Nodes types related to visual styling
+    Style,
+    /// Node types related to displaying math symbols and equations
+    Math,
+    /// All other node types
+    #[default]
+    Other,
 }
 
 #[derive(Debug, Clone, Deserialize, Serialize, AsRefStr, JsonSchema)]

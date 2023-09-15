@@ -1,6 +1,7 @@
 title: CodeExecutable
 '@id': stencila:CodeExecutable
 extends: Executable
+category: code
 abstract: true
 description: Abstract base type for executable code nodes (e.g. `CodeChunk`).
 $comment: |

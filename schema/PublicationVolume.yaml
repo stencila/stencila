@@ -1,6 +1,7 @@
 title: PublicationVolume
 '@id': schema:PublicationVolume
 extends: CreativeWork
+category: works
 description: |
   A part of a successively published publication such as a periodical or multi-volume work.
 $comment: |

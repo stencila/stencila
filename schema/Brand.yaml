@@ -1,6 +1,7 @@
 title: Brand
 '@id': schema:Brand
 extends: Thing
+category: other
 description: A brand used by an organization or person for labeling a product, product group, or similar.
 required:
   - name

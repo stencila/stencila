@@ -6,6 +6,7 @@
   "extends": [
     "Entity"
   ],
+  "category": "code",
   "description": "An error that occurred when parsing, compiling or executing a Code node.",
   "status": "unstable",
   "required": [
@@ -20,12 +21,14 @@
   "properties": {
     "type": {
       "@id": "schema:type",
+      "category": "other",
       "description": "The type of this item",
       "$comment": "This is a special property analogous to JSON-LD's `@type` keyword.\n",
       "type": "string"
     },
     "id": {
       "@id": "schema:id",
+      "category": "other",
       "description": "The identifier for this item",
       "$comment": "This is a special property analogous to JSON-LD's `@id` keyword.\n",
       "strip": [
@@ -38,6 +41,7 @@
     },
     "errorMessage": {
       "@id": "stencila:errorMessage",
+      "category": "other",
       "description": "The error message or brief description of the error.",
       "aliases": [
         "message"
@@ -46,12 +50,14 @@
     },
     "errorType": {
       "@id": "stencila:errorType",
+      "category": "other",
       "description": "The type of error e.g. \"SyntaxError\", \"ZeroDivisionError\".",
       "$comment": "Many languages have the concept of alternative types of errors.\nFor example, Python has various [classes of exceptions](https://docs.python.org/3/tutorial/errors.html).\nThis property is intended to be used for storing these type names as additional\ninformation that maybe useful to the user attempting to resolve the error.\n",
       "type": "string"
     },
     "stackTrace": {
       "@id": "stencila:stackTrace",
+      "category": "other",
       "description": "Stack trace leading up to the error.",
       "aliases": [
         "trace"

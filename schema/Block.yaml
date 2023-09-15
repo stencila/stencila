@@ -1,4 +1,5 @@
 title: Block
+category: prose
 description: Union type for block content node types.
 default: Paragraph
 anyOf:

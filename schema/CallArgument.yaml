@@ -2,6 +2,7 @@ title: CallArgument
 '@id': stencila:CallArgument
 status: experimental
 extends: Parameter
+category: flow
 description: The value of a `Parameter` to call a document with
 $comment: |
   A `CallArgument` extends `Parameter` by also has some of the same properties as `CodeExecutable` allowing

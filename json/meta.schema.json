@@ -50,6 +50,15 @@
         "$ref": "#/definitions/Schema"
       }
     },
+    "category": {
+      "description": "The category of the schema",
+      "default": "other",
+      "allOf": [
+        {
+          "$ref": "#/definitions/Category"
+        }
+      ]
+    },
     "const": {
       "description": "The value of this keyword MAY be of any type, including null.\n\nUse of this keyword is functionally equivalent to an \"enum\" with a single value.\n\nAn instance validates successfully against this keyword if its value is equal to the value of the keyword.",
       "allOf": [
@@ -202,6 +211,66 @@
   },
   "additionalProperties": false,
   "definitions": {
+    "Category": {
+      "oneOf": [
+        {
+          "description": "Node types related to code in a programming language",
+          "type": "string",
+          "enum": [
+            "code"
+          ]
+        },
+        {
+          "description": "Node types related to data and its validation",
+          "type": "string",
+          "enum": [
+            "data"
+          ]
+        },
+        {
+          "description": "Node types related to control flow and execution of documents",
+          "type": "string",
+          "enum": [
+            "flow"
+          ]
+        },
+        {
+          "description": "Node types related to prose",
+          "type": "string",
+          "enum": [
+            "prose"
+          ]
+        },
+        {
+          "description": "Node types that are creative works or related to them",
+          "type": "string",
+          "enum": [
+            "works"
+          ]
+        },
+        {
+          "description": "Nodes types related to visual styling",
+          "type": "string",
+          "enum": [
+            "style"
+          ]
+        },
+        {
+          "description": "Node types related to displaying math symbols and equations",
+          "type": "string",
+          "enum": [
+            "math"
+          ]
+        },
+        {
+          "description": "All other node types",
+          "type": "string",
+          "enum": [
+            "other"
+          ]
+        }
+      ]
+    },
     "HtmlOptions": {
       "description": "Options for conversion to/from HTML",
       "type": "object",
@@ -356,6 +425,15 @@
           "items": {
             "$ref": "#/definitions/Schema"
           }
+        },
+        "category": {
+          "description": "The category of the schema",
+          "default": "other",
+          "allOf": [
+            {
+              "$ref": "#/definitions/Category"
+            }
+          ]
         },
         "const": {
           "description": "The value of this keyword MAY be of any type, including null.\n\nUse of this keyword is functionally equivalent to an \"enum\" with a single value.\n\nAn instance validates successfully against this keyword if its value is equal to the value of the keyword.",

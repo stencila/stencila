@@ -1,6 +1,7 @@
 title: VideoObject
 '@id': schema:VideoObject
 extends: MediaObject
+category: works
 description: A video file.
 $comment: |
   The `VideoObject` type allows you to provide details such as caption and transcript,

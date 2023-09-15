@@ -1,6 +1,7 @@
 title: Executable
 '@id': stencila:Executable
 extends: Entity
+category: flow
 abstract: true
 description: Abstract base type for executable nodes (e.g. `CodeChunk`, `CodeExpression`, `Call`).
 properties:

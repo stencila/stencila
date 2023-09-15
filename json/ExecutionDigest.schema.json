@@ -6,6 +6,7 @@
   "extends": [
     "Entity"
   ],
+  "category": "flow",
   "description": "A digest of the execution state of a node.",
   "required": [
     "type",
@@ -21,12 +22,14 @@
   "properties": {
     "type": {
       "@id": "schema:type",
+      "category": "other",
       "description": "The type of this item",
       "$comment": "This is a special property analogous to JSON-LD's `@type` keyword.\n",
       "type": "string"
     },
     "id": {
       "@id": "schema:id",
+      "category": "other",
       "description": "The identifier for this item",
       "$comment": "This is a special property analogous to JSON-LD's `@id` keyword.\n",
       "strip": [
@@ -39,26 +42,31 @@
     },
     "stateDigest": {
       "@id": "stencila:stateDigest",
+      "category": "other",
       "description": "A digest of the state of a node.",
       "type": "number"
     },
     "semanticDigest": {
       "@id": "stencila:semanticDigest",
+      "category": "other",
       "description": "A digest of the \"semantic intent\" of the resource with respect to the dependency graph",
       "type": "number"
     },
     "dependenciesDigest": {
       "@id": "stencila:dependenciesDigest",
+      "category": "other",
       "description": "A digest of the semantic digests the dependencies of a resource.",
       "type": "number"
     },
     "dependenciesStale": {
       "@id": "stencila:dependenciesStale",
+      "category": "other",
       "description": "A count of the number of execution dependencies that are stale",
       "type": "number"
     },
     "dependenciesFailed": {
       "@id": "stencila:dependenciesFailed",
+      "category": "other",
       "description": "A count of the number of execution dependencies that failed",
       "type": "number"
     }

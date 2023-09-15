@@ -1,6 +1,7 @@
 title: CreativeWork
 '@id': schema:CreativeWork
 extends: Thing
+category: works
 description: A creative work, including books, movies, photographs, software programs, etc.
 $comment: |
   This is an implementation, and extension, of schema.org [`CreativeWork`](https://schema.org/CreativeWork).

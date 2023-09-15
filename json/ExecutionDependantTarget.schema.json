@@ -2,33 +2,43 @@
   "$schema": "https://stencila.dev/meta.schema.json",
   "$id": "https://stencila.dev/ExecutionDependantTarget.schema.json",
   "title": "ExecutionDependantTarget",
+  "category": "flow",
   "description": "Node types that can be execution dependants",
   "anyOf": [
     {
+      "category": "other",
       "$ref": "Call.schema.json"
     },
     {
+      "category": "other",
       "$ref": "CodeChunk.schema.json"
     },
     {
+      "category": "other",
       "$ref": "CodeExpression.schema.json"
     },
     {
+      "category": "other",
       "$ref": "Division.schema.json"
     },
     {
+      "category": "other",
       "$ref": "If.schema.json"
     },
     {
+      "category": "other",
       "$ref": "File.schema.json"
     },
     {
+      "category": "other",
       "$ref": "For.schema.json"
     },
     {
+      "category": "other",
       "$ref": "Span.schema.json"
     },
     {
+      "category": "other",
       "$ref": "Variable.schema.json"
     }
   ]

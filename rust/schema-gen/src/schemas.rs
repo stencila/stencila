@@ -9,7 +9,7 @@ use common::{
     itertools::Itertools,
 };
 
-use crate::schema::{Schema, Value};
+use crate::schema::{Category, Schema, Value};
 
 pub struct Schemas {
     pub schemas: IndexMap<String, Schema>,
@@ -122,7 +122,10 @@ impl Schemas {
         );
 
         // Union types for descendants of...
-        for base in ["Thing", "CreativeWork"] {
+        for (base, category) in [
+            ("Thing", Category::Other),
+            ("CreativeWork", Category::Works),
+        ] {
             let mut any_of = Vec::new();
             for (name, schema) in &self.schemas {
                 fn is_descendent(
@@ -156,6 +159,7 @@ impl Schemas {
                         "Union type for all types that are descended from `{base}`"
                     )),
                     any_of: Some(any_of),
+                    category,
                     ..Default::default()
                 },
             );

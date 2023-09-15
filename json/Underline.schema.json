@@ -6,6 +6,7 @@
   "extends": [
     "Mark"
   ],
+  "category": "prose",
   "description": "Inline text that is underlined.",
   "$comment": "Analogues of `Underline` in other schema include:\n- JATS XML [`<underline>`](https://jats.nlm.nih.gov/archiving/tag-library/1.1/element/underline.html)\n- Pandoc [`Underline`](https://github.com/jgm/pandoc-types/blob/master/src/Text/Pandoc/Definition.hs)\n",
   "html": {
@@ -25,12 +26,14 @@
   "properties": {
     "type": {
       "@id": "schema:type",
+      "category": "other",
       "description": "The type of this item",
       "$comment": "This is a special property analogous to JSON-LD's `@type` keyword.\n",
       "type": "string"
     },
     "id": {
       "@id": "schema:id",
+      "category": "other",
       "description": "The identifier for this item",
       "$comment": "This is a special property analogous to JSON-LD's `@id` keyword.\n",
       "strip": [
@@ -43,6 +46,7 @@
     },
     "content": {
       "@id": "stencila:content",
+      "category": "other",
       "description": "The content that is marked.",
       "type": "array",
       "items": {

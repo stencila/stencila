@@ -1,6 +1,7 @@
 title: Strong
 '@id': stencila:Strong
 extends: Mark
+category: prose
 description: Strongly emphasized content.
 html:
   elem: strong

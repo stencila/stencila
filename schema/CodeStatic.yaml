@@ -1,6 +1,7 @@
 title: CodeStatic
 '@id': stencila:CodeStatic
 extends: Entity
+category: code
 abstract: true
 description: Abstract base type for non-executable code nodes (e.g. `CodeBlock`).
 $comment: |

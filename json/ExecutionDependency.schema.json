@@ -6,6 +6,7 @@
   "extends": [
     "Entity"
   ],
+  "category": "flow",
   "description": "An upstream execution dependency of a node",
   "required": [
     "type",
@@ -19,12 +20,14 @@
   "properties": {
     "type": {
       "@id": "schema:type",
+      "category": "other",
       "description": "The type of this item",
       "$comment": "This is a special property analogous to JSON-LD's `@type` keyword.\n",
       "type": "string"
     },
     "id": {
       "@id": "schema:id",
+      "category": "other",
       "description": "The identifier for this item",
       "$comment": "This is a special property analogous to JSON-LD's `@id` keyword.\n",
       "strip": [
@@ -37,16 +40,19 @@
     },
     "dependencyRelation": {
       "@id": "stencila:dependencyRelation",
+      "category": "other",
       "description": "The relation to the dependency",
       "$ref": "ExecutionDependencyRelation.schema.json"
     },
     "dependencyNode": {
       "@id": "stencila:dependencyNode",
+      "category": "other",
       "description": "The node that is the dependency",
       "$ref": "ExecutionDependencyNode.schema.json"
     },
     "codeLocation": {
       "@id": "stencila:codeLocation",
+      "category": "other",
       "description": "The location that the dependency is defined within code",
       "$comment": "An array of four zero indexed integers: [startRow, startColumn, endRow, endColumn]\n",
       "type": "array",

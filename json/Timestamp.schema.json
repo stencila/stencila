@@ -6,6 +6,7 @@
   "extends": [
     "Entity"
   ],
+  "category": "data",
   "description": "A value that represents a point in time",
   "required": [
     "type",
@@ -18,12 +19,14 @@
   "properties": {
     "type": {
       "@id": "schema:type",
+      "category": "other",
       "description": "The type of this item",
       "$comment": "This is a special property analogous to JSON-LD's `@type` keyword.\n",
       "type": "string"
     },
     "id": {
       "@id": "schema:id",
+      "category": "other",
       "description": "The identifier for this item",
       "$comment": "This is a special property analogous to JSON-LD's `@id` keyword.\n",
       "strip": [
@@ -36,11 +39,13 @@
     },
     "value": {
       "@id": "schema:value",
+      "category": "other",
       "description": "The time, in `timeUnit`s, before or after the Unix Epoch (1970-01-01T00:00:00Z).",
       "type": "integer"
     },
     "timeUnit": {
       "@id": "stencila:timeUnit",
+      "category": "other",
       "description": "The time unit that the `value` represents.",
       "$ref": "TimeUnit.schema.json"
     }

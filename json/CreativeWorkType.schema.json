@@ -1,62 +1,82 @@
 {
   "title": "CreativeWorkType",
+  "category": "works",
   "description": "Union type for all types that are descended from `CreativeWork`",
   "anyOf": [
     {
+      "category": "other",
       "$ref": "Article.schema.json"
     },
     {
+      "category": "other",
       "$ref": "AudioObject.schema.json"
     },
     {
+      "category": "other",
       "$ref": "Claim.schema.json"
     },
     {
+      "category": "other",
       "$ref": "Collection.schema.json"
     },
     {
+      "category": "other",
       "$ref": "Comment.schema.json"
     },
     {
+      "category": "other",
       "$ref": "Datatable.schema.json"
     },
     {
+      "category": "other",
       "$ref": "Directory.schema.json"
     },
     {
+      "category": "other",
       "$ref": "Figure.schema.json"
     },
     {
+      "category": "other",
       "$ref": "File.schema.json"
     },
     {
+      "category": "other",
       "$ref": "ImageObject.schema.json"
     },
     {
+      "category": "other",
       "$ref": "MediaObject.schema.json"
     },
     {
+      "category": "other",
       "$ref": "Periodical.schema.json"
     },
     {
+      "category": "other",
       "$ref": "PublicationIssue.schema.json"
     },
     {
+      "category": "other",
       "$ref": "PublicationVolume.schema.json"
     },
     {
+      "category": "other",
       "$ref": "Review.schema.json"
     },
     {
+      "category": "other",
       "$ref": "SoftwareApplication.schema.json"
     },
     {
+      "category": "other",
       "$ref": "SoftwareSourceCode.schema.json"
     },
     {
+      "category": "other",
       "$ref": "Table.schema.json"
     },
     {
+      "category": "other",
       "$ref": "VideoObject.schema.json"
     }
   ]

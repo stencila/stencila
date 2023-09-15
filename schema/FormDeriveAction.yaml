@@ -1,6 +1,7 @@
 title: FormDeriveAction
 '@id': stencila:FormDeriveAction
 extends: Enumeration
+category: flow
 description: Indicates the action (create, update or delete) to derive for a `Form`.
 default: Create
 anyOf:

@@ -1,6 +1,7 @@
 title: TableCellType
 "@id": stencila:TableCellType
 extends: Enumeration
+category: works
 description: Indicates whether the cell is a header or data.
 $comment: |
   When `Header`, the cell is similar to the HTML [`<th>` element](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/th)).

@@ -1,6 +1,7 @@
 title: Article
 '@id': schema:Article
 extends: CreativeWork
+category: works
 description: An article, including news and scholarly articles.
 $comment: |
   This is an implementation, and extension, of schema.org [`Article`](https://schema.org/Article).
