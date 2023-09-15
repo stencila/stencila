@@ -38,7 +38,7 @@ audit:
 
 # Build CLI binary
 build:
-	cargo build --bin cli --release
+	cargo build --bin stencila --release
 
 # Use cargo to install the CLI binary
 install:
