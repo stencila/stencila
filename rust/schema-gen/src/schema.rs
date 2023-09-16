@@ -12,7 +12,7 @@ use common::{
     serde_with::skip_serializing_none,
     serde_yaml,
     smart_default::SmartDefault,
-    strum::{AsRefStr, Display, EnumIter},
+    strum::{Display, EnumIter},
     tokio::fs::read_to_string,
 };
 

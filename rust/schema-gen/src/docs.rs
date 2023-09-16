@@ -140,7 +140,7 @@ async fn docs_file(dest: &Path, schema: &Schema, context: &Context) -> Result<St
     let article = if schema.is_object() {
         docs_object(title, schema, context)
     } else if schema.is_union() {
-        docs_any_of(title, schema)
+        docs_any_of(title, schema, context)
     } else {
         docs_primitive(title, schema)
     };
@@ -167,8 +167,9 @@ fn docs_object(title: &str, schema: &Schema, context: &Context) -> Article {
 }
 
 /// Generate documentation file for an `anyOf` root schema
-fn docs_any_of(title: &str, schema: &Schema) -> Article {
+fn docs_any_of(title: &str, schema: &Schema, context: &Context) -> Article {
     let mut content = intro(title, schema);
+    content.append(&mut members(schema, context));
     content.append(&mut bindings(title, schema));
     content.append(&mut source(title));
 
@@ -212,7 +213,7 @@ fn intro(title: &str, schema: &Schema) -> Vec<Block> {
         };
         blocks.push(p([strong([cf("@id")]), text(": "), id]));
     }
-    
+
     if matches!(schema.status, Status::Experimental | Status::Unstable) {
         blocks.push(p([text(
             if matches!(schema.status, Status::Experimental) {
@@ -311,6 +312,20 @@ fn properties(schema: &Schema, context: &Context) -> Vec<Block> {
     }
 
     vec![h2([text("Properties")]), table(rows)]
+}
+
+/// Generate a "Members" section for a schema
+fn members(schema: &Schema, context: &Context) -> Vec<Block> {
+    let mut items = Vec::new();
+    for schema in schema.any_of.as_ref().expect("Should") {
+        let Some(title) = &schema.r#ref else {
+            continue;
+        };
+        let url = context.urls.get(title).cloned().unwrap_or_default();
+        items.push(li([link([cf(title)], url)]))
+    }
+
+    vec![h2([text("Members")]), ul(items)]
 }
 
 /// Generate a "Formats" section for a schema
