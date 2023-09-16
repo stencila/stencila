@@ -12,14 +12,13 @@ use common::{
     eyre::{bail, Context as _, Result},
     futures::future::try_join_all,
     inflector::Inflector,
-    itertools::Itertools,
     strum::IntoEnumIterator,
     tokio::fs::{create_dir_all, remove_dir_all, remove_file},
 };
-use schema::{shortcuts::*, Article, Block, Node};
+use schema::{shortcuts::*, Article, Block, Inline, Node};
 
 use crate::{
-    schema::{Category, Schema, Status},
+    schema::{Category, Items, Schema, Status, Type},
     schemas::Schemas,
 };
 
@@ -155,7 +154,7 @@ async fn docs_file(dest: &Path, schema: &Schema, context: &Context) -> Result<St
 /// Generate documentation for an object schema with `properties`
 fn docs_object(title: &str, schema: &Schema, context: &Context) -> Article {
     let mut content = intro(title, schema);
-    content.append(&mut properties(title, schema));
+    content.append(&mut properties(schema, context));
     content.append(&mut related(title, schema, context));
     content.append(&mut bindings(title, schema));
     content.append(&mut source(title));
@@ -195,7 +194,7 @@ fn docs_primitive(title: &str, schema: &Schema) -> Article {
 
 /// Generate introductory headers and paragraphs for a schema
 fn intro(title: &str, schema: &Schema) -> Vec<Block> {
-    let mut blocks = vec![h1([cf(title)])];
+    let mut blocks = vec![h1([text(title.to_title_case())])];
 
     if let Some(description) = &schema.description {
         blocks.push(p([strong([text(description)])]));
@@ -205,15 +204,15 @@ fn intro(title: &str, schema: &Schema) -> Vec<Block> {
         blocks.push(p([text(comment)]));
     }
 
-    let id = schema.jid.clone().unwrap_or_default();
-    if let Some(name) = id.strip_prefix("schema:") {
-        blocks.push(p([
-            text("This type is an implementation of schema.org "),
-            link([cf(name)], format!("https://schema.org/{name}")),
-            text("."),
-        ]));
+    if let Some(id) = schema.jid.clone() {
+        let id = if let Some(name) = id.clone().strip_prefix("schema:") {
+            link([cf(id)], format!("https://schema.org/{name}"))
+        } else {
+            cf(id)
+        };
+        blocks.push(p([strong([cf("@id")]), text(": "), id]));
     }
-
+    
     if matches!(schema.status, Status::Experimental | Status::Unstable) {
         blocks.push(p([text(
             if matches!(schema.status, Status::Experimental) {
@@ -228,15 +227,88 @@ fn intro(title: &str, schema: &Schema) -> Vec<Block> {
 }
 
 /// Generate a "Properties" section for a schema
-fn properties(title: &str, schema: &Schema) -> Vec<Block> {
-    let rows = vec![tr([
+fn properties(schema: &Schema, context: &Context) -> Vec<Block> {
+    let mut rows = vec![tr([
         th([text("Name")]),
         th([cf("@id")]),
         th([text("Type")]),
         th([text("Description")]),
         th([text("Inherited from")]),
     ])];
-    //schema.properties.iter().map();
+
+    for (name, property) in &schema.properties {
+        if name == "type" {
+            continue;
+        }
+
+        let id = property.jid.clone().unwrap_or_default();
+        let id = if id.starts_with("schema:") {
+            link([cf(&id)], id.replace("schema:", "https://schema.org/"))
+        } else {
+            cf(id)
+        };
+
+        fn type_link(title: &str, context: &Context) -> Inline {
+            let url = context.urls.get(title).cloned().unwrap_or_default();
+            link([cf(title)], url)
+        }
+        fn schema_type(schema: &Schema, context: &Context) -> Vec<Inline> {
+            if let Some(r#type) = &schema.r#type {
+                if matches!(r#type, Type::Array) {
+                    let mut items = match &schema.items {
+                        Some(Items::Type(r#type)) => {
+                            vec![type_link(&r#type.r#type.to_string(), context)]
+                        }
+                        Some(Items::Ref(r#ref)) => vec![type_link(&r#ref.r#ref, context)],
+                        Some(Items::AnyOf(any_of)) => {
+                            let mut inner = schema_type(
+                                &Schema {
+                                    any_of: Some(any_of.any_of.clone()),
+                                    ..Default::default()
+                                },
+                                context,
+                            );
+                            inner.insert(0, text("("));
+                            inner.push(text(")"));
+                            inner
+                        }
+                        _ => vec![text("?")],
+                    };
+                    items.push(text("*"));
+                    items
+                } else {
+                    vec![type_link(&r#type.to_string(), context)]
+                }
+            } else if let Some(r#ref) = &schema.r#ref {
+                vec![type_link(r#ref, context)]
+            } else if let Some(any_of) = &schema.any_of {
+                any_of.iter().fold(Vec::new(), |mut inlines, schema| {
+                    if !inlines.is_empty() {
+                        inlines.push(text(" | "));
+                    }
+                    inlines.append(&mut schema_type(schema, context));
+                    inlines
+                })
+            } else {
+                vec![text("")]
+            }
+        }
+        let r#type = schema_type(property, context);
+
+        let description = property.description.clone().unwrap_or_default();
+
+        let from = property.defined_on.as_str().to_pascal_case();
+        let url = context.urls.get(&from).cloned().unwrap_or_default();
+        let from = link([cf(from)], url);
+
+        rows.push(tr([
+            th([text(name)]),
+            th([id]),
+            th(r#type),
+            th([text(description)]),
+            th([from]),
+        ]));
+    }
 
     vec![h2([text("Properties")]), table(rows)]
 }
@@ -277,18 +349,13 @@ fn related(title: &str, schema: &Schema, context: &Context) -> Vec<Block> {
         }
     }
 
-    vec![
-        h2([text("Related")]),
-        p([text("Other types related to this type:")]),
-        ul([li(parents), li(children)]),
-    ]
+    vec![h2([text("Related")]), ul([li(parents), li(children)])]
 }
 
 /// Generate a "Bindings" section for a schema
 fn bindings(title: &str, schema: &Schema) -> Vec<Block> {
     vec![
         h2([text("Bindings")]),
-        p([text("This type is available as:")]),
         ul([
             li([link(
                 [text("JSON-LD")],

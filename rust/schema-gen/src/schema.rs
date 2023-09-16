@@ -367,7 +367,7 @@ impl Status {
     }
 }
 
-#[derive(Debug, Clone, Deserialize, Serialize, AsRefStr, JsonSchema)]
+#[derive(Debug, Clone, Deserialize, Serialize, Display, JsonSchema)]
 #[serde(rename_all = "lowercase", crate = "common::serde")]
 pub enum Type {
     String,

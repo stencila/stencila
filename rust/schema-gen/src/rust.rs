@@ -214,7 +214,7 @@ pub enum NodeType {{
                 Type::Array => {
                     let items = match &schema.items {
                         Some(Items::Ref(inner)) => inner.r#ref.to_string(),
-                        Some(Items::Type(inner)) => inner.r#type.as_ref().to_pascal_case(),
+                        Some(Items::Type(inner)) => inner.r#type.to_string().to_pascal_case(),
                         Some(Items::AnyOf(inner)) => {
                             let schema = Schema {
                                 any_of: Some(inner.any_of.clone()),
@@ -233,7 +233,7 @@ pub enum NodeType {{
                     };
                     (items, true, true)
                 }
-                _ => (r#type.as_ref().to_string(), false, true),
+                _ => (r#type.to_string(), false, true),
             }
         } else if let Some(r#ref) = &schema.r#ref {
             (r#ref.to_string(), false, true)
