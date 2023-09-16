@@ -1,4 +1,5 @@
 title: ExecutionDependantTarget
+'@id': stencila:ExecutionDependantTarget
 category: flow
 description: Node types that can be execution dependants
 anyOf:

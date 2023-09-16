@@ -1,4 +1,5 @@
 title: ExecutionDependencyNode
+'@id': stencila:ExecutionDependencyNode
 category: flow
 description: Node types that can be execution dependencies
 default: CodeChunk

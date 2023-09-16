@@ -1,4 +1,5 @@
 title: Primitive
+'@id': stencila:Primitive
 category: data
 description: Union type for all primitives values
 $comment: |

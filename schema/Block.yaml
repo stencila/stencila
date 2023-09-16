@@ -1,4 +1,5 @@
 title: Block
+'@id': stencila:Block
 category: prose
 description: Union type for block content node types.
 default: Paragraph
