@@ -23,7 +23,8 @@ use super::thing_type::ThingType;
 #[skip_serializing_none]
 #[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, HtmlCodec, MarkdownCodec, TextCodec, ReadNode, WriteNode)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
-#[html(elem = "table")]
+#[html(special)]
+#[markdown(special)]
 pub struct Table {
     /// The type of this item
     pub r#type: MustBe!("Table"),
