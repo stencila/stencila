@@ -25,8 +25,9 @@ const GENERATED_COMMENT: &str = "# Generated file; do not edit. See the Rust `sc
 
 /// Modules that should not be generated
 ///
-/// These modules are manually written, usually because they are
-/// an alias for a native JavasScript type.
+/// These modules are manually written (usually because they are
+/// an alias for a native Python type) and so should not be removed
+/// during cleanup.
 const HANDWRITTEN_MODULES: &[&str] = &[
     "array.py",
     "cord.py",
