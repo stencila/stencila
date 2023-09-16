@@ -170,7 +170,7 @@ use common::strum::{{Display, EnumString}};
 
 {uses}
 
-#[derive(Debug, Display, EnumString)]
+#[derive(Debug, Clone, Copy, Display, EnumString)]
 #[strum(crate="common::strum")]
 pub enum NodeType {{
 {node_types}

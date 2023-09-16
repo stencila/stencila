@@ -291,7 +291,7 @@ pub use validator::*;
 pub use variable::*;
 pub use video_object::*;
 
-#[derive(Debug, Display, EnumString)]
+#[derive(Debug, Clone, Copy, Display, EnumString)]
 #[strum(crate="common::strum")]
 pub enum NodeType {
     Null,
