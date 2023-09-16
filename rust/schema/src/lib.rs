@@ -5,5 +5,5 @@ mod prelude;
 mod types;
 pub use types::*;
 
-mod util;
-pub use util::*;
+pub mod shortcuts;
+pub mod utilities;

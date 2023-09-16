@@ -2,7 +2,7 @@ use smol_str::SmolStr;
 
 use node_store::{automerge::ObjId, ReadNode, ReadStore};
 
-use crate::{node_type, prelude::*, Array, Node, NodeType, Null, Object};
+use crate::{prelude::*, utilities::node_type, Array, Node, NodeType, Null, Object};
 
 impl ReadNode for Node {
     fn load_null() -> Result<Self> {
