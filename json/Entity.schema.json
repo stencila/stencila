@@ -3,7 +3,6 @@
   "$id": "https://stencila.dev/Entity.schema.json",
   "@id": "stencila:Entity",
   "title": "Entity",
-  "category": "other",
   "abstract": true,
   "description": "Abstract base type for compound (ie. non-atomic) nodes.",
   "$comment": "This type exists mainly to have a more simple base class than schema.org's `Thing`.\nThis schema includes special properties that are analogous to JSON-LDs `@type` and `@id`.\n",
@@ -16,14 +15,12 @@
   "properties": {
     "type": {
       "@id": "schema:type",
-      "category": "other",
       "description": "The type of this item",
       "$comment": "This is a special property analogous to JSON-LD's `@type` keyword.\n",
       "type": "string"
     },
     "id": {
       "@id": "schema:id",
-      "category": "other",
       "description": "The identifier for this item",
       "$comment": "This is a special property analogous to JSON-LD's `@id` keyword.\n",
       "strip": [

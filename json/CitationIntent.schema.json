@@ -18,14 +18,12 @@
   "properties": {
     "type": {
       "@id": "schema:type",
-      "category": "other",
       "description": "The type of this item",
       "$comment": "This is a special property analogous to JSON-LD's `@type` keyword.\n",
       "type": "string"
     },
     "id": {
       "@id": "schema:id",
-      "category": "other",
       "description": "The identifier for this item",
       "$comment": "This is a special property analogous to JSON-LD's `@id` keyword.\n",
       "strip": [
@@ -38,7 +36,6 @@
     },
     "alternateNames": {
       "@id": "schema:alternateName",
-      "category": "other",
       "description": "Alternate names (aliases) for the item.",
       "type": "array",
       "items": {
@@ -47,7 +44,6 @@
     },
     "description": {
       "@id": "schema:description",
-      "category": "other",
       "description": "A description of the item.",
       "type": "array",
       "items": {
@@ -56,18 +52,15 @@
     },
     "identifiers": {
       "@id": "schema:identifier",
-      "category": "other",
       "description": "Any kind of identifier for any kind of Thing.",
       "$comment": "Some identifiers have specific properties e.g the `issn` property for\nthe `Periodical` type. These should be used in preference to this\nproperty which is intended for identifiers that do not yet have a\nspecific property. Identifiers can be represented as strings, but\nusing a `PropertyValue` will usually be better because it allows\nfor `propertyID` (i.e. the type of identifier).\n",
       "type": "array",
       "items": {
         "anyOf": [
           {
-            "category": "other",
             "$ref": "PropertyValue.schema.json"
           },
           {
-            "category": "other",
             "type": "string"
           }
         ]
@@ -75,17 +68,14 @@
     },
     "images": {
       "@id": "schema:image",
-      "category": "other",
       "description": "Images of the item.",
       "type": "array",
       "items": {
         "anyOf": [
           {
-            "category": "other",
             "$ref": "ImageObject.schema.json"
           },
           {
-            "category": "other",
             "type": "string",
             "format": "uri"
           }
@@ -94,13 +84,11 @@
     },
     "name": {
       "@id": "schema:name",
-      "category": "other",
       "description": "The name of the item.",
       "type": "string"
     },
     "url": {
       "@id": "schema:url",
-      "category": "other",
       "description": "The URL of the item.",
       "type": "string",
       "format": "uri"
@@ -109,547 +97,456 @@
   "anyOf": [
     {
       "@id": "cito:agreesWith",
-      "category": "other",
       "description": "The citing entity agrees with statements, ideas or conclusions presented in the cited entity",
       "const": "AgreesWith"
     },
     {
       "@id": "cito:citesAsAuthority",
-      "category": "other",
       "description": "The citing entity cites the cited entity as one that provides an authoritative description or definition of the subject under discussion",
       "const": "CitesAsAuthority"
     },
     {
       "@id": "cito:citesAsDataSource",
-      "category": "other",
       "description": "The citing entity cites the cited entity as source of data",
       "const": "CitesAsDataSource"
     },
     {
       "@id": "cito:citesAsEvidence",
-      "category": "other",
       "description": "The citing entity cites the cited entity as source of factual evidence for statements it contains",
       "const": "CitesAsEvidence"
     },
     {
       "@id": "cito:citesAsMetadataDocument",
-      "category": "other",
       "description": "The citing entity cites the cited entity as being the container of metadata describing the citing entity",
       "const": "CitesAsMetadataDocument"
     },
     {
       "@id": "cito:citesAsPotentialSolution",
-      "category": "other",
       "description": "The citing entity cites the cited entity as providing or containing a possible solution to the issues being discussed",
       "const": "CitesAsPotentialSolution"
     },
     {
       "@id": "cito:citesAsRecommendedReading",
-      "category": "other",
       "description": "The citing entity cites the cited entity as an item of recommended reading",
       "const": "CitesAsRecommendedReading"
     },
     {
       "@id": "cito:citesAsRelated",
-      "category": "other",
       "description": "The citing entity cites the cited entity as one that is related",
       "const": "CitesAsRelated"
     },
     {
       "@id": "cito:citesAsSourceDocument",
-      "category": "other",
       "description": "The citing entity cites the cited entity as being the entity from which the citing entity is derived, or about which the citing entity contains metadata",
       "const": "CitesAsSourceDocument"
     },
     {
       "@id": "cito:citesForInformation",
-      "category": "other",
       "description": "The citing entity cites the cited entity as a source of information on the subject under discussion",
       "const": "CitesForInformation"
     },
     {
       "@id": "cito:compiles",
-      "category": "other",
       "description": "The citing entity is used to create or compile the cited entity",
       "const": "Compiles"
     },
     {
       "@id": "cito:confirms",
-      "category": "other",
       "description": "The citing entity confirms facts, ideas or statements presented in the cited entity",
       "const": "Confirms"
     },
     {
       "@id": "cito:containsAssertionFrom",
-      "category": "other",
       "description": "The citing entity contains a statement of fact or a logical assertion (or a collection of such facts and/or assertions) originally present in the cited entity",
       "const": "ContainsAssertionFrom"
     },
     {
       "@id": "cito:corrects",
-      "category": "other",
       "description": "The citing entity corrects statements, ideas or conclusions presented in the cited entity",
       "const": "Corrects"
     },
     {
       "@id": "cito:credits",
-      "category": "other",
       "description": "The citing entity acknowledges contributions made by the cited entity",
       "const": "Credits"
     },
     {
       "@id": "cito:critiques",
-      "category": "other",
       "description": "The citing entity critiques statements, ideas or conclusions presented in the cited entity",
       "const": "Critiques"
     },
     {
       "@id": "cito:derides",
-      "category": "other",
       "description": "The citing entity express derision for the cited entity, or for ideas or conclusions contained within it",
       "const": "Derides"
     },
     {
       "@id": "cito:describes",
-      "category": "other",
       "description": "The citing entity describes the cited entity",
       "const": "Describes"
     },
     {
       "@id": "cito:disagreesWith",
-      "category": "other",
       "description": "The citing entity disagrees with statements, ideas or conclusions presented in the cited entity",
       "const": "DisagreesWith"
     },
     {
       "@id": "cito:discusses",
-      "category": "other",
       "description": "The citing entity discusses statements, ideas or conclusions presented in the cited entity",
       "const": "Discusses"
     },
     {
       "@id": "cito:disputes",
-      "category": "other",
       "description": "The citing entity disputes statements, ideas or conclusions presented in the cited entity",
       "const": "Disputes"
     },
     {
       "@id": "cito:documents",
-      "category": "other",
       "description": "The citing entity documents information about the cited entity",
       "const": "Documents"
     },
     {
       "@id": "cito:extends",
-      "category": "other",
       "description": "The citing entity extends facts, ideas or understandings presented in the cited entity",
       "const": "Extends"
     },
     {
       "@id": "cito:givesBackgroundTo",
-      "category": "other",
       "description": "The cited entity provides background information for the citing entity",
       "const": "GivesBackgroundTo"
     },
     {
       "@id": "cito:givesSupportTo",
-      "category": "other",
       "description": "The cited entity provides intellectual or factual support for the citing entity",
       "const": "GivesSupportTo"
     },
     {
       "@id": "cito:hasReplyFrom",
-      "category": "other",
       "description": "The cited entity evokes a reply from the citing entity",
       "const": "HasReplyFrom"
     },
     {
       "@id": "cito:includesExcerptFrom",
-      "category": "other",
       "description": "The citing entity includes one or more excerpts from the cited entity",
       "const": "IncludesExcerptFrom"
     },
     {
       "@id": "cito:includesQuotationFrom",
-      "category": "other",
       "description": "The citing entity includes one or more quotations from the cited entity",
       "const": "IncludesQuotationFrom"
     },
     {
       "@id": "cito:isAgreedWithBy",
-      "category": "other",
       "description": "The cited entity contains statements, ideas or conclusions with which the citing entity agrees",
       "const": "IsAgreedWithBy"
     },
     {
       "@id": "cito:isCitedAsAuthorityBy",
-      "category": "other",
       "description": "The cited entity is cited as providing an authoritative description or definition of the subject under discussion in the citing entity",
       "const": "IsCitedAsAuthorityBy"
     },
     {
       "@id": "cito:isCitedAsDataSourceBy",
-      "category": "other",
       "description": "The cited entity is cited as a data source by the citing entity",
       "const": "IsCitedAsDataSourceBy"
     },
     {
       "@id": "cito:isCitedAsEvidenceBy",
-      "category": "other",
       "description": "The cited entity is cited for providing factual evidence to the citing entity",
       "const": "IsCitedAsEvidenceBy"
     },
     {
       "@id": "cito:isCitedAsMetadataDocumentBy",
-      "category": "other",
       "description": "The cited entity is cited as being the container of metadata relating to the citing entity",
       "const": "IsCitedAsMetadataDocumentBy"
     },
     {
       "@id": "cito:isCitedAsPontentialSolutionBy",
-      "category": "other",
       "description": "The cited entity is cited as providing or containing a possible solution to the issues being discussed in the citing entity",
       "const": "IsCitedAsPontentialSolutionBy"
     },
     {
       "@id": "cito:isCitedAsRecommendedReadingBy",
-      "category": "other",
       "description": "The cited entity is cited by the citing entity as an item of recommended reading",
       "const": "IsCitedAsRecommendedReadingBy"
     },
     {
       "@id": "cito:isCitedAsRelatedBy",
-      "category": "other",
       "description": "The cited entity is cited as being related to the citing entity",
       "const": "IsCitedAsRelatedBy"
     },
     {
       "@id": "cito:isCitedAsSourceDocumentBy",
-      "category": "other",
       "description": "The cited entity is cited as being the entity from which the citing entity is derived, or about which the citing entity contains metadata",
       "const": "IsCitedAsSourceDocumentBy"
     },
     {
       "@id": "cito:isCitedBy",
-      "category": "other",
       "description": "The cited entity (the subject of the RDF triple) is cited by the citing entity (the object of the triple)",
       "const": "IsCitedBy"
     },
     {
       "@id": "cito:isCitedForInformationBy",
-      "category": "other",
       "description": "The cited entity is cited as a source of information on the subject under discussion in the citing entity",
       "const": "IsCitedForInformationBy"
     },
     {
       "@id": "cito:isCompiledBy",
-      "category": "other",
       "description": "The cited entity is the result of a compile or creation event using the citing entity",
       "const": "IsCompiledBy"
     },
     {
       "@id": "cito:isConfirmedBy",
-      "category": "other",
       "description": "The cited entity presents facts, ideas or statements that are confirmed by the citing entity",
       "const": "IsConfirmedBy"
     },
     {
       "@id": "cito:isCorrectedBy",
-      "category": "other",
       "description": "The cited entity presents statements, ideas or conclusions that are corrected by the citing entity",
       "const": "IsCorrectedBy"
     },
     {
       "@id": "cito:isCreditedBy",
-      "category": "other",
       "description": "The cited entity makes contributions that are acknowledged by the citing entity",
       "const": "IsCreditedBy"
     },
     {
       "@id": "cito:isCritiquedBy",
-      "category": "other",
       "description": "The cited entity presents statements, ideas or conclusions that are critiqued by the citing entity",
       "const": "IsCritiquedBy"
     },
     {
       "@id": "cito:isDeridedBy",
-      "category": "other",
       "description": "The cited entity contains ideas or conclusions for which the citing entity express derision",
       "const": "IsDeridedBy"
     },
     {
       "@id": "cito:isDescribedBy",
-      "category": "other",
       "description": "The cited entity is described by the citing entity",
       "const": "IsDescribedBy"
     },
     {
       "@id": "cito:isDisagreedWithBy",
-      "category": "other",
       "description": "The cited entity presents statements, ideas or conclusions that are disagreed with by the citing entity",
       "const": "IsDisagreedWithBy"
     },
     {
       "@id": "cito:isDiscussedBy",
-      "category": "other",
       "description": "The cited entity presents statements, ideas or conclusions that are discussed by the citing entity",
       "const": "IsDiscussedBy"
     },
     {
       "@id": "cito:isDisputedBy",
-      "category": "other",
       "description": "The cited entity presents statements, ideas or conclusions that are disputed by the citing entity",
       "const": "IsDisputedBy"
     },
     {
       "@id": "cito:isDocumentedBy",
-      "category": "other",
       "description": "Information about the cited entity is documented by the citing entity",
       "const": "IsDocumentedBy"
     },
     {
       "@id": "cito:isExtendedBy",
-      "category": "other",
       "description": "The cited entity presents facts, ideas or understandings that are extended by the citing entity",
       "const": "IsExtendedBy"
     },
     {
       "@id": "cito:isLinkedToBy",
-      "category": "other",
       "description": "The cited entity is the target for an HTTP Uniform Resource Locator (URL) link within the citing entity",
       "const": "IsLinkedToBy"
     },
     {
       "@id": "cito:isParodiedBy",
-      "category": "other",
       "description": "The characteristic style or content of the cited entity is imitated by the citing entity for comic effect, usually without explicit citation",
       "const": "IsParodiedBy"
     },
     {
       "@id": "cito:isPlagiarizedBy",
-      "category": "other",
       "description": "The cited entity is plagiarized by the author of the citing entity, who includes within the citing entity textual or other elements from the cited entity without formal acknowledgement of their source",
       "const": "IsPlagiarizedBy"
     },
     {
       "@id": "cito:isQualifiedBy",
-      "category": "other",
       "description": "The cited entity presents statements, ideas or conclusions that are qualified or have conditions placed upon them by the citing entity",
       "const": "IsQualifiedBy"
     },
     {
       "@id": "cito:isRefutedBy",
-      "category": "other",
       "description": "The cited entity presents statements, ideas or conclusions that are refuted by the citing entity",
       "const": "IsRefutedBy"
     },
     {
       "@id": "cito:isRetractedBy",
-      "category": "other",
       "description": "The cited entity is formally retracted by the citing entity",
       "const": "IsRetractedBy"
     },
     {
       "@id": "cito:isReviewedBy",
-      "category": "other",
       "description": "The cited entity presents statements, ideas or conclusions that are reviewed by the citing entity",
       "const": "IsReviewedBy"
     },
     {
       "@id": "cito:isRidiculedBy",
-      "category": "other",
       "description": "The cited entity or aspects of its contents are ridiculed by the citing entity",
       "const": "IsRidiculedBy"
     },
     {
       "@id": "cito:isSpeculatedOnBy",
-      "category": "other",
       "description": "The cited entity is cited because the citing article contains speculations on its content or ideas",
       "const": "IsSpeculatedOnBy"
     },
     {
       "@id": "cito:isSupportedBy",
-      "category": "other",
       "description": "The cited entity receives intellectual or factual support from the citing entity",
       "const": "IsSupportedBy"
     },
     {
       "@id": "cito:isUpdatedBy",
-      "category": "other",
       "description": "The cited entity presents statements, ideas, hypotheses or understanding that are updated by the cited entity",
       "const": "IsUpdatedBy"
     },
     {
       "@id": "cito:likes",
-      "category": "other",
       "description": "A property that permits you to express appreciation of or interest in something that is the object of the RDF triple, or to express that it is worth thinking about even if you do not agree with its content, enabling social media 'likes' statements to be encoded in RDF",
       "const": "Likes"
     },
     {
       "@id": "cito:linksTo",
-      "category": "other",
       "description": "The citing entity provides a link, in the form of an HTTP Uniform Resource Locator (URL), to the cited entity",
       "const": "LinksTo"
     },
     {
       "@id": "cito:obtainsBackgroundFrom",
-      "category": "other",
       "description": "The citing entity obtains background information from the cited entity",
       "const": "ObtainsBackgroundFrom"
     },
     {
       "@id": "cito:obtainsSupportFrom",
-      "category": "other",
       "description": "The citing entity obtains intellectual or factual support from the cited entity",
       "const": "ObtainsSupportFrom"
     },
     {
       "@id": "cito:parodies",
-      "category": "other",
       "description": "The citing entity imitates the characteristic style or content of the cited entity for comic effect, usually without explicit citation",
       "const": "Parodies"
     },
     {
       "@id": "cito:plagiarizes",
-      "category": "other",
       "description": "A property indicating that the author of the citing entity plagiarizes the cited entity, by including textual or other elements from the cited entity without formal acknowledgement of their source",
       "const": "Plagiarizes"
     },
     {
       "@id": "cito:providesAssertionFor",
-      "category": "other",
       "description": "The cited entity contains and is the original source of a statement of fact or a logical assertion (or a collection of such facts and/or assertions) that is to be found in the citing entity",
       "const": "ProvidesAssertionFor"
     },
     {
       "@id": "cito:providesConclusionsFor",
-      "category": "other",
       "description": "The cited entity presents conclusions that are used in work described in the citing entity",
       "const": "ProvidesConclusionsFor"
     },
     {
       "@id": "cito:providesDataFor",
-      "category": "other",
       "description": "The cited entity presents data that are used in work described in the citing entity",
       "const": "ProvidesDataFor"
     },
     {
       "@id": "cito:providesExcerptFor",
-      "category": "other",
       "description": "The cited entity contains information, usually of a textual nature, that is excerpted by (used as an excerpt within) the citing entity",
       "const": "ProvidesExcerptFor"
     },
     {
       "@id": "cito:providesMethodFor",
-      "category": "other",
       "description": "The cited entity details a method that is used in work described by the citing entity",
       "const": "ProvidesMethodFor"
     },
     {
       "@id": "cito:providesQuotationFor",
-      "category": "other",
       "description": "The cited entity contains information, usually of a textual nature, that is quoted by (used as a quotation within) the citing entity",
       "const": "ProvidesQuotationFor"
     },
     {
       "@id": "cito:qualifies",
-      "category": "other",
       "description": "The citing entity qualifies or places conditions or restrictions upon statements, ideas or conclusions presented in the cited entity",
       "const": "Qualifies"
     },
     {
       "@id": "cito:refutes",
-      "category": "other",
       "description": "The citing entity refutes statements, ideas or conclusions presented in the cited entity",
       "const": "Refutes"
     },
     {
       "@id": "cito:repliesTo",
-      "category": "other",
       "description": "The citing entity replies to statements, ideas or criticisms presented in the cited entity",
       "const": "RepliesTo"
     },
     {
       "@id": "cito:retracts",
-      "category": "other",
       "description": "The citing entity constitutes a formal retraction of the cited entity",
       "const": "Retracts"
     },
     {
       "@id": "cito:reviews",
-      "category": "other",
       "description": "The citing entity reviews statements, ideas or conclusions presented in the cited entity",
       "const": "Reviews"
     },
     {
       "@id": "cito:ridicules",
-      "category": "other",
       "description": "The citing entity ridicules the cited entity or aspects of its contents",
       "const": "Ridicules"
     },
     {
       "@id": "cito:sharesAuthorInstitutionWith",
-      "category": "other",
       "description": "Each entity has at least one author that shares a common institutional affiliation with an author of the other entity",
       "const": "SharesAuthorInstitutionWith"
     },
     {
       "@id": "cito:sharesAuthorWith",
-      "category": "other",
       "description": "Each entity has at least one author in common with the other entity",
       "const": "SharesAuthorWith"
     },
     {
       "@id": "cito:sharesFundingAgencyWith",
-      "category": "other",
       "description": "The two entities result from activities that have been funded by the same funding agency",
       "const": "SharesFundingAgencyWith"
     },
     {
       "@id": "cito:sharesJournalWith",
-      "category": "other",
       "description": "The citing and cited bibliographic resources are published in the same journal",
       "const": "SharesJournalWith"
     },
     {
       "@id": "cito:sharesPublicationVenueWith",
-      "category": "other",
       "description": "The citing and cited bibliographic resources are published in same publication venue",
       "const": "SharesPublicationVenueWith"
     },
     {
       "@id": "cito:speculatesOn",
-      "category": "other",
       "description": "The citing entity speculates on something within or related to the cited entity, without firm evidence",
       "const": "SpeculatesOn"
     },
     {
       "@id": "cito:supports",
-      "category": "other",
       "description": "The citing entity provides intellectual or factual support for statements, ideas or conclusions presented in the cited entity",
       "const": "Supports"
     },
     {
       "@id": "cito:updates",
-      "category": "other",
       "description": "The citing entity updates statements, ideas, hypotheses or understanding presented in the cited entity",
       "const": "Updates"
     },
     {
       "@id": "cito:usesConclusionsFrom",
-      "category": "other",
       "description": "The citing entity describes work that uses conclusions presented in the cited entity",
       "const": "UsesConclusionsFrom"
     },
     {
       "@id": "cito:usesDataFrom",
-      "category": "other",
       "description": "The citing entity describes work that uses data presented in the cited entity",
       "const": "UsesDataFrom"
     },
     {
       "@id": "cito:usesMethodIn",
-      "category": "other",
       "description": "The citing entity describes work that uses a method detailed in the cited entity",
       "const": "UsesMethodIn"
     }

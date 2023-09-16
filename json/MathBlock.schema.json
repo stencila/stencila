@@ -30,14 +30,12 @@
   "properties": {
     "type": {
       "@id": "schema:type",
-      "category": "other",
       "description": "The type of this item",
       "$comment": "This is a special property analogous to JSON-LD's `@type` keyword.\n",
       "type": "string"
     },
     "id": {
       "@id": "schema:id",
-      "category": "other",
       "description": "The identifier for this item",
       "$comment": "This is a special property analogous to JSON-LD's `@id` keyword.\n",
       "strip": [
@@ -50,26 +48,22 @@
     },
     "mathLanguage": {
       "@id": "stencila:mathLanguage",
-      "category": "other",
       "description": "The language used for the equation e.g tex, mathml, asciimath.",
       "type": "string"
     },
     "code": {
       "@id": "stencila:code",
-      "category": "other",
       "description": "The code of the equation in the `mathLanguage`.",
       "type": "string"
     },
     "compileDigest": {
       "@id": "stencila:compileDigest",
-      "category": "other",
       "description": "A digest of the `code` and `mathLanguage`.",
       "$comment": "Used to avoid unnecessary transpilation to MathML.",
       "$ref": "ExecutionDigest.schema.json"
     },
     "errors": {
       "@id": "stencila:errors",
-      "category": "other",
       "description": "Errors that occurred when parsing the math equation.",
       "$comment": "This property is an array of strings. Compare this to `CodeChunk.errors`\nwhich is an array of `CodeError` nodes. Strings are considered to\nbe sufficient for math parsing errors which usually won't have stack traces,\nline numbers etc.\n",
       "type": "array",
@@ -79,7 +73,6 @@
     },
     "mathml": {
       "@id": "stencila:mathml",
-      "category": "other",
       "description": "The MathML transpiled from the `code`.",
       "$comment": "Used along with `compileDigest` to avoid unnecessary transpilation to MathML.",
       "html": {
@@ -89,7 +82,6 @@
     },
     "label": {
       "@id": "stencila:label",
-      "category": "other",
       "description": "A short label for the math block.",
       "type": "string"
     }

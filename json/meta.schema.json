@@ -52,7 +52,6 @@
     },
     "category": {
       "description": "The category of the schema",
-      "default": "other",
       "allOf": [
         {
           "$ref": "#/definitions/Category"
@@ -187,7 +186,11 @@
     },
     "status": {
       "description": "The status of the schema",
-      "type": "string"
+      "allOf": [
+        {
+          "$ref": "#/definitions/Status"
+        }
+      ]
     },
     "strip": {
       "description": "The stripping scopes that the property should be stripped for",
@@ -249,7 +252,7 @@
           ]
         },
         {
-          "description": "Nodes types related to visual styling",
+          "description": "Node types related to visual styling",
           "type": "string",
           "enum": [
             "style"
@@ -428,7 +431,6 @@
         },
         "category": {
           "description": "The category of the schema",
-          "default": "other",
           "allOf": [
             {
               "$ref": "#/definitions/Category"
@@ -563,7 +565,11 @@
         },
         "status": {
           "description": "The status of the schema",
-          "type": "string"
+          "allOf": [
+            {
+              "$ref": "#/definitions/Status"
+            }
+          ]
         },
         "strip": {
           "description": "The stripping scopes that the property should be stripped for",
@@ -586,6 +592,31 @@
         }
       },
       "additionalProperties": false
+    },
+    "Status": {
+      "oneOf": [
+        {
+          "description": "The schema is experimental and is likely to change",
+          "type": "string",
+          "enum": [
+            "experimental"
+          ]
+        },
+        {
+          "description": "The schema is not yet stable and may change",
+          "type": "string",
+          "enum": [
+            "unstable"
+          ]
+        },
+        {
+          "description": "The schema is stable and unlikely to change",
+          "type": "string",
+          "enum": [
+            "stable"
+          ]
+        }
+      ]
     },
     "StripScopes": {
       "description": "Targets for stripping properties",

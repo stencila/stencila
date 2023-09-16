@@ -21,14 +21,12 @@
   "properties": {
     "type": {
       "@id": "schema:type",
-      "category": "other",
       "description": "The type of this item",
       "$comment": "This is a special property analogous to JSON-LD's `@type` keyword.\n",
       "type": "string"
     },
     "id": {
       "@id": "schema:id",
-      "category": "other",
       "description": "The identifier for this item",
       "$comment": "This is a special property analogous to JSON-LD's `@id` keyword.\n",
       "strip": [
@@ -41,7 +39,6 @@
     },
     "minLength": {
       "@id": "stencila:minLength",
-      "category": "other",
       "description": "The minimum length for a string node.",
       "$comment": "A string is valid if its length is greater than, or exactly equal to, `minLength`.\n",
       "type": "integer",
@@ -49,7 +46,6 @@
     },
     "maxLength": {
       "@id": "stencila:maxLength",
-      "category": "other",
       "description": "The maximum length for a string node.",
       "$comment": "A string is valid if its length is less than, or exactly equal to, `maxLength`.\n",
       "type": "integer",
@@ -57,7 +53,6 @@
     },
     "pattern": {
       "@id": "stencila:pattern",
-      "category": "other",
       "description": "A regular expression that a string node must match.",
       "$comment": "A string is valid if it is matched by the regular expression.\n",
       "type": "string"

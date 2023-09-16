@@ -15,6 +15,18 @@
       }
     },
     {
+      "@id": "stencila:cellType",
+      "@type": "rdfs:Property",
+      "rdfs:label": "cellType",
+      "rdfs:comment": "The type of cell.",
+      "schema:domainIncludes": {
+        "@id": "stencila:TableCell"
+      },
+      "schema:rangeIncludes": {
+        "@id": "TableCellType"
+      }
+    },
+    {
       "@id": "schema:name",
       "@type": "rdfs:Property",
       "rdfs:label": "name",
@@ -49,7 +61,7 @@
     {
       "@id": "stencila:colspan",
       "@type": "rdfs:Property",
-      "rdfs:label": "colspan",
+      "rdfs:label": "columnSpan",
       "rdfs:comment": "How many columns the cell extends.\n",
       "schema:domainIncludes": {
         "@id": "stencila:TableCell"
@@ -59,21 +71,9 @@
       }
     },
     {
-      "@id": "stencila:cellType",
-      "@type": "rdfs:Property",
-      "rdfs:label": "cellType",
-      "rdfs:comment": "The type of cell.",
-      "schema:domainIncludes": {
-        "@id": "stencila:TableCell"
-      },
-      "schema:rangeIncludes": {
-        "@id": "TableCellType"
-      }
-    },
-    {
       "@id": "stencila:rowspan",
       "@type": "rdfs:Property",
-      "rdfs:label": "rowspan",
+      "rdfs:label": "rowSpan",
       "rdfs:comment": "How many columns the cell extends.",
       "schema:domainIncludes": {
         "@id": "stencila:TableCell"

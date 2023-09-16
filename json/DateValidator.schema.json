@@ -19,14 +19,12 @@
   "properties": {
     "type": {
       "@id": "schema:type",
-      "category": "other",
       "description": "The type of this item",
       "$comment": "This is a special property analogous to JSON-LD's `@type` keyword.\n",
       "type": "string"
     },
     "id": {
       "@id": "schema:id",
-      "category": "other",
       "description": "The identifier for this item",
       "$comment": "This is a special property analogous to JSON-LD's `@id` keyword.\n",
       "strip": [
@@ -39,14 +37,12 @@
     },
     "minimum": {
       "@id": "stencila:minimum",
-      "category": "other",
       "description": "The inclusive lower limit for a date.",
       "$comment": "A date is valid if it is greater than, or exactly equal to, `minimum`.\n",
       "$ref": "Date.schema.json"
     },
     "maximum": {
       "@id": "stencila:maximum",
-      "category": "other",
       "description": "The inclusive upper limit for a date.",
       "$comment": "A date is valid if it is less than, or exactly equal to, `maximum`.\n",
       "$ref": "Date.schema.json"

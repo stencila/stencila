@@ -6,71 +6,54 @@
   "description": "Union type for block content node types.",
   "anyOf": [
     {
-      "category": "other",
       "$ref": "Call.schema.json"
     },
     {
-      "category": "other",
       "$ref": "Claim.schema.json"
     },
     {
-      "category": "other",
       "$ref": "CodeBlock.schema.json"
     },
     {
-      "category": "other",
       "$ref": "CodeChunk.schema.json"
     },
     {
-      "category": "other",
       "$ref": "Division.schema.json"
     },
     {
-      "category": "other",
       "$ref": "Figure.schema.json"
     },
     {
-      "category": "other",
       "$ref": "For.schema.json"
     },
     {
-      "category": "other",
       "$ref": "Form.schema.json"
     },
     {
-      "category": "other",
       "$ref": "Heading.schema.json"
     },
     {
-      "category": "other",
       "$ref": "If.schema.json"
     },
     {
-      "category": "other",
       "$ref": "Include.schema.json"
     },
     {
-      "category": "other",
       "$ref": "List.schema.json"
     },
     {
-      "category": "other",
       "$ref": "MathBlock.schema.json"
     },
     {
-      "category": "other",
       "$ref": "Paragraph.schema.json"
     },
     {
-      "category": "other",
       "$ref": "QuoteBlock.schema.json"
     },
     {
-      "category": "other",
       "$ref": "Table.schema.json"
     },
     {
-      "category": "other",
       "$ref": "ThematicBreak.schema.json"
     }
   ],

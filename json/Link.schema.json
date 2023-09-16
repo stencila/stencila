@@ -26,14 +26,12 @@
   "properties": {
     "type": {
       "@id": "schema:type",
-      "category": "other",
       "description": "The type of this item",
       "$comment": "This is a special property analogous to JSON-LD's `@type` keyword.\n",
       "type": "string"
     },
     "id": {
       "@id": "schema:id",
-      "category": "other",
       "description": "The identifier for this item",
       "$comment": "This is a special property analogous to JSON-LD's `@id` keyword.\n",
       "strip": [
@@ -46,7 +44,6 @@
     },
     "content": {
       "@id": "stencila:content",
-      "category": "other",
       "description": "The textual content of the link.",
       "type": "array",
       "items": {
@@ -55,7 +52,6 @@
     },
     "target": {
       "@id": "stencila:target",
-      "category": "other",
       "description": "The target of the link.",
       "$comment": "Note that this is equivalent to the `href` attribute on a HTML `<a>` element,\nnot the `target` attribute (which is used to defined where to display the linked content,\ne.g. in a new browser window).\n",
       "html": {
@@ -66,14 +62,12 @@
     },
     "title": {
       "@id": "schema:headline",
-      "category": "other",
       "description": "A title for the link.",
       "$comment": "This property is analogous to the HTML `title` global attribute which\nrepresents [\"advisory information related to the element\"](https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes/title)\n",
       "type": "string"
     },
     "rel": {
       "@id": "schema:linkRelationship",
-      "category": "other",
       "description": "The relation between the target and the current thing.",
       "type": "string"
     }

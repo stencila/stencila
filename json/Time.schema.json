@@ -18,14 +18,12 @@
   "properties": {
     "type": {
       "@id": "schema:type",
-      "category": "other",
       "description": "The type of this item",
       "$comment": "This is a special property analogous to JSON-LD's `@type` keyword.\n",
       "type": "string"
     },
     "id": {
       "@id": "schema:id",
-      "category": "other",
       "description": "The identifier for this item",
       "$comment": "This is a special property analogous to JSON-LD's `@id` keyword.\n",
       "strip": [
@@ -38,7 +36,6 @@
     },
     "value": {
       "@id": "schema:value",
-      "category": "other",
       "description": "The time of day as a string in format `hh:mm:ss[Z|(+|-)hh:mm]`.",
       "type": "string",
       "format": "time"

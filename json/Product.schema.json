@@ -6,7 +6,6 @@
   "extends": [
     "Thing"
   ],
-  "category": "other",
   "description": "Any offered product or service. For example, a pair of shoes;\na haircut; or an episode of a TV show streamed online.\n",
   "$comment": "The `Product` type allows you to provide details about a product such as the product\nbrand, logo and ID. This type can be used as any kind of product that is not [`CreativeWork`](./CreativeWork) item.\n\n`Product` is analogous, and structurally similar to, the \nJATS XML [`<product>`](https://jats.nlm.nih.gov/archiving/tag-library/1.1/element/product.html) element which\ncontains the metadata concerning one product (for example, a book, software package, website, or\nhardware component) discussed in an article.\n\nTo meet Google's guidelines for [`Product`](https://developers.google.com/search/docs/data-types/product#product)\ninstances are required to have `image` and `name` properties.\n",
   "required": [
@@ -18,14 +17,12 @@
   "properties": {
     "type": {
       "@id": "schema:type",
-      "category": "other",
       "description": "The type of this item",
       "$comment": "This is a special property analogous to JSON-LD's `@type` keyword.\n",
       "type": "string"
     },
     "id": {
       "@id": "schema:id",
-      "category": "other",
       "description": "The identifier for this item",
       "$comment": "This is a special property analogous to JSON-LD's `@id` keyword.\n",
       "strip": [
@@ -38,7 +35,6 @@
     },
     "alternateNames": {
       "@id": "schema:alternateName",
-      "category": "other",
       "description": "Alternate names (aliases) for the item.",
       "type": "array",
       "items": {
@@ -47,7 +43,6 @@
     },
     "description": {
       "@id": "schema:description",
-      "category": "other",
       "description": "A description of the item.",
       "type": "array",
       "items": {
@@ -56,18 +51,15 @@
     },
     "identifiers": {
       "@id": "schema:identifier",
-      "category": "other",
       "description": "Any kind of identifier for any kind of Thing.",
       "$comment": "Some identifiers have specific properties e.g the `issn` property for\nthe `Periodical` type. These should be used in preference to this\nproperty which is intended for identifiers that do not yet have a\nspecific property. Identifiers can be represented as strings, but\nusing a `PropertyValue` will usually be better because it allows\nfor `propertyID` (i.e. the type of identifier).\n",
       "type": "array",
       "items": {
         "anyOf": [
           {
-            "category": "other",
             "$ref": "PropertyValue.schema.json"
           },
           {
-            "category": "other",
             "type": "string"
           }
         ]
@@ -75,17 +67,14 @@
     },
     "images": {
       "@id": "schema:image",
-      "category": "other",
       "description": "Images of the item.",
       "type": "array",
       "items": {
         "anyOf": [
           {
-            "category": "other",
             "$ref": "ImageObject.schema.json"
           },
           {
-            "category": "other",
             "type": "string",
             "format": "uri"
           }
@@ -94,20 +83,17 @@
     },
     "name": {
       "@id": "schema:name",
-      "category": "other",
       "description": "The name of the item.",
       "type": "string"
     },
     "url": {
       "@id": "schema:url",
-      "category": "other",
       "description": "The URL of the item.",
       "type": "string",
       "format": "uri"
     },
     "brands": {
       "@id": "schema:brand",
-      "category": "other",
       "description": "Brands that the product is labelled with.",
       "type": "array",
       "items": {
@@ -116,15 +102,12 @@
     },
     "logo": {
       "@id": "schema:logo",
-      "category": "other",
       "description": "The logo of the product.",
       "anyOf": [
         {
-          "category": "other",
           "$ref": "ImageObject.schema.json"
         },
         {
-          "category": "other",
           "type": "string",
           "format": "uri"
         }
@@ -132,7 +115,6 @@
     },
     "productID": {
       "@id": "schema:productID",
-      "category": "other",
       "description": "Product identification code.",
       "type": "string"
     }

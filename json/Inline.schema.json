@@ -6,127 +6,96 @@
   "description": "Union type for valid inline content.",
   "anyOf": [
     {
-      "category": "other",
       "$ref": "AudioObject.schema.json"
     },
     {
-      "category": "other",
       "$ref": "Button.schema.json"
     },
     {
-      "category": "other",
       "$ref": "Cite.schema.json"
     },
     {
-      "category": "other",
       "$ref": "CiteGroup.schema.json"
     },
     {
-      "category": "other",
       "$ref": "CodeExpression.schema.json"
     },
     {
-      "category": "other",
       "$ref": "CodeFragment.schema.json"
     },
     {
-      "category": "other",
       "$ref": "Date.schema.json"
     },
     {
-      "category": "other",
       "$ref": "DateTime.schema.json"
     },
     {
-      "category": "other",
       "$ref": "Duration.schema.json"
     },
     {
-      "category": "other",
       "$ref": "Emphasis.schema.json"
     },
     {
-      "category": "other",
       "$ref": "ImageObject.schema.json"
     },
     {
-      "category": "other",
       "$ref": "Link.schema.json"
     },
     {
-      "category": "other",
       "$ref": "MathFragment.schema.json"
     },
     {
-      "category": "other",
       "$ref": "Note.schema.json"
     },
     {
-      "category": "other",
       "$ref": "Parameter.schema.json"
     },
     {
-      "category": "other",
       "$ref": "Quote.schema.json"
     },
     {
-      "category": "other",
       "$ref": "Span.schema.json"
     },
     {
-      "category": "other",
       "$ref": "Strikeout.schema.json"
     },
     {
-      "category": "other",
       "$ref": "Strong.schema.json"
     },
     {
-      "category": "other",
       "$ref": "Subscript.schema.json"
     },
     {
-      "category": "other",
       "$ref": "Superscript.schema.json"
     },
     {
-      "category": "other",
       "$ref": "Text.schema.json"
     },
     {
-      "category": "other",
       "$ref": "Time.schema.json"
     },
     {
-      "category": "other",
       "$ref": "Timestamp.schema.json"
     },
     {
-      "category": "other",
       "$ref": "Underline.schema.json"
     },
     {
-      "category": "other",
       "$ref": "VideoObject.schema.json"
     },
     {
-      "category": "other",
       "$ref": "Null.schema.json"
     },
     {
-      "category": "other",
       "$ref": "Boolean.schema.json"
     },
     {
-      "category": "other",
       "$ref": "Integer.schema.json"
     },
     {
-      "category": "other",
       "$ref": "Number.schema.json"
     },
     {
-      "category": "other",
       "$ref": "String.schema.json"
     }
   ],

@@ -12,7 +12,7 @@ use common::{
     serde_with::skip_serializing_none,
     serde_yaml,
     smart_default::SmartDefault,
-    strum::{AsRefStr, Display, EnumVariantNames},
+    strum::{AsRefStr, Display, EnumIter},
     tokio::fs::read_to_string,
 };
 
@@ -82,6 +82,7 @@ pub struct Schema {
     pub extends: Vec<String>,
 
     /// The category of the schema
+    #[serde(skip_serializing_if = "Category::is_default")]
     pub category: Category,
 
     /// Whether the schema is only an abstract base for other schemas
@@ -106,7 +107,8 @@ pub struct Schema {
     pub comment: Option<String>,
 
     /// The status of the schema
-    pub status: Option<String>,
+    #[serde(skip_serializing_if = "Status::is_default")]
+    pub status: Status,
 
     /// Aliases which may be used for a property name
     #[serde(skip_serializing_if = "Vec::is_empty")]
@@ -317,7 +319,7 @@ pub struct Schema {
     pub is_extended: bool,
 }
 
-#[derive(Debug, Default, Clone, Deserialize, Serialize, Display, JsonSchema, EnumVariantNames)]
+#[derive(Debug, Default, Clone, Deserialize, Serialize, Display, JsonSchema, EnumIter)]
 #[serde(rename_all = "lowercase", crate = "common::serde")]
 #[strum(serialize_all = "lowercase", crate = "common::strum")]
 pub enum Category {
@@ -331,13 +333,38 @@ pub enum Category {
     Prose,
     /// Node types that are creative works or related to them
     Works,
-    /// Nodes types related to visual styling
+    /// Node types related to visual styling
     Style,
     /// Node types related to displaying math symbols and equations
     Math,
     /// All other node types
     #[default]
     Other,
+}
+
+impl Category {
+    fn is_default(&self) -> bool {
+        matches!(self, Self::Other)
+    }
+}
+
+#[derive(Debug, Default, Clone, Deserialize, Serialize, Display, JsonSchema)]
+#[serde(rename_all = "lowercase", crate = "common::serde")]
+#[strum(serialize_all = "lowercase", crate = "common::strum")]
+pub enum Status {
+    /// The schema is experimental and is likely to change
+    Experimental,
+    /// The schema is not yet stable and may change
+    Unstable,
+    /// The schema is stable and unlikely to change
+    #[default]
+    Stable,
+}
+
+impl Status {
+    fn is_default(&self) -> bool {
+        matches!(self, Self::Stable)
+    }
 }
 
 #[derive(Debug, Clone, Deserialize, Serialize, AsRefStr, JsonSchema)]
@@ -602,6 +629,18 @@ impl Schema {
         schemas.insert(name.to_string(), extended.clone());
 
         Ok(extended)
+    }
+
+    pub fn is_primitive(&self) -> bool {
+        self.r#type.is_some()
+    }
+
+    pub fn is_object(&self) -> bool {
+        self.r#type.is_none() && self.any_of.is_none()
+    }
+
+    pub fn is_union(&self) -> bool {
+        self.any_of.is_some()
     }
 }
 

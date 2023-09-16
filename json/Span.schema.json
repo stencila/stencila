@@ -32,14 +32,12 @@
   "properties": {
     "type": {
       "@id": "schema:type",
-      "category": "other",
       "description": "The type of this item",
       "$comment": "This is a special property analogous to JSON-LD's `@type` keyword.\n",
       "type": "string"
     },
     "id": {
       "@id": "schema:id",
-      "category": "other",
       "description": "The identifier for this item",
       "$comment": "This is a special property analogous to JSON-LD's `@id` keyword.\n",
       "strip": [
@@ -52,26 +50,22 @@
     },
     "code": {
       "@id": "stencila:code",
-      "category": "other",
       "description": "The code of the equation in the `styleLanguage`.",
       "$ref": "Cord.schema.json"
     },
     "styleLanguage": {
       "@id": "stencila:styleLanguage",
-      "category": "other",
       "description": "The language used for the style specification e.g. css, tailwind, classes.",
       "type": "string"
     },
     "compileDigest": {
       "@id": "stencila:compileDigest",
-      "category": "other",
       "description": "A digest of the `code` and `styleLanguage`.",
       "$comment": "Used to avoid unnecessary transpilation to CSS.",
       "$ref": "ExecutionDigest.schema.json"
     },
     "errors": {
       "@id": "stencila:errors",
-      "category": "other",
       "description": "Errors that occurred when transpiling the `code`.",
       "$comment": "This property is an array of strings. Compare this to `CodeChunk.errors`\nwhich is an array of `CodeError` nodes. Strings are considered to\nbe sufficient for style parsing errors which usually won't have stack traces,\nline numbers etc.\n",
       "type": "array",
@@ -81,13 +75,11 @@
     },
     "css": {
       "@id": "stencila:css",
-      "category": "other",
       "description": "A Cascading Style Sheet (CSS) transpiled from the `code` property.",
       "type": "string"
     },
     "classes": {
       "@id": "stencila:classes",
-      "category": "other",
       "description": "A list of class names associated with the node",
       "$comment": "Analogous to the [`classList` property of an `Element`](https://developer.mozilla.org/en-US/docs/Web/API/Element/classList)\nin the Web API.\n",
       "type": "array",
@@ -97,7 +89,6 @@
     },
     "content": {
       "@id": "stencila:content",
-      "category": "other",
       "description": "The content within the span",
       "type": "array",
       "items": {

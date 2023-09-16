@@ -20,14 +20,12 @@
   "properties": {
     "type": {
       "@id": "schema:type",
-      "category": "other",
       "description": "The type of this item",
       "$comment": "This is a special property analogous to JSON-LD's `@type` keyword.\n",
       "type": "string"
     },
     "id": {
       "@id": "schema:id",
-      "category": "other",
       "description": "The identifier for this item",
       "$comment": "This is a special property analogous to JSON-LD's `@id` keyword.\n",
       "strip": [
@@ -40,7 +38,6 @@
     },
     "name": {
       "@id": "schema:name",
-      "category": "other",
       "description": "The name of the function.",
       "$comment": "The name property is not required; this allows for anonymous functions\n(although these are not yet implemented in Stencila interpreters).\nThe regex allows for snake_case and camelCase names but excludes\nPascalCase for parameter names.\n",
       "type": "string",
@@ -48,7 +45,6 @@
     },
     "parameters": {
       "@id": "stencila:parameters",
-      "category": "other",
       "description": "The parameters of the function.",
       "type": "array",
       "items": {
@@ -57,7 +53,6 @@
     },
     "returns": {
       "@id": "stencila:returns",
-      "category": "other",
       "description": "The return type of the function.",
       "$ref": "Validator.schema.json"
     }

@@ -18,14 +18,12 @@
   "properties": {
     "type": {
       "@id": "schema:type",
-      "category": "other",
       "description": "The type of this item",
       "$comment": "This is a special property analogous to JSON-LD's `@type` keyword.\n",
       "type": "string"
     },
     "id": {
       "@id": "schema:id",
-      "category": "other",
       "description": "The identifier for this item",
       "$comment": "This is a special property analogous to JSON-LD's `@id` keyword.\n",
       "strip": [
@@ -38,7 +36,6 @@
     },
     "alternateNames": {
       "@id": "schema:alternateName",
-      "category": "other",
       "description": "Alternate names (aliases) for the item.",
       "type": "array",
       "items": {
@@ -47,7 +44,6 @@
     },
     "description": {
       "@id": "schema:description",
-      "category": "other",
       "description": "A description of the item.",
       "type": "array",
       "items": {
@@ -56,18 +52,15 @@
     },
     "identifiers": {
       "@id": "schema:identifier",
-      "category": "other",
       "description": "Any kind of identifier for any kind of Thing.",
       "$comment": "Some identifiers have specific properties e.g the `issn` property for\nthe `Periodical` type. These should be used in preference to this\nproperty which is intended for identifiers that do not yet have a\nspecific property. Identifiers can be represented as strings, but\nusing a `PropertyValue` will usually be better because it allows\nfor `propertyID` (i.e. the type of identifier).\n",
       "type": "array",
       "items": {
         "anyOf": [
           {
-            "category": "other",
             "$ref": "PropertyValue.schema.json"
           },
           {
-            "category": "other",
             "type": "string"
           }
         ]
@@ -75,17 +68,14 @@
     },
     "images": {
       "@id": "schema:image",
-      "category": "other",
       "description": "Images of the item.",
       "type": "array",
       "items": {
         "anyOf": [
           {
-            "category": "other",
             "$ref": "ImageObject.schema.json"
           },
           {
-            "category": "other",
             "type": "string",
             "format": "uri"
           }
@@ -94,20 +84,17 @@
     },
     "name": {
       "@id": "schema:name",
-      "category": "other",
       "description": "The name of the item.",
       "type": "string"
     },
     "url": {
       "@id": "schema:url",
-      "category": "other",
       "description": "The URL of the item.",
       "type": "string",
       "format": "uri"
     },
     "about": {
       "@id": "schema:about",
-      "category": "other",
       "description": "The subject matter of the content.",
       "$comment": "Consistent with https://schema.org/about, this property allows for\nlinking to one of more `Thing` nodes. This could for example include\na `Person` (e.g for a bibliography) or a `DefinedTerm` (e.g. for\nsubject areas the creative work relates to).\n",
       "type": "array",
@@ -117,17 +104,14 @@
     },
     "authors": {
       "@id": "schema:author",
-      "category": "other",
       "description": "The authors of this creative work.",
       "type": "array",
       "items": {
         "anyOf": [
           {
-            "category": "other",
             "$ref": "Person.schema.json"
           },
           {
-            "category": "other",
             "$ref": "Organization.schema.json"
           }
         ]
@@ -135,7 +119,6 @@
     },
     "comments": {
       "@id": "schema:comment",
-      "category": "other",
       "description": "Comments about this creative work.",
       "type": "array",
       "items": {
@@ -144,7 +127,6 @@
     },
     "content": {
       "@id": "stencila:content",
-      "category": "other",
       "description": "The structured content of this creative work c.f. property `text`.",
       "type": "array",
       "items": {
@@ -153,32 +135,27 @@
     },
     "dateCreated": {
       "@id": "schema:dateCreated",
-      "category": "other",
       "description": "Date/time of creation.",
       "$ref": "Date.schema.json"
     },
     "dateReceived": {
       "@id": "schema:dateReceived",
-      "category": "other",
       "description": "Date/time that work was received.",
       "$ref": "Date.schema.json"
     },
     "dateAccepted": {
       "@id": "stencila:dateAccepted",
-      "category": "other",
       "description": "Date/time of acceptance.",
       "$comment": "This is not yet a schema.org property but the term is used\n[in Dublin Core](http://purl.org/dc/terms/dateAccepted).\n",
       "$ref": "Date.schema.json"
     },
     "dateModified": {
       "@id": "schema:dateModified",
-      "category": "other",
       "description": "Date/time of most recent modification.",
       "$ref": "Date.schema.json"
     },
     "datePublished": {
       "@id": "schema:datePublished",
-      "category": "other",
       "description": "Date of first publication.",
       "aliases": [
         "date"
@@ -187,7 +164,6 @@
     },
     "editors": {
       "@id": "schema:editor",
-      "category": "other",
       "description": "People who edited the `CreativeWork`.",
       "type": "array",
       "items": {
@@ -196,17 +172,14 @@
     },
     "funders": {
       "@id": "schema:funder",
-      "category": "other",
       "description": "People or organizations that funded the `CreativeWork`.",
       "type": "array",
       "items": {
         "anyOf": [
           {
-            "category": "other",
             "$ref": "Person.schema.json"
           },
           {
-            "category": "other",
             "$ref": "Organization.schema.json"
           }
         ]
@@ -214,18 +187,15 @@
     },
     "fundedBy": {
       "@id": "stencila:fundedBy",
-      "category": "other",
       "description": "Grants that funded the `CreativeWork`; reverse of `fundedItems`.",
       "$comment": "This follows the proposal [here](https://github.com/schemaorg/schemaorg/issues/2258)\nfor a property that is the reverse of `fundedItems`.\nIt is an any because a `CreativeWork` may have been funded through more than\none `Grant`.\n",
       "type": "array",
       "items": {
         "anyOf": [
           {
-            "category": "other",
             "$ref": "Grant.schema.json"
           },
           {
-            "category": "other",
             "$ref": "MonetaryGrant.schema.json"
           }
         ]
@@ -233,7 +203,6 @@
     },
     "genre": {
       "@id": "schema:genre",
-      "category": "other",
       "description": "Genre of the creative work, broadcast channel or group.",
       "type": "array",
       "items": {
@@ -242,7 +211,6 @@
     },
     "keywords": {
       "@id": "schema:keywords",
-      "category": "other",
       "description": "Keywords or tags used to describe this content.\nMultiple entries in a keywords list are typically delimited by commas.\n",
       "type": "array",
       "items": {
@@ -251,23 +219,19 @@
     },
     "isPartOf": {
       "@id": "schema:isPartOf",
-      "category": "other",
       "description": "An item or other CreativeWork that this CreativeWork is a part of.\n",
       "$ref": "CreativeWorkType.schema.json"
     },
     "licenses": {
       "@id": "schema:license",
-      "category": "other",
       "description": "License documents that applies to this content, typically indicated by URL.\n",
       "type": "array",
       "items": {
         "anyOf": [
           {
-            "category": "other",
             "$ref": "CreativeWorkType.schema.json"
           },
           {
-            "category": "other",
             "type": "string",
             "format": "uri"
           }
@@ -276,18 +240,15 @@
     },
     "maintainers": {
       "@id": "schema:maintainer",
-      "category": "other",
       "description": "The people or organizations who maintain this CreativeWork.",
       "$comment": "A maintainer of a Dataset, SoftwareApplication, or other CreativeWork.\nA maintainer is a Person or Organization that manages contributions to,\nand/or publication of, some (typically complex) artifact. It is common for\ndistributions of software and data to be based on \"upstream\" sources.\nWhen maintainer is applied to a specific version of something e.g. a particular\nversion or packaging of a Dataset, it is always possible that the upstream\nsource has a different maintainer. The isBasedOn property can be used to\nindicate such relationships between datasets to make the different maintenance\nroles clear. Similarly in the case of software, a package may have dedicated\nmaintainers working on integration into software distributions such as Ubuntu,\nas well as upstream maintainers of the underlying work.\n",
       "type": "array",
       "items": {
         "anyOf": [
           {
-            "category": "other",
             "$ref": "Person.schema.json"
           },
           {
-            "category": "other",
             "$ref": "Organization.schema.json"
           }
         ]
@@ -295,7 +256,6 @@
     },
     "parts": {
       "@id": "schema:hasParts",
-      "category": "other",
       "description": "Elements of the collection which can be a variety of different elements,\nsuch as Articles, Datatables, Tables and more.\n",
       "aliases": [
         "hasParts"
@@ -307,22 +267,18 @@
     },
     "publisher": {
       "@id": "schema:publisher",
-      "category": "other",
       "description": "A publisher of the CreativeWork.\n",
       "anyOf": [
         {
-          "category": "other",
           "$ref": "Person.schema.json"
         },
         {
-          "category": "other",
           "$ref": "Organization.schema.json"
         }
       ]
     },
     "references": {
       "@id": "schema:citation",
-      "category": "other",
       "description": "References to other creative works, such as another publication,\nweb page, scholarly article, etc.\n",
       "aliases": [
         "citations"
@@ -331,11 +287,9 @@
       "items": {
         "anyOf": [
           {
-            "category": "other",
             "$ref": "CreativeWorkType.schema.json"
           },
           {
-            "category": "other",
             "type": "string"
           }
         ]
@@ -343,13 +297,11 @@
     },
     "text": {
       "@id": "schema:text",
-      "category": "other",
       "description": "The textual content of this creative work.",
       "type": "string"
     },
     "title": {
       "@id": "schema:headline",
-      "category": "other",
       "description": "The title of the creative work.",
       "aliases": [
         "headline"
@@ -361,16 +313,13 @@
     },
     "version": {
       "@id": "schema:version",
-      "category": "other",
       "description": "The version of the creative work.",
       "$comment": "In this case `string` is listed as an alternative before `number` to\navoid semantic version numbers e.g. `1.0` being parsed, and subsequently\nencoded, as `1` thereby resulting in loss of information.\n",
       "anyOf": [
         {
-          "category": "other",
           "type": "string"
         },
         {
-          "category": "other",
           "type": "number"
         }
       ]

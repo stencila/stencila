@@ -1,194 +1,146 @@
 {
   "title": "ThingType",
-  "category": "other",
   "description": "Union type for all types that are descended from `Thing`",
   "anyOf": [
     {
-      "category": "other",
       "$ref": "Article.schema.json"
     },
     {
-      "category": "other",
       "$ref": "AudioObject.schema.json"
     },
     {
-      "category": "other",
       "$ref": "Brand.schema.json"
     },
     {
-      "category": "other",
       "$ref": "CitationIntent.schema.json"
     },
     {
-      "category": "other",
       "$ref": "CitationMode.schema.json"
     },
     {
-      "category": "other",
       "$ref": "Claim.schema.json"
     },
     {
-      "category": "other",
       "$ref": "ClaimType.schema.json"
     },
     {
-      "category": "other",
       "$ref": "Collection.schema.json"
     },
     {
-      "category": "other",
       "$ref": "Comment.schema.json"
     },
     {
-      "category": "other",
       "$ref": "ContactPoint.schema.json"
     },
     {
-      "category": "other",
       "$ref": "CreativeWork.schema.json"
     },
     {
-      "category": "other",
       "$ref": "Datatable.schema.json"
     },
     {
-      "category": "other",
       "$ref": "DatatableColumn.schema.json"
     },
     {
-      "category": "other",
       "$ref": "DefinedTerm.schema.json"
     },
     {
-      "category": "other",
       "$ref": "Directory.schema.json"
     },
     {
-      "category": "other",
       "$ref": "Enumeration.schema.json"
     },
     {
-      "category": "other",
       "$ref": "ExecutionAuto.schema.json"
     },
     {
-      "category": "other",
       "$ref": "ExecutionDependantRelation.schema.json"
     },
     {
-      "category": "other",
       "$ref": "ExecutionDependencyRelation.schema.json"
     },
     {
-      "category": "other",
       "$ref": "ExecutionRequired.schema.json"
     },
     {
-      "category": "other",
       "$ref": "ExecutionStatus.schema.json"
     },
     {
-      "category": "other",
       "$ref": "Figure.schema.json"
     },
     {
-      "category": "other",
       "$ref": "File.schema.json"
     },
     {
-      "category": "other",
       "$ref": "FormDeriveAction.schema.json"
     },
     {
-      "category": "other",
       "$ref": "Grant.schema.json"
     },
     {
-      "category": "other",
       "$ref": "ImageObject.schema.json"
     },
     {
-      "category": "other",
       "$ref": "ListItem.schema.json"
     },
     {
-      "category": "other",
       "$ref": "ListOrder.schema.json"
     },
     {
-      "category": "other",
       "$ref": "MediaObject.schema.json"
     },
     {
-      "category": "other",
       "$ref": "MonetaryGrant.schema.json"
     },
     {
-      "category": "other",
       "$ref": "NoteType.schema.json"
     },
     {
-      "category": "other",
       "$ref": "Organization.schema.json"
     },
     {
-      "category": "other",
       "$ref": "Periodical.schema.json"
     },
     {
-      "category": "other",
       "$ref": "Person.schema.json"
     },
     {
-      "category": "other",
       "$ref": "PostalAddress.schema.json"
     },
     {
-      "category": "other",
       "$ref": "Product.schema.json"
     },
     {
-      "category": "other",
       "$ref": "PropertyValue.schema.json"
     },
     {
-      "category": "other",
       "$ref": "PublicationIssue.schema.json"
     },
     {
-      "category": "other",
       "$ref": "PublicationVolume.schema.json"
     },
     {
-      "category": "other",
       "$ref": "Review.schema.json"
     },
     {
-      "category": "other",
       "$ref": "SoftwareApplication.schema.json"
     },
     {
-      "category": "other",
       "$ref": "SoftwareSourceCode.schema.json"
     },
     {
-      "category": "other",
       "$ref": "Table.schema.json"
     },
     {
-      "category": "other",
       "$ref": "TableCellType.schema.json"
     },
     {
-      "category": "other",
       "$ref": "TableRowType.schema.json"
     },
     {
-      "category": "other",
       "$ref": "TimeUnit.schema.json"
     },
     {
-      "category": "other",
       "$ref": "VideoObject.schema.json"
     }
   ]

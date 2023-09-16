@@ -1,418 +1,314 @@
 {
   "title": "Node",
-  "category": "other",
   "description": "Union type for all types in this schema, including primitives and entities",
   "anyOf": [
     {
-      "category": "other",
       "$ref": "Null.schema.json"
     },
     {
-      "category": "other",
       "$ref": "Boolean.schema.json"
     },
     {
-      "category": "other",
       "$ref": "Integer.schema.json"
     },
     {
-      "category": "other",
       "$ref": "UnsignedInteger.schema.json"
     },
     {
-      "category": "other",
       "$ref": "Number.schema.json"
     },
     {
-      "category": "other",
       "$ref": "String.schema.json"
     },
     {
-      "category": "other",
       "$ref": "Array.schema.json"
     },
     {
-      "category": "other",
       "$ref": "ArrayValidator.schema.json"
     },
     {
-      "category": "other",
       "$ref": "Article.schema.json"
     },
     {
-      "category": "other",
       "$ref": "AudioObject.schema.json"
     },
     {
-      "category": "other",
       "$ref": "BooleanValidator.schema.json"
     },
     {
-      "category": "other",
       "$ref": "Brand.schema.json"
     },
     {
-      "category": "other",
       "$ref": "Button.schema.json"
     },
     {
-      "category": "other",
       "$ref": "Call.schema.json"
     },
     {
-      "category": "other",
       "$ref": "CallArgument.schema.json"
     },
     {
-      "category": "other",
       "$ref": "Cite.schema.json"
     },
     {
-      "category": "other",
       "$ref": "CiteGroup.schema.json"
     },
     {
-      "category": "other",
       "$ref": "Claim.schema.json"
     },
     {
-      "category": "other",
       "$ref": "CodeBlock.schema.json"
     },
     {
-      "category": "other",
       "$ref": "CodeChunk.schema.json"
     },
     {
-      "category": "other",
       "$ref": "CodeError.schema.json"
     },
     {
-      "category": "other",
       "$ref": "CodeExpression.schema.json"
     },
     {
-      "category": "other",
       "$ref": "CodeFragment.schema.json"
     },
     {
-      "category": "other",
       "$ref": "Collection.schema.json"
     },
     {
-      "category": "other",
       "$ref": "Comment.schema.json"
     },
     {
-      "category": "other",
       "$ref": "ConstantValidator.schema.json"
     },
     {
-      "category": "other",
       "$ref": "ContactPoint.schema.json"
     },
     {
-      "category": "other",
       "$ref": "CreativeWork.schema.json"
     },
     {
-      "category": "other",
       "$ref": "Datatable.schema.json"
     },
     {
-      "category": "other",
       "$ref": "DatatableColumn.schema.json"
     },
     {
-      "category": "other",
       "$ref": "Date.schema.json"
     },
     {
-      "category": "other",
       "$ref": "DateTime.schema.json"
     },
     {
-      "category": "other",
       "$ref": "DateTimeValidator.schema.json"
     },
     {
-      "category": "other",
       "$ref": "DateValidator.schema.json"
     },
     {
-      "category": "other",
       "$ref": "DefinedTerm.schema.json"
     },
     {
-      "category": "other",
       "$ref": "Directory.schema.json"
     },
     {
-      "category": "other",
       "$ref": "Division.schema.json"
     },
     {
-      "category": "other",
       "$ref": "Duration.schema.json"
     },
     {
-      "category": "other",
       "$ref": "DurationValidator.schema.json"
     },
     {
-      "category": "other",
       "$ref": "Emphasis.schema.json"
     },
     {
-      "category": "other",
       "$ref": "EnumValidator.schema.json"
     },
     {
-      "category": "other",
       "$ref": "Enumeration.schema.json"
     },
     {
-      "category": "other",
       "$ref": "ExecutionDependant.schema.json"
     },
     {
-      "category": "other",
       "$ref": "ExecutionDependency.schema.json"
     },
     {
-      "category": "other",
       "$ref": "ExecutionDigest.schema.json"
     },
     {
-      "category": "other",
       "$ref": "ExecutionTag.schema.json"
     },
     {
-      "category": "other",
       "$ref": "Figure.schema.json"
     },
     {
-      "category": "other",
       "$ref": "File.schema.json"
     },
     {
-      "category": "other",
       "$ref": "For.schema.json"
     },
     {
-      "category": "other",
       "$ref": "Form.schema.json"
     },
     {
-      "category": "other",
       "$ref": "Function.schema.json"
     },
     {
-      "category": "other",
       "$ref": "Grant.schema.json"
     },
     {
-      "category": "other",
       "$ref": "Heading.schema.json"
     },
     {
-      "category": "other",
       "$ref": "If.schema.json"
     },
     {
-      "category": "other",
       "$ref": "IfClause.schema.json"
     },
     {
-      "category": "other",
       "$ref": "ImageObject.schema.json"
     },
     {
-      "category": "other",
       "$ref": "Include.schema.json"
     },
     {
-      "category": "other",
       "$ref": "IntegerValidator.schema.json"
     },
     {
-      "category": "other",
       "$ref": "Link.schema.json"
     },
     {
-      "category": "other",
       "$ref": "List.schema.json"
     },
     {
-      "category": "other",
       "$ref": "ListItem.schema.json"
     },
     {
-      "category": "other",
       "$ref": "MathBlock.schema.json"
     },
     {
-      "category": "other",
       "$ref": "MathFragment.schema.json"
     },
     {
-      "category": "other",
       "$ref": "MediaObject.schema.json"
     },
     {
-      "category": "other",
       "$ref": "MonetaryGrant.schema.json"
     },
     {
-      "category": "other",
       "$ref": "Note.schema.json"
     },
     {
-      "category": "other",
       "$ref": "NumberValidator.schema.json"
     },
     {
-      "category": "other",
       "$ref": "Organization.schema.json"
     },
     {
-      "category": "other",
       "$ref": "Paragraph.schema.json"
     },
     {
-      "category": "other",
       "$ref": "Parameter.schema.json"
     },
     {
-      "category": "other",
       "$ref": "Periodical.schema.json"
     },
     {
-      "category": "other",
       "$ref": "Person.schema.json"
     },
     {
-      "category": "other",
       "$ref": "PostalAddress.schema.json"
     },
     {
-      "category": "other",
       "$ref": "Product.schema.json"
     },
     {
-      "category": "other",
       "$ref": "PropertyValue.schema.json"
     },
     {
-      "category": "other",
       "$ref": "PublicationIssue.schema.json"
     },
     {
-      "category": "other",
       "$ref": "PublicationVolume.schema.json"
     },
     {
-      "category": "other",
       "$ref": "Quote.schema.json"
     },
     {
-      "category": "other",
       "$ref": "QuoteBlock.schema.json"
     },
     {
-      "category": "other",
       "$ref": "Review.schema.json"
     },
     {
-      "category": "other",
       "$ref": "SoftwareApplication.schema.json"
     },
     {
-      "category": "other",
       "$ref": "SoftwareSourceCode.schema.json"
     },
     {
-      "category": "other",
       "$ref": "Span.schema.json"
     },
     {
-      "category": "other",
       "$ref": "Strikeout.schema.json"
     },
     {
-      "category": "other",
       "$ref": "StringValidator.schema.json"
     },
     {
-      "category": "other",
       "$ref": "Strong.schema.json"
     },
     {
-      "category": "other",
       "$ref": "Subscript.schema.json"
     },
     {
-      "category": "other",
       "$ref": "Superscript.schema.json"
     },
     {
-      "category": "other",
       "$ref": "Table.schema.json"
     },
     {
-      "category": "other",
       "$ref": "TableCell.schema.json"
     },
     {
-      "category": "other",
       "$ref": "TableRow.schema.json"
     },
     {
-      "category": "other",
       "$ref": "Text.schema.json"
     },
     {
-      "category": "other",
       "$ref": "ThematicBreak.schema.json"
     },
     {
-      "category": "other",
       "$ref": "Thing.schema.json"
     },
     {
-      "category": "other",
       "$ref": "Time.schema.json"
     },
     {
-      "category": "other",
       "$ref": "TimeValidator.schema.json"
     },
     {
-      "category": "other",
       "$ref": "Timestamp.schema.json"
     },
     {
-      "category": "other",
       "$ref": "TimestampValidator.schema.json"
     },
     {
-      "category": "other",
       "$ref": "TupleValidator.schema.json"
     },
     {
-      "category": "other",
       "$ref": "Underline.schema.json"
     },
     {
-      "category": "other",
       "$ref": "Variable.schema.json"
     },
     {
-      "category": "other",
       "$ref": "VideoObject.schema.json"
     },
     {
-      "category": "other",
       "$ref": "Object.schema.json"
     }
   ],

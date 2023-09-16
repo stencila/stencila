@@ -15,19 +15,19 @@
     "type"
   ],
   "core": [
-    "id"
+    "id",
+    "cellType",
+    "content"
   ],
   "properties": {
     "type": {
       "@id": "schema:type",
-      "category": "other",
       "description": "The type of this item",
       "$comment": "This is a special property analogous to JSON-LD's `@type` keyword.\n",
       "type": "string"
     },
     "id": {
       "@id": "schema:id",
-      "category": "other",
       "description": "The identifier for this item",
       "$comment": "This is a special property analogous to JSON-LD's `@id` keyword.\n",
       "strip": [
@@ -38,51 +38,50 @@
       },
       "type": "string"
     },
+    "cellType": {
+      "@id": "stencila:cellType",
+      "description": "The type of cell.",
+      "$ref": "TableCellType.schema.json"
+    },
     "name": {
       "@id": "schema:name",
-      "category": "other",
       "description": "The name of the cell.",
       "$comment": "Cell's have an implicit name derived from their position in the table\ne.g. `C4` for the cell in the third column and fourth row. However this name can be overridden\nwith an explicit name, e.g. `rate`.\n",
       "type": "string"
     },
-    "colspan": {
+    "columnSpan": {
       "@id": "stencila:colspan",
-      "category": "other",
       "description": "How many columns the cell extends.\n",
       "$comment": "Based on the HTML `colspan` attribute for [table cells](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/td).",
+      "html": {
+        "attr": "colspan"
+      },
       "type": "integer",
       "minimum": 0.0,
       "maximum": 1000.0
     },
-    "cellType": {
-      "@id": "stencila:cellType",
-      "category": "other",
-      "description": "The type of cell.",
-      "$ref": "TableCellType.schema.json"
-    },
-    "rowspan": {
+    "rowSpan": {
       "@id": "stencila:rowspan",
-      "category": "other",
       "description": "How many columns the cell extends.",
       "$comment": "Based on the HTML `rowspan` attribute for [table cells](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/td).",
+      "html": {
+        "attr": "rowspan"
+      },
       "type": "integer",
       "minimum": 0.0,
       "maximum": 65534.0
     },
     "content": {
       "@id": "stencila:content",
-      "category": "other",
       "description": "Contents of the table cell.",
       "anyOf": [
         {
-          "category": "other",
           "type": "array",
           "items": {
             "$ref": "Block.schema.json"
           }
         },
         {
-          "category": "other",
           "type": "array",
           "items": {
             "$ref": "Inline.schema.json"
