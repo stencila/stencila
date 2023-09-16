@@ -2209,7 +2209,10 @@ dependencies = [
 name = "schema-gen"
 version = "0.0.0"
 dependencies = [
+ "codec",
+ "codec-markdown",
  "common",
+ "schema",
  "schemars",
 ]
 

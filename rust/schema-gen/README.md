@@ -6,7 +6,7 @@
 
 This Rust crate generates the following from the YAML files in `../../schema`:
 
-  - [ ] Markdown documentation: [`src/docs.rs`](src/docs.rs)
+  - [x] Markdown documentation: [`src/docs.rs`](src/docs.rs)
 
   - [x] Python types: [`src/python.rs`](src/python.rs)
 
@@ -18,7 +18,9 @@ This Rust crate generates the following from the YAML files in `../../schema`:
 
   - [x] JSON Schema: [`src/json_schema.rs`](src/json_schema.rs)
 
-## Adding a new type of generated output
+## Development
+
+To add a new type of generated output:
 
 - Add a new module with a `impl Schemas` which adds the necessary methods to generate whatever you want to generate (see existing modules as examples)
 
@@ -36,6 +38,12 @@ This Rust crate generates the following from the YAML files in `../../schema`:
 cargo run -p schema-gen -- docs rust
 ```
 
-## CI
+Because this crate depends upon the Rust types it generates (for generating documentation), if there are any errors in that Rust code, it is not possible to recompile. To avoid this circular dependency, run generation without the `docs` feature enabled:
+
+```sh
+cargo run -p schema-gen --no-default-features
+```
+
+## Continuous deployment
 
 As part of the GitHub `build.yml` workflow, all generations will be run on each push and any changes to generated files committed.

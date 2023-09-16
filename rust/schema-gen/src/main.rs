@@ -47,7 +47,11 @@ async fn main() -> Result<()> {
     use What::*;
     for what in whats {
         match what {
+            #[cfg(feature = "docs")]
             Docs => schemas.docs().await?,
+            #[cfg(not(feature = "docs"))]
+            Docs => eprintln!("Generation of docs is not enabled; skipping"),
+
             JsonLd => schemas.json_ld().await?,
             JsonSchema => schemas.json_schema().await?,
             Python => schemas.python().await?,
