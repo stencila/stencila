@@ -11,17 +11,17 @@ export class TableCell {
   // The identifier for this item
   id?: string;
 
+  // The type of cell.
+  cellType?: TableCellType;
+
   // The name of the cell.
   name?: string;
 
   // How many columns the cell extends.
-  colspan?: Integer;
-
-  // The type of cell.
-  cellType?: TableCellType;
+  columnSpan?: Integer;
 
   // How many columns the cell extends.
-  rowspan?: Integer;
+  rowSpan?: Integer;
 
   // Contents of the table cell.
   content?: BlocksOrInlines;

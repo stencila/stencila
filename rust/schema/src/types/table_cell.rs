@@ -21,6 +21,12 @@ pub struct TableCell {
     #[html(attr = "id")]
     pub id: Option<String>,
 
+    /// The type of cell.
+    pub cell_type: Option<TableCellType>,
+
+    /// Contents of the table cell.
+    pub content: Option<BlocksOrInlines>,
+
     /// Non-core optional fields
     #[serde(flatten)]
     #[html(flatten)]
@@ -35,16 +41,12 @@ pub struct TableCellOptions {
     pub name: Option<String>,
 
     /// How many columns the cell extends.
-    pub colspan: Option<Integer>,
-
-    /// The type of cell.
-    pub cell_type: Option<TableCellType>,
+    #[html(attr = "colspan")]
+    pub column_span: Option<Integer>,
 
     /// How many columns the cell extends.
-    pub rowspan: Option<Integer>,
-
-    /// Contents of the table cell.
-    pub content: Option<BlocksOrInlines>,
+    #[html(attr = "rowspan")]
+    pub row_span: Option<Integer>,
 }
 
 impl TableCell {

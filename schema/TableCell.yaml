@@ -5,7 +5,14 @@ category: works
 description: A cell within a `Table`.
 html:
   elem: td
+core:
+  - cellType
+  - content
 properties:
+  cellType:
+    '@id': stencila:cellType
+    description: The type of cell.
+    $ref: TableCellType
   name:
     '@id': schema:name
     description: The name of the cell.
@@ -14,22 +21,22 @@ properties:
       e.g. `C4` for the cell in the third column and fourth row. However this name can be overridden
       with an explicit name, e.g. `rate`.
     type: string
-  colspan:
+  columnSpan:
     '@id': stencila:colspan
     description: |
       How many columns the cell extends.
     $comment: Based on the HTML `colspan` attribute for [table cells](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/td).
+    html:
+      attr: colspan
     type: integer
     minimum: 0
     maximum: 1000
-  cellType:
-    '@id': stencila:cellType
-    description: The type of cell.
-    $ref: TableCellType
-  rowspan:
+  rowSpan:
     '@id': stencila:rowspan
     description: How many columns the cell extends.
     $comment: Based on the HTML `rowspan` attribute for [table cells](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/td).
+    html:
+      attr: rowspan
     type: integer
     minimum: 0
     maximum: 65534

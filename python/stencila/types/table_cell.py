@@ -15,16 +15,16 @@ class TableCell(Entity):
 
     type: Literal["TableCell"] = field(default="TableCell", init=False)
 
-    name: Optional[str] = None
-    """The name of the cell."""
-
-    colspan: Optional[int] = None
-    """How many columns the cell extends."""
-
     cell_type: Optional[TableCellType] = None
     """The type of cell."""
 
-    rowspan: Optional[int] = None
+    name: Optional[str] = None
+    """The name of the cell."""
+
+    column_span: Optional[int] = None
+    """How many columns the cell extends."""
+
+    row_span: Optional[int] = None
     """How many columns the cell extends."""
 
     content: Optional[BlocksOrInlines] = None
