@@ -2,7 +2,7 @@ title: CodeError
 '@id': stencila:CodeError
 extends: Entity
 category: code
-status: unstable
+status: alpha
 description: An error that occurred when parsing, compiling or executing a Code node.
 required:
   - errorMessage
