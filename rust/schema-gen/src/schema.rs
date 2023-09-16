@@ -15,6 +15,7 @@ use common::{
     strum::{Display, EnumIter},
     tokio::fs::read_to_string,
 };
+use status::Status;
 
 /// A schema in the Stencila Schema
 ///
@@ -345,25 +346,6 @@ pub enum Category {
 impl Category {
     fn is_default(&self) -> bool {
         matches!(self, Self::Other)
-    }
-}
-
-#[derive(Debug, Default, Clone, Deserialize, Serialize, Display, JsonSchema)]
-#[serde(rename_all = "lowercase", crate = "common::serde")]
-#[strum(serialize_all = "lowercase", crate = "common::strum")]
-pub enum Status {
-    /// The schema is experimental and is likely to change
-    Experimental,
-    /// The schema is not yet stable and may change
-    Unstable,
-    /// The schema is stable and unlikely to change
-    #[default]
-    Stable,
-}
-
-impl Status {
-    fn is_default(&self) -> bool {
-        matches!(self, Self::Stable)
     }
 }
 

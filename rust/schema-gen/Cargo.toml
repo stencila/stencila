@@ -5,11 +5,11 @@ edition = "2021"
 
 [features]
 default = ["docs"]
-docs = ["codec", "codec-markdown", "schema"]
+docs = ["codecs", "schema"]
 
 [dependencies]
-codec = { path = "../codec", optional = true }
-codec-markdown = { path = "../codec-markdown", optional = true }
+codecs = { path = "../codecs", optional = true }
 common = { path = "../common" }
 schema = { path = "../schema", optional = true }
 schemars = { version = "0.8.13", features = ["indexmap2"] }
+status = { path = "../status" }
