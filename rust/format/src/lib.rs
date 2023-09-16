@@ -6,10 +6,23 @@ use common::{
     clap::{self, ValueEnum},
     eyre::{bail, Result},
     serde::Serialize,
-    strum::{Display, EnumString},
+    strum::{Display, EnumIter, EnumString},
 };
 
-#[derive(Debug, Display, Clone, Copy, PartialEq, ValueEnum, EnumString, Serialize)]
+#[derive(
+    Debug,
+    Display,
+    Clone,
+    Copy,
+    PartialOrd,
+    PartialEq,
+    Eq,
+    Ord,
+    ValueEnum,
+    EnumIter,
+    EnumString,
+    Serialize,
+)]
 #[strum(
     serialize_all = "lowercase",
     ascii_case_insensitive,
@@ -28,6 +41,21 @@ pub enum Format {
 }
 
 impl Format {
+    /// Get the name of a format to use when displayed
+    pub fn name(&self) -> &str {
+        use Format::*;
+        match self {
+            Debug => "Debug",
+            Html => "HTML",
+            Jats => "JATS",
+            Json => "JSON",
+            Json5 => "JSON5",
+            Markdown => "Markdown",
+            Text => "Plain text",
+            Yaml => "YAML",
+        }
+    }
+
     /// Resolve a [`Format`] from a name for the format
     pub fn from_name(ext: &str) -> Result<Self> {
         use Format::*;
