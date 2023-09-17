@@ -3,6 +3,10 @@ title: CodeChunk
 extends: CodeExecutable
 category: code
 description: A executable chunk of code.
+jats:
+  elem: code
+  attrs:
+    executable: 'yes'
 core:
   - outputs
 properties:

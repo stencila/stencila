@@ -100,6 +100,20 @@ impl Loss {
         }
     }
 
+    /// Create a loss with [`LossKind::Properties`] for a single property
+    pub fn of_property<T, P>(direction: LossDirection, r#type: T, property: P) -> Self
+    where
+        T: AsRef<str>,
+        P: AsRef<str>,
+    {
+        Loss {
+            direction,
+            r#type: r#type.as_ref().to_string(),
+            kind: LossKind::Properties(vec![property.as_ref().to_string()]),
+            ..Default::default()
+        }
+    }
+
     /// Create a loss with [`LossKind::Properties`]
     pub fn of_properties<T, I>(direction: LossDirection, r#type: T, properties: I) -> Self
     where
@@ -177,6 +191,18 @@ impl Losses {
     /// Indicate that enumerating the losses for a codec is yet to be implemented
     pub fn todo() -> Self {
         Self::default()
+    }
+
+    /// Create a set of losses for entire node
+    pub fn of_all<S>(r#type: S) -> Self
+    where
+        S: AsRef<str>,
+    {
+        Self::new([Loss::of_properties(
+            LossDirection::Encode,
+            r#type,
+            ["*".to_string()],
+        )])
     }
 
     /// Create a set of losses with one entry for the loss of the id property

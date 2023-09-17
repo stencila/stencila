@@ -13,6 +13,8 @@ $comment: |
   Also, in Rust, the `value` property is implemented as a CRDT.
 html:
   elem: span
+jats:
+  special: true
 required:
   - value
 properties:

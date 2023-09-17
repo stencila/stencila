@@ -12,6 +12,8 @@ $comment: |
   Supersedes the `Delete` inline content type (the name "Strikeout" is less ambiguous than "Delete").
 html:
   elem: s
+jats:
+  elem: strike
 markdown:
   format: '~~{content}~~'
   escape: '~'

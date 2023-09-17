@@ -18,7 +18,7 @@ use schema::{shortcuts::*, Article, Block, Inline, Node, NodeType, TableCell};
 use status::Status;
 
 use crate::{
-    schema::{Category, HtmlOptions, Items, MarkdownOptions, Schema, Type},
+    schema::{Category, HtmlOptions, Items, JatsOptions, MarkdownOptions, Schema, Type},
     schemas::Schemas,
 };
 
@@ -402,7 +402,6 @@ fn formats(title: &str, schema: &Schema) -> Vec<Block> {
             Some(HtmlOptions {
                 special,
                 elem,
-                custom,
                 ..
             }),
         ) = (format, &schema.html)
@@ -410,15 +409,34 @@ fn formats(title: &str, schema: &Schema) -> Vec<Block> {
             td(if *special {
                 vec![text("Encoded using special function")]
             } else if let Some(elem) = elem {
-                let tag = format!(
-                    "<{elem}{}>",
-                    if *custom {
-                        format!(" is=\"stencila-{}\"", title.to_kebab_case())
-                    } else {
-                        String::new()
-                    }
-                );
-                vec![text("Encoded to tag "), cf(tag)]
+                let tag = format!("<{elem}>");
+                vec![
+                    text("Encoded to tag "),
+                    link(
+                        [cf(tag)],
+                        format!("https://developer.mozilla.org/en-US/docs/Web/HTML/Element/{elem}"),
+                    ),
+                ]
+            } else {
+                vec![text("Encoded using derived function")]
+            })
+        } else if let (
+            Format::Jats,
+            Some(JatsOptions {
+                elem, special, ..
+            }),
+        ) = (format, &schema.jats)
+        {
+            td(if *special {
+                vec![text("Encoded using special function")]
+            } else if let Some(elem) = elem {
+                vec![
+                    text("Encoded to tag "),
+                    link(
+                        [cf(format!("<{elem}>"))],
+                        format!("https://jats.nlm.nih.gov/articleauthoring/tag-library/1.3/element/{elem}"),
+                    ),
+                ]
             } else {
                 vec![text("Encoded using derived function")]
             })

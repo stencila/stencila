@@ -5,6 +5,8 @@ category: prose
 description: Strongly emphasized content.
 html:
   elem: strong
+jats:
+  elem: bold
 markdown:
   format: '**{content}**'
   escape: '*'

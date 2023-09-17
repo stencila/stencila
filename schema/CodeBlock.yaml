@@ -6,5 +6,7 @@ description: A code block.
 html:
   elem: pre
   custom: true
+jats:
+  elem: code
 markdown:
   special: true

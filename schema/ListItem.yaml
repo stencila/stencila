@@ -15,6 +15,8 @@ $comment: |
 html:
   elem: li
   custom: true
+jats:
+  elem: list-item
 markdown:
   special: true
 core:

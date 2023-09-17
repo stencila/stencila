@@ -10,6 +10,8 @@ $comment: |
 html:
   elem: video
   custom: true
+jats:
+  elem: inline-media
 markdown:
   format: '![]({content_url})'
 core:

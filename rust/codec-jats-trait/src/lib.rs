@@ -3,18 +3,25 @@
 pub use codec_jats_derive::JatsCodec;
 use codec_losses::{Loss, LossDirection, Losses};
 
+pub mod encode;
+
 pub trait JatsCodec {
     /// Encode a Stencila Schema node to JATS XML
     fn to_jats(&self) -> (String, Losses) {
-        (String::new(), Losses::none())
+        let (name, attrs, content, losses) = self.to_jats_parts();
+        (encode::elem(name, attrs, content), losses)
     }
+
+    fn to_jats_parts(&self) -> (String, Vec<(String, String)>, String, Losses);
 }
 
 macro_rules! to_string {
     ($type:ty, $name:literal) => {
         impl JatsCodec for $type {
-            fn to_jats(&self) -> (String, Losses) {
+            fn to_jats_parts(&self) -> (String, Vec<(String, String)>, String, Losses) {
                 (
+                    String::new(),
+                    Vec::new(),
                     self.to_string(),
                     Losses::new([Loss::of_type(LossDirection::Encode, $name)]),
                 )
@@ -29,8 +36,8 @@ to_string!(u64, "UnsignedInteger");
 to_string!(f64, "Number");
 
 impl JatsCodec for String {
-    fn to_jats(&self) -> (String, Losses) {
-        (self.to_string(), Losses::none())
+    fn to_jats_parts(&self) -> (String, Vec<(String, String)>, String, Losses) {
+        (String::new(), Vec::new(), self.to_string(), Losses::none())
     }
 }
 
@@ -38,8 +45,8 @@ impl<T> JatsCodec for Box<T>
 where
     T: JatsCodec,
 {
-    fn to_jats(&self) -> (String, Losses) {
-        self.as_ref().to_jats()
+    fn to_jats_parts(&self) -> (String, Vec<(String, String)>, String, Losses) {
+        self.as_ref().to_jats_parts()
     }
 }
 
@@ -47,10 +54,10 @@ impl<T> JatsCodec for Option<T>
 where
     T: JatsCodec,
 {
-    fn to_jats(&self) -> (String, Losses) {
+    fn to_jats_parts(&self) -> (String, Vec<(String, String)>, String, Losses) {
         match self {
-            Some(value) => value.to_jats(),
-            None => (String::new(), Losses::none()),
+            Some(value) => value.to_jats_parts(),
+            None => (String::new(), Vec::new(), String::new(), Losses::none()),
         }
     }
 }
@@ -59,16 +66,16 @@ impl<T> JatsCodec for Vec<T>
 where
     T: JatsCodec,
 {
-    fn to_jats(&self) -> (String, Losses) {
-        let mut text = String::new();
+    fn to_jats_parts(&self) -> (String, Vec<(String, String)>, String, Losses) {
+        let mut jats = String::new();
         let mut losses = Losses::none();
 
         for item in self.iter() {
-            let (item_text, mut item_losses) = item.to_jats();
-            text.push_str(&item_text);
+            let (item_jats, mut item_losses) = item.to_jats();
+            jats.push_str(&item_jats);
             losses.add_all(&mut item_losses);
         }
 
-        (text, losses)
+        (String::new(), Vec::new(), jats, losses)
     }
 }

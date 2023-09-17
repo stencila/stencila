@@ -16,6 +16,8 @@ $comment: |
 
   To meet Google's guidelines for [`Product`](https://developers.google.com/search/docs/data-types/product#product)
   instances are required to have `image` and `name` properties.
+jats:
+  elem: product
 properties:
   brands:
     '@id': schema:brand

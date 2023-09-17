@@ -492,8 +492,26 @@ pub struct HtmlOptions {
     crate = "common::serde"
 )]
 pub struct JatsOptions {
-    /// The name of the JATS XML element to use for a type or property
+    /// The name of the JATS element to use for a type or property
     pub elem: Option<String>,
+
+    /// Attributes which should be added to the JATS element
+    #[serde(skip_serializing_if = "IndexMap::is_empty")]
+    pub attrs: IndexMap<String, String>,
+
+    /// Whether the node type has a special function for encoding to JATS
+    #[serde(skip_serializing_if = "is_false")]
+    pub special: bool,
+
+    /// The HTML attribute name for a property
+    ///
+    /// Should only be used when `elem` is not `None`. When `elem` is `None`,
+    /// the name of the attribute will be the name of the property.
+    pub attr: Option<String>,
+
+    /// Whether a property should be encoded as content of the parent element
+    #[serde(skip_serializing_if = "is_false")]
+    pub content: bool,
 }
 
 /// Options for conversion to Markdown

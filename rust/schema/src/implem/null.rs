@@ -52,8 +52,9 @@ impl HtmlCodec for Null {
 }
 
 impl JatsCodec for Null {
-    fn to_jats(&self) -> (String, Losses) {
-        self.to_text()
+    fn to_jats_parts(&self) -> (String, Vec<(String, String)>, String, Losses) {
+        let (content, losses) = self.to_text();
+        (String::new(), Vec::new(), content, losses)
     }
 }
 

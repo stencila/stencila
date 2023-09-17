@@ -6,6 +6,8 @@ description: An audio file
 html:
   elem: audio
   custom: true
+jats:
+  elem: inline-media
 markdown:
   format: '![]({content_url})'
 properties:

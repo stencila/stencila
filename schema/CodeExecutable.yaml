@@ -18,12 +18,16 @@ properties:
     description: The code.
     strip:
       - code
+    jats:
+      content: true
     $ref: Cord
   programmingLanguage:
     '@id': schema:programmingLanguage
     description: The programming language of the code.
     strip:
       - code
+    jats:
+      attr: language
     type: string
   guessLanguage:
     '@id': stencila:guessLanguage

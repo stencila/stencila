@@ -3,6 +3,8 @@ title: PostalAddress
 extends: ContactPoint
 category: other
 description: A physical mailing address.
+jats:
+  elem: address
 core:
   - streetAddress
   - addressLocality

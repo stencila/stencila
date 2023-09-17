@@ -19,6 +19,7 @@
     },
     "cSpell.words": [
         "asciimath",
+        "attribs",
         "automerge",
         "autosurgeon",
         "canonicalize",
@@ -60,6 +61,7 @@
         "Transactable",
         "transclude",
         "transpiling",
+        "xlink",
         "yamls"
     ]
 }

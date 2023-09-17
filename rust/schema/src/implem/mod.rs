@@ -21,3 +21,4 @@ mod object;
 mod parameter;
 mod primitive;
 mod table;
+mod text;

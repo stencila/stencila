@@ -35,6 +35,8 @@ properties:
       for why it is useful to have both `contentUrl` and `embedUrl` in addition to `url`.
     html:
       attr: src
+    jats:
+      attr: xlink:href
     type: string
   embedUrl:
     '@id': schema:embedUrl

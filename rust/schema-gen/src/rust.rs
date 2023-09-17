@@ -318,6 +318,29 @@ pub enum NodeType {{
             attrs.push(format!("#[html({})]", args.join(", ")));
         }
 
+        // Add #[jats] attribute for main struct if necessary
+        if let Some(jats) = &schema.jats {
+            let mut args = Vec::new();
+
+            if let Some(elem) = &jats.elem {
+                args.push(format!("elem = \"{elem}\""));
+            }
+            if !jats.attrs.is_empty() {
+                args.push(format!(
+                    "attribs({})",
+                    jats.attrs
+                        .iter()
+                        .map(|(name, value)| format!("{name} = \"{value}\""))
+                        .join(", ")
+                ));
+            }
+            if jats.special {
+                args.push("special".to_string());
+            }
+
+            attrs.push(format!("#[jats({})]", args.join(", ")));
+        }
+
         // Add #[markdown] attribute for main struct if necessary
         if let Some(markdown) = &schema.markdown {
             let mut args = Vec::new();
@@ -410,6 +433,32 @@ pub enum NodeType {{
                 attrs.push(format!("#[html({})]", args.join(", ")))
             }
 
+            // Add #[jats] attribute for field if necessary
+            if let Some(jats) = &property.jats {
+                let mut args = Vec::new();
+
+                if let Some(elem) = &jats.elem {
+                    args.push(format!("elem = \"{elem}\""));
+                }
+                if !jats.attrs.is_empty() {
+                    args.push(format!(
+                        "attribs({})",
+                        jats.attrs
+                            .iter()
+                            .map(|(name, value)| format!("{name} = \"{value}\""))
+                            .join(", ")
+                    ));
+                }
+                if let Some(attr) = &jats.attr {
+                    args.push(format!("attr = \"{attr}\""));
+                }
+                if jats.content {
+                    args.push("content".to_string());
+                }
+
+                attrs.push(format!("#[jats({})]", args.join(", ")))
+            }
+
             // Generate the code for the field
             let attrs = match attrs.is_empty() {
                 true => String::new(),
@@ -467,6 +516,7 @@ pub struct {title}Options {{
     /// Non-core optional fields
     #[serde(flatten)]
     #[html(flatten)]
+    #[jats(flatten)]
     pub options: Box<{title}Options>,"
             );
         }

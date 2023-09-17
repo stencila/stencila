@@ -5,6 +5,8 @@ category: prose
 description: Superscripted content.
 html:
   elem: sup
+jats:
+  elem: sup
 markdown:
   format: '^{content}^'
   escape: '^'

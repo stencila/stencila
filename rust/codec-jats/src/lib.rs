@@ -39,7 +39,7 @@ impl Codec for JatsCodec {
         let EncodeOptions { compact, .. } = options.unwrap_or_default();
 
         let (mut jats, losses) = node.to_jats();
-        if compact {
+        if !compact {
             jats = indent(&jats);
         }
 

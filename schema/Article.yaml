@@ -8,12 +8,10 @@ $comment: |
   It extends schema.org `Article` by adding a `content` property which must be
   an array of [`Block`](./Block), as well as the properties added by
   [`CreativeWork`](./CreativeWork) which it extends.
-
-  An `Article` is analogous, and structurally similar to, the JATS XML
-  [`<article>`](https://jats.nlm.nih.gov/articleauthoring/tag-library/1.2/element/article.html)
-  element.
 html:
   elem: article
+jats:
+  special: true
 markdown:
   special: true
 required:
