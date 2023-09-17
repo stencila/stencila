@@ -71,6 +71,7 @@ The `Comment` type can be encoded (serialized) to, and/or decoded (deserialized)
 | Format                                                           | Encoding       | Decoding     | Status                 | Notes |
 | ---------------------------------------------------------------- | -------------- | ------------ | ---------------------- | ----- |
 | [HTML](https://stencila.dev/docs/reference/formats/{name})       | 🔷 Low loss     |              | 🚧 Under development    |       |
+| [JATS](https://stencila.dev/docs/reference/formats/{name})       | 🔷 Low loss     |              | 🚧 Under development    |       |
 | [Markdown](https://stencila.dev/docs/reference/formats/{name})   | 🟥 High loss    |              | 🚧 Under development    |       |
 | [Plain text](https://stencila.dev/docs/reference/formats/{name}) | 🟥 High loss    |              | 🟥 Alpha                |       |
 | [JSON](https://stencila.dev/docs/reference/formats/{name})       | 🟢 No loss      | 🟢 No loss    | 🟢 Stable               |       |

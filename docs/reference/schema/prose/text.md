@@ -39,15 +39,16 @@ The `Text` type is related to these types:
 
 The `Text` type can be encoded (serialized) to, and/or decoded (deserialized) from, these formats:
 
-| Format                                                           | Encoding      | Decoding     | Status                 | Notes                   |
-| ---------------------------------------------------------------- | ------------- | ------------ | ---------------------- | ----------------------- |
-| [HTML](https://stencila.dev/docs/reference/formats/{name})       | 🔷 Low loss    |              | 🚧 Under development    | Encoded to tag `<span>` |
-| [Markdown](https://stencila.dev/docs/reference/formats/{name})   | 🟢 No loss     |              | 🚧 Under development    |                         |
-| [Plain text](https://stencila.dev/docs/reference/formats/{name}) | 🟢 No loss     |              | 🟥 Alpha                |                         |
-| [JSON](https://stencila.dev/docs/reference/formats/{name})       | 🟢 No loss     | 🟢 No loss    | 🟢 Stable               |                         |
-| [JSON5](https://stencila.dev/docs/reference/formats/{name})      | 🟢 No loss     | 🟢 No loss    | 🟢 Stable               |                         |
-| [YAML](https://stencila.dev/docs/reference/formats/{name})       | 🟢 No loss     | 🟢 No loss    | 🟢 Stable               |                         |
-| [Debug](https://stencila.dev/docs/reference/formats/{name})      | 🔷 Low loss    |              | 🟢 Stable               |                         |
+| Format                                                           | Encoding      | Decoding     | Status                 | Notes                                                                                     |
+| ---------------------------------------------------------------- | ------------- | ------------ | ---------------------- | ----------------------------------------------------------------------------------------- |
+| [HTML](https://stencila.dev/docs/reference/formats/{name})       | 🔷 Low loss    |              | 🚧 Under development    | Encoded to tag [`<span>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/span) |
+| [JATS](https://stencila.dev/docs/reference/formats/{name})       | 🔷 Low loss    |              | 🚧 Under development    | Encoded using special function                                                            |
+| [Markdown](https://stencila.dev/docs/reference/formats/{name})   | 🟢 No loss     |              | 🚧 Under development    |                                                                                           |
+| [Plain text](https://stencila.dev/docs/reference/formats/{name}) | 🟢 No loss     |              | 🟥 Alpha                |                                                                                           |
+| [JSON](https://stencila.dev/docs/reference/formats/{name})       | 🟢 No loss     | 🟢 No loss    | 🟢 Stable               |                                                                                           |
+| [JSON5](https://stencila.dev/docs/reference/formats/{name})      | 🟢 No loss     | 🟢 No loss    | 🟢 Stable               |                                                                                           |
+| [YAML](https://stencila.dev/docs/reference/formats/{name})       | 🟢 No loss     | 🟢 No loss    | 🟢 Stable               |                                                                                           |
+| [Debug](https://stencila.dev/docs/reference/formats/{name})      | 🔷 Low loss    |              | 🟢 Stable               |                                                                                           |
 
 ## Bindings
 

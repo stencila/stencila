@@ -14,12 +14,6 @@ schema.org properties `itemListElement` and `itemListOrder` were renamed to `ite
 Note that, as with every other such renaming in Stencila Schema, a mapping between names is
 defined and it is trivial to save Stencila Schema documents using the schema.org vocabulary if so desired.
 
-Analogues of `List` in other schema include:
-  - JATS XML [`<list>`](https://jats.nlm.nih.gov/articleauthoring/tag-library/1.2/element/list.html)
-  - HTML [`<ul>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/ul) and [`<ol>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/ol)
-  - MDAST [`List`](https://github.com/syntax-tree/mdast#list)
-  - OpenDocument [`<text:list>`](http://docs.oasis-open.org/office/v1.2/os/OpenDocument-v1.2-os-part1.html#__RefHeading__1415148_253892949)
-
 
 **`@id`**: [`schema:ItemList`](https://schema.org/ItemList)
 
@@ -44,15 +38,16 @@ The `List` type is related to these types:
 
 The `List` type can be encoded (serialized) to, and/or decoded (deserialized) from, these formats:
 
-| Format                                                           | Encoding       | Decoding     | Status                 | Notes                          |
-| ---------------------------------------------------------------- | -------------- | ------------ | ---------------------- | ------------------------------ |
-| [HTML](https://stencila.dev/docs/reference/formats/{name})       | 🔷 Low loss     |              | 🚧 Under development    | Encoded using special function |
-| [Markdown](https://stencila.dev/docs/reference/formats/{name})   | 🔷 Low loss     |              | 🚧 Under development    | Encoded using special function |
-| [Plain text](https://stencila.dev/docs/reference/formats/{name}) | 🟥 High loss    |              | 🟥 Alpha                |                                |
-| [JSON](https://stencila.dev/docs/reference/formats/{name})       | 🟢 No loss      | 🟢 No loss    | 🟢 Stable               |                                |
-| [JSON5](https://stencila.dev/docs/reference/formats/{name})      | 🟢 No loss      | 🟢 No loss    | 🟢 Stable               |                                |
-| [YAML](https://stencila.dev/docs/reference/formats/{name})       | 🟢 No loss      | 🟢 No loss    | 🟢 Stable               |                                |
-| [Debug](https://stencila.dev/docs/reference/formats/{name})      | 🔷 Low loss     |              | 🟢 Stable               |                                |
+| Format                                                           | Encoding       | Decoding     | Status                 | Notes                                                                                             |
+| ---------------------------------------------------------------- | -------------- | ------------ | ---------------------- | ------------------------------------------------------------------------------------------------- |
+| [HTML](https://stencila.dev/docs/reference/formats/{name})       | 🔷 Low loss     |              | 🚧 Under development    | Encoded using special function                                                                    |
+| [JATS](https://stencila.dev/docs/reference/formats/{name})       | 🔷 Low loss     |              | 🚧 Under development    | Encoded to tag [`<list>`](https://jats.nlm.nih.gov/articleauthoring/tag-library/1.3/element/list) |
+| [Markdown](https://stencila.dev/docs/reference/formats/{name})   | 🔷 Low loss     |              | 🚧 Under development    | Encoded using special function                                                                    |
+| [Plain text](https://stencila.dev/docs/reference/formats/{name}) | 🟥 High loss    |              | 🟥 Alpha                |                                                                                                   |
+| [JSON](https://stencila.dev/docs/reference/formats/{name})       | 🟢 No loss      | 🟢 No loss    | 🟢 Stable               |                                                                                                   |
+| [JSON5](https://stencila.dev/docs/reference/formats/{name})      | 🟢 No loss      | 🟢 No loss    | 🟢 Stable               |                                                                                                   |
+| [YAML](https://stencila.dev/docs/reference/formats/{name})       | 🟢 No loss      | 🟢 No loss    | 🟢 Stable               |                                                                                                   |
+| [Debug](https://stencila.dev/docs/reference/formats/{name})      | 🔷 Low loss     |              | 🟢 Stable               |                                                                                                   |
 
 ## Bindings
 

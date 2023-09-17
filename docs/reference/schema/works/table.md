@@ -64,6 +64,7 @@ The `Table` type can be encoded (serialized) to, and/or decoded (deserialized) f
 | Format                                                           | Encoding       | Decoding     | Status                 | Notes                          |
 | ---------------------------------------------------------------- | -------------- | ------------ | ---------------------- | ------------------------------ |
 | [HTML](https://stencila.dev/docs/reference/formats/{name})       | 🔷 Low loss     |              | 🚧 Under development    | Encoded using special function |
+| [JATS](https://stencila.dev/docs/reference/formats/{name})       | 🔷 Low loss     |              | 🚧 Under development    |                                |
 | [Markdown](https://stencila.dev/docs/reference/formats/{name})   | 🔷 Low loss     |              | 🚧 Under development    | Encoded using special function |
 | [Plain text](https://stencila.dev/docs/reference/formats/{name}) | 🟥 High loss    |              | 🟥 Alpha                |                                |
 | [JSON](https://stencila.dev/docs/reference/formats/{name})       | 🟢 No loss      | 🟢 No loss    | 🟢 Stable               |                                |

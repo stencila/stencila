@@ -25,6 +25,7 @@ The `Cord` type can be encoded (serialized) to, and/or decoded (deserialized) fr
 | Format                                                           | Encoding | Decoding | Status                 | Notes |
 | ---------------------------------------------------------------- | -------- | -------- | ---------------------- | ----- |
 | [HTML](https://stencila.dev/docs/reference/formats/{name})       |          |          | 🚧 Under development    |       |
+| [JATS](https://stencila.dev/docs/reference/formats/{name})       |          |          | 🚧 Under development    |       |
 | [Markdown](https://stencila.dev/docs/reference/formats/{name})   |          |          | 🚧 Under development    |       |
 | [Plain text](https://stencila.dev/docs/reference/formats/{name}) |          |          | 🟥 Alpha                |       |
 | [JSON](https://stencila.dev/docs/reference/formats/{name})       |          |          | 🟢 Stable               |       |
