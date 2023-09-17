@@ -450,8 +450,25 @@ name = "codec-jats"
 version = "0.0.0"
 dependencies = [
  "codec",
+ "codec-jats-trait",
  "quick-xml 0.30.0",
- "roxmltree",
+]
+
+[[package]]
+name = "codec-jats-derive"
+version = "0.0.0"
+dependencies = [
+ "common",
+ "darling",
+]
+
+[[package]]
+name = "codec-jats-trait"
+version = "0.0.0"
+dependencies = [
+ "codec-jats-derive",
+ "codec-losses",
+ "common",
 ]
 
 [[package]]
@@ -2119,15 +2136,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "dbb5fb1acd8a1a18b3dd5be62d25485eb770e05afb408a9627d14d451bae12da"
 
 [[package]]
-name = "roxmltree"
-version = "0.18.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d8f595a457b6b8c6cda66a48503e92ee8d19342f905948f29c383200ec9eb1d8"
-dependencies = [
- "xmlparser",
-]
-
-[[package]]
 name = "rustc-demangle"
 version = "0.1.23"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2193,6 +2201,7 @@ name = "schema"
 version = "0.0.0"
 dependencies = [
  "codec-html-trait",
+ "codec-jats-trait",
  "codec-json5-trait",
  "codec-losses",
  "codec-markdown-trait",
@@ -3274,12 +3283,6 @@ checksum = "81fac9742fd1ad1bd9643b991319f72dd031016d44b77039a26977eb667141e7"
 dependencies = [
  "memchr",
 ]
-
-[[package]]
-name = "xmlparser"
-version = "0.13.5"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "4d25c75bf9ea12c4040a97f829154768bbbce366287e2dc044af160cd79a13fd"
 
 [[package]]
 name = "yaml-rust"

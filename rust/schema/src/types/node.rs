@@ -107,7 +107,7 @@ use super::variable::Variable;
 use super::video_object::VideoObject;
 
 /// Union type for all types in this schema, including primitives and entities
-#[derive(Debug, Display, Clone, PartialEq, Serialize, Deserialize, StripNode, HtmlCodec, MarkdownCodec, TextCodec, SmartDefault, WriteNode)]
+#[derive(Debug, Display, Clone, PartialEq, Serialize, Deserialize, StripNode, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec, SmartDefault, WriteNode)]
 #[serde(untagged, crate = "common::serde")]
 pub enum Node {
     #[default]

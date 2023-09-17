@@ -283,6 +283,7 @@ pub enum NodeType {{
             "Deserialize",
             "StripNode",
             "HtmlCodec",
+            "JatsCodec",
             "MarkdownCodec",
             "TextCodec",
         ];
@@ -634,6 +635,7 @@ impl {title} {{{new}}}
             "Deserialize",
             "StripNode",
             "HtmlCodec",
+            "JatsCodec",
             "MarkdownCodec",
             "TextCodec",
         ];

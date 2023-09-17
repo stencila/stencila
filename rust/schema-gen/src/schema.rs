@@ -122,6 +122,9 @@ pub struct Schema {
     /// Options for converting the type or property to/from HTML
     pub html: Option<HtmlOptions>,
 
+    /// Options for converting the type or property to/from JATS XML
+    pub jats: Option<JatsOptions>,
+
     /// Options for converting the type or property to Markdown
     pub markdown: Option<MarkdownOptions>,
 
@@ -477,6 +480,20 @@ pub struct HtmlOptions {
     /// Whether a property should be encoded as a slot of the parent element
     /// and the HTML element (e.g. `div`) to use for that slot
     pub slot: Option<String>,
+}
+
+/// Options for conversion to/from JATS XML
+#[skip_serializing_none]
+#[derive(Debug, Clone, Default, Deserialize, Serialize, JsonSchema)]
+#[serde(
+    default,
+    rename_all = "camelCase",
+    deny_unknown_fields,
+    crate = "common::serde"
+)]
+pub struct JatsOptions {
+    /// The name of the JATS XML element to use for a type or property
+    pub elem: Option<String>,
 }
 
 /// Options for conversion to Markdown

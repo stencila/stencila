@@ -5,6 +5,7 @@ edition = "2021"
 
 [dependencies]
 codec-html-trait = { path = "../codec-html-trait" }
+codec-jats-trait = { path = "../codec-jats-trait" }
 codec-json5-trait = { path = "../codec-json5-trait" }
 codec-losses = { path = "../codec-losses" }
 codec-markdown-trait = { path = "../codec-markdown-trait" }

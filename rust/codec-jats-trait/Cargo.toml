@@ -1,0 +1,9 @@
+[package]
+name = "codec-jats-trait"
+version = "0.0.0"
+edition = "2021"
+
+[dependencies]
+codec-jats-derive = { path = "../codec-jats-derive" }
+codec-losses = { path = "../codec-losses" }
+common = { path = "../common" }

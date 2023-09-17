@@ -51,12 +51,15 @@ impl HtmlCodec for Null {
     }
 }
 
+impl JatsCodec for Null {
+    fn to_jats(&self) -> (String, Losses) {
+        self.to_text()
+    }
+}
+
 impl MarkdownCodec for Null {
     fn to_markdown(&self) -> (String, Losses) {
-        (
-            self.to_string(),
-            Losses::new([Loss::of_type(LossDirection::Encode, "Null")]),
-        )
+        self.to_text()
     }
 }
 
