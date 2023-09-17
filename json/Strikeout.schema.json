@@ -12,6 +12,9 @@
   "html": {
     "elem": "s"
   },
+  "jats": {
+    "elem": "strike"
+  },
   "markdown": {
     "format": "~~{content}~~",
     "escape": "~"

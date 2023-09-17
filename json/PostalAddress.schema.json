@@ -7,6 +7,9 @@
     "ContactPoint"
   ],
   "description": "A physical mailing address.",
+  "jats": {
+    "elem": "address"
+  },
   "required": [
     "type"
   ],

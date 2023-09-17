@@ -11,6 +11,9 @@
   "html": {
     "elem": "strong"
   },
+  "jats": {
+    "elem": "bold"
+  },
   "markdown": {
     "format": "**{content}**",
     "escape": "*"

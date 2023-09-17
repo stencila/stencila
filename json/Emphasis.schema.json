@@ -12,6 +12,9 @@
   "html": {
     "elem": "em"
   },
+  "jats": {
+    "elem": "italic"
+  },
   "markdown": {
     "format": "_{content}_",
     "escape": "_"

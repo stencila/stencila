@@ -11,6 +11,9 @@
   "html": {
     "elem": "sub"
   },
+  "jats": {
+    "elem": "sub"
+  },
   "markdown": {
     "format": "~{content}~",
     "escape": "~"

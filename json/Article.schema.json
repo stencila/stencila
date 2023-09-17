@@ -8,9 +8,12 @@
   ],
   "category": "works",
   "description": "An article, including news and scholarly articles.",
-  "$comment": "This is an implementation, and extension, of schema.org [`Article`](https://schema.org/Article).\nIt extends schema.org `Article` by adding a `content` property which must be\nan array of [`Block`](./Block), as well as the properties added by\n[`CreativeWork`](./CreativeWork) which it extends.\n\nAn `Article` is analogous, and structurally similar to, the JATS XML\n[`<article>`](https://jats.nlm.nih.gov/articleauthoring/tag-library/1.2/element/article.html)\nelement.\n",
+  "$comment": "This is an implementation, and extension, of schema.org [`Article`](https://schema.org/Article).\nIt extends schema.org `Article` by adding a `content` property which must be\nan array of [`Block`](./Block), as well as the properties added by\n[`CreativeWork`](./CreativeWork) which it extends.\n",
   "html": {
     "elem": "article"
+  },
+  "jats": {
+    "special": true
   },
   "markdown": {
     "special": true

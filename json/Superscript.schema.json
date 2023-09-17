@@ -11,6 +11,9 @@
   "html": {
     "elem": "sup"
   },
+  "jats": {
+    "elem": "sup"
+  },
   "markdown": {
     "format": "^{content}^",
     "escape": "^"

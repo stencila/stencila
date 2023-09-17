@@ -12,6 +12,9 @@
     "elem": "pre",
     "custom": true
   },
+  "jats": {
+    "elem": "code"
+  },
   "markdown": {
     "special": true
   },
@@ -48,11 +51,17 @@
       "html": {
         "content": true
       },
+      "jats": {
+        "content": true
+      },
       "$ref": "Cord.schema.json"
     },
     "programmingLanguage": {
       "@id": "schema:programmingLanguage",
       "description": "The programming language of the code.",
+      "jats": {
+        "attr": "language"
+      },
       "type": "string"
     }
   }

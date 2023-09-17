@@ -136,6 +136,14 @@
         }
       ]
     },
+    "jats": {
+      "description": "Options for converting the type or property to/from JATS XML",
+      "allOf": [
+        {
+          "$ref": "#/definitions/JatsOptions"
+        }
+      ]
+    },
     "markdown": {
       "description": "Options for converting the type or property to Markdown",
       "allOf": [
@@ -360,6 +368,36 @@
         }
       }
     },
+    "JatsOptions": {
+      "description": "Options for conversion to/from JATS XML",
+      "type": "object",
+      "properties": {
+        "attr": {
+          "description": "The HTML attribute name for a property\n\nShould only be used when `elem` is not `None`. When `elem` is `None`, the name of the attribute will be the name of the property.",
+          "type": "string"
+        },
+        "attrs": {
+          "description": "Attributes which should be added to the JATS element",
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "content": {
+          "description": "Whether a property should be encoded as content of the parent element",
+          "type": "boolean"
+        },
+        "elem": {
+          "description": "The name of the JATS element to use for a type or property",
+          "type": "string"
+        },
+        "special": {
+          "description": "Whether the node type has a special function for encoding to JATS",
+          "type": "boolean"
+        }
+      },
+      "additionalProperties": false
+    },
     "MarkdownOptions": {
       "description": "Options for conversion to Markdown",
       "type": "object",
@@ -512,6 +550,14 @@
           "allOf": [
             {
               "$ref": "#/definitions/Items"
+            }
+          ]
+        },
+        "jats": {
+          "description": "Options for converting the type or property to/from JATS XML",
+          "allOf": [
+            {
+              "$ref": "#/definitions/JatsOptions"
             }
           ]
         },

@@ -12,6 +12,9 @@
   "html": {
     "elem": "p"
   },
+  "jats": {
+    "elem": "p"
+  },
   "markdown": {
     "format": "{content}\\n\\n"
   },

@@ -8,6 +8,12 @@
   ],
   "category": "code",
   "description": "A executable chunk of code.",
+  "jats": {
+    "elem": "code",
+    "attrs": {
+      "executable": "yes"
+    }
+  },
   "required": [
     "type",
     "code",
@@ -161,6 +167,9 @@
       "strip": [
         "code"
       ],
+      "jats": {
+        "content": true
+      },
       "$ref": "Cord.schema.json"
     },
     "programmingLanguage": {
@@ -169,6 +178,9 @@
       "strip": [
         "code"
       ],
+      "jats": {
+        "attr": "language"
+      },
       "type": "string"
     },
     "guessLanguage": {

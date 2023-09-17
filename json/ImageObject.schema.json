@@ -12,6 +12,9 @@
     "elem": "img",
     "custom": true
   },
+  "jats": {
+    "elem": "inline-graphic"
+  },
   "markdown": {
     "format": "![]({content_url})"
   },
@@ -349,6 +352,9 @@
       "$comment": "To allow for file paths, including possibly erroneous paths, neither `format` nor `pattern`\nJSON Schema keywords are used here, or on `embedUrl`.\n\n`contentUrl` is required since it seems to make little sense to have a `MediaObject`\nthat does not have it.\n\nSee https://github.com/schemaorg/schemaorg/issues/462#issuecomment-98243384\nfor why it is useful to have both `contentUrl` and `embedUrl` in addition to `url`.\n",
       "html": {
         "attr": "src"
+      },
+      "jats": {
+        "attr": "xlink:href"
       },
       "type": "string"
     },

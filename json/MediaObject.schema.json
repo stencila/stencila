@@ -342,6 +342,9 @@
       "html": {
         "attr": "src"
       },
+      "jats": {
+        "attr": "xlink:href"
+      },
       "type": "string"
     },
     "embedUrl": {

@@ -8,6 +8,12 @@
   ],
   "category": "works",
   "description": "Encapsulates one or more images, videos, tables, etc, and provides captions and labels for them.",
+  "html": {
+    "elem": "figure"
+  },
+  "jats": {
+    "elem": "figure"
+  },
   "required": [
     "type"
   ],

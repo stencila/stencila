@@ -8,9 +8,12 @@
   ],
   "category": "prose",
   "description": "Inline text that is underlined.",
-  "$comment": "Analogues of `Underline` in other schema include:\n- JATS XML [`<underline>`](https://jats.nlm.nih.gov/archiving/tag-library/1.1/element/underline.html)\n- Pandoc [`Underline`](https://github.com/jgm/pandoc-types/blob/master/src/Text/Pandoc/Definition.hs)\n",
+  "$comment": "Analogues of `Underline` in other schema include:\n- Pandoc [`Underline`](https://github.com/jgm/pandoc-types/blob/master/src/Text/Pandoc/Definition.hs)\n",
   "html": {
     "elem": "u"
+  },
+  "jats": {
+    "elem": "underline"
   },
   "markdown": {
     "format": "[{content}]{{underline}}",

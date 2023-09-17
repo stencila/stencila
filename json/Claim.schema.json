@@ -9,6 +9,9 @@
   "category": "works",
   "description": "A claim represents specific reviewable facts or statements.",
   "$comment": "Usually displayed as a block element and can have a label and title.\nIn the context of a scholarly article this could be a theorem or proof.\nSee also [Schema.org `Claim`](https://schema.org/Claim) and [JATS `<statement>`](https://jats.nlm.nih.gov/publishing/tag-library/1.2/element/statement.html).\n",
+  "jats": {
+    "elem": "statement"
+  },
   "required": [
     "type",
     "claimType",
@@ -331,11 +334,17 @@
     "claimType": {
       "@id": "stencila:claimType",
       "description": "The type of the claim.",
+      "jats": {
+        "attr": "specific-use"
+      },
       "$ref": "ClaimType.schema.json"
     },
     "label": {
       "@id": "stencila:label",
       "description": "A short label for the claim.",
+      "jats": {
+        "elem": "label"
+      },
       "type": "string"
     }
   }

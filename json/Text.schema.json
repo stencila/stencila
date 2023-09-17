@@ -12,6 +12,9 @@
   "html": {
     "elem": "span"
   },
+  "jats": {
+    "special": true
+  },
   "required": [
     "type",
     "value"

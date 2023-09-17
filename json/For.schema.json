@@ -168,6 +168,9 @@
       "strip": [
         "code"
       ],
+      "jats": {
+        "content": true
+      },
       "$ref": "Cord.schema.json"
     },
     "programmingLanguage": {
@@ -176,6 +179,9 @@
       "strip": [
         "code"
       ],
+      "jats": {
+        "attr": "language"
+      },
       "type": "string"
     },
     "guessLanguage": {

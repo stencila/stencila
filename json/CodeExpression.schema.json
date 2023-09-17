@@ -13,6 +13,9 @@
     "elem": "span",
     "custom": true
   },
+  "jats": {
+    "elem": "monospace"
+  },
   "markdown": {
     "special": true
   },
@@ -169,6 +172,9 @@
       "strip": [
         "code"
       ],
+      "jats": {
+        "content": true
+      },
       "$ref": "Cord.schema.json"
     },
     "programmingLanguage": {
@@ -177,6 +183,9 @@
       "strip": [
         "code"
       ],
+      "jats": {
+        "attr": "language"
+      },
       "type": "string"
     },
     "guessLanguage": {
@@ -195,6 +204,9 @@
       ],
       "html": {
         "slot": "span"
+      },
+      "jats": {
+        "content": true
       },
       "$ref": "Node.schema.json"
     }
