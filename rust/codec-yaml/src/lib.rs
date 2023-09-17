@@ -5,9 +5,9 @@ use codec::{
         serde_yaml::{self, Mapping, Value},
     },
     format::Format,
-    schema::Node,
+    schema::{Node, NodeType},
     status::Status,
-    Codec, DecodeOptions, EncodeOptions, Losses,
+    Codec, CodecSupport, DecodeOptions, EncodeOptions, Losses,
 };
 
 pub mod r#trait;
@@ -26,14 +26,32 @@ impl Codec for YamlCodec {
         Status::Stable
     }
 
-    fn supported_formats(&self) -> Vec<Format> {
-        vec![Format::Yaml]
+    fn supports_from_format(&self, format: Format) -> CodecSupport {
+        match format {
+            Format::Yaml => CodecSupport::HighLoss,
+            _ => CodecSupport::None,
+        }
+    }
+
+    fn supports_from_type(&self, _node_type: NodeType) -> CodecSupport {
+        CodecSupport::NoLoss
     }
 
     async fn from_str(&self, str: &str, _options: Option<DecodeOptions>) -> Result<(Node, Losses)> {
         let node = Node::from_yaml(str)?;
 
         Ok((node, Losses::none()))
+    }
+
+    fn supports_to_format(&self, format: Format) -> CodecSupport {
+        match format {
+            Format::Yaml => CodecSupport::HighLoss,
+            _ => CodecSupport::None,
+        }
+    }
+
+    fn supports_to_type(&self, _node_type: NodeType) -> CodecSupport {
+        CodecSupport::NoLoss
     }
 
     async fn to_string(

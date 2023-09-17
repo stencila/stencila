@@ -2209,11 +2209,11 @@ dependencies = [
 name = "schema-gen"
 version = "0.0.0"
 dependencies = [
- "codec",
- "codec-markdown",
+ "codecs",
  "common",
  "schema",
  "schemars",
+ "status",
 ]
 
 [[package]]
@@ -2482,6 +2482,7 @@ name = "status"
 version = "0.0.0"
 dependencies = [
  "common",
+ "schemars",
 ]
 
 [[package]]

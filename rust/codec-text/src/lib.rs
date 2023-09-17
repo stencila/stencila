@@ -1,9 +1,9 @@
 use codec::{
     common::{async_trait::async_trait, eyre::Result},
     format::Format,
-    schema::Node,
+    schema::{Node, NodeType},
     status::Status,
-    Codec, EncodeOptions, Losses,
+    Codec, CodecSupport, EncodeOptions, Losses,
 };
 
 use codec_text_trait::TextCodec as _;
@@ -18,19 +18,24 @@ impl Codec for TextCodec {
     }
 
     fn status(&self) -> Status {
-        Status::Unstable
+        Status::Alpha
     }
 
-    fn supported_formats(&self) -> Vec<Format> {
-        vec![Format::Text]
+    fn supports_to_format(&self, format: Format) -> CodecSupport {
+        match format {
+            Format::Text => CodecSupport::HighLoss,
+            _ => CodecSupport::None,
+        }
     }
 
-    fn supports_from_string(&self) -> bool {
-        false
-    }
-
-    fn supports_from_path(&self) -> bool {
-        false
+    fn supports_to_type(&self, node_type: NodeType) -> CodecSupport {
+        use NodeType::*;
+        use CodecSupport::*;
+        match node_type {
+            String | Text => NoLoss,
+            Null | Boolean | Integer | UnsignedInteger | Number => LowLoss,
+            _ => HighLoss,
+        }
     }
 
     async fn to_string(

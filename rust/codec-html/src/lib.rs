@@ -1,9 +1,9 @@
 use codec::{
     common::{async_trait::async_trait, eyre::Result},
     format::Format,
-    schema::Node,
+    schema::{Node, NodeType},
     status::Status,
-    Codec, EncodeOptions, Losses,
+    Codec, CodecSupport, EncodeOptions, Losses,
 };
 use codec_html_trait::HtmlCodec as _;
 
@@ -20,8 +20,15 @@ impl Codec for HtmlCodec {
         Status::UnderDevelopment
     }
 
-    fn supported_formats(&self) -> Vec<Format> {
-        vec![Format::Html]
+    fn supports_to_format(&self, format: Format) -> CodecSupport {
+        match format {
+            Format::Html => CodecSupport::LowLoss,
+            _ => CodecSupport::None,
+        }
+    }
+
+    fn supports_to_type(&self, _node_type: NodeType) -> CodecSupport {
+        CodecSupport::LowLoss
     }
 
     async fn to_string(

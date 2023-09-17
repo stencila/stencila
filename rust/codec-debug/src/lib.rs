@@ -1,9 +1,9 @@
 use codec::{
     common::{async_trait::async_trait, eyre::Result},
     format::Format,
-    schema::Node,
+    schema::{Node, NodeType},
     status::Status,
-    Codec, EncodeOptions, Losses,
+    Codec, CodecSupport, EncodeOptions, Losses,
 };
 
 /// A codec for the Rust debug format
@@ -23,16 +23,15 @@ impl Codec for DebugCodec {
         Status::Stable
     }
 
-    fn supported_formats(&self) -> Vec<Format> {
-        vec![Format::Debug]
+    fn supports_to_format(&self, format: Format) -> CodecSupport {
+        match format {
+            Format::Debug => CodecSupport::LowLoss,
+            _ => CodecSupport::None,
+        }
     }
 
-    fn supports_from_string(&self) -> bool {
-        false
-    }
-
-    fn supports_from_path(&self) -> bool {
-        false
+    fn supports_to_type(&self, _node_type: NodeType) -> CodecSupport {
+        CodecSupport::LowLoss
     }
 
     async fn to_string(

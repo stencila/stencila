@@ -1,9 +1,9 @@
 use codec::{
     common::{async_trait::async_trait, eyre::Result},
     format::Format,
-    schema::Node,
+    schema::{Node, NodeType},
     status::Status,
-    Codec, DecodeOptions, EncodeOptions, Losses,
+    Codec, CodecSupport, DecodeOptions, EncodeOptions, Losses,
 };
 
 use codec_json5_trait::Json5Codec as _;
@@ -21,14 +21,32 @@ impl Codec for Json5Codec {
         Status::Stable
     }
 
-    fn supported_formats(&self) -> Vec<Format> {
-        vec![Format::Json5]
+    fn supports_from_format(&self, format: Format) -> CodecSupport {
+        match format {
+            Format::Json5 => CodecSupport::NoLoss,
+            _ => CodecSupport::None,
+        }
+    }
+
+    fn supports_from_type(&self, _node_type: NodeType) -> CodecSupport {
+        CodecSupport::NoLoss
     }
 
     async fn from_str(&self, str: &str, _options: Option<DecodeOptions>) -> Result<(Node, Losses)> {
         let node = Node::from_json5(str)?;
 
         Ok((node, Losses::none()))
+    }
+
+    fn supports_to_format(&self, format: Format) -> CodecSupport {
+        match format {
+            Format::Json5 => CodecSupport::NoLoss,
+            _ => CodecSupport::None,
+        }
+    }
+
+    fn supports_to_type(&self, _node_type: NodeType) -> CodecSupport {
+        CodecSupport::NoLoss
     }
 
     async fn to_string(

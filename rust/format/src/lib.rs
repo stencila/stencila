@@ -30,14 +30,19 @@ use common::{
 )]
 #[serde(rename_all = "lowercase", crate = "common::serde")]
 pub enum Format {
-    Debug,
+    // Grouped and ordered as most appropriate for documentation
+    // Markup formats
     Html,
     Jats,
-    Json,
-    Json5,
+    // Text formats
     Markdown,
     Text,
+    // Data serialization formats
+    Json,
+    Json5,
     Yaml,
+    // Development focussed formats
+    Debug
 }
 
 impl Format {

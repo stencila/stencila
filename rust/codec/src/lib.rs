@@ -1,10 +1,11 @@
-use std::path::Path;
+use std::{collections::BTreeMap, path::Path};
 
 use common::{
     async_trait::async_trait,
     eyre::{bail, Result},
     serde::Serialize,
     smart_default::SmartDefault,
+    strum::{Display, IntoEnumIterator},
     tokio::{
         fs::{create_dir_all, File},
         io::{AsyncReadExt, AsyncWriteExt},
@@ -12,7 +13,8 @@ use common::{
     tracing,
 };
 use format::Format;
-use schema::Node;
+use schema::{Node, NodeType};
+use status::Status;
 
 // Re-exports for the convenience of internal crates implementing `Codec`
 pub use codec_losses::{Loss, LossKind, Losses, LossesResponse};
@@ -20,7 +22,6 @@ pub use common;
 pub use format;
 pub use schema;
 pub use status;
-use status::Status;
 
 /// A codec for decoding/encoding between Stencila Schema nodes and alternative formats
 #[async_trait]
@@ -38,11 +39,17 @@ pub trait Codec: Sync + Send {
     /// is not stable.
     fn status(&self) -> Status;
 
-    /// The formats that the codec supports
-    ///
-    /// Most codecs only support a single format, but multiple formats are
-    /// possible.
-    fn supported_formats(&self) -> Vec<Format>;
+    /// The level of support that the codec provides for decoding from a format
+    #[allow(unused)]
+    fn supports_from_format(&self, format: Format) -> CodecSupport {
+        CodecSupport::None
+    }
+
+    /// The level of support that the codec provides for decoding for a [`NodeType`]
+    #[allow(unused)]
+    fn supports_from_type(&self, node_type: NodeType) -> CodecSupport {
+        CodecSupport::None
+    }
 
     /// Whether the codec supports decoding from string content
     fn supports_from_string(&self) -> bool {
@@ -52,6 +59,18 @@ pub trait Codec: Sync + Send {
     /// Whether the codec supports decoding from a file system path
     fn supports_from_path(&self) -> bool {
         true
+    }
+
+    /// The level of support that the codec provides for encoding to a format
+    #[allow(unused)]
+    fn supports_to_format(&self, format: Format) -> CodecSupport {
+        CodecSupport::None
+    }
+
+    /// The level of support that the codec provides for encoding for a [`NodeType`]
+    #[allow(unused)]
+    fn supports_to_type(&self, node_type: NodeType) -> CodecSupport {
+        CodecSupport::None
     }
 
     /// Whether the codec supports encoding to string content
@@ -75,12 +94,19 @@ pub trait Codec: Sync + Send {
 
     /// Generate a [`CodecSpec`] for the codec
     fn spec(&self) -> CodecSpec {
+        let supports_from_formats = Format::iter()
+            .map(|format| (format, self.supports_from_format(format)))
+            .collect();
+        let supports_to_formats = Format::iter()
+            .map(|format| (format, self.supports_to_format(format)))
+            .collect();
         CodecSpec {
             name: self.name().to_string(),
             status: self.status(),
-            supported_formats: self.supported_formats(),
+            supports_from_formats,
             supports_from_string: self.supports_from_string(),
             supports_from_path: self.supports_from_path(),
+            supports_to_formats,
             supports_to_string: self.supports_to_string(),
             supports_to_path: self.supports_to_path(),
             has_remote_state: self.has_remote_state(),
@@ -177,6 +203,24 @@ pub trait Codec: Sync + Send {
     }
 }
 
+/// The level of support that a codec provides for a format or node type
+#[derive(Debug, Default, Display, Serialize)]
+#[serde(crate = "common::serde")]
+pub enum CodecSupport {
+    #[default]
+    None,
+    HighLoss,
+    LowLoss,
+    NoLoss,
+}
+
+impl CodecSupport {
+    /// Whether a format or node type is supported
+    pub fn is_supported(&self) -> bool {
+        !matches!(self, CodecSupport::None)
+    }
+}
+
 /// A specification of a codec
 ///
 /// Used to allow user inspection of the capabilities of a codec.
@@ -185,7 +229,8 @@ pub trait Codec: Sync + Send {
 pub struct CodecSpec {
     pub name: String,
     pub status: Status,
-    pub supported_formats: Vec<Format>,
+    pub supports_from_formats: BTreeMap<Format, CodecSupport>,
+    pub supports_to_formats: BTreeMap<Format, CodecSupport>,
     pub supports_from_string: bool,
     pub supports_from_path: bool,
     pub supports_to_string: bool,

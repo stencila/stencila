@@ -1,6 +1,5 @@
 use codec::{
     common::{async_trait::async_trait, eyre::Result},
-    format::Format,
     schema::{Article, Node},
     status::Status,
     Codec, DecodeOptions, EncodeOptions, Losses,
@@ -17,10 +16,6 @@ impl Codec for JatsCodec {
 
     fn status(&self) -> Status {
         Status::UnderDevelopment
-    }
-
-    fn supported_formats(&self) -> Vec<Format> {
-        vec![Format::Jats]
     }
 
     async fn from_str(

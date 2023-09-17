@@ -6,8 +6,7 @@ use std::{
     path::{Path, PathBuf},
 };
 
-use codec::Codec;
-use codec_markdown::MarkdownCodec;
+use codecs::{CodecSupport, Format};
 use common::{
     eyre::{bail, Context as _, Result},
     futures::future::try_join_all,
@@ -15,10 +14,11 @@ use common::{
     strum::IntoEnumIterator,
     tokio::fs::{create_dir_all, remove_dir_all, remove_file},
 };
-use schema::{shortcuts::*, Article, Block, Inline, Node};
+use schema::{shortcuts::*, Article, Block, Inline, Node, NodeType, TableCell};
+use status::Status;
 
 use crate::{
-    schema::{Category, Items, Schema, Status, Type},
+    schema::{Category, HtmlOptions, Items, MarkdownOptions, Schema, Type},
     schemas::Schemas,
 };
 
@@ -145,8 +145,7 @@ async fn docs_file(dest: &Path, schema: &Schema, context: &Context) -> Result<St
         docs_primitive(title, schema)
     };
 
-    let md = MarkdownCodec {};
-    md.to_path(&Node::Article(article), &path, None).await?;
+    codecs::to_path(&Node::Article(article), &path, None).await?;
 
     Ok(title.to_string())
 }
@@ -154,8 +153,11 @@ async fn docs_file(dest: &Path, schema: &Schema, context: &Context) -> Result<St
 /// Generate documentation for an object schema with `properties`
 fn docs_object(title: &str, schema: &Schema, context: &Context) -> Article {
     let mut content = intro(title, schema);
-    content.append(&mut properties(schema, context));
+    content.append(&mut properties(title, schema, context));
     content.append(&mut related(title, schema, context));
+    if !schema.r#abstract {
+        content.append(&mut formats(title, schema));
+    }
     content.append(&mut bindings(title, schema));
     content.append(&mut source(title));
 
@@ -169,7 +171,7 @@ fn docs_object(title: &str, schema: &Schema, context: &Context) -> Article {
 /// Generate documentation file for an `anyOf` root schema
 fn docs_any_of(title: &str, schema: &Schema, context: &Context) -> Article {
     let mut content = intro(title, schema);
-    content.append(&mut members(schema, context));
+    content.append(&mut members(title, schema, context));
     content.append(&mut bindings(title, schema));
     content.append(&mut source(title));
 
@@ -183,6 +185,7 @@ fn docs_any_of(title: &str, schema: &Schema, context: &Context) -> Article {
 /// Generate documentation for a primitive schema
 fn docs_primitive(title: &str, schema: &Schema) -> Article {
     let mut content = intro(title, schema);
+    content.append(&mut formats(title, schema));
     content.append(&mut bindings(title, schema));
     content.append(&mut source(title));
 
@@ -214,7 +217,7 @@ fn intro(title: &str, schema: &Schema) -> Vec<Block> {
         blocks.push(p([strong([cf("@id")]), text(": "), id]));
     }
 
-    if matches!(schema.status, Status::Experimental | Status::Unstable) {
+    if !matches!(schema.status, Status::Stable) {
         blocks.push(p([text(
             if matches!(schema.status, Status::Experimental) {
                 "This type is marked as experimental and is likely to change."
@@ -228,7 +231,7 @@ fn intro(title: &str, schema: &Schema) -> Vec<Block> {
 }
 
 /// Generate a "Properties" section for a schema
-fn properties(schema: &Schema, context: &Context) -> Vec<Block> {
+fn properties(title: &str, schema: &Schema, context: &Context) -> Vec<Block> {
     let mut rows = vec![tr([
         th([text("Name")]),
         th([cf("@id")]),
@@ -311,11 +314,15 @@ fn properties(schema: &Schema, context: &Context) -> Vec<Block> {
         ]));
     }
 
-    vec![h2([text("Properties")]), table(rows)]
+    vec![
+        h2([text("Properties")]),
+        p([text("The "), cf(title), text(" type has these properties:")]),
+        table(rows),
+    ]
 }
 
 /// Generate a "Members" section for a schema
-fn members(schema: &Schema, context: &Context) -> Vec<Block> {
+fn members(title: &str, schema: &Schema, context: &Context) -> Vec<Block> {
     let mut items = Vec::new();
     for schema in schema.any_of.as_ref().expect("Should") {
         let Some(title) = &schema.r#ref else {
@@ -325,14 +332,126 @@ fn members(schema: &Schema, context: &Context) -> Vec<Block> {
         items.push(li([link([cf(title)], url)]))
     }
 
-    vec![h2([text("Members")]), ul(items)]
+    vec![
+        h2([text("Members")]),
+        p([text("The "), cf(title), text(" type has these members:")]),
+        ul(items),
+    ]
 }
 
 /// Generate a "Formats" section for a schema
 fn formats(title: &str, schema: &Schema) -> Vec<Block> {
-    let blocks = vec![h2([text("Formats")])];
+    let mut rows = vec![tr([
+        th([text("Format")]),
+        th([text("Encoding")]),
+        th([text("Decoding")]),
+        th([text("Status")]),
+        th([text("Notes")]),
+    ])];
 
-    blocks
+    let node_type = NodeType::try_from(title).ok();
+    for format in Format::iter() {
+        let Ok(codec) = codecs::get(None, Some(format), None) else {
+            continue
+        };
+
+        let name = format.name();
+        let name = td([link(
+            [text(name)],
+            "https://stencila.dev/docs/reference/formats/{name}",
+        )]);
+
+        fn codec_support(support: CodecSupport) -> TableCell {
+            match support {
+                CodecSupport::None => td([]),
+                support => td([text(format!(
+                    "{icon} {desc}",
+                    icon = match support {
+                        CodecSupport::NoLoss => "🟢",
+                        CodecSupport::LowLoss => "🔷",
+                        CodecSupport::HighLoss => "🟥",
+                        CodecSupport::None => "",
+                    },
+                    desc = support.to_string().to_sentence_case()
+                ))]),
+            }
+        }
+
+        let encoding = codec_support(
+            node_type
+                .as_ref()
+                .map(|node_type| codec.supports_to_type(*node_type))
+                .unwrap_or_default(),
+        );
+
+        let decoding = codec_support(
+            node_type
+                .as_ref()
+                .map(|node_type| codec.supports_from_type(*node_type))
+                .unwrap_or_default(),
+        );
+
+        let status = td([text(format!(
+            "{icon} {desc}",
+            icon = codec.status().emoji(),
+            desc = codec.status().to_string().to_sentence_case()
+        ))]);
+
+        let notes = if let (
+            Format::Html,
+            Some(HtmlOptions {
+                special,
+                elem,
+                custom,
+                ..
+            }),
+        ) = (format, &schema.html)
+        {
+            td(if *special {
+                vec![text("Encoded using special function")]
+            } else if let Some(elem) = elem {
+                let tag = format!(
+                    "<{elem}{}>",
+                    if *custom {
+                        format!(" is=\"stencila-{}\"", title.to_kebab_case())
+                    } else {
+                        String::new()
+                    }
+                );
+                vec![text("Encoded to tag "), cf(tag)]
+            } else {
+                vec![text("Encoded using derived function")]
+            })
+        } else if let (
+            Format::Markdown,
+            Some(MarkdownOptions {
+                special, format, ..
+            }),
+        ) = (format, &schema.markdown)
+        {
+            td(if *special {
+                vec![text("Encoded using special function")]
+            } else if let Some(format) = format {
+                vec![text("Encoded using template "), cf(format)]
+            } else {
+                vec![text("Encoded using derived function")]
+            })
+        } else {
+            td([])
+        };
+
+        rows.push(tr([name, encoding, decoding, status, notes]));
+    }
+
+    vec![
+        h2([text("Formats")]),
+        p([
+            text("The "),
+            cf(title),
+            text(" type can be encoded (serialized) to, and/or decoded (deserialized) from, these formats:"),
+        ]),
+        table(rows),
+    ]
 }
 
 /// Generate a "Related" section for a schema
@@ -364,13 +483,26 @@ fn related(title: &str, schema: &Schema, context: &Context) -> Vec<Block> {
         }
     }
 
-    vec![h2([text("Related")]), ul([li(parents), li(children)])]
+    vec![
+        h2([text("Related")]),
+        p([
+            text("The "),
+            cf(title),
+            text(" type is related to these types:"),
+        ]),
+        ul([li(parents), li(children)]),
+    ]
 }
 
 /// Generate a "Bindings" section for a schema
 fn bindings(title: &str, schema: &Schema) -> Vec<Block> {
     vec![
         h2([text("Bindings")]),
+        p([
+            text("The "),
+            cf(title),
+            text(" type is represented in these bindings:"),
+        ]),
         ul([
             li([link(
                 [text("JSON-LD")],

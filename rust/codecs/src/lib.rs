@@ -5,12 +5,19 @@ use codec::{
         eyre::{bail, eyre, Result},
         itertools::Itertools,
     },
-    format::Format,
     schema::Node,
     CodecSpec,
 };
-pub use codec::{Codec, DecodeOptions, EncodeOptions, Losses, LossesResponse};
+pub use codec::{
+    format::Format, Codec, CodecSupport, DecodeOptions, EncodeOptions, Losses, LossesResponse,
+};
 use node_strip::StripNode;
+
+/// The direction of conversion
+pub enum CodecDirection {
+    Decode,
+    Encode,
+}
 
 /// Get a list of all codecs
 pub fn list() -> Vec<Box<dyn Codec>> {
@@ -45,7 +52,11 @@ pub fn format_or_codec(format_or_codec: Option<String>) -> (Option<Format>, Opti
 }
 
 /// Get the codec for a given format
-fn get(name: Option<&String>, format: Option<Format>) -> Result<Box<dyn Codec>> {
+pub fn get(
+    name: Option<&String>,
+    format: Option<Format>,
+    direction: Option<CodecDirection>,
+) -> Result<Box<dyn Codec>> {
     if let Some(name) = name {
         list()
             .into_iter()
@@ -54,7 +65,19 @@ fn get(name: Option<&String>, format: Option<Format>) -> Result<Box<dyn Codec>> 
     } else if let Some(format) = format {
         list()
             .into_iter()
-            .find_map(|codec| codec.supported_formats().contains(&format).then_some(codec))
+            .find_map(|codec| {
+                match direction {
+                    Some(CodecDirection::Decode) => {
+                        codec.supports_from_format(format).is_supported()
+                    }
+                    Some(CodecDirection::Encode) => codec.supports_to_format(format).is_supported(),
+                    None => {
+                        codec.supports_from_format(format).is_supported()
+                            || codec.supports_to_format(format).is_supported()
+                    }
+                }
+                .then_some(codec)
+            })
             .ok_or_else(|| eyre!("Unable to find a codec supporting format `{format}`"))
     } else {
         bail!("One of `name` or `format` must be supplied")
@@ -63,7 +86,7 @@ fn get(name: Option<&String>, format: Option<Format>) -> Result<Box<dyn Codec>> 
 
 /// Get the specification for a codec
 pub fn spec(name: &str) -> Result<CodecSpec> {
-    Ok(get(Some(&name.to_string()), None)?.spec())
+    Ok(get(Some(&name.to_string()), None, None)?.spec())
 }
 
 /// Decode a Stencila Schema node from a string
@@ -75,7 +98,9 @@ pub async fn from_str(str: &str, options: Option<DecodeOptions>) -> Result<Node>
         .and_then(|options| options.format)
         .or(Some(Format::Json));
 
-    let (node, losses) = get(codec, format)?.from_str(str, options.clone()).await?;
+    let (node, losses) = get(codec, format, Some(CodecDirection::Decode))?
+        .from_str(str, options.clone())
+        .await?;
     losses.respond(options.unwrap_or_default().losses)?;
 
     Ok(node)
@@ -90,7 +115,7 @@ pub async fn from_path(path: &Path, options: Option<DecodeOptions>) -> Result<No
         None => Format::from_path(path)?,
     };
 
-    let (node, losses) = get(codec, Some(format))?
+    let (node, losses) = get(codec, Some(format), Some(CodecDirection::Decode))?
         .from_path(path, options.clone())
         .await?;
     losses.respond(options.unwrap_or_default().losses)?;
@@ -120,7 +145,7 @@ pub async fn to_string(node: &Node, options: Option<EncodeOptions>) -> Result<St
         .and_then(|options| options.format)
         .or(Some(Format::Json));
 
-    let codec = get(codec, format)?;
+    let codec = get(codec, format, Some(CodecDirection::Encode))?;
 
     if let Some(EncodeOptions {
         strip_id: id,
@@ -161,7 +186,7 @@ pub async fn to_path(node: &Node, path: &Path, options: Option<EncodeOptions>) -
         None => Format::from_path(path)?,
     };
 
-    let codec = get(codec, Some(format))?;
+    let codec = get(codec, Some(format), Some(CodecDirection::Encode))?;
 
     if let Some(EncodeOptions {
         strip_id: id,

@@ -1,9 +1,9 @@
 use codec::{
     common::{async_trait::async_trait, eyre::Result},
     format::Format,
-    schema::Node,
+    schema::{Node, NodeType},
     status::Status,
-    Codec, EncodeOptions, Losses,
+    Codec, CodecSupport, EncodeOptions, Losses,
 };
 use codec_markdown_trait::MarkdownCodec as _;
 
@@ -20,8 +20,35 @@ impl Codec for MarkdownCodec {
         Status::UnderDevelopment
     }
 
-    fn supported_formats(&self) -> Vec<Format> {
-        vec![Format::Markdown]
+    fn supports_to_format(&self, format: Format) -> CodecSupport {
+        match format {
+            Format::Markdown => CodecSupport::LowLoss,
+            _ => CodecSupport::None,
+        }
+    }
+
+    fn supports_to_type(&self, node_type: NodeType) -> CodecSupport {
+        use CodecSupport::*;
+        use NodeType::*;
+        match node_type {
+            // Data
+            String => NoLoss,
+            Null | Boolean | Integer | UnsignedInteger | Number => LowLoss,
+            // Prose Inlines
+            Text | Emphasis | Strong | Subscript | Superscript | Underline => NoLoss,
+            Link | Parameter | AudioObject | ImageObject | MediaObject => LowLoss,
+            // Prose Blocks
+            Heading | Paragraph | ThematicBreak => NoLoss,
+            List | ListItem | Table | TableRow | TableCell => LowLoss,
+            // Code
+            CodeFragment | CodeBlock => NoLoss,
+            CodeExpression | CodeChunk => LowLoss,
+            // Math
+            MathFragment | MathBlock => NoLoss,
+            // Because `to_markdown` is implemented for all types, defaulting to
+            // `to_text`, fallback to high loss
+            _ => HighLoss,
+        }
     }
 
     async fn to_string(
