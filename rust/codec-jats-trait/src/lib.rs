@@ -1,5 +1,7 @@
 //! Provides the `JatsCodec` trait for generating JATS XML for Stencila Schema nodes
 
+use quick_xml::escape::escape;
+
 pub use codec_jats_derive::JatsCodec;
 use codec_losses::{Loss, LossDirection, Losses};
 
@@ -37,7 +39,12 @@ to_string!(f64, "Number");
 
 impl JatsCodec for String {
     fn to_jats_parts(&self) -> (String, Vec<(String, String)>, String, Losses) {
-        (String::new(), Vec::new(), self.to_string(), Losses::none())
+        (
+            String::new(),
+            Vec::new(),
+            escape(self).to_string(),
+            Losses::none(),
+        )
     }
 }
 

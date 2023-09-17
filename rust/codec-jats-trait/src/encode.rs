@@ -1,3 +1,5 @@
+pub use quick_xml::escape::escape;
+
 use common::itertools::Itertools;
 
 /// Encode an element
@@ -8,15 +10,17 @@ where
     C: AsRef<str>,
 {
     let name = name.as_ref();
-    
+
     if name.is_empty() {
-        return content.as_ref().to_string()
+        return content.as_ref().to_string();
     }
-    
+
     let attrs = attrs
         .into_iter()
-        .map(|(name, value)| format!("{name}=\"{}\"", value.replace('"', "&quot;")))
+        .map(|(name, value)| format!("{name}=\"{}\"", escape(&value)))
         .join(" ");
+
+    let content = content.as_ref();
 
     [
         "<",
@@ -24,7 +28,7 @@ where
         if attrs.is_empty() { "" } else { " " },
         &attrs,
         ">",
-        content.as_ref(),
+        &content,
         "</",
         name,
         ">",

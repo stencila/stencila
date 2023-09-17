@@ -469,6 +469,7 @@ dependencies = [
  "codec-jats-derive",
  "codec-losses",
  "common",
+ "quick-xml 0.30.0",
 ]
 
 [[package]]
