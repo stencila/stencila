@@ -6,7 +6,7 @@
   },
   "@graph": [
     {
-      "@id": null,
+      "@id": "stencila:Validator",
       "@type": "rdfs:Class",
       "rdfs:label": "Validator",
       "rdfs:comment": "Union type for validators."

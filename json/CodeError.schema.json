@@ -8,7 +8,7 @@
   ],
   "category": "code",
   "description": "An error that occurred when parsing, compiling or executing a Code node.",
-  "status": "unstable",
+  "status": "alpha",
   "required": [
     "type",
     "errorMessage"

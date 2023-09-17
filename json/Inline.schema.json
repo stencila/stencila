@@ -1,6 +1,7 @@
 {
   "$schema": "https://stencila.dev/meta.schema.json",
   "$id": "https://stencila.dev/Inline.schema.json",
+  "@id": "stencila:Inline",
   "title": "Inline",
   "category": "prose",
   "description": "Union type for valid inline content.",

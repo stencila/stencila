@@ -1,6 +1,7 @@
 {
   "$schema": "https://stencila.dev/meta.schema.json",
   "$id": "https://stencila.dev/ExecutionDependantTarget.schema.json",
+  "@id": "stencila:ExecutionDependantTarget",
   "title": "ExecutionDependantTarget",
   "category": "flow",
   "description": "Node types that can be execution dependants",

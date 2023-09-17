@@ -1,0 +1,31 @@
+---
+title:
+- type: Text
+  value: TimeUnit
+---
+
+# Time Unit
+
+**A unit in which time can be measured**
+
+**`@id`**: `stencila:TimeUnit`
+
+## Members
+
+The `TimeUnit` type has these members:
+
+
+
+## Bindings
+
+The `TimeUnit` type is represented in these bindings:
+
+- [JSON-LD](https://stencila.dev/TimeUnit.jsonld)
+- [JSON Schema](https://stencila.dev/TimeUnit.schema.json)
+- Python type [`TimeUnit`](https://github.com/stencila/stencila/blob/main/python/stencila/types/time_unit.py)
+- Rust type [`TimeUnit`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/time_unit.rs)
+- TypeScript type [`TimeUnit`](https://github.com/stencila/stencila/blob/main/typescript/src/types/TimeUnit.ts)
+
+## Source
+
+This documentation was generated from [`TimeUnit.yaml`](https://github.com/stencila/stencila/blob/main/schema/TimeUnit.yaml) by [`docs.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs.rs).

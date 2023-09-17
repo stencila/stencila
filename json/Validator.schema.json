@@ -1,6 +1,7 @@
 {
   "$schema": "https://stencila.dev/meta.schema.json",
   "$id": "https://stencila.dev/Validator.schema.json",
+  "@id": "stencila:Validator",
   "title": "Validator",
   "category": "data",
   "description": "Union type for validators.",

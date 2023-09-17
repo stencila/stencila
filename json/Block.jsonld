@@ -6,7 +6,7 @@
   },
   "@graph": [
     {
-      "@id": null,
+      "@id": "stencila:Block",
       "@type": "rdfs:Class",
       "rdfs:label": "Block",
       "rdfs:comment": "Union type for block content node types."

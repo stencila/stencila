@@ -1,0 +1,96 @@
+---
+title:
+- type: Text
+  value: Article
+---
+
+# Article
+
+**An article, including news and scholarly articles.**
+
+This is an implementation, and extension, of schema.org [`Article`](https://schema.org/Article).
+It extends schema.org `Article` by adding a `content` property which must be
+an array of [`Block`](./Block), as well as the properties added by
+[`CreativeWork`](./CreativeWork) which it extends.
+
+An `Article` is analogous, and structurally similar to, the JATS XML
+[`<article>`](https://jats.nlm.nih.gov/articleauthoring/tag-library/1.2/element/article.html)
+element.
+
+
+**`@id`**: [`schema:Article`](https://schema.org/Article)
+
+## Properties
+
+The `Article` type has these properties:
+
+| Name           | `@id`                                                      | Type                                                                                                                                                              | Description                                                                                                              | Inherited from                                                                   |
+| -------------- | ---------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------- |
+| id             | [`schema:id`](https://schema.org/id)                       | [`String`](https://stencila.dev/docs/reference/schema/data/string)                                                                                                | The identifier for this item                                                                                             | [`Entity`](https://stencila.dev/docs/reference/schema/other/entity)              |
+| alternateNames | [`schema:alternateName`](https://schema.org/alternateName) | [`String`](https://stencila.dev/docs/reference/schema/data/string)*                                                                                               | Alternate names (aliases) for the item.                                                                                  | [`Thing`](https://stencila.dev/docs/reference/schema/other/thing)                |
+| description    | [`schema:description`](https://schema.org/description)     | [`Block`](https://stencila.dev/docs/reference/schema/prose/block)*                                                                                                | A description of the item.                                                                                               | [`Thing`](https://stencila.dev/docs/reference/schema/other/thing)                |
+| identifiers    | [`schema:identifier`](https://schema.org/identifier)       | ([`PropertyValue`](https://stencila.dev/docs/reference/schema/other/property-value) \| [`String`](https://stencila.dev/docs/reference/schema/data/string))*       | Any kind of identifier for any kind of Thing.                                                                            | [`Thing`](https://stencila.dev/docs/reference/schema/other/thing)                |
+| images         | [`schema:image`](https://schema.org/image)                 | ([`ImageObject`](https://stencila.dev/docs/reference/schema/works/image-object) \| [`String`](https://stencila.dev/docs/reference/schema/data/string))*           | Images of the item.                                                                                                      | [`Thing`](https://stencila.dev/docs/reference/schema/other/thing)                |
+| name           | [`schema:name`](https://schema.org/name)                   | [`String`](https://stencila.dev/docs/reference/schema/data/string)                                                                                                | The name of the item.                                                                                                    | [`Thing`](https://stencila.dev/docs/reference/schema/other/thing)                |
+| url            | [`schema:url`](https://schema.org/url)                     | [`String`](https://stencila.dev/docs/reference/schema/data/string)                                                                                                | The URL of the item.                                                                                                     | [`Thing`](https://stencila.dev/docs/reference/schema/other/thing)                |
+| about          | [`schema:about`](https://schema.org/about)                 | [`ThingType`](https://stencila.dev/docs/reference/schema/other/thing-type)*                                                                                       | The subject matter of the content.                                                                                       | [`CreativeWork`](https://stencila.dev/docs/reference/schema/works/creative-work) |
+| authors        | [`schema:author`](https://schema.org/author)               | ([`Person`](https://stencila.dev/docs/reference/schema/other/person) \| [`Organization`](https://stencila.dev/docs/reference/schema/other/organization))*         | The authors of this creative work.                                                                                       | [`CreativeWork`](https://stencila.dev/docs/reference/schema/works/creative-work) |
+| comments       | [`schema:comment`](https://schema.org/comment)             | [`Comment`](https://stencila.dev/docs/reference/schema/works/comment)*                                                                                            | Comments about this creative work.                                                                                       | [`CreativeWork`](https://stencila.dev/docs/reference/schema/works/creative-work) |
+| content        | `stencila:content`                                         | [`Block`](https://stencila.dev/docs/reference/schema/prose/block)*                                                                                                | The structured content of this creative work c.f. property `text`.                                                       | [`CreativeWork`](https://stencila.dev/docs/reference/schema/works/creative-work) |
+| dateCreated    | [`schema:dateCreated`](https://schema.org/dateCreated)     | [`Date`](https://stencila.dev/docs/reference/schema/data/date)                                                                                                    | Date/time of creation.                                                                                                   | [`CreativeWork`](https://stencila.dev/docs/reference/schema/works/creative-work) |
+| dateReceived   | [`schema:dateReceived`](https://schema.org/dateReceived)   | [`Date`](https://stencila.dev/docs/reference/schema/data/date)                                                                                                    | Date/time that work was received.                                                                                        | [`CreativeWork`](https://stencila.dev/docs/reference/schema/works/creative-work) |
+| dateAccepted   | `stencila:dateAccepted`                                    | [`Date`](https://stencila.dev/docs/reference/schema/data/date)                                                                                                    | Date/time of acceptance.                                                                                                 | [`CreativeWork`](https://stencila.dev/docs/reference/schema/works/creative-work) |
+| dateModified   | [`schema:dateModified`](https://schema.org/dateModified)   | [`Date`](https://stencila.dev/docs/reference/schema/data/date)                                                                                                    | Date/time of most recent modification.                                                                                   | [`CreativeWork`](https://stencila.dev/docs/reference/schema/works/creative-work) |
+| datePublished  | [`schema:datePublished`](https://schema.org/datePublished) | [`Date`](https://stencila.dev/docs/reference/schema/data/date)                                                                                                    | Date of first publication.                                                                                               | [`CreativeWork`](https://stencila.dev/docs/reference/schema/works/creative-work) |
+| editors        | [`schema:editor`](https://schema.org/editor)               | [`Person`](https://stencila.dev/docs/reference/schema/other/person)*                                                                                              | People who edited the `CreativeWork`.                                                                                    | [`CreativeWork`](https://stencila.dev/docs/reference/schema/works/creative-work) |
+| funders        | [`schema:funder`](https://schema.org/funder)               | ([`Person`](https://stencila.dev/docs/reference/schema/other/person) \| [`Organization`](https://stencila.dev/docs/reference/schema/other/organization))*         | People or organizations that funded the `CreativeWork`.                                                                  | [`CreativeWork`](https://stencila.dev/docs/reference/schema/works/creative-work) |
+| fundedBy       | `stencila:fundedBy`                                        | ([`Grant`](https://stencila.dev/docs/reference/schema/other/grant) \| [`MonetaryGrant`](https://stencila.dev/docs/reference/schema/other/monetary-grant))*        | Grants that funded the `CreativeWork`; reverse of `fundedItems`.                                                         | [`CreativeWork`](https://stencila.dev/docs/reference/schema/works/creative-work) |
+| genre          | [`schema:genre`](https://schema.org/genre)                 | [`String`](https://stencila.dev/docs/reference/schema/data/string)*                                                                                               | Genre of the creative work, broadcast channel or group.                                                                  | [`CreativeWork`](https://stencila.dev/docs/reference/schema/works/creative-work) |
+| keywords       | [`schema:keywords`](https://schema.org/keywords)           | [`String`](https://stencila.dev/docs/reference/schema/data/string)*                                                                                               | Keywords or tags used to describe this content. Multiple entries in a keywords list are typically delimited by commas.   | [`CreativeWork`](https://stencila.dev/docs/reference/schema/works/creative-work) |
+| isPartOf       | [`schema:isPartOf`](https://schema.org/isPartOf)           | [`CreativeWorkType`](https://stencila.dev/docs/reference/schema/works/creative-work-type)                                                                         | An item or other CreativeWork that this CreativeWork is a part of.                                                       | [`CreativeWork`](https://stencila.dev/docs/reference/schema/works/creative-work) |
+| licenses       | [`schema:license`](https://schema.org/license)             | ([`CreativeWorkType`](https://stencila.dev/docs/reference/schema/works/creative-work-type) \| [`String`](https://stencila.dev/docs/reference/schema/data/string))* | License documents that applies to this content, typically indicated by URL.                                              | [`CreativeWork`](https://stencila.dev/docs/reference/schema/works/creative-work) |
+| maintainers    | [`schema:maintainer`](https://schema.org/maintainer)       | ([`Person`](https://stencila.dev/docs/reference/schema/other/person) \| [`Organization`](https://stencila.dev/docs/reference/schema/other/organization))*         | The people or organizations who maintain this CreativeWork.                                                              | [`CreativeWork`](https://stencila.dev/docs/reference/schema/works/creative-work) |
+| parts          | [`schema:hasParts`](https://schema.org/hasParts)           | [`CreativeWorkType`](https://stencila.dev/docs/reference/schema/works/creative-work-type)*                                                                        | Elements of the collection which can be a variety of different elements, such as Articles, Datatables, Tables and more.  | [`CreativeWork`](https://stencila.dev/docs/reference/schema/works/creative-work) |
+| publisher      | [`schema:publisher`](https://schema.org/publisher)         | [`Person`](https://stencila.dev/docs/reference/schema/other/person) \| [`Organization`](https://stencila.dev/docs/reference/schema/other/organization)            | A publisher of the CreativeWork.                                                                                         | [`CreativeWork`](https://stencila.dev/docs/reference/schema/works/creative-work) |
+| references     | [`schema:citation`](https://schema.org/citation)           | ([`CreativeWorkType`](https://stencila.dev/docs/reference/schema/works/creative-work-type) \| [`String`](https://stencila.dev/docs/reference/schema/data/string))* | References to other creative works, such as another publication, web page, scholarly article, etc.                       | [`CreativeWork`](https://stencila.dev/docs/reference/schema/works/creative-work) |
+| text           | [`schema:text`](https://schema.org/text)                   | [`String`](https://stencila.dev/docs/reference/schema/data/string)                                                                                                | The textual content of this creative work.                                                                               | [`CreativeWork`](https://stencila.dev/docs/reference/schema/works/creative-work) |
+| title          | [`schema:headline`](https://schema.org/headline)           | [`Inline`](https://stencila.dev/docs/reference/schema/prose/inline)*                                                                                              | The title of the creative work.                                                                                          | [`CreativeWork`](https://stencila.dev/docs/reference/schema/works/creative-work) |
+| version        | [`schema:version`](https://schema.org/version)             | [`String`](https://stencila.dev/docs/reference/schema/data/string) \| [`Number`](https://stencila.dev/docs/reference/schema/data/number)                          | The version of the creative work.                                                                                        | [`CreativeWork`](https://stencila.dev/docs/reference/schema/works/creative-work) |
+| pageStart      | [`schema:pageStart`](https://schema.org/pageStart)         | [`Integer`](https://stencila.dev/docs/reference/schema/data/integer) \| [`String`](https://stencila.dev/docs/reference/schema/data/string)                        | The page on which the article starts; for example "135" or "xiii".                                                       | [`Article`](https://stencila.dev/docs/reference/schema/works/article)            |
+| pageEnd        | [`schema:pageEnd`](https://schema.org/pageEnd)             | [`Integer`](https://stencila.dev/docs/reference/schema/data/integer) \| [`String`](https://stencila.dev/docs/reference/schema/data/string)                        | The page on which the article ends; for example "138" or "xvi".                                                          | [`Article`](https://stencila.dev/docs/reference/schema/works/article)            |
+| pagination     | [`schema:pagination`](https://schema.org/pagination)       | [`String`](https://stencila.dev/docs/reference/schema/data/string)                                                                                                | Any description of pages that is not separated into pageStart and pageEnd; for example, "1-6, 9, 55".                    | [`Article`](https://stencila.dev/docs/reference/schema/works/article)            |
+
+## Related
+
+The `Article` type is related to these types:
+
+- Parents: [`CreativeWork`](https://stencila.dev/docs/reference/schema/works/creative-work)
+- Children: none
+
+## Formats
+
+The `Article` type can be encoded (serialized) to, and/or decoded (deserialized) from, these formats:
+
+| Format                                                           | Encoding       | Decoding     | Status                 | Notes                          |
+| ---------------------------------------------------------------- | -------------- | ------------ | ---------------------- | ------------------------------ |
+| [HTML](https://stencila.dev/docs/reference/formats/{name})       | 🔷 Low loss     |              | 🚧 Under development    | Encoded to tag `<article>`     |
+| [Markdown](https://stencila.dev/docs/reference/formats/{name})   | 🟥 High loss    |              | 🚧 Under development    | Encoded using special function |
+| [Plain text](https://stencila.dev/docs/reference/formats/{name}) | 🟥 High loss    |              | 🟥 Alpha                |                                |
+| [JSON](https://stencila.dev/docs/reference/formats/{name})       | 🟢 No loss      | 🟢 No loss    | 🟢 Stable               |                                |
+| [JSON5](https://stencila.dev/docs/reference/formats/{name})      | 🟢 No loss      | 🟢 No loss    | 🟢 Stable               |                                |
+| [YAML](https://stencila.dev/docs/reference/formats/{name})       | 🟢 No loss      | 🟢 No loss    | 🟢 Stable               |                                |
+| [Debug](https://stencila.dev/docs/reference/formats/{name})      | 🔷 Low loss     |              | 🟢 Stable               |                                |
+
+## Bindings
+
+The `Article` type is represented in these bindings:
+
+- [JSON-LD](https://stencila.dev/Article.jsonld)
+- [JSON Schema](https://stencila.dev/Article.schema.json)
+- Python class [`Article`](https://github.com/stencila/stencila/blob/main/python/stencila/types/article.py)
+- Rust struct [`Article`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/article.rs)
+- TypeScript class [`Article`](https://github.com/stencila/stencila/blob/main/typescript/src/types/Article.ts)
+
+## Source
+
+This documentation was generated from [`Article.yaml`](https://github.com/stencila/stencila/blob/main/schema/Article.yaml) by [`docs.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs.rs).

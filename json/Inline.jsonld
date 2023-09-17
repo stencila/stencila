@@ -6,7 +6,7 @@
   },
   "@graph": [
     {
-      "@id": null,
+      "@id": "stencila:Inline",
       "@type": "rdfs:Class",
       "rdfs:label": "Inline",
       "rdfs:comment": "Union type for valid inline content."

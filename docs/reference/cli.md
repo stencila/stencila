@@ -76,7 +76,7 @@ Create a new document
 * `-s`, `--source <SOURCE>` — The source file to import from
 * `-f`, `--format <FORMAT>` — The format of the source file
 
-  Possible values: `debug`, `html`, `jats`, `json`, `json5`, `markdown`, `text`, `yaml`
+  Possible values: `html`, `jats`, `markdown`, `text`, `json`, `json5`, `yaml`, `debug`
 
 * `--codec <CODEC>` — The codec to use to decode the source
 * `-o`, `--overwrite` — Overwrite the document if it already exists
@@ -98,7 +98,7 @@ Import a file in another format into a new or existing document
 
 * `-f`, `--format <FORMAT>` — The format of the source file
 
-  Possible values: `debug`, `html`, `jats`, `json`, `json5`, `markdown`, `text`, `yaml`
+  Possible values: `html`, `jats`, `markdown`, `text`, `json`, `json5`, `yaml`, `debug`
 
 * `--codec <CODEC>` — The codec to use to decode the source
 * `-t`, `--type <TYPE>` — The type of document to import
@@ -143,7 +143,7 @@ Export a document to a file in another format
 
 * `-f`, `--format <FORMAT>` — The format of the destination file
 
-  Possible values: `debug`, `html`, `jats`, `json`, `json5`, `markdown`, `text`, `yaml`
+  Possible values: `html`, `jats`, `markdown`, `text`, `json`, `json5`, `yaml`, `debug`
 
 * `--codec <CODEC>` — The codec to use to encode to the destination
 * `-l`, `--losses <LOSSES>` — What to do if there are losses when encoding

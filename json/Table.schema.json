@@ -9,7 +9,10 @@
   "category": "works",
   "description": "A table.",
   "html": {
-    "elem": "table"
+    "special": true
+  },
+  "markdown": {
+    "special": true
   },
   "required": [
     "type",

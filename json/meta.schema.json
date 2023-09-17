@@ -594,28 +594,14 @@
       "additionalProperties": false
     },
     "Status": {
-      "oneOf": [
-        {
-          "description": "The schema is experimental and is likely to change",
-          "type": "string",
-          "enum": [
-            "experimental"
-          ]
-        },
-        {
-          "description": "The schema is not yet stable and may change",
-          "type": "string",
-          "enum": [
-            "unstable"
-          ]
-        },
-        {
-          "description": "The schema is stable and unlikely to change",
-          "type": "string",
-          "enum": [
-            "stable"
-          ]
-        }
+      "type": "string",
+      "enum": [
+        "planned",
+        "experimental",
+        "under-development",
+        "alpha",
+        "beta",
+        "stable"
       ]
     },
     "StripScopes": {

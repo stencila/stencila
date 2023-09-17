@@ -1,6 +1,7 @@
 {
   "$schema": "https://stencila.dev/meta.schema.json",
   "$id": "https://stencila.dev/Block.schema.json",
+  "@id": "stencila:Block",
   "title": "Block",
   "category": "prose",
   "description": "Union type for block content node types.",

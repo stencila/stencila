@@ -6,7 +6,7 @@
   },
   "@graph": [
     {
-      "@id": null,
+      "@id": "stencila:ExecutionDependencyNode",
       "@type": "rdfs:Class",
       "rdfs:label": "ExecutionDependencyNode",
       "rdfs:comment": "Node types that can be execution dependencies"
