@@ -11,6 +11,7 @@ use super::string::String;
 #[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec, ReadNode, WriteNode)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 #[html(special)]
+#[jats(elem = "list")]
 #[markdown(special)]
 pub struct List {
     /// The type of this item
@@ -22,9 +23,11 @@ pub struct List {
     pub id: Option<String>,
 
     /// The items in the list.
+    #[jats(content)]
     pub items: Vec<ListItem>,
 
     /// The ordering of the list.
+    #[jats(attr = "list-type")]
     pub order: ListOrder,
 }
 

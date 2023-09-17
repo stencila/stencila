@@ -24,6 +24,7 @@ use super::thing_type::ThingType;
 #[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec, ReadNode, WriteNode)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 #[html(elem = "video", custom)]
+#[jats(elem = "inline-media")]
 #[markdown(format = "![]({content_url})")]
 pub struct VideoObject {
     /// The type of this item
@@ -36,6 +37,7 @@ pub struct VideoObject {
 
     /// URL for the actual bytes of the media object, for example the image file or video file.
     #[html(attr = "src")]
+    #[jats(attr = "xlink:href")]
     pub content_url: String,
 
     /// IANA media type (MIME type).
@@ -48,6 +50,7 @@ pub struct VideoObject {
     /// Non-core optional fields
     #[serde(flatten)]
     #[html(flatten)]
+    #[jats(flatten)]
     pub options: Box<VideoObjectOptions>,
 }
 

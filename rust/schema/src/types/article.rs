@@ -23,6 +23,7 @@ use super::thing_type::ThingType;
 #[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec, ReadNode, WriteNode)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 #[html(elem = "article")]
+#[jats(special)]
 #[markdown(special)]
 pub struct Article {
     /// The type of this item
@@ -67,6 +68,7 @@ pub struct Article {
     /// Non-core optional fields
     #[serde(flatten)]
     #[html(flatten)]
+    #[jats(flatten)]
     pub options: Box<ArticleOptions>,
 }
 

@@ -52,6 +52,7 @@ pub struct Parameter {
     /// Non-core optional fields
     #[serde(flatten)]
     #[html(flatten)]
+    #[jats(flatten)]
     pub options: Box<ParameterOptions>,
 }
 

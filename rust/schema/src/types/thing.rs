@@ -23,6 +23,7 @@ pub struct Thing {
     /// Non-core optional fields
     #[serde(flatten)]
     #[html(flatten)]
+    #[jats(flatten)]
     pub options: Box<ThingOptions>,
 }
 

@@ -10,6 +10,7 @@ use super::string::String;
 #[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec, ReadNode, WriteNode)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 #[html(elem = "em")]
+#[jats(elem = "italic")]
 #[markdown(format = "_{content}_", escape = "_")]
 pub struct Emphasis {
     /// The type of this item

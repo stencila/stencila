@@ -35,10 +35,12 @@ pub struct For {
 
     /// The code.
     #[strip(code)]
+    #[jats(content)]
     pub code: Cord,
 
     /// The programming language of the code.
     #[strip(code)]
+    #[jats(attr = "language")]
     pub programming_language: String,
 
     /// Whether the programming language of the code should be guessed based on syntax and variables used
@@ -64,6 +66,7 @@ pub struct For {
     /// Non-core optional fields
     #[serde(flatten)]
     #[html(flatten)]
+    #[jats(flatten)]
     pub options: Box<ForOptions>,
 }
 

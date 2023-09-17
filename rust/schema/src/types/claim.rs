@@ -22,6 +22,7 @@ use super::thing_type::ThingType;
 #[skip_serializing_none]
 #[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec, ReadNode, WriteNode)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
+#[jats(elem = "statement")]
 pub struct Claim {
     /// The type of this item
     pub r#type: MustBe!("Claim"),
@@ -35,14 +36,17 @@ pub struct Claim {
     pub content: Vec<Block>,
 
     /// The type of the claim.
+    #[jats(attr = "specific-use")]
     pub claim_type: ClaimType,
 
     /// A short label for the claim.
+    #[jats(elem = "label")]
     pub label: Option<String>,
 
     /// Non-core optional fields
     #[serde(flatten)]
     #[html(flatten)]
+    #[jats(flatten)]
     pub options: Box<ClaimOptions>,
 }
 

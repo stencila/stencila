@@ -10,6 +10,7 @@ use super::string::String;
 #[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec, ReadNode, WriteNode)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 #[html(elem = "code", custom)]
+#[jats(elem = "monospace", attribs(specific__use = "code"))]
 #[markdown(special)]
 pub struct CodeFragment {
     /// The type of this item
@@ -22,9 +23,11 @@ pub struct CodeFragment {
 
     /// The code.
     #[html(content)]
+    #[jats(content)]
     pub code: Cord,
 
     /// The programming language of the code.
+    #[jats(attr = "language")]
     pub programming_language: Option<String>,
 }
 

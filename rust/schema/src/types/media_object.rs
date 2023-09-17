@@ -34,6 +34,7 @@ pub struct MediaObject {
 
     /// URL for the actual bytes of the media object, for example the image file or video file.
     #[html(attr = "src")]
+    #[jats(attr = "xlink:href")]
     pub content_url: String,
 
     /// IANA media type (MIME type).
@@ -42,6 +43,7 @@ pub struct MediaObject {
     /// Non-core optional fields
     #[serde(flatten)]
     #[html(flatten)]
+    #[jats(flatten)]
     pub options: Box<MediaObjectOptions>,
 }
 

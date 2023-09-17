@@ -23,6 +23,7 @@ use super::timestamp::Timestamp;
 #[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec, ReadNode, WriteNode)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 #[html(elem = "span", custom)]
+#[jats(elem = "monospace")]
 #[markdown(special)]
 pub struct CodeExpression {
     /// The type of this item
@@ -35,10 +36,12 @@ pub struct CodeExpression {
 
     /// The code.
     #[strip(code)]
+    #[jats(content)]
     pub code: Cord,
 
     /// The programming language of the code.
     #[strip(code)]
+    #[jats(attr = "language")]
     pub programming_language: String,
 
     /// Whether the programming language of the code should be guessed based on syntax and variables used
@@ -48,11 +51,13 @@ pub struct CodeExpression {
     /// The value of the expression when it was last evaluated.
     #[strip(output)]
     #[html(slot = "span")]
+    #[jats(content)]
     pub output: Option<Box<Node>>,
 
     /// Non-core optional fields
     #[serde(flatten)]
     #[html(flatten)]
+    #[jats(flatten)]
     pub options: Box<CodeExpressionOptions>,
 }
 

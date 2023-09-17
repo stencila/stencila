@@ -10,6 +10,7 @@ use super::string::String;
 #[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec, ReadNode, WriteNode)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 #[html(elem = "sup")]
+#[jats(elem = "sup")]
 #[markdown(format = "^{content}^", escape = "^")]
 pub struct Superscript {
     /// The type of this item

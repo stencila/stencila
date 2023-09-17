@@ -16,6 +16,7 @@ use super::string::String;
 #[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec, ReadNode, WriteNode)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 #[html(elem = "li", custom)]
+#[jats(elem = "list-item")]
 #[markdown(special)]
 pub struct ListItem {
     /// The type of this item
@@ -41,6 +42,7 @@ pub struct ListItem {
     /// Non-core optional fields
     #[serde(flatten)]
     #[html(flatten)]
+    #[jats(flatten)]
     pub options: Box<ListItemOptions>,
 }
 

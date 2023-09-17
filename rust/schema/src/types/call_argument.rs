@@ -62,6 +62,7 @@ pub struct CallArgument {
     /// Non-core optional fields
     #[serde(flatten)]
     #[html(flatten)]
+    #[jats(flatten)]
     pub options: Box<CallArgumentOptions>,
 }
 

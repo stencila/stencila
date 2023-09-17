@@ -22,6 +22,8 @@ use super::thing_type::ThingType;
 #[skip_serializing_none]
 #[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec, ReadNode, WriteNode)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
+#[html(elem = "figure")]
+#[jats(elem = "figure")]
 pub struct Figure {
     /// The type of this item
     pub r#type: MustBe!("Figure"),
@@ -40,6 +42,7 @@ pub struct Figure {
     /// Non-core optional fields
     #[serde(flatten)]
     #[html(flatten)]
+    #[jats(flatten)]
     pub options: Box<FigureOptions>,
 }
 

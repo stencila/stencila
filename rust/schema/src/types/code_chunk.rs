@@ -23,6 +23,7 @@ use super::timestamp::Timestamp;
 #[skip_serializing_none]
 #[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec, ReadNode, WriteNode)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
+#[jats(elem = "code", attribs(executable = "yes"))]
 pub struct CodeChunk {
     /// The type of this item
     pub r#type: MustBe!("CodeChunk"),
@@ -34,10 +35,12 @@ pub struct CodeChunk {
 
     /// The code.
     #[strip(code)]
+    #[jats(content)]
     pub code: Cord,
 
     /// The programming language of the code.
     #[strip(code)]
+    #[jats(attr = "language")]
     pub programming_language: String,
 
     /// Whether the programming language of the code should be guessed based on syntax and variables used
@@ -51,6 +54,7 @@ pub struct CodeChunk {
     /// Non-core optional fields
     #[serde(flatten)]
     #[html(flatten)]
+    #[jats(flatten)]
     pub options: Box<CodeChunkOptions>,
 }
 

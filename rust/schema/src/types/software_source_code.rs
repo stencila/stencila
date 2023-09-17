@@ -45,6 +45,7 @@ pub struct SoftwareSourceCode {
     /// Non-core optional fields
     #[serde(flatten)]
     #[html(flatten)]
+    #[jats(flatten)]
     pub options: Box<SoftwareSourceCodeOptions>,
 }
 

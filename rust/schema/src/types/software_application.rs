@@ -36,6 +36,7 @@ pub struct SoftwareApplication {
     /// Non-core optional fields
     #[serde(flatten)]
     #[html(flatten)]
+    #[jats(flatten)]
     pub options: Box<SoftwareApplicationOptions>,
 }
 

@@ -30,6 +30,7 @@ pub struct TableCell {
     /// Non-core optional fields
     #[serde(flatten)]
     #[html(flatten)]
+    #[jats(flatten)]
     pub options: Box<TableCellOptions>,
 }
 
