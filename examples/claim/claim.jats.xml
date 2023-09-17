@@ -1,0 +1,15 @@
+<article dtd-version="1.3" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:mml="http://www.w3.org/1998/Math/MathML">
+  <front>
+  </front>
+  <body>
+    <statement specific-use="Theorem">
+      <p>A theorem</p>
+    </statement>
+    <statement specific-use="Proposition">
+      <p>A proposition with a label</p>
+      <label>Proposition 1</label>
+    </statement>
+  </body>
+  <back>
+  </back>
+</article>
