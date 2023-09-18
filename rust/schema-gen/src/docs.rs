@@ -397,14 +397,8 @@ fn formats(title: &str, schema: &Schema) -> Vec<Block> {
             desc = codec.status().to_string().to_sentence_case()
         ))]);
 
-        let notes = if let (
-            Format::Html,
-            Some(HtmlOptions {
-                special,
-                elem,
-                ..
-            }),
-        ) = (format, &schema.html)
+        let notes = if let (Format::Html, Some(HtmlOptions { special, elem, .. })) =
+            (format, &schema.html)
         {
             td(if *special {
                 vec![text("Encoded using special function")]
@@ -420,12 +414,8 @@ fn formats(title: &str, schema: &Schema) -> Vec<Block> {
             } else {
                 vec![text("Encoded using derived function")]
             })
-        } else if let (
-            Format::Jats,
-            Some(JatsOptions {
-                elem, special, ..
-            }),
-        ) = (format, &schema.jats)
+        } else if let (Format::Jats, Some(JatsOptions { elem, special, .. })) =
+            (format, &schema.jats)
         {
             td(if *special {
                 vec![text("Encoded using special function")]

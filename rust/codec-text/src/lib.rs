@@ -29,8 +29,8 @@ impl Codec for TextCodec {
     }
 
     fn supports_to_type(&self, node_type: NodeType) -> CodecSupport {
-        use NodeType::*;
         use CodecSupport::*;
+        use NodeType::*;
         match node_type {
             String | Text => NoLoss,
             Null | Boolean | Integer | UnsignedInteger | Number => LowLoss,

@@ -5,9 +5,10 @@ use std::collections::HashMap;
 use darling::{self, FromDeriveInput, FromField};
 
 use common::{
+    itertools::Itertools,
     proc_macro2::TokenStream,
     quote::quote,
-    syn::{parse_macro_input, Data, DataEnum, DeriveInput, Fields, Ident}, itertools::Itertools,
+    syn::{parse_macro_input, Data, DataEnum, DeriveInput, Fields, Ident},
 };
 
 #[derive(FromDeriveInput)]
@@ -80,7 +81,7 @@ fn derive_struct(type_attr: TypeAttr) -> TokenStream {
 
                 fn to_jats_parts(&self) -> (String, Vec<(String, String)>, String, Losses) {
                     let (content, losses) = self.to_jats_special();
-                    (String::new(), Vec::new(), content, losses) 
+                    (String::new(), Vec::new(), content, losses)
                 }
             }
         };
@@ -91,15 +92,15 @@ fn derive_struct(type_attr: TypeAttr) -> TokenStream {
             impl JatsCodec for #struct_name {
                 fn to_jats_parts(&self) -> (String, Vec<(String, String)>, String, Losses) {
                     (String::new(), Vec::new(), String::new(), Losses::of_all(stringify!(#struct_name)))
-                } 
+                }
             }
         }
     };
 
     let mut attrs = TokenStream::new();
     for (name, value) in type_attr.attribs.iter().sorted() {
-        let name = name.replace("__","-").replace("_",":");
-        attrs.extend(quote!{
+        let name = name.replace("__", "-").replace('_', ":");
+        attrs.extend(quote! {
             (#name.to_string(), #value.to_string()),
         })
     }
@@ -155,7 +156,7 @@ fn derive_struct(type_attr: TypeAttr) -> TokenStream {
         impl JatsCodec for #struct_name {
             fn to_jats_parts(&self) -> (String, Vec<(String, String)>, String, Losses) {
                 use codec_jats_trait::encode::elem;
-                
+
                 let mut attrs = vec![#attrs];
                 let mut content = String::new();
                 let mut losses = Losses::none();

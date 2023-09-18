@@ -28,7 +28,7 @@ where
         if attrs.is_empty() { "" } else { " " },
         &attrs,
         ">",
-        &content,
+        content,
         "</",
         name,
         ">",

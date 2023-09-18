@@ -61,7 +61,12 @@ async fn examples_encode_decode() -> Result<()> {
             }),
             None,
         ),
-        ("jats.xml", Format::Jats, Some(EncodeOptions::default()), None),
+        (
+            "jats.xml",
+            Format::Jats,
+            Some(EncodeOptions::default()),
+            None,
+        ),
         (
             "compact.jats.xml",
             Format::Jats,

@@ -42,7 +42,7 @@ pub enum Format {
     Json5,
     Yaml,
     // Development focussed formats
-    Debug
+    Debug,
 }
 
 impl Format {
