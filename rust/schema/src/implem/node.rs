@@ -84,6 +84,7 @@ impl ReadNode for Node {
             Comment,
             ConstantValidator,
             ContactPoint,
+            Cord,
             CreativeWork,
             Datatable,
             DatatableColumn,
