@@ -27,7 +27,7 @@ impl Codec for HtmlCodec {
         }
     }
 
-    fn supports_to_type(&self, _node_type: NodeType) -> CodecSupport {
+    fn supports_to_type(&self, node_type: NodeType) -> CodecSupport {
         use CodecSupport::*;
         use NodeType::*;
         match node_type {
@@ -40,7 +40,7 @@ impl Codec for HtmlCodec {
             // Code
             CodeFragment | CodeBlock => NoLoss,
             // Fallback to low loss
-            _ => LowLoss
+            _ => LowLoss,
         }
     }
 
