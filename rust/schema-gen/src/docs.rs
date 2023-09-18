@@ -356,7 +356,7 @@ fn formats(title: &str, schema: &Schema) -> Vec<Block> {
         let name = td([link(
             [text(name)],
             format!(
-                "https://github.com/stencila/stencila/blob/main/docs/reference/formats/{name}.md"
+                "https://github.com/stencila/stencila/blob/main/docs/reference/formats/{format}.md"
             ),
         )]);
 
