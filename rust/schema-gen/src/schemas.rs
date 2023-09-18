@@ -78,6 +78,7 @@ impl Schemas {
             "UnsignedInteger",
             "Number",
             "String",
+            "Cord",
             "Array",
         ]
         .iter()
