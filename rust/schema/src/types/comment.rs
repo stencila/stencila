@@ -102,7 +102,7 @@ pub struct CommentOptions {
     pub keywords: Option<Vec<String>>,
 
     /// An item or other CreativeWork that this CreativeWork is a part of.
-    pub is_part_of: Option<Box<CreativeWorkType>>,
+    pub is_part_of: Option<CreativeWorkType>,
 
     /// License documents that applies to this content, typically indicated by URL.
     pub licenses: Option<Vec<CreativeWorkTypeOrString>>,
@@ -131,7 +131,7 @@ pub struct CommentOptions {
     pub version: Option<StringOrNumber>,
 
     /// The parent comment of this comment.
-    pub parent_item: Option<Box<Comment>>,
+    pub parent_item: Option<Comment>,
 
     /// The part or facet of the item that is being commented on.
     pub comment_aspect: Option<String>,

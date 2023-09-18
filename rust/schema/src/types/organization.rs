@@ -73,13 +73,13 @@ pub struct OrganizationOptions {
     pub legal_name: Option<String>,
 
     /// The logo of the organization.
-    pub logo: Option<Box<ImageObjectOrString>>,
+    pub logo: Option<ImageObjectOrString>,
 
     /// Person(s) or organization(s) who are members of this organization.
     pub members: Option<Vec<OrganizationOrPerson>>,
 
     /// Entity that the Organization is a part of. For example, parentOrganization to a department is a university.
-    pub parent_organization: Option<Box<Organization>>,
+    pub parent_organization: Option<Organization>,
 }
 
 impl Organization {

@@ -115,7 +115,7 @@ pub struct SoftwareSourceCodeOptions {
     pub keywords: Option<Vec<String>>,
 
     /// An item or other CreativeWork that this CreativeWork is a part of.
-    pub is_part_of: Option<Box<CreativeWorkType>>,
+    pub is_part_of: Option<CreativeWorkType>,
 
     /// License documents that applies to this content, typically indicated by URL.
     pub licenses: Option<Vec<CreativeWorkTypeOrString>>,

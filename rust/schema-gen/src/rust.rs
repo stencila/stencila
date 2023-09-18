@@ -43,21 +43,21 @@ const NO_READ: &[&str] = &["Primitive", "Node"];
 const NO_WRITE: &[&str] = &["Primitive"];
 
 /// Properties that need to be boxed to avoid recursive types
+///
+/// Note that properties that are not "core" do not be boxed because they
+/// will be in the `Options` struct for the type and thus are already boxed.
 const BOX_PROPERTIES: &[&str] = &[
-    "*.is_part_of",
     "ArrayValidator.contains",
     "ArrayValidator.items_validator",
     "CallArgument.default",
     "CallArgument.value",
     "CodeExpression.output",
-    "Comment.parent_item",
     "ConstantValidator.value",
-    "ImageObject.thumbnail",
     "ListItem.item",
-    "Organization.logo",
-    "Organization.parent_organization",
     "Parameter.default",
     "Parameter.value",
+    "PublicationIssue.is_part_of",
+    "PublicationVolume.is_part_of",
     "Variable.value",
 ];
 
