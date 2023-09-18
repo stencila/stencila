@@ -28,7 +28,20 @@ impl Codec for HtmlCodec {
     }
 
     fn supports_to_type(&self, _node_type: NodeType) -> CodecSupport {
-        CodecSupport::LowLoss
+        use CodecSupport::*;
+        use NodeType::*;
+        match node_type {
+            // Data
+            String | Cord => NoLoss,
+            // Prose Inlines
+            Text | Emphasis | Strong | Subscript | Superscript | Underline => NoLoss,
+            // Prose Blocks
+            Heading | Paragraph | ThematicBreak => NoLoss,
+            // Code
+            CodeFragment | CodeBlock => NoLoss,
+            // Fallback to low loss
+            _ => LowLoss
+        }
     }
 
     async fn to_string(

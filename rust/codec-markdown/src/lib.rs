@@ -32,7 +32,7 @@ impl Codec for MarkdownCodec {
         use NodeType::*;
         match node_type {
             // Data
-            String => NoLoss,
+            String | Cord => NoLoss,
             Null | Boolean | Integer | UnsignedInteger | Number => LowLoss,
             // Prose Inlines
             Text | Emphasis | Strong | Subscript | Superscript | Underline => NoLoss,
@@ -45,6 +45,8 @@ impl Codec for MarkdownCodec {
             CodeExpression | CodeChunk => LowLoss,
             // Math
             MathFragment | MathBlock => NoLoss,
+            // Works,
+            Article => LowLoss,
             // Because `to_markdown` is implemented for all types, defaulting to
             // `to_text`, fallback to high loss
             _ => HighLoss,

@@ -27,8 +27,29 @@ impl Codec for JatsCodec {
         }
     }
 
-    fn supports_to_type(&self, _node_type: NodeType) -> CodecSupport {
-        CodecSupport::LowLoss
+    fn supports_to_type(&self, node_type: NodeType) -> CodecSupport {
+        use CodecSupport::*;
+        use NodeType::*;
+        match node_type {
+            // Data
+            String | Cord => NoLoss,
+            Null | Boolean | Integer | UnsignedInteger | Number => LowLoss,
+            // Prose Inlines
+            Text | Emphasis | Strong | Subscript | Superscript | Underline => NoLoss,
+            Link | Parameter | AudioObject | ImageObject | MediaObject => LowLoss,
+            // Prose Blocks
+            Heading | Paragraph | ThematicBreak => NoLoss,
+            List | ListItem | Table | TableRow | TableCell => LowLoss,
+            // Code
+            CodeFragment | CodeBlock => NoLoss,
+            CodeExpression | CodeChunk => LowLoss,
+            // Math
+            MathFragment | MathBlock => NoLoss,
+            // Works,
+            Article => LowLoss,
+            // If not in the above lists then no support
+            _ => None,
+        }
     }
 
     async fn to_string(
