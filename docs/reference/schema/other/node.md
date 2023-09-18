@@ -12,6 +12,7 @@ The `Node` type has these members:
 - [`UnsignedInteger`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/unsigned-integer.md)
 - [`Number`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/number.md)
 - [`String`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/string.md)
+- [`Cord`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/cord.md)
 - [`Array`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/array.md)
 - [`ArrayValidator`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/array-validator.md)
 - [`Article`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/article.md)

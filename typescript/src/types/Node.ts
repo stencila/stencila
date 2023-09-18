@@ -21,6 +21,7 @@ import { Collection } from './Collection'
 import { Comment } from './Comment'
 import { ConstantValidator } from './ConstantValidator'
 import { ContactPoint } from './ContactPoint'
+import { Cord } from './Cord'
 import { CreativeWork } from './CreativeWork'
 import { Datatable } from './Datatable'
 import { DatatableColumn } from './DatatableColumn'
@@ -108,6 +109,7 @@ export type Node =
   UnsignedInteger |
   number |
   string |
+  Cord |
   Array |
   ArrayValidator |
   Article |

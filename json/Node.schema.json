@@ -21,6 +21,9 @@
       "$ref": "String.schema.json"
     },
     {
+      "$ref": "Cord.schema.json"
+    },
+    {
       "$ref": "Array.schema.json"
     },
     {

@@ -23,6 +23,7 @@ Collection = ForwardRef("Collection")
 Comment = ForwardRef("Comment")
 ConstantValidator = ForwardRef("ConstantValidator")
 ContactPoint = ForwardRef("ContactPoint")
+Cord = ForwardRef("Cord")
 CreativeWork = ForwardRef("CreativeWork")
 Datatable = ForwardRef("Datatable")
 DatatableColumn = ForwardRef("DatatableColumn")
@@ -109,6 +110,7 @@ Node = Union[
     UnsignedInteger,
     float,
     str,
+    Cord,
     Array,
     ArrayValidator,
     Article,
