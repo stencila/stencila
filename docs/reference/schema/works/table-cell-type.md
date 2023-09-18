@@ -1,9 +1,3 @@
----
-title:
-- type: Text
-  value: TableCellType
----
-
 # Table Cell Type
 
 **Indicates whether the cell is a header or data.**

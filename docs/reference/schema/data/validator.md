@@ -1,9 +1,3 @@
----
-title:
-- type: Text
-  value: Validator
----
-
 # Validator
 
 **Union type for validators.**
@@ -14,19 +8,19 @@ title:
 
 The `Validator` type has these members:
 
-- [`ArrayValidator`](https://stencila.dev/docs/reference/schema/data/array-validator)
-- [`BooleanValidator`](https://stencila.dev/docs/reference/schema/data/boolean-validator)
-- [`ConstantValidator`](https://stencila.dev/docs/reference/schema/data/constant-validator)
-- [`DateTimeValidator`](https://stencila.dev/docs/reference/schema/data/date-time-validator)
-- [`DateValidator`](https://stencila.dev/docs/reference/schema/data/date-validator)
-- [`DurationValidator`](https://stencila.dev/docs/reference/schema/data/duration-validator)
-- [`EnumValidator`](https://stencila.dev/docs/reference/schema/data/enum-validator)
-- [`IntegerValidator`](https://stencila.dev/docs/reference/schema/data/integer-validator)
-- [`NumberValidator`](https://stencila.dev/docs/reference/schema/data/number-validator)
-- [`StringValidator`](https://stencila.dev/docs/reference/schema/data/string-validator)
-- [`TimeValidator`](https://stencila.dev/docs/reference/schema/data/time-validator)
-- [`TimestampValidator`](https://stencila.dev/docs/reference/schema/data/timestamp-validator)
-- [`TupleValidator`](https://stencila.dev/docs/reference/schema/data/tuple-validator)
+- [`ArrayValidator`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/array-validator.md)
+- [`BooleanValidator`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/boolean-validator.md)
+- [`ConstantValidator`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/constant-validator.md)
+- [`DateTimeValidator`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/date-time-validator.md)
+- [`DateValidator`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/date-validator.md)
+- [`DurationValidator`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/duration-validator.md)
+- [`EnumValidator`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/enum-validator.md)
+- [`IntegerValidator`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/integer-validator.md)
+- [`NumberValidator`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/number-validator.md)
+- [`StringValidator`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/string-validator.md)
+- [`TimeValidator`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/time-validator.md)
+- [`TimestampValidator`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/timestamp-validator.md)
+- [`TupleValidator`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/tuple-validator.md)
 
 ## Bindings
 

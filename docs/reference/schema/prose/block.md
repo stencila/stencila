@@ -1,9 +1,3 @@
----
-title:
-- type: Text
-  value: Block
----
-
 # Block
 
 **Union type for block content node types.**
@@ -14,23 +8,23 @@ title:
 
 The `Block` type has these members:
 
-- [`Call`](https://stencila.dev/docs/reference/schema/flow/call)
-- [`Claim`](https://stencila.dev/docs/reference/schema/works/claim)
-- [`CodeBlock`](https://stencila.dev/docs/reference/schema/code/code-block)
-- [`CodeChunk`](https://stencila.dev/docs/reference/schema/code/code-chunk)
-- [`Division`](https://stencila.dev/docs/reference/schema/style/division)
-- [`Figure`](https://stencila.dev/docs/reference/schema/works/figure)
-- [`For`](https://stencila.dev/docs/reference/schema/flow/for)
-- [`Form`](https://stencila.dev/docs/reference/schema/flow/form)
-- [`Heading`](https://stencila.dev/docs/reference/schema/prose/heading)
-- [`If`](https://stencila.dev/docs/reference/schema/flow/if)
-- [`Include`](https://stencila.dev/docs/reference/schema/flow/include)
-- [`List`](https://stencila.dev/docs/reference/schema/prose/list)
-- [`MathBlock`](https://stencila.dev/docs/reference/schema/math/math-block)
-- [`Paragraph`](https://stencila.dev/docs/reference/schema/prose/paragraph)
-- [`QuoteBlock`](https://stencila.dev/docs/reference/schema/prose/quote-block)
-- [`Table`](https://stencila.dev/docs/reference/schema/works/table)
-- [`ThematicBreak`](https://stencila.dev/docs/reference/schema/prose/thematic-break)
+- [`Call`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/call.md)
+- [`Claim`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/claim.md)
+- [`CodeBlock`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/code/code-block.md)
+- [`CodeChunk`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/code/code-chunk.md)
+- [`Division`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/style/division.md)
+- [`Figure`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/figure.md)
+- [`For`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/for.md)
+- [`Form`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/form.md)
+- [`Heading`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/heading.md)
+- [`If`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/if.md)
+- [`Include`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/include.md)
+- [`List`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/list.md)
+- [`MathBlock`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/math/math-block.md)
+- [`Paragraph`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/paragraph.md)
+- [`QuoteBlock`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/quote-block.md)
+- [`Table`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/table.md)
+- [`ThematicBreak`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/thematic-break.md)
 
 ## Bindings
 

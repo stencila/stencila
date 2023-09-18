@@ -1,9 +1,3 @@
----
-title:
-- type: Text
-  value: CitationMode
----
-
 # Citation Mode
 
 **The mode of a `Cite`.**

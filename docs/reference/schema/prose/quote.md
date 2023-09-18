@@ -1,9 +1,3 @@
----
-title:
-- type: Text
-  value: Quote
----
-
 # Quote
 
 **Inline, quoted content.**
@@ -14,33 +8,33 @@ title:
 
 The `Quote` type has these properties:
 
-| Name    | `@id`                                | Type                                                                                                                                 | Description                  | Inherited from                                                      |
-| ------- | ------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------ | ---------------------------- | ------------------------------------------------------------------- |
-| id      | [`schema:id`](https://schema.org/id) | [`String`](https://stencila.dev/docs/reference/schema/data/string)                                                                   | The identifier for this item | [`Entity`](https://stencila.dev/docs/reference/schema/other/entity) |
-| content | `stencila:content`                   | [`Inline`](https://stencila.dev/docs/reference/schema/prose/inline)*                                                                 | The content that is marked.  | [`Mark`](https://stencila.dev/docs/reference/schema/prose/mark)     |
-| cite    | `stencila:cite`                      | [`Cite`](https://stencila.dev/docs/reference/schema/prose/cite) \| [`String`](https://stencila.dev/docs/reference/schema/data/string) | The source of the quote.     | [`Quote`](https://stencila.dev/docs/reference/schema/prose/quote)   |
+| Name    | `@id`                                | Type                                                                                                                                                                                           | Description                  | Inherited from                                                                                   |
+| ------- | ------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------- | ------------------------------------------------------------------------------------------------ |
+| id      | [`schema:id`](https://schema.org/id) | [`String`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/string.md)                                                                                                | The identifier for this item | [`Entity`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/entity.md) |
+| content | `stencila:content`                   | [`Inline`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/inline.md)*                                                                                              | The content that is marked.  | [`Mark`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/mark.md)     |
+| cite    | `stencila:cite`                      | [`Cite`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/cite.md) \| [`String`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/string.md) | The source of the quote.     | [`Quote`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/quote.md)   |
 
 ## Related
 
 The `Quote` type is related to these types:
 
-- Parents: [`Mark`](https://stencila.dev/docs/reference/schema/prose/mark)
+- Parents: [`Mark`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/mark.md)
 - Children: none
 
 ## Formats
 
 The `Quote` type can be encoded (serialized) to, and/or decoded (deserialized) from, these formats:
 
-| Format                                                           | Encoding       | Decoding     | Status                 | Notes                                                                               |
-| ---------------------------------------------------------------- | -------------- | ------------ | ---------------------- | ----------------------------------------------------------------------------------- |
-| [HTML](https://stencila.dev/docs/reference/formats/{name})       | 🔷 Low loss     |              | 🚧 Under development    | Encoded to tag [`<q>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/q) |
-| [JATS](https://stencila.dev/docs/reference/formats/{name})       | 🔷 Low loss     |              | 🚧 Under development    |                                                                                     |
-| [Markdown](https://stencila.dev/docs/reference/formats/{name})   | 🟥 High loss    |              | 🚧 Under development    | Encoded using template `<q>{content}</q>`                                           |
-| [Plain text](https://stencila.dev/docs/reference/formats/{name}) | 🟥 High loss    |              | 🟥 Alpha                |                                                                                     |
-| [JSON](https://stencila.dev/docs/reference/formats/{name})       | 🟢 No loss      | 🟢 No loss    | 🟢 Stable               |                                                                                     |
-| [JSON5](https://stencila.dev/docs/reference/formats/{name})      | 🟢 No loss      | 🟢 No loss    | 🟢 Stable               |                                                                                     |
-| [YAML](https://stencila.dev/docs/reference/formats/{name})       | 🟢 No loss      | 🟢 No loss    | 🟢 Stable               |                                                                                     |
-| [Debug](https://stencila.dev/docs/reference/formats/{name})      | 🔷 Low loss     |              | 🟢 Stable               |                                                                                     |
+| Format                                                                                            | Encoding       | Decoding     | Status                 | Notes                                                                               |
+| ------------------------------------------------------------------------------------------------- | -------------- | ------------ | ---------------------- | ----------------------------------------------------------------------------------- |
+| [HTML](https://github.com/stencila/stencila/blob/main/docs/reference/formats/HTML.md)             | 🔷 Low loss     |              | 🚧 Under development    | Encoded to tag [`<q>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/q) |
+| [JATS](https://github.com/stencila/stencila/blob/main/docs/reference/formats/JATS.md)             | 🔷 Low loss     |              | 🚧 Under development    |                                                                                     |
+| [Markdown](https://github.com/stencila/stencila/blob/main/docs/reference/formats/Markdown.md)     | 🟥 High loss    |              | 🚧 Under development    | Encoded using template `<q>{content}</q>`                                           |
+| [Plain text](https://github.com/stencila/stencila/blob/main/docs/reference/formats/Plain text.md) | 🟥 High loss    |              | 🟥 Alpha                |                                                                                     |
+| [JSON](https://github.com/stencila/stencila/blob/main/docs/reference/formats/JSON.md)             | 🟢 No loss      | 🟢 No loss    | 🟢 Stable               |                                                                                     |
+| [JSON5](https://github.com/stencila/stencila/blob/main/docs/reference/formats/JSON5.md)           | 🟢 No loss      | 🟢 No loss    | 🟢 Stable               |                                                                                     |
+| [YAML](https://github.com/stencila/stencila/blob/main/docs/reference/formats/YAML.md)             | 🟢 No loss      | 🟢 No loss    | 🟢 Stable               |                                                                                     |
+| [Debug](https://github.com/stencila/stencila/blob/main/docs/reference/formats/Debug.md)           | 🔷 Low loss     |              | 🟢 Stable               |                                                                                     |
 
 ## Bindings
 

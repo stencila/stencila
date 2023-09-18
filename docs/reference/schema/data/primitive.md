@@ -1,9 +1,3 @@
----
-title:
-- type: Text
-  value: Primitive
----
-
 # Primitive
 
 **Union type for all primitives values**
@@ -21,14 +15,14 @@ treated in this schema as `Entity`s having a `type` property to disambiguate the
 
 The `Primitive` type has these members:
 
-- [`Null`](https://stencila.dev/docs/reference/schema/data/null)
-- [`Boolean`](https://stencila.dev/docs/reference/schema/data/boolean)
-- [`Integer`](https://stencila.dev/docs/reference/schema/data/integer)
-- [`UnsignedInteger`](https://stencila.dev/docs/reference/schema/data/unsigned-integer)
-- [`Number`](https://stencila.dev/docs/reference/schema/data/number)
-- [`String`](https://stencila.dev/docs/reference/schema/data/string)
-- [`Array`](https://stencila.dev/docs/reference/schema/data/array)
-- [`Object`](https://stencila.dev/docs/reference/schema/data/object)
+- [`Null`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/null.md)
+- [`Boolean`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/boolean.md)
+- [`Integer`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/integer.md)
+- [`UnsignedInteger`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/unsigned-integer.md)
+- [`Number`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/number.md)
+- [`String`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/string.md)
+- [`Array`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/array.md)
+- [`Object`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/object.md)
 
 ## Bindings
 

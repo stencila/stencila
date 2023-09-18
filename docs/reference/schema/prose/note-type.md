@@ -1,9 +1,3 @@
----
-title:
-- type: Text
-  value: NoteType
----
-
 # Note Type
 
 **The type of a `Note` which determines where the note content is displayed within the document..**

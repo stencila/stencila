@@ -1,9 +1,3 @@
----
-title:
-- type: Text
-  value: ExecutionDependantTarget
----
-
 # Execution Dependant Target
 
 **Node types that can be execution dependants**
@@ -14,15 +8,15 @@ title:
 
 The `ExecutionDependantTarget` type has these members:
 
-- [`Call`](https://stencila.dev/docs/reference/schema/flow/call)
-- [`CodeChunk`](https://stencila.dev/docs/reference/schema/code/code-chunk)
-- [`CodeExpression`](https://stencila.dev/docs/reference/schema/code/code-expression)
-- [`Division`](https://stencila.dev/docs/reference/schema/style/division)
-- [`If`](https://stencila.dev/docs/reference/schema/flow/if)
-- [`File`](https://stencila.dev/docs/reference/schema/works/file)
-- [`For`](https://stencila.dev/docs/reference/schema/flow/for)
-- [`Span`](https://stencila.dev/docs/reference/schema/style/span)
-- [`Variable`](https://stencila.dev/docs/reference/schema/flow/variable)
+- [`Call`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/call.md)
+- [`CodeChunk`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/code/code-chunk.md)
+- [`CodeExpression`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/code/code-expression.md)
+- [`Division`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/style/division.md)
+- [`If`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/if.md)
+- [`File`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/file.md)
+- [`For`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/for.md)
+- [`Span`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/style/span.md)
+- [`Variable`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/variable.md)
 
 ## Bindings
 

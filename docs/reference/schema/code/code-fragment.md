@@ -1,9 +1,3 @@
----
-title:
-- type: Text
-  value: CodeFragment
----
-
 # Code Fragment
 
 **Inline code.**
@@ -14,33 +8,33 @@ title:
 
 The `CodeFragment` type has these properties:
 
-| Name                | `@id`                                                                  | Type                                                               | Description                           | Inherited from                                                              |
-| ------------------- | ---------------------------------------------------------------------- | ------------------------------------------------------------------ | ------------------------------------- | --------------------------------------------------------------------------- |
-| id                  | [`schema:id`](https://schema.org/id)                                   | [`String`](https://stencila.dev/docs/reference/schema/data/string) | The identifier for this item          | [`Entity`](https://stencila.dev/docs/reference/schema/other/entity)         |
-| code                | `stencila:code`                                                        | [`Cord`](https://stencila.dev/docs/reference/schema/data/cord)     | The code.                             | [`CodeStatic`](https://stencila.dev/docs/reference/schema/code/code-static) |
-| programmingLanguage | [`schema:programmingLanguage`](https://schema.org/programmingLanguage) | [`String`](https://stencila.dev/docs/reference/schema/data/string) | The programming language of the code. | [`CodeStatic`](https://stencila.dev/docs/reference/schema/code/code-static) |
+| Name                | `@id`                                                                  | Type                                                                                            | Description                           | Inherited from                                                                                           |
+| ------------------- | ---------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------- | ------------------------------------- | -------------------------------------------------------------------------------------------------------- |
+| id                  | [`schema:id`](https://schema.org/id)                                   | [`String`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/string.md) | The identifier for this item          | [`Entity`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/entity.md)         |
+| code                | `stencila:code`                                                        | [`Cord`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/cord.md)     | The code.                             | [`CodeStatic`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/code/code-static.md) |
+| programmingLanguage | [`schema:programmingLanguage`](https://schema.org/programmingLanguage) | [`String`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/string.md) | The programming language of the code. | [`CodeStatic`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/code/code-static.md) |
 
 ## Related
 
 The `CodeFragment` type is related to these types:
 
-- Parents: [`CodeStatic`](https://stencila.dev/docs/reference/schema/code/code-static)
+- Parents: [`CodeStatic`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/code/code-static.md)
 - Children: none
 
 ## Formats
 
 The `CodeFragment` type can be encoded (serialized) to, and/or decoded (deserialized) from, these formats:
 
-| Format                                                           | Encoding       | Decoding     | Status                 | Notes                                                                                                       |
-| ---------------------------------------------------------------- | -------------- | ------------ | ---------------------- | ----------------------------------------------------------------------------------------------------------- |
-| [HTML](https://stencila.dev/docs/reference/formats/{name})       | 🔷 Low loss     |              | 🚧 Under development    | Encoded to tag [`<code>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/code)                   |
-| [JATS](https://stencila.dev/docs/reference/formats/{name})       | 🔷 Low loss     |              | 🚧 Under development    | Encoded to tag [`<monospace>`](https://jats.nlm.nih.gov/articleauthoring/tag-library/1.3/element/monospace) |
-| [Markdown](https://stencila.dev/docs/reference/formats/{name})   | 🟢 No loss      |              | 🚧 Under development    | Encoded using special function                                                                              |
-| [Plain text](https://stencila.dev/docs/reference/formats/{name}) | 🟥 High loss    |              | 🟥 Alpha                |                                                                                                             |
-| [JSON](https://stencila.dev/docs/reference/formats/{name})       | 🟢 No loss      | 🟢 No loss    | 🟢 Stable               |                                                                                                             |
-| [JSON5](https://stencila.dev/docs/reference/formats/{name})      | 🟢 No loss      | 🟢 No loss    | 🟢 Stable               |                                                                                                             |
-| [YAML](https://stencila.dev/docs/reference/formats/{name})       | 🟢 No loss      | 🟢 No loss    | 🟢 Stable               |                                                                                                             |
-| [Debug](https://stencila.dev/docs/reference/formats/{name})      | 🔷 Low loss     |              | 🟢 Stable               |                                                                                                             |
+| Format                                                                                            | Encoding       | Decoding     | Status                 | Notes                                                                                                       |
+| ------------------------------------------------------------------------------------------------- | -------------- | ------------ | ---------------------- | ----------------------------------------------------------------------------------------------------------- |
+| [HTML](https://github.com/stencila/stencila/blob/main/docs/reference/formats/HTML.md)             | 🔷 Low loss     |              | 🚧 Under development    | Encoded to tag [`<code>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/code)                   |
+| [JATS](https://github.com/stencila/stencila/blob/main/docs/reference/formats/JATS.md)             | 🔷 Low loss     |              | 🚧 Under development    | Encoded to tag [`<monospace>`](https://jats.nlm.nih.gov/articleauthoring/tag-library/1.3/element/monospace) |
+| [Markdown](https://github.com/stencila/stencila/blob/main/docs/reference/formats/Markdown.md)     | 🟢 No loss      |              | 🚧 Under development    | Encoded using special function                                                                              |
+| [Plain text](https://github.com/stencila/stencila/blob/main/docs/reference/formats/Plain text.md) | 🟥 High loss    |              | 🟥 Alpha                |                                                                                                             |
+| [JSON](https://github.com/stencila/stencila/blob/main/docs/reference/formats/JSON.md)             | 🟢 No loss      | 🟢 No loss    | 🟢 Stable               |                                                                                                             |
+| [JSON5](https://github.com/stencila/stencila/blob/main/docs/reference/formats/JSON5.md)           | 🟢 No loss      | 🟢 No loss    | 🟢 Stable               |                                                                                                             |
+| [YAML](https://github.com/stencila/stencila/blob/main/docs/reference/formats/YAML.md)             | 🟢 No loss      | 🟢 No loss    | 🟢 Stable               |                                                                                                             |
+| [Debug](https://github.com/stencila/stencila/blob/main/docs/reference/formats/Debug.md)           | 🔷 Low loss     |              | 🟢 Stable               |                                                                                                             |
 
 ## Bindings
 

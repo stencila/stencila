@@ -1,9 +1,3 @@
----
-title:
-- type: Text
-  value: Mark
----
-
 # Mark
 
 **Abstract base class for nodes that mark some other inline content
@@ -16,17 +10,17 @@ in some way (e.g. as being emphasised, or quoted).
 
 The `Mark` type has these properties:
 
-| Name    | `@id`                                | Type                                                                 | Description                  | Inherited from                                                      |
-| ------- | ------------------------------------ | -------------------------------------------------------------------- | ---------------------------- | ------------------------------------------------------------------- |
-| id      | [`schema:id`](https://schema.org/id) | [`String`](https://stencila.dev/docs/reference/schema/data/string)   | The identifier for this item | [`Entity`](https://stencila.dev/docs/reference/schema/other/entity) |
-| content | `stencila:content`                   | [`Inline`](https://stencila.dev/docs/reference/schema/prose/inline)* | The content that is marked.  | [`Mark`](https://stencila.dev/docs/reference/schema/prose/mark)     |
+| Name    | `@id`                                | Type                                                                                              | Description                  | Inherited from                                                                                   |
+| ------- | ------------------------------------ | ------------------------------------------------------------------------------------------------- | ---------------------------- | ------------------------------------------------------------------------------------------------ |
+| id      | [`schema:id`](https://schema.org/id) | [`String`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/string.md)   | The identifier for this item | [`Entity`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/entity.md) |
+| content | `stencila:content`                   | [`Inline`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/inline.md)* | The content that is marked.  | [`Mark`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/mark.md)     |
 
 ## Related
 
 The `Mark` type is related to these types:
 
-- Parents: [`Entity`](https://stencila.dev/docs/reference/schema/other/entity)
-- Children: [`Emphasis`](https://stencila.dev/docs/reference/schema/prose/emphasis), [`Quote`](https://stencila.dev/docs/reference/schema/prose/quote), [`Strikeout`](https://stencila.dev/docs/reference/schema/prose/strikeout), [`Strong`](https://stencila.dev/docs/reference/schema/prose/strong), [`Subscript`](https://stencila.dev/docs/reference/schema/prose/subscript), [`Superscript`](https://stencila.dev/docs/reference/schema/prose/superscript), [`Underline`](https://stencila.dev/docs/reference/schema/prose/underline)
+- Parents: [`Entity`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/entity.md)
+- Children: [`Emphasis`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/emphasis.md), [`Quote`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/quote.md), [`Strikeout`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/strikeout.md), [`Strong`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/strong.md), [`Subscript`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/subscript.md), [`Superscript`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/superscript.md), [`Underline`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/underline.md)
 
 ## Bindings
 

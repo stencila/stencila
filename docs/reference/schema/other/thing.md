@@ -1,9 +1,3 @@
----
-title:
-- type: Text
-  value: Thing
----
-
 # Thing
 
 **The most generic type of item.**
@@ -14,37 +8,37 @@ title:
 
 The `Thing` type has these properties:
 
-| Name           | `@id`                                                      | Type                                                                                                                                                       | Description                                   | Inherited from                                                      |
-| -------------- | ---------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------- | ------------------------------------------------------------------- |
-| id             | [`schema:id`](https://schema.org/id)                       | [`String`](https://stencila.dev/docs/reference/schema/data/string)                                                                                         | The identifier for this item                  | [`Entity`](https://stencila.dev/docs/reference/schema/other/entity) |
-| alternateNames | [`schema:alternateName`](https://schema.org/alternateName) | [`String`](https://stencila.dev/docs/reference/schema/data/string)*                                                                                        | Alternate names (aliases) for the item.       | [`Thing`](https://stencila.dev/docs/reference/schema/other/thing)   |
-| description    | [`schema:description`](https://schema.org/description)     | [`Block`](https://stencila.dev/docs/reference/schema/prose/block)*                                                                                         | A description of the item.                    | [`Thing`](https://stencila.dev/docs/reference/schema/other/thing)   |
-| identifiers    | [`schema:identifier`](https://schema.org/identifier)       | ([`PropertyValue`](https://stencila.dev/docs/reference/schema/other/property-value) \| [`String`](https://stencila.dev/docs/reference/schema/data/string))* | Any kind of identifier for any kind of Thing. | [`Thing`](https://stencila.dev/docs/reference/schema/other/thing)   |
-| images         | [`schema:image`](https://schema.org/image)                 | ([`ImageObject`](https://stencila.dev/docs/reference/schema/works/image-object) \| [`String`](https://stencila.dev/docs/reference/schema/data/string))*    | Images of the item.                           | [`Thing`](https://stencila.dev/docs/reference/schema/other/thing)   |
-| name           | [`schema:name`](https://schema.org/name)                   | [`String`](https://stencila.dev/docs/reference/schema/data/string)                                                                                         | The name of the item.                         | [`Thing`](https://stencila.dev/docs/reference/schema/other/thing)   |
-| url            | [`schema:url`](https://schema.org/url)                     | [`String`](https://stencila.dev/docs/reference/schema/data/string)                                                                                         | The URL of the item.                          | [`Thing`](https://stencila.dev/docs/reference/schema/other/thing)   |
+| Name           | `@id`                                                      | Type                                                                                                                                                                                                                 | Description                                   | Inherited from                                                                                   |
+| -------------- | ---------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------- | ------------------------------------------------------------------------------------------------ |
+| id             | [`schema:id`](https://schema.org/id)                       | [`String`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/string.md)                                                                                                                      | The identifier for this item                  | [`Entity`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/entity.md) |
+| alternateNames | [`schema:alternateName`](https://schema.org/alternateName) | [`String`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/string.md)*                                                                                                                     | Alternate names (aliases) for the item.       | [`Thing`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/thing.md)   |
+| description    | [`schema:description`](https://schema.org/description)     | [`Block`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/block.md)*                                                                                                                      | A description of the item.                    | [`Thing`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/thing.md)   |
+| identifiers    | [`schema:identifier`](https://schema.org/identifier)       | ([`PropertyValue`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/property-value.md) \| [`String`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/string.md))* | Any kind of identifier for any kind of Thing. | [`Thing`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/thing.md)   |
+| images         | [`schema:image`](https://schema.org/image)                 | ([`ImageObject`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/image-object.md) \| [`String`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/string.md))*    | Images of the item.                           | [`Thing`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/thing.md)   |
+| name           | [`schema:name`](https://schema.org/name)                   | [`String`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/string.md)                                                                                                                      | The name of the item.                         | [`Thing`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/thing.md)   |
+| url            | [`schema:url`](https://schema.org/url)                     | [`String`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/string.md)                                                                                                                      | The URL of the item.                          | [`Thing`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/thing.md)   |
 
 ## Related
 
 The `Thing` type is related to these types:
 
-- Parents: [`Entity`](https://stencila.dev/docs/reference/schema/other/entity)
-- Children: [`Brand`](https://stencila.dev/docs/reference/schema/other/brand), [`ContactPoint`](https://stencila.dev/docs/reference/schema/other/contact-point), [`CreativeWork`](https://stencila.dev/docs/reference/schema/works/creative-work), [`DatatableColumn`](https://stencila.dev/docs/reference/schema/data/datatable-column), [`DefinedTerm`](https://stencila.dev/docs/reference/schema/prose/defined-term), [`Enumeration`](https://stencila.dev/docs/reference/schema/other/enumeration), [`Grant`](https://stencila.dev/docs/reference/schema/other/grant), [`ListItem`](https://stencila.dev/docs/reference/schema/prose/list-item), [`Organization`](https://stencila.dev/docs/reference/schema/other/organization), [`Person`](https://stencila.dev/docs/reference/schema/other/person), [`Product`](https://stencila.dev/docs/reference/schema/other/product), [`PropertyValue`](https://stencila.dev/docs/reference/schema/other/property-value)
+- Parents: [`Entity`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/entity.md)
+- Children: [`Brand`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/brand.md), [`ContactPoint`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/contact-point.md), [`CreativeWork`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/creative-work.md), [`DatatableColumn`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/datatable-column.md), [`DefinedTerm`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/defined-term.md), [`Enumeration`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/enumeration.md), [`Grant`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/grant.md), [`ListItem`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/list-item.md), [`Organization`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/organization.md), [`Person`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/person.md), [`Product`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/product.md), [`PropertyValue`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/property-value.md)
 
 ## Formats
 
 The `Thing` type can be encoded (serialized) to, and/or decoded (deserialized) from, these formats:
 
-| Format                                                           | Encoding       | Decoding     | Status                 | Notes |
-| ---------------------------------------------------------------- | -------------- | ------------ | ---------------------- | ----- |
-| [HTML](https://stencila.dev/docs/reference/formats/{name})       | 🔷 Low loss     |              | 🚧 Under development    |       |
-| [JATS](https://stencila.dev/docs/reference/formats/{name})       | 🔷 Low loss     |              | 🚧 Under development    |       |
-| [Markdown](https://stencila.dev/docs/reference/formats/{name})   | 🟥 High loss    |              | 🚧 Under development    |       |
-| [Plain text](https://stencila.dev/docs/reference/formats/{name}) | 🟥 High loss    |              | 🟥 Alpha                |       |
-| [JSON](https://stencila.dev/docs/reference/formats/{name})       | 🟢 No loss      | 🟢 No loss    | 🟢 Stable               |       |
-| [JSON5](https://stencila.dev/docs/reference/formats/{name})      | 🟢 No loss      | 🟢 No loss    | 🟢 Stable               |       |
-| [YAML](https://stencila.dev/docs/reference/formats/{name})       | 🟢 No loss      | 🟢 No loss    | 🟢 Stable               |       |
-| [Debug](https://stencila.dev/docs/reference/formats/{name})      | 🔷 Low loss     |              | 🟢 Stable               |       |
+| Format                                                                                            | Encoding       | Decoding     | Status                 | Notes |
+| ------------------------------------------------------------------------------------------------- | -------------- | ------------ | ---------------------- | ----- |
+| [HTML](https://github.com/stencila/stencila/blob/main/docs/reference/formats/HTML.md)             | 🔷 Low loss     |              | 🚧 Under development    |       |
+| [JATS](https://github.com/stencila/stencila/blob/main/docs/reference/formats/JATS.md)             | 🔷 Low loss     |              | 🚧 Under development    |       |
+| [Markdown](https://github.com/stencila/stencila/blob/main/docs/reference/formats/Markdown.md)     | 🟥 High loss    |              | 🚧 Under development    |       |
+| [Plain text](https://github.com/stencila/stencila/blob/main/docs/reference/formats/Plain text.md) | 🟥 High loss    |              | 🟥 Alpha                |       |
+| [JSON](https://github.com/stencila/stencila/blob/main/docs/reference/formats/JSON.md)             | 🟢 No loss      | 🟢 No loss    | 🟢 Stable               |       |
+| [JSON5](https://github.com/stencila/stencila/blob/main/docs/reference/formats/JSON5.md)           | 🟢 No loss      | 🟢 No loss    | 🟢 Stable               |       |
+| [YAML](https://github.com/stencila/stencila/blob/main/docs/reference/formats/YAML.md)             | 🟢 No loss      | 🟢 No loss    | 🟢 Stable               |       |
+| [Debug](https://github.com/stencila/stencila/blob/main/docs/reference/formats/Debug.md)           | 🔷 Low loss     |              | 🟢 Stable               |       |
 
 ## Bindings
 

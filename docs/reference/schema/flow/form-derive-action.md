@@ -1,9 +1,3 @@
----
-title:
-- type: Text
-  value: FormDeriveAction
----
-
 # Form Derive Action
 
 **Indicates the action (create, update or delete) to derive for a `Form`.**

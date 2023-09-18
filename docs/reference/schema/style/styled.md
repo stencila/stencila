@@ -1,9 +1,3 @@
----
-title:
-- type: Text
-  value: Styled
----
-
 # Styled
 
 **An abstract base class for a document node that has styling applied to it and/or its content**
@@ -22,22 +16,22 @@ This type is marked as experimental and is likely to change.
 
 The `Styled` type has these properties:
 
-| Name          | `@id`                                | Type                                                                                  | Description                                                                | Inherited from                                                      |
-| ------------- | ------------------------------------ | ------------------------------------------------------------------------------------- | -------------------------------------------------------------------------- | ------------------------------------------------------------------- |
-| id            | [`schema:id`](https://schema.org/id) | [`String`](https://stencila.dev/docs/reference/schema/data/string)                    | The identifier for this item                                               | [`Entity`](https://stencila.dev/docs/reference/schema/other/entity) |
-| code          | `stencila:code`                      | [`Cord`](https://stencila.dev/docs/reference/schema/data/cord)                        | The code of the equation in the `styleLanguage`.                           | [`Styled`](https://stencila.dev/docs/reference/schema/style/styled) |
-| styleLanguage | `stencila:styleLanguage`             | [`String`](https://stencila.dev/docs/reference/schema/data/string)                    | The language used for the style specification e.g. css, tailwind, classes. | [`Styled`](https://stencila.dev/docs/reference/schema/style/styled) |
-| compileDigest | `stencila:compileDigest`             | [`ExecutionDigest`](https://stencila.dev/docs/reference/schema/flow/execution-digest) | A digest of the `code` and `styleLanguage`.                                | [`Styled`](https://stencila.dev/docs/reference/schema/style/styled) |
-| errors        | `stencila:errors`                    | [`String`](https://stencila.dev/docs/reference/schema/data/string)*                   | Errors that occurred when transpiling the `code`.                          | [`Styled`](https://stencila.dev/docs/reference/schema/style/styled) |
-| css           | `stencila:css`                       | [`String`](https://stencila.dev/docs/reference/schema/data/string)                    | A Cascading Style Sheet (CSS) transpiled from the `code` property.         | [`Styled`](https://stencila.dev/docs/reference/schema/style/styled) |
-| classes       | `stencila:classes`                   | [`String`](https://stencila.dev/docs/reference/schema/data/string)*                   | A list of class names associated with the node                             | [`Styled`](https://stencila.dev/docs/reference/schema/style/styled) |
+| Name          | `@id`                                | Type                                                                                                               | Description                                                                | Inherited from                                                                                   |
+| ------------- | ------------------------------------ | ------------------------------------------------------------------------------------------------------------------ | -------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------ |
+| id            | [`schema:id`](https://schema.org/id) | [`String`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/string.md)                    | The identifier for this item                                               | [`Entity`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/entity.md) |
+| code          | `stencila:code`                      | [`Cord`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/cord.md)                        | The code of the equation in the `styleLanguage`.                           | [`Styled`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/style/styled.md) |
+| styleLanguage | `stencila:styleLanguage`             | [`String`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/string.md)                    | The language used for the style specification e.g. css, tailwind, classes. | [`Styled`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/style/styled.md) |
+| compileDigest | `stencila:compileDigest`             | [`ExecutionDigest`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/execution-digest.md) | A digest of the `code` and `styleLanguage`.                                | [`Styled`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/style/styled.md) |
+| errors        | `stencila:errors`                    | [`String`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/string.md)*                   | Errors that occurred when transpiling the `code`.                          | [`Styled`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/style/styled.md) |
+| css           | `stencila:css`                       | [`String`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/string.md)                    | A Cascading Style Sheet (CSS) transpiled from the `code` property.         | [`Styled`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/style/styled.md) |
+| classes       | `stencila:classes`                   | [`String`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/string.md)*                   | A list of class names associated with the node                             | [`Styled`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/style/styled.md) |
 
 ## Related
 
 The `Styled` type is related to these types:
 
-- Parents: [`Entity`](https://stencila.dev/docs/reference/schema/other/entity)
-- Children: [`Division`](https://stencila.dev/docs/reference/schema/style/division), [`Span`](https://stencila.dev/docs/reference/schema/style/span)
+- Parents: [`Entity`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/entity.md)
+- Children: [`Division`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/style/division.md), [`Span`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/style/span.md)
 
 ## Bindings
 

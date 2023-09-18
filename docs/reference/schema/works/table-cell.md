@@ -1,9 +1,3 @@
----
-title:
-- type: Text
-  value: TableCell
----
-
 # Table Cell
 
 **A cell within a `Table`.**
@@ -14,36 +8,36 @@ title:
 
 The `TableCell` type has these properties:
 
-| Name       | `@id`                                    | Type                                                                                                                                      | Description                         | Inherited from                                                             |
-| ---------- | ---------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------- | -------------------------------------------------------------------------- |
-| id         | [`schema:id`](https://schema.org/id)     | [`String`](https://stencila.dev/docs/reference/schema/data/string)                                                                        | The identifier for this item        | [`Entity`](https://stencila.dev/docs/reference/schema/other/entity)        |
-| cellType   | `stencila:cellType`                      | [`TableCellType`](https://stencila.dev/docs/reference/schema/works/table-cell-type)                                                       | The type of cell.                   | [`TableCell`](https://stencila.dev/docs/reference/schema/works/table-cell) |
-| name       | [`schema:name`](https://schema.org/name) | [`String`](https://stencila.dev/docs/reference/schema/data/string)                                                                        | The name of the cell.               | [`TableCell`](https://stencila.dev/docs/reference/schema/works/table-cell) |
-| columnSpan | `stencila:colspan`                       | [`Integer`](https://stencila.dev/docs/reference/schema/data/integer)                                                                      | How many columns the cell extends.  | [`TableCell`](https://stencila.dev/docs/reference/schema/works/table-cell) |
-| rowSpan    | `stencila:rowspan`                       | [`Integer`](https://stencila.dev/docs/reference/schema/data/integer)                                                                      | How many columns the cell extends.  | [`TableCell`](https://stencila.dev/docs/reference/schema/works/table-cell) |
-| content    | `stencila:content`                       | [`Block`](https://stencila.dev/docs/reference/schema/prose/block)* \| [`Inline`](https://stencila.dev/docs/reference/schema/prose/inline)* | Contents of the table cell.         | [`TableCell`](https://stencila.dev/docs/reference/schema/works/table-cell) |
+| Name       | `@id`                                    | Type                                                                                                                                                                                                | Description                         | Inherited from                                                                                          |
+| ---------- | ---------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------- | ------------------------------------------------------------------------------------------------------- |
+| id         | [`schema:id`](https://schema.org/id)     | [`String`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/string.md)                                                                                                     | The identifier for this item        | [`Entity`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/entity.md)        |
+| cellType   | `stencila:cellType`                      | [`TableCellType`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/table-cell-type.md)                                                                                    | The type of cell.                   | [`TableCell`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/table-cell.md) |
+| name       | [`schema:name`](https://schema.org/name) | [`String`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/string.md)                                                                                                     | The name of the cell.               | [`TableCell`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/table-cell.md) |
+| columnSpan | `stencila:colspan`                       | [`Integer`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/integer.md)                                                                                                   | How many columns the cell extends.  | [`TableCell`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/table-cell.md) |
+| rowSpan    | `stencila:rowspan`                       | [`Integer`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/integer.md)                                                                                                   | How many columns the cell extends.  | [`TableCell`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/table-cell.md) |
+| content    | `stencila:content`                       | [`Block`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/block.md)* \| [`Inline`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/inline.md)* | Contents of the table cell.         | [`TableCell`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/table-cell.md) |
 
 ## Related
 
 The `TableCell` type is related to these types:
 
-- Parents: [`Entity`](https://stencila.dev/docs/reference/schema/other/entity)
+- Parents: [`Entity`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/entity.md)
 - Children: none
 
 ## Formats
 
 The `TableCell` type can be encoded (serialized) to, and/or decoded (deserialized) from, these formats:
 
-| Format                                                           | Encoding       | Decoding     | Status                 | Notes                                                                                 |
-| ---------------------------------------------------------------- | -------------- | ------------ | ---------------------- | ------------------------------------------------------------------------------------- |
-| [HTML](https://stencila.dev/docs/reference/formats/{name})       | 🔷 Low loss     |              | 🚧 Under development    | Encoded to tag [`<td>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/td) |
-| [JATS](https://stencila.dev/docs/reference/formats/{name})       | 🔷 Low loss     |              | 🚧 Under development    |                                                                                       |
-| [Markdown](https://stencila.dev/docs/reference/formats/{name})   | 🔷 Low loss     |              | 🚧 Under development    |                                                                                       |
-| [Plain text](https://stencila.dev/docs/reference/formats/{name}) | 🟥 High loss    |              | 🟥 Alpha                |                                                                                       |
-| [JSON](https://stencila.dev/docs/reference/formats/{name})       | 🟢 No loss      | 🟢 No loss    | 🟢 Stable               |                                                                                       |
-| [JSON5](https://stencila.dev/docs/reference/formats/{name})      | 🟢 No loss      | 🟢 No loss    | 🟢 Stable               |                                                                                       |
-| [YAML](https://stencila.dev/docs/reference/formats/{name})       | 🟢 No loss      | 🟢 No loss    | 🟢 Stable               |                                                                                       |
-| [Debug](https://stencila.dev/docs/reference/formats/{name})      | 🔷 Low loss     |              | 🟢 Stable               |                                                                                       |
+| Format                                                                                            | Encoding       | Decoding     | Status                 | Notes                                                                                 |
+| ------------------------------------------------------------------------------------------------- | -------------- | ------------ | ---------------------- | ------------------------------------------------------------------------------------- |
+| [HTML](https://github.com/stencila/stencila/blob/main/docs/reference/formats/HTML.md)             | 🔷 Low loss     |              | 🚧 Under development    | Encoded to tag [`<td>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/td) |
+| [JATS](https://github.com/stencila/stencila/blob/main/docs/reference/formats/JATS.md)             | 🔷 Low loss     |              | 🚧 Under development    |                                                                                       |
+| [Markdown](https://github.com/stencila/stencila/blob/main/docs/reference/formats/Markdown.md)     | 🔷 Low loss     |              | 🚧 Under development    |                                                                                       |
+| [Plain text](https://github.com/stencila/stencila/blob/main/docs/reference/formats/Plain text.md) | 🟥 High loss    |              | 🟥 Alpha                |                                                                                       |
+| [JSON](https://github.com/stencila/stencila/blob/main/docs/reference/formats/JSON.md)             | 🟢 No loss      | 🟢 No loss    | 🟢 Stable               |                                                                                       |
+| [JSON5](https://github.com/stencila/stencila/blob/main/docs/reference/formats/JSON5.md)           | 🟢 No loss      | 🟢 No loss    | 🟢 Stable               |                                                                                       |
+| [YAML](https://github.com/stencila/stencila/blob/main/docs/reference/formats/YAML.md)             | 🟢 No loss      | 🟢 No loss    | 🟢 Stable               |                                                                                       |
+| [Debug](https://github.com/stencila/stencila/blob/main/docs/reference/formats/Debug.md)           | 🔷 Low loss     |              | 🟢 Stable               |                                                                                       |
 
 ## Bindings
 

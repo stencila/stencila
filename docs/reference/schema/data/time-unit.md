@@ -1,9 +1,3 @@
----
-title:
-- type: Text
-  value: TimeUnit
----
-
 # Time Unit
 
 **A unit in which time can be measured**

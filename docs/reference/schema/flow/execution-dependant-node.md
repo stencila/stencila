@@ -1,9 +1,3 @@
----
-title:
-- type: Text
-  value: ExecutionDependantNode
----
-
 # Execution Dependant Node
 
 **Node types that can be execution dependencies**
@@ -14,15 +8,15 @@ title:
 
 The `ExecutionDependantNode` type has these members:
 
-- [`Button`](https://stencila.dev/docs/reference/schema/flow/button)
-- [`Call`](https://stencila.dev/docs/reference/schema/flow/call)
-- [`CodeChunk`](https://stencila.dev/docs/reference/schema/code/code-chunk)
-- [`CodeExpression`](https://stencila.dev/docs/reference/schema/code/code-expression)
-- [`Division`](https://stencila.dev/docs/reference/schema/style/division)
-- [`File`](https://stencila.dev/docs/reference/schema/works/file)
-- [`Parameter`](https://stencila.dev/docs/reference/schema/flow/parameter)
-- [`Span`](https://stencila.dev/docs/reference/schema/style/span)
-- [`Variable`](https://stencila.dev/docs/reference/schema/flow/variable)
+- [`Button`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/button.md)
+- [`Call`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/call.md)
+- [`CodeChunk`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/code/code-chunk.md)
+- [`CodeExpression`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/code/code-expression.md)
+- [`Division`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/style/division.md)
+- [`File`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/file.md)
+- [`Parameter`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/parameter.md)
+- [`Span`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/style/span.md)
+- [`Variable`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/variable.md)
 
 ## Bindings
 

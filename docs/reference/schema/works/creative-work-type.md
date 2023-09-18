@@ -1,9 +1,3 @@
----
-title:
-- type: Text
-  value: CreativeWorkType
----
-
 # Creative Work Type
 
 **Union type for all types that are descended from `CreativeWork`**
@@ -12,25 +6,25 @@ title:
 
 The `CreativeWorkType` type has these members:
 
-- [`Article`](https://stencila.dev/docs/reference/schema/works/article)
-- [`AudioObject`](https://stencila.dev/docs/reference/schema/works/audio-object)
-- [`Claim`](https://stencila.dev/docs/reference/schema/works/claim)
-- [`Collection`](https://stencila.dev/docs/reference/schema/works/collection)
-- [`Comment`](https://stencila.dev/docs/reference/schema/works/comment)
-- [`Datatable`](https://stencila.dev/docs/reference/schema/data/datatable)
-- [`Directory`](https://stencila.dev/docs/reference/schema/works/directory)
-- [`Figure`](https://stencila.dev/docs/reference/schema/works/figure)
-- [`File`](https://stencila.dev/docs/reference/schema/works/file)
-- [`ImageObject`](https://stencila.dev/docs/reference/schema/works/image-object)
-- [`MediaObject`](https://stencila.dev/docs/reference/schema/works/media-object)
-- [`Periodical`](https://stencila.dev/docs/reference/schema/works/periodical)
-- [`PublicationIssue`](https://stencila.dev/docs/reference/schema/works/publication-issue)
-- [`PublicationVolume`](https://stencila.dev/docs/reference/schema/works/publication-volume)
-- [`Review`](https://stencila.dev/docs/reference/schema/works/review)
-- [`SoftwareApplication`](https://stencila.dev/docs/reference/schema/works/software-application)
-- [`SoftwareSourceCode`](https://stencila.dev/docs/reference/schema/works/software-source-code)
-- [`Table`](https://stencila.dev/docs/reference/schema/works/table)
-- [`VideoObject`](https://stencila.dev/docs/reference/schema/works/video-object)
+- [`Article`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/article.md)
+- [`AudioObject`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/audio-object.md)
+- [`Claim`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/claim.md)
+- [`Collection`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/collection.md)
+- [`Comment`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/comment.md)
+- [`Datatable`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/datatable.md)
+- [`Directory`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/directory.md)
+- [`Figure`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/figure.md)
+- [`File`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/file.md)
+- [`ImageObject`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/image-object.md)
+- [`MediaObject`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/media-object.md)
+- [`Periodical`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/periodical.md)
+- [`PublicationIssue`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/publication-issue.md)
+- [`PublicationVolume`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/publication-volume.md)
+- [`Review`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/review.md)
+- [`SoftwareApplication`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/software-application.md)
+- [`SoftwareSourceCode`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/software-source-code.md)
+- [`Table`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/table.md)
+- [`VideoObject`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/video-object.md)
 
 ## Bindings
 

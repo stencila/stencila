@@ -1,9 +1,3 @@
----
-title:
-- type: Text
-  value: Inline
----
-
 # Inline
 
 **Union type for valid inline content.**
@@ -14,37 +8,37 @@ title:
 
 The `Inline` type has these members:
 
-- [`AudioObject`](https://stencila.dev/docs/reference/schema/works/audio-object)
-- [`Button`](https://stencila.dev/docs/reference/schema/flow/button)
-- [`Cite`](https://stencila.dev/docs/reference/schema/prose/cite)
-- [`CiteGroup`](https://stencila.dev/docs/reference/schema/prose/cite-group)
-- [`CodeExpression`](https://stencila.dev/docs/reference/schema/code/code-expression)
-- [`CodeFragment`](https://stencila.dev/docs/reference/schema/code/code-fragment)
-- [`Date`](https://stencila.dev/docs/reference/schema/data/date)
-- [`DateTime`](https://stencila.dev/docs/reference/schema/data/date-time)
-- [`Duration`](https://stencila.dev/docs/reference/schema/data/duration)
-- [`Emphasis`](https://stencila.dev/docs/reference/schema/prose/emphasis)
-- [`ImageObject`](https://stencila.dev/docs/reference/schema/works/image-object)
-- [`Link`](https://stencila.dev/docs/reference/schema/prose/link)
-- [`MathFragment`](https://stencila.dev/docs/reference/schema/math/math-fragment)
-- [`Note`](https://stencila.dev/docs/reference/schema/prose/note)
-- [`Parameter`](https://stencila.dev/docs/reference/schema/flow/parameter)
-- [`Quote`](https://stencila.dev/docs/reference/schema/prose/quote)
-- [`Span`](https://stencila.dev/docs/reference/schema/style/span)
-- [`Strikeout`](https://stencila.dev/docs/reference/schema/prose/strikeout)
-- [`Strong`](https://stencila.dev/docs/reference/schema/prose/strong)
-- [`Subscript`](https://stencila.dev/docs/reference/schema/prose/subscript)
-- [`Superscript`](https://stencila.dev/docs/reference/schema/prose/superscript)
-- [`Text`](https://stencila.dev/docs/reference/schema/prose/text)
-- [`Time`](https://stencila.dev/docs/reference/schema/data/time)
-- [`Timestamp`](https://stencila.dev/docs/reference/schema/data/timestamp)
-- [`Underline`](https://stencila.dev/docs/reference/schema/prose/underline)
-- [`VideoObject`](https://stencila.dev/docs/reference/schema/works/video-object)
-- [`Null`](https://stencila.dev/docs/reference/schema/data/null)
-- [`Boolean`](https://stencila.dev/docs/reference/schema/data/boolean)
-- [`Integer`](https://stencila.dev/docs/reference/schema/data/integer)
-- [`Number`](https://stencila.dev/docs/reference/schema/data/number)
-- [`String`](https://stencila.dev/docs/reference/schema/data/string)
+- [`AudioObject`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/audio-object.md)
+- [`Button`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/button.md)
+- [`Cite`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/cite.md)
+- [`CiteGroup`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/cite-group.md)
+- [`CodeExpression`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/code/code-expression.md)
+- [`CodeFragment`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/code/code-fragment.md)
+- [`Date`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/date.md)
+- [`DateTime`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/date-time.md)
+- [`Duration`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/duration.md)
+- [`Emphasis`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/emphasis.md)
+- [`ImageObject`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/image-object.md)
+- [`Link`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/link.md)
+- [`MathFragment`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/math/math-fragment.md)
+- [`Note`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/note.md)
+- [`Parameter`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/parameter.md)
+- [`Quote`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/quote.md)
+- [`Span`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/style/span.md)
+- [`Strikeout`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/strikeout.md)
+- [`Strong`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/strong.md)
+- [`Subscript`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/subscript.md)
+- [`Superscript`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/superscript.md)
+- [`Text`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/text.md)
+- [`Time`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/time.md)
+- [`Timestamp`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/timestamp.md)
+- [`Underline`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/underline.md)
+- [`VideoObject`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/video-object.md)
+- [`Null`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/null.md)
+- [`Boolean`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/boolean.md)
+- [`Integer`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/integer.md)
+- [`Number`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/number.md)
+- [`String`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/string.md)
 
 ## Bindings
 

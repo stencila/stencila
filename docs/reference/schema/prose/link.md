@@ -1,9 +1,3 @@
----
-title:
-- type: Text
-  value: Link
----
-
 # Link
 
 **A hyperlink to other pages, sections within the same document, resources, or any URL.**
@@ -22,35 +16,35 @@ Analogues of `Link` in other schema include:
 
 The `Link` type has these properties:
 
-| Name    | `@id`                                                            | Type                                                                 | Description                                            | Inherited from                                                      |
-| ------- | ---------------------------------------------------------------- | -------------------------------------------------------------------- | ------------------------------------------------------ | ------------------------------------------------------------------- |
-| id      | [`schema:id`](https://schema.org/id)                             | [`String`](https://stencila.dev/docs/reference/schema/data/string)   | The identifier for this item                           | [`Entity`](https://stencila.dev/docs/reference/schema/other/entity) |
-| content | `stencila:content`                                               | [`Inline`](https://stencila.dev/docs/reference/schema/prose/inline)* | The textual content of the link.                       | [`Link`](https://stencila.dev/docs/reference/schema/prose/link)     |
-| target  | `stencila:target`                                                | [`String`](https://stencila.dev/docs/reference/schema/data/string)   | The target of the link.                                | [`Link`](https://stencila.dev/docs/reference/schema/prose/link)     |
-| title   | [`schema:headline`](https://schema.org/headline)                 | [`String`](https://stencila.dev/docs/reference/schema/data/string)   | A title for the link.                                  | [`Link`](https://stencila.dev/docs/reference/schema/prose/link)     |
-| rel     | [`schema:linkRelationship`](https://schema.org/linkRelationship) | [`String`](https://stencila.dev/docs/reference/schema/data/string)   | The relation between the target and the current thing. | [`Link`](https://stencila.dev/docs/reference/schema/prose/link)     |
+| Name    | `@id`                                                            | Type                                                                                              | Description                                            | Inherited from                                                                                   |
+| ------- | ---------------------------------------------------------------- | ------------------------------------------------------------------------------------------------- | ------------------------------------------------------ | ------------------------------------------------------------------------------------------------ |
+| id      | [`schema:id`](https://schema.org/id)                             | [`String`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/string.md)   | The identifier for this item                           | [`Entity`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/entity.md) |
+| content | `stencila:content`                                               | [`Inline`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/inline.md)* | The textual content of the link.                       | [`Link`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/link.md)     |
+| target  | `stencila:target`                                                | [`String`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/string.md)   | The target of the link.                                | [`Link`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/link.md)     |
+| title   | [`schema:headline`](https://schema.org/headline)                 | [`String`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/string.md)   | A title for the link.                                  | [`Link`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/link.md)     |
+| rel     | [`schema:linkRelationship`](https://schema.org/linkRelationship) | [`String`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/string.md)   | The relation between the target and the current thing. | [`Link`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/link.md)     |
 
 ## Related
 
 The `Link` type is related to these types:
 
-- Parents: [`Entity`](https://stencila.dev/docs/reference/schema/other/entity)
+- Parents: [`Entity`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/entity.md)
 - Children: none
 
 ## Formats
 
 The `Link` type can be encoded (serialized) to, and/or decoded (deserialized) from, these formats:
 
-| Format                                                           | Encoding       | Decoding     | Status                 | Notes                                                                               |
-| ---------------------------------------------------------------- | -------------- | ------------ | ---------------------- | ----------------------------------------------------------------------------------- |
-| [HTML](https://stencila.dev/docs/reference/formats/{name})       | 🔷 Low loss     |              | 🚧 Under development    | Encoded to tag [`<a>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/a) |
-| [JATS](https://stencila.dev/docs/reference/formats/{name})       | 🔷 Low loss     |              | 🚧 Under development    |                                                                                     |
-| [Markdown](https://stencila.dev/docs/reference/formats/{name})   | 🔷 Low loss     |              | 🚧 Under development    | Encoded using template `[{content}]({target})`                                      |
-| [Plain text](https://stencila.dev/docs/reference/formats/{name}) | 🟥 High loss    |              | 🟥 Alpha                |                                                                                     |
-| [JSON](https://stencila.dev/docs/reference/formats/{name})       | 🟢 No loss      | 🟢 No loss    | 🟢 Stable               |                                                                                     |
-| [JSON5](https://stencila.dev/docs/reference/formats/{name})      | 🟢 No loss      | 🟢 No loss    | 🟢 Stable               |                                                                                     |
-| [YAML](https://stencila.dev/docs/reference/formats/{name})       | 🟢 No loss      | 🟢 No loss    | 🟢 Stable               |                                                                                     |
-| [Debug](https://stencila.dev/docs/reference/formats/{name})      | 🔷 Low loss     |              | 🟢 Stable               |                                                                                     |
+| Format                                                                                            | Encoding       | Decoding     | Status                 | Notes                                                                               |
+| ------------------------------------------------------------------------------------------------- | -------------- | ------------ | ---------------------- | ----------------------------------------------------------------------------------- |
+| [HTML](https://github.com/stencila/stencila/blob/main/docs/reference/formats/HTML.md)             | 🔷 Low loss     |              | 🚧 Under development    | Encoded to tag [`<a>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/a) |
+| [JATS](https://github.com/stencila/stencila/blob/main/docs/reference/formats/JATS.md)             | 🔷 Low loss     |              | 🚧 Under development    |                                                                                     |
+| [Markdown](https://github.com/stencila/stencila/blob/main/docs/reference/formats/Markdown.md)     | 🔷 Low loss     |              | 🚧 Under development    | Encoded using template `[{content}]({target})`                                      |
+| [Plain text](https://github.com/stencila/stencila/blob/main/docs/reference/formats/Plain text.md) | 🟥 High loss    |              | 🟥 Alpha                |                                                                                     |
+| [JSON](https://github.com/stencila/stencila/blob/main/docs/reference/formats/JSON.md)             | 🟢 No loss      | 🟢 No loss    | 🟢 Stable               |                                                                                     |
+| [JSON5](https://github.com/stencila/stencila/blob/main/docs/reference/formats/JSON5.md)           | 🟢 No loss      | 🟢 No loss    | 🟢 Stable               |                                                                                     |
+| [YAML](https://github.com/stencila/stencila/blob/main/docs/reference/formats/YAML.md)             | 🟢 No loss      | 🟢 No loss    | 🟢 Stable               |                                                                                     |
+| [Debug](https://github.com/stencila/stencila/blob/main/docs/reference/formats/Debug.md)           | 🔷 Low loss     |              | 🟢 Stable               |                                                                                     |
 
 ## Bindings
 

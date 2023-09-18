@@ -1,9 +1,3 @@
----
-title:
-- type: Text
-  value: ExecutionRequired
----
-
 # Execution Required
 
 **Under which circumstances the document node should be automatically executed.**

@@ -1,9 +1,3 @@
----
-title:
-- type: Text
-  value: List
----
-
 # List
 
 **A list of items.**
@@ -21,33 +15,33 @@ defined and it is trivial to save Stencila Schema documents using the schema.org
 
 The `List` type has these properties:
 
-| Name  | `@id`                                                          | Type                                                                       | Description                  | Inherited from                                                      |
-| ----- | -------------------------------------------------------------- | -------------------------------------------------------------------------- | ---------------------------- | ------------------------------------------------------------------- |
-| id    | [`schema:id`](https://schema.org/id)                           | [`String`](https://stencila.dev/docs/reference/schema/data/string)         | The identifier for this item | [`Entity`](https://stencila.dev/docs/reference/schema/other/entity) |
-| items | [`schema:itemListElement`](https://schema.org/itemListElement) | [`ListItem`](https://stencila.dev/docs/reference/schema/prose/list-item)*  | The items in the list.       | [`List`](https://stencila.dev/docs/reference/schema/prose/list)     |
-| order | [`schema:itemListOrder`](https://schema.org/itemListOrder)     | [`ListOrder`](https://stencila.dev/docs/reference/schema/prose/list-order) | The ordering of the list.    | [`List`](https://stencila.dev/docs/reference/schema/prose/list)     |
+| Name  | `@id`                                                          | Type                                                                                                    | Description                  | Inherited from                                                                                   |
+| ----- | -------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------- | ---------------------------- | ------------------------------------------------------------------------------------------------ |
+| id    | [`schema:id`](https://schema.org/id)                           | [`String`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/string.md)         | The identifier for this item | [`Entity`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/entity.md) |
+| items | [`schema:itemListElement`](https://schema.org/itemListElement) | [`ListItem`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/list-item.md)*  | The items in the list.       | [`List`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/list.md)     |
+| order | [`schema:itemListOrder`](https://schema.org/itemListOrder)     | [`ListOrder`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/list-order.md) | The ordering of the list.    | [`List`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/list.md)     |
 
 ## Related
 
 The `List` type is related to these types:
 
-- Parents: [`Entity`](https://stencila.dev/docs/reference/schema/other/entity)
+- Parents: [`Entity`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/entity.md)
 - Children: none
 
 ## Formats
 
 The `List` type can be encoded (serialized) to, and/or decoded (deserialized) from, these formats:
 
-| Format                                                           | Encoding       | Decoding     | Status                 | Notes                                                                                             |
-| ---------------------------------------------------------------- | -------------- | ------------ | ---------------------- | ------------------------------------------------------------------------------------------------- |
-| [HTML](https://stencila.dev/docs/reference/formats/{name})       | 🔷 Low loss     |              | 🚧 Under development    | Encoded using special function                                                                    |
-| [JATS](https://stencila.dev/docs/reference/formats/{name})       | 🔷 Low loss     |              | 🚧 Under development    | Encoded to tag [`<list>`](https://jats.nlm.nih.gov/articleauthoring/tag-library/1.3/element/list) |
-| [Markdown](https://stencila.dev/docs/reference/formats/{name})   | 🔷 Low loss     |              | 🚧 Under development    | Encoded using special function                                                                    |
-| [Plain text](https://stencila.dev/docs/reference/formats/{name}) | 🟥 High loss    |              | 🟥 Alpha                |                                                                                                   |
-| [JSON](https://stencila.dev/docs/reference/formats/{name})       | 🟢 No loss      | 🟢 No loss    | 🟢 Stable               |                                                                                                   |
-| [JSON5](https://stencila.dev/docs/reference/formats/{name})      | 🟢 No loss      | 🟢 No loss    | 🟢 Stable               |                                                                                                   |
-| [YAML](https://stencila.dev/docs/reference/formats/{name})       | 🟢 No loss      | 🟢 No loss    | 🟢 Stable               |                                                                                                   |
-| [Debug](https://stencila.dev/docs/reference/formats/{name})      | 🔷 Low loss     |              | 🟢 Stable               |                                                                                                   |
+| Format                                                                                            | Encoding       | Decoding     | Status                 | Notes                                                                                             |
+| ------------------------------------------------------------------------------------------------- | -------------- | ------------ | ---------------------- | ------------------------------------------------------------------------------------------------- |
+| [HTML](https://github.com/stencila/stencila/blob/main/docs/reference/formats/HTML.md)             | 🔷 Low loss     |              | 🚧 Under development    | Encoded using special function                                                                    |
+| [JATS](https://github.com/stencila/stencila/blob/main/docs/reference/formats/JATS.md)             | 🔷 Low loss     |              | 🚧 Under development    | Encoded to tag [`<list>`](https://jats.nlm.nih.gov/articleauthoring/tag-library/1.3/element/list) |
+| [Markdown](https://github.com/stencila/stencila/blob/main/docs/reference/formats/Markdown.md)     | 🔷 Low loss     |              | 🚧 Under development    | Encoded using special function                                                                    |
+| [Plain text](https://github.com/stencila/stencila/blob/main/docs/reference/formats/Plain text.md) | 🟥 High loss    |              | 🟥 Alpha                |                                                                                                   |
+| [JSON](https://github.com/stencila/stencila/blob/main/docs/reference/formats/JSON.md)             | 🟢 No loss      | 🟢 No loss    | 🟢 Stable               |                                                                                                   |
+| [JSON5](https://github.com/stencila/stencila/blob/main/docs/reference/formats/JSON5.md)           | 🟢 No loss      | 🟢 No loss    | 🟢 Stable               |                                                                                                   |
+| [YAML](https://github.com/stencila/stencila/blob/main/docs/reference/formats/YAML.md)             | 🟢 No loss      | 🟢 No loss    | 🟢 Stable               |                                                                                                   |
+| [Debug](https://github.com/stencila/stencila/blob/main/docs/reference/formats/Debug.md)           | 🔷 Low loss     |              | 🟢 Stable               |                                                                                                   |
 
 ## Bindings
 

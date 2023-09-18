@@ -1,9 +1,3 @@
----
-title:
-- type: Text
-  value: ExecutionDependencyRelation
----
-
 # Execution Dependency Relation
 
 **The relation between a node and its execution dependency.**

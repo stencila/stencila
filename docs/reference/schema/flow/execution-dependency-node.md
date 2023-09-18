@@ -1,9 +1,3 @@
----
-title:
-- type: Text
-  value: ExecutionDependencyNode
----
-
 # Execution Dependency Node
 
 **Node types that can be execution dependencies**
@@ -14,12 +8,12 @@ title:
 
 The `ExecutionDependencyNode` type has these members:
 
-- [`Button`](https://stencila.dev/docs/reference/schema/flow/button)
-- [`CodeChunk`](https://stencila.dev/docs/reference/schema/code/code-chunk)
-- [`File`](https://stencila.dev/docs/reference/schema/works/file)
-- [`Parameter`](https://stencila.dev/docs/reference/schema/flow/parameter)
-- [`SoftwareSourceCode`](https://stencila.dev/docs/reference/schema/works/software-source-code)
-- [`Variable`](https://stencila.dev/docs/reference/schema/flow/variable)
+- [`Button`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/button.md)
+- [`CodeChunk`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/code/code-chunk.md)
+- [`File`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/file.md)
+- [`Parameter`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/parameter.md)
+- [`SoftwareSourceCode`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/software-source-code.md)
+- [`Variable`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/variable.md)
 
 ## Bindings
 

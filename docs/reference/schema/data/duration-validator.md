@@ -1,9 +1,3 @@
----
-title:
-- type: Text
-  value: DurationValidator
----
-
 # Duration Validator
 
 **A validator specifying the constraints on a duration.**
@@ -14,34 +8,34 @@ title:
 
 The `DurationValidator` type has these properties:
 
-| Name      | `@id`                                | Type                                                                     | Description                                | Inherited from                                                                            |
-| --------- | ------------------------------------ | ------------------------------------------------------------------------ | ------------------------------------------ | ----------------------------------------------------------------------------------------- |
-| id        | [`schema:id`](https://schema.org/id) | [`String`](https://stencila.dev/docs/reference/schema/data/string)       | The identifier for this item               | [`Entity`](https://stencila.dev/docs/reference/schema/other/entity)                       |
-| timeUnits | `stencila:timeUnits`                 | [`TimeUnit`](https://stencila.dev/docs/reference/schema/data/time-unit)* | The time units that the duration can have. | [`DurationValidator`](https://stencila.dev/docs/reference/schema/data/duration-validator) |
-| minimum   | `stencila:minimum`                   | [`Duration`](https://stencila.dev/docs/reference/schema/data/duration)   | The inclusive lower limit for a duration.  | [`DurationValidator`](https://stencila.dev/docs/reference/schema/data/duration-validator) |
-| maximum   | `stencila:maximum`                   | [`Duration`](https://stencila.dev/docs/reference/schema/data/duration)   | The inclusive upper limit for a duration.  | [`DurationValidator`](https://stencila.dev/docs/reference/schema/data/duration-validator) |
+| Name      | `@id`                                | Type                                                                                                  | Description                                | Inherited from                                                                                                         |
+| --------- | ------------------------------------ | ----------------------------------------------------------------------------------------------------- | ------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------- |
+| id        | [`schema:id`](https://schema.org/id) | [`String`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/string.md)       | The identifier for this item               | [`Entity`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/entity.md)                       |
+| timeUnits | `stencila:timeUnits`                 | [`TimeUnit`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/time-unit.md)* | The time units that the duration can have. | [`DurationValidator`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/duration-validator.md) |
+| minimum   | `stencila:minimum`                   | [`Duration`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/duration.md)   | The inclusive lower limit for a duration.  | [`DurationValidator`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/duration-validator.md) |
+| maximum   | `stencila:maximum`                   | [`Duration`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/duration.md)   | The inclusive upper limit for a duration.  | [`DurationValidator`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/duration-validator.md) |
 
 ## Related
 
 The `DurationValidator` type is related to these types:
 
-- Parents: [`Entity`](https://stencila.dev/docs/reference/schema/other/entity)
+- Parents: [`Entity`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/entity.md)
 - Children: none
 
 ## Formats
 
 The `DurationValidator` type can be encoded (serialized) to, and/or decoded (deserialized) from, these formats:
 
-| Format                                                           | Encoding       | Decoding     | Status                 | Notes |
-| ---------------------------------------------------------------- | -------------- | ------------ | ---------------------- | ----- |
-| [HTML](https://stencila.dev/docs/reference/formats/{name})       | 🔷 Low loss     |              | 🚧 Under development    |       |
-| [JATS](https://stencila.dev/docs/reference/formats/{name})       | 🔷 Low loss     |              | 🚧 Under development    |       |
-| [Markdown](https://stencila.dev/docs/reference/formats/{name})   | 🟥 High loss    |              | 🚧 Under development    |       |
-| [Plain text](https://stencila.dev/docs/reference/formats/{name}) | 🟥 High loss    |              | 🟥 Alpha                |       |
-| [JSON](https://stencila.dev/docs/reference/formats/{name})       | 🟢 No loss      | 🟢 No loss    | 🟢 Stable               |       |
-| [JSON5](https://stencila.dev/docs/reference/formats/{name})      | 🟢 No loss      | 🟢 No loss    | 🟢 Stable               |       |
-| [YAML](https://stencila.dev/docs/reference/formats/{name})       | 🟢 No loss      | 🟢 No loss    | 🟢 Stable               |       |
-| [Debug](https://stencila.dev/docs/reference/formats/{name})      | 🔷 Low loss     |              | 🟢 Stable               |       |
+| Format                                                                                            | Encoding       | Decoding     | Status                 | Notes |
+| ------------------------------------------------------------------------------------------------- | -------------- | ------------ | ---------------------- | ----- |
+| [HTML](https://github.com/stencila/stencila/blob/main/docs/reference/formats/HTML.md)             | 🔷 Low loss     |              | 🚧 Under development    |       |
+| [JATS](https://github.com/stencila/stencila/blob/main/docs/reference/formats/JATS.md)             | 🔷 Low loss     |              | 🚧 Under development    |       |
+| [Markdown](https://github.com/stencila/stencila/blob/main/docs/reference/formats/Markdown.md)     | 🟥 High loss    |              | 🚧 Under development    |       |
+| [Plain text](https://github.com/stencila/stencila/blob/main/docs/reference/formats/Plain text.md) | 🟥 High loss    |              | 🟥 Alpha                |       |
+| [JSON](https://github.com/stencila/stencila/blob/main/docs/reference/formats/JSON.md)             | 🟢 No loss      | 🟢 No loss    | 🟢 Stable               |       |
+| [JSON5](https://github.com/stencila/stencila/blob/main/docs/reference/formats/JSON5.md)           | 🟢 No loss      | 🟢 No loss    | 🟢 Stable               |       |
+| [YAML](https://github.com/stencila/stencila/blob/main/docs/reference/formats/YAML.md)             | 🟢 No loss      | 🟢 No loss    | 🟢 Stable               |       |
+| [Debug](https://github.com/stencila/stencila/blob/main/docs/reference/formats/Debug.md)           | 🔷 Low loss     |              | 🟢 Stable               |       |
 
 ## Bindings
 

@@ -1,9 +1,3 @@
----
-title:
-- type: Text
-  value: Cite
----
-
 # Cite
 
 **A reference to a CreativeWork that is cited in another CreativeWork.**
@@ -19,40 +13,40 @@ Often a `Cite` will be associated with other citations, in a [`CiteGroup`](./Cit
 
 The `Cite` type has these properties:
 
-| Name           | `@id`                                                | Type                                                                                                                                      | Description                                                                                            | Inherited from                                                      |
-| -------------- | ---------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------- |
-| id             | [`schema:id`](https://schema.org/id)                 | [`String`](https://stencila.dev/docs/reference/schema/data/string)                                                                        | The identifier for this item                                                                           | [`Entity`](https://stencila.dev/docs/reference/schema/other/entity) |
-| target         | `stencila:target`                                    | [`String`](https://stencila.dev/docs/reference/schema/data/string)                                                                        | The target of the citation (URL or reference ID).                                                      | [`Cite`](https://stencila.dev/docs/reference/schema/prose/cite)     |
-| citationMode   | `stencila:citationMode`                              | [`CitationMode`](https://stencila.dev/docs/reference/schema/prose/citation-mode)                                                          | Determines how the citation is shown within the surrounding text.                                      | [`Cite`](https://stencila.dev/docs/reference/schema/prose/cite)     |
-| citationIntent | `stencila:citationIntent`                            | [`CitationIntent`](https://stencila.dev/docs/reference/schema/prose/citation-intent)*                                                     | The type/s of the citation, both factually and rhetorically.                                           | [`Cite`](https://stencila.dev/docs/reference/schema/prose/cite)     |
-| content        | `stencila:content`                                   | [`Inline`](https://stencila.dev/docs/reference/schema/prose/inline)*                                                                      | Optional structured content/text of this citation.                                                     | [`Cite`](https://stencila.dev/docs/reference/schema/prose/cite)     |
-| pageStart      | [`schema:pageStart`](https://schema.org/pageStart)   | [`Integer`](https://stencila.dev/docs/reference/schema/data/integer) \| [`String`](https://stencila.dev/docs/reference/schema/data/string) | The page on which the work starts; for example "135" or "xiii".                                        | [`Cite`](https://stencila.dev/docs/reference/schema/prose/cite)     |
-| pageEnd        | [`schema:pageEnd`](https://schema.org/pageEnd)       | [`Integer`](https://stencila.dev/docs/reference/schema/data/integer) \| [`String`](https://stencila.dev/docs/reference/schema/data/string) | The page on which the work ends; for example "138" or "xvi".                                           | [`Cite`](https://stencila.dev/docs/reference/schema/prose/cite)     |
-| pagination     | [`schema:pagination`](https://schema.org/pagination) | [`String`](https://stencila.dev/docs/reference/schema/data/string)                                                                        | Any description of pages that is not separated into pageStart and pageEnd; for example, "1-6, 9, 55".  | [`Cite`](https://stencila.dev/docs/reference/schema/prose/cite)     |
-| citationPrefix | `stencila:citationPrefix`                            | [`String`](https://stencila.dev/docs/reference/schema/data/string)                                                                        | Text to show before the citation.                                                                      | [`Cite`](https://stencila.dev/docs/reference/schema/prose/cite)     |
-| citationSuffix | `stencila:citationSuffix`                            | [`String`](https://stencila.dev/docs/reference/schema/data/string)                                                                        | Text to show after the citation.                                                                       | [`Cite`](https://stencila.dev/docs/reference/schema/prose/cite)     |
+| Name           | `@id`                                                | Type                                                                                                                                                                                                | Description                                                                                            | Inherited from                                                                                   |
+| -------------- | ---------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------ |
+| id             | [`schema:id`](https://schema.org/id)                 | [`String`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/string.md)                                                                                                     | The identifier for this item                                                                           | [`Entity`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/entity.md) |
+| target         | `stencila:target`                                    | [`String`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/string.md)                                                                                                     | The target of the citation (URL or reference ID).                                                      | [`Cite`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/cite.md)     |
+| citationMode   | `stencila:citationMode`                              | [`CitationMode`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/citation-mode.md)                                                                                       | Determines how the citation is shown within the surrounding text.                                      | [`Cite`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/cite.md)     |
+| citationIntent | `stencila:citationIntent`                            | [`CitationIntent`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/citation-intent.md)*                                                                                  | The type/s of the citation, both factually and rhetorically.                                           | [`Cite`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/cite.md)     |
+| content        | `stencila:content`                                   | [`Inline`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/inline.md)*                                                                                                   | Optional structured content/text of this citation.                                                     | [`Cite`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/cite.md)     |
+| pageStart      | [`schema:pageStart`](https://schema.org/pageStart)   | [`Integer`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/integer.md) \| [`String`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/string.md) | The page on which the work starts; for example "135" or "xiii".                                        | [`Cite`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/cite.md)     |
+| pageEnd        | [`schema:pageEnd`](https://schema.org/pageEnd)       | [`Integer`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/integer.md) \| [`String`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/string.md) | The page on which the work ends; for example "138" or "xvi".                                           | [`Cite`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/cite.md)     |
+| pagination     | [`schema:pagination`](https://schema.org/pagination) | [`String`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/string.md)                                                                                                     | Any description of pages that is not separated into pageStart and pageEnd; for example, "1-6, 9, 55".  | [`Cite`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/cite.md)     |
+| citationPrefix | `stencila:citationPrefix`                            | [`String`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/string.md)                                                                                                     | Text to show before the citation.                                                                      | [`Cite`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/cite.md)     |
+| citationSuffix | `stencila:citationSuffix`                            | [`String`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/string.md)                                                                                                     | Text to show after the citation.                                                                       | [`Cite`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/cite.md)     |
 
 ## Related
 
 The `Cite` type is related to these types:
 
-- Parents: [`Entity`](https://stencila.dev/docs/reference/schema/other/entity)
+- Parents: [`Entity`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/entity.md)
 - Children: none
 
 ## Formats
 
 The `Cite` type can be encoded (serialized) to, and/or decoded (deserialized) from, these formats:
 
-| Format                                                           | Encoding       | Decoding     | Status                 | Notes |
-| ---------------------------------------------------------------- | -------------- | ------------ | ---------------------- | ----- |
-| [HTML](https://stencila.dev/docs/reference/formats/{name})       | 🔷 Low loss     |              | 🚧 Under development    |       |
-| [JATS](https://stencila.dev/docs/reference/formats/{name})       | 🔷 Low loss     |              | 🚧 Under development    |       |
-| [Markdown](https://stencila.dev/docs/reference/formats/{name})   | 🟥 High loss    |              | 🚧 Under development    |       |
-| [Plain text](https://stencila.dev/docs/reference/formats/{name}) | 🟥 High loss    |              | 🟥 Alpha                |       |
-| [JSON](https://stencila.dev/docs/reference/formats/{name})       | 🟢 No loss      | 🟢 No loss    | 🟢 Stable               |       |
-| [JSON5](https://stencila.dev/docs/reference/formats/{name})      | 🟢 No loss      | 🟢 No loss    | 🟢 Stable               |       |
-| [YAML](https://stencila.dev/docs/reference/formats/{name})       | 🟢 No loss      | 🟢 No loss    | 🟢 Stable               |       |
-| [Debug](https://stencila.dev/docs/reference/formats/{name})      | 🔷 Low loss     |              | 🟢 Stable               |       |
+| Format                                                                                            | Encoding       | Decoding     | Status                 | Notes |
+| ------------------------------------------------------------------------------------------------- | -------------- | ------------ | ---------------------- | ----- |
+| [HTML](https://github.com/stencila/stencila/blob/main/docs/reference/formats/HTML.md)             | 🔷 Low loss     |              | 🚧 Under development    |       |
+| [JATS](https://github.com/stencila/stencila/blob/main/docs/reference/formats/JATS.md)             | 🔷 Low loss     |              | 🚧 Under development    |       |
+| [Markdown](https://github.com/stencila/stencila/blob/main/docs/reference/formats/Markdown.md)     | 🟥 High loss    |              | 🚧 Under development    |       |
+| [Plain text](https://github.com/stencila/stencila/blob/main/docs/reference/formats/Plain text.md) | 🟥 High loss    |              | 🟥 Alpha                |       |
+| [JSON](https://github.com/stencila/stencila/blob/main/docs/reference/formats/JSON.md)             | 🟢 No loss      | 🟢 No loss    | 🟢 Stable               |       |
+| [JSON5](https://github.com/stencila/stencila/blob/main/docs/reference/formats/JSON5.md)           | 🟢 No loss      | 🟢 No loss    | 🟢 Stable               |       |
+| [YAML](https://github.com/stencila/stencila/blob/main/docs/reference/formats/YAML.md)             | 🟢 No loss      | 🟢 No loss    | 🟢 Stable               |       |
+| [Debug](https://github.com/stencila/stencila/blob/main/docs/reference/formats/Debug.md)           | 🔷 Low loss     |              | 🟢 Stable               |       |
 
 ## Bindings
 

@@ -1,9 +1,3 @@
----
-title:
-- type: Text
-  value: ClaimType
----
-
 # Claim Type
 
 **The type of a `Claim`.**

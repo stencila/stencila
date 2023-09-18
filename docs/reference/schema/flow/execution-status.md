@@ -1,9 +1,3 @@
----
-title:
-- type: Text
-  value: ExecutionStatus
----
-
 # Execution Status
 
 **Status of the most recent, including any current, execution of a document node.**

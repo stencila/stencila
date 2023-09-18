@@ -1,9 +1,3 @@
----
-title:
-- type: Text
-  value: CodeStatic
----
-
 # Code Static
 
 **Abstract base type for non-executable code nodes (e.g. `CodeBlock`).**
@@ -19,18 +13,18 @@ invalid for the specified `programmingLanguage`.
 
 The `CodeStatic` type has these properties:
 
-| Name                | `@id`                                                                  | Type                                                               | Description                           | Inherited from                                                              |
-| ------------------- | ---------------------------------------------------------------------- | ------------------------------------------------------------------ | ------------------------------------- | --------------------------------------------------------------------------- |
-| id                  | [`schema:id`](https://schema.org/id)                                   | [`String`](https://stencila.dev/docs/reference/schema/data/string) | The identifier for this item          | [`Entity`](https://stencila.dev/docs/reference/schema/other/entity)         |
-| code                | `stencila:code`                                                        | [`Cord`](https://stencila.dev/docs/reference/schema/data/cord)     | The code.                             | [`CodeStatic`](https://stencila.dev/docs/reference/schema/code/code-static) |
-| programmingLanguage | [`schema:programmingLanguage`](https://schema.org/programmingLanguage) | [`String`](https://stencila.dev/docs/reference/schema/data/string) | The programming language of the code. | [`CodeStatic`](https://stencila.dev/docs/reference/schema/code/code-static) |
+| Name                | `@id`                                                                  | Type                                                                                            | Description                           | Inherited from                                                                                           |
+| ------------------- | ---------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------- | ------------------------------------- | -------------------------------------------------------------------------------------------------------- |
+| id                  | [`schema:id`](https://schema.org/id)                                   | [`String`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/string.md) | The identifier for this item          | [`Entity`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/entity.md)         |
+| code                | `stencila:code`                                                        | [`Cord`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/cord.md)     | The code.                             | [`CodeStatic`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/code/code-static.md) |
+| programmingLanguage | [`schema:programmingLanguage`](https://schema.org/programmingLanguage) | [`String`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/string.md) | The programming language of the code. | [`CodeStatic`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/code/code-static.md) |
 
 ## Related
 
 The `CodeStatic` type is related to these types:
 
-- Parents: [`Entity`](https://stencila.dev/docs/reference/schema/other/entity)
-- Children: [`CodeBlock`](https://stencila.dev/docs/reference/schema/code/code-block), [`CodeFragment`](https://stencila.dev/docs/reference/schema/code/code-fragment)
+- Parents: [`Entity`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/entity.md)
+- Children: [`CodeBlock`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/code/code-block.md), [`CodeFragment`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/code/code-fragment.md)
 
 ## Bindings
 

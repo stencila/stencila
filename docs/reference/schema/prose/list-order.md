@@ -1,9 +1,3 @@
----
-title:
-- type: Text
-  value: ListOrder
----
-
 # List Order
 
 **Indicates how a `List` is ordered.**

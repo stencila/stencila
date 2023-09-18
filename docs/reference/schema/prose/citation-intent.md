@@ -1,9 +1,3 @@
----
-title:
-- type: Text
-  value: CitationIntent
----
-
 # Citation Intent
 
 **The type or nature of a citation, both factually and rhetorically.**

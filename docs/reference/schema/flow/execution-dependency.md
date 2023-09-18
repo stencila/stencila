@@ -1,9 +1,3 @@
----
-title:
-- type: Text
-  value: ExecutionDependency
----
-
 # Execution Dependency
 
 **An upstream execution dependency of a node**
@@ -14,34 +8,34 @@ title:
 
 The `ExecutionDependency` type has these properties:
 
-| Name               | `@id`                                | Type                                                                                                           | Description                                             | Inherited from                                                                                |
-| ------------------ | ------------------------------------ | -------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------- | --------------------------------------------------------------------------------------------- |
-| id                 | [`schema:id`](https://schema.org/id) | [`String`](https://stencila.dev/docs/reference/schema/data/string)                                             | The identifier for this item                            | [`Entity`](https://stencila.dev/docs/reference/schema/other/entity)                           |
-| dependencyRelation | `stencila:dependencyRelation`        | [`ExecutionDependencyRelation`](https://stencila.dev/docs/reference/schema/flow/execution-dependency-relation) | The relation to the dependency                          | [`ExecutionDependency`](https://stencila.dev/docs/reference/schema/flow/execution-dependency) |
-| dependencyNode     | `stencila:dependencyNode`            | [`ExecutionDependencyNode`](https://stencila.dev/docs/reference/schema/flow/execution-dependency-node)         | The node that is the dependency                         | [`ExecutionDependency`](https://stencila.dev/docs/reference/schema/flow/execution-dependency) |
-| codeLocation       | `stencila:codeLocation`              | [`Integer`](https://stencila.dev/docs/reference/schema/data/integer)*                                          | The location that the dependency is defined within code | [`ExecutionDependency`](https://stencila.dev/docs/reference/schema/flow/execution-dependency) |
+| Name               | `@id`                                | Type                                                                                                                                        | Description                                             | Inherited from                                                                                                             |
+| ------------------ | ------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------- |
+| id                 | [`schema:id`](https://schema.org/id) | [`String`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/string.md)                                             | The identifier for this item                            | [`Entity`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/entity.md)                           |
+| dependencyRelation | `stencila:dependencyRelation`        | [`ExecutionDependencyRelation`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/execution-dependency-relation.md) | The relation to the dependency                          | [`ExecutionDependency`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/execution-dependency.md) |
+| dependencyNode     | `stencila:dependencyNode`            | [`ExecutionDependencyNode`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/execution-dependency-node.md)         | The node that is the dependency                         | [`ExecutionDependency`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/execution-dependency.md) |
+| codeLocation       | `stencila:codeLocation`              | [`Integer`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/integer.md)*                                          | The location that the dependency is defined within code | [`ExecutionDependency`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/execution-dependency.md) |
 
 ## Related
 
 The `ExecutionDependency` type is related to these types:
 
-- Parents: [`Entity`](https://stencila.dev/docs/reference/schema/other/entity)
+- Parents: [`Entity`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/entity.md)
 - Children: none
 
 ## Formats
 
 The `ExecutionDependency` type can be encoded (serialized) to, and/or decoded (deserialized) from, these formats:
 
-| Format                                                           | Encoding       | Decoding     | Status                 | Notes |
-| ---------------------------------------------------------------- | -------------- | ------------ | ---------------------- | ----- |
-| [HTML](https://stencila.dev/docs/reference/formats/{name})       | 🔷 Low loss     |              | 🚧 Under development    |       |
-| [JATS](https://stencila.dev/docs/reference/formats/{name})       | 🔷 Low loss     |              | 🚧 Under development    |       |
-| [Markdown](https://stencila.dev/docs/reference/formats/{name})   | 🟥 High loss    |              | 🚧 Under development    |       |
-| [Plain text](https://stencila.dev/docs/reference/formats/{name}) | 🟥 High loss    |              | 🟥 Alpha                |       |
-| [JSON](https://stencila.dev/docs/reference/formats/{name})       | 🟢 No loss      | 🟢 No loss    | 🟢 Stable               |       |
-| [JSON5](https://stencila.dev/docs/reference/formats/{name})      | 🟢 No loss      | 🟢 No loss    | 🟢 Stable               |       |
-| [YAML](https://stencila.dev/docs/reference/formats/{name})       | 🟢 No loss      | 🟢 No loss    | 🟢 Stable               |       |
-| [Debug](https://stencila.dev/docs/reference/formats/{name})      | 🔷 Low loss     |              | 🟢 Stable               |       |
+| Format                                                                                            | Encoding       | Decoding     | Status                 | Notes |
+| ------------------------------------------------------------------------------------------------- | -------------- | ------------ | ---------------------- | ----- |
+| [HTML](https://github.com/stencila/stencila/blob/main/docs/reference/formats/HTML.md)             | 🔷 Low loss     |              | 🚧 Under development    |       |
+| [JATS](https://github.com/stencila/stencila/blob/main/docs/reference/formats/JATS.md)             | 🔷 Low loss     |              | 🚧 Under development    |       |
+| [Markdown](https://github.com/stencila/stencila/blob/main/docs/reference/formats/Markdown.md)     | 🟥 High loss    |              | 🚧 Under development    |       |
+| [Plain text](https://github.com/stencila/stencila/blob/main/docs/reference/formats/Plain text.md) | 🟥 High loss    |              | 🟥 Alpha                |       |
+| [JSON](https://github.com/stencila/stencila/blob/main/docs/reference/formats/JSON.md)             | 🟢 No loss      | 🟢 No loss    | 🟢 Stable               |       |
+| [JSON5](https://github.com/stencila/stencila/blob/main/docs/reference/formats/JSON5.md)           | 🟢 No loss      | 🟢 No loss    | 🟢 Stable               |       |
+| [YAML](https://github.com/stencila/stencila/blob/main/docs/reference/formats/YAML.md)             | 🟢 No loss      | 🟢 No loss    | 🟢 Stable               |       |
+| [Debug](https://github.com/stencila/stencila/blob/main/docs/reference/formats/Debug.md)           | 🔷 Low loss     |              | 🟢 Stable               |       |
 
 ## Bindings
 

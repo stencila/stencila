@@ -1,9 +1,3 @@
----
-title:
-- type: Text
-  value: TableRowType
----
-
 # Table Row Type
 
 **Indicates whether the row is in the header, body or footer of the table.**

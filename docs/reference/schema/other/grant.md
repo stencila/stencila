@@ -1,9 +1,3 @@
----
-title:
-- type: Text
-  value: Grant
----
-
 # Grant
 
 **A grant, typically financial or otherwise quantifiable, of resources.**
@@ -14,39 +8,39 @@ title:
 
 The `Grant` type has these properties:
 
-| Name           | `@id`                                                      | Type                                                                                                                                                       | Description                                                                                          | Inherited from                                                      |
-| -------------- | ---------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------- |
-| id             | [`schema:id`](https://schema.org/id)                       | [`String`](https://stencila.dev/docs/reference/schema/data/string)                                                                                         | The identifier for this item                                                                         | [`Entity`](https://stencila.dev/docs/reference/schema/other/entity) |
-| alternateNames | [`schema:alternateName`](https://schema.org/alternateName) | [`String`](https://stencila.dev/docs/reference/schema/data/string)*                                                                                        | Alternate names (aliases) for the item.                                                              | [`Thing`](https://stencila.dev/docs/reference/schema/other/thing)   |
-| description    | [`schema:description`](https://schema.org/description)     | [`Block`](https://stencila.dev/docs/reference/schema/prose/block)*                                                                                         | A description of the item.                                                                           | [`Thing`](https://stencila.dev/docs/reference/schema/other/thing)   |
-| identifiers    | [`schema:identifier`](https://schema.org/identifier)       | ([`PropertyValue`](https://stencila.dev/docs/reference/schema/other/property-value) \| [`String`](https://stencila.dev/docs/reference/schema/data/string))* | Any kind of identifier for any kind of Thing.                                                        | [`Thing`](https://stencila.dev/docs/reference/schema/other/thing)   |
-| images         | [`schema:image`](https://schema.org/image)                 | ([`ImageObject`](https://stencila.dev/docs/reference/schema/works/image-object) \| [`String`](https://stencila.dev/docs/reference/schema/data/string))*    | Images of the item.                                                                                  | [`Thing`](https://stencila.dev/docs/reference/schema/other/thing)   |
-| name           | [`schema:name`](https://schema.org/name)                   | [`String`](https://stencila.dev/docs/reference/schema/data/string)                                                                                         | The name of the item.                                                                                | [`Thing`](https://stencila.dev/docs/reference/schema/other/thing)   |
-| url            | [`schema:url`](https://schema.org/url)                     | [`String`](https://stencila.dev/docs/reference/schema/data/string)                                                                                         | The URL of the item.                                                                                 | [`Thing`](https://stencila.dev/docs/reference/schema/other/thing)   |
-| fundedItems    | [`schema:fundedItem`](https://schema.org/fundedItem)       | [`Thing`](https://stencila.dev/docs/reference/schema/other/thing)*                                                                                         | Indicates an item funded or sponsored through a Grant.                                               | [`Grant`](https://stencila.dev/docs/reference/schema/other/grant)   |
-| sponsors       | [`schema:sponsor`](https://schema.org/sponsor)             | ([`Person`](https://stencila.dev/docs/reference/schema/other/person) \| [`Organization`](https://stencila.dev/docs/reference/schema/other/organization))*  | A person or organization that supports a thing through a pledge, promise, or financial contribution. | [`Grant`](https://stencila.dev/docs/reference/schema/other/grant)   |
+| Name           | `@id`                                                      | Type                                                                                                                                                                                                                 | Description                                                                                          | Inherited from                                                                                   |
+| -------------- | ---------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------ |
+| id             | [`schema:id`](https://schema.org/id)                       | [`String`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/string.md)                                                                                                                      | The identifier for this item                                                                         | [`Entity`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/entity.md) |
+| alternateNames | [`schema:alternateName`](https://schema.org/alternateName) | [`String`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/string.md)*                                                                                                                     | Alternate names (aliases) for the item.                                                              | [`Thing`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/thing.md)   |
+| description    | [`schema:description`](https://schema.org/description)     | [`Block`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/block.md)*                                                                                                                      | A description of the item.                                                                           | [`Thing`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/thing.md)   |
+| identifiers    | [`schema:identifier`](https://schema.org/identifier)       | ([`PropertyValue`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/property-value.md) \| [`String`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/string.md))* | Any kind of identifier for any kind of Thing.                                                        | [`Thing`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/thing.md)   |
+| images         | [`schema:image`](https://schema.org/image)                 | ([`ImageObject`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/image-object.md) \| [`String`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/string.md))*    | Images of the item.                                                                                  | [`Thing`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/thing.md)   |
+| name           | [`schema:name`](https://schema.org/name)                   | [`String`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/string.md)                                                                                                                      | The name of the item.                                                                                | [`Thing`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/thing.md)   |
+| url            | [`schema:url`](https://schema.org/url)                     | [`String`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/string.md)                                                                                                                      | The URL of the item.                                                                                 | [`Thing`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/thing.md)   |
+| fundedItems    | [`schema:fundedItem`](https://schema.org/fundedItem)       | [`Thing`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/thing.md)*                                                                                                                      | Indicates an item funded or sponsored through a Grant.                                               | [`Grant`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/grant.md)   |
+| sponsors       | [`schema:sponsor`](https://schema.org/sponsor)             | ([`Person`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/person.md) \| [`Organization`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/organization.md))*  | A person or organization that supports a thing through a pledge, promise, or financial contribution. | [`Grant`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/grant.md)   |
 
 ## Related
 
 The `Grant` type is related to these types:
 
-- Parents: [`Thing`](https://stencila.dev/docs/reference/schema/other/thing)
-- Children: [`MonetaryGrant`](https://stencila.dev/docs/reference/schema/other/monetary-grant)
+- Parents: [`Thing`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/thing.md)
+- Children: [`MonetaryGrant`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/monetary-grant.md)
 
 ## Formats
 
 The `Grant` type can be encoded (serialized) to, and/or decoded (deserialized) from, these formats:
 
-| Format                                                           | Encoding       | Decoding     | Status                 | Notes |
-| ---------------------------------------------------------------- | -------------- | ------------ | ---------------------- | ----- |
-| [HTML](https://stencila.dev/docs/reference/formats/{name})       | 🔷 Low loss     |              | 🚧 Under development    |       |
-| [JATS](https://stencila.dev/docs/reference/formats/{name})       | 🔷 Low loss     |              | 🚧 Under development    |       |
-| [Markdown](https://stencila.dev/docs/reference/formats/{name})   | 🟥 High loss    |              | 🚧 Under development    |       |
-| [Plain text](https://stencila.dev/docs/reference/formats/{name}) | 🟥 High loss    |              | 🟥 Alpha                |       |
-| [JSON](https://stencila.dev/docs/reference/formats/{name})       | 🟢 No loss      | 🟢 No loss    | 🟢 Stable               |       |
-| [JSON5](https://stencila.dev/docs/reference/formats/{name})      | 🟢 No loss      | 🟢 No loss    | 🟢 Stable               |       |
-| [YAML](https://stencila.dev/docs/reference/formats/{name})       | 🟢 No loss      | 🟢 No loss    | 🟢 Stable               |       |
-| [Debug](https://stencila.dev/docs/reference/formats/{name})      | 🔷 Low loss     |              | 🟢 Stable               |       |
+| Format                                                                                            | Encoding       | Decoding     | Status                 | Notes |
+| ------------------------------------------------------------------------------------------------- | -------------- | ------------ | ---------------------- | ----- |
+| [HTML](https://github.com/stencila/stencila/blob/main/docs/reference/formats/HTML.md)             | 🔷 Low loss     |              | 🚧 Under development    |       |
+| [JATS](https://github.com/stencila/stencila/blob/main/docs/reference/formats/JATS.md)             | 🔷 Low loss     |              | 🚧 Under development    |       |
+| [Markdown](https://github.com/stencila/stencila/blob/main/docs/reference/formats/Markdown.md)     | 🟥 High loss    |              | 🚧 Under development    |       |
+| [Plain text](https://github.com/stencila/stencila/blob/main/docs/reference/formats/Plain text.md) | 🟥 High loss    |              | 🟥 Alpha                |       |
+| [JSON](https://github.com/stencila/stencila/blob/main/docs/reference/formats/JSON.md)             | 🟢 No loss      | 🟢 No loss    | 🟢 Stable               |       |
+| [JSON5](https://github.com/stencila/stencila/blob/main/docs/reference/formats/JSON5.md)           | 🟢 No loss      | 🟢 No loss    | 🟢 Stable               |       |
+| [YAML](https://github.com/stencila/stencila/blob/main/docs/reference/formats/YAML.md)             | 🟢 No loss      | 🟢 No loss    | 🟢 Stable               |       |
+| [Debug](https://github.com/stencila/stencila/blob/main/docs/reference/formats/Debug.md)           | 🔷 Low loss     |              | 🟢 Stable               |       |
 
 ## Bindings
 

@@ -1,9 +1,3 @@
----
-title:
-- type: Text
-  value: MathBlock
----
-
 # Math Block
 
 **A block of math, e.g an equation, to be treated as block content.**
@@ -14,37 +8,37 @@ title:
 
 The `MathBlock` type has these properties:
 
-| Name          | `@id`                                | Type                                                                                  | Description                                                    | Inherited from                                                            |
-| ------------- | ------------------------------------ | ------------------------------------------------------------------------------------- | -------------------------------------------------------------- | ------------------------------------------------------------------------- |
-| id            | [`schema:id`](https://schema.org/id) | [`String`](https://stencila.dev/docs/reference/schema/data/string)                    | The identifier for this item                                   | [`Entity`](https://stencila.dev/docs/reference/schema/other/entity)       |
-| mathLanguage  | `stencila:mathLanguage`              | [`String`](https://stencila.dev/docs/reference/schema/data/string)                    | The language used for the equation e.g tex, mathml, asciimath. | [`Math`](https://stencila.dev/docs/reference/schema/math/math)            |
-| code          | `stencila:code`                      | [`String`](https://stencila.dev/docs/reference/schema/data/string)                    | The code of the equation in the `mathLanguage`.                | [`Math`](https://stencila.dev/docs/reference/schema/math/math)            |
-| compileDigest | `stencila:compileDigest`             | [`ExecutionDigest`](https://stencila.dev/docs/reference/schema/flow/execution-digest) | A digest of the `code` and `mathLanguage`.                     | [`Math`](https://stencila.dev/docs/reference/schema/math/math)            |
-| errors        | `stencila:errors`                    | [`String`](https://stencila.dev/docs/reference/schema/data/string)*                   | Errors that occurred when parsing the math equation.           | [`Math`](https://stencila.dev/docs/reference/schema/math/math)            |
-| mathml        | `stencila:mathml`                    | [`String`](https://stencila.dev/docs/reference/schema/data/string)                    | The MathML transpiled from the `code`.                         | [`Math`](https://stencila.dev/docs/reference/schema/math/math)            |
-| label         | `stencila:label`                     | [`String`](https://stencila.dev/docs/reference/schema/data/string)                    | A short label for the math block.                              | [`MathBlock`](https://stencila.dev/docs/reference/schema/math/math-block) |
+| Name          | `@id`                                | Type                                                                                                               | Description                                                    | Inherited from                                                                                         |
+| ------------- | ------------------------------------ | ------------------------------------------------------------------------------------------------------------------ | -------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------ |
+| id            | [`schema:id`](https://schema.org/id) | [`String`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/string.md)                    | The identifier for this item                                   | [`Entity`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/entity.md)       |
+| mathLanguage  | `stencila:mathLanguage`              | [`String`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/string.md)                    | The language used for the equation e.g tex, mathml, asciimath. | [`Math`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/math/math.md)            |
+| code          | `stencila:code`                      | [`String`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/string.md)                    | The code of the equation in the `mathLanguage`.                | [`Math`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/math/math.md)            |
+| compileDigest | `stencila:compileDigest`             | [`ExecutionDigest`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/execution-digest.md) | A digest of the `code` and `mathLanguage`.                     | [`Math`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/math/math.md)            |
+| errors        | `stencila:errors`                    | [`String`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/string.md)*                   | Errors that occurred when parsing the math equation.           | [`Math`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/math/math.md)            |
+| mathml        | `stencila:mathml`                    | [`String`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/string.md)                    | The MathML transpiled from the `code`.                         | [`Math`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/math/math.md)            |
+| label         | `stencila:label`                     | [`String`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/string.md)                    | A short label for the math block.                              | [`MathBlock`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/math/math-block.md) |
 
 ## Related
 
 The `MathBlock` type is related to these types:
 
-- Parents: [`Math`](https://stencila.dev/docs/reference/schema/math/math)
+- Parents: [`Math`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/math/math.md)
 - Children: none
 
 ## Formats
 
 The `MathBlock` type can be encoded (serialized) to, and/or decoded (deserialized) from, these formats:
 
-| Format                                                           | Encoding       | Decoding     | Status                 | Notes                                                                                     |
-| ---------------------------------------------------------------- | -------------- | ------------ | ---------------------- | ----------------------------------------------------------------------------------------- |
-| [HTML](https://stencila.dev/docs/reference/formats/{name})       | 🔷 Low loss     |              | 🚧 Under development    | Encoded to tag [`<math>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/math) |
-| [JATS](https://stencila.dev/docs/reference/formats/{name})       | 🔷 Low loss     |              | 🚧 Under development    |                                                                                           |
-| [Markdown](https://stencila.dev/docs/reference/formats/{name})   | 🟢 No loss      |              | 🚧 Under development    | Encoded using special function                                                            |
-| [Plain text](https://stencila.dev/docs/reference/formats/{name}) | 🟥 High loss    |              | 🟥 Alpha                |                                                                                           |
-| [JSON](https://stencila.dev/docs/reference/formats/{name})       | 🟢 No loss      | 🟢 No loss    | 🟢 Stable               |                                                                                           |
-| [JSON5](https://stencila.dev/docs/reference/formats/{name})      | 🟢 No loss      | 🟢 No loss    | 🟢 Stable               |                                                                                           |
-| [YAML](https://stencila.dev/docs/reference/formats/{name})       | 🟢 No loss      | 🟢 No loss    | 🟢 Stable               |                                                                                           |
-| [Debug](https://stencila.dev/docs/reference/formats/{name})      | 🔷 Low loss     |              | 🟢 Stable               |                                                                                           |
+| Format                                                                                            | Encoding       | Decoding     | Status                 | Notes                                                                                     |
+| ------------------------------------------------------------------------------------------------- | -------------- | ------------ | ---------------------- | ----------------------------------------------------------------------------------------- |
+| [HTML](https://github.com/stencila/stencila/blob/main/docs/reference/formats/HTML.md)             | 🔷 Low loss     |              | 🚧 Under development    | Encoded to tag [`<math>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/math) |
+| [JATS](https://github.com/stencila/stencila/blob/main/docs/reference/formats/JATS.md)             | 🔷 Low loss     |              | 🚧 Under development    |                                                                                           |
+| [Markdown](https://github.com/stencila/stencila/blob/main/docs/reference/formats/Markdown.md)     | 🟢 No loss      |              | 🚧 Under development    | Encoded using special function                                                            |
+| [Plain text](https://github.com/stencila/stencila/blob/main/docs/reference/formats/Plain text.md) | 🟥 High loss    |              | 🟥 Alpha                |                                                                                           |
+| [JSON](https://github.com/stencila/stencila/blob/main/docs/reference/formats/JSON.md)             | 🟢 No loss      | 🟢 No loss    | 🟢 Stable               |                                                                                           |
+| [JSON5](https://github.com/stencila/stencila/blob/main/docs/reference/formats/JSON5.md)           | 🟢 No loss      | 🟢 No loss    | 🟢 Stable               |                                                                                           |
+| [YAML](https://github.com/stencila/stencila/blob/main/docs/reference/formats/YAML.md)             | 🟢 No loss      | 🟢 No loss    | 🟢 Stable               |                                                                                           |
+| [Debug](https://github.com/stencila/stencila/blob/main/docs/reference/formats/Debug.md)           | 🔷 Low loss     |              | 🟢 Stable               |                                                                                           |
 
 ## Bindings
 
