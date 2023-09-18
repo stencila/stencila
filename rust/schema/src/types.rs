@@ -300,6 +300,7 @@ pub enum NodeType {
     UnsignedInteger,
     Number,
     String,
+    Cord,
     Array,
     ArrayValidator,
     Article,

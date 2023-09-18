@@ -24,6 +24,7 @@ use super::collection::Collection;
 use super::comment::Comment;
 use super::constant_validator::ConstantValidator;
 use super::contact_point::ContactPoint;
+use super::cord::Cord;
 use super::creative_work::CreativeWork;
 use super::datatable::Datatable;
 use super::datatable_column::DatatableColumn;
@@ -117,6 +118,7 @@ pub enum Node {
     UnsignedInteger(UnsignedInteger),
     Number(Number),
     String(String),
+    Cord(Cord),
     Array(Array),
     ArrayValidator(ArrayValidator),
     Article(Article),
