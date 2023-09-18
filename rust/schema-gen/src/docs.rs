@@ -80,7 +80,7 @@ impl Schemas {
                 (
                     title.clone(),
                     format!(
-                        "https://stencila.dev/docs/reference/schema/{category}/{slug}",
+                        "https://github.com/stencila/stencila/blob/main/docs/reference/schema/{category}/{slug}.md",
                         category = schema.category,
                         slug = title.to_kebab_case()
                     ),
@@ -162,7 +162,6 @@ fn docs_object(title: &str, schema: &Schema, context: &Context) -> Article {
     content.append(&mut source(title));
 
     Article {
-        title: Some(vec![text(title)]),
         content,
         ..Default::default()
     }
@@ -176,7 +175,6 @@ fn docs_any_of(title: &str, schema: &Schema, context: &Context) -> Article {
     content.append(&mut source(title));
 
     Article {
-        title: Some(vec![text(title)]),
         content,
         ..Default::default()
     }
@@ -190,7 +188,6 @@ fn docs_primitive(title: &str, schema: &Schema) -> Article {
     content.append(&mut source(title));
 
     Article {
-        title: Some(vec![text(title)]),
         content,
         ..Default::default()
     }
@@ -358,7 +355,9 @@ fn formats(title: &str, schema: &Schema) -> Vec<Block> {
         let name = format.name();
         let name = td([link(
             [text(name)],
-            "https://stencila.dev/docs/reference/formats/{name}",
+            format!(
+                "https://github.com/stencila/stencila/blob/main/docs/reference/formats/{name}.md"
+            ),
         )]);
 
         fn codec_support(support: CodecSupport) -> TableCell {
