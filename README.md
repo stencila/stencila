@@ -4,15 +4,8 @@
 <br>
 
 <p align="center">
-	<strong>Programmable, reproducible, interactive documents.</strong>
+	<strong>Programmable, reproducible, interactive documents</strong>
 </p>
-
-<div align="center">
-  <a href="https://discord.gg/GADr6Jv">
-    <img src="https://img.shields.io/discord/709952324356800523.svg?logo=discord&label=discord&logoColor=66ff66&color=1d3bd1&labelColor=3219a8">
-  </a>
-</div>
-<br>
 
 <p align="center">
   <a href="#-introduction">
@@ -42,11 +35,14 @@
 <br>
 
 <div align="center">
-  <a href="https://github.com/stencila/stencila/tree/main/docs">
-    <img src="https://img.shields.io/github/license/stencila/stencila.svg?color=1d3bd1&labelColor=3219a8">
+  <a href="https://discord.gg/GADr6Jv">
+    <img src="https://img.shields.io/discord/709952324356800523.svg?logo=discord&label=discord&logoColor=66ff66&color=1d3bd1&labelColor=3219a8">
   </a>
   <a href="https://github.com/stencila/stencila/releases">
     <img src="https://img.shields.io/github/v/release/stencila/stencila.svg?color=1d3bd1&labelColor=3219a8">
+  </a>
+  <a href="https://github.com/stencila/stencila/tree/main/docs">
+    <img src="https://img.shields.io/github/license/stencila/stencila.svg?color=1d3bd1&labelColor=3219a8">
   </a>
 </div>
 <br>
@@ -94,7 +90,7 @@ In `v2` documents can be stored as binary Automerge CRDT files, forked and merge
 | ---------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------- |
 | Documents read/write-able    | Able to write a Stencila document to an Automerge binary file and read it back in                                                                             | ⚠️ Alpha; needs more testing                                  |
 | Documents import/export-able | Able to import or export document as alternative formats, using tree diffing to generate CRDT changes                                                         | ⚠️ Alpha; needs more testing                                  |
-| Documents fork/merge-able    | Able to create a fork of a document in another file and then later merge with the original                                                                    | 🧭 Planned                                                    |
+| Documents fork/merge-able    | Able to create a fork of a document in another file and then later merge with the original                                                                    | 🧭 Planned Q4 2023                                            |
 | Git merge driver             | CLI can act as a [custom Git merge driver](https://www.julianburr.de/til/custom-git-merge-drivers/)                                                           | 🧭 Planned for when binary formats such as DOCX are supported |
 | Relay server                 | Documents can be synchronized by exchanging changes via a relay server                                                                                        | 🧭 Planned                                                    |
 | Rendezvous server            | Documents can be synchronized by exchanging changes peer-to-peer using TCP or UDP [hole punching](<https://en.wikipedia.org/wiki/Hole_punching_(networking)>) | ❔ Maybe                                                      |
@@ -110,12 +106,12 @@ Interoperability with existing formats has always been a key feature of Stencila
 | YAML             | 🟢       | 🟢       |                                                                                            |
 | Plain text       | ⚠️       |          |                                                                                            |
 | HTML             | 🚧       | 🧭       |                                                                                            |
-| JATS             | 🚧       | 🧭       | Port decoding and tests from [`encoda`](https://github.com/stencila/encoda/)               |
-| Markdown         | 🚧       | 🧭       | [`v1`](https://github.com/stencila/stencila/tree/v1/rust/codec-md)                         |
+| JATS             | 🚧       | 🧭       | Planned Q4 2023. Port decoding and tests from [`encoda`](https://github.com/stencila/encoda/)               |
+| Markdown         | 🚧       | 🧭       | Planned Q3 2023 [`v1`](https://github.com/stencila/stencila/tree/v1/rust/codec-md)                         |
 | R Markdown       | 🧭       | 🧭       | Relies on Markdown; [`v1`](https://github.com/stencila/stencila/tree/v1/rust/codec-rmd)    |
 | Jupyter Notebook | 🧭       | 🧭       | Relies on Markdown; [`v1`](https://github.com/stencila/stencila/tree/v1/rust/codec-ipynb)  |
 | Scripts          | 🧭       | 🧭       | Relies on Markdown; [`v1`](https://github.com/stencila/stencila/tree/v1/rust/codec-script) |
-| Pandoc           | 🧭       | 🧭       | [`v1`](https://github.com/stencila/stencila/tree/v1/rust/codec-pandoc)                     |
+| Pandoc           | 🧭       | 🧭       | Planned Q4 2023. [`v1`](https://github.com/stencila/stencila/tree/v1/rust/codec-pandoc)                     |
 | LaTeX            | 🧭       | 🧭       | Relies on Pandoc; [`v1`](https://github.com/stencila/stencila/tree/v1/rust/codec-latex)    |
 | Org              | 🧭       | 🧭       | Relies on Pandoc; [PR](https://github.com/stencila/stencila/pull/1485)                     |
 | Microsoft Word   | 🧭       | 🧭       | Relies on Pandoc; [`v1`](https://github.com/stencila/stencila/tree/v1/rust/codec-docx)     |
@@ -127,24 +123,24 @@ Interoperability with existing formats has always been a key feature of Stencila
 
 Kernels are what executes the code in Stencila `CodeChunk`s and `CodeExpression`s, as well as in control flow document nodes such as `IfClause` and `For`. In addition to supporting interoperability with existing Jupyter kernels, we will bring over _microkernels_ from `v1`. Microkernels are lightweight kernels for executing code which do not require the user to install anything and which allow for parallelization of execution. We'll also implement at least one kernel for an embedded scripting language so that it is possible to author a Stencila document which does not rely on any other external binary.
 
-| Kernel                | Purpose                                          | Status                                                                                                                                                                                   |
-| --------------------- | ------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Embedded lang kernel  | Default language for executable code             | 🧭 Planned. Probably [Rune or Rhai](https://www.boringcactus.com/2020/09/16/survey-of-rust-embeddable-scripting-languages.html) but could be [RustPython](https://rustpython.github.io/) |
-| Bash microkernel      | Execute Bash code in documents                   | 🧭 Planned [`v1`](https://github.com/stencila/stencila/tree/v1/rust/kernel-bash)                                                                                                         |
-| Zsh microkernel       | Execute Zsh code in documents                    | 🧭 Planned [`v1`](https://github.com/stencila/stencila/tree/v1/rust/kernel-zsh)                                                                                                          |
-| Python microkernel    | Execute Python code in documents                 | 🧭 Planned [`v1`](https://github.com/stencila/stencila/tree/v1/rust/kernel-python)                                                                                                       |
-| R microkernel         | Execute R code in documents                      | 🧭 Planned [`v1`](https://github.com/stencila/stencila/tree/v1/rust/kernel-r)                                                                                                            |
-| Node.js microkernel   | Execute JavaScript code in documents             | 🧭 Planned [`v1`](https://github.com/stencila/stencila/tree/v1/rust/kernel-node)                                                                                                         |
-| Deno microkernel      | Execute TypeScript code in documents             | 🧭 Planned [`v1`](https://github.com/stencila/stencila/tree/v1/rust/kernel-deno)                                                                                                         |
-| SQL microkernel       | Execute SQL code in documents                    | 🧭 Planned [`v1`](https://github.com/stencila/stencila/tree/v1/rust/kernel-sql)                                                                                                          |
-| Jupyter kernel bridge | Execute code in Jupyter kernels                  | 🧭 Planned [`v1`](https://github.com/stencila/stencila/tree/v1/rust/kernel-jupyter)                                                                                                      |
-| HTTP kernel           | Interact with RESTful APIs from within documents | 🧭 Planned [`v1`](https://github.com/stencila/stencila/tree/v1/rust/kernel-http)                                                                                                         |
+| Kernel                | Purpose                                          | Status                                                                                                                                                                                           |
+| --------------------- | ------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Embedded lang kernel  | Default language for executable code             | 🧭 Planned Q4 2023. Probably [Rune or Rhai](https://www.boringcactus.com/2020/09/16/survey-of-rust-embeddable-scripting-languages.html) but could be [RustPython](https://rustpython.github.io/) |
+| Bash microkernel      | Execute Bash code in documents                   | 🧭 Planned Q4 2023 [`v1`](https://github.com/stencila/stencila/tree/v1/rust/kernel-bash)                                                                                                         |
+| Zsh microkernel       | Execute Zsh code in documents                    | 🧭 Planned Q4 2023 [`v1`](https://github.com/stencila/stencila/tree/v1/rust/kernel-zsh)                                                                                                          |
+| Python microkernel    | Execute Python code in documents                 | 🧭 Planned Q4 2023 [`v1`](https://github.com/stencila/stencila/tree/v1/rust/kernel-python)                                                                                                       |
+| R microkernel         | Execute R code in documents                      | 🧭 Planned Q4 2023 [`v1`](https://github.com/stencila/stencila/tree/v1/rust/kernel-r)                                                                                                            |
+| Node.js microkernel   | Execute JavaScript code in documents             | 🧭 Planned Q4 2023 [`v1`](https://github.com/stencila/stencila/tree/v1/rust/kernel-node)                                                                                                         |
+| Deno microkernel      | Execute TypeScript code in documents             | 🧭 Planned [`v1`](https://github.com/stencila/stencila/tree/v1/rust/kernel-deno)                                                                                                                 |
+| SQL microkernel       | Execute SQL code in documents                    | 🧭 Planned [`v1`](https://github.com/stencila/stencila/tree/v1/rust/kernel-sql)                                                                                                                  |
+| Jupyter kernel bridge | Execute code in Jupyter kernels                  | 🧭 Planned [`v1`](https://github.com/stencila/stencila/tree/v1/rust/kernel-jupyter)                                                                                                              |
+| HTTP kernel           | Interact with RESTful APIs from within documents | 🧭 Planned [`v1`](https://github.com/stencila/stencila/tree/v1/rust/kernel-http)                                                                                                                 |
 
 ### Actors
 
 In Stencila `v2`, non-human changes to the document will be performed, concurrently, by various _actors_. Actors will listen for changes to document and react accordingly. For example, a LLM actor might listen for the insertion of a paragraph starting with "!add a code chunk to read in and summarize mydata.csv" and do just that. We'll be starting by implementing relatively simply actors but to avoid being painted into a corner will probably implement one LLM-base actor relatively early on.
 
-|              | Purpose                                                                                                                                                                                                                              | Status                                                                                       |
+| Actor        | Purpose                                                                                                                                                                                                                              | Status                                                                                       |
 | ------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------- |
 | `MathMLer`   | Update the `mathml` property of [`Math`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/math/math.md) nodes when the `code` property changes                                                                   | 🧭 Planned Q4 2023                                                                           |
 | `Tailwinder` | Update the `classes` property of [`Styled`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/style/styled.md) nodes when the `code` property changes                                                             | 🧭 Planned Q4 2023 [`v1`](https://github.com/stencila/stencila/tree/v1/rust/parser-tailwind) |
@@ -152,7 +148,37 @@ In Stencila `v2`, non-human changes to the document will be performed, concurren
 | `Reactor`    | Maintain a dependency graph between nodes and update `executionRequired` of executable nodes when `executionDependency` or `executionStatus` of other nodes changes.                                                                 | 🧭 Planned [`v1`](https://github.com/stencila/stencila/tree/v1/rust/graph)                   |
 | `Executor`   | Execute nodes when their `executionRequired` property and update their `executionStatus`, `output`, etc properties                                                                                                                   | 🧭 Planned                                                                                   |
 | `Coder`      | A LLM actor that creates and edits [`CodeExecutable`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/code/code-executable.md) nodes                                                                            | 🧭 Planned                                                                                   |
-| `Editor`     | A LLM actor that creates and edits [prose](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose) nodes                                                                                                         | 🧭 Planned                                                                                   |
+| `Writer`     | A LLM actor that creates and edits [prose](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose) nodes                                                                                                         | 🧭 Planned                                                                                   |
+
+### Editors
+
+Editors allow users to edit Stencila documents, either directly, or via an intermediate format.
+
+| Interface      | Purpose                                                                                                 | Status                                                                                                         |
+| -------------- | ------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------- |
+| File watcher   | Edit documents via other formats and tools (e.g. code editors, Microsoft Word) and react on file change | ⚠️ Alpha                                                                                                       |
+| Code editor    | Edit documents via other formats using a built-in code editor and react on key presses                  | 🧭 Planned Q4 2023 [`v1`](https://github.com/stencila/stencila/tree/v1/web/src/components/editors/code-editor) |
+| WYSIWYG editor | Edit documents using a built-in WYSIWYG editor and react on key presses and widget interactions         | 🧭 Planned [`v1`](https://github.com/stencila/stencila/tree/v1/web/src/components/editors/prose-editor)        |
+
+### Tools
+
+Tools are what we call the self-contained Stencila products you can download and use locally on your machine to interact with Stencila documents.
+
+| Interface        | Purpose                                                                           | Status                                               |
+| ---------------- | --------------------------------------------------------------------------------- | ---------------------------------------------------- |
+| CLI              | Manage documents from the command line and read and edit them using a web browser | ⚠️ Alpha                                             |
+| Desktop          | Manage, read and edit documents from a desktop app                                | 🧭 Planned, likely using [Tauri](https://tauri.app/) |
+| VSCode extension | Manage, read and edit documents from within VSCode                                | ❔ Maybe                                             |
+
+### Bindings
+
+Bindings allow you to create and manage Stencila document using other programming languages. At this stage we are planning to support Python, Node.js and R but more languages may be added if there is demand.
+
+| Interface | Purpose                                                                           | Status                              |
+| --------- | --------------------------------------------------------------------------------- | ----------------------------------- |
+| Python    | Manage documents from the command line and read and edit them using a web browser | 🚧 In progress, planned for Q3 2023 |
+| Node.js   | Manage, read and edit documents from a desktop app                                | 🧭 Planned Q3 2023                  |
+| R         | Manage, read and edit documents from within VSCode                                | 🧭 Planned Q4 2023                  |
 
 ## 📜 Documentation
 
