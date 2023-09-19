@@ -15,27 +15,27 @@
 <br>
 
 <p align="center">
-  <a href="#👋-introduction">
+  <a href="#-introduction">
     👋 Intro
   </a> •
-  <a href="#🚴-roadmap">
+  <a href="#-roadmap">
     🚴 Roadmap
   </a> •
-  <a href="#📜-documentation">
+  <a href="#-documentation">
     📜 Docs
   </a> •
-  <a href="#📥-install">
+  <a href="#-install">
     📥 Install
   </a> •
-  <a href="#🛠️-develop">
+  <a href="#%EF%B8%8F-develop">
     🛠️ Develop
   </a>
 </p>
 <p align="center">
-  <a href="#🙏-acknowledgements">
+  <a href="#-acknowledgements">
     🙏 Acknowledgements
   </a> •
-  <a href="#💖-supporters">
+  <a href="#-supporters">
     💖 Supporters
   </a>
 </p>
