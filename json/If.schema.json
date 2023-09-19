@@ -8,7 +8,7 @@
   ],
   "category": "flow",
   "description": "Show and execute alternative content conditional upon an executed expression",
-  "status": "experimental",
+  "status": "under-development",
   "html": {
     "elem": "div",
     "custom": true

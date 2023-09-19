@@ -10,7 +10,7 @@
   "abstract": true,
   "description": "An abstract base class for a document node that has styling applied to it and/or its content",
   "$comment": "This class is very similar to the `Math` abstract base class but has `styleLanguage` instead\nof `mathLanguage` and compiled `css` instead of `mathml`.\n\nNote also that `styleLanguage` is optional.\n",
-  "status": "experimental",
+  "status": "under-development",
   "required": [
     "type",
     "code"

@@ -8,7 +8,7 @@
   ],
   "category": "flow",
   "description": "A function with a name, which might take Parameters and return a value of a certain type.",
-  "status": "experimental",
+  "status": "under-development",
   "required": [
     "type",
     "name",

@@ -8,7 +8,7 @@
   ],
   "category": "style",
   "description": "Styled inline content",
-  "status": "experimental",
+  "status": "under-development",
   "html": {
     "elem": "span",
     "custom": true

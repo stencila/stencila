@@ -4,7 +4,7 @@
 
 **`@id`**: `stencila:If`
 
-This type is marked as experimental and is likely to change.
+This type is marked as unstable and is subject to change.
 
 ## Properties
 

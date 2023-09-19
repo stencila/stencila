@@ -10,7 +10,7 @@ Note also that `styleLanguage` is optional.
 
 **`@id`**: `stencila:Styled`
 
-This type is marked as experimental and is likely to change.
+This type is marked as unstable and is subject to change.
 
 ## Properties
 

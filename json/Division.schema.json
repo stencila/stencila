@@ -8,7 +8,7 @@
   ],
   "category": "style",
   "description": "Styled block content",
-  "status": "experimental",
+  "status": "under-development",
   "html": {
     "elem": "div",
     "custom": true

@@ -8,7 +8,7 @@
   ],
   "category": "flow",
   "description": "A form to batch updates in document parameters",
-  "status": "experimental",
+  "status": "under-development",
   "required": [
     "type",
     "content"

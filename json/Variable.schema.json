@@ -8,7 +8,7 @@
   ],
   "category": "flow",
   "description": "A variable representing a name / value pair.",
-  "status": "experimental",
+  "status": "under-development",
   "required": [
     "type",
     "namespace",

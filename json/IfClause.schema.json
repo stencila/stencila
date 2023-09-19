@@ -8,7 +8,7 @@
   ],
   "category": "flow",
   "description": "A clause within a `If` node",
-  "status": "experimental",
+  "status": "under-development",
   "html": {
     "elem": "div",
     "custom": true

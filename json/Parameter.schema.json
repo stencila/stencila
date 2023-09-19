@@ -8,7 +8,7 @@
   ],
   "category": "flow",
   "description": "A parameter of a document.",
-  "status": "experimental",
+  "status": "under-development",
   "html": {
     "elem": "span",
     "custom": true

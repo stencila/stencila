@@ -8,7 +8,7 @@
   ],
   "category": "flow",
   "description": "Repeat a block content for each item in an array.",
-  "status": "experimental",
+  "status": "under-development",
   "markdown": {
     "special": true
   },

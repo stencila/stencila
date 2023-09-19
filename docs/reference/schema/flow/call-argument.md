@@ -8,7 +8,7 @@ an expression to be used to set the value of the parameter.
 
 **`@id`**: `stencila:CallArgument`
 
-This type is marked as experimental and is likely to change.
+This type is marked as unstable and is subject to change.
 
 ## Properties
 

@@ -8,7 +8,7 @@
   ],
   "category": "flow",
   "description": "Call another document, optionally with arguments, and include its executed content.",
-  "status": "experimental",
+  "status": "under-development",
   "markdown": {
     "special": true
   },
