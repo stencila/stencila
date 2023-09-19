@@ -33,7 +33,7 @@ impl Status {
             Planned => "🧭",
             Experimental => "🧪",
             UnderDevelopment => "🚧",
-            Alpha => "🟥",
+            Alpha => "⚠️",
             Beta => "🔶",
             Stable => "🟢",
         }

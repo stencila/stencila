@@ -368,7 +368,7 @@ fn formats(title: &str, schema: &Schema) -> Vec<Block> {
                     icon = match support {
                         CodecSupport::NoLoss => "🟢",
                         CodecSupport::LowLoss => "🔷",
-                        CodecSupport::HighLoss => "🟥",
+                        CodecSupport::HighLoss => "⚠️",
                         CodecSupport::None => "",
                     },
                     desc = support.to_string().to_sentence_case()
