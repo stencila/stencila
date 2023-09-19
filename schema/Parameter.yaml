@@ -2,7 +2,7 @@ title: Parameter
 '@id': stencila:Parameter
 extends: Executable
 category: flow
-status: experimental
+status: under-development
 description: A parameter of a document.
 html:
   elem: span

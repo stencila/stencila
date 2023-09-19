@@ -3,7 +3,7 @@ title: Styled
 extends: Entity
 category: style
 abstract: true
-status: experimental
+status: under-development
 description: An abstract base class for a document node that has styling applied to it and/or its content
 $comment: |
   This class is very similar to the `Math` abstract base class but has `styleLanguage` instead

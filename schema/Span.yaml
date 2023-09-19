@@ -3,7 +3,7 @@ title: Span
 extends: Styled
 category: style
 description: Styled inline content
-status: experimental
+status: under-development
 required:
   - content
 properties:
