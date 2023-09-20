@@ -72,7 +72,7 @@ We are embarking on a rewrite because CRDTs will now be the foundational synchro
 We'll be releasing `v2` early and often across all products: initial versions will have limited functionality and be buggy, but will establish a deployment pipeline that can be rapidly iterated upon.
 We're aiming for a `2.0.0` release by the end of Q3 2024.
 
-❔ Maybe • 🧭 Planned • 🧪 Experimental • 🚧 Under development • ⚠️ Alpha • 🔶 Beta • 🟢 Stable
+🟢 Stable • 🔶 Beta • ⚠️ Alpha • 🚧 Under development • 🧪 Experimental • 🧭 Planned • ❔ Maybe
 
 ### Schema
 
@@ -92,38 +92,39 @@ The Stencila Schema is the data model for Stencila documents. Most of the schema
 
 In `v2` documents can be stored as binary Automerge CRDT files, forked and merged, and with the ability to import and export the document in various formats. Collaboration, including real-time, is made possible by exchanging fine-grained changes to the CRDT over the network. In addition, we want to enable interoperability with a Git-based workflow.
 
-| Functionality                | Description                                                                                                                                                   | Status                                                        |
-| ---------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------- |
-| Documents read/write-able    | Able to write a Stencila document to an Automerge binary file and read it back in                                                                             | ⚠️ Alpha; needs more testing                                  |
-| Documents import/export-able | Able to import or export document as alternative formats, using tree diffing to generate CRDT changes                                                         | ⚠️ Alpha; needs more testing                                  |
-| Documents fork/merge-able    | Able to create a fork of a document in another file and then later merge with the original                                                                    | 🧭 Planned Q4 2023                                            |
-| Git merge driver             | CLI can act as a [custom Git merge driver](https://www.julianburr.de/til/custom-git-merge-drivers/)                                                           | 🧭 Planned for when binary formats such as DOCX are supported |
-| Relay server                 | Documents can be synchronized by exchanging changes via a relay server                                                                                        | 🧭 Planned                                                    |
-| Rendezvous server            | Documents can be synchronized by exchanging changes peer-to-peer using TCP or UDP [hole punching](<https://en.wikipedia.org/wiki/Hole_punching_(networking)>) | ❔ Maybe                                                      |
+| Functionality                | Description                                                                                                                                                   | Status                       |
+| ---------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------- |
+| Documents read/write-able    | Able to write a Stencila document to an Automerge binary file and read it back in                                                                             | ⚠️ Alpha; needs more testing |
+| Documents import/export-able | Able to import or export document as alternative formats, using tree diffing to generate CRDT changes                                                         | ⚠️ Alpha; needs more testing |
+| Documents fork/merge-able    | Able to create a fork of a document in another file and then later merge with the original                                                                    | 🧭 Planned Q4 2023           |
+| Documents diff-able          | Able to view a diff, in any of the supported format, between versions of a document and between a document and another file                                   | 🧭 Planned Q4 2023           |
+| Git merge driver             | CLI can act as a [custom Git merge driver](https://www.julianburr.de/til/custom-git-merge-drivers/)                                                           | 🧭 Planned                   |
+| Relay server                 | Documents can be synchronized by exchanging changes via a relay server                                                                                        | 🧭 Planned                   |
+| Rendezvous server            | Documents can be synchronized by exchanging changes peer-to-peer using TCP or UDP [hole punching](<https://en.wikipedia.org/wiki/Hole_punching_(networking)>) | ❔ Maybe                     |
 
 ### Formats
 
 Interoperability with existing formats has always been a key feature of Stencila. We will bring over _codecs_ (a.k.a. converters) from the `v1` branch and port other functionality from [`encoda`](https://github.com/stencila/encoda).
 
-| Format           | Encoding | Decoding | Notes                                                                                      |
-| ---------------- | -------- | -------- | ------------------------------------------------------------------------------------------ |
-| JSON             | 🟢       | 🟢       |                                                                                            |
-| JSON5            | 🟢       | 🟢       |                                                                                            |
-| YAML             | 🟢       | 🟢       |                                                                                            |
-| Plain text       | ⚠️       |          |                                                                                            |
-| HTML             | 🚧       | 🧭       |                                                                                            |
-| JATS             | 🚧       | 🧭       | Planned Q4 2023. Port decoding and tests from [`encoda`](https://github.com/stencila/encoda/)               |
-| Markdown         | 🚧       | 🧭       | Planned Q3 2023 [`v1`](https://github.com/stencila/stencila/tree/v1/rust/codec-md)                         |
-| R Markdown       | 🧭       | 🧭       | Relies on Markdown; [`v1`](https://github.com/stencila/stencila/tree/v1/rust/codec-rmd)    |
-| Jupyter Notebook | 🧭       | 🧭       | Relies on Markdown; [`v1`](https://github.com/stencila/stencila/tree/v1/rust/codec-ipynb)  |
-| Scripts          | 🧭       | 🧭       | Relies on Markdown; [`v1`](https://github.com/stencila/stencila/tree/v1/rust/codec-script) |
-| Pandoc           | 🧭       | 🧭       | Planned Q4 2023. [`v1`](https://github.com/stencila/stencila/tree/v1/rust/codec-pandoc)                     |
-| LaTeX            | 🧭       | 🧭       | Relies on Pandoc; [`v1`](https://github.com/stencila/stencila/tree/v1/rust/codec-latex)    |
-| Org              | 🧭       | 🧭       | Relies on Pandoc; [PR](https://github.com/stencila/stencila/pull/1485)                     |
-| Microsoft Word   | 🧭       | 🧭       | Relies on Pandoc; [`v1`](https://github.com/stencila/stencila/tree/v1/rust/codec-docx)     |
-| ODT              | 🧭       | 🧭       | Relies on Pandoc                                                                           |
-| Google Docs      | 🧭       | 🧭       | [`v1`](https://github.com/stencila/stencila/tree/v1/rust/codec-gdoc)                       |
-| PDF              | 🧭       | 🧭       | Relies on HTML; [`v1`](https://github.com/stencila/stencila/tree/v1/rust/codec-pdf)        |
+| Format           | Encoding | Decoding | Notes                                                                                         |
+| ---------------- | -------- | -------- | --------------------------------------------------------------------------------------------- |
+| JSON             | 🟢       | 🟢       |                                                                                               |
+| JSON5            | 🟢       | 🟢       |                                                                                               |
+| YAML             | 🟢       | 🟢       |                                                                                               |
+| Plain text       | ⚠️       |          |                                                                                               |
+| HTML             | 🚧       | 🧭       |                                                                                               |
+| JATS             | 🚧       | 🧭       | Planned Q4 2023. Port decoding and tests from [`encoda`](https://github.com/stencila/encoda/) |
+| Markdown         | 🚧       | 🧭       | Planned Q3 2023 [`v1`](https://github.com/stencila/stencila/tree/v1/rust/codec-md)            |
+| R Markdown       | 🧭       | 🧭       | Relies on Markdown; [`v1`](https://github.com/stencila/stencila/tree/v1/rust/codec-rmd)       |
+| Jupyter Notebook | 🧭       | 🧭       | Relies on Markdown; [`v1`](https://github.com/stencila/stencila/tree/v1/rust/codec-ipynb)     |
+| Scripts          | 🧭       | 🧭       | Relies on Markdown; [`v1`](https://github.com/stencila/stencila/tree/v1/rust/codec-script)    |
+| Pandoc           | 🧭       | 🧭       | Planned Q4 2023. [`v1`](https://github.com/stencila/stencila/tree/v1/rust/codec-pandoc)       |
+| LaTeX            | 🧭       | 🧭       | Relies on Pandoc; [`v1`](https://github.com/stencila/stencila/tree/v1/rust/codec-latex)       |
+| Org              | 🧭       | 🧭       | Relies on Pandoc; [PR](https://github.com/stencila/stencila/pull/1485)                        |
+| Microsoft Word   | 🧭       | 🧭       | Relies on Pandoc; [`v1`](https://github.com/stencila/stencila/tree/v1/rust/codec-docx)        |
+| ODT              | 🧭       | 🧭       | Relies on Pandoc                                                                              |
+| Google Docs      | 🧭       | 🧭       | [`v1`](https://github.com/stencila/stencila/tree/v1/rust/codec-gdoc)                          |
+| PDF              | 🧭       | 🧭       | Relies on HTML; [`v1`](https://github.com/stencila/stencila/tree/v1/rust/codec-pdf)           |
 
 ### Kernels
 
@@ -279,7 +280,7 @@ This repository is organized into the following modules. Please see their respec
 
 ## 🙏 Acknowledgements
 
-Stencila is built on the shoulders of many open source projects. Our sincere thanks to all the maintainers and contributors of those projects for their vision, enthusiasm and dedication, but most of all for all their hard work! The following open source projects in particular have an important role in the current version of Stencila.
+Stencila is built on the shoulders of many open source projects. Our sincere thanks to all the maintainers and contributors of those projects for their vision, enthusiasm and dedication. But most of all for all their hard work! The following open source projects in particular have an important role in the current version of Stencila. We sponsor these projects where, and to an extent, possible through [GitHub Sponsors](https://github.com/stencila) and [Open Collective](https://opencollective.com/stencila).
 
 |                                                  | Link                                  | Summary                                                                                                                                 |
 | ------------------------------------------------ | ------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------- |
