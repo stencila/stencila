@@ -2,17 +2,17 @@
   <p>
     <span>A simple for loop</span>
   </p>
-  <stencila-for code="[1,2,3]" programming-language="" symbol="item">
+  <stencila-for code='[1,2,3]' programming-language='' symbol='item'>
     <p>
       <span>This paragraph will be repeated with a different value for</span>
-      <span is="stencila-code-expression" code="item" programming-language="">
+      <span is='stencila-code-expression' code='item' programming-language=''>
       </span>
     </p>
   </stencila-for>
   <p>
     <span>With a programming language specified</span>
   </p>
-  <stencila-for code="[1,2,3]" programming-language="python" symbol="item">
+  <stencila-for code='[1,2,3]' programming-language='python' symbol='item'>
     <p>
       <span>This content is repeated</span>
     </p>
@@ -20,11 +20,11 @@
   <p>
     <span>Nested for loops</span>
   </p>
-  <stencila-for code="[['a', 'b'], ['c', 'd']]" programming-language="" symbol="outer">
-    <stencila-for code="outer" programming-language="" symbol="inner">
+  <stencila-for code='[[&#x27;a&#x27;, &#x27;b&#x27;], [&#x27;c&#x27;, &#x27;d&#x27;]]' programming-language='' symbol='outer'>
+    <stencila-for code='outer' programming-language='' symbol='inner'>
       <p>
         <span>This paragraph will be repeated for each inner item</span>
-        <span is="stencila-code-expression" code="inner" programming-language="">
+        <span is='stencila-code-expression' code='inner' programming-language=''>
         </span>
       </p>
     </stencila-for>
@@ -32,7 +32,7 @@
   <p>
     <span>With an else clause</span>
   </p>
-  <stencila-for code="[]" programming-language="" symbol="item" otherwise="[{&quot;type&quot;:&quot;Paragraph&quot;,&quot;content&quot;:[{&quot;type&quot;:&quot;Text&quot;,&quot;value&quot;:&quot;There are no items&quot;}]}]">
+  <stencila-for code='[]' programming-language='' symbol='item' otherwise='[{"type":"Paragraph","content":[{"type":"Text","value":"There are no items"}]}]'>
     <p>
       <span>This content is never shown</span>
     </p>
@@ -40,6 +40,6 @@
   <p>
     <span>With no content in &#x27;content&#x27; or &#x27;otherwise&#x27;</span>
   </p>
-  <stencila-for code="[]" programming-language="" symbol="item" otherwise="[]">
+  <stencila-for code='[]' programming-language='' symbol='item' otherwise='[]'>
   </stencila-for>
 </article>

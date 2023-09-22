@@ -1,14 +1,14 @@
 <article>
-  <div is="stencila-division" code="rounded border border-solid border-blue-200 bg-blue-100 p-2">
+  <div is='stencila-division' code='rounded border border-solid border-blue-200 bg-blue-100 p-2'>
     <p>
       <span>Paragraph within division</span>
     </p>
   </div>
-  <div is="stencila-division" code="bg-$color-100 p-2">
+  <div is='stencila-division' code='bg-$color-100 p-2'>
     <p>
       <span>A division with this parameter</span>
-      <span is="stencila-parameter" name="color">
-        <stencila-enum-validator values="[&quot;red&quot;,&quot;blue&quot;,&quot;green&quot;]">
+      <span is='stencila-parameter' name='color'>
+        <stencila-enum-validator values='["red","blue","green"]'>
         </stencila-enum-validator>
       </span>
       <span>interpolated into background color</span>

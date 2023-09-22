@@ -1,6 +1,6 @@
 //! Helper functions for encoding to HTML
 
-use html_escape::{encode_double_quoted_attribute, encode_safe};
+use html_escape::{encode_safe, encode_single_quoted_attribute};
 
 use common::{inflector::Inflector, itertools::Itertools};
 
@@ -15,9 +15,9 @@ pub fn attr(name: &str, value: &str) -> String {
 
     let name = name.to_kebab_case();
 
-    let value = encode_double_quoted_attribute(value.trim_matches('"'));
+    let value = encode_single_quoted_attribute(value.trim_matches('"').trim_matches('\''));
 
-    [&name, "=\"", &value, "\""].concat()
+    [&name, "='", &value, "'"].concat()
 }
 
 /// Generate escaped HTML text
