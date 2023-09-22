@@ -1,12 +1,16 @@
 //! The meta-schema for schemas in the Stencila Schema
 
-use std::path::PathBuf;
+use std::{
+    fmt::Display,
+    path::PathBuf,
+};
 
 use schemars::JsonSchema;
 
 use common::{
     eyre::{bail, eyre, Context, Result},
     indexmap::IndexMap,
+    itertools::Itertools,
     serde::{self, Deserialize, Serialize, Serializer},
     serde_json::{self, json},
     serde_with::skip_serializing_none,
@@ -375,6 +379,29 @@ pub enum Value {
     Array(Vec<Value>),
     #[serde(rename = "null")]
     Null,
+}
+
+impl Display for Value {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        use Value::*;
+        match self {
+            String(value) => write!(f, "{}", value),
+            Number(value) => write!(f, "{}", value),
+            Integer(value) => write!(f, "{}", value),
+            Boolean(value) => write!(f, "{}", value),
+            Object(value) => write!(
+                f,
+                "{}",
+                value.values().map(|item| item.to_string()).join(", ")
+            ),
+            Array(value) => write!(
+                f,
+                "{}",
+                value.iter().map(|item| item.to_string()).join(", ")
+            ),
+            Null => write!(f, "null"),
+        }
+    }
 }
 
 #[derive(Debug, Clone, Deserialize, Serialize, JsonSchema)]

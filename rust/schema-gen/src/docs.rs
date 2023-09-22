@@ -321,12 +321,15 @@ fn properties(title: &str, schema: &Schema, context: &Context) -> Vec<Block> {
 /// Generate a "Members" section for a schema
 fn members(title: &str, schema: &Schema, context: &Context) -> Vec<Block> {
     let mut items = Vec::new();
-    for schema in schema.any_of.as_ref().expect("Should") {
-        let Some(title) = &schema.r#ref else {
+    for schema in schema.any_of.as_ref().expect("should have an anyOf") {
+        if let Some(title) = &schema.r#ref {
+            let url = context.urls.get(title).cloned().unwrap_or_default();
+            items.push(li([link([cf(title)], url)]));
+        } else if let Some(value) = &schema.r#const {
+            items.push(li([cf(value.to_string())]));
+        } else {
             continue;
-        };
-        let url = context.urls.get(title).cloned().unwrap_or_default();
-        items.push(li([link([cf(title)], url)]))
+        }
     }
 
     vec![

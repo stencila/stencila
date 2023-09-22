@@ -8,7 +8,12 @@
 
 The `ExecutionDependencyRelation` type has these members:
 
-
+- `Calls`
+- `Derives`
+- `Imports`
+- `Includes`
+- `Reads`
+- `Uses`
 
 ## Bindings
 

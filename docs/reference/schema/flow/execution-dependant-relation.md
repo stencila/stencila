@@ -8,7 +8,10 @@
 
 The `ExecutionDependantRelation` type has these members:
 
-
+- `Assigns`
+- `Alters`
+- `Declares`
+- `Writes`
 
 ## Bindings
 

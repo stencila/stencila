@@ -8,7 +8,9 @@
 
 The `ListOrder` type has these members:
 
-
+- `Ascending`
+- `Descending`
+- `Unordered`
 
 ## Bindings
 

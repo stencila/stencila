@@ -8,7 +8,19 @@
 
 The `TimeUnit` type has these members:
 
-
+- `Year`
+- `Month`
+- `Week`
+- `Day`
+- `Hour`
+- `Minute`
+- `Second`
+- `Millisecond`
+- `Microsecond`
+- `Nanosecond`
+- `Picosecond`
+- `Femtosecond`
+- `Attosecond`
 
 ## Bindings
 

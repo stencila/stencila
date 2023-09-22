@@ -8,7 +8,9 @@
 
 The `ExecutionAuto` type has these members:
 
-
+- `Never`
+- `Needed`
+- `Always`
 
 ## Bindings
 

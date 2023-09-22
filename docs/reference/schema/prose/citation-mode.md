@@ -26,7 +26,9 @@ See https://www.overleaf.com/learn/latex/Natbib_citation_styles.
 
 The `CitationMode` type has these members:
 
-
+- `Parenthetical`
+- `Narrative`
+- `NarrativeAuthor`
 
 ## Bindings
 

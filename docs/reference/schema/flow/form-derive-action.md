@@ -8,7 +8,10 @@
 
 The `FormDeriveAction` type has these members:
 
-
+- `Create`
+- `Update`
+- `Delete`
+- `UpdateOrDelete`
 
 ## Bindings
 

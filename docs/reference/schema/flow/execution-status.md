@@ -8,7 +8,13 @@
 
 The `ExecutionStatus` type has these members:
 
-
+- `Scheduled`
+- `ScheduledPreviouslyFailed`
+- `Running`
+- `RunningPreviouslyFailed`
+- `Succeeded`
+- `Failed`
+- `Cancelled`
 
 ## Bindings
 

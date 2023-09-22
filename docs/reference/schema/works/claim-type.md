@@ -8,7 +8,14 @@
 
 The `ClaimType` type has these members:
 
-
+- `Statement`
+- `Theorem`
+- `Lemma`
+- `Proof`
+- `Postulate`
+- `Hypothesis`
+- `Proposition`
+- `Corollary`
 
 ## Bindings
 

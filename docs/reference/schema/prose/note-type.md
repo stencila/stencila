@@ -8,7 +8,9 @@
 
 The `NoteType` type has these members:
 
-
+- `Footnote`
+- `Endnote`
+- `Sidenote`
 
 ## Bindings
 

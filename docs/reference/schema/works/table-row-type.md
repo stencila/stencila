@@ -8,7 +8,9 @@
 
 The `TableRowType` type has these members:
 
-
+- `Header`
+- `Body`
+- `Footer`
 
 ## Bindings
 

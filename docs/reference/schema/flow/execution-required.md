@@ -8,7 +8,13 @@
 
 The `ExecutionRequired` type has these members:
 
-
+- `No`
+- `NeverExecuted`
+- `SemanticsChanged`
+- `DependenciesChanged`
+- `DependenciesFailed`
+- `Failed`
+- `KernelRestarted`
 
 ## Bindings
 
