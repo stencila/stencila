@@ -111,6 +111,9 @@
       "$ref": "DefinedTerm.schema.json"
     },
     {
+      "$ref": "Delete.schema.json"
+    },
+    {
       "$ref": "Directory.schema.json"
     },
     {
@@ -175,6 +178,9 @@
     },
     {
       "$ref": "Include.schema.json"
+    },
+    {
+      "$ref": "Insert.schema.json"
     },
     {
       "$ref": "IntegerValidator.schema.json"

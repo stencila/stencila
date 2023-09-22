@@ -137,6 +137,9 @@
           "@id": "stencila:Span"
         },
         {
+          "@id": "stencila:Suggestion"
+        },
+        {
           "@id": "stencila:TableCell"
         }
       ],

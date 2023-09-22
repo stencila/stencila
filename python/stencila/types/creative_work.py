@@ -11,6 +11,7 @@ from .grant_or_monetary_grant import GrantOrMonetaryGrant
 from .inline import Inline
 from .person import Person
 from .person_or_organization import PersonOrOrganization
+from .person_or_organization_or_software_application import PersonOrOrganizationOrSoftwareApplication
 from .str_or_float import StrOrFloat
 from .thing import Thing
 from .thing_type import ThingType
@@ -28,7 +29,16 @@ class CreativeWork(Thing):
     """The subject matter of the content."""
 
     authors: Optional[List[PersonOrOrganization]] = None
-    """The authors of this creative work."""
+    """The authors of the `CreativeWork`."""
+
+    contributors: Optional[List[PersonOrOrganizationOrSoftwareApplication]] = None
+    """A secondary contributor to the `CreativeWork`."""
+
+    editors: Optional[List[Person]] = None
+    """People who edited the `CreativeWork`."""
+
+    maintainers: Optional[List[PersonOrOrganization]] = None
+    """The maintainers of the `CreativeWork`."""
 
     comments: Optional[List[Comment]] = None
     """Comments about this creative work."""
@@ -51,9 +61,6 @@ class CreativeWork(Thing):
     date_published: Optional[Date] = None
     """Date of first publication."""
 
-    editors: Optional[List[Person]] = None
-    """People who edited the `CreativeWork`."""
-
     funders: Optional[List[PersonOrOrganization]] = None
     """People or organizations that funded the `CreativeWork`."""
 
@@ -71,9 +78,6 @@ class CreativeWork(Thing):
 
     licenses: Optional[List[CreativeWorkTypeOrStr]] = None
     """License documents that applies to this content, typically indicated by URL."""
-
-    maintainers: Optional[List[PersonOrOrganization]] = None
-    """The people or organizations who maintain this CreativeWork."""
 
     parts: Optional[List[CreativeWorkType]] = None
     """Elements of the collection which can be a variety of different elements, such as Articles, Datatables, Tables and more."""

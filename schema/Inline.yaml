@@ -12,9 +12,11 @@ anyOf:
   - $ref: CodeFragment
   - $ref: Date
   - $ref: DateTime
+  - $ref: Delete
   - $ref: Duration
   - $ref: Emphasis
   - $ref: ImageObject
+  - $ref: Insert
   - $ref: Link
   - $ref: MathFragment
   - $ref: Note

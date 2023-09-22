@@ -11,7 +11,7 @@ use common::{
 };
 
 /// The direction of loss
-#[derive(Debug, PartialEq)]
+#[derive(Debug, Clone, PartialEq)]
 pub enum LossDirection {
     Decode,
     Encode,
@@ -194,15 +194,14 @@ impl Losses {
     }
 
     /// Create a set of losses for entire node
-    pub fn of_all<S>(r#type: S) -> Self
+    pub fn of_everything<S>(direction: LossDirection, r#type: S) -> Self
     where
         S: AsRef<str>,
     {
-        Self::new([Loss::of_properties(
-            LossDirection::Encode,
-            r#type,
-            ["*".to_string()],
-        )])
+        Self::new([
+            Loss::of_type(direction.clone(), r#type.as_ref()),
+            Loss::of_properties(direction, r#type, ["*".to_string()]),
+        ])
     }
 
     /// Create a set of losses with one entry for the loss of the id property

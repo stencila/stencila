@@ -91,7 +91,12 @@ fn derive_struct(type_attr: TypeAttr) -> TokenStream {
         return quote! {
             impl JatsCodec for #struct_name {
                 fn to_jats_parts(&self) -> (String, Vec<(String, String)>, String, Losses) {
-                    (String::new(), Vec::new(), String::new(), Losses::of_all(stringify!(#struct_name)))
+                    (
+                        String::new(),
+                        Vec::new(),
+                        String::new(),
+                        Losses::of_everything(LossDirection::Encode, stringify!(#struct_name))
+                    )
                 }
             }
         }

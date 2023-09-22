@@ -42,6 +42,7 @@ from .date_time import DateTime
 from .date_time_validator import DateTimeValidator
 from .date_validator import DateValidator
 from .defined_term import DefinedTerm
+from .delete import Delete
 from .directory import Directory
 from .division import Division
 from .duration import Duration
@@ -80,6 +81,7 @@ from .image_object_or_str import ImageObjectOrStr
 from .include import Include
 from .inline import Inline
 from .inlines import Inlines
+from .insert import Insert
 from .int_or_str import IntOrStr
 from .integer_validator import IntegerValidator
 from .link import Link
@@ -104,6 +106,7 @@ from .parameter import Parameter
 from .periodical import Periodical
 from .person import Person
 from .person_or_organization import PersonOrOrganization
+from .person_or_organization_or_software_application import PersonOrOrganizationOrSoftwareApplication
 from .postal_address import PostalAddress
 from .postal_address_or_str import PostalAddressOrStr
 from .primitive import Primitive
@@ -125,6 +128,7 @@ from .string_validator import StringValidator
 from .strong import Strong
 from .styled import Styled
 from .subscript import Subscript
+from .suggestion import Suggestion
 from .superscript import Superscript
 from .table import Table
 from .table_cell import TableCell

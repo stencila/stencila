@@ -1,0 +1,56 @@
+{
+  "$schema": "https://stencila.dev/meta.schema.json",
+  "$id": "https://stencila.dev/Insert.schema.json",
+  "@id": "stencila:Insert",
+  "title": "Insert",
+  "extends": [
+    "Suggestion"
+  ],
+  "category": "prose",
+  "description": "A suggestion to insert some inline content.",
+  "html": {
+    "elem": "ins",
+    "custom": true
+  },
+  "jats": {
+    "special": true
+  },
+  "markdown": {
+    "format": "<ins>{content}</ins>"
+  },
+  "required": [
+    "type",
+    "content"
+  ],
+  "core": [
+    "id"
+  ],
+  "properties": {
+    "type": {
+      "@id": "schema:type",
+      "description": "The type of this item",
+      "$comment": "This is a special property analogous to JSON-LD's `@type` keyword.\n",
+      "type": "string"
+    },
+    "id": {
+      "@id": "schema:id",
+      "description": "The identifier for this item",
+      "$comment": "This is a special property analogous to JSON-LD's `@id` keyword.\n",
+      "strip": [
+        "id"
+      ],
+      "html": {
+        "attr": "id"
+      },
+      "type": "string"
+    },
+    "content": {
+      "@id": "stencila:content",
+      "description": "The content that is suggested to be inserted or deleted.",
+      "type": "array",
+      "items": {
+        "$ref": "Inline.schema.json"
+      }
+    }
+  }
+}

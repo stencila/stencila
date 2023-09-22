@@ -32,6 +32,7 @@ DateTime = ForwardRef("DateTime")
 DateTimeValidator = ForwardRef("DateTimeValidator")
 DateValidator = ForwardRef("DateValidator")
 DefinedTerm = ForwardRef("DefinedTerm")
+Delete = ForwardRef("Delete")
 Directory = ForwardRef("Directory")
 Division = ForwardRef("Division")
 Duration = ForwardRef("Duration")
@@ -54,6 +55,7 @@ If = ForwardRef("If")
 IfClause = ForwardRef("IfClause")
 ImageObject = ForwardRef("ImageObject")
 Include = ForwardRef("Include")
+Insert = ForwardRef("Insert")
 IntegerValidator = ForwardRef("IntegerValidator")
 Link = ForwardRef("Link")
 List = ForwardRef("List")
@@ -140,6 +142,7 @@ Node = Union[
     DateTimeValidator,
     DateValidator,
     DefinedTerm,
+    Delete,
     Directory,
     Division,
     Duration,
@@ -162,6 +165,7 @@ Node = Union[
     IfClause,
     ImageObject,
     Include,
+    Insert,
     IntegerValidator,
     Link,
     List,

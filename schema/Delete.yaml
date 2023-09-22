@@ -1,0 +1,12 @@
+title: Delete
+'@id': stencila:Delete
+extends: Suggestion
+category: prose
+description: A suggestion to delete some inline content.
+html:
+  elem: del
+  custom: true
+jats:
+  special: true
+markdown:
+  format: '<del>{content}</del>'

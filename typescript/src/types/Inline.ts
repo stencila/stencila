@@ -8,9 +8,11 @@ import { CodeExpression } from './CodeExpression'
 import { CodeFragment } from './CodeFragment'
 import { Date } from './Date'
 import { DateTime } from './DateTime'
+import { Delete } from './Delete'
 import { Duration } from './Duration'
 import { Emphasis } from './Emphasis'
 import { ImageObject } from './ImageObject'
+import { Insert } from './Insert'
 import { Integer } from './Integer'
 import { Link } from './Link'
 import { MathFragment } from './MathFragment'
@@ -38,9 +40,11 @@ export type Inline =
   CodeFragment |
   Date |
   DateTime |
+  Delete |
   Duration |
   Emphasis |
   ImageObject |
+  Insert |
   Link |
   MathFragment |
   Note |

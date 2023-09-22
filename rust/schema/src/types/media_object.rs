@@ -13,6 +13,7 @@ use super::inline::Inline;
 use super::number::Number;
 use super::person::Person;
 use super::person_or_organization::PersonOrOrganization;
+use super::person_or_organization_or_software_application::PersonOrOrganizationOrSoftwareApplication;
 use super::property_value_or_string::PropertyValueOrString;
 use super::string::String;
 use super::string_or_number::StringOrNumber;
@@ -72,8 +73,17 @@ pub struct MediaObjectOptions {
     /// The subject matter of the content.
     pub about: Option<Vec<ThingType>>,
 
-    /// The authors of this creative work.
+    /// The authors of the `CreativeWork`.
     pub authors: Option<Vec<PersonOrOrganization>>,
+
+    /// A secondary contributor to the `CreativeWork`.
+    pub contributors: Option<Vec<PersonOrOrganizationOrSoftwareApplication>>,
+
+    /// People who edited the `CreativeWork`.
+    pub editors: Option<Vec<Person>>,
+
+    /// The maintainers of the `CreativeWork`.
+    pub maintainers: Option<Vec<PersonOrOrganization>>,
 
     /// Comments about this creative work.
     pub comments: Option<Vec<Comment>>,
@@ -96,9 +106,6 @@ pub struct MediaObjectOptions {
     /// Date of first publication.
     pub date_published: Option<Date>,
 
-    /// People who edited the `CreativeWork`.
-    pub editors: Option<Vec<Person>>,
-
     /// People or organizations that funded the `CreativeWork`.
     pub funders: Option<Vec<PersonOrOrganization>>,
 
@@ -117,9 +124,6 @@ pub struct MediaObjectOptions {
 
     /// License documents that applies to this content, typically indicated by URL.
     pub licenses: Option<Vec<CreativeWorkTypeOrString>>,
-
-    /// The people or organizations who maintain this CreativeWork.
-    pub maintainers: Option<Vec<PersonOrOrganization>>,
 
     /// Elements of the collection which can be a variety of different elements,
     /// such as Articles, Datatables, Tables and more.

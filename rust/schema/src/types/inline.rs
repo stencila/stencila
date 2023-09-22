@@ -11,9 +11,11 @@ use super::code_expression::CodeExpression;
 use super::code_fragment::CodeFragment;
 use super::date::Date;
 use super::date_time::DateTime;
+use super::delete::Delete;
 use super::duration::Duration;
 use super::emphasis::Emphasis;
 use super::image_object::ImageObject;
+use super::insert::Insert;
 use super::integer::Integer;
 use super::link::Link;
 use super::math_fragment::MathFragment;
@@ -46,9 +48,11 @@ pub enum Inline {
     CodeFragment(CodeFragment),
     Date(Date),
     DateTime(DateTime),
+    Delete(Delete),
     Duration(Duration),
     Emphasis(Emphasis),
     ImageObject(ImageObject),
+    Insert(Insert),
     Link(Link),
     MathFragment(MathFragment),
     Note(Note),

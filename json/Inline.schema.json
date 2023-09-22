@@ -31,6 +31,9 @@
       "$ref": "DateTime.schema.json"
     },
     {
+      "$ref": "Delete.schema.json"
+    },
+    {
       "$ref": "Duration.schema.json"
     },
     {
@@ -38,6 +41,9 @@
     },
     {
       "$ref": "ImageObject.schema.json"
+    },
+    {
+      "$ref": "Insert.schema.json"
     },
     {
       "$ref": "Link.schema.json"

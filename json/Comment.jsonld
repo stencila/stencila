@@ -132,7 +132,56 @@
       "@id": "schema:author",
       "@type": "rdfs:Property",
       "rdfs:label": "authors",
-      "rdfs:comment": "The authors of this creative work.",
+      "rdfs:comment": "The authors of the `CreativeWork`.",
+      "schema:domainIncludes": {
+        "@id": "schema:CreativeWork"
+      },
+      "schema:rangeIncludes": [
+        {
+          "@id": "Person"
+        },
+        {
+          "@id": "Organization"
+        }
+      ]
+    },
+    {
+      "@id": "schema:contributor",
+      "@type": "rdfs:Property",
+      "rdfs:label": "contributors",
+      "rdfs:comment": "A secondary contributor to the `CreativeWork`.",
+      "schema:domainIncludes": {
+        "@id": "schema:CreativeWork"
+      },
+      "schema:rangeIncludes": [
+        {
+          "@id": "Person"
+        },
+        {
+          "@id": "Organization"
+        },
+        {
+          "@id": "SoftwareApplication"
+        }
+      ]
+    },
+    {
+      "@id": "schema:editor",
+      "@type": "rdfs:Property",
+      "rdfs:label": "editors",
+      "rdfs:comment": "People who edited the `CreativeWork`.",
+      "schema:domainIncludes": {
+        "@id": "schema:CreativeWork"
+      },
+      "schema:rangeIncludes": {
+        "@id": "stencila:Person"
+      }
+    },
+    {
+      "@id": "schema:maintainer",
+      "@type": "rdfs:Property",
+      "rdfs:label": "maintainers",
+      "rdfs:comment": "The maintainers of the `CreativeWork`.",
       "schema:domainIncludes": {
         "@id": "schema:CreativeWork"
       },
@@ -212,6 +261,9 @@
           "@id": "stencila:Span"
         },
         {
+          "@id": "stencila:Suggestion"
+        },
+        {
           "@id": "stencila:TableCell"
         }
       ],
@@ -277,18 +329,6 @@
       },
       "schema:rangeIncludes": {
         "@id": "Date"
-      }
-    },
-    {
-      "@id": "schema:editor",
-      "@type": "rdfs:Property",
-      "rdfs:label": "editors",
-      "rdfs:comment": "People who edited the `CreativeWork`.",
-      "schema:domainIncludes": {
-        "@id": "schema:CreativeWork"
-      },
-      "schema:rangeIncludes": {
-        "@id": "stencila:Person"
       }
     },
     {
@@ -386,23 +426,6 @@
         },
         {
           "@id": "schema:Text"
-        }
-      ]
-    },
-    {
-      "@id": "schema:maintainer",
-      "@type": "rdfs:Property",
-      "rdfs:label": "maintainers",
-      "rdfs:comment": "The people or organizations who maintain this CreativeWork.",
-      "schema:domainIncludes": {
-        "@id": "schema:CreativeWork"
-      },
-      "schema:rangeIncludes": [
-        {
-          "@id": "Person"
-        },
-        {
-          "@id": "Organization"
         }
       ]
     },

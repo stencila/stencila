@@ -1,0 +1,78 @@
+{
+  "$schema": "https://stencila.dev/Article.schema.json",
+  "type": "Article",
+  "content": [
+    {
+      "type": "Paragraph",
+      "content": [
+        {
+          "type": "Text",
+          "value": "Some "
+        },
+        {
+          "type": "Insert",
+          "content": [
+            {
+              "type": "Text",
+              "value": "inserted "
+            }
+          ]
+        },
+        {
+          "type": "Text",
+          "value": "text."
+        }
+      ]
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        {
+          "type": "Text",
+          "value": "Several inserted inlines"
+        },
+        {
+          "type": "Insert",
+          "content": [
+            {
+              "type": "Strong",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": "strongly emphasized"
+                }
+              ]
+            },
+            {
+              "type": "Text",
+              "value": " and "
+            },
+            {
+              "type": "Superscript",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": "superscripted"
+                }
+              ]
+            },
+            {
+              "type": "Text",
+              "value": " and "
+            },
+            {
+              "type": "CodeExpression",
+              "programmingLanguage": "",
+              "code": "2 + 2",
+              "output": 4
+            }
+          ]
+        },
+        {
+          "type": "Text",
+          "value": "."
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+title: Insert
+'@id': stencila:Insert
+extends: Suggestion
+category: prose
+description: A suggestion to insert some inline content.
+html:
+  elem: ins
+  custom: true
+jats:
+  special: true
+markdown:
+  format: '<ins>{content}</ins>'

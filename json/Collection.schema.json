@@ -105,7 +105,50 @@
     },
     "authors": {
       "@id": "schema:author",
-      "description": "The authors of this creative work.",
+      "description": "The authors of the `CreativeWork`.",
+      "type": "array",
+      "items": {
+        "anyOf": [
+          {
+            "$ref": "Person.schema.json"
+          },
+          {
+            "$ref": "Organization.schema.json"
+          }
+        ]
+      }
+    },
+    "contributors": {
+      "@id": "schema:contributor",
+      "description": "A secondary contributor to the `CreativeWork`.",
+      "type": "array",
+      "items": {
+        "anyOf": [
+          {
+            "$ref": "Person.schema.json"
+          },
+          {
+            "$ref": "Organization.schema.json"
+          },
+          {
+            "$ref": "SoftwareApplication.schema.json"
+          }
+        ]
+      }
+    },
+    "editors": {
+      "@id": "schema:editor",
+      "description": "People who edited the `CreativeWork`.",
+      "$comment": "Note that, consistent with schema.org, this property can only include\na `Person`, unlike `authors` and `maintainers` which can also include\n`Organization`.\n",
+      "type": "array",
+      "items": {
+        "$ref": "Person.schema.json"
+      }
+    },
+    "maintainers": {
+      "@id": "schema:maintainer",
+      "description": "The maintainers of the `CreativeWork`.",
+      "$comment": "A maintainer of a `Dataset`, `SoftwareApplication`, or other `CreativeWork`.\nA maintainer is a `Person` or `Organization` that manages contributions to,\nand/or publication of, some (typically complex) artifact. It is common for\ndistributions of software and data to be based on \"upstream\" sources.\nWhen maintainer is applied to a specific version of something e.g. a particular\nversion or packaging of a Dataset, it is always possible that the upstream\nsource has a different maintainer. The `isBasedOn` property can be used to\nindicate such relationships between datasets to make the different maintenance\nroles clear. Similarly in the case of software, a package may have dedicated\nmaintainers working on integration into software distributions such as Ubuntu,\nas well as upstream maintainers of the underlying work.\n",
       "type": "array",
       "items": {
         "anyOf": [
@@ -162,14 +205,6 @@
         "date"
       ],
       "$ref": "Date.schema.json"
-    },
-    "editors": {
-      "@id": "schema:editor",
-      "description": "People who edited the `CreativeWork`.",
-      "type": "array",
-      "items": {
-        "$ref": "Person.schema.json"
-      }
     },
     "funders": {
       "@id": "schema:funder",
@@ -235,22 +270,6 @@
           {
             "type": "string",
             "format": "uri"
-          }
-        ]
-      }
-    },
-    "maintainers": {
-      "@id": "schema:maintainer",
-      "description": "The people or organizations who maintain this CreativeWork.",
-      "$comment": "A maintainer of a Dataset, SoftwareApplication, or other CreativeWork.\nA maintainer is a Person or Organization that manages contributions to,\nand/or publication of, some (typically complex) artifact. It is common for\ndistributions of software and data to be based on \"upstream\" sources.\nWhen maintainer is applied to a specific version of something e.g. a particular\nversion or packaging of a Dataset, it is always possible that the upstream\nsource has a different maintainer. The isBasedOn property can be used to\nindicate such relationships between datasets to make the different maintenance\nroles clear. Similarly in the case of software, a package may have dedicated\nmaintainers working on integration into software distributions such as Ubuntu,\nas well as upstream maintainers of the underlying work.\n",
-      "type": "array",
-      "items": {
-        "anyOf": [
-          {
-            "$ref": "Person.schema.json"
-          },
-          {
-            "$ref": "Organization.schema.json"
           }
         ]
       }

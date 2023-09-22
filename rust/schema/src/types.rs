@@ -42,6 +42,7 @@ mod date_time;
 mod date_time_validator;
 mod date_validator;
 mod defined_term;
+mod delete;
 mod directory;
 mod division;
 mod duration;
@@ -78,6 +79,7 @@ mod image_object_or_string;
 mod include;
 mod inline;
 mod inlines;
+mod insert;
 mod integer;
 mod integer_or_string;
 mod integer_validator;
@@ -103,6 +105,7 @@ mod parameter;
 mod periodical;
 mod person;
 mod person_or_organization;
+mod person_or_organization_or_software_application;
 mod postal_address;
 mod postal_address_or_string;
 mod primitive;
@@ -187,6 +190,7 @@ pub use date_time::*;
 pub use date_time_validator::*;
 pub use date_validator::*;
 pub use defined_term::*;
+pub use delete::*;
 pub use directory::*;
 pub use division::*;
 pub use duration::*;
@@ -223,6 +227,7 @@ pub use image_object_or_string::*;
 pub use include::*;
 pub use inline::*;
 pub use inlines::*;
+pub use insert::*;
 pub use integer::*;
 pub use integer_or_string::*;
 pub use integer_validator::*;
@@ -248,6 +253,7 @@ pub use parameter::*;
 pub use periodical::*;
 pub use person::*;
 pub use person_or_organization::*;
+pub use person_or_organization_or_software_application::*;
 pub use postal_address::*;
 pub use postal_address_or_string::*;
 pub use primitive::*;
@@ -330,6 +336,7 @@ pub enum NodeType {
     DateTimeValidator,
     DateValidator,
     DefinedTerm,
+    Delete,
     Directory,
     Division,
     Duration,
@@ -352,6 +359,7 @@ pub enum NodeType {
     IfClause,
     ImageObject,
     Include,
+    Insert,
     IntegerValidator,
     Link,
     List,

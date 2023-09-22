@@ -11,6 +11,7 @@ import { Inline } from './Inline';
 import { IntegerOrString } from './IntegerOrString';
 import { Person } from './Person';
 import { PersonOrOrganization } from './PersonOrOrganization';
+import { PersonOrOrganizationOrSoftwareApplication } from './PersonOrOrganizationOrSoftwareApplication';
 import { PropertyValueOrString } from './PropertyValueOrString';
 import { StringOrNumber } from './StringOrNumber';
 import { ThingType } from './ThingType';
@@ -43,8 +44,17 @@ export class PublicationVolume {
   // The subject matter of the content.
   about?: ThingType[];
 
-  // The authors of this creative work.
+  // The authors of the `CreativeWork`.
   authors?: PersonOrOrganization[];
+
+  // A secondary contributor to the `CreativeWork`.
+  contributors?: PersonOrOrganizationOrSoftwareApplication[];
+
+  // People who edited the `CreativeWork`.
+  editors?: Person[];
+
+  // The maintainers of the `CreativeWork`.
+  maintainers?: PersonOrOrganization[];
 
   // Comments about this creative work.
   comments?: Comment[];
@@ -67,9 +77,6 @@ export class PublicationVolume {
   // Date of first publication.
   datePublished?: Date;
 
-  // People who edited the `CreativeWork`.
-  editors?: Person[];
-
   // People or organizations that funded the `CreativeWork`.
   funders?: PersonOrOrganization[];
 
@@ -88,9 +95,6 @@ export class PublicationVolume {
 
   // License documents that applies to this content, typically indicated by URL.
   licenses?: CreativeWorkTypeOrString[];
-
-  // The people or organizations who maintain this CreativeWork.
-  maintainers?: PersonOrOrganization[];
 
   // Elements of the collection which can be a variety of different elements,
   // such as Articles, Datatables, Tables and more.

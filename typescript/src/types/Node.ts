@@ -30,6 +30,7 @@ import { DateTime } from './DateTime'
 import { DateTimeValidator } from './DateTimeValidator'
 import { DateValidator } from './DateValidator'
 import { DefinedTerm } from './DefinedTerm'
+import { Delete } from './Delete'
 import { Directory } from './Directory'
 import { Division } from './Division'
 import { Duration } from './Duration'
@@ -52,6 +53,7 @@ import { If } from './If'
 import { IfClause } from './IfClause'
 import { ImageObject } from './ImageObject'
 import { Include } from './Include'
+import { Insert } from './Insert'
 import { Integer } from './Integer'
 import { IntegerValidator } from './IntegerValidator'
 import { Link } from './Link'
@@ -139,6 +141,7 @@ export type Node =
   DateTimeValidator |
   DateValidator |
   DefinedTerm |
+  Delete |
   Directory |
   Division |
   Duration |
@@ -161,6 +164,7 @@ export type Node =
   IfClause |
   ImageObject |
   Include |
+  Insert |
   IntegerValidator |
   Link |
   List |

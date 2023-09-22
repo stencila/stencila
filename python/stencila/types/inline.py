@@ -10,9 +10,11 @@ CodeExpression = ForwardRef("CodeExpression")
 CodeFragment = ForwardRef("CodeFragment")
 Date = ForwardRef("Date")
 DateTime = ForwardRef("DateTime")
+Delete = ForwardRef("Delete")
 Duration = ForwardRef("Duration")
 Emphasis = ForwardRef("Emphasis")
 ImageObject = ForwardRef("ImageObject")
+Insert = ForwardRef("Insert")
 Link = ForwardRef("Link")
 MathFragment = ForwardRef("MathFragment")
 Note = ForwardRef("Note")
@@ -39,9 +41,11 @@ Inline = Union[
     CodeFragment,
     Date,
     DateTime,
+    Delete,
     Duration,
     Emphasis,
     ImageObject,
+    Insert,
     Link,
     MathFragment,
     Note,
