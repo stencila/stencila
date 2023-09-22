@@ -261,9 +261,9 @@
       "const": "IsCitedAsMetadataDocumentBy"
     },
     {
-      "@id": "cito:isCitedAsPontentialSolutionBy",
+      "@id": "cito:isCitedAsPotentialSolutionBy",
       "description": "The cited entity is cited as providing or containing a possible solution to the issues being discussed in the citing entity",
-      "const": "IsCitedAsPontentialSolutionBy"
+      "const": "IsCitedAsPotentialSolutionBy"
     },
     {
       "@id": "cito:isCitedAsRecommendedReadingBy",

@@ -24,6 +24,7 @@
         "autosurgeon",
         "canonicalize",
         "chrono",
+        "cito",
         "colspan",
         "consts",
         "CRDT",

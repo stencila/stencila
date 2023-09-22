@@ -41,7 +41,7 @@ class CitationIntent(StrEnum):
     IsCitedAsDataSourceBy = "IsCitedAsDataSourceBy"
     IsCitedAsEvidenceBy = "IsCitedAsEvidenceBy"
     IsCitedAsMetadataDocumentBy = "IsCitedAsMetadataDocumentBy"
-    IsCitedAsPontentialSolutionBy = "IsCitedAsPontentialSolutionBy"
+    IsCitedAsPotentialSolutionBy = "IsCitedAsPotentialSolutionBy"
     IsCitedAsRecommendedReadingBy = "IsCitedAsRecommendedReadingBy"
     IsCitedAsRelatedBy = "IsCitedAsRelatedBy"
     IsCitedAsSourceDocumentBy = "IsCitedAsSourceDocumentBy"

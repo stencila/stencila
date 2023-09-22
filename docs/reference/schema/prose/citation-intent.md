@@ -44,7 +44,7 @@ The `CitationIntent` type has these members:
 - `IsCitedAsDataSourceBy`
 - `IsCitedAsEvidenceBy`
 - `IsCitedAsMetadataDocumentBy`
-- `IsCitedAsPontentialSolutionBy`
+- `IsCitedAsPotentialSolutionBy`
 - `IsCitedAsRecommendedReadingBy`
 - `IsCitedAsRelatedBy`
 - `IsCitedAsSourceDocumentBy`

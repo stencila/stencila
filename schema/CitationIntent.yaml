@@ -138,8 +138,8 @@ anyOf:
     '@id': cito:isCitedAsMetadataDocumentBy
     description: The cited entity is cited as being the container of metadata relating to the citing entity
 
-  - const: IsCitedAsPontentialSolutionBy
-    '@id': cito:isCitedAsPontentialSolutionBy
+  - const: IsCitedAsPotentialSolutionBy
+    '@id': cito:isCitedAsPotentialSolutionBy
     description: The cited entity is cited as providing or containing a possible solution to the issues being discussed in the citing entity
 
   - const: IsCitedAsRecommendedReadingBy

@@ -35,7 +35,7 @@ export type CitationIntent =
   'IsCitedAsDataSourceBy' |
   'IsCitedAsEvidenceBy' |
   'IsCitedAsMetadataDocumentBy' |
-  'IsCitedAsPontentialSolutionBy' |
+  'IsCitedAsPotentialSolutionBy' |
   'IsCitedAsRecommendedReadingBy' |
   'IsCitedAsRelatedBy' |
   'IsCitedAsSourceDocumentBy' |

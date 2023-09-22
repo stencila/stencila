@@ -39,7 +39,7 @@ pub enum CitationIntent {
     IsCitedAsDataSourceBy,
     IsCitedAsEvidenceBy,
     IsCitedAsMetadataDocumentBy,
-    IsCitedAsPontentialSolutionBy,
+    IsCitedAsPotentialSolutionBy,
     IsCitedAsRecommendedReadingBy,
     IsCitedAsRelatedBy,
     IsCitedAsSourceDocumentBy,
