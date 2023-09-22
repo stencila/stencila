@@ -34,9 +34,11 @@ make fix test
 
 ### Code organization
 
-This library is made up of several Rust crates. Splitting Rust code into many small creates has advantages for compilation speed, modularization and reuse. Most of these crates are internal and are not published (those crates have `version = "0.0.0"` in their `Cargo.toml`).
+This library is made up of many Rust crates. Splitting Rust code into small crates has advantages for compilation speed, modularization and reuse. In addition, because Rust derive macros must be in their own crate, and to avoid circular dependencies among crates it it necessary to split some crates further (e.g the `codec-html`, `codec-html-derive`, and the `codec-html-trait` crates).
 
-The current crates include:
+Most of these crates are internal and are not published (those crates have `version = "0.0.0"` in their `Cargo.toml`).
+
+The current crates include (but are not limited to):
 
 #### CLI
 
@@ -58,29 +60,27 @@ The current crates include:
 
 #### Node traits
 
-- [`node-html`](node-html) and [`node-html-derive`](node-html-derive): Provides the `ToHtml` trait and macro for generating HTML for document nodes.
+- [`node-store`](node-store) and [`node-store-derive`](node-store-derive): Provides the `ReadNode` and `WriteNode` traits and derive macros for reading and writing document nodes from/to Automerge stores.
 
-- [`node-store`](node-store) and [`node-store-derive`](node-store-derive): Provides the `Read` and `Write` traits and macros for reading and writing document nodes from/to Automerge stores.
-
-- [`node-strip`](node-strip) and [`node-strip-derive`](node-strip-derive): Provides the `Strip` trait and macro for removing properties of document nodes.
+- [`node-strip`](node-strip) and [`node-strip-derive`](node-strip-derive): Provides the `StripNode` trait and derive macro for removing properties of document nodes.
 
 #### Codecs
 
-- [`format`](format): Provides the `Format` enum which describes alternative document formats.
+- [`codec`](codec): Provides the `Codec` trait for encoding/decoding between the types in the `schema` crate and other external formats (i.e. a 'converter').
 
-- [`codec`](codec): Provies the `Codec` trait for encoding/decoding between the types in the `schema` crate and other external formats (i.e. a 'converter').
+- [`codec-losses`](codec-losses): Utilities for recording encoding/decoding losses.
 
 - [`codec-debug`](codec-debug): A codec for the Rust [`Debug`](https://doc.rust-lang.org/std/fmt/trait.Debug.html) trait.
 
-- [`codec-html`](codec-html) `🏗️ In progress`: A codec for [HTML](https://developer.mozilla.org/en-US/docs/Web/HTML).
+- [`codec-html`](codec-html): A codec for [HTML](https://developer.mozilla.org/en-US/docs/Web/HTML).
 
-- [`codec-jats`](codec-jats) `🏗️ In progress`: A codec for [JATS XML](https://jats.nlm.nih.gov/).
+- [`codec-jats`](codec-jats): A codec for [JATS XML](https://jats.nlm.nih.gov/).
 
 - [`codec-json`](codec-json): A codec for [JSON](https://json.org/).
 
 - [`codec-json5`](codec-json5): A codec for [JSON5](https://json5.org/).
 
-- [`codec-ron`](codec-ron): A codec for [RON](https://github.com/ron-rs/ron).
+- [`codec-markdown`](codec-markdown): A codec for Markdown.
 
 - [`codec-text`](codec-text): A codec for plain text.
 
@@ -92,7 +92,7 @@ The current crates include:
 
 - [`common-dev`](common-dev): Common development dependencies used across crates.
 
-### Tokio console
+### Using Tokio console
 
 Turn on the `console-subscriber` feature to use [`tokio-console`](https://github.com/tokio-rs/console) for debugging async tasks and locks e.g.
 
