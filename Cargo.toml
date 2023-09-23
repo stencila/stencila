@@ -1,6 +1,6 @@
 [workspace]
 
-members = ["rust/*"]
+members = ["rust/*", "node"]
 
 # Config for 'cargo dist'
 [workspace.metadata.dist]

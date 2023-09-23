@@ -1,0 +1,36 @@
+{
+  "name": "@stencila/node",
+  "version": "0.0.0",
+  "main": "index.js",
+  "types": "index.d.ts",
+  "napi": {
+    "name": "node",
+    "triples": {}
+  },
+  "license": "MIT",
+  "devDependencies": {
+    "@napi-rs/cli": "^2.16.3",
+    "ava": "^5.1.1"
+  },
+  "ava": {
+    "timeout": "3m"
+  },
+  "engines": {
+    "node": ">= 10"
+  },
+  "scripts": {
+    "artifacts": "napi artifacts",
+    "build": "napi build --platform --release",
+    "build:debug": "napi build --platform",
+    "prepublishOnly": "napi prepublish -t npm",
+    "test": "ava",
+    "universal": "napi universal",
+    "version": "napi version"
+  },
+  "packageManager": "yarn@3.6.3",
+  "optionalDependencies": {
+    "@stencila/node-win32-x64-msvc": "0.0.0",
+    "@stencila/node-darwin-x64": "0.0.0",
+    "@stencila/node-linux-x64-gnu": "0.0.0"
+  }
+}
