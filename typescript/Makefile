@@ -37,6 +37,16 @@ audit: node_modules
 build: node_modules
 	npm run build
 
+# Release the package
+# Only updates the version number and publishes if there have
+# been changes in this folder
+release:
+	../scripts/changed.sh ../typescript; \
+	if [ $$? -eq 1 ]; then \
+		sed -i 's/"version":.*$$/"version": "$(shell git describe --tags --abbrev=0)",/' package.json; \
+		npm publish; \
+	fi
+
 # Clean up development artifacts
 clean:
 	rm -rf ./dist ./node_modules

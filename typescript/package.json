@@ -1,6 +1,6 @@
 {
-  "name": "stencila-types",
-  "version": "2.0.0-alpha.1",
+  "name": "@stencila/types",
+  "version": "v2.0.0-alpha.7",
   "description": "TypeScript types for the Stencila Schema",
   "type": "module",
   "main": "index.js",
@@ -21,14 +21,16 @@
     "types",
     "programmable",
     "executable",
+    "reproducible",
+    "interactive",
     "documents"
   ],
-  "author": "Nokome Bentley <nokome@stenci.la>",
+  "author": "Nokome Bentley <nokome@stencila.io>",
   "license": "Apache-2.0",
   "bugs": {
     "url": "https://github.com/stencila/stencila/issues"
   },
-  "homepage": "https://github.com/stencila/stencila#readme",
+  "homepage": "https://github.com/stencila/stencila/tree/main/typescript#readme",
   "devDependencies": {
     "@typescript-eslint/eslint-plugin": "6.7.2",
     "@typescript-eslint/parser": "6.7.2",
