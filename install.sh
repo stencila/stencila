@@ -30,11 +30,11 @@ if [[ "${OS}" == "Linux" || "${OS}" == "Darwin" ]]; then
             ;;
     esac
     
-    echo "Downloading stencila $VERSION for platform $TARGET_TRIPLE"
-    curl -sL https://github.com/stencila/stencila/releases/download/$VERSION/stencila-$VERSION-$TARGET_TRIPLE.tar.xz | tar xJ -O stencila-$VERSION-$TARGET_TRIPLE/stencila > stencila || {
+    echo "Downloading Stencila CLI $VERSION for platform $TARGET_TRIPLE"
+    curl -sL https://github.com/stencila/stencila/releases/download/$VERSION/cli-$VERSION-$TARGET_TRIPLE.tar.xz | tar xJ -O cli-$VERSION-$TARGET_TRIPLE/stencila > stencila || {
         echo 
-        echo "There was an error downloading stencila-$VERSION-$TARGET_TRIPLE.tar.xz"
-        echo "It may be that binaries are not yet available yet."
+        echo "There was an error downloading cli-$VERSION-$TARGET_TRIPLE.tar.xz"
+        echo "It may be that binaries are not available for the latest release yet."
         echo "Please wait, or try a previous version at https://github.com/stencila/stencila/releases."
         echo
         exit 1
