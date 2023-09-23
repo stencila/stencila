@@ -403,13 +403,23 @@ fn formats(title: &str, schema: &Schema) -> Vec<Block> {
             (format, &schema.html)
         {
             td(if *special {
-                vec![text("Encoded using special function")]
+                if let Some(elem) = elem {
+                    vec![
+                        text("Encoded to tag "),
+                        link(
+                            [cf(format!("<{elem}>"))],
+                            format!("https://developer.mozilla.org/en-US/docs/Web/HTML/Element/{elem}"),
+                        ),
+                        text(" using special function")
+                    ]
+                } else {
+                    vec![text("Encoded using special function")]
+                }
             } else if let Some(elem) = elem {
-                let tag = format!("<{elem}>");
                 vec![
                     text("Encoded to tag "),
                     link(
-                        [cf(tag)],
+                        [cf(format!("<{elem}>"))],
                         format!("https://developer.mozilla.org/en-US/docs/Web/HTML/Element/{elem}"),
                     ),
                 ]
@@ -420,7 +430,18 @@ fn formats(title: &str, schema: &Schema) -> Vec<Block> {
             (format, &schema.jats)
         {
             td(if *special {
-                vec![text("Encoded using special function")]
+                if let Some(elem) = elem {
+                    vec![
+                        text("Encoded to tag "),
+                        link(
+                            [cf(format!("<{elem}>"))],
+                            format!("https://jats.nlm.nih.gov/articleauthoring/tag-library/1.3/element/{elem}"),
+                        ),
+                        text(" using special function")
+                    ]
+                } else {
+                    vec![text("Encoded using special function")]
+                }
             } else if let Some(elem) = elem {
                 vec![
                     text("Encoded to tag "),
