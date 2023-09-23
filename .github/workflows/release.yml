@@ -174,7 +174,8 @@ jobs:
 
   # Build and publish NPM packages
   build-and-publish-npm:
-    runs-on: ubunutu-latest
+    needs: test
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -189,6 +190,13 @@ jobs:
         run: make -C typescript build release
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Commit any changes to generated files
+        uses: stefanzweifel/git-auto-commit-action@v4
+        with:
+          file_pattern: 'typescript/*'
+          commit_message: 'chore(TypeScript): Bump version'
+  
 
   # Mark the Github Release™ as a non-draft now that everything has succeeded!
   publish-release:

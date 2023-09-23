@@ -1,10 +1,10 @@
 # Stencila Types
 
-**TypeScript types for the Stencila Schema**
+**JavaScript classes and TypeScript types for the Stencila Schema**
 
 ## 👋 Introduction
 
-This is the `@stencila/types` NPM package which provides TypeScript types for types in the [Stencila Schema](https://github.com/stencila/stencila/tree/main/schema#readme).
+This is the `@stencila/types` NPM package which provides JavaScript classes and TypeScript types representing types in the [Stencila Schema](https://github.com/stencila/stencila/tree/main/schema#readme).
 
 ## 📦 Install
 

@@ -39,12 +39,13 @@ build: node_modules
 
 # Release the package
 # Only updates the version number and publishes if there have
-# been changes in this folder
+# been changes in this folder between the current tag and the one
+# before it.
 release:
-	../scripts/changed.sh ../typescript; \
+	git diff --quiet $(shell git describe --abbrev=0 --tags $(shell git rev-list --tags --max-count=2 | tail -n 1)) $(shell git describe --abbrev=0 --tags) -- . ; \
 	if [ $$? -eq 1 ]; then \
 		sed -i 's/"version":.*$$/"version": "$(shell git describe --tags --abbrev=0)",/' package.json; \
-		npm publish; \
+		npm publish --access public; \
 	fi
 
 # Clean up development artifacts

@@ -1,7 +1,7 @@
 {
   "name": "@stencila/types",
-  "version": "v2.0.0-alpha.7",
-  "description": "TypeScript types for the Stencila Schema",
+  "version": "v2.0.0-alpha.8",
+  "description": "JavaScript classes and TypeScript types for the Stencila Schema",
   "type": "module",
   "main": "index.js",
   "directories": {
