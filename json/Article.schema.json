@@ -13,6 +13,7 @@
     "elem": "article"
   },
   "jats": {
+    "elem": "article",
     "special": true
   },
   "markdown": {

@@ -169,10 +169,11 @@ Export a document to a file in another format
 * `--standalone` — Encode as a standalone document
 * `--not-standalone` — Do not encode as a standalone document when writing to file
 * `-c`, `--compact` — Use compact form of encoding if possible
-* `--no-strip-id` — Do not strip the id property of nodes when encoding
-* `--strip-code` — Strip the code of executable nodes when encoding
-* `--strip-execution` — Strip derived properties of executable nodes when encoding
-* `--strip-outputs` — Strip the outputs of executable nodes when encoding
+* `--no-strip-id` — Do not strip the id property of nodes before encoding
+* `--strip-code` — Strip the code of executable nodes before encoding
+* `--strip-execution` — Strip derived properties of executable nodes before encoding
+* `--strip-output` — Strip the outputs of executable nodes before encoding
+* `--strip-types <STRIP_TYPES>` — A list of types to strip before encoding
 
 
 
@@ -217,10 +218,11 @@ Synchronize a document with one of more other files in other formats
 * `--standalone` — Encode as a standalone document
 * `--not-standalone` — Do not encode as a standalone document when writing to file
 * `-c`, `--compact` — Use compact form of encoding if possible
-* `--no-strip-id` — Do not strip the id property of nodes when encoding
-* `--strip-code` — Strip the code of executable nodes when encoding
-* `--strip-execution` — Strip derived properties of executable nodes when encoding
-* `--strip-outputs` — Strip the outputs of executable nodes when encoding
+* `--no-strip-id` — Do not strip the id property of nodes before encoding
+* `--strip-code` — Strip the code of executable nodes before encoding
+* `--strip-execution` — Strip derived properties of executable nodes before encoding
+* `--strip-output` — Strip the outputs of executable nodes before encoding
+* `--strip-types <STRIP_TYPES>` — A list of types to strip before encoding
 
 
 
@@ -288,10 +290,11 @@ Convert a document between formats
 * `--standalone` — Encode as a standalone document
 * `--not-standalone` — Do not encode as a standalone document when writing to file
 * `-c`, `--compact` — Use compact form of encoding if possible
-* `--no-strip-id` — Do not strip the id property of nodes when encoding
-* `--strip-code` — Strip the code of executable nodes when encoding
-* `--strip-execution` — Strip derived properties of executable nodes when encoding
-* `--strip-outputs` — Strip the outputs of executable nodes when encoding
+* `--no-strip-id` — Do not strip the id property of nodes before encoding
+* `--strip-code` — Strip the code of executable nodes before encoding
+* `--strip-execution` — Strip derived properties of executable nodes before encoding
+* `--strip-output` — Strip the outputs of executable nodes before encoding
+* `--strip-types <STRIP_TYPES>` — A list of types to strip before encoding
 
 
 

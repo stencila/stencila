@@ -24,7 +24,7 @@ use super::thing_type::ThingType;
 #[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec, ReadNode, WriteNode)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 #[html(elem = "article")]
-#[jats(special)]
+#[jats(elem = "article", special)]
 #[markdown(special)]
 pub struct Article {
     /// The type of this item
