@@ -10,6 +10,7 @@ use super::string::String;
 #[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec, ReadNode, WriteNode)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 #[html(elem = "a")]
+#[jats(elem = "ext-link")]
 #[markdown(format = "[{content}]({target})")]
 pub struct Link {
     /// The type of this item
@@ -26,6 +27,7 @@ pub struct Link {
 
     /// The target of the link.
     #[html(attr = "href")]
+    #[jats(attr = "xlink:href")]
     pub target: String,
 
     /// Non-core optional fields
@@ -40,9 +42,12 @@ pub struct Link {
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 pub struct LinkOptions {
     /// A title for the link.
+    #[html(attr = "title")]
+    #[jats(attr = "xlink:title")]
     pub title: Option<String>,
 
     /// The relation between the target and the current thing.
+    #[html(attr = "rel")]
     pub rel: Option<String>,
 }
 

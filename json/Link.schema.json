@@ -8,9 +8,11 @@
   ],
   "category": "prose",
   "description": "A hyperlink to other pages, sections within the same document, resources, or any URL.",
-  "$comment": "Analogues of `Link` in other schema include:\n  - HTML [`<a>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/a)\n  - JATS XML [`<ext-link>`](https://jats.nlm.nih.gov/articleauthoring/tag-library/1.2/element/ext-link.html)\n  - MDAST [`Link`](https://github.com/syntax-tree/mdast#link)\n  - OpenDocument [`<text:a>`](http://docs.oasis-open.org/office/v1.2/os/OpenDocument-v1.2-os-part1.html#__RefHeading__1415212_253892949)\n  - Pandoc [`Link`](https://github.com/jgm/pandoc-types/blob/1.17.5.4/Text/Pandoc/Definition.hs#L270)\n",
   "html": {
     "elem": "a"
+  },
+  "jats": {
+    "elem": "ext-link"
   },
   "markdown": {
     "format": "[{content}]({target})"
@@ -60,6 +62,9 @@
       "html": {
         "attr": "href"
       },
+      "jats": {
+        "attr": "xlink:href"
+      },
       "type": "string",
       "format": "uri-reference"
     },
@@ -67,11 +72,20 @@
       "@id": "schema:headline",
       "description": "A title for the link.",
       "$comment": "This property is analogous to the HTML `title` global attribute which\nrepresents [\"advisory information related to the element\"](https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes/title)\n",
+      "html": {
+        "attr": "title"
+      },
+      "jats": {
+        "attr": "xlink:title"
+      },
       "type": "string"
     },
     "rel": {
       "@id": "schema:linkRelationship",
       "description": "The relation between the target and the current thing.",
+      "html": {
+        "attr": "rel"
+      },
       "type": "string"
     }
   }
