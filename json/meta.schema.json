@@ -225,6 +225,27 @@
     "Category": {
       "oneOf": [
         {
+          "description": "Node types that are creative works or related to them",
+          "type": "string",
+          "enum": [
+            "works"
+          ]
+        },
+        {
+          "description": "Node types related to prose",
+          "type": "string",
+          "enum": [
+            "prose"
+          ]
+        },
+        {
+          "description": "Node types related to displaying math symbols and equations",
+          "type": "string",
+          "enum": [
+            "math"
+          ]
+        },
+        {
           "description": "Node types related to code in a programming language",
           "type": "string",
           "enum": [
@@ -246,31 +267,10 @@
           ]
         },
         {
-          "description": "Node types related to prose",
-          "type": "string",
-          "enum": [
-            "prose"
-          ]
-        },
-        {
-          "description": "Node types that are creative works or related to them",
-          "type": "string",
-          "enum": [
-            "works"
-          ]
-        },
-        {
           "description": "Node types related to visual styling",
           "type": "string",
           "enum": [
             "style"
-          ]
-        },
-        {
-          "description": "Node types related to displaying math symbols and equations",
-          "type": "string",
-          "enum": [
-            "math"
           ]
         },
         {
