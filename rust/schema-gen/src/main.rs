@@ -48,7 +48,10 @@ async fn main() -> Result<()> {
     for what in whats {
         match what {
             #[cfg(feature = "docs")]
-            Docs => schemas.docs().await?,
+            Docs => {
+                schemas.docs_types().await?;
+                schemas.docs_codecs().await?;
+            }
             #[cfg(not(feature = "docs"))]
             Docs => eprintln!("Generation of docs is not enabled; skipping"),
 

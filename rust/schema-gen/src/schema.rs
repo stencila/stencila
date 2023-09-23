@@ -324,24 +324,26 @@ pub struct Schema {
     pub is_extended: bool,
 }
 
-#[derive(Debug, Default, Clone, Deserialize, Serialize, Display, JsonSchema, EnumIter)]
+#[derive(
+    Debug, Default, Clone, PartialEq, Deserialize, Serialize, Display, JsonSchema, EnumIter,
+)]
 #[serde(rename_all = "lowercase", crate = "common::serde")]
 #[strum(serialize_all = "lowercase", crate = "common::strum")]
 pub enum Category {
+    /// Node types that are creative works or related to them
+    Works,
+    /// Node types related to prose
+    Prose,
+    /// Node types related to displaying math symbols and equations
+    Math,
     /// Node types related to code in a programming language
     Code,
     /// Node types related to data and its validation
     Data,
     /// Node types related to control flow and execution of documents
     Flow,
-    /// Node types related to prose
-    Prose,
-    /// Node types that are creative works or related to them
-    Works,
     /// Node types related to visual styling
     Style,
-    /// Node types related to displaying math symbols and equations
-    Math,
     /// All other node types
     #[default]
     Other,

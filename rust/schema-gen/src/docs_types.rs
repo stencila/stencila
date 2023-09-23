@@ -18,7 +18,7 @@ use schema::{shortcuts::*, Article, Block, Inline, Node, NodeType, TableCell};
 use status::Status;
 
 use crate::{
-    schema::{Category, HtmlOptions, Items, JatsOptions, MarkdownOptions, Schema, Type},
+    schema::{Category, Items, Schema, Type},
     schemas::Schemas,
 };
 
@@ -35,8 +35,8 @@ impl Schemas {
     /// constructed and then exported as Markdown. This makes this crate sort of recursive
     /// in that it both generates the Rust types in the [`Schemas::rust`] function,
     /// and then uses those to construct the `Article`.
-    pub async fn docs(&self) -> Result<()> {
-        eprintln!("Generating documentation");
+    pub async fn docs_types(&self) -> Result<()> {
+        eprintln!("Generating documentation for types");
 
         // The top level destination for documentation
         let dest = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../docs/reference/schema");
@@ -399,79 +399,7 @@ fn formats(title: &str, schema: &Schema) -> Vec<Block> {
             desc = codec.status().to_string().to_sentence_case()
         ))]);
 
-        let notes = if let (Format::Html, Some(HtmlOptions { special, elem, .. })) =
-            (format, &schema.html)
-        {
-            td(if *special {
-                if let Some(elem) = elem {
-                    vec![
-                        text("Encoded to tag "),
-                        link(
-                            [cf(format!("<{elem}>"))],
-                            format!(
-                                "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/{elem}"
-                            ),
-                        ),
-                        text(" using special function"),
-                    ]
-                } else {
-                    vec![text("Encoded using special function")]
-                }
-            } else if let Some(elem) = elem {
-                vec![
-                    text("Encoded to tag "),
-                    link(
-                        [cf(format!("<{elem}>"))],
-                        format!("https://developer.mozilla.org/en-US/docs/Web/HTML/Element/{elem}"),
-                    ),
-                ]
-            } else {
-                vec![text("Encoded using derived function")]
-            })
-        } else if let (Format::Jats, Some(JatsOptions { elem, special, .. })) =
-            (format, &schema.jats)
-        {
-            td(if *special {
-                if let Some(elem) = elem {
-                    vec![
-                        text("Encoded to tag "),
-                        link(
-                            [cf(format!("<{elem}>"))],
-                            format!("https://jats.nlm.nih.gov/articleauthoring/tag-library/1.3/element/{elem}"),
-                        ),
-                        text(" using special function")
-                    ]
-                } else {
-                    vec![text("Encoded using special function")]
-                }
-            } else if let Some(elem) = elem {
-                vec![
-                    text("Encoded to tag "),
-                    link(
-                        [cf(format!("<{elem}>"))],
-                        format!("https://jats.nlm.nih.gov/articleauthoring/tag-library/1.3/element/{elem}"),
-                    ),
-                ]
-            } else {
-                vec![text("Encoded using derived function")]
-            })
-        } else if let (
-            Format::Markdown,
-            Some(MarkdownOptions {
-                special, format, ..
-            }),
-        ) = (format, &schema.markdown)
-        {
-            td(if *special {
-                vec![text("Encoded using special function")]
-            } else if let Some(format) = format {
-                vec![text("Encoded using template "), cf(format)]
-            } else {
-                vec![text("Encoded using derived function")]
-            })
-        } else {
-            td([])
-        };
+        let notes = td(Schemas::docs_format_notes(schema, format));
 
         rows.push(tr([name, encoding, decoding, status, notes]));
     }
