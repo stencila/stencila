@@ -38,17 +38,17 @@
 <br>
 
 <div align="center">
+  <a href="#-contributors">
+    <img src="https://img.shields.io/github/all-contributors/stencila/stencila?color=1d3bd1&labelColor=3219a8">
+  </a>
   <a href="https://discord.gg/GADr6Jv">
     <img src="https://img.shields.io/discord/709952324356800523.svg?logo=discord&label=discord&logoColor=66ff66&color=1d3bd1&labelColor=3219a8">
   </a>
   <a href="https://github.com/stencila/stencila/releases">
     <img src="https://img.shields.io/github/v/release/stencila/stencila.svg?color=1d3bd1&labelColor=3219a8">
   </a>
-  <a href="https://github.com/stencila/stencila/tree/main/docs">
-    <img src="https://img.shields.io/github/license/stencila/stencila.svg?color=1d3bd1&labelColor=3219a8">
-  </a>
-  <a href="#-contributors">
-    <img src="https://img.shields.io/github/all-contributors/stencila/stencila?color=1d3bd1&labelColor=3219a8">
+  <a href="https://www.npmjs.com/package/@stencila/types">
+    <img src="https://img.shields.io/npm/v/%40stencila%2Ftypes.svg?label=npm%20%40stencila%2Ftypes&color=1d3bd1&labelColor=3219a8">
   </a>
 </div>
 <br>
