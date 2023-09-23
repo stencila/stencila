@@ -1,14 +1,12 @@
 // Generated file; do not edit. See `../rust/schema-gen` crate.
 
+import { Entity } from './Entity';
 import { Parameter } from './Parameter';
 import { Validator } from './Validator';
 
 // A function with a name, which might take Parameters and return a value of a certain type.
-export class Function {
+export class Function extends Entity {
   type = "Function";
-
-  // The identifier for this item
-  id?: string;
 
   // The name of the function.
   name: string;
@@ -20,6 +18,7 @@ export class Function {
   returns?: Validator;
 
   constructor(name: string, parameters: Parameter[], options?: Function) {
+    super()
     if (options) Object.assign(this, options)
     this.name = name;
     this.parameters = parameters;

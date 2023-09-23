@@ -1,18 +1,14 @@
 // Generated file; do not edit. See `../rust/schema-gen` crate.
 
 import { Inline } from './Inline';
+import { Mark } from './Mark';
 
 // Subscripted content.
-export class Subscript {
+export class Subscript extends Mark {
   type = "Subscript";
 
-  // The identifier for this item
-  id?: string;
-
-  // The content that is marked.
-  content: Inline[];
-
   constructor(content: Inline[], options?: Subscript) {
+    super(content)
     if (options) Object.assign(this, options)
     this.content = content;
   }

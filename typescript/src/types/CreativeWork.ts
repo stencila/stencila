@@ -6,39 +6,17 @@ import { CreativeWorkType } from './CreativeWorkType';
 import { CreativeWorkTypeOrString } from './CreativeWorkTypeOrString';
 import { Date } from './Date';
 import { GrantOrMonetaryGrant } from './GrantOrMonetaryGrant';
-import { ImageObjectOrString } from './ImageObjectOrString';
 import { Inline } from './Inline';
 import { Person } from './Person';
 import { PersonOrOrganization } from './PersonOrOrganization';
 import { PersonOrOrganizationOrSoftwareApplication } from './PersonOrOrganizationOrSoftwareApplication';
-import { PropertyValueOrString } from './PropertyValueOrString';
 import { StringOrNumber } from './StringOrNumber';
+import { Thing } from './Thing';
 import { ThingType } from './ThingType';
 
 // A creative work, including books, movies, photographs, software programs, etc.
-export class CreativeWork {
+export class CreativeWork extends Thing {
   type = "CreativeWork";
-
-  // The identifier for this item
-  id?: string;
-
-  // Alternate names (aliases) for the item.
-  alternateNames?: string[];
-
-  // A description of the item.
-  description?: Block[];
-
-  // Any kind of identifier for any kind of Thing.
-  identifiers?: PropertyValueOrString[];
-
-  // Images of the item.
-  images?: ImageObjectOrString[];
-
-  // The name of the item.
-  name?: string;
-
-  // The URL of the item.
-  url?: string;
 
   // The subject matter of the content.
   about?: ThingType[];
@@ -116,6 +94,7 @@ export class CreativeWork {
   version?: StringOrNumber;
 
   constructor(options?: CreativeWork) {
+    super()
     if (options) Object.assign(this, options)
     
   }

@@ -1,36 +1,13 @@
 // Generated file; do not edit. See `../rust/schema-gen` crate.
 
-import { Block } from './Block';
-import { ImageObjectOrString } from './ImageObjectOrString';
 import { Organization } from './Organization';
 import { OrganizationOrPerson } from './OrganizationOrPerson';
 import { PostalAddressOrString } from './PostalAddressOrString';
-import { PropertyValueOrString } from './PropertyValueOrString';
+import { Thing } from './Thing';
 
 // A person (alive, dead, undead, or fictional).
-export class Person {
+export class Person extends Thing {
   type = "Person";
-
-  // The identifier for this item
-  id?: string;
-
-  // Alternate names (aliases) for the item.
-  alternateNames?: string[];
-
-  // A description of the item.
-  description?: Block[];
-
-  // Any kind of identifier for any kind of Thing.
-  identifiers?: PropertyValueOrString[];
-
-  // Images of the item.
-  images?: ImageObjectOrString[];
-
-  // The name of the item.
-  name?: string;
-
-  // The URL of the item.
-  url?: string;
 
   // Postal address for the person.
   address?: PostalAddressOrString;
@@ -67,6 +44,7 @@ export class Person {
   telephoneNumbers?: string[];
 
   constructor(options?: Person) {
+    super()
     if (options) Object.assign(this, options)
     
   }

@@ -1,11 +1,10 @@
 // Generated file; do not edit. See `../rust/schema-gen` crate.
 
-// A tag on code that affects its execution
-export class ExecutionTag {
-  type = "ExecutionTag";
+import { Entity } from './Entity';
 
-  // The identifier for this item
-  id?: string;
+// A tag on code that affects its execution
+export class ExecutionTag extends Entity {
+  type = "ExecutionTag";
 
   // The name of the tag
   name: string;
@@ -17,6 +16,7 @@ export class ExecutionTag {
   isGlobal: boolean;
 
   constructor(name: string, value: string, isGlobal: boolean, options?: ExecutionTag) {
+    super()
     if (options) Object.assign(this, options)
     this.name = name;
     this.value = value;

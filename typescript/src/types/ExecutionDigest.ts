@@ -1,11 +1,10 @@
 // Generated file; do not edit. See `../rust/schema-gen` crate.
 
-// A digest of the execution state of a node.
-export class ExecutionDigest {
-  type = "ExecutionDigest";
+import { Entity } from './Entity';
 
-  // The identifier for this item
-  id?: string;
+// A digest of the execution state of a node.
+export class ExecutionDigest extends Entity {
+  type = "ExecutionDigest";
 
   // A digest of the state of a node.
   stateDigest: number;
@@ -23,6 +22,7 @@ export class ExecutionDigest {
   dependenciesFailed: number;
 
   constructor(stateDigest: number, semanticDigest: number, dependenciesDigest: number, dependenciesStale: number, dependenciesFailed: number, options?: ExecutionDigest) {
+    super()
     if (options) Object.assign(this, options)
     this.stateDigest = stateDigest;
     this.semanticDigest = semanticDigest;

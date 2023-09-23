@@ -1,14 +1,12 @@
 // Generated file; do not edit. See `../rust/schema-gen` crate.
 
+import { Entity } from './Entity';
 import { Integer } from './Integer';
 import { TimeUnit } from './TimeUnit';
 
 // A value that represents the difference between two timestamps
-export class Duration {
+export class Duration extends Entity {
   type = "Duration";
-
-  // The identifier for this item
-  id?: string;
 
   // The time difference in `timeUnit`s.
   value: Integer;
@@ -17,6 +15,7 @@ export class Duration {
   timeUnit: TimeUnit;
 
   constructor(value: Integer, timeUnit: TimeUnit, options?: Duration) {
+    super()
     if (options) Object.assign(this, options)
     this.value = value;
     this.timeUnit = timeUnit;

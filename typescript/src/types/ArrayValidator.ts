@@ -1,14 +1,12 @@
 // Generated file; do not edit. See `../rust/schema-gen` crate.
 
+import { Entity } from './Entity';
 import { Integer } from './Integer';
 import { Validator } from './Validator';
 
 // A validator specifying constraints on an array node.
-export class ArrayValidator {
+export class ArrayValidator extends Entity {
   type = "ArrayValidator";
-
-  // The identifier for this item
-  id?: string;
 
   // Whether items can have the value `Node::Null`
   itemsNullable?: boolean;
@@ -29,6 +27,7 @@ export class ArrayValidator {
   uniqueItems?: boolean;
 
   constructor(options?: ArrayValidator) {
+    super()
     if (options) Object.assign(this, options)
     
   }

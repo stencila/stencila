@@ -2,21 +2,17 @@
 
 import { CiteOrString } from './CiteOrString';
 import { Inline } from './Inline';
+import { Mark } from './Mark';
 
 // Inline, quoted content.
-export class Quote {
+export class Quote extends Mark {
   type = "Quote";
-
-  // The identifier for this item
-  id?: string;
-
-  // The content that is marked.
-  content: Inline[];
 
   // The source of the quote.
   cite?: CiteOrString;
 
   constructor(content: Inline[], options?: Quote) {
+    super(content)
     if (options) Object.assign(this, options)
     this.content = content;
   }

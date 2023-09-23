@@ -1,11 +1,10 @@
 // Generated file; do not edit. See `../rust/schema-gen` crate.
 
-// An error that occurred when parsing, compiling or executing a Code node.
-export class CodeError {
-  type = "CodeError";
+import { Entity } from './Entity';
 
-  // The identifier for this item
-  id?: string;
+// An error that occurred when parsing, compiling or executing a Code node.
+export class CodeError extends Entity {
+  type = "CodeError";
 
   // The error message or brief description of the error.
   errorMessage: string;
@@ -17,6 +16,7 @@ export class CodeError {
   stackTrace?: string;
 
   constructor(errorMessage: string, options?: CodeError) {
+    super()
     if (options) Object.assign(this, options)
     this.errorMessage = errorMessage;
   }

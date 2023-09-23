@@ -1,21 +1,14 @@
 // Generated file; do not edit. See `../rust/schema-gen` crate.
 
+import { CodeStatic } from './CodeStatic';
 import { Cord } from './Cord';
 
 // A code block.
-export class CodeBlock {
+export class CodeBlock extends CodeStatic {
   type = "CodeBlock";
 
-  // The identifier for this item
-  id?: string;
-
-  // The code.
-  code: Cord;
-
-  // The programming language of the code.
-  programmingLanguage?: string;
-
   constructor(code: Cord, options?: CodeBlock) {
+    super(code)
     if (options) Object.assign(this, options)
     this.code = code;
   }

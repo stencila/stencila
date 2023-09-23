@@ -1,13 +1,11 @@
 // Generated file; do not edit. See `../rust/schema-gen` crate.
 
+import { Entity } from './Entity';
 import { Integer } from './Integer';
 
 // A schema specifying constraints on a string node.
-export class StringValidator {
+export class StringValidator extends Entity {
   type = "StringValidator";
-
-  // The identifier for this item
-  id?: string;
 
   // The minimum length for a string node.
   minLength?: Integer;
@@ -19,6 +17,7 @@ export class StringValidator {
   pattern?: string;
 
   constructor(options?: StringValidator) {
+    super()
     if (options) Object.assign(this, options)
     
   }

@@ -1,15 +1,13 @@
 // Generated file; do not edit. See `../rust/schema-gen` crate.
 
+import { Entity } from './Entity';
 import { ExecutionDependantNode } from './ExecutionDependantNode';
 import { ExecutionDependantRelation } from './ExecutionDependantRelation';
 import { Integer } from './Integer';
 
 // A downstream execution dependant of a node
-export class ExecutionDependant {
+export class ExecutionDependant extends Entity {
   type = "ExecutionDependant";
-
-  // The identifier for this item
-  id?: string;
 
   // The relation to the dependant
   dependantRelation: ExecutionDependantRelation;
@@ -21,6 +19,7 @@ export class ExecutionDependant {
   codeLocation?: Integer[];
 
   constructor(dependantRelation: ExecutionDependantRelation, dependantNode: ExecutionDependantNode, options?: ExecutionDependant) {
+    super()
     if (options) Object.assign(this, options)
     this.dependantRelation = dependantRelation;
     this.dependantNode = dependantNode;

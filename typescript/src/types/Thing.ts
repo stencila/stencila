@@ -1,15 +1,13 @@
 // Generated file; do not edit. See `../rust/schema-gen` crate.
 
 import { Block } from './Block';
+import { Entity } from './Entity';
 import { ImageObjectOrString } from './ImageObjectOrString';
 import { PropertyValueOrString } from './PropertyValueOrString';
 
 // The most generic type of item.
-export class Thing {
+export class Thing extends Entity {
   type = "Thing";
-
-  // The identifier for this item
-  id?: string;
 
   // Alternate names (aliases) for the item.
   alternateNames?: string[];
@@ -30,6 +28,7 @@ export class Thing {
   url?: string;
 
   constructor(options?: Thing) {
+    super()
     if (options) Object.assign(this, options)
     
   }

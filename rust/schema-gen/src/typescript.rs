@@ -85,7 +85,7 @@ impl Schemas {
         let futures = self
             .schemas
             .values()
-            .map(|schema| Self::typescript_module(&types, schema));
+            .map(|schema| self.typescript_module(&types, schema));
         try_join_all(futures).await?;
 
         // Create an index.ts which export types from all modules (including those
@@ -121,19 +121,19 @@ impl Schemas {
     }
 
     /// Generate a TypeScript module for a schema
-    async fn typescript_module(dest: &Path, schema: &Schema) -> Result<()> {
+    async fn typescript_module(&self, dest: &Path, schema: &Schema) -> Result<()> {
         let Some(title) = &schema.title else {
             bail!("Schema has no title");
         };
 
-        if NO_GENERATE_MODULE.contains(&title.as_str()) || schema.r#abstract {
+        if NO_GENERATE_MODULE.contains(&title.as_str()) {
             return Ok(());
         }
 
         if schema.any_of.is_some() {
             Self::typescript_any_of(dest, schema).await?;
         } else if schema.r#type.is_none() {
-            Self::typescript_object(dest, title, schema).await?;
+            self.typescript_object(dest, title, schema).await?;
         }
 
         Ok(())
@@ -204,33 +204,31 @@ impl Schemas {
     /// Generate a TypeScript `class` for an object schema with `properties`
     ///
     /// Returns the name of the generated `class`.
-    async fn typescript_object(dest: &Path, title: &String, schema: &Schema) -> Result<String> {
+    async fn typescript_object(
+        &self,
+        dest: &Path,
+        title: &String,
+        schema: &Schema,
+    ) -> Result<String> {
         let path = dest.join(format!("{}.ts", title));
         if path.exists() {
             return Ok(title.to_string());
         }
 
-        let description = schema
-            .description
-            .as_ref()
-            .unwrap_or(title)
-            .trim_end_matches('\n')
-            .replace('\n', "\n  // ");
+        let mut used_types = HashSet::new();
+
+        // Get the base class
+        let base = schema.extends.first().map(|base| {
+            used_types.insert(base.clone());
+            base.clone()
+        });
 
         let mut props = Vec::new();
         let mut required_props = Vec::new();
-        let mut used_types = HashSet::new();
+        let mut super_args = Vec::new();
         for (name, property) in schema.properties.iter() {
-            let description = property
-                .description
-                .as_ref()
-                .unwrap_or(name)
-                .trim_end_matches('\n')
-                .replace('\n', "\n  // ");
-
             let name = name.to_camel_case();
 
-            // Early return for "type" property
             if name == "type" {
                 props.push(format!("  type = \"{title}\";"));
                 continue;
@@ -240,7 +238,10 @@ impl Schemas {
 
             // Determine Typescript type of the property
             let (mut prop_type, is_array, ..) = Self::typescript_type(dest, property).await?;
-            used_types.insert(prop_type.clone());
+
+            if !property.is_inherited || property.is_required {
+                used_types.insert(prop_type.clone());
+            }
 
             // Is the property optional?
             if !property.is_required {
@@ -271,6 +272,25 @@ impl Schemas {
                         format!("{name}: {prop_type}, "),
                     )
                 });
+
+                if let Some(base) = &base {
+                    if self
+                        .schemas
+                        .get(base)
+                        .unwrap()
+                        .properties
+                        .get(&name)
+                        .map(|prop| prop.is_required)
+                        .unwrap_or(false)
+                    {
+                        super_args.push(name.clone())
+                    }
+                }
+            }
+
+            // Skip following for inherited props
+            if property.is_inherited {
+                continue;
             }
 
             // Does the property have a default?
@@ -278,6 +298,13 @@ impl Schemas {
                 let default = Self::typescript_value(default);
                 prop.push_str(&format!(" = {default}"));
             };
+
+            let description = property
+                .description
+                .as_ref()
+                .unwrap_or(&name)
+                .trim_end_matches('\n')
+                .replace('\n', "\n  // ");
 
             props.push(format!("  // {description}\n  {prop};"));
         }
@@ -287,6 +314,7 @@ impl Schemas {
             .iter()
             .map(|(assignment, ..)| assignment)
             .join("\n    ");
+        let super_args = super_args.join(", ");
 
         let mut imports = used_types
             .into_iter()
@@ -300,20 +328,45 @@ impl Schemas {
             imports.push_str("\n\n");
         }
 
-        write(
-            path,
-            &format!(
-                r#"{GENERATED_COMMENT}
+        let description = schema
+            .description
+            .as_ref()
+            .unwrap_or(title)
+            .trim_end_matches('\n')
+            .replace('\n', "\n  // ");
 
-{imports}// {description}
-export class {title} {{
+        let class = if let Some(base) = base {
+            format!(
+                r#"export class {title} extends {base} {{
+{props}
+
+  constructor({required_args}options?: {title}) {{
+    super({super_args})
+    if (options) Object.assign(this, options)
+    {required_assignments}
+  }}
+}}"#
+            )
+        } else {
+            format!(
+                r#"export class {title} {{
 {props}
 
   constructor({required_args}options?: {title}) {{
     if (options) Object.assign(this, options)
     {required_assignments}
   }}
-}}
+}}"#
+            )
+        };
+
+        write(
+            path,
+            &format!(
+                r#"{GENERATED_COMMENT}
+
+{imports}// {description}
+{class}
 "#
             ),
         )

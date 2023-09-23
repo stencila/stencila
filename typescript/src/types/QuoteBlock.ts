@@ -2,13 +2,11 @@
 
 import { Block } from './Block';
 import { CiteOrString } from './CiteOrString';
+import { Entity } from './Entity';
 
 // A section quoted from somewhere else.
-export class QuoteBlock {
+export class QuoteBlock extends Entity {
   type = "QuoteBlock";
-
-  // The identifier for this item
-  id?: string;
 
   // The source of the quote.
   cite?: CiteOrString;
@@ -17,6 +15,7 @@ export class QuoteBlock {
   content: Block[];
 
   constructor(content: Block[], options?: QuoteBlock) {
+    super()
     if (options) Object.assign(this, options)
     this.content = content;
   }

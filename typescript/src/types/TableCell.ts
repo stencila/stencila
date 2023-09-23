@@ -1,15 +1,13 @@
 // Generated file; do not edit. See `../rust/schema-gen` crate.
 
 import { BlocksOrInlines } from './BlocksOrInlines';
+import { Entity } from './Entity';
 import { Integer } from './Integer';
 import { TableCellType } from './TableCellType';
 
 // A cell within a `Table`.
-export class TableCell {
+export class TableCell extends Entity {
   type = "TableCell";
-
-  // The identifier for this item
-  id?: string;
 
   // The type of cell.
   cellType?: TableCellType;
@@ -27,6 +25,7 @@ export class TableCell {
   content?: BlocksOrInlines;
 
   constructor(options?: TableCell) {
+    super()
     if (options) Object.assign(this, options)
     
   }

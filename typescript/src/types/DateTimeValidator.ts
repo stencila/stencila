@@ -1,13 +1,11 @@
 // Generated file; do not edit. See `../rust/schema-gen` crate.
 
 import { DateTime } from './DateTime';
+import { Entity } from './Entity';
 
 // A validator specifying the constraints on a date-time.
-export class DateTimeValidator {
+export class DateTimeValidator extends Entity {
   type = "DateTimeValidator";
-
-  // The identifier for this item
-  id?: string;
 
   // The inclusive lower limit for a date-time.
   minimum?: DateTime;
@@ -16,6 +14,7 @@ export class DateTimeValidator {
   maximum?: DateTime;
 
   constructor(options?: DateTimeValidator) {
+    super()
     if (options) Object.assign(this, options)
     
   }

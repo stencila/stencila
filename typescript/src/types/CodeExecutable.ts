@@ -1,13 +1,14 @@
 // Generated file; do not edit. See `../rust/schema-gen` crate.
 
-import { Parameter } from './Parameter';
+import { Cord } from './Cord';
+import { Executable } from './Executable';
 
-// The value of a `Parameter` to call a document with
-export class CallArgument extends Parameter {
-  type = "CallArgument";
+// Abstract base type for executable code nodes (e.g. `CodeChunk`).
+export class CodeExecutable extends Executable {
+  type = "CodeExecutable";
 
-  // The code to be evaluated for the parameter.
-  code: string;
+  // The code.
+  code: Cord;
 
   // The programming language of the code.
   programmingLanguage: string;
@@ -15,10 +16,9 @@ export class CallArgument extends Parameter {
   // Whether the programming language of the code should be guessed based on syntax and variables used
   guessLanguage?: boolean;
 
-  constructor(name: string, code: string, programmingLanguage: string, options?: CallArgument) {
-    super(name)
+  constructor(code: Cord, programmingLanguage: string, options?: CodeExecutable) {
+    super()
     if (options) Object.assign(this, options)
-    this.name = name;
     this.code = code;
     this.programmingLanguage = programmingLanguage;
   }

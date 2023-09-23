@@ -2,15 +2,13 @@
 
 import { CitationIntent } from './CitationIntent';
 import { CitationMode } from './CitationMode';
+import { Entity } from './Entity';
 import { Inline } from './Inline';
 import { IntegerOrString } from './IntegerOrString';
 
 // A reference to a CreativeWork that is cited in another CreativeWork.
-export class Cite {
+export class Cite extends Entity {
   type = "Cite";
-
-  // The identifier for this item
-  id?: string;
 
   // The target of the citation (URL or reference ID).
   target: string;
@@ -41,6 +39,7 @@ export class Cite {
   citationSuffix?: string;
 
   constructor(target: string, citationMode: CitationMode, options?: Cite) {
+    super()
     if (options) Object.assign(this, options)
     this.target = target;
     this.citationMode = citationMode;

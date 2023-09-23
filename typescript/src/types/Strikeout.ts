@@ -1,18 +1,14 @@
 // Generated file; do not edit. See `../rust/schema-gen` crate.
 
 import { Inline } from './Inline';
+import { Mark } from './Mark';
 
 // Content that is marked as struck out
-export class Strikeout {
+export class Strikeout extends Mark {
   type = "Strikeout";
 
-  // The identifier for this item
-  id?: string;
-
-  // The content that is marked.
-  content: Inline[];
-
   constructor(content: Inline[], options?: Strikeout) {
+    super(content)
     if (options) Object.assign(this, options)
     this.content = content;
   }

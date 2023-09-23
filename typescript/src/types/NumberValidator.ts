@@ -1,11 +1,10 @@
 // Generated file; do not edit. See `../rust/schema-gen` crate.
 
-// A validator specifying the constraints on a numeric node.
-export class NumberValidator {
-  type = "NumberValidator";
+import { Entity } from './Entity';
 
-  // The identifier for this item
-  id?: string;
+// A validator specifying the constraints on a numeric node.
+export class NumberValidator extends Entity {
+  type = "NumberValidator";
 
   // The inclusive lower limit for a numeric node.
   minimum?: number;
@@ -23,6 +22,7 @@ export class NumberValidator {
   multipleOf?: number;
 
   constructor(options?: NumberValidator) {
+    super()
     if (options) Object.assign(this, options)
     
   }

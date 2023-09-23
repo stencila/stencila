@@ -1,13 +1,11 @@
 // Generated file; do not edit. See `../rust/schema-gen` crate.
 
+import { Entity } from './Entity';
 import { Node } from './Node';
 
 // A variable representing a name / value pair.
-export class Variable {
+export class Variable extends Entity {
   type = "Variable";
-
-  // The identifier for this item
-  id?: string;
 
   // The namespace, usually a document path, within which the variable resides
   namespace: string;
@@ -22,6 +20,7 @@ export class Variable {
   value?: Node;
 
   constructor(namespace: string, name: string, options?: Variable) {
+    super()
     if (options) Object.assign(this, options)
     this.namespace = namespace;
     this.name = name;
