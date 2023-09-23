@@ -12,6 +12,10 @@
     "elem": "math",
     "custom": true
   },
+  "jats": {
+    "elem": "disp-formula",
+    "special": true
+  },
   "markdown": {
     "special": true
   },

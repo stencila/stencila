@@ -4,8 +4,11 @@ extends: Math
 category: math
 description: A block of math, e.g an equation, to be treated as block content.
 html:
-  elem: "math"
+  elem: math
   custom: true
+jats:
+  special: true
+  elem: disp-formula
 markdown:
   special: true
 core:
