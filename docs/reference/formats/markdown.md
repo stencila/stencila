@@ -104,3 +104,8 @@ TeX:
 ```tex
 2 \pi r^2
 ```
+
+<!-- prettier-ignore-start -->
+<!-- CODEC-DOCS:START -->
+<!-- CODEC-DOCS:STOP -->
+<!-- prettier-ignore-end -->

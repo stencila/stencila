@@ -13,3 +13,8 @@ Stencila support lossless, bi-directional conversion between Stencila documents 
 ## Encodings
 
 By default, the encoded JSON5 is indented but the `--compact` option is supported which produces un-indented, single line JSON5.
+
+<!-- prettier-ignore-start -->
+<!-- CODEC-DOCS:START -->
+<!-- CODEC-DOCS:STOP -->
+<!-- prettier-ignore-end -->
