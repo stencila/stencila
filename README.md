@@ -114,7 +114,7 @@ Interoperability with existing formats has always been a key feature of Stencila
 | YAML             | 🟢       | 🟢       |                                                                                                      |
 | Plain text       | ⚠️       |          |                                                                                                      |
 | HTML             | 🚧       | 🧭       |                                                                                                      |
-| JATS             | 🚧       | 🧭       | Planned Q4 2023. Port decoding and tests from [`encoda`](https://github.com/stencila/encoda/)        |
+| JATS             | 🚧       | 🚧       | Planned for completion Q4 2023. Port decoding and tests from [`encoda`](https://github.com/stencila/encoda/)        |
 | Markdown         | 🚧       | 🧭       | Planned Q3 2023 [`v1`](https://github.com/stencila/stencila/tree/v1/rust/codec-md)                   |
 | R Markdown       | 🧭       | 🧭       | Relies on Markdown; [`v1`](https://github.com/stencila/stencila/tree/v1/rust/codec-rmd)              |
 | Jupyter Notebook | 🧭       | 🧭       | Relies on Markdown; [`v1`](https://github.com/stencila/stencila/tree/v1/rust/codec-ipynb)            |
