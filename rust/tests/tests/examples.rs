@@ -4,7 +4,7 @@ use std::path::PathBuf;
 
 use codecs::{DecodeOptions, EncodeOptions};
 use common::{
-    eyre::Result,
+    eyre::{Context, Result},
     glob::glob,
     itertools::Itertools,
     tokio::{
@@ -14,6 +14,7 @@ use common::{
 };
 use common_dev::pretty_assertions::assert_eq;
 use format::Format;
+use node_strip::{StripNode, Targets};
 
 /// Get a list of JSON files in the `examples` folder
 fn examples() -> Result<Vec<PathBuf>> {
@@ -51,6 +52,7 @@ async fn examples_encode_decode() -> Result<()> {
     //
     // Excludes developer focussed and/or unstable formats e.g. `Debug`
     let formats: &[(&str, Format, Option<EncodeOptions>, Option<DecodeOptions>)] = &[
+        // HTML
         ("html", Format::Html, Some(EncodeOptions::default()), None),
         (
             "compact.html",
@@ -61,10 +63,13 @@ async fn examples_encode_decode() -> Result<()> {
             }),
             None,
         ),
+        // JATS
         (
             "jats.xml",
             Format::Jats,
             Some(EncodeOptions::default()),
+            // Do not test decoding since it is tested on
+            // compact.jats.xml and prettifying can affect whitespace
             None,
         ),
         (
@@ -74,8 +79,9 @@ async fn examples_encode_decode() -> Result<()> {
                 compact: true,
                 ..Default::default()
             }),
-            None,
+            Some(DecodeOptions::default()),
         ),
+        // JSON5
         (
             "json5",
             Format::Json5,
@@ -91,8 +97,11 @@ async fn examples_encode_decode() -> Result<()> {
             }),
             Some(DecodeOptions::default()),
         ),
+        // Markdown
         ("md", Format::Markdown, Some(EncodeOptions::default()), None),
+        // Plain text
         ("txt", Format::Text, Some(EncodeOptions::default()), None),
+        // YAML
         (
             "yaml",
             Format::Yaml,
@@ -139,7 +148,7 @@ async fn examples_encode_decode() -> Result<()> {
                                 );
                             }
                         }
-                    } else {
+                    } else if !actual.is_empty() {
                         // No existing file: write a new one
                         write(&file, actual).await?;
                     }
@@ -152,16 +161,38 @@ async fn examples_encode_decode() -> Result<()> {
                 }
             }
 
-            if let Some(options) = decode_options {
+            if let (true, Some(options)) = (file.exists(), decode_options) {
                 // Decoding: always from the file
+
+                let codec = codecs::get(None, Some(*format), None)?;
+                let lossy_types = codec
+                    .lossy_types(None)
+                    .iter()
+                    .map(|node_type| node_type.to_string())
+                    .collect_vec();
 
                 let options = DecodeOptions {
                     format: Some(*format),
                     ..options.clone()
                 };
-                let actual = codecs::from_path(&file, Some(options)).await?;
+                let (mut decoded, ..) = codec
+                    .from_path(&file, Some(options))
+                    .await
+                    .wrap_err_with(|| format!("while decoding {}", file.display()))?;
+
+                // Strip types that the codec is lossy for from both the decoded
+                // and original node
+                let targets = Targets {
+                    types: lossy_types,
+                    ..Default::default()
+                };
+                decoded.strip(&targets);
+
+                let mut stripped = node.clone();
+                stripped.strip(&targets);
+
                 assert_eq!(
-                    actual, node,
+                    decoded, stripped,
                     "Example `{name}`, format `{format}`: decoded node differs"
                 );
             }
