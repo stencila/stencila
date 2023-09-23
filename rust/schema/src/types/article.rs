@@ -36,12 +36,14 @@ pub struct Article {
     pub id: Option<String>,
 
     /// A description of the item.
+    #[strip(types)]
     pub description: Option<Vec<Block>>,
 
     /// The authors of the `CreativeWork`.
     pub authors: Option<Vec<PersonOrOrganization>>,
 
     /// The structured content of this creative work c.f. property `text`.
+    #[strip(types)]
     pub content: Vec<Block>,
 
     /// Date/time of creation.
@@ -64,6 +66,7 @@ pub struct Article {
     pub keywords: Option<Vec<String>>,
 
     /// The title of the creative work.
+    #[strip(types)]
     pub title: Option<Vec<Inline>>,
 
     /// Non-core optional fields

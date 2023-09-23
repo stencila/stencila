@@ -32,6 +32,7 @@ pub struct Form {
     pub id: Option<String>,
 
     /// The content within the form, usually containing at least one `Parameter`.
+    #[strip(types)]
     pub content: Vec<Block>,
 
     /// Non-core optional fields

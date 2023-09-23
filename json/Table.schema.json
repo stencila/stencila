@@ -53,6 +53,9 @@
     "description": {
       "@id": "schema:description",
       "description": "A description of the item.",
+      "strip": [
+        "types"
+      ],
       "type": "array",
       "items": {
         "$ref": "Block.schema.json"
@@ -179,6 +182,10 @@
     "content": {
       "@id": "stencila:content",
       "description": "The structured content of this creative work c.f. property `text`.",
+      "$comment": "This is an extension property, added because the existing schema.org property \"text\"\nimplies only unstructured text content.\n",
+      "strip": [
+        "types"
+      ],
       "type": "array",
       "items": {
         "$ref": "Block.schema.json"
@@ -332,6 +339,9 @@
       "description": "The title of the creative work.",
       "aliases": [
         "headline"
+      ],
+      "strip": [
+        "types"
       ],
       "type": "array",
       "items": {

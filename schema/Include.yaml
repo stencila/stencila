@@ -44,6 +44,7 @@ properties:
       instances where a user would want to use an `Include` node to transclude inline content.
     strip:
       - output
+      - types
     type: array
     items:
       $ref: Block

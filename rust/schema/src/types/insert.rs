@@ -22,6 +22,7 @@ pub struct Insert {
     pub id: Option<String>,
 
     /// The content that is suggested to be inserted or deleted.
+    #[strip(types)]
     pub content: Vec<Inline>,
 }
 

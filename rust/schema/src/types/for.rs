@@ -52,11 +52,11 @@ pub struct For {
     pub symbol: String,
 
     /// The content to repeat for each item
-    #[strip(code)]
+    #[strip(code, types)]
     pub content: Vec<Block>,
 
     /// The content to render if there are no items
-    #[strip(code)]
+    #[strip(code, types)]
     pub otherwise: Option<Vec<Block>>,
 
     /// The content repeated for each iteration

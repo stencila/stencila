@@ -29,6 +29,8 @@ struct FieldAttr {
     execution: bool,
     #[darling(default)]
     output: bool,
+    #[darling(default)]
+    types: bool,
 }
 
 /// Derive the `StripNode` trait for a `struct` or `enum`
@@ -108,6 +110,21 @@ fn derive_struct(type_attr: TypeAttr) -> TokenStream {
                     self.#field_name #strip;
                 }
             })
+        }
+
+        if field.types {
+            let tokens = if field_type == "Option" {
+                quote! {
+                    if let Some(children) = self.#field_name.as_mut() {
+                        children.retain(|child| !targets.types.contains(&child.to_string()));
+                    }
+                }
+            } else {
+                quote! {
+                    self.#field_name.retain(|child| !targets.types.contains(&child.to_string()));
+                }
+            };
+            fields.extend(tokens)
         }
 
         // For all fields, recursively call strip

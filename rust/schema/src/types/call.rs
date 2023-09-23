@@ -44,7 +44,7 @@ pub struct Call {
     pub select: Option<String>,
 
     /// The structured content decoded from the source.
-    #[strip(output)]
+    #[strip(output, types)]
     pub content: Option<Vec<Block>>,
 
     /// The value of the source document's parameters to call it with

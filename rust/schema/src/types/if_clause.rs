@@ -46,7 +46,8 @@ pub struct IfClause {
     #[strip(code)]
     pub guess_language: Option<Boolean>,
 
-    /// The content to render if the result is true-thy
+    /// The content to render if the result is truthy
+    #[strip(types)]
     pub content: Vec<Block>,
 
     /// Non-core optional fields

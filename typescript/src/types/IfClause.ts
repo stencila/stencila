@@ -72,7 +72,7 @@ export class IfClause {
   // Whether this clause is the active clause in the parent `If` node
   isActive?: boolean;
 
-  // The content to render if the result is true-thy
+  // The content to render if the result is truthy
   content: Block[];
 
   constructor(code: Cord, programmingLanguage: string, content: Block[], options?: IfClause) {

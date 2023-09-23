@@ -204,7 +204,8 @@
       "@id": "stencila:content",
       "description": "The content to repeat for each item",
       "strip": [
-        "code"
+        "code",
+        "types"
       ],
       "type": "array",
       "items": {
@@ -215,7 +216,8 @@
       "@id": "stencila:otherwise",
       "description": "The content to render if there are no items",
       "strip": [
-        "code"
+        "code",
+        "types"
       ],
       "type": "array",
       "items": {

@@ -35,6 +35,7 @@ pub struct EnumerationOptions {
     pub alternate_names: Option<Vec<String>>,
 
     /// A description of the item.
+    #[strip(types)]
     pub description: Option<Vec<Block>>,
 
     /// Any kind of identifier for any kind of Thing.

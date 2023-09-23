@@ -42,6 +42,7 @@ pub struct CiteOptions {
     pub citation_intent: Option<Vec<CitationIntent>>,
 
     /// Optional structured content/text of this citation.
+    #[strip(types)]
     pub content: Option<Vec<Inline>>,
 
     /// The page on which the work starts; for example "135" or "xiii".

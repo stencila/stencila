@@ -33,6 +33,8 @@ properties:
     $comment: |
       Most claims will have a single paragraph but could have multiple
       paragraphs, tables and even figures.
+    strip:
+      - types
     type: array
     items:
       $ref: Block

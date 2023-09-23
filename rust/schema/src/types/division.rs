@@ -41,6 +41,7 @@ pub struct Division {
     pub classes: Option<Vec<String>>,
 
     /// The content within the division
+    #[strip(types)]
     pub content: Vec<Block>,
 }
 

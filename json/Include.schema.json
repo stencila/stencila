@@ -192,7 +192,8 @@
       "description": "The structured content decoded from the source.",
       "$comment": "Assumes that included content will be block content i.e. that there will be limited\ninstances where a user would want to use an `Include` node to transclude inline content.\n",
       "strip": [
-        "output"
+        "output",
+        "types"
       ],
       "type": "array",
       "items": {

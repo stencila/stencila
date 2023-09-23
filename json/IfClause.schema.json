@@ -200,7 +200,10 @@
     },
     "content": {
       "@id": "stencila:content",
-      "description": "The content to render if the result is true-thy",
+      "description": "The content to render if the result is truthy",
+      "strip": [
+        "types"
+      ],
       "type": "array",
       "items": {
         "$ref": "Block.schema.json"

@@ -164,13 +164,13 @@ impl Schemas {
             dest.join("types.rs"),
             format!(
                 r#"{GENERATED_COMMENT}
-use common::strum::{{Display, EnumString}};
+use common::strum::{{Display, EnumString, EnumIter}};
 
 {mods}
 
 {uses}
 
-#[derive(Debug, Clone, Copy, Display, EnumString)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Display, EnumString, EnumIter)]
 #[strum(crate="common::strum")]
 pub enum NodeType {{
 {node_types}

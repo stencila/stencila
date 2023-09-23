@@ -151,17 +151,19 @@ pub async fn to_string(node: &Node, options: Option<EncodeOptions>) -> Result<St
         strip_id: id,
         strip_code: code,
         strip_execution: execution,
-        strip_outputs: outputs,
+        strip_output: output,
+        strip_types: types,
         ..
     }) = options.clone()
     {
-        if id || code || execution || outputs {
+        if id || code || execution || output {
             let mut node = node.clone();
             node.strip(&node_strip::Targets {
                 id,
                 code,
                 execution,
-                output: outputs,
+                output,
+                types,
             });
 
             let (content, losses) = codec.to_string(&node, options.clone()).await?;
@@ -192,17 +194,19 @@ pub async fn to_path(node: &Node, path: &Path, options: Option<EncodeOptions>) -
         strip_id: id,
         strip_code: code,
         strip_execution: execution,
-        strip_outputs: outputs,
+        strip_output: output,
+        strip_types: types,
         ..
-    }) = options
+    }) = options.clone()
     {
-        if id || code || execution || outputs {
+        if id || code || execution || output {
             let mut node = node.clone();
             node.strip(&node_strip::Targets {
                 id,
                 code,
                 execution,
-                output: outputs,
+                output,
+                types,
             });
 
             let losses = codec.to_path(&node, path, options.clone()).await?;

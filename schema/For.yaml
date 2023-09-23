@@ -24,6 +24,7 @@ properties:
     description: The content to repeat for each item
     strip:
       - code
+      - types
     type: array
     items:
       $ref: Block
@@ -32,6 +33,7 @@ properties:
     description: The content to render if there are no items
     strip:
       - code
+      - types
     type: array
     items:
       $ref: Block

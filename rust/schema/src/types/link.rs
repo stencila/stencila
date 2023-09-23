@@ -21,6 +21,7 @@ pub struct Link {
     pub id: Option<String>,
 
     /// The textual content of the link.
+    #[strip(types)]
     pub content: Vec<Inline>,
 
     /// The target of the link.

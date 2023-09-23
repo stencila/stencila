@@ -90,6 +90,9 @@
     "content": {
       "@id": "stencila:content",
       "description": "The content within the division",
+      "strip": [
+        "types"
+      ],
       "type": "array",
       "items": {
         "$ref": "Block.schema.json"

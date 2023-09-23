@@ -23,6 +23,7 @@ pub struct Note {
     pub note_type: NoteType,
 
     /// Content of the note, usually a paragraph.
+    #[strip(types)]
     pub content: Vec<Block>,
 }
 

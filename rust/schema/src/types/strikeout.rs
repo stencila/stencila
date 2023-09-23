@@ -22,6 +22,7 @@ pub struct Strikeout {
     pub id: Option<String>,
 
     /// The content that is marked.
+    #[strip(types)]
     pub content: Vec<Inline>,
 }
 

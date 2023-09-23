@@ -20,8 +20,10 @@ required:
   - content
 properties:
   content:
-    '@id': 'stencila:content'
+    '@id': stencila:content
     description: The contents of the paragraph.
+    strip:
+      - types
     type: array
     items:
       $ref: Inline

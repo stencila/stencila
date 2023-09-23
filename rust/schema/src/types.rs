@@ -1,5 +1,5 @@
 // Generated file; do not edit. See `schema-gen` crate.
-use common::strum::{Display, EnumString};
+use common::strum::{Display, EnumString, EnumIter};
 
 mod array;
 mod array_validator;
@@ -297,7 +297,7 @@ pub use validator::*;
 pub use variable::*;
 pub use video_object::*;
 
-#[derive(Debug, Clone, Copy, Display, EnumString)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Display, EnumString, EnumIter)]
 #[strum(crate="common::strum")]
 pub enum NodeType {
     Null,

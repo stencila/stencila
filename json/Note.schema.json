@@ -45,6 +45,9 @@
       "@id": "stencila:content",
       "description": "Content of the note, usually a paragraph.",
       "$comment": "Most notes will have a single paragraph but could have multiple\nparagraphs, tables and even figures.\n",
+      "strip": [
+        "types"
+      ],
       "type": "array",
       "items": {
         "$ref": "Block.schema.json"

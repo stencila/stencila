@@ -41,6 +41,7 @@ pub struct Span {
     pub classes: Option<Vec<String>>,
 
     /// The content within the span
+    #[strip(types)]
     pub content: Vec<Inline>,
 }
 

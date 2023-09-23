@@ -26,6 +26,7 @@ pub struct Heading {
     pub depth: Integer,
 
     /// Content of the heading.
+    #[strip(types)]
     pub content: Vec<Inline>,
 }
 

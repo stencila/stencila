@@ -680,6 +680,13 @@
           "enum": [
             "output"
           ]
+        },
+        {
+          "description": "Strip child nodes of specified types from the property",
+          "type": "string",
+          "enum": [
+            "types"
+          ]
         }
       ]
     },

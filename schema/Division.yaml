@@ -4,17 +4,19 @@ status: under-development
 extends: Styled
 category: style
 description: Styled block content
+html:
+  elem: div
+  custom: true
+markdown:
+  format: '::: {{{code}}}\n\n{content}:::\n\n'
 required:
   - content
 properties:
   content:
     '@id': 'stencila:content'
     description: The content within the division
+    strip:
+      - types
     type: array
     items:
       $ref: Block
-html:
-  elem: div
-  custom: true
-markdown:
-  format: '::: {{{code}}}\n\n{content}:::\n\n'

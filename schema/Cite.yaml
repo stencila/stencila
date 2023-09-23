@@ -28,6 +28,8 @@ properties:
   content:
     '@id': stencila:content
     description: Optional structured content/text of this citation.
+    strip:
+      - types
     type: array
     items:
       $ref: Inline

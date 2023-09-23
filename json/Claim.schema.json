@@ -51,6 +51,9 @@
     "description": {
       "@id": "schema:description",
       "description": "A description of the item.",
+      "strip": [
+        "types"
+      ],
       "type": "array",
       "items": {
         "$ref": "Block.schema.json"
@@ -178,6 +181,9 @@
       "@id": "stencila:content",
       "description": "Content of the claim, usually a single paragraph.",
       "$comment": "Most claims will have a single paragraph but could have multiple\nparagraphs, tables and even figures.\n",
+      "strip": [
+        "types"
+      ],
       "type": "array",
       "items": {
         "$ref": "Block.schema.json"
@@ -331,6 +337,9 @@
       "description": "The title of the creative work.",
       "aliases": [
         "headline"
+      ],
+      "strip": [
+        "types"
       ],
       "type": "array",
       "items": {

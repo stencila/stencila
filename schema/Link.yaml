@@ -21,6 +21,8 @@ properties:
   content:
     '@id': stencila:content
     description: The textual content of the link.
+    strip:
+      - types
     type: array
     items:
       $ref: Inline

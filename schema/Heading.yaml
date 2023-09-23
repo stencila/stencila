@@ -26,6 +26,8 @@ properties:
   content:
     '@id': stencila:content
     description: Content of the heading.
+    strip:
+      - types
     type: array
     items:
       $ref: Inline

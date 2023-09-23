@@ -23,6 +23,7 @@ pub struct QuoteBlock {
     pub cite: Option<CiteOrString>,
 
     /// The content of the quote.
+    #[strip(types)]
     pub content: Vec<Block>,
 }
 

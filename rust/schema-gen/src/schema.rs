@@ -1,9 +1,6 @@
 //! The meta-schema for schemas in the Stencila Schema
 
-use std::{
-    fmt::Display,
-    path::PathBuf,
-};
+use std::{fmt::Display, path::PathBuf};
 
 use schemars::JsonSchema;
 
@@ -468,6 +465,9 @@ pub enum StripScopes {
     /// - `output` of a `CodeExpression` node
     /// - `content` of a `Include` or `Call` node
     Output,
+
+    /// Strip child nodes of specified types from the property
+    Types,
 }
 
 /// Options for conversion to/from HTML

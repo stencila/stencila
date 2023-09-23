@@ -47,6 +47,7 @@ pub struct ReviewOptions {
     pub alternate_names: Option<Vec<String>>,
 
     /// A description of the item.
+    #[strip(types)]
     pub description: Option<Vec<Block>>,
 
     /// Any kind of identifier for any kind of Thing.
@@ -80,6 +81,7 @@ pub struct ReviewOptions {
     pub comments: Option<Vec<Comment>>,
 
     /// The structured content of this creative work c.f. property `text`.
+    #[strip(types)]
     pub content: Option<Vec<Block>>,
 
     /// Date/time of creation.
@@ -131,6 +133,7 @@ pub struct ReviewOptions {
     pub text: Option<String>,
 
     /// The title of the creative work.
+    #[strip(types)]
     pub title: Option<Vec<Inline>>,
 
     /// The version of the creative work.

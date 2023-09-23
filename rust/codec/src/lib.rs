@@ -17,7 +17,7 @@ use schema::{Node, NodeType};
 use status::Status;
 
 // Re-exports for the convenience of internal crates implementing `Codec`
-pub use codec_losses::{Loss, LossKind, Losses, LossesResponse};
+pub use codec_losses::{Loss, LossDirection, LossKind, Losses, LossesResponse};
 pub use common;
 pub use format;
 pub use schema;
@@ -81,6 +81,29 @@ pub trait Codec: Sync + Send {
     /// Whether the codec supports encoding to a file system path
     fn supports_to_path(&self) -> bool {
         true
+    }
+
+    /// Get a list of types that the codec has either lossy decoding, or encoding, or both
+    fn lossy_types(&self, direction: Option<LossDirection>) -> Vec<NodeType> {
+        let mut types = Vec::new();
+
+        for node_type in NodeType::iter() {
+            if (direction.is_none() || matches!(direction, Some(LossDirection::Decode)))
+                && self.supports_from_type(node_type).is_lossy()
+                && !types.contains(&node_type)
+            {
+                types.push(node_type)
+            }
+
+            if (direction.is_none() || matches!(direction, Some(LossDirection::Encode)))
+                && self.supports_to_type(node_type).is_lossy()
+                && !types.contains(&node_type)
+            {
+                types.push(node_type)
+            }
+        }
+
+        types
     }
 
     /// Whether the codec uses remote state
@@ -219,6 +242,11 @@ impl CodecSupport {
     pub fn is_supported(&self) -> bool {
         !matches!(self, CodecSupport::None)
     }
+
+    /// Whether there is any loss for a format or node type
+    pub fn is_lossy(&self) -> bool {
+        !matches!(self, CodecSupport::NoLoss)
+    }
 }
 
 /// A specification of a codec
@@ -298,7 +326,10 @@ pub struct EncodeOptions {
 
     /// Whether to strip the outputs of executable nodes when encoding
     #[default = false]
-    pub strip_outputs: bool,
+    pub strip_output: bool,
+
+    /// A list of node types to strip when encoding
+    pub strip_types: Vec<String>,
 
     /// The response to take when there are losses in the encoding
     #[default(_code = "LossesResponse::Warn")]

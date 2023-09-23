@@ -43,6 +43,9 @@
     "description": {
       "@id": "schema:description",
       "description": "A description of the item.",
+      "strip": [
+        "types"
+      ],
       "type": "array",
       "items": {
         "$ref": "Block.schema.json"

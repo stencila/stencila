@@ -1,5 +1,7 @@
 use std::path::PathBuf;
 
+use yansi::Color;
+
 use common::{
     chrono::{Local, SecondsFormat, TimeZone},
     clap::{self, Args, Parser, Subcommand},
@@ -8,7 +10,6 @@ use common::{
 };
 use document::{Document, DocumentType, SyncDirection};
 use format::Format;
-use yansi::Color;
 
 use crate::{
     display,
@@ -265,21 +266,25 @@ struct EncodeOptions {
     #[arg(long, short)]
     compact: bool,
 
-    /// Do not strip the id property of nodes when encoding
+    /// Do not strip the id property of nodes before encoding
     #[arg(long)]
     no_strip_id: bool,
 
-    /// Strip the code of executable nodes when encoding
+    /// Strip the code of executable nodes before encoding
     #[arg(long)]
     strip_code: bool,
 
-    /// Strip derived properties of executable nodes when encoding
+    /// Strip derived properties of executable nodes before encoding
     #[arg(long)]
     strip_execution: bool,
 
-    /// Strip the outputs of executable nodes when encoding
+    /// Strip the outputs of executable nodes before encoding
     #[arg(long)]
-    strip_outputs: bool,
+    strip_output: bool,
+
+    /// A list of types to strip before encoding
+    #[arg(long)]
+    strip_types: Vec<String>,
 }
 
 impl EncodeOptions {
@@ -303,7 +308,8 @@ impl EncodeOptions {
             strip_id: !self.no_strip_id,
             strip_code: self.strip_code,
             strip_execution: self.strip_execution,
-            strip_outputs: self.strip_outputs,
+            strip_output: self.strip_output,
+            strip_types: self.strip_types.clone(),
             losses,
         }
     }
@@ -378,7 +384,8 @@ impl Cli {
                     strip_id: !options.no_strip_id,
                     strip_code: options.strip_code,
                     strip_execution: options.strip_execution,
-                    strip_outputs: options.strip_outputs,
+                    strip_output: options.strip_output,
+                    strip_types: options.strip_types,
                     losses,
                 };
 

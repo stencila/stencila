@@ -35,6 +35,11 @@ pub struct Targets {
     /// - `output` of a `CodeExpression` node
     /// - `content` of a `Include` or `Call` node
     pub output: bool,
+
+    /// Types of child nodes to strip
+    ///
+    /// A list of node types to remove from properties such as `content`.
+    pub types: Vec<String>,
 }
 
 impl Targets {
@@ -53,6 +58,7 @@ impl Targets {
             code: true,
             execution: true,
             output: true,
+            types: vec![],
         }
     }
 }

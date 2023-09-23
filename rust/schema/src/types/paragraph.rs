@@ -22,6 +22,7 @@ pub struct Paragraph {
     pub id: Option<String>,
 
     /// The contents of the paragraph.
+    #[strip(types)]
     pub content: Vec<Inline>,
 }
 

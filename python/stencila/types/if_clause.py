@@ -18,4 +18,4 @@ class IfClause(CodeExecutable):
     """Whether this clause is the active clause in the parent `If` node"""
 
     content: List[Block]
-    """The content to render if the result is true-thy"""
+    """The content to render if the result is truthy"""

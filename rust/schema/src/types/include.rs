@@ -43,7 +43,7 @@ pub struct Include {
     pub select: Option<String>,
 
     /// The structured content decoded from the source.
-    #[strip(output)]
+    #[strip(output, types)]
     pub content: Option<Vec<Block>>,
 
     /// Non-core optional fields
