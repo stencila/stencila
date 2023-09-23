@@ -12,6 +12,7 @@ html:
   elem: article
 jats:
   special: true
+  elem: article
 markdown:
   special: true
 required:
