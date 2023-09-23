@@ -3,7 +3,7 @@ use roxmltree::Node;
 use codec::{
     schema::{
         shortcuts::{em, p, s, strong, sub, sup, text, u},
-        Article, Block, Inlines,
+        Article, Block, Inlines, ThematicBreak,
     },
     Loss, LossDirection, Losses,
 };
@@ -14,6 +14,7 @@ pub(super) fn decode_body(node: &Node, article: &mut Article, losses: &mut Losse
         let tag = child.tag_name().name();
         let block = match tag {
             "p" => decode_p(&child, losses),
+            "hr" => decode_hr(),
             _ => {
                 if child.is_element() {
                     losses.add(Loss::of_type(LossDirection::Decode, tag))
@@ -28,6 +29,11 @@ pub(super) fn decode_body(node: &Node, article: &mut Article, losses: &mut Losse
 /// Decode a `<p>` in the `<body>`
 fn decode_p(node: &Node, losses: &mut Losses) -> Block {
     p(decode_inlines(node, losses))
+}
+
+/// Decode a `<hr>` in the `<body>`
+fn decode_hr() -> Block {
+    Block::ThematicBreak(ThematicBreak::new())
 }
 
 /// Decode inline content nodes

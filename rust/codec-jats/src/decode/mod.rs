@@ -19,7 +19,7 @@ use front::decode_front;
 /// This is the main entry point for decoding. It parses the XML, and then traverses the
 /// XML DOM, building an [`Article`] from it (JATS is always treated as an article, not any other
 /// type of `CreativeWork`).
-pub fn decode(str: &str, _options: Option<DecodeOptions>) -> Result<(schema::Node, Losses)> {
+pub(super) fn decode(str: &str, _options: Option<DecodeOptions>) -> Result<(schema::Node, Losses)> {
     let mut article = Article::default();
     let mut losses = Losses::default();
 
