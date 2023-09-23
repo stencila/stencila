@@ -1,6 +1,7 @@
 {
   "name": "@stencila/node-linux-x64-gnu",
   "version": "0.0.0",
+  "license": "Apache-2.0",
   "os": [
     "linux"
   ],
@@ -11,7 +12,6 @@
   "files": [
     "node.linux-x64-gnu.node"
   ],
-  "license": "MIT",
   "engines": {
     "node": ">= 10"
   },

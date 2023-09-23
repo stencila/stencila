@@ -3,21 +3,7 @@
   "version": "0.0.0",
   "main": "index.js",
   "types": "index.d.ts",
-  "napi": {
-    "name": "node",
-    "triples": {}
-  },
-  "license": "MIT",
-  "devDependencies": {
-    "@napi-rs/cli": "^2.16.3",
-    "ava": "^5.1.1"
-  },
-  "ava": {
-    "timeout": "3m"
-  },
-  "engines": {
-    "node": ">= 10"
-  },
+  "license": "Apache-2.0",
   "scripts": {
     "artifacts": "napi artifacts",
     "build": "napi build --platform --release",
@@ -27,7 +13,21 @@
     "universal": "napi universal",
     "version": "napi version"
   },
+  "engines": {
+    "node": ">= 10"
+  },
+  "napi": {
+    "name": "node",
+    "triples": {}
+  },
+  "ava": {
+    "timeout": "3m"
+  },
   "packageManager": "yarn@3.6.3",
+  "devDependencies": {
+    "@napi-rs/cli": "^2.16.3",
+    "ava": "^5.1.1"
+  },
   "optionalDependencies": {
     "@stencila/node-win32-x64-msvc": "0.0.0",
     "@stencila/node-darwin-x64": "0.0.0",

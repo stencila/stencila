@@ -1,6 +1,7 @@
 {
   "name": "@stencila/node-darwin-x64",
   "version": "0.0.0",
+  "license": "Apache-2.0",
   "os": [
     "darwin"
   ],
@@ -11,7 +12,6 @@
   "files": [
     "node.darwin-x64.node"
   ],
-  "license": "MIT",
   "engines": {
     "node": ">= 10"
   }
