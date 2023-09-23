@@ -2,8 +2,8 @@
 
 use crate::{
     Block, BlocksOrInlines, CodeFragment, Cord, Heading, Inline, Link, List, ListItem, ListOrder,
-    Paragraph, Strong, Subscript, Superscript, Table, TableCell, TableCellType, TableRow, Text,
-    Underline, Strikeout,
+    Paragraph, Strikeout, Strong, Subscript, Superscript, Table, TableCell, TableCellType,
+    TableRow, Text, Underline,
 };
 
 /// Create an [`Inline::Text`] node

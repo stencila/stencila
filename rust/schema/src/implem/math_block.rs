@@ -5,16 +5,21 @@ impl MathBlock {
         use codec_jats_trait::encode::elem;
 
         let label = self
-            .label.as_ref()
+            .label
+            .as_ref()
             .map(|label| elem("label", [], label))
             .unwrap_or_default();
-        
+
         let mathml = self
-            .mathml.as_ref()
+            .mathml
+            .as_ref()
             .map(|mathml| elem("mml:math", [], mathml))
             .unwrap_or_default();
 
-        (elem("disp-formula", [], [label, mathml].concat()), Losses::todo())
+        (
+            elem("disp-formula", [], [label, mathml].concat()),
+            Losses::todo(),
+        )
     }
 
     pub fn to_markdown_special(&self) -> (String, Losses) {

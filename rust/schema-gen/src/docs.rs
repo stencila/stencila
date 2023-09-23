@@ -408,9 +408,11 @@ fn formats(title: &str, schema: &Schema) -> Vec<Block> {
                         text("Encoded to tag "),
                         link(
                             [cf(format!("<{elem}>"))],
-                            format!("https://developer.mozilla.org/en-US/docs/Web/HTML/Element/{elem}"),
+                            format!(
+                                "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/{elem}"
+                            ),
                         ),
-                        text(" using special function")
+                        text(" using special function"),
                     ]
                 } else {
                     vec![text("Encoded using special function")]
