@@ -3,7 +3,7 @@
 use crate::{
     Block, BlocksOrInlines, CodeFragment, Cord, Heading, Inline, Link, List, ListItem, ListOrder,
     Paragraph, Strong, Subscript, Superscript, Table, TableCell, TableCellType, TableRow, Text,
-    Underline,
+    Underline, Strikeout,
 };
 
 /// Create an [`Inline::Text`] node
@@ -19,6 +19,11 @@ pub fn em<I: Into<Vec<Inline>>>(content: I) -> Inline {
 /// Create an [`Inline::Strong`] node
 pub fn strong<I: Into<Vec<Inline>>>(content: I) -> Inline {
     Inline::Strong(Strong::new(content.into()))
+}
+
+/// Create an [`Inline::Strikeout`] node
+pub fn s<I: Into<Vec<Inline>>>(content: I) -> Inline {
+    Inline::Strikeout(Strikeout::new(content.into()))
 }
 
 /// Create an [`Inline::Subscript`] node

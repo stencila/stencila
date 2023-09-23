@@ -33,7 +33,12 @@ impl Codec for JatsCodec {
         use CodecSupport::*;
         use NodeType::*;
         match node_type {
+            // Prose Inlines
+            Text | Emphasis | Strong | Strikeout | Subscript | Superscript | Underline | Insert => NoLoss,
+            Delete => HighLoss,
+            // Prose Blocks
             Paragraph => NoLoss,
+            // Works,
             Article => LowLoss,
             _ => None,
         }
@@ -58,7 +63,7 @@ impl Codec for JatsCodec {
             String | Cord => NoLoss,
             Null | Boolean | Integer | UnsignedInteger | Number => LowLoss,
             // Prose Inlines
-            Text | Emphasis | Strong | Subscript | Superscript | Underline => NoLoss,
+            Text | Emphasis | Strong | Strikeout | Subscript | Superscript | Underline | Insert => NoLoss,
             Link | Parameter | AudioObject | ImageObject | MediaObject => LowLoss,
             // Prose Blocks
             Heading | Paragraph | ThematicBreak => NoLoss,

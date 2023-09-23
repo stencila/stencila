@@ -1,16 +1,19 @@
 use roxmltree::Node;
 
 use codec::{
-    schema::{shortcuts, Article, Block, Inlines},
+    schema::{
+        shortcuts::{em, p, s, strong, sub, sup, text, u},
+        Article, Block, Inlines,
+    },
     Loss, LossDirection, Losses,
 };
 
 /// Decode the `<body>` of an `<article>`
-pub(super) fn body(node: &Node, article: &mut Article, losses: &mut Losses) {
+pub(super) fn decode_body(node: &Node, article: &mut Article, losses: &mut Losses) {
     for child in node.children() {
         let tag = child.tag_name().name();
         let block = match tag {
-            "p" => p(&child, losses),
+            "p" => decode_p(&child, losses),
             _ => {
                 if child.is_element() {
                     losses.add(Loss::of_type(LossDirection::Decode, tag))
@@ -23,23 +26,31 @@ pub(super) fn body(node: &Node, article: &mut Article, losses: &mut Losses) {
 }
 
 /// Decode a `<p>` in the `<body>`
-fn p(node: &Node, losses: &mut Losses) -> Block {
-    shortcuts::p(inlines(node, losses))
+fn decode_p(node: &Node, losses: &mut Losses) -> Block {
+    p(decode_inlines(node, losses))
 }
 
 /// Decode inline content nodes
-fn inlines(node: &Node, losses: &mut Losses) -> Inlines {
+fn decode_inlines(node: &Node, losses: &mut Losses) -> Inlines {
     let mut inlines = Inlines::new();
     for child in node.children() {
         let inline = if child.is_text() {
-            shortcuts::text(child.text().unwrap_or_default())
+            text(child.text().unwrap_or_default())
         } else {
             let tag = child.tag_name().name();
-            {
-                if child.is_element() {
-                    losses.add(Loss::of_type(LossDirection::Decode, tag))
+            match tag {
+                "bold" => strong(decode_inlines(&child, losses)),
+                "italic" => em(decode_inlines(&child, losses)),
+                "strike" => s(decode_inlines(&child, losses)),
+                "sub" => sub(decode_inlines(&child, losses)),
+                "sup" => sup(decode_inlines(&child, losses)),
+                "underline" => u(decode_inlines(&child, losses)),
+                _ => {
+                    if child.is_element() {
+                        losses.add(Loss::of_type(LossDirection::Decode, tag))
+                    }
+                    continue;
                 }
-                continue;
             }
         };
         inlines.push(inline);

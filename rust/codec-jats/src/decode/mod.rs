@@ -10,9 +10,9 @@ mod back;
 mod body;
 mod front;
 
-use back::back;
-use body::body;
-use front::front;
+use back::decode_back;
+use body::decode_body;
+use front::decode_front;
 
 /// Decode a JATS XML string to a Stencila Schema [`Node`]
 ///
@@ -33,9 +33,9 @@ pub fn decode(str: &str, _options: Option<DecodeOptions>) -> Result<(schema::Nod
     for child in root.children() {
         let tag = child.tag_name().name();
         match tag {
-            "front" => front(&child, &mut article, &mut losses),
-            "body" => body(&child, &mut article, &mut losses),
-            "back" => back(&child, &mut article, &mut losses),
+            "front" => decode_front(&child, &mut article, &mut losses),
+            "body" => decode_body(&child, &mut article, &mut losses),
+            "back" => decode_back(&child, &mut article, &mut losses),
             _ => {
                 if child.is_element() {
                     losses.add(Loss::of_type(LossDirection::Decode, tag))
