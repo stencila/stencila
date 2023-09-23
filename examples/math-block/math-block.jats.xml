@@ -3,8 +3,14 @@
   </front>
   <body>
     <p>A TeX block.</p>
+    <disp-formula>
+    </disp-formula>
     <p>An ASCIIMath block.</p>
+    <disp-formula>
+    </disp-formula>
     <p>A MathML block.</p>
+    <disp-formula>
+    </disp-formula>
   </body>
   <back>
   </back>

@@ -2,9 +2,12 @@
   <front>
   </front>
   <body>
-    <p>A TeX fragment .</p>
-    <p>An ASCIIMath fragment .</p>
-    <p>A MathML fragment .</p>
+    <p>A TeX fragment<inline-formula>
+      </inline-formula>.</p>
+    <p>An ASCIIMath fragment<inline-formula>
+      </inline-formula>.</p>
+    <p>A MathML fragment<inline-formula>
+      </inline-formula>.</p>
   </body>
   <back>
   </back>
