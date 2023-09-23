@@ -54,7 +54,7 @@ examples:
 
 # Cut a release
 release:
-	cargo release -p stencila --tag-prefix '' --no-publish --execute alpha
+	cargo release -p cli --tag-prefix '' --no-publish --execute alpha
 
 # Clean up development artifacts
 clean:
