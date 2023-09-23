@@ -9,7 +9,7 @@
     "build": "napi build --platform --release",
     "build:debug": "napi build --platform",
     "prepublishOnly": "napi prepublish -t npm",
-    "test": "ava",
+    "test": "jest",
     "universal": "napi universal",
     "version": "napi version"
   },
@@ -20,17 +20,17 @@
     "name": "node",
     "triples": {}
   },
-  "ava": {
-    "timeout": "3m"
+  "jest": {
+    "testTimeout": 180000
   },
   "packageManager": "yarn@3.6.3",
   "devDependencies": {
-    "@napi-rs/cli": "^2.16.3",
-    "ava": "^5.1.1"
+    "@napi-rs/cli": "2.16.3",
+    "jest": "29.7.0"
   },
   "optionalDependencies": {
-    "@stencila/node-win32-x64-msvc": "0.0.0",
     "@stencila/node-darwin-x64": "0.0.0",
-    "@stencila/node-linux-x64-gnu": "0.0.0"
+    "@stencila/node-linux-x64-gnu": "0.0.0",
+    "@stencila/node-win32-x64-msvc": "0.0.0"
   }
 }
