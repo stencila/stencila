@@ -1,12 +1,14 @@
 //! Tests on examples of Stencila documents
 
-use std::path::PathBuf;
+use std::{collections::HashMap, fs::File, path::PathBuf};
 
 use codecs::{DecodeOptions, EncodeOptions};
 use common::{
     eyre::{Context, Result},
     glob::glob,
     itertools::Itertools,
+    serde::Deserialize,
+    serde_yaml,
     tokio::{
         self,
         fs::{read_to_string, write},
@@ -114,6 +116,15 @@ async fn examples_encode_decode() -> Result<()> {
 
     for path in examples {
         let name = path.file_name().unwrap().to_string_lossy();
+        eprintln!("> {name}");
+
+        let config = path.parent().unwrap().join("config.yaml");
+        let config: HashMap<String, Config> = if config.exists() {
+            let config = File::open(&config)?;
+            serde_yaml::from_reader(config)?
+        } else {
+            HashMap::new()
+        };
 
         let node = codecs::from_path(&path, None).await?;
 
@@ -164,6 +175,11 @@ async fn examples_encode_decode() -> Result<()> {
             if let (true, Some(options)) = (file.exists(), decode_options) {
                 // Decoding: always from the file
 
+                let config = config.get(&format.to_string()).cloned().unwrap_or_default();
+                if config.decode.skip {
+                    continue;
+                }
+
                 let codec = codecs::get(None, Some(*format), None)?;
                 let lossy_types = codec
                     .lossy_types(None)
@@ -200,4 +216,18 @@ async fn examples_encode_decode() -> Result<()> {
     }
 
     Ok(())
+}
+
+/// Config for a format
+#[derive(Debug, Default, Clone, Deserialize)]
+#[serde(crate = "common::serde")]
+struct Config {
+    decode: DecodeConfig,
+}
+
+/// Config for testing the decoding of a format
+#[derive(Debug, Default, Clone, Deserialize)]
+#[serde(crate = "common::serde")]
+struct DecodeConfig {
+    skip: bool,
 }
