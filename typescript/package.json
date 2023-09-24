@@ -3,7 +3,9 @@
   "version": "v2.0.0-alpha.8",
   "description": "JavaScript classes and TypeScript types for the Stencila Schema",
   "type": "module",
-  "main": "index.js",
+  "files": ["dist"],
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "directories": {
     "doc": "docs",
     "example": "examples"
