@@ -21,11 +21,11 @@ permissions:
       - main
     tags-ignore:
       - "**"
-    paths:
-      - node/**/*.ts
-      - node/**/*.rs
-      - typescript/**/*.ts
-      - rust/**/*.rs
+    #paths:
+    #  - node/**/*.ts
+    #  - node/**/*.rs
+    #  - typescript/**/*.ts
+    #  - rust/**/*.rs
   pull_request: null
 
 jobs:
@@ -51,6 +51,9 @@ jobs:
               strip *.node
     name: stable - ${{ matrix.settings.target }} - node@18
     runs-on: ${{ matrix.settings.host }}
+    defaults:
+      run:
+        working-directory: ./node
     steps:
       - uses: actions/checkout@v4
       - name: Setup node
@@ -95,7 +98,7 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: bindings-${{ matrix.settings.target }}
-          path: ${{ env.APP_NAME }}.*.node
+          path: node/${{ env.APP_NAME }}.*.node
           if-no-files-found: error
 
   test-macOS-windows-binding:
@@ -115,6 +118,9 @@ jobs:
           - "16"
           - "18"
     runs-on: ${{ matrix.settings.host }}
+    defaults:
+      run:
+        working-directory: ./node
     steps:
       - uses: actions/checkout@v4
       - name: Setup node
@@ -129,7 +135,7 @@ jobs:
         uses: actions/download-artifact@v3
         with:
           name: bindings-${{ matrix.settings.target }}
-          path: .
+          path: ./node
       - name: List packages
         run: ls -R .
         shell: bash
@@ -148,6 +154,9 @@ jobs:
           - "16"
           - "18"
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./node
     steps:
       - uses: actions/checkout@v4
       - name: Setup node
@@ -172,6 +181,9 @@ jobs:
   publish:
     name: Publish
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./node
     needs:
       - test-macOS-windows-binding
       - test-linux-x64-gnu-binding
