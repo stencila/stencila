@@ -1,6 +1,6 @@
 {
   "name": "@stencila/types",
-  "version": "v2.0.0-alpha.8",
+  "version": "v2.0.0-alpha.9",
   "description": "JavaScript classes and TypeScript types for the Stencila Schema",
   "type": "module",
   "files": ["dist"],
