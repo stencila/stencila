@@ -1710,7 +1710,6 @@ dependencies = [
  "napi-derive",
  "napi-sys",
  "once_cell",
- "serde_json",
  "tokio",
 ]
 
