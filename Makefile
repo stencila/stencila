@@ -4,40 +4,47 @@ all: fix test audit build
 setup:
 	make -C rust setup
 	make -C typescript setup
+	make -C node setup
 	make -C python setup
 
 # Make formatting and linting fixes
 fix:
 	make -C rust fix
 	make -C typescript fix
+	make -C node fix
 	make -C python fix
 
 # Run linting checks
 lint:
 	make -C rust lint
 	make -C typescript lint
+	make -C node lint
 	make -C python lint
 
 # Run tests
 test:
 	make -C rust test
 	make -C typescript test
+	make -C node test
 
 # List outdated dependencies
 outdated:
 	make -C rust outdated
 	make -C typescript outdated
+	make -C node outdated
 	make -C python outdated
 
 # Audit dependencies
 audit:
 	make -C rust audit
 	make -C typescript audit
+	make -C node audit
 
 # Build packages
 build:
 	make -C rust build
 	make -C typescript build
+	make -C node build
 
 # Build Docker image
 docker:
@@ -60,3 +67,4 @@ release:
 clean:
 	make -C rust clean
 	make -C typescript clean
+	make -C node clean
