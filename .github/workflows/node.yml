@@ -1,31 +1,33 @@
 # Workflow, originally created by `napi`, which:
-# 
+#
 # - builds a *.node binary for each platform
 # - tests that the binary works
 # - publishes the `@stencila/node` package (if there is a tag)
 
-name: node
+name: Node
+
 env:
   DEBUG: napi:*
   APP_NAME: node
-  MACOSX_DEPLOYMENT_TARGET: '10.13'
+  MACOSX_DEPLOYMENT_TARGET: "10.13"
+
 permissions:
   contents: write
   id-token: write
-'on':
+
+"on":
   push:
     branches:
       - main
     tags-ignore:
-      - '**'
+      - "**"
     paths:
-      - node
-      - typescript
-      - rust
-    paths-ignore:
-      - '**/*.md'
-      - '**/*.gitignore'
+      - node/**/*.ts
+      - node/**/*.rs
+      - typescript/**/*.ts
+      - rust/**/*.rs
   pull_request: null
+
 jobs:
   build:
     strategy:
@@ -50,7 +52,7 @@ jobs:
     name: stable - ${{ matrix.settings.target }} - node@18
     runs-on: ${{ matrix.settings.host }}
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Setup node
         uses: actions/setup-node@v3
         if: ${{ !matrix.settings.docker }}
@@ -101,7 +103,7 @@ jobs:
         if: ${{ matrix.settings.docker }}
         with:
           image: ${{ matrix.settings.docker }}
-          options: '--user 0:0 -v ${{ github.workspace }}/.cargo-cache/git/db:/usr/local/cargo/git/db -v ${{ github.workspace }}/.cargo/registry/cache:/usr/local/cargo/registry/cache -v ${{ github.workspace }}/.cargo/registry/index:/usr/local/cargo/registry/index -v ${{ github.workspace }}:/build -w /build'
+          options: "--user 0:0 -v ${{ github.workspace }}/.cargo-cache/git/db:/usr/local/cargo/git/db -v ${{ github.workspace }}/.cargo/registry/cache:/usr/local/cargo/registry/cache -v ${{ github.workspace }}/.cargo/registry/index:/usr/local/cargo/registry/index -v ${{ github.workspace }}:/build -w /build"
           run: ${{ matrix.settings.build }}
       - name: Build
         run: ${{ matrix.settings.build }}
@@ -126,12 +128,12 @@ jobs:
           - host: windows-latest
             target: x86_64-pc-windows-msvc
         node:
-          - '14'
-          - '16'
-          - '18'
+          - "14"
+          - "16"
+          - "18"
     runs-on: ${{ matrix.settings.host }}
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Setup node
         uses: actions/setup-node@v3
         with:
@@ -158,12 +160,12 @@ jobs:
       fail-fast: false
       matrix:
         node:
-          - '14'
-          - '16'
-          - '18'
+          - "14"
+          - "16"
+          - "18"
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Setup node
         uses: actions/setup-node@v3
         with:
@@ -189,7 +191,7 @@ jobs:
       - test-macOS-windows-binding
       - test-linux-x64-gnu-binding
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Setup node
         uses: actions/setup-node@v3
         with:
