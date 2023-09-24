@@ -25,6 +25,13 @@ export async function fromString(
   return node(JSON.parse(await fromString_(string, options)));
 }
 
+/**
+ * Decode a Stencila Schema node from a filesystem path
+ * 
+ * @param string The path to decode to a node
+ * @param options Decoding options
+ * @returns A Stencila Schema node
+ */
 export async function fromPath(
   string: string,
   options?: DecodeOptions
