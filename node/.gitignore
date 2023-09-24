@@ -1,15 +1,10 @@
-node_modules
-
-.yarn/*
-!.yarn/patches
-!.yarn/plugins
-!.yarn/releases
-!.yarn/sdks
-!.yarn/versions
-
-*.node
-
+# Generated files
 /index.js
 /index.d.ts
 /main.js
 /main.d.ts
+
+# Built extensions
+*.node
+
+node_modules

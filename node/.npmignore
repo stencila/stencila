@@ -1,13 +1,7 @@
-target
-Cargo.lock
-.cargo
 .github
 npm
-.eslintrc
-.prettierignore
-rustfmt.toml
-yarn.lock
+tests
+.eslintrc.json
+tsconfig.json
+Makefile
 *.node
-.yarn
-__test__
-renovate.json
