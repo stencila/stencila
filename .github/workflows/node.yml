@@ -1,4 +1,10 @@
-name: CI
+# Workflow, originally created by `napi`, which:
+# 
+# - builds a *.node binary for each platform
+# - tests that the binary works
+# - publishes the `@stencila/node` package (if there is a tag)
+
+name: node
 env:
   DEBUG: napi:*
   APP_NAME: node
@@ -12,12 +18,13 @@ permissions:
       - main
     tags-ignore:
       - '**'
+    paths:
+      - node
+      - typescript
+      - rust
     paths-ignore:
       - '**/*.md'
-      - LICENSE
       - '**/*.gitignore'
-      - .editorconfig
-      - docs/**
   pull_request: null
 jobs:
   build:
@@ -201,6 +208,7 @@ jobs:
         run: ls -R ./npm
         shell: bash
       - name: Publish
+        if: false
         run: |
           npm config set provenance true
           if git log -1 --pretty=%B | grep "^[0-9]\+\.[0-9]\+\.[0-9]\+$";
