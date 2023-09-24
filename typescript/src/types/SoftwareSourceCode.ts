@@ -33,4 +33,8 @@ export class SoftwareSourceCode extends CreativeWork {
     if (options) Object.assign(this, options)
     
   }
+
+  static from(other: SoftwareSourceCode): SoftwareSourceCode {
+    return new SoftwareSourceCode(other)
+  }
 }

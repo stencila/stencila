@@ -15,4 +15,8 @@ export class Suggestion extends Entity {
     if (options) Object.assign(this, options)
     this.content = content;
   }
+
+  static from(other: Suggestion): Suggestion {
+    return new Suggestion(other.content!, other)
+  }
 }

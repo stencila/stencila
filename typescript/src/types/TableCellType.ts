@@ -4,3 +4,5 @@
 export type TableCellType =
   'Data' |
   'Header';
+
+

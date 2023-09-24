@@ -15,4 +15,8 @@ export class Text extends Entity {
     if (options) Object.assign(this, options)
     this.value = value;
   }
+
+  static from(other: Text): Text {
+    return new Text(other.value!, other)
+  }
 }

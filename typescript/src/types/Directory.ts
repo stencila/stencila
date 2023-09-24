@@ -20,4 +20,8 @@ export class Directory extends Collection {
     this.parts = parts;
     this.path = path;
   }
+
+  static from(other: Directory): Directory {
+    return new Directory(other.name!, other.parts!, other.path!, other)
+  }
 }

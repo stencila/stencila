@@ -27,4 +27,8 @@ export class CodeChunk extends CodeExecutable {
     this.code = code;
     this.programmingLanguage = programmingLanguage;
   }
+
+  static from(other: CodeChunk): CodeChunk {
+    return new CodeChunk(other.code!, other.programmingLanguage!, other)
+  }
 }

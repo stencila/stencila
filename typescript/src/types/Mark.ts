@@ -16,4 +16,8 @@ export class Mark extends Entity {
     if (options) Object.assign(this, options)
     this.content = content;
   }
+
+  static from(other: Mark): Mark {
+    return new Mark(other.content!, other)
+  }
 }

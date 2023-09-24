@@ -31,4 +31,8 @@ export class ArrayValidator extends Entity {
     if (options) Object.assign(this, options)
     
   }
+
+  static from(other: ArrayValidator): ArrayValidator {
+    return new ArrayValidator(other)
+  }
 }

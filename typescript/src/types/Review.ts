@@ -18,4 +18,8 @@ export class Review extends CreativeWork {
     if (options) Object.assign(this, options)
     
   }
+
+  static from(other: Review): Review {
+    return new Review(other)
+  }
 }

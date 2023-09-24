@@ -20,4 +20,8 @@ export class Heading extends Entity {
     this.depth = depth;
     this.content = content;
   }
+
+  static from(other: Heading): Heading {
+    return new Heading(other.depth!, other.content!, other)
+  }
 }

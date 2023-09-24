@@ -21,4 +21,8 @@ export class Periodical extends CreativeWork {
     if (options) Object.assign(this, options)
     
   }
+
+  static from(other: Periodical): Periodical {
+    return new Periodical(other)
+  }
 }

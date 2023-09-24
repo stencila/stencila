@@ -40,6 +40,18 @@ const NO_GENERATE_MODULE: &[&str] = &[
     "UnsignedInteger",
 ];
 
+const PRIMITIVES: &[&str] = &[
+    "null",
+    "boolean",
+    "integer",
+    "unsignedinteger",
+    "number",
+    "string",
+    "cord",
+    "array",
+    "object",
+];
+
 /// Types for which native to TypesScript types are used directly
 /// Note that this excludes `Integer`, `UnsignedInteger` and `Object`
 /// which although they are implemented as native types have different semantics.
@@ -263,11 +275,13 @@ impl Schemas {
                 // special case here.
                 required_props.push(if name == "arguments" {
                     (
+                        name.clone(),
                         format!("this.{name} = args;"),
                         format!("args: {prop_type}, "),
                     )
                 } else {
                     (
+                        name.clone(),
                         format!("this.{name} = {name};"),
                         format!("{name}: {prop_type}, "),
                     )
@@ -312,10 +326,48 @@ impl Schemas {
         let required_args = required_props.iter().map(|(.., arg)| arg).join("");
         let required_assignments = required_props
             .iter()
-            .map(|(assignment, ..)| assignment)
+            .map(|(_, assignment, ..)| assignment)
             .join("\n    ");
         let super_args = super_args.join(", ");
 
+        let from = format!(
+            r#"static from(other: {title}): {title} {{
+    return new {title}({args}other)
+  }}"#,
+            args = required_props
+                .iter()
+                .map(|(name, ..)| format!("other.{name}!, "))
+                .join("")
+        );
+
+        let class = if let Some(base) = base {
+            format!(
+                r#"export class {title} extends {base} {{
+{props}
+
+  constructor({required_args}options?: {title}) {{
+    super({super_args})
+    if (options) Object.assign(this, options)
+    {required_assignments}
+  }}
+
+  {from}
+}}"#
+            )
+        } else {
+            format!(
+                r#"export class {title} {{
+{props}
+
+  constructor({required_args}options?: {title}) {{
+    if (options) Object.assign(this, options)
+    {required_assignments}
+  }}
+
+  {from}
+}}"#
+            )
+        };
         let mut imports = used_types
             .into_iter()
             .filter(|used_type| {
@@ -334,31 +386,6 @@ impl Schemas {
             .unwrap_or(title)
             .trim_end_matches('\n')
             .replace('\n', "\n  // ");
-
-        let class = if let Some(base) = base {
-            format!(
-                r#"export class {title} extends {base} {{
-{props}
-
-  constructor({required_args}options?: {title}) {{
-    super({super_args})
-    if (options) Object.assign(this, options)
-    {required_assignments}
-  }}
-}}"#
-            )
-        } else {
-            format!(
-                r#"export class {title} {{
-{props}
-
-  constructor({required_args}options?: {title}) {{
-    if (options) Object.assign(this, options)
-    {required_assignments}
-  }}
-}}"#
-            )
-        };
 
         write(
             path,
@@ -396,6 +423,7 @@ impl Schemas {
             .await?
             .into_iter()
             .unzip();
+        let all_are_types = are_types.iter().all(|item| *item);
 
         let name = schema.title.clone().unwrap_or_else(|| {
             alternatives
@@ -441,15 +469,63 @@ impl Schemas {
         }
 
         let variants = alternatives
-            .into_iter()
+            .iter()
             .map(|(variant, is_type)| {
-                if is_type {
-                    variant
+                if *is_type {
+                    variant.clone()
                 } else {
                     format!("'{variant}'")
                 }
             })
             .join(" |\n  ");
+
+        let from = if all_are_types
+            // A hack to avoid issues for the generated functions for these
+            // Not necessary to have functions for these anyway.
+            && ![
+                "BlocksOrInlines",
+                "BlocksOrString",
+                "CreativeWorkTypeOrString",
+                "IntegerOrString",
+                "StringOrNumber",
+                "ThingType",
+            ]
+            .contains(&name.as_str())
+        {
+            format!(
+                r#"export function {func_name}(other: {name}): {name} {{
+  {primitives}switch(other.type) {{
+    {cases}
+    default: throw new Error(`Unexpected type for {name}: ${{other.type}}`)
+  }}
+}}"#,
+                func_name = name.to_camel_case(),
+                primitives = if alternatives
+                    .iter()
+                    .any(|(variant, ..)| { PRIMITIVES.contains(&variant.to_lowercase().as_str()) })
+                {
+                    format!(
+                        r#"if (other == null || typeof other !== "object" || Array.isArray(other) || typeof other.type === "undefined") {{
+    return other as {name};
+  }}
+  "#
+                    )
+                } else {
+                    String::new()
+                },
+                cases = alternatives
+                    .iter()
+                    .filter(|(variant, is_type)| {
+                        *is_type && !PRIMITIVES.contains(&variant.to_lowercase().as_str())
+                    })
+                    .map(|(variant, ..)| format!(
+                        "case \"{variant}\": return {variant}.from(other as {variant});"
+                    ))
+                    .join("\n    ")
+            )
+        } else {
+            String::new()
+        };
 
         write(
             path,
@@ -459,6 +535,8 @@ impl Schemas {
 {imports}// {description}
 export type {name} =
   {variants};
+
+{from}
 "#
             ),
         )

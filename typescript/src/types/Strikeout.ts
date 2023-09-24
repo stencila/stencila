@@ -12,4 +12,8 @@ export class Strikeout extends Mark {
     if (options) Object.assign(this, options)
     this.content = content;
   }
+
+  static from(other: Strikeout): Strikeout {
+    return new Strikeout(other.content!, other)
+  }
 }

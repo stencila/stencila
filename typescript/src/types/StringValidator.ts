@@ -21,4 +21,8 @@ export class StringValidator extends Entity {
     if (options) Object.assign(this, options)
     
   }
+
+  static from(other: StringValidator): StringValidator {
+    return new StringValidator(other)
+  }
 }

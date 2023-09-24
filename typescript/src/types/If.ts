@@ -15,4 +15,8 @@ export class If extends Executable {
     if (options) Object.assign(this, options)
     this.clauses = clauses;
   }
+
+  static from(other: If): If {
+    return new If(other.clauses!, other)
+  }
 }

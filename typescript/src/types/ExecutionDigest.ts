@@ -30,4 +30,8 @@ export class ExecutionDigest extends Entity {
     this.dependenciesStale = dependenciesStale;
     this.dependenciesFailed = dependenciesFailed;
   }
+
+  static from(other: ExecutionDigest): ExecutionDigest {
+    return new ExecutionDigest(other.stateDigest!, other.semanticDigest!, other.dependenciesDigest!, other.dependenciesStale!, other.dependenciesFailed!, other)
+  }
 }

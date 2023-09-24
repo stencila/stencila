@@ -16,4 +16,8 @@ export class Quote extends Mark {
     if (options) Object.assign(this, options)
     this.content = content;
   }
+
+  static from(other: Quote): Quote {
+    return new Quote(other.content!, other)
+  }
 }

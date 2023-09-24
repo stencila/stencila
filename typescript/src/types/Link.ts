@@ -25,4 +25,8 @@ export class Link extends Entity {
     this.content = content;
     this.target = target;
   }
+
+  static from(other: Link): Link {
+    return new Link(other.content!, other.target!, other)
+  }
 }

@@ -29,4 +29,8 @@ export class For extends CodeExecutable {
     this.symbol = symbol;
     this.content = content;
   }
+
+  static from(other: For): For {
+    return new For(other.code!, other.programmingLanguage!, other.symbol!, other.content!, other)
+  }
 }

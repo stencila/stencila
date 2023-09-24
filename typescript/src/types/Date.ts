@@ -14,4 +14,8 @@ export class Date extends Entity {
     if (options) Object.assign(this, options)
     this.value = value;
   }
+
+  static from(other: Date): Date {
+    return new Date(other.value!, other)
+  }
 }

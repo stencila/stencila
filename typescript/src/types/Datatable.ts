@@ -15,4 +15,8 @@ export class Datatable extends CreativeWork {
     if (options) Object.assign(this, options)
     this.columns = columns;
   }
+
+  static from(other: Datatable): Datatable {
+    return new Datatable(other.columns!, other)
+  }
 }

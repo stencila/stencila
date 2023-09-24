@@ -23,4 +23,8 @@ export class Claim extends CreativeWork {
     this.content = content;
     this.claimType = claimType;
   }
+
+  static from(other: Claim): Claim {
+    return new Claim(other.content!, other.claimType!, other)
+  }
 }

@@ -44,4 +44,8 @@ export class Cite extends Entity {
     this.target = target;
     this.citationMode = citationMode;
   }
+
+  static from(other: Cite): Cite {
+    return new Cite(other.target!, other.citationMode!, other)
+  }
 }

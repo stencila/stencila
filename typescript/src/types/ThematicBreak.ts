@@ -11,4 +11,8 @@ export class ThematicBreak extends Entity {
     if (options) Object.assign(this, options)
     
   }
+
+  static from(other: ThematicBreak): ThematicBreak {
+    return new ThematicBreak(other)
+  }
 }

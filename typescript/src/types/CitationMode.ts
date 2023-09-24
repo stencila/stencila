@@ -5,3 +5,5 @@ export type CitationMode =
   'Parenthetical' |
   'Narrative' |
   'NarrativeAuthor';
+
+

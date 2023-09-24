@@ -21,4 +21,8 @@ export class VideoObject extends MediaObject {
     if (options) Object.assign(this, options)
     this.contentUrl = contentUrl;
   }
+
+  static from(other: VideoObject): VideoObject {
+    return new VideoObject(other.contentUrl!, other)
+  }
 }

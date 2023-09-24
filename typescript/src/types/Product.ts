@@ -23,4 +23,8 @@ export class Product extends Thing {
     if (options) Object.assign(this, options)
     
   }
+
+  static from(other: Product): Product {
+    return new Product(other)
+  }
 }

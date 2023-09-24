@@ -18,4 +18,8 @@ export class DateTimeValidator extends Entity {
     if (options) Object.assign(this, options)
     
   }
+
+  static from(other: DateTimeValidator): DateTimeValidator {
+    return new DateTimeValidator(other)
+  }
 }

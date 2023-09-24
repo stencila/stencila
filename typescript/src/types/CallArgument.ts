@@ -22,4 +22,8 @@ export class CallArgument extends Parameter {
     this.code = code;
     this.programmingLanguage = programmingLanguage;
   }
+
+  static from(other: CallArgument): CallArgument {
+    return new CallArgument(other.name!, other.code!, other.programmingLanguage!, other)
+  }
 }

@@ -11,4 +11,8 @@ export class BooleanValidator extends Entity {
     if (options) Object.assign(this, options)
     
   }
+
+  static from(other: BooleanValidator): BooleanValidator {
+    return new BooleanValidator(other)
+  }
 }

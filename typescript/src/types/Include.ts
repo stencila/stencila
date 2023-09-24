@@ -24,4 +24,8 @@ export class Include extends Executable {
     if (options) Object.assign(this, options)
     this.source = source;
   }
+
+  static from(other: Include): Include {
+    return new Include(other.source!, other)
+  }
 }

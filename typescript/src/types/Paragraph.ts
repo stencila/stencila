@@ -15,4 +15,8 @@ export class Paragraph extends Entity {
     if (options) Object.assign(this, options)
     this.content = content;
   }
+
+  static from(other: Paragraph): Paragraph {
+    return new Paragraph(other.content!, other)
+  }
 }

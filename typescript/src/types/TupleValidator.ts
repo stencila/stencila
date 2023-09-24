@@ -15,4 +15,8 @@ export class TupleValidator extends Entity {
     if (options) Object.assign(this, options)
     
   }
+
+  static from(other: TupleValidator): TupleValidator {
+    return new TupleValidator(other)
+  }
 }

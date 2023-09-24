@@ -9,3 +9,12 @@ export type PersonOrOrganizationOrSoftwareApplication =
   Person |
   Organization |
   SoftwareApplication;
+
+export function personOrOrganizationOrSoftwareApplication(other: PersonOrOrganizationOrSoftwareApplication): PersonOrOrganizationOrSoftwareApplication {
+  switch(other.type) {
+    case "Person": return Person.from(other as Person);
+    case "Organization": return Organization.from(other as Organization);
+    case "SoftwareApplication": return SoftwareApplication.from(other as SoftwareApplication);
+    default: throw new Error(`Unexpected type for PersonOrOrganizationOrSoftwareApplication: ${other.type}`)
+  }
+}

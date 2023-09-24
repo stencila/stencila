@@ -18,4 +18,8 @@ export class CodeStatic extends Entity {
     if (options) Object.assign(this, options)
     this.code = code;
   }
+
+  static from(other: CodeStatic): CodeStatic {
+    return new CodeStatic(other.code!, other)
+  }
 }

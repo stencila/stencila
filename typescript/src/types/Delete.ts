@@ -12,4 +12,8 @@ export class Delete extends Suggestion {
     if (options) Object.assign(this, options)
     this.content = content;
   }
+
+  static from(other: Delete): Delete {
+    return new Delete(other.content!, other)
+  }
 }

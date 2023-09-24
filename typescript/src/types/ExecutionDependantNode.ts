@@ -21,3 +21,18 @@ export type ExecutionDependantNode =
   Parameter |
   Span |
   Variable;
+
+export function executionDependantNode(other: ExecutionDependantNode): ExecutionDependantNode {
+  switch(other.type) {
+    case "Button": return Button.from(other as Button);
+    case "Call": return Call.from(other as Call);
+    case "CodeChunk": return CodeChunk.from(other as CodeChunk);
+    case "CodeExpression": return CodeExpression.from(other as CodeExpression);
+    case "Division": return Division.from(other as Division);
+    case "File": return File.from(other as File);
+    case "Parameter": return Parameter.from(other as Parameter);
+    case "Span": return Span.from(other as Span);
+    case "Variable": return Variable.from(other as Variable);
+    default: throw new Error(`Unexpected type for ExecutionDependantNode: ${other.type}`)
+  }
+}

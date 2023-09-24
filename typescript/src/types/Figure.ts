@@ -18,4 +18,8 @@ export class Figure extends CreativeWork {
     if (options) Object.assign(this, options)
     
   }
+
+  static from(other: Figure): Figure {
+    return new Figure(other)
+  }
 }

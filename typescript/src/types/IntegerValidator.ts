@@ -11,4 +11,8 @@ export class IntegerValidator extends NumberValidator {
     if (options) Object.assign(this, options)
     
   }
+
+  static from(other: IntegerValidator): IntegerValidator {
+    return new IntegerValidator(other)
+  }
 }

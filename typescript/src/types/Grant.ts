@@ -18,4 +18,8 @@ export class Grant extends Thing {
     if (options) Object.assign(this, options)
     
   }
+
+  static from(other: Grant): Grant {
+    return new Grant(other)
+  }
 }

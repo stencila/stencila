@@ -20,4 +20,8 @@ export class CodeError extends Entity {
     if (options) Object.assign(this, options)
     this.errorMessage = errorMessage;
   }
+
+  static from(other: CodeError): CodeError {
+    return new CodeError(other.errorMessage!, other)
+  }
 }

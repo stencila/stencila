@@ -20,4 +20,8 @@ export class Timestamp extends Entity {
     this.value = value;
     this.timeUnit = timeUnit;
   }
+
+  static from(other: Timestamp): Timestamp {
+    return new Timestamp(other.value!, other.timeUnit!, other)
+  }
 }

@@ -23,4 +23,8 @@ export class Function extends Entity {
     this.name = name;
     this.parameters = parameters;
   }
+
+  static from(other: Function): Function {
+    return new Function(other.name!, other.parameters!, other)
+  }
 }

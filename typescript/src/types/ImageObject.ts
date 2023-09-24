@@ -17,4 +17,8 @@ export class ImageObject extends MediaObject {
     if (options) Object.assign(this, options)
     this.contentUrl = contentUrl;
   }
+
+  static from(other: ImageObject): ImageObject {
+    return new ImageObject(other.contentUrl!, other)
+  }
 }

@@ -6,3 +6,13 @@ import { PropertyValue } from './PropertyValue'
 export type PropertyValueOrString =
   PropertyValue |
   string;
+
+export function propertyValueOrString(other: PropertyValueOrString): PropertyValueOrString {
+  if (other == null || typeof other !== "object" || Array.isArray(other) || typeof other.type === "undefined") {
+    return other as PropertyValueOrString;
+  }
+  switch(other.type) {
+    case "PropertyValue": return PropertyValue.from(other as PropertyValue);
+    default: throw new Error(`Unexpected type for PropertyValueOrString: ${other.type}`)
+  }
+}

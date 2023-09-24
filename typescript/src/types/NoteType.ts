@@ -5,3 +5,5 @@ export type NoteType =
   'Footnote' |
   'Endnote' |
   'Sidenote';
+
+

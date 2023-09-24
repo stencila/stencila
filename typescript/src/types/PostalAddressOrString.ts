@@ -6,3 +6,13 @@ import { PostalAddress } from './PostalAddress'
 export type PostalAddressOrString =
   PostalAddress |
   string;
+
+export function postalAddressOrString(other: PostalAddressOrString): PostalAddressOrString {
+  if (other == null || typeof other !== "object" || Array.isArray(other) || typeof other.type === "undefined") {
+    return other as PostalAddressOrString;
+  }
+  switch(other.type) {
+    case "PostalAddress": return PostalAddress.from(other as PostalAddress);
+    default: throw new Error(`Unexpected type for PostalAddressOrString: ${other.type}`)
+  }
+}

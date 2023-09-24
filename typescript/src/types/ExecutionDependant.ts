@@ -24,4 +24,8 @@ export class ExecutionDependant extends Entity {
     this.dependantRelation = dependantRelation;
     this.dependantNode = dependantNode;
   }
+
+  static from(other: ExecutionDependant): ExecutionDependant {
+    return new ExecutionDependant(other.dependantRelation!, other.dependantNode!, other)
+  }
 }

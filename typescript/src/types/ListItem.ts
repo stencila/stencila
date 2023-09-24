@@ -26,4 +26,8 @@ export class ListItem extends Thing {
     if (options) Object.assign(this, options)
     
   }
+
+  static from(other: ListItem): ListItem {
+    return new ListItem(other)
+  }
 }

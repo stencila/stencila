@@ -17,4 +17,8 @@ export class Division extends Styled {
     this.code = code;
     this.content = content;
   }
+
+  static from(other: Division): Division {
+    return new Division(other.code!, other.content!, other)
+  }
 }

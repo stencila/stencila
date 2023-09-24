@@ -29,4 +29,8 @@ export class PostalAddress extends ContactPoint {
     if (options) Object.assign(this, options)
     
   }
+
+  static from(other: PostalAddress): PostalAddress {
+    return new PostalAddress(other)
+  }
 }

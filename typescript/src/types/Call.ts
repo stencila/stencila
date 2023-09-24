@@ -16,4 +16,8 @@ export class Call extends Include {
     this.source = source;
     this.arguments = args;
   }
+
+  static from(other: Call): Call {
+    return new Call(other.source!, other.arguments!, other)
+  }
 }

@@ -11,4 +11,8 @@ export class Entity {
     if (options) Object.assign(this, options)
     
   }
+
+  static from(other: Entity): Entity {
+    return new Entity(other)
+  }
 }

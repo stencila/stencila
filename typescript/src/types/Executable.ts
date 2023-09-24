@@ -61,4 +61,8 @@ export class Executable extends Entity {
     if (options) Object.assign(this, options)
     
   }
+
+  static from(other: Executable): Executable {
+    return new Executable(other)
+  }
 }

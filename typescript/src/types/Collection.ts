@@ -12,4 +12,8 @@ export class Collection extends CreativeWork {
     if (options) Object.assign(this, options)
     this.parts = parts;
   }
+
+  static from(other: Collection): Collection {
+    return new Collection(other.parts!, other)
+  }
 }

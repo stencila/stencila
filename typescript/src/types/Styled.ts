@@ -31,4 +31,8 @@ export class Styled extends Entity {
     if (options) Object.assign(this, options)
     this.code = code;
   }
+
+  static from(other: Styled): Styled {
+    return new Styled(other.code!, other)
+  }
 }

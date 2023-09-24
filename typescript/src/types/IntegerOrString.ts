@@ -6,3 +6,5 @@ import { Integer } from './Integer'
 export type IntegerOrString =
   Integer |
   string;
+
+

@@ -10,3 +10,5 @@ export type ClaimType =
   'Hypothesis' |
   'Proposition' |
   'Corollary';
+
+

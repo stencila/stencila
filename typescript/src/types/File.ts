@@ -15,4 +15,8 @@ export class File extends CreativeWork {
     this.name = name;
     this.path = path;
   }
+
+  static from(other: File): File {
+    return new File(other.name!, other.path!, other)
+  }
 }

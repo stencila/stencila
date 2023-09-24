@@ -12,4 +12,8 @@ export class Subscript extends Mark {
     if (options) Object.assign(this, options)
     this.content = content;
   }
+
+  static from(other: Subscript): Subscript {
+    return new Subscript(other.content!, other)
+  }
 }

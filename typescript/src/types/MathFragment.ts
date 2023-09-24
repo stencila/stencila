@@ -12,4 +12,8 @@ export class MathFragment extends Math {
     this.mathLanguage = mathLanguage;
     this.code = code;
   }
+
+  static from(other: MathFragment): MathFragment {
+    return new MathFragment(other.mathLanguage!, other.code!, other)
+  }
 }

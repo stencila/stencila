@@ -12,4 +12,8 @@ export class Superscript extends Mark {
     if (options) Object.assign(this, options)
     this.content = content;
   }
+
+  static from(other: Superscript): Superscript {
+    return new Superscript(other.content!, other)
+  }
 }

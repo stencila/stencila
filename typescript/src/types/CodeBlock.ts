@@ -12,4 +12,8 @@ export class CodeBlock extends CodeStatic {
     if (options) Object.assign(this, options)
     this.code = code;
   }
+
+  static from(other: CodeBlock): CodeBlock {
+    return new CodeBlock(other.code!, other)
+  }
 }

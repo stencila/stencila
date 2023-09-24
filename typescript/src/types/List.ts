@@ -20,4 +20,8 @@ export class List extends Entity {
     this.items = items;
     this.order = order;
   }
+
+  static from(other: List): List {
+    return new List(other.items!, other.order!, other)
+  }
 }

@@ -22,4 +22,8 @@ export class ExecutionTag extends Entity {
     this.value = value;
     this.isGlobal = isGlobal;
   }
+
+  static from(other: ExecutionTag): ExecutionTag {
+    return new ExecutionTag(other.name!, other.value!, other.isGlobal!, other)
+  }
 }

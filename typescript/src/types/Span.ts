@@ -17,4 +17,8 @@ export class Span extends Styled {
     this.code = code;
     this.content = content;
   }
+
+  static from(other: Span): Span {
+    return new Span(other.code!, other.content!, other)
+  }
 }

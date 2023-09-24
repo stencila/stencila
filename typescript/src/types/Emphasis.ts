@@ -12,4 +12,8 @@ export class Emphasis extends Mark {
     if (options) Object.assign(this, options)
     this.content = content;
   }
+
+  static from(other: Emphasis): Emphasis {
+    return new Emphasis(other.content!, other)
+  }
 }

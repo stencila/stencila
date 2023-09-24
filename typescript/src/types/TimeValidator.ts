@@ -18,4 +18,8 @@ export class TimeValidator extends Entity {
     if (options) Object.assign(this, options)
     
   }
+
+  static from(other: TimeValidator): TimeValidator {
+    return new TimeValidator(other)
+  }
 }

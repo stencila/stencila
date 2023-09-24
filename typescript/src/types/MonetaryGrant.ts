@@ -18,4 +18,8 @@ export class MonetaryGrant extends Grant {
     if (options) Object.assign(this, options)
     
   }
+
+  static from(other: MonetaryGrant): MonetaryGrant {
+    return new MonetaryGrant(other)
+  }
 }

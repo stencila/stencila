@@ -22,4 +22,8 @@ export class DurationValidator extends Entity {
     if (options) Object.assign(this, options)
     
   }
+
+  static from(other: DurationValidator): DurationValidator {
+    return new DurationValidator(other)
+  }
 }

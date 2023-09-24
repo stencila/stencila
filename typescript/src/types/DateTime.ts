@@ -14,4 +14,8 @@ export class DateTime extends Entity {
     if (options) Object.assign(this, options)
     this.value = value;
   }
+
+  static from(other: DateTime): DateTime {
+    return new DateTime(other.value!, other)
+  }
 }

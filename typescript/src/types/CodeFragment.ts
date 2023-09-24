@@ -12,4 +12,8 @@ export class CodeFragment extends CodeStatic {
     if (options) Object.assign(this, options)
     this.code = code;
   }
+
+  static from(other: CodeFragment): CodeFragment {
+    return new CodeFragment(other.code!, other)
+  }
 }

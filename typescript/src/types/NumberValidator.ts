@@ -26,4 +26,8 @@ export class NumberValidator extends Entity {
     if (options) Object.assign(this, options)
     
   }
+
+  static from(other: NumberValidator): NumberValidator {
+    return new NumberValidator(other)
+  }
 }

@@ -32,4 +32,8 @@ export class Thing extends Entity {
     if (options) Object.assign(this, options)
     
   }
+
+  static from(other: Thing): Thing {
+    return new Thing(other)
+  }
 }

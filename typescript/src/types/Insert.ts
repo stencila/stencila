@@ -12,4 +12,8 @@ export class Insert extends Suggestion {
     if (options) Object.assign(this, options)
     this.content = content;
   }
+
+  static from(other: Insert): Insert {
+    return new Insert(other.content!, other)
+  }
 }
