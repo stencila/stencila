@@ -11,6 +11,13 @@ import {
 
 export { DecodeOptions, EncodeOptions };
 
+/**
+ * Decode a Stencila Schema node from a string
+ * 
+ * @param string The string to decode to a node
+ * @param options Decoding options
+ * @returns A Stencila Schema node
+ */
 export async function fromString(
   string: string,
   options?: DecodeOptions
