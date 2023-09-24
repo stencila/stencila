@@ -37,17 +37,17 @@ jobs:
           - host: macos-latest
             target: x86_64-apple-darwin
             build: |
-              npm build
+              npm run build
               strip -x *.node
           - host: windows-latest
-            build: npm build
+            build: npm run build
             target: x86_64-pc-windows-msvc
           - host: ubuntu-latest
             target: x86_64-unknown-linux-gnu
             docker: ghcr.io/napi-rs/napi-rs/nodejs-rust:lts-debian
             build: |-
               set -e &&
-              npm build --target x86_64-unknown-linux-gnu &&
+              npm run build -- --target x86_64-unknown-linux-gnu &&
               strip *.node
     name: stable - ${{ matrix.settings.target }} - node@18
     runs-on: ${{ matrix.settings.host }}
@@ -63,6 +63,7 @@ jobs:
           node-version: 18
           check-latest: true
           cache: npm
+          cache-dependency-path: 'node/package-lock.json'
       - name: Install
         uses: dtolnay/rust-toolchain@stable
         if: ${{ !matrix.settings.docker }}
