@@ -21,6 +21,7 @@ lint: node_modules
 
 # Run tests
 test: node_modules
+	npm run build:debug
 	npm test
 
 # List outdated dependencies
