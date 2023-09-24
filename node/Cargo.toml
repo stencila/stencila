@@ -7,9 +7,12 @@ version = "0.0.0"
 crate-type = ["cdylib"]
 
 [dependencies]
+codecs = { path = "../rust/codecs" }
+common = { path = "../rust/common" }
 # Default enable napi4 feature, see https://nodejs.org/api/n-api.html#node-api-version-matrix
-napi = { version = "2.12.2", default-features = false, features = ["napi4"] }
+napi = { version = "2.12.2", default-features = false, features = ["async", "napi4", "serde_json"] }
 napi-derive = "2.12.2"
+schema = { path = "../rust/schema" }
 
 [build-dependencies]
 napi-build = "2.0.1"

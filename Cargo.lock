@@ -1710,6 +1710,8 @@ dependencies = [
  "napi-derive",
  "napi-sys",
  "once_cell",
+ "serde_json",
+ "tokio",
 ]
 
 [[package]]
@@ -1760,9 +1762,12 @@ dependencies = [
 name = "node"
 version = "0.0.0"
 dependencies = [
+ "codecs",
+ "common",
  "napi",
  "napi-build",
  "napi-derive",
+ "schema",
 ]
 
 [[package]]

@@ -1,4 +1,4 @@
-all: fix audit build
+all: fix test audit build
 
 # Install dependencies
 node_modules: package.json package-lock.json
