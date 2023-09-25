@@ -1,4 +1,4 @@
-import { Node, node } from "@stencila/types";
+import { Node, nodeFrom } from "@stencila/types";
 
 import {
   DecodeOptions,
@@ -18,11 +18,11 @@ export { DecodeOptions, EncodeOptions };
  * @param options Decoding options
  * @returns A Stencila Schema node
  */
-export async function fromString(
+export async function fromString<T = Node>(
   string: string,
   options?: DecodeOptions
-): Promise<Node> {
-  return node(JSON.parse(await fromString_(string, options)));
+): Promise<T> {
+  return nodeFrom(JSON.parse(await fromString_(string, options))) as T;
 }
 
 /**
@@ -32,13 +32,23 @@ export async function fromString(
  * @param options Decoding options
  * @returns A Stencila Schema node
  */
-export async function fromPath(
+export async function fromPath<T = Node>(
   string: string,
   options?: DecodeOptions
-): Promise<Node> {
-  return node(JSON.parse(await fromPath_(string, options)));
+): Promise<T> {
+  return nodeFrom(JSON.parse(await fromPath_(string, options))) as T;
 }
 
+/**
+ * Encode a Stencila Schema node to a string
+ * 
+ * Use the `format` property of options to specify the destination
+ * format (defaults to JSON).
+ * 
+ * @param node The node to encode
+ * @param options Encoding options
+ * @returns The string in the format
+ */
 export async function toString(
   node: Node,
   options?: EncodeOptions
@@ -46,6 +56,13 @@ export async function toString(
   return await toString_(JSON.stringify(node), options);
 }
 
+/**
+ * Encode a Stencila Schema node to a filesystem path
+ * 
+ * @param node The node to encode
+ * @param path The path to encode to
+ * @param options Encoding options
+ */
 export async function toPath(
   node: Node,
   path: string,
