@@ -1,7 +1,7 @@
 // Generated file; do not edit. See `../rust/schema-gen` crate.
 
-import { BlocksOrString } from './BlocksOrString';
-import { CreativeWork } from './CreativeWork';
+import { BlocksOrString } from "./BlocksOrString.js";
+import { CreativeWork } from "./CreativeWork.js";
 
 // Encapsulates one or more images, videos, tables, etc, and provides captions and labels for them.
 export class Figure extends CreativeWork {
@@ -14,12 +14,12 @@ export class Figure extends CreativeWork {
   caption?: BlocksOrString;
 
   constructor(options?: Figure) {
-    super()
-    if (options) Object.assign(this, options)
+    super();
+    if (options) Object.assign(this, options);
     
   }
 
   static from(other: Figure): Figure {
-    return new Figure(other)
+    return new Figure(other);
   }
 }

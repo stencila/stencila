@@ -1,7 +1,7 @@
 // Generated file; do not edit. See `../rust/schema-gen` crate.
 
-import { CreativeWork } from './CreativeWork';
-import { Date } from './Date';
+import { CreativeWork } from "./CreativeWork.js";
+import { Date } from "./Date.js";
 
 // A periodical publication.
 export class Periodical extends CreativeWork {
@@ -17,12 +17,12 @@ export class Periodical extends CreativeWork {
   issns?: string[];
 
   constructor(options?: Periodical) {
-    super()
-    if (options) Object.assign(this, options)
+    super();
+    if (options) Object.assign(this, options);
     
   }
 
   static from(other: Periodical): Periodical {
-    return new Periodical(other)
+    return new Periodical(other);
   }
 }

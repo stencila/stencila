@@ -1,18 +1,18 @@
 // Generated file; do not edit. See `../rust/schema-gen` crate.
 
-import { Entity } from './Entity';
+import { Entity } from "./Entity.js";
 
 // A schema specifying that a node must be a boolean value.
 export class BooleanValidator extends Entity {
   type = "BooleanValidator";
 
   constructor(options?: BooleanValidator) {
-    super()
-    if (options) Object.assign(this, options)
+    super();
+    if (options) Object.assign(this, options);
     
   }
 
   static from(other: BooleanValidator): BooleanValidator {
-    return new BooleanValidator(other)
+    return new BooleanValidator(other);
   }
 }

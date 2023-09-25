@@ -1,9 +1,9 @@
 // Generated file; do not edit. See `../rust/schema-gen` crate.
 
-import { BlocksOrString } from './BlocksOrString';
-import { CodeExecutable } from './CodeExecutable';
-import { Cord } from './Cord';
-import { Node } from './Node';
+import { BlocksOrString } from "./BlocksOrString.js";
+import { CodeExecutable } from "./CodeExecutable.js";
+import { Cord } from "./Cord.js";
+import { Node } from "./Node.js";
 
 // A executable chunk of code.
 export class CodeChunk extends CodeExecutable {
@@ -22,13 +22,13 @@ export class CodeChunk extends CodeExecutable {
   caption?: BlocksOrString;
 
   constructor(code: Cord, programmingLanguage: string, options?: CodeChunk) {
-    super(code, programmingLanguage)
-    if (options) Object.assign(this, options)
+    super(code, programmingLanguage);
+    if (options) Object.assign(this, options);
     this.code = code;
     this.programmingLanguage = programmingLanguage;
   }
 
   static from(other: CodeChunk): CodeChunk {
-    return new CodeChunk(other.code!, other.programmingLanguage!, other)
+    return new CodeChunk(other.code!, other.programmingLanguage!, other);
   }
 }

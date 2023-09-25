@@ -1,9 +1,9 @@
 // Generated file; do not edit. See `../rust/schema-gen` crate.
 
-import { BlocksOrInlines } from './BlocksOrInlines';
-import { Integer } from './Integer';
-import { Node } from './Node';
-import { Thing } from './Thing';
+import { BlocksOrInlines } from "./BlocksOrInlines.js";
+import { Integer } from "./Integer.js";
+import { Node } from "./Node.js";
+import { Thing } from "./Thing.js";
 
 // A single item in a list.
 export class ListItem extends Thing {
@@ -22,12 +22,12 @@ export class ListItem extends Thing {
   position?: Integer;
 
   constructor(options?: ListItem) {
-    super()
-    if (options) Object.assign(this, options)
+    super();
+    if (options) Object.assign(this, options);
     
   }
 
   static from(other: ListItem): ListItem {
-    return new ListItem(other)
+    return new ListItem(other);
   }
 }

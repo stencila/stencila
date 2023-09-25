@@ -1,7 +1,7 @@
 // Generated file; do not edit. See `../rust/schema-gen` crate.
 
-import { CreativeWork } from './CreativeWork';
-import { IntegerOrString } from './IntegerOrString';
+import { CreativeWork } from "./CreativeWork.js";
+import { IntegerOrString } from "./IntegerOrString.js";
 
 // A part of a successively published publication such as a periodical or publication
   // volume, often numbered.
@@ -22,12 +22,12 @@ export class PublicationIssue extends CreativeWork {
   pagination?: string;
 
   constructor(options?: PublicationIssue) {
-    super()
-    if (options) Object.assign(this, options)
+    super();
+    if (options) Object.assign(this, options);
     
   }
 
   static from(other: PublicationIssue): PublicationIssue {
-    return new PublicationIssue(other)
+    return new PublicationIssue(other);
   }
 }

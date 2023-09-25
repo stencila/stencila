@@ -1,8 +1,8 @@
 // Generated file; do not edit. See `../rust/schema-gen` crate.
 
-import { Entity } from './Entity';
-import { TableCell } from './TableCell';
-import { TableRowType } from './TableRowType';
+import { Entity } from "./Entity.js";
+import { TableCell } from "./TableCell.js";
+import { TableRowType } from "./TableRowType.js";
 
 // A row within a Table.
 export class TableRow extends Entity {
@@ -15,12 +15,12 @@ export class TableRow extends Entity {
   rowType?: TableRowType;
 
   constructor(cells: TableCell[], options?: TableRow) {
-    super()
-    if (options) Object.assign(this, options)
+    super();
+    if (options) Object.assign(this, options);
     this.cells = cells;
   }
 
   static from(other: TableRow): TableRow {
-    return new TableRow(other.cells!, other)
+    return new TableRow(other.cells!, other);
   }
 }

@@ -1,6 +1,6 @@
 // Generated file; do not edit. See `../rust/schema-gen` crate.
 
-import { MediaObject } from './MediaObject';
+import { MediaObject } from "./MediaObject.js";
 
 // An audio file
 export class AudioObject extends MediaObject {
@@ -13,12 +13,12 @@ export class AudioObject extends MediaObject {
   transcript?: string;
 
   constructor(contentUrl: string, options?: AudioObject) {
-    super(contentUrl)
-    if (options) Object.assign(this, options)
+    super(contentUrl);
+    if (options) Object.assign(this, options);
     this.contentUrl = contentUrl;
   }
 
   static from(other: AudioObject): AudioObject {
-    return new AudioObject(other.contentUrl!, other)
+    return new AudioObject(other.contentUrl!, other);
   }
 }

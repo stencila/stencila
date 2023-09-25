@@ -1,8 +1,8 @@
 // Generated file; do not edit. See `../rust/schema-gen` crate.
 
-import { Entity } from './Entity';
-import { TimeUnit } from './TimeUnit';
-import { Timestamp } from './Timestamp';
+import { Entity } from "./Entity.js";
+import { TimeUnit } from "./TimeUnit.js";
+import { Timestamp } from "./Timestamp.js";
 
 // A validator specifying the constraints on a timestamp.
 export class TimestampValidator extends Entity {
@@ -18,12 +18,12 @@ export class TimestampValidator extends Entity {
   maximum?: Timestamp;
 
   constructor(options?: TimestampValidator) {
-    super()
-    if (options) Object.assign(this, options)
+    super();
+    if (options) Object.assign(this, options);
     
   }
 
   static from(other: TimestampValidator): TimestampValidator {
-    return new TimestampValidator(other)
+    return new TimestampValidator(other);
   }
 }

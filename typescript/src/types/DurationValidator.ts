@@ -1,8 +1,8 @@
 // Generated file; do not edit. See `../rust/schema-gen` crate.
 
-import { Duration } from './Duration';
-import { Entity } from './Entity';
-import { TimeUnit } from './TimeUnit';
+import { Duration } from "./Duration.js";
+import { Entity } from "./Entity.js";
+import { TimeUnit } from "./TimeUnit.js";
 
 // A validator specifying the constraints on a duration.
 export class DurationValidator extends Entity {
@@ -18,12 +18,12 @@ export class DurationValidator extends Entity {
   maximum?: Duration;
 
   constructor(options?: DurationValidator) {
-    super()
-    if (options) Object.assign(this, options)
+    super();
+    if (options) Object.assign(this, options);
     
   }
 
   static from(other: DurationValidator): DurationValidator {
-    return new DurationValidator(other)
+    return new DurationValidator(other);
   }
 }

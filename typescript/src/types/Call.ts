@@ -1,7 +1,7 @@
 // Generated file; do not edit. See `../rust/schema-gen` crate.
 
-import { CallArgument } from './CallArgument';
-import { Include } from './Include';
+import { CallArgument } from "./CallArgument.js";
+import { Include } from "./Include.js";
 
 // Call another document, optionally with arguments, and include its executed content.
 export class Call extends Include {
@@ -11,13 +11,13 @@ export class Call extends Include {
   arguments: CallArgument[];
 
   constructor(source: string, args: CallArgument[], options?: Call) {
-    super(source)
-    if (options) Object.assign(this, options)
+    super(source);
+    if (options) Object.assign(this, options);
     this.source = source;
     this.arguments = args;
   }
 
   static from(other: Call): Call {
-    return new Call(other.source!, other.arguments!, other)
+    return new Call(other.source!, other.arguments!, other);
   }
 }

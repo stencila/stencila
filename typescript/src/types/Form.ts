@@ -1,9 +1,9 @@
 // Generated file; do not edit. See `../rust/schema-gen` crate.
 
-import { Block } from './Block';
-import { Executable } from './Executable';
-import { FormDeriveAction } from './FormDeriveAction';
-import { IntegerOrString } from './IntegerOrString';
+import { Block } from "./Block.js";
+import { Executable } from "./Executable.js";
+import { FormDeriveAction } from "./FormDeriveAction.js";
+import { IntegerOrString } from "./IntegerOrString.js";
 
 // A form to batch updates in document parameters
 export class Form extends Executable {
@@ -22,12 +22,12 @@ export class Form extends Executable {
   deriveItem?: IntegerOrString;
 
   constructor(content: Block[], options?: Form) {
-    super()
-    if (options) Object.assign(this, options)
+    super();
+    if (options) Object.assign(this, options);
     this.content = content;
   }
 
   static from(other: Form): Form {
-    return new Form(other.content!, other)
+    return new Form(other.content!, other);
   }
 }

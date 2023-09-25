@@ -1,7 +1,7 @@
 // Generated file; do not edit. See `../rust/schema-gen` crate.
 
-import { Primitive } from './Primitive';
-import { Thing } from './Thing';
+import { Primitive } from "./Primitive.js";
+import { Thing } from "./Thing.js";
 
 // A property-value pair.
 export class PropertyValue extends Thing {
@@ -14,12 +14,12 @@ export class PropertyValue extends Thing {
   value: Primitive;
 
   constructor(value: Primitive, options?: PropertyValue) {
-    super()
-    if (options) Object.assign(this, options)
+    super();
+    if (options) Object.assign(this, options);
     this.value = value;
   }
 
   static from(other: PropertyValue): PropertyValue {
-    return new PropertyValue(other.value!, other)
+    return new PropertyValue(other.value!, other);
   }
 }

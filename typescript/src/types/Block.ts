@@ -1,22 +1,22 @@
 // Generated file; do not edit. See `../rust/schema-gen` crate.
             
-import { Call } from './Call'
-import { Claim } from './Claim'
-import { CodeBlock } from './CodeBlock'
-import { CodeChunk } from './CodeChunk'
-import { Division } from './Division'
-import { Figure } from './Figure'
-import { For } from './For'
-import { Form } from './Form'
-import { Heading } from './Heading'
-import { If } from './If'
-import { Include } from './Include'
-import { List } from './List'
-import { MathBlock } from './MathBlock'
-import { Paragraph } from './Paragraph'
-import { QuoteBlock } from './QuoteBlock'
-import { Table } from './Table'
-import { ThematicBreak } from './ThematicBreak'
+import { Call } from "./Call.js";
+import { Claim } from "./Claim.js";
+import { CodeBlock } from "./CodeBlock.js";
+import { CodeChunk } from "./CodeChunk.js";
+import { Division } from "./Division.js";
+import { Figure } from "./Figure.js";
+import { For } from "./For.js";
+import { Form } from "./Form.js";
+import { Heading } from "./Heading.js";
+import { If } from "./If.js";
+import { Include } from "./Include.js";
+import { List } from "./List.js";
+import { MathBlock } from "./MathBlock.js";
+import { Paragraph } from "./Paragraph.js";
+import { QuoteBlock } from "./QuoteBlock.js";
+import { Table } from "./Table.js";
+import { ThematicBreak } from "./ThematicBreak.js";
 
 // Union type for block content node types.
 export type Block =
@@ -38,7 +38,7 @@ export type Block =
   Table |
   ThematicBreak;
 
-export function block(other: Block): Block {
+export function blockFrom(other: Block): Block {
   switch(other.type) {
     case "Call": return Call.from(other as Call);
     case "Claim": return Claim.from(other as Claim);
@@ -57,6 +57,6 @@ export function block(other: Block): Block {
     case "QuoteBlock": return QuoteBlock.from(other as QuoteBlock);
     case "Table": return Table.from(other as Table);
     case "ThematicBreak": return ThematicBreak.from(other as ThematicBreak);
-    default: throw new Error(`Unexpected type for Block: ${other.type}`)
+    default: throw new Error(`Unexpected type for Block: ${other.type}`);
   }
 }

@@ -1,8 +1,8 @@
 // Generated file; do not edit. See `../rust/schema-gen` crate.
 
-import { Cord } from './Cord';
-import { Entity } from './Entity';
-import { ExecutionDigest } from './ExecutionDigest';
+import { Cord } from "./Cord.js";
+import { Entity } from "./Entity.js";
+import { ExecutionDigest } from "./ExecutionDigest.js";
 
 // An abstract base class for a document node that has styling applied to it and/or its content
 export class Styled extends Entity {
@@ -27,12 +27,12 @@ export class Styled extends Entity {
   classes?: string[];
 
   constructor(code: Cord, options?: Styled) {
-    super()
-    if (options) Object.assign(this, options)
+    super();
+    if (options) Object.assign(this, options);
     this.code = code;
   }
 
   static from(other: Styled): Styled {
-    return new Styled(other.code!, other)
+    return new Styled(other.code!, other);
   }
 }

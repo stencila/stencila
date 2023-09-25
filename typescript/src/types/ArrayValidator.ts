@@ -1,8 +1,8 @@
 // Generated file; do not edit. See `../rust/schema-gen` crate.
 
-import { Entity } from './Entity';
-import { Integer } from './Integer';
-import { Validator } from './Validator';
+import { Entity } from "./Entity.js";
+import { Integer } from "./Integer.js";
+import { Validator } from "./Validator.js";
 
 // A validator specifying constraints on an array node.
 export class ArrayValidator extends Entity {
@@ -27,12 +27,12 @@ export class ArrayValidator extends Entity {
   uniqueItems?: boolean;
 
   constructor(options?: ArrayValidator) {
-    super()
-    if (options) Object.assign(this, options)
+    super();
+    if (options) Object.assign(this, options);
     
   }
 
   static from(other: ArrayValidator): ArrayValidator {
-    return new ArrayValidator(other)
+    return new ArrayValidator(other);
   }
 }

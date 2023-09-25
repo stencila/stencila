@@ -1,9 +1,9 @@
 // Generated file; do not edit. See `../rust/schema-gen` crate.
 
-import { Organization } from './Organization';
-import { OrganizationOrPerson } from './OrganizationOrPerson';
-import { PostalAddressOrString } from './PostalAddressOrString';
-import { Thing } from './Thing';
+import { Organization } from "./Organization.js";
+import { OrganizationOrPerson } from "./OrganizationOrPerson.js";
+import { PostalAddressOrString } from "./PostalAddressOrString.js";
+import { Thing } from "./Thing.js";
 
 // A person (alive, dead, undead, or fictional).
 export class Person extends Thing {
@@ -44,12 +44,12 @@ export class Person extends Thing {
   telephoneNumbers?: string[];
 
   constructor(options?: Person) {
-    super()
-    if (options) Object.assign(this, options)
+    super();
+    if (options) Object.assign(this, options);
     
   }
 
   static from(other: Person): Person {
-    return new Person(other)
+    return new Person(other);
   }
 }

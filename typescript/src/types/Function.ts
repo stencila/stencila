@@ -1,8 +1,8 @@
 // Generated file; do not edit. See `../rust/schema-gen` crate.
 
-import { Entity } from './Entity';
-import { Parameter } from './Parameter';
-import { Validator } from './Validator';
+import { Entity } from "./Entity.js";
+import { Parameter } from "./Parameter.js";
+import { Validator } from "./Validator.js";
 
 // A function with a name, which might take Parameters and return a value of a certain type.
 export class Function extends Entity {
@@ -18,13 +18,13 @@ export class Function extends Entity {
   returns?: Validator;
 
   constructor(name: string, parameters: Parameter[], options?: Function) {
-    super()
-    if (options) Object.assign(this, options)
+    super();
+    if (options) Object.assign(this, options);
     this.name = name;
     this.parameters = parameters;
   }
 
   static from(other: Function): Function {
-    return new Function(other.name!, other.parameters!, other)
+    return new Function(other.name!, other.parameters!, other);
   }
 }

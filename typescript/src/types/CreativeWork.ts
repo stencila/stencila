@@ -1,18 +1,18 @@
 // Generated file; do not edit. See `../rust/schema-gen` crate.
 
-import { Block } from './Block';
-import { Comment } from './Comment';
-import { CreativeWorkType } from './CreativeWorkType';
-import { CreativeWorkTypeOrString } from './CreativeWorkTypeOrString';
-import { Date } from './Date';
-import { GrantOrMonetaryGrant } from './GrantOrMonetaryGrant';
-import { Inline } from './Inline';
-import { Person } from './Person';
-import { PersonOrOrganization } from './PersonOrOrganization';
-import { PersonOrOrganizationOrSoftwareApplication } from './PersonOrOrganizationOrSoftwareApplication';
-import { StringOrNumber } from './StringOrNumber';
-import { Thing } from './Thing';
-import { ThingType } from './ThingType';
+import { Block } from "./Block.js";
+import { Comment } from "./Comment.js";
+import { CreativeWorkType } from "./CreativeWorkType.js";
+import { CreativeWorkTypeOrString } from "./CreativeWorkTypeOrString.js";
+import { Date } from "./Date.js";
+import { GrantOrMonetaryGrant } from "./GrantOrMonetaryGrant.js";
+import { Inline } from "./Inline.js";
+import { Person } from "./Person.js";
+import { PersonOrOrganization } from "./PersonOrOrganization.js";
+import { PersonOrOrganizationOrSoftwareApplication } from "./PersonOrOrganizationOrSoftwareApplication.js";
+import { StringOrNumber } from "./StringOrNumber.js";
+import { Thing } from "./Thing.js";
+import { ThingType } from "./ThingType.js";
 
 // A creative work, including books, movies, photographs, software programs, etc.
 export class CreativeWork extends Thing {
@@ -94,12 +94,12 @@ export class CreativeWork extends Thing {
   version?: StringOrNumber;
 
   constructor(options?: CreativeWork) {
-    super()
-    if (options) Object.assign(this, options)
+    super();
+    if (options) Object.assign(this, options);
     
   }
 
   static from(other: CreativeWork): CreativeWork {
-    return new CreativeWork(other)
+    return new CreativeWork(other);
   }
 }

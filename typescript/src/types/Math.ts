@@ -1,7 +1,7 @@
 // Generated file; do not edit. See `../rust/schema-gen` crate.
 
-import { Entity } from './Entity';
-import { ExecutionDigest } from './ExecutionDigest';
+import { Entity } from "./Entity.js";
+import { ExecutionDigest } from "./ExecutionDigest.js";
 
 // Abstract base type for a mathematical variable or equation.
 export class Math extends Entity {
@@ -23,13 +23,13 @@ export class Math extends Entity {
   mathml?: string;
 
   constructor(mathLanguage: string, code: string, options?: Math) {
-    super()
-    if (options) Object.assign(this, options)
+    super();
+    if (options) Object.assign(this, options);
     this.mathLanguage = mathLanguage;
     this.code = code;
   }
 
   static from(other: Math): Math {
-    return new Math(other.mathLanguage!, other.code!, other)
+    return new Math(other.mathLanguage!, other.code!, other);
   }
 }

@@ -1,12 +1,15 @@
 // Generated file; do not edit. See `../rust/schema-gen` crate.
 
-import { ArrayValidator } from './ArrayValidator';
-import { Primitive } from './Primitive';
-import { Thing } from './Thing';
+import { ArrayValidator } from "./ArrayValidator.js";
+import { Primitive } from "./Primitive.js";
+import { Thing } from "./Thing.js";
 
 // A column of data within a Datatable.
 export class DatatableColumn extends Thing {
   type = "DatatableColumn";
+
+  // The name of the item.
+  name: string;
 
   // The data values of the column.
   values: Primitive[];
@@ -15,13 +18,13 @@ export class DatatableColumn extends Thing {
   validator?: ArrayValidator;
 
   constructor(name: string, values: Primitive[], options?: DatatableColumn) {
-    super()
-    if (options) Object.assign(this, options)
+    super();
+    if (options) Object.assign(this, options);
     this.name = name;
     this.values = values;
   }
 
   static from(other: DatatableColumn): DatatableColumn {
-    return new DatatableColumn(other.name!, other.values!, other)
+    return new DatatableColumn(other.name!, other.values!, other);
   }
 }

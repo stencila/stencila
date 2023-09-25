@@ -1,24 +1,24 @@
 // Generated file; do not edit. See `../rust/schema-gen` crate.
             
-import { Article } from './Article'
-import { AudioObject } from './AudioObject'
-import { Claim } from './Claim'
-import { Collection } from './Collection'
-import { Comment } from './Comment'
-import { Datatable } from './Datatable'
-import { Directory } from './Directory'
-import { Figure } from './Figure'
-import { File } from './File'
-import { ImageObject } from './ImageObject'
-import { MediaObject } from './MediaObject'
-import { Periodical } from './Periodical'
-import { PublicationIssue } from './PublicationIssue'
-import { PublicationVolume } from './PublicationVolume'
-import { Review } from './Review'
-import { SoftwareApplication } from './SoftwareApplication'
-import { SoftwareSourceCode } from './SoftwareSourceCode'
-import { Table } from './Table'
-import { VideoObject } from './VideoObject'
+import { Article } from "./Article.js";
+import { AudioObject } from "./AudioObject.js";
+import { Claim } from "./Claim.js";
+import { Collection } from "./Collection.js";
+import { Comment } from "./Comment.js";
+import { Datatable } from "./Datatable.js";
+import { Directory } from "./Directory.js";
+import { Figure } from "./Figure.js";
+import { File } from "./File.js";
+import { ImageObject } from "./ImageObject.js";
+import { MediaObject } from "./MediaObject.js";
+import { Periodical } from "./Periodical.js";
+import { PublicationIssue } from "./PublicationIssue.js";
+import { PublicationVolume } from "./PublicationVolume.js";
+import { Review } from "./Review.js";
+import { SoftwareApplication } from "./SoftwareApplication.js";
+import { SoftwareSourceCode } from "./SoftwareSourceCode.js";
+import { Table } from "./Table.js";
+import { VideoObject } from "./VideoObject.js";
 
 // Union type for all types that are descended from `CreativeWork`
 export type CreativeWorkType =
@@ -42,7 +42,7 @@ export type CreativeWorkType =
   Table |
   VideoObject;
 
-export function creativeWorkType(other: CreativeWorkType): CreativeWorkType {
+export function creativeWorkTypeFrom(other: CreativeWorkType): CreativeWorkType {
   switch(other.type) {
     case "Article": return Article.from(other as Article);
     case "AudioObject": return AudioObject.from(other as AudioObject);
@@ -63,6 +63,6 @@ export function creativeWorkType(other: CreativeWorkType): CreativeWorkType {
     case "SoftwareSourceCode": return SoftwareSourceCode.from(other as SoftwareSourceCode);
     case "Table": return Table.from(other as Table);
     case "VideoObject": return VideoObject.from(other as VideoObject);
-    default: throw new Error(`Unexpected type for CreativeWorkType: ${other.type}`)
+    default: throw new Error(`Unexpected type for CreativeWorkType: ${other.type}`);
   }
 }

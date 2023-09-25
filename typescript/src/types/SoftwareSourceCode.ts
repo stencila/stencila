@@ -1,8 +1,8 @@
 // Generated file; do not edit. See `../rust/schema-gen` crate.
 
-import { CreativeWork } from './CreativeWork';
-import { SoftwareApplication } from './SoftwareApplication';
-import { SoftwareSourceCodeOrSoftwareApplicationOrString } from './SoftwareSourceCodeOrSoftwareApplicationOrString';
+import { CreativeWork } from "./CreativeWork.js";
+import { SoftwareApplication } from "./SoftwareApplication.js";
+import { SoftwareSourceCodeOrSoftwareApplicationOrString } from "./SoftwareSourceCodeOrSoftwareApplicationOrString.js";
 
 // Computer programming source code. Example: Full (compile ready) solutions, code snippet samples, scripts, templates.
 export class SoftwareSourceCode extends CreativeWork {
@@ -29,12 +29,12 @@ export class SoftwareSourceCode extends CreativeWork {
   targetProducts?: SoftwareApplication[];
 
   constructor(options?: SoftwareSourceCode) {
-    super()
-    if (options) Object.assign(this, options)
+    super();
+    if (options) Object.assign(this, options);
     
   }
 
   static from(other: SoftwareSourceCode): SoftwareSourceCode {
-    return new SoftwareSourceCode(other)
+    return new SoftwareSourceCode(other);
   }
 }

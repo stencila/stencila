@@ -1,6 +1,6 @@
 // Generated file; do not edit. See `../rust/schema-gen` crate.
 
-import { MediaObject } from './MediaObject';
+import { MediaObject } from "./MediaObject.js";
 
 // An image file.
 export class ImageObject extends MediaObject {
@@ -13,12 +13,12 @@ export class ImageObject extends MediaObject {
   thumbnail?: ImageObject;
 
   constructor(contentUrl: string, options?: ImageObject) {
-    super(contentUrl)
-    if (options) Object.assign(this, options)
+    super(contentUrl);
+    if (options) Object.assign(this, options);
     this.contentUrl = contentUrl;
   }
 
   static from(other: ImageObject): ImageObject {
-    return new ImageObject(other.contentUrl!, other)
+    return new ImageObject(other.contentUrl!, other);
   }
 }

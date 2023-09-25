@@ -1,7 +1,7 @@
 // Generated file; do not edit. See `../rust/schema-gen` crate.
 
-import { Cord } from './Cord';
-import { Entity } from './Entity';
+import { Cord } from "./Cord.js";
+import { Entity } from "./Entity.js";
 
 // Abstract base type for non-executable code nodes (e.g. `CodeBlock`).
 export class CodeStatic extends Entity {
@@ -14,12 +14,12 @@ export class CodeStatic extends Entity {
   programmingLanguage?: string;
 
   constructor(code: Cord, options?: CodeStatic) {
-    super()
-    if (options) Object.assign(this, options)
+    super();
+    if (options) Object.assign(this, options);
     this.code = code;
   }
 
   static from(other: CodeStatic): CodeStatic {
-    return new CodeStatic(other.code!, other)
+    return new CodeStatic(other.code!, other);
   }
 }

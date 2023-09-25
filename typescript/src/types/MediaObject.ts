@@ -1,6 +1,6 @@
 // Generated file; do not edit. See `../rust/schema-gen` crate.
 
-import { CreativeWork } from './CreativeWork';
+import { CreativeWork } from "./CreativeWork.js";
 
 // A media object, such as an image, video, or audio object embedded in a web page or a
   // downloadable dataset.
@@ -23,12 +23,12 @@ export class MediaObject extends CreativeWork {
   mediaType?: string;
 
   constructor(contentUrl: string, options?: MediaObject) {
-    super()
-    if (options) Object.assign(this, options)
+    super();
+    if (options) Object.assign(this, options);
     this.contentUrl = contentUrl;
   }
 
   static from(other: MediaObject): MediaObject {
-    return new MediaObject(other.contentUrl!, other)
+    return new MediaObject(other.contentUrl!, other);
   }
 }

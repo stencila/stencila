@@ -1,12 +1,15 @@
 // Generated file; do not edit. See `../rust/schema-gen` crate.
 
-import { Block } from './Block';
-import { CreativeWork } from './CreativeWork';
-import { IntegerOrString } from './IntegerOrString';
+import { Block } from "./Block.js";
+import { CreativeWork } from "./CreativeWork.js";
+import { IntegerOrString } from "./IntegerOrString.js";
 
 // An article, including news and scholarly articles.
 export class Article extends CreativeWork {
   type = "Article";
+
+  // The structured content of this creative work c.f. property `text`.
+  content: Block[];
 
   // The page on which the article starts; for example "135" or "xiii".
   pageStart?: IntegerOrString;
@@ -19,12 +22,12 @@ export class Article extends CreativeWork {
   pagination?: string;
 
   constructor(content: Block[], options?: Article) {
-    super()
-    if (options) Object.assign(this, options)
+    super();
+    if (options) Object.assign(this, options);
     this.content = content;
   }
 
   static from(other: Article): Article {
-    return new Article(other.content!, other)
+    return new Article(other.content!, other);
   }
 }

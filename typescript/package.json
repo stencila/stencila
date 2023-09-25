@@ -2,19 +2,12 @@
   "name": "@stencila/types",
   "version": "v2.0.0-alpha.9",
   "description": "JavaScript classes and TypeScript types for the Stencila Schema",
-  "type": "module",
-  "files": ["dist"],
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
-  "directories": {
-    "doc": "docs",
-    "example": "examples"
+  "license": "Apache-2.0",
+  "author": "Nokome Bentley <nokome@stencila.io>",
+  "bugs": {
+    "url": "https://github.com/stencila/stencila/issues"
   },
-  "scripts": {
-    "fix": "eslint --fix 'src/**/*'",
-    "lint": "eslint 'src/**/*'",
-    "build": "tsc"
-  },
+  "homepage": "https://github.com/stencila/stencila/tree/main/typescript#readme",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/stencila/stencila.git"
@@ -27,12 +20,17 @@
     "interactive",
     "documents"
   ],
-  "author": "Nokome Bentley <nokome@stencila.io>",
-  "license": "Apache-2.0",
-  "bugs": {
-    "url": "https://github.com/stencila/stencila/issues"
+  "type": "module",
+  "files": [
+    "dist"
+  ],
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "fix": "eslint --fix 'src/**/*'",
+    "lint": "eslint 'src/**/*'",
+    "build": "tsc"
   },
-  "homepage": "https://github.com/stencila/stencila/tree/main/typescript#readme",
   "devDependencies": {
     "@typescript-eslint/eslint-plugin": "6.7.2",
     "@typescript-eslint/parser": "6.7.2",

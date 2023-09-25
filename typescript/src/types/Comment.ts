@@ -1,11 +1,14 @@
 // Generated file; do not edit. See `../rust/schema-gen` crate.
 
-import { Block } from './Block';
-import { CreativeWork } from './CreativeWork';
+import { Block } from "./Block.js";
+import { CreativeWork } from "./CreativeWork.js";
 
 // A comment on an item, e.g on a Article, or SoftwareSourceCode.
 export class Comment extends CreativeWork {
   type = "Comment";
+
+  // The structured content of this creative work c.f. property `text`.
+  content: Block[];
 
   // The parent comment of this comment.
   parentItem?: Comment;
@@ -14,12 +17,12 @@ export class Comment extends CreativeWork {
   commentAspect?: string;
 
   constructor(content: Block[], options?: Comment) {
-    super()
-    if (options) Object.assign(this, options)
+    super();
+    if (options) Object.assign(this, options);
     this.content = content;
   }
 
   static from(other: Comment): Comment {
-    return new Comment(other.content!, other)
+    return new Comment(other.content!, other);
   }
 }

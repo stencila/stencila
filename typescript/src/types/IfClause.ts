@@ -1,8 +1,8 @@
 // Generated file; do not edit. See `../rust/schema-gen` crate.
 
-import { Block } from './Block';
-import { CodeExecutable } from './CodeExecutable';
-import { Cord } from './Cord';
+import { Block } from "./Block.js";
+import { CodeExecutable } from "./CodeExecutable.js";
+import { Cord } from "./Cord.js";
 
 // A clause within a `If` node
 export class IfClause extends CodeExecutable {
@@ -15,14 +15,14 @@ export class IfClause extends CodeExecutable {
   content: Block[];
 
   constructor(code: Cord, programmingLanguage: string, content: Block[], options?: IfClause) {
-    super(code, programmingLanguage)
-    if (options) Object.assign(this, options)
+    super(code, programmingLanguage);
+    if (options) Object.assign(this, options);
     this.code = code;
     this.programmingLanguage = programmingLanguage;
     this.content = content;
   }
 
   static from(other: IfClause): IfClause {
-    return new IfClause(other.code!, other.programmingLanguage!, other.content!, other)
+    return new IfClause(other.code!, other.programmingLanguage!, other.content!, other);
   }
 }

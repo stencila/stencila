@@ -1,7 +1,7 @@
 // Generated file; do not edit. See `../rust/schema-gen` crate.
 
-import { Block } from './Block';
-import { Executable } from './Executable';
+import { Block } from "./Block.js";
+import { Executable } from "./Executable.js";
 
 // Include content from an external source (e.g. file, URL).
 export class Include extends Executable {
@@ -20,12 +20,12 @@ export class Include extends Executable {
   content?: Block[];
 
   constructor(source: string, options?: Include) {
-    super()
-    if (options) Object.assign(this, options)
+    super();
+    if (options) Object.assign(this, options);
     this.source = source;
   }
 
   static from(other: Include): Include {
-    return new Include(other.source!, other)
+    return new Include(other.source!, other);
   }
 }

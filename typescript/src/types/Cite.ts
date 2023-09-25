@@ -1,10 +1,10 @@
 // Generated file; do not edit. See `../rust/schema-gen` crate.
 
-import { CitationIntent } from './CitationIntent';
-import { CitationMode } from './CitationMode';
-import { Entity } from './Entity';
-import { Inline } from './Inline';
-import { IntegerOrString } from './IntegerOrString';
+import { CitationIntent } from "./CitationIntent.js";
+import { CitationMode } from "./CitationMode.js";
+import { Entity } from "./Entity.js";
+import { Inline } from "./Inline.js";
+import { IntegerOrString } from "./IntegerOrString.js";
 
 // A reference to a CreativeWork that is cited in another CreativeWork.
 export class Cite extends Entity {
@@ -39,13 +39,13 @@ export class Cite extends Entity {
   citationSuffix?: string;
 
   constructor(target: string, citationMode: CitationMode, options?: Cite) {
-    super()
-    if (options) Object.assign(this, options)
+    super();
+    if (options) Object.assign(this, options);
     this.target = target;
     this.citationMode = citationMode;
   }
 
   static from(other: Cite): Cite {
-    return new Cite(other.target!, other.citationMode!, other)
+    return new Cite(other.target!, other.citationMode!, other);
   }
 }

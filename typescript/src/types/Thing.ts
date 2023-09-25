@@ -1,9 +1,9 @@
 // Generated file; do not edit. See `../rust/schema-gen` crate.
 
-import { Block } from './Block';
-import { Entity } from './Entity';
-import { ImageObjectOrString } from './ImageObjectOrString';
-import { PropertyValueOrString } from './PropertyValueOrString';
+import { Block } from "./Block.js";
+import { Entity } from "./Entity.js";
+import { ImageObjectOrString } from "./ImageObjectOrString.js";
+import { PropertyValueOrString } from "./PropertyValueOrString.js";
 
 // The most generic type of item.
 export class Thing extends Entity {
@@ -28,12 +28,12 @@ export class Thing extends Entity {
   url?: string;
 
   constructor(options?: Thing) {
-    super()
-    if (options) Object.assign(this, options)
+    super();
+    if (options) Object.assign(this, options);
     
   }
 
   static from(other: Thing): Thing {
-    return new Thing(other)
+    return new Thing(other);
   }
 }

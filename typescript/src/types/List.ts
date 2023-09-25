@@ -1,8 +1,8 @@
 // Generated file; do not edit. See `../rust/schema-gen` crate.
 
-import { Entity } from './Entity';
-import { ListItem } from './ListItem';
-import { ListOrder } from './ListOrder';
+import { Entity } from "./Entity.js";
+import { ListItem } from "./ListItem.js";
+import { ListOrder } from "./ListOrder.js";
 
 // A list of items.
 export class List extends Entity {
@@ -15,13 +15,13 @@ export class List extends Entity {
   order: ListOrder;
 
   constructor(items: ListItem[], order: ListOrder, options?: List) {
-    super()
-    if (options) Object.assign(this, options)
+    super();
+    if (options) Object.assign(this, options);
     this.items = items;
     this.order = order;
   }
 
   static from(other: List): List {
-    return new List(other.items!, other.order!, other)
+    return new List(other.items!, other.order!, other);
   }
 }

@@ -1,10 +1,13 @@
 // Generated file; do not edit. See `../rust/schema-gen` crate.
 
-import { CreativeWork } from './CreativeWork';
+import { CreativeWork } from "./CreativeWork.js";
 
 // A software application.
 export class SoftwareApplication extends CreativeWork {
   type = "SoftwareApplication";
+
+  // The name of the item.
+  name: string;
 
   // Requirements for application, including shared libraries that
   // are not included in the application distribution.
@@ -14,12 +17,12 @@ export class SoftwareApplication extends CreativeWork {
   softwareVersion?: string;
 
   constructor(name: string, options?: SoftwareApplication) {
-    super()
-    if (options) Object.assign(this, options)
+    super();
+    if (options) Object.assign(this, options);
     this.name = name;
   }
 
   static from(other: SoftwareApplication): SoftwareApplication {
-    return new SoftwareApplication(other.name!, other)
+    return new SoftwareApplication(other.name!, other);
   }
 }

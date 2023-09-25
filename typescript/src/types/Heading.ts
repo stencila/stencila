@@ -1,8 +1,8 @@
 // Generated file; do not edit. See `../rust/schema-gen` crate.
 
-import { Entity } from './Entity';
-import { Inline } from './Inline';
-import { Integer } from './Integer';
+import { Entity } from "./Entity.js";
+import { Inline } from "./Inline.js";
+import { Integer } from "./Integer.js";
 
 // A heading.
 export class Heading extends Entity {
@@ -15,13 +15,13 @@ export class Heading extends Entity {
   content: Inline[];
 
   constructor(depth: Integer, content: Inline[], options?: Heading) {
-    super()
-    if (options) Object.assign(this, options)
+    super();
+    if (options) Object.assign(this, options);
     this.depth = depth;
     this.content = content;
   }
 
   static from(other: Heading): Heading {
-    return new Heading(other.depth!, other.content!, other)
+    return new Heading(other.depth!, other.content!, other);
   }
 }

@@ -1,8 +1,8 @@
 // Generated file; do not edit. See `../rust/schema-gen` crate.
 
-import { Executable } from './Executable';
-import { Node } from './Node';
-import { Validator } from './Validator';
+import { Executable } from "./Executable.js";
+import { Node } from "./Node.js";
+import { Validator } from "./Validator.js";
 
 // A parameter of a document.
 export class Parameter extends Executable {
@@ -30,12 +30,12 @@ export class Parameter extends Executable {
   derivedFrom?: string;
 
   constructor(name: string, options?: Parameter) {
-    super()
-    if (options) Object.assign(this, options)
+    super();
+    if (options) Object.assign(this, options);
     this.name = name;
   }
 
   static from(other: Parameter): Parameter {
-    return new Parameter(other.name!, other)
+    return new Parameter(other.name!, other);
   }
 }

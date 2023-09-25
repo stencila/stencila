@@ -1,7 +1,7 @@
 // Generated file; do not edit. See `../rust/schema-gen` crate.
 
-import { Entity } from './Entity';
-import { Validator } from './Validator';
+import { Entity } from "./Entity.js";
+import { Validator } from "./Validator.js";
 
 // A validator specifying constraints on an array of heterogeneous items.
 export class TupleValidator extends Entity {
@@ -11,12 +11,12 @@ export class TupleValidator extends Entity {
   items?: Validator[];
 
   constructor(options?: TupleValidator) {
-    super()
-    if (options) Object.assign(this, options)
+    super();
+    if (options) Object.assign(this, options);
     
   }
 
   static from(other: TupleValidator): TupleValidator {
-    return new TupleValidator(other)
+    return new TupleValidator(other);
   }
 }

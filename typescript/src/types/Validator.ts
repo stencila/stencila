@@ -1,18 +1,18 @@
 // Generated file; do not edit. See `../rust/schema-gen` crate.
             
-import { ArrayValidator } from './ArrayValidator'
-import { BooleanValidator } from './BooleanValidator'
-import { ConstantValidator } from './ConstantValidator'
-import { DateTimeValidator } from './DateTimeValidator'
-import { DateValidator } from './DateValidator'
-import { DurationValidator } from './DurationValidator'
-import { EnumValidator } from './EnumValidator'
-import { IntegerValidator } from './IntegerValidator'
-import { NumberValidator } from './NumberValidator'
-import { StringValidator } from './StringValidator'
-import { TimeValidator } from './TimeValidator'
-import { TimestampValidator } from './TimestampValidator'
-import { TupleValidator } from './TupleValidator'
+import { ArrayValidator } from "./ArrayValidator.js";
+import { BooleanValidator } from "./BooleanValidator.js";
+import { ConstantValidator } from "./ConstantValidator.js";
+import { DateTimeValidator } from "./DateTimeValidator.js";
+import { DateValidator } from "./DateValidator.js";
+import { DurationValidator } from "./DurationValidator.js";
+import { EnumValidator } from "./EnumValidator.js";
+import { IntegerValidator } from "./IntegerValidator.js";
+import { NumberValidator } from "./NumberValidator.js";
+import { StringValidator } from "./StringValidator.js";
+import { TimeValidator } from "./TimeValidator.js";
+import { TimestampValidator } from "./TimestampValidator.js";
+import { TupleValidator } from "./TupleValidator.js";
 
 // Union type for validators.
 export type Validator =
@@ -30,7 +30,7 @@ export type Validator =
   TimestampValidator |
   TupleValidator;
 
-export function validator(other: Validator): Validator {
+export function validatorFrom(other: Validator): Validator {
   switch(other.type) {
     case "ArrayValidator": return ArrayValidator.from(other as ArrayValidator);
     case "BooleanValidator": return BooleanValidator.from(other as BooleanValidator);
@@ -45,6 +45,6 @@ export function validator(other: Validator): Validator {
     case "TimeValidator": return TimeValidator.from(other as TimeValidator);
     case "TimestampValidator": return TimestampValidator.from(other as TimestampValidator);
     case "TupleValidator": return TupleValidator.from(other as TupleValidator);
-    default: throw new Error(`Unexpected type for Validator: ${other.type}`)
+    default: throw new Error(`Unexpected type for Validator: ${other.type}`);
   }
 }

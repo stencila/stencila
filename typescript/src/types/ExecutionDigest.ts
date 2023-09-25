@@ -1,6 +1,6 @@
 // Generated file; do not edit. See `../rust/schema-gen` crate.
 
-import { Entity } from './Entity';
+import { Entity } from "./Entity.js";
 
 // A digest of the execution state of a node.
 export class ExecutionDigest extends Entity {
@@ -22,8 +22,8 @@ export class ExecutionDigest extends Entity {
   dependenciesFailed: number;
 
   constructor(stateDigest: number, semanticDigest: number, dependenciesDigest: number, dependenciesStale: number, dependenciesFailed: number, options?: ExecutionDigest) {
-    super()
-    if (options) Object.assign(this, options)
+    super();
+    if (options) Object.assign(this, options);
     this.stateDigest = stateDigest;
     this.semanticDigest = semanticDigest;
     this.dependenciesDigest = dependenciesDigest;
@@ -32,6 +32,6 @@ export class ExecutionDigest extends Entity {
   }
 
   static from(other: ExecutionDigest): ExecutionDigest {
-    return new ExecutionDigest(other.stateDigest!, other.semanticDigest!, other.dependenciesDigest!, other.dependenciesStale!, other.dependenciesFailed!, other)
+    return new ExecutionDigest(other.stateDigest!, other.semanticDigest!, other.dependenciesDigest!, other.dependenciesStale!, other.dependenciesFailed!, other);
   }
 }

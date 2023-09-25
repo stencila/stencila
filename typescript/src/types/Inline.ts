@@ -1,34 +1,34 @@
 // Generated file; do not edit. See `../rust/schema-gen` crate.
             
-import { AudioObject } from './AudioObject'
-import { Button } from './Button'
-import { Cite } from './Cite'
-import { CiteGroup } from './CiteGroup'
-import { CodeExpression } from './CodeExpression'
-import { CodeFragment } from './CodeFragment'
-import { Date } from './Date'
-import { DateTime } from './DateTime'
-import { Delete } from './Delete'
-import { Duration } from './Duration'
-import { Emphasis } from './Emphasis'
-import { ImageObject } from './ImageObject'
-import { Insert } from './Insert'
-import { Integer } from './Integer'
-import { Link } from './Link'
-import { MathFragment } from './MathFragment'
-import { Note } from './Note'
-import { Parameter } from './Parameter'
-import { Quote } from './Quote'
-import { Span } from './Span'
-import { Strikeout } from './Strikeout'
-import { Strong } from './Strong'
-import { Subscript } from './Subscript'
-import { Superscript } from './Superscript'
-import { Text } from './Text'
-import { Time } from './Time'
-import { Timestamp } from './Timestamp'
-import { Underline } from './Underline'
-import { VideoObject } from './VideoObject'
+import { AudioObject } from "./AudioObject.js";
+import { Button } from "./Button.js";
+import { Cite } from "./Cite.js";
+import { CiteGroup } from "./CiteGroup.js";
+import { CodeExpression } from "./CodeExpression.js";
+import { CodeFragment } from "./CodeFragment.js";
+import { Date } from "./Date.js";
+import { DateTime } from "./DateTime.js";
+import { Delete } from "./Delete.js";
+import { Duration } from "./Duration.js";
+import { Emphasis } from "./Emphasis.js";
+import { ImageObject } from "./ImageObject.js";
+import { Insert } from "./Insert.js";
+import { Integer } from "./Integer.js";
+import { Link } from "./Link.js";
+import { MathFragment } from "./MathFragment.js";
+import { Note } from "./Note.js";
+import { Parameter } from "./Parameter.js";
+import { Quote } from "./Quote.js";
+import { Span } from "./Span.js";
+import { Strikeout } from "./Strikeout.js";
+import { Strong } from "./Strong.js";
+import { Subscript } from "./Subscript.js";
+import { Superscript } from "./Superscript.js";
+import { Text } from "./Text.js";
+import { Time } from "./Time.js";
+import { Timestamp } from "./Timestamp.js";
+import { Underline } from "./Underline.js";
+import { VideoObject } from "./VideoObject.js";
 
 // Union type for valid inline content.
 export type Inline =
@@ -66,7 +66,7 @@ export type Inline =
   number |
   string;
 
-export function inline(other: Inline): Inline {
+export function inlineFrom(other: Inline): Inline {
   if (other == null || typeof other !== "object" || Array.isArray(other) || typeof other.type === "undefined") {
     return other as Inline;
   }
@@ -99,6 +99,6 @@ export function inline(other: Inline): Inline {
     case "Timestamp": return Timestamp.from(other as Timestamp);
     case "Underline": return Underline.from(other as Underline);
     case "VideoObject": return VideoObject.from(other as VideoObject);
-    default: throw new Error(`Unexpected type for Inline: ${other.type}`)
+    default: throw new Error(`Unexpected type for Inline: ${other.type}`);
   }
 }

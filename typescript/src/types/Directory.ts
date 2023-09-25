@@ -1,11 +1,14 @@
 // Generated file; do not edit. See `../rust/schema-gen` crate.
 
-import { Collection } from './Collection';
-import { FileOrDirectory } from './FileOrDirectory';
+import { Collection } from "./Collection.js";
+import { FileOrDirectory } from "./FileOrDirectory.js";
 
 // A directory on the filesystem
 export class Directory extends Collection {
   type = "Directory";
+
+  // The name of the item.
+  name: string;
 
   // The files and other directories that are within this directory
   parts: FileOrDirectory[];
@@ -14,14 +17,14 @@ export class Directory extends Collection {
   path: string;
 
   constructor(name: string, parts: FileOrDirectory[], path: string, options?: Directory) {
-    super(parts)
-    if (options) Object.assign(this, options)
+    super(parts);
+    if (options) Object.assign(this, options);
     this.name = name;
     this.parts = parts;
     this.path = path;
   }
 
   static from(other: Directory): Directory {
-    return new Directory(other.name!, other.parts!, other.path!, other)
+    return new Directory(other.name!, other.parts!, other.path!, other);
   }
 }

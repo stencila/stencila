@@ -1,8 +1,8 @@
 // Generated file; do not edit. See `../rust/schema-gen` crate.
 
-import { Block } from './Block';
-import { CiteOrString } from './CiteOrString';
-import { Entity } from './Entity';
+import { Block } from "./Block.js";
+import { CiteOrString } from "./CiteOrString.js";
+import { Entity } from "./Entity.js";
 
 // A section quoted from somewhere else.
 export class QuoteBlock extends Entity {
@@ -15,12 +15,12 @@ export class QuoteBlock extends Entity {
   content: Block[];
 
   constructor(content: Block[], options?: QuoteBlock) {
-    super()
-    if (options) Object.assign(this, options)
+    super();
+    if (options) Object.assign(this, options);
     this.content = content;
   }
 
   static from(other: QuoteBlock): QuoteBlock {
-    return new QuoteBlock(other.content!, other)
+    return new QuoteBlock(other.content!, other);
   }
 }

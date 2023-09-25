@@ -1,8 +1,8 @@
 // Generated file; do not edit. See `../rust/schema-gen` crate.
 
-import { Brand } from './Brand';
-import { ImageObjectOrString } from './ImageObjectOrString';
-import { Thing } from './Thing';
+import { Brand } from "./Brand.js";
+import { ImageObjectOrString } from "./ImageObjectOrString.js";
+import { Thing } from "./Thing.js";
 
 // Any offered product or service. For example, a pair of shoes;
   // a haircut; or an episode of a TV show streamed online.
@@ -19,12 +19,12 @@ export class Product extends Thing {
   productID?: string;
 
   constructor(options?: Product) {
-    super()
-    if (options) Object.assign(this, options)
+    super();
+    if (options) Object.assign(this, options);
     
   }
 
   static from(other: Product): Product {
-    return new Product(other)
+    return new Product(other);
   }
 }

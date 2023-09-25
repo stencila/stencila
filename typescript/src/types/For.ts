@@ -1,9 +1,9 @@
 // Generated file; do not edit. See `../rust/schema-gen` crate.
 
-import { Array } from './Array';
-import { Block } from './Block';
-import { CodeExecutable } from './CodeExecutable';
-import { Cord } from './Cord';
+import { Array } from "./Array.js";
+import { Block } from "./Block.js";
+import { CodeExecutable } from "./CodeExecutable.js";
+import { Cord } from "./Cord.js";
 
 // Repeat a block content for each item in an array.
 export class For extends CodeExecutable {
@@ -22,8 +22,8 @@ export class For extends CodeExecutable {
   iterations?: Array[];
 
   constructor(code: Cord, programmingLanguage: string, symbol: string, content: Block[], options?: For) {
-    super(code, programmingLanguage)
-    if (options) Object.assign(this, options)
+    super(code, programmingLanguage);
+    if (options) Object.assign(this, options);
     this.code = code;
     this.programmingLanguage = programmingLanguage;
     this.symbol = symbol;
@@ -31,6 +31,6 @@ export class For extends CodeExecutable {
   }
 
   static from(other: For): For {
-    return new For(other.code!, other.programmingLanguage!, other.symbol!, other.content!, other)
+    return new For(other.code!, other.programmingLanguage!, other.symbol!, other.content!, other);
   }
 }

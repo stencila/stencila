@@ -1,7 +1,7 @@
 // Generated file; do not edit. See `../rust/schema-gen` crate.
 
-import { Entity } from './Entity';
-import { Integer } from './Integer';
+import { Entity } from "./Entity.js";
+import { Integer } from "./Integer.js";
 
 // A schema specifying constraints on a string node.
 export class StringValidator extends Entity {
@@ -17,12 +17,12 @@ export class StringValidator extends Entity {
   pattern?: string;
 
   constructor(options?: StringValidator) {
-    super()
-    if (options) Object.assign(this, options)
+    super();
+    if (options) Object.assign(this, options);
     
   }
 
   static from(other: StringValidator): StringValidator {
-    return new StringValidator(other)
+    return new StringValidator(other);
   }
 }

@@ -1,7 +1,7 @@
 // Generated file; do not edit. See `../rust/schema-gen` crate.
 
-import { Entity } from './Entity';
-import { Node } from './Node';
+import { Entity } from "./Entity.js";
+import { Node } from "./Node.js";
 
 // A validator specifying a constant value that a node must have.
 export class ConstantValidator extends Entity {
@@ -11,12 +11,12 @@ export class ConstantValidator extends Entity {
   value: Node;
 
   constructor(value: Node, options?: ConstantValidator) {
-    super()
-    if (options) Object.assign(this, options)
+    super();
+    if (options) Object.assign(this, options);
     this.value = value;
   }
 
   static from(other: ConstantValidator): ConstantValidator {
-    return new ConstantValidator(other.value!, other)
+    return new ConstantValidator(other.value!, other);
   }
 }

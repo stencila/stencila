@@ -1,7 +1,7 @@
 // Generated file; do not edit. See `../rust/schema-gen` crate.
 
-import { Cord } from './Cord';
-import { Executable } from './Executable';
+import { Cord } from "./Cord.js";
+import { Executable } from "./Executable.js";
 
 // Abstract base type for executable code nodes (e.g. `CodeChunk`).
 export class CodeExecutable extends Executable {
@@ -17,13 +17,13 @@ export class CodeExecutable extends Executable {
   guessLanguage?: boolean;
 
   constructor(code: Cord, programmingLanguage: string, options?: CodeExecutable) {
-    super()
-    if (options) Object.assign(this, options)
+    super();
+    if (options) Object.assign(this, options);
     this.code = code;
     this.programmingLanguage = programmingLanguage;
   }
 
   static from(other: CodeExecutable): CodeExecutable {
-    return new CodeExecutable(other.code!, other.programmingLanguage!, other)
+    return new CodeExecutable(other.code!, other.programmingLanguage!, other);
   }
 }

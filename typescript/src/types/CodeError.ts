@@ -1,6 +1,6 @@
 // Generated file; do not edit. See `../rust/schema-gen` crate.
 
-import { Entity } from './Entity';
+import { Entity } from "./Entity.js";
 
 // An error that occurred when parsing, compiling or executing a Code node.
 export class CodeError extends Entity {
@@ -16,12 +16,12 @@ export class CodeError extends Entity {
   stackTrace?: string;
 
   constructor(errorMessage: string, options?: CodeError) {
-    super()
-    if (options) Object.assign(this, options)
+    super();
+    if (options) Object.assign(this, options);
     this.errorMessage = errorMessage;
   }
 
   static from(other: CodeError): CodeError {
-    return new CodeError(other.errorMessage!, other)
+    return new CodeError(other.errorMessage!, other);
   }
 }

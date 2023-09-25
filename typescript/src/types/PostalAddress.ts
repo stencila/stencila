@@ -1,6 +1,6 @@
 // Generated file; do not edit. See `../rust/schema-gen` crate.
 
-import { ContactPoint } from './ContactPoint';
+import { ContactPoint } from "./ContactPoint.js";
 
 // A physical mailing address.
 export class PostalAddress extends ContactPoint {
@@ -25,12 +25,12 @@ export class PostalAddress extends ContactPoint {
   addressCountry?: string;
 
   constructor(options?: PostalAddress) {
-    super()
-    if (options) Object.assign(this, options)
+    super();
+    if (options) Object.assign(this, options);
     
   }
 
   static from(other: PostalAddress): PostalAddress {
-    return new PostalAddress(other)
+    return new PostalAddress(other);
   }
 }

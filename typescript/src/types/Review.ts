@@ -1,7 +1,7 @@
 // Generated file; do not edit. See `../rust/schema-gen` crate.
 
-import { CreativeWork } from './CreativeWork';
-import { Thing } from './Thing';
+import { CreativeWork } from "./CreativeWork.js";
+import { Thing } from "./Thing.js";
 
 // A review of an item, e.g of an Article, or SoftwareSourceCode.
 export class Review extends CreativeWork {
@@ -14,12 +14,12 @@ export class Review extends CreativeWork {
   reviewAspect?: string;
 
   constructor(options?: Review) {
-    super()
-    if (options) Object.assign(this, options)
+    super();
+    if (options) Object.assign(this, options);
     
   }
 
   static from(other: Review): Review {
-    return new Review(other)
+    return new Review(other);
   }
 }

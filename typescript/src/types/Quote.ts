@@ -1,8 +1,8 @@
 // Generated file; do not edit. See `../rust/schema-gen` crate.
 
-import { CiteOrString } from './CiteOrString';
-import { Inline } from './Inline';
-import { Mark } from './Mark';
+import { CiteOrString } from "./CiteOrString.js";
+import { Inline } from "./Inline.js";
+import { Mark } from "./Mark.js";
 
 // Inline, quoted content.
 export class Quote extends Mark {
@@ -12,12 +12,12 @@ export class Quote extends Mark {
   cite?: CiteOrString;
 
   constructor(content: Inline[], options?: Quote) {
-    super(content)
-    if (options) Object.assign(this, options)
+    super(content);
+    if (options) Object.assign(this, options);
     this.content = content;
   }
 
   static from(other: Quote): Quote {
-    return new Quote(other.content!, other)
+    return new Quote(other.content!, other);
   }
 }

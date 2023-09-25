@@ -1,8 +1,8 @@
 // Generated file; do not edit. See `../rust/schema-gen` crate.
 
-import { Entity } from './Entity';
-import { Integer } from './Integer';
-import { TimeUnit } from './TimeUnit';
+import { Entity } from "./Entity.js";
+import { Integer } from "./Integer.js";
+import { TimeUnit } from "./TimeUnit.js";
 
 // A value that represents a point in time
 export class Timestamp extends Entity {
@@ -15,13 +15,13 @@ export class Timestamp extends Entity {
   timeUnit: TimeUnit;
 
   constructor(value: Integer, timeUnit: TimeUnit, options?: Timestamp) {
-    super()
-    if (options) Object.assign(this, options)
+    super();
+    if (options) Object.assign(this, options);
     this.value = value;
     this.timeUnit = timeUnit;
   }
 
   static from(other: Timestamp): Timestamp {
-    return new Timestamp(other.value!, other.timeUnit!, other)
+    return new Timestamp(other.value!, other.timeUnit!, other);
   }
 }

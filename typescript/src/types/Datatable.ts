@@ -1,7 +1,7 @@
 // Generated file; do not edit. See `../rust/schema-gen` crate.
 
-import { CreativeWork } from './CreativeWork';
-import { DatatableColumn } from './DatatableColumn';
+import { CreativeWork } from "./CreativeWork.js";
+import { DatatableColumn } from "./DatatableColumn.js";
 
 // A table of data.
 export class Datatable extends CreativeWork {
@@ -11,12 +11,12 @@ export class Datatable extends CreativeWork {
   columns: DatatableColumn[];
 
   constructor(columns: DatatableColumn[], options?: Datatable) {
-    super()
-    if (options) Object.assign(this, options)
+    super();
+    if (options) Object.assign(this, options);
     this.columns = columns;
   }
 
   static from(other: Datatable): Datatable {
-    return new Datatable(other.columns!, other)
+    return new Datatable(other.columns!, other);
   }
 }

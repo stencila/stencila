@@ -1,7 +1,7 @@
 // Generated file; do not edit. See `../rust/schema-gen` crate.
 
-import { Grant } from './Grant';
-import { PersonOrOrganization } from './PersonOrOrganization';
+import { Grant } from "./Grant.js";
+import { PersonOrOrganization } from "./PersonOrOrganization.js";
 
 // A monetary grant.
 export class MonetaryGrant extends Grant {
@@ -14,12 +14,12 @@ export class MonetaryGrant extends Grant {
   funders?: PersonOrOrganization[];
 
   constructor(options?: MonetaryGrant) {
-    super()
-    if (options) Object.assign(this, options)
+    super();
+    if (options) Object.assign(this, options);
     
   }
 
   static from(other: MonetaryGrant): MonetaryGrant {
-    return new MonetaryGrant(other)
+    return new MonetaryGrant(other);
   }
 }

@@ -1,7 +1,7 @@
 // Generated file; do not edit. See `../rust/schema-gen` crate.
 
-import { Entity } from './Entity';
-import { Node } from './Node';
+import { Entity } from "./Entity.js";
+import { Node } from "./Node.js";
 
 // A variable representing a name / value pair.
 export class Variable extends Entity {
@@ -20,13 +20,13 @@ export class Variable extends Entity {
   value?: Node;
 
   constructor(namespace: string, name: string, options?: Variable) {
-    super()
-    if (options) Object.assign(this, options)
+    super();
+    if (options) Object.assign(this, options);
     this.namespace = namespace;
     this.name = name;
   }
 
   static from(other: Variable): Variable {
-    return new Variable(other.namespace!, other.name!, other)
+    return new Variable(other.namespace!, other.name!, other);
   }
 }

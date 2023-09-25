@@ -1,7 +1,7 @@
 // Generated file; do not edit. See `../rust/schema-gen` crate.
 
-import { Cite } from './Cite';
-import { Entity } from './Entity';
+import { Cite } from "./Cite.js";
+import { Entity } from "./Entity.js";
 
 // A group of Cite nodes.
 export class CiteGroup extends Entity {
@@ -11,12 +11,12 @@ export class CiteGroup extends Entity {
   items: Cite[];
 
   constructor(items: Cite[], options?: CiteGroup) {
-    super()
-    if (options) Object.assign(this, options)
+    super();
+    if (options) Object.assign(this, options);
     this.items = items;
   }
 
   static from(other: CiteGroup): CiteGroup {
-    return new CiteGroup(other.items!, other)
+    return new CiteGroup(other.items!, other);
   }
 }

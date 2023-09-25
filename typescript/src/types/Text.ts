@@ -1,7 +1,7 @@
 // Generated file; do not edit. See `../rust/schema-gen` crate.
 
-import { Cord } from './Cord';
-import { Entity } from './Entity';
+import { Cord } from "./Cord.js";
+import { Entity } from "./Entity.js";
 
 // Textual content
 export class Text extends Entity {
@@ -11,12 +11,12 @@ export class Text extends Entity {
   value: Cord;
 
   constructor(value: Cord, options?: Text) {
-    super()
-    if (options) Object.assign(this, options)
+    super();
+    if (options) Object.assign(this, options);
     this.value = value;
   }
 
   static from(other: Text): Text {
-    return new Text(other.value!, other)
+    return new Text(other.value!, other);
   }
 }

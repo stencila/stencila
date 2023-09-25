@@ -100,7 +100,7 @@ impl Schemas {
             .map(|schema| self.typescript_module(&types, schema));
         try_join_all(futures).await?;
 
-        // Create an index.ts which export types from all modules (including those
+        // Create a types/index.ts which export types from all modules (including those
         // that are not generated)
         let exports = read_dir(&types)
             .wrap_err(format!("unable to read directory `{}`", types.display()))?
@@ -116,10 +116,10 @@ impl Schemas {
                     .to_string()
             })
             .sorted()
-            .map(|module| format!("export * from './types/{module}';"))
+            .map(|module| format!("export * from \"./{module}.js\";"))
             .join("\n");
         write(
-            dest.join("index.ts"),
+            types.join("index.ts"),
             format!(
                 r"{GENERATED_COMMENT}
 
@@ -302,8 +302,17 @@ impl Schemas {
                 }
             }
 
-            // Skip following for inherited props
-            if property.is_inherited {
+            // Skip following for inherited props unless they are required on this
+            // type but optional in the parent type
+            if property.is_inherited
+                && !(property.is_required
+                    && self
+                        .schemas
+                        .get(&base.clone().expect("inherited so always base"))
+                        .and_then(|parent| parent.properties.get(&name))
+                        .map(|property| !property.is_required)
+                        .unwrap_or(false))
+            {
                 continue;
             }
 
@@ -332,7 +341,7 @@ impl Schemas {
 
         let from = format!(
             r#"static from(other: {title}): {title} {{
-    return new {title}({args}other)
+    return new {title}({args}other);
   }}"#,
             args = required_props
                 .iter()
@@ -346,8 +355,8 @@ impl Schemas {
 {props}
 
   constructor({required_args}options?: {title}) {{
-    super({super_args})
-    if (options) Object.assign(this, options)
+    super({super_args});
+    if (options) Object.assign(this, options);
     {required_assignments}
   }}
 
@@ -360,7 +369,7 @@ impl Schemas {
 {props}
 
   constructor({required_args}options?: {title}) {{
-    if (options) Object.assign(this, options)
+    if (options) Object.assign(this, options);
     {required_assignments}
   }}
 
@@ -374,7 +383,7 @@ impl Schemas {
                 used_type != title && !NATIVE_TYPES.contains(&used_type.to_lowercase().as_str())
             })
             .sorted()
-            .map(|used_type| format!("import {{ {used_type} }} from './{used_type}';"))
+            .map(|used_type| format!("import {{ {used_type} }} from \"./{used_type}.js\";"))
             .join("\n");
         if !imports.is_empty() {
             imports.push_str("\n\n");
@@ -461,7 +470,7 @@ impl Schemas {
             .sorted()
             .filter_map(|(name, is_type)| {
                 (*is_type && !NATIVE_TYPES.contains(&name.to_lowercase().as_str()))
-                    .then_some(format!("import {{ {name} }} from './{name}'",))
+                    .then_some(format!("import {{ {name} }} from \"./{name}.js\";",))
             })
             .join("\n");
         if !imports.is_empty() {
@@ -493,10 +502,10 @@ impl Schemas {
             .contains(&name.as_str())
         {
             format!(
-                r#"export function {func_name}(other: {name}): {name} {{
+                r#"export function {func_name}From(other: {name}): {name} {{
   {primitives}switch(other.type) {{
     {cases}
-    default: throw new Error(`Unexpected type for {name}: ${{other.type}}`)
+    default: throw new Error(`Unexpected type for {name}: ${{other.type}}`);
   }}
 }}"#,
                 func_name = name.to_camel_case(),
@@ -562,7 +571,7 @@ export type {name} =
             format!(
                 r#"{GENERATED_COMMENT}
             
-import {{ {item_type} }} from './{item_type}';
+import {{ {item_type} }} from "./{item_type}.js";
 
 export type {name} = {item_type}[];
 "#

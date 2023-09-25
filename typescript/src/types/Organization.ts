@@ -1,11 +1,11 @@
 // Generated file; do not edit. See `../rust/schema-gen` crate.
 
-import { Brand } from './Brand';
-import { ContactPoint } from './ContactPoint';
-import { ImageObjectOrString } from './ImageObjectOrString';
-import { OrganizationOrPerson } from './OrganizationOrPerson';
-import { PostalAddressOrString } from './PostalAddressOrString';
-import { Thing } from './Thing';
+import { Brand } from "./Brand.js";
+import { ContactPoint } from "./ContactPoint.js";
+import { ImageObjectOrString } from "./ImageObjectOrString.js";
+import { OrganizationOrPerson } from "./OrganizationOrPerson.js";
+import { PostalAddressOrString } from "./PostalAddressOrString.js";
+import { Thing } from "./Thing.js";
 
 // An organization such as a school, NGO, corporation, club, etc.
 export class Organization extends Thing {
@@ -39,12 +39,12 @@ export class Organization extends Thing {
   parentOrganization?: Organization;
 
   constructor(options?: Organization) {
-    super()
-    if (options) Object.assign(this, options)
+    super();
+    if (options) Object.assign(this, options);
     
   }
 
   static from(other: Organization): Organization {
-    return new Organization(other)
+    return new Organization(other);
   }
 }

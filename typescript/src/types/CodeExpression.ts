@@ -1,8 +1,8 @@
 // Generated file; do not edit. See `../rust/schema-gen` crate.
 
-import { CodeExecutable } from './CodeExecutable';
-import { Cord } from './Cord';
-import { Node } from './Node';
+import { CodeExecutable } from "./CodeExecutable.js";
+import { Cord } from "./Cord.js";
+import { Node } from "./Node.js";
 
 // An executable programming code expression.
 export class CodeExpression extends CodeExecutable {
@@ -12,13 +12,13 @@ export class CodeExpression extends CodeExecutable {
   output?: Node;
 
   constructor(code: Cord, programmingLanguage: string, options?: CodeExpression) {
-    super(code, programmingLanguage)
-    if (options) Object.assign(this, options)
+    super(code, programmingLanguage);
+    if (options) Object.assign(this, options);
     this.code = code;
     this.programmingLanguage = programmingLanguage;
   }
 
   static from(other: CodeExpression): CodeExpression {
-    return new CodeExpression(other.code!, other.programmingLanguage!, other)
+    return new CodeExpression(other.code!, other.programmingLanguage!, other);
   }
 }

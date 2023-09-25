@@ -1,7 +1,7 @@
 // Generated file; do not edit. See `../rust/schema-gen` crate.
 
-import { DateTime } from './DateTime';
-import { Entity } from './Entity';
+import { DateTime } from "./DateTime.js";
+import { Entity } from "./Entity.js";
 
 // A validator specifying the constraints on a date-time.
 export class DateTimeValidator extends Entity {
@@ -14,12 +14,12 @@ export class DateTimeValidator extends Entity {
   maximum?: DateTime;
 
   constructor(options?: DateTimeValidator) {
-    super()
-    if (options) Object.assign(this, options)
+    super();
+    if (options) Object.assign(this, options);
     
   }
 
   static from(other: DateTimeValidator): DateTimeValidator {
-    return new DateTimeValidator(other)
+    return new DateTimeValidator(other);
   }
 }

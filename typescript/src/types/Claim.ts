@@ -1,8 +1,8 @@
 // Generated file; do not edit. See `../rust/schema-gen` crate.
 
-import { Block } from './Block';
-import { ClaimType } from './ClaimType';
-import { CreativeWork } from './CreativeWork';
+import { Block } from "./Block.js";
+import { ClaimType } from "./ClaimType.js";
+import { CreativeWork } from "./CreativeWork.js";
 
 // A claim represents specific reviewable facts or statements.
 export class Claim extends CreativeWork {
@@ -18,13 +18,13 @@ export class Claim extends CreativeWork {
   label?: string;
 
   constructor(content: Block[], claimType: ClaimType, options?: Claim) {
-    super()
-    if (options) Object.assign(this, options)
+    super();
+    if (options) Object.assign(this, options);
     this.content = content;
     this.claimType = claimType;
   }
 
   static from(other: Claim): Claim {
-    return new Claim(other.content!, other.claimType!, other)
+    return new Claim(other.content!, other.claimType!, other);
   }
 }

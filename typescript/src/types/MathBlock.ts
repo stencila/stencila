@@ -1,6 +1,6 @@
 // Generated file; do not edit. See `../rust/schema-gen` crate.
 
-import { Math } from './Math';
+import { Math } from "./Math.js";
 
 // A block of math, e.g an equation, to be treated as block content.
 export class MathBlock extends Math {
@@ -10,13 +10,13 @@ export class MathBlock extends Math {
   label?: string;
 
   constructor(mathLanguage: string, code: string, options?: MathBlock) {
-    super(mathLanguage, code)
-    if (options) Object.assign(this, options)
+    super(mathLanguage, code);
+    if (options) Object.assign(this, options);
     this.mathLanguage = mathLanguage;
     this.code = code;
   }
 
   static from(other: MathBlock): MathBlock {
-    return new MathBlock(other.mathLanguage!, other.code!, other)
+    return new MathBlock(other.mathLanguage!, other.code!, other);
   }
 }

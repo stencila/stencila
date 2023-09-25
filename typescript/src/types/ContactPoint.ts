@@ -1,6 +1,6 @@
 // Generated file; do not edit. See `../rust/schema-gen` crate.
 
-import { Thing } from './Thing';
+import { Thing } from "./Thing.js";
 
 // A contact point, usually within an organization.
 export class ContactPoint extends Thing {
@@ -17,12 +17,12 @@ export class ContactPoint extends Thing {
   availableLanguages?: string[];
 
   constructor(options?: ContactPoint) {
-    super()
-    if (options) Object.assign(this, options)
+    super();
+    if (options) Object.assign(this, options);
     
   }
 
   static from(other: ContactPoint): ContactPoint {
-    return new ContactPoint(other)
+    return new ContactPoint(other);
   }
 }

@@ -1,6 +1,6 @@
 // Generated file; do not edit. See `../rust/schema-gen` crate.
 
-import { Entity } from './Entity';
+import { Entity } from "./Entity.js";
 
 // A validator specifying the constraints on a numeric node.
 export class NumberValidator extends Entity {
@@ -22,12 +22,12 @@ export class NumberValidator extends Entity {
   multipleOf?: number;
 
   constructor(options?: NumberValidator) {
-    super()
-    if (options) Object.assign(this, options)
+    super();
+    if (options) Object.assign(this, options);
     
   }
 
   static from(other: NumberValidator): NumberValidator {
-    return new NumberValidator(other)
+    return new NumberValidator(other);
   }
 }

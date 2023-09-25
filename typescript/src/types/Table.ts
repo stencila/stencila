@@ -1,8 +1,8 @@
 // Generated file; do not edit. See `../rust/schema-gen` crate.
 
-import { BlocksOrString } from './BlocksOrString';
-import { CreativeWork } from './CreativeWork';
-import { TableRow } from './TableRow';
+import { BlocksOrString } from "./BlocksOrString.js";
+import { CreativeWork } from "./CreativeWork.js";
+import { TableRow } from "./TableRow.js";
 
 // A table.
 export class Table extends CreativeWork {
@@ -18,12 +18,12 @@ export class Table extends CreativeWork {
   rows: TableRow[];
 
   constructor(rows: TableRow[], options?: Table) {
-    super()
-    if (options) Object.assign(this, options)
+    super();
+    if (options) Object.assign(this, options);
     this.rows = rows;
   }
 
   static from(other: Table): Table {
-    return new Table(other.rows!, other)
+    return new Table(other.rows!, other);
   }
 }

@@ -1,9 +1,9 @@
 // Generated file; do not edit. See `../rust/schema-gen` crate.
 
-import { Entity } from './Entity';
-import { ExecutionDependantNode } from './ExecutionDependantNode';
-import { ExecutionDependantRelation } from './ExecutionDependantRelation';
-import { Integer } from './Integer';
+import { Entity } from "./Entity.js";
+import { ExecutionDependantNode } from "./ExecutionDependantNode.js";
+import { ExecutionDependantRelation } from "./ExecutionDependantRelation.js";
+import { Integer } from "./Integer.js";
 
 // A downstream execution dependant of a node
 export class ExecutionDependant extends Entity {
@@ -19,13 +19,13 @@ export class ExecutionDependant extends Entity {
   codeLocation?: Integer[];
 
   constructor(dependantRelation: ExecutionDependantRelation, dependantNode: ExecutionDependantNode, options?: ExecutionDependant) {
-    super()
-    if (options) Object.assign(this, options)
+    super();
+    if (options) Object.assign(this, options);
     this.dependantRelation = dependantRelation;
     this.dependantNode = dependantNode;
   }
 
   static from(other: ExecutionDependant): ExecutionDependant {
-    return new ExecutionDependant(other.dependantRelation!, other.dependantNode!, other)
+    return new ExecutionDependant(other.dependantRelation!, other.dependantNode!, other);
   }
 }

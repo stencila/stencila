@@ -1,17 +1,17 @@
 // Generated file; do not edit. See `../rust/schema-gen` crate.
 
-import { CodeError } from './CodeError';
-import { Duration } from './Duration';
-import { Entity } from './Entity';
-import { ExecutionAuto } from './ExecutionAuto';
-import { ExecutionDependant } from './ExecutionDependant';
-import { ExecutionDependency } from './ExecutionDependency';
-import { ExecutionDigest } from './ExecutionDigest';
-import { ExecutionRequired } from './ExecutionRequired';
-import { ExecutionStatus } from './ExecutionStatus';
-import { ExecutionTag } from './ExecutionTag';
-import { Integer } from './Integer';
-import { Timestamp } from './Timestamp';
+import { CodeError } from "./CodeError.js";
+import { Duration } from "./Duration.js";
+import { Entity } from "./Entity.js";
+import { ExecutionAuto } from "./ExecutionAuto.js";
+import { ExecutionDependant } from "./ExecutionDependant.js";
+import { ExecutionDependency } from "./ExecutionDependency.js";
+import { ExecutionDigest } from "./ExecutionDigest.js";
+import { ExecutionRequired } from "./ExecutionRequired.js";
+import { ExecutionStatus } from "./ExecutionStatus.js";
+import { ExecutionTag } from "./ExecutionTag.js";
+import { Integer } from "./Integer.js";
+import { Timestamp } from "./Timestamp.js";
 
 // Abstract base type for executable nodes (e.g. `CodeChunk`, `CodeExpression`, `Call`).
 export class Executable extends Entity {
@@ -57,12 +57,12 @@ export class Executable extends Entity {
   errors?: CodeError[];
 
   constructor(options?: Executable) {
-    super()
-    if (options) Object.assign(this, options)
+    super();
+    if (options) Object.assign(this, options);
     
   }
 
   static from(other: Executable): Executable {
-    return new Executable(other)
+    return new Executable(other);
   }
 }

@@ -1,6 +1,6 @@
 // Generated file; do not edit. See `../rust/schema-gen` crate.
 
-import { Parameter } from './Parameter';
+import { Parameter } from "./Parameter.js";
 
 // The value of a `Parameter` to call a document with
 export class CallArgument extends Parameter {
@@ -16,14 +16,14 @@ export class CallArgument extends Parameter {
   guessLanguage?: boolean;
 
   constructor(name: string, code: string, programmingLanguage: string, options?: CallArgument) {
-    super(name)
-    if (options) Object.assign(this, options)
+    super(name);
+    if (options) Object.assign(this, options);
     this.name = name;
     this.code = code;
     this.programmingLanguage = programmingLanguage;
   }
 
   static from(other: CallArgument): CallArgument {
-    return new CallArgument(other.name!, other.code!, other.programmingLanguage!, other)
+    return new CallArgument(other.name!, other.code!, other.programmingLanguage!, other);
   }
 }
