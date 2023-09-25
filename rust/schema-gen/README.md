@@ -6,7 +6,7 @@
 
 This Rust crate generates the following from the YAML files in `../../schema`:
 
-  - [x] Markdown documentation: [`src/docs.rs`](src/docs.rs)
+  - [x] Markdown documentation: [`src/docs_types.rs`](src/docs_types.rs) and [`src/docs_codecs.rs`](src/docs_codecs.rs)
 
   - [x] Python types: [`src/python.rs`](src/python.rs)
 

@@ -56,24 +56,27 @@ impl Codec for JatsCodec {
         use CodecSupport::*;
         use NodeType::*;
         match node_type {
-            // Data
-            String | Cord => NoLoss,
-            Null | Boolean | Integer | UnsignedInteger | Number => LowLoss,
+            // Works,
+            Article | Claim => LowLoss,
             // Prose Inlines
             Text | Emphasis | Strong | Strikeout | Subscript | Superscript | Underline | Insert => {
                 NoLoss
             }
-            Link | Parameter | AudioObject | ImageObject | MediaObject => LowLoss,
+            Link | AudioObject | ImageObject | VideoObject => LowLoss,
+            Delete => HighLoss,
             // Prose Blocks
             Heading | Paragraph | ThematicBreak => NoLoss,
-            List | ListItem | Table | TableRow | TableCell => LowLoss,
+            List | ListItem | Figure => LowLoss,
+            // Math
+            MathFragment | MathBlock => NoLoss,
             // Code
             CodeFragment | CodeBlock => NoLoss,
             CodeExpression | CodeChunk => LowLoss,
-            // Math
-            MathFragment | MathBlock => NoLoss,
-            // Works,
-            Article => LowLoss,
+            // Data
+            String | Cord => NoLoss,
+            Null | Boolean | Integer | UnsignedInteger | Number => LowLoss,
+            // Other
+            Organization | PostalAddress | Product => LowLoss,
             // If not in the above lists then no support
             _ => None,
         }
