@@ -2,9 +2,13 @@
 
 **JavaScript classes and TypeScript types for the Stencila Schema**
 
-## 👋 Introduction
-
 This package provides JavaScript classes and TypeScript types for the [Stencila Schema](https://github.com/stencila/stencila/tree/main/schema#readme).
+
+Its main purpose is to allows functions in the `@stencila/node` package to consume and return documents that are strongly typed. For example, with this package you could,
+
+- construct documents programmatically using TypeScript and use `@stencila/node` to write them to multiple formats (e.g. Markdown, JATS XML, PDF)
+
+- read existing documents from disk using `@stencila/node` and use TypeScript to render them in the browser
 
 ## 📦 Install
 
@@ -13,8 +17,6 @@ npm i @stencila/types
 ```
 
 ## ⚡ Usage
-
-The main purpose for this package is to provide TypeScript types corresponding to types in the Stencila Schema. This allows functions in the `@stencila/node` package to consume and return documents that are strongly typed.
 
 You can construct a new document, conforming to the Stencila Schema, using the classes provided. For example, to construct an `Article` with a single "Hello world!" paragraph:
 
@@ -75,8 +77,6 @@ make lint test
 ```
 
 ### Packaging
-
-Some notes on packaging:
 
 - There is a `npm run check` for checking aspects of packaging
 
