@@ -20,6 +20,7 @@
     "cSpell.words": [
         "asciimath",
         "attribs",
+        "attw",
         "automerge",
         "autosurgeon",
         "canonicalize",
@@ -51,6 +52,7 @@
         "mult",
         "napi",
         "pandoc",
+        "publint",
         "Pydantic",
         "rdfs",
         "requireds",
@@ -68,6 +70,8 @@
         "Transactable",
         "transclude",
         "transpiling",
+        "typia",
+        "uglifyjs",
         "xlink",
         "yamls"
     ]

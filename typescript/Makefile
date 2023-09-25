@@ -37,6 +37,10 @@ audit: node_modules
 build: node_modules
 	npm run build
 
+# Check the package before releasing
+check:
+	npm run check
+
 # Release the package
 # Only updates the version number and publishes if there have
 # been changes in this folder between the current tag and the one
