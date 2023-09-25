@@ -1,6 +1,8 @@
 // Generated file; do not edit. See `../rust/schema-gen` crate.
             
-// A unit in which time can be measured
+/**
+ * A unit in which time can be measured
+ */
 export type TimeUnit =
   'Year' |
   'Month' |

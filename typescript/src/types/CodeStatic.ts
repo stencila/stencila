@@ -3,22 +3,31 @@
 import { Cord } from "./Cord.js";
 import { Entity } from "./Entity.js";
 
-// Abstract base type for non-executable code nodes (e.g. `CodeBlock`).
+/**
+ * Abstract base type for non-executable code nodes (e.g. `CodeBlock`).
+ */
 export class CodeStatic extends Entity {
   type = "CodeStatic";
 
-  // The code.
+  /**
+   * The code.
+   */
   code: Cord;
 
-  // The programming language of the code.
+  /**
+   * The programming language of the code.
+   */
   programmingLanguage?: string;
 
-  constructor(code: Cord, options?: CodeStatic) {
+  constructor(code: Cord, options?: Partial<CodeStatic>) {
     super();
     if (options) Object.assign(this, options);
     this.code = code;
   }
 
+  /**
+  * Create a `CodeStatic` from an object
+  */
   static from(other: CodeStatic): CodeStatic {
     return new CodeStatic(other.code!, other);
   }

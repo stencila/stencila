@@ -10,7 +10,9 @@ import { If } from "./If.js";
 import { Span } from "./Span.js";
 import { Variable } from "./Variable.js";
 
-// Node types that can be execution dependants
+/**
+ * Node types that can be execution dependants
+ */
 export type ExecutionDependantTarget =
   Call |
   CodeChunk |
@@ -22,7 +24,10 @@ export type ExecutionDependantTarget =
   Span |
   Variable;
 
-export function executionDependantTargetFrom(other: ExecutionDependantTarget): ExecutionDependantTarget {
+/**
+ * Create a `ExecutionDependantTarget` from an object
+ */
+export function executionDependantTarget(other: ExecutionDependantTarget): ExecutionDependantTarget {
   switch(other.type) {
     case "Call": return Call.from(other as Call);
     case "CodeChunk": return CodeChunk.from(other as CodeChunk);

@@ -2,16 +2,21 @@
 
 import { Entity } from "./Entity.js";
 
-// A thematic break, such as a scene change in a story, a transition to another topic, or a new document.
+/**
+ * A thematic break, such as a scene change in a story, a transition to another topic, or a new document.
+ */
 export class ThematicBreak extends Entity {
   type = "ThematicBreak";
 
-  constructor(options?: ThematicBreak) {
+  constructor(options?: Partial<ThematicBreak>) {
     super();
     if (options) Object.assign(this, options);
     
   }
 
+  /**
+  * Create a `ThematicBreak` from an object
+  */
   static from(other: ThematicBreak): ThematicBreak {
     return new ThematicBreak(other);
   }

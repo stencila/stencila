@@ -3,25 +3,36 @@
 import { Entity } from "./Entity.js";
 import { Integer } from "./Integer.js";
 
-// A schema specifying constraints on a string node.
+/**
+ * A schema specifying constraints on a string node.
+ */
 export class StringValidator extends Entity {
   type = "StringValidator";
 
-  // The minimum length for a string node.
+  /**
+   * The minimum length for a string node.
+   */
   minLength?: Integer;
 
-  // The maximum length for a string node.
+  /**
+   * The maximum length for a string node.
+   */
   maxLength?: Integer;
 
-  // A regular expression that a string node must match.
+  /**
+   * A regular expression that a string node must match.
+   */
   pattern?: string;
 
-  constructor(options?: StringValidator) {
+  constructor(options?: Partial<StringValidator>) {
     super();
     if (options) Object.assign(this, options);
     
   }
 
+  /**
+  * Create a `StringValidator` from an object
+  */
   static from(other: StringValidator): StringValidator {
     return new StringValidator(other);
   }

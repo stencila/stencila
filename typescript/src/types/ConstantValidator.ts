@@ -3,19 +3,26 @@
 import { Entity } from "./Entity.js";
 import { Node } from "./Node.js";
 
-// A validator specifying a constant value that a node must have.
+/**
+ * A validator specifying a constant value that a node must have.
+ */
 export class ConstantValidator extends Entity {
   type = "ConstantValidator";
 
-  // The value that the node must have.
+  /**
+   * The value that the node must have.
+   */
   value: Node;
 
-  constructor(value: Node, options?: ConstantValidator) {
+  constructor(value: Node, options?: Partial<ConstantValidator>) {
     super();
     if (options) Object.assign(this, options);
     this.value = value;
   }
 
+  /**
+  * Create a `ConstantValidator` from an object
+  */
   static from(other: ConstantValidator): ConstantValidator {
     return new ConstantValidator(other.value!, other);
   }

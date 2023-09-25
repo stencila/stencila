@@ -2,25 +2,36 @@
 
 import { Entity } from "./Entity.js";
 
-// An error that occurred when parsing, compiling or executing a Code node.
+/**
+ * An error that occurred when parsing, compiling or executing a Code node.
+ */
 export class CodeError extends Entity {
   type = "CodeError";
 
-  // The error message or brief description of the error.
+  /**
+   * The error message or brief description of the error.
+   */
   errorMessage: string;
 
-  // The type of error e.g. "SyntaxError", "ZeroDivisionError".
+  /**
+   * The type of error e.g. "SyntaxError", "ZeroDivisionError".
+   */
   errorType?: string;
 
-  // Stack trace leading up to the error.
+  /**
+   * Stack trace leading up to the error.
+   */
   stackTrace?: string;
 
-  constructor(errorMessage: string, options?: CodeError) {
+  constructor(errorMessage: string, options?: Partial<CodeError>) {
     super();
     if (options) Object.assign(this, options);
     this.errorMessage = errorMessage;
   }
 
+  /**
+  * Create a `CodeError` from an object
+  */
   static from(other: CodeError): CodeError {
     return new CodeError(other.errorMessage!, other);
   }

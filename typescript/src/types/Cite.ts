@@ -6,45 +6,68 @@ import { Entity } from "./Entity.js";
 import { Inline } from "./Inline.js";
 import { IntegerOrString } from "./IntegerOrString.js";
 
-// A reference to a CreativeWork that is cited in another CreativeWork.
+/**
+ * A reference to a CreativeWork that is cited in another CreativeWork.
+ */
 export class Cite extends Entity {
   type = "Cite";
 
-  // The target of the citation (URL or reference ID).
+  /**
+   * The target of the citation (URL or reference ID).
+   */
   target: string;
 
-  // Determines how the citation is shown within the surrounding text.
+  /**
+   * Determines how the citation is shown within the surrounding text.
+   */
   citationMode: CitationMode;
 
-  // The type/s of the citation, both factually and rhetorically.
+  /**
+   * The type/s of the citation, both factually and rhetorically.
+   */
   citationIntent?: CitationIntent[];
 
-  // Optional structured content/text of this citation.
+  /**
+   * Optional structured content/text of this citation.
+   */
   content?: Inline[];
 
-  // The page on which the work starts; for example "135" or "xiii".
+  /**
+   * The page on which the work starts; for example "135" or "xiii".
+   */
   pageStart?: IntegerOrString;
 
-  // The page on which the work ends; for example "138" or "xvi".
+  /**
+   * The page on which the work ends; for example "138" or "xvi".
+   */
   pageEnd?: IntegerOrString;
 
-  // Any description of pages that is not separated into pageStart and pageEnd;
-  // for example, "1-6, 9, 55".
+  /**
+   * Any description of pages that is not separated into pageStart and pageEnd;
+   * for example, "1-6, 9, 55".
+   */
   pagination?: string;
 
-  // Text to show before the citation.
+  /**
+   * Text to show before the citation.
+   */
   citationPrefix?: string;
 
-  // Text to show after the citation.
+  /**
+   * Text to show after the citation.
+   */
   citationSuffix?: string;
 
-  constructor(target: string, citationMode: CitationMode, options?: Cite) {
+  constructor(target: string, citationMode: CitationMode, options?: Partial<Cite>) {
     super();
     if (options) Object.assign(this, options);
     this.target = target;
     this.citationMode = citationMode;
   }
 
+  /**
+  * Create a `Cite` from an object
+  */
   static from(other: Cite): Cite {
     return new Cite(other.target!, other.citationMode!, other);
   }

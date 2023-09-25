@@ -3,12 +3,17 @@
 import { Grant } from "./Grant.js";
 import { MonetaryGrant } from "./MonetaryGrant.js";
 
-// `Grant` or `MonetaryGrant`
+/**
+ * `Grant` or `MonetaryGrant`
+ */
 export type GrantOrMonetaryGrant =
   Grant |
   MonetaryGrant;
 
-export function grantOrMonetaryGrantFrom(other: GrantOrMonetaryGrant): GrantOrMonetaryGrant {
+/**
+ * Create a `GrantOrMonetaryGrant` from an object
+ */
+export function grantOrMonetaryGrant(other: GrantOrMonetaryGrant): GrantOrMonetaryGrant {
   switch(other.type) {
     case "Grant": return Grant.from(other as Grant);
     case "MonetaryGrant": return MonetaryGrant.from(other as MonetaryGrant);

@@ -2,26 +2,37 @@
 
 import { CreativeWork } from "./CreativeWork.js";
 
-// A software application.
+/**
+ * A software application.
+ */
 export class SoftwareApplication extends CreativeWork {
   type = "SoftwareApplication";
 
-  // The name of the item.
+  /**
+   * The name of the item.
+   */
   name: string;
 
-  // Requirements for application, including shared libraries that
-  // are not included in the application distribution.
+  /**
+   * Requirements for application, including shared libraries that
+   * are not included in the application distribution.
+   */
   softwareRequirements?: SoftwareApplication[];
 
-  // Version of the software.
+  /**
+   * Version of the software.
+   */
   softwareVersion?: string;
 
-  constructor(name: string, options?: SoftwareApplication) {
+  constructor(name: string, options?: Partial<SoftwareApplication>) {
     super();
     if (options) Object.assign(this, options);
     this.name = name;
   }
 
+  /**
+  * Create a `SoftwareApplication` from an object
+  */
   static from(other: SoftwareApplication): SoftwareApplication {
     return new SoftwareApplication(other.name!, other);
   }

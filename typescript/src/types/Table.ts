@@ -4,25 +4,36 @@ import { BlocksOrString } from "./BlocksOrString.js";
 import { CreativeWork } from "./CreativeWork.js";
 import { TableRow } from "./TableRow.js";
 
-// A table.
+/**
+ * A table.
+ */
 export class Table extends CreativeWork {
   type = "Table";
 
-  // A caption for the table.
+  /**
+   * A caption for the table.
+   */
   caption?: BlocksOrString;
 
-  // A short label for the table.
+  /**
+   * A short label for the table.
+   */
   label?: string;
 
-  // Rows of cells in the table.
+  /**
+   * Rows of cells in the table.
+   */
   rows: TableRow[];
 
-  constructor(rows: TableRow[], options?: Table) {
+  constructor(rows: TableRow[], options?: Partial<Table>) {
     super();
     if (options) Object.assign(this, options);
     this.rows = rows;
   }
 
+  /**
+  * Create a `Table` from an object
+  */
   static from(other: Table): Table {
     return new Table(other.rows!, other);
   }

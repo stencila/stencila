@@ -4,23 +4,32 @@ import { Entity } from "./Entity.js";
 import { Integer } from "./Integer.js";
 import { TimeUnit } from "./TimeUnit.js";
 
-// A value that represents the difference between two timestamps
+/**
+ * A value that represents the difference between two timestamps
+ */
 export class Duration extends Entity {
   type = "Duration";
 
-  // The time difference in `timeUnit`s.
+  /**
+   * The time difference in `timeUnit`s.
+   */
   value: Integer;
 
-  // The time unit that the `value` represents.
+  /**
+   * The time unit that the `value` represents.
+   */
   timeUnit: TimeUnit;
 
-  constructor(value: Integer, timeUnit: TimeUnit, options?: Duration) {
+  constructor(value: Integer, timeUnit: TimeUnit, options?: Partial<Duration>) {
     super();
     if (options) Object.assign(this, options);
     this.value = value;
     this.timeUnit = timeUnit;
   }
 
+  /**
+  * Create a `Duration` from an object
+  */
   static from(other: Duration): Duration {
     return new Duration(other.value!, other.timeUnit!, other);
   }

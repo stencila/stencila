@@ -3,19 +3,26 @@
 import { Cite } from "./Cite.js";
 import { Entity } from "./Entity.js";
 
-// A group of Cite nodes.
+/**
+ * A group of Cite nodes.
+ */
 export class CiteGroup extends Entity {
   type = "CiteGroup";
 
-  // One or more `Cite`s to be referenced in the same surrounding text.
+  /**
+   * One or more `Cite`s to be referenced in the same surrounding text.
+   */
   items: Cite[];
 
-  constructor(items: Cite[], options?: CiteGroup) {
+  constructor(items: Cite[], options?: Partial<CiteGroup>) {
     super();
     if (options) Object.assign(this, options);
     this.items = items;
   }
 
+  /**
+  * Create a `CiteGroup` from an object
+  */
   static from(other: CiteGroup): CiteGroup {
     return new CiteGroup(other.items!, other);
   }

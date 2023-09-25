@@ -3,12 +3,17 @@
 import { Organization } from "./Organization.js";
 import { Person } from "./Person.js";
 
-// `Organization` or `Person`
+/**
+ * `Organization` or `Person`
+ */
 export type OrganizationOrPerson =
   Organization |
   Person;
 
-export function organizationOrPersonFrom(other: OrganizationOrPerson): OrganizationOrPerson {
+/**
+ * Create a `OrganizationOrPerson` from an object
+ */
+export function organizationOrPerson(other: OrganizationOrPerson): OrganizationOrPerson {
   switch(other.type) {
     case "Organization": return Organization.from(other as Organization);
     case "Person": return Person.from(other as Person);

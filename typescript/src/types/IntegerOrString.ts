@@ -2,7 +2,9 @@
             
 import { Integer } from "./Integer.js";
 
-// `Integer` or `string`
+/**
+ * `Integer` or `string`
+ */
 export type IntegerOrString =
   Integer |
   string;

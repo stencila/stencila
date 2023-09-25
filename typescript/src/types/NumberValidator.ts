@@ -2,31 +2,46 @@
 
 import { Entity } from "./Entity.js";
 
-// A validator specifying the constraints on a numeric node.
+/**
+ * A validator specifying the constraints on a numeric node.
+ */
 export class NumberValidator extends Entity {
   type = "NumberValidator";
 
-  // The inclusive lower limit for a numeric node.
+  /**
+   * The inclusive lower limit for a numeric node.
+   */
   minimum?: number;
 
-  // The exclusive lower limit for a numeric node.
+  /**
+   * The exclusive lower limit for a numeric node.
+   */
   exclusiveMinimum?: number;
 
-  // The inclusive upper limit for a numeric node.
+  /**
+   * The inclusive upper limit for a numeric node.
+   */
   maximum?: number;
 
-  // The exclusive upper limit for a numeric node.
+  /**
+   * The exclusive upper limit for a numeric node.
+   */
   exclusiveMaximum?: number;
 
-  // A number that a numeric node must be a multiple of.
+  /**
+   * A number that a numeric node must be a multiple of.
+   */
   multipleOf?: number;
 
-  constructor(options?: NumberValidator) {
+  constructor(options?: Partial<NumberValidator>) {
     super();
     if (options) Object.assign(this, options);
     
   }
 
+  /**
+  * Create a `NumberValidator` from an object
+  */
   static from(other: NumberValidator): NumberValidator {
     return new NumberValidator(other);
   }

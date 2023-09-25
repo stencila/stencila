@@ -4,19 +4,26 @@ import { CiteOrString } from "./CiteOrString.js";
 import { Inline } from "./Inline.js";
 import { Mark } from "./Mark.js";
 
-// Inline, quoted content.
+/**
+ * Inline, quoted content.
+ */
 export class Quote extends Mark {
   type = "Quote";
 
-  // The source of the quote.
+  /**
+   * The source of the quote.
+   */
   cite?: CiteOrString;
 
-  constructor(content: Inline[], options?: Quote) {
+  constructor(content: Inline[], options?: Partial<Quote>) {
     super(content);
     if (options) Object.assign(this, options);
     this.content = content;
   }
 
+  /**
+  * Create a `Quote` from an object
+  */
   static from(other: Quote): Quote {
     return new Quote(other.content!, other);
   }

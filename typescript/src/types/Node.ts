@@ -103,7 +103,9 @@ import { UnsignedInteger } from "./UnsignedInteger.js";
 import { Variable } from "./Variable.js";
 import { VideoObject } from "./VideoObject.js";
 
-// Union type for all types in this schema, including primitives and entities
+/**
+ * Union type for all types in this schema, including primitives and entities
+ */
 export type Node =
   null |
   boolean |
@@ -212,7 +214,10 @@ export type Node =
   VideoObject |
   Object;
 
-export function nodeFrom(other: Node): Node {
+/**
+ * Create a `Node` from an object
+ */
+export function node(other: Node): Node {
   if (other == null || typeof other !== "object" || Array.isArray(other) || typeof other.type === "undefined") {
     return other as Node;
   }

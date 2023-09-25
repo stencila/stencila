@@ -18,7 +18,9 @@ import { QuoteBlock } from "./QuoteBlock.js";
 import { Table } from "./Table.js";
 import { ThematicBreak } from "./ThematicBreak.js";
 
-// Union type for block content node types.
+/**
+ * Union type for block content node types.
+ */
 export type Block =
   Call |
   Claim |
@@ -38,7 +40,10 @@ export type Block =
   Table |
   ThematicBreak;
 
-export function blockFrom(other: Block): Block {
+/**
+ * Create a `Block` from an object
+ */
+export function block(other: Block): Block {
   switch(other.type) {
     case "Call": return Call.from(other as Call);
     case "Claim": return Claim.from(other as Claim);

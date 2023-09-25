@@ -3,20 +3,28 @@
 import { Collection } from "./Collection.js";
 import { FileOrDirectory } from "./FileOrDirectory.js";
 
-// A directory on the filesystem
+/**
+ * A directory on the filesystem
+ */
 export class Directory extends Collection {
   type = "Directory";
 
-  // The name of the item.
+  /**
+   * The name of the item.
+   */
   name: string;
 
-  // The files and other directories that are within this directory
+  /**
+   * The files and other directories that are within this directory
+   */
   parts: FileOrDirectory[];
 
-  // The path (absolute or relative) of the file on the filesystem
+  /**
+   * The path (absolute or relative) of the file on the filesystem
+   */
   path: string;
 
-  constructor(name: string, parts: FileOrDirectory[], path: string, options?: Directory) {
+  constructor(name: string, parts: FileOrDirectory[], path: string, options?: Partial<Directory>) {
     super(parts);
     if (options) Object.assign(this, options);
     this.name = name;
@@ -24,6 +32,9 @@ export class Directory extends Collection {
     this.path = path;
   }
 
+  /**
+  * Create a `Directory` from an object
+  */
   static from(other: Directory): Directory {
     return new Directory(other.name!, other.parts!, other.path!, other);
   }

@@ -2,17 +2,22 @@
 
 import { Math } from "./Math.js";
 
-// A fragment of math, e.g a variable name, to be treated as inline content.
+/**
+ * A fragment of math, e.g a variable name, to be treated as inline content.
+ */
 export class MathFragment extends Math {
   type = "MathFragment";
 
-  constructor(mathLanguage: string, code: string, options?: MathFragment) {
+  constructor(mathLanguage: string, code: string, options?: Partial<MathFragment>) {
     super(mathLanguage, code);
     if (options) Object.assign(this, options);
     this.mathLanguage = mathLanguage;
     this.code = code;
   }
 
+  /**
+  * Create a `MathFragment` from an object
+  */
   static from(other: MathFragment): MathFragment {
     return new MathFragment(other.mathLanguage!, other.code!, other);
   }

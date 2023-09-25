@@ -3,19 +3,26 @@
 import { Entity } from "./Entity.js";
 import { Inline } from "./Inline.js";
 
-// Paragraph
+/**
+ * Paragraph
+ */
 export class Paragraph extends Entity {
   type = "Paragraph";
 
-  // The contents of the paragraph.
+  /**
+   * The contents of the paragraph.
+   */
   content: Inline[];
 
-  constructor(content: Inline[], options?: Paragraph) {
+  constructor(content: Inline[], options?: Partial<Paragraph>) {
     super();
     if (options) Object.assign(this, options);
     this.content = content;
   }
 
+  /**
+  * Create a `Paragraph` from an object
+  */
   static from(other: Paragraph): Paragraph {
     return new Paragraph(other.content!, other);
   }

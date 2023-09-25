@@ -5,50 +5,77 @@ import { OrganizationOrPerson } from "./OrganizationOrPerson.js";
 import { PostalAddressOrString } from "./PostalAddressOrString.js";
 import { Thing } from "./Thing.js";
 
-// A person (alive, dead, undead, or fictional).
+/**
+ * A person (alive, dead, undead, or fictional).
+ */
 export class Person extends Thing {
   type = "Person";
 
-  // Postal address for the person.
+  /**
+   * Postal address for the person.
+   */
   address?: PostalAddressOrString;
 
-  // Organizations that the person is affiliated with.
+  /**
+   * Organizations that the person is affiliated with.
+   */
   affiliations?: Organization[];
 
-  // Email addresses for the person.
+  /**
+   * Email addresses for the person.
+   */
   emails?: string[];
 
-  // Family name. In the U.S., the last name of a person.
+  /**
+   * Family name. In the U.S., the last name of a person.
+   */
   familyNames?: string[];
 
-  // A person or organization that supports (sponsors) something through
-  // some kind of financial contribution.
+  /**
+   * A person or organization that supports (sponsors) something through
+   * some kind of financial contribution.
+   */
   funders?: OrganizationOrPerson[];
 
-  // Given name. In the U.S., the first name of a person.
+  /**
+   * Given name. In the U.S., the first name of a person.
+   */
   givenNames?: string[];
 
-  // An honorific prefix preceding a person's name such as Dr/Mrs/Mr.
+  /**
+   * An honorific prefix preceding a person's name such as Dr/Mrs/Mr.
+   */
   honorificPrefix?: string;
 
-  // An honorific suffix after a person's name such as MD/PhD/MSCSW.
+  /**
+   * An honorific suffix after a person's name such as MD/PhD/MSCSW.
+   */
   honorificSuffix?: string;
 
-  // The job title of the person (for example, Financial Manager).
+  /**
+   * The job title of the person (for example, Financial Manager).
+   */
   jobTitle?: string;
 
-  // An organization (or program membership) to which this person belongs.
+  /**
+   * An organization (or program membership) to which this person belongs.
+   */
   memberOf?: Organization[];
 
-  // Telephone numbers for the person.
+  /**
+   * Telephone numbers for the person.
+   */
   telephoneNumbers?: string[];
 
-  constructor(options?: Person) {
+  constructor(options?: Partial<Person>) {
     super();
     if (options) Object.assign(this, options);
     
   }
 
+  /**
+  * Create a `Person` from an object
+  */
   static from(other: Person): Person {
     return new Person(other);
   }

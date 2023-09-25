@@ -3,29 +3,42 @@
 import { Entity } from "./Entity.js";
 import { Inline } from "./Inline.js";
 
-// A hyperlink to other pages, sections within the same document, resources, or any URL.
+/**
+ * A hyperlink to other pages, sections within the same document, resources, or any URL.
+ */
 export class Link extends Entity {
   type = "Link";
 
-  // The textual content of the link.
+  /**
+   * The textual content of the link.
+   */
   content: Inline[];
 
-  // The target of the link.
+  /**
+   * The target of the link.
+   */
   target: string;
 
-  // A title for the link.
+  /**
+   * A title for the link.
+   */
   title?: string;
 
-  // The relation between the target and the current thing.
+  /**
+   * The relation between the target and the current thing.
+   */
   rel?: string;
 
-  constructor(content: Inline[], target: string, options?: Link) {
+  constructor(content: Inline[], target: string, options?: Partial<Link>) {
     super();
     if (options) Object.assign(this, options);
     this.content = content;
     this.target = target;
   }
 
+  /**
+  * Create a `Link` from an object
+  */
   static from(other: Link): Link {
     return new Link(other.content!, other.target!, other);
   }

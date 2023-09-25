@@ -3,25 +3,36 @@
 import { CreativeWork } from "./CreativeWork.js";
 import { Date } from "./Date.js";
 
-// A periodical publication.
+/**
+ * A periodical publication.
+ */
 export class Periodical extends CreativeWork {
   type = "Periodical";
 
-  // The date this Periodical was first published.
+  /**
+   * The date this Periodical was first published.
+   */
   dateStart?: Date;
 
-  // The date this Periodical ceased publication.
+  /**
+   * The date this Periodical ceased publication.
+   */
   dateEnd?: Date;
 
-  // The International Standard Serial Number(s) (ISSN) that identifies this serial publication.
+  /**
+   * The International Standard Serial Number(s) (ISSN) that identifies this serial publication.
+   */
   issns?: string[];
 
-  constructor(options?: Periodical) {
+  constructor(options?: Partial<Periodical>) {
     super();
     if (options) Object.assign(this, options);
     
   }
 
+  /**
+  * Create a `Periodical` from an object
+  */
   static from(other: Periodical): Periodical {
     return new Periodical(other);
   }

@@ -2,12 +2,17 @@
             
 import { ImageObject } from "./ImageObject.js";
 
-// `ImageObject` or `string`
+/**
+ * `ImageObject` or `string`
+ */
 export type ImageObjectOrString =
   ImageObject |
   string;
 
-export function imageObjectOrStringFrom(other: ImageObjectOrString): ImageObjectOrString {
+/**
+ * Create a `ImageObjectOrString` from an object
+ */
+export function imageObjectOrString(other: ImageObjectOrString): ImageObjectOrString {
   if (other == null || typeof other !== "object" || Array.isArray(other) || typeof other.type === "undefined") {
     return other as ImageObjectOrString;
   }

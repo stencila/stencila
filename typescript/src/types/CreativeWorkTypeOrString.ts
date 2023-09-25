@@ -2,7 +2,9 @@
             
 import { CreativeWorkType } from "./CreativeWorkType.js";
 
-// `CreativeWorkType` or `string`
+/**
+ * `CreativeWorkType` or `string`
+ */
 export type CreativeWorkTypeOrString =
   CreativeWorkType |
   string;

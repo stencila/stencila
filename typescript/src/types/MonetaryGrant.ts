@@ -3,22 +3,31 @@
 import { Grant } from "./Grant.js";
 import { PersonOrOrganization } from "./PersonOrOrganization.js";
 
-// A monetary grant.
+/**
+ * A monetary grant.
+ */
 export class MonetaryGrant extends Grant {
   type = "MonetaryGrant";
 
-  // The amount of money.
+  /**
+   * The amount of money.
+   */
   amounts?: number;
 
-  // A person or organization that supports (sponsors) something through some kind of financial contribution.
+  /**
+   * A person or organization that supports (sponsors) something through some kind of financial contribution.
+   */
   funders?: PersonOrOrganization[];
 
-  constructor(options?: MonetaryGrant) {
+  constructor(options?: Partial<MonetaryGrant>) {
     super();
     if (options) Object.assign(this, options);
     
   }
 
+  /**
+  * Create a `MonetaryGrant` from an object
+  */
   static from(other: MonetaryGrant): MonetaryGrant {
     return new MonetaryGrant(other);
   }

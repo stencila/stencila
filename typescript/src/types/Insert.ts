@@ -3,16 +3,21 @@
 import { Inline } from "./Inline.js";
 import { Suggestion } from "./Suggestion.js";
 
-// A suggestion to insert some inline content.
+/**
+ * A suggestion to insert some inline content.
+ */
 export class Insert extends Suggestion {
   type = "Insert";
 
-  constructor(content: Inline[], options?: Insert) {
+  constructor(content: Inline[], options?: Partial<Insert>) {
     super(content);
     if (options) Object.assign(this, options);
     this.content = content;
   }
 
+  /**
+  * Create a `Insert` from an object
+  */
   static from(other: Insert): Insert {
     return new Insert(other.content!, other);
   }

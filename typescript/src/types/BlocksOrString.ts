@@ -2,7 +2,9 @@
             
 import { Blocks } from "./Blocks.js";
 
-// `Blocks` or `string`
+/**
+ * `Blocks` or `string`
+ */
 export type BlocksOrString =
   Blocks |
   string;

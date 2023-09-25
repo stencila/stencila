@@ -5,26 +5,37 @@ import { ExecutionDependantNode } from "./ExecutionDependantNode.js";
 import { ExecutionDependantRelation } from "./ExecutionDependantRelation.js";
 import { Integer } from "./Integer.js";
 
-// A downstream execution dependant of a node
+/**
+ * A downstream execution dependant of a node
+ */
 export class ExecutionDependant extends Entity {
   type = "ExecutionDependant";
 
-  // The relation to the dependant
+  /**
+   * The relation to the dependant
+   */
   dependantRelation: ExecutionDependantRelation;
 
-  // The node that is the dependant
+  /**
+   * The node that is the dependant
+   */
   dependantNode: ExecutionDependantNode;
 
-  // The location that the dependant is defined within code
+  /**
+   * The location that the dependant is defined within code
+   */
   codeLocation?: Integer[];
 
-  constructor(dependantRelation: ExecutionDependantRelation, dependantNode: ExecutionDependantNode, options?: ExecutionDependant) {
+  constructor(dependantRelation: ExecutionDependantRelation, dependantNode: ExecutionDependantNode, options?: Partial<ExecutionDependant>) {
     super();
     if (options) Object.assign(this, options);
     this.dependantRelation = dependantRelation;
     this.dependantNode = dependantNode;
   }
 
+  /**
+  * Create a `ExecutionDependant` from an object
+  */
   static from(other: ExecutionDependant): ExecutionDependant {
     return new ExecutionDependant(other.dependantRelation!, other.dependantNode!, other);
   }

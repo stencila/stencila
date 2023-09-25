@@ -3,7 +3,9 @@
 import { Blocks } from "./Blocks.js";
 import { Inlines } from "./Inlines.js";
 
-// `Blocks` or `Inlines`
+/**
+ * `Blocks` or `Inlines`
+ */
 export type BlocksOrInlines =
   Blocks |
   Inlines;

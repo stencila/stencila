@@ -2,12 +2,17 @@
             
 import { PostalAddress } from "./PostalAddress.js";
 
-// `PostalAddress` or `string`
+/**
+ * `PostalAddress` or `string`
+ */
 export type PostalAddressOrString =
   PostalAddress |
   string;
 
-export function postalAddressOrStringFrom(other: PostalAddressOrString): PostalAddressOrString {
+/**
+ * Create a `PostalAddressOrString` from an object
+ */
+export function postalAddressOrString(other: PostalAddressOrString): PostalAddressOrString {
   if (other == null || typeof other !== "object" || Array.isArray(other) || typeof other.type === "undefined") {
     return other as PostalAddressOrString;
   }

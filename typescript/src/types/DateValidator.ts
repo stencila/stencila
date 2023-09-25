@@ -3,22 +3,31 @@
 import { Date } from "./Date.js";
 import { Entity } from "./Entity.js";
 
-// A validator specifying the constraints on a date.
+/**
+ * A validator specifying the constraints on a date.
+ */
 export class DateValidator extends Entity {
   type = "DateValidator";
 
-  // The inclusive lower limit for a date.
+  /**
+   * The inclusive lower limit for a date.
+   */
   minimum?: Date;
 
-  // The inclusive upper limit for a date.
+  /**
+   * The inclusive upper limit for a date.
+   */
   maximum?: Date;
 
-  constructor(options?: DateValidator) {
+  constructor(options?: Partial<DateValidator>) {
     super();
     if (options) Object.assign(this, options);
     
   }
 
+  /**
+  * Create a `DateValidator` from an object
+  */
   static from(other: DateValidator): DateValidator {
     return new DateValidator(other);
   }

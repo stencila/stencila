@@ -3,22 +3,31 @@
 import { CreativeWork } from "./CreativeWork.js";
 import { Thing } from "./Thing.js";
 
-// A review of an item, e.g of an Article, or SoftwareSourceCode.
+/**
+ * A review of an item, e.g of an Article, or SoftwareSourceCode.
+ */
 export class Review extends CreativeWork {
   type = "Review";
 
-  // The item that is being reviewed.
+  /**
+   * The item that is being reviewed.
+   */
   itemReviewed?: Thing;
 
-  // The part or facet of the item that is being reviewed.
+  /**
+   * The part or facet of the item that is being reviewed.
+   */
   reviewAspect?: string;
 
-  constructor(options?: Review) {
+  constructor(options?: Partial<Review>) {
     super();
     if (options) Object.assign(this, options);
     
   }
 
+  /**
+  * Create a `Review` from an object
+  */
   static from(other: Review): Review {
     return new Review(other);
   }

@@ -48,7 +48,9 @@ import { TableRowType } from "./TableRowType.js";
 import { TimeUnit } from "./TimeUnit.js";
 import { VideoObject } from "./VideoObject.js";
 
-// Union type for all types that are descended from `Thing`
+/**
+ * Union type for all types that are descended from `Thing`
+ */
 export type ThingType =
   Article |
   AudioObject |

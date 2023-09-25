@@ -4,22 +4,31 @@ import { Entity } from "./Entity.js";
 import { TableCell } from "./TableCell.js";
 import { TableRowType } from "./TableRowType.js";
 
-// A row within a Table.
+/**
+ * A row within a Table.
+ */
 export class TableRow extends Entity {
   type = "TableRow";
 
-  // An array of cells in the row.
+  /**
+   * An array of cells in the row.
+   */
   cells: TableCell[];
 
-  // The type of row.
+  /**
+   * The type of row.
+   */
   rowType?: TableRowType;
 
-  constructor(cells: TableCell[], options?: TableRow) {
+  constructor(cells: TableCell[], options?: Partial<TableRow>) {
     super();
     if (options) Object.assign(this, options);
     this.cells = cells;
   }
 
+  /**
+  * Create a `TableRow` from an object
+  */
   static from(other: TableRow): TableRow {
     return new TableRow(other.cells!, other);
   }

@@ -2,22 +2,31 @@
 
 import { MediaObject } from "./MediaObject.js";
 
-// An audio file
+/**
+ * An audio file
+ */
 export class AudioObject extends MediaObject {
   type = "AudioObject";
 
-  // The caption for this audio recording.
+  /**
+   * The caption for this audio recording.
+   */
   caption?: string;
 
-  // The transcript of this audio recording.
+  /**
+   * The transcript of this audio recording.
+   */
   transcript?: string;
 
-  constructor(contentUrl: string, options?: AudioObject) {
+  constructor(contentUrl: string, options?: Partial<AudioObject>) {
     super(contentUrl);
     if (options) Object.assign(this, options);
     this.contentUrl = contentUrl;
   }
 
+  /**
+  * Create a `AudioObject` from an object
+  */
   static from(other: AudioObject): AudioObject {
     return new AudioObject(other.contentUrl!, other);
   }

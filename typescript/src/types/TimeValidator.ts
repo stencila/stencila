@@ -3,22 +3,31 @@
 import { Entity } from "./Entity.js";
 import { Time } from "./Time.js";
 
-// A validator specifying the constraints on a time.
+/**
+ * A validator specifying the constraints on a time.
+ */
 export class TimeValidator extends Entity {
   type = "TimeValidator";
 
-  // The inclusive lower limit for a time.
+  /**
+   * The inclusive lower limit for a time.
+   */
   minimum?: Time;
 
-  // The inclusive upper limit for a time.
+  /**
+   * The inclusive upper limit for a time.
+   */
   maximum?: Time;
 
-  constructor(options?: TimeValidator) {
+  constructor(options?: Partial<TimeValidator>) {
     super();
     if (options) Object.assign(this, options);
     
   }
 
+  /**
+  * Create a `TimeValidator` from an object
+  */
   static from(other: TimeValidator): TimeValidator {
     return new TimeValidator(other);
   }

@@ -14,7 +14,9 @@ import { TimeValidator } from "./TimeValidator.js";
 import { TimestampValidator } from "./TimestampValidator.js";
 import { TupleValidator } from "./TupleValidator.js";
 
-// Union type for validators.
+/**
+ * Union type for validators.
+ */
 export type Validator =
   ArrayValidator |
   BooleanValidator |
@@ -30,7 +32,10 @@ export type Validator =
   TimestampValidator |
   TupleValidator;
 
-export function validatorFrom(other: Validator): Validator {
+/**
+ * Create a `Validator` from an object
+ */
+export function validator(other: Validator): Validator {
   switch(other.type) {
     case "ArrayValidator": return ArrayValidator.from(other as ArrayValidator);
     case "BooleanValidator": return BooleanValidator.from(other as BooleanValidator);

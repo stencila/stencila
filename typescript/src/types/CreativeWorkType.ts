@@ -20,7 +20,9 @@ import { SoftwareSourceCode } from "./SoftwareSourceCode.js";
 import { Table } from "./Table.js";
 import { VideoObject } from "./VideoObject.js";
 
-// Union type for all types that are descended from `CreativeWork`
+/**
+ * Union type for all types that are descended from `CreativeWork`
+ */
 export type CreativeWorkType =
   Article |
   AudioObject |
@@ -42,7 +44,10 @@ export type CreativeWorkType =
   Table |
   VideoObject;
 
-export function creativeWorkTypeFrom(other: CreativeWorkType): CreativeWorkType {
+/**
+ * Create a `CreativeWorkType` from an object
+ */
+export function creativeWorkType(other: CreativeWorkType): CreativeWorkType {
   switch(other.type) {
     case "Article": return Article.from(other as Article);
     case "AudioObject": return AudioObject.from(other as AudioObject);

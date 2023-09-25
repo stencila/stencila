@@ -327,9 +327,9 @@ impl Schemas {
                 .as_ref()
                 .unwrap_or(&name)
                 .trim_end_matches('\n')
-                .replace('\n', "\n  // ");
+                .replace('\n', "\n   * ");
 
-            props.push(format!("  // {description}\n  {prop};"));
+            props.push(format!("  /**\n   * {description}\n   */\n  {prop};"));
         }
         let props = props.join("\n\n");
         let required_args = required_props.iter().map(|(.., arg)| arg).join("");
@@ -340,7 +340,10 @@ impl Schemas {
         let super_args = super_args.join(", ");
 
         let from = format!(
-            r#"static from(other: {title}): {title} {{
+            r#"/**
+  * Create a `{title}` from an object
+  */
+  static from(other: {title}): {title} {{
     return new {title}({args}other);
   }}"#,
             args = required_props
@@ -354,7 +357,7 @@ impl Schemas {
                 r#"export class {title} extends {base} {{
 {props}
 
-  constructor({required_args}options?: {title}) {{
+  constructor({required_args}options?: Partial<{title}>) {{
     super({super_args});
     if (options) Object.assign(this, options);
     {required_assignments}
@@ -368,7 +371,7 @@ impl Schemas {
                 r#"export class {title} {{
 {props}
 
-  constructor({required_args}options?: {title}) {{
+  constructor({required_args}options?: Partial<{title}>) {{
     if (options) Object.assign(this, options);
     {required_assignments}
   }}
@@ -394,14 +397,16 @@ impl Schemas {
             .as_ref()
             .unwrap_or(title)
             .trim_end_matches('\n')
-            .replace('\n', "\n  // ");
+            .replace('\n', "\n * ");
 
         write(
             path,
             &format!(
                 r#"{GENERATED_COMMENT}
 
-{imports}// {description}
+{imports}/**
+ * {description}
+ */
 {class}
 "#
             ),
@@ -452,7 +457,7 @@ impl Schemas {
                 .clone()
                 .unwrap_or(title.clone())
                 .trim_end_matches('\n')
-                .replace('\n', "\n  // ")
+                .replace('\n', "\n * ")
         } else {
             alternatives
                 .iter()
@@ -502,7 +507,10 @@ impl Schemas {
             .contains(&name.as_str())
         {
             format!(
-                r#"export function {func_name}From(other: {name}): {name} {{
+                r#"/**
+ * Create a `{name}` from an object
+ */
+export function {func_name}(other: {name}): {name} {{
   {primitives}switch(other.type) {{
     {cases}
     default: throw new Error(`Unexpected type for {name}: ${{other.type}}`);
@@ -541,7 +549,9 @@ impl Schemas {
             format!(
                 r#"{GENERATED_COMMENT}
             
-{imports}// {description}
+{imports}/**
+ * {description}
+ */
 export type {name} =
   {variants};
 

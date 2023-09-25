@@ -3,16 +3,21 @@
 import { CodeStatic } from "./CodeStatic.js";
 import { Cord } from "./Cord.js";
 
-// Inline code.
+/**
+ * Inline code.
+ */
 export class CodeFragment extends CodeStatic {
   type = "CodeFragment";
 
-  constructor(code: Cord, options?: CodeFragment) {
+  constructor(code: Cord, options?: Partial<CodeFragment>) {
     super(code);
     if (options) Object.assign(this, options);
     this.code = code;
   }
 
+  /**
+  * Create a `CodeFragment` from an object
+  */
   static from(other: CodeFragment): CodeFragment {
     return new CodeFragment(other.code!, other);
   }

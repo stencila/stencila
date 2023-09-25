@@ -7,7 +7,9 @@ import { Parameter } from "./Parameter.js";
 import { SoftwareSourceCode } from "./SoftwareSourceCode.js";
 import { Variable } from "./Variable.js";
 
-// Node types that can be execution dependencies
+/**
+ * Node types that can be execution dependencies
+ */
 export type ExecutionDependencyNode =
   Button |
   CodeChunk |
@@ -16,7 +18,10 @@ export type ExecutionDependencyNode =
   SoftwareSourceCode |
   Variable;
 
-export function executionDependencyNodeFrom(other: ExecutionDependencyNode): ExecutionDependencyNode {
+/**
+ * Create a `ExecutionDependencyNode` from an object
+ */
+export function executionDependencyNode(other: ExecutionDependencyNode): ExecutionDependencyNode {
   switch(other.type) {
     case "Button": return Button.from(other as Button);
     case "CodeChunk": return CodeChunk.from(other as CodeChunk);

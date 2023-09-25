@@ -2,12 +2,17 @@
             
 import { Cite } from "./Cite.js";
 
-// `Cite` or `string`
+/**
+ * `Cite` or `string`
+ */
 export type CiteOrString =
   Cite |
   string;
 
-export function citeOrStringFrom(other: CiteOrString): CiteOrString {
+/**
+ * Create a `CiteOrString` from an object
+ */
+export function citeOrString(other: CiteOrString): CiteOrString {
   if (other == null || typeof other !== "object" || Array.isArray(other) || typeof other.type === "undefined") {
     return other as CiteOrString;
   }

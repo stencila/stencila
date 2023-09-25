@@ -2,20 +2,28 @@
 
 import { Entity } from "./Entity.js";
 
-// A tag on code that affects its execution
+/**
+ * A tag on code that affects its execution
+ */
 export class ExecutionTag extends Entity {
   type = "ExecutionTag";
 
-  // The name of the tag
+  /**
+   * The name of the tag
+   */
   name: string;
 
-  // The value of the tag
+  /**
+   * The value of the tag
+   */
   value: string;
 
-  // Whether the tag is global to the document
+  /**
+   * Whether the tag is global to the document
+   */
   isGlobal: boolean;
 
-  constructor(name: string, value: string, isGlobal: boolean, options?: ExecutionTag) {
+  constructor(name: string, value: string, isGlobal: boolean, options?: Partial<ExecutionTag>) {
     super();
     if (options) Object.assign(this, options);
     this.name = name;
@@ -23,6 +31,9 @@ export class ExecutionTag extends Entity {
     this.isGlobal = isGlobal;
   }
 
+  /**
+  * Create a `ExecutionTag` from an object
+  */
   static from(other: ExecutionTag): ExecutionTag {
     return new ExecutionTag(other.name!, other.value!, other.isGlobal!, other);
   }

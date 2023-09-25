@@ -2,22 +2,31 @@
 
 import { MediaObject } from "./MediaObject.js";
 
-// An image file.
+/**
+ * An image file.
+ */
 export class ImageObject extends MediaObject {
   type = "ImageObject";
 
-  // The caption for this image.
+  /**
+   * The caption for this image.
+   */
   caption?: string;
 
-  // Thumbnail image of this image.
+  /**
+   * Thumbnail image of this image.
+   */
   thumbnail?: ImageObject;
 
-  constructor(contentUrl: string, options?: ImageObject) {
+  constructor(contentUrl: string, options?: Partial<ImageObject>) {
     super(contentUrl);
     if (options) Object.assign(this, options);
     this.contentUrl = contentUrl;
   }
 
+  /**
+  * Create a `ImageObject` from an object
+  */
   static from(other: ImageObject): ImageObject {
     return new ImageObject(other.contentUrl!, other);
   }

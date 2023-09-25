@@ -3,12 +3,17 @@
 import { Directory } from "./Directory.js";
 import { File } from "./File.js";
 
-// `File` or `Directory`
+/**
+ * `File` or `Directory`
+ */
 export type FileOrDirectory =
   File |
   Directory;
 
-export function fileOrDirectoryFrom(other: FileOrDirectory): FileOrDirectory {
+/**
+ * Create a `FileOrDirectory` from an object
+ */
+export function fileOrDirectory(other: FileOrDirectory): FileOrDirectory {
   switch(other.type) {
     case "File": return File.from(other as File);
     case "Directory": return Directory.from(other as Directory);

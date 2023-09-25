@@ -3,13 +3,18 @@
 import { SoftwareApplication } from "./SoftwareApplication.js";
 import { SoftwareSourceCode } from "./SoftwareSourceCode.js";
 
-// `SoftwareSourceCode` or `SoftwareApplication` or `string`
+/**
+ * `SoftwareSourceCode` or `SoftwareApplication` or `string`
+ */
 export type SoftwareSourceCodeOrSoftwareApplicationOrString =
   SoftwareSourceCode |
   SoftwareApplication |
   string;
 
-export function softwareSourceCodeOrSoftwareApplicationOrStringFrom(other: SoftwareSourceCodeOrSoftwareApplicationOrString): SoftwareSourceCodeOrSoftwareApplicationOrString {
+/**
+ * Create a `SoftwareSourceCodeOrSoftwareApplicationOrString` from an object
+ */
+export function softwareSourceCodeOrSoftwareApplicationOrString(other: SoftwareSourceCodeOrSoftwareApplicationOrString): SoftwareSourceCodeOrSoftwareApplicationOrString {
   if (other == null || typeof other !== "object" || Array.isArray(other) || typeof other.type === "undefined") {
     return other as SoftwareSourceCodeOrSoftwareApplicationOrString;
   }

@@ -30,7 +30,9 @@ import { Timestamp } from "./Timestamp.js";
 import { Underline } from "./Underline.js";
 import { VideoObject } from "./VideoObject.js";
 
-// Union type for valid inline content.
+/**
+ * Union type for valid inline content.
+ */
 export type Inline =
   AudioObject |
   Button |
@@ -66,7 +68,10 @@ export type Inline =
   number |
   string;
 
-export function inlineFrom(other: Inline): Inline {
+/**
+ * Create a `Inline` from an object
+ */
+export function inline(other: Inline): Inline {
   if (other == null || typeof other !== "object" || Array.isArray(other) || typeof other.type === "undefined") {
     return other as Inline;
   }

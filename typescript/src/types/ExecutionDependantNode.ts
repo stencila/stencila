@@ -10,7 +10,9 @@ import { Parameter } from "./Parameter.js";
 import { Span } from "./Span.js";
 import { Variable } from "./Variable.js";
 
-// Node types that can be execution dependencies
+/**
+ * Node types that can be execution dependencies
+ */
 export type ExecutionDependantNode =
   Button |
   Call |
@@ -22,7 +24,10 @@ export type ExecutionDependantNode =
   Span |
   Variable;
 
-export function executionDependantNodeFrom(other: ExecutionDependantNode): ExecutionDependantNode {
+/**
+ * Create a `ExecutionDependantNode` from an object
+ */
+export function executionDependantNode(other: ExecutionDependantNode): ExecutionDependantNode {
   switch(other.type) {
     case "Button": return Button.from(other as Button);
     case "Call": return Call.from(other as Call);
