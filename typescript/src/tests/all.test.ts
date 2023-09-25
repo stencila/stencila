@@ -1,18 +1,30 @@
-import "jest";
 import { Article } from "../types/Article.js";
-import { Paragraph, Text, blockFrom, nodeFrom } from "../index.js";
+import {
+  CreativeWork,
+  Entity,
+  Paragraph,
+  Text,
+  Thing,
+  nodeFrom,
+} from "../index.js";
 
 test("constructors", () => {
-  const doc = new Article([new Paragraph([new Text("Hello world!")])]);
+  const node = new Article([new Paragraph([new Text("Hello world!")])]);
 
-  expect(doc).toBeInstanceOf(Article);
-  expect(doc.content[0]).toBeInstanceOf(Paragraph);
+  expect(node).toBeInstanceOf(Article);
+  expect(node).toBeInstanceOf(CreativeWork);
+  expect(node).toBeInstanceOf(Thing);
+
+  expect(node.content[0]).toBeInstanceOf(Paragraph);
+  expect(node.content[0]).toBeInstanceOf(Entity);
+
   // @ts-expect-error type of block unknown
-  expect(doc.content[0].content[0]).toBeInstanceOf(Text);
+  expect(node.content[0].content[0]).toBeInstanceOf(Text);
 });
 
 test("Article from object", () => {
-  const doc = Article.from({
+  const node = Article.from({
+    type: "Article",
     content: [
       {
         type: "Paragraph",
@@ -24,30 +36,40 @@ test("Article from object", () => {
         ],
       },
     ],
-  } as unknown as Article);
+  } as Article);
 
-  expect(doc).toBeInstanceOf(Article);
-  expect(doc.content[0]).not.toBeInstanceOf(Paragraph);
+  expect(node).toBeInstanceOf(Article);
+  expect(node).toBeInstanceOf(CreativeWork);
+  expect(node).toBeInstanceOf(Thing);
+
+  expect(node.content[0]).not.toBeInstanceOf(Paragraph);
+
   // @ts-expect-error type of block unknown
-  expect(doc.content[0].content[0]).not.toBeInstanceOf(Text);
+  expect(node.content[0].content[0]).not.toBeInstanceOf(Text);
 });
 
 test("Node from object", () => {
   const node = nodeFrom({
     type: "Article",
-    content: [],
+    content: [
+      {
+        type: "Paragraph",
+        content: [
+          {
+            type: "Text",
+            value: "Hello world!",
+          },
+        ],
+      },
+    ],
   }) as Article;
 
   expect(node).toBeInstanceOf(Article);
-  expect(node.type).toBe("Article");
-});
+  expect(node).toBeInstanceOf(CreativeWork);
+  expect(node).toBeInstanceOf(Thing);
 
-test("Block from object", () => {
-  const para = blockFrom({
-    type: "Paragraph",
-    content: [],
-  });
+  expect(node.content[0]).not.toBeInstanceOf(Paragraph);
 
-  expect(para).toBeInstanceOf(Paragraph);
-  expect(para.type).toBe("Paragraph");
+  // @ts-expect-error type of block unknown
+  expect(node.content[0].content[0]).not.toBeInstanceOf(Text);
 });
