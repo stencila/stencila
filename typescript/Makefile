@@ -23,7 +23,7 @@ lint: node_modules
 # Currently this just checks that the TypeScript compiles
 # since there is not really any code here beyond type definitions
 test: node_modules
-	npx tsc
+	npm test
 
 # List outdated dependencies
 outdated: node_modules
