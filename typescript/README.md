@@ -2,9 +2,15 @@
 
 **JavaScript classes and TypeScript types for the Stencila Schema**
 
+<a href="https://www.npmjs.com/package/@stencila/types">
+  <img src="https://img.shields.io/npm/v/%40stencila%2Ftypes.svg?label=npm%20%40stencila%2Ftypes&color=1d3bd1&labelColor=3219a8">
+</a>
+
+## 👋 Introduction
+
 This package provides JavaScript classes and TypeScript types for the [Stencila Schema](https://github.com/stencila/stencila/tree/main/schema#readme).
 
-Its main purpose is to allows functions in the `@stencila/node` package to consume and return documents that are strongly typed. For example, with this package you could,
+Its main purpose is to allows functions in the [`@stencila/node`](https://github.com/stencila/stencila/tree/main/node) package to consume and return documents that are strongly typed. For example, with this package you could,
 
 - construct documents programmatically using TypeScript and use `@stencila/node` to write them to multiple formats (e.g. Markdown, JATS XML, PDF)
 
@@ -78,8 +84,6 @@ make lint test
 
 ### Packaging
 
-- There is a `npm run check` for checking aspects of packaging
+There is a `npm run check` for checking aspects of packaging. At present, CommonJS modules are not supported, only ESM.
 
-- At present, CommonJS modules are not supported, only ESM.
-
-- So that debuggers and other tools can show the original source code, `declarationMap` and `sourceMap` are turned on in `tsconfig.json` and `src` is including in `package.json`.
+So that debuggers and other tools can show the original source code, `declarationMap` and `sourceMap` are turned on in `tsconfig.json` and `src` is including in `package.json`.
