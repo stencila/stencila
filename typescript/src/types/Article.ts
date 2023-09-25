@@ -44,3 +44,10 @@ export class Article extends CreativeWork {
     return new Article(other.content!, other);
   }
 }
+
+/**
+* Create a new `Article`
+*/
+export function article(content: Block[], options?: Partial<Article>): Article {
+  return new Article(content, options);
+}

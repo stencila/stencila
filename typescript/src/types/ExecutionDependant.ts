@@ -40,3 +40,10 @@ export class ExecutionDependant extends Entity {
     return new ExecutionDependant(other.dependantRelation!, other.dependantNode!, other);
   }
 }
+
+/**
+* Create a new `ExecutionDependant`
+*/
+export function executionDependant(dependantRelation: ExecutionDependantRelation, dependantNode: ExecutionDependantNode, options?: Partial<ExecutionDependant>): ExecutionDependant {
+  return new ExecutionDependant(dependantRelation, dependantNode, options);
+}

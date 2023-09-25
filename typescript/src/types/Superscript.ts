@@ -22,3 +22,10 @@ export class Superscript extends Mark {
     return new Superscript(other.content!, other);
   }
 }
+
+/**
+* Create a new `Superscript`
+*/
+export function superscript(content: Inline[], options?: Partial<Superscript>): Superscript {
+  return new Superscript(content, options);
+}

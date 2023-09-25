@@ -44,3 +44,10 @@ export class ListItem extends Thing {
     return new ListItem(other);
   }
 }
+
+/**
+* Create a new `ListItem`
+*/
+export function listItem(options?: Partial<ListItem>): ListItem {
+  return new ListItem(options);
+}

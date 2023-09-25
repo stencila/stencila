@@ -31,3 +31,10 @@ export class ImageObject extends MediaObject {
     return new ImageObject(other.contentUrl!, other);
   }
 }
+
+/**
+* Create a new `ImageObject`
+*/
+export function imageObject(contentUrl: string, options?: Partial<ImageObject>): ImageObject {
+  return new ImageObject(contentUrl, options);
+}

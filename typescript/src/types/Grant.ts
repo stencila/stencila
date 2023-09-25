@@ -32,3 +32,10 @@ export class Grant extends Thing {
     return new Grant(other);
   }
 }
+
+/**
+* Create a new `Grant`
+*/
+export function grant(options?: Partial<Grant>): Grant {
+  return new Grant(options);
+}

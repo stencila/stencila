@@ -32,3 +32,10 @@ export class Review extends CreativeWork {
     return new Review(other);
   }
 }
+
+/**
+* Create a new `Review`
+*/
+export function review(options?: Partial<Review>): Review {
+  return new Review(options);
+}

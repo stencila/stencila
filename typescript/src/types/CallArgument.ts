@@ -38,3 +38,10 @@ export class CallArgument extends Parameter {
     return new CallArgument(other.name!, other.code!, other.programmingLanguage!, other);
   }
 }
+
+/**
+* Create a new `CallArgument`
+*/
+export function callArgument(name: string, code: string, programmingLanguage: string, options?: Partial<CallArgument>): CallArgument {
+  return new CallArgument(name, code, programmingLanguage, options);
+}

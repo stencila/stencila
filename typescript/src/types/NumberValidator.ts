@@ -46,3 +46,10 @@ export class NumberValidator extends Entity {
     return new NumberValidator(other);
   }
 }
+
+/**
+* Create a new `NumberValidator`
+*/
+export function numberValidator(options?: Partial<NumberValidator>): NumberValidator {
+  return new NumberValidator(options);
+}

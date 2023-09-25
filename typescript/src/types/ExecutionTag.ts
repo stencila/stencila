@@ -38,3 +38,10 @@ export class ExecutionTag extends Entity {
     return new ExecutionTag(other.name!, other.value!, other.isGlobal!, other);
   }
 }
+
+/**
+* Create a new `ExecutionTag`
+*/
+export function executionTag(name: string, value: string, isGlobal: boolean, options?: Partial<ExecutionTag>): ExecutionTag {
+  return new ExecutionTag(name, value, isGlobal, options);
+}

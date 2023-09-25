@@ -32,3 +32,10 @@ export class CodeStatic extends Entity {
     return new CodeStatic(other.code!, other);
   }
 }
+
+/**
+* Create a new `CodeStatic`
+*/
+export function codeStatic(code: Cord, options?: Partial<CodeStatic>): CodeStatic {
+  return new CodeStatic(code, options);
+}

@@ -27,3 +27,10 @@ export class ConstantValidator extends Entity {
     return new ConstantValidator(other.value!, other);
   }
 }
+
+/**
+* Create a new `ConstantValidator`
+*/
+export function constantValidator(value: Node, options?: Partial<ConstantValidator>): ConstantValidator {
+  return new ConstantValidator(value, options);
+}

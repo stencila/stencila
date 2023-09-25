@@ -22,3 +22,10 @@ export class MathFragment extends Math {
     return new MathFragment(other.mathLanguage!, other.code!, other);
   }
 }
+
+/**
+* Create a new `MathFragment`
+*/
+export function mathFragment(mathLanguage: string, code: string, options?: Partial<MathFragment>): MathFragment {
+  return new MathFragment(mathLanguage, code, options);
+}

@@ -27,3 +27,10 @@ export class CiteGroup extends Entity {
     return new CiteGroup(other.items!, other);
   }
 }
+
+/**
+* Create a new `CiteGroup`
+*/
+export function citeGroup(items: Cite[], options?: Partial<CiteGroup>): CiteGroup {
+  return new CiteGroup(items, options);
+}

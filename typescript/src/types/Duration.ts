@@ -34,3 +34,10 @@ export class Duration extends Entity {
     return new Duration(other.value!, other.timeUnit!, other);
   }
 }
+
+/**
+* Create a new `Duration`
+*/
+export function duration(value: Integer, timeUnit: TimeUnit, options?: Partial<Duration>): Duration {
+  return new Duration(value, timeUnit, options);
+}

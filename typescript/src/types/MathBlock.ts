@@ -27,3 +27,10 @@ export class MathBlock extends Math {
     return new MathBlock(other.mathLanguage!, other.code!, other);
   }
 }
+
+/**
+* Create a new `MathBlock`
+*/
+export function mathBlock(mathLanguage: string, code: string, options?: Partial<MathBlock>): MathBlock {
+  return new MathBlock(mathLanguage, code, options);
+}

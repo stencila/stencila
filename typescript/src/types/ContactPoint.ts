@@ -37,3 +37,10 @@ export class ContactPoint extends Thing {
     return new ContactPoint(other);
   }
 }
+
+/**
+* Create a new `ContactPoint`
+*/
+export function contactPoint(options?: Partial<ContactPoint>): ContactPoint {
+  return new ContactPoint(options);
+}

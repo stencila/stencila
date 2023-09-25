@@ -42,3 +42,10 @@ export class Include extends Executable {
     return new Include(other.source!, other);
   }
 }
+
+/**
+* Create a new `Include`
+*/
+export function include(source: string, options?: Partial<Include>): Include {
+  return new Include(source, options);
+}

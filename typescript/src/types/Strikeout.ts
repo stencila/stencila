@@ -22,3 +22,10 @@ export class Strikeout extends Mark {
     return new Strikeout(other.content!, other);
   }
 }
+
+/**
+* Create a new `Strikeout`
+*/
+export function strikeout(content: Inline[], options?: Partial<Strikeout>): Strikeout {
+  return new Strikeout(content, options);
+}

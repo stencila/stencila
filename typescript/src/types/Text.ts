@@ -27,3 +27,10 @@ export class Text extends Entity {
     return new Text(other.value!, other);
   }
 }
+
+/**
+* Create a new `Text`
+*/
+export function text(value: Cord, options?: Partial<Text>): Text {
+  return new Text(value, options);
+}

@@ -45,3 +45,10 @@ export class CodeChunk extends CodeExecutable {
     return new CodeChunk(other.code!, other.programmingLanguage!, other);
   }
 }
+
+/**
+* Create a new `CodeChunk`
+*/
+export function codeChunk(code: Cord, programmingLanguage: string, options?: Partial<CodeChunk>): CodeChunk {
+  return new CodeChunk(code, programmingLanguage, options);
+}

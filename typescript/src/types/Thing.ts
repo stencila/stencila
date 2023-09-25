@@ -54,3 +54,10 @@ export class Thing extends Entity {
     return new Thing(other);
   }
 }
+
+/**
+* Create a new `Thing`
+*/
+export function thing(options?: Partial<Thing>): Thing {
+  return new Thing(options);
+}

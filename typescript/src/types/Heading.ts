@@ -34,3 +34,10 @@ export class Heading extends Entity {
     return new Heading(other.depth!, other.content!, other);
   }
 }
+
+/**
+* Create a new `Heading`
+*/
+export function heading(depth: Integer, content: Inline[], options?: Partial<Heading>): Heading {
+  return new Heading(depth, content, options);
+}

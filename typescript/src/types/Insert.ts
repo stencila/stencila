@@ -22,3 +22,10 @@ export class Insert extends Suggestion {
     return new Insert(other.content!, other);
   }
 }
+
+/**
+* Create a new `Insert`
+*/
+export function insert(content: Inline[], options?: Partial<Insert>): Insert {
+  return new Insert(content, options);
+}

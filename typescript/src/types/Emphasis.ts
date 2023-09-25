@@ -22,3 +22,10 @@ export class Emphasis extends Mark {
     return new Emphasis(other.content!, other);
   }
 }
+
+/**
+* Create a new `Emphasis`
+*/
+export function emphasis(content: Inline[], options?: Partial<Emphasis>): Emphasis {
+  return new Emphasis(content, options);
+}

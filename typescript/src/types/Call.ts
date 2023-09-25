@@ -28,3 +28,10 @@ export class Call extends Include {
     return new Call(other.source!, other.arguments!, other);
   }
 }
+
+/**
+* Create a new `Call`
+*/
+export function call(source: string, args: CallArgument[], options?: Partial<Call>): Call {
+  return new Call(source, args, options);
+}

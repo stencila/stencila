@@ -36,3 +36,10 @@ export class CodeError extends Entity {
     return new CodeError(other.errorMessage!, other);
   }
 }
+
+/**
+* Create a new `CodeError`
+*/
+export function codeError(errorMessage: string, options?: Partial<CodeError>): CodeError {
+  return new CodeError(errorMessage, options);
+}

@@ -22,3 +22,10 @@ export class Strong extends Mark {
     return new Strong(other.content!, other);
   }
 }
+
+/**
+* Create a new `Strong`
+*/
+export function strong(content: Inline[], options?: Partial<Strong>): Strong {
+  return new Strong(content, options);
+}

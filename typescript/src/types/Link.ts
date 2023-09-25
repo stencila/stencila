@@ -43,3 +43,10 @@ export class Link extends Entity {
     return new Link(other.content!, other.target!, other);
   }
 }
+
+/**
+* Create a new `Link`
+*/
+export function link(content: Inline[], target: string, options?: Partial<Link>): Link {
+  return new Link(content, target, options);
+}

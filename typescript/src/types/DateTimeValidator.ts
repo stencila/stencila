@@ -32,3 +32,10 @@ export class DateTimeValidator extends Entity {
     return new DateTimeValidator(other);
   }
 }
+
+/**
+* Create a new `DateTimeValidator`
+*/
+export function dateTimeValidator(options?: Partial<DateTimeValidator>): DateTimeValidator {
+  return new DateTimeValidator(options);
+}

@@ -38,3 +38,10 @@ export class Table extends CreativeWork {
     return new Table(other.rows!, other);
   }
 }
+
+/**
+* Create a new `Table`
+*/
+export function table(rows: TableRow[], options?: Partial<Table>): Table {
+  return new Table(rows, options);
+}

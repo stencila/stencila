@@ -26,3 +26,10 @@ export class Time extends Entity {
     return new Time(other.value!, other);
   }
 }
+
+/**
+* Create a new `Time`
+*/
+export function time(value: string, options?: Partial<Time>): Time {
+  return new Time(value, options);
+}

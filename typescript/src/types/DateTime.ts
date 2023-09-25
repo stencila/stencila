@@ -26,3 +26,10 @@ export class DateTime extends Entity {
     return new DateTime(other.value!, other);
   }
 }
+
+/**
+* Create a new `DateTime`
+*/
+export function dateTime(value: string, options?: Partial<DateTime>): DateTime {
+  return new DateTime(value, options);
+}

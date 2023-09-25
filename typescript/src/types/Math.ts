@@ -48,3 +48,10 @@ export class Math extends Entity {
     return new Math(other.mathLanguage!, other.code!, other);
   }
 }
+
+/**
+* Create a new `Math`
+*/
+export function math(mathLanguage: string, code: string, options?: Partial<Math>): Math {
+  return new Math(mathLanguage, code, options);
+}

@@ -31,3 +31,10 @@ export class DefinedTerm extends Thing {
     return new DefinedTerm(other.name!, other);
   }
 }
+
+/**
+* Create a new `DefinedTerm`
+*/
+export function definedTerm(name: string, options?: Partial<DefinedTerm>): DefinedTerm {
+  return new DefinedTerm(name, options);
+}

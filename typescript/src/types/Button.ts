@@ -39,3 +39,10 @@ export class Button extends CodeExecutable {
     return new Button(other.code!, other.programmingLanguage!, other.name!, other);
   }
 }
+
+/**
+* Create a new `Button`
+*/
+export function button(code: Cord, programmingLanguage: string, name: string, options?: Partial<Button>): Button {
+  return new Button(code, programmingLanguage, name, options);
+}

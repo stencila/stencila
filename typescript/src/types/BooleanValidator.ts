@@ -21,3 +21,10 @@ export class BooleanValidator extends Entity {
     return new BooleanValidator(other);
   }
 }
+
+/**
+* Create a new `BooleanValidator`
+*/
+export function booleanValidator(options?: Partial<BooleanValidator>): BooleanValidator {
+  return new BooleanValidator(options);
+}

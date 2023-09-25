@@ -156,3 +156,10 @@ export class CreativeWork extends Thing {
     return new CreativeWork(other);
   }
 }
+
+/**
+* Create a new `CreativeWork`
+*/
+export function creativeWork(options?: Partial<CreativeWork>): CreativeWork {
+  return new CreativeWork(options);
+}

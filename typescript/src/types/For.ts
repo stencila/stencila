@@ -47,3 +47,10 @@ export class For extends CodeExecutable {
     return new For(other.code!, other.programmingLanguage!, other.symbol!, other.content!, other);
   }
 }
+
+/**
+* Create a new `For`
+*/
+export function for_(code: Cord, programmingLanguage: string, symbol: string, content: Block[], options?: Partial<For>): For {
+  return new For(code, programmingLanguage, symbol, content, options);
+}

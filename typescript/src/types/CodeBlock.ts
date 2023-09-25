@@ -22,3 +22,10 @@ export class CodeBlock extends CodeStatic {
     return new CodeBlock(other.code!, other);
   }
 }
+
+/**
+* Create a new `CodeBlock`
+*/
+export function codeBlock(code: Cord, options?: Partial<CodeBlock>): CodeBlock {
+  return new CodeBlock(code, options);
+}

@@ -22,3 +22,10 @@ export class Underline extends Mark {
     return new Underline(other.content!, other);
   }
 }
+
+/**
+* Create a new `Underline`
+*/
+export function underline(content: Inline[], options?: Partial<Underline>): Underline {
+  return new Underline(content, options);
+}

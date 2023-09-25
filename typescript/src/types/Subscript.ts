@@ -22,3 +22,10 @@ export class Subscript extends Mark {
     return new Subscript(other.content!, other);
   }
 }
+
+/**
+* Create a new `Subscript`
+*/
+export function subscript(content: Inline[], options?: Partial<Subscript>): Subscript {
+  return new Subscript(content, options);
+}

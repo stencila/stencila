@@ -50,3 +50,10 @@ export class ExecutionDigest extends Entity {
     return new ExecutionDigest(other.stateDigest!, other.semanticDigest!, other.dependenciesDigest!, other.dependenciesStale!, other.dependenciesFailed!, other);
   }
 }
+
+/**
+* Create a new `ExecutionDigest`
+*/
+export function executionDigest(stateDigest: number, semanticDigest: number, dependenciesDigest: number, dependenciesStale: number, dependenciesFailed: number, options?: Partial<ExecutionDigest>): ExecutionDigest {
+  return new ExecutionDigest(stateDigest, semanticDigest, dependenciesDigest, dependenciesStale, dependenciesFailed, options);
+}

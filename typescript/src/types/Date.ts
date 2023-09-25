@@ -26,3 +26,10 @@ export class Date extends Entity {
     return new Date(other.value!, other);
   }
 }
+
+/**
+* Create a new `Date`
+*/
+export function date(value: string, options?: Partial<Date>): Date {
+  return new Date(value, options);
+}

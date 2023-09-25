@@ -32,3 +32,10 @@ export class Figure extends CreativeWork {
     return new Figure(other);
   }
 }
+
+/**
+* Create a new `Figure`
+*/
+export function figure(options?: Partial<Figure>): Figure {
+  return new Figure(options);
+}

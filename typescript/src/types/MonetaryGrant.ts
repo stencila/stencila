@@ -32,3 +32,10 @@ export class MonetaryGrant extends Grant {
     return new MonetaryGrant(other);
   }
 }
+
+/**
+* Create a new `MonetaryGrant`
+*/
+export function monetaryGrant(options?: Partial<MonetaryGrant>): MonetaryGrant {
+  return new MonetaryGrant(options);
+}

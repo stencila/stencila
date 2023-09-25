@@ -72,3 +72,10 @@ export class Cite extends Entity {
     return new Cite(other.target!, other.citationMode!, other);
   }
 }
+
+/**
+* Create a new `Cite`
+*/
+export function cite(target: string, citationMode: CitationMode, options?: Partial<Cite>): Cite {
+  return new Cite(target, citationMode, options);
+}

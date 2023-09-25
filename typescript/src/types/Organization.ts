@@ -71,3 +71,10 @@ export class Organization extends Thing {
     return new Organization(other);
   }
 }
+
+/**
+* Create a new `Organization`
+*/
+export function organization(options?: Partial<Organization>): Organization {
+  return new Organization(options);
+}

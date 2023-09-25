@@ -21,3 +21,10 @@ export class IntegerValidator extends NumberValidator {
     return new IntegerValidator(other);
   }
 }
+
+/**
+* Create a new `IntegerValidator`
+*/
+export function integerValidator(options?: Partial<IntegerValidator>): IntegerValidator {
+  return new IntegerValidator(options);
+}

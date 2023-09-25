@@ -37,3 +37,10 @@ export class Periodical extends CreativeWork {
     return new Periodical(other);
   }
 }
+
+/**
+* Create a new `Periodical`
+*/
+export function periodical(options?: Partial<Periodical>): Periodical {
+  return new Periodical(options);
+}

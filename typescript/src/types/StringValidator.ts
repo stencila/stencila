@@ -37,3 +37,10 @@ export class StringValidator extends Entity {
     return new StringValidator(other);
   }
 }
+
+/**
+* Create a new `StringValidator`
+*/
+export function stringValidator(options?: Partial<StringValidator>): StringValidator {
+  return new StringValidator(options);
+}

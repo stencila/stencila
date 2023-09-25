@@ -38,3 +38,10 @@ export class DurationValidator extends Entity {
     return new DurationValidator(other);
   }
 }
+
+/**
+* Create a new `DurationValidator`
+*/
+export function durationValidator(options?: Partial<DurationValidator>): DurationValidator {
+  return new DurationValidator(options);
+}

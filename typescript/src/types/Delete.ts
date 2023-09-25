@@ -22,3 +22,10 @@ export class Delete extends Suggestion {
     return new Delete(other.content!, other);
   }
 }
+
+/**
+* Create a new `Delete`
+*/
+export function delete_(content: Inline[], options?: Partial<Delete>): Delete {
+  return new Delete(content, options);
+}

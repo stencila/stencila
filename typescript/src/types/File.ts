@@ -32,3 +32,10 @@ export class File extends CreativeWork {
     return new File(other.name!, other.path!, other);
   }
 }
+
+/**
+* Create a new `File`
+*/
+export function file(name: string, path: string, options?: Partial<File>): File {
+  return new File(name, path, options);
+}

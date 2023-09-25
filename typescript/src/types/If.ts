@@ -27,3 +27,10 @@ export class If extends Executable {
     return new If(other.clauses!, other);
   }
 }
+
+/**
+* Create a new `If`
+*/
+export function if_(clauses: IfClause[], options?: Partial<If>): If {
+  return new If(clauses, options);
+}

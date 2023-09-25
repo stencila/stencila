@@ -29,3 +29,10 @@ export class Span extends Styled {
     return new Span(other.code!, other.content!, other);
   }
 }
+
+/**
+* Create a new `Span`
+*/
+export function span(code: Cord, content: Inline[], options?: Partial<Span>): Span {
+  return new Span(code, content, options);
+}

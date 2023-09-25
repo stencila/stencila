@@ -21,3 +21,10 @@ export class Enumeration extends Thing {
     return new Enumeration(other);
   }
 }
+
+/**
+* Create a new `Enumeration`
+*/
+export function enumeration(options?: Partial<Enumeration>): Enumeration {
+  return new Enumeration(options);
+}

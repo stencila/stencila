@@ -39,3 +39,10 @@ export class Claim extends CreativeWork {
     return new Claim(other.content!, other.claimType!, other);
   }
 }
+
+/**
+* Create a new `Claim`
+*/
+export function claim(content: Block[], claimType: ClaimType, options?: Partial<Claim>): Claim {
+  return new Claim(content, claimType, options);
+}

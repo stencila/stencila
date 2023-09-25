@@ -43,3 +43,10 @@ export class Variable extends Entity {
     return new Variable(other.namespace!, other.name!, other);
   }
 }
+
+/**
+* Create a new `Variable`
+*/
+export function variable(namespace: string, name: string, options?: Partial<Variable>): Variable {
+  return new Variable(namespace, name, options);
+}

@@ -21,3 +21,10 @@ export class ThematicBreak extends Entity {
     return new ThematicBreak(other);
   }
 }
+
+/**
+* Create a new `ThematicBreak`
+*/
+export function thematicBreak(options?: Partial<ThematicBreak>): ThematicBreak {
+  return new ThematicBreak(options);
+}

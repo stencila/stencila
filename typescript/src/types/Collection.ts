@@ -28,3 +28,10 @@ export class Collection extends CreativeWork {
     return new Collection(other.parts!, other);
   }
 }
+
+/**
+* Create a new `Collection`
+*/
+export function collection(parts: CreativeWorkType[], options?: Partial<Collection>): Collection {
+  return new Collection(parts, options);
+}

@@ -34,3 +34,10 @@ export class List extends Entity {
     return new List(other.items!, other.order!, other);
   }
 }
+
+/**
+* Create a new `List`
+*/
+export function list(items: ListItem[], order: ListOrder, options?: Partial<List>): List {
+  return new List(items, order, options);
+}

@@ -28,3 +28,10 @@ export class Mark extends Entity {
     return new Mark(other.content!, other);
   }
 }
+
+/**
+* Create a new `Mark`
+*/
+export function mark(content: Inline[], options?: Partial<Mark>): Mark {
+  return new Mark(content, options);
+}

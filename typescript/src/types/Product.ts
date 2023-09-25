@@ -39,3 +39,10 @@ export class Product extends Thing {
     return new Product(other);
   }
 }
+
+/**
+* Create a new `Product`
+*/
+export function product(options?: Partial<Product>): Product {
+  return new Product(options);
+}

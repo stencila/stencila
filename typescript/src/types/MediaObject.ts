@@ -47,3 +47,10 @@ export class MediaObject extends CreativeWork {
     return new MediaObject(other.contentUrl!, other);
   }
 }
+
+/**
+* Create a new `MediaObject`
+*/
+export function mediaObject(contentUrl: string, options?: Partial<MediaObject>): MediaObject {
+  return new MediaObject(contentUrl, options);
+}

@@ -58,3 +58,10 @@ export class Parameter extends Executable {
     return new Parameter(other.name!, other);
   }
 }
+
+/**
+* Create a new `Parameter`
+*/
+export function parameter(name: string, options?: Partial<Parameter>): Parameter {
+  return new Parameter(name, options);
+}

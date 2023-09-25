@@ -38,3 +38,10 @@ export class TimestampValidator extends Entity {
     return new TimestampValidator(other);
   }
 }
+
+/**
+* Create a new `TimestampValidator`
+*/
+export function timestampValidator(options?: Partial<TimestampValidator>): TimestampValidator {
+  return new TimestampValidator(options);
+}

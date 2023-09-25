@@ -33,3 +33,10 @@ export class TableRow extends Entity {
     return new TableRow(other.cells!, other);
   }
 }
+
+/**
+* Create a new `TableRow`
+*/
+export function tableRow(cells: TableCell[], options?: Partial<TableRow>): TableRow {
+  return new TableRow(cells, options);
+}

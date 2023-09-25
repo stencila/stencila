@@ -23,3 +23,10 @@ export class Entity {
     return new Entity(other);
   }
 }
+
+/**
+* Create a new `Entity`
+*/
+export function entity(options?: Partial<Entity>): Entity {
+  return new Entity(options);
+}

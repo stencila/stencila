@@ -29,3 +29,10 @@ export class CodeExpression extends CodeExecutable {
     return new CodeExpression(other.code!, other.programmingLanguage!, other);
   }
 }
+
+/**
+* Create a new `CodeExpression`
+*/
+export function codeExpression(code: Cord, programmingLanguage: string, options?: Partial<CodeExpression>): CodeExpression {
+  return new CodeExpression(code, programmingLanguage, options);
+}

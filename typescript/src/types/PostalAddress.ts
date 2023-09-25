@@ -51,3 +51,10 @@ export class PostalAddress extends ContactPoint {
     return new PostalAddress(other);
   }
 }
+
+/**
+* Create a new `PostalAddress`
+*/
+export function postalAddress(options?: Partial<PostalAddress>): PostalAddress {
+  return new PostalAddress(options);
+}

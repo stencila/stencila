@@ -37,3 +37,10 @@ export class SoftwareApplication extends CreativeWork {
     return new SoftwareApplication(other.name!, other);
   }
 }
+
+/**
+* Create a new `SoftwareApplication`
+*/
+export function softwareApplication(name: string, options?: Partial<SoftwareApplication>): SoftwareApplication {
+  return new SoftwareApplication(name, options);
+}

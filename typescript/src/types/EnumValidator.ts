@@ -27,3 +27,10 @@ export class EnumValidator extends Entity {
     return new EnumValidator(other.values!, other);
   }
 }
+
+/**
+* Create a new `EnumValidator`
+*/
+export function enumValidator(values: Node[], options?: Partial<EnumValidator>): EnumValidator {
+  return new EnumValidator(values, options);
+}

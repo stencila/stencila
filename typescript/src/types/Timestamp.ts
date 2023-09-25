@@ -34,3 +34,10 @@ export class Timestamp extends Entity {
     return new Timestamp(other.value!, other.timeUnit!, other);
   }
 }
+
+/**
+* Create a new `Timestamp`
+*/
+export function timestamp(value: Integer, timeUnit: TimeUnit, options?: Partial<Timestamp>): Timestamp {
+  return new Timestamp(value, timeUnit, options);
+}

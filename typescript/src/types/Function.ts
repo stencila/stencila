@@ -39,3 +39,10 @@ export class Function extends Entity {
     return new Function(other.name!, other.parameters!, other);
   }
 }
+
+/**
+* Create a new `Function`
+*/
+export function function_(name: string, parameters: Parameter[], options?: Partial<Function>): Function {
+  return new Function(name, parameters, options);
+}

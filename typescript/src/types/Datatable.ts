@@ -27,3 +27,10 @@ export class Datatable extends CreativeWork {
     return new Datatable(other.columns!, other);
   }
 }
+
+/**
+* Create a new `Datatable`
+*/
+export function datatable(columns: DatatableColumn[], options?: Partial<Datatable>): Datatable {
+  return new Datatable(columns, options);
+}

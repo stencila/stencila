@@ -53,3 +53,10 @@ export class ArrayValidator extends Entity {
     return new ArrayValidator(other);
   }
 }
+
+/**
+* Create a new `ArrayValidator`
+*/
+export function arrayValidator(options?: Partial<ArrayValidator>): ArrayValidator {
+  return new ArrayValidator(options);
+}

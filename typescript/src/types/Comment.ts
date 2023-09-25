@@ -37,3 +37,10 @@ export class Comment extends CreativeWork {
     return new Comment(other.content!, other);
   }
 }
+
+/**
+* Create a new `Comment`
+*/
+export function comment(content: Block[], options?: Partial<Comment>): Comment {
+  return new Comment(content, options);
+}

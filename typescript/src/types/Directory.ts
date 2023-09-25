@@ -39,3 +39,10 @@ export class Directory extends Collection {
     return new Directory(other.name!, other.parts!, other.path!, other);
   }
 }
+
+/**
+* Create a new `Directory`
+*/
+export function directory(name: string, parts: FileOrDirectory[], path: string, options?: Partial<Directory>): Directory {
+  return new Directory(name, parts, path, options);
+}

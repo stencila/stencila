@@ -32,3 +32,10 @@ export class TimeValidator extends Entity {
     return new TimeValidator(other);
   }
 }
+
+/**
+* Create a new `TimeValidator`
+*/
+export function timeValidator(options?: Partial<TimeValidator>): TimeValidator {
+  return new TimeValidator(options);
+}

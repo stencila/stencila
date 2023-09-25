@@ -44,3 +44,10 @@ export class Form extends Executable {
     return new Form(other.content!, other);
   }
 }
+
+/**
+* Create a new `Form`
+*/
+export function form(content: Block[], options?: Partial<Form>): Form {
+  return new Form(content, options);
+}

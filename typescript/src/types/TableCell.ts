@@ -49,3 +49,10 @@ export class TableCell extends Entity {
     return new TableCell(other);
   }
 }
+
+/**
+* Create a new `TableCell`
+*/
+export function tableCell(options?: Partial<TableCell>): TableCell {
+  return new TableCell(options);
+}

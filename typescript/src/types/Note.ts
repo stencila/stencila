@@ -34,3 +34,10 @@ export class Note extends Entity {
     return new Note(other.noteType!, other.content!, other);
   }
 }
+
+/**
+* Create a new `Note`
+*/
+export function note(noteType: NoteType, content: Block[], options?: Partial<Note>): Note {
+  return new Note(noteType, content, options);
+}

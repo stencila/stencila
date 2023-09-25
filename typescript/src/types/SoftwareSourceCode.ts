@@ -55,3 +55,10 @@ export class SoftwareSourceCode extends CreativeWork {
     return new SoftwareSourceCode(other);
   }
 }
+
+/**
+* Create a new `SoftwareSourceCode`
+*/
+export function softwareSourceCode(options?: Partial<SoftwareSourceCode>): SoftwareSourceCode {
+  return new SoftwareSourceCode(options);
+}

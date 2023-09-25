@@ -22,3 +22,10 @@ export class CodeFragment extends CodeStatic {
     return new CodeFragment(other.code!, other);
   }
 }
+
+/**
+* Create a new `CodeFragment`
+*/
+export function codeFragment(code: Cord, options?: Partial<CodeFragment>): CodeFragment {
+  return new CodeFragment(code, options);
+}

@@ -32,3 +32,10 @@ export class PropertyValue extends Thing {
     return new PropertyValue(other.value!, other);
   }
 }
+
+/**
+* Create a new `PropertyValue`
+*/
+export function propertyValue(value: Primitive, options?: Partial<PropertyValue>): PropertyValue {
+  return new PropertyValue(value, options);
+}

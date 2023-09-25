@@ -31,3 +31,10 @@ export class AudioObject extends MediaObject {
     return new AudioObject(other.contentUrl!, other);
   }
 }
+
+/**
+* Create a new `AudioObject`
+*/
+export function audioObject(contentUrl: string, options?: Partial<AudioObject>): AudioObject {
+  return new AudioObject(contentUrl, options);
+}

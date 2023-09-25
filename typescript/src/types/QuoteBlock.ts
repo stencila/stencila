@@ -33,3 +33,10 @@ export class QuoteBlock extends Entity {
     return new QuoteBlock(other.content!, other);
   }
 }
+
+/**
+* Create a new `QuoteBlock`
+*/
+export function quoteBlock(content: Block[], options?: Partial<QuoteBlock>): QuoteBlock {
+  return new QuoteBlock(content, options);
+}

@@ -35,3 +35,10 @@ export class IfClause extends CodeExecutable {
     return new IfClause(other.code!, other.programmingLanguage!, other.content!, other);
   }
 }
+
+/**
+* Create a new `IfClause`
+*/
+export function ifClause(code: Cord, programmingLanguage: string, content: Block[], options?: Partial<IfClause>): IfClause {
+  return new IfClause(code, programmingLanguage, content, options);
+}

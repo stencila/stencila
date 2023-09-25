@@ -380,6 +380,24 @@ impl Schemas {
 }}"#
             )
         };
+
+        let factory = format!(
+            r#"/**
+* Create a new `{title}`
+*/
+export function {name}({required_args}options?: Partial<{title}>): {title} {{
+  return new {title}({args}options);
+}}"#,
+            name = match title.as_str() {
+                "For" | "Function" | "Delete" | "If" => [&title.to_camel_case(), "_"].concat(),
+                _ => title.to_camel_case(),
+            },
+            args = required_props
+                .iter()
+                .map(|(name, ..)| format!("{}, ", if name == "arguments" { "args" } else { name }))
+                .join("")
+        );
+
         let mut imports = used_types
             .into_iter()
             .filter(|used_type| {
@@ -408,6 +426,8 @@ impl Schemas {
  * {description}
  */
 {class}
+
+{factory}
 "#
             ),
         )

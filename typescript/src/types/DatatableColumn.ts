@@ -39,3 +39,10 @@ export class DatatableColumn extends Thing {
     return new DatatableColumn(other.name!, other.values!, other);
   }
 }
+
+/**
+* Create a new `DatatableColumn`
+*/
+export function datatableColumn(name: string, values: Primitive[], options?: Partial<DatatableColumn>): DatatableColumn {
+  return new DatatableColumn(name, values, options);
+}

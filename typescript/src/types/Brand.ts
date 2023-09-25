@@ -37,3 +37,10 @@ export class Brand extends Thing {
     return new Brand(other.name!, other);
   }
 }
+
+/**
+* Create a new `Brand`
+*/
+export function brand(name: string, options?: Partial<Brand>): Brand {
+  return new Brand(name, options);
+}

@@ -28,3 +28,10 @@ export class Quote extends Mark {
     return new Quote(other.content!, other);
   }
 }
+
+/**
+* Create a new `Quote`
+*/
+export function quote(content: Inline[], options?: Partial<Quote>): Quote {
+  return new Quote(content, options);
+}

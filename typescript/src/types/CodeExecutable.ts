@@ -38,3 +38,10 @@ export class CodeExecutable extends Executable {
     return new CodeExecutable(other.code!, other.programmingLanguage!, other);
   }
 }
+
+/**
+* Create a new `CodeExecutable`
+*/
+export function codeExecutable(code: Cord, programmingLanguage: string, options?: Partial<CodeExecutable>): CodeExecutable {
+  return new CodeExecutable(code, programmingLanguage, options);
+}

@@ -27,3 +27,10 @@ export class TupleValidator extends Entity {
     return new TupleValidator(other);
   }
 }
+
+/**
+* Create a new `TupleValidator`
+*/
+export function tupleValidator(options?: Partial<TupleValidator>): TupleValidator {
+  return new TupleValidator(options);
+}

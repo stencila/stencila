@@ -27,3 +27,10 @@ export class Suggestion extends Entity {
     return new Suggestion(other.content!, other);
   }
 }
+
+/**
+* Create a new `Suggestion`
+*/
+export function suggestion(content: Inline[], options?: Partial<Suggestion>): Suggestion {
+  return new Suggestion(content, options);
+}

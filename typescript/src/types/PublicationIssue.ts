@@ -44,3 +44,10 @@ export class PublicationIssue extends CreativeWork {
     return new PublicationIssue(other);
   }
 }
+
+/**
+* Create a new `PublicationIssue`
+*/
+export function publicationIssue(options?: Partial<PublicationIssue>): PublicationIssue {
+  return new PublicationIssue(options);
+}

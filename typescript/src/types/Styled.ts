@@ -53,3 +53,10 @@ export class Styled extends Entity {
     return new Styled(other.code!, other);
   }
 }
+
+/**
+* Create a new `Styled`
+*/
+export function styled(code: Cord, options?: Partial<Styled>): Styled {
+  return new Styled(code, options);
+}

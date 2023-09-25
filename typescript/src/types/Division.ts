@@ -29,3 +29,10 @@ export class Division extends Styled {
     return new Division(other.code!, other.content!, other);
   }
 }
+
+/**
+* Create a new `Division`
+*/
+export function division(code: Cord, content: Block[], options?: Partial<Division>): Division {
+  return new Division(code, content, options);
+}

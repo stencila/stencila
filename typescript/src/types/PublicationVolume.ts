@@ -43,3 +43,10 @@ export class PublicationVolume extends CreativeWork {
     return new PublicationVolume(other);
   }
 }
+
+/**
+* Create a new `PublicationVolume`
+*/
+export function publicationVolume(options?: Partial<PublicationVolume>): PublicationVolume {
+  return new PublicationVolume(options);
+}

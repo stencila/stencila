@@ -97,3 +97,10 @@ export class Executable extends Entity {
     return new Executable(other);
   }
 }
+
+/**
+* Create a new `Executable`
+*/
+export function executable(options?: Partial<Executable>): Executable {
+  return new Executable(options);
+}

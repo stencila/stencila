@@ -37,3 +37,10 @@ export class VideoObject extends MediaObject {
     return new VideoObject(other.contentUrl!, other);
   }
 }
+
+/**
+* Create a new `VideoObject`
+*/
+export function videoObject(contentUrl: string, options?: Partial<VideoObject>): VideoObject {
+  return new VideoObject(contentUrl, options);
+}

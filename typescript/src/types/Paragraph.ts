@@ -27,3 +27,10 @@ export class Paragraph extends Entity {
     return new Paragraph(other.content!, other);
   }
 }
+
+/**
+* Create a new `Paragraph`
+*/
+export function paragraph(content: Inline[], options?: Partial<Paragraph>): Paragraph {
+  return new Paragraph(content, options);
+}

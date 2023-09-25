@@ -80,3 +80,10 @@ export class Person extends Thing {
     return new Person(other);
   }
 }
+
+/**
+* Create a new `Person`
+*/
+export function person(options?: Partial<Person>): Person {
+  return new Person(options);
+}
