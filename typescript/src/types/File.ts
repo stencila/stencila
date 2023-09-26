@@ -24,13 +24,6 @@ export class File extends CreativeWork {
     this.name = name;
     this.path = path;
   }
-
-  /**
-  * Create a `File` from an object
-  */
-  static from(other: File): File {
-    return new File(other.name!, other.path!, other);
-  }
 }
 
 /**

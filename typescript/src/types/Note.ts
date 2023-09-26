@@ -26,13 +26,6 @@ export class Note extends Entity {
     this.noteType = noteType;
     this.content = content;
   }
-
-  /**
-  * Create a `Note` from an object
-  */
-  static from(other: Note): Note {
-    return new Note(other.noteType!, other.content!, other);
-  }
 }
 
 /**

@@ -21,13 +21,6 @@ export class Division extends Styled {
     this.code = code;
     this.content = content;
   }
-
-  /**
-  * Create a `Division` from an object
-  */
-  static from(other: Division): Division {
-    return new Division(other.code!, other.content!, other);
-  }
 }
 
 /**

@@ -14,13 +14,6 @@ export class Underline extends Mark {
     if (options) Object.assign(this, options);
     this.content = content;
   }
-
-  /**
-  * Create a `Underline` from an object
-  */
-  static from(other: Underline): Underline {
-    return new Underline(other.content!, other);
-  }
 }
 
 /**

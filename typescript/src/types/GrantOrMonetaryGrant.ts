@@ -1,5 +1,7 @@
 // Generated file; do not edit. See `../rust/schema-gen` crate.
-            
+
+import { hydrate } from "../hydrate.js";
+
 import { Grant } from "./Grant.js";
 import { MonetaryGrant } from "./MonetaryGrant.js";
 
@@ -15,8 +17,10 @@ export type GrantOrMonetaryGrant =
  */
 export function grantOrMonetaryGrant(other: GrantOrMonetaryGrant): GrantOrMonetaryGrant {
   switch(other.type) {
-    case "Grant": return Grant.from(other as Grant);
-    case "MonetaryGrant": return MonetaryGrant.from(other as MonetaryGrant);
-    default: throw new Error(`Unexpected type for GrantOrMonetaryGrant: ${other.type}`);
+    case "Grant":
+    case "MonetaryGrant":
+      return hydrate(other) as GrantOrMonetaryGrant
+    default:
+      throw new Error(`Unexpected type for GrantOrMonetaryGrant: ${other.type}`);
   }
 }

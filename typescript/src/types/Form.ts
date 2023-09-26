@@ -36,13 +36,6 @@ export class Form extends Executable {
     if (options) Object.assign(this, options);
     this.content = content;
   }
-
-  /**
-  * Create a `Form` from an object
-  */
-  static from(other: Form): Form {
-    return new Form(other.content!, other);
-  }
 }
 
 /**

@@ -13,13 +13,6 @@ export class Enumeration extends Thing {
     if (options) Object.assign(this, options);
     
   }
-
-  /**
-  * Create a `Enumeration` from an object
-  */
-  static from(other: Enumeration): Enumeration {
-    return new Enumeration(other);
-  }
 }
 
 /**

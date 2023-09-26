@@ -148,13 +148,6 @@ export class CreativeWork extends Thing {
     if (options) Object.assign(this, options);
     
   }
-
-  /**
-  * Create a `CreativeWork` from an object
-  */
-  static from(other: CreativeWork): CreativeWork {
-    return new CreativeWork(other);
-  }
 }
 
 /**

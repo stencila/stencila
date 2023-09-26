@@ -1,5 +1,7 @@
 // Generated file; do not edit. See `../rust/schema-gen` crate.
-            
+
+import { hydrate } from "../hydrate.js";
+
 import { Call } from "./Call.js";
 import { Claim } from "./Claim.js";
 import { CodeBlock } from "./CodeBlock.js";
@@ -45,23 +47,25 @@ export type Block =
  */
 export function block(other: Block): Block {
   switch(other.type) {
-    case "Call": return Call.from(other as Call);
-    case "Claim": return Claim.from(other as Claim);
-    case "CodeBlock": return CodeBlock.from(other as CodeBlock);
-    case "CodeChunk": return CodeChunk.from(other as CodeChunk);
-    case "Division": return Division.from(other as Division);
-    case "Figure": return Figure.from(other as Figure);
-    case "For": return For.from(other as For);
-    case "Form": return Form.from(other as Form);
-    case "Heading": return Heading.from(other as Heading);
-    case "If": return If.from(other as If);
-    case "Include": return Include.from(other as Include);
-    case "List": return List.from(other as List);
-    case "MathBlock": return MathBlock.from(other as MathBlock);
-    case "Paragraph": return Paragraph.from(other as Paragraph);
-    case "QuoteBlock": return QuoteBlock.from(other as QuoteBlock);
-    case "Table": return Table.from(other as Table);
-    case "ThematicBreak": return ThematicBreak.from(other as ThematicBreak);
-    default: throw new Error(`Unexpected type for Block: ${other.type}`);
+    case "Call":
+    case "Claim":
+    case "CodeBlock":
+    case "CodeChunk":
+    case "Division":
+    case "Figure":
+    case "For":
+    case "Form":
+    case "Heading":
+    case "If":
+    case "Include":
+    case "List":
+    case "MathBlock":
+    case "Paragraph":
+    case "QuoteBlock":
+    case "Table":
+    case "ThematicBreak":
+      return hydrate(other) as Block
+    default:
+      throw new Error(`Unexpected type for Block: ${other.type}`);
   }
 }

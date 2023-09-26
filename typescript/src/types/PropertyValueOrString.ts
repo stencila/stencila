@@ -1,5 +1,7 @@
 // Generated file; do not edit. See `../rust/schema-gen` crate.
-            
+
+import { hydrate } from "../hydrate.js";
+
 import { PropertyValue } from "./PropertyValue.js";
 
 /**
@@ -17,7 +19,9 @@ export function propertyValueOrString(other: PropertyValueOrString): PropertyVal
     return other as PropertyValueOrString;
   }
   switch(other.type) {
-    case "PropertyValue": return PropertyValue.from(other as PropertyValue);
-    default: throw new Error(`Unexpected type for PropertyValueOrString: ${other.type}`);
+    case "PropertyValue":
+      return hydrate(other) as PropertyValueOrString
+    default:
+      throw new Error(`Unexpected type for PropertyValueOrString: ${other.type}`);
   }
 }

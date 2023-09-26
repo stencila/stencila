@@ -1,5 +1,7 @@
 // Generated file; do not edit. See `../rust/schema-gen` crate.
-            
+
+import { hydrate } from "../hydrate.js";
+
 import { PostalAddress } from "./PostalAddress.js";
 
 /**
@@ -17,7 +19,9 @@ export function postalAddressOrString(other: PostalAddressOrString): PostalAddre
     return other as PostalAddressOrString;
   }
   switch(other.type) {
-    case "PostalAddress": return PostalAddress.from(other as PostalAddress);
-    default: throw new Error(`Unexpected type for PostalAddressOrString: ${other.type}`);
+    case "PostalAddress":
+      return hydrate(other) as PostalAddressOrString
+    default:
+      throw new Error(`Unexpected type for PostalAddressOrString: ${other.type}`);
   }
 }

@@ -19,13 +19,6 @@ export class EnumValidator extends Entity {
     if (options) Object.assign(this, options);
     this.values = values;
   }
-
-  /**
-  * Create a `EnumValidator` from an object
-  */
-  static from(other: EnumValidator): EnumValidator {
-    return new EnumValidator(other.values!, other);
-  }
 }
 
 /**

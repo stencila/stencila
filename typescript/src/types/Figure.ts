@@ -24,13 +24,6 @@ export class Figure extends CreativeWork {
     if (options) Object.assign(this, options);
     
   }
-
-  /**
-  * Create a `Figure` from an object
-  */
-  static from(other: Figure): Figure {
-    return new Figure(other);
-  }
 }
 
 /**

@@ -50,13 +50,6 @@ export class Parameter extends Executable {
     if (options) Object.assign(this, options);
     this.name = name;
   }
-
-  /**
-  * Create a `Parameter` from an object
-  */
-  static from(other: Parameter): Parameter {
-    return new Parameter(other.name!, other);
-  }
 }
 
 /**

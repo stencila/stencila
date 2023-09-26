@@ -1,5 +1,7 @@
 // Generated file; do not edit. See `../rust/schema-gen` crate.
-            
+
+import { hydrate } from "../hydrate.js";
+
 import { Button } from "./Button.js";
 import { CodeChunk } from "./CodeChunk.js";
 import { File } from "./File.js";
@@ -23,12 +25,14 @@ export type ExecutionDependencyNode =
  */
 export function executionDependencyNode(other: ExecutionDependencyNode): ExecutionDependencyNode {
   switch(other.type) {
-    case "Button": return Button.from(other as Button);
-    case "CodeChunk": return CodeChunk.from(other as CodeChunk);
-    case "File": return File.from(other as File);
-    case "Parameter": return Parameter.from(other as Parameter);
-    case "SoftwareSourceCode": return SoftwareSourceCode.from(other as SoftwareSourceCode);
-    case "Variable": return Variable.from(other as Variable);
-    default: throw new Error(`Unexpected type for ExecutionDependencyNode: ${other.type}`);
+    case "Button":
+    case "CodeChunk":
+    case "File":
+    case "Parameter":
+    case "SoftwareSourceCode":
+    case "Variable":
+      return hydrate(other) as ExecutionDependencyNode
+    default:
+      throw new Error(`Unexpected type for ExecutionDependencyNode: ${other.type}`);
   }
 }

@@ -23,13 +23,6 @@ export class AudioObject extends MediaObject {
     if (options) Object.assign(this, options);
     this.contentUrl = contentUrl;
   }
-
-  /**
-  * Create a `AudioObject` from an object
-  */
-  static from(other: AudioObject): AudioObject {
-    return new AudioObject(other.contentUrl!, other);
-  }
 }
 
 /**

@@ -40,13 +40,6 @@ export class Math extends Entity {
     this.mathLanguage = mathLanguage;
     this.code = code;
   }
-
-  /**
-  * Create a `Math` from an object
-  */
-  static from(other: Math): Math {
-    return new Math(other.mathLanguage!, other.code!, other);
-  }
 }
 
 /**

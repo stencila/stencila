@@ -13,13 +13,6 @@ export class BooleanValidator extends Entity {
     if (options) Object.assign(this, options);
     
   }
-
-  /**
-  * Create a `BooleanValidator` from an object
-  */
-  static from(other: BooleanValidator): BooleanValidator {
-    return new BooleanValidator(other);
-  }
 }
 
 /**

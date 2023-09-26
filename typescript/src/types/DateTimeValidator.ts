@@ -24,13 +24,6 @@ export class DateTimeValidator extends Entity {
     if (options) Object.assign(this, options);
     
   }
-
-  /**
-  * Create a `DateTimeValidator` from an object
-  */
-  static from(other: DateTimeValidator): DateTimeValidator {
-    return new DateTimeValidator(other);
-  }
 }
 
 /**

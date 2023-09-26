@@ -72,13 +72,6 @@ export class Person extends Thing {
     if (options) Object.assign(this, options);
     
   }
-
-  /**
-  * Create a `Person` from an object
-  */
-  static from(other: Person): Person {
-    return new Person(other);
-  }
 }
 
 /**

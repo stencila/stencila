@@ -12,7 +12,7 @@ use common::{
     futures::future::try_join_all,
     inflector::Inflector,
     itertools::Itertools,
-    tokio::fs::{create_dir_all, remove_file, write},
+    tokio::fs::{self, create_dir_all, remove_file, write},
 };
 
 use crate::{
@@ -100,9 +100,8 @@ impl Schemas {
             .map(|schema| self.typescript_module(&types, schema));
         try_join_all(futures).await?;
 
-        // Create a types/index.ts which export types from all modules (including those
-        // that are not generated)
-        let exports = read_dir(&types)
+        // Collect all the types
+        let types_list = read_dir(&types)
             .wrap_err(format!("unable to read directory `{}`", types.display()))?
             .flatten()
             .map(|entry| {
@@ -116,18 +115,44 @@ impl Schemas {
                     .to_string()
             })
             .sorted()
-            .map(|module| format!("export * from \"./{module}.js\";"))
-            .join("\n");
+            .collect_vec();
+
+        // Create a types/index.ts which export types from all modules (including those
+        // that are not generated)
         write(
             types.join("index.ts"),
             format!(
                 r"{GENERATED_COMMENT}
 
 {exports}
-"
+",
+                exports = types_list
+                    .iter()
+                    .map(|module| format!("export * from \"./{module}.js\";"))
+                    .join("\n")
             ),
         )
         .await?;
+
+        // Populate the import and cases of the `hydrate` function
+        let hydrate = dest.join("hydrate.ts");
+        let mut content = fs::read_to_string(&hydrate).await?;
+
+        const CASES_START: &str = "    // TYPE-CASES:START\n";
+        const CASES_STOP: &str = "    // TYPE-CASES:STOP\n";
+        let start = content.find(CASES_START).expect("should exist");
+        let stop = content.rfind(CASES_STOP).expect("should exist");
+        let cases = self.schemas.iter()
+            .filter_map(|(name, schema)| (schema.any_of.is_none() && schema.r#type.is_none()).then_some(name))
+            .map(|name| {
+                format!(
+                    "    case \"{name}\":\n      return value instanceof types.{name} ? value : Object.setPrototypeOf(value, types.{name}.prototype);\n"
+                )
+            })
+            .join("");
+        content.replace_range(start.saturating_add(CASES_START.len())..stop, &cases);
+
+        fs::write(hydrate, content).await?;
 
         Ok(())
     }
@@ -339,19 +364,6 @@ impl Schemas {
             .join("\n    ");
         let super_args = super_args.join(", ");
 
-        let from = format!(
-            r#"/**
-  * Create a `{title}` from an object
-  */
-  static from(other: {title}): {title} {{
-    return new {title}({args}other);
-  }}"#,
-            args = required_props
-                .iter()
-                .map(|(name, ..)| format!("other.{name}!, "))
-                .join("")
-        );
-
         let class = if let Some(base) = base {
             format!(
                 r#"export class {title} extends {base} {{
@@ -362,8 +374,6 @@ impl Schemas {
     if (options) Object.assign(this, options);
     {required_assignments}
   }}
-
-  {from}
 }}"#
             )
         } else {
@@ -375,8 +385,6 @@ impl Schemas {
     if (options) Object.assign(this, options);
     {required_assignments}
   }}
-
-  {from}
 }}"#
             )
         };
@@ -513,19 +521,29 @@ export function {name}({required_args}options?: Partial<{title}>): {title} {{
             })
             .join(" |\n  ");
 
-        let from = if all_are_types
-            // A hack to avoid issues for the generated functions for these
-            // Not necessary to have functions for these anyway.
-            && ![
-                "BlocksOrInlines",
-                "BlocksOrString",
-                "CreativeWorkTypeOrString",
-                "IntegerOrString",
-                "StringOrNumber",
-                "ThingType",
-            ]
-            .contains(&name.as_str())
-        {
+        let is_union_type = all_are_types
+        // A hack to avoid issues for the generated functions for these
+        // Not necessary to have functions for these anyway.
+        && ![
+            "BlocksOrInlines",
+            "BlocksOrString",
+            "CreativeWorkTypeOrString",
+            "IntegerOrString",
+            "StringOrNumber",
+            "ThingType",
+        ]
+        .contains(&name.as_str());
+
+        let hydrate = if is_union_type {
+            "
+import { hydrate } from \"../hydrate.js\";
+
+"
+        } else {
+            ""
+        };
+
+        let from = if is_union_type {
             format!(
                 r#"/**
  * Create a `{name}` from an object
@@ -533,7 +551,9 @@ export function {name}({required_args}options?: Partial<{title}>): {title} {{
 export function {func_name}(other: {name}): {name} {{
   {primitives}switch(other.type) {{
     {cases}
-    default: throw new Error(`Unexpected type for {name}: ${{other.type}}`);
+      return hydrate(other) as {name}
+    default:
+      throw new Error(`Unexpected type for {name}: ${{other.type}}`);
   }}
 }}"#,
                 func_name = name.to_camel_case(),
@@ -555,9 +575,7 @@ export function {func_name}(other: {name}): {name} {{
                     .filter(|(variant, is_type)| {
                         *is_type && !PRIMITIVES.contains(&variant.to_lowercase().as_str())
                     })
-                    .map(|(variant, ..)| format!(
-                        "case \"{variant}\": return {variant}.from(other as {variant});"
-                    ))
+                    .map(|(variant, ..)| format!("case \"{variant}\":"))
                     .join("\n    ")
             )
         } else {
@@ -568,8 +586,7 @@ export function {func_name}(other: {name}): {name} {{
             path,
             format!(
                 r#"{GENERATED_COMMENT}
-            
-{imports}/**
+{hydrate}{imports}/**
  * {description}
  */
 export type {name} =

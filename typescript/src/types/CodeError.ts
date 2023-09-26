@@ -28,13 +28,6 @@ export class CodeError extends Entity {
     if (options) Object.assign(this, options);
     this.errorMessage = errorMessage;
   }
-
-  /**
-  * Create a `CodeError` from an object
-  */
-  static from(other: CodeError): CodeError {
-    return new CodeError(other.errorMessage!, other);
-  }
 }
 
 /**

@@ -64,13 +64,6 @@ export class Cite extends Entity {
     this.target = target;
     this.citationMode = citationMode;
   }
-
-  /**
-  * Create a `Cite` from an object
-  */
-  static from(other: Cite): Cite {
-    return new Cite(other.target!, other.citationMode!, other);
-  }
 }
 
 /**

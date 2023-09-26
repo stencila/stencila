@@ -1,5 +1,4 @@
 // Generated file; do not edit. See `../rust/schema-gen` crate.
-            
 import { Article } from "./Article.js";
 import { AudioObject } from "./AudioObject.js";
 import { Brand } from "./Brand.js";

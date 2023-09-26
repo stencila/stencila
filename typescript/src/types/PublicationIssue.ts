@@ -36,13 +36,6 @@ export class PublicationIssue extends CreativeWork {
     if (options) Object.assign(this, options);
     
   }
-
-  /**
-  * Create a `PublicationIssue` from an object
-  */
-  static from(other: PublicationIssue): PublicationIssue {
-    return new PublicationIssue(other);
-  }
 }
 
 /**

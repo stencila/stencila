@@ -18,13 +18,6 @@ export class DateTime extends Entity {
     if (options) Object.assign(this, options);
     this.value = value;
   }
-
-  /**
-  * Create a `DateTime` from an object
-  */
-  static from(other: DateTime): DateTime {
-    return new DateTime(other.value!, other);
-  }
 }
 
 /**

@@ -31,13 +31,6 @@ export class Button extends CodeExecutable {
     this.programmingLanguage = programmingLanguage;
     this.name = name;
   }
-
-  /**
-  * Create a `Button` from an object
-  */
-  static from(other: Button): Button {
-    return new Button(other.code!, other.programmingLanguage!, other.name!, other);
-  }
 }
 
 /**

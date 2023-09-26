@@ -29,13 +29,6 @@ export class Brand extends Thing {
     if (options) Object.assign(this, options);
     this.name = name;
   }
-
-  /**
-  * Create a `Brand` from an object
-  */
-  static from(other: Brand): Brand {
-    return new Brand(other.name!, other);
-  }
 }
 
 /**

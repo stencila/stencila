@@ -30,13 +30,6 @@ export class Table extends CreativeWork {
     if (options) Object.assign(this, options);
     this.rows = rows;
   }
-
-  /**
-  * Create a `Table` from an object
-  */
-  static from(other: Table): Table {
-    return new Table(other.rows!, other);
-  }
 }
 
 /**

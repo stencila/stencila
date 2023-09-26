@@ -19,13 +19,6 @@ export class CiteGroup extends Entity {
     if (options) Object.assign(this, options);
     this.items = items;
   }
-
-  /**
-  * Create a `CiteGroup` from an object
-  */
-  static from(other: CiteGroup): CiteGroup {
-    return new CiteGroup(other.items!, other);
-  }
 }
 
 /**

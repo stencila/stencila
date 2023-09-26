@@ -35,13 +35,6 @@ export class Variable extends Entity {
     this.namespace = namespace;
     this.name = name;
   }
-
-  /**
-  * Create a `Variable` from an object
-  */
-  static from(other: Variable): Variable {
-    return new Variable(other.namespace!, other.name!, other);
-  }
 }
 
 /**

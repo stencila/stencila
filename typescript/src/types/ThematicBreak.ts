@@ -13,13 +13,6 @@ export class ThematicBreak extends Entity {
     if (options) Object.assign(this, options);
     
   }
-
-  /**
-  * Create a `ThematicBreak` from an object
-  */
-  static from(other: ThematicBreak): ThematicBreak {
-    return new ThematicBreak(other);
-  }
 }
 
 /**

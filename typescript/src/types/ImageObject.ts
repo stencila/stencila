@@ -23,13 +23,6 @@ export class ImageObject extends MediaObject {
     if (options) Object.assign(this, options);
     this.contentUrl = contentUrl;
   }
-
-  /**
-  * Create a `ImageObject` from an object
-  */
-  static from(other: ImageObject): ImageObject {
-    return new ImageObject(other.contentUrl!, other);
-  }
 }
 
 /**

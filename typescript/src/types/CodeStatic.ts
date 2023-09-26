@@ -24,13 +24,6 @@ export class CodeStatic extends Entity {
     if (options) Object.assign(this, options);
     this.code = code;
   }
-
-  /**
-  * Create a `CodeStatic` from an object
-  */
-  static from(other: CodeStatic): CodeStatic {
-    return new CodeStatic(other.code!, other);
-  }
 }
 
 /**

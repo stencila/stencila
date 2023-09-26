@@ -24,13 +24,6 @@ export class Grant extends Thing {
     if (options) Object.assign(this, options);
     
   }
-
-  /**
-  * Create a `Grant` from an object
-  */
-  static from(other: Grant): Grant {
-    return new Grant(other);
-  }
 }
 
 /**

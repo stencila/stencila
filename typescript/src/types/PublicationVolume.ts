@@ -35,13 +35,6 @@ export class PublicationVolume extends CreativeWork {
     if (options) Object.assign(this, options);
     
   }
-
-  /**
-  * Create a `PublicationVolume` from an object
-  */
-  static from(other: PublicationVolume): PublicationVolume {
-    return new PublicationVolume(other);
-  }
 }
 
 /**

@@ -26,13 +26,6 @@ export class Timestamp extends Entity {
     this.value = value;
     this.timeUnit = timeUnit;
   }
-
-  /**
-  * Create a `Timestamp` from an object
-  */
-  static from(other: Timestamp): Timestamp {
-    return new Timestamp(other.value!, other.timeUnit!, other);
-  }
 }
 
 /**

@@ -20,13 +20,6 @@ export class Call extends Include {
     this.source = source;
     this.arguments = args;
   }
-
-  /**
-  * Create a `Call` from an object
-  */
-  static from(other: Call): Call {
-    return new Call(other.source!, other.arguments!, other);
-  }
 }
 
 /**

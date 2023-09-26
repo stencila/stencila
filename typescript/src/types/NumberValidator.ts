@@ -38,13 +38,6 @@ export class NumberValidator extends Entity {
     if (options) Object.assign(this, options);
     
   }
-
-  /**
-  * Create a `NumberValidator` from an object
-  */
-  static from(other: NumberValidator): NumberValidator {
-    return new NumberValidator(other);
-  }
 }
 
 /**

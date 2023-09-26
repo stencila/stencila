@@ -47,13 +47,6 @@ export class SoftwareSourceCode extends CreativeWork {
     if (options) Object.assign(this, options);
     
   }
-
-  /**
-  * Create a `SoftwareSourceCode` from an object
-  */
-  static from(other: SoftwareSourceCode): SoftwareSourceCode {
-    return new SoftwareSourceCode(other);
-  }
 }
 
 /**

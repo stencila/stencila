@@ -30,13 +30,6 @@ export class TimestampValidator extends Entity {
     if (options) Object.assign(this, options);
     
   }
-
-  /**
-  * Create a `TimestampValidator` from an object
-  */
-  static from(other: TimestampValidator): TimestampValidator {
-    return new TimestampValidator(other);
-  }
 }
 
 /**

@@ -29,13 +29,6 @@ export class VideoObject extends MediaObject {
     if (options) Object.assign(this, options);
     this.contentUrl = contentUrl;
   }
-
-  /**
-  * Create a `VideoObject` from an object
-  */
-  static from(other: VideoObject): VideoObject {
-    return new VideoObject(other.contentUrl!, other);
-  }
 }
 
 /**

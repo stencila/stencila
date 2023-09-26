@@ -21,13 +21,6 @@ export class Span extends Styled {
     this.code = code;
     this.content = content;
   }
-
-  /**
-  * Create a `Span` from an object
-  */
-  static from(other: Span): Span {
-    return new Span(other.code!, other.content!, other);
-  }
 }
 
 /**

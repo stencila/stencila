@@ -1,5 +1,7 @@
 // Generated file; do not edit. See `../rust/schema-gen` crate.
-            
+
+import { hydrate } from "../hydrate.js";
+
 import { ImageObject } from "./ImageObject.js";
 
 /**
@@ -17,7 +19,9 @@ export function imageObjectOrString(other: ImageObjectOrString): ImageObjectOrSt
     return other as ImageObjectOrString;
   }
   switch(other.type) {
-    case "ImageObject": return ImageObject.from(other as ImageObject);
-    default: throw new Error(`Unexpected type for ImageObjectOrString: ${other.type}`);
+    case "ImageObject":
+      return hydrate(other) as ImageObjectOrString
+    default:
+      throw new Error(`Unexpected type for ImageObjectOrString: ${other.type}`);
   }
 }

@@ -14,13 +14,6 @@ export class Strong extends Mark {
     if (options) Object.assign(this, options);
     this.content = content;
   }
-
-  /**
-  * Create a `Strong` from an object
-  */
-  static from(other: Strong): Strong {
-    return new Strong(other.content!, other);
-  }
 }
 
 /**

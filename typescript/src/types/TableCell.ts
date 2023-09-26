@@ -41,13 +41,6 @@ export class TableCell extends Entity {
     if (options) Object.assign(this, options);
     
   }
-
-  /**
-  * Create a `TableCell` from an object
-  */
-  static from(other: TableCell): TableCell {
-    return new TableCell(other);
-  }
 }
 
 /**

@@ -1,5 +1,7 @@
 // Generated file; do not edit. See `../rust/schema-gen` crate.
-            
+
+import { hydrate } from "../hydrate.js";
+
 import { Cite } from "./Cite.js";
 
 /**
@@ -17,7 +19,9 @@ export function citeOrString(other: CiteOrString): CiteOrString {
     return other as CiteOrString;
   }
   switch(other.type) {
-    case "Cite": return Cite.from(other as Cite);
-    default: throw new Error(`Unexpected type for CiteOrString: ${other.type}`);
+    case "Cite":
+      return hydrate(other) as CiteOrString
+    default:
+      throw new Error(`Unexpected type for CiteOrString: ${other.type}`);
   }
 }

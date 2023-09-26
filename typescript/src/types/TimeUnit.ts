@@ -1,5 +1,4 @@
 // Generated file; do not edit. See `../rust/schema-gen` crate.
-            
 /**
  * A unit in which time can be measured
  */

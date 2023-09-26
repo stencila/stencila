@@ -30,13 +30,6 @@ export class CodeExecutable extends Executable {
     this.code = code;
     this.programmingLanguage = programmingLanguage;
   }
-
-  /**
-  * Create a `CodeExecutable` from an object
-  */
-  static from(other: CodeExecutable): CodeExecutable {
-    return new CodeExecutable(other.code!, other.programmingLanguage!, other);
-  }
 }
 
 /**

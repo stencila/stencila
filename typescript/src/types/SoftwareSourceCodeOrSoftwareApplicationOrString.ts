@@ -1,5 +1,7 @@
 // Generated file; do not edit. See `../rust/schema-gen` crate.
-            
+
+import { hydrate } from "../hydrate.js";
+
 import { SoftwareApplication } from "./SoftwareApplication.js";
 import { SoftwareSourceCode } from "./SoftwareSourceCode.js";
 
@@ -19,8 +21,10 @@ export function softwareSourceCodeOrSoftwareApplicationOrString(other: SoftwareS
     return other as SoftwareSourceCodeOrSoftwareApplicationOrString;
   }
   switch(other.type) {
-    case "SoftwareSourceCode": return SoftwareSourceCode.from(other as SoftwareSourceCode);
-    case "SoftwareApplication": return SoftwareApplication.from(other as SoftwareApplication);
-    default: throw new Error(`Unexpected type for SoftwareSourceCodeOrSoftwareApplicationOrString: ${other.type}`);
+    case "SoftwareSourceCode":
+    case "SoftwareApplication":
+      return hydrate(other) as SoftwareSourceCodeOrSoftwareApplicationOrString
+    default:
+      throw new Error(`Unexpected type for SoftwareSourceCodeOrSoftwareApplicationOrString: ${other.type}`);
   }
 }

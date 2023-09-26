@@ -31,13 +31,6 @@ export class Directory extends Collection {
     this.parts = parts;
     this.path = path;
   }
-
-  /**
-  * Create a `Directory` from an object
-  */
-  static from(other: Directory): Directory {
-    return new Directory(other.name!, other.parts!, other.path!, other);
-  }
 }
 
 /**

@@ -26,13 +26,6 @@ export class List extends Entity {
     this.items = items;
     this.order = order;
   }
-
-  /**
-  * Create a `List` from an object
-  */
-  static from(other: List): List {
-    return new List(other.items!, other.order!, other);
-  }
 }
 
 /**

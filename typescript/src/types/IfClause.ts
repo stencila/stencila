@@ -27,13 +27,6 @@ export class IfClause extends CodeExecutable {
     this.programmingLanguage = programmingLanguage;
     this.content = content;
   }
-
-  /**
-  * Create a `IfClause` from an object
-  */
-  static from(other: IfClause): IfClause {
-    return new IfClause(other.code!, other.programmingLanguage!, other.content!, other);
-  }
 }
 
 /**

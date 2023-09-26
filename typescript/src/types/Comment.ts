@@ -29,13 +29,6 @@ export class Comment extends CreativeWork {
     if (options) Object.assign(this, options);
     this.content = content;
   }
-
-  /**
-  * Create a `Comment` from an object
-  */
-  static from(other: Comment): Comment {
-    return new Comment(other.content!, other);
-  }
 }
 
 /**

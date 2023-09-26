@@ -24,13 +24,6 @@ export class TimeValidator extends Entity {
     if (options) Object.assign(this, options);
     
   }
-
-  /**
-  * Create a `TimeValidator` from an object
-  */
-  static from(other: TimeValidator): TimeValidator {
-    return new TimeValidator(other);
-  }
 }
 
 /**

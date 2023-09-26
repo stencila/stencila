@@ -19,13 +19,6 @@ export class MathBlock extends Math {
     this.mathLanguage = mathLanguage;
     this.code = code;
   }
-
-  /**
-  * Create a `MathBlock` from an object
-  */
-  static from(other: MathBlock): MathBlock {
-    return new MathBlock(other.mathLanguage!, other.code!, other);
-  }
 }
 
 /**

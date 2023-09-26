@@ -25,13 +25,6 @@ export class QuoteBlock extends Entity {
     if (options) Object.assign(this, options);
     this.content = content;
   }
-
-  /**
-  * Create a `QuoteBlock` from an object
-  */
-  static from(other: QuoteBlock): QuoteBlock {
-    return new QuoteBlock(other.content!, other);
-  }
 }
 
 /**

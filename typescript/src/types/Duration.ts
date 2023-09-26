@@ -26,13 +26,6 @@ export class Duration extends Entity {
     this.value = value;
     this.timeUnit = timeUnit;
   }
-
-  /**
-  * Create a `Duration` from an object
-  */
-  static from(other: Duration): Duration {
-    return new Duration(other.value!, other.timeUnit!, other);
-  }
 }
 
 /**

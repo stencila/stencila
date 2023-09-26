@@ -30,13 +30,6 @@ export class CallArgument extends Parameter {
     this.code = code;
     this.programmingLanguage = programmingLanguage;
   }
-
-  /**
-  * Create a `CallArgument` from an object
-  */
-  static from(other: CallArgument): CallArgument {
-    return new CallArgument(other.name!, other.code!, other.programmingLanguage!, other);
-  }
 }
 
 /**

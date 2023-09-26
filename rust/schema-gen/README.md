@@ -44,6 +44,9 @@ Because this crate depends upon the Rust types it generates (for generating docu
 cargo run -p schema-gen --no-default-features
 ```
 
+> [!WARNING]
+> Don't come to this corner of our repository here expecting nice clean Rust code. Because, this code is not used in production (only used for generating other code), we've favoured expediency over clarity and robustness.
+
 ## Continuous deployment
 
 As part of the GitHub `build.yml` workflow, all generations will be run on each push and any changes to generated files committed.

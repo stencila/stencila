@@ -23,13 +23,6 @@ export class DefinedTerm extends Thing {
     if (options) Object.assign(this, options);
     this.name = name;
   }
-
-  /**
-  * Create a `DefinedTerm` from an object
-  */
-  static from(other: DefinedTerm): DefinedTerm {
-    return new DefinedTerm(other.name!, other);
-  }
 }
 
 /**

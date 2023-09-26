@@ -1,5 +1,4 @@
 // Generated file; do not edit. See `../rust/schema-gen` crate.
-            
 /**
  * The type of a `Claim`.
  */

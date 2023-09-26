@@ -19,13 +19,6 @@ export class ConstantValidator extends Entity {
     if (options) Object.assign(this, options);
     this.value = value;
   }
-
-  /**
-  * Create a `ConstantValidator` from an object
-  */
-  static from(other: ConstantValidator): ConstantValidator {
-    return new ConstantValidator(other.value!, other);
-  }
 }
 
 /**

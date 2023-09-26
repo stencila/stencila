@@ -18,13 +18,6 @@ export class Date extends Entity {
     if (options) Object.assign(this, options);
     this.value = value;
   }
-
-  /**
-  * Create a `Date` from an object
-  */
-  static from(other: Date): Date {
-    return new Date(other.value!, other);
-  }
 }
 
 /**

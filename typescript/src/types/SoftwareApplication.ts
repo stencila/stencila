@@ -29,13 +29,6 @@ export class SoftwareApplication extends CreativeWork {
     if (options) Object.assign(this, options);
     this.name = name;
   }
-
-  /**
-  * Create a `SoftwareApplication` from an object
-  */
-  static from(other: SoftwareApplication): SoftwareApplication {
-    return new SoftwareApplication(other.name!, other);
-  }
 }
 
 /**

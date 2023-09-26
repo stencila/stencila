@@ -1,5 +1,7 @@
 // Generated file; do not edit. See `../rust/schema-gen` crate.
-            
+
+import { hydrate } from "../hydrate.js";
+
 import { Organization } from "./Organization.js";
 import { Person } from "./Person.js";
 import { SoftwareApplication } from "./SoftwareApplication.js";
@@ -17,9 +19,11 @@ export type PersonOrOrganizationOrSoftwareApplication =
  */
 export function personOrOrganizationOrSoftwareApplication(other: PersonOrOrganizationOrSoftwareApplication): PersonOrOrganizationOrSoftwareApplication {
   switch(other.type) {
-    case "Person": return Person.from(other as Person);
-    case "Organization": return Organization.from(other as Organization);
-    case "SoftwareApplication": return SoftwareApplication.from(other as SoftwareApplication);
-    default: throw new Error(`Unexpected type for PersonOrOrganizationOrSoftwareApplication: ${other.type}`);
+    case "Person":
+    case "Organization":
+    case "SoftwareApplication":
+      return hydrate(other) as PersonOrOrganizationOrSoftwareApplication
+    default:
+      throw new Error(`Unexpected type for PersonOrOrganizationOrSoftwareApplication: ${other.type}`);
   }
 }

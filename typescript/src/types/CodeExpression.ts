@@ -21,13 +21,6 @@ export class CodeExpression extends CodeExecutable {
     this.code = code;
     this.programmingLanguage = programmingLanguage;
   }
-
-  /**
-  * Create a `CodeExpression` from an object
-  */
-  static from(other: CodeExpression): CodeExpression {
-    return new CodeExpression(other.code!, other.programmingLanguage!, other);
-  }
 }
 
 /**

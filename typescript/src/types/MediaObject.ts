@@ -39,13 +39,6 @@ export class MediaObject extends CreativeWork {
     if (options) Object.assign(this, options);
     this.contentUrl = contentUrl;
   }
-
-  /**
-  * Create a `MediaObject` from an object
-  */
-  static from(other: MediaObject): MediaObject {
-    return new MediaObject(other.contentUrl!, other);
-  }
 }
 
 /**

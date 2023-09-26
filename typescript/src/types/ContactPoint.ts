@@ -29,13 +29,6 @@ export class ContactPoint extends Thing {
     if (options) Object.assign(this, options);
     
   }
-
-  /**
-  * Create a `ContactPoint` from an object
-  */
-  static from(other: ContactPoint): ContactPoint {
-    return new ContactPoint(other);
-  }
 }
 
 /**

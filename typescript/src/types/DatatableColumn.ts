@@ -31,13 +31,6 @@ export class DatatableColumn extends Thing {
     this.name = name;
     this.values = values;
   }
-
-  /**
-  * Create a `DatatableColumn` from an object
-  */
-  static from(other: DatatableColumn): DatatableColumn {
-    return new DatatableColumn(other.name!, other.values!, other);
-  }
 }
 
 /**

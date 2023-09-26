@@ -15,13 +15,6 @@ export class Entity {
     if (options) Object.assign(this, options);
     
   }
-
-  /**
-  * Create a `Entity` from an object
-  */
-  static from(other: Entity): Entity {
-    return new Entity(other);
-  }
 }
 
 /**

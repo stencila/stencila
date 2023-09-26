@@ -24,13 +24,6 @@ export class PropertyValue extends Thing {
     if (options) Object.assign(this, options);
     this.value = value;
   }
-
-  /**
-  * Create a `PropertyValue` from an object
-  */
-  static from(other: PropertyValue): PropertyValue {
-    return new PropertyValue(other.value!, other);
-  }
 }
 
 /**

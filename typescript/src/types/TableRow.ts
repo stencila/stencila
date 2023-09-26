@@ -25,13 +25,6 @@ export class TableRow extends Entity {
     if (options) Object.assign(this, options);
     this.cells = cells;
   }
-
-  /**
-  * Create a `TableRow` from an object
-  */
-  static from(other: TableRow): TableRow {
-    return new TableRow(other.cells!, other);
-  }
 }
 
 /**

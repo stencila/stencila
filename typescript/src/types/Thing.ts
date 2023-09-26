@@ -46,13 +46,6 @@ export class Thing extends Entity {
     if (options) Object.assign(this, options);
     
   }
-
-  /**
-  * Create a `Thing` from an object
-  */
-  static from(other: Thing): Thing {
-    return new Thing(other);
-  }
 }
 
 /**

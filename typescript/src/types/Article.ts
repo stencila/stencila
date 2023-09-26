@@ -36,13 +36,6 @@ export class Article extends CreativeWork {
     if (options) Object.assign(this, options);
     this.content = content;
   }
-
-  /**
-  * Create a `Article` from an object
-  */
-  static from(other: Article): Article {
-    return new Article(other.content!, other);
-  }
 }
 
 /**

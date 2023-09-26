@@ -63,13 +63,6 @@ export class Organization extends Thing {
     if (options) Object.assign(this, options);
     
   }
-
-  /**
-  * Create a `Organization` from an object
-  */
-  static from(other: Organization): Organization {
-    return new Organization(other);
-  }
 }
 
 /**

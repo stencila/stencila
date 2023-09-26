@@ -1,5 +1,7 @@
 // Generated file; do not edit. See `../rust/schema-gen` crate.
-            
+
+import { hydrate } from "../hydrate.js";
+
 import { Directory } from "./Directory.js";
 import { File } from "./File.js";
 
@@ -15,8 +17,10 @@ export type FileOrDirectory =
  */
 export function fileOrDirectory(other: FileOrDirectory): FileOrDirectory {
   switch(other.type) {
-    case "File": return File.from(other as File);
-    case "Directory": return Directory.from(other as Directory);
-    default: throw new Error(`Unexpected type for FileOrDirectory: ${other.type}`);
+    case "File":
+    case "Directory":
+      return hydrate(other) as FileOrDirectory
+    default:
+      throw new Error(`Unexpected type for FileOrDirectory: ${other.type}`);
   }
 }
