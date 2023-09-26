@@ -1,34 +1,26 @@
-use common::serde_yaml;
-
 use crate::{prelude::*, Article};
 
 impl Article {
     pub fn to_jats_special(&self) -> (String, Losses) {
-        use codec_jats_trait::encode::elem;
+        use codec_jats_trait::encode::{elem, elem_no_attrs};
 
         let mut losses = Losses::none();
 
-        let front = elem("front", [], "");
+        let front = elem_no_attrs("front", "");
 
         let (content_jats, mut content_losses) = self.content.to_jats();
-        let body = elem("body", [], content_jats);
+        let body = elem_no_attrs("body", content_jats);
         losses.append(&mut content_losses);
 
-        let back = elem("back", [], "");
+        let back = elem_no_attrs("back", "");
 
         (
             elem(
                 "article",
                 [
-                    ("dtd-version".to_string(), "1.3".to_string()),
-                    (
-                        "xmlns:xlink".to_string(),
-                        "http://www.w3.org/1999/xlink".to_string(),
-                    ),
-                    (
-                        "xmlns:mml".to_string(),
-                        "http://www.w3.org/1998/Math/MathML".to_string(),
-                    ),
+                    ("dtd-version", "1.3"),
+                    ("xmlns:xlink", "http://www.w3.org/1999/xlink"),
+                    ("xmlns:mml", "http://www.w3.org/1998/Math/MathML"),
                 ],
                 [front, body, back].concat(),
             ),
@@ -37,6 +29,8 @@ impl Article {
     }
 
     pub fn to_markdown_special(&self) -> (String, Losses) {
+        use common::serde_yaml;
+
         let mut md = String::new();
 
         let mut yaml = serde_yaml::to_value(Self {

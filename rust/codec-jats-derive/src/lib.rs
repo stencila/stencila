@@ -137,7 +137,7 @@ fn derive_struct(type_attr: TypeAttr) -> TokenStream {
             quote! {
                 let (field_jats, mut field_losses) = self.#field_name.to_jats();
                 if !field_jats.is_empty() {
-                    content.push_str(&elem(#elem, [], field_jats));
+                    content.push_str(&elem_no_attrs(#elem, field_jats));
                 }
                 losses.append(&mut field_losses);
             }
@@ -160,7 +160,7 @@ fn derive_struct(type_attr: TypeAttr) -> TokenStream {
     quote! {
         impl JatsCodec for #struct_name {
             fn to_jats_parts(&self) -> (String, Vec<(String, String)>, String, Losses) {
-                use codec_jats_trait::encode::elem;
+                use codec_jats_trait::encode::{elem, elem_no_attrs};
 
                 let mut attrs = vec![#attrs];
                 let mut content = String::new();

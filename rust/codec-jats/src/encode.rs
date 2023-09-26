@@ -1,6 +1,7 @@
 use codec::{common::eyre::Result, schema::Node, EncodeOptions, LossDirection, Losses};
 use codec_jats_trait::JatsCodec as _;
 
+/// Encode a [`Node`] as JATS XML
 pub(super) fn encode(node: &Node, options: Option<EncodeOptions>) -> Result<(String, Losses)> {
     let EncodeOptions { compact, .. } = options.unwrap_or_default();
 
