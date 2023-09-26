@@ -5,8 +5,8 @@
   "main": "main.js",
   "types": "main.d.ts",
   "scripts": {
-    "fix": "eslint --fix '*.ts'",
-    "lint": "eslint '*.ts'",
+    "fix": "eslint --fix '*.mts'",
+    "lint": "eslint '*.mts'",
     "artifacts": "napi artifacts",
     "build": "napi build --platform --release",
     "build:debug": "napi build --platform",
