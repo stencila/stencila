@@ -17,6 +17,7 @@ ImageObject = ForwardRef("ImageObject")
 Insert = ForwardRef("Insert")
 Link = ForwardRef("Link")
 MathFragment = ForwardRef("MathFragment")
+MediaObject = ForwardRef("MediaObject")
 Note = ForwardRef("Note")
 Parameter = ForwardRef("Parameter")
 Quote = ForwardRef("Quote")
@@ -48,6 +49,7 @@ Inline = Union[
     Insert,
     Link,
     MathFragment,
+    MediaObject,
     Note,
     Parameter,
     Quote,

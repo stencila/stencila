@@ -18,6 +18,7 @@ import { Insert } from "./Insert.js";
 import { Integer } from "./Integer.js";
 import { Link } from "./Link.js";
 import { MathFragment } from "./MathFragment.js";
+import { MediaObject } from "./MediaObject.js";
 import { Note } from "./Note.js";
 import { Parameter } from "./Parameter.js";
 import { Quote } from "./Quote.js";
@@ -51,6 +52,7 @@ export type Inline =
   Insert |
   Link |
   MathFragment |
+  MediaObject |
   Note |
   Parameter |
   Quote |
@@ -93,6 +95,7 @@ export function inline(other: Inline): Inline {
     case "Insert":
     case "Link":
     case "MathFragment":
+    case "MediaObject":
     case "Note":
     case "Parameter":
     case "Quote":

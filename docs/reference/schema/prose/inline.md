@@ -23,6 +23,7 @@ The `Inline` type has these members:
 - [`Insert`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/insert.md)
 - [`Link`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/link.md)
 - [`MathFragment`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/math/math-fragment.md)
+- [`MediaObject`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/media-object.md)
 - [`Note`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/note.md)
 - [`Parameter`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/parameter.md)
 - [`Quote`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/quote.md)

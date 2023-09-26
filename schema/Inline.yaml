@@ -19,6 +19,7 @@ anyOf:
   - $ref: Insert
   - $ref: Link
   - $ref: MathFragment
+  - $ref: MediaObject
   - $ref: Note
   - $ref: Parameter
   - $ref: Quote

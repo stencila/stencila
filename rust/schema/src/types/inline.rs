@@ -19,6 +19,7 @@ use super::insert::Insert;
 use super::integer::Integer;
 use super::link::Link;
 use super::math_fragment::MathFragment;
+use super::media_object::MediaObject;
 use super::note::Note;
 use super::null::Null;
 use super::number::Number;
@@ -55,6 +56,7 @@ pub enum Inline {
     Insert(Insert),
     Link(Link),
     MathFragment(MathFragment),
+    MediaObject(MediaObject),
     Note(Note),
     Parameter(Parameter),
     Quote(Quote),

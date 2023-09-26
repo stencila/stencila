@@ -52,6 +52,9 @@
       "$ref": "MathFragment.schema.json"
     },
     {
+      "$ref": "MediaObject.schema.json"
+    },
+    {
       "$ref": "Note.schema.json"
     },
     {

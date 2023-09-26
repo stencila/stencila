@@ -4,6 +4,11 @@
 downloadable dataset.
 **
 
+This is not an abstract type and so can be instantiated as an inline content node.
+However, prefer to use `AudioObject`, `ImageObject`, or `VideoObject` when the
+type of media is known.
+
+
 **`@id`**: [`schema:MediaObject`](https://schema.org/MediaObject)
 
 ## Properties
