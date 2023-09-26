@@ -197,7 +197,7 @@ impl Schemas {
                         text("Encoded to tag "),
                         link(
                             [cf(format!("<{elem}>"))],
-                            format!("https://jats.nlm.nih.gov/articleauthoring/tag-library/1.3/element/{elem}"),
+                            format!("https://jats.nlm.nih.gov/articleauthoring/tag-library/1.3/element/{elem}.html"),
                         ),
                         text(" using special function")
                     ]
@@ -209,7 +209,7 @@ impl Schemas {
                     text("Encoded to tag "),
                     link(
                         [cf(format!("<{elem}>"))],
-                        format!("https://jats.nlm.nih.gov/articleauthoring/tag-library/1.3/element/{elem}"),
+                        format!("https://jats.nlm.nih.gov/articleauthoring/tag-library/1.3/element/{elem}.html"),
                     ),
                 ]
             } else {

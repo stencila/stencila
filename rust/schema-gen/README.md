@@ -45,7 +45,7 @@ cargo run -p schema-gen --no-default-features
 ```
 
 > [!WARNING]
-> Don't come to this corner of our repository here expecting nice clean Rust code. Because, this code is not used in production (only used for generating other code), we've favoured expediency over clarity and robustness.
+> Don't come to this corner of the repository here expecting nice clean Rust code. Because this code is not used in production (only used for generating other code) we have favoured expediency over clarity and robustness.
 
 ## Continuous deployment
 
