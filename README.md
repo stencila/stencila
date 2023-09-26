@@ -107,25 +107,25 @@ In `v2` documents can be stored as binary Automerge CRDT files, forked and merge
 
 Interoperability with existing formats has always been a key feature of Stencila. We will bring over _codecs_ (a.k.a. converters) from the `v1` branch and port other functionality from [`encoda`](https://github.com/stencila/encoda) to Rust.
 
-| Format           | Encoding | Decoding | Notes                                                                                                |
-| ---------------- | -------- | -------- | ---------------------------------------------------------------------------------------------------- |
-| JSON             | 🟢       | 🟢       |                                                                                                      |
-| JSON5            | 🟢       | 🟢       |                                                                                                      |
-| YAML             | 🟢       | 🟢       |                                                                                                      |
-| Plain text       | ⚠️       |          |                                                                                                      |
-| HTML             | 🚧       | 🧭       |                                                                                                      |
-| JATS             | 🚧       | 🚧       | Planned for completion Q4 2023. Port decoding and tests from [`encoda`](https://github.com/stencila/encoda/)        |
-| Markdown         | 🚧       | 🧭       | Planned Q3 2023 [`v1`](https://github.com/stencila/stencila/tree/v1/rust/codec-md)                   |
-| R Markdown       | 🧭       | 🧭       | Relies on Markdown; [`v1`](https://github.com/stencila/stencila/tree/v1/rust/codec-rmd)              |
-| Jupyter Notebook | 🧭       | 🧭       | Relies on Markdown; [`v1`](https://github.com/stencila/stencila/tree/v1/rust/codec-ipynb)            |
-| Scripts          | 🧭       | 🧭       | Relies on Markdown; [`v1`](https://github.com/stencila/stencila/tree/v1/rust/codec-script)           |
-| Pandoc           | 🧭       | 🧭       | Planned Q4 2023. [`v1`](https://github.com/stencila/stencila/tree/v1/rust/codec-pandoc)              |
-| LaTeX            | 🧭       | 🧭       | Relies on Pandoc; [`v1`](https://github.com/stencila/stencila/tree/v1/rust/codec-latex)              |
-| Org              | 🧭       | 🧭       | Relies on Pandoc; [PR](https://github.com/stencila/stencila/pull/1485)                               |
-| Microsoft Word   | 🧭       | 🧭       | Relies on Pandoc; [`v1`](https://github.com/stencila/stencila/tree/v1/rust/codec-docx)               |
-| ODT              | 🧭       | 🧭       | Relies on Pandoc                                                                                     |
-| Google Docs      | 🧭       | 🧭       | Planned Q1 2024 [`v1`](https://github.com/stencila/stencila/tree/v1/rust/codec-gdoc)                 |
-| PDF              | 🧭       | 🧭       | Planned Q1 2024, relies on HTML; [`v1`](https://github.com/stencila/stencila/tree/v1/rust/codec-pdf) |
+| Format           | Encoding | Decoding | Notes                                                                                                        |
+| ---------------- | -------- | -------- | ------------------------------------------------------------------------------------------------------------ |
+| JSON             | 🟢       | 🟢       |                                                                                                              |
+| JSON5            | 🟢       | 🟢       |                                                                                                              |
+| YAML             | 🟢       | 🟢       |                                                                                                              |
+| Plain text       | ⚠️       |          |                                                                                                              |
+| HTML             | 🚧       | 🧭       |                                                                                                              |
+| JATS             | 🚧       | 🚧       | Planned for completion Q4 2023. Port decoding and tests from [`encoda`](https://github.com/stencila/encoda/) |
+| Markdown         | 🚧       | 🧭       | Planned Q3 2023 [`v1`](https://github.com/stencila/stencila/tree/v1/rust/codec-md)                           |
+| R Markdown       | 🧭       | 🧭       | Relies on Markdown; [`v1`](https://github.com/stencila/stencila/tree/v1/rust/codec-rmd)                      |
+| Jupyter Notebook | 🧭       | 🧭       | Relies on Markdown; [`v1`](https://github.com/stencila/stencila/tree/v1/rust/codec-ipynb)                    |
+| Scripts          | 🧭       | 🧭       | Relies on Markdown; [`v1`](https://github.com/stencila/stencila/tree/v1/rust/codec-script)                   |
+| Pandoc           | 🧭       | 🧭       | Planned Q4 2023. [`v1`](https://github.com/stencila/stencila/tree/v1/rust/codec-pandoc)                      |
+| LaTeX            | 🧭       | 🧭       | Relies on Pandoc; [`v1`](https://github.com/stencila/stencila/tree/v1/rust/codec-latex)                      |
+| Org              | 🧭       | 🧭       | Relies on Pandoc; [PR](https://github.com/stencila/stencila/pull/1485)                                       |
+| Microsoft Word   | 🧭       | 🧭       | Relies on Pandoc; [`v1`](https://github.com/stencila/stencila/tree/v1/rust/codec-docx)                       |
+| ODT              | 🧭       | 🧭       | Relies on Pandoc                                                                                             |
+| Google Docs      | 🧭       | 🧭       | Planned Q1 2024 [`v1`](https://github.com/stencila/stencila/tree/v1/rust/codec-gdoc)                         |
+| PDF              | 🧭       | 🧭       | Planned Q1 2024, relies on HTML; [`v1`](https://github.com/stencila/stencila/tree/v1/rust/codec-pdf)         |
 
 ### Kernels
 
@@ -182,11 +182,12 @@ Tools are what we call the self-contained Stencila products you can download and
 
 Bindings allow you to create and manage Stencila document using other programming languages. At this stage we are planning to support Python, Node.js and R but more languages may be added if there is demand.
 
-| Interface | Purpose                                                                           | Status                              |
-| --------- | --------------------------------------------------------------------------------- | ----------------------------------- |
-| Python    | Manage documents from the command line and read and edit them using a web browser | 🚧 In progress, planned for Q3 2023 |
-| Node.js   | Manage, read and edit documents from a desktop app                                | 🧭 Planned Q3 2023                  |
-| R         | Manage, read and edit documents from within VSCode                                | 🧭 Planned Q4 2023                  |
+| Interface  | Description                                                     | Status                                                                                                                                                                    |
+| ---------- | --------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Python     | Types and bindings for using Stencila from within Python        | 🚧 In progress, planned for Q3 2023                                                                                                                                       |
+| TypeScript | JavaScript classes and TypeScript types for the Stencila Schema | [![](https://img.shields.io/npm/v/%40stencila%2Ftypes.svg?label=npm%20%40stencila%2Ftypes&color=1d3bd1&labelColor=3219a8)](https://www.npmjs.com/package/@stencila/types) |
+| Node.js    | Types and bindings for using Stencila from within Node.js       | 🚧 In progress, planned for Q3 2023                                                                                                                                       |
+| R          | Types and bindings for using Stencila from within R             | 🧭 Planned Q4 2023                                                                                                                                                        |
 
 ## 📜 Documentation
 
