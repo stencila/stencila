@@ -20,7 +20,10 @@ lint: node_modules
 	npm run lint
 
 # Run tests
+# It's necessary to build the @stencila/types package first because
+# at present that is linked in the package.json with a relative path
 test: node_modules
+	make -C ../typescript build
 	npm run build:debug
 	npm run compile
 	npm test
