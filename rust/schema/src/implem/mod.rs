@@ -17,6 +17,7 @@ mod list;
 mod list_items;
 mod math_block;
 mod math_fragment;
+mod media_objects;
 mod node;
 mod null;
 mod object;

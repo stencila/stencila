@@ -8,6 +8,7 @@ html:
   custom: true
 jats:
   elem: inline-media
+  special: true
 markdown:
   format: '![]({content_url})'
 properties:
