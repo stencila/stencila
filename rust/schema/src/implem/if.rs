@@ -20,12 +20,14 @@ impl If {
 
             let (content_md, mut content_losses) = content.to_markdown();
             md.push_str(&content_md);
-            losses.append(&mut content_losses);
+            losses.add_all(&mut content_losses);
         }
 
         if !self.clauses.is_empty() {
             md.push_str(":::\n\n");
         }
+
+        // TODO: losses for executable properties
 
         (md, losses)
     }

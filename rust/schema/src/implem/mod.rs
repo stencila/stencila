@@ -14,7 +14,7 @@ mod r#if;
 mod include;
 mod insert;
 mod list;
-mod list_items;
+mod list_item;
 mod math_block;
 mod math_fragment;
 mod media_objects;

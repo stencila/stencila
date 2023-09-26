@@ -7,7 +7,7 @@ impl ListItem {
             false => Inline::String("[ ] ".to_string()),
         });
 
-        let (md, losses) = match &self.content {
+        let (md, mut losses) = match &self.content {
             Some(content) => match content {
                 BlocksOrInlines::Inlines(inlines) => match checkbox {
                     Some(checkbox) => [vec![checkbox], inlines.clone()].concat().to_markdown(),
@@ -24,7 +24,7 @@ impl ListItem {
                             let (rest_md, mut rest_losses) = blocks[1..].to_vec().to_markdown();
 
                             md.push_str(&rest_md);
-                            losses.append(&mut rest_losses);
+                            losses.add_all(&mut rest_losses);
 
                             (md, losses)
                         } else {
@@ -36,6 +36,16 @@ impl ListItem {
             },
             None => (String::new(), Losses::none()),
         };
+
+        if self.id.is_some() {
+            losses.add("ListItem.id")
+        }
+        if self.item.is_some() {
+            losses.add("ListItem.item")
+        }
+        if self.position.is_some() {
+            losses.add("ListItem.position")
+        }
 
         (md, losses)
     }

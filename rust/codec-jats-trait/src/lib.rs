@@ -3,7 +3,7 @@
 use quick_xml::escape::escape;
 
 pub use codec_jats_derive::JatsCodec;
-use codec_losses::{Loss, LossDirection, Losses};
+use codec_losses::Losses;
 
 pub mod encode;
 
@@ -25,7 +25,7 @@ macro_rules! to_string {
                     String::new(),
                     Vec::new(),
                     self.to_string(),
-                    Losses::new([Loss::of_type(LossDirection::Encode, $name)]),
+                    Losses::one(concat!($name, "@")),
                 )
             }
         }

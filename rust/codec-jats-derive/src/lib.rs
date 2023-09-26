@@ -95,7 +95,7 @@ fn derive_struct(type_attr: TypeAttr) -> TokenStream {
                         String::new(),
                         Vec::new(),
                         String::new(),
-                        Losses::of_everything(LossDirection::Encode, stringify!(#struct_name))
+                        Losses::one(stringify!(#struct_name))
                     )
                 }
             }
@@ -125,13 +125,13 @@ fn derive_struct(type_attr: TypeAttr) -> TokenStream {
                 let mut parts = self.#field_name.to_jats_parts();
                 attrs.append(&mut parts.1);
                 content.push_str(&parts.2);
-                losses.append(&mut parts.3);
+                losses.add_all(&mut parts.3);
             }
         } else if let Some(attr) = field_attr.attr {
             quote! {
                 let (field_text, mut field_losses) = self.#field_name.to_text();
                 attrs.push((#attr.to_string(), field_text));
-                losses.append(&mut field_losses);
+                losses.add_all(&mut field_losses);
             }
         } else if let Some(elem) = field_attr.elem {
             quote! {
@@ -139,19 +139,19 @@ fn derive_struct(type_attr: TypeAttr) -> TokenStream {
                 if !field_jats.is_empty() {
                     content.push_str(&elem_no_attrs(#elem, field_jats));
                 }
-                losses.append(&mut field_losses);
+                losses.add_all(&mut field_losses);
             }
         } else if field_name == "content" || field_attr.content {
             quote! {
                 let (field_jats, mut field_losses) = self.#field_name.to_jats();
                 content.push_str(&field_jats);
-                losses.append(&mut field_losses);
+                losses.add_all(&mut field_losses);
             }
         } else {
             quote! {
-                losses.push(Loss::of_property(
-                    LossDirection::Encode, stringify!(#struct_name), stringify!(#field_name)
-                ));
+                losses.add(
+                    format!("{}.{}", stringify!(#struct_name), stringify!(#field_name))
+                );
             }
         };
         fields.extend(field_tokens)

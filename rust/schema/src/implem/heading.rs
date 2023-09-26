@@ -21,11 +21,7 @@ impl Heading {
         md.push_str("\n\n");
 
         if self.id.is_some() {
-            losses.add(Loss::of_properties(
-                LossDirection::Encode,
-                "Heading",
-                ["id".to_string()],
-            ))
+            losses.add("Heading.id")
         }
 
         (md, losses)

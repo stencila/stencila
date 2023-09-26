@@ -1,6 +1,6 @@
 //! Provides the `MarkdownCodec` trait for generating Markdown for Stencila Schema nodes
 
-use codec_losses::{Loss, LossDirection, Losses};
+use codec_losses::Losses;
 
 pub use codec_markdown_derive::MarkdownCodec;
 
@@ -13,10 +13,7 @@ macro_rules! to_string {
     ($type:ty, $name:literal) => {
         impl MarkdownCodec for $type {
             fn to_markdown(&self) -> (String, Losses) {
-                (
-                    self.to_string(),
-                    Losses::new([Loss::of_type(LossDirection::Encode, $name)]),
-                )
+                (self.to_string(), Losses::one(concat!($name, "@")))
             }
         }
     };

@@ -32,7 +32,7 @@ impl List {
 
                 let (item_md, mut item_losses) = item.to_markdown();
 
-                losses.append(&mut item_losses);
+                losses.add_all(&mut item_losses);
 
                 item_md
                     .split('\n')

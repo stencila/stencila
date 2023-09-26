@@ -3,16 +3,19 @@ use roxmltree::Document;
 use codec::{
     common::eyre::{bail, Result},
     schema::{self, Article},
-    DecodeOptions, Loss, LossDirection, Losses,
+    DecodeOptions, Losses,
 };
 
 mod back;
 mod body;
 mod front;
+mod utilities;
 
 use back::decode_back;
 use body::decode_body;
 use front::decode_front;
+
+use self::utilities::record_node_lost;
 
 /// Decode a JATS XML string to a Stencila Schema [`Node`]
 ///
@@ -21,7 +24,7 @@ use front::decode_front;
 /// type of `CreativeWork`).
 pub(super) fn decode(str: &str, _options: Option<DecodeOptions>) -> Result<(schema::Node, Losses)> {
     let mut article = Article::default();
-    let mut losses = Losses::default();
+    let mut losses = Losses::none();
 
     let dom = Document::parse(str)?;
     let root = if !dom.root_element().has_tag_name("article") {
@@ -30,17 +33,14 @@ pub(super) fn decode(str: &str, _options: Option<DecodeOptions>) -> Result<(sche
         dom.root_element()
     };
 
+    let parent = "//article";
     for child in root.children() {
         let tag = child.tag_name().name();
         match tag {
-            "front" => decode_front(&child, &mut article, &mut losses),
-            "body" => decode_body(&child, &mut article, &mut losses),
-            "back" => decode_back(&child, &mut article, &mut losses),
-            _ => {
-                if child.is_element() {
-                    losses.add(Loss::of_type(LossDirection::Decode, tag))
-                }
-            }
+            "front" => decode_front(parent, &child, &mut article, &mut losses),
+            "body" => decode_body(parent, &child, &mut article, &mut losses),
+            "back" => decode_back(parent, &child, &mut article, &mut losses),
+            _ => record_node_lost(parent, &child, &mut losses),
         }
     }
 

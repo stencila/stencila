@@ -18,7 +18,7 @@ impl CodeBlock {
         md.push_str("```\n\n");
 
         let losses = if self.id.is_some() {
-            Losses::of_id("CodeBlock")
+            Losses::one("CodeBlock.id")
         } else {
             Losses::none()
         };

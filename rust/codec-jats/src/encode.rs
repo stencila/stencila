@@ -1,4 +1,4 @@
-use codec::{common::eyre::Result, schema::Node, EncodeOptions, LossDirection, Losses};
+use codec::{common::eyre::Result, schema::Node, EncodeOptions, Losses};
 use codec_jats_trait::JatsCodec as _;
 
 /// Encode a [`Node`] as JATS XML
@@ -6,10 +6,7 @@ pub(super) fn encode(node: &Node, options: Option<EncodeOptions>) -> Result<(Str
     let EncodeOptions { compact, .. } = options.unwrap_or_default();
 
     if !matches!(node, Node::Article(..)) {
-        return Ok((
-            String::new(),
-            Losses::of_everything(LossDirection::Encode, node.to_string()),
-        ));
+        return Ok((String::new(), Losses::one(node.to_string())));
     }
 
     let (mut jats, losses) = node.to_jats();

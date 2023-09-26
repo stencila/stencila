@@ -30,8 +30,9 @@ impl CodeExpression {
         md.push('}');
 
         // TODO: Losses should include derived, execution related properties
+        // Implement as a macro which can be applied to all executable nodes
         let losses = if self.id.is_some() {
-            Losses::of_id("CodeExpression")
+            Losses::one("CodeExpression.id")
         } else {
             Losses::none()
         };

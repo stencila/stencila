@@ -8,7 +8,7 @@
     </p>
     <p>With an array output:<monospace language="python">[1, 2, 3]123</monospace>
     </p>
-    <p>With an object output:<monospace language="python">dict(a=1,b=dict())a 1 b</monospace>
+    <p>With an object output:<monospace language="python">dict(a=1,b=dict())1</monospace>
     </p>
     <p>With an empty language:<monospace language="">a + b</monospace>
     </p>

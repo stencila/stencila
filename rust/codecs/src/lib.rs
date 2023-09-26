@@ -9,15 +9,10 @@ use codec::{
     CodecSpec,
 };
 pub use codec::{
-    format::Format, Codec, CodecSupport, DecodeOptions, EncodeOptions, Losses, LossesResponse,
+    format::Format, Codec, CodecDirection, CodecSupport, DecodeOptions, EncodeOptions, Losses,
+    LossesResponse,
 };
 use node_strip::StripNode;
-
-/// The direction of conversion
-pub enum CodecDirection {
-    Decode,
-    Encode,
-}
 
 /// Get a list of all codecs
 pub fn list() -> Vec<Box<dyn Codec>> {

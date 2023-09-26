@@ -10,7 +10,7 @@ impl Article {
 
         let (content_jats, mut content_losses) = self.content.to_jats();
         let body = elem_no_attrs("body", content_jats);
-        losses.append(&mut content_losses);
+        losses.add_all(&mut content_losses);
 
         let back = elem_no_attrs("back", "");
 

@@ -11,7 +11,7 @@ impl CodeFragment {
         }
 
         let losses = if self.id.is_some() {
-            Losses::of_id("CodeFragment")
+            Losses::one("CodeFragment.id")
         } else {
             Losses::none()
         };

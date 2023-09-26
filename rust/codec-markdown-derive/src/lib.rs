@@ -66,6 +66,8 @@ fn derive_struct(type_attr: TypeAttr) -> TokenStream {
             }
         }
     } else if let Some(format) = type_attr.format {
+        // When a format is provided record loss of properties not interpolated in it
+
         let mut fields = TokenStream::new();
         type_attr.data.map_struct_fields(|field_attr| {
             let Some(field_name) = field_attr.ident else {
@@ -80,7 +82,7 @@ fn derive_struct(type_attr: TypeAttr) -> TokenStream {
             let field_tokens = if format.contains(&["{", &field_name.to_string(), "}"].concat()) {
                 let mut tokens = quote! {
                     let (#field_name, mut field_losses) = self.#field_name.to_markdown();
-                    losses.append(&mut field_losses);
+                    losses.add_all(&mut field_losses);
                 };
                 if let Some(escape) = &type_attr.escape {
                     tokens.extend(quote! {
@@ -90,7 +92,7 @@ fn derive_struct(type_attr: TypeAttr) -> TokenStream {
                 tokens
             } else {
                 quote! {
-                    lost_properties.push(stringify!(#field_name).to_string());
+                    losses.add(stringify!(#field_name));
                 }
             };
             fields.extend(field_tokens);
@@ -100,24 +102,16 @@ fn derive_struct(type_attr: TypeAttr) -> TokenStream {
             impl MarkdownCodec for #struct_name {
                 fn to_markdown(&self) -> (String, Losses) {
                     let mut losses = Losses::none();
-                    let mut lost_properties = Vec::new();
 
                     #fields
 
-                    let markdown = format!(#format);
-                    if !lost_properties.is_empty() {
-                        losses.push(Loss::of_properties(
-                            LossDirection::Encode,
-                            stringify!(#struct_name),
-                            lost_properties
-                        ));
-                    }
-
-                    (markdown, losses)
+                    (format!(#format), losses)
                 }
             }
         }
     } else {
+        // Fallback is to encode all fields but to record loss of structure
+
         let mut fields = TokenStream::new();
         type_attr.data.map_struct_fields(|field_attr| {
             let Some(field_name) = field_attr.ident else {
@@ -133,7 +127,7 @@ fn derive_struct(type_attr: TypeAttr) -> TokenStream {
                 quote! {
                     let (field_markdown, mut field_losses) = self.#field_name.to_markdown();
                     markdown.push_str(&field_markdown);
-                    losses.append(&mut field_losses);
+                    losses.add_all(&mut field_losses);
                 }
             };
             fields.extend(field_tokens)
@@ -143,7 +137,7 @@ fn derive_struct(type_attr: TypeAttr) -> TokenStream {
             impl MarkdownCodec for #struct_name {
                 fn to_markdown(&self) -> (String, Losses) {
                     let mut markdown = String::new();
-                    let mut losses = Losses::none();
+                    let mut losses = Losses::one(concat!(stringify!(#struct_name), "#"));
 
                     #fields
 

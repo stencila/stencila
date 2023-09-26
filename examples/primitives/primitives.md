@@ -1,1 +1,1 @@
-boolean true integer -123 unsignedInteger 234 number 3.45 string Hello object  array false -123 234 3.45 Hello a 1 b
+true -123 234 3.45 Hello  false -123 234 3.45 Hello 1

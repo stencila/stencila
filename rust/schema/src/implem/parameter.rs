@@ -155,11 +155,7 @@ impl Parameter {
 
                 _ => {
                     // TODO: Implement encoding for other validators
-                    losses.push(Loss::of_properties(
-                        LossDirection::Encode,
-                        "Parameter",
-                        ["validator".to_string()],
-                    ));
+                    losses.add("Parameter.validator");
 
                     String::new()
                 }
@@ -169,6 +165,8 @@ impl Parameter {
             md.push_str(&attrs);
             md.push('}');
         }
+
+        // TODO other losses for executable nodes
 
         (md, losses)
     }

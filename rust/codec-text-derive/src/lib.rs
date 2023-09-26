@@ -40,7 +40,7 @@ fn derive_struct(input: &DeriveInput, data: &DataStruct) -> TokenStream {
             quote! {
                 let (field_text, mut field_losses) = self.#field_name.to_text();
                 text.push_str(&field_text);
-                losses.append(&mut field_losses);
+                losses.add_all(&mut field_losses);
             }
         };
         fields.extend(field);
@@ -50,10 +50,7 @@ fn derive_struct(input: &DeriveInput, data: &DataStruct) -> TokenStream {
         impl TextCodec for #struct_name {
             fn to_text(&self) -> (String, Losses) {
                 let mut text = String::new();
-                let mut losses = Losses::new([Loss::of_structure(
-                    LossDirection::Encode,
-                    stringify!(#struct_name)
-                )]);
+                let mut losses = Losses::one(concat!(stringify!(#struct_name), "#"));
 
                 #fields
 

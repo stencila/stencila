@@ -1,30 +1,30 @@
 use roxmltree::Node;
 
 use codec::{
-    common::itertools::Itertools,
     schema::{
         shortcuts::{em, p, s, strong, sub, sup, text, u},
         Article, AudioObject, AudioObjectOptions, Block, ImageObject, ImageObjectOptions, Inline,
         Inlines, MediaObject, MediaObjectOptions, ThematicBreak,
     },
-    Loss, LossDirection, Losses,
+    Losses,
 };
+
+use super::utilities::{extend_path, record_attrs_lost, record_node_lost};
 
 /// Decode the `<body>` of an `<article>`
 ///
 /// Iterates over all child elements and either decodes them (by delegating to
 /// the corresponding `decode_*` function for the element name), or adds them to
 /// losses.
-pub(super) fn decode_body(node: &Node, article: &mut Article, losses: &mut Losses) {
+pub(super) fn decode_body(path: &str, node: &Node, article: &mut Article, losses: &mut Losses) {
     for child in node.children() {
         let tag = child.tag_name().name();
+        let path = extend_path(path, tag);
         let block = match tag {
-            "p" => decode_p(&child, losses),
-            "hr" => decode_hr(&child, losses),
+            "p" => decode_p(&path, &child, losses),
+            "hr" => decode_hr(&path, &child, losses),
             _ => {
-                if child.is_element() {
-                    losses.add(Loss::of_type(LossDirection::Decode, tag))
-                }
+                record_node_lost(&path, node, losses);
                 continue;
             }
         };
@@ -33,15 +33,15 @@ pub(super) fn decode_body(node: &Node, article: &mut Article, losses: &mut Losse
 }
 
 /// Decode a `<p>` to a [`Block::Paragraph`]
-fn decode_p(node: &Node, losses: &mut Losses) -> Block {
-    record_attributes_lost(node, losses, []);
+fn decode_p(path: &str, node: &Node, losses: &mut Losses) -> Block {
+    record_attrs_lost(path, node, [], losses);
 
-    p(decode_inlines(node, losses))
+    p(decode_inlines(path, node, losses))
 }
 
 /// Decode a `<hr>` to a [`Block::ThematicBreak`]
-fn decode_hr(node: &Node, losses: &mut Losses) -> Block {
-    record_attributes_lost(node, losses, []);
+fn decode_hr(path: &str, node: &Node, losses: &mut Losses) -> Block {
+    record_attrs_lost(path, node, [], losses);
 
     Block::ThematicBreak(ThematicBreak::new())
 }
@@ -50,28 +50,28 @@ fn decode_hr(node: &Node, losses: &mut Losses) -> Block {
 ///
 /// Iterates over all child elements and either decodes them, or adds them to
 /// losses.
-fn decode_inlines(node: &Node, losses: &mut Losses) -> Inlines {
+fn decode_inlines(path: &str, node: &Node, losses: &mut Losses) -> Inlines {
     let mut inlines = Inlines::new();
     for child in node.children() {
         let inline = if child.is_text() {
             text(child.text().unwrap_or_default())
         } else {
             let tag = child.tag_name().name();
+            let path = extend_path(path, tag);
             match tag {
-                "inline-media" | "inline-graphic" => decode_inline_media(&child, losses),
+                "inline-media" | "inline-graphic" => decode_inline_media(&path, &child, losses),
                 _ => {
-                    record_attributes_lost(&child, losses, []);
+                    record_attrs_lost(&path, &child, [], losses);
+
                     match tag {
-                        "bold" => strong(decode_inlines(&child, losses)),
-                        "italic" => em(decode_inlines(&child, losses)),
-                        "strike" => s(decode_inlines(&child, losses)),
-                        "sub" => sub(decode_inlines(&child, losses)),
-                        "sup" => sup(decode_inlines(&child, losses)),
-                        "underline" => u(decode_inlines(&child, losses)),
+                        "bold" => strong(decode_inlines(&path, &child, losses)),
+                        "italic" => em(decode_inlines(&path, &child, losses)),
+                        "strike" => s(decode_inlines(&path, &child, losses)),
+                        "sub" => sub(decode_inlines(&path, &child, losses)),
+                        "sup" => sup(decode_inlines(&path, &child, losses)),
+                        "underline" => u(decode_inlines(&path, &child, losses)),
                         _ => {
-                            if child.is_element() {
-                                losses.add(Loss::of_type(LossDirection::Decode, tag))
-                            }
+                            record_node_lost(&path, &child, losses);
                             continue;
                         }
                     }
@@ -87,7 +87,7 @@ fn decode_inlines(node: &Node, losses: &mut Losses) -> Inlines {
 /// or [`Inline::VideoObject`]
 ///
 /// Resolves the destination type based on the `mimetype` attribute of the element.
-fn decode_inline_media(node: &Node, losses: &mut Losses) -> Inline {
+fn decode_inline_media(path: &str, node: &Node, losses: &mut Losses) -> Inline {
     let content_url = node.attribute("href").map(String::from).unwrap_or_default();
 
     let mime_type = node.attribute("mimetype").map(String::from);
@@ -98,20 +98,17 @@ fn decode_inline_media(node: &Node, losses: &mut Losses) -> Inline {
         _ => None,
     };
 
-    record_attributes_lost(node, losses, ["href", "mimetype", "mime-subtype"]);
+    record_attrs_lost(path, node, ["href", "mimetype", "mime-subtype"], losses);
 
     let mut alternate_names = None;
     let mut description = None;
     for child in node.children() {
         let tag = child.tag_name().name();
+        let path = extend_path(path, tag);
         match tag {
             "alt-text" => alternate_names = child.text().map(|content| vec![content.to_string()]),
             "long-desc" => description = child.text().map(|content| vec![p([text(content)])]),
-            _ => {
-                if child.is_element() {
-                    losses.add(Loss::of_type(LossDirection::Decode, tag))
-                }
-            }
+            _ => record_node_lost(&path, &child, losses),
         }
     }
 
@@ -156,26 +153,5 @@ fn decode_inline_media(node: &Node, losses: &mut Losses) -> Inline {
             }),
             ..Default::default()
         }),
-    }
-}
-
-/// Record the attributes of a node that are lost when decoding
-///
-/// Pass the names of the of the attributes (not namespaced) that _are_
-/// decoded in the `not_lost` parameter.
-fn record_attributes_lost<'lt, I>(node: &Node, losses: &mut Losses, not_lost: I)
-where
-    I: IntoIterator<Item = &'lt str>,
-{
-    let not_lost = not_lost.into_iter().collect_vec();
-    for attribute in node.attributes() {
-        let name = attribute.name();
-        if not_lost.contains(&name) {
-            losses.push(Loss::of_property(
-                LossDirection::Decode,
-                node.tag_name().name(),
-                name,
-            ));
-        }
     }
 }

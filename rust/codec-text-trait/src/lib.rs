@@ -1,6 +1,6 @@
 //! Trait for encoding to plain text
 
-use codec_losses::{Loss, LossDirection, Losses};
+use codec_losses::Losses;
 
 pub use codec_text_derive::TextCodec;
 
@@ -13,10 +13,7 @@ macro_rules! to_string {
     ($type:ty, $name:literal) => {
         impl TextCodec for $type {
             fn to_text(&self) -> (String, Losses) {
-                (
-                    self.to_string(),
-                    Losses::new([Loss::of_type(LossDirection::Encode, $name)]),
-                )
+                (self.to_string(), Losses::one(concat!($name, "@")))
             }
         }
     };

@@ -15,17 +15,19 @@ impl For {
 
         let (content, mut content_losses) = self.content.to_markdown();
         md.push_str(&content);
-        losses.append(&mut content_losses);
+        losses.add_all(&mut content_losses);
 
         if let Some(otherwise) = &self.otherwise {
             md.push_str("::: else\n\n");
 
             let (otherwise, mut otherwise_losses) = otherwise.to_markdown();
             md.push_str(&otherwise);
-            losses.append(&mut otherwise_losses);
+            losses.add_all(&mut otherwise_losses);
         }
 
         md.push_str(":::\n\n");
+
+        // TODO: losses for executable properties
 
         (md, losses)
     }

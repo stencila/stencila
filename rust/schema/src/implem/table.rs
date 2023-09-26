@@ -56,7 +56,7 @@ impl Table {
                 }
 
                 cells.push(content_md);
-                losses.append(&mut content_losses);
+                losses.add_all(&mut content_losses);
             }
             rows.push(cells);
         }
@@ -103,6 +103,8 @@ impl Table {
             "| ", &first, " |\n", "| ", &dashes, " |\n", "| ", &rest, " |\n\n",
         ]
         .concat();
+
+        // TODO add losses for creative work properties
 
         (md, losses)
     }

@@ -1,8 +1,5 @@
-use std::fmt;
-
 use common::{
     clap::{self, ValueEnum},
-    derive_more::{Deref, DerefMut},
     eyre::{bail, eyre, Result},
     itertools::Itertools,
     smart_default::SmartDefault,
@@ -10,63 +7,14 @@ use common::{
     tracing,
 };
 
-/// The direction of loss
-#[derive(Debug, Clone, PartialEq)]
-pub enum LossDirection {
-    Decode,
-    Encode,
-}
-
-impl fmt::Display for LossDirection {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        use LossDirection::*;
-
-        match self {
-            Decode => write!(f, "Decoding loss"),
-            Encode => write!(f, "Encoding loss"),
-        }
-    }
-}
-
-/// The kind of a loss
-#[derive(Debug, PartialEq)]
-pub enum LossKind {
-    Type,
-    Structure,
-    Properties(Vec<String>),
-    Todo,
-}
-
-impl fmt::Display for LossKind {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        use LossKind::*;
-
-        match self {
-            Type => write!(f, "type lost"),
-            Structure => write!(f, "structure lost"),
-            Properties(props) => match props.len() {
-                0 => write!(f, "properties lost"),
-                1 => write!(f, "property {} lost", props[0]),
-                _ => write!(f, "properties {} lost", props.join(", ")),
-            },
-            Todo => write!(f, "not yet implemented"),
-        }
-    }
-}
-
 /// A record of a loss during encoding or decoding
 #[derive(Debug, SmartDefault)]
 pub struct Loss {
-    /// The direction of loss e.g. [`LossDirection::Decode`]
-    #[default(_code = "LossDirection::Decode")]
-    direction: LossDirection,
-
-    /// The type for which the loss occurred e.g. `Paragraph`
-    r#type: String,
-
-    /// The kind of loss e.g. [`LossKind::Structure`]
-    #[default(_code = "LossKind::Type")]
-    kind: LossKind,
+    /// A label for the loss
+    ///
+    /// The convention used for the label will depend upon the format
+    /// and the direction (encoding or decoding).
+    label: String,
 
     /// A count of the number of times the loss occurred
     #[default = 1]
@@ -74,72 +22,27 @@ pub struct Loss {
 }
 
 impl Loss {
-    /// Create a loss with [`LossKind::Type`]
-    pub fn of_type<T>(direction: LossDirection, r#type: T) -> Self
+    /// Create a new loss
+    pub fn new<T>(label: T) -> Self
     where
         T: AsRef<str>,
     {
         Loss {
-            direction,
-            r#type: r#type.as_ref().to_string(),
-            kind: LossKind::Type,
+            label: label.as_ref().to_string(),
             ..Default::default()
         }
     }
+}
 
-    /// Create a loss with [`LossKind::Structure`]
-    pub fn of_structure<T>(direction: LossDirection, r#type: T) -> Self
-    where
-        T: AsRef<str>,
-    {
-        Loss {
-            direction,
-            r#type: r#type.as_ref().to_string(),
-            kind: LossKind::Structure,
-            ..Default::default()
-        }
+impl From<&str> for Loss {
+    fn from(label: &str) -> Self {
+        Self::new(label)
     }
+}
 
-    /// Create a loss with [`LossKind::Properties`] for a single property
-    pub fn of_property<T, P>(direction: LossDirection, r#type: T, property: P) -> Self
-    where
-        T: AsRef<str>,
-        P: AsRef<str>,
-    {
-        Loss {
-            direction,
-            r#type: r#type.as_ref().to_string(),
-            kind: LossKind::Properties(vec![property.as_ref().to_string()]),
-            ..Default::default()
-        }
-    }
-
-    /// Create a loss with [`LossKind::Properties`]
-    pub fn of_properties<T, I>(direction: LossDirection, r#type: T, properties: I) -> Self
-    where
-        T: AsRef<str>,
-        I: IntoIterator<Item = String>,
-    {
-        let properties = properties.into_iter().collect_vec();
-        Loss {
-            direction,
-            r#type: r#type.as_ref().to_string(),
-            kind: LossKind::Properties(properties),
-            ..Default::default()
-        }
-    }
-
-    /// Create a loss with [`LossKind::Todo`]
-    pub fn todo<T>(direction: LossDirection, r#type: T) -> Self
-    where
-        T: AsRef<str>,
-    {
-        Loss {
-            direction,
-            r#type: r#type.as_ref().to_string(),
-            kind: LossKind::Todo,
-            ..Default::default()
-        }
+impl From<String> for Loss {
+    fn from(label: String) -> Self {
+        Self::new(label)
     }
 }
 
@@ -164,19 +67,19 @@ pub enum LossesResponse {
 }
 
 /// Decoding and encoding losses
-#[derive(Debug, Default, Deref, DerefMut)]
+#[derive(Debug, Default)]
 pub struct Losses {
     inner: Vec<Loss>,
 }
 
 impl Losses {
-    /// Create a new set of losses
-    pub fn new<T>(items: T) -> Self
+    /// Create a set of losses
+    pub fn new<T>(inner: T) -> Self
     where
         T: IntoIterator<Item = Loss>,
     {
         Self {
-            inner: items.into_iter().collect_vec(),
+            inner: inner.into_iter().collect_vec(),
         }
     }
 
@@ -188,55 +91,41 @@ impl Losses {
         Self::default()
     }
 
-    /// Indicate that enumerating the losses for a codec is yet to be implemented
+    /// Create a set of losses with a single [`Loss`]
+    pub fn one<S>(label: S) -> Self
+    where
+        S: AsRef<str>,
+    {
+        Self::new([Loss::new(label)])
+    }
+
+    /// Indicate that enumerating the losses is not yet implemented
     pub fn todo() -> Self {
         Self::default()
-    }
-
-    /// Create a set of losses for entire node
-    pub fn of_everything<S>(direction: LossDirection, r#type: S) -> Self
-    where
-        S: AsRef<str>,
-    {
-        Self::new([
-            Loss::of_type(direction.clone(), r#type.as_ref()),
-            Loss::of_properties(direction, r#type, ["*".to_string()]),
-        ])
-    }
-
-    /// Create a set of losses with one entry for the loss of the id property
-    ///
-    /// This is a convenience function provided because often, `id` is the
-    /// only property that is potentially lost.
-    pub fn of_id<S>(r#type: S) -> Self
-    where
-        S: AsRef<str>,
-    {
-        Self::new([Loss::of_properties(
-            LossDirection::Encode,
-            r#type,
-            ["id".to_string()],
-        )])
     }
 
     /// Push a loss onto this list of losses
     ///
     /// If the type of loss is already registered then increments the count by one.
-    pub fn add(&mut self, loss: Loss) {
-        for existing in self.iter_mut() {
-            if existing.r#type == loss.r#type && existing.kind == loss.kind {
+    pub fn add<L>(&mut self, loss: L)
+    where
+        L: Into<Loss>,
+    {
+        let loss = loss.into();
+        for existing in self.inner.iter_mut() {
+            if existing.label == loss.label {
                 existing.count += 1;
                 return;
             }
         }
 
-        self.push(loss)
+        self.inner.push(loss)
     }
 
     /// Append another list of losses onto this one
     pub fn add_all(&mut self, losses: &mut Losses) {
-        for _ in 0..losses.len() {
-            let loss = losses.swap_remove(0);
+        for _ in 0..losses.inner.len() {
+            let loss = losses.inner.swap_remove(0);
             self.add(loss)
         }
     }
@@ -245,63 +134,36 @@ impl Losses {
     pub fn respond(&self, response: LossesResponse) -> Result<()> {
         use LossesResponse::*;
 
-        if self.is_empty() || matches!(response, Ignore) {
+        if self.inner.is_empty() || matches!(response, Ignore) {
             return Ok(());
         }
 
         if matches!(response, Abort) {
             let summary = self
+                .inner
                 .iter()
-                .map(
-                    |Loss {
-                         direction,
-                         r#type,
-                         kind,
-                         count,
-                     }| format!("{direction} for {type}: {kind} ({count})"),
-                )
-                .join("; ");
+                .map(|Loss { label, count }| format!("{label}({count})"))
+                .join(", ");
             let error = eyre!(summary).wrap_err("Conversion losses occurred");
             return Err(error);
         }
 
-        for Loss {
-            direction,
-            r#type,
-            kind,
-            count,
-        } in self.iter()
-        {
+        for Loss { label, count } in self.inner.iter() {
             match response {
                 Trace => {
-                    tracing::event!(
-                        tracing::Level::TRACE,
-                        "{direction} for {type}: {kind} ({count})"
-                    );
+                    tracing::event!(tracing::Level::TRACE, "{label}({count})");
                 }
                 Debug => {
-                    tracing::event!(
-                        tracing::Level::DEBUG,
-                        "{direction} for {type}: {kind} ({count})"
-                    );
+                    tracing::event!(tracing::Level::DEBUG, "{label}({count})");
                 }
                 Info => {
-                    tracing::event!(
-                        tracing::Level::INFO,
-                        "{direction} for {type}: {kind} ({count})"
-                    );
+                    tracing::event!(tracing::Level::INFO, "{label}({count})");
                 }
                 Warn => {
-                    tracing::event!(
-                        tracing::Level::WARN,
-                        "{direction} for {type}: {kind} ({count})"
-                    );
+                    tracing::event!(tracing::Level::WARN, "{label}({count})");
                 }
                 Error => {
-                    tracing::event!(
-                        tracing::Level::ERROR,
-                        "{direction} for {type}: {kind} ({count})"
-                    );
+                    tracing::event!(tracing::Level::ERROR, "{label}({count})");
                 }
                 _ => bail!("Should be unreachable"),
             };

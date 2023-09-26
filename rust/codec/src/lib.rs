@@ -17,11 +17,17 @@ use schema::{Node, NodeType};
 use status::Status;
 
 // Re-exports for the convenience of internal crates implementing `Codec`
-pub use codec_losses::{Loss, LossDirection, LossKind, Losses, LossesResponse};
+pub use codec_losses::{Loss, Losses, LossesResponse};
 pub use common;
 pub use format;
 pub use schema;
 pub use status;
+
+/// The direction of conversion
+pub enum CodecDirection {
+    Decode,
+    Encode,
+}
 
 /// A codec for decoding/encoding between Stencila Schema nodes and alternative formats
 #[async_trait]
@@ -84,18 +90,18 @@ pub trait Codec: Sync + Send {
     }
 
     /// Get a list of types that the codec has either lossy decoding, or encoding, or both
-    fn lossy_types(&self, direction: Option<LossDirection>) -> Vec<NodeType> {
+    fn lossy_types(&self, direction: Option<CodecDirection>) -> Vec<NodeType> {
         let mut types = Vec::new();
 
         for node_type in NodeType::iter() {
-            if (direction.is_none() || matches!(direction, Some(LossDirection::Decode)))
+            if (direction.is_none() || matches!(direction, Some(CodecDirection::Decode)))
                 && self.supports_from_type(node_type).is_lossy()
                 && !types.contains(&node_type)
             {
                 types.push(node_type)
             }
 
-            if (direction.is_none() || matches!(direction, Some(LossDirection::Encode)))
+            if (direction.is_none() || matches!(direction, Some(CodecDirection::Encode)))
                 && self.supports_to_type(node_type).is_lossy()
                 && !types.contains(&node_type)
             {

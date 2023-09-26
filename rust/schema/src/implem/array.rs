@@ -58,27 +58,14 @@ impl HtmlCodec for Array {
 
 impl MarkdownCodec for Array {
     fn to_markdown(&self) -> (String, Losses) {
-        let mut markdown = String::new();
-        let mut losses = Losses::none();
-
-        for (index, item) in self.iter().enumerate() {
-            if index != 0 {
-                markdown.push(' ');
-            }
-
-            let (item_markdown, mut item_losses) = item.to_markdown();
-            markdown.push_str(&item_markdown);
-            losses.add_all(&mut item_losses);
-        }
-
-        (markdown, losses)
+        self.to_text()
     }
 }
 
 impl TextCodec for Array {
     fn to_text(&self) -> (String, Losses) {
         let mut text = String::new();
-        let mut losses = Losses::none();
+        let mut losses = Losses::one("Array#");
 
         for (index, item) in self.iter().enumerate() {
             if index != 0 {
@@ -88,6 +75,10 @@ impl TextCodec for Array {
             let (item_text, mut item_losses) = item.to_text();
             text.push_str(&item_text);
             losses.add_all(&mut item_losses);
+        }
+
+        if !text.is_empty() {
+            text.push(' ');
         }
 
         (text, losses)
