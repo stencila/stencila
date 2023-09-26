@@ -1,8 +1,8 @@
 # Generated files
-/index.js
-/index.d.ts
-/main.js
-/main.d.ts
+/*.js
+/*.mjs
+/*.d.ts
+/*.d.mts
 
 # Built extensions
 *.node

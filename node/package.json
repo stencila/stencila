@@ -1,17 +1,18 @@
 {
   "name": "@stencila/node",
   "version": "0.0.0",
+  "license": "Apache-2.0",
   "main": "main.js",
   "types": "main.d.ts",
-  "license": "Apache-2.0",
   "scripts": {
     "fix": "eslint --fix '*.ts'",
     "lint": "eslint '*.ts'",
     "artifacts": "napi artifacts",
-    "build": "napi build --platform --release && tsc",
+    "build": "napi build --platform --release",
     "build:debug": "napi build --platform",
+    "compile": "tsc -p tsconfig-build.json",
     "prepublishOnly": "napi prepublish -t npm",
-    "test": "jest",
+    "test": "NODE_OPTIONS=--experimental-vm-modules npx jest",
     "universal": "napi universal",
     "version": "napi version"
   },
@@ -23,19 +24,8 @@
     "triples": {}
   },
   "jest": {
-    "preset": "ts-jest/presets/js-with-ts-esm",
-    "testTimeout": 180000,
-    "transform": {
-      "\\.(j|t)s$": [
-        "ts-jest",
-        {
-          "tsconfig": {
-            "allowJs": true
-          }
-        }
-      ]
-    },
-    "transformIgnorePatterns": ["main\\.js$"]
+    "testMatch": ["**/*.test.mjs"],
+    "moduleFileExtensions": ["js", "mjs"]
   },
   "devDependencies": {
     "@napi-rs/cli": "2.16.3",
@@ -46,7 +36,6 @@
     "eslint": "8.50.0",
     "jest": "29.7.0",
     "tmp": "0.2.1",
-    "ts-jest": "29.1.1",
     "typescript": "5.2.2"
   },
   "optionalDependencies": {
@@ -55,6 +44,6 @@
     "@stencila/node-win32-x64-msvc": "0.0.0"
   },
   "dependencies": {
-    "@stencila/types": "^2.0.0-alpha.9"
+    "@stencila/types": "../typescript"
   }
 }

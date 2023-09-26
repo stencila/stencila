@@ -1,15 +1,16 @@
 import { Article, Paragraph, Strong, Text } from "@stencila/types";
 import * as tmp from "tmp";
 
-import { convert, fromString, fromPath, toString, toPath } from "../main";
+import { toPath, toString, fromPath, fromString, fromTo } from "../convert.mjs";
 
 test("fromString", async () => {
-  const node = (await fromString(
+  const node = await fromString(
     '{type: "Article", content: [{type: "Paragraph", content: "Hello world"}]}',
     {
       format: "json5",
     }
-  )) as any;
+  );
+
   expect(node instanceof Article);
   expect(node.content[0] instanceof Paragraph);
   expect(node).toMatchSnapshot();
@@ -17,7 +18,9 @@ test("fromString", async () => {
 
 test("fromPath", async () => {
   const node = await fromPath("../examples/paragraph/paragraph.json");
+
   expect(node instanceof Article);
+  expect(node.content[0] instanceof Paragraph);
   expect(node).toMatchSnapshot();
 });
 
@@ -26,6 +29,7 @@ test("toString", async () => {
     new Paragraph(["Hello ", new Strong(["again"]), "!"]),
   ]);
   const jats = await toString(node, { format: "jats" });
+
   expect(jats).toMatchSnapshot();
 });
 
@@ -41,13 +45,13 @@ test("toPath", async () => {
   expect(roundTrip).toEqual(original);
 });
 
-test("convert", async () => {
-  const md = await convert("../examples/paragraph/paragraph.json", null, null, {
+test("fromTo", async () => {
+  const md = await fromTo("../examples/paragraph/paragraph.json", null, null, {
     format: "md",
   });
   expect(md).toMatchSnapshot();
 
-  const html = await convert(
+  const html = await fromTo(
     "../examples/paragraph/paragraph.json",
     null,
     null,

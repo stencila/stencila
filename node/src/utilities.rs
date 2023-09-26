@@ -1,3 +1,5 @@
+//! Internal utility functions
+
 use napi::{Error, Status};
 
 use common::eyre;

@@ -1,3 +1,5 @@
+//! Exposes format conversion functionality provided by Rust codecs
+
 use std::path::PathBuf;
 
 use napi::Result;
@@ -136,7 +138,7 @@ pub async fn to_path(json: String, path: String, options: Option<EncodeOptions>)
 
 /// Convert a document from one format to another
 #[napi]
-pub async fn convert(
+pub async fn from_to(
     input: Option<String>,
     output: Option<String>,
     decode_options: Option<DecodeOptions>,
