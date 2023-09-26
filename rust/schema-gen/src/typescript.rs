@@ -144,6 +144,7 @@ impl Schemas {
         let stop = content.rfind(CASES_STOP).expect("should exist");
         let cases = self.schemas.iter()
             .filter_map(|(name, schema)| (schema.any_of.is_none() && schema.r#type.is_none()).then_some(name))
+            .sorted()
             .map(|name| {
                 format!(
                     "    case \"{name}\":\n      return value instanceof types.{name} ? value : Object.setPrototypeOf(value, types.{name}.prototype);\n"

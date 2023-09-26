@@ -57,6 +57,7 @@
         "Pydantic",
         "rdfs",
         "requireds",
+        "rfind",
         "rowspan",
         "rustfmt",
         "schemars",
