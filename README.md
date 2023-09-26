@@ -86,8 +86,8 @@ The Stencila Schema is the data model for Stencila documents. Most of the schema
 | Code     | Types for executable (e.g. `CodeChunk`) and non-executable code (e.g.`CodeBlock`) | 🔶 Beta; may change                               |
 | Math     | Types for math symbols and equations (e.g.`MathBlock`)                            | 🔶 Beta; may change                               |
 | Data     | Fundamental data types (e.g.`Number`) and validators (e.g. `NumberValidator`)     | 🔶 Beta; may change                               |
-| Style    | Types for styling parts of documents (`Span` and `Division`)                      | 🚧 Under development; likely to change            |
-| Flow     | Types for document control flow (e.g. `If`, `For`, `Call`)                        | 🚧 Under development; likely to change            |
+| Style    | Types for styling parts of a documents (`Span` and `Division`)                    | 🚧 Under development; likely to change            |
+| Flow     | Types for control flow within a document (e.g. `If`, `For`, `Call`)               | 🚧 Under development; likely to change            |
 
 ### Storage and synchronization
 
