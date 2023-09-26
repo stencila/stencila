@@ -10,7 +10,7 @@
 
 This package provides JavaScript classes and TypeScript types for the [Stencila Schema](https://github.com/stencila/stencila/tree/main/schema#readme).
 
-Its main purpose is to allows functions in the [`@stencila/node`](https://github.com/stencila/stencila/tree/main/node) package to consume and return documents that are strongly typed. For example, with this package you could,
+Its main purpose is to allow functions in the [`@stencila/node`](https://github.com/stencila/stencila/tree/main/node) package to consume and return documents that are strongly typed. For example, with this package you could,
 
 - construct documents programmatically using TypeScript and use `@stencila/node` to write them to multiple formats (e.g. Markdown, JATS XML, PDF)
 
@@ -24,46 +24,128 @@ npm i @stencila/types
 
 ## ⚡ Usage
 
-You can construct a new document, conforming to the Stencila Schema, using the classes provided. For example, to construct an `Article` with a single "Hello world!" paragraph:
+## Object types
+
+Object types (aka product types) in the Stencila Schema are represented as JavaScript classes. The constructor for these classes has required properties as the initial parameters, and a final `options` parameter for all other properties.
+
+For example, to construct a document with a single "Hello world!" paragraph, you can construct `Article`, `Paragraph` and `Text` with required properties only:
 
 ```js
-import { Article, Paragraph, Text } from "@stencila/types";
+import { CreativeWork, Article, Paragraph, Text, Thing } from "@stencila/types";
 
 const doc = new Article([new Paragraph([new Text("Hello world!")])]);
 
 doc instanceof Article; // true
+doc instanceof CreativeWork; // true
+doc instanceof Thing; // true
+
 doc.content[0] instanceof Paragraph; // true
+
 doc.content[0].content[0] instanceof Text; // true
 ```
 
-Alternatively, you can pass JavaScript objects (perhaps parsed from JSON) to the `from` method of each class. However, note that in this case the child nodes will not be class instances:
+Pass optional properties, in the final argument to the constructor. For example, to add an author to the article:
 
 ```js
-import { Article } from "@stencila/types";
+import {
+  Article,
+  Organization,
+  Paragraph,
+  Person,
+  Text,
+} from "@stencila/types";
 
-const doc = Article.from({
-  content: [{ content: [{ value: "Hello world!" }] }],
+const doc = new Article([new Paragraph([new Text("Hello world!")])], {
+  authors: [
+    new Person({
+      givenNames: ["Alice"],
+      familyNames: ["Alvarez"],
+      affiliations: [
+        new Organization({
+          name: "Aardvark University",
+        }),
+      ],
+    }),
+  ],
 });
-
-doc instanceof Article; // true
-doc.content[0] instanceof Paragraph; // false
-doc.content[0].content[0] instanceof Text; // false
 ```
 
-There are also `*From` functions provided for the union types in the schema e.g. `nodeFrom`, `blockFrom`, `inlineFrom`. These functions will delegate to the corresponding class' constructor based on the `type` property:
+Alternatively, you may prefer to use the factory functions that are defined for each class (using the camelCased name of the type). This avoids having to type `new` and is a little more readable:
 
 ```js
-import { nodeFrom } from "@stencila/types";
+import {
+  article,
+  organization,
+  paragraph,
+  person,
+  text,
+} from "@stencila/types";
 
-const doc = nodeFrom({
-  type: "Article",
-  content: [{ content: [{ value: "Hello world!" }] }],
+const doc = article([paragraph([text("Hello world!")])], {
+  authors: [
+    person({
+      givenNames: ["Alice"],
+      familyNames: ["Alvarez"],
+      affiliations: [
+        organization({
+          name: "Aardvark University",
+        }),
+      ],
+    }),
+  ],
 });
-
-doc instanceof Article; // true
 ```
 
-At this stage, this package does not do any validation of objects passed to the 'from' functions. This may be added in the future e.g. using `ajv`.
+### Union types
+
+Union types (aka sum types) in the Stencila Schema are represented as TypeScript discriminated unions. For example, the `Block` union type is defined like so:
+
+```ts
+export type Block =
+  Call |
+  Claim |
+  CodeBlock |
+  CodeChunk |
+  Division |
+  Figure |
+  For |
+  Form |
+  Heading |
+  ...
+```
+
+In addition, for each union type a factory function is defined (again, using the camelCased name of the type). This function will, if necessary, hydrate plain JavaScript objects into the corresponding class (based on the `type` property). e.g.
+
+```ts
+import { block, paragraph, Paragraph, subscript } from "@stencila/types";
+
+const p1 = block({
+  type: "Paragraph",
+  content: [],
+});
+p1 instanceof Paragraph; // true
+
+const p2 = block(paragraph([]));
+p2 instanceof Paragraph; // true
+
+block(subscript([])); // errors because `Subscript` is not a `Block`
+```
+
+### Enumeration types
+
+Enumeration types in the Stencila Schema are represented as TypeScript literal unions. For example, the `CitationIntent` enumeration is defined like so:
+
+```ts
+export type CitationIntent =
+  'AgreesWith' |
+  'CitesAsAuthority' |
+  'CitesAsDataSource' |
+  'CitesAsEvidence' |
+  'CitesAsMetadataDocument' |
+  'CitesAsPotentialSolution' |
+  'CitesAsRecommendedReading' |
+  ...
+```
 
 ## 🛠️ Develop
 
