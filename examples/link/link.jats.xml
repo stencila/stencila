@@ -2,8 +2,8 @@
   <front>
   </front>
   <body>
-    <p>A link<ext-link xlink:href="https://example.org">example.org</ext-link>.</p>
-    <p>With a title and styled content<ext-link xlink:href="https://example.org">
+    <p>A link<ext-link xlink:href="https://example.org" xlink:title="">example.org</ext-link>.</p>
+    <p>With a title and styled content<ext-link xlink:href="https://example.org" xlink:title="a title">
         <bold>example.org</bold>
       </ext-link>.</p>
   </body>

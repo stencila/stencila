@@ -3,7 +3,7 @@ use roxmltree::Node;
 
 /// Extend a path with a new child tag name
 pub(super) fn extend_path(path: &str, tag: &str) -> String {
-    [path, tag].concat()
+    [path, "/", tag].concat()
 }
 
 /// Record the attributes of a node that are lost when encoding to JATS
@@ -17,7 +17,7 @@ where
     let not_lost = not_lost.into_iter().collect_vec();
     for attribute in node.attributes() {
         let name = attribute.name();
-        if not_lost.contains(&name) {
+        if !not_lost.contains(&name) {
             losses.add(format!("{path}/@{name}"));
         }
     }

@@ -8,7 +8,7 @@ use common::{
     itertools::Itertools,
     proc_macro2::TokenStream,
     quote::quote,
-    syn::{parse_macro_input, Data, DataEnum, DeriveInput, Fields, Ident},
+    syn::{parse_macro_input, Data, DataEnum, DeriveInput, Fields, Ident, PathSegment, Type},
 };
 
 #[derive(FromDeriveInput)]
@@ -31,6 +31,7 @@ struct TypeAttr {
 #[darling(attributes(jats))]
 struct FieldAttr {
     ident: Option<Ident>,
+    ty: Type,
 
     #[darling(default)]
     elem: Option<String>,
@@ -87,7 +88,11 @@ fn derive_struct(type_attr: TypeAttr) -> TokenStream {
         };
     }
 
-    let Some(elem) = type_attr.elem else {
+    let elem = if let Some(elem) = type_attr.elem {
+        elem
+    } else if struct_name.to_string().ends_with("Options") {
+        String::new()
+    } else {
         return quote! {
             impl JatsCodec for #struct_name {
                 fn to_jats_parts(&self) -> (String, Vec<(String, String)>, String, Losses) {
@@ -99,7 +104,7 @@ fn derive_struct(type_attr: TypeAttr) -> TokenStream {
                     )
                 }
             }
-        }
+        };
     };
 
     let mut attrs = TokenStream::new();
@@ -148,10 +153,23 @@ fn derive_struct(type_attr: TypeAttr) -> TokenStream {
                 losses.merge(field_losses);
             }
         } else {
-            quote! {
-                losses.add(
-                    format!("{}.{}", stringify!(#struct_name), stringify!(#field_name))
-                );
+            let Type::Path(type_path) = field_attr.ty else {
+                return
+            };
+            let Some(PathSegment{ident: field_type,..}) = type_path.path.segments.last() else {
+                return
+            };
+
+            let record_loss = quote! {
+                losses.add(format!("{}.{}", stringify!(#struct_name), stringify!(#field_name)));
+            };
+
+            if field_type == "Option" {
+                quote! { if self.#field_name.is_some() { #record_loss }}
+            } else if field_type == "Vec" {
+                quote! { if !self.#field_name.is_empty() { #record_loss }}
+            } else {
+                record_loss
             }
         };
         fields.extend(field_tokens)
