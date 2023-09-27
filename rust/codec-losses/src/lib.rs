@@ -1,50 +1,13 @@
+use std::{collections::BTreeMap, ops::AddAssign};
+
 use common::{
     clap::{self, ValueEnum},
     eyre::{bail, eyre, Result},
     itertools::Itertools,
-    smart_default::SmartDefault,
+    serde::Serialize,
     strum::Display,
     tracing,
 };
-
-/// A record of a loss during encoding or decoding
-#[derive(Debug, SmartDefault)]
-pub struct Loss {
-    /// A label for the loss
-    ///
-    /// The convention used for the label will depend upon the format
-    /// and the direction (encoding or decoding).
-    label: String,
-
-    /// A count of the number of times the loss occurred
-    #[default = 1]
-    count: usize,
-}
-
-impl Loss {
-    /// Create a new loss
-    pub fn new<T>(label: T) -> Self
-    where
-        T: AsRef<str>,
-    {
-        Loss {
-            label: label.as_ref().to_string(),
-            ..Default::default()
-        }
-    }
-}
-
-impl From<&str> for Loss {
-    fn from(label: &str) -> Self {
-        Self::new(label)
-    }
-}
-
-impl From<String> for Loss {
-    fn from(label: String) -> Self {
-        Self::new(label)
-    }
-}
 
 /// The response to take when there are losses in decoding or encoding
 #[derive(Debug, Clone, Copy, ValueEnum, Display)]
@@ -67,20 +30,25 @@ pub enum LossesResponse {
 }
 
 /// Decoding and encoding losses
-#[derive(Debug, Default)]
+#[derive(Default, Serialize)]
+#[serde(crate = "common::serde")]
 pub struct Losses {
-    inner: Vec<Loss>,
+    #[serde(flatten)]
+    inner: BTreeMap<String, usize>,
 }
 
 impl Losses {
     /// Create a set of losses
-    pub fn new<T>(inner: T) -> Self
+    pub fn new<I, S>(labels: I) -> Self
     where
-        T: IntoIterator<Item = Loss>,
+        I: IntoIterator<Item = S>,
+        S: AsRef<str>,
     {
-        Self {
-            inner: inner.into_iter().collect_vec(),
+        let mut losses = Self::default();
+        for label in labels {
+            losses.add(label)
         }
+        losses
     }
 
     /// Create an empty set of losses
@@ -96,7 +64,7 @@ impl Losses {
     where
         S: AsRef<str>,
     {
-        Self::new([Loss::new(label)])
+        Self::new([label])
     }
 
     /// Indicate that enumerating the losses is not yet implemented
@@ -104,30 +72,33 @@ impl Losses {
         Self::default()
     }
 
-    /// Push a loss onto this list of losses
+    /// Add a loss to the current set
     ///
     /// If the type of loss is already registered then increments the count by one.
-    pub fn add<L>(&mut self, loss: L)
+    pub fn add<S>(&mut self, label: S)
     where
-        L: Into<Loss>,
+        S: AsRef<str>,
     {
-        let loss = loss.into();
-        for existing in self.inner.iter_mut() {
-            if existing.label == loss.label {
-                existing.count += 1;
-                return;
-            }
-        }
-
-        self.inner.push(loss)
+        let label = label.as_ref().to_string();
+        self.inner
+            .entry(label)
+            .and_modify(|count| count.add_assign(1))
+            .or_insert(1);
     }
 
-    /// Append another list of losses onto this one
-    pub fn add_all(&mut self, losses: &mut Losses) {
-        for _ in 0..losses.inner.len() {
-            let loss = losses.inner.swap_remove(0);
-            self.add(loss)
+    /// Merge another set of losses into this one
+    pub fn merge(&mut self, losses: Losses) {
+        for (label, count) in losses.inner {
+            self.inner
+                .entry(label)
+                .and_modify(|current| current.add_assign(count))
+                .or_insert(count);
         }
+    }
+
+    /// Is this set of losses empty
+    pub fn is_empty(&self) -> bool {
+        self.inner.is_empty()
     }
 
     /// Respond to losses according to the `LossesResponse` variant
@@ -142,13 +113,13 @@ impl Losses {
             let summary = self
                 .inner
                 .iter()
-                .map(|Loss { label, count }| format!("{label}({count})"))
+                .map(|(label, count)| format!("{label}({count})"))
                 .join(", ");
             let error = eyre!(summary).wrap_err("Conversion losses occurred");
             return Err(error);
         }
 
-        for Loss { label, count } in self.inner.iter() {
+        for (label, count) in self.inner.iter() {
             match response {
                 Trace => {
                     tracing::event!(tracing::Level::TRACE, "{label}({count})");

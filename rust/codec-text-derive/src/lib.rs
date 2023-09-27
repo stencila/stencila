@@ -38,9 +38,9 @@ fn derive_struct(input: &DeriveInput, data: &DataStruct) -> TokenStream {
 
         let field = {
             quote! {
-                let (field_text, mut field_losses) = self.#field_name.to_text();
+                let (field_text, field_losses) = self.#field_name.to_text();
                 text.push_str(&field_text);
-                losses.add_all(&mut field_losses);
+                losses.merge(field_losses);
             }
         };
         fields.extend(field);

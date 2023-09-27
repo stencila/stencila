@@ -37,7 +37,7 @@ impl Table {
         for row in &self.rows {
             let mut cells: Vec<String> = Vec::new();
             for (column, cell) in row.cells.iter().enumerate() {
-                let (content_md, mut content_losses) = match &cell.content {
+                let (content_md, content_losses) = match &cell.content {
                     None => (String::new(), Losses::none()),
                     Some(content) => match content {
                         BlocksOrInlines::Inlines(inlines) => inlines.to_markdown(),
@@ -56,7 +56,7 @@ impl Table {
                 }
 
                 cells.push(content_md);
-                losses.add_all(&mut content_losses);
+                losses.merge(content_losses);
             }
             rows.push(cells);
         }

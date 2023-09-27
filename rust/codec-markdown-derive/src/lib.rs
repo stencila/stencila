@@ -81,8 +81,8 @@ fn derive_struct(type_attr: TypeAttr) -> TokenStream {
 
             let field_tokens = if format.contains(&["{", &field_name.to_string(), "}"].concat()) {
                 let mut tokens = quote! {
-                    let (#field_name, mut field_losses) = self.#field_name.to_markdown();
-                    losses.add_all(&mut field_losses);
+                    let (#field_name, field_losses) = self.#field_name.to_markdown();
+                    losses.merge(field_losses);
                 };
                 if let Some(escape) = &type_attr.escape {
                     tokens.extend(quote! {
@@ -125,9 +125,9 @@ fn derive_struct(type_attr: TypeAttr) -> TokenStream {
 
             let field_tokens = {
                 quote! {
-                    let (field_markdown, mut field_losses) = self.#field_name.to_markdown();
+                    let (field_markdown, field_losses) = self.#field_name.to_markdown();
                     markdown.push_str(&field_markdown);
-                    losses.add_all(&mut field_losses);
+                    losses.merge(field_losses);
                 }
             };
             fields.extend(field_tokens)

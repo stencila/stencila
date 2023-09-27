@@ -17,7 +17,7 @@ use schema::{Node, NodeType};
 use status::Status;
 
 // Re-exports for the convenience of internal crates implementing `Codec`
-pub use codec_losses::{Loss, Losses, LossesResponse};
+pub use codec_losses::{Losses, LossesResponse};
 pub use common;
 pub use format;
 pub use schema;

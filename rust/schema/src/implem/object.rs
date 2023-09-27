@@ -131,9 +131,9 @@ impl TextCodec for Object {
                 text.push(' ');
             }
 
-            let (value_text, mut value_losses) = value.to_text();
+            let (value_text, value_losses) = value.to_text();
             text.push_str(&value_text);
-            losses.add_all(&mut value_losses);
+            losses.merge(value_losses);
         }
 
         if !text.is_empty() {

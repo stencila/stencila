@@ -64,9 +64,9 @@ where
                 text.push(' ');
             }
 
-            let (item_text, mut item_losses) = item.to_text();
+            let (item_text, item_losses) = item.to_text();
             text.push_str(&item_text);
-            losses.add_all(&mut item_losses);
+            losses.merge(item_losses);
         }
 
         (text, losses)

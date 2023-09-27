@@ -8,9 +8,9 @@ impl Article {
 
         let front = elem_no_attrs("front", "");
 
-        let (content_jats, mut content_losses) = self.content.to_jats();
+        let (content_jats, content_losses) = self.content.to_jats();
         let body = elem_no_attrs("body", content_jats);
-        losses.add_all(&mut content_losses);
+        losses.merge(content_losses);
 
         let back = elem_no_attrs("back", "");
 

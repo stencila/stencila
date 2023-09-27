@@ -11,7 +11,7 @@ use common::{
     serde_yaml,
     tokio::{
         self,
-        fs::{read_to_string, write},
+        fs::{read_to_string, remove_file, write},
     },
 };
 use common_dev::pretty_assertions::assert_eq;
@@ -53,9 +53,21 @@ async fn examples_encode_decode() -> Result<()> {
     // Formats to encode examples to
     //
     // Excludes developer focussed and/or unstable formats e.g. `Debug`
-    let formats: &[(&str, Format, Option<EncodeOptions>, Option<DecodeOptions>)] = &[
+    let formats: &[(
+        &str,
+        Format,
+        Option<EncodeOptions>,
+        Option<DecodeOptions>,
+        bool, // Whether to write losses to file
+    )] = &[
         // HTML
-        ("html", Format::Html, Some(EncodeOptions::default()), None),
+        (
+            "html",
+            Format::Html,
+            Some(EncodeOptions::default()),
+            None,
+            false,
+        ),
         (
             "compact.html",
             Format::Html,
@@ -64,6 +76,7 @@ async fn examples_encode_decode() -> Result<()> {
                 ..Default::default()
             }),
             None,
+            true,
         ),
         // JATS
         (
@@ -73,6 +86,7 @@ async fn examples_encode_decode() -> Result<()> {
             // Do not test decoding since it is tested on
             // compact.jats.xml and prettifying can affect whitespace
             None,
+            false,
         ),
         (
             "compact.jats.xml",
@@ -82,6 +96,7 @@ async fn examples_encode_decode() -> Result<()> {
                 ..Default::default()
             }),
             Some(DecodeOptions::default()),
+            true,
         ),
         // JSON5
         (
@@ -89,6 +104,7 @@ async fn examples_encode_decode() -> Result<()> {
             Format::Json5,
             Some(EncodeOptions::default()),
             Some(DecodeOptions::default()),
+            true,
         ),
         (
             "compact.json5",
@@ -98,17 +114,31 @@ async fn examples_encode_decode() -> Result<()> {
                 ..Default::default()
             }),
             Some(DecodeOptions::default()),
+            false,
         ),
         // Markdown
-        ("md", Format::Markdown, Some(EncodeOptions::default()), None),
+        (
+            "md",
+            Format::Markdown,
+            Some(EncodeOptions::default()),
+            None,
+            true,
+        ),
         // Plain text
-        ("txt", Format::Text, Some(EncodeOptions::default()), None),
+        (
+            "txt",
+            Format::Text,
+            Some(EncodeOptions::default()),
+            None,
+            true,
+        ),
         // YAML
         (
             "yaml",
             Format::Yaml,
             Some(EncodeOptions::default()),
             Some(DecodeOptions::default()),
+            true,
         ),
     ];
 
@@ -128,23 +158,23 @@ async fn examples_encode_decode() -> Result<()> {
 
         let node = codecs::from_path(&path, None).await?;
 
-        for (extension, format, encode_options, decode_options) in formats {
+        for (extension, format, encode_options, decode_options, write_losses) in formats {
             let mut file = path.clone();
             file.set_extension(extension);
-
-            let codec = codecs::spec(&format.to_string())?;
 
             if let Some(options) = encode_options {
                 // Encoding: encode to string, rather than direct to file, if possible
                 // for better comparison of differences
+
+                let codec = codecs::get(None, Some(*format), None)?;
 
                 let options = EncodeOptions {
                     format: Some(*format),
                     ..options.clone()
                 };
 
-                if codec.supports_to_string {
-                    let actual = codecs::to_string(&node, Some(options)).await?;
+                if codec.supports_to_string() {
+                    let (actual, losses) = codec.to_string(&node, Some(options)).await?;
 
                     if file.exists() {
                         // Existing file: compare string content of files
@@ -163,11 +193,19 @@ async fn examples_encode_decode() -> Result<()> {
                         // No existing file: write a new one
                         write(&file, actual).await?;
                     }
+
+                    let mut losses_file = path.clone();
+                    losses_file.set_extension([extension, ".encode.losses"].concat());
+                    if losses.is_empty() {
+                        remove_file(losses_file).await.ok();
+                    } else if *write_losses {
+                        write(losses_file, serde_yaml::to_string(&losses)?).await?;
+                    }
                 } else {
                     // Just encode to file if it does not yet exist. At present not attempting
                     // to compared binary files (e.g. may include timestamps and change each run)
                     if !file.exists() {
-                        codecs::to_path(&node, &file, Some(options)).await?;
+                        codec.to_path(&node, &file, Some(options)).await?;
                     }
                 }
             }
@@ -191,10 +229,18 @@ async fn examples_encode_decode() -> Result<()> {
                     format: Some(*format),
                     ..options.clone()
                 };
-                let (mut decoded, ..) = codec
+                let (mut decoded, losses) = codec
                     .from_path(&file, Some(options))
                     .await
                     .wrap_err_with(|| format!("while decoding {}", file.display()))?;
+
+                let mut losses_file = path.clone();
+                losses_file.set_extension([extension, ".decode.losses"].concat());
+                if losses.is_empty() {
+                    remove_file(losses_file).await.ok();
+                } else if *write_losses {
+                    write(losses_file, serde_yaml::to_string(&losses)?).await?;
+                }
 
                 // Strip types that the codec is lossy for from both the decoded
                 // and original node

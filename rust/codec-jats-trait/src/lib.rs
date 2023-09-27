@@ -78,9 +78,9 @@ where
         let mut losses = Losses::none();
 
         for item in self.iter() {
-            let (item_jats, mut item_losses) = item.to_jats();
+            let (item_jats, item_losses) = item.to_jats();
             jats.push_str(&item_jats);
-            losses.add_all(&mut item_losses);
+            losses.merge(item_losses);
         }
 
         (String::new(), Vec::new(), jats, losses)

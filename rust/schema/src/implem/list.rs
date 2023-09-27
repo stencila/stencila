@@ -30,9 +30,9 @@ impl List {
                     "- ".to_string()
                 };
 
-                let (item_md, mut item_losses) = item.to_markdown();
+                let (item_md, item_losses) = item.to_markdown();
 
-                losses.add_all(&mut item_losses);
+                losses.merge(item_losses);
 
                 item_md
                     .split('\n')

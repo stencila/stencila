@@ -13,16 +13,16 @@ impl For {
 
         md.push_str("\n\n");
 
-        let (content, mut content_losses) = self.content.to_markdown();
+        let (content, content_losses) = self.content.to_markdown();
         md.push_str(&content);
-        losses.add_all(&mut content_losses);
+        losses.merge(content_losses);
 
         if let Some(otherwise) = &self.otherwise {
             md.push_str("::: else\n\n");
 
-            let (otherwise, mut otherwise_losses) = otherwise.to_markdown();
+            let (otherwise, otherwise_losses) = otherwise.to_markdown();
             md.push_str(&otherwise);
-            losses.add_all(&mut otherwise_losses);
+            losses.merge(otherwise_losses);
         }
 
         md.push_str(":::\n\n");

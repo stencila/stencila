@@ -18,9 +18,9 @@ impl If {
             md.push_str(&code.0);
             md.push_str("\n\n");
 
-            let (content_md, mut content_losses) = content.to_markdown();
+            let (content_md, content_losses) = content.to_markdown();
             md.push_str(&content_md);
-            losses.add_all(&mut content_losses);
+            losses.merge(content_losses);
         }
 
         if !self.clauses.is_empty() {

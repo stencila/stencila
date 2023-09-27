@@ -21,10 +21,10 @@ impl ListItem {
                             paragraph.content.insert(0, checkbox);
 
                             let (mut md, mut losses) = paragraph.to_markdown();
-                            let (rest_md, mut rest_losses) = blocks[1..].to_vec().to_markdown();
+                            let (rest_md, rest_losses) = blocks[1..].to_vec().to_markdown();
 
                             md.push_str(&rest_md);
-                            losses.add_all(&mut rest_losses);
+                            losses.merge(rest_losses);
 
                             (md, losses)
                         } else {
