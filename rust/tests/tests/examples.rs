@@ -32,6 +32,49 @@ fn examples() -> Result<Vec<PathBuf>> {
     Ok(files)
 }
 
+/// Spec for what to tests etc
+struct Spec {
+    extension: String,
+    format: Format,
+    encode_options: Option<EncodeOptions>,
+    decode_options: Option<DecodeOptions>,
+    write_losses: bool,
+}
+
+impl Spec {
+    fn new(
+        extension: &str,
+        format: Format,
+        encode_options: Option<EncodeOptions>,
+        decode_options: Option<DecodeOptions>,
+        write_losses: bool,
+    ) -> Self {
+        Self {
+            extension: extension.to_string(),
+            format,
+            encode_options,
+            decode_options,
+            write_losses,
+        }
+    }
+}
+
+/// Config for a format which can be read from file
+/// TODO: consider merging with `Spec` to allow per folder overrides
+/// of everything
+#[derive(Debug, Default, Clone, Deserialize)]
+#[serde(crate = "common::serde")]
+struct Config {
+    decode: DecodeConfig,
+}
+
+/// Config for testing the decoding of a format
+#[derive(Debug, Default, Clone, Deserialize)]
+#[serde(crate = "common::serde")]
+struct DecodeConfig {
+    skip: bool,
+}
+
 /// Test the encoding/decoding of examples to/from various formats
 ///
 /// For each `examples/*.json` file, load it as a `Node`, and then for
@@ -53,22 +96,16 @@ async fn examples_encode_decode() -> Result<()> {
     // Formats to encode examples to
     //
     // Excludes developer focussed and/or unstable formats e.g. `Debug`
-    let formats: &[(
-        &str,
-        Format,
-        Option<EncodeOptions>,
-        Option<DecodeOptions>,
-        bool, // Whether to write losses to file
-    )] = &[
+    let formats: &[Spec] = &[
         // HTML
-        (
+        Spec::new(
             "html",
             Format::Html,
             Some(EncodeOptions::default()),
             None,
-            false,
+            true,
         ),
-        (
+        Spec::new(
             "compact.html",
             Format::Html,
             Some(EncodeOptions {
@@ -76,19 +113,19 @@ async fn examples_encode_decode() -> Result<()> {
                 ..Default::default()
             }),
             None,
-            true,
+            false,
         ),
         // JATS
-        (
+        Spec::new(
             "jats.xml",
             Format::Jats,
             Some(EncodeOptions::default()),
             // Do not test decoding since it is tested on
             // compact.jats.xml and prettifying can affect whitespace
             None,
-            false,
+            true,
         ),
-        (
+        Spec::new(
             "compact.jats.xml",
             Format::Jats,
             Some(EncodeOptions {
@@ -96,17 +133,17 @@ async fn examples_encode_decode() -> Result<()> {
                 ..Default::default()
             }),
             Some(DecodeOptions::default()),
-            true,
+            false,
         ),
         // JSON5
-        (
+        Spec::new(
             "json5",
             Format::Json5,
             Some(EncodeOptions::default()),
             Some(DecodeOptions::default()),
             true,
         ),
-        (
+        Spec::new(
             "compact.json5",
             Format::Json5,
             Some(EncodeOptions {
@@ -117,7 +154,7 @@ async fn examples_encode_decode() -> Result<()> {
             false,
         ),
         // Markdown
-        (
+        Spec::new(
             "md",
             Format::Markdown,
             Some(EncodeOptions::default()),
@@ -125,7 +162,7 @@ async fn examples_encode_decode() -> Result<()> {
             true,
         ),
         // Plain text
-        (
+        Spec::new(
             "txt",
             Format::Text,
             Some(EncodeOptions::default()),
@@ -133,7 +170,7 @@ async fn examples_encode_decode() -> Result<()> {
             true,
         ),
         // YAML
-        (
+        Spec::new(
             "yaml",
             Format::Yaml,
             Some(EncodeOptions::default()),
@@ -158,7 +195,14 @@ async fn examples_encode_decode() -> Result<()> {
 
         let node = codecs::from_path(&path, None).await?;
 
-        for (extension, format, encode_options, decode_options, write_losses) in formats {
+        for Spec {
+            extension,
+            format,
+            encode_options,
+            decode_options,
+            write_losses,
+        } in formats
+        {
             let mut file = path.clone();
             file.set_extension(extension);
 
@@ -262,18 +306,4 @@ async fn examples_encode_decode() -> Result<()> {
     }
 
     Ok(())
-}
-
-/// Config for a format
-#[derive(Debug, Default, Clone, Deserialize)]
-#[serde(crate = "common::serde")]
-struct Config {
-    decode: DecodeConfig,
-}
-
-/// Config for testing the decoding of a format
-#[derive(Debug, Default, Clone, Deserialize)]
-#[serde(crate = "common::serde")]
-struct DecodeConfig {
-    skip: bool,
 }
