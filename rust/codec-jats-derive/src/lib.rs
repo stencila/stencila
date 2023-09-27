@@ -127,10 +127,10 @@ fn derive_struct(type_attr: TypeAttr) -> TokenStream {
 
         let field_tokens = if field_attr.flatten {
             quote! {
-                let mut parts = self.#field_name.to_jats_parts();
-                attrs.append(&mut parts.1);
-                content.push_str(&parts.2);
-                losses.merge(parts.3);
+                let (.., mut field_attrs, field_content, field_losses) = self.#field_name.to_jats_parts();
+                attrs.append(&mut field_attrs);
+                content.push_str(&field_content);
+                losses.merge(field_losses);
             }
         } else if let Some(attr) = field_attr.attr {
             quote! {
@@ -161,7 +161,7 @@ fn derive_struct(type_attr: TypeAttr) -> TokenStream {
             };
 
             let record_loss = quote! {
-                losses.add(format!("{}.{}", stringify!(#struct_name), stringify!(#field_name)));
+                losses.add(concat!(stringify!(#struct_name), ".", stringify!(#field_name)));
             };
 
             if field_type == "Option" {

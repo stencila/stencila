@@ -162,7 +162,7 @@ Support and degree of loss for node types:
 | [Strong](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/strong.md)                            | 🟢 No loss        |          | Encoded using template `**{content}**`                      |
 | [Subscript](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/subscript.md)                      | 🟢 No loss        |          | Encoded using template `~{content}~`                        |
 | [Superscript](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/superscript.md)                  | 🟢 No loss        |          | Encoded using template `^{content}^`                        |
-| [Text](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/text.md)                                | 🟢 No loss        |          |                                                             |
+| [Text](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/text.md)                                | 🟢 No loss        |          | Encoded using template `{value}`                            |
 | [ThematicBreak](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/thematic_break.md)             | 🟢 No loss        |          | Encoded using template `---\n\n`                            |
 | [Underline](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/underline.md)                      | 🟢 No loss        |          | Encoded using template `[{content}]{{underline}}`           |
 | **Math**                                                                                                                  |

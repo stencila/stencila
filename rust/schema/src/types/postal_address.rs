@@ -46,6 +46,7 @@ pub struct PostalAddress {
     #[serde(flatten)]
     #[html(flatten)]
     #[jats(flatten)]
+    #[markdown(flatten)]
     pub options: Box<PostalAddressOptions>,
 }
 

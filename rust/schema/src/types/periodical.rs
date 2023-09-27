@@ -35,6 +35,7 @@ pub struct Periodical {
     #[serde(flatten)]
     #[html(flatten)]
     #[jats(flatten)]
+    #[markdown(flatten)]
     pub options: Box<PeriodicalOptions>,
 }
 

@@ -50,6 +50,7 @@ pub struct Include {
     #[serde(flatten)]
     #[html(flatten)]
     #[jats(flatten)]
+    #[markdown(flatten)]
     pub options: Box<IncludeOptions>,
 }
 

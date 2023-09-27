@@ -27,6 +27,7 @@ pub struct Brand {
     #[serde(flatten)]
     #[html(flatten)]
     #[jats(flatten)]
+    #[markdown(flatten)]
     pub options: Box<BrandOptions>,
 }
 

@@ -49,6 +49,7 @@ pub struct Claim {
     #[serde(flatten)]
     #[html(flatten)]
     #[jats(flatten)]
+    #[markdown(flatten)]
     pub options: Box<ClaimOptions>,
 }
 

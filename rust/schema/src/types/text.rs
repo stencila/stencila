@@ -11,6 +11,7 @@ use super::string::String;
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 #[html(elem = "span")]
 #[jats(special)]
+#[markdown(format = "{value}")]
 pub struct Text {
     /// The type of this item
     pub r#type: MustBe!("Text"),

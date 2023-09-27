@@ -31,6 +31,7 @@ pub struct PropertyValue {
     #[serde(flatten)]
     #[html(flatten)]
     #[jats(flatten)]
+    #[markdown(flatten)]
     pub options: Box<PropertyValueOptions>,
 }
 

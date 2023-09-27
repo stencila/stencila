@@ -44,6 +44,7 @@ pub struct Comment {
     #[serde(flatten)]
     #[html(flatten)]
     #[jats(flatten)]
+    #[markdown(flatten)]
     pub options: Box<CommentOptions>,
 }
 

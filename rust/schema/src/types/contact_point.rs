@@ -30,6 +30,7 @@ pub struct ContactPoint {
     #[serde(flatten)]
     #[html(flatten)]
     #[jats(flatten)]
+    #[markdown(flatten)]
     pub options: Box<ContactPointOptions>,
 }
 

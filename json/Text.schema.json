@@ -15,6 +15,9 @@
   "jats": {
     "special": true
   },
+  "markdown": {
+    "format": "{value}"
+  },
   "required": [
     "type",
     "value"

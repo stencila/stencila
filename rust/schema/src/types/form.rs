@@ -39,6 +39,7 @@ pub struct Form {
     #[serde(flatten)]
     #[html(flatten)]
     #[jats(flatten)]
+    #[markdown(flatten)]
     pub options: Box<FormOptions>,
 }
 

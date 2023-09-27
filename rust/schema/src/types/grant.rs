@@ -26,6 +26,7 @@ pub struct Grant {
     #[serde(flatten)]
     #[html(flatten)]
     #[jats(flatten)]
+    #[markdown(flatten)]
     pub options: Box<GrantOptions>,
 }
 

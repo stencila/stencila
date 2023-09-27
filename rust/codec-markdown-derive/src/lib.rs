@@ -5,7 +5,7 @@ use darling::{self, FromDeriveInput, FromField};
 use common::{
     proc_macro2::TokenStream,
     quote::quote,
-    syn::{parse_macro_input, Data, DataEnum, DeriveInput, Fields, Ident},
+    syn::{parse_macro_input, Data, DataEnum, DeriveInput, Fields, Ident, PathSegment, Type},
 };
 
 #[derive(FromDeriveInput)]
@@ -28,6 +28,10 @@ struct TypeAttr {
 #[darling(attributes(markdown))]
 struct FieldAttr {
     ident: Option<Ident>,
+    ty: Type,
+
+    #[darling(default)]
+    flatten: bool,
 }
 
 /// Derive the `MarkdownCodec` trait for a `struct` or an `enum`
@@ -90,9 +94,33 @@ fn derive_struct(type_attr: TypeAttr) -> TokenStream {
                     });
                 }
                 tokens
-            } else {
+            } else if field_attr.flatten {
+                // The best that we can do here is to add an loss for options,
+                // if any options are `Some`, as we can not easily get higher granularity
                 quote! {
-                    losses.add(stringify!(#field_name));
+                    let (field_md, _) = self.#field_name.to_markdown();
+                    if !field_md.is_empty() {
+                        losses.add(concat!(stringify!(#struct_name), ".options"));
+                    }
+                }
+            } else {
+                let Type::Path(type_path) = field_attr.ty else {
+                    return
+                };
+                let Some(PathSegment{ident: field_type,..}) = type_path.path.segments.last() else {
+                    return
+                };
+
+                let record_loss = quote! {
+                    losses.add(concat!(stringify!(#struct_name), ".", stringify!(#field_name)));
+                };
+
+                if field_type == "Option" {
+                    quote! { if self.#field_name.is_some() { #record_loss }}
+                } else if field_type == "Vec" {
+                    quote! { if !self.#field_name.is_empty() { #record_loss }}
+                } else {
+                    record_loss
                 }
             };
             fields.extend(field_tokens);
@@ -110,7 +138,8 @@ fn derive_struct(type_attr: TypeAttr) -> TokenStream {
             }
         }
     } else {
-        // Fallback is to encode all fields but to record loss of structure
+        // Fallback is to encode all fields but to record loss of structure of this type
+        // (but not for XxxxOptions)
 
         let mut fields = TokenStream::new();
         type_attr.data.map_struct_fields(|field_attr| {
@@ -123,21 +152,25 @@ fn derive_struct(type_attr: TypeAttr) -> TokenStream {
                 return;
             }
 
-            let field_tokens = {
-                quote! {
-                    let (field_markdown, field_losses) = self.#field_name.to_markdown();
-                    markdown.push_str(&field_markdown);
-                    losses.merge(field_losses);
-                }
+            let field_tokens = quote! {
+                let (field_markdown, field_losses) = self.#field_name.to_markdown();
+                markdown.push_str(&field_markdown);
+                losses.merge(field_losses);
             };
             fields.extend(field_tokens)
         });
+
+        let losses = if struct_name.to_string().ends_with("Options") {
+            quote!(Losses::none())
+        } else {
+            quote!(Losses::one(concat!(stringify!(#struct_name), "#")))
+        };
 
         quote! {
             impl MarkdownCodec for #struct_name {
                 fn to_markdown(&self) -> (String, Losses) {
                     let mut markdown = String::new();
-                    let mut losses = Losses::one(concat!(stringify!(#struct_name), "#"));
+                    let mut losses = #losses;
 
                     #fields
 

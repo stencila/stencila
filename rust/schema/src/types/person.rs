@@ -36,6 +36,7 @@ pub struct Person {
     #[serde(flatten)]
     #[html(flatten)]
     #[jats(flatten)]
+    #[markdown(flatten)]
     pub options: Box<PersonOptions>,
 }
 

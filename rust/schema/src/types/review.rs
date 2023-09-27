@@ -36,6 +36,7 @@ pub struct Review {
     #[serde(flatten)]
     #[html(flatten)]
     #[jats(flatten)]
+    #[markdown(flatten)]
     pub options: Box<ReviewOptions>,
 }
 

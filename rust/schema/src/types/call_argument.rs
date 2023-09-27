@@ -63,6 +63,7 @@ pub struct CallArgument {
     #[serde(flatten)]
     #[html(flatten)]
     #[jats(flatten)]
+    #[markdown(flatten)]
     pub options: Box<CallArgumentOptions>,
 }
 

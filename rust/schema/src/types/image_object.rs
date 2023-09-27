@@ -50,6 +50,7 @@ pub struct ImageObject {
     #[serde(flatten)]
     #[html(flatten)]
     #[jats(flatten)]
+    #[markdown(flatten)]
     pub options: Box<ImageObjectOptions>,
 }
 
