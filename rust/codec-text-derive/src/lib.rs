@@ -24,6 +24,25 @@ pub fn derive_to_html(input: proc_macro::TokenStream) -> proc_macro::TokenStream
 fn derive_struct(input: &DeriveInput, data: &DataStruct) -> TokenStream {
     let struct_name = &input.ident;
 
+    if struct_name == "Text" {
+        // Instead of having attributes for skipping / having special
+        // function (as with other codecs), just use this one-off if clause
+        return quote! {
+            impl TextCodec for Text {
+                fn to_text(&self) -> (String, Losses) {
+                    (self.value.0.clone(), Losses::none())
+                }
+            }
+        };
+    }
+
+    // Do not record loss of structure for options structs
+    let losses = if struct_name.to_string().ends_with("Options") {
+        quote!(Losses::none())
+    } else {
+        quote!(Losses::one(concat!(stringify!(#struct_name), "#")))
+    };
+
     let mut fields = TokenStream::new();
     for field in &data.fields {
         let field_name = &field.ident;
@@ -50,7 +69,7 @@ fn derive_struct(input: &DeriveInput, data: &DataStruct) -> TokenStream {
         impl TextCodec for #struct_name {
             fn to_text(&self) -> (String, Losses) {
                 let mut text = String::new();
-                let mut losses = Losses::one(concat!(stringify!(#struct_name), "#"));
+                let mut losses = #losses;
 
                 #fields
 
