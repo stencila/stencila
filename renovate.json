@@ -1,9 +1,13 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  "extends": [
-    "config:base"
-  ],
+  "extends": ["config:base"],
   "minimumReleaseAge": "2",
   "internalChecksFilter": "strict",
-  "rebaseWhen": "behind-base-branch"
+  "rebaseWhen": "behind-base-branch",
+  "packageRules": [
+    {
+      "$comment": "Renovate is unable to find these internal Node.js packages so exclude them",
+      "excludePackagePrefixes": ["@stencila/node-"]
+    }
+  ]
 }
