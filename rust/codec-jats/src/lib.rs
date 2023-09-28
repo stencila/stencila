@@ -41,9 +41,8 @@ impl Codec for JatsCodec {
         use NodeType::*;
         match node_type {
             // Prose Inlines
-            Text | Emphasis | Strong | Strikeout | Subscript | Superscript | Underline | Insert => {
-                NoLoss
-            }
+            Text | Emphasis | Strong | Strikeout | Subscript | Superscript | Underline => NoLoss,
+            AudioObject | ImageObject | VideoObject => LowLoss,
             // Prose Blocks
             Paragraph | ThematicBreak => NoLoss,
             // Works,
