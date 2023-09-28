@@ -59,7 +59,7 @@ Stencila is a platform for creating and publishing, dynamic, data-driven content
 
 This is `v2` of Stencila, a rewrite in Rust focussed on the synergies between three recent and impactful innovations and trends:
 
-- [Conflict-free replicated data types (CRDTs)](https://crdt.tech/), and specifically the production ready, Rust-based [Automerge](https://github.com/automerge/automerge), for de-centralized collaboration and version control.
+- [Conflict-free replicated data types (CRDTs)](https://crdt.tech/), and specifically the Rust-based [Automerge](https://github.com/automerge/automerge), for de-centralized collaboration and version control.
 
 - [Large language models (LLMs)](https://en.wikipedia.org/wiki/Large_language_model) for assisting in writing and editing, prose and code.
 
@@ -91,7 +91,7 @@ The Stencila Schema is the data model for Stencila documents. Most of the schema
 
 ### Storage and synchronization
 
-In `v2` documents can be stored as binary Automerge CRDT files, forked and merged, and with the ability to import and export the document in various formats. Collaboration, including real-time, is made possible by exchanging fine-grained changes to the CRDT over the network. In addition, we want to enable interoperability with a Git-based workflow.
+In `v2`, documents can be stored as binary Automerge CRDT files, forked and merged, and with the ability to import and export the document in various formats. Collaboration, including real-time, is made possible by exchanging fine-grained changes to the CRDT over the network. In addition, we want to enable interoperability with a Git-based workflow.
 
 | Functionality                | Description                                                                                                                                                   | Status                       |
 | ---------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------- |
@@ -105,17 +105,17 @@ In `v2` documents can be stored as binary Automerge CRDT files, forked and merge
 
 ### Formats
 
-Interoperability with existing formats has always been a key feature of Stencila. We will bring over _codecs_ (a.k.a. converters) from the `v1` branch and port other functionality from [`encoda`](https://github.com/stencila/encoda) to Rust.
+Interoperability with existing formats has always been a key feature of Stencila. We are bringing over _codecs_ (a.k.a. converters) from the `v1` branch and porting other functionality from [`encoda`](https://github.com/stencila/encoda) to Rust.
 
 | Format           | Encoding | Decoding | Notes                                                                                                        |
 | ---------------- | -------- | -------- | ------------------------------------------------------------------------------------------------------------ |
 | JSON             | 🟢       | 🟢       |                                                                                                              |
 | JSON5            | 🟢       | 🟢       |                                                                                                              |
 | YAML             | 🟢       | 🟢       |                                                                                                              |
-| Plain text       | ⚠️       |          |                                                                                                              |
+| Plain text       | 🔶       | -        |                                                                                                              |
 | HTML             | 🚧       | 🧭       |                                                                                                              |
 | JATS             | 🚧       | 🚧       | Planned for completion Q4 2023. Port decoding and tests from [`encoda`](https://github.com/stencila/encoda/) |
-| Markdown         | 🚧       | 🧭       | Planned Q3 2023 [`v1`](https://github.com/stencila/stencila/tree/v1/rust/codec-md)                           |
+| Markdown         | 🚧       | 🧭       | Planned Q4 2023 [`v1`](https://github.com/stencila/stencila/tree/v1/rust/codec-md)                           |
 | R Markdown       | 🧭       | 🧭       | Relies on Markdown; [`v1`](https://github.com/stencila/stencila/tree/v1/rust/codec-rmd)                      |
 | Jupyter Notebook | 🧭       | 🧭       | Relies on Markdown; [`v1`](https://github.com/stencila/stencila/tree/v1/rust/codec-ipynb)                    |
 | Scripts          | 🧭       | 🧭       | Relies on Markdown; [`v1`](https://github.com/stencila/stencila/tree/v1/rust/codec-script)                   |
@@ -129,7 +129,7 @@ Interoperability with existing formats has always been a key feature of Stencila
 
 ### Kernels
 
-Kernels are what executes the code in Stencila `CodeChunk`s and `CodeExpression`s, as well as in control flow document nodes such as `IfClause` and `For`. In addition to supporting interoperability with existing Jupyter kernels, we will bring over _microkernels_ from `v1`. Microkernels are lightweight kernels for executing code which do not require the user to install anything and which allow for parallelization of execution. We'll also implement at least one kernel for an embedded scripting language so that it is possible to author a Stencila document which does not rely on any other external binary.
+Kernels are what executes the code in Stencila `CodeChunk`s and `CodeExpression`s, as well as in control flow document nodes such as `IfClause` and `For`. In addition to supporting interoperability with existing Jupyter kernels, we will bring over _microkernels_ from `v1`. Microkernels are lightweight kernels for executing code which do not require the user to install anything and which allow for parallel execution. We'll also implement at least one kernel for an embedded scripting language so that it is possible to author a Stencila document which does not rely on any other external binary.
 
 | Kernel                | Purpose                                          | Status                                                                                                                                                                                           |
 | --------------------- | ------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
@@ -162,17 +162,17 @@ In Stencila `v2`, non-human changes to the document will be performed, concurren
 
 Editors allow users to edit Stencila documents, either directly, or via an intermediate format.
 
-| Interface      | Purpose                                                                                                 | Status                                                                                                          |
-| -------------- | ------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------- |
-| File watcher   | Edit documents via other formats and tools (e.g. code editors, Microsoft Word) and react on file change | ⚠️ Alpha                                                                                                        |
-| Code editor    | Edit documents via other formats using a built-in code editor and react on key presses                  | 🧭 Planned Q4 2023 [`v1`](https://github.com/stencila/stencila/tree/v1/web/src/components/editors/code-editor)  |
-| WYSIWYG editor | Edit documents using a built-in WYSIWYG editor and react on key presses and widget interactions         | 🧭 Planned Q1 2024 [`v1`](https://github.com/stencila/stencila/tree/v1/web/src/components/editors/prose-editor) |
+| Interface     | Purpose                                                                                                 | Status                                                                                                          |
+| ------------- | ------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------- |
+| File watcher  | Edit documents via other formats and tools (e.g. code editors, Microsoft Word) and react on file change | ⚠️ Alpha                                                                                                        |
+| Code editor   | Edit documents via other formats using a built-in code editor and react on key presses                  | 🧭 Planned Q4 2023 [`v1`](https://github.com/stencila/stencila/tree/v1/web/src/components/editors/code-editor)  |
+| Visual editor | Edit documents using a built-in visual editor and react on key presses and widget interactions          | 🧭 Planned Q1 2024 [`v1`](https://github.com/stencila/stencila/tree/v1/web/src/components/editors/prose-editor) |
 
 ### Tools
 
 Tools are what we call the self-contained Stencila products you can download and use locally on your machine to interact with Stencila documents.
 
-| Interface        | Purpose                                                                           | Status                                                       |
+| Tool             | Purpose                                                                           | Status                                                       |
 | ---------------- | --------------------------------------------------------------------------------- | ------------------------------------------------------------ |
 | CLI              | Manage documents from the command line and read and edit them using a web browser | ⚠️ Alpha                                                     |
 | Desktop          | Manage, read and edit documents from a desktop app                                | 🧭 Planned Q1 2024, likely using [Tauri](https://tauri.app/) |
@@ -182,7 +182,7 @@ Tools are what we call the self-contained Stencila products you can download and
 
 Bindings allow you to create and manage Stencila document using other programming languages. At this stage we are planning to support Python, Node.js and R but more languages may be added if there is demand.
 
-| Interface  | Description                                                     | Status                                                                                                                                                                    |
+| Language   | Description                                                     | Status                                                                                                                                                                    |
 | ---------- | --------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Python     | Types and bindings for using Stencila from within Python        | 🚧 In progress, planned for Q3 2023                                                                                                                                       |
 | TypeScript | JavaScript classes and TypeScript types for the Stencila Schema | [![](https://img.shields.io/npm/v/%40stencila%2Ftypes.svg?label=npm%20%40stencila%2Ftypes&color=1d3bd1&labelColor=3219a8)](https://www.npmjs.com/package/@stencila/types) |
@@ -274,7 +274,7 @@ This repository is organized into the following modules. Please see their respec
 
 - [`typescript`](typescript): A package of TypeScript types generated from Stencila Schema so you can create type-safe Stencila documents in the browser, Node.js, Deno etc.
 
-- `node`: A Node.js package, using the generated TypeScript types and with runtime validation and bindings to Rust functions, so you can work with Stencila documents from within Node.js.
+- [`node`](node): A Node.js package, using the generated TypeScript types and with runtime validation and bindings to Rust functions, so you can work with Stencila documents from within Node.js.
 
 - [`docs`](docs): Documentation, including reference documentation generated from `schema` and the `rust` CLI tool.
 
