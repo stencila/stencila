@@ -1,3 +1,5 @@
+use codec_losses::{lost_options, lost_props};
+
 use crate::{prelude::*, MathBlock};
 
 impl MathBlock {
@@ -16,10 +18,12 @@ impl MathBlock {
             .map(|mathml| elem_no_attrs("mml:math", mathml))
             .unwrap_or_default();
 
-        (
-            elem_no_attrs("disp-formula", [label, mathml].concat()),
-            Losses::todo(),
-        )
+        let jats = elem_no_attrs("disp-formula", [label, mathml].concat());
+
+        let mut losses = lost_props!(self, "code", "math_language");
+        losses.merge(lost_options!(self, id, compile_digest, errors));
+
+        (jats, losses)
     }
 
     pub fn to_markdown_special(&self) -> (String, Losses) {
@@ -29,6 +33,8 @@ impl MathBlock {
             ["```", &self.math_language, "\n", &self.code, "\n```\n\n"].concat()
         };
 
-        (md, Losses::todo())
+        let losses = lost_options!(self, id, compile_digest, errors, mathml, label);
+
+        (md, losses)
     }
 }

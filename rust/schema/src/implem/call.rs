@@ -1,4 +1,5 @@
 use codec_json5_trait::Json5Codec;
+use codec_losses::{lost_exec_options, lost_options};
 
 use crate::{prelude::*, Call};
 
@@ -14,6 +15,9 @@ impl Call {
 
         md.push_str(")\n\n");
 
-        (md, Losses::todo())
+        let mut losses = lost_options!(self, id, media_type, select, content);
+        losses.merge(lost_exec_options!(self));
+
+        (md, losses)
     }
 }

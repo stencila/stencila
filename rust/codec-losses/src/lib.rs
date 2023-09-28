@@ -3,6 +3,7 @@ use std::{collections::BTreeMap, ops::AddAssign};
 use common::{
     clap::{self, ValueEnum},
     eyre::{bail, eyre, Result},
+    inflector::Inflector,
     itertools::Itertools,
     serde::Serialize,
     strum::Display,
@@ -67,6 +68,22 @@ impl Losses {
         Self::new([label])
     }
 
+    /// Create a set of losses for the properties of an object
+    pub fn props<T, I, S>(_object: &T, prop_names: I) -> Self
+    where
+        I: IntoIterator<Item = S>,
+        S: Into<String>,
+    {
+        let type_name = std::any::type_name::<T>();
+        let type_name = type_name.rsplitn(2, "::").next().unwrap_or(type_name);
+
+        let labels = prop_names
+            .into_iter()
+            .map(|name| format!("{type_name}.{}", name.into().to_camel_case()));
+
+        Self::new(labels)
+    }
+
     /// Indicate that enumerating the losses is not yet implemented
     pub fn todo() -> Self {
         Self::default()
@@ -84,6 +101,15 @@ impl Losses {
             .entry(label)
             .and_modify(|count| count.add_assign(1))
             .or_insert(1);
+    }
+
+    /// Add a loss of a property to the current set
+    pub fn add_prop<T>(&mut self, _object: &T, prop_name: &str) {
+        let type_name = std::any::type_name::<T>();
+        let type_name = type_name.rsplitn(2, "::").next().unwrap_or(type_name);
+        let prop_name = prop_name.to_camel_case();
+
+        self.add(format!("{type_name}.{prop_name}"));
     }
 
     /// Merge another set of losses into this one
@@ -142,4 +168,54 @@ impl Losses {
 
         Ok(())
     }
+}
+
+/// Create a set of losses for properties of a type
+///
+///
+#[macro_export]
+macro_rules! lost_props {
+    ($object:expr, $($field:literal),*) => {{
+        Losses::props(&$object, [$($field,)*])
+    }};
+}
+
+/// Create a set of losses for optional properties
+///
+/// A loss will be recorded for the property if it `is_some()`
+/// but not if it `is_none()`.
+#[macro_export]
+macro_rules! lost_options {
+    ($object:expr, $($field:ident),*) => {{
+        let mut losses = Losses::none();
+        $(
+            if $object.$field.is_some() {
+                losses.add_prop(&$object, stringify!($field));
+            }
+        )*
+        losses
+    }};
+}
+
+/// Create a set of losses for optional fields on `Executable` nodes
+#[macro_export]
+macro_rules! lost_exec_options {
+    ($object:expr) => {
+        lost_options!(
+            $object.options,
+            execution_auto,
+            compilation_digest,
+            execution_digest,
+            execution_dependencies,
+            execution_dependants,
+            execution_tags,
+            execution_count,
+            execution_required,
+            execution_kernel,
+            execution_status,
+            execution_ended,
+            execution_duration,
+            errors
+        )
+    };
 }
