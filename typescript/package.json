@@ -1,6 +1,6 @@
 {
   "name": "@stencila/types",
-  "version": "v2.0.0-alpha.9",
+  "version": "v2.0.0-alpha.10",
   "description": "JavaScript classes and TypeScript types for the Stencila Schema",
   "license": "Apache-2.0",
   "author": "Nokome Bentley <nokome@stencila.io>",
