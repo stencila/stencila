@@ -1,4 +1,4 @@
-use std::{collections::BTreeMap, ops::AddAssign};
+use std::{collections::BTreeMap, fmt::Display, ops::AddAssign};
 
 use common::{
     clap::{self, ValueEnum},
@@ -75,7 +75,7 @@ impl Losses {
         S: Into<String>,
     {
         let type_name = std::any::type_name::<T>();
-        let type_name = type_name.rsplitn(2, "::").next().unwrap_or(type_name);
+        let type_name = type_name.rsplit("::").next().unwrap_or(type_name);
 
         let labels = prop_names
             .into_iter()
@@ -106,7 +106,7 @@ impl Losses {
     /// Add a loss of a property to the current set
     pub fn add_prop<T>(&mut self, _object: &T, prop_name: &str) {
         let type_name = std::any::type_name::<T>();
-        let type_name = type_name.rsplitn(2, "::").next().unwrap_or(type_name);
+        let type_name = type_name.rsplit("::").next().unwrap_or(type_name);
         let prop_name = prop_name.to_camel_case();
 
         self.add(format!("{type_name}.{prop_name}"));
@@ -128,43 +128,31 @@ impl Losses {
     }
 
     /// Respond to losses according to the `LossesResponse` variant
-    pub fn respond(&self, response: LossesResponse) -> Result<()> {
+    pub fn respond<D>(&self, what: D, response: LossesResponse) -> Result<()>
+    where
+        D: Display,
+    {
         use LossesResponse::*;
 
         if self.inner.is_empty() || matches!(response, Ignore) {
             return Ok(());
         }
 
-        if matches!(response, Abort) {
-            let summary = self
-                .inner
-                .iter()
-                .map(|(label, count)| format!("{label}({count})"))
-                .join(", ");
-            let error = eyre!(summary).wrap_err("Conversion losses occurred");
-            return Err(error);
-        }
+        let summary = self
+            .inner
+            .iter()
+            .map(|(label, count)| format!("{label}:{count}"))
+            .join(", ");
 
-        for (label, count) in self.inner.iter() {
-            match response {
-                Trace => {
-                    tracing::event!(tracing::Level::TRACE, "{label}({count})");
-                }
-                Debug => {
-                    tracing::event!(tracing::Level::DEBUG, "{label}({count})");
-                }
-                Info => {
-                    tracing::event!(tracing::Level::INFO, "{label}({count})");
-                }
-                Warn => {
-                    tracing::event!(tracing::Level::WARN, "{label}({count})");
-                }
-                Error => {
-                    tracing::event!(tracing::Level::ERROR, "{label}({count})");
-                }
-                _ => bail!("Should be unreachable"),
-            };
-        }
+        match response {
+            Trace => tracing::trace!("{what}: {summary}"),
+            Debug => tracing::debug!("{what}: {summary}"),
+            Info => tracing::info!("{what}: {summary}"),
+            Warn => tracing::warn!("{what}: {summary}"),
+            Error => tracing::error!("{what}: {summary}"),
+            Abort => return Err(eyre!("{summary}").wrap_err(what.to_string())),
+            _ => bail!("Should be unreachable"),
+        };
 
         Ok(())
     }

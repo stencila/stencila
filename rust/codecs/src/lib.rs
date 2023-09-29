@@ -91,12 +91,20 @@ pub async fn from_str(str: &str, options: Option<DecodeOptions>) -> Result<Node>
     let format = options
         .as_ref()
         .and_then(|options| options.format)
-        .or(Some(Format::Json));
+        .unwrap_or(Format::Json);
 
-    let (node, losses) = get(codec, format, Some(CodecDirection::Decode))?
+    let (node, losses) = get(codec, Some(format), Some(CodecDirection::Decode))?
         .from_str(str, options.clone())
         .await?;
-    losses.respond(options.unwrap_or_default().losses)?;
+    if !losses.is_empty() {
+        losses.respond(
+            format!(
+                "Losses while decoding {format} string",
+                format = format.name()
+            ),
+            options.unwrap_or_default().losses,
+        )?;
+    }
 
     Ok(node)
 }
@@ -113,7 +121,16 @@ pub async fn from_path(path: &Path, options: Option<DecodeOptions>) -> Result<No
     let (node, losses) = get(codec, Some(format), Some(CodecDirection::Decode))?
         .from_path(path, options.clone())
         .await?;
-    losses.respond(options.unwrap_or_default().losses)?;
+    if !losses.is_empty() {
+        losses.respond(
+            format!(
+                "Losses while decoding {format} from {path}",
+                format = format.name(),
+                path = path.display()
+            ),
+            options.unwrap_or_default().losses,
+        )?;
+    }
 
     Ok(node)
 }
@@ -138,9 +155,9 @@ pub async fn to_string(node: &Node, options: Option<EncodeOptions>) -> Result<St
     let format = options
         .as_ref()
         .and_then(|options| options.format)
-        .or(Some(Format::Json));
+        .unwrap_or(Format::Json);
 
-    let codec = get(codec, format, Some(CodecDirection::Encode))?;
+    let codec = get(codec, Some(format), Some(CodecDirection::Encode))?;
 
     if let Some(EncodeOptions {
         strip_id: id,
@@ -162,14 +179,30 @@ pub async fn to_string(node: &Node, options: Option<EncodeOptions>) -> Result<St
             });
 
             let (content, losses) = codec.to_string(&node, options.clone()).await?;
-            losses.respond(options.unwrap_or_default().losses)?;
+            if !losses.is_empty() {
+                losses.respond(
+                    format!(
+                        "Losses while encoding to {format} string",
+                        format = format.name()
+                    ),
+                    options.unwrap_or_default().losses,
+                )?;
+            }
 
             return Ok(content);
         }
     }
 
     let (content, losses) = codec.to_string(node, options.clone()).await?;
-    losses.respond(options.unwrap_or_default().losses)?;
+    if !losses.is_empty() {
+        losses.respond(
+            format!(
+                "Losses while encoding to {format} string",
+                format = format.name()
+            ),
+            options.unwrap_or_default().losses,
+        )?;
+    }
 
     Ok(content)
 }
@@ -205,14 +238,32 @@ pub async fn to_path(node: &Node, path: &Path, options: Option<EncodeOptions>) -
             });
 
             let losses = codec.to_path(&node, path, options.clone()).await?;
-            losses.respond(options.unwrap_or_default().losses)?;
+            if !losses.is_empty() {
+                losses.respond(
+                    format!(
+                        "Losses while encoding to {format} file {path}",
+                        format = format.name(),
+                        path = path.display()
+                    ),
+                    options.unwrap_or_default().losses,
+                )?;
+            }
 
             return Ok(());
         }
     }
 
     let losses = codec.to_path(node, path, options.clone()).await?;
-    losses.respond(options.unwrap_or_default().losses)?;
+    if !losses.is_empty() {
+        losses.respond(
+            format!(
+                "Losses while encoding to {format} file {path}",
+                format = format.name(),
+                path = path.display()
+            ),
+            options.unwrap_or_default().losses,
+        )?
+    };
 
     Ok(())
 }
