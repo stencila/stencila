@@ -191,10 +191,6 @@ Synchronize a document with one of more other files in other formats
 ###### **Options:**
 
 * `-f`, `--format <FORMATS>` — The formats of the files (or the name of codecs to use)
-* `-d`, `--dir <DIRECTIONS>` — The synchronization directions to use for each file
-
-  Possible values: `in`, `out`, `in-out`
-
 * `-l`, `--losses <LOSSES>` — What to do if there are losses when either encoding or decoding between any of the files
 
   Default value: `warn`
