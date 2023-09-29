@@ -29,13 +29,11 @@ impl Document {
     pub async fn sync_file(
         &self,
         path: &Path,
-        direction: Option<SyncDirection>,
+        direction: SyncDirection,
         decode_options: Option<DecodeOptions>,
         encode_options: Option<EncodeOptions>,
     ) -> Result<()> {
         tracing::trace!("Syncing file");
-
-        let direction = direction.unwrap_or_default();
 
         // Before starting watches import and export as necessary.
         match direction {

@@ -150,12 +150,6 @@ enum Command {
         #[arg(long = "format", short)]
         formats: Vec<String>,
 
-        /// The synchronization directions to use for each file
-        ///
-        /// This option can be provided separately for each file.
-        #[arg(long = "dir", short)]
-        directions: Vec<SyncDirection>,
-
         /// What to do if there are losses when either encoding or decoding between any of the files
         #[arg(long, short, default_value_t = codecs::LossesResponse::Warn)]
         losses: codecs::LossesResponse,
@@ -400,7 +394,6 @@ impl Cli {
                 doc,
                 files,
                 formats,
-                directions,
                 losses,
                 decode_options,
                 encode_options,
@@ -408,8 +401,19 @@ impl Cli {
                 let doc = Document::open(&doc).await?;
 
                 for (index, file) in files.iter().enumerate() {
+                    let file = file.to_string_lossy();
+                    let (file, direction) = if file.ends_with(":in") {
+                        (file.trim_end_matches(":in"), SyncDirection::In)
+                    } else if file.ends_with(":out") {
+                        (file.trim_end_matches(":out"), SyncDirection::Out)
+                    } else if file.ends_with(":io") {
+                        (file.trim_end_matches(":io"), SyncDirection::InOut)
+                    } else {
+                        (file.as_ref(), SyncDirection::InOut)
+                    };
+                    let file = PathBuf::from(file);
+
                     let format_or_codec = formats.get(index).cloned();
-                    let direction = directions.get(index).copied();
 
                     let decode_options =
                         Some(decode_options.build(format_or_codec.clone(), losses));
@@ -426,7 +430,7 @@ impl Cli {
                         doc.sync_string(None, change_sender, decode_options, encode_options)
                             .await?;
                     } else {
-                        doc.sync_file(file, direction, decode_options, encode_options)
+                        doc.sync_file(&file, direction, decode_options, encode_options)
                             .await?;
                     }
                 }
