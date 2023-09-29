@@ -55,11 +55,11 @@
 
 ## 👋 Introduction
 
-Stencila is a platform for creating and publishing, dynamic, data-driven content. Our aim is to lower the barriers for creating truly programmable documents, and to make it easier to create beautiful, interactive, and semantically rich, articles, web pages and applications from them. Our roots are in scientific communication, but our tools are useful far beyond.
+Stencila is a platform for creating and publishing, dynamic, data-driven content. Our aim is to lower the barriers for creating truly programmable documents, and to make it easier to publish them as beautiful, interactive, and semantically rich, articles and applications. Our roots are in scientific communication, but our tools are useful far beyond.
 
 This is `v2` of Stencila, a rewrite in Rust focussed on the synergies between three recent and impactful innovations and trends:
 
-- [Conflict-free replicated data types (CRDTs)](https://crdt.tech/), and specifically the Rust-based [Automerge](https://github.com/automerge/automerge), for de-centralized collaboration and version control.
+- [Conflict-free replicated data types (CRDTs)](https://crdt.tech/) for de-centralized collaboration and version control.
 
 - [Large language models (LLMs)](https://en.wikipedia.org/wiki/Large_language_model) for assisting in writing and editing, prose and code.
 
@@ -107,25 +107,25 @@ In `v2`, documents can be stored as binary Automerge CRDT files, forked and merg
 
 Interoperability with existing formats has always been a key feature of Stencila. We are bringing over _codecs_ (a.k.a. converters) from the `v1` branch and porting other functionality from [`encoda`](https://github.com/stencila/encoda) to Rust.
 
-| Format           | Encoding | Decoding | Notes                                                                                                        |
-| ---------------- | -------- | -------- | ------------------------------------------------------------------------------------------------------------ |
-| JSON             | 🟢       | 🟢       |                                                                                                              |
-| JSON5            | 🟢       | 🟢       |                                                                                                              |
-| YAML             | 🟢       | 🟢       |                                                                                                              |
-| Plain text       | 🔶       | -        |                                                                                                              |
-| HTML             | 🚧       | 🧭       |                                                                                                              |
-| JATS             | 🚧       | 🚧       | Planned for completion Q4 2023. Port decoding and tests from [`encoda`](https://github.com/stencila/encoda/) |
-| Markdown         | 🚧       | 🧭       | Planned Q4 2023 [`v1`](https://github.com/stencila/stencila/tree/v1/rust/codec-md)                           |
-| R Markdown       | 🧭       | 🧭       | Relies on Markdown; [`v1`](https://github.com/stencila/stencila/tree/v1/rust/codec-rmd)                      |
-| Jupyter Notebook | 🧭       | 🧭       | Relies on Markdown; [`v1`](https://github.com/stencila/stencila/tree/v1/rust/codec-ipynb)                    |
-| Scripts          | 🧭       | 🧭       | Relies on Markdown; [`v1`](https://github.com/stencila/stencila/tree/v1/rust/codec-script)                   |
-| Pandoc           | 🧭       | 🧭       | Planned Q4 2023. [`v1`](https://github.com/stencila/stencila/tree/v1/rust/codec-pandoc)                      |
-| LaTeX            | 🧭       | 🧭       | Relies on Pandoc; [`v1`](https://github.com/stencila/stencila/tree/v1/rust/codec-latex)                      |
-| Org              | 🧭       | 🧭       | Relies on Pandoc; [PR](https://github.com/stencila/stencila/pull/1485)                                       |
-| Microsoft Word   | 🧭       | 🧭       | Relies on Pandoc; [`v1`](https://github.com/stencila/stencila/tree/v1/rust/codec-docx)                       |
-| ODT              | 🧭       | 🧭       | Relies on Pandoc                                                                                             |
-| Google Docs      | 🧭       | 🧭       | Planned Q1 2024 [`v1`](https://github.com/stencila/stencila/tree/v1/rust/codec-gdoc)                         |
-| PDF              | 🧭       | 🧭       | Planned Q1 2024, relies on HTML; [`v1`](https://github.com/stencila/stencila/tree/v1/rust/codec-pdf)         |
+| Format           | Encoding | Decoding | Notes                                                                                                                                                       |
+| ---------------- | -------- | -------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| JSON             | 🟢       | 🟢       |                                                                                                                                                             |
+| JSON5            | 🟢       | 🟢       |                                                                                                                                                             |
+| YAML             | 🟢       | 🟢       |                                                                                                                                                             |
+| Plain text       | 🔶       | -        |                                                                                                                                                             |
+| HTML             | 🚧       | 🧭       |                                                                                                                                                             |
+| JATS             | 🚧       | 🚧       | Planned for completion Q4 2023. Port decoding and tests from [`encoda`](https://github.com/stencila/encoda/)                                                |
+| Markdown         | 🚧       | 🧭       | Planned Q4 2023 [`v1`](https://github.com/stencila/stencila/tree/v1/rust/codec-md)                                                                          |
+| R Markdown       | 🧭       | 🧭       | Relies on Markdown; [`v1`](https://github.com/stencila/stencila/tree/v1/rust/codec-rmd)                                                                     |
+| Jupyter Notebook | 🧭       | 🧭       | Relies on Markdown; [`v1`](https://github.com/stencila/stencila/tree/v1/rust/codec-ipynb)                                                                   |
+| Scripts          | 🧭       | 🧭       | Relies on Markdown; [`v1`](https://github.com/stencila/stencila/tree/v1/rust/codec-script)                                                                  |
+| Pandoc           | 🧭       | 🧭       | Planned Q4 2023. [`v1`](https://github.com/stencila/stencila/tree/v1/rust/codec-pandoc)                                                                     |
+| LaTeX            | 🧭       | 🧭       | Relies on Pandoc; [`v1`](https://github.com/stencila/stencila/tree/v1/rust/codec-latex); [discussion](https://github.com/stencila/stencila/discussions/858) |
+| Org              | 🧭       | 🧭       | Relies on Pandoc; [PR](https://github.com/stencila/stencila/pull/1485)                                                                                      |
+| Microsoft Word   | 🧭       | 🧭       | Relies on Pandoc; [`v1`](https://github.com/stencila/stencila/tree/v1/rust/codec-docx)                                                                      |
+| ODT              | 🧭       | 🧭       | Relies on Pandoc                                                                                                                                            |
+| Google Docs      | 🧭       | 🧭       | Planned Q1 2024 [`v1`](https://github.com/stencila/stencila/tree/v1/rust/codec-gdoc)                                                                        |
+| PDF              | 🧭       | 🧭       | Planned Q1 2024, relies on HTML; [`v1`](https://github.com/stencila/stencila/tree/v1/rust/codec-pdf)                                                        |
 
 ### Kernels
 
@@ -308,6 +308,8 @@ We wouldn’t be doing this without the support of these forward looking organiz
 
 ## 🙌 Contributors
 
+Thank you to _all_ our contributors (not just the ones that submitted code!). If you made a contribution but are not listed here please create an issue, or PR, [like this](https://allcontributors.org/docs/en/bot/usage#all-contributors-add).
+
 <!-- ALL-CONTRIBUTORS-LIST:START - Do not remove or modify this section -->
 <!-- prettier-ignore-start -->
 <!-- markdownlint-disable -->
@@ -328,55 +330,56 @@ We wouldn’t be doing this without the support of these forward looking organiz
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/daniellecrobinson"><img src="https://avatars.githubusercontent.com/u/13207169?v=4" width="100px;" alt="Danielle Robinson" title="Danielle Robinson"/></a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/discodavey"><img src="https://avatars.githubusercontent.com/u/745794?v=4" width="100px;" alt="Dave" title="Dave"/></a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/davidcmoulton"><img src="https://avatars.githubusercontent.com/u/2893480?v=4" width="100px;" alt="David Moulton" title="David Moulton"/></a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/finlay"><img src="https://avatars.githubusercontent.com/u/777798?v=4" width="100px;" alt="Finlay Thompson" title="Finlay Thompson"/></a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/fkmendes"><img src="https://avatars.githubusercontent.com/u/10715960?v=4" width="100px;" alt="Fábio H. K. Mendes" title="Fábio H. K. Mendes"/></a></td>
-      <td align="center" valign="top" width="14.28%"><a href="https://github.com/kayakr"><img src="https://avatars.githubusercontent.com/u/208184?v=4" width="100px;" alt="J Hunt" title="J Hunt"/></a></td>
     </tr>
     <tr>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/kayakr"><img src="https://avatars.githubusercontent.com/u/208184?v=4" width="100px;" alt="J Hunt" title="J Hunt"/></a></td>
       <td align="center" valign="top" width="14.28%"><a href="http://toki.io"><img src="https://avatars1.githubusercontent.com/u/10161095?v=4" width="100px;" alt="Jacqueline" title="Jacqueline"/></a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/jamestwebber"><img src="https://avatars.githubusercontent.com/u/963647?v=4" width="100px;" alt="James Webber" title="James Webber"/></a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://juretriglav.si/"><img src="https://avatars.githubusercontent.com/u/238667?v=4" width="100px;" alt="Jure Triglav" title="Jure Triglav"/></a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://larsgw.github.io/"><img src="https://avatars.githubusercontent.com/u/14018963?v=4" width="100px;" alt="Lars Willighagen" title="Lars Willighagen"/></a></td>
       <td align="center" valign="top" width="14.28%"><a href="http://has100ideas.com"><img src="https://avatars0.githubusercontent.com/u/57006?v=4" width="100px;" alt="Mac Cowell" title="Mac Cowell"/></a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/elfring"><img src="https://avatars.githubusercontent.com/u/660477?v=4" width="100px;" alt="Markus Elfring" title="Markus Elfring"/></a></td>
-      <td align="center" valign="top" width="14.28%"><a href="https://github.com/michael"><img src="https://avatars.githubusercontent.com/u/2931?v=4" width="100px;" alt="Michael Aufreiter" title="Michael Aufreiter"/></a></td>
     </tr>
     <tr>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/michael"><img src="https://avatars.githubusercontent.com/u/2931?v=4" width="100px;" alt="Michael Aufreiter" title="Michael Aufreiter"/></a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://moranegg.github.io/"><img src="https://avatars.githubusercontent.com/u/6273005?v=4" width="100px;" alt="Morane Gruenpeter" title="Morane Gruenpeter"/></a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/MorphicResonance"><img src="https://avatars.githubusercontent.com/u/55984436?v=4" width="100px;" alt="MorphicResonance" title="MorphicResonance"/></a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/Cumol"><img src="https://avatars.githubusercontent.com/u/4943380?v=4" width="100px;" alt="Muad Abd El Hay" title="Muad Abd El Hay"/></a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/nokome"><img src="https://avatars0.githubusercontent.com/u/1152336?v=4" width="100px;" alt="Nokome Bentley" title="Nokome Bentley"/></a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/obuchtala"><img src="https://avatars.githubusercontent.com/u/284099?v=4" width="100px;" alt="Oliver Buchtala" title="Oliver Buchtala"/></a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/rgaiacs"><img src="https://avatars.githubusercontent.com/u/1506457?v=4" width="100px;" alt="Raniere Silva" title="Raniere Silva"/></a></td>
-      <td align="center" valign="top" width="14.28%"><a href="https://remi.rampin.org/"><img src="https://avatars.githubusercontent.com/u/426784?v=4" width="100px;" alt="Remi Rampin" title="Remi Rampin"/></a></td>
     </tr>
     <tr>
+      <td align="center" valign="top" width="14.28%"><a href="https://remi.rampin.org/"><img src="https://avatars.githubusercontent.com/u/426784?v=4" width="100px;" alt="Remi Rampin" title="Remi Rampin"/></a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/richlysakowski"><img src="https://avatars.githubusercontent.com/u/9345711?v=4" width="100px;" alt="Rich Lysakowski" title="Rich Lysakowski"/></a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/rgieseke"><img src="https://avatars.githubusercontent.com/u/198537?v=4" width="100px;" alt="Robert Gieseke" title="Robert Gieseke"/></a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://sethvincent.com/"><img src="https://avatars.githubusercontent.com/u/164214?v=4" width="100px;" alt="Seth Vincent" title="Seth Vincent"/></a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/stefanfritsch"><img src="https://avatars.githubusercontent.com/u/7372706?v=4" width="100px;" alt="Stefan Fritsch" title="Stefan Fritsch"/></a></td>
       <td align="center" valign="top" width="14.28%"><a href="http://sirinath.com/"><img src="https://avatars.githubusercontent.com/u/637415?v=4" width="100px;" alt="Suminda Sirinath Salpitikorala Dharmasena" title="Suminda Sirinath Salpitikorala Dharmasena"/></a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://tim.mcnamara.nz/"><img src="https://avatars.githubusercontent.com/u/27889?v=4" width="100px;" alt="Tim McNamara" title="Tim McNamara"/></a></td>
-      <td align="center" valign="top" width="14.28%"><a href="https://github.com/wooorm"><img src="https://avatars.githubusercontent.com/u/944406?v=4" width="100px;" alt="Titus" title="Titus"/></a></td>
     </tr>
     <tr>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/wooorm"><img src="https://avatars.githubusercontent.com/u/944406?v=4" width="100px;" alt="Titus" title="Titus"/></a></td>
       <td align="center" valign="top" width="14.28%"><a href="http://blog.ouseful.info/"><img src="https://avatars.githubusercontent.com/u/82988?v=4" width="100px;" alt="Tony Hirst" title="Tony Hirst"/></a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/ouboub"><img src="https://avatars.githubusercontent.com/u/5957203?v=4" width="100px;" alt="Uwe Brauer" title="Uwe Brauer"/></a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://vsoch.github.io"><img src="https://avatars0.githubusercontent.com/u/814322?v=4" width="100px;" alt="Vanessasaurus" title="Vanessasaurus"/></a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://neurathsboat.blog/"><img src="https://avatars.githubusercontent.com/u/1205023?v=4" width="100px;" alt="Vassilis Kehayas" title="Vassilis Kehayas"/></a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/alexandr-sisiuc"><img src="https://avatars.githubusercontent.com/u/80925015?v=4" width="100px;" alt="alexandr-sisiuc" title="alexandr-sisiuc"/></a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/asisiuc"><img src="https://avatars0.githubusercontent.com/u/17000527?v=4" width="100px;" alt="asisiuc" title="asisiuc"/></a></td>
-      <td align="center" valign="top" width="14.28%"><a href="https://github.com/campbellyamane"><img src="https://avatars.githubusercontent.com/u/26848216?v=4" width="100px;" alt="campbellyamane" title="campbellyamane"/></a></td>
     </tr>
     <tr>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/campbellyamane"><img src="https://avatars.githubusercontent.com/u/26848216?v=4" width="100px;" alt="campbellyamane" title="campbellyamane"/></a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/ern0"><img src="https://avatars.githubusercontent.com/u/1758588?v=4" width="100px;" alt="ern0 - Zalka Ernő" title="ern0 - Zalka Ernő"/></a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/grayflow"><img src="https://avatars.githubusercontent.com/u/70041?v=4" width="100px;" alt="grayflow" title="grayflow"/></a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/happydentist"><img src="https://avatars.githubusercontent.com/u/35398116?v=4" width="100px;" alt="happydentist" title="happydentist"/></a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/huang12zheng"><img src="https://avatars.githubusercontent.com/u/28038074?v=4" width="100px;" alt="huang12zheng" title="huang12zheng"/></a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/ignatiusm"><img src="https://avatars.githubusercontent.com/u/11403879?v=4" width="100px;" alt="ignatiusm" title="ignatiusm"/></a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/jm-observer"><img src="https://avatars.githubusercontent.com/u/50091488?v=4" width="100px;" alt="jmhuang" title="jmhuang"/></a></td>
-      <td align="center" valign="top" width="14.28%"><a href="https://jonrichter.de/"><img src="https://avatars.githubusercontent.com/u/1645308?v=4" width="100px;" alt="jon r" title="jon r"/></a></td>
     </tr>
     <tr>
+      <td align="center" valign="top" width="14.28%"><a href="https://jonrichter.de/"><img src="https://avatars.githubusercontent.com/u/1645308?v=4" width="100px;" alt="jon r" title="jon r"/></a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://nyanpasu64.gitlab.io/"><img src="https://avatars.githubusercontent.com/u/913957?v=4" width="100px;" alt="kitten" title="kitten"/></a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/solsson"><img src="https://avatars.githubusercontent.com/u/144945?v=4" width="100px;" alt="solsson" title="solsson"/></a></td>
       <td align="center" valign="top" width="14.28%"><a href="http://www.danbeekim.org/"><img src="https://avatars.githubusercontent.com/u/27739141?v=4" width="100px;" alt="taunsquared" title="taunsquared"/></a></td>
