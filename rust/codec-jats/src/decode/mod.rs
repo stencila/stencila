@@ -36,11 +36,11 @@ pub(super) fn decode(str: &str, _options: Option<DecodeOptions>) -> Result<(sche
     let path = "//article";
     for child in root.children() {
         let tag = child.tag_name().name();
-        let path = extend_path(path, tag);
+        let child_path = extend_path(path, tag);
         match tag {
-            "front" => decode_front(&path, &child, &mut article, &mut losses),
-            "body" => decode_body(&path, &child, &mut article, &mut losses),
-            "back" => decode_back(&path, &child, &mut article, &mut losses),
+            "front" => decode_front(&child_path, &child, &mut article, &mut losses),
+            "body" => decode_body(&child_path, &child, &mut article, &mut losses),
+            "back" => decode_back(&child_path, &child, &mut article, &mut losses),
             _ => record_node_lost(&path, &child, &mut losses),
         }
     }

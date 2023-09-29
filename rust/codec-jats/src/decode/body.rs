@@ -19,12 +19,12 @@ use super::utilities::{extend_path, record_attrs_lost, record_node_lost};
 pub(super) fn decode_body(path: &str, node: &Node, article: &mut Article, losses: &mut Losses) {
     for child in node.children() {
         let tag = child.tag_name().name();
-        let path = extend_path(path, tag);
+        let child_path = extend_path(path, tag);
         let block = match tag {
-            "p" => decode_p(&path, &child, losses),
-            "hr" => decode_hr(&path, &child, losses),
+            "p" => decode_p(&child_path, &child, losses),
+            "hr" => decode_hr(&child_path, &child, losses),
             _ => {
-                record_node_lost(&path, node, losses);
+                record_node_lost(&path, &child, losses);
                 continue;
             }
         };
@@ -57,19 +57,19 @@ fn decode_inlines(path: &str, node: &Node, losses: &mut Losses) -> Inlines {
             text(child.text().unwrap_or_default())
         } else {
             let tag = child.tag_name().name();
-            let path = extend_path(path, tag);
+            let child_path = extend_path(path, tag);
             match tag {
-                "inline-media" | "inline-graphic" => decode_inline_media(&path, &child, losses),
+                "inline-media" | "inline-graphic" => decode_inline_media(&child_path, &child, losses),
                 _ => {
-                    record_attrs_lost(&path, &child, [], losses);
+                    record_attrs_lost(&child_path, &child, [], losses);
 
                     match tag {
-                        "bold" => strong(decode_inlines(&path, &child, losses)),
-                        "italic" => em(decode_inlines(&path, &child, losses)),
-                        "strike" => s(decode_inlines(&path, &child, losses)),
-                        "sub" => sub(decode_inlines(&path, &child, losses)),
-                        "sup" => sup(decode_inlines(&path, &child, losses)),
-                        "underline" => u(decode_inlines(&path, &child, losses)),
+                        "bold" => strong(decode_inlines(&child_path, &child, losses)),
+                        "italic" => em(decode_inlines(&child_path, &child, losses)),
+                        "strike" => s(decode_inlines(&child_path, &child, losses)),
+                        "sub" => sub(decode_inlines(&child_path, &child, losses)),
+                        "sup" => sup(decode_inlines(&child_path, &child, losses)),
+                        "underline" => u(decode_inlines(&child_path, &child, losses)),
                         _ => {
                             record_node_lost(&path, &child, losses);
                             continue;
@@ -104,7 +104,6 @@ fn decode_inline_media(path: &str, node: &Node, losses: &mut Losses) -> Inline {
     let mut description = None;
     for child in node.children() {
         let tag = child.tag_name().name();
-        let path = extend_path(path, tag);
         match tag {
             "alt-text" => alternate_names = child.text().map(|content| vec![content.to_string()]),
             "long-desc" => description = child.text().map(|content| vec![p([text(content)])]),

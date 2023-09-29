@@ -26,8 +26,15 @@ where
 /// Record that a whole node was lost
 pub(super) fn record_node_lost(path: &str, node: &Node, losses: &mut Losses) {
     if node.is_element() {
-        losses.add(path)
+        losses.add(extend_path(path, node.tag_name().name()))
     } else if node.is_text() {
-        losses.add(format!("{path}/text()"))
+        // Ignore loss of whitespace only text which can arise in indented JATS
+        if !node
+            .text()
+            .map(|text| text.trim().is_empty())
+            .unwrap_or(true)
+        {
+            losses.add(extend_path(path, "text()"))
+        }
     }
 }
