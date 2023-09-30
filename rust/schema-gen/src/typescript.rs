@@ -147,7 +147,7 @@ impl Schemas {
             .sorted()
             .map(|name| {
                 format!(
-                    "    case \"{name}\":\n      return value instanceof types.{name} ? value : Object.setPrototypeOf(value, types.{name}.prototype);\n"
+                    "    case \"{name}\":\n      return Object.setPrototypeOf(value, types.{name}.prototype);\n"
                 )
             })
             .join("");
