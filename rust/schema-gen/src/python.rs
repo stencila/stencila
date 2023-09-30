@@ -64,7 +64,7 @@ impl Schemas {
         eprintln!("Generating Python types");
 
         // The top level destination
-        let dest = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../python/stencila");
+        let dest = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../python/python/stencila");
         let dest = dest
             .canonicalize()
             .context(format!("can not find directory `{}`", dest.display()))?;

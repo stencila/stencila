@@ -5,14 +5,25 @@ description = "Stencila for Python"
 authors = ["Nokome Bentley <nokome@stenci.la>"]
 license = "Apache-2.0"
 readme = "README.md"
-packages = [{include = "stencila"}]
+packages = [{ include = "stencila" }]
 
 [tool.poetry.dependencies]
 python = "^3.11"
+pytest-asyncio = "^0.21.1"
 
 [tool.poetry.group.dev.dependencies]
 black = "^23.9.1"
+maturin = "^1.2.3"
+pytest = "^7.4.2"
 
 [build-system]
-requires = ["poetry-core"]
-build-backend = "poetry.core.masonry.api"
+requires = ["maturin>=1.0,<2.0"]
+build-backend = "maturin"
+
+[tool.maturin]
+features = ["pyo3/extension-module"]
+python-source = "python"
+module-name = "stencila._stencila"
+
+[tool.pytest.ini_options]
+asyncio_mode = 'auto'

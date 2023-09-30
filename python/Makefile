@@ -1,4 +1,4 @@
-all: fix audit build
+all: fix audit test build
 
 # Setup local development environment
 setup:
@@ -12,6 +12,22 @@ fix: setup
 lint: setup
 	poetry run black stencila --exclude types --check --diff
 
+# Run tests
+test:
+	poetry run maturin develop
+	poetry run pytest
+
+# Build the Python module in debug mode and open a python shell to
+# import it and try it out in
+run:
+	poetry run maturin develop
+	poetry run --directory python python
+
 # List outdated dependencies
 outdated:
 	poetry show --outdated
+	cargo outdated -d 1
+
+# Build Python wheel for distribution
+build:
+	poetry run maturin build
