@@ -6,11 +6,11 @@ setup:
 
 # Make formatting and linting fixes
 fix: setup
-	poetry run black stencila --exclude types
+	poetry run black python --exclude types
 
 # Run linting checks
 lint: setup
-	poetry run black stencila --exclude types --check --diff
+	poetry run black python --exclude types --check --diff
 
 # Run tests
 test:
@@ -21,7 +21,7 @@ test:
 # import it and try it out in
 run:
 	poetry run maturin develop
-	poetry run --directory python python
+	poetry run python
 
 # List outdated dependencies
 outdated:

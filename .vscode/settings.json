@@ -19,6 +19,7 @@
     },
     "cSpell.words": [
         "asciimath",
+        "asyncio",
         "attribs",
         "attw",
         "automerge",
@@ -55,6 +56,7 @@
         "pandoc",
         "publint",
         "Pydantic",
+        "pyfunction",
         "rdfs",
         "requireds",
         "rfind",

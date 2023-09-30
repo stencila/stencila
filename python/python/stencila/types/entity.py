@@ -4,7 +4,7 @@ from .prelude import *
 
 
 @dataclass(kw_only=True, frozen=True)
-class Entity():
+class Entity(DataClassJsonMixin):
     """
     Abstract base type for compound (ie. non-atomic) nodes.
     """

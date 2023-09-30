@@ -242,7 +242,7 @@ impl Schemas {
                 used_types.insert(base.clone());
                 base
             }
-            None => String::new(),
+            None => String::from("DataClassJsonMixin"),
         };
 
         let mut fields = Vec::new();
