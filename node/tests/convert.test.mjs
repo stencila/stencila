@@ -5,7 +5,7 @@ import { toPath, toString, fromPath, fromString, fromTo } from "../convert.mjs";
 
 test("fromString", async () => {
   const node = await fromString(
-    '{type: "Article", content: [{type: "Paragraph", content: "Hello world"}]}',
+    '{type: "Article", content: [{type: "Paragraph", content: ["Hello world"]}]}',
     {
       format: "json5",
     }

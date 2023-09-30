@@ -30,7 +30,9 @@ exports[`fromString 1`] = `
 Article {
   "content": [
     Paragraph {
-      "content": "Hello world",
+      "content": [
+        "Hello world",
+      ],
       "type": "Paragraph",
     },
   ],
