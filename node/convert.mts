@@ -66,7 +66,7 @@ export async function toPath(
 }
 
 /**
- * Encode a Stencila Schema node to a filesystem path
+ * Convert a document from one format to another
  *
  * @param node The node to encode
  * @param path The path to encode to
