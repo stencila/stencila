@@ -42,6 +42,7 @@
         "inflector",
         "inlines",
         "instanceof",
+        "isinstance",
         "itertools",
         "jats",
         "jsonld",

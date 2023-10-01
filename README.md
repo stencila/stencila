@@ -178,16 +178,16 @@ Tools are what we call the self-contained Stencila products you can download and
 | Desktop          | Manage, read and edit documents from a desktop app                                | 🧭 Planned Q1 2024, likely using [Tauri](https://tauri.app/) |
 | VSCode extension | Manage, read and edit documents from within VSCode                                | ❔ Maybe                                                     |
 
-### Bindings
+### SDKs
 
-Bindings allow you to create and manage Stencila document using other programming languages. At this stage we are planning to support Python, Node.js and R but more languages may be added if there is demand.
+Stencila's software development kits (SDKs) allow you to create your own tools on top of Stencila's core functionality. At this stage we are planning to support Python, Node.js and R but more languages may be added if there is demand.
 
 | Language   | Description                                                     | Status                                                                                                                                                                    |
 | ---------- | --------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Python     | Types and bindings for using Stencila from within Python        | 🚧 In progress, planned for Q3 2023                                                                                                                                       |
+| Python     | Types and functions for using Stencila from within Python        | 🚧 In progress, expected completion early Q4 2023                                                                                                                                       |
 | TypeScript | JavaScript classes and TypeScript types for the Stencila Schema | [![](https://img.shields.io/npm/v/%40stencila%2Ftypes.svg?label=npm%20%40stencila%2Ftypes&color=1d3bd1&labelColor=3219a8)](https://www.npmjs.com/package/@stencila/types) |
-| Node.js    | Types and bindings for using Stencila from within Node.js       | 🚧 In progress, planned for Q3 2023                                                                                                                                       |
-| R          | Types and bindings for using Stencila from within R             | 🧭 Planned Q4 2023                                                                                                                                                        |
+| Node.js    | Types and functions for using Stencila from within Node.js       | 🚧 In progress, expected completion early Q4 2023                                                                                                                                       |
+| R          | Types and functions for using Stencila from within R             | 🧭 Planned Q4 2023                                                                                                                                                        |
 
 ## 📜 Documentation
 
