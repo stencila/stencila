@@ -24,7 +24,7 @@ pub(super) fn decode_body(path: &str, node: &Node, article: &mut Article, losses
             "p" => decode_p(&child_path, &child, losses),
             "hr" => decode_hr(&child_path, &child, losses),
             _ => {
-                record_node_lost(&path, &child, losses);
+                record_node_lost(path, &child, losses);
                 continue;
             }
         };
@@ -59,7 +59,9 @@ fn decode_inlines(path: &str, node: &Node, losses: &mut Losses) -> Inlines {
             let tag = child.tag_name().name();
             let child_path = extend_path(path, tag);
             match tag {
-                "inline-media" | "inline-graphic" => decode_inline_media(&child_path, &child, losses),
+                "inline-media" | "inline-graphic" => {
+                    decode_inline_media(&child_path, &child, losses)
+                }
                 _ => {
                     record_attrs_lost(&child_path, &child, [], losses);
 
@@ -71,7 +73,7 @@ fn decode_inlines(path: &str, node: &Node, losses: &mut Losses) -> Inlines {
                         "sup" => sup(decode_inlines(&child_path, &child, losses)),
                         "underline" => u(decode_inlines(&child_path, &child, losses)),
                         _ => {
-                            record_node_lost(&path, &child, losses);
+                            record_node_lost(path, &child, losses);
                             continue;
                         }
                     }
@@ -107,7 +109,7 @@ fn decode_inline_media(path: &str, node: &Node, losses: &mut Losses) -> Inline {
         match tag {
             "alt-text" => alternate_names = child.text().map(|content| vec![content.to_string()]),
             "long-desc" => description = child.text().map(|content| vec![p([text(content)])]),
-            _ => record_node_lost(&path, &child, losses),
+            _ => record_node_lost(path, &child, losses),
         }
     }
 

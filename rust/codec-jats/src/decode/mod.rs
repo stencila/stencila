@@ -41,7 +41,7 @@ pub(super) fn decode(str: &str, _options: Option<DecodeOptions>) -> Result<(sche
             "front" => decode_front(&child_path, &child, &mut article, &mut losses),
             "body" => decode_body(&child_path, &child, &mut article, &mut losses),
             "back" => decode_back(&child_path, &child, &mut article, &mut losses),
-            _ => record_node_lost(&path, &child, &mut losses),
+            _ => record_node_lost(path, &child, &mut losses),
         }
     }
 
