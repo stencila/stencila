@@ -26,6 +26,7 @@ test:
 	make -C rust test
 	make -C typescript test
 	make -C node test
+	make -C python test
 
 # List outdated dependencies
 outdated:
@@ -45,6 +46,7 @@ build:
 	make -C rust build
 	make -C typescript build
 	make -C node build
+	make -C python build
 
 # Build Docker image
 docker:
@@ -68,3 +70,4 @@ clean:
 	make -C rust clean
 	make -C typescript clean
 	make -C node clean
+	make -C python clean

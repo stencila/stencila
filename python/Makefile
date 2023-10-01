@@ -31,3 +31,6 @@ outdated:
 # Build Python wheel for distribution
 build:
 	poetry run maturin build
+
+clean:
+	rm -rf .pytest_cache python/stencila/_stencila.*
