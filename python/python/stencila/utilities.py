@@ -2,8 +2,9 @@ import json
 
 from stencila.types import *
 
-# Somehow in the above import `list` is being defined so override that here
-# This may be able to be removed later
+# The above 'import *' imports `types/list.py` as list so
+# it is necessary to import it again from builtins.
+# This may be able to be removed later.
 from builtins import list
 
 
