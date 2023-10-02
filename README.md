@@ -67,6 +67,19 @@ This is `v2` of Stencila, a rewrite in Rust focussed on the synergies between th
 
 We are embarking on a rewrite because CRDTs will now be the foundational synchronization and storage layer for Stencila documents. This requires fundamental changes to most other parts of the platform (e.g. how changes are applied to dynamic documents). Furthermore, a rewrite allow us to bake in, rather than bolt on, new modes of interaction between authors and LLM assistants and add mechanisms to mitigate the risks associated with using LLMs (e.g. by recording the actor, human or LLM, that made the change to a document). Much of the code in the [`v1` branch](https://github.com/stencila/stencila/tree/v1) will be reused (after some tidy-ups and refactoring), so `v2` is not a _complete_ rewrite.
 
+## 🎥 Showcase
+
+**Simultaneously editing the same document in different formats**
+
+Here, a Stencila `Article` has previously been saved to disk as a CRDT in `main.sta`. Then, the `sync` command of the CLI is used to simultaneously synchronize the CRDT with three files, in three different formats currently supported in `v2`: [JATS XML](), [JSON](), and [Markdown](). Changes made in one file (here, in VSCode) are merged into the in-memory CRDT and written to the other files.
+
+You'd probably never want to do this just by yourself. But this demo illustrates how Stencila `v2` will be enable collaboration _across formats_ (e.g. Markdown, LaTeX, Word) on the same document. Any particular format, is just one of the potential user interfaces to a document.
+
+<video src="docs/showcase/2023-09-29-file-sync.mp4"></video>
+
+> ![NOTE]
+> We'll be showcasing a different aspect of Stencila `v2` on a regular basis.
+
 ## 🚴 Roadmap
 
 Our general strategy is to iterate horizontally across the feature set, rather than fully developing features sequentially. We're less likely to find ourselves painted into an architectural corner with this approach. So expect initial iterations to have limited functionality and be buggy.
