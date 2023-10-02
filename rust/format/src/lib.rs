@@ -62,10 +62,10 @@ impl Format {
     }
 
     /// Resolve a [`Format`] from a name for the format
-    pub fn from_name(ext: &str) -> Result<Self> {
+    pub fn from_name(name: &str) -> Result<Self> {
         use Format::*;
 
-        Ok(match ext.to_lowercase().trim() {
+        Ok(match name.to_lowercase().trim() {
             "debug" => Debug,
             "html" => Html,
             "jats" => Jats,
@@ -74,12 +74,16 @@ impl Format {
             "md" | "markdown" => Markdown,
             "text" | "txt" => Text,
             "yaml" | "yml" => Yaml,
-            _ => bail!("No format matching file name extension `{ext}`"),
+            _ => bail!("No format matching name `{name}`"),
         })
     }
 
     /// Resolve a [`Format`] from a file path
     pub fn from_path(path: &Path) -> Result<Self> {
+        if path.to_string_lossy().ends_with(".jats.xml") {
+            return Ok(Format::Jats);
+        }
+
         let name = match path.extension() {
             Some(ext) => ext,
             None => match path.file_name() {
