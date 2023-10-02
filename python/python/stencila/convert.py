@@ -29,7 +29,7 @@ async def from_path(path: str, format: Optional[str] = None) -> Node:
 
 async def to_string(
     node: Node,
-    format: Optional[str] = 'json',
+    format: Optional[str] = "json",
     standalone: bool = False,
     compact: bool = False,
 ) -> str:
