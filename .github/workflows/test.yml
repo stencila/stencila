@@ -1,4 +1,8 @@
-# Workflow for linting and testing
+# Workflow for running linting, tests and builds
+#
+# Actual release builds are done on tags by the `release.yml` workflow.
+# This just performs builds on Linux to reduce the proability that they
+# will fail in the release workflow.
 
 name: Test
 
@@ -7,7 +11,6 @@ on:
     branches: ["main"]
   pull_request:
     branches: ["main"]
-  workflow_call:
 
 env:
   RUST_VERSION: '1.71.0'
@@ -16,7 +19,7 @@ env:
   PYTHON_VERSION: '3.11'
 
 jobs:
-  lint-test:
+  test:
     runs-on: ubuntu-latest
 
     steps:
@@ -24,9 +27,12 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Setup Rust
-        run: rustup update ${{ env.RUST_VERSION }} --no-self-update && rustup default ${{ env.RUST_VERSION }} && rustup component add clippy
+        uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: ${{ env.RUST_VERSION }}
+          components: clippy,rustfmt
 
-      - name: Enable Rust cache
+      - name: Setup Rust cache
         uses: Swatinem/rust-cache@v2
 
       - name: Setup Node.js
@@ -39,11 +45,27 @@ jobs:
         with:
           python-version: ${{ env.PYTHON_VERSION }}
 
-      - name: Run image
+      - name: Install and configure Poetry
         uses: snok/install-poetry@v1
         
-      - name: Lint
+      - name: Run linting
         run: make lint
 
-      - name: Test
+      - name: Run tests
         run: make test
+
+      - name: Build CLI and SDKs
+        run: make build
+
+      - name: Build Docker image
+        run: make docker
+
+      - name: Make generated files
+        if: github.ref == 'refs/heads/main'
+        run: make generated
+
+      - name: Commit any changes to generated files
+        if: github.ref == 'refs/heads/main'
+        uses: stefanzweifel/git-auto-commit-action@v4
+        with:
+          commit_message: "chore(*): Update generated files"
