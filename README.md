@@ -71,9 +71,9 @@ We are embarking on a rewrite because CRDTs will now be the foundational synchro
 
 **Simultaneously editing the same document in different formats**
 
-Here, a Stencila `Article` has previously been saved to disk as a CRDT in `main.sta`. Then, the `sync` command of the CLI is used to simultaneously synchronize the CRDT with three files, in three different formats currently supported in `v2`: [JATS XML](), [JSON](), and [Markdown](). Changes made in one file (here, in VSCode) are merged into the in-memory CRDT and written to the other files.
+Here, a Stencila `Article` has previously been saved to disk as a CRDT in `main.sta`. Then, the `sync` command of the CLI is used to simultaneously synchronize the CRDT with three files, in three different formats currently supported in `v2`: [JATS XML](https://github.com/stencila/stencila/blob/main/docs/reference/formats/jats.md), [JSON](https://github.com/stencila/stencila/blob/main/docs/reference/formats/json.md), and [Markdown](https://github.com/stencila/stencila/blob/main/docs/reference/formats/markdown.md). Changes made in one file (here, in VSCode) are merged into the in-memory CRDT and written to the other files.
 
-You'd probably never want to do this just by yourself. But this demo illustrates how Stencila `v2` will be enable collaboration _across formats_ (e.g. Markdown, LaTeX, Word) on the same document. Any particular format, is just one of the potential user interfaces to a document.
+You'd probably never want to do this just by yourself. But this demo illustrates how Stencila `v2` will be enable collaboration _across formats_ on the same document. Any particular format (e.g. Markdown, LaTeX, Word) is just one of the potential user interfaces to a document.
 
 <video src="docs/showcase/2023-09-29-file-sync.mp4"></video>
 
@@ -82,9 +82,9 @@ You'd probably never want to do this just by yourself. But this demo illustrates
 
 ## 🚴 Roadmap
 
-Our general strategy is to iterate horizontally across the feature set, rather than fully developing features sequentially. We're less likely to find ourselves painted into an architectural corner with this approach. So expect initial iterations to have limited functionality and be buggy.
+Our general strategy is to iterate horizontally across the feature set, rather than fully developing features sequentially. This will better enable early user testing of workflows and reduce the risk of finding ourselves painted into an architectural corner. So expect initial iterations to have limited functionality and be buggy.
 
-We'll be making alpha and beta releases of `v2` early and often across all products (e.g. CLI, desktop, language bindings). We're aiming for a `2.0.0` release by the end of Q3 2024.
+We'll be making alpha and beta releases of `v2` early and often across all products (e.g. CLI, desktop, SDKs). We're aiming for a `2.0.0` release by the end of Q3 2024.
 
 🟢 Stable • 🔶 Beta • ⚠️ Alpha • 🚧 Under development • 🧪 Experimental • 🧭 Planned • ❔ Maybe
 
@@ -142,7 +142,7 @@ Interoperability with existing formats has always been a key feature of Stencila
 
 ### Kernels
 
-Kernels are what executes the code in Stencila `CodeChunk`s and `CodeExpression`s, as well as in control flow document nodes such as `IfClause` and `For`. In addition to supporting interoperability with existing Jupyter kernels, we will bring over _microkernels_ from `v1`. Microkernels are lightweight kernels for executing code which do not require the user to install anything and which allow for parallel execution. We'll also implement at least one kernel for an embedded scripting language so that it is possible to author a Stencila document which does not rely on any other external binary.
+Kernels are what executes the code in Stencila `CodeChunk`s and `CodeExpression`s, as well as in control flow document nodes such as `IfClause` and `For`. In addition to supporting interoperability with existing Jupyter kernels, we will bring over _microkernels_ from `v1`. Microkernels are lightweight kernels for executing code which do not require separate installation and allow for parallel execution. We'll also implement at least one kernel for an embedded scripting language so that it is possible to author a Stencila document which does not rely on any other external binary.
 
 | Kernel                | Purpose                                          | Status                                                                                                                                                                                           |
 | --------------------- | ------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
@@ -161,15 +161,16 @@ Kernels are what executes the code in Stencila `CodeChunk`s and `CodeExpression`
 
 In Stencila `v2`, non-human changes to the document will be performed, concurrently, by various _actors_. Actors will listen for changes to document and react accordingly. For example, a LLM actor might listen for the insertion of a paragraph starting with "!add a code chunk to read in and summarize mydata.csv" and do just that. We'll be starting by implementing relatively simply actors but to avoid being painted into a corner will probably implement one LLM-base actor relatively early on.
 
-| Actor        | Purpose                                                                                                                                                                                                                              | Status                                                                                         |
-| ------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------- |
-| `MathMLer`   | Update the `mathml` property of [`Math`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/math/math.md) nodes when the `code` property changes                                                                   | 🧭 Planned Q4 2023                                                                             |
-| `Tailwinder` | Update the `classes` property of [`Styled`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/style/styled.md) nodes when the `code` property changes                                                             | 🧭 Planned Q4 2023 [`v1`](https://github.com/stencila/stencila/tree/v1/rust/parser-tailwind)   |
-| Parsers      | Update the `executionDependency` etc properties of [`CodeExecutable`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/code/code-executable.md) nodes when the `code` or `programmingLanguage` properties change | 🧭 Planned Q4 2023 [`v1`](https://github.com/stencila/stencila/tree/v1/rust/parser-treesitter) |
-| `Reactor`    | Maintain a dependency graph between nodes and update `executionRequired` of executable nodes when `executionDependency` or `executionStatus` of other nodes changes.                                                                 | 🧭 Planned Q4 2023 [`v1`](https://github.com/stencila/stencila/tree/v1/rust/graph)             |
-| `Executor`   | Execute nodes when their `executionRequired` property and update their `executionStatus`, `output`, etc properties                                                                                                                   | 🧭 Planned Q4 2023                                                                             |
-| `Coder`      | A LLM actor that creates and edits [`CodeExecutable`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/code/code-executable.md) nodes                                                                            | 🧭 Planned Q1 2024                                                                             |
-| `Writer`     | A LLM actor that creates and edits [prose](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose) nodes                                                                                                         | 🧭 Planned Q1 2024                                                                             |
+| Actor            | Purpose                                                                                                                                                                                                                                              | Status                                                                                         |
+| ---------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------- |
+| `MathML`         | Update the `mathml` property of [`Math`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/math/math.md) nodes when the `code` property changes                                                                                   | 🧭 Planned Q4 2023                                                                             |
+| `Tailwind`       | Update the `classes` property of [`Styled`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/style/styled.md) nodes when the `code` property changes                                                                             | 🧭 Planned Q4 2023 [`v1`](https://github.com/stencila/stencila/tree/v1/rust/parser-tailwind)   |
+| Parsers          | Update the `executionDependency` etc properties of [`CodeExecutable`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/code/code-executable.md) nodes when the `code` or `programmingLanguage` properties change                 | 🧭 Planned Q4 2023 [`v1`](https://github.com/stencila/stencila/tree/v1/rust/parser-treesitter) |
+| `Reactor`        | For reactivity, maintain a dependency graph between nodes and update `executionRequired` of executable nodes when `executionDependency` or `executionStatus` of other nodes changes.                                                                 | 🧭 Planned Q4 2023 [`v1`](https://github.com/stencila/stencila/tree/v1/rust/graph)             |
+| `Executor`       | Execute nodes when their `executionRequired` property and update their `executionStatus`, `output`, etc properties                                                                                                                                   | 🧭 Planned Q4 2023                                                                             |
+| `Coder`          | An LLM actor that creates and edits [`CodeExecutable`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/code/code-executable.md) nodes                                                                                           | 🧭 Planned Q1 2024                                                                             |
+| `Writer`         | An LLM actor that creates and edits [prose](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose) nodes                                                                                                                        | 🧭 Planned Q1 2024                                                                             |
+| `CitationIntent` | An AI actor that suggests a [`CitationIntent`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/citation-intent.md) for [`Cite`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/cite.md) nodes | ❔ Maybe                                                                                       |
 
 ### Editors
 
@@ -197,10 +198,10 @@ Stencila's software development kits (SDKs) allow you to create your own tools o
 
 | Language   | Description                                                     | Status                                                                                                                                                                    |
 | ---------- | --------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Python     | Types and functions for using Stencila from within Python        | 🚧 In progress, expected completion early Q4 2023                                                                                                                                       |
+| Python     | Types and functions for using Stencila from within Python       | 🚧 In progress, expected completion early Q4 2023                                                                                                                         |
 | TypeScript | JavaScript classes and TypeScript types for the Stencila Schema | [![](https://img.shields.io/npm/v/%40stencila%2Ftypes.svg?label=npm%20%40stencila%2Ftypes&color=1d3bd1&labelColor=3219a8)](https://www.npmjs.com/package/@stencila/types) |
-| Node.js    | Types and functions for using Stencila from within Node.js       | 🚧 In progress, expected completion early Q4 2023                                                                                                                                       |
-| R          | Types and functions for using Stencila from within R             | 🧭 Planned Q4 2023                                                                                                                                                        |
+| Node.js    | Types and functions for using Stencila from within Node.js      | 🚧 In progress, expected completion early Q4 2023                                                                                                                         |
+| R          | Types and functions for using Stencila from within R            | 🧭 Planned Q4 2023                                                                                                                                                        |
 
 ## 📜 Documentation
 
@@ -214,15 +215,19 @@ More reference docs as well as guides and tutorial will be added over the coming
 
 ## 📥 Install
 
-Although `v2` is in early stages of development, and functionality may be limited or buggy, we are releasing binary builds of alpha versions of the Stencila CLI tool and language packages. Doing so allows us to get early feedback and monitor what impact the addition of features has on build times and distribution sizes.
+Although `v2` is in early stages of development, and functionality may be limited or buggy, we are releasing alpha versions of the Stencila CLI and SDKs. Doing so allows us to get early feedback and monitor what impact the addition of features has on build times and distribution sizes.
 
-### CLI tool
+### CLI
 
-#### Windows
+<details>
+<summary><strong>Windows</strong></summary>
 
 To install the latest release download `stencila-<version>-x86_64-pc-windows-msvc.zip` from the [latest release](https://github.com/stencila/stencila/releases/latest) and place it somewhere on your `PATH`.
 
-#### MacOS
+</details>
+
+<details>
+<summary><strong>MacOS</strong></summary>
 
 To install the latest release in `/usr/local/bin`,
 
@@ -238,7 +243,10 @@ cd stencila-*/
 sudo mv -f stencila /usr/local/bin # or wherever you prefer
 ```
 
-#### Linux
+</details>
+
+<details>
+<summary><strong>Linux</strong></summary>
 
 To install the latest release in `~/.local/bin/`,
 
@@ -253,7 +261,10 @@ tar xvf stencila-*.tar.xz
 mv -f stencila ~/.local/bin/ # or wherever you prefer
 ```
 
-#### Docker
+</details>
+
+<details>
+<summary><strong>Docker</strong></summary>
 
 The CLI is also available in a Docker image you can pull from the Github Container Registry,
 
@@ -272,6 +283,29 @@ The same image is also published to the Github Container Registry if you'd prefe
 ```console
 docker pull ghcr.io/stencila/stencila
 ```
+
+</details>
+
+### SDKs
+
+<details>
+<summary><strong>TypeScript</strong></summary>
+
+Use your favorite package manager to install [`@stencila/types`](https://www.npmjs.com/package/@stencila/types):
+
+```console
+npm install @stencila/types
+```
+
+```console
+yarn add @stencila/types
+```
+
+```console
+pnpm add @stencila/types
+```
+
+</details>
 
 ## 🛠️ Develop
 
@@ -302,6 +336,7 @@ Stencila is built on the shoulders of many open source projects. Our sincere tha
 | <img src="docs/images/automerge.png" width="80"> | [Automerge](https://automerge.org/)   | A Rust library of data structures for building collaborative applications.                                                              |
 | <img src="docs/images/clap.png" width="80">      | [Clap](https://crates.io/crates/clap) | A Command Line Argument Parser for Rust.                                                                                                |
 | <img src="docs/images/napi.png" width="80">      | [NAPI-RS](https://napi.rs)            | A framework for building pre-compiled Node.js addons in Rust.                                                                           |
+| <img src="docs/images/pyo3.png" width="80">      | [PyO<sub>3</sub>](https://pyo3.rs)    | Rust bindings for Python, including tools for creating native Python extension modules.                                                 |
 | <img src="docs/images/rust.png" width="80">      | [Rust](https://www.rust-lang.org/)    | A multi-paradigm, high-level, general-purpose programming language which emphasizes performance, type safety, and concurrency.          |
 | <img src="docs/images/ferris.png" width="80">    | [Serde](https://serde.rs/)            | A framework for **ser**ializing and **de**serializing Rust data structures efficiently and generically.                                 |
 | <img src="docs/images/similar.png" width="80">   | [Similar](https://insta.rs/similar/)  | A Rust library of diffing algorithms including Patience and Hunt–McIlroy / Hunt–Szymanski LCS.                                          |

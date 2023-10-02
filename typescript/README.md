@@ -19,7 +19,15 @@ Its main purpose is to allow functions in the [`@stencila/node`](https://github.
 ## 📦 Install
 
 ```console
-npm i @stencila/types
+npm install @stencila/types
+```
+
+```console
+yarn add @stencila/types
+```
+
+```console
+pnpm add @stencila/types
 ```
 
 ## ⚡ Usage
