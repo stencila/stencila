@@ -1,4 +1,4 @@
-# Workflow to check that the build succeeds and build and commit generated files
+# Workflow to check that various builds succeed and to build and commit generated files
 #
 # Note that actual release builds are done on tags by the `release.yml` workflow.
 # This just provides a check to increase the likelihood that the release
@@ -42,11 +42,14 @@ jobs:
         with:
           python-version: ${{ env.PYTHON_VERSION }}
 
-      - name: Run image
+      - name: Install and configure Poetry
         uses: snok/install-poetry@v1
           
-      - name: Build CLI and packages
+      - name: Build CLI and SDKs
         run: make build
+
+      - name: Build Docker image
+        run: make docker
 
       - name: Build generated files
         run: make generated
