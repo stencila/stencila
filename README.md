@@ -75,10 +75,7 @@ Here, a Stencila `Article` has previously been saved to disk as a CRDT in `main.
 
 You'd probably never want to do this just by yourself. But this demo illustrates how Stencila `v2` will be enable collaboration _across formats_ on the same document. Any particular format (e.g. Markdown, LaTeX, Word) is just one of the potential user interfaces to a document.
 
-<video src="docs/showcase/2023-09-29-file-sync.mp4"></video>
-
-> ![NOTE]
-> We'll be showcasing a different aspect of Stencila `v2` on a regular basis.
+https://github.com/stencila/stencila/assets/1152336/48cd3716-a3c2-49d1-ab11-e3f61868c3c4
 
 ## 🚴 Roadmap
 
