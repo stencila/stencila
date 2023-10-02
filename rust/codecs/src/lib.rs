@@ -4,6 +4,7 @@ use codec::{
     common::{
         eyre::{bail, eyre, Result},
         itertools::Itertools,
+        tracing
     },
     schema::Node,
     CodecSpec,
@@ -85,6 +86,7 @@ pub fn spec(name: &str) -> Result<CodecSpec> {
 }
 
 /// Decode a Stencila Schema node from a string
+#[tracing::instrument]
 pub async fn from_str(str: &str, options: Option<DecodeOptions>) -> Result<Node> {
     let codec = options.as_ref().and_then(|options| options.codec.as_ref());
 
@@ -110,6 +112,7 @@ pub async fn from_str(str: &str, options: Option<DecodeOptions>) -> Result<Node>
 }
 
 /// Decode a Stencila Schema node from a file system path
+#[tracing::instrument]
 pub async fn from_path(path: &Path, options: Option<DecodeOptions>) -> Result<Node> {
     let codec = options.as_ref().and_then(|options| options.codec.as_ref());
 
@@ -136,6 +139,7 @@ pub async fn from_path(path: &Path, options: Option<DecodeOptions>) -> Result<No
 }
 
 /// Decode a Stencila Schema node from `stdin`
+#[tracing::instrument]
 pub async fn from_stdin(options: Option<DecodeOptions>) -> Result<Node> {
     use std::io::{self, BufRead};
 
@@ -149,6 +153,7 @@ pub async fn from_stdin(options: Option<DecodeOptions>) -> Result<Node> {
 }
 
 /// Encode a Stencila Schema node to a string
+#[tracing::instrument(skip(node))]
 pub async fn to_string(node: &Node, options: Option<EncodeOptions>) -> Result<String> {
     let codec = options.as_ref().and_then(|options| options.codec.as_ref());
 
@@ -208,6 +213,7 @@ pub async fn to_string(node: &Node, options: Option<EncodeOptions>) -> Result<St
 }
 
 /// Encode a Stencila Schema node to a file system path
+#[tracing::instrument(skip(node))]
 pub async fn to_path(node: &Node, path: &Path, options: Option<EncodeOptions>) -> Result<()> {
     let codec = options.as_ref().and_then(|options| options.codec.as_ref());
 
@@ -269,6 +275,7 @@ pub async fn to_path(node: &Node, path: &Path, options: Option<EncodeOptions>) -
 }
 
 /// Convert a document from one format to another
+#[tracing::instrument]
 pub async fn convert(
     input: Option<&Path>,
     output: Option<&Path>,
