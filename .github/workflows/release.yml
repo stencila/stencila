@@ -75,19 +75,20 @@ jobs:
         run: gh release upload ${{ github.ref_name }} target/cli-${{ github.ref_name }}-${{ matrix.target }}.${{ matrix.ext }}
 
   # Build Python SDK
+  # Based on https://github.com/messense/py-dissimilar/blob/main/.github/workflows/CI.yml
   build-python:
     strategy:
       matrix:
         include:
           - os: ubuntu-latest
-            target: x64
-            python: [3.10, 3.11, 3.12]
-          - os: macos-latest
             target: x86_64
-            python: [3.10, 3.11, 3.12]
+            interpreter: 3.9 3.10 3.11
+          - os: macos-latest
+            target: x64
+            interpreter: 3.9 3.10 3.11
           - os: windows-latest
             target: x64
-            python: [3.10, 3.11, 3.12] 
+            interpreter: 3.9 3.10 3.11 
     runs-on: ${{ matrix.os }}
     steps:
       - name: Checkout repo
@@ -101,13 +102,14 @@ jobs:
       - name: Setup Python
         uses: actions/setup-python@v4
         with:
-          python-version: ${{ matrix.python }}
+          python-version: ${{ env.PYTHON_VERSION }}
+          architecture: ${{ matrix.target }}
 
       - name: Build wheel
         uses: PyO3/maturin-action@v1
         with:
           target: ${{ matrix.target }}
-          args: --release --out dist
+          args: --release --out dist --sdist -i ${{ matrix.interpreter }}
 
       - name: Upload wheel
         uses: actions/upload-artifact@v3
