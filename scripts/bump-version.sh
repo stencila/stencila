@@ -13,9 +13,6 @@ else
     echo "Bumping versions to $VERSION"
 fi
 
-# Create the tag
-git tag "v$VERSION"
-
 # Update the version in the Rust CLI
 sed -i -e "s/^version = .*/version = \"$VERSION\"/" rust/cli/Cargo.toml
 
@@ -36,3 +33,9 @@ sed -i -e "s/^version = .*/version = \"$VERSION\"/" python/pyproject.toml
 # Update the workspace Cargo.lock file so that above version changes
 # are propagated to it 
 cargo generate-lockfile
+
+# Create the tag
+git tag "v$VERSION"
+
+echo "Version bumped and tag created"
+echo "Now commit changed files and 'git push && git push --tags'"
