@@ -106,7 +106,9 @@ jobs:
       - name: Build wheel
         uses: PyO3/maturin-action@v1
         with:
+          working-directory: python
           target: ${{ matrix.target }}
+          # Test changes to these args using the `build` recipe in the `python/Makefile`
           args: --release --out dist --sdist -i ${{ matrix.interpreter }}
 
       - name: Upload wheel
@@ -194,7 +196,7 @@ jobs:
 
   # Publish the draft release
   publish-release:
-    needs: [create-release, release-cli]
+    needs: [release-cli]
     runs-on: ubuntu-latest
     permissions:
       contents: write

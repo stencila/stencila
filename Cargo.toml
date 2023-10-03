@@ -1,5 +1,4 @@
 [workspace]
-
 members = ["rust/*", "node", "python"]
 
 # Profile aimed at reducing disk usage and improving build times on CI

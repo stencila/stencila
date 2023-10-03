@@ -29,8 +29,9 @@ outdated:
 	cargo outdated -d 1
 
 # Build Python wheel for distribution
+# This is intended to be close the 'Build wheel' step in the `release.yml` workflow
 build: setup
-	poetry run maturin build
+	poetry run maturin build --release --out dist --sdist -i 3.9 3.10 3.11 
 
 clean:
 	rm -rf .pytest_cache python/stencila/_stencila.*
