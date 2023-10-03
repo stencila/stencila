@@ -6,8 +6,8 @@ name: Release
 
 on:
   push:
-    branches: ["main"]
-    tags: ["*-?v[0-9]+*"]
+    tags:
+      - v*
 
 env:
   RUST_VERSION: "1.71.0"
@@ -88,7 +88,7 @@ jobs:
             interpreter: 3.9 3.10 3.11
           - os: windows-latest
             target: x64
-            interpreter: 3.9 3.10 3.11 
+            interpreter: 3.9 3.10 3.11
     runs-on: ${{ matrix.os }}
     steps:
       - name: Checkout repo
@@ -120,7 +120,7 @@ jobs:
   # Upload Python wheels
   upload-python:
     runs-on: ubuntu-latest
-    needs: [ build-python ]
+    needs: [build-python]
     steps:
       - uses: actions/download-artifact@v3
         with:
@@ -185,7 +185,7 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: ${{ env.NODE_VERSION }}
-          registry-url: 'https://registry.npmjs.org'
+          registry-url: "https://registry.npmjs.org"
 
       - name: Release @stencila/types
         run: make -C typescript release
@@ -207,4 +207,3 @@ jobs:
       - name: Mark release as non-draft
         run: |
           gh release edit ${{ github.ref_name }} --draft=false
-      
