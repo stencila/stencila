@@ -194,7 +194,7 @@ jobs:
 
   # Publish the draft release
   publish-release:
-    needs: [create-release]
+    needs: [create-release, release-cli]
     runs-on: ubuntu-latest
     permissions:
       contents: write
