@@ -1,7 +1,7 @@
 [package]
 edition = "2021"
 name = "node"
-version = "0.0.0"
+version = "2.0.0-alpha.11"
 
 [lib]
 crate-type = ["cdylib"]
