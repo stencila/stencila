@@ -23,7 +23,8 @@
   "type": "module",
   "files": [
     "dist",
-    "src"
+    "src/*.ts",
+    "src/types/*.ts"
   ],
   "exports": "./dist/index.js",
   "types": "./dist/index.d.ts",
