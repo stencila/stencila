@@ -2,22 +2,6 @@
 
 members = ["rust/*", "node", "python"]
 
-# Config for 'cargo dist'
-[workspace.metadata.dist]
-# The preferred cargo-dist version to use in CI (Cargo.toml SemVer syntax)
-cargo-dist-version = "0.0.5"
-# The preferred Rust toolchain to use in CI (rustup toolchain syntax)
-rust-toolchain-version = "1.71.0"
-# CI backends to support (see 'cargo dist generate-ci')
-ci = ["github"]
-# Target platforms to build apps for (Rust target-triple syntax)
-targets = [
-    "x86_64-unknown-linux-gnu",
-    "x86_64-apple-darwin",
-    "x86_64-pc-windows-msvc",
-    "aarch64-apple-darwin",
-]
-
 # Profile aimed at reducing disk usage and improving build times on CI
 # At time of writing, these settings produced a ./target/ci that was 5G vs a
 # ./target/debug of 15G.
@@ -33,8 +17,3 @@ strip = true
 lto = true
 codegen-units = 1
 panic = "abort"
-
-# The profile that 'cargo dist' will build with
-[profile.dist]
-inherits = "release"
-lto = "thin"

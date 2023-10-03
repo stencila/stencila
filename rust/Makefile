@@ -1,16 +1,32 @@
 all: fix test audit build
 
+# Rust profile
 ifdef CI
   PROFILE:=ci
 else
   PROFILE:=dev
-endif 
+endif
+
+# Rust target defaults
+# Can be overriden e.g.
+#   make build -e TARGET=x86_64-apple-darwin
+ifeq ($(OS),Windows_NT)
+    TARGET:=x86_64-pc-windows-gnu
+else
+    UNAME_S := $(shell uname -s)
+    ifeq ($(UNAME_S),Linux)
+        TARGET:=x86_64-unknown-linux-gnu
+    endif
+    ifeq ($(UNAME_S),Darwin)
+        TARGET:=x86_64-apple-darwin
+    endif
+endif
 
 # Setup local development environment
 # Nightly toolchain is required to run `cargo udeps`
 setup:
 	cargo install cargo-binstall
-	cargo binstall --no-confirm cargo-audit cargo-dist cargo-insta cargo-outdated cargo-release cargo-watch
+	cargo binstall --no-confirm cargo-audit cargo-insta cargo-outdated cargo-watch
 	rustup toolchain install nightly
 	cargo install cargo-udeps --locked
 
@@ -38,7 +54,11 @@ audit:
 
 # Build CLI binary
 build:
-	cargo build --bin stencila --release
+	cargo build --bin stencila --release --target $(TARGET)
+
+# Create archive of CLI binary and other assets
+archive:
+	cd .. && bash scripts/archive-binary.sh cli $(TARGET) stencila
 
 # Use cargo to install the CLI binary
 install:

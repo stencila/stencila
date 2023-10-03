@@ -45,7 +45,7 @@ jobs:
         with:
           python-version: ${{ env.PYTHON_VERSION }}
 
-      - name: Install and configure Poetry
+      - name: Setup Poetry
         uses: snok/install-poetry@v1
         
       - name: Run linting
@@ -61,10 +61,9 @@ jobs:
         run: make docker
 
       - name: Make generated files
-        if: github.ref == 'refs/heads/main'
         run: make generated
 
-      - name: Commit any changes to generated files
+      - name: Commit generated files
         if: github.ref == 'refs/heads/main'
         uses: stefanzweifel/git-auto-commit-action@v4
         with:

@@ -14,7 +14,7 @@
     "prepublishOnly": "napi prepublish -t npm",
     "test": "NODE_OPTIONS=--experimental-vm-modules npx jest",
     "universal": "napi universal",
-    "version": "napi version"
+    "versions": "napi version"
   },
   "engines": {
     "node": ">= 10"
