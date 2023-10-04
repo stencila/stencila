@@ -6,6 +6,11 @@
 VERSION=$1
 SEMVER="^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(\-[0-9A-Za-z\-\.]+)?(\+[0-9A-Za-z\-\.]+)?$"
 
+if [[ -n $(git status -s) ]]; then
+    echo 'Modified and/or untracked files! Commit or stash first.'
+    exit 1
+fi
+
 if ! [[ "$VERSION" =~ $SEMVER ]]; then
     echo "Version argument should be a semantic version number; got $VERSION"
     exit 1
@@ -18,12 +23,13 @@ sed -i -e "s/^version = .*/version = \"$VERSION\"/" rust/cli/Cargo.toml
 
 # Update the version in the Typescript package
 sed -i -e "s/\"version\": .*/\"version\": \"$VERSION\",/" typescript/package.json
-(cd typescript && npm install)
 
 # Update the version in the Node.js SDK
 sed -i -e "s/^version = .*/version = \"$VERSION\"/" node/Cargo.toml
 sed -i -e "s/\"version\": .*/\"version\": \"$VERSION\",/" node/package.json
-(cd node && npm install)
+
+# Do NPM install to update package-lock.json files
+npm install
 
 # Update the version in the Python SDK
 sed -i -e "s/^version = .*/version = \"$VERSION\"/" python/Cargo.toml
@@ -34,8 +40,12 @@ sed -i -e "s/^version = .*/version = \"$VERSION\"/" python/pyproject.toml
 # are propagated to it 
 cargo generate-lockfile
 
+# Commit the changes files
+git add .
+git commit -m "chore(*): Bump version\n\n[skip ci]"
+
 # Create the tag
 git tag "v$VERSION"
 
 echo "Version bumped and tag created"
-echo "Now commit changed files and 'git push && git push --tags'"
+echo "Now 'git push && git push --tags'"
