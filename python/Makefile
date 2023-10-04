@@ -1,25 +1,29 @@
 all: fix audit test build
 
-# Setup local development environment
-setup:
+# Install dependencies
+poetry.lock: pyproject.toml
 	poetry install
+	touch poetry.lock
+
+# Install alias for consistency
+install: poetry.lock
 
 # Make formatting and linting fixes
-fix: setup
+fix: poetry.lock
 	poetry run black python --exclude types
 
 # Run linting checks
-lint: setup
+lint: poetry.lock
 	poetry run black python --exclude types --check --diff
 
 # Run tests
-test: setup
+test: poetry.lock
 	poetry run maturin develop
 	poetry run pytest
 
 # Build the Python module in debug mode and open a python shell to
 # import it and try it out in
-run: setup
+run: poetry.lock
 	poetry run maturin develop
 	poetry run python
 
@@ -30,7 +34,7 @@ outdated:
 
 # Build Python wheel for distribution
 # This is intended to be close the 'Build wheel' step in the `release.yml` workflow
-build: setup
+build: poetry.lock
 	poetry run maturin build --release --out dist --sdist -i 3.9 3.10 3.11 
 
 clean:

@@ -1,11 +1,14 @@
 all: fix test audit build
 
 # Install dependencies
-setup:
-	make -C rust setup
-	make -C typescript setup
-	make -C node setup
-	make -C python setup
+#
+# This does not presently include Rust (since that is uneccessary),
+# but ensures install of the top level NPM workspaces,
+# and Python module.
+install:
+	make -C typescript -B install
+	make -C node -B install
+	make -C python -B install
 
 # Make formatting and linting fixes
 fix:

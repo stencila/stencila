@@ -48,6 +48,9 @@ jobs:
       - name: Setup Poetry
         uses: snok/install-poetry@v1
         
+      - name: Install dependencies
+        run: make install
+
       - name: Run linting
         run: make lint
 

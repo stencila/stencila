@@ -57,6 +57,6 @@
     "@stencila/node-win32-x64-msvc": "0.0.0"
   },
   "dependencies": {
-    "@stencila/types": "../typescript"
+    "@stencila/types": "*"
   }
 }

@@ -190,7 +190,7 @@ jobs:
           registry-url: "https://registry.npmjs.org"
 
       - name: Release @stencila/types
-        run: make -C typescript release
+        run: make -C typescript -B install release
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
