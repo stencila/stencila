@@ -2,23 +2,23 @@
 
 import { hydrate } from "../hydrate.js";
 
-import { Call } from "./Call.js";
-import { Claim } from "./Claim.js";
-import { CodeBlock } from "./CodeBlock.js";
-import { CodeChunk } from "./CodeChunk.js";
-import { Division } from "./Division.js";
-import { Figure } from "./Figure.js";
-import { For } from "./For.js";
-import { Form } from "./Form.js";
-import { Heading } from "./Heading.js";
-import { If } from "./If.js";
-import { Include } from "./Include.js";
-import { List } from "./List.js";
-import { MathBlock } from "./MathBlock.js";
-import { Paragraph } from "./Paragraph.js";
-import { QuoteBlock } from "./QuoteBlock.js";
-import { Table } from "./Table.js";
-import { ThematicBreak } from "./ThematicBreak.js";
+import { type Call } from "./Call.js";
+import { type Claim } from "./Claim.js";
+import { type CodeBlock } from "./CodeBlock.js";
+import { type CodeChunk } from "./CodeChunk.js";
+import { type Division } from "./Division.js";
+import { type Figure } from "./Figure.js";
+import { type For } from "./For.js";
+import { type Form } from "./Form.js";
+import { type Heading } from "./Heading.js";
+import { type If } from "./If.js";
+import { type Include } from "./Include.js";
+import { type List } from "./List.js";
+import { type MathBlock } from "./MathBlock.js";
+import { type Paragraph } from "./Paragraph.js";
+import { type QuoteBlock } from "./QuoteBlock.js";
+import { type Table } from "./Table.js";
+import { type ThematicBreak } from "./ThematicBreak.js";
 
 /**
  * Union type for block content node types.

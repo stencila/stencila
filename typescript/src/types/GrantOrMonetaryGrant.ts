@@ -2,8 +2,8 @@
 
 import { hydrate } from "../hydrate.js";
 
-import { Grant } from "./Grant.js";
-import { MonetaryGrant } from "./MonetaryGrant.js";
+import { type Grant } from "./Grant.js";
+import { type MonetaryGrant } from "./MonetaryGrant.js";
 
 /**
  * `Grant` or `MonetaryGrant`

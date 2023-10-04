@@ -2,12 +2,12 @@
 
 import { hydrate } from "../hydrate.js";
 
-import { Button } from "./Button.js";
-import { CodeChunk } from "./CodeChunk.js";
-import { File } from "./File.js";
-import { Parameter } from "./Parameter.js";
-import { SoftwareSourceCode } from "./SoftwareSourceCode.js";
-import { Variable } from "./Variable.js";
+import { type Button } from "./Button.js";
+import { type CodeChunk } from "./CodeChunk.js";
+import { type File } from "./File.js";
+import { type Parameter } from "./Parameter.js";
+import { type SoftwareSourceCode } from "./SoftwareSourceCode.js";
+import { type Variable } from "./Variable.js";
 
 /**
  * Node types that can be execution dependencies

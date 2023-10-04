@@ -2,8 +2,8 @@
 
 import { hydrate } from "../hydrate.js";
 
-import { SoftwareApplication } from "./SoftwareApplication.js";
-import { SoftwareSourceCode } from "./SoftwareSourceCode.js";
+import { type SoftwareApplication } from "./SoftwareApplication.js";
+import { type SoftwareSourceCode } from "./SoftwareSourceCode.js";
 
 /**
  * `SoftwareSourceCode` or `SoftwareApplication` or `string`

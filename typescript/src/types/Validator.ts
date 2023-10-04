@@ -2,19 +2,19 @@
 
 import { hydrate } from "../hydrate.js";
 
-import { ArrayValidator } from "./ArrayValidator.js";
-import { BooleanValidator } from "./BooleanValidator.js";
-import { ConstantValidator } from "./ConstantValidator.js";
-import { DateTimeValidator } from "./DateTimeValidator.js";
-import { DateValidator } from "./DateValidator.js";
-import { DurationValidator } from "./DurationValidator.js";
-import { EnumValidator } from "./EnumValidator.js";
-import { IntegerValidator } from "./IntegerValidator.js";
-import { NumberValidator } from "./NumberValidator.js";
-import { StringValidator } from "./StringValidator.js";
-import { TimeValidator } from "./TimeValidator.js";
-import { TimestampValidator } from "./TimestampValidator.js";
-import { TupleValidator } from "./TupleValidator.js";
+import { type ArrayValidator } from "./ArrayValidator.js";
+import { type BooleanValidator } from "./BooleanValidator.js";
+import { type ConstantValidator } from "./ConstantValidator.js";
+import { type DateTimeValidator } from "./DateTimeValidator.js";
+import { type DateValidator } from "./DateValidator.js";
+import { type DurationValidator } from "./DurationValidator.js";
+import { type EnumValidator } from "./EnumValidator.js";
+import { type IntegerValidator } from "./IntegerValidator.js";
+import { type NumberValidator } from "./NumberValidator.js";
+import { type StringValidator } from "./StringValidator.js";
+import { type TimeValidator } from "./TimeValidator.js";
+import { type TimestampValidator } from "./TimestampValidator.js";
+import { type TupleValidator } from "./TupleValidator.js";
 
 /**
  * Union type for validators.

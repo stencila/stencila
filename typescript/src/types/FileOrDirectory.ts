@@ -2,8 +2,8 @@
 
 import { hydrate } from "../hydrate.js";
 
-import { Directory } from "./Directory.js";
-import { File } from "./File.js";
+import { type Directory } from "./Directory.js";
+import { type File } from "./File.js";
 
 /**
  * `File` or `Directory`

@@ -2,25 +2,25 @@
 
 import { hydrate } from "../hydrate.js";
 
-import { Article } from "./Article.js";
-import { AudioObject } from "./AudioObject.js";
-import { Claim } from "./Claim.js";
-import { Collection } from "./Collection.js";
-import { Comment } from "./Comment.js";
-import { Datatable } from "./Datatable.js";
-import { Directory } from "./Directory.js";
-import { Figure } from "./Figure.js";
-import { File } from "./File.js";
-import { ImageObject } from "./ImageObject.js";
-import { MediaObject } from "./MediaObject.js";
-import { Periodical } from "./Periodical.js";
-import { PublicationIssue } from "./PublicationIssue.js";
-import { PublicationVolume } from "./PublicationVolume.js";
-import { Review } from "./Review.js";
-import { SoftwareApplication } from "./SoftwareApplication.js";
-import { SoftwareSourceCode } from "./SoftwareSourceCode.js";
-import { Table } from "./Table.js";
-import { VideoObject } from "./VideoObject.js";
+import { type Article } from "./Article.js";
+import { type AudioObject } from "./AudioObject.js";
+import { type Claim } from "./Claim.js";
+import { type Collection } from "./Collection.js";
+import { type Comment } from "./Comment.js";
+import { type Datatable } from "./Datatable.js";
+import { type Directory } from "./Directory.js";
+import { type Figure } from "./Figure.js";
+import { type File } from "./File.js";
+import { type ImageObject } from "./ImageObject.js";
+import { type MediaObject } from "./MediaObject.js";
+import { type Periodical } from "./Periodical.js";
+import { type PublicationIssue } from "./PublicationIssue.js";
+import { type PublicationVolume } from "./PublicationVolume.js";
+import { type Review } from "./Review.js";
+import { type SoftwareApplication } from "./SoftwareApplication.js";
+import { type SoftwareSourceCode } from "./SoftwareSourceCode.js";
+import { type Table } from "./Table.js";
+import { type VideoObject } from "./VideoObject.js";
 
 /**
  * Union type for all types that are descended from `CreativeWork`

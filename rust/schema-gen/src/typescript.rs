@@ -504,7 +504,7 @@ export function {name}({required_args}options?: Partial<{title}>): {title} {{
             .sorted()
             .filter_map(|(name, is_type)| {
                 (*is_type && !NATIVE_TYPES.contains(&name.to_lowercase().as_str()))
-                    .then_some(format!("import {{ {name} }} from \"./{name}.js\";",))
+                    .then_some(format!("import {{ type {name} }} from \"./{name}.js\";",))
             })
             .join("\n");
         if !imports.is_empty() {

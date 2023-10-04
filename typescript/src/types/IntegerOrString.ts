@@ -1,5 +1,5 @@
 // Generated file; do not edit. See `../rust/schema-gen` crate.
-import { Integer } from "./Integer.js";
+import { type Integer } from "./Integer.js";
 
 /**
  * `Integer` or `string`

@@ -2,7 +2,7 @@
 
 import { hydrate } from "../hydrate.js";
 
-import { PostalAddress } from "./PostalAddress.js";
+import { type PostalAddress } from "./PostalAddress.js";
 
 /**
  * `PostalAddress` or `string`

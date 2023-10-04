@@ -2,15 +2,15 @@
 
 import { hydrate } from "../hydrate.js";
 
-import { Call } from "./Call.js";
-import { CodeChunk } from "./CodeChunk.js";
-import { CodeExpression } from "./CodeExpression.js";
-import { Division } from "./Division.js";
-import { File } from "./File.js";
-import { For } from "./For.js";
-import { If } from "./If.js";
-import { Span } from "./Span.js";
-import { Variable } from "./Variable.js";
+import { type Call } from "./Call.js";
+import { type CodeChunk } from "./CodeChunk.js";
+import { type CodeExpression } from "./CodeExpression.js";
+import { type Division } from "./Division.js";
+import { type File } from "./File.js";
+import { type For } from "./For.js";
+import { type If } from "./If.js";
+import { type Span } from "./Span.js";
+import { type Variable } from "./Variable.js";
 
 /**
  * Node types that can be execution dependants

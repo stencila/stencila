@@ -2,9 +2,9 @@
 
 import { hydrate } from "../hydrate.js";
 
-import { Organization } from "./Organization.js";
-import { Person } from "./Person.js";
-import { SoftwareApplication } from "./SoftwareApplication.js";
+import { type Organization } from "./Organization.js";
+import { type Person } from "./Person.js";
+import { type SoftwareApplication } from "./SoftwareApplication.js";
 
 /**
  * `Person` or `Organization` or `SoftwareApplication`

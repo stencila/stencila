@@ -2,36 +2,36 @@
 
 import { hydrate } from "../hydrate.js";
 
-import { AudioObject } from "./AudioObject.js";
-import { Button } from "./Button.js";
-import { Cite } from "./Cite.js";
-import { CiteGroup } from "./CiteGroup.js";
-import { CodeExpression } from "./CodeExpression.js";
-import { CodeFragment } from "./CodeFragment.js";
-import { Date } from "./Date.js";
-import { DateTime } from "./DateTime.js";
-import { Delete } from "./Delete.js";
-import { Duration } from "./Duration.js";
-import { Emphasis } from "./Emphasis.js";
-import { ImageObject } from "./ImageObject.js";
-import { Insert } from "./Insert.js";
-import { Integer } from "./Integer.js";
-import { Link } from "./Link.js";
-import { MathFragment } from "./MathFragment.js";
-import { MediaObject } from "./MediaObject.js";
-import { Note } from "./Note.js";
-import { Parameter } from "./Parameter.js";
-import { Quote } from "./Quote.js";
-import { Span } from "./Span.js";
-import { Strikeout } from "./Strikeout.js";
-import { Strong } from "./Strong.js";
-import { Subscript } from "./Subscript.js";
-import { Superscript } from "./Superscript.js";
-import { Text } from "./Text.js";
-import { Time } from "./Time.js";
-import { Timestamp } from "./Timestamp.js";
-import { Underline } from "./Underline.js";
-import { VideoObject } from "./VideoObject.js";
+import { type AudioObject } from "./AudioObject.js";
+import { type Button } from "./Button.js";
+import { type Cite } from "./Cite.js";
+import { type CiteGroup } from "./CiteGroup.js";
+import { type CodeExpression } from "./CodeExpression.js";
+import { type CodeFragment } from "./CodeFragment.js";
+import { type Date } from "./Date.js";
+import { type DateTime } from "./DateTime.js";
+import { type Delete } from "./Delete.js";
+import { type Duration } from "./Duration.js";
+import { type Emphasis } from "./Emphasis.js";
+import { type ImageObject } from "./ImageObject.js";
+import { type Insert } from "./Insert.js";
+import { type Integer } from "./Integer.js";
+import { type Link } from "./Link.js";
+import { type MathFragment } from "./MathFragment.js";
+import { type MediaObject } from "./MediaObject.js";
+import { type Note } from "./Note.js";
+import { type Parameter } from "./Parameter.js";
+import { type Quote } from "./Quote.js";
+import { type Span } from "./Span.js";
+import { type Strikeout } from "./Strikeout.js";
+import { type Strong } from "./Strong.js";
+import { type Subscript } from "./Subscript.js";
+import { type Superscript } from "./Superscript.js";
+import { type Text } from "./Text.js";
+import { type Time } from "./Time.js";
+import { type Timestamp } from "./Timestamp.js";
+import { type Underline } from "./Underline.js";
+import { type VideoObject } from "./VideoObject.js";
 
 /**
  * Union type for valid inline content.

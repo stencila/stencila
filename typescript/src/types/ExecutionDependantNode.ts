@@ -2,15 +2,15 @@
 
 import { hydrate } from "../hydrate.js";
 
-import { Button } from "./Button.js";
-import { Call } from "./Call.js";
-import { CodeChunk } from "./CodeChunk.js";
-import { CodeExpression } from "./CodeExpression.js";
-import { Division } from "./Division.js";
-import { File } from "./File.js";
-import { Parameter } from "./Parameter.js";
-import { Span } from "./Span.js";
-import { Variable } from "./Variable.js";
+import { type Button } from "./Button.js";
+import { type Call } from "./Call.js";
+import { type CodeChunk } from "./CodeChunk.js";
+import { type CodeExpression } from "./CodeExpression.js";
+import { type Division } from "./Division.js";
+import { type File } from "./File.js";
+import { type Parameter } from "./Parameter.js";
+import { type Span } from "./Span.js";
+import { type Variable } from "./Variable.js";
 
 /**
  * Node types that can be execution dependencies

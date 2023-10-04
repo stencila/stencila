@@ -2,7 +2,7 @@
 
 import { hydrate } from "../hydrate.js";
 
-import { PropertyValue } from "./PropertyValue.js";
+import { type PropertyValue } from "./PropertyValue.js";
 
 /**
  * `PropertyValue` or `string`

@@ -2,7 +2,7 @@
 
 import { hydrate } from "../hydrate.js";
 
-import { Cite } from "./Cite.js";
+import { type Cite } from "./Cite.js";
 
 /**
  * `Cite` or `string`

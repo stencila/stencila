@@ -2,7 +2,7 @@
 
 import { hydrate } from "../hydrate.js";
 
-import { ImageObject } from "./ImageObject.js";
+import { type ImageObject } from "./ImageObject.js";
 
 /**
  * `ImageObject` or `string`
