@@ -1,45 +1,41 @@
 all: fix test audit build
 
 # Install dependencies
-package-lock.json: package.json
+install:
 ifdef CI
 	cd .. && npm ci
 else
 	cd .. && npm install
 endif
-	touch package-lock.json
-
-# Install alias for consistency
-install: package-lock.json
 
 # Make formatting and linting fixes
-fix: package-lock.json
+fix: install
 	npm run fix
 
 # Run linting checks
-lint: package-lock.json
+lint: install
 	npm run lint
 
 # Run tests
 # Currently this just checks that the TypeScript compiles
 # since there is not really any code here beyond type definitions
-test: package-lock.json
+test: install
 	npm test
 
 # List outdated dependencies
-outdated: package-lock.json
+outdated: install
 	npm outdated
 
 # Audit dependencies
-audit: package-lock.json
+audit: install
 	npm audit fix
 
 # Build the package
-build: package-lock.json
+build: install
 	npm run build
 
 # Check the package before releasing
-check: package-lock.json
+check: install
 	npm run check
 
 # Release the package

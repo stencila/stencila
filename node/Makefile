@@ -1,43 +1,41 @@
 all: fix test audit build
 
 # Install dependencies
-package-lock.json: package.json
+install:
 ifdef CI
 	cd .. && npm ci
 else
 	cd .. && npm install
 endif
-	touch package-lock.json
-
-# Install alias for consistency
-install: package-lock.json
 
 # Make formatting and linting fixes
-fix: package-lock.json
+fix: install
 	npm run fix
 
 # Run linting checks
-lint: package-lock.json
+lint: install
 	npm run lint
 
 # Run tests
 # It's necessary to build the @stencila/types package first because
 # at present that is linked in the package.json with a relative path
-test: package-lock.json
+test: install
 	make -C ../typescript build
 	npm run build:debug
 	npm test
 
 # List outdated dependencies
-outdated: package-lock.json
+outdated: install
 	npm outdated
 
 # Audit dependencies
-audit: package-lock.json
+audit: install
 	npm audit fix
 
 # Build the package
-build: package-lock.json
+# As for `test`, must ensure that @stencila/types is built
+build: install
+	make -C ../typescript build
 	npm run build
 
 # Clean up development artifacts
