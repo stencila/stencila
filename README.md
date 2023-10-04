@@ -108,7 +108,7 @@ In `v2`, documents can be stored as binary Automerge CRDT files, forked and merg
 | Documents read/write-able    | Able to write a Stencila document to an Automerge binary file and read it back in                                                                             | ⚠️ Alpha; needs more testing |
 | Documents import/export-able | Able to import or export document as alternative formats, using tree diffing to generate CRDT changes                                                         | ⚠️ Alpha; needs more testing |
 | Documents fork/merge-able    | Able to create a fork of a document in another file and then later merge with the original                                                                    | 🧭 Planned Q4 2023           |
-| Documents diff-able          | Able to view a diff, in any of the supported format, between versions of a document and between a document and another file                                   | 🧭 Planned Q4 2023           |
+| Documents diff-able          | Able to view a diff, in any of the supported formats, between versions of a document and between a document and another file                                  | 🧭 Planned Q4 2023           |
 | Git merge driver             | CLI can act as a [custom Git merge driver](https://www.julianburr.de/til/custom-git-merge-drivers/)                                                           | 🧭 Planned Q4 2023           |
 | Relay server                 | Documents can be synchronized by exchanging changes via a relay server                                                                                        | 🧭 Planned Q4 2023           |
 | Rendezvous server            | Documents can be synchronized by exchanging changes peer-to-peer using TCP or UDP [hole punching](<https://en.wikipedia.org/wiki/Hole_punching_(networking)>) | ❔ Maybe                     |
@@ -136,6 +136,7 @@ Interoperability with existing formats has always been a key feature of Stencila
 | ODT              | 🧭       | 🧭       | Relies on Pandoc                                                                                                                                            |
 | Google Docs      | 🧭       | 🧭       | Planned Q1 2024 [`v1`](https://github.com/stencila/stencila/tree/v1/rust/codec-gdoc)                                                                        |
 | PDF              | 🧭       | 🧭       | Planned Q1 2024, relies on HTML; [`v1`](https://github.com/stencila/stencila/tree/v1/rust/codec-pdf)                                                        |
+| Codec Plugin API | 🧭       | 🧭       | An API allowing codecs to be developed as plugins in Python, Node.js, and other languages                                                                   |
 
 ### Kernels
 
@@ -165,6 +166,7 @@ In Stencila `v2`, non-human changes to the document will be performed, concurren
 | Parsers          | Update the `executionDependency` etc properties of [`CodeExecutable`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/code/code-executable.md) nodes when the `code` or `programmingLanguage` properties change                 | 🧭 Planned Q4 2023 [`v1`](https://github.com/stencila/stencila/tree/v1/rust/parser-treesitter) |
 | `Reactor`        | For reactivity, maintain a dependency graph between nodes and update `executionRequired` of executable nodes when `executionDependency` or `executionStatus` of other nodes changes.                                                                 | 🧭 Planned Q4 2023 [`v1`](https://github.com/stencila/stencila/tree/v1/rust/graph)             |
 | `Executor`       | Execute nodes when their `executionRequired` property and update their `executionStatus`, `output`, etc properties                                                                                                                                   | 🧭 Planned Q4 2023                                                                             |
+| Actor Plugin API | An API allowing actors to be developed as plugins in Python, Node.js, and other languages                                                                                                                                                            | 🧭 Planned Q4 2023 to allow prototypes of `Coder` and `Writer` actors as plugins                      |
 | `Coder`          | An LLM actor that creates and edits [`CodeExecutable`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/code/code-executable.md) nodes                                                                                           | 🧭 Planned Q1 2024                                                                             |
 | `Writer`         | An LLM actor that creates and edits [prose](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose) nodes                                                                                                                        | 🧭 Planned Q1 2024                                                                             |
 | `CitationIntent` | An AI actor that suggests a [`CitationIntent`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/citation-intent.md) for [`Cite`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/cite.md) nodes | ❔ Maybe                                                                                       |
@@ -191,7 +193,7 @@ Tools are what we call the self-contained Stencila products you can download and
 
 ### SDKs
 
-Stencila's software development kits (SDKs) allow you to create your own tools on top of Stencila's core functionality. At this stage we are planning to support Python, Node.js and R but more languages may be added if there is demand.
+Stencila's software development kits (SDKs) enable developers to create plugins to extend Stencila's core functionality or to build other tools on top of. At this stage we are planning to support Python, Node.js and R but more languages may be added if there is demand.
 
 | Language   | Description                                                     | Status                                                                                                                                                                    |
 | ---------- | --------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
