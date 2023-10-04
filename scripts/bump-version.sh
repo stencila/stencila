@@ -36,7 +36,9 @@ cargo generate-lockfile
 
 # Commit the changes files
 git add .
-git commit -m "chore(*): Bump version\n\n[skip ci]"
+git commit -m "chore(*): Bump version
+
+[skip ci]"
 
 # Create the tag
 git tag "v$VERSION"
