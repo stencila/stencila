@@ -1,6 +1,0 @@
-npm
-tests
-.eslintrc.json
-tsconfig.json
-Makefile
-*.node

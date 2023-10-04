@@ -2,15 +2,21 @@
   "name": "@stencila/node",
   "version": "2.0.0-alpha.11",
   "license": "Apache-2.0",
-  "main": "main.js",
-  "types": "main.d.ts",
+  "files": [
+    "bindings.*",
+    "dist",
+    "src/*.mts"
+  ],
+  "main": "./dist/lib.mjs",
+  "types": "./dist/lib.d.ts",
   "scripts": {
-    "fix": "eslint --fix '*.mts'",
-    "lint": "eslint '*.mts'",
+    "fix": "eslint --fix '**/*.mts'",
+    "lint": "eslint '**/*.mts'",
     "artifacts": "napi artifacts",
-    "build": "napi build --platform --release",
-    "build:debug": "napi build --platform",
+    "build": "napi build --platform --release --js bindings.js --dts bindings.d.ts && npm run compile",
+    "build:debug": "napi build --platform --js bindings.js --dts bindings.d.ts && npm run compile",
     "compile": "tsc -p tsconfig-build.json",
+    "check": "attw --pack . && publint",
     "prepublishOnly": "napi prepublish -t npm",
     "test": "NODE_OPTIONS=--experimental-vm-modules npx jest",
     "universal": "napi universal",
@@ -24,10 +30,16 @@
     "triples": {}
   },
   "jest": {
-    "testMatch": ["**/*.test.mjs"],
-    "moduleFileExtensions": ["js", "mjs"]
+    "testMatch": [
+      "**/*.test.mjs"
+    ],
+    "moduleFileExtensions": [
+      "js",
+      "mjs"
+    ]
   },
   "devDependencies": {
+    "@arethetypeswrong/cli": "^0.11.0",
     "@napi-rs/cli": "2.16.3",
     "@types/jest": "29.5.5",
     "@types/tmp": "0.2.4",
@@ -35,6 +47,7 @@
     "@typescript-eslint/parser": "6.7.4",
     "eslint": "8.50.0",
     "jest": "29.7.0",
+    "publint": "^0.2.3",
     "tmp": "0.2.1",
     "typescript": "5.2.2"
   },

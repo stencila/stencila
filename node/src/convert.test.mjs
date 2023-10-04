@@ -1,7 +1,13 @@
 import { Article, Paragraph, Strong, Text } from "@stencila/types";
 import * as tmp from "tmp";
 
-import { toPath, toString, fromPath, fromString, fromTo } from "../convert.mjs";
+import {
+  toPath,
+  toString,
+  fromPath,
+  fromString,
+  fromTo,
+} from "../dist/convert.mjs";
 
 test("fromString", async () => {
   const node = await fromString(
@@ -13,7 +19,7 @@ test("fromString", async () => {
 
   expect(node instanceof Article);
   expect(node.content[0] instanceof Paragraph);
-  expect(node).toMatchSnapshot();
+  expect(JSON.stringify(node, null, " ")).toMatchSnapshot();
 });
 
 test("fromPath", async () => {
@@ -21,7 +27,7 @@ test("fromPath", async () => {
 
   expect(node instanceof Article);
   expect(node.content[0] instanceof Paragraph);
-  expect(node).toMatchSnapshot();
+  expect(JSON.stringify(node, null, " ")).toMatchSnapshot();
 });
 
 test("toString", async () => {

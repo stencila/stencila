@@ -1,7 +1,7 @@
 import { Node, node } from "@stencila/types";
 
-import { DecodeOptions, EncodeOptions } from "./index.js";
-import index from "./index.js";
+import { DecodeOptions, EncodeOptions } from "../bindings.js";
+import * as index from "../bindings.js";
 
 export { DecodeOptions, EncodeOptions };
 

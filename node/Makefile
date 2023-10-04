@@ -25,7 +25,6 @@ lint: node_modules
 test: node_modules
 	make -C ../typescript build
 	npm run build:debug
-	npm run compile
 	npm test
 
 # List outdated dependencies
@@ -42,4 +41,4 @@ build: node_modules
 
 # Clean up development artifacts
 clean:
-	rm -rf ./dist ./node_modules
+	rm -rf bindings.* *.node ./dist ./node_modules

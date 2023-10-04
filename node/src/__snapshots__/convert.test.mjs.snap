@@ -1,43 +1,43 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`fromPath 1`] = `
-Article {
-  "content": [
-    Paragraph {
-      "content": [
-        Text {
-          "type": "Text",
-          "value": "This is paragraph one. It has two sentences.",
-        },
-      ],
-      "type": "Paragraph",
-    },
-    Paragraph {
-      "content": [
-        Text {
-          "type": "Text",
-          "value": "Paragraph two, only has one sentence.",
-        },
-      ],
-      "type": "Paragraph",
-    },
-  ],
-  "type": "Article",
-}
+"{
+ "type": "Article",
+ "content": [
+  {
+   "type": "Paragraph",
+   "content": [
+    {
+     "type": "Text",
+     "value": "This is paragraph one. It has two sentences."
+    }
+   ]
+  },
+  {
+   "type": "Paragraph",
+   "content": [
+    {
+     "type": "Text",
+     "value": "Paragraph two, only has one sentence."
+    }
+   ]
+  }
+ ]
+}"
 `;
 
 exports[`fromString 1`] = `
-Article {
-  "content": [
-    Paragraph {
-      "content": [
-        "Hello world",
-      ],
-      "type": "Paragraph",
-    },
-  ],
-  "type": "Article",
-}
+"{
+ "type": "Article",
+ "content": [
+  {
+   "type": "Paragraph",
+   "content": [
+    "Hello world"
+   ]
+  }
+ ]
+}"
 `;
 
 exports[`fromTo 1`] = `

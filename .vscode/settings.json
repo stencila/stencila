@@ -75,6 +75,7 @@
         "Transactable",
         "transclude",
         "transpiling",
+        "tsup",
         "typia",
         "uglifyjs",
         "xlink",
