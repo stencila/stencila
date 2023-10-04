@@ -3,6 +3,8 @@
 # Script to create a new tag and bump the version of all
 # products in this repo to the new tag
 
+set -e
+
 VERSION=$1
 SEMVER="^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(\-[0-9A-Za-z\-\.]+)?(\+[0-9A-Za-z\-\.]+)?$"
 
@@ -36,7 +38,7 @@ cargo generate-lockfile
 
 # Commit the changes files
 git add .
-git commit -m "chore(*): Bump version
+git commit -m "chore(*): Version $VERSION
 
 [skip ci]"
 
