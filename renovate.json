@@ -3,10 +3,5 @@
   "extends": ["config:base"],
   "minimumReleaseAge": "2",
   "internalChecksFilter": "strict",
-  "rebaseWhen": "behind-base-branch",
-  "packageRules": [
-    {
-      "excludePackagePrefixes": ["@stencila/node-"]
-    }
-  ]
+  "rebaseWhen": "behind-base-branch"
 }

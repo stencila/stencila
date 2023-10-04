@@ -30,7 +30,7 @@ jobs:
         run: gh release create ${{ github.ref_name }} --title ${{ github.ref_name }} --draft
 
   # Build and upload CLI
-  release-cli:
+  build-cli:
     needs: [create-release]
     strategy:
       matrix:
@@ -70,6 +70,57 @@ jobs:
 
       - name: Upload archive
         run: gh release upload ${{ github.ref_name }} target/cli-${{ github.ref_name }}-${{ matrix.target }}.${{ matrix.ext }}
+
+  # Build and publish @stencila/types package
+  release-typescript:
+    needs: [create-release]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js and NPM
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          registry-url: "https://registry.npmjs.org"
+
+      - name: Release @stencila/types
+        run: make -C typescript -B install release
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+  # Build and upload Node.js binary addons
+  build-node:
+    needs: [create-release]
+    strategy:
+      matrix:
+        include:
+          - os: ubuntu-latest
+          - os: macos-latest
+          - os: windows-latest
+    runs-on: ${{ matrix.os }}
+    permissions:
+      contents: write
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: ${{ env.RUST_VERSION }}
+
+      - name: Setup Rust cache
+        uses: Swatinem/rust-cache@v2
+
+      - name: Build and archive CLI
+        run: make -C node -B install build
+
+      - name: Upload archive
+        run: gh release upload ${{ github.ref_name }} node/stencila.*.node
 
   # Build Python SDK
   # Based on https://github.com/messense/py-dissimilar/blob/main/.github/workflows/CI.yml
@@ -175,28 +226,9 @@ jobs:
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
 
-  # Build and publish @stencila/types package
-  release-typescript:
-    needs: [create-release]
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js and NPM
-        uses: actions/setup-node@v3
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-          registry-url: "https://registry.npmjs.org"
-
-      - name: Release @stencila/types
-        run: make -C typescript -B install release
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-
   # Publish the draft release
   publish-release:
-    needs: [release-cli]
+    needs: [build-cli]
     runs-on: ubuntu-latest
     permissions:
       contents: write

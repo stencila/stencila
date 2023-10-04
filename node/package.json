@@ -26,7 +26,7 @@
     "node": ">= 10"
   },
   "napi": {
-    "name": "node",
+    "name": "stencila",
     "triples": {}
   },
   "jest": {
@@ -50,11 +50,6 @@
     "publint": "^0.2.3",
     "tmp": "0.2.1",
     "typescript": "5.2.2"
-  },
-  "optionalDependencies": {
-    "@stencila/node-darwin-x64": "0.0.0",
-    "@stencila/node-linux-x64-gnu": "0.0.0",
-    "@stencila/node-win32-x64-msvc": "0.0.0"
   },
   "dependencies": {
     "@stencila/types": "*"
