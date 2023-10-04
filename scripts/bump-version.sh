@@ -21,15 +21,9 @@ fi
 # Update the version in the Rust CLI
 sed -i -e "s/^version = .*/version = \"$VERSION\"/" rust/cli/Cargo.toml
 
-# Update the version in the Typescript package
-sed -i -e "s/\"version\": .*/\"version\": \"$VERSION\",/" typescript/package.json
-
-# Update the version in the Node.js SDK
+# Update the version in the Typescript & Node.js SDK
+npm version $VERSION --workspaces
 sed -i -e "s/^version = .*/version = \"$VERSION\"/" node/Cargo.toml
-sed -i -e "s/\"version\": .*/\"version\": \"$VERSION\",/" node/package.json
-
-# Do NPM install to update package-lock.json files
-npm install
 
 # Update the version in the Python SDK
 sed -i -e "s/^version = .*/version = \"$VERSION\"/" python/Cargo.toml
