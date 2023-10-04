@@ -33,6 +33,7 @@ jobs:
   build-cli:
     needs: [create-release]
     strategy:
+      fail-fast: false
       matrix:
         include:
           - os: ubuntu-latest
@@ -94,6 +95,7 @@ jobs:
   build-node:
     needs: [create-release]
     strategy:
+      fail-fast: false
       matrix:
         include:
           - os: ubuntu-latest
@@ -127,6 +129,7 @@ jobs:
   build-python:
     needs: [create-release]
     strategy:
+      fail-fast: false
       matrix:
         include:
           - os: ubuntu-latest
