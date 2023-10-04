@@ -4,7 +4,7 @@ use codec::{
     common::{
         eyre::{bail, eyre, Result},
         itertools::Itertools,
-        tracing
+        tracing,
     },
     schema::Node,
     CodecSpec,
