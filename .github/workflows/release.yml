@@ -169,7 +169,7 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: wheels
-          path: dist
+          path: python/dist
 
   # Upload Python wheels
   upload-python:
@@ -185,6 +185,7 @@ jobs:
         env:
           MATURIN_PYPI_TOKEN: ${{ secrets.PYPI_TOKEN }}
         with:
+          working-directory: python
           command: upload
           args: --skip-existing *
 
