@@ -1,7 +1,7 @@
 import { Node, node } from "@stencila/types";
 
-import { DecodeOptions, EncodeOptions } from "../bindings.js";
-import * as index from "../bindings.js";
+import { type DecodeOptions, type EncodeOptions } from "../bindings.js";
+import * as bindings from "../bindings.js";
 
 export { DecodeOptions, EncodeOptions };
 
@@ -16,7 +16,7 @@ export async function fromString<T = Node>(
   string: string,
   options?: DecodeOptions
 ): Promise<T> {
-  return node(JSON.parse(await index.fromString(string, options))) as T;
+  return node(JSON.parse(await bindings.fromString(string, options))) as T;
 }
 
 /**
@@ -30,7 +30,7 @@ export async function fromPath<T = Node>(
   string: string,
   options?: DecodeOptions
 ): Promise<T> {
-  return node(JSON.parse(await index.fromPath(string, options))) as T;
+  return node(JSON.parse(await bindings.fromPath(string, options))) as T;
 }
 
 /**
@@ -47,7 +47,7 @@ export async function toString(
   node: Node,
   options?: EncodeOptions
 ): Promise<string> {
-  return index.toString(JSON.stringify(node), options);
+  return bindings.toString(JSON.stringify(node), options);
 }
 
 /**
@@ -62,7 +62,7 @@ export async function toPath(
   path: string,
   options?: EncodeOptions
 ): Promise<void> {
-  return index.toPath(JSON.stringify(node), path, options);
+  return bindings.toPath(JSON.stringify(node), path, options);
 }
 
 /**
@@ -78,5 +78,5 @@ export function fromTo(
   decodeOptions?: DecodeOptions,
   encodeOptions?: EncodeOptions
 ): Promise<string> {
-  return index.fromTo(input, output, decodeOptions, encodeOptions);
+  return bindings.fromTo(input, output, decodeOptions, encodeOptions);
 }

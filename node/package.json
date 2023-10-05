@@ -12,15 +12,12 @@
   "scripts": {
     "fix": "eslint --fix '**/*.mts'",
     "lint": "eslint '**/*.mts'",
-    "artifacts": "napi artifacts",
-    "build": "napi build --platform --release --js bindings.js --dts bindings.d.ts && npm run compile",
-    "build:debug": "napi build --platform --js bindings.js --dts bindings.d.ts && npm run compile",
+    "build": "napi build --platform --release --js false --dts bindings.d.ts && npm run compile",
+    "build:debug": "napi build --js false --dts bindings.d.ts && npm run compile",
     "compile": "tsc -p tsconfig-build.json",
     "check": "attw --pack . && publint",
-    "prepublishOnly": "napi prepublish -t npm",
-    "test": "NODE_OPTIONS=--experimental-vm-modules npx jest",
-    "universal": "napi universal",
-    "versions": "napi version"
+    "install": "node install.js",
+    "test": "NODE_OPTIONS=--experimental-vm-modules npx jest"
   },
   "engines": {
     "node": ">= 10"
