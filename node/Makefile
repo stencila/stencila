@@ -42,6 +42,10 @@ build: install
 check: install
 	npm run check
 
+# Publish the package
+publish: build
+	npm publish --access public
+
 # Clean up development artifacts
 clean:
 	rm -rf bindings.d.cts *.node ./dist

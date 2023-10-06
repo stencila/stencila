@@ -68,10 +68,6 @@ examples:
 	make -C rust examples
 .PHONY: examples
 
-# Cut a release
-release:
-	cargo release -p cli --tag-prefix '' --no-publish --execute alpha
-
 # Clean up development artifacts
 clean:
 	make -C rust clean

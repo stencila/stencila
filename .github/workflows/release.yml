@@ -1,6 +1,4 @@
 # Workflow for creating releases
-#
-# At present, a release is triggered when a
 
 name: Release
 
@@ -73,7 +71,7 @@ jobs:
         run: gh release upload ${{ github.ref_name }} target/cli-${{ github.ref_name }}-${{ matrix.target }}.${{ matrix.ext }}
 
   # Build and publish @stencila/types package
-  release-typescript:
+  publish-typescript:
     needs: [create-release]
     runs-on: ubuntu-latest
     steps:
@@ -86,21 +84,21 @@ jobs:
           node-version: ${{ env.NODE_VERSION }}
           registry-url: "https://registry.npmjs.org"
 
-      - name: Release @stencila/types
-        run: make -C typescript -B install release
+      - name: Publish @stencila/types
+        run: make -C typescript -B install publish
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
-  # Build and upload Node.js binary addons
+  # Build and upload Node SDK binary addons
   build-node:
     needs: [create-release]
     strategy:
       fail-fast: false
       matrix:
-        include:
-          - os: ubuntu-latest
-          - os: macos-latest
-          - os: windows-latest
+        os:
+          - ubuntu-latest
+          - macos-latest
+          - windows-latest
     runs-on: ${{ matrix.os }}
     permissions:
       contents: write
@@ -118,11 +116,36 @@ jobs:
       - name: Setup Rust cache
         uses: Swatinem/rust-cache@v2
 
-      - name: Build and archive CLI
+      - name: Setup Node.js and NPM
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          registry-url: "https://registry.npmjs.org"
+
+      - name: Build package
         run: make -C node -B install build
 
-      - name: Upload archive
+      - name: Upload addon
         run: gh release upload ${{ github.ref_name }} node/stencila.*.node.gz
+
+  # Publish @stencila/node package
+  publish-node:
+    needs: [build-node]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js and NPM
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          registry-url: "https://registry.npmjs.org"
+
+      - name: Publish @stencila/node
+        run: make -C node -B install publish
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
   # Build Python SDK
   # Based on https://github.com/messense/py-dissimilar/blob/main/.github/workflows/CI.yml
@@ -171,8 +194,8 @@ jobs:
           name: wheels
           path: python/dist
 
-  # Upload Python wheels
-  upload-python:
+  # Publish Python SDK
+  publish-python:
     needs: [build-python]
     runs-on: ubuntu-latest
     steps:

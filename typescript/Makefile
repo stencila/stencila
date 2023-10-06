@@ -38,8 +38,8 @@ build: install
 check: install
 	npm run check
 
-# Release the package
-release: build
+# Publish the package
+publish: build
 	npm publish --access public
 
 # Clean up development artifacts

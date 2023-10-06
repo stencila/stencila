@@ -1,8 +1,4 @@
-# Workflow for running linting, tests and builds
-#
-# Actual release builds are done on tags by the `release.yml` workflow.
-# This just performs builds on Linux to reduce the proability that they
-# will fail in the release workflow.
+# Workflow for running linting, tests, and other checks
 
 name: Test
 

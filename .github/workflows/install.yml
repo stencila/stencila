@@ -1,0 +1,86 @@
+# Workflow for testing installation of various products
+#
+# Triggered after a release and performed on separate VMs to the
+# build so as to test independence from repo checkout and build dependencies.
+#
+# The intent of this workflow is to quickly identify any issues with
+# releases so that a new release can be made if necessary.
+
+name: Install
+
+on:
+  workflow_dispatch:
+
+jobs:
+  cli:
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - ubuntu-latest
+          - ubuntu-20.04
+          - macos-latest
+          - macos-11
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Install CLI
+        run: curl --proto '=https' --tlsv1.2 -f https://stencila.dev/install.sh | sh
+
+      - name: Run CLI
+        run: stencila --version
+
+  node:
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - ubuntu-latest
+          - ubuntu-20.04
+          - macos-latest
+          - macos-11
+          - windows-latest
+          - windows-2019
+        version:
+          - 18
+          - 20
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Setup Node.js and NPM
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.version }}
+          registry-url: "https://registry.npmjs.org"
+
+      - name: Install package
+        run: npm install @stencila/node
+
+      - name: Import package
+        run: node -e 'import("@stencila/node").then((mod) => console.log(mod)).catch((error) => {console.error(error); process.exit(1)})'
+
+  python:
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - ubuntu-latest
+          - ubuntu-20.04
+          - macos-latest
+          - macos-11
+          - windows-latest
+          - windows-2019
+        version:
+          - 3.9
+          - 3.10
+          - 3.11
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.version }}
+
+      - name: Install package
+        run: python3 -m pip install stencila
+
+      - name: Import package
+        run: python3 -c 'import stencila'
