@@ -17,6 +17,10 @@ on:
         description: Install CLI
         type: boolean
         default: true
+      docker:
+        description: Run Docker image
+        type: boolean
+        default: true
       node:
         description: Install Node SDK
         type: boolean
@@ -44,6 +48,16 @@ jobs:
 
       - name: Run CLI
         run: stencila --version
+
+  docker:
+    if: ${{ inputs.docker }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Pull image
+        run: docker pull stencila/stencila
+
+      - name: Run image
+        run: docker run -it --rm stencila/stencila --help
 
   node:
     if: ${{ inputs.node }}
