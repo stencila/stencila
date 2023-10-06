@@ -15,7 +15,7 @@ on:
     inputs:
       job:
         description: The job to run
-        required: false
+        required: true
         type: choice
         default: all
         options:
