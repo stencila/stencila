@@ -266,5 +266,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Mark release as non-draft
-        run: |
-          gh release edit ${{ github.ref_name }} --draft=false
+        run: gh release edit ${{ github.ref_name }} --draft=false
+
+      - name: Trigger installation test workflow
+        run: gh workflow run install.yml
