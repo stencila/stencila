@@ -23,9 +23,9 @@ jobs:
 
       - name: Create archive to upload
         run: |
-          tar \
-              -cvf ${{ runner.temp }}/archive.tar \
-              -C json .
+          tar -cvf ${{ runner.temp }}/archive.tar \
+            install.sh \
+            -C json .
 
       - name: Upload the archive as a `github-pages` artifact
         uses: actions/upload-artifact@v3

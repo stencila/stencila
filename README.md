@@ -231,7 +231,7 @@ To install the latest release download `stencila-<version>-x86_64-pc-windows-msv
 To install the latest release in `/usr/local/bin`,
 
 ```console
-curl -L https://raw.githubusercontent.com/stencila/stencila/main/install.sh | bash
+curl --proto '=https' --tlsv1.2 -f https://stencila.dev/install.sh | sh
 ```
 
 To install a specific version, append `-s vX.X.X`. Or, if you'd prefer to do it manually, download `stencila-<version>-x86_64-apple-darwin.tar.xz` from the one of the [releases](https://github.com/stencila/stencila/releases) and then,
@@ -250,7 +250,7 @@ sudo mv -f stencila /usr/local/bin # or wherever you prefer
 To install the latest release in `~/.local/bin/`,
 
 ```console
-curl -L https://raw.githubusercontent.com/stencila/stencila/main/install.sh | bash
+curl --proto '=https' --tlsv1.2 -f https://stencila.dev/install.sh | sh
 ```
 
 To install a specific version, append `-s vX.X.X`. Or, if you'd prefer to do it manually, download `stencila-<version>-x86_64-unknown-linux-gnu.tar.xz` from the one of the [releases](https://github.com/stencila/stencila/releases) and then,
