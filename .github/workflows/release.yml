@@ -178,7 +178,7 @@ jobs:
         # Here be dragons; change with care.
         run: |
           npm install --global @napi-rs/cli
-          npm run build:addon
+          cd node && npm run build:addon
 
       - name: Upload addon
         run: gh release upload ${{ github.ref_name }} node/stencila.*.node.gz
