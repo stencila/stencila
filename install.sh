@@ -11,7 +11,7 @@
 set -e
 
 OS=$(uname)
-if [ "${OS}" = "Linux" -o "${OS}" = "Darwin" ]; then
+if [ "${OS}" = "Linux" ] || [ "${OS}" = "Darwin" ]; then
     case "${OS}" in
         'Linux')
             TARGET_TRIPLE="x86_64-unknown-linux-gnu"
@@ -31,7 +31,7 @@ if [ "${OS}" = "Linux" -o "${OS}" = "Darwin" ]; then
     esac
     
     echo "Downloading Stencila CLI $VERSION for platform $TARGET_TRIPLE"
-    curl -sL https://github.com/stencila/stencila/releases/download/$VERSION/cli-$VERSION-$TARGET_TRIPLE.tar.xz | tar xJ -O cli-$VERSION-$TARGET_TRIPLE/stencila > stencila || {
+    curl -sL "https://github.com/stencila/stencila/releases/download/$VERSION/cli-$VERSION-$TARGET_TRIPLE.tar.xz" | tar xJ -O "cli-$VERSION-$TARGET_TRIPLE/stencila" > stencila || {
         echo 
         echo "There was an error downloading cli-$VERSION-$TARGET_TRIPLE.tar.xz"
         echo "It may be that binaries are not available for the latest release yet."
@@ -41,9 +41,9 @@ if [ "${OS}" = "Linux" -o "${OS}" = "Darwin" ]; then
     }
     
     echo "Installing stencila in $INSTALL_PATH"
-    mkdir -p $INSTALL_PATH
-    mv stencila* $INSTALL_PATH
-    chmod +x $INSTALL_PATH/stencila
+    mkdir -p "$INSTALL_PATH"
+    mv stencila* "$INSTALL_PATH"
+    chmod +x "$INSTALL_PATH/stencila"
     
     echo "Successfully installed stencila CLI"
 else
