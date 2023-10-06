@@ -44,7 +44,7 @@ impl Codec for JatsCodec {
             Text | Emphasis | Strong | Strikeout | Subscript | Superscript | Underline => NoLoss,
             AudioObject | ImageObject | VideoObject => LowLoss,
             // Prose Blocks
-            Paragraph | ThematicBreak => NoLoss,
+            Heading | Paragraph | ThematicBreak => NoLoss,
             // Works,
             Article => LowLoss,
             _ => None,

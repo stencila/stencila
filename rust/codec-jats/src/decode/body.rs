@@ -3,8 +3,8 @@ use roxmltree::Node;
 use codec::{
     schema::{
         shortcuts::{em, p, s, strong, sub, sup, text, u},
-        Article, AudioObject, AudioObjectOptions, Block, ImageObject, ImageObjectOptions, Inline,
-        Inlines, MediaObject, MediaObjectOptions, ThematicBreak,
+        Article, AudioObject, AudioObjectOptions, Block, Blocks, Heading, ImageObject,
+        ImageObjectOptions, Inline, Inlines, MediaObject, MediaObjectOptions, ThematicBreak,
     },
     Losses,
 };
@@ -17,19 +17,41 @@ use super::utilities::{extend_path, record_attrs_lost, record_node_lost};
 /// the corresponding `decode_*` function for the element name), or adds them to
 /// losses.
 pub(super) fn decode_body(path: &str, node: &Node, article: &mut Article, losses: &mut Losses) {
+    article.content = decode_blocks(path, node, losses, 0)
+}
+
+/// Decode block content nodes
+///
+/// Iterates over all child elements and either decodes them, or adds them to
+/// losses.
+fn decode_blocks(path: &str, node: &Node, losses: &mut Losses, depth: u8) -> Blocks {
+    let mut blocks = Blocks::new();
     for child in node.children() {
         let tag = child.tag_name().name();
         let child_path = extend_path(path, tag);
         let block = match tag {
-            "p" => decode_p(&child_path, &child, losses),
             "hr" => decode_hr(&child_path, &child, losses),
+            "p" => decode_p(&child_path, &child, losses),
+            "title" => decode_title(&child_path, &child, losses, depth),
+            "sec" => {
+                blocks.append(&mut decode_sec(&child_path, &child, losses, depth + 1));
+                continue;
+            }
             _ => {
                 record_node_lost(path, &child, losses);
                 continue;
             }
         };
-        article.content.push(block)
+        blocks.push(block);
     }
+    blocks
+}
+
+/// Decode a `<hr>` to a [`Block::ThematicBreak`]
+fn decode_hr(path: &str, node: &Node, losses: &mut Losses) -> Block {
+    record_attrs_lost(path, node, [], losses);
+
+    Block::ThematicBreak(ThematicBreak::new())
 }
 
 /// Decode a `<p>` to a [`Block::Paragraph`]
@@ -39,11 +61,21 @@ fn decode_p(path: &str, node: &Node, losses: &mut Losses) -> Block {
     p(decode_inlines(path, node, losses))
 }
 
-/// Decode a `<hr>` to a [`Block::ThematicBreak`]
-fn decode_hr(path: &str, node: &Node, losses: &mut Losses) -> Block {
+/// Decode a `<sec>` to a [`Block::Paragraph`]
+fn decode_sec(path: &str, node: &Node, losses: &mut Losses, depth: u8) -> Blocks {
     record_attrs_lost(path, node, [], losses);
 
-    Block::ThematicBreak(ThematicBreak::new())
+    decode_blocks(path, node, losses, depth)
+}
+
+/// Decode a `<title>` to a [`Block::Heading`]
+fn decode_title(path: &str, node: &Node, losses: &mut Losses, depth: u8) -> Block {
+    record_attrs_lost(path, node, [], losses);
+
+    Block::Heading(Heading::new(
+        depth as i64,
+        decode_inlines(path, node, losses),
+    ))
 }
 
 /// Decode inline content nodes
