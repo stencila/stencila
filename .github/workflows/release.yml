@@ -195,13 +195,12 @@ jobs:
           path: python/dist
 
   # Publish Python SDK
+  # This action should not checkout the repository as that adds files
+  # which are not wheels to the upload (and causes the upload to fail)
   publish-python:
     needs: [build-python]
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
       - uses: actions/download-artifact@v3
         with:
           name: wheels
