@@ -40,9 +40,12 @@ addon:
 	npm install @napi-rs/cli --save-exact
 	npm run build:addon
 
-# Build the TypeScript wrappers only
+# Build the TypeScript into `dist` folder
+# It is necessary to build the addon (just debug for speed) because that
+# generates the `bindings.d.cts` file.
 dist: install
 	make -C ../typescript build
+	npm run build:debug
 	npm run build:dist
 .PHONY: dist
 

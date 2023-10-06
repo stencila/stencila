@@ -5,7 +5,7 @@ use std::path::PathBuf;
 use napi::Result;
 use napi_derive::napi;
 
-use codecs::Format;
+use codecs::{Format, LossesResponse};
 use common::{eyre, serde_json};
 
 use crate::utilities::{generic_failure, invalid_arg};
@@ -15,6 +15,12 @@ use crate::utilities::{generic_failure, invalid_arg};
 pub struct DecodeOptions {
     /// The format to be decode from
     pub format: Option<String>,
+
+    /// What to do if there are losses when decoding from the input
+    ///
+    /// Possible values are "ignore", "trace", "debug", "info", "warn", "error", or "abort", or
+    /// a filename to write the losses to (only `json` or `yaml` file extensions are supported).
+    pub losses: Option<String>,
 }
 
 impl TryInto<codecs::DecodeOptions> for DecodeOptions {
@@ -26,6 +32,10 @@ impl TryInto<codecs::DecodeOptions> for DecodeOptions {
                 Some(format) => Some(Format::from_name(&format).map_err(invalid_arg)?),
                 None => None,
             },
+            losses: self
+                .losses
+                .map(LossesResponse::from)
+                .unwrap_or(LossesResponse::Warn),
             ..Default::default()
         })
     }
@@ -48,6 +58,12 @@ pub struct EncodeOptions {
     /// Some formats (e.g HTML and JSON) can be encoded in either compact
     /// or "pretty-printed" (e.g. indented) forms.
     pub compact: Option<bool>,
+
+    /// What to do if there are losses when encoding to the output
+    ///
+    /// Possible values are "ignore", "trace", "debug", "info", "warn", "error", or "abort", or
+    /// a filename to write the losses to (only `json` or `yaml` file extensions are supported).
+    pub losses: Option<String>,
 }
 
 impl TryInto<codecs::EncodeOptions> for EncodeOptions {
@@ -61,6 +77,10 @@ impl TryInto<codecs::EncodeOptions> for EncodeOptions {
             },
             standalone: self.standalone,
             compact: self.compact.unwrap_or_default(),
+            losses: self
+                .losses
+                .map(LossesResponse::from)
+                .unwrap_or(LossesResponse::Warn),
             ..Default::default()
         })
     }
