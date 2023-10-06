@@ -1,4 +1,4 @@
-import { Node, node } from "@stencila/types";
+import { type Node, node } from "@stencila/types";
 
 import { type DecodeOptions, type EncodeOptions } from "../bindings.cjs";
 import * as bindings from "../bindings.cjs";
