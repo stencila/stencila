@@ -57,7 +57,7 @@ jobs:
         run: docker pull stencila/stencila
 
       - name: Run image
-        run: docker run -it --rm stencila/stencila --help
+        run: docker run --rm stencila/stencila --help
 
   node:
     if: ${{ inputs.node }}
