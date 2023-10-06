@@ -122,7 +122,7 @@ jobs:
         run: make -C node -B install build
 
       - name: Upload archive
-        run: gh release upload ${{ github.ref_name }} node/stencila.*.node
+        run: gh release upload ${{ github.ref_name }} node/stencila.*.node.gz
 
   # Build Python SDK
   # Based on https://github.com/messense/py-dissimilar/blob/main/.github/workflows/CI.yml
