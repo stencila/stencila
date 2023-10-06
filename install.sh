@@ -11,19 +11,19 @@
 set -e
 
 OS=$(uname)
-if [[ "${OS}" == "Linux" || "${OS}" == "Darwin" ]]; then
+if [ "${OS}" = "Linux" -o "${OS}" = "Darwin" ]; then
     case "${OS}" in
         'Linux')
             TARGET_TRIPLE="x86_64-unknown-linux-gnu"
             VERSION="${1:-latest}"
-            if [ "$VERSION" == "latest" ]; then
+            if [ "$VERSION" = "latest" ]; then
                 VERSION=$(curl --silent "https://api.github.com/repos/stencila/stencila/releases/latest" | grep -Po '"tag_name": "\K.*?(?=")')
             fi
             INSTALL_PATH="${2:-$HOME/.local/bin}"
             ;;
         'Darwin')
             TARGET_TRIPLE="x86_64-apple-darwin"
-            if [ "$VERSION" == "latest" ]; then
+            if [ "$VERSION" = "latest" ]; then
                 VERSION=$(curl --silent "https://api.github.com/repos/stencila/stencila/releases/latest" | grep '"tag_name":' | sed -E 's/.*"([^"]+)".*/\1/')
             fi
             INSTALL_PATH="${2:-/usr/local/bin}"
