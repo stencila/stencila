@@ -528,6 +528,7 @@ name = "codec-losses"
 version = "0.0.0"
 dependencies = [
  "common",
+ "format",
 ]
 
 [[package]]

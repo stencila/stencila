@@ -202,9 +202,18 @@ enum Command {
         #[arg(long, short)]
         to: Option<String>,
 
-        /// What to do if there are losses when either decoding from the input, or encoding to the output
+        /// What to do if there are losses when decoding from the input
+        ///
+        /// Possible values are "ignore", "trace", "debug", "info", "warn", "error", or "abort", or
+        /// a filename to write the losses to (only `json` or `yaml` file extensions are supported).
         #[arg(long, short, default_value_t = codecs::LossesResponse::Warn)]
-        losses: codecs::LossesResponse,
+        input_losses: codecs::LossesResponse,
+
+        /// What to do if there are losses when encoding to the output
+        ///
+        /// See help for `--input-losses` for details.
+        #[arg(long, short, default_value_t = codecs::LossesResponse::Warn)]
+        output_losses: codecs::LossesResponse,
 
         #[command(flatten)]
         decode_options: DecodeOptions,
@@ -409,8 +418,9 @@ impl Cli {
                     let format_or_codec = formats.get(index).cloned();
 
                     let decode_options =
-                        Some(decode_options.build(format_or_codec.clone(), losses));
-                    let encode_options = Some(encode_options.build(format_or_codec, losses));
+                        Some(decode_options.build(format_or_codec.clone(), losses.clone()));
+                    let encode_options =
+                        Some(encode_options.build(format_or_codec, losses.clone()));
 
                     if file.ends_with("-") {
                         let (change_sender, mut change_receiver) =
@@ -466,12 +476,13 @@ impl Cli {
                 output,
                 from,
                 to,
-                losses,
+                input_losses,
+                output_losses,
                 decode_options,
                 encode_options,
             } => {
-                let decode_options = decode_options.build(from, losses);
-                let encode_options = encode_options.build(to, losses);
+                let decode_options = decode_options.build(from, input_losses);
+                let encode_options = encode_options.build(to, output_losses);
 
                 let content = codecs::convert(
                     input.as_deref(),

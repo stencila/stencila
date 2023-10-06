@@ -76,6 +76,28 @@ pub fn get(
 /// Decode a Stencila Schema node from a string
 #[tracing::instrument]
 pub async fn from_str(str: &str, options: Option<DecodeOptions>) -> Result<Node> {
+    let (node, losses) = from_str_with_losses(str, options.clone()).await?;
+    if !losses.is_empty() {
+        let options = options.unwrap_or_default();
+        let format = options
+            .format
+            .map(|format| format!("{format} ", format = format.name()))
+            .unwrap_or_default();
+        losses.respond(
+            format!("While decoding from {format}string"),
+            options.losses,
+        )?;
+    }
+
+    Ok(node)
+}
+
+/// Decode a Stencila Schema node from a string with decoding losses
+#[tracing::instrument]
+pub async fn from_str_with_losses(
+    str: &str,
+    options: Option<DecodeOptions>,
+) -> Result<(Node, Losses)> {
     let codec = options.as_ref().and_then(|options| options.codec.as_ref());
 
     let format = options
@@ -83,25 +105,32 @@ pub async fn from_str(str: &str, options: Option<DecodeOptions>) -> Result<Node>
         .and_then(|options| options.format)
         .unwrap_or(Format::Json);
 
-    let (node, losses) = get(codec, Some(format), Some(CodecDirection::Decode))?
+    get(codec, Some(format), Some(CodecDirection::Decode))?
         .from_str(str, options.clone())
-        .await?;
+        .await
+}
+
+/// Decode a Stencila Schema node from a file system path
+#[tracing::instrument]
+pub async fn from_path(path: &Path, options: Option<DecodeOptions>) -> Result<Node> {
+    let (node, losses) = from_path_with_losses(path, options.clone()).await?;
     if !losses.is_empty() {
+        let options = options.unwrap_or_default();
         losses.respond(
-            format!(
-                "Losses while decoding {format} string",
-                format = format.name()
-            ),
-            options.unwrap_or_default().losses,
+            format!("While decoding from path `{path}`", path = path.display()),
+            options.losses,
         )?;
     }
 
     Ok(node)
 }
 
-/// Decode a Stencila Schema node from a file system path
+/// Decode a Stencila Schema node from a file system path with decoding losses
 #[tracing::instrument]
-pub async fn from_path(path: &Path, options: Option<DecodeOptions>) -> Result<Node> {
+pub async fn from_path_with_losses(
+    path: &Path,
+    options: Option<DecodeOptions>,
+) -> Result<(Node, Losses)> {
     let codec = options.as_ref().and_then(|options| options.codec.as_ref());
 
     let format = match options.as_ref().and_then(|options| options.format) {
@@ -109,21 +138,9 @@ pub async fn from_path(path: &Path, options: Option<DecodeOptions>) -> Result<No
         None => Format::from_path(path)?,
     };
 
-    let (node, losses) = get(codec, Some(format), Some(CodecDirection::Decode))?
+    get(codec, Some(format), Some(CodecDirection::Decode))?
         .from_path(path, options.clone())
-        .await?;
-    if !losses.is_empty() {
-        losses.respond(
-            format!(
-                "Losses while decoding {format} from {path}",
-                format = format.name(),
-                path = path.display()
-            ),
-            options.unwrap_or_default().losses,
-        )?;
-    }
-
-    Ok(node)
+        .await
 }
 
 /// Decode a Stencila Schema node from `stdin`
@@ -143,6 +160,25 @@ pub async fn from_stdin(options: Option<DecodeOptions>) -> Result<Node> {
 /// Encode a Stencila Schema node to a string
 #[tracing::instrument(skip(node))]
 pub async fn to_string(node: &Node, options: Option<EncodeOptions>) -> Result<String> {
+    let (content, losses) = to_string_with_losses(node, options.clone()).await?;
+    if !losses.is_empty() {
+        let options = options.unwrap_or_default();
+        let format = options
+            .format
+            .map(|format| format!("{format} ", format = format.name()))
+            .unwrap_or_default();
+        losses.respond(format!("While encoding to {format}string"), options.losses)?;
+    }
+
+    Ok(content)
+}
+
+/// Encode a Stencila Schema node to a string with encoding losses
+#[tracing::instrument(skip(node))]
+pub async fn to_string_with_losses(
+    node: &Node,
+    options: Option<EncodeOptions>,
+) -> Result<(String, Losses)> {
     let codec = options.as_ref().and_then(|options| options.codec.as_ref());
 
     let format = options
@@ -171,38 +207,34 @@ pub async fn to_string(node: &Node, options: Option<EncodeOptions>) -> Result<St
                 types,
             });
 
-            let (content, losses) = codec.to_string(&node, options.clone()).await?;
-            if !losses.is_empty() {
-                losses.respond(
-                    format!(
-                        "Losses while encoding to {format} string",
-                        format = format.name()
-                    ),
-                    options.unwrap_or_default().losses,
-                )?;
-            }
-
-            return Ok(content);
+            return codec.to_string(&node, options.clone()).await;
         }
     }
 
-    let (content, losses) = codec.to_string(node, options.clone()).await?;
-    if !losses.is_empty() {
-        losses.respond(
-            format!(
-                "Losses while encoding to {format} string",
-                format = format.name()
-            ),
-            options.unwrap_or_default().losses,
-        )?;
-    }
-
-    Ok(content)
+    codec.to_string(node, options.clone()).await
 }
 
 /// Encode a Stencila Schema node to a file system path
 #[tracing::instrument(skip(node))]
 pub async fn to_path(node: &Node, path: &Path, options: Option<EncodeOptions>) -> Result<()> {
+    let losses = to_path_with_losses(node, path, options.clone()).await?;
+    if !losses.is_empty() {
+        losses.respond(
+            format!("While encoding to `{path}`", path = path.display()),
+            options.unwrap_or_default().losses,
+        )?;
+    }
+
+    Ok(())
+}
+
+/// Encode a Stencila Schema node to a file system path with losses
+#[tracing::instrument(skip(node))]
+pub async fn to_path_with_losses(
+    node: &Node,
+    path: &Path,
+    options: Option<EncodeOptions>,
+) -> Result<Losses> {
     let codec = options.as_ref().and_then(|options| options.codec.as_ref());
 
     let format = match options.as_ref().and_then(|options| options.format) {
@@ -231,35 +263,11 @@ pub async fn to_path(node: &Node, path: &Path, options: Option<EncodeOptions>) -
                 types,
             });
 
-            let losses = codec.to_path(&node, path, options.clone()).await?;
-            if !losses.is_empty() {
-                losses.respond(
-                    format!(
-                        "Losses while encoding to {format} file {path}",
-                        format = format.name(),
-                        path = path.display()
-                    ),
-                    options.unwrap_or_default().losses,
-                )?;
-            }
-
-            return Ok(());
+            return codec.to_path(&node, path, options.clone()).await;
         }
     }
 
-    let losses = codec.to_path(node, path, options.clone()).await?;
-    if !losses.is_empty() {
-        losses.respond(
-            format!(
-                "Losses while encoding to {format} file {path}",
-                format = format.name(),
-                path = path.display()
-            ),
-            options.unwrap_or_default().losses,
-        )?
-    };
-
-    Ok(())
+    codec.to_path(node, path, options.clone()).await
 }
 
 /// Convert a document from one format to another

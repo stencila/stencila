@@ -1,17 +1,18 @@
-use std::{collections::BTreeMap, fmt::Display, ops::AddAssign};
+use std::{collections::BTreeMap, fmt::Display, fs, ops::AddAssign, path::PathBuf};
 
 use common::{
-    clap::{self, ValueEnum},
     eyre::{bail, eyre, Result},
     inflector::Inflector,
     itertools::Itertools,
     serde::Serialize,
+    serde_json, serde_yaml,
     strum::Display,
     tracing,
 };
+use format::Format;
 
 /// The response to take when there are losses in decoding or encoding
-#[derive(Debug, Clone, Copy, ValueEnum, Display)]
+#[derive(Debug, Clone, Display)]
 #[strum(ascii_case_insensitive, serialize_all = "lowercase")]
 pub enum LossesResponse {
     /// Ignore the losses; do nothing
@@ -28,6 +29,24 @@ pub enum LossesResponse {
     Error,
     /// Abort the current function call by returning a `Err` result with the losses enumerated
     Abort,
+    /// Write losses to a file
+    Write(String),
+}
+
+impl From<String> for LossesResponse {
+    fn from(value: String) -> Self {
+        use LossesResponse::*;
+        match value.to_lowercase().as_str() {
+            "ignore" => Ignore,
+            "trace" => Trace,
+            "debug" => Debug,
+            "info" => Info,
+            "warn" => Warn,
+            "error" => Error,
+            "abort" => Abort,
+            _ => Write(value),
+        }
+    }
 }
 
 /// Decoding and encoding losses
@@ -135,6 +154,20 @@ impl Losses {
         use LossesResponse::*;
 
         if self.inner.is_empty() || matches!(response, Ignore) {
+            return Ok(());
+        }
+
+        if let LossesResponse::Write(path) = &response {
+            let path = PathBuf::from(path);
+            let format = Format::from_path(&path)?;
+            let content = match format {
+                Format::Json => serde_json::to_string_pretty(self)?,
+                Format::Yaml => serde_yaml::to_string(self)?,
+                _ => bail!(
+                    "Unsupported format for conversion losses: {format} (expected JSON or YAML)"
+                ),
+            };
+            fs::write(path, content)?;
             return Ok(());
         }
 
