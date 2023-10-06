@@ -8,28 +8,48 @@ on:
     tags:
       - v*
 
-  # Allow this workflow, or some of its jobs, to be triggered manually at 
+  # Allow this workflow, or some of its jobs, to be triggered manually at
   # https://github.com/stencila/stencila/actions/workflows/release.yml.
   # This is useful for fixing parts of the release, without making a
   # new release.
   workflow_dispatch:
     inputs:
-      job:
-        description: The job to run
-        required: false
-        type: choice
-        default: all
-        options:
-          - all
-          - create-release
-          - build-cli
-          - publish-typescript
-          - build-node
-          - publish-node
-          - build-python
-          - publish-python
-          - publish-docker
-          - publish-release
+      create-release:
+        description: Create release
+        type: boolean
+        default: true
+      build-cli:
+        description: Build CLI
+        type: boolean
+        default: true
+      publish-typescript:
+        description: Publish @stencila/types
+        type: boolean
+        default: true
+      build-node:
+        description: Build Node.js SDK addons
+        type: boolean
+        default: true
+      publish-node:
+        description: Publish Node.js SDK
+        type: boolean
+        default: true
+      build-python:
+        description: Build Python SDK wheels
+        type: boolean
+        default: true
+      publish-python:
+        description: Publish Python SDK
+        type: boolean
+        default: true
+      publish-docker:
+        description: Build and Push Docker image
+        type: boolean
+        default: true
+      publish-release:
+        description: Publish release
+        type: boolean
+        default: true
 
 env:
   RUST_VERSION: "1.71.0"
@@ -39,7 +59,7 @@ env:
 jobs:
   # Create a draft release
   create-release:
-    if: ${{ inputs.job == 'create-release' || inputs.job == 'all'}}
+    if: ${{ inputs.create-release }}
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -54,7 +74,7 @@ jobs:
 
   # Build and upload CLI
   build-cli:
-    if: ${{ inputs.job == 'build-cli' || inputs.job == 'all'}}
+    if: ${{ inputs.build-cli }}
     needs: [create-release]
     strategy:
       fail-fast: false
@@ -98,7 +118,7 @@ jobs:
 
   # Build and publish @stencila/types package
   publish-typescript:
-    if: ${{ inputs.job == 'publish-typescript' || inputs.job == 'all'}}
+    if: ${{ inputs.publish-typescript }}
     needs: [create-release]
     runs-on: ubuntu-latest
     steps:
@@ -118,7 +138,7 @@ jobs:
 
   # Build and upload Node SDK binary addons
   build-node:
-    if: ${{ inputs.job == 'build-node' || inputs.job == 'all'}}
+    if: ${{ inputs.build-node }}
     needs: [create-release]
     strategy:
       fail-fast: false
@@ -163,7 +183,7 @@ jobs:
 
   # Publish @stencila/node package
   publish-node:
-    if: ${{ inputs.job == 'publish-node' || inputs.job == 'all'}}
+    if: ${{ inputs.publish-node }}
     needs: [build-node]
     runs-on: ubuntu-latest
     steps:
@@ -184,7 +204,7 @@ jobs:
   # Build Python SDK
   # Based on https://github.com/messense/py-dissimilar/blob/main/.github/workflows/CI.yml
   build-python:
-    if: ${{ inputs.job == 'build-python' || inputs.job == 'all'}}
+    if: ${{ inputs.build-python }}
     needs: [create-release]
     strategy:
       fail-fast: false
@@ -233,7 +253,7 @@ jobs:
   # This action should not checkout the repository as that adds files
   # which are not wheels to the upload (and causes the upload to fail)
   publish-python:
-    if: ${{ inputs.job == 'publish-python' || inputs.job == 'all'}}
+    if: ${{ inputs.publish-python }}
     needs: [build-python]
     runs-on: ubuntu-latest
     steps:
@@ -253,7 +273,7 @@ jobs:
   # Build and push Docker image
   # Based on https://docs.github.com/en/actions/publishing-packages/publishing-docker-images
   publish-docker:
-    if: ${{ inputs.job == 'publish-docker' || inputs.job == 'all'}}
+    if: ${{ inputs.publish-docker }}
     needs: [create-release]
     runs-on: ubuntu-latest
     permissions:
@@ -294,7 +314,7 @@ jobs:
 
   # Publish the draft release
   publish-release:
-    if: ${{ inputs.job == 'publish-release' || inputs.job == 'all'}}
+    if: ${{ inputs.publish-release }}
     needs: [build-cli]
     runs-on: ubuntu-latest
     permissions:
