@@ -23,9 +23,17 @@ fi
 # Update the version in the Rust CLI
 sed -i -e "s/^version = .*/version = \"$VERSION\"/" rust/cli/Cargo.toml
 
-# Update the version in the Typescript & Node.js SDK
-npm version $VERSION --workspaces
+# Update the version in the TypeScript package
+sed -i -e "s/\"version\": .*/\"version\": \"$VERSION\",/" typescript/package.json
+
+# Update the version in the Node.js SDK
+sed -i -e "s/\"version\": .*/\"version\": \"$VERSION\",/" node/package.json
 sed -i -e "s/^version = .*/version = \"$VERSION\"/" node/Cargo.toml
+
+# Do NPM install at root to update `package-lock.json` files
+# but with --ignore-scripts to avoid a premature attempt to download the
+# as yet unavailable binary addons
+npm install --ignore-scripts
 
 # Update the version in the Python SDK
 sed -i -e "s/^version = .*/version = \"$VERSION\"/" python/Cargo.toml
