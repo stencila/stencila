@@ -20,7 +20,7 @@
     "test": "NODE_OPTIONS=--experimental-vm-modules npx jest"
   },
   "engines": {
-    "node": ">= 10"
+    "node": "2.5.0"
   },
   "napi": {
     "name": "stencila",
