@@ -3,9 +3,33 @@
 name: Release
 
 on:
+  # Trigger this workflow when a version tag is pushed
   push:
     tags:
       - v*
+
+  # Allow this workflow, or some of its jobs, to be triggered manually at 
+  # https://github.com/stencila/stencila/actions/workflows/release.yml.
+  # This is useful for fixing parts of the release, without making a
+  # new release.
+  workflow_dispatch:
+    inputs:
+      job:
+        description: The job to run
+        required: false
+        type: choice
+        default: all
+        options:
+          - all
+          - create-release
+          - build-cli
+          - publish-typescript
+          - build-node
+          - publish-node
+          - build-python
+          - publish-python
+          - publish-docker
+          - publish-release
 
 env:
   RUST_VERSION: "1.71.0"
@@ -15,6 +39,7 @@ env:
 jobs:
   # Create a draft release
   create-release:
+    if: ${{ inputs.job == 'create-release' || inputs.job == 'all'}}
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -29,6 +54,7 @@ jobs:
 
   # Build and upload CLI
   build-cli:
+    if: ${{ inputs.job == 'build-cli' || inputs.job == 'all'}}
     needs: [create-release]
     strategy:
       fail-fast: false
@@ -72,6 +98,7 @@ jobs:
 
   # Build and publish @stencila/types package
   publish-typescript:
+    if: ${{ inputs.job == 'publish-typescript' || inputs.job == 'all'}}
     needs: [create-release]
     runs-on: ubuntu-latest
     steps:
@@ -91,6 +118,7 @@ jobs:
 
   # Build and upload Node SDK binary addons
   build-node:
+    if: ${{ inputs.job == 'build-node' || inputs.job == 'all'}}
     needs: [create-release]
     strategy:
       fail-fast: false
@@ -130,6 +158,7 @@ jobs:
 
   # Publish @stencila/node package
   publish-node:
+    if: ${{ inputs.job == 'publish-node' || inputs.job == 'all'}}
     needs: [build-node]
     runs-on: ubuntu-latest
     steps:
@@ -150,6 +179,7 @@ jobs:
   # Build Python SDK
   # Based on https://github.com/messense/py-dissimilar/blob/main/.github/workflows/CI.yml
   build-python:
+    if: ${{ inputs.job == 'build-python' || inputs.job == 'all'}}
     needs: [create-release]
     strategy:
       fail-fast: false
@@ -198,6 +228,7 @@ jobs:
   # This action should not checkout the repository as that adds files
   # which are not wheels to the upload (and causes the upload to fail)
   publish-python:
+    if: ${{ inputs.job == 'publish-python' || inputs.job == 'all'}}
     needs: [build-python]
     runs-on: ubuntu-latest
     steps:
@@ -216,7 +247,8 @@ jobs:
 
   # Build and push Docker image
   # Based on https://docs.github.com/en/actions/publishing-packages/publishing-docker-images
-  release-docker:
+  publish-docker:
+    if: ${{ inputs.job == 'publish-docker' || inputs.job == 'all'}}
     needs: [create-release]
     runs-on: ubuntu-latest
     permissions:
@@ -257,6 +289,7 @@ jobs:
 
   # Publish the draft release
   publish-release:
+    if: ${{ inputs.job == 'publish-release' || inputs.job == 'all'}}
     needs: [build-cli]
     runs-on: ubuntu-latest
     permissions:
