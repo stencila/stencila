@@ -38,6 +38,10 @@ build: install
 	make -C ../typescript build
 	npm run build
 
+# Check the package before releasing
+check: install
+	npm run check
+
 # Clean up development artifacts
 clean:
-	rm -rf bindings.* *.node ./dist
+	rm -rf bindings.d.cts *.node ./dist
