@@ -1,32 +1,32 @@
 type: Article
 content:
 - type: Heading
-  depth: 1
+  level: 1
   content:
   - type: Text
     value: Level 1
 - type: Heading
-  depth: 2
+  level: 2
   content:
   - type: Text
     value: Level 2
 - type: Heading
-  depth: 3
+  level: 3
   content:
   - type: Text
     value: Level 3
 - type: Heading
-  depth: 4
+  level: 4
   content:
   - type: Text
     value: Level 4
 - type: Heading
-  depth: 5
+  level: 5
   content:
   - type: Text
     value: Level 6
 - type: Heading
-  depth: 6
+  level: 6
   content:
   - type: Text
     value: Level 6

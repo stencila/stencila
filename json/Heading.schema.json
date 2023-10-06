@@ -12,12 +12,15 @@
   "html": {
     "special": true
   },
+  "jats": {
+    "elem": "title"
+  },
   "markdown": {
     "special": true
   },
   "required": [
     "type",
-    "depth",
+    "level",
     "content"
   ],
   "core": [
@@ -42,13 +45,13 @@
       },
       "type": "string"
     },
-    "depth": {
-      "@id": "stencila:depth",
-      "description": "The depth of the heading.",
+    "level": {
+      "@id": "stencila:level",
+      "description": "The level of the heading.",
       "type": "integer",
-      "minimum": 1.0,
+      "minimum": 0.0,
       "maximum": 6.0,
-      "default": 1.0
+      "default": 0.0
     },
     "content": {
       "@id": "stencila:content",

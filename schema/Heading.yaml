@@ -8,20 +8,22 @@ $comment: |
     - HTML [`<h1>` to `<h6>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/h1)
     - JATS XML [`<title>`](https://jats.nlm.nih.gov/archiving/tag-library/1.1/element/title.html)
     - Pandoc [`Header`](https://github.com/jgm/pandoc-types/blob/1.17.5.4/Text/Pandoc/Definition.hs#L233)
+jats:
+  elem: title
 html:
   special: true
 markdown:
   special: true
 required:
-  - depth
+  - level
   - content
 properties:
-  depth:
-    '@id': stencila:depth
-    description: The depth of the heading.
+  level:
+    '@id': stencila:level
+    description: The level of the heading.
     type: integer
-    default: 1
-    minimum: 1
+    default: 0
+    minimum: 0
     maximum: 6
   content:
     '@id': stencila:content

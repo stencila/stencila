@@ -11,6 +11,7 @@ use super::string::String;
 #[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec, ReadNode, WriteNode)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 #[html(special)]
+#[jats(elem = "title")]
 #[markdown(special)]
 pub struct Heading {
     /// The type of this item
@@ -21,9 +22,9 @@ pub struct Heading {
     #[html(attr = "id")]
     pub id: Option<String>,
 
-    /// The depth of the heading.
-    #[default = 1]
-    pub depth: Integer,
+    /// The level of the heading.
+    #[default = 0]
+    pub level: Integer,
 
     /// Content of the heading.
     #[strip(types)]
@@ -31,9 +32,9 @@ pub struct Heading {
 }
 
 impl Heading {
-    pub fn new(depth: Integer, content: Vec<Inline>) -> Self {
+    pub fn new(level: Integer, content: Vec<Inline>) -> Self {
         Self {
-            depth,
+            level,
             content,
             ..Default::default()
         }

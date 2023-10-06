@@ -14,8 +14,8 @@ class Heading(Entity):
 
     type: Literal["Heading"] = field(default="Heading", init=False)
 
-    depth: int = 1
-    """The depth of the heading."""
+    level: int = 0
+    """The level of the heading."""
 
     content: List[Inline]
     """Content of the heading."""

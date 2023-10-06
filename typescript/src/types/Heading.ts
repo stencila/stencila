@@ -11,19 +11,19 @@ export class Heading extends Entity {
   type = "Heading";
 
   /**
-   * The depth of the heading.
+   * The level of the heading.
    */
-  depth: Integer = 1;
+  level: Integer = 0;
 
   /**
    * Content of the heading.
    */
   content: Inline[];
 
-  constructor(depth: Integer, content: Inline[], options?: Partial<Heading>) {
+  constructor(level: Integer, content: Inline[], options?: Partial<Heading>) {
     super();
     if (options) Object.assign(this, options);
-    this.depth = depth;
+    this.level = level;
     this.content = content;
   }
 }
@@ -31,6 +31,6 @@ export class Heading extends Entity {
 /**
 * Create a new `Heading`
 */
-export function heading(depth: Integer, content: Inline[], options?: Partial<Heading>): Heading {
-  return new Heading(depth, content, options);
+export function heading(level: Integer, content: Inline[], options?: Partial<Heading>): Heading {
+  return new Heading(level, content, options);
 }

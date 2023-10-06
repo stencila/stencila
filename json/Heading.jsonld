@@ -15,10 +15,10 @@
       }
     },
     {
-      "@id": "stencila:depth",
+      "@id": "stencila:level",
       "@type": "rdfs:Property",
-      "rdfs:label": "depth",
-      "rdfs:comment": "The depth of the heading.",
+      "rdfs:label": "level",
+      "rdfs:comment": "The level of the heading.",
       "schema:domainIncludes": {
         "@id": "stencila:Heading"
       },

@@ -4,7 +4,7 @@
   "content": [
     {
       "type": "Heading",
-      "depth": 1,
+      "level": 1,
       "content": [
         {
           "type": "Text",
@@ -14,7 +14,7 @@
     },
     {
       "type": "Heading",
-      "depth": 2,
+      "level": 2,
       "content": [
         {
           "type": "Text",
@@ -24,7 +24,7 @@
     },
     {
       "type": "Heading",
-      "depth": 3,
+      "level": 3,
       "content": [
         {
           "type": "Text",
@@ -34,7 +34,7 @@
     },
     {
       "type": "Heading",
-      "depth": 4,
+      "level": 4,
       "content": [
         {
           "type": "Text",
@@ -44,7 +44,7 @@
     },
     {
       "type": "Heading",
-      "depth": 5,
+      "level": 5,
       "content": [
         {
           "type": "Text",
@@ -54,7 +54,7 @@
     },
     {
       "type": "Heading",
-      "depth": 6,
+      "level": 6,
       "content": [
         {
           "type": "Text",
