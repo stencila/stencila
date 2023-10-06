@@ -252,8 +252,8 @@ jobs:
           path: python/dist
 
   # Publish Python SDK
-  # This action should not checkout the repository as that adds files
-  # which are not wheels to the upload (and causes the upload to fail)
+  # This action should not checkout the repository because that adds other,
+  # non-wheel files to the upload and thereby causes the upload to fail.
   publish-python:
     if: ${{ inputs.publishPython }}
     needs: [build-python]
@@ -268,7 +268,6 @@ jobs:
         env:
           MATURIN_PYPI_TOKEN: ${{ secrets.PYPI_TOKEN }}
         with:
-          working-directory: python
           command: upload
           args: --skip-existing *
 
