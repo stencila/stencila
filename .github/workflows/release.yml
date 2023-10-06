@@ -151,7 +151,12 @@ jobs:
           registry-url: "https://registry.npmjs.org"
 
       - name: Build package
-        run: make -C node -B addon
+        # This avoids various issues with doing just `npm install` here by
+        # only installing `napi` (globally, so other deps are not installed).
+        # Here be dragons; change with care.
+        run: |
+          npm install --global @napi-rs/cli
+          npm run build:addon
 
       - name: Upload addon
         run: gh release upload ${{ github.ref_name }} node/stencila.*.node.gz

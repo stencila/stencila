@@ -33,11 +33,7 @@ audit: install
 	npm audit fix
 
 # Build the Node binary add-on only
-# This is mainly intended for CI and only installs the
-# bare minimum dependences needed. This avoid install issues
-# encountered on MacOS and Windows.
-addon:
-	npm install @napi-rs/cli --save-exact
+addon: install
 	npm run build:addon
 
 # Build the TypeScript into `dist` folder
