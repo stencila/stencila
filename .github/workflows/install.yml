@@ -13,20 +13,22 @@ on:
   # or manually at https://github.com/stencila/stencila/actions/workflows/install.yml
   workflow_dispatch:
     inputs:
-      job:
-        description: The job to run
-        required: true
-        type: choice
-        default: all
-        options:
-          - all
-          - cli
-          - node
-          - python
+      cli:
+        description: Install CLI
+        type: boolean
+        default: true
+      node:
+        description: Install Node SDK
+        type: boolean
+        default: true
+      python:
+        description: Install Python SDK
+        type: boolean
+        default: true
 
 jobs:
   cli:
-    if: ${{ inputs.job == 'ci' || inputs.job == 'all' }}
+    if: ${{ inputs.cli }}
     strategy:
       fail-fast: false
       matrix:
@@ -44,7 +46,7 @@ jobs:
         run: stencila --version
 
   node:
-    if: ${{ inputs.job == 'node' || inputs.job == 'all' }}
+    if: ${{ inputs.node }}
     strategy:
       fail-fast: false
       matrix:
@@ -73,7 +75,7 @@ jobs:
         run: node -e 'import("@stencila/node").then((mod) => console.log(mod)).catch((error) => {console.error(error); process.exit(1)})'
 
   python:
-    if: ${{ inputs.job == 'python' || inputs.job == 'all' }}
+    if: ${{ inputs.python }}
     strategy:
       fail-fast: false
       matrix:
