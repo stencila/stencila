@@ -212,13 +212,6 @@ enum Command {
         #[command(flatten)]
         encode_options: EncodeOptions,
     },
-
-    /// Get available format conversion codecs
-    #[command(alias = "codec")]
-    Codecs {
-        /// The name of the codec to show details for
-        name: Option<String>,
-    },
 }
 
 /// Command line arguments for decoding nodes from other formats
@@ -492,11 +485,6 @@ impl Cli {
                     display::highlighted(&content, format)?;
                 }
             }
-
-            Command::Codecs { name } => match name {
-                Some(name) => println!("{:#?}", codecs::spec(&name)?),
-                None => println!("{:#?}", codecs::specs()),
-            },
         }
 
         if wait {

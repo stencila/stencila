@@ -3,11 +3,9 @@ use std::path::Path;
 use codec::{
     common::{
         eyre::{bail, eyre, Result},
-        itertools::Itertools,
         tracing,
     },
     schema::Node,
-    CodecSpec,
 };
 pub use codec::{
     format::Format, Codec, CodecDirection, CodecSupport, DecodeOptions, EncodeOptions, Losses,
@@ -27,11 +25,6 @@ pub fn list() -> Vec<Box<dyn Codec>> {
         Box::new(codec_text::TextCodec),
         Box::new(codec_yaml::YamlCodec),
     ]
-}
-
-/// Get a list of all codec specifications
-pub fn specs() -> Vec<CodecSpec> {
-    list().iter().map(|codec| codec.spec()).collect_vec()
 }
 
 /// Resolve whether an optional string is a format or codec name
@@ -78,11 +71,6 @@ pub fn get(
     } else {
         bail!("One of `name` or `format` must be supplied")
     }
-}
-
-/// Get the specification for a codec
-pub fn spec(name: &str) -> Result<CodecSpec> {
-    Ok(get(Some(&name.to_string()), None, None)?.spec())
 }
 
 /// Decode a Stencila Schema node from a string

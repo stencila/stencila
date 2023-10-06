@@ -1,4 +1,4 @@
-use std::{collections::BTreeMap, path::Path};
+use std::path::Path;
 
 use common::{
     async_trait::async_trait,
@@ -121,27 +121,6 @@ pub trait Codec: Sync + Send {
         false
     }
 
-    /// Generate a [`CodecSpec`] for the codec
-    fn spec(&self) -> CodecSpec {
-        let supports_from_formats = Format::iter()
-            .map(|format| (format, self.supports_from_format(format)))
-            .collect();
-        let supports_to_formats = Format::iter()
-            .map(|format| (format, self.supports_to_format(format)))
-            .collect();
-        CodecSpec {
-            name: self.name().to_string(),
-            status: self.status(),
-            supports_from_formats,
-            supports_from_string: self.supports_from_string(),
-            supports_from_path: self.supports_from_path(),
-            supports_to_formats,
-            supports_to_string: self.supports_to_string(),
-            supports_to_path: self.supports_to_path(),
-            has_remote_state: self.has_remote_state(),
-        }
-    }
-
     /// Decode a Stencila Schema node from a string
     #[allow(clippy::wrong_self_convention)]
     async fn from_str(
@@ -253,23 +232,6 @@ impl CodecSupport {
     pub fn is_lossy(&self) -> bool {
         !matches!(self, CodecSupport::NoLoss)
     }
-}
-
-/// A specification of a codec
-///
-/// Used to allow user inspection of the capabilities of a codec.
-#[derive(Debug, Serialize)]
-#[serde(crate = "common::serde")]
-pub struct CodecSpec {
-    pub name: String,
-    pub status: Status,
-    pub supports_from_formats: BTreeMap<Format, CodecSupport>,
-    pub supports_to_formats: BTreeMap<Format, CodecSupport>,
-    pub supports_from_string: bool,
-    pub supports_from_path: bool,
-    pub supports_to_string: bool,
-    pub supports_to_path: bool,
-    pub has_remote_state: bool,
 }
 
 /// Decoding options
