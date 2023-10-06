@@ -12,7 +12,6 @@ This document contains the help content for the `stencila` command-line program.
 * [`stencila log`↴](#stencila-log)
 * [`stencila inspect`↴](#stencila-inspect)
 * [`stencila convert`↴](#stencila-convert)
-* [`stencila codecs`↴](#stencila-codecs)
 
 ## `stencila`
 
@@ -29,7 +28,6 @@ CLI subcommands and global options
 * `log` — Display the history of commits to the document
 * `inspect` — Inspect a document as JSON
 * `convert` — Convert a document between formats
-* `codecs` — Get available format conversion codecs
 
 ###### **Options:**
 
@@ -109,23 +107,6 @@ Import a file in another format into a new or existing document
 
   Default value: `warn`
 
-  Possible values:
-  - `ignore`:
-    Ignore the losses; do nothing
-  - `trace`:
-    Log losses as separate log entries with the `TRACE` severity level
-  - `debug`:
-    Log losses as separate log entries with the `DEBUG` severity level
-  - `info`:
-    Log losses as separate log entries with the `INFO` severity level
-  - `warn`:
-    Log losses as separate log entries with the `WARN` severity level
-  - `error`:
-    Log losses as separate log entries with the `ERROR` severity level
-  - `abort`:
-    Abort the current function call by returning a `Err` result with the losses enumerated
-
-
 
 
 ## `stencila export`
@@ -149,23 +130,6 @@ Export a document to a file in another format
 * `-l`, `--losses <LOSSES>` — What to do if there are losses when encoding
 
   Default value: `warn`
-
-  Possible values:
-  - `ignore`:
-    Ignore the losses; do nothing
-  - `trace`:
-    Log losses as separate log entries with the `TRACE` severity level
-  - `debug`:
-    Log losses as separate log entries with the `DEBUG` severity level
-  - `info`:
-    Log losses as separate log entries with the `INFO` severity level
-  - `warn`:
-    Log losses as separate log entries with the `WARN` severity level
-  - `error`:
-    Log losses as separate log entries with the `ERROR` severity level
-  - `abort`:
-    Abort the current function call by returning a `Err` result with the losses enumerated
-
 * `--standalone` — Encode as a standalone document
 * `--not-standalone` — Do not encode as a standalone document when writing to file
 * `-c`, `--compact` — Use compact form of encoding if possible
@@ -194,23 +158,6 @@ Synchronize a document with one of more other files in other formats
 * `-l`, `--losses <LOSSES>` — What to do if there are losses when either encoding or decoding between any of the files
 
   Default value: `warn`
-
-  Possible values:
-  - `ignore`:
-    Ignore the losses; do nothing
-  - `trace`:
-    Log losses as separate log entries with the `TRACE` severity level
-  - `debug`:
-    Log losses as separate log entries with the `DEBUG` severity level
-  - `info`:
-    Log losses as separate log entries with the `INFO` severity level
-  - `warn`:
-    Log losses as separate log entries with the `WARN` severity level
-  - `error`:
-    Log losses as separate log entries with the `ERROR` severity level
-  - `abort`:
-    Abort the current function call by returning a `Err` result with the losses enumerated
-
 * `--standalone` — Encode as a standalone document
 * `--not-standalone` — Do not encode as a standalone document when writing to file
 * `-c`, `--compact` — Use compact form of encoding if possible
@@ -263,26 +210,12 @@ Convert a document between formats
 
 * `-f`, `--from <FROM>` — The format to encode from (or codec to use)
 * `-t`, `--to <TO>` — The format to encode to (or codec to use)
-* `-l`, `--losses <LOSSES>` — What to do if there are losses when either decoding from the input, or encoding to the output
+* `-i`, `--input-losses <INPUT_LOSSES>` — What to do if there are losses when decoding from the input
 
   Default value: `warn`
+* `-o`, `--output-losses <OUTPUT_LOSSES>` — What to do if there are losses when encoding to the output
 
-  Possible values:
-  - `ignore`:
-    Ignore the losses; do nothing
-  - `trace`:
-    Log losses as separate log entries with the `TRACE` severity level
-  - `debug`:
-    Log losses as separate log entries with the `DEBUG` severity level
-  - `info`:
-    Log losses as separate log entries with the `INFO` severity level
-  - `warn`:
-    Log losses as separate log entries with the `WARN` severity level
-  - `error`:
-    Log losses as separate log entries with the `ERROR` severity level
-  - `abort`:
-    Abort the current function call by returning a `Err` result with the losses enumerated
-
+  Default value: `warn`
 * `--standalone` — Encode as a standalone document
 * `--not-standalone` — Do not encode as a standalone document when writing to file
 * `-c`, `--compact` — Use compact form of encoding if possible
@@ -291,18 +224,6 @@ Convert a document between formats
 * `--strip-execution` — Strip derived properties of executable nodes before encoding
 * `--strip-output` — Strip the outputs of executable nodes before encoding
 * `--strip-types <STRIP_TYPES>` — A list of types to strip before encoding
-
-
-
-## `stencila codecs`
-
-Get available format conversion codecs
-
-**Usage:** `stencila codecs [NAME]`
-
-###### **Arguments:**
-
-* `<NAME>` — The name of the codec to show details for
 
 
 
