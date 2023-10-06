@@ -72,7 +72,7 @@ export async function toPath(
  * @param path The path to encode to
  * @param options Encoding options
  */
-export function fromTo(
+export async function fromTo(
   input?: string,
   output?: string,
   decodeOptions?: DecodeOptions,
