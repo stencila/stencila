@@ -31,7 +31,7 @@ similar = { version = "2.2.1", features = ["unicode"] }
 slug = "0.1.4"
 smart-default = "0.7.1"
 strum = { version = "0.25.0", features = ["derive"] }
-syn = "2.0.37"
+syn = "2.0.38"
 tempfile = "3.8.0"
 tokio = { version = "1.32.0", features = ["full", "tracing"] }
 toml = "0.8.2"
