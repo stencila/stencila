@@ -24,7 +24,7 @@ if [ "${OS}" = "Linux" ] || [ "${OS}" = "Darwin" ]; then
         'Darwin')
             TARGET_TRIPLE="x86_64-apple-darwin"
             if [ "$VERSION" = "latest" ]; then
-                VERSION=$(curl --silent "https://api.github.com/repos/stencila/stencila/releases/latest" | grep '"tag_name":' | sed -E 's/.*"([^"]+)".*/\1/')
+                VERSION=$(curl --silent "https://api.github.com/repos/stencila/stencila/releases/latest" | grep -o '"tag_name":"[^"]*"' | cut -d '"' -f 4 )
             fi
             INSTALL_PATH="${2:-/usr/local/bin}"
             ;;
