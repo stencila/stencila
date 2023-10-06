@@ -24,9 +24,9 @@ on:
           - node
           - python
 
-
 jobs:
   cli:
+    if: ${{ inputs.job == 'ci' || inputs.job == 'all' }}
     strategy:
       fail-fast: false
       matrix:
@@ -44,6 +44,7 @@ jobs:
         run: stencila --version
 
   node:
+    if: ${{ inputs.job == 'node' || inputs.job == 'all' }}
     strategy:
       fail-fast: false
       matrix:
@@ -72,6 +73,7 @@ jobs:
         run: node -e 'import("@stencila/node").then((mod) => console.log(mod)).catch((error) => {console.error(error); process.exit(1)})'
 
   python:
+    if: ${{ inputs.job == 'python' || inputs.job == 'all' }}
     strategy:
       fail-fast: false
       matrix:
