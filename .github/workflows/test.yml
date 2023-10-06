@@ -54,7 +54,7 @@ jobs:
         run: make test
 
       - name: Run checks
-        run: make checks
+        run: make check
 
       - name: Make generated files
         run: make generated
