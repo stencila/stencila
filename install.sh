@@ -10,12 +10,13 @@
 
 set -e
 
+VERSION="${1:-latest}"
+
 OS=$(uname)
 if [ "${OS}" = "Linux" ] || [ "${OS}" = "Darwin" ]; then
     case "${OS}" in
         'Linux')
             TARGET_TRIPLE="x86_64-unknown-linux-gnu"
-            VERSION="${1:-latest}"
             if [ "$VERSION" = "latest" ]; then
                 VERSION=$(curl --silent "https://api.github.com/repos/stencila/stencila/releases/latest" | grep -Po '"tag_name": "\K.*?(?=")')
             fi
@@ -29,6 +30,11 @@ if [ "${OS}" = "Linux" ] || [ "${OS}" = "Darwin" ]; then
             INSTALL_PATH="${2:-/usr/local/bin}"
             ;;
     esac
+
+    if [ "$VERSION" = "" ]; then
+        echo "Unable to determine the version of latest release"
+        exit 1
+    fi
     
     echo "Downloading Stencila CLI $VERSION for platform $TARGET_TRIPLE"
     curl -sL "https://github.com/stencila/stencila/releases/download/$VERSION/cli-$VERSION-$TARGET_TRIPLE.tar.xz" | tar xJ -O "cli-$VERSION-$TARGET_TRIPLE/stencila" > stencila || {
