@@ -78,7 +78,7 @@ followRedirects(url, (res) => {
 
   res
     .pipe(createGunzip())
-    .pipe(createWriteStream(`stencila.node`))
+    .pipe(createWriteStream("stencila.node"))
     .on("finish", () => {
       console.log(`File "${target}" downloaded and extracted.`);
       process.exit(0);

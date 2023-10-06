@@ -3,6 +3,7 @@
 
 # Built extensions
 *.node
+*.node.gz
 
 /dist
 /node_modules
