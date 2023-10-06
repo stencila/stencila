@@ -9,7 +9,21 @@
 name: Install
 
 on:
+  # Allow this workflow to be triggered by the `release.yml` workflow
+  # or manually at https://github.com/stencila/stencila/actions/workflows/install.yml
   workflow_dispatch:
+    inputs:
+      job:
+        description: The job to run
+        required: false
+        type: choice
+        default: all
+        options:
+          - all
+          - cli
+          - node
+          - python
+
 
 jobs:
   cli:
