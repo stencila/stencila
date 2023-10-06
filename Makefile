@@ -31,6 +31,10 @@ test:
 	make -C node test
 	make -C python test
 
+# Run checks (e.g. of packaging)
+check:
+	make -C typescript check
+
 # List outdated dependencies
 outdated:
 	make -C rust outdated

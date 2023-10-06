@@ -57,11 +57,8 @@ jobs:
       - name: Run tests
         run: make test
 
-      - name: Build CLI and SDKs
-        run: make build
-
-      - name: Build Docker image
-        run: make docker
+      - name: Run checks
+        run: make checks
 
       - name: Make generated files
         run: make generated
