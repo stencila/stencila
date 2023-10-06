@@ -400,7 +400,7 @@ checksum = "cd7cc57abe963c6d3b9d8be5b06ba7c8957a930305ca90304f24ef040aa6f961"
 
 [[package]]
 name = "cli"
-version = "2.0.0-alpha.13"
+version = "2.0.0-alpha.14"
 dependencies = [
  "axum",
  "codecs",
@@ -1725,7 +1725,7 @@ dependencies = [
 
 [[package]]
 name = "node"
-version = "2.0.0-alpha.13"
+version = "2.0.0-alpha.14"
 dependencies = [
  "codecs",
  "common",
@@ -2034,9 +2034,9 @@ dependencies = [
 
 [[package]]
 name = "proc-macro2"
-version = "1.0.67"
+version = "1.0.68"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "3d433d9f1a3e8c1263d9456598b16fec66f4acc9a74dacffd35c7bb09b3a1328"
+checksum = "5b1106fec09662ec6dd98ccac0f81cef56984d0b49f75c92d8cbad76e20c005c"
 dependencies = [
  "unicode-ident",
 ]
@@ -2641,7 +2641,7 @@ dependencies = [
 
 [[package]]
 name = "stencila"
-version = "2.0.0-alpha.13"
+version = "2.0.0-alpha.14"
 dependencies = [
  "codecs",
  "common",
