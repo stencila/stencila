@@ -3,7 +3,7 @@
 **Types and functions for using Stencila from within Python**
 
 <a href="https://pypi.org/project/stencila/">
-  <img src="https://img.shields.io/pypi/v/%40stencila%2Ftypes.svg?label=pypi%20stencila&color=1d3bd1&labelColor=3219a8">
+  <img src="https://img.shields.io/pypi/v/stencila.svg?label=pypi%20stencila&color=1d3bd1&labelColor=3219a8">
 </a>
 
 ## 👋 Introduction
@@ -88,14 +88,14 @@ The `convert` module has five functions for encoding and decoding Stencila docum
 
 #### `from_string`
 
-Use `from_string` to decode a string in a certain format to a schema type. Usually you will need to supply the `format` argument (it defaults to JSON). e.g.
+Use `from_string` to decode a string in a certain format to a Stencila Schema type. Usually you will need to supply the `format` argument (it defaults to JSON). e.g.
 
 ```py
 import asyncio
 
 from stencila.convert import from_string
 
-article = asyncio.run(
+doc = asyncio.run(
     from_string(
         '{type: "Article", content: [{type: "Paragraph", content: ["Hello world"]}]}',
         format="json5",
@@ -105,21 +105,19 @@ article = asyncio.run(
 
 #### `from_path`
 
-Use `from_path` to decode a file system path, usually to a file, to a schema type. The format of the file can be supplied but if it is not is inferred from the file name. e.g.
+Use `from_path` to decode a file system path (usually a file) to a Stencila Schema type. The format can be supplied but if it is not is inferred from the path. e.g.
 
 ```py
 import asyncio
 
 from stencila.convert import from_path
 
-article = asyncio.run(
-    from_path("my-article.jats.xml")
-)
+doc = asyncio.run(from_path("doc.jats.xml"))
 ```
 
 #### `to_string`
 
-Use `to_string` to encode a schema type to a string. Usually you will want to supply the `format` argument (it defaults to JSON).
+Use `to_string` to encode a Stencila Schema type to a string. Usually you will want to supply the `format` argument (it defaults to JSON).
 
 ```py
 import asyncio
@@ -127,15 +125,14 @@ import asyncio
 from stencila.convert import to_string
 from stencila.types import Article, Paragraph, Text
 
-article = Article(content=[Paragraph(content=[Text(value="Hello world!")])])
-markdown = asyncio.run(
-    to_string(article, format="md")
-)
+doc = Article(content=[Paragraph(content=[Text(value="Hello world!")])])
+
+markdown = asyncio.run(to_string(doc, format="md"))
 ```
 
 #### `to_path`
 
-To encode a schema type to a filesystem path, use `to_path`. e.g.
+To encode a Stencila Schema type to a filesystem path, use `to_path`. e.g.
 
 ```py
 import asyncio
@@ -143,24 +140,21 @@ import asyncio
 from stencila.convert import to_path
 from stencila.types import Article, Paragraph, Text
 
-article = Article(content=[Paragraph(content=[Text(value="Hello world!")])])
-asyncio.run(
-    to_path(article, "my-article.md")
-)
+doc = Article(content=[Paragraph(content=[Text(value="Hello world!")])])
+
+asyncio.run(to_path(doc, "doc.md"))
 ```
 
 #### `from_to`
 
-Use `from_to` when you want to convert a file to another format (i.e. as a more performance shortcut to combining `from_path` and `to_path`)
+Use `from_to` when you want to convert a file to another format (i.e. as a more performant shortcut to combining `from_path` and `to_path`)
 
 ```py
 import asyncio
 
 from stencila.convert import from_to
 
-asyncio.run(
-    from_to("my-article.md", "my-article.html")
-)
+asyncio.run(from_to("doc.md", "doc.html"))
 ```
 
 ## 🛠️ Develop
@@ -171,11 +165,11 @@ Most of the types are generated from the Stencila Schema by the Rust [`schema-ge
 
 ### `convert` module
 
-The `convert` module is implemented in Rust(`src/convert.rs`) with a thin Python wrapper (`python/stencila/convert.py`)to provide documentation and conversion to the types in the `types` module.
+The `convert` module is implemented in Rust (`src/convert.rs`) with a thin Python wrapper (`python/stencila/convert.py`) to provide documentation and conversion to the types in the `types` module.
 
 ### Linting and testing
 
-Please run linting checks and tests before contributing any code changes.
+Please run linting and tests before contributing any code changes.
 
 ```console
 make lint test
