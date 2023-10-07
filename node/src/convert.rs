@@ -19,7 +19,7 @@ pub struct DecodeOptions {
     /// What to do if there are losses when decoding from the input
     ///
     /// Possible values are "ignore", "trace", "debug", "info", "warn", "error", or "abort", or
-    /// a filename to write the losses to (only `json` or `yaml` file extensions are supported).
+    /// a file path to write the losses to (`json` or `yaml` file extensions are supported).
     pub losses: Option<String>,
 }
 
@@ -62,7 +62,7 @@ pub struct EncodeOptions {
     /// What to do if there are losses when encoding to the output
     ///
     /// Possible values are "ignore", "trace", "debug", "info", "warn", "error", or "abort", or
-    /// a filename to write the losses to (only `json` or `yaml` file extensions are supported).
+    /// a file path to write the losses to (`json` or `yaml` file extensions are supported).
     pub losses: Option<String>,
 }
 
