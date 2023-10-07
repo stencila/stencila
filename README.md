@@ -205,6 +205,13 @@ Stencila's software development kits (SDKs) enable developers to create plugins 
 | Node.js    | Types and functions for using Stencila from within Node.js      | 🚧 In progress, expected completion early Q4 2023                                                                                                                         |
 | R          | Types and functions for using Stencila from within R            | 🧭 Planned Q4 2023                                                                                                                                                        |
 
+### Other
+
+| Description         | Status                                                                          |
+| ------------------- | ------------------------------------------------------------------------------- |
+| Security audit      | 🧭 Planned Q2 2023 (after most `v2` functionality added and before public beta) |
+| Accessibility audit | 🧭 Planned Q3 2023 (after initial release of desktop app and before final `v2`) |
+
 ## 📜 Documentation
 
 At this stage, documentation for `v2` is mainly reference material, much of it generated:
@@ -289,6 +296,21 @@ docker pull ghcr.io/stencila/stencila
 </details>
 
 ### SDKs
+
+<details>
+<summary><strong>Python</strong></summary>
+
+Use your favorite package manager to install Stencila's [SDK for Python](https://pypi.org/project/stencila/):
+
+```console
+python -m pip install stencila
+```
+
+```console
+poetry add stencila
+```
+
+</details>
 
 <details>
 <summary><strong>TypeScript</strong></summary>
