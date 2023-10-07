@@ -140,6 +140,7 @@ impl ReadNode for Node {
             Quote,
             QuoteBlock,
             Review,
+            Section,
             SoftwareApplication,
             SoftwareSourceCode,
             Span,

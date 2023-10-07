@@ -118,6 +118,7 @@ from .publication_volume import PublicationVolume
 from .quote import Quote
 from .quote_block import QuoteBlock
 from .review import Review
+from .section import Section
 from .software_application import SoftwareApplication
 from .software_source_code import SoftwareSourceCode
 from .software_source_code_or_software_application_or_str import SoftwareSourceCodeOrSoftwareApplicationOrStr

@@ -17,6 +17,7 @@ use super::list::List;
 use super::math_block::MathBlock;
 use super::paragraph::Paragraph;
 use super::quote_block::QuoteBlock;
+use super::section::Section;
 use super::table::Table;
 use super::thematic_break::ThematicBreak;
 
@@ -40,6 +41,7 @@ pub enum Block {
     #[default]
     Paragraph(Paragraph),
     QuoteBlock(QuoteBlock),
+    Section(Section),
     Table(Table),
     ThematicBreak(ThematicBreak),
 }

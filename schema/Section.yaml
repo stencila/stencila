@@ -1,0 +1,22 @@
+title: Section
+'@id': stencila:Section
+extends: Entity
+category: prose
+description: A section of a document
+jats:
+  elem: sec
+html:
+  elem: section
+markdown:
+  format: ':::\n\n{content}:::\n\n'
+required:
+  - content
+properties:
+  content:
+    '@id': 'stencila:content'
+    description: The content within the section
+    strip:
+      - types
+    type: array
+    items:
+      $ref: Block

@@ -23,6 +23,7 @@ The `Block` type has these members:
 - [`MathBlock`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/math/math-block.md)
 - [`Paragraph`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/paragraph.md)
 - [`QuoteBlock`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/quote-block.md)
+- [`Section`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/section.md)
 - [`Table`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/table.md)
 - [`ThematicBreak`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/thematic-break.md)
 

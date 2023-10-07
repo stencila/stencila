@@ -80,6 +80,7 @@ PublicationVolume = ForwardRef("PublicationVolume")
 Quote = ForwardRef("Quote")
 QuoteBlock = ForwardRef("QuoteBlock")
 Review = ForwardRef("Review")
+Section = ForwardRef("Section")
 SoftwareApplication = ForwardRef("SoftwareApplication")
 SoftwareSourceCode = ForwardRef("SoftwareSourceCode")
 Span = ForwardRef("Span")
@@ -189,6 +190,7 @@ Node = Union[
     Quote,
     QuoteBlock,
     Review,
+    Section,
     SoftwareApplication,
     SoftwareSourceCode,
     Span,

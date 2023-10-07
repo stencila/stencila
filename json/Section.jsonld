@@ -1,0 +1,86 @@
+{
+  "@context": {
+    "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
+    "schema": "https://schema.org/",
+    "stencila": "https://stencila.dev/"
+  },
+  "@graph": [
+    {
+      "@id": "stencila:Section",
+      "@type": "rdfs:Class",
+      "rdfs:label": "Section",
+      "rdfs:comment": "A section of a document",
+      "rdfs:subClassOf": {
+        "@id": "Entity"
+      }
+    },
+    {
+      "@id": "stencila:content",
+      "@type": "rdfs:Property",
+      "rdfs:label": "content",
+      "rdfs:comment": "The content within the section",
+      "schema:domainIncludes": [
+        {
+          "@id": "schema:Claim"
+        },
+        {
+          "@id": "schema:CreativeWork"
+        },
+        {
+          "@id": "schema:ListItem"
+        },
+        {
+          "@id": "stencila:Cite"
+        },
+        {
+          "@id": "stencila:Division"
+        },
+        {
+          "@id": "stencila:For"
+        },
+        {
+          "@id": "stencila:Form"
+        },
+        {
+          "@id": "stencila:Heading"
+        },
+        {
+          "@id": "stencila:IfClause"
+        },
+        {
+          "@id": "stencila:Include"
+        },
+        {
+          "@id": "stencila:Link"
+        },
+        {
+          "@id": "stencila:Mark"
+        },
+        {
+          "@id": "stencila:Note"
+        },
+        {
+          "@id": "stencila:Paragraph"
+        },
+        {
+          "@id": "stencila:QuoteBlock"
+        },
+        {
+          "@id": "stencila:Section"
+        },
+        {
+          "@id": "stencila:Span"
+        },
+        {
+          "@id": "stencila:Suggestion"
+        },
+        {
+          "@id": "stencila:TableCell"
+        }
+      ],
+      "schema:rangeIncludes": {
+        "@id": "stencila:Block"
+      }
+    }
+  ]
+}

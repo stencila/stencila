@@ -17,6 +17,7 @@ List = ForwardRef("List")
 MathBlock = ForwardRef("MathBlock")
 Paragraph = ForwardRef("Paragraph")
 QuoteBlock = ForwardRef("QuoteBlock")
+Section = ForwardRef("Section")
 Table = ForwardRef("Table")
 ThematicBreak = ForwardRef("ThematicBreak")
 
@@ -37,6 +38,7 @@ Block = Union[
     MathBlock,
     Paragraph,
     QuoteBlock,
+    Section,
     Table,
     ThematicBreak,
 ]

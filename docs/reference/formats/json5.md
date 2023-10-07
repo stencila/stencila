@@ -67,6 +67,7 @@ Support and degree of loss for node types:
 | [Paragraph](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/paragraph.md)                      | 🟢 No loss    | 🟢 No loss    |       |
 | [Quote](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/quote.md)                              | 🟢 No loss    | 🟢 No loss    |       |
 | [QuoteBlock](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/quote_block.md)                   | 🟢 No loss    | 🟢 No loss    |       |
+| [Section](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/section.md)                          | 🟢 No loss    | 🟢 No loss    |       |
 | [Strikeout](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/strikeout.md)                      | 🟢 No loss    | 🟢 No loss    |       |
 | [Strong](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/strong.md)                            | 🟢 No loss    | 🟢 No loss    |       |
 | [Subscript](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/subscript.md)                      | 🟢 No loss    | 🟢 No loss    |       |

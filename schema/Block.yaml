@@ -19,5 +19,6 @@ anyOf:
   - $ref: MathBlock
   - $ref: Paragraph
   - $ref: QuoteBlock
+  - $ref: Section
   - $ref: Table
   - $ref: ThematicBreak

@@ -117,6 +117,7 @@ mod publication_volume;
 mod quote;
 mod quote_block;
 mod review;
+mod section;
 mod software_application;
 mod software_source_code;
 mod software_source_code_or_software_application_or_string;
@@ -265,6 +266,7 @@ pub use publication_volume::*;
 pub use quote::*;
 pub use quote_block::*;
 pub use review::*;
+pub use section::*;
 pub use software_application::*;
 pub use software_source_code::*;
 pub use software_source_code_or_software_application_or_string::*;
@@ -383,6 +385,7 @@ pub enum NodeType {
     Quote,
     QuoteBlock,
     Review,
+    Section,
     SoftwareApplication,
     SoftwareSourceCode,
     Span,

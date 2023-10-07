@@ -52,6 +52,9 @@
       "$ref": "QuoteBlock.schema.json"
     },
     {
+      "$ref": "Section.schema.json"
+    },
+    {
       "$ref": "Table.schema.json"
     },
     {

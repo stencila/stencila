@@ -168,6 +168,9 @@
           "@id": "stencila:QuoteBlock"
         },
         {
+          "@id": "stencila:Section"
+        },
+        {
           "@id": "stencila:Span"
         },
         {

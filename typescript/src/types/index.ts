@@ -119,6 +119,7 @@ export * from "./PublicationVolume.js";
 export * from "./Quote.js";
 export * from "./QuoteBlock.js";
 export * from "./Review.js";
+export * from "./Section.js";
 export * from "./SoftwareApplication.js";
 export * from "./SoftwareSourceCode.js";
 export * from "./SoftwareSourceCodeOrSoftwareApplicationOrString.js";

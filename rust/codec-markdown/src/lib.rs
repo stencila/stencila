@@ -38,7 +38,7 @@ impl Codec for MarkdownCodec {
             Text | Emphasis | Strong | Subscript | Superscript | Underline => NoLoss,
             Link | Parameter | AudioObject | ImageObject | MediaObject => LowLoss,
             // Prose Blocks
-            Heading | Paragraph | ThematicBreak => NoLoss,
+            Section | Heading | Paragraph | ThematicBreak => NoLoss,
             List | ListItem | Table | TableRow | TableCell => LowLoss,
             // Code
             CodeFragment | CodeBlock => NoLoss,

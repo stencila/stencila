@@ -1,0 +1,26 @@
+<article dtd-version="1.3" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:mml="http://www.w3.org/1998/Math/MathML">
+  <front>
+  </front>
+  <body>
+    <sec>
+      <title>Introduction</title>
+      <p>Sections will usually start with a header.</p>
+    </sec>
+    <sec>
+      <title>Nested sections</title>
+      <sec>
+        <title>Inner section</title>
+        <sec>
+          <title>First inner-inner section</title>
+          <p>This is the first inner-inner section</p>
+        </sec>
+        <sec>
+          <title>Second inner-inner section</title>
+          <p>This is the second inner-inner section</p>
+        </sec>
+      </sec>
+    </sec>
+  </body>
+  <back>
+  </back>
+</article>

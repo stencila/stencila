@@ -81,6 +81,7 @@ import { type PublicationVolume } from "./PublicationVolume.js";
 import { type Quote } from "./Quote.js";
 import { type QuoteBlock } from "./QuoteBlock.js";
 import { type Review } from "./Review.js";
+import { type Section } from "./Section.js";
 import { type SoftwareApplication } from "./SoftwareApplication.js";
 import { type SoftwareSourceCode } from "./SoftwareSourceCode.js";
 import { type Span } from "./Span.js";
@@ -192,6 +193,7 @@ export type Node =
   Quote |
   QuoteBlock |
   Review |
+  Section |
   SoftwareApplication |
   SoftwareSourceCode |
   Span |
@@ -299,6 +301,7 @@ export function node(other: Node): Node {
     case "Quote":
     case "QuoteBlock":
     case "Review":
+    case "Section":
     case "SoftwareApplication":
     case "SoftwareSourceCode":
     case "Span":

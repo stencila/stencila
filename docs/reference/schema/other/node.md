@@ -89,6 +89,7 @@ The `Node` type has these members:
 - [`Quote`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/quote.md)
 - [`QuoteBlock`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/quote-block.md)
 - [`Review`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/review.md)
+- [`Section`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/section.md)
 - [`SoftwareApplication`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/software-application.md)
 - [`SoftwareSourceCode`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/software-source-code.md)
 - [`Span`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/style/span.md)

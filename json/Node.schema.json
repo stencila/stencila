@@ -252,6 +252,9 @@
       "$ref": "Review.schema.json"
     },
     {
+      "$ref": "Section.schema.json"
+    },
+    {
       "$ref": "SoftwareApplication.schema.json"
     },
     {

@@ -17,6 +17,7 @@ import { type List } from "./List.js";
 import { type MathBlock } from "./MathBlock.js";
 import { type Paragraph } from "./Paragraph.js";
 import { type QuoteBlock } from "./QuoteBlock.js";
+import { type Section } from "./Section.js";
 import { type Table } from "./Table.js";
 import { type ThematicBreak } from "./ThematicBreak.js";
 
@@ -39,6 +40,7 @@ export type Block =
   MathBlock |
   Paragraph |
   QuoteBlock |
+  Section |
   Table |
   ThematicBreak;
 
@@ -62,6 +64,7 @@ export function block(other: Block): Block {
     case "MathBlock":
     case "Paragraph":
     case "QuoteBlock":
+    case "Section":
     case "Table":
     case "ThematicBreak":
       return hydrate(other) as Block

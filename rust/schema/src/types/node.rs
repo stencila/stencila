@@ -84,6 +84,7 @@ use super::publication_volume::PublicationVolume;
 use super::quote::Quote;
 use super::quote_block::QuoteBlock;
 use super::review::Review;
+use super::section::Section;
 use super::software_application::SoftwareApplication;
 use super::software_source_code::SoftwareSourceCode;
 use super::span::Span;
@@ -197,6 +198,7 @@ pub enum Node {
     Quote(Quote),
     QuoteBlock(QuoteBlock),
     Review(Review),
+    Section(Section),
     SoftwareApplication(SoftwareApplication),
     SoftwareSourceCode(SoftwareSourceCode),
     Span(Span),

@@ -36,7 +36,7 @@ impl Codec for HtmlCodec {
             // Prose Inlines
             Text | Emphasis | Strong | Subscript | Superscript | Underline => NoLoss,
             // Prose Blocks
-            Heading | Paragraph | ThematicBreak => NoLoss,
+            Section | Heading | Paragraph | ThematicBreak => NoLoss,
             // Code
             CodeFragment | CodeBlock => NoLoss,
             // Fallback to low loss

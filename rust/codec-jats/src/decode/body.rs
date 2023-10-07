@@ -2,7 +2,7 @@ use roxmltree::Node;
 
 use codec::{
     schema::{
-        shortcuts::{em, p, s, strong, sub, sup, text, u},
+        shortcuts::{em, p, s, section, strong, sub, sup, text, u},
         Article, AudioObject, AudioObjectOptions, Block, Blocks, Heading, ImageObject,
         ImageObjectOptions, Inline, Inlines, MediaObject, MediaObjectOptions, ThematicBreak,
     },
@@ -33,10 +33,7 @@ fn decode_blocks(path: &str, node: &Node, losses: &mut Losses, depth: u8) -> Blo
             "hr" => decode_hr(&child_path, &child, losses),
             "p" => decode_p(&child_path, &child, losses),
             "title" => decode_title(&child_path, &child, losses, depth),
-            "sec" => {
-                blocks.append(&mut decode_sec(&child_path, &child, losses, depth + 1));
-                continue;
-            }
+            "sec" => decode_sec(&child_path, &child, losses, depth + 1),
             _ => {
                 record_node_lost(path, &child, losses);
                 continue;
@@ -61,11 +58,11 @@ fn decode_p(path: &str, node: &Node, losses: &mut Losses) -> Block {
     p(decode_inlines(path, node, losses))
 }
 
-/// Decode a `<sec>` to a [`Block::Paragraph`]
-fn decode_sec(path: &str, node: &Node, losses: &mut Losses, depth: u8) -> Blocks {
+/// Decode a `<sec>` to a [`Block::Section`]
+fn decode_sec(path: &str, node: &Node, losses: &mut Losses, depth: u8) -> Block {
     record_attrs_lost(path, node, [], losses);
 
-    decode_blocks(path, node, losses, depth)
+    section(decode_blocks(path, node, losses, depth))
 }
 
 /// Decode a `<title>` to a [`Block::Heading`]

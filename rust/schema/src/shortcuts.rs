@@ -2,7 +2,7 @@
 
 use crate::{
     Block, BlocksOrInlines, CodeFragment, Cord, Heading, Inline, Link, List, ListItem, ListOrder,
-    Paragraph, Strikeout, Strong, Subscript, Superscript, Table, TableCell, TableCellType,
+    Paragraph, Section, Strikeout, Strong, Subscript, Superscript, Table, TableCell, TableCellType,
     TableRow, Text, Underline,
 };
 
@@ -51,32 +51,32 @@ pub fn cf<S: Into<String>>(code: S) -> Inline {
     Inline::CodeFragment(CodeFragment::new(Cord::new(code.into())))
 }
 
-/// Create a [`Block::Heading`] node with `depth: 1`
+/// Create a [`Block::Heading`] node with `level: 1`
 pub fn h1<I: Into<Vec<Inline>>>(content: I) -> Block {
     Block::Heading(Heading::new(1, content.into()))
 }
 
-/// Create a [`Block::Heading`] node with `depth: 2`
+/// Create a [`Block::Heading`] node with `level: 2`
 pub fn h2<I: Into<Vec<Inline>>>(content: I) -> Block {
     Block::Heading(Heading::new(2, content.into()))
 }
 
-/// Create a [`Block::Heading`] node with `depth: 3`
+/// Create a [`Block::Heading`] node with `level: 3`
 pub fn h3<I: Into<Vec<Inline>>>(content: I) -> Block {
     Block::Heading(Heading::new(3, content.into()))
 }
 
-/// Create a [`Block::Heading`] node with `depth: 4`
+/// Create a [`Block::Heading`] node with `level: 4`
 pub fn h4<I: Into<Vec<Inline>>>(content: I) -> Block {
     Block::Heading(Heading::new(4, content.into()))
 }
 
-/// Create a [`Block::Heading`] node with `depth: 5`
+/// Create a [`Block::Heading`] node with `level: 5`
 pub fn h5<I: Into<Vec<Inline>>>(content: I) -> Block {
     Block::Heading(Heading::new(5, content.into()))
 }
 
-/// Create a [`Block::Heading`] node with `depth: 6`
+/// Create a [`Block::Heading`] node with `level: 6`
 pub fn h6<I: Into<Vec<Inline>>>(content: I) -> Block {
     Block::Heading(Heading::new(6, content.into()))
 }
@@ -135,4 +135,9 @@ pub fn td<I: Into<Vec<Inline>>>(content: I) -> TableCell {
         content: Some(BlocksOrInlines::Inlines(content.into())),
         ..Default::default()
     }
+}
+
+/// Create a [`Block::Section`] node
+pub fn section<I: Into<Vec<Block>>>(content: I) -> Block {
+    Block::Section(Section::new(content.into()))
 }
