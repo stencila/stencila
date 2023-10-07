@@ -11,7 +11,7 @@ use super::string::String;
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 #[html(elem = "section")]
 #[jats(elem = "sec")]
-#[markdown(format = ":::\n\n{content}:::\n\n")]
+#[markdown(special)]
 pub struct Section {
     /// The type of this item
     pub r#type: MustBe!("Section"),

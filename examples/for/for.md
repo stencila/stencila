@@ -18,11 +18,11 @@ Nested for loops
 
 ::: for outer in [['a', 'b'], ['c', 'd']]
 
-::: for inner in outer
+::::: for inner in outer
 
 This paragraph will be repeated for each inner item `inner`{exec}
 
-:::
+:::::
 
 :::
 

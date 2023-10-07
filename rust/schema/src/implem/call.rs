@@ -4,7 +4,7 @@ use codec_losses::{lost_exec_options, lost_options};
 use crate::{prelude::*, Call};
 
 impl Call {
-    pub fn to_markdown_special(&self) -> (String, Losses) {
+    pub fn to_markdown_special(&self, _context: &MarkdownEncodeContext) -> (String, Losses) {
         let mut md = ["/", &self.source, "("].concat();
 
         for arg in &self.arguments {

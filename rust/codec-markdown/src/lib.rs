@@ -5,7 +5,7 @@ use codec::{
     status::Status,
     Codec, CodecSupport, EncodeOptions, Losses,
 };
-use codec_markdown_trait::MarkdownCodec as _;
+use codec_markdown_trait::{MarkdownCodec as _, MarkdownEncodeContext};
 
 /// A codec for Markdown
 pub struct MarkdownCodec;
@@ -58,7 +58,8 @@ impl Codec for MarkdownCodec {
         node: &Node,
         _options: Option<EncodeOptions>,
     ) -> Result<(String, Losses)> {
-        let (markdown, losses) = node.to_markdown();
+        let context = MarkdownEncodeContext::default();
+        let (markdown, losses) = node.to_markdown(&context);
 
         let markdown = markdown.trim().to_string();
 

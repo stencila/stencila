@@ -46,10 +46,10 @@ Nested if blocks
 
 ::: if true
 
-::: if true
+::::: if true
 
 This paragraph should be shown
 
-:::
+:::::
 
 :::

@@ -14,7 +14,7 @@
     "custom": true
   },
   "markdown": {
-    "format": "::: {{{code}}}\\n\\n{content}:::\\n\\n"
+    "special": true
   },
   "required": [
     "type",

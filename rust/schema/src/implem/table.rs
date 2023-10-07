@@ -29,7 +29,7 @@ impl Table {
         elem("table", &[attr("is", "stencila-table")], &[caption, body])
     }
 
-    pub fn to_markdown_special(&self) -> (String, Losses) {
+    pub fn to_markdown_special(&self, context: &MarkdownEncodeContext) -> (String, Losses) {
         let mut losses = Losses::none();
 
         let mut column_widths: Vec<usize> = Vec::new();
@@ -40,8 +40,8 @@ impl Table {
                 let (content_md, content_losses) = match &cell.content {
                     None => (String::new(), Losses::none()),
                     Some(content) => match content {
-                        BlocksOrInlines::Inlines(inlines) => inlines.to_markdown(),
-                        BlocksOrInlines::Blocks(blocks) => blocks.to_markdown(),
+                        BlocksOrInlines::Inlines(inlines) => inlines.to_markdown(context),
+                        BlocksOrInlines::Blocks(blocks) => blocks.to_markdown(context),
                     },
                 };
 

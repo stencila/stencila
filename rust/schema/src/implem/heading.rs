@@ -11,11 +11,11 @@ impl Heading {
         )
     }
 
-    pub fn to_markdown_special(&self) -> (String, Losses) {
+    pub fn to_markdown_special(&self, context: &MarkdownEncodeContext) -> (String, Losses) {
         let mut md = "#".repeat(self.level.max(1).min(6) as usize);
         md.push(' ');
 
-        let (content, mut losses) = self.content.to_markdown();
+        let (content, mut losses) = self.content.to_markdown(context);
         md.push_str(&content);
 
         md.push_str("\n\n");

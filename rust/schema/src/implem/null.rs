@@ -59,7 +59,7 @@ impl JatsCodec for Null {
 }
 
 impl MarkdownCodec for Null {
-    fn to_markdown(&self) -> (String, Losses) {
+    fn to_markdown(&self, _context: &MarkdownEncodeContext) -> (String, Losses) {
         self.to_text()
     }
 }

@@ -12,7 +12,7 @@ use super::string::String;
 #[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec, ReadNode, WriteNode)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 #[html(elem = "div", custom)]
-#[markdown(format = "::: {{{code}}}\n\n{content}:::\n\n")]
+#[markdown(special)]
 pub struct Division {
     /// The type of this item
     pub r#type: MustBe!("Division"),

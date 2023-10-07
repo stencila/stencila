@@ -3,7 +3,7 @@ use codec_json5_trait::Json5Codec;
 use crate::{prelude::*, IntegerValidator, NumberValidator, Parameter, Validator};
 
 impl Parameter {
-    pub fn to_markdown_special(&self) -> (String, Losses) {
+    pub fn to_markdown_special(&self, _context: &MarkdownEncodeContext) -> (String, Losses) {
         let mut md = ["&[", &self.name, "]"].concat();
         let mut losses = Losses::none();
 

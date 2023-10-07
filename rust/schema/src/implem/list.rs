@@ -14,7 +14,7 @@ impl List {
         elem(tag, &[attr("is", "stencila-list")], &[items])
     }
 
-    pub fn to_markdown_special(&self) -> (String, Losses) {
+    pub fn to_markdown_special(&self, context: &MarkdownEncodeContext) -> (String, Losses) {
         let mut losses = Losses::none();
 
         let ordered = matches!(self.order, ListOrder::Ascending);
@@ -30,7 +30,7 @@ impl List {
                     "- ".to_string()
                 };
 
-                let (item_md, item_losses) = item.to_markdown();
+                let (item_md, item_losses) = item.to_markdown(context);
 
                 losses.merge(item_losses);
 

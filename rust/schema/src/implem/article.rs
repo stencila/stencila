@@ -28,7 +28,7 @@ impl Article {
         )
     }
 
-    pub fn to_markdown_special(&self) -> (String, Losses) {
+    pub fn to_markdown_special(&self, context: &MarkdownEncodeContext) -> (String, Losses) {
         use common::serde_yaml;
 
         let mut md = String::new();
@@ -54,7 +54,7 @@ impl Article {
             }
         }
 
-        let (content_md, losses) = self.content.to_markdown();
+        let (content_md, losses) = self.content.to_markdown(context);
         md += &content_md;
 
         (md, losses)

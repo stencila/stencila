@@ -26,7 +26,7 @@ impl MathBlock {
         (jats, losses)
     }
 
-    pub fn to_markdown_special(&self) -> (String, Losses) {
+    pub fn to_markdown_special(&self, _context: &MarkdownEncodeContext) -> (String, Losses) {
         let md = if self.math_language.to_lowercase() == "tex" {
             ["$$\n", &self.code, "\n$$\n\n"].concat()
         } else {

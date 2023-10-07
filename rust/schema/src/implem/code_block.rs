@@ -1,7 +1,7 @@
 use crate::{prelude::*, CodeBlock};
 
 impl CodeBlock {
-    pub fn to_markdown_special(&self) -> (String, Losses) {
+    pub fn to_markdown_special(&self, _context: &MarkdownEncodeContext) -> (String, Losses) {
         let mut md = "```".to_string();
 
         if let Some(lang) = &self.programming_language {

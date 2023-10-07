@@ -46,6 +46,27 @@
           ]
         }
       ]
+    },
+    {
+      type: "Division",
+      code: "bg-red-100 p-2",
+      content: [
+        {
+          type: "Division",
+          code: "bg-blue-100",
+          content: [
+            {
+              type: "Paragraph",
+              content: [
+                {
+                  type: "Text",
+                  value: "Nested div"
+                }
+              ]
+            }
+          ]
+        }
+      ]
     }
   ]
 }
