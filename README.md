@@ -47,6 +47,9 @@
   <a href="https://github.com/stencila/stencila/releases">
     <img src="https://img.shields.io/github/v/release/stencila/stencila.svg?color=1d3bd1&labelColor=3219a8">
   </a>
+  <a href="https://pypi.org/project/stencila/">
+    <img src="https://img.shields.io/pypi/v/stencila.svg?label=pypi%20stencila&color=1d3bd1&labelColor=3219a8">
+  </a>
   <a href="https://www.npmjs.com/package/@stencila/types">
     <img src="https://img.shields.io/npm/v/%40stencila%2Ftypes.svg?label=npm%20%40stencila%2Ftypes&color=1d3bd1&labelColor=3219a8">
   </a>
@@ -166,7 +169,7 @@ In Stencila `v2`, non-human changes to the document will be performed, concurren
 | Parsers          | Update the `executionDependency` etc properties of [`CodeExecutable`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/code/code-executable.md) nodes when the `code` or `programmingLanguage` properties change                 | 🧭 Planned Q4 2023 [`v1`](https://github.com/stencila/stencila/tree/v1/rust/parser-treesitter) |
 | `Reactor`        | For reactivity, maintain a dependency graph between nodes and update `executionRequired` of executable nodes when `executionDependency` or `executionStatus` of other nodes changes.                                                                 | 🧭 Planned Q4 2023 [`v1`](https://github.com/stencila/stencila/tree/v1/rust/graph)             |
 | `Executor`       | Execute nodes when their `executionRequired` property and update their `executionStatus`, `output`, etc properties                                                                                                                                   | 🧭 Planned Q4 2023                                                                             |
-| Actor Plugin API | An API allowing actors to be developed as plugins in Python, Node.js, and other languages                                                                                                                                                            | 🧭 Planned Q4 2023 to allow prototypes of `Coder` and `Writer` actors as plugins                      |
+| Actor Plugin API | An API allowing actors to be developed as plugins in Python, Node.js, and other languages                                                                                                                                                            | 🧭 Planned Q4 2023 to allow prototypes of `Coder` and `Writer` actors as plugins               |
 | `Coder`          | An LLM actor that creates and edits [`CodeExecutable`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/code/code-executable.md) nodes                                                                                           | 🧭 Planned Q1 2024                                                                             |
 | `Writer`         | An LLM actor that creates and edits [prose](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose) nodes                                                                                                                        | 🧭 Planned Q1 2024                                                                             |
 | `CitationIntent` | An AI actor that suggests a [`CitationIntent`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/citation-intent.md) for [`Cite`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/cite.md) nodes | ❔ Maybe                                                                                       |
@@ -197,7 +200,7 @@ Stencila's software development kits (SDKs) enable developers to create plugins 
 
 | Language   | Description                                                     | Status                                                                                                                                                                    |
 | ---------- | --------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Python     | Types and functions for using Stencila from within Python       | 🚧 In progress, expected completion early Q4 2023                                                                                                                         |
+| Python     | Types and functions for using Stencila from within Python       | [![](https://img.shields.io/pypi/v/stencila.svg?label=pypi%20stencila&color=1d3bd1&labelColor=3219a8)](https://pypi.org/project/stencila/)                                |
 | TypeScript | JavaScript classes and TypeScript types for the Stencila Schema | [![](https://img.shields.io/npm/v/%40stencila%2Ftypes.svg?label=npm%20%40stencila%2Ftypes&color=1d3bd1&labelColor=3219a8)](https://www.npmjs.com/package/@stencila/types) |
 | Node.js    | Types and functions for using Stencila from within Node.js      | 🚧 In progress, expected completion early Q4 2023                                                                                                                         |
 | R          | Types and functions for using Stencila from within R            | 🧭 Planned Q4 2023                                                                                                                                                        |
