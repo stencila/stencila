@@ -337,9 +337,11 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
 
   # Publish the draft release
+  # Wait for all packages to be published so that the `install.yml` workflow
+  # that this triggers tests this release and not a previous version
   publish-release:
     if: ${{ inputs.publish-release }}
-    needs: [build-cli]
+    needs: [build-cli, publish-typescript, publish-node, publish-python, publish-docker]
     runs-on: ubuntu-latest
     permissions:
       contents: write
