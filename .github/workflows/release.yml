@@ -149,10 +149,14 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os:
-          - ubuntu-latest
-          - macos-latest
-          - windows-latest
+        # See `nod/install.cjs for the correct target to use
+        include:
+          - os: ubuntu-latest
+            target: linux-x64-gnu
+          - os: macos-latest
+            target: darwin-x64
+          - os: windows-latest
+            target: win32-x64-msvc
     runs-on: ${{ matrix.os }}
     permissions:
       contents: write
@@ -185,7 +189,8 @@ jobs:
           cd node && npm run build:addon
 
       - name: Upload addon
-        run: gh release upload ${{ inputs.tag }} node/stencila.*.node.gz
+        # Use `matrix.target` here instead of `*` glob because the latter does not work on Windows
+        run: gh release upload ${{ inputs.tag }} node/stencila.${{ matrix.target }}.node.gz
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
