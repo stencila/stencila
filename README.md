@@ -316,6 +316,25 @@ poetry add stencila
 </details>
 
 <details>
+<summary><strong>Node</strong></summary>
+
+Use your favorite package manager to install [`@stencila/node`](https://www.npmjs.com/package/@stencila/node):
+
+```console
+npm install @stencila/node
+```
+
+```console
+yarn add @stencila/node
+```
+
+```console
+pnpm add @stencila/node
+```
+
+</details>
+
+<details>
 <summary><strong>TypeScript</strong></summary>
 
 Use your favorite package manager to install [`@stencila/types`](https://www.npmjs.com/package/@stencila/types):
