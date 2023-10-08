@@ -17,5 +17,9 @@ jobs:
     env:
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
+      - name: Checkout repository
+        # Needed only because `gh` errors if not in a repo
+        uses: actions/checkout@v4
+
       - name: Trigger release workflow
         run: gh workflow run release.yml -f tag=${{ github.ref_name }}
