@@ -39,19 +39,22 @@
 
 <div align="center">
   <a href="#-contributors">
-    <img src="https://img.shields.io/github/all-contributors/stencila/stencila?color=1d3bd1&labelColor=3219a8">
+    <img src="https://img.shields.io/github/all-contributors/stencila/stencila?logo=github&label=contributors&style=for-the-badge&color=1d3bd1&logoColor=66ff66&labelColor=3219a8">
   </a>
   <a href="https://discord.gg/GADr6Jv">
-    <img src="https://img.shields.io/discord/709952324356800523.svg?logo=discord&label=discord&logoColor=66ff66&color=1d3bd1&labelColor=3219a8">
+    <img src="https://img.shields.io/discord/709952324356800523.svg?logo=discord&style=for-the-badge&color=1d3bd1&logoColor=66ff66&labelColor=3219a8">
   </a>
   <a href="https://github.com/stencila/stencila/releases">
-    <img src="https://img.shields.io/github/v/release/stencila/stencila.svg?color=1d3bd1&labelColor=3219a8">
+    <img src="https://img.shields.io/github/v/release/stencila/stencila.svg?logo=gnu-bash&label=cli&style=for-the-badge&color=1d3bd1&logoColor=66ff66&labelColor=3219a8">
   </a>
   <a href="https://pypi.org/project/stencila/">
-    <img src="https://img.shields.io/pypi/v/stencila.svg?label=pypi%20stencila&color=1d3bd1&labelColor=3219a8">
+    <img src="https://img.shields.io/pypi/v/stencila.svg?logo=python&label=stencila&style=for-the-badge&color=1d3bd1&logoColor=66ff66&labelColor=3219a8">
+  </a>
+  <a href="https://www.npmjs.com/package/@stencila/node">
+    <img src="https://img.shields.io/npm/v/%40stencila%2Fnode.svg?logo=npm&label=%40stencila%2Fnode&&style=for-the-badge&color=1d3bd1&logoColor=66ff66&labelColor=3219a8">
   </a>
   <a href="https://www.npmjs.com/package/@stencila/types">
-    <img src="https://img.shields.io/npm/v/%40stencila%2Ftypes.svg?label=npm%20%40stencila%2Ftypes&color=1d3bd1&labelColor=3219a8">
+    <img src="https://img.shields.io/npm/v/%40stencila%2Ftypes.svg?logo=npm&label=%40stencila%2Ftypes&style=for-the-badge&color=1d3bd1&logoColor=66ff66&labelColor=3219a8">
   </a>
 </div>
 <br>
@@ -198,12 +201,12 @@ Tools are what we call the self-contained Stencila products you can download and
 
 Stencila's software development kits (SDKs) enable developers to create plugins to extend Stencila's core functionality or to build other tools on top of. At this stage we are planning to support Python, Node.js and R but more languages may be added if there is demand.
 
-| Language   | Description                                                     | Status                                                                                                                                                                    |
-| ---------- | --------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Python     | Types and functions for using Stencila from within Python       | [![](https://img.shields.io/pypi/v/stencila.svg?label=pypi%20stencila&color=1d3bd1&labelColor=3219a8)](https://pypi.org/project/stencila/)                                |
-| TypeScript | JavaScript classes and TypeScript types for the Stencila Schema | [![](https://img.shields.io/npm/v/%40stencila%2Ftypes.svg?label=npm%20%40stencila%2Ftypes&color=1d3bd1&labelColor=3219a8)](https://www.npmjs.com/package/@stencila/types) |
-| Node.js    | Types and functions for using Stencila from within Node.js      | 🚧 In progress, expected completion early Q4 2023                                                                                                                         |
-| R          | Types and functions for using Stencila from within R            | 🧭 Planned Q4 2023                                                                                                                                                        |
+| Language   | Description                                                     | Status                                                                      |
+| ---------- | --------------------------------------------------------------- | --------------------------------------------------------------------------- |
+| Python     | Types and functions for using Stencila from within Python       | ⚠️ Alpha, published on [PyPI](https://pypi.org/project/stencila/)           |
+| TypeScript | JavaScript classes and TypeScript types for the Stencila Schema | ⚠️ Alpha, published on [NPM](https://www.npmjs.com/package/@stencila/types) |
+| Node.js    | Types and functions for using Stencila from within Node.js      | ⚠️ Alpha, published on [NPM](https://www.npmjs.com/package/@stencila/node)  |
+| R          | Types and functions for using Stencila from within R            | ❔ Maybe                                                                    |
 
 ### Other
 
@@ -333,7 +336,9 @@ pnpm add @stencila/types
 
 ## 🛠️ Develop
 
-This repository is organized into the following modules. Please see their respective READMEs, where available, for guides to contributing.
+### Code organization
+
+This repository is organized into the following modules. Please see their respective READMEs, where available, for guides to contributing to each.
 
 - [`schema`](schema): YAML files which define the Stencila Schema, an implementation of, and extensions to, [schema.org](https://schema.org), for programmable documents.
 
@@ -345,11 +350,30 @@ This repository is organized into the following modules. Please see their respec
 
 - [`typescript`](typescript): A package of TypeScript types generated from Stencila Schema so you can create type-safe Stencila documents in the browser, Node.js, Deno etc.
 
-- [`node`](node): A Node.js package, using the generated TypeScript types and with runtime validation and bindings to Rust functions, so you can work with Stencila documents from within Node.js.
+- [`node`](node): A Node.js package, using the generated TypeScript types and bindings to Rust functions, so you can work with Stencila documents from within Node.js.
 
-- [`docs`](docs): Documentation, including reference documentation generated from `schema` and the `rust` CLI tool.
+- [`docs`](docs): Documentation, including reference documentation generated from `schema` and CLI tool.
 
-- [`examples`](examples): Example of documents conforming to Stencila Schema, mostly for testing purposes.
+- [`examples`](examples): Examples of documents conforming to Stencila Schema, mostly for testing purposes.
+
+- [`scripts`](scripts): Scripts used for making releases and during continuous integration.
+
+### Continuous integration and deployment
+
+Several Github Action workflows are used for testing and releases. All products (i.e CLI, Docker image, SKDs) are released at the same time with the same version number. To create and release a new version:
+
+```console
+bash scripts/bump-version.sh <VERSION>
+git push && git push --tags
+```
+
+| Workflow                                       | Purpose                                                                                                       | Status                                                                                                                                                                |
+| ---------------------------------------------- | ------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| [`test.yml`](.github/workflows/test.yml)       | Run linting, tests and other checks. Commit changes to any generated files.                                   | [![](https://img.shields.io/github/actions/workflow/status/stencila/stencila/test.yml?label=)](https://github.com/stencila/stencila/actions/workflows/test.yml)       |
+| [`pages.yml`](.github/workflows/pages.yml)     | Publish docs, JSON-LD, JSON Schema, etc to https://stencila.dev hosted on GitHub Pages                        | [![](https://img.shields.io/github/actions/workflow/status/stencila/stencila/pages.yml?label=)](https://github.com/stencila/stencila/actions/workflows/pages.yml)     |
+| [`version.yml`](.github/workflows/version.yml) | Trigger the `release.yml` workflow when a version tag is created.                                             | [![](https://img.shields.io/github/actions/workflow/status/stencila/stencila/version.yml?label=)](https://github.com/stencila/stencila/actions/workflows/version.yml) |
+| [`release.yml`](.github/workflows/release.yml) | Create a release, including building and publishing CLI, Docker image and SDKs.                               | [![](https://img.shields.io/github/actions/workflow/status/stencila/stencila/release.yml?label=)](https://github.com/stencila/stencila/actions/workflows/release.yml) |
+| [`install.yml`](.github/workflows/install.yml) | Test installation and usage of CLI, Docker image and SDKs on various operating systems and language versions. | [![](https://img.shields.io/github/actions/workflow/status/stencila/stencila/install.yml?label=)](https://github.com/stencila/stencila/actions/workflows/install.yml) |
 
 ## 🙏 Acknowledgements
 
