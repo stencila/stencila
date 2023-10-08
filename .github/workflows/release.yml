@@ -1,52 +1,55 @@
 # Workflow for creating releases
+#
+# This workflow is triggered by the `version.yml` workflow when a version
+# tag is created (one starting with `v`).
+#
+# It also has inputs to allow all, or some jobs, to be triggered manually via
+# https://github.com/stencila/stencila/actions/workflows/release.yml.
+# This is useful for fixing parts of the release without creating a new tag, or
+# moving an existing tag.
 
 name: Release
 
 on:
-  # Trigger this workflow when a version tag is pushed
-  push:
-    tags:
-      - v*
-
-  # Allow this workflow, or some of its jobs, to be triggered manually at
-  # https://github.com/stencila/stencila/actions/workflows/release.yml.
-  # This is useful for fixing parts of the release, without making a
-  # new release.
   workflow_dispatch:
     inputs:
-      createRelease:
+      tag:
+        description: The tag to create the release for e.g. v2.1.0
+        type: string
+        required: true
+      create-release:
         description: Create release
         type: boolean
         default: true
-      buildCli:
+      build-cli:
         description: Build CLI
         type: boolean
         default: true
-      publishTypescript:
+      publish-typescript:
         description: Publish @stencila/types
         type: boolean
         default: true
-      buildNode:
+      build-node:
         description: Build Node.js SDK addons
         type: boolean
         default: true
-      publishNode:
+      publish-node:
         description: Publish Node.js SDK
         type: boolean
         default: true
-      buildPython:
+      build-python:
         description: Build Python SDK wheels
         type: boolean
         default: true
-      publishPython:
+      publish-python:
         description: Publish Python SDK
         type: boolean
         default: true
-      publishDocker:
+      publish-docker:
         description: Build and Push Docker image
         type: boolean
         default: true
-      publishRelease:
+      publish-release:
         description: Publish release
         type: boolean
         default: true
@@ -62,21 +65,18 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
-    env:
-      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
       - name: Create release
         # Put `if` here because all subsequent jobs `need` it so will not
         # run if this one does not
-        if: ${{ inputs.createRelease }}
-        run: gh release create ${{ github.ref_name }} --title ${{ github.ref_name }} --draft
+        if: ${{ inputs.create-release }}
+        run: gh release create ${{ inputs.tag }} --title ${{ inputs.tag }} --draft
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   # Build and upload CLI
   build-cli:
-    if: ${{ inputs.buildCli }}
+    if: ${{ inputs.build-cli }}
     needs: [create-release]
     strategy:
       fail-fast: false
@@ -97,11 +97,11 @@ jobs:
     runs-on: ${{ matrix.os }}
     permissions:
       contents: write
-    env:
-      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.tag }}
 
       - name: Setup Rust
         uses: dtolnay/rust-toolchain@master
@@ -116,16 +116,20 @@ jobs:
         run: make -C rust build archive -e TARGET=${{ matrix.target }}
 
       - name: Upload archive
-        run: gh release upload ${{ github.ref_name }} target/cli-${{ github.ref_name }}-${{ matrix.target }}.${{ matrix.ext }}
+        run: gh release upload ${{ inputs.tag }} target/cli-${{ inputs.tag }}-${{ matrix.target }}.${{ matrix.ext }}
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   # Build and publish @stencila/types package
   publish-typescript:
-    if: ${{ inputs.publishTypescript }}
+    if: ${{ inputs.publish-typescript }}
     needs: [create-release]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.tag }}
 
       - name: Setup Node.js and NPM
         uses: actions/setup-node@v3
@@ -140,7 +144,7 @@ jobs:
 
   # Build and upload Node SDK binary addons
   build-node:
-    if: ${{ inputs.buildNode }}
+    if: ${{ inputs.build-node }}
     needs: [create-release]
     strategy:
       fail-fast: false
@@ -152,11 +156,11 @@ jobs:
     runs-on: ${{ matrix.os }}
     permissions:
       contents: write
-    env:
-      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.tag }}
 
       - name: Setup Rust
         uses: dtolnay/rust-toolchain@master
@@ -181,16 +185,20 @@ jobs:
           cd node && npm run build:addon
 
       - name: Upload addon
-        run: gh release upload ${{ github.ref_name }} node/stencila.*.node.gz
+        run: gh release upload ${{ inputs.tag }} node/stencila.*.node.gz
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   # Publish @stencila/node package
   publish-node:
-    if: ${{ inputs.publishNode }}
+    if: ${{ inputs.publish-node }}
     needs: [build-node]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.tag }}
 
       - name: Setup Node.js and NPM
         uses: actions/setup-node@v3
@@ -206,7 +214,7 @@ jobs:
   # Build Python SDK
   # Based on https://github.com/messense/py-dissimilar/blob/main/.github/workflows/CI.yml
   build-python:
-    if: ${{ inputs.buildPython }}
+    if: ${{ inputs.build-python }}
     needs: [create-release]
     strategy:
       fail-fast: false
@@ -225,6 +233,8 @@ jobs:
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.tag }}
 
       - name: Setup Rust
         uses: dtolnay/rust-toolchain@master
@@ -255,7 +265,7 @@ jobs:
   # This action should not checkout the repository because that adds other,
   # non-wheel files to the upload and thereby causes the upload to fail.
   publish-python:
-    if: ${{ inputs.publishPython }}
+    if: ${{ inputs.publish-python }}
     needs: [build-python]
     runs-on: ubuntu-latest
     steps:
@@ -274,7 +284,7 @@ jobs:
   # Build and push Docker image
   # Based on https://docs.github.com/en/actions/publishing-packages/publishing-docker-images
   publish-docker:
-    if: ${{ inputs.publishDocker }}
+    if: ${{ inputs.publish-docker }}
     needs: [create-release]
     runs-on: ubuntu-latest
     permissions:
@@ -283,6 +293,8 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.tag }}
 
       - name: Log in to Docker Hub
         uses: docker/login-action@v3
@@ -315,7 +327,7 @@ jobs:
 
   # Publish the draft release
   publish-release:
-    if: ${{ inputs.publishRelease }}
+    if: ${{ inputs.publish-release }}
     needs: [build-cli]
     runs-on: ubuntu-latest
     permissions:
@@ -324,11 +336,8 @@ jobs:
     env:
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
       - name: Mark release as non-draft
-        run: gh release edit ${{ github.ref_name }} --draft=false
+        run: gh release edit ${{ inputs.tag }} --draft=false
 
       - name: Trigger installation test workflow
         run: gh workflow run install.yml

@@ -1,0 +1,21 @@
+# Workflow for triggering the `release.yml` workflow when a version tag is created
+#
+# See the `release.yml` for details on why we decouple releases from tag creation.
+
+name: Version
+
+on:
+  push:
+    tags:
+      - v*
+
+jobs:
+  publish-release:
+    runs-on: ubuntu-latest
+    permissions:
+      actions: write
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - name: Trigger release workflow
+        run: gh workflow run release.yml -f tag=${{ github.ref_name }}
