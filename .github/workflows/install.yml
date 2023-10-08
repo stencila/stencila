@@ -45,7 +45,7 @@ jobs:
         run: curl --proto '=https' --tlsv1.2 -sSf https://stencila.dev/install.sh | sh
 
       - name: Run CLI
-        run: stencila --version
+        run: stencila --help
 
   docker:
     if: ${{ inputs.docker }}
@@ -80,8 +80,9 @@ jobs:
       - name: Install package
         run: npm install @stencila/node
 
-      - name: Import package
-        run: node -e 'import("@stencila/node").then(console.log).catch((error) => {console.error(error); process.exit(1)})'
+      - name: Use package
+        # Use outer double quotes to avoid issues within inner double quotes on Windows
+        run: node -e "import('@stencila/node').then(console.log).catch((error)=>{ console.error(error); process.exit(1) })"
 
   python:
     if: ${{ inputs.python }}
@@ -107,5 +108,6 @@ jobs:
       - name: Install package
         run: python3 -m pip install stencila
 
-      - name: Import package
-        run: python3 -c 'import stencila'
+      - name: Use package
+        # Use outer double quotes to avoid issues within inner double quotes on Windows
+        run: python3 -c "import stencila; print(stencila.__name__)"
