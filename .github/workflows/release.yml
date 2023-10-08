@@ -66,6 +66,12 @@ jobs:
     permissions:
       contents: write
     steps:
+      - name: Checkout repository
+        # Needed only because `gh` errors if not in a repo
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.tag }}
+
       - name: Create release
         # Put `if` here because all subsequent jobs `need` it so will not
         # run if this one does not
@@ -341,6 +347,12 @@ jobs:
     env:
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
+      - name: Checkout repository
+        # Needed only because `gh` errors if not in a repo
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.tag }}
+
       - name: Mark release as non-draft
         run: gh release edit ${{ inputs.tag }} --draft=false
 
