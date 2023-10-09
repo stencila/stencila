@@ -18,7 +18,7 @@ use schema::{shortcuts::*, Article, Block, Inline, Node, NodeType, TableCell};
 use status::Status;
 
 use crate::{
-    schema::{Category, Items, Schema, Type},
+    schema::{Category, Items, ProptestLevel, Schema, Type},
     schemas::Schemas,
 };
 
@@ -159,6 +159,9 @@ fn docs_object(title: &str, schema: &Schema, context: &Context) -> Article {
         content.append(&mut formats(title, schema));
     }
     content.append(&mut bindings(title, schema));
+    if schema.proptest.is_some() {
+        content.append(&mut proptests_object(title, schema));
+    }
     content.append(&mut source(title));
 
     Article {
@@ -172,6 +175,9 @@ fn docs_any_of(title: &str, schema: &Schema, context: &Context) -> Article {
     let mut content = intro(title, schema);
     content.append(&mut members(title, schema, context));
     content.append(&mut bindings(title, schema));
+    if schema.proptest.is_some() {
+        content.append(&mut proptests_anyof(title, schema));
+    }
     content.append(&mut source(title));
 
     Article {
@@ -412,6 +418,162 @@ fn formats(title: &str, schema: &Schema) -> Vec<Block> {
             text(" type can be encoded (serialized) to, and/or decoded (deserialized) from, these formats:"),
         ]),
         table(rows),
+    ]
+}
+
+/// Generate a "testing" section for an object type schema
+fn proptests_anyof(title: &str, schema: &Schema) -> Vec<Block> {
+    let mut rows = vec![tr([
+        th([text("Variant")]),
+        th([text("Complexity")]),
+        th([text("Description")]),
+        th([text("Strategy")]),
+    ])];
+
+    for variant_schema in schema.any_of.as_ref().unwrap() {
+        let Some(proptest) = &variant_schema.proptest else {
+            continue
+        };
+        let Some(variant_name) = &variant_schema.r#ref else {
+            continue
+        };
+
+        for level in ProptestLevel::iter() {
+            let Some(options) = proptest.get(&level) else {
+                continue
+            };
+
+            let description = options
+                .description
+                .clone()
+                .unwrap_or_else(|| String::from("Generate an arbitrary value of type."));
+
+            let mut strategy = if options.skip {
+                vec![text("-")]
+            } else if let Some(strategy) = &options.strategy {
+                vec![cf(strategy)]
+            } else if let Some(value) = &options.value {
+                vec![cf(value)]
+            } else {
+                vec![text("Default for level")]
+            };
+            if let Some(filter) = &options.filter {
+                strategy.append(&mut vec![text(" with filter "), cf(filter)]);
+            }
+
+            let row = vec![
+                if matches!(level, ProptestLevel::Min) {
+                    td([cf(variant_name)])
+                } else {
+                    td([])
+                },
+                td([text(format!(
+                    "{}{}",
+                    level.to_string().to_title_case(),
+                    if matches!(level, ProptestLevel::Max) {
+                        ""
+                    } else {
+                        "+"
+                    }
+                ))]),
+                td([text(description)]),
+                td(strategy),
+            ];
+
+            rows.push(tr(row));
+        }
+    }
+
+    vec![
+        h2([text("Testing")]),
+        p([
+            text("During property-based (a.k.a generative) testing, the variants of the "),
+            cf(title),
+            text(" type are generated using the following strategies for each complexity level (see the "),
+            link([cf("proptest"), text(" book")], "https://proptest-rs.github.io/proptest/"),
+            text(" for an explanation of the Rust strategy expressions). Any variant not shown in this table is generated using the strategy for the corresponding type."),
+
+        ]),
+        table(rows)
+    ]
+}
+
+/// Generate a "testing" section for a union type schema
+fn proptests_object(title: &str, schema: &Schema) -> Vec<Block> {
+    let mut rows = vec![tr([
+        th([text("Property")]),
+        th([text("Complexity")]),
+        th([text("Description")]),
+        th([text("Strategy")]),
+    ])];
+
+    for (property_name, property_schema) in &schema.properties {
+        let Some(proptest) = &property_schema.proptest else {
+            continue
+        };
+
+        for level in ProptestLevel::iter() {
+            let Some(options) = proptest.get(&level) else {
+                continue
+            };
+
+            let description = options
+                .description
+                .clone()
+                .unwrap_or_else(|| String::from("Generate an arbitrary value of type."));
+
+            let mut strategy = if let Some(strategy) = &options.strategy {
+                vec![cf(strategy)]
+            } else if let Some(value) = &options.value {
+                vec![cf(value)]
+            } else if let Some(regex) = &options.regex {
+                vec![cf(regex)]
+            } else {
+                vec![text("Default for level")]
+            };
+            if let Some(filter) = &options.filter {
+                strategy.append(&mut vec![text(" with filter "), cf(filter)]);
+            }
+
+            let row = vec![
+                if matches!(level, ProptestLevel::Min) {
+                    td([cf(property_name.clone())])
+                } else {
+                    td([])
+                },
+                td([text(format!(
+                    "{}{}",
+                    level.to_string().to_title_case(),
+                    if matches!(level, ProptestLevel::Max) {
+                        ""
+                    } else {
+                        "+"
+                    }
+                ))]),
+                td([text(description)]),
+                td(strategy),
+            ];
+
+            rows.push(tr(row));
+        }
+    }
+
+    if rows.len() == 1 {
+        return Vec::new();
+    }
+
+    vec![
+        h2([text("Testing")]),
+        p([
+            text("During property-based (a.k.a generative) testing, the properties of the "),
+            cf(title),
+            text(" type are generated using the following strategies for each complexity level (see the "),
+            link([cf("proptest"), text(" book")], "https://proptest-rs.github.io/proptest/"),
+            text(" for an explanation of the Rust strategy expressions). Any optional properties that are not in this table are set to "),
+            cf("None")
+
+        ]),
+        table(rows)
     ]
 }
 
