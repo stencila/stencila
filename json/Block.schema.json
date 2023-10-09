@@ -5,56 +5,150 @@
   "title": "Block",
   "category": "prose",
   "description": "Union type for block content node types.",
+  "proptest": {},
   "anyOf": [
     {
+      "proptest": {
+        "min": {
+          "description": "Do not generate `Call` nodes for block content.",
+          "skip": true
+        }
+      },
       "$ref": "Call.schema.json"
     },
     {
+      "proptest": {
+        "min": {
+          "description": "Do not generate `Claim` nodes for block content.",
+          "skip": true
+        }
+      },
       "$ref": "Claim.schema.json"
     },
     {
+      "proptest": {
+        "min": {
+          "description": "Do not generate `CodeBlock` nodes for block content.",
+          "skip": true
+        }
+      },
       "$ref": "CodeBlock.schema.json"
     },
     {
+      "proptest": {
+        "min": {
+          "description": "Do not generate `CodeChunk` nodes for block content.",
+          "skip": true
+        }
+      },
       "$ref": "CodeChunk.schema.json"
     },
     {
+      "proptest": {
+        "min": {
+          "description": "Do not generate `Division` nodes for block content.",
+          "skip": true
+        }
+      },
       "$ref": "Division.schema.json"
     },
     {
+      "proptest": {
+        "min": {
+          "description": "Do not generate `Figure` nodes for block content.",
+          "skip": true
+        }
+      },
       "$ref": "Figure.schema.json"
     },
     {
+      "proptest": {
+        "min": {
+          "description": "Do not generate `For` nodes for block content.",
+          "skip": true
+        }
+      },
       "$ref": "For.schema.json"
     },
     {
+      "proptest": {
+        "min": {
+          "description": "Do not generate `Form` nodes for block content.",
+          "skip": true
+        }
+      },
       "$ref": "Form.schema.json"
     },
     {
       "$ref": "Heading.schema.json"
     },
     {
+      "proptest": {
+        "min": {
+          "description": "Do not generate `If` nodes for block content.",
+          "skip": true
+        }
+      },
       "$ref": "If.schema.json"
     },
     {
+      "proptest": {
+        "min": {
+          "description": "Do not generate `Include` nodes for block content.",
+          "skip": true
+        }
+      },
       "$ref": "Include.schema.json"
     },
     {
+      "proptest": {
+        "min": {
+          "description": "Do not generate `List` nodes for block content.",
+          "skip": true
+        }
+      },
       "$ref": "List.schema.json"
     },
     {
+      "proptest": {
+        "min": {
+          "description": "Do not generate `MathBlock` nodes for block content.",
+          "skip": true
+        }
+      },
       "$ref": "MathBlock.schema.json"
     },
     {
       "$ref": "Paragraph.schema.json"
     },
     {
+      "proptest": {
+        "min": {
+          "description": "Do not generate `QuoteBlock` nodes for block content.",
+          "skip": true
+        }
+      },
       "$ref": "QuoteBlock.schema.json"
     },
     {
+      "proptest": {
+        "min": {
+          "description": "Do not generate `Section` nodes for block content.",
+          "skip": true
+        },
+        "low": {
+          "description": "Generate `Section` nodes for block content."
+        }
+      },
       "$ref": "Section.schema.json"
     },
     {
+      "proptest": {
+        "min": {
+          "description": "Do not generate `Table` nodes for block content.",
+          "skip": true
+        }
+      },
       "$ref": "Table.schema.json"
     },
     {

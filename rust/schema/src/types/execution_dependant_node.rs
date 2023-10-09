@@ -17,13 +17,21 @@ use super::variable::Variable;
 #[serde(untagged, crate = "common::serde")]
 pub enum ExecutionDependantNode {
     Button(Button),
+
     Call(Call),
+
     #[default]
     CodeChunk(CodeChunk),
+
     CodeExpression(CodeExpression),
+
     Division(Division),
+
     File(File),
+
     Parameter(Parameter),
+
     Span(Span),
+
     Variable(Variable),
 }

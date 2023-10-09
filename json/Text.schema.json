@@ -9,6 +9,7 @@
   "category": "prose",
   "description": "Textual content",
   "$comment": "Intended mostly for use for inline text e.g. the text in a paragraph.\n\nDiffers from the primitive `String` type in that it has a `type` and `id` property.\nThe `id` property allows use to identify text nodes with a sequence of inline nodes\nfor better diffing.\n\nAlso, in Rust, the `value` property is implemented as a CRDT.\n",
+  "proptest": {},
   "html": {
     "elem": "span"
   },
@@ -47,6 +48,24 @@
     "value": {
       "@id": "schema:value",
       "description": "The value of the text content",
+      "proptest": {
+        "min": {
+          "description": "Generate a fixed text value.",
+          "value": "Cord::new(\"text\")"
+        },
+        "low": {
+          "description": "Generate a random permutation of up to 10 alpha numeric characters.",
+          "strategy": "r\"[a-zA-Z0-9]{1,10}\".prop_map(Cord::new)"
+        },
+        "high": {
+          "description": "Generate a random permutation of up to 100 alpha numeric characters, some special characters commonly used in prose, and whitespace.",
+          "strategy": "r\"[a-zA-Z0-9\\s\\t-_.!?*+-/()'<>=]{1,100}\".prop_map(Cord::new)"
+        },
+        "max": {
+          "description": "Generate an arbitrary text value.",
+          "strategy": "String::arbitrary().prop_map(Cord::new)"
+        }
+      },
       "html": {
         "content": true
       },

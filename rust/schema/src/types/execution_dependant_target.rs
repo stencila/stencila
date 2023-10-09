@@ -17,12 +17,20 @@ use super::variable::Variable;
 #[serde(untagged, crate = "common::serde")]
 pub enum ExecutionDependantTarget {
     Call(Call),
+
     CodeChunk(CodeChunk),
+
     CodeExpression(CodeExpression),
+
     Division(Division),
+
     If(If),
+
     File(File),
+
     For(For),
+
     Span(Span),
+
     Variable(Variable),
 }

@@ -9,6 +9,7 @@
   "category": "prose",
   "description": "A heading.",
   "$comment": "Analogues of `Heading` in other schemas include:\n  - HTML [`<h1>` to `<h6>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/h1)\n  - JATS XML [`<title>`](https://jats.nlm.nih.gov/archiving/tag-library/1.1/element/title.html)\n  - Pandoc [`Header`](https://github.com/jgm/pandoc-types/blob/1.17.5.4/Text/Pandoc/Definition.hs#L233)\n",
+  "proptest": {},
   "html": {
     "special": true
   },
@@ -59,6 +60,24 @@
       "strip": [
         "types"
       ],
+      "proptest": {
+        "min": {
+          "description": "Generate a single arbitrary inline node",
+          "strategy": "vec_inlines(1)"
+        },
+        "low": {
+          "description": "Generate up to two arbitrary inline nodes",
+          "strategy": "vec_inlines(2)"
+        },
+        "high": {
+          "description": "Generate up to four arbitrary inline nodes",
+          "strategy": "vec_inlines(4)"
+        },
+        "max": {
+          "description": "Generate up to eight arbitrary inline nodes",
+          "strategy": "vec_inlines(8)"
+        }
+      },
       "type": "array",
       "items": {
         "$ref": "Inline.schema.json"

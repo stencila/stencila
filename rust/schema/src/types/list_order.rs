@@ -7,7 +7,9 @@ use crate::prelude::*;
 #[serde(crate = "common::serde")]
 pub enum ListOrder {
     Ascending,
+
     Descending,
+
     #[default]
     Unordered,
 }

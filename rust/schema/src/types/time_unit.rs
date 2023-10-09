@@ -7,17 +7,29 @@ use crate::prelude::*;
 #[serde(crate = "common::serde")]
 pub enum TimeUnit {
     Year,
+
     Month,
+
     Week,
+
     Day,
+
     Hour,
+
     Minute,
+
     Second,
+
     #[default]
     Millisecond,
+
     Microsecond,
+
     Nanosecond,
+
     Picosecond,
+
     Femtosecond,
+
     Attosecond,
 }

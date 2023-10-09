@@ -11,6 +11,8 @@ use super::string::String;
 #[serde(untagged, crate = "common::serde")]
 pub enum SoftwareSourceCodeOrSoftwareApplicationOrString {
     SoftwareSourceCode(SoftwareSourceCode),
+
     SoftwareApplication(SoftwareApplication),
+
     String(String),
 }

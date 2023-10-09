@@ -10,5 +10,6 @@ use super::inlines::Inlines;
 #[serde(untagged, crate = "common::serde")]
 pub enum BlocksOrInlines {
     Blocks(Blocks),
+
     Inlines(Inlines),
 }

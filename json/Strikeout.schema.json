@@ -9,6 +9,7 @@
   "category": "prose",
   "description": "Content that is marked as struck out",
   "$comment": "Analogues of `Strikeout` in other schema include:\n  - HTML [`<del>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/del)\n  - JATS XML [`<strike>`](https://jats.nlm.nih.gov/archiving/tag-library/1.2/element/strike.html)\n  - MDAST [`Delete`](https://github.com/syntax-tree/mdast#delete)\n  - Pandoc [`Strikeout`](https://github.com/jgm/pandoc-types/blob/1.17.5.4/Text/Pandoc/Definition.hs#L258)\nSupersedes the `Delete` inline content type (the name \"Strikeout\" is less ambiguous than \"Delete\").\n",
+  "proptest": {},
   "html": {
     "elem": "s"
   },
@@ -51,6 +52,24 @@
       "strip": [
         "types"
       ],
+      "proptest": {
+        "min": {
+          "description": "Generate a single fixed text value.",
+          "strategy": "vec(Just(Inline::Text(crate::Text::from(\"text\"))), size_range(1..=1))"
+        },
+        "low": {
+          "description": "Generate a single arbitrary, non-recursive, inline node",
+          "strategy": "vec_inlines_non_recursive(1)"
+        },
+        "high": {
+          "description": "Generate up to two arbitrary, non-recursive, inline nodes",
+          "strategy": "vec_inlines_non_recursive(2)"
+        },
+        "max": {
+          "description": "Generate up to four arbitrary, non-recursive, inline nodes",
+          "strategy": "vec_inlines_non_recursive(4)"
+        }
+      },
       "type": "array",
       "items": {
         "$ref": "Inline.schema.json"

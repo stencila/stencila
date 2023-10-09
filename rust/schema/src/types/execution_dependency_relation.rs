@@ -7,10 +7,15 @@ use crate::prelude::*;
 #[serde(crate = "common::serde")]
 pub enum ExecutionDependencyRelation {
     Calls,
+
     Derives,
+
     Imports,
+
     Includes,
+
     Reads,
+
     #[default]
     Uses,
 }

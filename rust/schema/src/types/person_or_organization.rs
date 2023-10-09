@@ -10,5 +10,6 @@ use super::person::Person;
 #[serde(untagged, crate = "common::serde")]
 pub enum PersonOrOrganization {
     Person(Person),
+
     Organization(Organization),
 }

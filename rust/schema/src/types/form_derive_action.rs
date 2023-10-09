@@ -8,7 +8,10 @@ use crate::prelude::*;
 pub enum FormDeriveAction {
     #[default]
     Create,
+
     Update,
+
     Delete,
+
     UpdateOrDelete,
 }

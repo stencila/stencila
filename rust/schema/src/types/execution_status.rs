@@ -7,10 +7,16 @@ use crate::prelude::*;
 #[serde(crate = "common::serde")]
 pub enum ExecutionStatus {
     Scheduled,
+
     ScheduledPreviouslyFailed,
+
     Running,
+
     RunningPreviouslyFailed,
+
     Succeeded,
+
     Failed,
+
     Cancelled,
 }

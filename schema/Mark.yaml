@@ -6,14 +6,27 @@ abstract: true
 description: |
   Abstract base class for nodes that mark some other inline content
   in some way (e.g. as being emphasised, or quoted).
+required:
+  - content
 properties:
   content:
     '@id': 'stencila:content'
     description: The content that is marked.
     strip:
       - types
+    proptest:
+      min:
+        description: Generate a single fixed text value.
+        strategy: vec(Just(Inline::Text(crate::Text::from("text"))), size_range(1..=1))
+      low:
+        description: Generate a single arbitrary, non-recursive, inline node
+        strategy: vec_inlines_non_recursive(1)
+      high:
+        description: Generate up to two arbitrary, non-recursive, inline nodes
+        strategy: vec_inlines_non_recursive(2)
+      max:
+        description: Generate up to four arbitrary, non-recursive, inline nodes
+        strategy: vec_inlines_non_recursive(4)
     type: array
     items:
       $ref: Inline
-required:
-  - content

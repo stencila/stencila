@@ -17,6 +17,7 @@ jats:
   special: true
 markdown:
   format: '{value}'
+proptest: {}
 required:
   - value
 properties:
@@ -25,4 +26,17 @@ properties:
     description: The value of the text content
     html:
       content: true
+    proptest:
+      min:
+        description: Generate a fixed text value.
+        value: Cord::new("text")
+      low:
+        description: Generate a random permutation of up to 10 alpha numeric characters.
+        strategy: r"[a-zA-Z0-9]{1,10}".prop_map(Cord::new)
+      high:
+        description: Generate a random permutation of up to 100 alpha numeric characters, some special characters commonly used in prose, and whitespace.
+        strategy: r"[a-zA-Z0-9\s\t-_.!?*+-/()'<>=]{1,100}".prop_map(Cord::new)
+      max:
+        description: Generate an arbitrary text value.
+        strategy: String::arbitrary().prop_map(Cord::new)
     $ref: Cord

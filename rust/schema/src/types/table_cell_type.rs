@@ -8,5 +8,6 @@ use crate::prelude::*;
 pub enum TableCellType {
     #[default]
     Data,
+
     Header,
 }

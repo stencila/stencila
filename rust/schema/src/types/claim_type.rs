@@ -8,11 +8,18 @@ use crate::prelude::*;
 pub enum ClaimType {
     #[default]
     Statement,
+
     Theorem,
+
     Lemma,
+
     Proof,
+
     Postulate,
+
     Hypothesis,
+
     Proposition,
+
     Corollary,
 }

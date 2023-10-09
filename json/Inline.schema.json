@@ -5,65 +5,174 @@
   "title": "Inline",
   "category": "prose",
   "description": "Union type for valid inline content.",
+  "proptest": {},
   "anyOf": [
     {
+      "proptest": {
+        "min": {
+          "description": "Do not generate `AudioObject` nodes for inline content.",
+          "skip": true
+        }
+      },
       "$ref": "AudioObject.schema.json"
     },
     {
+      "proptest": {
+        "min": {
+          "description": "Do not generate `Button` nodes for inline content.",
+          "skip": true
+        }
+      },
       "$ref": "Button.schema.json"
     },
     {
+      "proptest": {
+        "min": {
+          "description": "Do not generate `Cite` nodes for inline content.",
+          "skip": true
+        }
+      },
       "$ref": "Cite.schema.json"
     },
     {
+      "proptest": {
+        "min": {
+          "description": "Do not generate `CiteGroup` nodes for inline content.",
+          "skip": true
+        }
+      },
       "$ref": "CiteGroup.schema.json"
     },
     {
+      "proptest": {
+        "min": {
+          "description": "Do not generate `CodeExpression` nodes for inline content.",
+          "skip": true
+        }
+      },
       "$ref": "CodeExpression.schema.json"
     },
     {
+      "proptest": {
+        "min": {
+          "description": "Do not generate `CodeFragment` nodes for inline content.",
+          "skip": true
+        }
+      },
       "$ref": "CodeFragment.schema.json"
     },
     {
+      "proptest": {
+        "min": {
+          "description": "Do not generate `Date` nodes for inline content.",
+          "skip": true
+        }
+      },
       "$ref": "Date.schema.json"
     },
     {
+      "proptest": {
+        "min": {
+          "description": "Do not generate `DateTime` nodes for inline content.",
+          "skip": true
+        }
+      },
       "$ref": "DateTime.schema.json"
     },
     {
+      "proptest": {
+        "min": {
+          "description": "Do not generate `Delete` nodes for inline content.",
+          "skip": true
+        }
+      },
       "$ref": "Delete.schema.json"
     },
     {
+      "proptest": {
+        "min": {
+          "description": "Do not generate `Duration` nodes for inline content.",
+          "skip": true
+        }
+      },
       "$ref": "Duration.schema.json"
     },
     {
       "$ref": "Emphasis.schema.json"
     },
     {
+      "proptest": {
+        "min": {
+          "description": "Do not generate `ImageObject` nodes for inline content.",
+          "skip": true
+        }
+      },
       "$ref": "ImageObject.schema.json"
     },
     {
+      "proptest": {
+        "min": {
+          "description": "Do not generate `Insert` nodes for inline content.",
+          "skip": true
+        }
+      },
       "$ref": "Insert.schema.json"
     },
     {
+      "proptest": {
+        "min": {
+          "description": "Do not generate `Link` nodes for inline content.",
+          "skip": true
+        }
+      },
       "$ref": "Link.schema.json"
     },
     {
+      "proptest": {
+        "min": {
+          "description": "Do not generate `MathFragment` nodes for inline content.",
+          "skip": true
+        }
+      },
       "$ref": "MathFragment.schema.json"
     },
     {
+      "proptest": {
+        "min": {
+          "description": "Do not generate `MediaObject` nodes for inline content.",
+          "skip": true
+        }
+      },
       "$ref": "MediaObject.schema.json"
     },
     {
+      "proptest": {
+        "min": {
+          "description": "Do not generate `Note` nodes for inline content.",
+          "skip": true
+        }
+      },
       "$ref": "Note.schema.json"
     },
     {
+      "proptest": {
+        "min": {
+          "description": "Do not generate `Parameter` nodes for inline content.",
+          "skip": true
+        }
+      },
       "$ref": "Parameter.schema.json"
     },
     {
       "$ref": "Quote.schema.json"
     },
     {
+      "proptest": {
+        "min": {
+          "description": "Do not generate `Span` nodes for inline content.",
+          "skip": true
+        }
+      },
       "$ref": "Span.schema.json"
     },
     {
@@ -82,30 +191,94 @@
       "$ref": "Text.schema.json"
     },
     {
+      "proptest": {
+        "min": {
+          "description": "Do not generate `Time` nodes for inline content.",
+          "skip": true
+        }
+      },
       "$ref": "Time.schema.json"
     },
     {
+      "proptest": {
+        "min": {
+          "description": "Do not generate `Timestamp` nodes for inline content.",
+          "skip": true
+        }
+      },
       "$ref": "Timestamp.schema.json"
     },
     {
       "$ref": "Underline.schema.json"
     },
     {
+      "proptest": {
+        "min": {
+          "description": "Do not generate `VideoObject` nodes for inline content.",
+          "skip": true
+        }
+      },
       "$ref": "VideoObject.schema.json"
     },
     {
+      "proptest": {
+        "min": {
+          "description": "Do not generate `Null` nodes for inline content.",
+          "skip": true
+        },
+        "high": {
+          "description": "Generate a null value.",
+          "value": "Inline::Null(Null)"
+        }
+      },
       "$ref": "Null.schema.json"
     },
     {
+      "proptest": {
+        "min": {
+          "description": "Do not generate `Boolean` nodes for inline content.",
+          "skip": true
+        },
+        "high": {
+          "description": "Generate an arbitrary boolean value.",
+          "strategy": "Boolean::arbitrary().prop_map(Inline::Boolean)"
+        }
+      },
       "$ref": "Boolean.schema.json"
     },
     {
+      "proptest": {
+        "min": {
+          "description": "Do not generate `Integer` nodes for inline content.",
+          "skip": true
+        },
+        "high": {
+          "description": "Generate an arbitrary integer value.",
+          "strategy": "Integer::arbitrary().prop_map(Inline::Integer)"
+        }
+      },
       "$ref": "Integer.schema.json"
     },
     {
+      "proptest": {
+        "min": {
+          "description": "Do not generate `Number` nodes for inline content.",
+          "skip": true
+        },
+        "high": {
+          "description": "Generate a fixed number. Used at all levels because even with JSON (and other data serialization formats)\nround trip conversions can fail in the last significant digit of random numbers.\n",
+          "value": "Inline::Number(1.23)"
+        }
+      },
       "$ref": "Number.schema.json"
     },
     {
+      "proptest": {
+        "min": {
+          "description": "Do not generate `String` nodes for inline content. Skipped at all levels because `Text` is preferred\nand `String` is likely to deprecated as an inline variant.\n",
+          "skip": true
+        }
+      },
       "$ref": "String.schema.json"
     }
   ],

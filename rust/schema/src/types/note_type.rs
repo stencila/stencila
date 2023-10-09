@@ -8,6 +8,8 @@ use crate::prelude::*;
 pub enum NoteType {
     #[default]
     Footnote,
+
     Endnote,
+
     Sidenote,
 }

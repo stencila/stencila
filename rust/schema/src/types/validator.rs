@@ -21,16 +21,28 @@ use super::tuple_validator::TupleValidator;
 #[serde(untagged, crate = "common::serde")]
 pub enum Validator {
     ArrayValidator(ArrayValidator),
+
     BooleanValidator(BooleanValidator),
+
     ConstantValidator(ConstantValidator),
+
     DateTimeValidator(DateTimeValidator),
+
     DateValidator(DateValidator),
+
     DurationValidator(DurationValidator),
+
     EnumValidator(EnumValidator),
+
     IntegerValidator(IntegerValidator),
+
     NumberValidator(NumberValidator),
+
     StringValidator(StringValidator),
+
     TimeValidator(TimeValidator),
+
     TimestampValidator(TimestampValidator),
+
     TupleValidator(TupleValidator),
 }

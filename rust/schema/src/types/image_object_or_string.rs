@@ -10,5 +10,6 @@ use super::string::String;
 #[serde(untagged, crate = "common::serde")]
 pub enum ImageObjectOrString {
     ImageObject(ImageObject),
+
     String(String),
 }

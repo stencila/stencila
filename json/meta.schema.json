@@ -185,6 +185,13 @@
         "$ref": "#/definitions/Schema"
       }
     },
+    "proptest": {
+      "description": "Options for property testing",
+      "type": "object",
+      "additionalProperties": {
+        "$ref": "#/definitions/ProptestOptions"
+      }
+    },
     "required": {
       "description": "The names of required properties of an object schema\n\nThe value of this keyword MUST be an array. Elements of this array, if any, MUST be strings, and MUST be unique. An object instance is valid against this keyword if every item in the array is the name of a property in the instance. Omitting this keyword has the same behavior as an empty array.",
       "type": "array",
@@ -417,6 +424,43 @@
       },
       "additionalProperties": false
     },
+    "ProptestOptions": {
+      "description": "Options for property testing",
+      "type": "object",
+      "properties": {
+        "description": {
+          "description": "A description of the options",
+          "type": "string"
+        },
+        "filter": {
+          "description": "A Rust expression or function name for filtering objects and/or their properties\n\nCan be used on object types, union types, enumerations and properties. Avoid using if possible. See https://proptest-rs.github.io/proptest/proptest-derive/modifiers.html#filter",
+          "type": "string"
+        },
+        "regex": {
+          "description": "A regular expression to randomly generate characters for the property\n\nShould only be used on properties of object types. See https://proptest-rs.github.io/proptest/proptest-derive/modifiers.html#regex",
+          "type": "string"
+        },
+        "skip": {
+          "description": "Whether to skip the member of a union type, or variant of an enumeration.\n\nSee https://proptest-rs.github.io/proptest/proptest-derive/modifiers.html#skip",
+          "type": "boolean"
+        },
+        "strategy": {
+          "description": "A Rust expression for generating a value\n\nShould only be used on members of union types, variants of enumerations, or properties of object types. See https://proptest-rs.github.io/proptest/proptest-derive/modifiers.html#strategy",
+          "type": "string"
+        },
+        "value": {
+          "description": "A Rust expression for generating a constant value for the property\n\nUsually only used on properties of object types. See https://proptest-rs.github.io/proptest/proptest-derive/modifiers.html#value",
+          "type": "string"
+        },
+        "weight": {
+          "description": "The relative weight given to the member of a union type, or variant of an enumeration.\n\nSee https://proptest-rs.github.io/proptest/proptest-derive/modifiers.html#weight",
+          "type": "integer",
+          "format": "uint32",
+          "minimum": 0.0
+        }
+      },
+      "additionalProperties": false
+    },
     "Schema": {
       "description": "A schema in the Stencila Schema\n\nThis meta-schema is based on JSON Schema with custom extensions to meet the needs of Stencila Schema.\n\nOnly the JSON Schema properties actually used by Stencila Schema, are included in the meta-schema. An error will be thrown if a schema as an unknown property.\n\nMuch of the documentation provided here for JSON Schema properties is drawn directly from https://json-schema.org/draft/2020-12/json-schema-core.html and https://json-schema.org/draft/2020-12/json-schema-validation.html.\n\nThe current version of this meta-schema is published a https://stencila.dev/meta.schema.json. Previous versions are available via https://raw.github.com/stencila/stencila/<version>/json/meta.schema.json (replace `<version>` with the version tag name e.g. `v2.0.0-alpha.6`).\n\nStencila Schema authors should start the schema with the `$schema` keyword pointing to this meta-schema. Amongst other things, this provides useful tool tips and input validation in several commonly used code editors.",
       "type": "object",
@@ -600,6 +644,13 @@
           "type": "object",
           "additionalProperties": {
             "$ref": "#/definitions/Schema"
+          }
+        },
+        "proptest": {
+          "description": "Options for property testing",
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/definitions/ProptestOptions"
           }
         },
         "required": {

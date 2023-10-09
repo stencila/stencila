@@ -10,5 +10,6 @@ use super::string::String;
 #[serde(untagged, crate = "common::serde")]
 pub enum IntegerOrString {
     Integer(Integer),
+
     String(String),
 }

@@ -1,24 +1,105 @@
 title: Block
-'@id': stencila:Block
+"@id": stencila:Block
 category: prose
 description: Union type for block content node types.
 default: Paragraph
+proptest: {}
 anyOf:
   - $ref: Call
+    proptest:
+      min:
+        description: Do not generate `Call` nodes for block content.
+        skip: true
+  
   - $ref: Claim
+    proptest:
+      min:
+        description: Do not generate `Claim` nodes for block content.
+        skip: true
+  
   - $ref: CodeBlock
+    proptest:
+      min:
+        description: Do not generate `CodeBlock` nodes for block content.
+        skip: true
+  
   - $ref: CodeChunk
+    proptest:
+      min:
+        description: Do not generate `CodeChunk` nodes for block content.
+        skip: true
+  
   - $ref: Division
+    proptest:
+      min:
+        description: Do not generate `Division` nodes for block content.
+        skip: true
+  
   - $ref: Figure
+    proptest:
+      min:
+        description: Do not generate `Figure` nodes for block content.
+        skip: true
+  
   - $ref: For
+    proptest:
+      min:
+        description: Do not generate `For` nodes for block content.
+        skip: true
+  
   - $ref: Form
+    proptest:
+      min:
+        description: Do not generate `Form` nodes for block content.
+        skip: true
+  
   - $ref: Heading
+  
   - $ref: If
+    proptest:
+      min:
+        description: Do not generate `If` nodes for block content.
+        skip: true
+  
   - $ref: Include
+    proptest:
+      min:
+        description: Do not generate `Include` nodes for block content.
+        skip: true
+  
   - $ref: List
+    proptest:
+      min:
+        description: Do not generate `List` nodes for block content.
+        skip: true
+  
   - $ref: MathBlock
+    proptest:
+      min:
+        description: Do not generate `MathBlock` nodes for block content.
+        skip: true
+  
   - $ref: Paragraph
+  
   - $ref: QuoteBlock
+    proptest:
+      min:
+        description: Do not generate `QuoteBlock` nodes for block content.
+        skip: true
+  
   - $ref: Section
+    proptest:
+      min:
+        description: Do not generate `Section` nodes for block content.
+        skip: true
+      low:
+        description: Generate `Section` nodes for block content.
+        skip: false
+  
   - $ref: Table
+    proptest:
+      min:
+        description: Do not generate `Table` nodes for block content.
+        skip: true
+  
   - $ref: ThematicBreak

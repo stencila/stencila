@@ -16,3 +16,4 @@ jats:
 markdown:
   format: '_{content}_'
   escape: '_'
+proptest: {}

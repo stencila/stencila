@@ -13,3 +13,4 @@ jats:
 markdown:
   format: '[{content}]{{underline}}'
   escape: ']'
+proptest: {}
