@@ -485,12 +485,13 @@ pub enum StripScopes {
     crate = "common::serde"
 )]
 pub struct ProptestOptions {
-    /// A description of the modifiers
+    /// A description of the options
     pub description: Option<String>,
 
     /// Whether to skip the member of a union type, or variant of an enumeration.
     ///
     /// See https://proptest-rs.github.io/proptest/proptest-derive/modifiers.html#skip
+    #[serde(skip_serializing_if = "is_false")]
     pub skip: bool,
 
     /// The relative weight given to the member of a union type, or variant of an enumeration.

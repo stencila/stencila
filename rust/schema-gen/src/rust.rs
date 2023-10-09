@@ -481,15 +481,15 @@ pub enum NodeType {{
                             args = args.join(",")
                         ));
                     }
-                } else if name == "r#type" {
-                    attrs.push(format!(
-                        r#"#[cfg_attr(feature = "proptest", proptest(value = "MustBe!(\"{title}\")"))]"#
-                    ));
                 } else if !property.is_required {
-                    // The default is for optional properties to be None
-                    // at all proptest levels
+                    // The default is for optional properties to be None at all proptest levels
                     attrs.push(String::from(
                         r#"#[cfg_attr(feature = "proptest", proptest(value = "None"))]"#,
+                    ));
+                } else {
+                    // The default for all other properties is to generate their default at all proptest levels
+                    attrs.push(String::from(
+                        r#"#[cfg_attr(feature = "proptest", proptest(value = "Default::default()"))]"#
                     ));
                 }
             }
