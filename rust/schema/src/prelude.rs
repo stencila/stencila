@@ -18,3 +18,6 @@ pub use codec_markdown_trait::{MarkdownCodec, MarkdownEncodeContext};
 pub use codec_text_trait::TextCodec;
 pub use node_store::{ReadNode, WriteNode};
 pub use node_strip::StripNode;
+
+#[cfg(feature = "proptest")]
+pub use crate::proptests::*;

@@ -41,7 +41,23 @@ lint:
 
 # Run tests
 test:
-	cargo test --workspace --all-features --profile $(PROFILE) --no-fail-fast -- --nocapture
+	cargo test --workspace --profile $(PROFILE) --no-fail-fast -- --nocapture
+	make proptest
+
+# Run all property tests at all levels
+proptest: proptest-min proptest-low proptest-high proptest-max
+
+proptest-min:
+	cargo test --profile $(PROFILE) -p codecs --features proptest-min
+
+proptest-low:
+	cargo test --profile $(PROFILE) -p codecs --features proptest-low
+
+proptest-high:
+	cargo test --profile $(PROFILE) -p codecs --features proptest-high
+
+proptest-max:
+	cargo test --profile $(PROFILE) -p codecs --features proptest-max
 
 # List outdated dependencies
 outdated:
