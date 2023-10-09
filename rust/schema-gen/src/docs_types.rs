@@ -637,7 +637,7 @@ fn bindings(title: &str, schema: &Schema) -> Vec<Block> {
             )]),
             li([text("Python "), text(if schema.is_object() { "class "} else {"type "}), link(
                 [cf(title)],
-                format!("https://github.com/stencila/stencila/blob/main/python/stencila/types/{module}.py", module = title.to_snake_case()),
+                format!("https://github.com/stencila/stencila/blob/main/python/python/stencila/types/{module}.py", module = title.to_snake_case()),
             )]),
             li([text("Rust "), text(if schema.is_object() { "struct "} else {"type "}), link(
                 [cf(title)],
