@@ -32,12 +32,12 @@ setup:
 
 # Make formatting and linting fixes
 fix:
-	cargo clippy --workspace --all-features --tests --fix --allow-dirty
+	cargo clippy --workspace --tests --fix --allow-dirty
 	cargo fmt --all
 
 # Run linting checks
 lint:
-	cargo clippy --workspace --all-features --tests
+	cargo clippy --workspace --tests
 
 # Run tests
 test:
