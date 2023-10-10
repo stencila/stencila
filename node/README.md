@@ -1,16 +1,18 @@
 # Stencila SDK for Node.js
 
-**Types and functions for using Stencila from within Node.js**
+**Types and function bindings for using Stencila from Node.js**
 
 <a href="https://www.npmjs.com/package/@stencila/node">
-    <img src="https://img.shields.io/npm/v/%40stencila%2Fnode.svg?label=npm%20%40stencila%2Fnode&color=1d3bd1&labelColor=3219a8">
+  <img src="https://img.shields.io/npm/v/%40stencila%2Fnode.svg?logo=npm&label=%40stencila%2Fnode&&style=for-the-badge&color=1d3bd1&logoColor=66ff66&labelColor=3219a8">
 </a>
 
 ## 👋 Introduction
 
-This package provides bindings to core [Stencila Rust](https://github.com/stencila/stencila/tree/main/rust#readme) functions.
+This package provides bindings to core [Stencila Rust](https://github.com/stencila/stencila/tree/main/rust#readme) functions. Most function take, or return, types defined in [Stencila Schema](https://github.com/stencila/stencila/tree/main/schema#readme) and transpiled to [@stencila/types](https://www.npmjs.com/package/@stencila/types).
 
-The primary intended audience is developers who want to develop there own tools on top of Stencila's core functionality. For example, with this package you could construct Stencila documents programmatically using NOde.js and write them to multiple formats (e.g. Markdown, JATS XML, PDF).
+The primary intended audience is developers who want to develop their own tools on top of Stencila's core functionality. For example, with this package you could construct Stencila documents programmatically using Node.js and write them to multiple formats (e.g. Markdown, JATS XML, PDF).
+
+At present, there are only bindings to functions for format conversion, but future versions will expand this scope to include document management (e.g branching and merging) and execution.
 
 ## 📦 Install
 
@@ -125,10 +127,6 @@ This packages uses [NAPI-RS](https://napi.rs) to generate a Node.js native addon
 
 NAPI-RS [recommends](https://napi.rs/docs/deep-dive/release) distributing native addons using different NPM packages for each platform supported. However, given how we are distributing other binaries (e.g. for the CLI), and to avoid the complexity of multiple NPM packages, we have opted for the "download in a postinstall phase" approach. See [`install.js`](install.js).
 
-### `convert` module
-
-The `convert` module is implemented in Rust (`src/convert.rs`) with a thin TypeScript wrapper (`src/convert.mts`) to provide documentation and conversion to the types in the `@stencila/types`.
-
 ### Linting and testing
 
 Please run linting and tests before contributing any code changes.
@@ -136,3 +134,7 @@ Please run linting and tests before contributing any code changes.
 ```console
 make lint test
 ```
+
+### `convert` module
+
+The `convert` module is implemented in Rust (`src/convert.rs`) with a thin TypeScript wrapper (`src/convert.mts`) to provide documentation and conversion to the types in the `@stencila/types`.
