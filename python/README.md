@@ -1,16 +1,18 @@
 # Stencila SDK for Python
 
-**Types and functions for using Stencila from within Python**
+**Types and function bindings for using Stencila from Python**
 
 <a href="https://pypi.org/project/stencila/">
-  <img src="https://img.shields.io/pypi/v/stencila.svg?label=pypi%20stencila&color=1d3bd1&labelColor=3219a8">
+    <img src="https://img.shields.io/pypi/v/stencila.svg?logo=python&label=stencila&style=for-the-badge&color=1d3bd1&logoColor=66ff66&labelColor=3219a8">
 </a>
 
 ## 👋 Introduction
 
 This package provides Python classes for types in the [Stencila Schema](https://github.com/stencila/stencila/tree/main/schema#readme) and bindings to core [Stencila Rust](https://github.com/stencila/stencila/tree/main/rust#readme) functions.
 
-The primary intended audience is developers who want to develop there own tools on top of Stencila's core functionality. For example, with this package you could construct Stencila documents programmatically using Python and write them to multiple formats (e.g. Markdown, JATS XML, PDF).
+The primary intended audience is developers who want to develop their own tools on top of Stencila's core functionality. For example, with this package you could construct Stencila documents programmatically using Python and write them to multiple formats (e.g. Markdown, JATS XML, PDF).
+
+At present, there are only bindings to functions for format conversion, but future versions will expand this scope to include document management (e.g branching and merging) and execution.
 
 ## 📦 Install
 
@@ -159,13 +161,21 @@ asyncio.run(from_to("doc.md", "doc.html"))
 
 ## 🛠️ Develop
 
-### `types` module
+### Bindings
 
-Most of the types are generated from the Stencila Schema by the Rust [`schema-gen`](https://github.com/stencila/stencila/tree/main/rust/schema-gen#readme) crate. See there for contributing instructions.
+This packages uses [PyO3](https://pyo3.rs) and [Maturin](https://maturin.rs) to generate a Python native extension from Stencila Rust functions. It uses the [layout](https://www.maturin.rs/project_layout#mixed-rustpython-project) recommended for mixed Rust/Python projects: Rust code is in `src` and Python code and tests is in `python`.
 
-### `convert` module
+To build the native extension and use it in a Python shell:
 
-The `convert` module is implemented in Rust (`src/convert.rs`) with a thin Python wrapper (`python/stencila/convert.py`) to provide documentation and conversion to the types in the `types` module.
+```console
+make run
+```
+
+To build the native extension for the current platform (for several versions of Python):
+
+```console
+make build
+```
 
 ### Linting and testing
 
@@ -174,3 +184,13 @@ Please run linting and tests before contributing any code changes.
 ```console
 make lint test
 ```
+
+There is also a `make fix` recipe that will fix any formatting or linting issues.
+
+### `types` module
+
+Most of the types are generated from the Stencila Schema by the Rust [`schema-gen`](https://github.com/stencila/stencila/tree/main/rust/schema-gen#readme) crate. See there for contributing instructions.
+
+### `convert` module
+
+The `convert` module is implemented in Rust (`src/convert.rs`) with a thin Python wrapper (`python/stencila/convert.py`) to provide documentation and conversion to the types in the `types` module.
