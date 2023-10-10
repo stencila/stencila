@@ -203,17 +203,24 @@ Stencila's software development kits (SDKs) enable developers to create plugins 
 
 | Language   | Description                                                     | Status                                                                      |
 | ---------- | --------------------------------------------------------------- | --------------------------------------------------------------------------- |
-| Python     | Types and functions for using Stencila from within Python       | ⚠️ Alpha, published on [PyPI](https://pypi.org/project/stencila/)           |
+| Python     | Types and function bindings for using Stencila from Python      | ⚠️ Alpha, published on [PyPI](https://pypi.org/project/stencila/)           |
 | TypeScript | JavaScript classes and TypeScript types for the Stencila Schema | ⚠️ Alpha, published on [NPM](https://www.npmjs.com/package/@stencila/types) |
-| Node.js    | Types and functions for using Stencila from within Node.js      | ⚠️ Alpha, published on [NPM](https://www.npmjs.com/package/@stencila/node)  |
-| R          | Types and functions for using Stencila from within R            | ❔ Maybe                                                                    |
+| Node.js    | Types and function bindings for using Stencila from Node.js     | ⚠️ Alpha, published on [NPM](https://www.npmjs.com/package/@stencila/node)  |
+| R          | Types and function bindings for using Stencila from R           | ❔ Maybe                                                                    |
 
-### Other
+### Testing and auditing
 
-| Description         | Status                                                                          |
-| ------------------- | ------------------------------------------------------------------------------- |
-| Security audit      | 🧭 Planned Q2 2023 (after most `v2` functionality added and before public beta) |
-| Accessibility audit | 🧭 Planned Q3 2023 (after initial release of desktop app and before final `v2`) |
+Making sure Stencila `v2` is well tested, secure, and accessible, is important. Here's what where doing towards that:
+
+| What                   | Description                                                                                          | Status                                                                                             |
+| ---------------------- | ---------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------- |
+| Property-based testing | Establish approach to property-based (a.k.a generative) testing for Stencila documents               | 🟢 Done                                                                                            |
+| Round-trip testing     | Use `proptest` for testing round-trip conversion of Stencila documents to/from supported formats     | 🚧 In progress [here](https://github.com/stencila/stencila/blob/main/rust/codecs/src/proptests.rs) |
+| Coverage reporting     | Report coverage by feature (e.g. by codec) to give developers better insight into the status of each | 🧭 Planned Q4 2023                                                                                 |
+| Dependency audits      | Add dependency audits to continuous integration workflow.                                            | 🧭 Planned Q4 2023 [#1694](https://github.com/stencila/stencila/issues/1694)                       |
+| Accessibility tests    | Add accessibility testing to continuous integration workflow.                                        | 🧭 Planned Q4 2023 [#1693](https://github.com/stencila/stencila/issues/1693)                       |
+| Security audit         | External security audit sponsored by NLNet.                                                          | 🧭 Planned Q2 2023 (after most `v2` functionality added and before public beta)                    |
+| Accessibility audit    | External accessibility audit sponsored by NLNet.                                                     | 🧭 Planned Q3 2023 (before `v2.0.0` release)                                                       |
 
 ## 📜 Documentation
 
