@@ -7,10 +7,31 @@ html:
   elem: figure
 jats:
   elem: figure
+proptest: {}
+required:
+  - content
 core:
   - label
   - caption
 properties:
+  content:
+    '@id': stencila:content
+    description: The content of the figure.
+    type: array
+    items:
+      $ref: Block
+    strip:
+      - types
+    proptest:
+      min:
+        description: Generate a single arbitrary paragraph.
+        strategy: vec_paragraphs(1)
+      low:
+        description: Generate up to two arbitrary, non-recursive, block nodes.
+        strategy: vec_blocks_non_recursive(2)
+      max:
+        description: Generate up to four arbitrary, non-recursive, block nodes.
+        strategy: vec_blocks_non_recursive(4)
   label:
     '@id': stencila:label
     description: A short label for the figure.

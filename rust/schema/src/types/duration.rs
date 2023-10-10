@@ -10,19 +10,24 @@ use super::time_unit::TimeUnit;
 #[skip_serializing_none]
 #[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec, ReadNode, WriteNode)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
+#[cfg_attr(feature = "proptest", derive(Arbitrary))]
 pub struct Duration {
     /// The type of this item
+    #[cfg_attr(feature = "proptest", proptest(value = "Default::default()"))]
     pub r#type: MustBe!("Duration"),
 
     /// The identifier for this item
     #[strip(id)]
+    #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     #[html(attr = "id")]
     pub id: Option<String>,
 
     /// The time difference in `timeUnit`s.
+    #[cfg_attr(feature = "proptest", proptest(value = "Default::default()"))]
     pub value: Integer,
 
     /// The time unit that the `value` represents.
+    #[cfg_attr(feature = "proptest", proptest(value = "Default::default()"))]
     pub time_unit: TimeUnit,
 }
 

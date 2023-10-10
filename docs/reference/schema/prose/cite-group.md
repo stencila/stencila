@@ -53,7 +53,7 @@ The `CiteGroup` type is represented in these bindings:
 
 - [JSON-LD](https://stencila.dev/CiteGroup.jsonld)
 - [JSON Schema](https://stencila.dev/CiteGroup.schema.json)
-- Python class [`CiteGroup`](https://github.com/stencila/stencila/blob/main/python/stencila/types/cite_group.py)
+- Python class [`CiteGroup`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/cite_group.py)
 - Rust struct [`CiteGroup`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/cite_group.rs)
 - TypeScript class [`CiteGroup`](https://github.com/stencila/stencila/blob/main/typescript/src/types/CiteGroup.ts)
 

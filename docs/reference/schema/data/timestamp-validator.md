@@ -43,7 +43,7 @@ The `TimestampValidator` type is represented in these bindings:
 
 - [JSON-LD](https://stencila.dev/TimestampValidator.jsonld)
 - [JSON Schema](https://stencila.dev/TimestampValidator.schema.json)
-- Python class [`TimestampValidator`](https://github.com/stencila/stencila/blob/main/python/stencila/types/timestamp_validator.py)
+- Python class [`TimestampValidator`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/timestamp_validator.py)
 - Rust struct [`TimestampValidator`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/timestamp_validator.rs)
 - TypeScript class [`TimestampValidator`](https://github.com/stencila/stencila/blob/main/typescript/src/types/TimestampValidator.ts)
 

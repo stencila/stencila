@@ -10,22 +10,31 @@ use super::string::String;
 #[skip_serializing_none]
 #[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec, ReadNode, WriteNode)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
+#[cfg_attr(feature = "proptest", derive(Arbitrary))]
 #[html(elem = "q")]
+#[jats(elem = "inline-quote")]
 #[markdown(format = "<q>{content}</q>")]
 pub struct Quote {
     /// The type of this item
+    #[cfg_attr(feature = "proptest", proptest(value = "Default::default()"))]
     pub r#type: MustBe!("Quote"),
 
     /// The identifier for this item
     #[strip(id)]
+    #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     #[html(attr = "id")]
     pub id: Option<String>,
 
     /// The content that is marked.
     #[strip(types)]
+    #[cfg_attr(feature = "proptest-min", proptest(strategy = r#"vec(Just(Inline::Text(crate::Text::from("text"))), size_range(1..=1))"#))]
+    #[cfg_attr(feature = "proptest-low", proptest(strategy = r#"vec_inlines_non_recursive(1)"#))]
+    #[cfg_attr(feature = "proptest-high", proptest(strategy = r#"vec_inlines_non_recursive(2)"#))]
+    #[cfg_attr(feature = "proptest-max", proptest(strategy = r#"vec_inlines_non_recursive(4)"#))]
     pub content: Vec<Inline>,
 
     /// The source of the quote.
+    #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     pub cite: Option<CiteOrString>,
 }
 

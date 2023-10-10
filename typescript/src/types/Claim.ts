@@ -11,11 +11,6 @@ export class Claim extends CreativeWork {
   type = "Claim";
 
   /**
-   * Content of the claim, usually a single paragraph.
-   */
-  content: Block[];
-
-  /**
    * The type of the claim.
    */
   claimType: ClaimType;
@@ -25,17 +20,22 @@ export class Claim extends CreativeWork {
    */
   label?: string;
 
-  constructor(content: Block[], claimType: ClaimType, options?: Partial<Claim>) {
+  /**
+   * Content of the claim, usually a single paragraph.
+   */
+  content: Block[];
+
+  constructor(claimType: ClaimType, content: Block[], options?: Partial<Claim>) {
     super();
     if (options) Object.assign(this, options);
-    this.content = content;
     this.claimType = claimType;
+    this.content = content;
   }
 }
 
 /**
 * Create a new `Claim`
 */
-export function claim(content: Block[], claimType: ClaimType, options?: Partial<Claim>): Claim {
-  return new Claim(content, claimType, options);
+export function claim(claimType: ClaimType, content: Block[], options?: Partial<Claim>): Claim {
+  return new Claim(claimType, content, options);
 }

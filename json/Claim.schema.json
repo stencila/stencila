@@ -9,6 +9,7 @@
   "category": "works",
   "description": "A claim represents specific reviewable facts or statements.",
   "$comment": "Usually displayed as a block element and can have a label and title.\nIn the context of a scholarly article this could be a theorem or proof.\nSee also [Schema.org `Claim`](https://schema.org/Claim) and [JATS `<statement>`](https://jats.nlm.nih.gov/publishing/tag-library/1.2/element/statement.html).\n",
+  "proptest": {},
   "jats": {
     "elem": "statement"
   },
@@ -175,18 +176,6 @@
       "type": "array",
       "items": {
         "$ref": "Comment.schema.json"
-      }
-    },
-    "content": {
-      "@id": "stencila:content",
-      "description": "Content of the claim, usually a single paragraph.",
-      "$comment": "Most claims will have a single paragraph but could have multiple\nparagraphs, tables and even figures.\n",
-      "strip": [
-        "types"
-      ],
-      "type": "array",
-      "items": {
-        "$ref": "Block.schema.json"
       }
     },
     "dateCreated": {
@@ -374,6 +363,32 @@
         "elem": "label"
       },
       "type": "string"
+    },
+    "content": {
+      "@id": "stencila:content",
+      "description": "Content of the claim, usually a single paragraph.",
+      "$comment": "Most claims will have a single paragraph but could have multiple\nparagraphs, tables and even figures.\n",
+      "strip": [
+        "types"
+      ],
+      "proptest": {
+        "min": {
+          "description": "Generate a single arbitrary paragraph.",
+          "strategy": "vec_paragraphs(1)"
+        },
+        "low": {
+          "description": "Generate up to two arbitrary, non-recursive, block nodes.",
+          "strategy": "vec_blocks_non_recursive(2)"
+        },
+        "max": {
+          "description": "Generate up to four arbitrary, non-recursive, block nodes.",
+          "strategy": "vec_blocks_non_recursive(4)"
+        }
+      },
+      "type": "array",
+      "items": {
+        "$ref": "Block.schema.json"
+      }
     }
   }
 }

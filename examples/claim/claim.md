@@ -1,5 +1,3 @@
-A theorem
+TheoremA theorem
 
-TheoremA proposition with a label
-
-PropositionProposition 1
+PropositionProposition 1A proposition with a label

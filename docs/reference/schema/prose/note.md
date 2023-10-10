@@ -50,9 +50,17 @@ The `Note` type is represented in these bindings:
 
 - [JSON-LD](https://stencila.dev/Note.jsonld)
 - [JSON Schema](https://stencila.dev/Note.schema.json)
-- Python class [`Note`](https://github.com/stencila/stencila/blob/main/python/stencila/types/note.py)
+- Python class [`Note`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/note.py)
 - Rust struct [`Note`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/note.rs)
 - TypeScript class [`Note`](https://github.com/stencila/stencila/blob/main/typescript/src/types/Note.ts)
+
+## Testing
+
+During property-based (a.k.a generative) testing, the properties of the `Note` type are generated using the following strategies for each complexity level (see the [`proptest` book](https://proptest-rs.github.io/proptest/) for an explanation of the Rust strategy expressions). Any optional properties that are not in this table are set to `None`
+
+| Property  | Complexity | Description                                                  | Strategy                                                                                                        |
+| --------- | ---------- | ------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------- |
+| `content` | Min+       | Generate a single paragraph not a note (to avoid recursion). | `vec![Block::Paragraph(crate::Paragraph::new(vec![crate::Inline::Text(crate::Text::from("Note paragraph"))]))]` |
 
 ## Source
 

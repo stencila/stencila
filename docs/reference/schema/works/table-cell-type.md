@@ -21,9 +21,17 @@ The `TableCellType` type is represented in these bindings:
 
 - [JSON-LD](https://stencila.dev/TableCellType.jsonld)
 - [JSON Schema](https://stencila.dev/TableCellType.schema.json)
-- Python type [`TableCellType`](https://github.com/stencila/stencila/blob/main/python/stencila/types/table_cell_type.py)
+- Python type [`TableCellType`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/table_cell_type.py)
 - Rust type [`TableCellType`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/table_cell_type.rs)
 - TypeScript type [`TableCellType`](https://github.com/stencila/stencila/blob/main/typescript/src/types/TableCellType.ts)
+
+## Testing
+
+During property-based (a.k.a generative) testing, the variants of the `TableCellType` type are generated using the following strategies for each complexity level (see the [`proptest` book](https://proptest-rs.github.io/proptest/) for an explanation of the Rust strategy expressions). Any variant not shown is generated using the default strategy for the corresponding type and complexity level.
+
+|         |            |             |          |
+| ------- | ---------- | ----------- | -------- |
+| Variant | Complexity | Description | Strategy |
 
 ## Source
 

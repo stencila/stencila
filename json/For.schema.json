@@ -168,6 +168,24 @@
       "strip": [
         "code"
       ],
+      "proptest": {
+        "min": {
+          "description": "Generate a simple fixed string of code.",
+          "value": "Cord::new(\"code\")"
+        },
+        "low": {
+          "description": "Generate a random string of up to 10 alphanumeric & whitespace characters.",
+          "strategy": "r\"[a-zA-Z0-9\\s\\t\\n]{1,10}\".prop_map(Cord::new)"
+        },
+        "high": {
+          "description": "Generate a random string of up to 100 characters, excluding those used as code\ndelimiters in Markdown.\n",
+          "strategy": "r\"[^`]{1,100}\".prop_map(Cord::new)"
+        },
+        "max": {
+          "description": "Generate an arbitrary string.",
+          "strategy": "String::arbitrary().prop_map(Cord::new)"
+        }
+      },
       "jats": {
         "content": true
       },
@@ -179,6 +197,24 @@
       "strip": [
         "code"
       ],
+      "proptest": {
+        "min": {
+          "description": "Generate a simple fixed string.",
+          "value": "String::from(\"lang\")"
+        },
+        "low": {
+          "description": "Generate one of the well known programming language short names.",
+          "regex": "(cpp)|(js)|(py)|(r)|(ts)"
+        },
+        "high": {
+          "description": "Generate a random string of up to 10 alphanumeric characters.",
+          "regex": "[a-zA-Z0-9]{1,10}"
+        },
+        "max": {
+          "description": "Generate an arbitrary string.",
+          "strategy": "String::arbitrary()"
+        }
+      },
       "jats": {
         "attr": "language"
       },

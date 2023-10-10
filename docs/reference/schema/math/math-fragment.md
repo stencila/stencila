@@ -12,7 +12,7 @@ The `MathFragment` type has these properties:
 | ------------- | ------------------------------------ | ------------------------------------------------------------------------------------------------------------------ | -------------------------------------------------------------- | ------------------------------------------------------------------------------------------------ |
 | id            | [`schema:id`](https://schema.org/id) | [`String`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/string.md)                    | The identifier for this item                                   | [`Entity`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/entity.md) |
 | mathLanguage  | `stencila:mathLanguage`              | [`String`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/string.md)                    | The language used for the equation e.g tex, mathml, asciimath. | [`Math`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/math/math.md)      |
-| code          | `stencila:code`                      | [`String`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/string.md)                    | The code of the equation in the `mathLanguage`.                | [`Math`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/math/math.md)      |
+| code          | `stencila:code`                      | [`Cord`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/cord.md)                        | The code of the equation in the `mathLanguage`.                | [`Math`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/math/math.md)      |
 | compileDigest | `stencila:compileDigest`             | [`ExecutionDigest`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/execution-digest.md) | A digest of the `code` and `mathLanguage`.                     | [`Math`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/math/math.md)      |
 | errors        | `stencila:errors`                    | [`String`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/string.md)*                   | Errors that occurred when parsing the math equation.           | [`Math`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/math/math.md)      |
 | mathml        | `stencila:mathml`                    | [`String`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/string.md)                    | The MathML transpiled from the `code`.                         | [`Math`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/math/math.md)      |
@@ -45,9 +45,24 @@ The `MathFragment` type is represented in these bindings:
 
 - [JSON-LD](https://stencila.dev/MathFragment.jsonld)
 - [JSON Schema](https://stencila.dev/MathFragment.schema.json)
-- Python class [`MathFragment`](https://github.com/stencila/stencila/blob/main/python/stencila/types/math_fragment.py)
+- Python class [`MathFragment`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/math_fragment.py)
 - Rust struct [`MathFragment`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/math_fragment.rs)
 - TypeScript class [`MathFragment`](https://github.com/stencila/stencila/blob/main/typescript/src/types/MathFragment.ts)
+
+## Testing
+
+During property-based (a.k.a generative) testing, the properties of the `MathFragment` type are generated using the following strategies for each complexity level (see the [`proptest` book](https://proptest-rs.github.io/proptest/) for an explanation of the Rust strategy expressions). Any optional properties that are not in this table are set to `None`
+
+| Property       | Complexity | Description                                                                                             | Strategy                                     |
+| -------------- | ---------- | ------------------------------------------------------------------------------------------------------- | -------------------------------------------- |
+| `mathLanguage` | Min+       | Generate a fixed string.                                                                                | `String::from("lang")`                       |
+|                | Low+       | Generate one of the math language names.                                                                | Regex`(asciimath)\|(mathml)\|(tex)`          |
+|                | High+      | Generate a random string of up to 10 alphanumeric characters.                                           | Regex`[a-zA-Z0-9]{1,10}`                     |
+|                | Max        | Generate an arbitrary string.                                                                           | `String::arbitrary()`                        |
+| `code`         | Min+       | Generate a simple fixed string of math.                                                                 | `Cord::new("math")`                          |
+|                | Low+       | Generate a random string of up to 10 alphanumeric & space characters.                                   | `r"[a-zA-Z0-9\s]{1,10}".prop_map(Cord::new)` |
+|                | High+      | Generate a random string of up to 100 characters, excluding those used as math delimiters in Markdown.  | `r"[^$]{1,100}".prop_map(Cord::new)`         |
+|                | Max        | Generate an arbitrary string.                                                                           | `String::arbitrary().prop_map(Cord::new)`    |
 
 ## Source
 

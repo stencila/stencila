@@ -2,7 +2,7 @@ use roxmltree::Node;
 
 use codec::{
     schema::{
-        shortcuts::{em, p, s, section, strong, sub, sup, text, u},
+        shortcuts::{em, p, q, s, section, strong, sub, sup, text, u},
         Article, AudioObject, AudioObjectOptions, Block, Blocks, Heading, ImageObject,
         ImageObjectOptions, Inline, Inlines, MediaObject, MediaObjectOptions, ThematicBreak,
     },
@@ -96,6 +96,7 @@ fn decode_inlines(path: &str, node: &Node, losses: &mut Losses) -> Inlines {
 
                     match tag {
                         "bold" => strong(decode_inlines(&child_path, &child, losses)),
+                        "inline-quote" => q(decode_inlines(&child_path, &child, losses)),
                         "italic" => em(decode_inlines(&child_path, &child, losses)),
                         "strike" => s(decode_inlines(&child_path, &child, losses)),
                         "sub" => sub(decode_inlines(&child_path, &child, losses)),

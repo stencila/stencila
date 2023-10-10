@@ -8,6 +8,7 @@
   ],
   "category": "works",
   "description": "A row within a Table.",
+  "proptest": {},
   "html": {
     "elem": "tr"
   },
@@ -40,6 +41,24 @@
     "cells": {
       "@id": "stencila:cells",
       "description": "An array of cells in the row.",
+      "proptest": {
+        "min": {
+          "description": "Generate a single, arbitrary, table cell.",
+          "strategy": "vec(TableCell::arbitrary(), size_range(1..=1))"
+        },
+        "low": {
+          "description": "Generate two, arbitrary, table cells.",
+          "strategy": "vec(TableCell::arbitrary(), size_range(2..=2))"
+        },
+        "high": {
+          "description": "Generate four, arbitrary, table cells.",
+          "strategy": "vec(TableCell::arbitrary(), size_range(4..=4))"
+        },
+        "max": {
+          "description": "Generate up to eight, arbitrary, table cells.",
+          "strategy": "vec(TableCell::arbitrary(), size_range(1..=8))"
+        }
+      },
       "type": "array",
       "items": {
         "$ref": "TableCell.schema.json"

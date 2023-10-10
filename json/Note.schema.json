@@ -9,6 +9,7 @@
   "category": "prose",
   "description": "Additional content which is not part of the main content of a document.",
   "$comment": "A note is usually associated with a word or paragraph using a number or other symbol. \nIt can be displayed as a footnote, endnote, or side note, or in interactive elements.\nFor analogues, see \n- [JATS `<fn>`](https://jats.nlm.nih.gov/publishing/tag-library/1.2/element/fn.html)\n- [Pandoc footnotes](https://pandoc.org/MANUAL.html#footnotes)\n- [HTML `<aside>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/aside)\n",
+  "proptest": {},
   "required": [
     "type",
     "noteType",
@@ -48,6 +49,12 @@
       "strip": [
         "types"
       ],
+      "proptest": {
+        "min": {
+          "description": "Generate a single paragraph not a note (to avoid recursion).",
+          "value": "vec![Block::Paragraph(crate::Paragraph::new(vec![crate::Inline::Text(crate::Text::from(\"Note paragraph\"))]))]"
+        }
+      },
       "type": "array",
       "items": {
         "$ref": "Block.schema.json"

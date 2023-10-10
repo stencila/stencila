@@ -10,5 +10,6 @@ use super::file::File;
 #[serde(untagged, crate = "common::serde")]
 pub enum FileOrDirectory {
     File(File),
+
     Directory(Directory),
 }

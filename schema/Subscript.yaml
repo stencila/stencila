@@ -10,3 +10,4 @@ jats:
 markdown:
   format: '~{content}~'
   escape: '~'
+proptest: {}

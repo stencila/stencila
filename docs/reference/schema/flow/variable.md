@@ -46,7 +46,7 @@ The `Variable` type is represented in these bindings:
 
 - [JSON-LD](https://stencila.dev/Variable.jsonld)
 - [JSON Schema](https://stencila.dev/Variable.schema.json)
-- Python class [`Variable`](https://github.com/stencila/stencila/blob/main/python/stencila/types/variable.py)
+- Python class [`Variable`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/variable.py)
 - Rust struct [`Variable`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/variable.rs)
 - TypeScript class [`Variable`](https://github.com/stencila/stencila/blob/main/typescript/src/types/Variable.ts)
 

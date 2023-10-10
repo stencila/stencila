@@ -16,6 +16,7 @@ jats:
   elem: p
 markdown:
   format: '{content}\n\n'
+proptest: {}
 required:
   - content
 properties:
@@ -24,6 +25,19 @@ properties:
     description: The contents of the paragraph.
     strip:
       - types
+    proptest:
+      min:
+        description: Generate a single arbitrary inline node
+        strategy: vec_inlines(1)
+      low:
+        description: Generate up to two arbitrary inline nodes
+        strategy: vec_inlines(2)
+      high:
+        description: Generate up to four arbitrary inline nodes
+        strategy: vec_inlines(4)
+      max:
+        description: Generate up to eight arbitrary inline nodes
+        strategy: vec_inlines(8)
     type: array
     items:
       $ref: Inline

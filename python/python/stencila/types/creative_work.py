@@ -2,7 +2,6 @@
 
 from .prelude import *
 
-from .block import Block
 Comment = ForwardRef("Comment")
 from .creative_work_type import CreativeWorkType
 from .creative_work_type_or_str import CreativeWorkTypeOrStr
@@ -42,9 +41,6 @@ class CreativeWork(Thing):
 
     comments: Optional[List[Comment]] = None
     """Comments about this creative work."""
-
-    content: Optional[List[Block]] = None
-    """The structured content of this creative work c.f. property `text`."""
 
     date_created: Optional[Date] = None
     """Date/time of creation."""

@@ -2,6 +2,7 @@
 
 from .prelude import *
 
+from .cord import Cord
 from .entity import Entity
 from .execution_digest import ExecutionDigest
 
@@ -17,7 +18,7 @@ class Math(Entity):
     math_language: str
     """The language used for the equation e.g tex, mathml, asciimath."""
 
-    code: str
+    code: Cord
     """The code of the equation in the `mathLanguage`."""
 
     compile_digest: Optional[ExecutionDigest] = None

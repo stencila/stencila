@@ -69,7 +69,7 @@ The `CallArgument` type is represented in these bindings:
 
 - [JSON-LD](https://stencila.dev/CallArgument.jsonld)
 - [JSON Schema](https://stencila.dev/CallArgument.schema.json)
-- Python class [`CallArgument`](https://github.com/stencila/stencila/blob/main/python/stencila/types/call_argument.py)
+- Python class [`CallArgument`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/call_argument.py)
 - Rust struct [`CallArgument`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/call_argument.rs)
 - TypeScript class [`CallArgument`](https://github.com/stencila/stencila/blob/main/typescript/src/types/CallArgument.ts)
 

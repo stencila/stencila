@@ -21,27 +21,69 @@ use super::section::Section;
 use super::table::Table;
 use super::thematic_break::ThematicBreak;
 
-/// Union type for block content node types.
+/// Union type in block content node types.
 #[derive(Debug, Display, Clone, PartialEq, Serialize, Deserialize, StripNode, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec, SmartDefault, ReadNode, WriteNode)]
 #[serde(untagged, crate = "common::serde")]
+#[cfg_attr(feature = "proptest", derive(Arbitrary))]
 pub enum Block {
+    #[cfg_attr(feature = "proptest-min", proptest(skip))]
+    #[cfg_attr(feature = "proptest-low", proptest(skip))]
+    #[cfg_attr(feature = "proptest-high", proptest(skip))]
+    #[cfg_attr(feature = "proptest-max", proptest(skip))]
     Call(Call),
+
+    #[cfg_attr(feature = "proptest-min", proptest(skip))]
     Claim(Claim),
+
     CodeBlock(CodeBlock),
+
+    #[cfg_attr(feature = "proptest-min", proptest(skip))]
     CodeChunk(CodeChunk),
+
     Division(Division),
+
+    #[cfg_attr(feature = "proptest-min", proptest(skip))]
     Figure(Figure),
+
+    #[cfg_attr(feature = "proptest-min", proptest(skip))]
+    #[cfg_attr(feature = "proptest-low", proptest(skip))]
+    #[cfg_attr(feature = "proptest-high", proptest(skip))]
+    #[cfg_attr(feature = "proptest-max", proptest(skip))]
     For(For),
+
+    #[cfg_attr(feature = "proptest-min", proptest(skip))]
+    #[cfg_attr(feature = "proptest-low", proptest(skip))]
+    #[cfg_attr(feature = "proptest-high", proptest(skip))]
+    #[cfg_attr(feature = "proptest-max", proptest(skip))]
     Form(Form),
+
     Heading(Heading),
+
+    #[cfg_attr(feature = "proptest-min", proptest(skip))]
+    #[cfg_attr(feature = "proptest-low", proptest(skip))]
+    #[cfg_attr(feature = "proptest-high", proptest(skip))]
+    #[cfg_attr(feature = "proptest-max", proptest(skip))]
     If(If),
+
+    #[cfg_attr(feature = "proptest-min", proptest(skip))]
+    #[cfg_attr(feature = "proptest-low", proptest(skip))]
+    #[cfg_attr(feature = "proptest-high", proptest(skip))]
+    #[cfg_attr(feature = "proptest-max", proptest(skip))]
     Include(Include),
+
     List(List),
+
     MathBlock(MathBlock),
+
     #[default]
     Paragraph(Paragraph),
+
     QuoteBlock(QuoteBlock),
+
+    #[cfg_attr(feature = "proptest-min", proptest(skip))]
     Section(Section),
+
     Table(Table),
+
     ThematicBreak(ThematicBreak),
 }

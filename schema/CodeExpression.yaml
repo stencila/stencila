@@ -13,6 +13,7 @@ jats:
   elem: monospace
 markdown:
   special: true
+proptest: {}
 core:
   - output
 properties:

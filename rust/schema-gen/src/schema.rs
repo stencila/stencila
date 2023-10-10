@@ -1,6 +1,6 @@
 //! The meta-schema for schemas in the Stencila Schema
 
-use std::{fmt::Display, path::PathBuf};
+use std::{collections::BTreeMap, fmt::Display, path::PathBuf};
 
 use schemars::JsonSchema;
 
@@ -119,6 +119,9 @@ pub struct Schema {
     /// The stripping scopes that the property should be stripped for
     #[serde(skip_serializing_if = "Vec::is_empty")]
     pub strip: Vec<StripScopes>,
+
+    /// Options for property testing
+    pub proptest: Option<BTreeMap<ProptestLevel, ProptestOptions>>,
 
     /// Options for converting the type or property to/from HTML
     pub html: Option<HtmlOptions>,
@@ -470,6 +473,80 @@ pub enum StripScopes {
 
     /// Strip child nodes of specified types from the property
     Types,
+}
+
+/// Options for property testing
+#[skip_serializing_none]
+#[derive(Debug, Clone, Default, Deserialize, Serialize, JsonSchema)]
+#[serde(
+    default,
+    rename_all = "camelCase",
+    deny_unknown_fields,
+    crate = "common::serde"
+)]
+pub struct ProptestOptions {
+    /// A description of the options
+    pub description: Option<String>,
+
+    /// Whether to skip the member of a union type, or variant of an enumeration.
+    ///
+    /// See https://proptest-rs.github.io/proptest/proptest-derive/modifiers.html#skip
+    #[serde(skip_serializing_if = "is_false")]
+    pub skip: bool,
+
+    /// The relative weight given to the member of a union type, or variant of an enumeration.
+    ///
+    /// See https://proptest-rs.github.io/proptest/proptest-derive/modifiers.html#weight
+    pub weight: Option<u32>,
+
+    /// A Rust expression for generating a value
+    ///
+    /// Should only be used on members of union types, variants of enumerations, or properties
+    /// of object types.
+    /// See https://proptest-rs.github.io/proptest/proptest-derive/modifiers.html#strategy
+    pub strategy: Option<String>,
+
+    /// A Rust expression for generating a constant value for the property
+    ///
+    /// Usually only used on properties of object types.
+    /// See https://proptest-rs.github.io/proptest/proptest-derive/modifiers.html#value
+    pub value: Option<String>,
+
+    /// A regular expression to randomly generate characters for the property
+    ///
+    /// Should only be used on properties of object types.
+    /// See https://proptest-rs.github.io/proptest/proptest-derive/modifiers.html#regex
+    pub regex: Option<String>,
+
+    /// A Rust expression or function name for filtering objects and/or their properties
+    ///
+    /// Can be used on object types, union types, enumerations and properties.
+    /// Avoid using if possible.
+    /// See https://proptest-rs.github.io/proptest/proptest-derive/modifiers.html#filter
+    pub filter: Option<String>,
+}
+
+/// The property testing randomness level
+#[derive(
+    Debug,
+    Clone,
+    Deserialize,
+    Serialize,
+    JsonSchema,
+    Display,
+    PartialEq,
+    Eq,
+    PartialOrd,
+    Ord,
+    EnumIter,
+)]
+#[serde(rename_all = "lowercase", crate = "common::serde")]
+#[strum(serialize_all = "lowercase", crate = "common::strum")]
+pub enum ProptestLevel {
+    Min,
+    Low,
+    High,
+    Max,
 }
 
 /// Options for conversion to/from HTML

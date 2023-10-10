@@ -2,6 +2,7 @@
 
 from .prelude import *
 
+from .block import Block
 from .blocks_or_str import BlocksOrStr
 from .creative_work import CreativeWork
 
@@ -13,6 +14,9 @@ class Figure(CreativeWork):
     """
 
     type: Literal["Figure"] = field(default="Figure", init=False)
+
+    content: List[Block]
+    """The content of the figure."""
 
     label: Optional[str] = None
     """A short label for the figure."""

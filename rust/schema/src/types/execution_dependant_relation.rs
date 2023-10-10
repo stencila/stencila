@@ -8,7 +8,10 @@ use crate::prelude::*;
 pub enum ExecutionDependantRelation {
     #[default]
     Assigns,
+
     Alters,
+
     Declares,
+
     Writes,
 }

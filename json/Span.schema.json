@@ -9,6 +9,7 @@
   "category": "style",
   "description": "Styled inline content",
   "status": "under-development",
+  "proptest": {},
   "html": {
     "elem": "span",
     "custom": true
@@ -51,11 +52,47 @@
     "code": {
       "@id": "stencila:code",
       "description": "The code of the equation in the `styleLanguage`.",
+      "proptest": {
+        "min": {
+          "description": "Generate a simple fixed string of code.",
+          "value": "Cord::new(\"code\")"
+        },
+        "low": {
+          "description": "Generate a random string of up to 10 alphanumeric & whitespace characters.",
+          "strategy": "r\"[a-zA-Z0-9\\s\\t]{1,10}\".prop_map(Cord::new)"
+        },
+        "high": {
+          "description": "Generate a random string of up to 100 characters, excluding those used as code\ndelimiters in Markdown.\n",
+          "strategy": "r\"[^`]{1,100}\".prop_map(Cord::new)"
+        },
+        "max": {
+          "description": "Generate an arbitrary string.",
+          "strategy": "String::arbitrary().prop_map(Cord::new)"
+        }
+      },
       "$ref": "Cord.schema.json"
     },
     "styleLanguage": {
       "@id": "stencila:styleLanguage",
-      "description": "The language used for the style specification e.g. css, tailwind, classes.",
+      "description": "The language used for the style specification e.g. css, tw",
+      "proptest": {
+        "min": {
+          "description": "Do not generate a style language.",
+          "value": "None"
+        },
+        "low": {
+          "description": "Generate one of the well known style language short names.",
+          "strategy": "option::of(r\"(css)|(tw)\")"
+        },
+        "high": {
+          "description": "Generate a random string of up to 10 alphanumeric characters.",
+          "strategy": "option::of(r\"[a-zA-Z0-9]{1,10}\")"
+        },
+        "max": {
+          "description": "Generate an arbitrary string.",
+          "strategy": "option::of(String::arbitrary())"
+        }
+      },
       "type": "string"
     },
     "compileDigest": {

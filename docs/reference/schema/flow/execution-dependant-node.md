@@ -24,7 +24,7 @@ The `ExecutionDependantNode` type is represented in these bindings:
 
 - [JSON-LD](https://stencila.dev/ExecutionDependantNode.jsonld)
 - [JSON Schema](https://stencila.dev/ExecutionDependantNode.schema.json)
-- Python type [`ExecutionDependantNode`](https://github.com/stencila/stencila/blob/main/python/stencila/types/execution_dependant_node.py)
+- Python type [`ExecutionDependantNode`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/execution_dependant_node.py)
 - Rust type [`ExecutionDependantNode`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/execution_dependant_node.rs)
 - TypeScript type [`ExecutionDependantNode`](https://github.com/stencila/stencila/blob/main/typescript/src/types/ExecutionDependantNode.ts)
 

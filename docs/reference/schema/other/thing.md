@@ -46,7 +46,7 @@ The `Thing` type is represented in these bindings:
 
 - [JSON-LD](https://stencila.dev/Thing.jsonld)
 - [JSON Schema](https://stencila.dev/Thing.schema.json)
-- Python class [`Thing`](https://github.com/stencila/stencila/blob/main/python/stencila/types/thing.py)
+- Python class [`Thing`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/thing.py)
 - Rust struct [`Thing`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/thing.rs)
 - TypeScript class [`Thing`](https://github.com/stencila/stencila/blob/main/typescript/src/types/Thing.ts)
 

@@ -10,3 +10,4 @@ jats:
   elem: hr
 markdown:
   format: '---\n\n'
+proptest: {}

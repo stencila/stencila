@@ -10,6 +10,7 @@ $comment: |
   - [JATS `<fn>`](https://jats.nlm.nih.gov/publishing/tag-library/1.2/element/fn.html)
   - [Pandoc footnotes](https://pandoc.org/MANUAL.html#footnotes)
   - [HTML `<aside>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/aside)
+proptest: {}
 required:
   - noteType
   - content
@@ -24,8 +25,12 @@ properties:
     $comment: |
       Most notes will have a single paragraph but could have multiple
       paragraphs, tables and even figures.
-    strip:
-      - types
     type: array
     items:
       $ref: Block
+    strip:
+      - types
+    proptest:
+      min:
+        description: Generate a single paragraph not a note (to avoid recursion).
+        value: vec![Block::Paragraph(crate::Paragraph::new(vec![crate::Inline::Text(crate::Text::from("Note paragraph"))]))]

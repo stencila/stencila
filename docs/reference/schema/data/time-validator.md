@@ -42,7 +42,7 @@ The `TimeValidator` type is represented in these bindings:
 
 - [JSON-LD](https://stencila.dev/TimeValidator.jsonld)
 - [JSON Schema](https://stencila.dev/TimeValidator.schema.json)
-- Python class [`TimeValidator`](https://github.com/stencila/stencila/blob/main/python/stencila/types/time_validator.py)
+- Python class [`TimeValidator`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/time_validator.py)
 - Rust struct [`TimeValidator`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/time_validator.rs)
 - TypeScript class [`TimeValidator`](https://github.com/stencila/stencila/blob/main/typescript/src/types/TimeValidator.ts)
 

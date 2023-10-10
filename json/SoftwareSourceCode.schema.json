@@ -173,18 +173,6 @@
         "$ref": "Comment.schema.json"
       }
     },
-    "content": {
-      "@id": "stencila:content",
-      "description": "The structured content of this creative work c.f. property `text`.",
-      "$comment": "This is an extension property, added because the existing schema.org property \"text\"\nimplies only unstructured text content.\n",
-      "strip": [
-        "types"
-      ],
-      "type": "array",
-      "items": {
-        "$ref": "Block.schema.json"
-      }
-    },
     "dateCreated": {
       "@id": "schema:dateCreated",
       "description": "Date/time of creation.",

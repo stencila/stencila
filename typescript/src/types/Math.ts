@@ -1,5 +1,6 @@
 // Generated file; do not edit. See `../rust/schema-gen` crate.
 
+import { Cord } from "./Cord.js";
 import { Entity } from "./Entity.js";
 import { ExecutionDigest } from "./ExecutionDigest.js";
 
@@ -17,7 +18,7 @@ export class Math extends Entity {
   /**
    * The code of the equation in the `mathLanguage`.
    */
-  code: string;
+  code: Cord;
 
   /**
    * A digest of the `code` and `mathLanguage`.
@@ -34,7 +35,7 @@ export class Math extends Entity {
    */
   mathml?: string;
 
-  constructor(mathLanguage: string, code: string, options?: Partial<Math>) {
+  constructor(mathLanguage: string, code: Cord, options?: Partial<Math>) {
     super();
     if (options) Object.assign(this, options);
     this.mathLanguage = mathLanguage;
@@ -45,6 +46,6 @@ export class Math extends Entity {
 /**
 * Create a new `Math`
 */
-export function math(mathLanguage: string, code: string, options?: Partial<Math>): Math {
+export function math(mathLanguage: string, code: Cord, options?: Partial<Math>): Math {
   return new Math(mathLanguage, code, options);
 }

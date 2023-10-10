@@ -15,6 +15,7 @@ jats:
   special: true
 markdown:
   format: '![]({content_url})'
+proptest: {}
 core:
   - caption
 properties:

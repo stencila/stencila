@@ -7,6 +7,7 @@ html:
   special: true
 markdown:
   special: true
+proptest: {}
 required:
   - rows
 core:
@@ -35,3 +36,16 @@ properties:
     type: array
     items:
       $ref: TableRow
+    proptest:
+      min:
+        description: Generate a single, arbitrary, table row.
+        strategy: vec(TableRow::arbitrary(), size_range(1..=1))
+      low:
+        description: Generate up to two, arbitrary, table rows.
+        strategy: vec(TableRow::arbitrary(), size_range(1..=2))
+      high:
+        description: Generate up to four, arbitrary, table rows.
+        strategy: vec(TableRow::arbitrary(), size_range(1..=4))
+      max:
+        description: Generate up to eight, arbitrary, table rows.
+        strategy: vec(TableRow::arbitrary(), size_range(1..=8))

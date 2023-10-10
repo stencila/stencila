@@ -2,6 +2,7 @@
 
 from .prelude import *
 
+from .block import Block
 Comment = ForwardRef("Comment")
 from .creative_work import CreativeWork
 
@@ -13,6 +14,9 @@ class Comment(CreativeWork):
     """
 
     type: Literal["Comment"] = field(default="Comment", init=False)
+
+    content: List[Block]
+    """Content of the comment, usually one or more paragraphs."""
 
     parent_item: Optional[Comment] = None
     """The parent comment of this comment."""

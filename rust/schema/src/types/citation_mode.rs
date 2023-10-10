@@ -8,6 +8,8 @@ use crate::prelude::*;
 pub enum CitationMode {
     #[default]
     Parenthetical,
+
     Narrative,
+
     NarrativeAuthor,
 }

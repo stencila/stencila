@@ -24,7 +24,7 @@ The `ExecutionDependantTarget` type is represented in these bindings:
 
 - [JSON-LD](https://stencila.dev/ExecutionDependantTarget.jsonld)
 - [JSON Schema](https://stencila.dev/ExecutionDependantTarget.schema.json)
-- Python type [`ExecutionDependantTarget`](https://github.com/stencila/stencila/blob/main/python/stencila/types/execution_dependant_target.py)
+- Python type [`ExecutionDependantTarget`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/execution_dependant_target.py)
 - Rust type [`ExecutionDependantTarget`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/execution_dependant_target.rs)
 - TypeScript type [`ExecutionDependantTarget`](https://github.com/stencila/stencila/blob/main/typescript/src/types/ExecutionDependantTarget.ts)
 

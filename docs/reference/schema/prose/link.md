@@ -44,9 +44,20 @@ The `Link` type is represented in these bindings:
 
 - [JSON-LD](https://stencila.dev/Link.jsonld)
 - [JSON Schema](https://stencila.dev/Link.schema.json)
-- Python class [`Link`](https://github.com/stencila/stencila/blob/main/python/stencila/types/link.py)
+- Python class [`Link`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/link.py)
 - Rust struct [`Link`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/link.rs)
 - TypeScript class [`Link`](https://github.com/stencila/stencila/blob/main/typescript/src/types/Link.ts)
+
+## Testing
+
+During property-based (a.k.a generative) testing, the properties of the `Link` type are generated using the following strategies for each complexity level (see the [`proptest` book](https://proptest-rs.github.io/proptest/) for an explanation of the Rust strategy expressions). Any optional properties that are not in this table are set to `None`
+
+| Property  | Complexity | Description                                                | Strategy                                                                |
+| --------- | ---------- | ---------------------------------------------------------- | ----------------------------------------------------------------------- |
+| `content` | Min+       | Generate a single fixed text value.                        | `vec(Just(Inline::Text(crate::Text::from("text"))), size_range(1..=1))` |
+|           | Low+       | Generate a single arbitrary, non-recursive, inline node    | `vec_inlines_non_recursive(1)`                                          |
+|           | High+      | Generate up to two arbitrary, non-recursive, inline nodes  | `vec_inlines_non_recursive(2)`                                          |
+|           | Max        | Generate up to four arbitrary, non-recursive, inline nodes | `vec_inlines_non_recursive(4)`                                          |
 
 ## Source
 

@@ -9,7 +9,7 @@
       "@id": "stencila:Block",
       "@type": "rdfs:Class",
       "rdfs:label": "Block",
-      "rdfs:comment": "Union type for block content node types."
+      "rdfs:comment": "Union type in block content node types."
     }
   ]
 }

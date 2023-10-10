@@ -14,6 +14,7 @@ html:
   special: true
 markdown:
   special: true
+proptest: {}
 required:
   - level
   - content
@@ -30,6 +31,19 @@ properties:
     description: Content of the heading.
     strip:
       - types
+    proptest:
+      min:
+        description: Generate a single arbitrary inline node
+        strategy: vec_inlines(1)
+      low:
+        description: Generate up to two arbitrary inline nodes
+        strategy: vec_inlines(2)
+      high:
+        description: Generate up to four arbitrary inline nodes
+        strategy: vec_inlines(4)
+      max:
+        description: Generate up to eight arbitrary inline nodes
+        strategy: vec_inlines(8)
     type: array
     items:
       $ref: Inline

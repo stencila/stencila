@@ -16,7 +16,7 @@ export class Styled extends Entity {
   code: Cord;
 
   /**
-   * The language used for the style specification e.g. css, tailwind, classes.
+   * The language used for the style specification e.g. css, tw
    */
   styleLanguage?: string;
 

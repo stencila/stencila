@@ -1,9 +1,9 @@
 //! Shortcut functions for conveniently creating nodes of various types
 
 use crate::{
-    Block, BlocksOrInlines, CodeFragment, Cord, Heading, Inline, Link, List, ListItem, ListOrder,
-    Paragraph, Section, Strikeout, Strong, Subscript, Superscript, Table, TableCell, TableCellType,
-    TableRow, Text, Underline,
+    Block, BlocksOrInlines, CodeFragment, Cord, Emphasis, Heading, Inline, Link, List, ListItem,
+    ListOrder, Paragraph, Quote, Section, Strikeout, Strong, Subscript, Superscript, Table,
+    TableCell, TableCellType, TableRow, Text, Underline,
 };
 
 /// Create an [`Inline::Text`] node
@@ -13,7 +13,12 @@ pub fn text<S: Into<String>>(value: S) -> Inline {
 
 /// Create an [`Inline::Emphasis`] node
 pub fn em<I: Into<Vec<Inline>>>(content: I) -> Inline {
-    Inline::Emphasis(crate::Emphasis::new(content.into()))
+    Inline::Emphasis(Emphasis::new(content.into()))
+}
+
+/// Create an [`Inline::Quote`] node
+pub fn q<I: Into<Vec<Inline>>>(content: I) -> Inline {
+    Inline::Quote(Quote::new(content.into()))
 }
 
 /// Create an [`Inline::Strong`] node

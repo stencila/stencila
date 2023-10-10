@@ -4,39 +4,97 @@
   "@id": "stencila:Block",
   "title": "Block",
   "category": "prose",
-  "description": "Union type for block content node types.",
+  "description": "Union type in block content node types.",
+  "proptest": {},
   "anyOf": [
     {
+      "proptest": {
+        "min": {
+          "description": "Do not generate `Call` nodes in block content.",
+          "skip": true
+        }
+      },
       "$ref": "Call.schema.json"
     },
     {
+      "proptest": {
+        "min": {
+          "description": "Do not generate `Claim` nodes in block content.",
+          "skip": true
+        },
+        "low": {
+          "description": "Generate `Claim` nodes in block content."
+        }
+      },
       "$ref": "Claim.schema.json"
     },
     {
       "$ref": "CodeBlock.schema.json"
     },
     {
+      "proptest": {
+        "min": {
+          "description": "Do not generate `CodeChunk` nodes in block content.",
+          "skip": true
+        },
+        "low": {
+          "description": "Generate `CodeChunk` nodes in block content."
+        }
+      },
       "$ref": "CodeChunk.schema.json"
     },
     {
       "$ref": "Division.schema.json"
     },
     {
+      "proptest": {
+        "min": {
+          "description": "Do not generate `Figure` nodes in block content.",
+          "skip": true
+        },
+        "low": {
+          "description": "Generate `Figure` nodes in block content."
+        }
+      },
       "$ref": "Figure.schema.json"
     },
     {
+      "proptest": {
+        "min": {
+          "description": "Do not generate `For` nodes in block content.",
+          "skip": true
+        }
+      },
       "$ref": "For.schema.json"
     },
     {
+      "proptest": {
+        "min": {
+          "description": "Do not generate `Form` nodes in block content.",
+          "skip": true
+        }
+      },
       "$ref": "Form.schema.json"
     },
     {
       "$ref": "Heading.schema.json"
     },
     {
+      "proptest": {
+        "min": {
+          "description": "Do not generate `If` nodes in block content.",
+          "skip": true
+        }
+      },
       "$ref": "If.schema.json"
     },
     {
+      "proptest": {
+        "min": {
+          "description": "Do not generate `Include` nodes in block content.",
+          "skip": true
+        }
+      },
       "$ref": "Include.schema.json"
     },
     {
@@ -52,6 +110,15 @@
       "$ref": "QuoteBlock.schema.json"
     },
     {
+      "proptest": {
+        "min": {
+          "description": "Do not generate `Section` nodes in block content.",
+          "skip": true
+        },
+        "low": {
+          "description": "Generate `Section` nodes in block content."
+        }
+      },
       "$ref": "Section.schema.json"
     },
     {

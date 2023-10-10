@@ -22,7 +22,7 @@ The `ExecutionRequired` type is represented in these bindings:
 
 - [JSON-LD](https://stencila.dev/ExecutionRequired.jsonld)
 - [JSON Schema](https://stencila.dev/ExecutionRequired.schema.json)
-- Python type [`ExecutionRequired`](https://github.com/stencila/stencila/blob/main/python/stencila/types/execution_required.py)
+- Python type [`ExecutionRequired`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/execution_required.py)
 - Rust type [`ExecutionRequired`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/execution_required.rs)
 - TypeScript type [`ExecutionRequired`](https://github.com/stencila/stencila/blob/main/typescript/src/types/ExecutionRequired.ts)
 

@@ -10,5 +10,6 @@ use super::monetary_grant::MonetaryGrant;
 #[serde(untagged, crate = "common::serde")]
 pub enum GrantOrMonetaryGrant {
     Grant(Grant),
+
     MonetaryGrant(MonetaryGrant),
 }

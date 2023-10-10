@@ -8,6 +8,7 @@
   ],
   "category": "prose",
   "description": "A section of a document",
+  "proptest": {},
   "html": {
     "elem": "section"
   },
@@ -49,6 +50,24 @@
       "strip": [
         "types"
       ],
+      "proptest": {
+        "min": {
+          "description": "An empty vector",
+          "value": "Vec::new()"
+        },
+        "low": {
+          "description": "Generate an arbitrary heading and an arbitrary paragraph.",
+          "strategy": "vec_heading_paragraph()"
+        },
+        "high": {
+          "description": "Generate up to four arbitrary, non-recursive, block nodes.",
+          "strategy": "vec_blocks_non_recursive(4)"
+        },
+        "max": {
+          "description": "Generate up to eight arbitrary, non-recursive, block nodes.",
+          "strategy": "vec_blocks_non_recursive(8)"
+        }
+      },
       "type": "array",
       "items": {
         "$ref": "Block.schema.json"

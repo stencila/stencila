@@ -5,6 +5,7 @@ category: works
 description: A cell within a `Table`.
 html:
   elem: td
+proptest: {}
 core:
   - cellType
   - content
@@ -50,4 +51,7 @@ properties:
       - type: array
         items:
           $ref: Inline
-
+    proptest:
+      min: 
+        description: Generate a single, arbitrary, paragraph
+        strategy: vec_paragraphs(1).prop_map(|blocks| Some(BlocksOrInlines::Blocks(blocks)))

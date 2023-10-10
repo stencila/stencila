@@ -3,6 +3,7 @@ title: Date
 extends: Entity
 category: data
 description: A calendar date encoded as a ISO 8601 string.
+proptest: {}
 required:
   - value
 properties:
@@ -11,3 +12,16 @@ properties:
     description: The date as an ISO 8601 string.
     type: string
     format: date
+    proptest:
+      min:
+        description: Generate a fixed date string.
+        value: String::from("2022-02-22")
+      low:
+        description: Generate a random date string.
+        regex: \d{4}-[01]\d-[0-3]\d
+      high:
+        description: Generate a random string of up to 10 alphanumeric characters & hyphens.
+        regex: '[a-zA-Z0-9\-]{1,10}'
+      max:
+        description: Generate an arbitrary string.
+        strategy: String::arbitrary()

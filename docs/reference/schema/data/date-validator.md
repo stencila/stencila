@@ -42,7 +42,7 @@ The `DateValidator` type is represented in these bindings:
 
 - [JSON-LD](https://stencila.dev/DateValidator.jsonld)
 - [JSON Schema](https://stencila.dev/DateValidator.schema.json)
-- Python class [`DateValidator`](https://github.com/stencila/stencila/blob/main/python/stencila/types/date_validator.py)
+- Python class [`DateValidator`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/date_validator.py)
 - Rust struct [`DateValidator`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/date_validator.rs)
 - TypeScript class [`DateValidator`](https://github.com/stencila/stencila/blob/main/typescript/src/types/DateValidator.ts)
 

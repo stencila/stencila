@@ -36,7 +36,7 @@ The `CitationMode` type is represented in these bindings:
 
 - [JSON-LD](https://stencila.dev/CitationMode.jsonld)
 - [JSON Schema](https://stencila.dev/CitationMode.schema.json)
-- Python type [`CitationMode`](https://github.com/stencila/stencila/blob/main/python/stencila/types/citation_mode.py)
+- Python type [`CitationMode`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/citation_mode.py)
 - Rust type [`CitationMode`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/citation_mode.rs)
 - TypeScript type [`CitationMode`](https://github.com/stencila/stencila/blob/main/typescript/src/types/CitationMode.ts)
 

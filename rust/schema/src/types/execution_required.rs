@@ -7,11 +7,17 @@ use crate::prelude::*;
 #[serde(crate = "common::serde")]
 pub enum ExecutionRequired {
     No,
+
     #[default]
     NeverExecuted,
+
     SemanticsChanged,
+
     DependenciesChanged,
+
     DependenciesFailed,
+
     Failed,
+
     KernelRestarted,
 }

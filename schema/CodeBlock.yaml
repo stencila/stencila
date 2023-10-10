@@ -10,3 +10,4 @@ jats:
   elem: code
 markdown:
   special: true
+proptest: {}

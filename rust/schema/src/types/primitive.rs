@@ -17,11 +17,18 @@ use super::unsigned_integer::UnsignedInteger;
 pub enum Primitive {
     #[default]
     Null(Null),
+
     Boolean(Boolean),
+
     Integer(Integer),
+
     UnsignedInteger(UnsignedInteger),
+
     Number(Number),
+
     String(String),
+
     Array(Array),
+
     Object(Object),
 }

@@ -7,16 +7,16 @@ use std::{
 };
 
 use common::{
-    async_recursion::async_recursion,
     eyre::{bail, Context, Report, Result},
     futures::future::try_join_all,
     inflector::Inflector,
     itertools::Itertools,
+    strum::IntoEnumIterator,
     tokio::fs::{create_dir_all, remove_file, write},
 };
 
 use crate::{
-    schema::{Items, Schema, Type, Value},
+    schema::{Items, ProptestLevel, Schema, Type, Value},
     schemas::Schemas,
 };
 
@@ -194,7 +194,7 @@ pub enum NodeType {{
         }
 
         if schema.any_of.is_some() {
-            Self::rust_any_of(dest, schema).await?;
+            Self::rust_any_of(dest, schema)?;
         } else if schema.r#type.is_none() {
             Self::rust_object(dest, title, schema).await?;
         }
@@ -207,8 +207,7 @@ pub enum NodeType {{
     /// Returns the name of the type and whether:
     ///  - it is an array
     ///  - it is a type (rather than an enum variant)
-    #[async_recursion]
-    async fn rust_type(dest: &Path, schema: &Schema) -> Result<(String, bool, bool)> {
+    fn rust_type(dest: &Path, schema: &Schema) -> Result<(String, bool, bool)> {
         let result = if let Some(r#type) = &schema.r#type {
             match r#type {
                 Type::Array => {
@@ -220,14 +219,14 @@ pub enum NodeType {{
                                 any_of: Some(inner.any_of.clone()),
                                 ..Default::default()
                             };
-                            Self::rust_type(dest, &schema).await?.0
+                            Self::rust_type(dest, &schema)?.0
                         }
                         Some(Items::List(inner)) => {
                             let schema = Schema {
                                 any_of: Some(inner.clone()),
                                 ..Default::default()
                             };
-                            Self::rust_type(dest, &schema).await?.0
+                            Self::rust_type(dest, &schema)?.0
                         }
                         None => "Unhandled".to_string(),
                     };
@@ -238,7 +237,7 @@ pub enum NodeType {{
         } else if let Some(r#ref) = &schema.r#ref {
             (r#ref.to_string(), false, true)
         } else if schema.any_of.is_some() {
-            (Self::rust_any_of(dest, schema).await?, false, true)
+            (Self::rust_any_of(dest, schema)?, false, true)
         } else if let Some(title) = &schema.title {
             (title.to_string(), false, true)
         } else if let Some(r#const) = &schema.r#const {
@@ -297,6 +296,37 @@ pub enum NodeType {{
         attrs.push(format!("#[derive({})]", derives.join(", ")));
 
         attrs.push("#[serde(rename_all = \"camelCase\", crate = \"common::serde\")]".to_string());
+
+        // Add proptest related attributes
+        if let Some(proptest) = &schema.proptest {
+            attrs.push(String::from(
+                r#"#[cfg_attr(feature = "proptest", derive(Arbitrary))]"#,
+            ));
+
+            let mut modifiers = None;
+            for level in ProptestLevel::iter() {
+                if let Some(mods) = proptest.get(&level) {
+                    modifiers = Some(mods);
+                };
+
+                let Some(mods) = modifiers else {
+                        continue
+                    };
+
+                let mut args = Vec::new();
+                if let Some(filter) = &mods.filter {
+                    args.push(format!("filter = r#\"{filter}\"#"));
+                }
+                if args.is_empty() {
+                    continue;
+                }
+
+                attrs.push(format!(
+                    r#"#[cfg_attr(feature = "proptest-{level}", proptest({args}))]"#,
+                    args = args.join(",")
+                ));
+            }
+        }
 
         // Clone attrs for options before adding codec related attrs
         let options_attrs = attrs.clone();
@@ -382,7 +412,7 @@ pub enum NodeType {{
             let (mut typ, is_vec) = if name == "r#type" {
                 (format!(r#"MustBe!("{title}")"#), false)
             } else {
-                let (typ, is_vec, ..) = Self::rust_type(dest, property).await?;
+                let (typ, is_vec, ..) = Self::rust_type(dest, property)?;
                 used_types.insert(typ.clone());
                 (typ, is_vec)
             };
@@ -414,6 +444,54 @@ pub enum NodeType {{
 
             if !property.strip.is_empty() {
                 attrs.push(format!("#[strip({})]", property.strip.iter().join(", ")));
+            }
+
+            // Add proptest related attributes
+            if schema.proptest.is_some() {
+                if let Some(proptest) = &property.proptest {
+                    let mut modifiers = None;
+                    for level in ProptestLevel::iter() {
+                        if let Some(mods) = proptest.get(&level) {
+                            modifiers = Some(mods);
+                        };
+
+                        let Some(mods) = modifiers else {
+                            continue
+                        };
+
+                        let mut args = Vec::new();
+                        if let Some(strategy) = &mods.strategy {
+                            args.push(format!("strategy = r#\"{strategy}\"#"));
+                        }
+                        if let Some(value) = &mods.value {
+                            args.push(format!("value = r#\"{value}\"#"));
+                        }
+                        if let Some(regex) = &mods.regex {
+                            args.push(format!("regex = r#\"{regex}\"#"));
+                        }
+                        if let Some(filter) = &mods.filter {
+                            args.push(format!("filter = r#\"{filter}\"#"));
+                        }
+                        if args.is_empty() {
+                            continue;
+                        }
+
+                        attrs.push(format!(
+                            r#"#[cfg_attr(feature = "proptest-{level}", proptest({args}))]"#,
+                            args = args.join(",")
+                        ));
+                    }
+                } else if !property.is_required {
+                    // The default is for optional properties to be None at all proptest levels
+                    attrs.push(String::from(
+                        r#"#[cfg_attr(feature = "proptest", proptest(value = "None"))]"#,
+                    ));
+                } else {
+                    // The default for all other properties is to generate their default at all proptest levels
+                    attrs.push(String::from(
+                        r#"#[cfg_attr(feature = "proptest", proptest(value = "Default::default()"))]"#
+                    ));
+                }
             }
 
             // Add #[html] attribute for field if necessary
@@ -591,29 +669,28 @@ impl {title} {{{new}}}
     /// Generate a Rust `enum` for an `anyOf` root schema or property schema.
     ///
     /// Returns the name of the generated enum.
-    async fn rust_any_of(dest: &Path, schema: &Schema) -> Result<String> {
+    fn rust_any_of(dest: &Path, schema: &Schema) -> Result<String> {
         let Some(any_of) = &schema.any_of else {
             bail!("Schema has no anyOf");
         };
 
-        let (alternatives, are_types): (Vec<_>, Vec<_>) =
-            try_join_all(any_of.iter().map(|schema| async {
-                let (typ, is_array, is_type) = Self::rust_type(dest, schema).await?;
-                let typ = if is_array {
-                    Self::rust_array_of(dest, &typ).await?
+        let variants = any_of
+            .iter()
+            .map(|schema| {
+                let (typ, is_array, is_type) = Self::rust_type(dest, schema)?;
+                let variant = if is_array {
+                    Self::rust_array_of(dest, &typ)?
                 } else {
                     typ
                 };
-                Ok::<_, Report>((typ, is_type))
-            }))
-            .await?
-            .into_iter()
-            .unzip();
+                Ok::<_, Report>((variant, is_type, schema.clone()))
+            })
+            .collect::<Result<Vec<_>>>()?;
 
         let name = schema
             .title
             .clone()
-            .unwrap_or_else(|| alternatives.join("Or"));
+            .unwrap_or_else(|| variants.iter().map(|(variant, ..)| variant).join("Or"));
 
         let path = dest.join(format!("{}.rs", name.to_snake_case()));
         if path.exists() {
@@ -629,24 +706,19 @@ impl {title} {{{new}}}
                 .replace('\n', "\n    /// ")
                 .to_string()
         } else {
-            alternatives
+            variants
                 .iter()
-                .map(|variant| format!("[`{variant}`]"))
+                .map(|(variant, ..)| format!("[`{variant}`]"))
                 .join(" or ")
         };
 
-        let alternatives = alternatives
-            .into_iter()
-            .zip(are_types.into_iter())
-            .collect_vec();
-
-        let mut uses = alternatives
+        let mut uses = variants
             .iter()
-            .sorted()
-            .filter_map(|(name, is_type)| {
-                let module = name.to_snake_case();
+            .sorted_by(|(a, ..), (b, ..)| a.cmp(b))
+            .filter_map(|(variant, is_type, ..)| {
+                let module = variant.to_snake_case();
                 let module = escape_keyword(&module);
-                is_type.then_some(format!("use super::{module}::{name};",))
+                is_type.then_some(format!("use super::{module}::{variant};",))
             })
             .join("\n");
         if !uses.is_empty() {
@@ -656,24 +728,73 @@ impl {title} {{{new}}}
         let default = schema.default.as_ref().map(Self::rust_value);
 
         let mut unit_variants = true;
-        let variants = alternatives
+        let variants = variants
             .into_iter()
-            .map(|(variant, is_type)| {
-                let default = default
-                    .as_ref()
-                    .and_then(|default| {
-                        (default == &variant).then_some("#[default]\n    ".to_string())
-                    })
-                    .unwrap_or_default();
+            .map(|(variant, is_type, variant_schema)| {
+                let mut attrs = Vec::new();
+
+                // Add default attribute if the variant is the default
+                if let Some(default) = &default {
+                    if default == &variant {
+                        attrs.push(String::from("#[default]"))
+                    }
+                }
+
+                // Add proptest related attributes
+                if let Some(proptest) = &variant_schema.proptest {
+                    let mut modifiers = None;
+                    for level in ProptestLevel::iter() {
+                        if let Some(mods) = proptest.get(&level) {
+                            modifiers = Some(mods);
+                        };
+
+                        let Some(mods) = modifiers else {
+                            continue
+                        };
+
+                        let mut args = Vec::new();
+                        if mods.skip {
+                            args.push(String::from("skip"))
+                        }
+                        if let Some(weight) = mods.weight {
+                            args.push(format!("weight = {weight}"))
+                        }
+                        if let Some(strategy) = &mods.strategy {
+                            args.push(format!("strategy = r#\"{strategy}\"#"));
+                        }
+                        if let Some(value) = &mods.value {
+                            args.push(format!("value = r#\"{value}\"#"));
+                        }
+                        if let Some(regex) = &mods.regex {
+                            args.push(format!("regex = r#\"{regex}\"#"));
+                        }
+                        if let Some(filter) = &mods.filter {
+                            args.push(format!("filter = r#\"{filter}\"#"));
+                        }
+                        if args.is_empty() {
+                            continue;
+                        }
+
+                        attrs.push(format!(
+                            r#"#[cfg_attr(feature = "proptest-{level}", proptest({args}))]"#,
+                            args = args.join(",")
+                        ));
+                    }
+                }
+
+                let mut attrs = attrs.join("\n    ");
+                if !attrs.is_empty() {
+                    attrs.push_str("\n    ");
+                }
 
                 if is_type {
                     unit_variants = false;
-                    format!("{default}{variant}({variant}),")
+                    format!("{attrs}{variant}({variant}),")
                 } else {
-                    format!("{default}{variant},")
+                    format!("{attrs}{variant},")
                 }
             })
-            .join("\n    ");
+            .join("\n\n    ");
 
         let mut attrs = vec![];
 
@@ -712,6 +833,37 @@ impl {title} {{{new}}}
             }
         ));
 
+        // Add proptest related attributes
+        if let Some(proptest) = &schema.proptest {
+            attrs.push(String::from(
+                r#"#[cfg_attr(feature = "proptest", derive(Arbitrary))]"#,
+            ));
+
+            let mut modifiers = None;
+            for level in ProptestLevel::iter() {
+                if let Some(mods) = proptest.get(&level) {
+                    modifiers = Some(mods);
+                };
+
+                let Some(mods) = modifiers else {
+                    continue
+                };
+
+                let mut args = Vec::new();
+                if let Some(filter) = &mods.filter {
+                    args.push(format!("filter = r#\"{filter}\"#"));
+                }
+                if args.is_empty() {
+                    continue;
+                }
+
+                attrs.push(format!(
+                    r#"#[cfg_attr(feature = "proptest-{level}", proptest({args}))]"#,
+                    args = args.join(",")
+                ));
+            }
+        }
+
         let attrs = attrs.join("\n");
 
         let rust = format!(
@@ -726,7 +878,7 @@ pub enum {name} {{
 }}
 "#
         );
-        write(path, rust).await?;
+        std::fs::write(path, rust)?;
 
         Ok(name)
     }
@@ -735,7 +887,7 @@ pub enum {name} {{
     ///
     /// Returns the name of the generated type which will be the plural
     /// of the type of the array items.
-    async fn rust_array_of(dest: &Path, item_type: &str) -> Result<String> {
+    fn rust_array_of(dest: &Path, item_type: &str) -> Result<String> {
         let name = item_type.to_plural();
 
         let path = dest.join(format!("{}.rs", name.to_snake_case()));
@@ -752,7 +904,7 @@ use super::{module}::{item_type};
 pub type {name} = Vec<{item_type}>;
 "#
         );
-        write(path, rust).await?;
+        std::fs::write(path, rust)?;
 
         Ok(name)
     }

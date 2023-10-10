@@ -3,6 +3,7 @@
   content: [
     {
       type: "Claim",
+      claimType: "Theorem",
       content: [
         {
           type: "Paragraph",
@@ -13,11 +14,12 @@
             }
           ]
         }
-      ],
-      claimType: "Theorem"
+      ]
     },
     {
       type: "Claim",
+      claimType: "Proposition",
+      label: "Proposition 1",
       content: [
         {
           type: "Paragraph",
@@ -28,9 +30,7 @@
             }
           ]
         }
-      ],
-      claimType: "Proposition",
-      label: "Proposition 1"
+      ]
     }
   ]
 }

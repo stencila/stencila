@@ -45,7 +45,7 @@ The `CodeError` type is represented in these bindings:
 
 - [JSON-LD](https://stencila.dev/CodeError.jsonld)
 - [JSON Schema](https://stencila.dev/CodeError.schema.json)
-- Python class [`CodeError`](https://github.com/stencila/stencila/blob/main/python/stencila/types/code_error.py)
+- Python class [`CodeError`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/code_error.py)
 - Rust struct [`CodeError`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/code_error.rs)
 - TypeScript class [`CodeError`](https://github.com/stencila/stencila/blob/main/typescript/src/types/CodeError.ts)
 

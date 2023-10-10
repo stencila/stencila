@@ -8,6 +8,7 @@
   ],
   "category": "prose",
   "description": "A suggestion to insert some inline content.",
+  "proptest": {},
   "html": {
     "elem": "ins",
     "custom": true
@@ -50,6 +51,24 @@
       "strip": [
         "types"
       ],
+      "proptest": {
+        "min": {
+          "description": "Generate a single fixed text value.",
+          "strategy": "vec(Just(Inline::Text(crate::Text::from(\"text\"))), size_range(1..=1))"
+        },
+        "low": {
+          "description": "Generate a single arbitrary, non-recursive, inline node",
+          "strategy": "vec_inlines_non_recursive(1)"
+        },
+        "high": {
+          "description": "Generate up to two arbitrary, non-recursive, inline nodes",
+          "strategy": "vec_inlines_non_recursive(2)"
+        },
+        "max": {
+          "description": "Generate up to four arbitrary, non-recursive, inline nodes",
+          "strategy": "vec_inlines_non_recursive(4)"
+        }
+      },
       "type": "array",
       "items": {
         "$ref": "Inline.schema.json"

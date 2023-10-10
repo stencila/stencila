@@ -8,6 +8,7 @@
   ],
   "category": "data",
   "description": "A value that represents a point in time",
+  "proptest": {},
   "required": [
     "type",
     "value",

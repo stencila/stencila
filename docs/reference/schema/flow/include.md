@@ -59,7 +59,7 @@ The `Include` type is represented in these bindings:
 
 - [JSON-LD](https://stencila.dev/Include.jsonld)
 - [JSON Schema](https://stencila.dev/Include.schema.json)
-- Python class [`Include`](https://github.com/stencila/stencila/blob/main/python/stencila/types/include.py)
+- Python class [`Include`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/include.py)
 - Rust struct [`Include`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/include.rs)
 - TypeScript class [`Include`](https://github.com/stencila/stencila/blob/main/typescript/src/types/Include.ts)
 

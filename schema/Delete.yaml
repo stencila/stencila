@@ -10,3 +10,4 @@ jats:
   special: true
 markdown:
   format: '<del>{content}</del>'
+proptest: {}

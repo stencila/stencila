@@ -60,9 +60,20 @@ The `ListItem` type is represented in these bindings:
 
 - [JSON-LD](https://stencila.dev/ListItem.jsonld)
 - [JSON Schema](https://stencila.dev/ListItem.schema.json)
-- Python class [`ListItem`](https://github.com/stencila/stencila/blob/main/python/stencila/types/list_item.py)
+- Python class [`ListItem`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/list_item.py)
 - Rust struct [`ListItem`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/list_item.rs)
 - TypeScript class [`ListItem`](https://github.com/stencila/stencila/blob/main/typescript/src/types/ListItem.ts)
+
+## Testing
+
+During property-based (a.k.a generative) testing, the properties of the `ListItem` type are generated using the following strategies for each complexity level (see the [`proptest` book](https://proptest-rs.github.io/proptest/) for an explanation of the Rust strategy expressions). Any optional properties that are not in this table are set to `None`
+
+| Property  | Complexity | Description                                     | Strategy                                                                           |
+| --------- | ---------- | ----------------------------------------------- | ---------------------------------------------------------------------------------- |
+| `content` | Min+       | Generate a single, arbitrary, paragraph         | `vec_paragraphs(1).prop_map(\|blocks\| Some(BlocksOrInlines::Blocks(blocks)))`     |
+|           | Low+       | Generate one, arbitrary, non-list block         | `vec_blocks_list_item(1).prop_map(\|blocks\| Some(BlocksOrInlines::Blocks(blocks)))` |
+|           | High+      | Generate up to two, arbitrary, non-list blocks  | `vec_blocks_list_item(2).prop_map(\|blocks\| Some(BlocksOrInlines::Blocks(blocks)))` |
+|           | Max        | Generate up to four, arbitrary, non-list blocks | `vec_blocks_list_item(4).prop_map(\|blocks\| Some(BlocksOrInlines::Blocks(blocks)))` |
 
 ## Source
 

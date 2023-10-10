@@ -29,7 +29,7 @@ The `Array` type is represented in these bindings:
 
 - [JSON-LD](https://stencila.dev/Array.jsonld)
 - [JSON Schema](https://stencila.dev/Array.schema.json)
-- Python type [`Array`](https://github.com/stencila/stencila/blob/main/python/stencila/types/array.py)
+- Python type [`Array`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/array.py)
 - Rust type [`Array`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/array.rs)
 - TypeScript type [`Array`](https://github.com/stencila/stencila/blob/main/typescript/src/types/Array.ts)
 

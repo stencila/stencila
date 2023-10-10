@@ -226,10 +226,13 @@
       "rdfs:comment": "The structured content decoded from the source.",
       "schema:domainIncludes": [
         {
+          "@id": "schema:Article"
+        },
+        {
           "@id": "schema:Claim"
         },
         {
-          "@id": "schema:CreativeWork"
+          "@id": "schema:Comment"
         },
         {
           "@id": "schema:ListItem"
@@ -239,6 +242,9 @@
         },
         {
           "@id": "stencila:Division"
+        },
+        {
+          "@id": "stencila:Figure"
         },
         {
           "@id": "stencila:For"

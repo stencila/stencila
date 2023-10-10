@@ -41,9 +41,20 @@ The `Date` type is represented in these bindings:
 
 - [JSON-LD](https://stencila.dev/Date.jsonld)
 - [JSON Schema](https://stencila.dev/Date.schema.json)
-- Python class [`Date`](https://github.com/stencila/stencila/blob/main/python/stencila/types/date.py)
+- Python class [`Date`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/date.py)
 - Rust struct [`Date`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/date.rs)
 - TypeScript class [`Date`](https://github.com/stencila/stencila/blob/main/typescript/src/types/Date.ts)
+
+## Testing
+
+During property-based (a.k.a generative) testing, the properties of the `Date` type are generated using the following strategies for each complexity level (see the [`proptest` book](https://proptest-rs.github.io/proptest/) for an explanation of the Rust strategy expressions). Any optional properties that are not in this table are set to `None`
+
+| Property | Complexity | Description                                                             | Strategy                     |
+| -------- | ---------- | ----------------------------------------------------------------------- | ---------------------------- |
+| `value`  | Min+       | Generate a fixed date string.                                           | `String::from("2022-02-22")` |
+|          | Low+       | Generate a random date string.                                          | Regex`\d{4}-[01]\d-[0-3]\d`  |
+|          | High+      | Generate a random string of up to 10 alphanumeric characters & hyphens. | Regex`[a-zA-Z0-9\-]{1,10}`   |
+|          | Max        | Generate an arbitrary string.                                           | `String::arbitrary()`        |
 
 ## Source
 

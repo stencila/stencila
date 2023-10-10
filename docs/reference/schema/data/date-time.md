@@ -41,9 +41,20 @@ The `DateTime` type is represented in these bindings:
 
 - [JSON-LD](https://stencila.dev/DateTime.jsonld)
 - [JSON Schema](https://stencila.dev/DateTime.schema.json)
-- Python class [`DateTime`](https://github.com/stencila/stencila/blob/main/python/stencila/types/date_time.py)
+- Python class [`DateTime`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/date_time.py)
 - Rust struct [`DateTime`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/date_time.rs)
 - TypeScript class [`DateTime`](https://github.com/stencila/stencila/blob/main/typescript/src/types/DateTime.ts)
+
+## Testing
+
+During property-based (a.k.a generative) testing, the properties of the `DateTime` type are generated using the following strategies for each complexity level (see the [`proptest` book](https://proptest-rs.github.io/proptest/) for an explanation of the Rust strategy expressions). Any optional properties that are not in this table are set to `None`
+
+| Property | Complexity | Description                                                                     | Strategy                                                                        |
+| -------- | ---------- | ------------------------------------------------------------------------------- | ------------------------------------------------------------------------------- |
+| `value`  | Min+       | Generate a fixed date-time string.                                              | `String::from("2022-02-22T22:22:22")`                                           |
+|          | Low+       | Generate a random date-time string.                                             | Regex`\d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d:[0-5]\d\.\d+([+-][0-2]\d:[0-5]\d\|Z)` |
+|          | High+      | Generate a random string of up to 20 alphanumeric characters, colons & hyphens. | Regex`[a-zA-Z0-9\-:]{1,20}`                                                     |
+|          | Max        | Generate an arbitrary string.                                                   | `String::arbitrary()`                                                           |
 
 ## Source
 

@@ -40,40 +40,122 @@ use super::video_object::VideoObject;
 /// Union type for valid inline content.
 #[derive(Debug, Display, Clone, PartialEq, Serialize, Deserialize, StripNode, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec, SmartDefault, ReadNode, WriteNode)]
 #[serde(untagged, crate = "common::serde")]
+#[cfg_attr(feature = "proptest", derive(Arbitrary))]
 pub enum Inline {
     AudioObject(AudioObject),
+
+    #[cfg_attr(feature = "proptest-min", proptest(skip))]
+    #[cfg_attr(feature = "proptest-low", proptest(skip))]
+    #[cfg_attr(feature = "proptest-high", proptest(skip))]
+    #[cfg_attr(feature = "proptest-max", proptest(skip))]
     Button(Button),
+
+    #[cfg_attr(feature = "proptest-min", proptest(skip))]
+    #[cfg_attr(feature = "proptest-low", proptest(skip))]
+    #[cfg_attr(feature = "proptest-high", proptest(skip))]
+    #[cfg_attr(feature = "proptest-max", proptest(skip))]
     Cite(Cite),
+
+    #[cfg_attr(feature = "proptest-min", proptest(skip))]
+    #[cfg_attr(feature = "proptest-low", proptest(skip))]
+    #[cfg_attr(feature = "proptest-high", proptest(skip))]
+    #[cfg_attr(feature = "proptest-max", proptest(skip))]
     CiteGroup(CiteGroup),
+
+    #[cfg_attr(feature = "proptest-min", proptest(skip))]
     CodeExpression(CodeExpression),
+
     CodeFragment(CodeFragment),
+
+    #[cfg_attr(feature = "proptest-min", proptest(skip))]
     Date(Date),
+
+    #[cfg_attr(feature = "proptest-min", proptest(skip))]
     DateTime(DateTime),
+
+    #[cfg_attr(feature = "proptest-min", proptest(skip))]
     Delete(Delete),
+
     Duration(Duration),
+
     Emphasis(Emphasis),
+
     ImageObject(ImageObject),
+
+    #[cfg_attr(feature = "proptest-min", proptest(skip))]
     Insert(Insert),
+
     Link(Link),
+
     MathFragment(MathFragment),
+
+    #[cfg_attr(feature = "proptest-min", proptest(skip))]
+    #[cfg_attr(feature = "proptest-low", proptest(skip))]
+    #[cfg_attr(feature = "proptest-high", proptest(skip))]
+    #[cfg_attr(feature = "proptest-max", proptest(skip))]
     MediaObject(MediaObject),
+
+    #[cfg_attr(feature = "proptest-min", proptest(skip))]
     Note(Note),
+
+    #[cfg_attr(feature = "proptest-min", proptest(skip))]
+    #[cfg_attr(feature = "proptest-low", proptest(skip))]
+    #[cfg_attr(feature = "proptest-high", proptest(skip))]
+    #[cfg_attr(feature = "proptest-max", proptest(skip))]
     Parameter(Parameter),
+
     Quote(Quote),
+
     Span(Span),
+
     Strikeout(Strikeout),
+
     Strong(Strong),
+
     Subscript(Subscript),
+
     Superscript(Superscript),
+
     Text(Text),
+
+    #[cfg_attr(feature = "proptest-min", proptest(skip))]
     Time(Time),
+
+    #[cfg_attr(feature = "proptest-min", proptest(skip))]
     Timestamp(Timestamp),
+
     Underline(Underline),
+
     VideoObject(VideoObject),
+
+    #[cfg_attr(feature = "proptest-min", proptest(skip))]
+    #[cfg_attr(feature = "proptest-low", proptest(skip))]
+    #[cfg_attr(feature = "proptest-high", proptest(value = r#"Inline::Null(Null)"#))]
+    #[cfg_attr(feature = "proptest-max", proptest(value = r#"Inline::Null(Null)"#))]
     Null(Null),
+
+    #[cfg_attr(feature = "proptest-min", proptest(skip))]
+    #[cfg_attr(feature = "proptest-low", proptest(skip))]
+    #[cfg_attr(feature = "proptest-high", proptest(strategy = r#"Boolean::arbitrary().prop_map(Inline::Boolean)"#))]
+    #[cfg_attr(feature = "proptest-max", proptest(strategy = r#"Boolean::arbitrary().prop_map(Inline::Boolean)"#))]
     Boolean(Boolean),
+
+    #[cfg_attr(feature = "proptest-min", proptest(skip))]
+    #[cfg_attr(feature = "proptest-low", proptest(skip))]
+    #[cfg_attr(feature = "proptest-high", proptest(strategy = r#"Integer::arbitrary().prop_map(Inline::Integer)"#))]
+    #[cfg_attr(feature = "proptest-max", proptest(strategy = r#"Integer::arbitrary().prop_map(Inline::Integer)"#))]
     Integer(Integer),
+
+    #[cfg_attr(feature = "proptest-min", proptest(skip))]
+    #[cfg_attr(feature = "proptest-low", proptest(skip))]
+    #[cfg_attr(feature = "proptest-high", proptest(value = r#"Inline::Number(1.23)"#))]
+    #[cfg_attr(feature = "proptest-max", proptest(value = r#"Inline::Number(1.23)"#))]
     Number(Number),
+
     #[default]
+    #[cfg_attr(feature = "proptest-min", proptest(skip))]
+    #[cfg_attr(feature = "proptest-low", proptest(skip))]
+    #[cfg_attr(feature = "proptest-high", proptest(skip))]
+    #[cfg_attr(feature = "proptest-max", proptest(skip))]
     String(String),
 }

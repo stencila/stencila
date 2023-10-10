@@ -11,6 +11,8 @@ use super::software_application::SoftwareApplication;
 #[serde(untagged, crate = "common::serde")]
 pub enum PersonOrOrganizationOrSoftwareApplication {
     Person(Person),
+
     Organization(Organization),
+
     SoftwareApplication(SoftwareApplication),
 }

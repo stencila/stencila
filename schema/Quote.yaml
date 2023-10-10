@@ -3,10 +3,17 @@ title: Quote
 extends: Mark
 category: prose
 description: Inline, quoted content.
+jats:
+  # Note that this is not a JATS standard element but we use it to
+  # enable roundtrip testing (stripping `Quote` nodes does not work
+  # because it can result in two adjacent text nodes which are concatenated
+  # on the decode of the encode-decode roundtrip).
+  elem: inline-quote
 html:
   elem: q
 markdown:
   format: '<q>{content}</q>'
+proptest: {}
 core:
   - cite
 properties:

@@ -2,6 +2,7 @@
 
 from .prelude import *
 
+from .block import Block
 from .creative_work import CreativeWork
 from .int_or_str import IntOrStr
 
@@ -13,6 +14,9 @@ class Article(CreativeWork):
     """
 
     type: Literal["Article"] = field(default="Article", init=False)
+
+    content: List[Block]
+    """The content of the article."""
 
     page_start: Optional[IntOrStr] = None
     """The page on which the article starts; for example "135" or "xiii"."""

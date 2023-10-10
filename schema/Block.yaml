@@ -1,24 +1,90 @@
 title: Block
-'@id': stencila:Block
+"@id": stencila:Block
 category: prose
-description: Union type for block content node types.
+description: Union type in block content node types.
 default: Paragraph
+proptest: {}
 anyOf:
   - $ref: Call
+    proptest:
+      min:
+        description: Do not generate `Call` nodes in block content.
+        skip: true
+  
   - $ref: Claim
+    proptest:
+      min:
+        description: Do not generate `Claim` nodes in block content.
+        skip: true
+      low:
+        description: Generate `Claim` nodes in block content.
+        skip: false
+    
   - $ref: CodeBlock
+  
   - $ref: CodeChunk
+    proptest:
+      min:
+        description: Do not generate `CodeChunk` nodes in block content.
+        skip: true
+      low:
+        description: Generate `CodeChunk` nodes in block content.
+        skip: false
+  
   - $ref: Division
+  
   - $ref: Figure
+    proptest:
+      min:
+        description: Do not generate `Figure` nodes in block content.
+        skip: true
+      low:
+        description: Generate `Figure` nodes in block content.
+        skip: false
+  
   - $ref: For
+    proptest:
+      min:
+        description: Do not generate `For` nodes in block content.
+        skip: true
+  
   - $ref: Form
+    proptest:
+      min:
+        description: Do not generate `Form` nodes in block content.
+        skip: true
+  
   - $ref: Heading
+  
   - $ref: If
+    proptest:
+      min:
+        description: Do not generate `If` nodes in block content.
+        skip: true
+  
   - $ref: Include
+    proptest:
+      min:
+        description: Do not generate `Include` nodes in block content.
+        skip: true
+  
   - $ref: List
+  
   - $ref: MathBlock
+  
   - $ref: Paragraph
+  
   - $ref: QuoteBlock
+  
   - $ref: Section
+    proptest:
+      min:
+        description: Do not generate `Section` nodes in block content.
+        skip: true
+      low:
+        description: Generate `Section` nodes in block content.
+        skip: false
+  
   - $ref: Table
+  
   - $ref: ThematicBreak

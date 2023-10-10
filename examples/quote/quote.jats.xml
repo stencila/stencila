@@ -2,7 +2,7 @@
   <front>
   </front>
   <body>
-    <p>A quote .</p>
+    <p>A quote<inline-quote>Never memorize something that you can look up</inline-quote>.</p>
   </body>
   <back>
   </back>
