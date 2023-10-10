@@ -56,7 +56,7 @@ During property-based (a.k.a generative) testing, the properties of the `MathBlo
 
 | Property       | Complexity | Description                                                                                             | Strategy                                     |
 | -------------- | ---------- | ------------------------------------------------------------------------------------------------------- | -------------------------------------------- |
-| `mathLanguage` | Min+       | Do not generate a math language.                                                                        | `None`                                       |
+| `mathLanguage` | Min+       | Generate a fixed string.                                                                                | `String::from("lang")`                       |
 |                | Low+       | Generate one of the math language names.                                                                | Regex`(asciimath)\|(mathml)\|(tex)`          |
 |                | High+      | Generate a random string of up to 10 alphanumeric characters.                                           | Regex`[a-zA-Z0-9]{1,10}`                     |
 |                | Max        | Generate an arbitrary string.                                                                           | `String::arbitrary()`                        |

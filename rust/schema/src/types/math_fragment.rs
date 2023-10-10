@@ -26,7 +26,7 @@ pub struct MathFragment {
     pub id: Option<String>,
 
     /// The language used for the equation e.g tex, mathml, asciimath.
-    #[cfg_attr(feature = "proptest-min", proptest(value = r#"None"#))]
+    #[cfg_attr(feature = "proptest-min", proptest(value = r#"String::from("lang")"#))]
     #[cfg_attr(feature = "proptest-low", proptest(regex = r#"(asciimath)|(mathml)|(tex)"#))]
     #[cfg_attr(feature = "proptest-high", proptest(regex = r#"[a-zA-Z0-9]{1,10}"#))]
     #[cfg_attr(feature = "proptest-max", proptest(strategy = r#"String::arbitrary()"#))]

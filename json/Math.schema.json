@@ -45,8 +45,8 @@
       "description": "The language used for the equation e.g tex, mathml, asciimath.",
       "proptest": {
         "min": {
-          "description": "Do not generate a math language.",
-          "value": "None"
+          "description": "Generate a fixed string.",
+          "value": "String::from(\"lang\")"
         },
         "low": {
           "description": "Generate one of the math language names.",
