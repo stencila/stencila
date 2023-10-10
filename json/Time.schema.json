@@ -8,6 +8,7 @@
   ],
   "category": "data",
   "description": "A point in time recurring on multiple days",
+  "proptest": {},
   "required": [
     "type",
     "value"
@@ -37,6 +38,24 @@
     "value": {
       "@id": "schema:value",
       "description": "The time of day as a string in format `hh:mm:ss[Z|(+|-)hh:mm]`.",
+      "proptest": {
+        "min": {
+          "description": "Generate a fixed date-time string.",
+          "value": "String::from(\"2022-02-22T22:22:22\")"
+        },
+        "low": {
+          "description": "Generate a random date-time string.",
+          "regex": "[0-2]\\d:[0-5]\\d:[0-5]\\d\\.\\d+([+-][0-2]\\d:[0-5]\\d|Z)"
+        },
+        "high": {
+          "description": "Generate a random string of up to 20 alphanumeric characters, colons & hyphens.",
+          "regex": "[a-zA-Z0-9\\-:]{1,20}"
+        },
+        "max": {
+          "description": "Generate an arbitrary string.",
+          "strategy": "String::arbitrary()"
+        }
+      },
       "type": "string",
       "format": "time"
     }

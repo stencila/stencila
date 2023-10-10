@@ -50,19 +50,19 @@
       "description": "The value of the text content",
       "proptest": {
         "min": {
-          "description": "Generate a fixed text value.",
+          "description": "Generate a fixed string of text.",
           "value": "Cord::new(\"text\")"
         },
         "low": {
-          "description": "Generate a random permutation of up to 10 alpha numeric characters.",
+          "description": "Generate a random string of up to 10 alphanumeric characters.",
           "strategy": "r\"[a-zA-Z0-9]{1,10}\".prop_map(Cord::new)"
         },
         "high": {
-          "description": "Generate a random permutation of up to 100 alpha numeric characters, some special characters commonly used in prose, and whitespace.",
+          "description": "Generate a random string of up to 100 alphanumeric characters, some special characters commonly used in prose, and whitespace.",
           "strategy": "r\"[a-zA-Z0-9\\s\\t-_.!?*+-/()'<>=]{1,100}\".prop_map(Cord::new)"
         },
         "max": {
-          "description": "Generate an arbitrary text value.",
+          "description": "Generate an arbitrary string.",
           "strategy": "String::arbitrary().prop_map(Cord::new)"
         }
       },

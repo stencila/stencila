@@ -10,16 +10,16 @@ This type is marked as unstable and is subject to change.
 
 The `Division` type has these properties:
 
-| Name          | `@id`                                | Type                                                                                                               | Description                                                                | Inherited from                                                                                       |
-| ------------- | ------------------------------------ | ------------------------------------------------------------------------------------------------------------------ | -------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------- |
-| id            | [`schema:id`](https://schema.org/id) | [`String`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/string.md)                    | The identifier for this item                                               | [`Entity`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/entity.md)     |
-| code          | `stencila:code`                      | [`Cord`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/cord.md)                        | The code of the equation in the `styleLanguage`.                           | [`Styled`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/style/styled.md)     |
-| styleLanguage | `stencila:styleLanguage`             | [`String`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/string.md)                    | The language used for the style specification e.g. css, tailwind, classes. | [`Styled`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/style/styled.md)     |
-| compileDigest | `stencila:compileDigest`             | [`ExecutionDigest`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/execution-digest.md) | A digest of the `code` and `styleLanguage`.                                | [`Styled`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/style/styled.md)     |
-| errors        | `stencila:errors`                    | [`String`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/string.md)*                   | Errors that occurred when transpiling the `code`.                          | [`Styled`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/style/styled.md)     |
-| css           | `stencila:css`                       | [`String`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/string.md)                    | A Cascading Style Sheet (CSS) transpiled from the `code` property.         | [`Styled`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/style/styled.md)     |
-| classes       | `stencila:classes`                   | [`String`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/string.md)*                   | A list of class names associated with the node                             | [`Styled`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/style/styled.md)     |
-| content       | `stencila:content`                   | [`Block`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/block.md)*                    | The content within the division                                            | [`Division`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/style/division.md) |
+| Name          | `@id`                                | Type                                                                                                               | Description                                                        | Inherited from                                                                                       |
+| ------------- | ------------------------------------ | ------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------- |
+| id            | [`schema:id`](https://schema.org/id) | [`String`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/string.md)                    | The identifier for this item                                       | [`Entity`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/entity.md)     |
+| code          | `stencila:code`                      | [`Cord`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/cord.md)                        | The code of the equation in the `styleLanguage`.                   | [`Styled`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/style/styled.md)     |
+| styleLanguage | `stencila:styleLanguage`             | [`String`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/string.md)                    | The language used for the style specification e.g. css, tw         | [`Styled`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/style/styled.md)     |
+| compileDigest | `stencila:compileDigest`             | [`ExecutionDigest`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/execution-digest.md) | A digest of the `code` and `styleLanguage`.                        | [`Styled`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/style/styled.md)     |
+| errors        | `stencila:errors`                    | [`String`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/string.md)*                   | Errors that occurred when transpiling the `code`.                  | [`Styled`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/style/styled.md)     |
+| css           | `stencila:css`                       | [`String`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/string.md)                    | A Cascading Style Sheet (CSS) transpiled from the `code` property. | [`Styled`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/style/styled.md)     |
+| classes       | `stencila:classes`                   | [`String`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/string.md)*                   | A list of class names associated with the node                     | [`Styled`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/style/styled.md)     |
+| content       | `stencila:content`                   | [`Block`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/block.md)*                    | The content within the division                                    | [`Division`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/style/division.md) |
 
 ## Related
 
@@ -49,9 +49,24 @@ The `Division` type is represented in these bindings:
 
 - [JSON-LD](https://stencila.dev/Division.jsonld)
 - [JSON Schema](https://stencila.dev/Division.schema.json)
-- Python class [`Division`](https://github.com/stencila/stencila/blob/main/python/stencila/types/division.py)
+- Python class [`Division`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/division.py)
 - Rust struct [`Division`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/division.rs)
 - TypeScript class [`Division`](https://github.com/stencila/stencila/blob/main/typescript/src/types/Division.ts)
+
+## Testing
+
+During property-based (a.k.a generative) testing, the properties of the `Division` type are generated using the following strategies for each complexity level (see the [`proptest` book](https://proptest-rs.github.io/proptest/) for an explanation of the Rust strategy expressions). Any optional properties that are not in this table are set to `None`
+
+| Property        | Complexity | Description                                                                                             | Strategy                                       |
+| --------------- | ---------- | ------------------------------------------------------------------------------------------------------- | ---------------------------------------------- |
+| `code`          | Min+       | Generate a simple fixed string of code.                                                                 | `Cord::new("code")`                            |
+|                 | Low+       | Generate a random string of up to 10 alphanumeric & whitespace characters.                              | `r"[a-zA-Z0-9\s\t]{1,10}".prop_map(Cord::new)` |
+|                 | High+      | Generate a random string of up to 100 characters, excluding those used as code delimiters in Markdown.  | `r"[^\`]{1,100}".prop_map(Cord::new)`          |
+|                 | Max        | Generate an arbitrary string.                                                                           | `String::arbitrary().prop_map(Cord::new)`      |
+| `styleLanguage` | Min+       | Do not generate a style language.                                                                       | `None`                                         |
+|                 | Low+       | Generate one of the well known style language short names.                                              | `option::of(r"(css)\|(tw)")`                   |
+|                 | High+      | Generate a random string of up to 10 alphanumeric characters.                                           | `option::of(r"[a-zA-Z0-9]{1,10}")`             |
+|                 | Max        | Generate an arbitrary string.                                                                           | `option::of(String::arbitrary())`              |
 
 ## Source
 

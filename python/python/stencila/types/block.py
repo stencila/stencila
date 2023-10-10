@@ -43,5 +43,5 @@ Block = Union[
     ThematicBreak,
 ]
 """
-Union type for block content node types.
+Union type in block content node types.
 """

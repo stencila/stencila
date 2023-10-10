@@ -42,9 +42,20 @@ The `TableRow` type is represented in these bindings:
 
 - [JSON-LD](https://stencila.dev/TableRow.jsonld)
 - [JSON Schema](https://stencila.dev/TableRow.schema.json)
-- Python class [`TableRow`](https://github.com/stencila/stencila/blob/main/python/stencila/types/table_row.py)
+- Python class [`TableRow`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/table_row.py)
 - Rust struct [`TableRow`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/table_row.rs)
 - TypeScript class [`TableRow`](https://github.com/stencila/stencila/blob/main/typescript/src/types/TableRow.ts)
+
+## Testing
+
+During property-based (a.k.a generative) testing, the properties of the `TableRow` type are generated using the following strategies for each complexity level (see the [`proptest` book](https://proptest-rs.github.io/proptest/) for an explanation of the Rust strategy expressions). Any optional properties that are not in this table are set to `None`
+
+| Property | Complexity | Description                                   | Strategy                                         |
+| -------- | ---------- | --------------------------------------------- | ------------------------------------------------ |
+| `cells`  | Min+       | Generate a single, arbitrary, table cell.     | `vec(TableCell::arbitrary(), size_range(1..=1))` |
+|          | Low+       | Generate two, arbitrary, table cells.         | `vec(TableCell::arbitrary(), size_range(2..=2))` |
+|          | High+      | Generate four, arbitrary, table cells.        | `vec(TableCell::arbitrary(), size_range(4..=4))` |
+|          | Max        | Generate up to eight, arbitrary, table cells. | `vec(TableCell::arbitrary(), size_range(1..=8))` |
 
 ## Source
 

@@ -5,6 +5,7 @@ category: works
 description: A row within a Table.
 html:
   elem: tr
+proptest: {}
 required:
   - cells
 properties:
@@ -14,6 +15,19 @@ properties:
     type: array
     items:
       $ref: TableCell
+    proptest:
+      min:
+        description: Generate a single, arbitrary, table cell.
+        strategy: vec(TableCell::arbitrary(), size_range(1..=1))
+      low:
+        description: Generate two, arbitrary, table cells.
+        strategy: vec(TableCell::arbitrary(), size_range(2..=2))
+      high:
+        description: Generate four, arbitrary, table cells.
+        strategy: vec(TableCell::arbitrary(), size_range(4..=4))
+      max:
+        description: Generate up to eight, arbitrary, table cells.
+        strategy: vec(TableCell::arbitrary(), size_range(1..=8))
   rowType:
     '@id': stencila:rowType
     description: The type of row.

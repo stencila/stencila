@@ -491,7 +491,7 @@ fn proptests_anyof(title: &str, schema: &Schema) -> Vec<Block> {
             cf(title),
             text(" type are generated using the following strategies for each complexity level (see the "),
             link([cf("proptest"), text(" book")], "https://proptest-rs.github.io/proptest/"),
-            text(" for an explanation of the Rust strategy expressions). Any variant not shown in this table is generated using the strategy for the corresponding type."),
+            text(" for an explanation of the Rust strategy expressions). Any variant not shown is generated using the default strategy for the corresponding type and complexity level."),
 
         ]),
         table(rows)
@@ -527,7 +527,7 @@ fn proptests_object(title: &str, schema: &Schema) -> Vec<Block> {
             } else if let Some(value) = &options.value {
                 vec![cf(value)]
             } else if let Some(regex) = &options.regex {
-                vec![cf(regex)]
+                vec![text("Regex"), cf(regex)]
             } else {
                 vec![text("Default for level")]
             };

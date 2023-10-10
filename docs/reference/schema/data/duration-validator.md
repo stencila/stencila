@@ -43,7 +43,7 @@ The `DurationValidator` type is represented in these bindings:
 
 - [JSON-LD](https://stencila.dev/DurationValidator.jsonld)
 - [JSON Schema](https://stencila.dev/DurationValidator.schema.json)
-- Python class [`DurationValidator`](https://github.com/stencila/stencila/blob/main/python/stencila/types/duration_validator.py)
+- Python class [`DurationValidator`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/duration_validator.py)
 - Rust struct [`DurationValidator`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/duration_validator.rs)
 - TypeScript class [`DurationValidator`](https://github.com/stencila/stencila/blob/main/typescript/src/types/DurationValidator.ts)
 

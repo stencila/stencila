@@ -56,7 +56,7 @@ The `If` type is represented in these bindings:
 
 - [JSON-LD](https://stencila.dev/If.jsonld)
 - [JSON Schema](https://stencila.dev/If.schema.json)
-- Python class [`If`](https://github.com/stencila/stencila/blob/main/python/stencila/types/if.py)
+- Python class [`If`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/if.py)
 - Rust struct [`If`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/if.rs)
 - TypeScript class [`If`](https://github.com/stencila/stencila/blob/main/typescript/src/types/If.ts)
 

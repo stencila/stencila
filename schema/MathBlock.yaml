@@ -11,6 +11,7 @@ jats:
   elem: disp-formula
 markdown:
   special: true
+proptest: {}
 core:
   - label
 properties:

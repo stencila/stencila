@@ -10,17 +10,24 @@ use super::table_row_type::TableRowType;
 #[skip_serializing_none]
 #[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec, ReadNode, WriteNode)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
+#[cfg_attr(feature = "proptest", derive(Arbitrary))]
 #[html(elem = "tr")]
 pub struct TableRow {
     /// The type of this item
+    #[cfg_attr(feature = "proptest", proptest(value = "Default::default()"))]
     pub r#type: MustBe!("TableRow"),
 
     /// The identifier for this item
     #[strip(id)]
+    #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     #[html(attr = "id")]
     pub id: Option<String>,
 
     /// An array of cells in the row.
+    #[cfg_attr(feature = "proptest-min", proptest(strategy = r#"vec(TableCell::arbitrary(), size_range(1..=1))"#))]
+    #[cfg_attr(feature = "proptest-low", proptest(strategy = r#"vec(TableCell::arbitrary(), size_range(2..=2))"#))]
+    #[cfg_attr(feature = "proptest-high", proptest(strategy = r#"vec(TableCell::arbitrary(), size_range(4..=4))"#))]
+    #[cfg_attr(feature = "proptest-max", proptest(strategy = r#"vec(TableCell::arbitrary(), size_range(1..=8))"#))]
     pub cells: Vec<TableCell>,
 
     /// Non-core optional fields
@@ -34,8 +41,10 @@ pub struct TableRow {
 #[skip_serializing_none]
 #[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec, ReadNode, WriteNode)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
+#[cfg_attr(feature = "proptest", derive(Arbitrary))]
 pub struct TableRowOptions {
     /// The type of row.
+    #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     pub row_type: Option<TableRowType>,
 }
 

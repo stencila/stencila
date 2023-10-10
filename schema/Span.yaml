@@ -4,19 +4,21 @@ extends: Styled
 category: style
 description: Styled inline content
 status: under-development
-required:
-  - content
-properties:
-  content:
-    '@id': 'stencila:content'
-    description: The content within the span
-    strip:
-      - types
-    type: array
-    items:
-      $ref: Inline
 html:
   elem: span
   custom: true
 markdown:
   format: '[{content}]{{{code}}}'
+proptest: {}
+required:
+  - content
+properties:
+  content:
+    '@id': stencila:content
+    description: The content within the span
+    type: array
+    items:
+      $ref: Inline
+    strip:
+      - types
+    

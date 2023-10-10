@@ -16,6 +16,17 @@ core:
   - authors
   - datePublished
 properties:
+  content:
+    '@id': stencila:content
+    description: Content of the comment, usually one or more paragraphs.
+    $comment: |
+      Most comments will have a single paragraph but could have multiple
+      paragraphs, tables and even figures.
+    type: array
+    items:
+      $ref: Block
+    strip:
+      - types
   parentItem:
     '@id': schema:parentItem
     description: The parent comment of this comment.

@@ -52,7 +52,7 @@ The `DefinedTerm` type is represented in these bindings:
 
 - [JSON-LD](https://stencila.dev/DefinedTerm.jsonld)
 - [JSON Schema](https://stencila.dev/DefinedTerm.schema.json)
-- Python class [`DefinedTerm`](https://github.com/stencila/stencila/blob/main/python/stencila/types/defined_term.py)
+- Python class [`DefinedTerm`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/defined_term.py)
 - Rust struct [`DefinedTerm`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/defined_term.rs)
 - TypeScript class [`DefinedTerm`](https://github.com/stencila/stencila/blob/main/typescript/src/types/DefinedTerm.ts)
 

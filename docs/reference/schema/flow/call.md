@@ -60,7 +60,7 @@ The `Call` type is represented in these bindings:
 
 - [JSON-LD](https://stencila.dev/Call.jsonld)
 - [JSON Schema](https://stencila.dev/Call.schema.json)
-- Python class [`Call`](https://github.com/stencila/stencila/blob/main/python/stencila/types/call.py)
+- Python class [`Call`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/call.py)
 - Rust struct [`Call`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/call.rs)
 - TypeScript class [`Call`](https://github.com/stencila/stencila/blob/main/typescript/src/types/Call.ts)
 

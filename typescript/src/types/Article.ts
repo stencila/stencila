@@ -11,7 +11,7 @@ export class Article extends CreativeWork {
   type = "Article";
 
   /**
-   * The structured content of this creative work c.f. property `text`.
+   * The content of the article.
    */
   content: Block[];
 

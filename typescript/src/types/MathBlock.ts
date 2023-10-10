@@ -1,5 +1,6 @@
 // Generated file; do not edit. See `../rust/schema-gen` crate.
 
+import { Cord } from "./Cord.js";
 import { Math } from "./Math.js";
 
 /**
@@ -13,7 +14,7 @@ export class MathBlock extends Math {
    */
   label?: string;
 
-  constructor(mathLanguage: string, code: string, options?: Partial<MathBlock>) {
+  constructor(mathLanguage: string, code: Cord, options?: Partial<MathBlock>) {
     super(mathLanguage, code);
     if (options) Object.assign(this, options);
     this.mathLanguage = mathLanguage;
@@ -24,6 +25,6 @@ export class MathBlock extends Math {
 /**
 * Create a new `MathBlock`
 */
-export function mathBlock(mathLanguage: string, code: string, options?: Partial<MathBlock>): MathBlock {
+export function mathBlock(mathLanguage: string, code: Cord, options?: Partial<MathBlock>): MathBlock {
   return new MathBlock(mathLanguage, code, options);
 }

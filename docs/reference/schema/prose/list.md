@@ -49,9 +49,23 @@ The `List` type is represented in these bindings:
 
 - [JSON-LD](https://stencila.dev/List.jsonld)
 - [JSON Schema](https://stencila.dev/List.schema.json)
-- Python class [`List`](https://github.com/stencila/stencila/blob/main/python/stencila/types/list.py)
+- Python class [`List`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/list.py)
 - Rust struct [`List`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/list.rs)
 - TypeScript class [`List`](https://github.com/stencila/stencila/blob/main/typescript/src/types/List.ts)
+
+## Testing
+
+During property-based (a.k.a generative) testing, the properties of the `List` type are generated using the following strategies for each complexity level (see the [`proptest` book](https://proptest-rs.github.io/proptest/) for an explanation of the Rust strategy expressions). Any optional properties that are not in this table are set to `None`
+
+| Property | Complexity | Description                                               | Strategy                                                             |
+| -------- | ---------- | --------------------------------------------------------- | -------------------------------------------------------------------- |
+| `items`  | Min+       | Generate a single, arbitrary, list item.                  | `vec(ListItem::arbitrary(), size_range(1..=1))`                      |
+|          | Low+       | Generate up to two, arbitrary, list items.                | `vec(ListItem::arbitrary(), size_range(1..=2))`                      |
+|          | High+      | Generate up to four, arbitrary, list items.               | `vec(ListItem::arbitrary(), size_range(1..=4))`                      |
+|          | Max        | Generate up to eight, arbitrary, list items.              | `vec(ListItem::arbitrary(), size_range(1..=8))`                      |
+| `order`  | Min+       | Always generate an unordered list.                        | `ListOrder::Unordered`                                               |
+|          | Low+       | Randomly generate either and unordered or ascending list. | `prop_oneof![Just(ListOrder::Unordered),Just(ListOrder::Ascending)]` |
+|          | High+      | Generate an arbitrary list ordering.                      | `ListOrder::arbitrary()`                                             |
 
 ## Source
 

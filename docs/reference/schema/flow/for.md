@@ -62,7 +62,7 @@ The `For` type is represented in these bindings:
 
 - [JSON-LD](https://stencila.dev/For.jsonld)
 - [JSON Schema](https://stencila.dev/For.schema.json)
-- Python class [`For`](https://github.com/stencila/stencila/blob/main/python/stencila/types/for.py)
+- Python class [`For`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/for.py)
 - Rust struct [`For`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/for.rs)
 - TypeScript class [`For`](https://github.com/stencila/stencila/blob/main/typescript/src/types/For.ts)
 

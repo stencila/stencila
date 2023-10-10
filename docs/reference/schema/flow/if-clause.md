@@ -60,7 +60,7 @@ The `IfClause` type is represented in these bindings:
 
 - [JSON-LD](https://stencila.dev/IfClause.jsonld)
 - [JSON Schema](https://stencila.dev/IfClause.schema.json)
-- Python class [`IfClause`](https://github.com/stencila/stencila/blob/main/python/stencila/types/if_clause.py)
+- Python class [`IfClause`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/if_clause.py)
 - Rust struct [`IfClause`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/if_clause.rs)
 - TypeScript class [`IfClause`](https://github.com/stencila/stencila/blob/main/typescript/src/types/IfClause.ts)
 

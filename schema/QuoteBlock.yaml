@@ -2,8 +2,8 @@ title: QuoteBlock
 '@id': stencila:QuoteBlock
 extends: Entity
 category: prose
-description: |
-  A section quoted from somewhere else.
+description: A section quoted from somewhere else.
+proptest: {}
 required:
   - content
 core:
@@ -17,10 +17,23 @@ properties:
       - type: string
         format: uri
   content:
-    '@id': 'stencila:content'
+    '@id': stencila:content
     description: The content of the quote.
-    strip:
-      - types
     type: array
     items:
       $ref: Block
+    strip:
+      - types
+    proptest:
+      min:
+        description: Generate a single arbitrary paragraph.
+        strategy: vec_paragraphs(1)
+      low:
+        description: Generate up to two arbitrary, non-recursive, block nodes.
+        strategy: vec_blocks_non_recursive(2)
+      high:
+        description: Generate up to four arbitrary, non-recursive, block nodes.
+        strategy: vec_blocks_non_recursive(4)
+      max:
+        description: Generate up to eight arbitrary, non-recursive, block nodes.
+        strategy: vec_blocks_non_recursive(8)

@@ -45,7 +45,7 @@ The `CodeExecutable` type is represented in these bindings:
 
 - [JSON-LD](https://stencila.dev/CodeExecutable.jsonld)
 - [JSON Schema](https://stencila.dev/CodeExecutable.schema.json)
-- Python class [`CodeExecutable`](https://github.com/stencila/stencila/blob/main/python/stencila/types/code_executable.py)
+- Python class [`CodeExecutable`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/code_executable.py)
 - Rust struct [`CodeExecutable`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/code_executable.rs)
 - TypeScript class [`CodeExecutable`](https://github.com/stencila/stencila/blob/main/typescript/src/types/CodeExecutable.ts)
 

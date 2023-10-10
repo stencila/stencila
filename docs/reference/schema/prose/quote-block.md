@@ -1,7 +1,6 @@
 # Quote Block
 
-**A section quoted from somewhere else.
-**
+**A section quoted from somewhere else.**
 
 **`@id`**: `stencila:QuoteBlock`
 
@@ -43,9 +42,20 @@ The `QuoteBlock` type is represented in these bindings:
 
 - [JSON-LD](https://stencila.dev/QuoteBlock.jsonld)
 - [JSON Schema](https://stencila.dev/QuoteBlock.schema.json)
-- Python class [`QuoteBlock`](https://github.com/stencila/stencila/blob/main/python/stencila/types/quote_block.py)
+- Python class [`QuoteBlock`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/quote_block.py)
 - Rust struct [`QuoteBlock`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/quote_block.rs)
 - TypeScript class [`QuoteBlock`](https://github.com/stencila/stencila/blob/main/typescript/src/types/QuoteBlock.ts)
+
+## Testing
+
+During property-based (a.k.a generative) testing, the properties of the `QuoteBlock` type are generated using the following strategies for each complexity level (see the [`proptest` book](https://proptest-rs.github.io/proptest/) for an explanation of the Rust strategy expressions). Any optional properties that are not in this table are set to `None`
+
+| Property  | Complexity | Description                                                 | Strategy                      |
+| --------- | ---------- | ----------------------------------------------------------- | ----------------------------- |
+| `content` | Min+       | Generate a single arbitrary paragraph.                      | `vec_paragraphs(1)`           |
+|           | Low+       | Generate up to two arbitrary, non-recursive, block nodes.   | `vec_blocks_non_recursive(2)` |
+|           | High+      | Generate up to four arbitrary, non-recursive, block nodes.  | `vec_blocks_non_recursive(4)` |
+|           | Max        | Generate up to eight arbitrary, non-recursive, block nodes. | `vec_blocks_non_recursive(8)` |
 
 ## Source
 

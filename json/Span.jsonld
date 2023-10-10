@@ -44,7 +44,7 @@
       "@id": "stencila:styleLanguage",
       "@type": "rdfs:Property",
       "rdfs:label": "styleLanguage",
-      "rdfs:comment": "The language used for the style specification e.g. css, tailwind, classes.",
+      "rdfs:comment": "The language used for the style specification e.g. css, tw",
       "schema:domainIncludes": {
         "@id": "stencila:Styled"
       },
@@ -120,10 +120,13 @@
       "rdfs:comment": "The content within the span",
       "schema:domainIncludes": [
         {
+          "@id": "schema:Article"
+        },
+        {
           "@id": "schema:Claim"
         },
         {
-          "@id": "schema:CreativeWork"
+          "@id": "schema:Comment"
         },
         {
           "@id": "schema:ListItem"
@@ -133,6 +136,9 @@
         },
         {
           "@id": "stencila:Division"
+        },
+        {
+          "@id": "stencila:Figure"
         },
         {
           "@id": "stencila:For"

@@ -9,7 +9,7 @@
       "@id": "stencila:QuoteBlock",
       "@type": "rdfs:Class",
       "rdfs:label": "QuoteBlock",
-      "rdfs:comment": "A section quoted from somewhere else.\n",
+      "rdfs:comment": "A section quoted from somewhere else.",
       "rdfs:subClassOf": {
         "@id": "Entity"
       }
@@ -43,10 +43,13 @@
       "rdfs:comment": "The content of the quote.",
       "schema:domainIncludes": [
         {
+          "@id": "schema:Article"
+        },
+        {
           "@id": "schema:Claim"
         },
         {
-          "@id": "schema:CreativeWork"
+          "@id": "schema:Comment"
         },
         {
           "@id": "schema:ListItem"
@@ -56,6 +59,9 @@
         },
         {
           "@id": "stencila:Division"
+        },
+        {
+          "@id": "stencila:Figure"
         },
         {
           "@id": "stencila:For"

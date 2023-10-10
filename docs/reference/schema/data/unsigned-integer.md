@@ -25,7 +25,7 @@ The `UnsignedInteger` type is represented in these bindings:
 
 - [JSON-LD](https://stencila.dev/UnsignedInteger.jsonld)
 - [JSON Schema](https://stencila.dev/UnsignedInteger.schema.json)
-- Python type [`UnsignedInteger`](https://github.com/stencila/stencila/blob/main/python/stencila/types/unsigned_integer.py)
+- Python type [`UnsignedInteger`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/unsigned_integer.py)
 - Rust type [`UnsignedInteger`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/unsigned_integer.rs)
 - TypeScript type [`UnsignedInteger`](https://github.com/stencila/stencila/blob/main/typescript/src/types/UnsignedInteger.ts)
 

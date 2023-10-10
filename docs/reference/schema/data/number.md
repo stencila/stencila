@@ -25,7 +25,7 @@ The `Number` type is represented in these bindings:
 
 - [JSON-LD](https://stencila.dev/Number.jsonld)
 - [JSON Schema](https://stencila.dev/Number.schema.json)
-- Python type [`Number`](https://github.com/stencila/stencila/blob/main/python/stencila/types/number.py)
+- Python type [`Number`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/number.py)
 - Rust type [`Number`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/number.rs)
 - TypeScript type [`Number`](https://github.com/stencila/stencila/blob/main/typescript/src/types/Number.ts)
 

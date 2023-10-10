@@ -18,7 +18,7 @@ The `ExecutionAuto` type is represented in these bindings:
 
 - [JSON-LD](https://stencila.dev/ExecutionAuto.jsonld)
 - [JSON Schema](https://stencila.dev/ExecutionAuto.schema.json)
-- Python type [`ExecutionAuto`](https://github.com/stencila/stencila/blob/main/python/stencila/types/execution_auto.py)
+- Python type [`ExecutionAuto`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/execution_auto.py)
 - Rust type [`ExecutionAuto`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/execution_auto.rs)
 - TypeScript type [`ExecutionAuto`](https://github.com/stencila/stencila/blob/main/typescript/src/types/ExecutionAuto.ts)
 

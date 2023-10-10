@@ -47,14 +47,6 @@ pub struct Article {
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     pub authors: Option<Vec<PersonOrOrganization>>,
 
-    /// The structured content of this creative work c.f. property `text`.
-    #[strip(types)]
-    #[cfg_attr(feature = "proptest-min", proptest(strategy = r#"vec_blocks(1)"#))]
-    #[cfg_attr(feature = "proptest-low", proptest(strategy = r#"vec_blocks(2)"#))]
-    #[cfg_attr(feature = "proptest-high", proptest(strategy = r#"vec_blocks(4)"#))]
-    #[cfg_attr(feature = "proptest-max", proptest(strategy = r#"vec_blocks(8)"#))]
-    pub content: Vec<Block>,
-
     /// Date/time of creation.
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     pub date_created: Option<Date>,
@@ -84,6 +76,14 @@ pub struct Article {
     #[strip(types)]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     pub title: Option<Vec<Inline>>,
+
+    /// The content of the article.
+    #[strip(types)]
+    #[cfg_attr(feature = "proptest-min", proptest(strategy = r#"vec_blocks(1)"#))]
+    #[cfg_attr(feature = "proptest-low", proptest(strategy = r#"vec_blocks(2)"#))]
+    #[cfg_attr(feature = "proptest-high", proptest(strategy = r#"vec_blocks(4)"#))]
+    #[cfg_attr(feature = "proptest-max", proptest(strategy = r#"vec_blocks(8)"#))]
+    pub content: Vec<Block>,
 
     /// Non-core optional fields
     #[serde(flatten)]

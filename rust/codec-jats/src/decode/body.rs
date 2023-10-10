@@ -2,7 +2,7 @@ use roxmltree::Node;
 
 use codec::{
     schema::{
-        shortcuts::{em, p, s, section, strong, sub, sup, text, u, q},
+        shortcuts::{em, p, q, s, section, strong, sub, sup, text, u},
         Article, AudioObject, AudioObjectOptions, Block, Blocks, Heading, ImageObject,
         ImageObjectOptions, Inline, Inlines, MediaObject, MediaObjectOptions, ThematicBreak,
     },

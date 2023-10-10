@@ -19,7 +19,7 @@ class Styled(Entity):
     """The code of the equation in the `styleLanguage`."""
 
     style_language: Optional[str] = None
-    """The language used for the style specification e.g. css, tailwind, classes."""
+    """The language used for the style specification e.g. css, tw"""
 
     compile_digest: Optional[ExecutionDigest] = None
     """A digest of the `code` and `styleLanguage`."""

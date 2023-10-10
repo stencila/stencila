@@ -25,7 +25,7 @@ The `Integer` type is represented in these bindings:
 
 - [JSON-LD](https://stencila.dev/Integer.jsonld)
 - [JSON Schema](https://stencila.dev/Integer.schema.json)
-- Python type [`Integer`](https://github.com/stencila/stencila/blob/main/python/stencila/types/integer.py)
+- Python type [`Integer`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/integer.py)
 - Rust type [`Integer`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/integer.rs)
 - TypeScript type [`Integer`](https://github.com/stencila/stencila/blob/main/typescript/src/types/Integer.ts)
 

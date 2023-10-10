@@ -48,7 +48,7 @@ The `Grant` type is represented in these bindings:
 
 - [JSON-LD](https://stencila.dev/Grant.jsonld)
 - [JSON Schema](https://stencila.dev/Grant.schema.json)
-- Python class [`Grant`](https://github.com/stencila/stencila/blob/main/python/stencila/types/grant.py)
+- Python class [`Grant`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/grant.py)
 - Rust struct [`Grant`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/grant.rs)
 - TypeScript class [`Grant`](https://github.com/stencila/stencila/blob/main/typescript/src/types/Grant.ts)
 

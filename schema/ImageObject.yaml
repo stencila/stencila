@@ -13,6 +13,7 @@ markdown:
   format: '![]({content_url})'
 core:
   - caption
+proptest: {}
 properties:
   caption:
     '@id': schema:caption

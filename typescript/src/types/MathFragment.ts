@@ -1,5 +1,6 @@
 // Generated file; do not edit. See `../rust/schema-gen` crate.
 
+import { Cord } from "./Cord.js";
 import { Math } from "./Math.js";
 
 /**
@@ -8,7 +9,7 @@ import { Math } from "./Math.js";
 export class MathFragment extends Math {
   type = "MathFragment";
 
-  constructor(mathLanguage: string, code: string, options?: Partial<MathFragment>) {
+  constructor(mathLanguage: string, code: Cord, options?: Partial<MathFragment>) {
     super(mathLanguage, code);
     if (options) Object.assign(this, options);
     this.mathLanguage = mathLanguage;
@@ -19,6 +20,6 @@ export class MathFragment extends Math {
 /**
 * Create a new `MathFragment`
 */
-export function mathFragment(mathLanguage: string, code: string, options?: Partial<MathFragment>): MathFragment {
+export function mathFragment(mathLanguage: string, code: Cord, options?: Partial<MathFragment>): MathFragment {
   return new MathFragment(mathLanguage, code, options);
 }

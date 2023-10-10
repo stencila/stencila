@@ -16,22 +16,50 @@ properties:
   code:
     '@id': stencila:code
     description: The code.
+    $ref: Cord
     strip:
       - code
     jats:
       content: true
-    $ref: Cord
+    proptest:
+      min:
+        description: Generate a simple fixed string of code.
+        value: Cord::new("code")
+      low:
+        description: Generate a random string of up to 10 alphanumeric & whitespace characters.
+        strategy: r"[a-zA-Z0-9\s\t\n]{1,10}".prop_map(Cord::new)
+      high:
+        description: |
+          Generate a random string of up to 100 characters, excluding those used as code
+          delimiters in Markdown.
+        strategy: r"[^`]{1,100}".prop_map(Cord::new)
+      max:
+        description: Generate an arbitrary string.
+        strategy: String::arbitrary().prop_map(Cord::new)
   programmingLanguage:
     '@id': schema:programmingLanguage
     description: The programming language of the code.
+    type: string
     strip:
       - code
     jats:
       attr: language
-    type: string
+    proptest:
+      min:
+        description: Generate a simple fixed string.
+        value: String::from("lang")
+      low:
+        description: Generate one of the well known programming language short names.
+        regex: '(cpp)|(js)|(py)|(r)|(ts)'
+      high:
+        description: Generate a random string of up to 10 alphanumeric characters.
+        regex: '[a-zA-Z0-9]{1,10}'
+      max:
+        description: Generate an arbitrary string.
+        strategy: String::arbitrary()
   guessLanguage:
     '@id': stencila:guessLanguage
     description: Whether the programming language of the code should be guessed based on syntax and variables used
+    type: boolean
     strip:
       - code
-    type: boolean

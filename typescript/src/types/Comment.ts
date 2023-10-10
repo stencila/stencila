@@ -10,7 +10,7 @@ export class Comment extends CreativeWork {
   type = "Comment";
 
   /**
-   * The structured content of this creative work c.f. property `text`.
+   * Content of the comment, usually one or more paragraphs.
    */
   content: Block[];
 

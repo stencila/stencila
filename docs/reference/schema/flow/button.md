@@ -61,7 +61,7 @@ The `Button` type is represented in these bindings:
 
 - [JSON-LD](https://stencila.dev/Button.jsonld)
 - [JSON Schema](https://stencila.dev/Button.schema.json)
-- Python class [`Button`](https://github.com/stencila/stencila/blob/main/python/stencila/types/button.py)
+- Python class [`Button`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/button.py)
 - Rust struct [`Button`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/button.rs)
 - TypeScript class [`Button`](https://github.com/stencila/stencila/blob/main/typescript/src/types/Button.ts)
 

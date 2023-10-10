@@ -11,3 +11,4 @@ jats:
   elem: inline-formula
 markdown:
   special: true
+proptest: {}

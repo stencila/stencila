@@ -6,8 +6,8 @@
       <p>A theorem</p>
     </statement>
     <statement specific-use="Proposition">
-      <p>A proposition with a label</p>
       <label>Proposition 1</label>
+      <p>A proposition with a label</p>
     </statement>
   </body>
   <back>

@@ -41,9 +41,20 @@ The `Section` type is represented in these bindings:
 
 - [JSON-LD](https://stencila.dev/Section.jsonld)
 - [JSON Schema](https://stencila.dev/Section.schema.json)
-- Python class [`Section`](https://github.com/stencila/stencila/blob/main/python/stencila/types/section.py)
+- Python class [`Section`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/section.py)
 - Rust struct [`Section`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/section.rs)
 - TypeScript class [`Section`](https://github.com/stencila/stencila/blob/main/typescript/src/types/Section.ts)
+
+## Testing
+
+During property-based (a.k.a generative) testing, the properties of the `Section` type are generated using the following strategies for each complexity level (see the [`proptest` book](https://proptest-rs.github.io/proptest/) for an explanation of the Rust strategy expressions). Any optional properties that are not in this table are set to `None`
+
+| Property  | Complexity | Description                                                 | Strategy                      |
+| --------- | ---------- | ----------------------------------------------------------- | ----------------------------- |
+| `content` | Min+       | An empty vector                                             | `Vec::new()`                  |
+|           | Low+       | Generate an arbitrary heading and an arbitrary paragraph.   | `vec_heading_paragraph()`     |
+|           | High+      | Generate up to four arbitrary, non-recursive, block nodes.  | `vec_blocks_non_recursive(4)` |
+|           | Max        | Generate up to eight arbitrary, non-recursive, block nodes. | `vec_blocks_non_recursive(8)` |
 
 ## Source
 

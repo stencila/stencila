@@ -60,9 +60,24 @@ The `CodeChunk` type is represented in these bindings:
 
 - [JSON-LD](https://stencila.dev/CodeChunk.jsonld)
 - [JSON Schema](https://stencila.dev/CodeChunk.schema.json)
-- Python class [`CodeChunk`](https://github.com/stencila/stencila/blob/main/python/stencila/types/code_chunk.py)
+- Python class [`CodeChunk`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/code_chunk.py)
 - Rust struct [`CodeChunk`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/code_chunk.rs)
 - TypeScript class [`CodeChunk`](https://github.com/stencila/stencila/blob/main/typescript/src/types/CodeChunk.ts)
+
+## Testing
+
+During property-based (a.k.a generative) testing, the properties of the `CodeChunk` type are generated using the following strategies for each complexity level (see the [`proptest` book](https://proptest-rs.github.io/proptest/) for an explanation of the Rust strategy expressions). Any optional properties that are not in this table are set to `None`
+
+| Property              | Complexity | Description                                                                                             | Strategy                                         |
+| --------------------- | ---------- | ------------------------------------------------------------------------------------------------------- | ------------------------------------------------ |
+| `code`                | Min+       | Generate a simple fixed string of code.                                                                 | `Cord::new("code")`                              |
+|                       | Low+       | Generate a random string of up to 10 alphanumeric & whitespace characters.                              | `r"[a-zA-Z0-9\s\t\n]{1,10}".prop_map(Cord::new)` |
+|                       | High+      | Generate a random string of up to 100 characters, excluding those used as code delimiters in Markdown.  | `r"[^\`]{1,100}".prop_map(Cord::new)`            |
+|                       | Max        | Generate an arbitrary string.                                                                           | `String::arbitrary().prop_map(Cord::new)`        |
+| `programmingLanguage` | Min+       | Generate a simple fixed string.                                                                         | `String::from("lang")`                           |
+|                       | Low+       | Generate one of the well known programming language short names.                                        | Regex`(cpp)\|(js)\|(py)\|(r)\|(ts)`              |
+|                       | High+      | Generate a random string of up to 10 alphanumeric characters.                                           | Regex`[a-zA-Z0-9]{1,10}`                         |
+|                       | Max        | Generate an arbitrary string.                                                                           | `String::arbitrary()`                            |
 
 ## Source
 

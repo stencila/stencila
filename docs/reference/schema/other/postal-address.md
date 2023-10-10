@@ -55,7 +55,7 @@ The `PostalAddress` type is represented in these bindings:
 
 - [JSON-LD](https://stencila.dev/PostalAddress.jsonld)
 - [JSON Schema](https://stencila.dev/PostalAddress.schema.json)
-- Python class [`PostalAddress`](https://github.com/stencila/stencila/blob/main/python/stencila/types/postal_address.py)
+- Python class [`PostalAddress`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/postal_address.py)
 - Rust struct [`PostalAddress`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/postal_address.rs)
 - TypeScript class [`PostalAddress`](https://github.com/stencila/stencila/blob/main/typescript/src/types/PostalAddress.ts)
 

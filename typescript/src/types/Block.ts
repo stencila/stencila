@@ -22,7 +22,7 @@ import { type Table } from "./Table.js";
 import { type ThematicBreak } from "./ThematicBreak.js";
 
 /**
- * Union type for block content node types.
+ * Union type in block content node types.
  */
 export type Block =
   Call |

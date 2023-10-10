@@ -8,6 +8,7 @@
   ],
   "category": "works",
   "description": "A table.",
+  "proptest": {},
   "html": {
     "special": true
   },
@@ -177,36 +178,6 @@
       "type": "array",
       "items": {
         "$ref": "Comment.schema.json"
-      }
-    },
-    "content": {
-      "@id": "stencila:content",
-      "description": "The structured content of this creative work c.f. property `text`.",
-      "$comment": "This is an extension property, added because the existing schema.org property \"text\"\nimplies only unstructured text content.\n",
-      "strip": [
-        "types"
-      ],
-      "proptest": {
-        "min": {
-          "description": "Generate a single arbitrary block node",
-          "strategy": "vec_blocks(1)"
-        },
-        "low": {
-          "description": "Generate up to two arbitrary block nodes",
-          "strategy": "vec_blocks(2)"
-        },
-        "high": {
-          "description": "Generate up to four arbitrary block nodes",
-          "strategy": "vec_blocks(4)"
-        },
-        "max": {
-          "description": "Generate up to eight arbitrary block nodes",
-          "strategy": "vec_blocks(8)"
-        }
-      },
-      "type": "array",
-      "items": {
-        "$ref": "Block.schema.json"
       }
     },
     "dateCreated": {
@@ -403,6 +374,24 @@
     "rows": {
       "@id": "stencila:rows",
       "description": "Rows of cells in the table.\n",
+      "proptest": {
+        "min": {
+          "description": "Generate a single, arbitrary, table row.",
+          "strategy": "vec(TableRow::arbitrary(), size_range(1..=1))"
+        },
+        "low": {
+          "description": "Generate up to two, arbitrary, table rows.",
+          "strategy": "vec(TableRow::arbitrary(), size_range(1..=2))"
+        },
+        "high": {
+          "description": "Generate up to four, arbitrary, table rows.",
+          "strategy": "vec(TableRow::arbitrary(), size_range(1..=4))"
+        },
+        "max": {
+          "description": "Generate up to eight, arbitrary, table rows.",
+          "strategy": "vec(TableRow::arbitrary(), size_range(1..=8))"
+        }
+      },
       "type": "array",
       "items": {
         "$ref": "TableRow.schema.json"

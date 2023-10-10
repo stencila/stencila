@@ -3,10 +3,11 @@ pub use proptest_derive::Arbitrary;
 
 pub use proptest::{
     collection::{size_range, vec},
+    option,
     prelude::*,
 };
 
-use crate::{Block, Heading, Inline, ListOrder, Paragraph, Text, ThematicBreak};
+use crate::*;
 
 prop_compose! {
     /// Generate a vector of inline content of arbitrary length and content
@@ -43,9 +44,9 @@ prop_compose! {
         ),
         others in vec(
             prop_oneof![
-                //CodeExpression::arbitrary().prop_map(Inline::CodeExpression),
-                //CodeFragment::arbitrary().prop_map(Inline::CodeFragment),
-                //MathFragment::arbitrary().prop_map(Inline::MathFragment),
+                CodeExpression::arbitrary().prop_map(Inline::CodeExpression),
+                CodeFragment::arbitrary().prop_map(Inline::CodeFragment),
+                MathFragment::arbitrary().prop_map(Inline::MathFragment),
                 Text::arbitrary().prop_map(Inline::Text),
             ],
             size_range(length - 1)
@@ -56,7 +57,7 @@ prop_compose! {
 }
 
 /// Interleave inline content
-/// 
+///
 /// Restrictions:
 ///   - Always starts and ends with a string.
 ///   - Ensures that nodes such as `Strong`, `Emphasis`, and `Strikeout` (and deprecated `Delete`)
@@ -116,9 +117,8 @@ prop_compose! {
         blocks in vec(Block::arbitrary(), size_range(length))
             .prop_filter(
                 "Should not start with thematic break",
-                |blocks| {
-                    !(matches!(blocks[0], Block::ThematicBreak(..)))
-            })
+                |blocks| !(matches!(blocks[0], Block::ThematicBreak(..)))
+            )
             .prop_filter(
                 "Lists with same ordering should not be adjacent",
                 |blocks| {
@@ -149,14 +149,47 @@ prop_compose! {
     )(
         blocks in vec(
             prop_oneof![
-                //CodeBlock::arbitrary().prop_map(Block::CodeBlock),
-                //CodeChunk::arbitrary().prop_map(Block::CodeChunk)
+                CodeBlock::arbitrary().prop_map(Block::CodeBlock),
+                CodeChunk::arbitrary().prop_map(Block::CodeChunk),
                 Heading::arbitrary().prop_map(Block::Heading),
-                //MathBlock::arbitrary().prop_map(Block::MathBlock),
+                MathBlock::arbitrary().prop_map(Block::MathBlock),
                 Paragraph::arbitrary().prop_map(Block::Paragraph),
-                //QuoteBlock::arbitrary().prop_map(Block::QuoteBlock),
+                QuoteBlock::arbitrary().prop_map(Block::QuoteBlock),
                 ThematicBreak::arbitrary().prop_map(Block::ThematicBreak),
             ],
+            size_range(length)
+        )
+    ) -> Vec<Block> {
+        blocks
+    }
+}
+
+prop_compose! {
+    /// Generate a vector of block content of arbitrary length and only containing
+    /// block types expected in lists (and not other lists)
+    pub fn vec_blocks_list_item(max_size: usize)(
+        length in 1..=max_size
+    )(
+        blocks in vec(
+            prop_oneof![
+                CodeBlock::arbitrary().prop_map(Block::CodeBlock),
+                Paragraph::arbitrary().prop_map(Block::Paragraph),
+                QuoteBlock::arbitrary().prop_map(Block::QuoteBlock),
+            ],
+            size_range(length)
+        )
+    ) -> Vec<Block> {
+        blocks
+    }
+}
+
+prop_compose! {
+    /// Generate a vector of arbitrary paragraphs
+    pub fn vec_paragraphs(max_size: usize)(
+        length in 1..=max_size
+    )(
+        blocks in vec(
+            Paragraph::arbitrary().prop_map(Block::Paragraph),
             size_range(length)
         )
     ) -> Vec<Block> {

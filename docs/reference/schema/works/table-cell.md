@@ -45,9 +45,17 @@ The `TableCell` type is represented in these bindings:
 
 - [JSON-LD](https://stencila.dev/TableCell.jsonld)
 - [JSON Schema](https://stencila.dev/TableCell.schema.json)
-- Python class [`TableCell`](https://github.com/stencila/stencila/blob/main/python/stencila/types/table_cell.py)
+- Python class [`TableCell`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/table_cell.py)
 - Rust struct [`TableCell`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/table_cell.rs)
 - TypeScript class [`TableCell`](https://github.com/stencila/stencila/blob/main/typescript/src/types/TableCell.ts)
+
+## Testing
+
+During property-based (a.k.a generative) testing, the properties of the `TableCell` type are generated using the following strategies for each complexity level (see the [`proptest` book](https://proptest-rs.github.io/proptest/) for an explanation of the Rust strategy expressions). Any optional properties that are not in this table are set to `None`
+
+| Property  | Complexity | Description                             | Strategy                                                                     |
+| --------- | ---------- | --------------------------------------- | ---------------------------------------------------------------------------- |
+| `content` | Min+       | Generate a single, arbitrary, paragraph | `vec_paragraphs(1).prop_map(\|blocks\| Some(BlocksOrInlines::Blocks(blocks)))` |
 
 ## Source
 

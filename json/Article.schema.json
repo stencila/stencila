@@ -192,36 +192,6 @@
         "$ref": "Comment.schema.json"
       }
     },
-    "content": {
-      "@id": "stencila:content",
-      "description": "The structured content of this creative work c.f. property `text`.",
-      "$comment": "This is an extension property, added because the existing schema.org property \"text\"\nimplies only unstructured text content.\n",
-      "strip": [
-        "types"
-      ],
-      "proptest": {
-        "min": {
-          "description": "Generate a single arbitrary block node",
-          "strategy": "vec_blocks(1)"
-        },
-        "low": {
-          "description": "Generate up to two arbitrary block nodes",
-          "strategy": "vec_blocks(2)"
-        },
-        "high": {
-          "description": "Generate up to four arbitrary block nodes",
-          "strategy": "vec_blocks(4)"
-        },
-        "max": {
-          "description": "Generate up to eight arbitrary block nodes",
-          "strategy": "vec_blocks(8)"
-        }
-      },
-      "type": "array",
-      "items": {
-        "$ref": "Block.schema.json"
-      }
-    },
     "dateCreated": {
       "@id": "schema:dateCreated",
       "description": "Date/time of creation.",
@@ -391,6 +361,35 @@
           "type": "number"
         }
       ]
+    },
+    "content": {
+      "@id": "stencila:content",
+      "description": "The content of the article.",
+      "strip": [
+        "types"
+      ],
+      "proptest": {
+        "min": {
+          "description": "Generate a single arbitrary block node",
+          "strategy": "vec_blocks(1)"
+        },
+        "low": {
+          "description": "Generate up to two arbitrary block nodes",
+          "strategy": "vec_blocks(2)"
+        },
+        "high": {
+          "description": "Generate up to four arbitrary block nodes",
+          "strategy": "vec_blocks(4)"
+        },
+        "max": {
+          "description": "Generate up to eight arbitrary block nodes",
+          "strategy": "vec_blocks(8)"
+        }
+      },
+      "type": "array",
+      "items": {
+        "$ref": "Block.schema.json"
+      }
     },
     "pageStart": {
       "@id": "schema:pageStart",

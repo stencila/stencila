@@ -207,74 +207,6 @@
       }
     },
     {
-      "@id": "stencila:content",
-      "@type": "rdfs:Property",
-      "rdfs:label": "content",
-      "rdfs:comment": "Content of the claim, usually a single paragraph.",
-      "schema:domainIncludes": [
-        {
-          "@id": "schema:Claim"
-        },
-        {
-          "@id": "schema:CreativeWork"
-        },
-        {
-          "@id": "schema:ListItem"
-        },
-        {
-          "@id": "stencila:Cite"
-        },
-        {
-          "@id": "stencila:Division"
-        },
-        {
-          "@id": "stencila:For"
-        },
-        {
-          "@id": "stencila:Form"
-        },
-        {
-          "@id": "stencila:Heading"
-        },
-        {
-          "@id": "stencila:IfClause"
-        },
-        {
-          "@id": "stencila:Include"
-        },
-        {
-          "@id": "stencila:Link"
-        },
-        {
-          "@id": "stencila:Mark"
-        },
-        {
-          "@id": "stencila:Note"
-        },
-        {
-          "@id": "stencila:Paragraph"
-        },
-        {
-          "@id": "stencila:QuoteBlock"
-        },
-        {
-          "@id": "stencila:Section"
-        },
-        {
-          "@id": "stencila:Span"
-        },
-        {
-          "@id": "stencila:Suggestion"
-        },
-        {
-          "@id": "stencila:TableCell"
-        }
-      ],
-      "schema:rangeIncludes": {
-        "@id": "stencila:Block"
-      }
-    },
-    {
       "@id": "schema:dateCreated",
       "@type": "rdfs:Property",
       "rdfs:label": "dateCreated",
@@ -571,6 +503,80 @@
       ],
       "schema:rangeIncludes": {
         "@id": "schema:Text"
+      }
+    },
+    {
+      "@id": "stencila:content",
+      "@type": "rdfs:Property",
+      "rdfs:label": "content",
+      "rdfs:comment": "Content of the claim, usually a single paragraph.",
+      "schema:domainIncludes": [
+        {
+          "@id": "schema:Article"
+        },
+        {
+          "@id": "schema:Claim"
+        },
+        {
+          "@id": "schema:Comment"
+        },
+        {
+          "@id": "schema:ListItem"
+        },
+        {
+          "@id": "stencila:Cite"
+        },
+        {
+          "@id": "stencila:Division"
+        },
+        {
+          "@id": "stencila:Figure"
+        },
+        {
+          "@id": "stencila:For"
+        },
+        {
+          "@id": "stencila:Form"
+        },
+        {
+          "@id": "stencila:Heading"
+        },
+        {
+          "@id": "stencila:IfClause"
+        },
+        {
+          "@id": "stencila:Include"
+        },
+        {
+          "@id": "stencila:Link"
+        },
+        {
+          "@id": "stencila:Mark"
+        },
+        {
+          "@id": "stencila:Note"
+        },
+        {
+          "@id": "stencila:Paragraph"
+        },
+        {
+          "@id": "stencila:QuoteBlock"
+        },
+        {
+          "@id": "stencila:Section"
+        },
+        {
+          "@id": "stencila:Span"
+        },
+        {
+          "@id": "stencila:Suggestion"
+        },
+        {
+          "@id": "stencila:TableCell"
+        }
+      ],
+      "schema:rangeIncludes": {
+        "@id": "stencila:Block"
       }
     }
   ]

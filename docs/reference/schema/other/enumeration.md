@@ -46,7 +46,7 @@ The `Enumeration` type is represented in these bindings:
 
 - [JSON-LD](https://stencila.dev/Enumeration.jsonld)
 - [JSON Schema](https://stencila.dev/Enumeration.schema.json)
-- Python class [`Enumeration`](https://github.com/stencila/stencila/blob/main/python/stencila/types/enumeration.py)
+- Python class [`Enumeration`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/enumeration.py)
 - Rust struct [`Enumeration`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/enumeration.rs)
 - TypeScript class [`Enumeration`](https://github.com/stencila/stencila/blob/main/typescript/src/types/Enumeration.ts)
 

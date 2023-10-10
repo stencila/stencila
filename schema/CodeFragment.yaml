@@ -12,3 +12,4 @@ jats:
     specific__use: 'code'
 markdown:
   special: true
+proptest: {}

@@ -49,9 +49,20 @@ The `Paragraph` type is represented in these bindings:
 
 - [JSON-LD](https://stencila.dev/Paragraph.jsonld)
 - [JSON Schema](https://stencila.dev/Paragraph.schema.json)
-- Python class [`Paragraph`](https://github.com/stencila/stencila/blob/main/python/stencila/types/paragraph.py)
+- Python class [`Paragraph`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/paragraph.py)
 - Rust struct [`Paragraph`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/paragraph.rs)
 - TypeScript class [`Paragraph`](https://github.com/stencila/stencila/blob/main/typescript/src/types/Paragraph.ts)
+
+## Testing
+
+During property-based (a.k.a generative) testing, the properties of the `Paragraph` type are generated using the following strategies for each complexity level (see the [`proptest` book](https://proptest-rs.github.io/proptest/) for an explanation of the Rust strategy expressions). Any optional properties that are not in this table are set to `None`
+
+| Property  | Complexity | Description                                 | Strategy         |
+| --------- | ---------- | ------------------------------------------- | ---------------- |
+| `content` | Min+       | Generate a single arbitrary inline node     | `vec_inlines(1)` |
+|           | Low+       | Generate up to two arbitrary inline nodes   | `vec_inlines(2)` |
+|           | High+      | Generate up to four arbitrary inline nodes  | `vec_inlines(4)` |
+|           | Max        | Generate up to eight arbitrary inline nodes | `vec_inlines(8)` |
 
 ## Source
 

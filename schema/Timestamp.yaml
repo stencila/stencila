@@ -3,6 +3,7 @@ title: Timestamp
 extends: Entity
 category: data
 description: A value that represents a point in time
+proptest: {}
 required:
   - value
   - timeUnit

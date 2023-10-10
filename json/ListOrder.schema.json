@@ -8,6 +8,7 @@
   ],
   "category": "prose",
   "description": "Indicates how a `List` is ordered.",
+  "proptest": {},
   "required": [
     "type"
   ],

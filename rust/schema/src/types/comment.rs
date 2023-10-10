@@ -33,12 +33,12 @@ pub struct Comment {
     /// The authors of the `CreativeWork`.
     pub authors: Option<Vec<PersonOrOrganization>>,
 
-    /// The structured content of this creative work c.f. property `text`.
-    #[strip(types)]
-    pub content: Vec<Block>,
-
     /// Date of first publication.
     pub date_published: Option<Date>,
+
+    /// Content of the comment, usually one or more paragraphs.
+    #[strip(types)]
+    pub content: Vec<Block>,
 
     /// Non-core optional fields
     #[serde(flatten)]

@@ -14,6 +14,9 @@ properties:
     description: The content that is marked.
     strip:
       - types
+    type: array
+    items:
+      $ref: Inline
     proptest:
       min:
         description: Generate a single fixed text value.
@@ -27,6 +30,3 @@ properties:
       max:
         description: Generate up to four arbitrary, non-recursive, inline nodes
         strategy: vec_inlines_non_recursive(4)
-    type: array
-    items:
-      $ref: Inline

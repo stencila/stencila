@@ -40,9 +40,22 @@ properties:
 
       See https://github.com/schemaorg/schemaorg/issues/462#issuecomment-98243384
       for why it is useful to have both `contentUrl` and `embedUrl` in addition to `url`.
+    type: string
     html:
       attr: src
-    type: string
+    proptest:
+      min:
+        description: Generate a fixed URL.
+        value: String::from("https://example.org/image.png")
+      low:
+        description: Generate a random URL.
+        regex: https://\w+\.\w+/\w+\.png
+      high:
+        description: Generate a random string of up to 100 alphanumeric characters.
+        regex: '[a-zA-Z0-9]{1,100}'
+      max:
+        description: Generate an arbitrary string.
+        strategy: String::arbitrary()
   embedUrl:
     '@id': schema:embedUrl
     description: |

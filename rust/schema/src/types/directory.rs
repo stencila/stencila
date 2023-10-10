@@ -87,10 +87,6 @@ pub struct DirectoryOptions {
     /// Comments about this creative work.
     pub comments: Option<Vec<Comment>>,
 
-    /// The structured content of this creative work c.f. property `text`.
-    #[strip(types)]
-    pub content: Option<Vec<Block>>,
-
     /// Date/time of creation.
     pub date_created: Option<Date>,
 

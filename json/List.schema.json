@@ -9,6 +9,7 @@
   "category": "prose",
   "description": "A list of items.",
   "$comment": "This is an implementation, and renaming, of schema.org [`ItemList`](https://schema.org/ItemList).\nRenaming was done as `List` was considered a more developer friendly alternative. Similarly,\nschema.org properties `itemListElement` and `itemListOrder` were renamed to `items` and `order`.\nNote that, as with every other such renaming in Stencila Schema, a mapping between names is\ndefined and it is trivial to save Stencila Schema documents using the schema.org vocabulary if so desired.\n",
+  "proptest": {},
   "html": {
     "special": true
   },
@@ -48,6 +49,24 @@
     "items": {
       "@id": "schema:itemListElement",
       "description": "The items in the list.",
+      "proptest": {
+        "min": {
+          "description": "Generate a single, arbitrary, list item.",
+          "strategy": "vec(ListItem::arbitrary(), size_range(1..=1))"
+        },
+        "low": {
+          "description": "Generate up to two, arbitrary, list items.",
+          "strategy": "vec(ListItem::arbitrary(), size_range(1..=2))"
+        },
+        "high": {
+          "description": "Generate up to four, arbitrary, list items.",
+          "strategy": "vec(ListItem::arbitrary(), size_range(1..=4))"
+        },
+        "max": {
+          "description": "Generate up to eight, arbitrary, list items.",
+          "strategy": "vec(ListItem::arbitrary(), size_range(1..=8))"
+        }
+      },
       "jats": {
         "content": true
       },
@@ -59,6 +78,20 @@
     "order": {
       "@id": "schema:itemListOrder",
       "description": "The ordering of the list.",
+      "proptest": {
+        "min": {
+          "description": "Always generate an unordered list.",
+          "value": "ListOrder::Unordered"
+        },
+        "low": {
+          "description": "Randomly generate either and unordered or ascending list.",
+          "strategy": "prop_oneof![Just(ListOrder::Unordered),Just(ListOrder::Ascending)]"
+        },
+        "high": {
+          "description": "Generate an arbitrary list ordering.",
+          "strategy": "ListOrder::arbitrary()"
+        }
+      },
       "jats": {
         "attr": "list-type"
       },

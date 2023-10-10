@@ -4,6 +4,7 @@ extends: Enumeration
 category: prose
 description: Indicates how a `List` is ordered.
 default: Unordered
+proptest: {}
 anyOf:
   - const: Ascending
     '@id': schema:ItemListOrderAscending

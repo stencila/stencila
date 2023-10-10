@@ -48,7 +48,7 @@ The `Brand` type is represented in these bindings:
 
 - [JSON-LD](https://stencila.dev/Brand.jsonld)
 - [JSON Schema](https://stencila.dev/Brand.schema.json)
-- Python class [`Brand`](https://github.com/stencila/stencila/blob/main/python/stencila/types/brand.py)
+- Python class [`Brand`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/brand.py)
 - Rust struct [`Brand`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/brand.rs)
 - TypeScript class [`Brand`](https://github.com/stencila/stencila/blob/main/typescript/src/types/Brand.ts)
 

@@ -8,6 +8,7 @@
   ],
   "category": "data",
   "description": "A unit in which time can be measured",
+  "proptest": {},
   "required": [
     "type"
   ],

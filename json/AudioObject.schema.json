@@ -8,6 +8,7 @@
   ],
   "category": "works",
   "description": "An audio file",
+  "proptest": {},
   "html": {
     "elem": "audio",
     "custom": true
@@ -181,36 +182,6 @@
       "type": "array",
       "items": {
         "$ref": "Comment.schema.json"
-      }
-    },
-    "content": {
-      "@id": "stencila:content",
-      "description": "The structured content of this creative work c.f. property `text`.",
-      "$comment": "This is an extension property, added because the existing schema.org property \"text\"\nimplies only unstructured text content.\n",
-      "strip": [
-        "types"
-      ],
-      "proptest": {
-        "min": {
-          "description": "Generate a single arbitrary block node",
-          "strategy": "vec_blocks(1)"
-        },
-        "low": {
-          "description": "Generate up to two arbitrary block nodes",
-          "strategy": "vec_blocks(2)"
-        },
-        "high": {
-          "description": "Generate up to four arbitrary block nodes",
-          "strategy": "vec_blocks(4)"
-        },
-        "max": {
-          "description": "Generate up to eight arbitrary block nodes",
-          "strategy": "vec_blocks(8)"
-        }
-      },
-      "type": "array",
-      "items": {
-        "$ref": "Block.schema.json"
       }
     },
     "dateCreated": {
@@ -397,6 +368,24 @@
       "@id": "schema:contentUrl",
       "description": "URL for the actual bytes of the media object, for example the image file or video file.\n",
       "$comment": "To allow for file paths, including possibly erroneous paths, neither `format` nor `pattern`\nJSON Schema keywords are used here, or on `embedUrl`.\n\n`contentUrl` is required since it seems to make little sense to have a `MediaObject`\nthat does not have it.\n\nSee https://github.com/schemaorg/schemaorg/issues/462#issuecomment-98243384\nfor why it is useful to have both `contentUrl` and `embedUrl` in addition to `url`.\n",
+      "proptest": {
+        "min": {
+          "description": "Generate a fixed URL.",
+          "value": "String::from(\"https://example.org/image.png\")"
+        },
+        "low": {
+          "description": "Generate a random URL.",
+          "regex": "https://\\w+\\.\\w+/\\w+\\.png"
+        },
+        "high": {
+          "description": "Generate a random string of up to 100 alphanumeric characters.",
+          "regex": "[a-zA-Z0-9]{1,100}"
+        },
+        "max": {
+          "description": "Generate an arbitrary string.",
+          "strategy": "String::arbitrary()"
+        }
+      },
       "html": {
         "attr": "src"
       },

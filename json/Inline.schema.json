@@ -8,18 +8,12 @@
   "proptest": {},
   "anyOf": [
     {
-      "proptest": {
-        "min": {
-          "description": "Do not generate `AudioObject` nodes for inline content.",
-          "skip": true
-        }
-      },
       "$ref": "AudioObject.schema.json"
     },
     {
       "proptest": {
         "min": {
-          "description": "Do not generate `Button` nodes for inline content.",
+          "description": "Do not generate `Button` nodes in inline content.",
           "skip": true
         }
       },
@@ -28,7 +22,7 @@
     {
       "proptest": {
         "min": {
-          "description": "Do not generate `Cite` nodes for inline content.",
+          "description": "Do not generate `Cite` nodes in inline content.",
           "skip": true
         }
       },
@@ -37,7 +31,7 @@
     {
       "proptest": {
         "min": {
-          "description": "Do not generate `CiteGroup` nodes for inline content.",
+          "description": "Do not generate `CiteGroup` nodes in inline content.",
           "skip": true
         }
       },
@@ -46,26 +40,26 @@
     {
       "proptest": {
         "min": {
-          "description": "Do not generate `CodeExpression` nodes for inline content.",
+          "description": "Do not generate `CodeExpression` nodes in inline content.",
           "skip": true
+        },
+        "low": {
+          "description": "Generate `CodeExpression` nodes in inline content."
         }
       },
       "$ref": "CodeExpression.schema.json"
     },
     {
-      "proptest": {
-        "min": {
-          "description": "Do not generate `CodeFragment` nodes for inline content.",
-          "skip": true
-        }
-      },
       "$ref": "CodeFragment.schema.json"
     },
     {
       "proptest": {
         "min": {
-          "description": "Do not generate `Date` nodes for inline content.",
+          "description": "Do not generate `Date` nodes in inline content.",
           "skip": true
+        },
+        "low": {
+          "description": "Generate `Date` nodes in inline content."
         }
       },
       "$ref": "Date.schema.json"
@@ -73,8 +67,11 @@
     {
       "proptest": {
         "min": {
-          "description": "Do not generate `DateTime` nodes for inline content.",
+          "description": "Do not generate `DateTime` nodes in inline content.",
           "skip": true
+        },
+        "low": {
+          "description": "Generate `DateTime` nodes in inline content."
         }
       },
       "$ref": "DateTime.schema.json"
@@ -82,64 +79,46 @@
     {
       "proptest": {
         "min": {
-          "description": "Do not generate `Delete` nodes for inline content.",
+          "description": "Do not generate `Delete` nodes in inline content.",
           "skip": true
+        },
+        "low": {
+          "description": "Generate `Delete` nodes in inline content."
         }
       },
       "$ref": "Delete.schema.json"
     },
     {
-      "proptest": {
-        "min": {
-          "description": "Do not generate `Duration` nodes for inline content.",
-          "skip": true
-        }
-      },
       "$ref": "Duration.schema.json"
     },
     {
       "$ref": "Emphasis.schema.json"
     },
     {
-      "proptest": {
-        "min": {
-          "description": "Do not generate `ImageObject` nodes for inline content.",
-          "skip": true
-        }
-      },
       "$ref": "ImageObject.schema.json"
     },
     {
       "proptest": {
         "min": {
-          "description": "Do not generate `Insert` nodes for inline content.",
+          "description": "Do not generate `Insert` nodes in inline content.",
           "skip": true
+        },
+        "low": {
+          "description": "Generate `Insert` nodes in inline content."
         }
       },
       "$ref": "Insert.schema.json"
     },
     {
-      "proptest": {
-        "min": {
-          "description": "Do not generate `Link` nodes for inline content.",
-          "skip": true
-        }
-      },
       "$ref": "Link.schema.json"
     },
     {
-      "proptest": {
-        "min": {
-          "description": "Do not generate `MathFragment` nodes for inline content.",
-          "skip": true
-        }
-      },
       "$ref": "MathFragment.schema.json"
     },
     {
       "proptest": {
         "min": {
-          "description": "Do not generate `MediaObject` nodes for inline content.",
+          "description": "Do not generate `MediaObject` nodes in inline content.",
           "skip": true
         }
       },
@@ -148,8 +127,11 @@
     {
       "proptest": {
         "min": {
-          "description": "Do not generate `Note` nodes for inline content.",
+          "description": "Do not generate `Note` nodes in inline content.",
           "skip": true
+        },
+        "low": {
+          "description": "Generate `Note` nodes in inline content."
         }
       },
       "$ref": "Note.schema.json"
@@ -157,7 +139,7 @@
     {
       "proptest": {
         "min": {
-          "description": "Do not generate `Parameter` nodes for inline content.",
+          "description": "Do not generate `Parameter` nodes in inline content.",
           "skip": true
         }
       },
@@ -167,12 +149,6 @@
       "$ref": "Quote.schema.json"
     },
     {
-      "proptest": {
-        "min": {
-          "description": "Do not generate `Span` nodes for inline content.",
-          "skip": true
-        }
-      },
       "$ref": "Span.schema.json"
     },
     {
@@ -193,8 +169,11 @@
     {
       "proptest": {
         "min": {
-          "description": "Do not generate `Time` nodes for inline content.",
+          "description": "Do not generate `Time` nodes in inline content.",
           "skip": true
+        },
+        "low": {
+          "description": "Generate `Time` nodes in inline content."
         }
       },
       "$ref": "Time.schema.json"
@@ -202,8 +181,11 @@
     {
       "proptest": {
         "min": {
-          "description": "Do not generate `Timestamp` nodes for inline content.",
+          "description": "Do not generate `Timestamp` nodes in inline content.",
           "skip": true
+        },
+        "low": {
+          "description": "Generate `Timestamp` nodes in inline content."
         }
       },
       "$ref": "Timestamp.schema.json"
@@ -212,18 +194,12 @@
       "$ref": "Underline.schema.json"
     },
     {
-      "proptest": {
-        "min": {
-          "description": "Do not generate `VideoObject` nodes for inline content.",
-          "skip": true
-        }
-      },
       "$ref": "VideoObject.schema.json"
     },
     {
       "proptest": {
         "min": {
-          "description": "Do not generate `Null` nodes for inline content.",
+          "description": "Do not generate `Null` nodes in inline content.",
           "skip": true
         },
         "high": {
@@ -236,7 +212,7 @@
     {
       "proptest": {
         "min": {
-          "description": "Do not generate `Boolean` nodes for inline content.",
+          "description": "Do not generate `Boolean` nodes in inline content.",
           "skip": true
         },
         "high": {
@@ -249,7 +225,7 @@
     {
       "proptest": {
         "min": {
-          "description": "Do not generate `Integer` nodes for inline content.",
+          "description": "Do not generate `Integer` nodes in inline content.",
           "skip": true
         },
         "high": {
@@ -262,7 +238,7 @@
     {
       "proptest": {
         "min": {
-          "description": "Do not generate `Number` nodes for inline content.",
+          "description": "Do not generate `Number` nodes in inline content.",
           "skip": true
         },
         "high": {
@@ -275,7 +251,7 @@
     {
       "proptest": {
         "min": {
-          "description": "Do not generate `String` nodes for inline content. Skipped at all levels because `Text` is preferred\nand `String` is likely to deprecated as an inline variant.\n",
+          "description": "Do not generate `String` nodes in inline content. Skipped at all levels because `Text` is preferred\nand `String` is likely to deprecated as an inline variant.\n",
           "skip": true
         }
       },

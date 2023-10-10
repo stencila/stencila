@@ -11,6 +11,7 @@ jats:
   special: true
 markdown:
   format: '![]({content_url})'
+proptest: {}
 properties:
   caption:
     '@id': schema:caption

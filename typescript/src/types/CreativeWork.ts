@@ -1,6 +1,5 @@
 // Generated file; do not edit. See `../rust/schema-gen` crate.
 
-import { Block } from "./Block.js";
 import { Comment } from "./Comment.js";
 import { CreativeWorkType } from "./CreativeWorkType.js";
 import { CreativeWorkTypeOrString } from "./CreativeWorkTypeOrString.js";
@@ -49,11 +48,6 @@ export class CreativeWork extends Thing {
    * Comments about this creative work.
    */
   comments?: Comment[];
-
-  /**
-   * The structured content of this creative work c.f. property `text`.
-   */
-  content?: Block[];
 
   /**
    * Date/time of creation.

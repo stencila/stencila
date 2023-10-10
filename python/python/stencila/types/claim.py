@@ -15,11 +15,11 @@ class Claim(CreativeWork):
 
     type: Literal["Claim"] = field(default="Claim", init=False)
 
-    content: List[Block]
-    """Content of the claim, usually a single paragraph."""
-
     claim_type: ClaimType
     """The type of the claim."""
 
     label: Optional[str] = None
     """A short label for the claim."""
+
+    content: List[Block]
+    """Content of the claim, usually a single paragraph."""

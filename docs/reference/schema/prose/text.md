@@ -50,9 +50,20 @@ The `Text` type is represented in these bindings:
 
 - [JSON-LD](https://stencila.dev/Text.jsonld)
 - [JSON Schema](https://stencila.dev/Text.schema.json)
-- Python class [`Text`](https://github.com/stencila/stencila/blob/main/python/stencila/types/text.py)
+- Python class [`Text`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/text.py)
 - Rust struct [`Text`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/text.rs)
 - TypeScript class [`Text`](https://github.com/stencila/stencila/blob/main/typescript/src/types/Text.ts)
+
+## Testing
+
+During property-based (a.k.a generative) testing, the properties of the `Text` type are generated using the following strategies for each complexity level (see the [`proptest` book](https://proptest-rs.github.io/proptest/) for an explanation of the Rust strategy expressions). Any optional properties that are not in this table are set to `None`
+
+| Property | Complexity | Description                                                                                                                    | Strategy                                                       |
+| -------- | ---------- | ------------------------------------------------------------------------------------------------------------------------------ | -------------------------------------------------------------- |
+| `value`  | Min+       | Generate a fixed string of text.                                                                                               | `Cord::new("text")`                                            |
+|          | Low+       | Generate a random string of up to 10 alphanumeric characters.                                                                  | `r"[a-zA-Z0-9]{1,10}".prop_map(Cord::new)`                     |
+|          | High+      | Generate a random string of up to 100 alphanumeric characters, some special characters commonly used in prose, and whitespace. | `r"[a-zA-Z0-9\s\t-_.!?*+-/()'<>=]{1,100}".prop_map(Cord::new)` |
+|          | Max        | Generate an arbitrary string.                                                                                                  | `String::arbitrary().prop_map(Cord::new)`                      |
 
 ## Source
 
