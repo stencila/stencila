@@ -47,6 +47,7 @@ audit:
 	make -C rust audit
 	make -C typescript audit
 	make -C node audit
+	make -C python audit
 
 # Build packages
 build:

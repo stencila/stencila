@@ -32,6 +32,10 @@ outdated:
 	poetry show --outdated
 	cargo outdated -d 1
 
+# Audit dependencies
+audit: poetry.lock
+	poetry run pip-audit
+
 # Build Python wheel for distribution
 # This is intended to be close the 'Build wheel' step in the `release.yml` workflow
 build: poetry.lock
