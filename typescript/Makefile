@@ -28,6 +28,7 @@ outdated: install
 
 # Audit dependencies
 audit: install
+	npm run unused
 	npm audit fix
 
 # Build the package

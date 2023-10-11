@@ -19,7 +19,8 @@
     "check": "attw --pack . && publint",
     "compress": "node compress.cjs",
     "install": "node install.cjs",
-    "test": "NODE_OPTIONS=--experimental-vm-modules npx jest"
+    "test": "NODE_OPTIONS=--experimental-vm-modules npx jest",
+    "unused": "depcheck --quiet"
   },
   "engines": {
     "node": ">= 10"
@@ -40,10 +41,9 @@
   "devDependencies": {
     "@arethetypeswrong/cli": "0.12.1",
     "@napi-rs/cli": "2.16.3",
-    "@types/jest": "29.5.5",
-    "@types/tmp": "0.2.4",
     "@typescript-eslint/eslint-plugin": "6.7.5",
     "@typescript-eslint/parser": "6.7.5",
+    "depcheck": "^1.4.6",
     "eslint": "8.51.0",
     "jest": "29.7.0",
     "publint": "0.2.4",
