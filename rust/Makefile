@@ -65,7 +65,7 @@ outdated:
 
 # Audit dependencies
 audit:
-	cargo +nightly udeps --workspace --all-targets --all-features
+	cargo +nightly udeps --workspace --all-targets
 	cargo audit -f ../Cargo.lock
 
 # Build CLI binary

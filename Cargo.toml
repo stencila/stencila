@@ -1,4 +1,5 @@
 [workspace]
+resolver = "2"
 members = ["rust/*", "node", "python"]
 
 # Profile aimed at reducing disk usage and improving build times on CI
