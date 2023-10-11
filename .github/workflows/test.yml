@@ -56,6 +56,9 @@ jobs:
       - name: Run checks
         run: make check
 
+      - name: Run dependency audits
+        run: make audit
+
       - name: Make generated files
         run: make generated
 
