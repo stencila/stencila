@@ -65,8 +65,13 @@ outdated:
 
 # Audit dependencies
 audit:
-	cargo +nightly udeps --workspace --all-targets
 	cargo audit -f ../Cargo.lock
+
+# List unused dependencies
+# Not included in `audit` recipe (as in SDK Makefiles) because
+# requires nightly Rust compiler and so complicates running audit on CI
+unused:
+	cargo +nightly udeps --workspace --all-targets
 
 # Build CLI binary
 build:
