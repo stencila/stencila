@@ -61,7 +61,7 @@
 
 ## 👋 Introduction
 
-Stencila is a platform for creating and publishing, dynamic, data-driven content. Our aim is to lower the barriers for creating truly programmable documents, and to make it easier to publish them as beautiful, interactive, and semantically rich, articles and applications. Our roots are in scientific communication, but our tools are useful far beyond.
+Stencila is a platform for creating and publishing, dynamic, data-driven content. Our aim is to lower the barriers for creating truly programmable documents, and to make it easier to publish them as beautiful, interactive, and semantically rich, articles and applications. Our roots are in scientific communication, but our tools are useful beyond.
 
 This is `v2` of Stencila, a rewrite in Rust focussed on the synergies between three recent and impactful innovations and trends:
 
@@ -77,7 +77,7 @@ We are embarking on a rewrite because CRDTs will now be the foundational synchro
 
 **Simultaneously editing the same document in different formats**
 
-Here, a Stencila `Article` has previously been saved to disk as a CRDT in `main.sta`. Then, the `sync` command of the CLI is used to simultaneously synchronize the CRDT with three files, in three different formats currently supported in `v2`: [JATS XML](https://github.com/stencila/stencila/blob/main/docs/reference/formats/jats.md), [JSON](https://github.com/stencila/stencila/blob/main/docs/reference/formats/json.md), and [Markdown](https://github.com/stencila/stencila/blob/main/docs/reference/formats/markdown.md). Changes made in one file (here, in VSCode) are merged into the in-memory CRDT and written to the other files.
+Here, a Stencila `Article` has previously been saved to disk as a CRDT in `main.sta`. Then, the `sync` command of the `stencila` CLI is used to simultaneously synchronize the CRDT with three files, in three different formats currently supported in `v2`: [JATS XML](https://github.com/stencila/stencila/blob/main/docs/reference/formats/jats.md), [JSON](https://github.com/stencila/stencila/blob/main/docs/reference/formats/json.md), and [Markdown](https://github.com/stencila/stencila/blob/main/docs/reference/formats/markdown.md). Changes made in one file (here, in VSCode) are merged into the in-memory CRDT and written to the other files.
 
 You'd probably never want to do this just by yourself. But this demo illustrates how Stencila `v2` will be enable collaboration _across formats_ on the same document. Any particular format (e.g. Markdown, LaTeX, Word) is just one of the potential user interfaces to a document.
 
@@ -107,7 +107,7 @@ The Stencila Schema is the data model for Stencila documents. Most of the schema
 
 ### Storage and synchronization
 
-In `v2`, documents can be stored as binary Automerge CRDT files, forked and merged, and with the ability to import and export the document in various formats. Collaboration, including real-time, is made possible by exchanging fine-grained changes to the CRDT over the network. In addition, we want to enable interoperability with a Git-based workflow.
+In `v2`, documents can be stored as [binary Automerge CRDT](https://automerge.org/automerge-binary-format-spec/) files, branched and merged, and with the ability to import and export the document in various formats. Collaboration, including real-time, is made possible by exchanging fine-grained changes to the CRDT over the network. In addition, we want to enable interoperability with a Git-based workflow.
 
 | Functionality                | Description                                                                                                                                                   | Status                       |
 | ---------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------- |

@@ -12,7 +12,8 @@ This package provides bindings to core [Stencila Rust](https://github.com/stenci
 
 The primary intended audience is developers who want to develop their own tools on top of Stencila's core functionality. For example, with this package you could construct Stencila documents programmatically using Node.js and write them to multiple formats (e.g. Markdown, JATS XML, PDF).
 
-At present, there are only bindings to functions for format conversion, but future versions will expand this scope to include document management (e.g branching and merging) and execution.
+> [!IMPORTANT]
+> At present, there are only bindings to functions for format conversion, but future versions will expand this scope to include document management (e.g branching and merging) and execution.
 
 ## 📦 Install
 
@@ -101,7 +102,7 @@ Both `toString` and `toPath` accept a `EncodeOptions` object:
 
 - `format: string`: The format to encode to
 
-- `standalone: bool`: Whether to encode as a standalone document. Unless specified otherwise, this is the default when encoding to a file
+- `standalone: bool`: Whether to encode as a valid, standalone document (e.g. for HTML ensuring there is a root `<html>` element with a `<head>` and `<body>`). Unless specified otherwise, this is the default when encoding to a file.
 
 - `compact: bool`: Whether to encode in compact form. Some formats (e.g HTML and JSON) can be encoded in either compact or "pretty-printed" (e.g. indented) forms.
 
@@ -118,6 +119,9 @@ await convert.fromTo("doc.jats.xml", "doc.html");
 ```
 
 The `fromTo` function accepts both `DecodeOptions` and `EncodeOptions` as third and fourth arguments respectively.
+
+> [!NOTE]
+> Some of the usage examples above illustrate manually constructing in-memory JavaScript representations of small documents. This is for illustration only and would be unwieldy for large documents. Instead we imagine developers using the `convert.fromString` or `convert.fromPath` functions to load documents into memory from other formats, or writing functions to construct documents composed of the Stencila classes.
 
 ## 🛠️ Develop
 

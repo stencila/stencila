@@ -12,7 +12,8 @@ This package provides Python classes for types in the [Stencila Schema](https://
 
 The primary intended audience is developers who want to develop their own tools on top of Stencila's core functionality. For example, with this package you could construct Stencila documents programmatically using Python and write them to multiple formats (e.g. Markdown, JATS XML, PDF).
 
-At present, there are only bindings to functions for format conversion, but future versions will expand this scope to include document management (e.g branching and merging) and execution.
+> [!IMPORTANT]
+> At present, there are only bindings to functions for format conversion, but future versions will expand this scope to include document management (e.g branching and merging) and execution.
 
 ## 📦 Install
 
@@ -158,6 +159,9 @@ from stencila.convert import from_to
 
 asyncio.run(from_to("doc.md", "doc.html"))
 ```
+
+> [!NOTE]
+> Some of the usage examples above illustrate manually constructing in-memory Python representations of small documents. This is for illustration only and would be unwieldy for large documents. Instead we imagine developers using the `convert.from_string` or `convert.from_path` functions to load documents into memory from other formats, or writing functions to construct documents composed of the Stencila classes.
 
 ## 🛠️ Develop
 

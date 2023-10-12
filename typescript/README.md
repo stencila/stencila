@@ -176,4 +176,4 @@ make lint test
 
 There is a `npm run check` for checking aspects of packaging. At present, CommonJS modules are not supported, only ESM.
 
-So that debuggers and other tools can show the original source code, `declarationMap` and `sourceMap` are turned on in `tsconfig.json` and `src` is including in `package.json`.
+So that debuggers and other tools can show the original source code, `declarationMap` and `sourceMap` are turned on in `tsconfig.json` and `src` is included in the `files` option of `package.json`.
