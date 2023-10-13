@@ -403,7 +403,7 @@ git push && git push --tags
 
 ## 🙏 Acknowledgements
 
-Stencila is built on the shoulders of many open source projects. Our sincere thanks to all the maintainers and contributors of those projects for their vision, enthusiasm and dedication. But most of all for all their hard work! The following open source projects in particular have an important role in the current version of Stencila. We sponsor these projects where, and to an extent, possible through [GitHub Sponsors](https://github.com/stencila) and [Open Collective](https://opencollective.com/stencila).
+Stencila is built on the shoulders of many open source projects. Our sincere thanks to all the maintainers and contributors of those projects for their vision, enthusiasm and dedication. But most of all for all their hard work! The following open source projects in particular have an important role in the current version of Stencila. We sponsor these projects where, and to an extent, possible through [GitHub Sponsors](https://github.com/orgs/stencila/sponsoring) and [Open Collective](https://opencollective.com/stencila).
 
 |                                                  | Link                                  | Summary                                                                                                                                 |
 | ------------------------------------------------ | ------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------- |
