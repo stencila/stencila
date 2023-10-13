@@ -43,6 +43,7 @@ lint:
 test:
 	cargo test --workspace --profile $(PROFILE) --no-fail-fast -- --nocapture
 	make proptest
+	make a11ytest
 
 # Run all property tests at all levels
 proptest: proptest-min proptest-low proptest-high proptest-max
@@ -58,6 +59,10 @@ proptest-high:
 
 proptest-max:
 	cargo test --profile $(PROFILE) -p codecs --features proptest-max
+
+# Run accessibility tests
+a11ytest:
+	cd codecs/src/tests && npm install && npm run test:a11y
 
 # List outdated dependencies
 outdated:

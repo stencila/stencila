@@ -1,0 +1,9 @@
+{
+    "scripts": {
+        "test:a11y": "node accessibility.js"
+    },
+    "devDependencies": {
+        "glob": "10.3.10",
+        "pa11y": "6.2.3"
+    }
+}

@@ -49,9 +49,20 @@ impl Codec for HtmlCodec {
         node: &Node,
         options: Option<EncodeOptions>,
     ) -> Result<(String, Losses)> {
-        let EncodeOptions { compact, .. } = options.unwrap_or_default();
+        let EncodeOptions {
+            compact,
+            standalone,
+            ..
+        } = options.unwrap_or_default();
 
         let html = node.to_html();
+
+        let html = if standalone == Some(true) {
+            format!(r#"<!DOCTYPE html><html lang="en"><head><title>Untitled</title></head><body>{html}</body></html>"#)
+        } else {
+            html
+        };
+
         let html = match compact {
             true => minify(&html),
             false => indent(&html),

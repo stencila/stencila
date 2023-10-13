@@ -115,6 +115,17 @@ async fn examples_encode_decode() -> Result<()> {
             None,
             false,
         ),
+        Spec::new(
+            "standalone.html",
+            Format::Html,
+            Some(EncodeOptions {
+                standalone: Some(true),
+                compact: true,
+                ..Default::default()
+            }),
+            None,
+            false,
+        ),
         // JATS
         Spec::new(
             "jats.xml",
