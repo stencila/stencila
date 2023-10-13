@@ -26,7 +26,8 @@ sed -i -e "s/^version = .*/version = \"$VERSION\"/" rust/cli/Cargo.toml
 # Update the version in the TypeScript package
 sed -i -e "s/\"version\": .*/\"version\": \"$VERSION\",/" typescript/package.json
 
-# Update the version in the Node.js SDK
+# Update the version of `@stencila/types` and `@stencila/node` in the package.json of the latter
+sed -i -e "s/    \"@stencila\/types\": .*/    \"@stencila\/types\": \"$VERSION\"/" node/package.json
 sed -i -e "s/\"version\": .*/\"version\": \"$VERSION\",/" node/package.json
 sed -i -e "s/^version = .*/version = \"$VERSION\"/" node/Cargo.toml
 
