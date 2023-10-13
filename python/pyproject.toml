@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "stencila"
-version = "2.0.0-alpha.15"
+version = "2.0.0-alpha.16"
 description = "Python SDK for Stencila"
 authors = ["Stencila and Contributors <hello@stencila.io>"]
 license = "Apache-2.0"
