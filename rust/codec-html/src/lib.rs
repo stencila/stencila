@@ -58,7 +58,9 @@ impl Codec for HtmlCodec {
         let html = node.to_html();
 
         let html = if standalone == Some(true) {
-            format!(r#"<!DOCTYPE html><html lang="en"><head><title>Untitled</title></head><body>{html}</body></html>"#)
+            format!(
+                r#"<!DOCTYPE html><html lang="en"><head><title>Untitled</title></head><body>{html}</body></html>"#
+            )
         } else {
             html
         };
