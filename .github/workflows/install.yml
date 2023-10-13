@@ -78,8 +78,12 @@ jobs:
           node-version: ${{ matrix.version }}
           registry-url: "https://registry.npmjs.org"
 
-      - name: Install package
+      - name: Install package using NPM
         run: npm install @stencila/node
+      - run: npm rm @stencila/node
+
+      - name: Install package using Yarn
+        run: yarn add @stencila/node
 
       - name: Use package
         # Use outer double quotes to avoid issues within inner double quotes on Windows
