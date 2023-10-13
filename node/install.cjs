@@ -1,9 +1,6 @@
 /**
  * An NPM install script (run on `npm install` and `npm ci`) to download
  * binary addons for the platform from GitHub release.
- *
- * The file name function includes more architectures than are currently
- * supported but are kept here for reference.
  */
 
 const { readFileSync, createWriteStream } = require("fs");
@@ -23,36 +20,26 @@ const target = (() => {
       switch (arch) {
         case "x64":
           return "win32-x64-msvc";
-        case "ia32":
-          return "win32-ia32-msvc";
-        case "arm64":
-          return "win32-arm64-msvc";
-        default:
-          throw new Error(`Unsupported architecture on Windows: ${arch}`);
       }
+
     case "darwin":
       switch (arch) {
         case "x64":
           return "darwin-x64";
         case "arm64":
           return "darwin-arm64";
-        default:
-          throw new Error(`Unsupported architecture on macOS: ${arch}`);
       }
+
     case "linux":
       switch (arch) {
         case "x64":
           return "linux-x64-gnu";
-        case "arm64":
-          return "linux-arm64-gnu";
-        case "arm":
-          return "linux-arm-gnueabihf";
-        default:
-          throw new Error(`Unsupported architecture on Linux: ${arch}`);
       }
-    default:
-      throw new Error(`Unsupported OS: ${platform}, architecture: ${arch}`);
   }
+
+  throw new Error(
+    `Unsupported OS: ${platform}, architecture: ${arch}. To request support, please submit an issue with these details at https://github.com/stencila/stencila/issues.`
+  );
 })();
 
 const url = `https://github.com/stencila/stencila/releases/download/v${version}/stencila.${target}.node.gz`;
@@ -73,7 +60,9 @@ function followRedirects(url, callback) {
 
 followRedirects(url, (res) => {
   if (res.statusCode !== 200) {
-    throw new Error(`Failed to download ${url}: ${res.statusCode}`);
+    throw new Error(
+      `Failed to download ${url}: ${res.statusCode}. Please submit an issue a https://github.com/stencila/stencila/issues.`
+    );
   }
 
   res
