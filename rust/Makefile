@@ -48,11 +48,11 @@ test:
 # Coverage is reported to ../lcov.info so it can be used by the VSCode Coverage Gutters extension
 cover:
 	cargo llvm-cov clean --workspace 
-	cargo llvm-cov --profile $(PROFILE) --workspace  --no-report
-	cargo llvm-cov --profile $(PROFILE) -p codecs --features proptest-min --no-report
-	cargo llvm-cov --profile $(PROFILE) -p codecs --features proptest-low --no-report
-	cargo llvm-cov --profile $(PROFILE) -p codecs --features proptest-high --no-report
-	cargo llvm-cov --profile $(PROFILE) -p codecs --features proptest-max --no-report
+	cargo llvm-cov --workspace  --no-report
+	cargo llvm-cov -p codecs --features proptest-min --no-report
+	cargo llvm-cov -p codecs --features proptest-low --no-report
+	cargo llvm-cov -p codecs --features proptest-high --no-report
+	cargo llvm-cov -p codecs --features proptest-max --no-report
 	cd .. && cargo llvm-cov report --lcov --output-path lcov.info
 
 # Run all property tests at all levels
