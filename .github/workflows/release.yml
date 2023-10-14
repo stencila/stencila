@@ -159,7 +159,7 @@ jobs:
         include:
           - os: ubuntu-latest
             target: linux-x64-gnu
-          - os: macos-latest-large
+          - os: macos-latest
             target: darwin-x64
           - os: macos-latest-xlarge
             target: darwin-arm64
