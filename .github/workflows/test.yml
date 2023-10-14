@@ -26,7 +26,10 @@ jobs:
         uses: dtolnay/rust-toolchain@master
         with:
           toolchain: ${{ env.RUST_VERSION }}
-          components: clippy,rustfmt
+          components: clippy,rustfmt,llvm-tools
+
+      - name: Install cargo-llvm-cov
+        uses: taiki-e/install-action@cargo-llvm-cov
 
       - name: Setup Rust cache
         uses: Swatinem/rust-cache@v2
@@ -54,11 +57,19 @@ jobs:
       - name: Run linting
         run: make lint
 
-      - name: Run tests
-        run: make test
+      - name: Run tests with coverage
+        run: make cover
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v3
+        with:
+          files: lcov.info
 
       - name: Run checks
         run: make check
+
+      - name: Run accessibility checks
+        run:	make a11y
 
       - name: Run dependency audits
         run: make audit

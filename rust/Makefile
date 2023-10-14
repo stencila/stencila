@@ -26,7 +26,7 @@ endif
 # Nightly toolchain is required to run `cargo udeps`
 setup:
 	cargo install cargo-binstall
-	cargo binstall --no-confirm cargo-audit cargo-insta cargo-outdated cargo-watch
+	cargo binstall --no-confirm cargo-audit cargo-insta cargo-llvm-cov cargo-outdated cargo-watch
 	rustup toolchain install nightly
 	cargo install cargo-udeps --locked
 
@@ -43,7 +43,17 @@ lint:
 test:
 	cargo test --workspace --profile $(PROFILE) --no-fail-fast -- --nocapture
 	make proptest
-	make a11ytest
+
+# Run tests with coverage
+# Coverage is reported to ../lcov.info so it can be used by the VSCode Coverage Gutters extension
+cover:
+	cargo llvm-cov clean --workspace 
+	cargo llvm-cov --profile $(PROFILE) --workspace  --no-report
+	cargo llvm-cov --profile $(PROFILE) -p codecs --features proptest-min --no-report
+	cargo llvm-cov --profile $(PROFILE) -p codecs --features proptest-low --no-report
+	cargo llvm-cov --profile $(PROFILE) -p codecs --features proptest-high --no-report
+	cargo llvm-cov --profile $(PROFILE) -p codecs --features proptest-max --no-report
+	cd .. && cargo llvm-cov report --lcov --output-path lcov.info
 
 # Run all property tests at all levels
 proptest: proptest-min proptest-low proptest-high proptest-max
@@ -61,7 +71,7 @@ proptest-max:
 	cargo test --profile $(PROFILE) -p codecs --features proptest-max
 
 # Run accessibility tests
-a11ytest:
+a11y:
 	cd codecs/src/tests && npm install && npm run test:a11y
 
 # List outdated dependencies

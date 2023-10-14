@@ -31,6 +31,10 @@ test:
 	make -C node test
 	make -C python test
 
+# Run tests with coverage
+cover:
+	make -C rust cover
+
 # Run checks (e.g. of packaging)
 check:
 	make -C typescript check
@@ -41,6 +45,10 @@ outdated:
 	make -C typescript outdated
 	make -C node outdated
 	make -C python outdated
+
+# Run accessibility checks
+a11y:
+	make -C rust a11y
 
 # Audit dependencies
 audit:
