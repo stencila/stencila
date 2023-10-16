@@ -22,7 +22,7 @@ jobs:
       - name: Maximize build space
         uses: easimon/maximize-build-space@master
         with:
-          root-reserve-mb: '2048' # Need to keep enough space for Chrom
+          root-reserve-mb: '4096'
           remove-dotnet: 'true'
           remove-android: 'true'
           remove-haskell: 'true'
