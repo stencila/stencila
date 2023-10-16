@@ -64,15 +64,12 @@ jobs:
         
       - name: Install dependencies
         run: make install
-      - run: df -h && du -hd1
 
       - name: Run linting
         run: make lint
-      - run: df -h && du -hd1
 
       - name: Run tests with coverage
         run: make cover
-      - run: df -h && du -hd1
 
       - name: Upload coverage
         uses: codecov/codecov-action@v3
