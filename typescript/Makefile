@@ -29,7 +29,7 @@ outdated: install
 # Audit dependencies
 audit: install
 	npm run unused
-	npm audit fix
+	cd .. && npm run audit
 
 # Build the package
 build: install

@@ -2,5 +2,11 @@
   "workspaces": [
     "node",
     "typescript"
-  ]
+  ],
+  "scripts": {
+    "audit": "better-npm-audit audit"
+  },
+  "devDependencies": {
+    "better-npm-audit": "^3.7.3"
+  }
 }

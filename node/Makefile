@@ -31,7 +31,7 @@ outdated: install
 # Audit dependencies
 audit: install
 	npm run unused
-	npm audit fix
+	cd .. && npm run audit
 
 # Build the Node binary add-on only
 addon: install
