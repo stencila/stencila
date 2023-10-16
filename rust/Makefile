@@ -1,12 +1,5 @@
 all: fix test audit build
 
-# Rust profile
-ifdef CI
-  PROFILE:=ci
-else
-  PROFILE:=dev
-endif
-
 # Rust target defaults
 # Can be overriden e.g.
 #   make build -e TARGET=x86_64-apple-darwin
@@ -32,43 +25,43 @@ setup:
 
 # Make formatting and linting fixes
 fix:
-	cargo clippy --profile $(PROFILE) --workspace --tests --fix --allow-dirty
+	cargo clippy --workspace --tests --fix --allow-dirty
 	cargo fmt --all
 
 # Run linting checks
 lint:
-	cargo clippy --profile $(PROFILE) --workspace --tests
+	cargo clippy --workspace --tests
 
 # Run tests
 test:
-	cargo test --profile $(PROFILE) --workspace --no-fail-fast -- --nocapture
+	cargo test --workspace --no-fail-fast -- --nocapture
 	make proptest
 
 # Run tests with coverage
 # Coverage is reported to ../lcov.info so it can be used by the VSCode Coverage Gutters extension
 cover:
 	cargo llvm-cov clean --workspace 
-	cargo llvm-cov --profile $(PROFILE) --workspace  --no-report
-	cargo llvm-cov --profile $(PROFILE) -p codecs --features proptest-min --no-report
-	cargo llvm-cov --profile $(PROFILE) -p codecs --features proptest-low --no-report
-	cargo llvm-cov --profile $(PROFILE) -p codecs --features proptest-high --no-report
-	cargo llvm-cov --profile $(PROFILE) -p codecs --features proptest-max --no-report
+	cargo llvm-cov --workspace  --no-report
+	cargo llvm-cov -p codecs --features proptest-min --no-report
+	cargo llvm-cov -p codecs --features proptest-low --no-report
+	cargo llvm-cov -p codecs --features proptest-high --no-report
+	cargo llvm-cov -p codecs --features proptest-max --no-report
 	cd .. && cargo llvm-cov report --lcov --output-path lcov.info
 
 # Run all property tests at all levels
 proptest: proptest-min proptest-low proptest-high proptest-max
 
 proptest-min:
-	cargo test --profile $(PROFILE) -p codecs --features proptest-min
+	cargo test -p codecs --features proptest-min
 
 proptest-low:
-	cargo test --profile $(PROFILE) -p codecs --features proptest-low
+	cargo test -p codecs --features proptest-low
 
 proptest-high:
-	cargo test --profile $(PROFILE) -p codecs --features proptest-high
+	cargo test -p codecs --features proptest-high
 
 proptest-max:
-	cargo test --profile $(PROFILE) -p codecs --features proptest-max
+	cargo test -p codecs --features proptest-max
 
 # Run accessibility tests
 a11y:
