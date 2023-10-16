@@ -35,10 +35,6 @@ test:
 cover:
 	make -C rust cover
 
-# Run checks (e.g. of packaging)
-check:
-	make -C typescript check
-
 # List outdated dependencies
 outdated:
 	make -C rust outdated

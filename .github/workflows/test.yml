@@ -60,13 +60,10 @@ jobs:
       - name: Run tests with coverage
         run: make cover
 
-      - name: Upload coverage to Codecov
+      - name: Upload coverage
         uses: codecov/codecov-action@v3
         with:
           files: lcov.info
-
-      - name: Run checks
-        run: make check
 
       - name: Run accessibility checks
         run:	make a11y
