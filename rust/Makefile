@@ -32,27 +32,27 @@ setup:
 
 # Make formatting and linting fixes
 fix:
-	cargo clippy --workspace --tests --fix --allow-dirty
+	cargo clippy --profile $(PROFILE) --workspace --tests --fix --allow-dirty
 	cargo fmt --all
 
 # Run linting checks
 lint:
-	cargo clippy --workspace --tests
+	cargo clippy --profile $(PROFILE) --workspace --tests
 
 # Run tests
 test:
-	cargo test --workspace --profile $(PROFILE) --no-fail-fast -- --nocapture
+	cargo test --profile $(PROFILE) --workspace --no-fail-fast -- --nocapture
 	make proptest
 
 # Run tests with coverage
 # Coverage is reported to ../lcov.info so it can be used by the VSCode Coverage Gutters extension
 cover:
 	cargo llvm-cov clean --workspace 
-	cargo llvm-cov --workspace  --no-report
-	cargo llvm-cov -p codecs --features proptest-min --no-report
-	cargo llvm-cov -p codecs --features proptest-low --no-report
-	cargo llvm-cov -p codecs --features proptest-high --no-report
-	cargo llvm-cov -p codecs --features proptest-max --no-report
+	cargo llvm-cov --profile $(PROFILE) --workspace  --no-report
+	cargo llvm-cov --profile $(PROFILE) -p codecs --features proptest-min --no-report
+	cargo llvm-cov --profile $(PROFILE) -p codecs --features proptest-low --no-report
+	cargo llvm-cov --profile $(PROFILE) -p codecs --features proptest-high --no-report
+	cargo llvm-cov --profile $(PROFILE) -p codecs --features proptest-max --no-report
 	cd .. && cargo llvm-cov report --lcov --output-path lcov.info
 
 # Run all property tests at all levels

@@ -7,7 +7,6 @@ members = ["rust/*", "node", "python"]
 # ./target/debug of 15G.
 [profile.ci]
 inherits = "dev"
-debug = false
 strip = true
 opt-level = "z"
 
