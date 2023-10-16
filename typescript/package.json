@@ -77,7 +77,7 @@
     "clean": true
   },
   "devDependencies": {
-    "@arethetypeswrong/cli": "0.12.1",
+    "@arethetypeswrong/cli": "0.12.2",
     "@types/jest": "29.5.5",
     "@typescript-eslint/eslint-plugin": "6.7.5",
     "@typescript-eslint/parser": "6.7.5",
