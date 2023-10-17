@@ -1,0 +1,26 @@
+flags:
+  #Formats
+  debug:
+    paths:
+      - rust/codec-debug/src/*.rs
+  html:
+    paths:
+      - rust/codec-html*/src/*.rs
+  jats:
+    paths:
+      - rust/codec-jats*/src/*.rs
+  json:
+    paths:
+      - rust/codec-json/src/*.rs
+  json5:
+    paths:
+      - rust/codec-json5*/src/*.rs
+  markdown:
+    paths:
+      - rust/codec-markdown*/src/*.rs
+  text:
+    paths:
+      - rust/codec-text*/src/*.rs
+  yaml:
+    paths:
+      - rust/codec-yaml/src/*.rs
