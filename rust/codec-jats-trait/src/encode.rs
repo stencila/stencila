@@ -21,7 +21,15 @@ where
 
     let attrs = attrs
         .into_iter()
-        .map(|(name, value)| format!("{name}=\"{}\"", escape(&value.to_string())))
+        .map(|(name, value)| {
+            let value = escape(&value.to_string())
+                .replace("\t", "&#x09;")
+                .replace("\n", "&#x0A;")
+                .replace("\r", "&#x0D;")
+                .replace(" ", "&#x20;")
+                .replace("\u{00A0}", "&#xA0;");
+            format!("{name}=\"{value}\"",)
+        })
         .join(" ");
 
     let content = content.as_ref();
