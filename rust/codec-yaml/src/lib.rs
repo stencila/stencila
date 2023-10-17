@@ -13,6 +13,9 @@ use codec::{
 pub mod r#trait;
 use r#trait::YamlCodec as _;
 
+#[cfg(test)]
+mod tests;
+
 /// A codec for YAML
 pub struct YamlCodec;
 
@@ -28,7 +31,7 @@ impl Codec for YamlCodec {
 
     fn supports_from_format(&self, format: Format) -> CodecSupport {
         match format {
-            Format::Yaml => CodecSupport::HighLoss,
+            Format::Yaml => CodecSupport::NoLoss,
             _ => CodecSupport::None,
         }
     }
@@ -45,7 +48,7 @@ impl Codec for YamlCodec {
 
     fn supports_to_format(&self, format: Format) -> CodecSupport {
         match format {
-            Format::Yaml => CodecSupport::HighLoss,
+            Format::Yaml => CodecSupport::NoLoss,
             _ => CodecSupport::None,
         }
     }
@@ -61,16 +64,17 @@ impl Codec for YamlCodec {
     ) -> Result<(String, Losses)> {
         let EncodeOptions { standalone, .. } = options.unwrap_or_default();
 
-        let value = node.to_yaml_value()?;
+        if !standalone.unwrap_or_default() {
+            return Ok((node.to_yaml()?, Losses::none()));
+        }
 
-        let value = if let (Some(true), Some(r#type)) = (
-            standalone,
-            value
-                .as_mapping()
-                .and_then(|mapping| mapping.get("type"))
-                .and_then(|r#type| r#type.as_str())
-                .map(String::from),
-        ) {
+        let value = node.to_yaml_value()?;
+        let value = if let Some(r#type) = value
+            .as_mapping()
+            .and_then(|mapping| mapping.get("type"))
+            .and_then(|r#type| r#type.as_str())
+            .map(String::from)
+        {
             let object = value.as_mapping().expect("checked above").to_owned();
 
             // Insert the `$schema` and `@context` at the top of the root
@@ -93,7 +97,6 @@ impl Codec for YamlCodec {
         };
 
         let yaml = serde_yaml::to_string(&value)?;
-
         Ok((yaml, Losses::none()))
     }
 }
