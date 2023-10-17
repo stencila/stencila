@@ -66,8 +66,8 @@ where
 
     // Workaround for this bug: https://github.com/callum-oakley/json5-rs/issues/21
     let escaped = json5
-        .replace("\u{2028}", r"\u2028")
-        .replace("\u{2029}", r"\u2029");
+        .replace('\u{2028}', r"\u2028")
+        .replace('\u{2029}', r"\u2029");
 
     let parsed = ParsedDocument::from_str(&escaped, None)?;
 
