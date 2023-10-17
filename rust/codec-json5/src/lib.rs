@@ -8,6 +8,9 @@ use codec::{
 
 use codec_json5_trait::Json5Codec as _;
 
+#[cfg(test)]
+mod tests;
+
 /// A codec for JSON5
 pub struct Json5Codec;
 

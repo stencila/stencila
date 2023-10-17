@@ -82,7 +82,6 @@ proptest! {
     /// Roundtrip test for JSON5
     /// Fails due to an error parsing strings containing only whitespace (?) so
     /// currently skipped.
-    #[ignore]
     #[test]
     fn article_json5(article: Article) {
         let article = Node::Article(article);
@@ -90,7 +89,6 @@ proptest! {
     }
 
     /// Roundtrip test for JSON5 with `compact` option.
-    #[ignore]
     #[test]
     fn article_json5_compact(article: Article) {
         let article = Node::Article(article);

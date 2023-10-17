@@ -63,7 +63,13 @@ where
     T: Serialize,
 {
     let json5 = json5::to_string(&value)?;
-    let parsed = ParsedDocument::from_str(&json5, None)?;
+
+    // Workaround for this bug: https://github.com/callum-oakley/json5-rs/issues/21
+    let escaped = json5
+        .replace("\u{2028}", r"\u2028")
+        .replace("\u{2029}", r"\u2029");
+
+    let parsed = ParsedDocument::from_str(&escaped, None)?;
 
     let format = Json5Format::with_options(options)?;
     let formatted = format.to_string(&parsed)?;
