@@ -6,9 +6,13 @@
 //! Other `serde`-based codecs (e.g. `yaml`) do not have as comprehensive unit tests
 //! (although they do have round-trip prop tests) because they should work if these tests pass).
 
-use codec::schema::{
-    Array, Article, ArticleOptions, Block, Boolean, Date, Emphasis, Inline, Integer,
-    IntegerOrString, Node, Null, Number, Object, Paragraph, Primitive, Time,
+use codec::{
+    common::tokio,
+    schema::{
+        shortcuts::{p, text},
+        Array, Article, ArticleOptions, Block, Boolean, Date, Emphasis, Inline, Integer,
+        IntegerOrString, Node, Null, Number, Object, Paragraph, Primitive, Time,
+    },
 };
 use common_dev::pretty_assertions::assert_eq;
 
@@ -161,6 +165,48 @@ fn entity_enum_from_json() -> Result<()> {
             ..Default::default()
         })
     );
+
+    Ok(())
+}
+
+/// Test of standalone option
+#[tokio::test]
+async fn standalone() -> Result<()> {
+    let codec = JsonCodec {};
+
+    let doc1 = Node::Article(Article::new(vec![p([text("Hello world")])]));
+
+    let (json, _) = codec
+        .to_string(
+            &doc1,
+            Some(EncodeOptions {
+                standalone: Some(true),
+                ..Default::default()
+            }),
+        )
+        .await?;
+    assert_eq!(
+        json,
+        r#"{
+  "$schema": "https://stencila.dev/Article.schema.json",
+  "@context": "https://stencila.dev/Article.jsonld",
+  "type": "Article",
+  "content": [
+    {
+      "type": "Paragraph",
+      "content": [
+        {
+          "type": "Text",
+          "value": "Hello world"
+        }
+      ]
+    }
+  ]
+}"#
+    );
+
+    let (doc2, _) = codec.from_str(&json, None).await?;
+    assert_eq!(doc2, doc1);
 
     Ok(())
 }
