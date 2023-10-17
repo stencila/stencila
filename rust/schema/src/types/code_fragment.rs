@@ -11,7 +11,7 @@ use super::string::String;
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 #[cfg_attr(feature = "proptest", derive(Arbitrary))]
 #[html(elem = "code", custom)]
-#[jats(elem = "monospace", attribs(specific__use = "code"))]
+#[jats(elem = "code")]
 #[markdown(special)]
 pub struct CodeFragment {
     /// The type of this item

@@ -3,9 +3,9 @@ use roxmltree::Node;
 use codec::{
     schema::{
         shortcuts::{em, p, q, s, section, strong, sub, sup, text, u},
-        Article, AudioObject, AudioObjectOptions, Block, Blocks, Heading, ImageObject,
-        ImageObjectOptions, Inline, Inlines, MediaObject, MediaObjectOptions, ThematicBreak,
-        VideoObject, VideoObjectOptions,
+        Article, AudioObject, AudioObjectOptions, Block, Blocks, CodeExpression, CodeFragment,
+        Cord, Heading, ImageObject, ImageObjectOptions, Inline, Inlines, MediaObject,
+        MediaObjectOptions, ThematicBreak, VideoObject, VideoObjectOptions,
     },
     Losses,
 };
@@ -94,6 +94,7 @@ fn decode_inlines(path: &str, node: &Node, losses: &mut Losses) -> Inlines {
                 "inline-media" | "inline-graphic" => {
                     decode_inline_media(&child_path, &child, losses)
                 }
+                "code" => decode_inline_code(&child_path, &child, losses),
                 _ => {
                     record_attrs_lost(&child_path, &child, [], losses);
 
@@ -205,5 +206,28 @@ fn decode_inline_media(path: &str, node: &Node, losses: &mut Losses) -> Inline {
             }),
             ..Default::default()
         }),
+    }
+}
+
+/// Decode a `<code>` to a [`Inline::CodeFragment`] or [`Inline::CodeExpression`]
+fn decode_inline_code(path: &str, node: &Node, losses: &mut Losses) -> Inline {
+    let executable = node.attribute("executable").map(String::from);
+    let language = node.attribute("language").map(String::from);
+    let code = node.text().map(Cord::new).unwrap_or_default();
+
+    record_attrs_lost(path, node, ["language"], losses);
+
+    if executable.as_deref() == Some("yes") {
+        Inline::CodeExpression(CodeExpression {
+            programming_language: language.unwrap_or_default(),
+            code,
+            ..Default::default()
+        })
+    } else {
+        Inline::CodeFragment(CodeFragment {
+            programming_language: language,
+            code,
+            ..Default::default()
+        })
     }
 }

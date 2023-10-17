@@ -24,7 +24,7 @@ use super::timestamp::Timestamp;
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 #[cfg_attr(feature = "proptest", derive(Arbitrary))]
 #[html(elem = "span", custom)]
-#[jats(elem = "monospace")]
+#[jats(elem = "code", attribs(executable = "yes"))]
 #[markdown(special)]
 pub struct CodeExpression {
     /// The type of this item

@@ -10,7 +10,9 @@ html:
   elem: span
   custom: true
 jats:
-  elem: monospace
+  elem: code
+  attrs:
+    executable: 'yes'
 markdown:
   special: true
 proptest: {}

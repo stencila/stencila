@@ -15,7 +15,10 @@
     "custom": true
   },
   "jats": {
-    "elem": "monospace"
+    "elem": "code",
+    "attrs": {
+      "executable": "yes"
+    }
   },
   "markdown": {
     "special": true
