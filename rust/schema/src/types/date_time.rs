@@ -22,7 +22,7 @@ pub struct DateTime {
 
     /// The date as an ISO 8601 string.
     #[cfg_attr(feature = "proptest-min", proptest(value = r#"String::from("2022-02-22T22:22:22")"#))]
-    #[cfg_attr(feature = "proptest-low", proptest(regex = r#"\d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d:[0-5]\d\.\d+([+-][0-2]\d:[0-5]\d|Z)"#))]
+    #[cfg_attr(feature = "proptest-low", proptest(regex = r#"[0-9]{4}-[01][0-9]-[0-3][0-9]T[0-2][0-9]:[0-5][0-9]:[0-5][0-9]\.[0-9]+([+-][0-2][0-9]:[0-5][0-9]|Z)"#))]
     #[cfg_attr(feature = "proptest-high", proptest(regex = r#"[a-zA-Z0-9\-:]{1,20}"#))]
     #[cfg_attr(feature = "proptest-max", proptest(strategy = r#"String::arbitrary()"#))]
     pub value: String,

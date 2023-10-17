@@ -49,12 +49,12 @@ The `Date` type is represented in these bindings:
 
 During property-based (a.k.a generative) testing, the properties of the `Date` type are generated using the following strategies for each complexity level (see the [`proptest` book](https://proptest-rs.github.io/proptest/) for an explanation of the Rust strategy expressions). Any optional properties that are not in this table are set to `None`
 
-| Property | Complexity | Description                                                             | Strategy                     |
-| -------- | ---------- | ----------------------------------------------------------------------- | ---------------------------- |
-| `value`  | Min+       | Generate a fixed date string.                                           | `String::from("2022-02-22")` |
-|          | Low+       | Generate a random date string.                                          | Regex`\d{4}-[01]\d-[0-3]\d`  |
-|          | High+      | Generate a random string of up to 10 alphanumeric characters & hyphens. | Regex`[a-zA-Z0-9\-]{1,10}`   |
-|          | Max        | Generate an arbitrary string.                                           | `String::arbitrary()`        |
+| Property | Complexity | Description                                                             | Strategy                             |
+| -------- | ---------- | ----------------------------------------------------------------------- | ------------------------------------ |
+| `value`  | Min+       | Generate a fixed date string.                                           | `String::from("2022-02-22")`         |
+|          | Low+       | Generate a random date string.                                          | Regex`[0-9]{4}-[01][0-9]-[0-3][1-9]` |
+|          | High+      | Generate a random string of up to 10 alphanumeric characters & hyphens. | Regex`[a-zA-Z0-9\-]{1,10}`           |
+|          | Max        | Generate an arbitrary string.                                           | `String::arbitrary()`                |
 
 ## Source
 

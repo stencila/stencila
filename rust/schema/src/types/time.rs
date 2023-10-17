@@ -22,7 +22,7 @@ pub struct Time {
 
     /// The time of day as a string in format `hh:mm:ss[Z|(+|-)hh:mm]`.
     #[cfg_attr(feature = "proptest-min", proptest(value = r#"String::from("2022-02-22T22:22:22")"#))]
-    #[cfg_attr(feature = "proptest-low", proptest(regex = r#"[0-2]\d:[0-5]\d:[0-5]\d\.\d+([+-][0-2]\d:[0-5]\d|Z)"#))]
+    #[cfg_attr(feature = "proptest-low", proptest(regex = r#"[0-2][0-9]:[0-5][0-9]:[0-5][0-9]\.[0-9]+([+-][0-2][0-9]:[0-5][0-9]|Z)"#))]
     #[cfg_attr(feature = "proptest-high", proptest(regex = r#"[a-zA-Z0-9\-:]{1,20}"#))]
     #[cfg_attr(feature = "proptest-max", proptest(strategy = r#"String::arbitrary()"#))]
     pub value: String,
