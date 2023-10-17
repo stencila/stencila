@@ -9,6 +9,10 @@
   "category": "data",
   "description": "A value that represents a point in time",
   "proptest": {},
+  "jats": {
+    "elem": "timestamp",
+    "special": true
+  },
   "required": [
     "type",
     "value",

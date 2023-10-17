@@ -3,6 +3,9 @@ title: Timestamp
 extends: Entity
 category: data
 description: A value that represents a point in time
+jats:
+  elem: timestamp
+  special: true
 proptest: {}
 required:
   - value

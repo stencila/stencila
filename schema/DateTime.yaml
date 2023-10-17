@@ -3,6 +3,9 @@ title: DateTime
 extends: Entity
 category: data
 description: A combination of date and time of day in the form `[-]CCYY-MM-DDThh:mm:ss[Z|(+|-)hh:mm]`.
+jats:
+  elem: date-time
+  special: true
 proptest: {}
 required:
   - value

@@ -4,8 +4,9 @@ use codec::{
     schema::{
         shortcuts::{em, p, q, s, section, strong, sub, sup, text, u},
         Article, AudioObject, AudioObjectOptions, Block, Blocks, CodeExpression, CodeFragment,
-        Cord, Heading, ImageObject, ImageObjectOptions, Inline, Inlines, MediaObject,
-        MediaObjectOptions, ThematicBreak, VideoObject, VideoObjectOptions,
+        Cord, Date, DateTime, Heading, ImageObject, ImageObjectOptions, Inline, Inlines,
+        MediaObject, MediaObjectOptions, ThematicBreak, Time, Timestamp, VideoObject,
+        VideoObjectOptions,
     },
     Losses,
 };
@@ -95,6 +96,10 @@ fn decode_inlines(path: &str, node: &Node, losses: &mut Losses) -> Inlines {
                     decode_inline_media(&child_path, &child, losses)
                 }
                 "code" => decode_inline_code(&child_path, &child, losses),
+                "date" => decode_date(&child_path, &child, losses),
+                "date-time" => decode_date_time(&child_path, &child, losses),
+                "time" => decode_time(&child_path, &child, losses),
+                "timestamp" => decode_timestamp(&child_path, &child, losses),
                 _ => {
                     record_attrs_lost(&child_path, &child, [], losses);
 
@@ -230,4 +235,64 @@ fn decode_inline_code(path: &str, node: &Node, losses: &mut Losses) -> Inline {
             ..Default::default()
         })
     }
+}
+
+/// Decode a `<date>` to a [`Inline::Date`]
+fn decode_date(path: &str, node: &Node, losses: &mut Losses) -> Inline {
+    let value = node
+        .attribute("iso-8601-date")
+        .map(String::from)
+        .unwrap_or_default();
+
+    record_attrs_lost(path, node, ["iso-8601-date"], losses);
+
+    Inline::Date(Date {
+        value,
+        ..Default::default()
+    })
+}
+
+/// Decode a `<date-time>` to a [`Inline::DateTime`]
+fn decode_date_time(path: &str, node: &Node, losses: &mut Losses) -> Inline {
+    let value = node
+        .attribute("iso-8601-date-time")
+        .map(String::from)
+        .unwrap_or_default();
+
+    record_attrs_lost(path, node, ["iso-8601-date-time"], losses);
+
+    Inline::DateTime(DateTime {
+        value,
+        ..Default::default()
+    })
+}
+
+/// Decode a `<time>` to a [`Inline::Time`]
+fn decode_time(path: &str, node: &Node, losses: &mut Losses) -> Inline {
+    let value = node
+        .attribute("iso-8601-time")
+        .map(String::from)
+        .unwrap_or_default();
+
+    record_attrs_lost(path, node, ["iso-8601-time"], losses);
+
+    Inline::Time(Time {
+        value,
+        ..Default::default()
+    })
+}
+
+/// Decode a `<timestamp>` to a [`Inline::Timestamp`]
+fn decode_timestamp(path: &str, node: &Node, losses: &mut Losses) -> Inline {
+    let value = node
+        .attribute("value")
+        .and_then(|value| value.parse::<i64>().ok())
+        .unwrap_or_default();
+
+    record_attrs_lost(path, node, ["value"], losses);
+
+    Inline::Timestamp(Timestamp {
+        value,
+        ..Default::default()
+    })
 }

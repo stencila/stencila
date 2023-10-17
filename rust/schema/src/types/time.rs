@@ -9,6 +9,7 @@ use super::string::String;
 #[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec, ReadNode, WriteNode)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 #[cfg_attr(feature = "proptest", derive(Arbitrary))]
+#[jats(elem = "time", special)]
 pub struct Time {
     /// The type of this item
     #[cfg_attr(feature = "proptest", proptest(value = "Default::default()"))]
