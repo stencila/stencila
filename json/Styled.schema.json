@@ -52,7 +52,7 @@
         },
         "low": {
           "description": "Generate a random string of up to 10 alphanumeric & whitespace characters.",
-          "strategy": "r\"[a-zA-Z0-9\\s\\t]{1,10}\".prop_map(Cord::new)"
+          "strategy": "r\"[a-zA-Z0-9 \\t]{1,10}\".prop_map(Cord::new)"
         },
         "high": {
           "description": "Generate a random string of up to 100 characters, excluding those used as code\ndelimiters in Markdown.\n",
@@ -62,6 +62,9 @@
           "description": "Generate an arbitrary string.",
           "strategy": "String::arbitrary().prop_map(Cord::new)"
         }
+      },
+      "jats": {
+        "attr": "style"
       },
       "$ref": "Cord.schema.json"
     },
@@ -85,6 +88,9 @@
           "description": "Generate an arbitrary string.",
           "strategy": "option::of(String::arbitrary())"
         }
+      },
+      "jats": {
+        "attr": "style-detail"
       },
       "type": "string"
     },

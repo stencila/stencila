@@ -27,9 +27,10 @@ pub struct Division {
 
     /// The code of the equation in the `styleLanguage`.
     #[cfg_attr(feature = "proptest-min", proptest(value = r#"Cord::new("code")"#))]
-    #[cfg_attr(feature = "proptest-low", proptest(strategy = r#"r"[a-zA-Z0-9\s\t]{1,10}".prop_map(Cord::new)"#))]
+    #[cfg_attr(feature = "proptest-low", proptest(strategy = r#"r"[a-zA-Z0-9 \t]{1,10}".prop_map(Cord::new)"#))]
     #[cfg_attr(feature = "proptest-high", proptest(strategy = r#"r"[^`]{1,100}".prop_map(Cord::new)"#))]
     #[cfg_attr(feature = "proptest-max", proptest(strategy = r#"String::arbitrary().prop_map(Cord::new)"#))]
+    #[jats(attr = "style")]
     pub code: Cord,
 
     /// The language used for the style specification e.g. css, tw
@@ -37,6 +38,7 @@ pub struct Division {
     #[cfg_attr(feature = "proptest-low", proptest(strategy = r#"option::of(r"(css)|(tw)")"#))]
     #[cfg_attr(feature = "proptest-high", proptest(strategy = r#"option::of(r"[a-zA-Z0-9]{1,10}")"#))]
     #[cfg_attr(feature = "proptest-max", proptest(strategy = r#"option::of(String::arbitrary())"#))]
+    #[jats(attr = "style-detail")]
     pub style_language: Option<String>,
 
     /// A digest of the `code` and `styleLanguage`.

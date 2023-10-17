@@ -35,7 +35,7 @@ properties:
         strategy: r"[a-zA-Z0-9]{1,10}".prop_map(Cord::new)
       high:
         description: Generate a random string of up to 100 alphanumeric characters, some special characters commonly used in prose, and whitespace.
-        strategy: r"[a-zA-Z0-9\s\t-_.!?*+-/()'<>=]{1,100}".prop_map(Cord::new)
+        strategy: r"[a-zA-Z0-9 \t-_.!?*+-/()'<>=]{1,100}".prop_map(Cord::new)
       max:
         description: Generate an arbitrary string.
         strategy: String::arbitrary().prop_map(Cord::new)

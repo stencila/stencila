@@ -34,7 +34,7 @@ pub struct MathBlock {
 
     /// The code of the equation in the `mathLanguage`.
     #[cfg_attr(feature = "proptest-min", proptest(value = r#"Cord::new("math")"#))]
-    #[cfg_attr(feature = "proptest-low", proptest(strategy = r#"r"[a-zA-Z0-9\s]{1,10}".prop_map(Cord::new)"#))]
+    #[cfg_attr(feature = "proptest-low", proptest(strategy = r#"r"[a-zA-Z0-9 \t]{1,10}".prop_map(Cord::new)"#))]
     #[cfg_attr(feature = "proptest-high", proptest(strategy = r#"r"[^$]{1,100}".prop_map(Cord::new)"#))]
     #[cfg_attr(feature = "proptest-max", proptest(strategy = r#"String::arbitrary().prop_map(Cord::new)"#))]
     pub code: Cord,

@@ -39,7 +39,7 @@ pub struct CodeChunk {
     /// The code.
     #[strip(code)]
     #[cfg_attr(feature = "proptest-min", proptest(value = r#"Cord::new("code")"#))]
-    #[cfg_attr(feature = "proptest-low", proptest(strategy = r#"r"[a-zA-Z0-9\s\t\n]{1,10}".prop_map(Cord::new)"#))]
+    #[cfg_attr(feature = "proptest-low", proptest(strategy = r#"r"[a-zA-Z0-9 \t\n]{1,10}".prop_map(Cord::new)"#))]
     #[cfg_attr(feature = "proptest-high", proptest(strategy = r#"r"[^`]{1,100}".prop_map(Cord::new)"#))]
     #[cfg_attr(feature = "proptest-max", proptest(strategy = r#"String::arbitrary().prop_map(Cord::new)"#))]
     #[jats(content)]
