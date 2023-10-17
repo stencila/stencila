@@ -360,7 +360,10 @@ pub enum NodeType {{
                     "attribs({})",
                     jats.attrs
                         .iter()
-                        .map(|(name, value)| format!("{name} = \"{value}\""))
+                        .map(|(name, value)| format!(
+                            "{name} = \"{value}\"",
+                            name = name.replace("-", "_").replace(":", "__")
+                        ))
                         .join(", ")
                 ));
             }
@@ -523,7 +526,10 @@ pub enum NodeType {{
                         "attribs({})",
                         jats.attrs
                             .iter()
-                            .map(|(name, value)| format!("{name} = \"{value}\""))
+                            .map(|(name, value)| format!(
+                                "{name} = \"{value}\"",
+                                name = name.replace("-", "_").replace(":", "__")
+                            ))
                             .join(", ")
                     ));
                 }

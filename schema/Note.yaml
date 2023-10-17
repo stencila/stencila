@@ -10,6 +10,12 @@ $comment: |
   - [JATS `<fn>`](https://jats.nlm.nih.gov/publishing/tag-library/1.2/element/fn.html)
   - [Pandoc footnotes](https://pandoc.org/MANUAL.html#footnotes)
   - [HTML `<aside>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/aside)
+jats:
+  elem: fn
+  attrs:
+    # Use the `custom-type` attribute to encode the `noteType`
+    # See https://jats.nlm.nih.gov/articleauthoring/tag-library/1.3/attribute/fn-type.html
+    fn-type: custom
 proptest: {}
 required:
   - noteType
@@ -19,6 +25,8 @@ properties:
     '@id': stencila:noteType
     description: Determines where the note content is displayed within the document.
     $ref: NoteType
+    jats:
+      attr: custom-type
   content:
     '@id': stencila:content
     description: Content of the note, usually a paragraph.

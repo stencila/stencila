@@ -67,6 +67,7 @@
         "rustfmt",
         "schemars",
         "serde",
+        "sidenote",
         "smol",
         "SPANTRACE",
         "stencila",

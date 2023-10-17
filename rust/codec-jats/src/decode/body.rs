@@ -5,8 +5,8 @@ use codec::{
         shortcuts::{em, p, q, s, section, strong, sub, sup, text, u},
         Article, AudioObject, AudioObjectOptions, Block, Blocks, CodeExpression, CodeFragment,
         Cord, Date, DateTime, Heading, ImageObject, ImageObjectOptions, Inline, Inlines, Link,
-        MediaObject, MediaObjectOptions, ThematicBreak, Time, Timestamp, VideoObject,
-        VideoObjectOptions, MathFragment,
+        MathFragment, MediaObject, MediaObjectOptions, NoteType, ThematicBreak, Time, Timestamp,
+        VideoObject, VideoObjectOptions, Note,
     },
     Losses,
 };
@@ -96,6 +96,7 @@ fn decode_inlines(path: &str, node: &Node, losses: &mut Losses) -> Inlines {
                 "date" => decode_date(&child_path, &child, losses),
                 "date-time" => decode_date_time(&child_path, &child, losses),
                 "ext-link" => decode_link(&child_path, &child, losses),
+                "fn" => decode_footnote(&child_path, &child, losses),
                 "inline-formula" => decode_math_fragment(&child_path, &child, losses),
                 "inline-graphic" | "inline-media" => {
                     decode_inline_media(&child_path, &child, losses)
@@ -287,6 +288,39 @@ fn decode_link(path: &str, node: &Node, losses: &mut Losses) -> Inline {
     })
 }
 
+/// Decode a `<fn>` to a [`Inline::Footnote`]
+fn decode_footnote(path: &str, node: &Node, losses: &mut Losses) -> Inline {
+    let fn_type = node
+        .attribute("fn-type")
+        .map(String::from)
+        .unwrap_or_default();
+
+    let custom_type = node
+        .attribute("custom-type")
+        .map(String::from)
+        .unwrap_or_default();
+
+    let note_type = if fn_type == "custom" {
+        match custom_type.to_lowercase().as_str() {
+            "endnote" => NoteType::Endnote,
+            "sidenote" => NoteType::Sidenote,
+            "footnote" | _ => NoteType::Footnote,
+        }
+    } else {
+        NoteType::Footnote
+    };
+
+    record_attrs_lost(path, node, ["fn-type", "custom-type"], losses);
+
+    let content = decode_blocks(path, &node, losses, 0);
+
+    Inline::Note(Note {
+        note_type,
+        content,
+        ..Default::default()
+    })
+}
+
 /// Decode a `<inline-formula>` to a [`Inline::MathFragment`]
 fn decode_math_fragment(path: &str, node: &Node, losses: &mut Losses) -> Inline {
     let math_language = node
@@ -294,10 +328,7 @@ fn decode_math_fragment(path: &str, node: &Node, losses: &mut Losses) -> Inline 
         .map(String::from)
         .unwrap_or_default();
 
-    let code = node
-        .attribute("code")
-        .map(Cord::new)
-        .unwrap_or_default();
+    let code = node.attribute("code").map(Cord::new).unwrap_or_default();
 
     record_attrs_lost(path, node, ["language", "code"], losses);
 

@@ -11,6 +11,7 @@ use super::string::String;
 #[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec, ReadNode, WriteNode)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 #[cfg_attr(feature = "proptest", derive(Arbitrary))]
+#[jats(elem = "fn", attribs(fn_type = "custom"))]
 pub struct Note {
     /// The type of this item.
     #[cfg_attr(feature = "proptest", proptest(value = "Default::default()"))]
@@ -24,6 +25,7 @@ pub struct Note {
 
     /// Determines where the note content is displayed within the document.
     #[cfg_attr(feature = "proptest", proptest(value = "Default::default()"))]
+    #[jats(attr = "custom-type")]
     pub note_type: NoteType,
 
     /// Content of the note, usually a paragraph.
