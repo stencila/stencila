@@ -5,8 +5,8 @@ use codec::{
         shortcuts::{em, p, q, s, section, strong, sub, sup, text, u},
         Article, AudioObject, AudioObjectOptions, Block, Blocks, CodeExpression, CodeFragment,
         Cord, Date, DateTime, Heading, ImageObject, ImageObjectOptions, Inline, Inlines, Link,
-        MathFragment, MediaObject, MediaObjectOptions, NoteType, ThematicBreak, Time, Timestamp,
-        VideoObject, VideoObjectOptions, Note,
+        MathFragment, MediaObject, MediaObjectOptions, Note, NoteType, Span, ThematicBreak, Time,
+        Timestamp, VideoObject, VideoObjectOptions,
     },
     Losses,
 };
@@ -101,6 +101,7 @@ fn decode_inlines(path: &str, node: &Node, losses: &mut Losses) -> Inlines {
                 "inline-graphic" | "inline-media" => {
                     decode_inline_media(&child_path, &child, losses)
                 }
+                "styled-content" => decode_styled_content(&child_path, &child, losses),
                 "time" => decode_time(&child_path, &child, losses),
                 "timestamp" => decode_timestamp(&child_path, &child, losses),
                 _ => {
@@ -335,6 +336,29 @@ fn decode_math_fragment(path: &str, node: &Node, losses: &mut Losses) -> Inline 
     Inline::MathFragment(MathFragment {
         math_language,
         code,
+        ..Default::default()
+    })
+}
+
+/// Decode a `<styled-content>` to a [`Inline::Span`]
+fn decode_styled_content(path: &str, node: &Node, losses: &mut Losses) -> Inline {
+    let code = node
+        .attribute("style")
+        .map(Cord::new)
+        .unwrap_or_default();
+
+    let style_language = node
+        .attribute("style-detail")
+        .map(String::from);
+
+    record_attrs_lost(path, node, ["style", "style-detail"], losses);
+
+    let content = decode_inlines(path, &node, losses);
+
+    Inline::Span(Span {
+        code,
+        style_language,
+        content,
         ..Default::default()
     })
 }
