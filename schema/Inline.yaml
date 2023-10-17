@@ -59,7 +59,7 @@ anyOf:
       min:
         description: Do not generate `Delete` nodes in inline content.
         skip: true
-      low:
+      max:
         description: Generate `Delete` nodes in inline content.
         skip: false
 
@@ -74,7 +74,7 @@ anyOf:
       min:
         description: Do not generate `Insert` nodes in inline content.
         skip: true
-      low:
+      max:
         description: Generate `Insert` nodes in inline content.
         skip: false
 

@@ -74,6 +74,8 @@ pub enum Inline {
     DateTime(DateTime),
 
     #[cfg_attr(feature = "proptest-min", proptest(skip))]
+    #[cfg_attr(feature = "proptest-low", proptest(skip))]
+    #[cfg_attr(feature = "proptest-high", proptest(skip))]
     Delete(Delete),
 
     Duration(Duration),
@@ -83,6 +85,8 @@ pub enum Inline {
     ImageObject(ImageObject),
 
     #[cfg_attr(feature = "proptest-min", proptest(skip))]
+    #[cfg_attr(feature = "proptest-low", proptest(skip))]
+    #[cfg_attr(feature = "proptest-high", proptest(skip))]
     Insert(Insert),
 
     Link(Link),
