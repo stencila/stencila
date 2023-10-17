@@ -2,7 +2,7 @@ title: Section
 '@id': stencila:Section
 extends: Entity
 category: prose
-description: A section of a document
+description: A section of a document.
 jats:
   elem: sec
 html:

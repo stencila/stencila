@@ -2,8 +2,7 @@ title: SoftwareApplication
 '@id': schema:SoftwareApplication
 extends: CreativeWork
 category: works
-description: |
-  A software application.
+description: A software application.
 $comment: |
   `SoftwareApplication` represents a software application that can be located by name and version.
   It may be fetched in binary format or some package manager (npm, pip, etc) could fetch and compile the source code.

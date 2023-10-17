@@ -41,7 +41,7 @@ properties:
       $ref: ExecutionDependant
   executionTags:
     '@id': stencila:executionTags
-    description: Tags in the code which affect its execution
+    description: Tags in the code which affect its execution.
     strip:
       - execution
     type: array

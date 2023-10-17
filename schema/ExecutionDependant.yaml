@@ -2,7 +2,7 @@ title: ExecutionDependant
 '@id': stencila:ExecutionDependant
 extends: Entity
 category: flow
-description: A downstream execution dependant of a node
+description: A downstream execution dependant of a node.
 required:
   - dependantRelation
   - dependantNode

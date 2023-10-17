@@ -2,7 +2,7 @@ title: Span
 '@id': stencila:Span
 extends: Styled
 category: style
-description: Styled inline content
+description: Styled inline content.
 status: under-development
 html:
   elem: span
@@ -15,7 +15,7 @@ required:
 properties:
   content:
     '@id': stencila:content
-    description: The content within the span
+    description: The content within the span.
     type: array
     items:
       $ref: Inline

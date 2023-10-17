@@ -2,7 +2,7 @@ title: If
 '@id': stencila:If
 extends: Executable
 category: flow
-description: Show and execute alternative content conditional upon an executed expression
+description: Show and execute alternative content conditional upon an executed expression.
 status: under-development
 html:
   elem: div

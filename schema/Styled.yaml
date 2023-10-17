@@ -4,7 +4,7 @@ extends: Entity
 category: style
 abstract: true
 status: under-development
-description: An abstract base class for a document node that has styling applied to it and/or its content
+description: An abstract base class for a document node that has styling applied to it and/or its content.
 $comment: |
   This class is very similar to the `Math` abstract base class but has `styleLanguage` instead
   of `mathLanguage` and compiled `css` instead of `mathml`.
@@ -77,7 +77,7 @@ properties:
     type: string
   classes:
     '@id': stencila:classes
-    description: A list of class names associated with the node
+    description: A list of class names associated with the node.
     type: array
     items:
       type: string

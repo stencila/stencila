@@ -2,7 +2,7 @@ title: CiteGroup
 '@id': stencila:CiteGroup
 extends: Entity
 category: prose
-description: A group of Cite nodes.
+description: A group of `Cite` nodes.
 $comment: |
   This type allows you to group associated citations together.
   When some content in a [`Creative Work`](./CreativeWork) cites more than one

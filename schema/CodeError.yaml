@@ -3,7 +3,7 @@ title: CodeError
 extends: Entity
 category: code
 status: alpha
-description: An error that occurred when parsing, compiling or executing a Code node.
+description: An error that occurred when parsing, compiling or executing a `Code` node.
 required:
   - errorMessage
 core:

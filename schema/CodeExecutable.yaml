@@ -59,7 +59,7 @@ properties:
         strategy: String::arbitrary()
   guessLanguage:
     '@id': stencila:guessLanguage
-    description: Whether the programming language of the code should be guessed based on syntax and variables used
+    description: Whether the programming language of the code should be guessed based on syntax and variables used.
     type: boolean
     strip:
       - code

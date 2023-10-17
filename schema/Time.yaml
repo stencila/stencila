@@ -2,7 +2,7 @@ title: Time
 '@id': schema:Time
 extends: Entity
 category: data
-description: A point in time recurring on multiple days
+description: A point in time recurring on multiple days.
 jats:
   elem: time
   special: true

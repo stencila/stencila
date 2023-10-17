@@ -1,7 +1,7 @@
 title: Primitive
 '@id': stencila:Primitive
 category: data
-description: Union type for all primitives values
+description: Union type for all primitives values.
 $comment: |
   Analogous to JSON values but adds `Integer` and `UnsignedInteger`.
   

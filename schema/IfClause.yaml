@@ -2,7 +2,7 @@ title: IfClause
 '@id': stencila:IfClause
 extends: CodeExecutable
 category: flow
-description: A clause within a `If` node
+description: A clause within a `If` node.
 status: under-development
 html:
   elem: div

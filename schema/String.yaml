@@ -1,5 +1,5 @@
 title: String
 '@id': schema:Text
 category: data
-description: A value comprised of a string of characters
+description: A value comprised of a string of characters.
 type: string

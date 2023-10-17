@@ -2,7 +2,7 @@ title: Strikeout
 '@id': stencila:Strikeout
 extends: Mark
 category: prose
-description: Content that is marked as struck out
+description: Content that is marked as struck out.
 $comment: |
   Analogues of `Strikeout` in other schema include:
     - HTML [`<del>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/del)

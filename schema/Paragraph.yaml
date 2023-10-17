@@ -2,7 +2,7 @@ title: Paragraph
 '@id': stencila:Paragraph
 extends: Entity
 category: prose
-description: Paragraph
+description: A paragraph.
 $comment: |
   Analogues of `Paragraph` in other schema include:
     - HTML [`<p>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/p)

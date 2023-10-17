@@ -2,7 +2,7 @@ title: File
 '@id': stencila:File
 extends: CreativeWork
 category: works
-description: A file on the filesystem
+description: A file on the file system.
 required:
   - path
   - name

@@ -2,7 +2,7 @@ title: Cite
 '@id': stencila:Cite
 extends: Entity
 category: prose
-description: A reference to a CreativeWork that is cited in another CreativeWork.
+description: A reference to a `CreativeWork` that is cited in another `CreativeWork`.
 $comment: |
   A `Cite` node is used within a [`CreativeWork`](./CreativeWork), usually an
   [`Article`](./Article), to refer to an other `CreativeWork`.

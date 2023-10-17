@@ -2,7 +2,7 @@ title: ExecutionDependency
 '@id': stencila:ExecutionDependency
 extends: Entity
 category: flow
-description: An upstream execution dependency of a node
+description: An upstream execution dependency of a node.
 required:
   - dependencyRelation
   - dependencyNode

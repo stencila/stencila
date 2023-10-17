@@ -3,7 +3,7 @@ title: Division
 status: under-development
 extends: Styled
 category: style
-description: Styled block content
+description: Styled block content.
 html:
   elem: div
   custom: true

@@ -1,6 +1,6 @@
 title: UnsignedInteger
 '@id': stencila:UnsignedInteger
 category: data
-description: An integer value that is greater or equal to zero
+description: An integer value that is greater or equal to zero.
 type: integer
 minimum: 0

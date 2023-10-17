@@ -2,7 +2,7 @@ title: Directory
 '@id': stencila:Directory
 extends: Collection
 category: works
-description: A directory on the filesystem
+description: A directory on the file system.
 required:
   - path
   - name

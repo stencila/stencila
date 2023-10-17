@@ -2,7 +2,7 @@ title: AudioObject
 '@id': schema:AudioObject
 extends: MediaObject
 category: works
-description: An audio file
+description: An audio file.
 html:
   elem: audio
   custom: true

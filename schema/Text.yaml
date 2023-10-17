@@ -2,7 +2,7 @@ title: Text
 '@id': schema:Text
 extends: Entity
 category: prose
-description: Textual content
+description: Textual content.
 $comment: |
   Intended mostly for use for inline text e.g. the text in a paragraph.
   
