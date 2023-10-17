@@ -4,9 +4,9 @@ use codec::{
     schema::{
         shortcuts::{em, p, q, s, section, strong, sub, sup, text, u},
         Article, AudioObject, AudioObjectOptions, Block, Blocks, CodeExpression, CodeFragment,
-        Cord, Date, DateTime, Heading, ImageObject, ImageObjectOptions, Inline, Inlines, Link,
-        MathFragment, MediaObject, MediaObjectOptions, Note, NoteType, Span, ThematicBreak, Time,
-        Timestamp, VideoObject, VideoObjectOptions,
+        Cord, Date, DateTime, Duration, Heading, ImageObject, ImageObjectOptions, Inline, Inlines,
+        Link, MathFragment, MediaObject, MediaObjectOptions, Note, NoteType, Span, ThematicBreak,
+        Time, Timestamp, VideoObject, VideoObjectOptions,
     },
     Losses,
 };
@@ -95,6 +95,7 @@ fn decode_inlines(path: &str, node: &Node, losses: &mut Losses) -> Inlines {
                 "code" => decode_inline_code(&child_path, &child, losses),
                 "date" => decode_date(&child_path, &child, losses),
                 "date-time" => decode_date_time(&child_path, &child, losses),
+                "duration" => decode_duration(&child_path, &child, losses),
                 "ext-link" => decode_link(&child_path, &child, losses),
                 "fn" => decode_footnote(&child_path, &child, losses),
                 "inline-formula" => decode_math_fragment(&child_path, &child, losses),
@@ -271,7 +272,22 @@ fn decode_date_time(path: &str, node: &Node, losses: &mut Losses) -> Inline {
     })
 }
 
-/// Decode a `<ext-link>` to a [`Inline::DateTime`]
+/// Decode a `<duration>` to a [`Inline::Duration`]
+fn decode_duration(path: &str, node: &Node, losses: &mut Losses) -> Inline {
+    let value = node
+        .attribute("value")
+        .and_then(|value| value.parse::<i64>().ok())
+        .unwrap_or_default();
+
+    record_attrs_lost(path, node, ["value"], losses);
+
+    Inline::Duration(Duration {
+        value,
+        ..Default::default()
+    })
+}
+
+/// Decode a `<ext-link>` to a [`Inline::Link`]
 fn decode_link(path: &str, node: &Node, losses: &mut Losses) -> Inline {
     let target = node
         .attribute((XLINK, "href"))
@@ -342,14 +358,9 @@ fn decode_math_fragment(path: &str, node: &Node, losses: &mut Losses) -> Inline 
 
 /// Decode a `<styled-content>` to a [`Inline::Span`]
 fn decode_styled_content(path: &str, node: &Node, losses: &mut Losses) -> Inline {
-    let code = node
-        .attribute("style")
-        .map(Cord::new)
-        .unwrap_or_default();
+    let code = node.attribute("style").map(Cord::new).unwrap_or_default();
 
-    let style_language = node
-        .attribute("style-detail")
-        .map(String::from);
+    let style_language = node.attribute("style-detail").map(String::from);
 
     record_attrs_lost(path, node, ["style", "style-detail"], losses);
 

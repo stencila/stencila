@@ -3,6 +3,9 @@ title: Duration
 extends: Entity
 category: data
 description: A value that represents the difference between two timestamps.
+jats:
+  elem: duration
+  special: true
 proptest: {}
 required:
   - value

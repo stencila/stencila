@@ -11,6 +11,7 @@ mod date;
 mod date_time;
 mod delete;
 mod division;
+mod duration;
 mod r#for;
 mod heading;
 mod r#if;
