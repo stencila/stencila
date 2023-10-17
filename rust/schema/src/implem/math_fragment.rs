@@ -1,10 +1,10 @@
-use codec_losses::{lost_options, lost_props};
+use codec_losses::lost_options;
 
 use crate::{prelude::*, MathFragment};
 
 impl MathFragment {
     pub fn to_jats_special(&self) -> (String, Losses) {
-        use codec_jats_trait::encode::elem_no_attrs;
+        use codec_jats_trait::encode::{elem, elem_no_attrs};
 
         let mathml = self
             .mathml
@@ -12,10 +12,13 @@ impl MathFragment {
             .map(|mathml| elem_no_attrs("mml:math", mathml))
             .unwrap_or_default();
 
-        let jats = elem_no_attrs("inline-formula", mathml);
+        let jats = elem(
+            "inline-formula",
+            [("language", &self.math_language), ("code", &self.code)],
+            mathml,
+        );
 
-        let mut losses = lost_props!(self, "code", "math_language");
-        losses.merge(lost_options!(self, compile_digest, errors));
+        let losses = lost_options!(self, id, compile_digest, errors);
 
         (jats, losses)
     }

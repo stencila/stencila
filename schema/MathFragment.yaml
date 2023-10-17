@@ -7,8 +7,8 @@ html:
   elem: math
   custom: true
 jats:
-  special: true
   elem: inline-formula
+  special: true
 markdown:
   special: true
 proptest: {}

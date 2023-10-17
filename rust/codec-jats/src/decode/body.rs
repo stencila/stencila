@@ -4,9 +4,9 @@ use codec::{
     schema::{
         shortcuts::{em, p, q, s, section, strong, sub, sup, text, u},
         Article, AudioObject, AudioObjectOptions, Block, Blocks, CodeExpression, CodeFragment,
-        Cord, Date, DateTime, Heading, ImageObject, ImageObjectOptions, Inline, Inlines,
+        Cord, Date, DateTime, Heading, ImageObject, ImageObjectOptions, Inline, Inlines, Link,
         MediaObject, MediaObjectOptions, ThematicBreak, Time, Timestamp, VideoObject,
-        VideoObjectOptions,
+        VideoObjectOptions, MathFragment,
     },
     Losses,
 };
@@ -92,12 +92,14 @@ fn decode_inlines(path: &str, node: &Node, losses: &mut Losses) -> Inlines {
             let tag = child.tag_name().name();
             let child_path = extend_path(path, tag);
             match tag {
-                "inline-media" | "inline-graphic" => {
-                    decode_inline_media(&child_path, &child, losses)
-                }
                 "code" => decode_inline_code(&child_path, &child, losses),
                 "date" => decode_date(&child_path, &child, losses),
                 "date-time" => decode_date_time(&child_path, &child, losses),
+                "ext-link" => decode_link(&child_path, &child, losses),
+                "inline-formula" => decode_math_fragment(&child_path, &child, losses),
+                "inline-graphic" | "inline-media" => {
+                    decode_inline_media(&child_path, &child, losses)
+                }
                 "time" => decode_time(&child_path, &child, losses),
                 "timestamp" => decode_timestamp(&child_path, &child, losses),
                 _ => {
@@ -263,6 +265,45 @@ fn decode_date_time(path: &str, node: &Node, losses: &mut Losses) -> Inline {
 
     Inline::DateTime(DateTime {
         value,
+        ..Default::default()
+    })
+}
+
+/// Decode a `<ext-link>` to a [`Inline::DateTime`]
+fn decode_link(path: &str, node: &Node, losses: &mut Losses) -> Inline {
+    let target = node
+        .attribute((XLINK, "href"))
+        .map(String::from)
+        .unwrap_or_default();
+
+    record_attrs_lost(path, node, ["href"], losses);
+
+    let content = decode_inlines(path, &node, losses);
+
+    Inline::Link(Link {
+        target,
+        content,
+        ..Default::default()
+    })
+}
+
+/// Decode a `<inline-formula>` to a [`Inline::MathFragment`]
+fn decode_math_fragment(path: &str, node: &Node, losses: &mut Losses) -> Inline {
+    let math_language = node
+        .attribute("language")
+        .map(String::from)
+        .unwrap_or_default();
+
+    let code = node
+        .attribute("code")
+        .map(Cord::new)
+        .unwrap_or_default();
+
+    record_attrs_lost(path, node, ["language", "code"], losses);
+
+    Inline::MathFragment(MathFragment {
+        math_language,
+        code,
         ..Default::default()
     })
 }

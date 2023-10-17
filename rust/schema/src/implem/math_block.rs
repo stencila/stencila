@@ -1,10 +1,10 @@
-use codec_losses::{lost_options, lost_props};
+use codec_losses::lost_options;
 
 use crate::{prelude::*, MathBlock};
 
 impl MathBlock {
     pub fn to_jats_special(&self) -> (String, Losses) {
-        use codec_jats_trait::encode::elem_no_attrs;
+        use codec_jats_trait::encode::{elem, elem_no_attrs};
 
         let label = self
             .label
@@ -18,10 +18,13 @@ impl MathBlock {
             .map(|mathml| elem_no_attrs("mml:math", mathml))
             .unwrap_or_default();
 
-        let jats = elem_no_attrs("disp-formula", [label, mathml].concat());
+        let jats = elem(
+            "disp-formula",
+            [("language", &self.math_language), ("code", &self.code)],
+            [label, mathml].concat(),
+        );
 
-        let mut losses = lost_props!(self, "code", "math_language");
-        losses.merge(lost_options!(self, id, compile_digest, errors));
+        let losses = lost_options!(self, id, compile_digest, errors);
 
         (jats, losses)
     }
