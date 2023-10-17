@@ -485,6 +485,7 @@ version = "0.0.0"
 dependencies = [
  "codec",
  "codec-jats-trait",
+ "common-dev",
  "quick-xml 0.30.0",
  "roxmltree",
 ]

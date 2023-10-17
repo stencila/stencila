@@ -1,14 +1,30 @@
 //! Shortcut functions for conveniently creating nodes of various types
 
 use crate::{
-    Block, BlocksOrInlines, CodeFragment, Cord, Emphasis, Heading, Inline, Link, List, ListItem,
-    ListOrder, Paragraph, Quote, Section, Strikeout, Strong, Subscript, Superscript, Table,
-    TableCell, TableCellType, TableRow, Text, Underline,
+    Article, AudioObject, Block, BlocksOrInlines, CodeFragment, Cord, Emphasis, Heading,
+    ImageObject, Inline, Link, List, ListItem, ListOrder, Node, Paragraph, Quote, Section,
+    Strikeout, Strong, Subscript, Superscript, Table, TableCell, TableCellType, TableRow, Text,
+    Underline, VideoObject,
 };
 
 /// Create an [`Inline::Text`] node
 pub fn text<S: Into<String>>(value: S) -> Inline {
     Inline::Text(Text::new(Cord::new(value.into())))
+}
+
+/// Create an [`Inline::Audio`] node
+pub fn audio<S: Into<String>>(url: S) -> Inline {
+    Inline::AudioObject(AudioObject::new(url.into()))
+}
+
+/// Create an [`Inline::Image`] node
+pub fn img<S: Into<String>>(url: S) -> Inline {
+    Inline::ImageObject(ImageObject::new(url.into()))
+}
+
+/// Create an [`Inline::Video`] node
+pub fn video<S: Into<String>>(url: S) -> Inline {
+    Inline::VideoObject(VideoObject::new(url.into()))
 }
 
 /// Create an [`Inline::Emphasis`] node
@@ -145,4 +161,9 @@ pub fn td<I: Into<Vec<Inline>>>(content: I) -> TableCell {
 /// Create a [`Block::Section`] node
 pub fn section<I: Into<Vec<Block>>>(content: I) -> Block {
     Block::Section(Section::new(content.into()))
+}
+
+/// Create a [`Node::Article`] node
+pub fn article<I: Into<Vec<Block>>>(content: I) -> Node {
+    Node::Article(Article::new(content.into()))
 }

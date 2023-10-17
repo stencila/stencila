@@ -8,3 +8,6 @@ codec = { path = "../codec" }
 codec-jats-trait = { path = "../codec-jats-trait" }
 quick-xml = "0.30.0"
 roxmltree = "0.18.1"
+
+[dev-dependencies]
+common-dev = { path = "../common-dev" }

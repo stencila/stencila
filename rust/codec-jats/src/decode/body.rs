@@ -5,11 +5,14 @@ use codec::{
         shortcuts::{em, p, q, s, section, strong, sub, sup, text, u},
         Article, AudioObject, AudioObjectOptions, Block, Blocks, Heading, ImageObject,
         ImageObjectOptions, Inline, Inlines, MediaObject, MediaObjectOptions, ThematicBreak,
+        VideoObject, VideoObjectOptions,
     },
     Losses,
 };
 
 use super::utilities::{extend_path, record_attrs_lost, record_node_lost};
+
+const XLINK: &str = "http://www.w3.org/1999/xlink";
 
 /// Decode the `<body>` of an `<article>`
 ///
@@ -120,7 +123,10 @@ fn decode_inlines(path: &str, node: &Node, losses: &mut Losses) -> Inlines {
 ///
 /// Resolves the destination type based on the `mimetype` attribute of the element.
 fn decode_inline_media(path: &str, node: &Node, losses: &mut Losses) -> Inline {
-    let content_url = node.attribute("href").map(String::from).unwrap_or_default();
+    let content_url = node
+        .attribute((XLINK, "href"))
+        .map(String::from)
+        .unwrap_or_default();
 
     let mime_type = node.attribute("mimetype").map(String::from);
     let mime_subtype = node.attribute("mime-subtype").map(String::from);
@@ -143,31 +149,46 @@ fn decode_inline_media(path: &str, node: &Node, losses: &mut Losses) -> Inline {
         }
     }
 
-    match mime_type.as_deref() {
-        Some("audio") => Inline::AudioObject(AudioObject {
+    if node.tag_name().name() == "inline-graphic" {
+        return Inline::ImageObject(ImageObject {
             content_url,
-            media_type,
-            options: Box::new(AudioObjectOptions {
-                alternate_names,
-                description,
-                ..Default::default()
-            }),
-            ..Default::default()
-        }),
-        Some("inline") => Inline::ImageObject(ImageObject {
-            content_url,
-            media_type,
+            media_type: if media_type.as_deref() == Some("image") {
+                None
+            } else {
+                media_type
+            },
             options: Box::new(ImageObjectOptions {
                 alternate_names,
                 description,
                 ..Default::default()
             }),
             ..Default::default()
-        }),
-        Some("video") => Inline::AudioObject(AudioObject {
+        });
+    }
+
+    match mime_type.as_deref() {
+        Some("audio") => Inline::AudioObject(AudioObject {
             content_url,
-            media_type,
+            media_type: if media_type.as_deref() == Some("audio") {
+                None
+            } else {
+                media_type
+            },
             options: Box::new(AudioObjectOptions {
+                alternate_names,
+                description,
+                ..Default::default()
+            }),
+            ..Default::default()
+        }),
+        Some("video") => Inline::VideoObject(VideoObject {
+            content_url,
+            media_type: if media_type.as_deref() == Some("video") {
+                None
+            } else {
+                media_type
+            },
+            options: Box::new(VideoObjectOptions {
                 alternate_names,
                 description,
                 ..Default::default()
