@@ -362,7 +362,7 @@ pub enum NodeType {{
                         .iter()
                         .map(|(name, value)| format!(
                             "{name} = \"{value}\"",
-                            name = name.replace("-", "_").replace(":", "__")
+                            name = name.replace("-", "__").replace(":", "_")
                         ))
                         .join(", ")
                 ));
@@ -528,7 +528,7 @@ pub enum NodeType {{
                             .iter()
                             .map(|(name, value)| format!(
                                 "{name} = \"{value}\"",
-                                name = name.replace("-", "_").replace(":", "__")
+                                name = name.replace("-", "__").replace(":", "_")
                             ))
                             .join(", ")
                     ));
