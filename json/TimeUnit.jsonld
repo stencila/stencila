@@ -9,7 +9,7 @@
       "@id": "stencila:TimeUnit",
       "@type": "rdfs:Class",
       "rdfs:label": "TimeUnit",
-      "rdfs:comment": "A unit in which time can be measured",
+      "rdfs:comment": "A unit in which time can be measured.",
       "rdfs:subClassOf": {
         "@id": "Enumeration"
       }

@@ -1,6 +1,6 @@
 # Timestamp
 
-**A value that represents a point in time**
+**A value that represents a point in time.**
 
 **`@id`**: [`schema:Timestamp`](https://schema.org/Timestamp)
 
@@ -8,11 +8,11 @@
 
 The `Timestamp` type has these properties:
 
-| Name     | `@id`                                      | Type                                                                                                 | Description                                                                      | Inherited from                                                                                        |
-| -------- | ------------------------------------------ | ---------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------- |
-| id       | [`schema:id`](https://schema.org/id)       | [`String`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/string.md)      | The identifier for this item                                                     | [`Entity`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/entity.md)      |
-| value    | [`schema:value`](https://schema.org/value) | [`Integer`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/integer.md)    | The time, in `timeUnit`s, before or after the Unix Epoch (1970-01-01T00:00:00Z). | [`Timestamp`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/timestamp.md) |
-| timeUnit | `stencila:timeUnit`                        | [`TimeUnit`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/time-unit.md) | The time unit that the `value` represents.                                       | [`Timestamp`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/timestamp.md) |
+| Name     | `@id`                                      | Type                                                                                                 | Description                                                                      | Inherited from                                                                                   |
+| -------- | ------------------------------------------ | ---------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------ |
+| id       | [`schema:id`](https://schema.org/id)       | [`String`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/string.md)      | The identifier for this item.                                                    | [`Entity`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/entity.md) |
+| value    | [`schema:value`](https://schema.org/value) | [`Integer`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/integer.md)    | The time, in `timeUnit`s, before or after the Unix Epoch (1970-01-01T00:00:00Z). | -                                                                                                |
+| timeUnit | `stencila:timeUnit`                        | [`TimeUnit`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/time-unit.md) | The time unit that the `value` represents.                                       | -                                                                                                |
 
 ## Related
 

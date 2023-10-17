@@ -9,7 +9,7 @@
       "@id": "stencila:Styled",
       "@type": "rdfs:Class",
       "rdfs:label": "Styled",
-      "rdfs:comment": "An abstract base class for a document node that has styling applied to it and/or its content",
+      "rdfs:comment": "An abstract base class for a document node that has styling applied to it and/or its content.",
       "rdfs:subClassOf": {
         "@id": "Entity"
       }
@@ -105,7 +105,7 @@
       "@id": "stencila:classes",
       "@type": "rdfs:Property",
       "rdfs:label": "classes",
-      "rdfs:comment": "A list of class names associated with the node",
+      "rdfs:comment": "A list of class names associated with the node.",
       "schema:domainIncludes": {
         "@id": "stencila:Styled"
       },

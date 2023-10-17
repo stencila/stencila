@@ -9,7 +9,7 @@
       "@id": "schema:SoftwareApplication",
       "@type": "rdfs:Class",
       "rdfs:label": "SoftwareApplication",
-      "rdfs:comment": "A software application.\n",
+      "rdfs:comment": "A software application.",
       "rdfs:subClassOf": {
         "@id": "CreativeWork"
       }

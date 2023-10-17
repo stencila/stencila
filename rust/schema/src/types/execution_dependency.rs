@@ -7,15 +7,15 @@ use super::execution_dependency_relation::ExecutionDependencyRelation;
 use super::integer::Integer;
 use super::string::String;
 
-/// An upstream execution dependency of a node
+/// An upstream execution dependency of a node.
 #[skip_serializing_none]
 #[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec, ReadNode, WriteNode)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 pub struct ExecutionDependency {
-    /// The type of this item
+    /// The type of this item.
     pub r#type: MustBe!("ExecutionDependency"),
 
-    /// The identifier for this item
+    /// The identifier for this item.
     #[strip(id)]
     #[html(attr = "id")]
     pub id: Option<String>,

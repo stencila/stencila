@@ -1,6 +1,6 @@
 # Null
 
-**The null value**
+**The null value.**
 
 **`@id`**: `stencila:Null`
 

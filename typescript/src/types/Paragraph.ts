@@ -4,7 +4,7 @@ import { Entity } from "./Entity.js";
 import { Inline } from "./Inline.js";
 
 /**
- * Paragraph
+ * A paragraph.
  */
 export class Paragraph extends Entity {
   type = "Paragraph";

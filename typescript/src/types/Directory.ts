@@ -4,7 +4,7 @@ import { Collection } from "./Collection.js";
 import { FileOrDirectory } from "./FileOrDirectory.js";
 
 /**
- * A directory on the filesystem
+ * A directory on the file system.
  */
 export class Directory extends Collection {
   type = "Directory";

@@ -3,7 +3,7 @@
 **A validator specifying a constant value that a node must have.**
 
 A node will be valid against this validator if it is equal to the
-`value` property. Analogous to the JSON Schema [`const` keyword](https://json-schema.org/draft/2019-09/json-schema-validation.html#rfc.section.6.1.3).
+`value` property. Analogous to the JSON Schema [`const`](https://json-schema.org/draft/2019-09/json-schema-validation.html#rfc.section.6.1.3) keyword.
 
 
 **`@id`**: `stencila:ConstantValidator`
@@ -12,10 +12,10 @@ A node will be valid against this validator if it is equal to the
 
 The `ConstantValidator` type has these properties:
 
-| Name  | `@id`                                      | Type                                                                                            | Description                        | Inherited from                                                                                                         |
-| ----- | ------------------------------------------ | ----------------------------------------------------------------------------------------------- | ---------------------------------- | ---------------------------------------------------------------------------------------------------------------------- |
-| id    | [`schema:id`](https://schema.org/id)       | [`String`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/string.md) | The identifier for this item       | [`Entity`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/entity.md)                       |
-| value | [`schema:value`](https://schema.org/value) | [`Node`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/node.md)    | The value that the node must have. | [`ConstantValidator`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/constant-validator.md) |
+| Name  | `@id`                                      | Type                                                                                            | Description                        | Inherited from                                                                                   |
+| ----- | ------------------------------------------ | ----------------------------------------------------------------------------------------------- | ---------------------------------- | ------------------------------------------------------------------------------------------------ |
+| id    | [`schema:id`](https://schema.org/id)       | [`String`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/string.md) | The identifier for this item.      | [`Entity`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/entity.md) |
+| value | [`schema:value`](https://schema.org/value) | [`Node`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/node.md)    | The value that the node must have. | -                                                                                                |
 
 ## Related
 

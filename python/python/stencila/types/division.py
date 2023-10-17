@@ -9,7 +9,7 @@ from .styled import Styled
 @dataclass(kw_only=True, frozen=True)
 class Division(Styled):
     """
-    Styled block content
+    Styled block content.
     """
 
     type: Literal["Division"] = field(default="Division", init=False)

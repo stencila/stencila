@@ -1,6 +1,6 @@
 # Cite Group
 
-**A group of Cite nodes.**
+**A group of `Cite` nodes.**
 
 This type allows you to group associated citations together.
 When some content in a [`Creative Work`](./CreativeWork) cites more than one
@@ -20,10 +20,10 @@ such as "and").
 
 The `CiteGroup` type has these properties:
 
-| Name  | `@id`                                                          | Type                                                                                            | Description                                                        | Inherited from                                                                                          |
-| ----- | -------------------------------------------------------------- | ----------------------------------------------------------------------------------------------- | ------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------- |
-| id    | [`schema:id`](https://schema.org/id)                           | [`String`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/string.md) | The identifier for this item                                       | [`Entity`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/entity.md)        |
-| items | [`schema:itemListElement`](https://schema.org/itemListElement) | [`Cite`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/cite.md)*   | One or more `Cite`s to be referenced in the same surrounding text. | [`CiteGroup`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/cite-group.md) |
+| Name  | `@id`                                                          | Type                                                                                            | Description                                                        | Inherited from                                                                                   |
+| ----- | -------------------------------------------------------------- | ----------------------------------------------------------------------------------------------- | ------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------ |
+| id    | [`schema:id`](https://schema.org/id)                           | [`String`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/string.md) | The identifier for this item.                                      | [`Entity`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/entity.md) |
+| items | [`schema:itemListElement`](https://schema.org/itemListElement) | [`Cite`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/cite.md)*   | One or more `Cite`s to be referenced in the same surrounding text. | -                                                                                                |
 
 ## Related
 

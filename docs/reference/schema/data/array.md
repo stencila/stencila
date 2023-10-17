@@ -1,6 +1,6 @@
 # Array
 
-**A value comprised of other primitive nodes**
+**A value comprised of other primitive nodes.**
 
 Note that the items in the array are restricted to primitive node
 types including `Array` (ie. an `Array` as an item of another `Array`) and `Object`.

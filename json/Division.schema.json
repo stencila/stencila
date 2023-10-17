@@ -7,7 +7,7 @@
     "Styled"
   ],
   "category": "style",
-  "description": "Styled block content",
+  "description": "Styled block content.",
   "status": "under-development",
   "proptest": {},
   "html": {
@@ -33,13 +33,13 @@
   "properties": {
     "type": {
       "@id": "schema:type",
-      "description": "The type of this item",
+      "description": "The type of this item.",
       "$comment": "This is a special property analogous to JSON-LD's `@type` keyword.\n",
       "type": "string"
     },
     "id": {
       "@id": "schema:id",
-      "description": "The identifier for this item",
+      "description": "The identifier for this item.",
       "$comment": "This is a special property analogous to JSON-LD's `@id` keyword.\n",
       "strip": [
         "id"
@@ -117,7 +117,7 @@
     },
     "classes": {
       "@id": "stencila:classes",
-      "description": "A list of class names associated with the node",
+      "description": "A list of class names associated with the node.",
       "$comment": "Analogous to the [`classList` property of an `Element`](https://developer.mozilla.org/en-US/docs/Web/API/Element/classList)\nin the Web API.\n",
       "type": "array",
       "items": {

@@ -9,7 +9,7 @@
       "@id": "stencila:Null",
       "@type": "rdfs:Class",
       "rdfs:label": "Null",
-      "rdfs:comment": "The null value"
+      "rdfs:comment": "The null value."
     }
   ]
 }

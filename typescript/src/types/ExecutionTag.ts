@@ -3,7 +3,7 @@
 import { Entity } from "./Entity.js";
 
 /**
- * A tag on code that affects its execution
+ * A tag on code that affects its execution.
  */
 export class ExecutionTag extends Entity {
   type = "ExecutionTag";

@@ -9,7 +9,7 @@ from .time_unit import TimeUnit
 @dataclass(kw_only=True, frozen=True)
 class Duration(Entity):
     """
-    A value that represents the difference between two timestamps
+    A value that represents the difference between two timestamps.
     """
 
     type: Literal["Duration"] = field(default="Duration", init=False)

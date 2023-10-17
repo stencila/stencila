@@ -18,9 +18,9 @@ The `Note` type has these properties:
 
 | Name     | `@id`                                | Type                                                                                                  | Description                                                         | Inherited from                                                                                   |
 | -------- | ------------------------------------ | ----------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------ |
-| id       | [`schema:id`](https://schema.org/id) | [`String`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/string.md)       | The identifier for this item                                        | [`Entity`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/entity.md) |
-| noteType | `stencila:noteType`                  | [`NoteType`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/note-type.md) | Determines where the note content is displayed within the document. | [`Note`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/note.md)     |
-| content  | `stencila:content`                   | [`Block`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/block.md)*       | Content of the note, usually a paragraph.                           | [`Note`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/note.md)     |
+| id       | [`schema:id`](https://schema.org/id) | [`String`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/string.md)       | The identifier for this item.                                       | [`Entity`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/entity.md) |
+| noteType | `stencila:noteType`                  | [`NoteType`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/note-type.md) | Determines where the note content is displayed within the document. | -                                                                                                |
+| content  | `stencila:content`                   | [`Block`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/block.md)*       | Content of the note, usually a paragraph.                           | -                                                                                                |
 
 ## Related
 
@@ -56,7 +56,7 @@ The `Note` type is represented in these bindings:
 
 ## Testing
 
-During property-based (a.k.a generative) testing, the properties of the `Note` type are generated using the following strategies for each complexity level (see the [`proptest` book](https://proptest-rs.github.io/proptest/) for an explanation of the Rust strategy expressions). Any optional properties that are not in this table are set to `None`
+During property-based (a.k.a generative) testing, the properties of the `Note` type are generated using the following strategies for each complexity level (see the [`proptest` book](https://proptest-rs.github.io/proptest/) for an explanation of the Rust strategy expressions). Any optional properties that are not in this table are set to `None`.
 
 | Property  | Complexity | Description                                                  | Strategy                                                                                                        |
 | --------- | ---------- | ------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------- |

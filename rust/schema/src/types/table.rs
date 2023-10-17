@@ -28,11 +28,11 @@ use super::thing_type::ThingType;
 #[html(special)]
 #[markdown(special)]
 pub struct Table {
-    /// The type of this item
+    /// The type of this item.
     #[cfg_attr(feature = "proptest", proptest(value = "Default::default()"))]
     pub r#type: MustBe!("Table"),
 
-    /// The identifier for this item
+    /// The identifier for this item.
     #[strip(id)]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     #[html(attr = "id")]

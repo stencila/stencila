@@ -7,7 +7,7 @@
     "CodeExecutable"
   ],
   "category": "flow",
-  "description": "A clause within a `If` node",
+  "description": "A clause within a `If` node.",
   "status": "under-development",
   "html": {
     "elem": "div",
@@ -26,13 +26,13 @@
   "properties": {
     "type": {
       "@id": "schema:type",
-      "description": "The type of this item",
+      "description": "The type of this item.",
       "$comment": "This is a special property analogous to JSON-LD's `@type` keyword.\n",
       "type": "string"
     },
     "id": {
       "@id": "schema:id",
-      "description": "The identifier for this item",
+      "description": "The identifier for this item.",
       "$comment": "This is a special property analogous to JSON-LD's `@id` keyword.\n",
       "strip": [
         "id"
@@ -90,7 +90,7 @@
     },
     "executionTags": {
       "@id": "stencila:executionTags",
-      "description": "Tags in the code which affect its execution",
+      "description": "Tags in the code which affect its execution.",
       "strip": [
         "execution"
       ],
@@ -220,7 +220,7 @@
     },
     "guessLanguage": {
       "@id": "stencila:guessLanguage",
-      "description": "Whether the programming language of the code should be guessed based on syntax and variables used",
+      "description": "Whether the programming language of the code should be guessed based on syntax and variables used.",
       "strip": [
         "code"
       ],

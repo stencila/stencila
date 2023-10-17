@@ -26,11 +26,11 @@ use super::thing_type::ThingType;
 #[cfg_attr(feature = "proptest", derive(Arbitrary))]
 #[jats(elem = "statement")]
 pub struct Claim {
-    /// The type of this item
+    /// The type of this item.
     #[cfg_attr(feature = "proptest", proptest(value = "Default::default()"))]
     pub r#type: MustBe!("Claim"),
 
-    /// The identifier for this item
+    /// The identifier for this item.
     #[strip(id)]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     #[html(attr = "id")]

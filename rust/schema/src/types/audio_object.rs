@@ -19,7 +19,7 @@ use super::string::String;
 use super::string_or_number::StringOrNumber;
 use super::thing_type::ThingType;
 
-/// An audio file
+/// An audio file.
 #[skip_serializing_none]
 #[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec, ReadNode, WriteNode)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
@@ -28,11 +28,11 @@ use super::thing_type::ThingType;
 #[jats(elem = "inline-media", special)]
 #[markdown(format = "![]({content_url})")]
 pub struct AudioObject {
-    /// The type of this item
+    /// The type of this item.
     #[cfg_attr(feature = "proptest", proptest(value = "Default::default()"))]
     pub r#type: MustBe!("AudioObject"),
 
-    /// The identifier for this item
+    /// The identifier for this item.
     #[strip(id)]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     #[html(attr = "id")]

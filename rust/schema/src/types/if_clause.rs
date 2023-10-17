@@ -18,16 +18,16 @@ use super::integer::Integer;
 use super::string::String;
 use super::timestamp::Timestamp;
 
-/// A clause within a `If` node
+/// A clause within a `If` node.
 #[skip_serializing_none]
 #[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec, ReadNode, WriteNode)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 #[html(elem = "div", custom)]
 pub struct IfClause {
-    /// The type of this item
+    /// The type of this item.
     pub r#type: MustBe!("IfClause"),
 
-    /// The identifier for this item
+    /// The identifier for this item.
     #[strip(id)]
     #[html(attr = "id")]
     pub id: Option<String>,
@@ -42,7 +42,7 @@ pub struct IfClause {
     #[jats(attr = "language")]
     pub programming_language: String,
 
-    /// Whether the programming language of the code should be guessed based on syntax and variables used
+    /// Whether the programming language of the code should be guessed based on syntax and variables used.
     #[strip(code)]
     pub guess_language: Option<Boolean>,
 
@@ -82,7 +82,7 @@ pub struct IfClauseOptions {
     #[strip(execution)]
     pub execution_dependants: Option<Vec<ExecutionDependant>>,
 
-    /// Tags in the code which affect its execution
+    /// Tags in the code which affect its execution.
     #[strip(execution)]
     pub execution_tags: Option<Vec<ExecutionTag>>,
 

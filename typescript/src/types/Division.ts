@@ -5,7 +5,7 @@ import { Cord } from "./Cord.js";
 import { Styled } from "./Styled.js";
 
 /**
- * Styled block content
+ * Styled block content.
  */
 export class Division extends Styled {
   type = "Division";

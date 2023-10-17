@@ -9,7 +9,7 @@
       "@id": "stencila:ExecutionDependantNode",
       "@type": "rdfs:Class",
       "rdfs:label": "ExecutionDependantNode",
-      "rdfs:comment": "Node types that can be execution dependencies"
+      "rdfs:comment": "Node types that can be execution dependencies."
     }
   ]
 }

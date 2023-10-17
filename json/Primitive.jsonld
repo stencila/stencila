@@ -9,7 +9,7 @@
       "@id": "stencila:Primitive",
       "@type": "rdfs:Class",
       "rdfs:label": "Primitive",
-      "rdfs:comment": "Union type for all primitives values"
+      "rdfs:comment": "Union type for all primitives values."
     }
   ]
 }

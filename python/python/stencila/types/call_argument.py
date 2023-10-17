@@ -8,7 +8,7 @@ from .parameter import Parameter
 @dataclass(kw_only=True, frozen=True)
 class CallArgument(Parameter):
     """
-    The value of a `Parameter` to call a document with
+    The value of a `Parameter` to call a document with.
     """
 
     type: Literal["CallArgument"] = field(default="CallArgument", init=False)

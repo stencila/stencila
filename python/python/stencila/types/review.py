@@ -9,7 +9,7 @@ from .thing import Thing
 @dataclass(kw_only=True, frozen=True)
 class Review(CreativeWork):
     """
-    A review of an item, e.g of an Article, or SoftwareSourceCode.
+    A review of an item, e.g of an `Article` or `SoftwareApplication`.
     """
 
     type: Literal["Review"] = field(default="Review", init=False)

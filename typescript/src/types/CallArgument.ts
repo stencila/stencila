@@ -3,7 +3,7 @@
 import { Parameter } from "./Parameter.js";
 
 /**
- * The value of a `Parameter` to call a document with
+ * The value of a `Parameter` to call a document with.
  */
 export class CallArgument extends Parameter {
   type = "CallArgument";

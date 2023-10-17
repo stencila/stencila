@@ -3,7 +3,7 @@
 import { CreativeWork } from "./CreativeWork.js";
 
 /**
- * A file on the filesystem
+ * A file on the file system.
  */
 export class File extends CreativeWork {
   type = "File";

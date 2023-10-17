@@ -8,7 +8,7 @@ from .entity import Entity
 @dataclass(kw_only=True, frozen=True)
 class ExecutionTag(Entity):
     """
-    A tag on code that affects its execution
+    A tag on code that affects its execution.
     """
 
     type: Literal["ExecutionTag"] = field(default="ExecutionTag", init=False)

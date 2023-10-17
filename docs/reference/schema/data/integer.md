@@ -1,6 +1,6 @@
 # Integer
 
-**A value that is a integer**
+**A value that is a integer.**
 
 **`@id`**: [`schema:Integer`](https://schema.org/Integer)
 

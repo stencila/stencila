@@ -5,7 +5,7 @@ import { CodeExecutable } from "./CodeExecutable.js";
 import { Cord } from "./Cord.js";
 
 /**
- * A clause within a `If` node
+ * A clause within a `If` node.
  */
 export class IfClause extends CodeExecutable {
   type = "IfClause";

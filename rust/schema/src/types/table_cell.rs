@@ -14,11 +14,11 @@ use super::table_cell_type::TableCellType;
 #[cfg_attr(feature = "proptest", derive(Arbitrary))]
 #[html(elem = "td")]
 pub struct TableCell {
-    /// The type of this item
+    /// The type of this item.
     #[cfg_attr(feature = "proptest", proptest(value = "Default::default()"))]
     pub r#type: MustBe!("TableCell"),
 
-    /// The identifier for this item
+    /// The identifier for this item.
     #[strip(id)]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     #[html(attr = "id")]

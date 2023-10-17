@@ -8,7 +8,7 @@ from .creative_work import CreativeWork
 @dataclass(kw_only=True, frozen=True)
 class File(CreativeWork):
     """
-    A file on the filesystem
+    A file on the file system.
     """
 
     type: Literal["File"] = field(default="File", init=False)

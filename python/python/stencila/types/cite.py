@@ -12,7 +12,7 @@ from .int_or_str import IntOrStr
 @dataclass(kw_only=True, frozen=True)
 class Cite(Entity):
     """
-    A reference to a CreativeWork that is cited in another CreativeWork.
+    A reference to a `CreativeWork` that is cited in another `CreativeWork`.
     """
 
     type: Literal["Cite"] = field(default="Cite", init=False)

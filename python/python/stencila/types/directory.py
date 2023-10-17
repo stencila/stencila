@@ -9,7 +9,7 @@ from .file_or_directory import FileOrDirectory
 @dataclass(kw_only=True, frozen=True)
 class Directory(Collection):
     """
-    A directory on the filesystem
+    A directory on the file system.
     """
 
     type: Literal["Directory"] = field(default="Directory", init=False)

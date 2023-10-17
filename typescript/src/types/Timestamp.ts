@@ -5,7 +5,7 @@ import { Integer } from "./Integer.js";
 import { TimeUnit } from "./TimeUnit.js";
 
 /**
- * A value that represents a point in time
+ * A value that represents a point in time.
  */
 export class Timestamp extends Entity {
   type = "Timestamp";

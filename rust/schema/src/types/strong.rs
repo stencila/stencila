@@ -14,11 +14,11 @@ use super::string::String;
 #[jats(elem = "bold")]
 #[markdown(format = "**{content}**", escape = "*")]
 pub struct Strong {
-    /// The type of this item
+    /// The type of this item.
     #[cfg_attr(feature = "proptest", proptest(value = "Default::default()"))]
     pub r#type: MustBe!("Strong"),
 
-    /// The identifier for this item
+    /// The identifier for this item.
     #[strip(id)]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     #[html(attr = "id")]

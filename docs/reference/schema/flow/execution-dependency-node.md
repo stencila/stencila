@@ -1,6 +1,6 @@
 # Execution Dependency Node
 
-**Node types that can be execution dependencies**
+**Node types that can be execution dependencies.**
 
 **`@id`**: `stencila:ExecutionDependencyNode`
 

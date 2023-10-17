@@ -15,10 +15,10 @@ Analogues of `Delete` in other schema include:
 
 The `Emphasis` type has these properties:
 
-| Name    | `@id`                                | Type                                                                                              | Description                  | Inherited from                                                                                   |
-| ------- | ------------------------------------ | ------------------------------------------------------------------------------------------------- | ---------------------------- | ------------------------------------------------------------------------------------------------ |
-| id      | [`schema:id`](https://schema.org/id) | [`String`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/string.md)   | The identifier for this item | [`Entity`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/entity.md) |
-| content | `stencila:content`                   | [`Inline`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/inline.md)* | The content that is marked.  | [`Mark`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/mark.md)     |
+| Name    | `@id`                                | Type                                                                                              | Description                   | Inherited from                                                                                   |
+| ------- | ------------------------------------ | ------------------------------------------------------------------------------------------------- | ----------------------------- | ------------------------------------------------------------------------------------------------ |
+| id      | [`schema:id`](https://schema.org/id) | [`String`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/string.md)   | The identifier for this item. | [`Entity`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/entity.md) |
+| content | `stencila:content`                   | [`Inline`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/inline.md)* | The content that is marked.   | [`Mark`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/mark.md)     |
 
 ## Related
 
@@ -54,7 +54,7 @@ The `Emphasis` type is represented in these bindings:
 
 ## Testing
 
-During property-based (a.k.a generative) testing, the properties of the `Emphasis` type are generated using the following strategies for each complexity level (see the [`proptest` book](https://proptest-rs.github.io/proptest/) for an explanation of the Rust strategy expressions). Any optional properties that are not in this table are set to `None`
+During property-based (a.k.a generative) testing, the properties of the `Emphasis` type are generated using the following strategies for each complexity level (see the [`proptest` book](https://proptest-rs.github.io/proptest/) for an explanation of the Rust strategy expressions). Any optional properties that are not in this table are set to `None`.
 
 | Property  | Complexity | Description                                                | Strategy                                                                |
 | --------- | ---------- | ---------------------------------------------------------- | ----------------------------------------------------------------------- |

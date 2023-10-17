@@ -4,7 +4,7 @@ import { CreativeWork } from "./CreativeWork.js";
 import { Thing } from "./Thing.js";
 
 /**
- * A review of an item, e.g of an Article, or SoftwareSourceCode.
+ * A review of an item, e.g of an `Article` or `SoftwareApplication`.
  */
 export class Review extends CreativeWork {
   type = "Review";

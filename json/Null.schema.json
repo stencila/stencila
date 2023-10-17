@@ -4,6 +4,6 @@
   "@id": "stencila:Null",
   "title": "Null",
   "category": "data",
-  "description": "The null value",
+  "description": "The null value.",
   "type": "null"
 }

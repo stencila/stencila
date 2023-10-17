@@ -23,10 +23,10 @@ use super::timestamp::Timestamp;
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 #[markdown(special)]
 pub struct Call {
-    /// The type of this item
+    /// The type of this item.
     pub r#type: MustBe!("Call"),
 
-    /// The identifier for this item
+    /// The identifier for this item.
     #[strip(id)]
     #[html(attr = "id")]
     pub id: Option<String>,
@@ -83,7 +83,7 @@ pub struct CallOptions {
     #[strip(execution)]
     pub execution_dependants: Option<Vec<ExecutionDependant>>,
 
-    /// Tags in the code which affect its execution
+    /// Tags in the code which affect its execution.
     #[strip(execution)]
     pub execution_tags: Option<Vec<ExecutionTag>>,
 

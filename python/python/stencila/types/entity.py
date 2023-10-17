@@ -12,4 +12,4 @@ class Entity(DataClassJsonMixin):
     type: Literal["Entity"] = field(default="Entity", init=False)
 
     id: Optional[str] = None
-    """The identifier for this item"""
+    """The identifier for this item."""

@@ -9,7 +9,7 @@
       "@id": "stencila:Strikeout",
       "@type": "rdfs:Class",
       "rdfs:label": "Strikeout",
-      "rdfs:comment": "Content that is marked as struck out",
+      "rdfs:comment": "Content that is marked as struck out.",
       "rdfs:subClassOf": {
         "@id": "Mark"
       }

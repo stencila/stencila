@@ -39,7 +39,7 @@ class Executable(Entity):
     """The downstream dependants of this node."""
 
     execution_tags: Optional[List[ExecutionTag]] = None
-    """Tags in the code which affect its execution"""
+    """Tags in the code which affect its execution."""
 
     execution_count: Optional[int] = None
     """A count of the number of times that the node has been executed."""

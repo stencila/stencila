@@ -9,7 +9,7 @@
       "@id": "stencila:Cite",
       "@type": "rdfs:Class",
       "rdfs:label": "Cite",
-      "rdfs:comment": "A reference to a CreativeWork that is cited in another CreativeWork.",
+      "rdfs:comment": "A reference to a `CreativeWork` that is cited in another `CreativeWork`.",
       "rdfs:subClassOf": {
         "@id": "Entity"
       }

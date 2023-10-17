@@ -4,15 +4,15 @@ use crate::prelude::*;
 
 use super::string::String;
 
-/// An error that occurred when parsing, compiling or executing a Code node.
+/// An error that occurred when parsing, compiling or executing a `Code` node.
 #[skip_serializing_none]
 #[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec, ReadNode, WriteNode)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 pub struct CodeError {
-    /// The type of this item
+    /// The type of this item.
     pub r#type: MustBe!("CodeError"),
 
-    /// The identifier for this item
+    /// The identifier for this item.
     #[strip(id)]
     #[html(attr = "id")]
     pub id: Option<String>,

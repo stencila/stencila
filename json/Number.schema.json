@@ -4,6 +4,6 @@
   "@id": "schema:Number",
   "title": "Number",
   "category": "data",
-  "description": "A value that is a number",
+  "description": "A value that is a number.",
   "type": "number"
 }

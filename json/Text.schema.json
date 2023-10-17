@@ -7,7 +7,7 @@
     "Entity"
   ],
   "category": "prose",
-  "description": "Textual content",
+  "description": "Textual content.",
   "$comment": "Intended mostly for use for inline text e.g. the text in a paragraph.\n\nDiffers from the primitive `String` type in that it has a `type` and `id` property.\nThe `id` property allows use to identify text nodes with a sequence of inline nodes\nfor better diffing.\n\nAlso, in Rust, the `value` property is implemented as a CRDT.\n",
   "proptest": {},
   "html": {
@@ -29,13 +29,13 @@
   "properties": {
     "type": {
       "@id": "schema:type",
-      "description": "The type of this item",
+      "description": "The type of this item.",
       "$comment": "This is a special property analogous to JSON-LD's `@type` keyword.\n",
       "type": "string"
     },
     "id": {
       "@id": "schema:id",
-      "description": "The identifier for this item",
+      "description": "The identifier for this item.",
       "$comment": "This is a special property analogous to JSON-LD's `@id` keyword.\n",
       "strip": [
         "id"

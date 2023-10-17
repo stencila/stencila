@@ -9,10 +9,10 @@ from .styled import Styled
 @dataclass(kw_only=True, frozen=True)
 class Span(Styled):
     """
-    Styled inline content
+    Styled inline content.
     """
 
     type: Literal["Span"] = field(default="Span", init=False)
 
     content: List[Inline]
-    """The content within the span"""
+    """The content within the span."""

@@ -7,7 +7,7 @@ import { Inline } from "./Inline.js";
 import { IntegerOrString } from "./IntegerOrString.js";
 
 /**
- * A reference to a CreativeWork that is cited in another CreativeWork.
+ * A reference to a `CreativeWork` that is cited in another `CreativeWork`.
  */
 export class Cite extends Entity {
   type = "Cite";

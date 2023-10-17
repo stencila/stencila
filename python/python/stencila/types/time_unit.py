@@ -5,7 +5,7 @@ from .prelude import *
 
 class TimeUnit(StrEnum):
     """
-    A unit in which time can be measured
+    A unit in which time can be measured.
     """
 
     Year = "Year"

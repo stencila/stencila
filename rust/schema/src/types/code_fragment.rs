@@ -14,11 +14,11 @@ use super::string::String;
 #[jats(elem = "code")]
 #[markdown(special)]
 pub struct CodeFragment {
-    /// The type of this item
+    /// The type of this item.
     #[cfg_attr(feature = "proptest", proptest(value = "Default::default()"))]
     pub r#type: MustBe!("CodeFragment"),
 
-    /// The identifier for this item
+    /// The identifier for this item.
     #[strip(id)]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     #[html(attr = "id")]

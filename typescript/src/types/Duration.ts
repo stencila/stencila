@@ -5,7 +5,7 @@ import { Integer } from "./Integer.js";
 import { TimeUnit } from "./TimeUnit.js";
 
 /**
- * A value that represents the difference between two timestamps
+ * A value that represents the difference between two timestamps.
  */
 export class Duration extends Entity {
   type = "Duration";

@@ -10,7 +10,7 @@ import { type SoftwareSourceCode } from "./SoftwareSourceCode.js";
 import { type Variable } from "./Variable.js";
 
 /**
- * Node types that can be execution dependencies
+ * Node types that can be execution dependencies.
  */
 export type ExecutionDependencyNode =
   Button |

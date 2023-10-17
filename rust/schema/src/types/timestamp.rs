@@ -6,18 +6,18 @@ use super::integer::Integer;
 use super::string::String;
 use super::time_unit::TimeUnit;
 
-/// A value that represents a point in time
+/// A value that represents a point in time.
 #[skip_serializing_none]
 #[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec, ReadNode, WriteNode)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 #[cfg_attr(feature = "proptest", derive(Arbitrary))]
 #[jats(elem = "timestamp", special)]
 pub struct Timestamp {
-    /// The type of this item
+    /// The type of this item.
     #[cfg_attr(feature = "proptest", proptest(value = "Default::default()"))]
     pub r#type: MustBe!("Timestamp"),
 
-    /// The identifier for this item
+    /// The identifier for this item.
     #[strip(id)]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     #[html(attr = "id")]

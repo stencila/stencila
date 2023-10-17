@@ -9,7 +9,7 @@
       "@id": "schema:Text",
       "@type": "rdfs:Class",
       "rdfs:label": "Text",
-      "rdfs:comment": "Textual content",
+      "rdfs:comment": "Textual content.",
       "rdfs:subClassOf": {
         "@id": "Entity"
       }

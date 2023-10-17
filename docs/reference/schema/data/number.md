@@ -1,6 +1,6 @@
 # Number
 
-**A value that is a number**
+**A value that is a number.**
 
 **`@id`**: [`schema:Number`](https://schema.org/Number)
 

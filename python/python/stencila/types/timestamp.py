@@ -9,7 +9,7 @@ from .time_unit import TimeUnit
 @dataclass(kw_only=True, frozen=True)
 class Timestamp(Entity):
     """
-    A value that represents a point in time
+    A value that represents a point in time.
     """
 
     type: Literal["Timestamp"] = field(default="Timestamp", init=False)

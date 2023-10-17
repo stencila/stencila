@@ -9,7 +9,7 @@
       "@id": "stencila:Form",
       "@type": "rdfs:Class",
       "rdfs:label": "Form",
-      "rdfs:comment": "A form to batch updates in document parameters",
+      "rdfs:comment": "A form to batch updates in document parameters.",
       "rdfs:subClassOf": {
         "@id": "Executable"
       }
@@ -78,7 +78,7 @@
       "@id": "stencila:executionTags",
       "@type": "rdfs:Property",
       "rdfs:label": "executionTags",
-      "rdfs:comment": "Tags in the code which affect its execution",
+      "rdfs:comment": "Tags in the code which affect its execution.",
       "schema:domainIncludes": {
         "@id": "stencila:Executable"
       },

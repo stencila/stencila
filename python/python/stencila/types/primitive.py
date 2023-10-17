@@ -18,5 +18,5 @@ Primitive = Union[
     Object,
 ]
 """
-Union type for all primitives values
+Union type for all primitives values.
 """

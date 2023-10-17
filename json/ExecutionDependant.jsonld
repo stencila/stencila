@@ -9,7 +9,7 @@
       "@id": "stencila:ExecutionDependant",
       "@type": "rdfs:Class",
       "rdfs:label": "ExecutionDependant",
-      "rdfs:comment": "A downstream execution dependant of a node",
+      "rdfs:comment": "A downstream execution dependant of a node.",
       "rdfs:subClassOf": {
         "@id": "Entity"
       }

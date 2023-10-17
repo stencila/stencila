@@ -3,7 +3,7 @@
 import { MediaObject } from "./MediaObject.js";
 
 /**
- * An audio file
+ * An audio file.
  */
 export class AudioObject extends MediaObject {
   type = "AudioObject";

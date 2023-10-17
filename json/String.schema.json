@@ -4,6 +4,6 @@
   "@id": "schema:Text",
   "title": "String",
   "category": "data",
-  "description": "A value comprised of a string of characters",
+  "description": "A value comprised of a string of characters.",
   "type": "string"
 }

@@ -3,7 +3,7 @@
 import { Entity } from "./Entity.js";
 
 /**
- * An error that occurred when parsing, compiling or executing a Code node.
+ * An error that occurred when parsing, compiling or executing a `Code` node.
  */
 export class CodeError extends Entity {
   type = "CodeError";

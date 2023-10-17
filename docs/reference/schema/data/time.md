@@ -1,6 +1,6 @@
 # Time
 
-**A point in time recurring on multiple days**
+**A point in time recurring on multiple days.**
 
 **`@id`**: [`schema:Time`](https://schema.org/Time)
 
@@ -10,8 +10,8 @@ The `Time` type has these properties:
 
 | Name  | `@id`                                      | Type                                                                                            | Description                                                     | Inherited from                                                                                   |
 | ----- | ------------------------------------------ | ----------------------------------------------------------------------------------------------- | --------------------------------------------------------------- | ------------------------------------------------------------------------------------------------ |
-| id    | [`schema:id`](https://schema.org/id)       | [`String`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/string.md) | The identifier for this item                                    | [`Entity`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/entity.md) |
-| value | [`schema:value`](https://schema.org/value) | [`String`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/string.md) | The time of day as a string in format `hh:mm:ss[Z\|(+\|-)hh:mm]`. | [`Time`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/time.md)      |
+| id    | [`schema:id`](https://schema.org/id)       | [`String`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/string.md) | The identifier for this item.                                   | [`Entity`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/entity.md) |
+| value | [`schema:value`](https://schema.org/value) | [`String`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/string.md) | The time of day as a string in format `hh:mm:ss[Z\|(+\|-)hh:mm]`. | -                                                                                                |
 
 ## Related
 
@@ -47,14 +47,14 @@ The `Time` type is represented in these bindings:
 
 ## Testing
 
-During property-based (a.k.a generative) testing, the properties of the `Time` type are generated using the following strategies for each complexity level (see the [`proptest` book](https://proptest-rs.github.io/proptest/) for an explanation of the Rust strategy expressions). Any optional properties that are not in this table are set to `None`
+During property-based (a.k.a generative) testing, the properties of the `Time` type are generated using the following strategies for each complexity level (see the [`proptest` book](https://proptest-rs.github.io/proptest/) for an explanation of the Rust strategy expressions). Any optional properties that are not in this table are set to `None`.
 
-| Property | Complexity | Description                                                                     | Strategy                                                                     |
-| -------- | ---------- | ------------------------------------------------------------------------------- | ---------------------------------------------------------------------------- |
-| `value`  | Min+       | Generate a fixed date-time string.                                              | `String::from("2022-02-22T22:22:22")`                                        |
-|          | Low+       | Generate a random date-time string.                                             | Regex`[0-2][0-9]:[0-5][0-9]:[0-5][0-9]\.[0-9]+([+-][0-2][0-9]:[0-5][0-9]\|Z)` |
-|          | High+      | Generate a random string of up to 20 alphanumeric characters, colons & hyphens. | Regex`[a-zA-Z0-9\-:]{1,20}`                                                  |
-|          | Max        | Generate an arbitrary string.                                                   | `String::arbitrary()`                                                        |
+| Property | Complexity | Description                                                                     | Strategy                                                                      |
+| -------- | ---------- | ------------------------------------------------------------------------------- | ----------------------------------------------------------------------------- |
+| `value`  | Min+       | Generate a fixed date-time string.                                              | `String::from("2022-02-22T22:22:22")`                                         |
+|          | Low+       | Generate a random date-time string.                                             | Regex `[0-2][0-9]:[0-5][0-9]:[0-5][0-9]\.[0-9]+([+-][0-2][0-9]:[0-5][0-9]\|Z)` |
+|          | High+      | Generate a random string of up to 20 alphanumeric characters, colons & hyphens. | Regex `[a-zA-Z0-9\-:]{1,20}`                                                  |
+|          | Max        | Generate an arbitrary string.                                                   | `String::arbitrary()`                                                         |
 
 ## Source
 

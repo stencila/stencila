@@ -9,7 +9,7 @@
       "@id": "stencila:CiteGroup",
       "@type": "rdfs:Class",
       "rdfs:label": "CiteGroup",
-      "rdfs:comment": "A group of Cite nodes.",
+      "rdfs:comment": "A group of `Cite` nodes.",
       "rdfs:subClassOf": {
         "@id": "Entity"
       }

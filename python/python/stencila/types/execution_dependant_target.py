@@ -25,5 +25,5 @@ ExecutionDependantTarget = Union[
     Variable,
 ]
 """
-Node types that can be execution dependants
+Node types that can be execution dependants.
 """

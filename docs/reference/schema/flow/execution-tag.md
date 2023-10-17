@@ -1,6 +1,6 @@
 # Execution Tag
 
-**A tag on code that affects its execution**
+**A tag on code that affects its execution.**
 
 **`@id`**: `stencila:ExecutionTag`
 
@@ -8,12 +8,12 @@
 
 The `ExecutionTag` type has these properties:
 
-| Name     | `@id`                                      | Type                                                                                              | Description                               | Inherited from                                                                                               |
-| -------- | ------------------------------------------ | ------------------------------------------------------------------------------------------------- | ----------------------------------------- | ------------------------------------------------------------------------------------------------------------ |
-| id       | [`schema:id`](https://schema.org/id)       | [`String`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/string.md)   | The identifier for this item              | [`Entity`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/entity.md)             |
-| name     | [`schema:name`](https://schema.org/name)   | [`String`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/string.md)   | The name of the tag                       | [`ExecutionTag`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/execution-tag.md) |
-| value    | [`schema:value`](https://schema.org/value) | [`String`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/string.md)   | The value of the tag                      | [`ExecutionTag`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/execution-tag.md) |
-| isGlobal | `stencila:isGlobal`                        | [`Boolean`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/boolean.md) | Whether the tag is global to the document | [`ExecutionTag`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/execution-tag.md) |
+| Name     | `@id`                                      | Type                                                                                              | Description                               | Inherited from                                                                                   |
+| -------- | ------------------------------------------ | ------------------------------------------------------------------------------------------------- | ----------------------------------------- | ------------------------------------------------------------------------------------------------ |
+| id       | [`schema:id`](https://schema.org/id)       | [`String`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/string.md)   | The identifier for this item.             | [`Entity`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/entity.md) |
+| name     | [`schema:name`](https://schema.org/name)   | [`String`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/string.md)   | The name of the tag                       | -                                                                                                |
+| value    | [`schema:value`](https://schema.org/value) | [`String`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/string.md)   | The value of the tag                      | -                                                                                                |
+| isGlobal | `stencila:isGlobal`                        | [`Boolean`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/boolean.md) | Whether the tag is global to the document | -                                                                                                |
 
 ## Related
 

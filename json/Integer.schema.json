@@ -4,6 +4,6 @@
   "@id": "schema:Integer",
   "title": "Integer",
   "category": "data",
-  "description": "A value that is a integer",
+  "description": "A value that is a integer.",
   "type": "integer"
 }

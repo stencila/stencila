@@ -25,10 +25,10 @@ use super::validator::Validator;
 #[html(elem = "span", custom)]
 #[markdown(special)]
 pub struct Parameter {
-    /// The type of this item
+    /// The type of this item.
     pub r#type: MustBe!("Parameter"),
 
-    /// The identifier for this item
+    /// The identifier for this item.
     #[strip(id)]
     #[html(attr = "id")]
     pub id: Option<String>,
@@ -81,7 +81,7 @@ pub struct ParameterOptions {
     #[strip(execution)]
     pub execution_dependants: Option<Vec<ExecutionDependant>>,
 
-    /// Tags in the code which affect its execution
+    /// Tags in the code which affect its execution.
     #[strip(execution)]
     pub execution_tags: Option<Vec<ExecutionTag>>,
 

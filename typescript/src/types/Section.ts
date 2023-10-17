@@ -4,7 +4,7 @@ import { Block } from "./Block.js";
 import { Entity } from "./Entity.js";
 
 /**
- * A section of a document
+ * A section of a document.
  */
 export class Section extends Entity {
   type = "Section";

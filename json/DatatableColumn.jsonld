@@ -9,7 +9,7 @@
       "@id": "stencila:DatatableColumn",
       "@type": "rdfs:Class",
       "rdfs:label": "DatatableColumn",
-      "rdfs:comment": "A column of data within a Datatable.",
+      "rdfs:comment": "A column of data within a `Datatable`.",
       "rdfs:subClassOf": {
         "@id": "Thing"
       }

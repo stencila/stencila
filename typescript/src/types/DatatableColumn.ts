@@ -5,7 +5,7 @@ import { Primitive } from "./Primitive.js";
 import { Thing } from "./Thing.js";
 
 /**
- * A column of data within a Datatable.
+ * A column of data within a `Datatable`.
  */
 export class DatatableColumn extends Thing {
   type = "DatatableColumn";

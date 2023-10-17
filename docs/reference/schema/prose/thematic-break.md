@@ -1,7 +1,6 @@
 # Thematic Break
 
-**A thematic break, such as a scene change in a story, a transition to another topic, or a new document.
-**
+**A thematic break, such as a scene change in a story, a transition to another topic, or a new document.**
 
 **`@id`**: `stencila:ThematicBreak`
 
@@ -9,9 +8,9 @@
 
 The `ThematicBreak` type has these properties:
 
-| Name | `@id`                                | Type                                                                                            | Description                  | Inherited from                                                                                   |
-| ---- | ------------------------------------ | ----------------------------------------------------------------------------------------------- | ---------------------------- | ------------------------------------------------------------------------------------------------ |
-| id   | [`schema:id`](https://schema.org/id) | [`String`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/string.md) | The identifier for this item | [`Entity`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/entity.md) |
+| Name | `@id`                                | Type                                                                                            | Description                   | Inherited from                                                                                   |
+| ---- | ------------------------------------ | ----------------------------------------------------------------------------------------------- | ----------------------------- | ------------------------------------------------------------------------------------------------ |
+| id   | [`schema:id`](https://schema.org/id) | [`String`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/string.md) | The identifier for this item. | [`Entity`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/entity.md) |
 
 ## Related
 

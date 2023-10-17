@@ -9,7 +9,7 @@
       "@id": "stencila:File",
       "@type": "rdfs:Class",
       "rdfs:label": "File",
-      "rdfs:comment": "A file on the filesystem",
+      "rdfs:comment": "A file on the file system.",
       "rdfs:subClassOf": {
         "@id": "CreativeWork"
       }

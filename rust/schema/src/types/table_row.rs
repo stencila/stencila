@@ -13,11 +13,11 @@ use super::table_row_type::TableRowType;
 #[cfg_attr(feature = "proptest", derive(Arbitrary))]
 #[html(elem = "tr")]
 pub struct TableRow {
-    /// The type of this item
+    /// The type of this item.
     #[cfg_attr(feature = "proptest", proptest(value = "Default::default()"))]
     pub r#type: MustBe!("TableRow"),
 
-    /// The identifier for this item
+    /// The identifier for this item.
     #[strip(id)]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     #[html(attr = "id")]

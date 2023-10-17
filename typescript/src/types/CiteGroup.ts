@@ -4,7 +4,7 @@ import { Cite } from "./Cite.js";
 import { Entity } from "./Entity.js";
 
 /**
- * A group of Cite nodes.
+ * A group of `Cite` nodes.
  */
 export class CiteGroup extends Entity {
   type = "CiteGroup";

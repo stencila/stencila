@@ -29,11 +29,11 @@ use super::thing_type::ThingType;
 #[jats(elem = "inline-media", special)]
 #[markdown(format = "![]({content_url})")]
 pub struct VideoObject {
-    /// The type of this item
+    /// The type of this item.
     #[cfg_attr(feature = "proptest", proptest(value = "Default::default()"))]
     pub r#type: MustBe!("VideoObject"),
 
-    /// The identifier for this item
+    /// The identifier for this item.
     #[strip(id)]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     #[html(attr = "id")]

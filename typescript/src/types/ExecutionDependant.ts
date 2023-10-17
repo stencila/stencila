@@ -6,7 +6,7 @@ import { ExecutionDependantRelation } from "./ExecutionDependantRelation.js";
 import { Integer } from "./Integer.js";
 
 /**
- * A downstream execution dependant of a node
+ * A downstream execution dependant of a node.
  */
 export class ExecutionDependant extends Entity {
   type = "ExecutionDependant";

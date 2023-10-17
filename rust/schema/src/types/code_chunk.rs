@@ -26,11 +26,11 @@ use super::timestamp::Timestamp;
 #[cfg_attr(feature = "proptest", derive(Arbitrary))]
 #[jats(elem = "code", attribs(executable = "yes"))]
 pub struct CodeChunk {
-    /// The type of this item
+    /// The type of this item.
     #[cfg_attr(feature = "proptest", proptest(value = "Default::default()"))]
     pub r#type: MustBe!("CodeChunk"),
 
-    /// The identifier for this item
+    /// The identifier for this item.
     #[strip(id)]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     #[html(attr = "id")]
@@ -54,7 +54,7 @@ pub struct CodeChunk {
     #[jats(attr = "language")]
     pub programming_language: String,
 
-    /// Whether the programming language of the code should be guessed based on syntax and variables used
+    /// Whether the programming language of the code should be guessed based on syntax and variables used.
     #[strip(code)]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     pub guess_language: Option<Boolean>,
@@ -102,7 +102,7 @@ pub struct CodeChunkOptions {
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     pub execution_dependants: Option<Vec<ExecutionDependant>>,
 
-    /// Tags in the code which affect its execution
+    /// Tags in the code which affect its execution.
     #[strip(execution)]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     pub execution_tags: Option<Vec<ExecutionTag>>,

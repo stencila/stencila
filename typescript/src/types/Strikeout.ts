@@ -4,7 +4,7 @@ import { Inline } from "./Inline.js";
 import { Mark } from "./Mark.js";
 
 /**
- * Content that is marked as struck out
+ * Content that is marked as struck out.
  */
 export class Strikeout extends Mark {
   type = "Strikeout";

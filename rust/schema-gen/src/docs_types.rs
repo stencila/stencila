@@ -204,7 +204,7 @@ fn intro(title: &str, schema: &Schema) -> Vec<Block> {
     let mut blocks = vec![h1([text(title.to_title_case())])];
 
     if let Some(description) = &schema.description {
-        blocks.push(p([strong([text(description)])]));
+        blocks.push(p([strong([text(description.trim())])]));
     }
 
     if let Some(comment) = &schema.comment {
@@ -304,9 +304,13 @@ fn properties(title: &str, schema: &Schema, context: &Context) -> Vec<Block> {
 
         let description = property.description.clone().unwrap_or_default();
 
-        let from = property.defined_on.as_str().to_pascal_case();
-        let url = context.urls.get(&from).cloned().unwrap_or_default();
-        let from = link([cf(from)], url);
+        let from = if property.defined_on != title {
+            let from = property.defined_on.as_str().to_pascal_case();
+            let url = context.urls.get(&from).cloned().unwrap_or_default();
+            link([cf(from)], url)
+        } else {
+            text("-")
+        };
 
         rows.push(tr([
             th([text(name)]),
@@ -527,7 +531,7 @@ fn proptests_object(title: &str, schema: &Schema) -> Vec<Block> {
             } else if let Some(value) = &options.value {
                 vec![cf(value)]
             } else if let Some(regex) = &options.regex {
-                vec![text("Regex"), cf(regex)]
+                vec![text("Regex "), cf(regex)]
             } else {
                 vec![text("Default for level")]
             };
@@ -570,7 +574,8 @@ fn proptests_object(title: &str, schema: &Schema) -> Vec<Block> {
             text(" type are generated using the following strategies for each complexity level (see the "),
             link([cf("proptest"), text(" book")], "https://proptest-rs.github.io/proptest/"),
             text(" for an explanation of the Rust strategy expressions). Any optional properties that are not in this table are set to "),
-            cf("None")
+            cf("None"),
+            text(".")
 
         ]),
         table(rows)

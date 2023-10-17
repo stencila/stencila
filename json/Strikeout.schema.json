@@ -7,7 +7,7 @@
     "Mark"
   ],
   "category": "prose",
-  "description": "Content that is marked as struck out",
+  "description": "Content that is marked as struck out.",
   "$comment": "Analogues of `Strikeout` in other schema include:\n  - HTML [`<del>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/del)\n  - JATS XML [`<strike>`](https://jats.nlm.nih.gov/archiving/tag-library/1.2/element/strike.html)\n  - MDAST [`Delete`](https://github.com/syntax-tree/mdast#delete)\n  - Pandoc [`Strikeout`](https://github.com/jgm/pandoc-types/blob/1.17.5.4/Text/Pandoc/Definition.hs#L258)\nSupersedes the `Delete` inline content type (the name \"Strikeout\" is less ambiguous than \"Delete\").\n",
   "proptest": {},
   "html": {
@@ -30,13 +30,13 @@
   "properties": {
     "type": {
       "@id": "schema:type",
-      "description": "The type of this item",
+      "description": "The type of this item.",
       "$comment": "This is a special property analogous to JSON-LD's `@type` keyword.\n",
       "type": "string"
     },
     "id": {
       "@id": "schema:id",
-      "description": "The identifier for this item",
+      "description": "The identifier for this item.",
       "$comment": "This is a special property analogous to JSON-LD's `@id` keyword.\n",
       "strip": [
         "id"

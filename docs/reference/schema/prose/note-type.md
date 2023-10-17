@@ -1,6 +1,6 @@
 # Note Type
 
-**The type of a `Note` which determines where the note content is displayed within the document..**
+**The type of a `Note` which determines where the note content is displayed within the document.**
 
 **`@id`**: `stencila:NoteType`
 

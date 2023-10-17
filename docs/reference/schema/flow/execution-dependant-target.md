@@ -1,6 +1,6 @@
 # Execution Dependant Target
 
-**Node types that can be execution dependants**
+**Node types that can be execution dependants.**
 
 **`@id`**: `stencila:ExecutionDependantTarget`
 

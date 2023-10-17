@@ -1,6 +1,6 @@
 # Primitive
 
-**Union type for all primitives values**
+**Union type for all primitives values.**
 
 Analogous to JSON values but adds `Integer` and `UnsignedInteger`.
 

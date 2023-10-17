@@ -1,6 +1,6 @@
 # Unsigned Integer
 
-**An integer value that is greater or equal to zero**
+**An integer value that is greater or equal to zero.**
 
 **`@id`**: `stencila:UnsignedInteger`
 

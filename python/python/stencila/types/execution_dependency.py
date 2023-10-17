@@ -10,7 +10,7 @@ from .execution_dependency_relation import ExecutionDependencyRelation
 @dataclass(kw_only=True, frozen=True)
 class ExecutionDependency(Entity):
     """
-    An upstream execution dependency of a node
+    An upstream execution dependency of a node.
     """
 
     type: Literal["ExecutionDependency"] = field(default="ExecutionDependency", init=False)

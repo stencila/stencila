@@ -25,5 +25,5 @@ ExecutionDependantNode = Union[
     Variable,
 ]
 """
-Node types that can be execution dependencies
+Node types that can be execution dependencies.
 """

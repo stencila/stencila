@@ -9,7 +9,7 @@
       "@id": "stencila:Section",
       "@type": "rdfs:Class",
       "rdfs:label": "Section",
-      "rdfs:comment": "A section of a document",
+      "rdfs:comment": "A section of a document.",
       "rdfs:subClassOf": {
         "@id": "Entity"
       }

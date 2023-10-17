@@ -7,7 +7,7 @@
     "Entity"
   ],
   "category": "prose",
-  "description": "A group of Cite nodes.",
+  "description": "A group of `Cite` nodes.",
   "$comment": "This type allows you to group associated citations together.\nWhen some content in a [`Creative Work`](./CreativeWork) cites more than one\nreference for a particular piece of text, use a `CiteGroup` to encapsulate\nmultiple [`Cite`](./Cite) nodes.\n\nAt present we do not give a `citationMode` property to a `CiteGroup` since\nthey will almost always be parenthetical as opposed to narrative.\nIn other words, it usually only makes sense for individual `Cite` nodes to be\nnarrative (although they may be connected together within `content` using words\nsuch as \"and\").\n",
   "required": [
     "type",
@@ -19,13 +19,13 @@
   "properties": {
     "type": {
       "@id": "schema:type",
-      "description": "The type of this item",
+      "description": "The type of this item.",
       "$comment": "This is a special property analogous to JSON-LD's `@type` keyword.\n",
       "type": "string"
     },
     "id": {
       "@id": "schema:id",
-      "description": "The identifier for this item",
+      "description": "The identifier for this item.",
       "$comment": "This is a special property analogous to JSON-LD's `@id` keyword.\n",
       "strip": [
         "id"

@@ -7,7 +7,7 @@ export class Entity {
   type = "Entity";
 
   /**
-   * The identifier for this item
+   * The identifier for this item.
    */
   id?: string;
 

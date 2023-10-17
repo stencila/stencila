@@ -9,7 +9,7 @@ from .if_clause import IfClause
 @dataclass(kw_only=True, frozen=True)
 class If(Executable):
     """
-    Show and execute alternative content conditional upon an executed expression
+    Show and execute alternative content conditional upon an executed expression.
     """
 
     type: Literal["If"] = field(default="If", init=False)

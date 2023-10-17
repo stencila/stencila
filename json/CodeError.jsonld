@@ -9,7 +9,7 @@
       "@id": "stencila:CodeError",
       "@type": "rdfs:Class",
       "rdfs:label": "CodeError",
-      "rdfs:comment": "An error that occurred when parsing, compiling or executing a Code node.",
+      "rdfs:comment": "An error that occurred when parsing, compiling or executing a `Code` node.",
       "rdfs:subClassOf": {
         "@id": "Entity"
       }

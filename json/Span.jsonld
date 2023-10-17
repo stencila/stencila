@@ -9,7 +9,7 @@
       "@id": "stencila:Span",
       "@type": "rdfs:Class",
       "rdfs:label": "Span",
-      "rdfs:comment": "Styled inline content",
+      "rdfs:comment": "Styled inline content.",
       "rdfs:subClassOf": {
         "@id": "Styled"
       }
@@ -105,7 +105,7 @@
       "@id": "stencila:classes",
       "@type": "rdfs:Property",
       "rdfs:label": "classes",
-      "rdfs:comment": "A list of class names associated with the node",
+      "rdfs:comment": "A list of class names associated with the node.",
       "schema:domainIncludes": {
         "@id": "stencila:Styled"
       },
@@ -117,7 +117,7 @@
       "@id": "stencila:content",
       "@type": "rdfs:Property",
       "rdfs:label": "content",
-      "rdfs:comment": "The content within the span",
+      "rdfs:comment": "The content within the span.",
       "schema:domainIncludes": [
         {
           "@id": "schema:Article"

@@ -8,7 +8,7 @@ from .entity import Entity
 @dataclass(kw_only=True, frozen=True)
 class CodeError(Entity):
     """
-    An error that occurred when parsing, compiling or executing a Code node.
+    An error that occurred when parsing, compiling or executing a `Code` node.
     """
 
     type: Literal["CodeError"] = field(default="CodeError", init=False)

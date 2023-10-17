@@ -9,7 +9,7 @@ from .inline import Inline
 @dataclass(kw_only=True, frozen=True)
 class Paragraph(Entity):
     """
-    Paragraph
+    A paragraph.
     """
 
     type: Literal["Paragraph"] = field(default="Paragraph", init=False)

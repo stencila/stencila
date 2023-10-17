@@ -45,7 +45,7 @@ export class Executable extends Entity {
   executionDependants?: ExecutionDependant[];
 
   /**
-   * Tags in the code which affect its execution
+   * Tags in the code which affect its execution.
    */
   executionTags?: ExecutionTag[];
 

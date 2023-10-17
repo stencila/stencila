@@ -15,11 +15,11 @@ defined and it is trivial to save Stencila Schema documents using the schema.org
 
 The `List` type has these properties:
 
-| Name  | `@id`                                                          | Type                                                                                                    | Description                  | Inherited from                                                                                   |
-| ----- | -------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------- | ---------------------------- | ------------------------------------------------------------------------------------------------ |
-| id    | [`schema:id`](https://schema.org/id)                           | [`String`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/string.md)         | The identifier for this item | [`Entity`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/entity.md) |
-| items | [`schema:itemListElement`](https://schema.org/itemListElement) | [`ListItem`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/list-item.md)*  | The items in the list.       | [`List`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/list.md)     |
-| order | [`schema:itemListOrder`](https://schema.org/itemListOrder)     | [`ListOrder`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/list-order.md) | The ordering of the list.    | [`List`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/list.md)     |
+| Name  | `@id`                                                          | Type                                                                                                    | Description                   | Inherited from                                                                                   |
+| ----- | -------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------- | ----------------------------- | ------------------------------------------------------------------------------------------------ |
+| id    | [`schema:id`](https://schema.org/id)                           | [`String`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/string.md)         | The identifier for this item. | [`Entity`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/entity.md) |
+| items | [`schema:itemListElement`](https://schema.org/itemListElement) | [`ListItem`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/list-item.md)*  | The items in the list.        | -                                                                                                |
+| order | [`schema:itemListOrder`](https://schema.org/itemListOrder)     | [`ListOrder`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/list-order.md) | The ordering of the list.     | -                                                                                                |
 
 ## Related
 
@@ -55,7 +55,7 @@ The `List` type is represented in these bindings:
 
 ## Testing
 
-During property-based (a.k.a generative) testing, the properties of the `List` type are generated using the following strategies for each complexity level (see the [`proptest` book](https://proptest-rs.github.io/proptest/) for an explanation of the Rust strategy expressions). Any optional properties that are not in this table are set to `None`
+During property-based (a.k.a generative) testing, the properties of the `List` type are generated using the following strategies for each complexity level (see the [`proptest` book](https://proptest-rs.github.io/proptest/) for an explanation of the Rust strategy expressions). Any optional properties that are not in this table are set to `None`.
 
 | Property | Complexity | Description                                               | Strategy                                                             |
 | -------- | ---------- | --------------------------------------------------------- | -------------------------------------------------------------------- |

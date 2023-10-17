@@ -1,6 +1,6 @@
 # Time Unit
 
-**A unit in which time can be measured**
+**A unit in which time can be measured.**
 
 **`@id`**: `stencila:TimeUnit`
 

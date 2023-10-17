@@ -13,7 +13,7 @@ import { type Span } from "./Span.js";
 import { type Variable } from "./Variable.js";
 
 /**
- * Node types that can be execution dependencies
+ * Node types that can be execution dependencies.
  */
 export type ExecutionDependantNode =
   Button |

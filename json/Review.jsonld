@@ -9,7 +9,7 @@
       "@id": "schema:Review",
       "@type": "rdfs:Class",
       "rdfs:label": "Review",
-      "rdfs:comment": "A review of an item, e.g of an Article, or SoftwareSourceCode.",
+      "rdfs:comment": "A review of an item, e.g of an `Article` or `SoftwareApplication`.",
       "rdfs:subClassOf": {
         "@id": "CreativeWork"
       }

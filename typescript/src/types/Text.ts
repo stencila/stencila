@@ -4,7 +4,7 @@ import { Cord } from "./Cord.js";
 import { Entity } from "./Entity.js";
 
 /**
- * Textual content
+ * Textual content.
  */
 export class Text extends Entity {
   type = "Text";

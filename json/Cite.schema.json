@@ -7,7 +7,7 @@
     "Entity"
   ],
   "category": "prose",
-  "description": "A reference to a CreativeWork that is cited in another CreativeWork.",
+  "description": "A reference to a `CreativeWork` that is cited in another `CreativeWork`.",
   "$comment": "A `Cite` node is used within a [`CreativeWork`](./CreativeWork), usually an\n[`Article`](./Article), to refer to an other `CreativeWork`.\nOften a `Cite` will be associated with other citations, in a [`CiteGroup`](./CiteGroup).\n",
   "required": [
     "type",
@@ -20,13 +20,13 @@
   "properties": {
     "type": {
       "@id": "schema:type",
-      "description": "The type of this item",
+      "description": "The type of this item.",
       "$comment": "This is a special property analogous to JSON-LD's `@type` keyword.\n",
       "type": "string"
     },
     "id": {
       "@id": "schema:id",
-      "description": "The identifier for this item",
+      "description": "The identifier for this item.",
       "$comment": "This is a special property analogous to JSON-LD's `@id` keyword.\n",
       "strip": [
         "id"

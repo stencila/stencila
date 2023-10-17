@@ -11,7 +11,7 @@ from .int_or_str import IntOrStr
 @dataclass(kw_only=True, frozen=True)
 class Form(Executable):
     """
-    A form to batch updates in document parameters
+    A form to batch updates in document parameters.
     """
 
     type: Literal["Form"] = field(default="Form", init=False)

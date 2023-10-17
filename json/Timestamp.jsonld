@@ -9,7 +9,7 @@
       "@id": "schema:Timestamp",
       "@type": "rdfs:Class",
       "rdfs:label": "Timestamp",
-      "rdfs:comment": "A value that represents a point in time",
+      "rdfs:comment": "A value that represents a point in time.",
       "rdfs:subClassOf": {
         "@id": "Entity"
       }

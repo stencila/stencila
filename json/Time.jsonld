@@ -9,7 +9,7 @@
       "@id": "schema:Time",
       "@type": "rdfs:Class",
       "rdfs:label": "Time",
-      "rdfs:comment": "A point in time recurring on multiple days",
+      "rdfs:comment": "A point in time recurring on multiple days.",
       "rdfs:subClassOf": {
         "@id": "Entity"
       }

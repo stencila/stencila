@@ -7,7 +7,7 @@
     "CreativeWork"
   ],
   "category": "works",
-  "description": "A comment on an item, e.g on a Article, or SoftwareSourceCode.",
+  "description": "A comment on an item, e.g on a `Article` or `SoftwareSourceCode`.",
   "$comment": "Use the `about` property to define the item that a comment is on and\n`commentAspect` to point to a specific part of aspect of that item.\nThe `content` property should be used for the structured content of the\ncomment, in preference to the schema.org `text` property (which is expected to\nbe plain text). Replies to a comment can be added to its `comments` property\nor have their `parentItem` set to the parent comment.\n",
   "required": [
     "type",
@@ -21,13 +21,13 @@
   "properties": {
     "type": {
       "@id": "schema:type",
-      "description": "The type of this item",
+      "description": "The type of this item.",
       "$comment": "This is a special property analogous to JSON-LD's `@type` keyword.\n",
       "type": "string"
     },
     "id": {
       "@id": "schema:id",
-      "description": "The identifier for this item",
+      "description": "The identifier for this item.",
       "$comment": "This is a special property analogous to JSON-LD's `@id` keyword.\n",
       "strip": [
         "id"

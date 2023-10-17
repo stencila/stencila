@@ -4,7 +4,7 @@
   "@id": "stencila:ExecutionDependantTarget",
   "title": "ExecutionDependantTarget",
   "category": "flow",
-  "description": "Node types that can be execution dependants",
+  "description": "Node types that can be execution dependants.",
   "anyOf": [
     {
       "$ref": "Call.schema.json"

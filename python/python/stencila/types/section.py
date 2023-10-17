@@ -9,7 +9,7 @@ from .entity import Entity
 @dataclass(kw_only=True, frozen=True)
 class Section(Entity):
     """
-    A section of a document
+    A section of a document.
     """
 
     type: Literal["Section"] = field(default="Section", init=False)

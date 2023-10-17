@@ -9,7 +9,7 @@ from .entity import Entity
 @dataclass(kw_only=True, frozen=True)
 class CiteGroup(Entity):
     """
-    A group of Cite nodes.
+    A group of `Cite` nodes.
     """
 
     type: Literal["CiteGroup"] = field(default="CiteGroup", init=False)

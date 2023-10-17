@@ -8,11 +8,11 @@
 
 The `DateValidator` type has these properties:
 
-| Name    | `@id`                                | Type                                                                                            | Description                           | Inherited from                                                                                                 |
-| ------- | ------------------------------------ | ----------------------------------------------------------------------------------------------- | ------------------------------------- | -------------------------------------------------------------------------------------------------------------- |
-| id      | [`schema:id`](https://schema.org/id) | [`String`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/string.md) | The identifier for this item          | [`Entity`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/entity.md)               |
-| minimum | `stencila:minimum`                   | [`Date`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/date.md)     | The inclusive lower limit for a date. | [`DateValidator`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/date-validator.md) |
-| maximum | `stencila:maximum`                   | [`Date`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/date.md)     | The inclusive upper limit for a date. | [`DateValidator`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/date-validator.md) |
+| Name    | `@id`                                | Type                                                                                            | Description                           | Inherited from                                                                                   |
+| ------- | ------------------------------------ | ----------------------------------------------------------------------------------------------- | ------------------------------------- | ------------------------------------------------------------------------------------------------ |
+| id      | [`schema:id`](https://schema.org/id) | [`String`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/string.md) | The identifier for this item.         | [`Entity`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/entity.md) |
+| minimum | `stencila:minimum`                   | [`Date`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/date.md)     | The inclusive lower limit for a date. | -                                                                                                |
+| maximum | `stencila:maximum`                   | [`Date`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/date.md)     | The inclusive upper limit for a date. | -                                                                                                |
 
 ## Related
 

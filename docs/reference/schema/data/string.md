@@ -1,6 +1,6 @@
 # String
 
-**A value comprised of a string of characters**
+**A value comprised of a string of characters.**
 
 **`@id`**: [`schema:Text`](https://schema.org/Text)
 

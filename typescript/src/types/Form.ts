@@ -6,7 +6,7 @@ import { FormDeriveAction } from "./FormDeriveAction.js";
 import { IntegerOrString } from "./IntegerOrString.js";
 
 /**
- * A form to batch updates in document parameters
+ * A form to batch updates in document parameters.
  */
 export class Form extends Executable {
   type = "Form";

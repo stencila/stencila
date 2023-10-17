@@ -10,7 +10,7 @@ from .execution_digest import ExecutionDigest
 @dataclass(kw_only=True, frozen=True)
 class Styled(Entity):
     """
-    An abstract base class for a document node that has styling applied to it and/or its content
+    An abstract base class for a document node that has styling applied to it and/or its content.
     """
 
     type: Literal["Styled"] = field(default="Styled", init=False)
@@ -31,4 +31,4 @@ class Styled(Entity):
     """A Cascading Style Sheet (CSS) transpiled from the `code` property."""
 
     classes: Optional[List[str]] = None
-    """A list of class names associated with the node"""
+    """A list of class names associated with the node."""

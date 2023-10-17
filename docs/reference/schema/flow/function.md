@@ -10,12 +10,12 @@ This type is marked as unstable and is subject to change.
 
 The `Function` type has these properties:
 
-| Name       | `@id`                                    | Type                                                                                                   | Description                      | Inherited from                                                                                      |
-| ---------- | ---------------------------------------- | ------------------------------------------------------------------------------------------------------ | -------------------------------- | --------------------------------------------------------------------------------------------------- |
-| id         | [`schema:id`](https://schema.org/id)     | [`String`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/string.md)        | The identifier for this item     | [`Entity`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/entity.md)    |
-| name       | [`schema:name`](https://schema.org/name) | [`String`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/string.md)        | The name of the function.        | [`Function`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/function.md) |
-| parameters | `stencila:parameters`                    | [`Parameter`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/parameter.md)* | The parameters of the function.  | [`Function`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/function.md) |
-| returns    | `stencila:returns`                       | [`Validator`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/validator.md)  | The return type of the function. | [`Function`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/function.md) |
+| Name       | `@id`                                    | Type                                                                                                   | Description                      | Inherited from                                                                                   |
+| ---------- | ---------------------------------------- | ------------------------------------------------------------------------------------------------------ | -------------------------------- | ------------------------------------------------------------------------------------------------ |
+| id         | [`schema:id`](https://schema.org/id)     | [`String`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/string.md)        | The identifier for this item.    | [`Entity`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/entity.md) |
+| name       | [`schema:name`](https://schema.org/name) | [`String`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/string.md)        | The name of the function.        | -                                                                                                |
+| parameters | `stencila:parameters`                    | [`Parameter`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/parameter.md)* | The parameters of the function.  | -                                                                                                |
+| returns    | `stencila:returns`                       | [`Validator`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/validator.md)  | The return type of the function. | -                                                                                                |
 
 ## Related
 

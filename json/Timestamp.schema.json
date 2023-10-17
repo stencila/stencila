@@ -7,7 +7,7 @@
     "Entity"
   ],
   "category": "data",
-  "description": "A value that represents a point in time",
+  "description": "A value that represents a point in time.",
   "proptest": {},
   "jats": {
     "elem": "timestamp",
@@ -24,13 +24,13 @@
   "properties": {
     "type": {
       "@id": "schema:type",
-      "description": "The type of this item",
+      "description": "The type of this item.",
       "$comment": "This is a special property analogous to JSON-LD's `@type` keyword.\n",
       "type": "string"
     },
     "id": {
       "@id": "schema:id",
-      "description": "The identifier for this item",
+      "description": "The identifier for this item.",
       "$comment": "This is a special property analogous to JSON-LD's `@id` keyword.\n",
       "strip": [
         "id"

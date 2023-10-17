@@ -4,7 +4,7 @@ import { Executable } from "./Executable.js";
 import { IfClause } from "./IfClause.js";
 
 /**
- * Show and execute alternative content conditional upon an executed expression
+ * Show and execute alternative content conditional upon an executed expression.
  */
 export class If extends Executable {
   type = "If";

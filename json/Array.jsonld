@@ -9,7 +9,7 @@
       "@id": "stencila:Array",
       "@type": "rdfs:Class",
       "rdfs:label": "Array",
-      "rdfs:comment": "A value comprised of other primitive nodes"
+      "rdfs:comment": "A value comprised of other primitive nodes."
     }
   ]
 }

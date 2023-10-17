@@ -4,7 +4,7 @@ import { Block } from "./Block.js";
 import { CreativeWork } from "./CreativeWork.js";
 
 /**
- * A comment on an item, e.g on a Article, or SoftwareSourceCode.
+ * A comment on an item, e.g on a `Article` or `SoftwareSourceCode`.
  */
 export class Comment extends CreativeWork {
   type = "Comment";

@@ -1,6 +1,6 @@
 # Paragraph
 
-**Paragraph**
+**A paragraph.**
 
 Analogues of `Paragraph` in other schema include:
   - HTML [`<p>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/p)
@@ -16,10 +16,10 @@ Analogues of `Paragraph` in other schema include:
 
 The `Paragraph` type has these properties:
 
-| Name    | `@id`                                | Type                                                                                              | Description                    | Inherited from                                                                                         |
-| ------- | ------------------------------------ | ------------------------------------------------------------------------------------------------- | ------------------------------ | ------------------------------------------------------------------------------------------------------ |
-| id      | [`schema:id`](https://schema.org/id) | [`String`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/string.md)   | The identifier for this item   | [`Entity`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/entity.md)       |
-| content | `stencila:content`                   | [`Inline`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/inline.md)* | The contents of the paragraph. | [`Paragraph`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/paragraph.md) |
+| Name    | `@id`                                | Type                                                                                              | Description                    | Inherited from                                                                                   |
+| ------- | ------------------------------------ | ------------------------------------------------------------------------------------------------- | ------------------------------ | ------------------------------------------------------------------------------------------------ |
+| id      | [`schema:id`](https://schema.org/id) | [`String`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/string.md)   | The identifier for this item.  | [`Entity`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/entity.md) |
+| content | `stencila:content`                   | [`Inline`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/inline.md)* | The contents of the paragraph. | -                                                                                                |
 
 ## Related
 
@@ -55,7 +55,7 @@ The `Paragraph` type is represented in these bindings:
 
 ## Testing
 
-During property-based (a.k.a generative) testing, the properties of the `Paragraph` type are generated using the following strategies for each complexity level (see the [`proptest` book](https://proptest-rs.github.io/proptest/) for an explanation of the Rust strategy expressions). Any optional properties that are not in this table are set to `None`
+During property-based (a.k.a generative) testing, the properties of the `Paragraph` type are generated using the following strategies for each complexity level (see the [`proptest` book](https://proptest-rs.github.io/proptest/) for an explanation of the Rust strategy expressions). Any optional properties that are not in this table are set to `None`.
 
 | Property  | Complexity | Description                                 | Strategy         |
 | --------- | ---------- | ------------------------------------------- | ---------------- |

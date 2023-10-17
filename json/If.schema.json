@@ -7,7 +7,7 @@
     "Executable"
   ],
   "category": "flow",
-  "description": "Show and execute alternative content conditional upon an executed expression",
+  "description": "Show and execute alternative content conditional upon an executed expression.",
   "status": "under-development",
   "html": {
     "elem": "div",
@@ -26,13 +26,13 @@
   "properties": {
     "type": {
       "@id": "schema:type",
-      "description": "The type of this item",
+      "description": "The type of this item.",
       "$comment": "This is a special property analogous to JSON-LD's `@type` keyword.\n",
       "type": "string"
     },
     "id": {
       "@id": "schema:id",
-      "description": "The identifier for this item",
+      "description": "The identifier for this item.",
       "$comment": "This is a special property analogous to JSON-LD's `@id` keyword.\n",
       "strip": [
         "id"
@@ -90,7 +90,7 @@
     },
     "executionTags": {
       "@id": "stencila:executionTags",
-      "description": "Tags in the code which affect its execution",
+      "description": "Tags in the code which affect its execution.",
       "strip": [
         "execution"
       ],

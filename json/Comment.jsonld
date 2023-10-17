@@ -9,7 +9,7 @@
       "@id": "schema:Comment",
       "@type": "rdfs:Class",
       "rdfs:label": "Comment",
-      "rdfs:comment": "A comment on an item, e.g on a Article, or SoftwareSourceCode.",
+      "rdfs:comment": "A comment on an item, e.g on a `Article` or `SoftwareSourceCode`.",
       "rdfs:subClassOf": {
         "@id": "CreativeWork"
       }

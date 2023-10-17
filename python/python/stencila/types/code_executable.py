@@ -21,4 +21,4 @@ class CodeExecutable(Executable):
     """The programming language of the code."""
 
     guess_language: Optional[bool] = None
-    """Whether the programming language of the code should be guessed based on syntax and variables used"""
+    """Whether the programming language of the code should be guessed based on syntax and variables used."""

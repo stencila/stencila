@@ -20,7 +20,7 @@ export class CodeExecutable extends Executable {
   programmingLanguage: string;
 
   /**
-   * Whether the programming language of the code should be guessed based on syntax and variables used
+   * Whether the programming language of the code should be guessed based on syntax and variables used.
    */
   guessLanguage?: boolean;
 

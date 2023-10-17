@@ -1,6 +1,6 @@
 # Section
 
-**A section of a document**
+**A section of a document.**
 
 **`@id`**: `stencila:Section`
 
@@ -8,10 +8,10 @@
 
 The `Section` type has these properties:
 
-| Name    | `@id`                                | Type                                                                                            | Description                    | Inherited from                                                                                     |
-| ------- | ------------------------------------ | ----------------------------------------------------------------------------------------------- | ------------------------------ | -------------------------------------------------------------------------------------------------- |
-| id      | [`schema:id`](https://schema.org/id) | [`String`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/string.md) | The identifier for this item   | [`Entity`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/entity.md)   |
-| content | `stencila:content`                   | [`Block`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/block.md)* | The content within the section | [`Section`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/section.md) |
+| Name    | `@id`                                | Type                                                                                            | Description                    | Inherited from                                                                                   |
+| ------- | ------------------------------------ | ----------------------------------------------------------------------------------------------- | ------------------------------ | ------------------------------------------------------------------------------------------------ |
+| id      | [`schema:id`](https://schema.org/id) | [`String`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/string.md) | The identifier for this item.  | [`Entity`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/entity.md) |
+| content | `stencila:content`                   | [`Block`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/block.md)* | The content within the section | -                                                                                                |
 
 ## Related
 
@@ -47,7 +47,7 @@ The `Section` type is represented in these bindings:
 
 ## Testing
 
-During property-based (a.k.a generative) testing, the properties of the `Section` type are generated using the following strategies for each complexity level (see the [`proptest` book](https://proptest-rs.github.io/proptest/) for an explanation of the Rust strategy expressions). Any optional properties that are not in this table are set to `None`
+During property-based (a.k.a generative) testing, the properties of the `Section` type are generated using the following strategies for each complexity level (see the [`proptest` book](https://proptest-rs.github.io/proptest/) for an explanation of the Rust strategy expressions). Any optional properties that are not in this table are set to `None`.
 
 | Property  | Complexity | Description                                                 | Strategy                      |
 | --------- | ---------- | ----------------------------------------------------------- | ----------------------------- |

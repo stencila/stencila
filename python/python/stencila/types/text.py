@@ -9,7 +9,7 @@ from .entity import Entity
 @dataclass(kw_only=True, frozen=True)
 class Text(Entity):
     """
-    Textual content
+    Textual content.
     """
 
     type: Literal["Text"] = field(default="Text", init=False)

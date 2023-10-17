@@ -1,8 +1,7 @@
 # Mark
 
 **Abstract base class for nodes that mark some other inline content
-in some way (e.g. as being emphasised, or quoted).
-**
+in some way (e.g. as being emphasised, or quoted).**
 
 **`@id`**: `stencila:Mark`
 
@@ -10,10 +9,10 @@ in some way (e.g. as being emphasised, or quoted).
 
 The `Mark` type has these properties:
 
-| Name    | `@id`                                | Type                                                                                              | Description                  | Inherited from                                                                                   |
-| ------- | ------------------------------------ | ------------------------------------------------------------------------------------------------- | ---------------------------- | ------------------------------------------------------------------------------------------------ |
-| id      | [`schema:id`](https://schema.org/id) | [`String`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/string.md)   | The identifier for this item | [`Entity`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/entity.md) |
-| content | `stencila:content`                   | [`Inline`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/inline.md)* | The content that is marked.  | [`Mark`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/mark.md)     |
+| Name    | `@id`                                | Type                                                                                              | Description                   | Inherited from                                                                                   |
+| ------- | ------------------------------------ | ------------------------------------------------------------------------------------------------- | ----------------------------- | ------------------------------------------------------------------------------------------------ |
+| id      | [`schema:id`](https://schema.org/id) | [`String`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/string.md)   | The identifier for this item. | [`Entity`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/entity.md) |
+| content | `stencila:content`                   | [`Inline`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/inline.md)* | The content that is marked.   | -                                                                                                |
 
 ## Related
 

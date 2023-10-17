@@ -9,7 +9,7 @@ from .code_executable import CodeExecutable
 @dataclass(kw_only=True, frozen=True)
 class IfClause(CodeExecutable):
     """
-    A clause within a `If` node
+    A clause within a `If` node.
     """
 
     type: Literal["IfClause"] = field(default="IfClause", init=False)

@@ -7,7 +7,7 @@
     "Entity"
   ],
   "category": "prose",
-  "description": "Paragraph",
+  "description": "A paragraph.",
   "$comment": "Analogues of `Paragraph` in other schema include:\n  - HTML [`<p>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/p)\n  - JATS XML [`<p>`](https://jats.nlm.nih.gov/articleauthoring/tag-library/1.2/element/p.html)\n  - MDAST [`Paragraph`](https://github.com/syntax-tree/mdast#Paragraph)\n  - OpenDocument [`<text:p>`](http://docs.oasis-open.org/office/v1.2/os/OpenDocument-v1.2-os-part1.html#__RefHeading__1415138_253892949)\n  - Pandoc [`Para`](https://github.com/jgm/pandoc-types/blob/1.17.5.4/Text/Pandoc/Definition.hs#L220)\n",
   "proptest": {},
   "html": {
@@ -29,13 +29,13 @@
   "properties": {
     "type": {
       "@id": "schema:type",
-      "description": "The type of this item",
+      "description": "The type of this item.",
       "$comment": "This is a special property analogous to JSON-LD's `@type` keyword.\n",
       "type": "string"
     },
     "id": {
       "@id": "schema:id",
-      "description": "The identifier for this item",
+      "description": "The identifier for this item.",
       "$comment": "This is a special property analogous to JSON-LD's `@id` keyword.\n",
       "strip": [
         "id"

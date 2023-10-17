@@ -8,7 +8,7 @@ from .media_object import MediaObject
 @dataclass(kw_only=True, frozen=True)
 class AudioObject(MediaObject):
     """
-    An audio file
+    An audio file.
     """
 
     type: Literal["AudioObject"] = field(default="AudioObject", init=False)

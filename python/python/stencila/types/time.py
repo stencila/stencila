@@ -8,7 +8,7 @@ from .entity import Entity
 @dataclass(kw_only=True, frozen=True)
 class Time(Entity):
     """
-    A point in time recurring on multiple days
+    A point in time recurring on multiple days.
     """
 
     type: Literal["Time"] = field(default="Time", init=False)

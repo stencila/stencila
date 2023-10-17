@@ -9,7 +9,7 @@
       "@id": "schema:AudioObject",
       "@type": "rdfs:Class",
       "rdfs:label": "AudioObject",
-      "rdfs:comment": "An audio file",
+      "rdfs:comment": "An audio file.",
       "rdfs:subClassOf": {
         "@id": "MediaObject"
       }

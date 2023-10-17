@@ -1,6 +1,6 @@
 # Code Error
 
-**An error that occurred when parsing, compiling or executing a Code node.**
+**An error that occurred when parsing, compiling or executing a `Code` node.**
 
 **`@id`**: `stencila:CodeError`
 
@@ -10,12 +10,12 @@ This type is marked as unstable and is subject to change.
 
 The `CodeError` type has these properties:
 
-| Name         | `@id`                                | Type                                                                                            | Description                                                | Inherited from                                                                                         |
-| ------------ | ------------------------------------ | ----------------------------------------------------------------------------------------------- | ---------------------------------------------------------- | ------------------------------------------------------------------------------------------------------ |
-| id           | [`schema:id`](https://schema.org/id) | [`String`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/string.md) | The identifier for this item                               | [`Entity`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/entity.md)       |
-| errorMessage | `stencila:errorMessage`              | [`String`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/string.md) | The error message or brief description of the error.       | [`CodeError`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/code/code-error.md) |
-| errorType    | `stencila:errorType`                 | [`String`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/string.md) | The type of error e.g. "SyntaxError", "ZeroDivisionError". | [`CodeError`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/code/code-error.md) |
-| stackTrace   | `stencila:stackTrace`                | [`String`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/string.md) | Stack trace leading up to the error.                       | [`CodeError`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/code/code-error.md) |
+| Name         | `@id`                                | Type                                                                                            | Description                                                | Inherited from                                                                                   |
+| ------------ | ------------------------------------ | ----------------------------------------------------------------------------------------------- | ---------------------------------------------------------- | ------------------------------------------------------------------------------------------------ |
+| id           | [`schema:id`](https://schema.org/id) | [`String`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/string.md) | The identifier for this item.                              | [`Entity`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/entity.md) |
+| errorMessage | `stencila:errorMessage`              | [`String`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/string.md) | The error message or brief description of the error.       | -                                                                                                |
+| errorType    | `stencila:errorType`                 | [`String`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/string.md) | The type of error e.g. "SyntaxError", "ZeroDivisionError". | -                                                                                                |
+| stackTrace   | `stencila:stackTrace`                | [`String`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/string.md) | Stack trace leading up to the error.                       | -                                                                                                |
 
 ## Related
 

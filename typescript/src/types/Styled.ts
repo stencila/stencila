@@ -5,7 +5,7 @@ import { Entity } from "./Entity.js";
 import { ExecutionDigest } from "./ExecutionDigest.js";
 
 /**
- * An abstract base class for a document node that has styling applied to it and/or its content
+ * An abstract base class for a document node that has styling applied to it and/or its content.
  */
 export class Styled extends Entity {
   type = "Styled";
@@ -36,7 +36,7 @@ export class Styled extends Entity {
   css?: string;
 
   /**
-   * A list of class names associated with the node
+   * A list of class names associated with the node.
    */
   classes?: string[];
 

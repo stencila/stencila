@@ -3,7 +3,7 @@
 import { Entity } from "./Entity.js";
 
 /**
- * A point in time recurring on multiple days
+ * A point in time recurring on multiple days.
  */
 export class Time extends Entity {
   type = "Time";

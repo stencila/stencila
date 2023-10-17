@@ -1,6 +1,6 @@
 # Cord
 
-**A value comprised of a sequence of characters**
+**A value comprised of a sequence of characters.**
 
 This type exists to differentiate between between a plain string of characters
 (which is modified by complete replacement) and a sequence of characters stored and

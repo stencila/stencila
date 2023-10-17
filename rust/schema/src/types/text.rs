@@ -5,7 +5,7 @@ use crate::prelude::*;
 use super::cord::Cord;
 use super::string::String;
 
-/// Textual content
+/// Textual content.
 #[skip_serializing_none]
 #[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec, ReadNode, WriteNode)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
@@ -14,11 +14,11 @@ use super::string::String;
 #[jats(special)]
 #[markdown(format = "{value}")]
 pub struct Text {
-    /// The type of this item
+    /// The type of this item.
     #[cfg_attr(feature = "proptest", proptest(value = "Default::default()"))]
     pub r#type: MustBe!("Text"),
 
-    /// The identifier for this item
+    /// The identifier for this item.
     #[strip(id)]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     #[html(attr = "id")]

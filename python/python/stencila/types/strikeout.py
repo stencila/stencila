@@ -8,7 +8,7 @@ from .mark import Mark
 @dataclass(kw_only=True, frozen=True)
 class Strikeout(Mark):
     """
-    Content that is marked as struck out
+    Content that is marked as struck out.
     """
 
     type: Literal["Strikeout"] = field(default="Strikeout", init=False)

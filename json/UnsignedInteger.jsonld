@@ -9,7 +9,7 @@
       "@id": "stencila:UnsignedInteger",
       "@type": "rdfs:Class",
       "rdfs:label": "UnsignedInteger",
-      "rdfs:comment": "An integer value that is greater or equal to zero"
+      "rdfs:comment": "An integer value that is greater or equal to zero."
     }
   ]
 }

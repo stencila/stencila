@@ -13,10 +13,10 @@ use super::string::String;
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 #[jats(elem = "address")]
 pub struct PostalAddress {
-    /// The type of this item
+    /// The type of this item.
     pub r#type: MustBe!("PostalAddress"),
 
-    /// The identifier for this item
+    /// The identifier for this item.
     #[strip(id)]
     #[html(attr = "id")]
     pub id: Option<String>,

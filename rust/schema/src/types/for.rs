@@ -25,10 +25,10 @@ use super::timestamp::Timestamp;
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 #[markdown(special)]
 pub struct For {
-    /// The type of this item
+    /// The type of this item.
     pub r#type: MustBe!("For"),
 
-    /// The identifier for this item
+    /// The identifier for this item.
     #[strip(id)]
     #[html(attr = "id")]
     pub id: Option<String>,
@@ -43,7 +43,7 @@ pub struct For {
     #[jats(attr = "language")]
     pub programming_language: String,
 
-    /// Whether the programming language of the code should be guessed based on syntax and variables used
+    /// Whether the programming language of the code should be guessed based on syntax and variables used.
     #[strip(code)]
     pub guess_language: Option<Boolean>,
 
@@ -95,7 +95,7 @@ pub struct ForOptions {
     #[strip(execution)]
     pub execution_dependants: Option<Vec<ExecutionDependant>>,
 
-    /// Tags in the code which affect its execution
+    /// Tags in the code which affect its execution.
     #[strip(execution)]
     pub execution_tags: Option<Vec<ExecutionTag>>,
 

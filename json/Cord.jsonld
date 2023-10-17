@@ -9,7 +9,7 @@
       "@id": "stencila:Cord",
       "@type": "rdfs:Class",
       "rdfs:label": "Cord",
-      "rdfs:comment": "A value comprised of a sequence of characters"
+      "rdfs:comment": "A value comprised of a sequence of characters."
     }
   ]
 }

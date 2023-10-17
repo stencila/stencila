@@ -1,6 +1,6 @@
 # Execution Dependency
 
-**An upstream execution dependency of a node**
+**An upstream execution dependency of a node.**
 
 **`@id`**: `stencila:ExecutionDependency`
 
@@ -8,12 +8,12 @@
 
 The `ExecutionDependency` type has these properties:
 
-| Name               | `@id`                                | Type                                                                                                                                        | Description                                             | Inherited from                                                                                                             |
-| ------------------ | ------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------- |
-| id                 | [`schema:id`](https://schema.org/id) | [`String`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/string.md)                                             | The identifier for this item                            | [`Entity`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/entity.md)                           |
-| dependencyRelation | `stencila:dependencyRelation`        | [`ExecutionDependencyRelation`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/execution-dependency-relation.md) | The relation to the dependency                          | [`ExecutionDependency`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/execution-dependency.md) |
-| dependencyNode     | `stencila:dependencyNode`            | [`ExecutionDependencyNode`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/execution-dependency-node.md)         | The node that is the dependency                         | [`ExecutionDependency`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/execution-dependency.md) |
-| codeLocation       | `stencila:codeLocation`              | [`Integer`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/integer.md)*                                          | The location that the dependency is defined within code | [`ExecutionDependency`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/execution-dependency.md) |
+| Name               | `@id`                                | Type                                                                                                                                        | Description                                             | Inherited from                                                                                   |
+| ------------------ | ------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------- | ------------------------------------------------------------------------------------------------ |
+| id                 | [`schema:id`](https://schema.org/id) | [`String`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/string.md)                                             | The identifier for this item.                           | [`Entity`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/entity.md) |
+| dependencyRelation | `stencila:dependencyRelation`        | [`ExecutionDependencyRelation`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/execution-dependency-relation.md) | The relation to the dependency                          | -                                                                                                |
+| dependencyNode     | `stencila:dependencyNode`            | [`ExecutionDependencyNode`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/execution-dependency-node.md)         | The node that is the dependency                         | -                                                                                                |
+| codeLocation       | `stencila:codeLocation`              | [`Integer`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/integer.md)*                                          | The location that the dependency is defined within code | -                                                                                                |
 
 ## Related
 

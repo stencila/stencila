@@ -9,7 +9,7 @@
       "@id": "stencila:NoteType",
       "@type": "rdfs:Class",
       "rdfs:label": "NoteType",
-      "rdfs:comment": "The type of a `Note` which determines where the note content is displayed within the document..",
+      "rdfs:comment": "The type of a `Note` which determines where the note content is displayed within the document.",
       "rdfs:subClassOf": {
         "@id": "Enumeration"
       }

@@ -10,7 +10,7 @@ from .creative_work import CreativeWork
 @dataclass(kw_only=True, frozen=True)
 class Comment(CreativeWork):
     """
-    A comment on an item, e.g on a Article, or SoftwareSourceCode.
+    A comment on an item, e.g on a `Article` or `SoftwareSourceCode`.
     """
 
     type: Literal["Comment"] = field(default="Comment", init=False)

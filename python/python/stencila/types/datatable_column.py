@@ -10,7 +10,7 @@ from .thing import Thing
 @dataclass(kw_only=True, frozen=True)
 class DatatableColumn(Thing):
     """
-    A column of data within a Datatable.
+    A column of data within a `Datatable`.
     """
 
     type: Literal["DatatableColumn"] = field(default="DatatableColumn", init=False)

@@ -9,7 +9,7 @@
       "@id": "schema:Number",
       "@type": "rdfs:Class",
       "rdfs:label": "Number",
-      "rdfs:comment": "A value that is a number"
+      "rdfs:comment": "A value that is a number."
     }
   ]
 }

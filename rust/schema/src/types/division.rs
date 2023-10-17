@@ -7,7 +7,7 @@ use super::cord::Cord;
 use super::execution_digest::ExecutionDigest;
 use super::string::String;
 
-/// Styled block content
+/// Styled block content.
 #[skip_serializing_none]
 #[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec, ReadNode, WriteNode)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
@@ -15,11 +15,11 @@ use super::string::String;
 #[html(elem = "div", custom)]
 #[markdown(special)]
 pub struct Division {
-    /// The type of this item
+    /// The type of this item.
     #[cfg_attr(feature = "proptest", proptest(value = "Default::default()"))]
     pub r#type: MustBe!("Division"),
 
-    /// The identifier for this item
+    /// The identifier for this item.
     #[strip(id)]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     #[html(attr = "id")]
@@ -51,7 +51,7 @@ pub struct Division {
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     pub css: Option<String>,
 
-    /// A list of class names associated with the node
+    /// A list of class names associated with the node.
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     pub classes: Option<Vec<String>>,
 
