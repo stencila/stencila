@@ -52,4 +52,6 @@ asyncio_mode = 'auto'
 omit = [
     # Omit generated type files
     "python/stencila/types/*.py",
+    # Omit tests
+    "python/tests/*.py",
 ]
