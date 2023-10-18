@@ -24,6 +24,12 @@ test: install
 	npm run build:debug
 	npm test
 
+# Run tests with coverage
+cover: install
+	make -C ../typescript build
+	npm run build:debug
+	npm run cover
+
 # List outdated dependencies
 outdated: install
 	npm outdated

@@ -28,6 +28,9 @@ flags:
 
   # SDKs
 
+  node-sdk:
+    paths:
+      - node/**/*
   python-sdk:
     paths:
       - python/python/stencila/*.py

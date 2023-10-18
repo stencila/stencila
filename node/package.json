@@ -20,6 +20,7 @@
     "compress": "node compress.cjs",
     "install": "node install.cjs",
     "test": "NODE_OPTIONS=--experimental-vm-modules npx jest",
+    "cover": "npm test -- --collectCoverage --coverageReports=cobertura",
     "unused": "depcheck --quiet"
   },
   "engines": {

@@ -34,6 +34,9 @@ test:
 # Run tests with coverage
 cover:
 	make -C rust cover
+	make -C typescript test
+	make -C node cover
+	make -C python cover
 
 # List outdated dependencies
 outdated:
