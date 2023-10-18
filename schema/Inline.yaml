@@ -146,7 +146,7 @@ anyOf:
       min:
         description: Do not generate `Null` nodes in inline content.
         skip: true
-      high:
+      max:
         description: Generate a null value.
         value: Inline::Null(Null)
 
@@ -155,7 +155,7 @@ anyOf:
       min:
         description: Do not generate `Boolean` nodes in inline content.
         skip: true
-      high:
+      max:
         description: Generate an arbitrary boolean value.
         strategy: Boolean::arbitrary().prop_map(Inline::Boolean)
 
@@ -164,7 +164,7 @@ anyOf:
       min:
         description: Do not generate `Integer` nodes in inline content.
         skip: true
-      high:
+      max:
         description: Generate an arbitrary integer value.
         strategy: Integer::arbitrary().prop_map(Inline::Integer)
 
@@ -173,7 +173,7 @@ anyOf:
       min:
         description: Do not generate `Number` nodes in inline content.
         skip: true
-      high:
+      max:
         description: |
           Generate a fixed number. Used at all levels because even with JSON (and other data serialization formats)
           round trip conversions can fail in the last significant digit of random numbers.

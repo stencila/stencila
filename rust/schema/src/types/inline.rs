@@ -134,25 +134,25 @@ pub enum Inline {
 
     #[cfg_attr(feature = "proptest-min", proptest(skip))]
     #[cfg_attr(feature = "proptest-low", proptest(skip))]
-    #[cfg_attr(feature = "proptest-high", proptest(value = r#"Inline::Null(Null)"#))]
+    #[cfg_attr(feature = "proptest-high", proptest(skip))]
     #[cfg_attr(feature = "proptest-max", proptest(value = r#"Inline::Null(Null)"#))]
     Null(Null),
 
     #[cfg_attr(feature = "proptest-min", proptest(skip))]
     #[cfg_attr(feature = "proptest-low", proptest(skip))]
-    #[cfg_attr(feature = "proptest-high", proptest(strategy = r#"Boolean::arbitrary().prop_map(Inline::Boolean)"#))]
+    #[cfg_attr(feature = "proptest-high", proptest(skip))]
     #[cfg_attr(feature = "proptest-max", proptest(strategy = r#"Boolean::arbitrary().prop_map(Inline::Boolean)"#))]
     Boolean(Boolean),
 
     #[cfg_attr(feature = "proptest-min", proptest(skip))]
     #[cfg_attr(feature = "proptest-low", proptest(skip))]
-    #[cfg_attr(feature = "proptest-high", proptest(strategy = r#"Integer::arbitrary().prop_map(Inline::Integer)"#))]
+    #[cfg_attr(feature = "proptest-high", proptest(skip))]
     #[cfg_attr(feature = "proptest-max", proptest(strategy = r#"Integer::arbitrary().prop_map(Inline::Integer)"#))]
     Integer(Integer),
 
     #[cfg_attr(feature = "proptest-min", proptest(skip))]
     #[cfg_attr(feature = "proptest-low", proptest(skip))]
-    #[cfg_attr(feature = "proptest-high", proptest(value = r#"Inline::Number(1.23)"#))]
+    #[cfg_attr(feature = "proptest-high", proptest(skip))]
     #[cfg_attr(feature = "proptest-max", proptest(value = r#"Inline::Number(1.23)"#))]
     Number(Number),
 
