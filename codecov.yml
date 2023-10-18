@@ -1,36 +1,33 @@
 flags:
-  # Formats
 
-  debug:
+  format-debug:
     paths:
-      - rust/codec-debug/src/*.rs
-  html:
+      - rust/codec-debug/src/*
+  format-html:
     paths:
-      - rust/codec-html*/src/*.rs
-  jats:
+      - rust/codec-html*/src/*
+  format-jats:
     paths:
-      - rust/codec-jats*/src/*.rs
-  json:
+      - rust/codec-jats*/src/*
+  format-json:
     paths:
-      - rust/codec-json/src/*.rs
-  json5:
+      - rust/codec-json/src/*
+  format-json5:
     paths:
-      - rust/codec-json5*/src/*.rs
-  markdown:
+      - rust/codec-json5*/src/*
+  format-markdown:
     paths:
-      - rust/codec-markdown*/src/*.rs
-  text:
+      - rust/codec-markdown*/src/*
+  format-text:
     paths:
-      - rust/codec-text*/src/*.rs
-  yaml:
+      - rust/codec-text*/src/*
+  format-yaml:
     paths:
-      - rust/codec-yaml/src/*.rs
+      - rust/codec-yaml/src/*
 
-  # SDKs
-
-  node-sdk:
+  sdk-node:
     paths:
       - node/**/*
-  python-sdk:
+  sdk-python:
     paths:
-      - python/python/stencila/*.py
+      - python/**/*
