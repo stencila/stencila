@@ -25,7 +25,7 @@ quote = "1.0.33"
 regex = "1.10.2"
 serde = { version = "1.0.189", features = ["derive", "rc"] }
 serde_json = { version = "1.0.107", features = ["preserve_order"] }
-serde_with = "3.3.0"
+serde_with = "3.4.0"
 serde_yaml = "0.9.25"
 similar = { version = "2.3.0", features = ["unicode"] }
 slug = "0.1.4"
