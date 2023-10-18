@@ -1,12 +1,8 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <article dtd-version="1.3" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:mml="http://www.w3.org/1998/Math/MathML">
-  <front>
-  </front>
   <body>
-    <code language="python"># Some python code
-a = 3</code>
-    <code language="">No language</code>
+    <code language="python"># Some python code&#10;a = 3&#10;</code>
+    <code>No language&#10;</code>
     <code language="python"># No newline at end</code>
   </body>
-  <back>
-  </back>
 </article>

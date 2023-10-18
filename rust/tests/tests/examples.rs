@@ -130,7 +130,10 @@ async fn examples_encode_decode() -> Result<()> {
         Spec::new(
             "jats.xml",
             Format::Jats,
-            Some(EncodeOptions::default()),
+            Some(EncodeOptions {
+                standalone: Some(true),
+                ..Default::default()
+            }),
             // Do not test decoding since it is tested on
             // compact.jats.xml and prettifying can affect whitespace
             None,
@@ -140,6 +143,7 @@ async fn examples_encode_decode() -> Result<()> {
             "compact.jats.xml",
             Format::Jats,
             Some(EncodeOptions {
+                standalone: Some(true),
                 compact: true,
                 ..Default::default()
             }),

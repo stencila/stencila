@@ -1,6 +1,5 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <article dtd-version="1.3" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:mml="http://www.w3.org/1998/Math/MathML">
-  <front>
-  </front>
   <body>
     <p>A boolean parameter , with a default , with a default and value</p>
     <p>An integer parameter , with a default , with a default and value , with min, max and mult options</p>
@@ -11,6 +10,4 @@
     <p>A date-time parameter</p>
     <p>An enum parameter</p>
   </body>
-  <back>
-  </back>
 </article>
