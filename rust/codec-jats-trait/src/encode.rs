@@ -1,8 +1,33 @@
 use std::fmt::Display;
 
-pub use quick_xml::escape::escape;
-
 use common::itertools::Itertools;
+
+/// Escape text
+pub fn escape<S>(unescaped: S) -> String
+where
+    S: AsRef<str>,
+{
+    let unescaped = unescaped.as_ref();
+    let mut escaped = String::with_capacity(unescaped.len());
+
+    for char in unescaped.chars() {
+        match char {
+            '<' => escaped.push_str("&lt;"),
+            '>' => escaped.push_str("&gt;"),
+            '\'' => escaped.push_str("&apos;"),
+            '"' => escaped.push_str("&quot;"),
+            '&' => escaped.push_str("&amp;"),
+
+            '\t' => escaped.push_str("&#9;"),
+            '\n' => escaped.push_str("&#10;"),
+            '\r' => escaped.push_str("&#13;"),
+
+            _ => escaped.push(char),
+        }
+    }
+
+    escaped
+}
 
 /// Encode an element
 pub fn elem<N, A, AN, AV, C>(name: N, attrs: A, content: C) -> String
@@ -21,15 +46,7 @@ where
 
     let attrs = attrs
         .into_iter()
-        .map(|(name, value)| {
-            let value = escape(&value.to_string())
-                .replace("\t", "&#x09;")
-                .replace("\n", "&#x0A;")
-                .replace("\r", "&#x0D;")
-                .replace(" ", "&#x20;")
-                .replace("\u{00A0}", "&#xA0;");
-            format!("{name}=\"{value}\"",)
-        })
+        .map(|(name, value)| format!("{name}=\"{value}\"", value = escape(value.to_string())))
         .join(" ");
 
     let content = content.as_ref();

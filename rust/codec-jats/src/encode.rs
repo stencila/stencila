@@ -3,13 +3,16 @@ use codec_jats_trait::JatsCodec as _;
 
 /// Encode a [`Node`] as JATS XML
 pub(super) fn encode(node: &Node, options: Option<EncodeOptions>) -> Result<(String, Losses)> {
-    let EncodeOptions { compact, .. } = options.unwrap_or_default();
+    let EncodeOptions { compact, standalone, .. } = options.unwrap_or_default();
 
     if !matches!(node, Node::Article(..)) {
         return Ok((String::new(), Losses::one(node.to_string())));
     }
 
     let (mut jats, losses) = node.to_jats();
+    if standalone.unwrap_or_default() {
+        jats.insert_str(0, r#"<?xml version="1.0" encoding="utf-8" standalone="yes" ?>"#);
+    }
     if !compact {
         jats = indent(&jats);
     }

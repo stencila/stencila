@@ -64,7 +64,7 @@ async fn spans() -> Result<()> {
         .await?;
     assert_eq!(
         jats,
-        r#"<article dtd-version="1.3" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:mml="http://www.w3.org/1998/Math/MathML"><body><p><styled-content style="&#x09;&#x0A;&#x0D;"></styled-content></p></body></article>"#
+        r#"<article dtd-version="1.3" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:mml="http://www.w3.org/1998/Math/MathML"><body><p><styled-content style="&#9;&#10;&#13;"></styled-content></p></body></article>"#
     );
 
     let (doc2, _) = codec.from_str(&jats, None).await?;

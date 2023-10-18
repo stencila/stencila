@@ -1,11 +1,10 @@
 //! Provides the `JatsCodec` trait for generating JATS XML for Stencila Schema nodes
 
-use quick_xml::escape::escape;
-
 pub use codec_jats_derive::JatsCodec;
 use codec_losses::Losses;
 
 pub mod encode;
+use encode::escape;
 
 pub trait JatsCodec {
     /// Encode a Stencila Schema node to JATS XML
@@ -42,7 +41,7 @@ impl JatsCodec for String {
         (
             String::new(),
             Vec::new(),
-            escape(self).to_string(),
+            escape(self),
             Losses::none(),
         )
     }
