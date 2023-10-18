@@ -1,8 +1,10 @@
 flags:
 
-  format-debug:
+  overall:
     paths:
-      - rust/codec-debug/src/*
+      - '*'
+      - '**/*'
+
   format-html:
     paths:
       - rust/codec-html*/src/*
@@ -27,7 +29,9 @@ flags:
 
   sdk-node:
     paths:
+      - node/*
       - node/**/*
   sdk-python:
     paths:
+      - python/*
       - python/**/*
