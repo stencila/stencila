@@ -99,7 +99,7 @@ pub trait Codec: Sync + Send {
     fn supports_to_formats(&self) -> BTreeMap<Format, CodecSupport> {
         Format::iter()
             .filter_map(|format| {
-                let support = self.supports_from_format(format);
+                let support = self.supports_to_format(format);
                 support.is_supported().then_some((format, support))
             })
             .collect()

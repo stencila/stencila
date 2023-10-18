@@ -44,11 +44,19 @@ impl Codec for JatsCodec {
         use NodeType::*;
         match node_type {
             // Prose Inlines
-            Text | Emphasis | Strong | Strikeout | Subscript | Superscript | Underline => NoLoss,
-            AudioObject | ImageObject | VideoObject => LowLoss,
+            Text | Emphasis | Strong | Strikeout | Subscript | Superscript | Underline | Quote
+            | Span | Note => NoLoss,
+            Link | AudioObject | ImageObject | VideoObject => LowLoss,
             // Prose Blocks
             Section | Heading | Paragraph | ThematicBreak => NoLoss,
-            // Works,
+            // Math
+            MathFragment | MathBlock => LowLoss,
+            // Code
+            CodeFragment => NoLoss,
+            CodeExpression => LowLoss,
+            // Data
+            String | Cord | Date | DateTime | Time | Timestamp | Duration => NoLoss,
+            // Works
             Article => LowLoss,
             _ => None,
         }
@@ -58,12 +66,9 @@ impl Codec for JatsCodec {
         use CodecSupport::*;
         use NodeType::*;
         match node_type {
-            // Works,
-            Article | Claim => LowLoss,
             // Prose Inlines
-            Text | Emphasis | Strong | Strikeout | Subscript | Superscript | Underline | Insert => {
-                NoLoss
-            }
+            Text | Emphasis | Strong | Strikeout | Subscript | Superscript | Underline | Insert
+            | Quote | Span | Note => NoLoss,
             Link | AudioObject | ImageObject | VideoObject => LowLoss,
             Delete => HighLoss,
             // Prose Blocks
@@ -75,8 +80,10 @@ impl Codec for JatsCodec {
             CodeFragment | CodeBlock => NoLoss,
             CodeExpression | CodeChunk => LowLoss,
             // Data
-            String | Cord => NoLoss,
+            String | Cord | Date | DateTime | Time | Timestamp | Duration => NoLoss,
             Null | Boolean | Integer | UnsignedInteger | Number => LowLoss,
+            // Works
+            Article | Claim => LowLoss,
             // Other
             Organization | PostalAddress | Product => LowLoss,
             // If not in the above lists then no support

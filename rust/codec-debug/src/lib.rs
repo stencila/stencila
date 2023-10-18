@@ -23,6 +23,14 @@ impl Codec for DebugCodec {
         Status::Stable
     }
 
+    fn supports_from_string(&self) -> bool {
+        false
+    }
+
+    fn supports_from_path(&self) -> bool {
+        false
+    }
+
     fn supports_to_format(&self, format: Format) -> CodecSupport {
         match format {
             Format::Debug => CodecSupport::LowLoss,
