@@ -321,7 +321,7 @@ fn decode_footnote(path: &str, node: &Node, losses: &mut Losses) -> Inline {
         match custom_type.to_lowercase().as_str() {
             "endnote" => NoteType::Endnote,
             "sidenote" => NoteType::Sidenote,
-            "footnote" | _ => NoteType::Footnote,
+            _ => NoteType::Footnote,
         }
     } else {
         NoteType::Footnote
