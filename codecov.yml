@@ -1,37 +1,51 @@
-flags:
+comment:
+  layout: "header, flags, diff, components"
 
-  overall:
-    paths:
-      - '*'
-      - '**/*'
+component_management:
+  individual_components:
+    - component_id: codec_html
+      name: HTML
+      paths:
+        - rust/codec-html*/src/*
 
-  format-html:
-    paths:
-      - rust/codec-html*/src/*
-  format-jats:
-    paths:
-      - rust/codec-jats*/src/*
-  format-json:
-    paths:
-      - rust/codec-json/src/*
-  format-json5:
-    paths:
-      - rust/codec-json5*/src/*
-  format-markdown:
-    paths:
-      - rust/codec-markdown*/src/*
-  format-text:
-    paths:
-      - rust/codec-text*/src/*
-  format-yaml:
-    paths:
-      - rust/codec-yaml/src/*
+    - component_id: codec_jats
+      name: JATS
+      paths:
+        - rust/codec-jats*/src/*
 
-  sdk-node:
-    paths:
-      - node/*
-      - node/**/*
-  sdk-python:
-    paths:
-      - python/*
-      - python/**/*
+    - component_id: codec_json
+      name: JSON
+      paths:
+        - rust/codec-json/src/*
+
+    - component_id: codec_json5
+      name: JSON5
+      paths:
+        - rust/codec-json5*/src/*
+
+    - component_id: codec_markdown
+      name: Markdown
+      paths:
+        - rust/codec-markdown*/src/*
+
+    - component_id: codec_text
+      name: Text
+      paths:
+        - rust/codec-text*/src/*
+
+    - component_id: codec_yaml
+      name: YAML
+      paths:
+        - rust/codec-yaml/src/*
+
+    - component_id: sdk_node
+      name: Node.js SDK
+      paths:
+        - node/*
+        - node/**/*
+
+    - component_id: sdk_python
+      name: Python SDK
+      paths:
+        - python/*
+        - python/**/*
