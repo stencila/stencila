@@ -1,4 +1,4 @@
-use std::path::Path;
+use std::{collections::BTreeMap, path::Path};
 
 use common::{
     async_trait::async_trait,
@@ -51,10 +51,30 @@ pub trait Codec: Sync + Send {
         CodecSupport::None
     }
 
+    /// The level of support that the codec provides for decoding from each format
+    fn supports_from_formats(&self) -> BTreeMap<Format, CodecSupport> {
+        Format::iter()
+            .filter_map(|format| {
+                let support = self.supports_from_format(format);
+                support.is_supported().then_some((format, support))
+            })
+            .collect()
+    }
+
     /// The level of support that the codec provides for decoding for a [`NodeType`]
     #[allow(unused)]
     fn supports_from_type(&self, node_type: NodeType) -> CodecSupport {
         CodecSupport::None
+    }
+
+    /// The level of support that the codec provides for decoding for each [`NodeType`]
+    fn supports_from_types(&self) -> BTreeMap<String, CodecSupport> {
+        NodeType::iter()
+            .filter_map(|node_type| {
+                let support = self.supports_from_type(node_type);
+                support.is_supported().then_some((node_type.to_string(), support))
+            })
+            .collect()
     }
 
     /// Whether the codec supports decoding from string content
@@ -73,10 +93,30 @@ pub trait Codec: Sync + Send {
         CodecSupport::None
     }
 
+    /// The level of support that the codec provides for encoding to each format
+    fn supports_to_formats(&self) -> BTreeMap<Format, CodecSupport> {
+        Format::iter()
+            .filter_map(|format| {
+                let support = self.supports_from_format(format);
+                support.is_supported().then_some((format, support))
+            })
+            .collect()
+    }
+
     /// The level of support that the codec provides for encoding for a [`NodeType`]
     #[allow(unused)]
     fn supports_to_type(&self, node_type: NodeType) -> CodecSupport {
         CodecSupport::None
+    }
+
+    /// The level of support that the codec provides for encoding for each [`NodeType`]
+    fn supports_to_types(&self) -> BTreeMap<String, CodecSupport> {
+        NodeType::iter()
+            .filter_map(|node_type| {
+                let support = self.supports_to_type(node_type);
+                support.is_supported().then_some((node_type.to_string(), support))
+            })
+            .collect()
     }
 
     /// Whether the codec supports encoding to string content

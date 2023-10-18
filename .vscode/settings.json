@@ -41,6 +41,7 @@
         "indexmap",
         "inflector",
         "inlines",
+        "insta",
         "instanceof",
         "isinstance",
         "itertools",
