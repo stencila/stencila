@@ -22,7 +22,10 @@ use self::utilities::{extend_path, record_node_lost};
 /// This is the main entry point for decoding. It parses the XML, and then traverses the
 /// XML DOM, building an [`Article`] from it (JATS is always treated as an article, not any other
 /// type of `CreativeWork`).
-pub(super) fn decode(jats: &str, _options: Option<DecodeOptions>) -> Result<(schema::Node, Losses)> {
+pub(super) fn decode(
+    jats: &str,
+    _options: Option<DecodeOptions>,
+) -> Result<(schema::Node, Losses)> {
     let mut article = Article::default();
     let mut losses = Losses::none();
 

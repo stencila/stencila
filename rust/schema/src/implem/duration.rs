@@ -7,7 +7,10 @@ impl Duration {
         (
             elem(
                 "duration",
-                [("value", self.value.to_string()), ("unit", self.time_unit.to_string())],
+                [
+                    ("value", self.value.to_string()),
+                    ("unit", self.time_unit.to_string()),
+                ],
                 format!("{} {}s", self.value, self.time_unit),
             ),
             Losses::none(),

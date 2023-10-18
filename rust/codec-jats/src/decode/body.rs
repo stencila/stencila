@@ -296,7 +296,7 @@ fn decode_link(path: &str, node: &Node, losses: &mut Losses) -> Inline {
 
     record_attrs_lost(path, node, ["href"], losses);
 
-    let content = decode_inlines(path, &node, losses);
+    let content = decode_inlines(path, node, losses);
 
     Inline::Link(Link {
         target,
@@ -329,7 +329,7 @@ fn decode_footnote(path: &str, node: &Node, losses: &mut Losses) -> Inline {
 
     record_attrs_lost(path, node, ["fn-type", "custom-type"], losses);
 
-    let content = decode_blocks(path, &node, losses, 0);
+    let content = decode_blocks(path, node, losses, 0);
 
     Inline::Note(Note {
         note_type,
@@ -364,7 +364,7 @@ fn decode_styled_content(path: &str, node: &Node, losses: &mut Losses) -> Inline
 
     record_attrs_lost(path, node, ["style", "style-detail"], losses);
 
-    let content = decode_inlines(path, &node, losses);
+    let content = decode_inlines(path, node, losses);
 
     Inline::Span(Span {
         code,

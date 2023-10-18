@@ -38,12 +38,7 @@ to_string!(f64, "Number");
 
 impl JatsCodec for String {
     fn to_jats_parts(&self) -> (String, Vec<(String, String)>, String, Losses) {
-        (
-            String::new(),
-            Vec::new(),
-            escape(self),
-            Losses::none(),
-        )
+        (String::new(), Vec::new(), escape(self), Losses::none())
     }
 }
 
