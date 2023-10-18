@@ -1,5 +1,6 @@
 flags:
-  #Formats
+  # Formats
+
   debug:
     paths:
       - rust/codec-debug/src/*.rs
@@ -24,3 +25,9 @@ flags:
   yaml:
     paths:
       - rust/codec-yaml/src/*.rs
+
+  # SDKs
+
+  python-sdk:
+    paths:
+      - python/python/stencila/*.py

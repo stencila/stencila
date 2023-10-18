@@ -21,6 +21,11 @@ test: poetry.lock
 	poetry run maturin develop
 	poetry run pytest
 
+# Run tests with coverage
+cover: poetry.lock
+	poetry run maturin develop
+	poetry run coverage run -m pytest 
+
 # Build the Python module in debug mode and open a python shell to
 # import it and try it out in
 run: poetry.lock

@@ -17,7 +17,7 @@ def from_json(json_string: str) -> Node:
     return from_value(json.loads(json_string))
 
 
-def from_value(value) -> Node:
+def from_value(value) -> Node: # pragma: no cover
     """
     Create a `Node` from a value
     """
