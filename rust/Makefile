@@ -43,8 +43,8 @@ cover:
 	cargo llvm-cov clean --workspace 
 	cargo llvm-cov --workspace  --no-report
 	# SKIP: NO TESTS cargo llvm-cov -p codecs --features proptest-min --no-report
-	cargo llvm-cov -p codecs --features proptest-low --no-report
-	# SKIP: NO TESTS cargo llvm-cov -p codecs --features proptest-high --no-report
+	# SKIP: NO TESTS cargo llvm-cov -p codecs --features proptest-low --no-report
+	cargo llvm-cov -p codecs --features proptest-high --no-report
 	cargo llvm-cov -p codecs --features proptest-max --no-report
 	cd .. && cargo llvm-cov report --lcov --output-path lcov.info --ignore-filename-regex '(test)|(rust/schema/src/types/)|(python/src)|(node/src)'
 
