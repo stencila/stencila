@@ -72,7 +72,9 @@ pub trait Codec: Sync + Send {
         NodeType::iter()
             .filter_map(|node_type| {
                 let support = self.supports_from_type(node_type);
-                support.is_supported().then_some((node_type.to_string(), support))
+                support
+                    .is_supported()
+                    .then_some((node_type.to_string(), support))
             })
             .collect()
     }
@@ -114,7 +116,9 @@ pub trait Codec: Sync + Send {
         NodeType::iter()
             .filter_map(|node_type| {
                 let support = self.supports_to_type(node_type);
-                support.is_supported().then_some((node_type.to_string(), support))
+                support
+                    .is_supported()
+                    .then_some((node_type.to_string(), support))
             })
             .collect()
     }
