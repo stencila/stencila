@@ -1,3 +1,13 @@
+//! Roundtrip conversion tests
+//!
+//! For each format, these tests generate arbitrary `Article`s, encode each article to the
+//! format, decode it back from the format, and then asserts that the decoded article
+//! is the same as the original.
+//!
+//! There are four levels of randomness/complexity: min, low, high, and max. Usually, codecs
+//! are initially tested in the `min` level, and then moved up as high as the format will
+//! allow.
+
 #![allow(unused_imports)]
 
 use codec::{
@@ -39,35 +49,52 @@ proptest! {
 #[cfg(feature = "proptest-low")]
 proptest! {
     #![proptest_config(ProptestConfig::with_cases(500))]
+}
+
+// Level `high` for highly structured formats that can perform roundtrip conversion
+// for most most node types and their values.
+#[cfg(feature = "proptest-high")]
+proptest! {
+    #![proptest_config(ProptestConfig::with_cases(250))]
 
     /// Roundtrip test for JATS using `compact` option because whitespace
     /// can be added if not compact.
-    /// Currently skipped because decoding of many types is not implemented.
-    /// Will implement after this is merged into main.
-    #[ignore]
     #[test]
-    fn article_jats_compact(article: Article) {
+    fn article_jats(article: Article) {
         let mut article = Node::Article(article);
 
         article.strip(&Targets {
-            // Strip headings because JATS does not support heading level (in <title> elem).
-            // TODO: When strip supports props, strip only Heading.level
-            types: vec![String::from("Heading")],
+            types: vec![
+                // TODO Remove these as implemented
+                String::from("Claim"),
+                String::from("CodeBlock"),
+                String::from("CodeChunk"),
+                String::from("Division"),
+                String::from("Figure"),
+                // Strip headings because JATS does not support heading level (in <title> elem).
+                // TODO: When strip supports props, strip only Heading.level
+                String::from("Heading"),
+                String::from("List"),
+                String::from("QuoteBlock"),
+                String::from("MathBlock"),
+                String::from("Table"),
+            ],
             ..Default::default()
         });
 
         assert_eq!(roundtrip(Format::Jats, &article, Some(EncodeOptions{
+            standalone: Some(true),
             compact: true,
             ..Default::default()
         }), None).unwrap(), article);
     }
 }
 
-#[cfg(feature = "proptest-high")]
-proptest! {
-    #![proptest_config(ProptestConfig::with_cases(250))]
-}
-
+// Level `max` for data serialization formats that can perform
+// roundtrip conversion for all node types and their values.
+//
+// Due to the large size and complexity of the generated, arbitrary documents,
+// to avoid long run times, a relatively low number of cases are tested.
 #[cfg(feature = "proptest-max")]
 proptest! {
     #![proptest_config(ProptestConfig::with_cases(100))]
