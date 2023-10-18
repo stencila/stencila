@@ -86,8 +86,8 @@
           "strategy": "r\"[a-zA-Z0-9 \\t]{1,10}\".prop_map(Cord::new)"
         },
         "high": {
-          "description": "Generate a random string of up to 100 characters, excluding those used as math\ndelimiters in Markdown.\n",
-          "strategy": "r\"[^$]{1,100}\".prop_map(Cord::new)"
+          "description": "Generate a random string of up to 100 characters (excluding control characters).\n",
+          "strategy": "r\"[^\\p{C}]{1,100}\".prop_map(Cord::new)"
         },
         "max": {
           "description": "Generate an arbitrary string.",

@@ -46,8 +46,7 @@ prop_compose! {
             prop_oneof![
                 CodeExpression::arbitrary().prop_map(Inline::CodeExpression),
                 CodeFragment::arbitrary().prop_map(Inline::CodeFragment),
-                MathFragment::arbitrary().prop_map(Inline::MathFragment),
-                Text::arbitrary().prop_map(Inline::Text),
+                MathFragment::arbitrary().prop_map(Inline::MathFragment)
             ],
             size_range(length - 1)
         )
@@ -60,8 +59,8 @@ prop_compose! {
 ///
 /// Restrictions:
 ///   - Always starts and ends with a string.
-///   - Ensures that nodes such as `Strong`, `Emphasis`, and `Strikeout` (and deprecated `Delete`)
-///     are surrounded by spaces (for compatibility with  Markdown decoding).
+///   - Ensures that nodes such as `Strong`, `Emphasis`, and `Strikeout`
+///     are surrounded by spaces (for compatibility with Markdown decoding).
 ///   - No leading or trailing whitespace (for Markdown).
 fn interleave_inlines(texts: Vec<Inline>, others: Vec<Inline>) -> Vec<Inline> {
     let mut content: Vec<Inline> = interleave(texts, others).collect();
