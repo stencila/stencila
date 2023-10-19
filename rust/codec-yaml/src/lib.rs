@@ -96,7 +96,6 @@ impl Codec for YamlCodec {
             value
         };
 
-        let yaml = serde_yaml::to_string(&value)?;
-        Ok((yaml, Losses::none()))
+        Ok((value.to_yaml()?, Losses::none()))
     }
 }
