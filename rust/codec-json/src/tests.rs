@@ -169,6 +169,33 @@ fn entity_enum_from_json() -> Result<()> {
     Ok(())
 }
 
+/// Test of compact option
+#[tokio::test]
+async fn compact() -> Result<()> {
+    let codec = JsonCodec {};
+
+    let doc1 = Node::Article(Article::new(vec![p([text("Hello world")])]));
+
+    let (json, _) = codec
+        .to_string(
+            &doc1,
+            Some(EncodeOptions {
+                compact: true,
+                ..Default::default()
+            }),
+        )
+        .await?;
+    assert_eq!(
+        json,
+        r#"{"type":"Article","content":[{"type":"Paragraph","content":[{"type":"Text","value":"Hello world"}]}]}"#
+    );
+
+    let (doc2, _) = codec.from_str(&json, None).await?;
+    assert_eq!(doc2, doc1);
+
+    Ok(())
+}
+
 /// Test of standalone option
 #[tokio::test]
 async fn standalone() -> Result<()> {
