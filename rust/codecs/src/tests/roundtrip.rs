@@ -71,9 +71,6 @@ proptest! {
                 String::from("CodeChunk"),
                 String::from("Division"),
                 String::from("Figure"),
-                // Strip headings because JATS does not support heading level (in <title> elem).
-                // TODO: When strip supports props, strip only Heading.level
-                String::from("Heading"),
                 String::from("List"),
                 String::from("QuoteBlock"),
                 String::from("MathBlock"),

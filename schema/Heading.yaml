@@ -10,6 +10,7 @@ $comment: |
     - Pandoc [`Header`](https://github.com/jgm/pandoc-types/blob/1.17.5.4/Text/Pandoc/Definition.hs#L233)
 jats:
   elem: title
+  special: true
 html:
   special: true
 markdown:
@@ -29,6 +30,9 @@ properties:
   content:
     '@id': stencila:content
     description: Content of the heading.
+    type: array
+    items:
+      $ref: Inline
     strip:
       - types
     proptest:
@@ -44,6 +48,3 @@ properties:
       max:
         description: Generate up to eight arbitrary inline nodes
         strategy: vec_inlines(8)
-    type: array
-    items:
-      $ref: Inline

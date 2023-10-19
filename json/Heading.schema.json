@@ -14,7 +14,8 @@
     "special": true
   },
   "jats": {
-    "elem": "title"
+    "elem": "title",
+    "special": true
   },
   "markdown": {
     "special": true

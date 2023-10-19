@@ -12,7 +12,7 @@ use super::string::String;
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 #[cfg_attr(feature = "proptest", derive(Arbitrary))]
 #[html(special)]
-#[jats(elem = "title")]
+#[jats(elem = "title", special)]
 #[markdown(special)]
 pub struct Heading {
     /// The type of this item.

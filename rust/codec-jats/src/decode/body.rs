@@ -73,10 +73,12 @@ fn decode_sec(path: &str, node: &Node, losses: &mut Losses, depth: u8) -> Block 
 fn decode_title(path: &str, node: &Node, losses: &mut Losses, depth: u8) -> Block {
     record_attrs_lost(path, node, [], losses);
 
-    Block::Heading(Heading::new(
-        depth as i64,
-        decode_inlines(path, node, losses),
-    ))
+    let level = node
+        .attribute("level")
+        .and_then(|level| level.parse::<i64>().ok())
+        .unwrap_or(depth as i64);
+
+    Block::Heading(Heading::new(level, decode_inlines(path, node, losses)))
 }
 
 /// Decode inline content nodes
