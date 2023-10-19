@@ -3,10 +3,10 @@ use roxmltree::Node;
 use codec::{
     schema::{
         shortcuts::{em, p, q, s, section, strong, sub, sup, text, u},
-        Article, AudioObject, AudioObjectOptions, Block, Blocks, CodeExpression, CodeFragment,
-        Cord, Date, DateTime, Duration, Heading, ImageObject, ImageObjectOptions, Inline, Inlines,
-        Link, MathFragment, MediaObject, MediaObjectOptions, Note, NoteType, Span, ThematicBreak,
-        Time, Timestamp, VideoObject, VideoObjectOptions,
+        Article, AudioObject, AudioObjectOptions, Block, CodeExpression, CodeFragment, Cord, Date,
+        DateTime, Duration, Heading, ImageObject, ImageObjectOptions, Inline, Link, MathFragment,
+        MediaObject, MediaObjectOptions, Note, NoteType, Span, ThematicBreak, Time, Timestamp,
+        VideoObject, VideoObjectOptions,
     },
     Losses,
 };
@@ -28,8 +28,8 @@ pub(super) fn decode_body(path: &str, node: &Node, article: &mut Article, losses
 ///
 /// Iterates over all child elements and either decodes them, or adds them to
 /// losses.
-fn decode_blocks(path: &str, node: &Node, losses: &mut Losses, depth: u8) -> Blocks {
-    let mut blocks = Blocks::new();
+fn decode_blocks(path: &str, node: &Node, losses: &mut Losses, depth: u8) -> Vec<Block> {
+    let mut blocks = Vec::new();
     for child in node.children() {
         let tag = child.tag_name().name();
         let child_path = extend_path(path, tag);
@@ -85,8 +85,8 @@ fn decode_title(path: &str, node: &Node, losses: &mut Losses, depth: u8) -> Bloc
 ///
 /// Iterates over all child elements and either decodes them, or adds them to
 /// losses.
-fn decode_inlines(path: &str, node: &Node, losses: &mut Losses) -> Inlines {
-    let mut inlines = Inlines::new();
+fn decode_inlines(path: &str, node: &Node, losses: &mut Losses) -> Vec<Inline> {
+    let mut inlines = Vec::new();
     for child in node.children() {
         let inline = if child.is_text() {
             text(child.text().unwrap_or_default())

@@ -3,7 +3,6 @@
 from .prelude import *
 
 from .block import Block
-from .blocks_or_inlines import BlocksOrInlines
 from .creative_work import CreativeWork
 
 
@@ -21,5 +20,5 @@ class Figure(CreativeWork):
     label: Optional[str] = None
     """A short label for the figure."""
 
-    caption: Optional[BlocksOrInlines] = None
+    caption: Optional[List[Block]] = None
     """A caption for the figure."""

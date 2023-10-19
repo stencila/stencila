@@ -34,10 +34,6 @@ properties:
     description: A caption for the CodeChunk.
     $comment: |
       An array of nodes or, to be compatible with https://schema.org/caption, a string.
-    anyOf:
-      - type: array
-        items:
-          $ref: Block
-      - type: array
-        items:
-          $ref: Inline
+    type: array
+    items:
+      $ref: Block

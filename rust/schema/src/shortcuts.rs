@@ -1,10 +1,9 @@
 //! Shortcut functions for conveniently creating nodes of various types
 
 use crate::{
-    Article, AudioObject, Block, BlocksOrInlines, CodeFragment, Cord, Emphasis, Heading,
-    ImageObject, Inline, Link, List, ListItem, ListOrder, Node, Paragraph, Quote, Section,
-    Strikeout, Strong, Subscript, Superscript, Table, TableCell, TableCellType, TableRow, Text,
-    Underline, VideoObject,
+    Article, AudioObject, Block, CodeFragment, Cord, Emphasis, Heading, ImageObject, Inline, Link,
+    List, ListItem, ListOrder, Node, Paragraph, Quote, Section, Strikeout, Strong, Subscript,
+    Superscript, Table, TableCell, TableCellType, TableRow, Text, Underline, VideoObject,
 };
 
 /// Create an [`Inline::Text`] node
@@ -120,7 +119,7 @@ pub fn ul<I: Into<Vec<ListItem>>>(items: I) -> Block {
 /// Create a [`ListItem`] node
 pub fn li<I: Into<Vec<Inline>>>(content: I) -> ListItem {
     ListItem {
-        content: Some(BlocksOrInlines::Inlines(content.into())),
+        content: vec![p(content)],
         ..Default::default()
     }
 }
@@ -145,7 +144,7 @@ pub fn tr<I: Into<Vec<TableCell>>>(cells: I) -> TableRow {
 pub fn th<I: Into<Vec<Inline>>>(content: I) -> TableCell {
     TableCell {
         cell_type: Some(TableCellType::Header),
-        content: Some(BlocksOrInlines::Inlines(content.into())),
+        content: vec![p(content)],
         ..Default::default()
     }
 }
@@ -153,7 +152,7 @@ pub fn th<I: Into<Vec<Inline>>>(content: I) -> TableCell {
 /// Create a [`TableCell`] node with [`TableCellType::Data`]
 pub fn td<I: Into<Vec<Inline>>>(content: I) -> TableCell {
     TableCell {
-        content: Some(BlocksOrInlines::Inlines(content.into())),
+        content: vec![p(content)],
         ..Default::default()
     }
 }

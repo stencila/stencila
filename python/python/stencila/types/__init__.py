@@ -5,8 +5,6 @@ from .array_validator import ArrayValidator
 from .article import Article
 from .audio_object import AudioObject
 from .block import Block
-from .blocks import Blocks
-from .blocks_or_inlines import BlocksOrInlines
 from .boolean_validator import BooleanValidator
 from .brand import Brand
 from .button import Button
@@ -79,7 +77,6 @@ from .image_object import ImageObject
 from .image_object_or_str import ImageObjectOrStr
 from .include import Include
 from .inline import Inline
-from .inlines import Inlines
 from .insert import Insert
 from .int_or_str import IntOrStr
 from .integer_validator import IntegerValidator

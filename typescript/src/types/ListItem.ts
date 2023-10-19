@@ -1,6 +1,6 @@
 // Generated file; do not edit. See `../rust/schema-gen` crate.
 
-import { BlocksOrInlines } from "./BlocksOrInlines.js";
+import { Block } from "./Block.js";
 import { Integer } from "./Integer.js";
 import { Node } from "./Node.js";
 import { Thing } from "./Thing.js";
@@ -14,7 +14,7 @@ export class ListItem extends Thing {
   /**
    * The content of the list item.
    */
-  content?: BlocksOrInlines;
+  content: Block[];
 
   /**
    * The item represented by this list item.
@@ -31,16 +31,16 @@ export class ListItem extends Thing {
    */
   position?: Integer;
 
-  constructor(options?: Partial<ListItem>) {
+  constructor(content: Block[], options?: Partial<ListItem>) {
     super();
     if (options) Object.assign(this, options);
-    
+    this.content = content;
   }
 }
 
 /**
 * Create a new `ListItem`
 */
-export function listItem(options?: Partial<ListItem>): ListItem {
-  return new ListItem(options);
+export function listItem(content: Block[], options?: Partial<ListItem>): ListItem {
+  return new ListItem(content, options);
 }

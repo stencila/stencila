@@ -186,14 +186,9 @@
           "@id": "stencila:TableCell"
         }
       ],
-      "schema:rangeIncludes": [
-        {
-          "@id": "stencila:Block"
-        },
-        {
-          "@id": "stencila:Inline"
-        }
-      ]
+      "schema:rangeIncludes": {
+        "@id": "stencila:Block"
+      }
     },
     {
       "@id": "schema:item",

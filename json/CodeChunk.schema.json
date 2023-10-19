@@ -256,20 +256,10 @@
       "@id": "schema:caption",
       "description": "A caption for the CodeChunk.",
       "$comment": "An array of nodes or, to be compatible with https://schema.org/caption, a string.\n",
-      "anyOf": [
-        {
-          "type": "array",
-          "items": {
-            "$ref": "Block.schema.json"
-          }
-        },
-        {
-          "type": "array",
-          "items": {
-            "$ref": "Inline.schema.json"
-          }
-        }
-      ]
+      "type": "array",
+      "items": {
+        "$ref": "Block.schema.json"
+      }
     }
   }
 }

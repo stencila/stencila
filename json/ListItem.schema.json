@@ -21,11 +21,11 @@
     "special": true
   },
   "required": [
-    "type"
+    "type",
+    "content"
   ],
   "core": [
     "id",
-    "content",
     "item",
     "isChecked",
     "position"
@@ -118,35 +118,25 @@
       "proptest": {
         "min": {
           "description": "Generate a single, arbitrary, paragraph",
-          "strategy": "vec_paragraphs(1).prop_map(|blocks| Some(BlocksOrInlines::Blocks(blocks)))"
+          "strategy": "vec_paragraphs(1)"
         },
         "low": {
           "description": "Generate one, arbitrary, non-list block",
-          "strategy": "vec_blocks_list_item(1).prop_map(|blocks| Some(BlocksOrInlines::Blocks(blocks)))"
+          "strategy": "vec_blocks_list_item(1)"
         },
         "high": {
           "description": "Generate up to two, arbitrary, non-list blocks",
-          "strategy": "vec_blocks_list_item(2).prop_map(|blocks| Some(BlocksOrInlines::Blocks(blocks)))"
+          "strategy": "vec_blocks_list_item(2)"
         },
         "max": {
           "description": "Generate up to four, arbitrary, non-list blocks",
-          "strategy": "vec_blocks_list_item(4).prop_map(|blocks| Some(BlocksOrInlines::Blocks(blocks)))"
+          "strategy": "vec_blocks_list_item(4)"
         }
       },
-      "anyOf": [
-        {
-          "type": "array",
-          "items": {
-            "$ref": "Block.schema.json"
-          }
-        },
-        {
-          "type": "array",
-          "items": {
-            "$ref": "Inline.schema.json"
-          }
-        }
-      ]
+      "type": "array",
+      "items": {
+        "$ref": "Block.schema.json"
+      }
     },
     "item": {
       "@id": "schema:item",

@@ -2,7 +2,7 @@
 
 from .prelude import *
 
-from .blocks_or_inlines import BlocksOrInlines
+from .block import Block
 from .entity import Entity
 from .table_cell_type import TableCellType
 
@@ -27,5 +27,5 @@ class TableCell(Entity):
     row_span: Optional[int] = None
     """How many columns the cell extends."""
 
-    content: Optional[BlocksOrInlines] = None
+    content: List[Block]
     """Contents of the table cell."""

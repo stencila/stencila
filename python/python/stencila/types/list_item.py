@@ -2,7 +2,7 @@
 
 from .prelude import *
 
-from .blocks_or_inlines import BlocksOrInlines
+from .block import Block
 from .node import Node
 from .thing import Thing
 
@@ -15,7 +15,7 @@ class ListItem(Thing):
 
     type: Literal["ListItem"] = field(default="ListItem", init=False)
 
-    content: Optional[BlocksOrInlines] = None
+    content: List[Block]
     """The content of the list item."""
 
     item: Optional[Node] = None

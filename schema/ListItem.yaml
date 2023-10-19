@@ -20,8 +20,9 @@ jats:
 markdown:
   special: true
 proptest: {}
-core:
+required:
   - content
+core:
   - item
   - isChecked
   - position
@@ -30,26 +31,22 @@ properties:
     "@id": stencila:content
     description: The content of the list item.
     $comment: Use either `content` or `item`, not both.
-    anyOf:
-      - type: array
-        items:
-          $ref: Block
-      - type: array
-        items:
-          $ref: Inline
+    type: array
+    items:
+      $ref: Block
     proptest:
       min: 
         description: Generate a single, arbitrary, paragraph
-        strategy: vec_paragraphs(1).prop_map(|blocks| Some(BlocksOrInlines::Blocks(blocks)))
+        strategy: vec_paragraphs(1)
       low:
         description: Generate one, arbitrary, non-list block
-        strategy: vec_blocks_list_item(1).prop_map(|blocks| Some(BlocksOrInlines::Blocks(blocks)))
+        strategy: vec_blocks_list_item(1)
       high:
         description: Generate up to two, arbitrary, non-list blocks
-        strategy: vec_blocks_list_item(2).prop_map(|blocks| Some(BlocksOrInlines::Blocks(blocks)))
+        strategy: vec_blocks_list_item(2)
       max:
         description: Generate up to four, arbitrary, non-list blocks
-        strategy: vec_blocks_list_item(4).prop_map(|blocks| Some(BlocksOrInlines::Blocks(blocks)))
+        strategy: vec_blocks_list_item(4)
   item:
     "@id": schema:item
     description: The item represented by this list item.

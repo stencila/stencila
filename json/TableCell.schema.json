@@ -13,12 +13,12 @@
     "elem": "td"
   },
   "required": [
-    "type"
+    "type",
+    "content"
   ],
   "core": [
     "id",
-    "cellType",
-    "content"
+    "cellType"
   ],
   "properties": {
     "type": {
@@ -78,23 +78,13 @@
       "proptest": {
         "min": {
           "description": "Generate a single, arbitrary, paragraph",
-          "strategy": "vec_paragraphs(1).prop_map(|blocks| Some(BlocksOrInlines::Blocks(blocks)))"
+          "strategy": "vec_paragraphs(1)"
         }
       },
-      "anyOf": [
-        {
-          "type": "array",
-          "items": {
-            "$ref": "Block.schema.json"
-          }
-        },
-        {
-          "type": "array",
-          "items": {
-            "$ref": "Inline.schema.json"
-          }
-        }
-      ]
+      "type": "array",
+      "items": {
+        "$ref": "Block.schema.json"
+      }
     }
   }
 }

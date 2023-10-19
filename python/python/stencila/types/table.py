@@ -2,7 +2,7 @@
 
 from .prelude import *
 
-from .blocks_or_inlines import BlocksOrInlines
+from .block import Block
 from .creative_work import CreativeWork
 from .table_row import TableRow
 
@@ -15,7 +15,7 @@ class Table(CreativeWork):
 
     type: Literal["Table"] = field(default="Table", init=False)
 
-    caption: Optional[BlocksOrInlines] = None
+    caption: Optional[List[Block]] = None
     """A caption for the table."""
 
     label: Optional[str] = None

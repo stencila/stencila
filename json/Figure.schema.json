@@ -384,20 +384,10 @@
       "@id": "schema:caption",
       "description": "A caption for the figure.",
       "$comment": "An array of nodes or, to be compatible with https://schema.org/caption,\na string.\n",
-      "anyOf": [
-        {
-          "type": "array",
-          "items": {
-            "$ref": "Block.schema.json"
-          }
-        },
-        {
-          "type": "array",
-          "items": {
-            "$ref": "Inline.schema.json"
-          }
-        }
-      ]
+      "type": "array",
+      "items": {
+        "$ref": "Block.schema.json"
+      }
     }
   }
 }

@@ -1,6 +1,6 @@
 // Generated file; do not edit. See `../rust/schema-gen` crate.
 
-import { BlocksOrInlines } from "./BlocksOrInlines.js";
+import { Block } from "./Block.js";
 import { CodeExecutable } from "./CodeExecutable.js";
 import { Cord } from "./Cord.js";
 import { Node } from "./Node.js";
@@ -29,7 +29,7 @@ export class CodeChunk extends CodeExecutable {
   /**
    * A caption for the CodeChunk.
    */
-  caption?: BlocksOrInlines;
+  caption?: Block[];
 
   constructor(code: Cord, programmingLanguage: string, options?: Partial<CodeChunk>) {
     super(code, programmingLanguage);

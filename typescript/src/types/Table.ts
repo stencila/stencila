@@ -1,6 +1,6 @@
 // Generated file; do not edit. See `../rust/schema-gen` crate.
 
-import { BlocksOrInlines } from "./BlocksOrInlines.js";
+import { Block } from "./Block.js";
 import { CreativeWork } from "./CreativeWork.js";
 import { TableRow } from "./TableRow.js";
 
@@ -13,7 +13,7 @@ export class Table extends CreativeWork {
   /**
    * A caption for the table.
    */
-  caption?: BlocksOrInlines;
+  caption?: Block[];
 
   /**
    * A short label for the table.

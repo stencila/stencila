@@ -2,7 +2,7 @@
 
 from .prelude import *
 
-from .blocks_or_inlines import BlocksOrInlines
+from .block import Block
 from .code_executable import CodeExecutable
 from .node import Node
 
@@ -24,5 +24,5 @@ class CodeChunk(CodeExecutable):
     label: Optional[str] = None
     """A short label for the CodeChunk."""
 
-    caption: Optional[BlocksOrInlines] = None
+    caption: Optional[List[Block]] = None
     """A caption for the CodeChunk."""
