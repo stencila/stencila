@@ -5,10 +5,10 @@ use crate::prelude::*;
 use super::block::Block;
 use super::comment::Comment;
 use super::creative_work_type::CreativeWorkType;
-use super::creative_work_type_or_string::CreativeWorkTypeOrString;
+use super::creative_work_type_or_text::CreativeWorkTypeOrText;
 use super::date::Date;
 use super::grant_or_monetary_grant::GrantOrMonetaryGrant;
-use super::image_object_or_string::ImageObjectOrString;
+use super::image_object::ImageObject;
 use super::inline::Inline;
 use super::person::Person;
 use super::person_or_organization::PersonOrOrganization;
@@ -16,11 +16,12 @@ use super::person_or_organization_or_software_application::PersonOrOrganizationO
 use super::property_value_or_string::PropertyValueOrString;
 use super::string::String;
 use super::string_or_number::StringOrNumber;
+use super::text::Text;
 use super::thing_type::ThingType;
 
 /// A file on the file system.
 #[skip_serializing_none]
-#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec, ReadNode, WriteNode)]
+#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec, WriteNode, ReadNode)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 pub struct File {
     /// The type of this item.
@@ -46,27 +47,30 @@ pub struct File {
 }
 
 #[skip_serializing_none]
-#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec, ReadNode, WriteNode)]
+#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec, WriteNode, ReadNode)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 pub struct FileOptions {
     /// Alternate names (aliases) for the item.
     pub alternate_names: Option<Vec<String>>,
 
     /// A description of the item.
-    #[strip(types)]
-    pub description: Option<Vec<Block>>,
+    pub description: Option<Text>,
 
     /// Any kind of identifier for any kind of Thing.
     pub identifiers: Option<Vec<PropertyValueOrString>>,
 
     /// Images of the item.
-    pub images: Option<Vec<ImageObjectOrString>>,
+    pub images: Option<Vec<ImageObject>>,
 
     /// The URL of the item.
     pub url: Option<String>,
 
     /// The subject matter of the content.
     pub about: Option<Vec<ThingType>>,
+
+    /// A a short description that summarizes a `CreativeWork`.
+    #[strip(types)]
+    pub r#abstract: Option<Vec<Block>>,
 
     /// The authors of the `CreativeWork`.
     pub authors: Option<Vec<PersonOrOrganization>>,
@@ -115,7 +119,7 @@ pub struct FileOptions {
     pub is_part_of: Option<CreativeWorkType>,
 
     /// License documents that applies to this content, typically indicated by URL.
-    pub licenses: Option<Vec<CreativeWorkTypeOrString>>,
+    pub licenses: Option<Vec<CreativeWorkTypeOrText>>,
 
     /// Elements of the collection which can be a variety of different elements,
     /// such as Articles, Datatables, Tables and more.
@@ -126,10 +130,10 @@ pub struct FileOptions {
 
     /// References to other creative works, such as another publication,
     /// web page, scholarly article, etc.
-    pub references: Option<Vec<CreativeWorkTypeOrString>>,
+    pub references: Option<Vec<CreativeWorkTypeOrText>>,
 
     /// The textual content of this creative work.
-    pub text: Option<String>,
+    pub text: Option<Text>,
 
     /// The title of the creative work.
     #[strip(types)]

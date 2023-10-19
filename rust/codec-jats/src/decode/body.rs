@@ -5,8 +5,8 @@ use codec::{
         shortcuts::{em, p, q, s, section, strong, sub, sup, text, u},
         Article, AudioObject, AudioObjectOptions, Block, CodeExpression, CodeFragment, Cord, Date,
         DateTime, Duration, Heading, ImageObject, ImageObjectOptions, Inline, Link, MathFragment,
-        MediaObject, MediaObjectOptions, Note, NoteType, Span, ThematicBreak, Time, Timestamp,
-        VideoObject, VideoObjectOptions,
+        MediaObject, MediaObjectOptions, Note, NoteType, Span, Text, ThematicBreak, Time,
+        Timestamp, VideoObject, VideoObjectOptions,
     },
     Losses,
 };
@@ -157,7 +157,7 @@ fn decode_inline_media(path: &str, node: &Node, losses: &mut Losses) -> Inline {
         let tag = child.tag_name().name();
         match tag {
             "alt-text" => alternate_names = child.text().map(|content| vec![content.to_string()]),
-            "long-desc" => description = child.text().map(|content| vec![p([text(content)])]),
+            "long-desc" => description = child.text().map(Text::from),
             _ => record_node_lost(path, &child, losses),
         }
     }

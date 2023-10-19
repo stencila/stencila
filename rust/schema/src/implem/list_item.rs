@@ -1,4 +1,4 @@
-use crate::{prelude::*, shortcuts::text, Block, BlocksOrInlines, ListItem};
+use crate::{prelude::*, shortcuts::text, Block, ListItem};
 
 impl ListItem {
     pub fn to_markdown_special(&self, context: &MarkdownEncodeContext) -> (String, Losses) {
@@ -7,36 +7,25 @@ impl ListItem {
             false => text("[ ] "),
         });
 
-        let (md, mut losses) = match &self.content {
-            Some(content) => match content {
-                BlocksOrInlines::Inlines(inlines) => match checkbox {
-                    Some(checkbox) => [vec![checkbox], inlines.clone()]
-                        .concat()
-                        .to_markdown(context),
-                    None => inlines.to_markdown(context),
-                },
-                BlocksOrInlines::Blocks(blocks) => match checkbox {
-                    Some(checkbox) => {
-                        // Check box is only added is the first block is a paragraph
-                        if let Some(Block::Paragraph(paragraph)) = blocks.first() {
-                            let mut paragraph = paragraph.clone();
-                            paragraph.content.insert(0, checkbox);
+        let (md, mut losses) = match checkbox {
+            Some(checkbox) => {
+                // Check box is only added is the first block is a paragraph
+                if let Some(Block::Paragraph(paragraph)) = self.content.first() {
+                    let mut paragraph = paragraph.clone();
+                    paragraph.content.insert(0, checkbox);
 
-                            let (mut md, mut losses) = paragraph.to_markdown(context);
-                            let (rest_md, rest_losses) = blocks[1..].to_vec().to_markdown(context);
+                    let (mut md, mut losses) = paragraph.to_markdown(context);
+                    let (rest_md, rest_losses) = self.content[1..].to_vec().to_markdown(context);
 
-                            md.push_str(&rest_md);
-                            losses.merge(rest_losses);
+                    md.push_str(&rest_md);
+                    losses.merge(rest_losses);
 
-                            (md, losses)
-                        } else {
-                            blocks.to_markdown(context)
-                        }
-                    }
-                    None => blocks.to_markdown(context),
-                },
-            },
-            None => (String::new(), Losses::none()),
+                    (md, losses)
+                } else {
+                    self.content.to_markdown(context)
+                }
+            }
+            None => self.content.to_markdown(context),
         };
 
         if self.id.is_some() {

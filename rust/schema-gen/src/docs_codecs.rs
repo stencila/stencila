@@ -10,7 +10,7 @@ use codecs::{CodecSupport, EncodeOptions, Format};
 use common::{
     eyre::Result, glob::glob, inflector::Inflector, itertools::Itertools, strum::IntoEnumIterator,
 };
-use schema::{shortcuts::*, Article, Inlines, Node, NodeType, TableCell};
+use schema::{shortcuts::*, Article, Inline, Node, NodeType, TableCell};
 
 use crate::{
     schema::{Category, HtmlOptions, JatsOptions, MarkdownOptions, Schema},
@@ -160,7 +160,7 @@ impl Schemas {
     }
 
     /// Generates notes for a schema and format
-    pub fn docs_format_notes(schema: &Schema, format: Format) -> Inlines {
+    pub fn docs_format_notes(schema: &Schema, format: Format) -> Vec<Inline> {
         if let (Format::Html, Some(HtmlOptions { special, elem, .. })) = (format, &schema.html) {
             if *special {
                 if let Some(elem) = elem {

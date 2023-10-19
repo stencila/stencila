@@ -3,12 +3,13 @@
 from .prelude import *
 
 Cite = ForwardRef("Cite")
+Text = ForwardRef("Text")
 
 
-CiteOrStr = Union[
+CiteOrText = Union[
     Cite,
-    str,
+    Text,
 ]
 """
-`Cite` or `str`
+`Cite` or `Text`
 """

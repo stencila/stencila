@@ -1,7 +1,7 @@
 // Generated file; do not edit. See `../rust/schema-gen` crate.
 
 import { Block } from "./Block.js";
-import { CiteOrString } from "./CiteOrString.js";
+import { CiteOrText } from "./CiteOrText.js";
 import { Entity } from "./Entity.js";
 
 /**
@@ -13,7 +13,7 @@ export class QuoteBlock extends Entity {
   /**
    * The source of the quote.
    */
-  cite?: CiteOrString;
+  cite?: CiteOrText;
 
   /**
    * The content of the quote.

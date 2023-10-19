@@ -22,12 +22,13 @@ core:
   - title
   - authors
   - keywords
-  - description
+  - abstract
   - dateCreated
   - dateModified
   - dateReceived
   - dateAccepted
   - datePublished
+  - references
 properties:
   content:
     '@id': stencila:content

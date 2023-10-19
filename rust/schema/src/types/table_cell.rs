@@ -2,14 +2,14 @@
 
 use crate::prelude::*;
 
-use super::blocks_or_inlines::BlocksOrInlines;
+use super::block::Block;
 use super::integer::Integer;
 use super::string::String;
 use super::table_cell_type::TableCellType;
 
 /// A cell within a `Table`.
 #[skip_serializing_none]
-#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec, ReadNode, WriteNode)]
+#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec, WriteNode, ReadNode)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 #[cfg_attr(feature = "proptest", derive(Arbitrary))]
 #[html(elem = "td")]
@@ -29,11 +29,11 @@ pub struct TableCell {
     pub cell_type: Option<TableCellType>,
 
     /// Contents of the table cell.
-    #[cfg_attr(feature = "proptest-min", proptest(strategy = r#"vec_paragraphs(1).prop_map(|blocks| Some(BlocksOrInlines::Blocks(blocks)))"#))]
-    #[cfg_attr(feature = "proptest-low", proptest(strategy = r#"vec_paragraphs(1).prop_map(|blocks| Some(BlocksOrInlines::Blocks(blocks)))"#))]
-    #[cfg_attr(feature = "proptest-high", proptest(strategy = r#"vec_paragraphs(1).prop_map(|blocks| Some(BlocksOrInlines::Blocks(blocks)))"#))]
-    #[cfg_attr(feature = "proptest-max", proptest(strategy = r#"vec_paragraphs(1).prop_map(|blocks| Some(BlocksOrInlines::Blocks(blocks)))"#))]
-    pub content: Option<BlocksOrInlines>,
+    #[cfg_attr(feature = "proptest-min", proptest(strategy = r#"vec_paragraphs(1)"#))]
+    #[cfg_attr(feature = "proptest-low", proptest(strategy = r#"vec_paragraphs(1)"#))]
+    #[cfg_attr(feature = "proptest-high", proptest(strategy = r#"vec_paragraphs(1)"#))]
+    #[cfg_attr(feature = "proptest-max", proptest(strategy = r#"vec_paragraphs(1)"#))]
+    pub content: Vec<Block>,
 
     /// Non-core optional fields
     #[serde(flatten)]
@@ -44,7 +44,7 @@ pub struct TableCell {
 }
 
 #[skip_serializing_none]
-#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec, ReadNode, WriteNode)]
+#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec, WriteNode, ReadNode)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 #[cfg_attr(feature = "proptest", derive(Arbitrary))]
 pub struct TableCellOptions {
@@ -64,8 +64,9 @@ pub struct TableCellOptions {
 }
 
 impl TableCell {
-    pub fn new() -> Self {
+    pub fn new(content: Vec<Block>) -> Self {
         Self {
+            content,
             ..Default::default()
         }
     }

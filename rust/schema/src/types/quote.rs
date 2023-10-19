@@ -2,13 +2,13 @@
 
 use crate::prelude::*;
 
-use super::cite_or_string::CiteOrString;
+use super::cite_or_text::CiteOrText;
 use super::inline::Inline;
 use super::string::String;
 
 /// Inline, quoted content.
 #[skip_serializing_none]
-#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec, ReadNode, WriteNode)]
+#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec, WriteNode, ReadNode)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 #[cfg_attr(feature = "proptest", derive(Arbitrary))]
 #[html(elem = "q")]
@@ -35,7 +35,7 @@ pub struct Quote {
 
     /// The source of the quote.
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
-    pub cite: Option<CiteOrString>,
+    pub cite: Option<CiteOrText>,
 }
 
 impl Quote {

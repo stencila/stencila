@@ -14,7 +14,7 @@ from .citation_intent import CitationIntent
 from .citation_mode import CitationMode
 from .cite import Cite
 from .cite_group import CiteGroup
-from .cite_or_str import CiteOrStr
+from .cite_or_text import CiteOrText
 from .claim import Claim
 from .claim_type import ClaimType
 from .code_block import CodeBlock
@@ -31,7 +31,7 @@ from .contact_point import ContactPoint
 from .cord import Cord
 from .creative_work import CreativeWork
 from .creative_work_type import CreativeWorkType
-from .creative_work_type_or_str import CreativeWorkTypeOrStr
+from .creative_work_type_or_text import CreativeWorkTypeOrText
 from .datatable import Datatable
 from .datatable_column import DatatableColumn
 from .date import Date
@@ -74,7 +74,6 @@ from .heading import Heading
 from .if_ import If
 from .if_clause import IfClause
 from .image_object import ImageObject
-from .image_object_or_str import ImageObjectOrStr
 from .include import Include
 from .inline import Inline
 from .insert import Insert

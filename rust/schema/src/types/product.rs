@@ -2,16 +2,16 @@
 
 use crate::prelude::*;
 
-use super::block::Block;
 use super::brand::Brand;
-use super::image_object_or_string::ImageObjectOrString;
+use super::image_object::ImageObject;
 use super::property_value_or_string::PropertyValueOrString;
 use super::string::String;
+use super::text::Text;
 
 /// Any offered product or service. For example, a pair of shoes;
 /// a haircut; or an episode of a TV show streamed online.
 #[skip_serializing_none]
-#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec, ReadNode, WriteNode)]
+#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec, WriteNode, ReadNode)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 #[jats(elem = "product")]
 pub struct Product {
@@ -32,21 +32,20 @@ pub struct Product {
 }
 
 #[skip_serializing_none]
-#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec, ReadNode, WriteNode)]
+#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec, WriteNode, ReadNode)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 pub struct ProductOptions {
     /// Alternate names (aliases) for the item.
     pub alternate_names: Option<Vec<String>>,
 
     /// A description of the item.
-    #[strip(types)]
-    pub description: Option<Vec<Block>>,
+    pub description: Option<Text>,
 
     /// Any kind of identifier for any kind of Thing.
     pub identifiers: Option<Vec<PropertyValueOrString>>,
 
     /// Images of the item.
-    pub images: Option<Vec<ImageObjectOrString>>,
+    pub images: Option<Vec<ImageObject>>,
 
     /// The name of the item.
     pub name: Option<String>,
@@ -58,7 +57,7 @@ pub struct ProductOptions {
     pub brands: Option<Vec<Brand>>,
 
     /// The logo of the product.
-    pub logo: Option<ImageObjectOrString>,
+    pub logo: Option<ImageObject>,
 
     /// Product identification code.
     pub product_id: Option<String>,

@@ -2,10 +2,10 @@
 
 from .prelude import *
 
-from .block import Block
 from .entity import Entity
-from .image_object_or_str import ImageObjectOrStr
+ImageObject = ForwardRef("ImageObject")
 from .property_value_or_str import PropertyValueOrStr
+from .text import Text
 
 
 @dataclass(kw_only=True, frozen=True)
@@ -19,13 +19,13 @@ class Thing(Entity):
     alternate_names: Optional[List[str]] = None
     """Alternate names (aliases) for the item."""
 
-    description: Optional[List[Block]] = None
+    description: Optional[Text] = None
     """A description of the item."""
 
     identifiers: Optional[List[PropertyValueOrStr]] = None
     """Any kind of identifier for any kind of Thing."""
 
-    images: Optional[List[ImageObjectOrStr]] = None
+    images: Optional[List[ImageObject]] = None
     """Images of the item."""
 
     name: Optional[str] = None

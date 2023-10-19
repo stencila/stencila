@@ -32,7 +32,7 @@
           "@id": "Cite"
         },
         {
-          "@id": "schema:Text"
+          "@id": "Text"
         }
       ]
     },

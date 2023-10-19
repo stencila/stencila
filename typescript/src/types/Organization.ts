@@ -2,7 +2,7 @@
 
 import { Brand } from "./Brand.js";
 import { ContactPoint } from "./ContactPoint.js";
-import { ImageObjectOrString } from "./ImageObjectOrString.js";
+import { ImageObject } from "./ImageObject.js";
 import { OrganizationOrPerson } from "./OrganizationOrPerson.js";
 import { PostalAddressOrString } from "./PostalAddressOrString.js";
 import { Thing } from "./Thing.js";
@@ -46,7 +46,7 @@ export class Organization extends Thing {
   /**
    * The logo of the organization.
    */
-  logo?: ImageObjectOrString;
+  logo?: ImageObject;
 
   /**
    * Person(s) or organization(s) who are members of this organization.

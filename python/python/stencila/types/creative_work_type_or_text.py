@@ -3,12 +3,13 @@
 from .prelude import *
 
 CreativeWorkType = ForwardRef("CreativeWorkType")
+Text = ForwardRef("Text")
 
 
-CreativeWorkTypeOrStr = Union[
+CreativeWorkTypeOrText = Union[
     CreativeWorkType,
-    str,
+    Text,
 ]
 """
-`CreativeWorkType` or `str`
+`CreativeWorkType` or `Text`
 """

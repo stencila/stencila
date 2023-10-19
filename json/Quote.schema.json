@@ -82,8 +82,7 @@
           "$ref": "Cite.schema.json"
         },
         {
-          "type": "string",
-          "format": "uri"
+          "$ref": "Text.schema.json"
         }
       ]
     }

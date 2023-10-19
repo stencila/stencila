@@ -8,14 +8,14 @@
 
 The `TableCell` type has these properties:
 
-| Name       | `@id`                                    | Type                                                                                                                                                                                                | Description                         | Inherited from                                                                                   |
-| ---------- | ---------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------- | ------------------------------------------------------------------------------------------------ |
-| id         | [`schema:id`](https://schema.org/id)     | [`String`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/string.md)                                                                                                     | The identifier for this item.       | [`Entity`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/entity.md) |
-| cellType   | `stencila:cellType`                      | [`TableCellType`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/table-cell-type.md)                                                                                    | The type of cell.                   | -                                                                                                |
-| name       | [`schema:name`](https://schema.org/name) | [`String`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/string.md)                                                                                                     | The name of the cell.               | -                                                                                                |
-| columnSpan | `stencila:colspan`                       | [`Integer`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/integer.md)                                                                                                   | How many columns the cell extends.  | -                                                                                                |
-| rowSpan    | `stencila:rowspan`                       | [`Integer`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/integer.md)                                                                                                   | How many columns the cell extends.  | -                                                                                                |
-| content    | `stencila:content`                       | [`Block`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/block.md)* \| [`Inline`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/inline.md)* | Contents of the table cell.         | -                                                                                                |
+| Name       | `@id`                                    | Type                                                                                                             | Description                        | Inherited from                                                                                   |
+| ---------- | ---------------------------------------- | ---------------------------------------------------------------------------------------------------------------- | ---------------------------------- | ------------------------------------------------------------------------------------------------ |
+| id         | [`schema:id`](https://schema.org/id)     | [`String`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/string.md)                  | The identifier for this item.      | [`Entity`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/entity.md) |
+| cellType   | `stencila:cellType`                      | [`TableCellType`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/table-cell-type.md) | The type of cell.                  | -                                                                                                |
+| name       | [`schema:name`](https://schema.org/name) | [`String`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/string.md)                  | The name of the cell.              | -                                                                                                |
+| columnSpan | `stencila:colspan`                       | [`Integer`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/integer.md)                | How many columns the cell extends. | -                                                                                                |
+| rowSpan    | `stencila:rowspan`                       | [`Integer`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/integer.md)                | How many columns the cell extends. | -                                                                                                |
+| content    | `stencila:content`                       | [`Block`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/block.md)*                  | Contents of the table cell.        | -                                                                                                |
 
 ## Related
 
@@ -53,9 +53,9 @@ The `TableCell` type is represented in these bindings:
 
 During property-based (a.k.a generative) testing, the properties of the `TableCell` type are generated using the following strategies for each complexity level (see the [`proptest` book](https://proptest-rs.github.io/proptest/) for an explanation of the Rust strategy expressions). Any optional properties that are not in this table are set to `None`.
 
-| Property  | Complexity | Description                             | Strategy                                                                     |
-| --------- | ---------- | --------------------------------------- | ---------------------------------------------------------------------------- |
-| `content` | Min+       | Generate a single, arbitrary, paragraph | `vec_paragraphs(1).prop_map(\|blocks\| Some(BlocksOrInlines::Blocks(blocks)))` |
+| Property  | Complexity | Description                             | Strategy            |
+| --------- | ---------- | --------------------------------------- | ------------------- |
+| `content` | Min+       | Generate a single, arbitrary, paragraph | `vec_paragraphs(1)` |
 
 ## Source
 

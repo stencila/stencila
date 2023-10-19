@@ -3,15 +3,15 @@
 use crate::prelude::*;
 
 use super::array_validator::ArrayValidator;
-use super::block::Block;
-use super::image_object_or_string::ImageObjectOrString;
+use super::image_object::ImageObject;
 use super::primitive::Primitive;
 use super::property_value_or_string::PropertyValueOrString;
 use super::string::String;
+use super::text::Text;
 
 /// A column of data within a `Datatable`.
 #[skip_serializing_none]
-#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec, ReadNode, WriteNode)]
+#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec, WriteNode, ReadNode)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 pub struct DatatableColumn {
     /// The type of this item.
@@ -40,21 +40,20 @@ pub struct DatatableColumn {
 }
 
 #[skip_serializing_none]
-#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec, ReadNode, WriteNode)]
+#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec, WriteNode, ReadNode)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 pub struct DatatableColumnOptions {
     /// Alternate names (aliases) for the item.
     pub alternate_names: Option<Vec<String>>,
 
     /// A description of the item.
-    #[strip(types)]
-    pub description: Option<Vec<Block>>,
+    pub description: Option<Text>,
 
     /// Any kind of identifier for any kind of Thing.
     pub identifiers: Option<Vec<PropertyValueOrString>>,
 
     /// Images of the item.
-    pub images: Option<Vec<ImageObjectOrString>>,
+    pub images: Option<Vec<ImageObject>>,
 
     /// The URL of the item.
     pub url: Option<String>,

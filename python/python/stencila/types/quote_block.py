@@ -3,7 +3,7 @@
 from .prelude import *
 
 from .block import Block
-from .cite_or_str import CiteOrStr
+from .cite_or_text import CiteOrText
 from .entity import Entity
 
 
@@ -15,7 +15,7 @@ class QuoteBlock(Entity):
 
     type: Literal["QuoteBlock"] = field(default="QuoteBlock", init=False)
 
-    cite: Optional[CiteOrStr] = None
+    cite: Optional[CiteOrText] = None
     """The source of the quote."""
 
     content: List[Block]

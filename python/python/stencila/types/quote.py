@@ -2,7 +2,7 @@
 
 from .prelude import *
 
-from .cite_or_str import CiteOrStr
+from .cite_or_text import CiteOrText
 from .mark import Mark
 
 
@@ -14,5 +14,5 @@ class Quote(Mark):
 
     type: Literal["Quote"] = field(default="Quote", init=False)
 
-    cite: Optional[CiteOrStr] = None
+    cite: Optional[CiteOrText] = None
     """The source of the quote."""

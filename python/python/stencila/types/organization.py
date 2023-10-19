@@ -4,7 +4,7 @@ from .prelude import *
 
 from .brand import Brand
 from .contact_point import ContactPoint
-from .image_object_or_str import ImageObjectOrStr
+ImageObject = ForwardRef("ImageObject")
 Organization = ForwardRef("Organization")
 from .organization_or_person import OrganizationOrPerson
 from .postal_address_or_str import PostalAddressOrStr
@@ -37,7 +37,7 @@ class Organization(Thing):
     legal_name: Optional[str] = None
     """The official name of the organization, e.g. the registered company name."""
 
-    logo: Optional[ImageObjectOrStr] = None
+    logo: Optional[ImageObject] = None
     """The logo of the organization."""
 
     members: Optional[List[OrganizationOrPerson]] = None

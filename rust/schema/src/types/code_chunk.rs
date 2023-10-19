@@ -2,7 +2,7 @@
 
 use crate::prelude::*;
 
-use super::blocks_or_inlines::BlocksOrInlines;
+use super::block::Block;
 use super::boolean::Boolean;
 use super::code_error::CodeError;
 use super::cord::Cord;
@@ -153,7 +153,7 @@ pub struct CodeChunkOptions {
 
     /// A caption for the CodeChunk.
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
-    pub caption: Option<BlocksOrInlines>,
+    pub caption: Option<Vec<Block>>,
 }
 
 impl CodeChunk {

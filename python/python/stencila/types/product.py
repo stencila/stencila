@@ -3,7 +3,7 @@
 from .prelude import *
 
 from .brand import Brand
-from .image_object_or_str import ImageObjectOrStr
+ImageObject = ForwardRef("ImageObject")
 from .thing import Thing
 
 
@@ -18,7 +18,7 @@ class Product(Thing):
     brands: Optional[List[Brand]] = None
     """Brands that the product is labelled with."""
 
-    logo: Optional[ImageObjectOrStr] = None
+    logo: Optional[ImageObject] = None
     """The logo of the product."""
 
     product_id: Optional[str] = None

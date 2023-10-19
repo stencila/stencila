@@ -45,13 +45,7 @@
     "description": {
       "@id": "schema:description",
       "description": "A description of the item.",
-      "strip": [
-        "types"
-      ],
-      "type": "array",
-      "items": {
-        "$ref": "Block.schema.json"
-      }
+      "$ref": "Text.schema.json"
     },
     "identifiers": {
       "@id": "schema:identifier",
@@ -74,15 +68,7 @@
       "description": "Images of the item.",
       "type": "array",
       "items": {
-        "anyOf": [
-          {
-            "$ref": "ImageObject.schema.json"
-          },
-          {
-            "type": "string",
-            "format": "uri"
-          }
-        ]
+        "$ref": "ImageObject.schema.json"
       }
     },
     "name": {
@@ -103,6 +89,17 @@
       "type": "array",
       "items": {
         "$ref": "ThingType.schema.json"
+      }
+    },
+    "abstract": {
+      "@id": "schema:abstract",
+      "description": "A a short description that summarizes a `CreativeWork`.",
+      "strip": [
+        "types"
+      ],
+      "type": "array",
+      "items": {
+        "$ref": "Block.schema.json"
       }
     },
     "authors": {
@@ -262,8 +259,7 @@
             "$ref": "CreativeWorkType.schema.json"
           },
           {
-            "type": "string",
-            "format": "uri"
+            "$ref": "Text.schema.json"
           }
         ]
       }
@@ -304,7 +300,7 @@
             "$ref": "CreativeWorkType.schema.json"
           },
           {
-            "type": "string"
+            "$ref": "Text.schema.json"
           }
         ]
       }
@@ -312,7 +308,7 @@
     "text": {
       "@id": "schema:text",
       "description": "The textual content of this creative work.",
-      "type": "string"
+      "$ref": "Text.schema.json"
     },
     "title": {
       "@id": "schema:headline",

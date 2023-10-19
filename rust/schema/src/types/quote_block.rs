@@ -3,12 +3,12 @@
 use crate::prelude::*;
 
 use super::block::Block;
-use super::cite_or_string::CiteOrString;
+use super::cite_or_text::CiteOrText;
 use super::string::String;
 
 /// A section quoted from somewhere else.
 #[skip_serializing_none]
-#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec, ReadNode, WriteNode)]
+#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec, WriteNode, ReadNode)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 #[cfg_attr(feature = "proptest", derive(Arbitrary))]
 pub struct QuoteBlock {
@@ -24,7 +24,7 @@ pub struct QuoteBlock {
 
     /// The source of the quote.
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
-    pub cite: Option<CiteOrString>,
+    pub cite: Option<CiteOrText>,
 
     /// The content of the quote.
     #[strip(types)]

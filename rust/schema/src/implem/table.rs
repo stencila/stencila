@@ -1,6 +1,6 @@
 use codec_html_trait::encode::{attr, elem};
 
-use crate::{prelude::*, BlocksOrInlines, Table};
+use crate::{prelude::*, Table};
 
 impl Table {
     pub fn to_html_special(&self) -> String {
@@ -37,13 +37,11 @@ impl Table {
         for row in &self.rows {
             let mut cells: Vec<String> = Vec::new();
             for (column, cell) in row.cells.iter().enumerate() {
-                let (content_md, content_losses) = match &cell.content {
-                    None => (String::new(), Losses::none()),
-                    Some(content) => match content {
-                        BlocksOrInlines::Inlines(inlines) => inlines.to_markdown(context),
-                        BlocksOrInlines::Blocks(blocks) => blocks.to_markdown(context),
-                    },
-                };
+                let (content_md, content_losses) = cell.content.to_markdown(context);
+
+                // Trim and replace inner newlines with <br> (because content is blocks, but in
+                // Markdown tables must be a single line)
+                let content_md = content_md.trim().replace('\n', "<br><br>");
 
                 let width = content_md.len();
                 match column_widths.get_mut(column) {

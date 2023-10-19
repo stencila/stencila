@@ -2,9 +2,10 @@
 
 from .prelude import *
 
+from .block import Block
 Comment = ForwardRef("Comment")
 from .creative_work_type import CreativeWorkType
-from .creative_work_type_or_str import CreativeWorkTypeOrStr
+from .creative_work_type_or_text import CreativeWorkTypeOrText
 from .date import Date
 from .grant_or_monetary_grant import GrantOrMonetaryGrant
 from .inline import Inline
@@ -12,6 +13,7 @@ from .person import Person
 from .person_or_organization import PersonOrOrganization
 from .person_or_organization_or_software_application import PersonOrOrganizationOrSoftwareApplication
 from .str_or_float import StrOrFloat
+from .text import Text
 from .thing import Thing
 from .thing_type import ThingType
 
@@ -26,6 +28,9 @@ class CreativeWork(Thing):
 
     about: Optional[List[ThingType]] = None
     """The subject matter of the content."""
+
+    abstract: Optional[List[Block]] = None
+    """A a short description that summarizes a `CreativeWork`."""
 
     authors: Optional[List[PersonOrOrganization]] = None
     """The authors of the `CreativeWork`."""
@@ -72,7 +77,7 @@ class CreativeWork(Thing):
     is_part_of: Optional[CreativeWorkType] = None
     """An item or other CreativeWork that this CreativeWork is a part of."""
 
-    licenses: Optional[List[CreativeWorkTypeOrStr]] = None
+    licenses: Optional[List[CreativeWorkTypeOrText]] = None
     """License documents that applies to this content, typically indicated by URL."""
 
     parts: Optional[List[CreativeWorkType]] = None
@@ -81,10 +86,10 @@ class CreativeWork(Thing):
     publisher: Optional[PersonOrOrganization] = None
     """A publisher of the CreativeWork."""
 
-    references: Optional[List[CreativeWorkTypeOrStr]] = None
+    references: Optional[List[CreativeWorkTypeOrText]] = None
     """References to other creative works, such as another publication, web page, scholarly article, etc."""
 
-    text: Optional[str] = None
+    text: Optional[Text] = None
     """The textual content of this creative work."""
 
     title: Optional[List[Inline]] = None

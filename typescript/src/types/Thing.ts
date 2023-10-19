@@ -1,9 +1,9 @@
 // Generated file; do not edit. See `../rust/schema-gen` crate.
 
-import { Block } from "./Block.js";
 import { Entity } from "./Entity.js";
-import { ImageObjectOrString } from "./ImageObjectOrString.js";
+import { ImageObject } from "./ImageObject.js";
 import { PropertyValueOrString } from "./PropertyValueOrString.js";
+import { Text } from "./Text.js";
 
 /**
  * The most generic type of item.
@@ -19,7 +19,7 @@ export class Thing extends Entity {
   /**
    * A description of the item.
    */
-  description?: Block[];
+  description?: Text;
 
   /**
    * Any kind of identifier for any kind of Thing.
@@ -29,7 +29,7 @@ export class Thing extends Entity {
   /**
    * Images of the item.
    */
-  images?: ImageObjectOrString[];
+  images?: ImageObject[];
 
   /**
    * The name of the item.

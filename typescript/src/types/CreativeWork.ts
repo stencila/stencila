@@ -1,8 +1,9 @@
 // Generated file; do not edit. See `../rust/schema-gen` crate.
 
+import { Block } from "./Block.js";
 import { Comment } from "./Comment.js";
 import { CreativeWorkType } from "./CreativeWorkType.js";
-import { CreativeWorkTypeOrString } from "./CreativeWorkTypeOrString.js";
+import { CreativeWorkTypeOrText } from "./CreativeWorkTypeOrText.js";
 import { Date } from "./Date.js";
 import { GrantOrMonetaryGrant } from "./GrantOrMonetaryGrant.js";
 import { Inline } from "./Inline.js";
@@ -10,6 +11,7 @@ import { Person } from "./Person.js";
 import { PersonOrOrganization } from "./PersonOrOrganization.js";
 import { PersonOrOrganizationOrSoftwareApplication } from "./PersonOrOrganizationOrSoftwareApplication.js";
 import { StringOrNumber } from "./StringOrNumber.js";
+import { Text } from "./Text.js";
 import { Thing } from "./Thing.js";
 import { ThingType } from "./ThingType.js";
 
@@ -23,6 +25,11 @@ export class CreativeWork extends Thing {
    * The subject matter of the content.
    */
   about?: ThingType[];
+
+  /**
+   * A a short description that summarizes a `CreativeWork`.
+   */
+  abstract?: Block[];
 
   /**
    * The authors of the `CreativeWork`.
@@ -103,7 +110,7 @@ export class CreativeWork extends Thing {
   /**
    * License documents that applies to this content, typically indicated by URL.
    */
-  licenses?: CreativeWorkTypeOrString[];
+  licenses?: CreativeWorkTypeOrText[];
 
   /**
    * Elements of the collection which can be a variety of different elements,
@@ -120,12 +127,12 @@ export class CreativeWork extends Thing {
    * References to other creative works, such as another publication,
    * web page, scholarly article, etc.
    */
-  references?: CreativeWorkTypeOrString[];
+  references?: CreativeWorkTypeOrText[];
 
   /**
    * The textual content of this creative work.
    */
-  text?: string;
+  text?: Text;
 
   /**
    * The title of the creative work.

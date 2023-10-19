@@ -19,6 +19,14 @@ properties:
     type: array
     items:
       $ref: ThingType
+  abstract:
+    '@id': schema:abstract
+    description: A a short description that summarizes a `CreativeWork`.
+    type: array
+    items:
+      $ref: Block
+    strip:
+      - types
   authors:
     '@id': schema:author
     description: The authors of the `CreativeWork`.
@@ -147,8 +155,7 @@ properties:
     items:
       anyOf:
         - $ref: CreativeWorkType
-        - type: string
-          format: uri
+        - $ref: Text
   parts:
     # The name "parts" seems more intuitive for users and developers than schema.orgs's "hasParts".
     # We provide the latter as an alias.
@@ -179,11 +186,11 @@ properties:
     items:
       anyOf:
         - $ref: CreativeWorkType
-        - type: string
+        - $ref: Text
   text:
     '@id': schema:text
     description: The textual content of this creative work.
-    type: string
+    $ref: Text
   title:
     # The name "title" is more appropriate to our context than schema.org's "headline".
     # We provide the latter as an alias.

@@ -1,9 +1,6 @@
 use smol_str::SmolStr;
 
-use node_store::{
-    automerge::{ObjId, Prop},
-    ReadNode, ReadStore, WriteNode, WriteStore,
-};
+use node_store::{automerge::ObjId, ReadNode, ReadStore};
 
 use crate::{prelude::*, Array, Null, Object, Primitive};
 
@@ -38,46 +35,5 @@ impl ReadNode for Primitive {
 
     fn load_map<S: ReadStore>(store: &S, obj: &ObjId) -> Result<Self> {
         Ok(Primitive::Object(Object::load_map(store, obj)?))
-    }
-}
-
-impl WriteNode for Primitive {
-    fn insert_prop(&self, store: &mut WriteStore, obj_id: &ObjId, prop: Prop) -> Result<()> {
-        match self {
-            Primitive::Null(value) => value.insert_prop(store, obj_id, prop),
-            Primitive::Boolean(value) => value.insert_prop(store, obj_id, prop),
-            Primitive::Integer(value) => value.insert_prop(store, obj_id, prop),
-            Primitive::UnsignedInteger(value) => value.insert_prop(store, obj_id, prop),
-            Primitive::Number(value) => value.insert_prop(store, obj_id, prop),
-            Primitive::String(value) => value.insert_prop(store, obj_id, prop),
-            Primitive::Array(value) => value.insert_prop(store, obj_id, prop),
-            Primitive::Object(value) => value.insert_prop(store, obj_id, prop),
-        }
-    }
-
-    fn put_prop(&self, store: &mut WriteStore, obj_id: &ObjId, prop: Prop) -> Result<()> {
-        match self {
-            Primitive::Null(value) => value.put_prop(store, obj_id, prop),
-            Primitive::Boolean(value) => value.put_prop(store, obj_id, prop),
-            Primitive::Integer(value) => value.put_prop(store, obj_id, prop),
-            Primitive::UnsignedInteger(value) => value.put_prop(store, obj_id, prop),
-            Primitive::Number(value) => value.put_prop(store, obj_id, prop),
-            Primitive::String(value) => value.put_prop(store, obj_id, prop),
-            Primitive::Array(value) => value.put_prop(store, obj_id, prop),
-            Primitive::Object(value) => value.put_prop(store, obj_id, prop),
-        }
-    }
-
-    fn similarity<S: ReadStore>(&self, store: &S, obj_id: &ObjId, prop: Prop) -> Result<usize> {
-        match self {
-            Primitive::Null(value) => value.similarity(store, obj_id, prop),
-            Primitive::Boolean(value) => value.similarity(store, obj_id, prop),
-            Primitive::Integer(value) => value.similarity(store, obj_id, prop),
-            Primitive::UnsignedInteger(value) => value.similarity(store, obj_id, prop),
-            Primitive::Number(value) => value.similarity(store, obj_id, prop),
-            Primitive::String(value) => value.similarity(store, obj_id, prop),
-            Primitive::Array(value) => value.similarity(store, obj_id, prop),
-            Primitive::Object(value) => value.similarity(store, obj_id, prop),
-        }
     }
 }

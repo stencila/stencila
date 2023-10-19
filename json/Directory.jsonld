@@ -35,7 +35,7 @@
         "@id": "schema:Thing"
       },
       "schema:rangeIncludes": {
-        "@id": "stencila:Block"
+        "@id": "Text"
       }
     },
     {
@@ -63,14 +63,9 @@
       "schema:domainIncludes": {
         "@id": "schema:Thing"
       },
-      "schema:rangeIncludes": [
-        {
-          "@id": "ImageObject"
-        },
-        {
-          "@id": "schema:Text"
-        }
-      ]
+      "schema:rangeIncludes": {
+        "@id": "stencila:ImageObject"
+      }
     },
     {
       "@id": "schema:name",
@@ -126,6 +121,18 @@
       },
       "schema:rangeIncludes": {
         "@id": "stencila:ThingType"
+      }
+    },
+    {
+      "@id": "schema:abstract",
+      "@type": "rdfs:Property",
+      "rdfs:label": "abstract",
+      "rdfs:comment": "A a short description that summarizes a `CreativeWork`.",
+      "schema:domainIncludes": {
+        "@id": "schema:CreativeWork"
+      },
+      "schema:rangeIncludes": {
+        "@id": "stencila:Block"
       }
     },
     {
@@ -360,7 +367,7 @@
           "@id": "CreativeWorkType"
         },
         {
-          "@id": "schema:Text"
+          "@id": "Text"
         }
       ]
     },
@@ -416,7 +423,7 @@
           "@id": "CreativeWorkType"
         },
         {
-          "@id": "schema:Text"
+          "@id": "Text"
         }
       ]
     },
@@ -429,7 +436,7 @@
         "@id": "schema:CreativeWork"
       },
       "schema:rangeIncludes": {
-        "@id": "schema:Text"
+        "@id": "Text"
       }
     },
     {

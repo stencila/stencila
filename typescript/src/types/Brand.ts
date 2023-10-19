@@ -1,6 +1,6 @@
 // Generated file; do not edit. See `../rust/schema-gen` crate.
 
-import { ImageObjectOrString } from "./ImageObjectOrString.js";
+import { ImageObject } from "./ImageObject.js";
 import { Thing } from "./Thing.js";
 
 /**
@@ -17,7 +17,7 @@ export class Brand extends Thing {
   /**
    * A logo associated with the brand.
    */
-  logo?: ImageObjectOrString;
+  logo?: ImageObject;
 
   /**
    * Reviews of the brand.

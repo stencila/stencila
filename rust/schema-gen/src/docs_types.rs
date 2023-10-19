@@ -302,7 +302,12 @@ fn properties(title: &str, schema: &Schema, context: &Context) -> Vec<Block> {
         }
         let r#type = schema_type(property, context);
 
-        let description = property.description.clone().unwrap_or_default();
+        let description = property
+            .description
+            .clone()
+            .unwrap_or_default()
+            .trim()
+            .replace('\n', " ");
 
         let from = if property.defined_on != title {
             let from = property.defined_on.as_str().to_pascal_case();

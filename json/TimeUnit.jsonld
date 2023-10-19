@@ -35,7 +35,7 @@
         "@id": "schema:Thing"
       },
       "schema:rangeIncludes": {
-        "@id": "stencila:Block"
+        "@id": "Text"
       }
     },
     {
@@ -63,14 +63,9 @@
       "schema:domainIncludes": {
         "@id": "schema:Thing"
       },
-      "schema:rangeIncludes": [
-        {
-          "@id": "ImageObject"
-        },
-        {
-          "@id": "schema:Text"
-        }
-      ]
+      "schema:rangeIncludes": {
+        "@id": "stencila:ImageObject"
+      }
     },
     {
       "@id": "schema:name",

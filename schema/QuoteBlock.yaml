@@ -14,8 +14,7 @@ properties:
     description: The source of the quote.
     anyOf:
       - $ref: Cite
-      - type: string
-        format: uri
+      - $ref: Text
   content:
     '@id': stencila:content
     description: The content of the quote.

@@ -22,5 +22,4 @@ properties:
     description: The source of the quote.
     anyOf:
       - $ref: Cite
-      - type: string
-        format: uri
+      - $ref: Text

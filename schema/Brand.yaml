@@ -1,5 +1,5 @@
 title: Brand
-'@id': schema:Brand
+"@id": schema:Brand
 extends: Thing
 category: other
 description: A brand used by an organization or person for labeling a product, product group, or similar.
@@ -7,14 +7,11 @@ required:
   - name
 properties:
   logo:
-    '@id': schema:logo
+    "@id": schema:logo
     description: A logo associated with the brand.
-    anyOf:
-      - $ref: ImageObject
-      - type: string
-        format: uri
+    $ref: ImageObject
   reviews:
-    '@id': schema:review
+    "@id": schema:review
     description: Reviews of the brand.
     type: array
     items:

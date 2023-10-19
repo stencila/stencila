@@ -36,11 +36,16 @@ const NO_GENERATE_MODULE: &[&str] = &[
     "UnsignedInteger",
 ];
 
-/// Types that should not derive `ReadNode` because there are manual implementations
-const NO_READ: &[&str] = &["Primitive", "Node"];
-
-/// Types that should not derive `WriteNode` because there are manual implementations
-const NO_WRITE: &[&str] = &["Primitive"];
+/// Types that should not derive `ReadNode` because they need special, manual implementations
+/// because they are union types with variants of different Automerge types
+/// (and so are not easily handled in derive macros)
+const NO_READ_NODE: &[&str] = &[
+    "IntegerOrString",
+    "Node",
+    "Primitive",
+    "PropertyValueOrString",
+    "StringOrNumber",
+];
 
 /// Properties that need to be boxed to avoid recursive types
 ///
@@ -285,13 +290,11 @@ pub enum NodeType {{
             "JatsCodec",
             "MarkdownCodec",
             "TextCodec",
+            "WriteNode",
         ];
         let title = title.as_str();
-        if !NO_READ.contains(&title) {
+        if !NO_READ_NODE.contains(&title) {
             derives.push("ReadNode");
-        }
-        if !NO_WRITE.contains(&title) {
-            derives.push("WriteNode");
         }
         attrs.push(format!("#[derive({})]", derives.join(", ")));
 
@@ -816,6 +819,7 @@ impl {title} {{{new}}}
             "JatsCodec",
             "MarkdownCodec",
             "TextCodec",
+            "WriteNode",
         ];
 
         if default.is_some() {
@@ -823,11 +827,8 @@ impl {title} {{{new}}}
         };
 
         let title = name.as_str();
-        if !NO_READ.contains(&title) {
+        if !NO_READ_NODE.contains(&title) {
             derives.push("ReadNode");
-        }
-        if !NO_WRITE.contains(&title) {
-            derives.push("WriteNode");
         }
         attrs.push(format!("#[derive({})]", derives.join(", ")));
 
