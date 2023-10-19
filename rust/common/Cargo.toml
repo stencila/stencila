@@ -35,4 +35,4 @@ syn = "2.0.38"
 tempfile = "3.8.0"
 tokio = { version = "1.33.0", features = ["full", "tracing"] }
 toml = "0.8.2"
-tracing = { version = "0.1.39", features = ["log"] }
+tracing = { version = "0.1.40", features = ["log"] }
