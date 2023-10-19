@@ -2,35 +2,23 @@
 
 use std::{collections::HashMap, fs::File, path::PathBuf};
 
-use codecs::{DecodeOptions, EncodeOptions};
-use common::{
-    eyre::{Context, Result},
-    glob::glob,
-    itertools::Itertools,
-    serde::Deserialize,
-    serde_yaml,
-    tokio::{
-        self,
-        fs::{read_to_string, remove_file, write},
+use codec::{
+    common::{
+        eyre::{Context, Result},
+        glob::glob,
+        itertools::Itertools,
+        serde::Deserialize,
+        serde_yaml,
+        tokio::{
+            self,
+            fs::{read_to_string, remove_file, write},
+        },
     },
+    format::Format,
+    DecodeOptions, EncodeOptions,
 };
 use common_dev::pretty_assertions::assert_eq;
-use format::Format;
 use node_strip::{StripNode, Targets};
-
-/// Get a list of JSON files in the `examples` folder
-fn examples() -> Result<Vec<PathBuf>> {
-    let dir = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
-        .join("../../examples")
-        .canonicalize()?;
-
-    let pattern = dir.join("**/*.json");
-    let pattern = pattern.to_str().unwrap_or_default();
-
-    let files = glob(pattern)?.flatten().collect_vec();
-
-    Ok(files)
-}
 
 /// Spec for what to tests etc
 struct Spec {
@@ -63,14 +51,14 @@ impl Spec {
 /// TODO: consider merging with `Spec` to allow per folder overrides
 /// of everything
 #[derive(Debug, Default, Clone, Deserialize)]
-#[serde(crate = "common::serde")]
+#[serde(crate = "codec::common::serde")]
 struct Config {
     decode: DecodeConfig,
 }
 
 /// Config for testing the decoding of a format
 #[derive(Debug, Default, Clone, Deserialize)]
-#[serde(crate = "common::serde")]
+#[serde(crate = "codec::common::serde")]
 struct DecodeConfig {
     skip: bool,
 }
@@ -90,9 +78,9 @@ struct DecodeConfig {
 /// Use the `UPDATE_EXAMPLES` environment variable to overwrite any existing
 /// files e.g.
 ///
-///   UPDATE_EXAMPLES=true cargo test -p tests examples_encode_decode
+///   UPDATE_EXAMPLES=true cargo test -p codecs examples
 #[tokio::test]
-async fn examples_encode_decode() -> Result<()> {
+async fn examples() -> Result<()> {
     // Formats to encode examples to
     //
     // Excludes developer focussed and/or unstable formats e.g. `Debug`
@@ -194,7 +182,14 @@ async fn examples_encode_decode() -> Result<()> {
         ),
     ];
 
-    let examples = examples()?;
+    let dir = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+        .join("../../examples")
+        .canonicalize()?;
+
+    let pattern = dir.join("**/*.json");
+    let pattern = pattern.to_str().unwrap_or_default();
+
+    let examples = glob(pattern)?.flatten().collect_vec();
 
     for path in examples {
         let name = path.file_name().unwrap().to_string_lossy();
@@ -208,7 +203,7 @@ async fn examples_encode_decode() -> Result<()> {
             HashMap::new()
         };
 
-        let node = codecs::from_path(&path, None).await?;
+        let node = crate::from_path(&path, None).await?;
 
         for Spec {
             extension,
@@ -225,7 +220,7 @@ async fn examples_encode_decode() -> Result<()> {
                 // Encoding: encode to string, rather than direct to file, if possible
                 // for better comparison of differences
 
-                let codec = codecs::get(None, Some(*format), None)?;
+                let codec = crate::get(None, Some(*format), None)?;
 
                 let options = EncodeOptions {
                     format: Some(*format),
@@ -277,7 +272,7 @@ async fn examples_encode_decode() -> Result<()> {
                     continue;
                 }
 
-                let codec = codecs::get(None, Some(*format), None)?;
+                let codec = crate::get(None, Some(*format), None)?;
                 let lossy_types = codec
                     .lossy_types(None)
                     .iter()

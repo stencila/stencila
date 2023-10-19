@@ -98,9 +98,9 @@ generated:
 	cargo run -p schema-gen
 	cargo run -p cli-gen > ../docs/reference/cli.md
 
-# Update derived examples
+# Update files generated for examples
 examples:
-	UPDATE_EXAMPLES=true cargo test -p tests examples_encode_decode
+	UPDATE_EXAMPLES=true cargo test -p codecs examples
 
 # Clean the ../target dir
 clean:

@@ -2834,17 +2834,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "tests"
-version = "0.0.0"
-dependencies = [
- "codecs",
- "common",
- "common-dev",
- "format",
- "node-strip",
-]
-
-[[package]]
 name = "thiserror"
 version = "1.0.49"
 source = "registry+https://github.com/rust-lang/crates.io-index"
