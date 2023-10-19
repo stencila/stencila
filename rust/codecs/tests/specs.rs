@@ -6,13 +6,11 @@ use codec::{
 };
 use common_dev::insta::assert_json_snapshot;
 
-use crate::list;
-
 /// Snapshot test of codec specs to test for regressions
 #[test]
 fn specs() {
     let mut specs = BTreeMap::new();
-    let codecs = list();
+    let codecs = codecs::list();
     for codec in &codecs {
         let lossy_from_types = codec
             .lossy_types(Some(CodecDirection::Decode))

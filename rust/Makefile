@@ -42,26 +42,26 @@ test:
 cover:
 	cargo llvm-cov clean --workspace 
 	cargo llvm-cov test --workspace  --no-report
-	# SKIP: NO TESTS cargo llvm-cov test -p codecs --features proptest-min --no-report roundtrip
-	# SKIP: NO TESTS cargo llvm-cov test -p codecs --features proptest-low --no-report roundtrip
-	cargo llvm-cov test -p codecs --features proptest-high --no-report roundtrip
-	cargo llvm-cov test -p codecs --features proptest-max --no-report roundtrip
+	# SKIP: NO TESTS cargo llvm-cov test -p codecs --features proptest-min --no-report proptests
+	# SKIP: NO TESTS cargo llvm-cov test -p codecs --features proptest-low --no-report proptests
+	cargo llvm-cov test -p codecs --features proptest-high --no-report proptests
+	cargo llvm-cov test -p codecs --features proptest-max --no-report proptests
 	cd .. && cargo llvm-cov report --lcov --output-path lcov.info --ignore-filename-regex '(test)|(rust/schema-gen)|(rust/schema/src/types)|(python/src)|(node/src)'
 
 # Run all property tests at all levels
 proptest: proptest-min proptest-low proptest-high proptest-max
 
 proptest-min:
-	cargo test -p codecs --features proptest-min roundtrip
+	cargo test -p codecs --features proptest-min proptests
 
 proptest-low:
-	cargo test -p codecs --features proptest-low roundtrip
+	cargo test -p codecs --features proptest-low proptests
 
 proptest-high:
-	cargo test -p codecs --features proptest-high roundtrip
+	cargo test -p codecs --features proptest-high proptests
 
 proptest-max:
-	cargo test -p codecs --features proptest-max roundtrip
+	cargo test -p codecs --features proptest-max proptests
 
 # Run accessibility tests
 a11y:

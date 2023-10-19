@@ -203,7 +203,7 @@ async fn examples() -> Result<()> {
             HashMap::new()
         };
 
-        let node = crate::from_path(&path, None).await?;
+        let node = codecs::from_path(&path, None).await?;
 
         for Spec {
             extension,
@@ -220,7 +220,7 @@ async fn examples() -> Result<()> {
                 // Encoding: encode to string, rather than direct to file, if possible
                 // for better comparison of differences
 
-                let codec = crate::get(None, Some(*format), None)?;
+                let codec = codecs::get(None, Some(*format), None)?;
 
                 let options = EncodeOptions {
                     format: Some(*format),
@@ -272,7 +272,7 @@ async fn examples() -> Result<()> {
                     continue;
                 }
 
-                let codec = crate::get(None, Some(*format), None)?;
+                let codec = codecs::get(None, Some(*format), None)?;
                 let lossy_types = codec
                     .lossy_types(None)
                     .iter()

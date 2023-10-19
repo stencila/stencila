@@ -1,5 +1,5 @@
 ---
-source: rust/codecs/src/tests/specs.rs
+source: rust/codecs/tests/specs.rs
 expression: specs
 ---
 {

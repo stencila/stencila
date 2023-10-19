@@ -1,4 +1,4 @@
-//! Roundtrip conversion tests
+//! Property-based tests of roundtrip conversion
 //!
 //! For each format, these tests generate arbitrary `Article`s, encode each article to the
 //! format, decode it back from the format, and then asserts that the decoded article
@@ -22,8 +22,6 @@ use common_dev::{
 };
 use node_strip::{StripNode, Targets};
 
-use crate::get;
-
 /// Do a roundtrip conversion to/from a format
 #[allow(unused)]
 fn roundtrip(
@@ -34,7 +32,7 @@ fn roundtrip(
 ) -> Result<Node> {
     static RUNTIME: Lazy<Runtime> = Lazy::new(|| Runtime::new().unwrap());
     RUNTIME.handle().block_on(async {
-        let codec = get(None, Some(format), None)?;
+        let codec = codecs::get(None, Some(format), None)?;
         let (string, ..) = codec.to_string(node, encode_options).await?;
         let (node, ..) = codec.from_str(&string, decode_options).await?;
         Ok(node)

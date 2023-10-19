@@ -13,9 +13,6 @@ pub use codec::{
 };
 use node_strip::StripNode;
 
-#[cfg(test)]
-mod tests;
-
 /// Get a list of all codecs
 pub fn list() -> Vec<Box<dyn Codec>> {
     vec![
