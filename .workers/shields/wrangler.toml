@@ -1,0 +1,8 @@
+name = "shields"
+compatibility_date = "2023-10-16"
+
+main = "shields.ts"
+
+routes = [{ pattern = "shields.stencila.dev", custom_domain = true }]
+
+send_metrics = false

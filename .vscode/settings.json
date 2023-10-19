@@ -27,6 +27,7 @@
         "canonicalize",
         "chrono",
         "cito",
+        "codecov",
         "colspan",
         "consts",
         "CRDT",
