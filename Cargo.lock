@@ -1782,8 +1782,12 @@ name = "node-store"
 version = "0.0.0"
 dependencies = [
  "automerge",
+ "codecs",
  "common",
+ "common-dev",
  "node-store-derive",
+ "node-strip",
+ "schema",
  "smol_str",
 ]
 

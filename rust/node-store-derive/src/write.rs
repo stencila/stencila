@@ -18,8 +18,6 @@ pub fn derive(input: proc_macro::TokenStream) -> proc_macro::TokenStream {
 }
 
 /// Derive the `WriteNode` trait for a `struct`
-///
-/// The implementation of methods is largely based on those for `IndexMap`.
 pub fn derive_struct(input: &DeriveInput, data: &DataStruct) -> TokenStream {
     let struct_name = &input.ident;
 
@@ -155,7 +153,7 @@ pub fn derive_enum(input: &DeriveInput, data: &DataEnum) -> TokenStream {
         let variant_name = &variant.ident;
         let case = match &variant.fields {
             Fields::Named(..) | Fields::Unnamed(..) => quote! {
-                Self::#variant_name(v) => v.sync_map(store, obj_id),
+                Self::#variant_name(variant) => variant.sync_map(store, obj_id),
             },
             Fields::Unit => quote! {
                 Self::#variant_name => common::eyre::bail!(
@@ -181,7 +179,7 @@ pub fn derive_enum(input: &DeriveInput, data: &DataEnum) -> TokenStream {
         let variant_name = &variant.ident;
         let case = match &variant.fields {
             Fields::Named(..) | Fields::Unnamed(..) => quote! {
-                Self::#variant_name(v) => v.insert_prop(store, obj_id, prop),
+                Self::#variant_name(variant) => variant.insert_prop(store, obj_id, prop),
             },
             Fields::Unit => quote! {
                 Self::#variant_name => stringify!(#variant_name).to_string().insert_prop(store, obj_id, prop),
@@ -203,7 +201,7 @@ pub fn derive_enum(input: &DeriveInput, data: &DataEnum) -> TokenStream {
         let variant_name = &variant.ident;
         let case = match &variant.fields {
             Fields::Named(..) | Fields::Unnamed(..) => quote! {
-                Self::#variant_name(v) => v.put_prop(store, obj_id, prop),
+                Self::#variant_name(variant) => variant.put_prop(store, obj_id, prop),
             },
             Fields::Unit => quote! {
                 Self::#variant_name => stringify!(#variant_name).to_string().put_prop(store, obj_id, prop),

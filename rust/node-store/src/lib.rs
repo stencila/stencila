@@ -19,9 +19,6 @@ pub(crate) use automerge::{transaction::CommitOptions, ScalarValue, Value};
 
 pub use node_store_derive::{ReadNode, WriteNode};
 
-/// The maximum similarity index between to nodes
-pub const SIMILARITY_MAX: usize = 1000;
-
 mod prelude;
 
 mod boolean;
@@ -33,6 +30,9 @@ mod option;
 mod string;
 mod unsigned_integer;
 mod vec;
+
+/// The maximum similarity index between to nodes
+pub const SIMILARITY_MAX: usize = 1000;
 
 /// Bail from a function with the type of node included in the message
 #[macro_export]
@@ -47,7 +47,7 @@ macro_rules! bail_type {
 macro_rules! bail_load_unexpected {
     ($unexpected:literal) => {
         common::eyre::bail!(
-            "unexpected Automerge `{unexpected}` while attempting to load `{type}` from store",
+            "Unexpected Automerge `{unexpected}` while attempting to load `{type}` from store",
             unexpected = $unexpected,
             type = std::any::type_name::<Self>()
         )

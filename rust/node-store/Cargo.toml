@@ -8,3 +8,9 @@ automerge = "0.5.2"
 common = { path = "../common" }
 node-store-derive = { path = "../node-store-derive" }
 smol_str = "0.1.24"
+
+[dev-dependencies]
+codecs = { path = "../codecs" }
+common-dev = { path = "../common-dev" }
+node-strip = { path = "../node-strip" }
+schema = { path = "../schema" }
