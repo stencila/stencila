@@ -7,7 +7,6 @@ export * from "./AudioObject.js";
 export * from "./Block.js";
 export * from "./Blocks.js";
 export * from "./BlocksOrInlines.js";
-export * from "./BlocksOrString.js";
 export * from "./BooleanValidator.js";
 export * from "./Brand.js";
 export * from "./Button.js";

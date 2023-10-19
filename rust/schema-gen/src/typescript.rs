@@ -527,7 +527,6 @@ export function {name}({required_args}options?: Partial<{title}>): {title} {{
         // Not necessary to have functions for these anyway.
         && ![
             "BlocksOrInlines",
-            "BlocksOrString",
             "CreativeWorkTypeOrString",
             "IntegerOrString",
             "StringOrNumber",

@@ -24,7 +24,9 @@ properties:
       - type: array
         items:
           $ref: Block
-      - type: string
+      - type: array
+        items:
+          $ref: Inline
   label:
     '@id': stencila:label
     description: A short label for the table.

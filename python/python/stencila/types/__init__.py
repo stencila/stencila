@@ -7,7 +7,6 @@ from .audio_object import AudioObject
 from .block import Block
 from .blocks import Blocks
 from .blocks_or_inlines import BlocksOrInlines
-from .blocks_or_str import BlocksOrStr
 from .boolean_validator import BooleanValidator
 from .brand import Brand
 from .button import Button

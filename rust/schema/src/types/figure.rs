@@ -3,7 +3,7 @@
 use crate::prelude::*;
 
 use super::block::Block;
-use super::blocks_or_string::BlocksOrString;
+use super::blocks_or_inlines::BlocksOrInlines;
 use super::comment::Comment;
 use super::creative_work_type::CreativeWorkType;
 use super::creative_work_type_or_string::CreativeWorkTypeOrString;
@@ -21,7 +21,7 @@ use super::thing_type::ThingType;
 
 /// Encapsulates one or more images, videos, tables, etc, and provides captions and labels for them.
 #[skip_serializing_none]
-#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec, ReadNode, WriteNode)]
+#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec, WriteNode, ReadNode)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 #[cfg_attr(feature = "proptest", derive(Arbitrary))]
 #[html(elem = "figure")]
@@ -51,7 +51,7 @@ pub struct Figure {
 
     /// A caption for the figure.
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
-    pub caption: Option<BlocksOrString>,
+    pub caption: Option<BlocksOrInlines>,
 
     /// Non-core optional fields
     #[serde(flatten)]
@@ -62,7 +62,7 @@ pub struct Figure {
 }
 
 #[skip_serializing_none]
-#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec, ReadNode, WriteNode)]
+#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec, WriteNode, ReadNode)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 #[cfg_attr(feature = "proptest", derive(Arbitrary))]
 pub struct FigureOptions {

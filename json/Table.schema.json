@@ -362,7 +362,10 @@
           }
         },
         {
-          "type": "string"
+          "type": "array",
+          "items": {
+            "$ref": "Inline.schema.json"
+          }
         }
       ]
     },

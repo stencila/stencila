@@ -46,4 +46,6 @@ properties:
       - type: array
         items:
           $ref: Block
-      - type: string
+      - type: array
+        items:
+          $ref: Inline

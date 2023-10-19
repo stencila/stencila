@@ -1,7 +1,7 @@
 // Generated file; do not edit. See `../rust/schema-gen` crate.
 
 import { Block } from "./Block.js";
-import { BlocksOrString } from "./BlocksOrString.js";
+import { BlocksOrInlines } from "./BlocksOrInlines.js";
 import { CreativeWork } from "./CreativeWork.js";
 
 /**
@@ -23,7 +23,7 @@ export class Figure extends CreativeWork {
   /**
    * A caption for the figure.
    */
-  caption?: BlocksOrString;
+  caption?: BlocksOrInlines;
 
   constructor(content: Block[], options?: Partial<Figure>) {
     super();

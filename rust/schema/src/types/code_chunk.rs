@@ -2,7 +2,7 @@
 
 use crate::prelude::*;
 
-use super::blocks_or_string::BlocksOrString;
+use super::blocks_or_inlines::BlocksOrInlines;
 use super::boolean::Boolean;
 use super::code_error::CodeError;
 use super::cord::Cord;
@@ -21,7 +21,7 @@ use super::timestamp::Timestamp;
 
 /// A executable chunk of code.
 #[skip_serializing_none]
-#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec, ReadNode, WriteNode)]
+#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec, WriteNode, ReadNode)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 #[cfg_attr(feature = "proptest", derive(Arbitrary))]
 #[jats(elem = "code", attribs(executable = "yes"))]
@@ -73,7 +73,7 @@ pub struct CodeChunk {
 }
 
 #[skip_serializing_none]
-#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec, ReadNode, WriteNode)]
+#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec, WriteNode, ReadNode)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 #[cfg_attr(feature = "proptest", derive(Arbitrary))]
 pub struct CodeChunkOptions {
@@ -153,7 +153,7 @@ pub struct CodeChunkOptions {
 
     /// A caption for the CodeChunk.
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
-    pub caption: Option<BlocksOrString>,
+    pub caption: Option<BlocksOrInlines>,
 }
 
 impl CodeChunk {

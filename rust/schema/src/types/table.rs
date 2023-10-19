@@ -3,7 +3,7 @@
 use crate::prelude::*;
 
 use super::block::Block;
-use super::blocks_or_string::BlocksOrString;
+use super::blocks_or_inlines::BlocksOrInlines;
 use super::comment::Comment;
 use super::creative_work_type::CreativeWorkType;
 use super::creative_work_type_or_string::CreativeWorkTypeOrString;
@@ -22,7 +22,7 @@ use super::thing_type::ThingType;
 
 /// A table.
 #[skip_serializing_none]
-#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec, ReadNode, WriteNode)]
+#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec, WriteNode, ReadNode)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 #[cfg_attr(feature = "proptest", derive(Arbitrary))]
 #[html(special)]
@@ -40,7 +40,7 @@ pub struct Table {
 
     /// A caption for the table.
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
-    pub caption: Option<BlocksOrString>,
+    pub caption: Option<BlocksOrInlines>,
 
     /// A short label for the table.
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
@@ -62,7 +62,7 @@ pub struct Table {
 }
 
 #[skip_serializing_none]
-#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec, ReadNode, WriteNode)]
+#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec, WriteNode, ReadNode)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 #[cfg_attr(feature = "proptest", derive(Arbitrary))]
 pub struct TableOptions {

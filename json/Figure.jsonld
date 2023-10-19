@@ -597,7 +597,7 @@
           "@id": "stencila:Block"
         },
         {
-          "@id": "schema:Text"
+          "@id": "stencila:Inline"
         }
       ]
     }
