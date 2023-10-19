@@ -1,4 +1,5 @@
 {
+  "null": null,
   boolean: true,
   integer: -123,
   unsignedInteger: 234,
