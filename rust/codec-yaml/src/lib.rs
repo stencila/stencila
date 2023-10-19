@@ -2,7 +2,7 @@ use codec::{
     common::{
         async_trait::async_trait,
         eyre::Result,
-        serde_yaml::{self, Mapping, Value},
+        serde_yaml::{Mapping, Value},
     },
     format::Format,
     schema::{Node, NodeType},
