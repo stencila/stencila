@@ -4,7 +4,7 @@ use crate::{prelude::*, CodeExpression};
 
 impl CodeExpression {
     pub fn to_markdown_special(&self, _context: &MarkdownEncodeContext) -> (String, Losses) {
-        let mut md = ["`", &self.code.0, "`{"].concat();
+        let mut md = ["`", &self.code, "`{"].concat();
 
         if !self.programming_language.is_empty() && self.guess_language != Some(true) {
             md.push_str(&self.programming_language);

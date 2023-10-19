@@ -21,7 +21,7 @@ impl If {
                 " elif "
             };
             md.push_str(keyword);
-            md.push_str(&code.0);
+            md.push_str(code);
             md.push_str("\n\n");
 
             let (content_md, content_losses) = content.to_markdown(&context);

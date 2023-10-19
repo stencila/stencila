@@ -13,7 +13,7 @@ impl StripNode for Cord {}
 
 impl ReadNode for Cord {
     fn load_text<S: ReadStore>(store: &S, obj_id: &ObjId) -> Result<Self> {
-        Ok(Self(store.text(obj_id)?))
+        Ok(Self::new(store.text(obj_id)?))
     }
 }
 
@@ -26,7 +26,7 @@ impl WriteNode for Cord {
         };
 
         // Splice in all of the new text
-        store.splice_text(prop_obj_id, 0, 0, &self.0)?;
+        store.splice_text(prop_obj_id, 0, 0, self)?;
 
         Ok(())
     }
@@ -43,13 +43,13 @@ impl WriteNode for Cord {
             let diff = TextDiffConfig::default()
                 .algorithm(Algorithm::Patience)
                 .timeout(Duration::from_secs(15))
-                .diff_graphemes(&value, &self.0);
+                .diff_graphemes(&value, self);
 
             let mut pos = 0usize;
             for op in diff.ops() {
                 match op.tag() {
                     DiffTag::Insert => {
-                        let insert = &self.0[op.new_range()];
+                        let insert = &self[op.new_range()];
                         store.splice_text(&prop_obj, pos, 0, insert)?;
                     }
                     DiffTag::Delete => {
@@ -58,7 +58,7 @@ impl WriteNode for Cord {
                     }
                     DiffTag::Replace => {
                         let delete = op.old_range().len() as isize;
-                        let insert = &self.0[op.new_range()];
+                        let insert = &self[op.new_range()];
                         store.splice_text(&prop_obj, pos, delete, insert)?;
                     }
                     DiffTag::Equal => {}
@@ -85,7 +85,7 @@ impl WriteNode for Cord {
             let diff = TextDiffConfig::default()
                 .algorithm(Algorithm::Patience)
                 .timeout(Duration::from_secs(15))
-                .diff_graphemes(&value, &self.0);
+                .diff_graphemes(&value, self);
 
             return Ok((diff.ratio() * SIMILARITY_MAX as f32) as usize);
         }
@@ -96,7 +96,7 @@ impl WriteNode for Cord {
 
 impl HtmlCodec for Cord {
     fn to_html(&self) -> String {
-        text(&self.0)
+        text(self)
     }
 
     fn to_html_parts(&self) -> (&str, Vec<String>, Vec<String>) {

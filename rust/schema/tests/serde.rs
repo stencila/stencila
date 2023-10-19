@@ -38,7 +38,7 @@ fn article() -> Result<()> {
     let article: Article = serde_json::from_value(value.clone())?;
     match &article.content[0] {
         Block::Paragraph(para) => match &para.content[0] {
-            Inline::Text(text) => assert_eq!(text.value.0, "Some text"),
+            Inline::Text(text) => assert_eq!(text.value.as_str(), "Some text"),
             _ => bail!("Unexpected inline type"),
         },
         _ => bail!("Unexpected block type"),

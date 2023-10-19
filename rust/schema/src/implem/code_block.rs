@@ -9,7 +9,7 @@ impl CodeBlock {
         }
 
         md.push('\n');
-        md.push_str(&self.code.0);
+        md.push_str(&self.code);
 
         if !self.code.ends_with('\n') {
             md.push('\n');

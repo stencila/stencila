@@ -4,7 +4,7 @@ impl For {
     pub fn to_markdown_special(&self, context: &MarkdownEncodeContext) -> (String, Losses) {
         let fence = ":".repeat(3 + context.depth * 2);
 
-        let mut md = [&fence, " for ", &self.symbol, " in ", &self.code.0].concat();
+        let mut md = [&fence, " for ", &self.symbol, " in ", &self.code].concat();
         let mut losses = Losses::none();
 
         if !self.programming_language.is_empty() && self.guess_language != Some(true) {

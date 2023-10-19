@@ -30,7 +30,7 @@ fn derive_struct(input: &DeriveInput, data: &DataStruct) -> TokenStream {
         return quote! {
             impl TextCodec for Text {
                 fn to_text(&self) -> (String, Losses) {
-                    (self.value.0.clone(), Losses::none())
+                    (self.value.to_string(), Losses::none())
                 }
             }
         };

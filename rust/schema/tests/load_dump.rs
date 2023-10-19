@@ -8,10 +8,6 @@ use schema::{Array, Article, Block, Cord, Inline, Node, Null, Object, Paragraph,
 use node_store::{ReadNode, WriteNode, WriteStore};
 use node_strip::{StripNode, Targets};
 
-fn txt(value: &str) -> Text {
-    Text::new(Cord(value.to_string()))
-}
-
 /// Test loading & dumping of `Primitive` nodes
 #[test]
 fn primitives() -> Result<()> {
@@ -118,10 +114,10 @@ fn text() -> Result<()> {
     // Create base store with a few text nodes
     let mut base = WriteStore::new();
     let root = Root::from([
-        ("insert".to_string(), txt("abcd")),
-        ("delete".to_string(), txt("abcd")),
-        ("replace".to_string(), txt("abcd")),
-        ("varied".to_string(), txt("abcd")),
+        ("insert".to_string(), Text::from("abcd")),
+        ("delete".to_string(), Text::from("abcd")),
+        ("replace".to_string(), Text::from("abcd")),
+        ("varied".to_string(), Text::from("abcd")),
     ]);
     root.dump(&mut base)?;
     assert_eq!(Root::load(&base)?.strip(&Targets::id()), &root);
@@ -134,10 +130,10 @@ fn text() -> Result<()> {
     // Make modifications, merge changes back into
     // store and check both stores for consistency
 
-    root.get_mut("insert").unwrap().value.0 = "a_bcd".to_string();
-    root.get_mut("delete").unwrap().value.0 = "acd".to_string();
-    root.get_mut("replace").unwrap().value.0 = "a_cd".to_string();
-    root.get_mut("varied").unwrap().value.0 = "_ace".to_string();
+    root.get_mut("insert").unwrap().value = Cord::new("a_bcd");
+    root.get_mut("delete").unwrap().value = Cord::new("acd");
+    root.get_mut("replace").unwrap().value = Cord::new("a_cd");
+    root.get_mut("varied").unwrap().value = Cord::new("_ace");
 
     root.dump(&mut fork)?;
     assert_eq!(Root::load(&fork)?, root);
@@ -147,11 +143,11 @@ fn text() -> Result<()> {
 
     // Make concurrent changes to and checked merged values are as expected
 
-    root.get_mut("varied").unwrap().value.0 = "Space".to_string();
+    root.get_mut("varied").unwrap().value = Cord::new("Space");
     let mut fork1 = base.fork();
     root.dump(&mut fork1)?;
 
-    root.get_mut("varied").unwrap().value.0 = "ace invaders".to_string();
+    root.get_mut("varied").unwrap().value = Cord::new("ace invaders");
     let mut fork2 = base.fork();
     root.dump(&mut fork2)?;
 
@@ -159,7 +155,7 @@ fn text() -> Result<()> {
     base.merge(&mut fork2)?;
 
     let actual = &Root::load(&base)?["varied"].value;
-    assert_eq!(actual.0, "Space invaders");
+    assert_eq!(actual.as_str(), "Space invaders");
 
     Ok(())
 }
@@ -171,7 +167,10 @@ fn vec() -> Result<()> {
 
     // Create base store
     let mut base = WriteStore::new();
-    let mut root = Root::from([("vec".to_string(), vec![txt("one"), txt("two")])]);
+    let mut root = Root::from([(
+        "vec".to_string(),
+        vec![Text::from("one"), Text::from("two")],
+    )]);
     root.dump(&mut base)?;
     assert_eq!(Root::load(&base)?.strip(&Targets::id()), &root);
 
@@ -179,7 +178,7 @@ fn vec() -> Result<()> {
     // store and check store for consistency
 
     // Add an item
-    root.get_mut("vec").unwrap().push(txt("three"));
+    root.get_mut("vec").unwrap().push(Text::from("three"));
     root.dump(&mut base)?;
     assert_eq!(Root::load(&base)?.strip(&Targets::id()), &root);
 
@@ -255,7 +254,7 @@ fn article() -> Result<()> {
 
     // Add some content
     article1.content.push(Block::Paragraph(Paragraph {
-        content: vec![Inline::Text(txt("Hello world"))],
+        content: vec![Inline::Text(Text::from("Hello world"))],
         ..Default::default()
     }));
     article1.dump(&mut base)?;
