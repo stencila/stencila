@@ -14,7 +14,7 @@ impl Heading {
             losses.add("Heading.id")
         }
 
-        (elem("title", attrs, &content), losses)
+        (elem("title", attrs, content), losses)
     }
 
     pub fn to_html_special(&self) -> String {
