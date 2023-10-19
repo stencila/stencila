@@ -67,7 +67,6 @@ Inline = Union[
     bool,
     int,
     float,
-    str,
 ]
 """
 Union type for valid inline content.

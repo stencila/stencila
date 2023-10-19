@@ -103,7 +103,12 @@ fn entity_types_from_json() -> Result<()> {
                     "content": [
                         {
                             "type": "Paragraph",
-                            "content": ["Hello world"]
+                            "content": [
+                                {
+                                    "type": "Text",
+                                    "value": "Hello world"
+                                }
+                            ]
                         }
                     ],
                     "pageStart": 1,
@@ -112,7 +117,7 @@ fn entity_types_from_json() -> Result<()> {
         )?,
         Article {
             content: vec![Block::Paragraph(Paragraph {
-                content: vec![Inline::String("Hello world".to_string())],
+                content: vec![text("Hello world")],
                 ..Default::default()
             })],
             options: Box::new(ArticleOptions {
@@ -131,8 +136,8 @@ fn entity_types_from_json() -> Result<()> {
 #[test]
 fn entity_enum_from_json() -> Result<()> {
     assert_eq!(
-        Inline::from_json(r#""abc""#)?,
-        Inline::String("abc".to_string())
+        Inline::from_json(r#"{ "type":"Text", "value":"abc" }"#)?,
+        text("abc")
     );
 
     assert_eq!(

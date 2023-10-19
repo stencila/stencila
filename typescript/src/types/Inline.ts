@@ -69,8 +69,7 @@ export type Inline =
   null |
   boolean |
   Integer |
-  number |
-  string;
+  number;
 
 /**
  * Create a `Inline` from an object

@@ -27,7 +27,6 @@ use super::parameter::Parameter;
 use super::quote::Quote;
 use super::span::Span;
 use super::strikeout::Strikeout;
-use super::string::String;
 use super::strong::Strong;
 use super::subscript::Subscript;
 use super::superscript::Superscript;
@@ -120,6 +119,7 @@ pub enum Inline {
 
     Superscript(Superscript),
 
+    #[default]
     Text(Text),
 
     #[cfg_attr(feature = "proptest-min", proptest(skip))]
@@ -155,11 +155,4 @@ pub enum Inline {
     #[cfg_attr(feature = "proptest-high", proptest(skip))]
     #[cfg_attr(feature = "proptest-max", proptest(value = r#"Inline::Number(1.23)"#))]
     Number(Number),
-
-    #[default]
-    #[cfg_attr(feature = "proptest-min", proptest(skip))]
-    #[cfg_attr(feature = "proptest-low", proptest(skip))]
-    #[cfg_attr(feature = "proptest-high", proptest(skip))]
-    #[cfg_attr(feature = "proptest-max", proptest(skip))]
-    String(String),
 }

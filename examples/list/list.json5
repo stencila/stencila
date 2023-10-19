@@ -3,7 +3,12 @@
   content: [
     {
       type: "Paragraph",
-      content: [ "Simple lists" ]
+      content: [
+        {
+          type: "Text",
+          value: "Simple lists"
+        }
+      ]
     },
     {
       type: "List",
@@ -13,7 +18,12 @@
           content: [
             {
               type: "Paragraph",
-              content: [ "apple" ]
+              content: [
+                {
+                  type: "Text",
+                  value: "apple"
+                }
+              ]
             }
           ]
         },
@@ -22,7 +32,12 @@
           content: [
             {
               type: "Paragraph",
-              content: [ "pear" ]
+              content: [
+                {
+                  type: "Text",
+                  value: "pear"
+                }
+              ]
             }
           ]
         },
@@ -31,7 +46,12 @@
           content: [
             {
               type: "Paragraph",
-              content: [ "orange" ]
+              content: [
+                {
+                  type: "Text",
+                  value: "orange"
+                }
+              ]
             }
           ]
         }
@@ -46,7 +66,12 @@
           content: [
             {
               type: "Paragraph",
-              content: [ "first" ]
+              content: [
+                {
+                  type: "Text",
+                  value: "first"
+                }
+              ]
             }
           ]
         },
@@ -55,7 +80,12 @@
           content: [
             {
               type: "Paragraph",
-              content: [ "second" ]
+              content: [
+                {
+                  type: "Text",
+                  value: "second"
+                }
+              ]
             }
           ]
         },
@@ -64,7 +94,12 @@
           content: [
             {
               type: "Paragraph",
-              content: [ "third" ]
+              content: [
+                {
+                  type: "Text",
+                  value: "third"
+                }
+              ]
             }
           ]
         }
@@ -73,7 +108,12 @@
     },
     {
       type: "Paragraph",
-      content: [ "Nested lists" ]
+      content: [
+        {
+          type: "Text",
+          value: "Nested lists"
+        }
+      ]
     },
     {
       type: "List",
@@ -83,7 +123,12 @@
           content: [
             {
               type: "Paragraph",
-              content: [ "1" ]
+              content: [
+                {
+                  type: "Text",
+                  value: "1"
+                }
+              ]
             },
             {
               type: "List",
@@ -93,7 +138,12 @@
                   content: [
                     {
                       type: "Paragraph",
-                      content: [ "2a" ]
+                      content: [
+                        {
+                          type: "Text",
+                          value: "2a"
+                        }
+                      ]
                     },
                     {
                       type: "List",
@@ -103,7 +153,12 @@
                           content: [
                             {
                               type: "Paragraph",
-                              content: [ "3a" ]
+                              content: [
+                                {
+                                  type: "Text",
+                                  value: "3a"
+                                }
+                              ]
                             }
                           ]
                         }
@@ -117,7 +172,12 @@
                   content: [
                     {
                       type: "Paragraph",
-                      content: [ "2b" ]
+                      content: [
+                        {
+                          type: "Text",
+                          value: "2b"
+                        }
+                      ]
                     }
                   ]
                 },
@@ -126,7 +186,12 @@
                   content: [
                     {
                       type: "Paragraph",
-                      content: [ "2c" ]
+                      content: [
+                        {
+                          type: "Text",
+                          value: "2c"
+                        }
+                      ]
                     },
                     {
                       type: "List",
@@ -136,7 +201,12 @@
                           content: [
                             {
                               type: "Paragraph",
-                              content: [ "3b" ]
+                              content: [
+                                {
+                                  type: "Text",
+                                  value: "3b"
+                                }
+                              ]
                             },
                             {
                               type: "List",
@@ -146,7 +216,12 @@
                                   content: [
                                     {
                                       type: "Paragraph",
-                                      content: [ "4a" ]
+                                      content: [
+                                        {
+                                          type: "Text",
+                                          value: "4a"
+                                        }
+                                      ]
                                     }
                                   ]
                                 }
@@ -170,7 +245,12 @@
     },
     {
       type: "Paragraph",
-      content: [ "Lists with check boxes" ]
+      content: [
+        {
+          type: "Text",
+          value: "Lists with check boxes"
+        }
+      ]
     },
     {
       type: "List",
@@ -180,7 +260,12 @@
           content: [
             {
               type: "Paragraph",
-              content: [ "first" ]
+              content: [
+                {
+                  type: "Text",
+                  value: "first"
+                }
+              ]
             }
           ],
           isChecked: false
@@ -190,7 +275,12 @@
           content: [
             {
               type: "Paragraph",
-              content: [ "second" ]
+              content: [
+                {
+                  type: "Text",
+                  value: "second"
+                }
+              ]
             }
           ],
           isChecked: true
@@ -200,7 +290,12 @@
           content: [
             {
               type: "Paragraph",
-              content: [ "third" ]
+              content: [
+                {
+                  type: "Text",
+                  value: "third"
+                }
+              ]
             }
           ],
           isChecked: false
@@ -216,7 +311,12 @@
           content: [
             {
               type: "Paragraph",
-              content: [ "done" ]
+              content: [
+                {
+                  type: "Text",
+                  value: "done"
+                }
+              ]
             }
           ],
           isChecked: true
@@ -226,7 +326,12 @@
           content: [
             {
               type: "Paragraph",
-              content: [ "todo" ]
+              content: [
+                {
+                  type: "Text",
+                  value: "todo"
+                }
+              ]
             }
           ],
           isChecked: false
@@ -236,7 +341,12 @@
           content: [
             {
               type: "Paragraph",
-              content: [ "still todo" ]
+              content: [
+                {
+                  type: "Text",
+                  value: "still todo"
+                }
+              ]
             }
           ],
           isChecked: false
@@ -246,7 +356,12 @@
     },
     {
       type: "Paragraph",
-      content: [ "A paragraph to keep the previous and following lists separate (otherwise they get merged)." ]
+      content: [
+        {
+          type: "Text",
+          value: "A paragraph to keep the previous and following lists separate (otherwise they get merged)."
+        }
+      ]
     },
     {
       type: "List",
@@ -257,26 +372,17 @@
             {
               type: "Paragraph",
               content: [
-                "an item with an image ",
+                {
+                  type: "Text",
+                  value: "an item with an image "
+                },
                 {
                   type: "ImageObject",
                   contentUrl: "image.png"
                 },
-                ", see!"
-              ]
-            }
-          ]
-        },
-        {
-          type: "ListItem",
-          content: [
-            {
-              type: "Paragraph",
-              content: [
-                "an item with ",
                 {
-                  type: "Emphasis",
-                  content: [ "emphasis" ]
+                  type: "Text",
+                  value: ", see!"
                 }
               ]
             }
@@ -288,10 +394,41 @@
             {
               type: "Paragraph",
               content: [
-                "an item with HTML ",
+                {
+                  type: "Text",
+                  value: "an item with "
+                },
+                {
+                  type: "Emphasis",
+                  content: [
+                    {
+                      type: "Text",
+                      value: "emphasis"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          type: "ListItem",
+          content: [
+            {
+              type: "Paragraph",
+              content: [
+                {
+                  type: "Text",
+                  value: "an item with HTML "
+                },
                 {
                   type: "Underline",
-                  content: [ "underlined" ]
+                  content: [
+                    {
+                      type: "Text",
+                      value: "underlined"
+                    }
+                  ]
                 }
               ]
             }
@@ -302,7 +439,12 @@
     },
     {
       type: "Paragraph",
-      content: [ "A list with multiple paragraphs in each item" ]
+      content: [
+        {
+          type: "Text",
+          value: "A list with multiple paragraphs in each item"
+        }
+      ]
     },
     {
       type: "List",
@@ -312,15 +454,30 @@
           content: [
             {
               type: "Paragraph",
-              content: [ "para 1a" ]
+              content: [
+                {
+                  type: "Text",
+                  value: "para 1a"
+                }
+              ]
             },
             {
               type: "Paragraph",
-              content: [ "para 1b" ]
+              content: [
+                {
+                  type: "Text",
+                  value: "para 1b"
+                }
+              ]
             },
             {
               type: "Paragraph",
-              content: [ "para 1c" ]
+              content: [
+                {
+                  type: "Text",
+                  value: "para 1c"
+                }
+              ]
             }
           ]
         },
@@ -329,11 +486,21 @@
           content: [
             {
               type: "Paragraph",
-              content: [ "para 2a" ]
+              content: [
+                {
+                  type: "Text",
+                  value: "para 2a"
+                }
+              ]
             },
             {
               type: "Paragraph",
-              content: [ "para 2b" ]
+              content: [
+                {
+                  type: "Text",
+                  value: "para 2b"
+                }
+              ]
             }
           ]
         },
@@ -342,7 +509,12 @@
           content: [
             {
               type: "Paragraph",
-              content: [ "para 3" ]
+              content: [
+                {
+                  type: "Text",
+                  value: "para 3"
+                }
+              ]
             }
           ]
         }

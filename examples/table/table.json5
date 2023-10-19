@@ -3,7 +3,12 @@
   content: [
     {
       type: "Paragraph",
-      content: [ "Regular table" ]
+      content: [
+        {
+          type: "Text",
+          value: "Regular table"
+        }
+      ]
     },
     {
       type: "Table",
@@ -14,17 +19,32 @@
             {
               type: "TableCell",
               cellType: "Header",
-              content: [ "A" ]
+              content: [
+                {
+                  type: "Text",
+                  value: "A"
+                }
+              ]
             },
             {
               type: "TableCell",
               cellType: "Header",
-              content: [ "B" ]
+              content: [
+                {
+                  type: "Text",
+                  value: "B"
+                }
+              ]
             },
             {
               type: "TableCell",
               cellType: "Header",
-              content: [ "C" ]
+              content: [
+                {
+                  type: "Text",
+                  value: "C"
+                }
+              ]
             }
           ],
           rowType: "Header"
@@ -34,15 +54,30 @@
           cells: [
             {
               type: "TableCell",
-              content: [ "1" ]
+              content: [
+                {
+                  type: "Text",
+                  value: "1"
+                }
+              ]
             },
             {
               type: "TableCell",
-              content: [ "2" ]
+              content: [
+                {
+                  type: "Text",
+                  value: "2"
+                }
+              ]
             },
             {
               type: "TableCell",
-              content: [ "3" ]
+              content: [
+                {
+                  type: "Text",
+                  value: "3"
+                }
+              ]
             }
           ]
         },
@@ -51,15 +86,30 @@
           cells: [
             {
               type: "TableCell",
-              content: [ "4" ]
+              content: [
+                {
+                  type: "Text",
+                  value: "4"
+                }
+              ]
             },
             {
               type: "TableCell",
-              content: [ "5" ]
+              content: [
+                {
+                  type: "Text",
+                  value: "5"
+                }
+              ]
             },
             {
               type: "TableCell",
-              content: [ "6" ]
+              content: [
+                {
+                  type: "Text",
+                  value: "6"
+                }
+              ]
             }
           ]
         }
@@ -67,7 +117,12 @@
     },
     {
       type: "Paragraph",
-      content: [ "Table with empty cells" ]
+      content: [
+        {
+          type: "Text",
+          value: "Table with empty cells"
+        }
+      ]
     },
     {
       type: "Table",
@@ -78,12 +133,22 @@
             {
               type: "TableCell",
               cellType: "Header",
-              content: [ "D" ]
+              content: [
+                {
+                  type: "Text",
+                  value: "D"
+                }
+              ]
             },
             {
               type: "TableCell",
               cellType: "Header",
-              content: [ "E" ]
+              content: [
+                {
+                  type: "Text",
+                  value: "E"
+                }
+              ]
             }
           ],
           rowType: "Header"
@@ -93,7 +158,12 @@
           cells: [
             {
               type: "TableCell",
-              content: [ "1" ]
+              content: [
+                {
+                  type: "Text",
+                  value: "1"
+                }
+              ]
             },
             { type: "TableCell" }
           ]
@@ -104,7 +174,12 @@
             { type: "TableCell" },
             {
               type: "TableCell",
-              content: [ "2" ]
+              content: [
+                {
+                  type: "Text",
+                  value: "2"
+                }
+              ]
             }
           ]
         }

@@ -2,7 +2,7 @@ title: Inline
 "@id": stencila:Inline
 category: prose
 description: Union type for valid inline content.
-default: String
+default: Text
 proptest: {}
 anyOf:
   - $ref: AudioObject
@@ -178,11 +178,3 @@ anyOf:
           Generate a fixed number. Used at all levels because even with JSON (and other data serialization formats)
           round trip conversions can fail in the last significant digit of random numbers.
         value: Inline::Number(1.23)
-
-  - $ref: String
-    proptest:
-      min:
-        description: |
-          Do not generate `String` nodes in inline content. Skipped at all levels because `Text` is preferred
-          and `String` is likely to deprecated as an inline variant.
-        skip: true

@@ -2,24 +2,28 @@ type: Article
 content:
 - type: Paragraph
   content:
-  - Simple lists
+  - type: Text
+    value: Simple lists
 - type: List
   items:
   - type: ListItem
     content:
     - type: Paragraph
       content:
-      - apple
+      - type: Text
+        value: apple
   - type: ListItem
     content:
     - type: Paragraph
       content:
-      - pear
+      - type: Text
+        value: pear
   - type: ListItem
     content:
     - type: Paragraph
       content:
-      - orange
+      - type: Text
+        value: orange
   order: Unordered
 - type: List
   items:
@@ -27,93 +31,108 @@ content:
     content:
     - type: Paragraph
       content:
-      - first
+      - type: Text
+        value: first
   - type: ListItem
     content:
     - type: Paragraph
       content:
-      - second
+      - type: Text
+        value: second
   - type: ListItem
     content:
     - type: Paragraph
       content:
-      - third
+      - type: Text
+        value: third
   order: Ascending
 - type: Paragraph
   content:
-  - Nested lists
+  - type: Text
+    value: Nested lists
 - type: List
   items:
   - type: ListItem
     content:
     - type: Paragraph
       content:
-      - '1'
+      - type: Text
+        value: '1'
     - type: List
       items:
       - type: ListItem
         content:
         - type: Paragraph
           content:
-          - 2a
+          - type: Text
+            value: 2a
         - type: List
           items:
           - type: ListItem
             content:
             - type: Paragraph
               content:
-              - 3a
+              - type: Text
+                value: 3a
           order: Unordered
       - type: ListItem
         content:
         - type: Paragraph
           content:
-          - 2b
+          - type: Text
+            value: 2b
       - type: ListItem
         content:
         - type: Paragraph
           content:
-          - 2c
+          - type: Text
+            value: 2c
         - type: List
           items:
           - type: ListItem
             content:
             - type: Paragraph
               content:
-              - 3b
+              - type: Text
+                value: 3b
             - type: List
               items:
               - type: ListItem
                 content:
                 - type: Paragraph
                   content:
-                  - 4a
+                  - type: Text
+                    value: 4a
               order: Unordered
           order: Unordered
       order: Unordered
   order: Unordered
 - type: Paragraph
   content:
-  - Lists with check boxes
+  - type: Text
+    value: Lists with check boxes
 - type: List
   items:
   - type: ListItem
     content:
     - type: Paragraph
       content:
-      - first
+      - type: Text
+        value: first
     isChecked: false
   - type: ListItem
     content:
     - type: Paragraph
       content:
-      - second
+      - type: Text
+        value: second
     isChecked: true
   - type: ListItem
     content:
     - type: Paragraph
       content:
-      - third
+      - type: Text
+        value: third
     isChecked: false
   order: Ascending
 - type: List
@@ -122,78 +141,95 @@ content:
     content:
     - type: Paragraph
       content:
-      - done
+      - type: Text
+        value: done
     isChecked: true
   - type: ListItem
     content:
     - type: Paragraph
       content:
-      - todo
+      - type: Text
+        value: todo
     isChecked: false
   - type: ListItem
     content:
     - type: Paragraph
       content:
-      - still todo
+      - type: Text
+        value: still todo
     isChecked: false
   order: Unordered
 - type: Paragraph
   content:
-  - A paragraph to keep the previous and following lists separate (otherwise they get merged).
+  - type: Text
+    value: A paragraph to keep the previous and following lists separate (otherwise they get merged).
 - type: List
   items:
   - type: ListItem
     content:
     - type: Paragraph
       content:
-      - 'an item with an image '
+      - type: Text
+        value: 'an item with an image '
       - type: ImageObject
         contentUrl: image.png
-      - ', see!'
+      - type: Text
+        value: ', see!'
   - type: ListItem
     content:
     - type: Paragraph
       content:
-      - 'an item with '
+      - type: Text
+        value: 'an item with '
       - type: Emphasis
         content:
-        - emphasis
+        - type: Text
+          value: emphasis
   - type: ListItem
     content:
     - type: Paragraph
       content:
-      - 'an item with HTML '
+      - type: Text
+        value: 'an item with HTML '
       - type: Underline
         content:
-        - underlined
+        - type: Text
+          value: underlined
   order: Unordered
 - type: Paragraph
   content:
-  - A list with multiple paragraphs in each item
+  - type: Text
+    value: A list with multiple paragraphs in each item
 - type: List
   items:
   - type: ListItem
     content:
     - type: Paragraph
       content:
-      - para 1a
+      - type: Text
+        value: para 1a
     - type: Paragraph
       content:
-      - para 1b
+      - type: Text
+        value: para 1b
     - type: Paragraph
       content:
-      - para 1c
+      - type: Text
+        value: para 1c
   - type: ListItem
     content:
     - type: Paragraph
       content:
-      - para 2a
+      - type: Text
+        value: para 2a
     - type: Paragraph
       content:
-      - para 2b
+      - type: Text
+        value: para 2b
   - type: ListItem
     content:
     - type: Paragraph
       content:
-      - para 3
+      - type: Text
+        value: para 3
   order: Unordered

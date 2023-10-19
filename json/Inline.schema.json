@@ -247,16 +247,7 @@
         }
       },
       "$ref": "Number.schema.json"
-    },
-    {
-      "proptest": {
-        "min": {
-          "description": "Do not generate `String` nodes in inline content. Skipped at all levels because `Text` is preferred\nand `String` is likely to deprecated as an inline variant.\n",
-          "skip": true
-        }
-      },
-      "$ref": "String.schema.json"
     }
   ],
-  "default": "String"
+  "default": "Text"
 }

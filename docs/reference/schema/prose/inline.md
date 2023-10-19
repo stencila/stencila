@@ -41,7 +41,6 @@ The `Inline` type has these members:
 - [`Boolean`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/boolean.md)
 - [`Integer`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/integer.md)
 - [`Number`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/number.md)
-- [`String`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/string.md)
 
 ## Bindings
 
@@ -88,7 +87,6 @@ During property-based (a.k.a generative) testing, the variants of the `Inline` t
 |                  | Max        | Generate an arbitrary integer value.                                                                                                                                                        | `Integer::arbitrary().prop_map(Inline::Integer)` |
 | `Number`         | Min+       | Do not generate `Number` nodes in inline content.                                                                                                                                           | -                                                |
 |                  | Max        | Generate a fixed number. Used at all levels because even with JSON (and other data serialization formats) round trip conversions can fail in the last significant digit of random numbers.  | `Inline::Number(1.23)`                           |
-| `String`         | Min+       | Do not generate `String` nodes in inline content. Skipped at all levels because `Text` is preferred and `String` is likely to deprecated as an inline variant.                              | -                                                |
 
 ## Source
 

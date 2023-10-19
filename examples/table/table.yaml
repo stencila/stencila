@@ -2,7 +2,8 @@ type: Article
 content:
 - type: Paragraph
   content:
-  - Regular table
+  - type: Text
+    value: Regular table
 - type: Table
   rows:
   - type: TableRow
@@ -10,41 +11,51 @@ content:
     - type: TableCell
       cellType: Header
       content:
-      - A
+      - type: Text
+        value: A
     - type: TableCell
       cellType: Header
       content:
-      - B
+      - type: Text
+        value: B
     - type: TableCell
       cellType: Header
       content:
-      - C
+      - type: Text
+        value: C
     rowType: Header
   - type: TableRow
     cells:
     - type: TableCell
       content:
-      - '1'
+      - type: Text
+        value: '1'
     - type: TableCell
       content:
-      - '2'
+      - type: Text
+        value: '2'
     - type: TableCell
       content:
-      - '3'
+      - type: Text
+        value: '3'
   - type: TableRow
     cells:
     - type: TableCell
       content:
-      - '4'
+      - type: Text
+        value: '4'
     - type: TableCell
       content:
-      - '5'
+      - type: Text
+        value: '5'
     - type: TableCell
       content:
-      - '6'
+      - type: Text
+        value: '6'
 - type: Paragraph
   content:
-  - Table with empty cells
+  - type: Text
+    value: Table with empty cells
 - type: Table
   rows:
   - type: TableRow
@@ -52,21 +63,25 @@ content:
     - type: TableCell
       cellType: Header
       content:
-      - D
+      - type: Text
+        value: D
     - type: TableCell
       cellType: Header
       content:
-      - E
+      - type: Text
+        value: E
     rowType: Header
   - type: TableRow
     cells:
     - type: TableCell
       content:
-      - '1'
+      - type: Text
+        value: '1'
     - type: TableCell
   - type: TableRow
     cells:
     - type: TableCell
     - type: TableCell
       content:
-      - '2'
+      - type: Text
+        value: '2'

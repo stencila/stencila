@@ -75,26 +75,26 @@ fn interleave_inlines(texts: Vec<Inline>, others: Vec<Inline>) -> Vec<Inline> {
         );
 
         if spaces {
-            if let Inline::String(string) = &mut content[index - 1] {
-                *string = [string.as_str(), " "].concat();
+            if let Inline::Text(text) = &mut content[index - 1] {
+                text.value.push(' ');
             }
-            if let Inline::String(string) = &mut content[index + 1] {
-                *string = [" ", string.as_str()].concat();
+            if let Inline::Text(text) = &mut content[index + 1] {
+                text.value.insert(0, ' ');
             }
         }
 
         if index == 0 {
-            if let Inline::String(string) = &mut content[index] {
-                if string.starts_with(char::is_whitespace) {
-                    string.insert(0, 'A')
+            if let Inline::Text(text) = &mut content[index] {
+                if text.value.starts_with(char::is_whitespace) {
+                    text.value.insert(0, 'A')
                 }
             }
         }
 
         if index == content.len() - 1 {
-            if let Inline::String(string) = &mut content[index] {
-                if string.ends_with(char::is_whitespace) {
-                    string.push('.')
+            if let Inline::Text(text) = &mut content[index] {
+                if text.value.ends_with(char::is_whitespace) {
+                    text.value.push('.')
                 }
             }
         }
