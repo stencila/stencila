@@ -41,11 +41,11 @@ test:
 # Coverage is reported to ../lcov.info so it can be used by the VSCode Coverage Gutters extension
 cover:
 	cargo llvm-cov clean --workspace 
-	cargo llvm-cov --workspace  --no-report
-	# SKIP: NO TESTS cargo llvm-cov -p codecs --features proptest-min --no-report roundtrip
-	# SKIP: NO TESTS cargo llvm-cov -p codecs --features proptest-low --no-report roundtrip
-	cargo llvm-cov -p codecs --features proptest-high --no-report roundtrip
-	cargo llvm-cov -p codecs --features proptest-max --no-report roundtrip
+	cargo llvm-cov test --workspace  --no-report
+	# SKIP: NO TESTS cargo llvm-cov test -p codecs --features proptest-min --no-report roundtrip
+	# SKIP: NO TESTS cargo llvm-cov test -p codecs --features proptest-low --no-report roundtrip
+	cargo llvm-cov test -p codecs --features proptest-high --no-report roundtrip
+	cargo llvm-cov test -p codecs --features proptest-max --no-report roundtrip
 	cd .. && cargo llvm-cov report --lcov --output-path lcov.info --ignore-filename-regex '(test)|(rust/schema-gen)|(rust/schema/src/types)|(python/src)|(node/src)'
 
 # Run all property tests at all levels
