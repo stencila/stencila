@@ -2,7 +2,7 @@ use codec::{
     common::{
         async_trait::async_trait,
         eyre::Result,
-        serde_json::{self, Map, Value},
+        serde_json::{Map, Value},
     },
     format::Format,
     schema::{Node, NodeType},
@@ -68,6 +68,16 @@ impl Codec for JsonCodec {
             ..
         } = options.unwrap_or_default();
 
+        if !standalone.unwrap_or_default() {
+            return Ok((
+                match compact {
+                    true => node.to_json(),
+                    false => node.to_json_pretty(),
+                }?,
+                Losses::none(),
+            ));
+        }
+
         let value = node.to_json_value()?;
 
         let value = if let (Some(true), Some(r#type)) = (
@@ -99,11 +109,12 @@ impl Codec for JsonCodec {
             value
         };
 
-        let json = match compact {
-            true => serde_json::to_string(&value),
-            false => serde_json::to_string_pretty(&value),
-        }?;
-
-        Ok((json, Losses::none()))
+        Ok((
+            match compact {
+                true => value.to_json(),
+                false => value.to_json_pretty(),
+            }?,
+            Losses::none(),
+        ))
     }
 }
