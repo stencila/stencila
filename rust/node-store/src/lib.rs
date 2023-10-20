@@ -84,7 +84,7 @@ pub trait ReadNode: StripNode + Sized {
     /// Load a Stencila Schema node from an Automerge store without any ids
     fn load_without_ids<S: ReadStore>(store: &S) -> Result<Self> {
         let mut node = Self::load(store)?;
-        
+
         node.strip(&Targets {
             id: true,
             ..Default::default()
