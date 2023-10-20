@@ -36,8 +36,8 @@ properties:
         description: Generate up to four arbitrary inline nodes
         strategy: vec_inlines(4)
       max:
-        description: Generate up to eight arbitrary inline nodes
-        strategy: vec_inlines(8)
+        description: Generate up to eight arbitrary inline nodes without restrictions on their order
+        strategy: vec(Inline::arbitrary(), size_range(0..=8))
     type: array
     items:
       $ref: Inline

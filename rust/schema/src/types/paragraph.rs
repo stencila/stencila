@@ -29,7 +29,7 @@ pub struct Paragraph {
     #[cfg_attr(feature = "proptest-min", proptest(strategy = r#"vec_inlines(1)"#))]
     #[cfg_attr(feature = "proptest-low", proptest(strategy = r#"vec_inlines(2)"#))]
     #[cfg_attr(feature = "proptest-high", proptest(strategy = r#"vec_inlines(4)"#))]
-    #[cfg_attr(feature = "proptest-max", proptest(strategy = r#"vec_inlines(8)"#))]
+    #[cfg_attr(feature = "proptest-max", proptest(strategy = r#"vec(Inline::arbitrary(), size_range(0..=8))"#))]
     pub content: Vec<Inline>,
 }
 
