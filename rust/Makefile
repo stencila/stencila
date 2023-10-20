@@ -73,7 +73,7 @@ proptest-max:
 
 # Run accessibility tests
 a11y:
-	cd codecs/src/tests && npm install && npm run test:a11y
+	cd codecs/tests && npm install && npm run test:a11y
 
 # List outdated dependencies
 outdated:
