@@ -100,7 +100,16 @@ from stencila.convert import from_string
 
 doc = asyncio.run(
     from_string(
-        '{type: "Article", content: [{type: "Paragraph", content: ["Hello world"]}]}',
+        '''{
+            type: "Article",
+            content: [{
+                type: "Paragraph",
+                content: [{
+                    type: "Text",
+                    value: "Hello world"
+                }]
+            }]
+        }',
         format="json5",
     )
 )
