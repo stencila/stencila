@@ -154,7 +154,7 @@ pub enum Inline {
     #[cfg_attr(feature = "proptest-min", proptest(skip))]
     #[cfg_attr(feature = "proptest-low", proptest(skip))]
     #[cfg_attr(feature = "proptest-high", proptest(skip))]
-    #[cfg_attr(feature = "proptest-max", proptest(strategy = r#"UnsignedInteger::arbitrary().prop_map(Inline::UnsignedInteger)"#))]
+    #[cfg_attr(feature = "proptest-max", proptest(skip))]
     UnsignedInteger(UnsignedInteger),
 
     #[cfg_attr(feature = "proptest-min", proptest(skip))]

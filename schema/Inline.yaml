@@ -171,11 +171,10 @@ anyOf:
   - $ref: UnsignedInteger
     proptest:
       min:
-        description: Do not generate `UnsignedInteger` nodes in inline content.
+        description: |
+          Do not generate `UnsignedInteger` nodes in inline content (since roundtrip
+          conversion can not differentiate it from an `Integer`).
         skip: true
-      max:
-        description: Generate an arbitrary unsigned integer value.
-        strategy: UnsignedInteger::arbitrary().prop_map(Inline::UnsignedInteger)
 
   - $ref: Number
     proptest:
