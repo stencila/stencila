@@ -30,6 +30,7 @@ Text = ForwardRef("Text")
 Time = ForwardRef("Time")
 Timestamp = ForwardRef("Timestamp")
 Underline = ForwardRef("Underline")
+UnsignedInteger = ForwardRef("UnsignedInteger")
 VideoObject = ForwardRef("VideoObject")
 
 
@@ -66,6 +67,7 @@ Inline = Union[
     None,
     bool,
     int,
+    UnsignedInteger,
     float,
 ]
 """

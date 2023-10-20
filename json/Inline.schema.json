@@ -238,6 +238,19 @@
     {
       "proptest": {
         "min": {
+          "description": "Do not generate `UnsignedInteger` nodes in inline content.",
+          "skip": true
+        },
+        "max": {
+          "description": "Generate an arbitrary unsigned integer value.",
+          "strategy": "UnsignedInteger::arbitrary().prop_map(Inline::UnsignedInteger)"
+        }
+      },
+      "$ref": "UnsignedInteger.schema.json"
+    },
+    {
+      "proptest": {
+        "min": {
           "description": "Do not generate `Number` nodes in inline content.",
           "skip": true
         },

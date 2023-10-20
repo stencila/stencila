@@ -31,6 +31,7 @@ import { type Text } from "./Text.js";
 import { type Time } from "./Time.js";
 import { type Timestamp } from "./Timestamp.js";
 import { type Underline } from "./Underline.js";
+import { type UnsignedInteger } from "./UnsignedInteger.js";
 import { type VideoObject } from "./VideoObject.js";
 
 /**
@@ -69,6 +70,7 @@ export type Inline =
   null |
   boolean |
   Integer |
+  UnsignedInteger |
   number;
 
 /**

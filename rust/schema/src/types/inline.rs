@@ -34,6 +34,7 @@ use super::text::Text;
 use super::time::Time;
 use super::timestamp::Timestamp;
 use super::underline::Underline;
+use super::unsigned_integer::UnsignedInteger;
 use super::video_object::VideoObject;
 
 /// Union type for valid inline content.
@@ -149,6 +150,12 @@ pub enum Inline {
     #[cfg_attr(feature = "proptest-high", proptest(skip))]
     #[cfg_attr(feature = "proptest-max", proptest(strategy = r#"Integer::arbitrary().prop_map(Inline::Integer)"#))]
     Integer(Integer),
+
+    #[cfg_attr(feature = "proptest-min", proptest(skip))]
+    #[cfg_attr(feature = "proptest-low", proptest(skip))]
+    #[cfg_attr(feature = "proptest-high", proptest(skip))]
+    #[cfg_attr(feature = "proptest-max", proptest(strategy = r#"UnsignedInteger::arbitrary().prop_map(Inline::UnsignedInteger)"#))]
+    UnsignedInteger(UnsignedInteger),
 
     #[cfg_attr(feature = "proptest-min", proptest(skip))]
     #[cfg_attr(feature = "proptest-low", proptest(skip))]

@@ -168,6 +168,15 @@ anyOf:
         description: Generate an arbitrary integer value.
         strategy: Integer::arbitrary().prop_map(Inline::Integer)
 
+  - $ref: UnsignedInteger
+    proptest:
+      min:
+        description: Do not generate `UnsignedInteger` nodes in inline content.
+        skip: true
+      max:
+        description: Generate an arbitrary unsigned integer value.
+        strategy: UnsignedInteger::arbitrary().prop_map(Inline::UnsignedInteger)
+
   - $ref: Number
     proptest:
       min:

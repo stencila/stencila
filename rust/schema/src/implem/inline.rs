@@ -17,6 +17,10 @@ impl ReadNode for Inline {
         Ok(Inline::Integer(*value))
     }
 
+    fn load_uint(value: &u64) -> Result<Self> {
+        Ok(Inline::UnsignedInteger(*value))
+    }
+
     fn load_f64(value: &f64) -> Result<Self> {
         Ok(Inline::Number(*value))
     }
