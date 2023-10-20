@@ -11,7 +11,7 @@ import {
 
 test("fromString", async () => {
   const node = await fromString(
-    '{type: "Article", content: [{type: "Paragraph", content: ["Hello world"]}]}',
+    '{type: "Article", content: [{type: "Paragraph", content: [{type: "Text", value: "Hello world"}]}]}',
     {
       format: "json5",
     }
@@ -32,7 +32,11 @@ test("fromPath", async () => {
 
 test("toString", async () => {
   const node = new Article([
-    new Paragraph(["Hello ", new Strong(["again"]), "!"]),
+    new Paragraph([
+      new Text("Hello "),
+      new Strong([new Text("again")]),
+      new Text("!"),
+    ]),
   ]);
   const jats = await toString(node, { format: "jats" });
 

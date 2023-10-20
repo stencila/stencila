@@ -33,7 +33,10 @@ exports[`fromString 1`] = `
   {
    "type": "Paragraph",
    "content": [
-    "Hello world"
+    {
+     "type": "Text",
+     "value": "Hello world"
+    }
    ]
   }
  ]
