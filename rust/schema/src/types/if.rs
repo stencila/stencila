@@ -20,6 +20,8 @@ use super::timestamp::Timestamp;
 #[skip_serializing_none]
 #[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec, WriteNode, ReadNode)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
+#[derive(derive_more::Display)]
+#[display(fmt = "If")]
 #[html(elem = "div", custom)]
 #[markdown(special)]
 pub struct If {
@@ -27,7 +29,7 @@ pub struct If {
     pub r#type: MustBe!("If"),
 
     /// The identifier for this item.
-    #[strip(id)]
+    #[strip(metadata)]
     #[html(attr = "id")]
     pub id: Option<String>,
 

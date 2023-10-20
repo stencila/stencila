@@ -11,7 +11,7 @@ pub use codec::{
     format::Format, Codec, CodecDirection, CodecSupport, DecodeOptions, EncodeOptions, Losses,
     LossesResponse,
 };
-use node_strip::StripNode;
+use node_strip::{StripNode, StripTargets};
 
 /// Get a list of all codecs
 pub fn list() -> Vec<Box<dyn Codec>> {
@@ -189,24 +189,15 @@ pub async fn to_string_with_losses(
     let codec = get(codec, Some(format), Some(CodecDirection::Encode))?;
 
     if let Some(EncodeOptions {
-        strip_id: id,
-        strip_code: code,
-        strip_execution: execution,
-        strip_output: output,
-        strip_types: types,
+        strip_scopes,
+        strip_types,
+        strip_props,
         ..
     }) = options.clone()
     {
-        if id || code || execution || output {
+        if !(strip_scopes.is_empty() && strip_types.is_empty() && strip_props.is_empty()) {
             let mut node = node.clone();
-            node.strip(&node_strip::Targets {
-                id,
-                code,
-                execution,
-                output,
-                types,
-            });
-
+            node.strip(&StripTargets::new(strip_scopes, strip_types, strip_props));
             return codec.to_string(&node, options.clone()).await;
         }
     }
@@ -245,24 +236,15 @@ pub async fn to_path_with_losses(
     let codec = get(codec, Some(format), Some(CodecDirection::Encode))?;
 
     if let Some(EncodeOptions {
-        strip_id: id,
-        strip_code: code,
-        strip_execution: execution,
-        strip_output: output,
-        strip_types: types,
+        strip_scopes,
+        strip_types,
+        strip_props,
         ..
     }) = options.clone()
     {
-        if id || code || execution || output {
+        if !(strip_scopes.is_empty() && strip_types.is_empty() && strip_props.is_empty()) {
             let mut node = node.clone();
-            node.strip(&node_strip::Targets {
-                id,
-                code,
-                execution,
-                output,
-                types,
-            });
-
+            node.strip(&StripTargets::new(strip_scopes, strip_types, strip_props));
             return codec.to_path(&node, path, options.clone()).await;
         }
     }

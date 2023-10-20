@@ -703,42 +703,13 @@
     },
     "StripScopes": {
       "description": "Targets for stripping properties",
-      "oneOf": [
-        {
-          "description": "Strip the `id` property only\n\nThis MUST only ever be used on the `Entity.id` property.",
-          "type": "string",
-          "enum": [
-            "id"
-          ]
-        },
-        {
-          "description": "Strip all code related properties\n\nIncludes any properties that define the execution of a node e.g.\n\n- `code` and `programmingLanguage` of any `CodeExecutable` node - `source` of a `Include` or `Call` node",
-          "type": "string",
-          "enum": [
-            "code"
-          ]
-        },
-        {
-          "description": "Strip all execution related properties\n\nIncludes any properties that record the execution state of a node e.g.\n\n- `executionCount` of any `Executable` node",
-          "type": "string",
-          "enum": [
-            "execution"
-          ]
-        },
-        {
-          "description": "Strip all output related properties\n\nIncludes any properties that are the result of executing a node e.g.\n\n- `outputs` of a `CodeChunk` node - `output` of a `CodeExpression` node - `content` of a `Include` or `Call` node",
-          "type": "string",
-          "enum": [
-            "output"
-          ]
-        },
-        {
-          "description": "Strip child nodes of specified types from the property",
-          "type": "string",
-          "enum": [
-            "types"
-          ]
-        }
+      "type": "string",
+      "enum": [
+        "metadata",
+        "content",
+        "code",
+        "execution",
+        "output"
       ]
     },
     "Type": {

@@ -1,5 +1,6 @@
 use std::path::PathBuf;
 
+use node_strip::StripScope;
 use yansi::Color;
 
 use common::{
@@ -262,25 +263,17 @@ struct EncodeOptions {
     #[arg(long, short)]
     compact: bool,
 
-    /// Do not strip the id property of nodes before encoding
+    /// Scopes defining which properties of nodes should be stripped
     #[arg(long)]
-    no_strip_id: bool,
+    strip_scopes: Vec<StripScope>,
 
-    /// Strip the code of executable nodes before encoding
-    #[arg(long)]
-    strip_code: bool,
-
-    /// Strip derived properties of executable nodes before encoding
-    #[arg(long)]
-    strip_execution: bool,
-
-    /// Strip the outputs of executable nodes before encoding
-    #[arg(long)]
-    strip_output: bool,
-
-    /// A list of types to strip before encoding
+    /// A list of node types to strip before encoding
     #[arg(long)]
     strip_types: Vec<String>,
+
+    /// A list of node properties to strip before encoding
+    #[arg(long, default_value = "id")]
+    strip_props: Vec<String>,
 }
 
 impl EncodeOptions {
@@ -301,11 +294,9 @@ impl EncodeOptions {
             format,
             compact: self.compact,
             standalone,
-            strip_id: !self.no_strip_id,
-            strip_code: self.strip_code,
-            strip_execution: self.strip_execution,
-            strip_output: self.strip_output,
+            strip_scopes: self.strip_scopes.clone(),
             strip_types: self.strip_types.clone(),
+            strip_props: self.strip_props.clone(),
             losses,
         }
     }
@@ -377,11 +368,9 @@ impl Cli {
                     format,
                     standalone: options.not_standalone.then_some(false),
                     compact: options.compact,
-                    strip_id: !options.no_strip_id,
-                    strip_code: options.strip_code,
-                    strip_execution: options.strip_execution,
-                    strip_output: options.strip_output,
+                    strip_scopes: options.strip_scopes,
                     strip_types: options.strip_types,
+                    strip_props: options.strip_props,
                     losses,
                 };
 

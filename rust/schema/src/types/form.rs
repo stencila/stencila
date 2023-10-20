@@ -22,17 +22,18 @@ use super::timestamp::Timestamp;
 #[skip_serializing_none]
 #[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec, WriteNode, ReadNode)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
+#[derive(derive_more::Display)]
+#[display(fmt = "Form")]
 pub struct Form {
     /// The type of this item.
     pub r#type: MustBe!("Form"),
 
     /// The identifier for this item.
-    #[strip(id)]
+    #[strip(metadata)]
     #[html(attr = "id")]
     pub id: Option<String>,
 
     /// The content within the form, usually containing at least one `Parameter`.
-    #[strip(types)]
     pub content: Vec<Block>,
 
     /// Non-core optional fields

@@ -16,32 +16,26 @@ properties:
   symbol:
     '@id': stencila:symbol
     description: The name to give to the variable representing each item in the iterated array
-    strip:
-      - code
+    strip: [code]
     type: string
   content:
     '@id': stencila:content
     description: The content to repeat for each item
-    strip:
-      - code
-      - types
+    strip: [code]
     type: array
     items:
       $ref: Block
   otherwise:
     '@id': stencila:otherwise
     description: The content to render if there are no items
-    strip:
-      - code
-      - types
+    strip: [code]
     type: array
     items:
       $ref: Block
   iterations:
     '@id': stencila:iterations
     description: The content repeated for each iteration
-    strip:
-      - output
+    strip: [output]
     type: array
     items:
       type: array

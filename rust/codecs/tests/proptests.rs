@@ -20,7 +20,7 @@ use common_dev::{
     pretty_assertions::assert_eq,
     proptest::prelude::{proptest, ProptestConfig},
 };
-use node_strip::{StripNode, Targets};
+use node_strip::{StripNode, StripTargets};
 
 /// Do a roundtrip conversion to/from a format
 #[allow(unused)]
@@ -61,7 +61,7 @@ proptest! {
     fn article_jats(article: Article) {
         let mut article = Node::Article(article);
 
-        article.strip(&Targets {
+        article.strip(&StripTargets {
             types: vec![
                 // TODO Remove these as implemented
                 String::from("Claim"),

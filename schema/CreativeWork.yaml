@@ -19,14 +19,14 @@ properties:
     type: array
     items:
       $ref: ThingType
+    strip: [metadata]
   abstract:
     '@id': schema:abstract
     description: A a short description that summarizes a `CreativeWork`.
     type: array
     items:
       $ref: Block
-    strip:
-      - types
+    strip: [metadata]
   authors:
     '@id': schema:author
     description: The authors of the `CreativeWork`.
@@ -35,6 +35,7 @@ properties:
       anyOf:
         - $ref: Person
         - $ref: Organization
+    strip: [metadata]
   contributors:
     '@id': schema:contributor
     description: A secondary contributor to the `CreativeWork`.
@@ -44,6 +45,7 @@ properties:
         - $ref: Person
         - $ref: Organization
         - $ref: SoftwareApplication
+    strip: [metadata]
   editors:
     '@id': schema:editor
     description: People who edited the `CreativeWork`.
@@ -54,6 +56,7 @@ properties:
     type: array
     items:
       $ref: Person
+    strip: [metadata]
   maintainers:
     '@id': schema:maintainer
     description: The maintainers of the `CreativeWork`.
@@ -74,20 +77,24 @@ properties:
       anyOf:
         - $ref: Person
         - $ref: Organization
+    strip: [metadata]
   comments:
     '@id': schema:comment
     description: Comments about this creative work.
     type: array
     items:
       $ref: Comment
+    strip: [metadata]
   dateCreated:
     '@id': schema:dateCreated
     description: Date/time of creation.
     $ref: Date
+    strip: [metadata]
   dateReceived:
     '@id': schema:dateReceived
     description: Date/time that work was received.
     $ref: Date
+    strip: [metadata]
   dateAccepted:
     '@id': stencila:dateAccepted
     description: Date/time of acceptance.
@@ -95,10 +102,12 @@ properties:
       This is not yet a schema.org property but the term is used
       [in Dublin Core](http://purl.org/dc/terms/dateAccepted).
     $ref: Date
+    strip: [metadata]
   dateModified:
     '@id': schema:dateModified
     description: Date/time of most recent modification.
     $ref: Date
+    strip: [metadata]
   datePublished:
     '@id': schema:datePublished
     aliases:
@@ -107,6 +116,7 @@ properties:
       - date
     description: Date of first publication.
     $ref: Date
+    strip: [metadata]
   funders:
     '@id': schema:funder
     description: People or organizations that funded the `CreativeWork`.
@@ -115,6 +125,7 @@ properties:
       anyOf:
         - $ref: Person
         - $ref: Organization
+    strip: [metadata]
   fundedBy:
     '@id': stencila:fundedBy
     description: Grants that funded the `CreativeWork`; reverse of `fundedItems`.
@@ -128,12 +139,14 @@ properties:
       anyOf:
         - $ref: Grant
         - $ref: MonetaryGrant
+    strip: [metadata]
   genre:
     '@id': schema:genre
     description: Genre of the creative work, broadcast channel or group.
     type: array
     items:
       type: string
+    strip: [metadata]
   keywords:
     '@id': schema:keywords
     description: |
@@ -142,11 +155,13 @@ properties:
     type: array
     items:
       type: string
+    strip: [metadata]
   isPartOf:
     '@id': schema:isPartOf
     description: |
       An item or other CreativeWork that this CreativeWork is a part of.
     $ref: CreativeWorkType
+    strip: [metadata]
   licenses:
     '@id': schema:license
     description: |
@@ -156,6 +171,7 @@ properties:
       anyOf:
         - $ref: CreativeWorkType
         - $ref: Text
+    strip: [metadata]
   parts:
     # The name "parts" seems more intuitive for users and developers than schema.orgs's "hasParts".
     # We provide the latter as an alias.
@@ -168,6 +184,7 @@ properties:
     type: array
     items:
       $ref: CreativeWorkType
+    strip: [content]
   publisher:
     '@id': schema:publisher
     description: |
@@ -175,6 +192,7 @@ properties:
     anyOf:
       - $ref: Person
       - $ref: Organization
+    strip: [metadata]
   references:
     '@id': schema:citation
     aliases:
@@ -187,10 +205,12 @@ properties:
       anyOf:
         - $ref: CreativeWorkType
         - $ref: Text
+    strip: [metadata]
   text:
     '@id': schema:text
     description: The textual content of this creative work.
     $ref: Text
+    strip: [content]
   title:
     # The name "title" is more appropriate to our context than schema.org's "headline".
     # We provide the latter as an alias.
@@ -198,11 +218,10 @@ properties:
     description: The title of the creative work.
     aliases:
       - headline
-    strip:
-      - types
     type: array
     items:
       $ref: Inline
+    strip: [metadata]
   version:
     '@id': schema:version
     description: The version of the creative work.
@@ -213,3 +232,4 @@ properties:
     anyOf:
       - type: string
       - type: number
+    strip: [metadata]

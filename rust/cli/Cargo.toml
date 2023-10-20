@@ -19,6 +19,7 @@ console-subscriber = { version = "0.2.0", optional = true }
 document = { path = "../document" }
 format = { path = "../format" }
 is-terminal = "0.4.9"
+node-strip = { path = "../node-strip" }
 syntect = "5.1.0"
 tracing-error = "0.2.0"
 tracing-subscriber = { version = "0.3.17", features = ["env-filter", "json"] }

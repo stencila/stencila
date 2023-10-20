@@ -16,6 +16,8 @@ use super::text::Text;
 #[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec, WriteNode, ReadNode)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 #[cfg_attr(feature = "proptest", derive(Arbitrary))]
+#[derive(derive_more::Display)]
+#[display(fmt = "ListItem")]
 #[html(elem = "li", custom)]
 #[jats(elem = "list-item")]
 #[markdown(special)]
@@ -25,7 +27,7 @@ pub struct ListItem {
     pub r#type: MustBe!("ListItem"),
 
     /// The identifier for this item.
-    #[strip(id)]
+    #[strip(metadata)]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     #[html(attr = "id")]
     pub id: Option<String>,
@@ -63,26 +65,32 @@ pub struct ListItem {
 #[cfg_attr(feature = "proptest", derive(Arbitrary))]
 pub struct ListItemOptions {
     /// Alternate names (aliases) for the item.
+    #[strip(metadata)]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     pub alternate_names: Option<Vec<String>>,
 
     /// A description of the item.
+    #[strip(metadata)]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     pub description: Option<Text>,
 
     /// Any kind of identifier for any kind of Thing.
+    #[strip(metadata)]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     pub identifiers: Option<Vec<PropertyValueOrString>>,
 
     /// Images of the item.
+    #[strip(metadata)]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     pub images: Option<Vec<ImageObject>>,
 
     /// The name of the item.
+    #[strip(metadata)]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     pub name: Option<String>,
 
     /// The URL of the item.
+    #[strip(metadata)]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     pub url: Option<String>,
 }

@@ -11,6 +11,8 @@ use super::time_unit::TimeUnit;
 #[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec, WriteNode, ReadNode)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 #[cfg_attr(feature = "proptest", derive(Arbitrary))]
+#[derive(derive_more::Display)]
+#[display(fmt = "Duration")]
 #[jats(elem = "duration", special)]
 pub struct Duration {
     /// The type of this item.
@@ -18,7 +20,7 @@ pub struct Duration {
     pub r#type: MustBe!("Duration"),
 
     /// The identifier for this item.
-    #[strip(id)]
+    #[strip(metadata)]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     #[html(attr = "id")]
     pub id: Option<String>,

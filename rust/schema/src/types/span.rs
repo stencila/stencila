@@ -12,6 +12,8 @@ use super::string::String;
 #[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec, WriteNode, ReadNode)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 #[cfg_attr(feature = "proptest", derive(Arbitrary))]
+#[derive(derive_more::Display)]
+#[display(fmt = "Span")]
 #[html(elem = "span", custom)]
 #[jats(elem = "styled-content")]
 #[markdown(format = "[{content}]{{{code}}}")]
@@ -21,7 +23,7 @@ pub struct Span {
     pub r#type: MustBe!("Span"),
 
     /// The identifier for this item.
-    #[strip(id)]
+    #[strip(metadata)]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     #[html(attr = "id")]
     pub id: Option<String>,
@@ -59,7 +61,6 @@ pub struct Span {
     pub classes: Option<Vec<String>>,
 
     /// The content within the span.
-    #[strip(types)]
     #[cfg_attr(feature = "proptest", proptest(value = "Default::default()"))]
     pub content: Vec<Inline>,
 }

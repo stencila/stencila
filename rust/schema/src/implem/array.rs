@@ -6,6 +6,12 @@ use node_store::{
 
 use crate::{prelude::*, Array, Primitive};
 
+impl std::fmt::Display for Array {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "Array")
+    }
+}
+
 impl StripNode for Array {}
 
 impl ReadNode for Array {

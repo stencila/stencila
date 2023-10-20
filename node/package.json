@@ -9,7 +9,7 @@
     "src/*.mts"
   ],
   "main": "./dist/lib.mjs",
-  "types": "./dist/lib.d.ts",
+  "types": "./dist/lib.d.mts",
   "scripts": {
     "fix": "eslint --fix '**/*.mts'",
     "lint": "eslint '**/*.mts'",

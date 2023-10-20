@@ -13,16 +13,19 @@ use super::text::Text;
 #[skip_serializing_none]
 #[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec, WriteNode, ReadNode)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
+#[derive(derive_more::Display)]
+#[display(fmt = "DatatableColumn")]
 pub struct DatatableColumn {
     /// The type of this item.
     pub r#type: MustBe!("DatatableColumn"),
 
     /// The identifier for this item.
-    #[strip(id)]
+    #[strip(metadata)]
     #[html(attr = "id")]
     pub id: Option<String>,
 
     /// The name of the item.
+    #[strip(metadata)]
     pub name: String,
 
     /// The data values of the column.
@@ -44,18 +47,23 @@ pub struct DatatableColumn {
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 pub struct DatatableColumnOptions {
     /// Alternate names (aliases) for the item.
+    #[strip(metadata)]
     pub alternate_names: Option<Vec<String>>,
 
     /// A description of the item.
+    #[strip(metadata)]
     pub description: Option<Text>,
 
     /// Any kind of identifier for any kind of Thing.
+    #[strip(metadata)]
     pub identifiers: Option<Vec<PropertyValueOrString>>,
 
     /// Images of the item.
+    #[strip(metadata)]
     pub images: Option<Vec<ImageObject>>,
 
     /// The URL of the item.
+    #[strip(metadata)]
     pub url: Option<String>,
 }
 

@@ -21,13 +21,15 @@ use super::timestamp::Timestamp;
 #[skip_serializing_none]
 #[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec, WriteNode, ReadNode)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
+#[derive(derive_more::Display)]
+#[display(fmt = "Call")]
 #[markdown(special)]
 pub struct Call {
     /// The type of this item.
     pub r#type: MustBe!("Call"),
 
     /// The identifier for this item.
-    #[strip(id)]
+    #[strip(metadata)]
     #[html(attr = "id")]
     pub id: Option<String>,
 
@@ -44,7 +46,7 @@ pub struct Call {
     pub select: Option<String>,
 
     /// The structured content decoded from the source.
-    #[strip(output, types)]
+    #[strip(output)]
     pub content: Option<Vec<Block>>,
 
     /// The value of the source document's parameters to call it with

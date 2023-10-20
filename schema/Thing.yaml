@@ -10,10 +10,12 @@ properties:
     type: array
     items:
       type: string
+    strip: [metadata]
   description:
     "@id": schema:description
     description: A description of the item.
     $ref: Text
+    strip: [metadata]
   identifiers:
     "@id": schema:identifier
     description: Any kind of identifier for any kind of Thing.
@@ -29,18 +31,22 @@ properties:
       anyOf:
         - $ref: PropertyValue
         - type: string
+    strip: [metadata]
   images:
     "@id": schema:image
     description: Images of the item.
     type: array
     items:
       $ref: ImageObject
+    strip: [metadata]
   name:
     "@id": schema:name
     description: The name of the item.
     type: string
+    strip: [metadata]
   url:
     "@id": schema:url
     description: The URL of the item.
     type: string
     format: uri
+    strip: [metadata]

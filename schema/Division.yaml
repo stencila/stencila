@@ -19,6 +19,4 @@ properties:
     type: array
     items:
       $ref: Block
-    strip:
-      - types
     

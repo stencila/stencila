@@ -442,37 +442,11 @@ pub struct ItemsAnyOf {
 #[serde(rename_all = "lowercase", crate = "common::serde")]
 #[strum(serialize_all = "lowercase")]
 pub enum StripScopes {
-    /// Strip the `id` property only
-    ///
-    /// This MUST only ever be used on the `Entity.id` property.
-    Id,
-
-    /// Strip all code related properties
-    ///
-    /// Includes any properties that define the execution of a node e.g.
-    ///
-    /// - `code` and `programmingLanguage` of any `CodeExecutable` node
-    /// - `source` of a `Include` or `Call` node
+    Metadata,
+    Content,
     Code,
-
-    /// Strip all execution related properties
-    ///
-    /// Includes any properties that record the execution state of a node e.g.
-    ///
-    /// - `executionCount` of any `Executable` node
     Execution,
-
-    /// Strip all output related properties
-    ///
-    /// Includes any properties that are the result of executing a node e.g.
-    ///
-    /// - `outputs` of a `CodeChunk` node
-    /// - `output` of a `CodeExpression` node
-    /// - `content` of a `Include` or `Call` node
     Output,
-
-    /// Strip child nodes of specified types from the property
-    Types,
 }
 
 /// Options for property testing

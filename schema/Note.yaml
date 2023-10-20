@@ -36,8 +36,7 @@ properties:
     type: array
     items:
       $ref: Block
-    strip:
-      - types
+
     proptest:
       min:
         description: Generate a single paragraph not a note (to avoid recursion).

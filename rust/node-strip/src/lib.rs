@@ -1,76 +1,86 @@
 //! Provides a `NodeStrip` trait for stripping properties from nodes
 
-use std::collections::HashMap;
+use std::{collections::HashMap, fmt::Display};
 
-use common::indexmap::IndexMap;
+use common::{
+    clap::{self, ValueEnum},
+    indexmap::IndexMap,
+};
 
 pub use node_strip_derive::StripNode;
 
-/// The target properties for the strip
-#[derive(Clone, Default)]
-pub struct Targets {
-    /// Whether to strip the `id` property of the node
-    pub id: bool,
+/// Predefined scopes for properties to be stripped across node types
+#[derive(Debug, Clone, Copy, ValueEnum, PartialEq, Eq)]
+pub enum StripScope {
+    /// Strip metadata properties of nodes
+    Metadata,
 
-    /// Whether to strip code properties of executable nodes
+    /// Strip content properties of nodes
+    Content,
+
+    /// Strip code properties of executable nodes
     ///
     /// Includes any properties that define the execution of a node e.g.
     ///
     /// - `code` and `programmingLanguage` of any `CodeExecutable` node
     /// - `source` of a `Include` or `Call` node
-    pub code: bool,
+    Code,
 
-    /// Whether to strip execution related properties of executable nodes
+    /// Strip execution related properties of executable nodes
     ///
     /// Includes any properties that record the execution state of a node e.g.
     ///
     /// - `executionCount` of any `Executable` node
-    pub execution: bool,
+    Execution,
 
-    /// Whether to strip output properties of executable nodes
+    /// Strip output properties of executable nodes
     ///
     /// Includes any properties that are the result of executing a node e.g.
     ///
     /// - `outputs` of a `CodeChunk` node
     /// - `output` of a `CodeExpression` node
     /// - `content` of a `Include` or `Call` node
-    pub output: bool,
-
-    /// Types of child nodes to strip
-    ///
-    /// A list of node types to remove from properties such as `content`.
-    pub types: Vec<String>,
+    Output,
 }
 
-impl Targets {
-    /// Strip the `id` property only
-    pub fn id() -> Self {
+/// The target properties for the strip
+#[derive(Clone, Default)]
+pub struct StripTargets {
+    /// Scopes defining which properties of nodes should be stripped
+    pub scopes: Vec<StripScope>,
+
+    /// Types of nodes to strip
+    ///
+    /// A list of node types to remove e.g. "CodeError"
+    pub types: Vec<String>,
+
+    /// Properties of nodes to strip
+    ///
+    /// A list of type/property names to remove e.g. "CodeChunk.errors".
+    /// Use `scopes` over `properties` if possible.
+    pub properties: Vec<String>,
+}
+
+impl StripTargets {
+    /// Create a new set of strip targets
+    pub fn new(scopes: Vec<StripScope>, types: Vec<String>, properties: Vec<String>) -> Self {
         Self {
-            id: true,
-            ..Default::default()
+            scopes,
+            types,
+            properties,
         }
     }
 
-    /// Strip all targets
-    pub fn all() -> Self {
-        Self {
-            id: true,
-            code: true,
-            execution: true,
-            output: true,
-            types: vec![],
-        }
+    /// Strip the `id` property from nodes
+    pub fn id() -> Self {
+        StripTargets::new(vec![], vec![], vec![String::from("id")])
     }
 }
 
 pub trait StripNode: Sized {
-    /// Strip one or more properties from a node
-    ///
-    /// # Arguments
-    ///
-    /// - `targets`: The target properties to be stripped
+    /// Strip a node
     #[allow(unused_variables)]
-    fn strip(&mut self, targets: &Targets) -> &mut Self {
+    fn strip(&mut self, targets: &StripTargets) -> &mut Self {
         self
     }
 }
@@ -85,7 +95,7 @@ impl<T> StripNode for Box<T>
 where
     T: StripNode,
 {
-    fn strip(&mut self, targets: &Targets) -> &mut Self {
+    fn strip(&mut self, targets: &StripTargets) -> &mut Self {
         self.as_mut().strip(targets);
 
         self
@@ -96,7 +106,7 @@ impl<T> StripNode for Option<T>
 where
     T: StripNode,
 {
-    fn strip(&mut self, targets: &Targets) -> &mut Self {
+    fn strip(&mut self, targets: &StripTargets) -> &mut Self {
         if let Some(value) = self {
             value.strip(targets);
         }
@@ -107,9 +117,13 @@ where
 
 impl<T> StripNode for Vec<T>
 where
-    T: StripNode,
+    T: StripNode + Display,
 {
-    fn strip(&mut self, targets: &Targets) -> &mut Self {
+    fn strip(&mut self, targets: &StripTargets) -> &mut Self {
+        if !targets.types.is_empty() {
+            self.retain(|child| !targets.types.contains(&child.to_string()));
+        }
+
         for node in self.iter_mut() {
             node.strip(targets);
         }
@@ -122,7 +136,7 @@ impl<T> StripNode for HashMap<String, T>
 where
     T: StripNode,
 {
-    fn strip(&mut self, targets: &Targets) -> &mut Self {
+    fn strip(&mut self, targets: &StripTargets) -> &mut Self {
         for node in self.values_mut() {
             node.strip(targets);
         }
@@ -133,9 +147,13 @@ where
 
 impl<T> StripNode for IndexMap<String, T>
 where
-    T: StripNode,
+    T: StripNode + Display,
 {
-    fn strip(&mut self, targets: &Targets) -> &mut Self {
+    fn strip(&mut self, targets: &StripTargets) -> &mut Self {
+        if !targets.types.is_empty() {
+            self.retain(|_, child| !targets.types.contains(&child.to_string()));
+        }
+
         for node in self.values_mut() {
             node.strip(targets);
         }

@@ -36,7 +36,7 @@
       "description": "The identifier for this item.",
       "$comment": "This is a special property analogous to JSON-LD's `@id` keyword.\n",
       "strip": [
-        "id"
+        "metadata"
       ],
       "html": {
         "attr": "id"
@@ -55,9 +55,6 @@
       "@id": "stencila:content",
       "description": "Content of the note, usually a paragraph.",
       "$comment": "Most notes will have a single paragraph but could have multiple\nparagraphs, tables and even figures.\n",
-      "strip": [
-        "types"
-      ],
       "proptest": {
         "min": {
           "description": "Generate a single paragraph not a note (to avoid recursion).",

@@ -10,6 +10,8 @@ use super::string::String;
 #[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec, WriteNode, ReadNode)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 #[cfg_attr(feature = "proptest", derive(Arbitrary))]
+#[derive(derive_more::Display)]
+#[display(fmt = "Section")]
 #[html(elem = "section")]
 #[jats(elem = "sec")]
 #[markdown(special)]
@@ -19,13 +21,12 @@ pub struct Section {
     pub r#type: MustBe!("Section"),
 
     /// The identifier for this item.
-    #[strip(id)]
+    #[strip(metadata)]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     #[html(attr = "id")]
     pub id: Option<String>,
 
     /// The content within the section
-    #[strip(types)]
     #[cfg_attr(feature = "proptest-min", proptest(value = r#"Vec::new()"#))]
     #[cfg_attr(feature = "proptest-low", proptest(strategy = r#"vec_heading_paragraph()"#))]
     #[cfg_attr(feature = "proptest-high", proptest(strategy = r#"vec_blocks_non_recursive(4)"#))]

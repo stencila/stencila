@@ -27,7 +27,7 @@
       "description": "The identifier for this item.",
       "$comment": "This is a special property analogous to JSON-LD's `@id` keyword.\n",
       "strip": [
-        "id"
+        "metadata"
       ],
       "html": {
         "attr": "id"
@@ -37,6 +37,9 @@
     "alternateNames": {
       "@id": "schema:alternateName",
       "description": "Alternate names (aliases) for the item.",
+      "strip": [
+        "metadata"
+      ],
       "type": "array",
       "items": {
         "type": "string"
@@ -45,12 +48,18 @@
     "description": {
       "@id": "schema:description",
       "description": "A description of the item.",
+      "strip": [
+        "metadata"
+      ],
       "$ref": "Text.schema.json"
     },
     "identifiers": {
       "@id": "schema:identifier",
       "description": "Any kind of identifier for any kind of Thing.",
       "$comment": "Some identifiers have specific properties e.g the `issn` property for\nthe `Periodical` type. These should be used in preference to this\nproperty which is intended for identifiers that do not yet have a\nspecific property. Identifiers can be represented as strings, but\nusing a `PropertyValue` will usually be better because it allows\nfor `propertyID` (i.e. the type of identifier).\n",
+      "strip": [
+        "metadata"
+      ],
       "type": "array",
       "items": {
         "anyOf": [
@@ -66,6 +75,9 @@
     "images": {
       "@id": "schema:image",
       "description": "Images of the item.",
+      "strip": [
+        "metadata"
+      ],
       "type": "array",
       "items": {
         "$ref": "ImageObject.schema.json"
@@ -74,11 +86,17 @@
     "name": {
       "@id": "schema:name",
       "description": "The name of the item.",
+      "strip": [
+        "metadata"
+      ],
       "type": "string"
     },
     "url": {
       "@id": "schema:url",
       "description": "The URL of the item.",
+      "strip": [
+        "metadata"
+      ],
       "type": "string",
       "format": "uri"
     }

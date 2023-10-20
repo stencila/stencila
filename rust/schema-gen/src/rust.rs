@@ -332,8 +332,12 @@ pub enum NodeType {{
             }
         }
 
-        // Clone attrs for options before adding codec related attrs
+        // Clone attrs for options before adding display & codec related attrs
         let options_attrs = attrs.clone();
+
+        // Add attributes for displaying name
+        attrs.push(format!("#[derive(derive_more::Display)]"));
+        attrs.push(format!("#[display(fmt = \"{title}\")]"));
 
         // Add #[html] attribute for main struct if necessary
         if let Some(html) = &schema.html {
@@ -810,7 +814,7 @@ impl {title} {{{new}}}
 
         let mut derives = vec![
             "Debug",
-            "Display",
+            "strum::Display",
             "Clone",
             "PartialEq",
             "Serialize",

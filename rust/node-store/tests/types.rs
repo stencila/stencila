@@ -6,7 +6,7 @@ use common_dev::pretty_assertions::assert_eq;
 use schema::{Array, Article, Block, Cord, Inline, Node, Null, Object, Paragraph, Primitive, Text};
 
 use node_store::{ReadNode, WriteNode, WriteStore};
-use node_strip::{StripNode, Targets};
+use node_strip::{StripNode, StripTargets};
 
 /// Test loading & dumping of `Primitive` nodes
 #[test]
@@ -120,7 +120,7 @@ fn text() -> Result<()> {
         ("varied".to_string(), Text::from("abcd")),
     ]);
     root.dump(&mut base)?;
-    assert_eq!(Root::load(&base)?.strip(&Targets::id()), &root);
+    assert_eq!(Root::load(&base)?.strip(&StripTargets::id()), &root);
 
     // Fork it
     let mut fork = base.fork();
@@ -172,7 +172,7 @@ fn vec() -> Result<()> {
         vec![Text::from("one"), Text::from("two")],
     )]);
     root.dump(&mut base)?;
-    assert_eq!(Root::load(&base)?.strip(&Targets::id()), &root);
+    assert_eq!(Root::load(&base)?.strip(&StripTargets::id()), &root);
 
     // Make modifications, merge changes back into
     // store and check store for consistency
@@ -180,12 +180,12 @@ fn vec() -> Result<()> {
     // Add an item
     root.get_mut("vec").unwrap().push(Text::from("three"));
     root.dump(&mut base)?;
-    assert_eq!(Root::load(&base)?.strip(&Targets::id()), &root);
+    assert_eq!(Root::load(&base)?.strip(&StripTargets::id()), &root);
 
     // Remove an item
     root.get_mut("vec").unwrap().remove(1);
     root.dump(&mut base)?;
-    assert_eq!(Root::load(&base)?.strip(&Targets::id()), &root);
+    assert_eq!(Root::load(&base)?.strip(&StripTargets::id()), &root);
 
     Ok(())
 }
@@ -245,12 +245,12 @@ fn article() -> Result<()> {
     // Default, empty article
     let mut article1 = Article::default();
     article1.dump(&mut base)?;
-    assert_eq!(Article::load(&base)?.strip(&Targets::id()), &article1);
+    assert_eq!(Article::load(&base)?.strip(&StripTargets::id()), &article1);
 
     // Add an optional property
     article1.options.alternate_names = Some(vec!["some name".to_string()]);
     article1.dump(&mut base)?;
-    assert_eq!(Article::load(&base)?.strip(&Targets::id()), &article1);
+    assert_eq!(Article::load(&base)?.strip(&StripTargets::id()), &article1);
 
     // Add some content
     article1.content.push(Block::Paragraph(Paragraph {
@@ -258,7 +258,7 @@ fn article() -> Result<()> {
         ..Default::default()
     }));
     article1.dump(&mut base)?;
-    assert_eq!(Article::load(&base)?.strip(&Targets::id()), &article1);
+    assert_eq!(Article::load(&base)?.strip(&StripTargets::id()), &article1);
 
     Ok(())
 }
@@ -276,7 +276,7 @@ fn node() -> Result<()> {
         "content": []
     }))?;
     node1.dump(&mut base)?;
-    assert_eq!(Node::load(&base)?.strip(&Targets::id()), &node1);
+    assert_eq!(Node::load(&base)?.strip(&StripTargets::id()), &node1);
 
     Ok(())
 }

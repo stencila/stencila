@@ -22,13 +22,15 @@ use super::timestamp::Timestamp;
 #[skip_serializing_none]
 #[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec, WriteNode, ReadNode)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
+#[derive(derive_more::Display)]
+#[display(fmt = "For")]
 #[markdown(special)]
 pub struct For {
     /// The type of this item.
     pub r#type: MustBe!("For"),
 
     /// The identifier for this item.
-    #[strip(id)]
+    #[strip(metadata)]
     #[html(attr = "id")]
     pub id: Option<String>,
 
@@ -47,11 +49,11 @@ pub struct For {
     pub symbol: String,
 
     /// The content to repeat for each item
-    #[strip(code, types)]
+    #[strip(code)]
     pub content: Vec<Block>,
 
     /// The content to render if there are no items
-    #[strip(code, types)]
+    #[strip(code)]
     pub otherwise: Option<Vec<Block>>,
 
     /// The content repeated for each iteration

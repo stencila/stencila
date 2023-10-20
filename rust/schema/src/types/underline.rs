@@ -10,6 +10,8 @@ use super::string::String;
 #[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec, WriteNode, ReadNode)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 #[cfg_attr(feature = "proptest", derive(Arbitrary))]
+#[derive(derive_more::Display)]
+#[display(fmt = "Underline")]
 #[html(elem = "u")]
 #[jats(elem = "underline")]
 #[markdown(format = "[{content}]{{underline}}", escape = "]")]
@@ -19,13 +21,12 @@ pub struct Underline {
     pub r#type: MustBe!("Underline"),
 
     /// The identifier for this item.
-    #[strip(id)]
+    #[strip(metadata)]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     #[html(attr = "id")]
     pub id: Option<String>,
 
     /// The content that is marked.
-    #[strip(types)]
     #[cfg_attr(feature = "proptest-min", proptest(strategy = r#"vec(Just(Inline::Text(crate::Text::from("text"))), size_range(1..=1))"#))]
     #[cfg_attr(feature = "proptest-low", proptest(strategy = r#"vec_inlines_non_recursive(1)"#))]
     #[cfg_attr(feature = "proptest-high", proptest(strategy = r#"vec_inlines_non_recursive(2)"#))]

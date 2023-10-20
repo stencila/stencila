@@ -22,6 +22,8 @@ use super::validator::Validator;
 #[skip_serializing_none]
 #[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec, WriteNode, ReadNode)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
+#[derive(derive_more::Display)]
+#[display(fmt = "Parameter")]
 #[html(elem = "span", custom)]
 #[markdown(special)]
 pub struct Parameter {
@@ -29,7 +31,7 @@ pub struct Parameter {
     pub r#type: MustBe!("Parameter"),
 
     /// The identifier for this item.
-    #[strip(id)]
+    #[strip(metadata)]
     #[html(attr = "id")]
     pub id: Option<String>,
 

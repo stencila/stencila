@@ -21,6 +21,5 @@ properties:
     type: array
     items:
       $ref: Inline
-    strip:
-      - types
+
     

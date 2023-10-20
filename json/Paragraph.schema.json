@@ -38,7 +38,7 @@
       "description": "The identifier for this item.",
       "$comment": "This is a special property analogous to JSON-LD's `@id` keyword.\n",
       "strip": [
-        "id"
+        "metadata"
       ],
       "html": {
         "attr": "id"
@@ -48,9 +48,6 @@
     "content": {
       "@id": "stencila:content",
       "description": "The contents of the paragraph.",
-      "strip": [
-        "types"
-      ],
       "proptest": {
         "min": {
           "description": "Generate a single arbitrary inline node",

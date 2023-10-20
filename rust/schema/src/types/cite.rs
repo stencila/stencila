@@ -12,12 +12,14 @@ use super::string::String;
 #[skip_serializing_none]
 #[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec, WriteNode, ReadNode)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
+#[derive(derive_more::Display)]
+#[display(fmt = "Cite")]
 pub struct Cite {
     /// The type of this item.
     pub r#type: MustBe!("Cite"),
 
     /// The identifier for this item.
-    #[strip(id)]
+    #[strip(metadata)]
     #[html(attr = "id")]
     pub id: Option<String>,
 
@@ -43,7 +45,6 @@ pub struct CiteOptions {
     pub citation_intent: Option<Vec<CitationIntent>>,
 
     /// Optional structured content/text of this citation.
-    #[strip(types)]
     pub content: Option<Vec<Inline>>,
 
     /// The page on which the work starts; for example "135" or "xiii".

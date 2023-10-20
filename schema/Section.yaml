@@ -16,8 +16,7 @@ properties:
   content:
     '@id': 'stencila:content'
     description: The content within the section
-    strip:
-      - types
+
     proptest:
       min:
         description: An empty vector

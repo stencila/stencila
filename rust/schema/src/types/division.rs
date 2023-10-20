@@ -12,6 +12,8 @@ use super::string::String;
 #[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec, WriteNode, ReadNode)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 #[cfg_attr(feature = "proptest", derive(Arbitrary))]
+#[derive(derive_more::Display)]
+#[display(fmt = "Division")]
 #[html(elem = "div", custom)]
 #[markdown(special)]
 pub struct Division {
@@ -20,7 +22,7 @@ pub struct Division {
     pub r#type: MustBe!("Division"),
 
     /// The identifier for this item.
-    #[strip(id)]
+    #[strip(metadata)]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     #[html(attr = "id")]
     pub id: Option<String>,
@@ -58,7 +60,6 @@ pub struct Division {
     pub classes: Option<Vec<String>>,
 
     /// The content within the division
-    #[strip(types)]
     #[cfg_attr(feature = "proptest", proptest(value = "Default::default()"))]
     pub content: Vec<Block>,
 }

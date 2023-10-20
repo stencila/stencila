@@ -11,6 +11,8 @@ use super::string::String;
 #[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec, WriteNode, ReadNode)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 #[cfg_attr(feature = "proptest", derive(Arbitrary))]
+#[derive(derive_more::Display)]
+#[display(fmt = "Note")]
 #[jats(elem = "fn", attribs(fn__type = "custom"))]
 pub struct Note {
     /// The type of this item.
@@ -18,7 +20,7 @@ pub struct Note {
     pub r#type: MustBe!("Note"),
 
     /// The identifier for this item.
-    #[strip(id)]
+    #[strip(metadata)]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     #[html(attr = "id")]
     pub id: Option<String>,
@@ -29,7 +31,6 @@ pub struct Note {
     pub note_type: NoteType,
 
     /// Content of the note, usually a paragraph.
-    #[strip(types)]
     #[cfg_attr(feature = "proptest-min", proptest(value = r#"vec![Block::Paragraph(crate::Paragraph::new(vec![crate::Inline::Text(crate::Text::from("Note paragraph"))]))]"#))]
     #[cfg_attr(feature = "proptest-low", proptest(value = r#"vec![Block::Paragraph(crate::Paragraph::new(vec![crate::Inline::Text(crate::Text::from("Note paragraph"))]))]"#))]
     #[cfg_attr(feature = "proptest-high", proptest(value = r#"vec![Block::Paragraph(crate::Paragraph::new(vec![crate::Inline::Text(crate::Text::from("Note paragraph"))]))]"#))]

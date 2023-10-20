@@ -23,8 +23,7 @@ properties:
   content:
     '@id': stencila:content
     description: The contents of the paragraph.
-    strip:
-      - types
+
     proptest:
       min:
         description: Generate a single arbitrary inline node

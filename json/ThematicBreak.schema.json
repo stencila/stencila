@@ -36,7 +36,7 @@
       "description": "The identifier for this item.",
       "$comment": "This is a special property analogous to JSON-LD's `@id` keyword.\n",
       "strip": [
-        "id"
+        "metadata"
       ],
       "html": {
         "attr": "id"

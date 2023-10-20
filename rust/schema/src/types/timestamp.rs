@@ -11,6 +11,8 @@ use super::time_unit::TimeUnit;
 #[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec, WriteNode, ReadNode)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 #[cfg_attr(feature = "proptest", derive(Arbitrary))]
+#[derive(derive_more::Display)]
+#[display(fmt = "Timestamp")]
 #[jats(elem = "timestamp", special)]
 pub struct Timestamp {
     /// The type of this item.
@@ -18,7 +20,7 @@ pub struct Timestamp {
     pub r#type: MustBe!("Timestamp"),
 
     /// The identifier for this item.
-    #[strip(id)]
+    #[strip(metadata)]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     #[html(attr = "id")]
     pub id: Option<String>,

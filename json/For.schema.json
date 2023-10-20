@@ -36,7 +36,7 @@
       "description": "The identifier for this item.",
       "$comment": "This is a special property analogous to JSON-LD's `@id` keyword.\n",
       "strip": [
-        "id"
+        "metadata"
       ],
       "html": {
         "attr": "id"
@@ -231,8 +231,7 @@
       "@id": "stencila:content",
       "description": "The content to repeat for each item",
       "strip": [
-        "code",
-        "types"
+        "code"
       ],
       "type": "array",
       "items": {
@@ -243,8 +242,7 @@
       "@id": "stencila:otherwise",
       "description": "The content to render if there are no items",
       "strip": [
-        "code",
-        "types"
+        "code"
       ],
       "type": "array",
       "items": {

@@ -13,6 +13,7 @@ use common::{
     tracing,
 };
 use format::Format;
+use node_strip::StripScope;
 use schema::{Node, NodeType};
 use status::Status;
 
@@ -324,24 +325,14 @@ pub struct EncodeOptions {
     #[default = false]
     pub compact: bool,
 
-    /// Whether to strip the id property of nodes when encoding
-    #[default = true]
-    pub strip_id: bool,
-
-    /// Whether to strip the code of executable nodes when encoding
-    #[default = false]
-    pub strip_code: bool,
-
-    /// Whether to strip the derived properties of executable nodes when encoding
-    #[default = false]
-    pub strip_execution: bool,
-
-    /// Whether to strip the outputs of executable nodes when encoding
-    #[default = false]
-    pub strip_output: bool,
+    /// Scopes defining which properties of nodes should be stripped when encoding
+    pub strip_scopes: Vec<StripScope>,
 
     /// A list of node types to strip when encoding
     pub strip_types: Vec<String>,
+
+    /// A list of node properties to strip when encoding
+    pub strip_props: Vec<String>,
 
     /// The response to take when there are losses in the encoding
     #[default(_code = "LossesResponse::Warn")]

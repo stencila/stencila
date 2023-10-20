@@ -11,6 +11,8 @@ use super::string::String;
 #[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec, WriteNode, ReadNode)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 #[cfg_attr(feature = "proptest", derive(Arbitrary))]
+#[derive(derive_more::Display)]
+#[display(fmt = "Heading")]
 #[html(special)]
 #[jats(elem = "title", special)]
 #[markdown(special)]
@@ -20,7 +22,7 @@ pub struct Heading {
     pub r#type: MustBe!("Heading"),
 
     /// The identifier for this item.
-    #[strip(id)]
+    #[strip(metadata)]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     #[html(attr = "id")]
     pub id: Option<String>,
@@ -31,7 +33,6 @@ pub struct Heading {
     pub level: Integer,
 
     /// Content of the heading.
-    #[strip(types)]
     #[cfg_attr(feature = "proptest-min", proptest(strategy = r#"vec_inlines(1)"#))]
     #[cfg_attr(feature = "proptest-low", proptest(strategy = r#"vec_inlines(2)"#))]
     #[cfg_attr(feature = "proptest-high", proptest(strategy = r#"vec_inlines(4)"#))]

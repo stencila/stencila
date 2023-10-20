@@ -24,6 +24,8 @@ use super::timestamp::Timestamp;
 #[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec, WriteNode, ReadNode)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 #[cfg_attr(feature = "proptest", derive(Arbitrary))]
+#[derive(derive_more::Display)]
+#[display(fmt = "CodeChunk")]
 #[jats(elem = "code", attribs(executable = "yes"))]
 pub struct CodeChunk {
     /// The type of this item.
@@ -31,7 +33,7 @@ pub struct CodeChunk {
     pub r#type: MustBe!("CodeChunk"),
 
     /// The identifier for this item.
-    #[strip(id)]
+    #[strip(metadata)]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     #[html(attr = "id")]
     pub id: Option<String>,

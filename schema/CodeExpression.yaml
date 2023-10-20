@@ -22,8 +22,7 @@ properties:
   output:
     '@id': stencila:output
     description: The value of the expression when it was last evaluated.
-    strip:
-      - output
+    strip: [output]
     html:
       slot: span
     jats:

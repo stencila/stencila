@@ -11,7 +11,7 @@ use common::{
     eyre::{bail, Context, Result},
     tokio::fs::{read, write},
 };
-use node_strip::{StripNode, Targets};
+use node_strip::{StripNode, StripTargets};
 
 pub use automerge::{
     self, AutoCommit as WriteStore, ChangeHash as CommitHash, ObjId, ObjType, Prop,
@@ -85,10 +85,7 @@ pub trait ReadNode: StripNode + Sized {
     fn load_without_ids<S: ReadStore>(store: &S) -> Result<Self> {
         let mut node = Self::load(store)?;
 
-        node.strip(&Targets {
-            id: true,
-            ..Default::default()
-        });
+        node.strip(&StripTargets::id());
 
         Ok(node)
     }

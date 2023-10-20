@@ -37,8 +37,6 @@ properties:
     type: array
     items:
       $ref: Block
-    strip:
-      - types
     proptest:
       min:
         description: Generate a single arbitrary paragraph.

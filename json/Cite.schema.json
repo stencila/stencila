@@ -29,7 +29,7 @@
       "description": "The identifier for this item.",
       "$comment": "This is a special property analogous to JSON-LD's `@id` keyword.\n",
       "strip": [
-        "id"
+        "metadata"
       ],
       "html": {
         "attr": "id"
@@ -57,9 +57,6 @@
     "content": {
       "@id": "stencila:content",
       "description": "Optional structured content/text of this citation.",
-      "strip": [
-        "types"
-      ],
       "type": "array",
       "items": {
         "$ref": "Inline.schema.json"

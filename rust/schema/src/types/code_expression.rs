@@ -22,6 +22,8 @@ use super::timestamp::Timestamp;
 #[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec, WriteNode, ReadNode)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 #[cfg_attr(feature = "proptest", derive(Arbitrary))]
+#[derive(derive_more::Display)]
+#[display(fmt = "CodeExpression")]
 #[html(elem = "span", custom)]
 #[jats(elem = "code", attribs(executable = "yes"))]
 #[markdown(special)]
@@ -31,7 +33,7 @@ pub struct CodeExpression {
     pub r#type: MustBe!("CodeExpression"),
 
     /// The identifier for this item.
-    #[strip(id)]
+    #[strip(metadata)]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     #[html(attr = "id")]
     pub id: Option<String>,

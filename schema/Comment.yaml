@@ -25,8 +25,6 @@ properties:
     type: array
     items:
       $ref: Block
-    strip:
-      - types
   parentItem:
     '@id': schema:parentItem
     description: The parent comment of this comment.

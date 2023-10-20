@@ -16,8 +16,7 @@ properties:
     '@id': stencila:code
     description: The code.
     $ref: Cord
-    strip:
-      - code
+    strip: [code]
     jats:
       content: true
     proptest:
@@ -38,8 +37,7 @@ properties:
     '@id': schema:programmingLanguage
     description: The programming language of the code.
     type: string
-    strip:
-      - code
+    strip: [code]
     jats:
       attr: language
     proptest:

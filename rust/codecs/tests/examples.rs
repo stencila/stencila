@@ -18,7 +18,7 @@ use codec::{
     DecodeOptions, EncodeOptions,
 };
 use common_dev::pretty_assertions::assert_eq;
-use node_strip::{StripNode, Targets};
+use node_strip::{StripNode, StripTargets};
 
 /// Spec for what to tests etc
 struct Spec {
@@ -298,7 +298,7 @@ async fn examples() -> Result<()> {
 
                 // Strip types that the codec is lossy for from both the decoded
                 // and original node
-                let targets = Targets {
+                let targets = StripTargets {
                     types: lossy_types,
                     ..Default::default()
                 };

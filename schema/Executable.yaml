@@ -8,50 +8,43 @@ properties:
   executionAuto:
     '@id': stencila:executionAuto
     description: Under which circumstances the code should be automatically executed.
-    strip:
-      - execution
+    strip: [execution]
     $ref: ExecutionAuto
   compilationDigest:
     '@id': stencila:compilationDigest
     description: A digest of the content, semantics and dependencies of the node.
-    strip:
-      - execution
+    strip: [execution]
     $ref: ExecutionDigest
   executionDigest:
     '@id': stencila:executionDigest
     description: The `compileDigest` of the node when it was last executed.
-    strip:
-      - execution
+    strip: [execution]
     $ref: ExecutionDigest
   executionDependencies:
     '@id': stencila:executionDependencies
     description: The upstream dependencies of this node.
-    strip:
-      - execution
+    strip: [execution]
     type: array
     items:
       $ref: ExecutionDependency
   executionDependants:
     '@id': stencila:executionDependants
     description: The downstream dependants of this node.
-    strip:
-      - execution
+    strip: [execution]
     type: array
     items:
       $ref: ExecutionDependant
   executionTags:
     '@id': stencila:executionTags
     description: Tags in the code which affect its execution.
-    strip:
-      - execution
+    strip: [execution]
     type: array
     items:
       $ref: ExecutionTag
   executionCount:
     '@id': stencila:executionCount
     description: A count of the number of times that the node has been executed.
-    strip:
-      - execution
+    strip: [execution]
     type: integer
     minimum: 0
     $comment: |
@@ -61,38 +54,32 @@ properties:
   executionRequired:
     '@id': stencila:executionRequired
     description: Whether, and why, the code requires execution or re-execution.
-    strip:
-      - execution
+    strip: [execution]
     $ref: ExecutionRequired
   executionKernel:
     '@id': stencila:executionKernel
     description: The id of the kernel that the node was last executed in.
-    strip:
-      - execution
+    strip: [execution]
     type: string
   executionStatus:
     '@id': stencila:executionStatus
     description: Status of the most recent, including any current, execution.
-    strip:
-      - execution
+    strip: [execution]
     $ref: ExecutionStatus
   executionEnded:
     '@id': stencila:executionEnded
     description: The timestamp when the last execution ended.
-    strip:
-      - execution
+    strip: [execution]
     $ref: Timestamp
   executionDuration:
     '@id': stencila:executionDuration
     description: Duration of the last execution.
-    strip:
-      - execution
+    strip: [execution]
     $ref: Duration
   errors:
     '@id': stencila:errors
     description: Errors when compiling (e.g. syntax errors) or executing the node.
-    strip:
-      - execution
+    strip: [execution]
     type: array
     items:
       $ref: CodeError

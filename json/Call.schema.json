@@ -35,7 +35,7 @@
       "description": "The identifier for this item.",
       "$comment": "This is a special property analogous to JSON-LD's `@id` keyword.\n",
       "strip": [
-        "id"
+        "metadata"
       ],
       "html": {
         "attr": "id"
@@ -193,8 +193,7 @@
       "description": "The structured content decoded from the source.",
       "$comment": "Assumes that included content will be block content i.e. that there will be limited\ninstances where a user would want to use an `Include` node to transclude inline content.\n",
       "strip": [
-        "output",
-        "types"
+        "output"
       ],
       "type": "array",
       "items": {

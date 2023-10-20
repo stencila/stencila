@@ -420,6 +420,7 @@ dependencies = [
  "document",
  "format",
  "is-terminal",
+ "node-strip",
  "syntect",
  "tracing-error",
  "tracing-subscriber",
@@ -441,6 +442,7 @@ dependencies = [
  "codec-losses",
  "common",
  "format",
+ "node-strip",
  "schema",
  "status",
 ]

@@ -22,15 +22,19 @@ struct FieldAttr {
     ty: Type,
 
     #[darling(default)]
-    id: bool,
+    metadata: bool,
+
+    #[darling(default)]
+    content: bool,
+
     #[darling(default)]
     code: bool,
+
     #[darling(default)]
     execution: bool,
+
     #[darling(default)]
     output: bool,
-    #[darling(default)]
-    types: bool,
 }
 
 /// Derive the `StripNode` trait for a `struct` or `enum`
@@ -73,61 +77,67 @@ fn derive_struct(type_attr: TypeAttr) -> TokenStream {
 
         // The tokens needed to strip the field
         let strip = if field_type == "Option" {
-            quote! { = None; }
-        } else {
+            quote! { = None }
+        } else if field_type == "String" || field_type == "Cord" || field_type == "Vec" || field_type == "HashMap" || field_type == "IndexMap" {
             quote! { .clear() }
+        } else {
+            TokenStream::new()
         };
 
-        // Strip the field if it is targeted
-
-        if field.id {
-            fields.extend(quote! {
-                if targets.id {
-                    self.#field_name #strip;
-                }
-            })
-        }
-
-        if field.code {
-            fields.extend(quote! {
-                if targets.code {
-                    self.#field_name #strip;
-                }
-            })
-        }
-
-        if field.execution {
-            fields.extend(quote! {
-                if targets.execution {
-                    self.#field_name #strip;
-                }
-            })
-        }
-
-        if field.output {
-            fields.extend(quote! {
-                if targets.output {
-                    self.#field_name #strip;
-                }
-            })
-        }
-
-        if field.types {
-            let tokens = if field_type == "Option" {
-                quote! {
-                    if let Some(children) = self.#field_name.as_mut() {
-                        children.retain(|child| !targets.types.contains(&child.to_string()));
+        // Strip the field if it is in targeted scopes
+        if !strip.is_empty() {
+            if field.metadata {
+                fields.extend(quote! {
+                    if targets.scopes.contains(&node_strip::StripScope::Metadata) {
+                        self.#field_name #strip;
                     }
+                })
+            }
+
+            if field.content {
+                fields.extend(quote! {
+                    if targets.scopes.contains(&node_strip::StripScope::Content) {
+                        self.#field_name #strip;
+                    }
+                })
+            }
+
+            if field.code {
+                fields.extend(quote! {
+                    if targets.scopes.contains(&node_strip::StripScope::Code) {
+                        self.#field_name #strip;
+                    }
+                })
+            }
+
+            if field.execution {
+                fields.extend(quote! {
+                    if targets.scopes.contains(&node_strip::StripScope::Execution) {
+                        self.#field_name #strip;
+                    }
+                })
+            }
+
+            if field.output {
+                fields.extend(quote! {
+                    if targets.scopes.contains(&node_strip::StripScope::Output) {
+                        self.#field_name #strip;
+                    }
+                })
+            }
+
+            // Strip field if it is in properties
+            fields.extend(quote! {
+                if targets.properties.iter().any(|prop|
+                    prop.as_str() == stringify!(#field_name) || 
+                    prop.as_str() == concat!(stringify!(#struct_name), ".", stringify!(#field_name))
+                ) {
+                    self.#field_name #strip;
                 }
-            } else {
-                quote! {
-                    self.#field_name.retain(|child| !targets.types.contains(&child.to_string()));
-                }
-            };
-            fields.extend(tokens)
+            })
         }
 
-        // For all fields, recursively call strip
+        // Recursively call strip
         fields.extend(quote! {
             self.#field_name.strip(targets);
         })
@@ -135,7 +145,7 @@ fn derive_struct(type_attr: TypeAttr) -> TokenStream {
 
     quote! {
         impl node_strip::StripNode for #struct_name {
-            fn strip(&mut self, targets: &node_strip::Targets) -> &mut Self {
+            fn strip(&mut self, targets: &node_strip::StripTargets) -> &mut Self {
                 #fields
                 self
             }
@@ -166,7 +176,7 @@ fn derive_enum(type_attr: TypeAttr, data: &DataEnum) -> TokenStream {
     } else {
         quote! {
             impl node_strip::StripNode for #enum_name {
-                fn strip(&mut self, targets: &node_strip::Targets) -> &mut Self {
+                fn strip(&mut self, targets: &node_strip::StripTargets) -> &mut Self {
                     match self {
                         #variants
                     }
