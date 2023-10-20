@@ -7,7 +7,7 @@
     "audit": "better-npm-audit audit"
   },
   "devDependencies": {
-    "better-npm-audit": "^3.7.3",
-    "wrangler": "^3.13.2"
+    "better-npm-audit": "3.7.3",
+    "wrangler": "3.14"
   }
 }
