@@ -35,9 +35,9 @@ audit: install
 build: install
 	npm run build
 
-# Check the package before releasing
-check: install
-	npm run check
+# Run package publishing checks
+pubcheck: install
+	npm run pubcheck
 
 # Publish the package
 publish: build

@@ -49,6 +49,11 @@ outdated:
 a11y:
 	make -C rust a11y
 
+# Run package publishing checks
+pubcheck:
+	make -C typescript pubcheck
+	make -C node pubcheck
+
 # Audit dependencies
 audit:
 	make -C rust audit

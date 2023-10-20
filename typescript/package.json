@@ -45,7 +45,7 @@
     "lint": "eslint 'src/**/*'",
     "test": "jest",
     "build": "tsup",
-    "check": "attw --pack . && publint",
+    "pubcheck": "attw --pack . && publint",
     "unused": "depcheck --quiet --ignores '@types/jest'"
   },
   "jest": {

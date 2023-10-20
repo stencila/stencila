@@ -52,9 +52,9 @@ dist: install
 	npm run build:dist
 .PHONY: dist
 
-# Check the package before releasing
-check: install
-	npm run check
+# Run package publishing checks
+pubcheck: install
+	npm run pubcheck
 
 # Publish the package
 publish: dist

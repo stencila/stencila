@@ -82,6 +82,9 @@ jobs:
       - name: Run dependency audits
         run: make audit
 
+      - name: Run package publishing checks
+        run: make pubcheck
+
       - name: Make generated files
         run: make generated
 
