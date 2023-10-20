@@ -56,12 +56,12 @@ The `Heading` type is represented in these bindings:
 
 During property-based (a.k.a generative) testing, the properties of the `Heading` type are generated using the following strategies for each complexity level (see the [`proptest` book](https://proptest-rs.github.io/proptest/) for an explanation of the Rust strategy expressions). Any optional properties that are not in this table are set to `None`.
 
-| Property  | Complexity | Description                                 | Strategy         |
-| --------- | ---------- | ------------------------------------------- | ---------------- |
-| `content` | Min+       | Generate a single arbitrary inline node     | `vec_inlines(1)` |
-|           | Low+       | Generate up to two arbitrary inline nodes   | `vec_inlines(2)` |
-|           | High+      | Generate up to four arbitrary inline nodes  | `vec_inlines(4)` |
-|           | Max        | Generate up to eight arbitrary inline nodes | `vec_inlines(8)` |
+| Property  | Complexity | Description                                                                     | Strategy                                      |
+| --------- | ---------- | ------------------------------------------------------------------------------- | --------------------------------------------- |
+| `content` | Min+       | Generate a single arbitrary inline node                                         | `vec_inlines(1)`                              |
+|           | Low+       | Generate up to two arbitrary inline nodes                                       | `vec_inlines(2)`                              |
+|           | High+      | Generate up to four arbitrary inline nodes                                      | `vec_inlines(4)`                              |
+|           | Max        | Generate up to eight arbitrary inline nodes without restrictions on their order | `vec(Inline::arbitrary(), size_range(0..=8))` |
 
 ## Source
 
