@@ -6,13 +6,13 @@ from stencila.types import Article, Paragraph, Text, Strong, Emphasis
 
 async def test_from_string():
     node = await from_string(
-        '{type: "Article", content: [{type: "Paragraph", content: ["Hello world"]}]}',
+        '{type: "Article", content: [{type: "Paragraph", content: [{type: "Text", value: "Hello world"}]}]}',
         format="json5",
     )
 
     assert isinstance(node, Article)
     assert isinstance(node.content[0], Paragraph)
-    assert node == Article(content=[Paragraph(content=["Hello world"])])
+    assert node == Article(content=[Paragraph(content=[Text(value="Hello world")])])
 
 
 async def test_from_path():
@@ -28,7 +28,15 @@ async def test_from_path():
 async def test_to_string():
     markdown = await to_string(
         Article(
-            content=[Paragraph(content=["Hello ", Strong(content=["world"]), "!"])]
+            content=[
+                Paragraph(
+                    content=[
+                        Text(value="Hello "),
+                        Strong(content=[Text(value="world")]),
+                        Text(value="!"),
+                    ]
+                )
+            ]
         ),
         format="md",
     )
