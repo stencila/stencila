@@ -4,12 +4,14 @@ use std::path::Path;
 use std::time::SystemTime;
 
 use automerge::ROOT;
+use smol_str::SmolStr;
+
 use common::{
     async_trait::async_trait,
     eyre::{bail, Context, Result},
     tokio::fs::{read, write},
 };
-use smol_str::SmolStr;
+use node_strip::{StripNode, Targets};
 
 pub use automerge::{
     self, AutoCommit as WriteStore, ChangeHash as CommitHash, ObjId, ObjType, Prop,
@@ -54,10 +56,10 @@ macro_rules! bail_load_unexpected {
     };
 }
 
-/// A trait for reading Stencila document nodes from an Automerge store
+/// A trait for reading Stencila Schema nodes from an Automerge store
 #[async_trait]
-pub trait ReadNode: Sized {
-    /// Read a Stencila document node from an Automerge file
+pub trait ReadNode: StripNode + Sized {
+    /// Read a Stencila Schema node from an Automerge file
     async fn read(path: &Path) -> Result<(WriteStore, Self)> {
         let store = load_store(path).await?;
 
@@ -70,7 +72,7 @@ pub trait ReadNode: Sized {
         Ok((store, node))
     }
 
-    /// Load a Stencila document node from an Automerge store
+    /// Load a Stencila Schema node from an Automerge store
     ///
     /// Because Automerge stores must have a map at the root, this method calls
     /// the `load_map` method. As such it will fail if that method is not
@@ -79,14 +81,26 @@ pub trait ReadNode: Sized {
         Self::load_map(store, &ROOT)
     }
 
-    /// Load the Stencila document node from a property for an object in an Automerge store
+    /// Load a Stencila Schema node from an Automerge store without any ids
+    fn load_without_ids<S: ReadStore>(store: &S) -> Result<Self> {
+        let mut node = Self::load(store)?;
+        
+        node.strip(&Targets {
+            id: true,
+            ..Default::default()
+        });
+
+        Ok(node)
+    }
+
+    /// Load the Stencila Schema node from a property for an object in an Automerge store
     fn load_from<S: ReadStore>(&mut self, store: &S, obj_id: &ObjId, prop: Prop) -> Result<()> {
         *self = Self::load_prop(store, obj_id, prop)?;
 
         Ok(())
     }
 
-    /// Load a new Stencila document node from a property for an object in an Automerge store
+    /// Load a new Stencila Schema node from a property for an object in an Automerge store
     fn load_prop<S: ReadStore>(store: &S, obj_id: &ObjId, prop: Prop) -> Result<Self> {
         match store.get(obj_id, prop)? {
             Some((Value::Scalar(scalar), ..)) => match scalar.as_ref() {
@@ -110,72 +124,72 @@ pub trait ReadNode: Sized {
         }
     }
 
-    /// Load a Stencila document node from an [`automerge::ScalarValue::Null`]
+    /// Load a Stencila Schema node from an [`automerge::ScalarValue::Null`]
     fn load_null() -> Result<Self> {
         bail_load_unexpected!("Null")
     }
 
-    /// Load a Stencila document node from an [`automerge::ScalarValue::Boolean`]
+    /// Load a Stencila Schema node from an [`automerge::ScalarValue::Boolean`]
     fn load_boolean(_value: &bool) -> Result<Self> {
         bail_load_unexpected!("Boolean")
     }
 
-    /// Load a Stencila document node from an [`automerge::ScalarValue::Int`]
+    /// Load a Stencila Schema node from an [`automerge::ScalarValue::Int`]
     fn load_int(_value: &i64) -> Result<Self> {
         bail_load_unexpected!("Int")
     }
 
-    /// Load a Stencila document node from an [`automerge::ScalarValue::Uint`]
+    /// Load a Stencila Schema node from an [`automerge::ScalarValue::Uint`]
     fn load_uint(_value: &u64) -> Result<Self> {
         bail_load_unexpected!("Uint")
     }
 
-    /// Load a Stencila document node from an [`automerge::ScalarValue::F64`]
+    /// Load a Stencila Schema node from an [`automerge::ScalarValue::F64`]
     fn load_f64(_value: &f64) -> Result<Self> {
         bail_load_unexpected!("F64")
     }
 
-    /// Load a Stencila document node from an [`automerge::ScalarValue::Str`]
+    /// Load a Stencila Schema node from an [`automerge::ScalarValue::Str`]
     fn load_str(_value: &SmolStr) -> Result<Self> {
         bail_load_unexpected!("Str")
     }
 
-    /// Load a Stencila document node from an [`automerge::ScalarValue::Counter`]
+    /// Load a Stencila Schema node from an [`automerge::ScalarValue::Counter`]
     fn load_counter(_value: &i64) -> Result<Self> {
         bail_load_unexpected!("Counter")
     }
 
-    /// Load a Stencila document node from an [`automerge::ScalarValue::Timestamp`]
+    /// Load a Stencila Schema node from an [`automerge::ScalarValue::Timestamp`]
     fn load_timestamp(_value: &i64) -> Result<Self> {
         bail_load_unexpected!("Timestamp")
     }
 
-    /// Load a Stencila document node from an [`automerge::ScalarValue::Bytes`]
+    /// Load a Stencila Schema node from an [`automerge::ScalarValue::Bytes`]
     fn load_bytes(_value: &[u8]) -> Result<Self> {
         bail_load_unexpected!("Bytes")
     }
 
-    /// Load a Stencila document node from an [`automerge::ScalarValue::Unknown`]
+    /// Load a Stencila Schema node from an [`automerge::ScalarValue::Unknown`]
     fn load_unknown(_type_code: u8, _bytes: &[u8]) -> Result<Self> {
         bail_load_unexpected!("Unknown")
     }
 
-    /// Load a Stencila document node from an [`automerge::ObjType::Text`] value
+    /// Load a Stencila Schema node from an [`automerge::ObjType::Text`] value
     fn load_text<S: ReadStore>(_store: &S, _obj_id: &ObjId) -> Result<Self> {
         bail_load_unexpected!("Text")
     }
 
-    /// Load a Stencila document node from an [`automerge::ObjType::List`]
+    /// Load a Stencila Schema node from an [`automerge::ObjType::List`]
     fn load_list<S: ReadStore>(_store: &S, _obj_id: &ObjId) -> Result<Self> {
         bail_load_unexpected!("List")
     }
 
-    /// Load a Stencila document node from an [`automerge::ObjType::Map`]
+    /// Load a Stencila Schema node from an [`automerge::ObjType::Map`]
     fn load_map<S: ReadStore>(_store: &S, _obj_id: &ObjId) -> Result<Self> {
         bail_load_unexpected!("Map")
     }
 
-    /// Load a Stencila document node from a `None` value
+    /// Load a Stencila Schema node from a `None` value
     fn load_none() -> Result<Self> {
         bail_load_unexpected!("None")
     }
