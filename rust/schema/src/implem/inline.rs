@@ -1,5 +1,3 @@
-use smol_str::SmolStr;
-
 use node_store::{automerge::ObjId, get_type, ReadNode, ReadStore};
 
 use crate::{prelude::*, *};
@@ -23,10 +21,6 @@ impl ReadNode for Inline {
 
     fn load_f64(value: &f64) -> Result<Self> {
         Ok(Inline::Number(*value))
-    }
-
-    fn load_str(value: &SmolStr) -> Result<Self> {
-        Ok(Inline::Text(Text::from(value.to_string())))
     }
 
     fn load_map<S: ReadStore>(store: &S, obj_id: &ObjId) -> Result<Self> {
