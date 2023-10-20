@@ -103,7 +103,7 @@ pub fn derive_enum(input: &DeriveInput, data: &DataEnum, attrs: &Vec<Attribute>)
             };
             match node_type.as_str() {
                 #cases
-                _ => common::eyre::bail!("Unexpected type `{}` in Automerge store for enum `{}`", node_type, stringify!(#enum_name))
+                _ => common::eyre::bail!("Unexpected type `{node_type}` in Automerge store for enum `{}`", stringify!(#enum_name))
             }
         }
     });

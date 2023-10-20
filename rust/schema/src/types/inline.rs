@@ -37,7 +37,7 @@ use super::underline::Underline;
 use super::video_object::VideoObject;
 
 /// Union type for valid inline content.
-#[derive(Debug, Display, Clone, PartialEq, Serialize, Deserialize, StripNode, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec, WriteNode, SmartDefault, ReadNode)]
+#[derive(Debug, Display, Clone, PartialEq, Serialize, Deserialize, StripNode, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec, WriteNode, SmartDefault)]
 #[serde(untagged, crate = "common::serde")]
 #[cfg_attr(feature = "proptest", derive(Arbitrary))]
 pub enum Inline {

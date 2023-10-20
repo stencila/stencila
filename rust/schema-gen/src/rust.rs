@@ -40,6 +40,7 @@ const NO_GENERATE_MODULE: &[&str] = &[
 /// because they are union types with variants of different Automerge types
 /// (and so are not easily handled in derive macros)
 const NO_READ_NODE: &[&str] = &[
+    "Inline",
     "IntegerOrString",
     "Node",
     "Primitive",
