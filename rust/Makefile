@@ -41,27 +41,35 @@ test:
 # Coverage is reported to ../lcov.info so it can be used by the VSCode Coverage Gutters extension
 cover:
 	cargo llvm-cov clean --workspace 
-	cargo llvm-cov test --workspace  --no-report
-	# SKIP: NO TESTS cargo llvm-cov test -p codecs --features proptest-min --no-report proptests
-	# SKIP: NO TESTS cargo llvm-cov test -p codecs --features proptest-low --no-report proptests
-	cargo llvm-cov test -p codecs --features proptest-high --no-report proptests
-	cargo llvm-cov test -p codecs --features proptest-max --no-report proptests
+	
+	cargo llvm-cov test --workspace --no-report
+	
+	# SKIP: NO TESTS cargo llvm-cov test --no-report -p codecs --features proptest-min --test proptests
+	
+	# SKIP: NO TESTS cargo llvm-cov test --no-report -p codecs --features proptest-low --test proptests
+	
+	cargo llvm-cov test --no-report -p codecs --features proptest-high --test proptests
+	
+	cargo llvm-cov test --no-report -p codecs --features proptest-max --test proptests
+	cargo llvm-cov test --no-report -p node-store --features proptest-max --test proptests
+	
 	cd .. && cargo llvm-cov report --lcov --output-path lcov.info --ignore-filename-regex '(test)|(rust/schema-gen)|(rust/schema/src/types)|(python/src)|(node/src)'
 
 # Run all property tests at all levels
 proptest: proptest-min proptest-low proptest-high proptest-max
 
 proptest-min:
-	cargo test -p codecs --features proptest-min proptests
+	cargo test -p codecs --features proptest-min --test proptests
 
 proptest-low:
-	cargo test -p codecs --features proptest-low proptests
+	cargo test -p codecs --features proptest-low --test proptests
 
 proptest-high:
-	cargo test -p codecs --features proptest-high proptests
+	cargo test -p codecs --features proptest-high --test proptests
 
 proptest-max:
-	cargo test -p codecs --features proptest-max proptests
+	cargo test -p codecs --features proptest-max --test proptests
+	cargo test -p node-store --features proptest-max --test proptests
 
 # Run accessibility tests
 a11y:
