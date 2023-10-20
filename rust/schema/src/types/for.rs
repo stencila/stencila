@@ -4,7 +4,6 @@ use crate::prelude::*;
 
 use super::array::Array;
 use super::block::Block;
-use super::boolean::Boolean;
 use super::code_error::CodeError;
 use super::cord::Cord;
 use super::duration::Duration;
@@ -41,11 +40,7 @@ pub struct For {
     /// The programming language of the code.
     #[strip(code)]
     #[jats(attr = "language")]
-    pub programming_language: String,
-
-    /// Whether the programming language of the code should be guessed based on syntax and variables used.
-    #[strip(code)]
-    pub guess_language: Option<Boolean>,
+    pub programming_language: Option<String>,
 
     /// The name to give to the variable representing each item in the iterated array
     #[strip(code)]
@@ -129,10 +124,9 @@ pub struct ForOptions {
 }
 
 impl For {
-    pub fn new(code: Cord, programming_language: String, symbol: String, content: Vec<Block>) -> Self {
+    pub fn new(code: Cord, symbol: String, content: Vec<Block>) -> Self {
         Self {
             code,
-            programming_language,
             symbol,
             content,
             ..Default::default()

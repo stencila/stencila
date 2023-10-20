@@ -2,7 +2,6 @@
 
 use crate::prelude::*;
 
-use super::boolean::Boolean;
 use super::code_error::CodeError;
 use super::cord::Cord;
 use super::duration::Duration;
@@ -48,17 +47,12 @@ pub struct CodeExpression {
 
     /// The programming language of the code.
     #[strip(code)]
-    #[cfg_attr(feature = "proptest-min", proptest(value = r#"String::from("lang")"#))]
-    #[cfg_attr(feature = "proptest-low", proptest(regex = r#"(cpp)|(js)|(py)|(r)|(ts)"#))]
-    #[cfg_attr(feature = "proptest-high", proptest(regex = r#"[a-zA-Z0-9]{1,10}"#))]
-    #[cfg_attr(feature = "proptest-max", proptest(strategy = r#"String::arbitrary()"#))]
+    #[cfg_attr(feature = "proptest-min", proptest(value = r#"Some(String::from("lang"))"#))]
+    #[cfg_attr(feature = "proptest-low", proptest(strategy = r#"option::of(r"(cpp)|(js)|(py)|(r)|(ts)")"#))]
+    #[cfg_attr(feature = "proptest-high", proptest(strategy = r#"option::of(r"[a-zA-Z0-9]{1,10}")"#))]
+    #[cfg_attr(feature = "proptest-max", proptest(strategy = r#"option::of(String::arbitrary())"#))]
     #[jats(attr = "language")]
-    pub programming_language: String,
-
-    /// Whether the programming language of the code should be guessed based on syntax and variables used.
-    #[strip(code)]
-    #[cfg_attr(feature = "proptest", proptest(value = "None"))]
-    pub guess_language: Option<Boolean>,
+    pub programming_language: Option<String>,
 
     /// The value of the expression when it was last evaluated.
     #[strip(output)]
@@ -147,10 +141,9 @@ pub struct CodeExpressionOptions {
 }
 
 impl CodeExpression {
-    pub fn new(code: Cord, programming_language: String) -> Self {
+    pub fn new(code: Cord) -> Self {
         Self {
             code,
-            programming_language,
             ..Default::default()
         }
     }

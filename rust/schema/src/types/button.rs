@@ -39,11 +39,7 @@ pub struct Button {
     /// The programming language of the code.
     #[strip(code)]
     #[jats(attr = "language")]
-    pub programming_language: String,
-
-    /// Whether the programming language of the code should be guessed based on syntax and variables used.
-    #[strip(code)]
-    pub guess_language: Option<Boolean>,
+    pub programming_language: Option<String>,
 
     /// The name of the variable associated with the button.
     pub name: String,
@@ -120,10 +116,9 @@ pub struct ButtonOptions {
 }
 
 impl Button {
-    pub fn new(code: Cord, programming_language: String, name: String) -> Self {
+    pub fn new(code: Cord, name: String) -> Self {
         Self {
             code,
-            programming_language,
             name,
             ..Default::default()
         }

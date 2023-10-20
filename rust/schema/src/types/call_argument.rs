@@ -53,11 +53,7 @@ pub struct CallArgument {
 
     /// The programming language of the code.
     #[strip(code)]
-    pub programming_language: String,
-
-    /// Whether the programming language of the code should be guessed based on syntax and variables used
-    #[strip(code)]
-    pub guess_language: Option<Boolean>,
+    pub programming_language: Option<String>,
 
     /// Non-core optional fields
     #[serde(flatten)]
@@ -131,11 +127,10 @@ pub struct CallArgumentOptions {
 }
 
 impl CallArgument {
-    pub fn new(name: String, code: String, programming_language: String) -> Self {
+    pub fn new(name: String, code: String) -> Self {
         Self {
             name,
             code,
-            programming_language,
             ..Default::default()
         }
     }

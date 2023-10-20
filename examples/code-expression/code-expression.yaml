@@ -51,7 +51,6 @@ content:
   - type: CodeExpression
     code: a + b
     programmingLanguage: c++
-    guessLanguage: true
 - type: Paragraph
   content:
   - type: Text

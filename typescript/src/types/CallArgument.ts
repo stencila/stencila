@@ -16,25 +16,19 @@ export class CallArgument extends Parameter {
   /**
    * The programming language of the code.
    */
-  programmingLanguage: string;
+  programmingLanguage?: string;
 
-  /**
-   * Whether the programming language of the code should be guessed based on syntax and variables used
-   */
-  guessLanguage?: boolean;
-
-  constructor(name: string, code: string, programmingLanguage: string, options?: Partial<CallArgument>) {
+  constructor(name: string, code: string, options?: Partial<CallArgument>) {
     super(name);
     if (options) Object.assign(this, options);
     this.name = name;
     this.code = code;
-    this.programmingLanguage = programmingLanguage;
   }
 }
 
 /**
 * Create a new `CallArgument`
 */
-export function callArgument(name: string, code: string, programmingLanguage: string, options?: Partial<CallArgument>): CallArgument {
-  return new CallArgument(name, code, programmingLanguage, options);
+export function callArgument(name: string, code: string, options?: Partial<CallArgument>): CallArgument {
+  return new CallArgument(name, code, options);
 }

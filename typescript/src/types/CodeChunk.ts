@@ -31,17 +31,16 @@ export class CodeChunk extends CodeExecutable {
    */
   caption?: Block[];
 
-  constructor(code: Cord, programmingLanguage: string, options?: Partial<CodeChunk>) {
-    super(code, programmingLanguage);
+  constructor(code: Cord, options?: Partial<CodeChunk>) {
+    super(code);
     if (options) Object.assign(this, options);
     this.code = code;
-    this.programmingLanguage = programmingLanguage;
   }
 }
 
 /**
 * Create a new `CodeChunk`
 */
-export function codeChunk(code: Cord, programmingLanguage: string, options?: Partial<CodeChunk>): CodeChunk {
-  return new CodeChunk(code, programmingLanguage, options);
+export function codeChunk(code: Cord, options?: Partial<CodeChunk>): CodeChunk {
+  return new CodeChunk(code, options);
 }

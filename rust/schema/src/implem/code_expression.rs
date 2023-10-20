@@ -6,8 +6,8 @@ impl CodeExpression {
     pub fn to_markdown_special(&self, _context: &MarkdownEncodeContext) -> (String, Losses) {
         let mut md = ["`", &self.code, "`{"].concat();
 
-        if !self.programming_language.is_empty() && self.guess_language != Some(true) {
-            md.push_str(&self.programming_language);
+        if let Some(lang) = &self.programming_language {
+            md.push_str(lang);
             md.push(' ');
         }
 

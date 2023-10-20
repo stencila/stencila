@@ -9,9 +9,8 @@ $comment: |
   The added properties are the same as for static code nodes. Both `code` and `programmingLanguage` are required.
 required:
   - code
-  - programmingLanguage
 core:
-  - guessLanguage
+  - programmingLanguage
 properties:
   code:
     '@id': stencila:code
@@ -46,19 +45,14 @@ properties:
     proptest:
       min:
         description: Generate a simple fixed string.
-        value: String::from("lang")
+        value: Some(String::from("lang"))
       low:
         description: Generate one of the well known programming language short names.
-        regex: '(cpp)|(js)|(py)|(r)|(ts)'
+        strategy: option::of(r"(cpp)|(js)|(py)|(r)|(ts)")
       high:
         description: Generate a random string of up to 10 alphanumeric characters.
-        regex: '[a-zA-Z0-9]{1,10}'
+        strategy: option::of(r"[a-zA-Z0-9]{1,10}")
       max:
         description: Generate an arbitrary string.
-        strategy: String::arbitrary()
-  guessLanguage:
-    '@id': stencila:guessLanguage
-    description: Whether the programming language of the code should be guessed based on syntax and variables used.
-    type: boolean
-    strip:
-      - code
+        strategy: option::of(String::arbitrary())
+

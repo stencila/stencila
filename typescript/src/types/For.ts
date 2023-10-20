@@ -31,11 +31,10 @@ export class For extends CodeExecutable {
    */
   iterations?: Array[];
 
-  constructor(code: Cord, programmingLanguage: string, symbol: string, content: Block[], options?: Partial<For>) {
-    super(code, programmingLanguage);
+  constructor(code: Cord, symbol: string, content: Block[], options?: Partial<For>) {
+    super(code);
     if (options) Object.assign(this, options);
     this.code = code;
-    this.programmingLanguage = programmingLanguage;
     this.symbol = symbol;
     this.content = content;
   }
@@ -44,6 +43,6 @@ export class For extends CodeExecutable {
 /**
 * Create a new `For`
 */
-export function for_(code: Cord, programmingLanguage: string, symbol: string, content: Block[], options?: Partial<For>): For {
-  return new For(code, programmingLanguage, symbol, content, options);
+export function for_(code: Cord, symbol: string, content: Block[], options?: Partial<For>): For {
+  return new For(code, symbol, content, options);
 }

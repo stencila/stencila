@@ -24,11 +24,10 @@ export class Button extends CodeExecutable {
    */
   isDisabled?: boolean;
 
-  constructor(code: Cord, programmingLanguage: string, name: string, options?: Partial<Button>) {
-    super(code, programmingLanguage);
+  constructor(code: Cord, name: string, options?: Partial<Button>) {
+    super(code);
     if (options) Object.assign(this, options);
     this.code = code;
-    this.programmingLanguage = programmingLanguage;
     this.name = name;
   }
 }
@@ -36,6 +35,6 @@ export class Button extends CodeExecutable {
 /**
 * Create a new `Button`
 */
-export function button(code: Cord, programmingLanguage: string, name: string, options?: Partial<Button>): Button {
-  return new Button(code, programmingLanguage, name, options);
+export function button(code: Cord, name: string, options?: Partial<Button>): Button {
+  return new Button(code, name, options);
 }

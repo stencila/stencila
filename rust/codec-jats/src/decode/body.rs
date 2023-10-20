@@ -224,20 +224,20 @@ fn decode_inline_media(path: &str, node: &Node, losses: &mut Losses) -> Inline {
 /// Decode a `<code>` to a [`Inline::CodeFragment`] or [`Inline::CodeExpression`]
 fn decode_inline_code(path: &str, node: &Node, losses: &mut Losses) -> Inline {
     let executable = node.attribute("executable").map(String::from);
-    let language = node.attribute("language").map(String::from);
+    let programming_language = node.attribute("language").map(String::from);
     let code = node.text().map(Cord::new).unwrap_or_default();
 
     record_attrs_lost(path, node, ["language"], losses);
 
     if executable.as_deref() == Some("yes") {
         Inline::CodeExpression(CodeExpression {
-            programming_language: language.unwrap_or_default(),
+            programming_language,
             code,
             ..Default::default()
         })
     } else {
         Inline::CodeFragment(CodeFragment {
-            programming_language: language,
+            programming_language,
             code,
             ..Default::default()
         })

@@ -387,23 +387,6 @@
       "schema:rangeIncludes": {
         "@id": "schema:Text"
       }
-    },
-    {
-      "@id": "stencila:guessLanguage",
-      "@type": "rdfs:Property",
-      "rdfs:label": "guessLanguage",
-      "rdfs:comment": "Whether the programming language of the code should be guessed based on syntax and variables used",
-      "schema:domainIncludes": [
-        {
-          "@id": "stencila:CallArgument"
-        },
-        {
-          "@id": "stencila:CodeExecutable"
-        }
-      ],
-      "schema:rangeIncludes": {
-        "@id": "schema:Boolean"
-      }
     }
   ]
 }

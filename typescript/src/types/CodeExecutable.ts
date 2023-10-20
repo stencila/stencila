@@ -17,24 +17,18 @@ export class CodeExecutable extends Executable {
   /**
    * The programming language of the code.
    */
-  programmingLanguage: string;
+  programmingLanguage?: string;
 
-  /**
-   * Whether the programming language of the code should be guessed based on syntax and variables used.
-   */
-  guessLanguage?: boolean;
-
-  constructor(code: Cord, programmingLanguage: string, options?: Partial<CodeExecutable>) {
+  constructor(code: Cord, options?: Partial<CodeExecutable>) {
     super();
     if (options) Object.assign(this, options);
     this.code = code;
-    this.programmingLanguage = programmingLanguage;
   }
 }
 
 /**
 * Create a new `CodeExecutable`
 */
-export function codeExecutable(code: Cord, programmingLanguage: string, options?: Partial<CodeExecutable>): CodeExecutable {
-  return new CodeExecutable(code, programmingLanguage, options);
+export function codeExecutable(code: Cord, options?: Partial<CodeExecutable>): CodeExecutable {
+  return new CodeExecutable(code, options);
 }

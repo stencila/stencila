@@ -16,8 +16,5 @@ class CallArgument(Parameter):
     code: str
     """The code to be evaluated for the parameter."""
 
-    programming_language: str
+    programming_language: Optional[str] = None
     """The programming language of the code."""
-
-    guess_language: Optional[bool] = None
-    """Whether the programming language of the code should be guessed based on syntax and variables used"""

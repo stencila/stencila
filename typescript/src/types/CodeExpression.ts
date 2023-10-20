@@ -15,17 +15,16 @@ export class CodeExpression extends CodeExecutable {
    */
   output?: Node;
 
-  constructor(code: Cord, programmingLanguage: string, options?: Partial<CodeExpression>) {
-    super(code, programmingLanguage);
+  constructor(code: Cord, options?: Partial<CodeExpression>) {
+    super(code);
     if (options) Object.assign(this, options);
     this.code = code;
-    this.programmingLanguage = programmingLanguage;
   }
 }
 
 /**
 * Create a new `CodeExpression`
 */
-export function codeExpression(code: Cord, programmingLanguage: string, options?: Partial<CodeExpression>): CodeExpression {
-  return new CodeExpression(code, programmingLanguage, options);
+export function codeExpression(code: Cord, options?: Partial<CodeExpression>): CodeExpression {
+  return new CodeExpression(code, options);
 }

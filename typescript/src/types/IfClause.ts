@@ -20,11 +20,10 @@ export class IfClause extends CodeExecutable {
    */
   content: Block[];
 
-  constructor(code: Cord, programmingLanguage: string, content: Block[], options?: Partial<IfClause>) {
-    super(code, programmingLanguage);
+  constructor(code: Cord, content: Block[], options?: Partial<IfClause>) {
+    super(code);
     if (options) Object.assign(this, options);
     this.code = code;
-    this.programmingLanguage = programmingLanguage;
     this.content = content;
   }
 }
@@ -32,6 +31,6 @@ export class IfClause extends CodeExecutable {
 /**
 * Create a new `IfClause`
 */
-export function ifClause(code: Cord, programmingLanguage: string, content: Block[], options?: Partial<IfClause>): IfClause {
-  return new IfClause(code, programmingLanguage, content, options);
+export function ifClause(code: Cord, content: Block[], options?: Partial<IfClause>): IfClause {
+  return new IfClause(code, content, options);
 }

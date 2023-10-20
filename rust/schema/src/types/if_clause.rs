@@ -40,11 +40,7 @@ pub struct IfClause {
     /// The programming language of the code.
     #[strip(code)]
     #[jats(attr = "language")]
-    pub programming_language: String,
-
-    /// Whether the programming language of the code should be guessed based on syntax and variables used.
-    #[strip(code)]
-    pub guess_language: Option<Boolean>,
+    pub programming_language: Option<String>,
 
     /// The content to render if the result is truthy
     #[strip(types)]
@@ -120,10 +116,9 @@ pub struct IfClauseOptions {
 }
 
 impl IfClause {
-    pub fn new(code: Cord, programming_language: String, content: Vec<Block>) -> Self {
+    pub fn new(code: Cord, content: Vec<Block>) -> Self {
         Self {
             code,
-            programming_language,
             content,
             ..Default::default()
         }

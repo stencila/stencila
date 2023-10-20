@@ -86,8 +86,7 @@
         {
           "type": "CodeExpression",
           "programmingLanguage": "c++",
-          "code": "a + b",
-          "guessLanguage": true
+          "code": "a + b"
         }
       ]
     },

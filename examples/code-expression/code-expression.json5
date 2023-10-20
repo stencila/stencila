@@ -92,8 +92,7 @@
         {
           type: "CodeExpression",
           code: "a + b",
-          programmingLanguage: "c++",
-          guessLanguage: true
+          programmingLanguage: "c++"
         }
       ]
     },
