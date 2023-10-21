@@ -1,27 +1,58 @@
 {
   "name": "@stencila/node",
   "version": "2.0.0-alpha.16",
+  "description": "Stencila SDK for Node.js",
   "license": "Apache-2.0",
-  "files": [
-    "bindings.*",
-    "install.*",
-    "dist",
-    "src/*.mts"
+  "author": "Nokome Bentley <nokome@stencila.io>",
+  "bugs": {
+    "url": "https://github.com/stencila/stencila/issues"
+  },
+  "homepage": "https://github.com/stencila/stencila/tree/main/node#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/stencila/stencila.git"
+  },
+  "keywords": [
+    "node",
+    "programmable",
+    "executable",
+    "reproducible",
+    "interactive",
+    "documents"
   ],
-  "main": "./dist/lib.mjs",
-  "types": "./dist/lib.d.mts",
+  "type": "module",
+  "files": [
+    "dist",
+    "install.*",
+    "src/*.ts",
+    "src/*.js"
+  ],
+  "exports": {
+    ".": {
+      "import": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.js"
+      },
+      "require": {
+        "types": "./dist/index.d.cts",
+        "default": "./dist/index.cjs"
+      }
+    }
+  },
+  "main": "./dist/index.cjs",
+  "types": "./dist/index.d.cts",
   "scripts": {
-    "fix": "eslint --fix '**/*.mts'",
-    "lint": "eslint '**/*.mts'",
-    "build:addon": "napi build --platform --release --js false --dts bindings.d.cts && npm run compress",
-    "build:debug": "napi build --js false --dts bindings.d.cts && npm run build:dist",
-    "build:dist": "tsc -p tsconfig-build.json",
+    "fix": "eslint --fix '**/*.ts'",
+    "lint": "eslint '**/*.ts'",
+    "build:debug": "napi build --js false --dts src/bindings.d.ts",
+    "build:addon": "napi build --platform --release --js false --dts src/bindings.d.ts && npm run compress",
+    "build:dist": "tsup --external ../stencila.node",
     "pubcheck": "attw --pack . && publint",
     "compress": "node compress.cjs",
     "install": "node install.cjs",
-    "test": "NODE_OPTIONS=--experimental-vm-modules npx jest",
+    "test": "jest",
     "cover": "npm test -- --collectCoverage --coverageReports=cobertura",
-    "unused": "depcheck --quiet"
+    "unused": "depcheck --quiet --ignore @types/jest "
   },
   "engines": {
     "node": ">= 10"
@@ -31,17 +62,37 @@
     "triples": {}
   },
   "jest": {
-    "testMatch": [
-      "**/*.test.mjs"
+    "preset": "ts-jest/presets/default-esm",
+    "moduleNameMapper": {
+      "^(\\.{1,2}/.*)\\.js$": "$1"
+    },
+    "transform": {
+      "^.+\\.ts$": [
+        "ts-jest",
+        {
+          "useESM": true
+        }
+      ]
+    }
+  },
+  "tsup": {
+    "entry": [
+      "src/index.ts"
     ],
-    "moduleFileExtensions": [
-      "js",
-      "mjs"
-    ]
+    "format": [
+      "esm",
+      "cjs"
+    ],
+    "splitting": false,
+    "dts": true,
+    "sourcemap": true,
+    "clean": true
   },
   "devDependencies": {
     "@arethetypeswrong/cli": "0.12.2",
     "@napi-rs/cli": "2.16.3",
+    "@types/jest": "29.5.6",
+    "@types/tmp": "0.2.5",
     "@typescript-eslint/eslint-plugin": "6.8.0",
     "@typescript-eslint/parser": "6.8.0",
     "depcheck": "1.4.7",
@@ -49,6 +100,8 @@
     "jest": "29.7.0",
     "publint": "0.2.5",
     "tmp": "0.2.1",
+    "ts-jest": "29.1.1",
+    "tsup": "7.2.0",
     "typescript": "5.2.2"
   },
   "dependencies": {

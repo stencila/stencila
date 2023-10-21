@@ -53,7 +53,7 @@ dist: install
 .PHONY: dist
 
 # Run package publishing checks
-pubcheck: install
+pubcheck: dist
 	npm run pubcheck
 
 # Publish the package

@@ -1,7 +1,7 @@
 import { type Node, node } from "@stencila/types";
 
-import { type DecodeOptions, type EncodeOptions } from "../bindings.cjs";
-import * as bindings from "../bindings.cjs";
+import * as bindings from "./bindings.js";
+import { type DecodeOptions, type EncodeOptions } from "./bindings.d.js";
 
 export { DecodeOptions, EncodeOptions };
 
