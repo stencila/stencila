@@ -124,6 +124,9 @@ pub struct Schema {
     /// Options for property testing
     pub proptest: Option<BTreeMap<ProptestLevel, ProptestOptions>>,
 
+    /// The function to use to deserialize the property
+    pub serde: Option<SerdeOptions>,
+
     /// Options for converting the type or property to/from HTML
     pub html: Option<HtmlOptions>,
 
@@ -522,6 +525,22 @@ pub enum ProptestLevel {
     Low,
     High,
     Max,
+}
+
+/// Options for `serde` serialization/deserialization
+#[skip_serializing_none]
+#[derive(Debug, Clone, Default, Deserialize, Serialize, JsonSchema)]
+#[serde(
+    default,
+    rename_all = "camelCase",
+    deny_unknown_fields,
+    crate = "common::serde"
+)]
+pub struct SerdeOptions {
+    /// Set the `deserialize_with` attribute of a field
+    /// 
+    /// See https://serde.rs/field-attrs.html#deserialize_with
+    pub deserialize_with: Option<String>
 }
 
 /// Options for conversion to/from HTML

@@ -16,7 +16,7 @@ use codec::{
 use common_dev::pretty_assertions::assert_eq;
 
 use codec_json::r#trait::JsonCodec;
-use schema::ThematicBreak;
+use schema::{Person, ThematicBreak};
 
 /// Test deserialization of primitive types from JSON
 #[test]
@@ -177,15 +177,13 @@ fn entity_enum() -> Result<()> {
 /// Test deserialization with aliases and single values for properties
 #[test]
 fn property_aliases() -> Result<()> {
-    let value = json!({
+    let article = Article::from_json_value(json!({
         "type": "Article",
         "keyword": "one",
         "alternate-name": "alt-name",
         "date": { "type": "Date", "value": "2010" },
         "content": { "type": "ThematicBreak"}
-    });
-
-    let article = Article::from_json_value(value)?;
+    }))?;
 
     assert_eq!(article.keywords, Some(vec!["one".to_string()]));
     assert_eq!(
@@ -197,6 +195,28 @@ fn property_aliases() -> Result<()> {
         article.content,
         vec![Block::ThematicBreak(ThematicBreak::new())]
     );
+
+    Ok(())
+}
+
+/// Test deserialization from comma and space separated strings or array
+#[test]
+fn csv_and_ssv_or_array() -> Result<()> {
+    let person1 = Person::from_json_value(json!({
+        "type": "Person",
+        "givenNames": "One Two",
+        "familyNames": "Tahi Rua",
+        "emails": "one@example.com, two@example.org"
+    }))?;
+
+    let person2 = Person::from_json_value(json!({
+        "type": "Person",
+        "givenNames": ["One", "Two"],
+        "familyNames": ["Tahi", "Rua"],
+        "emails": ["one@example.com", "two@example.org"]
+    }))?;
+
+    assert_eq!(person1, person2);
 
     Ok(())
 }

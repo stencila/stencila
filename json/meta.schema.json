@@ -199,6 +199,14 @@
         "type": "string"
       }
     },
+    "serde": {
+      "description": "The function to use to deserialize the property",
+      "allOf": [
+        {
+          "$ref": "#/definitions/SerdeOptions"
+        }
+      ]
+    },
     "status": {
       "description": "The status of the schema",
       "allOf": [
@@ -660,6 +668,14 @@
             "type": "string"
           }
         },
+        "serde": {
+          "description": "The function to use to deserialize the property",
+          "allOf": [
+            {
+              "$ref": "#/definitions/SerdeOptions"
+            }
+          ]
+        },
         "status": {
           "description": "The status of the schema",
           "allOf": [
@@ -686,6 +702,17 @@
               "$ref": "#/definitions/Type"
             }
           ]
+        }
+      },
+      "additionalProperties": false
+    },
+    "SerdeOptions": {
+      "description": "Options for `serde` serialization/deserialization",
+      "type": "object",
+      "properties": {
+        "deserializeWith": {
+          "description": "Set the `deserialize_with` attribute of a field\n\nSee https://serde.rs/field-attrs.html#deserialize_with",
+          "type": "string"
         }
       },
       "additionalProperties": false

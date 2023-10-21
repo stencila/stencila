@@ -12,7 +12,6 @@ properties:
   content:
     '@id': 'stencila:content'
     description: The content that is marked.
-
     type: array
     items:
       $ref: Inline

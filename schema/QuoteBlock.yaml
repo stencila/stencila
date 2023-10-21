@@ -21,7 +21,6 @@ properties:
     type: array
     items:
       $ref: Block
-
     proptest:
       min:
         description: Generate a single arbitrary paragraph.

@@ -11,6 +11,8 @@ properties:
     items:
       type: string
     strip: [metadata]
+    serde:
+      deserializeWith: optional_csv_or_array
   description:
     "@id": schema:description
     description: A description of the item.

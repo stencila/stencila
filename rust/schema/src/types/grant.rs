@@ -40,7 +40,7 @@ pub struct Grant {
 pub struct GrantOptions {
     /// Alternate names (aliases) for the item.
     #[serde(alias = "alternate-names", alias = "alternate_names", alias = "alternateName", alias = "alternate-name", alias = "alternate_name")]
-    #[serde_as(deserialize_as = "Option<OneOrMany<_, PreferMany>>")]
+    #[serde(default, deserialize_with = "optional_csv_or_array")]
     #[strip(metadata)]
     pub alternate_names: Option<Vec<String>>,
 

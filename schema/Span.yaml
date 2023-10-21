@@ -21,5 +21,3 @@ properties:
     type: array
     items:
       $ref: Inline
-
-    

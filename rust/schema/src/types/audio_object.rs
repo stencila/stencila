@@ -72,7 +72,7 @@ pub struct AudioObject {
 pub struct AudioObjectOptions {
     /// Alternate names (aliases) for the item.
     #[serde(alias = "alternate-names", alias = "alternate_names", alias = "alternateName", alias = "alternate-name", alias = "alternate_name")]
-    #[serde_as(deserialize_as = "Option<OneOrMany<_, PreferMany>>")]
+    #[serde(default, deserialize_with = "optional_csv_or_array")]
     #[strip(metadata)]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     pub alternate_names: Option<Vec<String>>,
@@ -198,7 +198,7 @@ pub struct AudioObjectOptions {
     pub funded_by: Option<Vec<GrantOrMonetaryGrant>>,
 
     /// Genre of the creative work, broadcast channel or group.
-    #[serde_as(deserialize_as = "Option<OneOrMany<_, PreferMany>>")]
+    #[serde(default, deserialize_with = "optional_csv_or_array")]
     #[strip(metadata)]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     pub genre: Option<Vec<String>>,
@@ -206,7 +206,7 @@ pub struct AudioObjectOptions {
     /// Keywords or tags used to describe this content.
     /// Multiple entries in a keywords list are typically delimited by commas.
     #[serde(alias = "keyword")]
-    #[serde_as(deserialize_as = "Option<OneOrMany<_, PreferMany>>")]
+    #[serde(default, deserialize_with = "optional_csv_or_array")]
     #[strip(metadata)]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     pub keywords: Option<Vec<String>>,

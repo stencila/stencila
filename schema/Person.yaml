@@ -27,6 +27,8 @@ properties:
     items:
       type: string
       format: email
+    serde:
+      deserializeWith: optional_csv_or_array
   familyNames:
     '@id': schema:familyName
     aliases:
@@ -40,6 +42,8 @@ properties:
     type: array
     items:
       type: string
+    serde:
+      deserializeWith: optional_ssv_or_array
   funders:
     '@id': schema:funder
     description: |
@@ -60,6 +64,8 @@ properties:
     type: array
     items:
       type: string
+    serde:
+      deserializeWith: optional_ssv_or_array
   honorificPrefix:
     '@id': schema:honorificPrefix
     aliases:
@@ -90,3 +96,5 @@ properties:
     type: array
     items:
       type: string
+    serde:
+      deserializeWith: optional_csv_or_array

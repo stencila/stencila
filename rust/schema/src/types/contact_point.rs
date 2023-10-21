@@ -25,12 +25,12 @@ pub struct ContactPoint {
 
     /// Email address for correspondence.
     #[serde(alias = "email")]
-    #[serde_as(deserialize_as = "Option<OneOrMany<_, PreferMany>>")]
+    #[serde(default, deserialize_with = "optional_csv_or_array")]
     pub emails: Option<Vec<String>>,
 
     /// Telephone numbers for the contact point.
     #[serde(alias = "telephone", alias = "telephone-numbers", alias = "telephone_numbers", alias = "telephoneNumber", alias = "telephone-number", alias = "telephone_number")]
-    #[serde_as(deserialize_as = "Option<OneOrMany<_, PreferMany>>")]
+    #[serde(default, deserialize_with = "optional_csv_or_array")]
     pub telephone_numbers: Option<Vec<String>>,
 
     /// Non-core optional fields
@@ -48,7 +48,7 @@ pub struct ContactPoint {
 pub struct ContactPointOptions {
     /// Alternate names (aliases) for the item.
     #[serde(alias = "alternate-names", alias = "alternate_names", alias = "alternateName", alias = "alternate-name", alias = "alternate_name")]
-    #[serde_as(deserialize_as = "Option<OneOrMany<_, PreferMany>>")]
+    #[serde(default, deserialize_with = "optional_csv_or_array")]
     #[strip(metadata)]
     pub alternate_names: Option<Vec<String>>,
 
@@ -79,7 +79,7 @@ pub struct ContactPointOptions {
     /// Languages (human not programming) in which it is possible to communicate
     /// with the organization/department etc.
     #[serde(alias = "available-languages", alias = "available_languages", alias = "availableLanguage", alias = "available-language", alias = "available_language")]
-    #[serde_as(deserialize_as = "Option<OneOrMany<_, PreferMany>>")]
+    #[serde(default, deserialize_with = "optional_csv_or_array")]
     pub available_languages: Option<Vec<String>>,
 }
 

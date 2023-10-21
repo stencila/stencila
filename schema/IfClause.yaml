@@ -18,7 +18,6 @@ properties:
   content:
     '@id': stencila:content
     description: The content to render if the result is truthy
-
     type: array
     items:
       $ref: Block

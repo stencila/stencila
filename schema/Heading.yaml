@@ -33,7 +33,6 @@ properties:
     type: array
     items:
       $ref: Inline
-
     proptest:
       min:
         description: Generate a single arbitrary inline node

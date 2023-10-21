@@ -33,12 +33,12 @@ pub struct Person {
 
     /// Family name. In the U.S., the last name of a person.
     #[serde(alias = "familyName", alias = "surname", alias = "surnames", alias = "lastName", alias = "lastNames", alias = "family-names", alias = "family_names", alias = "family-name", alias = "family_name")]
-    #[serde_as(deserialize_as = "Option<OneOrMany<_, PreferMany>>")]
+    #[serde(default, deserialize_with = "optional_ssv_or_array")]
     pub family_names: Option<Vec<String>>,
 
     /// Given name. In the U.S., the first name of a person.
     #[serde(alias = "firstName", alias = "firstNames", alias = "given-names", alias = "given_names", alias = "givenName", alias = "given-name", alias = "given_name")]
-    #[serde_as(deserialize_as = "Option<OneOrMany<_, PreferMany>>")]
+    #[serde(default, deserialize_with = "optional_ssv_or_array")]
     pub given_names: Option<Vec<String>>,
 
     /// Non-core optional fields
@@ -56,7 +56,7 @@ pub struct Person {
 pub struct PersonOptions {
     /// Alternate names (aliases) for the item.
     #[serde(alias = "alternate-names", alias = "alternate_names", alias = "alternateName", alias = "alternate-name", alias = "alternate_name")]
-    #[serde_as(deserialize_as = "Option<OneOrMany<_, PreferMany>>")]
+    #[serde(default, deserialize_with = "optional_csv_or_array")]
     #[strip(metadata)]
     pub alternate_names: Option<Vec<String>>,
 
@@ -89,7 +89,7 @@ pub struct PersonOptions {
 
     /// Email addresses for the person.
     #[serde(alias = "email")]
-    #[serde_as(deserialize_as = "Option<OneOrMany<_, PreferMany>>")]
+    #[serde(default, deserialize_with = "optional_csv_or_array")]
     pub emails: Option<Vec<String>>,
 
     /// A person or organization that supports (sponsors) something through
@@ -117,7 +117,7 @@ pub struct PersonOptions {
 
     /// Telephone numbers for the person.
     #[serde(alias = "telephone", alias = "telephone-numbers", alias = "telephone_numbers", alias = "telephoneNumber", alias = "telephone-number", alias = "telephone_number")]
-    #[serde_as(deserialize_as = "Option<OneOrMany<_, PreferMany>>")]
+    #[serde(default, deserialize_with = "optional_csv_or_array")]
     pub telephone_numbers: Option<Vec<String>>,
 }
 

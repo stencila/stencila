@@ -19,5 +19,7 @@ pub use codec_text_trait::TextCodec;
 pub use node_store::{ReadNode, WriteNode};
 pub use node_strip::StripNode;
 
+pub use crate::deserialize::*;
+
 #[cfg(feature = "proptest")]
 pub use crate::proptests::*;

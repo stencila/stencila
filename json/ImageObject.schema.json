@@ -61,6 +61,9 @@
       "strip": [
         "metadata"
       ],
+      "serde": {
+        "deserializeWith": "optional_csv_or_array"
+      },
       "type": "array",
       "items": {
         "type": "string"
@@ -358,6 +361,9 @@
       "strip": [
         "metadata"
       ],
+      "serde": {
+        "deserializeWith": "optional_csv_or_array"
+      },
       "type": "array",
       "items": {
         "type": "string"
@@ -372,6 +378,9 @@
       "strip": [
         "metadata"
       ],
+      "serde": {
+        "deserializeWith": "optional_csv_or_array"
+      },
       "type": "array",
       "items": {
         "type": "string"

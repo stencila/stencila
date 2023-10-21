@@ -456,6 +456,7 @@ pub enum NodeType {{
                 attrs.push(format!("#[default = {default}]"));
             }
 
+            // Add #[serde] aliases for field
             if !property.aliases.is_empty() {
                 attrs.push(format!(
                     "#[serde({})]",
@@ -467,7 +468,17 @@ pub enum NodeType {{
                 ));
             }
 
-            if property.is_array() && !NO_ONE_OR_MANY.contains(&format!("{title}.{name}").as_str())
+            // Add #[serde] attribute for field if necessary
+            if let Some(serde) = &property.serde {
+                let mut args = vec!["default".to_string()];
+
+                if let Some(deserialize_with) = &serde.deserialize_with {
+                    args.push(format!("deserialize_with = \"{deserialize_with}\""));
+                }
+
+                attrs.push(format!("#[serde({})]", args.join(", ")))
+            } else if property.is_array()
+                && !NO_ONE_OR_MANY.contains(&format!("{title}.{name}").as_str())
             {
                 let what = "OneOrMany<_, PreferMany>";
                 let what = if !property.is_required {

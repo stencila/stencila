@@ -48,6 +48,9 @@
       "strip": [
         "metadata"
       ],
+      "serde": {
+        "deserializeWith": "optional_csv_or_array"
+      },
       "type": "array",
       "items": {
         "type": "string"
@@ -120,6 +123,9 @@
       "aliases": [
         "email"
       ],
+      "serde": {
+        "deserializeWith": "optional_csv_or_array"
+      },
       "type": "array",
       "items": {
         "type": "string"
@@ -136,6 +142,9 @@
         "telephone-number",
         "telephone_number"
       ],
+      "serde": {
+        "deserializeWith": "optional_csv_or_array"
+      },
       "type": "array",
       "items": {
         "type": "string"
@@ -151,6 +160,9 @@
         "available-language",
         "available_language"
       ],
+      "serde": {
+        "deserializeWith": "optional_csv_or_array"
+      },
       "type": "array",
       "items": {
         "type": "string"
