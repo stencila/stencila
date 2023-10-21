@@ -3,7 +3,7 @@
 **JavaScript classes and TypeScript types for the Stencila Schema**
 
 <a href="https://www.npmjs.com/package/@stencila/types">
-  <img src="https://img.shields.io/npm/v/%40stencila%2Ftypes.svg?label=npm%20%40stencila%2Ftypes&color=1d3bd1&labelColor=3219a8">
+  <img src="https://img.shields.io/npm/v/%40stencila%2Ftypes.svg?logo=npm&label=%40stencila%2Ftypes&&style=for-the-badge&color=1d3bd1&logoColor=66ff66&labelColor=3219a8">
 </a>
 
 ## 👋 Introduction

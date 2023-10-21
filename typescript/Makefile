@@ -17,8 +17,6 @@ lint: install
 	npm run lint
 
 # Run tests
-# Currently this just checks that the TypeScript compiles
-# since there is not really any code here beyond type definitions
 test: install
 	npm test
 
@@ -36,7 +34,7 @@ build: install
 	npm run build
 
 # Run package publishing checks
-pubcheck: install
+pubcheck: build
 	npm run pubcheck
 
 # Publish the package

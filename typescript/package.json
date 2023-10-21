@@ -46,7 +46,7 @@
     "test": "jest",
     "build": "tsup",
     "pubcheck": "attw --pack . && publint",
-    "unused": "depcheck --quiet --ignores '@types/jest'"
+    "unused": "depcheck --quiet --ignore @types/jest"
   },
   "jest": {
     "preset": "ts-jest/presets/default-esm",
