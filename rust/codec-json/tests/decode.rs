@@ -7,20 +7,19 @@
 //! (although they do have round-trip prop tests) because they should work if these tests pass).
 
 use codec::{
-    common::tokio,
+    common::eyre::Result,
     schema::{
-        shortcuts::{p, text},
-        Array, Article, ArticleOptions, Block, Boolean, Date, Emphasis, Inline, Integer,
-        IntegerOrString, Node, Null, Number, Object, Paragraph, Primitive, Time,
+        shortcuts::text, Array, Article, ArticleOptions, Block, Boolean, Date, Emphasis, Inline,
+        Integer, IntegerOrString, Node, Null, Number, Object, Paragraph, Primitive, Time,
     },
 };
 use common_dev::pretty_assertions::assert_eq;
 
-use super::*;
+use codec_json::r#trait::JsonCodec;
 
 /// Test deserialization of primitive types from JSON
 #[test]
-fn primitive_types_from_json() -> Result<()> {
+fn primitive_types() -> Result<()> {
     assert_eq!(Null::from_json("null")?, Null {});
 
     assert_eq!(Boolean::from_json("true")?, true);
@@ -67,7 +66,7 @@ fn primitive_types_from_json() -> Result<()> {
 
 /// Test deserialization of `Primitive` enum from JSON
 #[test]
-fn primitive_enum_from_json() -> Result<()> {
+fn primitive_enum() -> Result<()> {
     assert_eq!(Primitive::from_json("null")?, Primitive::Null(Null {}));
     assert_eq!(Primitive::from_json("true")?, Primitive::Boolean(true));
     assert_eq!(Primitive::from_json("123")?, Primitive::Integer(123));
@@ -87,7 +86,7 @@ fn primitive_enum_from_json() -> Result<()> {
 
 /// Test deserialization of various entity types, including those with `options`
 #[test]
-fn entity_types_from_json() -> Result<()> {
+fn entity_types() -> Result<()> {
     assert_eq!(
         Date::from_json(r#"{ "type":"Date", "value": "2022-02-02" }"#)?,
         Date {
@@ -134,7 +133,7 @@ fn entity_types_from_json() -> Result<()> {
 
 /// Test deserialization of various entity enums from JSON
 #[test]
-fn entity_enum_from_json() -> Result<()> {
+fn entity_enum() -> Result<()> {
     assert_eq!(
         Inline::from_json(r#"{ "type":"Text", "value":"abc" }"#)?,
         text("abc")
@@ -170,75 +169,6 @@ fn entity_enum_from_json() -> Result<()> {
             ..Default::default()
         })
     );
-
-    Ok(())
-}
-
-/// Test of compact option
-#[tokio::test]
-async fn compact() -> Result<()> {
-    let codec = JsonCodec {};
-
-    let doc1 = Node::Article(Article::new(vec![p([text("Hello world")])]));
-
-    let (json, _) = codec
-        .to_string(
-            &doc1,
-            Some(EncodeOptions {
-                compact: true,
-                ..Default::default()
-            }),
-        )
-        .await?;
-    assert_eq!(
-        json,
-        r#"{"type":"Article","content":[{"type":"Paragraph","content":[{"type":"Text","value":"Hello world"}]}]}"#
-    );
-
-    let (doc2, _) = codec.from_str(&json, None).await?;
-    assert_eq!(doc2, doc1);
-
-    Ok(())
-}
-
-/// Test of standalone option
-#[tokio::test]
-async fn standalone() -> Result<()> {
-    let codec = JsonCodec {};
-
-    let doc1 = Node::Article(Article::new(vec![p([text("Hello world")])]));
-
-    let (json, _) = codec
-        .to_string(
-            &doc1,
-            Some(EncodeOptions {
-                standalone: Some(true),
-                ..Default::default()
-            }),
-        )
-        .await?;
-    assert_eq!(
-        json,
-        r#"{
-  "$schema": "https://stencila.dev/Article.schema.json",
-  "@context": "https://stencila.dev/Article.jsonld",
-  "type": "Article",
-  "content": [
-    {
-      "type": "Paragraph",
-      "content": [
-        {
-          "type": "Text",
-          "value": "Hello world"
-        }
-      ]
-    }
-  ]
-}"#
-    );
-
-    let (doc2, _) = codec.from_str(&json, None).await?;
-    assert_eq!(doc2, doc1);
 
     Ok(())
 }

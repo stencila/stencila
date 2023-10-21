@@ -8,3 +8,4 @@ codec = { path = "../codec" }
 
 [dev-dependencies]
 common-dev = { path = "../common-dev" }
+schema = { path = "../schema" }

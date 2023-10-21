@@ -516,6 +516,7 @@ version = "0.0.0"
 dependencies = [
  "codec",
  "common-dev",
+ "schema",
 ]
 
 [[package]]
@@ -2495,7 +2496,6 @@ dependencies = [
  "codec-markdown-trait",
  "codec-text-trait",
  "common",
- "common-dev",
  "monostate",
  "node-store",
  "node-strip",

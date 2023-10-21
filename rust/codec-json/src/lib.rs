@@ -13,9 +13,6 @@ use codec::{
 pub mod r#trait;
 use r#trait::JsonCodec as _;
 
-#[cfg(test)]
-mod tests;
-
 /// A codec for JSON
 pub struct JsonCodec;
 
