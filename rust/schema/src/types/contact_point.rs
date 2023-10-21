@@ -9,6 +9,7 @@ use super::text::Text;
 
 /// A contact point, usually within an organization.
 #[skip_serializing_none]
+#[serde_as]
 #[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec, WriteNode, ReadNode)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 #[derive(derive_more::Display)]
@@ -23,9 +24,13 @@ pub struct ContactPoint {
     pub id: Option<String>,
 
     /// Email address for correspondence.
+    #[serde(alias = "email")]
+    #[serde_as(deserialize_as = "Option<OneOrMany<_, PreferMany>>")]
     pub emails: Option<Vec<String>>,
 
     /// Telephone numbers for the contact point.
+    #[serde(alias = "telephone", alias = "telephone-numbers", alias = "telephone_numbers", alias = "telephoneNumber", alias = "telephone-number", alias = "telephone_number")]
+    #[serde_as(deserialize_as = "Option<OneOrMany<_, PreferMany>>")]
     pub telephone_numbers: Option<Vec<String>>,
 
     /// Non-core optional fields
@@ -37,10 +42,13 @@ pub struct ContactPoint {
 }
 
 #[skip_serializing_none]
+#[serde_as]
 #[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec, WriteNode, ReadNode)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 pub struct ContactPointOptions {
     /// Alternate names (aliases) for the item.
+    #[serde(alias = "alternate-names", alias = "alternate_names", alias = "alternateName", alias = "alternate-name", alias = "alternate_name")]
+    #[serde_as(deserialize_as = "Option<OneOrMany<_, PreferMany>>")]
     #[strip(metadata)]
     pub alternate_names: Option<Vec<String>>,
 
@@ -49,10 +57,14 @@ pub struct ContactPointOptions {
     pub description: Option<Text>,
 
     /// Any kind of identifier for any kind of Thing.
+    #[serde(alias = "identifier")]
+    #[serde_as(deserialize_as = "Option<OneOrMany<_, PreferMany>>")]
     #[strip(metadata)]
     pub identifiers: Option<Vec<PropertyValueOrString>>,
 
     /// Images of the item.
+    #[serde(alias = "image")]
+    #[serde_as(deserialize_as = "Option<OneOrMany<_, PreferMany>>")]
     #[strip(metadata)]
     pub images: Option<Vec<ImageObject>>,
 
@@ -66,6 +78,8 @@ pub struct ContactPointOptions {
 
     /// Languages (human not programming) in which it is possible to communicate
     /// with the organization/department etc.
+    #[serde(alias = "available-languages", alias = "available_languages", alias = "availableLanguage", alias = "available-language", alias = "available_language")]
+    #[serde_as(deserialize_as = "Option<OneOrMany<_, PreferMany>>")]
     pub available_languages: Option<Vec<String>>,
 }
 

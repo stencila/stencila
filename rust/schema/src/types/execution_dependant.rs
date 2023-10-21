@@ -9,6 +9,7 @@ use super::string::String;
 
 /// A downstream execution dependant of a node.
 #[skip_serializing_none]
+#[serde_as]
 #[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec, WriteNode, ReadNode)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 #[derive(derive_more::Display)]
@@ -23,12 +24,16 @@ pub struct ExecutionDependant {
     pub id: Option<String>,
 
     /// The relation to the dependant
+    #[serde(alias = "dependant-relation", alias = "dependant_relation")]
     pub dependant_relation: ExecutionDependantRelation,
 
     /// The node that is the dependant
+    #[serde(alias = "dependant-node", alias = "dependant_node")]
     pub dependant_node: ExecutionDependantNode,
 
     /// The location that the dependant is defined within code
+    #[serde(alias = "code-location", alias = "code_location")]
+    #[serde_as(deserialize_as = "Option<OneOrMany<_, PreferMany>>")]
     pub code_location: Option<Vec<Integer>>,
 }
 

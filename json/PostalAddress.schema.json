@@ -45,6 +45,13 @@
     "alternateNames": {
       "@id": "schema:alternateName",
       "description": "Alternate names (aliases) for the item.",
+      "aliases": [
+        "alternate-names",
+        "alternate_names",
+        "alternateName",
+        "alternate-name",
+        "alternate_name"
+      ],
       "strip": [
         "metadata"
       ],
@@ -65,6 +72,9 @@
       "@id": "schema:identifier",
       "description": "Any kind of identifier for any kind of Thing.",
       "$comment": "Some identifiers have specific properties e.g the `issn` property for\nthe `Periodical` type. These should be used in preference to this\nproperty which is intended for identifiers that do not yet have a\nspecific property. Identifiers can be represented as strings, but\nusing a `PropertyValue` will usually be better because it allows\nfor `propertyID` (i.e. the type of identifier).\n",
+      "aliases": [
+        "identifier"
+      ],
       "strip": [
         "metadata"
       ],
@@ -83,6 +93,9 @@
     "images": {
       "@id": "schema:image",
       "description": "Images of the item.",
+      "aliases": [
+        "image"
+      ],
       "strip": [
         "metadata"
       ],
@@ -111,6 +124,9 @@
     "emails": {
       "@id": "schema:email",
       "description": "Email address for correspondence.",
+      "aliases": [
+        "email"
+      ],
       "type": "array",
       "items": {
         "type": "string"
@@ -120,7 +136,12 @@
       "@id": "schema:telephone",
       "description": "Telephone numbers for the contact point.",
       "aliases": [
-        "telephone"
+        "telephone",
+        "telephone-numbers",
+        "telephone_numbers",
+        "telephoneNumber",
+        "telephone-number",
+        "telephone_number"
       ],
       "type": "array",
       "items": {
@@ -130,6 +151,13 @@
     "availableLanguages": {
       "@id": "schema:availableLanguage",
       "description": "Languages (human not programming) in which it is possible to communicate\nwith the organization/department etc.\n",
+      "aliases": [
+        "available-languages",
+        "available_languages",
+        "availableLanguage",
+        "available-language",
+        "available_language"
+      ],
       "type": "array",
       "items": {
         "type": "string"
@@ -139,35 +167,59 @@
       "@id": "schema:streetAddress",
       "description": "The street address.",
       "$comment": "For example, 10 Downing Street.",
+      "aliases": [
+        "street-address",
+        "street_address"
+      ],
       "type": "string"
     },
     "postOfficeBoxNumber": {
       "@id": "schema:postOfficeBoxNumber",
       "description": "The post office box number.",
+      "aliases": [
+        "post-office-box-number",
+        "post_office_box_number"
+      ],
       "type": "string"
     },
     "addressLocality": {
       "@id": "schema:addressLocality",
       "description": "The locality in which the street address is, and which is in the region.",
       "$comment": "For example, London.",
+      "aliases": [
+        "address-locality",
+        "address_locality"
+      ],
       "type": "string"
     },
     "addressRegion": {
       "@id": "schema:addressRegion",
       "description": "The region in which the locality is, and which is in the country.",
       "$comment": "For example, California or another appropriate first-level Administrative division",
+      "aliases": [
+        "address-region",
+        "address_region"
+      ],
       "type": "string"
     },
     "postalCode": {
       "@id": "schema:postalCode",
       "description": "The postal code.",
       "$comment": "For example, 94043.",
+      "aliases": [
+        "postal-code",
+        "postal_code"
+      ],
       "type": "string"
     },
     "addressCountry": {
       "@id": "schema:addressCountry",
       "description": "The country.",
       "$comment": "For example, United Kingdom. You can also provide the two-letter ISO 3166-1 alpha-2 country code.",
+      "aliases": [
+        "address-country",
+        "address_country"
+      ],
       "type": "string"
     }
   }

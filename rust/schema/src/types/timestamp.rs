@@ -8,6 +8,7 @@ use super::time_unit::TimeUnit;
 
 /// A value that represents a point in time.
 #[skip_serializing_none]
+#[serde_as]
 #[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec, WriteNode, ReadNode)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 #[cfg_attr(feature = "proptest", derive(Arbitrary))]
@@ -30,6 +31,7 @@ pub struct Timestamp {
     pub value: Integer,
 
     /// The time unit that the `value` represents.
+    #[serde(alias = "time-unit", alias = "time_unit")]
     #[cfg_attr(feature = "proptest", proptest(value = "Default::default()"))]
     pub time_unit: TimeUnit,
 }

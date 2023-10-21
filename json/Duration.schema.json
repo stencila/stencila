@@ -48,6 +48,10 @@
     "timeUnit": {
       "@id": "stencila:timeUnit",
       "description": "The time unit that the `value` represents.",
+      "aliases": [
+        "time-unit",
+        "time_unit"
+      ],
       "$ref": "TimeUnit.schema.json"
     }
   }

@@ -44,6 +44,10 @@
     "executionAuto": {
       "@id": "stencila:executionAuto",
       "description": "Under which circumstances the code should be automatically executed.",
+      "aliases": [
+        "execution-auto",
+        "execution_auto"
+      ],
       "strip": [
         "execution"
       ],
@@ -52,6 +56,10 @@
     "compilationDigest": {
       "@id": "stencila:compilationDigest",
       "description": "A digest of the content, semantics and dependencies of the node.",
+      "aliases": [
+        "compilation-digest",
+        "compilation_digest"
+      ],
       "strip": [
         "execution"
       ],
@@ -60,6 +68,10 @@
     "executionDigest": {
       "@id": "stencila:executionDigest",
       "description": "The `compileDigest` of the node when it was last executed.",
+      "aliases": [
+        "execution-digest",
+        "execution_digest"
+      ],
       "strip": [
         "execution"
       ],
@@ -68,6 +80,13 @@
     "executionDependencies": {
       "@id": "stencila:executionDependencies",
       "description": "The upstream dependencies of this node.",
+      "aliases": [
+        "execution-dependencies",
+        "execution_dependencies",
+        "executionDependency",
+        "execution-dependency",
+        "execution_dependency"
+      ],
       "strip": [
         "execution"
       ],
@@ -79,6 +98,13 @@
     "executionDependants": {
       "@id": "stencila:executionDependants",
       "description": "The downstream dependants of this node.",
+      "aliases": [
+        "execution-dependants",
+        "execution_dependants",
+        "executionDependant",
+        "execution-dependant",
+        "execution_dependant"
+      ],
       "strip": [
         "execution"
       ],
@@ -90,6 +116,13 @@
     "executionTags": {
       "@id": "stencila:executionTags",
       "description": "Tags in the code which affect its execution.",
+      "aliases": [
+        "execution-tags",
+        "execution_tags",
+        "executionTag",
+        "execution-tag",
+        "execution_tag"
+      ],
       "strip": [
         "execution"
       ],
@@ -102,6 +135,10 @@
       "@id": "stencila:executionCount",
       "description": "A count of the number of times that the node has been executed.",
       "$comment": "Intended to increment with each successive execution of the node, including across sessions.\nNote that this differs to the `execution_count` in Jupyter Notebook format which is\nthe \"code cell's prompt number\" and which resets at the start of each new session.\n",
+      "aliases": [
+        "execution-count",
+        "execution_count"
+      ],
       "strip": [
         "execution"
       ],
@@ -111,6 +148,10 @@
     "executionRequired": {
       "@id": "stencila:executionRequired",
       "description": "Whether, and why, the code requires execution or re-execution.",
+      "aliases": [
+        "execution-required",
+        "execution_required"
+      ],
       "strip": [
         "execution"
       ],
@@ -119,6 +160,10 @@
     "executionKernel": {
       "@id": "stencila:executionKernel",
       "description": "The id of the kernel that the node was last executed in.",
+      "aliases": [
+        "execution-kernel",
+        "execution_kernel"
+      ],
       "strip": [
         "execution"
       ],
@@ -127,6 +172,10 @@
     "executionStatus": {
       "@id": "stencila:executionStatus",
       "description": "Status of the most recent, including any current, execution.",
+      "aliases": [
+        "execution-status",
+        "execution_status"
+      ],
       "strip": [
         "execution"
       ],
@@ -135,6 +184,10 @@
     "executionEnded": {
       "@id": "stencila:executionEnded",
       "description": "The timestamp when the last execution ended.",
+      "aliases": [
+        "execution-ended",
+        "execution_ended"
+      ],
       "strip": [
         "execution"
       ],
@@ -143,6 +196,10 @@
     "executionDuration": {
       "@id": "stencila:executionDuration",
       "description": "Duration of the last execution.",
+      "aliases": [
+        "execution-duration",
+        "execution_duration"
+      ],
       "strip": [
         "execution"
       ],
@@ -151,6 +208,9 @@
     "errors": {
       "@id": "stencila:errors",
       "description": "Errors when compiling (e.g. syntax errors) or executing the node.",
+      "aliases": [
+        "error"
+      ],
       "strip": [
         "execution"
       ],
@@ -191,6 +251,10 @@
     "programmingLanguage": {
       "@id": "schema:programmingLanguage",
       "description": "The programming language of the code.",
+      "aliases": [
+        "programming-language",
+        "programming_language"
+      ],
       "strip": [
         "code"
       ],
@@ -234,6 +298,10 @@
       "@id": "stencila:isDisabled",
       "description": "Whether the button is currently disabled",
       "$comment": "A button is disabled when it has a code expression and that expression evaluates to a falsy value",
+      "aliases": [
+        "is-disabled",
+        "is_disabled"
+      ],
       "type": "boolean"
     }
   }

@@ -12,9 +12,9 @@ Analogous to the JSON Schema `boolean` validation [type](https://json-schema.org
 
 The `BooleanValidator` type has these properties:
 
-| Name | `@id`                                | Type                                                                                            | Description                   | Inherited from                                                                                   |
-| ---- | ------------------------------------ | ----------------------------------------------------------------------------------------------- | ----------------------------- | ------------------------------------------------------------------------------------------------ |
-| id   | [`schema:id`](https://schema.org/id) | [`String`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/string.md) | The identifier for this item. | [`Entity`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/entity.md) |
+| Name | Aliases | `@id`                                | Type                                                                                            | Description                   | Inherited from                                                                                   |
+| ---- | ------- | ------------------------------------ | ----------------------------------------------------------------------------------------------- | ----------------------------- | ------------------------------------------------------------------------------------------------ |
+| id   | -       | [`schema:id`](https://schema.org/id) | [`String`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/string.md) | The identifier for this item. | [`Entity`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/entity.md) |
 
 ## Related
 

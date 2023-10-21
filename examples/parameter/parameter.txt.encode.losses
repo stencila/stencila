@@ -6,7 +6,7 @@ DateTime#: 2
 DateTimeValidator#: 1
 DateValidator#: 1
 EnumValidator#: 1
-Integer@: 5
+Integer@: 7
 IntegerValidator#: 4
 Number@: 10
 NumberValidator#: 1

@@ -82,6 +82,8 @@ content:
     default: hello
     validator:
       type: StringValidator
+      minLength: 0
+      maxLength: 10
       pattern: '[a-z]+'
   - type: Text
     value: ' with quotes in properties '

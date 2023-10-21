@@ -7,7 +7,7 @@
 //! (although they do have round-trip prop tests) because they should work if these tests pass).
 
 use codec::{
-    common::eyre::Result,
+    common::{eyre::Result, serde_json::json},
     schema::{
         shortcuts::text, Array, Article, ArticleOptions, Block, Boolean, Date, Emphasis, Inline,
         Integer, IntegerOrString, Node, Null, Number, Object, Paragraph, Primitive, Time,
@@ -16,6 +16,7 @@ use codec::{
 use common_dev::pretty_assertions::assert_eq;
 
 use codec_json::r#trait::JsonCodec;
+use schema::ThematicBreak;
 
 /// Test deserialization of primitive types from JSON
 #[test]
@@ -168,6 +169,33 @@ fn entity_enum() -> Result<()> {
             value: "01:02:03".to_string(),
             ..Default::default()
         })
+    );
+
+    Ok(())
+}
+
+/// Test deserialization with aliases and single values for properties
+#[test]
+fn property_aliases() -> Result<()> {
+    let value = json!({
+        "type": "Article",
+        "keyword": "one",
+        "alternate-name": "alt-name",
+        "date": { "type": "Date", "value": "2010" },
+        "content": { "type": "ThematicBreak"}
+    });
+
+    let article = Article::from_json_value(value)?;
+
+    assert_eq!(article.keywords, Some(vec!["one".to_string()]));
+    assert_eq!(
+        article.options.alternate_names,
+        Some(vec!["alt-name".to_string()])
+    );
+    assert_eq!(article.date_published, Some(Date::new("2010".to_string())));
+    assert_eq!(
+        article.content,
+        vec![Block::ThematicBreak(ThematicBreak::new())]
     );
 
     Ok(())

@@ -49,6 +49,10 @@
       "@id": "stencila:exclusiveMinimum",
       "description": "The exclusive lower limit for a numeric node.",
       "$comment": "A number is valid only if it has a value greater than (not equal to) `exclusiveMinimum`.\n",
+      "aliases": [
+        "exclusive-minimum",
+        "exclusive_minimum"
+      ],
       "type": "number"
     },
     "maximum": {
@@ -61,12 +65,20 @@
       "@id": "stencila:exclusiveMaximum",
       "description": "The exclusive upper limit for a numeric node.",
       "$comment": "A number is valid only if it has a value less than (not equal to) `exclusiveMaximum`.\n",
+      "aliases": [
+        "exclusive-maximum",
+        "exclusive_maximum"
+      ],
       "type": "number"
     },
     "multipleOf": {
       "@id": "stencila:multipleOf",
       "description": "A number that a numeric node must be a multiple of.",
       "$comment": "A number is valid only if division by this value results in an integer.\n",
+      "aliases": [
+        "multiple-of",
+        "multiple_of"
+      ],
       "type": "number",
       "exclusiveMinimum": 0.0
     }

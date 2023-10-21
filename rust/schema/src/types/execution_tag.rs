@@ -7,6 +7,7 @@ use super::string::String;
 
 /// A tag on code that affects its execution.
 #[skip_serializing_none]
+#[serde_as]
 #[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec, WriteNode, ReadNode)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 #[derive(derive_more::Display)]
@@ -27,6 +28,7 @@ pub struct ExecutionTag {
     pub value: String,
 
     /// Whether the tag is global to the document
+    #[serde(alias = "is-global", alias = "is_global")]
     pub is_global: Boolean,
 }
 

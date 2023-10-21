@@ -38,6 +38,9 @@
     "values": {
       "@id": "stencila:values",
       "description": "A node is valid if it is equal to any of these values.",
+      "aliases": [
+        "value"
+      ],
       "type": "array",
       "items": {
         "$ref": "Node.schema.json"

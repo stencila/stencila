@@ -11,6 +11,7 @@ use super::text::Text;
 
 /// A column of data within a `Datatable`.
 #[skip_serializing_none]
+#[serde_as]
 #[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec, WriteNode, ReadNode)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 #[derive(derive_more::Display)]
@@ -29,6 +30,8 @@ pub struct DatatableColumn {
     pub name: String,
 
     /// The data values of the column.
+    #[serde(alias = "value")]
+    #[serde_as(deserialize_as = "OneOrMany<_, PreferMany>")]
     pub values: Vec<Primitive>,
 
     /// The validator to use to validate data in the column.
@@ -43,10 +46,13 @@ pub struct DatatableColumn {
 }
 
 #[skip_serializing_none]
+#[serde_as]
 #[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec, WriteNode, ReadNode)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 pub struct DatatableColumnOptions {
     /// Alternate names (aliases) for the item.
+    #[serde(alias = "alternate-names", alias = "alternate_names", alias = "alternateName", alias = "alternate-name", alias = "alternate_name")]
+    #[serde_as(deserialize_as = "Option<OneOrMany<_, PreferMany>>")]
     #[strip(metadata)]
     pub alternate_names: Option<Vec<String>>,
 
@@ -55,10 +61,14 @@ pub struct DatatableColumnOptions {
     pub description: Option<Text>,
 
     /// Any kind of identifier for any kind of Thing.
+    #[serde(alias = "identifier")]
+    #[serde_as(deserialize_as = "Option<OneOrMany<_, PreferMany>>")]
     #[strip(metadata)]
     pub identifiers: Option<Vec<PropertyValueOrString>>,
 
     /// Images of the item.
+    #[serde(alias = "image")]
+    #[serde_as(deserialize_as = "Option<OneOrMany<_, PreferMany>>")]
     #[strip(metadata)]
     pub images: Option<Vec<ImageObject>>,
 

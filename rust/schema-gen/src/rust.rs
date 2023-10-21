@@ -67,6 +67,9 @@ const BOX_PROPERTIES: &[&str] = &[
     "Variable.value",
 ];
 
+/// Properties which can not allow deserialization from one or many items
+const NO_ONE_OR_MANY: &[&str] = &["EnumValidator.values"];
+
 const KEYWORDS: &[&str; 52] = &[
     "as", "break", "const", "continue", "crate", "else", "enum", "extern", "false", "fn", "for",
     "if", "impl", "in", "let", "loop", "match", "mod", "move", "mut", "pub", "ref", "return",
@@ -275,8 +278,9 @@ pub enum NodeType {{
             .to_string();
 
         let mut attrs = vec![
-            // skip_serializing_none has to come before derives
+            // skip_serializing_none and serde_as have to come before derives
             "#[skip_serializing_none]".to_string(),
+            "#[serde_as]".to_string(),
         ];
 
         let mut derives = vec![
@@ -417,10 +421,9 @@ pub enum NodeType {{
 
             // Rewrite name as necessary for Rust compatibility
             let name = name.to_snake_case();
-            let name = escape_keyword(&name);
 
             // Determine Rust type for the property
-            let (mut typ, is_vec) = if name == "r#type" {
+            let (mut typ, is_vec) = if name == "type" {
                 (format!(r#"MustBe!("{title}")"#), false)
             } else {
                 let (typ, is_vec, ..) = Self::rust_type(dest, property)?;
@@ -451,6 +454,28 @@ pub enum NodeType {{
 
             if let Some(default) = default {
                 attrs.push(format!("#[default = {default}]"));
+            }
+
+            if !property.aliases.is_empty() {
+                attrs.push(format!(
+                    "#[serde({})]",
+                    property
+                        .aliases
+                        .iter()
+                        .map(|alias| format!("alias = \"{alias}\""))
+                        .join(", ")
+                ));
+            }
+
+            if property.is_array() && !NO_ONE_OR_MANY.contains(&format!("{title}.{name}").as_str())
+            {
+                let what = "OneOrMany<_, PreferMany>";
+                let what = if !property.is_required {
+                    format!("Option<{what}>")
+                } else {
+                    what.to_string()
+                };
+                attrs.push(format!("#[serde_as(deserialize_as = \"{what}\")]"));
             }
 
             if !property.strip.is_empty() {
@@ -550,6 +575,8 @@ pub enum NodeType {{
 
                 attrs.push(format!("#[jats({})]", args.join(", ")))
             }
+
+            let name = escape_keyword(&name);
 
             // Generate the code for the field
             let attrs = match attrs.is_empty() {

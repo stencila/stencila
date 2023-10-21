@@ -8,6 +8,7 @@ use super::validator::Validator;
 
 /// A function with a name, which might take Parameters and return a value of a certain type.
 #[skip_serializing_none]
+#[serde_as]
 #[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec, WriteNode, ReadNode)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 #[derive(derive_more::Display)]
@@ -25,6 +26,8 @@ pub struct Function {
     pub name: String,
 
     /// The parameters of the function.
+    #[serde(alias = "parameter")]
+    #[serde_as(deserialize_as = "OneOrMany<_, PreferMany>")]
     pub parameters: Vec<Parameter>,
 
     /// Non-core optional fields
@@ -36,6 +39,7 @@ pub struct Function {
 }
 
 #[skip_serializing_none]
+#[serde_as]
 #[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec, WriteNode, ReadNode)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 pub struct FunctionOptions {

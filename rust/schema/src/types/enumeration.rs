@@ -9,6 +9,7 @@ use super::text::Text;
 
 /// Lists or enumerations, for example, a list of cuisines or music genres, etc.
 #[skip_serializing_none]
+#[serde_as]
 #[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec, WriteNode, ReadNode)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 #[derive(derive_more::Display)]
@@ -31,10 +32,13 @@ pub struct Enumeration {
 }
 
 #[skip_serializing_none]
+#[serde_as]
 #[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec, WriteNode, ReadNode)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 pub struct EnumerationOptions {
     /// Alternate names (aliases) for the item.
+    #[serde(alias = "alternate-names", alias = "alternate_names", alias = "alternateName", alias = "alternate-name", alias = "alternate_name")]
+    #[serde_as(deserialize_as = "Option<OneOrMany<_, PreferMany>>")]
     #[strip(metadata)]
     pub alternate_names: Option<Vec<String>>,
 
@@ -43,10 +47,14 @@ pub struct EnumerationOptions {
     pub description: Option<Text>,
 
     /// Any kind of identifier for any kind of Thing.
+    #[serde(alias = "identifier")]
+    #[serde_as(deserialize_as = "Option<OneOrMany<_, PreferMany>>")]
     #[strip(metadata)]
     pub identifiers: Option<Vec<PropertyValueOrString>>,
 
     /// Images of the item.
+    #[serde(alias = "image")]
+    #[serde_as(deserialize_as = "Option<OneOrMany<_, PreferMany>>")]
     #[strip(metadata)]
     pub images: Option<Vec<ImageObject>>,
 

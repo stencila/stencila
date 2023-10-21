@@ -8,6 +8,7 @@ use super::string::String;
 
 /// Additional content which is not part of the main content of a document.
 #[skip_serializing_none]
+#[serde_as]
 #[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec, WriteNode, ReadNode)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 #[cfg_attr(feature = "proptest", derive(Arbitrary))]
@@ -26,11 +27,13 @@ pub struct Note {
     pub id: Option<String>,
 
     /// Determines where the note content is displayed within the document.
+    #[serde(alias = "note-type", alias = "note_type")]
     #[cfg_attr(feature = "proptest", proptest(value = "Default::default()"))]
     #[jats(attr = "custom-type")]
     pub note_type: NoteType,
 
     /// Content of the note, usually a paragraph.
+    #[serde_as(deserialize_as = "OneOrMany<_, PreferMany>")]
     #[cfg_attr(feature = "proptest-min", proptest(value = r#"vec![Block::Paragraph(crate::Paragraph::new(vec![crate::Inline::Text(crate::Text::from("Note paragraph"))]))]"#))]
     #[cfg_attr(feature = "proptest-low", proptest(value = r#"vec![Block::Paragraph(crate::Paragraph::new(vec![crate::Inline::Text(crate::Text::from("Note paragraph"))]))]"#))]
     #[cfg_attr(feature = "proptest-high", proptest(value = r#"vec![Block::Paragraph(crate::Paragraph::new(vec![crate::Inline::Text(crate::Text::from("Note paragraph"))]))]"#))]

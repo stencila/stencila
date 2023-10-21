@@ -9,6 +9,7 @@ use super::text::Text;
 
 /// A physical mailing address.
 #[skip_serializing_none]
+#[serde_as]
 #[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec, WriteNode, ReadNode)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 #[derive(derive_more::Display)]
@@ -24,24 +25,33 @@ pub struct PostalAddress {
     pub id: Option<String>,
 
     /// Email address for correspondence.
+    #[serde(alias = "email")]
+    #[serde_as(deserialize_as = "Option<OneOrMany<_, PreferMany>>")]
     pub emails: Option<Vec<String>>,
 
     /// Telephone numbers for the contact point.
+    #[serde(alias = "telephone", alias = "telephone-numbers", alias = "telephone_numbers", alias = "telephoneNumber", alias = "telephone-number", alias = "telephone_number")]
+    #[serde_as(deserialize_as = "Option<OneOrMany<_, PreferMany>>")]
     pub telephone_numbers: Option<Vec<String>>,
 
     /// The street address.
+    #[serde(alias = "street-address", alias = "street_address")]
     pub street_address: Option<String>,
 
     /// The locality in which the street address is, and which is in the region.
+    #[serde(alias = "address-locality", alias = "address_locality")]
     pub address_locality: Option<String>,
 
     /// The region in which the locality is, and which is in the country.
+    #[serde(alias = "address-region", alias = "address_region")]
     pub address_region: Option<String>,
 
     /// The postal code.
+    #[serde(alias = "postal-code", alias = "postal_code")]
     pub postal_code: Option<String>,
 
     /// The country.
+    #[serde(alias = "address-country", alias = "address_country")]
     pub address_country: Option<String>,
 
     /// Non-core optional fields
@@ -53,10 +63,13 @@ pub struct PostalAddress {
 }
 
 #[skip_serializing_none]
+#[serde_as]
 #[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec, WriteNode, ReadNode)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 pub struct PostalAddressOptions {
     /// Alternate names (aliases) for the item.
+    #[serde(alias = "alternate-names", alias = "alternate_names", alias = "alternateName", alias = "alternate-name", alias = "alternate_name")]
+    #[serde_as(deserialize_as = "Option<OneOrMany<_, PreferMany>>")]
     #[strip(metadata)]
     pub alternate_names: Option<Vec<String>>,
 
@@ -65,10 +78,14 @@ pub struct PostalAddressOptions {
     pub description: Option<Text>,
 
     /// Any kind of identifier for any kind of Thing.
+    #[serde(alias = "identifier")]
+    #[serde_as(deserialize_as = "Option<OneOrMany<_, PreferMany>>")]
     #[strip(metadata)]
     pub identifiers: Option<Vec<PropertyValueOrString>>,
 
     /// Images of the item.
+    #[serde(alias = "image")]
+    #[serde_as(deserialize_as = "Option<OneOrMany<_, PreferMany>>")]
     #[strip(metadata)]
     pub images: Option<Vec<ImageObject>>,
 
@@ -82,9 +99,12 @@ pub struct PostalAddressOptions {
 
     /// Languages (human not programming) in which it is possible to communicate
     /// with the organization/department etc.
+    #[serde(alias = "available-languages", alias = "available_languages", alias = "availableLanguage", alias = "available-language", alias = "available_language")]
+    #[serde_as(deserialize_as = "Option<OneOrMany<_, PreferMany>>")]
     pub available_languages: Option<Vec<String>>,
 
     /// The post office box number.
+    #[serde(alias = "post-office-box-number", alias = "post_office_box_number")]
     pub post_office_box_number: Option<String>,
 }
 

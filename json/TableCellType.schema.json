@@ -38,6 +38,13 @@
     "alternateNames": {
       "@id": "schema:alternateName",
       "description": "Alternate names (aliases) for the item.",
+      "aliases": [
+        "alternate-names",
+        "alternate_names",
+        "alternateName",
+        "alternate-name",
+        "alternate_name"
+      ],
       "strip": [
         "metadata"
       ],
@@ -58,6 +65,9 @@
       "@id": "schema:identifier",
       "description": "Any kind of identifier for any kind of Thing.",
       "$comment": "Some identifiers have specific properties e.g the `issn` property for\nthe `Periodical` type. These should be used in preference to this\nproperty which is intended for identifiers that do not yet have a\nspecific property. Identifiers can be represented as strings, but\nusing a `PropertyValue` will usually be better because it allows\nfor `propertyID` (i.e. the type of identifier).\n",
+      "aliases": [
+        "identifier"
+      ],
       "strip": [
         "metadata"
       ],
@@ -76,6 +86,9 @@
     "images": {
       "@id": "schema:image",
       "description": "Images of the item.",
+      "aliases": [
+        "image"
+      ],
       "strip": [
         "metadata"
       ],

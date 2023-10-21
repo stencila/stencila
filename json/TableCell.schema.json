@@ -42,6 +42,10 @@
     "cellType": {
       "@id": "stencila:cellType",
       "description": "The type of cell.",
+      "aliases": [
+        "cell-type",
+        "cell_type"
+      ],
       "$ref": "TableCellType.schema.json"
     },
     "name": {
@@ -54,6 +58,10 @@
       "@id": "stencila:colspan",
       "description": "How many columns the cell extends.\n",
       "$comment": "Based on the HTML `colspan` attribute for [table cells](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/td).",
+      "aliases": [
+        "column-span",
+        "column_span"
+      ],
       "html": {
         "attr": "colspan"
       },
@@ -65,6 +73,10 @@
       "@id": "stencila:rowspan",
       "description": "How many columns the cell extends.",
       "$comment": "Based on the HTML `rowspan` attribute for [table cells](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/td).",
+      "aliases": [
+        "row-span",
+        "row_span"
+      ],
       "html": {
         "attr": "rowspan"
       },

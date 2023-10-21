@@ -17,10 +17,10 @@ Also, in Rust, the `value` property is implemented as a CRDT.
 
 The `Text` type has these properties:
 
-| Name  | `@id`                                      | Type                                                                                            | Description                   | Inherited from                                                                                   |
-| ----- | ------------------------------------------ | ----------------------------------------------------------------------------------------------- | ----------------------------- | ------------------------------------------------------------------------------------------------ |
-| id    | [`schema:id`](https://schema.org/id)       | [`String`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/string.md) | The identifier for this item. | [`Entity`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/entity.md) |
-| value | [`schema:value`](https://schema.org/value) | [`Cord`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/cord.md)     | The value of the text content | -                                                                                                |
+| Name  | Aliases | `@id`                                      | Type                                                                                            | Description                   | Inherited from                                                                                   |
+| ----- | ------- | ------------------------------------------ | ----------------------------------------------------------------------------------------------- | ----------------------------- | ------------------------------------------------------------------------------------------------ |
+| id    | -       | [`schema:id`](https://schema.org/id)       | [`String`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/string.md) | The identifier for this item. | [`Entity`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/entity.md) |
+| value | -       | [`schema:value`](https://schema.org/value) | [`Cord`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/cord.md)     | The value of the text content | -                                                                                                |
 
 ## Related
 

@@ -46,6 +46,9 @@
     "parameters": {
       "@id": "stencila:parameters",
       "description": "The parameters of the function.",
+      "aliases": [
+        "parameter"
+      ],
       "type": "array",
       "items": {
         "$ref": "Parameter.schema.json"

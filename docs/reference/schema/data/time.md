@@ -8,10 +8,10 @@
 
 The `Time` type has these properties:
 
-| Name  | `@id`                                      | Type                                                                                            | Description                                                     | Inherited from                                                                                   |
-| ----- | ------------------------------------------ | ----------------------------------------------------------------------------------------------- | --------------------------------------------------------------- | ------------------------------------------------------------------------------------------------ |
-| id    | [`schema:id`](https://schema.org/id)       | [`String`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/string.md) | The identifier for this item.                                   | [`Entity`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/entity.md) |
-| value | [`schema:value`](https://schema.org/value) | [`String`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/string.md) | The time of day as a string in format `hh:mm:ss[Z\|(+\|-)hh:mm]`. | -                                                                                                |
+| Name  | Aliases | `@id`                                      | Type                                                                                            | Description                                                     | Inherited from                                                                                   |
+| ----- | ------- | ------------------------------------------ | ----------------------------------------------------------------------------------------------- | --------------------------------------------------------------- | ------------------------------------------------------------------------------------------------ |
+| id    | -       | [`schema:id`](https://schema.org/id)       | [`String`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/string.md) | The identifier for this item.                                   | [`Entity`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/entity.md) |
+| value | -       | [`schema:value`](https://schema.org/value) | [`String`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/string.md) | The time of day as a string in format `hh:mm:ss[Z\|(+\|-)hh:mm]`. | -                                                                                                |
 
 ## Related
 

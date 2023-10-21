@@ -49,6 +49,10 @@
     "isGlobal": {
       "@id": "stencila:isGlobal",
       "description": "Whether the tag is global to the document",
+      "aliases": [
+        "is-global",
+        "is_global"
+      ],
       "type": "boolean"
     }
   }

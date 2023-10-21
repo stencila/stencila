@@ -46,6 +46,10 @@
     "noteType": {
       "@id": "stencila:noteType",
       "description": "Determines where the note content is displayed within the document.",
+      "aliases": [
+        "note-type",
+        "note_type"
+      ],
       "jats": {
         "attr": "custom-type"
       },

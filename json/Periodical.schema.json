@@ -37,6 +37,13 @@
     "alternateNames": {
       "@id": "schema:alternateName",
       "description": "Alternate names (aliases) for the item.",
+      "aliases": [
+        "alternate-names",
+        "alternate_names",
+        "alternateName",
+        "alternate-name",
+        "alternate_name"
+      ],
       "strip": [
         "metadata"
       ],
@@ -57,6 +64,9 @@
       "@id": "schema:identifier",
       "description": "Any kind of identifier for any kind of Thing.",
       "$comment": "Some identifiers have specific properties e.g the `issn` property for\nthe `Periodical` type. These should be used in preference to this\nproperty which is intended for identifiers that do not yet have a\nspecific property. Identifiers can be represented as strings, but\nusing a `PropertyValue` will usually be better because it allows\nfor `propertyID` (i.e. the type of identifier).\n",
+      "aliases": [
+        "identifier"
+      ],
       "strip": [
         "metadata"
       ],
@@ -75,6 +85,9 @@
     "images": {
       "@id": "schema:image",
       "description": "Images of the item.",
+      "aliases": [
+        "image"
+      ],
       "strip": [
         "metadata"
       ],
@@ -126,6 +139,9 @@
     "authors": {
       "@id": "schema:author",
       "description": "The authors of the `CreativeWork`.",
+      "aliases": [
+        "author"
+      ],
       "strip": [
         "metadata"
       ],
@@ -144,6 +160,9 @@
     "contributors": {
       "@id": "schema:contributor",
       "description": "A secondary contributor to the `CreativeWork`.",
+      "aliases": [
+        "contributor"
+      ],
       "strip": [
         "metadata"
       ],
@@ -166,6 +185,9 @@
       "@id": "schema:editor",
       "description": "People who edited the `CreativeWork`.",
       "$comment": "Note that, consistent with schema.org, this property can only include\na `Person`, unlike `authors` and `maintainers` which can also include\n`Organization`.\n",
+      "aliases": [
+        "editor"
+      ],
       "strip": [
         "metadata"
       ],
@@ -178,6 +200,9 @@
       "@id": "schema:maintainer",
       "description": "The maintainers of the `CreativeWork`.",
       "$comment": "A maintainer of a `Dataset`, `SoftwareApplication`, or other `CreativeWork`.\nA maintainer is a `Person` or `Organization` that manages contributions to,\nand/or publication of, some (typically complex) artifact. It is common for\ndistributions of software and data to be based on \"upstream\" sources.\nWhen maintainer is applied to a specific version of something e.g. a particular\nversion or packaging of a Dataset, it is always possible that the upstream\nsource has a different maintainer. The `isBasedOn` property can be used to\nindicate such relationships between datasets to make the different maintenance\nroles clear. Similarly in the case of software, a package may have dedicated\nmaintainers working on integration into software distributions such as Ubuntu,\nas well as upstream maintainers of the underlying work.\n",
+      "aliases": [
+        "maintainer"
+      ],
       "strip": [
         "metadata"
       ],
@@ -196,6 +221,9 @@
     "comments": {
       "@id": "schema:comment",
       "description": "Comments about this creative work.",
+      "aliases": [
+        "comment"
+      ],
       "strip": [
         "metadata"
       ],
@@ -207,6 +235,10 @@
     "dateCreated": {
       "@id": "schema:dateCreated",
       "description": "Date/time of creation.",
+      "aliases": [
+        "date-created",
+        "date_created"
+      ],
       "strip": [
         "metadata"
       ],
@@ -215,6 +247,10 @@
     "dateReceived": {
       "@id": "schema:dateReceived",
       "description": "Date/time that work was received.",
+      "aliases": [
+        "date-received",
+        "date_received"
+      ],
       "strip": [
         "metadata"
       ],
@@ -224,6 +260,10 @@
       "@id": "stencila:dateAccepted",
       "description": "Date/time of acceptance.",
       "$comment": "This is not yet a schema.org property but the term is used\n[in Dublin Core](http://purl.org/dc/terms/dateAccepted).\n",
+      "aliases": [
+        "date-accepted",
+        "date_accepted"
+      ],
       "strip": [
         "metadata"
       ],
@@ -232,6 +272,10 @@
     "dateModified": {
       "@id": "schema:dateModified",
       "description": "Date/time of most recent modification.",
+      "aliases": [
+        "date-modified",
+        "date_modified"
+      ],
       "strip": [
         "metadata"
       ],
@@ -241,7 +285,9 @@
       "@id": "schema:datePublished",
       "description": "Date of first publication.",
       "aliases": [
-        "date"
+        "date",
+        "date-published",
+        "date_published"
       ],
       "strip": [
         "metadata"
@@ -251,6 +297,9 @@
     "funders": {
       "@id": "schema:funder",
       "description": "People or organizations that funded the `CreativeWork`.",
+      "aliases": [
+        "funder"
+      ],
       "strip": [
         "metadata"
       ],
@@ -270,6 +319,10 @@
       "@id": "stencila:fundedBy",
       "description": "Grants that funded the `CreativeWork`; reverse of `fundedItems`.",
       "$comment": "This follows the proposal [here](https://github.com/schemaorg/schemaorg/issues/2258)\nfor a property that is the reverse of `fundedItems`.\nIt is an any because a `CreativeWork` may have been funded through more than\none `Grant`.\n",
+      "aliases": [
+        "funded-by",
+        "funded_by"
+      ],
       "strip": [
         "metadata"
       ],
@@ -299,6 +352,9 @@
     "keywords": {
       "@id": "schema:keywords",
       "description": "Keywords or tags used to describe this content.\nMultiple entries in a keywords list are typically delimited by commas.\n",
+      "aliases": [
+        "keyword"
+      ],
       "strip": [
         "metadata"
       ],
@@ -310,6 +366,10 @@
     "isPartOf": {
       "@id": "schema:isPartOf",
       "description": "An item or other CreativeWork that this CreativeWork is a part of.\n",
+      "aliases": [
+        "is-part-of",
+        "is_part_of"
+      ],
       "strip": [
         "metadata"
       ],
@@ -318,6 +378,9 @@
     "licenses": {
       "@id": "schema:license",
       "description": "License documents that applies to this content, typically indicated by URL.\n",
+      "aliases": [
+        "license"
+      ],
       "strip": [
         "metadata"
       ],
@@ -337,7 +400,8 @@
       "@id": "schema:hasParts",
       "description": "Elements of the collection which can be a variety of different elements,\nsuch as Articles, Datatables, Tables and more.\n",
       "aliases": [
-        "hasParts"
+        "hasParts",
+        "part"
       ],
       "strip": [
         "content"
@@ -366,7 +430,8 @@
       "@id": "schema:citation",
       "description": "References to other creative works, such as another publication,\nweb page, scholarly article, etc.\n",
       "aliases": [
-        "citations"
+        "citations",
+        "reference"
       ],
       "strip": [
         "metadata"
@@ -424,17 +489,28 @@
     "dateStart": {
       "@id": "schema:startDate",
       "description": "The date this Periodical was first published.",
+      "aliases": [
+        "date-start",
+        "date_start"
+      ],
       "$ref": "Date.schema.json"
     },
     "dateEnd": {
       "@id": "schema:endDate",
       "description": "The date this Periodical ceased publication.",
+      "aliases": [
+        "date-end",
+        "date_end"
+      ],
       "$ref": "Date.schema.json"
     },
     "issns": {
       "@id": "schema:issn",
       "description": "The International Standard Serial Number(s) (ISSN) that identifies this serial publication.",
       "$comment": "A periodical may have multiple ISSN (e.g. for online and print versions).\nSee [issn.org](https://www.issn.org/understanding-the-issn/assignment-rules/the-issn-for-electronic-media/)\nfor more details.\n",
+      "aliases": [
+        "issn"
+      ],
       "type": "array",
       "items": {
         "type": "string"

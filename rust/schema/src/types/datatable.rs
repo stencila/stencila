@@ -22,6 +22,7 @@ use super::thing_type::ThingType;
 
 /// A table of data.
 #[skip_serializing_none]
+#[serde_as]
 #[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec, WriteNode, ReadNode)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 #[derive(derive_more::Display)]
@@ -36,6 +37,8 @@ pub struct Datatable {
     pub id: Option<String>,
 
     /// The columns of data.
+    #[serde(alias = "column")]
+    #[serde_as(deserialize_as = "OneOrMany<_, PreferMany>")]
     pub columns: Vec<DatatableColumn>,
 
     /// Non-core optional fields
@@ -47,10 +50,13 @@ pub struct Datatable {
 }
 
 #[skip_serializing_none]
+#[serde_as]
 #[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec, WriteNode, ReadNode)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 pub struct DatatableOptions {
     /// Alternate names (aliases) for the item.
+    #[serde(alias = "alternate-names", alias = "alternate_names", alias = "alternateName", alias = "alternate-name", alias = "alternate_name")]
+    #[serde_as(deserialize_as = "Option<OneOrMany<_, PreferMany>>")]
     #[strip(metadata)]
     pub alternate_names: Option<Vec<String>>,
 
@@ -59,10 +65,14 @@ pub struct DatatableOptions {
     pub description: Option<Text>,
 
     /// Any kind of identifier for any kind of Thing.
+    #[serde(alias = "identifier")]
+    #[serde_as(deserialize_as = "Option<OneOrMany<_, PreferMany>>")]
     #[strip(metadata)]
     pub identifiers: Option<Vec<PropertyValueOrString>>,
 
     /// Images of the item.
+    #[serde(alias = "image")]
+    #[serde_as(deserialize_as = "Option<OneOrMany<_, PreferMany>>")]
     #[strip(metadata)]
     pub images: Option<Vec<ImageObject>>,
 
@@ -75,80 +85,109 @@ pub struct DatatableOptions {
     pub url: Option<String>,
 
     /// The subject matter of the content.
+    #[serde_as(deserialize_as = "Option<OneOrMany<_, PreferMany>>")]
     #[strip(metadata)]
     pub about: Option<Vec<ThingType>>,
 
     /// A a short description that summarizes a `CreativeWork`.
+    #[serde_as(deserialize_as = "Option<OneOrMany<_, PreferMany>>")]
     #[strip(metadata)]
     pub r#abstract: Option<Vec<Block>>,
 
     /// The authors of the `CreativeWork`.
+    #[serde(alias = "author")]
+    #[serde_as(deserialize_as = "Option<OneOrMany<_, PreferMany>>")]
     #[strip(metadata)]
     pub authors: Option<Vec<PersonOrOrganization>>,
 
     /// A secondary contributor to the `CreativeWork`.
+    #[serde(alias = "contributor")]
+    #[serde_as(deserialize_as = "Option<OneOrMany<_, PreferMany>>")]
     #[strip(metadata)]
     pub contributors: Option<Vec<PersonOrOrganizationOrSoftwareApplication>>,
 
     /// People who edited the `CreativeWork`.
+    #[serde(alias = "editor")]
+    #[serde_as(deserialize_as = "Option<OneOrMany<_, PreferMany>>")]
     #[strip(metadata)]
     pub editors: Option<Vec<Person>>,
 
     /// The maintainers of the `CreativeWork`.
+    #[serde(alias = "maintainer")]
+    #[serde_as(deserialize_as = "Option<OneOrMany<_, PreferMany>>")]
     #[strip(metadata)]
     pub maintainers: Option<Vec<PersonOrOrganization>>,
 
     /// Comments about this creative work.
+    #[serde(alias = "comment")]
+    #[serde_as(deserialize_as = "Option<OneOrMany<_, PreferMany>>")]
     #[strip(metadata)]
     pub comments: Option<Vec<Comment>>,
 
     /// Date/time of creation.
+    #[serde(alias = "date-created", alias = "date_created")]
     #[strip(metadata)]
     pub date_created: Option<Date>,
 
     /// Date/time that work was received.
+    #[serde(alias = "date-received", alias = "date_received")]
     #[strip(metadata)]
     pub date_received: Option<Date>,
 
     /// Date/time of acceptance.
+    #[serde(alias = "date-accepted", alias = "date_accepted")]
     #[strip(metadata)]
     pub date_accepted: Option<Date>,
 
     /// Date/time of most recent modification.
+    #[serde(alias = "date-modified", alias = "date_modified")]
     #[strip(metadata)]
     pub date_modified: Option<Date>,
 
     /// Date of first publication.
+    #[serde(alias = "date", alias = "date-published", alias = "date_published")]
     #[strip(metadata)]
     pub date_published: Option<Date>,
 
     /// People or organizations that funded the `CreativeWork`.
+    #[serde(alias = "funder")]
+    #[serde_as(deserialize_as = "Option<OneOrMany<_, PreferMany>>")]
     #[strip(metadata)]
     pub funders: Option<Vec<PersonOrOrganization>>,
 
     /// Grants that funded the `CreativeWork`; reverse of `fundedItems`.
+    #[serde(alias = "funded-by", alias = "funded_by")]
+    #[serde_as(deserialize_as = "Option<OneOrMany<_, PreferMany>>")]
     #[strip(metadata)]
     pub funded_by: Option<Vec<GrantOrMonetaryGrant>>,
 
     /// Genre of the creative work, broadcast channel or group.
+    #[serde_as(deserialize_as = "Option<OneOrMany<_, PreferMany>>")]
     #[strip(metadata)]
     pub genre: Option<Vec<String>>,
 
     /// Keywords or tags used to describe this content.
     /// Multiple entries in a keywords list are typically delimited by commas.
+    #[serde(alias = "keyword")]
+    #[serde_as(deserialize_as = "Option<OneOrMany<_, PreferMany>>")]
     #[strip(metadata)]
     pub keywords: Option<Vec<String>>,
 
     /// An item or other CreativeWork that this CreativeWork is a part of.
+    #[serde(alias = "is-part-of", alias = "is_part_of")]
     #[strip(metadata)]
     pub is_part_of: Option<CreativeWorkType>,
 
     /// License documents that applies to this content, typically indicated by URL.
+    #[serde(alias = "license")]
+    #[serde_as(deserialize_as = "Option<OneOrMany<_, PreferMany>>")]
     #[strip(metadata)]
     pub licenses: Option<Vec<CreativeWorkTypeOrText>>,
 
     /// Elements of the collection which can be a variety of different elements,
     /// such as Articles, Datatables, Tables and more.
+    #[serde(alias = "hasParts", alias = "part")]
+    #[serde_as(deserialize_as = "Option<OneOrMany<_, PreferMany>>")]
     #[strip(content)]
     pub parts: Option<Vec<CreativeWorkType>>,
 
@@ -158,6 +197,8 @@ pub struct DatatableOptions {
 
     /// References to other creative works, such as another publication,
     /// web page, scholarly article, etc.
+    #[serde(alias = "citations", alias = "reference")]
+    #[serde_as(deserialize_as = "Option<OneOrMany<_, PreferMany>>")]
     #[strip(metadata)]
     pub references: Option<Vec<CreativeWorkTypeOrText>>,
 
@@ -166,6 +207,8 @@ pub struct DatatableOptions {
     pub text: Option<Text>,
 
     /// The title of the creative work.
+    #[serde(alias = "headline")]
+    #[serde_as(deserialize_as = "Option<OneOrMany<_, PreferMany>>")]
     #[strip(metadata)]
     pub title: Option<Vec<Inline>>,
 

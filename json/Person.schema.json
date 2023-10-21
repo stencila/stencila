@@ -38,6 +38,13 @@
     "alternateNames": {
       "@id": "schema:alternateName",
       "description": "Alternate names (aliases) for the item.",
+      "aliases": [
+        "alternate-names",
+        "alternate_names",
+        "alternateName",
+        "alternate-name",
+        "alternate_name"
+      ],
       "strip": [
         "metadata"
       ],
@@ -58,6 +65,9 @@
       "@id": "schema:identifier",
       "description": "Any kind of identifier for any kind of Thing.",
       "$comment": "Some identifiers have specific properties e.g the `issn` property for\nthe `Periodical` type. These should be used in preference to this\nproperty which is intended for identifiers that do not yet have a\nspecific property. Identifiers can be represented as strings, but\nusing a `PropertyValue` will usually be better because it allows\nfor `propertyID` (i.e. the type of identifier).\n",
+      "aliases": [
+        "identifier"
+      ],
       "strip": [
         "metadata"
       ],
@@ -76,6 +86,9 @@
     "images": {
       "@id": "schema:image",
       "description": "Images of the item.",
+      "aliases": [
+        "image"
+      ],
       "strip": [
         "metadata"
       ],
@@ -116,6 +129,9 @@
     "affiliations": {
       "@id": "schema:affiliation",
       "description": "Organizations that the person is affiliated with.",
+      "aliases": [
+        "affiliation"
+      ],
       "type": "array",
       "items": {
         "$ref": "Organization.schema.json"
@@ -124,6 +140,9 @@
     "emails": {
       "@id": "schema:email",
       "description": "Email addresses for the person.",
+      "aliases": [
+        "email"
+      ],
       "type": "array",
       "items": {
         "type": "string"
@@ -138,7 +157,11 @@
         "surname",
         "surnames",
         "lastName",
-        "lastNames"
+        "lastNames",
+        "family-names",
+        "family_names",
+        "family-name",
+        "family_name"
       ],
       "type": "array",
       "items": {
@@ -148,6 +171,9 @@
     "funders": {
       "@id": "schema:funder",
       "description": "A person or organization that supports (sponsors) something through\nsome kind of financial contribution.\n",
+      "aliases": [
+        "funder"
+      ],
       "type": "array",
       "items": {
         "anyOf": [
@@ -166,7 +192,12 @@
       "$comment": "This can be used along with familyName instead of the name property.",
       "aliases": [
         "firstName",
-        "firstNames"
+        "firstNames",
+        "given-names",
+        "given_names",
+        "givenName",
+        "given-name",
+        "given_name"
       ],
       "type": "array",
       "items": {
@@ -177,7 +208,9 @@
       "@id": "schema:honorificPrefix",
       "description": "An honorific prefix preceding a person's name such as Dr/Mrs/Mr.",
       "aliases": [
-        "prefix"
+        "prefix",
+        "honorific-prefix",
+        "honorific_prefix"
       ],
       "type": "string"
     },
@@ -185,18 +218,28 @@
       "@id": "schema:honorificSuffix",
       "description": "An honorific suffix after a person's name such as MD/PhD/MSCSW.",
       "aliases": [
-        "suffix"
+        "suffix",
+        "honorific-suffix",
+        "honorific_suffix"
       ],
       "type": "string"
     },
     "jobTitle": {
       "@id": "schema:jobTitle",
       "description": "The job title of the person (for example, Financial Manager).",
+      "aliases": [
+        "job-title",
+        "job_title"
+      ],
       "type": "string"
     },
     "memberOf": {
       "@id": "schema:memberOf",
       "description": "An organization (or program membership) to which this person belongs.",
+      "aliases": [
+        "member-of",
+        "member_of"
+      ],
       "type": "array",
       "items": {
         "$ref": "Organization.schema.json"
@@ -206,7 +249,12 @@
       "@id": "schema:telephone",
       "description": "Telephone numbers for the person.",
       "aliases": [
-        "telephone"
+        "telephone",
+        "telephone-numbers",
+        "telephone_numbers",
+        "telephoneNumber",
+        "telephone-number",
+        "telephone_number"
       ],
       "type": "array",
       "items": {

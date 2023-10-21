@@ -237,6 +237,7 @@ fn intro(title: &str, schema: &Schema) -> Vec<Block> {
 fn properties(title: &str, schema: &Schema, context: &Context) -> Vec<Block> {
     let mut rows = vec![tr([
         th([text("Name")]),
+        th([text("Aliases")]),
         th([cf("@id")]),
         th([text("Type")]),
         th([text("Description")]),
@@ -247,6 +248,13 @@ fn properties(title: &str, schema: &Schema, context: &Context) -> Vec<Block> {
         if name == "type" {
             continue;
         }
+
+        let aliases = property.aliases.join(", ");
+        let aliases = if aliases.is_empty() {
+            "-".to_string()
+        } else {
+            aliases
+        };
 
         let id = property.jid.clone().unwrap_or_default();
         let id = if id.starts_with("schema:") {
@@ -318,11 +326,12 @@ fn properties(title: &str, schema: &Schema, context: &Context) -> Vec<Block> {
         };
 
         rows.push(tr([
-            th([text(name)]),
-            th([id]),
-            th(r#type),
-            th([text(description)]),
-            th([from]),
+            td([text(name)]),
+            td([text(aliases)]),
+            td([id]),
+            td(r#type),
+            td([text(description)]),
+            td([from]),
         ]));
     }
 

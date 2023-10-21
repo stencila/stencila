@@ -39,6 +39,13 @@
     "alternateNames": {
       "@id": "schema:alternateName",
       "description": "Alternate names (aliases) for the item.",
+      "aliases": [
+        "alternate-names",
+        "alternate_names",
+        "alternateName",
+        "alternate-name",
+        "alternate_name"
+      ],
       "strip": [
         "metadata"
       ],
@@ -59,6 +66,9 @@
       "@id": "schema:identifier",
       "description": "Any kind of identifier for any kind of Thing.",
       "$comment": "Some identifiers have specific properties e.g the `issn` property for\nthe `Periodical` type. These should be used in preference to this\nproperty which is intended for identifiers that do not yet have a\nspecific property. Identifiers can be represented as strings, but\nusing a `PropertyValue` will usually be better because it allows\nfor `propertyID` (i.e. the type of identifier).\n",
+      "aliases": [
+        "identifier"
+      ],
       "strip": [
         "metadata"
       ],
@@ -77,6 +87,9 @@
     "images": {
       "@id": "schema:image",
       "description": "Images of the item.",
+      "aliases": [
+        "image"
+      ],
       "strip": [
         "metadata"
       ],
@@ -117,6 +130,9 @@
     "brands": {
       "@id": "schema:brand",
       "description": "Brands that the organization is connected with.\n",
+      "aliases": [
+        "brand"
+      ],
       "type": "array",
       "items": {
         "$ref": "Brand.schema.json"
@@ -125,6 +141,13 @@
     "contactPoints": {
       "@id": "schema:contactPoint",
       "description": "Correspondence/Contact points for the organization.\n",
+      "aliases": [
+        "contact-points",
+        "contact_points",
+        "contactPoint",
+        "contact-point",
+        "contact_point"
+      ],
       "type": "array",
       "items": {
         "$ref": "ContactPoint.schema.json"
@@ -133,6 +156,9 @@
     "departments": {
       "@id": "schema:department",
       "description": "Departments within the organization. For example, Department of Computer Science, Research & Development etc.\n",
+      "aliases": [
+        "department"
+      ],
       "type": "array",
       "items": {
         "$ref": "Organization.schema.json"
@@ -141,6 +167,9 @@
     "funders": {
       "@id": "schema:funder",
       "description": "Organization(s) or person(s) funding the organization.\n",
+      "aliases": [
+        "funder"
+      ],
       "type": "array",
       "items": {
         "anyOf": [
@@ -156,6 +185,10 @@
     "legalName": {
       "@id": "schema:legalName",
       "description": "The official name of the organization, e.g. the registered company name.",
+      "aliases": [
+        "legal-name",
+        "legal_name"
+      ],
       "type": "string"
     },
     "logo": {
@@ -167,6 +200,9 @@
     "members": {
       "@id": "schema:member",
       "description": "Person(s) or organization(s) who are members of this organization.\n",
+      "aliases": [
+        "member"
+      ],
       "type": "array",
       "items": {
         "anyOf": [
@@ -182,6 +218,10 @@
     "parentOrganization": {
       "@id": "schema:parentOrganization",
       "description": "Entity that the Organization is a part of. For example, parentOrganization to a department is a university.\n",
+      "aliases": [
+        "parent-organization",
+        "parent_organization"
+      ],
       "$ref": "Organization.schema.json"
     }
   }

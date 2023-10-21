@@ -41,6 +41,10 @@
       "@id": "stencila:minLength",
       "description": "The minimum length for a string node.",
       "$comment": "A string is valid if its length is greater than, or exactly equal to, `minLength`.\n",
+      "aliases": [
+        "min-length",
+        "min_length"
+      ],
       "type": "integer",
       "minimum": 0.0
     },
@@ -48,6 +52,10 @@
       "@id": "stencila:maxLength",
       "description": "The maximum length for a string node.",
       "$comment": "A string is valid if its length is less than, or exactly equal to, `maxLength`.\n",
+      "aliases": [
+        "max-length",
+        "max_length"
+      ],
       "type": "integer",
       "minimum": 0.0
     },

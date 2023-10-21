@@ -49,6 +49,9 @@
     "items": {
       "@id": "schema:itemListElement",
       "description": "The items in the list.",
+      "aliases": [
+        "item"
+      ],
       "proptest": {
         "min": {
           "description": "Generate a single, arbitrary, list item.",

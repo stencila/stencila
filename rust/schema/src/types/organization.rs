@@ -13,6 +13,7 @@ use super::text::Text;
 
 /// An organization such as a school, NGO, corporation, club, etc.
 #[skip_serializing_none]
+#[serde_as]
 #[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec, WriteNode, ReadNode)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 #[derive(derive_more::Display)]
@@ -36,10 +37,13 @@ pub struct Organization {
 }
 
 #[skip_serializing_none]
+#[serde_as]
 #[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec, WriteNode, ReadNode)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 pub struct OrganizationOptions {
     /// Alternate names (aliases) for the item.
+    #[serde(alias = "alternate-names", alias = "alternate_names", alias = "alternateName", alias = "alternate-name", alias = "alternate_name")]
+    #[serde_as(deserialize_as = "Option<OneOrMany<_, PreferMany>>")]
     #[strip(metadata)]
     pub alternate_names: Option<Vec<String>>,
 
@@ -48,10 +52,14 @@ pub struct OrganizationOptions {
     pub description: Option<Text>,
 
     /// Any kind of identifier for any kind of Thing.
+    #[serde(alias = "identifier")]
+    #[serde_as(deserialize_as = "Option<OneOrMany<_, PreferMany>>")]
     #[strip(metadata)]
     pub identifiers: Option<Vec<PropertyValueOrString>>,
 
     /// Images of the item.
+    #[serde(alias = "image")]
+    #[serde_as(deserialize_as = "Option<OneOrMany<_, PreferMany>>")]
     #[strip(metadata)]
     pub images: Option<Vec<ImageObject>>,
 
@@ -67,27 +75,39 @@ pub struct OrganizationOptions {
     pub address: Option<PostalAddressOrString>,
 
     /// Brands that the organization is connected with.
+    #[serde(alias = "brand")]
+    #[serde_as(deserialize_as = "Option<OneOrMany<_, PreferMany>>")]
     pub brands: Option<Vec<Brand>>,
 
     /// Correspondence/Contact points for the organization.
+    #[serde(alias = "contact-points", alias = "contact_points", alias = "contactPoint", alias = "contact-point", alias = "contact_point")]
+    #[serde_as(deserialize_as = "Option<OneOrMany<_, PreferMany>>")]
     pub contact_points: Option<Vec<ContactPoint>>,
 
     /// Departments within the organization. For example, Department of Computer Science, Research & Development etc.
+    #[serde(alias = "department")]
+    #[serde_as(deserialize_as = "Option<OneOrMany<_, PreferMany>>")]
     pub departments: Option<Vec<Organization>>,
 
     /// Organization(s) or person(s) funding the organization.
+    #[serde(alias = "funder")]
+    #[serde_as(deserialize_as = "Option<OneOrMany<_, PreferMany>>")]
     pub funders: Option<Vec<OrganizationOrPerson>>,
 
     /// The official name of the organization, e.g. the registered company name.
+    #[serde(alias = "legal-name", alias = "legal_name")]
     pub legal_name: Option<String>,
 
     /// The logo of the organization.
     pub logo: Option<ImageObject>,
 
     /// Person(s) or organization(s) who are members of this organization.
+    #[serde(alias = "member")]
+    #[serde_as(deserialize_as = "Option<OneOrMany<_, PreferMany>>")]
     pub members: Option<Vec<OrganizationOrPerson>>,
 
     /// Entity that the Organization is a part of. For example, parentOrganization to a department is a university.
+    #[serde(alias = "parent-organization", alias = "parent_organization")]
     pub parent_organization: Option<Organization>,
 }
 

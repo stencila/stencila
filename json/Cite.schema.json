@@ -44,11 +44,19 @@
     "citationMode": {
       "@id": "stencila:citationMode",
       "description": "Determines how the citation is shown within the surrounding text.",
+      "aliases": [
+        "citation-mode",
+        "citation_mode"
+      ],
       "$ref": "CitationMode.schema.json"
     },
     "citationIntent": {
       "@id": "stencila:citationIntent",
       "description": "The type/s of the citation, both factually and rhetorically.",
+      "aliases": [
+        "citation-intent",
+        "citation_intent"
+      ],
       "type": "array",
       "items": {
         "$ref": "CitationIntent.schema.json"
@@ -65,6 +73,10 @@
     "pageStart": {
       "@id": "schema:pageStart",
       "description": "The page on which the work starts; for example \"135\" or \"xiii\".",
+      "aliases": [
+        "page-start",
+        "page_start"
+      ],
       "anyOf": [
         {
           "type": "integer"
@@ -77,6 +89,10 @@
     "pageEnd": {
       "@id": "schema:pageEnd",
       "description": "The page on which the work ends; for example \"138\" or \"xvi\".",
+      "aliases": [
+        "page-end",
+        "page_end"
+      ],
       "anyOf": [
         {
           "type": "integer"
@@ -95,12 +111,20 @@
       "@id": "stencila:citationPrefix",
       "description": "Text to show before the citation.",
       "$comment": "Previously this was name `prefix` but for consistency with `citationMode`\nand `honorificPrefix`, to avoid ambiguity with other prefixes was renamed\nto `citationPrefix`.\n",
+      "aliases": [
+        "citation-prefix",
+        "citation_prefix"
+      ],
       "type": "string"
     },
     "citationSuffix": {
       "@id": "stencila:citationSuffix",
       "description": "Text to show after the citation.",
       "$comment": "See comment on `citationPrefix` regarding naming.\n",
+      "aliases": [
+        "citation-suffix",
+        "citation_suffix"
+      ],
       "type": "string"
     }
   }

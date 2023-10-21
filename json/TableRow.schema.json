@@ -41,6 +41,9 @@
     "cells": {
       "@id": "stencila:cells",
       "description": "An array of cells in the row.",
+      "aliases": [
+        "cell"
+      ],
       "proptest": {
         "min": {
           "description": "Generate a single, arbitrary, table cell.",
@@ -67,6 +70,10 @@
     "rowType": {
       "@id": "stencila:rowType",
       "description": "The type of row.",
+      "aliases": [
+        "row-type",
+        "row_type"
+      ],
       "$ref": "TableRowType.schema.json"
     }
   }

@@ -2501,6 +2501,7 @@ dependencies = [
  "node-strip",
  "proptest",
  "proptest-derive",
+ "serde_with",
  "smol_str",
 ]
 

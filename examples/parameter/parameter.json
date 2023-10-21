@@ -137,8 +137,8 @@
           "value": "hi",
           "validator": {
             "type": "StringValidator",
-            "min_length": 0,
-            "max_length": 10,
+            "minLength": 0,
+            "maxLength": 10,
             "pattern": "[a-z]+"
           }
         },

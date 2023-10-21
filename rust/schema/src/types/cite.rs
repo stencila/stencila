@@ -10,6 +10,7 @@ use super::string::String;
 
 /// A reference to a `CreativeWork` that is cited in another `CreativeWork`.
 #[skip_serializing_none]
+#[serde_as]
 #[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec, WriteNode, ReadNode)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 #[derive(derive_more::Display)]
@@ -27,6 +28,7 @@ pub struct Cite {
     pub target: String,
 
     /// Determines how the citation is shown within the surrounding text.
+    #[serde(alias = "citation-mode", alias = "citation_mode")]
     pub citation_mode: CitationMode,
 
     /// Non-core optional fields
@@ -38,19 +40,25 @@ pub struct Cite {
 }
 
 #[skip_serializing_none]
+#[serde_as]
 #[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec, WriteNode, ReadNode)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 pub struct CiteOptions {
     /// The type/s of the citation, both factually and rhetorically.
+    #[serde(alias = "citation-intent", alias = "citation_intent")]
+    #[serde_as(deserialize_as = "Option<OneOrMany<_, PreferMany>>")]
     pub citation_intent: Option<Vec<CitationIntent>>,
 
     /// Optional structured content/text of this citation.
+    #[serde_as(deserialize_as = "Option<OneOrMany<_, PreferMany>>")]
     pub content: Option<Vec<Inline>>,
 
     /// The page on which the work starts; for example "135" or "xiii".
+    #[serde(alias = "page-start", alias = "page_start")]
     pub page_start: Option<IntegerOrString>,
 
     /// The page on which the work ends; for example "138" or "xvi".
+    #[serde(alias = "page-end", alias = "page_end")]
     pub page_end: Option<IntegerOrString>,
 
     /// Any description of pages that is not separated into pageStart and pageEnd;
@@ -58,9 +66,11 @@ pub struct CiteOptions {
     pub pagination: Option<String>,
 
     /// Text to show before the citation.
+    #[serde(alias = "citation-prefix", alias = "citation_prefix")]
     pub citation_prefix: Option<String>,
 
     /// Text to show after the citation.
+    #[serde(alias = "citation-suffix", alias = "citation_suffix")]
     pub citation_suffix: Option<String>,
 }
 

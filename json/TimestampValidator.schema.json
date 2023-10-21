@@ -40,6 +40,13 @@
       "@id": "stencila:timeUnits",
       "description": "The time units that the timestamp can have.",
       "$comment": "A timestamp is valid if its `timeUnit` is amongst the `timeUnits` of the validator.\n",
+      "aliases": [
+        "time-units",
+        "time_units",
+        "timeUnit",
+        "time-unit",
+        "time_unit"
+      ],
       "type": "array",
       "items": {
         "$ref": "TimeUnit.schema.json"

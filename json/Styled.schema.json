@@ -71,6 +71,10 @@
     "styleLanguage": {
       "@id": "stencila:styleLanguage",
       "description": "The language used for the style specification e.g. css, tw",
+      "aliases": [
+        "style-language",
+        "style_language"
+      ],
       "proptest": {
         "min": {
           "description": "Do not generate a style language.",
@@ -98,12 +102,19 @@
       "@id": "stencila:compileDigest",
       "description": "A digest of the `code` and `styleLanguage`.",
       "$comment": "Used to avoid unnecessary transpilation to CSS.",
+      "aliases": [
+        "compile-digest",
+        "compile_digest"
+      ],
       "$ref": "ExecutionDigest.schema.json"
     },
     "errors": {
       "@id": "stencila:errors",
       "description": "Errors that occurred when transpiling the `code`.",
       "$comment": "This property is an array of strings. Compare this to `CodeChunk.errors`\nwhich is an array of `CodeError` nodes. Strings are considered to\nbe sufficient for style parsing errors which usually won't have stack traces,\nline numbers etc.\n",
+      "aliases": [
+        "error"
+      ],
       "type": "array",
       "items": {
         "type": "string"
@@ -118,6 +129,9 @@
       "@id": "stencila:classes",
       "description": "A list of class names associated with the node.",
       "$comment": "Analogous to the [`classList` property of an `Element`](https://developer.mozilla.org/en-US/docs/Web/API/Element/classList)\nin the Web API.\n",
+      "aliases": [
+        "class"
+      ],
       "type": "array",
       "items": {
         "type": "string"

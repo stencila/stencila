@@ -44,6 +44,7 @@ fn article() -> Result<()> {
         "id": "An id",
         "alternateNames": ["Another name"]
     });
+
     let article: Article = serde_json::from_value(value.clone())?;
     match &article.content[0] {
         Block::Paragraph(para) => match &para.content[0] {

@@ -7,6 +7,7 @@ use super::string::String;
 
 /// A schema specifying constraints on a string node.
 #[skip_serializing_none]
+#[serde_as]
 #[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec, WriteNode, ReadNode)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 #[derive(derive_more::Display)]
@@ -21,9 +22,11 @@ pub struct StringValidator {
     pub id: Option<String>,
 
     /// The minimum length for a string node.
+    #[serde(alias = "min-length", alias = "min_length")]
     pub min_length: Option<Integer>,
 
     /// The maximum length for a string node.
+    #[serde(alias = "max-length", alias = "max_length")]
     pub max_length: Option<Integer>,
 
     /// A regular expression that a string node must match.

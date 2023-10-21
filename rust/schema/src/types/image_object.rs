@@ -21,6 +21,7 @@ use super::thing_type::ThingType;
 
 /// An image file.
 #[skip_serializing_none]
+#[serde_as]
 #[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec, WriteNode, ReadNode)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 #[cfg_attr(feature = "proptest", derive(Arbitrary))]
@@ -41,6 +42,7 @@ pub struct ImageObject {
     pub id: Option<String>,
 
     /// URL for the actual bytes of the media object, for example the image file or video file.
+    #[serde(alias = "content-url", alias = "content_url")]
     #[cfg_attr(feature = "proptest-min", proptest(value = r#"String::from("https://example.org/image.png")"#))]
     #[cfg_attr(feature = "proptest-low", proptest(regex = r#"https://\w+\.\w+/\w+\.png"#))]
     #[cfg_attr(feature = "proptest-high", proptest(regex = r#"[a-zA-Z0-9]{1,100}"#))]
@@ -49,6 +51,7 @@ pub struct ImageObject {
     pub content_url: String,
 
     /// IANA media type (MIME type).
+    #[serde(alias = "encodingFormat", alias = "media-type", alias = "media_type")]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     pub media_type: Option<String>,
 
@@ -66,11 +69,14 @@ pub struct ImageObject {
 }
 
 #[skip_serializing_none]
+#[serde_as]
 #[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec, WriteNode, ReadNode)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 #[cfg_attr(feature = "proptest", derive(Arbitrary))]
 pub struct ImageObjectOptions {
     /// Alternate names (aliases) for the item.
+    #[serde(alias = "alternate-names", alias = "alternate_names", alias = "alternateName", alias = "alternate-name", alias = "alternate_name")]
+    #[serde_as(deserialize_as = "Option<OneOrMany<_, PreferMany>>")]
     #[strip(metadata)]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     pub alternate_names: Option<Vec<String>>,
@@ -81,11 +87,15 @@ pub struct ImageObjectOptions {
     pub description: Option<Text>,
 
     /// Any kind of identifier for any kind of Thing.
+    #[serde(alias = "identifier")]
+    #[serde_as(deserialize_as = "Option<OneOrMany<_, PreferMany>>")]
     #[strip(metadata)]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     pub identifiers: Option<Vec<PropertyValueOrString>>,
 
     /// Images of the item.
+    #[serde(alias = "image")]
+    #[serde_as(deserialize_as = "Option<OneOrMany<_, PreferMany>>")]
     #[strip(metadata)]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     pub images: Option<Vec<ImageObject>>,
@@ -101,98 +111,127 @@ pub struct ImageObjectOptions {
     pub url: Option<String>,
 
     /// The subject matter of the content.
+    #[serde_as(deserialize_as = "Option<OneOrMany<_, PreferMany>>")]
     #[strip(metadata)]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     pub about: Option<Vec<ThingType>>,
 
     /// A a short description that summarizes a `CreativeWork`.
+    #[serde_as(deserialize_as = "Option<OneOrMany<_, PreferMany>>")]
     #[strip(metadata)]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     pub r#abstract: Option<Vec<Block>>,
 
     /// The authors of the `CreativeWork`.
+    #[serde(alias = "author")]
+    #[serde_as(deserialize_as = "Option<OneOrMany<_, PreferMany>>")]
     #[strip(metadata)]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     pub authors: Option<Vec<PersonOrOrganization>>,
 
     /// A secondary contributor to the `CreativeWork`.
+    #[serde(alias = "contributor")]
+    #[serde_as(deserialize_as = "Option<OneOrMany<_, PreferMany>>")]
     #[strip(metadata)]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     pub contributors: Option<Vec<PersonOrOrganizationOrSoftwareApplication>>,
 
     /// People who edited the `CreativeWork`.
+    #[serde(alias = "editor")]
+    #[serde_as(deserialize_as = "Option<OneOrMany<_, PreferMany>>")]
     #[strip(metadata)]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     pub editors: Option<Vec<Person>>,
 
     /// The maintainers of the `CreativeWork`.
+    #[serde(alias = "maintainer")]
+    #[serde_as(deserialize_as = "Option<OneOrMany<_, PreferMany>>")]
     #[strip(metadata)]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     pub maintainers: Option<Vec<PersonOrOrganization>>,
 
     /// Comments about this creative work.
+    #[serde(alias = "comment")]
+    #[serde_as(deserialize_as = "Option<OneOrMany<_, PreferMany>>")]
     #[strip(metadata)]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     pub comments: Option<Vec<Comment>>,
 
     /// Date/time of creation.
+    #[serde(alias = "date-created", alias = "date_created")]
     #[strip(metadata)]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     pub date_created: Option<Date>,
 
     /// Date/time that work was received.
+    #[serde(alias = "date-received", alias = "date_received")]
     #[strip(metadata)]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     pub date_received: Option<Date>,
 
     /// Date/time of acceptance.
+    #[serde(alias = "date-accepted", alias = "date_accepted")]
     #[strip(metadata)]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     pub date_accepted: Option<Date>,
 
     /// Date/time of most recent modification.
+    #[serde(alias = "date-modified", alias = "date_modified")]
     #[strip(metadata)]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     pub date_modified: Option<Date>,
 
     /// Date of first publication.
+    #[serde(alias = "date", alias = "date-published", alias = "date_published")]
     #[strip(metadata)]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     pub date_published: Option<Date>,
 
     /// People or organizations that funded the `CreativeWork`.
+    #[serde(alias = "funder")]
+    #[serde_as(deserialize_as = "Option<OneOrMany<_, PreferMany>>")]
     #[strip(metadata)]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     pub funders: Option<Vec<PersonOrOrganization>>,
 
     /// Grants that funded the `CreativeWork`; reverse of `fundedItems`.
+    #[serde(alias = "funded-by", alias = "funded_by")]
+    #[serde_as(deserialize_as = "Option<OneOrMany<_, PreferMany>>")]
     #[strip(metadata)]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     pub funded_by: Option<Vec<GrantOrMonetaryGrant>>,
 
     /// Genre of the creative work, broadcast channel or group.
+    #[serde_as(deserialize_as = "Option<OneOrMany<_, PreferMany>>")]
     #[strip(metadata)]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     pub genre: Option<Vec<String>>,
 
     /// Keywords or tags used to describe this content.
     /// Multiple entries in a keywords list are typically delimited by commas.
+    #[serde(alias = "keyword")]
+    #[serde_as(deserialize_as = "Option<OneOrMany<_, PreferMany>>")]
     #[strip(metadata)]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     pub keywords: Option<Vec<String>>,
 
     /// An item or other CreativeWork that this CreativeWork is a part of.
+    #[serde(alias = "is-part-of", alias = "is_part_of")]
     #[strip(metadata)]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     pub is_part_of: Option<CreativeWorkType>,
 
     /// License documents that applies to this content, typically indicated by URL.
+    #[serde(alias = "license")]
+    #[serde_as(deserialize_as = "Option<OneOrMany<_, PreferMany>>")]
     #[strip(metadata)]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     pub licenses: Option<Vec<CreativeWorkTypeOrText>>,
 
     /// Elements of the collection which can be a variety of different elements,
     /// such as Articles, Datatables, Tables and more.
+    #[serde(alias = "hasParts", alias = "part")]
+    #[serde_as(deserialize_as = "Option<OneOrMany<_, PreferMany>>")]
     #[strip(content)]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     pub parts: Option<Vec<CreativeWorkType>>,
@@ -204,6 +243,8 @@ pub struct ImageObjectOptions {
 
     /// References to other creative works, such as another publication,
     /// web page, scholarly article, etc.
+    #[serde(alias = "citations", alias = "reference")]
+    #[serde_as(deserialize_as = "Option<OneOrMany<_, PreferMany>>")]
     #[strip(metadata)]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     pub references: Option<Vec<CreativeWorkTypeOrText>>,
@@ -214,6 +255,8 @@ pub struct ImageObjectOptions {
     pub text: Option<Text>,
 
     /// The title of the creative work.
+    #[serde(alias = "headline")]
+    #[serde_as(deserialize_as = "Option<OneOrMany<_, PreferMany>>")]
     #[strip(metadata)]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     pub title: Option<Vec<Inline>>,
@@ -228,10 +271,12 @@ pub struct ImageObjectOptions {
     pub bitrate: Option<Number>,
 
     /// File size in megabits (Mbit, Mb).
+    #[serde(alias = "content-size", alias = "content_size")]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     pub content_size: Option<Number>,
 
     /// URL that can be used to embed the media on a web page via a specific media player.
+    #[serde(alias = "embed-url", alias = "embed_url")]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     pub embed_url: Option<String>,
 

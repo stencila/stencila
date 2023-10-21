@@ -7,6 +7,7 @@ use super::validator::Validator;
 
 /// A validator specifying constraints on an array of heterogeneous items.
 #[skip_serializing_none]
+#[serde_as]
 #[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec, WriteNode, ReadNode)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 #[derive(derive_more::Display)]
@@ -21,6 +22,8 @@ pub struct TupleValidator {
     pub id: Option<String>,
 
     /// An array of validators specifying the constraints on each successive item in the array.
+    #[serde(alias = "item")]
+    #[serde_as(deserialize_as = "Option<OneOrMany<_, PreferMany>>")]
     pub items: Option<Vec<Validator>>,
 }
 

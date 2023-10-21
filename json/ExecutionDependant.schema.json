@@ -39,17 +39,29 @@
     "dependantRelation": {
       "@id": "stencila:dependantRelation",
       "description": "The relation to the dependant",
+      "aliases": [
+        "dependant-relation",
+        "dependant_relation"
+      ],
       "$ref": "ExecutionDependantRelation.schema.json"
     },
     "dependantNode": {
       "@id": "stencila:dependantNode",
       "description": "The node that is the dependant",
+      "aliases": [
+        "dependant-node",
+        "dependant_node"
+      ],
       "$ref": "ExecutionDependantNode.schema.json"
     },
     "codeLocation": {
       "@id": "stencila:codeLocation",
       "description": "The location that the dependant is defined within code",
       "$comment": "An array of four zero indexed integers: [startRow, startColumn, endRow, endColumn]\n",
+      "aliases": [
+        "code-location",
+        "code_location"
+      ],
       "type": "array",
       "items": {
         "type": "integer"

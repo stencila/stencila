@@ -42,11 +42,19 @@
     "itemsNullable": {
       "@id": "stencila:itemsNullable",
       "description": "Whether items can have the value `Node::Null`",
+      "aliases": [
+        "items-nullable",
+        "items_nullable"
+      ],
       "type": "boolean"
     },
     "itemsValidator": {
       "@id": "stencila:itemsValidator",
       "description": "Another validator node specifying the constraints on all items in the array.",
+      "aliases": [
+        "items-validator",
+        "items_validator"
+      ],
       "$ref": "Validator.schema.json"
     },
     "contains": {
@@ -57,18 +65,30 @@
     "minItems": {
       "@id": "stencila:minItems",
       "description": "An array node is valid if its size is greater than, or equal to, this value.",
+      "aliases": [
+        "min-items",
+        "min_items"
+      ],
       "type": "integer",
       "minimum": 0.0
     },
     "maxItems": {
       "@id": "stencila:maxItems",
       "description": "An array node is valid if its size is less than, or equal to, this value.",
+      "aliases": [
+        "max-items",
+        "max_items"
+      ],
       "type": "integer",
       "minimum": 0.0
     },
     "uniqueItems": {
       "@id": "stencila:uniqueItems",
       "description": "A flag to indicate that each value in the array should be unique.",
+      "aliases": [
+        "unique-items",
+        "unique_items"
+      ],
       "type": "boolean"
     }
   }

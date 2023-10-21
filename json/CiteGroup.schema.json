@@ -38,6 +38,9 @@
     "items": {
       "@id": "schema:itemListElement",
       "description": "One or more `Cite`s to be referenced in the same surrounding text.",
+      "aliases": [
+        "item"
+      ],
       "type": "array",
       "items": {
         "$ref": "Cite.schema.json"

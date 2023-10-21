@@ -4,7 +4,7 @@ An integer parameter &[par_int_1]{int}, with a default &[par_int_2]{int def=123}
 
 A number parameter &[par_num_1]{num val=4.5 def=1.23 min=-10.1 emin=-10.1 max=10.1 emax=10.1 mult=2.2}
 
-A string parameter &[par_str_1]{str val="hi" def="hello" pattern="[a-z]+"} with quotes in properties &[par_str_2]{str val="a\"b" def="a\"b" pattern="a\"b"}
+A string parameter &[par_str_1]{str val="hi" def="hello" min=0 max=10 pattern="[a-z]+"} with quotes in properties &[par_str_2]{str val="a\"b" def="a\"b" pattern="a\"b"}
 
 A date parameter &[par_date]{date val="2022-02-23" def="2022-02-22" min="2022-02-20" max="2022-02-24"}
 

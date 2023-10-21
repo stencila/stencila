@@ -9,6 +9,7 @@ use super::table_cell_type::TableCellType;
 
 /// A cell within a `Table`.
 #[skip_serializing_none]
+#[serde_as]
 #[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec, WriteNode, ReadNode)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 #[cfg_attr(feature = "proptest", derive(Arbitrary))]
@@ -27,10 +28,12 @@ pub struct TableCell {
     pub id: Option<String>,
 
     /// The type of cell.
+    #[serde(alias = "cell-type", alias = "cell_type")]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     pub cell_type: Option<TableCellType>,
 
     /// Contents of the table cell.
+    #[serde_as(deserialize_as = "OneOrMany<_, PreferMany>")]
     #[cfg_attr(feature = "proptest-min", proptest(strategy = r#"vec_paragraphs(1)"#))]
     #[cfg_attr(feature = "proptest-low", proptest(strategy = r#"vec_paragraphs(1)"#))]
     #[cfg_attr(feature = "proptest-high", proptest(strategy = r#"vec_paragraphs(1)"#))]
@@ -46,6 +49,7 @@ pub struct TableCell {
 }
 
 #[skip_serializing_none]
+#[serde_as]
 #[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec, WriteNode, ReadNode)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 #[cfg_attr(feature = "proptest", derive(Arbitrary))]
@@ -55,11 +59,13 @@ pub struct TableCellOptions {
     pub name: Option<String>,
 
     /// How many columns the cell extends.
+    #[serde(alias = "column-span", alias = "column_span")]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     #[html(attr = "colspan")]
     pub column_span: Option<Integer>,
 
     /// How many columns the cell extends.
+    #[serde(alias = "row-span", alias = "row_span")]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     #[html(attr = "rowspan")]
     pub row_span: Option<Integer>,

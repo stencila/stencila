@@ -41,7 +41,9 @@
       "@id": "stencila:errorMessage",
       "description": "The error message or brief description of the error.",
       "aliases": [
-        "message"
+        "message",
+        "error-message",
+        "error_message"
       ],
       "type": "string"
     },
@@ -49,13 +51,19 @@
       "@id": "stencila:errorType",
       "description": "The type of error e.g. \"SyntaxError\", \"ZeroDivisionError\".",
       "$comment": "Many languages have the concept of alternative types of errors.\nFor example, Python has various [classes of exceptions](https://docs.python.org/3/tutorial/errors.html).\nThis property is intended to be used for storing these type names as additional\ninformation that maybe useful to the user attempting to resolve the error.\n",
+      "aliases": [
+        "error-type",
+        "error_type"
+      ],
       "type": "string"
     },
     "stackTrace": {
       "@id": "stencila:stackTrace",
       "description": "Stack trace leading up to the error.",
       "aliases": [
-        "trace"
+        "trace",
+        "stack-trace",
+        "stack_trace"
       ],
       "type": "string"
     }

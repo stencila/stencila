@@ -41,26 +41,46 @@
     "stateDigest": {
       "@id": "stencila:stateDigest",
       "description": "A digest of the state of a node.",
+      "aliases": [
+        "state-digest",
+        "state_digest"
+      ],
       "type": "number"
     },
     "semanticDigest": {
       "@id": "stencila:semanticDigest",
       "description": "A digest of the \"semantic intent\" of the resource with respect to the dependency graph",
+      "aliases": [
+        "semantic-digest",
+        "semantic_digest"
+      ],
       "type": "number"
     },
     "dependenciesDigest": {
       "@id": "stencila:dependenciesDigest",
       "description": "A digest of the semantic digests the dependencies of a resource.",
+      "aliases": [
+        "dependencies-digest",
+        "dependencies_digest"
+      ],
       "type": "number"
     },
     "dependenciesStale": {
       "@id": "stencila:dependenciesStale",
       "description": "A count of the number of execution dependencies that are stale",
+      "aliases": [
+        "dependencies-stale",
+        "dependencies_stale"
+      ],
       "type": "number"
     },
     "dependenciesFailed": {
       "@id": "stencila:dependenciesFailed",
       "description": "A count of the number of execution dependencies that failed",
+      "aliases": [
+        "dependencies-failed",
+        "dependencies_failed"
+      ],
       "type": "number"
     }
   }

@@ -78,6 +78,10 @@
     "programmingLanguage": {
       "@id": "schema:programmingLanguage",
       "description": "The programming language of the code.",
+      "aliases": [
+        "programming-language",
+        "programming_language"
+      ],
       "proptest": {
         "min": {
           "description": "Do not generate a programming language.",

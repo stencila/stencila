@@ -7,6 +7,7 @@ use schemars::JsonSchema;
 use common::{
     eyre::{bail, eyre, Context, Result},
     indexmap::IndexMap,
+    inflector::Inflector,
     itertools::Itertools,
     serde::{self, Deserialize, Serialize, Serializer},
     serde_json::{self, json},
@@ -716,6 +717,21 @@ impl Schema {
             if cores.contains(property_name) {
                 property.is_core = true;
             }
+
+            let is_array = property.is_array();
+            let mut add_alias = |alias: String| {
+                if alias != *property_name && !property.aliases.contains(&alias) {
+                    property.aliases.push(alias);
+                }
+            };
+            add_alias(property_name.to_kebab_case());
+            add_alias(property_name.to_snake_case());
+            if is_array {
+                let singular = property_name.to_singular();
+                add_alias(singular.clone());
+                add_alias(singular.to_kebab_case());
+                add_alias(singular.to_snake_case());
+            }
         }
 
         extended.properties = properties;
@@ -738,6 +754,10 @@ impl Schema {
 
     pub fn is_union(&self) -> bool {
         self.any_of.is_some()
+    }
+
+    pub fn is_array(&self) -> bool {
+        matches!(self.r#type, Some(Type::Array))
     }
 }
 

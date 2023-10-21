@@ -15,11 +15,11 @@ defined and it is trivial to save Stencila Schema documents using the schema.org
 
 The `List` type has these properties:
 
-| Name  | `@id`                                                          | Type                                                                                                    | Description                   | Inherited from                                                                                   |
-| ----- | -------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------- | ----------------------------- | ------------------------------------------------------------------------------------------------ |
-| id    | [`schema:id`](https://schema.org/id)                           | [`String`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/string.md)         | The identifier for this item. | [`Entity`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/entity.md) |
-| items | [`schema:itemListElement`](https://schema.org/itemListElement) | [`ListItem`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/list-item.md)*  | The items in the list.        | -                                                                                                |
-| order | [`schema:itemListOrder`](https://schema.org/itemListOrder)     | [`ListOrder`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/list-order.md) | The ordering of the list.     | -                                                                                                |
+| Name  | Aliases | `@id`                                                          | Type                                                                                                    | Description                   | Inherited from                                                                                   |
+| ----- | ------- | -------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------- | ----------------------------- | ------------------------------------------------------------------------------------------------ |
+| id    | -       | [`schema:id`](https://schema.org/id)                           | [`String`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/string.md)         | The identifier for this item. | [`Entity`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/entity.md) |
+| items | item    | [`schema:itemListElement`](https://schema.org/itemListElement) | [`ListItem`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/list-item.md)*  | The items in the list.        | -                                                                                                |
+| order | -       | [`schema:itemListOrder`](https://schema.org/itemListOrder)     | [`ListOrder`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/list-order.md) | The ordering of the list.     | -                                                                                                |
 
 ## Related
 

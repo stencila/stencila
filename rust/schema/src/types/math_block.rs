@@ -8,6 +8,7 @@ use super::string::String;
 
 /// A block of math, e.g an equation, to be treated as block content.
 #[skip_serializing_none]
+#[serde_as]
 #[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec, WriteNode, ReadNode)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 #[cfg_attr(feature = "proptest", derive(Arbitrary))]
@@ -28,6 +29,7 @@ pub struct MathBlock {
     pub id: Option<String>,
 
     /// The language used for the equation e.g tex, mathml, asciimath.
+    #[serde(alias = "math-language", alias = "math_language")]
     #[cfg_attr(feature = "proptest-min", proptest(value = r#"String::from("lang")"#))]
     #[cfg_attr(feature = "proptest-low", proptest(regex = r#"(asciimath)|(mathml)|(tex)"#))]
     #[cfg_attr(feature = "proptest-high", proptest(regex = r#"[a-zA-Z0-9]{1,10}"#))]
@@ -42,10 +44,13 @@ pub struct MathBlock {
     pub code: Cord,
 
     /// A digest of the `code` and `mathLanguage`.
+    #[serde(alias = "compile-digest", alias = "compile_digest")]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     pub compile_digest: Option<ExecutionDigest>,
 
     /// Errors that occurred when parsing the math equation.
+    #[serde(alias = "error")]
+    #[serde_as(deserialize_as = "Option<OneOrMany<_, PreferMany>>")]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     pub errors: Option<Vec<String>>,
 
