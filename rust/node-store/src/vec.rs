@@ -5,7 +5,7 @@ use crate::prelude::*;
 
 impl<T> ReadNode for Vec<T>
 where
-    T: ReadNode + std::fmt::Display, 
+    T: ReadNode + std::fmt::Display,
 {
     fn load_list<S: ReadStore>(store: &S, obj: &ObjId) -> Result<Self> {
         // Load the items into a new vec

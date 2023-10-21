@@ -78,7 +78,12 @@ fn derive_struct(type_attr: TypeAttr) -> TokenStream {
         // The tokens needed to strip the field
         let strip = if field_type == "Option" {
             quote! { = None }
-        } else if field_type == "String" || field_type == "Cord" || field_type == "Vec" || field_type == "HashMap" || field_type == "IndexMap" {
+        } else if field_type == "String"
+            || field_type == "Cord"
+            || field_type == "Vec"
+            || field_type == "HashMap"
+            || field_type == "IndexMap"
+        {
             quote! { .clear() }
         } else {
             TokenStream::new()
@@ -129,7 +134,7 @@ fn derive_struct(type_attr: TypeAttr) -> TokenStream {
             // Strip field if it is in properties
             fields.extend(quote! {
                 if targets.properties.iter().any(|prop|
-                    prop.as_str() == stringify!(#field_name) || 
+                    prop.as_str() == stringify!(#field_name) ||
                     prop.as_str() == concat!(stringify!(#struct_name), ".", stringify!(#field_name))
                 ) {
                     self.#field_name #strip;

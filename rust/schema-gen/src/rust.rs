@@ -336,7 +336,7 @@ pub enum NodeType {{
         let options_attrs = attrs.clone();
 
         // Add attributes for displaying name
-        attrs.push(format!("#[derive(derive_more::Display)]"));
+        attrs.push("#[derive(derive_more::Display)]".to_string());
         attrs.push(format!("#[display(fmt = \"{title}\")]"));
 
         // Add #[html] attribute for main struct if necessary
