@@ -79,15 +79,19 @@ jobs:
           registry-url: "https://registry.npmjs.org"
 
       - name: Install package using NPM
-        run: npm install @stencila/node
-      - run: npm rm @stencila/node
+        run: npm install @stencila/node && npm rm @stencila/node
 
       - name: Install package using Yarn
         run: yarn add @stencila/node
 
-      - name: Use package
+      - name: Use package as a CJS module
         # Use outer double quotes to avoid issues within inner double quotes on Windows
-        run: node -e "import('@stencila/node').then(console.log).catch((error)=>{ console.error(error); process.exit(1) })"
+        run: node -e "const stencila = require('@stencila/node'); console.log(stencila)"
+
+      - name: Use package as a ESM module using `ts-node`
+        run: |
+          echo "import stencila from '@stencila/node'; console.log(stencila)" > test.ts
+          npx ts-node test.ts
 
   python:
     if: ${{ inputs.python }}
