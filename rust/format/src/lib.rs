@@ -1,6 +1,6 @@
 //! Provides the `Format` enum and utility functions for working with document formats
 
-use std::path::Path;
+use std::path::{Path, PathBuf};
 
 use common::{
     clap::{self, ValueEnum},
@@ -41,6 +41,24 @@ pub enum Format {
     Json,
     Json5,
     Yaml,
+    /// Image formats
+    Gif,
+    Jpeg,
+    Png,
+    Svg,
+    WebP,
+    /// Audio formats
+    Aac,
+    Flac,
+    Mp3,
+    Ogg,
+    Wav,
+    /// Video formats
+    Avi,
+    Mkv,
+    Mp4,
+    Ogv,
+    WebM,
     // Development focussed formats
     Debug,
 }
@@ -50,15 +68,48 @@ impl Format {
     pub fn name(&self) -> &str {
         use Format::*;
         match self {
+            Aac => "AAC",
+            Avi => "AVI",
             Debug => "Debug",
+            Flac => "FLAC",
+            Gif => "GIF",
             Html => "HTML",
             Jats => "JATS",
+            Jpeg => "JPEG",
             Json => "JSON",
             Json5 => "JSON5",
             Markdown => "Markdown",
+            Mkv => "Matroska",
+            Mp3 => "MPEG-3",
+            Mp4 => "MPEG-4",
+            Ogg => "Ogg Vorbis",
+            Ogv => "Ogg Vorbis Video",
+            Png => "PNG",
+            Svg => "SVG",
             Text => "Plain text",
+            Wav => "WAV",
+            WebM => "WebM",
+            WebP => "WebP",
             Yaml => "YAML",
         }
+    }
+
+    /// Is this an image format?
+    pub fn is_image(&self) -> bool {
+        use Format::*;
+        matches!(self, Gif | Jpeg | Png | Svg | WebP)
+    }
+
+    /// Is this an audio format?
+    pub fn is_audio(&self) -> bool {
+        use Format::*;
+        matches!(self, Aac | Flac | Mp3 | Ogg | Wav)
+    }
+
+    /// Is this a video format?
+    pub fn is_video(&self) -> bool {
+        use Format::*;
+        matches!(self, Avi | Mkv | Mp4 | Ogv | WebM)
     }
 
     /// Resolve a [`Format`] from a name for the format
@@ -93,6 +144,11 @@ impl Format {
         };
 
         Self::from_name(&name.to_string_lossy())
+    }
+
+    /// Resolve a [`Format`] from a string (e.g. a URL)
+    pub fn from_string<S: AsRef<str>>(string: S) -> Result<Self> {
+        Self::from_path(&PathBuf::from(string.as_ref()))
     }
 
     /// Get the default file name extension for a format
