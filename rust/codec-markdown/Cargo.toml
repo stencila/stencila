@@ -6,3 +6,4 @@ edition = "2021"
 [dependencies]
 codec = { path = "../codec" }
 codec-markdown-trait = { path = "../codec-markdown-trait" }
+pulldown-cmark = "0.9.3"

@@ -3,9 +3,12 @@ use codec::{
     format::Format,
     schema::{Node, NodeType},
     status::Status,
-    Codec, CodecSupport, EncodeOptions, Losses,
+    Codec, CodecSupport, DecodeOptions, EncodeOptions, Losses,
 };
+
 use codec_markdown_trait::{MarkdownCodec as _, MarkdownEncodeContext};
+
+mod decode;
 
 /// A codec for Markdown
 pub struct MarkdownCodec;
@@ -20,10 +23,29 @@ impl Codec for MarkdownCodec {
         Status::UnderDevelopment
     }
 
-    fn supports_to_format(&self, format: Format) -> CodecSupport {
+    fn supports_from_format(&self, format: Format) -> CodecSupport {
+        use CodecSupport::*;
         match format {
-            Format::Markdown => CodecSupport::LowLoss,
-            _ => CodecSupport::None,
+            Format::Markdown => LowLoss,
+            _ => None,
+        }
+    }
+
+    fn supports_to_format(&self, format: Format) -> CodecSupport {
+        use CodecSupport::*;
+        match format {
+            Format::Markdown => LowLoss,
+            _ => None,
+        }
+    }
+
+    fn supports_from_type(&self, node_type: NodeType) -> CodecSupport {
+        use CodecSupport::*;
+        use NodeType::*;
+        match node_type {
+            // Data
+            String | Cord => NoLoss,
+            _ => None,
         }
     }
 
@@ -51,6 +73,10 @@ impl Codec for MarkdownCodec {
             // `to_text`, fallback to high loss
             _ => HighLoss,
         }
+    }
+
+    async fn from_str(&self, str: &str, options: Option<DecodeOptions>) -> Result<(Node, Losses)> {
+        decode::decode(str, options)
     }
 
     async fn to_string(
