@@ -17,7 +17,8 @@
     "cells"
   ],
   "core": [
-    "id"
+    "id",
+    "rowType"
   ],
   "properties": {
     "type": {

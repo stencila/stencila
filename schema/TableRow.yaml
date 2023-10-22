@@ -8,6 +8,8 @@ html:
 proptest: {}
 required:
   - cells
+core:
+  - rowType
 properties:
   cells:
     '@id': stencila:cells

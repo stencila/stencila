@@ -35,20 +35,6 @@ pub struct TableRow {
     #[cfg_attr(feature = "proptest-max", proptest(strategy = r#"vec(TableCell::arbitrary(), size_range(1..=8))"#))]
     pub cells: Vec<TableCell>,
 
-    /// Non-core optional fields
-    #[serde(flatten)]
-    #[html(flatten)]
-    #[jats(flatten)]
-    #[markdown(flatten)]
-    pub options: Box<TableRowOptions>,
-}
-
-#[skip_serializing_none]
-#[serde_as]
-#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec, WriteNode, ReadNode)]
-#[serde(rename_all = "camelCase", crate = "common::serde")]
-#[cfg_attr(feature = "proptest", derive(Arbitrary))]
-pub struct TableRowOptions {
     /// The type of row.
     #[serde(alias = "row-type", alias = "row_type")]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
