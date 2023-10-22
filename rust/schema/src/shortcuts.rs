@@ -1,9 +1,10 @@
 //! Shortcut functions for conveniently creating nodes of various types
 
 use crate::{
-    Article, AudioObject, Block, CodeFragment, Cord, Emphasis, Heading, ImageObject, Inline, Link,
-    List, ListItem, ListOrder, Node, Paragraph, Quote, Section, Strikeout, Strong, Subscript,
-    Superscript, Table, TableCell, TableCellType, TableRow, Text, Underline, VideoObject,
+    Article, AudioObject, Block, CodeBlock, CodeChunk, CodeExpression, CodeFragment, Cord,
+    Emphasis, Heading, ImageObject, Inline, Link, List, ListItem, ListOrder, MathBlock, Node,
+    Paragraph, Quote, QuoteBlock, Section, Strikeout, Strong, Subscript, Superscript, Table,
+    TableCell, TableCellType, TableRow, Text, Underline, VideoObject, ThematicBreak,
 };
 
 /// Create an [`Inline::Text`] node
@@ -42,7 +43,7 @@ pub fn strong<I: Into<Vec<Inline>>>(content: I) -> Inline {
 }
 
 /// Create an [`Inline::Strikeout`] node
-pub fn s<I: Into<Vec<Inline>>>(content: I) -> Inline {
+pub fn strike<I: Into<Vec<Inline>>>(content: I) -> Inline {
     Inline::Strikeout(Strikeout::new(content.into()))
 }
 
@@ -69,6 +70,15 @@ pub fn link<I: Into<Vec<Inline>>, S: Into<String>>(content: I, target: S) -> Inl
 /// Create an [`Inline::CodeFragment`] node
 pub fn cf<S: Into<String>>(code: S) -> Inline {
     Inline::CodeFragment(CodeFragment::new(Cord::new(code.into())))
+}
+
+/// Create a [`Inline::CodeExpression`] node
+pub fn ce<S1: Into<String>, S2: Into<String>>(code: S1, lang: Option<S2>) -> Inline {
+    Inline::CodeExpression(CodeExpression {
+        code: Cord::new(code.into()),
+        programming_language: lang.map(|lang| lang.into()),
+        ..Default::default()
+    })
 }
 
 /// Create a [`Block::Heading`] node with `level: 1`
@@ -104,6 +114,38 @@ pub fn h6<I: Into<Vec<Inline>>>(content: I) -> Block {
 /// Create a [`Block::Paragraph`] node
 pub fn p<I: Into<Vec<Inline>>>(content: I) -> Block {
     Block::Paragraph(Paragraph::new(content.into()))
+}
+
+/// Create a [`Block::QuoteBlock`] node
+pub fn qb<I: Into<Vec<Block>>>(content: I) -> Block {
+    Block::QuoteBlock(QuoteBlock::new(content.into()))
+}
+
+/// Create an [`Block::MathBlock`] node
+pub fn mb<S1: Into<String>, S2: Into<String>>(code: S1, lang: S2) -> Block {
+    Block::MathBlock(MathBlock {
+        code: Cord::new(code.into()),
+        math_language: lang.into(),
+        ..Default::default()
+    })
+}
+
+/// Create an [`Block::CodeBlock`] node
+pub fn cb<S1: Into<String>, S2: Into<String>>(code: S1, lang: Option<S2>) -> Block {
+    Block::CodeBlock(CodeBlock {
+        code: Cord::new(code.into()),
+        programming_language: lang.map(|lang| lang.into()),
+        ..Default::default()
+    })
+}
+
+/// Create a [`Block::CodeChunk`] node
+pub fn cc<S1: Into<String>, S2: Into<String>>(code: S1, lang: Option<S2>) -> Block {
+    Block::CodeChunk(CodeChunk {
+        code: Cord::new(code.into()),
+        programming_language: lang.map(|lang| lang.into()),
+        ..Default::default()
+    })
 }
 
 /// Create a [`Block::List`] node with ascending order
@@ -158,8 +200,13 @@ pub fn td<I: Into<Vec<Inline>>>(content: I) -> TableCell {
 }
 
 /// Create a [`Block::Section`] node
-pub fn section<I: Into<Vec<Block>>>(content: I) -> Block {
+pub fn sec<I: Into<Vec<Block>>>(content: I) -> Block {
     Block::Section(Section::new(content.into()))
+}
+
+/// Create a [`Block::ThematicBreak`] node
+pub fn tb() -> Block {
+    Block::ThematicBreak(ThematicBreak::new())
 }
 
 /// Create a [`Node::Article`] node

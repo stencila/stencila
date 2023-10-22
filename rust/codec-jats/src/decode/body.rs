@@ -2,7 +2,7 @@ use roxmltree::Node;
 
 use codec::{
     schema::{
-        shortcuts::{em, p, q, s, section, strong, sub, sup, text, u},
+        shortcuts::{em, p, q, strike, sec, strong, sub, sup, text, u},
         Article, AudioObject, AudioObjectOptions, Block, CodeExpression, CodeFragment, Cord, Date,
         DateTime, Duration, Heading, ImageObject, ImageObjectOptions, Inline, Link, MathFragment,
         MediaObject, MediaObjectOptions, Note, NoteType, Span, Text, ThematicBreak, Time,
@@ -66,7 +66,7 @@ fn decode_p(path: &str, node: &Node, losses: &mut Losses) -> Block {
 fn decode_sec(path: &str, node: &Node, losses: &mut Losses, depth: u8) -> Block {
     record_attrs_lost(path, node, [], losses);
 
-    section(decode_blocks(path, node, losses, depth))
+    sec(decode_blocks(path, node, losses, depth))
 }
 
 /// Decode a `<title>` to a [`Block::Heading`]
@@ -114,7 +114,7 @@ fn decode_inlines(path: &str, node: &Node, losses: &mut Losses) -> Vec<Inline> {
                         "bold" => strong(decode_inlines(&child_path, &child, losses)),
                         "inline-quote" => q(decode_inlines(&child_path, &child, losses)),
                         "italic" => em(decode_inlines(&child_path, &child, losses)),
-                        "strike" => s(decode_inlines(&child_path, &child, losses)),
+                        "strike" => strike(decode_inlines(&child_path, &child, losses)),
                         "sub" => sub(decode_inlines(&child_path, &child, losses)),
                         "sup" => sup(decode_inlines(&child_path, &child, losses)),
                         "underline" => u(decode_inlines(&child_path, &child, losses)),
