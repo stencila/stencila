@@ -13,6 +13,7 @@ markdown:
   format: '![]({content_url})'
 core:
   - caption
+  - title
 proptest: {}
 properties:
   caption:
@@ -20,7 +21,9 @@ properties:
     description: The caption for this image.
     html:
       attr: alt
-    type: string
+    type: array
+    items:
+      $ref: Inline
   thumbnail:
     '@id': schema:thumbnail
     description: Thumbnail image of this image.

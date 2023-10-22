@@ -42,6 +42,13 @@ pub struct AudioObject {
     #[html(attr = "id")]
     pub id: Option<String>,
 
+    /// The title of the creative work.
+    #[serde(alias = "headline")]
+    #[serde(default, deserialize_with = "option_one_or_many")]
+    #[strip(metadata)]
+    #[cfg_attr(feature = "proptest", proptest(value = "None"))]
+    pub title: Option<Vec<Inline>>,
+
     /// URL for the actual bytes of the media object, for example the image file or video file.
     #[serde(alias = "content-url", alias = "content_url")]
     #[cfg_attr(feature = "proptest-min", proptest(value = r#"String::from("https://example.org/image.png")"#))]
@@ -55,6 +62,12 @@ pub struct AudioObject {
     #[serde(alias = "encodingFormat", alias = "media-type", alias = "media_type")]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     pub media_type: Option<String>,
+
+    /// The caption for this audio recording.
+    #[serde(default, deserialize_with = "option_one_or_many")]
+    #[cfg_attr(feature = "proptest", proptest(value = "None"))]
+    #[html(attr = "alt")]
+    pub caption: Option<Vec<Inline>>,
 
     /// Non-core optional fields
     #[serde(flatten)]
@@ -256,13 +269,6 @@ pub struct AudioObjectOptions {
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     pub text: Option<Text>,
 
-    /// The title of the creative work.
-    #[serde(alias = "headline")]
-    #[serde(default, deserialize_with = "option_one_or_many")]
-    #[strip(metadata)]
-    #[cfg_attr(feature = "proptest", proptest(value = "None"))]
-    pub title: Option<Vec<Inline>>,
-
     /// The version of the creative work.
     #[strip(metadata)]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
@@ -281,11 +287,6 @@ pub struct AudioObjectOptions {
     #[serde(alias = "embed-url", alias = "embed_url")]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     pub embed_url: Option<String>,
-
-    /// The caption for this audio recording.
-    #[cfg_attr(feature = "proptest", proptest(value = "None"))]
-    #[html(attr = "alt")]
-    pub caption: Option<String>,
 
     /// The transcript of this audio recording.
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]

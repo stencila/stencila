@@ -3,6 +3,7 @@
 from .prelude import *
 
 ImageObject = ForwardRef("ImageObject")
+from .inline import Inline
 from .media_object import MediaObject
 
 
@@ -14,7 +15,7 @@ class VideoObject(MediaObject):
 
     type: Literal["VideoObject"] = field(default="VideoObject", init=False)
 
-    caption: Optional[str] = None
+    caption: Optional[List[Inline]] = None
     """The caption for this video recording."""
 
     thumbnail: Optional[ImageObject] = None

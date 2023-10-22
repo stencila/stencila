@@ -3,6 +3,7 @@
 from .prelude import *
 
 ImageObject = ForwardRef("ImageObject")
+from .inline import Inline
 from .media_object import MediaObject
 
 
@@ -14,7 +15,7 @@ class ImageObject(MediaObject):
 
     type: Literal["ImageObject"] = field(default="ImageObject", init=False)
 
-    caption: Optional[str] = None
+    caption: Optional[List[Inline]] = None
     """The caption for this image."""
 
     thumbnail: Optional[ImageObject] = None

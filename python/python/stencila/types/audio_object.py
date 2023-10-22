@@ -2,6 +2,7 @@
 
 from .prelude import *
 
+from .inline import Inline
 from .media_object import MediaObject
 
 
@@ -13,7 +14,7 @@ class AudioObject(MediaObject):
 
     type: Literal["AudioObject"] = field(default="AudioObject", init=False)
 
-    caption: Optional[str] = None
+    caption: Optional[List[Inline]] = None
     """The caption for this audio recording."""
 
     transcript: Optional[str] = None

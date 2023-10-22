@@ -559,7 +559,7 @@
         }
       ],
       "schema:rangeIncludes": {
-        "@id": "schema:Text"
+        "@id": "stencila:Inline"
       }
     },
     {

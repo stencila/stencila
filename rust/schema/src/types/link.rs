@@ -41,20 +41,6 @@ pub struct Link {
     #[jats(attr = "xlink:href")]
     pub target: String,
 
-    /// Non-core optional fields
-    #[serde(flatten)]
-    #[html(flatten)]
-    #[jats(flatten)]
-    #[markdown(flatten)]
-    pub options: Box<LinkOptions>,
-}
-
-#[skip_serializing_none]
-#[serde_as]
-#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec, WriteNode, ReadNode)]
-#[serde(rename_all = "camelCase", crate = "common::serde")]
-#[cfg_attr(feature = "proptest", derive(Arbitrary))]
-pub struct LinkOptions {
     /// A title for the link.
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     #[html(attr = "title")]

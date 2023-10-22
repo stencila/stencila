@@ -26,7 +26,9 @@
   ],
   "core": [
     "id",
-    "mediaType"
+    "mediaType",
+    "caption",
+    "title"
   ],
   "properties": {
     "type": {
@@ -610,7 +612,10 @@
       "html": {
         "attr": "alt"
       },
-      "type": "string"
+      "type": "array",
+      "items": {
+        "$ref": "Inline.schema.json"
+      }
     },
     "transcript": {
       "@id": "schema:transcript",

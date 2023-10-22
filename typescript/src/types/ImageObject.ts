@@ -1,5 +1,6 @@
 // Generated file; do not edit. See `../rust/schema-gen` crate.
 
+import { Inline } from "./Inline.js";
 import { MediaObject } from "./MediaObject.js";
 
 /**
@@ -11,7 +12,7 @@ export class ImageObject extends MediaObject {
   /**
    * The caption for this image.
    */
-  caption?: string;
+  caption?: Inline[];
 
   /**
    * Thumbnail image of this image.

@@ -12,13 +12,18 @@ jats:
 markdown:
   format: '![]({content_url})'
 proptest: {}
+core:
+  - caption
+  - title
 properties:
   caption:
     '@id': schema:caption
     description: The caption for this audio recording.
     html:
       attr: alt
-    type: string
+    type: array
+    items:
+      $ref: Inline
   transcript:
     '@id': schema:transcript
     description: The transcript of this audio recording.

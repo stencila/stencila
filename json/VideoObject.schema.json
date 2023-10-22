@@ -28,7 +28,8 @@
   "core": [
     "id",
     "mediaType",
-    "caption"
+    "caption",
+    "title"
   ],
   "properties": {
     "type": {
@@ -612,7 +613,10 @@
       "html": {
         "attr": "alt"
       },
-      "type": "string"
+      "type": "array",
+      "items": {
+        "$ref": "Inline.schema.json"
+      }
     },
     "thumbnail": {
       "@id": "schema:thumbnail",

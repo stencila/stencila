@@ -13,6 +13,9 @@ proptest: {}
 required:
   - content
   - target
+core:
+  - title
+  - rel
 properties:
   content:
     '@id': stencila:content

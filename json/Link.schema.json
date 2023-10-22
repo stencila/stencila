@@ -24,7 +24,9 @@
     "target"
   ],
   "core": [
-    "id"
+    "id",
+    "title",
+    "rel"
   ],
   "properties": {
     "type": {
