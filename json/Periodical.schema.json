@@ -245,6 +245,9 @@
       "strip": [
         "metadata"
       ],
+      "serde": {
+        "deserializeWith": "option_string_or_object"
+      },
       "$ref": "Date.schema.json"
     },
     "dateReceived": {
@@ -257,6 +260,9 @@
       "strip": [
         "metadata"
       ],
+      "serde": {
+        "deserializeWith": "option_string_or_object"
+      },
       "$ref": "Date.schema.json"
     },
     "dateAccepted": {
@@ -270,6 +276,9 @@
       "strip": [
         "metadata"
       ],
+      "serde": {
+        "deserializeWith": "option_string_or_object"
+      },
       "$ref": "Date.schema.json"
     },
     "dateModified": {
@@ -282,6 +291,9 @@
       "strip": [
         "metadata"
       ],
+      "serde": {
+        "deserializeWith": "option_string_or_object"
+      },
       "$ref": "Date.schema.json"
     },
     "datePublished": {
@@ -295,6 +307,9 @@
       "strip": [
         "metadata"
       ],
+      "serde": {
+        "deserializeWith": "option_string_or_object"
+      },
       "$ref": "Date.schema.json"
     },
     "funders": {
@@ -502,6 +517,9 @@
         "date-start",
         "date_start"
       ],
+      "serde": {
+        "deserializeWith": "option_string_or_object"
+      },
       "$ref": "Date.schema.json"
     },
     "dateEnd": {
@@ -511,6 +529,9 @@
         "date-end",
         "date_end"
       ],
+      "serde": {
+        "deserializeWith": "option_string_or_object"
+      },
       "$ref": "Date.schema.json"
     },
     "issns": {

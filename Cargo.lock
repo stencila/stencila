@@ -257,6 +257,12 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "9ba43ea6f343b788c8764558649e08df62f86c6ef251fdaeb1ffd010a9ae50a2"
 
 [[package]]
+name = "beef"
+version = "0.5.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "3a8241f3ebb85c056b509d4327ad0358fbbba6ffb340bf388f26350aeda225b1"
+
+[[package]]
 name = "bincode"
 version = "1.3.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1451,6 +1457,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "interim"
+version = "0.1.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "117b394817519223baeaaeccdfdaec338ab2a286ff2f99ce933e06ce187b6234"
+dependencies = [
+ "chrono",
+ "logos",
+]
+
+[[package]]
 name = "is-terminal"
 version = "0.4.9"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1605,6 +1621,38 @@ name = "log"
 version = "0.4.20"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "b5e6163cb8c49088c2c36f57875e58ccd8c87c7427f7fbd50ea6710b2f3f2e8f"
+
+[[package]]
+name = "logos"
+version = "0.13.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "c000ca4d908ff18ac99b93a062cb8958d331c3220719c52e77cb19cc6ac5d2c1"
+dependencies = [
+ "logos-derive",
+]
+
+[[package]]
+name = "logos-codegen"
+version = "0.13.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "dc487311295e0002e452025d6b580b77bb17286de87b57138f3b5db711cded68"
+dependencies = [
+ "beef",
+ "fnv",
+ "proc-macro2",
+ "quote",
+ "regex-syntax 0.6.29",
+ "syn 2.0.38",
+]
+
+[[package]]
+name = "logos-derive"
+version = "0.13.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "dbfc0d229f1f42d790440136d941afd806bc9e949e2bcb8faa813b0f00d1267e"
+dependencies = [
+ "logos-codegen",
+]
 
 [[package]]
 name = "maplit"
@@ -2496,6 +2544,7 @@ dependencies = [
  "codec-markdown-trait",
  "codec-text-trait",
  "common",
+ "interim",
  "monostate",
  "node-store",
  "node-strip",

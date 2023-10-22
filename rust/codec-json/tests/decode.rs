@@ -220,3 +220,46 @@ fn csv_and_ssv_or_array() -> Result<()> {
 
     Ok(())
 }
+
+/// Test deserialization of dates from string
+#[test]
+fn date() -> Result<()> {
+    let article1 = Article::from_json_value(json!({
+        "type": "Article",
+        "datePublished": "2022",
+        "dateCreated": "2022-02",
+        "dateModified": "2022-02-22",
+        "dateAccepted": "22 February 2022",
+        "dateReceived": "Feb 22, 2022",
+        "content": []
+    }))?;
+
+    let article2 = Article::from_json_value(json!({
+        "type": "Article",
+        "datePublished": {
+            "type": "Date",
+            "value": "2022"
+        },
+        "dateCreated": {
+            "type": "Date",
+            "value": "2022-02"
+        },
+        "dateModified": {
+            "type": "Date",
+            "value": "2022-02-22"
+        },
+        "dateAccepted": {
+            "type": "Date",
+            "value": "2022-02-22"
+        },
+        "dateReceived": {
+            "type": "Date",
+            "value": "2022-02-22"
+        },
+        "content": []
+    }))?;
+
+    assert_eq!(article1, article2);
+
+    Ok(())
+}

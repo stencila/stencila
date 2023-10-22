@@ -12,10 +12,14 @@ properties:
     '@id': schema:startDate
     description: The date this Periodical was first published.
     $ref: Date
+    serde:
+      deserializeWith: option_string_or_object
   dateEnd:
     '@id': schema:endDate
     description: The date this Periodical ceased publication.
     $ref: Date
+    serde:
+      deserializeWith: option_string_or_object
   issns:
     '@id': schema:issn
     description: The International Standard Serial Number(s) (ISSN) that identifies this serial publication.

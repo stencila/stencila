@@ -90,11 +90,15 @@ properties:
     description: Date/time of creation.
     $ref: Date
     strip: [metadata]
+    serde:
+      deserializeWith: option_string_or_object
   dateReceived:
     '@id': schema:dateReceived
     description: Date/time that work was received.
     $ref: Date
     strip: [metadata]
+    serde:
+      deserializeWith: option_string_or_object
   dateAccepted:
     '@id': stencila:dateAccepted
     description: Date/time of acceptance.
@@ -103,11 +107,15 @@ properties:
       [in Dublin Core](http://purl.org/dc/terms/dateAccepted).
     $ref: Date
     strip: [metadata]
+    serde:
+      deserializeWith: option_string_or_object
   dateModified:
     '@id': schema:dateModified
     description: Date/time of most recent modification.
     $ref: Date
     strip: [metadata]
+    serde:
+      deserializeWith: option_string_or_object
   datePublished:
     '@id': schema:datePublished
     aliases:
@@ -117,6 +125,8 @@ properties:
     description: Date of first publication.
     $ref: Date
     strip: [metadata]
+    serde:
+      deserializeWith: option_string_or_object
   funders:
     '@id': schema:funder
     description: People or organizations that funded the `CreativeWork`.

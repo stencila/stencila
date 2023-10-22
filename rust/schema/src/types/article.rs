@@ -57,30 +57,35 @@ pub struct Article {
 
     /// Date/time of creation.
     #[serde(alias = "date-created", alias = "date_created")]
+    #[serde(default, deserialize_with = "option_string_or_object")]
     #[strip(metadata)]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     pub date_created: Option<Date>,
 
     /// Date/time that work was received.
     #[serde(alias = "date-received", alias = "date_received")]
+    #[serde(default, deserialize_with = "option_string_or_object")]
     #[strip(metadata)]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     pub date_received: Option<Date>,
 
     /// Date/time of acceptance.
     #[serde(alias = "date-accepted", alias = "date_accepted")]
+    #[serde(default, deserialize_with = "option_string_or_object")]
     #[strip(metadata)]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     pub date_accepted: Option<Date>,
 
     /// Date/time of most recent modification.
     #[serde(alias = "date-modified", alias = "date_modified")]
+    #[serde(default, deserialize_with = "option_string_or_object")]
     #[strip(metadata)]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     pub date_modified: Option<Date>,
 
     /// Date of first publication.
     #[serde(alias = "date", alias = "date-published", alias = "date_published")]
+    #[serde(default, deserialize_with = "option_string_or_object")]
     #[strip(metadata)]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     pub date_published: Option<Date>,

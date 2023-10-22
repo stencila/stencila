@@ -120,26 +120,31 @@ pub struct PeriodicalOptions {
 
     /// Date/time of creation.
     #[serde(alias = "date-created", alias = "date_created")]
+    #[serde(default, deserialize_with = "option_string_or_object")]
     #[strip(metadata)]
     pub date_created: Option<Date>,
 
     /// Date/time that work was received.
     #[serde(alias = "date-received", alias = "date_received")]
+    #[serde(default, deserialize_with = "option_string_or_object")]
     #[strip(metadata)]
     pub date_received: Option<Date>,
 
     /// Date/time of acceptance.
     #[serde(alias = "date-accepted", alias = "date_accepted")]
+    #[serde(default, deserialize_with = "option_string_or_object")]
     #[strip(metadata)]
     pub date_accepted: Option<Date>,
 
     /// Date/time of most recent modification.
     #[serde(alias = "date-modified", alias = "date_modified")]
+    #[serde(default, deserialize_with = "option_string_or_object")]
     #[strip(metadata)]
     pub date_modified: Option<Date>,
 
     /// Date of first publication.
     #[serde(alias = "date", alias = "date-published", alias = "date_published")]
+    #[serde(default, deserialize_with = "option_string_or_object")]
     #[strip(metadata)]
     pub date_published: Option<Date>,
 
@@ -212,10 +217,12 @@ pub struct PeriodicalOptions {
 
     /// The date this Periodical was first published.
     #[serde(alias = "date-start", alias = "date_start")]
+    #[serde(default, deserialize_with = "option_string_or_object")]
     pub date_start: Option<Date>,
 
     /// The date this Periodical ceased publication.
     #[serde(alias = "date-end", alias = "date_end")]
+    #[serde(default, deserialize_with = "option_string_or_object")]
     pub date_end: Option<Date>,
 
     /// The International Standard Serial Number(s) (ISSN) that identifies this serial publication.
