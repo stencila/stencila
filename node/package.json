@@ -52,7 +52,7 @@
     "install": "node install.cjs",
     "test": "jest",
     "cover": "npm test -- --collectCoverage --coverageReports=cobertura",
-    "unused": "depcheck --quiet --ignore @types/jest "
+    "unused": "depcheck --quiet --ignores @types/jest "
   },
   "engines": {
     "node": ">= 10"
