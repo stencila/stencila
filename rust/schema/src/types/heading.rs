@@ -34,7 +34,7 @@ pub struct Heading {
     pub level: Integer,
 
     /// Content of the heading.
-    #[serde_as(deserialize_as = "OneOrMany<_, PreferMany>")]
+    #[serde(deserialize_with = "one_or_many")]
     #[cfg_attr(feature = "proptest-min", proptest(strategy = r#"vec_inlines(1)"#))]
     #[cfg_attr(feature = "proptest-low", proptest(strategy = r#"vec_inlines(2)"#))]
     #[cfg_attr(feature = "proptest-high", proptest(strategy = r#"vec_inlines(4)"#))]

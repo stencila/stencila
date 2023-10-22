@@ -42,7 +42,7 @@ pub struct Brand {
 pub struct BrandOptions {
     /// Alternate names (aliases) for the item.
     #[serde(alias = "alternate-names", alias = "alternate_names", alias = "alternateName", alias = "alternate-name", alias = "alternate_name")]
-    #[serde(default, deserialize_with = "optional_csv_or_array")]
+    #[serde(default, deserialize_with = "option_csv_or_array")]
     #[strip(metadata)]
     pub alternate_names: Option<Vec<String>>,
 
@@ -52,13 +52,13 @@ pub struct BrandOptions {
 
     /// Any kind of identifier for any kind of Thing.
     #[serde(alias = "identifier")]
-    #[serde_as(deserialize_as = "Option<OneOrMany<_, PreferMany>>")]
+    #[serde(default, deserialize_with = "option_one_or_many")]
     #[strip(metadata)]
     pub identifiers: Option<Vec<PropertyValueOrString>>,
 
     /// Images of the item.
     #[serde(alias = "image")]
-    #[serde_as(deserialize_as = "Option<OneOrMany<_, PreferMany>>")]
+    #[serde(default, deserialize_with = "option_one_or_many")]
     #[strip(metadata)]
     pub images: Option<Vec<ImageObject>>,
 
@@ -71,7 +71,7 @@ pub struct BrandOptions {
 
     /// Reviews of the brand.
     #[serde(alias = "review")]
-    #[serde_as(deserialize_as = "Option<OneOrMany<_, PreferMany>>")]
+    #[serde(default, deserialize_with = "option_one_or_many")]
     pub reviews: Option<Vec<String>>,
 }
 

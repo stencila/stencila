@@ -480,13 +480,11 @@ pub enum NodeType {{
             } else if property.is_array()
                 && !NO_ONE_OR_MANY.contains(&format!("{title}.{name}").as_str())
             {
-                let what = "OneOrMany<_, PreferMany>";
-                let what = if !property.is_required {
-                    format!("Option<{what}>")
+                if property.is_required {
+                    attrs.push("#[serde(deserialize_with = \"one_or_many\")]".to_string())
                 } else {
-                    what.to_string()
-                };
-                attrs.push(format!("#[serde_as(deserialize_as = \"{what}\")]"));
+                    attrs.push("#[serde(default, deserialize_with = \"option_one_or_many\")]".to_string())
+                }
             }
 
             if !property.strip.is_empty() {

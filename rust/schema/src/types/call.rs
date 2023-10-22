@@ -48,13 +48,13 @@ pub struct Call {
     pub select: Option<String>,
 
     /// The structured content decoded from the source.
-    #[serde_as(deserialize_as = "Option<OneOrMany<_, PreferMany>>")]
+    #[serde(default, deserialize_with = "option_one_or_many")]
     #[strip(output)]
     pub content: Option<Vec<Block>>,
 
     /// The value of the source document's parameters to call it with
     #[serde(alias = "argument")]
-    #[serde_as(deserialize_as = "OneOrMany<_, PreferMany>")]
+    #[serde(deserialize_with = "one_or_many")]
     #[strip(code)]
     pub arguments: Vec<CallArgument>,
 
@@ -88,19 +88,19 @@ pub struct CallOptions {
 
     /// The upstream dependencies of this node.
     #[serde(alias = "execution-dependencies", alias = "execution_dependencies", alias = "executionDependency", alias = "execution-dependency", alias = "execution_dependency")]
-    #[serde_as(deserialize_as = "Option<OneOrMany<_, PreferMany>>")]
+    #[serde(default, deserialize_with = "option_one_or_many")]
     #[strip(execution)]
     pub execution_dependencies: Option<Vec<ExecutionDependency>>,
 
     /// The downstream dependants of this node.
     #[serde(alias = "execution-dependants", alias = "execution_dependants", alias = "executionDependant", alias = "execution-dependant", alias = "execution_dependant")]
-    #[serde_as(deserialize_as = "Option<OneOrMany<_, PreferMany>>")]
+    #[serde(default, deserialize_with = "option_one_or_many")]
     #[strip(execution)]
     pub execution_dependants: Option<Vec<ExecutionDependant>>,
 
     /// Tags in the code which affect its execution.
     #[serde(alias = "execution-tags", alias = "execution_tags", alias = "executionTag", alias = "execution-tag", alias = "execution_tag")]
-    #[serde_as(deserialize_as = "Option<OneOrMany<_, PreferMany>>")]
+    #[serde(default, deserialize_with = "option_one_or_many")]
     #[strip(execution)]
     pub execution_tags: Option<Vec<ExecutionTag>>,
 
@@ -136,7 +136,7 @@ pub struct CallOptions {
 
     /// Errors when compiling (e.g. syntax errors) or executing the node.
     #[serde(alias = "error")]
-    #[serde_as(deserialize_as = "Option<OneOrMany<_, PreferMany>>")]
+    #[serde(default, deserialize_with = "option_one_or_many")]
     #[strip(execution)]
     pub errors: Option<Vec<CodeError>>,
 }

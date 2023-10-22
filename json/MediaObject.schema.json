@@ -54,7 +54,7 @@
         "metadata"
       ],
       "serde": {
-        "deserializeWith": "optional_csv_or_array"
+        "deserializeWith": "option_csv_or_array"
       },
       "type": "array",
       "items": {
@@ -354,7 +354,7 @@
         "metadata"
       ],
       "serde": {
-        "deserializeWith": "optional_csv_or_array"
+        "deserializeWith": "option_csv_or_array"
       },
       "type": "array",
       "items": {
@@ -371,7 +371,7 @@
         "metadata"
       ],
       "serde": {
-        "deserializeWith": "optional_csv_or_array"
+        "deserializeWith": "option_csv_or_array"
       },
       "type": "array",
       "items": {

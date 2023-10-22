@@ -34,7 +34,7 @@ pub struct ListItem {
     pub id: Option<String>,
 
     /// The content of the list item.
-    #[serde_as(deserialize_as = "OneOrMany<_, PreferMany>")]
+    #[serde(deserialize_with = "one_or_many")]
     #[cfg_attr(feature = "proptest-min", proptest(strategy = r#"vec_paragraphs(1)"#))]
     #[cfg_attr(feature = "proptest-low", proptest(strategy = r#"vec_blocks_list_item(1)"#))]
     #[cfg_attr(feature = "proptest-high", proptest(strategy = r#"vec_blocks_list_item(2)"#))]
@@ -70,7 +70,7 @@ pub struct ListItem {
 pub struct ListItemOptions {
     /// Alternate names (aliases) for the item.
     #[serde(alias = "alternate-names", alias = "alternate_names", alias = "alternateName", alias = "alternate-name", alias = "alternate_name")]
-    #[serde(default, deserialize_with = "optional_csv_or_array")]
+    #[serde(default, deserialize_with = "option_csv_or_array")]
     #[strip(metadata)]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     pub alternate_names: Option<Vec<String>>,
@@ -82,14 +82,14 @@ pub struct ListItemOptions {
 
     /// Any kind of identifier for any kind of Thing.
     #[serde(alias = "identifier")]
-    #[serde_as(deserialize_as = "Option<OneOrMany<_, PreferMany>>")]
+    #[serde(default, deserialize_with = "option_one_or_many")]
     #[strip(metadata)]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     pub identifiers: Option<Vec<PropertyValueOrString>>,
 
     /// Images of the item.
     #[serde(alias = "image")]
-    #[serde_as(deserialize_as = "Option<OneOrMany<_, PreferMany>>")]
+    #[serde(default, deserialize_with = "option_one_or_many")]
     #[strip(metadata)]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     pub images: Option<Vec<ImageObject>>,

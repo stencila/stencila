@@ -28,7 +28,7 @@ pub struct Section {
     pub id: Option<String>,
 
     /// The content within the section
-    #[serde_as(deserialize_as = "OneOrMany<_, PreferMany>")]
+    #[serde(deserialize_with = "one_or_many")]
     #[cfg_attr(feature = "proptest-min", proptest(value = r#"Vec::new()"#))]
     #[cfg_attr(feature = "proptest-low", proptest(strategy = r#"vec_heading_paragraph()"#))]
     #[cfg_attr(feature = "proptest-high", proptest(strategy = r#"vec_blocks_non_recursive(4)"#))]

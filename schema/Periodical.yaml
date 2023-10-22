@@ -27,4 +27,4 @@ properties:
     items:
       type: string
     serde:
-      deserializeWith: optional_csv_or_array
+      deserializeWith: option_csv_or_array

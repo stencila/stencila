@@ -46,11 +46,11 @@ pub struct Cite {
 pub struct CiteOptions {
     /// The type/s of the citation, both factually and rhetorically.
     #[serde(alias = "citation-intent", alias = "citation_intent")]
-    #[serde_as(deserialize_as = "Option<OneOrMany<_, PreferMany>>")]
+    #[serde(default, deserialize_with = "option_one_or_many")]
     pub citation_intent: Option<Vec<CitationIntent>>,
 
     /// Optional structured content/text of this citation.
-    #[serde_as(deserialize_as = "Option<OneOrMany<_, PreferMany>>")]
+    #[serde(default, deserialize_with = "option_one_or_many")]
     pub content: Option<Vec<Inline>>,
 
     /// The page on which the work starts; for example "135" or "xiii".

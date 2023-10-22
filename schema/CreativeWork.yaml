@@ -148,7 +148,7 @@ properties:
       type: string
     strip: [metadata]
     serde:
-      deserializeWith: optional_csv_or_array
+      deserializeWith: option_csv_or_array
   keywords:
     '@id': schema:keywords
     description: |
@@ -159,7 +159,7 @@ properties:
       type: string
     strip: [metadata]
     serde:
-      deserializeWith: optional_csv_or_array
+      deserializeWith: option_csv_or_array
   isPartOf:
     '@id': schema:isPartOf
     description: |

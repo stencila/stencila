@@ -33,7 +33,7 @@ pub struct ExecutionDependant {
 
     /// The location that the dependant is defined within code
     #[serde(alias = "code-location", alias = "code_location")]
-    #[serde_as(deserialize_as = "Option<OneOrMany<_, PreferMany>>")]
+    #[serde(default, deserialize_with = "option_one_or_many")]
     pub code_location: Option<Vec<Integer>>,
 }
 

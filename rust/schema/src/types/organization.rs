@@ -43,7 +43,7 @@ pub struct Organization {
 pub struct OrganizationOptions {
     /// Alternate names (aliases) for the item.
     #[serde(alias = "alternate-names", alias = "alternate_names", alias = "alternateName", alias = "alternate-name", alias = "alternate_name")]
-    #[serde(default, deserialize_with = "optional_csv_or_array")]
+    #[serde(default, deserialize_with = "option_csv_or_array")]
     #[strip(metadata)]
     pub alternate_names: Option<Vec<String>>,
 
@@ -53,13 +53,13 @@ pub struct OrganizationOptions {
 
     /// Any kind of identifier for any kind of Thing.
     #[serde(alias = "identifier")]
-    #[serde_as(deserialize_as = "Option<OneOrMany<_, PreferMany>>")]
+    #[serde(default, deserialize_with = "option_one_or_many")]
     #[strip(metadata)]
     pub identifiers: Option<Vec<PropertyValueOrString>>,
 
     /// Images of the item.
     #[serde(alias = "image")]
-    #[serde_as(deserialize_as = "Option<OneOrMany<_, PreferMany>>")]
+    #[serde(default, deserialize_with = "option_one_or_many")]
     #[strip(metadata)]
     pub images: Option<Vec<ImageObject>>,
 
@@ -76,22 +76,22 @@ pub struct OrganizationOptions {
 
     /// Brands that the organization is connected with.
     #[serde(alias = "brand")]
-    #[serde_as(deserialize_as = "Option<OneOrMany<_, PreferMany>>")]
+    #[serde(default, deserialize_with = "option_one_or_many")]
     pub brands: Option<Vec<Brand>>,
 
     /// Correspondence/Contact points for the organization.
     #[serde(alias = "contact-points", alias = "contact_points", alias = "contactPoint", alias = "contact-point", alias = "contact_point")]
-    #[serde_as(deserialize_as = "Option<OneOrMany<_, PreferMany>>")]
+    #[serde(default, deserialize_with = "option_one_or_many")]
     pub contact_points: Option<Vec<ContactPoint>>,
 
     /// Departments within the organization. For example, Department of Computer Science, Research & Development etc.
     #[serde(alias = "department")]
-    #[serde_as(deserialize_as = "Option<OneOrMany<_, PreferMany>>")]
+    #[serde(default, deserialize_with = "option_one_or_many")]
     pub departments: Option<Vec<Organization>>,
 
     /// Organization(s) or person(s) funding the organization.
     #[serde(alias = "funder")]
-    #[serde_as(deserialize_as = "Option<OneOrMany<_, PreferMany>>")]
+    #[serde(default, deserialize_with = "option_one_or_many")]
     pub funders: Option<Vec<OrganizationOrPerson>>,
 
     /// The official name of the organization, e.g. the registered company name.
@@ -103,7 +103,7 @@ pub struct OrganizationOptions {
 
     /// Person(s) or organization(s) who are members of this organization.
     #[serde(alias = "member")]
-    #[serde_as(deserialize_as = "Option<OneOrMany<_, PreferMany>>")]
+    #[serde(default, deserialize_with = "option_one_or_many")]
     pub members: Option<Vec<OrganizationOrPerson>>,
 
     /// Entity that the Organization is a part of. For example, parentOrganization to a department is a university.

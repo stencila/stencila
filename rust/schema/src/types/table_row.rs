@@ -28,7 +28,7 @@ pub struct TableRow {
 
     /// An array of cells in the row.
     #[serde(alias = "cell")]
-    #[serde_as(deserialize_as = "OneOrMany<_, PreferMany>")]
+    #[serde(deserialize_with = "one_or_many")]
     #[cfg_attr(feature = "proptest-min", proptest(strategy = r#"vec(TableCell::arbitrary(), size_range(1..=1))"#))]
     #[cfg_attr(feature = "proptest-low", proptest(strategy = r#"vec(TableCell::arbitrary(), size_range(2..=2))"#))]
     #[cfg_attr(feature = "proptest-high", proptest(strategy = r#"vec(TableCell::arbitrary(), size_range(4..=4))"#))]

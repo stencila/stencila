@@ -52,7 +52,7 @@ pub struct Division {
 
     /// Errors that occurred when transpiling the `code`.
     #[serde(alias = "error")]
-    #[serde_as(deserialize_as = "Option<OneOrMany<_, PreferMany>>")]
+    #[serde(default, deserialize_with = "option_one_or_many")]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     pub errors: Option<Vec<String>>,
 
@@ -62,12 +62,12 @@ pub struct Division {
 
     /// A list of class names associated with the node.
     #[serde(alias = "class")]
-    #[serde_as(deserialize_as = "Option<OneOrMany<_, PreferMany>>")]
+    #[serde(default, deserialize_with = "option_one_or_many")]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     pub classes: Option<Vec<String>>,
 
     /// The content within the division
-    #[serde_as(deserialize_as = "OneOrMany<_, PreferMany>")]
+    #[serde(deserialize_with = "one_or_many")]
     #[cfg_attr(feature = "proptest", proptest(value = "Default::default()"))]
     pub content: Vec<Block>,
 }

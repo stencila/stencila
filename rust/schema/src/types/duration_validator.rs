@@ -24,7 +24,7 @@ pub struct DurationValidator {
 
     /// The time units that the duration can have.
     #[serde(alias = "time-units", alias = "time_units", alias = "timeUnit", alias = "time-unit", alias = "time_unit")]
-    #[serde_as(deserialize_as = "Option<OneOrMany<_, PreferMany>>")]
+    #[serde(default, deserialize_with = "option_one_or_many")]
     pub time_units: Option<Vec<TimeUnit>>,
 
     /// The inclusive lower limit for a duration.

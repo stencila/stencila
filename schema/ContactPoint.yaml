@@ -24,7 +24,7 @@ properties:
       type: string
       format: email
     serde:
-      deserializeWith: optional_csv_or_array
+      deserializeWith: option_csv_or_array
   telephoneNumbers:
     '@id': schema:telephone
     aliases:
@@ -34,7 +34,7 @@ properties:
     items:
       type: string
     serde:
-      deserializeWith: optional_csv_or_array
+      deserializeWith: option_csv_or_array
   availableLanguages:
     '@id': schema:availableLanguage
     description: |
@@ -44,4 +44,4 @@ properties:
     items:
       type: string
     serde:
-      deserializeWith: optional_csv_or_array
+      deserializeWith: option_csv_or_array

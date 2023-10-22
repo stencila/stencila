@@ -60,7 +60,7 @@ pub struct CodeChunk {
 
     /// Outputs from executing the chunk.
     #[serde(alias = "output")]
-    #[serde_as(deserialize_as = "Option<OneOrMany<_, PreferMany>>")]
+    #[serde(default, deserialize_with = "option_one_or_many")]
     #[strip(output)]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     pub outputs: Option<Vec<Node>>,
@@ -99,21 +99,21 @@ pub struct CodeChunkOptions {
 
     /// The upstream dependencies of this node.
     #[serde(alias = "execution-dependencies", alias = "execution_dependencies", alias = "executionDependency", alias = "execution-dependency", alias = "execution_dependency")]
-    #[serde_as(deserialize_as = "Option<OneOrMany<_, PreferMany>>")]
+    #[serde(default, deserialize_with = "option_one_or_many")]
     #[strip(execution)]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     pub execution_dependencies: Option<Vec<ExecutionDependency>>,
 
     /// The downstream dependants of this node.
     #[serde(alias = "execution-dependants", alias = "execution_dependants", alias = "executionDependant", alias = "execution-dependant", alias = "execution_dependant")]
-    #[serde_as(deserialize_as = "Option<OneOrMany<_, PreferMany>>")]
+    #[serde(default, deserialize_with = "option_one_or_many")]
     #[strip(execution)]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     pub execution_dependants: Option<Vec<ExecutionDependant>>,
 
     /// Tags in the code which affect its execution.
     #[serde(alias = "execution-tags", alias = "execution_tags", alias = "executionTag", alias = "execution-tag", alias = "execution_tag")]
-    #[serde_as(deserialize_as = "Option<OneOrMany<_, PreferMany>>")]
+    #[serde(default, deserialize_with = "option_one_or_many")]
     #[strip(execution)]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     pub execution_tags: Option<Vec<ExecutionTag>>,
@@ -156,7 +156,7 @@ pub struct CodeChunkOptions {
 
     /// Errors when compiling (e.g. syntax errors) or executing the node.
     #[serde(alias = "error")]
-    #[serde_as(deserialize_as = "Option<OneOrMany<_, PreferMany>>")]
+    #[serde(default, deserialize_with = "option_one_or_many")]
     #[strip(execution)]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     pub errors: Option<Vec<CodeError>>,
@@ -172,7 +172,7 @@ pub struct CodeChunkOptions {
     pub label: Option<String>,
 
     /// A caption for the CodeChunk.
-    #[serde_as(deserialize_as = "Option<OneOrMany<_, PreferMany>>")]
+    #[serde(default, deserialize_with = "option_one_or_many")]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     pub caption: Option<Vec<Block>>,
 }

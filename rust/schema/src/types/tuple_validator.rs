@@ -23,7 +23,7 @@ pub struct TupleValidator {
 
     /// An array of validators specifying the constraints on each successive item in the array.
     #[serde(alias = "item")]
-    #[serde_as(deserialize_as = "Option<OneOrMany<_, PreferMany>>")]
+    #[serde(default, deserialize_with = "option_one_or_many")]
     pub items: Option<Vec<Validator>>,
 }
 

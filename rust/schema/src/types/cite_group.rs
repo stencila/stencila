@@ -23,7 +23,7 @@ pub struct CiteGroup {
 
     /// One or more `Cite`s to be referenced in the same surrounding text.
     #[serde(alias = "item")]
-    #[serde_as(deserialize_as = "OneOrMany<_, PreferMany>")]
+    #[serde(deserialize_with = "one_or_many")]
     pub items: Vec<Cite>,
 }
 

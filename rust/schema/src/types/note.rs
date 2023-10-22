@@ -33,7 +33,7 @@ pub struct Note {
     pub note_type: NoteType,
 
     /// Content of the note, usually a paragraph.
-    #[serde_as(deserialize_as = "OneOrMany<_, PreferMany>")]
+    #[serde(deserialize_with = "one_or_many")]
     #[cfg_attr(feature = "proptest-min", proptest(value = r#"vec![Block::Paragraph(crate::Paragraph::new(vec![crate::Inline::Text(crate::Text::from("Note paragraph"))]))]"#))]
     #[cfg_attr(feature = "proptest-low", proptest(value = r#"vec![Block::Paragraph(crate::Paragraph::new(vec![crate::Inline::Text(crate::Text::from("Note paragraph"))]))]"#))]
     #[cfg_attr(feature = "proptest-high", proptest(value = r#"vec![Block::Paragraph(crate::Paragraph::new(vec![crate::Inline::Text(crate::Text::from("Note paragraph"))]))]"#))]

@@ -50,7 +50,7 @@ pub struct MathFragment {
 
     /// Errors that occurred when parsing the math equation.
     #[serde(alias = "error")]
-    #[serde_as(deserialize_as = "Option<OneOrMany<_, PreferMany>>")]
+    #[serde(default, deserialize_with = "option_one_or_many")]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     pub errors: Option<Vec<String>>,
 

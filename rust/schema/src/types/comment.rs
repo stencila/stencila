@@ -36,7 +36,7 @@ pub struct Comment {
 
     /// The authors of the `CreativeWork`.
     #[serde(alias = "author")]
-    #[serde_as(deserialize_as = "Option<OneOrMany<_, PreferMany>>")]
+    #[serde(default, deserialize_with = "option_one_or_many")]
     #[strip(metadata)]
     pub authors: Option<Vec<PersonOrOrganization>>,
 
@@ -46,7 +46,7 @@ pub struct Comment {
     pub date_published: Option<Date>,
 
     /// Content of the comment, usually one or more paragraphs.
-    #[serde_as(deserialize_as = "OneOrMany<_, PreferMany>")]
+    #[serde(deserialize_with = "one_or_many")]
     pub content: Vec<Block>,
 
     /// Non-core optional fields
@@ -64,7 +64,7 @@ pub struct Comment {
 pub struct CommentOptions {
     /// Alternate names (aliases) for the item.
     #[serde(alias = "alternate-names", alias = "alternate_names", alias = "alternateName", alias = "alternate-name", alias = "alternate_name")]
-    #[serde(default, deserialize_with = "optional_csv_or_array")]
+    #[serde(default, deserialize_with = "option_csv_or_array")]
     #[strip(metadata)]
     pub alternate_names: Option<Vec<String>>,
 
@@ -74,13 +74,13 @@ pub struct CommentOptions {
 
     /// Any kind of identifier for any kind of Thing.
     #[serde(alias = "identifier")]
-    #[serde_as(deserialize_as = "Option<OneOrMany<_, PreferMany>>")]
+    #[serde(default, deserialize_with = "option_one_or_many")]
     #[strip(metadata)]
     pub identifiers: Option<Vec<PropertyValueOrString>>,
 
     /// Images of the item.
     #[serde(alias = "image")]
-    #[serde_as(deserialize_as = "Option<OneOrMany<_, PreferMany>>")]
+    #[serde(default, deserialize_with = "option_one_or_many")]
     #[strip(metadata)]
     pub images: Option<Vec<ImageObject>>,
 
@@ -93,36 +93,36 @@ pub struct CommentOptions {
     pub url: Option<String>,
 
     /// The subject matter of the content.
-    #[serde_as(deserialize_as = "Option<OneOrMany<_, PreferMany>>")]
+    #[serde(default, deserialize_with = "option_one_or_many")]
     #[strip(metadata)]
     pub about: Option<Vec<ThingType>>,
 
     /// A a short description that summarizes a `CreativeWork`.
-    #[serde_as(deserialize_as = "Option<OneOrMany<_, PreferMany>>")]
+    #[serde(default, deserialize_with = "option_one_or_many")]
     #[strip(metadata)]
     pub r#abstract: Option<Vec<Block>>,
 
     /// A secondary contributor to the `CreativeWork`.
     #[serde(alias = "contributor")]
-    #[serde_as(deserialize_as = "Option<OneOrMany<_, PreferMany>>")]
+    #[serde(default, deserialize_with = "option_one_or_many")]
     #[strip(metadata)]
     pub contributors: Option<Vec<PersonOrOrganizationOrSoftwareApplication>>,
 
     /// People who edited the `CreativeWork`.
     #[serde(alias = "editor")]
-    #[serde_as(deserialize_as = "Option<OneOrMany<_, PreferMany>>")]
+    #[serde(default, deserialize_with = "option_one_or_many")]
     #[strip(metadata)]
     pub editors: Option<Vec<Person>>,
 
     /// The maintainers of the `CreativeWork`.
     #[serde(alias = "maintainer")]
-    #[serde_as(deserialize_as = "Option<OneOrMany<_, PreferMany>>")]
+    #[serde(default, deserialize_with = "option_one_or_many")]
     #[strip(metadata)]
     pub maintainers: Option<Vec<PersonOrOrganization>>,
 
     /// Comments about this creative work.
     #[serde(alias = "comment")]
-    #[serde_as(deserialize_as = "Option<OneOrMany<_, PreferMany>>")]
+    #[serde(default, deserialize_with = "option_one_or_many")]
     #[strip(metadata)]
     pub comments: Option<Vec<Comment>>,
 
@@ -148,25 +148,25 @@ pub struct CommentOptions {
 
     /// People or organizations that funded the `CreativeWork`.
     #[serde(alias = "funder")]
-    #[serde_as(deserialize_as = "Option<OneOrMany<_, PreferMany>>")]
+    #[serde(default, deserialize_with = "option_one_or_many")]
     #[strip(metadata)]
     pub funders: Option<Vec<PersonOrOrganization>>,
 
     /// Grants that funded the `CreativeWork`; reverse of `fundedItems`.
     #[serde(alias = "funded-by", alias = "funded_by")]
-    #[serde_as(deserialize_as = "Option<OneOrMany<_, PreferMany>>")]
+    #[serde(default, deserialize_with = "option_one_or_many")]
     #[strip(metadata)]
     pub funded_by: Option<Vec<GrantOrMonetaryGrant>>,
 
     /// Genre of the creative work, broadcast channel or group.
-    #[serde(default, deserialize_with = "optional_csv_or_array")]
+    #[serde(default, deserialize_with = "option_csv_or_array")]
     #[strip(metadata)]
     pub genre: Option<Vec<String>>,
 
     /// Keywords or tags used to describe this content.
     /// Multiple entries in a keywords list are typically delimited by commas.
     #[serde(alias = "keyword")]
-    #[serde(default, deserialize_with = "optional_csv_or_array")]
+    #[serde(default, deserialize_with = "option_csv_or_array")]
     #[strip(metadata)]
     pub keywords: Option<Vec<String>>,
 
@@ -177,14 +177,14 @@ pub struct CommentOptions {
 
     /// License documents that applies to this content, typically indicated by URL.
     #[serde(alias = "license")]
-    #[serde_as(deserialize_as = "Option<OneOrMany<_, PreferMany>>")]
+    #[serde(default, deserialize_with = "option_one_or_many")]
     #[strip(metadata)]
     pub licenses: Option<Vec<CreativeWorkTypeOrText>>,
 
     /// Elements of the collection which can be a variety of different elements,
     /// such as Articles, Datatables, Tables and more.
     #[serde(alias = "hasParts", alias = "part")]
-    #[serde_as(deserialize_as = "Option<OneOrMany<_, PreferMany>>")]
+    #[serde(default, deserialize_with = "option_one_or_many")]
     #[strip(content)]
     pub parts: Option<Vec<CreativeWorkType>>,
 
@@ -195,7 +195,7 @@ pub struct CommentOptions {
     /// References to other creative works, such as another publication,
     /// web page, scholarly article, etc.
     #[serde(alias = "citations", alias = "reference")]
-    #[serde_as(deserialize_as = "Option<OneOrMany<_, PreferMany>>")]
+    #[serde(default, deserialize_with = "option_one_or_many")]
     #[strip(metadata)]
     pub references: Option<Vec<CreativeWorkTypeOrText>>,
 
@@ -205,7 +205,7 @@ pub struct CommentOptions {
 
     /// The title of the creative work.
     #[serde(alias = "headline")]
-    #[serde_as(deserialize_as = "Option<OneOrMany<_, PreferMany>>")]
+    #[serde(default, deserialize_with = "option_one_or_many")]
     #[strip(metadata)]
     pub title: Option<Vec<Inline>>,
 

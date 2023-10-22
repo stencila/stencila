@@ -51,18 +51,18 @@ pub struct For {
     pub symbol: String,
 
     /// The content to repeat for each item
-    #[serde_as(deserialize_as = "OneOrMany<_, PreferMany>")]
+    #[serde(deserialize_with = "one_or_many")]
     #[strip(code)]
     pub content: Vec<Block>,
 
     /// The content to render if there are no items
-    #[serde_as(deserialize_as = "Option<OneOrMany<_, PreferMany>>")]
+    #[serde(default, deserialize_with = "option_one_or_many")]
     #[strip(code)]
     pub otherwise: Option<Vec<Block>>,
 
     /// The content repeated for each iteration
     #[serde(alias = "iteration")]
-    #[serde_as(deserialize_as = "Option<OneOrMany<_, PreferMany>>")]
+    #[serde(default, deserialize_with = "option_one_or_many")]
     #[strip(output)]
     pub iterations: Option<Vec<Array>>,
 
@@ -96,19 +96,19 @@ pub struct ForOptions {
 
     /// The upstream dependencies of this node.
     #[serde(alias = "execution-dependencies", alias = "execution_dependencies", alias = "executionDependency", alias = "execution-dependency", alias = "execution_dependency")]
-    #[serde_as(deserialize_as = "Option<OneOrMany<_, PreferMany>>")]
+    #[serde(default, deserialize_with = "option_one_or_many")]
     #[strip(execution)]
     pub execution_dependencies: Option<Vec<ExecutionDependency>>,
 
     /// The downstream dependants of this node.
     #[serde(alias = "execution-dependants", alias = "execution_dependants", alias = "executionDependant", alias = "execution-dependant", alias = "execution_dependant")]
-    #[serde_as(deserialize_as = "Option<OneOrMany<_, PreferMany>>")]
+    #[serde(default, deserialize_with = "option_one_or_many")]
     #[strip(execution)]
     pub execution_dependants: Option<Vec<ExecutionDependant>>,
 
     /// Tags in the code which affect its execution.
     #[serde(alias = "execution-tags", alias = "execution_tags", alias = "executionTag", alias = "execution-tag", alias = "execution_tag")]
-    #[serde_as(deserialize_as = "Option<OneOrMany<_, PreferMany>>")]
+    #[serde(default, deserialize_with = "option_one_or_many")]
     #[strip(execution)]
     pub execution_tags: Option<Vec<ExecutionTag>>,
 
@@ -144,7 +144,7 @@ pub struct ForOptions {
 
     /// Errors when compiling (e.g. syntax errors) or executing the node.
     #[serde(alias = "error")]
-    #[serde_as(deserialize_as = "Option<OneOrMany<_, PreferMany>>")]
+    #[serde(default, deserialize_with = "option_one_or_many")]
     #[strip(execution)]
     pub errors: Option<Vec<CodeError>>,
 }

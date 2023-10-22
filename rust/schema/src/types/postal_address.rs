@@ -26,12 +26,12 @@ pub struct PostalAddress {
 
     /// Email address for correspondence.
     #[serde(alias = "email")]
-    #[serde(default, deserialize_with = "optional_csv_or_array")]
+    #[serde(default, deserialize_with = "option_csv_or_array")]
     pub emails: Option<Vec<String>>,
 
     /// Telephone numbers for the contact point.
     #[serde(alias = "telephone", alias = "telephone-numbers", alias = "telephone_numbers", alias = "telephoneNumber", alias = "telephone-number", alias = "telephone_number")]
-    #[serde(default, deserialize_with = "optional_csv_or_array")]
+    #[serde(default, deserialize_with = "option_csv_or_array")]
     pub telephone_numbers: Option<Vec<String>>,
 
     /// The street address.
@@ -69,7 +69,7 @@ pub struct PostalAddress {
 pub struct PostalAddressOptions {
     /// Alternate names (aliases) for the item.
     #[serde(alias = "alternate-names", alias = "alternate_names", alias = "alternateName", alias = "alternate-name", alias = "alternate_name")]
-    #[serde(default, deserialize_with = "optional_csv_or_array")]
+    #[serde(default, deserialize_with = "option_csv_or_array")]
     #[strip(metadata)]
     pub alternate_names: Option<Vec<String>>,
 
@@ -79,13 +79,13 @@ pub struct PostalAddressOptions {
 
     /// Any kind of identifier for any kind of Thing.
     #[serde(alias = "identifier")]
-    #[serde_as(deserialize_as = "Option<OneOrMany<_, PreferMany>>")]
+    #[serde(default, deserialize_with = "option_one_or_many")]
     #[strip(metadata)]
     pub identifiers: Option<Vec<PropertyValueOrString>>,
 
     /// Images of the item.
     #[serde(alias = "image")]
-    #[serde_as(deserialize_as = "Option<OneOrMany<_, PreferMany>>")]
+    #[serde(default, deserialize_with = "option_one_or_many")]
     #[strip(metadata)]
     pub images: Option<Vec<ImageObject>>,
 
@@ -100,7 +100,7 @@ pub struct PostalAddressOptions {
     /// Languages (human not programming) in which it is possible to communicate
     /// with the organization/department etc.
     #[serde(alias = "available-languages", alias = "available_languages", alias = "availableLanguage", alias = "available-language", alias = "available_language")]
-    #[serde(default, deserialize_with = "optional_csv_or_array")]
+    #[serde(default, deserialize_with = "option_csv_or_array")]
     pub available_languages: Option<Vec<String>>,
 
     /// The post office box number.
