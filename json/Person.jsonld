@@ -195,10 +195,10 @@
       ],
       "schema:rangeIncludes": [
         {
-          "@id": "Organization"
+          "@id": "Person"
         },
         {
-          "@id": "Person"
+          "@id": "Organization"
         }
       ]
     },

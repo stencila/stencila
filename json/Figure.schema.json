@@ -157,6 +157,9 @@
       "strip": [
         "metadata"
       ],
+      "serde": {
+        "deserializeWith": "option_one_or_many_string_or_object"
+      },
       "type": "array",
       "items": {
         "anyOf": [
@@ -203,6 +206,9 @@
       "strip": [
         "metadata"
       ],
+      "serde": {
+        "deserializeWith": "option_one_or_many_string_or_object"
+      },
       "type": "array",
       "items": {
         "$ref": "Person.schema.json"
@@ -218,6 +224,9 @@
       "strip": [
         "metadata"
       ],
+      "serde": {
+        "deserializeWith": "option_one_or_many_string_or_object"
+      },
       "type": "array",
       "items": {
         "anyOf": [
@@ -330,6 +339,9 @@
       "strip": [
         "metadata"
       ],
+      "serde": {
+        "deserializeWith": "option_one_or_many_string_or_object"
+      },
       "type": "array",
       "items": {
         "anyOf": [
@@ -450,6 +462,9 @@
       "strip": [
         "metadata"
       ],
+      "serde": {
+        "deserializeWith": "option_string_or_object"
+      },
       "anyOf": [
         {
           "$ref": "Person.schema.json"

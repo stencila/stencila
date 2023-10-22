@@ -96,7 +96,6 @@ export * from "./NoteType.js";
 export * from "./NumberValidator.js";
 export * from "./Object.js";
 export * from "./Organization.js";
-export * from "./OrganizationOrPerson.js";
 export * from "./Paragraph.js";
 export * from "./Parameter.js";
 export * from "./Periodical.js";

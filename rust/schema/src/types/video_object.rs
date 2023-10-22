@@ -125,7 +125,7 @@ pub struct VideoObjectOptions {
 
     /// The authors of the `CreativeWork`.
     #[serde(alias = "author")]
-    #[serde(default, deserialize_with = "option_one_or_many")]
+    #[serde(default, deserialize_with = "option_one_or_many_string_or_object")]
     #[strip(metadata)]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     pub authors: Option<Vec<PersonOrOrganization>>,
@@ -139,14 +139,14 @@ pub struct VideoObjectOptions {
 
     /// People who edited the `CreativeWork`.
     #[serde(alias = "editor")]
-    #[serde(default, deserialize_with = "option_one_or_many")]
+    #[serde(default, deserialize_with = "option_one_or_many_string_or_object")]
     #[strip(metadata)]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     pub editors: Option<Vec<Person>>,
 
     /// The maintainers of the `CreativeWork`.
     #[serde(alias = "maintainer")]
-    #[serde(default, deserialize_with = "option_one_or_many")]
+    #[serde(default, deserialize_with = "option_one_or_many_string_or_object")]
     #[strip(metadata)]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     pub maintainers: Option<Vec<PersonOrOrganization>>,
@@ -195,7 +195,7 @@ pub struct VideoObjectOptions {
 
     /// People or organizations that funded the `CreativeWork`.
     #[serde(alias = "funder")]
-    #[serde(default, deserialize_with = "option_one_or_many")]
+    #[serde(default, deserialize_with = "option_one_or_many_string_or_object")]
     #[strip(metadata)]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     pub funders: Option<Vec<PersonOrOrganization>>,
@@ -243,6 +243,7 @@ pub struct VideoObjectOptions {
     pub parts: Option<Vec<CreativeWorkType>>,
 
     /// A publisher of the CreativeWork.
+    #[serde(default, deserialize_with = "option_string_or_object")]
     #[strip(metadata)]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     pub publisher: Option<PersonOrOrganization>,

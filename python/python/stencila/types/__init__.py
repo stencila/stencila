@@ -95,7 +95,6 @@ from .note_type import NoteType
 from .number_validator import NumberValidator
 from .object import Object
 from .organization import Organization
-from .organization_or_person import OrganizationOrPerson
 from .paragraph import Paragraph
 from .parameter import Parameter
 from .periodical import Periodical

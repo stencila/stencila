@@ -1,7 +1,7 @@
 // Generated file; do not edit. See `../rust/schema-gen` crate.
 
 import { Organization } from "./Organization.js";
-import { OrganizationOrPerson } from "./OrganizationOrPerson.js";
+import { PersonOrOrganization } from "./PersonOrOrganization.js";
 import { PostalAddressOrString } from "./PostalAddressOrString.js";
 import { Thing } from "./Thing.js";
 
@@ -35,7 +35,7 @@ export class Person extends Thing {
    * A person or organization that supports (sponsors) something through
    * some kind of financial contribution.
    */
-  funders?: OrganizationOrPerson[];
+  funders?: PersonOrOrganization[];
 
   /**
    * Given name. In the U.S., the first name of a person.

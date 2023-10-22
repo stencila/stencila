@@ -3,7 +3,7 @@
 from .prelude import *
 
 Organization = ForwardRef("Organization")
-from .organization_or_person import OrganizationOrPerson
+from .person_or_organization import PersonOrOrganization
 from .postal_address_or_str import PostalAddressOrStr
 from .thing import Thing
 
@@ -28,7 +28,7 @@ class Person(Thing):
     family_names: Optional[List[str]] = None
     """Family name. In the U.S., the last name of a person."""
 
-    funders: Optional[List[OrganizationOrPerson]] = None
+    funders: Optional[List[PersonOrOrganization]] = None
     """A person or organization that supports (sponsors) something through some kind of financial contribution."""
 
     given_names: Optional[List[str]] = None

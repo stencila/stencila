@@ -4,7 +4,7 @@ use crate::prelude::*;
 
 use super::image_object::ImageObject;
 use super::organization::Organization;
-use super::organization_or_person::OrganizationOrPerson;
+use super::person_or_organization::PersonOrOrganization;
 use super::postal_address_or_string::PostalAddressOrString;
 use super::property_value_or_string::PropertyValueOrString;
 use super::string::String;
@@ -95,8 +95,8 @@ pub struct PersonOptions {
     /// A person or organization that supports (sponsors) something through
     /// some kind of financial contribution.
     #[serde(alias = "funder")]
-    #[serde(default, deserialize_with = "option_one_or_many")]
-    pub funders: Option<Vec<OrganizationOrPerson>>,
+    #[serde(default, deserialize_with = "option_one_or_many_string_or_object")]
+    pub funders: Option<Vec<PersonOrOrganization>>,
 
     /// An honorific prefix preceding a person's name such as Dr/Mrs/Mr.
     #[serde(alias = "prefix", alias = "honorific-prefix", alias = "honorific_prefix")]

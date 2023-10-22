@@ -43,8 +43,10 @@ properties:
     type: array
     items:
       anyOf:
-        - $ref: Organization
         - $ref: Person
+        - $ref: Organization
+    serde:
+      deserializeWith: option_one_or_many_string_or_object
   legalName:
     '@id': schema:legalName
     description: The official name of the organization, e.g. the registered company name.
@@ -63,8 +65,10 @@ properties:
     type: array
     items:
       anyOf:
-        - $ref: Organization
         - $ref: Person
+        - $ref: Organization
+    serde:
+      deserializeWith: option_one_or_many_string_or_object
   parentOrganization:
     '@id': schema:parentOrganization
     description: |

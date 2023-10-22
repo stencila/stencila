@@ -28,6 +28,8 @@ mod node;
 mod null;
 mod object;
 mod parameter;
+mod person;
+mod person_or_organization;
 mod primitive;
 mod property_value_or_string;
 mod section;

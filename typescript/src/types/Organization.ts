@@ -3,7 +3,7 @@
 import { Brand } from "./Brand.js";
 import { ContactPoint } from "./ContactPoint.js";
 import { ImageObject } from "./ImageObject.js";
-import { OrganizationOrPerson } from "./OrganizationOrPerson.js";
+import { PersonOrOrganization } from "./PersonOrOrganization.js";
 import { PostalAddressOrString } from "./PostalAddressOrString.js";
 import { Thing } from "./Thing.js";
 
@@ -36,7 +36,7 @@ export class Organization extends Thing {
   /**
    * Organization(s) or person(s) funding the organization.
    */
-  funders?: OrganizationOrPerson[];
+  funders?: PersonOrOrganization[];
 
   /**
    * The official name of the organization, e.g. the registered company name.
@@ -51,7 +51,7 @@ export class Organization extends Thing {
   /**
    * Person(s) or organization(s) who are members of this organization.
    */
-  members?: OrganizationOrPerson[];
+  members?: PersonOrOrganization[];
 
   /**
    * Entity that the Organization is a part of. For example, parentOrganization to a department is a university.

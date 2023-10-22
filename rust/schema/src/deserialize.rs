@@ -117,6 +117,7 @@ where
 }
 
 /// Deserialize struct from a string or object
+#[allow(unused)]
 pub fn string_or_object<'de, T, D>(deserializer: D) -> Result<T, D::Error>
 where
     T: DeserializeOwned + FromStr,

@@ -6,7 +6,7 @@ from .brand import Brand
 from .contact_point import ContactPoint
 ImageObject = ForwardRef("ImageObject")
 Organization = ForwardRef("Organization")
-from .organization_or_person import OrganizationOrPerson
+from .person_or_organization import PersonOrOrganization
 from .postal_address_or_str import PostalAddressOrStr
 from .thing import Thing
 
@@ -31,7 +31,7 @@ class Organization(Thing):
     departments: Optional[List[Organization]] = None
     """Departments within the organization. For example, Department of Computer Science, Research & Development etc."""
 
-    funders: Optional[List[OrganizationOrPerson]] = None
+    funders: Optional[List[PersonOrOrganization]] = None
     """Organization(s) or person(s) funding the organization."""
 
     legal_name: Optional[str] = None
@@ -40,7 +40,7 @@ class Organization(Thing):
     logo: Optional[ImageObject] = None
     """The logo of the organization."""
 
-    members: Optional[List[OrganizationOrPerson]] = None
+    members: Optional[List[PersonOrOrganization]] = None
     """Person(s) or organization(s) who are members of this organization."""
 
     parent_organization: Optional[Organization] = None

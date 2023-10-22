@@ -263,3 +263,32 @@ fn date() -> Result<()> {
 
     Ok(())
 }
+
+/// Test deserialization of person from string
+/// Note: this also tests aliases for properties
+#[test]
+fn person() -> Result<()> {
+    let article1 = Article::from_json_value(json!({
+        "type": "Article",
+        "author": "Dr Alice Andrews MD <alice@example.org> (https://example.org/alice)",
+        "content": []
+    }))?;
+
+    let article2 = Article::from_json_value(json!({
+        "type": "Article",
+        "authors": {
+            "type": "Person",
+            "firstName": "Alice",
+            "surname": "Andrews",
+            "honorificPrefix": "Dr.",
+            "honorificSuffix": "MD",
+            "email": "alice@example.org",
+            "url": "https://example.org/alice"
+        },
+        "content": []
+    }))?;
+
+    assert_eq!(article1, article2);
+
+    Ok(())
+}

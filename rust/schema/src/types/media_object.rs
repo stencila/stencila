@@ -102,7 +102,7 @@ pub struct MediaObjectOptions {
 
     /// The authors of the `CreativeWork`.
     #[serde(alias = "author")]
-    #[serde(default, deserialize_with = "option_one_or_many")]
+    #[serde(default, deserialize_with = "option_one_or_many_string_or_object")]
     #[strip(metadata)]
     pub authors: Option<Vec<PersonOrOrganization>>,
 
@@ -114,13 +114,13 @@ pub struct MediaObjectOptions {
 
     /// People who edited the `CreativeWork`.
     #[serde(alias = "editor")]
-    #[serde(default, deserialize_with = "option_one_or_many")]
+    #[serde(default, deserialize_with = "option_one_or_many_string_or_object")]
     #[strip(metadata)]
     pub editors: Option<Vec<Person>>,
 
     /// The maintainers of the `CreativeWork`.
     #[serde(alias = "maintainer")]
-    #[serde(default, deserialize_with = "option_one_or_many")]
+    #[serde(default, deserialize_with = "option_one_or_many_string_or_object")]
     #[strip(metadata)]
     pub maintainers: Option<Vec<PersonOrOrganization>>,
 
@@ -162,7 +162,7 @@ pub struct MediaObjectOptions {
 
     /// People or organizations that funded the `CreativeWork`.
     #[serde(alias = "funder")]
-    #[serde(default, deserialize_with = "option_one_or_many")]
+    #[serde(default, deserialize_with = "option_one_or_many_string_or_object")]
     #[strip(metadata)]
     pub funders: Option<Vec<PersonOrOrganization>>,
 
@@ -203,6 +203,7 @@ pub struct MediaObjectOptions {
     pub parts: Option<Vec<CreativeWorkType>>,
 
     /// A publisher of the CreativeWork.
+    #[serde(default, deserialize_with = "option_string_or_object")]
     #[strip(metadata)]
     pub publisher: Option<PersonOrOrganization>,
 

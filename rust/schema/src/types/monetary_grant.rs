@@ -76,7 +76,7 @@ pub struct MonetaryGrantOptions {
 
     /// A person or organization that supports a thing through a pledge, promise, or financial contribution.
     #[serde(alias = "sponsor")]
-    #[serde(default, deserialize_with = "option_one_or_many")]
+    #[serde(default, deserialize_with = "option_one_or_many_string_or_object")]
     pub sponsors: Option<Vec<PersonOrOrganization>>,
 
     /// The amount of money.
@@ -84,7 +84,7 @@ pub struct MonetaryGrantOptions {
 
     /// A person or organization that supports (sponsors) something through some kind of financial contribution.
     #[serde(alias = "funder")]
-    #[serde(default, deserialize_with = "option_one_or_many")]
+    #[serde(default, deserialize_with = "option_one_or_many_string_or_object")]
     pub funders: Option<Vec<PersonOrOrganization>>,
 }
 

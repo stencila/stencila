@@ -5,7 +5,7 @@ use crate::prelude::*;
 use super::brand::Brand;
 use super::contact_point::ContactPoint;
 use super::image_object::ImageObject;
-use super::organization_or_person::OrganizationOrPerson;
+use super::person_or_organization::PersonOrOrganization;
 use super::postal_address_or_string::PostalAddressOrString;
 use super::property_value_or_string::PropertyValueOrString;
 use super::string::String;
@@ -91,8 +91,8 @@ pub struct OrganizationOptions {
 
     /// Organization(s) or person(s) funding the organization.
     #[serde(alias = "funder")]
-    #[serde(default, deserialize_with = "option_one_or_many")]
-    pub funders: Option<Vec<OrganizationOrPerson>>,
+    #[serde(default, deserialize_with = "option_one_or_many_string_or_object")]
+    pub funders: Option<Vec<PersonOrOrganization>>,
 
     /// The official name of the organization, e.g. the registered company name.
     #[serde(alias = "legal-name", alias = "legal_name")]
@@ -103,8 +103,8 @@ pub struct OrganizationOptions {
 
     /// Person(s) or organization(s) who are members of this organization.
     #[serde(alias = "member")]
-    #[serde(default, deserialize_with = "option_one_or_many")]
-    pub members: Option<Vec<OrganizationOrPerson>>,
+    #[serde(default, deserialize_with = "option_one_or_many_string_or_object")]
+    pub members: Option<Vec<PersonOrOrganization>>,
 
     /// Entity that the Organization is a part of. For example, parentOrganization to a department is a university.
     #[serde(alias = "parent-organization", alias = "parent_organization")]
