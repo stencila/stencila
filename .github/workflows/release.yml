@@ -155,10 +155,12 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        # See `nod/install.cjs for the correct target to use
+        # See `node/install.cjs` for the correct target to use
         include:
           - os: ubuntu-latest
             target: linux-x64-gnu
+          - os: buildjet-2vcpu-ubuntu-2204-arm
+            target: linux-arm64-gnu
           - os: macos-latest
             target: darwin-x64
           - os: macos-latest-xlarge

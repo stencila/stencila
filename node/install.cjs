@@ -34,11 +34,13 @@ const target = (() => {
       switch (arch) {
         case "x64":
           return "linux-x64-gnu";
+        case "arm64":
+          return "linux-arm64-gnu";
       }
   }
 
   throw new Error(
-    `Unsupported OS: ${platform}, architecture: ${arch}. To request support, please submit an issue with these details at https://github.com/stencila/stencila/issues.`
+    `Unsupported platform: ${platform}-${arch}. To request support, please submit an issue with these details at https://github.com/stencila/stencila/issues.`
   );
 })();
 
