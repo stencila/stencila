@@ -5,16 +5,19 @@ use std::collections::HashMap;
 use nom::{
     branch::alt,
     bytes::complete::{escaped, is_not, tag},
-    character::complete::{char, multispace0, multispace1, none_of},
+    character::complete::{anychar, char, multispace0, multispace1, none_of},
     combinator::{all_consuming, map, opt, recognize},
     multi::{many_m_n, separated_list0},
     sequence::{delimited, pair, preceded, separated_pair, terminated, tuple},
     IResult,
 };
 
-use codec::schema::{
-    Call, CallArgument, Cord, Division, For, Form, FormDeriveAction, FormOptions, IfClause,
-    Include, IntegerOrString, Node, Section,
+use codec::{
+    common::serde::de,
+    schema::{
+        Call, CallArgument, Cord, Division, For, Form, FormDeriveAction, FormOptions, IfClause,
+        Include, IntegerOrString, MathBlock, Node, Section,
+    },
 };
 
 use super::parse::{curly_attrs, node_to_from_str, node_to_string, symbol};
@@ -25,6 +28,18 @@ use super::parse::{curly_attrs, node_to_from_str, node_to_string, symbol};
 /// Detect at least three semicolons
 fn semis(input: &str) -> IResult<&str, &str> {
     recognize(many_m_n(3, 100, char(':')))(input)
+}
+
+/// Parse a [`MathBlock`] node
+pub fn parse_math_block(input: &str) -> IResult<&str, MathBlock> {
+    map(
+        all_consuming(delimited(tag("$$"), is_not("$"), tag("$$"))),
+        |code: &str| MathBlock {
+            code: Cord::from(code.trim()),
+            math_language: "tex".to_string(),
+            ..Default::default()
+        },
+    )(input)
 }
 
 /// Parse an [`Include`] node

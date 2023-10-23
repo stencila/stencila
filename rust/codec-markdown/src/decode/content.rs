@@ -19,7 +19,7 @@ use pulldown_cmark::{CodeBlockKind, Event, Options, Parser, Tag};
 
 use super::blocks::{
     parse_call, parse_division, parse_else, parse_end, parse_for, parse_form, parse_if_elif,
-    parse_include, parse_section,
+    parse_include, parse_math_block, parse_section,
 };
 
 /// Decode Markdown content to a vector of [`Inline`]s
@@ -129,16 +129,8 @@ pub fn decode_blocks(md: &str) -> (Vec<Block>, Losses) {
                     let trimmed = inlines.text.trim();
 
                     // The
-                    let block = if trimmed.starts_with("$$")
-                        && trimmed.ends_with("$$")
-                        // Ensure that there are at least 4 dollars (not just "$$")
-                        && trimmed.len() >= 4
-                    {
-                        Some(Block::MathBlock(MathBlock {
-                            code: Cord::from(trimmed[2..trimmed.len() - 2].trim()),
-                            math_language: "tex".to_string(),
-                            ..Default::default()
-                        }))
+                    let block = if let Ok((.., math_block)) = parse_math_block(trimmed) {
+                        Some(Block::MathBlock(math_block))
                     } else if let Ok((.., include)) = parse_include(trimmed) {
                         Some(Block::Include(include))
                     } else if let Ok((.., call)) = parse_call(trimmed) {
@@ -248,6 +240,7 @@ pub fn decode_blocks(md: &str) -> (Vec<Block>, Losses) {
                     } else {
                         Some(p(inlines.pop_all()))
                     };
+
                     if let Some(block) = block {
                         blocks.push_block(block);
                     }
