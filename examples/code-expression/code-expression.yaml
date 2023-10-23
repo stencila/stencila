@@ -56,6 +56,6 @@ content:
   - type: Text
     value: 'With automatic execution behavior specified '
   - type: CodeExpression
+    autoExec: Never
     code: c * d
     programmingLanguage: javascript
-    executionAuto: Never

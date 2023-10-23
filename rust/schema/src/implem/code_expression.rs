@@ -1,4 +1,5 @@
 use codec_json5_trait::Json5Codec;
+use codec_losses::{lost_exec_options, lost_options};
 
 use crate::{prelude::*, CodeExpression};
 
@@ -29,13 +30,8 @@ impl CodeExpression {
 
         md.push('}');
 
-        // TODO: Losses should include derived, execution related properties
-        // Implement as a macro which can be applied to all executable nodes
-        let losses = if self.id.is_some() {
-            Losses::one("CodeExpression.id")
-        } else {
-            Losses::none()
-        };
+        let mut losses = lost_options!(self, id);
+        losses.merge(lost_exec_options!(self));
 
         (md, losses)
     }
