@@ -555,7 +555,10 @@ name = "codec-markdown"
 version = "0.0.0"
 dependencies = [
  "codec",
+ "codec-json5-trait",
  "codec-markdown-trait",
+ "codec-text-trait",
+ "nom",
  "pulldown-cmark",
 ]
 

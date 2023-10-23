@@ -662,7 +662,9 @@ expression: specs
   },
   "markdown": {
     "status": "under-development",
-    "supports_from_formats": {},
+    "supports_from_formats": {
+      "markdown": "LowLoss"
+    },
     "supports_from_string": true,
     "supports_from_path": true,
     "lossy_from_types": [
@@ -671,8 +673,6 @@ expression: specs
       "Integer",
       "UnsignedInteger",
       "Number",
-      "String",
-      "Cord",
       "Array",
       "ArrayValidator",
       "Article",

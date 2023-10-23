@@ -4,8 +4,10 @@ use codec::{
     DecodeOptions, Losses,
 };
 
+mod blocks;
 mod content;
 mod frontmatter;
+mod parse;
 
 pub use content::{decode_blocks, decode_inlines};
 use frontmatter::decode_frontmatter;
