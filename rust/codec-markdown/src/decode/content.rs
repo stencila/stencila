@@ -10,8 +10,8 @@ use codec::{
     format::Format,
     schema::{
         shortcuts::{cb, cc, em, mb, ol, p, qb, strike, strong, table, tb, td, text, ul},
-        AudioObject, Block, Cord, Heading, If, IfClause, ImageObject, Inline, Link, ListItem,
-        MathBlock, TableCell, TableRow, TableRowType, VideoObject,
+        AudioObject, Block, Heading, If, IfClause, ImageObject, Inline, Link, ListItem, TableCell,
+        TableRow, TableRowType, VideoObject,
     },
     Losses,
 };
