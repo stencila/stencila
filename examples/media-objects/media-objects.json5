@@ -19,17 +19,32 @@
         {
           type: "ImageObject",
           contentUrl: "https:\/\/example.org\/cat.jpg",
-          caption: "A cat"
+          caption: [
+            {
+              type: "Text",
+              value: "A cat"
+            }
+          ]
         },
         {
           type: "Text",
-          value: ", with a caption and other attributes "
+          value: ", with a caption and title "
         },
         {
           type: "ImageObject",
+          title: [
+            {
+              type: "Text",
+              value: "The cat"
+            }
+          ],
           contentUrl: "https:\/\/example.org\/cat.jpg",
-          caption: "A cat",
-          contentSize: 100
+          caption: [
+            {
+              type: "Text",
+              value: "A cat"
+            }
+          ]
         }
       ]
     },

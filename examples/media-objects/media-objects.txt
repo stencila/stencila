@@ -1,1 +1,1 @@
-An image  https://example.org/cat.jpg , with a caption  https://example.org/cat.jpgA cat , with a caption and other attributes  https://example.org/cat.jpgA cat100 Some audio  https://example.org/cat.mp3 A video  https://example.org/cat.mp4
+An image  https://example.org/cat.jpg , with a caption  https://example.org/cat.jpgA cat , with a caption and title  The cathttps://example.org/cat.jpgA cat Some audio  https://example.org/cat.mp3 A video  https://example.org/cat.mp4

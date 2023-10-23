@@ -3,7 +3,7 @@
   <body>
     <p>An image<inline-graphic xlink:href="https://example.org/cat.jpg">
       </inline-graphic>, with a caption<inline-graphic xlink:href="https://example.org/cat.jpg">
-      </inline-graphic>, with a caption and other attributes<inline-graphic xlink:href="https://example.org/cat.jpg">
+      </inline-graphic>, with a caption and title<inline-graphic xlink:href="https://example.org/cat.jpg">
       </inline-graphic>
     </p>
     <p>Some audio<inline-media xlink:href="https://example.org/cat.mp3" mimetype="audio">

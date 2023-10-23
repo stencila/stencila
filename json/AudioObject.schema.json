@@ -11,14 +11,15 @@
   "proptest": {},
   "html": {
     "elem": "audio",
-    "custom": true
+    "special": true
   },
   "jats": {
     "elem": "inline-media",
     "special": true
   },
   "markdown": {
-    "format": "![]({content_url})"
+    "format": "![{caption}]({content_url} \\\"{title}\\\")",
+    "special": true
   },
   "required": [
     "type",

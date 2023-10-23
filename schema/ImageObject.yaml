@@ -5,12 +5,13 @@ category: works
 description: An image file.
 html:
   elem: img
-  custom: true
+  special: true
 jats:
   elem: inline-graphic
   special: true
 markdown:
-  format: '![]({content_url})'
+  format: '![{caption}]({content_url} \"{title}\")'
+  special: true
 core:
   - caption
   - title

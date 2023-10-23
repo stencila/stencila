@@ -9,12 +9,13 @@ $comment: |
   which `VideoObject` extends.
 html:
   elem: video
-  custom: true
+  special: true
 jats:
   elem: inline-media
   special: true
 markdown:
-  format: '![]({content_url})'
+  format: '![{caption}]({content_url} \"{title}\")'
+  special: true
 proptest: {}
 core:
   - caption

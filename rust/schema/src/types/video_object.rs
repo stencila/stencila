@@ -28,9 +28,9 @@ use super::thing_type::ThingType;
 #[cfg_attr(feature = "proptest", derive(Arbitrary))]
 #[derive(derive_more::Display)]
 #[display(fmt = "VideoObject")]
-#[html(elem = "video", custom)]
+#[html(elem = "video", special)]
 #[jats(elem = "inline-media", special)]
-#[markdown(format = "![]({content_url})")]
+#[markdown(format = "![{caption}]({content_url} \"{title}\")", special)]
 pub struct VideoObject {
     /// The type of this item.
     #[cfg_attr(feature = "proptest", proptest(value = "Default::default()"))]

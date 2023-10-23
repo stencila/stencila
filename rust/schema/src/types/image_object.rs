@@ -27,9 +27,9 @@ use super::thing_type::ThingType;
 #[cfg_attr(feature = "proptest", derive(Arbitrary))]
 #[derive(derive_more::Display)]
 #[display(fmt = "ImageObject")]
-#[html(elem = "img", custom)]
+#[html(elem = "img", special)]
 #[jats(elem = "inline-graphic", special)]
-#[markdown(format = "![]({content_url})")]
+#[markdown(format = "![{caption}]({content_url} \"{title}\")", special)]
 pub struct ImageObject {
     /// The type of this item.
     #[cfg_attr(feature = "proptest", proptest(value = "Default::default()"))]
