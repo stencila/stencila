@@ -7,7 +7,7 @@ edition = "2021"
 Inflector = "0.11.4"
 async-recursion = "1.0.5"
 async-trait = "0.1.74"
-base64 = "0.21.4"
+base64 = "0.21.5"
 chrono = { version = "0.4.31", features = ["serde"] }
 clap = { version = "4.4.6", features = ["derive", "color"] }
 derivative = "2.2.0"
@@ -34,5 +34,5 @@ strum = { version = "0.25.0", features = ["derive"] }
 syn = "2.0.38"
 tempfile = "3.8.0"
 tokio = { version = "1.33.0", features = ["full", "tracing"] }
-toml = "0.8.2"
+toml = "0.8.4"
 tracing = { version = "0.1.40", features = ["log"] }
