@@ -75,3 +75,32 @@ pub(super) fn decode_frontmatter(md: &str) -> Result<(usize, Option<Node>)> {
         Ok((0, None))
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use codec::common::eyre::bail;
+    use common_dev::pretty_assertions::assert_eq;
+
+    use super::*;
+
+    #[ignore = "not yet implemented"]
+    #[test]
+    fn frontmatter() -> Result<()> {
+        assert_eq!(decode_frontmatter("")?.0, 0);
+        assert_eq!(decode_frontmatter("--")?.0, 0);
+        assert_eq!(decode_frontmatter("---")?.0, 0);
+
+        let (end, node) = decode_frontmatter("---\n---\n")?;
+        assert_eq!(end, 7);
+        assert!(node.is_none());
+
+        let (end, node) = decode_frontmatter("---\ntitle: The title\n---")?;
+        assert_eq!(end, 24);
+        if let Some(Node::Article(_)) = node {
+        } else {
+            bail!("Expected an article")
+        }
+
+        Ok(())
+    }
+}

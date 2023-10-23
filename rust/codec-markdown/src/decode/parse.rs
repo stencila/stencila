@@ -270,3 +270,104 @@ fn node_to_option_datetime(node: Node) -> Option<DateTime> {
         _ => None,
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use common_dev::pretty_assertions::assert_eq;
+
+    use super::*;
+
+    #[test]
+    fn test_single_quoted() {
+        let (_, res) = single_quoted_string_node(r#"' \' 🤖 '"#).unwrap();
+        assert_eq!(res, r#" \' 🤖 "#);
+        let (_, res) = single_quoted_string_node("' → x'").unwrap();
+        assert_eq!(res, " → x");
+        let (_, res) = single_quoted_string_node("'  '").unwrap();
+        assert_eq!(res, "  ");
+        let (_, res) = single_quoted_string_node("''").unwrap();
+        assert_eq!(res, "");
+    }
+
+    #[test]
+    fn test_double_quoted() {
+        let (_, res) = double_quoted_string_node(r#"" \" 🤖 ""#).unwrap();
+        assert_eq!(res, r#" \" 🤖 "#);
+        let (_, res) = double_quoted_string_node(r#"" → x""#).unwrap();
+        assert_eq!(res, " → x");
+        let (_, res) = double_quoted_string_node(r#""  ""#).unwrap();
+        assert_eq!(res, "  ");
+        let (_, res) = double_quoted_string_node(r#""""#).unwrap();
+        assert_eq!(res, "");
+    }
+
+    #[test]
+    fn test_square_bracketed() -> Result<()> {
+        let (_, res) = array_node("[1,2,3]")?;
+        assert_eq!(res, Node::from_json5("[1, 2, 3]")?);
+
+        let (_, res) = array_node("['a', 'b']").unwrap();
+        assert_eq!(res, Node::from_json5(r#"["a", "b"]"#)?);
+
+        let (_, res) = array_node("[\"string \\] with closing bracket\"]").unwrap();
+        assert_eq!(
+            res,
+            Node::from_json5(r#"["string ] with closing bracket"]"#)?
+        );
+
+        Ok(())
+    }
+
+    #[test]
+    fn test_curly_attrs() -> Result<()> {
+        assert_eq!(
+            curly_attrs(r#"{a}"#).unwrap().1,
+            vec![("a".to_string(), None),]
+        );
+
+        assert_eq!(
+            curly_attrs(r#"{a=1 b='2' c:-3 d = 4.0}"#)?.1,
+            vec![
+                ("a".to_string(), Some(Node::Integer(1))),
+                ("b".to_string(), Some(Node::String("2".to_string()))),
+                ("c".to_string(), Some(Node::Integer(-3))),
+                ("d".to_string(), Some(Node::Number(4.0)))
+            ]
+        );
+
+        assert_eq!(
+            curly_attrs(r#"{date min=2022-09-01 max='2022-09-30' def="2022-09-15"}"#)?.1,
+            vec![
+                ("date".to_string(), None),
+                (
+                    "min".to_string(),
+                    Some(Node::Date(Date::new("2022-09-01".to_string())))
+                ),
+                (
+                    "max".to_string(),
+                    Some(Node::String("2022-09-30".to_string()))
+                ),
+                (
+                    "def".to_string(),
+                    Some(Node::String("2022-09-15".to_string()))
+                ),
+            ]
+        );
+
+        // Multiple spaces are fine
+        assert_eq!(
+            curly_attrs(r#"{   a     b=21 c : 1.234 d="   Internal  spaces "  }"#)?.1,
+            vec![
+                ("a".to_string(), None),
+                ("b".to_string(), Some(Node::Integer(21))),
+                ("c".to_string(), Some(Node::Number(1.234))),
+                (
+                    "d".to_string(),
+                    Some(Node::String("   Internal  spaces ".to_string()))
+                )
+            ]
+        );
+
+        Ok(())
+    }
+}

@@ -5,19 +5,16 @@ use std::collections::HashMap;
 use nom::{
     branch::alt,
     bytes::complete::{escaped, is_not, tag},
-    character::complete::{anychar, char, multispace0, multispace1, none_of},
+    character::complete::{char, multispace0, multispace1, none_of},
     combinator::{all_consuming, map, opt, recognize},
     multi::{many_m_n, separated_list0},
     sequence::{delimited, pair, preceded, separated_pair, terminated, tuple},
     IResult,
 };
 
-use codec::{
-    common::serde::de,
-    schema::{
-        Call, CallArgument, Cord, Division, For, Form, FormDeriveAction, FormOptions, IfClause,
-        Include, IntegerOrString, MathBlock, Node, Section,
-    },
+use codec::schema::{
+    Call, CallArgument, Cord, Division, For, Form, FormDeriveAction, FormOptions, IfClause,
+    Include, IntegerOrString, MathBlock, Node, Section,
 };
 
 use super::parse::{curly_attrs, node_to_from_str, node_to_string, symbol};
@@ -264,4 +261,212 @@ pub fn parse_else(input: &str) -> IResult<&str, &str> {
 /// Parse the end of a division
 pub fn parse_end(input: &str) -> IResult<&str, &str> {
     all_consuming(recognize(tuple((semis, multispace0))))(input)
+}
+
+#[cfg(test)]
+mod tests {
+    use common_dev::pretty_assertions::assert_eq;
+
+    use super::*;
+
+    #[test]
+    fn test_calls() {
+        assert_eq!(
+            parse_call("/file.md()").unwrap().1,
+            Call {
+                source: "file.md".to_string(),
+                ..Default::default()
+            }
+        );
+        assert_eq!(
+            parse_call("/file.md(a=1)").unwrap().1,
+            Call {
+                source: "file.md".to_string(),
+                arguments: vec![CallArgument {
+                    name: "a".to_string(),
+                    code: "1".to_string(),
+                    ..Default::default()
+                }],
+                ..Default::default()
+            }
+        );
+        assert_eq!(
+            parse_call(r#"/file.md(parAm_eter_1="string")"#).unwrap().1,
+            Call {
+                source: "file.md".to_string(),
+                arguments: vec![CallArgument {
+                    name: "parAm_eter_1".to_string(),
+                    code: "\"string\"".to_string(),
+                    ..Default::default()
+                }],
+                ..Default::default()
+            }
+        );
+        assert_eq!(
+            parse_call("/file.md(a=1.23 b=symbol c='string')")
+                .unwrap()
+                .1,
+            Call {
+                source: "file.md".to_string(),
+                arguments: vec![
+                    CallArgument {
+                        name: "a".to_string(),
+                        code: "1.23".to_string(),
+                        ..Default::default()
+                    },
+                    CallArgument {
+                        name: "b".to_string(),
+                        code: "symbol".to_string(),
+                        ..Default::default()
+                    },
+                    CallArgument {
+                        name: "c".to_string(),
+                        code: "'string'".to_string(),
+                        ..Default::default()
+                    }
+                ],
+                ..Default::default()
+            }
+        );
+        assert_eq!(
+            parse_call("/file.md(a=1,b = 2  , c=3, d =4)").unwrap().1,
+            Call {
+                source: "file.md".to_string(),
+                arguments: vec![
+                    CallArgument {
+                        name: "a".to_string(),
+                        code: "1".to_string(),
+                        ..Default::default()
+                    },
+                    CallArgument {
+                        name: "b".to_string(),
+                        code: "2".to_string(),
+                        ..Default::default()
+                    },
+                    CallArgument {
+                        name: "c".to_string(),
+                        code: "3".to_string(),
+                        ..Default::default()
+                    },
+                    CallArgument {
+                        name: "d".to_string(),
+                        code: "4".to_string(),
+                        ..Default::default()
+                    },
+                ],
+                ..Default::default()
+            },
+        );
+    }
+
+    #[test]
+    fn test_for() {
+        // Simple
+        assert_eq!(
+            parse_for("::: for item in expr").unwrap().1,
+            For {
+                symbol: "item".to_string(),
+                code: "expr".into(),
+                ..Default::default()
+            }
+        );
+
+        // With less/extra spacing
+        assert_eq!(
+            parse_for(":::for item  in    expr").unwrap().1,
+            For {
+                symbol: "item".to_string(),
+                code: "expr".into(),
+                ..Default::default()
+            }
+        );
+
+        // With language specified
+        assert_eq!(
+            parse_for("::: for item in expr {python}").unwrap().1,
+            For {
+                symbol: "item".to_string(),
+                code: "expr".into(),
+                programming_language: Some("python".to_string()),
+                ..Default::default()
+            }
+        );
+
+        // With more complex expression
+        assert_eq!(
+            parse_for("::: for i in 1:10").unwrap().1,
+            For {
+                symbol: "i".to_string(),
+                code: "1:10".into(),
+                ..Default::default()
+            }
+        );
+        assert_eq!(
+            parse_for("::: for row in select * from table { sql }")
+                .unwrap()
+                .1,
+            For {
+                symbol: "row".to_string(),
+                code: "select * from table".into(),
+                programming_language: Some("sql".to_string()),
+                ..Default::default()
+            }
+        );
+    }
+
+    #[test]
+    fn test_form() {
+        assert_eq!(parse_form("::: form").unwrap().1, Form::default());
+    }
+
+    #[test]
+    fn test_if() {
+        // Simple
+        assert_eq!(
+            parse_if_elif("::: if expr").unwrap().1 .1,
+            IfClause {
+                code: "expr".into(),
+                ..Default::default()
+            }
+        );
+
+        // With less/extra spacing
+        assert_eq!(
+            parse_if_elif(":::if    expr").unwrap().1 .1,
+            IfClause {
+                code: "expr".into(),
+                ..Default::default()
+            }
+        );
+
+        // With language specified
+        assert_eq!(
+            parse_if_elif("::: if expr {python}").unwrap().1 .1,
+            IfClause {
+                code: "expr".into(),
+                programming_language: Some("python".to_string()),
+                ..Default::default()
+            }
+        );
+
+        // With more complex expression
+        assert_eq!(
+            parse_if_elif("::: if a > 1 and b[8] < 1.23").unwrap().1 .1,
+            IfClause {
+                code: "a > 1 and b[8] < 1.23".into(),
+                ..Default::default()
+            }
+        );
+    }
+
+    #[test]
+    fn test_end() {
+        assert!(parse_end(":::").is_ok());
+        assert!(parse_end("::::").is_ok());
+        assert!(parse_end("::::::").is_ok());
+
+        assert!(parse_end(":::some chars").is_err());
+        assert!(parse_end("::").is_err());
+        assert!(parse_end(":").is_err());
+    }
 }

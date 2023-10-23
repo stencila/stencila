@@ -558,6 +558,7 @@ dependencies = [
  "codec-json5-trait",
  "codec-markdown-trait",
  "codec-text-trait",
+ "common-dev",
  "nom",
  "pulldown-cmark",
 ]
