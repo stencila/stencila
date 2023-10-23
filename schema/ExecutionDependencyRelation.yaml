@@ -6,20 +6,20 @@ description: The relation between a node and its execution dependency.
 default: Uses
 anyOf:
   - const: Calls
-    '@id': stencila:executionDependencyRelationCalls
+    '@id': stencila:Calls
     description: The node calls its dependency (usually another document or function)
   - const: Derives
-    '@id': stencila:executionDependencyRelationDerives
+    '@id': stencila:Derives
     description: The node is derived from its dependency (e.g. a database table)
   - const: Imports
-    '@id': stencila:executionDependencyRelationImports
+    '@id': stencila:Imports
     description: The node imports its dependency (usually a software module)
   - const: Includes
-    '@id': stencila:executionDependencyRelationIncludes
+    '@id': stencila:Includes
     description: The node includes its dependency (usually another document)
   - const: Reads
-    '@id': stencila:executionDependencyRelationReads
+    '@id': stencila:Reads
     description: The node reads its dependency (usually a file)
   - const: Uses
-    '@id': stencila:executionDependencyRelationUses
+    '@id': stencila:Uses
     description: The node uses its dependency (usually a variable)

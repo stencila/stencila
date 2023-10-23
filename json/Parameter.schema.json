@@ -22,6 +22,7 @@
   ],
   "core": [
     "id",
+    "autoExec",
     "label",
     "value",
     "default",
@@ -46,17 +47,18 @@
       },
       "type": "string"
     },
-    "executionAuto": {
-      "@id": "stencila:executionAuto",
+    "autoExec": {
+      "@id": "stencila:autoExec",
       "description": "Under which circumstances the code should be automatically executed.",
       "aliases": [
-        "execution-auto",
-        "execution_auto"
+        "auto",
+        "auto-exec",
+        "auto_exec"
       ],
       "strip": [
         "execution"
       ],
-      "$ref": "ExecutionAuto.schema.json"
+      "$ref": "AutomaticExecution.schema.json"
     },
     "compilationDigest": {
       "@id": "stencila:compilationDigest",

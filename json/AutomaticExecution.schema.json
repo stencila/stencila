@@ -1,8 +1,8 @@
 {
   "$schema": "https://stencila.dev/meta.schema.json",
-  "$id": "https://stencila.dev/ExecutionAuto.schema.json",
-  "@id": "stencila:ExecutionAuto",
-  "title": "ExecutionAuto",
+  "$id": "https://stencila.dev/AutomaticExecution.schema.json",
+  "@id": "stencila:AutomaticExecution",
+  "title": "AutomaticExecution",
   "extends": [
     "Enumeration"
   ],
@@ -118,17 +118,17 @@
   },
   "anyOf": [
     {
-      "@id": "stencila:executionAutoNever",
+      "@id": "stencila:Never",
       "description": "Never automatically execute the document node. Only execute the when the user explicitly executes\nthe specific node or all nodes in the containing document.\n",
       "const": "Never"
     },
     {
-      "@id": "stencila:executionAutoNeeded",
+      "@id": "stencila:Needed",
       "description": "Automatically execute the document node when it needs to be: if it is stale and is \nupstream dependency of a node that has been executed, or is a downstream dependant of a node that\nhas been executed.\n",
       "const": "Needed"
     },
     {
-      "@id": "stencila:executionAutoAlways",
+      "@id": "stencila:Always",
       "description": "Always execute the code when one of its dependants is executed, even if it is not stale (i.e. it, or its own dependencies,\nare unchanged since the last time it was executed).\n",
       "const": "Always"
     }

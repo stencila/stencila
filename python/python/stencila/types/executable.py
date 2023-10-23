@@ -2,10 +2,10 @@
 
 from .prelude import *
 
+from .automatic_execution import AutomaticExecution
 from .code_error import CodeError
 from .duration import Duration
 from .entity import Entity
-from .execution_auto import ExecutionAuto
 from .execution_dependant import ExecutionDependant
 from .execution_dependency import ExecutionDependency
 from .execution_digest import ExecutionDigest
@@ -23,7 +23,7 @@ class Executable(Entity):
 
     type: Literal["Executable"] = field(default="Executable", init=False)
 
-    execution_auto: Optional[ExecutionAuto] = None
+    auto_exec: Optional[AutomaticExecution] = None
     """Under which circumstances the code should be automatically executed."""
 
     compilation_digest: Optional[ExecutionDigest] = None

@@ -9,6 +9,9 @@
       "$ref": "AudioObject.schema.json"
     },
     {
+      "$ref": "AutomaticExecution.schema.json"
+    },
+    {
       "$ref": "Brand.schema.json"
     },
     {
@@ -49,9 +52,6 @@
     },
     {
       "$ref": "Enumeration.schema.json"
-    },
-    {
-      "$ref": "ExecutionAuto.schema.json"
     },
     {
       "$ref": "ExecutionDependantRelation.schema.json"

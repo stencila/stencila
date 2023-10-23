@@ -1,6 +1,7 @@
 // Generated file; do not edit. See `../rust/schema-gen` crate.
 import { type Article } from "./Article.js";
 import { type AudioObject } from "./AudioObject.js";
+import { type AutomaticExecution } from "./AutomaticExecution.js";
 import { type Brand } from "./Brand.js";
 import { type CitationIntent } from "./CitationIntent.js";
 import { type CitationMode } from "./CitationMode.js";
@@ -15,7 +16,6 @@ import { type DatatableColumn } from "./DatatableColumn.js";
 import { type DefinedTerm } from "./DefinedTerm.js";
 import { type Directory } from "./Directory.js";
 import { type Enumeration } from "./Enumeration.js";
-import { type ExecutionAuto } from "./ExecutionAuto.js";
 import { type ExecutionDependantRelation } from "./ExecutionDependantRelation.js";
 import { type ExecutionDependencyRelation } from "./ExecutionDependencyRelation.js";
 import { type ExecutionRequired } from "./ExecutionRequired.js";
@@ -53,6 +53,7 @@ import { type VideoObject } from "./VideoObject.js";
 export type ThingType =
   Article |
   AudioObject |
+  AutomaticExecution |
   Brand |
   CitationIntent |
   CitationMode |
@@ -67,7 +68,6 @@ export type ThingType =
   DefinedTerm |
   Directory |
   Enumeration |
-  ExecutionAuto |
   ExecutionDependantRelation |
   ExecutionDependencyRelation |
   ExecutionRequired |

@@ -3,11 +3,11 @@
 use crate::prelude::*;
 
 use super::array::Array;
+use super::automatic_execution::AutomaticExecution;
 use super::block::Block;
 use super::code_error::CodeError;
 use super::cord::Cord;
 use super::duration::Duration;
-use super::execution_auto::ExecutionAuto;
 use super::execution_dependant::ExecutionDependant;
 use super::execution_dependency::ExecutionDependency;
 use super::execution_digest::ExecutionDigest;
@@ -34,6 +34,11 @@ pub struct For {
     #[strip(metadata)]
     #[html(attr = "id")]
     pub id: Option<String>,
+
+    /// Under which circumstances the code should be automatically executed.
+    #[serde(alias = "auto", alias = "auto-exec", alias = "auto_exec")]
+    #[strip(execution)]
+    pub auto_exec: Option<AutomaticExecution>,
 
     /// The code.
     #[strip(code)]
@@ -79,11 +84,6 @@ pub struct For {
 #[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec, WriteNode, ReadNode)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 pub struct ForOptions {
-    /// Under which circumstances the code should be automatically executed.
-    #[serde(alias = "execution-auto", alias = "execution_auto")]
-    #[strip(execution)]
-    pub execution_auto: Option<ExecutionAuto>,
-
     /// A digest of the content, semantics and dependencies of the node.
     #[serde(alias = "compilation-digest", alias = "compilation_digest")]
     #[strip(execution)]

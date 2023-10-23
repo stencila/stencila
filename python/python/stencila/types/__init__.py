@@ -4,6 +4,7 @@ from .array import Array
 from .array_validator import ArrayValidator
 from .article import Article
 from .audio_object import AudioObject
+from .automatic_execution import AutomaticExecution
 from .block import Block
 from .boolean_validator import BooleanValidator
 from .brand import Brand
@@ -49,7 +50,6 @@ from .entity import Entity
 from .enum_validator import EnumValidator
 from .enumeration import Enumeration
 from .executable import Executable
-from .execution_auto import ExecutionAuto
 from .execution_dependant import ExecutionDependant
 from .execution_dependant_node import ExecutionDependantNode
 from .execution_dependant_relation import ExecutionDependantRelation

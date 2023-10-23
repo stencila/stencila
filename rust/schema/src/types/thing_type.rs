@@ -4,6 +4,7 @@ use crate::prelude::*;
 
 use super::article::Article;
 use super::audio_object::AudioObject;
+use super::automatic_execution::AutomaticExecution;
 use super::brand::Brand;
 use super::citation_intent::CitationIntent;
 use super::citation_mode::CitationMode;
@@ -18,7 +19,6 @@ use super::datatable_column::DatatableColumn;
 use super::defined_term::DefinedTerm;
 use super::directory::Directory;
 use super::enumeration::Enumeration;
-use super::execution_auto::ExecutionAuto;
 use super::execution_dependant_relation::ExecutionDependantRelation;
 use super::execution_dependency_relation::ExecutionDependencyRelation;
 use super::execution_required::ExecutionRequired;
@@ -58,6 +58,8 @@ pub enum ThingType {
 
     AudioObject(AudioObject),
 
+    AutomaticExecution(AutomaticExecution),
+
     Brand(Brand),
 
     CitationIntent(CitationIntent),
@@ -85,8 +87,6 @@ pub enum ThingType {
     Directory(Directory),
 
     Enumeration(Enumeration),
-
-    ExecutionAuto(ExecutionAuto),
 
     ExecutionDependantRelation(ExecutionDependantRelation),
 

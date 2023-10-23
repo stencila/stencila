@@ -2,10 +2,10 @@
 
 use crate::prelude::*;
 
+use super::automatic_execution::AutomaticExecution;
 use super::block::Block;
 use super::code_error::CodeError;
 use super::duration::Duration;
-use super::execution_auto::ExecutionAuto;
 use super::execution_dependant::ExecutionDependant;
 use super::execution_dependency::ExecutionDependency;
 use super::execution_digest::ExecutionDigest;
@@ -34,6 +34,11 @@ pub struct Form {
     #[html(attr = "id")]
     pub id: Option<String>,
 
+    /// Under which circumstances the code should be automatically executed.
+    #[serde(alias = "auto", alias = "auto-exec", alias = "auto_exec")]
+    #[strip(execution)]
+    pub auto_exec: Option<AutomaticExecution>,
+
     /// The content within the form, usually containing at least one `Parameter`.
     #[serde(deserialize_with = "one_or_many")]
     pub content: Vec<Block>,
@@ -51,11 +56,6 @@ pub struct Form {
 #[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec, WriteNode, ReadNode)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 pub struct FormOptions {
-    /// Under which circumstances the code should be automatically executed.
-    #[serde(alias = "execution-auto", alias = "execution_auto")]
-    #[strip(execution)]
-    pub execution_auto: Option<ExecutionAuto>,
-
     /// A digest of the content, semantics and dependencies of the node.
     #[serde(alias = "compilation-digest", alias = "compilation_digest")]
     #[strip(execution)]

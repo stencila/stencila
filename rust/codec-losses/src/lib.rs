@@ -224,7 +224,6 @@ macro_rules! lost_exec_options {
     ($object:expr) => {
         lost_options!(
             $object.options,
-            execution_auto,
             compilation_digest,
             execution_digest,
             execution_dependencies,

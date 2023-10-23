@@ -118,22 +118,22 @@
   },
   "anyOf": [
     {
-      "@id": "stencila:executionDependantRelationAssigns",
+      "@id": "stencila:Assigns",
       "description": "The node assigns its dependant (usually a variable)",
       "const": "Assigns"
     },
     {
-      "@id": "stencila:executionDependantRelationAlters",
+      "@id": "stencila:Alters",
       "description": "The node alters its dependant (usually a variable)",
       "const": "Alters"
     },
     {
-      "@id": "stencila:executionDependantRelationDeclares",
+      "@id": "stencila:Declares",
       "description": "The node declares its dependant (e.g. a database table)",
       "const": "Declares"
     },
     {
-      "@id": "stencila:executionDependantRelationWrites",
+      "@id": "stencila:Writes",
       "description": "The node writes its dependant (usually a file)",
       "const": "Writes"
     }

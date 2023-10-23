@@ -2,7 +2,7 @@
 /**
  * Under which circumstances the document node should be automatically executed.
  */
-export type ExecutionAuto =
+export type AutomaticExecution =
   'Never' |
   'Needed' |
   'Always';

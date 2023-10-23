@@ -1,9 +1,9 @@
 // Generated file; do not edit. See `../rust/schema-gen` crate.
 
+import { AutomaticExecution } from "./AutomaticExecution.js";
 import { CodeError } from "./CodeError.js";
 import { Duration } from "./Duration.js";
 import { Entity } from "./Entity.js";
-import { ExecutionAuto } from "./ExecutionAuto.js";
 import { ExecutionDependant } from "./ExecutionDependant.js";
 import { ExecutionDependency } from "./ExecutionDependency.js";
 import { ExecutionDigest } from "./ExecutionDigest.js";
@@ -22,7 +22,7 @@ export class Executable extends Entity {
   /**
    * Under which circumstances the code should be automatically executed.
    */
-  executionAuto?: ExecutionAuto;
+  autoExec?: AutomaticExecution;
 
   /**
    * A digest of the content, semantics and dependencies of the node.

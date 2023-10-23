@@ -3,7 +3,7 @@
 from .prelude import *
 
 
-class ExecutionAuto(StrEnum):
+class AutomaticExecution(StrEnum):
     """
     Under which circumstances the document node should be automatically executed.
     """

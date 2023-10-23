@@ -15,15 +15,15 @@
       }
     },
     {
-      "@id": "stencila:executionAuto",
+      "@id": "stencila:autoExec",
       "@type": "rdfs:Property",
-      "rdfs:label": "executionAuto",
+      "rdfs:label": "autoExec",
       "rdfs:comment": "Under which circumstances the code should be automatically executed.",
       "schema:domainIncludes": {
         "@id": "stencila:Executable"
       },
       "schema:rangeIncludes": {
-        "@id": "ExecutionAuto"
+        "@id": "AutomaticExecution"
       }
     },
     {

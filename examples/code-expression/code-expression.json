@@ -101,7 +101,7 @@
           "type": "CodeExpression",
           "programmingLanguage": "javascript",
           "code": "c * d",
-          "executionAuto": "Never"
+          "autoExec": "Never"
         }
       ]
     }

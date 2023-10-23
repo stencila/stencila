@@ -4,6 +4,7 @@ from .prelude import *
 
 Article = ForwardRef("Article")
 AudioObject = ForwardRef("AudioObject")
+AutomaticExecution = ForwardRef("AutomaticExecution")
 Brand = ForwardRef("Brand")
 CitationIntent = ForwardRef("CitationIntent")
 CitationMode = ForwardRef("CitationMode")
@@ -18,7 +19,6 @@ DatatableColumn = ForwardRef("DatatableColumn")
 DefinedTerm = ForwardRef("DefinedTerm")
 Directory = ForwardRef("Directory")
 Enumeration = ForwardRef("Enumeration")
-ExecutionAuto = ForwardRef("ExecutionAuto")
 ExecutionDependantRelation = ForwardRef("ExecutionDependantRelation")
 ExecutionDependencyRelation = ForwardRef("ExecutionDependencyRelation")
 ExecutionRequired = ForwardRef("ExecutionRequired")
@@ -54,6 +54,7 @@ VideoObject = ForwardRef("VideoObject")
 ThingType = Union[
     Article,
     AudioObject,
+    AutomaticExecution,
     Brand,
     CitationIntent,
     CitationMode,
@@ -68,7 +69,6 @@ ThingType = Union[
     DefinedTerm,
     Directory,
     Enumeration,
-    ExecutionAuto,
     ExecutionDependantRelation,
     ExecutionDependencyRelation,
     ExecutionRequired,

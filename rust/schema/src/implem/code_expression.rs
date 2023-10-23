@@ -13,9 +13,9 @@ impl CodeExpression {
 
         md.push_str("exec");
 
-        if let Some(execution_auto) = &self.options.execution_auto {
+        if let Some(auto) = &self.auto_exec {
             md.push_str(" auto=");
-            md.push_str(&execution_auto.to_string().to_lowercase())
+            md.push_str(&auto.to_string().to_lowercase())
         }
 
         if let Some(output) = self

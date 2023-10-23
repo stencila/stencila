@@ -2,6 +2,7 @@
 
 mod array;
 mod article;
+mod automatic_execution;
 mod call;
 mod code_block;
 mod code_expression;

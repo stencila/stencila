@@ -6,9 +6,9 @@
   },
   "@graph": [
     {
-      "@id": "stencila:ExecutionAuto",
+      "@id": "stencila:AutomaticExecution",
       "@type": "rdfs:Class",
-      "rdfs:label": "ExecutionAuto",
+      "rdfs:label": "AutomaticExecution",
       "rdfs:comment": "Under which circumstances the document node should be automatically executed.",
       "rdfs:subClassOf": {
         "@id": "Enumeration"
