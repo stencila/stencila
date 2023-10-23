@@ -20,6 +20,7 @@ mod include;
 mod inline;
 mod insert;
 mod integer_or_string;
+mod link;
 mod list;
 mod list_item;
 mod math_block;
