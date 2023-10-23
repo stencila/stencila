@@ -138,7 +138,7 @@ jobs:
           ref: ${{ inputs.tag }}
 
       - name: Setup Node.js and NPM
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
           registry-url: "https://registry.npmjs.org"
@@ -185,7 +185,7 @@ jobs:
         uses: Swatinem/rust-cache@v2
 
       - name: Setup Node.js and NPM
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
           registry-url: "https://registry.npmjs.org"
@@ -216,7 +216,7 @@ jobs:
           ref: ${{ inputs.tag }}
 
       - name: Setup Node.js and NPM
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
           registry-url: "https://registry.npmjs.org"
