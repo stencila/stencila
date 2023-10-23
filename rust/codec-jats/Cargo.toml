@@ -6,7 +6,7 @@ edition = "2021"
 [dependencies]
 codec = { path = "../codec" }
 codec-jats-trait = { path = "../codec-jats-trait" }
-quick-xml = "0.30.0"
+quick-xml = "0.31.0"
 roxmltree = "0.18.1"
 
 [dev-dependencies]

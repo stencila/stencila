@@ -7,4 +7,4 @@ edition = "2021"
 codec-jats-derive = { path = "../codec-jats-derive" }
 codec-losses = { path = "../codec-losses" }
 common = { path = "../common" }
-quick-xml = "0.30.0"
+quick-xml = "0.31.0"
