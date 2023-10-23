@@ -8,6 +8,7 @@ The `ThingType` type has these members:
 
 - [`Article`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/article.md)
 - [`AudioObject`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/audio-object.md)
+- [`AutomaticExecution`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/automatic-execution.md)
 - [`Brand`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/brand.md)
 - [`CitationIntent`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/citation-intent.md)
 - [`CitationMode`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/citation-mode.md)
@@ -22,7 +23,6 @@ The `ThingType` type has these members:
 - [`DefinedTerm`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/defined-term.md)
 - [`Directory`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/directory.md)
 - [`Enumeration`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/enumeration.md)
-- [`ExecutionAuto`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/execution-auto.md)
 - [`ExecutionDependantRelation`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/execution-dependant-relation.md)
 - [`ExecutionDependencyRelation`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/execution-dependency-relation.md)
 - [`ExecutionRequired`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/execution-required.md)

@@ -74,7 +74,33 @@ Create a new document
 * `-s`, `--source <SOURCE>` — The source file to import from
 * `-f`, `--format <FORMAT>` — The format of the source file
 
-  Possible values: `html`, `jats`, `markdown`, `text`, `json`, `json5`, `yaml`, `debug`
+  Possible values:
+  - `html`
+  - `jats`
+  - `markdown`
+  - `text`
+  - `json`
+  - `json5`
+  - `yaml`
+  - `gif`:
+    Image formats
+  - `jpeg`
+  - `png`
+  - `svg`
+  - `web-p`
+  - `aac`:
+    Audio formats
+  - `flac`
+  - `mp3`
+  - `ogg`
+  - `wav`
+  - `avi`:
+    Video formats
+  - `mkv`
+  - `mp4`
+  - `ogv`
+  - `web-m`
+  - `debug`
 
 * `--codec <CODEC>` — The codec to use to decode the source
 * `-o`, `--overwrite` — Overwrite the document if it already exists
@@ -96,7 +122,33 @@ Import a file in another format into a new or existing document
 
 * `-f`, `--format <FORMAT>` — The format of the source file
 
-  Possible values: `html`, `jats`, `markdown`, `text`, `json`, `json5`, `yaml`, `debug`
+  Possible values:
+  - `html`
+  - `jats`
+  - `markdown`
+  - `text`
+  - `json`
+  - `json5`
+  - `yaml`
+  - `gif`:
+    Image formats
+  - `jpeg`
+  - `png`
+  - `svg`
+  - `web-p`
+  - `aac`:
+    Audio formats
+  - `flac`
+  - `mp3`
+  - `ogg`
+  - `wav`
+  - `avi`:
+    Video formats
+  - `mkv`
+  - `mp4`
+  - `ogv`
+  - `web-m`
+  - `debug`
 
 * `--codec <CODEC>` — The codec to use to decode the source
 * `-t`, `--type <TYPE>` — The type of document to import
@@ -124,7 +176,33 @@ Export a document to a file in another format
 
 * `-f`, `--format <FORMAT>` — The format of the destination file
 
-  Possible values: `html`, `jats`, `markdown`, `text`, `json`, `json5`, `yaml`, `debug`
+  Possible values:
+  - `html`
+  - `jats`
+  - `markdown`
+  - `text`
+  - `json`
+  - `json5`
+  - `yaml`
+  - `gif`:
+    Image formats
+  - `jpeg`
+  - `png`
+  - `svg`
+  - `web-p`
+  - `aac`:
+    Audio formats
+  - `flac`
+  - `mp3`
+  - `ogg`
+  - `wav`
+  - `avi`:
+    Video formats
+  - `mkv`
+  - `mp4`
+  - `ogv`
+  - `web-m`
+  - `debug`
 
 * `--codec <CODEC>` — The codec to use to encode to the destination
 * `-l`, `--losses <LOSSES>` — What to do if there are losses when encoding
@@ -133,11 +211,24 @@ Export a document to a file in another format
 * `--standalone` — Encode as a standalone document
 * `--not-standalone` — Do not encode as a standalone document when writing to file
 * `-c`, `--compact` — Use compact form of encoding if possible
-* `--no-strip-id` — Do not strip the id property of nodes before encoding
-* `--strip-code` — Strip the code of executable nodes before encoding
-* `--strip-execution` — Strip derived properties of executable nodes before encoding
-* `--strip-output` — Strip the outputs of executable nodes before encoding
-* `--strip-types <STRIP_TYPES>` — A list of types to strip before encoding
+* `--strip-scopes <STRIP_SCOPES>` — Scopes defining which properties of nodes should be stripped
+
+  Possible values:
+  - `metadata`:
+    Strip metadata properties of nodes
+  - `content`:
+    Strip content properties of nodes
+  - `code`:
+    Strip code properties of executable nodes
+  - `execution`:
+    Strip execution related properties of executable nodes
+  - `output`:
+    Strip output properties of executable nodes
+
+* `--strip-types <STRIP_TYPES>` — A list of node types to strip before encoding
+* `--strip-props <STRIP_PROPS>` — A list of node properties to strip before encoding
+
+  Default value: `id`
 
 
 
@@ -161,11 +252,24 @@ Synchronize a document with one of more other files in other formats
 * `--standalone` — Encode as a standalone document
 * `--not-standalone` — Do not encode as a standalone document when writing to file
 * `-c`, `--compact` — Use compact form of encoding if possible
-* `--no-strip-id` — Do not strip the id property of nodes before encoding
-* `--strip-code` — Strip the code of executable nodes before encoding
-* `--strip-execution` — Strip derived properties of executable nodes before encoding
-* `--strip-output` — Strip the outputs of executable nodes before encoding
-* `--strip-types <STRIP_TYPES>` — A list of types to strip before encoding
+* `--strip-scopes <STRIP_SCOPES>` — Scopes defining which properties of nodes should be stripped
+
+  Possible values:
+  - `metadata`:
+    Strip metadata properties of nodes
+  - `content`:
+    Strip content properties of nodes
+  - `code`:
+    Strip code properties of executable nodes
+  - `execution`:
+    Strip execution related properties of executable nodes
+  - `output`:
+    Strip output properties of executable nodes
+
+* `--strip-types <STRIP_TYPES>` — A list of node types to strip before encoding
+* `--strip-props <STRIP_PROPS>` — A list of node properties to strip before encoding
+
+  Default value: `id`
 
 
 
@@ -219,11 +323,24 @@ Convert a document between formats
 * `--standalone` — Encode as a standalone document
 * `--not-standalone` — Do not encode as a standalone document when writing to file
 * `-c`, `--compact` — Use compact form of encoding if possible
-* `--no-strip-id` — Do not strip the id property of nodes before encoding
-* `--strip-code` — Strip the code of executable nodes before encoding
-* `--strip-execution` — Strip derived properties of executable nodes before encoding
-* `--strip-output` — Strip the outputs of executable nodes before encoding
-* `--strip-types <STRIP_TYPES>` — A list of types to strip before encoding
+* `--strip-scopes <STRIP_SCOPES>` — Scopes defining which properties of nodes should be stripped
+
+  Possible values:
+  - `metadata`:
+    Strip metadata properties of nodes
+  - `content`:
+    Strip content properties of nodes
+  - `code`:
+    Strip code properties of executable nodes
+  - `execution`:
+    Strip execution related properties of executable nodes
+  - `output`:
+    Strip output properties of executable nodes
+
+* `--strip-types <STRIP_TYPES>` — A list of node types to strip before encoding
+* `--strip-props <STRIP_PROPS>` — A list of node properties to strip before encoding
+
+  Default value: `id`
 
 
 
