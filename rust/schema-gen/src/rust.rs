@@ -483,7 +483,9 @@ pub enum NodeType {{
                 if property.is_required {
                     attrs.push("#[serde(deserialize_with = \"one_or_many\")]".to_string())
                 } else {
-                    attrs.push("#[serde(default, deserialize_with = \"option_one_or_many\")]".to_string())
+                    attrs.push(
+                        "#[serde(default, deserialize_with = \"option_one_or_many\")]".to_string(),
+                    )
                 }
             }
 

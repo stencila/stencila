@@ -19,7 +19,6 @@ use nom::{
 use codec::{
     common::eyre::Result,
     schema::{Date, DateTime, Node, Time},
-    Codec,
 };
 use codec_json5_trait::Json5Codec;
 use codec_text_trait::TextCodec;
