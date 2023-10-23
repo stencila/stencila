@@ -538,9 +538,9 @@ pub enum ProptestLevel {
 )]
 pub struct SerdeOptions {
     /// Set the `deserialize_with` attribute of a field
-    /// 
+    ///
     /// See https://serde.rs/field-attrs.html#deserialize_with
-    pub deserialize_with: Option<String>
+    pub deserialize_with: Option<String>,
 }
 
 /// Options for conversion to/from HTML

@@ -4,7 +4,7 @@ use crate::{
     Article, AudioObject, Block, CodeBlock, CodeChunk, CodeExpression, CodeFragment, Cord,
     Emphasis, Heading, ImageObject, Inline, Link, List, ListItem, ListOrder, MathBlock, Node,
     Paragraph, Quote, QuoteBlock, Section, Strikeout, Strong, Subscript, Superscript, Table,
-    TableCell, TableCellType, TableRow, Text, Underline, VideoObject, ThematicBreak,
+    TableCell, TableCellType, TableRow, Text, ThematicBreak, Underline, VideoObject,
 };
 
 /// Create an [`Inline::Text`] node
