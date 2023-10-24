@@ -10,6 +10,7 @@ use codec::{
     format::Format,
     schema::{
         shortcuts::{cb, cc, em, mb, ol, p, qb, strike, strong, table, tb, td, text, ul},
+        transforms::blocks_to_inlines,
         AudioObject, Block, Heading, If, IfClause, ImageObject, Inline, Link, ListItem, TableCell,
         TableRow, TableRowType, VideoObject,
     },
@@ -17,14 +18,10 @@ use codec::{
 };
 use pulldown_cmark::{CodeBlockKind, Event, Options, Parser, Tag};
 
-use super::blocks::{
-    call, division, else_, end, for_, form, if_elif, include, math_block, section,
+use super::{
+    blocks::{call, division, else_, end, for_, form, if_elif, include, math_block, section},
+    inlines::inlines,
 };
-
-/// Decode Markdown content to a vector of [`Inline`]s
-pub fn decode_inlines(_md: &str) -> (Vec<Inline>, Losses) {
-    todo!()
-}
 
 /// Decode Markdown content to a vector of [`Block`]s
 ///
@@ -280,15 +277,15 @@ pub fn decode_blocks(md: &str) -> (Vec<Block>, Losses) {
                 // Inline nodes with inline content
                 Tag::Emphasis => {
                     let content = inlines.pop_mark();
-                    inlines.push_node(em(content))
+                    inlines.push_inline(em(content))
                 }
                 Tag::Strong => {
                     let content = inlines.pop_mark();
-                    inlines.push_node(strong(content))
+                    inlines.push_inline(strong(content))
                 }
                 Tag::Strikethrough => {
                     let content = inlines.pop_mark();
-                    inlines.push_node(strike(content))
+                    inlines.push_inline(strike(content))
                 }
                 Tag::Link(_link_type, url, title) => {
                     let content = inlines.pop_mark();
@@ -300,7 +297,7 @@ pub fn decode_blocks(md: &str) -> (Vec<Block>, Losses) {
                             None
                         }
                     };
-                    inlines.push_node(Inline::Link(Link {
+                    inlines.push_inline(Inline::Link(Link {
                         content,
                         target: url.to_string(),
                         title,
@@ -354,7 +351,7 @@ pub fn decode_blocks(md: &str) -> (Vec<Block>, Losses) {
                         })
                     };
 
-                    inlines.push_node(media_object)
+                    inlines.push_inline(media_object)
                 }
 
                 Tag::FootnoteDefinition(..) => {
@@ -391,10 +388,9 @@ pub fn decode_blocks(md: &str) -> (Vec<Block>, Losses) {
                 let mut content = html.handle_html(&content);
                 if !content.is_empty() {
                     if inlines.active {
-                        // TODO
-                        // inlines.append_nodes(&mut content.to_inlines())
+                        inlines.append_inlines(&mut blocks_to_inlines(content))
                     } else {
-                        blocks.append_nodes(&mut content)
+                        blocks.append_blocks(&mut content)
                     }
                 }
             }
@@ -411,6 +407,13 @@ pub fn decode_blocks(md: &str) -> (Vec<Block>, Losses) {
     }
 
     (blocks.pop_all(), Losses::todo())
+}
+
+/// Decode Markdown content to a vector of [`Inline`]s
+pub fn decode_inlines(md: &str) -> (Vec<Inline>, Losses) {
+    let (blocks, losses) = decode_blocks(md);
+    let inlines = blocks_to_inlines(blocks);
+    (inlines, losses)
 }
 
 /// Stores [`Inline`] nodes so they can be used to create multi-inline
@@ -459,49 +462,34 @@ impl Inlines {
 
     /// Parse the accumulated text into accumulated `Inline` nodes
     ///
-    /// This is the entry point into `nom` Markdown parsing functions.
+    /// This is the entry point into `nom` inline Markdown parsing functions.
     /// It is infallible in that if there is a parse error,
     /// the original input string is returned as the only item
     /// in the vector (with a warning).
     fn parse_text(&mut self) {
         if !self.text.is_empty() {
-            let _text = self.pop_text();
-            /*
-            TODO
-            let mut nodes = match inline_content(&text) {
-                Ok((_, mut inlines)) => {
-                    // Set the programming language on code expressions if necessary
-                    if let Some(default_lang) = self.default_lang.as_ref() {
-                        for node in inlines.iter_mut() {
-                            if let Inline::CodeExpression(expr) = node {
-                                if expr.programming_language.is_empty() {
-                                    expr.programming_language = default_lang.clone()
-                                }
-                            }
-                        }
-                    }
-                    inlines
-                }
+            let text_ = self.pop_text();
+            let mut nodes = match inlines(&text_) {
+                Ok((_, inlines)) => inlines,
                 Err(error) => {
                     tracing::warn!("While parsing inline Markdown: {}", error);
-                    vec![Inline::String(text)]
+                    vec![text(text_)]
                 }
             };
-            self.nodes.append(&mut nodes)
-            */
+            self.inlines.append(&mut nodes)
         }
     }
 
-    /// Push a node
-    fn push_node(&mut self, node: Inline) {
+    /// Push an [`Inline`] node
+    fn push_inline(&mut self, inline: Inline) {
         self.parse_text();
-        self.inlines.push(node)
+        self.inlines.push(inline)
     }
 
-    /// Append nodes
-    fn append_nodes(&mut self, nodes: &mut Vec<Inline>) {
+    /// Append [`Inline`] nodes
+    fn append_inlines(&mut self, inlines: &mut Vec<Inline>) {
         self.parse_text();
-        self.inlines.append(nodes)
+        self.inlines.append(inlines)
     }
 
     /// Push a mark (usually at the start of an inline node)
@@ -545,14 +533,14 @@ struct Blocks {
 }
 
 impl Blocks {
-    /// Push a node
-    fn push_block(&mut self, node: Block) {
-        self.blocks.push(node)
+    /// Push a [`Block`] node
+    fn push_block(&mut self, block: Block) {
+        self.blocks.push(block)
     }
 
-    /// Append nodes
-    fn append_nodes(&mut self, nodes: &mut Vec<Block>) {
-        self.blocks.append(nodes)
+    /// Append [`Block`] nodes
+    fn append_blocks(&mut self, blocks: &mut Vec<Block>) {
+        self.blocks.append(blocks)
     }
 
     /// Push a mark (usually at the start of a block node)

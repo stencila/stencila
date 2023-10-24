@@ -18,7 +18,7 @@ use nom::{
 
 use codec::{
     common::eyre::Result,
-    schema::{Date, DateTime, Node, Time},
+    schema::{Date, DateTime, Duration, Node, Time, Timestamp},
 };
 use codec_json5_trait::Json5Codec;
 use codec_text_trait::TextCodec;
@@ -217,37 +217,35 @@ fn primitive_node(input: &str) -> IResult<&str, Node> {
     ))(input)
 }
 
+/// Convert a [`Node`] to a `String`
 pub fn node_to_string(node: Node) -> String {
     node.to_text().0
 }
 
+/// Convert a [`Node`] to a type that has [`FromStr`] implemented
 pub fn node_to_from_str<T: FromStr>(node: Node) -> Option<T> {
     T::from_str(&node_to_string(node)).ok()
 }
 
-pub fn node_to_option_string(node: Node) -> Option<String> {
-    match node {
-        Node::String(num) => Some(num),
-        _ => Some(node_to_string(node)),
-    }
-}
-
-fn node_to_option_number(node: Node) -> Option<f64> {
+/// Convert a [`Node`] to a `f64`
+pub fn node_to_option_number(node: Node) -> Option<f64> {
     match node {
         Node::Number(num) => Some(num),
         Node::Integer(num) => Some(num as f64),
-        _ => node_to_string(node).parse().ok(),
+        _ => node_to_from_str::<f64>(node),
     }
 }
 
-fn node_to_option_u32(node: Node) -> Option<u32> {
+/// Convert a [`Node`] to a `i64`
+pub fn node_to_option_i64(node: Node) -> Option<i64> {
     match node {
-        Node::Integer(int) => Some(int as u32),
-        _ => node_to_string(node).parse().ok(),
+        Node::Integer(int) => Some(int),
+        _ => node_to_from_str::<i64>(node),
     }
 }
 
-fn node_to_option_date(node: Node) -> Option<Date> {
+/// Convert a [`Node`] to a [`Date`] if possible
+pub fn node_to_option_date(node: Node) -> Option<Date> {
     match node {
         Node::Date(date) => Some(date),
         Node::String(string) => Some(Date::new(string)),
@@ -255,7 +253,8 @@ fn node_to_option_date(node: Node) -> Option<Date> {
     }
 }
 
-fn node_to_option_time(node: Node) -> Option<Time> {
+/// Convert a [`Node`] to a [`Time`] if possible
+pub fn node_to_option_time(node: Node) -> Option<Time> {
     match node {
         Node::Time(time) => Some(time),
         Node::String(string) => Some(Time::new(string)),
@@ -263,10 +262,27 @@ fn node_to_option_time(node: Node) -> Option<Time> {
     }
 }
 
-fn node_to_option_datetime(node: Node) -> Option<DateTime> {
+/// Convert a [`Node`] to a [`DateTime`] if possible
+pub fn node_to_option_datetime(node: Node) -> Option<DateTime> {
     match node {
         Node::DateTime(datetime) => Some(datetime),
         Node::String(string) => Some(DateTime::new(string)),
+        _ => None,
+    }
+}
+
+/// Convert a [`Node`] to a [`Timestamp`] if possible
+pub fn node_to_option_timestamp(node: Node) -> Option<Timestamp> {
+    match node {
+        Node::Timestamp(timestamp) => Some(timestamp),
+        _ => None,
+    }
+}
+
+/// Convert a [`Node`] to a [`Duration`] if possible
+pub fn node_to_option_duration(node: Node) -> Option<Duration> {
+    match node {
+        Node::Duration(duration) => Some(duration),
         _ => None,
     }
 }

@@ -7,6 +7,7 @@ use codec::{
 mod blocks;
 mod content;
 mod frontmatter;
+mod inlines;
 mod parse;
 
 pub use content::{decode_blocks, decode_inlines};

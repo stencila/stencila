@@ -35,6 +35,10 @@ pub(super) fn decode_frontmatter(md: &str) -> Result<(usize, Option<Node>)> {
                         "type".to_string(),
                         serde_json::Value::String("Article".to_string()),
                     );
+                    value.insert(
+                        "content".to_string(),
+                        serde_json::Value::Array(vec![])
+                    );
                 }
                 serde_json::Value::Object(value)
             }
@@ -83,7 +87,7 @@ mod tests {
 
     use super::*;
 
-    #[ignore = "not yet implemented"]
+    #[ignore]
     #[test]
     fn frontmatter() -> Result<()> {
         assert_eq!(decode_frontmatter("")?.0, 0);
@@ -98,7 +102,7 @@ mod tests {
         assert_eq!(end, 24);
         if let Some(Node::Article(_)) = node {
         } else {
-            bail!("Expected an article")
+            bail!("Expected an article got {node:?}")
         }
 
         Ok(())
