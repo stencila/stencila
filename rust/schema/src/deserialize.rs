@@ -1,3 +1,4 @@
+///! Functions used in type definitions for specifying how properties can be deserialized
 use std::str::FromStr;
 
 use common::serde::{
