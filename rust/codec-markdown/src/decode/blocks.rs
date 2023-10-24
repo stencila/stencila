@@ -28,7 +28,7 @@ fn semis(input: &str) -> IResult<&str, &str> {
 }
 
 /// Parse a [`MathBlock`] node
-pub fn parse_math_block(input: &str) -> IResult<&str, MathBlock> {
+pub fn math_block(input: &str) -> IResult<&str, MathBlock> {
     map(
         all_consuming(delimited(tag("$$"), is_not("$"), tag("$$"))),
         |code: &str| MathBlock {
@@ -40,7 +40,7 @@ pub fn parse_math_block(input: &str) -> IResult<&str, MathBlock> {
 }
 
 /// Parse an [`Include`] node
-pub fn parse_include(input: &str) -> IResult<&str, Include> {
+pub fn include(input: &str) -> IResult<&str, Include> {
     map(
         all_consuming(preceded(
             char('/'),
@@ -62,7 +62,7 @@ pub fn parse_include(input: &str) -> IResult<&str, Include> {
 }
 
 /// Parse a [`Call`] node
-pub fn parse_call(input: &str) -> IResult<&str, Call> {
+pub fn call(input: &str) -> IResult<&str, Call> {
     map(
         all_consuming(preceded(
             char('/'),
@@ -113,14 +113,14 @@ fn call_arg(input: &str) -> IResult<&str, CallArgument> {
 }
 
 /// Parse a [`Section`] node
-pub fn parse_section(input: &str) -> IResult<&str, Section> {
+pub fn section(input: &str) -> IResult<&str, Section> {
     map(all_consuming(tuple((semis, multispace0))), |_| {
         Section::default()
     })(input)
 }
 
 /// Parse a [`Division`] node
-pub fn parse_division(input: &str) -> IResult<&str, Division> {
+pub fn division(input: &str) -> IResult<&str, Division> {
     map(
         all_consuming(preceded(
             tuple((semis, multispace0)),
@@ -144,7 +144,7 @@ pub fn parse_division(input: &str) -> IResult<&str, Division> {
 }
 
 /// Parse a [`For`] node
-pub fn parse_for(input: &str) -> IResult<&str, For> {
+pub fn for_(input: &str) -> IResult<&str, For> {
     map(
         all_consuming(preceded(
             tuple((semis, multispace0, tag("for"), multispace1)),
@@ -170,7 +170,7 @@ pub fn parse_for(input: &str) -> IResult<&str, For> {
 }
 
 /// Parse a [`Form`] node
-pub fn parse_form(input: &str) -> IResult<&str, Form> {
+pub fn form(input: &str) -> IResult<&str, Form> {
     map(
         all_consuming(preceded(
             tuple((semis, multispace0, tag("form"), multispace0)),
@@ -213,7 +213,7 @@ pub fn parse_form(input: &str) -> IResult<&str, Form> {
 }
 
 /// Parse an `if` or `elif` section into an [`IfClause`]
-pub fn parse_if_elif(input: &str) -> IResult<&str, (bool, IfClause)> {
+pub fn if_elif(input: &str) -> IResult<&str, (bool, IfClause)> {
     map(
         all_consuming(preceded(
             tuple((semis, multispace0)),
@@ -248,7 +248,7 @@ pub fn parse_if_elif(input: &str) -> IResult<&str, (bool, IfClause)> {
 }
 
 /// Parse an `else` section
-pub fn parse_else(input: &str) -> IResult<&str, &str> {
+pub fn else_(input: &str) -> IResult<&str, &str> {
     all_consuming(recognize(tuple((
         semis,
         multispace0,
@@ -259,7 +259,7 @@ pub fn parse_else(input: &str) -> IResult<&str, &str> {
 }
 
 /// Parse the end of a division
-pub fn parse_end(input: &str) -> IResult<&str, &str> {
+pub fn end(input: &str) -> IResult<&str, &str> {
     all_consuming(recognize(tuple((semis, multispace0))))(input)
 }
 
@@ -272,14 +272,14 @@ mod tests {
     #[test]
     fn test_calls() {
         assert_eq!(
-            parse_call("/file.md()").unwrap().1,
+            call("/file.md()").unwrap().1,
             Call {
                 source: "file.md".to_string(),
                 ..Default::default()
             }
         );
         assert_eq!(
-            parse_call("/file.md(a=1)").unwrap().1,
+            call("/file.md(a=1)").unwrap().1,
             Call {
                 source: "file.md".to_string(),
                 arguments: vec![CallArgument {
@@ -291,7 +291,7 @@ mod tests {
             }
         );
         assert_eq!(
-            parse_call(r#"/file.md(parAm_eter_1="string")"#).unwrap().1,
+            call(r#"/file.md(parAm_eter_1="string")"#).unwrap().1,
             Call {
                 source: "file.md".to_string(),
                 arguments: vec![CallArgument {
@@ -303,7 +303,7 @@ mod tests {
             }
         );
         assert_eq!(
-            parse_call("/file.md(a=1.23 b=symbol c='string')")
+            call("/file.md(a=1.23 b=symbol c='string')")
                 .unwrap()
                 .1,
             Call {
@@ -329,7 +329,7 @@ mod tests {
             }
         );
         assert_eq!(
-            parse_call("/file.md(a=1,b = 2  , c=3, d =4)").unwrap().1,
+            call("/file.md(a=1,b = 2  , c=3, d =4)").unwrap().1,
             Call {
                 source: "file.md".to_string(),
                 arguments: vec![
@@ -363,7 +363,7 @@ mod tests {
     fn test_for() {
         // Simple
         assert_eq!(
-            parse_for("::: for item in expr").unwrap().1,
+            for_("::: for item in expr").unwrap().1,
             For {
                 symbol: "item".to_string(),
                 code: "expr".into(),
@@ -373,7 +373,7 @@ mod tests {
 
         // With less/extra spacing
         assert_eq!(
-            parse_for(":::for item  in    expr").unwrap().1,
+            for_(":::for item  in    expr").unwrap().1,
             For {
                 symbol: "item".to_string(),
                 code: "expr".into(),
@@ -383,7 +383,7 @@ mod tests {
 
         // With language specified
         assert_eq!(
-            parse_for("::: for item in expr {python}").unwrap().1,
+            for_("::: for item in expr {python}").unwrap().1,
             For {
                 symbol: "item".to_string(),
                 code: "expr".into(),
@@ -394,7 +394,7 @@ mod tests {
 
         // With more complex expression
         assert_eq!(
-            parse_for("::: for i in 1:10").unwrap().1,
+            for_("::: for i in 1:10").unwrap().1,
             For {
                 symbol: "i".to_string(),
                 code: "1:10".into(),
@@ -402,7 +402,7 @@ mod tests {
             }
         );
         assert_eq!(
-            parse_for("::: for row in select * from table { sql }")
+            for_("::: for row in select * from table { sql }")
                 .unwrap()
                 .1,
             For {
@@ -416,14 +416,14 @@ mod tests {
 
     #[test]
     fn test_form() {
-        assert_eq!(parse_form("::: form").unwrap().1, Form::default());
+        assert_eq!(form("::: form").unwrap().1, Form::default());
     }
 
     #[test]
     fn test_if() {
         // Simple
         assert_eq!(
-            parse_if_elif("::: if expr").unwrap().1 .1,
+            if_elif("::: if expr").unwrap().1 .1,
             IfClause {
                 code: "expr".into(),
                 ..Default::default()
@@ -432,7 +432,7 @@ mod tests {
 
         // With less/extra spacing
         assert_eq!(
-            parse_if_elif(":::if    expr").unwrap().1 .1,
+            if_elif(":::if    expr").unwrap().1 .1,
             IfClause {
                 code: "expr".into(),
                 ..Default::default()
@@ -441,7 +441,7 @@ mod tests {
 
         // With language specified
         assert_eq!(
-            parse_if_elif("::: if expr {python}").unwrap().1 .1,
+            if_elif("::: if expr {python}").unwrap().1 .1,
             IfClause {
                 code: "expr".into(),
                 programming_language: Some("python".to_string()),
@@ -451,7 +451,7 @@ mod tests {
 
         // With more complex expression
         assert_eq!(
-            parse_if_elif("::: if a > 1 and b[8] < 1.23").unwrap().1 .1,
+            if_elif("::: if a > 1 and b[8] < 1.23").unwrap().1 .1,
             IfClause {
                 code: "a > 1 and b[8] < 1.23".into(),
                 ..Default::default()
@@ -461,12 +461,12 @@ mod tests {
 
     #[test]
     fn test_end() {
-        assert!(parse_end(":::").is_ok());
-        assert!(parse_end("::::").is_ok());
-        assert!(parse_end("::::::").is_ok());
+        assert!(end(":::").is_ok());
+        assert!(end("::::").is_ok());
+        assert!(end("::::::").is_ok());
 
-        assert!(parse_end(":::some chars").is_err());
-        assert!(parse_end("::").is_err());
-        assert!(parse_end(":").is_err());
+        assert!(end(":::some chars").is_err());
+        assert!(end("::").is_err());
+        assert!(end(":").is_err());
     }
 }

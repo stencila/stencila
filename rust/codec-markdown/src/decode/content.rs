@@ -18,8 +18,7 @@ use codec::{
 use pulldown_cmark::{CodeBlockKind, Event, Options, Parser, Tag};
 
 use super::blocks::{
-    parse_call, parse_division, parse_else, parse_end, parse_for, parse_form, parse_if_elif,
-    parse_include, parse_math_block, parse_section,
+    call, division, else_, end, for_, form, if_elif, include, math_block, section,
 };
 
 /// Decode Markdown content to a vector of [`Inline`]s
@@ -129,36 +128,36 @@ pub fn decode_blocks(md: &str) -> (Vec<Block>, Losses) {
                     let trimmed = inlines.text.trim();
 
                     // The
-                    let block = if let Ok((.., math_block)) = parse_math_block(trimmed) {
+                    let block = if let Ok((.., math_block)) = math_block(trimmed) {
                         Some(Block::MathBlock(math_block))
-                    } else if let Ok((.., include)) = parse_include(trimmed) {
+                    } else if let Ok((.., include)) = include(trimmed) {
                         Some(Block::Include(include))
-                    } else if let Ok((.., call)) = parse_call(trimmed) {
+                    } else if let Ok((.., call)) = call(trimmed) {
                         Some(Block::Call(call))
-                    } else if let Ok((.., section)) = parse_section(trimmed) {
+                    } else if let Ok((.., section)) = section(trimmed) {
                         blocks.push_div();
                         divs.push_back(Block::Section(section));
                         None
-                    } else if let Ok((.., div)) = parse_division(trimmed) {
+                    } else if let Ok((.., div)) = division(trimmed) {
                         blocks.push_div();
                         divs.push_back(Block::Division(div));
                         None
-                    } else if let Ok((.., for_)) = parse_for(trimmed) {
+                    } else if let Ok((.., for_)) = for_(trimmed) {
                         blocks.push_div();
                         divs.push_back(Block::For(for_));
                         None
-                    } else if let Ok((.., form)) = parse_form(trimmed) {
+                    } else if let Ok((.., form)) = form(trimmed) {
                         blocks.push_div();
                         divs.push_back(Block::Form(form));
                         None
-                    } else if let Ok((.., (true, if_clause))) = parse_if_elif(trimmed) {
+                    } else if let Ok((.., (true, if_clause))) = if_elif(trimmed) {
                         blocks.push_div();
                         divs.push_back(Block::If(If {
                             clauses: vec![if_clause],
                             ..Default::default()
                         }));
                         None
-                    } else if let Ok((.., (false, if_clause))) = parse_if_elif(trimmed) {
+                    } else if let Ok((.., (false, if_clause))) = if_elif(trimmed) {
                         if let Some(Block::If(if_)) = divs.back_mut() {
                             let content = blocks.pop_div();
                             if let Some(last) = if_.clauses.last_mut() {
@@ -176,7 +175,7 @@ pub fn decode_blocks(md: &str) -> (Vec<Block>, Losses) {
                             tracing::warn!("Found an `::: elif` without a preceding `::: if`");
                             Some(p([text(trimmed)]))
                         }
-                    } else if parse_else(trimmed).is_ok() {
+                    } else if else_(trimmed).is_ok() {
                         if let Some(div) = divs.back_mut() {
                             match div {
                                 // Create a placeholder to indicate that when the else finishes
@@ -204,7 +203,7 @@ pub fn decode_blocks(md: &str) -> (Vec<Block>, Losses) {
                         }
                         blocks.push_div();
                         None
-                    } else if parse_end(trimmed).is_ok() {
+                    } else if end(trimmed).is_ok() {
                         divs.pop_back().map(|div| match div {
                             Block::Section(mut section) => {
                                 section.content = blocks.pop_div();
