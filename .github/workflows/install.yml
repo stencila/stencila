@@ -64,6 +64,7 @@ jobs:
       matrix:
         os:
           - ubuntu-latest
+          - buildjet-2vcpu-ubuntu-2204-arm
           - macos-latest # x64
           - macos-latest-xlarge # arm64
           - windows-latest
