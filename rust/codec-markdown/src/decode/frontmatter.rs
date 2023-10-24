@@ -35,10 +35,7 @@ pub(super) fn decode_frontmatter(md: &str) -> Result<(usize, Option<Node>)> {
                         "type".to_string(),
                         serde_json::Value::String("Article".to_string()),
                     );
-                    value.insert(
-                        "content".to_string(),
-                        serde_json::Value::Array(vec![])
-                    );
+                    value.insert("content".to_string(), serde_json::Value::Array(vec![]));
                 }
                 serde_json::Value::Object(value)
             }

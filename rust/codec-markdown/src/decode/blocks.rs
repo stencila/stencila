@@ -303,9 +303,7 @@ mod tests {
             }
         );
         assert_eq!(
-            call("/file.md(a=1.23 b=symbol c='string')")
-                .unwrap()
-                .1,
+            call("/file.md(a=1.23 b=symbol c='string')").unwrap().1,
             Call {
                 source: "file.md".to_string(),
                 arguments: vec![
