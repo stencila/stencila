@@ -1,6 +1,6 @@
 use node_store::{automerge::ObjId, get_type, ReadNode, ReadStore};
 
-use crate::{prelude::*, *};
+use crate::{prelude::*, transforms::blocks_to_inlines, *};
 
 impl ReadNode for Inline {
     fn load_null() -> Result<Self> {
@@ -63,5 +63,74 @@ impl ReadNode for Inline {
         };
 
         Ok(inline)
+    }
+}
+
+impl From<Vec<Inline>> for Inline {
+    fn from(mut inlines: Vec<Inline>) -> Self {
+        if inlines.len() == 1 {
+            // Take first inline
+            inlines.swap_remove(0)
+        } else {
+            // Collapse inlines into a single inline text node
+            Inline::Text(Text::from(inlines.to_text().0))
+        }
+    }
+}
+
+impl From<Block> for Inline {
+    fn from(block: Block) -> Self {
+        match block {
+            // Blocks with inline analogues
+            Block::CodeBlock(code_block) => Inline::CodeFragment(CodeFragment {
+                code: code_block.code,
+                programming_language: code_block.programming_language,
+                ..Default::default()
+            }),
+            Block::MathBlock(math_block) => Inline::MathFragment(MathFragment {
+                code: math_block.code,
+                math_language: math_block.math_language,
+                ..Default::default()
+            }),
+            Block::QuoteBlock(quote_block) => Inline::Quote(Quote {
+                content: blocks_to_inlines(quote_block.content),
+                cite: quote_block.cite,
+                ..Default::default()
+            }),
+
+            // Blocks with inline content
+            Block::Heading(heading) => heading.content.into(),
+            Block::Paragraph(paragraph) => paragraph.content.into(),
+
+            // Blocks with block content
+            Block::Claim(claim) => claim.content.into(),
+            Block::Include(Include {
+                source, content, ..
+            })
+            | Block::Call(Call {
+                source, content, ..
+            }) => match content {
+                Some(content) => content.into(),
+                None => Inline::Text(Text::from(source)),
+            },
+
+            // Fallback to inline text
+            _ => Inline::Text(Text::from(block.to_text().0)),
+        }
+    }
+}
+
+impl From<Vec<Block>> for Inline {
+    fn from(mut blocks: Vec<Block>) -> Self {
+        if blocks.len() == 1 {
+            // Transform first block to inlines
+            blocks.swap_remove(0).into()
+        } else {
+            // Transform blocks to inlines and wrap in an inline span
+            Inline::Span(Span {
+                content: blocks_to_inlines(blocks),
+                ..Default::default()
+            })
+        }
     }
 }

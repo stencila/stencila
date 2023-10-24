@@ -7,6 +7,7 @@ mod types;
 pub use types::*;
 
 pub mod shortcuts;
+pub mod transforms;
 pub mod utilities;
 
 #[cfg(feature = "proptest")]

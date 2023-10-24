@@ -2,7 +2,7 @@ use smol_str::SmolStr;
 
 use node_store::{automerge::ObjId, ReadNode, ReadStore};
 
-use crate::{prelude::*, utilities::node_type, Array, Node, NodeType, Null, Object};
+use crate::{prelude::*, utilities::node_type, Array, Node, NodeType, Null, Object, Primitive};
 
 impl ReadNode for Node {
     fn load_null() -> Result<Self> {
@@ -164,5 +164,20 @@ impl ReadNode for Node {
             Variable,
             VideoObject
         )
+    }
+}
+
+impl From<Primitive> for Node {
+    fn from(primitive: Primitive) -> Self {
+        match primitive {
+            Primitive::Null(node) => Node::Null(node),
+            Primitive::Boolean(node) => Node::Boolean(node),
+            Primitive::Integer(node) => Node::Integer(node),
+            Primitive::UnsignedInteger(node) => Node::UnsignedInteger(node),
+            Primitive::Number(node) => Node::Number(node),
+            Primitive::String(node) => Node::String(node),
+            Primitive::Array(node) => Node::Array(node),
+            Primitive::Object(node) => Node::Object(node),
+        }
     }
 }
