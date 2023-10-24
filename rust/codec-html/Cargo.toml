@@ -7,4 +7,4 @@ edition = "2021"
 codec = { path = "../codec" }
 codec-html-trait = { path = "../codec-html-trait" }
 minify-html = "0.11.1"
-quick-xml = "0.30.0"
+quick-xml = "0.31.0"
