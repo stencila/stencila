@@ -1,34 +1,5 @@
 use std::{env, path::PathBuf, process::Command};
 
-/// Run the `jupyter` command to get lists of directories
-///
-/// This can be necessary if Jupyter has been installed using something
-/// like `mamba` (and maybe Nix?) in which case the rules described in
-/// the Jupyter documentation and implemented below may not apply.
-///
-/// An optimization could be to store `static` results and throttle
-/// calls to `jupyter`.
-fn jupyter_paths() -> (Vec<PathBuf>, Vec<PathBuf>) {
-    let mut data = Vec::new();
-    let mut runtime = Vec::new();
-    if let Ok(output) = Command::new("jupyter").arg("--path").output() {
-        if let Ok(stdout) = std::str::from_utf8(&output.stdout) {
-            let mut group = "";
-            for line in stdout.lines() {
-                let line = line.trim();
-                if line.ends_with(':') {
-                    group = line;
-                } else if group == "data:" {
-                    data.push(PathBuf::from(line));
-                } else if group == "runtime:" {
-                    runtime.push(PathBuf::from(line));
-                }
-            }
-        }
-    }
-    (data, runtime)
-}
-
 /// Get *the* Jupyter data directory.
 ///
 /// See https://jupyter.readthedocs.io/en/latest/use/jupyter-directories.html.
@@ -113,6 +84,38 @@ pub fn runtime_dirs() -> Vec<PathBuf> {
     dirs
 }
 
+/// Run the `jupyter` command to get lists of data and runtime directories
+///
+/// This can be necessary if Jupyter has been installed using something
+/// like `mamba` (and maybe Nix?) in which case the rules described in
+/// the Jupyter documentation and implemented below may not apply.
+///
+/// An optimization could be to store `static` results and throttle
+/// calls to `jupyter`.
+fn jupyter_paths() -> (Vec<PathBuf>, Vec<PathBuf>) {
+    let mut data = Vec::new();
+    let mut runtime = Vec::new();
+    if let Ok(output) = Command::new("python")
+        .args(["-m", "jupyter", "--path"])
+        .output()
+    {
+        if let Ok(stdout) = std::str::from_utf8(&output.stdout) {
+            let mut group = "";
+            for line in stdout.lines() {
+                let line = line.trim();
+                if line.ends_with(':') {
+                    group = line;
+                } else if group == "data:" {
+                    data.push(PathBuf::from(line));
+                } else if group == "runtime:" {
+                    runtime.push(PathBuf::from(line));
+                }
+            }
+        }
+    }
+    (data, runtime)
+}
+
 /// Add a path if it is missing from a set of paths
 fn push_missing(paths: &mut Vec<PathBuf>, path: PathBuf) {
     if !paths.contains(&path) {
@@ -126,5 +129,38 @@ fn append_missing(paths: &mut Vec<PathBuf>, others: Vec<PathBuf>) {
         if !paths.contains(&path) {
             paths.push(path);
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[cfg(target_os = "linux")]
+    #[test]
+    fn all() {
+        use kernel::common::itertools::Itertools;
+
+        assert!(data_dir()
+            .to_string_lossy()
+            .ends_with(".local/share/jupyter"));
+
+        let dirs = data_dirs()
+            .iter()
+            .map(|dir| dir.to_string_lossy().to_string())
+            .collect_vec();
+        assert!(dirs[0].ends_with("share/jupyter"));
+
+        let dirs = kernel_dirs()
+            .iter()
+            .map(|dir| dir.to_string_lossy().to_string())
+            .collect_vec();
+        assert!(dirs[0].ends_with("share/jupyter/kernels"));
+
+        let dirs = runtime_dirs()
+            .iter()
+            .map(|dir| dir.to_string_lossy().to_string())
+            .collect_vec();
+        assert!(dirs[0].ends_with("share/jupyter/runtime"));
     }
 }
