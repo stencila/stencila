@@ -47,6 +47,9 @@
   <a href="https://github.com/stencila/stencila/releases">
     <img src="https://img.shields.io/github/v/release/stencila/stencila.svg?logo=gnu-bash&label=cli&style=for-the-badge&color=1d3bd1&logoColor=66ff66&labelColor=3219a8">
   </a>
+  <a href="https://hub.docker.com/r/stencila/stencila">
+    <img src="https://img.shields.io/docker/v/stencila/stencila.svg?logo=docker&label=stencila/stencila&style=for-the-badge&color=1d3bd1&logoColor=66ff66&labelColor=3219a8">
+  </a>
   <a href="https://pypi.org/project/stencila/">
     <img src="https://img.shields.io/pypi/v/stencila.svg?logo=python&label=stencila&style=for-the-badge&color=1d3bd1&logoColor=66ff66&labelColor=3219a8">
   </a>
