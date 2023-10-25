@@ -235,22 +235,26 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - os: ubuntu-latest
+          - os: ubuntu-20.04
             architecture: x64
             target: x64
             interpreter: 3.8 3.9 3.10 3.11 3.12
-          - os: macos-latest
-            architecture: x64
-            target: x64
-            interpreter: 3.8 3.9 3.10 3.11 3.12
-          - os: macos-latest-xlarge
-            architecture: arm64
-            target: aarch64
-            interpreter: 3.8 3.9 3.10 3.11 3.12
-          - os: windows-latest
-            architecture: x64
-            target: x64
-            interpreter: 3.8 3.9 3.10 3.11 3.12
+          #- os: ubuntu-latest
+          #  architecture: x64
+          #  target: x64
+          #  interpreter: 3.8 3.9 3.10 3.11 3.12
+          #- os: macos-latest
+          #  architecture: x64
+          #  target: x64
+          #  interpreter: 3.8 3.9 3.10 3.11 3.12
+          #- os: macos-latest-xlarge
+          #  architecture: arm64
+          #  target: aarch64
+          #  interpreter: 3.8 3.9 3.10 3.11 3.12
+          #- os: windows-latest
+          #  architecture: x64
+          #  target: x64
+          #  interpreter: 3.8 3.9 3.10 3.11 3.12
     runs-on: ${{ matrix.os }}
     steps:
       - name: Checkout repo
