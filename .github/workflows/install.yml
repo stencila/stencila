@@ -100,6 +100,7 @@ jobs:
       fail-fast: false
       matrix:
         os:
+          - ubuntu-20.04
           - ubuntu-latest
           - macos-latest # x64
           - macos-latest-xlarge # arm64
