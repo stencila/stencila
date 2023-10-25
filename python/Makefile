@@ -45,7 +45,7 @@ audit: poetry.lock
 # Build Python wheel for distribution
 # This is intended to be close the 'Build wheel' step in the `release.yml` workflow
 build: poetry.lock
-	poetry run maturin build --release --out dist --sdist -i 3.9 3.10 3.11 
+	poetry run maturin build --release --out dist --interpreter 3.8 3.9 3.10 3.11 
 
 clean:
 	rm -rf .pytest_cache python/stencila/_stencila.*

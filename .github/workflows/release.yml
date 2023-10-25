@@ -237,13 +237,16 @@ jobs:
         include:
           - os: ubuntu-latest
             target: x64
-            interpreter: 3.9 3.10 3.11
+            interpreter: 3.8 3.9 3.10 3.11
           - os: macos-latest
             target: x64
-            interpreter: 3.9 3.10 3.11
+            interpreter: 3.8 3.9 3.10 3.11
+          - os: macos-latest-xlarge
+            target: aarch64
+            interpreter: 3.8 3.9 3.10 3.11
           - os: windows-latest
             target: x64
-            interpreter: 3.9 3.10 3.11
+            interpreter: 3.8 3.9 3.10 3.11
     runs-on: ${{ matrix.os }}
     steps:
       - name: Checkout repo
@@ -268,7 +271,7 @@ jobs:
           working-directory: python
           target: ${{ matrix.target }}
           # Test changes to these args using the `build` recipe in the `python/Makefile`
-          args: --release --out dist --sdist -i ${{ matrix.interpreter }}
+          args: --release --out dist --interpreter ${{ matrix.interpreter }}
 
       - name: Upload wheel
         uses: actions/upload-artifact@v3
