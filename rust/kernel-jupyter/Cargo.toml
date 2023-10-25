@@ -1,25 +1,21 @@
 [package]
-description = "A kernel that delegates to a Jupyter kernel"
 edition = "2021"
 name = "kernel-jupyter"
 version = "0.0.0"
 
-[features]
-default = ["zmq/vendored"]
-
 [dependencies]
-codec-ipynb = { path = "../codec-ipynb" }
+#codec-ipynb = { path = "../codec-ipynb" }
 hex = "0.4.3"
 hmac = "0.12.0"
 kernel = { path = "../kernel" }
-fs-utils = { path = "../fs-utils" }
-key-utils = { path = "../key-utils" }
-path-utils = { path = "../path-utils" }
+#fs-utils = { path = "../fs-utils" }
+#key-utils = { path = "../key-utils" }
+#path-utils = { path = "../path-utils" }
 portpicker = "0.1.1"
 reqwest = "0.11.9"
 sha2 = "0.10.1"
-suids = { path = "../suids" }
-zmq = { version = "0.9.2", default-features = false }
+#suids = { path = "../suids" }
+zeromq = { version = "0.3.3", default_features = false, features = [ "tokio-runtime", "tcp-transport" ] }
 
 [dev-dependencies]
-test-utils = { path = "../test-utils" }
+common-dev = { path = "../common-dev" }
