@@ -344,7 +344,9 @@ jobs:
         with:
           context: .
           push: true
-          tags: ${{ steps.meta.outputs.tags }}
+          tags: |
+            stencila/stencila:latest
+            stencila/stencila:${{ inputs.tag }}
           labels: ${{ steps.meta.outputs.labels }}
 
   # Publish the draft release
