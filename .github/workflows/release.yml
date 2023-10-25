@@ -236,15 +236,19 @@ jobs:
       matrix:
         include:
           - os: ubuntu-latest
+            architecture: x64
             target: x64
             interpreter: 3.8 3.9 3.10 3.11 3.12
           - os: macos-latest
+            architecture: x64
             target: x64
             interpreter: 3.8 3.9 3.10 3.11 3.12
           - os: macos-latest-xlarge
-            target: arm64
+            architecture: arm64
+            target: aarch64
             interpreter: 3.8 3.9 3.10 3.11 3.12
           - os: windows-latest
+            architecture: x64
             target: x64
             interpreter: 3.8 3.9 3.10 3.11 3.12
     runs-on: ${{ matrix.os }}
@@ -263,7 +267,7 @@ jobs:
         uses: actions/setup-python@v4
         with:
           python-version: ${{ env.PYTHON_VERSION }}
-          architecture: ${{ matrix.target }}
+          architecture: ${{ matrix.architecture }}
 
       - name: Build wheel
         uses: PyO3/maturin-action@v1
