@@ -96,17 +96,17 @@ We'll be making alpha and beta releases of `v2` early and often across all produ
 
 ### Schema
 
-The Stencila Schema is the data model for Stencila documents. Most of the schema is well defined but some document node types are still marked as under development. A summary by category:
+The Stencila Schema is the data model for Stencila documents (definition [here](https://github.com/stencila/stencila/tree/main/schema), generated reference documentation [here](https://github.com/stencila/stencila/tree/main/docs/reference/schema)). Most of the schema is well defined but some document node types are still marked as under development. A summary by category:
 
 | Category | Description                                                                       | Status                                            |
 | -------- | --------------------------------------------------------------------------------- | ------------------------------------------------- |
-| Works    | Types of creative works (e.g. `Article`, `Figure`, `Review`)                      | 🟢 Stable; mostly based on schema.org             |
-| Prose    | Types used in prose (e.g. `Paragraph`, `List`, `Heading`)                         | 🟢 Stable; mostly based on HTML, JATS, Pandoc etc |
-| Code     | Types for executable (e.g. `CodeChunk`) and non-executable code (e.g.`CodeBlock`) | 🔶 Beta; may change                               |
-| Math     | Types for math symbols and equations (e.g.`MathBlock`)                            | 🔶 Beta; may change                               |
-| Data     | Fundamental data types (e.g.`Number`) and validators (e.g. `NumberValidator`)     | 🔶 Beta; may change                               |
-| Style    | Types for styling parts of a documents (`Span` and `Division`)                    | 🚧 Under development; likely to change            |
-| Flow     | Types for control flow within a document (e.g. `If`, `For`, `Call`)               | 🚧 Under development; likely to change            |
+| Works    | Types of creative works (e.g. [`Article`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/article.md), [`Figure`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/figure.md), [`Review`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/review.md))                      | 🟢 Stable; mostly based on schema.org             |
+| Prose    | Types used in prose (e.g. [`Paragraph`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/paragraph.md), [`List`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/list.md), [`Heading`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/heading.md))                         | 🟢 Stable; mostly based on HTML, JATS, Pandoc etc |
+| Code     | Types for executable (e.g. [`CodeChunk`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/code/code-chunk.md)) and non-executable code (e.g. [`CodeBlock`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/code/code-block.md)) | 🔶 Beta; may change                               |
+| Math     | Types for math symbols and equations (e.g. [`MathBlock`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/math/math-block.md))                            | 🔶 Beta; may change                               |
+| Data     | Fundamental data types (e.g. [`Number`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/number.md)) and validators (e.g. [`NumberValidator`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/number-validator.md))     | 🔶 Beta; may change                               |
+| Style    | Types for styling parts of a documents ([`Span`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/style/span.md) and [`Division`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/style/division.md))                    | 🚧 Under development; likely to change            |
+| Flow     | Types for control flow within a document (e.g. [`If`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/if.md), [`For`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/for.md), [`Call`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/call.md))               | 🚧 Under development; likely to change            |
 
 ### Storage and synchronization
 
