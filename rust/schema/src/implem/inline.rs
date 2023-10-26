@@ -134,3 +134,25 @@ impl From<Vec<Block>> for Inline {
         }
     }
 }
+
+impl From<Block> for Vec<Inline> {
+    fn from(block: Block) -> Self {
+        match &block {
+            // Variants with inline content
+            Block::Heading(heading) => heading.content.to_owned(),
+            Block::Paragraph(paragraph) => paragraph.content.to_owned(),
+
+            // Variants with block content
+            Block::Claim(claim) => blocks_to_inlines(claim.content.to_owned()),
+            Block::Include(Include { content, .. }) | Block::Call(Call { content, .. }) => {
+                match &content {
+                    Some(content) => blocks_to_inlines(content.to_owned()),
+                    None => vec![block.into()],
+                }
+            }
+
+            // Fallback to a single item vector of `block` transformed to an inline
+            _ => vec![block.into()],
+        }
+    }
+}

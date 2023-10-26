@@ -1,9 +1,10 @@
-///! Functions for transforming nodes between types
-///!
-///! These functions implement transformations for `Vec` and other types
-///! where, due to Rust's "orphan rule", we can not implement the `From`
-///! trait. If possible, prefer to implement `From`, or `Into` in the `implem/*.rs`
-///! file for the type, rather than add another function here.
+//! Functions for transforming nodes between types
+//!
+//! These functions implement transformations for `Vec` and other types
+//! where, due to Rust's "orphan rule", we can not implement the `From`
+//! trait. If possible, prefer to implement `From`, or `Into` in the `implem/*.rs`
+//! file for the type, rather than add another function here.
+
 use crate::{Block, Inline};
 
 /// Transform a vector of [`Block`]s into a vector of [`Inline`]s
