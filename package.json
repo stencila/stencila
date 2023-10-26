@@ -8,6 +8,6 @@
   },
   "devDependencies": {
     "better-npm-audit": "3.7.3",
-    "wrangler": "3.14"
+    "wrangler": "3.15"
   }
 }
