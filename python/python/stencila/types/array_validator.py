@@ -6,7 +6,7 @@ from .entity import Entity
 Validator = ForwardRef("Validator")
 
 
-@dataclass(kw_only=True, frozen=True)
+@dataclass(init=False)
 class ArrayValidator(Entity):
     """
     A validator specifying constraints on an array node.
@@ -31,3 +31,12 @@ class ArrayValidator(Entity):
 
     unique_items: Optional[bool] = None
     """A flag to indicate that each value in the array should be unique."""
+
+    def __init__(self, id: Optional[str] = None, items_nullable: Optional[bool] = None, items_validator: Optional[Validator] = None, contains: Optional[Validator] = None, min_items: Optional[int] = None, max_items: Optional[int] = None, unique_items: Optional[bool] = None):
+        super().__init__(id = id)
+        self.items_nullable = items_nullable
+        self.items_validator = items_validator
+        self.contains = contains
+        self.min_items = min_items
+        self.max_items = max_items
+        self.unique_items = unique_items

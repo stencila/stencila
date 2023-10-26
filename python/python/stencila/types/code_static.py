@@ -6,7 +6,7 @@ from .cord import Cord
 from .entity import Entity
 
 
-@dataclass(kw_only=True, frozen=True)
+@dataclass(init=False)
 class CodeStatic(Entity):
     """
     Abstract base type for non-executable code nodes (e.g. `CodeBlock`).
@@ -19,3 +19,8 @@ class CodeStatic(Entity):
 
     programming_language: Optional[str] = None
     """The programming language of the code."""
+
+    def __init__(self, code: Cord, id: Optional[str] = None, programming_language: Optional[str] = None):
+        super().__init__(id = id)
+        self.code = code
+        self.programming_language = programming_language

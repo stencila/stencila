@@ -2,13 +2,16 @@
 
 from .prelude import *
 
+ImageObject = ForwardRef("ImageObject")
 Organization = ForwardRef("Organization")
 from .person_or_organization import PersonOrOrganization
 from .postal_address_or_str import PostalAddressOrStr
+from .property_value_or_str import PropertyValueOrStr
+from .text import Text
 from .thing import Thing
 
 
-@dataclass(kw_only=True, frozen=True)
+@dataclass(init=False)
 class Person(Thing):
     """
     A person (alive, dead, undead, or fictional).
@@ -48,3 +51,17 @@ class Person(Thing):
 
     telephone_numbers: Optional[List[str]] = None
     """Telephone numbers for the person."""
+
+    def __init__(self, id: Optional[str] = None, alternate_names: Optional[List[str]] = None, description: Optional[Text] = None, identifiers: Optional[List[PropertyValueOrStr]] = None, images: Optional[List[ImageObject]] = None, name: Optional[str] = None, url: Optional[str] = None, address: Optional[PostalAddressOrStr] = None, affiliations: Optional[List[Organization]] = None, emails: Optional[List[str]] = None, family_names: Optional[List[str]] = None, funders: Optional[List[PersonOrOrganization]] = None, given_names: Optional[List[str]] = None, honorific_prefix: Optional[str] = None, honorific_suffix: Optional[str] = None, job_title: Optional[str] = None, member_of: Optional[List[Organization]] = None, telephone_numbers: Optional[List[str]] = None):
+        super().__init__(id = id, alternate_names = alternate_names, description = description, identifiers = identifiers, images = images, name = name, url = url)
+        self.address = address
+        self.affiliations = affiliations
+        self.emails = emails
+        self.family_names = family_names
+        self.funders = funders
+        self.given_names = given_names
+        self.honorific_prefix = honorific_prefix
+        self.honorific_suffix = honorific_suffix
+        self.job_title = job_title
+        self.member_of = member_of
+        self.telephone_numbers = telephone_numbers

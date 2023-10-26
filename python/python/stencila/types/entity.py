@@ -3,7 +3,7 @@
 from .prelude import *
 
 
-@dataclass(kw_only=True, frozen=True)
+@dataclass(init=False)
 class Entity(DataClassJsonMixin):
     """
     Abstract base type for compound (ie. non-atomic) nodes.
@@ -13,3 +13,7 @@ class Entity(DataClassJsonMixin):
 
     id: Optional[str] = None
     """The identifier for this item."""
+
+    def __init__(self, id: Optional[str] = None):
+        super().__init__()
+        self.id = id

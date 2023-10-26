@@ -15,7 +15,7 @@ from .execution_tag import ExecutionTag
 from .timestamp import Timestamp
 
 
-@dataclass(kw_only=True, frozen=True)
+@dataclass(init=False)
 class Executable(Entity):
     """
     Abstract base type for executable nodes (e.g. `CodeChunk`, `CodeExpression`, `Call`).
@@ -61,3 +61,19 @@ class Executable(Entity):
 
     errors: Optional[List[CodeError]] = None
     """Errors when compiling (e.g. syntax errors) or executing the node."""
+
+    def __init__(self, id: Optional[str] = None, auto_exec: Optional[AutomaticExecution] = None, compilation_digest: Optional[ExecutionDigest] = None, execution_digest: Optional[ExecutionDigest] = None, execution_dependencies: Optional[List[ExecutionDependency]] = None, execution_dependants: Optional[List[ExecutionDependant]] = None, execution_tags: Optional[List[ExecutionTag]] = None, execution_count: Optional[int] = None, execution_required: Optional[ExecutionRequired] = None, execution_kernel: Optional[str] = None, execution_status: Optional[ExecutionStatus] = None, execution_ended: Optional[Timestamp] = None, execution_duration: Optional[Duration] = None, errors: Optional[List[CodeError]] = None):
+        super().__init__(id = id)
+        self.auto_exec = auto_exec
+        self.compilation_digest = compilation_digest
+        self.execution_digest = execution_digest
+        self.execution_dependencies = execution_dependencies
+        self.execution_dependants = execution_dependants
+        self.execution_tags = execution_tags
+        self.execution_count = execution_count
+        self.execution_required = execution_required
+        self.execution_kernel = execution_kernel
+        self.execution_status = execution_status
+        self.execution_ended = execution_ended
+        self.execution_duration = execution_duration
+        self.errors = errors

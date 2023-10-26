@@ -7,7 +7,7 @@ from .list_item import ListItem
 from .list_order import ListOrder
 
 
-@dataclass(kw_only=True, frozen=True)
+@dataclass(init=False)
 class List(Entity):
     """
     A list of items.
@@ -20,3 +20,8 @@ class List(Entity):
 
     order: ListOrder
     """The ordering of the list."""
+
+    def __init__(self, items: List[ListItem], order: ListOrder, id: Optional[str] = None):
+        super().__init__(id = id)
+        self.items = items
+        self.order = order

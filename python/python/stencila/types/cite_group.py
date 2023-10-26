@@ -6,7 +6,7 @@ from .cite import Cite
 from .entity import Entity
 
 
-@dataclass(kw_only=True, frozen=True)
+@dataclass(init=False)
 class CiteGroup(Entity):
     """
     A group of `Cite` nodes.
@@ -16,3 +16,7 @@ class CiteGroup(Entity):
 
     items: List[Cite]
     """One or more `Cite`s to be referenced in the same surrounding text."""
+
+    def __init__(self, items: List[Cite], id: Optional[str] = None):
+        super().__init__(id = id)
+        self.items = items

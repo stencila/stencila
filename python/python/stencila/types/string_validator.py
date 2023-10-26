@@ -5,7 +5,7 @@ from .prelude import *
 from .entity import Entity
 
 
-@dataclass(kw_only=True, frozen=True)
+@dataclass(init=False)
 class StringValidator(Entity):
     """
     A schema specifying constraints on a string node.
@@ -21,3 +21,9 @@ class StringValidator(Entity):
 
     pattern: Optional[str] = None
     """A regular expression that a string node must match."""
+
+    def __init__(self, id: Optional[str] = None, min_length: Optional[int] = None, max_length: Optional[int] = None, pattern: Optional[str] = None):
+        super().__init__(id = id)
+        self.min_length = min_length
+        self.max_length = max_length
+        self.pattern = pattern

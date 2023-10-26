@@ -6,7 +6,7 @@ from .date import Date
 from .entity import Entity
 
 
-@dataclass(kw_only=True, frozen=True)
+@dataclass(init=False)
 class DateValidator(Entity):
     """
     A validator specifying the constraints on a date.
@@ -19,3 +19,8 @@ class DateValidator(Entity):
 
     maximum: Optional[Date] = None
     """The inclusive upper limit for a date."""
+
+    def __init__(self, id: Optional[str] = None, minimum: Optional[Date] = None, maximum: Optional[Date] = None):
+        super().__init__(id = id)
+        self.minimum = minimum
+        self.maximum = maximum

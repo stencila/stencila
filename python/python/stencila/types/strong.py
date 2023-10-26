@@ -2,13 +2,18 @@
 
 from .prelude import *
 
+from .inline import Inline
 from .mark import Mark
 
 
-@dataclass(kw_only=True, frozen=True)
+@dataclass(init=False)
 class Strong(Mark):
     """
     Strongly emphasized content.
     """
 
     type: Literal["Strong"] = field(default="Strong", init=False)
+
+    def __init__(self, content: List[Inline], id: Optional[str] = None):
+        super().__init__(id = id, content = content)
+        

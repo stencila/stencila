@@ -6,7 +6,7 @@ from .entity import Entity
 from .inline import Inline
 
 
-@dataclass(kw_only=True, frozen=True)
+@dataclass(init=False)
 class Paragraph(Entity):
     """
     A paragraph.
@@ -16,3 +16,7 @@ class Paragraph(Entity):
 
     content: List[Inline]
     """The contents of the paragraph."""
+
+    def __init__(self, content: List[Inline], id: Optional[str] = None):
+        super().__init__(id = id)
+        self.content = content

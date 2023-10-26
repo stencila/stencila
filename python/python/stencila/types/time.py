@@ -5,7 +5,7 @@ from .prelude import *
 from .entity import Entity
 
 
-@dataclass(kw_only=True, frozen=True)
+@dataclass(init=False)
 class Time(Entity):
     """
     A point in time recurring on multiple days.
@@ -15,3 +15,7 @@ class Time(Entity):
 
     value: str
     """The time of day as a string in format `hh:mm:ss[Z|(+|-)hh:mm]`."""
+
+    def __init__(self, value: str, id: Optional[str] = None):
+        super().__init__(id = id)
+        self.value = value

@@ -6,7 +6,7 @@ from .entity import Entity
 from .inline import Inline
 
 
-@dataclass(kw_only=True, frozen=True)
+@dataclass(init=False)
 class Mark(Entity):
     """
     Abstract base class for nodes that mark some other inline content    in some way (e.g. as being emphasised, or quoted).
@@ -16,3 +16,7 @@ class Mark(Entity):
 
     content: List[Inline]
     """The content that is marked."""
+
+    def __init__(self, content: List[Inline], id: Optional[str] = None):
+        super().__init__(id = id)
+        self.content = content

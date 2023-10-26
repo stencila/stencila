@@ -5,7 +5,7 @@ from .prelude import *
 from .entity import Entity
 
 
-@dataclass(kw_only=True, frozen=True)
+@dataclass(init=False)
 class CodeError(Entity):
     """
     An error that occurred when parsing, compiling or executing a `Code` node.
@@ -21,3 +21,9 @@ class CodeError(Entity):
 
     stack_trace: Optional[str] = None
     """Stack trace leading up to the error."""
+
+    def __init__(self, error_message: str, id: Optional[str] = None, error_type: Optional[str] = None, stack_trace: Optional[str] = None):
+        super().__init__(id = id)
+        self.error_message = error_message
+        self.error_type = error_type
+        self.stack_trace = stack_trace

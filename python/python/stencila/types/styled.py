@@ -7,7 +7,7 @@ from .entity import Entity
 from .execution_digest import ExecutionDigest
 
 
-@dataclass(kw_only=True, frozen=True)
+@dataclass(init=False)
 class Styled(Entity):
     """
     An abstract base class for a document node that has styling applied to it and/or its content.
@@ -32,3 +32,12 @@ class Styled(Entity):
 
     classes: Optional[List[str]] = None
     """A list of class names associated with the node."""
+
+    def __init__(self, code: Cord, id: Optional[str] = None, style_language: Optional[str] = None, compile_digest: Optional[ExecutionDigest] = None, errors: Optional[List[str]] = None, css: Optional[str] = None, classes: Optional[List[str]] = None):
+        super().__init__(id = id)
+        self.code = code
+        self.style_language = style_language
+        self.compile_digest = compile_digest
+        self.errors = errors
+        self.css = css
+        self.classes = classes

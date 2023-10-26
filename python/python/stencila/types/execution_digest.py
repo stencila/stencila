@@ -5,7 +5,7 @@ from .prelude import *
 from .entity import Entity
 
 
-@dataclass(kw_only=True, frozen=True)
+@dataclass(init=False)
 class ExecutionDigest(Entity):
     """
     A digest of the execution state of a node.
@@ -27,3 +27,11 @@ class ExecutionDigest(Entity):
 
     dependencies_failed: float
     """A count of the number of execution dependencies that failed"""
+
+    def __init__(self, state_digest: float, semantic_digest: float, dependencies_digest: float, dependencies_stale: float, dependencies_failed: float, id: Optional[str] = None):
+        super().__init__(id = id)
+        self.state_digest = state_digest
+        self.semantic_digest = semantic_digest
+        self.dependencies_digest = dependencies_digest
+        self.dependencies_stale = dependencies_stale
+        self.dependencies_failed = dependencies_failed

@@ -142,7 +142,7 @@ import asyncio
 from stencila.convert import to_string
 from stencila.types import Article, Paragraph, Text
 
-doc = Article(content=[Paragraph(content=[Text(value="Hello world!")])])
+doc = Article([Paragraph([Text("Hello world!")])])
 
 markdown = asyncio.run(to_string(doc, format="md"))
 ```
@@ -157,7 +157,7 @@ import asyncio
 from stencila.convert import to_path
 from stencila.types import Article, Paragraph, Text
 
-doc = Article(content=[Paragraph(content=[Text(value="Hello world!")])])
+doc = Article([Paragraph([Text("Hello world!")])])
 
 asyncio.run(to_path(doc, "doc.md"))
 ```

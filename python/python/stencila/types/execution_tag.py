@@ -5,7 +5,7 @@ from .prelude import *
 from .entity import Entity
 
 
-@dataclass(kw_only=True, frozen=True)
+@dataclass(init=False)
 class ExecutionTag(Entity):
     """
     A tag on code that affects its execution.
@@ -21,3 +21,9 @@ class ExecutionTag(Entity):
 
     is_global: bool
     """Whether the tag is global to the document"""
+
+    def __init__(self, name: str, value: str, is_global: bool, id: Optional[str] = None):
+        super().__init__(id = id)
+        self.name = name
+        self.value = value
+        self.is_global = is_global

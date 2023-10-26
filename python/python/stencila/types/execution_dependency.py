@@ -7,7 +7,7 @@ from .execution_dependency_node import ExecutionDependencyNode
 from .execution_dependency_relation import ExecutionDependencyRelation
 
 
-@dataclass(kw_only=True, frozen=True)
+@dataclass(init=False)
 class ExecutionDependency(Entity):
     """
     An upstream execution dependency of a node.
@@ -23,3 +23,9 @@ class ExecutionDependency(Entity):
 
     code_location: Optional[List[int]] = None
     """The location that the dependency is defined within code"""
+
+    def __init__(self, dependency_relation: ExecutionDependencyRelation, dependency_node: ExecutionDependencyNode, id: Optional[str] = None, code_location: Optional[List[int]] = None):
+        super().__init__(id = id)
+        self.dependency_relation = dependency_relation
+        self.dependency_node = dependency_node
+        self.code_location = code_location

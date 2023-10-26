@@ -5,7 +5,7 @@ from .prelude import *
 from .entity import Entity
 
 
-@dataclass(kw_only=True, frozen=True)
+@dataclass(init=False)
 class DateTime(Entity):
     """
     A combination of date and time of day in the form `[-]CCYY-MM-DDThh:mm:ss[Z|(+|-)hh:mm]`.
@@ -15,3 +15,7 @@ class DateTime(Entity):
 
     value: str
     """The date as an ISO 8601 string."""
+
+    def __init__(self, value: str, id: Optional[str] = None):
+        super().__init__(id = id)
+        self.value = value

@@ -6,7 +6,7 @@ from .block import Block
 from .entity import Entity
 
 
-@dataclass(kw_only=True, frozen=True)
+@dataclass(init=False)
 class Section(Entity):
     """
     A section of a document.
@@ -16,3 +16,7 @@ class Section(Entity):
 
     content: List[Block]
     """The content within the section"""
+
+    def __init__(self, content: List[Block], id: Optional[str] = None):
+        super().__init__(id = id)
+        self.content = content

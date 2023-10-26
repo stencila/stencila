@@ -7,7 +7,7 @@ from .time_unit import TimeUnit
 from .timestamp import Timestamp
 
 
-@dataclass(kw_only=True, frozen=True)
+@dataclass(init=False)
 class TimestampValidator(Entity):
     """
     A validator specifying the constraints on a timestamp.
@@ -23,3 +23,9 @@ class TimestampValidator(Entity):
 
     maximum: Optional[Timestamp] = None
     """The inclusive upper limit for a timestamp."""
+
+    def __init__(self, id: Optional[str] = None, time_units: Optional[List[TimeUnit]] = None, minimum: Optional[Timestamp] = None, maximum: Optional[Timestamp] = None):
+        super().__init__(id = id)
+        self.time_units = time_units
+        self.minimum = minimum
+        self.maximum = maximum

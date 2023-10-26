@@ -12,7 +12,7 @@ async def test_from_string():
 
     assert isinstance(node, Article)
     assert isinstance(node.content[0], Paragraph)
-    assert node == Article(content=[Paragraph(content=[Text(value="Hello world")])])
+    assert node == Article([Paragraph([Text("Hello world")])])
 
 
 async def test_from_path():
@@ -21,19 +21,19 @@ async def test_from_path():
     assert isinstance(node, Article)
     assert isinstance(node.content[0], Paragraph)
     assert node.content[0] == Paragraph(
-        content=[Text(value="This is paragraph one. It has two sentences.")]
+        [Text("This is paragraph one. It has two sentences.")]
     )
 
 
 async def test_to_string():
     markdown = await to_string(
         Article(
-            content=[
+            [
                 Paragraph(
-                    content=[
-                        Text(value="Hello "),
-                        Strong(content=[Text(value="world")]),
-                        Text(value="!"),
+                    [
+                        Text("Hello "),
+                        Strong([Text("world")]),
+                        Text("!"),
                     ]
                 )
             ]
@@ -46,12 +46,12 @@ async def test_to_string():
 
 async def test_to_path():
     node = Article(
-        content=[
+        [
             Paragraph(
-                content=[
-                    Text(value="Hello file "),
-                    Emphasis(content=[Text(value="system")]),
-                    Text(value="!"),
+                [
+                    Text("Hello file "),
+                    Emphasis([Text("system")]),
+                    Text("!"),
                 ]
             ),
         ]

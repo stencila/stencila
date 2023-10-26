@@ -96,7 +96,7 @@ impl Schemas {
         let futures = self
             .schemas
             .values()
-            .map(|schema| Self::python_module(&types, schema));
+            .map(|schema| self.python_module(&types, schema));
         try_join_all(futures).await?;
 
         // Create an __init__.py which export types from all modules (including those
@@ -139,7 +139,7 @@ impl Schemas {
     }
 
     /// Generate a Python module for a schema
-    async fn python_module(dest: &Path, schema: &Schema) -> Result<()> {
+    async fn python_module(&self, dest: &Path, schema: &Schema) -> Result<()> {
         let Some(title) = &schema.title else {
             bail!("Schema has no title");
         };
@@ -151,7 +151,7 @@ impl Schemas {
         if schema.any_of.is_some() {
             Self::python_any_of(dest, schema).await?;
         } else if schema.r#type.is_none() {
-            Self::python_object(dest, title, schema).await?;
+            self.python_object(dest, title, schema).await?;
         }
 
         Ok(())
@@ -228,7 +228,7 @@ impl Schemas {
     /// failed seemingly due to cyclic dependencies in types.
     ///
     /// Returns the name of the generated `class`.
-    async fn python_object(dest: &Path, title: &String, schema: &Schema) -> Result<String> {
+    async fn python_object(&self, dest: &Path, title: &String, schema: &Schema) -> Result<String> {
         let path = dest.join(format!("{}.py", module_name(title)));
         if path.exists() {
             return Ok(title.to_string());
@@ -252,11 +252,8 @@ impl Schemas {
             r#"    type: Literal["{title}"] = field(default="{title}", init=False)"#
         ));
 
-        for (name, property) in schema
-            .properties
-            .iter()
-            .filter(|(.., property)| !property.is_inherited)
-        {
+        let mut init_args = Vec::new();
+        for (name, property) in schema.properties.iter() {
             let name = name.to_snake_case();
 
             // Skip the `type` field which we force above
@@ -287,6 +284,19 @@ impl Schemas {
             } else if !property.is_required {
                 field.push_str(" = None");
             };
+
+            // Add property to the __init__ args.
+            init_args.push((
+                name.clone(),
+                field.clone(),
+                property.is_inherited,
+                property.is_required && property.default.is_none(),
+            ));
+
+            // If inherited, skip adding field
+            if property.is_inherited {
+                continue;
+            }
 
             let description = property
                 .description
@@ -327,6 +337,34 @@ impl Schemas {
             .trim_end_matches('\n')
             .replace('\n', "    ");
 
+        let init = format!(
+            r#"
+    def __init__(self, {init_args}):
+        super().__init__({super_args})
+        {init_assignments}"#,
+            init_args = init_args
+                .iter()
+                .sorted_by(|a, b| a.3.cmp(&b.3).reverse())
+                .map(|(_, arg, ..)| arg)
+                .join(", "),
+            super_args = init_args
+                .iter()
+                .filter_map(|(name, _, is_inherited, ..)| if *is_inherited {
+                    Some(format!("{name} = {name}"))
+                } else {
+                    None
+                })
+                .join(", "),
+            init_assignments = init_args
+                .iter()
+                .filter_map(|(name, _, is_inherited, ..)| if !is_inherited {
+                    Some(format!("self.{name} = {name}"))
+                } else {
+                    None
+                })
+                .join("\n        "),
+        );
+
         write(
             path,
             &format!(
@@ -335,13 +373,14 @@ impl Schemas {
 from .prelude import *
 
 {imports}
-@dataclass(kw_only=True, frozen=True)
+@dataclass(init=False)
 class {title}({base}):
     """
     {description}
     """
 
 {fields}
+{init}
 "#
             ),
         )

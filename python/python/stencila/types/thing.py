@@ -8,7 +8,7 @@ from .property_value_or_str import PropertyValueOrStr
 from .text import Text
 
 
-@dataclass(kw_only=True, frozen=True)
+@dataclass(init=False)
 class Thing(Entity):
     """
     The most generic type of item.
@@ -33,3 +33,12 @@ class Thing(Entity):
 
     url: Optional[str] = None
     """The URL of the item."""
+
+    def __init__(self, id: Optional[str] = None, alternate_names: Optional[List[str]] = None, description: Optional[Text] = None, identifiers: Optional[List[PropertyValueOrStr]] = None, images: Optional[List[ImageObject]] = None, name: Optional[str] = None, url: Optional[str] = None):
+        super().__init__(id = id)
+        self.alternate_names = alternate_names
+        self.description = description
+        self.identifiers = identifiers
+        self.images = images
+        self.name = name
+        self.url = url

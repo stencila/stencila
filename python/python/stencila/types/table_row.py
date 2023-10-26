@@ -7,7 +7,7 @@ from .table_cell import TableCell
 from .table_row_type import TableRowType
 
 
-@dataclass(kw_only=True, frozen=True)
+@dataclass(init=False)
 class TableRow(Entity):
     """
     A row within a Table.
@@ -20,3 +20,8 @@ class TableRow(Entity):
 
     row_type: Optional[TableRowType] = None
     """The type of row."""
+
+    def __init__(self, cells: List[TableCell], id: Optional[str] = None, row_type: Optional[TableRowType] = None):
+        super().__init__(id = id)
+        self.cells = cells
+        self.row_type = row_type

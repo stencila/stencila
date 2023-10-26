@@ -6,7 +6,7 @@ from .cord import Cord
 from .entity import Entity
 
 
-@dataclass(kw_only=True, frozen=True)
+@dataclass(init=False)
 class Text(Entity):
     """
     Textual content.
@@ -16,3 +16,7 @@ class Text(Entity):
 
     value: Cord
     """The value of the text content"""
+
+    def __init__(self, value: Cord, id: Optional[str] = None):
+        super().__init__(id = id)
+        self.value = value

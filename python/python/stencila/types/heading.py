@@ -6,7 +6,7 @@ from .entity import Entity
 from .inline import Inline
 
 
-@dataclass(kw_only=True, frozen=True)
+@dataclass(init=False)
 class Heading(Entity):
     """
     A heading.
@@ -19,3 +19,8 @@ class Heading(Entity):
 
     content: List[Inline]
     """Content of the heading."""
+
+    def __init__(self, content: List[Inline], id: Optional[str] = None, level: int = 0):
+        super().__init__(id = id)
+        self.level = level
+        self.content = content

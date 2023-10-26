@@ -7,7 +7,7 @@ from .entity import Entity
 from .note_type import NoteType
 
 
-@dataclass(kw_only=True, frozen=True)
+@dataclass(init=False)
 class Note(Entity):
     """
     Additional content which is not part of the main content of a document.
@@ -20,3 +20,8 @@ class Note(Entity):
 
     content: List[Block]
     """Content of the note, usually a paragraph."""
+
+    def __init__(self, note_type: NoteType, content: List[Block], id: Optional[str] = None):
+        super().__init__(id = id)
+        self.note_type = note_type
+        self.content = content

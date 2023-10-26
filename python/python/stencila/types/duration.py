@@ -6,7 +6,7 @@ from .entity import Entity
 from .time_unit import TimeUnit
 
 
-@dataclass(kw_only=True, frozen=True)
+@dataclass(init=False)
 class Duration(Entity):
     """
     A value that represents the difference between two timestamps.
@@ -19,3 +19,8 @@ class Duration(Entity):
 
     time_unit: TimeUnit
     """The time unit that the `value` represents."""
+
+    def __init__(self, value: int, time_unit: TimeUnit, id: Optional[str] = None):
+        super().__init__(id = id)
+        self.value = value
+        self.time_unit = time_unit

@@ -5,7 +5,7 @@ from .prelude import *
 from .entity import Entity
 
 
-@dataclass(kw_only=True, frozen=True)
+@dataclass(init=False)
 class NumberValidator(Entity):
     """
     A validator specifying the constraints on a numeric node.
@@ -27,3 +27,11 @@ class NumberValidator(Entity):
 
     multiple_of: Optional[float] = None
     """A number that a numeric node must be a multiple of."""
+
+    def __init__(self, id: Optional[str] = None, minimum: Optional[float] = None, exclusive_minimum: Optional[float] = None, maximum: Optional[float] = None, exclusive_maximum: Optional[float] = None, multiple_of: Optional[float] = None):
+        super().__init__(id = id)
+        self.minimum = minimum
+        self.exclusive_minimum = exclusive_minimum
+        self.maximum = maximum
+        self.exclusive_maximum = exclusive_maximum
+        self.multiple_of = multiple_of

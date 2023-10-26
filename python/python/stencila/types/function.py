@@ -7,7 +7,7 @@ from .parameter import Parameter
 Validator = ForwardRef("Validator")
 
 
-@dataclass(kw_only=True, frozen=True)
+@dataclass(init=False)
 class Function(Entity):
     """
     A function with a name, which might take Parameters and return a value of a certain type.
@@ -23,3 +23,9 @@ class Function(Entity):
 
     returns: Optional[Validator] = None
     """The return type of the function."""
+
+    def __init__(self, name: str, parameters: List[Parameter], id: Optional[str] = None, returns: Optional[Validator] = None):
+        super().__init__(id = id)
+        self.name = name
+        self.parameters = parameters
+        self.returns = returns

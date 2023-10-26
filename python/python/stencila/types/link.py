@@ -6,7 +6,7 @@ from .entity import Entity
 from .inline import Inline
 
 
-@dataclass(kw_only=True, frozen=True)
+@dataclass(init=False)
 class Link(Entity):
     """
     A hyperlink to other pages, sections within the same document, resources, or any URL.
@@ -25,3 +25,10 @@ class Link(Entity):
 
     rel: Optional[str] = None
     """The relation between the target and the current thing."""
+
+    def __init__(self, content: List[Inline], target: str, id: Optional[str] = None, title: Optional[str] = None, rel: Optional[str] = None):
+        super().__init__(id = id)
+        self.content = content
+        self.target = target
+        self.title = title
+        self.rel = rel

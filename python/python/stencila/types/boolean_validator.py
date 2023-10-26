@@ -5,10 +5,14 @@ from .prelude import *
 from .entity import Entity
 
 
-@dataclass(kw_only=True, frozen=True)
+@dataclass(init=False)
 class BooleanValidator(Entity):
     """
     A schema specifying that a node must be a boolean value.
     """
 
     type: Literal["BooleanValidator"] = field(default="BooleanValidator", init=False)
+
+    def __init__(self, id: Optional[str] = None):
+        super().__init__(id = id)
+        

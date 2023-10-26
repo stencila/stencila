@@ -6,7 +6,7 @@ from .entity import Entity
 Validator = ForwardRef("Validator")
 
 
-@dataclass(kw_only=True, frozen=True)
+@dataclass(init=False)
 class TupleValidator(Entity):
     """
     A validator specifying constraints on an array of heterogeneous items.
@@ -16,3 +16,7 @@ class TupleValidator(Entity):
 
     items: Optional[List[Validator]] = None
     """An array of validators specifying the constraints on each successive item in the array."""
+
+    def __init__(self, id: Optional[str] = None, items: Optional[List[Validator]] = None):
+        super().__init__(id = id)
+        self.items = items

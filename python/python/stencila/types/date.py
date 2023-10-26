@@ -5,7 +5,7 @@ from .prelude import *
 from .entity import Entity
 
 
-@dataclass(kw_only=True, frozen=True)
+@dataclass(init=False)
 class Date(Entity):
     """
     A calendar date encoded as a ISO 8601 string.
@@ -15,3 +15,7 @@ class Date(Entity):
 
     value: str
     """The date as an ISO 8601 string."""
+
+    def __init__(self, value: str, id: Optional[str] = None):
+        super().__init__(id = id)
+        self.value = value

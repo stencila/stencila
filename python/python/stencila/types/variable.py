@@ -6,7 +6,7 @@ from .entity import Entity
 from .node import Node
 
 
-@dataclass(kw_only=True, frozen=True)
+@dataclass(init=False)
 class Variable(Entity):
     """
     A variable representing a name / value pair.
@@ -25,3 +25,10 @@ class Variable(Entity):
 
     value: Optional[Node] = None
     """The value of the variable."""
+
+    def __init__(self, namespace: str, name: str, id: Optional[str] = None, kind: Optional[str] = None, value: Optional[Node] = None):
+        super().__init__(id = id)
+        self.namespace = namespace
+        self.name = name
+        self.kind = kind
+        self.value = value

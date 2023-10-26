@@ -7,7 +7,7 @@ from .cite_or_text import CiteOrText
 from .entity import Entity
 
 
-@dataclass(kw_only=True, frozen=True)
+@dataclass(init=False)
 class QuoteBlock(Entity):
     """
     A section quoted from somewhere else.
@@ -20,3 +20,8 @@ class QuoteBlock(Entity):
 
     content: List[Block]
     """The content of the quote."""
+
+    def __init__(self, content: List[Block], id: Optional[str] = None, cite: Optional[CiteOrText] = None):
+        super().__init__(id = id)
+        self.cite = cite
+        self.content = content

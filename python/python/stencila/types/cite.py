@@ -9,7 +9,7 @@ from .inline import Inline
 from .int_or_str import IntOrStr
 
 
-@dataclass(kw_only=True, frozen=True)
+@dataclass(init=False)
 class Cite(Entity):
     """
     A reference to a `CreativeWork` that is cited in another `CreativeWork`.
@@ -43,3 +43,15 @@ class Cite(Entity):
 
     citation_suffix: Optional[str] = None
     """Text to show after the citation."""
+
+    def __init__(self, target: str, citation_mode: CitationMode, id: Optional[str] = None, citation_intent: Optional[List[CitationIntent]] = None, content: Optional[List[Inline]] = None, page_start: Optional[IntOrStr] = None, page_end: Optional[IntOrStr] = None, pagination: Optional[str] = None, citation_prefix: Optional[str] = None, citation_suffix: Optional[str] = None):
+        super().__init__(id = id)
+        self.target = target
+        self.citation_mode = citation_mode
+        self.citation_intent = citation_intent
+        self.content = content
+        self.page_start = page_start
+        self.page_end = page_end
+        self.pagination = pagination
+        self.citation_prefix = citation_prefix
+        self.citation_suffix = citation_suffix

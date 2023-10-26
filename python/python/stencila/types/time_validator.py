@@ -6,7 +6,7 @@ from .entity import Entity
 from .time import Time
 
 
-@dataclass(kw_only=True, frozen=True)
+@dataclass(init=False)
 class TimeValidator(Entity):
     """
     A validator specifying the constraints on a time.
@@ -19,3 +19,8 @@ class TimeValidator(Entity):
 
     maximum: Optional[Time] = None
     """The inclusive upper limit for a time."""
+
+    def __init__(self, id: Optional[str] = None, minimum: Optional[Time] = None, maximum: Optional[Time] = None):
+        super().__init__(id = id)
+        self.minimum = minimum
+        self.maximum = maximum

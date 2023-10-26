@@ -7,7 +7,7 @@ from .entity import Entity
 from .table_cell_type import TableCellType
 
 
-@dataclass(kw_only=True, frozen=True)
+@dataclass(init=False)
 class TableCell(Entity):
     """
     A cell within a `Table`.
@@ -29,3 +29,11 @@ class TableCell(Entity):
 
     content: List[Block]
     """Contents of the table cell."""
+
+    def __init__(self, content: List[Block], id: Optional[str] = None, cell_type: Optional[TableCellType] = None, name: Optional[str] = None, column_span: Optional[int] = None, row_span: Optional[int] = None):
+        super().__init__(id = id)
+        self.cell_type = cell_type
+        self.name = name
+        self.column_span = column_span
+        self.row_span = row_span
+        self.content = content

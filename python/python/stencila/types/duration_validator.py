@@ -7,7 +7,7 @@ from .entity import Entity
 from .time_unit import TimeUnit
 
 
-@dataclass(kw_only=True, frozen=True)
+@dataclass(init=False)
 class DurationValidator(Entity):
     """
     A validator specifying the constraints on a duration.
@@ -23,3 +23,9 @@ class DurationValidator(Entity):
 
     maximum: Optional[Duration] = None
     """The inclusive upper limit for a duration."""
+
+    def __init__(self, id: Optional[str] = None, time_units: Optional[List[TimeUnit]] = None, minimum: Optional[Duration] = None, maximum: Optional[Duration] = None):
+        super().__init__(id = id)
+        self.time_units = time_units
+        self.minimum = minimum
+        self.maximum = maximum
