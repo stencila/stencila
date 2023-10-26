@@ -417,7 +417,7 @@ checksum = "702fc72eb24e5a1e48ce58027a675bc24edd52096d5397d4aea7c6dd9eca0bd1"
 
 [[package]]
 name = "cli"
-version = "2.0.0-alpha.20"
+version = "2.0.0-alpha.21"
 dependencies = [
  "codecs",
  "color-eyre",
@@ -781,9 +781,9 @@ checksum = "e496a50fda8aacccc86d7529e2c1e0892dbd0f898a6b5645b5561b89c3210efa"
 
 [[package]]
 name = "cpufeatures"
-version = "0.2.10"
+version = "0.2.11"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "3fbc60abd742b35f2492f808e1abbb83d45f72db402e14c55057edc9c7b1e9e4"
+checksum = "ce420fe07aecd3e67c5f910618fe65e94158f6dcc0adf44e00d69ce2bdfe0fd0"
 dependencies = [
  "libc",
 ]
@@ -1861,7 +1861,7 @@ dependencies = [
 
 [[package]]
 name = "node"
-version = "2.0.0-alpha.20"
+version = "2.0.0-alpha.21"
 dependencies = [
  "codecs",
  "common",
@@ -2908,7 +2908,7 @@ dependencies = [
 
 [[package]]
 name = "stencila"
-version = "2.0.0-alpha.20"
+version = "2.0.0-alpha.21"
 dependencies = [
  "codecs",
  "common",
