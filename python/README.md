@@ -21,6 +21,11 @@ The primary intended audience is developers who want to develop their own tools 
 python -m pip install stencila
 ```
 
+> [!NOTE]
+> If you encounter problems with the above command, you may need to upgrade Pip using `pip install --upgrade pip`.
+>
+> This is due to a [change in the dependency resolver](https://pip.pypa.io/en/latest/user_guide/#changes-to-the-pip-dependency-resolver-in-20-3-2020) in Pip 20.3.
+
 ## ⚡ Usage
 
 ### Types

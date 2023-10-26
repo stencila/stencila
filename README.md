@@ -319,6 +319,9 @@ Use your favorite package manager to install Stencila's [SDK for Python](https:/
 python -m pip install stencila
 ```
 
+> [!NOTE]
+> If you encounter problems with the above command, you may need to upgrade Pip using `pip install --upgrade pip`.
+
 ```console
 poetry add stencila
 ```
