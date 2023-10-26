@@ -134,4 +134,5 @@ jobs:
 
       - name: Use package
         # Use outer double quotes to avoid issues within inner double quotes on Windows
-        run: python3 -c "import stencila; print(stencila.__name__)"
+        # Imports everything from main modules to check from import errors (e.g. missing dependencies)
+        run: python3 -c "from stencila.types import *; from stencila.convert import *"
