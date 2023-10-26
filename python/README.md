@@ -205,10 +205,27 @@ make lint test
 
 There is also a `make fix` recipe that will fix any formatting or linting issues.
 
-### `types` module
+### Testing on different Python versions
+
+You can use `asdf` to test this package across different versions of Python:
+
+```console
+asdf install python 3.9.18
+asdf local python 3.9.18
+poetry env use 3.9.18
+poetry install
+make test
+```
+
+> [!NOTE]
+> In the future, we may use `tox` (or similar) to run tests across Python versions. But how to make that work with `pyo3` and `maturin` is yet to be resolved.
+
+### Code organization
+
+#### `types` module
 
 Most of the types are generated from the Stencila Schema by the Rust [`schema-gen`](https://github.com/stencila/stencila/tree/main/rust/schema-gen#readme) crate. See there for contributing instructions.
 
-### `convert` module
+#### `convert` module
 
 The `convert` module is implemented in Rust (`src/convert.rs`) with a thin Python wrapper (`python/stencila/convert.py`) to provide documentation and conversion to the types in the `types` module.
