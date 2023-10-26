@@ -279,7 +279,7 @@ jobs:
           working-directory: python
           target: ${{ matrix.target }}
           # Test changes to these args using the `build` recipe in the `python/Makefile`
-          args: --release --out dist --sdist --interpreter ${{ matrix.interpreter }}
+          args: --release --out dist --interpreter ${{ matrix.interpreter }}
 
       - name: Upload wheel
         uses: actions/upload-artifact@v3
