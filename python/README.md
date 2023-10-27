@@ -114,7 +114,7 @@ doc = asyncio.run(
                     value: "Hello world"
                 }]
             }]
-        }',
+        }''',
         format="json5",
     )
 )
