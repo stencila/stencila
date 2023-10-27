@@ -39,9 +39,9 @@ Object types (aka product types) in the Stencila Schema are represented as a `da
 For example, to construct an article with a single "Hello world!" paragraph, you can construct `Article`, `Paragraph` and `Text`:
 
 ```py
-from stencila.types import Article, Paragraph, Text
+from stencila.types import Article, CreativeWork, Paragraph, Text, Thing
 
-article = Article(content=[Paragraph(content=[Text(value="Hello world!")])]);
+article = Article(content=[Paragraph(content=[Text(value="Hello world!")])])
 
 assert isinstance(article, Article)
 assert isinstance(article, CreativeWork)
