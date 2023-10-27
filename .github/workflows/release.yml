@@ -376,4 +376,6 @@ jobs:
         run: gh release edit ${{ inputs.tag }} --draft=false
 
       - name: Trigger installation test workflow
-        run: gh workflow run install.yml
+        # Sleep for a while to allow last published assets (usually Python packages)
+        # to be made available on package repositories before attempting to install them
+        run: sleep 90 && gh workflow run install.yml
