@@ -15,7 +15,7 @@ use super::string::String;
 #[display(fmt = "Emphasis")]
 #[html(elem = "em")]
 #[jats(elem = "italic")]
-#[markdown(format = "_{content}_", escape = "_")]
+#[markdown(template = "_{content}_", escape = "_")]
 pub struct Emphasis {
     /// The type of this item.
     #[cfg_attr(feature = "proptest", proptest(value = "Default::default()"))]

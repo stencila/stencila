@@ -15,7 +15,7 @@ use super::string::String;
 #[display(fmt = "Insert")]
 #[html(elem = "ins", custom)]
 #[jats(special)]
-#[markdown(format = "<ins>{content}</ins>")]
+#[markdown(template = "<ins>{content}</ins>")]
 pub struct Insert {
     /// The type of this item.
     #[cfg_attr(feature = "proptest", proptest(value = "Default::default()"))]

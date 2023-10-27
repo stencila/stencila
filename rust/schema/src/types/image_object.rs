@@ -29,7 +29,7 @@ use super::thing_type::ThingType;
 #[display(fmt = "ImageObject")]
 #[html(elem = "img", special)]
 #[jats(elem = "inline-graphic", special)]
-#[markdown(format = "![{caption}]({content_url} \"{title}\")", special)]
+#[markdown(template = "![{caption}]({content_url} \"{title}\")", special)]
 pub struct ImageObject {
     /// The type of this item.
     #[cfg_attr(feature = "proptest", proptest(value = "Default::default()"))]

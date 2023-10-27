@@ -15,7 +15,7 @@ use super::string::String;
 #[display(fmt = "Delete")]
 #[html(elem = "del", custom)]
 #[jats(special)]
-#[markdown(format = "<del>{content}</del>")]
+#[markdown(template = "<del>{content}</del>")]
 pub struct Delete {
     /// The type of this item.
     #[cfg_attr(feature = "proptest", proptest(value = "Default::default()"))]

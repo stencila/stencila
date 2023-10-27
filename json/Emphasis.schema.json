@@ -17,7 +17,7 @@
     "elem": "italic"
   },
   "markdown": {
-    "format": "_{content}_",
+    "template": "_{content}_",
     "escape": "_"
   },
   "required": [

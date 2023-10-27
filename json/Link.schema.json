@@ -16,7 +16,7 @@
     "elem": "ext-link"
   },
   "markdown": {
-    "format": "[{content}]({target} \\\"{title}\\\")",
+    "template": "[{content}]({target} \\\"{title}\\\")",
     "special": true
   },
   "required": [

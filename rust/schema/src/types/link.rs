@@ -15,7 +15,7 @@ use super::string::String;
 #[display(fmt = "Link")]
 #[html(elem = "a")]
 #[jats(elem = "ext-link")]
-#[markdown(format = "[{content}]({target} \"{title}\")", special)]
+#[markdown(template = "[{content}]({target} \"{title}\")", special)]
 pub struct Link {
     /// The type of this item.
     #[cfg_attr(feature = "proptest", proptest(value = "Default::default()"))]

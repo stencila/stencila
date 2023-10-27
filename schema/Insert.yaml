@@ -9,5 +9,5 @@ html:
 jats:
   special: true
 markdown:
-  format: '<ins>{content}</ins>'
+  template: '<ins>{content}</ins>'
 proptest: {}

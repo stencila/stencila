@@ -17,7 +17,7 @@
     "elem": "underline"
   },
   "markdown": {
-    "format": "[{content}]{{underline}}",
+    "template": "[{content}]{{underline}}",
     "escape": "]"
   },
   "required": [

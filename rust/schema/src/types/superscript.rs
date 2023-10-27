@@ -15,7 +15,7 @@ use super::string::String;
 #[display(fmt = "Superscript")]
 #[html(elem = "sup")]
 #[jats(elem = "sup")]
-#[markdown(format = "^{content}^", escape = "^")]
+#[markdown(template = "^{content}^", escape = "^")]
 pub struct Superscript {
     /// The type of this item.
     #[cfg_attr(feature = "proptest", proptest(value = "Default::default()"))]

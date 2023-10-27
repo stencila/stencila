@@ -15,7 +15,7 @@ use super::string::String;
 #[display(fmt = "Strong")]
 #[html(elem = "strong")]
 #[jats(elem = "bold")]
-#[markdown(format = "**{content}**", escape = "*")]
+#[markdown(template = "**{content}**", escape = "*")]
 pub struct Strong {
     /// The type of this item.
     #[cfg_attr(feature = "proptest", proptest(value = "Default::default()"))]

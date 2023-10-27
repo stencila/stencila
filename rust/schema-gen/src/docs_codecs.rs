@@ -160,12 +160,12 @@ impl Schemas {
     }
 
     /// Generates notes for a schema and format
-    pub fn docs_format_notes(schema: &Schema, format: Format) -> Vec<Inline> {
-        if let (Format::Html, Some(HtmlOptions { special, elem, .. })) = (format, &schema.html) {
+    pub fn docs_format_notes(schema: &Schema, template: Format) -> Vec<Inline> {
+        if let (Format::Html, Some(HtmlOptions { special, elem, .. })) = (template, &schema.html) {
             if *special {
                 if let Some(elem) = elem {
                     vec![
-                        text("Encoded to tag "),
+                        text("Encoded as "),
                         link(
                             [cf(format!("<{elem}>"))],
                             format!(
@@ -179,7 +179,7 @@ impl Schemas {
                 }
             } else if let Some(elem) = elem {
                 vec![
-                    text("Encoded to tag "),
+                    text("Encoded as "),
                     link(
                         [cf(format!("<{elem}>"))],
                         format!("https://developer.mozilla.org/en-US/docs/Web/HTML/Element/{elem}"),
@@ -189,12 +189,12 @@ impl Schemas {
                 vec![text("Encoded using derived function")]
             }
         } else if let (Format::Jats, Some(JatsOptions { elem, special, .. })) =
-            (format, &schema.jats)
+            (template, &schema.jats)
         {
             if *special {
                 if let Some(elem) = elem {
                     vec![
-                        text("Encoded to tag "),
+                        text("Encoded as "),
                         link(
                             [cf(format!("<{elem}>"))],
                             format!("https://jats.nlm.nih.gov/articleauthoring/tag-library/1.3/element/{elem}.html"),
@@ -206,7 +206,7 @@ impl Schemas {
                 }
             } else if let Some(elem) = elem {
                 vec![
-                    text("Encoded to tag "),
+                    text("Encoded as "),
                     link(
                         [cf(format!("<{elem}>"))],
                         format!("https://jats.nlm.nih.gov/articleauthoring/tag-library/1.3/element/{elem}.html"),
@@ -218,14 +218,14 @@ impl Schemas {
         } else if let (
             Format::Markdown,
             Some(MarkdownOptions {
-                special, format, ..
+                special, template, ..
             }),
-        ) = (format, &schema.markdown)
+        ) = (template, &schema.markdown)
         {
             if *special {
                 vec![text("Encoded using special function")]
-            } else if let Some(format) = format {
-                vec![text("Encoded using template "), cf(format)]
+            } else if let Some(template) = template {
+                vec![text("Encoded as "), cf(template)]
             } else {
                 vec![text("Encoded using derived function")]
             }

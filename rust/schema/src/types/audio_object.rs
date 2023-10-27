@@ -30,7 +30,7 @@ use super::thing_type::ThingType;
 #[display(fmt = "AudioObject")]
 #[html(elem = "audio", special)]
 #[jats(elem = "inline-media", special)]
-#[markdown(format = "![{caption}]({content_url} \"{title}\")", special)]
+#[markdown(template = "![{caption}]({content_url} \"{title}\")", special)]
 pub struct AudioObject {
     /// The type of this item.
     #[cfg_attr(feature = "proptest", proptest(value = "Default::default()"))]

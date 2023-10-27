@@ -16,7 +16,7 @@
     "elem": "inline-quote"
   },
   "markdown": {
-    "format": "<q>{content}</q>"
+    "template": "<q>{content}</q>"
   },
   "required": [
     "type",

@@ -11,6 +11,7 @@ use common::{
     eyre::{bail, Context as _, Result},
     futures::future::try_join_all,
     inflector::Inflector,
+    itertools::Itertools,
     strum::IntoEnumIterator,
     tokio::fs::{create_dir_all, remove_dir_all, remove_file},
 };
@@ -249,11 +250,15 @@ fn properties(title: &str, schema: &Schema, context: &Context) -> Vec<Block> {
             continue;
         }
 
-        let aliases = property.aliases.join(", ");
-        let aliases = if aliases.is_empty() {
-            "-".to_string()
-        } else {
-            aliases
+        #[allow(unstable_name_collisions)]
+        let mut aliases = property
+            .aliases
+            .iter()
+            .map(cf)
+            .intersperse(text(", "))
+            .collect_vec();
+        if aliases.is_empty() {
+            aliases.push(text("-"));
         };
 
         let id = property.jid.clone().unwrap_or_default();
@@ -326,8 +331,8 @@ fn properties(title: &str, schema: &Schema, context: &Context) -> Vec<Block> {
         };
 
         rows.push(tr([
-            td([text(name)]),
-            td([text(aliases)]),
+            td([cf(name)]),
+            td(aliases),
             td([id]),
             td(r#type),
             td([text(description)]),

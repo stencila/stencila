@@ -15,7 +15,7 @@ use super::string::String;
 #[display(fmt = "Subscript")]
 #[html(elem = "sub")]
 #[jats(elem = "sub")]
-#[markdown(format = "~{content}~", escape = "~")]
+#[markdown(template = "~{content}~", escape = "~")]
 pub struct Subscript {
     /// The type of this item.
     #[cfg_attr(feature = "proptest", proptest(value = "Default::default()"))]

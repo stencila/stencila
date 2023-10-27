@@ -418,16 +418,16 @@
       "type": "object",
       "properties": {
         "escape": {
-          "description": "Character to escape when using `format` to encode to Markdown",
-          "type": "string"
-        },
-        "format": {
-          "description": "The formatting string to use to encode a Markdown",
+          "description": "Character to escape when using `format!` macro to encode to Markdown",
           "type": "string"
         },
         "special": {
           "description": "Whether the node type has a special function for encoding to Markdown",
           "type": "boolean"
+        },
+        "template": {
+          "description": "The Rust formatting string to use as a template to encode to Markdown",
+          "type": "string"
         }
       },
       "additionalProperties": false

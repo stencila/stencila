@@ -17,7 +17,7 @@
     "elem": "p"
   },
   "markdown": {
-    "format": "{content}\\n\\n"
+    "template": "{content}\\n\\n"
   },
   "required": [
     "type",

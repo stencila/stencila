@@ -16,7 +16,7 @@
     "elem": "sub"
   },
   "markdown": {
-    "format": "~{content}~",
+    "template": "~{content}~",
     "escape": "~"
   },
   "required": [

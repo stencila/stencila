@@ -16,7 +16,7 @@
     "elem": "hr"
   },
   "markdown": {
-    "format": "---\\n\\n"
+    "template": "---\\n\\n"
   },
   "required": [
     "type"

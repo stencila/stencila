@@ -16,7 +16,7 @@
     "elem": "bold"
   },
   "markdown": {
-    "format": "**{content}**",
+    "template": "**{content}**",
     "escape": "*"
   },
   "required": [

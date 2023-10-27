@@ -20,10 +20,10 @@ such as "and").
 
 The `CiteGroup` type has these properties:
 
-| Name  | Aliases | `@id`                                                          | Type                                                                                            | Description                                                        | Inherited from                                                                                   |
-| ----- | ------- | -------------------------------------------------------------- | ----------------------------------------------------------------------------------------------- | ------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------ |
-| id    | -       | [`schema:id`](https://schema.org/id)                           | [`String`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/string.md) | The identifier for this item.                                      | [`Entity`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/entity.md) |
-| items | item    | [`schema:itemListElement`](https://schema.org/itemListElement) | [`Cite`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/cite.md)*   | One or more `Cite`s to be referenced in the same surrounding text. | -                                                                                                |
+| Name    | Aliases | `@id`                                                          | Type                                                                                            | Description                                                        | Inherited from                                                                                   |
+| ------- | ------- | -------------------------------------------------------------- | ----------------------------------------------------------------------------------------------- | ------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------ |
+| `id`    | -       | [`schema:id`](https://schema.org/id)                           | [`String`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/string.md) | The identifier for this item.                                      | [`Entity`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/entity.md) |
+| `items` | `item`  | [`schema:itemListElement`](https://schema.org/itemListElement) | [`Cite`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/cite.md)*   | One or more `Cite`s to be referenced in the same surrounding text. | -                                                                                                |
 
 ## Related
 

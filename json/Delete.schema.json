@@ -17,7 +17,7 @@
     "special": true
   },
   "markdown": {
-    "format": "<del>{content}</del>"
+    "template": "<del>{content}</del>"
   },
   "required": [
     "type",

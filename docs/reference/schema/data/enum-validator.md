@@ -10,10 +10,10 @@ Analogous to the JSON Schema [`enum` keyword](https://json-schema.org/draft/2019
 
 The `EnumValidator` type has these properties:
 
-| Name   | Aliases | `@id`                                | Type                                                                                            | Description                                            | Inherited from                                                                                   |
-| ------ | ------- | ------------------------------------ | ----------------------------------------------------------------------------------------------- | ------------------------------------------------------ | ------------------------------------------------------------------------------------------------ |
-| id     | -       | [`schema:id`](https://schema.org/id) | [`String`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/string.md) | The identifier for this item.                          | [`Entity`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/entity.md) |
-| values | value   | `stencila:values`                    | [`Node`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/node.md)*   | A node is valid if it is equal to any of these values. | -                                                                                                |
+| Name     | Aliases | `@id`                                | Type                                                                                            | Description                                            | Inherited from                                                                                   |
+| -------- | ------- | ------------------------------------ | ----------------------------------------------------------------------------------------------- | ------------------------------------------------------ | ------------------------------------------------------------------------------------------------ |
+| `id`     | -       | [`schema:id`](https://schema.org/id) | [`String`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/string.md) | The identifier for this item.                          | [`Entity`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/entity.md) |
+| `values` | `value` | `stencila:values`                    | [`Node`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/node.md)*   | A node is valid if it is equal to any of these values. | -                                                                                                |
 
 ## Related
 

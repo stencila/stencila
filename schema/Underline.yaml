@@ -11,6 +11,6 @@ html:
 jats:
   elem: underline
 markdown:
-  format: '[{content}]{{underline}}'
+  template: '[{content}]{{underline}}'
   escape: ']'
 proptest: {}

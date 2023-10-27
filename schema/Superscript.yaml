@@ -8,6 +8,6 @@ html:
 jats:
   elem: sup
 markdown:
-  format: '^{content}^'
+  template: '^{content}^'
   escape: '^'
 proptest: {}

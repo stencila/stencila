@@ -390,8 +390,8 @@ pub enum NodeType {{
         if let Some(markdown) = &schema.markdown {
             let mut args = Vec::new();
 
-            if let Some(format) = &markdown.format {
-                args.push(format!("format = \"{format}\""));
+            if let Some(template) = &markdown.template {
+                args.push(format!("template = \"{template}\""));
             }
             if let Some(escape) = &markdown.escape {
                 args.push(format!("escape = \"{escape}\""));

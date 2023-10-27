@@ -15,7 +15,7 @@ use super::string::String;
 #[display(fmt = "Strikeout")]
 #[html(elem = "s")]
 #[jats(elem = "strike")]
-#[markdown(format = "~~{content}~~", escape = "~")]
+#[markdown(template = "~~{content}~~", escape = "~")]
 pub struct Strikeout {
     /// The type of this item.
     #[cfg_attr(feature = "proptest", proptest(value = "Default::default()"))]

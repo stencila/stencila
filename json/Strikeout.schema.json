@@ -17,7 +17,7 @@
     "elem": "strike"
   },
   "markdown": {
-    "format": "~~{content}~~",
+    "template": "~~{content}~~",
     "escape": "~"
   },
   "required": [

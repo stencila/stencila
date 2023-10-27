@@ -10,7 +10,7 @@ html:
   elem: span
   custom: true
 markdown:
-  format: '[{content}]{{{code}}}'
+  template: '[{content}]{{{code}}}'
 proptest: {}
 required:
   - content

@@ -15,7 +15,7 @@ use super::string::String;
 #[display(fmt = "Paragraph")]
 #[html(elem = "p")]
 #[jats(elem = "p")]
-#[markdown(format = "{content}\n\n")]
+#[markdown(template = "{content}\n\n")]
 pub struct Paragraph {
     /// The type of this item.
     #[cfg_attr(feature = "proptest", proptest(value = "Default::default()"))]

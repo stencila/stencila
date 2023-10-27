@@ -624,10 +624,10 @@ pub struct JatsOptions {
     crate = "common::serde"
 )]
 pub struct MarkdownOptions {
-    /// The formatting string to use to encode a Markdown
-    pub format: Option<String>,
+    /// The Rust formatting string to use as a template to encode to Markdown
+    pub template: Option<String>,
 
-    /// Character to escape when using `format` to encode to Markdown
+    /// Character to escape when using `format!` macro to encode to Markdown
     pub escape: Option<String>,
 
     /// Whether the node type has a special function for encoding to Markdown

@@ -15,7 +15,7 @@ use super::string::String;
 #[display(fmt = "Text")]
 #[html(elem = "span")]
 #[jats(special)]
-#[markdown(format = "{value}")]
+#[markdown(template = "{value}")]
 pub struct Text {
     /// The type of this item.
     #[cfg_attr(feature = "proptest", proptest(value = "Default::default()"))]

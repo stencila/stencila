@@ -14,7 +14,7 @@ jats:
   elem: inline-media
   special: true
 markdown:
-  format: '![{caption}]({content_url} \"{title}\")'
+  template: '![{caption}]({content_url} \"{title}\")'
   special: true
 proptest: {}
 core:

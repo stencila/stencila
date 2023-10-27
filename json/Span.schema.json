@@ -18,7 +18,7 @@
     "elem": "styled-content"
   },
   "markdown": {
-    "format": "[{content}]{{{code}}}"
+    "template": "[{content}]{{{code}}}"
   },
   "required": [
     "type",

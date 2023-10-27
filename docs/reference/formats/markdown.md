@@ -119,123 +119,123 @@ The codec (en**co**der/**dec**oder) for Markdown supports:
 
 Support and degree of loss for node types:
 
-| Node type                                                                                                                 | Encoding         | Decoding     | Notes                                             |
-| ------------------------------------------------------------------------------------------------------------------------- | ---------------- | ------------ | ------------------------------------------------- |
+| Node type                                                                                                                 | Encoding         | Decoding     | Notes                                 |
+| ------------------------------------------------------------------------------------------------------------------------- | ---------------- | ------------ | ------------------------------------- |
 | **Works**                                                                                                                 |
-| [Article](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/article.md)                          | 🔷 Low loss       |              | Encoded using special function                    |
-| [AudioObject](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/audio_object.md)                 | 🔷 Low loss       |              | Encoded using special function                    |
-| [Claim](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/claim.md)                              | ⚠️ High loss     |              |                                                   |
-| [Collection](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/collection.md)                    | ⚠️ High loss     |              |                                                   |
-| [Comment](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/comment.md)                          | ⚠️ High loss     |              |                                                   |
-| [CreativeWork](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/creative_work.md)               | ⚠️ High loss     |              |                                                   |
-| [Directory](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/directory.md)                      | ⚠️ High loss     |              |                                                   |
-| [Figure](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/figure.md)                            | ⚠️ High loss     |              |                                                   |
-| [File](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/file.md)                                | ⚠️ High loss     |              |                                                   |
-| [ImageObject](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/image_object.md)                 | 🔷 Low loss       |              | Encoded using special function                    |
-| [MediaObject](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/media_object.md)                 | 🔷 Low loss       |              |                                                   |
-| [Periodical](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/periodical.md)                    | ⚠️ High loss     |              |                                                   |
-| [PublicationIssue](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/publication_issue.md)       | ⚠️ High loss     |              |                                                   |
-| [PublicationVolume](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/publication_volume.md)     | ⚠️ High loss     |              |                                                   |
-| [Review](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/review.md)                            | ⚠️ High loss     |              |                                                   |
-| [SoftwareApplication](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/software_application.md) | ⚠️ High loss     |              |                                                   |
-| [SoftwareSourceCode](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/software_source_code.md)  | ⚠️ High loss     |              |                                                   |
-| [Table](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/table.md)                              | 🔷 Low loss       |              | Encoded using special function                    |
-| [TableCell](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/table_cell.md)                     | 🔷 Low loss       |              |                                                   |
-| [TableRow](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/table_row.md)                       | 🔷 Low loss       |              |                                                   |
-| [VideoObject](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/video_object.md)                 | ⚠️ High loss     |              | Encoded using special function                    |
+| [Article](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/article.md)                          | 🔷 Low loss       |              | Encoded using special function        |
+| [AudioObject](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/audio_object.md)                 | 🔷 Low loss       |              | Encoded using special function        |
+| [Claim](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/claim.md)                              | ⚠️ High loss     |              |                                       |
+| [Collection](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/collection.md)                    | ⚠️ High loss     |              |                                       |
+| [Comment](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/comment.md)                          | ⚠️ High loss     |              |                                       |
+| [CreativeWork](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/creative_work.md)               | ⚠️ High loss     |              |                                       |
+| [Directory](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/directory.md)                      | ⚠️ High loss     |              |                                       |
+| [Figure](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/figure.md)                            | ⚠️ High loss     |              |                                       |
+| [File](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/file.md)                                | ⚠️ High loss     |              |                                       |
+| [ImageObject](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/image_object.md)                 | 🔷 Low loss       |              | Encoded using special function        |
+| [MediaObject](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/media_object.md)                 | 🔷 Low loss       |              |                                       |
+| [Periodical](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/periodical.md)                    | ⚠️ High loss     |              |                                       |
+| [PublicationIssue](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/publication_issue.md)       | ⚠️ High loss     |              |                                       |
+| [PublicationVolume](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/publication_volume.md)     | ⚠️ High loss     |              |                                       |
+| [Review](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/review.md)                            | ⚠️ High loss     |              |                                       |
+| [SoftwareApplication](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/software_application.md) | ⚠️ High loss     |              |                                       |
+| [SoftwareSourceCode](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/software_source_code.md)  | ⚠️ High loss     |              |                                       |
+| [Table](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/table.md)                              | 🔷 Low loss       |              | Encoded using special function        |
+| [TableCell](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/table_cell.md)                     | 🔷 Low loss       |              |                                       |
+| [TableRow](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/table_row.md)                       | 🔷 Low loss       |              |                                       |
+| [VideoObject](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/video_object.md)                 | ⚠️ High loss     |              | Encoded using special function        |
 | **Prose**                                                                                                                 |
-| [Cite](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/cite.md)                                | ⚠️ High loss     |              |                                                   |
-| [CiteGroup](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/cite_group.md)                     | ⚠️ High loss     |              |                                                   |
-| [DefinedTerm](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/defined_term.md)                 | ⚠️ High loss     |              |                                                   |
-| [Delete](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/delete.md)                            | ⚠️ High loss     |              | Encoded using template `<del>{content}</del>`     |
-| [Emphasis](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/emphasis.md)                        | 🟢 No loss        |              | Encoded using template `_{content}_`              |
-| [Heading](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/heading.md)                          | 🟢 No loss        |              | Encoded using special function                    |
-| [Insert](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/insert.md)                            | ⚠️ High loss     |              | Encoded using template `<ins>{content}</ins>`     |
-| [Link](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/link.md)                                | 🔷 Low loss       |              | Encoded using special function                    |
-| [List](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/list.md)                                | 🔷 Low loss       |              | Encoded using special function                    |
-| [ListItem](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/list_item.md)                       | 🔷 Low loss       |              | Encoded using special function                    |
-| [Note](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/note.md)                                | ⚠️ High loss     |              |                                                   |
-| [Paragraph](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/paragraph.md)                      | 🟢 No loss        |              | Encoded using template `{content}\n\n`            |
-| [Quote](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/quote.md)                              | ⚠️ High loss     |              | Encoded using template `<q>{content}</q>`         |
-| [QuoteBlock](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/quote_block.md)                   | ⚠️ High loss     |              |                                                   |
-| [Section](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/section.md)                          | 🟢 No loss        |              | Encoded using special function                    |
-| [Strikeout](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/strikeout.md)                      | ⚠️ High loss     |              | Encoded using template `~~{content}~~`            |
-| [Strong](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/strong.md)                            | 🟢 No loss        |              | Encoded using template `**{content}**`            |
-| [Subscript](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/subscript.md)                      | 🟢 No loss        |              | Encoded using template `~{content}~`              |
-| [Superscript](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/superscript.md)                  | 🟢 No loss        |              | Encoded using template `^{content}^`              |
-| [Text](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/text.md)                                | 🟢 No loss        |              | Encoded using template `{value}`                  |
-| [ThematicBreak](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/thematic_break.md)             | 🟢 No loss        |              | Encoded using template `---\n\n`                  |
-| [Underline](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/underline.md)                      | 🟢 No loss        |              | Encoded using template `[{content}]{{underline}}` |
+| [Cite](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/cite.md)                                | ⚠️ High loss     |              |                                       |
+| [CiteGroup](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/cite_group.md)                     | ⚠️ High loss     |              |                                       |
+| [DefinedTerm](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/defined_term.md)                 | ⚠️ High loss     |              |                                       |
+| [Delete](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/delete.md)                            | ⚠️ High loss     |              | Encoded as `<del>{content}</del>`     |
+| [Emphasis](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/emphasis.md)                        | 🟢 No loss        |              | Encoded as `_{content}_`              |
+| [Heading](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/heading.md)                          | 🟢 No loss        |              | Encoded using special function        |
+| [Insert](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/insert.md)                            | ⚠️ High loss     |              | Encoded as `<ins>{content}</ins>`     |
+| [Link](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/link.md)                                | 🔷 Low loss       |              | Encoded using special function        |
+| [List](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/list.md)                                | 🔷 Low loss       |              | Encoded using special function        |
+| [ListItem](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/list_item.md)                       | 🔷 Low loss       |              | Encoded using special function        |
+| [Note](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/note.md)                                | ⚠️ High loss     |              |                                       |
+| [Paragraph](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/paragraph.md)                      | 🟢 No loss        |              | Encoded as `{content}\n\n`            |
+| [Quote](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/quote.md)                              | ⚠️ High loss     |              | Encoded as `<q>{content}</q>`         |
+| [QuoteBlock](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/quote_block.md)                   | ⚠️ High loss     |              |                                       |
+| [Section](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/section.md)                          | 🟢 No loss        |              | Encoded using special function        |
+| [Strikeout](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/strikeout.md)                      | ⚠️ High loss     |              | Encoded as `~~{content}~~`            |
+| [Strong](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/strong.md)                            | 🟢 No loss        |              | Encoded as `**{content}**`            |
+| [Subscript](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/subscript.md)                      | 🟢 No loss        |              | Encoded as `~{content}~`              |
+| [Superscript](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/superscript.md)                  | 🟢 No loss        |              | Encoded as `^{content}^`              |
+| [Text](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/text.md)                                | 🟢 No loss        |              | Encoded as `{value}`                  |
+| [ThematicBreak](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/thematic_break.md)             | 🟢 No loss        |              | Encoded as `---\n\n`                  |
+| [Underline](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/underline.md)                      | 🟢 No loss        |              | Encoded as `[{content}]{{underline}}` |
 | **Math**                                                                                                                  |
-| [MathBlock](https://github.com/stencila/stencila/blob/main/docs/reference/schema/math/math_block.md)                      | 🟢 No loss        |              | Encoded using special function                    |
-| [MathFragment](https://github.com/stencila/stencila/blob/main/docs/reference/schema/math/math_fragment.md)                | 🟢 No loss        |              | Encoded using special function                    |
+| [MathBlock](https://github.com/stencila/stencila/blob/main/docs/reference/schema/math/math_block.md)                      | 🟢 No loss        |              | Encoded using special function        |
+| [MathFragment](https://github.com/stencila/stencila/blob/main/docs/reference/schema/math/math_fragment.md)                | 🟢 No loss        |              | Encoded using special function        |
 | **Code**                                                                                                                  |
-| [CodeBlock](https://github.com/stencila/stencila/blob/main/docs/reference/schema/code/code_block.md)                      | 🟢 No loss        |              | Encoded using special function                    |
-| [CodeChunk](https://github.com/stencila/stencila/blob/main/docs/reference/schema/code/code_chunk.md)                      | 🔷 Low loss       |              |                                                   |
-| [CodeError](https://github.com/stencila/stencila/blob/main/docs/reference/schema/code/code_error.md)                      | ⚠️ High loss     |              |                                                   |
-| [CodeExpression](https://github.com/stencila/stencila/blob/main/docs/reference/schema/code/code_expression.md)            | 🔷 Low loss       |              | Encoded using special function                    |
-| [CodeFragment](https://github.com/stencila/stencila/blob/main/docs/reference/schema/code/code_fragment.md)                | 🟢 No loss        |              | Encoded using special function                    |
+| [CodeBlock](https://github.com/stencila/stencila/blob/main/docs/reference/schema/code/code_block.md)                      | 🟢 No loss        |              | Encoded using special function        |
+| [CodeChunk](https://github.com/stencila/stencila/blob/main/docs/reference/schema/code/code_chunk.md)                      | 🔷 Low loss       |              |                                       |
+| [CodeError](https://github.com/stencila/stencila/blob/main/docs/reference/schema/code/code_error.md)                      | ⚠️ High loss     |              |                                       |
+| [CodeExpression](https://github.com/stencila/stencila/blob/main/docs/reference/schema/code/code_expression.md)            | 🔷 Low loss       |              | Encoded using special function        |
+| [CodeFragment](https://github.com/stencila/stencila/blob/main/docs/reference/schema/code/code_fragment.md)                | 🟢 No loss        |              | Encoded using special function        |
 | **Data**                                                                                                                  |
-| [Array](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/array.md)                               | ⚠️ High loss     |              |                                                   |
-| [ArrayValidator](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/array_validator.md)            | ⚠️ High loss     |              |                                                   |
-| [Boolean](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/boolean.md)                           | 🔷 Low loss       |              |                                                   |
-| [BooleanValidator](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/boolean_validator.md)        | ⚠️ High loss     |              |                                                   |
-| [ConstantValidator](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/constant_validator.md)      | ⚠️ High loss     |              |                                                   |
-| [Cord](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/cord.md)                                 | 🟢 No loss        | 🟢 No loss    |                                                   |
-| [Datatable](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/datatable.md)                       | ⚠️ High loss     |              |                                                   |
-| [DatatableColumn](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/datatable_column.md)          | ⚠️ High loss     |              |                                                   |
-| [Date](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/date.md)                                 | ⚠️ High loss     |              |                                                   |
-| [DateTime](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/date_time.md)                        | ⚠️ High loss     |              |                                                   |
-| [DateTimeValidator](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/date_time_validator.md)     | ⚠️ High loss     |              |                                                   |
-| [DateValidator](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/date_validator.md)              | ⚠️ High loss     |              |                                                   |
-| [Duration](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/duration.md)                         | ⚠️ High loss     |              |                                                   |
-| [DurationValidator](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/duration_validator.md)      | ⚠️ High loss     |              |                                                   |
-| [EnumValidator](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/enum_validator.md)              | ⚠️ High loss     |              |                                                   |
-| [Integer](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/integer.md)                           | 🔷 Low loss       |              |                                                   |
-| [IntegerValidator](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/integer_validator.md)        | ⚠️ High loss     |              |                                                   |
-| [Null](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/null.md)                                 | 🔷 Low loss       |              |                                                   |
-| [Number](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/number.md)                             | 🔷 Low loss       |              |                                                   |
-| [NumberValidator](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/number_validator.md)          | ⚠️ High loss     |              |                                                   |
-| [Object](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/object.md)                             | ⚠️ High loss     |              |                                                   |
-| [String](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/string.md)                             | 🟢 No loss        | 🟢 No loss    |                                                   |
-| [StringValidator](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/string_validator.md)          | ⚠️ High loss     |              |                                                   |
-| [Time](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/time.md)                                 | ⚠️ High loss     |              |                                                   |
-| [TimeValidator](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/time_validator.md)              | ⚠️ High loss     |              |                                                   |
-| [Timestamp](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/timestamp.md)                       | ⚠️ High loss     |              |                                                   |
-| [TimestampValidator](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/timestamp_validator.md)    | ⚠️ High loss     |              |                                                   |
-| [TupleValidator](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/tuple_validator.md)            | ⚠️ High loss     |              |                                                   |
-| [UnsignedInteger](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/unsigned_integer.md)          | 🔷 Low loss       |              |                                                   |
+| [Array](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/array.md)                               | ⚠️ High loss     |              |                                       |
+| [ArrayValidator](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/array_validator.md)            | ⚠️ High loss     |              |                                       |
+| [Boolean](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/boolean.md)                           | 🔷 Low loss       |              |                                       |
+| [BooleanValidator](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/boolean_validator.md)        | ⚠️ High loss     |              |                                       |
+| [ConstantValidator](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/constant_validator.md)      | ⚠️ High loss     |              |                                       |
+| [Cord](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/cord.md)                                 | 🟢 No loss        | 🟢 No loss    |                                       |
+| [Datatable](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/datatable.md)                       | ⚠️ High loss     |              |                                       |
+| [DatatableColumn](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/datatable_column.md)          | ⚠️ High loss     |              |                                       |
+| [Date](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/date.md)                                 | ⚠️ High loss     |              |                                       |
+| [DateTime](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/date_time.md)                        | ⚠️ High loss     |              |                                       |
+| [DateTimeValidator](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/date_time_validator.md)     | ⚠️ High loss     |              |                                       |
+| [DateValidator](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/date_validator.md)              | ⚠️ High loss     |              |                                       |
+| [Duration](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/duration.md)                         | ⚠️ High loss     |              |                                       |
+| [DurationValidator](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/duration_validator.md)      | ⚠️ High loss     |              |                                       |
+| [EnumValidator](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/enum_validator.md)              | ⚠️ High loss     |              |                                       |
+| [Integer](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/integer.md)                           | 🔷 Low loss       |              |                                       |
+| [IntegerValidator](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/integer_validator.md)        | ⚠️ High loss     |              |                                       |
+| [Null](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/null.md)                                 | 🔷 Low loss       |              |                                       |
+| [Number](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/number.md)                             | 🔷 Low loss       |              |                                       |
+| [NumberValidator](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/number_validator.md)          | ⚠️ High loss     |              |                                       |
+| [Object](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/object.md)                             | ⚠️ High loss     |              |                                       |
+| [String](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/string.md)                             | 🟢 No loss        | 🟢 No loss    |                                       |
+| [StringValidator](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/string_validator.md)          | ⚠️ High loss     |              |                                       |
+| [Time](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/time.md)                                 | ⚠️ High loss     |              |                                       |
+| [TimeValidator](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/time_validator.md)              | ⚠️ High loss     |              |                                       |
+| [Timestamp](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/timestamp.md)                       | ⚠️ High loss     |              |                                       |
+| [TimestampValidator](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/timestamp_validator.md)    | ⚠️ High loss     |              |                                       |
+| [TupleValidator](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/tuple_validator.md)            | ⚠️ High loss     |              |                                       |
+| [UnsignedInteger](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/unsigned_integer.md)          | 🔷 Low loss       |              |                                       |
 | **Flow**                                                                                                                  |
-| [Button](https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/button.md)                             | ⚠️ High loss     |              |                                                   |
-| [Call](https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/call.md)                                 | ⚠️ High loss     |              | Encoded using special function                    |
-| [CallArgument](https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/call_argument.md)                | ⚠️ High loss     |              |                                                   |
-| [ExecutionDependant](https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/execution_dependant.md)    | ⚠️ High loss     |              |                                                   |
-| [ExecutionDependency](https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/execution_dependency.md)  | ⚠️ High loss     |              |                                                   |
-| [ExecutionDigest](https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/execution_digest.md)          | ⚠️ High loss     |              |                                                   |
-| [ExecutionTag](https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/execution_tag.md)                | ⚠️ High loss     |              |                                                   |
-| [For](https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/for.md)                                   | ⚠️ High loss     |              | Encoded using special function                    |
-| [Form](https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/form.md)                                 | ⚠️ High loss     |              |                                                   |
-| [Function](https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/function.md)                         | ⚠️ High loss     |              |                                                   |
-| [If](https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/if.md)                                     | ⚠️ High loss     |              | Encoded using special function                    |
-| [IfClause](https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/if_clause.md)                        | ⚠️ High loss     |              |                                                   |
-| [Include](https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/include.md)                           | ⚠️ High loss     |              | Encoded using special function                    |
-| [Parameter](https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/parameter.md)                       | 🔷 Low loss       |              | Encoded using special function                    |
-| [Variable](https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/variable.md)                         | ⚠️ High loss     |              |                                                   |
+| [Button](https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/button.md)                             | ⚠️ High loss     |              |                                       |
+| [Call](https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/call.md)                                 | ⚠️ High loss     |              | Encoded using special function        |
+| [CallArgument](https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/call_argument.md)                | ⚠️ High loss     |              |                                       |
+| [ExecutionDependant](https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/execution_dependant.md)    | ⚠️ High loss     |              |                                       |
+| [ExecutionDependency](https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/execution_dependency.md)  | ⚠️ High loss     |              |                                       |
+| [ExecutionDigest](https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/execution_digest.md)          | ⚠️ High loss     |              |                                       |
+| [ExecutionTag](https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/execution_tag.md)                | ⚠️ High loss     |              |                                       |
+| [For](https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/for.md)                                   | ⚠️ High loss     |              | Encoded using special function        |
+| [Form](https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/form.md)                                 | ⚠️ High loss     |              |                                       |
+| [Function](https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/function.md)                         | ⚠️ High loss     |              |                                       |
+| [If](https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/if.md)                                     | ⚠️ High loss     |              | Encoded using special function        |
+| [IfClause](https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/if_clause.md)                        | ⚠️ High loss     |              |                                       |
+| [Include](https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/include.md)                           | ⚠️ High loss     |              | Encoded using special function        |
+| [Parameter](https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/parameter.md)                       | 🔷 Low loss       |              | Encoded using special function        |
+| [Variable](https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/variable.md)                         | ⚠️ High loss     |              |                                       |
 | **Style**                                                                                                                 |
-| [Division](https://github.com/stencila/stencila/blob/main/docs/reference/schema/style/division.md)                        | ⚠️ High loss     |              | Encoded using special function                    |
-| [Span](https://github.com/stencila/stencila/blob/main/docs/reference/schema/style/span.md)                                | ⚠️ High loss     |              | Encoded using template `[{content}]{{{code}}}`    |
+| [Division](https://github.com/stencila/stencila/blob/main/docs/reference/schema/style/division.md)                        | ⚠️ High loss     |              | Encoded using special function        |
+| [Span](https://github.com/stencila/stencila/blob/main/docs/reference/schema/style/span.md)                                | ⚠️ High loss     |              | Encoded as `[{content}]{{{code}}}`    |
 | **Other**                                                                                                                 |
-| [Brand](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/brand.md)                              | ⚠️ High loss     |              |                                                   |
-| [ContactPoint](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/contact_point.md)               | ⚠️ High loss     |              |                                                   |
-| [Enumeration](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/enumeration.md)                  | ⚠️ High loss     |              |                                                   |
-| [Grant](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/grant.md)                              | ⚠️ High loss     |              |                                                   |
-| [MonetaryGrant](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/monetary_grant.md)             | ⚠️ High loss     |              |                                                   |
-| [Organization](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/organization.md)                | ⚠️ High loss     |              |                                                   |
-| [Person](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/person.md)                            | ⚠️ High loss     |              |                                                   |
-| [PostalAddress](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/postal_address.md)             | ⚠️ High loss     |              |                                                   |
-| [Product](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/product.md)                          | ⚠️ High loss     |              |                                                   |
-| [PropertyValue](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/property_value.md)             | ⚠️ High loss     |              |                                                   |
-| [Thing](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/thing.md)                              | ⚠️ High loss     |              |                                                   |
+| [Brand](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/brand.md)                              | ⚠️ High loss     |              |                                       |
+| [ContactPoint](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/contact_point.md)               | ⚠️ High loss     |              |                                       |
+| [Enumeration](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/enumeration.md)                  | ⚠️ High loss     |              |                                       |
+| [Grant](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/grant.md)                              | ⚠️ High loss     |              |                                       |
+| [MonetaryGrant](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/monetary_grant.md)             | ⚠️ High loss     |              |                                       |
+| [Organization](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/organization.md)                | ⚠️ High loss     |              |                                       |
+| [Person](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/person.md)                            | ⚠️ High loss     |              |                                       |
+| [PostalAddress](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/postal_address.md)             | ⚠️ High loss     |              |                                       |
+| [Product](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/product.md)                          | ⚠️ High loss     |              |                                       |
+| [PropertyValue](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/property_value.md)             | ⚠️ High loss     |              |                                       |
+| [Thing](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/thing.md)                              | ⚠️ High loss     |              |                                       |
 
 <!-- CODEC-DOCS:STOP -->
 <!-- prettier-ignore-end -->

@@ -12,10 +12,10 @@ A node will be valid against this validator if it is equal to the
 
 The `ConstantValidator` type has these properties:
 
-| Name  | Aliases | `@id`                                      | Type                                                                                            | Description                        | Inherited from                                                                                   |
-| ----- | ------- | ------------------------------------------ | ----------------------------------------------------------------------------------------------- | ---------------------------------- | ------------------------------------------------------------------------------------------------ |
-| id    | -       | [`schema:id`](https://schema.org/id)       | [`String`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/string.md) | The identifier for this item.      | [`Entity`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/entity.md) |
-| value | -       | [`schema:value`](https://schema.org/value) | [`Node`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/node.md)    | The value that the node must have. | -                                                                                                |
+| Name    | Aliases | `@id`                                      | Type                                                                                            | Description                        | Inherited from                                                                                   |
+| ------- | ------- | ------------------------------------------ | ----------------------------------------------------------------------------------------------- | ---------------------------------- | ------------------------------------------------------------------------------------------------ |
+| `id`    | -       | [`schema:id`](https://schema.org/id)       | [`String`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/string.md) | The identifier for this item.      | [`Entity`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/entity.md) |
+| `value` | -       | [`schema:value`](https://schema.org/value) | [`Node`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/node.md)    | The value that the node must have. | -                                                                                                |
 
 ## Related
 

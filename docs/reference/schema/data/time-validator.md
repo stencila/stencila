@@ -8,11 +8,11 @@
 
 The `TimeValidator` type has these properties:
 
-| Name    | Aliases | `@id`                                | Type                                                                                            | Description                           | Inherited from                                                                                   |
-| ------- | ------- | ------------------------------------ | ----------------------------------------------------------------------------------------------- | ------------------------------------- | ------------------------------------------------------------------------------------------------ |
-| id      | -       | [`schema:id`](https://schema.org/id) | [`String`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/string.md) | The identifier for this item.         | [`Entity`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/entity.md) |
-| minimum | -       | `stencila:minimum`                   | [`Time`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/time.md)     | The inclusive lower limit for a time. | -                                                                                                |
-| maximum | -       | `stencila:maximum`                   | [`Time`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/time.md)     | The inclusive upper limit for a time. | -                                                                                                |
+| Name      | Aliases | `@id`                                | Type                                                                                            | Description                           | Inherited from                                                                                   |
+| --------- | ------- | ------------------------------------ | ----------------------------------------------------------------------------------------------- | ------------------------------------- | ------------------------------------------------------------------------------------------------ |
+| `id`      | -       | [`schema:id`](https://schema.org/id) | [`String`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/string.md) | The identifier for this item.         | [`Entity`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/entity.md) |
+| `minimum` | -       | `stencila:minimum`                   | [`Time`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/time.md)     | The inclusive lower limit for a time. | -                                                                                                |
+| `maximum` | -       | `stencila:maximum`                   | [`Time`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/time.md)     | The inclusive upper limit for a time. | -                                                                                                |
 
 ## Related
 

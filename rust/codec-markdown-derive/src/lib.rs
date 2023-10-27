@@ -15,7 +15,7 @@ struct TypeAttr {
     data: darling::ast::Data<darling::util::Ignored, FieldAttr>,
 
     #[darling(default)]
-    format: Option<String>,
+    template: Option<String>,
 
     #[darling(default)]
     escape: Option<String>,
@@ -69,7 +69,7 @@ fn derive_struct(type_attr: TypeAttr) -> TokenStream {
                 }
             }
         }
-    } else if let Some(format) = type_attr.format {
+    } else if let Some(template) = type_attr.template {
         // When a format is provided record loss of properties not interpolated in it
 
         let mut fields = TokenStream::new();
@@ -83,7 +83,7 @@ fn derive_struct(type_attr: TypeAttr) -> TokenStream {
                 return;
             }
 
-            let field_tokens = if format.contains(&["{", &field_name.to_string(), "}"].concat()) {
+            let field_tokens = if template.contains(&["{", &field_name.to_string(), "}"].concat()) {
                 let mut tokens = quote! {
                     let (#field_name, field_losses) = self.#field_name.to_markdown(context);
                     losses.merge(field_losses);
@@ -133,7 +133,7 @@ fn derive_struct(type_attr: TypeAttr) -> TokenStream {
 
                     #fields
 
-                    (format!(#format), losses)
+                    (format!(#template), losses)
                 }
             }
         }

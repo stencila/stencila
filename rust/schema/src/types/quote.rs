@@ -16,7 +16,7 @@ use super::string::String;
 #[display(fmt = "Quote")]
 #[html(elem = "q")]
 #[jats(elem = "inline-quote")]
-#[markdown(format = "<q>{content}</q>")]
+#[markdown(template = "<q>{content}</q>")]
 pub struct Quote {
     /// The type of this item.
     #[cfg_attr(feature = "proptest", proptest(value = "Default::default()"))]
