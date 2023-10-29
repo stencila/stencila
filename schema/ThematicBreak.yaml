@@ -9,5 +9,7 @@ html:
 jats:
   elem: hr
 markdown:
-  template: '---\n\n'
+  # Use three asterisks, rather than three hyphens, to avoid confusion
+  # with YAML front matter delimiters
+  template: '***\n\n'
 proptest: {}

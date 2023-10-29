@@ -1,6 +1,15 @@
 {
   type: "Article",
   content: [
+    {
+      type: "Paragraph",
+      content: [
+        {
+          type: "Text",
+          value: "A paragraph before first thematic break."
+        }
+      ]
+    },
     { type: "ThematicBreak" },
     {
       type: "Paragraph",

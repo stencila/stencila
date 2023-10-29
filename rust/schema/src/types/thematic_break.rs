@@ -14,7 +14,7 @@ use super::string::String;
 #[display(fmt = "ThematicBreak")]
 #[html(elem = "hr")]
 #[jats(elem = "hr")]
-#[markdown(template = "---\n\n")]
+#[markdown(template = "***\n\n")]
 pub struct ThematicBreak {
     /// The type of this item.
     #[cfg_attr(feature = "proptest", proptest(value = "Default::default()"))]
