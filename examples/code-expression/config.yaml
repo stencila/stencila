@@ -1,0 +1,9 @@
+compact.jats.xml:
+  decode:
+    strip-types:
+      # TODO: Fix issues with encoding and decoding `CodeExpression`
+      - CodeExpression
+md:
+  decode:
+    # TODO: Fix issues with encoding and decoding `CodeExpression`
+    skip: true

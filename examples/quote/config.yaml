@@ -1,3 +1,4 @@
-jats:
+md:
   decode:
+    # TODO: Implement decoding of <q>
     skip: true

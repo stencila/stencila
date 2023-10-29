@@ -1,14 +1,16 @@
 //! Tests on examples of Stencila documents
 
-use std::{collections::HashMap, fs::File, path::PathBuf};
+use std::{collections::BTreeMap, fs::File, path::PathBuf};
 
 use codec::{
     common::{
         eyre::{Context, Result},
         glob::glob,
         itertools::Itertools,
-        serde::Deserialize,
-        serde_yaml,
+        once_cell::sync::Lazy,
+        serde::{Deserialize, Serialize},
+        serde_json, serde_yaml,
+        smart_default::SmartDefault,
         tokio::{
             self,
             fs::{read_to_string, remove_file, write},
@@ -18,50 +20,176 @@ use codec::{
     DecodeOptions, EncodeOptions,
 };
 use common_dev::pretty_assertions::assert_eq;
+use json_value_merge::Merge;
 use node_strip::{StripNode, StripTargets};
 
-/// Spec for what to tests etc
-struct Spec {
-    extension: String,
-    format: Format,
-    encode_options: Option<EncodeOptions>,
-    decode_options: Option<DecodeOptions>,
-    write_losses: bool,
-}
-
-impl Spec {
-    fn new(
-        extension: &str,
-        format: Format,
-        encode_options: Option<EncodeOptions>,
-        decode_options: Option<DecodeOptions>,
-        write_losses: bool,
-    ) -> Self {
-        Self {
-            extension: extension.to_string(),
-            format,
-            encode_options,
-            decode_options,
-            write_losses,
-        }
-    }
-}
+type Config = BTreeMap<String, FormatConfig>;
 
 /// Config for a format which can be read from file
-/// TODO: consider merging with `Spec` to allow per folder overrides
-/// of everything
-#[derive(Debug, Default, Clone, Deserialize)]
+#[derive(Debug, SmartDefault, Clone, Serialize, Deserialize)]
 #[serde(crate = "codec::common::serde")]
-struct Config {
+struct FormatConfig {
+    #[default(Format::Json)]
+    format: Format,
+    encode: EncodeConfig,
     decode: DecodeConfig,
 }
 
+/// Config for testing the encoding of a format
+#[derive(Debug, Default, Clone, Serialize, Deserialize)]
+#[serde(crate = "codec::common::serde")]
+struct EncodeConfig {
+    skip: bool,
+    #[serde(flatten)]
+    options: EncodeOptions,
+}
+
 /// Config for testing the decoding of a format
-#[derive(Debug, Default, Clone, Deserialize)]
+#[derive(Debug, Default, Clone, Serialize, Deserialize)]
 #[serde(crate = "codec::common::serde")]
 struct DecodeConfig {
     skip: bool,
+    #[serde(flatten)]
+    options: DecodeOptions,
 }
+
+/// Default config
+const CONFIG: Lazy<Config> = Lazy::new(|| {
+    BTreeMap::from([
+        (
+            String::from("html"),
+            FormatConfig {
+                format: Format::Html,
+                encode: EncodeConfig {
+                    ..Default::default()
+                },
+                decode: DecodeConfig {
+                    // TODO
+                    skip: true,
+                    ..Default::default()
+                },
+            },
+        ),
+        (
+            String::from("compact.html"),
+            FormatConfig {
+                format: Format::Html,
+                encode: EncodeConfig {
+                    options: EncodeOptions {
+                        compact: true,
+                        ..Default::default()
+                    },
+                    ..Default::default()
+                },
+                decode: DecodeConfig {
+                    // TODO
+                    skip: true,
+                    ..Default::default()
+                },
+            },
+        ),
+        (
+            String::from("standalone.html"),
+            FormatConfig {
+                format: Format::Html,
+                encode: EncodeConfig {
+                    options: EncodeOptions {
+                        standalone: Some(true),
+                        compact: true,
+                        ..Default::default()
+                    },
+                    ..Default::default()
+                },
+                decode: DecodeConfig {
+                    skip: true,
+                    ..Default::default()
+                },
+            },
+        ),
+        (
+            String::from("jats.xml"),
+            FormatConfig {
+                format: Format::Jats,
+                encode: EncodeConfig {
+                    options: EncodeOptions {
+                        standalone: Some(true),
+                        ..Default::default()
+                    },
+                    ..Default::default()
+                },
+                decode: DecodeConfig {
+                    // Do not test decoding since it is tested on
+                    // compact.jats.xml and prettifying can affect whitespace
+                    skip: true,
+                    ..Default::default()
+                },
+            },
+        ),
+        (
+            String::from("compact.jats.xml"),
+            FormatConfig {
+                format: Format::Jats,
+                encode: EncodeConfig {
+                    options: EncodeOptions {
+                        standalone: Some(true),
+                        compact: true,
+                        ..Default::default()
+                    },
+                    ..Default::default()
+                },
+                decode: DecodeConfig {
+                    ..Default::default()
+                },
+            },
+        ),
+        (
+            String::from("json5"),
+            FormatConfig {
+                format: Format::Json5,
+                ..Default::default()
+            },
+        ),
+        (
+            String::from("compact.json5"),
+            FormatConfig {
+                format: Format::Json5,
+                encode: EncodeConfig {
+                    options: EncodeOptions {
+                        compact: true,
+                        ..Default::default()
+                    },
+                    ..Default::default()
+                },
+                ..Default::default()
+            },
+        ),
+        (
+            String::from("md"),
+            FormatConfig {
+                format: Format::Markdown,
+                ..Default::default()
+            },
+        ),
+        (
+            String::from("txt"),
+            FormatConfig {
+                format: Format::Text,
+                decode: DecodeConfig {
+                    skip: true,
+                    ..Default::default()
+                },
+                ..Default::default()
+            },
+        ),
+        (
+            String::from("yaml"),
+            FormatConfig {
+                format: Format::Yaml,
+                ..Default::default()
+            },
+        ),
+    ])
+});
 
 /// Test the encoding/decoding of examples to/from various formats
 ///
@@ -81,107 +209,6 @@ struct DecodeConfig {
 ///   UPDATE_EXAMPLES=true cargo test -p codecs examples
 #[tokio::test]
 async fn examples() -> Result<()> {
-    // Formats to encode examples to
-    //
-    // Excludes developer focussed and/or unstable formats e.g. `Debug`
-    let formats: &[Spec] = &[
-        // HTML
-        Spec::new(
-            "html",
-            Format::Html,
-            Some(EncodeOptions::default()),
-            None,
-            true,
-        ),
-        Spec::new(
-            "compact.html",
-            Format::Html,
-            Some(EncodeOptions {
-                compact: true,
-                ..Default::default()
-            }),
-            None,
-            false,
-        ),
-        Spec::new(
-            "standalone.html",
-            Format::Html,
-            Some(EncodeOptions {
-                standalone: Some(true),
-                compact: true,
-                ..Default::default()
-            }),
-            None,
-            false,
-        ),
-        // JATS
-        Spec::new(
-            "jats.xml",
-            Format::Jats,
-            Some(EncodeOptions {
-                standalone: Some(true),
-                ..Default::default()
-            }),
-            // Do not test decoding since it is tested on
-            // compact.jats.xml and prettifying can affect whitespace
-            None,
-            true,
-        ),
-        Spec::new(
-            "compact.jats.xml",
-            Format::Jats,
-            Some(EncodeOptions {
-                standalone: Some(true),
-                compact: true,
-                ..Default::default()
-            }),
-            Some(DecodeOptions::default()),
-            false,
-        ),
-        // JSON5
-        Spec::new(
-            "json5",
-            Format::Json5,
-            Some(EncodeOptions::default()),
-            Some(DecodeOptions::default()),
-            true,
-        ),
-        Spec::new(
-            "compact.json5",
-            Format::Json5,
-            Some(EncodeOptions {
-                compact: true,
-                ..Default::default()
-            }),
-            Some(DecodeOptions::default()),
-            false,
-        ),
-        // Markdown
-        Spec::new(
-            "md",
-            Format::Markdown,
-            Some(EncodeOptions::default()),
-            None,
-            true,
-        ),
-        // Plain text
-        Spec::new(
-            "txt",
-            Format::Text,
-            Some(EncodeOptions::default()),
-            None,
-            true,
-        ),
-        // YAML
-        Spec::new(
-            "yaml",
-            Format::Yaml,
-            Some(EncodeOptions::default()),
-            Some(DecodeOptions::default()),
-            true,
-        ),
-    ];
-
     let dir = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
         .join("../../examples")
         .canonicalize()?;
@@ -193,42 +220,39 @@ async fn examples() -> Result<()> {
 
     for path in examples {
         let name = path.file_name().unwrap().to_string_lossy();
-        eprintln!("> {name}");
-
-        let config = path.parent().unwrap().join("config.yaml");
-        let config: HashMap<String, Config> = if config.exists() {
-            let config = File::open(&config)?;
-            serde_yaml::from_reader(config)?
-        } else {
-            HashMap::new()
-        };
+        eprintln!("{name}");
 
         let node = codecs::from_path(&path, None).await?;
 
-        for Spec {
-            extension,
-            format,
-            encode_options,
-            decode_options,
-            write_losses,
-        } in formats
-        {
-            let mut file = path.clone();
-            file.set_extension(extension);
+        // If the folder has a config.yaml file then read it in and merge into the
+        // default config.
+        let config = path.parent().unwrap().join("config.yaml");
+        let config: Config = if config.exists() {
+            let overrides: serde_json::Value = serde_yaml::from_reader(File::open(&config)?)?;
+            let mut config: serde_json::Value = serde_json::to_value(CONFIG.clone())?;
+            config.merge(&overrides);
+            serde_json::from_value(config)?
+        } else {
+            CONFIG.clone()
+        };
 
-            if let Some(options) = encode_options {
+        for (extension, config) in config {
+            eprintln!("  - {extension}");
+
+            let mut file = path.clone();
+            file.set_extension(extension.as_str());
+
+            let codec = codecs::get(None, Some(config.format), None)?;
+
+            if !config.encode.skip {
                 // Encoding: encode to string, rather than direct to file, if possible
                 // for better comparison of differences
 
-                let codec = codecs::get(None, Some(*format), None)?;
-
-                let options = EncodeOptions {
-                    format: Some(*format),
-                    ..options.clone()
-                };
-
                 if codec.supports_to_string() {
-                    let (actual, losses) = codec.to_string(&node, Some(options)).await?;
+                    // Encode to string
+                    let (actual, losses) = codec
+                        .to_string(&node, Some(config.encode.options.clone()))
+                        .await?;
 
                     if file.exists() {
                         // Existing file: compare string content of files
@@ -238,8 +262,10 @@ async fn examples() -> Result<()> {
                                 write(&file, actual).await?;
                             } else {
                                 assert_eq!(
-                                    actual, expected,
-                                    "Example `{name}`, format `{format}`: encoded file differs",
+                                    actual,
+                                    expected,
+                                    "Encoded file differs\nConfig:{config}",
+                                    config = serde_json::to_string_pretty(&config)?
                                 );
                             }
                         }
@@ -248,58 +274,46 @@ async fn examples() -> Result<()> {
                         write(&file, actual).await?;
                     }
 
+                    // Write any losses to file
                     let mut losses_file = path.clone();
-                    losses_file.set_extension([extension, ".encode.losses"].concat());
+                    losses_file.set_extension([extension.as_str(), ".encode.losses"].concat());
                     if losses.is_empty() {
                         remove_file(losses_file).await.ok();
-                    } else if *write_losses {
+                    } else {
                         write(losses_file, serde_yaml::to_string(&losses)?).await?;
                     }
                 } else {
                     // Just encode to file if it does not yet exist. At present not attempting
                     // to compared binary files (e.g. may include timestamps and change each run)
                     if !file.exists() {
-                        codec.to_path(&node, &file, Some(options)).await?;
+                        codec
+                            .to_path(&node, &file, Some(config.encode.options.clone()))
+                            .await?;
                     }
                 }
             }
 
-            if let (true, Some(options)) = (file.exists(), decode_options) {
-                // Decoding: always from the file
-
-                let config = config.get(&format.to_string()).cloned().unwrap_or_default();
-                if config.decode.skip {
-                    continue;
-                }
-
-                let codec = codecs::get(None, Some(*format), None)?;
-                let lossy_types = codec
-                    .lossy_types(None)
-                    .iter()
-                    .map(|node_type| node_type.to_string())
-                    .collect_vec();
-
-                let options = DecodeOptions {
-                    format: Some(*format),
-                    ..options.clone()
-                };
+            if file.exists() && !config.decode.skip {
+                // Decode from file
                 let (mut decoded, losses) = codec
-                    .from_path(&file, Some(options))
+                    .from_path(&file, Some(config.decode.options.clone()))
                     .await
                     .wrap_err_with(|| format!("while decoding {}", file.display()))?;
 
+                // Write any losses to file
                 let mut losses_file = path.clone();
-                losses_file.set_extension([extension, ".decode.losses"].concat());
+                losses_file.set_extension([&extension, ".decode.losses"].concat());
                 if losses.is_empty() {
                     remove_file(losses_file).await.ok();
-                } else if *write_losses {
+                } else {
                     write(losses_file, serde_yaml::to_string(&losses)?).await?;
                 }
 
-                // Strip types that the codec is lossy for from both the decoded
-                // and original node
+                // Apply stripping to both original and decoded value for fair valid comparison
                 let targets = StripTargets {
-                    types: lossy_types,
+                    scopes: config.decode.options.strip_scopes.clone(),
+                    types: config.decode.options.strip_types.clone(),
+                    properties: config.decode.options.strip_props.clone(),
                     ..Default::default()
                 };
                 decoded.strip(&targets);
@@ -308,8 +322,10 @@ async fn examples() -> Result<()> {
                 stripped.strip(&targets);
 
                 assert_eq!(
-                    decoded, stripped,
-                    "Example `{name}`, format `{format}`: decoded node differs"
+                    decoded,
+                    stripped,
+                    "Decoded node differs\nConfig:{config}",
+                    config = serde_json::to_string_pretty(&config)?
                 );
             }
         }

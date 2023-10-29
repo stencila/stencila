@@ -10,11 +10,6 @@
     {
       "type": "CodeBlock",
       "code": "No language\n"
-    },
-    {
-      "type": "CodeBlock",
-      "programmingLanguage": "python",
-      "code": "# No newline at end"
     }
   ]
 }

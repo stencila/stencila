@@ -5,7 +5,7 @@ use std::path::{Path, PathBuf};
 use common::{
     clap::{self, ValueEnum},
     eyre::{bail, Result},
-    serde::Serialize,
+    serde::{Deserialize, Serialize},
     strum::{Display, EnumIter, EnumString},
 };
 
@@ -22,6 +22,7 @@ use common::{
     EnumIter,
     EnumString,
     Serialize,
+    Deserialize,
 )]
 #[strum(
     serialize_all = "lowercase",

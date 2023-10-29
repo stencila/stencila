@@ -1,0 +1,5 @@
+compact.jats.xml:
+  decode:
+    strip-props:
+      # TODO: support link title
+      - Link.title

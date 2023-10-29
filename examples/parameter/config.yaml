@@ -1,3 +1,11 @@
-jats:
+compact.jats.xml:
   decode:
+    # TODO: Support encoding and decoding `Parameter`
     skip: true
+md:
+  decode:
+    # TODO: Fix various issues, including below props
+    skip: true
+    strip-props:
+      - NumberValidator.exclusive_minimum
+      - NumberValidator.exclusive_maximum

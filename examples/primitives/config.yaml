@@ -1,0 +1,4 @@
+md:
+  decode:
+    # Skip decoding since encoding is lossy
+    skip: true

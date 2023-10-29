@@ -1,3 +1,9 @@
-jats:
+# TODO: Consider encoding `Delete` and `Insert` to JATS and
+# Markdown, given that they are still just suggestions until accepted
+
+compact.jats.xml:
+  decode:
+    skip: true
+md:
   decode:
     skip: true

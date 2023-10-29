@@ -625,6 +625,7 @@ dependencies = [
  "codec-text",
  "codec-yaml",
  "common-dev",
+ "json_value_merge",
  "node-strip",
 ]
 
@@ -1562,6 +1563,15 @@ checksum = "b2894a72f82fa9f20e628bf4329cd0fb8e9fd5e87cc35944665a42b25bae9902"
 dependencies = [
  "lazy_static",
  "regex",
+]
+
+[[package]]
+name = "json_value_merge"
+version = "2.0.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "2b0a3aadd8aaadfe2be6fd22bbdb5dbc63494ce22b7c124211f684fd757b3215"
+dependencies = [
+ "serde_json",
 ]
 
 [[package]]

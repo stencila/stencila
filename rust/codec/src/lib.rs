@@ -3,14 +3,14 @@ use std::{collections::BTreeMap, path::Path};
 use common::{
     async_trait::async_trait,
     eyre::{bail, Result},
-    serde::Serialize,
+    serde::{Deserialize, Serialize},
     smart_default::SmartDefault,
     strum::{Display, IntoEnumIterator},
     tokio::{
         fs::{create_dir_all, File},
         io::{AsyncReadExt, AsyncWriteExt},
     },
-    tracing,
+    tracing, serde_with::skip_serializing_none,
 };
 use format::Format;
 use node_strip::StripScope;
@@ -280,7 +280,9 @@ impl CodecSupport {
 }
 
 /// Decoding options
-#[derive(Debug, SmartDefault, Clone)]
+#[skip_serializing_none]
+#[derive(Debug, SmartDefault, Clone, Serialize, Deserialize)]
+#[serde(default, rename_all = "kebab-case", crate = "common::serde")]
 pub struct DecodeOptions {
     /// The name of the codec to use for decoding
     ///
@@ -293,13 +295,27 @@ pub struct DecodeOptions {
     /// format it may be necessary to specify this option.
     pub format: Option<Format>,
 
+    /// Scopes defining which properties of nodes should be stripped before decoding
+    #[serde(skip_serializing_if = "Vec::is_empty")]
+    pub strip_scopes: Vec<StripScope>,
+
+    /// A list of node types to strip before decoding
+    #[serde(skip_serializing_if = "Vec::is_empty")]
+    pub strip_types: Vec<String>,
+
+    /// A list of node properties to strip before decoding
+    #[serde(skip_serializing_if = "Vec::is_empty")]
+    pub strip_props: Vec<String>,
+
     /// The response to take when there are losses in the decoding
     #[default(_code = "LossesResponse::Warn")]
     pub losses: LossesResponse,
 }
 
 /// Encoding options
-#[derive(Debug, SmartDefault, Clone)]
+#[skip_serializing_none]
+#[derive(Debug, SmartDefault, Clone, Serialize, Deserialize)]
+#[serde(default, rename_all = "kebab-case", crate = "common::serde")]
 pub struct EncodeOptions {
     /// The name of the codec to use for encoding
     ///
@@ -325,13 +341,16 @@ pub struct EncodeOptions {
     #[default = false]
     pub compact: bool,
 
-    /// Scopes defining which properties of nodes should be stripped when encoding
+    /// Scopes defining which properties of nodes should be stripped before encoding
+    #[serde(skip_serializing_if = "Vec::is_empty")]
     pub strip_scopes: Vec<StripScope>,
 
-    /// A list of node types to strip when encoding
+    /// A list of node types to strip before encoding
+    #[serde(skip_serializing_if = "Vec::is_empty")]
     pub strip_types: Vec<String>,
 
-    /// A list of node properties to strip when encoding
+    /// A list of node properties to strip before encoding
+    #[serde(skip_serializing_if = "Vec::is_empty")]
     pub strip_props: Vec<String>,
 
     /// The response to take when there are losses in the encoding

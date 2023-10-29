@@ -1,0 +1,4 @@
+md:
+  decode:
+    # TODO: Implement decoding of `Section`
+    skip: true

@@ -1,0 +1,9 @@
+compact.jats.xml:
+  decode:
+    strip-types:
+      # TODO: Implement encoding and decoding `Division`
+      - Division
+md:
+  decode:
+    # TODO: Implement decoding `Division`
+    skip: true

@@ -5,12 +5,14 @@ use std::{collections::HashMap, fmt::Display};
 use common::{
     clap::{self, ValueEnum},
     indexmap::IndexMap,
+    serde::{Deserialize, Serialize},
 };
 
 pub use node_strip_derive::StripNode;
 
 /// Predefined scopes for properties to be stripped across node types
-#[derive(Debug, Clone, Copy, ValueEnum, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, ValueEnum, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "lowercase", crate = "common::serde")]
 pub enum StripScope {
     /// Strip metadata properties of nodes
     Metadata,

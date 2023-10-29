@@ -4,7 +4,7 @@ use common::{
     eyre::{bail, eyre, Result},
     inflector::Inflector,
     itertools::Itertools,
-    serde::Serialize,
+    serde::{Deserialize, Serialize},
     serde_json, serde_yaml,
     strum::Display,
     tracing,
@@ -12,8 +12,9 @@ use common::{
 use format::Format;
 
 /// The response to take when there are losses in decoding or encoding
-#[derive(Debug, Clone, Display)]
+#[derive(Debug, Clone, Display, Serialize, Deserialize)]
 #[strum(ascii_case_insensitive, serialize_all = "lowercase")]
+#[serde(rename_all = "lowercase", crate = "common::serde")]
 pub enum LossesResponse {
     /// Ignore the losses; do nothing
     Ignore,

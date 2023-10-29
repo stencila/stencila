@@ -1,0 +1,10 @@
+compact.jats.xml:
+  decode:
+    strip-types:
+      # TODO: implement encoding and decoding for `Call`
+      - Call
+md:
+  decode:
+    strip-props:
+      # TODO: fix issues with argument decoding
+      - Call.arguments

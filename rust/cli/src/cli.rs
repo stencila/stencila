@@ -226,7 +226,19 @@ enum Command {
 
 /// Command line arguments for decoding nodes from other formats
 #[derive(Debug, Args)]
-struct DecodeOptions {}
+struct DecodeOptions {
+    /// Scopes defining which properties of nodes should be stripped
+    #[arg(long)]
+    strip_scopes: Vec<StripScope>,
+
+    /// A list of node types to strip after decoding
+    #[arg(long)]
+    strip_types: Vec<String>,
+
+    /// A list of node properties to strip after decoding
+    #[arg(long, default_value = "id")]
+    strip_props: Vec<String>,
+}
 
 impl DecodeOptions {
     /// Build a set of [`codecs::DecodeOptions`] from command line arguments
@@ -240,6 +252,9 @@ impl DecodeOptions {
         codecs::DecodeOptions {
             codec,
             format,
+            strip_scopes: self.strip_scopes.clone(),
+            strip_types: self.strip_types.clone(),
+            strip_props: self.strip_props.clone(),
             losses,
         }
     }
@@ -340,13 +355,16 @@ impl Cli {
                 codec,
                 r#type,
                 losses,
-                ..
+                options
             } => {
                 let doc = Document::open(&doc).await?;
 
                 let options = codecs::DecodeOptions {
                     codec,
                     format,
+                    strip_scopes: options.strip_scopes,
+                    strip_types: options.strip_types,
+                    strip_props: options.strip_props,
                     losses,
                 };
 

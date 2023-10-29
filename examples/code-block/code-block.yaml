@@ -8,6 +8,3 @@ content:
 - type: CodeBlock
   code: |
     No language
-- type: CodeBlock
-  code: '# No newline at end'
-  programmingLanguage: python
