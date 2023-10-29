@@ -259,9 +259,9 @@ pub fn decode_blocks(md: &str) -> (Vec<Block>, Losses) {
                         _ => (None, false),
                     };
 
-                    let code = inlines.pop_text().trim_end_matches('\n').to_string();
+                    let code = inlines.pop_text();
 
-                    let node = match exec {
+                    let block = match exec {
                         true => cc(code, lang),
                         false => match lang.as_deref() {
                             Some("asciimath") | Some("mathml") | Some("latex") | Some("tex") => {
@@ -271,7 +271,7 @@ pub fn decode_blocks(md: &str) -> (Vec<Block>, Losses) {
                         },
                     };
 
-                    blocks.push_block(node)
+                    blocks.push_block(block)
                 }
 
                 // Inline nodes with inline content
