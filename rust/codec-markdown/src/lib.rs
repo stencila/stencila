@@ -45,6 +45,20 @@ impl Codec for MarkdownCodec {
         match node_type {
             // Data
             String | Cord => NoLoss,
+            Null | Boolean | Integer | UnsignedInteger | Number => LowLoss,
+            // Prose Inlines
+            Text | Emphasis | Strong | Subscript | Superscript | Underline => NoLoss,
+            Link | Parameter | AudioObject | ImageObject | MediaObject => LowLoss,
+            // Prose Blocks
+            Division | Section | Heading | Paragraph | ThematicBreak => NoLoss,
+            List | ListItem | Table | TableRow | TableCell => LowLoss,
+            // Code
+            CodeFragment | CodeBlock => NoLoss,
+            CodeExpression | CodeChunk => LowLoss,
+            // Math
+            MathFragment | MathBlock => NoLoss,
+            // Works,
+            Article => LowLoss,
             _ => None,
         }
     }
@@ -60,7 +74,7 @@ impl Codec for MarkdownCodec {
             Text | Emphasis | Strong | Subscript | Superscript | Underline => NoLoss,
             Link | Parameter | AudioObject | ImageObject | MediaObject => LowLoss,
             // Prose Blocks
-            Section | Heading | Paragraph | ThematicBreak => NoLoss,
+            Division | Section | Heading | Paragraph | ThematicBreak => NoLoss,
             List | ListItem | Table | TableRow | TableCell => LowLoss,
             // Code
             CodeFragment | CodeBlock => NoLoss,
