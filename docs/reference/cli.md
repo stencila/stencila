@@ -158,6 +158,24 @@ Import a file in another format into a new or existing document
 * `-l`, `--losses <LOSSES>` — What to do if there are losses when decoding
 
   Default value: `warn`
+* `--strip-scopes <STRIP_SCOPES>` — Scopes defining which properties of nodes should be stripped
+
+  Possible values:
+  - `metadata`:
+    Strip metadata properties of nodes
+  - `content`:
+    Strip content properties of nodes
+  - `code`:
+    Strip code properties of executable nodes
+  - `execution`:
+    Strip execution related properties of executable nodes
+  - `output`:
+    Strip output properties of executable nodes
+
+* `--strip-types <STRIP_TYPES>` — A list of node types to strip
+* `--strip-props <STRIP_PROPS>` — A list of node properties to strip
+
+  Default value: `id`
 
 
 
@@ -225,8 +243,8 @@ Export a document to a file in another format
   - `output`:
     Strip output properties of executable nodes
 
-* `--strip-types <STRIP_TYPES>` — A list of node types to strip before encoding
-* `--strip-props <STRIP_PROPS>` — A list of node properties to strip before encoding
+* `--strip-types <STRIP_TYPES>` — A list of node types to strip
+* `--strip-props <STRIP_PROPS>` — A list of node properties to strip
 
   Default value: `id`
 
@@ -266,8 +284,8 @@ Synchronize a document with one of more other files in other formats
   - `output`:
     Strip output properties of executable nodes
 
-* `--strip-types <STRIP_TYPES>` — A list of node types to strip before encoding
-* `--strip-props <STRIP_PROPS>` — A list of node properties to strip before encoding
+* `--strip-types <STRIP_TYPES>` — A list of node types to strip
+* `--strip-props <STRIP_PROPS>` — A list of node properties to strip
 
   Default value: `id`
 
@@ -337,8 +355,8 @@ Convert a document between formats
   - `output`:
     Strip output properties of executable nodes
 
-* `--strip-types <STRIP_TYPES>` — A list of node types to strip before encoding
-* `--strip-props <STRIP_PROPS>` — A list of node properties to strip before encoding
+* `--strip-types <STRIP_TYPES>` — A list of node types to strip
+* `--strip-props <STRIP_PROPS>` — A list of node properties to strip
 
   Default value: `id`
 

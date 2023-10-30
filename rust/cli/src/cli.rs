@@ -111,6 +111,9 @@ enum Command {
 
         #[command(flatten)]
         options: DecodeOptions,
+
+        #[command(flatten)]
+        strip_options: StripOptions,
     },
 
     /// Export a document to a file in another format
@@ -135,6 +138,9 @@ enum Command {
 
         #[command(flatten)]
         options: EncodeOptions,
+
+        #[command(flatten)]
+        strip_options: StripOptions,
     },
 
     /// Synchronize a document with one of more other files in other formats
@@ -160,6 +166,9 @@ enum Command {
 
         #[command(flatten)]
         encode_options: EncodeOptions,
+
+        #[command(flatten)]
+        strip_options: StripOptions,
     },
 
     /// Display the history of commits to the document
@@ -221,30 +230,43 @@ enum Command {
 
         #[command(flatten)]
         encode_options: EncodeOptions,
+
+        #[command(flatten)]
+        strip_options: StripOptions,
     },
 }
 
-/// Command line arguments for decoding nodes from other formats
-#[derive(Debug, Args)]
-struct DecodeOptions {
+/// Command line arguments for stripping nodes
+///
+/// It is necessary to have this as a separate `struct` (rather than adding
+/// these fields to both `DecodeOptions` and `EncodeOptions`) to avoid duplication
+/// when DecodeOptions` and `EncodeOptions` are both flattened into `Sync` and `Convert`
+/// commands.
+#[derive(Debug, Clone, Args)]
+struct StripOptions {
     /// Scopes defining which properties of nodes should be stripped
     #[arg(long)]
     strip_scopes: Vec<StripScope>,
 
-    /// A list of node types to strip after decoding
+    /// A list of node types to strip
     #[arg(long)]
     strip_types: Vec<String>,
 
-    /// A list of node properties to strip after decoding
+    /// A list of node properties to strip
     #[arg(long, default_value = "id")]
     strip_props: Vec<String>,
 }
+
+/// Command line arguments for decoding nodes from other formats
+#[derive(Debug, Args)]
+struct DecodeOptions {}
 
 impl DecodeOptions {
     /// Build a set of [`codecs::DecodeOptions`] from command line arguments
     fn build(
         &self,
         format_or_codec: Option<String>,
+        strip_options: StripOptions,
         losses: codecs::LossesResponse,
     ) -> codecs::DecodeOptions {
         let (format, codec) = codecs::format_or_codec(format_or_codec);
@@ -252,9 +274,9 @@ impl DecodeOptions {
         codecs::DecodeOptions {
             codec,
             format,
-            strip_scopes: self.strip_scopes.clone(),
-            strip_types: self.strip_types.clone(),
-            strip_props: self.strip_props.clone(),
+            strip_scopes: strip_options.strip_scopes,
+            strip_types: strip_options.strip_types,
+            strip_props: strip_options.strip_props,
             losses,
         }
     }
@@ -277,18 +299,6 @@ struct EncodeOptions {
     /// which are supported by some formats (e.g. JSON, HTML).
     #[arg(long, short)]
     compact: bool,
-
-    /// Scopes defining which properties of nodes should be stripped
-    #[arg(long)]
-    strip_scopes: Vec<StripScope>,
-
-    /// A list of node types to strip before encoding
-    #[arg(long)]
-    strip_types: Vec<String>,
-
-    /// A list of node properties to strip before encoding
-    #[arg(long, default_value = "id")]
-    strip_props: Vec<String>,
 }
 
 impl EncodeOptions {
@@ -296,6 +306,7 @@ impl EncodeOptions {
     fn build(
         &self,
         format_or_codec: Option<String>,
+        strip_options: StripOptions,
         losses: codecs::LossesResponse,
     ) -> codecs::EncodeOptions {
         let (format, codec) = codecs::format_or_codec(format_or_codec);
@@ -309,9 +320,9 @@ impl EncodeOptions {
             format,
             compact: self.compact,
             standalone,
-            strip_scopes: self.strip_scopes.clone(),
-            strip_types: self.strip_types.clone(),
-            strip_props: self.strip_props.clone(),
+            strip_scopes: strip_options.strip_scopes,
+            strip_types: strip_options.strip_types,
+            strip_props: strip_options.strip_props,
             losses,
         }
     }
@@ -355,16 +366,17 @@ impl Cli {
                 codec,
                 r#type,
                 losses,
-                options,
+                strip_options,
+                ..
             } => {
                 let doc = Document::open(&doc).await?;
 
                 let options = codecs::DecodeOptions {
                     codec,
                     format,
-                    strip_scopes: options.strip_scopes,
-                    strip_types: options.strip_types,
-                    strip_props: options.strip_props,
+                    strip_scopes: strip_options.strip_scopes,
+                    strip_types: strip_options.strip_types,
+                    strip_props: strip_options.strip_props,
                     losses,
                 };
 
@@ -378,6 +390,7 @@ impl Cli {
                 codec,
                 losses,
                 options,
+                strip_options,
             } => {
                 let doc = Document::open(&doc).await?;
 
@@ -386,9 +399,9 @@ impl Cli {
                     format,
                     standalone: options.not_standalone.then_some(false),
                     compact: options.compact,
-                    strip_scopes: options.strip_scopes,
-                    strip_types: options.strip_types,
-                    strip_props: options.strip_props,
+                    strip_scopes: strip_options.strip_scopes,
+                    strip_types: strip_options.strip_types,
+                    strip_props: strip_options.strip_props,
                     losses,
                 };
 
@@ -406,6 +419,7 @@ impl Cli {
                 losses,
                 decode_options,
                 encode_options,
+                strip_options,
             } => {
                 let doc = Document::open(&doc).await?;
 
@@ -424,10 +438,16 @@ impl Cli {
 
                     let format_or_codec = formats.get(index).cloned();
 
-                    let decode_options =
-                        Some(decode_options.build(format_or_codec.clone(), losses.clone()));
-                    let encode_options =
-                        Some(encode_options.build(format_or_codec, losses.clone()));
+                    let decode_options = Some(decode_options.build(
+                        format_or_codec.clone(),
+                        strip_options.clone(),
+                        losses.clone(),
+                    ));
+                    let encode_options = Some(encode_options.build(
+                        format_or_codec,
+                        strip_options.clone(),
+                        losses.clone(),
+                    ));
 
                     if file.ends_with("-") {
                         let (change_sender, mut change_receiver) =
@@ -487,9 +507,11 @@ impl Cli {
                 output_losses,
                 decode_options,
                 encode_options,
+                strip_options,
             } => {
-                let decode_options = decode_options.build(from, input_losses);
-                let encode_options = encode_options.build(to, output_losses);
+                let decode_options =
+                    decode_options.build(from, strip_options.clone(), input_losses);
+                let encode_options = encode_options.build(to, strip_options, output_losses);
 
                 let content = codecs::convert(
                     input.as_deref(),
