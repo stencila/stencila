@@ -107,18 +107,12 @@ prop_compose! {
     /// Generate a vector of block content of arbitrary length and content
     ///
     /// Restrictions:
-    ///  - Does not start with a thematic break (unrealistic, and in Markdown can
-    ///    be confused with YAML frontmatter)
     ///  - List of same ordering can not be adjacent to each other (in Markdown they
     ///    get decoded as the same list)
     pub fn vec_blocks(max_size: usize)(
         length in 1..=max_size
     )(
         blocks in vec(Block::arbitrary(), size_range(length))
-            .prop_filter(
-                "Should not start with thematic break",
-                |blocks| !(matches!(blocks[0], Block::ThematicBreak(..)))
-            )
             .prop_filter(
                 "Lists with same ordering should not be adjacent",
                 |blocks| {
