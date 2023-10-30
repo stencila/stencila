@@ -1,3 +1,11 @@
-TheoremA theorem
+::: theorem
 
-PropositionProposition 1A proposition with a label
+A theorem
+
+:::
+
+::: proposition Proposition 1
+
+A proposition with a label
+
+:::

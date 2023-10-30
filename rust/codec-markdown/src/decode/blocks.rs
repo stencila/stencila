@@ -13,14 +13,14 @@ use nom::{
 };
 
 use codec::schema::{
-    Call, CallArgument, Cord, Division, For, Form, FormDeriveAction, FormOptions, IfClause,
+    Call, CallArgument, Claim, Cord, Division, For, Form, FormDeriveAction, FormOptions, IfClause,
     Include, IntegerOrString, MathBlock, Node, Section,
 };
 
 use super::parse::{curly_attrs, node_to_from_str, node_to_string, symbol};
 
-/// Note: Most of these parsers are all consuming because they are used
-/// to test a match against a whole line.
+// Note: Most of these parsers are all consuming because they are used
+// to test a match against a whole line.
 
 /// Detect at least three semicolons
 fn semis(input: &str) -> IResult<&str, &str> {
@@ -114,9 +114,41 @@ fn call_arg(input: &str) -> IResult<&str, CallArgument> {
 
 /// Parse a [`Section`] node
 pub fn section(input: &str) -> IResult<&str, Section> {
-    map(all_consuming(tuple((semis, multispace0))), |_| {
-        Section::default()
-    })(input)
+    map(
+        all_consuming(tuple((
+            semis,
+            multispace0,
+            alt((tag("section"), tag("sec"))),
+        ))),
+        |_| Section::default(),
+    )(input)
+}
+
+/// Parse a [`Claim`] node
+pub fn claim(input: &str) -> IResult<&str, Claim> {
+    map(
+        all_consuming(preceded(
+            tuple((semis, multispace0)),
+            tuple((
+                alt((
+                    tag("corollary"),
+                    tag("hypothesis"),
+                    tag("lemma"),
+                    tag("postulate"),
+                    tag("proof"),
+                    tag("proposition"),
+                    tag("statement"),
+                    tag("theorem"),
+                )),
+                opt(preceded(multispace1, is_not("\r\n"))),
+            )),
+        )),
+        |(claim_type, label)| Claim {
+            claim_type: claim_type.parse().unwrap_or_default(),
+            label: label.map(|label| String::from(label)),
+            ..Default::default()
+        },
+    )(input)
 }
 
 /// Parse a [`Division`] node
@@ -265,6 +297,7 @@ pub fn end(input: &str) -> IResult<&str, &str> {
 
 #[cfg(test)]
 mod tests {
+    use codec::schema::ClaimType;
     use common_dev::pretty_assertions::assert_eq;
 
     use super::*;
@@ -354,6 +387,26 @@ mod tests {
                 ],
                 ..Default::default()
             },
+        );
+    }
+
+    #[test]
+    fn test_claim() {
+        assert_eq!(
+            claim("::: hypothesis").unwrap().1,
+            Claim {
+                claim_type: ClaimType::Hypothesis,
+                ..Default::default()
+            }
+        );
+
+        assert_eq!(
+            claim("::: lemma Lemma 1").unwrap().1,
+            Claim {
+                claim_type: ClaimType::Lemma,
+                label: Some(String::from("Lemma 1")),
+                ..Default::default()
+            }
         );
     }
 

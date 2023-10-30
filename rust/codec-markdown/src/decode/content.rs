@@ -19,7 +19,9 @@ use codec::{
 use pulldown_cmark::{CodeBlockKind, Event, Options, Parser, Tag};
 
 use super::{
-    blocks::{call, division, else_, end, for_, form, if_elif, include, math_block, section},
+    blocks::{
+        call, claim, division, else_, end, for_, form, if_elif, include, math_block, section,
+    },
     inlines::inlines,
 };
 
@@ -124,7 +126,6 @@ pub fn decode_blocks(md: &str) -> (Vec<Block>, Losses) {
                 Tag::Paragraph => {
                     let trimmed = inlines.text.trim();
 
-                    // The
                     let block = if let Ok((.., math_block)) = math_block(trimmed) {
                         Some(Block::MathBlock(math_block))
                     } else if let Ok((.., include)) = include(trimmed) {
@@ -134,6 +135,10 @@ pub fn decode_blocks(md: &str) -> (Vec<Block>, Losses) {
                     } else if let Ok((.., section)) = section(trimmed) {
                         blocks.push_div();
                         divs.push_back(Block::Section(section));
+                        None
+                    } else if let Ok((.., claim)) = claim(trimmed) {
+                        blocks.push_div();
+                        divs.push_back(Block::Claim(claim));
                         None
                     } else if let Ok((.., div)) = division(trimmed) {
                         blocks.push_div();
@@ -202,6 +207,10 @@ pub fn decode_blocks(md: &str) -> (Vec<Block>, Losses) {
                         None
                     } else if end(trimmed).is_ok() {
                         divs.pop_back().map(|div| match div {
+                            Block::Claim(mut claim) => {
+                                claim.content = blocks.pop_div();
+                                Block::Claim(claim)
+                            }
                             Block::Section(mut section) => {
                                 section.content = blocks.pop_div();
                                 Block::Section(section)

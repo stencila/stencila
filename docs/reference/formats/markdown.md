@@ -124,7 +124,7 @@ Support and degree of loss for node types:
 | **Works**                                                                                                                 |
 | [Article](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/article.md)                          | 🔷 Low loss       | 🔷 Low loss    | Encoded using special function        |
 | [AudioObject](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/audio_object.md)                 | 🔷 Low loss       | 🔷 Low loss    | Encoded using special function        |
-| [Claim](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/claim.md)                              | ⚠️ High loss     |               |                                       |
+| [Claim](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/claim.md)                              | ⚠️ High loss     |               | Encoded using special function        |
 | [Collection](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/collection.md)                    | ⚠️ High loss     |               |                                       |
 | [Comment](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/comment.md)                          | ⚠️ High loss     |               |                                       |
 | [CreativeWork](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/creative_work.md)               | ⚠️ High loss     |               |                                       |

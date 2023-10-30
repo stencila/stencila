@@ -29,6 +29,7 @@ use super::thing_type::ThingType;
 #[derive(derive_more::Display)]
 #[display(fmt = "Claim")]
 #[jats(elem = "statement")]
+#[markdown(template = "::: {claim_type} {label}\n\n{content}\n\n:::\n\n", special)]
 pub struct Claim {
     /// The type of this item.
     #[cfg_attr(feature = "proptest", proptest(value = "Default::default()"))]

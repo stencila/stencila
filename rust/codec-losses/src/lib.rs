@@ -223,7 +223,7 @@ macro_rules! lost_options {
 #[macro_export]
 macro_rules! lost_exec_options {
     ($object:expr) => {
-        lost_options!(
+        codec_losses::lost_options!(
             $object.options,
             compilation_digest,
             execution_digest,
@@ -237,6 +237,17 @@ macro_rules! lost_exec_options {
             execution_ended,
             execution_duration,
             errors
+        )
+    };
+}
+
+/// Create a set of losses for optional fields on `CreativeWork` nodes
+#[macro_export]
+macro_rules! lost_work_options {
+    ($object:expr) => {
+        codec_losses::lost_options!(
+            $object.options,
+            authors
         )
     };
 }

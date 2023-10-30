@@ -5,6 +5,7 @@ mod article;
 mod automatic_execution;
 mod block;
 mod call;
+mod claim;
 mod code_block;
 mod code_expression;
 mod code_fragment;

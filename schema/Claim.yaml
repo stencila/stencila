@@ -9,6 +9,9 @@ $comment: |
   See also [Schema.org `Claim`](https://schema.org/Claim) and [JATS `<statement>`](https://jats.nlm.nih.gov/publishing/tag-library/1.2/element/statement.html).
 jats:
   elem: statement
+markdown:
+  template: '::: {claim_type} {label}\n\n{content}\n\n:::\n\n'
+  special: true
 proptest: {}
 required:
   - claimType

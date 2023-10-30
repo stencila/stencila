@@ -3,6 +3,3 @@ compact.jats.xml:
     strip-types:
       # TODO: implement decoding of <statement> into `Claim`
       - Claim
-md:
-  decode:
-    skip: true
