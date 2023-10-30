@@ -31,8 +31,7 @@
         {
           type: "CallArgument",
           name: "arg1",
-          code: "123",
-          programmingLanguage: ""
+          code: "123"
         }
       ]
     }

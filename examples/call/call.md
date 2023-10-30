@@ -4,4 +4,4 @@ A call of sibling document
 
 A call with arguments
 
-/../parameter/parameter.md(arg1="123")
+/../parameter/parameter.md(arg1=123)
