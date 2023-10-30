@@ -24,7 +24,7 @@ proc-macro2 = "1.0.69"
 quote = "1.0.33"
 regex = "1.10.2"
 serde = { version = "1.0.190", features = ["derive", "rc"] }
-serde_json = { version = "1.0.107", features = ["preserve_order"] }
+serde_json = { version = "1.0.108", features = ["preserve_order"] }
 serde_with = "3.4.0"
 serde_yaml = "0.9.27"
 similar = { version = "2.3.0", features = ["unicode"] }
@@ -32,7 +32,7 @@ slug = "0.1.4"
 smart-default = "0.7.1"
 strum = { version = "0.25.0", features = ["derive"] }
 syn = "2.0.38"
-tempfile = "3.8.0"
+tempfile = "3.8.1"
 tokio = { version = "1.33.0", features = ["full", "tracing"] }
-toml = "0.8.5"
+toml = "0.8.6"
 tracing = { version = "0.1.40", features = ["log"] }
