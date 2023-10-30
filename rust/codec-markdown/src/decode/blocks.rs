@@ -145,7 +145,7 @@ pub fn claim(input: &str) -> IResult<&str, Claim> {
         )),
         |(claim_type, label)| Claim {
             claim_type: claim_type.parse().unwrap_or_default(),
-            label: label.map(|label| String::from(label)),
+            label: label.map(String::from),
             ..Default::default()
         },
     )(input)

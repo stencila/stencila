@@ -355,7 +355,7 @@ impl Cli {
                 codec,
                 r#type,
                 losses,
-                options
+                options,
             } => {
                 let doc = Document::open(&doc).await?;
 

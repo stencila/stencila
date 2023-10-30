@@ -54,7 +54,7 @@ struct DecodeConfig {
 }
 
 /// Default config
-const CONFIG: Lazy<Config> = Lazy::new(|| {
+static CONFIG: Lazy<Config> = Lazy::new(|| {
     BTreeMap::from([
         (
             String::from("html"),
@@ -314,7 +314,6 @@ async fn examples() -> Result<()> {
                     scopes: config.decode.options.strip_scopes.clone(),
                     types: config.decode.options.strip_types.clone(),
                     properties: config.decode.options.strip_props.clone(),
-                    ..Default::default()
                 };
                 decoded.strip(&targets);
 

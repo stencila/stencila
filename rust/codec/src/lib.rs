@@ -4,13 +4,14 @@ use common::{
     async_trait::async_trait,
     eyre::{bail, Result},
     serde::{Deserialize, Serialize},
+    serde_with::skip_serializing_none,
     smart_default::SmartDefault,
     strum::{Display, IntoEnumIterator},
     tokio::{
         fs::{create_dir_all, File},
         io::{AsyncReadExt, AsyncWriteExt},
     },
-    tracing, serde_with::skip_serializing_none,
+    tracing,
 };
 use format::Format;
 use node_strip::StripScope;
