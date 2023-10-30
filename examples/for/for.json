@@ -14,7 +14,6 @@
     {
       "type": "For",
       "symbol": "item",
-      "programmingLanguage": "",
       "code": "[1,2,3]",
       "content": [
         {
@@ -26,7 +25,6 @@
             },
             {
               "type": "CodeExpression",
-              "programmingLanguage": "",
               "code": "item"
             }
           ]
@@ -71,13 +69,11 @@
     {
       "type": "For",
       "symbol": "outer",
-      "programmingLanguage": "",
       "code": "[['a', 'b'], ['c', 'd']]",
       "content": [
         {
           "type": "For",
           "symbol": "inner",
-          "programmingLanguage": "",
           "code": "outer",
           "content": [
             {
@@ -89,7 +85,6 @@
                 },
                 {
                   "type": "CodeExpression",
-                  "programmingLanguage": "",
                   "code": "inner"
                 }
               ]
@@ -110,7 +105,6 @@
     {
       "type": "For",
       "symbol": "item",
-      "programmingLanguage": "",
       "code": "[]",
       "content": [
         {
@@ -147,7 +141,6 @@
     {
       "type": "For",
       "symbol": "item",
-      "programmingLanguage": "",
       "code": "[]",
       "content": [],
       "otherwise": []

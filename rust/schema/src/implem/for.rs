@@ -8,9 +8,11 @@ impl For {
         let mut losses = Losses::none();
 
         if let Some(lang) = &self.programming_language {
-            md.push('{');
-            md.push_str(lang);
-            md.push('}');
+            if !lang.is_empty() {
+                md.push('{');
+                md.push_str(lang);
+                md.push('}');
+            }
         }
 
         md.push_str("\n\n");

@@ -13,7 +13,6 @@
     {
       type: "For",
       code: "[1,2,3]",
-      programmingLanguage: "",
       symbol: "item",
       content: [
         {
@@ -25,8 +24,7 @@
             },
             {
               type: "CodeExpression",
-              code: "item",
-              programmingLanguage: ""
+              code: "item"
             }
           ]
         }
@@ -70,13 +68,11 @@
     {
       type: "For",
       code: "[['a', 'b'], ['c', 'd']]",
-      programmingLanguage: "",
       symbol: "outer",
       content: [
         {
           type: "For",
           code: "outer",
-          programmingLanguage: "",
           symbol: "inner",
           content: [
             {
@@ -88,8 +84,7 @@
                 },
                 {
                   type: "CodeExpression",
-                  code: "inner",
-                  programmingLanguage: ""
+                  code: "inner"
                 }
               ]
             }
@@ -109,7 +104,6 @@
     {
       type: "For",
       code: "[]",
-      programmingLanguage: "",
       symbol: "item",
       content: [
         {
@@ -146,7 +140,6 @@
     {
       type: "For",
       code: "[]",
-      programmingLanguage: "",
       symbol: "item",
       content: [],
       otherwise: []

@@ -3,7 +3,3 @@ compact.jats.xml:
     strip-types:
       # TODO: Implement encoding and decoding `For`
       - For
-md:
-  decode:
-    # TODO: Implement decoding `For`
-    skip: true

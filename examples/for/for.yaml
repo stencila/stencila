@@ -6,7 +6,6 @@ content:
     value: A simple for loop
 - type: For
   code: '[1,2,3]'
-  programmingLanguage: ''
   symbol: item
   content:
   - type: Paragraph
@@ -15,7 +14,6 @@ content:
       value: 'This paragraph will be repeated with a different value for '
     - type: CodeExpression
       code: item
-      programmingLanguage: ''
 - type: Paragraph
   content:
   - type: Text
@@ -35,12 +33,10 @@ content:
     value: Nested for loops
 - type: For
   code: '[[''a'', ''b''], [''c'', ''d'']]'
-  programmingLanguage: ''
   symbol: outer
   content:
   - type: For
     code: outer
-    programmingLanguage: ''
     symbol: inner
     content:
     - type: Paragraph
@@ -49,14 +45,12 @@ content:
         value: 'This paragraph will be repeated for each inner item '
       - type: CodeExpression
         code: inner
-        programmingLanguage: ''
 - type: Paragraph
   content:
   - type: Text
     value: With an else clause
 - type: For
   code: '[]'
-  programmingLanguage: ''
   symbol: item
   content:
   - type: Paragraph
@@ -74,7 +68,6 @@ content:
     value: With no content in 'content' or 'otherwise'
 - type: For
   code: '[]'
-  programmingLanguage: ''
   symbol: item
   content: []
   otherwise: []
