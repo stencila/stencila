@@ -156,20 +156,10 @@ pub fn division(input: &str) -> IResult<&str, Division> {
     map(
         all_consuming(preceded(
             tuple((semis, multispace0)),
-            alt((
-                // TODO use similar approach as for if etc of only escaping with backticks if needed
-                // and guessing languages
-                // TODO allow for divs with no style
-                tuple((
-                    delimited(char('`'), is_not("`"), char('`')),
-                    delimited(char('{'), is_not("}"), char('}')),
-                )),
-                map(is_not("\r\n"), |text| (text, "tailwind")),
-            )),
+            delimited(char('{'), is_not("}"), char('}')),
         )),
-        |(code, style_language)| Division {
-            code: Cord::from(code.trim()),
-            style_language: Some(style_language.to_string()),
+        |code| Division {
+            code: Cord::from(code),
             ..Default::default()
         },
     )(input)
