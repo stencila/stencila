@@ -3,7 +3,3 @@ compact.jats.xml:
     strip-types:
       # TODO: Implement encoding and decoding `If`
       - If
-md:
-  decode:
-    # TODO: Implement decoding `If`
-    skip: true

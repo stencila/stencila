@@ -8,7 +8,6 @@ content:
   clauses:
   - type: IfClause
     code: 'true'
-    programmingLanguage: ''
     content:
     - type: Paragraph
       content:
@@ -22,7 +21,6 @@ content:
   clauses:
   - type: IfClause
     code: 'false'
-    programmingLanguage: ''
     content:
     - type: Paragraph
       content:
@@ -30,7 +28,6 @@ content:
         value: This paragraph should NOT be shown
   - type: IfClause
     code: ''
-    programmingLanguage: ''
     content:
     - type: Paragraph
       content:
@@ -44,7 +41,6 @@ content:
   clauses:
   - type: IfClause
     code: 'false'
-    programmingLanguage: ''
     content:
     - type: Paragraph
       content:
@@ -52,7 +48,6 @@ content:
         value: This first paragraph should NOT be shown
   - type: IfClause
     code: 'false'
-    programmingLanguage: ''
     content:
     - type: Paragraph
       content:
@@ -60,7 +55,6 @@ content:
         value: This second paragraph should NOT be shown
   - type: IfClause
     code: 'true'
-    programmingLanguage: ''
     content:
     - type: Paragraph
       content:
@@ -68,7 +62,6 @@ content:
         value: This third paragraph should be shown
   - type: IfClause
     code: 'true'
-    programmingLanguage: ''
     content:
     - type: Paragraph
       content:
@@ -76,7 +69,6 @@ content:
         value: This fourth paragraph should NOT be shown because above clause is
   - type: IfClause
     code: ''
-    programmingLanguage: ''
     content:
     - type: Paragraph
       content:
@@ -90,13 +82,11 @@ content:
   clauses:
   - type: IfClause
     code: 'true'
-    programmingLanguage: ''
     content:
     - type: If
       clauses:
       - type: IfClause
         code: 'true'
-        programmingLanguage: ''
         content:
         - type: Paragraph
           content:

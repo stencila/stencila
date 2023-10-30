@@ -17,7 +17,6 @@
         {
           "type": "IfClause",
           "code": "true",
-          "programmingLanguage": "",
           "content": [
             {
               "type": "Paragraph",
@@ -47,7 +46,6 @@
         {
           "type": "IfClause",
           "code": "false",
-          "programmingLanguage": "",
           "content": [
             {
               "type": "Paragraph",
@@ -63,7 +61,6 @@
         {
           "type": "IfClause",
           "code": "",
-          "programmingLanguage": "",
           "content": [
             {
               "type": "Paragraph",
@@ -93,7 +90,6 @@
         {
           "type": "IfClause",
           "code": "false",
-          "programmingLanguage": "",
           "content": [
             {
               "type": "Paragraph",
@@ -109,7 +105,6 @@
         {
           "type": "IfClause",
           "code": "false",
-          "programmingLanguage": "",
           "content": [
             {
               "type": "Paragraph",
@@ -125,7 +120,6 @@
         {
           "type": "IfClause",
           "code": "true",
-          "programmingLanguage": "",
           "content": [
             {
               "type": "Paragraph",
@@ -141,7 +135,6 @@
         {
           "type": "IfClause",
           "code": "true",
-          "programmingLanguage": "",
           "content": [
             {
               "type": "Paragraph",
@@ -157,7 +150,6 @@
         {
           "type": "IfClause",
           "code": "",
-          "programmingLanguage": "",
           "content": [
             {
               "type": "Paragraph",
@@ -187,7 +179,6 @@
         {
           "type": "IfClause",
           "code": "true",
-          "programmingLanguage": "",
           "content": [
             {
               "type": "If",
@@ -195,7 +186,6 @@
                 {
                   "type": "IfClause",
                   "code": "true",
-                  "programmingLanguage": "",
                   "content": [
                     {
                       "type": "Paragraph",

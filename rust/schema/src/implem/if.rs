@@ -1,9 +1,11 @@
+use codec_losses::lost_exec_options;
+
 use crate::{prelude::*, If, IfClause};
 
 impl If {
     pub fn to_markdown_special(&self, context: &MarkdownEncodeContext) -> (String, Losses) {
         let mut md = String::new();
-        let mut losses = Losses::none();
+        let mut losses = lost_exec_options!(self);
 
         let fence = ":".repeat(3 + context.depth * 2);
 
@@ -33,8 +35,6 @@ impl If {
             md.push_str(&fence);
             md.push_str("\n\n");
         }
-
-        // TODO: losses for executable properties
 
         (md, losses)
     }
