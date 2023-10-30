@@ -15,7 +15,7 @@ use super::string::String;
 #[display(fmt = "Section")]
 #[html(elem = "section")]
 #[jats(elem = "sec")]
-#[markdown(special)]
+#[markdown(template = "::: section\n\n{content}\n\n:::\n\n", special)]
 pub struct Section {
     /// The type of this item.
     #[cfg_attr(feature = "proptest", proptest(value = "Default::default()"))]

@@ -8,7 +8,7 @@ impl Section {
 
         let fence = ":".repeat(3 + context.depth * 2);
 
-        let md = [&fence, "\n\n", &md, &fence, "\n\n"].concat();
+        let md = [&fence, " section\n\n", &md, &fence, "\n\n"].concat();
 
         (md, losses)
     }

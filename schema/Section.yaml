@@ -8,6 +8,7 @@ jats:
 html:
   elem: section
 markdown:
+  template: '::: section\n\n{content}\n\n:::\n\n'
   special: true
 proptest: {}
 required:
