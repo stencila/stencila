@@ -1,3 +1,2 @@
 # Some python code
-a = 3
-python No language
+a = 3python No language

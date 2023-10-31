@@ -1,10 +1,9 @@
 type: Article
 content:
 - type: CodeBlock
-  code: |
+  code: |-
     # Some python code
     a = 3
   programmingLanguage: python
 - type: CodeBlock
-  code: |
-    No language
+  code: No language

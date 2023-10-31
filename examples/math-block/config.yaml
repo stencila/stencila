@@ -3,8 +3,3 @@ compact.jats.xml:
     strip-types:
       # TODO: Support decoding math blocks
       - MathBlock
-md:
-  decode:
-    strip-props:
-      # TODO: Fix consistency of trimming code
-      - MathBlock.code

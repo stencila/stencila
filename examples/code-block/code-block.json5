@@ -3,12 +3,12 @@
   content: [
     {
       type: "CodeBlock",
-      code: "# Some python code\na = 3\n",
+      code: "# Some python code\na = 3",
       programmingLanguage: "python"
     },
     {
       type: "CodeBlock",
-      code: "No language\n"
+      code: "No language"
     }
   ]
 }

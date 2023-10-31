@@ -1,1 +1,1 @@
-{type: "Article",content: [{type: "CodeBlock",code: "# Some python code\na = 3\n",programmingLanguage: "python"},{type: "CodeBlock",code: "No language\n"}]}
+{type: "Article",content: [{type: "CodeBlock",code: "# Some python code\na = 3",programmingLanguage: "python"},{type: "CodeBlock",code: "No language"}]}

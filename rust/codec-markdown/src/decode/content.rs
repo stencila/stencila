@@ -271,6 +271,7 @@ pub fn decode_blocks(md: &str) -> (Vec<Block>, Losses) {
                     };
 
                     let code = inlines.pop_text();
+                    let code = code.trim();
 
                     let block = match exec {
                         true => cc(code, lang),
