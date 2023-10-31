@@ -3,6 +3,5 @@
   <body>
     <p>A code fragment:<code>2 * pi * r^2</code>.</p>
     <p>With language:<code language="python">6 * 7</code>.</p>
-    <p>With characters that need to be escaped in Markdown:<code language="bf}">`</code>.</p>
   </body>
 </article>

@@ -17,12 +17,3 @@ content:
     programmingLanguage: python
   - type: Text
     value: .
-- type: Paragraph
-  content:
-  - type: Text
-    value: 'With characters that need to be escaped in Markdown: '
-  - type: CodeFragment
-    code: '`'
-    programmingLanguage: bf}
-  - type: Text
-    value: .
