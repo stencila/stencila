@@ -15,10 +15,11 @@ use nom::{
 use codec::{
     common::indexmap::IndexMap,
     schema::{
-        shortcuts::text, BooleanValidator, Button, Cite, CiteGroup, CodeExpression, CodeFragment,
-        Cord, DateTimeValidator, DateValidator, DurationValidator, EnumValidator, Inline,
+        shortcuts::{strike, sub, sup, text},
+        BooleanValidator, Button, Cite, CiteGroup, CodeExpression, CodeFragment, Cord,
+        DateTimeValidator, DateValidator, DurationValidator, EnumValidator, Inline,
         IntegerValidator, MathFragment, Node, NumberValidator, Parameter, ParameterOptions, Span,
-        StringValidator, Subscript, Superscript, TimeValidator, TimestampValidator, Validator,
+        StringValidator, TimeValidator, TimestampValidator, Validator,
     },
 };
 
@@ -43,6 +44,7 @@ pub fn inlines(input: &str) -> IResult<&str, Vec<Inline>> {
             math,
             parameter,
             span,
+            strikeout,
             subscript,
             superscript,
             string,
@@ -61,6 +63,11 @@ pub fn inlines(input: &str) -> IResult<&str, Vec<Inline>> {
             vec
         },
     )(input)
+}
+
+/// Parse a string into a vector of `Inline` nodes falling back to a single `Text` nodes on error
+pub fn inlines_or_text(input: &str) -> Vec<Inline> {
+    inlines(input).map_or_else(|_| vec![text(input)], |(.., inlines)| inlines)
 }
 
 /// Parse inline code with attributes in curly braces
@@ -570,6 +577,14 @@ fn math(input: &str) -> IResult<&str, Inline> {
     )(input)
 }
 
+/// Parse a string into a `Strikeout` node
+fn strikeout(input: &str) -> IResult<&str, Inline> {
+    map(
+        delimited(tag("~~"), take_until("~~"), tag("~~")),
+        |content: &str| strike(inlines_or_text(content)),
+    )(input)
+}
+
 /// Parse a string into a `Subscript` node
 fn subscript(input: &str) -> IResult<&str, Inline> {
     map(
@@ -579,12 +594,7 @@ fn subscript(input: &str) -> IResult<&str, Inline> {
             take_until("~"),
             char('~'),
         ),
-        |res: &str| {
-            Inline::Subscript(Subscript {
-                content: vec![text(res)],
-                ..Default::default()
-            })
-        },
+        |content: &str| sub(inlines_or_text(content)),
     )(input)
 }
 
@@ -592,12 +602,7 @@ fn subscript(input: &str) -> IResult<&str, Inline> {
 fn superscript(input: &str) -> IResult<&str, Inline> {
     map(
         delimited(char('^'), take_until("^"), char('^')),
-        |res: &str| {
-            Inline::Superscript(Superscript {
-                content: vec![text(res)],
-                ..Default::default()
-            })
-        },
+        |content: &str| sup(inlines_or_text(content)),
     )(input)
 }
 
