@@ -17,8 +17,7 @@
     "elem": "underline"
   },
   "markdown": {
-    "template": "[{content}]{{underline}}",
-    "escape": "]"
+    "template": "<u>{content}</u>"
   },
   "required": [
     "type",

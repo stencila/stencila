@@ -15,7 +15,7 @@ use super::string::String;
 #[display(fmt = "Underline")]
 #[html(elem = "u")]
 #[jats(elem = "underline")]
-#[markdown(template = "[{content}]{{underline}}", escape = "]")]
+#[markdown(template = "<u>{content}</u>")]
 pub struct Underline {
     /// The type of this item.
     #[cfg_attr(feature = "proptest", proptest(value = "Default::default()"))]

@@ -9,7 +9,7 @@ use codec::{
     },
     format::Format,
     schema::{
-        shortcuts::{cb, cc, em, mb, ol, p, qb, strike, strong, table, tb, td, text, ul},
+        shortcuts::{cb, cc, em, mb, ol, p, qb, strike, strong, table, tb, td, text, u, ul},
         transforms::blocks_to_inlines,
         AudioObject, Block, Heading, If, IfClause, ImageObject, Inline, Link, ListItem, TableCell,
         TableRow, TableRowType, VideoObject,
@@ -17,6 +17,8 @@ use codec::{
     Losses,
 };
 use pulldown_cmark::{CodeBlockKind, Event, Options, Parser, Tag};
+
+use crate::decode::inlines::inlines_or_text;
 
 use super::{
     blocks::{
@@ -31,12 +33,12 @@ use super::{
 /// a Jupyter Notebook) and inserting it into a larger document.
 pub fn decode_blocks(md: &str) -> (Vec<Block>, Losses) {
     // Set Markdown parsing options
-    // The ENABLE_SMART_PUNCTUATION option is not enabled as messes with
+    // Do not ENABLE_SMART_PUNCTUATION as it messes with
     // single or double quoting values in `curly_attrs`.
+    // Do not ENABLE_STRIKETHROUGH as it messes with `subscript`.
     let mut options = Options::empty();
     options.insert(Options::ENABLE_TABLES);
     options.insert(Options::ENABLE_FOOTNOTES);
-    options.insert(Options::ENABLE_STRIKETHROUGH);
     options.insert(Options::ENABLE_TASKLISTS);
     options.insert(Options::ENABLE_HEADING_ATTRIBUTES);
 
@@ -745,10 +747,21 @@ impl Html {
         }
 
         if self.tags.is_empty() {
-            let _html = self.html.clone() + html;
+            let html = self.html.clone() + html;
             self.html.clear();
-            vec![]
-            // TODO!
+
+            // TODO: The following is a temporary workaround until HTML decoding
+            // is implemented.
+
+            if let Some(content) = html
+                .strip_prefix("<u>")
+                .and_then(|html| html.strip_suffix("</u>"))
+            {
+                vec![p([u(inlines_or_text(content))])]
+            } else {
+                vec![]
+            }
+
             //codec_html::decode_fragment(&html, Some(Box::new(|text| decode_fragment(text, None))))
         } else {
             self.html.push_str(html);

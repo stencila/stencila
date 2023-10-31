@@ -167,19 +167,6 @@
         },
         {
           type: "Text",
-          value: ", "
-        },
-        {
-          type: "Underline",
-          content: [
-            {
-              type: "Text",
-              value: "] square bra]ck[ets ]"
-            }
-          ]
-        },
-        {
-          type: "Text",
           value: "."
         }
       ]

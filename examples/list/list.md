@@ -38,7 +38,7 @@ A paragraph to keep the previous and following lists separate (otherwise they ge
 
 - an item with an image ![](image.png), see!
 - an item with _emphasis_
-- an item with HTML [underlined]{underline}
+- an item with HTML <u>underlined</u>
 
 A list with multiple paragraphs in each item
 

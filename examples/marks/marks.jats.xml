@@ -3,6 +3,6 @@
   <body>
     <p>This is<italic>emphasized</italic>, and this is<bold>strongly emphasized</bold>, and this is<underline>underlined</underline>.</p>
     <p>This is<sub>subscripted</sub>, and this is<sup>superscripted</sup>, and this is<strike>struck out</strike>.</p>
-    <p>This paragraph tests escaping within marks.<italic>_ under_scores _</italic>,<bold>* aster*isks *</bold>,<sub>~ til~des ~</sub>,<sup>^ care^ts ^</sup>,<strike>~~ tilde~~es ~~</strike>,<underline>] square bra]ck[ets ]</underline>.</p>
+    <p>This paragraph tests escaping within marks.<italic>_ under_scores _</italic>,<bold>* aster*isks *</bold>,<sub>~ til~des ~</sub>,<sup>^ care^ts ^</sup>,<strike>~~ tilde~~es ~~</strike>.</p>
   </body>
 </article>
