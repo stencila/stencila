@@ -68,7 +68,7 @@ coverage = "^7.3.2"
 maturin = "^1.3.1"
 pip-audit = "^2.6.1"
 pytest = "^7.4.3"
-pytest-asyncio = "^0.21.1"
+pytest-asyncio = "^0.22.0"
 
 [tool.pytest.ini_options]
 asyncio_mode = 'auto'
