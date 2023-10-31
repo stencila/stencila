@@ -9,7 +9,7 @@ use codec::{
     },
     format::Format,
     schema::{
-        shortcuts::{cb, cc, em, mb, ol, p, qb, strike, strong, table, tb, td, text, u, ul, q},
+        shortcuts::{cb, cc, em, mb, ol, p, q, qb, strike, strong, table, tb, td, text, u, ul},
         transforms::blocks_to_inlines,
         AudioObject, Block, Heading, If, IfClause, ImageObject, Inline, Link, ListItem, TableCell,
         TableRow, TableRowType, VideoObject,
