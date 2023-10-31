@@ -16,15 +16,15 @@ fix: poetry.lock
 lint: poetry.lock
 	poetry run black python --exclude types --check --diff
 
-# Run tests
+# Run tests with benchmarking
 test: poetry.lock
 	poetry run maturin develop
-	poetry run pytest
+	poetry run pytest --benchmark-json benchmarks.json
 
-# Run tests with coverage
+# Run tests with coverage and benchmarking
 cover: poetry.lock
 	poetry run maturin develop
-	poetry run coverage run -m pytest 
+	poetry run coverage run -m pytest --benchmark-json benchmarks.json
 	poetry run coverage lcov
 
 # Build the Python module in debug mode and open a python shell to
