@@ -57,11 +57,10 @@ async def test_to_path():
         ]
     )
 
-    temp = tempfile.mktemp()
-    await to_path(node, temp, format="jats", compact=True)
-    round_tripped = await from_path(temp, format="jats")
-
-    assert round_tripped == node
+    with tempfile.NamedTemporaryFile(mode="w+", delete=False) as temp:
+        await to_path(node, temp.name, format="jats", compact=True)
+        round_tripped = await from_path(temp.name, format="jats")
+        assert round_tripped == node
 
 
 async def test_from_to():
@@ -72,17 +71,16 @@ async def test_from_to():
         == "This is paragraph one. It has two sentences.\n\nParagraph two, only has one sentence."
     )
 
-    temp = tempfile.mktemp()
-    await from_to(
-        "../examples/paragraph/paragraph.json",
-        temp,
-        to_format="html",
-        to_standalone=False,
-        to_compact=True,
-    )
-    html = open(temp).read()
-
-    assert (
-        html
-        == "<article><p><span>This is paragraph one. It has two sentences.</span><p><span>Paragraph two, only has one sentence.</span></article>"
-    )
+    with tempfile.NamedTemporaryFile(mode="w+", delete=False) as temp:
+        await from_to(
+            "../examples/paragraph/paragraph.json",
+            temp.name,
+            to_format="html",
+            to_standalone=False,
+            to_compact=True,
+        )
+        html = open(temp.name).read()
+        assert (
+            html
+            == "<article><p><span>This is paragraph one. It has two sentences.</span><p><span>Paragraph two, only has one sentence.</span></article>"
+        )
