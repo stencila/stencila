@@ -9,7 +9,7 @@ use codec::{
     },
     format::Format,
     schema::{
-        shortcuts::{cb, cc, em, mb, ol, p, qb, strike, strong, table, tb, td, text, u, ul},
+        shortcuts::{cb, cc, em, mb, ol, p, qb, strike, strong, table, tb, td, text, u, ul, q},
         transforms::blocks_to_inlines,
         AudioObject, Block, Heading, If, IfClause, ImageObject, Inline, Link, ListItem, TableCell,
         TableRow, TableRowType, VideoObject,
@@ -759,6 +759,11 @@ impl Html {
                 .and_then(|html| html.strip_suffix("</u>"))
             {
                 vec![p([u(inlines_or_text(content))])]
+            } else if let Some(content) = html
+                .strip_prefix("<q>")
+                .and_then(|html| html.strip_suffix("</q>"))
+            {
+                vec![p([q(inlines_or_text(content))])]
             } else {
                 vec![]
             }
