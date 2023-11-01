@@ -52,12 +52,12 @@ jobs:
         with:
           python-version: ${{ env.PYTHON_VERSION }}
 
+      - name: Setup Poetry
+        uses: snok/install-poetry@v1
+
       - name: Setup Chrome
         uses: browser-actions/setup-chrome@v1
       - run: which chrome
-
-      - name: Setup Poetry
-        uses: snok/install-poetry@v1
       
       - name: Show disk usage
         run: df -h && du -hd1
