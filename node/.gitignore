@@ -5,6 +5,7 @@
 *.node
 *.node.gz
 
+/bench
 /coverage
 /dist
 /node_modules

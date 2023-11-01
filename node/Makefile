@@ -30,6 +30,16 @@ cover: install
 	npm run build:debug
 	npm run cover
 
+# Run benchmarks with release build
+# This moves the release build of the addon to `stencila.node`
+# which is the expected path of the addon.
+bench: install
+	make -C ../typescript build
+	npm run build:addon
+	mv stencila.*.node stencila.node
+	npm run bench
+.PHONY: bench
+
 # List outdated dependencies
 outdated: install
 	npm outdated

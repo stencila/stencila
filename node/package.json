@@ -52,6 +52,7 @@
     "install": "node install.cjs",
     "test": "jest",
     "cover": "npm test -- --collectCoverage --coverageReports=cobertura",
+    "bench": "tsup --entry.index src/bench.ts --external ../stencila.node --format cjs --out-dir bench --clean && node bench/index.cjs | tee bench/results.txt",
     "unused": "depcheck --quiet --ignores @types/jest "
   },
   "engines": {
@@ -91,10 +92,12 @@
   "devDependencies": {
     "@arethetypeswrong/cli": "0.13.0",
     "@napi-rs/cli": "2.16.3",
+    "@types/benchmark": "2.1.4",
     "@types/jest": "29.5.7",
     "@types/tmp": "0.2.5",
     "@typescript-eslint/eslint-plugin": "6.9.1",
     "@typescript-eslint/parser": "6.9.1",
+    "benchmark": "2.1.4",
     "depcheck": "1.4.7",
     "eslint": "8.52.0",
     "jest": "29.7.0",

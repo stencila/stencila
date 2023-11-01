@@ -1,5 +1,0 @@
-// A tsc config for builds to avoid compiling TypeScript test files to JavaScript
-{
-  "extends": "./tsconfig.json",
-  "exclude": ["*.test.*"]
-}
