@@ -1,6 +1,7 @@
 dist
 __pycache__
 *.so
+benchmarks.json
 .coverage
 coverage.lcov
-benchmarks.json
+
