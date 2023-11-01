@@ -29,6 +29,7 @@ def bench_from_string(benchmark):
 def run_to_string():
     asyncio.run(to_string(Article([])))
 
+
 @pytest.mark.benchmark(min_rounds=1000)
 def bench_to_string(benchmark):
     benchmark(run_to_string)
