@@ -1,0 +1,82 @@
+# Workflow for checking for regressions in performance
+
+name: Bench
+
+on:
+  push:
+    branches: ["main"]
+
+env:
+  RUST_VERSION: "1.71.0"
+  CARGO_TERM_COLOR: always
+  NODE_VERSION: "20"
+  PYTHON_VERSION: "3.11"
+
+permissions:
+  contents: write
+  deployments: write
+
+jobs:
+  bench:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: ${{ env.RUST_VERSION }}
+
+      - name: Setup Rust cache
+        uses: Swatinem/rust-cache@v2
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Setup benchmarks cache
+        uses: actions/cache@v3
+        with:
+          path: cache
+          key: ${{ runner.os }}-benchmarks
+
+      - name: Run benchmarks
+        run: make bench  
+
+      - name: Store Node SDK benchmarks
+        uses: benchmark-action/github-action-benchmark@v1
+        with:
+          name: Node SDK
+          tool: benchmarkjs
+          output-file-path: node/bench/results.txt
+          external-data-json-path: cache/node/benchmarks.json
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          gh-pages-branch: main
+          benchmark-data-dir-path: docs/dev/bench
+          auto-push: true
+          alert-threshold: 100%
+          comment-on-alert: true
+          fail-on-alert: true
+
+      - name: Store Python SDK benchmarks
+        uses: benchmark-action/github-action-benchmark@v1
+        with:
+          name: Python SDK
+          tool: pytest
+          output-file-path: python/benchmarks.json
+          external-data-json-path: cache/python/benchmarks.json
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          gh-pages-branch: main
+          benchmark-data-dir-path: docs/dev/bench
+          auto-push: true
+          alert-threshold: 100%
+          comment-on-alert: true
+          fail-on-alert: true
