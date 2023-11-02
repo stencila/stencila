@@ -9,14 +9,15 @@
 use codec::{
     common::{eyre::Result, serde_json::json},
     schema::{
-        shortcuts::text, Array, Article, ArticleOptions, Block, Boolean, Date, Emphasis, Inline,
-        Integer, IntegerOrString, Node, Null, Number, Object, Paragraph, Primitive, Time,
+        shortcuts::{p, t},
+        Array, Article, ArticleOptions, Block, Boolean, Date, Emphasis, Inline, Integer,
+        IntegerOrString, Node, Null, Number, Object, Paragraph, Person, Primitive, ThematicBreak,
+        Time,
     },
 };
 use common_dev::pretty_assertions::assert_eq;
 
 use codec_json::r#trait::JsonCodec;
-use schema::{Person, ThematicBreak};
 
 /// Test deserialization of primitive types from JSON
 #[test]
@@ -116,10 +117,7 @@ fn entity_types() -> Result<()> {
                 }"#
         )?,
         Article {
-            content: vec![Block::Paragraph(Paragraph {
-                content: vec![text("Hello world")],
-                ..Default::default()
-            })],
+            content: vec![p([t("Hello world")])],
             options: Box::new(ArticleOptions {
                 page_start: Some(IntegerOrString::Integer(1)),
                 page_end: Some(IntegerOrString::String("MXC".to_string())),
@@ -137,7 +135,7 @@ fn entity_types() -> Result<()> {
 fn entity_enum() -> Result<()> {
     assert_eq!(
         Inline::from_json(r#"{ "type":"Text", "value":"abc" }"#)?,
-        text("abc")
+        t("abc")
     );
 
     assert_eq!(

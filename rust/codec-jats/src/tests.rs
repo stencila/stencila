@@ -1,7 +1,7 @@
 use codec::{
     common::tokio,
     schema::{
-        shortcuts::{article, audio, img, p, video},
+        shortcuts::{art, aud, img, p, vid},
         Cord, Inline, Span,
     },
 };
@@ -14,10 +14,10 @@ use super::*;
 async fn media_objects() -> Result<()> {
     let codec = JatsCodec {};
 
-    let doc1 = article([p([
-        audio("http://example.org/audio.mp3"),
+    let doc1 = art([p([
+        aud("http://example.org/audio.mp3"),
         img("http://example.org/image.png"),
-        video("http://example.org/video.mp4"),
+        vid("http://example.org/video.mp4"),
     ])]);
 
     let (jats, _) = codec
@@ -47,7 +47,7 @@ async fn media_objects() -> Result<()> {
 async fn spans() -> Result<()> {
     let codec = JatsCodec {};
 
-    let doc1 = article([p([Inline::Span(Span {
+    let doc1 = art([p([Inline::Span(Span {
         // Code contains whitespace characters that need to be escaped
         code: Cord::new("\t\n\r"),
         ..Default::default()

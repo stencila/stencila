@@ -1,9 +1,6 @@
 use codec::{
     common::tokio,
-    schema::{
-        shortcuts::{p, text},
-        Article,
-    },
+    schema::shortcuts::{art, p, t},
 };
 
 use super::*;
@@ -15,7 +12,7 @@ use super::*;
 async fn escaping_unicode_2028_and_2029() -> Result<()> {
     let codec = Json5Codec {};
 
-    let doc1 = Node::Article(Article::new(vec![p([text("\u{2028}")])]));
+    let doc1 = art([p([t("\u{2028}")])]);
 
     let (json5, _) = codec
         .to_string(

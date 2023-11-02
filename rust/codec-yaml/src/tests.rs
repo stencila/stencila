@@ -1,9 +1,6 @@
 use codec::{
     common::tokio,
-    schema::{
-        shortcuts::{p, text},
-        Article,
-    },
+    schema::shortcuts::{art, p, t},
 };
 
 use super::*;
@@ -13,7 +10,7 @@ use super::*;
 async fn standalone() -> Result<()> {
     let codec = YamlCodec {};
 
-    let doc1 = Node::Article(Article::new(vec![p([text("Hello world")])]));
+    let doc1 = art([p([t("Hello world")])]);
 
     let (yaml, _) = codec
         .to_string(

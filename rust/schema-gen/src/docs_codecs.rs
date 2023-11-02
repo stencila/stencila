@@ -57,28 +57,26 @@ impl Schemas {
 
             let mut items = Vec::new();
             if codec.supports_from_path() {
-                items.push(li([text("decoding from a file")]))
+                items.push(li([t("decoding from a file")]))
             }
             if codec.supports_from_string() {
-                items.push(li([text("decoding from a string")]))
+                items.push(li([t("decoding from a string")]))
             }
             if codec.supports_to_path() {
-                items.push(li([text("encoding to a file")]))
+                items.push(li([t("encoding to a file")]))
             }
             if codec.supports_to_string() {
-                items.push(li([text("encoding to a string")]))
+                items.push(li([t("encoding to a string")]))
             }
 
             let mut rows = vec![tr([
-                th([text("Node type")]),
-                th([text("Encoding")]),
-                th([text("Decoding")]),
-                th([text("Notes")]),
+                th([t("Node type")]),
+                th([t("Encoding")]),
+                th([t("Decoding")]),
+                th([t("Notes")]),
             ])];
             for category in Category::iter() {
-                rows.push(tr([td([strong([text(
-                    category.to_string().to_title_case(),
-                )])])]));
+                rows.push(tr([td([stg([t(category.to_string().to_title_case())])])]));
 
                 for (title, schema) in self
                     .schemas
@@ -90,8 +88,8 @@ impl Schemas {
                         continue
                     };
 
-                    let title = td([link(
-                        [text(title)],
+                    let title = td([lnk(
+                        [t(title)],
                         format!(
                             "https://github.com/stencila/stencila/blob/main/docs/reference/schema/{category}/{title}.md",
                             title = title.to_snake_case()
@@ -101,7 +99,7 @@ impl Schemas {
                     fn codec_support(support: CodecSupport) -> TableCell {
                         match support {
                             CodecSupport::None => td([]),
-                            support => td([text(format!(
+                            support => td([t(format!(
                                 "{icon} {desc}",
                                 icon = match support {
                                     CodecSupport::NoLoss => "🟢",
@@ -124,19 +122,19 @@ impl Schemas {
 
             let article = Article {
                 content: vec![
-                    h2([text("Codec")]),
+                    h2([t("Codec")]),
                     p([
-                        text("The codec (en"),
-                        strong([text("co")]),
-                        text("der/"),
-                        strong([text("dec")]),
-                        text("oder) for "),
-                        text(format.name()),
-                        text(" supports:"),
+                        t("The codec (en"),
+                        stg([t("co")]),
+                        t("der/"),
+                        stg([t("dec")]),
+                        t("oder) for "),
+                        t(format.name()),
+                        t(" supports:"),
                     ]),
                     ul(items),
-                    p([text("Support and degree of loss for node types:")]),
-                    table(rows),
+                    p([t("Support and degree of loss for node types:")]),
+                    tab(rows),
                 ],
                 ..Default::default()
             };
@@ -165,28 +163,28 @@ impl Schemas {
             if *special {
                 if let Some(elem) = elem {
                     vec![
-                        text("Encoded as "),
-                        link(
+                        t("Encoded as "),
+                        lnk(
                             [cf(format!("<{elem}>"))],
                             format!(
                                 "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/{elem}"
                             ),
                         ),
-                        text(" using special function"),
+                        t(" using special function"),
                     ]
                 } else {
-                    vec![text("Encoded using special function")]
+                    vec![t("Encoded using special function")]
                 }
             } else if let Some(elem) = elem {
                 vec![
-                    text("Encoded as "),
-                    link(
+                    t("Encoded as "),
+                    lnk(
                         [cf(format!("<{elem}>"))],
                         format!("https://developer.mozilla.org/en-US/docs/Web/HTML/Element/{elem}"),
                     ),
                 ]
             } else {
-                vec![text("Encoded using derived function")]
+                vec![t("Encoded using derived function")]
             }
         } else if let (Format::Jats, Some(JatsOptions { elem, special, .. })) =
             (template, &schema.jats)
@@ -194,26 +192,26 @@ impl Schemas {
             if *special {
                 if let Some(elem) = elem {
                     vec![
-                        text("Encoded as "),
-                        link(
+                        t("Encoded as "),
+                        lnk(
                             [cf(format!("<{elem}>"))],
                             format!("https://jats.nlm.nih.gov/articleauthoring/tag-library/1.3/element/{elem}.html"),
                         ),
-                        text(" using special function")
+                        t(" using special function")
                     ]
                 } else {
-                    vec![text("Encoded using special function")]
+                    vec![t("Encoded using special function")]
                 }
             } else if let Some(elem) = elem {
                 vec![
-                    text("Encoded as "),
-                    link(
+                    t("Encoded as "),
+                    lnk(
                         [cf(format!("<{elem}>"))],
                         format!("https://jats.nlm.nih.gov/articleauthoring/tag-library/1.3/element/{elem}.html"),
                     ),
                 ]
             } else {
-                vec![text("Encoded using derived function")]
+                vec![t("Encoded using derived function")]
             }
         } else if let (
             Format::Markdown,
@@ -223,11 +221,11 @@ impl Schemas {
         ) = (template, &schema.markdown)
         {
             if *special {
-                vec![text("Encoded using special function")]
+                vec![t("Encoded using special function")]
             } else if let Some(template) = template {
-                vec![text("Encoded as "), cf(template)]
+                vec![t("Encoded as "), cf(template)]
             } else {
-                vec![text("Encoded using derived function")]
+                vec![t("Encoded using derived function")]
             }
         } else {
             vec![]

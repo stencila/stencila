@@ -202,33 +202,31 @@ fn docs_primitive(title: &str, schema: &Schema) -> Article {
 
 /// Generate introductory headers and paragraphs for a schema
 fn intro(title: &str, schema: &Schema) -> Vec<Block> {
-    let mut blocks = vec![h1([text(title.to_title_case())])];
+    let mut blocks = vec![h1([t(title.to_title_case())])];
 
     if let Some(description) = &schema.description {
-        blocks.push(p([strong([text(description.trim())])]));
+        blocks.push(p([stg([t(description.trim())])]));
     }
 
     if let Some(comment) = &schema.comment {
-        blocks.push(p([text(comment)]));
+        blocks.push(p([t(comment)]));
     }
 
     if let Some(id) = schema.jid.clone() {
         let id = if let Some(name) = id.clone().strip_prefix("schema:") {
-            link([cf(id)], format!("https://schema.org/{name}"))
+            lnk([cf(id)], format!("https://schema.org/{name}"))
         } else {
             cf(id)
         };
-        blocks.push(p([strong([cf("@id")]), text(": "), id]));
+        blocks.push(p([stg([cf("@id")]), t(": "), id]));
     }
 
     if !matches!(schema.status, Status::Stable) {
-        blocks.push(p([text(
-            if matches!(schema.status, Status::Experimental) {
-                "This type is marked as experimental and is likely to change."
-            } else {
-                "This type is marked as unstable and is subject to change."
-            },
-        )]))
+        blocks.push(p([t(if matches!(schema.status, Status::Experimental) {
+            "This type is marked as experimental and is likely to change."
+        } else {
+            "This type is marked as unstable and is subject to change."
+        })]))
     }
 
     blocks
@@ -237,12 +235,12 @@ fn intro(title: &str, schema: &Schema) -> Vec<Block> {
 /// Generate a "Properties" section for a schema
 fn properties(title: &str, schema: &Schema, context: &Context) -> Vec<Block> {
     let mut rows = vec![tr([
-        th([text("Name")]),
-        th([text("Aliases")]),
+        th([t("Name")]),
+        th([t("Aliases")]),
         th([cf("@id")]),
-        th([text("Type")]),
-        th([text("Description")]),
-        th([text("Inherited from")]),
+        th([t("Type")]),
+        th([t("Description")]),
+        th([t("Inherited from")]),
     ])];
 
     for (name, property) in &schema.properties {
@@ -255,22 +253,22 @@ fn properties(title: &str, schema: &Schema, context: &Context) -> Vec<Block> {
             .aliases
             .iter()
             .map(cf)
-            .intersperse(text(", "))
+            .intersperse(t(", "))
             .collect_vec();
         if aliases.is_empty() {
-            aliases.push(text("-"));
+            aliases.push(t("-"));
         };
 
         let id = property.jid.clone().unwrap_or_default();
         let id = if id.starts_with("schema:") {
-            link([cf(&id)], id.replace("schema:", "https://schema.org/"))
+            lnk([cf(&id)], id.replace("schema:", "https://schema.org/"))
         } else {
             cf(id)
         };
 
         fn type_link(title: &str, context: &Context) -> Inline {
             let url = context.urls.get(title).cloned().unwrap_or_default();
-            link([cf(title)], url)
+            lnk([cf(title)], url)
         }
         fn schema_type(schema: &Schema, context: &Context) -> Vec<Inline> {
             if let Some(r#type) = &schema.r#type {
@@ -288,13 +286,13 @@ fn properties(title: &str, schema: &Schema, context: &Context) -> Vec<Block> {
                                 },
                                 context,
                             );
-                            inner.insert(0, text("("));
-                            inner.push(text(")"));
+                            inner.insert(0, t("("));
+                            inner.push(t(")"));
                             inner
                         }
-                        _ => vec![text("?")],
+                        _ => vec![t("?")],
                     };
-                    items.push(text("*"));
+                    items.push(t("*"));
                     items
                 } else {
                     vec![type_link(&r#type.to_string(), context)]
@@ -304,13 +302,13 @@ fn properties(title: &str, schema: &Schema, context: &Context) -> Vec<Block> {
             } else if let Some(any_of) = &schema.any_of {
                 any_of.iter().fold(Vec::new(), |mut inlines, schema| {
                     if !inlines.is_empty() {
-                        inlines.push(text(" | "));
+                        inlines.push(t(" | "));
                     }
                     inlines.append(&mut schema_type(schema, context));
                     inlines
                 })
             } else {
-                vec![text("")]
+                vec![t("")]
             }
         }
         let r#type = schema_type(property, context);
@@ -325,9 +323,9 @@ fn properties(title: &str, schema: &Schema, context: &Context) -> Vec<Block> {
         let from = if property.defined_on != title {
             let from = property.defined_on.as_str().to_pascal_case();
             let url = context.urls.get(&from).cloned().unwrap_or_default();
-            link([cf(from)], url)
+            lnk([cf(from)], url)
         } else {
-            text("-")
+            t("-")
         };
 
         rows.push(tr([
@@ -335,15 +333,15 @@ fn properties(title: &str, schema: &Schema, context: &Context) -> Vec<Block> {
             td(aliases),
             td([id]),
             td(r#type),
-            td([text(description)]),
+            td([t(description)]),
             td([from]),
         ]));
     }
 
     vec![
-        h2([text("Properties")]),
-        p([text("The "), cf(title), text(" type has these properties:")]),
-        table(rows),
+        h2([t("Properties")]),
+        p([t("The "), cf(title), t(" type has these properties:")]),
+        tab(rows),
     ]
 }
 
@@ -353,7 +351,7 @@ fn members(title: &str, schema: &Schema, context: &Context) -> Vec<Block> {
     for schema in schema.any_of.as_ref().expect("should have an anyOf") {
         if let Some(title) = &schema.r#ref {
             let url = context.urls.get(title).cloned().unwrap_or_default();
-            items.push(li([link([cf(title)], url)]));
+            items.push(li([lnk([cf(title)], url)]));
         } else if let Some(value) = &schema.r#const {
             items.push(li([cf(value.to_string())]));
         } else {
@@ -362,8 +360,8 @@ fn members(title: &str, schema: &Schema, context: &Context) -> Vec<Block> {
     }
 
     vec![
-        h2([text("Members")]),
-        p([text("The "), cf(title), text(" type has these members:")]),
+        h2([t("Members")]),
+        p([t("The "), cf(title), t(" type has these members:")]),
         ul(items),
     ]
 }
@@ -371,11 +369,11 @@ fn members(title: &str, schema: &Schema, context: &Context) -> Vec<Block> {
 /// Generate a "Formats" section for a schema
 fn formats(title: &str, schema: &Schema) -> Vec<Block> {
     let mut rows = vec![tr([
-        th([text("Format")]),
-        th([text("Encoding")]),
-        th([text("Decoding")]),
-        th([text("Status")]),
-        th([text("Notes")]),
+        th([t("Format")]),
+        th([t("Encoding")]),
+        th([t("Decoding")]),
+        th([t("Status")]),
+        th([t("Notes")]),
     ])];
 
     let node_type = NodeType::try_from(title).ok();
@@ -385,8 +383,8 @@ fn formats(title: &str, schema: &Schema) -> Vec<Block> {
         };
 
         let name = format.name();
-        let name = td([link(
-            [text(name)],
+        let name = td([lnk(
+            [t(name)],
             format!(
                 "https://github.com/stencila/stencila/blob/main/docs/reference/formats/{format}.md"
             ),
@@ -395,7 +393,7 @@ fn formats(title: &str, schema: &Schema) -> Vec<Block> {
         fn codec_support(support: CodecSupport) -> TableCell {
             match support {
                 CodecSupport::None => td([]),
-                support => td([text(format!(
+                support => td([t(format!(
                     "{icon} {desc}",
                     icon = match support {
                         CodecSupport::NoLoss => "🟢",
@@ -422,7 +420,7 @@ fn formats(title: &str, schema: &Schema) -> Vec<Block> {
                 .unwrap_or_default(),
         );
 
-        let status = td([text(format!(
+        let status = td([t(format!(
             "{icon} {desc}",
             icon = codec.status().emoji(),
             desc = codec.status().to_string().to_sentence_case()
@@ -434,23 +432,23 @@ fn formats(title: &str, schema: &Schema) -> Vec<Block> {
     }
 
     vec![
-        h2([text("Formats")]),
+        h2([t("Formats")]),
         p([
-            text("The "),
+            t("The "),
             cf(title),
-            text(" type can be encoded (serialized) to, and/or decoded (deserialized) from, these formats:"),
+            t(" type can be encoded (serialized) to, and/or decoded (deserialized) from, these formats:"),
         ]),
-        table(rows),
+        tab(rows),
     ]
 }
 
 /// Generate a "testing" section for an object type schema
 fn proptests_anyof(title: &str, schema: &Schema) -> Vec<Block> {
     let mut rows = vec![tr([
-        th([text("Variant")]),
-        th([text("Complexity")]),
-        th([text("Description")]),
-        th([text("Strategy")]),
+        th([t("Variant")]),
+        th([t("Complexity")]),
+        th([t("Description")]),
+        th([t("Strategy")]),
     ])];
 
     for variant_schema in schema.any_of.as_ref().unwrap() {
@@ -472,16 +470,16 @@ fn proptests_anyof(title: &str, schema: &Schema) -> Vec<Block> {
                 .unwrap_or_else(|| String::from("Generate an arbitrary value of type."));
 
             let mut strategy = if options.skip {
-                vec![text("-")]
+                vec![t("-")]
             } else if let Some(strategy) = &options.strategy {
                 vec![cf(strategy)]
             } else if let Some(value) = &options.value {
                 vec![cf(value)]
             } else {
-                vec![text("Default for level")]
+                vec![t("Default for level")]
             };
             if let Some(filter) = &options.filter {
-                strategy.append(&mut vec![text(" with filter "), cf(filter)]);
+                strategy.append(&mut vec![t(" with filter "), cf(filter)]);
             }
 
             let row = vec![
@@ -490,7 +488,7 @@ fn proptests_anyof(title: &str, schema: &Schema) -> Vec<Block> {
                 } else {
                     td([])
                 },
-                td([text(format!(
+                td([t(format!(
                     "{}{}",
                     level.to_string().to_title_case(),
                     if matches!(level, ProptestLevel::Max) {
@@ -499,7 +497,7 @@ fn proptests_anyof(title: &str, schema: &Schema) -> Vec<Block> {
                         "+"
                     }
                 ))]),
-                td([text(description)]),
+                td([t(description)]),
                 td(strategy),
             ];
 
@@ -508,26 +506,26 @@ fn proptests_anyof(title: &str, schema: &Schema) -> Vec<Block> {
     }
 
     vec![
-        h2([text("Testing")]),
+        h2([t("Testing")]),
         p([
-            text("During property-based (a.k.a generative) testing, the variants of the "),
+            t("During property-based (a.k.a generative) testing, the variants of the "),
             cf(title),
-            text(" type are generated using the following strategies for each complexity level (see the "),
-            link([cf("proptest"), text(" book")], "https://proptest-rs.github.io/proptest/"),
-            text(" for an explanation of the Rust strategy expressions). Any variant not shown is generated using the default strategy for the corresponding type and complexity level."),
+            t(" type are generated using the following strategies for each complexity level (see the "),
+            lnk([cf("proptest"), t(" book")], "https://proptest-rs.github.io/proptest/"),
+            t(" for an explanation of the Rust strategy expressions). Any variant not shown is generated using the default strategy for the corresponding type and complexity level."),
 
         ]),
-        table(rows)
+        tab(rows)
     ]
 }
 
 /// Generate a "testing" section for a union type schema
 fn proptests_object(title: &str, schema: &Schema) -> Vec<Block> {
     let mut rows = vec![tr([
-        th([text("Property")]),
-        th([text("Complexity")]),
-        th([text("Description")]),
-        th([text("Strategy")]),
+        th([t("Property")]),
+        th([t("Complexity")]),
+        th([t("Description")]),
+        th([t("Strategy")]),
     ])];
 
     for (property_name, property_schema) in &schema.properties {
@@ -550,12 +548,12 @@ fn proptests_object(title: &str, schema: &Schema) -> Vec<Block> {
             } else if let Some(value) = &options.value {
                 vec![cf(value)]
             } else if let Some(regex) = &options.regex {
-                vec![text("Regex "), cf(regex)]
+                vec![t("Regex "), cf(regex)]
             } else {
-                vec![text("Default for level")]
+                vec![t("Default for level")]
             };
             if let Some(filter) = &options.filter {
-                strategy.append(&mut vec![text(" with filter "), cf(filter)]);
+                strategy.append(&mut vec![t(" with filter "), cf(filter)]);
             }
 
             let row = vec![
@@ -564,7 +562,7 @@ fn proptests_object(title: &str, schema: &Schema) -> Vec<Block> {
                 } else {
                     td([])
                 },
-                td([text(format!(
+                td([t(format!(
                     "{}{}",
                     level.to_string().to_title_case(),
                     if matches!(level, ProptestLevel::Max) {
@@ -573,7 +571,7 @@ fn proptests_object(title: &str, schema: &Schema) -> Vec<Block> {
                         "+"
                     }
                 ))]),
-                td([text(description)]),
+                td([t(description)]),
                 td(strategy),
             ];
 
@@ -586,44 +584,44 @@ fn proptests_object(title: &str, schema: &Schema) -> Vec<Block> {
     }
 
     vec![
-        h2([text("Testing")]),
+        h2([t("Testing")]),
         p([
-            text("During property-based (a.k.a generative) testing, the properties of the "),
+            t("During property-based (a.k.a generative) testing, the properties of the "),
             cf(title),
-            text(" type are generated using the following strategies for each complexity level (see the "),
-            link([cf("proptest"), text(" book")], "https://proptest-rs.github.io/proptest/"),
-            text(" for an explanation of the Rust strategy expressions). Any optional properties that are not in this table are set to "),
+            t(" type are generated using the following strategies for each complexity level (see the "),
+            lnk([cf("proptest"), t(" book")], "https://proptest-rs.github.io/proptest/"),
+            t(" for an explanation of the Rust strategy expressions). Any optional properties that are not in this table are set to "),
             cf("None"),
-            text(".")
+            t(".")
 
         ]),
-        table(rows)
+        tab(rows)
     ]
 }
 
 /// Generate a "Related" section for a schema
 fn related(title: &str, schema: &Schema, context: &Context) -> Vec<Block> {
-    let mut parents = vec![text("Parents: ")];
+    let mut parents = vec![t("Parents: ")];
     if schema.extends.is_empty() {
-        parents.push(text("none"));
+        parents.push(t("none"));
     } else {
         for parent in &schema.extends {
-            parents.push(link(
+            parents.push(lnk(
                 [cf(parent)],
                 context.urls.get(parent).expect("Missing URL for parent"),
             ));
         }
     }
 
-    let mut children = vec![text("Children: ")];
+    let mut children = vec![t("Children: ")];
     if context.children.get(title).is_none() {
-        children.push(text("none"));
+        children.push(t("none"));
     } else {
         for (index, child) in context.children[title].iter().enumerate() {
             if index != 0 {
-                children.push(text(", "))
+                children.push(t(", "))
             }
-            children.push(link(
+            children.push(lnk(
                 [cf(child)],
                 context.urls.get(child).expect("Missing URL for child"),
             ));
@@ -631,12 +629,8 @@ fn related(title: &str, schema: &Schema, context: &Context) -> Vec<Block> {
     }
 
     vec![
-        h2([text("Related")]),
-        p([
-            text("The "),
-            cf(title),
-            text(" type is related to these types:"),
-        ]),
+        h2([t("Related")]),
+        p([t("The "), cf(title), t(" type is related to these types:")]),
         ul([li(parents), li(children)]),
     ]
 }
@@ -644,30 +638,30 @@ fn related(title: &str, schema: &Schema, context: &Context) -> Vec<Block> {
 /// Generate a "Bindings" section for a schema
 fn bindings(title: &str, schema: &Schema) -> Vec<Block> {
     vec![
-        h2([text("Bindings")]),
+        h2([t("Bindings")]),
         p([
-            text("The "),
+            t("The "),
             cf(title),
-            text(" type is represented in these bindings:"),
+            t(" type is represented in these bindings:"),
         ]),
         ul([
-            li([link(
-                [text("JSON-LD")],
+            li([lnk(
+                [t("JSON-LD")],
                 format!("https://stencila.dev/{title}.jsonld"),
             )]),
-            li([link(
-                [text("JSON Schema")],
+            li([lnk(
+                [t("JSON Schema")],
                 format!("https://stencila.dev/{title}.schema.json"),
             )]),
-            li([text("Python "), text(if schema.is_object() { "class "} else {"type "}), link(
+            li([t("Python "), t(if schema.is_object() { "class "} else {"type "}), lnk(
                 [cf(title)],
                 format!("https://github.com/stencila/stencila/blob/main/python/python/stencila/types/{module}.py", module = title.to_snake_case()),
             )]),
-            li([text("Rust "), text(if schema.is_object() { "struct "} else {"type "}), link(
+            li([t("Rust "), t(if schema.is_object() { "struct "} else {"type "}), lnk(
                 [cf(title)],
                 format!("https://github.com/stencila/stencila/blob/main/rust/schema/src/types/{module}.rs", module = title.to_snake_case()),
             )]),
-            li([text("TypeScript "), text(if schema.is_object() { "class "} else {"type "}), link(
+            li([t("TypeScript "), t(if schema.is_object() { "class "} else {"type "}), lnk(
                 [cf(title)],
                 format!("https://github.com/stencila/stencila/blob/main/typescript/src/types/{module}.ts", module = title.to_pascal_case()),
             )]),
@@ -678,19 +672,19 @@ fn bindings(title: &str, schema: &Schema) -> Vec<Block> {
 /// Generate a "Source" section for a schema
 fn source(title: &str) -> Vec<Block> {
     vec![
-        h2([text("Source")]),
+        h2([t("Source")]),
         p([
-            text("This documentation was generated from "),
-            link(
+            t("This documentation was generated from "),
+            lnk(
                 [cf(format!("{title}.yaml"))],
                 format!("https://github.com/stencila/stencila/blob/main/schema/{title}.yaml"),
             ),
-            text(" by "),
-            link(
+            t(" by "),
+            lnk(
                 [cf("docs.rs")],
                 "https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs.rs",
             ),
-            text("."),
+            t("."),
         ]),
     ]
 }

@@ -1,10 +1,10 @@
-use crate::{prelude::*, shortcuts::text, Block, ListItem};
+use crate::{prelude::*, shortcuts::t, Block, ListItem};
 
 impl ListItem {
     pub fn to_markdown_special(&self, context: &MarkdownEncodeContext) -> (String, Losses) {
         let checkbox = self.is_checked.map(|is_checked| match is_checked {
-            true => text("[x] "),
-            false => text("[ ] "),
+            true => t("[x] "),
+            false => t("[ ] "),
         });
 
         let (md, mut losses) = match checkbox {

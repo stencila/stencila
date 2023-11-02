@@ -9,7 +9,7 @@ use codec::{
     },
     format::Format,
     schema::{
-        shortcuts::{cb, cc, em, mb, ol, p, q, qb, strike, strong, table, tb, td, text, u, ul},
+        shortcuts::{cb, cc, em, mb, ol, p, q, qb, stg, stk, t, tab, tb, td, u, ul},
         transforms::blocks_to_inlines,
         AudioObject, Block, Heading, If, IfClause, ImageObject, Inline, Link, ListItem, TableCell,
         TableRow, TableRowType, VideoObject,
@@ -113,7 +113,7 @@ pub fn decode_blocks(md: &str) -> (Vec<Block>, Losses) {
 
                     lists.push_item(ListItem::new(content))
                 }
-                Tag::Table(_) => blocks.push_block(table(tables.pop_rows())),
+                Tag::Table(_) => blocks.push_block(tab(tables.pop_rows())),
                 Tag::TableHead => tables.push_header(),
                 Tag::TableRow => tables.push_row(),
                 Tag::TableCell => tables.push_cell(td(inlines.pop_mark())),
@@ -177,7 +177,7 @@ pub fn decode_blocks(md: &str) -> (Vec<Block>, Losses) {
                             None
                         } else {
                             tracing::warn!("Found an `::: elif` without a preceding `::: if`");
-                            Some(p([text(trimmed)]))
+                            Some(p([t(trimmed)]))
                         }
                     } else if else_(trimmed).is_ok() {
                         if let Some(div) = divs.back_mut() {
@@ -293,11 +293,11 @@ pub fn decode_blocks(md: &str) -> (Vec<Block>, Losses) {
                 }
                 Tag::Strong => {
                     let content = inlines.pop_mark();
-                    inlines.push_inline(strong(content))
+                    inlines.push_inline(stg(content))
                 }
                 Tag::Strikethrough => {
                     let content = inlines.pop_mark();
-                    inlines.push_inline(strike(content))
+                    inlines.push_inline(stk(content))
                 }
                 Tag::Link(_link_type, url, title) => {
                     let content = inlines.pop_mark();
@@ -325,7 +325,7 @@ pub fn decode_blocks(md: &str) -> (Vec<Block>, Losses) {
                     };
 
                     let title = if !title.is_empty() {
-                        Some(vec![text(title.to_string())])
+                        Some(vec![t(title.to_string())])
                     } else {
                         None
                     };
@@ -485,7 +485,7 @@ impl Inlines {
                 Ok((_, inlines)) => inlines,
                 Err(error) => {
                     tracing::warn!("While parsing inline Markdown: {}", error);
-                    vec![text(text_)]
+                    vec![t(text_)]
                 }
             };
             self.inlines.append(&mut nodes)

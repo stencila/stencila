@@ -5,8 +5,8 @@ use codec::{
         tokio,
     },
     schema::{
-        shortcuts::{p, text},
-        Article, Block, Inline, Node,
+        shortcuts::{art, p, t},
+        Article, Block, Inline,
     },
     Codec, EncodeOptions,
 };
@@ -68,7 +68,7 @@ fn article() -> Result<()> {
 async fn compact() -> Result<()> {
     let codec = JsonCodec {};
 
-    let doc1 = Node::Article(Article::new(vec![p([text("Hello world")])]));
+    let doc1 = art([p([t("Hello world")])]);
 
     let (json, _) = codec
         .to_string(
@@ -95,7 +95,7 @@ async fn compact() -> Result<()> {
 async fn standalone() -> Result<()> {
     let codec = JsonCodec {};
 
-    let doc1 = Node::Article(Article::new(vec![p([text("Hello world")])]));
+    let doc1 = art([p([t("Hello world")])]);
 
     let (json, _) = codec
         .to_string(

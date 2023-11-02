@@ -2,7 +2,7 @@ use roxmltree::Node;
 
 use codec::{
     schema::{
-        shortcuts::{em, p, q, sec, strike, strong, sub, sup, text, u},
+        shortcuts::{em, p, q, sec, stg, stk, sub, sup, t, u},
         Article, AudioObject, AudioObjectOptions, Block, CodeExpression, CodeFragment, Cord, Date,
         DateTime, Duration, Heading, ImageObject, ImageObjectOptions, Inline, Link, MathFragment,
         MediaObject, MediaObjectOptions, Note, NoteType, Span, Text, ThematicBreak, Time,
@@ -89,7 +89,7 @@ fn decode_inlines(path: &str, node: &Node, losses: &mut Losses) -> Vec<Inline> {
     let mut inlines = Vec::new();
     for child in node.children() {
         let inline = if child.is_text() {
-            text(child.text().unwrap_or_default())
+            t(child.text().unwrap_or_default())
         } else {
             let tag = child.tag_name().name();
             let child_path = extend_path(path, tag);
@@ -111,10 +111,10 @@ fn decode_inlines(path: &str, node: &Node, losses: &mut Losses) -> Vec<Inline> {
                     record_attrs_lost(&child_path, &child, [], losses);
 
                     match tag {
-                        "bold" => strong(decode_inlines(&child_path, &child, losses)),
+                        "bold" => stg(decode_inlines(&child_path, &child, losses)),
                         "inline-quote" => q(decode_inlines(&child_path, &child, losses)),
                         "italic" => em(decode_inlines(&child_path, &child, losses)),
-                        "strike" => strike(decode_inlines(&child_path, &child, losses)),
+                        "strike" => stk(decode_inlines(&child_path, &child, losses)),
                         "sub" => sub(decode_inlines(&child_path, &child, losses)),
                         "sup" => sup(decode_inlines(&child_path, &child, losses)),
                         "underline" => u(decode_inlines(&child_path, &child, losses)),

@@ -15,7 +15,7 @@ use nom::{
 use codec::{
     common::indexmap::IndexMap,
     schema::{
-        shortcuts::{strike, sub, sup, text},
+        shortcuts::{stk, sub, sup, t},
         BooleanValidator, Button, Cite, CiteGroup, CodeExpression, CodeFragment, Cord,
         DateTimeValidator, DateValidator, DurationValidator, EnumValidator, Inline,
         IntegerValidator, MathFragment, Node, NumberValidator, Parameter, ParameterOptions, Span,
@@ -67,7 +67,7 @@ pub fn inlines(input: &str) -> IResult<&str, Vec<Inline>> {
 
 /// Parse a string into a vector of `Inline` nodes falling back to a single `Text` nodes on error
 pub fn inlines_or_text(input: &str) -> Vec<Inline> {
-    inlines(input).map_or_else(|_| vec![text(input)], |(.., inlines)| inlines)
+    inlines(input).map_or_else(|_| vec![t(input)], |(.., inlines)| inlines)
 }
 
 /// Parse inline code with attributes in curly braces
@@ -139,7 +139,7 @@ fn span(input: &str) -> IResult<&str, Inline> {
         |(content, (code, _lang)): (&str, (&str, Option<&str>))| {
             Inline::Span(Span {
                 code: code.into(),
-                content: vec![text(content)],
+                content: vec![t(content)],
                 ..Default::default()
             })
         },
@@ -581,7 +581,7 @@ fn math(input: &str) -> IResult<&str, Inline> {
 fn strikeout(input: &str) -> IResult<&str, Inline> {
     map(
         delimited(tag("~~"), take_until("~~"), tag("~~")),
-        |content: &str| strike(inlines_or_text(content)),
+        |content: &str| stk(inlines_or_text(content)),
     )(input)
 }
 
@@ -612,14 +612,14 @@ fn superscript(input: &str) -> IResult<&str, Inline> {
 /// start of other inline parsers e.g. '$', '['
 fn string(input: &str) -> IResult<&str, Inline> {
     const CHARS: &str = "~@#$^&[{`";
-    map(take_while1(|chr: char| !CHARS.contains(chr)), text)(input)
+    map(take_while1(|chr: char| !CHARS.contains(chr)), t)(input)
 }
 
 /// Take a single character into a `String` node
 ///
 /// Necessary so that the characters no consumed by `string` are not lost.
 fn character(input: &str) -> IResult<&str, Inline> {
-    map(take(1usize), text)(input)
+    map(take(1usize), t)(input)
 }
 
 #[cfg(test)]
@@ -634,7 +634,7 @@ mod tests {
             span(r#"[some string content]{text-red-300}"#).unwrap().1,
             Inline::Span(Span {
                 code: "text-red-300".into(),
-                content: vec![text("some string content")],
+                content: vec![t("some string content")],
                 ..Default::default()
             })
         );
@@ -643,7 +643,7 @@ mod tests {
             span(r#"[content]`f"text-{color}-300"`{python}"#).unwrap().1,
             Inline::Span(Span {
                 code: "f\"text-{color}-300\"".into(),
-                content: vec![text("content")],
+                content: vec![t("content")],
                 ..Default::default()
             })
         );
