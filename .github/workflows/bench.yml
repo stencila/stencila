@@ -51,6 +51,9 @@ jobs:
           path: cache
           key: ${{ runner.os }}-benchmarks
 
+      - name: Install dependencies
+        run: make install
+
       - name: Run benchmarks
         run: make bench
 
