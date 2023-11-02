@@ -112,7 +112,7 @@ generated:
 
 # Update files generated for examples
 examples:
-	UPDATE_EXAMPLES=true cargo test -p codecs examples
+	UPDATE_EXAMPLES=true cargo test -p codecs --test examples
 
 # Clean the ../target dir
 clean:
