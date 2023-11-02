@@ -75,6 +75,10 @@ proptest-max:
 a11y:
 	cd codecs/tests && npm install && npm run test:a11y
 
+# Run benchmarks
+bench:
+	cargo bench -p codecs | tee codecs/benches/results.txt
+
 # List outdated dependencies
 outdated:
 	cargo outdated -d 1

@@ -40,6 +40,7 @@ cover:
 
 # Run benchmarks
 bench:
+	make -C rust bench
 	make -C node bench
 	make -C python bench
 
