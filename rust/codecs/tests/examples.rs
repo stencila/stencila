@@ -137,9 +137,7 @@ static CONFIG: Lazy<Config> = Lazy::new(|| {
                     },
                     ..Default::default()
                 },
-                decode: DecodeConfig {
-                    ..Default::default()
-                },
+                ..Default::default()
             },
         ),
         (
@@ -244,14 +242,24 @@ async fn examples() -> Result<()> {
 
             let codec = codecs::get(None, Some(config.format), None)?;
 
+            let mut original = node.clone();
+
             if !config.encode.skip {
                 // Encoding: encode to string, rather than direct to file, if possible
                 // for better comparison of differences
 
+                // Apply encode strip options
+                let targets = StripTargets {
+                    scopes: config.encode.options.strip_scopes.clone(),
+                    types: config.encode.options.strip_types.clone(),
+                    properties: config.encode.options.strip_props.clone(),
+                };
+                original.strip(&targets);
+
                 if codec.supports_to_string() {
                     // Encode to string
                     let (actual, losses) = codec
-                        .to_string(&node, Some(config.encode.options.clone()))
+                        .to_string(&original, Some(config.encode.options.clone()))
                         .await?;
 
                     if file.exists() {
@@ -287,7 +295,7 @@ async fn examples() -> Result<()> {
                     // to compared binary files (e.g. may include timestamps and change each run)
                     if !file.exists() {
                         codec
-                            .to_path(&node, &file, Some(config.encode.options.clone()))
+                            .to_path(&original, &file, Some(config.encode.options.clone()))
                             .await?;
                     }
                 }
@@ -309,20 +317,18 @@ async fn examples() -> Result<()> {
                     write(losses_file, serde_yaml::to_string(&losses)?).await?;
                 }
 
-                // Apply stripping to both original and decoded value for fair valid comparison
+                // Apply decode strip options to both original and decoded value for fair valid comparison
                 let targets = StripTargets {
                     scopes: config.decode.options.strip_scopes.clone(),
                     types: config.decode.options.strip_types.clone(),
                     properties: config.decode.options.strip_props.clone(),
                 };
                 decoded.strip(&targets);
-
-                let mut stripped = node.clone();
-                stripped.strip(&targets);
+                original.strip(&targets);
 
                 assert_eq!(
                     decoded,
-                    stripped,
+                    original,
                     "Decoded node differs\nConfig:{config}",
                     config = serde_json::to_string_pretty(&config)?
                 );
