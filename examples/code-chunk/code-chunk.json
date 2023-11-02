@@ -1,0 +1,21 @@
+{
+  "$schema": "https://stencila.dev/Article.schema.json",
+  "type": "Article",
+  "content": [
+    {
+      "type": "CodeChunk",
+      "code": "No language"
+    },
+    {
+      "type": "CodeChunk",
+      "programmingLanguage": "python",
+      "code": "# Some python code\na = 3"
+    },
+    {
+      "type": "CodeChunk",
+      "programmingLanguage": "js",
+      "code": "// Javascript",
+      "autoExec": "Always"
+    }
+  ]
+}

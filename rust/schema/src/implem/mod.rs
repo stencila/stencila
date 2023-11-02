@@ -7,6 +7,7 @@ mod block;
 mod call;
 mod claim;
 mod code_block;
+mod code_chunk;
 mod code_expression;
 mod code_fragment;
 mod cord;

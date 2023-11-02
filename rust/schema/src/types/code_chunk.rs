@@ -28,6 +28,7 @@ use super::timestamp::Timestamp;
 #[derive(derive_more::Display)]
 #[display(fmt = "CodeChunk")]
 #[jats(elem = "code", attribs(executable = "yes"))]
+#[markdown(special)]
 pub struct CodeChunk {
     /// The type of this item.
     #[cfg_attr(feature = "proptest", proptest(value = "Default::default()"))]

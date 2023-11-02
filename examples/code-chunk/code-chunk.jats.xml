@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<article dtd-version="1.3" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:mml="http://www.w3.org/1998/Math/MathML">
+  <body>
+    <code executable="yes">No language</code>
+    <code executable="yes" language="python"># Some python code&#10;a = 3</code>
+    <code executable="yes" language="js">// Javascript</code>
+  </body>
+</article>

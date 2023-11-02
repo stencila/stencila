@@ -15,6 +15,9 @@
       "executable": "yes"
     }
   },
+  "markdown": {
+    "special": true
+  },
   "required": [
     "type",
     "code"

@@ -1,0 +1,1 @@
+{type: "Article",content: [{type: "CodeChunk",code: "No language"},{type: "CodeChunk",code: "# Some python code\na = 3",programmingLanguage: "python"},{type: "CodeChunk",autoExec: "Always",code: "\/\/ Javascript",programmingLanguage: "js"}]}

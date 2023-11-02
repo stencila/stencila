@@ -9,10 +9,10 @@ use codec::{
     },
     format::Format,
     schema::{
-        shortcuts::{cb, cc, em, mb, ol, p, q, qb, stg, stk, t, tab, tb, td, u, ul},
+        shortcuts::{cb, em, mb, ol, p, q, qb, stg, stk, t, tab, tb, td, u, ul},
         transforms::blocks_to_inlines,
-        AudioObject, Block, Heading, If, IfClause, ImageObject, Inline, Link, ListItem, TableCell,
-        TableRow, TableRowType, VideoObject,
+        AudioObject, Block, CodeChunk, Cord, Heading, If, IfClause, ImageObject, Inline, Link,
+        ListItem, TableCell, TableRow, TableRowType, VideoObject,
     },
     Losses,
 };
@@ -253,28 +253,43 @@ pub fn decode_blocks(md: &str) -> (Vec<Block>, Losses) {
                     }
                 }
                 Tag::CodeBlock(kind) => {
-                    let (lang, exec) = match kind {
-                        CodeBlockKind::Fenced(lang) => {
-                            let lang = lang.to_string();
-                            if !lang.is_empty() {
-                                let (lang, exec) = if let Some(lang) = lang.strip_suffix("exec") {
-                                    (lang.trim().to_string(), true)
-                                } else {
-                                    (lang.to_string(), false)
-                                };
-                                (Some(lang), exec)
+                    let (lang, exec, auto_exec) = match kind {
+                        CodeBlockKind::Fenced(spec) => {
+                            let mut spec = spec.to_string();
+
+                            let exec = if spec.contains("exec") {
+                                spec = spec.replace("exec", "");
+                                true
                             } else {
-                                (None, false)
-                            }
+                                false
+                            };
+
+                            let auto_exec = if let Some(pos) = spec.find("auto=") {
+                                let auto_exec = spec[pos + 5..].trim().to_string();
+                                spec = spec[..pos].to_string();
+                                auto_exec.parse().ok()
+                            } else {
+                                None
+                            };
+
+                            let spec = spec.trim().to_string();
+                            let lang = if spec.is_empty() { None } else { Some(spec) };
+
+                            (lang, exec, auto_exec)
                         }
-                        _ => (None, false),
+                        _ => (None, false, None),
                     };
 
                     let code = inlines.pop_text();
                     let code = code.trim();
 
                     let block = match exec {
-                        true => cc(code, lang),
+                        true => Block::CodeChunk(CodeChunk {
+                            code: Cord::from(code),
+                            programming_language: lang,
+                            auto_exec,
+                            ..Default::default()
+                        }),
                         false => match lang.as_deref() {
                             Some("asciimath") | Some("mathml") | Some("latex") | Some("tex") => {
                                 mb(code, lang.unwrap_or_default())
