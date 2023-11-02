@@ -13,7 +13,7 @@ pub fn aud<S: Into<String>>(url: S) -> Inline {
 }
 
 /// Create an [`Inline::Button`] node
-pub fn btn<C: Into<Cord>, S: Into<String>>(code: C, name: S) -> Inline {
+pub fn btn<C: Into<Cord>, S: Into<String>>(name: S, code: C) -> Inline {
     Inline::Button(Button::new(code.into(), name.into()))
 }
 
@@ -23,8 +23,17 @@ pub fn ct<S: Into<String>>(target: S) -> Inline {
 }
 
 /// Create an [`Inline::CiteGroup`] node
-pub fn ctg<I: Into<Vec<Cite>>>(items: I) -> Inline {
-    Inline::CiteGroup(CiteGroup::new(items.into()))
+pub fn ctg<C, S>(items: C) -> Inline
+where
+    C: IntoIterator<Item = S>,
+    S: Into<String>,
+{
+    Inline::CiteGroup(CiteGroup::new(
+        items
+            .into_iter()
+            .map(|target| Cite::new(target.into(), CitationMode::Parenthetical))
+            .collect(),
+    ))
 }
 
 /// Create a [`Inline::CodeExpression`] node
