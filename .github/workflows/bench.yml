@@ -61,6 +61,7 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           gh-pages-branch: main
           benchmark-data-dir-path: docs/dev/bench
+          skip-fetch-gh-pages: true
           auto-push: true
           alert-threshold: 100%
           comment-on-alert: true
@@ -75,6 +76,7 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           gh-pages-branch: main
           benchmark-data-dir-path: docs/dev/bench
+          skip-fetch-gh-pages: true
           auto-push: true
           alert-threshold: 100%
           comment-on-alert: true
