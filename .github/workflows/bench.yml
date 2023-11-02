@@ -5,6 +5,7 @@ name: Bench
 on:
   push:
     branches: ["main"]
+  workflow_dispatch: {}
 
 env:
   RUST_VERSION: "1.71.0"
