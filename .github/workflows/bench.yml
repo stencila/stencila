@@ -46,12 +46,6 @@ jobs:
       - name: Setup Poetry
         uses: snok/install-poetry@v1
 
-      - name: Setup benchmarks cache
-        uses: actions/cache@v3
-        with:
-          path: cache
-          key: ${{ runner.os }}-benchmarks
-
       - name: Install dependencies
         run: make install
 
@@ -64,7 +58,6 @@ jobs:
           name: Node SDK
           tool: benchmarkjs
           output-file-path: node/bench/results.txt
-          external-data-json-path: cache/node/benchmarks.json
           github-token: ${{ secrets.GITHUB_TOKEN }}
           gh-pages-branch: main
           benchmark-data-dir-path: docs/dev/bench
@@ -79,7 +72,6 @@ jobs:
           name: Python SDK
           tool: pytest
           output-file-path: python/benchmarks.json
-          external-data-json-path: cache/python/benchmarks.json
           github-token: ${{ secrets.GITHUB_TOKEN }}
           gh-pages-branch: main
           benchmark-data-dir-path: docs/dev/bench
