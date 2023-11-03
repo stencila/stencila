@@ -53,3 +53,6 @@ jobs:
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
           commit_message: "chore(*): Update benchmark data"
+
+      - name: Trigger pages workflow
+        run: gh workflow run pages.yml
