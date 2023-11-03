@@ -869,6 +869,10 @@ impl {title} {{{new}}}
             derives.push("SmartDefault");
         };
 
+        if unit_variants {
+            derives.push("strum::EnumString");
+        };
+
         let title = name.as_str();
         if !NO_READ_NODE.contains(&title) {
             derives.push("ReadNode");
@@ -882,6 +886,12 @@ impl {title} {{{new}}}
                 true => "",
             }
         ));
+
+        if unit_variants {
+            attrs.push(String::from(
+                "#[strum(ascii_case_insensitive, crate = \"common::strum\")]",
+            ));
+        };
 
         // Add proptest related attributes
         if let Some(proptest) = &schema.proptest {
