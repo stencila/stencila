@@ -9,7 +9,7 @@ use codec::{
     },
     format::Format,
     schema::{
-        shortcuts::{cb, em, mb, ol, p, q, qb, stg, stk, t, tab, tb, td, u, ul},
+        shortcuts::{cb, del, em, ins, mb, ol, p, q, qb, stg, stk, t, tab, tb, td, u, ul},
         transforms::blocks_to_inlines,
         AudioObject, Block, CodeChunk, Cord, Heading, If, IfClause, ImageObject, Inline, Link,
         ListItem, TableCell, TableRow, TableRowType, VideoObject,
@@ -779,6 +779,16 @@ impl Html {
                 .and_then(|html| html.strip_suffix("</q>"))
             {
                 vec![p([q(inlines_or_text(content))])]
+            } else if let Some(content) = html
+                .strip_prefix("<del>")
+                .and_then(|html| html.strip_suffix("</del>"))
+            {
+                vec![p([del(inlines_or_text(content))])]
+            } else if let Some(content) = html
+                .strip_prefix("<ins>")
+                .and_then(|html| html.strip_suffix("</ins>"))
+            {
+                vec![p([ins(inlines_or_text(content))])]
             } else {
                 vec![]
             }

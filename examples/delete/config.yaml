@@ -1,9 +1,10 @@
-# TODO: Consider encoding `Delete` and `Insert` to JATS and
-# Markdown, given that they are still just suggestions until accepted
-
+# TODO: Consider encoding `Delete` and `Insert` to JATS 
 compact.jats.xml:
   decode:
     skip: true
+
+# TODO: Enable when decoding of `Delete` with more complex
+# inlines is implemented
 md:
   decode:
     skip: true
