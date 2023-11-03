@@ -1,2 +1,2 @@
 update:
-	python main.py
+	python update.py

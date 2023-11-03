@@ -14,6 +14,7 @@ import re
 import os
 from datetime import datetime
 import subprocess
+import sys
 
 REPO_ROOT = "../../.."
 
@@ -25,20 +26,6 @@ def shell(command):
         .stdout.decode("utf-8")
         .strip()
     )
-
-
-# Create a record for the current commit
-record = dict(
-    datetime=datetime.utcnow().isoformat(),
-    commit=dict(
-        hash=shell("git rev-parse HEAD"),
-        author=shell("git --no-pager show -s --format='%an <%ae>' HEAD"),
-        committer=shell("git --no-pager show -s --format='%cn <%ce>' HEAD"),
-        timestamp=shell("git --no-pager show -s --format='%ct' HEAD"),
-        message=shell("git --no-pager show -s --format='%B' HEAD"),
-    ),
-    benches=[],
-)
 
 
 def divan(content):
@@ -96,7 +83,7 @@ def divan(content):
             else:
                 slowest /= 1e3
 
-            ops = int(samples) * int(iters)
+            ops = int(iters)
 
             results.append(
                 dict(
@@ -160,27 +147,53 @@ def pytest(content):
     ]
 
 
-# Read each benchmark result file, parse it, and add to the record
-for name, path, parser in [
-    ("codecs", "rust/codecs/benches/results.txt", divan),
-    ("node", "node/bench/results.txt", benchmarkjs),
-    ("python", "python/benchmarks.json", pytest),
-]:
-    try:
-        with open(os.path.join(REPO_ROOT, path)) as file:
-            content = file.read()
-    except IOError:
-        continue
+# The benchmarks included in each record
+benchmarks = {
+    "codecs": ("rust/codecs/benches/results.txt", divan),
+    "node": ("node/bench/results.txt", benchmarkjs),
+    "python": ("python/benchmarks.json", pytest),
+}
 
-    results = parser(content)
-    record["benches"].append(
-        dict(name=name, file=path, content=content, results=results)
-    )
-
-
-# Read the benchmark data, add the record to it, and write it back to disk
+# Read the existing records
 with open("data.json") as file:
-    data = json.load(file)
-    data.append(record)
+    records = json.load(file)
+
+if "--re-parse" in sys.argv:
+    # Re-parse each record to allow for fixes to parser functions
+    for record in records:
+        for bench in record["benches"]:
+            if bench["name"] in benchmarks:
+                (path, parser) = benchmarks[bench["name"]]
+                bench["results"] = parser(bench["content"])
+
+if "--no-record" not in sys.argv:
+    # Read each benchmark result file, parse it, and add to the current set of benches
+    benches = []
+    for name, (path, parser) in benchmarks.items():
+        try:
+            with open(os.path.join(REPO_ROOT, path)) as file:
+                content = file.read()
+        except IOError:
+            continue
+
+        results = parser(content)
+        benches.append(dict(name=name, file=path, content=content, results=results))
+
+    # Add a record if there are any benches
+    if len(benches) > 0:
+        record = dict(
+            datetime=datetime.utcnow().isoformat(),
+            commit=dict(
+                hash=shell("git rev-parse HEAD"),
+                author=shell("git --no-pager show -s --format='%an <%ae>' HEAD"),
+                committer=shell("git --no-pager show -s --format='%cn <%ce>' HEAD"),
+                timestamp=shell("git --no-pager show -s --format='%ct' HEAD"),
+                message=shell("git --no-pager show -s --format='%B' HEAD"),
+            ),
+            benches=benches,
+        )
+        records.append(record)
+
+# Write records back to disk
 with open("data.json", "w") as file:
-    json.dump(data, file, indent=2)
+    json.dump(records, file, indent=2)
