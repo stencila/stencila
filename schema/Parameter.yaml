@@ -4,6 +4,8 @@ extends: Executable
 category: flow
 status: under-development
 description: A parameter of a document.
+jats:
+  elem: parameter
 html:
   elem: span
   custom: true
@@ -25,6 +27,8 @@ properties:
     $comment: |
       This regex allows for snake_case and camelCase names but excludes
       PascalCase for names.
+    jats:
+      attr: name
   label:
     '@id': stencila:label
     description: A short label for the parameter.

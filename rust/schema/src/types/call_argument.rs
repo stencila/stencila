@@ -40,6 +40,7 @@ pub struct CallArgument {
     pub auto_exec: Option<AutomaticExecution>,
 
     /// The name of the parameter.
+    #[jats(attr = "name")]
     pub name: String,
 
     /// A short label for the parameter.

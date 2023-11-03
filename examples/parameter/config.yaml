@@ -1,7 +1,11 @@
 compact.jats.xml:
   decode:
-    # TODO: Support encoding and decoding `Parameter`
-    skip: true
+    # At present, only a limited number of `Parameter` props are supported
+    strip-props:
+      - Parameter.default
+      - Parameter.validator
+      - Parameter.value
+
 md:
   decode:
     # TODO: Fix various issues, including below props

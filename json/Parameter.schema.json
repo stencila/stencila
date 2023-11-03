@@ -13,6 +13,9 @@
     "elem": "span",
     "custom": true
   },
+  "jats": {
+    "elem": "parameter"
+  },
   "markdown": {
     "special": true
   },
@@ -230,6 +233,9 @@
       "@id": "schema:name",
       "description": "The name of the parameter.",
       "$comment": "This regex allows for snake_case and camelCase names but excludes\nPascalCase for names.\n",
+      "jats": {
+        "attr": "name"
+      },
       "type": "string",
       "pattern": "[a-zA-Z][a-zA-Z0-9_]*"
     },

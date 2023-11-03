@@ -26,6 +26,7 @@ use super::validator::Validator;
 #[derive(derive_more::Display)]
 #[display(fmt = "Parameter")]
 #[html(elem = "span", custom)]
+#[jats(elem = "parameter")]
 #[markdown(special)]
 pub struct Parameter {
     /// The type of this item.
@@ -42,6 +43,7 @@ pub struct Parameter {
     pub auto_exec: Option<AutomaticExecution>,
 
     /// The name of the parameter.
+    #[jats(attr = "name")]
     pub name: String,
 
     /// A short label for the parameter.

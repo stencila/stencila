@@ -5,8 +5,8 @@ use codec::{
         shortcuts::{em, p, q, sec, stg, stk, sub, sup, t, u},
         Article, AudioObject, AudioObjectOptions, Block, CodeExpression, CodeFragment, Cord, Date,
         DateTime, Duration, Heading, ImageObject, ImageObjectOptions, Inline, Link, MathFragment,
-        MediaObject, MediaObjectOptions, Note, NoteType, Span, Text, ThematicBreak, Time,
-        Timestamp, VideoObject, VideoObjectOptions,
+        MediaObject, MediaObjectOptions, Note, NoteType, Parameter, Span, Text, ThematicBreak,
+        Time, Timestamp, VideoObject, VideoObjectOptions,
     },
     Losses,
 };
@@ -104,6 +104,7 @@ fn decode_inlines(path: &str, node: &Node, losses: &mut Losses) -> Vec<Inline> {
                 "inline-graphic" | "inline-media" => {
                     decode_inline_media(&child_path, &child, losses)
                 }
+                "parameter" => decode_parameter(&child_path, &child, losses),
                 "styled-content" => decode_styled_content(&child_path, &child, losses),
                 "time" => decode_time(&child_path, &child, losses),
                 "timestamp" => decode_timestamp(&child_path, &child, losses),
@@ -224,7 +225,7 @@ fn decode_inline_media(path: &str, node: &Node, losses: &mut Losses) -> Inline {
 fn decode_inline_code(path: &str, node: &Node, losses: &mut Losses) -> Inline {
     let executable = node.attribute("executable").map(String::from);
     let programming_language = node.attribute("language").map(String::from);
-    let code = node.text().map(Cord::new).unwrap_or_default();
+    let code = node.text().map(Cord::from).unwrap_or_default();
 
     record_attrs_lost(path, node, ["language"], losses);
 
@@ -346,7 +347,7 @@ fn decode_math_fragment(path: &str, node: &Node, losses: &mut Losses) -> Inline 
         .map(String::from)
         .unwrap_or_default();
 
-    let code = node.attribute("code").map(Cord::new).unwrap_or_default();
+    let code = node.attribute("code").map(Cord::from).unwrap_or_default();
 
     record_attrs_lost(path, node, ["language", "code"], losses);
 
@@ -357,9 +358,21 @@ fn decode_math_fragment(path: &str, node: &Node, losses: &mut Losses) -> Inline 
     })
 }
 
+/// Decode a `<parameter>` to a [`Inline::Parameter`]
+fn decode_parameter(path: &str, node: &Node, losses: &mut Losses) -> Inline {
+    let name = node.attribute("name").map(String::from).unwrap_or_default();
+
+    record_attrs_lost(path, node, ["name"], losses);
+
+    Inline::Parameter(Parameter {
+        name,
+        ..Default::default()
+    })
+}
+
 /// Decode a `<styled-content>` to a [`Inline::Span`]
 fn decode_styled_content(path: &str, node: &Node, losses: &mut Losses) -> Inline {
-    let code = node.attribute("style").map(Cord::new).unwrap_or_default();
+    let code = node.attribute("style").map(Cord::from).unwrap_or_default();
 
     let style_language = node.attribute("style-detail").map(String::from);
 
