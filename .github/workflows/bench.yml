@@ -48,8 +48,9 @@ jobs:
       - name: Run and collate benchmarks
         run: make bench
 
-      - name: Pull repo before commit
-        run: git pull
+      - name: Pull branch before commit
+        if: github.ref == 'refs/heads/main'
+        run: git pull origin main
 
       - name: Commit benchmark data
         if: github.ref == 'refs/heads/main'

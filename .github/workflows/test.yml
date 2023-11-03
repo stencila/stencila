@@ -88,8 +88,9 @@ jobs:
       - name: Make generated files
         run: make generated
 
-      - name: Pull repo before commit
-        run: git pull
+      - name: Pull branch before commit
+        if: github.ref == 'refs/heads/main'
+        run: git pull origin main
 
       - name: Commit generated files
         if: github.ref == 'refs/heads/main'
