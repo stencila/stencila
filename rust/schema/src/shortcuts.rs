@@ -197,34 +197,39 @@ pub fn r#for<S: Into<String>, C: Into<Cord>, B: Into<Vec<Block>>>(
     Block::For(For::new(code.into(), symbol.into(), content.into()))
 }
 
+/// Create a [`Block::Heading`] node with a specified `level`
+pub fn h<I: Into<Vec<Inline>>>(level: i64, content: I) -> Block {
+    Block::Heading(Heading::new(level, content.into()))
+}
+
 /// Create a [`Block::Heading`] node with `level: 1`
 pub fn h1<I: Into<Vec<Inline>>>(content: I) -> Block {
-    Block::Heading(Heading::new(1, content.into()))
+    h(1, content.into())
 }
 
 /// Create a [`Block::Heading`] node with `level: 2`
 pub fn h2<I: Into<Vec<Inline>>>(content: I) -> Block {
-    Block::Heading(Heading::new(2, content.into()))
+    h(2, content.into())
 }
 
 /// Create a [`Block::Heading`] node with `level: 3`
 pub fn h3<I: Into<Vec<Inline>>>(content: I) -> Block {
-    Block::Heading(Heading::new(3, content.into()))
+    h(3, content.into())
 }
 
 /// Create a [`Block::Heading`] node with `level: 4`
 pub fn h4<I: Into<Vec<Inline>>>(content: I) -> Block {
-    Block::Heading(Heading::new(4, content.into()))
+    h(4, content.into())
 }
 
 /// Create a [`Block::Heading`] node with `level: 5`
 pub fn h5<I: Into<Vec<Inline>>>(content: I) -> Block {
-    Block::Heading(Heading::new(5, content.into()))
+    h(5, content.into())
 }
 
 /// Create a [`Block::Heading`] node with `level: 6`
 pub fn h6<I: Into<Vec<Inline>>>(content: I) -> Block {
-    Block::Heading(Heading::new(6, content.into()))
+    h(6, content.into())
 }
 
 /// Create a [`Block::If`] node
