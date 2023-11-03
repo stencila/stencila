@@ -91,7 +91,7 @@
   },
   "devDependencies": {
     "@arethetypeswrong/cli": "0.13.0",
-    "@napi-rs/cli": "2.16.3",
+    "@napi-rs/cli": "2.16.5",
     "@types/benchmark": "2.1.4",
     "@types/jest": "29.5.7",
     "@types/tmp": "0.2.5",
