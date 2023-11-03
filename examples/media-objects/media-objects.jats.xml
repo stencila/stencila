@@ -3,13 +3,15 @@
   <body>
     <p>An image<inline-graphic xlink:href="https://example.org/cat.jpg">
       </inline-graphic>, with a caption<inline-graphic xlink:href="https://example.org/cat.jpg">
+        <alt-text>A cat</alt-text>
       </inline-graphic>, with a caption and title<inline-graphic xlink:href="https://example.org/cat.jpg">
+        <alt-text>A cat</alt-text>
       </inline-graphic>
     </p>
     <p>Some audio<inline-media xlink:href="https://example.org/cat.mp3" mimetype="audio">
       </inline-media>
     </p>
-    <p>A video<inline-media xlink:href="https://example.org/cat.mp4" mimetype="audio">
+    <p>A video<inline-media xlink:href="https://example.org/cat.mp4" mimetype="video">
       </inline-media>
     </p>
   </body>

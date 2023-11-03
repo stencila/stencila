@@ -33,5 +33,5 @@ content:
   content:
   - type: Text
     value: 'A video '
-  - type: AudioObject
+  - type: VideoObject
     contentUrl: https://example.org/cat.mp4

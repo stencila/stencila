@@ -333,7 +333,7 @@ pub fn decode_blocks(md: &str) -> (Vec<Block>, Losses) {
                 }
                 Tag::Image(_link_type, url, title) => {
                     let caption = inlines.pop_mark();
-                    let caption = if caption.is_empty() {
+                    let caption = if !caption.is_empty() {
                         Some(caption)
                     } else {
                         None

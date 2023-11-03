@@ -3,8 +3,3 @@ compact.jats.xml:
     strip-props:
       # TODO: Support decoding these properties
       - ImageObject.title
-      - ImageObject.caption
-md:
-  decode:
-    # TODO: Fix various issues here
-    skip: true

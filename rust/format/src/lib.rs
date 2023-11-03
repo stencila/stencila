@@ -4,7 +4,7 @@ use std::path::{Path, PathBuf};
 
 use common::{
     clap::{self, ValueEnum},
-    eyre::{bail, Result},
+    eyre::{eyre, Result},
     serde::{Deserialize, Serialize},
     strum::{Display, EnumIter, EnumString},
 };
@@ -118,15 +118,12 @@ impl Format {
         use Format::*;
 
         Ok(match name.to_lowercase().trim() {
-            "debug" => Debug,
-            "html" => Html,
-            "jats" => Jats,
-            "json" => Json,
-            "json5" => Json5,
-            "md" | "markdown" => Markdown,
-            "text" | "txt" => Text,
-            "yaml" | "yml" => Yaml,
-            _ => bail!("No format matching name `{name}`"),
+            // Only aliases listed here
+            "md" => Markdown,
+            "txt" => Text,
+            "yml" => Yaml,
+            _ => Format::from_str(name, true)
+                .map_err(|_| eyre!("No format matching name `{name}`"))?,
         })
     }
 
@@ -155,5 +152,24 @@ impl Format {
     /// Get the default file name extension for a format
     pub fn get_extension(&self) -> String {
         self.to_string()
+    }
+}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+
+    #[test]
+    fn from_string() -> Result<()> {
+        assert_eq!(Format::from_string("mp3")?, Format::Mp3);
+
+        assert_eq!(Format::from_string("file.avi")?, Format::Avi);
+
+        assert_eq!(
+            Format::from_string("https://example.org/cat.mp4")?,
+            Format::Mp4
+        );
+
+        Ok(())
     }
 }

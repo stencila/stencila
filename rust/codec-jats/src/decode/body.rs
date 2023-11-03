@@ -151,12 +151,12 @@ fn decode_inline_media(path: &str, node: &Node, losses: &mut Losses) -> Inline {
 
     record_attrs_lost(path, node, ["href", "mimetype", "mime-subtype"], losses);
 
-    let mut alternate_names = None;
+    let mut caption = None;
     let mut description = None;
     for child in node.children() {
         let tag = child.tag_name().name();
         match tag {
-            "alt-text" => alternate_names = child.text().map(|content| vec![content.to_string()]),
+            "alt-text" => caption = child.text().map(|content| vec![t(content)]),
             "long-desc" => description = child.text().map(Text::from),
             _ => record_node_lost(path, &child, losses),
         }
@@ -170,8 +170,8 @@ fn decode_inline_media(path: &str, node: &Node, losses: &mut Losses) -> Inline {
             } else {
                 media_type
             },
+            caption,
             options: Box::new(ImageObjectOptions {
-                alternate_names,
                 description,
                 ..Default::default()
             }),
@@ -187,8 +187,8 @@ fn decode_inline_media(path: &str, node: &Node, losses: &mut Losses) -> Inline {
             } else {
                 media_type
             },
+            caption,
             options: Box::new(AudioObjectOptions {
-                alternate_names,
                 description,
                 ..Default::default()
             }),
@@ -201,8 +201,8 @@ fn decode_inline_media(path: &str, node: &Node, losses: &mut Losses) -> Inline {
             } else {
                 media_type
             },
+            caption,
             options: Box::new(VideoObjectOptions {
-                alternate_names,
                 description,
                 ..Default::default()
             }),
@@ -212,7 +212,6 @@ fn decode_inline_media(path: &str, node: &Node, losses: &mut Losses) -> Inline {
             content_url,
             media_type,
             options: Box::new(MediaObjectOptions {
-                alternate_names,
                 description,
                 ..Default::default()
             }),

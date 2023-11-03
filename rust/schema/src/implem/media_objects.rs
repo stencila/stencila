@@ -38,6 +38,21 @@ macro_rules! jats_attrs {
     }};
 }
 
+macro_rules! jats_content {
+    ($object:expr) => {{
+        let mut content = String::new();
+
+        if let Some(caption) = &$object.caption {
+            use codec_jats_trait::encode::escape;
+
+            let caption = caption.to_text().0;
+            content.push_str(&["<alt-text>", &escape(caption), "</alt-text>"].concat())
+        }
+
+        content
+    }};
+}
+
 macro_rules! to_markdown {
     ($object:expr, $context:expr) => {{
         let mut losses = lost_options!($object, id);
@@ -93,7 +108,10 @@ impl AudioObject {
             attrs.push(("mimetype", "audio"));
         }
 
-        (elem("inline-media", attrs, ""), Losses::todo())
+        (
+            elem("inline-media", attrs, jats_content!(self)),
+            Losses::todo(),
+        )
     }
 
     pub fn to_markdown_special(&self, context: &MarkdownEncodeContext) -> (String, Losses) {
@@ -114,7 +132,7 @@ impl ImageObject {
         use codec_jats_trait::encode::elem;
 
         (
-            elem("inline-graphic", jats_attrs!(self), ""),
+            elem("inline-graphic", jats_attrs!(self), jats_content!(self)),
             Losses::todo(),
         )
     }
@@ -144,7 +162,10 @@ impl VideoObject {
             attrs.push(("mimetype", "video"));
         }
 
-        (elem("inline-media", attrs, ""), Losses::todo())
+        (
+            elem("inline-media", attrs, jats_content!(self)),
+            Losses::todo(),
+        )
     }
 
     pub fn to_markdown_special(&self, context: &MarkdownEncodeContext) -> (String, Losses) {
