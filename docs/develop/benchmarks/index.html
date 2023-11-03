@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Stencila Benchmarks</title>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, minimum-scale=1.0, initial-scale=1, user-scalable=yes"
+    />
+    <link rel="stylesheet" href="https://cdn.simplecss.org/simple.min.css" />
+    <script src="https://cdn.jsdelivr.net/npm/vega@5"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vega-lite@5"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vega-embed@6"></script>
+  </head>
+  <body>
+    <header>
+      <img
+        src="https://raw.github.com/stencila/stencila/main/docs/images/stencila.png"
+        style="max-height:100px; padding-top:2rem" 
+      />
+      <h1>Benchmarks</h1>
+      <p>
+        Performance benchmarks are run on each commit to check for regression.
+        See the GitHub Actions
+        <a
+          href="https://github.com/stencila/stencila/blob/main/.github/workflows/bench.yml"
+          >workflow</a
+        >
+        and
+        <a
+          href="https://github.com/stencila/stencila/blob/main/docs/develop/benchmarks"
+          >docs</a
+        >
+        for more.
+      </p>
+    </header>
+
+    <main>
+      <sec id="codecs">
+        <h2>Codecs</h2>
+        <p>
+          Benchmarks for encoding/decoding nodes to/from various formats in the
+          <a href="https://github.com/stencila/stencila/blob/main/node">rust/codecs</a> folder.
+        </p>
+      </sec>
+      <sec id="node">
+        <h2>Node SDK</h2>
+        <p>Benchmarks in the Node SDK in the <a href="https://github.com/stencila/stencila/blob/main/node">node</a> folder.</p>
+      </sec>
+      <sec id="python">
+        <h2>Python SDK</h2>
+        <p>Benchmarks for the Python SDK in the <a href="https://github.com/stencila/stencila/blob/main/python">python</a> folder.</p>
+      </sec>
+    </main>
+
+    <script type="module">
+      const response = await fetch("data.json");
+      const records = await response.json();
+
+      plots("codecs");
+      plots("node");
+      plots("python");
+
+      /// Generate plots for a section
+      function plots(name) {
+        const results = records.flatMap((record) =>
+          record.benches
+            .find((bench) => bench.name === name)
+            ?.results.map((result) => ({
+              ...result,
+              commit: record.commit.hash.slice(0, 8),
+            }))
+        );
+
+        const benches = Array.from(
+          new Set(results.map((result) => result.name))
+        );
+
+        const section = document.querySelector(`#${name}`);
+        for (const bench of benches) {
+          plot(
+            section,
+            bench,
+            results.filter((result) => result.name === bench)
+          );
+        }
+      }
+
+      // Generate a single plot
+      function plot(section, bench, values) {
+        const spec = {
+          data: {
+            values,
+          },
+          width: 600,
+          height: 150,
+          mark: {
+            type: "line",
+            point: true,
+            tooltip: { content: "data" },
+          },
+          encoding: {
+            x: { field: "commit", type: "nominal" },
+            y: { field: "value", type: "quantitative", title: "ops/sec" },
+          },
+        };
+
+        const heading = document.createElement("h3");
+        heading.innerHTML = `<code>${bench}</code>`;
+        section.appendChild(heading);
+
+        const div = document.createElement("div");
+        section.appendChild(div);
+        vegaEmbed(div, spec, { actions: false });
+      }
+    </script>
+  </body>
+</html>

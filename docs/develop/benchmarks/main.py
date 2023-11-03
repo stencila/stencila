@@ -162,9 +162,9 @@ def pytest(content):
 
 # Read each benchmark result file, parse it, and add to the record
 for name, path, parser in [
-    ("Codecs", "rust/codecs/benches/results.txt", divan),
-    ("Node SDK", "node/bench/results.txt", benchmarkjs),
-    ("Python SDK", "python/benchmarks.json", pytest),
+    ("codecs", "rust/codecs/benches/results.txt", divan),
+    ("node", "node/bench/results.txt", benchmarkjs),
+    ("python", "python/benchmarks.json", pytest),
 ]:
     try:
         with open(os.path.join(REPO_ROOT, path)) as file:
