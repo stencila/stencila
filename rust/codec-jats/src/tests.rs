@@ -1,9 +1,6 @@
 use codec::{
     common::tokio,
-    schema::{
-        shortcuts::{art, aud, img, p, vid},
-        Cord, Inline, Span,
-    },
+    schema::shortcuts::{art, aud, img, p, spn, vid},
 };
 use common_dev::pretty_assertions::assert_eq;
 
@@ -47,11 +44,8 @@ async fn media_objects() -> Result<()> {
 async fn spans() -> Result<()> {
     let codec = JatsCodec {};
 
-    let doc1 = art([p([Inline::Span(Span {
-        // Code contains whitespace characters that need to be escaped
-        code: Cord::new("\t\n\r"),
-        ..Default::default()
-    })])]);
+    // Code contains whitespace characters that need to be escaped
+    let doc1 = art([p([spn("\t\n\r", [])])]);
 
     let (jats, _) = codec
         .to_string(
