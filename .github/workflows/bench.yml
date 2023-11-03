@@ -13,10 +13,6 @@ env:
   NODE_VERSION: "20"
   PYTHON_VERSION: "3.11"
 
-permissions:
-  contents: write
-  deployments: write
-
 jobs:
   bench:
     runs-on: ubuntu-latest
@@ -49,35 +45,11 @@ jobs:
       - name: Install dependencies
         run: make install
 
-      - name: Run benchmarks
+      - name: Run and collate benchmarks
         run: make bench
 
-      - name: Store Node SDK benchmarks
-        uses: benchmark-action/github-action-benchmark@v1
+      - name: Commit benchmark data
+        if: github.ref == 'refs/heads/main'
+        uses: stefanzweifel/git-auto-commit-action@v5
         with:
-          name: Node SDK
-          tool: benchmarkjs
-          output-file-path: node/bench/results.txt
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          gh-pages-branch: main
-          benchmark-data-dir-path: docs/dev/bench
-          skip-fetch-gh-pages: true
-          auto-push: true
-          alert-threshold: 100%
-          comment-on-alert: true
-          fail-on-alert: true
-
-      - name: Store Python SDK benchmarks
-        uses: benchmark-action/github-action-benchmark@v1
-        with:
-          name: Python SDK
-          tool: pytest
-          output-file-path: python/benchmarks.json
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          gh-pages-branch: main
-          benchmark-data-dir-path: docs/dev/bench
-          skip-fetch-gh-pages: true
-          auto-push: true
-          alert-threshold: 100%
-          comment-on-alert: true
-          fail-on-alert: true
+          commit_message: "chore(*): Update benchmark data"

@@ -38,11 +38,12 @@ cover:
 	make -C node cover
 	make -C python cover
 
-# Run benchmarks
+# Run and collate benchmarks
 bench:
 	make -C rust bench
 	make -C node bench
 	make -C python bench
+	make -C docs/develop/benchmarks update
 
 # List outdated dependencies
 outdated:
