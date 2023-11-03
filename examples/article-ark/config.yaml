@@ -1,0 +1,27 @@
+# TODO: Support the following codec/node type combinations
+
+compact.jats.xml:
+  encode:
+    strip-types:
+      - Delete
+      - Insert
+  decode:
+    strip-types:
+      - Call
+      - Claim
+      - CodeBlock
+      - CodeChunk
+      - Division
+      - Figure
+      - For
+      - If
+      - Include
+      - List
+      - MathBlock
+      - QuoteBlock
+      - Table
+md:
+  encode:
+    strip-types:
+      - Figure
+      - QuoteBlock
