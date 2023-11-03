@@ -19,5 +19,17 @@
         </sec>
       </sec>
     </sec>
+    <sec specific-use="Header">
+      <p>This is the header</p>
+    </sec>
+    <sec specific-use="Introduction">
+      <p>This is the introduction</p>
+    </sec>
+    <sec specific-use="Conclusion">
+      <p>This is the conclusion</p>
+    </sec>
+    <sec specific-use="Footer">
+      <p>This is the footer</p>
+    </sec>
   </body>
 </article>

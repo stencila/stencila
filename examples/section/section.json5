@@ -102,6 +102,66 @@
           ]
         }
       ]
+    },
+    {
+      type: "Section",
+      content: [
+        {
+          type: "Paragraph",
+          content: [
+            {
+              type: "Text",
+              value: "This is the header"
+            }
+          ]
+        }
+      ],
+      sectionType: "Header"
+    },
+    {
+      type: "Section",
+      content: [
+        {
+          type: "Paragraph",
+          content: [
+            {
+              type: "Text",
+              value: "This is the introduction"
+            }
+          ]
+        }
+      ],
+      sectionType: "Introduction"
+    },
+    {
+      type: "Section",
+      content: [
+        {
+          type: "Paragraph",
+          content: [
+            {
+              type: "Text",
+              value: "This is the conclusion"
+            }
+          ]
+        }
+      ],
+      sectionType: "Conclusion"
+    },
+    {
+      type: "Section",
+      content: [
+        {
+          type: "Paragraph",
+          content: [
+            {
+              type: "Text",
+              value: "This is the footer"
+            }
+          ]
+        }
+      ],
+      sectionType: "Footer"
     }
   ]
 }

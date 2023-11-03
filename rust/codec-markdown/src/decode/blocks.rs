@@ -5,7 +5,7 @@ use std::collections::HashMap;
 use nom::{
     branch::alt,
     bytes::complete::{escaped, is_not, tag},
-    character::complete::{char, multispace0, multispace1, none_of},
+    character::complete::{alpha1, char, multispace0, multispace1, none_of},
     combinator::{all_consuming, map, opt, recognize},
     multi::{many_m_n, separated_list0},
     sequence::{delimited, pair, preceded, separated_pair, terminated, tuple},
@@ -115,12 +115,11 @@ fn call_arg(input: &str) -> IResult<&str, CallArgument> {
 /// Parse a [`Section`] node
 pub fn section(input: &str) -> IResult<&str, Section> {
     map(
-        all_consuming(tuple((
-            semis,
-            multispace0,
-            alt((tag("section"), tag("sec"))),
-        ))),
-        |_| Section::default(),
+        all_consuming(preceded(tuple((semis, multispace0)), alpha1)),
+        |typ| Section {
+            section_type: typ.parse().ok(),
+            ..Default::default()
+        },
     )(input)
 }
 

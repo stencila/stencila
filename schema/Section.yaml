@@ -7,16 +7,19 @@ jats:
   elem: sec
 html:
   elem: section
+  special: true
 markdown:
   template: '::: section\n\n{content}\n\n:::\n\n'
   special: true
 proptest: {}
 required:
   - content
+core:
+  - sectionType
 properties:
   content:
-    '@id': 'stencila:content'
-    description: The content within the section
+    '@id': stencila:content
+    description: The content within the section.
     type: array
     items:
       $ref: Block
@@ -33,3 +36,17 @@ properties:
       max:
         description: Generate up to eight arbitrary, non-recursive, block nodes.
         strategy: vec_blocks_non_recursive(8)
+  sectionType:
+    '@id': stencila:sectionType
+    description: The type of section.
+    $ref: SectionType
+    jats:
+      attr: specific-use
+    proptest:
+      min:
+        description: No type.
+        value: None
+      low:
+        description: Generate an arbitrary section type.
+        strategy: option::of(SectionType::arbitrary())
+

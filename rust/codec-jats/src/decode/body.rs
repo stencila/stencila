@@ -2,11 +2,11 @@ use roxmltree::Node;
 
 use codec::{
     schema::{
-        shortcuts::{em, mf, p, q, sec, stg, stk, sub, sup, t, u},
+        shortcuts::{em, mf, p, q, stg, stk, sub, sup, t, u},
         Article, AudioObject, AudioObjectOptions, Block, CodeExpression, CodeFragment, Cord, Date,
-        DateTime, Duration, Heading, ImageObject, ImageObjectOptions, Inline, Link,
-        MediaObject, MediaObjectOptions, Note, NoteType, Parameter, Span, Text, ThematicBreak,
-        Time, Timestamp, VideoObject, VideoObjectOptions,
+        DateTime, Duration, Heading, ImageObject, ImageObjectOptions, Inline, Link, MediaObject,
+        MediaObjectOptions, Note, NoteType, Parameter, Section, Span, Text, ThematicBreak, Time,
+        Timestamp, VideoObject, VideoObjectOptions,
     },
     Losses,
 };
@@ -64,9 +64,17 @@ fn decode_p(path: &str, node: &Node, losses: &mut Losses) -> Block {
 
 /// Decode a `<sec>` to a [`Block::Section`]
 fn decode_sec(path: &str, node: &Node, losses: &mut Losses, depth: u8) -> Block {
-    record_attrs_lost(path, node, [], losses);
+    record_attrs_lost(path, node, ["specific-use"], losses);
 
-    sec(decode_blocks(path, node, losses, depth))
+    let typ = node
+        .attribute("specific-use")
+        .and_then(|typ| typ.parse().ok());
+
+    Block::Section(Section {
+        content: decode_blocks(path, node, losses, depth),
+        section_type: typ,
+        ..Default::default()
+    })
 }
 
 /// Decode a `<title>` to a [`Block::Heading`]

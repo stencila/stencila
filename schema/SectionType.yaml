@@ -1,0 +1,25 @@
+title: SectionType
+'@id': stencila:SectionType
+extends: Enumeration
+category: prose
+description: The type of a `Section`.
+proptest: {}
+anyOf:
+  - const: Main
+    '@id': stencila:Main
+  - const: Header
+    '@id': stencila:Header
+  - const: Footer
+    '@id': stencila:Footer
+  - const: Summary
+    '@id': stencila:Summary
+  - const: Introduction
+    '@id': stencila:Introduction
+  - const: Methods
+    '@id': stencila:Methods
+  - const: Results
+    '@id': stencila:Results
+  - const: Discussion
+    '@id': stencila:Discussion
+  - const: Conclusion
+    '@id': stencila:Conclusion

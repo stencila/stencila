@@ -134,10 +134,6 @@ pub fn decode_blocks(md: &str) -> (Vec<Block>, Losses) {
                         Some(Block::Include(include))
                     } else if let Ok((.., call)) = call(trimmed) {
                         Some(Block::Call(call))
-                    } else if let Ok((.., section)) = section(trimmed) {
-                        blocks.push_div();
-                        divs.push_back(Block::Section(section));
-                        None
                     } else if let Ok((.., claim)) = claim(trimmed) {
                         blocks.push_div();
                         divs.push_back(Block::Claim(claim));
@@ -206,6 +202,11 @@ pub fn decode_blocks(md: &str) -> (Vec<Block>, Losses) {
                             }
                         }
                         blocks.push_div();
+                        None
+                    } else if let Ok((.., section)) = section(trimmed) {
+                        // Must go after other fenced divs as will match against them
+                        blocks.push_div();
+                        divs.push_back(Block::Section(section));
                         None
                     } else if end(trimmed).is_ok() {
                         divs.pop_back().map(|div| match div {

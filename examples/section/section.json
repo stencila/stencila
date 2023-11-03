@@ -8,12 +8,7 @@
         {
           "type": "Heading",
           "level": 1,
-          "content": [
-            {
-              "type": "Text",
-              "value": "Introduction"
-            }
-          ]
+          "content": [{ "type": "Text", "value": "Introduction" }]
         },
         {
           "type": "Paragraph",
@@ -32,12 +27,7 @@
         {
           "type": "Heading",
           "level": 1,
-          "content": [
-            {
-              "type": "Text",
-              "value": "Nested sections"
-            }
-          ]
+          "content": [{ "type": "Text", "value": "Nested sections" }]
         },
         {
           "type": "Section",
@@ -45,12 +35,7 @@
             {
               "type": "Heading",
               "level": 2,
-              "content": [
-                {
-                  "type": "Text",
-                  "value": "Inner section"
-                }
-              ]
+              "content": [{ "type": "Text", "value": "Inner section" }]
             },
             {
               "type": "Section",
@@ -59,10 +44,7 @@
                   "type": "Heading",
                   "level": 3,
                   "content": [
-                    {
-                      "type": "Text",
-                      "value": "First inner-inner section"
-                    }
+                    { "type": "Text", "value": "First inner-inner section" }
                   ]
                 },
                 {
@@ -83,10 +65,7 @@
                   "type": "Heading",
                   "level": 3,
                   "content": [
-                    {
-                      "type": "Text",
-                      "value": "Second inner-inner section"
-                    }
+                    { "type": "Text", "value": "Second inner-inner section" }
                   ]
                 },
                 {
@@ -101,6 +80,46 @@
               ]
             }
           ]
+        }
+      ]
+    },
+    {
+      "type": "Section",
+      "sectionType": "Header",
+      "content": [
+        {
+          "type": "Paragraph",
+          "content": [{ "type": "Text", "value": "This is the header" }]
+        }
+      ]
+    },
+    {
+      "type": "Section",
+      "sectionType": "Introduction",
+      "content": [
+        {
+          "type": "Paragraph",
+          "content": [{ "type": "Text", "value": "This is the introduction" }]
+        }
+      ]
+    },
+    {
+      "type": "Section",
+      "sectionType": "Conclusion",
+      "content": [
+        {
+          "type": "Paragraph",
+          "content": [{ "type": "Text", "value": "This is the conclusion" }]
+        }
+      ]
+    },
+    {
+      "type": "Section",
+      "sectionType": "Footer",
+      "content": [
+        {
+          "type": "Paragraph",
+          "content": [{ "type": "Text", "value": "This is the footer" }]
         }
       ]
     }
