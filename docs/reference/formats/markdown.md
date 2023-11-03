@@ -171,7 +171,7 @@ Support and degree of loss for node types:
 | [MathFragment](https://github.com/stencila/stencila/blob/main/docs/reference/schema/math/math_fragment.md)                | 🟢 No loss        | 🟢 No loss     | Encoded using special function     |
 | **Code**                                                                                                                  |
 | [CodeBlock](https://github.com/stencila/stencila/blob/main/docs/reference/schema/code/code_block.md)                      | 🟢 No loss        | 🟢 No loss     | Encoded using special function     |
-| [CodeChunk](https://github.com/stencila/stencila/blob/main/docs/reference/schema/code/code_chunk.md)                      | 🔷 Low loss       | 🔷 Low loss    |                                    |
+| [CodeChunk](https://github.com/stencila/stencila/blob/main/docs/reference/schema/code/code_chunk.md)                      | 🔷 Low loss       | 🔷 Low loss    | Encoded using special function     |
 | [CodeError](https://github.com/stencila/stencila/blob/main/docs/reference/schema/code/code_error.md)                      | ⚠️ High loss     |               |                                    |
 | [CodeExpression](https://github.com/stencila/stencila/blob/main/docs/reference/schema/code/code_expression.md)            | 🔷 Low loss       | 🔷 Low loss    | Encoded using special function     |
 | [CodeFragment](https://github.com/stencila/stencila/blob/main/docs/reference/schema/code/code_fragment.md)                | 🟢 No loss        | 🟢 No loss     | Encoded using special function     |
@@ -218,7 +218,7 @@ Support and degree of loss for node types:
 | [Function](https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/function.md)                         | ⚠️ High loss     |               |                                    |
 | [If](https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/if.md)                                     | ⚠️ High loss     |               | Encoded using special function     |
 | [IfClause](https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/if_clause.md)                        | ⚠️ High loss     |               |                                    |
-| [Include](https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/include.md)                           | ⚠️ High loss     |               | Encoded using special function     |
+| [Include](https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/include.md)                           | ⚠️ High loss     |               | Encoded as `/{source}\n\n`         |
 | [Parameter](https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/parameter.md)                       | 🔷 Low loss       | 🔷 Low loss    | Encoded using special function     |
 | [Variable](https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/variable.md)                         | ⚠️ High loss     |               |                                    |
 | **Style**                                                                                                                 |
