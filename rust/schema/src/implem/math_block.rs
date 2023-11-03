@@ -18,25 +18,32 @@ impl MathBlock {
             .map(|mathml| elem_no_attrs("mml:math", mathml))
             .unwrap_or_default();
 
-        let jats = elem(
-            "disp-formula",
-            [("language", &self.math_language), ("code", &self.code)],
-            [label, mathml].concat(),
-        );
+        let mut attrs = vec![("code", self.code.as_str())];
+        if let Some(lang) = &self.math_language {
+            attrs.push(("language", lang.as_str()));
+        }
 
-        let losses = lost_options!(self, id, compile_digest, errors);
+        let jats = elem("disp-formula", attrs, [label, mathml].concat());
+
+        let losses = lost_options!(self, id, compile_digest, compile_errors);
 
         (jats, losses)
     }
 
     pub fn to_markdown_special(&self, _context: &MarkdownEncodeContext) -> (String, Losses) {
-        let md = if self.math_language.to_lowercase() == "tex" {
+        let lang = self
+            .math_language
+            .as_deref()
+            .unwrap_or("tex")
+            .to_lowercase();
+
+        let md = if lang == "tex" {
             ["$$\n", &self.code, "\n$$\n\n"].concat()
         } else {
-            ["```", &self.math_language, "\n", &self.code, "\n```\n\n"].concat()
+            ["```", &lang, "\n", &self.code, "\n```\n\n"].concat()
         };
 
-        let losses = lost_options!(self, id, compile_digest, errors, mathml, label);
+        let losses = lost_options!(self, id, compile_digest, compile_errors, mathml, label);
 
         (md, losses)
     }

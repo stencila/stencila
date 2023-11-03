@@ -33,7 +33,7 @@ pub fn math_block(input: &str) -> IResult<&str, MathBlock> {
         all_consuming(delimited(tag("$$"), is_not("$"), tag("$$"))),
         |code: &str| MathBlock {
             code: Cord::from(code.trim()),
-            math_language: "tex".to_string(),
+            math_language: Some(String::from("tex")),
             ..Default::default()
         },
     )(input)

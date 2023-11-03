@@ -52,8 +52,8 @@ content:
   - type: Text
     value: ', '
   - type: MathFragment
-    mathLanguage: tex
     code: math fragment
+    mathLanguage: tex
   - type: Text
     value: ', '
   - type: Parameter
@@ -171,8 +171,8 @@ content:
         value: This is a list
   order: Unordered
 - type: MathBlock
-  mathLanguage: tex
   code: This is a math block
+  mathLanguage: tex
 - type: QuoteBlock
   content:
   - type: Paragraph

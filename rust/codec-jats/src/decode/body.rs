@@ -2,9 +2,9 @@ use roxmltree::Node;
 
 use codec::{
     schema::{
-        shortcuts::{em, p, q, sec, stg, stk, sub, sup, t, u},
+        shortcuts::{em, mf, p, q, sec, stg, stk, sub, sup, t, u},
         Article, AudioObject, AudioObjectOptions, Block, CodeExpression, CodeFragment, Cord, Date,
-        DateTime, Duration, Heading, ImageObject, ImageObjectOptions, Inline, Link, MathFragment,
+        DateTime, Duration, Heading, ImageObject, ImageObjectOptions, Inline, Link,
         MediaObject, MediaObjectOptions, Note, NoteType, Parameter, Span, Text, ThematicBreak,
         Time, Timestamp, VideoObject, VideoObjectOptions,
     },
@@ -342,20 +342,12 @@ fn decode_footnote(path: &str, node: &Node, losses: &mut Losses) -> Inline {
 
 /// Decode a `<inline-formula>` to a [`Inline::MathFragment`]
 fn decode_math_fragment(path: &str, node: &Node, losses: &mut Losses) -> Inline {
-    let math_language = node
-        .attribute("language")
-        .map(String::from)
-        .unwrap_or_default();
-
     let code = node.attribute("code").map(Cord::from).unwrap_or_default();
+    let lang = node.attribute("language");
 
-    record_attrs_lost(path, node, ["language", "code"], losses);
+    record_attrs_lost(path, node, ["code", "language"], losses);
 
-    Inline::MathFragment(MathFragment {
-        math_language,
-        code,
-        ..Default::default()
-    })
+    mf(code, lang)
 }
 
 /// Decode a `<parameter>` to a [`Inline::Parameter`]

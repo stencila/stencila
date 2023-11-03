@@ -12,8 +12,8 @@
     },
     {
       type: "MathBlock",
-      mathLanguage: "tex",
-      code: "2 \\pi r^2"
+      code: "2 \\pi r^2",
+      mathLanguage: "tex"
     },
     {
       type: "Paragraph",
@@ -26,8 +26,8 @@
     },
     {
       type: "MathBlock",
-      mathLanguage: "asciimath",
-      code: "2 pi r^2"
+      code: "2 pi r^2",
+      mathLanguage: "asciimath"
     },
     {
       type: "Paragraph",
@@ -40,8 +40,8 @@
     },
     {
       type: "MathBlock",
-      mathLanguage: "mathml",
-      code: "<math><mrow><mn>2<\/mn><mi>π<\/mi><msup><mi>r<\/mi><mn>2<\/mn><\/msup><\/mrow><\/math>"
+      code: "<math><mrow><mn>2<\/mn><mi>π<\/mi><msup><mi>r<\/mi><mn>2<\/mn><\/msup><\/mrow><\/math>",
+      mathLanguage: "mathml"
     }
   ]
 }

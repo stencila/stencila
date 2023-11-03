@@ -292,7 +292,7 @@ pub fn decode_blocks(md: &str) -> (Vec<Block>, Losses) {
                         }),
                         false => match lang.as_deref() {
                             Some("asciimath") | Some("mathml") | Some("latex") | Some("tex") => {
-                                mb(code, lang.unwrap_or_default())
+                                mb(code, lang)
                             }
                             _ => cb(code, lang),
                         },

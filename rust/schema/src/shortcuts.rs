@@ -76,8 +76,12 @@ pub fn lnk<I: Into<Vec<Inline>>, S: Into<String>>(content: I, target: S) -> Inli
 }
 
 /// Create an [`Inline::MathFragment`] node
-pub fn mf<C: Into<Cord>, S: Into<String>>(code: C, lang: S) -> Inline {
-    Inline::MathFragment(MathFragment::new(lang.into(), code.into()))
+pub fn mf<C: Into<Cord>, S: Into<String>>(code: C, lang: Option<S>) -> Inline {
+    Inline::MathFragment(MathFragment {
+        code: code.into(),
+        math_language: lang.map(|lang| lang.into()),
+        ..Default::default()
+    })
 }
 
 /// Create an [`Inline::Note`] node
@@ -266,10 +270,10 @@ pub fn li<I: Into<Vec<Inline>>>(content: I) -> ListItem {
 }
 
 /// Create an [`Block::MathBlock`] node
-pub fn mb<C: Into<Cord>, S: Into<String>>(code: C, lang: S) -> Block {
+pub fn mb<C: Into<Cord>, S: Into<String>>(code: C, lang: Option<S>) -> Block {
     Block::MathBlock(MathBlock {
         code: code.into(),
-        math_language: lang.into(),
+        math_language: lang.map(|lang| lang.into()),
         ..Default::default()
     })
 }

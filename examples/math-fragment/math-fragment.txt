@@ -1,1 +1,1 @@
-A TeX fragment  tex2 \pi r^2 . An ASCIIMath fragment  asciimath2 pi r^2 . A MathML fragment  mathml<math><mrow><mn>2</mn><mi>π</mi><msup><mi>r</mi><mn>2</mn></msup></mrow></math> .
+A TeX fragment  2 \pi r^2tex . An ASCIIMath fragment  2 pi r^2asciimath . A MathML fragment  <math><mrow><mn>2</mn><mi>π</mi><msup><mi>r</mi><mn>2</mn></msup></mrow></math>mathml .

@@ -15,10 +15,10 @@ use nom::{
 use codec::{
     common::indexmap::IndexMap,
     schema::{
-        shortcuts::{stk, sub, sup, t},
+        shortcuts::{ce, mf, stk, sub, sup, t},
         BooleanValidator, Button, Cite, CiteGroup, CodeExpression, CodeFragment, Cord,
         DateTimeValidator, DateValidator, DurationValidator, EnumValidator, Inline,
-        IntegerValidator, MathFragment, Node, NumberValidator, Parameter, ParameterOptions, Span,
+        IntegerValidator, Node, NumberValidator, Parameter, ParameterOptions, Span,
         StringValidator, TimeValidator, TimestampValidator, Validator,
     },
 };
@@ -97,18 +97,10 @@ fn code_attrs(input: &str) -> IResult<&str, Inline> {
                 None => (None, false),
             };
             match exec {
-                true => Inline::CodeExpression(CodeExpression {
-                    code: code.into(),
-                    programming_language: lang,
-                    ..Default::default()
-                }),
+                true => ce(code, lang),
                 _ => match lang.as_deref() {
                     Some("asciimath") | Some("mathml") | Some("latex") | Some("tex") => {
-                        Inline::MathFragment(MathFragment {
-                            code: code.into(),
-                            math_language: lang.unwrap_or_default(),
-                            ..Default::default()
-                        })
+                        mf(code, lang)
                     }
                     _ => Inline::CodeFragment(CodeFragment {
                         code: code.into(),
@@ -555,7 +547,7 @@ fn cite_group(input: &str) -> IResult<&str, Inline> {
 
 /// Parse a string into an `Inline` node
 ///
-/// This attempts to follow Pandoc's match parsing as closely as possible
+/// This attempts to follow Pandoc's math parsing as closely as possible
 /// (see <https://pandoc.org/MANUAL.html#math>).
 fn math(input: &str) -> IResult<&str, Inline> {
     map(
@@ -567,13 +559,7 @@ fn math(input: &str) -> IResult<&str, Inline> {
             // and must not be followed immediately by a digit"
             tuple((peek(not(multispace1)), char('$'), peek(not(digit1)))),
         ),
-        |res: &str| {
-            Inline::MathFragment(MathFragment {
-                code: res.into(),
-                math_language: "tex".to_string(),
-                ..Default::default()
-            })
-        },
+        |code: &str| mf(code, Some(String::from("tex"))),
     )(input)
 }
 

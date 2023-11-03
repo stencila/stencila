@@ -10,34 +10,18 @@ $comment: |
   This type has a similar structure and purpose to `CodeStatic` which is a base type
   for `CodeFragment`, `CodeBlock` etc.
 required:
-  - mathLanguage
   - code
 core:
+  - mathLanguage
   - compileDigest
-  - errors
+  - compileErrors
   - mathml
 properties:
-  mathLanguage:
-    '@id': stencila:mathLanguage
-    description: The language used for the equation e.g tex, mathml, asciimath.
-    type: string
-    proptest:
-      min:
-        description: Generate a fixed string.
-        value: String::from("lang")
-      low:
-        description: Generate one of the math language names.
-        regex: (asciimath)|(mathml)|(tex)
-      high:
-        description: Generate a random string of up to 10 alphanumeric characters.
-        regex: '[a-zA-Z0-9]{1,10}'
-      max:
-        description: Generate an arbitrary string.
-        strategy: String::arbitrary()
   code:
     '@id': stencila:code
     description: The code of the equation in the `mathLanguage`.
     $ref: Cord
+    strip: [code]
     proptest:
       min:
         description: Generate a simple fixed string of math.
@@ -52,14 +36,34 @@ properties:
       max:
         description: Generate an arbitrary string.
         strategy: String::arbitrary().prop_map(Cord::new)
+  mathLanguage:
+    '@id': stencila:mathLanguage
+    description: The language used for the equation e.g tex, mathml, asciimath.
+    $comment: Where necessary, the language is assumed to be TeX.
+    type: string
+    strip: [code]
+    proptest:
+      min:
+        description: No language.
+        value: None
+      low:
+        description: Generate one of the math language names.
+        strategy: option::of(r"(asciimath)|(mathml)|(tex)")
+      high:
+        description: Generate a random string of up to 10 alphanumeric characters.
+        strategy: option::of(r"[a-zA-Z0-9]{1,10}")
+      max:
+        description: Generate an arbitrary string.
+        strategy: option::of(String::arbitrary())
   compileDigest:
     '@id': stencila:compileDigest
     description: A digest of the `code` and `mathLanguage`.
     $comment: Used to avoid unnecessary transpilation to MathML.
     $ref: ExecutionDigest
-  errors:
-    '@id': stencila:errors
-    description: Errors that occurred when parsing the math equation.
+    strip: [execution]
+  compileErrors:
+    '@id': stencila:compileErrors
+    description: Errors that occurred when parsing and compiling the math equation.
     $comment: |
       This property is an array of strings. Compare this to `CodeChunk.errors`
       which is an array of `CodeError` nodes. Strings are considered to
@@ -68,6 +72,7 @@ properties:
     type: array
     items:
       type: string
+    strip: [execution]
   mathml:
     '@id': stencila:mathml
     description: The MathML transpiled from the `code`.
@@ -75,3 +80,4 @@ properties:
     html:
       content: true
     type: string
+    strip: [output]

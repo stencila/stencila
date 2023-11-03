@@ -108,8 +108,8 @@
         },
         {
           type: "MathFragment",
-          mathLanguage: "tex",
-          code: "math fragment"
+          code: "math fragment",
+          mathLanguage: "tex"
         },
         {
           type: "Text",
@@ -360,8 +360,8 @@
     },
     {
       type: "MathBlock",
-      mathLanguage: "tex",
-      code: "This is a math block"
+      code: "This is a math block",
+      mathLanguage: "tex"
     },
     {
       type: "QuoteBlock",

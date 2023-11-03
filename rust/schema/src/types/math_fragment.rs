@@ -28,42 +28,46 @@ pub struct MathFragment {
     #[html(attr = "id")]
     pub id: Option<String>,
 
-    /// The language used for the equation e.g tex, mathml, asciimath.
-    #[serde(alias = "math-language", alias = "math_language")]
-    #[cfg_attr(feature = "proptest-min", proptest(value = r#"String::from("lang")"#))]
-    #[cfg_attr(feature = "proptest-low", proptest(regex = r#"(asciimath)|(mathml)|(tex)"#))]
-    #[cfg_attr(feature = "proptest-high", proptest(regex = r#"[a-zA-Z0-9]{1,10}"#))]
-    #[cfg_attr(feature = "proptest-max", proptest(strategy = r#"String::arbitrary()"#))]
-    pub math_language: String,
-
     /// The code of the equation in the `mathLanguage`.
+    #[strip(code)]
     #[cfg_attr(feature = "proptest-min", proptest(value = r#"Cord::new("math")"#))]
     #[cfg_attr(feature = "proptest-low", proptest(strategy = r#"r"[a-zA-Z0-9 \t]{1,10}".prop_map(Cord::new)"#))]
     #[cfg_attr(feature = "proptest-high", proptest(strategy = r#"r"[^\p{C}]{1,100}".prop_map(Cord::new)"#))]
     #[cfg_attr(feature = "proptest-max", proptest(strategy = r#"String::arbitrary().prop_map(Cord::new)"#))]
     pub code: Cord,
 
+    /// The language used for the equation e.g tex, mathml, asciimath.
+    #[serde(alias = "math-language", alias = "math_language")]
+    #[strip(code)]
+    #[cfg_attr(feature = "proptest-min", proptest(value = r#"None"#))]
+    #[cfg_attr(feature = "proptest-low", proptest(strategy = r#"option::of(r"(asciimath)|(mathml)|(tex)")"#))]
+    #[cfg_attr(feature = "proptest-high", proptest(strategy = r#"option::of(r"[a-zA-Z0-9]{1,10}")"#))]
+    #[cfg_attr(feature = "proptest-max", proptest(strategy = r#"option::of(String::arbitrary())"#))]
+    pub math_language: Option<String>,
+
     /// A digest of the `code` and `mathLanguage`.
     #[serde(alias = "compile-digest", alias = "compile_digest")]
+    #[strip(execution)]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     pub compile_digest: Option<ExecutionDigest>,
 
-    /// Errors that occurred when parsing the math equation.
-    #[serde(alias = "error")]
+    /// Errors that occurred when parsing and compiling the math equation.
+    #[serde(alias = "compile-errors", alias = "compile_errors", alias = "compileError", alias = "compile-error", alias = "compile_error")]
     #[serde(default, deserialize_with = "option_one_or_many")]
+    #[strip(execution)]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
-    pub errors: Option<Vec<String>>,
+    pub compile_errors: Option<Vec<String>>,
 
     /// The MathML transpiled from the `code`.
+    #[strip(output)]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     #[html(content)]
     pub mathml: Option<String>,
 }
 
 impl MathFragment {
-    pub fn new(math_language: String, code: Cord) -> Self {
+    pub fn new(code: Cord) -> Self {
         Self {
-            math_language,
             code,
             ..Default::default()
         }
