@@ -10,7 +10,7 @@
   "description": "Include content from an external source (e.g. file, URL).",
   "status": "under-development",
   "markdown": {
-    "special": true
+    "template": "/{source}\\n\\n"
   },
   "required": [
     "type",

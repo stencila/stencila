@@ -23,7 +23,7 @@ use super::timestamp::Timestamp;
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 #[derive(derive_more::Display)]
 #[display(fmt = "Include")]
-#[markdown(special)]
+#[markdown(template = "/{source}\n\n")]
 pub struct Include {
     /// The type of this item.
     pub r#type: MustBe!("Include"),

@@ -19,7 +19,6 @@ mod duration;
 mod r#for;
 mod heading;
 mod r#if;
-mod include;
 mod inline;
 mod insert;
 mod integer_or_string;
