@@ -5,7 +5,7 @@ use std::collections::HashMap;
 use nom::{
     branch::alt,
     bytes::complete::{is_not, tag, take, take_until, take_while1},
-    character::complete::{char, digit1, multispace0, multispace1, alpha1},
+    character::complete::{alpha1, char, digit1, multispace0, multispace1},
     combinator::{map, not, opt, peek},
     multi::{fold_many0, separated_list1},
     sequence::{delimited, pair, preceded, tuple},
@@ -619,10 +619,11 @@ mod tests {
         );
 
         assert_eq!(
-            span(r#"[content]`f"text-{color}-300"`{python}"#).unwrap().1,
+            span(r#"[content]css{color:red}"#).unwrap().1,
             Inline::Span(Span {
-                code: "f\"text-{color}-300\"".into(),
                 content: vec![t("content")],
+                style_language: Some(String::from("css")),
+                code: "color:red".into(),
                 ..Default::default()
             })
         );
