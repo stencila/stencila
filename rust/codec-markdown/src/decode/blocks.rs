@@ -31,10 +31,22 @@ fn semis(input: &str) -> IResult<&str, &str> {
 pub fn math_block(input: &str) -> IResult<&str, MathBlock> {
     map(
         all_consuming(delimited(tag("$$"), is_not("$"), tag("$$"))),
-        |code: &str| MathBlock {
-            code: Cord::from(code.trim()),
-            math_language: Some(String::from("tex")),
-            ..Default::default()
+        |code: &str| {
+            // Remove leading and trailing spaces (not newlines because pulldown_cmark
+            // converts newlines in paragraphs into spaces)
+            let mut code = Cord::from(code);
+            if code.starts_with(' ') {
+                code.remove(0);
+            }
+            if code.ends_with(' ') {
+                code.pop();
+            }
+
+            MathBlock {
+                code,
+                math_language: Some(String::from("tex")),
+                ..Default::default()
+            }
         },
     )(input)
 }

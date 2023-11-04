@@ -37,13 +37,25 @@ impl MathBlock {
             .unwrap_or("tex")
             .to_lowercase();
 
+        let mut code = self.code.clone();
+        if !code.ends_with('\n') {
+            code.push('\n');
+        }
+
         let md = if lang == "tex" {
-            ["$$\n", &self.code, "\n$$\n\n"].concat()
+            ["$$\n", &code, "$$\n\n"].concat()
         } else {
-            ["```", &lang, "\n", &self.code, "\n```\n\n"].concat()
+            ["```", &lang, "\n", &code, "```\n\n"].concat()
         };
 
-        let losses = lost_options!(self, id, compilation_digest, compilation_errors, mathml, label);
+        let losses = lost_options!(
+            self,
+            id,
+            compilation_digest,
+            compilation_errors,
+            mathml,
+            label
+        );
 
         (md, losses)
     }
