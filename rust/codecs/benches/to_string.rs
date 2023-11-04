@@ -35,7 +35,7 @@ fn to_string(codec: &str, options: Option<EncodeOptions>) {
             del([t("text")]),
             ins([t("text")]),
             lnk([t("link")], "url"),
-            mf("code", "lang"),
+            mf("code", Some("lang")),
             nte(NoteType::Endnote, [p([t("text")])]),
             par("name"),
             spn("code", [t("span")]),
@@ -43,7 +43,7 @@ fn to_string(codec: &str, options: Option<EncodeOptions>) {
         // Quote, math and code blocks
         cb("code block", Some("lang")),
         cc("code chunk", Some("lang")),
-        mb("math block", "lang"),
+        mb("math block", Some("lang")),
         qb([p([t("quote block")])]),
         // List
         ol([li([t("text")])]),
