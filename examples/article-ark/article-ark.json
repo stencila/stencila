@@ -231,7 +231,7 @@
       "rows": [
         {
           "type": "TableRow",
-          "rowType": "Header",
+          "rowType": "HeaderRow",
           "cells": [
             {
               "type": "TableCell",

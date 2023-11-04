@@ -317,7 +317,7 @@ pub fn tr<I: Into<Vec<TableCell>>>(cells: I) -> TableRow {
 /// Create a [`TableCell`] node with [`TableCellType::Header`]
 pub fn th<I: Into<Vec<Inline>>>(content: I) -> TableCell {
     TableCell {
-        cell_type: Some(TableCellType::Header),
+        cell_type: Some(TableCellType::HeaderCell),
         content: vec![p(content)],
         ..Default::default()
     }

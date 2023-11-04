@@ -11,10 +11,11 @@
       "rows": [
         {
           "type": "TableRow",
+          "rowType": "HeaderRow",
           "cells": [
             {
               "type": "TableCell",
-              "cellType": "Header",
+              "cellType": "HeaderCell",
               "content": [
                 {
                   "type": "Paragraph",
@@ -24,7 +25,7 @@
             },
             {
               "type": "TableCell",
-              "cellType": "Header",
+              "cellType": "HeaderCell",
               "content": [
                 {
                   "type": "Paragraph",
@@ -34,7 +35,7 @@
             },
             {
               "type": "TableCell",
-              "cellType": "Header",
+              "cellType": "HeaderCell",
               "content": [
                 {
                   "type": "Paragraph",
@@ -42,8 +43,7 @@
                 }
               ]
             }
-          ],
-          "rowType": "Header"
+          ]
         },
         {
           "type": "TableRow",
@@ -120,10 +120,11 @@
       "rows": [
         {
           "type": "TableRow",
+          "rowType": "HeaderRow",
           "cells": [
             {
               "type": "TableCell",
-              "cellType": "Header",
+              "cellType": "HeaderCell",
               "content": [
                 {
                   "type": "Paragraph",
@@ -133,7 +134,7 @@
             },
             {
               "type": "TableCell",
-              "cellType": "Header",
+              "cellType": "HeaderCell",
               "content": [
                 {
                   "type": "Paragraph",
@@ -141,8 +142,7 @@
                 }
               ]
             }
-          ],
-          "rowType": "Header"
+          ]
         },
         {
           "type": "TableRow",

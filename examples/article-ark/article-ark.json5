@@ -412,7 +412,7 @@
               ]
             }
           ],
-          rowType: "Header"
+          rowType: "HeaderRow"
         },
         {
           type: "TableRow",

@@ -7,8 +7,8 @@ proptest: {}
 default: Footnote
 anyOf:
   - const: Footnote
-    '@id': stencila:NoteTypeFootnote
+    '@id': stencila:Footnote
   - const: Endnote
-    '@id': stencila:NoteTypeEndnote
+    '@id': stencila:Endnote
   - const: Sidenote
-    '@id': stencila:NoteTypeSidenote
+    '@id': stencila:Sidenote

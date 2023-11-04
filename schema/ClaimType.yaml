@@ -6,18 +6,18 @@ description: The type of a `Claim`.
 default: Statement
 anyOf:
   - const: Statement
-    '@id': stencila:ClaimTypeStatement
+    '@id': stencila:Statement
   - const: Theorem
-    '@id': stencila:ClaimTypeTheorem
+    '@id': stencila:Theorem
   - const: Lemma
-    '@id': stencila:ClaimTypeLemma
+    '@id': stencila:Lemma
   - const: Proof
-    '@id': stencila:ClaimTypeProof
+    '@id': stencila:Proof
   - const: Postulate
-    '@id': stencila:ClaimTypePostulate
+    '@id': stencila:Postulate
   - const: Hypothesis
-    '@id': stencila:ClaimTypeHypothesis
+    '@id': stencila:Hypothesis
   - const: Proposition
-    '@id': stencila:ClaimTypeProposition
+    '@id': stencila:Proposition
   - const: Corollary
-    '@id': stencila:ClaimTypeCorollary
+    '@id': stencila:Corollary

@@ -18,7 +18,7 @@
           cells: [
             {
               type: "TableCell",
-              cellType: "Header",
+              cellType: "HeaderCell",
               content: [
                 {
                   type: "Paragraph",
@@ -33,7 +33,7 @@
             },
             {
               type: "TableCell",
-              cellType: "Header",
+              cellType: "HeaderCell",
               content: [
                 {
                   type: "Paragraph",
@@ -48,7 +48,7 @@
             },
             {
               type: "TableCell",
-              cellType: "Header",
+              cellType: "HeaderCell",
               content: [
                 {
                   type: "Paragraph",
@@ -62,7 +62,7 @@
               ]
             }
           ],
-          rowType: "Header"
+          rowType: "HeaderRow"
         },
         {
           type: "TableRow",
@@ -177,7 +177,7 @@
           cells: [
             {
               type: "TableCell",
-              cellType: "Header",
+              cellType: "HeaderCell",
               content: [
                 {
                   type: "Paragraph",
@@ -192,7 +192,7 @@
             },
             {
               type: "TableCell",
-              cellType: "Header",
+              cellType: "HeaderCell",
               content: [
                 {
                   type: "Paragraph",
@@ -206,7 +206,7 @@
               ]
             }
           ],
-          rowType: "Header"
+          rowType: "HeaderRow"
         },
         {
           type: "TableRow",

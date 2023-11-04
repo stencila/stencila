@@ -1,1 +1,1 @@
-Regular table HeaderA HeaderB HeaderCHeader 1 2 3 4 5 6 Table with empty cells HeaderD HeaderEHeader 1   2
+Regular table HeaderCellA HeaderCellB HeaderCellCHeaderRow 1 2 3 4 5 6 Table with empty cells HeaderCellD HeaderCellEHeaderRow 1   2

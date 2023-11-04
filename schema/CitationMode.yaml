@@ -23,8 +23,8 @@ $comment: |
 default: Parenthetical
 anyOf:
   - const: Parenthetical
-    '@id': stencila:CitationModeParenthetical
+    '@id': stencila:Parenthetical
   - const: Narrative
-    '@id': stencila:CitationModeNarrative
+    '@id': stencila:Narrative
   - const: NarrativeAuthor
-    '@id': stencila:CitationModeNarrativeAuthor
+    '@id': stencila:NarrativeAuthor

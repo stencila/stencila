@@ -5,16 +5,16 @@ category: flow
 description: Status of the most recent, including any current, execution of a document node.
 anyOf:
   - const: Scheduled
-    '@id': stencila:executionStatusScheduled
+    '@id': stencila:Scheduled
   - const: ScheduledPreviouslyFailed
-    '@id': stencila:executionStatusScheduledPreviouslyFailed
+    '@id': stencila:ScheduledPreviouslyFailed
   - const: Running
-    '@id': stencila:executionStatusRunning
+    '@id': stencila:Running
   - const: RunningPreviouslyFailed
-    '@id': stencila:executionStatusRunningPreviouslyFailed
+    '@id': stencila:RunningPreviouslyFailed
   - const: Succeeded
-    '@id': stencila:executionStatusSucceeded
+    '@id': stencila:Succeeded
   - const: Failed
-    '@id': stencila:executionStatusFailed
+    '@id': stencila:Failed
   - const: Cancelled
-    '@id': stencila:executionStatusCancelled
+    '@id': stencila:Cancelled

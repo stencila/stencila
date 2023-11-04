@@ -662,7 +662,7 @@ impl Tables {
     fn push_header(&mut self) {
         self.rows.push(TableRow {
             cells: self.cells.split_off(0),
-            row_type: Some(TableRowType::Header),
+            row_type: Some(TableRowType::HeaderRow),
             ..Default::default()
         })
     }

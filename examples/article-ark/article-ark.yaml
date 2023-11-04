@@ -195,7 +195,7 @@ content:
         content:
         - type: Text
           value: A
-    rowType: Header
+    rowType: HeaderRow
   - type: TableRow
     cells:
     - type: TableCell

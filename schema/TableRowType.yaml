@@ -4,11 +4,11 @@ extends: Enumeration
 category: works
 description: Indicates whether the row is in the header, body or footer of the table.
 proptest: {}
-default: Body
+default: BodyRow
 anyOf:
-  - const: Header
-    '@id': stencila:TableRowTypeHeader
-  - const: Body
-    '@id': stencila:TableRowTypeBody
-  - const: Footer
-    '@id': stencila:TableRowTypeFooter
+  - const: HeaderRow
+    '@id': stencila:HeaderRow
+  - const: BodyRow
+    '@id': stencila:BodyRow
+  - const: FooterRow
+    '@id': stencila:FooterRow

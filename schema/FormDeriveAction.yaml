@@ -6,10 +6,10 @@ description: Indicates the action (create, update or delete) to derive for a `Fo
 default: Create
 anyOf:
   - const: Create
-    '@id': stencila::FormDeriveActionCreate
+    '@id': stencila:Create
   - const: Update
-    '@id': stencila:FormDeriveActionUpdate
+    '@id': stencila:Update
   - const: Delete
-    '@id': stencila:FormDeriveActionDelete
+    '@id': stencila:Delete
   - const: UpdateOrDelete
-    '@id': stencila:FormDeriveActionUpdateOrDelete
+    '@id': stencila:UpdateOrDelete

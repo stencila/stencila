@@ -7,8 +7,8 @@ default: Unordered
 proptest: {}
 anyOf:
   - const: Ascending
-    '@id': schema:ItemListOrderAscending
+    '@id': schema:Ascending
   - const: Descending
-    '@id': schema:ItemListOrderDescending
+    '@id': schema:Descending
   - const: Unordered
-    '@id': schema:ItemListOrderUnordered
+    '@id': schema:Unordered
