@@ -57,8 +57,7 @@ proptest! {
             types: vec![
                 // TODO Remove these as implemented
                 String::from("Figure"),
-                String::from("QuoteBlock"),
-                String::from("Table"),
+                String::from("QuoteBlock")
             ],
             ..Default::default()
         });

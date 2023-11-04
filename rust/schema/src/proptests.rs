@@ -205,3 +205,37 @@ prop_compose! {
         vec![Block::Heading(heading), Block::Paragraph(paragraph)]
     }
 }
+
+prop_compose! {
+    /// Generate a vector of arbitrary table cells of given width
+    pub fn table_cells(width: usize)(
+        cells in vec(TableCell::arbitrary(), width..=width)
+    ) -> Vec<TableCell> {
+        cells
+    }
+}
+
+prop_compose! {
+    /// Generate a vector of arbitrary table rows with a first header row.
+    pub fn table_rows_with_header(max_width: usize, max_length: usize)(
+        width in 1..=max_width,
+        length in 1..=max_length
+    )(
+        header in table_cells(width),
+        rest in vec(table_cells(width), size_range(length))
+    ) -> Vec<TableRow> {
+        let mut rows = vec![TableRow{
+            row_type: Some(TableRowType::HeaderRow),
+            cells: header,
+            ..Default::default()
+        }];
+
+        let mut rest: Vec<TableRow> = rest.into_iter().map(|cells| TableRow{
+            cells,
+            ..Default::default()
+        }).collect();
+        rows.append(&mut rest);
+
+        rows
+    }
+}

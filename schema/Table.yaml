@@ -36,11 +36,11 @@ properties:
       $ref: TableRow
     proptest:
       min:
-        description: Generate a single, arbitrary, table row.
-        strategy: vec(TableRow::arbitrary(), size_range(1..=1))
+        description: Generate up to a 2x2 table with a header row.
+        strategy: table_rows_with_header(2,2)
       low:
-        description: Generate up to two, arbitrary, table rows.
-        strategy: vec(TableRow::arbitrary(), size_range(1..=2))
+        description: Generate up to a 3x3 table with a header row.
+        strategy: table_rows_with_header(3,3)
       high:
         description: Generate up to four, arbitrary, table rows.
         strategy: vec(TableRow::arbitrary(), size_range(1..=4))

@@ -53,8 +53,8 @@ pub struct Table {
     /// Rows of cells in the table.
     #[serde(alias = "row")]
     #[serde(deserialize_with = "one_or_many")]
-    #[cfg_attr(feature = "proptest-min", proptest(strategy = r#"vec(TableRow::arbitrary(), size_range(1..=1))"#))]
-    #[cfg_attr(feature = "proptest-low", proptest(strategy = r#"vec(TableRow::arbitrary(), size_range(1..=2))"#))]
+    #[cfg_attr(feature = "proptest-min", proptest(strategy = r#"table_rows_with_header(2,2)"#))]
+    #[cfg_attr(feature = "proptest-low", proptest(strategy = r#"table_rows_with_header(3,3)"#))]
     #[cfg_attr(feature = "proptest-high", proptest(strategy = r#"vec(TableRow::arbitrary(), size_range(1..=4))"#))]
     #[cfg_attr(feature = "proptest-max", proptest(strategy = r#"vec(TableRow::arbitrary(), size_range(1..=8))"#))]
     pub rows: Vec<TableRow>,
