@@ -10,7 +10,23 @@
           content: [
             {
               type: "Text",
-              value: "Paragraph within division"
+              value: "Paragraph within division."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      type: "Division",
+      code: "color:red",
+      styleLanguage: "css",
+      content: [
+        {
+          type: "Paragraph",
+          content: [
+            {
+              type: "Text",
+              value: "With style language specified."
             }
           ]
         }
@@ -60,7 +76,7 @@
               content: [
                 {
                   type: "Text",
-                  value: "Nested div"
+                  value: "Nested division."
                 }
               ]
             }

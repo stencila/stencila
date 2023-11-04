@@ -6,7 +6,15 @@ content:
   - type: Paragraph
     content:
     - type: Text
-      value: Paragraph within division
+      value: Paragraph within division.
+- type: Division
+  code: color:red
+  styleLanguage: css
+  content:
+  - type: Paragraph
+    content:
+    - type: Text
+      value: With style language specified.
 - type: Division
   code: bg-$color-100 p-2
   content:
@@ -33,4 +41,4 @@ content:
     - type: Paragraph
       content:
       - type: Text
-        value: Nested div
+        value: Nested division.

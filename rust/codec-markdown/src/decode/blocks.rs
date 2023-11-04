@@ -155,10 +155,14 @@ pub fn division(input: &str) -> IResult<&str, Division> {
     map(
         all_consuming(preceded(
             tuple((semis, multispace0)),
-            delimited(char('{'), is_not("}"), char('}')),
+            tuple((
+                opt(terminated(alpha1, multispace0)),
+                delimited(char('{'), is_not("}"), char('}')),
+            )),
         )),
-        |code| Division {
+        |(lang, code)| Division {
             code: Cord::from(code),
+            style_language: lang.map(|lang| lang.into()),
             ..Default::default()
         },
     )(input)

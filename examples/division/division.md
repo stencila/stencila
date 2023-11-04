@@ -1,6 +1,12 @@
 ::: {rounded border border-solid border-blue-200 bg-blue-100 p-2}
 
-Paragraph within division
+Paragraph within division.
+
+:::
+
+::: css {color:red}
+
+With style language specified.
 
 :::
 
@@ -14,7 +20,7 @@ A division with this parameter &[color]{enum vals=["red","blue","green"]} interp
 
 ::::: {bg-blue-100}
 
-Nested div
+Nested division.
 
 :::::
 
