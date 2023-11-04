@@ -81,12 +81,12 @@ The `Table` type is represented in these bindings:
 
 During property-based (a.k.a generative) testing, the properties of the `Table` type are generated using the following strategies for each complexity level (see the [`proptest` book](https://proptest-rs.github.io/proptest/) for an explanation of the Rust strategy expressions). Any optional properties that are not in this table are set to `None`.
 
-| Property | Complexity | Description                                  | Strategy                                        |
-| -------- | ---------- | -------------------------------------------- | ----------------------------------------------- |
-| `rows`   | Min+       | Generate a single, arbitrary, table row.     | `vec(TableRow::arbitrary(), size_range(1..=1))` |
-|          | Low+       | Generate up to two, arbitrary, table rows.   | `vec(TableRow::arbitrary(), size_range(1..=2))` |
-|          | High+      | Generate up to four, arbitrary, table rows.  | `vec(TableRow::arbitrary(), size_range(1..=4))` |
-|          | Max        | Generate up to eight, arbitrary, table rows. | `vec(TableRow::arbitrary(), size_range(1..=8))` |
+| Property | Complexity | Description                                   | Strategy                                        |
+| -------- | ---------- | --------------------------------------------- | ----------------------------------------------- |
+| `rows`   | Min+       | Generate up to a 2x2 table with a header row. | `table_rows_with_header(2,2)`                   |
+|          | Low+       | Generate up to a 3x3 table with a header row. | `table_rows_with_header(3,3)`                   |
+|          | High+      | Generate up to four, arbitrary, table rows.   | `vec(TableRow::arbitrary(), size_range(1..=4))` |
+|          | Max        | Generate up to eight, arbitrary, table rows.  | `vec(TableRow::arbitrary(), size_range(1..=8))` |
 
 ## Source
 

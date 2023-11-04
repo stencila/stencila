@@ -58,6 +58,10 @@ During property-based (a.k.a generative) testing, the properties of the `Heading
 
 | Property  | Complexity | Description                                                                     | Strategy                                      |
 | --------- | ---------- | ------------------------------------------------------------------------------- | --------------------------------------------- |
+| `level`   | Min+       | Fixed value of 1                                                                | `1`                                           |
+|           | Low+       | Generate values between 1 and 6                                                 | `1..=6i64`                                    |
+|           | High+      | Generate values between 0 and 6                                                 | `0..=6i64`                                    |
+|           | Max        | Generate an arbitrary value                                                     | `i64::arbitrary()`                            |
 | `content` | Min+       | Generate a single arbitrary inline node                                         | `vec_inlines(1)`                              |
 |           | Low+       | Generate up to two arbitrary inline nodes                                       | `vec_inlines(2)`                              |
 |           | High+      | Generate up to four arbitrary inline nodes                                      | `vec_inlines(4)`                              |

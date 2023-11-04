@@ -36,7 +36,7 @@ The `Span` type can be encoded (serialized) to, and/or decoded (deserialized) fr
 | --------------------------------------------------------------------------------------------- | ---------------- | ------------ | ---------------------- | ---------------------------------------------------------------------------------------------------------------------- |
 | [HTML](https://github.com/stencila/stencila/blob/main/docs/reference/formats/html.md)         | 🔷 Low loss       |              | 🚧 Under development    | Encoded as [`<span>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/span)                                  |
 | [JATS](https://github.com/stencila/stencila/blob/main/docs/reference/formats/jats.md)         | 🟢 No loss        | 🟢 No loss    | 🚧 Under development    | Encoded as [`<styled-content>`](https://jats.nlm.nih.gov/articleauthoring/tag-library/1.3/element/styled-content.html) |
-| [Markdown](https://github.com/stencila/stencila/blob/main/docs/reference/formats/markdown.md) | ⚠️ High loss     |              | 🚧 Under development    | Encoded as `[{content}]{{{code}}}`                                                                                     |
+| [Markdown](https://github.com/stencila/stencila/blob/main/docs/reference/formats/markdown.md) | ⚠️ High loss     |              | 🚧 Under development    | Encoded using special function                                                                                         |
 | [Plain text](https://github.com/stencila/stencila/blob/main/docs/reference/formats/text.md)   | ⚠️ High loss     |              | ⚠️ Alpha               |                                                                                                                        |
 | [JSON](https://github.com/stencila/stencila/blob/main/docs/reference/formats/json.md)         | 🟢 No loss        | 🟢 No loss    | 🟢 Stable               |                                                                                                                        |
 | [JSON5](https://github.com/stencila/stencila/blob/main/docs/reference/formats/json5.md)       | 🟢 No loss        | 🟢 No loss    | 🟢 Stable               |                                                                                                                        |
@@ -67,6 +67,9 @@ During property-based (a.k.a generative) testing, the properties of the `Span` t
 |                 | Low+       | Generate one of the well known style language short names.                       | `option::of(r"(css)\|(tw)")`                  |
 |                 | High+      | Generate a random string of up to 10 alphanumeric characters.                    | `option::of(r"[a-zA-Z0-9]{1,10}")`            |
 |                 | Max        | Generate an arbitrary string.                                                    | `option::of(String::arbitrary())`             |
+| `content`       | Min+       | Generate a single fixed text value.                                              | `vec![crate::shortcuts::t("text")]`           |
+|                 | High+      | Generate up to two arbitrary, non-recursive, inline nodes                        | `vec_inlines_non_recursive(2)`                |
+|                 | Max        | Generate up to four arbitrary, non-recursive, inline nodes                       | `vec_inlines_non_recursive(4)`                |
 
 ## Source
 

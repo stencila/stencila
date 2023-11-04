@@ -49,12 +49,12 @@ The `Delete` type is represented in these bindings:
 
 During property-based (a.k.a generative) testing, the properties of the `Delete` type are generated using the following strategies for each complexity level (see the [`proptest` book](https://proptest-rs.github.io/proptest/) for an explanation of the Rust strategy expressions). Any optional properties that are not in this table are set to `None`.
 
-| Property  | Complexity | Description                                                | Strategy                                                                |
-| --------- | ---------- | ---------------------------------------------------------- | ----------------------------------------------------------------------- |
-| `content` | Min+       | Generate a single fixed text value.                        | `vec(Just(Inline::Text(crate::Text::from("text"))), size_range(1..=1))` |
-|           | Low+       | Generate a single arbitrary, non-recursive, inline node    | `vec_inlines_non_recursive(1)`                                          |
-|           | High+      | Generate up to two arbitrary, non-recursive, inline nodes  | `vec_inlines_non_recursive(2)`                                          |
-|           | Max        | Generate up to four arbitrary, non-recursive, inline nodes | `vec_inlines_non_recursive(4)`                                          |
+| Property  | Complexity | Description                                                | Strategy                            |
+| --------- | ---------- | ---------------------------------------------------------- | ----------------------------------- |
+| `content` | Min+       | Generate a single fixed text value.                        | `vec![crate::shortcuts::t("text")]` |
+|           | Low+       | Generate a single arbitrary, non-recursive, inline node    | `vec_inlines_non_recursive(1)`      |
+|           | High+      | Generate up to two arbitrary, non-recursive, inline nodes  | `vec_inlines_non_recursive(2)`      |
+|           | Max        | Generate up to four arbitrary, non-recursive, inline nodes | `vec_inlines_non_recursive(4)`      |
 
 ## Source
 
