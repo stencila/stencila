@@ -14,6 +14,9 @@ use super::string::String;
 #[cfg_attr(feature = "proptest", derive(Arbitrary))]
 #[derive(derive_more::Display)]
 #[display(fmt = "QuoteBlock")]
+#[html(elem = "blockquote")]
+#[jats(elem = "disp-quote")]
+#[markdown(template = "> {content}", special)]
 pub struct QuoteBlock {
     /// The type of this item.
     #[cfg_attr(feature = "proptest", proptest(value = "Default::default()"))]

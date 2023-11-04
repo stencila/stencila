@@ -50,7 +50,7 @@ impl Codec for MarkdownCodec {
             Text | Emphasis | Strong | Subscript | Superscript | Underline => NoLoss,
             Link | Parameter | AudioObject | ImageObject | MediaObject => LowLoss,
             // Prose Blocks
-            Division | Section | Heading | Paragraph | ThematicBreak => NoLoss,
+            Division | Section | Heading | Paragraph | QuoteBlock | ThematicBreak => NoLoss,
             List | ListItem | Table | TableRow | TableCell => LowLoss,
             // Code
             CodeFragment | CodeBlock => NoLoss,
@@ -74,7 +74,7 @@ impl Codec for MarkdownCodec {
             Text | Emphasis | Strong | Subscript | Superscript | Underline => NoLoss,
             Link | Parameter | AudioObject | ImageObject | MediaObject => LowLoss,
             // Prose Blocks
-            Division | Section | Heading | Paragraph | ThematicBreak => NoLoss,
+            Division | Section | Heading | Paragraph | QuoteBlock | ThematicBreak => NoLoss,
             List | ListItem | Table | TableRow | TableCell => LowLoss,
             // Code
             CodeFragment | CodeBlock => NoLoss,

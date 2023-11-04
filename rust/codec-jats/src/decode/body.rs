@@ -2,7 +2,7 @@ use roxmltree::Node;
 
 use codec::{
     schema::{
-        shortcuts::{em, mf, p, q, stg, stk, sub, sup, t, u},
+        shortcuts::{em, mf, p, q, qb, stg, stk, sub, sup, t, u},
         Article, AudioObject, AudioObjectOptions, Block, CodeExpression, CodeFragment, Cord, Date,
         DateTime, Duration, Heading, ImageObject, ImageObjectOptions, Inline, Link, MediaObject,
         MediaObjectOptions, Note, NoteType, Parameter, Section, Span, Text, ThematicBreak, Time,
@@ -36,8 +36,9 @@ fn decode_blocks(path: &str, node: &Node, losses: &mut Losses, depth: u8) -> Vec
         let block = match tag {
             "hr" => decode_hr(&child_path, &child, losses),
             "p" => decode_p(&child_path, &child, losses),
-            "title" => decode_title(&child_path, &child, losses, depth),
+            "disp-quote" => decode_disp_quote(&child_path, &child, losses, depth),
             "sec" => decode_sec(&child_path, &child, losses, depth + 1),
+            "title" => decode_title(&child_path, &child, losses, depth),
             _ => {
                 record_node_lost(path, &child, losses);
                 continue;
@@ -60,6 +61,13 @@ fn decode_p(path: &str, node: &Node, losses: &mut Losses) -> Block {
     record_attrs_lost(path, node, [], losses);
 
     p(decode_inlines(path, node, losses))
+}
+
+/// Decode a `<disp-quote>` to a [`Block::QuoteBlock`]
+fn decode_disp_quote(path: &str, node: &Node, losses: &mut Losses, depth: u8) -> Block {
+    record_attrs_lost(path, node, [], losses);
+
+    qb(decode_blocks(path, node, losses, depth))
 }
 
 /// Decode a `<sec>` to a [`Block::Section`]

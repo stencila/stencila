@@ -27,6 +27,9 @@
     </list>
     <disp-formula code="This is a math block" language="tex">
     </disp-formula>
+    <disp-quote>
+      <p>This is a quote block</p>
+    </disp-quote>
     <sec>
       <p>This is a section</p>
     </sec>

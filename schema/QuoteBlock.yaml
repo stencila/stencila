@@ -3,6 +3,13 @@ title: QuoteBlock
 extends: Entity
 category: prose
 description: A section quoted from somewhere else.
+jats:
+  elem: disp-quote 
+html:
+  elem: blockquote
+markdown:
+  template: '> {content}'
+  special: true
 proptest: {}
 required:
   - content

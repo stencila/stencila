@@ -46,6 +46,8 @@ $$
 This is a math block
 $$
 
+> This is a quote block
+
 ::: section
 
 This is a section

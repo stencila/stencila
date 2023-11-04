@@ -56,8 +56,7 @@ proptest! {
         article.strip(&StripTargets {
             types: vec![
                 // TODO Remove these as implemented
-                String::from("Figure"),
-                String::from("QuoteBlock")
+                String::from("Figure")
             ],
             ..Default::default()
         });
@@ -87,7 +86,6 @@ proptest! {
                 String::from("Division"),
                 String::from("Figure"),
                 String::from("List"),
-                String::from("QuoteBlock"),
                 String::from("MathBlock"),
                 String::from("Table"),
             ],

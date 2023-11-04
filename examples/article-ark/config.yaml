@@ -18,10 +18,8 @@ compact.jats.xml:
       - Include
       - List
       - MathBlock
-      - QuoteBlock
       - Table
 md:
   encode:
     strip-types:
       - Figure
-      - QuoteBlock
