@@ -29,7 +29,10 @@ pub struct Note {
 
     /// Determines where the note content is displayed within the document.
     #[serde(alias = "note-type", alias = "note_type")]
-    #[cfg_attr(feature = "proptest", proptest(value = "Default::default()"))]
+    #[cfg_attr(feature = "proptest-min", proptest(value = r#"NoteType::Footnote"#))]
+    #[cfg_attr(feature = "proptest-low", proptest(value = r#"NoteType::Footnote"#))]
+    #[cfg_attr(feature = "proptest-high", proptest(strategy = r#"NoteType::arbitrary()"#))]
+    #[cfg_attr(feature = "proptest-max", proptest(strategy = r#"NoteType::arbitrary()"#))]
     #[jats(attr = "custom-type")]
     pub note_type: NoteType,
 

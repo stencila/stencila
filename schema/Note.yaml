@@ -29,6 +29,13 @@ properties:
     $ref: NoteType
     jats:
       attr: custom-type
+    proptest:
+      min:
+        description: Fixed footnote type.
+        value: NoteType::Footnote
+      high:
+        description: Generate an arbitrary note type.
+        strategy: NoteType::arbitrary()
   content:
     '@id': stencila:content
     description: Content of the note, usually a paragraph.

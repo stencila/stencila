@@ -106,7 +106,6 @@ pub enum Inline {
     MediaObject(MediaObject),
 
     #[cfg_attr(feature = "proptest-min", proptest(skip))]
-    #[cfg_attr(feature = "proptest-low", proptest(skip))]
     Note(Note),
 
     #[cfg_attr(feature = "proptest-min", proptest(skip))]

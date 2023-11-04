@@ -148,7 +148,7 @@
           "description": "Do not generate `Note` nodes in inline content.",
           "skip": true
         },
-        "high": {
+        "low": {
           "description": "Generate `Note` nodes in inline content."
         }
       },
