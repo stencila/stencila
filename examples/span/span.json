@@ -18,6 +18,21 @@
               "value": "styled span"
             }
           ]
+        },
+        {
+          "type": "Text",
+          "value": ", and one with language specified: "
+        },
+        {
+          "type": "Span",
+          "code": "color:red",
+          "styleLanguage": "css",
+          "content": [
+            {
+              "type": "Text",
+              "value": "CSS span"
+            }
+          ]
         }
       ]
     },

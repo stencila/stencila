@@ -1,4 +1,4 @@
-A [styled span]{text-green-600}
+A [styled span]{text-green-600}, and one with language specified: [CSS span]css{color:red}
 
 Containing other inline nodes [_emphasis_, [link](https://example.org)]{text-blue-600}
 

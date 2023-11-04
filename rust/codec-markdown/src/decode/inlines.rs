@@ -5,7 +5,7 @@ use std::collections::HashMap;
 use nom::{
     branch::alt,
     bytes::complete::{is_not, tag, take, take_until, take_while1},
-    character::complete::{char, digit1, multispace0, multispace1},
+    character::complete::{char, digit1, multispace0, multispace1, alpha1},
     combinator::{map, not, opt, peek},
     multi::{fold_many0, separated_list1},
     sequence::{delimited, pair, preceded, tuple},
@@ -79,9 +79,8 @@ fn code_attrs(input: &str) -> IResult<&str, Inline> {
             delimited(char('`'), take_until("`"), char('`')),
             opt(delimited(char('{'), take_until("}"), char('}'))),
         ),
-        |res: (&str, Option<&str>)| {
-            let code = res.0.to_string();
-            let (lang, exec) = match res.1 {
+        |(code, options): (&str, Option<&str>)| {
+            let (lang, exec) = match options {
                 Some(attrs) => {
                     let attrs = attrs.split_whitespace().collect::<Vec<&str>>();
                     let lang = attrs.first().and_then(|item| {
@@ -118,20 +117,14 @@ fn span(input: &str) -> IResult<&str, Inline> {
     map(
         tuple((
             delimited(char('['), is_not("]"), char(']')),
-            alt((
-                pair(
-                    delimited(char('`'), is_not("`"), char('`')),
-                    opt(delimited(char('{'), is_not("}"), char('}'))),
-                ),
-                map(delimited(char('{'), is_not("}"), char('}')), |text| {
-                    (text, None)
-                }),
-            )),
+            opt(alpha1),
+            delimited(char('{'), is_not("}"), char('}')),
         )),
-        |(content, (code, _lang)): (&str, (&str, Option<&str>))| {
+        |(content, lang, code): (&str, Option<&str>, &str)| {
             Inline::Span(Span {
+                content: inlines_or_text(content),
+                style_language: lang.map(|lang| lang.into()),
                 code: code.into(),
-                content: vec![t(content)],
                 ..Default::default()
             })
         },

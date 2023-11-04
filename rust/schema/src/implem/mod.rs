@@ -37,6 +37,7 @@ mod person_or_organization;
 mod primitive;
 mod property_value_or_string;
 mod section;
+mod span;
 mod string_or_number;
 mod table;
 mod text;

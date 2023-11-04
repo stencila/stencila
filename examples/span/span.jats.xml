@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <article dtd-version="1.3" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:mml="http://www.w3.org/1998/Math/MathML">
   <body>
-    <p>A<styled-content style="text-green-600">styled span</styled-content>
+    <p>A<styled-content style="text-green-600">styled span</styled-content>, and one with language specified:<styled-content style="color:red" style-detail="css">CSS span</styled-content>
     </p>
     <p>Containing other inline nodes<styled-content style="text-blue-600">
         <italic>emphasis</italic>,<ext-link xlink:href="https://example.org">link</ext-link>
