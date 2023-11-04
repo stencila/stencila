@@ -281,8 +281,10 @@ pub fn decode_blocks(md: &str) -> (Vec<Block>, Losses) {
                         _ => (None, false, None),
                     };
 
-                    let code = inlines.pop_text();
-                    let code = code.trim();
+                    let mut code = inlines.pop_text();
+                    if code.ends_with("\n") {
+                        code.pop();
+                    }
 
                     let block = match exec {
                         true => Block::CodeChunk(CodeChunk {
