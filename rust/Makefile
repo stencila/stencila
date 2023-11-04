@@ -46,7 +46,7 @@ cover:
 	
 	# SKIP: NO TESTS cargo llvm-cov test --no-report -p codecs --features proptest-min --test proptests
 	
-	# SKIP: NO TESTS cargo llvm-cov test --no-report -p codecs --features proptest-low --test proptests
+	cargo llvm-cov test --no-report -p codecs --features proptest-low --test proptests
 	
 	cargo llvm-cov test --no-report -p codecs --features proptest-high --test proptests
 	

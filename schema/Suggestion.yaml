@@ -24,7 +24,7 @@ properties:
     proptest:
       min:
         description: Generate a single fixed text value.
-        strategy: vec(Just(Inline::Text(crate::Text::from("text"))), size_range(1..=1))
+        value: vec![crate::shortcuts::t("text")]
       low:
         description: Generate a single arbitrary, non-recursive, inline node
         strategy: vec_inlines_non_recursive(1)

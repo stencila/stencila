@@ -31,7 +31,7 @@ pub struct MathFragment {
     /// The code of the equation in the `mathLanguage`.
     #[strip(code)]
     #[cfg_attr(feature = "proptest-min", proptest(value = r#"Cord::new("math")"#))]
-    #[cfg_attr(feature = "proptest-low", proptest(strategy = r#"r"[a-zA-Z0-9 \t]{1,10}".prop_map(Cord::new)"#))]
+    #[cfg_attr(feature = "proptest-low", proptest(strategy = r#"r"[a-zA-Z0-9]{1,10}".prop_map(Cord::new)"#))]
     #[cfg_attr(feature = "proptest-high", proptest(strategy = r#"r"[^\p{C}]{1,100}".prop_map(Cord::new)"#))]
     #[cfg_attr(feature = "proptest-max", proptest(strategy = r#"String::arbitrary().prop_map(Cord::new)"#))]
     pub code: Cord,
@@ -40,7 +40,7 @@ pub struct MathFragment {
     #[serde(alias = "math-language", alias = "math_language")]
     #[strip(code)]
     #[cfg_attr(feature = "proptest-min", proptest(value = r#"None"#))]
-    #[cfg_attr(feature = "proptest-low", proptest(strategy = r#"option::of(r"(asciimath)|(mathml)|(tex)")"#))]
+    #[cfg_attr(feature = "proptest-low", proptest(value = r#"Some(String::from("tex"))"#))]
     #[cfg_attr(feature = "proptest-high", proptest(strategy = r#"option::of(r"[a-zA-Z0-9]{1,10}")"#))]
     #[cfg_attr(feature = "proptest-max", proptest(strategy = r#"option::of(String::arbitrary())"#))]
     pub math_language: Option<String>,

@@ -69,8 +69,9 @@ fn interleave_inlines(texts: Vec<Inline>, others: Vec<Inline>) -> Vec<Inline> {
         let spaces = matches!(
             content[index],
             Inline::Emphasis(..)
-                | Inline::Strong(..)
+                | Inline::MathFragment(..)
                 | Inline::Strikeout(..)
+                | Inline::Strong(..)
                 | Inline::Subscript(..)
                 | Inline::Superscript(..)
         );
@@ -159,20 +160,24 @@ prop_compose! {
 }
 
 prop_compose! {
-    /// Generate a vector of block content of arbitrary length and only containing
-    /// block types expected in lists (and not other lists)
+    /// Generate a vector of block content of arbitrary length, only containing
+    /// block types expected in lists (and not other lists), and starting with a
+    /// paragraph
     pub fn vec_blocks_list_item(max_size: usize)(
         length in 1..=max_size
     )(
-        blocks in vec(
+        first in Paragraph::arbitrary().prop_map(Block::Paragraph),
+        mut rest in vec(
             prop_oneof![
                 CodeBlock::arbitrary().prop_map(Block::CodeBlock),
                 Paragraph::arbitrary().prop_map(Block::Paragraph),
                 QuoteBlock::arbitrary().prop_map(Block::QuoteBlock),
             ],
-            size_range(length)
+            size_range(length-1)
         )
     ) -> Vec<Block> {
+        let mut blocks = vec![first];
+        blocks.append(&mut rest);
         blocks
     }
 }

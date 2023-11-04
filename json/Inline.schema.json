@@ -8,6 +8,15 @@
   "proptest": {},
   "anyOf": [
     {
+      "proptest": {
+        "min": {
+          "description": "Do not generate `AudioObject` nodes in inline content.",
+          "skip": true
+        },
+        "high": {
+          "description": "Generate `AudioObject` nodes in inline content."
+        }
+      },
       "$ref": "AudioObject.schema.json"
     },
     {
@@ -58,7 +67,7 @@
           "description": "Do not generate `Date` nodes in inline content.",
           "skip": true
         },
-        "low": {
+        "high": {
           "description": "Generate `Date` nodes in inline content."
         }
       },
@@ -70,7 +79,7 @@
           "description": "Do not generate `DateTime` nodes in inline content.",
           "skip": true
         },
-        "low": {
+        "high": {
           "description": "Generate `DateTime` nodes in inline content."
         }
       },
@@ -89,6 +98,15 @@
       "$ref": "Delete.schema.json"
     },
     {
+      "proptest": {
+        "min": {
+          "description": "Do not generate `Duration` nodes in inline content.",
+          "skip": true
+        },
+        "high": {
+          "description": "Generate `Duration` nodes in inline content."
+        }
+      },
       "$ref": "Duration.schema.json"
     },
     {
@@ -130,7 +148,7 @@
           "description": "Do not generate `Note` nodes in inline content.",
           "skip": true
         },
-        "low": {
+        "high": {
           "description": "Generate `Note` nodes in inline content."
         }
       },
@@ -172,7 +190,7 @@
           "description": "Do not generate `Time` nodes in inline content.",
           "skip": true
         },
-        "low": {
+        "high": {
           "description": "Generate `Time` nodes in inline content."
         }
       },
@@ -184,7 +202,7 @@
           "description": "Do not generate `Timestamp` nodes in inline content.",
           "skip": true
         },
-        "low": {
+        "high": {
           "description": "Generate `Timestamp` nodes in inline content."
         }
       },
@@ -194,6 +212,15 @@
       "$ref": "Underline.schema.json"
     },
     {
+      "proptest": {
+        "min": {
+          "description": "Do not generate `VideoObject` nodes in inline content.",
+          "skip": true
+        },
+        "high": {
+          "description": "Generate `VideoObject` nodes in inline content."
+        }
+      },
       "$ref": "VideoObject.schema.json"
     },
     {

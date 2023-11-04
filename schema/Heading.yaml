@@ -27,6 +27,19 @@ properties:
     default: 0
     minimum: 0
     maximum: 6
+    proptest:
+      min:
+        description: Fixed value of 1
+        value: '1'
+      low:
+        description: Generate values between 1 and 6
+        strategy: 1..=6i64
+      high:
+        description: Generate values between 0 and 6
+        strategy: 0..=6i64
+      max:
+        description: Generate an arbitrary value
+        strategy: i64::arbitrary()
   content:
     '@id': stencila:content
     description: Content of the heading.

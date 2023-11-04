@@ -17,7 +17,7 @@ use super::string::String;
 #[display(fmt = "Span")]
 #[html(elem = "span", custom)]
 #[jats(elem = "styled-content")]
-#[markdown(template = "[{content}]{{{code}}}")]
+#[markdown(template = "[{content}]{{{code}}}", special)]
 pub struct Span {
     /// The type of this item.
     #[cfg_attr(feature = "proptest", proptest(value = "Default::default()"))]
@@ -69,7 +69,10 @@ pub struct Span {
 
     /// The content within the span.
     #[serde(deserialize_with = "one_or_many")]
-    #[cfg_attr(feature = "proptest", proptest(value = "Default::default()"))]
+    #[cfg_attr(feature = "proptest-min", proptest(value = r#"vec![crate::shortcuts::t("text")]"#))]
+    #[cfg_attr(feature = "proptest-low", proptest(value = r#"vec![crate::shortcuts::t("text")]"#))]
+    #[cfg_attr(feature = "proptest-high", proptest(strategy = r#"vec_inlines_non_recursive(2)"#))]
+    #[cfg_attr(feature = "proptest-max", proptest(strategy = r#"vec_inlines_non_recursive(4)"#))]
     pub content: Vec<Inline>,
 }
 

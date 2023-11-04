@@ -6,6 +6,13 @@ default: Text
 proptest: {}
 anyOf:
   - $ref: AudioObject
+    proptest:
+      min:
+        description: Do not generate `AudioObject` nodes in inline content.
+        skip: true
+      high:
+        description: Generate `AudioObject` nodes in inline content.
+        skip: false
 
   - $ref: Button
     proptest:
@@ -41,7 +48,7 @@ anyOf:
       min:
         description: Do not generate `Date` nodes in inline content.
         skip: true
-      low:
+      high:
         description: Generate `Date` nodes in inline content.
         skip: false
 
@@ -50,7 +57,7 @@ anyOf:
       min:
         description: Do not generate `DateTime` nodes in inline content.
         skip: true
-      low:
+      high:
         description: Generate `DateTime` nodes in inline content.
         skip: false
 
@@ -64,6 +71,13 @@ anyOf:
         skip: false
 
   - $ref: Duration
+    proptest:
+      min:
+        description: Do not generate `Duration` nodes in inline content.
+        skip: true
+      high:
+        description: Generate `Duration` nodes in inline content.
+        skip: false
 
   - $ref: Emphasis
 
@@ -93,7 +107,7 @@ anyOf:
       min:
         description: Do not generate `Note` nodes in inline content.
         skip: true
-      low:
+      high:
         description: Generate `Note` nodes in inline content.
         skip: false
 
@@ -122,7 +136,7 @@ anyOf:
       min:
         description: Do not generate `Time` nodes in inline content.
         skip: true
-      low:
+      high:
         description: Generate `Time` nodes in inline content.
         skip: false
 
@@ -131,13 +145,20 @@ anyOf:
       min:
         description: Do not generate `Timestamp` nodes in inline content.
         skip: true
-      low:
+      high:
         description: Generate `Timestamp` nodes in inline content.
         skip: false
 
   - $ref: Underline
 
   - $ref: VideoObject
+    proptest:
+      min:
+        description: Do not generate `VideoObject` nodes in inline content.
+        skip: true
+      high:
+        description: Generate `VideoObject` nodes in inline content.
+        skip: false
 
   # Primitive types (do not have a "type" property to differentiate them)
 

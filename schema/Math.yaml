@@ -27,8 +27,10 @@ properties:
         description: Generate a simple fixed string of math.
         value: Cord::new("math")
       low:
-        description: Generate a random string of up to 10 alphanumeric & space characters.
-        strategy: r"[a-zA-Z0-9 \t]{1,10}".prop_map(Cord::new)
+        description: |
+          Generate a random string of up to 10 alphanumeric characters (exclude whitespace which 
+          when leading or trailing causes issues for Markdown).
+        strategy: r"[a-zA-Z0-9]{1,10}".prop_map(Cord::new)
       high:
         description: |
           Generate a random string of up to 100 characters (excluding control characters).
@@ -47,8 +49,8 @@ properties:
         description: No language.
         value: None
       low:
-        description: Generate one of the math language names.
-        strategy: option::of(r"(asciimath)|(mathml)|(tex)")
+        description: Fixed as TeX (for testing with Markdown which uses dollars to delimit TeX by default)
+        value: Some(String::from("tex"))
       high:
         description: Generate a random string of up to 10 alphanumeric characters.
         strategy: option::of(r"[a-zA-Z0-9]{1,10}")

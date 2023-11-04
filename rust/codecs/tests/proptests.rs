@@ -47,6 +47,24 @@ proptest! {
 #[cfg(feature = "proptest-low")]
 proptest! {
     #![proptest_config(ProptestConfig::with_cases(500))]
+
+    /// Roundtrip test for Markdown
+    #[test]
+    fn article_markdown(article: Article) {
+        let mut article = Node::Article(article);
+
+        article.strip(&StripTargets {
+            types: vec![
+                // TODO Remove these as implemented
+                String::from("Figure"),
+                String::from("QuoteBlock"),
+                String::from("Table"),
+            ],
+            ..Default::default()
+        });
+
+        assert_eq!(roundtrip(Format::Markdown, &article, None, None).unwrap(), article);
+    }
 }
 
 // Level `high` for highly structured formats that can perform roundtrip conversion

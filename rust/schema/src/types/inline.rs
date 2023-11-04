@@ -42,6 +42,8 @@ use super::video_object::VideoObject;
 #[serde(untagged, crate = "common::serde")]
 #[cfg_attr(feature = "proptest", derive(Arbitrary))]
 pub enum Inline {
+    #[cfg_attr(feature = "proptest-min", proptest(skip))]
+    #[cfg_attr(feature = "proptest-low", proptest(skip))]
     AudioObject(AudioObject),
 
     #[cfg_attr(feature = "proptest-min", proptest(skip))]
@@ -68,9 +70,11 @@ pub enum Inline {
     CodeFragment(CodeFragment),
 
     #[cfg_attr(feature = "proptest-min", proptest(skip))]
+    #[cfg_attr(feature = "proptest-low", proptest(skip))]
     Date(Date),
 
     #[cfg_attr(feature = "proptest-min", proptest(skip))]
+    #[cfg_attr(feature = "proptest-low", proptest(skip))]
     DateTime(DateTime),
 
     #[cfg_attr(feature = "proptest-min", proptest(skip))]
@@ -78,6 +82,8 @@ pub enum Inline {
     #[cfg_attr(feature = "proptest-high", proptest(skip))]
     Delete(Delete),
 
+    #[cfg_attr(feature = "proptest-min", proptest(skip))]
+    #[cfg_attr(feature = "proptest-low", proptest(skip))]
     Duration(Duration),
 
     Emphasis(Emphasis),
@@ -100,6 +106,7 @@ pub enum Inline {
     MediaObject(MediaObject),
 
     #[cfg_attr(feature = "proptest-min", proptest(skip))]
+    #[cfg_attr(feature = "proptest-low", proptest(skip))]
     Note(Note),
 
     #[cfg_attr(feature = "proptest-min", proptest(skip))]
@@ -124,13 +131,17 @@ pub enum Inline {
     Text(Text),
 
     #[cfg_attr(feature = "proptest-min", proptest(skip))]
+    #[cfg_attr(feature = "proptest-low", proptest(skip))]
     Time(Time),
 
     #[cfg_attr(feature = "proptest-min", proptest(skip))]
+    #[cfg_attr(feature = "proptest-low", proptest(skip))]
     Timestamp(Timestamp),
 
     Underline(Underline),
 
+    #[cfg_attr(feature = "proptest-min", proptest(skip))]
+    #[cfg_attr(feature = "proptest-low", proptest(skip))]
     VideoObject(VideoObject),
 
     #[cfg_attr(feature = "proptest-min", proptest(skip))]

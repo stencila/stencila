@@ -30,7 +30,10 @@ pub struct Heading {
 
     /// The level of the heading.
     #[default = 0]
-    #[cfg_attr(feature = "proptest", proptest(value = "Default::default()"))]
+    #[cfg_attr(feature = "proptest-min", proptest(value = r#"1"#))]
+    #[cfg_attr(feature = "proptest-low", proptest(strategy = r#"1..=6i64"#))]
+    #[cfg_attr(feature = "proptest-high", proptest(strategy = r#"0..=6i64"#))]
+    #[cfg_attr(feature = "proptest-max", proptest(strategy = r#"i64::arbitrary()"#))]
     pub level: Integer,
 
     /// Content of the heading.
