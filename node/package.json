@@ -90,7 +90,7 @@
     "clean": true
   },
   "devDependencies": {
-    "@arethetypeswrong/cli": "0.13.0",
+    "@arethetypeswrong/cli": "0.13.1",
     "@napi-rs/cli": "2.16.5",
     "@types/benchmark": "2.1.4",
     "@types/jest": "29.5.7",
