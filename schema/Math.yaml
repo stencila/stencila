@@ -13,8 +13,8 @@ required:
   - code
 core:
   - mathLanguage
-  - compileDigest
-  - compileErrors
+  - compilationDigest
+  - compilationErrors
   - mathml
 properties:
   code:
@@ -55,20 +55,15 @@ properties:
       max:
         description: Generate an arbitrary string.
         strategy: option::of(String::arbitrary())
-  compileDigest:
-    '@id': stencila:compileDigest
+  compilationDigest:
+    '@id': stencila:compilationDigest
     description: A digest of the `code` and `mathLanguage`.
     $comment: Used to avoid unnecessary transpilation to MathML.
     $ref: ExecutionDigest
     strip: [execution]
-  compileErrors:
-    '@id': stencila:compileErrors
+  compilationErrors:
+    '@id': stencila:compilationErrors
     description: Errors that occurred when parsing and compiling the math equation.
-    $comment: |
-      This property is an array of strings. Compare this to `CodeChunk.errors`
-      which is an array of `CodeError` nodes. Strings are considered to
-      be sufficient for math parsing errors which usually won't have stack traces,
-      line numbers etc.
     type: array
     items:
       type: string
@@ -76,7 +71,7 @@ properties:
   mathml:
     '@id': stencila:mathml
     description: The MathML transpiled from the `code`.
-    $comment: Used along with `compileDigest` to avoid unnecessary transpilation to MathML.
+    $comment: Used along with `compilationDigest` to avoid unnecessary transpilation to MathML.
     html:
       content: true
     type: string

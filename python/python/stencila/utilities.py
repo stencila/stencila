@@ -73,8 +73,6 @@ def from_value(value) -> Node:  # pragma: no cover
         return CodeBlock(**value)
     if typ == "CodeChunk":
         return CodeChunk(**value)
-    if typ == "CodeError":
-        return CodeError(**value)
     if typ == "CodeExpression":
         return CodeExpression(**value)
     if typ == "CodeFragment":
@@ -125,6 +123,8 @@ def from_value(value) -> Node:  # pragma: no cover
         return ExecutionDependency(**value)
     if typ == "ExecutionDigest":
         return ExecutionDigest(**value)
+    if typ == "ExecutionError":
+        return ExecutionError(**value)
     if typ == "ExecutionTag":
         return ExecutionTag(**value)
     if typ == "Figure":
