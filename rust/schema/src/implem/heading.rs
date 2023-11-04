@@ -26,7 +26,7 @@ impl Heading {
         )
     }
 
-    pub fn to_markdown_special(&self, context: &MarkdownEncodeContext) -> (String, Losses) {
+    pub fn to_markdown_special(&self, context: &mut MarkdownEncodeContext) -> (String, Losses) {
         let mut md = "#".repeat(self.level.max(1).min(6) as usize);
         md.push(' ');
 

@@ -1,0 +1,1 @@
+This example only has footnotes (not end or side notes) for compatibility with Markdown roundtrip conversions:  FootnoteA paragraph , a  FootnoteFirst paragraph. Second paragraph. , a  FootnoteA paragraph. A code block A quote block .

@@ -14,7 +14,7 @@ impl List {
         elem(tag, &[attr("is", "stencila-list")], &[items])
     }
 
-    pub fn to_markdown_special(&self, context: &MarkdownEncodeContext) -> (String, Losses) {
+    pub fn to_markdown_special(&self, context: &mut MarkdownEncodeContext) -> (String, Losses) {
         let mut losses = Losses::none();
 
         let ordered = matches!(self.order, ListOrder::Ascending);

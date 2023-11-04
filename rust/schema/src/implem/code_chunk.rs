@@ -3,7 +3,7 @@ use codec_losses::{lost_exec_options, lost_options};
 use crate::{prelude::*, CodeChunk};
 
 impl CodeChunk {
-    pub fn to_markdown_special(&self, _context: &MarkdownEncodeContext) -> (String, Losses) {
+    pub fn to_markdown_special(&self, _context: &mut MarkdownEncodeContext) -> (String, Losses) {
         let mut md = "```".to_string();
 
         if let Some(lang) = &self.programming_language {

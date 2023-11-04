@@ -7,7 +7,9 @@
       </inline-media>,<code executable="yes">code expression</code>,<code>code fragment</code>,<italic>emphasis</italic>,<inline-graphic xlink:href="https://example.org/cat.jpg">
         <alt-text>image</alt-text>
       </inline-graphic>, insert,<ext-link xlink:href="https://example.org">link</ext-link>,<inline-formula code="math fragment" language="tex">
-      </inline-formula>,<parameter name="parameter">
+      </inline-formula>,<fn fn-type="custom" custom-type="Footnote">
+        <p>A footnote</p>
+      </fn>,<parameter name="parameter">
       </parameter>,<inline-quote>quote</inline-quote>,<styled-content style="text-blue-400">span</styled-content>,<strike>strikeout</strike>,<bold>strong emphasis</bold>,<sub>subscript</sub>,<sup>superscript</sup>,<underline>underline</underline>,<inline-media xlink:href="https://example.org/cat.mp4" mimetype="video">
         <alt-text>video</alt-text>
       </inline-media>.</p>

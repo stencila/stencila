@@ -114,7 +114,7 @@ impl AudioObject {
         )
     }
 
-    pub fn to_markdown_special(&self, context: &MarkdownEncodeContext) -> (String, Losses) {
+    pub fn to_markdown_special(&self, context: &mut MarkdownEncodeContext) -> (String, Losses) {
         let (md, mut losses) = to_markdown!(self, context);
         losses.merge(lost_options!(self.options, transcript));
         (md, losses)
@@ -137,7 +137,7 @@ impl ImageObject {
         )
     }
 
-    pub fn to_markdown_special(&self, context: &MarkdownEncodeContext) -> (String, Losses) {
+    pub fn to_markdown_special(&self, context: &mut MarkdownEncodeContext) -> (String, Losses) {
         let (md, mut losses) = to_markdown!(self, context);
         losses.merge(lost_options!(self.options, thumbnail));
         (md, losses)
@@ -168,7 +168,7 @@ impl VideoObject {
         )
     }
 
-    pub fn to_markdown_special(&self, context: &MarkdownEncodeContext) -> (String, Losses) {
+    pub fn to_markdown_special(&self, context: &mut MarkdownEncodeContext) -> (String, Losses) {
         let (md, mut losses) = to_markdown!(self, context);
         losses.merge(lost_options!(self.options, thumbnail, transcript));
         (md, losses)

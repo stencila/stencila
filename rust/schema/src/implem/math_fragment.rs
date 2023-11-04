@@ -24,7 +24,7 @@ impl MathFragment {
         (jats, losses)
     }
 
-    pub fn to_markdown_special(&self, _context: &MarkdownEncodeContext) -> (String, Losses) {
+    pub fn to_markdown_special(&self, _context: &mut MarkdownEncodeContext) -> (String, Losses) {
         let lang = self
             .math_language
             .as_deref()

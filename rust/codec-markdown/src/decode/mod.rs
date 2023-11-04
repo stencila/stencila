@@ -10,7 +10,7 @@ mod frontmatter;
 mod inlines;
 mod parse;
 
-pub use content::{decode_blocks, decode_inlines};
+pub use content::{decode_blocks, decode_content, decode_inlines};
 use frontmatter::decode_frontmatter;
 
 /// Decode a Markdown string to a Stencila Schema [`Node`]
@@ -24,7 +24,7 @@ pub(super) fn decode(md: &str, _options: Option<DecodeOptions>) -> Result<(Node,
         None => Node::Article(Article::default()),
     };
 
-    let (content, losses) = decode_blocks(md);
+    let (content, losses) = decode_content(md);
     if !content.is_empty() {
         match &mut node {
             Node::Article(article) => article.content = content,

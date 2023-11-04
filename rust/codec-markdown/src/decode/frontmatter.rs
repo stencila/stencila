@@ -60,7 +60,7 @@ pub(super) fn decode_frontmatter(md: &str) -> Result<(usize, Option<Node>)> {
         let abs = value
             .get_mut("abstract")
             .and_then(|value| value.as_str())
-            .map(|abs| decode_blocks(abs).0);
+            .map(|abs| decode_blocks(abs, None).0);
 
         // Deserialize to a `Node` not that `type` is ensured to be present
         let mut node = serde_json::from_value(value)?;

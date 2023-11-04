@@ -1,0 +1,1 @@
+This paragraph has a simple notes:  FootnoteA footnote , a  EndnoteAn endnote , a  SidenoteA side note . This paragraph has a more complex notes:  FootnoteA footnote with... Another paragraph , a  EndnoteAn endnote with... A code block , a  SidenoteA sidenote with... A quote block .

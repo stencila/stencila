@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<article dtd-version="1.3" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:mml="http://www.w3.org/1998/Math/MathML">
+  <body>
+    <p>This example only has footnotes (not end or side notes) for compatibility with Markdown roundtrip conversions:<fn fn-type="custom" custom-type="Footnote">
+        <p>A paragraph</p>
+      </fn>, a<fn fn-type="custom" custom-type="Footnote">
+        <p>First paragraph.</p>
+        <p>Second paragraph.</p>
+      </fn>, a<fn fn-type="custom" custom-type="Footnote">
+        <p>A paragraph.</p>
+        <code>A code block</code>
+        <disp-quote>
+          <p>A quote block</p>
+        </disp-quote>
+      </fn>.</p>
+  </body>
+</article>

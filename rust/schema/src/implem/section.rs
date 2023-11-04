@@ -17,7 +17,7 @@ impl Section {
         elem(tag, &attrs, &[children])
     }
 
-    pub fn to_markdown_special(&self, context: &MarkdownEncodeContext) -> (String, Losses) {
+    pub fn to_markdown_special(&self, context: &mut MarkdownEncodeContext) -> (String, Losses) {
         let fence = ":".repeat(3 + context.depth * 2);
 
         let typ = match &self.section_type {
@@ -25,9 +25,9 @@ impl Section {
             None => String::from("section"),
         };
 
-        let (md, losses) = self.content.to_markdown(&MarkdownEncodeContext {
-            depth: context.depth + 1,
-        });
+        context.down();
+        let (md, losses) = self.content.to_markdown(context);
+        context.up();
 
         let md = [&fence, " ", &typ, "\n\n", &md, &fence, "\n\n"].concat();
 

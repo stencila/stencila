@@ -15,6 +15,7 @@ use super::string::String;
 #[derive(derive_more::Display)]
 #[display(fmt = "Note")]
 #[jats(elem = "fn", attribs(fn__type = "custom"))]
+#[markdown(special)]
 pub struct Note {
     /// The type of this item.
     #[cfg_attr(feature = "proptest", proptest(value = "Default::default()"))]

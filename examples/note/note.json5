@@ -1,0 +1,164 @@
+{
+  type: "Article",
+  content: [
+    {
+      type: "Paragraph",
+      content: [
+        {
+          type: "Text",
+          value: "This paragraph has a simple notes: "
+        },
+        {
+          type: "Note",
+          noteType: "Footnote",
+          content: [
+            {
+              type: "Paragraph",
+              content: [
+                {
+                  type: "Text",
+                  value: "A footnote"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          type: "Text",
+          value: ", a "
+        },
+        {
+          type: "Note",
+          noteType: "Endnote",
+          content: [
+            {
+              type: "Paragraph",
+              content: [
+                {
+                  type: "Text",
+                  value: "An endnote"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          type: "Text",
+          value: ", a "
+        },
+        {
+          type: "Note",
+          noteType: "Sidenote",
+          content: [
+            {
+              type: "Paragraph",
+              content: [
+                {
+                  type: "Text",
+                  value: "A side note"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          type: "Text",
+          value: "."
+        }
+      ]
+    },
+    {
+      type: "Paragraph",
+      content: [
+        {
+          type: "Text",
+          value: "This paragraph has a more complex notes: "
+        },
+        {
+          type: "Note",
+          noteType: "Footnote",
+          content: [
+            {
+              type: "Paragraph",
+              content: [
+                {
+                  type: "Text",
+                  value: "A footnote with..."
+                }
+              ]
+            },
+            {
+              type: "Paragraph",
+              content: [
+                {
+                  type: "Text",
+                  value: "Another paragraph"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          type: "Text",
+          value: ", a "
+        },
+        {
+          type: "Note",
+          noteType: "Endnote",
+          content: [
+            {
+              type: "Paragraph",
+              content: [
+                {
+                  type: "Text",
+                  value: "An endnote with..."
+                }
+              ]
+            },
+            {
+              type: "CodeBlock",
+              code: "A code block"
+            }
+          ]
+        },
+        {
+          type: "Text",
+          value: ", a "
+        },
+        {
+          type: "Note",
+          noteType: "Sidenote",
+          content: [
+            {
+              type: "Paragraph",
+              content: [
+                {
+                  type: "Text",
+                  value: "A sidenote with..."
+                }
+              ]
+            },
+            {
+              type: "QuoteBlock",
+              content: [
+                {
+                  type: "Paragraph",
+                  content: [
+                    {
+                      type: "Text",
+                      value: "A quote block"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          type: "Text",
+          value: "."
+        }
+      ]
+    }
+  ]
+}

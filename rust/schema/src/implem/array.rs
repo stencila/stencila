@@ -63,7 +63,7 @@ impl HtmlCodec for Array {
 }
 
 impl MarkdownCodec for Array {
-    fn to_markdown(&self, _context: &MarkdownEncodeContext) -> (String, Losses) {
+    fn to_markdown(&self, _context: &mut MarkdownEncodeContext) -> (String, Losses) {
         self.to_text()
     }
 }

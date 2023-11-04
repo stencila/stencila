@@ -116,7 +116,7 @@ impl JatsCodec for Object {
 }
 
 impl MarkdownCodec for Object {
-    fn to_markdown(&self, _context: &MarkdownEncodeContext) -> (String, Losses) {
+    fn to_markdown(&self, _context: &mut MarkdownEncodeContext) -> (String, Losses) {
         self.to_text()
     }
 }

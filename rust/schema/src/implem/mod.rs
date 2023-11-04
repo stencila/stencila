@@ -29,6 +29,7 @@ mod math_block;
 mod math_fragment;
 mod media_objects;
 mod node;
+mod note;
 mod null;
 mod object;
 mod parameter;

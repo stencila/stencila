@@ -48,7 +48,7 @@ impl Codec for MarkdownCodec {
             Null | Boolean | Integer | UnsignedInteger | Number => LowLoss,
             // Prose Inlines
             Text | Emphasis | Strong | Subscript | Superscript | Underline => NoLoss,
-            Link | Parameter | AudioObject | ImageObject | MediaObject => LowLoss,
+            Link | Parameter | AudioObject | ImageObject | MediaObject | Note => LowLoss,
             // Prose Blocks
             Division | Section | Heading | Paragraph | QuoteBlock | ThematicBreak => NoLoss,
             List | ListItem | Table | TableRow | TableCell => LowLoss,
@@ -72,7 +72,7 @@ impl Codec for MarkdownCodec {
             Null | Boolean | Integer | UnsignedInteger | Number => LowLoss,
             // Prose Inlines
             Text | Emphasis | Strong | Subscript | Superscript | Underline => NoLoss,
-            Link | Parameter | AudioObject | ImageObject | MediaObject => LowLoss,
+            Link | Parameter | AudioObject | ImageObject | MediaObject | Note => LowLoss,
             // Prose Blocks
             Division | Section | Heading | Paragraph | QuoteBlock | ThematicBreak => NoLoss,
             List | ListItem | Table | TableRow | TableCell => LowLoss,
@@ -98,8 +98,8 @@ impl Codec for MarkdownCodec {
         node: &Node,
         _options: Option<EncodeOptions>,
     ) -> Result<(String, Losses)> {
-        let context = MarkdownEncodeContext::default();
-        let (markdown, losses) = node.to_markdown(&context);
+        let mut context = MarkdownEncodeContext::default();
+        let (markdown, losses) = node.to_markdown(&mut context);
 
         let markdown = markdown.trim().to_string();
 

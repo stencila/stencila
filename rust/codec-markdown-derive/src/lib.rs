@@ -64,7 +64,7 @@ fn derive_struct(type_attr: TypeAttr) -> TokenStream {
     if type_attr.special {
         quote! {
             impl MarkdownCodec for #struct_name {
-                fn to_markdown(&self, context: &MarkdownEncodeContext) -> (String, Losses) {
+                fn to_markdown(&self, context: &mut MarkdownEncodeContext) -> (String, Losses) {
                     self.to_markdown_special(context)
                 }
             }
@@ -128,7 +128,7 @@ fn derive_struct(type_attr: TypeAttr) -> TokenStream {
 
         quote! {
             impl MarkdownCodec for #struct_name {
-                fn to_markdown(&self, context: &MarkdownEncodeContext) -> (String, Losses) {
+                fn to_markdown(&self, context: &mut MarkdownEncodeContext) -> (String, Losses) {
                     let mut losses = Losses::none();
 
                     #fields
@@ -168,7 +168,7 @@ fn derive_struct(type_attr: TypeAttr) -> TokenStream {
 
         quote! {
             impl MarkdownCodec for #struct_name {
-                fn to_markdown(&self, context: &MarkdownEncodeContext) -> (String, Losses) {
+                fn to_markdown(&self, context: &mut MarkdownEncodeContext) -> (String, Losses) {
                     let mut markdown = String::new();
                     let mut losses = #losses;
 
@@ -201,7 +201,7 @@ fn derive_enum(type_attr: TypeAttr, data: &DataEnum) -> TokenStream {
 
     quote! {
         impl MarkdownCodec for #enum_name {
-            fn to_markdown(&self, context: &MarkdownEncodeContext) -> (String, Losses) {
+            fn to_markdown(&self, context: &mut MarkdownEncodeContext) -> (String, Losses) {
                 match self {
                     #variants
                 }

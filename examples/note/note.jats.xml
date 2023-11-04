@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<article dtd-version="1.3" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:mml="http://www.w3.org/1998/Math/MathML">
+  <body>
+    <p>This paragraph has a simple notes:<fn fn-type="custom" custom-type="Footnote">
+        <p>A footnote</p>
+      </fn>, a<fn fn-type="custom" custom-type="Endnote">
+        <p>An endnote</p>
+      </fn>, a<fn fn-type="custom" custom-type="Sidenote">
+        <p>A side note</p>
+      </fn>.</p>
+    <p>This paragraph has a more complex notes:<fn fn-type="custom" custom-type="Footnote">
+        <p>A footnote with...</p>
+        <p>Another paragraph</p>
+      </fn>, a<fn fn-type="custom" custom-type="Endnote">
+        <p>An endnote with...</p>
+        <code>A code block</code>
+      </fn>, a<fn fn-type="custom" custom-type="Sidenote">
+        <p>A sidenote with...</p>
+        <disp-quote>
+          <p>A quote block</p>
+        </disp-quote>
+      </fn>.</p>
+  </body>
+</article>

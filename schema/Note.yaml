@@ -16,6 +16,8 @@ jats:
     # Use the `custom-type` attribute to encode the `noteType`
     # See https://jats.nlm.nih.gov/articleauthoring/tag-library/1.3/attribute/fn-type.html
     fn-type: custom
+markdown:
+  special: true
 proptest: {}
 required:
   - noteType

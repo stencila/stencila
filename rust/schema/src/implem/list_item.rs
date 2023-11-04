@@ -1,7 +1,7 @@
 use crate::{prelude::*, shortcuts::t, Block, ListItem};
 
 impl ListItem {
-    pub fn to_markdown_special(&self, context: &MarkdownEncodeContext) -> (String, Losses) {
+    pub fn to_markdown_special(&self, context: &mut MarkdownEncodeContext) -> (String, Losses) {
         let checkbox = self.is_checked.map(|is_checked| match is_checked {
             true => t("[x] "),
             false => t("[ ] "),

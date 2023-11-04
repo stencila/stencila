@@ -4,7 +4,7 @@ use codec_losses::{lost_exec_options, lost_options};
 use crate::{prelude::*, CodeExpression};
 
 impl CodeExpression {
-    pub fn to_markdown_special(&self, _context: &MarkdownEncodeContext) -> (String, Losses) {
+    pub fn to_markdown_special(&self, _context: &mut MarkdownEncodeContext) -> (String, Losses) {
         let mut md = ["`", &self.code, "`{"].concat();
 
         if let Some(lang) = &self.programming_language {

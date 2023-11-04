@@ -28,7 +28,7 @@ impl Article {
         )
     }
 
-    pub fn to_markdown_special(&self, context: &MarkdownEncodeContext) -> (String, Losses) {
+    pub fn to_markdown_special(&self, context: &mut MarkdownEncodeContext) -> (String, Losses) {
         use common::serde_yaml;
 
         let mut md = String::new();
@@ -55,7 +55,33 @@ impl Article {
         }
 
         let (content_md, losses) = self.content.to_markdown(context);
+
         md += &content_md;
+
+        md += &context
+            .footnotes
+            .iter()
+            .enumerate()
+            .map(|(footnote_index, footnote)| {
+                footnote
+                    .trim()
+                    .lines()
+                    .enumerate()
+                    .map(|(line_index, line)| {
+                        if line_index == 0 {
+                            // Place footnote label at start of first line
+                            format!("[^{index}]: {line}", index = footnote_index + 1)
+                        } else if !line.trim().is_empty() {
+                            // Indent subsequent lines by *four* spaces if it is not blank
+                            format!("    {line}")
+                        } else {
+                            // Blank line
+                            String::new()
+                        }
+                    })
+                    .join("\n")
+            })
+            .join("\n\n");
 
         (md, losses)
     }

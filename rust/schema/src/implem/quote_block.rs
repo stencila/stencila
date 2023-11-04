@@ -3,7 +3,7 @@ use codec_losses::lost_options;
 use crate::{prelude::*, QuoteBlock};
 
 impl QuoteBlock {
-    pub fn to_markdown_special(&self, context: &MarkdownEncodeContext) -> (String, Losses) {
+    pub fn to_markdown_special(&self, context: &mut MarkdownEncodeContext) -> (String, Losses) {
         let mut losses = lost_options!(self, id, cite);
 
         let (content, content_losses) = self.content.to_markdown(context);

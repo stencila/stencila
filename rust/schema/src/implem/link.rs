@@ -3,7 +3,7 @@ use codec_losses::lost_options;
 use crate::{prelude::*, Link};
 
 impl Link {
-    pub fn to_markdown_special(&self, context: &MarkdownEncodeContext) -> (String, Losses) {
+    pub fn to_markdown_special(&self, context: &mut MarkdownEncodeContext) -> (String, Losses) {
         let mut losses = lost_options!(self, id, rel);
 
         let (content_md, content_losses) = self.content.to_markdown(context);

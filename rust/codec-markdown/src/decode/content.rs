@@ -1,4 +1,4 @@
-use std::collections::VecDeque;
+use std::collections::{HashMap, VecDeque};
 
 use codec::{
     common::{
@@ -12,11 +12,11 @@ use codec::{
         shortcuts::{cb, del, em, ins, mb, ol, p, q, qb, stg, stk, t, tab, tb, td, u, ul},
         transforms::blocks_to_inlines,
         AudioObject, Block, CodeChunk, Cord, Heading, If, IfClause, ImageObject, Inline, Link,
-        ListItem, TableCell, TableRow, TableRowType, VideoObject,
+        ListItem, Note, NoteType, TableCell, TableRow, TableRowType, VideoObject,
     },
     Losses,
 };
-use pulldown_cmark::{CodeBlockKind, Event, Options, Parser, Tag};
+use pulldown_cmark::{CodeBlockKind, Event, Options, Parser, Tag, TagEnd};
 
 use crate::decode::inlines::inlines_or_text;
 
@@ -28,10 +28,63 @@ use super::{
 };
 
 /// Decode Markdown content to a vector of [`Block`]s
-///
-/// Intended for decoding a fragment of Markdown (e.g. a Markdown cell in
-/// a Jupyter Notebook) and inserting it into a larger document.
-pub fn decode_blocks(md: &str) -> (Vec<Block>, Losses) {
+pub fn decode_content(md: &str) -> (Vec<Block>, Losses) {
+    let mut losses = Losses::none();
+
+    // Split the content into footnotes and other content
+    let mut footnotes_md = String::new();
+    let mut other_md = String::new();
+    let mut in_note = false;
+    for line in md.lines() {
+        static REGEX: Lazy<Regex> =
+            // Footnote definitions can be indented up to 3 spaces
+            Lazy::new(|| Regex::new(r"^\s{0,3}\[\^\w+\]:").expect("Unable to create regex"));
+        if let Some(captures) = REGEX.captures(line) {
+            in_note = true;
+            footnotes_md.push_str(line);
+            footnotes_md.push('\n');
+            // `pulldown_cmark` requires all footnote references to have a matching footnote definition
+            // so add a minimal definition here (as an optimization keep it minimal)
+            other_md.push_str(captures[0].into())
+        } else if in_note {
+            if !line.starts_with(' ') && !line.starts_with('\t') && !line.is_empty() {
+                in_note = false;
+                other_md.push_str(line);
+                other_md.push('\n');
+            } else {
+                footnotes_md.push_str(line);
+                footnotes_md.push('\n');
+            }
+        } else {
+            other_md.push_str(line);
+            other_md.push('\n');
+        }
+    }
+
+    // Map of footnote labels to their block content
+    let mut footnotes = HashMap::new();
+
+    // Parse the note content to populate the map of notes
+    let (other_blocks, notes_losses) = decode_blocks(&footnotes_md, Some(&mut footnotes));
+    if !other_blocks.is_empty() {
+        tracing::error!("Expected parsing of footnotes not to return any blocks");
+        losses.add("Blocks")
+    }
+
+    // Now parse the main content with the populated map of notes
+    let (blocks, mut losses) = decode_blocks(&other_md, Some(&mut footnotes));
+    losses.merge(notes_losses);
+
+    (blocks, losses)
+}
+
+/// Decode Markdown content to a vector of blocks
+pub fn decode_blocks(
+    md: &str,
+    mut footnotes: Option<&mut HashMap<String, Vec<Block>>>,
+) -> (Vec<Block>, Losses) {
+    let mut losses = Losses::none();
+
     // Set Markdown parsing options
     // Do not ENABLE_SMART_PUNCTUATION as it messes with
     // single or double quoting values in `curly_attrs`.
@@ -50,6 +103,13 @@ pub fn decode_blocks(md: &str) -> (Vec<Block>, Losses) {
     let mut divs = Divs::default();
     let mut html = Html::default();
 
+    // Variables that need to be persisted from start to end of a tag
+    let mut current_code_block_kind = CodeBlockKind::Indented;
+    let mut current_url = String::new();
+    let mut current_title = String::new();
+    let mut current_footnote_label = String::new();
+
+    // Parse the Markdown and iterate over events
     let parser = Parser::new_ext(md, options);
     for event in parser {
         match event {
@@ -69,38 +129,49 @@ pub fn decode_blocks(md: &str) -> (Vec<Block>, Losses) {
                     inlines.push_mark();
                     blocks.push_mark()
                 }
+                Tag::FootnoteDefinition(label) => {
+                    current_footnote_label = label.to_string();
+                    blocks.push_mark()
+                }
 
                 // Block nodes with inline content
-                Tag::Heading(..) => inlines.clear_all(),
+                Tag::Heading { .. } => inlines.clear_all(),
                 Tag::Paragraph => inlines.clear_all(),
-                Tag::CodeBlock(..) => inlines.clear_all(),
+                Tag::CodeBlock(kind) => {
+                    current_code_block_kind = kind;
+                    inlines.clear_all()
+                }
 
                 // Inline nodes with inline content
                 // (these should all pop the mark when they end)
                 Tag::Emphasis => inlines.push_mark(),
                 Tag::Strong => inlines.push_mark(),
                 Tag::Strikethrough => inlines.push_mark(),
-                Tag::Link(..) => inlines.push_mark(),
-                Tag::Image(..) => inlines.push_mark(),
+                Tag::Link {
+                    dest_url, title, ..
+                }
+                | Tag::Image {
+                    dest_url, title, ..
+                } => {
+                    current_url = dest_url.to_string();
+                    current_title = title.to_string();
+                    inlines.push_mark()
+                }
 
-                // Currently unhandled
-                Tag::FootnoteDefinition(_) => (),
+                Tag::HtmlBlock => (),         // TODO
+                Tag::MetadataBlock(..) => (), // TODO
             },
-            Event::End(tag) => match tag {
+            Event::End(tag_end) => match tag_end {
                 // Block nodes with block content
-                Tag::BlockQuote => {
+                TagEnd::BlockQuote => {
                     let content = blocks.pop_mark();
                     blocks.push_block(qb(content))
                 }
-                Tag::List(start) => {
+                TagEnd::List(ordered) => {
                     let items = lists.pop_mark();
-                    blocks.push_block(if start.is_some() {
-                        ol(items)
-                    } else {
-                        ul(items)
-                    })
+                    blocks.push_block(if ordered { ol(items) } else { ul(items) })
                 }
-                Tag::Item => {
+                TagEnd::Item => {
                     let mut content = Vec::new();
 
                     let inlines = inlines.pop_mark();
@@ -113,19 +184,26 @@ pub fn decode_blocks(md: &str) -> (Vec<Block>, Losses) {
 
                     lists.push_item(ListItem::new(content))
                 }
-                Tag::Table(_) => blocks.push_block(tab(tables.pop_rows())),
-                Tag::TableHead => tables.push_header(),
-                Tag::TableRow => tables.push_row(),
-                Tag::TableCell => tables.push_cell(td(inlines.pop_mark())),
+                TagEnd::Table => blocks.push_block(tab(tables.pop_rows())),
+                TagEnd::TableHead => tables.push_header(),
+                TagEnd::TableRow => tables.push_row(),
+                TagEnd::TableCell => tables.push_cell(td(inlines.pop_mark())),
+                TagEnd::FootnoteDefinition => {
+                    if let Some(footnotes) = footnotes.as_mut() {
+                        let content = blocks.pop_mark();
+                        footnotes.insert(current_footnote_label.to_string(), content);
+                    } else {
+                        losses.add("Footnote")
+                    }
+                }
 
                 // Block nodes with inline content
-                Tag::Heading(level, id, _classes) => blocks.push_block(Block::Heading(Heading {
-                    id: id.map(|id| id.into()),
+                TagEnd::Heading(level) => blocks.push_block(Block::Heading(Heading {
                     level: level as i64,
                     content: inlines.pop_all(),
                     ..Default::default()
                 })),
-                Tag::Paragraph => {
+                TagEnd::Paragraph => {
                     let trimmed = inlines.text.trim();
 
                     let block = if let Ok((.., math_block)) = math_block(trimmed) {
@@ -253,8 +331,8 @@ pub fn decode_blocks(md: &str) -> (Vec<Block>, Losses) {
                         blocks.push_block(block);
                     }
                 }
-                Tag::CodeBlock(kind) => {
-                    let (lang, exec, auto_exec) = match kind {
+                TagEnd::CodeBlock => {
+                    let (lang, exec, auto_exec) = match &current_code_block_kind {
                         CodeBlockKind::Fenced(spec) => {
                             let mut spec = spec.to_string();
 
@@ -282,7 +360,7 @@ pub fn decode_blocks(md: &str) -> (Vec<Block>, Losses) {
                     };
 
                     let mut code = inlines.pop_text();
-                    if code.ends_with("\n") {
+                    if code.ends_with('\n') {
                         code.pop();
                     }
 
@@ -305,36 +383,35 @@ pub fn decode_blocks(md: &str) -> (Vec<Block>, Losses) {
                 }
 
                 // Inline nodes with inline content
-                Tag::Emphasis => {
+                TagEnd::Emphasis => {
                     let content = inlines.pop_mark();
                     inlines.push_inline(em(content))
                 }
-                Tag::Strong => {
+                TagEnd::Strong => {
                     let content = inlines.pop_mark();
                     inlines.push_inline(stg(content))
                 }
-                Tag::Strikethrough => {
+                TagEnd::Strikethrough => {
                     let content = inlines.pop_mark();
                     inlines.push_inline(stk(content))
                 }
-                Tag::Link(_link_type, url, title) => {
+                TagEnd::Link => {
                     let content = inlines.pop_mark();
                     let title = {
-                        let title = title.to_string();
-                        if !title.is_empty() {
-                            Some(title)
+                        if !current_title.is_empty() {
+                            Some(current_title.to_string())
                         } else {
                             None
                         }
                     };
                     inlines.push_inline(Inline::Link(Link {
                         content,
-                        target: url.to_string(),
+                        target: current_url.to_string(),
                         title,
                         ..Default::default()
                     }))
                 }
-                Tag::Image(_link_type, url, title) => {
+                TagEnd::Image => {
                     let caption = inlines.pop_mark();
                     let caption = if !caption.is_empty() {
                         Some(caption)
@@ -342,14 +419,14 @@ pub fn decode_blocks(md: &str) -> (Vec<Block>, Losses) {
                         None
                     };
 
-                    let title = if !title.is_empty() {
-                        Some(vec![t(title.to_string())])
+                    let title = if !current_title.is_empty() {
+                        Some(vec![t(current_title.to_string())])
                     } else {
                         None
                     };
 
-                    let content_url = url.to_string();
-                    let media_object = if let Ok(format) = Format::from_string(url) {
+                    let content_url = current_url.to_string();
+                    let media_object = if let Ok(format) = Format::from_string(&content_url) {
                         if format.is_audio() {
                             Inline::AudioObject(AudioObject {
                                 content_url,
@@ -383,12 +460,21 @@ pub fn decode_blocks(md: &str) -> (Vec<Block>, Losses) {
 
                     inlines.push_inline(media_object)
                 }
-
-                Tag::FootnoteDefinition(..) => {
-                    // TODO: Handle footnote definitions
-                    tracing::debug!("Markdown footnote definitions are not yet handled")
-                }
+                TagEnd::HtmlBlock => (),         // TODO
+                TagEnd::MetadataBlock(..) => (), // TODO
             },
+            Event::FootnoteReference(label) => {
+                let content = footnotes
+                    .as_mut()
+                    .and_then(|notes| notes.remove(label.as_ref()))
+                    .unwrap_or_default();
+                let note = Note {
+                    note_type: NoteType::Footnote,
+                    content,
+                    ..Default::default()
+                };
+                inlines.push_inline(Inline::Note(note))
+            }
             Event::Code(value) => {
                 // Because we allow for attributes on code, we push back the
                 // code in back ticks for it to be parsed again later.
@@ -411,10 +497,11 @@ pub fn decode_blocks(md: &str) -> (Vec<Block>, Losses) {
                 // necessary.
                 inlines.push_text("\u{2029}")
             }
+            Event::TaskListMarker(is_checked) => lists.is_checked = Some(is_checked),
             Event::HardBreak => {
                 tracing::debug!("Markdown HardBreaks are not yet handled");
             }
-            Event::Html(content) => {
+            Event::InlineHtml(content) | Event::Html(content) => {
                 let mut content = html.handle_html(&content);
                 if !content.is_empty() {
                     if inlines.active {
@@ -424,11 +511,6 @@ pub fn decode_blocks(md: &str) -> (Vec<Block>, Losses) {
                     }
                 }
             }
-            Event::FootnoteReference(..) => {
-                // TODO: Handle footnote references
-                tracing::debug!("Markdown footnote references are not yet handled");
-            }
-            Event::TaskListMarker(is_checked) => lists.is_checked = Some(is_checked),
         };
     }
 
@@ -436,12 +518,19 @@ pub fn decode_blocks(md: &str) -> (Vec<Block>, Losses) {
         tracing::warn!("Unclosed HTML tags: {:?}", html.tags)
     }
 
-    (blocks.pop_all(), Losses::todo())
+    let mut blocks = blocks.pop_all();
+
+    // Rather than discarding them, any unmatched footnotes are appended to the end
+    if let Some(footnotes) = footnotes {
+        blocks.append(&mut footnotes.clone().into_values().flatten().collect())
+    }
+
+    (blocks, losses)
 }
 
 /// Decode Markdown content to a vector of [`Inline`]s
 pub fn decode_inlines(md: &str) -> (Vec<Inline>, Losses) {
-    let (blocks, losses) = decode_blocks(md);
+    let (blocks, losses) = decode_blocks(md, None);
     let inlines = blocks_to_inlines(blocks);
     (inlines, losses)
 }

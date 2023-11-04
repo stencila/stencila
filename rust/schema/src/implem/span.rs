@@ -3,7 +3,7 @@ use codec_losses::lost_options;
 use crate::{prelude::*, Span};
 
 impl Span {
-    pub fn to_markdown_special(&self, context: &MarkdownEncodeContext) -> (String, Losses) {
+    pub fn to_markdown_special(&self, context: &mut MarkdownEncodeContext) -> (String, Losses) {
         let mut losses = lost_options!(
             self,
             id,
@@ -18,7 +18,7 @@ impl Span {
 
         let lang = self.style_language.as_deref().unwrap_or_default();
 
-        let md = ["[", &md, "]", &lang, "{", &self.code, "}"].concat();
+        let md = ["[", &md, "]", lang, "{", &self.code, "}"].concat();
 
         (md, losses)
     }

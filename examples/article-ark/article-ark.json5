@@ -116,6 +116,25 @@
           value: ", "
         },
         {
+          type: "Note",
+          noteType: "Footnote",
+          content: [
+            {
+              type: "Paragraph",
+              content: [
+                {
+                  type: "Text",
+                  value: "A footnote"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          type: "Text",
+          value: ", "
+        },
+        {
           type: "Parameter",
           name: "parameter"
         },

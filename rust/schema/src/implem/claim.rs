@@ -3,7 +3,7 @@ use codec_losses::lost_work_options;
 use crate::{prelude::*, Claim};
 
 impl Claim {
-    pub fn to_markdown_special(&self, context: &MarkdownEncodeContext) -> (String, Losses) {
+    pub fn to_markdown_special(&self, context: &mut MarkdownEncodeContext) -> (String, Losses) {
         let fence = ":".repeat(3 + context.depth * 2);
 
         let mut md = [&fence, " ", &self.claim_type.to_string().to_lowercase()].concat();

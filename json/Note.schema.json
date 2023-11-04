@@ -16,6 +16,9 @@
       "fn-type": "custom"
     }
   },
+  "markdown": {
+    "special": true
+  },
   "required": [
     "type",
     "noteType",
