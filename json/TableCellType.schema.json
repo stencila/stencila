@@ -120,13 +120,13 @@
   },
   "anyOf": [
     {
-      "@id": "stencila:TableCellTypeData",
-      "const": "Data"
+      "@id": "stencila:DataCell",
+      "const": "DataCell"
     },
     {
-      "@id": "stencila:TableCellTypeHeader",
-      "const": "Header"
+      "@id": "stencila:HeaderCell",
+      "const": "HeaderCell"
     }
   ],
-  "default": "Data"
+  "default": "DataCell"
 }

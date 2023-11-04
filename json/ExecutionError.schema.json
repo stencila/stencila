@@ -1,13 +1,13 @@
 {
   "$schema": "https://stencila.dev/meta.schema.json",
-  "$id": "https://stencila.dev/CodeError.schema.json",
-  "@id": "stencila:CodeError",
-  "title": "CodeError",
+  "$id": "https://stencila.dev/ExecutionError.schema.json",
+  "@id": "stencila:ExecutionError",
+  "title": "ExecutionError",
   "extends": [
     "Entity"
   ],
   "category": "code",
-  "description": "An error that occurred when parsing, compiling or executing a `Code` node.",
+  "description": "An error that occurred when executing an `Executable` node.",
   "status": "alpha",
   "required": [
     "type",

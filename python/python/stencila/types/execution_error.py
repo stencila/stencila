@@ -6,12 +6,12 @@ from .entity import Entity
 
 
 @dataclass(init=False)
-class CodeError(Entity):
+class ExecutionError(Entity):
     """
-    An error that occurred when parsing, compiling or executing a `Code` node.
+    An error that occurred when executing an `Executable` node.
     """
 
-    type: Literal["CodeError"] = field(default="CodeError", init=False)
+    type: Literal["ExecutionError"] = field(default="ExecutionError", init=False)
 
     error_message: str
     """The error message or brief description of the error."""

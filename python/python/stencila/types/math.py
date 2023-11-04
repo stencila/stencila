@@ -15,25 +15,25 @@ class Math(Entity):
 
     type: Literal["Math"] = field(default="Math", init=False)
 
-    math_language: str
-    """The language used for the equation e.g tex, mathml, asciimath."""
-
     code: Cord
     """The code of the equation in the `mathLanguage`."""
 
-    compile_digest: Optional[ExecutionDigest] = None
+    math_language: Optional[str] = None
+    """The language used for the equation e.g tex, mathml, asciimath."""
+
+    compilation_digest: Optional[ExecutionDigest] = None
     """A digest of the `code` and `mathLanguage`."""
 
-    errors: Optional[List[str]] = None
-    """Errors that occurred when parsing the math equation."""
+    compilation_errors: Optional[List[str]] = None
+    """Errors that occurred when parsing and compiling the math equation."""
 
     mathml: Optional[str] = None
     """The MathML transpiled from the `code`."""
 
-    def __init__(self, math_language: str, code: Cord, id: Optional[str] = None, compile_digest: Optional[ExecutionDigest] = None, errors: Optional[List[str]] = None, mathml: Optional[str] = None):
+    def __init__(self, code: Cord, id: Optional[str] = None, math_language: Optional[str] = None, compilation_digest: Optional[ExecutionDigest] = None, compilation_errors: Optional[List[str]] = None, mathml: Optional[str] = None):
         super().__init__(id = id)
-        self.math_language = math_language
         self.code = code
-        self.compile_digest = compile_digest
-        self.errors = errors
+        self.math_language = math_language
+        self.compilation_digest = compilation_digest
+        self.compilation_errors = compilation_errors
         self.mathml = mathml

@@ -93,9 +93,9 @@ Support and degree of loss for node types:
 | **Code**                                                                                                                  |
 | [CodeBlock](https://github.com/stencila/stencila/blob/main/docs/reference/schema/code/code_block.md)                      | 🟢 No loss    | 🟢 No loss    |       |
 | [CodeChunk](https://github.com/stencila/stencila/blob/main/docs/reference/schema/code/code_chunk.md)                      | 🟢 No loss    | 🟢 No loss    |       |
-| [CodeError](https://github.com/stencila/stencila/blob/main/docs/reference/schema/code/code_error.md)                      | 🟢 No loss    | 🟢 No loss    |       |
 | [CodeExpression](https://github.com/stencila/stencila/blob/main/docs/reference/schema/code/code_expression.md)            | 🟢 No loss    | 🟢 No loss    |       |
 | [CodeFragment](https://github.com/stencila/stencila/blob/main/docs/reference/schema/code/code_fragment.md)                | 🟢 No loss    | 🟢 No loss    |       |
+| [ExecutionError](https://github.com/stencila/stencila/blob/main/docs/reference/schema/code/execution_error.md)            | 🟢 No loss    | 🟢 No loss    |       |
 | **Data**                                                                                                                  |
 | [Array](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/array.md)                               | 🟢 No loss    | 🟢 No loss    |       |
 | [ArrayValidator](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/array_validator.md)            | 🟢 No loss    | 🟢 No loss    |       |

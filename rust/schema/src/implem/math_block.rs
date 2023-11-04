@@ -25,7 +25,7 @@ impl MathBlock {
 
         let jats = elem("disp-formula", attrs, [label, mathml].concat());
 
-        let losses = lost_options!(self, id, compile_digest, compile_errors);
+        let losses = lost_options!(self, id, compilation_digest, compilation_errors);
 
         (jats, losses)
     }
@@ -43,7 +43,7 @@ impl MathBlock {
             ["```", &lang, "\n", &self.code, "\n```\n\n"].concat()
         };
 
-        let losses = lost_options!(self, id, compile_digest, compile_errors, mathml, label);
+        let losses = lost_options!(self, id, compilation_digest, compilation_errors, mathml, label);
 
         (md, losses)
     }

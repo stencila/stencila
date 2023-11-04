@@ -118,31 +118,31 @@
   },
   "anyOf": [
     {
-      "@id": "stencila:executionStatusScheduled",
+      "@id": "stencila:Scheduled",
       "const": "Scheduled"
     },
     {
-      "@id": "stencila:executionStatusScheduledPreviouslyFailed",
+      "@id": "stencila:ScheduledPreviouslyFailed",
       "const": "ScheduledPreviouslyFailed"
     },
     {
-      "@id": "stencila:executionStatusRunning",
+      "@id": "stencila:Running",
       "const": "Running"
     },
     {
-      "@id": "stencila:executionStatusRunningPreviouslyFailed",
+      "@id": "stencila:RunningPreviouslyFailed",
       "const": "RunningPreviouslyFailed"
     },
     {
-      "@id": "stencila:executionStatusSucceeded",
+      "@id": "stencila:Succeeded",
       "const": "Succeeded"
     },
     {
-      "@id": "stencila:executionStatusFailed",
+      "@id": "stencila:Failed",
       "const": "Failed"
     },
     {
-      "@id": "stencila:executionStatusCancelled",
+      "@id": "stencila:Cancelled",
       "const": "Cancelled"
     }
   ]

@@ -16,7 +16,6 @@ CiteGroup = ForwardRef("CiteGroup")
 Claim = ForwardRef("Claim")
 CodeBlock = ForwardRef("CodeBlock")
 CodeChunk = ForwardRef("CodeChunk")
-CodeError = ForwardRef("CodeError")
 CodeExpression = ForwardRef("CodeExpression")
 CodeFragment = ForwardRef("CodeFragment")
 Collection = ForwardRef("Collection")
@@ -43,6 +42,7 @@ Enumeration = ForwardRef("Enumeration")
 ExecutionDependant = ForwardRef("ExecutionDependant")
 ExecutionDependency = ForwardRef("ExecutionDependency")
 ExecutionDigest = ForwardRef("ExecutionDigest")
+ExecutionError = ForwardRef("ExecutionError")
 ExecutionTag = ForwardRef("ExecutionTag")
 Figure = ForwardRef("Figure")
 File = ForwardRef("File")
@@ -128,7 +128,6 @@ Node = Union[
     Claim,
     CodeBlock,
     CodeChunk,
-    CodeError,
     CodeExpression,
     CodeFragment,
     Collection,
@@ -154,6 +153,7 @@ Node = Union[
     ExecutionDependant,
     ExecutionDependency,
     ExecutionDigest,
+    ExecutionError,
     ExecutionTag,
     Figure,
     File,

@@ -118,35 +118,35 @@
   },
   "anyOf": [
     {
-      "@id": "stencila:ClaimTypeStatement",
+      "@id": "stencila:Statement",
       "const": "Statement"
     },
     {
-      "@id": "stencila:ClaimTypeTheorem",
+      "@id": "stencila:Theorem",
       "const": "Theorem"
     },
     {
-      "@id": "stencila:ClaimTypeLemma",
+      "@id": "stencila:Lemma",
       "const": "Lemma"
     },
     {
-      "@id": "stencila:ClaimTypeProof",
+      "@id": "stencila:Proof",
       "const": "Proof"
     },
     {
-      "@id": "stencila:ClaimTypePostulate",
+      "@id": "stencila:Postulate",
       "const": "Postulate"
     },
     {
-      "@id": "stencila:ClaimTypeHypothesis",
+      "@id": "stencila:Hypothesis",
       "const": "Hypothesis"
     },
     {
-      "@id": "stencila:ClaimTypeProposition",
+      "@id": "stencila:Proposition",
       "const": "Proposition"
     },
     {
-      "@id": "stencila:ClaimTypeCorollary",
+      "@id": "stencila:Corollary",
       "const": "Corollary"
     }
   ],

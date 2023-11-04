@@ -61,9 +61,27 @@
       ],
       "$ref": "ExecutionDigest.schema.json"
     },
+    "compilationErrors": {
+      "@id": "stencila:executionErrors",
+      "description": "Errors when executing the node.",
+      "aliases": [
+        "compilation-errors",
+        "compilation_errors",
+        "compilationError",
+        "compilation-error",
+        "compilation_error"
+      ],
+      "strip": [
+        "execution"
+      ],
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
     "executionDigest": {
       "@id": "stencila:executionDigest",
-      "description": "The `compileDigest` of the node when it was last executed.",
+      "description": "The `compilationDigest` of the node when it was last executed.",
       "aliases": [
         "execution-digest",
         "execution_digest"
@@ -201,18 +219,22 @@
       ],
       "$ref": "Duration.schema.json"
     },
-    "errors": {
-      "@id": "stencila:errors",
-      "description": "Errors when compiling (e.g. syntax errors) or executing the node.",
+    "executionErrors": {
+      "@id": "stencila:executionErrors",
+      "description": "Errors when executing the node.",
       "aliases": [
-        "error"
+        "execution-errors",
+        "execution_errors",
+        "executionError",
+        "execution-error",
+        "execution_error"
       ],
       "strip": [
         "execution"
       ],
       "type": "array",
       "items": {
-        "$ref": "CodeError.schema.json"
+        "$ref": "ExecutionError.schema.json"
       }
     },
     "content": {

@@ -20,7 +20,6 @@ from .claim import Claim
 from .claim_type import ClaimType
 from .code_block import CodeBlock
 from .code_chunk import CodeChunk
-from .code_error import CodeError
 from .code_executable import CodeExecutable
 from .code_expression import CodeExpression
 from .code_fragment import CodeFragment
@@ -58,6 +57,7 @@ from .execution_dependency import ExecutionDependency
 from .execution_dependency_node import ExecutionDependencyNode
 from .execution_dependency_relation import ExecutionDependencyRelation
 from .execution_digest import ExecutionDigest
+from .execution_error import ExecutionError
 from .execution_required import ExecutionRequired
 from .execution_status import ExecutionStatus
 from .execution_tag import ExecutionTag
@@ -113,6 +113,7 @@ from .quote import Quote
 from .quote_block import QuoteBlock
 from .review import Review
 from .section import Section
+from .section_type import SectionType
 from .software_application import SoftwareApplication
 from .software_source_code import SoftwareSourceCode
 from .software_source_code_or_software_application_or_str import SoftwareSourceCodeOrSoftwareApplicationOrStr

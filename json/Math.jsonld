@@ -15,18 +15,6 @@
       }
     },
     {
-      "@id": "stencila:mathLanguage",
-      "@type": "rdfs:Property",
-      "rdfs:label": "mathLanguage",
-      "rdfs:comment": "The language used for the equation e.g tex, mathml, asciimath.",
-      "schema:domainIncludes": {
-        "@id": "stencila:Math"
-      },
-      "schema:rangeIncludes": {
-        "@id": "schema:Text"
-      }
-    },
-    {
       "@id": "stencila:code",
       "@type": "rdfs:Property",
       "rdfs:label": "code",
@@ -53,11 +41,26 @@
       }
     },
     {
-      "@id": "stencila:compileDigest",
+      "@id": "stencila:mathLanguage",
       "@type": "rdfs:Property",
-      "rdfs:label": "compileDigest",
+      "rdfs:label": "mathLanguage",
+      "rdfs:comment": "The language used for the equation e.g tex, mathml, asciimath.",
+      "schema:domainIncludes": {
+        "@id": "stencila:Math"
+      },
+      "schema:rangeIncludes": {
+        "@id": "schema:Text"
+      }
+    },
+    {
+      "@id": "stencila:compilationDigest",
+      "@type": "rdfs:Property",
+      "rdfs:label": "compilationDigest",
       "rdfs:comment": "A digest of the `code` and `mathLanguage`.",
       "schema:domainIncludes": [
+        {
+          "@id": "stencila:Executable"
+        },
         {
           "@id": "stencila:Math"
         },
@@ -70,10 +73,10 @@
       }
     },
     {
-      "@id": "stencila:errors",
+      "@id": "stencila:compilationErrors",
       "@type": "rdfs:Property",
-      "rdfs:label": "errors",
-      "rdfs:comment": "Errors that occurred when parsing the math equation.",
+      "rdfs:label": "compilationErrors",
+      "rdfs:comment": "Errors that occurred when parsing and compiling the math equation.",
       "schema:domainIncludes": [
         {
           "@id": "stencila:Executable"

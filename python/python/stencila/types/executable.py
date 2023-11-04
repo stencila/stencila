@@ -3,12 +3,12 @@
 from .prelude import *
 
 from .automatic_execution import AutomaticExecution
-from .code_error import CodeError
 from .duration import Duration
 from .entity import Entity
 from .execution_dependant import ExecutionDependant
 from .execution_dependency import ExecutionDependency
 from .execution_digest import ExecutionDigest
+from .execution_error import ExecutionError
 from .execution_required import ExecutionRequired
 from .execution_status import ExecutionStatus
 from .execution_tag import ExecutionTag
@@ -29,8 +29,11 @@ class Executable(Entity):
     compilation_digest: Optional[ExecutionDigest] = None
     """A digest of the content, semantics and dependencies of the node."""
 
+    compilation_errors: Optional[List[str]] = None
+    """Errors when executing the node."""
+
     execution_digest: Optional[ExecutionDigest] = None
-    """The `compileDigest` of the node when it was last executed."""
+    """The `compilationDigest` of the node when it was last executed."""
 
     execution_dependencies: Optional[List[ExecutionDependency]] = None
     """The upstream dependencies of this node."""
@@ -59,13 +62,14 @@ class Executable(Entity):
     execution_duration: Optional[Duration] = None
     """Duration of the last execution."""
 
-    errors: Optional[List[CodeError]] = None
-    """Errors when compiling (e.g. syntax errors) or executing the node."""
+    execution_errors: Optional[List[ExecutionError]] = None
+    """Errors when executing the node."""
 
-    def __init__(self, id: Optional[str] = None, auto_exec: Optional[AutomaticExecution] = None, compilation_digest: Optional[ExecutionDigest] = None, execution_digest: Optional[ExecutionDigest] = None, execution_dependencies: Optional[List[ExecutionDependency]] = None, execution_dependants: Optional[List[ExecutionDependant]] = None, execution_tags: Optional[List[ExecutionTag]] = None, execution_count: Optional[int] = None, execution_required: Optional[ExecutionRequired] = None, execution_kernel: Optional[str] = None, execution_status: Optional[ExecutionStatus] = None, execution_ended: Optional[Timestamp] = None, execution_duration: Optional[Duration] = None, errors: Optional[List[CodeError]] = None):
+    def __init__(self, id: Optional[str] = None, auto_exec: Optional[AutomaticExecution] = None, compilation_digest: Optional[ExecutionDigest] = None, compilation_errors: Optional[List[str]] = None, execution_digest: Optional[ExecutionDigest] = None, execution_dependencies: Optional[List[ExecutionDependency]] = None, execution_dependants: Optional[List[ExecutionDependant]] = None, execution_tags: Optional[List[ExecutionTag]] = None, execution_count: Optional[int] = None, execution_required: Optional[ExecutionRequired] = None, execution_kernel: Optional[str] = None, execution_status: Optional[ExecutionStatus] = None, execution_ended: Optional[Timestamp] = None, execution_duration: Optional[Duration] = None, execution_errors: Optional[List[ExecutionError]] = None):
         super().__init__(id = id)
         self.auto_exec = auto_exec
         self.compilation_digest = compilation_digest
+        self.compilation_errors = compilation_errors
         self.execution_digest = execution_digest
         self.execution_dependencies = execution_dependencies
         self.execution_dependants = execution_dependants
@@ -76,4 +80,4 @@ class Executable(Entity):
         self.execution_status = execution_status
         self.execution_ended = execution_ended
         self.execution_duration = execution_duration
-        self.errors = errors
+        self.execution_errors = execution_errors

@@ -5,11 +5,11 @@ use crate::prelude::*;
 use super::automatic_execution::AutomaticExecution;
 use super::block::Block;
 use super::call_argument::CallArgument;
-use super::code_error::CodeError;
 use super::duration::Duration;
 use super::execution_dependant::ExecutionDependant;
 use super::execution_dependency::ExecutionDependency;
 use super::execution_digest::ExecutionDigest;
+use super::execution_error::ExecutionError;
 use super::execution_required::ExecutionRequired;
 use super::execution_status::ExecutionStatus;
 use super::execution_tag::ExecutionTag;
@@ -81,7 +81,13 @@ pub struct CallOptions {
     #[strip(execution)]
     pub compilation_digest: Option<ExecutionDigest>,
 
-    /// The `compileDigest` of the node when it was last executed.
+    /// Errors when executing the node.
+    #[serde(alias = "compilation-errors", alias = "compilation_errors", alias = "compilationError", alias = "compilation-error", alias = "compilation_error")]
+    #[serde(default, deserialize_with = "option_one_or_many")]
+    #[strip(execution)]
+    pub compilation_errors: Option<Vec<String>>,
+
+    /// The `compilationDigest` of the node when it was last executed.
     #[serde(alias = "execution-digest", alias = "execution_digest")]
     #[strip(execution)]
     pub execution_digest: Option<ExecutionDigest>,
@@ -134,11 +140,11 @@ pub struct CallOptions {
     #[strip(execution)]
     pub execution_duration: Option<Duration>,
 
-    /// Errors when compiling (e.g. syntax errors) or executing the node.
-    #[serde(alias = "error")]
+    /// Errors when executing the node.
+    #[serde(alias = "execution-errors", alias = "execution_errors", alias = "executionError", alias = "execution-error", alias = "execution_error")]
     #[serde(default, deserialize_with = "option_one_or_many")]
     #[strip(execution)]
-    pub errors: Option<Vec<CodeError>>,
+    pub execution_errors: Option<Vec<ExecutionError>>,
 }
 
 impl Call {

@@ -53,11 +53,14 @@
       }
     },
     {
-      "@id": "stencila:compileDigest",
+      "@id": "stencila:compilationDigest",
       "@type": "rdfs:Property",
-      "rdfs:label": "compileDigest",
+      "rdfs:label": "compilationDigest",
       "rdfs:comment": "A digest of the `code` and `styleLanguage`.",
       "schema:domainIncludes": [
+        {
+          "@id": "stencila:Executable"
+        },
         {
           "@id": "stencila:Math"
         },
@@ -70,9 +73,9 @@
       }
     },
     {
-      "@id": "stencila:errors",
+      "@id": "stencila:compilationErrors",
       "@type": "rdfs:Property",
-      "rdfs:label": "errors",
+      "rdfs:label": "compilationErrors",
       "rdfs:comment": "Errors that occurred when transpiling the `code`.",
       "schema:domainIncludes": [
         {

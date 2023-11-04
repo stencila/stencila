@@ -14,10 +14,9 @@ export class MathBlock extends Math {
    */
   label?: string;
 
-  constructor(mathLanguage: string, code: Cord, options?: Partial<MathBlock>) {
-    super(mathLanguage, code);
+  constructor(code: Cord, options?: Partial<MathBlock>) {
+    super(code);
     if (options) Object.assign(this, options);
-    this.mathLanguage = mathLanguage;
     this.code = code;
   }
 }
@@ -25,6 +24,6 @@ export class MathBlock extends Math {
 /**
 * Create a new `MathBlock`
 */
-export function mathBlock(mathLanguage: string, code: Cord, options?: Partial<MathBlock>): MathBlock {
-  return new MathBlock(mathLanguage, code, options);
+export function mathBlock(code: Cord, options?: Partial<MathBlock>): MathBlock {
+  return new MathBlock(code, options);
 }

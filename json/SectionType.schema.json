@@ -1,13 +1,14 @@
 {
   "$schema": "https://stencila.dev/meta.schema.json",
-  "$id": "https://stencila.dev/FormDeriveAction.schema.json",
-  "@id": "stencila:FormDeriveAction",
-  "title": "FormDeriveAction",
+  "$id": "https://stencila.dev/SectionType.schema.json",
+  "@id": "stencila:SectionType",
+  "title": "SectionType",
   "extends": [
     "Enumeration"
   ],
-  "category": "flow",
-  "description": "Indicates the action (create, update or delete) to derive for a `Form`.",
+  "category": "prose",
+  "description": "The type of a `Section`.",
+  "proptest": {},
   "required": [
     "type"
   ],
@@ -118,21 +119,40 @@
   },
   "anyOf": [
     {
-      "@id": "stencila:Create",
-      "const": "Create"
+      "@id": "stencila:Main",
+      "const": "Main"
     },
     {
-      "@id": "stencila:Update",
-      "const": "Update"
+      "@id": "stencila:Header",
+      "const": "Header"
     },
     {
-      "@id": "stencila:Delete",
-      "const": "Delete"
+      "@id": "stencila:Footer",
+      "const": "Footer"
     },
     {
-      "@id": "stencila:UpdateOrDelete",
-      "const": "UpdateOrDelete"
+      "@id": "stencila:Summary",
+      "const": "Summary"
+    },
+    {
+      "@id": "stencila:Introduction",
+      "const": "Introduction"
+    },
+    {
+      "@id": "stencila:Methods",
+      "const": "Methods"
+    },
+    {
+      "@id": "stencila:Results",
+      "const": "Results"
+    },
+    {
+      "@id": "stencila:Discussion",
+      "const": "Discussion"
+    },
+    {
+      "@id": "stencila:Conclusion",
+      "const": "Conclusion"
     }
-  ],
-  "default": "Create"
+  ]
 }

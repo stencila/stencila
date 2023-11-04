@@ -46,17 +46,17 @@ pub struct MathBlock {
     pub math_language: Option<String>,
 
     /// A digest of the `code` and `mathLanguage`.
-    #[serde(alias = "compile-digest", alias = "compile_digest")]
+    #[serde(alias = "compilation-digest", alias = "compilation_digest")]
     #[strip(execution)]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
-    pub compile_digest: Option<ExecutionDigest>,
+    pub compilation_digest: Option<ExecutionDigest>,
 
     /// Errors that occurred when parsing and compiling the math equation.
-    #[serde(alias = "compile-errors", alias = "compile_errors", alias = "compileError", alias = "compile-error", alias = "compile_error")]
+    #[serde(alias = "compilation-errors", alias = "compilation_errors", alias = "compilationError", alias = "compilation-error", alias = "compilation_error")]
     #[serde(default, deserialize_with = "option_one_or_many")]
     #[strip(execution)]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
-    pub compile_errors: Option<Vec<String>>,
+    pub compilation_errors: Option<Vec<String>>,
 
     /// The MathML transpiled from the `code`.
     #[strip(output)]

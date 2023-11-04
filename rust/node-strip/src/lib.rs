@@ -53,7 +53,7 @@ pub struct StripTargets {
 
     /// Types of nodes to strip
     ///
-    /// A list of node types to remove e.g. "CodeError"
+    /// A list of node types to remove e.g. "ExecutionError"
     pub types: Vec<String>,
 
     /// Properties of nodes to strip

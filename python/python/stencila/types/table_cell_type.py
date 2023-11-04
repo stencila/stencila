@@ -8,5 +8,5 @@ class TableCellType(StrEnum):
     Indicates whether the cell is a header or data.
     """
 
-    Data = "Data"
-    Header = "Header"
+    DataCell = "DataCell"
+    HeaderCell = "HeaderCell"

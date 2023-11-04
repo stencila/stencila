@@ -31,18 +31,46 @@
       "@type": "rdfs:Property",
       "rdfs:label": "compilationDigest",
       "rdfs:comment": "A digest of the content, semantics and dependencies of the node.",
-      "schema:domainIncludes": {
-        "@id": "stencila:Executable"
-      },
+      "schema:domainIncludes": [
+        {
+          "@id": "stencila:Executable"
+        },
+        {
+          "@id": "stencila:Math"
+        },
+        {
+          "@id": "stencila:Styled"
+        }
+      ],
       "schema:rangeIncludes": {
         "@id": "ExecutionDigest"
+      }
+    },
+    {
+      "@id": "stencila:executionErrors",
+      "@type": "rdfs:Property",
+      "rdfs:label": "compilationErrors",
+      "rdfs:comment": "Errors when executing the node.",
+      "schema:domainIncludes": [
+        {
+          "@id": "stencila:Executable"
+        },
+        {
+          "@id": "stencila:Math"
+        },
+        {
+          "@id": "stencila:Styled"
+        }
+      ],
+      "schema:rangeIncludes": {
+        "@id": "schema:Text"
       }
     },
     {
       "@id": "stencila:executionDigest",
       "@type": "rdfs:Property",
       "rdfs:label": "executionDigest",
-      "rdfs:comment": "The `compileDigest` of the node when it was last executed.",
+      "rdfs:comment": "The `compilationDigest` of the node when it was last executed.",
       "schema:domainIncludes": {
         "@id": "stencila:Executable"
       },
@@ -159,23 +187,15 @@
       }
     },
     {
-      "@id": "stencila:errors",
+      "@id": "stencila:executionErrors",
       "@type": "rdfs:Property",
-      "rdfs:label": "errors",
-      "rdfs:comment": "Errors when compiling (e.g. syntax errors) or executing the node.",
-      "schema:domainIncludes": [
-        {
-          "@id": "stencila:Executable"
-        },
-        {
-          "@id": "stencila:Math"
-        },
-        {
-          "@id": "stencila:Styled"
-        }
-      ],
+      "rdfs:label": "executionErrors",
+      "rdfs:comment": "Errors when executing the node.",
+      "schema:domainIncludes": {
+        "@id": "stencila:Executable"
+      },
       "schema:rangeIncludes": {
-        "@id": "stencila:CodeError"
+        "@id": "stencila:ExecutionError"
       }
     }
   ]

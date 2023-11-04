@@ -11,34 +11,33 @@ export class Math extends Entity {
   type = "Math";
 
   /**
-   * The language used for the equation e.g tex, mathml, asciimath.
-   */
-  mathLanguage: string;
-
-  /**
    * The code of the equation in the `mathLanguage`.
    */
   code: Cord;
 
   /**
-   * A digest of the `code` and `mathLanguage`.
+   * The language used for the equation e.g tex, mathml, asciimath.
    */
-  compileDigest?: ExecutionDigest;
+  mathLanguage?: string;
 
   /**
-   * Errors that occurred when parsing the math equation.
+   * A digest of the `code` and `mathLanguage`.
    */
-  errors?: string[];
+  compilationDigest?: ExecutionDigest;
+
+  /**
+   * Errors that occurred when parsing and compiling the math equation.
+   */
+  compilationErrors?: string[];
 
   /**
    * The MathML transpiled from the `code`.
    */
   mathml?: string;
 
-  constructor(mathLanguage: string, code: Cord, options?: Partial<Math>) {
+  constructor(code: Cord, options?: Partial<Math>) {
     super();
     if (options) Object.assign(this, options);
-    this.mathLanguage = mathLanguage;
     this.code = code;
   }
 }
@@ -46,6 +45,6 @@ export class Math extends Entity {
 /**
 * Create a new `Math`
 */
-export function math(mathLanguage: string, code: Cord, options?: Partial<Math>): Math {
-  return new Math(mathLanguage, code, options);
+export function math(code: Cord, options?: Partial<Math>): Math {
+  return new Math(code, options);
 }

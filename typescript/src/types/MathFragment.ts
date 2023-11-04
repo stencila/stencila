@@ -9,10 +9,9 @@ import { Math } from "./Math.js";
 export class MathFragment extends Math {
   type = "MathFragment";
 
-  constructor(mathLanguage: string, code: Cord, options?: Partial<MathFragment>) {
-    super(mathLanguage, code);
+  constructor(code: Cord, options?: Partial<MathFragment>) {
+    super(code);
     if (options) Object.assign(this, options);
-    this.mathLanguage = mathLanguage;
     this.code = code;
   }
 }
@@ -20,6 +19,6 @@ export class MathFragment extends Math {
 /**
 * Create a new `MathFragment`
 */
-export function mathFragment(mathLanguage: string, code: Cord, options?: Partial<MathFragment>): MathFragment {
-  return new MathFragment(mathLanguage, code, options);
+export function mathFragment(code: Cord, options?: Partial<MathFragment>): MathFragment {
+  return new MathFragment(code, options);
 }

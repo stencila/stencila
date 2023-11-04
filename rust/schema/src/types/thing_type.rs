@@ -42,6 +42,7 @@ use super::property_value::PropertyValue;
 use super::publication_issue::PublicationIssue;
 use super::publication_volume::PublicationVolume;
 use super::review::Review;
+use super::section_type::SectionType;
 use super::software_application::SoftwareApplication;
 use super::software_source_code::SoftwareSourceCode;
 use super::table::Table;
@@ -133,6 +134,8 @@ pub enum ThingType {
     PublicationVolume(PublicationVolume),
 
     Review(Review),
+
+    SectionType(SectionType),
 
     SoftwareApplication(SoftwareApplication),
 

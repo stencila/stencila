@@ -17,7 +17,6 @@ use super::cite_group::CiteGroup;
 use super::claim::Claim;
 use super::code_block::CodeBlock;
 use super::code_chunk::CodeChunk;
-use super::code_error::CodeError;
 use super::code_expression::CodeExpression;
 use super::code_fragment::CodeFragment;
 use super::collection::Collection;
@@ -44,6 +43,7 @@ use super::enumeration::Enumeration;
 use super::execution_dependant::ExecutionDependant;
 use super::execution_dependency::ExecutionDependency;
 use super::execution_digest::ExecutionDigest;
+use super::execution_error::ExecutionError;
 use super::execution_tag::ExecutionTag;
 use super::figure::Figure;
 use super::file::File;
@@ -157,8 +157,6 @@ pub enum Node {
 
     CodeChunk(CodeChunk),
 
-    CodeError(CodeError),
-
     CodeExpression(CodeExpression),
 
     CodeFragment(CodeFragment),
@@ -208,6 +206,8 @@ pub enum Node {
     ExecutionDependency(ExecutionDependency),
 
     ExecutionDigest(ExecutionDigest),
+
+    ExecutionError(ExecutionError),
 
     ExecutionTag(ExecutionTag),
 

@@ -39,6 +39,7 @@ import { type PropertyValue } from "./PropertyValue.js";
 import { type PublicationIssue } from "./PublicationIssue.js";
 import { type PublicationVolume } from "./PublicationVolume.js";
 import { type Review } from "./Review.js";
+import { type SectionType } from "./SectionType.js";
 import { type SoftwareApplication } from "./SoftwareApplication.js";
 import { type SoftwareSourceCode } from "./SoftwareSourceCode.js";
 import { type Table } from "./Table.js";
@@ -91,6 +92,7 @@ export type ThingType =
   PublicationIssue |
   PublicationVolume |
   Review |
+  SectionType |
   SoftwareApplication |
   SoftwareSourceCode |
   Table |

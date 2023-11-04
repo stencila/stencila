@@ -4,16 +4,16 @@ use crate::prelude::*;
 
 use super::string::String;
 
-/// An error that occurred when parsing, compiling or executing a `Code` node.
+/// An error that occurred when executing an `Executable` node.
 #[skip_serializing_none]
 #[serde_as]
 #[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec, WriteNode, ReadNode)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 #[derive(derive_more::Display)]
-#[display(fmt = "CodeError")]
-pub struct CodeError {
+#[display(fmt = "ExecutionError")]
+pub struct ExecutionError {
     /// The type of this item.
-    pub r#type: MustBe!("CodeError"),
+    pub r#type: MustBe!("ExecutionError"),
 
     /// The identifier for this item.
     #[strip(metadata)]
@@ -33,7 +33,7 @@ pub struct CodeError {
     pub stack_trace: Option<String>,
 }
 
-impl CodeError {
+impl ExecutionError {
     pub fn new(error_message: String) -> Self {
         Self {
             error_message,

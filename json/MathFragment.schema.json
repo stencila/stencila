@@ -22,13 +22,13 @@
   },
   "required": [
     "type",
-    "mathLanguage",
     "code"
   ],
   "core": [
     "id",
-    "compileDigest",
-    "errors",
+    "mathLanguage",
+    "compilationDigest",
+    "compilationErrors",
     "mathml"
   ],
   "properties": {
@@ -50,36 +50,12 @@
       },
       "type": "string"
     },
-    "mathLanguage": {
-      "@id": "stencila:mathLanguage",
-      "description": "The language used for the equation e.g tex, mathml, asciimath.",
-      "aliases": [
-        "math-language",
-        "math_language"
-      ],
-      "proptest": {
-        "min": {
-          "description": "Generate a fixed string.",
-          "value": "String::from(\"lang\")"
-        },
-        "low": {
-          "description": "Generate one of the math language names.",
-          "regex": "(asciimath)|(mathml)|(tex)"
-        },
-        "high": {
-          "description": "Generate a random string of up to 10 alphanumeric characters.",
-          "regex": "[a-zA-Z0-9]{1,10}"
-        },
-        "max": {
-          "description": "Generate an arbitrary string.",
-          "strategy": "String::arbitrary()"
-        }
-      },
-      "type": "string"
-    },
     "code": {
       "@id": "stencila:code",
       "description": "The code of the equation in the `mathLanguage`.",
+      "strip": [
+        "code"
+      ],
       "proptest": {
         "min": {
           "description": "Generate a simple fixed string of math.",
@@ -100,22 +76,62 @@
       },
       "$ref": "Cord.schema.json"
     },
-    "compileDigest": {
-      "@id": "stencila:compileDigest",
+    "mathLanguage": {
+      "@id": "stencila:mathLanguage",
+      "description": "The language used for the equation e.g tex, mathml, asciimath.",
+      "$comment": "Where necessary, the language is assumed to be TeX.",
+      "aliases": [
+        "math-language",
+        "math_language"
+      ],
+      "strip": [
+        "code"
+      ],
+      "proptest": {
+        "min": {
+          "description": "No language.",
+          "value": "None"
+        },
+        "low": {
+          "description": "Generate one of the math language names.",
+          "strategy": "option::of(r\"(asciimath)|(mathml)|(tex)\")"
+        },
+        "high": {
+          "description": "Generate a random string of up to 10 alphanumeric characters.",
+          "strategy": "option::of(r\"[a-zA-Z0-9]{1,10}\")"
+        },
+        "max": {
+          "description": "Generate an arbitrary string.",
+          "strategy": "option::of(String::arbitrary())"
+        }
+      },
+      "type": "string"
+    },
+    "compilationDigest": {
+      "@id": "stencila:compilationDigest",
       "description": "A digest of the `code` and `mathLanguage`.",
       "$comment": "Used to avoid unnecessary transpilation to MathML.",
       "aliases": [
-        "compile-digest",
-        "compile_digest"
+        "compilation-digest",
+        "compilation_digest"
+      ],
+      "strip": [
+        "execution"
       ],
       "$ref": "ExecutionDigest.schema.json"
     },
-    "errors": {
-      "@id": "stencila:errors",
-      "description": "Errors that occurred when parsing the math equation.",
-      "$comment": "This property is an array of strings. Compare this to `CodeChunk.errors`\nwhich is an array of `CodeError` nodes. Strings are considered to\nbe sufficient for math parsing errors which usually won't have stack traces,\nline numbers etc.\n",
+    "compilationErrors": {
+      "@id": "stencila:compilationErrors",
+      "description": "Errors that occurred when parsing and compiling the math equation.",
       "aliases": [
-        "error"
+        "compilation-errors",
+        "compilation_errors",
+        "compilationError",
+        "compilation-error",
+        "compilation_error"
+      ],
+      "strip": [
+        "execution"
       ],
       "type": "array",
       "items": {
@@ -125,7 +141,10 @@
     "mathml": {
       "@id": "stencila:mathml",
       "description": "The MathML transpiled from the `code`.",
-      "$comment": "Used along with `compileDigest` to avoid unnecessary transpilation to MathML.",
+      "$comment": "Used along with `compilationDigest` to avoid unnecessary transpilation to MathML.",
+      "strip": [
+        "output"
+      ],
       "html": {
         "content": true
       },

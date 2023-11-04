@@ -1,14 +1,14 @@
-# Code Error
+# Execution Error
 
-**An error that occurred when parsing, compiling or executing a `Code` node.**
+**An error that occurred when executing an `Executable` node.**
 
-**`@id`**: `stencila:CodeError`
+**`@id`**: `stencila:ExecutionError`
 
 This type is marked as unstable and is subject to change.
 
 ## Properties
 
-The `CodeError` type has these properties:
+The `ExecutionError` type has these properties:
 
 | Name           | Aliases                                     | `@id`                                | Type                                                                                            | Description                                                | Inherited from                                                                                   |
 | -------------- | ------------------------------------------- | ------------------------------------ | ----------------------------------------------------------------------------------------------- | ---------------------------------------------------------- | ------------------------------------------------------------------------------------------------ |
@@ -19,14 +19,14 @@ The `CodeError` type has these properties:
 
 ## Related
 
-The `CodeError` type is related to these types:
+The `ExecutionError` type is related to these types:
 
 - Parents: [`Entity`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/entity.md)
 - Children: none
 
 ## Formats
 
-The `CodeError` type can be encoded (serialized) to, and/or decoded (deserialized) from, these formats:
+The `ExecutionError` type can be encoded (serialized) to, and/or decoded (deserialized) from, these formats:
 
 | Format                                                                                        | Encoding         | Decoding     | Status                 | Notes |
 | --------------------------------------------------------------------------------------------- | ---------------- | ------------ | ---------------------- | ----- |
@@ -41,14 +41,14 @@ The `CodeError` type can be encoded (serialized) to, and/or decoded (deserialize
 
 ## Bindings
 
-The `CodeError` type is represented in these bindings:
+The `ExecutionError` type is represented in these bindings:
 
-- [JSON-LD](https://stencila.dev/CodeError.jsonld)
-- [JSON Schema](https://stencila.dev/CodeError.schema.json)
-- Python class [`CodeError`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/code_error.py)
-- Rust struct [`CodeError`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/code_error.rs)
-- TypeScript class [`CodeError`](https://github.com/stencila/stencila/blob/main/typescript/src/types/CodeError.ts)
+- [JSON-LD](https://stencila.dev/ExecutionError.jsonld)
+- [JSON Schema](https://stencila.dev/ExecutionError.schema.json)
+- Python class [`ExecutionError`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/execution_error.py)
+- Rust struct [`ExecutionError`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/execution_error.rs)
+- TypeScript class [`ExecutionError`](https://github.com/stencila/stencila/blob/main/typescript/src/types/ExecutionError.ts)
 
 ## Source
 
-This documentation was generated from [`CodeError.yaml`](https://github.com/stencila/stencila/blob/main/schema/CodeError.yaml) by [`docs.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs.rs).
+This documentation was generated from [`ExecutionError.yaml`](https://github.com/stencila/stencila/blob/main/schema/ExecutionError.yaml) by [`docs.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs.rs).

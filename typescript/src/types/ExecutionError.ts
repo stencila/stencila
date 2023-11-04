@@ -3,10 +3,10 @@
 import { Entity } from "./Entity.js";
 
 /**
- * An error that occurred when parsing, compiling or executing a `Code` node.
+ * An error that occurred when executing an `Executable` node.
  */
-export class CodeError extends Entity {
-  type = "CodeError";
+export class ExecutionError extends Entity {
+  type = "ExecutionError";
 
   /**
    * The error message or brief description of the error.
@@ -23,7 +23,7 @@ export class CodeError extends Entity {
    */
   stackTrace?: string;
 
-  constructor(errorMessage: string, options?: Partial<CodeError>) {
+  constructor(errorMessage: string, options?: Partial<ExecutionError>) {
     super();
     if (options) Object.assign(this, options);
     this.errorMessage = errorMessage;
@@ -31,8 +31,8 @@ export class CodeError extends Entity {
 }
 
 /**
-* Create a new `CodeError`
+* Create a new `ExecutionError`
 */
-export function codeError(errorMessage: string, options?: Partial<CodeError>): CodeError {
-  return new CodeError(errorMessage, options);
+export function executionError(errorMessage: string, options?: Partial<ExecutionError>): ExecutionError {
+  return new ExecutionError(errorMessage, options);
 }

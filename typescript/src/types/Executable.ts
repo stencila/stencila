@@ -1,12 +1,12 @@
 // Generated file; do not edit. See `../rust/schema-gen` crate.
 
 import { AutomaticExecution } from "./AutomaticExecution.js";
-import { CodeError } from "./CodeError.js";
 import { Duration } from "./Duration.js";
 import { Entity } from "./Entity.js";
 import { ExecutionDependant } from "./ExecutionDependant.js";
 import { ExecutionDependency } from "./ExecutionDependency.js";
 import { ExecutionDigest } from "./ExecutionDigest.js";
+import { ExecutionError } from "./ExecutionError.js";
 import { ExecutionRequired } from "./ExecutionRequired.js";
 import { ExecutionStatus } from "./ExecutionStatus.js";
 import { ExecutionTag } from "./ExecutionTag.js";
@@ -30,7 +30,12 @@ export class Executable extends Entity {
   compilationDigest?: ExecutionDigest;
 
   /**
-   * The `compileDigest` of the node when it was last executed.
+   * Errors when executing the node.
+   */
+  compilationErrors?: string[];
+
+  /**
+   * The `compilationDigest` of the node when it was last executed.
    */
   executionDigest?: ExecutionDigest;
 
@@ -80,9 +85,9 @@ export class Executable extends Entity {
   executionDuration?: Duration;
 
   /**
-   * Errors when compiling (e.g. syntax errors) or executing the node.
+   * Errors when executing the node.
    */
-  errors?: CodeError[];
+  executionErrors?: ExecutionError[];
 
   constructor(options?: Partial<Executable>) {
     super();

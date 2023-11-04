@@ -3,8 +3,9 @@
 use crate::prelude::*;
 
 /// The type or nature of a citation, both factually and rhetorically.
-#[derive(Debug, strum::Display, Clone, PartialEq, Serialize, Deserialize, StripNode, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec, WriteNode, ReadNode)]
+#[derive(Debug, strum::Display, Clone, PartialEq, Serialize, Deserialize, StripNode, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec, WriteNode, strum::EnumString, ReadNode)]
 #[serde(crate = "common::serde")]
+#[strum(ascii_case_insensitive, crate = "common::strum")]
 pub enum CitationIntent {
     AgreesWith,
 

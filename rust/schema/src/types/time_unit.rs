@@ -3,8 +3,9 @@
 use crate::prelude::*;
 
 /// A unit in which time can be measured.
-#[derive(Debug, strum::Display, Clone, PartialEq, Serialize, Deserialize, StripNode, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec, WriteNode, SmartDefault, ReadNode)]
+#[derive(Debug, strum::Display, Clone, PartialEq, Serialize, Deserialize, StripNode, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec, WriteNode, SmartDefault, strum::EnumString, ReadNode)]
 #[serde(crate = "common::serde")]
+#[strum(ascii_case_insensitive, crate = "common::strum")]
 #[cfg_attr(feature = "proptest", derive(Arbitrary))]
 pub enum TimeUnit {
     Year,

@@ -21,10 +21,10 @@ class Styled(Entity):
     style_language: Optional[str] = None
     """The language used for the style specification e.g. css, tw"""
 
-    compile_digest: Optional[ExecutionDigest] = None
+    compilation_digest: Optional[ExecutionDigest] = None
     """A digest of the `code` and `styleLanguage`."""
 
-    errors: Optional[List[str]] = None
+    compilation_errors: Optional[List[str]] = None
     """Errors that occurred when transpiling the `code`."""
 
     css: Optional[str] = None
@@ -33,11 +33,11 @@ class Styled(Entity):
     classes: Optional[List[str]] = None
     """A list of class names associated with the node."""
 
-    def __init__(self, code: Cord, id: Optional[str] = None, style_language: Optional[str] = None, compile_digest: Optional[ExecutionDigest] = None, errors: Optional[List[str]] = None, css: Optional[str] = None, classes: Optional[List[str]] = None):
+    def __init__(self, code: Cord, id: Optional[str] = None, style_language: Optional[str] = None, compilation_digest: Optional[ExecutionDigest] = None, compilation_errors: Optional[List[str]] = None, css: Optional[str] = None, classes: Optional[List[str]] = None):
         super().__init__(id = id)
         self.code = code
         self.style_language = style_language
-        self.compile_digest = compile_digest
-        self.errors = errors
+        self.compilation_digest = compilation_digest
+        self.compilation_errors = compilation_errors
         self.css = css
         self.classes = classes

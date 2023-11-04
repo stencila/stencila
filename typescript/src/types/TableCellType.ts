@@ -3,7 +3,7 @@
  * Indicates whether the cell is a header or data.
  */
 export type TableCellType =
-  'Data' |
-  'Header';
+  'DataCell' |
+  'HeaderCell';
 
 

@@ -119,15 +119,15 @@
   },
   "anyOf": [
     {
-      "@id": "schema:ItemListOrderAscending",
+      "@id": "schema:Ascending",
       "const": "Ascending"
     },
     {
-      "@id": "schema:ItemListOrderDescending",
+      "@id": "schema:Descending",
       "const": "Descending"
     },
     {
-      "@id": "schema:ItemListOrderUnordered",
+      "@id": "schema:Unordered",
       "const": "Unordered"
     }
   ],

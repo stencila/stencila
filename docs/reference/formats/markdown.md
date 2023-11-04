@@ -172,9 +172,9 @@ Support and degree of loss for node types:
 | **Code**                                                                                                                  |
 | [CodeBlock](https://github.com/stencila/stencila/blob/main/docs/reference/schema/code/code_block.md)                      | 🟢 No loss        | 🟢 No loss     | Encoded using special function     |
 | [CodeChunk](https://github.com/stencila/stencila/blob/main/docs/reference/schema/code/code_chunk.md)                      | 🔷 Low loss       | 🔷 Low loss    | Encoded using special function     |
-| [CodeError](https://github.com/stencila/stencila/blob/main/docs/reference/schema/code/code_error.md)                      | ⚠️ High loss     |               |                                    |
 | [CodeExpression](https://github.com/stencila/stencila/blob/main/docs/reference/schema/code/code_expression.md)            | 🔷 Low loss       | 🔷 Low loss    | Encoded using special function     |
 | [CodeFragment](https://github.com/stencila/stencila/blob/main/docs/reference/schema/code/code_fragment.md)                | 🟢 No loss        | 🟢 No loss     | Encoded using special function     |
+| [ExecutionError](https://github.com/stencila/stencila/blob/main/docs/reference/schema/code/execution_error.md)            | ⚠️ High loss     |               |                                    |
 | **Data**                                                                                                                  |
 | [Array](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/array.md)                               | ⚠️ High loss     |               |                                    |
 | [ArrayValidator](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/array_validator.md)            | ⚠️ High loss     |               |                                    |

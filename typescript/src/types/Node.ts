@@ -16,7 +16,6 @@ import { type CiteGroup } from "./CiteGroup.js";
 import { type Claim } from "./Claim.js";
 import { type CodeBlock } from "./CodeBlock.js";
 import { type CodeChunk } from "./CodeChunk.js";
-import { type CodeError } from "./CodeError.js";
 import { type CodeExpression } from "./CodeExpression.js";
 import { type CodeFragment } from "./CodeFragment.js";
 import { type Collection } from "./Collection.js";
@@ -43,6 +42,7 @@ import { type Enumeration } from "./Enumeration.js";
 import { type ExecutionDependant } from "./ExecutionDependant.js";
 import { type ExecutionDependency } from "./ExecutionDependency.js";
 import { type ExecutionDigest } from "./ExecutionDigest.js";
+import { type ExecutionError } from "./ExecutionError.js";
 import { type ExecutionTag } from "./ExecutionTag.js";
 import { type Figure } from "./Figure.js";
 import { type File } from "./File.js";
@@ -131,7 +131,6 @@ export type Node =
   Claim |
   CodeBlock |
   CodeChunk |
-  CodeError |
   CodeExpression |
   CodeFragment |
   Collection |
@@ -157,6 +156,7 @@ export type Node =
   ExecutionDependant |
   ExecutionDependency |
   ExecutionDigest |
+  ExecutionError |
   ExecutionTag |
   Figure |
   File |
@@ -239,7 +239,6 @@ export function node(other: Node): Node {
     case "Claim":
     case "CodeBlock":
     case "CodeChunk":
-    case "CodeError":
     case "CodeExpression":
     case "CodeFragment":
     case "Collection":
@@ -265,6 +264,7 @@ export function node(other: Node): Node {
     case "ExecutionDependant":
     case "ExecutionDependency":
     case "ExecutionDigest":
+    case "ExecutionError":
     case "ExecutionTag":
     case "Figure":
     case "File":

@@ -18,7 +18,7 @@
       "@id": "stencila:content",
       "@type": "rdfs:Property",
       "rdfs:label": "content",
-      "rdfs:comment": "The content within the section",
+      "rdfs:comment": "The content within the section.",
       "schema:domainIncludes": [
         {
           "@id": "schema:Article"
@@ -86,6 +86,18 @@
       ],
       "schema:rangeIncludes": {
         "@id": "stencila:Block"
+      }
+    },
+    {
+      "@id": "stencila:sectionType",
+      "@type": "rdfs:Property",
+      "rdfs:label": "sectionType",
+      "rdfs:comment": "The type of section.",
+      "schema:domainIncludes": {
+        "@id": "stencila:Section"
+      },
+      "schema:rangeIncludes": {
+        "@id": "SectionType"
       }
     }
   ]

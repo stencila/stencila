@@ -119,17 +119,17 @@
   },
   "anyOf": [
     {
-      "@id": "stencila:TableRowTypeHeader",
-      "const": "Header"
+      "@id": "stencila:HeaderRow",
+      "const": "HeaderRow"
     },
     {
-      "@id": "stencila:TableRowTypeBody",
-      "const": "Body"
+      "@id": "stencila:BodyRow",
+      "const": "BodyRow"
     },
     {
-      "@id": "stencila:TableRowTypeFooter",
-      "const": "Footer"
+      "@id": "stencila:FooterRow",
+      "const": "FooterRow"
     }
   ],
-  "default": "Body"
+  "default": "BodyRow"
 }

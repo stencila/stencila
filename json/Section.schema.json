@@ -10,7 +10,8 @@
   "description": "A section of a document.",
   "proptest": {},
   "html": {
-    "elem": "section"
+    "elem": "section",
+    "special": true
   },
   "jats": {
     "elem": "sec"
@@ -24,7 +25,8 @@
     "content"
   ],
   "core": [
-    "id"
+    "id",
+    "sectionType"
   ],
   "properties": {
     "type": {
@@ -47,7 +49,7 @@
     },
     "content": {
       "@id": "stencila:content",
-      "description": "The content within the section",
+      "description": "The content within the section.",
       "proptest": {
         "min": {
           "description": "An empty vector",
@@ -70,6 +72,28 @@
       "items": {
         "$ref": "Block.schema.json"
       }
+    },
+    "sectionType": {
+      "@id": "stencila:sectionType",
+      "description": "The type of section.",
+      "aliases": [
+        "section-type",
+        "section_type"
+      ],
+      "proptest": {
+        "min": {
+          "description": "No type.",
+          "value": "None"
+        },
+        "low": {
+          "description": "Generate an arbitrary section type.",
+          "strategy": "option::of(SectionType::arbitrary())"
+        }
+      },
+      "jats": {
+        "attr": "specific-use"
+      },
+      "$ref": "SectionType.schema.json"
     }
   }
 }

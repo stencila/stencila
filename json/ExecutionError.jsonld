@@ -6,10 +6,10 @@
   },
   "@graph": [
     {
-      "@id": "stencila:CodeError",
+      "@id": "stencila:ExecutionError",
       "@type": "rdfs:Class",
-      "rdfs:label": "CodeError",
-      "rdfs:comment": "An error that occurred when parsing, compiling or executing a `Code` node.",
+      "rdfs:label": "ExecutionError",
+      "rdfs:comment": "An error that occurred when executing an `Executable` node.",
       "rdfs:subClassOf": {
         "@id": "Entity"
       }
@@ -20,7 +20,7 @@
       "rdfs:label": "errorMessage",
       "rdfs:comment": "The error message or brief description of the error.",
       "schema:domainIncludes": {
-        "@id": "stencila:CodeError"
+        "@id": "stencila:ExecutionError"
       },
       "schema:rangeIncludes": {
         "@id": "schema:Text"
@@ -32,7 +32,7 @@
       "rdfs:label": "errorType",
       "rdfs:comment": "The type of error e.g. \"SyntaxError\", \"ZeroDivisionError\".",
       "schema:domainIncludes": {
-        "@id": "stencila:CodeError"
+        "@id": "stencila:ExecutionError"
       },
       "schema:rangeIncludes": {
         "@id": "schema:Text"
@@ -44,7 +44,7 @@
       "rdfs:label": "stackTrace",
       "rdfs:comment": "Stack trace leading up to the error.",
       "schema:domainIncludes": {
-        "@id": "stencila:CodeError"
+        "@id": "stencila:ExecutionError"
       },
       "schema:rangeIncludes": {
         "@id": "schema:Text"

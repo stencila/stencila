@@ -19,7 +19,7 @@ impl MathFragment {
 
         let jats = elem("inline-formula", attrs, mathml);
 
-        let losses = lost_options!(self, id, compile_digest, compile_errors);
+        let losses = lost_options!(self, id, compilation_digest, compilation_errors);
 
         (jats, losses)
     }
@@ -37,7 +37,7 @@ impl MathFragment {
             ["`", &self.code.replace('`', r"\`"), "`{", &lang, "}"].concat()
         };
 
-        let losses = lost_options!(self, id, compile_digest, compile_errors, mathml);
+        let losses = lost_options!(self, id, compilation_digest, compilation_errors, mathml);
 
         (md, losses)
     }

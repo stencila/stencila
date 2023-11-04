@@ -2,6 +2,7 @@
 
 import { Block } from "./Block.js";
 import { Entity } from "./Entity.js";
+import { SectionType } from "./SectionType.js";
 
 /**
  * A section of a document.
@@ -10,9 +11,14 @@ export class Section extends Entity {
   type = "Section";
 
   /**
-   * The content within the section
+   * The content within the section.
    */
   content: Block[];
+
+  /**
+   * The type of section.
+   */
+  sectionType?: SectionType;
 
   constructor(content: Block[], options?: Partial<Section>) {
     super();

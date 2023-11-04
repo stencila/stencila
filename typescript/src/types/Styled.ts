@@ -23,12 +23,12 @@ export class Styled extends Entity {
   /**
    * A digest of the `code` and `styleLanguage`.
    */
-  compileDigest?: ExecutionDigest;
+  compilationDigest?: ExecutionDigest;
 
   /**
    * Errors that occurred when transpiling the `code`.
    */
-  errors?: string[];
+  compilationErrors?: string[];
 
   /**
    * A Cascading Style Sheet (CSS) transpiled from the `code` property.

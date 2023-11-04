@@ -46,6 +46,7 @@ The `ThingType` type has these members:
 - [`PublicationIssue`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/publication-issue.md)
 - [`PublicationVolume`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/publication-volume.md)
 - [`Review`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/review.md)
+- [`SectionType`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/section-type.md)
 - [`SoftwareApplication`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/software-application.md)
 - [`SoftwareSourceCode`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/software-source-code.md)
 - [`Table`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/table.md)

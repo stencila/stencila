@@ -66,9 +66,6 @@
       "$ref": "CodeChunk.schema.json"
     },
     {
-      "$ref": "CodeError.schema.json"
-    },
-    {
       "$ref": "CodeExpression.schema.json"
     },
     {
@@ -142,6 +139,9 @@
     },
     {
       "$ref": "ExecutionDigest.schema.json"
+    },
+    {
+      "$ref": "ExecutionError.schema.json"
     },
     {
       "$ref": "ExecutionTag.schema.json"

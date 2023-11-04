@@ -4,6 +4,7 @@ from .prelude import *
 
 from .block import Block
 from .entity import Entity
+from .section_type import SectionType
 
 
 @dataclass(init=False)
@@ -15,8 +16,12 @@ class Section(Entity):
     type: Literal["Section"] = field(default="Section", init=False)
 
     content: List[Block]
-    """The content within the section"""
+    """The content within the section."""
 
-    def __init__(self, content: List[Block], id: Optional[str] = None):
+    section_type: Optional[SectionType] = None
+    """The type of section."""
+
+    def __init__(self, content: List[Block], id: Optional[str] = None, section_type: Optional[SectionType] = None):
         super().__init__(id = id)
         self.content = content
+        self.section_type = section_type

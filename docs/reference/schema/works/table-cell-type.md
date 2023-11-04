@@ -12,8 +12,8 @@ When `Data`, the cell is similar to the HTML [`<td>` element](https://developer.
 
 The `TableCellType` type has these members:
 
-- `Data`
-- `Header`
+- `DataCell`
+- `HeaderCell`
 
 ## Bindings
 

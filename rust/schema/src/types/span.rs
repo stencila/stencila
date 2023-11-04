@@ -47,15 +47,15 @@ pub struct Span {
     pub style_language: Option<String>,
 
     /// A digest of the `code` and `styleLanguage`.
-    #[serde(alias = "compile-digest", alias = "compile_digest")]
+    #[serde(alias = "compilation-digest", alias = "compilation_digest")]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
-    pub compile_digest: Option<ExecutionDigest>,
+    pub compilation_digest: Option<ExecutionDigest>,
 
     /// Errors that occurred when transpiling the `code`.
-    #[serde(alias = "error")]
+    #[serde(alias = "compilation-errors", alias = "compilation_errors", alias = "compilationError", alias = "compilation-error", alias = "compilation_error")]
     #[serde(default, deserialize_with = "option_one_or_many")]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
-    pub errors: Option<Vec<String>>,
+    pub compilation_errors: Option<Vec<String>>,
 
     /// A Cascading Style Sheet (CSS) transpiled from the `code` property.
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]

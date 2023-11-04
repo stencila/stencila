@@ -2,22 +2,27 @@
 
 use crate::prelude::*;
 
-/// Status of the most recent, including any current, execution of a document node.
+/// The type of a `Section`.
 #[derive(Debug, strum::Display, Clone, PartialEq, Serialize, Deserialize, StripNode, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec, WriteNode, strum::EnumString, ReadNode)]
 #[serde(crate = "common::serde")]
 #[strum(ascii_case_insensitive, crate = "common::strum")]
-pub enum ExecutionStatus {
-    Scheduled,
+#[cfg_attr(feature = "proptest", derive(Arbitrary))]
+pub enum SectionType {
+    Main,
 
-    ScheduledPreviouslyFailed,
+    Header,
 
-    Running,
+    Footer,
 
-    RunningPreviouslyFailed,
+    Summary,
 
-    Succeeded,
+    Introduction,
 
-    Failed,
+    Methods,
 
-    Cancelled,
+    Results,
+
+    Discussion,
+
+    Conclusion,
 }

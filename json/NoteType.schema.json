@@ -119,15 +119,15 @@
   },
   "anyOf": [
     {
-      "@id": "stencila:NoteTypeFootnote",
+      "@id": "stencila:Footnote",
       "const": "Footnote"
     },
     {
-      "@id": "stencila:NoteTypeEndnote",
+      "@id": "stencila:Endnote",
       "const": "Endnote"
     },
     {
-      "@id": "stencila:NoteTypeSidenote",
+      "@id": "stencila:Sidenote",
       "const": "Sidenote"
     }
   ],

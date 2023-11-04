@@ -123,6 +123,9 @@
       "$ref": "Review.schema.json"
     },
     {
+      "$ref": "SectionType.schema.json"
+    },
+    {
       "$ref": "SoftwareApplication.schema.json"
     },
     {

@@ -22,7 +22,6 @@ mod claim;
 mod claim_type;
 mod code_block;
 mod code_chunk;
-mod code_error;
 mod code_expression;
 mod code_fragment;
 mod collection;
@@ -56,6 +55,7 @@ mod execution_dependency;
 mod execution_dependency_node;
 mod execution_dependency_relation;
 mod execution_digest;
+mod execution_error;
 mod execution_required;
 mod execution_status;
 mod execution_tag;
@@ -166,7 +166,6 @@ pub use claim::*;
 pub use claim_type::*;
 pub use code_block::*;
 pub use code_chunk::*;
-pub use code_error::*;
 pub use code_expression::*;
 pub use code_fragment::*;
 pub use collection::*;
@@ -200,6 +199,7 @@ pub use execution_dependency::*;
 pub use execution_dependency_node::*;
 pub use execution_dependency_relation::*;
 pub use execution_digest::*;
+pub use execution_error::*;
 pub use execution_required::*;
 pub use execution_status::*;
 pub use execution_tag::*;
@@ -313,7 +313,6 @@ pub enum NodeType {
     Claim,
     CodeBlock,
     CodeChunk,
-    CodeError,
     CodeExpression,
     CodeFragment,
     Collection,
@@ -339,6 +338,7 @@ pub enum NodeType {
     ExecutionDependant,
     ExecutionDependency,
     ExecutionDigest,
+    ExecutionError,
     ExecutionTag,
     Figure,
     File,

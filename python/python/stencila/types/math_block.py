@@ -18,6 +18,6 @@ class MathBlock(Math):
     label: Optional[str] = None
     """A short label for the math block."""
 
-    def __init__(self, math_language: str, code: Cord, id: Optional[str] = None, compile_digest: Optional[ExecutionDigest] = None, errors: Optional[List[str]] = None, mathml: Optional[str] = None, label: Optional[str] = None):
-        super().__init__(id = id, math_language = math_language, code = code, compile_digest = compile_digest, errors = errors, mathml = mathml)
+    def __init__(self, code: Cord, id: Optional[str] = None, math_language: Optional[str] = None, compilation_digest: Optional[ExecutionDigest] = None, compilation_errors: Optional[List[str]] = None, mathml: Optional[str] = None, label: Optional[str] = None):
+        super().__init__(id = id, code = code, math_language = math_language, compilation_digest = compilation_digest, compilation_errors = compilation_errors, mathml = mathml)
         self.label = label

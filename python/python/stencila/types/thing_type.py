@@ -42,6 +42,7 @@ PropertyValue = ForwardRef("PropertyValue")
 PublicationIssue = ForwardRef("PublicationIssue")
 PublicationVolume = ForwardRef("PublicationVolume")
 Review = ForwardRef("Review")
+SectionType = ForwardRef("SectionType")
 SoftwareApplication = ForwardRef("SoftwareApplication")
 SoftwareSourceCode = ForwardRef("SoftwareSourceCode")
 Table = ForwardRef("Table")
@@ -92,6 +93,7 @@ ThingType = Union[
     PublicationIssue,
     PublicationVolume,
     Review,
+    SectionType,
     SoftwareApplication,
     SoftwareSourceCode,
     Table,

@@ -119,15 +119,15 @@
   },
   "anyOf": [
     {
-      "@id": "stencila:CitationModeParenthetical",
+      "@id": "stencila:Parenthetical",
       "const": "Parenthetical"
     },
     {
-      "@id": "stencila:CitationModeNarrative",
+      "@id": "stencila:Narrative",
       "const": "Narrative"
     },
     {
-      "@id": "stencila:CitationModeNarrativeAuthor",
+      "@id": "stencila:NarrativeAuthor",
       "const": "NarrativeAuthor"
     }
   ],

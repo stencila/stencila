@@ -3,6 +3,7 @@
 use crate::prelude::*;
 
 use super::block::Block;
+use super::section_type::SectionType;
 use super::string::String;
 
 /// A section of a document.
@@ -13,7 +14,7 @@ use super::string::String;
 #[cfg_attr(feature = "proptest", derive(Arbitrary))]
 #[derive(derive_more::Display)]
 #[display(fmt = "Section")]
-#[html(elem = "section")]
+#[html(elem = "section", special)]
 #[jats(elem = "sec")]
 #[markdown(template = "::: section\n\n{content}\n\n:::\n\n", special)]
 pub struct Section {
@@ -27,13 +28,22 @@ pub struct Section {
     #[html(attr = "id")]
     pub id: Option<String>,
 
-    /// The content within the section
+    /// The content within the section.
     #[serde(deserialize_with = "one_or_many")]
     #[cfg_attr(feature = "proptest-min", proptest(value = r#"Vec::new()"#))]
     #[cfg_attr(feature = "proptest-low", proptest(strategy = r#"vec_heading_paragraph()"#))]
     #[cfg_attr(feature = "proptest-high", proptest(strategy = r#"vec_blocks_non_recursive(4)"#))]
     #[cfg_attr(feature = "proptest-max", proptest(strategy = r#"vec_blocks_non_recursive(8)"#))]
     pub content: Vec<Block>,
+
+    /// The type of section.
+    #[serde(alias = "section-type", alias = "section_type")]
+    #[cfg_attr(feature = "proptest-min", proptest(value = r#"None"#))]
+    #[cfg_attr(feature = "proptest-low", proptest(strategy = r#"option::of(SectionType::arbitrary())"#))]
+    #[cfg_attr(feature = "proptest-high", proptest(strategy = r#"option::of(SectionType::arbitrary())"#))]
+    #[cfg_attr(feature = "proptest-max", proptest(strategy = r#"option::of(SectionType::arbitrary())"#))]
+    #[jats(attr = "specific-use")]
+    pub section_type: Option<SectionType>,
 }
 
 impl Section {
