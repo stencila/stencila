@@ -11,3 +11,5 @@ With an empty language: `a + b`{ exec}
 With a language and `guessLanguage` set to true: `a + b`{c++ exec}
 
 With automatic execution behavior specified `c * d`{javascript exec auto=never}
+
+Code with surrounding spaces ` a `{exec}.

@@ -15,5 +15,6 @@
     </p>
     <p>With automatic execution behavior specified<code executable="yes" language="javascript">c * d</code>
     </p>
+    <p>Code with surrounding spaces<code executable="yes">a</code>.</p>
   </body>
 </article>
