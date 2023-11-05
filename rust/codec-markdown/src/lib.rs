@@ -20,7 +20,7 @@ impl Codec for MarkdownCodec {
     }
 
     fn status(&self) -> Status {
-        Status::UnderDevelopment
+        Status::Alpha
     }
 
     fn supports_from_format(&self, format: Format) -> CodecSupport {
@@ -76,7 +76,7 @@ impl Codec for MarkdownCodec {
             Text | Emphasis | Strong | Subscript | Superscript | Underline => NoLoss,
             Link | Parameter | AudioObject | ImageObject | MediaObject | Note => LowLoss,
             // Prose Blocks
-            Division | Section | Heading | Paragraph | QuoteBlock | ThematicBreak => NoLoss,
+            Admonition | Division | Section | Heading | Paragraph | QuoteBlock | ThematicBreak => NoLoss,
             List | ListItem | Table | TableRow | TableCell => LowLoss,
             // Code
             CodeFragment | CodeBlock => NoLoss,

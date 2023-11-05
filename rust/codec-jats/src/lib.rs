@@ -74,7 +74,7 @@ impl Codec for JatsCodec {
             Link | AudioObject | ImageObject | VideoObject => LowLoss,
             Delete => HighLoss,
             // Prose Blocks
-            Section | Heading | Paragraph | QuoteBlock | ThematicBreak => NoLoss,
+            Admonition | Section | Heading | Paragraph | QuoteBlock | ThematicBreak => NoLoss,
             List | ListItem | Figure => LowLoss,
             // Math
             MathFragment | MathBlock => NoLoss,
