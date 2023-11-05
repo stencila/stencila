@@ -116,6 +116,9 @@ anyOf:
       min:
         description: Do not generate `Parameter` nodes in inline content.
         skip: true
+      low:
+        description: Generate `Parameter` nodes in inline content.
+        skip: false
 
   - $ref: Quote
 
