@@ -20,7 +20,7 @@ pub use node_store::{ReadNode, WriteNode};
 pub use node_strip::StripNode;
 
 pub use crate::deserialize::*;
-pub use crate::shortcuts;
+pub use crate::shortcuts::*;
 
 #[cfg(feature = "proptest")]
 pub use crate::proptests::*;

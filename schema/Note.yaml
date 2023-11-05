@@ -48,4 +48,4 @@ properties:
     proptest:
       min:
         description: Generate a single paragraph (with no `Note` to avoid recursion).
-        value: vec![shortcuts::p([shortcuts::t("Note paragraph")])]
+        value: vec![p([t("Note paragraph")])]

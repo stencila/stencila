@@ -25,7 +25,7 @@ properties:
     proptest:
       min:
         description: A single fixed clause with a single paragraph.
-        value: vec![shortcuts::ifc("true", None, [shortcuts::p([shortcuts::t("If clause")])])]
+        value: vec![ifc("true", None::<String>, [p([t("If clause")])])]
       low:
         description: Generate up to 3 arbitrary if clauses
         strategy: vec(IfClause::arbitrary(), size_range(1..=3))
