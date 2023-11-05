@@ -50,6 +50,9 @@ anyOf:
       min:
         description: Do not generate `For` nodes in block content.
         skip: true
+      low:
+        description: Generate `For` nodes in block content.
+        skip: false
   
   - $ref: Form
     proptest:

@@ -43,9 +43,6 @@ pub enum Block {
     Figure(Figure),
 
     #[cfg_attr(feature = "proptest-min", proptest(skip))]
-    #[cfg_attr(feature = "proptest-low", proptest(skip))]
-    #[cfg_attr(feature = "proptest-high", proptest(skip))]
-    #[cfg_attr(feature = "proptest-max", proptest(skip))]
     For(For),
 
     #[cfg_attr(feature = "proptest-min", proptest(skip))]

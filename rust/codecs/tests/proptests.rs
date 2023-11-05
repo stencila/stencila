@@ -86,6 +86,7 @@ proptest! {
                 String::from("CodeChunk"),
                 String::from("Division"),
                 String::from("Figure"),
+                String::from("For"),
                 String::from("Include"),
                 String::from("List"),
                 String::from("MathBlock"),
