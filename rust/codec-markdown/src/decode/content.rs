@@ -29,7 +29,11 @@ use super::{
 
 /// Decode Markdown content to a vector of [`Block`]s
 pub fn decode_content(md: &str) -> (Vec<Block>, Losses) {
-    let mut losses = Losses::none();
+    // If there are no footnotes then as a performance optimization
+    // skip the following, more complex handling of footnotes
+    if !md.contains("[^") {
+        return decode_blocks(md, None);
+    }
 
     // Split the content into footnotes and other content
     let mut footnotes_md = String::new();
@@ -65,15 +69,15 @@ pub fn decode_content(md: &str) -> (Vec<Block>, Losses) {
     let mut footnotes = HashMap::new();
 
     // Parse the note content to populate the map of notes
-    let (other_blocks, notes_losses) = decode_blocks(&footnotes_md, Some(&mut footnotes));
+    let (other_blocks, mut losses) = decode_blocks(&footnotes_md, Some(&mut footnotes));
     if !other_blocks.is_empty() {
         tracing::error!("Expected parsing of footnotes not to return any blocks");
         losses.add("Blocks")
     }
 
     // Now parse the main content with the populated map of notes
-    let (blocks, mut losses) = decode_blocks(&other_md, Some(&mut footnotes));
-    losses.merge(notes_losses);
+    let (blocks, other_losses) = decode_blocks(&other_md, Some(&mut footnotes));
+    losses.merge(other_losses);
 
     (blocks, losses)
 }
