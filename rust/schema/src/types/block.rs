@@ -27,9 +27,6 @@ use super::thematic_break::ThematicBreak;
 #[cfg_attr(feature = "proptest", derive(Arbitrary))]
 pub enum Block {
     #[cfg_attr(feature = "proptest-min", proptest(skip))]
-    #[cfg_attr(feature = "proptest-low", proptest(skip))]
-    #[cfg_attr(feature = "proptest-high", proptest(skip))]
-    #[cfg_attr(feature = "proptest-max", proptest(skip))]
     Call(Call),
 
     #[cfg_attr(feature = "proptest-min", proptest(skip))]
@@ -66,9 +63,6 @@ pub enum Block {
     If(If),
 
     #[cfg_attr(feature = "proptest-min", proptest(skip))]
-    #[cfg_attr(feature = "proptest-low", proptest(skip))]
-    #[cfg_attr(feature = "proptest-high", proptest(skip))]
-    #[cfg_attr(feature = "proptest-max", proptest(skip))]
     Include(Include),
 
     List(List),

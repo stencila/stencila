@@ -6,6 +6,7 @@ description: Call another document, optionally with arguments, and include its e
 status: under-development
 markdown:
   special: true
+proptest: {}
 required:
   - arguments
 properties:
@@ -16,3 +17,13 @@ properties:
     type: array
     items:
       $ref: CallArgument
+    proptest:
+      min:
+        description: An empty set of arguments.
+        value: Vec::new()
+      low:
+        description: Generate up to 3 arbitrary arguments
+        strategy: vec(CallArgument::arbitrary(), size_range(0..=3))
+      high:
+        description: Generate up to 10 arbitrary arguments
+        strategy: vec(CallArgument::arbitrary(), size_range(0..=10))

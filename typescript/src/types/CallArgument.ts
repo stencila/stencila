@@ -1,5 +1,6 @@
 // Generated file; do not edit. See `../rust/schema-gen` crate.
 
+import { Cord } from "./Cord.js";
 import { Parameter } from "./Parameter.js";
 
 /**
@@ -11,14 +12,14 @@ export class CallArgument extends Parameter {
   /**
    * The code to be evaluated for the parameter.
    */
-  code: string;
+  code: Cord;
 
   /**
    * The programming language of the code.
    */
   programmingLanguage?: string;
 
-  constructor(name: string, code: string, options?: Partial<CallArgument>) {
+  constructor(name: string, code: Cord, options?: Partial<CallArgument>) {
     super(name);
     if (options) Object.assign(this, options);
     this.name = name;
@@ -29,6 +30,6 @@ export class CallArgument extends Parameter {
 /**
 * Create a new `CallArgument`
 */
-export function callArgument(name: string, code: string, options?: Partial<CallArgument>): CallArgument {
+export function callArgument(name: string, code: Cord, options?: Partial<CallArgument>): CallArgument {
   return new CallArgument(name, code, options);
 }

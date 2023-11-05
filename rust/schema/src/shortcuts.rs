@@ -147,7 +147,7 @@ pub fn cal<S: Into<String>, A: Into<Vec<CallArgument>>>(source: S, args: A) -> B
 }
 
 /// Create an [`CallArgument`] node
-pub fn arg<S: Into<String>, C: Into<String>>(name: S, code: C) -> CallArgument {
+pub fn arg<S: Into<String>, C: Into<Cord>>(name: S, code: C) -> CallArgument {
     CallArgument {
         name: name.into(),
         code: code.into(),

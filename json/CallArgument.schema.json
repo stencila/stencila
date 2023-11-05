@@ -10,6 +10,7 @@
   "description": "The value of a `Parameter` to call a document with.",
   "$comment": "A `CallArgument` extends `Parameter` by also has some of the same properties as `CodeExecutable` allowing\nan expression to be used to set the value of the parameter.\n",
   "status": "under-development",
+  "proptest": {},
   "required": [
     "type",
     "name",
@@ -248,6 +249,24 @@
       "@id": "schema:name",
       "description": "The name of the parameter.",
       "$comment": "This regex allows for snake_case and camelCase names but excludes\nPascalCase for names.\n",
+      "proptest": {
+        "min": {
+          "description": "Generate a fixed name.",
+          "value": "String::from(\"name\")"
+        },
+        "low": {
+          "description": "Generate a random name up to 10 alphanumeric characters (and at most one underscore to avoid\na clash with Markdown emphasis).\n",
+          "regex": "[a-zA-Z_][a-zA-Z0-9]{0,9}"
+        },
+        "high": {
+          "description": "Generate a random string of up to 100 characters (excluding control characters).\n",
+          "regex": "[^\\p{C}]{1,100}"
+        },
+        "max": {
+          "description": "Generate an arbitrary string.",
+          "strategy": "String::arbitrary()"
+        }
+      },
       "jats": {
         "attr": "name"
       },
@@ -298,7 +317,25 @@
       "strip": [
         "code"
       ],
-      "type": "string"
+      "proptest": {
+        "min": {
+          "description": "Generate a simple fixed string of code.",
+          "value": "Cord::new(\"code\")"
+        },
+        "low": {
+          "description": "Generate a random string of up to 10 alphanumeric characters.\n",
+          "strategy": "r\"[a-zA-Z0-9]{1,10}\".prop_map(Cord::new)"
+        },
+        "high": {
+          "description": "Generate a random string of up to 100 characters (excluding control characters).\n",
+          "strategy": "r\"[^\\p{C}]{1,100}\".prop_map(Cord::new)"
+        },
+        "max": {
+          "description": "Generate an arbitrary string.",
+          "strategy": "String::arbitrary().prop_map(Cord::new)"
+        }
+      },
+      "$ref": "Cord.schema.json"
     },
     "programmingLanguage": {
       "@id": "schema:programmingLanguage",

@@ -9,6 +9,7 @@
   "category": "flow",
   "description": "Call another document, optionally with arguments, and include its executed content.",
   "status": "under-development",
+  "proptest": {},
   "markdown": {
     "special": true
   },
@@ -250,6 +251,24 @@
       "strip": [
         "code"
       ],
+      "proptest": {
+        "min": {
+          "description": "Generate a fixed path.",
+          "value": "String::from(\"path/to/source.file\")"
+        },
+        "low": {
+          "description": "Generate a random string with up to 30 alphanumeric characters, forward slashes,\nhyphens, and dots (exclude characters in such as underscores an asterisks which\nhave semantic meaning in Markdown).\n",
+          "regex": "[a-zA-Z0-9/\\-.]{1,30}"
+        },
+        "high": {
+          "description": "Generate a random string of up to 100 characters (excluding control characters).\n",
+          "regex": "[^\\p{C}]{1,100}"
+        },
+        "max": {
+          "description": "Generate an arbitrary string.",
+          "strategy": "String::arbitrary()"
+        }
+      },
       "type": "string"
     },
     "mediaType": {
@@ -295,6 +314,20 @@
       "strip": [
         "code"
       ],
+      "proptest": {
+        "min": {
+          "description": "An empty set of arguments.",
+          "value": "Vec::new()"
+        },
+        "low": {
+          "description": "Generate up to 3 arbitrary arguments",
+          "strategy": "vec(CallArgument::arbitrary(), size_range(0..=3))"
+        },
+        "high": {
+          "description": "Generate up to 10 arbitrary arguments",
+          "strategy": "vec(CallArgument::arbitrary(), size_range(0..=10))"
+        }
+      },
       "type": "array",
       "items": {
         "$ref": "CallArgument.schema.json"

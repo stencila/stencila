@@ -6,6 +6,7 @@ description: Include content from an external source (e.g. file, URL).
 status: under-development
 markdown:
   template: '/{source}\n\n'
+proptest: {}
 required:
   - source
 core:
@@ -18,6 +19,23 @@ properties:
     description: The external source of the content, a file path or URL.
     strip: [code]
     type: string
+    proptest:
+      min:
+        description: Generate a fixed path.
+        value: String::from("path/to/source.file")
+      low:
+        description: |
+          Generate a random string with up to 30 alphanumeric characters, forward slashes,
+          hyphens, and dots (exclude characters in such as underscores an asterisks which
+          have semantic meaning in Markdown).
+        regex: '[a-zA-Z0-9/\-.]{1,30}'
+      high:
+        description: |
+          Generate a random string of up to 100 characters (excluding control characters).
+        regex: '[^\p{C}]{1,100}'
+      max:
+        description: Generate an arbitrary string.
+        strategy: String::arbitrary()
   mediaType:
     '@id': schema:encodingFormat
     aliases:

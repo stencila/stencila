@@ -382,7 +382,7 @@
         }
       ],
       "schema:rangeIncludes": {
-        "@id": "schema:Text"
+        "@id": "Cord"
       }
     },
     {

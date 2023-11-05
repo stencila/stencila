@@ -10,6 +10,9 @@ anyOf:
       min:
         description: Do not generate `Call` nodes in block content.
         skip: true
+      low:
+        description: Generate `Call` nodes in block content.
+        skip: false
   
   - $ref: Claim
     proptest:
@@ -67,6 +70,9 @@ anyOf:
       min:
         description: Do not generate `Include` nodes in block content.
         skip: true
+      low:
+        description: Generate `Include` nodes in block content.
+        skip: false
   
   - $ref: List
   

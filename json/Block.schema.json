@@ -12,6 +12,9 @@
         "min": {
           "description": "Do not generate `Call` nodes in block content.",
           "skip": true
+        },
+        "low": {
+          "description": "Generate `Call` nodes in block content."
         }
       },
       "$ref": "Call.schema.json"
@@ -93,6 +96,9 @@
         "min": {
           "description": "Do not generate `Include` nodes in block content.",
           "skip": true
+        },
+        "low": {
+          "description": "Generate `Include` nodes in block content."
         }
       },
       "$ref": "Include.schema.json"

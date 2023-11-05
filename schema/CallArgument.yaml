@@ -7,6 +7,7 @@ description: The value of a `Parameter` to call a document with.
 $comment: |
   A `CallArgument` extends `Parameter` by also has some of the same properties as `CodeExecutable` allowing
   an expression to be used to set the value of the parameter.
+proptest: {}
 required:
   - code
 core:
@@ -15,10 +16,25 @@ properties:
   code:
     '@id': stencila:code
     description: The code to be evaluated for the parameter.
+    $ref: Cord
     strip: [code]
-    type: string
+    proptest:
+      min:
+        description: Generate a simple fixed string of code.
+        value: Cord::new("code")
+      low:
+        description: |
+          Generate a random string of up to 10 alphanumeric characters.
+        strategy: r"[a-zA-Z0-9]{1,10}".prop_map(Cord::new)
+      high:
+        description: |
+          Generate a random string of up to 100 characters (excluding control characters).
+        strategy: r"[^\p{C}]{1,100}".prop_map(Cord::new)
+      max:
+        description: Generate an arbitrary string.
+        strategy: String::arbitrary().prop_map(Cord::new)
   programmingLanguage:
     '@id': schema:programmingLanguage
     description: The programming language of the code.
-    strip: [code]
     type: string
+    strip: [code]

@@ -118,7 +118,7 @@ fn call_arg(input: &str) -> IResult<&str, CallArgument> {
         ),
         |(name, code)| CallArgument {
             name,
-            code: code.to_string(),
+            code: code.into(),
             ..Default::default()
         },
     )(input)
@@ -322,7 +322,7 @@ mod tests {
                 source: "file.md".to_string(),
                 arguments: vec![CallArgument {
                     name: "a".to_string(),
-                    code: "1".to_string(),
+                    code: "1".into(),
                     ..Default::default()
                 }],
                 ..Default::default()
@@ -334,7 +334,7 @@ mod tests {
                 source: "file.md".to_string(),
                 arguments: vec![CallArgument {
                     name: "parAm_eter_1".to_string(),
-                    code: "\"string\"".to_string(),
+                    code: "\"string\"".into(),
                     ..Default::default()
                 }],
                 ..Default::default()
@@ -347,17 +347,17 @@ mod tests {
                 arguments: vec![
                     CallArgument {
                         name: "a".to_string(),
-                        code: "1.23".to_string(),
+                        code: "1.23".into(),
                         ..Default::default()
                     },
                     CallArgument {
                         name: "b".to_string(),
-                        code: "symbol".to_string(),
+                        code: "symbol".into(),
                         ..Default::default()
                     },
                     CallArgument {
                         name: "c".to_string(),
-                        code: "'string'".to_string(),
+                        code: "'string'".into(),
                         ..Default::default()
                     }
                 ],
@@ -371,22 +371,22 @@ mod tests {
                 arguments: vec![
                     CallArgument {
                         name: "a".to_string(),
-                        code: "1".to_string(),
+                        code: "1".into(),
                         ..Default::default()
                     },
                     CallArgument {
                         name: "b".to_string(),
-                        code: "2".to_string(),
+                        code: "2".into(),
                         ..Default::default()
                     },
                     CallArgument {
                         name: "c".to_string(),
-                        code: "3".to_string(),
+                        code: "3".into(),
                         ..Default::default()
                     },
                     CallArgument {
                         name: "d".to_string(),
-                        code: "4".to_string(),
+                        code: "4".into(),
                         ..Default::default()
                     },
                 ],
