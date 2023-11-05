@@ -47,7 +47,7 @@
       }
     },
     {
-      "@id": "stencila:title",
+      "@id": "stencila:isFolded",
       "@type": "rdfs:Property",
       "rdfs:label": "isFolded",
       "rdfs:comment": "Whether the admonition is folded.",

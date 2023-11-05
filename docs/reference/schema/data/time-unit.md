@@ -32,14 +32,6 @@ The `TimeUnit` type is represented in these bindings:
 - Rust type [`TimeUnit`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/time_unit.rs)
 - TypeScript type [`TimeUnit`](https://github.com/stencila/stencila/blob/main/typescript/src/types/TimeUnit.ts)
 
-## Testing
-
-During property-based (a.k.a generative) testing, the variants of the `TimeUnit` type are generated using the following strategies for each complexity level (see the [`proptest` book](https://proptest-rs.github.io/proptest/) for an explanation of the Rust strategy expressions). Any variant not shown is generated using the default strategy for the corresponding type and complexity level.
-
-|         |            |             |          |
-| ------- | ---------- | ----------- | -------- |
-| Variant | Complexity | Description | Strategy |
-
 ## Source
 
 This documentation was generated from [`TimeUnit.yaml`](https://github.com/stencila/stencila/blob/main/schema/TimeUnit.yaml) by [`docs.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs.rs).

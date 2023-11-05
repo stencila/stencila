@@ -95,7 +95,7 @@
       }
     },
     "isFolded": {
-      "@id": "stencila:title",
+      "@id": "stencila:isFolded",
       "description": "Whether the admonition is folded.",
       "$comment": "When an admonition is folded, its `content` is hidden by default, but\ncan be toggled to be visible or hidden.\n",
       "aliases": [
