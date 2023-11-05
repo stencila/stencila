@@ -11,9 +11,9 @@ impl Call {
                 md.push_str(", ");
             }
             md.push_str(&arg.name);
-            
+
             md.push('=');
-            
+
             if arg.code.contains([',', ' ', ')']) {
                 md.push('`');
                 md.push_str(&arg.code);

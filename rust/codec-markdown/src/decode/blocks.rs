@@ -35,7 +35,7 @@ pub fn admonition(content: &mut Vec<Block>) -> Option<Admonition> {
     if let Some(Block::Paragraph(para)) = content.first_mut() {
         if let Some(Inline::Text(Text { value: text, .. })) = para.content.first_mut() {
             if text.starts_with("[!") {
-                if let Some(mut finish) = text.find("]") {
+                if let Some(mut finish) = text.find(']') {
                     let admonition_type = text[2..finish].parse().unwrap_or_default();
 
                     let is_folded = match text.chars().nth(finish + 1) {
@@ -52,7 +52,7 @@ pub fn admonition(content: &mut Vec<Block>) -> Option<Admonition> {
 
                     // Remove the prefix from the para and then make any remainind
                     // content the title
-                    *text = Cord::from(text[finish+1..].trim_start());
+                    *text = Cord::from(text[finish + 1..].trim_start());
                     let title = if text.is_empty() {
                         para.content.drain(1..)
                     } else {
