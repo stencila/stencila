@@ -54,9 +54,6 @@ pub enum Block {
     Heading(Heading),
 
     #[cfg_attr(feature = "proptest-min", proptest(skip))]
-    #[cfg_attr(feature = "proptest-low", proptest(skip))]
-    #[cfg_attr(feature = "proptest-high", proptest(skip))]
-    #[cfg_attr(feature = "proptest-max", proptest(skip))]
     If(If),
 
     #[cfg_attr(feature = "proptest-min", proptest(skip))]

@@ -90,6 +90,9 @@
         "min": {
           "description": "Do not generate `If` nodes in block content.",
           "skip": true
+        },
+        "low": {
+          "description": "Generate `If` nodes in block content."
         }
       },
       "$ref": "If.schema.json"

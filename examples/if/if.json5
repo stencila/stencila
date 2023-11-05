@@ -35,6 +35,36 @@
       content: [
         {
           type: "Text",
+          value: "An if block with programming language specified"
+        }
+      ]
+    },
+    {
+      type: "If",
+      clauses: [
+        {
+          type: "IfClause",
+          code: "True",
+          programmingLanguage: "python",
+          content: [
+            {
+              type: "Paragraph",
+              content: [
+                {
+                  type: "Text",
+                  value: "This paragraph should be shown"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      type: "Paragraph",
+      content: [
+        {
+          type: "Text",
           value: "With an else clause"
         }
       ]

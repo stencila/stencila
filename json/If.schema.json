@@ -254,6 +254,20 @@
       "strip": [
         "code"
       ],
+      "proptest": {
+        "min": {
+          "description": "A single fixed clause with a single paragraph.",
+          "value": "vec![shortcuts::ifc(\"true\", None, [shortcuts::p([shortcuts::t(\"If clause\")])])]"
+        },
+        "low": {
+          "description": "Generate up to 3 arbitrary if clauses",
+          "strategy": "vec(IfClause::arbitrary(), size_range(1..=3))"
+        },
+        "high": {
+          "description": "Generate up to 5 arbitrary if clauses",
+          "strategy": "vec(IfClause::arbitrary(), size_range(1..=10))"
+        }
+      },
       "html": {
         "content": true
       },

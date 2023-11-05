@@ -11,7 +11,16 @@ impl If {
 
         context.down();
 
-        for (index, IfClause { code, content, .. }) in self.clauses.iter().enumerate() {
+        for (
+            index,
+            IfClause {
+                code,
+                programming_language,
+                content,
+                ..
+            },
+        ) in self.clauses.iter().enumerate()
+        {
             md.push_str(&fence);
             let keyword = if index == 0 {
                 " if "
@@ -22,6 +31,15 @@ impl If {
             };
             md.push_str(keyword);
             md.push_str(code);
+
+            if let Some(lang) = programming_language {
+                if !lang.is_empty() {
+                    md.push('{');
+                    md.push_str(lang);
+                    md.push('}');
+                }
+            }
+
             md.push_str("\n\n");
 
             let (content_md, content_losses) = content.to_markdown(context);
