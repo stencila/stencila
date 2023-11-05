@@ -19,16 +19,16 @@
         </sec>
       </sec>
     </sec>
-    <sec specific-use="Header">
+    <sec content-type="Header">
       <p>This is the header</p>
     </sec>
-    <sec specific-use="Introduction">
+    <sec content-type="Introduction">
       <p>This is the introduction</p>
     </sec>
-    <sec specific-use="Conclusion">
+    <sec content-type="Conclusion">
       <p>This is the conclusion</p>
     </sec>
-    <sec specific-use="Footer">
+    <sec content-type="Footer">
       <p>This is the footer</p>
     </sec>
   </body>

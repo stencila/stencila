@@ -41,7 +41,7 @@ properties:
     description: The type of section.
     $ref: SectionType
     jats:
-      attr: specific-use
+      attr: content-type
     proptest:
       min:
         description: No type.

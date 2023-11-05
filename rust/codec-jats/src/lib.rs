@@ -50,7 +50,7 @@ impl Codec for JatsCodec {
             | Span | Note => NoLoss,
             Link | AudioObject | ImageObject | VideoObject => LowLoss,
             // Prose Blocks
-            Section | Heading | Paragraph | QuoteBlock | ThematicBreak => NoLoss,
+            Admonition | Section | Heading | Paragraph | QuoteBlock | ThematicBreak => NoLoss,
             // Math
             MathFragment | MathBlock => LowLoss,
             // Code

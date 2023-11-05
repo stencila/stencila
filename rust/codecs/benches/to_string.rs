@@ -1,6 +1,6 @@
 use codec::{
     common::futures::executor::block_on,
-    schema::{shortcuts::*, ClaimType, NoteType},
+    schema::{shortcuts::*, AdmonitionType, ClaimType, NoteType},
     EncodeOptions,
 };
 
@@ -36,7 +36,7 @@ fn to_string(codec: &str, options: Option<EncodeOptions>) {
             ins([t("text")]),
             lnk([t("link")], "url"),
             mf("code", Some("lang")),
-            nte(NoteType::Endnote, [p([t("text")])]),
+            nte(NoteType::default(), [p([t("text")])]),
             par("name"),
             spn("code", [t("span")]),
         ]),
@@ -51,8 +51,9 @@ fn to_string(codec: &str, options: Option<EncodeOptions>) {
         // Table
         tab([tr([th([t("col")])]), tr([td([t("cell")])])]),
         // Other
+        adm(AdmonitionType::default(), Some("title"), [p([t("text")])]),
         cal("source", [arg("name", "code")]),
-        clm(ClaimType::Lemma, [p([t("text")])]),
+        clm(ClaimType::default(), [p([t("text")])]),
         div("code", [p([t("text")])]),
         fig([p([img("url")])]),
         r#if([ifc("code", Some("lang"), [p([t("text")])])]),

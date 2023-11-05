@@ -1,0 +1,26 @@
+title: AdmonitionType
+'@id': stencila:AdmonitionType
+extends: Enumeration
+category: prose
+description: The type of an `Admonition`.
+proptest: {}
+default: Note
+anyOf:
+  - const: Note
+    '@id': stencila:Note
+  - const: Info
+    '@id': stencila:Info
+  - const: Tip
+    '@id': stencila:Tip
+  - const: Important
+    '@id': stencila:Important
+  - const: Success
+    '@id': stencila:Success
+  - const: Failure
+    '@id': stencila:Failure
+  - const: Warning
+    '@id': stencila:Warning
+  - const: Danger
+    '@id': stencila:Danger
+  - const: Error
+    '@id': stencila:Error

@@ -142,6 +142,20 @@ pub fn vid<S: Into<String>>(url: S) -> Inline {
 // Block nodes (in alphabetic order of node type)
 
 /// Create a [`Block::Call`] node
+pub fn adm<C: Into<Cord>, B: Into<Vec<Block>>>(
+    admonition_type: AdmonitionType,
+    title: Option<C>,
+    content: B,
+) -> Block {
+    Block::Admonition(Admonition {
+        admonition_type,
+        title: title.map(|title| vec![t(title)]),
+        content: content.into(),
+        ..Default::default()
+    })
+}
+
+/// Create a [`Block::Call`] node
 pub fn cal<S: Into<String>, A: Into<Vec<CallArgument>>>(source: S, args: A) -> Block {
     Block::Call(Call::new(source.into(), args.into()))
 }

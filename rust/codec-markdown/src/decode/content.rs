@@ -22,28 +22,36 @@ use crate::decode::inlines::inlines_or_text;
 
 use super::{
     blocks::{
-        call, claim, division, else_, end, for_, form, if_elif, include, math_block, section,
+        admonition, call, claim, division, else_, end, for_, form, if_elif, include, math_block,
+        section,
     },
     inlines::inlines,
 };
 
 /// Decode Markdown content to a vector of [`Block`]s
 pub fn decode_content(md: &str) -> (Vec<Block>, Losses) {
-    // If there are no footnotes then as a performance optimization
+    // If there are no admonitions or footnotes then as a performance optimization
     // skip the following, more complex handling of footnotes
-    if !md.contains("[^") {
+    if !md.contains("[!") && !md.contains("[^") {
         return decode_blocks(md, None);
     }
 
     // Split the content into footnotes and other content
+    static ADMONITION_REGEX: Lazy<Regex> =
+        Lazy::new(|| Regex::new(r"^((>\s*)+)\[\!\w+\]").expect("Unable to create regex"));
+    static FOOTNOTE_REGEX: Lazy<Regex> =
+        Lazy::new(|| Regex::new(r"^\s{0,3}\[\^\w+\]:").expect("Unable to create regex"));
     let mut footnotes_md = String::new();
     let mut other_md = String::new();
     let mut in_note = false;
     for line in md.lines() {
-        static REGEX: Lazy<Regex> =
-            // Footnote definitions can be indented up to 3 spaces
-            Lazy::new(|| Regex::new(r"^\s{0,3}\[\^\w+\]:").expect("Unable to create regex"));
-        if let Some(captures) = REGEX.captures(line) {
+        if let Some(captures) = ADMONITION_REGEX.captures(line) {
+            other_md.push_str(line);
+            other_md.push('\n');
+            // Add a blank line (with > prefix) to ensure separate first paragraph
+            other_md.push_str(captures[1].into());
+            other_md.push('\n');
+        } else if let Some(captures) = FOOTNOTE_REGEX.captures(line) {
             in_note = true;
             footnotes_md.push_str(line);
             footnotes_md.push('\n');
@@ -164,8 +172,12 @@ pub fn decode_blocks(
             Event::End(tag_end) => match tag_end {
                 // Block nodes with block content
                 TagEnd::BlockQuote => {
-                    let content = blocks.pop_mark();
-                    blocks.push_block(qb(content))
+                    let mut content = blocks.pop_mark();
+                    let block = match admonition(&mut content) {
+                        Some(admonition) => Block::Admonition(admonition),
+                        None => qb(content),
+                    };
+                    blocks.push_block(block)
                 }
                 TagEnd::List(ordered) => {
                     let items = lists.pop_mark();

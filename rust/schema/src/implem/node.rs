@@ -64,6 +64,7 @@ impl ReadNode for Node {
         }
 
         load_map_variants!(
+            Admonition,
             ArrayValidator,
             Article,
             AudioObject,

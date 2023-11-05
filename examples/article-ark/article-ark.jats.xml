@@ -13,7 +13,7 @@
       </parameter>,<inline-quote>quote</inline-quote>,<styled-content style="text-blue-400">span</styled-content>,<strike>strikeout</strike>,<bold>strong emphasis</bold>,<sub>subscript</sub>,<sup>superscript</sup>,<underline>underline</underline>,<inline-media xlink:href="https://example.org/cat.mp4" mimetype="video">
         <alt-text>video</alt-text>
       </inline-media>.</p>
-    <statement specific-use="Statement">
+    <statement content-type="Statement">
       <p>This is a claim</p>
     </statement>
     <code>This is a code block</code>

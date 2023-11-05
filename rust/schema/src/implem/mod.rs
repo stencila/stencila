@@ -1,5 +1,6 @@
 //! Implementations of traits for types
 
+mod admonition;
 mod array;
 mod article;
 mod automatic_execution;

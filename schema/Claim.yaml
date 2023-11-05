@@ -23,7 +23,7 @@ properties:
     '@id': stencila:claimType
     description: The type of the claim.
     jats:
-      attr: specific-use
+      attr: content-type
     $ref: ClaimType
   label:
     '@id': stencila:label

@@ -3,10 +3,10 @@ use roxmltree::Node;
 use codec::{
     schema::{
         shortcuts::{em, mf, p, q, qb, stg, stk, sub, sup, t, u},
-        Article, AudioObject, AudioObjectOptions, Block, CodeExpression, CodeFragment, Cord, Date,
-        DateTime, Duration, Heading, ImageObject, ImageObjectOptions, Inline, Link, MediaObject,
-        MediaObjectOptions, Note, NoteType, Parameter, Section, Span, Text, ThematicBreak, Time,
-        Timestamp, VideoObject, VideoObjectOptions,
+        Admonition, Article, AudioObject, AudioObjectOptions, Block, CodeExpression, CodeFragment,
+        Cord, Date, DateTime, Duration, Heading, ImageObject, ImageObjectOptions, Inline, Link,
+        MediaObject, MediaObjectOptions, Note, NoteType, Parameter, Section, Span, Text,
+        ThematicBreak, Time, Timestamp, VideoObject, VideoObjectOptions,
     },
     Losses,
 };
@@ -21,19 +21,25 @@ const XLINK: &str = "http://www.w3.org/1999/xlink";
 /// the corresponding `decode_*` function for the element name), or adds them to
 /// losses.
 pub(super) fn decode_body(path: &str, node: &Node, article: &mut Article, losses: &mut Losses) {
-    article.content = decode_blocks(path, node, losses, 0)
+    article.content = decode_blocks(path, node.children(), losses, 0)
 }
 
 /// Decode block content nodes
 ///
 /// Iterates over all child elements and either decodes them, or adds them to
 /// losses.
-fn decode_blocks(path: &str, node: &Node, losses: &mut Losses, depth: u8) -> Vec<Block> {
+fn decode_blocks<'a, 'input: 'a, I: Iterator<Item = Node<'a, 'input>>>(
+    path: &str,
+    nodes: I,
+    losses: &mut Losses,
+    depth: u8,
+) -> Vec<Block> {
     let mut blocks = Vec::new();
-    for child in node.children() {
+    for child in nodes {
         let tag = child.tag_name().name();
         let child_path = extend_path(path, tag);
         let block = match tag {
+            "boxed-text" => decode_boxed_text(&child_path, &child, losses, depth),
             "hr" => decode_hr(&child_path, &child, losses),
             "p" => decode_p(&child_path, &child, losses),
             "disp-quote" => decode_disp_quote(&child_path, &child, losses, depth),
@@ -49,6 +55,43 @@ fn decode_blocks(path: &str, node: &Node, losses: &mut Losses, depth: u8) -> Vec
     blocks
 }
 
+/// Decode a `<boxed-text>` to a [`Block::Admonition`]
+fn decode_boxed_text(path: &str, node: &Node, losses: &mut Losses, depth: u8) -> Block {
+    record_attrs_lost(path, node, ["content-type", "is-folded"], losses);
+
+    let typ = node
+        .attribute("content-type")
+        .and_then(|typ| typ.parse().ok())
+        .unwrap_or_default();
+
+    let is_folded = node
+        .attribute("is-folded")
+        .and_then(|is_folded| is_folded.parse().ok());
+
+    let mut title = None;
+    let mut children = node.children().peekable();
+    if let Some(first) = children.peek() {
+        if first.tag_name().name() == "caption" {
+            title = Some(decode_inlines(
+                &extend_path(path, "caption"),
+                first.children(),
+                losses,
+            ));
+            children.next();
+        }
+    }
+
+    let content = decode_blocks(path, children, losses, depth);
+
+    Block::Admonition(Admonition {
+        admonition_type: typ,
+        is_folded,
+        title,
+        content,
+        ..Default::default()
+    })
+}
+
 /// Decode a `<hr>` to a [`Block::ThematicBreak`]
 fn decode_hr(path: &str, node: &Node, losses: &mut Losses) -> Block {
     record_attrs_lost(path, node, [], losses);
@@ -60,27 +103,27 @@ fn decode_hr(path: &str, node: &Node, losses: &mut Losses) -> Block {
 fn decode_p(path: &str, node: &Node, losses: &mut Losses) -> Block {
     record_attrs_lost(path, node, [], losses);
 
-    p(decode_inlines(path, node, losses))
+    p(decode_inlines(path, node.children(), losses))
 }
 
 /// Decode a `<disp-quote>` to a [`Block::QuoteBlock`]
 fn decode_disp_quote(path: &str, node: &Node, losses: &mut Losses, depth: u8) -> Block {
     record_attrs_lost(path, node, [], losses);
 
-    qb(decode_blocks(path, node, losses, depth))
+    qb(decode_blocks(path, node.children(), losses, depth))
 }
 
 /// Decode a `<sec>` to a [`Block::Section`]
 fn decode_sec(path: &str, node: &Node, losses: &mut Losses, depth: u8) -> Block {
-    record_attrs_lost(path, node, ["specific-use"], losses);
+    record_attrs_lost(path, node, ["content-type"], losses);
 
     let typ = node
-        .attribute("specific-use")
+        .attribute("content-type")
         .and_then(|typ| typ.parse().ok());
 
     Block::Section(Section {
-        content: decode_blocks(path, node, losses, depth),
         section_type: typ,
+        content: decode_blocks(path, node.children(), losses, depth),
         ..Default::default()
     })
 }
@@ -94,16 +137,23 @@ fn decode_title(path: &str, node: &Node, losses: &mut Losses, depth: u8) -> Bloc
         .and_then(|level| level.parse::<i64>().ok())
         .unwrap_or(depth as i64);
 
-    Block::Heading(Heading::new(level, decode_inlines(path, node, losses)))
+    Block::Heading(Heading::new(
+        level,
+        decode_inlines(path, node.children(), losses),
+    ))
 }
 
 /// Decode inline content nodes
 ///
 /// Iterates over all child elements and either decodes them, or adds them to
 /// losses.
-fn decode_inlines(path: &str, node: &Node, losses: &mut Losses) -> Vec<Inline> {
+fn decode_inlines<'a, 'input: 'a, I: Iterator<Item = Node<'a, 'input>>>(
+    path: &str,
+    nodes: I,
+    losses: &mut Losses,
+) -> Vec<Inline> {
     let mut inlines = Vec::new();
-    for child in node.children() {
+    for child in nodes {
         let inline = if child.is_text() {
             t(child.text().unwrap_or_default())
         } else {
@@ -127,14 +177,15 @@ fn decode_inlines(path: &str, node: &Node, losses: &mut Losses) -> Vec<Inline> {
                 _ => {
                     record_attrs_lost(&child_path, &child, [], losses);
 
+                    let grandchildren = child.children();
                     match tag {
-                        "bold" => stg(decode_inlines(&child_path, &child, losses)),
-                        "inline-quote" => q(decode_inlines(&child_path, &child, losses)),
-                        "italic" => em(decode_inlines(&child_path, &child, losses)),
-                        "strike" => stk(decode_inlines(&child_path, &child, losses)),
-                        "sub" => sub(decode_inlines(&child_path, &child, losses)),
-                        "sup" => sup(decode_inlines(&child_path, &child, losses)),
-                        "underline" => u(decode_inlines(&child_path, &child, losses)),
+                        "bold" => stg(decode_inlines(&child_path, grandchildren, losses)),
+                        "inline-quote" => q(decode_inlines(&child_path, grandchildren, losses)),
+                        "italic" => em(decode_inlines(&child_path, grandchildren, losses)),
+                        "strike" => stk(decode_inlines(&child_path, grandchildren, losses)),
+                        "sub" => sub(decode_inlines(&child_path, grandchildren, losses)),
+                        "sup" => sup(decode_inlines(&child_path, grandchildren, losses)),
+                        "underline" => u(decode_inlines(&child_path, grandchildren, losses)),
                         _ => {
                             record_node_lost(path, &child, losses);
                             continue;
@@ -314,7 +365,7 @@ fn decode_link(path: &str, node: &Node, losses: &mut Losses) -> Inline {
 
     record_attrs_lost(path, node, ["href"], losses);
 
-    let content = decode_inlines(path, node, losses);
+    let content = decode_inlines(path, node.children(), losses);
 
     Inline::Link(Link {
         target,
@@ -347,7 +398,7 @@ fn decode_footnote(path: &str, node: &Node, losses: &mut Losses) -> Inline {
 
     record_attrs_lost(path, node, ["fn-type", "custom-type"], losses);
 
-    let content = decode_blocks(path, node, losses, 0);
+    let content = decode_blocks(path, node.children(), losses, 0);
 
     Inline::Note(Note {
         note_type,
@@ -386,7 +437,7 @@ fn decode_styled_content(path: &str, node: &Node, losses: &mut Losses) -> Inline
 
     record_attrs_lost(path, node, ["style", "style-detail"], losses);
 
-    let content = decode_inlines(path, node, losses);
+    let content = decode_inlines(path, node.children(), losses);
 
     Inline::Span(Span {
         code,

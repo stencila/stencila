@@ -12,9 +12,12 @@ use nom::{
     IResult,
 };
 
-use codec::schema::{
-    Call, CallArgument, Claim, Cord, Division, For, Form, FormDeriveAction, FormOptions, IfClause,
-    Include, IntegerOrString, MathBlock, Node, Section,
+use codec::{
+    common::itertools::Itertools,
+    schema::{
+        Admonition, Block, Call, CallArgument, Claim, Cord, Division, For, Form, FormDeriveAction,
+        FormOptions, IfClause, Include, Inline, IntegerOrString, MathBlock, Node, Section, Text,
+    },
 };
 
 use super::parse::{curly_attrs, node_to_from_str, node_to_string, symbol};
@@ -25,6 +28,54 @@ use super::parse::{curly_attrs, node_to_from_str, node_to_string, symbol};
 /// Detect at least three semicolons
 fn semis(input: &str) -> IResult<&str, &str> {
     recognize(many_m_n(3, 100, char(':')))(input)
+}
+
+/// Parse an [`Admonition`] from blocks in a block quote
+pub fn admonition(content: &mut Vec<Block>) -> Option<Admonition> {
+    if let Some(Block::Paragraph(para)) = content.first_mut() {
+        if let Some(Inline::Text(Text { value: text, .. })) = para.content.first_mut() {
+            if text.starts_with("[!") {
+                if let Some(mut finish) = text.find("]") {
+                    let admonition_type = text[2..finish].parse().unwrap_or_default();
+
+                    let is_folded = match text.chars().nth(finish + 1) {
+                        Some('+') => {
+                            finish += 1;
+                            Some(true)
+                        }
+                        Some('-') => {
+                            finish += 1;
+                            Some(false)
+                        }
+                        _ => None,
+                    };
+
+                    // Remove the prefix from the para and then make any remainind
+                    // content the title
+                    *text = Cord::from(text[finish+1..].trim_start());
+                    let title = if text.is_empty() {
+                        para.content.drain(1..)
+                    } else {
+                        para.content.drain(0..)
+                    }
+                    .collect_vec();
+                    let title = if title.is_empty() { None } else { Some(title) };
+
+                    let content = content.drain(1..).collect();
+
+                    return Some(Admonition {
+                        admonition_type,
+                        title,
+                        is_folded,
+                        content,
+                        ..Default::default()
+                    });
+                }
+            }
+        }
+    }
+
+    None
 }
 
 /// Parse a [`MathBlock`] node
