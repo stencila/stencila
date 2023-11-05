@@ -1,1 +1,1 @@
-A call of sibling document ../parameter/parameter.md A call with arguments ../parameter/parameter.mdarg1123
+A call of sibling document ../parameter/parameter.md A call with one argument ../parameter/parameter.mdarg1123 A call with several arguments ../parameter/parameter.mdarg1123 argtwo"two" arg_three3.0 arg42 * 2
