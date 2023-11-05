@@ -505,6 +505,10 @@ fn proptests_anyof(title: &str, schema: &Schema) -> Vec<Block> {
         }
     }
 
+    if rows.len() == 1 {
+        return Vec::new();
+    }
+
     vec![
         h2([t("Testing")]),
         p([
