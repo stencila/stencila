@@ -83,15 +83,13 @@ def divan(content):
             else:
                 slowest /= 1e3
 
-            ops = int(iters)
-
             results.append(
                 dict(
                     name=f"{prefix}.{name}",
                     unit="ops/sec",
-                    value=round(ops / median, 1),
-                    min=round(ops / slowest, 1),
-                    max=round(ops / fastest, 1),
+                    value=round(1.0 / median, 1),
+                    min=round(1.0 / slowest, 1),
+                    max=round(1.0 / fastest, 1),
                     samples=int(samples),
                 )
             )
