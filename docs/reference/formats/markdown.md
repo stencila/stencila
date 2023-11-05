@@ -154,10 +154,10 @@ Support and degree of loss for node types:
 | [Link](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/link.md)                                | 🔷 Low loss       | 🔷 Low loss    | Encoded using special function    |
 | [List](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/list.md)                                | 🔷 Low loss       | 🔷 Low loss    | Encoded using special function    |
 | [ListItem](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/list_item.md)                       | 🔷 Low loss       | 🔷 Low loss    | Encoded using special function    |
-| [Note](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/note.md)                                | ⚠️ High loss     |               |                                   |
+| [Note](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/note.md)                                | 🔷 Low loss       | 🔷 Low loss    | Encoded using special function    |
 | [Paragraph](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/paragraph.md)                      | 🟢 No loss        | 🟢 No loss     | Encoded as `{content}\n\n`        |
 | [Quote](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/quote.md)                              | ⚠️ High loss     |               | Encoded as `<q>{content}</q>`     |
-| [QuoteBlock](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/quote_block.md)                   | ⚠️ High loss     |               |                                   |
+| [QuoteBlock](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/quote_block.md)                   | 🟢 No loss        | 🟢 No loss     | Encoded using special function    |
 | [Section](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/section.md)                          | 🟢 No loss        | 🟢 No loss     | Encoded using special function    |
 | [Strikeout](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/strikeout.md)                      | ⚠️ High loss     |               | Encoded as `~~{content}~~`        |
 | [Strong](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/strong.md)                            | 🟢 No loss        | 🟢 No loss     | Encoded as `**{content}**`        |

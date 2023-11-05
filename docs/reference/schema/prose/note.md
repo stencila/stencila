@@ -33,16 +33,16 @@ The `Note` type is related to these types:
 
 The `Note` type can be encoded (serialized) to, and/or decoded (deserialized) from, these formats:
 
-| Format                                                                                        | Encoding         | Decoding     | Status                 | Notes                                                                                          |
-| --------------------------------------------------------------------------------------------- | ---------------- | ------------ | ---------------------- | ---------------------------------------------------------------------------------------------- |
-| [HTML](https://github.com/stencila/stencila/blob/main/docs/reference/formats/html.md)         | 🔷 Low loss       |              | 🚧 Under development    |                                                                                                |
-| [JATS](https://github.com/stencila/stencila/blob/main/docs/reference/formats/jats.md)         | 🟢 No loss        | 🟢 No loss    | 🚧 Under development    | Encoded as [`<fn>`](https://jats.nlm.nih.gov/articleauthoring/tag-library/1.3/element/fn.html) |
-| [Markdown](https://github.com/stencila/stencila/blob/main/docs/reference/formats/markdown.md) | ⚠️ High loss     |              | 🚧 Under development    |                                                                                                |
-| [Plain text](https://github.com/stencila/stencila/blob/main/docs/reference/formats/text.md)   | ⚠️ High loss     |              | ⚠️ Alpha               |                                                                                                |
-| [JSON](https://github.com/stencila/stencila/blob/main/docs/reference/formats/json.md)         | 🟢 No loss        | 🟢 No loss    | 🟢 Stable               |                                                                                                |
-| [JSON5](https://github.com/stencila/stencila/blob/main/docs/reference/formats/json5.md)       | 🟢 No loss        | 🟢 No loss    | 🟢 Stable               |                                                                                                |
-| [YAML](https://github.com/stencila/stencila/blob/main/docs/reference/formats/yaml.md)         | 🟢 No loss        | 🟢 No loss    | 🟢 Stable               |                                                                                                |
-| [Debug](https://github.com/stencila/stencila/blob/main/docs/reference/formats/debug.md)       | 🔷 Low loss       |              | 🟢 Stable               |                                                                                                |
+| Format                                                                                        | Encoding         | Decoding      | Status                 | Notes                                                                                          |
+| --------------------------------------------------------------------------------------------- | ---------------- | ------------- | ---------------------- | ---------------------------------------------------------------------------------------------- |
+| [HTML](https://github.com/stencila/stencila/blob/main/docs/reference/formats/html.md)         | 🔷 Low loss       |               | 🚧 Under development    |                                                                                                |
+| [JATS](https://github.com/stencila/stencila/blob/main/docs/reference/formats/jats.md)         | 🟢 No loss        | 🟢 No loss     | 🚧 Under development    | Encoded as [`<fn>`](https://jats.nlm.nih.gov/articleauthoring/tag-library/1.3/element/fn.html) |
+| [Markdown](https://github.com/stencila/stencila/blob/main/docs/reference/formats/markdown.md) | 🔷 Low loss       | 🔷 Low loss    | 🚧 Under development    | Encoded using special function                                                                 |
+| [Plain text](https://github.com/stencila/stencila/blob/main/docs/reference/formats/text.md)   | ⚠️ High loss     |               | ⚠️ Alpha               |                                                                                                |
+| [JSON](https://github.com/stencila/stencila/blob/main/docs/reference/formats/json.md)         | 🟢 No loss        | 🟢 No loss     | 🟢 Stable               |                                                                                                |
+| [JSON5](https://github.com/stencila/stencila/blob/main/docs/reference/formats/json5.md)       | 🟢 No loss        | 🟢 No loss     | 🟢 Stable               |                                                                                                |
+| [YAML](https://github.com/stencila/stencila/blob/main/docs/reference/formats/yaml.md)         | 🟢 No loss        | 🟢 No loss     | 🟢 Stable               |                                                                                                |
+| [Debug](https://github.com/stencila/stencila/blob/main/docs/reference/formats/debug.md)       | 🔷 Low loss       |               | 🟢 Stable               |                                                                                                |
 
 ## Bindings
 
@@ -58,9 +58,11 @@ The `Note` type is represented in these bindings:
 
 During property-based (a.k.a generative) testing, the properties of the `Note` type are generated using the following strategies for each complexity level (see the [`proptest` book](https://proptest-rs.github.io/proptest/) for an explanation of the Rust strategy expressions). Any optional properties that are not in this table are set to `None`.
 
-| Property  | Complexity | Description                                                  | Strategy                                                                                                        |
-| --------- | ---------- | ------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------- |
-| `content` | Min+       | Generate a single paragraph not a note (to avoid recursion). | `vec![Block::Paragraph(crate::Paragraph::new(vec![crate::Inline::Text(crate::Text::from("Note paragraph"))]))]` |
+| Property   | Complexity | Description                                                  | Strategy                                                                                                        |
+| ---------- | ---------- | ------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------- |
+| `noteType` | Min+       | Fixed footnote type.                                         | `NoteType::Footnote`                                                                                            |
+|            | High+      | Generate an arbitrary note type.                             | `NoteType::arbitrary()`                                                                                         |
+| `content`  | Min+       | Generate a single paragraph not a note (to avoid recursion). | `vec![Block::Paragraph(crate::Paragraph::new(vec![crate::Inline::Text(crate::Text::from("Note paragraph"))]))]` |
 
 ## Source
 
