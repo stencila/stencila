@@ -24,6 +24,9 @@
         style="max-height: 100px; padding-top: 2rem"
       />
       <h1>Benchmarks</h1>
+    </header>
+
+    <main>
       <p>
         Performance benchmarks are run on each commit to allow monitoring for
         regressions. See the GitHub Actions
@@ -36,11 +39,11 @@
           href="https://github.com/stencila/stencila/blob/main/docs/develop/benchmarks"
           >docs</a
         >
-        for more.
+        for details. To remove some of the noise caused by running benchmarks on potentially different
+        CI machines, shared with differing neighboring CI jobs, the benchmarks are adjusted by
+        the geometric mean of scores for a set of benchmarks at each date/time.
       </p>
-    </header>
 
-    <main>
       <sec id="codecs">
         <h2>Codecs</h2>
         <p>
@@ -81,6 +84,8 @@
 
       /// Generate plots for a section
       function plots(name) {
+        // Extract the results for this set of benchmarks
+        // and augment with data on the record
         const results = records.flatMap((record) =>
           record.benches
             .find((bench) => bench.name === name)
@@ -93,10 +98,58 @@
             }))
         );
 
+        // Get the names of unique benchmarks in the set
         const benches = Array.from(
           new Set(results.map((result) => result.name))
         );
 
+        // Get the names of unique datetimes in the set
+        const datetimes = Array.from(
+          new Set(results.map((result) => result.datetime))
+        );
+
+        // For each result, calculate its `score` as its values relative to
+        // the geometric mean of all values for the benchmark
+        for (const bench of benches) {
+          let sumLog = 0;
+          let count = 0;
+          for (const result of results) {
+            if (result.name === bench && result.value > 0) {
+              sumLog += Math.log(result.value);
+              count += 1;
+            }
+          }
+          const geoMean = Math.exp(sumLog / count);
+
+          for (const result of results) {
+            if (result.name == bench) {
+              result.score = (result.value / geoMean).toFixed(5);
+            }
+          }
+        }
+
+        // For each result, adjust the score by the geometric mean of all
+        // scores for the datetime
+        for (const datetime of datetimes) {
+          let sumLog = 0;
+          let count = 0;
+          for (const result of results) {
+            if (result.datetime == datetime && result.score > 0) {
+              sumLog += Math.log(result.score);
+              count += 1;
+            }
+          }
+          const geoMean = Math.exp(sumLog / count);
+
+          for (const result of results) {
+            if (result.datetime == datetime) {
+              result.adjustment = geoMean.toFixed(5);
+              result.adjustedScore = (result.score / geoMean).toFixed(5);
+            }
+          }
+        }
+
+        // Create a plot for each benchmark
         const section = document.querySelector(`#${name}`);
         for (const bench of benches) {
           plot(
@@ -117,12 +170,30 @@
           height: 300,
           mark: {
             type: "line",
-            point: true,
+            point: {
+              size: 70,
+            },
           },
           encoding: {
             x: { field: "datetime", type: "ordinal" },
-            y: { field: "value", type: "quantitative", title: "ops/sec" },
-            tooltip: [{ field: "commit" }, { field: "author" }, { field: "message" }],
+            y: {
+              field: "adjustedScore",
+              type: "quantitative",
+              title: "Adjusted score",
+            },
+            y: {
+              field: "adjustedScore",
+              type: "quantitative",
+              title: "Adjusted score",
+            },
+            tooltip: [
+              { field: "commit" },
+              { field: "author" },
+              { field: "message" },
+              { field: "value" },
+              { field: "score" },
+              { field: "adjustment" },
+            ],
           },
         };
 
