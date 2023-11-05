@@ -1,4 +1,5 @@
 // Generated file; do not edit. See `../rust/schema-gen` crate.
+import { type AdmonitionType } from "./AdmonitionType.js";
 import { type Article } from "./Article.js";
 import { type AudioObject } from "./AudioObject.js";
 import { type AutomaticExecution } from "./AutomaticExecution.js";
@@ -52,6 +53,7 @@ import { type VideoObject } from "./VideoObject.js";
  * Union type for all types that are descended from `Thing`
  */
 export type ThingType =
+  AdmonitionType |
   Article |
   AudioObject |
   AutomaticExecution |

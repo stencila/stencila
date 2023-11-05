@@ -2,6 +2,7 @@
 
 use crate::prelude::*;
 
+use super::admonition_type::AdmonitionType;
 use super::article::Article;
 use super::audio_object::AudioObject;
 use super::automatic_execution::AutomaticExecution;
@@ -55,6 +56,8 @@ use super::video_object::VideoObject;
 #[derive(Debug, strum::Display, Clone, PartialEq, Serialize, Deserialize, StripNode, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec, WriteNode, ReadNode)]
 #[serde(untagged, crate = "common::serde")]
 pub enum ThingType {
+    AdmonitionType(AdmonitionType),
+
     Article(Article),
 
     AudioObject(AudioObject),

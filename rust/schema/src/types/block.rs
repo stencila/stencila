@@ -2,6 +2,7 @@
 
 use crate::prelude::*;
 
+use super::admonition::Admonition;
 use super::call::Call;
 use super::claim::Claim;
 use super::code_block::CodeBlock;
@@ -26,6 +27,9 @@ use super::thematic_break::ThematicBreak;
 #[serde(untagged, crate = "common::serde")]
 #[cfg_attr(feature = "proptest", derive(Arbitrary))]
 pub enum Block {
+    #[cfg_attr(feature = "proptest-min", proptest(skip))]
+    Admonition(Admonition),
+
     #[cfg_attr(feature = "proptest-min", proptest(skip))]
     Call(Call),
 

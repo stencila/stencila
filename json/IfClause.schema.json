@@ -324,7 +324,7 @@
       "proptest": {
         "min": {
           "description": "A single, simple paragraph.",
-          "value": "vec![shortcuts::p([shortcuts::t(\"If clause content\")])]"
+          "value": "vec![p([t(\"If clause content\")])]"
         },
         "low": {
           "description": "Generate up to two arbitrary, non-recursive, block nodes.",

@@ -135,6 +135,9 @@
           "@id": "schema:ListItem"
         },
         {
+          "@id": "stencila:Admonition"
+        },
+        {
           "@id": "stencila:Cite"
         },
         {

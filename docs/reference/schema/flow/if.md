@@ -65,11 +65,11 @@ The `If` type is represented in these bindings:
 
 During property-based (a.k.a generative) testing, the properties of the `If` type are generated using the following strategies for each complexity level (see the [`proptest` book](https://proptest-rs.github.io/proptest/) for an explanation of the Rust strategy expressions). Any optional properties that are not in this table are set to `None`.
 
-| Property  | Complexity | Description                                    | Strategy                                                                          |
-| --------- | ---------- | ---------------------------------------------- | --------------------------------------------------------------------------------- |
-| `clauses` | Min+       | A single fixed clause with a single paragraph. | `vec![shortcuts::ifc("true", None, [shortcuts::p([shortcuts::t("If clause")])])]` |
-|           | Low+       | Generate up to 3 arbitrary if clauses          | `vec(IfClause::arbitrary(), size_range(1..=3))`                                   |
-|           | High+      | Generate up to 5 arbitrary if clauses          | `vec(IfClause::arbitrary(), size_range(1..=10))`                                  |
+| Property  | Complexity | Description                                    | Strategy                                                   |
+| --------- | ---------- | ---------------------------------------------- | ---------------------------------------------------------- |
+| `clauses` | Min+       | A single fixed clause with a single paragraph. | `vec![ifc("true", None::<String>, [p([t("If clause")])])]` |
+|           | Low+       | Generate up to 3 arbitrary if clauses          | `vec(IfClause::arbitrary(), size_range(1..=3))`            |
+|           | High+      | Generate up to 5 arbitrary if clauses          | `vec(IfClause::arbitrary(), size_range(1..=10))`           |
 
 ## Source
 

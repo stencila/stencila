@@ -2,6 +2,7 @@
 
 from .prelude import *
 
+Admonition = ForwardRef("Admonition")
 Array = ForwardRef("Array")
 ArrayValidator = ForwardRef("ArrayValidator")
 Article = ForwardRef("Article")
@@ -115,6 +116,7 @@ Node = Union[
     str,
     Cord,
     Array,
+    Admonition,
     ArrayValidator,
     Article,
     AudioObject,

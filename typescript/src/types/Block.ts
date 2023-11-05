@@ -2,6 +2,7 @@
 
 import { hydrate } from "../hydrate.js";
 
+import { type Admonition } from "./Admonition.js";
 import { type Call } from "./Call.js";
 import { type Claim } from "./Claim.js";
 import { type CodeBlock } from "./CodeBlock.js";
@@ -25,6 +26,7 @@ import { type ThematicBreak } from "./ThematicBreak.js";
  * Union type in block content node types.
  */
 export type Block =
+  Admonition |
   Call |
   Claim |
   CodeBlock |
@@ -49,6 +51,7 @@ export type Block =
  */
 export function block(other: Block): Block {
   switch(other.type) {
+    case "Admonition":
     case "Call":
     case "Claim":
     case "CodeBlock":

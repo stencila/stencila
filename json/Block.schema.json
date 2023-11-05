@@ -10,6 +10,18 @@
     {
       "proptest": {
         "min": {
+          "description": "Do not generate `Admonition` nodes in block content.",
+          "skip": true
+        },
+        "low": {
+          "description": "Generate `Admonition` nodes in block content."
+        }
+      },
+      "$ref": "Admonition.schema.json"
+    },
+    {
+      "proptest": {
+        "min": {
           "description": "Do not generate `Call` nodes in block content.",
           "skip": true
         },

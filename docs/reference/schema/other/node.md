@@ -14,6 +14,7 @@ The `Node` type has these members:
 - [`String`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/string.md)
 - [`Cord`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/cord.md)
 - [`Array`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/array.md)
+- [`Admonition`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/admonition.md)
 - [`ArrayValidator`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/array-validator.md)
 - [`Article`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/article.md)
 - [`AudioObject`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/audio-object.md)

@@ -144,6 +144,7 @@ Support and degree of loss for node types:
 | [TableRow](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/table_row.md)                       | 🔷 Low loss       | 🔷 Low loss    |                                   |
 | [VideoObject](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/video_object.md)                 | ⚠️ High loss     |               | Encoded using special function    |
 | **Prose**                                                                                                                 |
+| [Admonition](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/admonition.md)                    | ⚠️ High loss     | 🟢 No loss     | Encoded using special function    |
 | [Cite](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/cite.md)                                | ⚠️ High loss     |               |                                   |
 | [CiteGroup](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/cite_group.md)                     | ⚠️ High loss     |               |                                   |
 | [DefinedTerm](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/defined_term.md)                 | ⚠️ High loss     |               |                                   |

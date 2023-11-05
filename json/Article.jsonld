@@ -444,6 +444,9 @@
           "@id": "schema:CreativeWork"
         },
         {
+          "@id": "stencila:Admonition"
+        },
+        {
           "@id": "stencila:Link"
         }
       ],
@@ -485,6 +488,9 @@
         },
         {
           "@id": "schema:ListItem"
+        },
+        {
+          "@id": "stencila:Admonition"
         },
         {
           "@id": "stencila:Cite"

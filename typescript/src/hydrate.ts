@@ -31,6 +31,8 @@ export function hydrate(value: types.Node): types.Node {
   switch (value.type) {
     // Generated code, do not exit
     // TYPE-CASES:START
+    case "Admonition":
+      return Object.setPrototypeOf(value, types.Admonition.prototype);
     case "ArrayValidator":
       return Object.setPrototypeOf(value, types.ArrayValidator.prototype);
     case "Article":

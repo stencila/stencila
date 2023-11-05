@@ -51,7 +51,7 @@ During property-based (a.k.a generative) testing, the properties of the `Insert`
 
 | Property  | Complexity | Description                                                | Strategy                       |
 | --------- | ---------- | ---------------------------------------------------------- | ------------------------------ |
-| `content` | Min+       | Generate a single fixed text value.                        | `vec![shortcuts::t("text")]`   |
+| `content` | Min+       | Generate a single fixed text value.                        | `vec![t("text")]`              |
 |           | Low+       | Generate a single arbitrary, non-recursive, inline node    | `vec_inlines_non_recursive(1)` |
 |           | High+      | Generate up to two arbitrary, non-recursive, inline nodes  | `vec_inlines_non_recursive(2)` |
 |           | Max        | Generate up to four arbitrary, non-recursive, inline nodes | `vec_inlines_non_recursive(4)` |

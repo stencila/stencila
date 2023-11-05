@@ -74,7 +74,7 @@ pub struct For {
     /// The content to repeat for each item
     #[serde(deserialize_with = "one_or_many")]
     #[strip(code)]
-    #[cfg_attr(feature = "proptest-min", proptest(value = r#"vec![shortcuts::p([shortcuts::t("For content")])]"#))]
+    #[cfg_attr(feature = "proptest-min", proptest(value = r#"vec![p([t("For content")])]"#))]
     #[cfg_attr(feature = "proptest-low", proptest(strategy = r#"vec_blocks_non_recursive(4)"#))]
     #[cfg_attr(feature = "proptest-high", proptest(strategy = r#"vec_blocks_non_recursive(4)"#))]
     #[cfg_attr(feature = "proptest-max", proptest(strategy = r#"vec_blocks_non_recursive(8)"#))]

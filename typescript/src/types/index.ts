@@ -1,5 +1,7 @@
 // Generated file; do not edit. See `../rust/schema-gen` crate.
 
+export * from "./Admonition.js";
+export * from "./AdmonitionType.js";
 export * from "./Array.js";
 export * from "./ArrayValidator.js";
 export * from "./Article.js";

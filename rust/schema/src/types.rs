@@ -1,6 +1,8 @@
 // Generated file; do not edit. See `schema-gen` crate.
 use common::strum::{Display, EnumString, EnumIter};
 
+mod admonition;
+mod admonition_type;
 mod array;
 mod array_validator;
 mod article;
@@ -145,6 +147,8 @@ mod validator;
 mod variable;
 mod video_object;
 
+pub use admonition::*;
+pub use admonition_type::*;
 pub use array::*;
 pub use array_validator::*;
 pub use article::*;
@@ -300,6 +304,7 @@ pub enum NodeType {
     String,
     Cord,
     Array,
+    Admonition,
     ArrayValidator,
     Article,
     AudioObject,

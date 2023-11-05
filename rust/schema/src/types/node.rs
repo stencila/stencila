@@ -2,6 +2,7 @@
 
 use crate::prelude::*;
 
+use super::admonition::Admonition;
 use super::array::Array;
 use super::array_validator::ArrayValidator;
 use super::article::Article;
@@ -130,6 +131,8 @@ pub enum Node {
     Cord(Cord),
 
     Array(Array),
+
+    Admonition(Admonition),
 
     ArrayValidator(ArrayValidator),
 

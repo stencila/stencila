@@ -44,7 +44,7 @@ pub struct Claim {
     /// The type of the claim.
     #[serde(alias = "claim-type", alias = "claim_type")]
     #[cfg_attr(feature = "proptest", proptest(value = "Default::default()"))]
-    #[jats(attr = "specific-use")]
+    #[jats(attr = "content-type")]
     pub claim_type: ClaimType,
 
     /// A short label for the claim.

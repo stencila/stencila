@@ -1,5 +1,7 @@
 # Generated file; do not edit. See the Rust `schema-gen` crate.
 
+from .admonition import Admonition
+from .admonition_type import AdmonitionType
 from .array import Array
 from .array_validator import ArrayValidator
 from .article import Article

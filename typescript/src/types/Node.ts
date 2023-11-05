@@ -2,6 +2,7 @@
 
 import { hydrate } from "../hydrate.js";
 
+import { type Admonition } from "./Admonition.js";
 import { type Array } from "./Array.js";
 import { type ArrayValidator } from "./ArrayValidator.js";
 import { type Article } from "./Article.js";
@@ -118,6 +119,7 @@ export type Node =
   string |
   Cord |
   Array |
+  Admonition |
   ArrayValidator |
   Article |
   AudioObject |
@@ -226,6 +228,7 @@ export function node(other: Node): Node {
     return other as Node;
   }
   switch(other.type) {
+    case "Admonition":
     case "ArrayValidator":
     case "Article":
     case "AudioObject":

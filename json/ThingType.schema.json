@@ -3,6 +3,9 @@
   "description": "Union type for all types that are descended from `Thing`",
   "anyOf": [
     {
+      "$ref": "AdmonitionType.schema.json"
+    },
+    {
       "$ref": "Article.schema.json"
     },
     {

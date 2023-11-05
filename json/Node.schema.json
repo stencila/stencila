@@ -27,6 +27,9 @@
       "$ref": "Array.schema.json"
     },
     {
+      "$ref": "Admonition.schema.json"
+    },
+    {
       "$ref": "ArrayValidator.schema.json"
     },
     {

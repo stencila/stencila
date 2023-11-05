@@ -91,7 +91,7 @@
         }
       },
       "jats": {
-        "attr": "specific-use"
+        "attr": "content-type"
       },
       "$ref": "SectionType.schema.json"
     }

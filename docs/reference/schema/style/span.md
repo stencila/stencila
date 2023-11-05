@@ -67,7 +67,7 @@ During property-based (a.k.a generative) testing, the properties of the `Span` t
 |                 | Low+       | Generate one of the well known style language short names.                       | `option::of(r"(css)\|(tw)")`                  |
 |                 | High+      | Generate a random string of up to 10 alphanumeric characters.                    | `option::of(r"[a-zA-Z0-9]{1,10}")`            |
 |                 | Max        | Generate an arbitrary string.                                                    | `option::of(String::arbitrary())`             |
-| `content`       | Min+       | Generate a single fixed text value.                                              | `vec![shortcuts::t("text")]`                  |
+| `content`       | Min+       | Generate a single fixed text value.                                              | `vec![t("text")]`                             |
 |                 | High+      | Generate up to two arbitrary, non-recursive, inline nodes                        | `vec_inlines_non_recursive(2)`                |
 |                 | Max        | Generate up to four arbitrary, non-recursive, inline nodes                       | `vec_inlines_non_recursive(4)`                |
 

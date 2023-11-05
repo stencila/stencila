@@ -544,7 +544,7 @@
         "claim_type"
       ],
       "jats": {
-        "attr": "specific-use"
+        "attr": "content-type"
       },
       "$ref": "ClaimType.schema.json"
     },

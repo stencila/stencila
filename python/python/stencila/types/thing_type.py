@@ -2,6 +2,7 @@
 
 from .prelude import *
 
+AdmonitionType = ForwardRef("AdmonitionType")
 Article = ForwardRef("Article")
 AudioObject = ForwardRef("AudioObject")
 AutomaticExecution = ForwardRef("AutomaticExecution")
@@ -53,6 +54,7 @@ VideoObject = ForwardRef("VideoObject")
 
 
 ThingType = Union[
+    AdmonitionType,
     Article,
     AudioObject,
     AutomaticExecution,

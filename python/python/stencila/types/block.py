@@ -2,6 +2,7 @@
 
 from .prelude import *
 
+Admonition = ForwardRef("Admonition")
 Call = ForwardRef("Call")
 Claim = ForwardRef("Claim")
 CodeBlock = ForwardRef("CodeBlock")
@@ -23,6 +24,7 @@ ThematicBreak = ForwardRef("ThematicBreak")
 
 
 Block = Union[
+    Admonition,
     Call,
     Claim,
     CodeBlock,

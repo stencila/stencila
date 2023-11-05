@@ -1,0 +1,139 @@
+{
+  "@context": {
+    "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
+    "schema": "https://schema.org/",
+    "stencila": "https://stencila.dev/"
+  },
+  "@graph": [
+    {
+      "@id": "stencila:Admonition",
+      "@type": "rdfs:Class",
+      "rdfs:label": "Admonition",
+      "rdfs:comment": "A admonition within a document.",
+      "rdfs:subClassOf": {
+        "@id": "Entity"
+      }
+    },
+    {
+      "@id": "stencila:admonitionType",
+      "@type": "rdfs:Property",
+      "rdfs:label": "admonitionType",
+      "rdfs:comment": "The type of admonition.",
+      "schema:domainIncludes": {
+        "@id": "stencila:Admonition"
+      },
+      "schema:rangeIncludes": {
+        "@id": "AdmonitionType"
+      }
+    },
+    {
+      "@id": "stencila:title",
+      "@type": "rdfs:Property",
+      "rdfs:label": "title",
+      "rdfs:comment": "The title of the admonition.",
+      "schema:domainIncludes": [
+        {
+          "@id": "schema:CreativeWork"
+        },
+        {
+          "@id": "stencila:Admonition"
+        },
+        {
+          "@id": "stencila:Link"
+        }
+      ],
+      "schema:rangeIncludes": {
+        "@id": "stencila:Inline"
+      }
+    },
+    {
+      "@id": "stencila:title",
+      "@type": "rdfs:Property",
+      "rdfs:label": "isFolded",
+      "rdfs:comment": "Whether the admonition is folded.",
+      "schema:domainIncludes": {
+        "@id": "stencila:Admonition"
+      },
+      "schema:rangeIncludes": {
+        "@id": "schema:Boolean"
+      }
+    },
+    {
+      "@id": "stencila:content",
+      "@type": "rdfs:Property",
+      "rdfs:label": "content",
+      "rdfs:comment": "The content within the section.",
+      "schema:domainIncludes": [
+        {
+          "@id": "schema:Article"
+        },
+        {
+          "@id": "schema:Claim"
+        },
+        {
+          "@id": "schema:Comment"
+        },
+        {
+          "@id": "schema:ListItem"
+        },
+        {
+          "@id": "stencila:Admonition"
+        },
+        {
+          "@id": "stencila:Cite"
+        },
+        {
+          "@id": "stencila:Division"
+        },
+        {
+          "@id": "stencila:Figure"
+        },
+        {
+          "@id": "stencila:For"
+        },
+        {
+          "@id": "stencila:Form"
+        },
+        {
+          "@id": "stencila:Heading"
+        },
+        {
+          "@id": "stencila:IfClause"
+        },
+        {
+          "@id": "stencila:Include"
+        },
+        {
+          "@id": "stencila:Link"
+        },
+        {
+          "@id": "stencila:Mark"
+        },
+        {
+          "@id": "stencila:Note"
+        },
+        {
+          "@id": "stencila:Paragraph"
+        },
+        {
+          "@id": "stencila:QuoteBlock"
+        },
+        {
+          "@id": "stencila:Section"
+        },
+        {
+          "@id": "stencila:Span"
+        },
+        {
+          "@id": "stencila:Suggestion"
+        },
+        {
+          "@id": "stencila:TableCell"
+        }
+      ],
+      "schema:rangeIncludes": {
+        "@id": "stencila:Block"
+      }
+    }
+  ]
+}

@@ -65,7 +65,7 @@ pub struct IfClause {
 
     /// The content to render if the result is truthy
     #[serde(deserialize_with = "one_or_many")]
-    #[cfg_attr(feature = "proptest-min", proptest(value = r#"vec![shortcuts::p([shortcuts::t("If clause content")])]"#))]
+    #[cfg_attr(feature = "proptest-min", proptest(value = r#"vec![p([t("If clause content")])]"#))]
     #[cfg_attr(feature = "proptest-low", proptest(strategy = r#"vec_blocks_non_recursive(2)"#))]
     #[cfg_attr(feature = "proptest-high", proptest(strategy = r#"vec_blocks_non_recursive(2)"#))]
     #[cfg_attr(feature = "proptest-max", proptest(strategy = r#"vec_blocks_non_recursive(4)"#))]

@@ -47,7 +47,7 @@ pub struct If {
     #[serde(alias = "clause")]
     #[serde(deserialize_with = "one_or_many")]
     #[strip(code)]
-    #[cfg_attr(feature = "proptest-min", proptest(value = r#"vec![shortcuts::ifc("true", None, [shortcuts::p([shortcuts::t("If clause")])])]"#))]
+    #[cfg_attr(feature = "proptest-min", proptest(value = r#"vec![ifc("true", None::<String>, [p([t("If clause")])])]"#))]
     #[cfg_attr(feature = "proptest-low", proptest(strategy = r#"vec(IfClause::arbitrary(), size_range(1..=3))"#))]
     #[cfg_attr(feature = "proptest-high", proptest(strategy = r#"vec(IfClause::arbitrary(), size_range(1..=10))"#))]
     #[cfg_attr(feature = "proptest-max", proptest(strategy = r#"vec(IfClause::arbitrary(), size_range(1..=10))"#))]

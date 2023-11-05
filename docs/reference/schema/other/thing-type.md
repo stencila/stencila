@@ -6,6 +6,7 @@
 
 The `ThingType` type has these members:
 
+- [`AdmonitionType`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/admonition-type.md)
 - [`Article`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/article.md)
 - [`AudioObject`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/audio-object.md)
 - [`AutomaticExecution`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/automatic-execution.md)

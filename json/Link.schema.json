@@ -54,7 +54,7 @@
       "proptest": {
         "min": {
           "description": "Generate a single fixed text value.",
-          "value": "vec![shortcuts::t(\"text\")]"
+          "value": "vec![t(\"text\")]"
         },
         "low": {
           "description": "Generate a single arbitrary, non-recursive, inline node",
