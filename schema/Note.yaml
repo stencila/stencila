@@ -47,5 +47,5 @@ properties:
       $ref: Block
     proptest:
       min:
-        description: Generate a single paragraph not a note (to avoid recursion).
-        value: vec![Block::Paragraph(crate::Paragraph::new(vec![crate::Inline::Text(crate::Text::from("Note paragraph"))]))]
+        description: Generate a single paragraph (with no `Note` to avoid recursion).
+        value: vec![shortcuts::p([shortcuts::t("Note paragraph")])]

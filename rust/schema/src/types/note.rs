@@ -38,10 +38,10 @@ pub struct Note {
 
     /// Content of the note, usually a paragraph.
     #[serde(deserialize_with = "one_or_many")]
-    #[cfg_attr(feature = "proptest-min", proptest(value = r#"vec![Block::Paragraph(crate::Paragraph::new(vec![crate::Inline::Text(crate::Text::from("Note paragraph"))]))]"#))]
-    #[cfg_attr(feature = "proptest-low", proptest(value = r#"vec![Block::Paragraph(crate::Paragraph::new(vec![crate::Inline::Text(crate::Text::from("Note paragraph"))]))]"#))]
-    #[cfg_attr(feature = "proptest-high", proptest(value = r#"vec![Block::Paragraph(crate::Paragraph::new(vec![crate::Inline::Text(crate::Text::from("Note paragraph"))]))]"#))]
-    #[cfg_attr(feature = "proptest-max", proptest(value = r#"vec![Block::Paragraph(crate::Paragraph::new(vec![crate::Inline::Text(crate::Text::from("Note paragraph"))]))]"#))]
+    #[cfg_attr(feature = "proptest-min", proptest(value = r#"vec![shortcuts::p([shortcuts::t("Note paragraph")])]"#))]
+    #[cfg_attr(feature = "proptest-low", proptest(value = r#"vec![shortcuts::p([shortcuts::t("Note paragraph")])]"#))]
+    #[cfg_attr(feature = "proptest-high", proptest(value = r#"vec![shortcuts::p([shortcuts::t("Note paragraph")])]"#))]
+    #[cfg_attr(feature = "proptest-max", proptest(value = r#"vec![shortcuts::p([shortcuts::t("Note paragraph")])]"#))]
     pub content: Vec<Block>,
 }
 

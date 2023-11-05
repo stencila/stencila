@@ -9,6 +9,7 @@
   "category": "flow",
   "description": "Show and execute alternative content conditional upon an executed expression.",
   "status": "under-development",
+  "proptest": {},
   "html": {
     "elem": "div",
     "custom": true

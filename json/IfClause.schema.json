@@ -255,7 +255,7 @@
           "value": "Cord::new(\"code\")"
         },
         "low": {
-          "description": "Generate a random string of up to 10 alphanumeric characters (exclude whitespace which\ncan be problematic in Markdown).\n",
+          "description": "Generate a random string of up to 10 alphanumeric characters (excludes whitespace which\ncan be problematic in Markdown).\n",
           "strategy": "r\"[a-zA-Z0-9]{1,10}\".prop_map(Cord::new)"
         },
         "high": {

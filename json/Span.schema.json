@@ -157,7 +157,7 @@
       "proptest": {
         "min": {
           "description": "Generate a single fixed text value.",
-          "value": "vec![crate::shortcuts::t(\"text\")]"
+          "value": "vec![shortcuts::t(\"text\")]"
         },
         "high": {
           "description": "Generate up to two arbitrary, non-recursive, inline nodes",
