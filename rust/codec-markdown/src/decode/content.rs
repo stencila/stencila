@@ -69,11 +69,7 @@ pub fn decode_content(md: &str) -> (Vec<Block>, Losses) {
     let mut footnotes = HashMap::new();
 
     // Parse the note content to populate the map of notes
-    let (other_blocks, mut losses) = decode_blocks(&footnotes_md, Some(&mut footnotes));
-    if !other_blocks.is_empty() {
-        tracing::error!("Expected parsing of footnotes not to return any blocks");
-        losses.add("Blocks")
-    }
+    let (_, mut losses) = decode_blocks(&footnotes_md, Some(&mut footnotes));
 
     // Now parse the main content with the populated map of notes
     let (blocks, other_losses) = decode_blocks(&other_md, Some(&mut footnotes));
