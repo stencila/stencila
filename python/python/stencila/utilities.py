@@ -47,6 +47,8 @@ def from_value(value) -> Node:  # pragma: no cover
     for attr in value.keys():
         value[attr] = from_value(value[attr])
 
+    if typ == "Admonition":
+        return Admonition(**value)
     if typ == "ArrayValidator":
         return ArrayValidator(**value)
     if typ == "Article":
