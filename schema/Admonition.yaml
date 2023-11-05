@@ -49,7 +49,7 @@ properties:
         description: Generate up to four arbitrary, non-recursive, inline nodes.
         strategy: option::of(vec_inlines_non_recursive(4))
   isFolded:
-    '@id': stencila:title
+    '@id': stencila:isFolded
     description: Whether the admonition is folded.
     $comment: |
       When an admonition is folded, its `content` is hidden by default, but
