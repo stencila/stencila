@@ -49,12 +49,12 @@ The `Insert` type is represented in these bindings:
 
 During property-based (a.k.a generative) testing, the properties of the `Insert` type are generated using the following strategies for each complexity level (see the [`proptest` book](https://proptest-rs.github.io/proptest/) for an explanation of the Rust strategy expressions). Any optional properties that are not in this table are set to `None`.
 
-| Property  | Complexity | Description                                                | Strategy                            |
-| --------- | ---------- | ---------------------------------------------------------- | ----------------------------------- |
-| `content` | Min+       | Generate a single fixed text value.                        | `vec![crate::shortcuts::t("text")]` |
-|           | Low+       | Generate a single arbitrary, non-recursive, inline node    | `vec_inlines_non_recursive(1)`      |
-|           | High+      | Generate up to two arbitrary, non-recursive, inline nodes  | `vec_inlines_non_recursive(2)`      |
-|           | Max        | Generate up to four arbitrary, non-recursive, inline nodes | `vec_inlines_non_recursive(4)`      |
+| Property  | Complexity | Description                                                | Strategy                       |
+| --------- | ---------- | ---------------------------------------------------------- | ------------------------------ |
+| `content` | Min+       | Generate a single fixed text value.                        | `vec![shortcuts::t("text")]`   |
+|           | Low+       | Generate a single arbitrary, non-recursive, inline node    | `vec_inlines_non_recursive(1)` |
+|           | High+      | Generate up to two arbitrary, non-recursive, inline nodes  | `vec_inlines_non_recursive(2)` |
+|           | Max        | Generate up to four arbitrary, non-recursive, inline nodes | `vec_inlines_non_recursive(4)` |
 
 ## Source
 

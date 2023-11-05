@@ -44,6 +44,7 @@ During property-based (a.k.a generative) testing, the variants of the `Block` ty
 | Variant     | Complexity | Description                                         | Strategy          |
 | ----------- | ---------- | --------------------------------------------------- | ----------------- |
 | `Call`      | Min+       | Do not generate `Call` nodes in block content.      | -                 |
+|             | Low+       | Generate `Call` nodes in block content.             | Default for level |
 | `Claim`     | Min+       | Do not generate `Claim` nodes in block content.     | -                 |
 |             | Low+       | Generate `Claim` nodes in block content.            | Default for level |
 | `CodeChunk` | Min+       | Do not generate `CodeChunk` nodes in block content. | -                 |
@@ -51,9 +52,12 @@ During property-based (a.k.a generative) testing, the variants of the `Block` ty
 | `Figure`    | Min+       | Do not generate `Figure` nodes in block content.    | -                 |
 |             | Low+       | Generate `Figure` nodes in block content.           | Default for level |
 | `For`       | Min+       | Do not generate `For` nodes in block content.       | -                 |
+|             | Low+       | Generate `For` nodes in block content.              | Default for level |
 | `Form`      | Min+       | Do not generate `Form` nodes in block content.      | -                 |
 | `If`        | Min+       | Do not generate `If` nodes in block content.        | -                 |
+|             | Low+       | Generate `If` nodes in block content.               | Default for level |
 | `Include`   | Min+       | Do not generate `Include` nodes in block content.   | -                 |
+|             | Low+       | Generate `Include` nodes in block content.          | Default for level |
 | `Section`   | Min+       | Do not generate `Section` nodes in block content.   | -                 |
 |             | Low+       | Generate `Section` nodes in block content.          | Default for level |
 

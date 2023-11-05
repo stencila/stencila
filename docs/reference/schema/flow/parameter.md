@@ -67,6 +67,17 @@ The `Parameter` type is represented in these bindings:
 - Rust struct [`Parameter`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/parameter.rs)
 - TypeScript class [`Parameter`](https://github.com/stencila/stencila/blob/main/typescript/src/types/Parameter.ts)
 
+## Testing
+
+During property-based (a.k.a generative) testing, the properties of the `Parameter` type are generated using the following strategies for each complexity level (see the [`proptest` book](https://proptest-rs.github.io/proptest/) for an explanation of the Rust strategy expressions). Any optional properties that are not in this table are set to `None`.
+
+| Property | Complexity | Description                                                                                                                               | Strategy                          |
+| -------- | ---------- | ----------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------- |
+| `name`   | Min+       | Generate a fixed name.                                                                                                                    | `String::from("name")`            |
+|          | Low+       | Generate a random string of up to 10 alphanumeric characters (and at most one underscore to avoid<br><br>a clash with Markdown emphasis). | Regex `[a-zA-Z_][a-zA-Z0-9]{0,9}` |
+|          | High+      | Generate a random string of up to 100 characters (excluding control characters).                                                          | Regex `[^\p{C}]{1,100}`           |
+|          | Max        | Generate an arbitrary string.                                                                                                             | `String::arbitrary()`             |
+
 ## Source
 
 This documentation was generated from [`Parameter.yaml`](https://github.com/stencila/stencila/blob/main/schema/Parameter.yaml) by [`docs.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs.rs).

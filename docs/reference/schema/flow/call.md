@@ -65,6 +65,20 @@ The `Call` type is represented in these bindings:
 - Rust struct [`Call`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/call.rs)
 - TypeScript class [`Call`](https://github.com/stencila/stencila/blob/main/typescript/src/types/Call.ts)
 
+## Testing
+
+During property-based (a.k.a generative) testing, the properties of the `Call` type are generated using the following strategies for each complexity level (see the [`proptest` book](https://proptest-rs.github.io/proptest/) for an explanation of the Rust strategy expressions). Any optional properties that are not in this table are set to `None`.
+
+| Property    | Complexity | Description                                                                                                                                                                                                        | Strategy                                             |
+| ----------- | ---------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ---------------------------------------------------- |
+| `source`    | Min+       | Generate a fixed path.                                                                                                                                                                                             | `String::from("path/to/source.file")`                |
+|             | Low+       | Generate a random string with up to 30 alphanumeric characters, forward slashes,<br><br>hyphens, and dots (exclude characters in such as underscores an asterisks which<br><br>have semantic meaning in Markdown). | Regex `[a-zA-Z0-9/\-.]{1,30}`                        |
+|             | High+      | Generate a random string of up to 100 characters (excluding control characters).                                                                                                                                   | Regex `[^\p{C}]{1,100}`                              |
+|             | Max        | Generate an arbitrary string.                                                                                                                                                                                      | `String::arbitrary()`                                |
+| `arguments` | Min+       | An empty set of arguments.                                                                                                                                                                                         | `Vec::new()`                                         |
+|             | Low+       | Generate up to 3 arbitrary arguments                                                                                                                                                                               | `vec(CallArgument::arbitrary(), size_range(0..=3))`  |
+|             | High+      | Generate up to 10 arbitrary arguments                                                                                                                                                                              | `vec(CallArgument::arbitrary(), size_range(0..=10))` |
+
 ## Source
 
 This documentation was generated from [`Call.yaml`](https://github.com/stencila/stencila/blob/main/schema/Call.yaml) by [`docs.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs.rs).

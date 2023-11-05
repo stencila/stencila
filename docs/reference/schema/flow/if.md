@@ -61,6 +61,16 @@ The `If` type is represented in these bindings:
 - Rust struct [`If`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/if.rs)
 - TypeScript class [`If`](https://github.com/stencila/stencila/blob/main/typescript/src/types/If.ts)
 
+## Testing
+
+During property-based (a.k.a generative) testing, the properties of the `If` type are generated using the following strategies for each complexity level (see the [`proptest` book](https://proptest-rs.github.io/proptest/) for an explanation of the Rust strategy expressions). Any optional properties that are not in this table are set to `None`.
+
+| Property  | Complexity | Description                                    | Strategy                                                                          |
+| --------- | ---------- | ---------------------------------------------- | --------------------------------------------------------------------------------- |
+| `clauses` | Min+       | A single fixed clause with a single paragraph. | `vec![shortcuts::ifc("true", None, [shortcuts::p([shortcuts::t("If clause")])])]` |
+|           | Low+       | Generate up to 3 arbitrary if clauses          | `vec(IfClause::arbitrary(), size_range(1..=3))`                                   |
+|           | High+      | Generate up to 5 arbitrary if clauses          | `vec(IfClause::arbitrary(), size_range(1..=10))`                                  |
+
 ## Source
 
 This documentation was generated from [`If.yaml`](https://github.com/stencila/stencila/blob/main/schema/If.yaml) by [`docs.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs.rs).

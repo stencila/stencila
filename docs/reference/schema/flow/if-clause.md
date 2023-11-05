@@ -64,6 +64,24 @@ The `IfClause` type is represented in these bindings:
 - Rust struct [`IfClause`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/if_clause.rs)
 - TypeScript class [`IfClause`](https://github.com/stencila/stencila/blob/main/typescript/src/types/IfClause.ts)
 
+## Testing
+
+During property-based (a.k.a generative) testing, the properties of the `IfClause` type are generated using the following strategies for each complexity level (see the [`proptest` book](https://proptest-rs.github.io/proptest/) for an explanation of the Rust strategy expressions). Any optional properties that are not in this table are set to `None`.
+
+| Property              | Complexity | Description                                                                                                                     | Strategy                                                  |
+| --------------------- | ---------- | ------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------- |
+| `code`                | Min+       | Generate a simple fixed string of code.                                                                                         | `Cord::new("code")`                                       |
+|                       | Low+       | Generate a random string of up to 10 alphanumeric characters (excludes whitespace which<br><br>can be problematic in Markdown). | `r"[a-zA-Z0-9]{1,10}".prop_map(Cord::new)`                |
+|                       | High+      | Generate a random string of up to 100 characters (excluding control characters).                                                | `r"[^\p{C}]{1,100}".prop_map(Cord::new)`                  |
+|                       | Max        | Generate an arbitrary string.                                                                                                   | `String::arbitrary().prop_map(Cord::new)`                 |
+| `programmingLanguage` | Min+       | Generate a simple fixed string.                                                                                                 | `Some(String::from("lang"))`                              |
+|                       | Low+       | Generate one of the well known programming language short names.                                                                | `option::of(r"(cpp)\|(js)\|(py)\|(r)\|(ts)")`             |
+|                       | High+      | Generate a random string of up to 10 alphanumeric characters.                                                                   | `option::of(r"[a-zA-Z0-9]{1,10}")`                        |
+|                       | Max        | Generate an arbitrary string.                                                                                                   | `option::of(String::arbitrary())`                         |
+| `content`             | Min+       | A single, simple paragraph.                                                                                                     | `vec![shortcuts::p([shortcuts::t("If clause content")])]` |
+|                       | Low+       | Generate up to two arbitrary, non-recursive, block nodes.                                                                       | `vec_blocks_non_recursive(2)`                             |
+|                       | Max        | Generate up to four arbitrary, non-recursive, block nodes.                                                                      | `vec_blocks_non_recursive(4)`                             |
+
 ## Source
 
 This documentation was generated from [`IfClause.yaml`](https://github.com/stencila/stencila/blob/main/schema/IfClause.yaml) by [`docs.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs.rs).
