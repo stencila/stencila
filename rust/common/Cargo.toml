@@ -28,7 +28,7 @@ serde_json = { version = "1.0.108", features = ["preserve_order"] }
 serde_with = "3.4.0"
 serde_yaml = "0.9.27"
 similar = { version = "2.3.0", features = ["unicode"] }
-slug = "0.1.4"
+slug = "0.1.5"
 smart-default = "0.7.1"
 strum = { version = "0.25.0", features = ["derive"] }
 syn = "2.0.39"
