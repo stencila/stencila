@@ -9,7 +9,7 @@ use codec::{
     },
     format::Format,
     schema::{
-        shortcuts::{cb, del, em, ins, mb, ol, p, q, qb, stg, stk, t, tab, tb, td, u, ul},
+        shortcuts::{cb, del, em, ins, mb, ol, p, q, qb, stg, stk, t, tab, tb, u, ul},
         transforms::blocks_to_inlines,
         AudioObject, Block, CodeChunk, Cord, Heading, If, IfClause, ImageObject, Inline, Link,
         ListItem, Note, NoteType, TableCell, TableRow, TableRowType, VideoObject,
@@ -199,7 +199,18 @@ pub fn decode_blocks(
                 TagEnd::Table => blocks.push_block(tab(tables.pop_rows())),
                 TagEnd::TableHead => tables.push_header(),
                 TagEnd::TableRow => tables.push_row(),
-                TagEnd::TableCell => tables.push_cell(td(inlines.pop_mark())),
+                TagEnd::TableCell => {
+                    let inlines = inlines.pop_mark();
+                    let content = if inlines.is_empty() {
+                        Vec::new()
+                    } else {
+                        vec![p(inlines)]
+                    };
+                    tables.push_cell(TableCell {
+                        content,
+                        ..Default::default()
+                    })
+                }
                 TagEnd::FootnoteDefinition => {
                     if let Some(footnotes) = footnotes.as_mut() {
                         let content = blocks.pop_mark();
