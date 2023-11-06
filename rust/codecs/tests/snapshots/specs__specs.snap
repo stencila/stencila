@@ -556,7 +556,6 @@ expression: specs
       "UnsignedInteger",
       "Number",
       "Array",
-      "Admonition",
       "ArrayValidator",
       "Article",
       "AudioObject",
@@ -664,7 +663,7 @@ expression: specs
     "lossy_to_types": []
   },
   "markdown": {
-    "status": "under-development",
+    "status": "alpha",
     "supports_from_formats": {
       "markdown": "LowLoss"
     },
@@ -773,7 +772,6 @@ expression: specs
       "UnsignedInteger",
       "Number",
       "Array",
-      "Admonition",
       "ArrayValidator",
       "Article",
       "AudioObject",
