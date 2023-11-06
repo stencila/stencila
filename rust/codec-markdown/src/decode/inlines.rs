@@ -5,7 +5,7 @@ use std::collections::HashMap;
 use nom::{
     branch::alt,
     bytes::complete::{is_not, tag, take, take_until, take_while1},
-    character::complete::{alpha1, char, digit1, multispace0, multispace1},
+    character::complete::{char, digit1, multispace0, multispace1},
     combinator::{map, not, opt, peek},
     multi::{fold_many0, separated_list1},
     sequence::{delimited, pair, preceded, tuple},
@@ -117,14 +117,14 @@ fn span(input: &str) -> IResult<&str, Inline> {
     map(
         tuple((
             delimited(char('['), take_until_unbalanced('[', ']'), char(']')),
-            opt(alpha1),
-            delimited(char('{'), is_not("}"), char('}')),
+            delimited(char('{'), take_until_unbalanced('{', '}'), char('}')),
+            opt(delimited(char('{'), is_not("}"), char('}'))),
         )),
-        |(content, lang, code): (&str, Option<&str>, &str)| {
+        |(content, code, lang): (&str, &str, Option<&str>)| {
             Inline::Span(Span {
                 content: inlines_or_text(content),
-                style_language: lang.map(|lang| lang.into()),
                 code: code.into(),
+                style_language: lang.map(|lang| lang.into()),
                 ..Default::default()
             })
         },

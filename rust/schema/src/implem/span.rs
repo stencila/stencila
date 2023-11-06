@@ -16,9 +16,13 @@ impl Span {
         let (md, md_losses) = self.content.to_markdown(context);
         losses.merge(md_losses);
 
-        let lang = self.style_language.as_deref().unwrap_or_default();
+        let lang = self
+            .style_language
+            .as_ref()
+            .map(|lang| ["{", lang, "}"].concat())
+            .unwrap_or_default();
 
-        let md = ["[", &md, "]", lang, "{", &self.code, "}"].concat();
+        let md = ["[", &md, "]{", &self.code, "}", &lang].concat();
 
         (md, losses)
     }
