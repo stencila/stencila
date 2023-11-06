@@ -3,7 +3,3 @@ compact.jats.xml:
     strip-types:
       # TODO: implement decoding `List`
       - List
-md:
-  decode:
-    # TODO: work out what is failing here
-    skip: true
