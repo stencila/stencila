@@ -116,7 +116,7 @@ fn code_attrs(input: &str) -> IResult<&str, Inline> {
 fn span(input: &str) -> IResult<&str, Inline> {
     map(
         tuple((
-            delimited(char('['), is_not("]"), char(']')),
+            delimited(char('['), take_until_unbalanced('[', ']'), char(']')),
             opt(alpha1),
             delimited(char('{'), is_not("}"), char('}')),
         )),
@@ -599,6 +599,56 @@ fn string(input: &str) -> IResult<&str, Inline> {
 /// Necessary so that the characters no consumed by `string` are not lost.
 fn character(input: &str) -> IResult<&str, Inline> {
     map(take(1usize), t)(input)
+}
+
+/// Take characters until `opening` and `closing` are unbalanced
+///
+/// Based on https://docs.rs/parse-hyperlinks/latest/parse_hyperlinks/fn.take_until_unbalanced.html
+pub fn take_until_unbalanced(opening: char, closing: char) -> impl Fn(&str) -> IResult<&str, &str> {
+    use nom::error::Error;
+    use nom::error::ErrorKind;
+    use nom::error::ParseError;
+    use nom::Err;
+
+    move |i: &str| {
+        let mut index = 0;
+        let mut bracket_counter = 0;
+        while let Some(n) = &i[index..].find(&[opening, closing, '\\'][..]) {
+            index += n;
+            let mut it = i[index..].chars();
+            match it.next() {
+                Some(c) if c == '\\' => {
+                    // Skip the escape char `\`.
+                    index += '\\'.len_utf8();
+                    // Skip also the following char.
+                    if let Some(c) = it.next() {
+                        index += c.len_utf8();
+                    }
+                }
+                Some(c) if c == opening => {
+                    bracket_counter += 1;
+                    index += opening.len_utf8();
+                }
+                Some(c) if c == closing => {
+                    bracket_counter -= 1;
+                    index += closing.len_utf8();
+                }
+                _ => unreachable!(),
+            };
+            // We found the unmatched closing.
+            if bracket_counter == -1 {
+                //Do not consume it.
+                index -= closing.len_utf8();
+                return Ok((&i[index..], &i[0..index]));
+            };
+        }
+
+        if bracket_counter == 0 {
+            Ok(("", i))
+        } else {
+            Err(Err::Error(Error::from_error_kind(i, ErrorKind::TakeUntil)))
+        }
+    }
 }
 
 #[cfg(test)]

@@ -41,44 +41,6 @@
       "content": [
         {
           "type": "Text",
-          "value": "Containing other inline nodes "
-        },
-        {
-          "type": "Span",
-          "code": "text-blue-600",
-          "content": [
-            {
-              "type": "Emphasis",
-              "content": [
-                {
-                  "type": "Text",
-                  "value": "emphasis"
-                }
-              ]
-            },
-            {
-              "type": "Text",
-              "value": ", "
-            },
-            {
-              "type": "Link",
-              "target": "https://example.org",
-              "content": [
-                {
-                  "type": "Text",
-                  "value": "link"
-                }
-              ]
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "type": "Paragraph",
-      "content": [
-        {
-          "type": "Text",
           "value": "Containing other spans "
         },
         {

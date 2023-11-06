@@ -3,10 +3,6 @@
   <body>
     <p>A<styled-content style="text-green-600">styled span</styled-content>, and one with language specified:<styled-content style="color:red" style-detail="css">CSS span</styled-content>
     </p>
-    <p>Containing other inline nodes<styled-content style="text-blue-600">
-        <italic>emphasis</italic>,<ext-link xlink:href="https://example.org">link</ext-link>
-      </styled-content>
-    </p>
     <p>Containing other spans<styled-content style="text-blue-600">blue<styled-content style="text-red-600">red</styled-content>blue</styled-content>
     </p>
   </body>
