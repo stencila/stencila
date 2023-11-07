@@ -15,4 +15,4 @@ napi-derive = "2.13.0"
 schema = { path = "../rust/schema" }
 
 [build-dependencies]
-napi-build = "2.0.1"
+napi-build = "2.1.0"
