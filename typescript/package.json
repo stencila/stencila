@@ -79,8 +79,8 @@
   "devDependencies": {
     "@arethetypeswrong/cli": "0.13.1",
     "@types/jest": "29.5.7",
-    "@typescript-eslint/eslint-plugin": "6.9.1",
-    "@typescript-eslint/parser": "6.9.1",
+    "@typescript-eslint/eslint-plugin": "6.10.0",
+    "@typescript-eslint/parser": "6.10.0",
     "depcheck": "1.4.7",
     "eslint": "8.53.0",
     "jest": "29.7.0",
