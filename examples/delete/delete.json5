@@ -62,8 +62,7 @@
             {
               type: "CodeExpression",
               code: "2 + 2",
-              programmingLanguage: "",
-              output: 4
+              programmingLanguage: ""
             }
           ]
         },

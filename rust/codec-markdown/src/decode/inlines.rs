@@ -2,6 +2,7 @@
 
 use std::collections::HashMap;
 
+use codec_text_trait::TextCodec;
 use nom::{
     branch::alt,
     bytes::complete::{is_not, tag, take, take_until, take_while1},
@@ -15,7 +16,7 @@ use nom::{
 use codec::{
     common::indexmap::IndexMap,
     schema::{
-        shortcuts::{ce, mf, stk, sub, sup, t},
+        shortcuts::{mf, stk, sub, sup, t},
         BooleanValidator, Button, Cite, CiteGroup, CodeExpression, CodeFragment, Cord,
         DateTimeValidator, DateValidator, DurationValidator, EnumValidator, Inline,
         IntegerValidator, Node, NumberValidator, Parameter, ParameterOptions, Span,
@@ -72,32 +73,49 @@ pub fn inlines_or_text(input: &str) -> Vec<Inline> {
 
 /// Parse inline code with attributes in curly braces
 /// e.g. `\`code\`{attr1 attr2}` into a `CodeFragment`, `CodeExpression`
-/// or `MathFragment` node
+/// or `MathFragment` node.
+///
+/// The `curly_attrs` are optional because plain `CodeFragment`s also end up being
+/// passed to this function
 fn code_attrs(input: &str) -> IResult<&str, Inline> {
     map(
         pair(
             delimited(char('`'), take_until("`"), char('`')),
-            opt(delimited(char('{'), take_until("}"), char('}'))),
+            opt(curly_attrs),
         ),
-        |(code, options): (&str, Option<&str>)| {
-            let (lang, exec) = match options {
-                Some(attrs) => {
-                    let attrs = attrs.split_whitespace().collect::<Vec<&str>>();
-                    let lang = attrs.first().and_then(|item| {
-                        if *item == "exec" {
-                            None
-                        } else {
-                            Some(item.to_string())
-                        }
-                    });
-                    let exec = attrs.contains(&"exec");
-                    (lang, exec)
-                }
-                None => (None, false),
+        |(code, options)| {
+            let Some(options) = options else {
+                return Inline::CodeFragment(CodeFragment {
+                    code: code.into(),
+                    ..Default::default()
+                });
             };
-            match exec {
-                true => ce(code, lang),
-                _ => match lang.as_deref() {
+
+            let mut lang = None;
+            let mut exec = false;
+            let mut auto_exec = None;
+
+            for (name, value) in options {
+                if name == "exec" {
+                    exec = true
+                } else if value.is_none() {
+                    lang = Some(name);
+                } else if name == "auto" {
+                    if let Some(value) = value {
+                        auto_exec = Some(value.to_text().0.parse().unwrap_or_default())
+                    }
+                }
+            }
+
+            if exec {
+                Inline::CodeExpression(CodeExpression {
+                    code: code.into(),
+                    programming_language: lang,
+                    auto_exec,
+                    ..Default::default()
+                })
+            } else {
+                match lang.as_deref() {
                     Some("asciimath") | Some("mathml") | Some("latex") | Some("tex") => {
                         mf(code, lang)
                     }
@@ -106,7 +124,7 @@ fn code_attrs(input: &str) -> IResult<&str, Inline> {
                         programming_language: lang,
                         ..Default::default()
                     }),
-                },
+                }
             }
         },
     )(input)
@@ -669,11 +687,11 @@ mod tests {
         );
 
         assert_eq!(
-            span(r#"[content]css{color:red}"#).unwrap().1,
+            span(r#"[content]{color:red}{css}"#).unwrap().1,
             Inline::Span(Span {
                 content: vec![t("content")],
-                style_language: Some(String::from("css")),
                 code: "color:red".into(),
+                style_language: Some(String::from("css")),
                 ..Default::default()
             })
         );

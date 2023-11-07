@@ -4,6 +4,9 @@ use crate::{prelude::*, CodeChunk};
 
 impl CodeChunk {
     pub fn to_markdown_special(&self, _context: &mut MarkdownEncodeContext) -> (String, Losses) {
+        let mut losses = lost_options!(self, id, outputs);
+        losses.merge(lost_exec_options!(self));
+
         let mut md = "```".to_string();
 
         if let Some(lang) = &self.programming_language {
@@ -25,9 +28,6 @@ impl CodeChunk {
         }
 
         md.push_str("```\n\n");
-
-        let mut losses = lost_options!(self, id);
-        losses.merge(lost_exec_options!(self));
 
         (md, losses)
     }

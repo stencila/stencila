@@ -501,6 +501,8 @@ pub fn decode_blocks(
             Event::Code(value) => {
                 // Because we allow for attributes on code, we push back the
                 // code in back ticks for it to be parsed again later.
+                // Note that `pulldown_cmark` trims whitespace from the `value`
+                // before this function is reached
                 inlines.push_text(&["`", &value, "`"].concat())
             }
             Event::Rule => blocks.push_block(tb()),
@@ -913,5 +915,23 @@ impl Html {
             self.html.push_str(html);
             vec![]
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use codec::schema::shortcuts::cf;
+    use common_dev::pretty_assertions::assert_eq;
+
+    use super::*;
+
+    /// This test is just to document that pulldown_cmark trim
+    /// whitespace from around inline code
+    #[test]
+    fn code_fragment_with_spaces() {
+        assert_eq!(
+            decode_blocks(r#"` some code `"#, None).0,
+            vec![p([cf("some code")])]
+        );
     }
 }

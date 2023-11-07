@@ -4,6 +4,7 @@ compact.jats.xml:
       # TODO: Fix issues with encoding and decoding `CodeExpression`
       - CodeExpression
 md:
-  decode:
-    # TODO: Fix issues with encoding and decoding `CodeExpression`
-    skip: true
+  encode:
+    strip-props:
+      # Output properties are not supported in Markdown
+      - CodeExpression.output

@@ -73,26 +73,11 @@
       content: [
         {
           type: "Text",
-          value: "With an empty language: "
+          value: "With no language: "
         },
         {
           type: "CodeExpression",
-          code: "a + b",
-          programmingLanguage: ""
-        }
-      ]
-    },
-    {
-      type: "Paragraph",
-      content: [
-        {
-          type: "Text",
-          value: "With a language and `guessLanguage` set to true: "
-        },
-        {
-          type: "CodeExpression",
-          code: "a + b",
-          programmingLanguage: "c++"
+          code: "a + b"
         }
       ]
     },
@@ -108,23 +93,6 @@
           autoExec: "Never",
           code: "c * d",
           programmingLanguage: "javascript"
-        }
-      ]
-    },
-    {
-      type: "Paragraph",
-      content: [
-        {
-          type: "Text",
-          value: "Code with surrounding spaces "
-        },
-        {
-          type: "CodeExpression",
-          code: " a "
-        },
-        {
-          type: "Text",
-          value: "."
         }
       ]
     }

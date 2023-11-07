@@ -67,25 +67,10 @@
       "content": [
         {
           "type": "Text",
-          "value": "With an empty language: "
+          "value": "With no language: "
         },
         {
           "type": "CodeExpression",
-          "programmingLanguage": "",
-          "code": "a + b"
-        }
-      ]
-    },
-    {
-      "type": "Paragraph",
-      "content": [
-        {
-          "type": "Text",
-          "value": "With a language and `guessLanguage` set to true: "
-        },
-        {
-          "type": "CodeExpression",
-          "programmingLanguage": "c++",
           "code": "a + b"
         }
       ]
@@ -102,23 +87,6 @@
           "programmingLanguage": "javascript",
           "code": "c * d",
           "autoExec": "Never"
-        }
-      ]
-    },
-    {
-      "type": "Paragraph",
-      "content": [
-        {
-          "type": "Text",
-          "value": "Code with surrounding spaces "
-        },
-        {
-          "type": "CodeExpression",
-          "code": " a "
-        },
-        {
-          "type": "Text",
-          "value": "."
         }
       ]
     }

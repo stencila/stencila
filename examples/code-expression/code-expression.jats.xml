@@ -9,12 +9,9 @@
     </p>
     <p>With an object output:<code executable="yes" language="python">dict(a=1,b=dict())1</code>
     </p>
-    <p>With an empty language:<code executable="yes">a + b</code>
-    </p>
-    <p>With a language and `guessLanguage` set to true:<code executable="yes" language="c++">a + b</code>
+    <p>With no language:<code executable="yes">a + b</code>
     </p>
     <p>With automatic execution behavior specified<code executable="yes" language="javascript">c * d</code>
     </p>
-    <p>Code with surrounding spaces<code executable="yes">a</code>.</p>
   </body>
 </article>
