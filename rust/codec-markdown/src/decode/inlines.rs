@@ -664,7 +664,10 @@ pub fn take_until_unbalanced(opening: char, closing: char) -> impl Fn(&str) -> I
         if bracket_counter == 0 {
             Ok(("", input))
         } else {
-            Err(Err::Error(Error::from_error_kind(input, ErrorKind::TakeUntil)))
+            Err(Err::Error(Error::from_error_kind(
+                input,
+                ErrorKind::TakeUntil,
+            )))
         }
     }
 }
