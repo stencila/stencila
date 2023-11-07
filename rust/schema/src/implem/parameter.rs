@@ -1,23 +1,42 @@
 use codec_json5_trait::Json5Codec;
 
-use crate::{prelude::*, IntegerValidator, NumberValidator, Parameter, Validator};
+use crate::{prelude::*, IntegerValidator, Node, NumberValidator, Parameter, Validator};
 
 impl Parameter {
     pub fn to_markdown_special(&self, _context: &mut MarkdownEncodeContext) -> (String, Losses) {
         let mut md = ["&[", &self.name, "]"].concat();
         let mut losses = Losses::none();
 
+        /// Convert a node to a string
+        ///
+        /// Uses `to_json5` except for strings containing double
+        /// quotes for which JSON5 can not be used because it uses backslash
+        /// escapes which are also used by Markdown.
+        fn node_to_md(node: &Node) -> String {
+            match node {
+                Node::String(node) => string_to_md(node),
+                _ => node.to_json5().unwrap_or_default(),
+            }
+        }
+        fn string_to_md(string: &str) -> String {
+            if string.contains('"') {
+                ["'", string, "'"].concat()
+            } else {
+                ["\"", string, "\""].concat()
+            }
+        }
+
         let attr_value = |attrs: &mut String| {
             if let Some(val) = &self.value {
                 attrs.push_str(" val=");
-                attrs.push_str(&val.to_json5().unwrap_or_default());
+                attrs.push_str(&node_to_md(val));
             }
         };
 
         let attr_default = |attrs: &mut String| {
             if let Some(def) = &self.default {
                 attrs.push_str(" def=");
-                attrs.push_str(&def.to_json5().unwrap_or_default());
+                attrs.push_str(&node_to_md(def));
             }
         };
 
@@ -125,7 +144,7 @@ impl Parameter {
 
                     if let Some(pattern) = &validator.pattern {
                         attrs.push_str(" pattern=");
-                        attrs.push_str(&pattern.to_json5().unwrap_or_default());
+                        attrs.push_str(&string_to_md(pattern));
                     }
 
                     attrs
@@ -138,7 +157,7 @@ impl Parameter {
                     attrs_min_max!("time", validator)
                 }
                 Validator::DateTimeValidator(validator) => {
-                    attrs_min_max!("date-time", validator)
+                    attrs_min_max!("datetime", validator)
                 }
 
                 Validator::EnumValidator(validator) => {

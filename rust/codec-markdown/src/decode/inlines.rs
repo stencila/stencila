@@ -203,7 +203,7 @@ fn parameter(input: &str) -> IResult<&str, Inline> {
                     .and_then(node_to_option_number);
                 let exclusive_minimum = options
                     .remove("exclusive_minimum")
-                    .or_else(|| options.remove("exmin"))
+                    .or_else(|| options.remove("emin"))
                     .flatten()
                     .and_then(node_to_option_number);
                 let maximum = options
@@ -213,7 +213,7 @@ fn parameter(input: &str) -> IResult<&str, Inline> {
                     .and_then(node_to_option_number);
                 let exclusive_maximum = options
                     .remove("exclusive_minimum")
-                    .or_else(|| options.remove("exmax"))
+                    .or_else(|| options.remove("emax"))
                     .flatten()
                     .and_then(node_to_option_number);
                 let multiple_of = options
@@ -238,7 +238,7 @@ fn parameter(input: &str) -> IResult<&str, Inline> {
                     .and_then(node_to_option_number);
                 let exclusive_minimum = options
                     .remove("exclusive_minimum")
-                    .or_else(|| options.remove("exmin"))
+                    .or_else(|| options.remove("emin"))
                     .flatten()
                     .and_then(node_to_option_number);
                 let maximum = options
@@ -248,7 +248,7 @@ fn parameter(input: &str) -> IResult<&str, Inline> {
                     .and_then(node_to_option_number);
                 let exclusive_maximum = options
                     .remove("exclusive_minimum")
-                    .or_else(|| options.remove("exmax"))
+                    .or_else(|| options.remove("emax"))
                     .flatten()
                     .and_then(node_to_option_number);
                 let multiple_of = options
@@ -628,12 +628,12 @@ pub fn take_until_unbalanced(opening: char, closing: char) -> impl Fn(&str) -> I
     use nom::error::ParseError;
     use nom::Err;
 
-    move |i: &str| {
+    move |input: &str| {
         let mut index = 0;
         let mut bracket_counter = 0;
-        while let Some(n) = &i[index..].find(&[opening, closing, '\\'][..]) {
+        while let Some(n) = &input[index..].find(&[opening, closing, '\\'][..]) {
             index += n;
-            let mut it = i[index..].chars();
+            let mut it = input[index..].chars();
             match it.next() {
                 Some(c) if c == '\\' => {
                     // Skip the escape char `\`.
@@ -657,14 +657,14 @@ pub fn take_until_unbalanced(opening: char, closing: char) -> impl Fn(&str) -> I
             if bracket_counter == -1 {
                 //Do not consume it.
                 index -= closing.len_utf8();
-                return Ok((&i[index..], &i[0..index]));
+                return Ok((&input[index..], &input[0..index]));
             };
         }
 
         if bracket_counter == 0 {
-            Ok(("", i))
+            Ok(("", input))
         } else {
-            Err(Err::Error(Error::from_error_kind(i, ErrorKind::TakeUntil)))
+            Err(Err::Error(Error::from_error_kind(input, ErrorKind::TakeUntil)))
         }
     }
 }

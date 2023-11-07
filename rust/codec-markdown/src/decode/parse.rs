@@ -307,6 +307,8 @@ mod tests {
 
     #[test]
     fn test_double_quoted() {
+        let (_, res) = double_quoted_string_node(r#""a\"b""#).unwrap();
+        assert_eq!(res, r#"a\"b"#);
         let (_, res) = double_quoted_string_node(r#"" \" 🤖 ""#).unwrap();
         assert_eq!(res, r#" \" 🤖 "#);
         let (_, res) = double_quoted_string_node(r#"" → x""#).unwrap();
