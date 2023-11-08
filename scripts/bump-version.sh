@@ -31,6 +31,9 @@ sed -i -e "s/    \"@stencila\/types\": .*/    \"@stencila\/types\": \"$VERSION\"
 sed -i -e "s/\"version\": .*/\"version\": \"$VERSION\",/" node/package.json
 sed -i -e "s/^version = .*/version = \"$VERSION\"/" node/Cargo.toml
 
+# Update the version in the Web package
+sed -i -e "s/\"version\": .*/\"version\": \"$VERSION\",/" web/package.json
+
 # Do NPM install at root to update `package-lock.json` files
 # but with --ignore-scripts to avoid a premature attempt to download the
 # as yet unavailable binary addons
