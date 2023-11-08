@@ -12,6 +12,7 @@ path = "src/main.rs"
 tokio-console = ["console-subscriber"]
 
 [dependencies]
+axum = { version = "0.6.20", features = ["ws"] }
 codecs = { path = "../codecs" }
 color-eyre = { version = "0.6.2", features = ["issue-url"] }
 common = { path = "../common" }
@@ -19,7 +20,9 @@ console-subscriber = { version = "0.2.0", optional = true }
 document = { path = "../document" }
 format = { path = "../format" }
 is-terminal = "0.4.9"
+mime_guess = "2.0.4"
 node-strip = { path = "../node-strip" }
+rust-embed = { version = "8.0.0", features = ["interpolate-folder-path", "include-exclude"] }
 syntect = "5.1.0"
 tracing-error = "0.2.0"
 tracing-subscriber = { version = "0.3.17", features = ["env-filter", "json"] }

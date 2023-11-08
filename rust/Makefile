@@ -93,8 +93,14 @@ audit:
 unused:
 	cargo +nightly udeps --workspace --all-targets
 
+# Run the CLI serve command
+serve:
+	cargo run --bin stencila serve
+
 # Build CLI binary
+# Builds the web module first to ensure it is available to embed in binary
 build:
+	make -C ../web clean build
 	cargo build --bin stencila --release --target $(TARGET)
 
 # Create archive of CLI binary and other assets

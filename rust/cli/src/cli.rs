@@ -1,6 +1,5 @@
-use std::path::PathBuf;
+use std::{net::IpAddr, path::PathBuf};
 
-use node_strip::StripScope;
 use yansi::Color;
 
 use common::{
@@ -11,10 +10,12 @@ use common::{
 };
 use document::{Document, DocumentType, SyncDirection};
 use format::Format;
+use node_strip::StripScope;
 
 use crate::{
     display,
     logging::{LoggingFormat, LoggingLevel},
+    serve,
 };
 
 /// CLI subcommands and global options
@@ -233,6 +234,15 @@ enum Command {
 
         #[command(flatten)]
         strip_options: StripOptions,
+    },
+
+    /// Serve
+    Serve {
+        #[arg(long, short, default_value = "127.0.0.1")]
+        address: IpAddr,
+
+        #[arg(long, short, default_value_t = 9000)]
+        port: u16,
     },
 }
 
@@ -524,6 +534,10 @@ impl Cli {
                     let format = encode_options.format.unwrap_or(Format::Json);
                     display::highlighted(&content, format)?;
                 }
+            }
+
+            Command::Serve { address, port } => {
+                serve::serve(address, port).await?;
             }
         }
 
