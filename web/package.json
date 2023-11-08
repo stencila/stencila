@@ -21,11 +21,12 @@
     "documents"
   ],
   "type": "module",
+  "source": "src/index.ts",
   "scripts": {
     "fix": "eslint --fix 'src/**/*'",
     "lint": "tsc --noEmit && eslint 'src/**/*'",
-    "start": "parcel watch src/index.ts src/index.css",
-    "build": "parcel build src/index.ts src/index.css",
+    "start": "parcel watch",
+    "build": "parcel build",
     "unused": "depcheck --quiet --ignores '@parcel/*' --ignore-patterns '.eslintrc*'"
   },
   "dependencies": {
