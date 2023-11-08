@@ -9,6 +9,7 @@ install:
 	make -C typescript -B install
 	make -C node -B install
 	make -C python -B install
+	make -C web -B install
 
 # Make formatting and linting fixes
 fix:
@@ -16,6 +17,7 @@ fix:
 	make -C typescript fix
 	make -C node fix
 	make -C python fix
+	make -C web fix
 
 # Run linting checks
 lint:
@@ -23,6 +25,7 @@ lint:
 	make -C typescript lint
 	make -C node lint
 	make -C python lint
+	make -C web lint
 
 # Run tests
 test:
@@ -51,6 +54,7 @@ outdated:
 	make -C typescript outdated
 	make -C node outdated
 	make -C python outdated
+	make -C web outdated
 
 # Run accessibility checks
 a11y:
@@ -67,6 +71,7 @@ audit:
 	make -C typescript audit
 	make -C node audit
 	make -C python audit
+	make -C web audit
 
 # Build packages
 build:
@@ -74,6 +79,7 @@ build:
 	make -C typescript build
 	make -C node build
 	make -C python build
+	make -C web build
 
 # Build Docker image
 docker:
@@ -94,3 +100,4 @@ clean:
 	make -C typescript clean
 	make -C node clean
 	make -C python clean
+	make -C web clean

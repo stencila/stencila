@@ -1,0 +1,41 @@
+{
+  "name": "@stencila/web",
+  "version": "2.0.0-alpha.21",
+  "description": "Web Components for types in the Stencila Schema",
+  "license": "Apache-2.0",
+  "author": "Nokome Bentley <nokome@stencila.io>",
+  "bugs": {
+    "url": "https://github.com/stencila/stencila/issues"
+  },
+  "homepage": "https://github.com/stencila/stencila/tree/main/web#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/stencila/stencila.git"
+  },
+  "keywords": [
+    "types",
+    "programmable",
+    "executable",
+    "reproducible",
+    "interactive",
+    "documents"
+  ],
+  "type": "module",
+  "scripts": {
+    "fix": "eslint --fix 'src/**/*'",
+    "lint": "tsc --noEmit && eslint 'src/**/*'",
+    "start": "parcel watch src/index.ts src/index.css",
+    "build": "parcel build src/index.ts src/index.css",
+    "unused": "depcheck --quiet --ignores '@parcel/*' --ignore-patterns '.eslintrc*'"
+  },
+  "dependencies": {
+    "@stencila/types": "2.0.0-alpha.21",
+    "lit": "^3.0.2"
+  },
+  "devDependencies": {
+    "@parcel/compressor-brotli": "^2.10.2",
+    "@parcel/compressor-gzip": "^2.10.2",
+    "@parcel/transformer-typescript-tsc": "*",
+    "parcel": "2.10.2"
+  }
+}
