@@ -4,6 +4,9 @@ extends: CodeExecutable
 category: flow
 description: Repeat a block content for each item in an array.
 status: under-development
+html:
+  elem: div
+  custom: true
 markdown:
   special: true
 proptest: {}

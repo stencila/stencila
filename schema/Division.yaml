@@ -6,7 +6,6 @@ category: style
 description: Styled block content.
 html:
   elem: div
-  custom: true
 markdown:
   special: true
 proptest: {}

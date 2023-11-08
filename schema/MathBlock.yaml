@@ -5,7 +5,6 @@ category: math
 description: A block of math, e.g an equation, to be treated as block content.
 html:
   elem: math
-  custom: true
 jats:
   elem: disp-formula
   special: true

@@ -10,8 +10,7 @@
   "description": "A block of math, e.g an equation, to be treated as block content.",
   "proptest": {},
   "html": {
-    "elem": "math",
-    "custom": true
+    "elem": "math"
   },
   "jats": {
     "elem": "disp-formula",

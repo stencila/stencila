@@ -24,6 +24,7 @@ use super::timestamp::Timestamp;
 #[cfg_attr(feature = "proptest", derive(Arbitrary))]
 #[derive(derive_more::Display)]
 #[display(fmt = "Include")]
+#[html(elem = "div", custom)]
 #[markdown(template = "/{source}\n\n")]
 pub struct Include {
     /// The type of this item.

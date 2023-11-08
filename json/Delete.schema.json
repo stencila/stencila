@@ -10,8 +10,7 @@
   "description": "A suggestion to delete some inline content.",
   "proptest": {},
   "html": {
-    "elem": "del",
-    "custom": true
+    "elem": "del"
   },
   "jats": {
     "special": true

@@ -3,6 +3,9 @@ title: CodeChunk
 extends: CodeExecutable
 category: code
 description: A executable chunk of code.
+html:
+  elem: pre
+  custom: true
 jats:
   elem: code
   attrs:

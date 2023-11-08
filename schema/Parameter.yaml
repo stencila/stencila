@@ -8,7 +8,6 @@ jats:
   elem: parameter
 html:
   elem: span
-  custom: true
 markdown:
   special: true
 proptest: {}

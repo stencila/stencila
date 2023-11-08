@@ -13,7 +13,7 @@ use super::string::String;
 #[cfg_attr(feature = "proptest", derive(Arbitrary))]
 #[derive(derive_more::Display)]
 #[display(fmt = "CodeBlock")]
-#[html(elem = "pre", custom)]
+#[html(elem = "pre")]
 #[jats(elem = "code")]
 #[markdown(special)]
 pub struct CodeBlock {

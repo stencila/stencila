@@ -11,8 +11,7 @@
   "status": "under-development",
   "proptest": {},
   "html": {
-    "elem": "span",
-    "custom": true
+    "elem": "span"
   },
   "jats": {
     "elem": "styled-content"

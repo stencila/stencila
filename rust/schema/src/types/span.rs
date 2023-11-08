@@ -15,7 +15,7 @@ use super::string::String;
 #[cfg_attr(feature = "proptest", derive(Arbitrary))]
 #[derive(derive_more::Display)]
 #[display(fmt = "Span")]
-#[html(elem = "span", custom)]
+#[html(elem = "span")]
 #[jats(elem = "styled-content")]
 #[markdown(template = "[{content}]{{{code}}}", special)]
 pub struct Span {

@@ -10,8 +10,7 @@
   "description": "Inline code.",
   "proptest": {},
   "html": {
-    "elem": "code",
-    "custom": true
+    "elem": "code"
   },
   "jats": {
     "elem": "code"

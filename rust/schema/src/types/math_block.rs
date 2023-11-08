@@ -14,7 +14,7 @@ use super::string::String;
 #[cfg_attr(feature = "proptest", derive(Arbitrary))]
 #[derive(derive_more::Display)]
 #[display(fmt = "MathBlock")]
-#[html(elem = "math", custom)]
+#[html(elem = "math")]
 #[jats(elem = "disp-formula", special)]
 #[markdown(special)]
 pub struct MathBlock {

@@ -10,8 +10,7 @@
   "description": "A code block.",
   "proptest": {},
   "html": {
-    "elem": "pre",
-    "custom": true
+    "elem": "pre"
   },
   "jats": {
     "elem": "code"

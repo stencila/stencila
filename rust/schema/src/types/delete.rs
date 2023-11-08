@@ -13,7 +13,7 @@ use super::string::String;
 #[cfg_attr(feature = "proptest", derive(Arbitrary))]
 #[derive(derive_more::Display)]
 #[display(fmt = "Delete")]
-#[html(elem = "del", custom)]
+#[html(elem = "del")]
 #[jats(special)]
 #[markdown(template = "<del>{content}</del>")]
 pub struct Delete {

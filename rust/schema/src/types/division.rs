@@ -15,7 +15,7 @@ use super::string::String;
 #[cfg_attr(feature = "proptest", derive(Arbitrary))]
 #[derive(derive_more::Display)]
 #[display(fmt = "Division")]
-#[html(elem = "div", custom)]
+#[html(elem = "div")]
 #[markdown(special)]
 pub struct Division {
     /// The type of this item.

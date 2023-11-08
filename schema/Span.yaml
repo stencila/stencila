@@ -8,7 +8,6 @@ jats:
   elem: styled-content
 html:
   elem: span
-  custom: true
 markdown:
   template: '[{content}]{{{code}}}'
   special: true

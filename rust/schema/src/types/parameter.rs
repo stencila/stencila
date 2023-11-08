@@ -26,7 +26,7 @@ use super::validator::Validator;
 #[cfg_attr(feature = "proptest", derive(Arbitrary))]
 #[derive(derive_more::Display)]
 #[display(fmt = "Parameter")]
-#[html(elem = "span", custom)]
+#[html(elem = "span")]
 #[jats(elem = "parameter")]
 #[markdown(special)]
 pub struct Parameter {

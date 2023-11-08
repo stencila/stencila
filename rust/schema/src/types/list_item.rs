@@ -19,7 +19,7 @@ use super::text::Text;
 #[cfg_attr(feature = "proptest", derive(Arbitrary))]
 #[derive(derive_more::Display)]
 #[display(fmt = "ListItem")]
-#[html(elem = "li", custom)]
+#[html(elem = "li")]
 #[jats(elem = "list-item")]
 #[markdown(special)]
 pub struct ListItem {

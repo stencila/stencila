@@ -13,7 +13,7 @@ use super::string::String;
 #[cfg_attr(feature = "proptest", derive(Arbitrary))]
 #[derive(derive_more::Display)]
 #[display(fmt = "Insert")]
-#[html(elem = "ins", custom)]
+#[html(elem = "ins")]
 #[jats(special)]
 #[markdown(template = "<ins>{content}</ins>")]
 pub struct Insert {

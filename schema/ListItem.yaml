@@ -14,7 +14,6 @@ $comment: |
     - OpenDocument [`<text:list-item>`](http://docs.oasis-open.org/office/v1.2/os/OpenDocument-v1.2-os-part1.html#__RefHeading__1415154_253892949)
 html:
   elem: li
-  custom: true
 jats:
   elem: list-item
 markdown:

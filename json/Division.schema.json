@@ -11,8 +11,7 @@
   "status": "under-development",
   "proptest": {},
   "html": {
-    "elem": "div",
-    "custom": true
+    "elem": "div"
   },
   "markdown": {
     "special": true

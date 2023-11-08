@@ -10,6 +10,10 @@
   "description": "Repeat a block content for each item in an array.",
   "status": "under-development",
   "proptest": {},
+  "html": {
+    "elem": "div",
+    "custom": true
+  },
   "markdown": {
     "special": true
   },

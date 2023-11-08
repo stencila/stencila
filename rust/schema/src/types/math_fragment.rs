@@ -14,7 +14,7 @@ use super::string::String;
 #[cfg_attr(feature = "proptest", derive(Arbitrary))]
 #[derive(derive_more::Display)]
 #[display(fmt = "MathFragment")]
-#[html(elem = "math", custom)]
+#[html(elem = "math")]
 #[jats(elem = "inline-formula", special)]
 #[markdown(special)]
 pub struct MathFragment {

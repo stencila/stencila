@@ -5,7 +5,6 @@ category: code
 description: Inline code.
 html:
   elem: code
-  custom: true
 jats:
   elem: code
 markdown:

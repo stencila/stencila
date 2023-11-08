@@ -10,6 +10,10 @@
   "description": "Include content from an external source (e.g. file, URL).",
   "status": "under-development",
   "proptest": {},
+  "html": {
+    "elem": "div",
+    "custom": true
+  },
   "markdown": {
     "template": "/{source}\\n\\n"
   },
