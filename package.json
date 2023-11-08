@@ -1,13 +1,29 @@
 {
   "workspaces": [
     "node",
-    "typescript"
+    "typescript",
+    "web"
   ],
   "scripts": {
     "audit": "better-npm-audit audit"
   },
   "devDependencies": {
+    "@arethetypeswrong/cli": "0.13.1",
+    "@types/benchmark": "2.1.5",
+    "@types/jest": "29.5.7",
+    "@types/tmp": "0.2.5",
+    "@typescript-eslint/eslint-plugin": "6.10.0",
+    "@typescript-eslint/parser": "6.10.0",
+    "benchmark": "2.1.4",
     "better-npm-audit": "3.7.3",
+    "depcheck": "1.4.7",
+    "eslint": "8.53.0",
+    "jest": "29.7.0",
+    "publint": "0.2.5",
+    "tmp": "0.2.1",
+    "ts-jest": "29.1.1",
+    "tsup": "7.2.0",
+    "typescript": "5.2.2",
     "wrangler": "3.15"
   }
 }
