@@ -1,4 +1,4 @@
-use std::{net::IpAddr, path::PathBuf};
+use std::path::PathBuf;
 
 use yansi::Color;
 
@@ -11,11 +11,11 @@ use common::{
 use document::{Document, DocumentType, SyncDirection};
 use format::Format;
 use node_strip::StripScope;
+use server::{serve, ServeOptions};
 
 use crate::{
     display,
     logging::{LoggingFormat, LoggingLevel},
-    serve,
 };
 
 /// CLI subcommands and global options
@@ -237,13 +237,7 @@ enum Command {
     },
 
     /// Serve
-    Serve {
-        #[arg(long, short, default_value = "127.0.0.1")]
-        address: IpAddr,
-
-        #[arg(long, short, default_value_t = 9000)]
-        port: u16,
-    },
+    Serve(ServeOptions),
 }
 
 /// Command line arguments for stripping nodes
@@ -536,9 +530,7 @@ impl Cli {
                 }
             }
 
-            Command::Serve { address, port } => {
-                serve::serve(address, port).await?;
-            }
+            Command::Serve(options) => serve(options).await?,
         }
 
         if wait {

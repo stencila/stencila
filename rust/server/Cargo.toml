@@ -1,0 +1,15 @@
+[package]
+name = "server"
+version = "2.0.0-alpha.21"
+authors = ["Nokome Bentley <nokome@stencila.io"]
+edition = "2021"
+
+[dependencies]
+axum = { version = "0.6.20", features = ["ws"] }
+common = { path = "../common" }
+format = { path = "../format" }
+mime_guess = "2.0.4"
+rust-embed = { version = "8.0.0", features = ["interpolate-folder-path", "include-exclude"] }
+
+[dev-dependencies]
+common-dev = { path = "../common-dev" }

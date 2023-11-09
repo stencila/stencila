@@ -12,6 +12,7 @@ use common::{
 #[derive(
     Debug,
     Display,
+    Default,
     Clone,
     Copy,
     PartialOrd,
@@ -62,6 +63,9 @@ pub enum Format {
     WebM,
     // Development focussed formats
     Debug,
+    // Unknown format
+    #[default]
+    Unknown,
 }
 
 impl Format {
@@ -92,6 +96,20 @@ impl Format {
             WebM => "WebM",
             WebP => "WebP",
             Yaml => "YAML",
+            Unknown => "Unknown",
+        }
+    }
+
+    /// Get the rank of the preference for the format
+    ///
+    /// A lower rank indicates a higher preference. Used when resolving a
+    /// URL path to a file when there is more than one file that matches the path.
+    pub fn rank(&self) -> u8 {
+        use Format::*;
+        match self {
+            Json | Json5 | Yaml => 0,
+            Html | Jats | Markdown => 1,
+            _ => u8::MAX,
         }
     }
 
