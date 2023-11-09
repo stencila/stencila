@@ -1,0 +1,5 @@
+# Ignore everything in this folder (except this file)
+# to ensure that the folder exists in the repo so that it
+# is available for embedding in the Rust CLI
+*
+!.gitignore
