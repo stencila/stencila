@@ -11,7 +11,7 @@
 #![allow(unused_imports)]
 
 use codec::{
-    common::{eyre::Result, once_cell::sync::Lazy, tokio::runtime::Runtime},
+    common::{eyre::Result, futures::executor::block_on},
     format::Format,
     schema::{Article, Node},
     DecodeOptions, EncodeOptions,
@@ -30,8 +30,7 @@ fn roundtrip(
     encode_options: Option<EncodeOptions>,
     decode_options: Option<DecodeOptions>,
 ) -> Result<Node> {
-    static RUNTIME: Lazy<Runtime> = Lazy::new(|| Runtime::new().unwrap());
-    RUNTIME.handle().block_on(async {
+    block_on(async {
         let codec = codecs::get(None, Some(format), None)?;
         let (string, ..) = codec.to_string(node, encode_options).await?;
         let (node, ..) = codec.from_str(&string, decode_options).await?;
