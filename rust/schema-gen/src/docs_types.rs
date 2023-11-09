@@ -497,7 +497,7 @@ fn proptests_anyof(title: &str, schema: &Schema) -> Vec<Block> {
                         "+"
                     }
                 ))]),
-                td([t(description)]),
+                td([t(description.replace('\n', " "))]),
                 td(strategy),
             ];
 
@@ -575,7 +575,7 @@ fn proptests_object(title: &str, schema: &Schema) -> Vec<Block> {
                         "+"
                     }
                 ))]),
-                td([t(description)]),
+                td([t(description.replace('\n', " "))]),
                 td(strategy),
             ];
 
