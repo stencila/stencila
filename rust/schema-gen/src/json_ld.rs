@@ -70,7 +70,9 @@ impl Schemas {
             });
 
             if let Some(extends) = schema.extends.first() {
-                class["rdfs:subClassOf"] = json!({ "@id": extends });
+                if let Some(parent) = self.schemas.get(extends) {
+                    class["rdfs:subClassOf"] = json!({ "@id": parent.jid });
+                }
             }
 
             let mut graph = vec![class];
