@@ -11,7 +11,7 @@
       "rdfs:label": "Note",
       "rdfs:comment": "Additional content which is not part of the main content of a document.",
       "rdfs:subClassOf": {
-        "@id": "Entity"
+        "@id": "stencila:Entity"
       }
     },
     {
@@ -23,7 +23,7 @@
         "@id": "stencila:Note"
       },
       "schema:rangeIncludes": {
-        "@id": "NoteType"
+        "@id": "stencila:NoteType"
       }
     },
     {

@@ -160,7 +160,7 @@
     },
     "funders": {
       "@id": "schema:funder",
-      "description": "A person or organization that supports (sponsors) something through some kind of financial contribution.\n",
+      "description": "A person or organization that supports (sponsors) something through some kind of financial contribution.",
       "$comment": "Often a `MonetaryGrant` will have a single funder. This property is an array to be consistent with `funders` on other types e.g. `CreativeWork`.",
       "aliases": [
         "funder"

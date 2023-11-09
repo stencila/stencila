@@ -65,7 +65,7 @@ The `CodeExpression` type is represented in these bindings:
 
 ## Testing
 
-During property-based (a.k.a generative) testing, the properties of the `CodeExpression` type are generated using the following strategies for each complexity level (see the [`proptest` book](https://proptest-rs.github.io/proptest/) for an explanation of the Rust strategy expressions). Any optional properties that are not in this table are set to `None`.
+During property-based (a.k.a generative) testing, the properties of the `CodeExpression` type are generated using the following strategies[^1] for each complexity level. Any optional properties that are not in this table are set to `None`.
 
 | Property              | Complexity | Description                                                                                                                     | Strategy                                   |
 | --------------------- | ---------- | ------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------ |
@@ -81,3 +81,5 @@ During property-based (a.k.a generative) testing, the properties of the `CodeExp
 ## Source
 
 This documentation was generated from [`CodeExpression.yaml`](https://github.com/stencila/stencila/blob/main/schema/CodeExpression.yaml) by [`docs.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs.rs).
+
+[^1]: See the `proptest` [book](https://proptest-rs.github.io/proptest/) and the [`proptest.rs`](https://github.com/stencila/stencila/blob/main/rust/schema/src/proptests.rs) module for details.

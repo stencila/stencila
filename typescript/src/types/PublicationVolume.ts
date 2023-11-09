@@ -20,8 +20,7 @@ export class PublicationVolume extends CreativeWork {
   pageEnd?: IntegerOrString;
 
   /**
-   * Any description of pages that is not separated into pageStart and pageEnd;
-   * for example, "1-6, 9, 55".
+   * Any description of pages that is not separated into pageStart and pageEnd; for example, "1-6, 9, 55".
    */
   pagination?: string;
 

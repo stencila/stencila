@@ -11,7 +11,7 @@
       "rdfs:label": "Superscript",
       "rdfs:comment": "Superscripted content.",
       "rdfs:subClassOf": {
-        "@id": "Mark"
+        "@id": "stencila:Mark"
       }
     },
     {

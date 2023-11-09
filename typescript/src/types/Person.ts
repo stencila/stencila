@@ -32,8 +32,7 @@ export class Person extends Thing {
   familyNames?: string[];
 
   /**
-   * A person or organization that supports (sponsors) something through
-   * some kind of financial contribution.
+   * A person or organization that supports (sponsors) something through some kind of financial contribution.
    */
   funders?: PersonOrOrganization[];
 

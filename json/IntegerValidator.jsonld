@@ -11,7 +11,7 @@
       "rdfs:label": "IntegerValidator",
       "rdfs:comment": "A validator specifying the constraints on an integer node.",
       "rdfs:subClassOf": {
-        "@id": "NumberValidator"
+        "@id": "stencila:NumberValidator"
       }
     },
     {

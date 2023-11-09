@@ -7,7 +7,7 @@
     "CreativeWork"
   ],
   "category": "works",
-  "description": "Computer programming source code. Example: Full (compile ready) solutions, code snippet samples, scripts, templates.\n",
+  "description": "Computer programming source code. Example: Full (compile ready) solutions, code snippet samples, scripts, templates.",
   "required": [
     "type"
   ],
@@ -386,7 +386,7 @@
     },
     "keywords": {
       "@id": "schema:keywords",
-      "description": "Keywords or tags used to describe this content.\nMultiple entries in a keywords list are typically delimited by commas.\n",
+      "description": "Keywords or tags used to describe this content. Multiple entries in a keywords list are typically delimited by commas.",
       "aliases": [
         "keyword"
       ],
@@ -403,7 +403,7 @@
     },
     "isPartOf": {
       "@id": "schema:isPartOf",
-      "description": "An item or other CreativeWork that this CreativeWork is a part of.\n",
+      "description": "An item or other CreativeWork that this CreativeWork is a part of.",
       "aliases": [
         "is-part-of",
         "is_part_of"
@@ -415,7 +415,7 @@
     },
     "licenses": {
       "@id": "schema:license",
-      "description": "License documents that applies to this content, typically indicated by URL.\n",
+      "description": "License documents that applies to this content, typically indicated by URL.",
       "aliases": [
         "license"
       ],
@@ -436,7 +436,7 @@
     },
     "parts": {
       "@id": "schema:hasParts",
-      "description": "Elements of the collection which can be a variety of different elements,\nsuch as Articles, Datatables, Tables and more.\n",
+      "description": "Elements of the collection which can be a variety of different elements, such as Articles, Datatables, Tables and more.",
       "aliases": [
         "hasParts",
         "part"
@@ -451,7 +451,7 @@
     },
     "publisher": {
       "@id": "schema:publisher",
-      "description": "A publisher of the CreativeWork.\n",
+      "description": "A publisher of the CreativeWork.",
       "strip": [
         "metadata"
       ],
@@ -469,7 +469,7 @@
     },
     "references": {
       "@id": "schema:citation",
-      "description": "References to other creative works, such as another publication,\nweb page, scholarly article, etc.\n",
+      "description": "References to other creative works, such as another publication, web page, scholarly article, etc.",
       "aliases": [
         "citations",
         "reference"
@@ -529,7 +529,7 @@
     },
     "codeRepository": {
       "@id": "schema:codeRepository",
-      "description": "Link to the repository where the un-compiled, human readable code and related\ncode is located.\n",
+      "description": "Link to the repository where the un-compiled, human readable code and related code is located.",
       "aliases": [
         "code-repository",
         "code_repository"
@@ -539,7 +539,7 @@
     },
     "codeSampleType": {
       "@id": "schema:codeSampleType",
-      "description": "What type of code sample: full (compile ready) solution, code snippet, inline code, scripts, template.\n",
+      "description": "What type of code sample: full (compile ready) solution, code snippet, inline code, scripts, template.",
       "aliases": [
         "code-sample-type",
         "code_sample_type"
@@ -548,7 +548,7 @@
     },
     "programmingLanguage": {
       "@id": "schema:programmingLanguage",
-      "description": "The computer programming language.\n",
+      "description": "The computer programming language.",
       "aliases": [
         "programming-language",
         "programming_language"
@@ -557,7 +557,7 @@
     },
     "runtimePlatform": {
       "@id": "schema:runtimePlatform",
-      "description": "Runtime platform or script interpreter dependencies (Example - Java v1,\nPython2.3, .Net Framework 3.0).\n",
+      "description": "Runtime platform or script interpreter dependencies (Example - Java v1, Python2.3, .Net Framework 3.0).",
       "aliases": [
         "runtime-platform",
         "runtime_platform"
@@ -594,7 +594,7 @@
     },
     "targetProducts": {
       "@id": "schema:targetProduct",
-      "description": "Target operating system or product to which the code applies.\n",
+      "description": "Target operating system or product to which the code applies.",
       "aliases": [
         "target-products",
         "target_products",

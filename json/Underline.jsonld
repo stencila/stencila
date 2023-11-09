@@ -11,7 +11,7 @@
       "rdfs:label": "Underline",
       "rdfs:comment": "Inline text that is underlined.",
       "rdfs:subClassOf": {
-        "@id": "Mark"
+        "@id": "stencila:Mark"
       }
     },
     {

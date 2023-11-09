@@ -20,8 +20,7 @@ use super::string_or_number::StringOrNumber;
 use super::text::Text;
 use super::thing_type::ThingType;
 
-/// A part of a successively published publication such as a periodical or publication
-/// volume, often numbered.
+/// A part of a successively published publication such as a periodical or publication volume, often numbered.
 #[skip_serializing_none]
 #[serde_as]
 #[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec, WriteNode, ReadNode)]
@@ -176,8 +175,7 @@ pub struct PublicationIssueOptions {
     #[strip(metadata)]
     pub genre: Option<Vec<String>>,
 
-    /// Keywords or tags used to describe this content.
-    /// Multiple entries in a keywords list are typically delimited by commas.
+    /// Keywords or tags used to describe this content. Multiple entries in a keywords list are typically delimited by commas.
     #[serde(alias = "keyword")]
     #[serde(default, deserialize_with = "option_csv_or_array")]
     #[strip(metadata)]
@@ -189,8 +187,7 @@ pub struct PublicationIssueOptions {
     #[strip(metadata)]
     pub licenses: Option<Vec<CreativeWorkTypeOrText>>,
 
-    /// Elements of the collection which can be a variety of different elements,
-    /// such as Articles, Datatables, Tables and more.
+    /// Elements of the collection which can be a variety of different elements, such as Articles, Datatables, Tables and more.
     #[serde(alias = "hasParts", alias = "part")]
     #[serde(default, deserialize_with = "option_one_or_many")]
     #[strip(content)]
@@ -201,8 +198,7 @@ pub struct PublicationIssueOptions {
     #[strip(metadata)]
     pub publisher: Option<PersonOrOrganization>,
 
-    /// References to other creative works, such as another publication,
-    /// web page, scholarly article, etc.
+    /// References to other creative works, such as another publication, web page, scholarly article, etc.
     #[serde(alias = "citations", alias = "reference")]
     #[serde(default, deserialize_with = "option_one_or_many")]
     #[strip(metadata)]
@@ -230,8 +226,7 @@ pub struct PublicationIssueOptions {
     #[serde(alias = "page-end", alias = "page_end")]
     pub page_end: Option<IntegerOrString>,
 
-    /// Any description of pages that is not separated into pageStart and pageEnd;
-    /// for example, "1-6, 9, 55".
+    /// Any description of pages that is not separated into pageStart and pageEnd; for example, "1-6, 9, 55".
     pub pagination: Option<String>,
 }
 

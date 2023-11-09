@@ -8,7 +8,7 @@
   ],
   "category": "prose",
   "abstract": true,
-  "description": "Abstract base class for nodes that mark some other inline content\nin some way (e.g. as being emphasised, or quoted).\n",
+  "description": "Abstract base class for nodes that mark some other inline content in some way (e.g. as being emphasised, or quoted).",
   "required": [
     "type",
     "content"

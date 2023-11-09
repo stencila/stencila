@@ -11,7 +11,7 @@
       "rdfs:label": "Heading",
       "rdfs:comment": "A heading.",
       "rdfs:subClassOf": {
-        "@id": "Entity"
+        "@id": "stencila:Entity"
       }
     },
     {

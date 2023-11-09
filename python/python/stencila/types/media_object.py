@@ -23,7 +23,7 @@ from .thing_type import ThingType
 @dataclass(init=False)
 class MediaObject(CreativeWork):
     """
-    A media object, such as an image, video, or audio object embedded in a web page or a    downloadable dataset.
+    A media object, such as an image, video, or audio object embedded in a web page or a downloadable dataset.
     """
 
     type: Literal["MediaObject"] = field(default="MediaObject", init=False)

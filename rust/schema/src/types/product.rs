@@ -8,8 +8,7 @@ use super::property_value_or_string::PropertyValueOrString;
 use super::string::String;
 use super::text::Text;
 
-/// Any offered product or service. For example, a pair of shoes;
-/// a haircut; or an episode of a TV show streamed online.
+/// Any offered product or service. For example, a pair of shoes; a haircut; or an episode of a TV show streamed online.
 #[skip_serializing_none]
 #[serde_as]
 #[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec, WriteNode, ReadNode)]

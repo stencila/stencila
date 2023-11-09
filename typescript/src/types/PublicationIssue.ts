@@ -4,8 +4,7 @@ import { CreativeWork } from "./CreativeWork.js";
 import { IntegerOrString } from "./IntegerOrString.js";
 
 /**
- * A part of a successively published publication such as a periodical or publication
- * volume, often numbered.
+ * A part of a successively published publication such as a periodical or publication volume, often numbered.
  */
 export class PublicationIssue extends CreativeWork {
   type = "PublicationIssue";
@@ -26,8 +25,7 @@ export class PublicationIssue extends CreativeWork {
   pageEnd?: IntegerOrString;
 
   /**
-   * Any description of pages that is not separated into pageStart and pageEnd;
-   * for example, "1-6, 9, 55".
+   * Any description of pages that is not separated into pageStart and pageEnd; for example, "1-6, 9, 55".
    */
   pagination?: string;
 

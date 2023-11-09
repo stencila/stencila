@@ -1,7 +1,6 @@
 # Publication Issue
 
-**A part of a successively published publication such as a periodical or publication
-volume, often numbered.**
+**A part of a successively published publication such as a periodical or publication volume, often numbered.**
 
 **`@id`**: [`schema:PublicationIssue`](https://schema.org/PublicationIssue)
 

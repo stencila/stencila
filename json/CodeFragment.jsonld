@@ -11,7 +11,7 @@
       "rdfs:label": "CodeFragment",
       "rdfs:comment": "Inline code.",
       "rdfs:subClassOf": {
-        "@id": "CodeStatic"
+        "@id": "stencila:CodeStatic"
       }
     },
     {
@@ -37,7 +37,7 @@
         }
       ],
       "schema:rangeIncludes": {
-        "@id": "Cord"
+        "@id": "stencila:Cord"
       }
     },
     {

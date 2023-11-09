@@ -92,8 +92,7 @@ pub struct PersonOptions {
     #[serde(default, deserialize_with = "option_csv_or_array")]
     pub emails: Option<Vec<String>>,
 
-    /// A person or organization that supports (sponsors) something through
-    /// some kind of financial contribution.
+    /// A person or organization that supports (sponsors) something through some kind of financial contribution.
     #[serde(alias = "funder")]
     #[serde(default, deserialize_with = "option_one_or_many_string_or_object")]
     pub funders: Option<Vec<PersonOrOrganization>>,

@@ -11,7 +11,7 @@
       "rdfs:label": "IfClause",
       "rdfs:comment": "A clause within a `If` node.",
       "rdfs:subClassOf": {
-        "@id": "CodeExecutable"
+        "@id": "stencila:CodeExecutable"
       }
     },
     {
@@ -23,7 +23,7 @@
         "@id": "stencila:Executable"
       },
       "schema:rangeIncludes": {
-        "@id": "AutomaticExecution"
+        "@id": "stencila:AutomaticExecution"
       }
     },
     {
@@ -43,7 +43,7 @@
         }
       ],
       "schema:rangeIncludes": {
-        "@id": "ExecutionDigest"
+        "@id": "stencila:ExecutionDigest"
       }
     },
     {
@@ -75,7 +75,7 @@
         "@id": "stencila:Executable"
       },
       "schema:rangeIncludes": {
-        "@id": "ExecutionDigest"
+        "@id": "stencila:ExecutionDigest"
       }
     },
     {
@@ -135,7 +135,7 @@
         "@id": "stencila:Executable"
       },
       "schema:rangeIncludes": {
-        "@id": "ExecutionRequired"
+        "@id": "stencila:ExecutionRequired"
       }
     },
     {
@@ -159,7 +159,7 @@
         "@id": "stencila:Executable"
       },
       "schema:rangeIncludes": {
-        "@id": "ExecutionStatus"
+        "@id": "stencila:ExecutionStatus"
       }
     },
     {
@@ -171,7 +171,7 @@
         "@id": "stencila:Executable"
       },
       "schema:rangeIncludes": {
-        "@id": "Timestamp"
+        "@id": "schema:Timestamp"
       }
     },
     {
@@ -183,7 +183,7 @@
         "@id": "stencila:Executable"
       },
       "schema:rangeIncludes": {
-        "@id": "Duration"
+        "@id": "schema:Duration"
       }
     },
     {
@@ -221,7 +221,7 @@
         }
       ],
       "schema:rangeIncludes": {
-        "@id": "Cord"
+        "@id": "stencila:Cord"
       }
     },
     {

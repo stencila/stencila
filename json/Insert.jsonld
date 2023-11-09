@@ -11,7 +11,7 @@
       "rdfs:label": "Insert",
       "rdfs:comment": "A suggestion to insert some inline content.",
       "rdfs:subClassOf": {
-        "@id": "Suggestion"
+        "@id": "stencila:Suggestion"
       }
     },
     {

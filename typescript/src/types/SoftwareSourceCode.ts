@@ -11,8 +11,7 @@ export class SoftwareSourceCode extends CreativeWork {
   type = "SoftwareSourceCode";
 
   /**
-   * Link to the repository where the un-compiled, human readable code and related
-   * code is located.
+   * Link to the repository where the un-compiled, human readable code and related code is located.
    */
   codeRepository?: string;
 
@@ -27,8 +26,7 @@ export class SoftwareSourceCode extends CreativeWork {
   programmingLanguage?: string;
 
   /**
-   * Runtime platform or script interpreter dependencies (Example - Java v1,
-   * Python2.3, .Net Framework 3.0).
+   * Runtime platform or script interpreter dependencies (Example - Java v1, Python2.3, .Net Framework 3.0).
    */
   runtimePlatform?: string[];
 

@@ -11,7 +11,7 @@
       "rdfs:label": "CitationIntent",
       "rdfs:comment": "The type or nature of a citation, both factually and rhetorically.",
       "rdfs:subClassOf": {
-        "@id": "Enumeration"
+        "@id": "schema:Enumeration"
       }
     },
     {
@@ -35,7 +35,7 @@
         "@id": "schema:Thing"
       },
       "schema:rangeIncludes": {
-        "@id": "Text"
+        "@id": "schema:Text"
       }
     },
     {
@@ -48,7 +48,7 @@
       },
       "schema:rangeIncludes": [
         {
-          "@id": "PropertyValue"
+          "@id": "schema:PropertyValue"
         },
         {
           "@id": "schema:Text"
@@ -64,7 +64,7 @@
         "@id": "schema:Thing"
       },
       "schema:rangeIncludes": {
-        "@id": "stencila:ImageObject"
+        "@id": "schema:ImageObject"
       }
     },
     {

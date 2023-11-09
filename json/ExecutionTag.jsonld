@@ -11,7 +11,7 @@
       "rdfs:label": "ExecutionTag",
       "rdfs:comment": "A tag on code that affects its execution.",
       "rdfs:subClassOf": {
-        "@id": "Entity"
+        "@id": "stencila:Entity"
       }
     },
     {

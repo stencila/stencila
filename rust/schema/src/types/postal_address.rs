@@ -97,8 +97,7 @@ pub struct PostalAddressOptions {
     #[strip(metadata)]
     pub url: Option<String>,
 
-    /// Languages (human not programming) in which it is possible to communicate
-    /// with the organization/department etc.
+    /// Languages (human not programming) in which it is possible to communicate with the organization/department etc.
     #[serde(alias = "available-languages", alias = "available_languages", alias = "availableLanguage", alias = "available-language", alias = "available_language")]
     #[serde(default, deserialize_with = "option_csv_or_array")]
     pub available_languages: Option<Vec<String>>,

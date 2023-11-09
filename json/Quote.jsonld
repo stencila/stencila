@@ -11,7 +11,7 @@
       "rdfs:label": "Quote",
       "rdfs:comment": "Inline, quoted content.",
       "rdfs:subClassOf": {
-        "@id": "Mark"
+        "@id": "stencila:Mark"
       }
     },
     {
@@ -106,10 +106,10 @@
       ],
       "schema:rangeIncludes": [
         {
-          "@id": "Cite"
+          "@id": "stencila:Cite"
         },
         {
-          "@id": "Text"
+          "@id": "schema:Text"
         }
       ]
     }

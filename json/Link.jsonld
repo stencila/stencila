@@ -11,7 +11,7 @@
       "rdfs:label": "Link",
       "rdfs:comment": "A hyperlink to other pages, sections within the same document, resources, or any URL.",
       "rdfs:subClassOf": {
-        "@id": "Entity"
+        "@id": "stencila:Entity"
       }
     },
     {

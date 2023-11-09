@@ -159,7 +159,7 @@
     },
     "availableLanguages": {
       "@id": "schema:availableLanguage",
-      "description": "Languages (human not programming) in which it is possible to communicate\nwith the organization/department etc.\n",
+      "description": "Languages (human not programming) in which it is possible to communicate with the organization/department etc.",
       "aliases": [
         "available-languages",
         "available_languages",

@@ -7,7 +7,7 @@
     "Entity"
   ],
   "category": "prose",
-  "description": "A thematic break, such as a scene change in a story, a transition to another topic, or a new document.\n",
+  "description": "A thematic break, such as a scene change in a story, a transition to another topic, or a new document.",
   "proptest": {},
   "html": {
     "elem": "hr"

@@ -11,7 +11,7 @@
       "rdfs:label": "TableRow",
       "rdfs:comment": "A row within a Table.",
       "rdfs:subClassOf": {
-        "@id": "Entity"
+        "@id": "stencila:Entity"
       }
     },
     {
@@ -35,7 +35,7 @@
         "@id": "stencila:TableRow"
       },
       "schema:rangeIncludes": {
-        "@id": "TableRowType"
+        "@id": "stencila:TableRowType"
       }
     }
   ]

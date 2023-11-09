@@ -11,7 +11,7 @@
       "rdfs:label": "Delete",
       "rdfs:comment": "A suggestion to delete some inline content.",
       "rdfs:subClassOf": {
-        "@id": "Suggestion"
+        "@id": "stencila:Suggestion"
       }
     },
     {

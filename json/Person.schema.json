@@ -179,7 +179,7 @@
     },
     "funders": {
       "@id": "schema:funder",
-      "description": "A person or organization that supports (sponsors) something through\nsome kind of financial contribution.\n",
+      "description": "A person or organization that supports (sponsors) something through some kind of financial contribution.",
       "aliases": [
         "funder"
       ],

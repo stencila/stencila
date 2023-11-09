@@ -11,7 +11,7 @@
       "rdfs:label": "PostalAddress",
       "rdfs:comment": "A physical mailing address.",
       "rdfs:subClassOf": {
-        "@id": "ContactPoint"
+        "@id": "schema:ContactPoint"
       }
     },
     {
@@ -35,7 +35,7 @@
         "@id": "schema:Thing"
       },
       "schema:rangeIncludes": {
-        "@id": "Text"
+        "@id": "schema:Text"
       }
     },
     {
@@ -48,7 +48,7 @@
       },
       "schema:rangeIncludes": [
         {
-          "@id": "PropertyValue"
+          "@id": "schema:PropertyValue"
         },
         {
           "@id": "schema:Text"
@@ -64,7 +64,7 @@
         "@id": "schema:Thing"
       },
       "schema:rangeIncludes": {
-        "@id": "stencila:ImageObject"
+        "@id": "schema:ImageObject"
       }
     },
     {
@@ -149,7 +149,7 @@
       "@id": "schema:availableLanguage",
       "@type": "rdfs:Property",
       "rdfs:label": "availableLanguages",
-      "rdfs:comment": "Languages (human not programming) in which it is possible to communicate\nwith the organization/department etc.\n",
+      "rdfs:comment": "Languages (human not programming) in which it is possible to communicate with the organization/department etc.",
       "schema:domainIncludes": {
         "@id": "schema:ContactPoint"
       },

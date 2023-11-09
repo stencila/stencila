@@ -120,7 +120,7 @@
     },
     "address": {
       "@id": "schema:address",
-      "description": "Postal address for the organization.\n",
+      "description": "Postal address for the organization.",
       "anyOf": [
         {
           "$ref": "PostalAddress.schema.json"
@@ -132,7 +132,7 @@
     },
     "brands": {
       "@id": "schema:brand",
-      "description": "Brands that the organization is connected with.\n",
+      "description": "Brands that the organization is connected with.",
       "aliases": [
         "brand"
       ],
@@ -143,7 +143,7 @@
     },
     "contactPoints": {
       "@id": "schema:contactPoint",
-      "description": "Correspondence/Contact points for the organization.\n",
+      "description": "Correspondence/Contact points for the organization.",
       "aliases": [
         "contact-points",
         "contact_points",
@@ -158,7 +158,7 @@
     },
     "departments": {
       "@id": "schema:department",
-      "description": "Departments within the organization. For example, Department of Computer Science, Research & Development etc.\n",
+      "description": "Departments within the organization. For example, Department of Computer Science, Research & Development etc.",
       "aliases": [
         "department"
       ],
@@ -169,7 +169,7 @@
     },
     "funders": {
       "@id": "schema:funder",
-      "description": "Organization(s) or person(s) funding the organization.\n",
+      "description": "Organization(s) or person(s) funding the organization.",
       "aliases": [
         "funder"
       ],
@@ -205,7 +205,7 @@
     },
     "members": {
       "@id": "schema:member",
-      "description": "Person(s) or organization(s) who are members of this organization.\n",
+      "description": "Person(s) or organization(s) who are members of this organization.",
       "aliases": [
         "member"
       ],
@@ -226,7 +226,7 @@
     },
     "parentOrganization": {
       "@id": "schema:parentOrganization",
-      "description": "Entity that the Organization is a part of. For example, parentOrganization to a department is a university.\n",
+      "description": "Entity that the Organization is a part of. For example, parentOrganization to a department is a university.",
       "aliases": [
         "parent-organization",
         "parent_organization"

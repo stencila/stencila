@@ -11,7 +11,7 @@
       "rdfs:label": "Cite",
       "rdfs:comment": "A reference to a `CreativeWork` that is cited in another `CreativeWork`.",
       "rdfs:subClassOf": {
-        "@id": "Entity"
+        "@id": "stencila:Entity"
       }
     },
     {
@@ -40,7 +40,7 @@
         "@id": "stencila:Cite"
       },
       "schema:rangeIncludes": {
-        "@id": "CitationMode"
+        "@id": "stencila:CitationMode"
       }
     },
     {
@@ -192,7 +192,7 @@
       "@id": "schema:pagination",
       "@type": "rdfs:Property",
       "rdfs:label": "pagination",
-      "rdfs:comment": "Any description of pages that is not separated into pageStart and pageEnd;\nfor example, \"1-6, 9, 55\".\n",
+      "rdfs:comment": "Any description of pages that is not separated into pageStart and pageEnd; for example, \"1-6, 9, 55\".",
       "schema:domainIncludes": [
         {
           "@id": "schema:Article"

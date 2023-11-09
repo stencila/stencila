@@ -11,7 +11,7 @@
       "rdfs:label": "ExecutionDependency",
       "rdfs:comment": "An upstream execution dependency of a node.",
       "rdfs:subClassOf": {
-        "@id": "Entity"
+        "@id": "stencila:Entity"
       }
     },
     {
@@ -23,7 +23,7 @@
         "@id": "stencila:ExecutionDependency"
       },
       "schema:rangeIncludes": {
-        "@id": "ExecutionDependencyRelation"
+        "@id": "stencila:ExecutionDependencyRelation"
       }
     },
     {
@@ -35,7 +35,7 @@
         "@id": "stencila:ExecutionDependency"
       },
       "schema:rangeIncludes": {
-        "@id": "ExecutionDependencyNode"
+        "@id": "stencila:ExecutionDependencyNode"
       }
     },
     {

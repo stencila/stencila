@@ -11,7 +11,7 @@
       "rdfs:label": "DateTimeValidator",
       "rdfs:comment": "A validator specifying the constraints on a date-time.",
       "rdfs:subClassOf": {
-        "@id": "Entity"
+        "@id": "stencila:Entity"
       }
     },
     {
@@ -40,7 +40,7 @@
         }
       ],
       "schema:rangeIncludes": {
-        "@id": "DateTime"
+        "@id": "schema:DateTime"
       }
     },
     {
@@ -69,7 +69,7 @@
         }
       ],
       "schema:rangeIncludes": {
-        "@id": "DateTime"
+        "@id": "schema:DateTime"
       }
     }
   ]

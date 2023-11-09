@@ -11,7 +11,7 @@
       "rdfs:label": "StringValidator",
       "rdfs:comment": "A schema specifying constraints on a string node.",
       "rdfs:subClassOf": {
-        "@id": "Entity"
+        "@id": "stencila:Entity"
       }
     },
     {

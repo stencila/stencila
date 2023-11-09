@@ -9,9 +9,9 @@
       "@id": "stencila:ThematicBreak",
       "@type": "rdfs:Class",
       "rdfs:label": "ThematicBreak",
-      "rdfs:comment": "A thematic break, such as a scene change in a story, a transition to another topic, or a new document.\n",
+      "rdfs:comment": "A thematic break, such as a scene change in a story, a transition to another topic, or a new document.",
       "rdfs:subClassOf": {
-        "@id": "Entity"
+        "@id": "stencila:Entity"
       }
     }
   ]

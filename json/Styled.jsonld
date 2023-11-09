@@ -11,7 +11,7 @@
       "rdfs:label": "Styled",
       "rdfs:comment": "An abstract base class for a document node that has styling applied to it and/or its content.",
       "rdfs:subClassOf": {
-        "@id": "Entity"
+        "@id": "stencila:Entity"
       }
     },
     {
@@ -37,7 +37,7 @@
         }
       ],
       "schema:rangeIncludes": {
-        "@id": "Cord"
+        "@id": "stencila:Cord"
       }
     },
     {
@@ -69,7 +69,7 @@
         }
       ],
       "schema:rangeIncludes": {
-        "@id": "ExecutionDigest"
+        "@id": "stencila:ExecutionDigest"
       }
     },
     {

@@ -11,7 +11,7 @@
       "rdfs:label": "ExecutionDigest",
       "rdfs:comment": "A digest of the execution state of a node.",
       "rdfs:subClassOf": {
-        "@id": "Entity"
+        "@id": "stencila:Entity"
       }
     },
     {

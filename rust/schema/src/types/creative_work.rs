@@ -165,8 +165,7 @@ pub struct CreativeWorkOptions {
     #[strip(metadata)]
     pub genre: Option<Vec<String>>,
 
-    /// Keywords or tags used to describe this content.
-    /// Multiple entries in a keywords list are typically delimited by commas.
+    /// Keywords or tags used to describe this content. Multiple entries in a keywords list are typically delimited by commas.
     #[serde(alias = "keyword")]
     #[serde(default, deserialize_with = "option_csv_or_array")]
     #[strip(metadata)]
@@ -183,8 +182,7 @@ pub struct CreativeWorkOptions {
     #[strip(metadata)]
     pub licenses: Option<Vec<CreativeWorkTypeOrText>>,
 
-    /// Elements of the collection which can be a variety of different elements,
-    /// such as Articles, Datatables, Tables and more.
+    /// Elements of the collection which can be a variety of different elements, such as Articles, Datatables, Tables and more.
     #[serde(alias = "hasParts", alias = "part")]
     #[serde(default, deserialize_with = "option_one_or_many")]
     #[strip(content)]
@@ -195,8 +193,7 @@ pub struct CreativeWorkOptions {
     #[strip(metadata)]
     pub publisher: Option<PersonOrOrganization>,
 
-    /// References to other creative works, such as another publication,
-    /// web page, scholarly article, etc.
+    /// References to other creative works, such as another publication, web page, scholarly article, etc.
     #[serde(alias = "citations", alias = "reference")]
     #[serde(default, deserialize_with = "option_one_or_many")]
     #[strip(metadata)]

@@ -11,7 +11,7 @@
       "rdfs:label": "Text",
       "rdfs:comment": "Textual content.",
       "rdfs:subClassOf": {
-        "@id": "Entity"
+        "@id": "stencila:Entity"
       }
     },
     {
@@ -55,7 +55,7 @@
         }
       ],
       "schema:rangeIncludes": {
-        "@id": "Cord"
+        "@id": "stencila:Cord"
       }
     }
   ]

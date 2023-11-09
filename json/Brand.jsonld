@@ -11,7 +11,7 @@
       "rdfs:label": "Brand",
       "rdfs:comment": "A brand used by an organization or person for labeling a product, product group, or similar.",
       "rdfs:subClassOf": {
-        "@id": "Thing"
+        "@id": "schema:Thing"
       }
     },
     {
@@ -35,7 +35,7 @@
         "@id": "schema:Thing"
       },
       "schema:rangeIncludes": {
-        "@id": "Text"
+        "@id": "schema:Text"
       }
     },
     {
@@ -48,7 +48,7 @@
       },
       "schema:rangeIncludes": [
         {
-          "@id": "PropertyValue"
+          "@id": "schema:PropertyValue"
         },
         {
           "@id": "schema:Text"
@@ -64,7 +64,7 @@
         "@id": "schema:Thing"
       },
       "schema:rangeIncludes": {
-        "@id": "stencila:ImageObject"
+        "@id": "schema:ImageObject"
       }
     },
     {
@@ -128,7 +128,7 @@
         }
       ],
       "schema:rangeIncludes": {
-        "@id": "ImageObject"
+        "@id": "schema:ImageObject"
       }
     },
     {

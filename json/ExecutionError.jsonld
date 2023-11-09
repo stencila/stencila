@@ -11,7 +11,7 @@
       "rdfs:label": "ExecutionError",
       "rdfs:comment": "An error that occurred when executing an `Executable` node.",
       "rdfs:subClassOf": {
-        "@id": "Entity"
+        "@id": "stencila:Entity"
       }
     },
     {

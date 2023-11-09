@@ -11,7 +11,7 @@
       "rdfs:label": "Suggestion",
       "rdfs:comment": "Abstract base class for nodes that indicate a suggested change to inline content.",
       "rdfs:subClassOf": {
-        "@id": "Entity"
+        "@id": "stencila:Entity"
       }
     },
     {

@@ -7,7 +7,7 @@
     "CreativeWork"
   ],
   "category": "works",
-  "description": "A part of a successively published publication such as a periodical or publication\nvolume, often numbered.\n",
+  "description": "A part of a successively published publication such as a periodical or publication volume, often numbered.",
   "required": [
     "type"
   ],
@@ -385,7 +385,7 @@
     },
     "keywords": {
       "@id": "schema:keywords",
-      "description": "Keywords or tags used to describe this content.\nMultiple entries in a keywords list are typically delimited by commas.\n",
+      "description": "Keywords or tags used to describe this content. Multiple entries in a keywords list are typically delimited by commas.",
       "aliases": [
         "keyword"
       ],
@@ -402,7 +402,7 @@
     },
     "isPartOf": {
       "@id": "schema:isPartOf",
-      "description": "An item or other CreativeWork that this CreativeWork is a part of.\n",
+      "description": "An item or other CreativeWork that this CreativeWork is a part of.",
       "aliases": [
         "is-part-of",
         "is_part_of"
@@ -414,7 +414,7 @@
     },
     "licenses": {
       "@id": "schema:license",
-      "description": "License documents that applies to this content, typically indicated by URL.\n",
+      "description": "License documents that applies to this content, typically indicated by URL.",
       "aliases": [
         "license"
       ],
@@ -435,7 +435,7 @@
     },
     "parts": {
       "@id": "schema:hasParts",
-      "description": "Elements of the collection which can be a variety of different elements,\nsuch as Articles, Datatables, Tables and more.\n",
+      "description": "Elements of the collection which can be a variety of different elements, such as Articles, Datatables, Tables and more.",
       "aliases": [
         "hasParts",
         "part"
@@ -450,7 +450,7 @@
     },
     "publisher": {
       "@id": "schema:publisher",
-      "description": "A publisher of the CreativeWork.\n",
+      "description": "A publisher of the CreativeWork.",
       "strip": [
         "metadata"
       ],
@@ -468,7 +468,7 @@
     },
     "references": {
       "@id": "schema:citation",
-      "description": "References to other creative works, such as another publication,\nweb page, scholarly article, etc.\n",
+      "description": "References to other creative works, such as another publication, web page, scholarly article, etc.",
       "aliases": [
         "citations",
         "reference"
@@ -576,7 +576,7 @@
     },
     "pagination": {
       "@id": "schema:pagination",
-      "description": "Any description of pages that is not separated into pageStart and pageEnd;\nfor example, \"1-6, 9, 55\".\n",
+      "description": "Any description of pages that is not separated into pageStart and pageEnd; for example, \"1-6, 9, 55\".",
       "type": "string"
     }
   }

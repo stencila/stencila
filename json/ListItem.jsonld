@@ -11,7 +11,7 @@
       "rdfs:label": "ListItem",
       "rdfs:comment": "A single item in a list.",
       "rdfs:subClassOf": {
-        "@id": "Thing"
+        "@id": "schema:Thing"
       }
     },
     {
@@ -35,7 +35,7 @@
         "@id": "schema:Thing"
       },
       "schema:rangeIncludes": {
-        "@id": "Text"
+        "@id": "schema:Text"
       }
     },
     {
@@ -48,7 +48,7 @@
       },
       "schema:rangeIncludes": [
         {
-          "@id": "PropertyValue"
+          "@id": "schema:PropertyValue"
         },
         {
           "@id": "schema:Text"
@@ -64,7 +64,7 @@
         "@id": "schema:Thing"
       },
       "schema:rangeIncludes": {
-        "@id": "stencila:ImageObject"
+        "@id": "schema:ImageObject"
       }
     },
     {
@@ -195,9 +195,6 @@
       "rdfs:comment": "The item represented by this list item.",
       "schema:domainIncludes": {
         "@id": "schema:ListItem"
-      },
-      "schema:rangeIncludes": {
-        "@id": "Node"
       }
     },
     {

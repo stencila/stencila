@@ -11,7 +11,7 @@
       "rdfs:label": "Variable",
       "rdfs:comment": "A variable representing a name / value pair.",
       "rdfs:subClassOf": {
-        "@id": "Entity"
+        "@id": "stencila:Entity"
       }
     },
     {
@@ -109,10 +109,7 @@
         {
           "@id": "stencila:Variable"
         }
-      ],
-      "schema:rangeIncludes": {
-        "@id": "Node"
-      }
+      ]
     }
   ]
 }

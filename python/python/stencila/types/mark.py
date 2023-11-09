@@ -9,7 +9,7 @@ from .inline import Inline
 @dataclass(init=False)
 class Mark(Entity):
     """
-    Abstract base class for nodes that mark some other inline content    in some way (e.g. as being emphasised, or quoted).
+    Abstract base class for nodes that mark some other inline content in some way (e.g. as being emphasised, or quoted).
     """
 
     type: Literal["Mark"] = field(default="Mark", init=False)

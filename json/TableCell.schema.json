@@ -56,7 +56,7 @@
     },
     "columnSpan": {
       "@id": "stencila:colspan",
-      "description": "How many columns the cell extends.\n",
+      "description": "How many columns the cell extends.",
       "$comment": "Based on the HTML `colspan` attribute for [table cells](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/td).",
       "aliases": [
         "column-span",

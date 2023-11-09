@@ -11,7 +11,7 @@
       "rdfs:label": "ArrayValidator",
       "rdfs:comment": "A validator specifying constraints on an array node.",
       "rdfs:subClassOf": {
-        "@id": "Entity"
+        "@id": "stencila:Entity"
       }
     },
     {
@@ -35,7 +35,7 @@
         "@id": "stencila:ArrayValidator"
       },
       "schema:rangeIncludes": {
-        "@id": "Validator"
+        "@id": "stencila:Validator"
       }
     },
     {
@@ -47,7 +47,7 @@
         "@id": "stencila:ArrayValidator"
       },
       "schema:rangeIncludes": {
-        "@id": "Validator"
+        "@id": "stencila:Validator"
       }
     },
     {

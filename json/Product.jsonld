@@ -9,9 +9,9 @@
       "@id": "schema:Product",
       "@type": "rdfs:Class",
       "rdfs:label": "Product",
-      "rdfs:comment": "Any offered product or service. For example, a pair of shoes;\na haircut; or an episode of a TV show streamed online.\n",
+      "rdfs:comment": "Any offered product or service. For example, a pair of shoes; a haircut; or an episode of a TV show streamed online.",
       "rdfs:subClassOf": {
-        "@id": "Thing"
+        "@id": "schema:Thing"
       }
     },
     {
@@ -35,7 +35,7 @@
         "@id": "schema:Thing"
       },
       "schema:rangeIncludes": {
-        "@id": "Text"
+        "@id": "schema:Text"
       }
     },
     {
@@ -48,7 +48,7 @@
       },
       "schema:rangeIncludes": [
         {
-          "@id": "PropertyValue"
+          "@id": "schema:PropertyValue"
         },
         {
           "@id": "schema:Text"
@@ -64,7 +64,7 @@
         "@id": "schema:Thing"
       },
       "schema:rangeIncludes": {
-        "@id": "stencila:ImageObject"
+        "@id": "schema:ImageObject"
       }
     },
     {
@@ -125,7 +125,7 @@
         }
       ],
       "schema:rangeIncludes": {
-        "@id": "stencila:Brand"
+        "@id": "schema:Brand"
       }
     },
     {
@@ -145,7 +145,7 @@
         }
       ],
       "schema:rangeIncludes": {
-        "@id": "ImageObject"
+        "@id": "schema:ImageObject"
       }
     },
     {

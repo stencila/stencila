@@ -14,8 +14,7 @@ export class SoftwareApplication extends CreativeWork {
   name: string;
 
   /**
-   * Requirements for application, including shared libraries that
-   * are not included in the application distribution.
+   * Requirements for application, including shared libraries that are not included in the application distribution.
    */
   softwareRequirements?: SoftwareApplication[];
 

@@ -11,7 +11,7 @@
       "rdfs:label": "MathBlock",
       "rdfs:comment": "A block of math, e.g an equation, to be treated as block content.",
       "rdfs:subClassOf": {
-        "@id": "Math"
+        "@id": "stencila:Math"
       }
     },
     {
@@ -37,7 +37,7 @@
         }
       ],
       "schema:rangeIncludes": {
-        "@id": "Cord"
+        "@id": "stencila:Cord"
       }
     },
     {
@@ -69,7 +69,7 @@
         }
       ],
       "schema:rangeIncludes": {
-        "@id": "ExecutionDigest"
+        "@id": "stencila:ExecutionDigest"
       }
     },
     {

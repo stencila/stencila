@@ -11,7 +11,7 @@
       "rdfs:label": "CodeBlock",
       "rdfs:comment": "A code block.",
       "rdfs:subClassOf": {
-        "@id": "CodeStatic"
+        "@id": "stencila:CodeStatic"
       }
     },
     {
@@ -37,7 +37,7 @@
         }
       ],
       "schema:rangeIncludes": {
-        "@id": "Cord"
+        "@id": "stencila:Cord"
       }
     },
     {

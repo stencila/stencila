@@ -11,7 +11,7 @@
       "rdfs:label": "Paragraph",
       "rdfs:comment": "A paragraph.",
       "rdfs:subClassOf": {
-        "@id": "Entity"
+        "@id": "stencila:Entity"
       }
     },
     {

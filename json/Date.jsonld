@@ -11,7 +11,7 @@
       "rdfs:label": "Date",
       "rdfs:comment": "A calendar date encoded as a ISO 8601 string.",
       "rdfs:subClassOf": {
-        "@id": "Entity"
+        "@id": "stencila:Entity"
       }
     },
     {

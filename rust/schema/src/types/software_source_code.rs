@@ -37,8 +37,7 @@ pub struct SoftwareSourceCode {
     #[html(attr = "id")]
     pub id: Option<String>,
 
-    /// Link to the repository where the un-compiled, human readable code and related
-    /// code is located.
+    /// Link to the repository where the un-compiled, human readable code and related code is located.
     #[serde(alias = "code-repository", alias = "code_repository")]
     pub code_repository: Option<String>,
 
@@ -181,8 +180,7 @@ pub struct SoftwareSourceCodeOptions {
     #[strip(metadata)]
     pub genre: Option<Vec<String>>,
 
-    /// Keywords or tags used to describe this content.
-    /// Multiple entries in a keywords list are typically delimited by commas.
+    /// Keywords or tags used to describe this content. Multiple entries in a keywords list are typically delimited by commas.
     #[serde(alias = "keyword")]
     #[serde(default, deserialize_with = "option_csv_or_array")]
     #[strip(metadata)]
@@ -199,8 +197,7 @@ pub struct SoftwareSourceCodeOptions {
     #[strip(metadata)]
     pub licenses: Option<Vec<CreativeWorkTypeOrText>>,
 
-    /// Elements of the collection which can be a variety of different elements,
-    /// such as Articles, Datatables, Tables and more.
+    /// Elements of the collection which can be a variety of different elements, such as Articles, Datatables, Tables and more.
     #[serde(alias = "hasParts", alias = "part")]
     #[serde(default, deserialize_with = "option_one_or_many")]
     #[strip(content)]
@@ -211,8 +208,7 @@ pub struct SoftwareSourceCodeOptions {
     #[strip(metadata)]
     pub publisher: Option<PersonOrOrganization>,
 
-    /// References to other creative works, such as another publication,
-    /// web page, scholarly article, etc.
+    /// References to other creative works, such as another publication, web page, scholarly article, etc.
     #[serde(alias = "citations", alias = "reference")]
     #[serde(default, deserialize_with = "option_one_or_many")]
     #[strip(metadata)]
@@ -236,8 +232,7 @@ pub struct SoftwareSourceCodeOptions {
     #[serde(alias = "code-sample-type", alias = "code_sample_type")]
     pub code_sample_type: Option<String>,
 
-    /// Runtime platform or script interpreter dependencies (Example - Java v1,
-    /// Python2.3, .Net Framework 3.0).
+    /// Runtime platform or script interpreter dependencies (Example - Java v1, Python2.3, .Net Framework 3.0).
     #[serde(alias = "runtime-platform", alias = "runtime_platform")]
     #[serde(default, deserialize_with = "option_one_or_many")]
     pub runtime_platform: Option<Vec<String>>,

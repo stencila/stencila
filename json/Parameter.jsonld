@@ -11,7 +11,7 @@
       "rdfs:label": "Parameter",
       "rdfs:comment": "A parameter of a document.",
       "rdfs:subClassOf": {
-        "@id": "Executable"
+        "@id": "stencila:Executable"
       }
     },
     {
@@ -23,7 +23,7 @@
         "@id": "stencila:Executable"
       },
       "schema:rangeIncludes": {
-        "@id": "AutomaticExecution"
+        "@id": "stencila:AutomaticExecution"
       }
     },
     {
@@ -43,7 +43,7 @@
         }
       ],
       "schema:rangeIncludes": {
-        "@id": "ExecutionDigest"
+        "@id": "stencila:ExecutionDigest"
       }
     },
     {
@@ -75,7 +75,7 @@
         "@id": "stencila:Executable"
       },
       "schema:rangeIncludes": {
-        "@id": "ExecutionDigest"
+        "@id": "stencila:ExecutionDigest"
       }
     },
     {
@@ -135,7 +135,7 @@
         "@id": "stencila:Executable"
       },
       "schema:rangeIncludes": {
-        "@id": "ExecutionRequired"
+        "@id": "stencila:ExecutionRequired"
       }
     },
     {
@@ -159,7 +159,7 @@
         "@id": "stencila:Executable"
       },
       "schema:rangeIncludes": {
-        "@id": "ExecutionStatus"
+        "@id": "stencila:ExecutionStatus"
       }
     },
     {
@@ -171,7 +171,7 @@
         "@id": "stencila:Executable"
       },
       "schema:rangeIncludes": {
-        "@id": "Timestamp"
+        "@id": "schema:Timestamp"
       }
     },
     {
@@ -183,7 +183,7 @@
         "@id": "stencila:Executable"
       },
       "schema:rangeIncludes": {
-        "@id": "Duration"
+        "@id": "schema:Duration"
       }
     },
     {
@@ -301,10 +301,7 @@
         {
           "@id": "stencila:Variable"
         }
-      ],
-      "schema:rangeIncludes": {
-        "@id": "Node"
-      }
+      ]
     },
     {
       "@id": "schema:defaultValue",
@@ -313,9 +310,6 @@
       "rdfs:comment": "The default value of the parameter.",
       "schema:domainIncludes": {
         "@id": "stencila:Parameter"
-      },
-      "schema:rangeIncludes": {
-        "@id": "Node"
       }
     },
     {
@@ -332,7 +326,7 @@
         }
       ],
       "schema:rangeIncludes": {
-        "@id": "Validator"
+        "@id": "stencila:Validator"
       }
     },
     {

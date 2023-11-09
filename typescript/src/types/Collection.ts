@@ -10,8 +10,7 @@ export class Collection extends CreativeWork {
   type = "Collection";
 
   /**
-   * Elements of the collection which can be a variety of different elements,
-   * such as Articles, Datatables, Tables and more.
+   * Elements of the collection which can be a variety of different elements, such as Articles, Datatables, Tables and more.
    */
   parts: CreativeWorkType[];
 

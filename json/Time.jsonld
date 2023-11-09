@@ -11,7 +11,7 @@
       "rdfs:label": "Time",
       "rdfs:comment": "A point in time recurring on multiple days.",
       "rdfs:subClassOf": {
-        "@id": "Entity"
+        "@id": "stencila:Entity"
       }
     },
     {

@@ -11,7 +11,7 @@
       "rdfs:label": "Subscript",
       "rdfs:comment": "Subscripted content.",
       "rdfs:subClassOf": {
-        "@id": "Mark"
+        "@id": "stencila:Mark"
       }
     },
     {

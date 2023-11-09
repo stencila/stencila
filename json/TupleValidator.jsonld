@@ -11,7 +11,7 @@
       "rdfs:label": "TupleValidator",
       "rdfs:comment": "A validator specifying constraints on an array of heterogeneous items.",
       "rdfs:subClassOf": {
-        "@id": "Entity"
+        "@id": "stencila:Entity"
       }
     },
     {

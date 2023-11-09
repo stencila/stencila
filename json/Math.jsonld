@@ -11,7 +11,7 @@
       "rdfs:label": "Math",
       "rdfs:comment": "Abstract base type for a mathematical variable or equation.",
       "rdfs:subClassOf": {
-        "@id": "Entity"
+        "@id": "stencila:Entity"
       }
     },
     {
@@ -37,7 +37,7 @@
         }
       ],
       "schema:rangeIncludes": {
-        "@id": "Cord"
+        "@id": "stencila:Cord"
       }
     },
     {
@@ -69,7 +69,7 @@
         }
       ],
       "schema:rangeIncludes": {
-        "@id": "ExecutionDigest"
+        "@id": "stencila:ExecutionDigest"
       }
     },
     {

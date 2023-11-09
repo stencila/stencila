@@ -11,7 +11,7 @@
       "rdfs:label": "Section",
       "rdfs:comment": "A section of a document.",
       "rdfs:subClassOf": {
-        "@id": "Entity"
+        "@id": "stencila:Entity"
       }
     },
     {
@@ -100,7 +100,7 @@
         "@id": "stencila:Section"
       },
       "schema:rangeIncludes": {
-        "@id": "SectionType"
+        "@id": "stencila:SectionType"
       }
     }
   ]

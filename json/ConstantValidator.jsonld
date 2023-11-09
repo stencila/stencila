@@ -11,7 +11,7 @@
       "rdfs:label": "ConstantValidator",
       "rdfs:comment": "A validator specifying a constant value that a node must have.",
       "rdfs:subClassOf": {
-        "@id": "Entity"
+        "@id": "stencila:Entity"
       }
     },
     {
@@ -53,10 +53,7 @@
         {
           "@id": "stencila:Variable"
         }
-      ],
-      "schema:rangeIncludes": {
-        "@id": "Node"
-      }
+      ]
     }
   ]
 }

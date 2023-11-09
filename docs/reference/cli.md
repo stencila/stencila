@@ -12,6 +12,7 @@ This document contains the help content for the `stencila` command-line program.
 * [`stencila log`↴](#stencila-log)
 * [`stencila inspect`↴](#stencila-inspect)
 * [`stencila convert`↴](#stencila-convert)
+* [`stencila serve`↴](#stencila-serve)
 
 ## `stencila`
 
@@ -28,6 +29,7 @@ CLI subcommands and global options
 * `log` — Display the history of commits to the document
 * `inspect` — Inspect a document as JSON
 * `convert` — Convert a document between formats
+* `serve` — Serve
 
 ###### **Options:**
 
@@ -101,6 +103,7 @@ Create a new document
   - `ogv`
   - `web-m`
   - `debug`
+  - `unknown`
 
 * `--codec <CODEC>` — The codec to use to decode the source
 * `-o`, `--overwrite` — Overwrite the document if it already exists
@@ -149,6 +152,7 @@ Import a file in another format into a new or existing document
   - `ogv`
   - `web-m`
   - `debug`
+  - `unknown`
 
 * `--codec <CODEC>` — The codec to use to decode the source
 * `-t`, `--type <TYPE>` — The type of document to import
@@ -221,6 +225,7 @@ Export a document to a file in another format
   - `ogv`
   - `web-m`
   - `debug`
+  - `unknown`
 
 * `--codec <CODEC>` — The codec to use to encode to the destination
 * `-l`, `--losses <LOSSES>` — What to do if there are losses when encoding
@@ -359,6 +364,27 @@ Convert a document between formats
 * `--strip-props <STRIP_PROPS>` — A list of node properties to strip
 
   Default value: `id`
+
+
+
+## `stencila serve`
+
+Serve
+
+**Usage:** `stencila serve [OPTIONS]`
+
+###### **Options:**
+
+* `-a`, `--address <ADDRESS>` — The address to serve on
+
+  Default value: `127.0.0.1`
+* `-p`, `--port <PORT>` — The port to serve on
+
+  Default value: `9000`
+* `-d`, `--dir <DIR>` — The directory to serve
+
+  Default value: `.`
+* `-r`, `--raw` — Should files be served raw?
 
 
 

@@ -11,7 +11,7 @@
       "rdfs:label": "TableCell",
       "rdfs:comment": "A cell within a `Table`.",
       "rdfs:subClassOf": {
-        "@id": "Entity"
+        "@id": "stencila:Entity"
       }
     },
     {
@@ -23,7 +23,7 @@
         "@id": "stencila:TableCell"
       },
       "schema:rangeIncludes": {
-        "@id": "TableCellType"
+        "@id": "stencila:TableCellType"
       }
     },
     {
@@ -62,7 +62,7 @@
       "@id": "stencila:colspan",
       "@type": "rdfs:Property",
       "rdfs:label": "columnSpan",
-      "rdfs:comment": "How many columns the cell extends.\n",
+      "rdfs:comment": "How many columns the cell extends.",
       "schema:domainIncludes": {
         "@id": "stencila:TableCell"
       },

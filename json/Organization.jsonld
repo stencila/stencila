@@ -11,7 +11,7 @@
       "rdfs:label": "Organization",
       "rdfs:comment": "An organization such as a school, NGO, corporation, club, etc.",
       "rdfs:subClassOf": {
-        "@id": "Thing"
+        "@id": "schema:Thing"
       }
     },
     {
@@ -35,7 +35,7 @@
         "@id": "schema:Thing"
       },
       "schema:rangeIncludes": {
-        "@id": "Text"
+        "@id": "schema:Text"
       }
     },
     {
@@ -48,7 +48,7 @@
       },
       "schema:rangeIncludes": [
         {
-          "@id": "PropertyValue"
+          "@id": "schema:PropertyValue"
         },
         {
           "@id": "schema:Text"
@@ -64,7 +64,7 @@
         "@id": "schema:Thing"
       },
       "schema:rangeIncludes": {
-        "@id": "stencila:ImageObject"
+        "@id": "schema:ImageObject"
       }
     },
     {
@@ -115,7 +115,7 @@
       "@id": "schema:address",
       "@type": "rdfs:Property",
       "rdfs:label": "address",
-      "rdfs:comment": "Postal address for the organization.\n",
+      "rdfs:comment": "Postal address for the organization.",
       "schema:domainIncludes": [
         {
           "@id": "schema:Organization"
@@ -126,7 +126,7 @@
       ],
       "schema:rangeIncludes": [
         {
-          "@id": "PostalAddress"
+          "@id": "schema:PostalAddress"
         },
         {
           "@id": "schema:Text"
@@ -137,7 +137,7 @@
       "@id": "schema:brand",
       "@type": "rdfs:Property",
       "rdfs:label": "brands",
-      "rdfs:comment": "Brands that the organization is connected with.\n",
+      "rdfs:comment": "Brands that the organization is connected with.",
       "schema:domainIncludes": [
         {
           "@id": "schema:Organization"
@@ -147,38 +147,38 @@
         }
       ],
       "schema:rangeIncludes": {
-        "@id": "stencila:Brand"
+        "@id": "schema:Brand"
       }
     },
     {
       "@id": "schema:contactPoint",
       "@type": "rdfs:Property",
       "rdfs:label": "contactPoints",
-      "rdfs:comment": "Correspondence/Contact points for the organization.\n",
+      "rdfs:comment": "Correspondence/Contact points for the organization.",
       "schema:domainIncludes": {
         "@id": "schema:Organization"
       },
       "schema:rangeIncludes": {
-        "@id": "stencila:ContactPoint"
+        "@id": "schema:ContactPoint"
       }
     },
     {
       "@id": "schema:department",
       "@type": "rdfs:Property",
       "rdfs:label": "departments",
-      "rdfs:comment": "Departments within the organization. For example, Department of Computer Science, Research & Development etc.\n",
+      "rdfs:comment": "Departments within the organization. For example, Department of Computer Science, Research & Development etc.",
       "schema:domainIncludes": {
         "@id": "schema:Organization"
       },
       "schema:rangeIncludes": {
-        "@id": "stencila:Organization"
+        "@id": "schema:Organization"
       }
     },
     {
       "@id": "schema:funder",
       "@type": "rdfs:Property",
       "rdfs:label": "funders",
-      "rdfs:comment": "Organization(s) or person(s) funding the organization.\n",
+      "rdfs:comment": "Organization(s) or person(s) funding the organization.",
       "schema:domainIncludes": [
         {
           "@id": "schema:CreativeWork"
@@ -195,10 +195,10 @@
       ],
       "schema:rangeIncludes": [
         {
-          "@id": "Person"
+          "@id": "schema:Person"
         },
         {
-          "@id": "Organization"
+          "@id": "schema:Organization"
         }
       ]
     },
@@ -231,23 +231,23 @@
         }
       ],
       "schema:rangeIncludes": {
-        "@id": "ImageObject"
+        "@id": "schema:ImageObject"
       }
     },
     {
       "@id": "schema:member",
       "@type": "rdfs:Property",
       "rdfs:label": "members",
-      "rdfs:comment": "Person(s) or organization(s) who are members of this organization.\n",
+      "rdfs:comment": "Person(s) or organization(s) who are members of this organization.",
       "schema:domainIncludes": {
         "@id": "schema:Organization"
       },
       "schema:rangeIncludes": [
         {
-          "@id": "Person"
+          "@id": "schema:Person"
         },
         {
-          "@id": "Organization"
+          "@id": "schema:Organization"
         }
       ]
     },
@@ -255,12 +255,12 @@
       "@id": "schema:parentOrganization",
       "@type": "rdfs:Property",
       "rdfs:label": "parentOrganization",
-      "rdfs:comment": "Entity that the Organization is a part of. For example, parentOrganization to a department is a university.\n",
+      "rdfs:comment": "Entity that the Organization is a part of. For example, parentOrganization to a department is a university.",
       "schema:domainIncludes": {
         "@id": "schema:Organization"
       },
       "schema:rangeIncludes": {
-        "@id": "Organization"
+        "@id": "schema:Organization"
       }
     }
   ]

@@ -11,7 +11,7 @@
       "rdfs:label": "Strong",
       "rdfs:comment": "Strongly emphasized content.",
       "rdfs:subClassOf": {
-        "@id": "Mark"
+        "@id": "stencila:Mark"
       }
     },
     {

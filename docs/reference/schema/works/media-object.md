@@ -1,7 +1,6 @@
 # Media Object
 
-**A media object, such as an image, video, or audio object embedded in a web page or a
-downloadable dataset.**
+**A media object, such as an image, video, or audio object embedded in a web page or a downloadable dataset.**
 
 This is not an abstract type and so can be instantiated as an inline content node.
 However, prefer to use `AudioObject`, `ImageObject`, or `VideoObject` when the

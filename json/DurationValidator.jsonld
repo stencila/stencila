@@ -11,7 +11,7 @@
       "rdfs:label": "DurationValidator",
       "rdfs:comment": "A validator specifying the constraints on a duration.",
       "rdfs:subClassOf": {
-        "@id": "Entity"
+        "@id": "stencila:Entity"
       }
     },
     {
@@ -57,7 +57,7 @@
         }
       ],
       "schema:rangeIncludes": {
-        "@id": "Duration"
+        "@id": "schema:Duration"
       }
     },
     {
@@ -86,7 +86,7 @@
         }
       ],
       "schema:rangeIncludes": {
-        "@id": "Duration"
+        "@id": "schema:Duration"
       }
     }
   ]

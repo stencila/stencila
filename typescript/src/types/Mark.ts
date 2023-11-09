@@ -4,8 +4,7 @@ import { Entity } from "./Entity.js";
 import { Inline } from "./Inline.js";
 
 /**
- * Abstract base class for nodes that mark some other inline content
- * in some way (e.g. as being emphasised, or quoted).
+ * Abstract base class for nodes that mark some other inline content in some way (e.g. as being emphasised, or quoted).
  */
 export class Mark extends Entity {
   type = "Mark";

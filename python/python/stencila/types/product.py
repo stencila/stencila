@@ -12,7 +12,7 @@ from .thing import Thing
 @dataclass(init=False)
 class Product(Thing):
     """
-    Any offered product or service. For example, a pair of shoes;    a haircut; or an episode of a TV show streamed online.
+    Any offered product or service. For example, a pair of shoes; a haircut; or an episode of a TV show streamed online.
     """
 
     type: Literal["Product"] = field(default="Product", init=False)

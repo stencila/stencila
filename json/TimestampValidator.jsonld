@@ -11,7 +11,7 @@
       "rdfs:label": "TimestampValidator",
       "rdfs:comment": "A validator specifying the constraints on a timestamp.",
       "rdfs:subClassOf": {
-        "@id": "Entity"
+        "@id": "stencila:Entity"
       }
     },
     {
@@ -57,7 +57,7 @@
         }
       ],
       "schema:rangeIncludes": {
-        "@id": "Timestamp"
+        "@id": "schema:Timestamp"
       }
     },
     {
@@ -86,7 +86,7 @@
         }
       ],
       "schema:rangeIncludes": {
-        "@id": "Timestamp"
+        "@id": "schema:Timestamp"
       }
     }
   ]

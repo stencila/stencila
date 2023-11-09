@@ -97,8 +97,7 @@ export class CreativeWork extends Thing {
   genre?: string[];
 
   /**
-   * Keywords or tags used to describe this content.
-   * Multiple entries in a keywords list are typically delimited by commas.
+   * Keywords or tags used to describe this content. Multiple entries in a keywords list are typically delimited by commas.
    */
   keywords?: string[];
 
@@ -113,8 +112,7 @@ export class CreativeWork extends Thing {
   licenses?: CreativeWorkTypeOrText[];
 
   /**
-   * Elements of the collection which can be a variety of different elements,
-   * such as Articles, Datatables, Tables and more.
+   * Elements of the collection which can be a variety of different elements, such as Articles, Datatables, Tables and more.
    */
   parts?: CreativeWorkType[];
 
@@ -124,8 +122,7 @@ export class CreativeWork extends Thing {
   publisher?: PersonOrOrganization;
 
   /**
-   * References to other creative works, such as another publication,
-   * web page, scholarly article, etc.
+   * References to other creative works, such as another publication, web page, scholarly article, etc.
    */
   references?: CreativeWorkTypeOrText[];
 

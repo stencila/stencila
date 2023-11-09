@@ -11,7 +11,7 @@
       "rdfs:label": "List",
       "rdfs:comment": "A list of items.",
       "rdfs:subClassOf": {
-        "@id": "Entity"
+        "@id": "stencila:Entity"
       }
     },
     {
@@ -31,7 +31,7 @@
         }
       ],
       "schema:rangeIncludes": {
-        "@id": "stencila:ListItem"
+        "@id": "schema:ListItem"
       }
     },
     {
@@ -43,7 +43,7 @@
         "@id": "schema:ItemList"
       },
       "schema:rangeIncludes": {
-        "@id": "ListOrder"
+        "@id": "schema:ItemListOrderType"
       }
     }
   ]

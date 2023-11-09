@@ -11,7 +11,7 @@
       "rdfs:label": "QuoteBlock",
       "rdfs:comment": "A section quoted from somewhere else.",
       "rdfs:subClassOf": {
-        "@id": "Entity"
+        "@id": "stencila:Entity"
       }
     },
     {
@@ -29,10 +29,10 @@
       ],
       "schema:rangeIncludes": [
         {
-          "@id": "Cite"
+          "@id": "stencila:Cite"
         },
         {
-          "@id": "Text"
+          "@id": "schema:Text"
         }
       ]
     },

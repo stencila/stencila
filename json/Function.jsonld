@@ -11,7 +11,7 @@
       "rdfs:label": "Function",
       "rdfs:comment": "A function with a name, which might take Parameters and return a value of a certain type.",
       "rdfs:subClassOf": {
-        "@id": "Entity"
+        "@id": "stencila:Entity"
       }
     },
     {
@@ -67,7 +67,7 @@
         "@id": "stencila:Function"
       },
       "schema:rangeIncludes": {
-        "@id": "Validator"
+        "@id": "stencila:Validator"
       }
     }
   ]

@@ -1,7 +1,6 @@
 # Product
 
-**Any offered product or service. For example, a pair of shoes;
-a haircut; or an episode of a TV show streamed online.**
+**Any offered product or service. For example, a pair of shoes; a haircut; or an episode of a TV show streamed online.**
 
 The `Product` type allows you to provide details about a product such as the product
 brand, logo and ID. This type can be used as any kind of product that is not [`CreativeWork`](./CreativeWork) item.

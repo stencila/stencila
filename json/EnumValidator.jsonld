@@ -11,7 +11,7 @@
       "rdfs:label": "EnumValidator",
       "rdfs:comment": "A schema specifying that a node must be one of several values.",
       "rdfs:subClassOf": {
-        "@id": "Entity"
+        "@id": "stencila:Entity"
       }
     },
     {
@@ -26,10 +26,7 @@
         {
           "@id": "stencila:EnumValidator"
         }
-      ],
-      "schema:rangeIncludes": {
-        "@id": "stencila:Node"
-      }
+      ]
     }
   ]
 }

@@ -11,7 +11,7 @@
       "rdfs:label": "Review",
       "rdfs:comment": "A review of an item, e.g of an `Article` or `SoftwareApplication`.",
       "rdfs:subClassOf": {
-        "@id": "CreativeWork"
+        "@id": "schema:CreativeWork"
       }
     },
     {
@@ -35,7 +35,7 @@
         "@id": "schema:Thing"
       },
       "schema:rangeIncludes": {
-        "@id": "Text"
+        "@id": "schema:Text"
       }
     },
     {
@@ -48,7 +48,7 @@
       },
       "schema:rangeIncludes": [
         {
-          "@id": "PropertyValue"
+          "@id": "schema:PropertyValue"
         },
         {
           "@id": "schema:Text"
@@ -64,7 +64,7 @@
         "@id": "schema:Thing"
       },
       "schema:rangeIncludes": {
-        "@id": "stencila:ImageObject"
+        "@id": "schema:ImageObject"
       }
     },
     {
@@ -118,9 +118,6 @@
       "rdfs:comment": "The subject matter of the content.",
       "schema:domainIncludes": {
         "@id": "schema:CreativeWork"
-      },
-      "schema:rangeIncludes": {
-        "@id": "stencila:ThingType"
       }
     },
     {
@@ -145,10 +142,10 @@
       },
       "schema:rangeIncludes": [
         {
-          "@id": "Person"
+          "@id": "schema:Person"
         },
         {
-          "@id": "Organization"
+          "@id": "schema:Organization"
         }
       ]
     },
@@ -162,13 +159,13 @@
       },
       "schema:rangeIncludes": [
         {
-          "@id": "Person"
+          "@id": "schema:Person"
         },
         {
-          "@id": "Organization"
+          "@id": "schema:Organization"
         },
         {
-          "@id": "SoftwareApplication"
+          "@id": "schema:SoftwareApplication"
         }
       ]
     },
@@ -181,7 +178,7 @@
         "@id": "schema:CreativeWork"
       },
       "schema:rangeIncludes": {
-        "@id": "stencila:Person"
+        "@id": "schema:Person"
       }
     },
     {
@@ -194,10 +191,10 @@
       },
       "schema:rangeIncludes": [
         {
-          "@id": "Person"
+          "@id": "schema:Person"
         },
         {
-          "@id": "Organization"
+          "@id": "schema:Organization"
         }
       ]
     },
@@ -210,7 +207,7 @@
         "@id": "schema:CreativeWork"
       },
       "schema:rangeIncludes": {
-        "@id": "stencila:Comment"
+        "@id": "schema:Comment"
       }
     },
     {
@@ -222,7 +219,7 @@
         "@id": "schema:CreativeWork"
       },
       "schema:rangeIncludes": {
-        "@id": "Date"
+        "@id": "schema:Date"
       }
     },
     {
@@ -234,7 +231,7 @@
         "@id": "schema:CreativeWork"
       },
       "schema:rangeIncludes": {
-        "@id": "Date"
+        "@id": "schema:Date"
       }
     },
     {
@@ -246,7 +243,7 @@
         "@id": "schema:CreativeWork"
       },
       "schema:rangeIncludes": {
-        "@id": "Date"
+        "@id": "schema:Date"
       }
     },
     {
@@ -258,7 +255,7 @@
         "@id": "schema:CreativeWork"
       },
       "schema:rangeIncludes": {
-        "@id": "Date"
+        "@id": "schema:Date"
       }
     },
     {
@@ -270,7 +267,7 @@
         "@id": "schema:CreativeWork"
       },
       "schema:rangeIncludes": {
-        "@id": "Date"
+        "@id": "schema:Date"
       }
     },
     {
@@ -294,10 +291,10 @@
       ],
       "schema:rangeIncludes": [
         {
-          "@id": "Person"
+          "@id": "schema:Person"
         },
         {
-          "@id": "Organization"
+          "@id": "schema:Organization"
         }
       ]
     },
@@ -311,10 +308,10 @@
       },
       "schema:rangeIncludes": [
         {
-          "@id": "Grant"
+          "@id": "schema:Grant"
         },
         {
-          "@id": "MonetaryGrant"
+          "@id": "schema:MonetaryGrant"
         }
       ]
     },
@@ -334,7 +331,7 @@
       "@id": "schema:keywords",
       "@type": "rdfs:Property",
       "rdfs:label": "keywords",
-      "rdfs:comment": "Keywords or tags used to describe this content.\nMultiple entries in a keywords list are typically delimited by commas.\n",
+      "rdfs:comment": "Keywords or tags used to describe this content. Multiple entries in a keywords list are typically delimited by commas.",
       "schema:domainIncludes": {
         "@id": "schema:CreativeWork"
       },
@@ -346,36 +343,28 @@
       "@id": "schema:isPartOf",
       "@type": "rdfs:Property",
       "rdfs:label": "isPartOf",
-      "rdfs:comment": "An item or other CreativeWork that this CreativeWork is a part of.\n",
+      "rdfs:comment": "An item or other CreativeWork that this CreativeWork is a part of.",
       "schema:domainIncludes": {
         "@id": "schema:CreativeWork"
-      },
-      "schema:rangeIncludes": {
-        "@id": "CreativeWorkType"
       }
     },
     {
       "@id": "schema:license",
       "@type": "rdfs:Property",
       "rdfs:label": "licenses",
-      "rdfs:comment": "License documents that applies to this content, typically indicated by URL.\n",
+      "rdfs:comment": "License documents that applies to this content, typically indicated by URL.",
       "schema:domainIncludes": {
         "@id": "schema:CreativeWork"
       },
-      "schema:rangeIncludes": [
-        {
-          "@id": "CreativeWorkType"
-        },
-        {
-          "@id": "Text"
-        }
-      ]
+      "schema:rangeIncludes": {
+        "@id": "schema:Text"
+      }
     },
     {
       "@id": "schema:hasParts",
       "@type": "rdfs:Property",
       "rdfs:label": "parts",
-      "rdfs:comment": "Elements of the collection which can be a variety of different elements,\nsuch as Articles, Datatables, Tables and more.\n",
+      "rdfs:comment": "Elements of the collection which can be a variety of different elements, such as Articles, Datatables, Tables and more.",
       "schema:domainIncludes": [
         {
           "@id": "schema:CreativeWork"
@@ -383,25 +372,22 @@
         {
           "@id": "stencila:Directory"
         }
-      ],
-      "schema:rangeIncludes": {
-        "@id": "stencila:CreativeWorkType"
-      }
+      ]
     },
     {
       "@id": "schema:publisher",
       "@type": "rdfs:Property",
       "rdfs:label": "publisher",
-      "rdfs:comment": "A publisher of the CreativeWork.\n",
+      "rdfs:comment": "A publisher of the CreativeWork.",
       "schema:domainIncludes": {
         "@id": "schema:CreativeWork"
       },
       "schema:rangeIncludes": [
         {
-          "@id": "Person"
+          "@id": "schema:Person"
         },
         {
-          "@id": "Organization"
+          "@id": "schema:Organization"
         }
       ]
     },
@@ -409,18 +395,13 @@
       "@id": "schema:citation",
       "@type": "rdfs:Property",
       "rdfs:label": "references",
-      "rdfs:comment": "References to other creative works, such as another publication,\nweb page, scholarly article, etc.\n",
+      "rdfs:comment": "References to other creative works, such as another publication, web page, scholarly article, etc.",
       "schema:domainIncludes": {
         "@id": "schema:CreativeWork"
       },
-      "schema:rangeIncludes": [
-        {
-          "@id": "CreativeWorkType"
-        },
-        {
-          "@id": "Text"
-        }
-      ]
+      "schema:rangeIncludes": {
+        "@id": "schema:Text"
+      }
     },
     {
       "@id": "schema:text",
@@ -431,7 +412,7 @@
         "@id": "schema:CreativeWork"
       },
       "schema:rangeIncludes": {
-        "@id": "Text"
+        "@id": "schema:Text"
       }
     },
     {
@@ -480,7 +461,7 @@
         "@id": "schema:Review"
       },
       "schema:rangeIncludes": {
-        "@id": "Thing"
+        "@id": "schema:Thing"
       }
     },
     {

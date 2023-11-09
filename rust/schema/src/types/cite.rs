@@ -61,8 +61,7 @@ pub struct CiteOptions {
     #[serde(alias = "page-end", alias = "page_end")]
     pub page_end: Option<IntegerOrString>,
 
-    /// Any description of pages that is not separated into pageStart and pageEnd;
-    /// for example, "1-6, 9, 55".
+    /// Any description of pages that is not separated into pageStart and pageEnd; for example, "1-6, 9, 55".
     pub pagination: Option<String>,
 
     /// Text to show before the citation.

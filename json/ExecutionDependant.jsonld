@@ -11,7 +11,7 @@
       "rdfs:label": "ExecutionDependant",
       "rdfs:comment": "A downstream execution dependant of a node.",
       "rdfs:subClassOf": {
-        "@id": "Entity"
+        "@id": "stencila:Entity"
       }
     },
     {
@@ -23,7 +23,7 @@
         "@id": "stencila:ExecutionDependant"
       },
       "schema:rangeIncludes": {
-        "@id": "ExecutionDependantRelation"
+        "@id": "stencila:ExecutionDependantRelation"
       }
     },
     {
@@ -35,7 +35,7 @@
         "@id": "stencila:ExecutionDependant"
       },
       "schema:rangeIncludes": {
-        "@id": "ExecutionDependantNode"
+        "@id": "stencila:ExecutionDependantNode"
       }
     },
     {

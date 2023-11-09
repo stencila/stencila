@@ -11,7 +11,7 @@
       "rdfs:label": "Duration",
       "rdfs:comment": "A value that represents the difference between two timestamps.",
       "rdfs:subClassOf": {
-        "@id": "Entity"
+        "@id": "stencila:Entity"
       }
     },
     {
@@ -72,7 +72,7 @@
         }
       ],
       "schema:rangeIncludes": {
-        "@id": "TimeUnit"
+        "@id": "stencila:TimeUnit"
       }
     }
   ]

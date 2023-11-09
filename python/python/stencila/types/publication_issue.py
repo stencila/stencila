@@ -24,7 +24,7 @@ from .thing_type import ThingType
 @dataclass(init=False)
 class PublicationIssue(CreativeWork):
     """
-    A part of a successively published publication such as a periodical or publication    volume, often numbered.
+    A part of a successively published publication such as a periodical or publication volume, often numbered.
     """
 
     type: Literal["PublicationIssue"] = field(default="PublicationIssue", init=False)

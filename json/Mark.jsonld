@@ -9,9 +9,9 @@
       "@id": "stencila:Mark",
       "@type": "rdfs:Class",
       "rdfs:label": "Mark",
-      "rdfs:comment": "Abstract base class for nodes that mark some other inline content\nin some way (e.g. as being emphasised, or quoted).\n",
+      "rdfs:comment": "Abstract base class for nodes that mark some other inline content in some way (e.g. as being emphasised, or quoted).",
       "rdfs:subClassOf": {
-        "@id": "Entity"
+        "@id": "stencila:Entity"
       }
     },
     {

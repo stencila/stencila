@@ -11,7 +11,7 @@
       "rdfs:label": "MonetaryGrant",
       "rdfs:comment": "A monetary grant.",
       "rdfs:subClassOf": {
-        "@id": "Grant"
+        "@id": "schema:Grant"
       }
     },
     {
@@ -35,7 +35,7 @@
         "@id": "schema:Thing"
       },
       "schema:rangeIncludes": {
-        "@id": "Text"
+        "@id": "schema:Text"
       }
     },
     {
@@ -48,7 +48,7 @@
       },
       "schema:rangeIncludes": [
         {
-          "@id": "PropertyValue"
+          "@id": "schema:PropertyValue"
         },
         {
           "@id": "schema:Text"
@@ -64,7 +64,7 @@
         "@id": "schema:Thing"
       },
       "schema:rangeIncludes": {
-        "@id": "stencila:ImageObject"
+        "@id": "schema:ImageObject"
       }
     },
     {
@@ -120,7 +120,7 @@
         "@id": "schema:Grant"
       },
       "schema:rangeIncludes": {
-        "@id": "stencila:Thing"
+        "@id": "schema:Thing"
       }
     },
     {
@@ -133,10 +133,10 @@
       },
       "schema:rangeIncludes": [
         {
-          "@id": "Person"
+          "@id": "schema:Person"
         },
         {
-          "@id": "Organization"
+          "@id": "schema:Organization"
         }
       ]
     },
@@ -156,7 +156,7 @@
       "@id": "schema:funder",
       "@type": "rdfs:Property",
       "rdfs:label": "funders",
-      "rdfs:comment": "A person or organization that supports (sponsors) something through some kind of financial contribution.\n",
+      "rdfs:comment": "A person or organization that supports (sponsors) something through some kind of financial contribution.",
       "schema:domainIncludes": [
         {
           "@id": "schema:CreativeWork"
@@ -173,10 +173,10 @@
       ],
       "schema:rangeIncludes": [
         {
-          "@id": "Person"
+          "@id": "schema:Person"
         },
         {
-          "@id": "Organization"
+          "@id": "schema:Organization"
         }
       ]
     }

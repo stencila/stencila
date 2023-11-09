@@ -400,7 +400,7 @@
     },
     "keywords": {
       "@id": "schema:keywords",
-      "description": "Keywords or tags used to describe this content.\nMultiple entries in a keywords list are typically delimited by commas.\n",
+      "description": "Keywords or tags used to describe this content. Multiple entries in a keywords list are typically delimited by commas.",
       "aliases": [
         "keyword"
       ],
@@ -417,7 +417,7 @@
     },
     "isPartOf": {
       "@id": "schema:isPartOf",
-      "description": "An item or other CreativeWork that this CreativeWork is a part of.\n",
+      "description": "An item or other CreativeWork that this CreativeWork is a part of.",
       "aliases": [
         "is-part-of",
         "is_part_of"
@@ -429,7 +429,7 @@
     },
     "licenses": {
       "@id": "schema:license",
-      "description": "License documents that applies to this content, typically indicated by URL.\n",
+      "description": "License documents that applies to this content, typically indicated by URL.",
       "aliases": [
         "license"
       ],
@@ -450,7 +450,7 @@
     },
     "parts": {
       "@id": "schema:hasParts",
-      "description": "Elements of the collection which can be a variety of different elements,\nsuch as Articles, Datatables, Tables and more.\n",
+      "description": "Elements of the collection which can be a variety of different elements, such as Articles, Datatables, Tables and more.",
       "aliases": [
         "hasParts",
         "part"
@@ -465,7 +465,7 @@
     },
     "publisher": {
       "@id": "schema:publisher",
-      "description": "A publisher of the CreativeWork.\n",
+      "description": "A publisher of the CreativeWork.",
       "strip": [
         "metadata"
       ],
@@ -483,7 +483,7 @@
     },
     "references": {
       "@id": "schema:citation",
-      "description": "References to other creative works, such as another publication,\nweb page, scholarly article, etc.\n",
+      "description": "References to other creative works, such as another publication, web page, scholarly article, etc.",
       "aliases": [
         "citations",
         "reference"
@@ -543,12 +543,12 @@
     },
     "bitrate": {
       "@id": "schema:bitrate",
-      "description": "Bitrate in megabits per second (Mbit/s, Mb/s, Mbps).\n",
+      "description": "Bitrate in megabits per second (Mbit/s, Mb/s, Mbps).",
       "type": "number"
     },
     "contentSize": {
       "@id": "schema:contentSize",
-      "description": "File size in megabits (Mbit, Mb).\n",
+      "description": "File size in megabits (Mbit, Mb).",
       "aliases": [
         "content-size",
         "content_size"
@@ -557,7 +557,7 @@
     },
     "contentUrl": {
       "@id": "schema:contentUrl",
-      "description": "URL for the actual bytes of the media object, for example the image file or video file.\n",
+      "description": "URL for the actual bytes of the media object, for example the image file or video file.",
       "$comment": "To allow for file paths, including possibly erroneous paths, neither `format` nor `pattern`\nJSON Schema keywords are used here, or on `embedUrl`.\n\n`contentUrl` is required since it seems to make little sense to have a `MediaObject`\nthat does not have it.\n\nSee https://github.com/schemaorg/schemaorg/issues/462#issuecomment-98243384\nfor why it is useful to have both `contentUrl` and `embedUrl` in addition to `url`.\n",
       "aliases": [
         "content-url",
@@ -588,7 +588,7 @@
     },
     "embedUrl": {
       "@id": "schema:embedUrl",
-      "description": "URL that can be used to embed the media on a web page via a specific media player.\n",
+      "description": "URL that can be used to embed the media on a web page via a specific media player.",
       "aliases": [
         "embed-url",
         "embed_url"
