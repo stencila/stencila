@@ -10,8 +10,8 @@
     <span is='stencila-code-expression' code='code expression'>
     </span>
     <span>,</span>
-    <code is='stencila-code-fragment'>code fragment</code>
-    <del is='stencila-delete'>
+    <code>code fragment</code>
+    <del>
       <span>, delete</span>
     </del>
     <span>,</span>
@@ -21,7 +21,7 @@
     <span>,</span>
     <img src='https://example.org/cat.jpg' alt='image'>
     </img>
-    <ins is='stencila-insert'>
+    <ins>
       <span>, insert</span>
     </ins>
     <span>,</span>
@@ -29,7 +29,7 @@
       <span>link</span>
     </a>
     <span>,</span>
-    <math is='stencila-math-fragment' code='math fragment' math-language='tex'>
+    <math data-code='math fragment' data-math-language='tex'>
     </math>
     <span>,</span>
     <stencila-note note-type='Footnote'>
@@ -38,14 +38,14 @@
       </p>
     </stencila-note>
     <span>,</span>
-    <span is='stencila-parameter' name='parameter'>
+    <span data-name='parameter'>
     </span>
     <span>,</span>
     <q>
       <span>quote</span>
     </q>
     <span>,</span>
-    <span is='stencila-span' code='text-blue-400'>
+    <span data-code='text-blue-400'>
       <span>span</span>
     </span>
     <span>,</span>
@@ -80,10 +80,10 @@
       <span>This is a claim</span>
     </p>
   </stencila-claim>
-  <pre is='stencila-code-block'>This is a code block</pre>
-  <stencila-code-chunk code='This is a code chunk'>
-  </stencila-code-chunk>
-  <div is='stencila-division' code='text-red-800 bg-indigo-100'>
+  <pre>This is a code block</pre>
+  <pre is='stencila-code-chunk' code='This is a code chunk'>
+  </pre>
+  <div data-code='text-red-800 bg-indigo-100'>
     <p>
       <span>This is a division</span>
     </p>
@@ -93,11 +93,11 @@
       <span>This is a figure</span>
     </p>
   </figure>
-  <stencila-for code='items' symbol='item'>
+  <div is='stencila-for' code='items' symbol='item'>
     <p>
       <span>This is a for loop</span>
     </p>
-  </stencila-for>
+  </div>
   <h1>
     <span>This is a heading</span>
   </h1>
@@ -108,16 +108,16 @@
       </p>
     </div>
   </div>
-  <stencila-include source='this/is/an/include'>
-  </stencila-include>
+  <div is='stencila-include' source='this/is/an/include'>
+  </div>
   <ul is='stencila-list'>
-    <li is='stencila-list-item'>
+    <li>
       <p>
         <span>This is a list</span>
       </p>
     </li>
   </ul>
-  <math is='stencila-math-block' code='This is a math block' math-language='tex'>
+  <math data-code='This is a math block' data-math-language='tex'>
   </math>
   <blockquote>
     <p>

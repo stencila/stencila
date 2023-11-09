@@ -1,26 +1,26 @@
 <article>
-  <div is='stencila-division' code='rounded border border-solid border-blue-200 bg-blue-100 p-2'>
+  <div data-code='rounded border border-solid border-blue-200 bg-blue-100 p-2'>
     <p>
       <span>Paragraph within division.</span>
     </p>
   </div>
-  <div is='stencila-division' code='color:red' style-language='css'>
+  <div data-code='color:red' data-style-language='css'>
     <p>
       <span>With style language specified.</span>
     </p>
   </div>
-  <div is='stencila-division' code='bg-$color-100 p-2'>
+  <div data-code='bg-$color-100 p-2'>
     <p>
       <span>A division with this parameter</span>
-      <span is='stencila-parameter' name='color'>
+      <span data-name='color'>
         <stencila-enum-validator values='["red","blue","green"]'>
         </stencila-enum-validator>
       </span>
       <span>interpolated into background color</span>
     </p>
   </div>
-  <div is='stencila-division' code='bg-red-100 p-2'>
-    <div is='stencila-division' code='bg-blue-100'>
+  <div data-code='bg-red-100 p-2'>
+    <div data-code='bg-blue-100'>
       <p>
         <span>Nested division.</span>
       </p>

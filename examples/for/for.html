@@ -2,44 +2,44 @@
   <p>
     <span>A simple for loop</span>
   </p>
-  <stencila-for code='[1,2,3]' symbol='item'>
+  <div is='stencila-for' code='[1,2,3]' symbol='item'>
     <p>
       <span>This paragraph will be repeated with a different value for</span>
       <span is='stencila-code-expression' code='item'>
       </span>
     </p>
-  </stencila-for>
+  </div>
   <p>
     <span>With a programming language specified</span>
   </p>
-  <stencila-for code='[1,2,3]' programming-language='python' symbol='item'>
+  <div is='stencila-for' code='[1,2,3]' programming-language='python' symbol='item'>
     <p>
       <span>This content is repeated</span>
     </p>
-  </stencila-for>
+  </div>
   <p>
     <span>Nested for loops</span>
   </p>
-  <stencila-for code='[[&#x27;a&#x27;, &#x27;b&#x27;], [&#x27;c&#x27;, &#x27;d&#x27;]]' symbol='outer'>
-    <stencila-for code='outer' symbol='inner'>
+  <div is='stencila-for' code='[[&#x27;a&#x27;, &#x27;b&#x27;], [&#x27;c&#x27;, &#x27;d&#x27;]]' symbol='outer'>
+    <div is='stencila-for' code='outer' symbol='inner'>
       <p>
         <span>This paragraph will be repeated for each inner item</span>
         <span is='stencila-code-expression' code='inner'>
         </span>
       </p>
-    </stencila-for>
-  </stencila-for>
+    </div>
+  </div>
   <p>
     <span>With an else clause</span>
   </p>
-  <stencila-for code='[]' symbol='item' otherwise='[{"type":"Paragraph","content":[{"type":"Text","value":"There are no items"}]}]'>
+  <div is='stencila-for' code='[]' symbol='item' otherwise='[{"type":"Paragraph","content":[{"type":"Text","value":"There are no items"}]}]'>
     <p>
       <span>This content is never shown</span>
     </p>
-  </stencila-for>
+  </div>
   <p>
     <span>With no content in &#x27;content&#x27; or &#x27;otherwise&#x27;</span>
   </p>
-  <stencila-for code='[]' symbol='item' otherwise='[]'>
-  </stencila-for>
+  <div is='stencila-for' code='[]' symbol='item' otherwise='[]'>
+  </div>
 </article>
