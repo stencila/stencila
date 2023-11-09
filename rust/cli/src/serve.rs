@@ -124,7 +124,7 @@ async fn static_file(Path(path): Path<String>, headers: HeaderMap) -> Response {
                     response = response.header(CONTENT_ENCODING, encoding);
                 }
 
-                if !(cfg!(debug_assertions)) {
+                if !cfg!(debug_assertions) {
                     response = response.header(CACHE_CONTROL, "max-age=31536000, immutable");
                 }
 
