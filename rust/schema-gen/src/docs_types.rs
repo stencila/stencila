@@ -15,7 +15,7 @@ use common::{
     strum::IntoEnumIterator,
     tokio::fs::{create_dir_all, remove_dir_all, remove_file},
 };
-use schema::{shortcuts::*, Article, Block, Inline, Node, NodeType, TableCell};
+use schema::{shortcuts::*, Article, Block, Inline, Node, NodeType, NoteType, TableCell};
 use status::Status;
 
 use crate::{
@@ -514,9 +514,20 @@ fn proptests_anyof(title: &str, schema: &Schema) -> Vec<Block> {
         p([
             t("During property-based (a.k.a generative) testing, the variants of the "),
             cf(title),
-            t(" type are generated using the following strategies for each complexity level (see the "),
-            lnk([cf("proptest"), t(" book")], "https://proptest-rs.github.io/proptest/"),
-            t(" for an explanation of the Rust strategy expressions). Any variant not shown is generated using the default strategy for the corresponding type and complexity level."),
+            t(" type are generated using the following strategies"),
+            nte(
+                NoteType::Footnote,
+                [p([
+                    t("See the "),
+                    cf("proptest"),
+                    t(" "),
+                    lnk([t("book")], "https://proptest-rs.github.io/proptest/"),
+                    t(" and the "),
+                    lnk([cf("proptest.rs")], "https://github.com/stencila/stencila/blob/main/rust/schema/src/proptests.rs"),
+                    t(" module for details."),
+                ])],
+            ),
+            t(" for each complexity level. Any variant not shown is generated using the default strategy for the corresponding type and complexity level."),
 
         ]),
         tab(rows)
@@ -592,14 +603,24 @@ fn proptests_object(title: &str, schema: &Schema) -> Vec<Block> {
         p([
             t("During property-based (a.k.a generative) testing, the properties of the "),
             cf(title),
-            t(" type are generated using the following strategies for each complexity level (see the "),
-            lnk([cf("proptest"), t(" book")], "https://proptest-rs.github.io/proptest/"),
-            t(" for an explanation of the Rust strategy expressions). Any optional properties that are not in this table are set to "),
+            t(" type are generated using the following strategies"),
+            nte(
+                NoteType::Footnote,
+                [p([
+                    t("See the "),
+                    cf("proptest"),
+                    t(" "),
+                    lnk([t("book")], "https://proptest-rs.github.io/proptest/"),
+                    t(" and the "),
+                    lnk([cf("proptest.rs")], "https://github.com/stencila/stencila/blob/main/rust/schema/src/proptests.rs"),
+                    t(" module for details."),
+                ])],
+            ),
+            t(" for each complexity level. Any optional properties that are not in this table are set to "),
             cf("None"),
-            t(".")
-
+            t("."),
         ]),
-        tab(rows)
+        tab(rows),
     ]
 }
 
