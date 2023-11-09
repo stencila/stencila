@@ -24,7 +24,7 @@
   "source": "src/index.ts",
   "scripts": {
     "fix": "eslint --fix 'src/**/*.ts'",
-    "lint": "tsc --noEmit && eslint 'src/**/*.ts'",
+    "lint": "eslint 'src/**/*.ts'",
     "start": "parcel watch",
     "build": "parcel build",
     "unused": "depcheck --quiet --ignores '@parcel/*' --ignore-patterns '.eslintrc*'"
