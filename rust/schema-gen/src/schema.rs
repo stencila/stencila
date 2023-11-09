@@ -674,9 +674,12 @@ impl Schema {
             }
         }
 
-        if self.description.is_none() {
+        let Some(description) = self.description.as_mut() else {
             bail!("schema does not have a description")
         };
+
+        // Ensure description is a single line (comments can be used for more detailed, multi-line content)
+        *description = description.replace('\n', " ").trim().to_string();
 
         for (name, property) in self.properties.iter_mut() {
             property.normalize(name, true)?;
