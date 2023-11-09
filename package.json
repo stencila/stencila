@@ -10,8 +10,8 @@
   "devDependencies": {
     "@arethetypeswrong/cli": "0.13.1",
     "@types/benchmark": "2.1.5",
-    "@types/jest": "29.5.7",
-    "@types/tmp": "0.2.5",
+    "@types/jest": "29.5.8",
+    "@types/tmp": "0.2.6",
     "@typescript-eslint/eslint-plugin": "6.10.0",
     "@typescript-eslint/parser": "6.10.0",
     "benchmark": "2.1.4",
