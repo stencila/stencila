@@ -6,6 +6,7 @@ use common::{
     eyre::Result,
     futures::future::try_join_all,
     glob::glob,
+    indexmap::IndexMap,
     itertools::Itertools,
     serde_json::{self, json},
     tokio::{
@@ -82,11 +83,6 @@ impl Schemas {
                     continue;
                 }
 
-                let ranges = ranges(property)
-                    .iter()
-                    .map(|id| json!({ "@id": id }))
-                    .collect_vec();
-
                 let mut prop = json!({
                     "@id": property.jid,
                     "@type": "rdfs:Property",
@@ -107,6 +103,10 @@ impl Schemas {
                     json!(sorted)
                 };
 
+                let ranges = ranges(property, &self.schemas)
+                    .iter()
+                    .map(|id| json!({ "@id": id }))
+                    .collect_vec();
                 if !ranges.is_empty() {
                     prop["schema:rangeIncludes"] = if ranges.len() == 1 {
                         json!(ranges[0])
@@ -128,7 +128,7 @@ impl Schemas {
             file.write_all(jsonld.as_bytes()).await?;
         }
 
-        fn ranges(property: &Schema) -> Vec<String> {
+        fn ranges(property: &Schema, schemas: &IndexMap<String, Schema>) -> Vec<String> {
             let mut ids = vec![];
 
             if let Some(r#type) = &property.r#type {
@@ -139,28 +139,51 @@ impl Schemas {
                     Type::Array => {
                         if let Some(items) = &property.items {
                             match items {
-                                Items::Ref(inner) => ids.push(format!("stencila:{}", inner.r#ref)),
-                                Items::Type(inner) => ids.append(&mut ranges(&Schema {
-                                    r#type: Some(inner.r#type.clone()),
-                                    ..Default::default()
-                                })),
-                                Items::AnyOf(inner) => ids.append(&mut ranges(&Schema {
-                                    any_of: Some(inner.any_of.clone()),
-                                    ..Default::default()
-                                })),
-                                Items::List(inner) => ids.append(&mut ranges(&Schema {
-                                    any_of: Some(inner.clone()),
-                                    ..Default::default()
-                                })),
+                                Items::Ref(inner) => {
+                                    if let Some(jid) = schemas
+                                        .get(&inner.r#ref)
+                                        .and_then(|schema| schema.jid.as_ref())
+                                    {
+                                        ids.push(jid.clone())
+                                    }
+                                }
+                                Items::Type(inner) => ids.append(&mut ranges(
+                                    &Schema {
+                                        r#type: Some(inner.r#type.clone()),
+                                        ..Default::default()
+                                    },
+                                    schemas,
+                                )),
+                                Items::AnyOf(inner) => ids.append(&mut ranges(
+                                    &Schema {
+                                        any_of: Some(inner.any_of.clone()),
+                                        ..Default::default()
+                                    },
+                                    schemas,
+                                )),
+                                Items::List(inner) => ids.append(&mut ranges(
+                                    &Schema {
+                                        any_of: Some(inner.clone()),
+                                        ..Default::default()
+                                    },
+                                    schemas,
+                                )),
                             }
                         }
                     }
                     _ => {}
                 }
             } else if let Some(r#ref) = &property.r#ref {
-                ids.push(r#ref.to_owned())
+                if let Some(jid) = schemas.get(r#ref).and_then(|schema| schema.jid.as_ref()) {
+                    ids.push(jid.clone())
+                }
             } else if let Some(any_of) = &property.any_of {
-                ids.append(&mut any_of.iter().flat_map(ranges).collect_vec())
+                ids.append(
+                    &mut any_of
+                        .iter()
+                        .flat_map(|schema| ranges(schema, schemas))
+                        .collect_vec(),
+                )
             }
 
             ids
