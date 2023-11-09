@@ -39,9 +39,13 @@
           href="https://github.com/stencila/stencila/blob/main/docs/develop/benchmarks"
           >docs</a
         >
-        for details. To remove some of the noise caused by running benchmarks on potentially different
-        CI machines, shared with differing neighboring CI jobs, the benchmarks are adjusted by
-        the geometric mean of scores for a set of benchmarks at each date/time.
+      </p>
+
+      <p>
+        To remove some of the noise caused by running benchmarks on different days,
+        on potentially different CI machines, shared with differing neighboring CI
+        jobs, the benchmarks are adjusted by the geometric mean of individual benchmark
+        "scores" within each set.
       </p>
 
       <sec id="codecs">
@@ -143,8 +147,8 @@
 
           for (const result of results) {
             if (result.datetime == datetime) {
-              result.adjustment = geoMean.toFixed(5);
-              result.adjustedScore = (result.score / geoMean).toFixed(5);
+              result.adjustment = (1 / geoMean).toFixed(5);
+              result.adjustedValue = (result.value * result.adjustment).toFixed(2);
             }
           }
         }
@@ -168,33 +172,49 @@
           },
           width: 600,
           height: 300,
-          mark: {
-            type: "line",
-            point: {
-              size: 70,
-            },
-          },
           encoding: {
-            x: { field: "datetime", type: "ordinal" },
-            y: {
-              field: "adjustedScore",
-              type: "quantitative",
-              title: "Adjusted score",
-            },
-            y: {
-              field: "adjustedScore",
-              type: "quantitative",
-              title: "Adjusted score",
-            },
-            tooltip: [
-              { field: "commit" },
-              { field: "author" },
-              { field: "message" },
-              { field: "value" },
-              { field: "score" },
-              { field: "adjustment" },
-            ],
+            x: { field: "datetime", type: "ordinal", axis: { title: null } },
+            y: { axis: { title: "ops/sec" } },
           },
+          layer: [
+            {
+              mark: {
+                type: "line",
+                opacity: 0.3,
+              },
+              encoding: {
+                y: {
+                  field: "value",
+                  type: "quantitative",
+                  title: "Raw",
+                },
+              },
+            },
+            {
+              mark: {
+                type: "line",
+                point: {
+                  size: 50,
+                },
+              },
+              encoding: {
+                y: {
+                  field: "adjustedValue",
+                  type: "quantitative",
+                  title: "Raw",
+                },
+                tooltip: [
+                  { field: "commit" },
+                  { field: "author" },
+                  { field: "message" },
+                  { field: "value" },
+                  { field: "score" },
+                  { field: "adjustment" },
+                  { field: "adjustedValue" },
+                ],
+              },
+            },
+          ],
         };
 
         const heading = document.createElement("h3");
