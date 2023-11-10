@@ -1,0 +1,17 @@
+{
+  "$schema": "https://stencila.dev/Article.schema.json",
+  "@context": "https://stencila.dev/Article.jsonld",
+  "type": "Article",
+  "content": [
+    {
+      "type": "Heading",
+      "level": 1,
+      "content": [
+        {
+          "type": "Text",
+          "value": "Jay"
+        }
+      ]
+    }
+  ]
+}

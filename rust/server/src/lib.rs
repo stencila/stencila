@@ -10,8 +10,8 @@ use axum::{
     body,
     extract::{Path, State},
     http::{
-        header::{ACCEPT_ENCODING, CACHE_CONTROL, CONTENT_ENCODING, CONTENT_TYPE},
-        HeaderMap, StatusCode,
+        header::{HeaderName, ACCEPT_ENCODING, CACHE_CONTROL, CONTENT_ENCODING, CONTENT_TYPE},
+        HeaderMap, HeaderValue, StatusCode,
     },
     response::{Html, IntoResponse, Response},
     routing::get,
@@ -23,7 +23,7 @@ use rust_embed::RustEmbed;
 use common::{
     clap::{self, Args},
     eyre,
-    glob::glob,
+    glob::{glob, glob_with, MatchOptions},
     itertools::Itertools,
     tokio::fs::read,
     tracing,
@@ -57,11 +57,14 @@ struct Static;
 /// Server state available from all routes
 #[derive(Default, Clone)]
 struct ServerState {
-    // The directory that is being served
+    /// The directory that is being served
     dir: PathBuf,
 
-    // Whether files should be served raw
+    /// Whether files should be served raw
     raw: bool,
+
+    /// Whether the `SourceMap` header should be set for document responses
+    source: bool,
 }
 
 /// An internal error
@@ -113,11 +116,19 @@ pub struct ServeOptions {
 
     /// Should files be served raw?
     ///
-    /// When a request is made to a path that exists within `dir`,
+    /// When `true` and a request is made to a path that exists within `dir`,
     /// the file will be served with a `Content-Type` header corresponding to
     /// the file's extension.
     #[arg(long, short)]
     raw: bool,
+
+    /// Should `SourceMap` headers be sent?
+    ///
+    /// When `true`, then the `SourceMap` header will be set with the URL
+    /// of the document that was rendered as HTML. Usually only useful if
+    /// `raw` is also `true`.
+    #[arg(long, short)]
+    source: bool,
 }
 
 /// Start the server
@@ -127,16 +138,18 @@ pub async fn serve(
         port,
         dir,
         raw,
+        source,
     }: ServeOptions,
 ) -> eyre::Result<()> {
     let address = SocketAddr::new(address, port);
-    tracing::info!("Starting server at http://{address}");
+    let dir = dir.canonicalize()?;
 
     let router = Router::new()
         .route("/static/*path", get(static_file))
         .route("/*path", get(resolve_path))
-        .with_state(ServerState { dir, raw });
+        .with_state(ServerState { dir, raw, source });
 
+    tracing::info!("Starting server at http://{address}");
     Server::bind(&address)
         .serve(router.into_make_service())
         .await?;
@@ -230,32 +243,28 @@ async fn static_file(
 }
 
 /// Resolve a path into a response
-///
-/// The path is resolved in response in the following ways:
-///
-/// - if the path
+/// 
+/// This is an interim implementation and is likely to be replaced with
+/// an implementation which uses a tries and which handles parameterized routes.
 #[tracing::instrument]
 async fn resolve_path(
-    State(ServerState { dir, raw, .. }): State<ServerState>,
+    State(ServerState {
+        dir, raw, source, ..
+    }): State<ServerState>,
     Path(path): Path<String>,
 ) -> Result<Response, InternalError> {
     let path = dir.join(path);
 
-    // Check for a directory traversal attack: if any of the path components include
-    // a parent directory (i.e. `/../`) then return a 403.
-    if path
-        .components()
-        .any(|component| matches!(component, Component::ParentDir))
-    {
-        return Ok((
-            StatusCode::FORBIDDEN,
-            "Directory traversal is not permitted",
-        )
-            .into_response());
+    // Check for a directory traversal and attempt to access private file or folder.
+    if path.components().any(|component| {
+        matches!(component, Component::ParentDir)
+            || component.as_os_str().to_string_lossy().starts_with("_")
+    }) {
+        return Ok(StatusCode::NOT_FOUND.into_response());
     }
 
     // Serve the raw file if flag is on and file exists
-    if raw && path.exists() {
+    if raw && path.exists() && path.is_file() {
         let bytes = read(&path).await.map_err(InternalError::new)?;
         let content_type = mime_guess::from_path(path).first_or_octet_stream();
 
@@ -265,12 +274,28 @@ async fn resolve_path(
             .map_err(InternalError::new);
     }
 
+    // Closure to return a new document from a filesystem path
+    let new_doc = |path: PathBuf| -> Result<Response, InternalError> {
+        if source {
+            if let Ok(path) = path.strip_prefix(&dir) {
+                let source_map = HeaderName::try_from("SourceMap").map_err(InternalError::new)?;
+                let source_path =
+                    HeaderValue::from_str(&path.to_string_lossy()).map_err(InternalError::new)?;
+
+                return Ok([(source_map, source_path)].into_response());
+            }
+        }
+
+        Ok(StatusCode::OK.into_response())
+    };
+
     // If any files have the same stem as the path (everything minus the extension)
-    // then use the one with the format with highest preference and latest modification date
+    // then use the one with the format with highest precedence and latest modification date
     let pattern = format!("{}.*", path.display());
-    if let Some(_path) = glob(&pattern)
+    if let Some(path) = glob(&pattern)
         .map_err(InternalError::new)?
         .flatten()
+        .filter(|path| path.is_file())
         .sorted_by(|a, b| {
             let a_format = Format::from_path(&a).unwrap_or_default();
             let b_format = Format::from_path(&b).unwrap_or_default();
@@ -289,7 +314,37 @@ async fn resolve_path(
         })
         .next()
     {
-        return Ok(StatusCode::OK.into_response());
+        return new_doc(path);
+    }
+
+    // If the path correlates to a folder with an index, main, or readme file
+    // then use the one with the highest precedence
+    let pattern = format!("{}/*", path.display());
+    if let Some(path) = glob_with(
+        &pattern,
+        MatchOptions {
+            case_sensitive: false,
+            ..Default::default()
+        },
+    )
+    .map_err(InternalError::new)?
+    .flatten()
+    .find(|path| {
+        // Select the first file matching these criteria
+        // noting that `glob` returns entries sorted alphabetically
+        path.is_file()
+            && path
+                .file_name()
+                .and_then(|name| name.to_str())
+                .map(|name| {
+                    let name = name.to_lowercase();
+                    name.starts_with("index.")
+                        || name.starts_with("main.")
+                        || name.starts_with("readme.")
+                })
+                .unwrap_or_default()
+    }) {
+        return new_doc(path);
     }
 
     Ok(StatusCode::NOT_FOUND.into_response())
@@ -320,13 +375,18 @@ mod tests {
         ] {
             let response =
                 resolve_path(State(ServerState::default()), Path(path.to_string())).await?;
-            assert_eq!(response.status(), StatusCode::FORBIDDEN);
+            assert_eq!(response.status(), StatusCode::NOT_FOUND);
         }
 
-        // With `raw` flag will serve static content
-        for (path, mime) in [
-            ("README.md", "text/markdown"),
-            ("bird/owl/README.md", "text/markdown"),
+        // Will return 404 for private files and any files in private folders,
+        // even with `raw` true
+        for path in [
+            "_private",
+            "_private.md",
+            "_private/README",
+            "_private/README.md",
+            "birds/jay/_private",
+            "birds/jay/_private.md",
         ] {
             let response = resolve_path(
                 State(ServerState {
@@ -338,8 +398,70 @@ mod tests {
             )
             .await?;
             assert_eq!(
+                response.status(),
+                StatusCode::NOT_FOUND,
+                "Resolved `{path}` but should not have"
+            );
+        }
+
+        // Will serve files when `raw` flag is `true`, but will 404 otherwise
+        for (path, mime) in [
+            ("README.md", "text/markdown"),
+            ("bird/jay/index.json", "application/json"),
+            ("bird/owl/README.md", "text/markdown"),
+        ] {
+            let response = resolve_path(
+                State(ServerState {
+                    dir: dir.clone(),
+                    raw: true,
+                    ..Default::default()
+                }),
+                Path(path.to_string()),
+            )
+            .await?;
+            assert_eq!(response.status(), StatusCode::OK);
+            assert_eq!(
                 response.headers().get("content-type"),
                 Some(&HeaderValue::from_static(mime))
+            );
+
+            let response = resolve_path(
+                State(ServerState {
+                    dir: dir.clone(),
+                    raw: false,
+                    ..Default::default()
+                }),
+                Path(path.to_string()),
+            )
+            .await?;
+            assert_eq!(response.status(), StatusCode::NOT_FOUND);
+        }
+
+        // Will route a path to a file with a matching stem according to rules
+        // regarding format precedence and modification times
+        for (path, source) in [
+            ("bird", "bird/index.md"),
+            ("bird/kea", "bird/kea.md"),
+            ("bird/jay", "bird/jay/index.json"),
+            ("bird/owl", "bird/owl/README.md"),
+        ] {
+            let response = resolve_path(
+                State(ServerState {
+                    dir: dir.clone(),
+                    source: true,
+                    ..Default::default()
+                }),
+                Path(path.to_string()),
+            )
+            .await?;
+            assert_eq!(
+                response.status(),
+                StatusCode::OK,
+                "Did not resolve `{path}`"
+            );
+            assert_eq!(
+                response.headers().get("sourcemap"),
+                Some(&HeaderValue::from_static(source))
             );
         }
 
