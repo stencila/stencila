@@ -133,7 +133,7 @@ pub struct Document {
     store: DocumentStore,
 
     /// The filesystem path to the document's Automerge store
-    path: PathBuf,
+    path: Option<PathBuf>,
 
     /// A channel receiver for watching for changes to the root [`Node`]
     watch_receiver: DocumentWatchReceiver,
@@ -148,9 +148,7 @@ impl Document {
     /// This initializes the document's "watch" and "update" channels and starts the
     /// `update_task` to respond to incoming updates to the root node of the document.
     #[tracing::instrument(skip(store))]
-    fn init(path: &Path, store: WriteStore) -> Result<Self> {
-        let path = path.canonicalize()?;
-
+    fn init(store: WriteStore, path: Option<PathBuf>) -> Result<Self> {
         let node = Node::load(&store)?;
 
         let (watch_sender, watch_receiver) = watch::channel(node);
@@ -213,17 +211,25 @@ impl Document {
         let mut store = WriteStore::new();
         root.write(&mut store, &path, &message).await?;
 
-        Self::init(&path, store)
+        Self::init(store, Some(path))
     }
 
     /// Open an existing document
     ///
-    /// Opens the document from the Automerge store at `path` erroring if the path does not exist
-    /// or is a directory.
+    /// If the path is a store the loads from that store, otherwise
+    /// uses `codec` to import from the path and dump into a new store.
     #[tracing::instrument]
     pub async fn open(path: &Path) -> Result<Self> {
-        let store = load_store(path).await?;
-        Self::init(path, store)
+        let format = Format::from_path(path)?;
+        if format.is_store() {
+            let store = load_store(path).await?;
+            Self::init(store, Some(path.to_path_buf()))
+        } else {
+            let root = codecs::from_path(path, None).await?;
+            let mut store = WriteStore::new();
+            root.dump(&mut store)?;
+            Self::init(store, None)
+        }
     }
 
     /// Load the root [`Node`] from the document's Automerge store
@@ -316,8 +322,12 @@ impl Document {
             .file_name()
             .map_or_else(|| "unnamed", |name| name.to_str().unwrap_or_default());
 
-        root.write(&mut store, &self.path, &format!("Import from `{filename}`"))
-            .await?;
+        if let Some(path) = &self.path {
+            root.write(&mut store, path, &format!("Import from `{filename}`"))
+                .await?;
+        } else {
+            root.dump(&mut store)?;
+        }
 
         Ok(())
     }
@@ -340,13 +350,12 @@ impl Document {
 
         if let Some(dest) = dest {
             let mut store = self.store.write().await;
-            let _commit = root
-                .write(
-                    &mut store,
-                    &self.path,
-                    &format!("Export to `{}`", dest.display()),
-                )
-                .await?;
+
+            if let Some(path) = &self.path {
+                let _commit = root
+                    .write(&mut store, path, &format!("Export to `{}`", dest.display()))
+                    .await?;
+            }
 
             codecs::to_path(&root, dest, options).await?;
 

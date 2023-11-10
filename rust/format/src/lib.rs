@@ -33,6 +33,8 @@ use common::{
 #[serde(rename_all = "lowercase", crate = "common::serde")]
 pub enum Format {
     // Grouped and ordered as most appropriate for documentation
+    // CRDTs
+    Article,
     // Markup formats
     Html,
     Jats,
@@ -74,6 +76,7 @@ impl Format {
         use Format::*;
         match self {
             Aac => "AAC",
+            Article => "Stencila Article",
             Avi => "AVI",
             Debug => "Debug",
             Flac => "FLAC",
@@ -113,6 +116,12 @@ impl Format {
         }
     }
 
+    /// Is this a document store format?
+    pub fn is_store(&self) -> bool {
+        use Format::*;
+        matches!(self, Article)
+    }
+
     /// Is this an image format?
     pub fn is_image(&self) -> bool {
         use Format::*;
@@ -137,6 +146,7 @@ impl Format {
 
         Ok(match name.to_lowercase().trim() {
             // Only aliases listed here
+            "sta" => Article,
             "md" => Markdown,
             "txt" => Text,
             "yml" => Yaml,
