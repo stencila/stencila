@@ -21,5 +21,5 @@ crate-type = ["cdylib"]
 codecs = { path = "../rust/codecs" }
 common = { path = "../rust/common" }
 pyo3 = { version = "0.19.2", features = ["extension-module"] }
-pyo3-asyncio = { version = "0.19", features = ["tokio-runtime"] }
+pyo3-asyncio = { version = "0.20", features = ["tokio-runtime"] }
 schema = { path = "../rust/schema" }
