@@ -11,5 +11,5 @@ docs = ["codecs", "schema"]
 codecs = { path = "../codecs", optional = true }
 common = { path = "../common" }
 schema = { path = "../schema", optional = true }
-schemars = { version = "0.8.15", features = ["indexmap2"] }
+schemars = { version = "0.8.16", features = ["indexmap2"] }
 status = { path = "../status" }

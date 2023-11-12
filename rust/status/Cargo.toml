@@ -5,4 +5,4 @@ edition = "2021"
 
 [dependencies]
 common = { path = "../common" }
-schemars = { version = "0.8.15", features = ["indexmap2"] }
+schemars = { version = "0.8.16", features = ["indexmap2"] }
