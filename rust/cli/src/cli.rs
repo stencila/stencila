@@ -352,7 +352,7 @@ impl Cli {
                 format,
                 codec,
             } => {
-                Document::new(
+                Document::create(
                     r#type,
                     path.as_deref(),
                     overwrite,
@@ -461,7 +461,7 @@ impl Cli {
                                 tracing::info!("Change {change:?}");
                             }
                         });
-                        doc.sync_string(None, change_sender, decode_options, encode_options)
+                        doc.sync_string(None, Some(change_sender), decode_options, encode_options)
                             .await?;
                     } else {
                         doc.sync_file(&file, direction, decode_options, encode_options)

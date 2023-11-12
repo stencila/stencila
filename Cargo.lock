@@ -1041,6 +1041,7 @@ version = "0.0.0"
 dependencies = [
  "codecs",
  "common",
+ "common-dev",
  "format",
  "node-store",
  "notify",

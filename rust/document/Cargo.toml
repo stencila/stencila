@@ -10,3 +10,6 @@ format = { path = "../format" }
 node-store = { path = "../node-store" }
 notify = { version = "6.1.1", default-features = false, features = ["macos_kqueue"] }
 schema = { path = "../schema" }
+
+[dev-dependencies]
+common-dev = { path = "../common-dev" }

@@ -168,6 +168,16 @@ impl Document {
         })
     }
 
+    /// Crete a new in-memory document
+    pub fn new(r#type: DocumentType) -> Result<Self> {
+        let root = r#type.empty();
+
+        let mut store = WriteStore::new();
+        root.dump(&mut store)?;
+
+        Self::init(store, None)
+    }
+
     /// Create a new document
     ///
     /// Creates a new Automerge store with a document of `type` at the `path`,
@@ -177,7 +187,7 @@ impl Document {
     /// be used to specify the format of that file, or `codec` the name of the codec to
     /// decode it with.
     #[tracing::instrument]
-    pub async fn new(
+    pub async fn create(
         r#type: DocumentType,
         path: Option<&Path>,
         overwrite: bool,
