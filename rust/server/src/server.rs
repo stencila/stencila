@@ -434,7 +434,7 @@ async fn serve_document(
 ///
 /// The naming of these follows the domain-like convention commonly used
 /// (see https://www.iana.org/assignments/websocket/websocket.xml#subprotocol-name).
-const WEBSOCKET_PROTOCOLS: [&str; 1] = ["string-patch.stencila.dev"];
+const WEBSOCKET_PROTOCOLS: [&str; 1] = ["sync-string.stencila.dev"];
 
 /// Handle a WebSocket connection
 #[tracing::instrument(skip(ws, doc))]
@@ -447,8 +447,8 @@ async fn handle_ws(ws: WebSocket, doc: Arc<Document>, query: HashMap<String, Str
         .unwrap_or_default();
 
     match protocol {
-        "string-patch.stencila.dev" => {
-            handle_ws_string_patch(ws, doc, query).await;
+        "sync-string.stencila.dev" => {
+            handle_ws_sync_string(ws, doc, query).await;
         }
         _ => {
             tracing::debug!("Unknown WebSocket protocol: {protocol}");
@@ -457,10 +457,10 @@ async fn handle_ws(ws: WebSocket, doc: Arc<Document>, query: HashMap<String, Str
     }
 }
 
-/// Handle a WebSocket connection using the `string-patch` protocol
+/// Handle a WebSocket connection using the `sync-string` protocol
 #[tracing::instrument(skip(ws, doc))]
-async fn handle_ws_string_patch(ws: WebSocket, doc: Arc<Document>, query: HashMap<String, String>) {
-    tracing::info!("WebSocket string-patch connection");
+async fn handle_ws_sync_string(ws: WebSocket, doc: Arc<Document>, query: HashMap<String, String>) {
+    tracing::info!("WebSocket sync-string connection");
 
     let format = query.get("format").and_then(|format| format.parse().ok());
 
@@ -541,11 +541,8 @@ where
                 }
             };
 
-            if let Err(error) = sender.send(message).await {
-                tracing::error!(
-                    "While forwarding `{}` message: {error}",
-                    std::any::type_name::<T>()
-                );
+            if let Err(..) = sender.send(message).await {
+                break
             }
         }
     });
@@ -576,11 +573,8 @@ where
 
             let message = Message::Text(message);
 
-            if let Err(error) = sender.send(message).await {
-                tracing::error!(
-                    "While forwarding `{}` message: {error}",
-                    std::any::type_name::<T>()
-                );
+            if let Err(..) = sender.send(message).await {
+                break;
             }
         }
     });

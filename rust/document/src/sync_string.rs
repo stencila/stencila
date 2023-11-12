@@ -28,15 +28,15 @@ use crate::Document;
 /// An operation on a string
 ///
 /// Uses the same data model as a CodeMirror change (see https://codemirror.net/examples/change/)
-/// which allows a `StringChange` to be serialized to/from a browser based code editor.
+/// which allows this to be directly serialized to/from a browser based code editor.
 #[skip_serializing_none]
 #[derive(Debug, Default, Serialize, Deserialize, PartialEq, Eq)]
 #[serde(crate = "common::serde")]
 pub struct StringOp {
-    /// The position in the string from which the change applied
+    /// The position in the string from which the operation is applied
     from: usize,
 
-    /// The position in the string to which the change applied
+    /// The position in the string to which the operation is applied
     ///
     /// May be omitted for additions.
     to: Option<usize>,
@@ -94,12 +94,16 @@ impl StringOp {
     }
 }
 
-/// A patch on a string
+/// A patch to apply to a string
 ///
 /// A `StringPatch` is a collection of [`StringOp`]s with a version which is
-/// used to ensure that the operations are applied to the correct version
+/// used to ensure that the operations are applied to the correct version.
+/// 
+/// An incoming patch with version `0` and empty `ops` is a request for
+/// a "reset" patch and is normally only received after a client has
+/// missed a patch (i.e. when versions are not sequential).
 #[derive(Debug, Default, Serialize, Deserialize, PartialEq, Eq)]
-#[serde(crate = "common::serde")]
+#[serde(default, crate = "common::serde")]
 pub struct StringPatch {
     /// The version of the patch
     version: u32,
@@ -129,7 +133,7 @@ impl Document {
 
         // Create the buffer and initialize the version
         let buffer = Arc::new(Mutex::new(content.clone()));
-        let version = Arc::new(AtomicU32::new(0));
+        let version = Arc::new(AtomicU32::new(1));
 
         // Start task to receive incoming `StringPatch`s from the client, apply them
         // to the buffer, and update the document's root node
