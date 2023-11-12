@@ -76,7 +76,6 @@ impl StringOp {
             from,
             to: Some(to),
             insert: Some(value.into()),
-            ..Default::default()
         }
     }
 
@@ -89,7 +88,6 @@ impl StringOp {
             from: 0,
             to: Some(0),
             insert: Some(value.into()),
-            ..Default::default()
         }
     }
 }
