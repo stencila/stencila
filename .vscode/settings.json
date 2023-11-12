@@ -82,6 +82,7 @@
         "transclude",
         "transpiling",
         "tsup",
+        "tungstenite",
         "typia",
         "uglifyjs",
         "xlink",

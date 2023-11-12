@@ -33,8 +33,8 @@ pub struct Cli {
     ///
     /// Allows more fine-grained control over which log entries are shown.
     /// To additionally see lower level entries for a specific crates use
-    /// syntax such as `tokio_postgres=debug`.
-    #[arg(long, default_value = "", global = true)]
+    /// syntax such as `tokio=debug`.
+    #[arg(long, default_value = "hyper=info,mio=info,tokio=info,tungstenite=info", global = true)]
     pub log_filter: String,
 
     /// The log format to use
