@@ -77,6 +77,7 @@ Create a new document
 * `-f`, `--format <FORMAT>` — The format of the source file
 
   Possible values:
+  - `article`
   - `html`
   - `jats`
   - `markdown`
@@ -126,6 +127,7 @@ Import a file in another format into a new or existing document
 * `-f`, `--format <FORMAT>` — The format of the source file
 
   Possible values:
+  - `article`
   - `html`
   - `jats`
   - `markdown`
@@ -199,6 +201,7 @@ Export a document to a file in another format
 * `-f`, `--format <FORMAT>` — The format of the destination file
 
   Possible values:
+  - `article`
   - `html`
   - `jats`
   - `markdown`
@@ -371,7 +374,13 @@ Convert a document between formats
 
 Serve
 
-**Usage:** `stencila serve [OPTIONS]`
+**Usage:** `stencila serve [OPTIONS] [DIR]`
+
+###### **Arguments:**
+
+* `<DIR>` — The directory to serve
+
+  Default value: `.`
 
 ###### **Options:**
 
@@ -381,10 +390,12 @@ Serve
 * `-p`, `--port <PORT>` — The port to serve on
 
   Default value: `9000`
-* `-d`, `--dir <DIR>` — The directory to serve
+* `--raw` — Should files be served raw?
+* `--source` — Should `SourceMap` headers be sent?
+* `--sync <SYNC>` — Whether and in which direction(s) to sync served documents
 
-  Default value: `.`
-* `-r`, `--raw` — Should files be served raw?
+  Possible values: `in`, `out`, `in-out`
+
 
 
 
