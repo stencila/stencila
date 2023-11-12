@@ -1,5 +1,6 @@
 use std::{
     cmp::Ordering,
+    collections::HashMap,
     net::{IpAddr, SocketAddr},
     path::{Component, PathBuf},
     sync::Arc,
@@ -8,7 +9,10 @@ use std::{
 
 use axum::{
     body,
-    extract::{Path, State},
+    extract::{
+        ws::{Message, WebSocket},
+        Path, Query, State, WebSocketUpgrade,
+    },
     http::{
         header::{HeaderName, ACCEPT_ENCODING, CACHE_CONTROL, CONTENT_ENCODING, CONTENT_TYPE},
         HeaderMap, HeaderValue, StatusCode,
@@ -17,16 +21,26 @@ use axum::{
     routing::get,
     Router, Server,
 };
-use document::SyncDirection;
+use document::{Document, SyncDirection};
 use rust_embed::RustEmbed;
 
-use codecs::EncodeOptions;
+use codecs::{DecodeOptions, EncodeOptions};
 use common::{
     clap::{self, Args},
     eyre,
+    futures::{
+        stream::{SplitSink, SplitStream},
+        SinkExt, StreamExt,
+    },
     glob::{glob, glob_with, MatchOptions},
     itertools::Itertools,
-    tokio::fs::read,
+    serde::{de::DeserializeOwned, Serialize},
+    serde_json,
+    tokio::{
+        self,
+        fs::read,
+        sync::mpsc::{channel, Receiver, Sender},
+    },
     tracing,
 };
 use format::Format;
@@ -136,8 +150,8 @@ pub async fn serve(
     let dir = dir.canonicalize()?;
 
     let router = Router::new()
-        .route("/static/*path", get(static_file))
-        .route("/*path", get(resolve_path))
+        .route("/static/*path", get(serve_static))
+        .route("/*path", get(serve_document))
         .with_state(ServerState {
             dir,
             raw,
@@ -187,7 +201,7 @@ async fn home() -> Response {
     Html(page).into_response()
 }
 
-/// Get a static file (e.g. `index.js``)
+/// Serve a static file (e.g. `index.js``)
 ///
 /// Paths to static files include a version so that, in production, the cache control
 /// header can be set such that clients should only ever need to make a single request
@@ -196,7 +210,7 @@ async fn home() -> Response {
 /// This cache control is turned off in development so that changes to those files
 /// propagate to the browser.
 #[tracing::instrument]
-async fn static_file(
+async fn serve_static(
     Path(path): Path<String>,
     headers: HeaderMap,
 ) -> Result<Response, InternalError> {
@@ -239,12 +253,12 @@ async fn static_file(
     Ok(StatusCode::NOT_FOUND.into_response())
 }
 
-/// Resolve a path into a response
+/// Serve a document
 ///
 /// This is an interim implementation and is likely to be replaced with
 /// an implementation which uses a tries and which handles parameterized routes.
 #[tracing::instrument(skip(docs))]
-async fn resolve_path(
+async fn serve_document(
     State(ServerState {
         dir,
         raw,
@@ -253,7 +267,9 @@ async fn resolve_path(
         sync,
         ..
     }): State<ServerState>,
+    ws: Option<WebSocketUpgrade>,
     Path(path): Path<String>,
+    Query(query): Query<HashMap<String, String>>,
 ) -> Result<Response, InternalError> {
     let path = dir.join(path);
 
@@ -266,7 +282,7 @@ async fn resolve_path(
     }
 
     // Serve the raw file if flag is on and file exists
-    if raw && path.exists() && path.is_file() {
+    if raw && path.exists() && path.is_file() && ws.is_none() {
         let bytes = read(&path).await.map_err(InternalError::new)?;
         let content_type = mime_guess::from_path(path).first_or_octet_stream();
 
@@ -346,6 +362,14 @@ async fn resolve_path(
     // Get the document for the path
     let doc = docs.get(&path, sync).await.map_err(InternalError::new)?;
 
+    // Return early if this is a WebSocket request
+    if let Some(ws) = ws {
+        return Ok(ws
+            .protocols(WEBSOCKET_PROTOCOLS)
+            .on_upgrade(move |ws| handle_ws(ws, doc, query))
+            .into_response());
+    }
+
     // TODO: Override the format based on ?format query param
     let format = Some(Format::Html);
     let compact = true;
@@ -406,6 +430,162 @@ async fn resolve_path(
     Ok(response)
 }
 
+/// The WebSocket protocols that can be used with the server
+///
+/// The naming of these follows the domain-like convention commonly used
+/// (see https://www.iana.org/assignments/websocket/websocket.xml#subprotocol-name).
+const WEBSOCKET_PROTOCOLS: [&str; 1] = ["string-patch.stencila.dev"];
+
+/// Handle a WebSocket connection
+#[tracing::instrument(skip(ws, doc))]
+async fn handle_ws(ws: WebSocket, doc: Arc<Document>, query: HashMap<String, String>) {
+    tracing::info!("WebSocket connection");
+
+    let protocol = ws
+        .protocol()
+        .and_then(|header| header.to_str().ok())
+        .unwrap_or_default();
+
+    match protocol {
+        "string-patch.stencila.dev" => {
+            handle_ws_string_patch(ws, doc, query).await;
+        }
+        _ => {
+            tracing::debug!("Unknown WebSocket protocol: {protocol}");
+            ws.close().await.ok();
+        }
+    }
+}
+
+/// Handle a WebSocket connection using the `string-patch` protocol
+#[tracing::instrument(skip(ws, doc))]
+async fn handle_ws_string_patch(ws: WebSocket, doc: Arc<Document>, query: HashMap<String, String>) {
+    tracing::info!("WebSocket string-patch connection");
+
+    let format = query.get("format").and_then(|format| format.parse().ok());
+
+    let direction: SyncDirection = query
+        .get("direction")
+        .and_then(|direction| direction.parse().ok())
+        .unwrap_or(SyncDirection::InOut);
+
+    let (ws_sender, ws_receiver) = ws.split();
+
+    let (in_receiver, decode_options) =
+        if matches!(direction, SyncDirection::In | SyncDirection::InOut) {
+            let (in_sender, in_receiver) = channel(1024);
+            receive_ws_messages(ws_receiver, in_sender);
+
+            let options = DecodeOptions {
+                format,
+                ..Default::default()
+            };
+
+            (Some(in_receiver), Some(options))
+        } else {
+            (None, None)
+        };
+
+    let (out_sender, encode_options) =
+        if matches!(direction, SyncDirection::Out | SyncDirection::InOut) {
+            let (out_sender, out_receiver) = channel(1024);
+            send_ws_messages(out_receiver, ws_sender);
+
+            let options = EncodeOptions {
+                format,
+                ..Default::default()
+            };
+
+            (Some(out_sender), Some(options))
+        } else {
+            (None, None)
+        };
+
+    if let Err(error) = doc
+        .sync_string(in_receiver, out_sender, decode_options, encode_options)
+        .await
+    {
+        tracing::error!("While syncing string for WebSocket client: {error}")
+    }
+}
+
+/// Receive WebSocket messages and forward to a channel
+#[tracing::instrument(skip_all)]
+fn receive_ws_messages<T>(mut receiver: SplitStream<WebSocket>, sender: Sender<T>)
+where
+    T: DeserializeOwned + Send + 'static,
+{
+    tracing::trace!("Receiving WebSocket messages");
+
+    tokio::spawn(async move {
+        while let Some(Ok(message)) = receiver.next().await {
+            tracing::trace!("Received WebSocket message");
+
+            let message = match message {
+                Message::Text(message) => message,
+                Message::Close(..) => {
+                    tracing::debug!("WebSocket connection closed");
+                    break;
+                }
+                _ => continue,
+            };
+
+            let message = match serde_json::from_str(&message) {
+                Ok(message) => message,
+                Err(error) => {
+                    tracing::error!(
+                        "Unable to deserialize `{}` message: {error}",
+                        std::any::type_name::<T>()
+                    );
+                    continue;
+                }
+            };
+
+            if let Err(error) = sender.send(message).await {
+                tracing::error!(
+                    "While forwarding `{}` message: {error}",
+                    std::any::type_name::<T>()
+                );
+            }
+        }
+    });
+}
+
+/// Send WebSocket messages forwarded from a channel
+#[tracing::instrument(skip_all)]
+fn send_ws_messages<T>(mut receiver: Receiver<T>, mut sender: SplitSink<WebSocket, Message>)
+where
+    T: Serialize + Send + 'static,
+{
+    tracing::trace!("Sending WebSocket messages");
+
+    tokio::spawn(async move {
+        while let Some(message) = receiver.recv().await {
+            tracing::trace!("Sending WebSocket message");
+
+            let message = match serde_json::to_string(&message) {
+                Ok(message) => message,
+                Err(error) => {
+                    tracing::error!(
+                        "Unable to serialize `{}` message: {error}",
+                        std::any::type_name::<T>()
+                    );
+                    continue;
+                }
+            };
+
+            let message = Message::Text(message);
+
+            if let Err(error) = sender.send(message).await {
+                tracing::error!(
+                    "While forwarding `{}` message: {error}",
+                    std::any::type_name::<T>()
+                );
+            }
+        }
+    });
+}
+
 #[cfg(test)]
 mod tests {
     use axum::http::HeaderValue;
@@ -429,8 +609,13 @@ mod tests {
             "some/../some",
             "some/../..",
         ] {
-            let response =
-                resolve_path(State(ServerState::default()), Path(path.to_string())).await?;
+            let response = serve_document(
+                State(ServerState::default()),
+                None,
+                Path(path.to_string()),
+                Default::default(),
+            )
+            .await?;
             assert_eq!(response.status(), StatusCode::NOT_FOUND);
         }
 
@@ -444,13 +629,15 @@ mod tests {
             "birds/jay/_private",
             "birds/jay/_private.md",
         ] {
-            let response = resolve_path(
+            let response = serve_document(
                 State(ServerState {
                     dir: dir.clone(),
                     raw: true,
                     ..Default::default()
                 }),
+                None,
                 Path(path.to_string()),
+                Default::default(),
             )
             .await?;
             assert_eq!(
@@ -466,13 +653,15 @@ mod tests {
             ("bird/jay/index.json5", "application/json5"),
             ("bird/owl/README.md", "text/markdown"),
         ] {
-            let response = resolve_path(
+            let response = serve_document(
                 State(ServerState {
                     dir: dir.clone(),
                     raw: true,
                     ..Default::default()
                 }),
+                None,
                 Path(path.to_string()),
+                Default::default(),
             )
             .await?;
             assert_eq!(response.status(), StatusCode::OK);
@@ -481,13 +670,15 @@ mod tests {
                 Some(&HeaderValue::from_static(mime))
             );
 
-            let response = resolve_path(
+            let response = serve_document(
                 State(ServerState {
                     dir: dir.clone(),
                     raw: false,
                     ..Default::default()
                 }),
+                None,
                 Path(path.to_string()),
+                Default::default(),
             )
             .await?;
             assert_eq!(response.status(), StatusCode::NOT_FOUND);
@@ -501,13 +692,15 @@ mod tests {
             ("bird/jay", "bird/jay/index.json5"),
             ("bird/owl", "bird/owl/README.md"),
         ] {
-            let response = resolve_path(
+            let response = serve_document(
                 State(ServerState {
                     dir: dir.clone(),
                     source: true,
                     ..Default::default()
                 }),
+                None,
                 Path(path.to_string()),
+                Default::default(),
             )
             .await?;
             assert_eq!(
