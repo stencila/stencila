@@ -11,6 +11,7 @@ use codecs::{DecodeOptions, EncodeOptions};
 use common::{
     eyre::Result,
     serde::{Deserialize, Serialize},
+    serde_with::skip_serializing_none,
     similar::{Algorithm, DiffTag, TextDiffConfig},
     tokio::{
         self,
@@ -28,6 +29,7 @@ use crate::Document;
 ///
 /// Uses the same data model as a CodeMirror change (see https://codemirror.net/examples/change/)
 /// which allows a `StringChange` to be serialized to/from a browser based code editor.
+#[skip_serializing_none]
 #[derive(Debug, Default, Serialize, Deserialize, PartialEq, Eq)]
 #[serde(crate = "common::serde")]
 pub struct StringOp {
@@ -111,7 +113,7 @@ impl Document {
     ///
     /// This function spawns a task to synchronize a document's root node
     /// with an in-memory string buffer.
-    #[tracing::instrument(skip(self))]
+    #[tracing::instrument(skip(self, patch_receiver, patch_sender))]
     pub async fn sync_string(
         &self,
         patch_receiver: Option<Receiver<StringPatch>>,
@@ -138,7 +140,7 @@ impl Document {
             let update_sender = self.update_sender.clone();
             tokio::spawn(async move {
                 while let Some(patch) = patch_receiver.recv().await {
-                    tracing::trace!("Received patch");
+                    tracing::trace!("Received string patch");
 
                     let mut buffer = buffer_clone.lock().await;
 
