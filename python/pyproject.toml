@@ -28,7 +28,7 @@ classifiers = [
 ]
 
 dependencies = [
-    "dataclasses-json==0.6.1",
+    "dataclasses-json==0.6.2",
     'StrEnum==0.4.15;python_version<"3.11"',
 ]
 
