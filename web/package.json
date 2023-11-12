@@ -31,11 +31,12 @@
   },
   "dependencies": {
     "@stencila/types": "2.0.0-alpha.21",
-    "lit": "^3.0.2"
+    "lit": "3.0.2",
+    "morphdom": "2.7.1"
   },
   "devDependencies": {
-    "@parcel/compressor-brotli": "^2.10.2",
-    "@parcel/compressor-gzip": "^2.10.2",
+    "@parcel/compressor-brotli": "2.10.2",
+    "@parcel/compressor-gzip": "2.10.2",
     "@parcel/transformer-typescript-tsc": "*",
     "parcel": "2.10.2"
   }
