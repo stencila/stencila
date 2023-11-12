@@ -260,7 +260,7 @@ async fn resolve_path(
     // Check for a directory traversal and attempt to access private file or folder.
     if path.components().any(|component| {
         matches!(component, Component::ParentDir)
-            || component.as_os_str().to_string_lossy().starts_with("_")
+            || component.as_os_str().to_string_lossy().starts_with('_')
     }) {
         return Ok(StatusCode::NOT_FOUND.into_response());
     }
@@ -285,14 +285,14 @@ async fn resolve_path(
             .flatten()
             .filter(|path| path.is_file())
             .sorted_by(|a, b| {
-                let a_format = Format::from_path(&a).unwrap_or_default();
-                let b_format = Format::from_path(&b).unwrap_or_default();
+                let a_format = Format::from_path(a).unwrap_or_default();
+                let b_format = Format::from_path(b).unwrap_or_default();
                 match a_format.rank().cmp(&b_format.rank()) {
                     Ordering::Equal => {
-                        let a_modified = std::fs::metadata(&a)
+                        let a_modified = std::fs::metadata(a)
                             .and_then(|metadata| metadata.modified())
                             .unwrap_or(UNIX_EPOCH);
-                        let b_modified = std::fs::metadata(&b)
+                        let b_modified = std::fs::metadata(b)
                             .and_then(|metadata| metadata.modified())
                             .unwrap_or(UNIX_EPOCH);
                         a_modified.cmp(&b_modified).reverse()
@@ -463,7 +463,7 @@ mod tests {
         // Will serve files when `raw` flag is `true`, but will 404 otherwise
         for (path, mime) in [
             ("README.md", "text/markdown"),
-            ("bird/jay/index.json", "application/json"),
+            ("bird/jay/index.json5", "application/json5"),
             ("bird/owl/README.md", "text/markdown"),
         ] {
             let response = resolve_path(
@@ -498,7 +498,7 @@ mod tests {
         for (path, source) in [
             ("bird", "bird/index.md"),
             ("bird/kea", "bird/kea.md"),
-            ("bird/jay", "bird/jay/index.json"),
+            ("bird/jay", "bird/jay/index.json5"),
             ("bird/owl", "bird/owl/README.md"),
         ] {
             let response = resolve_path(
