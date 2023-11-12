@@ -22,7 +22,7 @@ impl Documents {
         }
         drop(map);
 
-        let doc = Document::open(&path).await?;
+        let doc = Document::open(path).await?;
 
         if let Some(direction) = sync {
             doc.sync_file(path, direction, None, None).await?;
