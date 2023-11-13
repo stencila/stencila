@@ -284,8 +284,9 @@ impl Document {
 
                     // Create and send a `StringPatch`
                     let patch = StringPatch { version, ops };
-                    if let Err(error) = patch_sender.send(patch).await {
-                        tracing::error!("While sending string patch: {error}");
+                    if let Err(..) = patch_sender.send(patch).await {
+                        // Most likely receiver has dropped so just finish this task
+                        break
                     }
                 }
             });

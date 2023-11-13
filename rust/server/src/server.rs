@@ -439,7 +439,7 @@ const WEBSOCKET_PROTOCOLS: [&str; 1] = ["sync-string.stencila.dev"];
 /// Handle a WebSocket connection
 #[tracing::instrument(skip(ws, doc))]
 async fn handle_ws(ws: WebSocket, doc: Arc<Document>, query: HashMap<String, String>) {
-    tracing::info!("WebSocket connection");
+    tracing::trace!("WebSocket connection");
 
     let protocol = ws
         .protocol()
@@ -460,7 +460,7 @@ async fn handle_ws(ws: WebSocket, doc: Arc<Document>, query: HashMap<String, Str
 /// Handle a WebSocket connection using the `sync-string` protocol
 #[tracing::instrument(skip(ws, doc))]
 async fn handle_ws_sync_string(ws: WebSocket, doc: Arc<Document>, query: HashMap<String, String>) {
-    tracing::info!("WebSocket sync-string connection");
+    tracing::trace!("WebSocket sync-string connection");
 
     let format = query.get("format").and_then(|format| format.parse().ok());
 
@@ -493,6 +493,9 @@ async fn handle_ws_sync_string(ws: WebSocket, doc: Arc<Document>, query: HashMap
 
             let options = EncodeOptions {
                 format,
+                // TODO: remove this from here and instead
+                // make a default for the codec
+                strip_props: vec!["id".to_string()],
                 ..Default::default()
             };
 
@@ -542,7 +545,7 @@ where
             };
 
             if let Err(..) = sender.send(message).await {
-                break
+                break;
             }
         }
     });
