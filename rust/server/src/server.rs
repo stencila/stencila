@@ -3,6 +3,7 @@ use std::{
     collections::HashMap,
     net::{IpAddr, SocketAddr},
     path::{Component, PathBuf},
+    str::FromStr,
     sync::Arc,
     time::UNIX_EPOCH,
 };
@@ -21,7 +22,7 @@ use axum::{
     routing::get,
     Router, Server,
 };
-use document::{Document, SyncDirection};
+use document::{Document, DocumentId, SyncDirection};
 use rust_embed::RustEmbed;
 
 use codecs::{DecodeOptions, EncodeOptions};
@@ -150,7 +151,8 @@ pub async fn serve(
     let dir = dir.canonicalize()?;
 
     let router = Router::new()
-        .route("/static/*path", get(serve_static))
+        .route("/~static/*path", get(serve_static))
+        .route("/~ws/*id", get(serve_ws))
         .route("/*path", get(serve_document))
         .with_state(ServerState {
             dir,
@@ -267,7 +269,6 @@ async fn serve_document(
         sync,
         ..
     }): State<ServerState>,
-    ws: Option<WebSocketUpgrade>,
     Path(path): Path<String>,
     Query(query): Query<HashMap<String, String>>,
 ) -> Result<Response, InternalError> {
@@ -282,7 +283,7 @@ async fn serve_document(
     }
 
     // Serve the raw file if flag is on and file exists
-    if raw && path.exists() && path.is_file() && ws.is_none() {
+    if raw && path.exists() && path.is_file() {
         let bytes = read(&path).await.map_err(InternalError::new)?;
         let content_type = mime_guess::from_path(path).first_or_octet_stream();
 
@@ -360,15 +361,11 @@ async fn serve_document(
     };
 
     // Get the document for the path
-    let doc = docs.get(&path, sync).await.map_err(InternalError::new)?;
-
-    // Return early if this is a WebSocket request
-    if let Some(ws) = ws {
-        return Ok(ws
-            .protocols(WEBSOCKET_PROTOCOLS)
-            .on_upgrade(move |ws| handle_ws(ws, doc, query))
-            .into_response());
-    }
+    let doc = docs
+        .by_path(&path, sync)
+        .await
+        .map_err(InternalError::new)?;
+    let id = doc.id();
 
     // TODO: Override the format based on ?format query param
     let format = Some(Format::Html);
@@ -398,8 +395,9 @@ async fn serve_document(
     <head>
         <meta charset="utf-8"/>
         <title>Stencila</title>
-        <link rel="stylesheet" href="/static/{static_version}/index.css" />
-        <script type="module" src="/static/{static_version}/index.js"></script>
+        <meta name="id" value="{id}">
+        <link rel="stylesheet" href="/~static/{static_version}/index.css" />
+        <script type="module" src="/~static/{static_version}/index.js"></script>
     </head>
     <body>
         {content}
@@ -435,6 +433,26 @@ async fn serve_document(
 /// The naming of these follows the domain-like convention commonly used
 /// (see https://www.iana.org/assignments/websocket/websocket.xml#subprotocol-name).
 const WEBSOCKET_PROTOCOLS: [&str; 1] = ["sync-string.stencila.dev"];
+
+/// Handle a WebSocket upgrade request
+async fn serve_ws(
+    State(ServerState { docs, .. }): State<ServerState>,
+    ws: WebSocketUpgrade,
+    Path(id): Path<String>,
+    Query(query): Query<HashMap<String, String>>,
+) -> Result<Response, InternalError> {
+    let Ok(id) = DocumentId::from_str(&id) else {
+        return Ok((StatusCode::BAD_REQUEST, "Invalid document id").into_response())
+    };
+
+    let doc = docs.by_id(&id).await.map_err(InternalError::new)?;
+
+    let response = ws
+        .protocols(WEBSOCKET_PROTOCOLS)
+        .on_upgrade(move |ws| handle_ws(ws, doc, query));
+
+    Ok(response)
+}
 
 /// Handle a WebSocket connection
 #[tracing::instrument(skip(ws, doc))]
@@ -608,7 +626,6 @@ mod tests {
         ] {
             let response = serve_document(
                 State(ServerState::default()),
-                None,
                 Path(path.to_string()),
                 Default::default(),
             )
@@ -632,7 +649,6 @@ mod tests {
                     raw: true,
                     ..Default::default()
                 }),
-                None,
                 Path(path.to_string()),
                 Default::default(),
             )
@@ -656,7 +672,6 @@ mod tests {
                     raw: true,
                     ..Default::default()
                 }),
-                None,
                 Path(path.to_string()),
                 Default::default(),
             )
@@ -673,7 +688,6 @@ mod tests {
                     raw: false,
                     ..Default::default()
                 }),
-                None,
                 Path(path.to_string()),
                 Default::default(),
             )
@@ -695,7 +709,6 @@ mod tests {
                     source: true,
                     ..Default::default()
                 }),
-                None,
                 Path(path.to_string()),
                 Default::default(),
             )

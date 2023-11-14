@@ -15,6 +15,7 @@ use common::{
         sync::{mpsc, watch, RwLock},
     },
     tracing,
+    type_safe_id::{StaticType, TypeSafeId},
 };
 use format::Format;
 use node_store::{inspect_store, load_store, ReadNode, WriteNode, WriteStore};
@@ -80,6 +81,15 @@ impl DocumentType {
     }
 }
 
+#[derive(Default)]
+pub struct Document_;
+
+impl StaticType for Document_ {
+    const TYPE: &'static str = "doc";
+}
+
+pub type DocumentId = TypeSafeId<Document_>;
+
 /// The synchronization mode between documents and external resources
 ///
 /// Examples of external resources which may be synchronized with a document include
@@ -120,15 +130,23 @@ type DocumentUpdateReceiver = mpsc::Receiver<Node>;
 ///
 /// Each document has:
 ///
+/// - A unique `id` which is used for things like establishing a
+///   WebSocket connection to it
+///
 /// - An Automerge `store` that has a [`Node`] at its root.
-///   The `store` is read from, and written to, the document's `path`.
+///
+/// - An optional `path` that the `store` can be read from, and written to.
 ///
 /// - A `watch_receiver` which can be cloned to watch for changes
 ///   to the root [`Node`].
 ///
 /// - An `update_sender` which can be cloned to send updates to the
 ///   root [`Node`].
+#[derive(Debug)]
 pub struct Document {
+    /// The document's id
+    id: DocumentId,
+
     /// The document's Automerge store with a [`Node`] at its root
     store: DocumentStore,
 
@@ -149,6 +167,8 @@ impl Document {
     /// `update_task` to respond to incoming updates to the root node of the document.
     #[tracing::instrument(skip(store))]
     fn init(store: WriteStore, path: Option<PathBuf>) -> Result<Self> {
+        let id = DocumentId::new();
+
         let node = Node::load(&store)?;
 
         let (watch_sender, watch_receiver) = watch::channel(node);
@@ -161,8 +181,9 @@ impl Document {
         );
 
         Ok(Self {
-            path,
+            id,
             store,
+            path,
             watch_receiver,
             update_sender,
         })
@@ -240,6 +261,11 @@ impl Document {
             root.dump(&mut store)?;
             Self::init(store, None)
         }
+    }
+
+    /// Get the id of the document
+    pub fn id(&self) -> &DocumentId {
+        &self.id
     }
 
     /// Load the root [`Node`] from the document's Automerge store
