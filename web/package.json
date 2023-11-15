@@ -35,9 +35,9 @@
     "morphdom": "2.7.1"
   },
   "devDependencies": {
-    "@parcel/compressor-brotli": "2.10.2",
-    "@parcel/compressor-gzip": "2.10.2",
+    "@parcel/compressor-brotli": "2.10.3",
+    "@parcel/compressor-gzip": "2.10.3",
     "@parcel/transformer-typescript-tsc": "*",
-    "parcel": "2.10.2"
+    "parcel": "2.10.3"
   }
 }
