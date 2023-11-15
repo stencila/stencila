@@ -19,7 +19,7 @@ codec-text-trait = { path = "../codec-text-trait" }
 common = { path = "../common" }
 human_name = "2.0.2"
 interim = { version = "0.1.1", features = ["chrono"] }
-monostate = "0.1.9"
+monostate = "0.1.10"
 node-store = { path = "../node-store" }
 node-strip = { path = "../node-strip" }
 proptest = { version = "1.4.0", optional = true }
