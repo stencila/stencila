@@ -562,7 +562,7 @@ where
                 }
             };
 
-            if let Err(..) = sender.send(message).await {
+            if sender.send(message).await.is_err() {
                 break;
             }
         }
@@ -594,7 +594,7 @@ where
 
             let message = Message::Text(message);
 
-            if let Err(..) = sender.send(message).await {
+            if sender.send(message).await.is_err() {
                 break;
             }
         }
