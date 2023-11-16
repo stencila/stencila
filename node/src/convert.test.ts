@@ -17,7 +17,7 @@ test("fromString", async () => {
 });
 
 test("fromPath", async () => {
-  const node = await fromPath("../examples/paragraph/paragraph.json");
+  const node = await fromPath("../examples/nodes/paragraph/paragraph.json");
 
   expect(node instanceof Article);
   expect((node as Article).content[0] instanceof Paragraph);

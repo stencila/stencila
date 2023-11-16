@@ -20,7 +20,7 @@ async def test_from_string():
 
 
 async def test_from_path():
-    node = await from_path("../examples/paragraph/paragraph.json")
+    node = await from_path("../examples/nodes/paragraph/paragraph.json")
 
     assert isinstance(node, Article)
     assert isinstance(node.content[0], Paragraph)
@@ -68,7 +68,7 @@ async def test_to_path():
 
 
 async def test_from_to():
-    markdown = await from_to("../examples/paragraph/paragraph.json", to_format="md")
+    markdown = await from_to("../examples/nodes/paragraph/paragraph.json", to_format="md")
 
     assert (
         markdown
