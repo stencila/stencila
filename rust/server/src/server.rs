@@ -612,7 +612,7 @@ mod tests {
     #[tokio::test]
     async fn test_resolve_path() -> Result<()> {
         let dir = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
-            .join("../../examples/routing")
+            .join("../../examples/projects/routing")
             .canonicalize()?;
 
         // Will forbid paths with `..` in them
