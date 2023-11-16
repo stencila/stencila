@@ -1,6 +1,6 @@
 # Execution Error
 
-**An error that occurred when executing an `Executable` node.**
+**An error that occurred when executing an executable node.**
 
 **`@id`**: `stencila:ExecutionError`
 
@@ -10,12 +10,13 @@ This type is marked as unstable and is subject to change.
 
 The `ExecutionError` type has these properties:
 
-| Name           | Aliases                                     | `@id`                                | Type                                                                                            | Description                                                | Inherited from                                                                                   |
-| -------------- | ------------------------------------------- | ------------------------------------ | ----------------------------------------------------------------------------------------------- | ---------------------------------------------------------- | ------------------------------------------------------------------------------------------------ |
-| `id`           | -                                           | [`schema:id`](https://schema.org/id) | [`String`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/string.md) | The identifier for this item.                              | [`Entity`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/entity.md) |
-| `errorMessage` | `message`, `error-message`, `error_message` | `stencila:errorMessage`              | [`String`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/string.md) | The error message or brief description of the error.       | -                                                                                                |
-| `errorType`    | `error-type`, `error_type`                  | `stencila:errorType`                 | [`String`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/string.md) | The type of error e.g. "SyntaxError", "ZeroDivisionError". | -                                                                                                |
-| `stackTrace`   | `trace`, `stack-trace`, `stack_trace`       | `stencila:stackTrace`                | [`String`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/string.md) | Stack trace leading up to the error.                       | -                                                                                                |
+| Name           | Aliases                                     | `@id`                                | Type                                                                                                         | Description                                                | Inherited from                                                                                   |
+| -------------- | ------------------------------------------- | ------------------------------------ | ------------------------------------------------------------------------------------------------------------ | ---------------------------------------------------------- | ------------------------------------------------------------------------------------------------ |
+| `id`           | -                                           | [`schema:id`](https://schema.org/id) | [`String`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/string.md)              | The identifier for this item.                              | [`Entity`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/entity.md) |
+| `errorMessage` | `message`, `error-message`, `error_message` | `stencila:errorMessage`              | [`String`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/string.md)              | The error message or brief description of the error.       | -                                                                                                |
+| `errorType`    | `error-type`, `error_type`                  | `stencila:errorType`                 | [`String`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/string.md)              | The type of error e.g. "SyntaxError", "ZeroDivisionError". | -                                                                                                |
+| `codeLocation` | `code-location`, `code_location`            | `stencila:codeLocation`              | [`CodeLocation`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/code-location.md) | The location that the error occurred.                      | -                                                                                                |
+| `stackTrace`   | `trace`, `stack-trace`, `stack_trace`       | `stencila:stackTrace`                | [`String`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/string.md)              | Stack trace leading up to the error.                       | -                                                                                                |
 
 ## Related
 

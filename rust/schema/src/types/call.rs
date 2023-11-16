@@ -5,10 +5,11 @@ use crate::prelude::*;
 use super::automatic_execution::AutomaticExecution;
 use super::block::Block;
 use super::call_argument::CallArgument;
+use super::compilation_digest::CompilationDigest;
+use super::compilation_error::CompilationError;
 use super::duration::Duration;
 use super::execution_dependant::ExecutionDependant;
 use super::execution_dependency::ExecutionDependency;
-use super::execution_digest::ExecutionDigest;
 use super::execution_error::ExecutionError;
 use super::execution_required::ExecutionRequired;
 use super::execution_status::ExecutionStatus;
@@ -20,7 +21,7 @@ use super::timestamp::Timestamp;
 /// Call another document, optionally with arguments, and include its executed content.
 #[skip_serializing_none]
 #[serde_as]
-#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec, WriteNode, ReadNode)]
+#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, WalkNode, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec, WriteNode, ReadNode)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 #[cfg_attr(feature = "proptest", derive(Arbitrary))]
 #[derive(derive_more::Display)]
@@ -65,6 +66,7 @@ pub struct Call {
     /// The structured content decoded from the source.
     #[serde(default, deserialize_with = "option_one_or_many")]
     #[strip(output)]
+    #[walk]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     pub content: Option<Vec<Block>>,
 
@@ -88,7 +90,7 @@ pub struct Call {
 
 #[skip_serializing_none]
 #[serde_as]
-#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec, WriteNode, ReadNode)]
+#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, WalkNode, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec, WriteNode, ReadNode)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 #[cfg_attr(feature = "proptest", derive(Arbitrary))]
 pub struct CallOptions {
@@ -96,20 +98,20 @@ pub struct CallOptions {
     #[serde(alias = "compilation-digest", alias = "compilation_digest")]
     #[strip(execution)]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
-    pub compilation_digest: Option<ExecutionDigest>,
+    pub compilation_digest: Option<CompilationDigest>,
 
-    /// Errors when executing the node.
+    /// Errors generated when compiling the code.
     #[serde(alias = "compilation-errors", alias = "compilation_errors", alias = "compilationError", alias = "compilation-error", alias = "compilation_error")]
     #[serde(default, deserialize_with = "option_one_or_many")]
     #[strip(execution)]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
-    pub compilation_errors: Option<Vec<String>>,
+    pub compilation_errors: Option<Vec<CompilationError>>,
 
     /// The `compilationDigest` of the node when it was last executed.
     #[serde(alias = "execution-digest", alias = "execution_digest")]
     #[strip(execution)]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
-    pub execution_digest: Option<ExecutionDigest>,
+    pub execution_digest: Option<CompilationDigest>,
 
     /// The upstream dependencies of this node.
     #[serde(alias = "execution-dependencies", alias = "execution_dependencies", alias = "executionDependency", alias = "execution-dependency", alias = "execution_dependency")]

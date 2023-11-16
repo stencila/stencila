@@ -11,6 +11,16 @@ export class SoftwareSourceCode extends CreativeWork {
   type = "SoftwareSourceCode";
 
   /**
+   * The name of the item.
+   */
+  name: string;
+
+  /**
+   * The computer programming language.
+   */
+  programmingLanguage: string;
+
+  /**
    * Link to the repository where the un-compiled, human readable code and related code is located.
    */
   codeRepository?: string;
@@ -19,11 +29,6 @@ export class SoftwareSourceCode extends CreativeWork {
    * What type of code sample: full (compile ready) solution, code snippet, inline code, scripts, template.
    */
   codeSampleType?: string;
-
-  /**
-   * The computer programming language.
-   */
-  programmingLanguage?: string;
 
   /**
    * Runtime platform or script interpreter dependencies (Example - Java v1, Python2.3, .Net Framework 3.0).
@@ -40,16 +45,17 @@ export class SoftwareSourceCode extends CreativeWork {
    */
   targetProducts?: SoftwareApplication[];
 
-  constructor(options?: Partial<SoftwareSourceCode>) {
+  constructor(name: string, programmingLanguage: string, options?: Partial<SoftwareSourceCode>) {
     super();
     if (options) Object.assign(this, options);
-    
+    this.name = name;
+    this.programmingLanguage = programmingLanguage;
   }
 }
 
 /**
 * Create a new `SoftwareSourceCode`
 */
-export function softwareSourceCode(options?: Partial<SoftwareSourceCode>): SoftwareSourceCode {
-  return new SoftwareSourceCode(options);
+export function softwareSourceCode(name: string, programmingLanguage: string, options?: Partial<SoftwareSourceCode>): SoftwareSourceCode {
+  return new SoftwareSourceCode(name, programmingLanguage, options);
 }

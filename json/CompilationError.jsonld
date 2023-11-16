@@ -1,0 +1,75 @@
+{
+  "@context": {
+    "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
+    "schema": "https://schema.org/",
+    "stencila": "https://stencila.dev/"
+  },
+  "@graph": [
+    {
+      "@id": "stencila:CompilationError",
+      "@type": "rdfs:Class",
+      "rdfs:label": "CompilationError",
+      "rdfs:comment": "An error that occurred while compiling an executable node.",
+      "rdfs:subClassOf": {
+        "@id": "stencila:Entity"
+      }
+    },
+    {
+      "@id": "stencila:errorMessage",
+      "@type": "rdfs:Property",
+      "rdfs:label": "errorMessage",
+      "rdfs:comment": "The error message or brief description of the error.",
+      "schema:domainIncludes": [
+        {
+          "@id": "stencila:CompilationError"
+        },
+        {
+          "@id": "stencila:ExecutionError"
+        }
+      ],
+      "schema:rangeIncludes": {
+        "@id": "schema:Text"
+      }
+    },
+    {
+      "@id": "stencila:errorType",
+      "@type": "rdfs:Property",
+      "rdfs:label": "errorType",
+      "rdfs:comment": "The type of error e.g. \"SyntaxError\", \"ZeroDivisionError\".",
+      "schema:domainIncludes": [
+        {
+          "@id": "stencila:CompilationError"
+        },
+        {
+          "@id": "stencila:ExecutionError"
+        }
+      ],
+      "schema:rangeIncludes": {
+        "@id": "schema:Text"
+      }
+    },
+    {
+      "@id": "stencila:codeLocation",
+      "@type": "rdfs:Property",
+      "rdfs:label": "codeLocation",
+      "rdfs:comment": "The location that the error occurred.",
+      "schema:domainIncludes": [
+        {
+          "@id": "stencila:CompilationError"
+        },
+        {
+          "@id": "stencila:ExecutionDependant"
+        },
+        {
+          "@id": "stencila:ExecutionDependency"
+        },
+        {
+          "@id": "stencila:ExecutionError"
+        }
+      ],
+      "schema:rangeIncludes": {
+        "@id": "stencila:CodeLocation"
+      }
+    }
+  ]
+}

@@ -116,11 +116,11 @@
         "compilation-digest",
         "compilation_digest"
       ],
-      "$ref": "ExecutionDigest.schema.json"
+      "$ref": "CompilationDigest.schema.json"
     },
     "compilationErrors": {
       "@id": "stencila:compilationErrors",
-      "description": "Errors that occurred when transpiling the `code`.",
+      "description": "Errors generated when parsing and transpiling the style.",
       "aliases": [
         "compilation-errors",
         "compilation_errors",
@@ -130,7 +130,7 @@
       ],
       "type": "array",
       "items": {
-        "type": "string"
+        "$ref": "CompilationError.schema.json"
       }
     },
     "css": {

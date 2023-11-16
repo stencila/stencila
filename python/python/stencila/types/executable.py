@@ -3,11 +3,12 @@
 from .prelude import *
 
 from .automatic_execution import AutomaticExecution
+from .compilation_digest import CompilationDigest
+from .compilation_error import CompilationError
 from .duration import Duration
 from .entity import Entity
 from .execution_dependant import ExecutionDependant
 from .execution_dependency import ExecutionDependency
-from .execution_digest import ExecutionDigest
 from .execution_error import ExecutionError
 from .execution_required import ExecutionRequired
 from .execution_status import ExecutionStatus
@@ -26,13 +27,13 @@ class Executable(Entity):
     auto_exec: Optional[AutomaticExecution] = None
     """Under which circumstances the code should be automatically executed."""
 
-    compilation_digest: Optional[ExecutionDigest] = None
+    compilation_digest: Optional[CompilationDigest] = None
     """A digest of the content, semantics and dependencies of the node."""
 
-    compilation_errors: Optional[List[str]] = None
-    """Errors when executing the node."""
+    compilation_errors: Optional[List[CompilationError]] = None
+    """Errors generated when compiling the code."""
 
-    execution_digest: Optional[ExecutionDigest] = None
+    execution_digest: Optional[CompilationDigest] = None
     """The `compilationDigest` of the node when it was last executed."""
 
     execution_dependencies: Optional[List[ExecutionDependency]] = None
@@ -65,7 +66,7 @@ class Executable(Entity):
     execution_errors: Optional[List[ExecutionError]] = None
     """Errors when executing the node."""
 
-    def __init__(self, id: Optional[str] = None, auto_exec: Optional[AutomaticExecution] = None, compilation_digest: Optional[ExecutionDigest] = None, compilation_errors: Optional[List[str]] = None, execution_digest: Optional[ExecutionDigest] = None, execution_dependencies: Optional[List[ExecutionDependency]] = None, execution_dependants: Optional[List[ExecutionDependant]] = None, execution_tags: Optional[List[ExecutionTag]] = None, execution_count: Optional[int] = None, execution_required: Optional[ExecutionRequired] = None, execution_kernel: Optional[str] = None, execution_status: Optional[ExecutionStatus] = None, execution_ended: Optional[Timestamp] = None, execution_duration: Optional[Duration] = None, execution_errors: Optional[List[ExecutionError]] = None):
+    def __init__(self, id: Optional[str] = None, auto_exec: Optional[AutomaticExecution] = None, compilation_digest: Optional[CompilationDigest] = None, compilation_errors: Optional[List[CompilationError]] = None, execution_digest: Optional[CompilationDigest] = None, execution_dependencies: Optional[List[ExecutionDependency]] = None, execution_dependants: Optional[List[ExecutionDependant]] = None, execution_tags: Optional[List[ExecutionTag]] = None, execution_count: Optional[int] = None, execution_required: Optional[ExecutionRequired] = None, execution_kernel: Optional[str] = None, execution_status: Optional[ExecutionStatus] = None, execution_ended: Optional[Timestamp] = None, execution_duration: Optional[Duration] = None, execution_errors: Optional[List[ExecutionError]] = None):
         super().__init__(id = id)
         self.auto_exec = auto_exec
         self.compilation_digest = compilation_digest

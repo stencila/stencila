@@ -19,8 +19,11 @@ import { type CodeBlock } from "./CodeBlock.js";
 import { type CodeChunk } from "./CodeChunk.js";
 import { type CodeExpression } from "./CodeExpression.js";
 import { type CodeFragment } from "./CodeFragment.js";
+import { type CodeLocation } from "./CodeLocation.js";
 import { type Collection } from "./Collection.js";
 import { type Comment } from "./Comment.js";
+import { type CompilationDigest } from "./CompilationDigest.js";
+import { type CompilationError } from "./CompilationError.js";
 import { type ConstantValidator } from "./ConstantValidator.js";
 import { type ContactPoint } from "./ContactPoint.js";
 import { type Cord } from "./Cord.js";
@@ -42,7 +45,6 @@ import { type EnumValidator } from "./EnumValidator.js";
 import { type Enumeration } from "./Enumeration.js";
 import { type ExecutionDependant } from "./ExecutionDependant.js";
 import { type ExecutionDependency } from "./ExecutionDependency.js";
-import { type ExecutionDigest } from "./ExecutionDigest.js";
 import { type ExecutionError } from "./ExecutionError.js";
 import { type ExecutionTag } from "./ExecutionTag.js";
 import { type Figure } from "./Figure.js";
@@ -135,8 +137,11 @@ export type Node =
   CodeChunk |
   CodeExpression |
   CodeFragment |
+  CodeLocation |
   Collection |
   Comment |
+  CompilationDigest |
+  CompilationError |
   ConstantValidator |
   ContactPoint |
   CreativeWork |
@@ -157,7 +162,6 @@ export type Node =
   Enumeration |
   ExecutionDependant |
   ExecutionDependency |
-  ExecutionDigest |
   ExecutionError |
   ExecutionTag |
   Figure |
@@ -244,8 +248,11 @@ export function node(other: Node): Node {
     case "CodeChunk":
     case "CodeExpression":
     case "CodeFragment":
+    case "CodeLocation":
     case "Collection":
     case "Comment":
+    case "CompilationDigest":
+    case "CompilationError":
     case "ConstantValidator":
     case "ContactPoint":
     case "CreativeWork":
@@ -266,7 +273,6 @@ export function node(other: Node): Node {
     case "Enumeration":
     case "ExecutionDependant":
     case "ExecutionDependency":
-    case "ExecutionDigest":
     case "ExecutionError":
     case "ExecutionTag":
     case "Figure":

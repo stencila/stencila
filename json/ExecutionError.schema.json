@@ -7,7 +7,7 @@
     "Entity"
   ],
   "category": "code",
-  "description": "An error that occurred when executing an `Executable` node.",
+  "description": "An error that occurred when executing an executable node.",
   "status": "alpha",
   "required": [
     "type",
@@ -16,6 +16,7 @@
   "core": [
     "id",
     "errorType",
+    "codeLocation",
     "stackTrace"
   ],
   "properties": {
@@ -56,6 +57,15 @@
         "error_type"
       ],
       "type": "string"
+    },
+    "codeLocation": {
+      "@id": "stencila:codeLocation",
+      "description": "The location that the error occurred.",
+      "aliases": [
+        "code-location",
+        "code_location"
+      ],
+      "$ref": "CodeLocation.schema.json"
     },
     "stackTrace": {
       "@id": "stencila:stackTrace",

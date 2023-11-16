@@ -38,7 +38,7 @@ use super::unsigned_integer::UnsignedInteger;
 use super::video_object::VideoObject;
 
 /// Union type for valid inline content.
-#[derive(Debug, strum::Display, Clone, PartialEq, Serialize, Deserialize, StripNode, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec, WriteNode, SmartDefault)]
+#[derive(Debug, strum::Display, Clone, PartialEq, Serialize, Deserialize, StripNode, WalkNode, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec, WriteNode, SmartDefault)]
 #[serde(untagged, crate = "common::serde")]
 #[cfg_attr(feature = "proptest", derive(Arbitrary))]
 pub enum Inline {

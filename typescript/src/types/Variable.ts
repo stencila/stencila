@@ -10,11 +10,6 @@ export class Variable extends Entity {
   type = "Variable";
 
   /**
-   * The namespace, usually a document path, within which the variable resides
-   */
-  namespace: string;
-
-  /**
    * The name of the variable.
    */
   name: string;
@@ -29,10 +24,9 @@ export class Variable extends Entity {
    */
   value?: Node;
 
-  constructor(namespace: string, name: string, options?: Partial<Variable>) {
+  constructor(name: string, options?: Partial<Variable>) {
     super();
     if (options) Object.assign(this, options);
-    this.namespace = namespace;
     this.name = name;
   }
 }
@@ -40,6 +34,6 @@ export class Variable extends Entity {
 /**
 * Create a new `Variable`
 */
-export function variable(namespace: string, name: string, options?: Partial<Variable>): Variable {
-  return new Variable(namespace, name, options);
+export function variable(name: string, options?: Partial<Variable>): Variable {
+  return new Variable(name, options);
 }

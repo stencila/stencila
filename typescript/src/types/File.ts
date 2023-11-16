@@ -9,19 +9,13 @@ export class File extends CreativeWork {
   type = "File";
 
   /**
-   * The name of the item.
-   */
-  name: string;
-
-  /**
    * The path (absolute or relative) of the file on the filesystem
    */
   path: string;
 
-  constructor(name: string, path: string, options?: Partial<File>) {
+  constructor(path: string, options?: Partial<File>) {
     super();
     if (options) Object.assign(this, options);
-    this.name = name;
     this.path = path;
   }
 }
@@ -29,6 +23,6 @@ export class File extends CreativeWork {
 /**
 * Create a new `File`
 */
-export function file(name: string, path: string, options?: Partial<File>): File {
-  return new File(name, path, options);
+export function file(path: string, options?: Partial<File>): File {
+  return new File(path, options);
 }

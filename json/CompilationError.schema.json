@@ -1,0 +1,70 @@
+{
+  "$schema": "https://stencila.dev/meta.schema.json",
+  "$id": "https://stencila.dev/CompilationError.schema.json",
+  "@id": "stencila:CompilationError",
+  "title": "CompilationError",
+  "extends": [
+    "Entity"
+  ],
+  "category": "code",
+  "description": "An error that occurred while compiling an executable node.",
+  "status": "alpha",
+  "required": [
+    "type",
+    "errorMessage"
+  ],
+  "core": [
+    "id",
+    "errorType",
+    "codeLocation"
+  ],
+  "properties": {
+    "type": {
+      "@id": "schema:type",
+      "description": "The type of this item.",
+      "$comment": "This is a special property analogous to JSON-LD's `@type` keyword.\n",
+      "type": "string"
+    },
+    "id": {
+      "@id": "schema:id",
+      "description": "The identifier for this item.",
+      "$comment": "This is a special property analogous to JSON-LD's `@id` keyword.\n",
+      "strip": [
+        "metadata"
+      ],
+      "html": {
+        "attr": "id"
+      },
+      "type": "string"
+    },
+    "errorMessage": {
+      "@id": "stencila:errorMessage",
+      "description": "The error message or brief description of the error.",
+      "aliases": [
+        "message",
+        "error-message",
+        "error_message"
+      ],
+      "type": "string"
+    },
+    "errorType": {
+      "@id": "stencila:errorType",
+      "description": "The type of error e.g. \"SyntaxError\", \"ZeroDivisionError\".",
+      "$comment": "Many languages have the concept of alternative types of errors.\nFor example, Python has various [classes of exceptions](https://docs.python.org/3/tutorial/errors.html).\nThis property is intended to be used for storing these type names as additional\ninformation that maybe useful to the user attempting to resolve the error.\n",
+      "aliases": [
+        "error-type",
+        "error_type"
+      ],
+      "type": "string"
+    },
+    "codeLocation": {
+      "@id": "stencila:codeLocation",
+      "description": "The location that the error occurred.",
+      "aliases": [
+        "code-location",
+        "code_location"
+      ],
+      "$ref": "CodeLocation.schema.json"
+    }
+  }
+}

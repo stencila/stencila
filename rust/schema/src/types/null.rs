@@ -10,7 +10,7 @@ use crate::prelude::*;
 ///
 /// This is an empty struct, rather than a unit struct, because
 /// Autosurgeon will not work with unit structs.
-#[derive(Debug, Default, Clone, PartialEq)]
+#[derive(Debug, Default, Clone, PartialEq, Eq, Hash)]
 pub struct Null;
 
 impl fmt::Display for Null {

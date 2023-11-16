@@ -24,7 +24,7 @@ use super::thing_type::ThingType;
 /// Computer programming source code. Example: Full (compile ready) solutions, code snippet samples, scripts, templates.
 #[skip_serializing_none]
 #[serde_as]
-#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec, WriteNode, ReadNode)]
+#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, WalkNode, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec, WriteNode, ReadNode)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 #[derive(derive_more::Display)]
 #[display(fmt = "SoftwareSourceCode")]
@@ -37,13 +37,17 @@ pub struct SoftwareSourceCode {
     #[html(attr = "id")]
     pub id: Option<String>,
 
-    /// Link to the repository where the un-compiled, human readable code and related code is located.
-    #[serde(alias = "code-repository", alias = "code_repository")]
-    pub code_repository: Option<String>,
+    /// The name of the item.
+    #[strip(metadata)]
+    pub name: String,
 
     /// The computer programming language.
     #[serde(alias = "programming-language", alias = "programming_language")]
-    pub programming_language: Option<String>,
+    pub programming_language: String,
+
+    /// Link to the repository where the un-compiled, human readable code and related code is located.
+    #[serde(alias = "code-repository", alias = "code_repository")]
+    pub code_repository: Option<String>,
 
     /// Target operating system or product to which the code applies.
     #[serde(alias = "target-products", alias = "target_products", alias = "targetProduct", alias = "target-product", alias = "target_product")]
@@ -60,7 +64,7 @@ pub struct SoftwareSourceCode {
 
 #[skip_serializing_none]
 #[serde_as]
-#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec, WriteNode, ReadNode)]
+#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, WalkNode, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec, WriteNode, ReadNode)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 pub struct SoftwareSourceCodeOptions {
     /// Alternate names (aliases) for the item.
@@ -84,10 +88,6 @@ pub struct SoftwareSourceCodeOptions {
     #[serde(default, deserialize_with = "option_one_or_many")]
     #[strip(metadata)]
     pub images: Option<Vec<ImageObject>>,
-
-    /// The name of the item.
-    #[strip(metadata)]
-    pub name: Option<String>,
 
     /// The URL of the item.
     #[strip(metadata)]
@@ -244,8 +244,10 @@ pub struct SoftwareSourceCodeOptions {
 }
 
 impl SoftwareSourceCode {
-    pub fn new() -> Self {
+    pub fn new(name: String, programming_language: String) -> Self {
         Self {
+            name,
+            programming_language,
             ..Default::default()
         }
     }

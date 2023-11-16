@@ -11,7 +11,7 @@ use super::string::String;
 /// A reference to a `CreativeWork` that is cited in another `CreativeWork`.
 #[skip_serializing_none]
 #[serde_as]
-#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec, WriteNode, ReadNode)]
+#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, WalkNode, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec, WriteNode, ReadNode)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 #[derive(derive_more::Display)]
 #[display(fmt = "Cite")]
@@ -41,7 +41,7 @@ pub struct Cite {
 
 #[skip_serializing_none]
 #[serde_as]
-#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec, WriteNode, ReadNode)]
+#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, WalkNode, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec, WriteNode, ReadNode)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 pub struct CiteOptions {
     /// The type/s of the citation, both factually and rhetorically.
@@ -51,6 +51,7 @@ pub struct CiteOptions {
 
     /// Optional structured content/text of this citation.
     #[serde(default, deserialize_with = "option_one_or_many")]
+    #[walk]
     pub content: Option<Vec<Inline>>,
 
     /// The page on which the work starts; for example "135" or "xiii".

@@ -25,6 +25,9 @@
       "$ref": "File.schema.json"
     },
     {
+      "$ref": "Function.schema.json"
+    },
+    {
       "$ref": "Parameter.schema.json"
     },
     {

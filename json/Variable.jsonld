@@ -15,18 +15,6 @@
       }
     },
     {
-      "@id": "stencila:namespace",
-      "@type": "rdfs:Property",
-      "rdfs:label": "namespace",
-      "rdfs:comment": "The namespace, usually a document path, within which the variable resides",
-      "schema:domainIncludes": {
-        "@id": "stencila:Variable"
-      },
-      "schema:rangeIncludes": {
-        "@id": "schema:Text"
-      }
-    },
-    {
       "@id": "schema:name",
       "@type": "rdfs:Property",
       "rdfs:label": "name",

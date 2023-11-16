@@ -8,6 +8,7 @@ CodeChunk = ForwardRef("CodeChunk")
 CodeExpression = ForwardRef("CodeExpression")
 Division = ForwardRef("Division")
 File = ForwardRef("File")
+Function = ForwardRef("Function")
 Parameter = ForwardRef("Parameter")
 Span = ForwardRef("Span")
 Variable = ForwardRef("Variable")
@@ -20,6 +21,7 @@ ExecutionDependantNode = Union[
     CodeExpression,
     Division,
     File,
+    Function,
     Parameter,
     Span,
     Variable,

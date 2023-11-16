@@ -108,11 +108,11 @@
       "strip": [
         "execution"
       ],
-      "$ref": "ExecutionDigest.schema.json"
+      "$ref": "CompilationDigest.schema.json"
     },
     "compilationErrors": {
       "@id": "stencila:compilationErrors",
-      "description": "Errors that occurred when parsing and compiling the math equation.",
+      "description": "Errors generated when parsing and compiling the math expression.",
       "aliases": [
         "compilation-errors",
         "compilation_errors",
@@ -125,7 +125,7 @@
       ],
       "type": "array",
       "items": {
-        "type": "string"
+        "$ref": "CompilationError.schema.json"
       }
     },
     "mathml": {

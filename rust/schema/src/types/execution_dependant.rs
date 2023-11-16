@@ -2,15 +2,15 @@
 
 use crate::prelude::*;
 
+use super::code_location::CodeLocation;
 use super::execution_dependant_node::ExecutionDependantNode;
 use super::execution_dependant_relation::ExecutionDependantRelation;
-use super::integer::Integer;
 use super::string::String;
 
 /// A downstream execution dependant of a node.
 #[skip_serializing_none]
 #[serde_as]
-#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec, WriteNode, ReadNode)]
+#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, WalkNode, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec, WriteNode, ReadNode)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 #[derive(derive_more::Display)]
 #[display(fmt = "ExecutionDependant")]
@@ -23,18 +23,17 @@ pub struct ExecutionDependant {
     #[html(attr = "id")]
     pub id: Option<String>,
 
-    /// The relation to the dependant
+    /// The relation to the dependant.
     #[serde(alias = "dependant-relation", alias = "dependant_relation")]
     pub dependant_relation: ExecutionDependantRelation,
 
-    /// The node that is the dependant
+    /// The node that is the dependant.
     #[serde(alias = "dependant-node", alias = "dependant_node")]
     pub dependant_node: ExecutionDependantNode,
 
-    /// The location that the dependant is defined within code
+    /// The location that the dependant is defined.
     #[serde(alias = "code-location", alias = "code_location")]
-    #[serde(default, deserialize_with = "option_one_or_many")]
-    pub code_location: Option<Vec<Integer>>,
+    pub code_location: Option<CodeLocation>,
 }
 
 impl ExecutionDependant {

@@ -11,7 +11,6 @@
   "status": "under-development",
   "required": [
     "type",
-    "namespace",
     "name"
   ],
   "core": [
@@ -36,11 +35,6 @@
       "html": {
         "attr": "id"
       },
-      "type": "string"
-    },
-    "namespace": {
-      "@id": "stencila:namespace",
-      "description": "The namespace, usually a document path, within which the variable resides",
       "type": "string"
     },
     "name": {

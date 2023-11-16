@@ -65,12 +65,18 @@ export function hydrate(value: types.Node): types.Node {
       return Object.setPrototypeOf(value, types.CodeExpression.prototype);
     case "CodeFragment":
       return Object.setPrototypeOf(value, types.CodeFragment.prototype);
+    case "CodeLocation":
+      return Object.setPrototypeOf(value, types.CodeLocation.prototype);
     case "CodeStatic":
       return Object.setPrototypeOf(value, types.CodeStatic.prototype);
     case "Collection":
       return Object.setPrototypeOf(value, types.Collection.prototype);
     case "Comment":
       return Object.setPrototypeOf(value, types.Comment.prototype);
+    case "CompilationDigest":
+      return Object.setPrototypeOf(value, types.CompilationDigest.prototype);
+    case "CompilationError":
+      return Object.setPrototypeOf(value, types.CompilationError.prototype);
     case "ConstantValidator":
       return Object.setPrototypeOf(value, types.ConstantValidator.prototype);
     case "ContactPoint":
@@ -115,8 +121,6 @@ export function hydrate(value: types.Node): types.Node {
       return Object.setPrototypeOf(value, types.ExecutionDependant.prototype);
     case "ExecutionDependency":
       return Object.setPrototypeOf(value, types.ExecutionDependency.prototype);
-    case "ExecutionDigest":
-      return Object.setPrototypeOf(value, types.ExecutionDigest.prototype);
     case "ExecutionError":
       return Object.setPrototypeOf(value, types.ExecutionError.prototype);
     case "ExecutionTag":

@@ -25,9 +25,12 @@ from .code_chunk import CodeChunk
 from .code_executable import CodeExecutable
 from .code_expression import CodeExpression
 from .code_fragment import CodeFragment
+from .code_location import CodeLocation
 from .code_static import CodeStatic
 from .collection import Collection
 from .comment import Comment
+from .compilation_digest import CompilationDigest
+from .compilation_error import CompilationError
 from .constant_validator import ConstantValidator
 from .contact_point import ContactPoint
 from .cord import Cord
@@ -54,11 +57,9 @@ from .executable import Executable
 from .execution_dependant import ExecutionDependant
 from .execution_dependant_node import ExecutionDependantNode
 from .execution_dependant_relation import ExecutionDependantRelation
-from .execution_dependant_target import ExecutionDependantTarget
 from .execution_dependency import ExecutionDependency
 from .execution_dependency_node import ExecutionDependencyNode
 from .execution_dependency_relation import ExecutionDependencyRelation
-from .execution_digest import ExecutionDigest
 from .execution_error import ExecutionError
 from .execution_required import ExecutionRequired
 from .execution_status import ExecutionStatus

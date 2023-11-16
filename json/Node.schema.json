@@ -75,10 +75,19 @@
       "$ref": "CodeFragment.schema.json"
     },
     {
+      "$ref": "CodeLocation.schema.json"
+    },
+    {
       "$ref": "Collection.schema.json"
     },
     {
       "$ref": "Comment.schema.json"
+    },
+    {
+      "$ref": "CompilationDigest.schema.json"
+    },
+    {
+      "$ref": "CompilationError.schema.json"
     },
     {
       "$ref": "ConstantValidator.schema.json"
@@ -139,9 +148,6 @@
     },
     {
       "$ref": "ExecutionDependency.schema.json"
-    },
-    {
-      "$ref": "ExecutionDigest.schema.json"
     },
     {
       "$ref": "ExecutionError.schema.json"

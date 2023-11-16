@@ -1,0 +1,83 @@
+{
+  "$schema": "https://stencila.dev/meta.schema.json",
+  "$id": "https://stencila.dev/CodeLocation.schema.json",
+  "@id": "stencila:CodeLocation",
+  "title": "CodeLocation",
+  "extends": [
+    "Entity"
+  ],
+  "category": "flow",
+  "description": "The location within some source code.",
+  "required": [
+    "type"
+  ],
+  "core": [
+    "id",
+    "source",
+    "startLine",
+    "startColumn",
+    "endLine",
+    "endColumn"
+  ],
+  "properties": {
+    "type": {
+      "@id": "schema:type",
+      "description": "The type of this item.",
+      "$comment": "This is a special property analogous to JSON-LD's `@type` keyword.\n",
+      "type": "string"
+    },
+    "id": {
+      "@id": "schema:id",
+      "description": "The identifier for this item.",
+      "$comment": "This is a special property analogous to JSON-LD's `@id` keyword.\n",
+      "strip": [
+        "metadata"
+      ],
+      "html": {
+        "attr": "id"
+      },
+      "type": "string"
+    },
+    "source": {
+      "@id": "stencila:source",
+      "description": "The source of the code, a file path, label or URL.",
+      "type": "string"
+    },
+    "startLine": {
+      "@id": "stencila:startLine",
+      "description": "The 1-based index if the first line on which the error occurred.",
+      "aliases": [
+        "start-line",
+        "start_line"
+      ],
+      "$ref": "UnsignedInteger.schema.json"
+    },
+    "startColumn": {
+      "@id": "stencila:startColumn",
+      "description": "The 1-based index if the first column on which the error occurred.",
+      "aliases": [
+        "start-column",
+        "start_column"
+      ],
+      "$ref": "UnsignedInteger.schema.json"
+    },
+    "endLine": {
+      "@id": "stencila:endLine",
+      "description": "The 1-based index if the last line on which the error occurred.",
+      "aliases": [
+        "end-line",
+        "end_line"
+      ],
+      "$ref": "UnsignedInteger.schema.json"
+    },
+    "endColumn": {
+      "@id": "stencila:endColumn",
+      "description": "The 1-based index if the last column on which the error occurred.",
+      "aliases": [
+        "end-column",
+        "end_column"
+      ],
+      "$ref": "UnsignedInteger.schema.json"
+    }
+  }
+}

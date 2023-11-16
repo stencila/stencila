@@ -2,9 +2,10 @@
 
 from .prelude import *
 
+from .compilation_digest import CompilationDigest
+from .compilation_error import CompilationError
 from .cord import Cord
 from .entity import Entity
-from .execution_digest import ExecutionDigest
 
 
 @dataclass(init=False)
@@ -21,11 +22,11 @@ class Styled(Entity):
     style_language: Optional[str] = None
     """The language used for the style specification e.g. css, tw"""
 
-    compilation_digest: Optional[ExecutionDigest] = None
+    compilation_digest: Optional[CompilationDigest] = None
     """A digest of the `code` and `styleLanguage`."""
 
-    compilation_errors: Optional[List[str]] = None
-    """Errors that occurred when transpiling the `code`."""
+    compilation_errors: Optional[List[CompilationError]] = None
+    """Errors generated when parsing and transpiling the style."""
 
     css: Optional[str] = None
     """A Cascading Style Sheet (CSS) transpiled from the `code` property."""
@@ -33,7 +34,7 @@ class Styled(Entity):
     classes: Optional[List[str]] = None
     """A list of class names associated with the node."""
 
-    def __init__(self, code: Cord, id: Optional[str] = None, style_language: Optional[str] = None, compilation_digest: Optional[ExecutionDigest] = None, compilation_errors: Optional[List[str]] = None, css: Optional[str] = None, classes: Optional[List[str]] = None):
+    def __init__(self, code: Cord, id: Optional[str] = None, style_language: Optional[str] = None, compilation_digest: Optional[CompilationDigest] = None, compilation_errors: Optional[List[CompilationError]] = None, css: Optional[str] = None, classes: Optional[List[str]] = None):
         super().__init__(id = id)
         self.code = code
         self.style_language = style_language

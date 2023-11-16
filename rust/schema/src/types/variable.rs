@@ -8,7 +8,7 @@ use super::string::String;
 /// A variable representing a name / value pair.
 #[skip_serializing_none]
 #[serde_as]
-#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec, WriteNode, ReadNode)]
+#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, WalkNode, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec, WriteNode, ReadNode)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 #[derive(derive_more::Display)]
 #[display(fmt = "Variable")]
@@ -21,9 +21,6 @@ pub struct Variable {
     #[html(attr = "id")]
     pub id: Option<String>,
 
-    /// The namespace, usually a document path, within which the variable resides
-    pub namespace: String,
-
     /// The name of the variable.
     pub name: String,
 
@@ -35,9 +32,8 @@ pub struct Variable {
 }
 
 impl Variable {
-    pub fn new(namespace: String, name: String) -> Self {
+    pub fn new(name: String) -> Self {
         Self {
-            namespace,
             name,
             ..Default::default()
         }

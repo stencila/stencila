@@ -10,8 +10,7 @@
   "description": "A file on the file system.",
   "required": [
     "type",
-    "path",
-    "name"
+    "path"
   ],
   "core": [
     "id"

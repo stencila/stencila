@@ -291,6 +291,7 @@ pub enum NodeType {{
             "Serialize",
             "Deserialize",
             "StripNode",
+            "WalkNode",
             "HtmlCodec",
             "JatsCodec",
             "MarkdownCodec",
@@ -491,6 +492,12 @@ pub enum NodeType {{
 
             if !property.strip.is_empty() {
                 attrs.push(format!("#[strip({})]", property.strip.iter().join(", ")));
+            }
+
+            // If walk is not specified, defaults to true for `content` property
+            let walk = property.walk.unwrap_or_else(|| name == "content");
+            if walk {
+                attrs.push(String::from("#[walk]"));
             }
 
             // Add proptest related attributes
@@ -858,6 +865,7 @@ impl {title} {{{new}}}
             "Serialize",
             "Deserialize",
             "StripNode",
+            "WalkNode",
             "HtmlCodec",
             "JatsCodec",
             "MarkdownCodec",

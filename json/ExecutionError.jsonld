@@ -9,7 +9,7 @@
       "@id": "stencila:ExecutionError",
       "@type": "rdfs:Class",
       "rdfs:label": "ExecutionError",
-      "rdfs:comment": "An error that occurred when executing an `Executable` node.",
+      "rdfs:comment": "An error that occurred when executing an executable node.",
       "rdfs:subClassOf": {
         "@id": "stencila:Entity"
       }
@@ -19,9 +19,14 @@
       "@type": "rdfs:Property",
       "rdfs:label": "errorMessage",
       "rdfs:comment": "The error message or brief description of the error.",
-      "schema:domainIncludes": {
-        "@id": "stencila:ExecutionError"
-      },
+      "schema:domainIncludes": [
+        {
+          "@id": "stencila:CompilationError"
+        },
+        {
+          "@id": "stencila:ExecutionError"
+        }
+      ],
       "schema:rangeIncludes": {
         "@id": "schema:Text"
       }
@@ -31,11 +36,39 @@
       "@type": "rdfs:Property",
       "rdfs:label": "errorType",
       "rdfs:comment": "The type of error e.g. \"SyntaxError\", \"ZeroDivisionError\".",
-      "schema:domainIncludes": {
-        "@id": "stencila:ExecutionError"
-      },
+      "schema:domainIncludes": [
+        {
+          "@id": "stencila:CompilationError"
+        },
+        {
+          "@id": "stencila:ExecutionError"
+        }
+      ],
       "schema:rangeIncludes": {
         "@id": "schema:Text"
+      }
+    },
+    {
+      "@id": "stencila:codeLocation",
+      "@type": "rdfs:Property",
+      "rdfs:label": "codeLocation",
+      "rdfs:comment": "The location that the error occurred.",
+      "schema:domainIncludes": [
+        {
+          "@id": "stencila:CompilationError"
+        },
+        {
+          "@id": "stencila:ExecutionDependant"
+        },
+        {
+          "@id": "stencila:ExecutionDependency"
+        },
+        {
+          "@id": "stencila:ExecutionError"
+        }
+      ],
+      "schema:rangeIncludes": {
+        "@id": "stencila:CodeLocation"
       }
     },
     {

@@ -175,6 +175,7 @@ Support and degree of loss for node types:
 | [CodeChunk](https://github.com/stencila/stencila/blob/main/docs/reference/schema/code/code_chunk.md)                      | 🔷 Low loss       | 🔷 Low loss    | Encoded using special function    |
 | [CodeExpression](https://github.com/stencila/stencila/blob/main/docs/reference/schema/code/code_expression.md)            | 🔷 Low loss       | 🔷 Low loss    | Encoded using special function    |
 | [CodeFragment](https://github.com/stencila/stencila/blob/main/docs/reference/schema/code/code_fragment.md)                | 🟢 No loss        | 🟢 No loss     | Encoded using special function    |
+| [CompilationError](https://github.com/stencila/stencila/blob/main/docs/reference/schema/code/compilation_error.md)        | ⚠️ High loss     |               |                                   |
 | [ExecutionError](https://github.com/stencila/stencila/blob/main/docs/reference/schema/code/execution_error.md)            | ⚠️ High loss     |               |                                   |
 | **Data**                                                                                                                  |
 | [Array](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/array.md)                               | ⚠️ High loss     |               |                                   |
@@ -210,9 +211,10 @@ Support and degree of loss for node types:
 | [Button](https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/button.md)                             | ⚠️ High loss     |               |                                   |
 | [Call](https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/call.md)                                 | ⚠️ High loss     |               | Encoded using special function    |
 | [CallArgument](https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/call_argument.md)                | ⚠️ High loss     |               |                                   |
+| [CodeLocation](https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/code_location.md)                | ⚠️ High loss     |               |                                   |
+| [CompilationDigest](https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/compilation_digest.md)      | ⚠️ High loss     |               |                                   |
 | [ExecutionDependant](https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/execution_dependant.md)    | ⚠️ High loss     |               |                                   |
 | [ExecutionDependency](https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/execution_dependency.md)  | ⚠️ High loss     |               |                                   |
-| [ExecutionDigest](https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/execution_digest.md)          | ⚠️ High loss     |               |                                   |
 | [ExecutionTag](https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/execution_tag.md)                | ⚠️ High loss     |               |                                   |
 | [For](https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/for.md)                                   | ⚠️ High loss     |               | Encoded using special function    |
 | [Form](https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/form.md)                                 | ⚠️ High loss     |               |                                   |

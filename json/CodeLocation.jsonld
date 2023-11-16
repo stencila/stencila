@@ -1,0 +1,83 @@
+{
+  "@context": {
+    "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
+    "schema": "https://schema.org/",
+    "stencila": "https://stencila.dev/"
+  },
+  "@graph": [
+    {
+      "@id": "stencila:CodeLocation",
+      "@type": "rdfs:Class",
+      "rdfs:label": "CodeLocation",
+      "rdfs:comment": "The location within some source code.",
+      "rdfs:subClassOf": {
+        "@id": "stencila:Entity"
+      }
+    },
+    {
+      "@id": "stencila:source",
+      "@type": "rdfs:Property",
+      "rdfs:label": "source",
+      "rdfs:comment": "The source of the code, a file path, label or URL.",
+      "schema:domainIncludes": [
+        {
+          "@id": "stencila:CodeLocation"
+        },
+        {
+          "@id": "stencila:Include"
+        }
+      ],
+      "schema:rangeIncludes": {
+        "@id": "schema:Text"
+      }
+    },
+    {
+      "@id": "stencila:startLine",
+      "@type": "rdfs:Property",
+      "rdfs:label": "startLine",
+      "rdfs:comment": "The 1-based index if the first line on which the error occurred.",
+      "schema:domainIncludes": {
+        "@id": "stencila:CodeLocation"
+      },
+      "schema:rangeIncludes": {
+        "@id": "stencila:UnsignedInteger"
+      }
+    },
+    {
+      "@id": "stencila:startColumn",
+      "@type": "rdfs:Property",
+      "rdfs:label": "startColumn",
+      "rdfs:comment": "The 1-based index if the first column on which the error occurred.",
+      "schema:domainIncludes": {
+        "@id": "stencila:CodeLocation"
+      },
+      "schema:rangeIncludes": {
+        "@id": "stencila:UnsignedInteger"
+      }
+    },
+    {
+      "@id": "stencila:endLine",
+      "@type": "rdfs:Property",
+      "rdfs:label": "endLine",
+      "rdfs:comment": "The 1-based index if the last line on which the error occurred.",
+      "schema:domainIncludes": {
+        "@id": "stencila:CodeLocation"
+      },
+      "schema:rangeIncludes": {
+        "@id": "stencila:UnsignedInteger"
+      }
+    },
+    {
+      "@id": "stencila:endColumn",
+      "@type": "rdfs:Property",
+      "rdfs:label": "endColumn",
+      "rdfs:comment": "The 1-based index if the last column on which the error occurred.",
+      "schema:domainIncludes": {
+        "@id": "stencila:CodeLocation"
+      },
+      "schema:rangeIncludes": {
+        "@id": "stencila:UnsignedInteger"
+      }
+    }
+  ]
+}

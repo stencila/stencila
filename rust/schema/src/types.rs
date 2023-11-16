@@ -26,8 +26,11 @@ mod code_block;
 mod code_chunk;
 mod code_expression;
 mod code_fragment;
+mod code_location;
 mod collection;
 mod comment;
+mod compilation_digest;
+mod compilation_error;
 mod constant_validator;
 mod contact_point;
 mod cord;
@@ -52,11 +55,9 @@ mod enumeration;
 mod execution_dependant;
 mod execution_dependant_node;
 mod execution_dependant_relation;
-mod execution_dependant_target;
 mod execution_dependency;
 mod execution_dependency_node;
 mod execution_dependency_relation;
-mod execution_digest;
 mod execution_error;
 mod execution_required;
 mod execution_status;
@@ -172,8 +173,11 @@ pub use code_block::*;
 pub use code_chunk::*;
 pub use code_expression::*;
 pub use code_fragment::*;
+pub use code_location::*;
 pub use collection::*;
 pub use comment::*;
+pub use compilation_digest::*;
+pub use compilation_error::*;
 pub use constant_validator::*;
 pub use contact_point::*;
 pub use cord::*;
@@ -198,11 +202,9 @@ pub use enumeration::*;
 pub use execution_dependant::*;
 pub use execution_dependant_node::*;
 pub use execution_dependant_relation::*;
-pub use execution_dependant_target::*;
 pub use execution_dependency::*;
 pub use execution_dependency_node::*;
 pub use execution_dependency_relation::*;
-pub use execution_digest::*;
 pub use execution_error::*;
 pub use execution_required::*;
 pub use execution_status::*;
@@ -320,8 +322,11 @@ pub enum NodeType {
     CodeChunk,
     CodeExpression,
     CodeFragment,
+    CodeLocation,
     Collection,
     Comment,
+    CompilationDigest,
+    CompilationError,
     ConstantValidator,
     ContactPoint,
     CreativeWork,
@@ -342,7 +347,6 @@ pub enum NodeType {
     Enumeration,
     ExecutionDependant,
     ExecutionDependency,
-    ExecutionDigest,
     ExecutionError,
     ExecutionTag,
     Figure,

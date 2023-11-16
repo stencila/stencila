@@ -121,6 +121,9 @@ pub struct Schema {
     #[serde(skip_serializing_if = "Vec::is_empty")]
     pub strip: Vec<StripScopes>,
 
+    /// Whether a property should be visited when the node is walked over
+    pub walk: Option<bool>,
+
     /// Options for property testing
     pub proptest: Option<BTreeMap<ProptestLevel, ProptestOptions>>,
 

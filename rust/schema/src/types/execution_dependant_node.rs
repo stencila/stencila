@@ -8,12 +8,13 @@ use super::code_chunk::CodeChunk;
 use super::code_expression::CodeExpression;
 use super::division::Division;
 use super::file::File;
+use super::function::Function;
 use super::parameter::Parameter;
 use super::span::Span;
 use super::variable::Variable;
 
 /// Node types that can be execution dependencies.
-#[derive(Debug, strum::Display, Clone, PartialEq, Serialize, Deserialize, StripNode, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec, WriteNode, SmartDefault, ReadNode)]
+#[derive(Debug, strum::Display, Clone, PartialEq, Serialize, Deserialize, StripNode, WalkNode, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec, WriteNode, SmartDefault, ReadNode)]
 #[serde(untagged, crate = "common::serde")]
 pub enum ExecutionDependantNode {
     Button(Button),
@@ -28,6 +29,8 @@ pub enum ExecutionDependantNode {
     Division(Division),
 
     File(File),
+
+    Function(Function),
 
     Parameter(Parameter),
 

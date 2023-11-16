@@ -19,8 +19,11 @@ CodeBlock = ForwardRef("CodeBlock")
 CodeChunk = ForwardRef("CodeChunk")
 CodeExpression = ForwardRef("CodeExpression")
 CodeFragment = ForwardRef("CodeFragment")
+CodeLocation = ForwardRef("CodeLocation")
 Collection = ForwardRef("Collection")
 Comment = ForwardRef("Comment")
+CompilationDigest = ForwardRef("CompilationDigest")
+CompilationError = ForwardRef("CompilationError")
 ConstantValidator = ForwardRef("ConstantValidator")
 ContactPoint = ForwardRef("ContactPoint")
 Cord = ForwardRef("Cord")
@@ -42,7 +45,6 @@ EnumValidator = ForwardRef("EnumValidator")
 Enumeration = ForwardRef("Enumeration")
 ExecutionDependant = ForwardRef("ExecutionDependant")
 ExecutionDependency = ForwardRef("ExecutionDependency")
-ExecutionDigest = ForwardRef("ExecutionDigest")
 ExecutionError = ForwardRef("ExecutionError")
 ExecutionTag = ForwardRef("ExecutionTag")
 Figure = ForwardRef("Figure")
@@ -132,8 +134,11 @@ Node = Union[
     CodeChunk,
     CodeExpression,
     CodeFragment,
+    CodeLocation,
     Collection,
     Comment,
+    CompilationDigest,
+    CompilationError,
     ConstantValidator,
     ContactPoint,
     CreativeWork,
@@ -154,7 +159,6 @@ Node = Union[
     Enumeration,
     ExecutionDependant,
     ExecutionDependency,
-    ExecutionDigest,
     ExecutionError,
     ExecutionTag,
     Figure,

@@ -20,8 +20,11 @@ use super::code_block::CodeBlock;
 use super::code_chunk::CodeChunk;
 use super::code_expression::CodeExpression;
 use super::code_fragment::CodeFragment;
+use super::code_location::CodeLocation;
 use super::collection::Collection;
 use super::comment::Comment;
+use super::compilation_digest::CompilationDigest;
+use super::compilation_error::CompilationError;
 use super::constant_validator::ConstantValidator;
 use super::contact_point::ContactPoint;
 use super::cord::Cord;
@@ -43,7 +46,6 @@ use super::enum_validator::EnumValidator;
 use super::enumeration::Enumeration;
 use super::execution_dependant::ExecutionDependant;
 use super::execution_dependency::ExecutionDependency;
-use super::execution_digest::ExecutionDigest;
 use super::execution_error::ExecutionError;
 use super::execution_tag::ExecutionTag;
 use super::figure::Figure;
@@ -112,7 +114,7 @@ use super::variable::Variable;
 use super::video_object::VideoObject;
 
 /// Union type for all types in this schema, including primitives and entities
-#[derive(Debug, strum::Display, Clone, PartialEq, Serialize, Deserialize, StripNode, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec, WriteNode, SmartDefault)]
+#[derive(Debug, strum::Display, Clone, PartialEq, Serialize, Deserialize, StripNode, WalkNode, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec, WriteNode, SmartDefault)]
 #[serde(untagged, crate = "common::serde")]
 pub enum Node {
     #[default]
@@ -164,9 +166,15 @@ pub enum Node {
 
     CodeFragment(CodeFragment),
 
+    CodeLocation(CodeLocation),
+
     Collection(Collection),
 
     Comment(Comment),
+
+    CompilationDigest(CompilationDigest),
+
+    CompilationError(CompilationError),
 
     ConstantValidator(ConstantValidator),
 
@@ -207,8 +215,6 @@ pub enum Node {
     ExecutionDependant(ExecutionDependant),
 
     ExecutionDependency(ExecutionDependency),
-
-    ExecutionDigest(ExecutionDigest),
 
     ExecutionError(ExecutionError),
 

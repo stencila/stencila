@@ -6,10 +6,10 @@
   },
   "@graph": [
     {
-      "@id": "stencila:ExecutionDigest",
+      "@id": "stencila:CompilationDigest",
       "@type": "rdfs:Class",
-      "rdfs:label": "ExecutionDigest",
-      "rdfs:comment": "A digest of the execution state of a node.",
+      "rdfs:label": "CompilationDigest",
+      "rdfs:comment": "A digest of the content, semantics and dependencies of an executable node.",
       "rdfs:subClassOf": {
         "@id": "stencila:Entity"
       }
@@ -20,58 +20,58 @@
       "rdfs:label": "stateDigest",
       "rdfs:comment": "A digest of the state of a node.",
       "schema:domainIncludes": {
-        "@id": "stencila:ExecutionDigest"
+        "@id": "stencila:CompilationDigest"
       },
       "schema:rangeIncludes": {
-        "@id": "schema:Number"
+        "@id": "stencila:UnsignedInteger"
       }
     },
     {
       "@id": "stencila:semanticDigest",
       "@type": "rdfs:Property",
       "rdfs:label": "semanticDigest",
-      "rdfs:comment": "A digest of the \"semantic intent\" of the resource with respect to the dependency graph",
+      "rdfs:comment": "A digest of the semantics of the node with respect to the dependency graph.",
       "schema:domainIncludes": {
-        "@id": "stencila:ExecutionDigest"
+        "@id": "stencila:CompilationDigest"
       },
       "schema:rangeIncludes": {
-        "@id": "schema:Number"
+        "@id": "stencila:UnsignedInteger"
       }
     },
     {
       "@id": "stencila:dependenciesDigest",
       "@type": "rdfs:Property",
       "rdfs:label": "dependenciesDigest",
-      "rdfs:comment": "A digest of the semantic digests the dependencies of a resource.",
+      "rdfs:comment": "A digest of the semantic digests of the dependencies of a node.",
       "schema:domainIncludes": {
-        "@id": "stencila:ExecutionDigest"
+        "@id": "stencila:CompilationDigest"
       },
       "schema:rangeIncludes": {
-        "@id": "schema:Number"
+        "@id": "stencila:UnsignedInteger"
       }
     },
     {
       "@id": "stencila:dependenciesStale",
       "@type": "rdfs:Property",
       "rdfs:label": "dependenciesStale",
-      "rdfs:comment": "A count of the number of execution dependencies that are stale",
+      "rdfs:comment": "A count of the number of dependencies that are stale.",
       "schema:domainIncludes": {
-        "@id": "stencila:ExecutionDigest"
+        "@id": "stencila:CompilationDigest"
       },
       "schema:rangeIncludes": {
-        "@id": "schema:Number"
+        "@id": "stencila:UnsignedInteger"
       }
     },
     {
       "@id": "stencila:dependenciesFailed",
       "@type": "rdfs:Property",
       "rdfs:label": "dependenciesFailed",
-      "rdfs:comment": "A count of the number of execution dependencies that failed",
+      "rdfs:comment": "A count of the number of dependencies that failed.",
       "schema:domainIncludes": {
-        "@id": "stencila:ExecutionDigest"
+        "@id": "stencila:CompilationDigest"
       },
       "schema:rangeIncludes": {
-        "@id": "schema:Number"
+        "@id": "stencila:UnsignedInteger"
       }
     }
   ]

@@ -43,14 +43,14 @@
         }
       ],
       "schema:rangeIncludes": {
-        "@id": "stencila:ExecutionDigest"
+        "@id": "stencila:CompilationDigest"
       }
     },
     {
-      "@id": "stencila:executionErrors",
+      "@id": "stencila:compilationErrors",
       "@type": "rdfs:Property",
       "rdfs:label": "compilationErrors",
-      "rdfs:comment": "Errors when executing the node.",
+      "rdfs:comment": "Errors generated when compiling the code.",
       "schema:domainIncludes": [
         {
           "@id": "stencila:Executable"
@@ -63,7 +63,7 @@
         }
       ],
       "schema:rangeIncludes": {
-        "@id": "schema:Text"
+        "@id": "stencila:CompilationError"
       }
     },
     {
@@ -75,7 +75,7 @@
         "@id": "stencila:Executable"
       },
       "schema:rangeIncludes": {
-        "@id": "stencila:ExecutionDigest"
+        "@id": "stencila:CompilationDigest"
       }
     },
     {

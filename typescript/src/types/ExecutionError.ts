@@ -1,9 +1,10 @@
 // Generated file; do not edit. See `../rust/schema-gen` crate.
 
+import { CodeLocation } from "./CodeLocation.js";
 import { Entity } from "./Entity.js";
 
 /**
- * An error that occurred when executing an `Executable` node.
+ * An error that occurred when executing an executable node.
  */
 export class ExecutionError extends Entity {
   type = "ExecutionError";
@@ -17,6 +18,11 @@ export class ExecutionError extends Entity {
    * The type of error e.g. "SyntaxError", "ZeroDivisionError".
    */
   errorType?: string;
+
+  /**
+   * The location that the error occurred.
+   */
+  codeLocation?: CodeLocation;
 
   /**
    * Stack trace leading up to the error.

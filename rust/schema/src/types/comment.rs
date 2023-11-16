@@ -21,7 +21,7 @@ use super::thing_type::ThingType;
 /// A comment on an item, e.g on a `Article` or `SoftwareSourceCode`.
 #[skip_serializing_none]
 #[serde_as]
-#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec, WriteNode, ReadNode)]
+#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, WalkNode, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec, WriteNode, ReadNode)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 #[derive(derive_more::Display)]
 #[display(fmt = "Comment")]
@@ -48,6 +48,7 @@ pub struct Comment {
 
     /// Content of the comment, usually one or more paragraphs.
     #[serde(deserialize_with = "one_or_many")]
+    #[walk]
     pub content: Vec<Block>,
 
     /// Non-core optional fields
@@ -60,7 +61,7 @@ pub struct Comment {
 
 #[skip_serializing_none]
 #[serde_as]
-#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec, WriteNode, ReadNode)]
+#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, WalkNode, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec, WriteNode, ReadNode)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 pub struct CommentOptions {
     /// Alternate names (aliases) for the item.

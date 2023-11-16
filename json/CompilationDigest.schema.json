@@ -1,23 +1,23 @@
 {
   "$schema": "https://stencila.dev/meta.schema.json",
-  "$id": "https://stencila.dev/ExecutionDigest.schema.json",
-  "@id": "stencila:ExecutionDigest",
-  "title": "ExecutionDigest",
+  "$id": "https://stencila.dev/CompilationDigest.schema.json",
+  "@id": "stencila:CompilationDigest",
+  "title": "CompilationDigest",
   "extends": [
     "Entity"
   ],
   "category": "flow",
-  "description": "A digest of the execution state of a node.",
+  "description": "A digest of the content, semantics and dependencies of an executable node.",
   "required": [
     "type",
-    "stateDigest",
+    "stateDigest"
+  ],
+  "core": [
+    "id",
     "semanticDigest",
     "dependenciesDigest",
     "dependenciesStale",
     "dependenciesFailed"
-  ],
-  "core": [
-    "id"
   ],
   "properties": {
     "type": {
@@ -45,43 +45,43 @@
         "state-digest",
         "state_digest"
       ],
-      "type": "number"
+      "$ref": "UnsignedInteger.schema.json"
     },
     "semanticDigest": {
       "@id": "stencila:semanticDigest",
-      "description": "A digest of the \"semantic intent\" of the resource with respect to the dependency graph",
+      "description": "A digest of the semantics of the node with respect to the dependency graph.",
       "aliases": [
         "semantic-digest",
         "semantic_digest"
       ],
-      "type": "number"
+      "$ref": "UnsignedInteger.schema.json"
     },
     "dependenciesDigest": {
       "@id": "stencila:dependenciesDigest",
-      "description": "A digest of the semantic digests the dependencies of a resource.",
+      "description": "A digest of the semantic digests of the dependencies of a node.",
       "aliases": [
         "dependencies-digest",
         "dependencies_digest"
       ],
-      "type": "number"
+      "$ref": "UnsignedInteger.schema.json"
     },
     "dependenciesStale": {
       "@id": "stencila:dependenciesStale",
-      "description": "A count of the number of execution dependencies that are stale",
+      "description": "A count of the number of dependencies that are stale.",
       "aliases": [
         "dependencies-stale",
         "dependencies_stale"
       ],
-      "type": "number"
+      "$ref": "UnsignedInteger.schema.json"
     },
     "dependenciesFailed": {
       "@id": "stencila:dependenciesFailed",
-      "description": "A count of the number of execution dependencies that failed",
+      "description": "A count of the number of dependencies that failed.",
       "aliases": [
         "dependencies-failed",
         "dependencies_failed"
       ],
-      "type": "number"
+      "$ref": "UnsignedInteger.schema.json"
     }
   }
 }

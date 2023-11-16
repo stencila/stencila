@@ -4,11 +4,12 @@ use crate::prelude::*;
 
 use super::automatic_execution::AutomaticExecution;
 use super::boolean::Boolean;
+use super::compilation_digest::CompilationDigest;
+use super::compilation_error::CompilationError;
 use super::cord::Cord;
 use super::duration::Duration;
 use super::execution_dependant::ExecutionDependant;
 use super::execution_dependency::ExecutionDependency;
-use super::execution_digest::ExecutionDigest;
 use super::execution_error::ExecutionError;
 use super::execution_required::ExecutionRequired;
 use super::execution_status::ExecutionStatus;
@@ -20,7 +21,7 @@ use super::timestamp::Timestamp;
 /// A button.
 #[skip_serializing_none]
 #[serde_as]
-#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec, WriteNode, ReadNode)]
+#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, WalkNode, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec, WriteNode, ReadNode)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 #[derive(derive_more::Display)]
 #[display(fmt = "Button")]
@@ -66,24 +67,24 @@ pub struct Button {
 
 #[skip_serializing_none]
 #[serde_as]
-#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec, WriteNode, ReadNode)]
+#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, WalkNode, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec, WriteNode, ReadNode)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 pub struct ButtonOptions {
     /// A digest of the content, semantics and dependencies of the node.
     #[serde(alias = "compilation-digest", alias = "compilation_digest")]
     #[strip(execution)]
-    pub compilation_digest: Option<ExecutionDigest>,
+    pub compilation_digest: Option<CompilationDigest>,
 
-    /// Errors when executing the node.
+    /// Errors generated when compiling the code.
     #[serde(alias = "compilation-errors", alias = "compilation_errors", alias = "compilationError", alias = "compilation-error", alias = "compilation_error")]
     #[serde(default, deserialize_with = "option_one_or_many")]
     #[strip(execution)]
-    pub compilation_errors: Option<Vec<String>>,
+    pub compilation_errors: Option<Vec<CompilationError>>,
 
     /// The `compilationDigest` of the node when it was last executed.
     #[serde(alias = "execution-digest", alias = "execution_digest")]
     #[strip(execution)]
-    pub execution_digest: Option<ExecutionDigest>,
+    pub execution_digest: Option<CompilationDigest>,
 
     /// The upstream dependencies of this node.
     #[serde(alias = "execution-dependencies", alias = "execution_dependencies", alias = "executionDependency", alias = "execution-dependency", alias = "execution_dependency")]

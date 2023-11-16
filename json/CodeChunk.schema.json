@@ -74,11 +74,11 @@
       "strip": [
         "execution"
       ],
-      "$ref": "ExecutionDigest.schema.json"
+      "$ref": "CompilationDigest.schema.json"
     },
     "compilationErrors": {
-      "@id": "stencila:executionErrors",
-      "description": "Errors when executing the node.",
+      "@id": "stencila:compilationErrors",
+      "description": "Errors generated when compiling the code.",
       "aliases": [
         "compilation-errors",
         "compilation_errors",
@@ -91,7 +91,7 @@
       ],
       "type": "array",
       "items": {
-        "type": "string"
+        "$ref": "CompilationError.schema.json"
       }
     },
     "executionDigest": {
@@ -104,7 +104,7 @@
       "strip": [
         "execution"
       ],
-      "$ref": "ExecutionDigest.schema.json"
+      "$ref": "CompilationDigest.schema.json"
     },
     "executionDependencies": {
       "@id": "stencila:executionDependencies",

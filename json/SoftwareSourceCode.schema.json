@@ -9,12 +9,13 @@
   "category": "works",
   "description": "Computer programming source code. Example: Full (compile ready) solutions, code snippet samples, scripts, templates.",
   "required": [
-    "type"
+    "type",
+    "name",
+    "programmingLanguage"
   ],
   "core": [
     "id",
     "codeRepository",
-    "programmingLanguage",
     "targetProducts"
   ],
   "properties": {
@@ -527,6 +528,15 @@
         }
       ]
     },
+    "programmingLanguage": {
+      "@id": "schema:programmingLanguage",
+      "description": "The computer programming language.",
+      "aliases": [
+        "programming-language",
+        "programming_language"
+      ],
+      "type": "string"
+    },
     "codeRepository": {
       "@id": "schema:codeRepository",
       "description": "Link to the repository where the un-compiled, human readable code and related code is located.",
@@ -543,15 +553,6 @@
       "aliases": [
         "code-sample-type",
         "code_sample_type"
-      ],
-      "type": "string"
-    },
-    "programmingLanguage": {
-      "@id": "schema:programmingLanguage",
-      "description": "The computer programming language.",
-      "aliases": [
-        "programming-language",
-        "programming_language"
       ],
       "type": "string"
     },

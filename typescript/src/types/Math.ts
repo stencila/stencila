@@ -1,8 +1,9 @@
 // Generated file; do not edit. See `../rust/schema-gen` crate.
 
+import { CompilationDigest } from "./CompilationDigest.js";
+import { CompilationError } from "./CompilationError.js";
 import { Cord } from "./Cord.js";
 import { Entity } from "./Entity.js";
-import { ExecutionDigest } from "./ExecutionDigest.js";
 
 /**
  * Abstract base type for a mathematical variable or equation.
@@ -23,12 +24,12 @@ export class Math extends Entity {
   /**
    * A digest of the `code` and `mathLanguage`.
    */
-  compilationDigest?: ExecutionDigest;
+  compilationDigest?: CompilationDigest;
 
   /**
-   * Errors that occurred when parsing and compiling the math equation.
+   * Errors generated when parsing and compiling the math expression.
    */
-  compilationErrors?: string[];
+  compilationErrors?: CompilationError[];
 
   /**
    * The MathML transpiled from the `code`.

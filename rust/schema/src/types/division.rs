@@ -3,14 +3,15 @@
 use crate::prelude::*;
 
 use super::block::Block;
+use super::compilation_digest::CompilationDigest;
+use super::compilation_error::CompilationError;
 use super::cord::Cord;
-use super::execution_digest::ExecutionDigest;
 use super::string::String;
 
 /// Styled block content.
 #[skip_serializing_none]
 #[serde_as]
-#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec, WriteNode, ReadNode)]
+#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, WalkNode, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec, WriteNode, ReadNode)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 #[cfg_attr(feature = "proptest", derive(Arbitrary))]
 #[derive(derive_more::Display)]
@@ -48,13 +49,13 @@ pub struct Division {
     /// A digest of the `code` and `styleLanguage`.
     #[serde(alias = "compilation-digest", alias = "compilation_digest")]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
-    pub compilation_digest: Option<ExecutionDigest>,
+    pub compilation_digest: Option<CompilationDigest>,
 
-    /// Errors that occurred when transpiling the `code`.
+    /// Errors generated when parsing and transpiling the style.
     #[serde(alias = "compilation-errors", alias = "compilation_errors", alias = "compilationError", alias = "compilation-error", alias = "compilation_error")]
     #[serde(default, deserialize_with = "option_one_or_many")]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
-    pub compilation_errors: Option<Vec<String>>,
+    pub compilation_errors: Option<Vec<CompilationError>>,
 
     /// A Cascading Style Sheet (CSS) transpiled from the `code` property.
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
@@ -68,6 +69,7 @@ pub struct Division {
 
     /// The content within the division
     #[serde(deserialize_with = "one_or_many")]
+    #[walk]
     #[cfg_attr(feature = "proptest", proptest(value = "Default::default()"))]
     pub content: Vec<Block>,
 }

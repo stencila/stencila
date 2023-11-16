@@ -2,14 +2,15 @@
 
 use crate::prelude::*;
 
+use super::compilation_digest::CompilationDigest;
+use super::compilation_error::CompilationError;
 use super::cord::Cord;
-use super::execution_digest::ExecutionDigest;
 use super::string::String;
 
 /// A fragment of math, e.g a variable name, to be treated as inline content.
 #[skip_serializing_none]
 #[serde_as]
-#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec, WriteNode, ReadNode)]
+#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, WalkNode, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec, WriteNode, ReadNode)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 #[cfg_attr(feature = "proptest", derive(Arbitrary))]
 #[derive(derive_more::Display)]
@@ -49,14 +50,14 @@ pub struct MathFragment {
     #[serde(alias = "compilation-digest", alias = "compilation_digest")]
     #[strip(execution)]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
-    pub compilation_digest: Option<ExecutionDigest>,
+    pub compilation_digest: Option<CompilationDigest>,
 
-    /// Errors that occurred when parsing and compiling the math equation.
+    /// Errors generated when parsing and compiling the math expression.
     #[serde(alias = "compilation-errors", alias = "compilation_errors", alias = "compilationError", alias = "compilation-error", alias = "compilation_error")]
     #[serde(default, deserialize_with = "option_one_or_many")]
     #[strip(execution)]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
-    pub compilation_errors: Option<Vec<String>>,
+    pub compilation_errors: Option<Vec<CompilationError>>,
 
     /// The MathML transpiled from the `code`.
     #[strip(output)]

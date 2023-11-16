@@ -453,6 +453,29 @@
       ]
     },
     {
+      "@id": "schema:programmingLanguage",
+      "@type": "rdfs:Property",
+      "rdfs:label": "programmingLanguage",
+      "rdfs:comment": "The computer programming language.",
+      "schema:domainIncludes": [
+        {
+          "@id": "schema:SoftwareSourceCode"
+        },
+        {
+          "@id": "stencila:CallArgument"
+        },
+        {
+          "@id": "stencila:CodeExecutable"
+        },
+        {
+          "@id": "stencila:CodeStatic"
+        }
+      ],
+      "schema:rangeIncludes": {
+        "@id": "schema:Text"
+      }
+    },
+    {
       "@id": "schema:codeRepository",
       "@type": "rdfs:Property",
       "rdfs:label": "codeRepository",
@@ -472,29 +495,6 @@
       "schema:domainIncludes": {
         "@id": "schema:SoftwareSourceCode"
       },
-      "schema:rangeIncludes": {
-        "@id": "schema:Text"
-      }
-    },
-    {
-      "@id": "schema:programmingLanguage",
-      "@type": "rdfs:Property",
-      "rdfs:label": "programmingLanguage",
-      "rdfs:comment": "The computer programming language.",
-      "schema:domainIncludes": [
-        {
-          "@id": "schema:SoftwareSourceCode"
-        },
-        {
-          "@id": "stencila:CallArgument"
-        },
-        {
-          "@id": "stencila:CodeExecutable"
-        },
-        {
-          "@id": "stencila:CodeStatic"
-        }
-      ],
       "schema:rangeIncludes": {
         "@id": "schema:Text"
       }

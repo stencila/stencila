@@ -1,11 +1,12 @@
 // Generated file; do not edit. See `../rust/schema-gen` crate.
 
 import { AutomaticExecution } from "./AutomaticExecution.js";
+import { CompilationDigest } from "./CompilationDigest.js";
+import { CompilationError } from "./CompilationError.js";
 import { Duration } from "./Duration.js";
 import { Entity } from "./Entity.js";
 import { ExecutionDependant } from "./ExecutionDependant.js";
 import { ExecutionDependency } from "./ExecutionDependency.js";
-import { ExecutionDigest } from "./ExecutionDigest.js";
 import { ExecutionError } from "./ExecutionError.js";
 import { ExecutionRequired } from "./ExecutionRequired.js";
 import { ExecutionStatus } from "./ExecutionStatus.js";
@@ -27,17 +28,17 @@ export class Executable extends Entity {
   /**
    * A digest of the content, semantics and dependencies of the node.
    */
-  compilationDigest?: ExecutionDigest;
+  compilationDigest?: CompilationDigest;
 
   /**
-   * Errors when executing the node.
+   * Errors generated when compiling the code.
    */
-  compilationErrors?: string[];
+  compilationErrors?: CompilationError[];
 
   /**
    * The `compilationDigest` of the node when it was last executed.
    */
-  executionDigest?: ExecutionDigest;
+  executionDigest?: CompilationDigest;
 
   /**
    * The upstream dependencies of this node.

@@ -18,7 +18,7 @@
       "@id": "stencila:dependantRelation",
       "@type": "rdfs:Property",
       "rdfs:label": "dependantRelation",
-      "rdfs:comment": "The relation to the dependant",
+      "rdfs:comment": "The relation to the dependant.",
       "schema:domainIncludes": {
         "@id": "stencila:ExecutionDependant"
       },
@@ -30,7 +30,7 @@
       "@id": "stencila:dependantNode",
       "@type": "rdfs:Property",
       "rdfs:label": "dependantNode",
-      "rdfs:comment": "The node that is the dependant",
+      "rdfs:comment": "The node that is the dependant.",
       "schema:domainIncludes": {
         "@id": "stencila:ExecutionDependant"
       },
@@ -42,17 +42,23 @@
       "@id": "stencila:codeLocation",
       "@type": "rdfs:Property",
       "rdfs:label": "codeLocation",
-      "rdfs:comment": "The location that the dependant is defined within code",
+      "rdfs:comment": "The location that the dependant is defined.",
       "schema:domainIncludes": [
+        {
+          "@id": "stencila:CompilationError"
+        },
         {
           "@id": "stencila:ExecutionDependant"
         },
         {
           "@id": "stencila:ExecutionDependency"
+        },
+        {
+          "@id": "stencila:ExecutionError"
         }
       ],
       "schema:rangeIncludes": {
-        "@id": "schema:Number"
+        "@id": "stencila:CodeLocation"
       }
     }
   ]

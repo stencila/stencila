@@ -23,7 +23,7 @@ use super::thing_type::ThingType;
 /// An article, including news and scholarly articles.
 #[skip_serializing_none]
 #[serde_as]
-#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec, WriteNode, ReadNode)]
+#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, WalkNode, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec, WriteNode, ReadNode)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 #[cfg_attr(feature = "proptest", derive(Arbitrary))]
 #[derive(derive_more::Display)]
@@ -114,6 +114,7 @@ pub struct Article {
     /// The content of the article.
     #[serde(deserialize_with = "one_or_many")]
     #[strip(content)]
+    #[walk]
     #[cfg_attr(feature = "proptest-min", proptest(strategy = r#"vec_blocks(1)"#))]
     #[cfg_attr(feature = "proptest-low", proptest(strategy = r#"vec_blocks(2)"#))]
     #[cfg_attr(feature = "proptest-high", proptest(strategy = r#"vec_blocks(4)"#))]
@@ -130,7 +131,7 @@ pub struct Article {
 
 #[skip_serializing_none]
 #[serde_as]
-#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec, WriteNode, ReadNode)]
+#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, WalkNode, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec, WriteNode, ReadNode)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 #[cfg_attr(feature = "proptest", derive(Arbitrary))]
 pub struct ArticleOptions {

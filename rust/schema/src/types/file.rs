@@ -22,7 +22,7 @@ use super::thing_type::ThingType;
 /// A file on the file system.
 #[skip_serializing_none]
 #[serde_as]
-#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec, WriteNode, ReadNode)]
+#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, WalkNode, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec, WriteNode, ReadNode)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 #[derive(derive_more::Display)]
 #[display(fmt = "File")]
@@ -34,10 +34,6 @@ pub struct File {
     #[strip(metadata)]
     #[html(attr = "id")]
     pub id: Option<String>,
-
-    /// The name of the item.
-    #[strip(metadata)]
-    pub name: String,
 
     /// The path (absolute or relative) of the file on the filesystem
     pub path: String,
@@ -52,7 +48,7 @@ pub struct File {
 
 #[skip_serializing_none]
 #[serde_as]
-#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec, WriteNode, ReadNode)]
+#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, WalkNode, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec, WriteNode, ReadNode)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 pub struct FileOptions {
     /// Alternate names (aliases) for the item.
@@ -76,6 +72,10 @@ pub struct FileOptions {
     #[serde(default, deserialize_with = "option_one_or_many")]
     #[strip(metadata)]
     pub images: Option<Vec<ImageObject>>,
+
+    /// The name of the item.
+    #[strip(metadata)]
+    pub name: Option<String>,
 
     /// The URL of the item.
     #[strip(metadata)]
@@ -218,9 +218,8 @@ pub struct FileOptions {
 }
 
 impl File {
-    pub fn new(name: String, path: String) -> Self {
+    pub fn new(path: String) -> Self {
         Self {
-            name,
             path,
             ..Default::default()
         }

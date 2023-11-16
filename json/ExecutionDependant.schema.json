@@ -38,7 +38,7 @@
     },
     "dependantRelation": {
       "@id": "stencila:dependantRelation",
-      "description": "The relation to the dependant",
+      "description": "The relation to the dependant.",
       "aliases": [
         "dependant-relation",
         "dependant_relation"
@@ -47,7 +47,7 @@
     },
     "dependantNode": {
       "@id": "stencila:dependantNode",
-      "description": "The node that is the dependant",
+      "description": "The node that is the dependant.",
       "aliases": [
         "dependant-node",
         "dependant_node"
@@ -56,18 +56,12 @@
     },
     "codeLocation": {
       "@id": "stencila:codeLocation",
-      "description": "The location that the dependant is defined within code",
-      "$comment": "An array of four zero indexed integers: [startRow, startColumn, endRow, endColumn]\n",
+      "description": "The location that the dependant is defined.",
       "aliases": [
         "code-location",
         "code_location"
       ],
-      "type": "array",
-      "items": {
-        "type": "integer"
-      },
-      "minItems": 4,
-      "maxItems": 4
+      "$ref": "CodeLocation.schema.json"
     }
   }
 }

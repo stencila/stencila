@@ -233,6 +233,10 @@
           "$ref": "#/definitions/Type"
         }
       ]
+    },
+    "walk": {
+      "description": "Whether a property should be visited when the node is walked over",
+      "type": "boolean"
     }
   },
   "additionalProperties": false,
@@ -702,6 +706,10 @@
               "$ref": "#/definitions/Type"
             }
           ]
+        },
+        "walk": {
+          "description": "Whether a property should be visited when the node is walked over",
+          "type": "boolean"
         }
       },
       "additionalProperties": false

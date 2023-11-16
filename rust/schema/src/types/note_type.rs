@@ -3,7 +3,7 @@
 use crate::prelude::*;
 
 /// The type of a `Note` which determines where the note content is displayed within the document.
-#[derive(Debug, strum::Display, Clone, PartialEq, Serialize, Deserialize, StripNode, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec, WriteNode, SmartDefault, strum::EnumString, ReadNode)]
+#[derive(Debug, strum::Display, Clone, PartialEq, Serialize, Deserialize, StripNode, WalkNode, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec, WriteNode, SmartDefault, strum::EnumString, ReadNode)]
 #[serde(crate = "common::serde")]
 #[strum(ascii_case_insensitive, crate = "common::strum")]
 #[cfg_attr(feature = "proptest", derive(Arbitrary))]

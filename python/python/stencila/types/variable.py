@@ -14,9 +14,6 @@ class Variable(Entity):
 
     type: Literal["Variable"] = field(default="Variable", init=False)
 
-    namespace: str
-    """The namespace, usually a document path, within which the variable resides"""
-
     name: str
     """The name of the variable."""
 
@@ -26,9 +23,8 @@ class Variable(Entity):
     value: Optional[Node] = None
     """The value of the variable."""
 
-    def __init__(self, namespace: str, name: str, id: Optional[str] = None, kind: Optional[str] = None, value: Optional[Node] = None):
+    def __init__(self, name: str, id: Optional[str] = None, kind: Optional[str] = None, value: Optional[Node] = None):
         super().__init__(id = id)
-        self.namespace = namespace
         self.name = name
         self.kind = kind
         self.value = value
