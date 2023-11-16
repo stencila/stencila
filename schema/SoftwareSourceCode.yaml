@@ -4,11 +4,18 @@ extends: CreativeWork
 category: works
 description: |
   Computer programming source code. Example: Full (compile ready) solutions, code snippet samples, scripts, templates.
+required:
+  - name
+  - programmingLanguage
 core:
   - codeRepository
-  - programmingLanguage
   - targetProducts
 properties:
+  programmingLanguage:
+    '@id': schema:programmingLanguage
+    description: |
+      The computer programming language.
+    type: string
   codeRepository:
     '@id': schema:codeRepository
     description: |
@@ -20,11 +27,6 @@ properties:
     '@id': schema:codeSampleType
     description: |
       What type of code sample: full (compile ready) solution, code snippet, inline code, scripts, template.
-    type: string
-  programmingLanguage:
-    '@id': schema:programmingLanguage
-    description: |
-      The computer programming language.
     type: string
   runtimePlatform:
     '@id': schema:runtimePlatform
