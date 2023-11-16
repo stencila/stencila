@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html>
+  <body>
+    <p class="note">
+      This provides a test of document clients. A client is rendered in each
+      section and changes made in each should be reflected in the others
+      (although <code>DomClient</code> is readonly). Use the
+      <code>format</code> query parameter to change the language in the
+      CodeMirror client e.g.
+      <code>?format=json</code>
+    </p>
+
+    <h2 class="section"><code>CodeMirrorClient</code></h2>
+    <div id="codemirror"></div>
+
+    <h2 class="section"><code>ProseMirrorClient</code></h2>
+    <div id="prosemirror"></div>
+    <div id="prosemirror-content"></div>
+
+    <h2 class="section"><code>DomClient</code></h2>
+    <div id="dom">
+      <article id="AA"></article>
+    </div>
+
+    <style>
+      body {
+        padding: 1em;
+      }
+      .note {
+        font-size: small;
+        font-style: italic;
+      }
+      .section {
+        width: 100%;
+        background: rgb(120, 168, 211);
+        padding: 0.2em;
+      }
+      .cm-editor {
+        border: 1px solid rgb(189, 186, 186);
+        height: 30vh;
+      }
+      #prosemirror,
+      #dom {
+        border: 1px solid rgb(189, 186, 186);
+        padding: 0.5em;
+      }
+    </style>
+
+    <script type="module">
+      import { EditorView as CodeMirrorView } from "@codemirror/view";
+
+      import { EditorState } from "prosemirror-state";
+      import { EditorView as ProseMirrorView } from "prosemirror-view";
+      import { Schema, DOMParser } from "prosemirror-model";
+      import { schema } from "prosemirror-schema-basic";
+      import { exampleSetup } from "prosemirror-example-setup";
+      import "prosemirror-menu/style/menu.css";
+
+      import { CodeMirrorClient, DomClient, ProseMirrorClient } from ".";
+
+      const url = new URL(window.location);
+
+      // CodeMirror client & editor
+      const codeMirrorClient = new CodeMirrorClient(
+        url.searchParams.get("format") ?? "markdown"
+      );
+      const codeMirrorEditor = new CodeMirrorView({
+        extensions: [codeMirrorClient.sendPatches()],
+        parent: document.querySelector("#codemirror"),
+      });
+      codeMirrorClient.receivePatches(codeMirrorEditor);
+
+      // ProseMirror client & editor
+      const proseMirrorClient = new ProseMirrorClient(schema);
+      const proseMirrorView = new ProseMirrorView(
+        document.querySelector("#prosemirror"),
+        {
+          state: EditorState.create({
+            doc: DOMParser.fromSchema(schema).parse(
+              document.querySelector("#dom")
+            ),
+            plugins: exampleSetup({ schema }),
+          }),
+          dispatchTransaction: proseMirrorClient.sendPatches(),
+        }
+      );
+
+      // DOM client
+      const domClient = new DomClient("#AA");
+    </script>
+  </body>
+</html>

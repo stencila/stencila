@@ -1,2 +1,3 @@
+export { CodeMirrorClient } from "./codemirror";
 export { DomClient } from "./dom";
-export { StringClient } from "./string";
+export { ProseMirrorClient } from "./prosemirror";

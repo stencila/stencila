@@ -30,14 +30,21 @@
     "unused": "depcheck --quiet --ignores '@parcel/*' --ignore-patterns '.eslintrc*'"
   },
   "dependencies": {
+    "@codemirror/state": "6.3.1",
+    "@codemirror/view": "6.22.0",
     "@stencila/types": "2.0.0-alpha.21",
     "lit": "3.1.0",
-    "morphdom": "2.7.1"
+    "morphdom": "2.7.1",
+    "prosemirror-model": "1.19.3",
+    "prosemirror-state": "1.4.3",
+    "prosemirror-view": "1.32.4"
   },
   "devDependencies": {
     "@parcel/compressor-brotli": "2.10.3",
     "@parcel/compressor-gzip": "2.10.3",
     "@parcel/transformer-typescript-tsc": "2.10.3",
-    "parcel": "2.10.3"
+    "parcel": "2.10.3",
+    "prosemirror-example-setup": "1.2.2",
+    "prosemirror-schema-basic": "1.2.2"
   }
 }

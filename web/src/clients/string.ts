@@ -1,7 +1,9 @@
+import { Client } from "./client";
+
 /**
  * An operation on a string
  */
-interface StringOp {
+export interface StringOp {
   /**
    * The position in the string from which the operation is applied
    */
@@ -24,7 +26,7 @@ interface StringOp {
 /**
  * A patch to apply to a string
  */
-interface StringPatch {
+export interface StringPatch {
   /**
    * The version of the patch
    */
@@ -33,26 +35,18 @@ interface StringPatch {
   /**
    * The operations in the patch
    */
-  ops: StringOp[];
+  ops?: StringOp[];
 }
 
 /**
  * A client that keeps a string synchronized with a buffer
  * on the server
- *
- * This client is read-only: it does not send patches to the
- * server, it only reads them.
  */
-export class StringClient {
-  /**
-   * The client's websocket connection
-   */
-  private ws: WebSocket;
-
+export class StringClient extends Client {
   /**
    * The local state of the string
    */
-  private state: string = "";
+  protected state: string = "";
 
   /**
    * The local version of the string
@@ -60,14 +54,15 @@ export class StringClient {
    * Used to check for missed patches and request a
    * reset patch if necessary.
    */
-  private version: number = 0;
+  protected version: number = 0;
 
   /**
    * A subscriber to the the string
    *
-   * Is called whenever a patch is applied to the string `state`.
+   * A function that is called whenever a patch is applied to the
+   * string `state`.
    */
-  private subscriber?: (value: string) => void;
+  protected subscriber?: (value: string) => void;
 
   /**
    * Construct a new `StringClient`
@@ -75,47 +70,53 @@ export class StringClient {
    * @param format The format of the string (e.g. "html", "markdown")
    */
   constructor(format: string) {
-    // TODO: Use a unique identifier for the document instance rather
-    // than the pathname
-    const { host, pathname } = window.location;
-    const url = `ws://${host}${pathname}?format=${format}`;
+    super("sync-string.stencila.dev", {format});
+  }
 
-    this.ws = new WebSocket(url, "sync-string.stencila.dev");
+  /**
+   * Receive a message from the server
+   *
+   * @override
+   */
+  receiveMessage(message: Record<string, unknown>) {
+    const { version, ops } = message as unknown as StringPatch;
 
-    this.ws.onmessage = (message) => {
-      const { version, ops } = JSON.parse(message.data) as StringPatch;
+    // Is the patch a reset patch?
+    const isReset = ops.length === 1 && ops[0].from === 0 && ops[0].to === 0;
 
-      if (version != this.version + 1) {
-        this.ws.send(JSON.stringify({ version: 0 }));
-        return;
+    // Check for non-sequential patch and request a reset patch if necessary
+    if (!isReset && version != this.version + 1) {
+      this.sendMessage({ version: 0 });
+      return;
+    }
+
+    // Apply each operation in the patch
+    for (const op of ops) {
+      const { from, to, insert } = op;
+
+      if (to === undefined && insert !== undefined) {
+        // Insert
+        this.state =
+          this.state.slice(0, from) + insert + this.state.slice(from);
+      } else if (to !== undefined && insert === undefined) {
+        // Delete
+        this.state = this.state.slice(0, from) + this.state.slice(to);
+      } else if (to !== undefined && insert !== undefined) {
+        // Replace
+        this.state = this.state.slice(0, from) + insert + this.state.slice(to);
+      } else if (to === 0 && from == 0 && insert !== undefined) {
+        // Reset
+        this.state = insert;
       }
+    }
 
-      for (const op of ops) {
-        const { from, to, insert } = op;
+    // Update local version number
+    this.version = version;
 
-        if (to === undefined && insert !== undefined) {
-          // Insert
-          this.state =
-            this.state.slice(0, from) + insert + this.state.slice(from);
-        } else if (to !== undefined && insert === undefined) {
-          // Delete
-          this.state = this.state.slice(0, from) + this.state.slice(to);
-        } else if (to !== undefined && insert !== undefined) {
-          // Replace
-          this.state =
-            this.state.slice(0, from) + insert + this.state.slice(to);
-        } else if (to === 0 && from == 0 && insert !== undefined) {
-          // Reset
-          this.state = insert;
-        }
-      }
-
-      this.version = version;
-
-      if (this.subscriber) {
-        this.subscriber(this.state);
-      }
-    };
+    // Notify the subscriber (if any)
+    if (this.subscriber) {
+      this.subscriber(this.state);
+    }
   }
 
   /**
