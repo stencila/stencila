@@ -5,16 +5,11 @@ category: flow
 status: under-development
 description: A variable representing a name / value pair.
 required:
-  - namespace
   - name
 core:
   - kind
   - value
 properties:
-  namespace:
-    '@id': stencila:namespace
-    description: The namespace, usually a document path, within which the variable resides
-    type: string
   name:
     '@id': schema:name
     description: The name of the variable.
