@@ -98,7 +98,7 @@ impl StringOp {
 ///
 /// A `StringPatch` is a collection of [`StringOp`]s with a version which is
 /// used to ensure that the operations are applied to the correct version.
-/// 
+///
 /// An incoming patch with version `0` and empty `ops` is a request for
 /// a "reset" patch and is normally only received after a client has
 /// missed a patch (i.e. when versions are not sequential).
@@ -286,7 +286,7 @@ impl Document {
                     let patch = StringPatch { version, ops };
                     if let Err(..) = patch_sender.send(patch).await {
                         // Most likely receiver has dropped so just finish this task
-                        break
+                        break;
                     }
                 }
             });
