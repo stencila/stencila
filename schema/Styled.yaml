@@ -62,13 +62,13 @@ properties:
     '@id': stencila:compilationDigest
     description: A digest of the `code` and `styleLanguage`.
     $comment: Used to avoid unnecessary transpilation to CSS.
-    $ref: ExecutionDigest
+    $ref: CompilationDigest
   compilationErrors:
     '@id': stencila:compilationErrors
-    description: Errors that occurred when transpiling the `code`.
+    description: Errors generated when parsing and transpiling the style.
     type: array
     items:
-      type: string
+      $ref: CompilationError
   css:
     '@id': stencila:css
     description: A Cascading Style Sheet (CSS) transpiled from the `code` property.

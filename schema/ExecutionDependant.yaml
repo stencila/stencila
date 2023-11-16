@@ -11,19 +11,13 @@ core:
 properties:
   dependantRelation:
     '@id': stencila:dependantRelation
-    description: The relation to the dependant
+    description: The relation to the dependant.
     $ref: ExecutionDependantRelation
   dependantNode:
     '@id': stencila:dependantNode
-    description: The node that is the dependant
+    description: The node that is the dependant.
     $ref: ExecutionDependantNode
   codeLocation:
     '@id': stencila:codeLocation
-    description: The location that the dependant is defined within code
-    $comment: |
-      An array of four zero indexed integers: [startRow, startColumn, endRow, endColumn]
-    type: array
-    items:
-      type: integer
-    minItems: 4
-    maxItems: 4
+    description: The location that the dependant is defined.
+    $ref: CodeLocation

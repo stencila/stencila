@@ -1,0 +1,33 @@
+title: CompilationDigest
+'@id': stencila:CompilationDigest
+extends: Entity
+category: flow
+description: A digest of the content, semantics and dependencies of an executable node.
+required:
+  - stateDigest
+core:
+  - semanticDigest
+  - dependenciesDigest
+  - dependenciesStale
+  - dependenciesFailed
+properties:
+  stateDigest:
+    '@id': stencila:stateDigest
+    description: A digest of the state of a node.
+    $ref: UnsignedInteger
+  semanticDigest:
+    '@id': stencila:semanticDigest
+    description: A digest of the semantics of the node with respect to the dependency graph.
+    $ref: UnsignedInteger
+  dependenciesDigest:
+    '@id': stencila:dependenciesDigest
+    description: A digest of the semantic digests of the dependencies of a node.
+    $ref: UnsignedInteger
+  dependenciesStale:
+    '@id': stencila:dependenciesStale
+    description: A count of the number of dependencies that are stale.
+    $ref: UnsignedInteger
+  dependenciesFailed:
+    '@id': stencila:dependenciesFailed
+    description: A count of the number of dependencies that failed.
+    $ref: UnsignedInteger

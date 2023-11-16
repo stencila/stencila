@@ -1,0 +1,32 @@
+title: CodeLocation
+'@id': stencila:CodeLocation
+extends: Entity
+category: flow
+description: The location within some source code.
+core:
+  - source
+  - startLine
+  - startColumn
+  - endLine
+  - endColumn
+properties:
+  source:
+    '@id': stencila:source
+    description: The source of the code, a file path, label or URL.
+    type: string
+  startLine:
+    '@id': stencila:startLine
+    description: The 1-based index if the first line on which the error occurred.
+    $ref: UnsignedInteger
+  startColumn:
+    '@id': stencila:startColumn
+    description: The 1-based index if the first column on which the error occurred.
+    $ref: UnsignedInteger
+  endLine:
+    '@id': stencila:endLine
+    description: The 1-based index if the last line on which the error occurred.
+    $ref: UnsignedInteger
+  endColumn:
+    '@id': stencila:endColumn
+    description: The 1-based index if the last column on which the error occurred.
+    $ref: UnsignedInteger

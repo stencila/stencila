@@ -61,15 +61,15 @@ properties:
     '@id': stencila:compilationDigest
     description: A digest of the `code` and `mathLanguage`.
     $comment: Used to avoid unnecessary transpilation to MathML.
-    $ref: ExecutionDigest
+    $ref: CompilationDigest
     strip: [execution]
   compilationErrors:
     '@id': stencila:compilationErrors
-    description: Errors that occurred when parsing and compiling the math equation.
+    description: Errors generated when parsing and compiling the math expression.
+    strip: [execution]
     type: array
     items:
-      type: string
-    strip: [execution]
+      $ref: CompilationError
   mathml:
     '@id': stencila:mathml
     description: The MathML transpiled from the `code`.
