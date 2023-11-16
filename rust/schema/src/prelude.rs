@@ -18,9 +18,11 @@ pub use codec_markdown_trait::{MarkdownCodec, MarkdownEncodeContext};
 pub use codec_text_trait::TextCodec;
 pub use node_store::{ReadNode, WriteNode};
 pub use node_strip::StripNode;
+pub use node_walk_derive::WalkNode;
 
 pub use crate::deserialize::*;
 pub use crate::shortcuts::*;
+pub use crate::walk::{Visitor, VisitorMut, WalkNode};
 
 #[cfg(feature = "proptest")]
 pub use crate::proptests::*;
