@@ -68,7 +68,9 @@ async def test_to_path():
 
 
 async def test_from_to():
-    markdown = await from_to("../examples/nodes/paragraph/paragraph.json", to_format="md")
+    markdown = await from_to(
+        "../examples/nodes/paragraph/paragraph.json", to_format="md"
+    )
 
     assert (
         markdown
