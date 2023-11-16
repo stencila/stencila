@@ -115,6 +115,12 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "a4668cab20f66d8d020e1fbc0ebe47217433c1b6c8f2040faf858554e394ace6"
 
 [[package]]
+name = "arrayvec"
+version = "0.7.4"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "96d30a06541fbafbc7f82ed10c06164cfbd2c401138f6addd8404629c4b16711"
+
+[[package]]
 name = "async-recursion"
 version = "1.0.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -718,6 +724,8 @@ dependencies = [
  "tokio",
  "toml",
  "tracing",
+ "type-safe-id",
+ "uuid",
 ]
 
 [[package]]
@@ -2033,6 +2041,14 @@ dependencies = [
 
 [[package]]
 name = "node-strip-derive"
+version = "0.0.0"
+dependencies = [
+ "common",
+ "darling",
+]
+
+[[package]]
+name = "node-walk-derive"
 version = "0.0.0"
 dependencies = [
  "common",
@@ -3588,6 +3604,18 @@ dependencies = [
  "thiserror",
  "url",
  "utf-8",
+]
+
+[[package]]
+name = "type-safe-id"
+version = "0.2.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "bb1211a53644c6a5ae26c45bdd520d1533b07dab50dc6af1a15063772f9061ad"
+dependencies = [
+ "arrayvec",
+ "rand",
+ "thiserror",
+ "uuid",
 ]
 
 [[package]]
