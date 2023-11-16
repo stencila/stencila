@@ -208,10 +208,10 @@ static CONFIG: Lazy<Config> = Lazy::new(|| {
 #[tokio::test]
 async fn examples() -> Result<()> {
     let dir = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
-        .join("../../examples")
+        .join("../../examples/nodes")
         .canonicalize()?;
 
-    let pattern = dir.join("**/*.json");
+    let pattern = dir.join("*/*.json");
     let pattern = pattern.to_str().unwrap_or_default();
 
     let examples = glob(pattern)?.flatten().collect_vec();

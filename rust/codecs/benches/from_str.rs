@@ -20,7 +20,7 @@ fn from_str(str: &str, codec: &str, options: Option<DecodeOptions>) {
 macro_rules! include_example {
     ($extension:literal) => {
         include_str!(concat!(
-            "../../../examples/article-ark/article-ark.",
+            "../../../examples/nodes/article-ark/article-ark.",
             $extension
         ))
     };

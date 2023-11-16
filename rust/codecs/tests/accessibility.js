@@ -9,8 +9,8 @@ const glob = require("glob");
 const pa11y = require("pa11y");
 const path = require("path");
 
-const examples = path.join(__dirname, "../../../../examples");
-const files = glob.globSync("**/*.standalone.html", {
+const examples = path.join(__dirname, "../../../../examples/nodes");
+const files = glob.globSync("*/*.standalone.html", {
   cwd: examples,
 });
 
