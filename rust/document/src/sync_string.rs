@@ -299,7 +299,7 @@ impl Document {
 #[cfg(test)]
 mod tests {
     use common::{eyre::Report, tokio::sync::mpsc::channel};
-    use common_dev::pretty_assertions::assert_eq;
+    use common_dev::{ntest::timeout, pretty_assertions::assert_eq};
     use format::Format;
     use schema::shortcuts::{art, p, t};
 
@@ -308,7 +308,12 @@ mod tests {
     use super::*;
 
     /// Test receiving patches from a client
+    /// 
+    /// Uses a timeout because errors in patch versions can otherwise
+    /// cause this to hang forever on `watch.changed()` (because the
+    /// patch is rejected).
     #[tokio::test]
+    #[timeout(1000)]
     async fn receive_patches() -> Result<()> {
         // Create a document and start syncing with Markdown buffer
         let document = Document::new(DocumentType::Article)?;
@@ -354,7 +359,7 @@ mod tests {
         // Test insert operation
         patch_sender
             .send(StringPatch {
-                version: 0,
+                version: 1,
                 ops: vec![StringOp::insert(0, "Hello world")],
             })
             .await?;
@@ -364,7 +369,7 @@ mod tests {
         // Test delete operation
         patch_sender
             .send(StringPatch {
-                version: 1,
+                version: 2,
                 ops: vec![StringOp::delete(6, 9)],
             })
             .await?;
@@ -374,7 +379,7 @@ mod tests {
         // Test replace operation
         patch_sender
             .send(StringPatch {
-                version: 2,
+                version: 3,
                 ops: vec![StringOp::replace(6, 7, "frien")],
             })
             .await?;
@@ -410,7 +415,7 @@ mod tests {
         assert_eq!(
             patch_receiver.recv().await.unwrap(),
             StringPatch {
-                version: 0,
+                version: 1,
                 ops: vec![StringOp::reset("")]
             }
         );
@@ -423,7 +428,7 @@ mod tests {
         assert_eq!(
             patch_receiver.recv().await.unwrap(),
             StringPatch {
-                version: 1,
+                version: 2,
                 ops: vec![StringOp::insert(0, "Hello world")]
             }
         );
@@ -436,7 +441,7 @@ mod tests {
         assert_eq!(
             patch_receiver.recv().await.unwrap(),
             StringPatch {
-                version: 2,
+                version: 3,
                 ops: vec![StringOp::delete(6, 9)]
             }
         );
@@ -449,7 +454,7 @@ mod tests {
         assert_eq!(
             patch_receiver.recv().await.unwrap(),
             StringPatch {
-                version: 3,
+                version: 4,
                 ops: vec![StringOp::replace(6, 7, "frien")]
             }
         );
