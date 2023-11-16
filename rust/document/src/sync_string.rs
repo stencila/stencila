@@ -284,7 +284,7 @@ impl Document {
 
                     // Create and send a `StringPatch`
                     let patch = StringPatch { version, ops };
-                    if let Err(..) = patch_sender.send(patch).await {
+                    if patch_sender.send(patch).await.is_err() {
                         // Most likely receiver has dropped so just finish this task
                         break;
                     }
@@ -308,7 +308,7 @@ mod tests {
     use super::*;
 
     /// Test receiving patches from a client
-    /// 
+    ///
     /// Uses a timeout because errors in patch versions can otherwise
     /// cause this to hang forever on `watch.changed()` (because the
     /// patch is rejected).
