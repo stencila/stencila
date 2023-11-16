@@ -23,5 +23,5 @@ node-strip = { path = "../node-strip" }
 server = { path = "../server" }
 syntect = "5.1.0"
 tracing-error = "0.2.0"
-tracing-subscriber = { version = "0.3.17", features = ["env-filter", "json"] }
+tracing-subscriber = { version = "0.3.18", features = ["env-filter", "json"] }
 yansi = "0.5.1"
