@@ -79,7 +79,7 @@ async def test_from_to():
 
     with NamedTemporaryFile(mode="w+", delete=False) as temp:
         await from_to(
-            "../examples/paragraph/paragraph.json",
+            "../examples/nodes/paragraph/paragraph.json",
             temp.name,
             to_format="html",
             to_standalone=False,
