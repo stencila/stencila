@@ -51,7 +51,7 @@ test("toPath", async () => {
 
 test("fromTo", async () => {
   const md = await fromTo(
-    "../examples/paragraph/paragraph.json",
+    "../examples/nodes/paragraph/paragraph.json",
     undefined,
     undefined,
     {
@@ -61,7 +61,7 @@ test("fromTo", async () => {
   expect(md).toMatchSnapshot();
 
   const html = await fromTo(
-    "../examples/paragraph/paragraph.json",
+    "../examples/nodes/paragraph/paragraph.json",
     undefined,
     undefined,
     {

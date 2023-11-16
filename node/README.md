@@ -58,7 +58,7 @@ Use `fromPath` to decode a file system path (usually a file) to a Stencila Schem
 ```ts
 import { convert } from "@stencila/node";
 
-const doc = await convert.fromPath("../examples/paragraph/paragraph.jats.xml");
+const doc = await convert.fromPath("../examples/nodes/paragraph/paragraph.jats.xml");
 ```
 
 #### `DecodeOptions`
