@@ -1,0 +1,9 @@
+[package]
+name = "actor"
+version = "0.0.0"
+edition = "2021"
+
+[dependencies]
+common = { path = "../common" }
+graph = { path = "../graph" }
+schema = { path = "../schema" }
