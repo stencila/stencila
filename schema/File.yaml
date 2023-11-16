@@ -5,7 +5,6 @@ category: works
 description: A file on the file system.
 required:
   - path
-  - name
 properties:
   path:
     '@id': stencila:path
