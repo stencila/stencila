@@ -26,7 +26,7 @@ use schema::{
 /// Represents the union of the variants in `ExecutionDependencyNode`
 /// and `ExecutionDependantNode`. Rather than use the nodes themselves
 /// (which are large, and not `Eq` and `Hash` which is necessary for `HashMap` keys)
-/// this `enum`` represents each of the relevant `Node` types using key 
+/// this `enum`` represents each of the relevant `Node` types using key
 /// identifying properties.
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize)]
 #[serde(crate = "common::serde")]

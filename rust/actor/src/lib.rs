@@ -11,7 +11,7 @@ use schema::Node;
 #[async_trait]
 pub trait Actor {
     /// Perform actions on a document
-    /// 
+    ///
     /// To avoid circular dependencies, this function takes the `root` node
     /// and `graph` of the document, rather than the entire document.
     async fn perform(&mut self, root: &mut Node, graph: &mut Graph) -> Result<()>;
