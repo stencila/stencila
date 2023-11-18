@@ -27,7 +27,7 @@
     "lint": "eslint 'src/**/*.ts'",
     "start": "parcel watch",
     "build": "parcel build",
-    "unused": "depcheck --quiet --ignores '@parcel/*' --ignore-patterns '.eslintrc*,prosemirror-*'"
+    "unused": "depcheck --quiet --ignores '@parcel/*,prosemirror-*' --ignore-patterns '.eslintrc*'"
   },
   "dependencies": {
     "@codemirror/state": "6.3.1",
