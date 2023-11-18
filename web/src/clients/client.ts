@@ -41,7 +41,8 @@ export abstract class Client {
    * This method should be overridden by clients that need to
    * handle incoming messages from the server.
    */
-  receiveMessage<T>(message: Record<string, unknown>) {}
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  receiveMessage(message: Record<string, unknown>) {}
 
   /**
    * Send a message to the server

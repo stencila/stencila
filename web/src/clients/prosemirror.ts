@@ -1,4 +1,3 @@
-import { Node, Schema } from "prosemirror-model";
 import { Transaction } from "prosemirror-state";
 import { EditorView } from "prosemirror-view";
 
