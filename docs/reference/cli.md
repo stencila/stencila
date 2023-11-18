@@ -41,7 +41,7 @@ CLI subcommands and global options
 
 * `--log-filter <LOG_FILTER>` — A filter for log entries
 
-  Default value: ``
+  Default value: `hyper=info,mio=info,tokio=info,tungstenite=info`
 * `--log-format <LOG_FORMAT>` — The log format to use
 
   Default value: `auto`
