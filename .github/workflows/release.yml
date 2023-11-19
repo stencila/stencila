@@ -243,10 +243,6 @@ jobs:
             architecture: x64
             target: x64
             interpreter: 3.8 3.9 3.10 3.11 3.12
-          - os: buildjet-8vcpu-ubuntu-2204-arm
-            architecture: arm64
-            target: aarch64
-            interpreter: 3.8 3.9 3.10 3.11 3.12
           - os: macos-latest
             architecture: x64
             target: x64
