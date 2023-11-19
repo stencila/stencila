@@ -10,3 +10,5 @@
 !node/src
 !python/Cargo.toml
 !python/src
+!package*.json
+!web
