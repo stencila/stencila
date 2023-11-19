@@ -77,8 +77,8 @@ def from_value(value) -> Node:  # pragma: no cover
         return CodeChunk(**value)
     if typ == "CodeExpression":
         return CodeExpression(**value)
-    if typ == "CodeFragment":
-        return CodeFragment(**value)
+    if typ == "CodeInline":
+        return CodeInline(**value)
     if typ == "Collection":
         return Collection(**value)
     if typ == "Comment":
@@ -163,8 +163,8 @@ def from_value(value) -> Node:  # pragma: no cover
         return ListItem(**value)
     if typ == "MathBlock":
         return MathBlock(**value)
-    if typ == "MathFragment":
-        return MathFragment(**value)
+    if typ == "MathInline":
+        return MathInline(**value)
     if typ == "MediaObject":
         return MediaObject(**value)
     if typ == "MonetaryGrant":
@@ -193,24 +193,24 @@ def from_value(value) -> Node:  # pragma: no cover
         return PublicationIssue(**value)
     if typ == "PublicationVolume":
         return PublicationVolume(**value)
-    if typ == "Quote":
-        return Quote(**value)
     if typ == "QuoteBlock":
         return QuoteBlock(**value)
+    if typ == "QuoteInline":
+        return QuoteInline(**value)
     if typ == "Review":
         return Review(**value)
     if typ == "SoftwareApplication":
         return SoftwareApplication(**value)
     if typ == "SoftwareSourceCode":
         return SoftwareSourceCode(**value)
-    if typ == "Span":
-        return Span(**value)
     if typ == "Strikeout":
         return Strikeout(**value)
     if typ == "StringValidator":
         return StringValidator(**value)
     if typ == "Strong":
         return Strong(**value)
+    if typ == "StyledInline":
+        return StyledInline(**value)
     if typ == "Subscript":
         return Subscript(**value)
     if typ == "Superscript":

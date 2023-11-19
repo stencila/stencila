@@ -16,7 +16,7 @@ fn to_string(codec: &str, options: Option<EncodeOptions>) {
             t("text"),
             // Marks
             em([t("emphasis")]),
-            q([t("q")]),
+            qi([t("q")]),
             stg([t("strong")]),
             stk([t("strike")]),
             sub([t("subscript")]),
@@ -29,16 +29,16 @@ fn to_string(codec: &str, options: Option<EncodeOptions>) {
             // Other
             btn("name", "code"),
             ce("code", Some("lang")),
-            cf("code"),
+            ci("code"),
             ct("target"),
             ctg(["target1", "target2"]),
             del([t("text")]),
             ins([t("text")]),
             lnk([t("link")], "url"),
-            mf("code", Some("lang")),
+            mi("math", Some("lang")),
             nte(NoteType::default(), [p([t("text")])]),
             par("name"),
-            spn("code", [t("span")]),
+            sti("style", [t("styled")]),
         ]),
         // Quote, math and code blocks
         cb("code block", Some("lang")),

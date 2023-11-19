@@ -46,8 +46,8 @@ prop_compose! {
         others in vec(
             prop_oneof![
                 CodeExpression::arbitrary().prop_map(Inline::CodeExpression),
-                CodeFragment::arbitrary().prop_map(Inline::CodeFragment),
-                MathFragment::arbitrary().prop_map(Inline::MathFragment)
+                CodeInline::arbitrary().prop_map(Inline::CodeInline),
+                MathInline::arbitrary().prop_map(Inline::MathInline)
             ],
             size_range(length - 1)
         )
@@ -69,7 +69,7 @@ fn interleave_inlines(texts: Vec<Inline>, others: Vec<Inline>) -> Vec<Inline> {
         let spaces = matches!(
             content[index],
             Inline::Emphasis(..)
-                | Inline::MathFragment(..)
+                | Inline::MathInline(..)
                 | Inline::Strikeout(..)
                 | Inline::Strong(..)
                 | Inline::Subscript(..)

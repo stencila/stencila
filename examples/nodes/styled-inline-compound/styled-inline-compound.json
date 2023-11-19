@@ -1,0 +1,44 @@
+{
+  "$schema": "https://stencila.dev/Article.schema.json",
+  "type": "Article",
+  "content": [
+    {
+      "type": "Paragraph",
+      "content": [
+        {
+          "type": "Text",
+          "value": "A styled inlines containing other compound inline nodes: "
+        },
+        {
+          "type": "StyledInline",
+          "code": "text-blue-600",
+          "content": [
+            {
+              "type": "Emphasis",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": "emphasis"
+                }
+              ]
+            },
+            {
+              "type": "Text",
+              "value": ", "
+            },
+            {
+              "type": "Link",
+              "target": "https://example.org",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": "link"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

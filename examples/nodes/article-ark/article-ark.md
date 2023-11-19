@@ -1,6 +1,6 @@
 This article attempts to have at least one of each node type. Nodes are intentionally simple, see other examples for more variations.
 
-This is a paragraph with ![audio](https://example.org/cat.mp3), `code expression`{exec}, `code fragment`<del>, delete</del>, _emphasis_, ![image](https://example.org/cat.jpg)<ins>, insert</ins>, [link](https://example.org), $math fragment$, [^1], &[parameter], <q>quote</q>, [span]{text-blue-400}, ~~strikeout~~, **strong emphasis**, ~subscript~, ^superscript^, <u>underline</u>, ![video](https://example.org/cat.mp4).
+This is a paragraph with ![audio](https://example.org/cat.mp3), `code expression`{exec}, `inline code`<del>, delete</del>, _emphasis_, ![image](https://example.org/cat.jpg)<ins>, insert</ins>, [link](https://example.org), $inline math$, [^1], &[parameter], <q>inline quote</q>, [styled inline]{text-blue-400}, ~~strikeout~~, **strong emphasis**, ~subscript~, ^superscript^, <u>underline</u>, ![video](https://example.org/cat.mp4).
 
 /this/is/a/call()
 

@@ -18,7 +18,7 @@ import { type Claim } from "./Claim.js";
 import { type CodeBlock } from "./CodeBlock.js";
 import { type CodeChunk } from "./CodeChunk.js";
 import { type CodeExpression } from "./CodeExpression.js";
-import { type CodeFragment } from "./CodeFragment.js";
+import { type CodeInline } from "./CodeInline.js";
 import { type CodeLocation } from "./CodeLocation.js";
 import { type Collection } from "./Collection.js";
 import { type Comment } from "./Comment.js";
@@ -65,7 +65,7 @@ import { type Link } from "./Link.js";
 import { type List } from "./List.js";
 import { type ListItem } from "./ListItem.js";
 import { type MathBlock } from "./MathBlock.js";
-import { type MathFragment } from "./MathFragment.js";
+import { type MathInline } from "./MathInline.js";
 import { type MediaObject } from "./MediaObject.js";
 import { type MonetaryGrant } from "./MonetaryGrant.js";
 import { type Note } from "./Note.js";
@@ -81,16 +81,16 @@ import { type Product } from "./Product.js";
 import { type PropertyValue } from "./PropertyValue.js";
 import { type PublicationIssue } from "./PublicationIssue.js";
 import { type PublicationVolume } from "./PublicationVolume.js";
-import { type Quote } from "./Quote.js";
 import { type QuoteBlock } from "./QuoteBlock.js";
+import { type QuoteInline } from "./QuoteInline.js";
 import { type Review } from "./Review.js";
 import { type Section } from "./Section.js";
 import { type SoftwareApplication } from "./SoftwareApplication.js";
 import { type SoftwareSourceCode } from "./SoftwareSourceCode.js";
-import { type Span } from "./Span.js";
 import { type Strikeout } from "./Strikeout.js";
 import { type StringValidator } from "./StringValidator.js";
 import { type Strong } from "./Strong.js";
+import { type StyledInline } from "./StyledInline.js";
 import { type Subscript } from "./Subscript.js";
 import { type Superscript } from "./Superscript.js";
 import { type Table } from "./Table.js";
@@ -136,7 +136,7 @@ export type Node =
   CodeBlock |
   CodeChunk |
   CodeExpression |
-  CodeFragment |
+  CodeInline |
   CodeLocation |
   Collection |
   Comment |
@@ -181,7 +181,7 @@ export type Node =
   List |
   ListItem |
   MathBlock |
-  MathFragment |
+  MathInline |
   MediaObject |
   MonetaryGrant |
   Note |
@@ -196,16 +196,16 @@ export type Node =
   PropertyValue |
   PublicationIssue |
   PublicationVolume |
-  Quote |
   QuoteBlock |
+  QuoteInline |
   Review |
   Section |
   SoftwareApplication |
   SoftwareSourceCode |
-  Span |
   Strikeout |
   StringValidator |
   Strong |
+  StyledInline |
   Subscript |
   Superscript |
   Table |
@@ -247,7 +247,7 @@ export function node(other: Node): Node {
     case "CodeBlock":
     case "CodeChunk":
     case "CodeExpression":
-    case "CodeFragment":
+    case "CodeInline":
     case "CodeLocation":
     case "Collection":
     case "Comment":
@@ -292,7 +292,7 @@ export function node(other: Node): Node {
     case "List":
     case "ListItem":
     case "MathBlock":
-    case "MathFragment":
+    case "MathInline":
     case "MediaObject":
     case "MonetaryGrant":
     case "Note":
@@ -307,16 +307,16 @@ export function node(other: Node): Node {
     case "PropertyValue":
     case "PublicationIssue":
     case "PublicationVolume":
-    case "Quote":
     case "QuoteBlock":
+    case "QuoteInline":
     case "Review":
     case "Section":
     case "SoftwareApplication":
     case "SoftwareSourceCode":
-    case "Span":
     case "Strikeout":
     case "StringValidator":
     case "Strong":
+    case "StyledInline":
     case "Subscript":
     case "Superscript":
     case "Table":

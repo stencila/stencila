@@ -1,0 +1,153 @@
+{
+  "$schema": "https://stencila.dev/meta.schema.json",
+  "$id": "https://stencila.dev/MathInline.schema.json",
+  "@id": "stencila:MathInline",
+  "title": "MathInline",
+  "extends": [
+    "Math"
+  ],
+  "category": "math",
+  "description": "A fragment of math, e.g a variable name, to be treated as inline content.",
+  "proptest": {},
+  "html": {
+    "elem": "math"
+  },
+  "jats": {
+    "elem": "inline-formula",
+    "special": true
+  },
+  "markdown": {
+    "special": true
+  },
+  "required": [
+    "type",
+    "code"
+  ],
+  "core": [
+    "id",
+    "mathLanguage",
+    "compilationDigest",
+    "compilationErrors",
+    "mathml"
+  ],
+  "properties": {
+    "type": {
+      "@id": "schema:type",
+      "description": "The type of this item.",
+      "$comment": "This is a special property analogous to JSON-LD's `@type` keyword.\n",
+      "type": "string"
+    },
+    "id": {
+      "@id": "schema:id",
+      "description": "The identifier for this item.",
+      "$comment": "This is a special property analogous to JSON-LD's `@id` keyword.\n",
+      "strip": [
+        "metadata"
+      ],
+      "html": {
+        "attr": "id"
+      },
+      "type": "string"
+    },
+    "code": {
+      "@id": "stencila:code",
+      "description": "The code of the equation in the `mathLanguage`.",
+      "strip": [
+        "code"
+      ],
+      "proptest": {
+        "min": {
+          "description": "Generate a simple fixed string of math.",
+          "value": "Cord::new(\"math\")"
+        },
+        "low": {
+          "description": "Generate a random string of up to 10 alphanumeric characters (exclude whitespace which \nwhen leading or trailing causes issues for Markdown).\n",
+          "strategy": "r\"[a-zA-Z0-9]{1,10}\".prop_map(Cord::new)"
+        },
+        "high": {
+          "description": "Generate a random string of up to 100 characters (excluding control characters).\n",
+          "strategy": "r\"[^\\p{C}]{1,100}\".prop_map(Cord::new)"
+        },
+        "max": {
+          "description": "Generate an arbitrary string.",
+          "strategy": "String::arbitrary().prop_map(Cord::new)"
+        }
+      },
+      "$ref": "Cord.schema.json"
+    },
+    "mathLanguage": {
+      "@id": "stencila:mathLanguage",
+      "description": "The language used for the equation e.g tex, mathml, asciimath.",
+      "$comment": "Where necessary, the language is assumed to be TeX.",
+      "aliases": [
+        "math-language",
+        "math_language"
+      ],
+      "strip": [
+        "code"
+      ],
+      "proptest": {
+        "min": {
+          "description": "No language.",
+          "value": "None"
+        },
+        "low": {
+          "description": "Fixed as TeX (for testing with Markdown which uses dollars to delimit TeX by default)",
+          "value": "Some(String::from(\"tex\"))"
+        },
+        "high": {
+          "description": "Generate a random string of up to 10 alphanumeric characters.",
+          "strategy": "option::of(r\"[a-zA-Z0-9]{1,10}\")"
+        },
+        "max": {
+          "description": "Generate an arbitrary string.",
+          "strategy": "option::of(String::arbitrary())"
+        }
+      },
+      "type": "string"
+    },
+    "compilationDigest": {
+      "@id": "stencila:compilationDigest",
+      "description": "A digest of the `code` and `mathLanguage`.",
+      "$comment": "Used to avoid unnecessary transpilation to MathML.",
+      "aliases": [
+        "compilation-digest",
+        "compilation_digest"
+      ],
+      "strip": [
+        "execution"
+      ],
+      "$ref": "CompilationDigest.schema.json"
+    },
+    "compilationErrors": {
+      "@id": "stencila:compilationErrors",
+      "description": "Errors generated when parsing and compiling the math expression.",
+      "aliases": [
+        "compilation-errors",
+        "compilation_errors",
+        "compilationError",
+        "compilation-error",
+        "compilation_error"
+      ],
+      "strip": [
+        "execution"
+      ],
+      "type": "array",
+      "items": {
+        "$ref": "CompilationError.schema.json"
+      }
+    },
+    "mathml": {
+      "@id": "stencila:mathml",
+      "description": "The MathML transpiled from the `code`.",
+      "$comment": "Used along with `compilationDigest` to avoid unnecessary transpilation to MathML.",
+      "strip": [
+        "output"
+      ],
+      "html": {
+        "content": true
+      },
+      "type": "string"
+    }
+  }
+}

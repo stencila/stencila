@@ -10,7 +10,7 @@ use super::division::Division;
 use super::file::File;
 use super::function::Function;
 use super::parameter::Parameter;
-use super::span::Span;
+use super::styled_inline::StyledInline;
 use super::variable::Variable;
 
 /// Node types that can be execution dependencies.
@@ -34,7 +34,7 @@ pub enum ExecutionDependantNode {
 
     Parameter(Parameter),
 
-    Span(Span),
+    StyledInline(StyledInline),
 
     Variable(Variable),
 }

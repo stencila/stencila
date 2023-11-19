@@ -19,7 +19,7 @@ use super::claim::Claim;
 use super::code_block::CodeBlock;
 use super::code_chunk::CodeChunk;
 use super::code_expression::CodeExpression;
-use super::code_fragment::CodeFragment;
+use super::code_inline::CodeInline;
 use super::code_location::CodeLocation;
 use super::collection::Collection;
 use super::comment::Comment;
@@ -66,7 +66,7 @@ use super::link::Link;
 use super::list::List;
 use super::list_item::ListItem;
 use super::math_block::MathBlock;
-use super::math_fragment::MathFragment;
+use super::math_inline::MathInline;
 use super::media_object::MediaObject;
 use super::monetary_grant::MonetaryGrant;
 use super::note::Note;
@@ -84,17 +84,17 @@ use super::product::Product;
 use super::property_value::PropertyValue;
 use super::publication_issue::PublicationIssue;
 use super::publication_volume::PublicationVolume;
-use super::quote::Quote;
 use super::quote_block::QuoteBlock;
+use super::quote_inline::QuoteInline;
 use super::review::Review;
 use super::section::Section;
 use super::software_application::SoftwareApplication;
 use super::software_source_code::SoftwareSourceCode;
-use super::span::Span;
 use super::strikeout::Strikeout;
 use super::string::String;
 use super::string_validator::StringValidator;
 use super::strong::Strong;
+use super::styled_inline::StyledInline;
 use super::subscript::Subscript;
 use super::superscript::Superscript;
 use super::table::Table;
@@ -164,7 +164,7 @@ pub enum Node {
 
     CodeExpression(CodeExpression),
 
-    CodeFragment(CodeFragment),
+    CodeInline(CodeInline),
 
     CodeLocation(CodeLocation),
 
@@ -254,7 +254,7 @@ pub enum Node {
 
     MathBlock(MathBlock),
 
-    MathFragment(MathFragment),
+    MathInline(MathInline),
 
     MediaObject(MediaObject),
 
@@ -284,9 +284,9 @@ pub enum Node {
 
     PublicationVolume(PublicationVolume),
 
-    Quote(Quote),
-
     QuoteBlock(QuoteBlock),
+
+    QuoteInline(QuoteInline),
 
     Review(Review),
 
@@ -296,13 +296,13 @@ pub enum Node {
 
     SoftwareSourceCode(SoftwareSourceCode),
 
-    Span(Span),
-
     Strikeout(Strikeout),
 
     StringValidator(StringValidator),
 
     Strong(Strong),
+
+    StyledInline(StyledInline),
 
     Subscript(Subscript),
 

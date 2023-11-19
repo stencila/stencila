@@ -28,7 +28,7 @@ The `Math` type has these properties:
 The `Math` type is related to these types:
 
 - Parents: [`Entity`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/entity.md)
-- Children: [`MathBlock`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/math/math-block.md), [`MathFragment`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/math/math-fragment.md)
+- Children: [`MathBlock`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/math/math-block.md), [`MathInline`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/math/math-inline.md)
 
 ## Bindings
 

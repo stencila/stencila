@@ -31,7 +31,7 @@ The `Styled` type has these properties:
 The `Styled` type is related to these types:
 
 - Parents: [`Entity`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/entity.md)
-- Children: [`Division`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/style/division.md), [`Span`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/style/span.md)
+- Children: [`Division`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/style/division.md), [`StyledInline`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/style/styled-inline.md)
 
 ## Bindings
 

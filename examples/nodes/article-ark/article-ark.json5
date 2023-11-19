@@ -40,8 +40,8 @@
           value: ", "
         },
         {
-          type: "CodeFragment",
-          code: "code fragment"
+          type: "CodeInline",
+          code: "inline code"
         },
         {
           type: "Delete",
@@ -107,8 +107,8 @@
           value: ", "
         },
         {
-          type: "MathFragment",
-          code: "math fragment",
+          type: "MathInline",
+          code: "inline math",
           mathLanguage: "tex"
         },
         {
@@ -143,11 +143,11 @@
           value: ", "
         },
         {
-          type: "Quote",
+          type: "QuoteInline",
           content: [
             {
               type: "Text",
-              value: "quote"
+              value: "inline quote"
             }
           ]
         },
@@ -156,12 +156,12 @@
           value: ", "
         },
         {
-          type: "Span",
+          type: "StyledInline",
           code: "text-blue-400",
           content: [
             {
               type: "Text",
-              value: "span"
+              value: "styled inline"
             }
           ]
         },

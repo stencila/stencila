@@ -1,0 +1,108 @@
+{
+  "@context": {
+    "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
+    "schema": "https://schema.org/",
+    "stencila": "https://stencila.dev/"
+  },
+  "@graph": [
+    {
+      "@id": "stencila:MathInline",
+      "@type": "rdfs:Class",
+      "rdfs:label": "MathInline",
+      "rdfs:comment": "A fragment of math, e.g a variable name, to be treated as inline content.",
+      "rdfs:subClassOf": {
+        "@id": "stencila:Math"
+      }
+    },
+    {
+      "@id": "stencila:code",
+      "@type": "rdfs:Property",
+      "rdfs:label": "code",
+      "rdfs:comment": "The code of the equation in the `mathLanguage`.",
+      "schema:domainIncludes": [
+        {
+          "@id": "stencila:CallArgument"
+        },
+        {
+          "@id": "stencila:CodeExecutable"
+        },
+        {
+          "@id": "stencila:CodeStatic"
+        },
+        {
+          "@id": "stencila:Math"
+        },
+        {
+          "@id": "stencila:Styled"
+        }
+      ],
+      "schema:rangeIncludes": {
+        "@id": "stencila:Cord"
+      }
+    },
+    {
+      "@id": "stencila:mathLanguage",
+      "@type": "rdfs:Property",
+      "rdfs:label": "mathLanguage",
+      "rdfs:comment": "The language used for the equation e.g tex, mathml, asciimath.",
+      "schema:domainIncludes": {
+        "@id": "stencila:Math"
+      },
+      "schema:rangeIncludes": {
+        "@id": "schema:Text"
+      }
+    },
+    {
+      "@id": "stencila:compilationDigest",
+      "@type": "rdfs:Property",
+      "rdfs:label": "compilationDigest",
+      "rdfs:comment": "A digest of the `code` and `mathLanguage`.",
+      "schema:domainIncludes": [
+        {
+          "@id": "stencila:Executable"
+        },
+        {
+          "@id": "stencila:Math"
+        },
+        {
+          "@id": "stencila:Styled"
+        }
+      ],
+      "schema:rangeIncludes": {
+        "@id": "stencila:CompilationDigest"
+      }
+    },
+    {
+      "@id": "stencila:compilationErrors",
+      "@type": "rdfs:Property",
+      "rdfs:label": "compilationErrors",
+      "rdfs:comment": "Errors generated when parsing and compiling the math expression.",
+      "schema:domainIncludes": [
+        {
+          "@id": "stencila:Executable"
+        },
+        {
+          "@id": "stencila:Math"
+        },
+        {
+          "@id": "stencila:Styled"
+        }
+      ],
+      "schema:rangeIncludes": {
+        "@id": "stencila:CompilationError"
+      }
+    },
+    {
+      "@id": "stencila:mathml",
+      "@type": "rdfs:Property",
+      "rdfs:label": "mathml",
+      "rdfs:comment": "The MathML transpiled from the `code`.",
+      "schema:domainIncludes": {
+        "@id": "stencila:Math"
+      },
+      "schema:rangeIncludes": {
+        "@id": "schema:Text"
+      }
+    }
+  ]
+}

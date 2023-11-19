@@ -1,6 +1,6 @@
 use codec::{
     common::tokio,
-    schema::shortcuts::{art, aud, img, p, spn, vid},
+    schema::shortcuts::{art, aud, img, p, sti, vid},
 };
 use common_dev::pretty_assertions::assert_eq;
 
@@ -45,7 +45,7 @@ async fn spans() -> Result<()> {
     let codec = JatsCodec {};
 
     // Code contains whitespace characters that need to be escaped
-    let doc1 = art([p([spn("\t\n\r", [])])]);
+    let doc1 = art([p([sti("\t\n\r", [])])]);
 
     let (jats, _) = codec
         .to_string(

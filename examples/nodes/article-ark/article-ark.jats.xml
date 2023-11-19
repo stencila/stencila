@@ -4,13 +4,13 @@
     <p>This article attempts to have at least one of each node type. Nodes are intentionally simple, see other examples for more variations.</p>
     <p>This is a paragraph with<inline-media xlink:href="https://example.org/cat.mp3" mimetype="audio">
         <alt-text>audio</alt-text>
-      </inline-media>,<code executable="yes">code expression</code>,<code>code fragment</code>,<italic>emphasis</italic>,<inline-graphic xlink:href="https://example.org/cat.jpg">
+      </inline-media>,<code executable="yes">code expression</code>,<code>inline code</code>,<italic>emphasis</italic>,<inline-graphic xlink:href="https://example.org/cat.jpg">
         <alt-text>image</alt-text>
-      </inline-graphic>, insert,<ext-link xlink:href="https://example.org">link</ext-link>,<inline-formula code="math fragment" language="tex">
+      </inline-graphic>, insert,<ext-link xlink:href="https://example.org">link</ext-link>,<inline-formula code="inline math" language="tex">
       </inline-formula>,<fn fn-type="custom" custom-type="Footnote">
         <p>A footnote</p>
       </fn>,<parameter name="parameter">
-      </parameter>,<inline-quote>quote</inline-quote>,<styled-content style="text-blue-400">span</styled-content>,<strike>strikeout</strike>,<bold>strong emphasis</bold>,<sub>subscript</sub>,<sup>superscript</sup>,<underline>underline</underline>,<inline-media xlink:href="https://example.org/cat.mp4" mimetype="video">
+      </parameter>,<inline-quote>inline quote</inline-quote>,<styled-content style="text-blue-400">styled inline</styled-content>,<strike>strikeout</strike>,<bold>strong emphasis</bold>,<sub>subscript</sub>,<sup>superscript</sup>,<underline>underline</underline>,<inline-media xlink:href="https://example.org/cat.mp4" mimetype="video">
         <alt-text>video</alt-text>
       </inline-media>.</p>
     <statement content-type="Statement">

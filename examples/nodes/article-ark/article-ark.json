@@ -27,8 +27,8 @@
         },
         { "type": "Text", "value": ", " },
         {
-          "type": "CodeFragment",
-          "code": "code fragment"
+          "type": "CodeInline",
+          "code": "inline code"
         },
         {
           "type": "Delete",
@@ -57,8 +57,8 @@
         },
         { "type": "Text", "value": ", " },
         {
-          "type": "MathFragment",
-          "code": "math fragment",
+          "type": "MathInline",
+          "code": "inline math",
           "mathLanguage": "tex"
         },
         { "type": "Text", "value": ", " },
@@ -79,14 +79,14 @@
         },
         { "type": "Text", "value": ", " },
         {
-          "type": "Quote",
-          "content": [{ "type": "Text", "value": "quote" }]
+          "type": "QuoteInline",
+          "content": [{ "type": "Text", "value": "inline quote" }]
         },
         { "type": "Text", "value": ", " },
         {
-          "type": "Span",
+          "type": "StyledInline",
           "code": "text-blue-400",
-          "content": [{ "type": "Text", "value": "span" }]
+          "content": [{ "type": "Text", "value": "styled inline" }]
         },
         { "type": "Text", "value": ", " },
         {

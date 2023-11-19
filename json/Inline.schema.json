@@ -59,7 +59,7 @@
       "$ref": "CodeExpression.schema.json"
     },
     {
-      "$ref": "CodeFragment.schema.json"
+      "$ref": "CodeInline.schema.json"
     },
     {
       "proptest": {
@@ -131,7 +131,7 @@
       "$ref": "Link.schema.json"
     },
     {
-      "$ref": "MathFragment.schema.json"
+      "$ref": "MathInline.schema.json"
     },
     {
       "proptest": {
@@ -167,10 +167,10 @@
       "$ref": "Parameter.schema.json"
     },
     {
-      "$ref": "Quote.schema.json"
+      "$ref": "QuoteInline.schema.json"
     },
     {
-      "$ref": "Span.schema.json"
+      "$ref": "StyledInline.schema.json"
     },
     {
       "$ref": "Strikeout.schema.json"

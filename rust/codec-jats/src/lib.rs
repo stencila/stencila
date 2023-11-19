@@ -46,15 +46,15 @@ impl Codec for JatsCodec {
         use NodeType::*;
         match node_type {
             // Prose Inlines
-            Text | Emphasis | Strong | Strikeout | Subscript | Superscript | Underline | Quote
-            | Span | Note => NoLoss,
+            Text | Emphasis | Strong | Strikeout | Subscript | Superscript | Underline
+            | QuoteInline | StyledInline | Note => NoLoss,
             Link | AudioObject | ImageObject | VideoObject => LowLoss,
             // Prose Blocks
             Admonition | Section | Heading | Paragraph | QuoteBlock | ThematicBreak => NoLoss,
             // Math
-            MathFragment | MathBlock => LowLoss,
+            MathInline | MathBlock => LowLoss,
             // Code
-            CodeFragment => NoLoss,
+            CodeInline => NoLoss,
             CodeExpression => LowLoss,
             // Data
             String | Cord | Date | DateTime | Time | Timestamp | Duration => NoLoss,
@@ -70,16 +70,16 @@ impl Codec for JatsCodec {
         match node_type {
             // Prose Inlines
             Text | Emphasis | Strong | Strikeout | Subscript | Superscript | Underline | Insert
-            | Quote | Span | Note => NoLoss,
+            | QuoteInline | StyledInline | Note => NoLoss,
             Link | AudioObject | ImageObject | VideoObject => LowLoss,
             Delete => HighLoss,
             // Prose Blocks
             Admonition | Section | Heading | Paragraph | QuoteBlock | ThematicBreak => NoLoss,
             List | ListItem | Figure => LowLoss,
             // Math
-            MathFragment | MathBlock => NoLoss,
+            MathInline | MathBlock => NoLoss,
             // Code
-            CodeFragment | CodeBlock => NoLoss,
+            CodeInline | CodeBlock => NoLoss,
             CodeExpression | CodeChunk => LowLoss,
             // Data
             String | Cord | Date | DateTime | Time | Timestamp | Duration => NoLoss,

@@ -45,9 +45,9 @@ pub fn ce<C: Into<Cord>, S: Into<String>>(code: C, lang: Option<S>) -> Inline {
     })
 }
 
-/// Create an [`Inline::CodeFragment`] node
-pub fn cf<C: Into<Cord>>(code: C) -> Inline {
-    Inline::CodeFragment(CodeFragment::new(code.into()))
+/// Create an [`Inline::CodeInline`] node
+pub fn ci<C: Into<Cord>>(code: C) -> Inline {
+    Inline::CodeInline(CodeInline::new(code.into()))
 }
 
 /// Create an [`Inline::Delete`] node
@@ -75,9 +75,9 @@ pub fn lnk<I: Into<Vec<Inline>>, S: Into<String>>(content: I, target: S) -> Inli
     Inline::Link(Link::new(content.into(), target.into()))
 }
 
-/// Create an [`Inline::MathFragment`] node
-pub fn mf<C: Into<Cord>, S: Into<String>>(code: C, lang: Option<S>) -> Inline {
-    Inline::MathFragment(MathFragment {
+/// Create an [`Inline::MathInline`] node
+pub fn mi<C: Into<Cord>, S: Into<String>>(code: C, lang: Option<S>) -> Inline {
+    Inline::MathInline(MathInline {
         code: code.into(),
         math_language: lang.map(|lang| lang.into()),
         ..Default::default()
@@ -94,14 +94,14 @@ pub fn par<S: Into<String>>(name: S) -> Inline {
     Inline::Parameter(Parameter::new(name.into()))
 }
 
-/// Create an [`Inline::Quote`] node
-pub fn q<I: Into<Vec<Inline>>>(content: I) -> Inline {
-    Inline::Quote(Quote::new(content.into()))
+/// Create an [`Inline::QuoteInline`] node
+pub fn qi<I: Into<Vec<Inline>>>(content: I) -> Inline {
+    Inline::QuoteInline(QuoteInline::new(content.into()))
 }
 
-/// Create an [`Inline::Span`] node
-pub fn spn<C: Into<Cord>, I: Into<Vec<Inline>>>(code: C, content: I) -> Inline {
-    Inline::Span(Span::new(code.into(), content.into()))
+/// Create an [`Inline::StyledInline`] node
+pub fn sti<C: Into<Cord>, I: Into<Vec<Inline>>>(code: C, content: I) -> Inline {
+    Inline::StyledInline(StyledInline::new(code.into(), content.into()))
 }
 
 /// Create an [`Inline::Strikeout`] node

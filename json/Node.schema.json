@@ -72,7 +72,7 @@
       "$ref": "CodeExpression.schema.json"
     },
     {
-      "$ref": "CodeFragment.schema.json"
+      "$ref": "CodeInline.schema.json"
     },
     {
       "$ref": "CodeLocation.schema.json"
@@ -207,7 +207,7 @@
       "$ref": "MathBlock.schema.json"
     },
     {
-      "$ref": "MathFragment.schema.json"
+      "$ref": "MathInline.schema.json"
     },
     {
       "$ref": "MediaObject.schema.json"
@@ -252,10 +252,10 @@
       "$ref": "PublicationVolume.schema.json"
     },
     {
-      "$ref": "Quote.schema.json"
+      "$ref": "QuoteBlock.schema.json"
     },
     {
-      "$ref": "QuoteBlock.schema.json"
+      "$ref": "QuoteInline.schema.json"
     },
     {
       "$ref": "Review.schema.json"
@@ -270,9 +270,6 @@
       "$ref": "SoftwareSourceCode.schema.json"
     },
     {
-      "$ref": "Span.schema.json"
-    },
-    {
       "$ref": "Strikeout.schema.json"
     },
     {
@@ -280,6 +277,9 @@
     },
     {
       "$ref": "Strong.schema.json"
+    },
+    {
+      "$ref": "StyledInline.schema.json"
     },
     {
       "$ref": "Subscript.schema.json"

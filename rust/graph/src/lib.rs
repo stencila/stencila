@@ -18,7 +18,7 @@ use format::Format;
 use schema::{
     Button, Call, CodeChunk, CodeExpression, Division, ExecutionDependantNode,
     ExecutionDependantRelation, ExecutionDependencyNode, ExecutionDependencyRelation, File,
-    Function, Parameter, SoftwareSourceCode, Span, Variable,
+    Function, Parameter, SoftwareSourceCode, StyledInline, Variable,
 };
 
 /// The nodes in the graph
@@ -120,7 +120,7 @@ impl TryFrom<&ExecutionDependantNode> for GraphNode {
             Other::File(File { path, .. }) => Self::File { path: path.clone() },
             Other::Function(Function { name, .. }) => Self::Function { name: name.clone() },
             Other::Parameter(Parameter { name, .. }) => Self::Parameter { name: name.clone() },
-            Other::Span(Span { id, .. }) => Self::Span {
+            Other::StyledInline(StyledInline { id, .. }) => Self::Span {
                 id: id.clone().ok_or_else(|| eyre!("Span missing id"))?,
             },
             Other::Variable(Variable { name, .. }) => Self::Variable { name: name.clone() },

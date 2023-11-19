@@ -165,7 +165,7 @@ impl Schemas {
                     vec![
                         t("Encoded as "),
                         lnk(
-                            [cf(format!("<{elem}>"))],
+                            [ci(format!("<{elem}>"))],
                             format!(
                                 "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/{elem}"
                             ),
@@ -179,7 +179,7 @@ impl Schemas {
                 vec![
                     t("Encoded as "),
                     lnk(
-                        [cf(format!("<{elem}>"))],
+                        [ci(format!("<{elem}>"))],
                         format!("https://developer.mozilla.org/en-US/docs/Web/HTML/Element/{elem}"),
                     ),
                 ]
@@ -194,7 +194,7 @@ impl Schemas {
                     vec![
                         t("Encoded as "),
                         lnk(
-                            [cf(format!("<{elem}>"))],
+                            [ci(format!("<{elem}>"))],
                             format!("https://jats.nlm.nih.gov/articleauthoring/tag-library/1.3/element/{elem}.html"),
                         ),
                         t(" using special function")
@@ -206,7 +206,7 @@ impl Schemas {
                 vec![
                     t("Encoded as "),
                     lnk(
-                        [cf(format!("<{elem}>"))],
+                        [ci(format!("<{elem}>"))],
                         format!("https://jats.nlm.nih.gov/articleauthoring/tag-library/1.3/element/{elem}.html"),
                     ),
                 ]
@@ -223,7 +223,7 @@ impl Schemas {
             if *special {
                 vec![t("Encoded using special function")]
             } else if let Some(template) = template {
-                vec![t("Encoded as "), cf(template)]
+                vec![t("Encoded as "), ci(template)]
             } else {
                 vec![t("Encoded using derived function")]
             }

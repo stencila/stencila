@@ -8,7 +8,7 @@ use super::button::Button;
 use super::cite::Cite;
 use super::cite_group::CiteGroup;
 use super::code_expression::CodeExpression;
-use super::code_fragment::CodeFragment;
+use super::code_inline::CodeInline;
 use super::date::Date;
 use super::date_time::DateTime;
 use super::delete::Delete;
@@ -18,16 +18,16 @@ use super::image_object::ImageObject;
 use super::insert::Insert;
 use super::integer::Integer;
 use super::link::Link;
-use super::math_fragment::MathFragment;
+use super::math_inline::MathInline;
 use super::media_object::MediaObject;
 use super::note::Note;
 use super::null::Null;
 use super::number::Number;
 use super::parameter::Parameter;
-use super::quote::Quote;
-use super::span::Span;
+use super::quote_inline::QuoteInline;
 use super::strikeout::Strikeout;
 use super::strong::Strong;
+use super::styled_inline::StyledInline;
 use super::subscript::Subscript;
 use super::superscript::Superscript;
 use super::text::Text;
@@ -67,7 +67,7 @@ pub enum Inline {
     #[cfg_attr(feature = "proptest-min", proptest(skip))]
     CodeExpression(CodeExpression),
 
-    CodeFragment(CodeFragment),
+    CodeInline(CodeInline),
 
     #[cfg_attr(feature = "proptest-min", proptest(skip))]
     #[cfg_attr(feature = "proptest-low", proptest(skip))]
@@ -97,7 +97,7 @@ pub enum Inline {
 
     Link(Link),
 
-    MathFragment(MathFragment),
+    MathInline(MathInline),
 
     #[cfg_attr(feature = "proptest-min", proptest(skip))]
     #[cfg_attr(feature = "proptest-low", proptest(skip))]
@@ -111,9 +111,9 @@ pub enum Inline {
     #[cfg_attr(feature = "proptest-min", proptest(skip))]
     Parameter(Parameter),
 
-    Quote(Quote),
+    QuoteInline(QuoteInline),
 
-    Span(Span),
+    StyledInline(StyledInline),
 
     Strikeout(Strikeout),
 

@@ -41,7 +41,7 @@ anyOf:
         description: Generate `CodeExpression` nodes in inline content.
         skip: false
 
-  - $ref: CodeFragment
+  - $ref: CodeInline
 
   - $ref: Date
     proptest:
@@ -94,7 +94,7 @@ anyOf:
 
   - $ref: Link
 
-  - $ref: MathFragment
+  - $ref: MathInline
 
   - $ref: MediaObject
     proptest:
@@ -120,9 +120,9 @@ anyOf:
         description: Generate `Parameter` nodes in inline content.
         skip: false
 
-  - $ref: Quote
+  - $ref: QuoteInline
 
-  - $ref: Span
+  - $ref: StyledInline
 
   - $ref: Strikeout
 

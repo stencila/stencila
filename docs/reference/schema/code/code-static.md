@@ -24,7 +24,7 @@ The `CodeStatic` type has these properties:
 The `CodeStatic` type is related to these types:
 
 - Parents: [`Entity`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/entity.md)
-- Children: [`CodeBlock`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/code/code-block.md), [`CodeFragment`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/code/code-fragment.md)
+- Children: [`CodeBlock`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/code/code-block.md), [`CodeInline`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/code/code-inline.md)
 
 ## Bindings
 

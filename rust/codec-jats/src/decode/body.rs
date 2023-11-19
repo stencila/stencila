@@ -2,10 +2,10 @@ use roxmltree::Node;
 
 use codec::{
     schema::{
-        shortcuts::{em, mf, p, q, qb, stg, stk, sub, sup, t, u},
-        Admonition, Article, AudioObject, AudioObjectOptions, Block, CodeExpression, CodeFragment,
+        shortcuts::{em, mi, p, qb, qi, stg, stk, sub, sup, t, u},
+        Admonition, Article, AudioObject, AudioObjectOptions, Block, CodeExpression, CodeInline,
         Cord, Date, DateTime, Duration, Heading, ImageObject, ImageObjectOptions, Inline, Link,
-        MediaObject, MediaObjectOptions, Note, NoteType, Parameter, Section, Span, Text,
+        MediaObject, MediaObjectOptions, Note, NoteType, Parameter, Section, StyledInline, Text,
         ThematicBreak, Time, Timestamp, VideoObject, VideoObjectOptions,
     },
     Losses,
@@ -180,7 +180,7 @@ fn decode_inlines<'a, 'input: 'a, I: Iterator<Item = Node<'a, 'input>>>(
                     let grandchildren = child.children();
                     match tag {
                         "bold" => stg(decode_inlines(&child_path, grandchildren, losses)),
-                        "inline-quote" => q(decode_inlines(&child_path, grandchildren, losses)),
+                        "inline-quote" => qi(decode_inlines(&child_path, grandchildren, losses)),
                         "italic" => em(decode_inlines(&child_path, grandchildren, losses)),
                         "strike" => stk(decode_inlines(&child_path, grandchildren, losses)),
                         "sub" => sub(decode_inlines(&child_path, grandchildren, losses)),
@@ -288,7 +288,7 @@ fn decode_inline_media(path: &str, node: &Node, losses: &mut Losses) -> Inline {
     }
 }
 
-/// Decode a `<code>` to a [`Inline::CodeFragment`] or [`Inline::CodeExpression`]
+/// Decode a `<code>` to a [`Inline::CodeInline`] or [`Inline::CodeExpression`]
 fn decode_inline_code(path: &str, node: &Node, losses: &mut Losses) -> Inline {
     let executable = node.attribute("executable").map(String::from);
     let programming_language = node.attribute("language").map(String::from);
@@ -303,7 +303,7 @@ fn decode_inline_code(path: &str, node: &Node, losses: &mut Losses) -> Inline {
             ..Default::default()
         })
     } else {
-        Inline::CodeFragment(CodeFragment {
+        Inline::CodeInline(CodeInline {
             programming_language,
             code,
             ..Default::default()
@@ -407,14 +407,14 @@ fn decode_footnote(path: &str, node: &Node, losses: &mut Losses) -> Inline {
     })
 }
 
-/// Decode a `<inline-formula>` to a [`Inline::MathFragment`]
+/// Decode a `<inline-formula>` to a [`Inline::MathInline`]
 fn decode_math_fragment(path: &str, node: &Node, losses: &mut Losses) -> Inline {
     let code = node.attribute("code").map(Cord::from).unwrap_or_default();
     let lang = node.attribute("language");
 
     record_attrs_lost(path, node, ["code", "language"], losses);
 
-    mf(code, lang)
+    mi(code, lang)
 }
 
 /// Decode a `<parameter>` to a [`Inline::Parameter`]
@@ -429,7 +429,7 @@ fn decode_parameter(path: &str, node: &Node, losses: &mut Losses) -> Inline {
     })
 }
 
-/// Decode a `<styled-content>` to a [`Inline::Span`]
+/// Decode a `<styled-content>` to a [`Inline::StyledInline`]
 fn decode_styled_content(path: &str, node: &Node, losses: &mut Losses) -> Inline {
     let code = node.attribute("style").map(Cord::from).unwrap_or_default();
 
@@ -439,7 +439,7 @@ fn decode_styled_content(path: &str, node: &Node, losses: &mut Losses) -> Inline
 
     let content = decode_inlines(path, node.children(), losses);
 
-    Inline::Span(Span {
+    Inline::StyledInline(StyledInline {
         code,
         style_language,
         content,

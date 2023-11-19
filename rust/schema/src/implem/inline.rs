@@ -34,7 +34,7 @@ impl ReadNode for Inline {
             "Cite" => Inline::Cite(Cite::load_map(store, obj_id)?),
             "CiteGroup" => Inline::CiteGroup(CiteGroup::load_map(store, obj_id)?),
             "CodeExpression" => Inline::CodeExpression(CodeExpression::load_map(store, obj_id)?),
-            "CodeFragment" => Inline::CodeFragment(CodeFragment::load_map(store, obj_id)?),
+            "CodeInline" => Inline::CodeInline(CodeInline::load_map(store, obj_id)?),
             "Date" => Inline::Date(Date::load_map(store, obj_id)?),
             "DateTime" => Inline::DateTime(DateTime::load_map(store, obj_id)?),
             "Delete" => Inline::Delete(Delete::load_map(store, obj_id)?),
@@ -43,12 +43,12 @@ impl ReadNode for Inline {
             "ImageObject" => Inline::ImageObject(ImageObject::load_map(store, obj_id)?),
             "Insert" => Inline::Insert(Insert::load_map(store, obj_id)?),
             "Link" => Inline::Link(Link::load_map(store, obj_id)?),
-            "MathFragment" => Inline::MathFragment(MathFragment::load_map(store, obj_id)?),
+            "MathInline" => Inline::MathInline(MathInline::load_map(store, obj_id)?),
             "MediaObject" => Inline::MediaObject(MediaObject::load_map(store, obj_id)?),
             "Note" => Inline::Note(Note::load_map(store, obj_id)?),
             "Parameter" => Inline::Parameter(Parameter::load_map(store, obj_id)?),
-            "Quote" => Inline::Quote(Quote::load_map(store, obj_id)?),
-            "Span" => Inline::Span(Span::load_map(store, obj_id)?),
+            "QuoteInline" => Inline::QuoteInline(QuoteInline::load_map(store, obj_id)?),
+            "StyledInline" => Inline::StyledInline(StyledInline::load_map(store, obj_id)?),
             "Strikeout" => Inline::Strikeout(Strikeout::load_map(store, obj_id)?),
             "Strong" => Inline::Strong(Strong::load_map(store, obj_id)?),
             "Subscript" => Inline::Subscript(Subscript::load_map(store, obj_id)?),
@@ -82,17 +82,17 @@ impl From<Block> for Inline {
     fn from(block: Block) -> Self {
         match block {
             // Blocks with inline analogues
-            Block::CodeBlock(code_block) => Inline::CodeFragment(CodeFragment {
+            Block::CodeBlock(code_block) => Inline::CodeInline(CodeInline {
                 code: code_block.code,
                 programming_language: code_block.programming_language,
                 ..Default::default()
             }),
-            Block::MathBlock(math_block) => Inline::MathFragment(MathFragment {
+            Block::MathBlock(math_block) => Inline::MathInline(MathInline {
                 code: math_block.code,
                 math_language: math_block.math_language,
                 ..Default::default()
             }),
-            Block::QuoteBlock(quote_block) => Inline::Quote(Quote {
+            Block::QuoteBlock(quote_block) => Inline::QuoteInline(QuoteInline {
                 content: blocks_to_inlines(quote_block.content),
                 cite: quote_block.cite,
                 ..Default::default()
@@ -127,7 +127,7 @@ impl From<Vec<Block>> for Inline {
             blocks.swap_remove(0).into()
         } else {
             // Transform blocks to inlines and wrap in an inline span
-            Inline::Span(Span {
+            Inline::StyledInline(StyledInline {
                 content: blocks_to_inlines(blocks),
                 ..Default::default()
             })

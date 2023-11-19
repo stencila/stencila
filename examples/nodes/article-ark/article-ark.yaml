@@ -19,8 +19,8 @@ content:
     code: code expression
   - type: Text
     value: ', '
-  - type: CodeFragment
-    code: code fragment
+  - type: CodeInline
+    code: inline code
   - type: Delete
     content:
     - type: Text
@@ -51,8 +51,8 @@ content:
     target: https://example.org
   - type: Text
     value: ', '
-  - type: MathFragment
-    code: math fragment
+  - type: MathInline
+    code: inline math
     mathLanguage: tex
   - type: Text
     value: ', '
@@ -69,17 +69,17 @@ content:
     name: parameter
   - type: Text
     value: ', '
-  - type: Quote
+  - type: QuoteInline
     content:
     - type: Text
-      value: quote
+      value: inline quote
   - type: Text
     value: ', '
-  - type: Span
+  - type: StyledInline
     code: text-blue-400
     content:
     - type: Text
-      value: span
+      value: styled inline
   - type: Text
     value: ', '
   - type: Strikeout

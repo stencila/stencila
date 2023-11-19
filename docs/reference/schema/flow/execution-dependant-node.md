@@ -16,7 +16,7 @@ The `ExecutionDependantNode` type has these members:
 - [`File`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/file.md)
 - [`Function`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/function.md)
 - [`Parameter`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/parameter.md)
-- [`Span`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/style/span.md)
+- [`StyledInline`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/style/styled-inline.md)
 - [`Variable`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/variable.md)
 
 ## Bindings

@@ -7,7 +7,7 @@ import { type Button } from "./Button.js";
 import { type Cite } from "./Cite.js";
 import { type CiteGroup } from "./CiteGroup.js";
 import { type CodeExpression } from "./CodeExpression.js";
-import { type CodeFragment } from "./CodeFragment.js";
+import { type CodeInline } from "./CodeInline.js";
 import { type Date } from "./Date.js";
 import { type DateTime } from "./DateTime.js";
 import { type Delete } from "./Delete.js";
@@ -17,14 +17,14 @@ import { type ImageObject } from "./ImageObject.js";
 import { type Insert } from "./Insert.js";
 import { type Integer } from "./Integer.js";
 import { type Link } from "./Link.js";
-import { type MathFragment } from "./MathFragment.js";
+import { type MathInline } from "./MathInline.js";
 import { type MediaObject } from "./MediaObject.js";
 import { type Note } from "./Note.js";
 import { type Parameter } from "./Parameter.js";
-import { type Quote } from "./Quote.js";
-import { type Span } from "./Span.js";
+import { type QuoteInline } from "./QuoteInline.js";
 import { type Strikeout } from "./Strikeout.js";
 import { type Strong } from "./Strong.js";
+import { type StyledInline } from "./StyledInline.js";
 import { type Subscript } from "./Subscript.js";
 import { type Superscript } from "./Superscript.js";
 import { type Text } from "./Text.js";
@@ -43,7 +43,7 @@ export type Inline =
   Cite |
   CiteGroup |
   CodeExpression |
-  CodeFragment |
+  CodeInline |
   Date |
   DateTime |
   Delete |
@@ -52,12 +52,12 @@ export type Inline =
   ImageObject |
   Insert |
   Link |
-  MathFragment |
+  MathInline |
   MediaObject |
   Note |
   Parameter |
-  Quote |
-  Span |
+  QuoteInline |
+  StyledInline |
   Strikeout |
   Strong |
   Subscript |
@@ -86,7 +86,7 @@ export function inline(other: Inline): Inline {
     case "Cite":
     case "CiteGroup":
     case "CodeExpression":
-    case "CodeFragment":
+    case "CodeInline":
     case "Date":
     case "DateTime":
     case "Delete":
@@ -95,12 +95,12 @@ export function inline(other: Inline): Inline {
     case "ImageObject":
     case "Insert":
     case "Link":
-    case "MathFragment":
+    case "MathInline":
     case "MediaObject":
     case "Note":
     case "Parameter":
-    case "Quote":
-    case "Span":
+    case "QuoteInline":
+    case "StyledInline":
     case "Strikeout":
     case "Strong":
     case "Subscript":

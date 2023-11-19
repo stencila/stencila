@@ -18,7 +18,7 @@ Claim = ForwardRef("Claim")
 CodeBlock = ForwardRef("CodeBlock")
 CodeChunk = ForwardRef("CodeChunk")
 CodeExpression = ForwardRef("CodeExpression")
-CodeFragment = ForwardRef("CodeFragment")
+CodeInline = ForwardRef("CodeInline")
 CodeLocation = ForwardRef("CodeLocation")
 Collection = ForwardRef("Collection")
 Comment = ForwardRef("Comment")
@@ -64,7 +64,7 @@ Link = ForwardRef("Link")
 List = ForwardRef("List")
 ListItem = ForwardRef("ListItem")
 MathBlock = ForwardRef("MathBlock")
-MathFragment = ForwardRef("MathFragment")
+MathInline = ForwardRef("MathInline")
 MediaObject = ForwardRef("MediaObject")
 MonetaryGrant = ForwardRef("MonetaryGrant")
 Note = ForwardRef("Note")
@@ -80,16 +80,16 @@ Product = ForwardRef("Product")
 PropertyValue = ForwardRef("PropertyValue")
 PublicationIssue = ForwardRef("PublicationIssue")
 PublicationVolume = ForwardRef("PublicationVolume")
-Quote = ForwardRef("Quote")
 QuoteBlock = ForwardRef("QuoteBlock")
+QuoteInline = ForwardRef("QuoteInline")
 Review = ForwardRef("Review")
 Section = ForwardRef("Section")
 SoftwareApplication = ForwardRef("SoftwareApplication")
 SoftwareSourceCode = ForwardRef("SoftwareSourceCode")
-Span = ForwardRef("Span")
 Strikeout = ForwardRef("Strikeout")
 StringValidator = ForwardRef("StringValidator")
 Strong = ForwardRef("Strong")
+StyledInline = ForwardRef("StyledInline")
 Subscript = ForwardRef("Subscript")
 Superscript = ForwardRef("Superscript")
 Table = ForwardRef("Table")
@@ -133,7 +133,7 @@ Node = Union[
     CodeBlock,
     CodeChunk,
     CodeExpression,
-    CodeFragment,
+    CodeInline,
     CodeLocation,
     Collection,
     Comment,
@@ -178,7 +178,7 @@ Node = Union[
     List,
     ListItem,
     MathBlock,
-    MathFragment,
+    MathInline,
     MediaObject,
     MonetaryGrant,
     Note,
@@ -193,16 +193,16 @@ Node = Union[
     PropertyValue,
     PublicationIssue,
     PublicationVolume,
-    Quote,
     QuoteBlock,
+    QuoteInline,
     Review,
     Section,
     SoftwareApplication,
     SoftwareSourceCode,
-    Span,
     Strikeout,
     StringValidator,
     Strong,
+    StyledInline,
     Subscript,
     Superscript,
     Table,

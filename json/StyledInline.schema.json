@@ -1,0 +1,176 @@
+{
+  "$schema": "https://stencila.dev/meta.schema.json",
+  "$id": "https://stencila.dev/StyledInline.schema.json",
+  "@id": "stencila:StyledInline",
+  "title": "StyledInline",
+  "extends": [
+    "Styled"
+  ],
+  "category": "style",
+  "description": "Styled inline content.",
+  "status": "under-development",
+  "proptest": {},
+  "html": {
+    "elem": "span"
+  },
+  "jats": {
+    "elem": "styled-content"
+  },
+  "markdown": {
+    "template": "[{content}]{{{code}}}",
+    "special": true
+  },
+  "required": [
+    "type",
+    "code",
+    "content"
+  ],
+  "core": [
+    "id",
+    "styleLanguage",
+    "compilationDigest",
+    "compilationErrors",
+    "css",
+    "classes"
+  ],
+  "properties": {
+    "type": {
+      "@id": "schema:type",
+      "description": "The type of this item.",
+      "$comment": "This is a special property analogous to JSON-LD's `@type` keyword.\n",
+      "type": "string"
+    },
+    "id": {
+      "@id": "schema:id",
+      "description": "The identifier for this item.",
+      "$comment": "This is a special property analogous to JSON-LD's `@id` keyword.\n",
+      "strip": [
+        "metadata"
+      ],
+      "html": {
+        "attr": "id"
+      },
+      "type": "string"
+    },
+    "code": {
+      "@id": "stencila:code",
+      "description": "The code of the equation in the `styleLanguage`.",
+      "proptest": {
+        "min": {
+          "description": "Generate a simple fixed string of code.",
+          "value": "Cord::new(\"code\")"
+        },
+        "low": {
+          "description": "Generate a random string of up to 10 alphanumeric & whitespace characters.",
+          "strategy": "r\"[a-zA-Z0-9 \\t]{1,10}\".prop_map(Cord::new)"
+        },
+        "high": {
+          "description": "Generate a random string of up to 100 characters (excluding control characters).\n",
+          "strategy": "r\"[^\\p{C}]{1,100}\".prop_map(Cord::new)"
+        },
+        "max": {
+          "description": "Generate an arbitrary string.",
+          "strategy": "String::arbitrary().prop_map(Cord::new)"
+        }
+      },
+      "jats": {
+        "attr": "style"
+      },
+      "$ref": "Cord.schema.json"
+    },
+    "styleLanguage": {
+      "@id": "stencila:styleLanguage",
+      "description": "The language used for the style specification e.g. css, tw",
+      "aliases": [
+        "style-language",
+        "style_language"
+      ],
+      "proptest": {
+        "min": {
+          "description": "Do not generate a style language.",
+          "value": "None"
+        },
+        "low": {
+          "description": "Generate one of the well known style language short names.",
+          "strategy": "option::of(r\"(css)|(tw)\")"
+        },
+        "high": {
+          "description": "Generate a random string of up to 10 alphanumeric characters.",
+          "strategy": "option::of(r\"[a-zA-Z0-9]{1,10}\")"
+        },
+        "max": {
+          "description": "Generate an arbitrary string.",
+          "strategy": "option::of(String::arbitrary())"
+        }
+      },
+      "jats": {
+        "attr": "style-detail"
+      },
+      "type": "string"
+    },
+    "compilationDigest": {
+      "@id": "stencila:compilationDigest",
+      "description": "A digest of the `code` and `styleLanguage`.",
+      "$comment": "Used to avoid unnecessary transpilation to CSS.",
+      "aliases": [
+        "compilation-digest",
+        "compilation_digest"
+      ],
+      "$ref": "CompilationDigest.schema.json"
+    },
+    "compilationErrors": {
+      "@id": "stencila:compilationErrors",
+      "description": "Errors generated when parsing and transpiling the style.",
+      "aliases": [
+        "compilation-errors",
+        "compilation_errors",
+        "compilationError",
+        "compilation-error",
+        "compilation_error"
+      ],
+      "type": "array",
+      "items": {
+        "$ref": "CompilationError.schema.json"
+      }
+    },
+    "css": {
+      "@id": "stencila:css",
+      "description": "A Cascading Style Sheet (CSS) transpiled from the `code` property.",
+      "type": "string"
+    },
+    "classes": {
+      "@id": "stencila:classes",
+      "description": "A list of class names associated with the node.",
+      "$comment": "Analogous to the [`classList` property of an `Element`](https://developer.mozilla.org/en-US/docs/Web/API/Element/classList)\nin the Web API.\n",
+      "aliases": [
+        "class"
+      ],
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "content": {
+      "@id": "stencila:content",
+      "description": "The content within the span.",
+      "proptest": {
+        "min": {
+          "description": "Generate a single fixed text value.",
+          "value": "vec![t(\"text\")]"
+        },
+        "high": {
+          "description": "Generate up to two arbitrary, non-recursive, inline nodes",
+          "strategy": "vec_inlines_non_recursive(2)"
+        },
+        "max": {
+          "description": "Generate up to four arbitrary, non-recursive, inline nodes",
+          "strategy": "vec_inlines_non_recursive(4)"
+        }
+      },
+      "type": "array",
+      "items": {
+        "$ref": "Inline.schema.json"
+      }
+    }
+  }
+}

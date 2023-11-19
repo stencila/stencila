@@ -1,0 +1,60 @@
+{
+  "$schema": "https://stencila.dev/Article.schema.json",
+  "type": "Article",
+  "content": [
+    {
+      "type": "Paragraph",
+      "content": [
+        {
+          "type": "Text",
+          "value": "A TeX fragment "
+        },
+        {
+          "type": "MathInline",
+          "mathLanguage": "tex",
+          "code": "2 \\pi r^2"
+        },
+        {
+          "type": "Text",
+          "value": "."
+        }
+      ]
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        {
+          "type": "Text",
+          "value": "An ASCIIMath fragment "
+        },
+        {
+          "type": "MathInline",
+          "mathLanguage": "asciimath",
+          "code": "2 pi r^2"
+        },
+        {
+          "type": "Text",
+          "value": "."
+        }
+      ]
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        {
+          "type": "Text",
+          "value": "A MathML fragment "
+        },
+        {
+          "type": "MathInline",
+          "mathLanguage": "mathml",
+          "code": "<math><mrow><mn>2</mn><mi>π</mi><msup><mi>r</mi><mn>2</mn></msup></mrow></math>"
+        },
+        {
+          "type": "Text",
+          "value": "."
+        }
+      ]
+    }
+  ]
+}

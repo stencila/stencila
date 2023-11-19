@@ -10,7 +10,7 @@ Division = ForwardRef("Division")
 File = ForwardRef("File")
 Function = ForwardRef("Function")
 Parameter = ForwardRef("Parameter")
-Span = ForwardRef("Span")
+StyledInline = ForwardRef("StyledInline")
 Variable = ForwardRef("Variable")
 
 
@@ -23,7 +23,7 @@ ExecutionDependantNode = Union[
     File,
     Function,
     Parameter,
-    Span,
+    StyledInline,
     Variable,
 ]
 """

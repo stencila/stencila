@@ -1,1 +1,0 @@
-A span containing other inline nodes: [_emphasis_, [link](https://example.org)]{text-blue-600}

@@ -78,8 +78,8 @@ Support and degree of loss for node types:
 | [ListItem](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/list_item.md)                       | 🟢 No loss    | 🟢 No loss    |       |
 | [Note](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/note.md)                                | 🟢 No loss    | 🟢 No loss    |       |
 | [Paragraph](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/paragraph.md)                      | 🟢 No loss    | 🟢 No loss    |       |
-| [Quote](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/quote.md)                              | 🟢 No loss    | 🟢 No loss    |       |
 | [QuoteBlock](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/quote_block.md)                   | 🟢 No loss    | 🟢 No loss    |       |
+| [QuoteInline](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/quote_inline.md)                 | 🟢 No loss    | 🟢 No loss    |       |
 | [Section](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/section.md)                          | 🟢 No loss    | 🟢 No loss    |       |
 | [Strikeout](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/strikeout.md)                      | 🟢 No loss    | 🟢 No loss    |       |
 | [Strong](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/strong.md)                            | 🟢 No loss    | 🟢 No loss    |       |
@@ -90,12 +90,12 @@ Support and degree of loss for node types:
 | [Underline](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/underline.md)                      | 🟢 No loss    | 🟢 No loss    |       |
 | **Math**                                                                                                                  |
 | [MathBlock](https://github.com/stencila/stencila/blob/main/docs/reference/schema/math/math_block.md)                      | 🟢 No loss    | 🟢 No loss    |       |
-| [MathFragment](https://github.com/stencila/stencila/blob/main/docs/reference/schema/math/math_fragment.md)                | 🟢 No loss    | 🟢 No loss    |       |
+| [MathInline](https://github.com/stencila/stencila/blob/main/docs/reference/schema/math/math_inline.md)                    | 🟢 No loss    | 🟢 No loss    |       |
 | **Code**                                                                                                                  |
 | [CodeBlock](https://github.com/stencila/stencila/blob/main/docs/reference/schema/code/code_block.md)                      | 🟢 No loss    | 🟢 No loss    |       |
 | [CodeChunk](https://github.com/stencila/stencila/blob/main/docs/reference/schema/code/code_chunk.md)                      | 🟢 No loss    | 🟢 No loss    |       |
 | [CodeExpression](https://github.com/stencila/stencila/blob/main/docs/reference/schema/code/code_expression.md)            | 🟢 No loss    | 🟢 No loss    |       |
-| [CodeFragment](https://github.com/stencila/stencila/blob/main/docs/reference/schema/code/code_fragment.md)                | 🟢 No loss    | 🟢 No loss    |       |
+| [CodeInline](https://github.com/stencila/stencila/blob/main/docs/reference/schema/code/code_inline.md)                    | 🟢 No loss    | 🟢 No loss    |       |
 | [CompilationError](https://github.com/stencila/stencila/blob/main/docs/reference/schema/code/compilation_error.md)        | 🟢 No loss    | 🟢 No loss    |       |
 | [ExecutionError](https://github.com/stencila/stencila/blob/main/docs/reference/schema/code/execution_error.md)            | 🟢 No loss    | 🟢 No loss    |       |
 | **Data**                                                                                                                  |
@@ -147,7 +147,7 @@ Support and degree of loss for node types:
 | [Variable](https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/variable.md)                         | 🟢 No loss    | 🟢 No loss    |       |
 | **Style**                                                                                                                 |
 | [Division](https://github.com/stencila/stencila/blob/main/docs/reference/schema/style/division.md)                        | 🟢 No loss    | 🟢 No loss    |       |
-| [Span](https://github.com/stencila/stencila/blob/main/docs/reference/schema/style/span.md)                                | 🟢 No loss    | 🟢 No loss    |       |
+| [StyledInline](https://github.com/stencila/stencila/blob/main/docs/reference/schema/style/styled_inline.md)               | 🟢 No loss    | 🟢 No loss    |       |
 | **Other**                                                                                                                 |
 | [Brand](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/brand.md)                              | 🟢 No loss    | 🟢 No loss    |       |
 | [ContactPoint](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/contact_point.md)               | 🟢 No loss    | 🟢 No loss    |       |

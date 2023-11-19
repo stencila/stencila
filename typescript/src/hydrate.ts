@@ -63,8 +63,8 @@ export function hydrate(value: types.Node): types.Node {
       return Object.setPrototypeOf(value, types.CodeExecutable.prototype);
     case "CodeExpression":
       return Object.setPrototypeOf(value, types.CodeExpression.prototype);
-    case "CodeFragment":
-      return Object.setPrototypeOf(value, types.CodeFragment.prototype);
+    case "CodeInline":
+      return Object.setPrototypeOf(value, types.CodeInline.prototype);
     case "CodeLocation":
       return Object.setPrototypeOf(value, types.CodeLocation.prototype);
     case "CodeStatic":
@@ -163,8 +163,8 @@ export function hydrate(value: types.Node): types.Node {
       return Object.setPrototypeOf(value, types.Math.prototype);
     case "MathBlock":
       return Object.setPrototypeOf(value, types.MathBlock.prototype);
-    case "MathFragment":
-      return Object.setPrototypeOf(value, types.MathFragment.prototype);
+    case "MathInline":
+      return Object.setPrototypeOf(value, types.MathInline.prototype);
     case "MediaObject":
       return Object.setPrototypeOf(value, types.MediaObject.prototype);
     case "MonetaryGrant":
@@ -193,10 +193,10 @@ export function hydrate(value: types.Node): types.Node {
       return Object.setPrototypeOf(value, types.PublicationIssue.prototype);
     case "PublicationVolume":
       return Object.setPrototypeOf(value, types.PublicationVolume.prototype);
-    case "Quote":
-      return Object.setPrototypeOf(value, types.Quote.prototype);
     case "QuoteBlock":
       return Object.setPrototypeOf(value, types.QuoteBlock.prototype);
+    case "QuoteInline":
+      return Object.setPrototypeOf(value, types.QuoteInline.prototype);
     case "Review":
       return Object.setPrototypeOf(value, types.Review.prototype);
     case "Section":
@@ -205,8 +205,6 @@ export function hydrate(value: types.Node): types.Node {
       return Object.setPrototypeOf(value, types.SoftwareApplication.prototype);
     case "SoftwareSourceCode":
       return Object.setPrototypeOf(value, types.SoftwareSourceCode.prototype);
-    case "Span":
-      return Object.setPrototypeOf(value, types.Span.prototype);
     case "Strikeout":
       return Object.setPrototypeOf(value, types.Strikeout.prototype);
     case "StringValidator":
@@ -215,6 +213,8 @@ export function hydrate(value: types.Node): types.Node {
       return Object.setPrototypeOf(value, types.Strong.prototype);
     case "Styled":
       return Object.setPrototypeOf(value, types.Styled.prototype);
+    case "StyledInline":
+      return Object.setPrototypeOf(value, types.StyledInline.prototype);
     case "Subscript":
       return Object.setPrototypeOf(value, types.Subscript.prototype);
     case "Suggestion":

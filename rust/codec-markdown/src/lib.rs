@@ -55,10 +55,10 @@ impl Codec for MarkdownCodec {
             }
             List | ListItem | Table | TableRow | TableCell => LowLoss,
             // Code
-            CodeFragment | CodeBlock => NoLoss,
+            CodeInline | CodeBlock => NoLoss,
             CodeExpression | CodeChunk => LowLoss,
             // Math
-            MathFragment | MathBlock => NoLoss,
+            MathInline | MathBlock => NoLoss,
             // Works,
             Article => LowLoss,
             _ => None,
@@ -81,10 +81,10 @@ impl Codec for MarkdownCodec {
             }
             List | ListItem | Table | TableRow | TableCell => LowLoss,
             // Code
-            CodeFragment | CodeBlock => NoLoss,
+            CodeInline | CodeBlock => NoLoss,
             CodeExpression | CodeChunk => LowLoss,
             // Math
-            MathFragment | MathBlock => NoLoss,
+            MathInline | MathBlock => NoLoss,
             // Works,
             Article => LowLoss,
             // Because `to_markdown` is implemented for all types, defaulting to

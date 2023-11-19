@@ -7,7 +7,7 @@ Button = ForwardRef("Button")
 Cite = ForwardRef("Cite")
 CiteGroup = ForwardRef("CiteGroup")
 CodeExpression = ForwardRef("CodeExpression")
-CodeFragment = ForwardRef("CodeFragment")
+CodeInline = ForwardRef("CodeInline")
 Date = ForwardRef("Date")
 DateTime = ForwardRef("DateTime")
 Delete = ForwardRef("Delete")
@@ -16,14 +16,14 @@ Emphasis = ForwardRef("Emphasis")
 ImageObject = ForwardRef("ImageObject")
 Insert = ForwardRef("Insert")
 Link = ForwardRef("Link")
-MathFragment = ForwardRef("MathFragment")
+MathInline = ForwardRef("MathInline")
 MediaObject = ForwardRef("MediaObject")
 Note = ForwardRef("Note")
 Parameter = ForwardRef("Parameter")
-Quote = ForwardRef("Quote")
-Span = ForwardRef("Span")
+QuoteInline = ForwardRef("QuoteInline")
 Strikeout = ForwardRef("Strikeout")
 Strong = ForwardRef("Strong")
+StyledInline = ForwardRef("StyledInline")
 Subscript = ForwardRef("Subscript")
 Superscript = ForwardRef("Superscript")
 Text = ForwardRef("Text")
@@ -40,7 +40,7 @@ Inline = Union[
     Cite,
     CiteGroup,
     CodeExpression,
-    CodeFragment,
+    CodeInline,
     Date,
     DateTime,
     Delete,
@@ -49,12 +49,12 @@ Inline = Union[
     ImageObject,
     Insert,
     Link,
-    MathFragment,
+    MathInline,
     MediaObject,
     Note,
     Parameter,
-    Quote,
-    Span,
+    QuoteInline,
+    StyledInline,
     Strikeout,
     Strong,
     Subscript,

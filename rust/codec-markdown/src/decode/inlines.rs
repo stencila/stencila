@@ -16,11 +16,11 @@ use nom::{
 use codec::{
     common::indexmap::IndexMap,
     schema::{
-        shortcuts::{mf, stk, sub, sup, t},
-        BooleanValidator, Button, Cite, CiteGroup, CodeExpression, CodeFragment, Cord,
+        shortcuts::{mi, stk, sub, sup, t},
+        BooleanValidator, Button, Cite, CiteGroup, CodeExpression, CodeInline, Cord,
         DateTimeValidator, DateValidator, DurationValidator, EnumValidator, Inline,
-        IntegerValidator, Node, NumberValidator, Parameter, ParameterOptions, Span,
-        StringValidator, TimeValidator, TimestampValidator, Validator,
+        IntegerValidator, Node, NumberValidator, Parameter, ParameterOptions, StringValidator,
+        StyledInline, TimeValidator, TimestampValidator, Validator,
     },
 };
 
@@ -44,7 +44,7 @@ pub fn inlines(input: &str) -> IResult<&str, Vec<Inline>> {
             cite,
             math,
             parameter,
-            span,
+            styled_inline,
             strikeout,
             subscript,
             superscript,
@@ -85,7 +85,7 @@ fn code_attrs(input: &str) -> IResult<&str, Inline> {
         ),
         |(code, options)| {
             let Some(options) = options else {
-                return Inline::CodeFragment(CodeFragment {
+                return Inline::CodeInline(CodeInline {
                     code: code.into(),
                     ..Default::default()
                 });
@@ -117,9 +117,9 @@ fn code_attrs(input: &str) -> IResult<&str, Inline> {
             } else {
                 match lang.as_deref() {
                     Some("asciimath") | Some("mathml") | Some("latex") | Some("tex") => {
-                        mf(code, lang)
+                        mi(code, lang)
                     }
-                    _ => Inline::CodeFragment(CodeFragment {
+                    _ => Inline::CodeInline(CodeInline {
                         code: code.into(),
                         programming_language: lang,
                         ..Default::default()
@@ -130,8 +130,8 @@ fn code_attrs(input: &str) -> IResult<&str, Inline> {
     )(input)
 }
 
-/// Parse a `Span`.
-fn span(input: &str) -> IResult<&str, Inline> {
+/// Parse a [`StyledInline`].
+fn styled_inline(input: &str) -> IResult<&str, Inline> {
     map(
         tuple((
             delimited(char('['), take_until_unbalanced('[', ']'), char(']')),
@@ -139,7 +139,7 @@ fn span(input: &str) -> IResult<&str, Inline> {
             opt(delimited(char('{'), is_not("}"), char('}'))),
         )),
         |(content, code, lang): (&str, &str, Option<&str>)| {
-            Inline::Span(Span {
+            Inline::StyledInline(StyledInline {
                 content: inlines_or_text(content),
                 code: code.into(),
                 style_language: lang.map(|lang| lang.into()),
@@ -570,7 +570,7 @@ fn math(input: &str) -> IResult<&str, Inline> {
             // and must not be followed immediately by a digit"
             tuple((peek(not(multispace1)), char('$'), peek(not(digit1)))),
         ),
-        |code: &str| mf(code, Some(String::from("tex"))),
+        |code: &str| mi(code, Some(String::from("tex"))),
     )(input)
 }
 
@@ -681,8 +681,10 @@ mod tests {
     #[test]
     fn test_spans() {
         assert_eq!(
-            span(r#"[some string content]{text-red-300}"#).unwrap().1,
-            Inline::Span(Span {
+            styled_inline(r#"[some string content]{text-red-300}"#)
+                .unwrap()
+                .1,
+            Inline::StyledInline(StyledInline {
                 code: "text-red-300".into(),
                 content: vec![t("some string content")],
                 ..Default::default()
@@ -690,8 +692,8 @@ mod tests {
         );
 
         assert_eq!(
-            span(r#"[content]{color:red}{css}"#).unwrap().1,
-            Inline::Span(Span {
+            styled_inline(r#"[content]{color:red}{css}"#).unwrap().1,
+            Inline::StyledInline(StyledInline {
                 content: vec![t("content")],
                 code: "color:red".into(),
                 style_language: Some(String::from("css")),

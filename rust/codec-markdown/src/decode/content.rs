@@ -9,7 +9,7 @@ use codec::{
     },
     format::Format,
     schema::{
-        shortcuts::{cb, del, em, ins, mb, ol, p, q, qb, stg, stk, t, tab, tb, u, ul},
+        shortcuts::{cb, del, em, ins, mb, ol, p, qb, qi, stg, stk, t, tab, tb, u, ul},
         transforms::blocks_to_inlines,
         AudioObject, Block, CodeChunk, Cord, Heading, If, IfClause, ImageObject, Inline, Link,
         ListItem, Note, NoteType, TableCell, TableRow, TableRowType, VideoObject,
@@ -895,7 +895,7 @@ impl Html {
                 .strip_prefix("<q>")
                 .and_then(|html| html.strip_suffix("</q>"))
             {
-                vec![p([q(inlines_or_text(content))])]
+                vec![p([qi(inlines_or_text(content))])]
             } else if let Some(content) = html
                 .strip_prefix("<del>")
                 .and_then(|html| html.strip_suffix("</del>"))
@@ -920,7 +920,7 @@ impl Html {
 
 #[cfg(test)]
 mod tests {
-    use codec::schema::shortcuts::cf;
+    use codec::schema::shortcuts::ci;
     use common_dev::pretty_assertions::assert_eq;
 
     use super::*;
@@ -931,7 +931,7 @@ mod tests {
     fn code_fragment_with_spaces() {
         assert_eq!(
             decode_blocks(r#"` some code `"#, None).0,
-            vec![p([cf("some code")])]
+            vec![p([ci("some code")])]
         );
     }
 }

@@ -1,0 +1,33 @@
+title: StyledInline
+'@id': stencila:StyledInline
+extends: Styled
+category: style
+description: Styled inline content.
+status: under-development
+jats:
+  elem: styled-content
+html:
+  elem: span
+markdown:
+  template: '[{content}]{{{code}}}'
+  special: true
+proptest: {}
+required:
+  - content
+properties:
+  content:
+    '@id': stencila:content
+    description: The content within the span.
+    type: array
+    items:
+      $ref: Inline
+    proptest:
+      min:
+        description: Generate a single fixed text value.
+        value: vec![t("text")]
+      high:
+        description: Generate up to two arbitrary, non-recursive, inline nodes
+        strategy: vec_inlines_non_recursive(2)
+      max:
+        description: Generate up to four arbitrary, non-recursive, inline nodes
+        strategy: vec_inlines_non_recursive(4)

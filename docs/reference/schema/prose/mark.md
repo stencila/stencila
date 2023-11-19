@@ -18,7 +18,7 @@ The `Mark` type has these properties:
 The `Mark` type is related to these types:
 
 - Parents: [`Entity`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/entity.md)
-- Children: [`Emphasis`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/emphasis.md), [`Quote`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/quote.md), [`Strikeout`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/strikeout.md), [`Strong`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/strong.md), [`Subscript`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/subscript.md), [`Superscript`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/superscript.md), [`Underline`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/underline.md)
+- Children: [`Emphasis`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/emphasis.md), [`QuoteInline`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/quote-inline.md), [`Strikeout`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/strikeout.md), [`Strong`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/strong.md), [`Subscript`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/subscript.md), [`Superscript`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/superscript.md), [`Underline`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/underline.md)
 
 ## Bindings
 

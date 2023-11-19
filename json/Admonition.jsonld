@@ -122,7 +122,7 @@
           "@id": "stencila:Section"
         },
         {
-          "@id": "stencila:Span"
+          "@id": "stencila:StyledInline"
         },
         {
           "@id": "stencila:Suggestion"

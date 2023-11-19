@@ -1,0 +1,72 @@
+{
+  type: "Article",
+  content: [
+    {
+      type: "Paragraph",
+      content: [
+        {
+          type: "Text",
+          value: "A "
+        },
+        {
+          type: "StyledInline",
+          code: "text-green-600",
+          content: [
+            {
+              type: "Text",
+              value: "styled span"
+            }
+          ]
+        },
+        {
+          type: "Text",
+          value: ", and one with language specified: "
+        },
+        {
+          type: "StyledInline",
+          code: "color:red",
+          styleLanguage: "css",
+          content: [
+            {
+              type: "Text",
+              value: "CSS span"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      type: "Paragraph",
+      content: [
+        {
+          type: "Text",
+          value: "Containing other spans "
+        },
+        {
+          type: "StyledInline",
+          code: "text-blue-600",
+          content: [
+            {
+              type: "Text",
+              value: "blue "
+            },
+            {
+              type: "StyledInline",
+              code: "text-red-600",
+              content: [
+                {
+                  type: "Text",
+                  value: "red"
+                }
+              ]
+            },
+            {
+              type: "Text",
+              value: " blue"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

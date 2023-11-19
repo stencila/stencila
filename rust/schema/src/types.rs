@@ -25,7 +25,7 @@ mod claim_type;
 mod code_block;
 mod code_chunk;
 mod code_expression;
-mod code_fragment;
+mod code_inline;
 mod code_location;
 mod collection;
 mod comment;
@@ -86,7 +86,7 @@ mod list;
 mod list_item;
 mod list_order;
 mod math_block;
-mod math_fragment;
+mod math_inline;
 mod media_object;
 mod monetary_grant;
 mod node;
@@ -111,20 +111,20 @@ mod property_value;
 mod property_value_or_string;
 mod publication_issue;
 mod publication_volume;
-mod quote;
 mod quote_block;
+mod quote_inline;
 mod review;
 mod section;
 mod section_type;
 mod software_application;
 mod software_source_code;
 mod software_source_code_or_software_application_or_string;
-mod span;
 mod strikeout;
 mod string;
 mod string_or_number;
 mod string_validator;
 mod strong;
+mod styled_inline;
 mod subscript;
 mod superscript;
 mod table;
@@ -172,7 +172,7 @@ pub use claim_type::*;
 pub use code_block::*;
 pub use code_chunk::*;
 pub use code_expression::*;
-pub use code_fragment::*;
+pub use code_inline::*;
 pub use code_location::*;
 pub use collection::*;
 pub use comment::*;
@@ -233,7 +233,7 @@ pub use list::*;
 pub use list_item::*;
 pub use list_order::*;
 pub use math_block::*;
-pub use math_fragment::*;
+pub use math_inline::*;
 pub use media_object::*;
 pub use monetary_grant::*;
 pub use node::*;
@@ -258,20 +258,20 @@ pub use property_value::*;
 pub use property_value_or_string::*;
 pub use publication_issue::*;
 pub use publication_volume::*;
-pub use quote::*;
 pub use quote_block::*;
+pub use quote_inline::*;
 pub use review::*;
 pub use section::*;
 pub use section_type::*;
 pub use software_application::*;
 pub use software_source_code::*;
 pub use software_source_code_or_software_application_or_string::*;
-pub use span::*;
 pub use strikeout::*;
 pub use string::*;
 pub use string_or_number::*;
 pub use string_validator::*;
 pub use strong::*;
+pub use styled_inline::*;
 pub use subscript::*;
 pub use superscript::*;
 pub use table::*;
@@ -321,7 +321,7 @@ pub enum NodeType {
     CodeBlock,
     CodeChunk,
     CodeExpression,
-    CodeFragment,
+    CodeInline,
     CodeLocation,
     Collection,
     Comment,
@@ -366,7 +366,7 @@ pub enum NodeType {
     List,
     ListItem,
     MathBlock,
-    MathFragment,
+    MathInline,
     MediaObject,
     MonetaryGrant,
     Note,
@@ -381,16 +381,16 @@ pub enum NodeType {
     PropertyValue,
     PublicationIssue,
     PublicationVolume,
-    Quote,
     QuoteBlock,
+    QuoteInline,
     Review,
     Section,
     SoftwareApplication,
     SoftwareSourceCode,
-    Span,
     Strikeout,
     StringValidator,
     Strong,
+    StyledInline,
     Subscript,
     Superscript,
     Table,

@@ -1,0 +1,12 @@
+title: CodeInline
+'@id': stencila:CodeInline
+extends: CodeStatic
+category: code
+description: Inline code.
+html:
+  elem: code
+jats:
+  elem: code
+markdown:
+  special: true
+proptest: {}

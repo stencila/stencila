@@ -10,7 +10,7 @@ import { type Division } from "./Division.js";
 import { type File } from "./File.js";
 import { type Function } from "./Function.js";
 import { type Parameter } from "./Parameter.js";
-import { type Span } from "./Span.js";
+import { type StyledInline } from "./StyledInline.js";
 import { type Variable } from "./Variable.js";
 
 /**
@@ -25,7 +25,7 @@ export type ExecutionDependantNode =
   File |
   Function |
   Parameter |
-  Span |
+  StyledInline |
   Variable;
 
 /**
@@ -41,7 +41,7 @@ export function executionDependantNode(other: ExecutionDependantNode): Execution
     case "File":
     case "Function":
     case "Parameter":
-    case "Span":
+    case "StyledInline":
     case "Variable":
       return hydrate(other) as ExecutionDependantNode
     default:

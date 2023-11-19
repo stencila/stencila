@@ -1,0 +1,1 @@
+{type: "Article",content: [{type: "Paragraph",content: [{type: "Text",value: "A code fragment: "},{type: "CodeInline",code: "2 * pi * r^2"},{type: "Text",value: "."}]},{type: "Paragraph",content: [{type: "Text",value: "With language: "},{type: "CodeInline",code: "6 * 7",programmingLanguage: "python"},{type: "Text",value: "."}]}]}

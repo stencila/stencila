@@ -12,5 +12,5 @@ anyOf:
   - $ref: File
   - $ref: Function
   - $ref: Parameter
-  - $ref: Span
+  - $ref: StyledInline
   - $ref: Variable

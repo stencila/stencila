@@ -1,0 +1,1 @@
+{type: "Article",content: [{type: "Paragraph",content: [{type: "Text",value: "A styled inlines containing other compound inline nodes: "},{type: "StyledInline",code: "text-blue-600",content: [{type: "Emphasis",content: [{type: "Text",value: "emphasis"}]},{type: "Text",value: ", "},{type: "Link",content: [{type: "Text",value: "link"}],target: "https:\/\/example.org"}]}]}]}
