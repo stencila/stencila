@@ -10,7 +10,7 @@
       "$ref": "Button.schema.json"
     },
     {
-      "$ref": "Call.schema.json"
+      "$ref": "CallBlock.schema.json"
     },
     {
       "$ref": "CodeChunk.schema.json"

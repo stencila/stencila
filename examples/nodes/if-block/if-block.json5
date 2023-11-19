@@ -1,0 +1,237 @@
+{
+  type: "Article",
+  content: [
+    {
+      type: "Paragraph",
+      content: [
+        {
+          type: "Text",
+          value: "A simple if block"
+        }
+      ]
+    },
+    {
+      type: "IfBlock",
+      clauses: [
+        {
+          type: "IfBlockClause",
+          code: "true",
+          content: [
+            {
+              type: "Paragraph",
+              content: [
+                {
+                  type: "Text",
+                  value: "This paragraph should be shown"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      type: "Paragraph",
+      content: [
+        {
+          type: "Text",
+          value: "An if block with programming language specified"
+        }
+      ]
+    },
+    {
+      type: "IfBlock",
+      clauses: [
+        {
+          type: "IfBlockClause",
+          code: "True",
+          programmingLanguage: "python",
+          content: [
+            {
+              type: "Paragraph",
+              content: [
+                {
+                  type: "Text",
+                  value: "This paragraph should be shown"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      type: "Paragraph",
+      content: [
+        {
+          type: "Text",
+          value: "With an else clause"
+        }
+      ]
+    },
+    {
+      type: "IfBlock",
+      clauses: [
+        {
+          type: "IfBlockClause",
+          code: "false",
+          content: [
+            {
+              type: "Paragraph",
+              content: [
+                {
+                  type: "Text",
+                  value: "This paragraph should NOT be shown"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          type: "IfBlockClause",
+          code: "",
+          content: [
+            {
+              type: "Paragraph",
+              content: [
+                {
+                  type: "Text",
+                  value: "This paragraph should be shown"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      type: "Paragraph",
+      content: [
+        {
+          type: "Text",
+          value: "With multiple clauses"
+        }
+      ]
+    },
+    {
+      type: "IfBlock",
+      clauses: [
+        {
+          type: "IfBlockClause",
+          code: "false",
+          content: [
+            {
+              type: "Paragraph",
+              content: [
+                {
+                  type: "Text",
+                  value: "This first paragraph should NOT be shown"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          type: "IfBlockClause",
+          code: "false",
+          content: [
+            {
+              type: "Paragraph",
+              content: [
+                {
+                  type: "Text",
+                  value: "This second paragraph should NOT be shown"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          type: "IfBlockClause",
+          code: "true",
+          content: [
+            {
+              type: "Paragraph",
+              content: [
+                {
+                  type: "Text",
+                  value: "This third paragraph should be shown"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          type: "IfBlockClause",
+          code: "true",
+          content: [
+            {
+              type: "Paragraph",
+              content: [
+                {
+                  type: "Text",
+                  value: "This fourth paragraph should NOT be shown because above clause is"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          type: "IfBlockClause",
+          code: "",
+          content: [
+            {
+              type: "Paragraph",
+              content: [
+                {
+                  type: "Text",
+                  value: "This final paragraph should NOT be shown because above clause is"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      type: "Paragraph",
+      content: [
+        {
+          type: "Text",
+          value: "Nested if blocks"
+        }
+      ]
+    },
+    {
+      type: "IfBlock",
+      clauses: [
+        {
+          type: "IfBlockClause",
+          code: "true",
+          content: [
+            {
+              type: "IfBlock",
+              clauses: [
+                {
+                  type: "IfBlockClause",
+                  code: "true",
+                  content: [
+                    {
+                      type: "Paragraph",
+                      content: [
+                        {
+                          type: "Text",
+                          value: "This paragraph should be shown"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

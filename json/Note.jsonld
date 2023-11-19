@@ -54,7 +54,7 @@
           "@id": "stencila:Figure"
         },
         {
-          "@id": "stencila:For"
+          "@id": "stencila:ForBlock"
         },
         {
           "@id": "stencila:Form"
@@ -63,10 +63,10 @@
           "@id": "stencila:Heading"
         },
         {
-          "@id": "stencila:IfClause"
+          "@id": "stencila:IfBlockClause"
         },
         {
-          "@id": "stencila:Include"
+          "@id": "stencila:IncludeBlock"
         },
         {
           "@id": "stencila:Link"

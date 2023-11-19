@@ -3,7 +3,7 @@
 use crate::prelude::*;
 
 use super::button::Button;
-use super::call::Call;
+use super::call_block::CallBlock;
 use super::code_chunk::CodeChunk;
 use super::code_expression::CodeExpression;
 use super::file::File;
@@ -19,7 +19,7 @@ use super::variable::Variable;
 pub enum ExecutionDependantNode {
     Button(Button),
 
-    Call(Call),
+    CallBlock(CallBlock),
 
     #[default]
     CodeChunk(CodeChunk),

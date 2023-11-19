@@ -45,10 +45,10 @@ export function hydrate(value: types.Node): types.Node {
       return Object.setPrototypeOf(value, types.Brand.prototype);
     case "Button":
       return Object.setPrototypeOf(value, types.Button.prototype);
-    case "Call":
-      return Object.setPrototypeOf(value, types.Call.prototype);
     case "CallArgument":
       return Object.setPrototypeOf(value, types.CallArgument.prototype);
+    case "CallBlock":
+      return Object.setPrototypeOf(value, types.CallBlock.prototype);
     case "Cite":
       return Object.setPrototypeOf(value, types.Cite.prototype);
     case "CiteGroup":
@@ -127,8 +127,8 @@ export function hydrate(value: types.Node): types.Node {
       return Object.setPrototypeOf(value, types.Figure.prototype);
     case "File":
       return Object.setPrototypeOf(value, types.File.prototype);
-    case "For":
-      return Object.setPrototypeOf(value, types.For.prototype);
+    case "ForBlock":
+      return Object.setPrototypeOf(value, types.ForBlock.prototype);
     case "Form":
       return Object.setPrototypeOf(value, types.Form.prototype);
     case "Function":
@@ -137,14 +137,14 @@ export function hydrate(value: types.Node): types.Node {
       return Object.setPrototypeOf(value, types.Grant.prototype);
     case "Heading":
       return Object.setPrototypeOf(value, types.Heading.prototype);
-    case "If":
-      return Object.setPrototypeOf(value, types.If.prototype);
-    case "IfClause":
-      return Object.setPrototypeOf(value, types.IfClause.prototype);
+    case "IfBlock":
+      return Object.setPrototypeOf(value, types.IfBlock.prototype);
+    case "IfBlockClause":
+      return Object.setPrototypeOf(value, types.IfBlockClause.prototype);
     case "ImageObject":
       return Object.setPrototypeOf(value, types.ImageObject.prototype);
-    case "Include":
-      return Object.setPrototypeOf(value, types.Include.prototype);
+    case "IncludeBlock":
+      return Object.setPrototypeOf(value, types.IncludeBlock.prototype);
     case "Insert":
       return Object.setPrototypeOf(value, types.Insert.prototype);
     case "IntegerValidator":

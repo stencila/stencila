@@ -48,10 +48,10 @@
       "$ref": "Button.schema.json"
     },
     {
-      "$ref": "Call.schema.json"
+      "$ref": "CallArgument.schema.json"
     },
     {
-      "$ref": "CallArgument.schema.json"
+      "$ref": "CallBlock.schema.json"
     },
     {
       "$ref": "Cite.schema.json"
@@ -159,7 +159,7 @@
       "$ref": "File.schema.json"
     },
     {
-      "$ref": "For.schema.json"
+      "$ref": "ForBlock.schema.json"
     },
     {
       "$ref": "Form.schema.json"
@@ -174,16 +174,16 @@
       "$ref": "Heading.schema.json"
     },
     {
-      "$ref": "If.schema.json"
+      "$ref": "IfBlock.schema.json"
     },
     {
-      "$ref": "IfClause.schema.json"
+      "$ref": "IfBlockClause.schema.json"
     },
     {
       "$ref": "ImageObject.schema.json"
     },
     {
-      "$ref": "Include.schema.json"
+      "$ref": "IncludeBlock.schema.json"
     },
     {
       "$ref": "Insert.schema.json"

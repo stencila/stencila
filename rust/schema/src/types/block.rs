@@ -3,16 +3,16 @@
 use crate::prelude::*;
 
 use super::admonition::Admonition;
-use super::call::Call;
+use super::call_block::CallBlock;
 use super::claim::Claim;
 use super::code_block::CodeBlock;
 use super::code_chunk::CodeChunk;
 use super::figure::Figure;
-use super::r#for::For;
+use super::for_block::ForBlock;
 use super::form::Form;
 use super::heading::Heading;
-use super::r#if::If;
-use super::include::Include;
+use super::if_block::IfBlock;
+use super::include_block::IncludeBlock;
 use super::list::List;
 use super::math_block::MathBlock;
 use super::paragraph::Paragraph;
@@ -31,7 +31,7 @@ pub enum Block {
     Admonition(Admonition),
 
     #[cfg_attr(feature = "proptest-min", proptest(skip))]
-    Call(Call),
+    CallBlock(CallBlock),
 
     #[cfg_attr(feature = "proptest-min", proptest(skip))]
     Claim(Claim),
@@ -45,7 +45,7 @@ pub enum Block {
     Figure(Figure),
 
     #[cfg_attr(feature = "proptest-min", proptest(skip))]
-    For(For),
+    ForBlock(ForBlock),
 
     #[cfg_attr(feature = "proptest-min", proptest(skip))]
     #[cfg_attr(feature = "proptest-low", proptest(skip))]
@@ -56,10 +56,10 @@ pub enum Block {
     Heading(Heading),
 
     #[cfg_attr(feature = "proptest-min", proptest(skip))]
-    If(If),
+    IfBlock(IfBlock),
 
     #[cfg_attr(feature = "proptest-min", proptest(skip))]
-    Include(Include),
+    IncludeBlock(IncludeBlock),
 
     List(List),
 

@@ -15,9 +15,9 @@ use nom::{
 use codec::{
     common::itertools::Itertools,
     schema::{
-        Admonition, Block, Call, CallArgument, Claim, Cord, For, Form, FormDeriveAction,
-        FormOptions, IfClause, Include, Inline, IntegerOrString, MathBlock, Node, Section,
-        StyledBlock, Text,
+        Admonition, Block, CallArgument, CallBlock, Claim, Cord, ForBlock, Form, FormDeriveAction,
+        FormOptions, IfBlockClause, IncludeBlock, Inline, IntegerOrString, MathBlock, Node,
+        Section, StyledBlock, Text,
     },
 };
 
@@ -104,7 +104,7 @@ pub fn math_block(input: &str) -> IResult<&str, MathBlock> {
 }
 
 /// Parse an [`Include`] node
-pub fn include(input: &str) -> IResult<&str, Include> {
+pub fn include(input: &str) -> IResult<&str, IncludeBlock> {
     map(
         all_consuming(preceded(
             char('/'),
@@ -114,7 +114,7 @@ pub fn include(input: &str) -> IResult<&str, Include> {
         |(source, options)| {
             let mut options: HashMap<String, _> = options.unwrap_or_default().into_iter().collect();
 
-            Include {
+            IncludeBlock {
                 source: source.to_string(),
                 media_type: options.remove("format").flatten().map(node_to_string),
                 select: options.remove("select").flatten().map(node_to_string),
@@ -126,7 +126,7 @@ pub fn include(input: &str) -> IResult<&str, Include> {
 }
 
 /// Parse a [`Call`] node
-pub fn call(input: &str) -> IResult<&str, Call> {
+pub fn call(input: &str) -> IResult<&str, CallBlock> {
     map(
         all_consuming(preceded(
             char('/'),
@@ -146,7 +146,7 @@ pub fn call(input: &str) -> IResult<&str, Call> {
         |(source, args, options)| {
             let mut options: HashMap<String, _> = options.unwrap_or_default().into_iter().collect();
 
-            Call {
+            CallBlock {
                 source: source.to_string(),
                 arguments: args,
                 media_type: options.remove("format").flatten().map(node_to_string),
@@ -214,26 +214,8 @@ pub fn claim(input: &str) -> IResult<&str, Claim> {
     )(input)
 }
 
-/// Parse a [`StyledBlock`] node
-pub fn styled_block(input: &str) -> IResult<&str, StyledBlock> {
-    map(
-        all_consuming(preceded(
-            tuple((semis, multispace0)),
-            tuple((
-                opt(terminated(alpha1, multispace0)),
-                delimited(char('{'), is_not("}"), char('}')),
-            )),
-        )),
-        |(lang, code)| StyledBlock {
-            code: Cord::from(code),
-            style_language: lang.map(|lang| lang.into()),
-            ..Default::default()
-        },
-    )(input)
-}
-
-/// Parse a [`For`] node
-pub fn for_(input: &str) -> IResult<&str, For> {
+/// Parse a [`ForBlock`] node
+pub fn for_block(input: &str) -> IResult<&str, ForBlock> {
     map(
         all_consuming(preceded(
             tuple((semis, multispace0, tag("for"), multispace1)),
@@ -249,7 +231,7 @@ pub fn for_(input: &str) -> IResult<&str, For> {
                 )),
             )),
         )),
-        |((symbol, expr), lang)| For {
+        |((symbol, expr), lang)| ForBlock {
             symbol,
             code: Cord::new(expr.trim()),
             programming_language: lang.map(|lang| lang.trim().to_string()),
@@ -301,8 +283,8 @@ pub fn form(input: &str) -> IResult<&str, Form> {
     )(input)
 }
 
-/// Parse an `if` or `elif` section into an [`IfClause`]
-pub fn if_elif(input: &str) -> IResult<&str, (bool, IfClause)> {
+/// Parse an `if` or `elif` section into an [`IfBlockClause`]
+pub fn if_elif(input: &str) -> IResult<&str, (bool, IfBlockClause)> {
     map(
         all_consuming(preceded(
             tuple((semis, multispace0)),
@@ -322,7 +304,7 @@ pub fn if_elif(input: &str) -> IResult<&str, (bool, IfClause)> {
         |(tag, expr, options)| {
             (
                 tag == "if",
-                IfClause {
+                IfBlockClause {
                     code: Cord::from(expr.trim()),
                     programming_language: options
                         .iter()
@@ -337,7 +319,7 @@ pub fn if_elif(input: &str) -> IResult<&str, (bool, IfClause)> {
 }
 
 /// Parse an `else` section
-pub fn else_(input: &str) -> IResult<&str, &str> {
+pub fn else_block(input: &str) -> IResult<&str, &str> {
     all_consuming(recognize(tuple((
         semis,
         multispace0,
@@ -345,6 +327,24 @@ pub fn else_(input: &str) -> IResult<&str, &str> {
         // Allow for, but ignore, trailing content
         opt(pair(multispace1, is_not(""))),
     ))))(input)
+}
+
+/// Parse a [`StyledBlock`] node
+pub fn styled_block(input: &str) -> IResult<&str, StyledBlock> {
+    map(
+        all_consuming(preceded(
+            tuple((semis, multispace0)),
+            tuple((
+                opt(terminated(alpha1, multispace0)),
+                delimited(char('{'), is_not("}"), char('}')),
+            )),
+        )),
+        |(lang, code)| StyledBlock {
+            code: Cord::from(code),
+            style_language: lang.map(|lang| lang.into()),
+            ..Default::default()
+        },
+    )(input)
 }
 
 /// Parse the end of a division
@@ -363,14 +363,14 @@ mod tests {
     fn test_calls() {
         assert_eq!(
             call("/file.md()").unwrap().1,
-            Call {
+            CallBlock {
                 source: "file.md".to_string(),
                 ..Default::default()
             }
         );
         assert_eq!(
             call("/file.md(a=1)").unwrap().1,
-            Call {
+            CallBlock {
                 source: "file.md".to_string(),
                 arguments: vec![CallArgument {
                     name: "a".to_string(),
@@ -382,7 +382,7 @@ mod tests {
         );
         assert_eq!(
             call(r#"/file.md(parAm_eter_1="string")"#).unwrap().1,
-            Call {
+            CallBlock {
                 source: "file.md".to_string(),
                 arguments: vec![CallArgument {
                     name: "parAm_eter_1".to_string(),
@@ -394,7 +394,7 @@ mod tests {
         );
         assert_eq!(
             call("/file.md(a=1.23 b=symbol c='string')").unwrap().1,
-            Call {
+            CallBlock {
                 source: "file.md".to_string(),
                 arguments: vec![
                     CallArgument {
@@ -418,7 +418,7 @@ mod tests {
         );
         assert_eq!(
             call("/file.md(a=1,b = 2  , c=3, d =4)").unwrap().1,
-            Call {
+            CallBlock {
                 source: "file.md".to_string(),
                 arguments: vec![
                     CallArgument {
@@ -471,8 +471,8 @@ mod tests {
     fn test_for() {
         // Simple
         assert_eq!(
-            for_("::: for item in expr").unwrap().1,
-            For {
+            for_block("::: for item in expr").unwrap().1,
+            ForBlock {
                 symbol: "item".to_string(),
                 code: "expr".into(),
                 ..Default::default()
@@ -481,8 +481,8 @@ mod tests {
 
         // With less/extra spacing
         assert_eq!(
-            for_(":::for item  in    expr").unwrap().1,
-            For {
+            for_block(":::for item  in    expr").unwrap().1,
+            ForBlock {
                 symbol: "item".to_string(),
                 code: "expr".into(),
                 ..Default::default()
@@ -491,8 +491,8 @@ mod tests {
 
         // With language specified
         assert_eq!(
-            for_("::: for item in expr {python}").unwrap().1,
-            For {
+            for_block("::: for item in expr {python}").unwrap().1,
+            ForBlock {
                 symbol: "item".to_string(),
                 code: "expr".into(),
                 programming_language: Some("python".to_string()),
@@ -502,18 +502,18 @@ mod tests {
 
         // With more complex expression
         assert_eq!(
-            for_("::: for i in 1:10").unwrap().1,
-            For {
+            for_block("::: for i in 1:10").unwrap().1,
+            ForBlock {
                 symbol: "i".to_string(),
                 code: "1:10".into(),
                 ..Default::default()
             }
         );
         assert_eq!(
-            for_("::: for row in select * from table { sql }")
+            for_block("::: for row in select * from table { sql }")
                 .unwrap()
                 .1,
-            For {
+            ForBlock {
                 symbol: "row".to_string(),
                 code: "select * from table".into(),
                 programming_language: Some("sql".to_string()),
@@ -532,7 +532,7 @@ mod tests {
         // Simple
         assert_eq!(
             if_elif("::: if expr").unwrap().1 .1,
-            IfClause {
+            IfBlockClause {
                 code: "expr".into(),
                 ..Default::default()
             }
@@ -541,7 +541,7 @@ mod tests {
         // With less/extra spacing
         assert_eq!(
             if_elif(":::if    expr").unwrap().1 .1,
-            IfClause {
+            IfBlockClause {
                 code: "expr".into(),
                 ..Default::default()
             }
@@ -550,7 +550,7 @@ mod tests {
         // With language specified
         assert_eq!(
             if_elif("::: if expr {python}").unwrap().1 .1,
-            IfClause {
+            IfBlockClause {
                 code: "expr".into(),
                 programming_language: Some("python".to_string()),
                 ..Default::default()
@@ -560,7 +560,7 @@ mod tests {
         // With more complex expression
         assert_eq!(
             if_elif("::: if a > 1 and b[8] < 1.23").unwrap().1 .1,
-            IfClause {
+            IfBlockClause {
                 code: "a > 1 and b[8] < 1.23".into(),
                 ..Default::default()
             }

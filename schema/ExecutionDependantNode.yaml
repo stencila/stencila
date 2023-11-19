@@ -5,7 +5,7 @@ description: Node types that can be execution dependencies.
 default: CodeChunk
 anyOf:
   - $ref: Button
-  - $ref: Call
+  - $ref: CallBlock
   - $ref: CodeChunk
   - $ref: CodeExpression
   - $ref: File

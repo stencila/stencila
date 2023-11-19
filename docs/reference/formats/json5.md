@@ -118,19 +118,19 @@ Support and degree of loss for node types:
 | [UnsignedInteger](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/unsigned_integer.md)          | 🟢 No loss    | 🟢 No loss    |       |
 | **Flow**                                                                                                                  |
 | [Button](https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/button.md)                             | 🟢 No loss    | 🟢 No loss    |       |
-| [Call](https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/call.md)                                 | 🟢 No loss    | 🟢 No loss    |       |
 | [CallArgument](https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/call_argument.md)                | 🟢 No loss    | 🟢 No loss    |       |
+| [CallBlock](https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/call_block.md)                      | 🟢 No loss    | 🟢 No loss    |       |
 | [CodeLocation](https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/code_location.md)                | 🟢 No loss    | 🟢 No loss    |       |
 | [CompilationDigest](https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/compilation_digest.md)      | 🟢 No loss    | 🟢 No loss    |       |
 | [ExecutionDependant](https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/execution_dependant.md)    | 🟢 No loss    | 🟢 No loss    |       |
 | [ExecutionDependency](https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/execution_dependency.md)  | 🟢 No loss    | 🟢 No loss    |       |
 | [ExecutionTag](https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/execution_tag.md)                | 🟢 No loss    | 🟢 No loss    |       |
-| [For](https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/for.md)                                   | 🟢 No loss    | 🟢 No loss    |       |
+| [ForBlock](https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/for_block.md)                        | 🟢 No loss    | 🟢 No loss    |       |
 | [Form](https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/form.md)                                 | 🟢 No loss    | 🟢 No loss    |       |
 | [Function](https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/function.md)                         | 🟢 No loss    | 🟢 No loss    |       |
-| [If](https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/if.md)                                     | 🟢 No loss    | 🟢 No loss    |       |
-| [IfClause](https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/if_clause.md)                        | 🟢 No loss    | 🟢 No loss    |       |
-| [Include](https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/include.md)                           | 🟢 No loss    | 🟢 No loss    |       |
+| [IfBlock](https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/if_block.md)                          | 🟢 No loss    | 🟢 No loss    |       |
+| [IfBlockClause](https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/if_block_clause.md)             | 🟢 No loss    | 🟢 No loss    |       |
+| [IncludeBlock](https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/include_block.md)                | 🟢 No loss    | 🟢 No loss    |       |
 | [Parameter](https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/parameter.md)                       | 🟢 No loss    | 🟢 No loss    |       |
 | [Variable](https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/variable.md)                         | 🟢 No loss    | 🟢 No loss    |       |
 | **Style**                                                                                                                 |

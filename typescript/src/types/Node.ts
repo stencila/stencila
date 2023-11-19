@@ -10,8 +10,8 @@ import { type AudioObject } from "./AudioObject.js";
 import { type BooleanValidator } from "./BooleanValidator.js";
 import { type Brand } from "./Brand.js";
 import { type Button } from "./Button.js";
-import { type Call } from "./Call.js";
 import { type CallArgument } from "./CallArgument.js";
+import { type CallBlock } from "./CallBlock.js";
 import { type Cite } from "./Cite.js";
 import { type CiteGroup } from "./CiteGroup.js";
 import { type Claim } from "./Claim.js";
@@ -48,15 +48,15 @@ import { type ExecutionError } from "./ExecutionError.js";
 import { type ExecutionTag } from "./ExecutionTag.js";
 import { type Figure } from "./Figure.js";
 import { type File } from "./File.js";
-import { type For } from "./For.js";
+import { type ForBlock } from "./ForBlock.js";
 import { type Form } from "./Form.js";
 import { type Function } from "./Function.js";
 import { type Grant } from "./Grant.js";
 import { type Heading } from "./Heading.js";
-import { type If } from "./If.js";
-import { type IfClause } from "./IfClause.js";
+import { type IfBlock } from "./IfBlock.js";
+import { type IfBlockClause } from "./IfBlockClause.js";
 import { type ImageObject } from "./ImageObject.js";
-import { type Include } from "./Include.js";
+import { type IncludeBlock } from "./IncludeBlock.js";
 import { type Insert } from "./Insert.js";
 import { type Integer } from "./Integer.js";
 import { type IntegerValidator } from "./IntegerValidator.js";
@@ -128,8 +128,8 @@ export type Node =
   BooleanValidator |
   Brand |
   Button |
-  Call |
   CallArgument |
+  CallBlock |
   Cite |
   CiteGroup |
   Claim |
@@ -165,15 +165,15 @@ export type Node =
   ExecutionTag |
   Figure |
   File |
-  For |
+  ForBlock |
   Form |
   Function |
   Grant |
   Heading |
-  If |
-  IfClause |
+  IfBlock |
+  IfBlockClause |
   ImageObject |
-  Include |
+  IncludeBlock |
   Insert |
   IntegerValidator |
   Link |
@@ -239,8 +239,8 @@ export function node(other: Node): Node {
     case "BooleanValidator":
     case "Brand":
     case "Button":
-    case "Call":
     case "CallArgument":
+    case "CallBlock":
     case "Cite":
     case "CiteGroup":
     case "Claim":
@@ -276,15 +276,15 @@ export function node(other: Node): Node {
     case "ExecutionTag":
     case "Figure":
     case "File":
-    case "For":
+    case "ForBlock":
     case "Form":
     case "Function":
     case "Grant":
     case "Heading":
-    case "If":
-    case "IfClause":
+    case "IfBlock":
+    case "IfBlockClause":
     case "ImageObject":
-    case "Include":
+    case "IncludeBlock":
     case "Insert":
     case "IntegerValidator":
     case "Link":

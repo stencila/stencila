@@ -123,7 +123,7 @@
       ]
     },
     {
-      "type": "Call",
+      "type": "CallBlock",
       "source": "this/is/a/call",
       "arguments": []
     },
@@ -155,13 +155,13 @@
       ]
     },
     {
-      "type": "For",
+      "type": "ForBlock",
       "symbol": "item",
       "code": "items",
       "content": [
         {
           "type": "Paragraph",
-          "content": [{ "type": "Text", "value": "This is a for loop" }]
+          "content": [{ "type": "Text", "value": "This is a for block" }]
         }
       ]
     },
@@ -171,10 +171,10 @@
       "content": [{ "type": "Text", "value": "This is a heading" }]
     },
     {
-      "type": "If",
+      "type": "IfBlock",
       "clauses": [
         {
-          "type": "IfClause",
+          "type": "IfBlockClause",
           "code": "1 < 2",
           "content": [
             {
@@ -186,7 +186,7 @@
       ]
     },
     {
-      "type": "Include",
+      "type": "IncludeBlock",
       "source": "this/is/an/include"
     },
     {

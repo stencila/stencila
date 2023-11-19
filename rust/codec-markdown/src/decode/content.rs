@@ -9,10 +9,10 @@ use codec::{
     },
     format::Format,
     schema::{
-        shortcuts::{cb, del, em, ins, mb, ol, p, qb, qi, stg, stk, t, tab, tb, u, ul},
+        shortcuts::{cb, del, em, ins, mb, ol, p, qb, qi, stg, stk, t, tb, tbl, u, ul},
         transforms::blocks_to_inlines,
-        AudioObject, Block, CodeChunk, Cord, Heading, If, IfClause, ImageObject, Inline, Link,
-        ListItem, Note, NoteType, TableCell, TableRow, TableRowType, VideoObject,
+        AudioObject, Block, CodeChunk, Cord, Heading, IfBlock, IfBlockClause, ImageObject, Inline,
+        Link, ListItem, Note, NoteType, TableCell, TableRow, TableRowType, VideoObject,
     },
     Losses,
 };
@@ -22,8 +22,8 @@ use crate::decode::inlines::inlines_or_text;
 
 use super::{
     blocks::{
-        admonition, call, claim, else_, end, for_, form, if_elif, include, math_block, section,
-        styled_block,
+        admonition, call, claim, else_block, end, for_block, form, if_elif, include, math_block,
+        section, styled_block,
     },
     inlines::inlines,
 };
@@ -196,7 +196,7 @@ pub fn decode_blocks(
 
                     lists.push_item(ListItem::new(content))
                 }
-                TagEnd::Table => blocks.push_block(tab(tables.pop_rows())),
+                TagEnd::Table => blocks.push_block(tbl(tables.pop_rows())),
                 TagEnd::TableHead => tables.push_header(),
                 TagEnd::TableRow => tables.push_row(),
                 TagEnd::TableCell => {
@@ -232,20 +232,20 @@ pub fn decode_blocks(
                     let block = if let Ok((.., math_block)) = math_block(trimmed) {
                         Some(Block::MathBlock(math_block))
                     } else if let Ok((.., include)) = include(trimmed) {
-                        Some(Block::Include(include))
+                        Some(Block::IncludeBlock(include))
                     } else if let Ok((.., call)) = call(trimmed) {
-                        Some(Block::Call(call))
+                        Some(Block::CallBlock(call))
                     } else if let Ok((.., claim)) = claim(trimmed) {
                         blocks.push_div();
                         divs.push_back(Block::Claim(claim));
                         None
-                    } else if let Ok((.., div)) = styled_block(trimmed) {
+                    } else if let Ok((.., styled_block)) = styled_block(trimmed) {
                         blocks.push_div();
-                        divs.push_back(Block::StyledBlock(div));
+                        divs.push_back(Block::StyledBlock(styled_block));
                         None
-                    } else if let Ok((.., for_)) = for_(trimmed) {
+                    } else if let Ok((.., for_block)) = for_block(trimmed) {
                         blocks.push_div();
-                        divs.push_back(Block::For(for_));
+                        divs.push_back(Block::ForBlock(for_block));
                         None
                     } else if let Ok((.., form)) = form(trimmed) {
                         blocks.push_div();
@@ -253,22 +253,22 @@ pub fn decode_blocks(
                         None
                     } else if let Ok((.., (true, if_clause))) = if_elif(trimmed) {
                         blocks.push_div();
-                        divs.push_back(Block::If(If {
+                        divs.push_back(Block::IfBlock(IfBlock {
                             clauses: vec![if_clause],
                             ..Default::default()
                         }));
                         None
                     } else if let Ok((.., (false, if_clause))) = if_elif(trimmed) {
-                        if let Some(Block::If(if_)) = divs.back_mut() {
+                        if let Some(Block::IfBlock(if_block)) = divs.back_mut() {
                             let content = blocks.pop_div();
-                            if let Some(last) = if_.clauses.last_mut() {
+                            if let Some(last) = if_block.clauses.last_mut() {
                                 last.content = content;
                             } else {
                                 tracing::error!(
                                     "Expected there to be at least one if clause already"
                                 )
                             }
-                            if_.clauses.push(if_clause);
+                            if_block.clauses.push(if_clause);
 
                             blocks.push_div();
                             None
@@ -276,26 +276,26 @@ pub fn decode_blocks(
                             tracing::warn!("Found an `::: elif` without a preceding `::: if`");
                             Some(p([t(trimmed)]))
                         }
-                    } else if else_(trimmed).is_ok() {
+                    } else if else_block(trimmed).is_ok() {
                         if let Some(div) = divs.back_mut() {
                             match div {
                                 // Create a placeholder to indicate that when the else finishes
                                 // the tail of blocks should be popped to the `otherwise` of the current
-                                // `For`
-                                Block::For(for_) => {
-                                    for_.otherwise = Some(Vec::new());
+                                // `ForBlock`
+                                Block::ForBlock(for_block) => {
+                                    for_block.otherwise = Some(Vec::new());
                                 }
-                                // Add a last clause of `If` with no text or language
-                                Block::If(if_) => {
+                                // Add a last clause of `IfBlock` with no text or language
+                                Block::IfBlock(if_block) => {
                                     let content = blocks.pop_div();
-                                    if let Some(last) = if_.clauses.last_mut() {
+                                    if let Some(last) = if_block.clauses.last_mut() {
                                         last.content = content;
                                     } else {
                                         tracing::error!(
                                             "Expected there to be at least one if clause already"
                                         )
                                     }
-                                    if_.clauses.push(IfClause::default());
+                                    if_block.clauses.push(IfBlockClause::default());
                                 }
                                 _ => {
                                     tracing::warn!("Found an `::: else` without a preceding `::: if` or `::: for`");
@@ -323,16 +323,16 @@ pub fn decode_blocks(
                                 div.content = blocks.pop_div();
                                 Block::StyledBlock(div)
                             }
-                            Block::For(mut for_) => {
+                            Block::ForBlock(mut for_) => {
                                 for_.otherwise = for_.otherwise.map(|_| blocks.pop_div());
                                 for_.content = blocks.pop_div();
-                                Block::For(for_)
+                                Block::ForBlock(for_)
                             }
                             Block::Form(mut form) => {
                                 form.content = blocks.pop_div();
                                 Block::Form(form)
                             }
-                            Block::If(mut if_) => {
+                            Block::IfBlock(mut if_) => {
                                 let content = blocks.pop_div();
                                 if let Some(last_clause) = if_.clauses.iter_mut().last() {
                                     last_clause.content = content;
@@ -342,7 +342,7 @@ pub fn decode_blocks(
                                     );
                                 }
 
-                                Block::If(if_)
+                                Block::IfBlock(if_)
                             }
                             _ => p(inlines.pop_all()),
                         })

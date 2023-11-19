@@ -1,0 +1,214 @@
+{
+  "@context": {
+    "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
+    "schema": "https://schema.org/",
+    "stencila": "https://stencila.dev/"
+  },
+  "@graph": [
+    {
+      "@id": "stencila:IfBlock",
+      "@type": "rdfs:Class",
+      "rdfs:label": "IfBlock",
+      "rdfs:comment": "Show and execute alternative content conditional upon an executed expression.",
+      "rdfs:subClassOf": {
+        "@id": "stencila:Executable"
+      }
+    },
+    {
+      "@id": "stencila:autoExec",
+      "@type": "rdfs:Property",
+      "rdfs:label": "autoExec",
+      "rdfs:comment": "Under which circumstances the code should be automatically executed.",
+      "schema:domainIncludes": {
+        "@id": "stencila:Executable"
+      },
+      "schema:rangeIncludes": {
+        "@id": "stencila:AutomaticExecution"
+      }
+    },
+    {
+      "@id": "stencila:compilationDigest",
+      "@type": "rdfs:Property",
+      "rdfs:label": "compilationDigest",
+      "rdfs:comment": "A digest of the content, semantics and dependencies of the node.",
+      "schema:domainIncludes": [
+        {
+          "@id": "stencila:Executable"
+        },
+        {
+          "@id": "stencila:Math"
+        },
+        {
+          "@id": "stencila:Styled"
+        }
+      ],
+      "schema:rangeIncludes": {
+        "@id": "stencila:CompilationDigest"
+      }
+    },
+    {
+      "@id": "stencila:compilationErrors",
+      "@type": "rdfs:Property",
+      "rdfs:label": "compilationErrors",
+      "rdfs:comment": "Errors generated when compiling the code.",
+      "schema:domainIncludes": [
+        {
+          "@id": "stencila:Executable"
+        },
+        {
+          "@id": "stencila:Math"
+        },
+        {
+          "@id": "stencila:Styled"
+        }
+      ],
+      "schema:rangeIncludes": {
+        "@id": "stencila:CompilationError"
+      }
+    },
+    {
+      "@id": "stencila:executionDigest",
+      "@type": "rdfs:Property",
+      "rdfs:label": "executionDigest",
+      "rdfs:comment": "The `compilationDigest` of the node when it was last executed.",
+      "schema:domainIncludes": {
+        "@id": "stencila:Executable"
+      },
+      "schema:rangeIncludes": {
+        "@id": "stencila:CompilationDigest"
+      }
+    },
+    {
+      "@id": "stencila:executionDependencies",
+      "@type": "rdfs:Property",
+      "rdfs:label": "executionDependencies",
+      "rdfs:comment": "The upstream dependencies of this node.",
+      "schema:domainIncludes": {
+        "@id": "stencila:Executable"
+      },
+      "schema:rangeIncludes": {
+        "@id": "stencila:ExecutionDependency"
+      }
+    },
+    {
+      "@id": "stencila:executionDependants",
+      "@type": "rdfs:Property",
+      "rdfs:label": "executionDependants",
+      "rdfs:comment": "The downstream dependants of this node.",
+      "schema:domainIncludes": {
+        "@id": "stencila:Executable"
+      },
+      "schema:rangeIncludes": {
+        "@id": "stencila:ExecutionDependant"
+      }
+    },
+    {
+      "@id": "stencila:executionTags",
+      "@type": "rdfs:Property",
+      "rdfs:label": "executionTags",
+      "rdfs:comment": "Tags in the code which affect its execution.",
+      "schema:domainIncludes": {
+        "@id": "stencila:Executable"
+      },
+      "schema:rangeIncludes": {
+        "@id": "stencila:ExecutionTag"
+      }
+    },
+    {
+      "@id": "stencila:executionCount",
+      "@type": "rdfs:Property",
+      "rdfs:label": "executionCount",
+      "rdfs:comment": "A count of the number of times that the node has been executed.",
+      "schema:domainIncludes": {
+        "@id": "stencila:Executable"
+      },
+      "schema:rangeIncludes": {
+        "@id": "schema:Number"
+      }
+    },
+    {
+      "@id": "stencila:executionRequired",
+      "@type": "rdfs:Property",
+      "rdfs:label": "executionRequired",
+      "rdfs:comment": "Whether, and why, the code requires execution or re-execution.",
+      "schema:domainIncludes": {
+        "@id": "stencila:Executable"
+      },
+      "schema:rangeIncludes": {
+        "@id": "stencila:ExecutionRequired"
+      }
+    },
+    {
+      "@id": "stencila:executionKernel",
+      "@type": "rdfs:Property",
+      "rdfs:label": "executionKernel",
+      "rdfs:comment": "The id of the kernel that the node was last executed in.",
+      "schema:domainIncludes": {
+        "@id": "stencila:Executable"
+      },
+      "schema:rangeIncludes": {
+        "@id": "schema:Text"
+      }
+    },
+    {
+      "@id": "stencila:executionStatus",
+      "@type": "rdfs:Property",
+      "rdfs:label": "executionStatus",
+      "rdfs:comment": "Status of the most recent, including any current, execution.",
+      "schema:domainIncludes": {
+        "@id": "stencila:Executable"
+      },
+      "schema:rangeIncludes": {
+        "@id": "stencila:ExecutionStatus"
+      }
+    },
+    {
+      "@id": "stencila:executionEnded",
+      "@type": "rdfs:Property",
+      "rdfs:label": "executionEnded",
+      "rdfs:comment": "The timestamp when the last execution ended.",
+      "schema:domainIncludes": {
+        "@id": "stencila:Executable"
+      },
+      "schema:rangeIncludes": {
+        "@id": "schema:Timestamp"
+      }
+    },
+    {
+      "@id": "stencila:executionDuration",
+      "@type": "rdfs:Property",
+      "rdfs:label": "executionDuration",
+      "rdfs:comment": "Duration of the last execution.",
+      "schema:domainIncludes": {
+        "@id": "stencila:Executable"
+      },
+      "schema:rangeIncludes": {
+        "@id": "schema:Duration"
+      }
+    },
+    {
+      "@id": "stencila:executionErrors",
+      "@type": "rdfs:Property",
+      "rdfs:label": "executionErrors",
+      "rdfs:comment": "Errors when executing the node.",
+      "schema:domainIncludes": {
+        "@id": "stencila:Executable"
+      },
+      "schema:rangeIncludes": {
+        "@id": "stencila:ExecutionError"
+      }
+    },
+    {
+      "@id": "stencila:clauses",
+      "@type": "rdfs:Property",
+      "rdfs:label": "clauses",
+      "rdfs:comment": "The clauses making up the `If` node",
+      "schema:domainIncludes": {
+        "@id": "stencila:IfBlock"
+      },
+      "schema:rangeIncludes": {
+        "@id": "stencila:IfBlockClause"
+      }
+    }
+  ]
+}

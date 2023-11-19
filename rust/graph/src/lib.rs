@@ -16,9 +16,9 @@ use common::{
 };
 use format::Format;
 use schema::{
-    Button, Call, CodeChunk, CodeExpression, ExecutionDependantNode, ExecutionDependantRelation,
-    ExecutionDependencyNode, ExecutionDependencyRelation, File, Function, Parameter,
-    SoftwareSourceCode, StyledBlock, StyledInline, Variable,
+    Button, CallBlock, CodeChunk, CodeExpression, ExecutionDependantNode,
+    ExecutionDependantRelation, ExecutionDependencyNode, ExecutionDependencyRelation, File,
+    Function, Parameter, SoftwareSourceCode, StyledBlock, StyledInline, Variable,
 };
 
 /// The nodes in the graph
@@ -103,7 +103,7 @@ impl TryFrom<&ExecutionDependantNode> for GraphNode {
             Other::Button(Button { id, .. }) => Self::Button {
                 id: id.clone().ok_or_else(|| eyre!("Button missing id"))?,
             },
-            Other::Call(Call { id, .. }) => Self::Call {
+            Other::CallBlock(CallBlock { id, .. }) => Self::Call {
                 id: id.clone().ok_or_else(|| eyre!("Call missing id"))?,
             },
             Other::CodeChunk(CodeChunk { id, .. }) => Self::CodeChunk {

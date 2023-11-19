@@ -134,7 +134,7 @@ impl Schemas {
                     ]),
                     ul(items),
                     p([t("Support and degree of loss for node types:")]),
-                    tab(rows),
+                    tbl(rows),
                 ],
                 ..Default::default()
             };

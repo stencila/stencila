@@ -20,7 +20,7 @@ This is a code chunk
 
 ::: for item in items
 
-This is a for loop
+This is a for block
 
 :::
 

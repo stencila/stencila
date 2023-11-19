@@ -1,0 +1,84 @@
+title: ForBlock
+'@id': stencila:ForBlock
+extends: CodeExecutable
+category: flow
+description: Repeat a block content for each item in an array.
+status: under-development
+html:
+  elem: div
+  custom: true
+markdown:
+  special: true
+proptest: {}
+required:
+  - symbol
+  - content
+core:
+  - otherwise
+  - iterations
+properties:
+  symbol:
+    '@id': stencila:symbol
+    description: The name to give to the variable representing each item in the iterated array
+    type: string
+    strip: [code]
+    proptest:
+      min:
+        description: Generate a fixed symbol.
+        value: String::from("symbol")
+      low:
+        description: |
+          Generate a random string of up to 10 alphanumeric characters (and at most one underscore to avoid
+          a clash with Markdown emphasis).
+        regex: '[a-zA-Z_][a-zA-Z0-9]{0,9}'
+      high:
+        description: |
+          Generate a random string of up to 100 characters (excluding control characters).
+        regex: '[^\p{C}]{1,100}'
+      max:
+        description: Generate an arbitrary string.
+        strategy: String::arbitrary()
+  content:
+    '@id': stencila:content
+    description: The content to repeat for each item
+    type: array
+    items:
+      $ref: Block
+    strip: [code]
+    proptest:
+      min:
+        description: A single simple paragraph.
+        value: vec![p([t("For content")])]
+      low:
+        description: Generate up to four arbitrary, non-recursive, block nodes.
+        strategy: vec_blocks_non_recursive(4)
+      max:
+        description: Generate up to eight arbitrary, non-recursive, block nodes.
+        strategy: vec_blocks_non_recursive(8)
+  otherwise:
+    '@id': stencila:otherwise
+    description: The content to render if there are no items
+    type: array
+    items:
+      $ref: Block
+    strip: [code]
+    proptest:
+      min:
+        description: No otherwise clause.
+        value: None
+      low:
+        description: Generate up to two arbitrary, non-recursive, block nodes.
+        strategy: option::of(vec_blocks_non_recursive(2))
+      max:
+        description: Generate up to four arbitrary, non-recursive, block nodes.
+        strategy: option::of(vec_blocks_non_recursive(4))
+  iterations:
+    '@id': stencila:iterations
+    description: The content repeated for each iteration
+    type: array
+    items:
+      type: array
+      items:
+        $ref: Block
+    strip: [output]
+

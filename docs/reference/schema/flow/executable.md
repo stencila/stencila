@@ -31,7 +31,7 @@ The `Executable` type has these properties:
 The `Executable` type is related to these types:
 
 - Parents: [`Entity`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/entity.md)
-- Children: [`CodeExecutable`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/code/code-executable.md), [`Form`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/form.md), [`If`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/if.md), [`Include`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/include.md), [`Parameter`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/parameter.md)
+- Children: [`CodeExecutable`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/code/code-executable.md), [`Form`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/form.md), [`IfBlock`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/if-block.md), [`IncludeBlock`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/include-block.md), [`Parameter`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/parameter.md)
 
 ## Bindings
 

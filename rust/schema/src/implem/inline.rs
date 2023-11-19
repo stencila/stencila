@@ -104,10 +104,10 @@ impl From<Block> for Inline {
 
             // Blocks with block content
             Block::Claim(claim) => claim.content.into(),
-            Block::Include(Include {
+            Block::IncludeBlock(IncludeBlock {
                 source, content, ..
             })
-            | Block::Call(Call {
+            | Block::CallBlock(CallBlock {
                 source, content, ..
             }) => match content {
                 Some(content) => content.into(),
@@ -144,12 +144,11 @@ impl From<Block> for Vec<Inline> {
 
             // Variants with block content
             Block::Claim(claim) => blocks_to_inlines(claim.content.to_owned()),
-            Block::Include(Include { content, .. }) | Block::Call(Call { content, .. }) => {
-                match &content {
-                    Some(content) => blocks_to_inlines(content.to_owned()),
-                    None => vec![block.into()],
-                }
-            }
+            Block::IncludeBlock(IncludeBlock { content, .. })
+            | Block::CallBlock(CallBlock { content, .. }) => match &content {
+                Some(content) => blocks_to_inlines(content.to_owned()),
+                None => vec![block.into()],
+            },
 
             // Fallback to a single item vector of `block` transformed to an inline
             _ => vec![block.into()],

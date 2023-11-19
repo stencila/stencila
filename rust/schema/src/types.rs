@@ -13,8 +13,8 @@ mod boolean;
 mod boolean_validator;
 mod brand;
 mod button;
-mod call;
 mod call_argument;
+mod call_block;
 mod citation_intent;
 mod citation_mode;
 mod cite;
@@ -64,17 +64,17 @@ mod execution_tag;
 mod figure;
 mod file;
 mod file_or_directory;
-mod r#for;
+mod for_block;
 mod form;
 mod form_derive_action;
 mod function;
 mod grant;
 mod grant_or_monetary_grant;
 mod heading;
-mod r#if;
-mod if_clause;
+mod if_block;
+mod if_block_clause;
 mod image_object;
-mod include;
+mod include_block;
 mod inline;
 mod insert;
 mod integer;
@@ -160,8 +160,8 @@ pub use boolean::*;
 pub use boolean_validator::*;
 pub use brand::*;
 pub use button::*;
-pub use call::*;
 pub use call_argument::*;
+pub use call_block::*;
 pub use citation_intent::*;
 pub use citation_mode::*;
 pub use cite::*;
@@ -211,17 +211,17 @@ pub use execution_tag::*;
 pub use figure::*;
 pub use file::*;
 pub use file_or_directory::*;
-pub use r#for::*;
+pub use for_block::*;
 pub use form::*;
 pub use form_derive_action::*;
 pub use function::*;
 pub use grant::*;
 pub use grant_or_monetary_grant::*;
 pub use heading::*;
-pub use r#if::*;
-pub use if_clause::*;
+pub use if_block::*;
+pub use if_block_clause::*;
 pub use image_object::*;
-pub use include::*;
+pub use include_block::*;
 pub use inline::*;
 pub use insert::*;
 pub use integer::*;
@@ -313,8 +313,8 @@ pub enum NodeType {
     BooleanValidator,
     Brand,
     Button,
-    Call,
     CallArgument,
+    CallBlock,
     Cite,
     CiteGroup,
     Claim,
@@ -350,15 +350,15 @@ pub enum NodeType {
     ExecutionTag,
     Figure,
     File,
-    For,
+    ForBlock,
     Form,
     Function,
     Grant,
     Heading,
-    If,
-    IfClause,
+    IfBlock,
+    IfBlockClause,
     ImageObject,
-    Include,
+    IncludeBlock,
     Insert,
     IntegerValidator,
     Link,

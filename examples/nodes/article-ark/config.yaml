@@ -7,14 +7,14 @@ compact.jats.xml:
       - Insert
   decode:
     strip-types:
-      - Call
+      - CallBlock
       - Claim
       - CodeBlock
       - CodeChunk
       - Figure
-      - For
-      - If
-      - Include
+      - ForBlock
+      - IfBlock
+      - IncludeBlock
       - List
       - MathBlock
       - StyledBlock

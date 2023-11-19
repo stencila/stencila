@@ -209,19 +209,19 @@ Support and degree of loss for node types:
 | [UnsignedInteger](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/unsigned_integer.md)          | 🔷 Low loss       | 🔷 Low loss    |                                   |
 | **Flow**                                                                                                                  |
 | [Button](https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/button.md)                             | ⚠️ High loss     |               |                                   |
-| [Call](https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/call.md)                                 | ⚠️ High loss     |               | Encoded using special function    |
 | [CallArgument](https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/call_argument.md)                | ⚠️ High loss     |               |                                   |
+| [CallBlock](https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/call_block.md)                      | ⚠️ High loss     |               | Encoded using special function    |
 | [CodeLocation](https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/code_location.md)                | ⚠️ High loss     |               |                                   |
 | [CompilationDigest](https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/compilation_digest.md)      | ⚠️ High loss     |               |                                   |
 | [ExecutionDependant](https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/execution_dependant.md)    | ⚠️ High loss     |               |                                   |
 | [ExecutionDependency](https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/execution_dependency.md)  | ⚠️ High loss     |               |                                   |
 | [ExecutionTag](https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/execution_tag.md)                | ⚠️ High loss     |               |                                   |
-| [For](https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/for.md)                                   | ⚠️ High loss     |               | Encoded using special function    |
+| [ForBlock](https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/for_block.md)                        | ⚠️ High loss     |               | Encoded using special function    |
 | [Form](https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/form.md)                                 | ⚠️ High loss     |               |                                   |
 | [Function](https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/function.md)                         | ⚠️ High loss     |               |                                   |
-| [If](https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/if.md)                                     | ⚠️ High loss     |               | Encoded using special function    |
-| [IfClause](https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/if_clause.md)                        | ⚠️ High loss     |               |                                   |
-| [Include](https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/include.md)                           | ⚠️ High loss     |               | Encoded as `/{source}\n\n`        |
+| [IfBlock](https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/if_block.md)                          | ⚠️ High loss     |               | Encoded using special function    |
+| [IfBlockClause](https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/if_block_clause.md)             | ⚠️ High loss     |               |                                   |
+| [IncludeBlock](https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/include_block.md)                | ⚠️ High loss     |               | Encoded as `/{source}\n\n`        |
 | [Parameter](https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/parameter.md)                       | 🔷 Low loss       | 🔷 Low loss    | Encoded using special function    |
 | [Variable](https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/variable.md)                         | ⚠️ High loss     |               |                                   |
 | **Style**                                                                                                                 |

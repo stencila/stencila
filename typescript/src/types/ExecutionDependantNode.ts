@@ -3,7 +3,7 @@
 import { hydrate } from "../hydrate.js";
 
 import { type Button } from "./Button.js";
-import { type Call } from "./Call.js";
+import { type CallBlock } from "./CallBlock.js";
 import { type CodeChunk } from "./CodeChunk.js";
 import { type CodeExpression } from "./CodeExpression.js";
 import { type File } from "./File.js";
@@ -18,7 +18,7 @@ import { type Variable } from "./Variable.js";
  */
 export type ExecutionDependantNode =
   Button |
-  Call |
+  CallBlock |
   CodeChunk |
   CodeExpression |
   File |
@@ -34,7 +34,7 @@ export type ExecutionDependantNode =
 export function executionDependantNode(other: ExecutionDependantNode): ExecutionDependantNode {
   switch(other.type) {
     case "Button":
-    case "Call":
+    case "CallBlock":
     case "CodeChunk":
     case "CodeExpression":
     case "File":

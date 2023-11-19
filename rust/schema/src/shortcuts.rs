@@ -156,8 +156,8 @@ pub fn adm<C: Into<Cord>, B: Into<Vec<Block>>>(
 }
 
 /// Create a [`Block::Call`] node
-pub fn cal<S: Into<String>, A: Into<Vec<CallArgument>>>(source: S, args: A) -> Block {
-    Block::Call(Call::new(source.into(), args.into()))
+pub fn clb<S: Into<String>, A: Into<Vec<CallArgument>>>(source: S, args: A) -> Block {
+    Block::CallBlock(CallBlock::new(source.into(), args.into()))
 }
 
 /// Create an [`CallArgument`] node
@@ -203,12 +203,12 @@ pub fn fig<B: Into<Vec<Block>>>(content: B) -> Block {
 }
 
 /// Create a [`Block::For`] node
-pub fn r#for<S: Into<String>, C: Into<Cord>, B: Into<Vec<Block>>>(
+pub fn frb<S: Into<String>, C: Into<Cord>, B: Into<Vec<Block>>>(
     symbol: S,
     code: C,
     content: B,
 ) -> Block {
-    Block::For(For::new(code.into(), symbol.into(), content.into()))
+    Block::ForBlock(ForBlock::new(code.into(), symbol.into(), content.into()))
 }
 
 /// Create a [`Block::Heading`] node with a specified `level`
@@ -247,17 +247,17 @@ pub fn h6<I: Into<Vec<Inline>>>(content: I) -> Block {
 }
 
 /// Create a [`Block::If`] node
-pub fn r#if<C: Into<Vec<IfClause>>>(clauses: C) -> Block {
-    Block::If(If::new(clauses.into()))
+pub fn ifb<C: Into<Vec<IfBlockClause>>>(clauses: C) -> Block {
+    Block::IfBlock(IfBlock::new(clauses.into()))
 }
 
 /// Create an [`IfClause`] node
-pub fn ifc<C: Into<Cord>, S: Into<String>, B: Into<Vec<Block>>>(
+pub fn ibc<C: Into<Cord>, S: Into<String>, B: Into<Vec<Block>>>(
     code: C,
     lang: Option<S>,
     content: B,
-) -> IfClause {
-    IfClause {
+) -> IfBlockClause {
+    IfBlockClause {
         code: code.into(),
         programming_language: lang.map(|lang| lang.into()),
         content: content.into(),
@@ -266,8 +266,8 @@ pub fn ifc<C: Into<Cord>, S: Into<String>, B: Into<Vec<Block>>>(
 }
 
 /// Create a [`Block::Include`] node
-pub fn inc<S: Into<String>>(source: S) -> Block {
-    Block::Include(Include::new(source.into()))
+pub fn inb<S: Into<String>>(source: S) -> Block {
+    Block::IncludeBlock(IncludeBlock::new(source.into()))
 }
 
 /// Create a [`Block::List`] node with ascending order
@@ -312,8 +312,13 @@ pub fn sec<B: Into<Vec<Block>>>(content: B) -> Block {
     Block::Section(Section::new(content.into()))
 }
 
+/// Create a [`Block::StyledBlock`] node
+pub fn stb<C: Into<Cord>, B: Into<Vec<Block>>>(style: C, content: B) -> Block {
+    Block::StyledBlock(StyledBlock::new(style.into(), content.into()))
+}
+
 /// Create a [`Block::Table`] node
-pub fn tab<I: Into<Vec<TableRow>>>(rows: I) -> Block {
+pub fn tbl<I: Into<Vec<TableRow>>>(rows: I) -> Block {
     Block::Table(Table {
         rows: rows.into(),
         ..Default::default()

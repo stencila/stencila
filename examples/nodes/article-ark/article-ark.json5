@@ -251,7 +251,7 @@
       ]
     },
     {
-      type: "Call",
+      type: "CallBlock",
       source: "this\/is\/a\/call",
       arguments: []
     },
@@ -293,7 +293,7 @@
       ]
     },
     {
-      type: "For",
+      type: "ForBlock",
       code: "items",
       symbol: "item",
       content: [
@@ -302,7 +302,7 @@
           content: [
             {
               type: "Text",
-              value: "This is a for loop"
+              value: "This is a for block"
             }
           ]
         }
@@ -319,10 +319,10 @@
       ]
     },
     {
-      type: "If",
+      type: "IfBlock",
       clauses: [
         {
-          type: "IfClause",
+          type: "IfBlockClause",
           code: "1 < 2",
           content: [
             {
@@ -339,7 +339,7 @@
       ]
     },
     {
-      type: "Include",
+      type: "IncludeBlock",
       source: "this\/is\/an\/include"
     },
     {

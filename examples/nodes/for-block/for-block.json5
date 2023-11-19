@@ -1,0 +1,148 @@
+{
+  type: "Article",
+  content: [
+    {
+      type: "Paragraph",
+      content: [
+        {
+          type: "Text",
+          value: "A simple for loop"
+        }
+      ]
+    },
+    {
+      type: "ForBlock",
+      code: "[1,2,3]",
+      symbol: "item",
+      content: [
+        {
+          type: "Paragraph",
+          content: [
+            {
+              type: "Text",
+              value: "This paragraph will be repeated with a different value for "
+            },
+            {
+              type: "CodeExpression",
+              code: "item"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      type: "Paragraph",
+      content: [
+        {
+          type: "Text",
+          value: "With a programming language specified"
+        }
+      ]
+    },
+    {
+      type: "ForBlock",
+      code: "[1,2,3]",
+      programmingLanguage: "python",
+      symbol: "item",
+      content: [
+        {
+          type: "Paragraph",
+          content: [
+            {
+              type: "Text",
+              value: "This content is repeated"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      type: "Paragraph",
+      content: [
+        {
+          type: "Text",
+          value: "Nested for loops"
+        }
+      ]
+    },
+    {
+      type: "ForBlock",
+      code: "[['a', 'b'], ['c', 'd']]",
+      symbol: "outer",
+      content: [
+        {
+          type: "ForBlock",
+          code: "outer",
+          symbol: "inner",
+          content: [
+            {
+              type: "Paragraph",
+              content: [
+                {
+                  type: "Text",
+                  value: "This paragraph will be repeated for each inner item "
+                },
+                {
+                  type: "CodeExpression",
+                  code: "inner"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      type: "Paragraph",
+      content: [
+        {
+          type: "Text",
+          value: "With an else clause"
+        }
+      ]
+    },
+    {
+      type: "ForBlock",
+      code: "[]",
+      symbol: "item",
+      content: [
+        {
+          type: "Paragraph",
+          content: [
+            {
+              type: "Text",
+              value: "This content is never shown"
+            }
+          ]
+        }
+      ],
+      otherwise: [
+        {
+          type: "Paragraph",
+          content: [
+            {
+              type: "Text",
+              value: "There are no items"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      type: "Paragraph",
+      content: [
+        {
+          type: "Text",
+          value: "With no content in 'content' or 'otherwise'"
+        }
+      ]
+    },
+    {
+      type: "ForBlock",
+      code: "[]",
+      symbol: "item",
+      content: [],
+      otherwise: []
+    }
+  ]
+}

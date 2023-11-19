@@ -37,7 +37,7 @@ The `CodeExecutable` type has these properties:
 The `CodeExecutable` type is related to these types:
 
 - Parents: [`Executable`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/executable.md)
-- Children: [`Button`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/button.md), [`CodeChunk`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/code/code-chunk.md), [`CodeExpression`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/code/code-expression.md), [`For`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/for.md), [`IfClause`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/if-clause.md)
+- Children: [`Button`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/button.md), [`CodeChunk`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/code/code-chunk.md), [`CodeExpression`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/code/code-expression.md), [`ForBlock`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/for-block.md), [`IfBlockClause`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/if-block-clause.md)
 
 ## Bindings
 

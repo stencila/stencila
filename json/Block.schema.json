@@ -22,14 +22,14 @@
     {
       "proptest": {
         "min": {
-          "description": "Do not generate `Call` nodes in block content.",
+          "description": "Do not generate `CallBlock` nodes in block content.",
           "skip": true
         },
         "low": {
-          "description": "Generate `Call` nodes in block content."
+          "description": "Generate `CallBlock` nodes in block content."
         }
       },
-      "$ref": "Call.schema.json"
+      "$ref": "CallBlock.schema.json"
     },
     {
       "proptest": {
@@ -73,14 +73,14 @@
     {
       "proptest": {
         "min": {
-          "description": "Do not generate `For` nodes in block content.",
+          "description": "Do not generate `ForBlock` nodes in block content.",
           "skip": true
         },
         "low": {
-          "description": "Generate `For` nodes in block content."
+          "description": "Generate `ForBlock` nodes in block content."
         }
       },
-      "$ref": "For.schema.json"
+      "$ref": "ForBlock.schema.json"
     },
     {
       "proptest": {
@@ -97,26 +97,26 @@
     {
       "proptest": {
         "min": {
-          "description": "Do not generate `If` nodes in block content.",
+          "description": "Do not generate `IfBlock` nodes in block content.",
           "skip": true
         },
         "low": {
-          "description": "Generate `If` nodes in block content."
+          "description": "Generate `IfBlock` nodes in block content."
         }
       },
-      "$ref": "If.schema.json"
+      "$ref": "IfBlock.schema.json"
     },
     {
       "proptest": {
         "min": {
-          "description": "Do not generate `Include` nodes in block content.",
+          "description": "Do not generate `IncludeBlock` nodes in block content.",
           "skip": true
         },
         "low": {
-          "description": "Generate `Include` nodes in block content."
+          "description": "Generate `IncludeBlock` nodes in block content."
         }
       },
-      "$ref": "Include.schema.json"
+      "$ref": "IncludeBlock.schema.json"
     },
     {
       "$ref": "List.schema.json"

@@ -341,7 +341,7 @@ fn properties(title: &str, schema: &Schema, context: &Context) -> Vec<Block> {
     vec![
         h2([t("Properties")]),
         p([t("The "), ci(title), t(" type has these properties:")]),
-        tab(rows),
+        tbl(rows),
     ]
 }
 
@@ -438,7 +438,7 @@ fn formats(title: &str, schema: &Schema) -> Vec<Block> {
             ci(title),
             t(" type can be encoded (serialized) to, and/or decoded (deserialized) from, these formats:"),
         ]),
-        tab(rows),
+        tbl(rows),
     ]
 }
 
@@ -530,7 +530,7 @@ fn proptests_anyof(title: &str, schema: &Schema) -> Vec<Block> {
             t(" for each complexity level. Any variant not shown is generated using the default strategy for the corresponding type and complexity level."),
 
         ]),
-        tab(rows)
+        tbl(rows)
     ]
 }
 
@@ -620,7 +620,7 @@ fn proptests_object(title: &str, schema: &Schema) -> Vec<Block> {
             ci("None"),
             t("."),
         ]),
-        tab(rows),
+        tbl(rows),
     ]
 }
 

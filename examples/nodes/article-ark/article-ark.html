@@ -73,8 +73,8 @@
     </video>
     <span>.</span>
   </p>
-  <stencila-call source='this/is/a/call' arguments='[]'>
-  </stencila-call>
+  <stencila-call-block source='this/is/a/call' arguments='[]'>
+  </stencila-call-block>
   <stencila-claim claim-type='Statement'>
     <p>
       <span>This is a claim</span>
@@ -88,22 +88,22 @@
       <span>This is a figure</span>
     </p>
   </figure>
-  <div is='stencila-for' code='items' symbol='item'>
+  <div is='stencila-for-block' code='items' symbol='item'>
     <p>
-      <span>This is a for loop</span>
+      <span>This is a for block</span>
     </p>
   </div>
   <h1>
     <span>This is a heading</span>
   </h1>
-  <div is='stencila-if'>
-    <div is='stencila-if-clause' code='1 &lt; 2'>
+  <div is='stencila-if-block'>
+    <div is='stencila-if-block-clause' code='1 &lt; 2'>
       <p>
         <span>This is an if block</span>
       </p>
     </div>
   </div>
-  <div is='stencila-include' source='this/is/an/include'>
+  <div is='stencila-include-block' source='this/is/an/include'>
   </div>
   <ul is='stencila-list'>
     <li>

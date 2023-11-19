@@ -49,16 +49,16 @@ fn to_string(codec: &str, options: Option<EncodeOptions>) {
         ol([li([t("text")])]),
         ul([li([t("text")])]),
         // Table
-        tab([tr([th([t("col")])]), tr([td([t("cell")])])]),
+        tbl([tr([th([t("col")])]), tr([td([t("cell")])])]),
         // Other
         adm(AdmonitionType::default(), Some("title"), [p([t("text")])]),
-        cal("source", [arg("name", "code")]),
+        clb("source", [arg("name", "code")]),
         clm(ClaimType::default(), [p([t("text")])]),
         sb("code", [p([t("text")])]),
         fig([p([img("url")])]),
-        r#if([ifc("code", Some("lang"), [p([t("text")])])]),
-        inc("source"),
-        r#for("symbol", "code", [p([t("text")])]),
+        ifb([ibc("code", Some("lang"), [p([t("text")])])]),
+        inb("source"),
+        frb("symbol", "code", [p([t("text")])]),
         sec([p([t("text")])]),
         tb(),
     ]);

@@ -3,7 +3,7 @@
 from .prelude import *
 
 Button = ForwardRef("Button")
-Call = ForwardRef("Call")
+CallBlock = ForwardRef("CallBlock")
 CodeChunk = ForwardRef("CodeChunk")
 CodeExpression = ForwardRef("CodeExpression")
 File = ForwardRef("File")
@@ -16,7 +16,7 @@ Variable = ForwardRef("Variable")
 
 ExecutionDependantNode = Union[
     Button,
-    Call,
+    CallBlock,
     CodeChunk,
     CodeExpression,
     File,

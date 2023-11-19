@@ -1,0 +1,81 @@
+<article>
+  <p>
+    <span>A simple if block</span>
+  </p>
+  <div is='stencila-if-block'>
+    <div is='stencila-if-block-clause' code='true'>
+      <p>
+        <span>This paragraph should be shown</span>
+      </p>
+    </div>
+  </div>
+  <p>
+    <span>An if block with programming language specified</span>
+  </p>
+  <div is='stencila-if-block'>
+    <div is='stencila-if-block-clause' code='True' programming-language='python'>
+      <p>
+        <span>This paragraph should be shown</span>
+      </p>
+    </div>
+  </div>
+  <p>
+    <span>With an else clause</span>
+  </p>
+  <div is='stencila-if-block'>
+    <div is='stencila-if-block-clause' code='false'>
+      <p>
+        <span>This paragraph should NOT be shown</span>
+      </p>
+    </div>
+    <div is='stencila-if-block-clause' code=''>
+      <p>
+        <span>This paragraph should be shown</span>
+      </p>
+    </div>
+  </div>
+  <p>
+    <span>With multiple clauses</span>
+  </p>
+  <div is='stencila-if-block'>
+    <div is='stencila-if-block-clause' code='false'>
+      <p>
+        <span>This first paragraph should NOT be shown</span>
+      </p>
+    </div>
+    <div is='stencila-if-block-clause' code='false'>
+      <p>
+        <span>This second paragraph should NOT be shown</span>
+      </p>
+    </div>
+    <div is='stencila-if-block-clause' code='true'>
+      <p>
+        <span>This third paragraph should be shown</span>
+      </p>
+    </div>
+    <div is='stencila-if-block-clause' code='true'>
+      <p>
+        <span>This fourth paragraph should NOT be shown because above clause is</span>
+      </p>
+    </div>
+    <div is='stencila-if-block-clause' code=''>
+      <p>
+        <span>This final paragraph should NOT be shown because above clause is</span>
+      </p>
+    </div>
+  </div>
+  <p>
+    <span>Nested if blocks</span>
+  </p>
+  <div is='stencila-if-block'>
+    <div is='stencila-if-block-clause' code='true'>
+      <div is='stencila-if-block'>
+        <div is='stencila-if-block-clause' code='true'>
+          <p>
+            <span>This paragraph should be shown</span>
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</article>

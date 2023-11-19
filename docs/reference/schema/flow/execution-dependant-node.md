@@ -9,7 +9,7 @@
 The `ExecutionDependantNode` type has these members:
 
 - [`Button`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/button.md)
-- [`Call`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/call.md)
+- [`CallBlock`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/call-block.md)
 - [`CodeChunk`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/code/code-chunk.md)
 - [`CodeExpression`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/code/code-expression.md)
 - [`File`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/file.md)

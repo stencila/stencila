@@ -1,5 +1,0 @@
-compact.jats.xml:
-  decode:
-    strip-types:
-      # TODO: implement encoding and decoding for `Call`
-      - Call

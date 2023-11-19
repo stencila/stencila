@@ -3,16 +3,16 @@
 from .prelude import *
 
 Admonition = ForwardRef("Admonition")
-Call = ForwardRef("Call")
+CallBlock = ForwardRef("CallBlock")
 Claim = ForwardRef("Claim")
 CodeBlock = ForwardRef("CodeBlock")
 CodeChunk = ForwardRef("CodeChunk")
 Figure = ForwardRef("Figure")
-For = ForwardRef("For")
+ForBlock = ForwardRef("ForBlock")
 Form = ForwardRef("Form")
 Heading = ForwardRef("Heading")
-If = ForwardRef("If")
-Include = ForwardRef("Include")
+IfBlock = ForwardRef("IfBlock")
+IncludeBlock = ForwardRef("IncludeBlock")
 List = ForwardRef("List")
 MathBlock = ForwardRef("MathBlock")
 Paragraph = ForwardRef("Paragraph")
@@ -25,16 +25,16 @@ ThematicBreak = ForwardRef("ThematicBreak")
 
 Block = Union[
     Admonition,
-    Call,
+    CallBlock,
     Claim,
     CodeBlock,
     CodeChunk,
     Figure,
-    For,
+    ForBlock,
     Form,
     Heading,
-    If,
-    Include,
+    IfBlock,
+    IncludeBlock,
     List,
     MathBlock,
     Paragraph,

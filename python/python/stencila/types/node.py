@@ -10,8 +10,8 @@ AudioObject = ForwardRef("AudioObject")
 BooleanValidator = ForwardRef("BooleanValidator")
 Brand = ForwardRef("Brand")
 Button = ForwardRef("Button")
-Call = ForwardRef("Call")
 CallArgument = ForwardRef("CallArgument")
+CallBlock = ForwardRef("CallBlock")
 Cite = ForwardRef("Cite")
 CiteGroup = ForwardRef("CiteGroup")
 Claim = ForwardRef("Claim")
@@ -48,15 +48,15 @@ ExecutionError = ForwardRef("ExecutionError")
 ExecutionTag = ForwardRef("ExecutionTag")
 Figure = ForwardRef("Figure")
 File = ForwardRef("File")
-For = ForwardRef("For")
+ForBlock = ForwardRef("ForBlock")
 Form = ForwardRef("Form")
 Function = ForwardRef("Function")
 Grant = ForwardRef("Grant")
 Heading = ForwardRef("Heading")
-If = ForwardRef("If")
-IfClause = ForwardRef("IfClause")
+IfBlock = ForwardRef("IfBlock")
+IfBlockClause = ForwardRef("IfBlockClause")
 ImageObject = ForwardRef("ImageObject")
-Include = ForwardRef("Include")
+IncludeBlock = ForwardRef("IncludeBlock")
 Insert = ForwardRef("Insert")
 IntegerValidator = ForwardRef("IntegerValidator")
 Link = ForwardRef("Link")
@@ -125,8 +125,8 @@ Node = Union[
     BooleanValidator,
     Brand,
     Button,
-    Call,
     CallArgument,
+    CallBlock,
     Cite,
     CiteGroup,
     Claim,
@@ -162,15 +162,15 @@ Node = Union[
     ExecutionTag,
     Figure,
     File,
-    For,
+    ForBlock,
     Form,
     Function,
     Grant,
     Heading,
-    If,
-    IfClause,
+    IfBlock,
+    IfBlockClause,
     ImageObject,
-    Include,
+    IncludeBlock,
     Insert,
     IntegerValidator,
     Link,

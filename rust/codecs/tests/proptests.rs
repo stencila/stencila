@@ -79,14 +79,14 @@ proptest! {
         article.strip(&StripTargets {
             types: vec![
                 // TODO Remove these as implemented
-                String::from("Call"),
+                String::from("CallBlock"),
                 String::from("Claim"),
                 String::from("CodeBlock"),
                 String::from("CodeChunk"),
                 String::from("Figure"),
-                String::from("For"),
-                String::from("If"),
-                String::from("Include"),
+                String::from("ForBlock"),
+                String::from("IfBlock"),
+                String::from("IncludeBlock"),
                 String::from("List"),
                 String::from("MathBlock"),
                 String::from("StyledBlock"),

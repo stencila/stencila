@@ -24,7 +24,7 @@
           "@id": "stencila:CodeLocation"
         },
         {
-          "@id": "stencila:Include"
+          "@id": "stencila:IncludeBlock"
         }
       ],
       "schema:rangeIncludes": {

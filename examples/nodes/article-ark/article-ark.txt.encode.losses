@@ -1,6 +1,6 @@
 Article#: 1
 AudioObject#: 1
-Call#: 1
+CallBlock#: 1
 Claim#: 1
 CodeBlock#: 1
 CodeChunk#: 1
@@ -9,12 +9,12 @@ CodeInline#: 1
 Delete#: 1
 Emphasis#: 1
 Figure#: 1
-For#: 1
+ForBlock#: 1
 Heading#: 1
-If#: 1
-IfClause#: 1
+IfBlock#: 1
+IfBlockClause#: 1
 ImageObject#: 1
-Include#: 1
+IncludeBlock#: 1
 Insert#: 1
 Integer@: 1
 Link#: 1

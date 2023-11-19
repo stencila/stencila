@@ -61,10 +61,10 @@ def from_value(value) -> Node:  # pragma: no cover
         return Brand(**value)
     if typ == "Button":
         return Button(**value)
-    if typ == "Call":
-        return Call(**value)
     if typ == "CallArgument":
         return CallArgument(**value)
+    if typ == "CallBlock":
+        return CallBlock(**value)
     if typ == "Cite":
         return Cite(**value)
     if typ == "CiteGroup":
@@ -131,8 +131,8 @@ def from_value(value) -> Node:  # pragma: no cover
         return Figure(**value)
     if typ == "File":
         return File(**value)
-    if typ == "For":
-        return For(**value)
+    if typ == "ForBlock":
+        return ForBlock(**value)
     if typ == "Form":
         return Form(**value)
     if typ == "Function":
@@ -141,14 +141,14 @@ def from_value(value) -> Node:  # pragma: no cover
         return Grant(**value)
     if typ == "Heading":
         return Heading(**value)
-    if typ == "If":
-        return If(**value)
-    if typ == "IfClause":
-        return IfClause(**value)
+    if typ == "IfBlock":
+        return IfBlock(**value)
+    if typ == "IfBlockClause":
+        return IfBlockClause(**value)
     if typ == "ImageObject":
         return ImageObject(**value)
-    if typ == "Include":
-        return Include(**value)
+    if typ == "IncludeBlock":
+        return IncludeBlock(**value)
     if typ == "Insert":
         return Insert(**value)
     if typ == "IntegerValidator":

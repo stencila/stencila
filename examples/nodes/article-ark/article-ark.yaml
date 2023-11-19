@@ -119,7 +119,7 @@ content:
       value: video
   - type: Text
     value: .
-- type: Call
+- type: CallBlock
   source: this/is/a/call
   arguments: []
 - type: Claim
@@ -139,29 +139,29 @@ content:
     content:
     - type: Text
       value: This is a figure
-- type: For
+- type: ForBlock
   code: items
   symbol: item
   content:
   - type: Paragraph
     content:
     - type: Text
-      value: This is a for loop
+      value: This is a for block
 - type: Heading
   level: 1
   content:
   - type: Text
     value: This is a heading
-- type: If
+- type: IfBlock
   clauses:
-  - type: IfClause
+  - type: IfBlockClause
     code: 1 < 2
     content:
     - type: Paragraph
       content:
       - type: Text
         value: This is an if block
-- type: Include
+- type: IncludeBlock
   source: this/is/an/include
 - type: List
   items:

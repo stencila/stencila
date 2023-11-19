@@ -14,13 +14,13 @@ anyOf:
         description: Generate `Admonition` nodes in block content.
         skip: false
 
-  - $ref: Call
+  - $ref: CallBlock
     proptest:
       min:
-        description: Do not generate `Call` nodes in block content.
+        description: Do not generate `CallBlock` nodes in block content.
         skip: true
       low:
-        description: Generate `Call` nodes in block content.
+        description: Generate `CallBlock` nodes in block content.
         skip: false
   
   - $ref: Claim
@@ -52,13 +52,13 @@ anyOf:
         description: Generate `Figure` nodes in block content.
         skip: false
   
-  - $ref: For
+  - $ref: ForBlock
     proptest:
       min:
-        description: Do not generate `For` nodes in block content.
+        description: Do not generate `ForBlock` nodes in block content.
         skip: true
       low:
-        description: Generate `For` nodes in block content.
+        description: Generate `ForBlock` nodes in block content.
         skip: false
   
   - $ref: Form
@@ -69,22 +69,22 @@ anyOf:
   
   - $ref: Heading
   
-  - $ref: If
+  - $ref: IfBlock
     proptest:
       min:
-        description: Do not generate `If` nodes in block content.
+        description: Do not generate `IfBlock` nodes in block content.
         skip: true
       low:
-        description: Generate `If` nodes in block content.
+        description: Generate `IfBlock` nodes in block content.
         skip: false
   
-  - $ref: Include
+  - $ref: IncludeBlock
     proptest:
       min:
-        description: Do not generate `Include` nodes in block content.
+        description: Do not generate `IncludeBlock` nodes in block content.
         skip: true
       low:
-        description: Generate `Include` nodes in block content.
+        description: Generate `IncludeBlock` nodes in block content.
         skip: false
   
   - $ref: List
