@@ -146,16 +146,6 @@
       "code": "This is a code chunk"
     },
     {
-      "type": "Division",
-      "code": "text-red-800 bg-indigo-100",
-      "content": [
-        {
-          "type": "Paragraph",
-          "content": [{ "type": "Text", "value": "This is a division" }]
-        }
-      ]
-    },
-    {
       "type": "Figure",
       "content": [
         {
@@ -234,6 +224,16 @@
         {
           "type": "Paragraph",
           "content": [{ "type": "Text", "value": "This is a section" }]
+        }
+      ]
+    },
+    {
+      "type": "StyledBlock",
+      "code": "text-red-800 bg-indigo-100",
+      "content": [
+        {
+          "type": "Paragraph",
+          "content": [{ "type": "Text", "value": "This is a styled block" }]
         }
       ]
     },

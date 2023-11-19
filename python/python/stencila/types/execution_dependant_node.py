@@ -6,10 +6,10 @@ Button = ForwardRef("Button")
 Call = ForwardRef("Call")
 CodeChunk = ForwardRef("CodeChunk")
 CodeExpression = ForwardRef("CodeExpression")
-Division = ForwardRef("Division")
 File = ForwardRef("File")
 Function = ForwardRef("Function")
 Parameter = ForwardRef("Parameter")
+StyledBlock = ForwardRef("StyledBlock")
 StyledInline = ForwardRef("StyledInline")
 Variable = ForwardRef("Variable")
 
@@ -19,10 +19,10 @@ ExecutionDependantNode = Union[
     Call,
     CodeChunk,
     CodeExpression,
-    Division,
     File,
     Function,
     Parameter,
+    StyledBlock,
     StyledInline,
     Variable,
 ]

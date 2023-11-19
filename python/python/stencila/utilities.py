@@ -107,8 +107,6 @@ def from_value(value) -> Node:  # pragma: no cover
         return Delete(**value)
     if typ == "Directory":
         return Directory(**value)
-    if typ == "Division":
-        return Division(**value)
     if typ == "Duration":
         return Duration(**value)
     if typ == "DurationValidator":
@@ -209,6 +207,8 @@ def from_value(value) -> Node:  # pragma: no cover
         return StringValidator(**value)
     if typ == "Strong":
         return Strong(**value)
+    if typ == "StyledBlock":
+        return StyledBlock(**value)
     if typ == "StyledInline":
         return StyledInline(**value)
     if typ == "Subscript":

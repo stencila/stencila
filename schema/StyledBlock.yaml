@@ -1,5 +1,5 @@
-title: Division
-'@id': stencila:Division
+title: StyledBlock
+'@id': stencila:StyledBlock
 status: under-development
 extends: Styled
 category: style
@@ -14,7 +14,7 @@ required:
 properties:
   content:
     '@id': stencila:content
-    description: The content within the division
+    description: The content within the styled block
     type: array
     items:
       $ref: Block

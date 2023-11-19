@@ -1,8 +1,8 @@
 {
   "$schema": "https://stencila.dev/meta.schema.json",
-  "$id": "https://stencila.dev/Division.schema.json",
-  "@id": "stencila:Division",
-  "title": "Division",
+  "$id": "https://stencila.dev/StyledBlock.schema.json",
+  "@id": "stencila:StyledBlock",
+  "title": "StyledBlock",
   "extends": [
     "Styled"
   ],
@@ -148,7 +148,7 @@
     },
     "content": {
       "@id": "stencila:content",
-      "description": "The content within the division",
+      "description": "The content within the styled block",
       "type": "array",
       "items": {
         "$ref": "Block.schema.json"

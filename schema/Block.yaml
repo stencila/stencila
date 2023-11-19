@@ -43,8 +43,6 @@ anyOf:
         description: Generate `CodeChunk` nodes in block content.
         skip: false
   
-  - $ref: Division
-  
   - $ref: Figure
     proptest:
       min:
@@ -105,6 +103,8 @@ anyOf:
       low:
         description: Generate `Section` nodes in block content.
         skip: false
+
+  - $ref: StyledBlock
   
   - $ref: Table
   

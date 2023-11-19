@@ -61,9 +61,6 @@
           "@id": "stencila:Cite"
         },
         {
-          "@id": "stencila:Division"
-        },
-        {
           "@id": "stencila:Figure"
         },
         {
@@ -98,6 +95,9 @@
         },
         {
           "@id": "stencila:Section"
+        },
+        {
+          "@id": "stencila:StyledBlock"
         },
         {
           "@id": "stencila:StyledInline"

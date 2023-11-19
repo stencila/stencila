@@ -101,8 +101,6 @@ export function hydrate(value: types.Node): types.Node {
       return Object.setPrototypeOf(value, types.Delete.prototype);
     case "Directory":
       return Object.setPrototypeOf(value, types.Directory.prototype);
-    case "Division":
-      return Object.setPrototypeOf(value, types.Division.prototype);
     case "Duration":
       return Object.setPrototypeOf(value, types.Duration.prototype);
     case "DurationValidator":
@@ -213,6 +211,8 @@ export function hydrate(value: types.Node): types.Node {
       return Object.setPrototypeOf(value, types.Strong.prototype);
     case "Styled":
       return Object.setPrototypeOf(value, types.Styled.prototype);
+    case "StyledBlock":
+      return Object.setPrototypeOf(value, types.StyledBlock.prototype);
     case "StyledInline":
       return Object.setPrototypeOf(value, types.StyledInline.prototype);
     case "Subscript":

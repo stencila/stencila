@@ -6,10 +6,10 @@ import { type Button } from "./Button.js";
 import { type Call } from "./Call.js";
 import { type CodeChunk } from "./CodeChunk.js";
 import { type CodeExpression } from "./CodeExpression.js";
-import { type Division } from "./Division.js";
 import { type File } from "./File.js";
 import { type Function } from "./Function.js";
 import { type Parameter } from "./Parameter.js";
+import { type StyledBlock } from "./StyledBlock.js";
 import { type StyledInline } from "./StyledInline.js";
 import { type Variable } from "./Variable.js";
 
@@ -21,10 +21,10 @@ export type ExecutionDependantNode =
   Call |
   CodeChunk |
   CodeExpression |
-  Division |
   File |
   Function |
   Parameter |
+  StyledBlock |
   StyledInline |
   Variable;
 
@@ -37,10 +37,10 @@ export function executionDependantNode(other: ExecutionDependantNode): Execution
     case "Call":
     case "CodeChunk":
     case "CodeExpression":
-    case "Division":
     case "File":
     case "Function":
     case "Parameter":
+    case "StyledBlock":
     case "StyledInline":
     case "Variable":
       return hydrate(other) as ExecutionDependantNode

@@ -46,7 +46,6 @@ mod date_validator;
 mod defined_term;
 mod delete;
 mod directory;
-mod division;
 mod duration;
 mod duration_validator;
 mod emphasis;
@@ -124,6 +123,7 @@ mod string;
 mod string_or_number;
 mod string_validator;
 mod strong;
+mod styled_block;
 mod styled_inline;
 mod subscript;
 mod superscript;
@@ -193,7 +193,6 @@ pub use date_validator::*;
 pub use defined_term::*;
 pub use delete::*;
 pub use directory::*;
-pub use division::*;
 pub use duration::*;
 pub use duration_validator::*;
 pub use emphasis::*;
@@ -271,6 +270,7 @@ pub use string::*;
 pub use string_or_number::*;
 pub use string_validator::*;
 pub use strong::*;
+pub use styled_block::*;
 pub use styled_inline::*;
 pub use subscript::*;
 pub use superscript::*;
@@ -339,7 +339,6 @@ pub enum NodeType {
     DefinedTerm,
     Delete,
     Directory,
-    Division,
     Duration,
     DurationValidator,
     Emphasis,
@@ -390,6 +389,7 @@ pub enum NodeType {
     Strikeout,
     StringValidator,
     Strong,
+    StyledBlock,
     StyledInline,
     Subscript,
     Superscript,

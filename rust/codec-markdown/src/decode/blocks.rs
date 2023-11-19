@@ -15,8 +15,9 @@ use nom::{
 use codec::{
     common::itertools::Itertools,
     schema::{
-        Admonition, Block, Call, CallArgument, Claim, Cord, Division, For, Form, FormDeriveAction,
-        FormOptions, IfClause, Include, Inline, IntegerOrString, MathBlock, Node, Section, Text,
+        Admonition, Block, Call, CallArgument, Claim, Cord, For, Form, FormDeriveAction,
+        FormOptions, IfClause, Include, Inline, IntegerOrString, MathBlock, Node, Section,
+        StyledBlock, Text,
     },
 };
 
@@ -213,8 +214,8 @@ pub fn claim(input: &str) -> IResult<&str, Claim> {
     )(input)
 }
 
-/// Parse a [`Division`] node
-pub fn division(input: &str) -> IResult<&str, Division> {
+/// Parse a [`StyledBlock`] node
+pub fn styled_block(input: &str) -> IResult<&str, StyledBlock> {
     map(
         all_consuming(preceded(
             tuple((semis, multispace0)),
@@ -223,7 +224,7 @@ pub fn division(input: &str) -> IResult<&str, Division> {
                 delimited(char('{'), is_not("}"), char('}')),
             )),
         )),
-        |(lang, code)| Division {
+        |(lang, code)| StyledBlock {
             code: Cord::from(code),
             style_language: lang.map(|lang| lang.into()),
             ..Default::default()

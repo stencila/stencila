@@ -22,8 +22,8 @@ use crate::decode::inlines::inlines_or_text;
 
 use super::{
     blocks::{
-        admonition, call, claim, division, else_, end, for_, form, if_elif, include, math_block,
-        section,
+        admonition, call, claim, else_, end, for_, form, if_elif, include, math_block, section,
+        styled_block,
     },
     inlines::inlines,
 };
@@ -239,9 +239,9 @@ pub fn decode_blocks(
                         blocks.push_div();
                         divs.push_back(Block::Claim(claim));
                         None
-                    } else if let Ok((.., div)) = division(trimmed) {
+                    } else if let Ok((.., div)) = styled_block(trimmed) {
                         blocks.push_div();
-                        divs.push_back(Block::Division(div));
+                        divs.push_back(Block::StyledBlock(div));
                         None
                     } else if let Ok((.., for_)) = for_(trimmed) {
                         blocks.push_div();
@@ -319,9 +319,9 @@ pub fn decode_blocks(
                                 section.content = blocks.pop_div();
                                 Block::Section(section)
                             }
-                            Block::Division(mut div) => {
+                            Block::StyledBlock(mut div) => {
                                 div.content = blocks.pop_div();
-                                Block::Division(div)
+                                Block::StyledBlock(div)
                             }
                             Block::For(mut for_) => {
                                 for_.otherwise = for_.otherwise.map(|_| blocks.pop_div());
@@ -672,7 +672,7 @@ struct Blocks {
     /// Positions in the stack indicating the start of the parent node
     marks: Vec<usize>,
 
-    /// Marks in the stack indicating the start of a [`Division`] node
+    /// Marks in the stack indicating the start of a fenced div
     divs: Vec<usize>,
 }
 

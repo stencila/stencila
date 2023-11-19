@@ -46,7 +46,6 @@ from .date_validator import DateValidator
 from .defined_term import DefinedTerm
 from .delete import Delete
 from .directory import Directory
-from .division import Division
 from .duration import Duration
 from .duration_validator import DurationValidator
 from .emphasis import Emphasis
@@ -125,6 +124,7 @@ from .strikeout import Strikeout
 from .string_validator import StringValidator
 from .strong import Strong
 from .styled import Styled
+from .styled_block import StyledBlock
 from .styled_inline import StyledInline
 from .subscript import Subscript
 from .suggestion import Suggestion

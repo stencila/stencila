@@ -19,9 +19,6 @@
       "$ref": "CodeExpression.schema.json"
     },
     {
-      "$ref": "Division.schema.json"
-    },
-    {
       "$ref": "File.schema.json"
     },
     {
@@ -29,6 +26,9 @@
     },
     {
       "$ref": "Parameter.schema.json"
+    },
+    {
+      "$ref": "StyledBlock.schema.json"
     },
     {
       "$ref": "StyledInline.schema.json"

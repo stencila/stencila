@@ -10,15 +10,15 @@ from .styled import Styled
 
 
 @dataclass(init=False)
-class Division(Styled):
+class StyledBlock(Styled):
     """
     Styled block content.
     """
 
-    type: Literal["Division"] = field(default="Division", init=False)
+    type: Literal["StyledBlock"] = field(default="StyledBlock", init=False)
 
     content: List[Block]
-    """The content within the division"""
+    """The content within the styled block"""
 
     def __init__(self, code: Cord, content: List[Block], id: Optional[str] = None, style_language: Optional[str] = None, compilation_digest: Optional[CompilationDigest] = None, compilation_errors: Optional[List[CompilationError]] = None, css: Optional[str] = None, classes: Optional[List[str]] = None):
         super().__init__(id = id, code = code, style_language = style_language, compilation_digest = compilation_digest, compilation_errors = compilation_errors, css = css, classes = classes)

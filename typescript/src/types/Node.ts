@@ -37,7 +37,6 @@ import { type DateValidator } from "./DateValidator.js";
 import { type DefinedTerm } from "./DefinedTerm.js";
 import { type Delete } from "./Delete.js";
 import { type Directory } from "./Directory.js";
-import { type Division } from "./Division.js";
 import { type Duration } from "./Duration.js";
 import { type DurationValidator } from "./DurationValidator.js";
 import { type Emphasis } from "./Emphasis.js";
@@ -90,6 +89,7 @@ import { type SoftwareSourceCode } from "./SoftwareSourceCode.js";
 import { type Strikeout } from "./Strikeout.js";
 import { type StringValidator } from "./StringValidator.js";
 import { type Strong } from "./Strong.js";
+import { type StyledBlock } from "./StyledBlock.js";
 import { type StyledInline } from "./StyledInline.js";
 import { type Subscript } from "./Subscript.js";
 import { type Superscript } from "./Superscript.js";
@@ -154,7 +154,6 @@ export type Node =
   DefinedTerm |
   Delete |
   Directory |
-  Division |
   Duration |
   DurationValidator |
   Emphasis |
@@ -205,6 +204,7 @@ export type Node =
   Strikeout |
   StringValidator |
   Strong |
+  StyledBlock |
   StyledInline |
   Subscript |
   Superscript |
@@ -265,7 +265,6 @@ export function node(other: Node): Node {
     case "DefinedTerm":
     case "Delete":
     case "Directory":
-    case "Division":
     case "Duration":
     case "DurationValidator":
     case "Emphasis":
@@ -316,6 +315,7 @@ export function node(other: Node): Node {
     case "Strikeout":
     case "StringValidator":
     case "Strong":
+    case "StyledBlock":
     case "StyledInline":
     case "Subscript":
     case "Superscript":

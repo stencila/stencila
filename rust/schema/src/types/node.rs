@@ -38,7 +38,6 @@ use super::date_validator::DateValidator;
 use super::defined_term::DefinedTerm;
 use super::delete::Delete;
 use super::directory::Directory;
-use super::division::Division;
 use super::duration::Duration;
 use super::duration_validator::DurationValidator;
 use super::emphasis::Emphasis;
@@ -94,6 +93,7 @@ use super::strikeout::Strikeout;
 use super::string::String;
 use super::string_validator::StringValidator;
 use super::strong::Strong;
+use super::styled_block::StyledBlock;
 use super::styled_inline::StyledInline;
 use super::subscript::Subscript;
 use super::superscript::Superscript;
@@ -200,8 +200,6 @@ pub enum Node {
 
     Directory(Directory),
 
-    Division(Division),
-
     Duration(Duration),
 
     DurationValidator(DurationValidator),
@@ -301,6 +299,8 @@ pub enum Node {
     StringValidator(StringValidator),
 
     Strong(Strong),
+
+    StyledBlock(StyledBlock),
 
     StyledInline(StyledInline),
 

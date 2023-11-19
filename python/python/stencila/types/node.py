@@ -37,7 +37,6 @@ DateValidator = ForwardRef("DateValidator")
 DefinedTerm = ForwardRef("DefinedTerm")
 Delete = ForwardRef("Delete")
 Directory = ForwardRef("Directory")
-Division = ForwardRef("Division")
 Duration = ForwardRef("Duration")
 DurationValidator = ForwardRef("DurationValidator")
 Emphasis = ForwardRef("Emphasis")
@@ -89,6 +88,7 @@ SoftwareSourceCode = ForwardRef("SoftwareSourceCode")
 Strikeout = ForwardRef("Strikeout")
 StringValidator = ForwardRef("StringValidator")
 Strong = ForwardRef("Strong")
+StyledBlock = ForwardRef("StyledBlock")
 StyledInline = ForwardRef("StyledInline")
 Subscript = ForwardRef("Subscript")
 Superscript = ForwardRef("Superscript")
@@ -151,7 +151,6 @@ Node = Union[
     DefinedTerm,
     Delete,
     Directory,
-    Division,
     Duration,
     DurationValidator,
     Emphasis,
@@ -202,6 +201,7 @@ Node = Union[
     Strikeout,
     StringValidator,
     Strong,
+    StyledBlock,
     StyledInline,
     Subscript,
     Superscript,

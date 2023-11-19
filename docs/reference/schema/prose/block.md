@@ -13,7 +13,6 @@ The `Block` type has these members:
 - [`Claim`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/claim.md)
 - [`CodeBlock`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/code/code-block.md)
 - [`CodeChunk`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/code/code-chunk.md)
-- [`Division`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/style/division.md)
 - [`Figure`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/figure.md)
 - [`For`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/for.md)
 - [`Form`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/form.md)
@@ -25,6 +24,7 @@ The `Block` type has these members:
 - [`Paragraph`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/paragraph.md)
 - [`QuoteBlock`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/quote-block.md)
 - [`Section`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/section.md)
+- [`StyledBlock`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/style/styled-block.md)
 - [`Table`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/table.md)
 - [`ThematicBreak`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/thematic-break.md)
 

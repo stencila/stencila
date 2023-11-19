@@ -54,7 +54,7 @@ fn to_string(codec: &str, options: Option<EncodeOptions>) {
         adm(AdmonitionType::default(), Some("title"), [p([t("text")])]),
         cal("source", [arg("name", "code")]),
         clm(ClaimType::default(), [p([t("text")])]),
-        div("code", [p([t("text")])]),
+        sb("code", [p([t("text")])]),
         fig([p([img("url")])]),
         r#if([ifc("code", Some("lang"), [p([t("text")])])]),
         inc("source"),

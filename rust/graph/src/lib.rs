@@ -16,9 +16,9 @@ use common::{
 };
 use format::Format;
 use schema::{
-    Button, Call, CodeChunk, CodeExpression, Division, ExecutionDependantNode,
-    ExecutionDependantRelation, ExecutionDependencyNode, ExecutionDependencyRelation, File,
-    Function, Parameter, SoftwareSourceCode, StyledInline, Variable,
+    Button, Call, CodeChunk, CodeExpression, ExecutionDependantNode, ExecutionDependantRelation,
+    ExecutionDependencyNode, ExecutionDependencyRelation, File, Function, Parameter,
+    SoftwareSourceCode, StyledBlock, StyledInline, Variable,
 };
 
 /// The nodes in the graph
@@ -43,9 +43,6 @@ pub enum GraphNode {
     CodeExpression {
         id: String,
     },
-    Division {
-        id: String,
-    },
     File {
         path: String,
     },
@@ -55,7 +52,10 @@ pub enum GraphNode {
     Parameter {
         name: String,
     },
-    Span {
+    StyledBlock {
+        id: String,
+    },
+    StyledInline {
         id: String,
     },
     SoftwareSourceCode {
@@ -114,13 +114,13 @@ impl TryFrom<&ExecutionDependantNode> for GraphNode {
                     .clone()
                     .ok_or_else(|| eyre!("CodeExpression missing id"))?,
             },
-            Other::Division(Division { id, .. }) => Self::Division {
-                id: id.clone().ok_or_else(|| eyre!("Division missing id"))?,
+            Other::StyledBlock(StyledBlock { id, .. }) => Self::StyledBlock {
+                id: id.clone().ok_or_else(|| eyre!("StyledBlock missing id"))?,
             },
             Other::File(File { path, .. }) => Self::File { path: path.clone() },
             Other::Function(Function { name, .. }) => Self::Function { name: name.clone() },
             Other::Parameter(Parameter { name, .. }) => Self::Parameter { name: name.clone() },
-            Other::StyledInline(StyledInline { id, .. }) => Self::Span {
+            Other::StyledInline(StyledInline { id, .. }) => Self::StyledInline {
                 id: id.clone().ok_or_else(|| eyre!("Span missing id"))?,
             },
             Other::Variable(Variable { name, .. }) => Self::Variable { name: name.clone() },

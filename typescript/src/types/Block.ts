@@ -7,7 +7,6 @@ import { type Call } from "./Call.js";
 import { type Claim } from "./Claim.js";
 import { type CodeBlock } from "./CodeBlock.js";
 import { type CodeChunk } from "./CodeChunk.js";
-import { type Division } from "./Division.js";
 import { type Figure } from "./Figure.js";
 import { type For } from "./For.js";
 import { type Form } from "./Form.js";
@@ -19,6 +18,7 @@ import { type MathBlock } from "./MathBlock.js";
 import { type Paragraph } from "./Paragraph.js";
 import { type QuoteBlock } from "./QuoteBlock.js";
 import { type Section } from "./Section.js";
+import { type StyledBlock } from "./StyledBlock.js";
 import { type Table } from "./Table.js";
 import { type ThematicBreak } from "./ThematicBreak.js";
 
@@ -31,7 +31,6 @@ export type Block =
   Claim |
   CodeBlock |
   CodeChunk |
-  Division |
   Figure |
   For |
   Form |
@@ -43,6 +42,7 @@ export type Block =
   Paragraph |
   QuoteBlock |
   Section |
+  StyledBlock |
   Table |
   ThematicBreak;
 
@@ -56,7 +56,6 @@ export function block(other: Block): Block {
     case "Claim":
     case "CodeBlock":
     case "CodeChunk":
-    case "Division":
     case "Figure":
     case "For":
     case "Form":
@@ -68,6 +67,7 @@ export function block(other: Block): Block {
     case "Paragraph":
     case "QuoteBlock":
     case "Section":
+    case "StyledBlock":
     case "Table":
     case "ThematicBreak":
       return hydrate(other) as Block

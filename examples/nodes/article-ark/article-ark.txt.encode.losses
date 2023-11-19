@@ -7,7 +7,6 @@ CodeChunk#: 1
 CodeExpression#: 1
 CodeInline#: 1
 Delete#: 1
-Division#: 1
 Emphasis#: 1
 Figure#: 1
 For#: 1
@@ -31,6 +30,7 @@ QuoteInline#: 1
 Section#: 1
 Strikeout#: 1
 Strong#: 1
+StyledBlock#: 1
 StyledInline#: 1
 Subscript#: 1
 Superscript#: 1

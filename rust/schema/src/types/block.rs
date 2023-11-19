@@ -7,7 +7,6 @@ use super::call::Call;
 use super::claim::Claim;
 use super::code_block::CodeBlock;
 use super::code_chunk::CodeChunk;
-use super::division::Division;
 use super::figure::Figure;
 use super::r#for::For;
 use super::form::Form;
@@ -19,6 +18,7 @@ use super::math_block::MathBlock;
 use super::paragraph::Paragraph;
 use super::quote_block::QuoteBlock;
 use super::section::Section;
+use super::styled_block::StyledBlock;
 use super::table::Table;
 use super::thematic_break::ThematicBreak;
 
@@ -40,8 +40,6 @@ pub enum Block {
 
     #[cfg_attr(feature = "proptest-min", proptest(skip))]
     CodeChunk(CodeChunk),
-
-    Division(Division),
 
     #[cfg_attr(feature = "proptest-min", proptest(skip))]
     Figure(Figure),
@@ -74,6 +72,8 @@ pub enum Block {
 
     #[cfg_attr(feature = "proptest-min", proptest(skip))]
     Section(Section),
+
+    StyledBlock(StyledBlock),
 
     Table(Table),
 

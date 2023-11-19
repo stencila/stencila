@@ -8,9 +8,9 @@ anyOf:
   - $ref: Call
   - $ref: CodeChunk
   - $ref: CodeExpression
-  - $ref: Division
   - $ref: File
   - $ref: Function
   - $ref: Parameter
+  - $ref: StyledBlock
   - $ref: StyledInline
   - $ref: Variable

@@ -1,8 +1,8 @@
 use codec_losses::lost_options;
 
-use crate::{prelude::*, Division};
+use crate::{prelude::*, StyledBlock};
 
-impl Division {
+impl StyledBlock {
     pub fn to_markdown_special(&self, context: &mut MarkdownEncodeContext) -> (String, Losses) {
         let mut losses = lost_options!(
             self,

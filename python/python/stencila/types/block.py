@@ -7,7 +7,6 @@ Call = ForwardRef("Call")
 Claim = ForwardRef("Claim")
 CodeBlock = ForwardRef("CodeBlock")
 CodeChunk = ForwardRef("CodeChunk")
-Division = ForwardRef("Division")
 Figure = ForwardRef("Figure")
 For = ForwardRef("For")
 Form = ForwardRef("Form")
@@ -19,6 +18,7 @@ MathBlock = ForwardRef("MathBlock")
 Paragraph = ForwardRef("Paragraph")
 QuoteBlock = ForwardRef("QuoteBlock")
 Section = ForwardRef("Section")
+StyledBlock = ForwardRef("StyledBlock")
 Table = ForwardRef("Table")
 ThematicBreak = ForwardRef("ThematicBreak")
 
@@ -29,7 +29,6 @@ Block = Union[
     Claim,
     CodeBlock,
     CodeChunk,
-    Division,
     Figure,
     For,
     Form,
@@ -41,6 +40,7 @@ Block = Union[
     Paragraph,
     QuoteBlock,
     Section,
+    StyledBlock,
     Table,
     ThematicBreak,
 ]

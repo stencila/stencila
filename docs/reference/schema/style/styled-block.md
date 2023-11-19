@@ -1,14 +1,14 @@
-# Division
+# Styled Block
 
 **Styled block content.**
 
-**`@id`**: `stencila:Division`
+**`@id`**: `stencila:StyledBlock`
 
 This type is marked as unstable and is subject to change.
 
 ## Properties
 
-The `Division` type has these properties:
+The `StyledBlock` type has these properties:
 
 | Name                | Aliases                                                                                                  | `@id`                                | Type                                                                                                                   | Description                                                        | Inherited from                                                                                   |
 | ------------------- | -------------------------------------------------------------------------------------------------------- | ------------------------------------ | ---------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------ |
@@ -19,18 +19,18 @@ The `Division` type has these properties:
 | `compilationErrors` | `compilation-errors`, `compilation_errors`, `compilationError`, `compilation-error`, `compilation_error` | `stencila:compilationErrors`         | [`CompilationError`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/code/compilation-error.md)*  | Errors generated when parsing and transpiling the style.           | [`Styled`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/style/styled.md) |
 | `css`               | -                                                                                                        | `stencila:css`                       | [`String`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/string.md)                        | A Cascading Style Sheet (CSS) transpiled from the `code` property. | [`Styled`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/style/styled.md) |
 | `classes`           | `class`                                                                                                  | `stencila:classes`                   | [`String`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/string.md)*                       | A list of class names associated with the node.                    | [`Styled`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/style/styled.md) |
-| `content`           | -                                                                                                        | `stencila:content`                   | [`Block`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/block.md)*                        | The content within the division                                    | -                                                                                                |
+| `content`           | -                                                                                                        | `stencila:content`                   | [`Block`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/block.md)*                        | The content within the styled block                                | -                                                                                                |
 
 ## Related
 
-The `Division` type is related to these types:
+The `StyledBlock` type is related to these types:
 
 - Parents: [`Styled`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/style/styled.md)
 - Children: none
 
 ## Formats
 
-The `Division` type can be encoded (serialized) to, and/or decoded (deserialized) from, these formats:
+The `StyledBlock` type can be encoded (serialized) to, and/or decoded (deserialized) from, these formats:
 
 | Format                                                                                        | Encoding         | Decoding     | Status                 | Notes                                                                               |
 | --------------------------------------------------------------------------------------------- | ---------------- | ------------ | ---------------------- | ----------------------------------------------------------------------------------- |
@@ -45,17 +45,17 @@ The `Division` type can be encoded (serialized) to, and/or decoded (deserialized
 
 ## Bindings
 
-The `Division` type is represented in these bindings:
+The `StyledBlock` type is represented in these bindings:
 
-- [JSON-LD](https://stencila.dev/Division.jsonld)
-- [JSON Schema](https://stencila.dev/Division.schema.json)
-- Python class [`Division`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/division.py)
-- Rust struct [`Division`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/division.rs)
-- TypeScript class [`Division`](https://github.com/stencila/stencila/blob/main/typescript/src/types/Division.ts)
+- [JSON-LD](https://stencila.dev/StyledBlock.jsonld)
+- [JSON Schema](https://stencila.dev/StyledBlock.schema.json)
+- Python class [`StyledBlock`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/styled_block.py)
+- Rust struct [`StyledBlock`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/styled_block.rs)
+- TypeScript class [`StyledBlock`](https://github.com/stencila/stencila/blob/main/typescript/src/types/StyledBlock.ts)
 
 ## Testing
 
-During property-based (a.k.a generative) testing, the properties of the `Division` type are generated using the following strategies[^1] for each complexity level. Any optional properties that are not in this table are set to `None`.
+During property-based (a.k.a generative) testing, the properties of the `StyledBlock` type are generated using the following strategies[^1] for each complexity level. Any optional properties that are not in this table are set to `None`.
 
 | Property        | Complexity | Description                                                                      | Strategy                                      |
 | --------------- | ---------- | -------------------------------------------------------------------------------- | --------------------------------------------- |
@@ -70,6 +70,6 @@ During property-based (a.k.a generative) testing, the properties of the `Divisio
 
 ## Source
 
-This documentation was generated from [`Division.yaml`](https://github.com/stencila/stencila/blob/main/schema/Division.yaml) by [`docs.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs.rs).
+This documentation was generated from [`StyledBlock.yaml`](https://github.com/stencila/stencila/blob/main/schema/StyledBlock.yaml) by [`docs.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs.rs).
 
 [^1]: See the `proptest` [book](https://proptest-rs.github.io/proptest/) and the [`proptest.rs`](https://github.com/stencila/stencila/blob/main/rust/schema/src/proptests.rs) module for details.

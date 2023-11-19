@@ -192,9 +192,9 @@ pub fn cc<C: Into<Cord>, S: Into<String>>(code: C, lang: Option<S>) -> Block {
     })
 }
 
-/// Create a [`Block::Division`] node
-pub fn div<C: Into<Cord>, B: Into<Vec<Block>>>(code: C, content: B) -> Block {
-    Block::Division(Division::new(code.into(), content.into()))
+/// Create a [`Block::StyledBlock`] node
+pub fn sb<C: Into<Cord>, B: Into<Vec<Block>>>(code: C, content: B) -> Block {
+    Block::StyledBlock(StyledBlock::new(code.into(), content.into()))
 }
 
 /// Create a [`Block::Figure`] node

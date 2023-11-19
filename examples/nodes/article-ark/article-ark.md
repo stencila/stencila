@@ -18,12 +18,6 @@ This is a code block
 This is a code chunk
 ```
 
-::: {text-red-800 bg-indigo-100}
-
-This is a division
-
-:::
-
 ::: for item in items
 
 This is a for loop
@@ -51,6 +45,12 @@ $$
 ::: section
 
 This is a section
+
+:::
+
+::: {text-red-800 bg-indigo-100}
+
+This is a styled block
 
 :::
 

@@ -126,9 +126,6 @@
       "$ref": "Directory.schema.json"
     },
     {
-      "$ref": "Division.schema.json"
-    },
-    {
       "$ref": "Duration.schema.json"
     },
     {
@@ -277,6 +274,9 @@
     },
     {
       "$ref": "Strong.schema.json"
+    },
+    {
+      "$ref": "StyledBlock.schema.json"
     },
     {
       "$ref": "StyledInline.schema.json"

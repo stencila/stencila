@@ -2,7 +2,7 @@
   type: "Article",
   content: [
     {
-      type: "Division",
+      type: "StyledBlock",
       code: "rounded border border-solid border-blue-200 bg-blue-100 p-2",
       content: [
         {
@@ -17,7 +17,7 @@
       ]
     },
     {
-      type: "Division",
+      type: "StyledBlock",
       code: "color:red",
       styleLanguage: "css",
       content: [
@@ -33,7 +33,7 @@
       ]
     },
     {
-      type: "Division",
+      type: "StyledBlock",
       code: "bg-$color-100 p-2",
       content: [
         {
@@ -41,7 +41,7 @@
           content: [
             {
               type: "Text",
-              value: "A division with this parameter "
+              value: "A styled block with this parameter "
             },
             {
               type: "Parameter",
@@ -64,11 +64,11 @@
       ]
     },
     {
-      type: "Division",
+      type: "StyledBlock",
       code: "bg-red-100 p-2",
       content: [
         {
-          type: "Division",
+          type: "StyledBlock",
           code: "bg-blue-100",
           content: [
             {
@@ -76,7 +76,7 @@
               content: [
                 {
                   type: "Text",
-                  value: "Nested division."
+                  value: "Nested styled block."
                 }
               ]
             }

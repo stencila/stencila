@@ -15,13 +15,13 @@ use super::string::String;
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 #[cfg_attr(feature = "proptest", derive(Arbitrary))]
 #[derive(derive_more::Display)]
-#[display(fmt = "Division")]
+#[display(fmt = "StyledBlock")]
 #[html(elem = "div")]
 #[markdown(special)]
-pub struct Division {
+pub struct StyledBlock {
     /// The type of this item.
     #[cfg_attr(feature = "proptest", proptest(value = "Default::default()"))]
-    pub r#type: MustBe!("Division"),
+    pub r#type: MustBe!("StyledBlock"),
 
     /// The identifier for this item.
     #[strip(metadata)]
@@ -67,14 +67,14 @@ pub struct Division {
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     pub classes: Option<Vec<String>>,
 
-    /// The content within the division
+    /// The content within the styled block
     #[serde(deserialize_with = "one_or_many")]
     #[walk]
     #[cfg_attr(feature = "proptest", proptest(value = "Default::default()"))]
     pub content: Vec<Block>,
 }
 
-impl Division {
+impl StyledBlock {
     pub fn new(code: Cord, content: Vec<Block>) -> Self {
         Self {
             code,

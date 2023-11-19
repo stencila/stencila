@@ -11,9 +11,7 @@ pub trait MarkdownCodec {
 
 #[derive(Default, Clone)]
 pub struct MarkdownEncodeContext {
-    /// The nesting depth for any node type using "semicolon fences"
-    ///
-    /// Types of nodes include `Division`, `If`, and `For`.
+    /// The nesting depth for any node type using fenced divs
     pub depth: usize,
 
     /// The footnotes for the context

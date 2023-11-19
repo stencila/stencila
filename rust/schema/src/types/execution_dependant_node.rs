@@ -6,10 +6,10 @@ use super::button::Button;
 use super::call::Call;
 use super::code_chunk::CodeChunk;
 use super::code_expression::CodeExpression;
-use super::division::Division;
 use super::file::File;
 use super::function::Function;
 use super::parameter::Parameter;
+use super::styled_block::StyledBlock;
 use super::styled_inline::StyledInline;
 use super::variable::Variable;
 
@@ -26,13 +26,13 @@ pub enum ExecutionDependantNode {
 
     CodeExpression(CodeExpression),
 
-    Division(Division),
-
     File(File),
 
     Function(Function),
 
     Parameter(Parameter),
+
+    StyledBlock(StyledBlock),
 
     StyledInline(StyledInline),
 

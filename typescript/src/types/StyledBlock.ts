@@ -7,15 +7,15 @@ import { Styled } from "./Styled.js";
 /**
  * Styled block content.
  */
-export class Division extends Styled {
-  type = "Division";
+export class StyledBlock extends Styled {
+  type = "StyledBlock";
 
   /**
-   * The content within the division
+   * The content within the styled block
    */
   content: Block[];
 
-  constructor(code: Cord, content: Block[], options?: Partial<Division>) {
+  constructor(code: Cord, content: Block[], options?: Partial<StyledBlock>) {
     super(code);
     if (options) Object.assign(this, options);
     this.code = code;
@@ -24,8 +24,8 @@ export class Division extends Styled {
 }
 
 /**
-* Create a new `Division`
+* Create a new `StyledBlock`
 */
-export function division(code: Cord, content: Block[], options?: Partial<Division>): Division {
-  return new Division(code, content, options);
+export function styledBlock(code: Cord, content: Block[], options?: Partial<StyledBlock>): StyledBlock {
+  return new StyledBlock(code, content, options);
 }

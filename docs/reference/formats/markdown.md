@@ -225,7 +225,7 @@ Support and degree of loss for node types:
 | [Parameter](https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/parameter.md)                       | 🔷 Low loss       | 🔷 Low loss    | Encoded using special function    |
 | [Variable](https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/variable.md)                         | ⚠️ High loss     |               |                                   |
 | **Style**                                                                                                                 |
-| [Division](https://github.com/stencila/stencila/blob/main/docs/reference/schema/style/division.md)                        | 🟢 No loss        | 🟢 No loss     | Encoded using special function    |
+| [StyledBlock](https://github.com/stencila/stencila/blob/main/docs/reference/schema/style/styled_block.md)                 | 🟢 No loss        | 🟢 No loss     | Encoded using special function    |
 | [StyledInline](https://github.com/stencila/stencila/blob/main/docs/reference/schema/style/styled_inline.md)               | ⚠️ High loss     |               | Encoded using special function    |
 | **Other**                                                                                                                 |
 | [Brand](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/brand.md)                              | ⚠️ High loss     |               |                                   |

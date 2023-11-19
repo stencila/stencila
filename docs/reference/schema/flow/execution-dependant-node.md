@@ -12,10 +12,10 @@ The `ExecutionDependantNode` type has these members:
 - [`Call`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/call.md)
 - [`CodeChunk`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/code/code-chunk.md)
 - [`CodeExpression`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/code/code-expression.md)
-- [`Division`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/style/division.md)
 - [`File`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/file.md)
 - [`Function`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/function.md)
 - [`Parameter`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/parameter.md)
+- [`StyledBlock`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/style/styled-block.md)
 - [`StyledInline`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/style/styled-inline.md)
 - [`Variable`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/variable.md)
 

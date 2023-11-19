@@ -11,13 +11,13 @@ compact.jats.xml:
       - Claim
       - CodeBlock
       - CodeChunk
-      - Division
       - Figure
       - For
       - If
       - Include
       - List
       - MathBlock
+      - StyledBlock
       - Table
 md:
   encode:
