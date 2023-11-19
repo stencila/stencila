@@ -20,7 +20,8 @@ else
     echo "Bumping versions to $VERSION"
 fi
 
-# Update the version in the Rust CLI
+# Update the version in the Rust server and CLI crates
+sed -i -e "s/^version = .*/version = \"$VERSION\"/" rust/server/Cargo.toml
 sed -i -e "s/^version = .*/version = \"$VERSION\"/" rust/cli/Cargo.toml
 
 # Update the version in the TypeScript package
