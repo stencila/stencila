@@ -338,9 +338,9 @@ pub struct EncodeOptions {
     /// Whether to encode in compact form
     ///
     /// Some formats (e.g HTML and JSON) can be encoded in either compact
-    /// or "pretty-printed" (e.g. indented) forms.
-    #[default = false]
-    pub compact: bool,
+    /// or "pretty-printed" (e.g. indented) forms. If not specified, the default
+    /// for the format will be used.
+    pub compact: Option<bool>,
 
     /// Scopes defining which properties of nodes should be stripped before encoding
     #[serde(skip_serializing_if = "Vec::is_empty")]

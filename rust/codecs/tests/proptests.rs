@@ -97,7 +97,7 @@ proptest! {
 
         assert_eq!(roundtrip(Format::Jats, &article, Some(EncodeOptions{
             standalone: Some(true),
-            compact: true,
+            compact: Some(true),
             ..Default::default()
         }), None).unwrap(), article);
     }
@@ -133,7 +133,7 @@ proptest! {
     fn article_json5_compact(article: Article) {
         let article = Node::Article(article);
         assert_eq!(roundtrip(Format::Json5, &article, Some(EncodeOptions{
-            compact: true,
+            compact: Some(true),
             ..Default::default()
         }), None).unwrap(), article);
     }

@@ -74,7 +74,7 @@ async fn compact() -> Result<()> {
         .to_string(
             &doc1,
             Some(EncodeOptions {
-                compact: true,
+                compact: Some(true),
                 ..Default::default()
             }),
         )

@@ -18,7 +18,7 @@ async fn escaping_unicode_2028_and_2029() -> Result<()> {
         .to_string(
             &doc1,
             Some(EncodeOptions {
-                compact: true,
+                compact: Some(true),
                 ..Default::default()
             }),
         )

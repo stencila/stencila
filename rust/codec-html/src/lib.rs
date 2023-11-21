@@ -66,8 +66,8 @@ impl Codec for HtmlCodec {
         };
 
         let html = match compact {
-            true => minify(&html),
-            false => indent(&html),
+            Some(true) | None => minify(&html),
+            Some(false) => indent(&html),
         };
 
         Ok((html, Losses::none()))

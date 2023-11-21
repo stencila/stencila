@@ -68,8 +68,8 @@ impl Codec for JsonCodec {
         if !standalone.unwrap_or_default() {
             return Ok((
                 match compact {
-                    true => node.to_json(),
-                    false => node.to_json_pretty(),
+                    Some(true) => node.to_json(),
+                    Some(false) | None => node.to_json_pretty(),
                 }?,
                 Losses::none(),
             ));
@@ -108,8 +108,8 @@ impl Codec for JsonCodec {
 
         Ok((
             match compact {
-                true => value.to_json(),
-                false => value.to_json_pretty(),
+                Some(true) => value.to_json(),
+                Some(false) | None => value.to_json_pretty(),
             }?,
             Losses::none(),
         ))

@@ -50,8 +50,8 @@ impl Codec for DebugCodec {
         let EncodeOptions { compact, .. } = options.unwrap_or_default();
 
         let debug = match compact {
-            true => format!("{node:?}"),
-            false => format!("{node:#?}"),
+            Some(true) => format!("{node:?}"),
+            Some(false) | None => format!("{node:#?}"),
         };
 
         Ok((debug, Losses::none()))

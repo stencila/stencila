@@ -60,8 +60,8 @@ impl Codec for Json5Codec {
         let EncodeOptions { compact, .. } = options.unwrap_or_default();
 
         let json5 = match compact {
-            true => node.to_json5(),
-            false => node.to_json5_pretty(),
+            Some(true) => node.to_json5(),
+            Some(false) | None => node.to_json5_pretty(),
         }?;
 
         Ok((json5, Losses::none()))

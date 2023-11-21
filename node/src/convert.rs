@@ -76,7 +76,7 @@ impl TryInto<codecs::EncodeOptions> for EncodeOptions {
                 None => None,
             },
             standalone: self.standalone,
-            compact: self.compact.unwrap_or_default(),
+            compact: self.compact,
             losses: self
                 .losses
                 .map(LossesResponse::from)

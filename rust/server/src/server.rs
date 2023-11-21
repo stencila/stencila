@@ -369,7 +369,7 @@ async fn serve_document(
 
     // TODO: Override the format based on ?format query param
     let format = Some(Format::Html);
-    let compact = true;
+    let compact = Some(true);
 
     // Generate the content from the document
     let content = doc

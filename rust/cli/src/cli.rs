@@ -96,12 +96,11 @@ enum Command {
         source: PathBuf,
 
         /// The format of the source file
-        #[arg(long, short, alias = "from")]
-        format: Option<Format>,
-
-        /// The codec to use to decode the source
-        #[arg(long)]
-        codec: Option<String>,
+        ///
+        /// Defaults to inferring the format from the file name extension
+        /// of the source file.
+        #[arg(long, short, alias = "format")]
+        from: Option<String>,
 
         /// The type of document to import
         ///
@@ -130,12 +129,11 @@ enum Command {
         dest: Option<PathBuf>,
 
         /// The format of the destination file
-        #[arg(long, short, alias = "to")]
-        format: Option<Format>,
-
-        /// The codec to use to encode to the destination
-        #[arg(long)]
-        codec: Option<String>,
+        ///
+        /// Defaults to inferring the format from the file name extension
+        /// of the destination file.
+        #[arg(long, short, alias = "format")]
+        to: Option<String>,
 
         /// What to do if there are losses when encoding
         #[arg(long, short, default_value_t = codecs::LossesResponse::Warn)]
@@ -303,10 +301,17 @@ struct EncodeOptions {
 
     /// Use compact form of encoding if possible
     ///
-    /// Use this flag to enable compact forms of encoding (i.e. no indentation)
+    /// Use this flag to produce the compact forms of encoding (e.g. no indentation)
     /// which are supported by some formats (e.g. JSON, HTML).
-    #[arg(long, short)]
+    #[arg(long, short, conflicts_with = "pretty")]
     compact: bool,
+
+    /// Use a "pretty" form of encoding if possible
+    ///
+    /// Use this flag to produce pretty forms of encoding (e.g. indentation)
+    /// which are supported by some formats (e.g. JSON, HTML).
+    #[arg(long, short, conflicts_with = "compact")]
+    pretty: bool,
 }
 
 impl EncodeOptions {
@@ -318,6 +323,12 @@ impl EncodeOptions {
         losses: codecs::LossesResponse,
     ) -> codecs::EncodeOptions {
         let (format, codec) = codecs::format_or_codec(format_or_codec);
+
+        let compact = self
+            .compact
+            .then_some(true)
+            .or(self.pretty.then_some(false));
+
         let standalone = self
             .standalone
             .then_some(true)
@@ -326,7 +337,7 @@ impl EncodeOptions {
         codecs::EncodeOptions {
             codec,
             format,
-            compact: self.compact,
+            compact,
             standalone,
             strip_scopes: strip_options.strip_scopes,
             strip_types: strip_options.strip_types,
@@ -370,8 +381,7 @@ impl Cli {
             Command::Import {
                 doc,
                 source,
-                format,
-                codec,
+                from,
                 r#type,
                 losses,
                 strip_options,
@@ -379,14 +389,7 @@ impl Cli {
             } => {
                 let doc = Document::open(&doc).await?;
 
-                let options = codecs::DecodeOptions {
-                    codec,
-                    format,
-                    strip_scopes: strip_options.strip_scopes,
-                    strip_types: strip_options.strip_types,
-                    strip_props: strip_options.strip_props,
-                    losses,
-                };
+                let options = DecodeOptions {}.build(from, strip_options, losses);
 
                 doc.import(&source, Some(options), r#type).await?;
             }
@@ -394,28 +397,18 @@ impl Cli {
             Command::Export {
                 doc,
                 dest,
-                format,
-                codec,
+                to,
                 losses,
                 options,
                 strip_options,
             } => {
                 let doc = Document::open(&doc).await?;
 
-                let options = codecs::EncodeOptions {
-                    codec,
-                    format,
-                    standalone: options.not_standalone.then_some(false),
-                    compact: options.compact,
-                    strip_scopes: strip_options.strip_scopes,
-                    strip_types: strip_options.strip_types,
-                    strip_props: strip_options.strip_props,
-                    losses,
-                };
+                let options = options.build(to, strip_options, losses);
+                let format = options.format.unwrap_or(Format::Text);
 
                 let content = doc.export(dest.as_deref(), Some(options)).await?;
                 if !content.is_empty() {
-                    let format = format.unwrap_or(Format::Json);
                     display::highlighted(&content, format)?;
                 }
             }

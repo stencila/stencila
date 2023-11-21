@@ -21,7 +21,7 @@ async fn media_objects() -> Result<()> {
         .to_string(
             &doc1,
             Some(EncodeOptions {
-                compact: true,
+                compact: Some(true),
                 ..Default::default()
             }),
         )
@@ -51,7 +51,7 @@ async fn spans() -> Result<()> {
         .to_string(
             &doc1,
             Some(EncodeOptions {
-                compact: true,
+                compact: Some(true),
                 ..Default::default()
             }),
         )

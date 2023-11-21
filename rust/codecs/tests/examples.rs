@@ -61,6 +61,10 @@ static CONFIG: Lazy<Config> = Lazy::new(|| {
             FormatConfig {
                 format: Format::Html,
                 encode: EncodeConfig {
+                    options: EncodeOptions {
+                        compact: Some(false),
+                        ..Default::default()
+                    },
                     ..Default::default()
                 },
                 decode: DecodeConfig {
@@ -76,7 +80,7 @@ static CONFIG: Lazy<Config> = Lazy::new(|| {
                 format: Format::Html,
                 encode: EncodeConfig {
                     options: EncodeOptions {
-                        compact: true,
+                        compact: Some(true),
                         ..Default::default()
                     },
                     ..Default::default()
@@ -95,7 +99,7 @@ static CONFIG: Lazy<Config> = Lazy::new(|| {
                 encode: EncodeConfig {
                     options: EncodeOptions {
                         standalone: Some(true),
-                        compact: true,
+                        compact: Some(true),
                         ..Default::default()
                     },
                     ..Default::default()
@@ -113,6 +117,7 @@ static CONFIG: Lazy<Config> = Lazy::new(|| {
                 encode: EncodeConfig {
                     options: EncodeOptions {
                         standalone: Some(true),
+                        compact: Some(false),
                         ..Default::default()
                     },
                     ..Default::default()
@@ -132,7 +137,7 @@ static CONFIG: Lazy<Config> = Lazy::new(|| {
                 encode: EncodeConfig {
                     options: EncodeOptions {
                         standalone: Some(true),
-                        compact: true,
+                        compact: Some(true),
                         ..Default::default()
                     },
                     ..Default::default()
@@ -144,6 +149,13 @@ static CONFIG: Lazy<Config> = Lazy::new(|| {
             String::from("json5"),
             FormatConfig {
                 format: Format::Json5,
+                encode: EncodeConfig {
+                    options: EncodeOptions {
+                        compact: Some(false),
+                        ..Default::default()
+                    },
+                    ..Default::default()
+                },
                 ..Default::default()
             },
         ),
@@ -153,7 +165,7 @@ static CONFIG: Lazy<Config> = Lazy::new(|| {
                 format: Format::Json5,
                 encode: EncodeConfig {
                     options: EncodeOptions {
-                        compact: true,
+                        compact: Some(true),
                         ..Default::default()
                     },
                     ..Default::default()

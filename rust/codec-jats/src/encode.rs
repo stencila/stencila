@@ -20,7 +20,7 @@ pub(super) fn encode(node: &Node, options: Option<EncodeOptions>) -> Result<(Str
             r#"<?xml version="1.0" encoding="utf-8" standalone="yes" ?>"#,
         );
     }
-    if !compact {
+    if matches!(compact, Some(false)) {
         jats = indent(&jats);
     }
 
