@@ -23,7 +23,7 @@ once_cell = "1.18.0"
 proc-macro2 = "1.0.69"
 quote = "1.0.33"
 regex = "1.10.2"
-serde = { version = "1.0.192", features = ["derive", "rc"] }
+serde = { version = "1.0.193", features = ["derive", "rc"] }
 serde_json = { version = "1.0.108", features = ["preserve_order"] }
 serde_with = "3.4.0"
 serde_yaml = "0.9.27"
