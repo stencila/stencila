@@ -15,8 +15,8 @@ properties:
       $ref: Block
     proptest:
       min:
-        description: Generate a single fixed text value.
-        value: vec![t("text")]
+        description: Generate a single fixed paragraph.
+        value: vec![p([t("text")])]
       low:
         description: Generate a single arbitrary, non-recursive, block node
         strategy: vec_blocks_non_recursive(1)
