@@ -32,8 +32,27 @@ fn roundtrip(
 ) -> Result<Node> {
     block_on(async {
         let codec = codecs::get(None, Some(format), None)?;
-        let (string, ..) = codec.to_string(node, encode_options).await?;
-        let (node, ..) = codec.from_str(&string, decode_options).await?;
+
+        let encode_options = Some(EncodeOptions {
+            format: Some(format),
+            ..encode_options.unwrap_or_default()
+        });
+
+        let decode_options = Some(DecodeOptions {
+            format: Some(format),
+            ..decode_options.unwrap_or_default()
+        });
+
+        let node = if codec.supports_from_bytes() {
+            let (bytes, ..) = codec.to_bytes(node, encode_options).await?;
+            let (node, ..) = codec.from_bytes(&bytes, decode_options).await?;
+            node
+        } else {
+            let (string, ..) = codec.to_string(node, encode_options).await?;
+            let (node, ..) = codec.from_str(&string, decode_options).await?;
+            node
+        };
+
         Ok(node)
     })
 }
@@ -111,6 +130,20 @@ proptest! {
 #[cfg(feature = "proptest-max")]
 proptest! {
     #![proptest_config(ProptestConfig::with_cases(100))]
+
+    /// Roundtrip test for CBOR
+    #[test]
+    fn article_cbor(article: Article) {
+        let article = Node::Article(article);
+        assert_eq!(roundtrip(Format::Cbor, &article, None, None).unwrap(), article);
+    }
+
+    /// Roundtrip test for CBOR with Zstandard compression
+    #[test]
+    fn article_cbor_zst(article: Article) {
+        let article = Node::Article(article);
+        assert_eq!(roundtrip(Format::CborZst, &article, None, None).unwrap(), article);
+    }
 
     /// Roundtrip test for JSON
     #[test]
