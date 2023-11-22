@@ -57,6 +57,20 @@ struct DecodeConfig {
 static CONFIG: Lazy<Config> = Lazy::new(|| {
     BTreeMap::from([
         (
+            String::from("cbor"),
+            FormatConfig {
+                format: Format::Cbor,
+                ..Default::default()
+            },
+        ),
+        (
+            String::from("cbor.zst"),
+            FormatConfig {
+                format: Format::CborZst,
+                ..Default::default()
+            },
+        ),
+        (
             String::from("html"),
             FormatConfig {
                 format: Format::Html,
@@ -268,11 +282,14 @@ async fn examples() -> Result<()> {
                 };
                 original.strip(&targets);
 
+                let encode_options = Some(EncodeOptions {
+                    format: Some(config.format),
+                    ..config.encode.options.clone()
+                });
+
                 if codec.supports_to_string() {
                     // Encode to string
-                    let (actual, losses) = codec
-                        .to_string(&original, Some(config.encode.options.clone()))
-                        .await?;
+                    let (actual, losses) = codec.to_string(&original, encode_options).await?;
 
                     if file.exists() {
                         // Existing file: compare string content of files
@@ -306,17 +323,20 @@ async fn examples() -> Result<()> {
                     // Just encode to file if it does not yet exist. At present not attempting
                     // to compared binary files (e.g. may include timestamps and change each run)
                     if !file.exists() {
-                        codec
-                            .to_path(&original, &file, Some(config.encode.options.clone()))
-                            .await?;
+                        codec.to_path(&original, &file, encode_options).await?;
                     }
                 }
             }
 
             if file.exists() && !config.decode.skip {
+                let decode_options = Some(DecodeOptions {
+                    format: Some(config.format),
+                    ..config.decode.options.clone()
+                });
+
                 // Decode from file
                 let (mut decoded, losses) = codec
-                    .from_path(&file, Some(config.decode.options.clone()))
+                    .from_path(&file, decode_options)
                     .await
                     .wrap_err_with(|| format!("while decoding {}", file.display()))?;
 

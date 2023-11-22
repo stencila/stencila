@@ -3,6 +3,23 @@ source: rust/codecs/tests/specs.rs
 expression: specs
 ---
 {
+  "cbor": {
+    "status": "stable",
+    "supports_from_formats": {
+      "cbor": "NoLoss",
+      "cborzst": "NoLoss"
+    },
+    "supports_from_string": false,
+    "supports_from_path": true,
+    "lossy_from_types": [],
+    "supports_to_formats": {
+      "cbor": "NoLoss",
+      "cborzst": "NoLoss"
+    },
+    "supports_to_string": false,
+    "supports_to_path": true,
+    "lossy_to_types": []
+  },
   "debug": {
     "status": "stable",
     "supports_from_formats": {},

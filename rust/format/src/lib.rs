@@ -45,6 +45,8 @@ pub enum Format {
     Json,
     Json5,
     Yaml,
+    Cbor,
+    CborZst,
     /// Image formats
     Gif,
     Jpeg,
@@ -78,6 +80,8 @@ impl Format {
             Aac => "AAC",
             Article => "Stencila Article",
             Avi => "AVI",
+            Cbor => "CBOR",
+            CborZst => "CBOR+Zstandard",
             Debug => "Debug",
             Flac => "FLAC",
             Gif => "GIF",
@@ -157,8 +161,12 @@ impl Format {
 
     /// Resolve a [`Format`] from a file path
     pub fn from_path(path: &Path) -> Result<Self> {
-        if path.to_string_lossy().ends_with(".jats.xml") {
+        let path_string = path.to_string_lossy();
+        if path_string.ends_with(".jats.xml") {
             return Ok(Format::Jats);
+        }
+        if path_string.ends_with(".cbor.zst") {
+            return Ok(Format::CborZst);
         }
 
         let name = match path.extension() {

@@ -26,6 +26,7 @@
         "autosurgeon",
         "brotli",
         "canonicalize",
+        "cbor",
         "chrono",
         "cito",
         "codecov",

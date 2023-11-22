@@ -81,6 +81,11 @@ pub trait Codec: Sync + Send {
             .collect()
     }
 
+    /// Whether the codec supports decoding from bytes
+    fn supports_from_bytes(&self) -> bool {
+        false
+    }
+
     /// Whether the codec supports decoding from string content
     fn supports_from_string(&self) -> bool {
         true
@@ -125,6 +130,11 @@ pub trait Codec: Sync + Send {
             .collect()
     }
 
+    /// Whether the codec supports encoding to bytes
+    fn supports_to_bytes(&self) -> bool {
+        false
+    }
+
     /// Whether the codec supports encoding to string content
     fn supports_to_string(&self) -> bool {
         true
@@ -167,17 +177,23 @@ pub trait Codec: Sync + Send {
         false
     }
 
-    /// Decode a Stencila Schema node from a string
-    #[allow(clippy::wrong_self_convention)]
-    async fn from_str(
+    /// Decode a Stencila Schema node from bytes
+    #[allow(unused_variables, clippy::wrong_self_convention)]
+    async fn from_bytes(
         &self,
-        _str: &str,
-        _options: Option<DecodeOptions>,
+        bytes: &[u8],
+        options: Option<DecodeOptions>,
     ) -> Result<(Node, Losses)> {
         bail!(
-            "Decoding from string is not implemented for codec `{}`",
+            "Decoding from bytes is not implemented for codec `{}`",
             self.name()
         )
+    }
+
+    /// Decode a Stencila Schema node from a string
+    #[allow(unused_variables, clippy::wrong_self_convention)]
+    async fn from_str(&self, str: &str, options: Option<DecodeOptions>) -> Result<(Node, Losses)> {
+        self.from_bytes(str.as_bytes(), options).await
     }
 
     /// Decode a Stencila Schema node from a file
@@ -185,15 +201,21 @@ pub trait Codec: Sync + Send {
     /// This function reads the file as a string and passes that on to `from_str`
     /// for decoding. If working with binary formats, you should override this function
     /// to read the file as bytes instead.
-    #[tracing::instrument(skip(self))]
+    #[tracing::instrument(skip(self, file))]
     async fn from_file(
         &self,
         file: &mut File,
         options: Option<DecodeOptions>,
     ) -> Result<(Node, Losses)> {
-        let mut content = String::new();
-        file.read_to_string(&mut content).await?;
-        self.from_str(&content, options).await
+        if self.supports_from_bytes() {
+            let mut content = Vec::new();
+            file.read_to_end(&mut content).await?;
+            self.from_bytes(&content, options).await
+        } else {
+            let mut content = String::new();
+            file.read_to_string(&mut content).await?;
+            self.from_str(&content, options).await
+        }
     }
 
     /// Decode a Stencila Schema node from a file system path
@@ -211,20 +233,33 @@ pub trait Codec: Sync + Send {
         self.from_file(&mut file, options).await
     }
 
-    /// Encode a Stencila Schema node to a string
-    async fn to_string(
+    /// Encode a Stencila Schema node to bytes
+    #[allow(unused_variables)]
+    async fn to_bytes(
         &self,
-        _node: &Node,
-        _options: Option<EncodeOptions>,
-    ) -> Result<(String, Losses)> {
+        node: &Node,
+        options: Option<EncodeOptions>,
+    ) -> Result<(Vec<u8>, Losses)> {
         bail!(
-            "Encoding to a string is not implemented for codec `{}`",
+            "Encoding to bytes is not implemented for codec `{}`",
             self.name()
         )
     }
 
+    /// Encode a Stencila Schema node to a string
+    #[allow(unused_variables)]
+    async fn to_string(
+        &self,
+        node: &Node,
+        options: Option<EncodeOptions>,
+    ) -> Result<(String, Losses)> {
+        self.to_bytes(node, options)
+            .await
+            .map(|(bytes, losses)| (String::from_utf8_lossy(&bytes).to_string(), losses))
+    }
+
     /// Encode a Stencila Schema to a file
-    #[tracing::instrument(skip(self))]
+    #[tracing::instrument(skip(self, file))]
     async fn to_file(
         &self,
         node: &Node,
@@ -236,8 +271,15 @@ pub trait Codec: Sync + Send {
             options.standalone = Some(true);
         }
 
-        let (content, losses) = self.to_string(node, Some(options)).await?;
-        file.write_all(content.as_bytes()).await?;
+        let (content, losses) = if self.supports_to_bytes() {
+            self.to_bytes(node, Some(options)).await
+        } else {
+            self.to_string(node, Some(options))
+                .await
+                .map(|(string, losses)| (string.as_bytes().to_vec(), losses))
+        }?;
+        file.write_all(&content).await?;
+
         Ok(losses)
     }
 

@@ -16,6 +16,7 @@ use node_strip::{StripNode, StripTargets};
 /// Get a list of all codecs
 pub fn list() -> Vec<Box<dyn Codec>> {
     vec![
+        Box::new(codec_cbor::CborCodec),
         Box::new(codec_debug::DebugCodec),
         Box::new(codec_html::HtmlCodec),
         Box::new(codec_jats::JatsCodec),

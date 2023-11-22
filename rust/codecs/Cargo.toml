@@ -11,6 +11,7 @@ proptest-max = ["codec/proptest-max"]
 
 [dependencies]
 codec = { path = "../codec" }
+codec-cbor = { path = "../codec-cbor" }
 codec-debug = { path = "../codec-debug" }
 codec-html = { path = "../codec-html" }
 codec-jats = { path = "../codec-jats" }
@@ -31,5 +32,13 @@ name = "from_str"
 harness = false
 
 [[bench]]
+name = "from_bytes"
+harness = false
+
+[[bench]]
 name = "to_string"
+harness = false
+
+[[bench]]
+name = "to_bytes"
 harness = false
