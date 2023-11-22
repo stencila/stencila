@@ -32,7 +32,8 @@ sed -i -e "s/    \"@stencila\/types\": .*/    \"@stencila\/types\": \"$VERSION\"
 sed -i -e "s/\"version\": .*/\"version\": \"$VERSION\",/" node/package.json
 sed -i -e "s/^version = .*/version = \"$VERSION\"/" node/Cargo.toml
 
-# Update the version in the Web package
+# Update the version `@stencila/types` and `@stencila/web` in the package.json of the latter
+sed -i -e "s/    \"@stencila\/types\": .*/    \"@stencila\/types\": \"$VERSION\",/" web/package.json
 sed -i -e "s/\"version\": .*/\"version\": \"$VERSION\",/" web/package.json
 
 # Do NPM install at root to update `package-lock.json` files
