@@ -259,7 +259,7 @@ pub trait Codec: Sync + Send {
     }
 
     /// Encode a Stencila Schema to a file
-    #[tracing::instrument(skip(self, file))]
+    #[tracing::instrument(skip(self, node, file))]
     async fn to_file(
         &self,
         node: &Node,
@@ -270,7 +270,7 @@ pub trait Codec: Sync + Send {
         if options.standalone.is_none() {
             options.standalone = Some(true);
         }
-
+        
         let (content, losses) = if self.supports_to_bytes() {
             self.to_bytes(node, Some(options)).await
         } else {
@@ -284,7 +284,7 @@ pub trait Codec: Sync + Send {
     }
 
     /// Encode a Stencila Schema to a file system path
-    #[tracing::instrument(skip(self))]
+    #[tracing::instrument(skip(self, node))]
     async fn to_path(
         &self,
         node: &Node,

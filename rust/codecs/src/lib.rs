@@ -33,7 +33,7 @@ pub fn list() -> Vec<Box<dyn Codec>> {
 /// If the string matches the name of a format then assume it is a format, otherwise assume it is a codec name
 pub fn format_or_codec(format_or_codec: Option<String>) -> (Option<Format>, Option<String>) {
     match format_or_codec {
-        Some(format_or_codec) => match Format::from_name(&format_or_codec.to_lowercase()) {
+        Some(format_or_codec) => match Format::from_string(&format_or_codec.to_lowercase()) {
             Ok(format) => (Some(format), None),
             Err(..) => (None, Some(format_or_codec)),
         },
@@ -106,8 +106,16 @@ pub async fn from_str_with_losses(
         .and_then(|options| options.format)
         .unwrap_or(Format::Json);
 
-    get(codec, Some(format), Some(CodecDirection::Decode))?
-        .from_str(str, options.clone())
+    let codec = get(codec, Some(format), Some(CodecDirection::Decode))?;
+
+    codec
+        .from_str(
+            str,
+            Some(DecodeOptions {
+                format: Some(format),
+                ..options.unwrap_or_default()
+            }),
+        )
         .await
 }
 
@@ -139,8 +147,16 @@ pub async fn from_path_with_losses(
         None => Format::from_path(path)?,
     };
 
-    get(codec, Some(format), Some(CodecDirection::Decode))?
-        .from_path(path, options.clone())
+    let codec = get(codec, Some(format), Some(CodecDirection::Decode))?;
+
+    codec
+        .from_path(
+            path,
+            Some(DecodeOptions {
+                format: Some(format),
+                ..options.unwrap_or_default()
+            }),
+        )
         .await
 }
 
@@ -189,6 +205,11 @@ pub async fn to_string_with_losses(
 
     let codec = get(codec, Some(format), Some(CodecDirection::Encode))?;
 
+    let options = Some(EncodeOptions {
+        format: Some(format),
+        ..options.unwrap_or_default()
+    });
+
     if let Some(EncodeOptions {
         strip_scopes,
         strip_types,
@@ -199,11 +220,11 @@ pub async fn to_string_with_losses(
         if !(strip_scopes.is_empty() && strip_types.is_empty() && strip_props.is_empty()) {
             let mut node = node.clone();
             node.strip(&StripTargets::new(strip_scopes, strip_types, strip_props));
-            return codec.to_string(&node, options.clone()).await;
+            return codec.to_string(&node, options).await;
         }
     }
 
-    codec.to_string(node, options.clone()).await
+    codec.to_string(node, options).await
 }
 
 /// Encode a Stencila Schema node to a file system path
@@ -236,6 +257,11 @@ pub async fn to_path_with_losses(
 
     let codec = get(codec, Some(format), Some(CodecDirection::Encode))?;
 
+    let options = Some(EncodeOptions {
+        format: Some(format),
+        ..options.unwrap_or_default()
+    });
+
     if let Some(EncodeOptions {
         strip_scopes,
         strip_types,
@@ -246,11 +272,11 @@ pub async fn to_path_with_losses(
         if !(strip_scopes.is_empty() && strip_types.is_empty() && strip_props.is_empty()) {
             let mut node = node.clone();
             node.strip(&StripTargets::new(strip_scopes, strip_types, strip_props));
-            return codec.to_path(&node, path, options.clone()).await;
+            return codec.to_path(&node, path, options).await;
         }
     }
 
-    codec.to_path(node, path, options.clone()).await
+    codec.to_path(node, path, options).await
 }
 
 /// Convert a document from one format to another
