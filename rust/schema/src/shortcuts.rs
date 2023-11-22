@@ -52,7 +52,7 @@ pub fn ci<C: Into<Cord>>(code: C) -> Inline {
 
 /// Create an [`Inline::Delete`] node
 pub fn del<I: Into<Vec<Inline>>>(content: I) -> Inline {
-    Inline::Delete(Delete::new(content.into()))
+    Inline::DeleteInline(DeleteInline::new(content.into()))
 }
 
 /// Create an [`Inline::Emphasis`] node
@@ -65,9 +65,9 @@ pub fn img<S: Into<String>>(url: S) -> Inline {
     Inline::ImageObject(ImageObject::new(url.into()))
 }
 
-/// Create an [`Inline::Insert`] node
+/// Create an [`Inline::InsertInline`] node
 pub fn ins<I: Into<Vec<Inline>>>(content: I) -> Inline {
-    Inline::Insert(Insert::new(content.into()))
+    Inline::InsertInline(InsertInline::new(content.into()))
 }
 
 /// Create an [`Inline::Link`] node
