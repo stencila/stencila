@@ -3,6 +3,11 @@ comment:
 
 component_management:
   individual_components:
+    - component_id: codec_cbor
+      name: CBOR
+      paths:
+        - rust/codec-cbor*/src/*
+
     - component_id: codec_html
       name: HTML
       paths:
