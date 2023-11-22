@@ -21,7 +21,7 @@ content:
     value: ', '
   - type: CodeInline
     code: inline code
-  - type: Delete
+  - type: DeleteInline
     content:
     - type: Text
       value: ', delete'
@@ -38,7 +38,7 @@ content:
     caption:
     - type: Text
       value: image
-  - type: Insert
+  - type: InsertInline
     content:
     - type: Text
       value: ', insert'
@@ -133,6 +133,12 @@ content:
   code: This is a code block
 - type: CodeChunk
   code: This is a code chunk
+- type: DeleteBlock
+  content:
+  - type: Paragraph
+    content:
+    - type: Text
+      value: This paragraph is to be deleted
 - type: Figure
   content:
   - type: Paragraph
@@ -163,6 +169,12 @@ content:
         value: This is an if block
 - type: IncludeBlock
   source: this/is/an/include
+- type: InsertBlock
+  content:
+  - type: Paragraph
+    content:
+    - type: Text
+      value: This paragraph is to be inserted
 - type: List
   items:
   - type: ListItem

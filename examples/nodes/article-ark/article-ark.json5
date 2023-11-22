@@ -44,7 +44,7 @@
           code: "inline code"
         },
         {
-          type: "Delete",
+          type: "DeleteInline",
           content: [
             {
               type: "Text",
@@ -80,7 +80,7 @@
           ]
         },
         {
-          type: "Insert",
+          type: "InsertInline",
           content: [
             {
               type: "Text",
@@ -279,6 +279,20 @@
       code: "This is a code chunk"
     },
     {
+      type: "DeleteBlock",
+      content: [
+        {
+          type: "Paragraph",
+          content: [
+            {
+              type: "Text",
+              value: "This paragraph is to be deleted"
+            }
+          ]
+        }
+      ]
+    },
+    {
       type: "Figure",
       content: [
         {
@@ -341,6 +355,20 @@
     {
       type: "IncludeBlock",
       source: "this\/is\/an\/include"
+    },
+    {
+      type: "InsertBlock",
+      content: [
+        {
+          type: "Paragraph",
+          content: [
+            {
+              type: "Text",
+              value: "This paragraph is to be inserted"
+            }
+          ]
+        }
+      ]
     },
     {
       type: "List",

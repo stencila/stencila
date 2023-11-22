@@ -9,11 +9,11 @@
           value: "Some "
         },
         {
-          type: "Insert",
+          type: "DeleteInline",
           content: [
             {
               type: "Text",
-              value: "inserted "
+              value: "deleted "
             }
           ]
         },
@@ -28,10 +28,10 @@
       content: [
         {
           type: "Text",
-          value: "Several inserted inlines"
+          value: "Several deleted inlines "
         },
         {
-          type: "Insert",
+          type: "DeleteInline",
           content: [
             {
               type: "Strong",
@@ -47,11 +47,11 @@
               value: " and "
             },
             {
-              type: "Superscript",
+              type: "Underline",
               content: [
                 {
                   type: "Text",
-                  value: "superscripted"
+                  value: "underlined"
                 }
               ]
             },

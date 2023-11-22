@@ -4,7 +4,7 @@ content:
   content:
   - type: Text
     value: 'Some '
-  - type: Delete
+  - type: DeleteInline
     content:
     - type: Text
       value: 'deleted '
@@ -14,7 +14,7 @@ content:
   content:
   - type: Text
     value: 'Several deleted inlines '
-  - type: Delete
+  - type: DeleteInline
     content:
     - type: Strong
       content:

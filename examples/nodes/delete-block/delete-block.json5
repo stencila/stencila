@@ -1,0 +1,19 @@
+{
+  type: "Article",
+  content: [
+    {
+      type: "DeleteBlock",
+      content: [
+        {
+          type: "Paragraph",
+          content: [
+            {
+              type: "Text",
+              value: "Deleted paragraph"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

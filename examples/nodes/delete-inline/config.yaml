@@ -3,7 +3,7 @@ compact.jats.xml:
   decode:
     skip: true
 
-# TODO: Enable when decoding of `Delete` with more complex
+# TODO: Enable when decoding of `DeleteInline` with more complex
 # inlines is implemented
 md:
   decode:

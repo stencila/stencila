@@ -18,6 +18,12 @@ This is a code block
 This is a code chunk
 ```
 
+::: delete
+
+This paragraph is to be deleted
+
+:::
+
 ::: for item in items
 
 This is a for block
@@ -33,6 +39,12 @@ This is an if block
 :::
 
 /this/is/an/include
+
+::: insert
+
+This paragraph is to be inserted
+
+:::
 
 - This is a list
 

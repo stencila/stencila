@@ -4,7 +4,7 @@ content:
   content:
   - type: Text
     value: 'Some '
-  - type: Insert
+  - type: InsertInline
     content:
     - type: Text
       value: 'inserted '
@@ -14,7 +14,7 @@ content:
   content:
   - type: Text
     value: Several inserted inlines
-  - type: Insert
+  - type: InsertInline
     content:
     - type: Strong
       content:

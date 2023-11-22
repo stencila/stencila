@@ -3,7 +3,7 @@ compact.jats.xml:
   decode:
     skip: true
 
-# TODO: Enable when decoding of `Insert` with more complex
+# TODO: Enable when decoding of `InsertInline` with more complex
 # inlines is implemented
 md:
   decode:

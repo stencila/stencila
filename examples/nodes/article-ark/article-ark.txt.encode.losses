@@ -6,7 +6,8 @@ CodeBlock#: 1
 CodeChunk#: 1
 CodeExpression#: 1
 CodeInline#: 1
-Delete#: 1
+DeleteBlock#: 1
+DeleteInline#: 1
 Emphasis#: 1
 Figure#: 1
 ForBlock#: 1
@@ -15,7 +16,8 @@ IfBlock#: 1
 IfBlockClause#: 1
 ImageObject#: 1
 IncludeBlock#: 1
-Insert#: 1
+InsertBlock#: 1
+InsertInline#: 1
 Integer@: 1
 Link#: 1
 List#: 1
@@ -23,7 +25,7 @@ ListItem#: 1
 MathBlock#: 1
 MathInline#: 1
 Note#: 1
-Paragraph#: 13
+Paragraph#: 15
 Parameter#: 1
 QuoteBlock#: 1
 QuoteInline#: 1

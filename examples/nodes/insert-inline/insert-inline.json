@@ -10,11 +10,11 @@
           "value": "Some "
         },
         {
-          "type": "Delete",
+          "type": "InsertInline",
           "content": [
             {
               "type": "Text",
-              "value": "deleted "
+              "value": "inserted "
             }
           ]
         },
@@ -29,10 +29,10 @@
       "content": [
         {
           "type": "Text",
-          "value": "Several deleted inlines "
+          "value": "Several inserted inlines"
         },
         {
-          "type": "Delete",
+          "type": "InsertInline",
           "content": [
             {
               "type": "Strong",
@@ -48,11 +48,11 @@
               "value": " and "
             },
             {
-              "type": "Underline",
+              "type": "Superscript",
               "content": [
                 {
                   "type": "Text",
-                  "value": "underlined"
+                  "value": "superscripted"
                 }
               ]
             },

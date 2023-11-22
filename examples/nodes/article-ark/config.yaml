@@ -3,8 +3,10 @@
 compact.jats.xml:
   encode:
     strip-types:
-      - Delete
-      - Insert
+      - DeleteBlock
+      - DeleteInline
+      - InsertBlock
+      - InsertInline
   decode:
     strip-types:
       - CallBlock

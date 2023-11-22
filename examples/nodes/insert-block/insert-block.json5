@@ -1,0 +1,19 @@
+{
+  type: "Article",
+  content: [
+    {
+      type: "InsertBlock",
+      content: [
+        {
+          type: "Paragraph",
+          content: [
+            {
+              type: "Text",
+              value: "Inserted paragraph"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
