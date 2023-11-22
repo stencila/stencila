@@ -69,10 +69,10 @@ impl Codec for JatsCodec {
         use NodeType::*;
         match node_type {
             // Prose Inlines
-            Text | Emphasis | Strong | Strikeout | Subscript | Superscript | Underline | Insert
-            | QuoteInline | StyledInline | Note => NoLoss,
+            Text | Emphasis | Strong | Strikeout | Subscript | Superscript | Underline
+            | InsertInline | QuoteInline | StyledInline | Note => NoLoss,
             Link | AudioObject | ImageObject | VideoObject => LowLoss,
-            Delete => HighLoss,
+            DeleteInline => HighLoss,
             // Prose Blocks
             Admonition | Section | Heading | Paragraph | QuoteBlock | ThematicBreak => NoLoss,
             List | ListItem | Figure => LowLoss,
