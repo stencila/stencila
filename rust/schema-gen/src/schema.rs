@@ -559,6 +559,10 @@ pub struct HtmlOptions {
     /// The name of the HTML element to use for a type or property
     pub elem: Option<String>,
 
+    /// Attributes which should be added to the HTML element
+    #[serde(skip_serializing_if = "IndexMap::is_empty")]
+    pub attrs: IndexMap<String, String>,
+
     /// Whether a custom element is defined for the node type
     ///
     /// If this is `true`, then, if `elem` is not `None`, the HTML `is` attribute

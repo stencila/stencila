@@ -1,9 +1,12 @@
 //! Provides a `HtmlCodec` derive macro for structs and enums in Stencila Schema
 
+use std::collections::HashMap;
+
 use darling::{self, FromDeriveInput, FromField};
 
 use common::{
     inflector::Inflector,
+    itertools::Itertools,
     proc_macro2::TokenStream,
     quote::quote,
     syn::{parse_macro_input, Data, DataEnum, DeriveInput, Fields, Ident},
@@ -17,6 +20,9 @@ struct TypeAttr {
 
     #[darling(default)]
     elem: Option<String>,
+
+    #[darling(default)]
+    attribs: HashMap<String, String>,
 
     #[darling(default)]
     custom: bool,
@@ -95,7 +101,14 @@ fn derive_struct(type_attr: TypeAttr) -> TokenStream {
         .clone()
         .unwrap_or_else(|| custom_elem.clone());
 
-    let mut attrs = quote!();
+    let mut attrs = TokenStream::new();
+
+    for (name, value) in type_attr.attribs.iter().sorted() {
+        let name = name.replace("__", "-").replace('_', ":");
+        attrs.extend(quote! {
+            (#name.to_string(), #value.to_string()),
+        })
+    }
 
     if type_attr.custom {
         attrs.extend(quote!(attr("is", #custom_elem),))

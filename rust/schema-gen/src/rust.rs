@@ -351,6 +351,18 @@ pub enum NodeType {{
             if let Some(elem) = &html.elem {
                 args.push(format!("elem = \"{elem}\""));
             }
+            if !html.attrs.is_empty() {
+                args.push(format!(
+                    "attribs({})",
+                    html.attrs
+                        .iter()
+                        .map(|(name, value)| format!(
+                            "{name} = \"{value}\"",
+                            name = name.replace('-', "__").replace(':', "_")
+                        ))
+                        .join(", ")
+                ));
+            }
             if html.custom {
                 args.push("custom".to_string());
             }
