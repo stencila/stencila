@@ -154,8 +154,7 @@ impl Format {
             "md" => Markdown,
             "txt" => Text,
             "yml" => Yaml,
-            _ => Format::from_str(name, true)
-                .map_err(|_| eyre!("No format matching name `{name}`"))?,
+            _ => Format::try_from(name).map_err(|_| eyre!("No format matching name `{name}`"))?,
         })
     }
 
@@ -197,6 +196,9 @@ mod test {
 
     #[test]
     fn from_string() -> Result<()> {
+        assert_eq!(Format::from_string("cborZst")?, Format::CborZst);
+        assert_eq!(Format::from_string("cborzst")?, Format::CborZst);
+
         assert_eq!(Format::from_string("mp3")?, Format::Mp3);
 
         assert_eq!(Format::from_string("file.avi")?, Format::Avi);
