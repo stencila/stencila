@@ -148,10 +148,12 @@ Support and degree of loss for node types:
 | [Cite](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/cite.md)                                | ⚠️ High loss     |               |                                   |
 | [CiteGroup](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/cite_group.md)                     | ⚠️ High loss     |               |                                   |
 | [DefinedTerm](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/defined_term.md)                 | ⚠️ High loss     |               |                                   |
-| [Delete](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/delete.md)                            | ⚠️ High loss     |               | Encoded as `<del>{content}</del>` |
+| [DeleteBlock](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/delete_block.md)                 | ⚠️ High loss     |               | Encoded using special function    |
+| [DeleteInline](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/delete_inline.md)               | ⚠️ High loss     |               | Encoded as `<del>{content}</del>` |
 | [Emphasis](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/emphasis.md)                        | 🟢 No loss        | 🟢 No loss     | Encoded as `_{content}_`          |
 | [Heading](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/heading.md)                          | 🟢 No loss        | 🟢 No loss     | Encoded using special function    |
-| [Insert](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/insert.md)                            | ⚠️ High loss     |               | Encoded as `<ins>{content}</ins>` |
+| [InsertBlock](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/insert_block.md)                 | ⚠️ High loss     |               | Encoded using special function    |
+| [InsertInline](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/insert_inline.md)               | ⚠️ High loss     |               | Encoded as `<ins>{content}</ins>` |
 | [Link](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/link.md)                                | 🔷 Low loss       | 🔷 Low loss    | Encoded using special function    |
 | [List](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/list.md)                                | 🔷 Low loss       | 🔷 Low loss    | Encoded using special function    |
 | [ListItem](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/list_item.md)                       | 🔷 Low loss       | 🔷 Low loss    | Encoded using special function    |
