@@ -22,8 +22,8 @@ use crate::decode::inlines::inlines_or_text;
 
 use super::{
     blocks::{
-        admonition, call, claim, else_block, end, for_block, form, if_elif, include, math_block,
-        section, styled_block,
+        admonition, call, claim, delete_block, else_block, end, for_block, form, if_elif, include,
+        insert_block, math_block, section, styled_block,
     },
     inlines::inlines,
 };
@@ -239,6 +239,14 @@ pub fn decode_blocks(
                         blocks.push_div();
                         divs.push_back(Block::Claim(claim));
                         None
+                    } else if let Ok((.., block)) = delete_block(trimmed) {
+                        blocks.push_div();
+                        divs.push_back(Block::DeleteBlock(block));
+                        None
+                    } else if let Ok((.., block)) = insert_block(trimmed) {
+                        blocks.push_div();
+                        divs.push_back(Block::InsertBlock(block));
+                        None
                     } else if let Ok((.., styled_block)) = styled_block(trimmed) {
                         blocks.push_div();
                         divs.push_back(Block::StyledBlock(styled_block));
@@ -314,6 +322,14 @@ pub fn decode_blocks(
                             Block::Claim(mut claim) => {
                                 claim.content = blocks.pop_div();
                                 Block::Claim(claim)
+                            }
+                            Block::DeleteBlock(mut block) => {
+                                block.content = blocks.pop_div();
+                                Block::DeleteBlock(block)
+                            }
+                            Block::InsertBlock(mut block) => {
+                                block.content = blocks.pop_div();
+                                Block::InsertBlock(block)
                             }
                             Block::Section(mut section) => {
                                 section.content = blocks.pop_div();

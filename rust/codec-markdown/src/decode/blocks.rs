@@ -15,9 +15,9 @@ use nom::{
 use codec::{
     common::itertools::Itertools,
     schema::{
-        Admonition, Block, CallArgument, CallBlock, Claim, Cord, ForBlock, Form, FormDeriveAction,
-        FormOptions, IfBlockClause, IncludeBlock, Inline, IntegerOrString, MathBlock, Node,
-        Section, StyledBlock, Text,
+        Admonition, Block, CallArgument, CallBlock, Claim, Cord, DeleteBlock, ForBlock, Form,
+        FormDeriveAction, FormOptions, IfBlockClause, IncludeBlock, Inline, InsertBlock,
+        IntegerOrString, MathBlock, Node, Section, StyledBlock, Text,
     },
 };
 
@@ -51,7 +51,7 @@ pub fn admonition(content: &mut Vec<Block>) -> Option<Admonition> {
                         _ => None,
                     };
 
-                    // Remove the prefix from the para and then make any remainind
+                    // Remove the prefix from the para and then make any remaining
                     // content the title
                     *text = Cord::from(text[finish + 1..].trim_start());
                     let title = if text.is_empty() {
@@ -211,6 +211,32 @@ pub fn claim(input: &str) -> IResult<&str, Claim> {
             label: label.map(String::from),
             ..Default::default()
         },
+    )(input)
+}
+
+/// Parse a [`DeleteBlock`] node
+pub fn delete_block(input: &str) -> IResult<&str, DeleteBlock> {
+    map(
+        all_consuming(tuple((
+            semis,
+            multispace0,
+            tag("delete"),
+            opt(preceded(multispace1, is_not("\r\n"))),
+        ))),
+        |_| DeleteBlock::default(),
+    )(input)
+}
+
+/// Parse a [`InsertBlock`] node
+pub fn insert_block(input: &str) -> IResult<&str, InsertBlock> {
+    map(
+        all_consuming(tuple((
+            semis,
+            multispace0,
+            tag("insert"),
+            opt(preceded(multispace1, is_not("\r\n"))),
+        ))),
+        |_| InsertBlock::default(),
     )(input)
 }
 
