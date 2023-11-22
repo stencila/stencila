@@ -33,7 +33,7 @@ pub fn list() -> Vec<Box<dyn Codec>> {
 /// If the string matches the name of a format then assume it is a format, otherwise assume it is a codec name
 pub fn format_or_codec(format_or_codec: Option<String>) -> (Option<Format>, Option<String>) {
     match format_or_codec {
-        Some(format_or_codec) => match Format::from_string(&format_or_codec.to_lowercase()) {
+        Some(format_or_codec) => match Format::from_string(format_or_codec.to_lowercase()) {
             Ok(format) => (Some(format), None),
             Err(..) => (None, Some(format_or_codec)),
         },

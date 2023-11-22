@@ -270,7 +270,7 @@ pub trait Codec: Sync + Send {
         if options.standalone.is_none() {
             options.standalone = Some(true);
         }
-        
+
         let (content, losses) = if self.supports_to_bytes() {
             self.to_bytes(node, Some(options)).await
         } else {
