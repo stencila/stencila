@@ -35,7 +35,8 @@ import { type DateTime } from "./DateTime.js";
 import { type DateTimeValidator } from "./DateTimeValidator.js";
 import { type DateValidator } from "./DateValidator.js";
 import { type DefinedTerm } from "./DefinedTerm.js";
-import { type Delete } from "./Delete.js";
+import { type DeleteBlock } from "./DeleteBlock.js";
+import { type DeleteInline } from "./DeleteInline.js";
 import { type Directory } from "./Directory.js";
 import { type Duration } from "./Duration.js";
 import { type DurationValidator } from "./DurationValidator.js";
@@ -57,7 +58,8 @@ import { type IfBlock } from "./IfBlock.js";
 import { type IfBlockClause } from "./IfBlockClause.js";
 import { type ImageObject } from "./ImageObject.js";
 import { type IncludeBlock } from "./IncludeBlock.js";
-import { type Insert } from "./Insert.js";
+import { type InsertBlock } from "./InsertBlock.js";
+import { type InsertInline } from "./InsertInline.js";
 import { type Integer } from "./Integer.js";
 import { type IntegerValidator } from "./IntegerValidator.js";
 import { type Link } from "./Link.js";
@@ -152,7 +154,8 @@ export type Node =
   DateTimeValidator |
   DateValidator |
   DefinedTerm |
-  Delete |
+  DeleteBlock |
+  DeleteInline |
   Directory |
   Duration |
   DurationValidator |
@@ -174,7 +177,8 @@ export type Node =
   IfBlockClause |
   ImageObject |
   IncludeBlock |
-  Insert |
+  InsertBlock |
+  InsertInline |
   IntegerValidator |
   Link |
   List |
@@ -263,7 +267,8 @@ export function node(other: Node): Node {
     case "DateTimeValidator":
     case "DateValidator":
     case "DefinedTerm":
-    case "Delete":
+    case "DeleteBlock":
+    case "DeleteInline":
     case "Directory":
     case "Duration":
     case "DurationValidator":
@@ -285,7 +290,8 @@ export function node(other: Node): Node {
     case "IfBlockClause":
     case "ImageObject":
     case "IncludeBlock":
-    case "Insert":
+    case "InsertBlock":
+    case "InsertInline":
     case "IntegerValidator":
     case "Link":
     case "List":

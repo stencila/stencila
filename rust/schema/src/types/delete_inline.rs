@@ -12,14 +12,14 @@ use super::string::String;
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 #[cfg_attr(feature = "proptest", derive(Arbitrary))]
 #[derive(derive_more::Display)]
-#[display(fmt = "Delete")]
+#[display(fmt = "DeleteInline")]
 #[html(elem = "del")]
 #[jats(special)]
 #[markdown(template = "<del>{content}</del>")]
-pub struct Delete {
+pub struct DeleteInline {
     /// The type of this item.
     #[cfg_attr(feature = "proptest", proptest(value = "Default::default()"))]
-    pub r#type: MustBe!("Delete"),
+    pub r#type: MustBe!("DeleteInline"),
 
     /// The identifier for this item.
     #[strip(metadata)]
@@ -37,7 +37,7 @@ pub struct Delete {
     pub content: Vec<Inline>,
 }
 
-impl Delete {
+impl DeleteInline {
     pub fn new(content: Vec<Inline>) -> Self {
         Self {
             content,

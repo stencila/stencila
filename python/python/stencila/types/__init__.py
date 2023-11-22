@@ -44,7 +44,8 @@ from .date_time import DateTime
 from .date_time_validator import DateTimeValidator
 from .date_validator import DateValidator
 from .defined_term import DefinedTerm
-from .delete import Delete
+from .delete_block import DeleteBlock
+from .delete_inline import DeleteInline
 from .directory import Directory
 from .duration import Duration
 from .duration_validator import DurationValidator
@@ -78,7 +79,8 @@ from .if_block_clause import IfBlockClause
 from .image_object import ImageObject
 from .include_block import IncludeBlock
 from .inline import Inline
-from .insert import Insert
+from .insert_block import InsertBlock
+from .insert_inline import InsertInline
 from .int_or_str import IntOrStr
 from .integer_validator import IntegerValidator
 from .link import Link
@@ -128,6 +130,8 @@ from .styled_block import StyledBlock
 from .styled_inline import StyledInline
 from .subscript import Subscript
 from .suggestion import Suggestion
+from .suggestion_block import SuggestionBlock
+from .suggestion_inline import SuggestionInline
 from .superscript import Superscript
 from .table import Table
 from .table_cell import TableCell

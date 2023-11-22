@@ -6,12 +6,12 @@
   },
   "@graph": [
     {
-      "@id": "stencila:Delete",
+      "@id": "stencila:InsertBlock",
       "@type": "rdfs:Class",
-      "rdfs:label": "Delete",
-      "rdfs:comment": "A suggestion to delete some inline content.",
+      "rdfs:label": "InsertBlock",
+      "rdfs:comment": "A suggestion to insert some block content.",
       "rdfs:subClassOf": {
-        "@id": "stencila:Suggestion"
+        "@id": "stencila:SuggestionBlock"
       }
     },
     {
@@ -81,14 +81,17 @@
           "@id": "stencila:StyledInline"
         },
         {
-          "@id": "stencila:Suggestion"
+          "@id": "stencila:SuggestionBlock"
+        },
+        {
+          "@id": "stencila:SuggestionInline"
         },
         {
           "@id": "stencila:TableCell"
         }
       ],
       "schema:rangeIncludes": {
-        "@id": "stencila:Inline"
+        "@id": "stencila:Block"
       }
     }
   ]

@@ -9,86 +9,9 @@
       "@id": "stencila:Suggestion",
       "@type": "rdfs:Class",
       "rdfs:label": "Suggestion",
-      "rdfs:comment": "Abstract base class for nodes that indicate a suggested change to inline content.",
+      "rdfs:comment": "Abstract base type for nodes that indicate a suggested change to content.",
       "rdfs:subClassOf": {
         "@id": "stencila:Entity"
-      }
-    },
-    {
-      "@id": "stencila:content",
-      "@type": "rdfs:Property",
-      "rdfs:label": "content",
-      "rdfs:comment": "The content that is suggested to be inserted or deleted.",
-      "schema:domainIncludes": [
-        {
-          "@id": "schema:Article"
-        },
-        {
-          "@id": "schema:Claim"
-        },
-        {
-          "@id": "schema:Comment"
-        },
-        {
-          "@id": "schema:ListItem"
-        },
-        {
-          "@id": "stencila:Admonition"
-        },
-        {
-          "@id": "stencila:Cite"
-        },
-        {
-          "@id": "stencila:Figure"
-        },
-        {
-          "@id": "stencila:ForBlock"
-        },
-        {
-          "@id": "stencila:Form"
-        },
-        {
-          "@id": "stencila:Heading"
-        },
-        {
-          "@id": "stencila:IfBlockClause"
-        },
-        {
-          "@id": "stencila:IncludeBlock"
-        },
-        {
-          "@id": "stencila:Link"
-        },
-        {
-          "@id": "stencila:Mark"
-        },
-        {
-          "@id": "stencila:Note"
-        },
-        {
-          "@id": "stencila:Paragraph"
-        },
-        {
-          "@id": "stencila:QuoteBlock"
-        },
-        {
-          "@id": "stencila:Section"
-        },
-        {
-          "@id": "stencila:StyledBlock"
-        },
-        {
-          "@id": "stencila:StyledInline"
-        },
-        {
-          "@id": "stencila:Suggestion"
-        },
-        {
-          "@id": "stencila:TableCell"
-        }
-      ],
-      "schema:rangeIncludes": {
-        "@id": "stencila:Inline"
       }
     }
   ]

@@ -7,12 +7,14 @@ use super::call_block::CallBlock;
 use super::claim::Claim;
 use super::code_block::CodeBlock;
 use super::code_chunk::CodeChunk;
+use super::delete_block::DeleteBlock;
 use super::figure::Figure;
 use super::for_block::ForBlock;
 use super::form::Form;
 use super::heading::Heading;
 use super::if_block::IfBlock;
 use super::include_block::IncludeBlock;
+use super::insert_block::InsertBlock;
 use super::list::List;
 use super::math_block::MathBlock;
 use super::paragraph::Paragraph;
@@ -42,6 +44,12 @@ pub enum Block {
     CodeChunk(CodeChunk),
 
     #[cfg_attr(feature = "proptest-min", proptest(skip))]
+    #[cfg_attr(feature = "proptest-low", proptest(skip))]
+    #[cfg_attr(feature = "proptest-high", proptest(skip))]
+    #[cfg_attr(feature = "proptest-max", proptest(skip))]
+    DeleteBlock(DeleteBlock),
+
+    #[cfg_attr(feature = "proptest-min", proptest(skip))]
     Figure(Figure),
 
     #[cfg_attr(feature = "proptest-min", proptest(skip))]
@@ -60,6 +68,12 @@ pub enum Block {
 
     #[cfg_attr(feature = "proptest-min", proptest(skip))]
     IncludeBlock(IncludeBlock),
+
+    #[cfg_attr(feature = "proptest-min", proptest(skip))]
+    #[cfg_attr(feature = "proptest-low", proptest(skip))]
+    #[cfg_attr(feature = "proptest-high", proptest(skip))]
+    #[cfg_attr(feature = "proptest-max", proptest(skip))]
+    InsertBlock(InsertBlock),
 
     List(List),
 

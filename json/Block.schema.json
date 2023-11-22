@@ -61,6 +61,15 @@
     {
       "proptest": {
         "min": {
+          "description": "Do not generate `DeleteBlock` nodes in block content.",
+          "skip": true
+        }
+      },
+      "$ref": "DeleteBlock.schema.json"
+    },
+    {
+      "proptest": {
+        "min": {
           "description": "Do not generate `Figure` nodes in block content.",
           "skip": true
         },
@@ -117,6 +126,15 @@
         }
       },
       "$ref": "IncludeBlock.schema.json"
+    },
+    {
+      "proptest": {
+        "min": {
+          "description": "Do not generate `InsertBlock` nodes in block content.",
+          "skip": true
+        }
+      },
+      "$ref": "InsertBlock.schema.json"
     },
     {
       "$ref": "List.schema.json"

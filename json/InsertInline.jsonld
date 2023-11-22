@@ -6,12 +6,12 @@
   },
   "@graph": [
     {
-      "@id": "stencila:Insert",
+      "@id": "stencila:InsertInline",
       "@type": "rdfs:Class",
-      "rdfs:label": "Insert",
+      "rdfs:label": "InsertInline",
       "rdfs:comment": "A suggestion to insert some inline content.",
       "rdfs:subClassOf": {
-        "@id": "stencila:Suggestion"
+        "@id": "stencila:SuggestionInline"
       }
     },
     {
@@ -81,7 +81,10 @@
           "@id": "stencila:StyledInline"
         },
         {
-          "@id": "stencila:Suggestion"
+          "@id": "stencila:SuggestionBlock"
+        },
+        {
+          "@id": "stencila:SuggestionInline"
         },
         {
           "@id": "stencila:TableCell"

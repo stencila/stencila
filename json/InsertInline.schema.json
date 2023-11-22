@@ -1,0 +1,74 @@
+{
+  "$schema": "https://stencila.dev/meta.schema.json",
+  "$id": "https://stencila.dev/InsertInline.schema.json",
+  "@id": "stencila:InsertInline",
+  "title": "InsertInline",
+  "extends": [
+    "SuggestionInline"
+  ],
+  "category": "prose",
+  "description": "A suggestion to insert some inline content.",
+  "proptest": {},
+  "html": {
+    "elem": "ins"
+  },
+  "jats": {
+    "special": true
+  },
+  "markdown": {
+    "template": "<ins>{content}</ins>"
+  },
+  "required": [
+    "type",
+    "content"
+  ],
+  "core": [
+    "id"
+  ],
+  "properties": {
+    "type": {
+      "@id": "schema:type",
+      "description": "The type of this item.",
+      "$comment": "This is a special property analogous to JSON-LD's `@type` keyword.\n",
+      "type": "string"
+    },
+    "id": {
+      "@id": "schema:id",
+      "description": "The identifier for this item.",
+      "$comment": "This is a special property analogous to JSON-LD's `@id` keyword.\n",
+      "strip": [
+        "metadata"
+      ],
+      "html": {
+        "attr": "id"
+      },
+      "type": "string"
+    },
+    "content": {
+      "@id": "stencila:content",
+      "description": "The content that is suggested to be inserted or deleted.",
+      "proptest": {
+        "min": {
+          "description": "Generate a single fixed text value.",
+          "value": "vec![t(\"text\")]"
+        },
+        "low": {
+          "description": "Generate a single arbitrary, non-recursive, inline node",
+          "strategy": "vec_inlines_non_recursive(1)"
+        },
+        "high": {
+          "description": "Generate up to two arbitrary, non-recursive, inline nodes",
+          "strategy": "vec_inlines_non_recursive(2)"
+        },
+        "max": {
+          "description": "Generate up to four arbitrary, non-recursive, inline nodes",
+          "strategy": "vec_inlines_non_recursive(4)"
+        }
+      },
+      "type": "array",
+      "items": {
+        "$ref": "Inline.schema.json"
+      }
+    }
+  }
+}

@@ -120,7 +120,10 @@
       "$ref": "DefinedTerm.schema.json"
     },
     {
-      "$ref": "Delete.schema.json"
+      "$ref": "DeleteBlock.schema.json"
+    },
+    {
+      "$ref": "DeleteInline.schema.json"
     },
     {
       "$ref": "Directory.schema.json"
@@ -186,7 +189,10 @@
       "$ref": "IncludeBlock.schema.json"
     },
     {
-      "$ref": "Insert.schema.json"
+      "$ref": "InsertBlock.schema.json"
+    },
+    {
+      "$ref": "InsertInline.schema.json"
     },
     {
       "$ref": "IntegerValidator.schema.json"

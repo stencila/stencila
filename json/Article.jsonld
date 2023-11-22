@@ -519,7 +519,10 @@
           "@id": "stencila:StyledInline"
         },
         {
-          "@id": "stencila:Suggestion"
+          "@id": "stencila:SuggestionBlock"
+        },
+        {
+          "@id": "stencila:SuggestionInline"
         },
         {
           "@id": "stencila:TableCell"

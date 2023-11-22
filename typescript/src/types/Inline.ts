@@ -10,11 +10,11 @@ import { type CodeExpression } from "./CodeExpression.js";
 import { type CodeInline } from "./CodeInline.js";
 import { type Date } from "./Date.js";
 import { type DateTime } from "./DateTime.js";
-import { type Delete } from "./Delete.js";
+import { type DeleteInline } from "./DeleteInline.js";
 import { type Duration } from "./Duration.js";
 import { type Emphasis } from "./Emphasis.js";
 import { type ImageObject } from "./ImageObject.js";
-import { type Insert } from "./Insert.js";
+import { type InsertInline } from "./InsertInline.js";
 import { type Integer } from "./Integer.js";
 import { type Link } from "./Link.js";
 import { type MathInline } from "./MathInline.js";
@@ -46,11 +46,11 @@ export type Inline =
   CodeInline |
   Date |
   DateTime |
-  Delete |
+  DeleteInline |
   Duration |
   Emphasis |
   ImageObject |
-  Insert |
+  InsertInline |
   Link |
   MathInline |
   MediaObject |
@@ -89,11 +89,11 @@ export function inline(other: Inline): Inline {
     case "CodeInline":
     case "Date":
     case "DateTime":
-    case "Delete":
+    case "DeleteInline":
     case "Duration":
     case "Emphasis":
     case "ImageObject":
-    case "Insert":
+    case "InsertInline":
     case "Link":
     case "MathInline":
     case "MediaObject":

@@ -309,6 +309,13 @@
           "description": "The HTML attribute name for a property\n\nShould only be used when `elem` is not `None`. When `elem` is `None`, the name of the attribute will be the name of the property.",
           "type": "string"
         },
+        "attrs": {
+          "description": "Attributes which should be added to the HTML element",
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
         "content": {
           "description": "Whether a property should be encoded as content of the parent element",
           "type": "boolean"

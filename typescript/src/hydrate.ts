@@ -97,8 +97,10 @@ export function hydrate(value: types.Node): types.Node {
       return Object.setPrototypeOf(value, types.DateValidator.prototype);
     case "DefinedTerm":
       return Object.setPrototypeOf(value, types.DefinedTerm.prototype);
-    case "Delete":
-      return Object.setPrototypeOf(value, types.Delete.prototype);
+    case "DeleteBlock":
+      return Object.setPrototypeOf(value, types.DeleteBlock.prototype);
+    case "DeleteInline":
+      return Object.setPrototypeOf(value, types.DeleteInline.prototype);
     case "Directory":
       return Object.setPrototypeOf(value, types.Directory.prototype);
     case "Duration":
@@ -145,8 +147,10 @@ export function hydrate(value: types.Node): types.Node {
       return Object.setPrototypeOf(value, types.ImageObject.prototype);
     case "IncludeBlock":
       return Object.setPrototypeOf(value, types.IncludeBlock.prototype);
-    case "Insert":
-      return Object.setPrototypeOf(value, types.Insert.prototype);
+    case "InsertBlock":
+      return Object.setPrototypeOf(value, types.InsertBlock.prototype);
+    case "InsertInline":
+      return Object.setPrototypeOf(value, types.InsertInline.prototype);
     case "IntegerValidator":
       return Object.setPrototypeOf(value, types.IntegerValidator.prototype);
     case "Link":
@@ -219,6 +223,10 @@ export function hydrate(value: types.Node): types.Node {
       return Object.setPrototypeOf(value, types.Subscript.prototype);
     case "Suggestion":
       return Object.setPrototypeOf(value, types.Suggestion.prototype);
+    case "SuggestionBlock":
+      return Object.setPrototypeOf(value, types.SuggestionBlock.prototype);
+    case "SuggestionInline":
+      return Object.setPrototypeOf(value, types.SuggestionInline.prototype);
     case "Superscript":
       return Object.setPrototypeOf(value, types.Superscript.prototype);
     case "Table":

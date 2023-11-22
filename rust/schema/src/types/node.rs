@@ -36,7 +36,8 @@ use super::date_time::DateTime;
 use super::date_time_validator::DateTimeValidator;
 use super::date_validator::DateValidator;
 use super::defined_term::DefinedTerm;
-use super::delete::Delete;
+use super::delete_block::DeleteBlock;
+use super::delete_inline::DeleteInline;
 use super::directory::Directory;
 use super::duration::Duration;
 use super::duration_validator::DurationValidator;
@@ -58,7 +59,8 @@ use super::if_block::IfBlock;
 use super::if_block_clause::IfBlockClause;
 use super::image_object::ImageObject;
 use super::include_block::IncludeBlock;
-use super::insert::Insert;
+use super::insert_block::InsertBlock;
+use super::insert_inline::InsertInline;
 use super::integer::Integer;
 use super::integer_validator::IntegerValidator;
 use super::link::Link;
@@ -196,7 +198,9 @@ pub enum Node {
 
     DefinedTerm(DefinedTerm),
 
-    Delete(Delete),
+    DeleteBlock(DeleteBlock),
+
+    DeleteInline(DeleteInline),
 
     Directory(Directory),
 
@@ -240,7 +244,9 @@ pub enum Node {
 
     IncludeBlock(IncludeBlock),
 
-    Insert(Insert),
+    InsertBlock(InsertBlock),
+
+    InsertInline(InsertInline),
 
     IntegerValidator(IntegerValidator),
 

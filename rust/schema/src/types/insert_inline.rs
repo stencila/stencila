@@ -12,14 +12,14 @@ use super::string::String;
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 #[cfg_attr(feature = "proptest", derive(Arbitrary))]
 #[derive(derive_more::Display)]
-#[display(fmt = "Insert")]
+#[display(fmt = "InsertInline")]
 #[html(elem = "ins")]
 #[jats(special)]
 #[markdown(template = "<ins>{content}</ins>")]
-pub struct Insert {
+pub struct InsertInline {
     /// The type of this item.
     #[cfg_attr(feature = "proptest", proptest(value = "Default::default()"))]
-    pub r#type: MustBe!("Insert"),
+    pub r#type: MustBe!("InsertInline"),
 
     /// The identifier for this item.
     #[strip(metadata)]
@@ -37,7 +37,7 @@ pub struct Insert {
     pub content: Vec<Inline>,
 }
 
-impl Insert {
+impl InsertInline {
     pub fn new(content: Vec<Inline>) -> Self {
         Self {
             content,

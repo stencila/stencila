@@ -16,11 +16,11 @@ The `Inline` type has these members:
 - [`CodeInline`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/code/code-inline.md)
 - [`Date`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/date.md)
 - [`DateTime`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/date-time.md)
-- [`Delete`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/delete.md)
+- [`DeleteInline`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/delete-inline.md)
 - [`Duration`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/duration.md)
 - [`Emphasis`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/emphasis.md)
 - [`ImageObject`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/image-object.md)
-- [`Insert`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/insert.md)
+- [`InsertInline`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/insert-inline.md)
 - [`Link`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/link.md)
 - [`MathInline`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/math/math-inline.md)
 - [`MediaObject`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/media-object.md)
@@ -70,12 +70,12 @@ During property-based (a.k.a generative) testing, the variants of the `Inline` t
 |                   | High+      | Generate `Date` nodes in inline content.                                                                                                                                                          | Default for level                                |
 | `DateTime`        | Min+       | Do not generate `DateTime` nodes in inline content.                                                                                                                                               | -                                                |
 |                   | High+      | Generate `DateTime` nodes in inline content.                                                                                                                                                      | Default for level                                |
-| `Delete`          | Min+       | Do not generate `Delete` nodes in inline content.                                                                                                                                                 | -                                                |
-|                   | Max        | Generate `Delete` nodes in inline content.                                                                                                                                                        | Default for level                                |
+| `DeleteInline`    | Min+       | Do not generate `DeleteInline` nodes in inline content.                                                                                                                                           | -                                                |
+|                   | Max        | Generate `DeleteInline` nodes in inline content.                                                                                                                                                  | Default for level                                |
 | `Duration`        | Min+       | Do not generate `Duration` nodes in inline content.                                                                                                                                               | -                                                |
 |                   | High+      | Generate `Duration` nodes in inline content.                                                                                                                                                      | Default for level                                |
-| `Insert`          | Min+       | Do not generate `Insert` nodes in inline content.                                                                                                                                                 | -                                                |
-|                   | Max        | Generate `Insert` nodes in inline content.                                                                                                                                                        | Default for level                                |
+| `InsertInline`    | Min+       | Do not generate `InsertInline` nodes in inline content.                                                                                                                                           | -                                                |
+|                   | Max        | Generate `InsertInline` nodes in inline content.                                                                                                                                                  | Default for level                                |
 | `MediaObject`     | Min+       | Do not generate `MediaObject` nodes in inline content.                                                                                                                                            | -                                                |
 | `Note`            | Min+       | Do not generate `Note` nodes in inline content.                                                                                                                                                   | -                                                |
 |                   | Low+       | Generate `Note` nodes in inline content.                                                                                                                                                          | Default for level                                |

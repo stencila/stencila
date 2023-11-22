@@ -11,11 +11,11 @@ use super::code_expression::CodeExpression;
 use super::code_inline::CodeInline;
 use super::date::Date;
 use super::date_time::DateTime;
-use super::delete::Delete;
+use super::delete_inline::DeleteInline;
 use super::duration::Duration;
 use super::emphasis::Emphasis;
 use super::image_object::ImageObject;
-use super::insert::Insert;
+use super::insert_inline::InsertInline;
 use super::integer::Integer;
 use super::link::Link;
 use super::math_inline::MathInline;
@@ -80,7 +80,7 @@ pub enum Inline {
     #[cfg_attr(feature = "proptest-min", proptest(skip))]
     #[cfg_attr(feature = "proptest-low", proptest(skip))]
     #[cfg_attr(feature = "proptest-high", proptest(skip))]
-    Delete(Delete),
+    DeleteInline(DeleteInline),
 
     #[cfg_attr(feature = "proptest-min", proptest(skip))]
     #[cfg_attr(feature = "proptest-low", proptest(skip))]
@@ -93,7 +93,7 @@ pub enum Inline {
     #[cfg_attr(feature = "proptest-min", proptest(skip))]
     #[cfg_attr(feature = "proptest-low", proptest(skip))]
     #[cfg_attr(feature = "proptest-high", proptest(skip))]
-    Insert(Insert),
+    InsertInline(InsertInline),
 
     Link(Link),
 

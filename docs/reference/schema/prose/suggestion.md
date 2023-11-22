@@ -1,6 +1,6 @@
 # Suggestion
 
-**Abstract base class for nodes that indicate a suggested change to inline content.**
+**Abstract base type for nodes that indicate a suggested change to content.**
 
 Note that at present this type does not have a `suggester` property to identify the
 actor (`Person`, `Organization`, or `SoftwareApplication`) which suggested the change.
@@ -17,17 +17,16 @@ of the `CreativeWork`.
 
 The `Suggestion` type has these properties:
 
-| Name      | Aliases | `@id`                                | Type                                                                                              | Description                                              | Inherited from                                                                                   |
-| --------- | ------- | ------------------------------------ | ------------------------------------------------------------------------------------------------- | -------------------------------------------------------- | ------------------------------------------------------------------------------------------------ |
-| `id`      | -       | [`schema:id`](https://schema.org/id) | [`String`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/string.md)   | The identifier for this item.                            | [`Entity`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/entity.md) |
-| `content` | -       | `stencila:content`                   | [`Inline`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/inline.md)* | The content that is suggested to be inserted or deleted. | -                                                                                                |
+| Name | Aliases | `@id`                                | Type                                                                                            | Description                   | Inherited from                                                                                   |
+| ---- | ------- | ------------------------------------ | ----------------------------------------------------------------------------------------------- | ----------------------------- | ------------------------------------------------------------------------------------------------ |
+| `id` | -       | [`schema:id`](https://schema.org/id) | [`String`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/string.md) | The identifier for this item. | [`Entity`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/entity.md) |
 
 ## Related
 
 The `Suggestion` type is related to these types:
 
 - Parents: [`Entity`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/entity.md)
-- Children: [`Delete`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/delete.md), [`Insert`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/insert.md)
+- Children: [`SuggestionBlock`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/suggestion-block.md), [`SuggestionInline`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/suggestion-inline.md)
 
 ## Bindings
 

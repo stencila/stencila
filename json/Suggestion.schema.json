@@ -8,11 +8,10 @@
   ],
   "category": "prose",
   "abstract": true,
-  "description": "Abstract base class for nodes that indicate a suggested change to inline content.",
+  "description": "Abstract base type for nodes that indicate a suggested change to content.",
   "$comment": "Note that at present this type does not have a `suggester` property to identify the\nactor (`Person`, `Organization`, or `SoftwareApplication`) which suggested the change.\nThat is because, the creator of a `Suggestion` node is inherently the suggester and \nwill be identifiable from the node's id.\n\nThe suggester will normally be amongst the `authors`, `contributors`, or `maintainers`\nof the `CreativeWork`.\n",
   "required": [
-    "type",
-    "content"
+    "type"
   ],
   "core": [
     "id"
@@ -35,32 +34,6 @@
         "attr": "id"
       },
       "type": "string"
-    },
-    "content": {
-      "@id": "stencila:content",
-      "description": "The content that is suggested to be inserted or deleted.",
-      "proptest": {
-        "min": {
-          "description": "Generate a single fixed text value.",
-          "value": "vec![t(\"text\")]"
-        },
-        "low": {
-          "description": "Generate a single arbitrary, non-recursive, inline node",
-          "strategy": "vec_inlines_non_recursive(1)"
-        },
-        "high": {
-          "description": "Generate up to two arbitrary, non-recursive, inline nodes",
-          "strategy": "vec_inlines_non_recursive(2)"
-        },
-        "max": {
-          "description": "Generate up to four arbitrary, non-recursive, inline nodes",
-          "strategy": "vec_inlines_non_recursive(4)"
-        }
-      },
-      "type": "array",
-      "items": {
-        "$ref": "Inline.schema.json"
-      }
     }
   }
 }

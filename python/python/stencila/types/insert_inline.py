@@ -3,16 +3,16 @@
 from .prelude import *
 
 from .inline import Inline
-from .suggestion import Suggestion
+from .suggestion_inline import SuggestionInline
 
 
 @dataclass(init=False)
-class Delete(Suggestion):
+class InsertInline(SuggestionInline):
     """
-    A suggestion to delete some inline content.
+    A suggestion to insert some inline content.
     """
 
-    type: Literal["Delete"] = field(default="Delete", init=False)
+    type: Literal["InsertInline"] = field(default="InsertInline", init=False)
 
     def __init__(self, content: List[Inline], id: Optional[str] = None):
         super().__init__(id = id, content = content)

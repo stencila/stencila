@@ -1,23 +1,14 @@
 {
   "$schema": "https://stencila.dev/meta.schema.json",
-  "$id": "https://stencila.dev/Delete.schema.json",
-  "@id": "stencila:Delete",
-  "title": "Delete",
+  "$id": "https://stencila.dev/SuggestionBlock.schema.json",
+  "@id": "stencila:SuggestionBlock",
+  "title": "SuggestionBlock",
   "extends": [
     "Suggestion"
   ],
   "category": "prose",
-  "description": "A suggestion to delete some inline content.",
-  "proptest": {},
-  "html": {
-    "elem": "del"
-  },
-  "jats": {
-    "special": true
-  },
-  "markdown": {
-    "template": "<del>{content}</del>"
-  },
+  "abstract": true,
+  "description": "Abstract base type for nodes that indicate a suggested change to block content.",
   "required": [
     "type",
     "content"
@@ -49,25 +40,25 @@
       "description": "The content that is suggested to be inserted or deleted.",
       "proptest": {
         "min": {
-          "description": "Generate a single fixed text value.",
-          "value": "vec![t(\"text\")]"
+          "description": "Generate a single fixed paragraph.",
+          "value": "vec![p([t(\"text\")])]"
         },
         "low": {
-          "description": "Generate a single arbitrary, non-recursive, inline node",
-          "strategy": "vec_inlines_non_recursive(1)"
+          "description": "Generate a single arbitrary, non-recursive, block node",
+          "strategy": "vec_blocks_non_recursive(1)"
         },
         "high": {
-          "description": "Generate up to two arbitrary, non-recursive, inline nodes",
-          "strategy": "vec_inlines_non_recursive(2)"
+          "description": "Generate up to two arbitrary, non-recursive, block nodes",
+          "strategy": "vec_blocks_non_recursive(2)"
         },
         "max": {
-          "description": "Generate up to four arbitrary, non-recursive, inline nodes",
-          "strategy": "vec_inlines_non_recursive(4)"
+          "description": "Generate up to four arbitrary, non-recursive, block nodes",
+          "strategy": "vec_blocks_non_recursive(4)"
         }
       },
       "type": "array",
       "items": {
-        "$ref": "Inline.schema.json"
+        "$ref": "Block.schema.json"
       }
     }
   }

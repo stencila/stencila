@@ -13,12 +13,14 @@ The `Block` type has these members:
 - [`Claim`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/claim.md)
 - [`CodeBlock`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/code/code-block.md)
 - [`CodeChunk`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/code/code-chunk.md)
+- [`DeleteBlock`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/delete-block.md)
 - [`Figure`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/figure.md)
 - [`ForBlock`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/for-block.md)
 - [`Form`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/form.md)
 - [`Heading`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/heading.md)
 - [`IfBlock`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/if-block.md)
 - [`IncludeBlock`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/include-block.md)
+- [`InsertBlock`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/insert-block.md)
 - [`List`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/list.md)
 - [`MathBlock`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/math/math-block.md)
 - [`Paragraph`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/paragraph.md)
@@ -52,6 +54,7 @@ During property-based (a.k.a generative) testing, the variants of the `Block` ty
 |                | Low+       | Generate `Claim` nodes in block content.               | Default for level |
 | `CodeChunk`    | Min+       | Do not generate `CodeChunk` nodes in block content.    | -                 |
 |                | Low+       | Generate `CodeChunk` nodes in block content.           | Default for level |
+| `DeleteBlock`  | Min+       | Do not generate `DeleteBlock` nodes in block content.  | -                 |
 | `Figure`       | Min+       | Do not generate `Figure` nodes in block content.       | -                 |
 |                | Low+       | Generate `Figure` nodes in block content.              | Default for level |
 | `ForBlock`     | Min+       | Do not generate `ForBlock` nodes in block content.     | -                 |
@@ -61,6 +64,7 @@ During property-based (a.k.a generative) testing, the variants of the `Block` ty
 |                | Low+       | Generate `IfBlock` nodes in block content.             | Default for level |
 | `IncludeBlock` | Min+       | Do not generate `IncludeBlock` nodes in block content. | -                 |
 |                | Low+       | Generate `IncludeBlock` nodes in block content.        | Default for level |
+| `InsertBlock`  | Min+       | Do not generate `InsertBlock` nodes in block content.  | -                 |
 | `Section`      | Min+       | Do not generate `Section` nodes in block content.      | -                 |
 |                | Low+       | Generate `Section` nodes in block content.             | Default for level |
 

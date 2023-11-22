@@ -44,7 +44,8 @@ mod date_time;
 mod date_time_validator;
 mod date_validator;
 mod defined_term;
-mod delete;
+mod delete_block;
+mod delete_inline;
 mod directory;
 mod duration;
 mod duration_validator;
@@ -76,7 +77,8 @@ mod if_block_clause;
 mod image_object;
 mod include_block;
 mod inline;
-mod insert;
+mod insert_block;
+mod insert_inline;
 mod integer;
 mod integer_or_string;
 mod integer_validator;
@@ -191,7 +193,8 @@ pub use date_time::*;
 pub use date_time_validator::*;
 pub use date_validator::*;
 pub use defined_term::*;
-pub use delete::*;
+pub use delete_block::*;
+pub use delete_inline::*;
 pub use directory::*;
 pub use duration::*;
 pub use duration_validator::*;
@@ -223,7 +226,8 @@ pub use if_block_clause::*;
 pub use image_object::*;
 pub use include_block::*;
 pub use inline::*;
-pub use insert::*;
+pub use insert_block::*;
+pub use insert_inline::*;
 pub use integer::*;
 pub use integer_or_string::*;
 pub use integer_validator::*;
@@ -337,7 +341,8 @@ pub enum NodeType {
     DateTimeValidator,
     DateValidator,
     DefinedTerm,
-    Delete,
+    DeleteBlock,
+    DeleteInline,
     Directory,
     Duration,
     DurationValidator,
@@ -359,7 +364,8 @@ pub enum NodeType {
     IfBlockClause,
     ImageObject,
     IncludeBlock,
-    Insert,
+    InsertBlock,
+    InsertInline,
     IntegerValidator,
     Link,
     List,

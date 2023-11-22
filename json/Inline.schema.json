@@ -88,14 +88,14 @@
     {
       "proptest": {
         "min": {
-          "description": "Do not generate `Delete` nodes in inline content.",
+          "description": "Do not generate `DeleteInline` nodes in inline content.",
           "skip": true
         },
         "max": {
-          "description": "Generate `Delete` nodes in inline content."
+          "description": "Generate `DeleteInline` nodes in inline content."
         }
       },
-      "$ref": "Delete.schema.json"
+      "$ref": "DeleteInline.schema.json"
     },
     {
       "proptest": {
@@ -118,14 +118,14 @@
     {
       "proptest": {
         "min": {
-          "description": "Do not generate `Insert` nodes in inline content.",
+          "description": "Do not generate `InsertInline` nodes in inline content.",
           "skip": true
         },
         "max": {
-          "description": "Generate `Insert` nodes in inline content."
+          "description": "Generate `InsertInline` nodes in inline content."
         }
       },
-      "$ref": "Insert.schema.json"
+      "$ref": "InsertInline.schema.json"
     },
     {
       "$ref": "Link.schema.json"

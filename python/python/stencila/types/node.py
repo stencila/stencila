@@ -35,7 +35,8 @@ DateTime = ForwardRef("DateTime")
 DateTimeValidator = ForwardRef("DateTimeValidator")
 DateValidator = ForwardRef("DateValidator")
 DefinedTerm = ForwardRef("DefinedTerm")
-Delete = ForwardRef("Delete")
+DeleteBlock = ForwardRef("DeleteBlock")
+DeleteInline = ForwardRef("DeleteInline")
 Directory = ForwardRef("Directory")
 Duration = ForwardRef("Duration")
 DurationValidator = ForwardRef("DurationValidator")
@@ -57,7 +58,8 @@ IfBlock = ForwardRef("IfBlock")
 IfBlockClause = ForwardRef("IfBlockClause")
 ImageObject = ForwardRef("ImageObject")
 IncludeBlock = ForwardRef("IncludeBlock")
-Insert = ForwardRef("Insert")
+InsertBlock = ForwardRef("InsertBlock")
+InsertInline = ForwardRef("InsertInline")
 IntegerValidator = ForwardRef("IntegerValidator")
 Link = ForwardRef("Link")
 List = ForwardRef("List")
@@ -149,7 +151,8 @@ Node = Union[
     DateTimeValidator,
     DateValidator,
     DefinedTerm,
-    Delete,
+    DeleteBlock,
+    DeleteInline,
     Directory,
     Duration,
     DurationValidator,
@@ -171,7 +174,8 @@ Node = Union[
     IfBlockClause,
     ImageObject,
     IncludeBlock,
-    Insert,
+    InsertBlock,
+    InsertInline,
     IntegerValidator,
     Link,
     List,

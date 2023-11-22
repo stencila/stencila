@@ -7,12 +7,14 @@ CallBlock = ForwardRef("CallBlock")
 Claim = ForwardRef("Claim")
 CodeBlock = ForwardRef("CodeBlock")
 CodeChunk = ForwardRef("CodeChunk")
+DeleteBlock = ForwardRef("DeleteBlock")
 Figure = ForwardRef("Figure")
 ForBlock = ForwardRef("ForBlock")
 Form = ForwardRef("Form")
 Heading = ForwardRef("Heading")
 IfBlock = ForwardRef("IfBlock")
 IncludeBlock = ForwardRef("IncludeBlock")
+InsertBlock = ForwardRef("InsertBlock")
 List = ForwardRef("List")
 MathBlock = ForwardRef("MathBlock")
 Paragraph = ForwardRef("Paragraph")
@@ -29,12 +31,14 @@ Block = Union[
     Claim,
     CodeBlock,
     CodeChunk,
+    DeleteBlock,
     Figure,
     ForBlock,
     Form,
     Heading,
     IfBlock,
     IncludeBlock,
+    InsertBlock,
     List,
     MathBlock,
     Paragraph,
