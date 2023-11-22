@@ -1,0 +1,28 @@
+title: SuggestionInline
+'@id': stencila:SuggestionInline
+extends: Suggestion
+category: prose
+abstract: true
+description: Abstract base type for nodes that indicate a suggested change to inline content.
+required:
+  - content
+properties:
+  content:
+    '@id': stencila:content
+    description: The content that is suggested to be inserted or deleted.
+    type: array
+    items:
+      $ref: Inline
+    proptest:
+      min:
+        description: Generate a single fixed text value.
+        value: vec![t("text")]
+      low:
+        description: Generate a single arbitrary, non-recursive, inline node
+        strategy: vec_inlines_non_recursive(1)
+      high:
+        description: Generate up to two arbitrary, non-recursive, inline nodes
+        strategy: vec_inlines_non_recursive(2)
+      max:
+        description: Generate up to four arbitrary, non-recursive, inline nodes
+        strategy: vec_inlines_non_recursive(4)

@@ -43,6 +43,12 @@ anyOf:
         description: Generate `CodeChunk` nodes in block content.
         skip: false
   
+  - $ref: DeleteBlock
+    proptest:
+      min:
+        description: Do not generate `DeleteBlock` nodes in block content.
+        skip: true
+
   - $ref: Figure
     proptest:
       min:
@@ -86,6 +92,12 @@ anyOf:
       low:
         description: Generate `IncludeBlock` nodes in block content.
         skip: false
+
+  - $ref: InsertBlock
+    proptest:
+      min:
+        description: Do not generate `InsertBlock` nodes in block content.
+        skip: true
   
   - $ref: List
   

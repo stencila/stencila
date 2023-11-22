@@ -61,13 +61,13 @@ anyOf:
         description: Generate `DateTime` nodes in inline content.
         skip: false
 
-  - $ref: Delete
+  - $ref: DeleteInline
     proptest:
       min:
-        description: Do not generate `Delete` nodes in inline content.
+        description: Do not generate `DeleteInline` nodes in inline content.
         skip: true
       max:
-        description: Generate `Delete` nodes in inline content.
+        description: Generate `DeleteInline` nodes in inline content.
         skip: false
 
   - $ref: Duration
@@ -83,13 +83,13 @@ anyOf:
 
   - $ref: ImageObject
 
-  - $ref: Insert
+  - $ref: InsertInline
     proptest:
       min:
-        description: Do not generate `Insert` nodes in inline content.
+        description: Do not generate `InsertInline` nodes in inline content.
         skip: true
       max:
-        description: Generate `Insert` nodes in inline content.
+        description: Generate `InsertInline` nodes in inline content.
         skip: false
 
   - $ref: Link

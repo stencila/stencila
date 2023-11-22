@@ -1,6 +1,6 @@
-title: Delete
-'@id': stencila:Delete
-extends: Suggestion
+title: DeleteInline
+'@id': stencila:DeleteInline
+extends: SuggestionInline
 category: prose
 description: A suggestion to delete some inline content.
 html:

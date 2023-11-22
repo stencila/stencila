@@ -1,6 +1,6 @@
-title: Insert
-'@id': stencila:Insert
-extends: Suggestion
+title: InsertInline
+'@id': stencila:InsertInline
+extends: SuggestionInline
 category: prose
 description: A suggestion to insert some inline content.
 html:
