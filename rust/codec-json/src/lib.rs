@@ -95,7 +95,7 @@ impl Codec for JsonCodec {
             );
             root.insert(
                 String::from("@context"),
-                Value::String(format!("https://stencila.dev/{type}.jsonld")),
+                Value::String(format!("https://stencila.dev/context.jsonld")),
             );
             for (key, value) in object.into_iter() {
                 root.insert(key, value);

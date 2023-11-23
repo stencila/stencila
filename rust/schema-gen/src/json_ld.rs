@@ -1,6 +1,9 @@
 //! Generation of a JSON-LD context from Stencila Schema
 
-use std::{collections::HashMap, path::PathBuf};
+use std::{
+    collections::{BTreeMap, HashMap},
+    path::PathBuf,
+};
 
 use common::{
     eyre::Result,
@@ -9,10 +12,7 @@ use common::{
     indexmap::IndexMap,
     itertools::Itertools,
     serde_json::{self, json},
-    tokio::{
-        fs::{remove_file, File},
-        io::AsyncWriteExt,
-    },
+    tokio::fs::{remove_file, write},
 };
 
 use crate::{
@@ -53,15 +53,11 @@ impl Schemas {
         }
 
         // Generate a schema for each schema
+        let mut overall = BTreeMap::new();
         for (title, schema) in self.schemas.iter() {
-            let path = dir.join(format!("{title}.jsonld"));
-            let mut file = File::create(path).await?;
-
-            let context = json!({
-                "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
-                "schema": "https://schema.org/",
-                "stencila": "https://stencila.dev/",
-            });
+            if let Some(jid) = &schema.jid {
+                overall.insert(title, jid);
+            }
 
             let mut class = json!({
                 "@id": schema.jid,
@@ -81,6 +77,10 @@ impl Schemas {
             for (property_name, property) in &schema.properties {
                 if property_name == "type" || property_name == "id" {
                     continue;
+                }
+
+                if let Some(jid) = &property.jid {
+                    overall.insert(property_name, jid);
                 }
 
                 let mut prop = json!({
@@ -119,76 +119,104 @@ impl Schemas {
             }
 
             let jsonld = json!({
-                "@context": context,
+                "@id": format!("https://stencila.dev/{title}"),
+                "name": title,
+                //"version": version,
+                "license": "https://creativecommons.org/publicdomain/zero/1.0/",
+                "@context": {
+                    "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
+                    "schema": "https://schema.org/",
+                    "stencila": "https://stencila.dev/",
+                },
                 "@graph": graph
             });
-
-            let jsonld = serde_json::to_string_pretty(&jsonld)?;
-
-            file.write_all(jsonld.as_bytes()).await?;
+            write(
+                dir.join(format!("{title}.jsonld")),
+                serde_json::to_string_pretty(&jsonld)?,
+            )
+            .await?
         }
 
-        fn ranges(property: &Schema, schemas: &IndexMap<String, Schema>) -> Vec<String> {
-            let mut ids = vec![];
-
-            if let Some(r#type) = &property.r#type {
-                match r#type {
-                    Type::Boolean => ids.push("schema:Boolean".to_string()),
-                    Type::Integer | Type::Number => ids.push("schema:Number".to_string()),
-                    Type::String => ids.push("schema:Text".to_string()),
-                    Type::Array => {
-                        if let Some(items) = &property.items {
-                            match items {
-                                Items::Ref(inner) => {
-                                    if let Some(jid) = schemas
-                                        .get(&inner.r#ref)
-                                        .and_then(|schema| schema.jid.as_ref())
-                                    {
-                                        ids.push(jid.clone())
-                                    }
-                                }
-                                Items::Type(inner) => ids.append(&mut ranges(
-                                    &Schema {
-                                        r#type: Some(inner.r#type.clone()),
-                                        ..Default::default()
-                                    },
-                                    schemas,
-                                )),
-                                Items::AnyOf(inner) => ids.append(&mut ranges(
-                                    &Schema {
-                                        any_of: Some(inner.any_of.clone()),
-                                        ..Default::default()
-                                    },
-                                    schemas,
-                                )),
-                                Items::List(inner) => ids.append(&mut ranges(
-                                    &Schema {
-                                        any_of: Some(inner.clone()),
-                                        ..Default::default()
-                                    },
-                                    schemas,
-                                )),
-                            }
-                        }
-                    }
-                    _ => {}
-                }
-            } else if let Some(r#ref) = &property.r#ref {
-                if let Some(jid) = schemas.get(r#ref).and_then(|schema| schema.jid.as_ref()) {
-                    ids.push(jid.clone())
-                }
-            } else if let Some(any_of) = &property.any_of {
-                ids.append(
-                    &mut any_of
-                        .iter()
-                        .flat_map(|schema| ranges(schema, schemas))
-                        .collect_vec(),
-                )
-            }
-
-            ids
-        }
+        // Generate a `@context` with all the types and all the properties
+        let jsonld = json!({
+            "@id": "https://stencila.dev/context",
+            "name": "Stencila JSON-LD Context",
+            //"version": version,
+            "license": "https://creativecommons.org/publicdomain/zero/1.0/",
+            "isBasedOn": ["https://schema.org/"],
+            "@context": {
+                "schema": "https://schema.org/",
+                "stencila": "https://stencila.dev/",
+            },
+            "@graph": overall
+        });
+        write(
+            dir.join("context.jsonld"),
+            serde_json::to_string_pretty(&jsonld)?,
+        )
+        .await?;
 
         Ok(())
     }
+}
+
+fn ranges(property: &Schema, schemas: &IndexMap<String, Schema>) -> Vec<String> {
+    let mut ids = vec![];
+
+    if let Some(r#type) = &property.r#type {
+        match r#type {
+            Type::Boolean => ids.push("schema:Boolean".to_string()),
+            Type::Integer | Type::Number => ids.push("schema:Number".to_string()),
+            Type::String => ids.push("schema:Text".to_string()),
+            Type::Array => {
+                if let Some(items) = &property.items {
+                    match items {
+                        Items::Ref(inner) => {
+                            if let Some(jid) = schemas
+                                .get(&inner.r#ref)
+                                .and_then(|schema| schema.jid.as_ref())
+                            {
+                                ids.push(jid.clone())
+                            }
+                        }
+                        Items::Type(inner) => ids.append(&mut ranges(
+                            &Schema {
+                                r#type: Some(inner.r#type.clone()),
+                                ..Default::default()
+                            },
+                            schemas,
+                        )),
+                        Items::AnyOf(inner) => ids.append(&mut ranges(
+                            &Schema {
+                                any_of: Some(inner.any_of.clone()),
+                                ..Default::default()
+                            },
+                            schemas,
+                        )),
+                        Items::List(inner) => ids.append(&mut ranges(
+                            &Schema {
+                                any_of: Some(inner.clone()),
+                                ..Default::default()
+                            },
+                            schemas,
+                        )),
+                    }
+                }
+            }
+            _ => {}
+        }
+    } else if let Some(r#ref) = &property.r#ref {
+        if let Some(jid) = schemas.get(r#ref).and_then(|schema| schema.jid.as_ref()) {
+            ids.push(jid.clone())
+        }
+    } else if let Some(any_of) = &property.any_of {
+        ids.append(
+            &mut any_of
+                .iter()
+                .flat_map(|schema| ranges(schema, schemas))
+                .collect_vec(),
+        )
+    }
+
+    ids
 }
