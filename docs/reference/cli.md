@@ -84,6 +84,9 @@ Create a new document
   - `text`
   - `json`
   - `json5`
+  - `json-ld`
+  - `cbor`
+  - `cbor-zst`
   - `yaml`
   - `gif`:
     Image formats
@@ -124,39 +127,7 @@ Import a file in another format into a new or existing document
 
 ###### **Options:**
 
-* `-f`, `--format <FORMAT>` — The format of the source file
-
-  Possible values:
-  - `article`
-  - `html`
-  - `jats`
-  - `markdown`
-  - `text`
-  - `json`
-  - `json5`
-  - `yaml`
-  - `gif`:
-    Image formats
-  - `jpeg`
-  - `png`
-  - `svg`
-  - `web-p`
-  - `aac`:
-    Audio formats
-  - `flac`
-  - `mp3`
-  - `ogg`
-  - `wav`
-  - `avi`:
-    Video formats
-  - `mkv`
-  - `mp4`
-  - `ogv`
-  - `web-m`
-  - `debug`
-  - `unknown`
-
-* `--codec <CODEC>` — The codec to use to decode the source
+* `-f`, `--from <FROM>` — The format of the source file
 * `-t`, `--type <TYPE>` — The type of document to import
 
   Possible values: `article`
@@ -198,45 +169,14 @@ Export a document to a file in another format
 
 ###### **Options:**
 
-* `-f`, `--format <FORMAT>` — The format of the destination file
-
-  Possible values:
-  - `article`
-  - `html`
-  - `jats`
-  - `markdown`
-  - `text`
-  - `json`
-  - `json5`
-  - `yaml`
-  - `gif`:
-    Image formats
-  - `jpeg`
-  - `png`
-  - `svg`
-  - `web-p`
-  - `aac`:
-    Audio formats
-  - `flac`
-  - `mp3`
-  - `ogg`
-  - `wav`
-  - `avi`:
-    Video formats
-  - `mkv`
-  - `mp4`
-  - `ogv`
-  - `web-m`
-  - `debug`
-  - `unknown`
-
-* `--codec <CODEC>` — The codec to use to encode to the destination
+* `-t`, `--to <TO>` — The format of the destination file
 * `-l`, `--losses <LOSSES>` — What to do if there are losses when encoding
 
   Default value: `warn`
 * `--standalone` — Encode as a standalone document
 * `--not-standalone` — Do not encode as a standalone document when writing to file
 * `-c`, `--compact` — Use compact form of encoding if possible
+* `-p`, `--pretty` — Use a "pretty" form of encoding if possible
 * `--strip-scopes <STRIP_SCOPES>` — Scopes defining which properties of nodes should be stripped
 
   Possible values:
@@ -278,6 +218,7 @@ Synchronize a document with one of more other files in other formats
 * `--standalone` — Encode as a standalone document
 * `--not-standalone` — Do not encode as a standalone document when writing to file
 * `-c`, `--compact` — Use compact form of encoding if possible
+* `-p`, `--pretty` — Use a "pretty" form of encoding if possible
 * `--strip-scopes <STRIP_SCOPES>` — Scopes defining which properties of nodes should be stripped
 
   Possible values:
@@ -349,6 +290,7 @@ Convert a document between formats
 * `--standalone` — Encode as a standalone document
 * `--not-standalone` — Do not encode as a standalone document when writing to file
 * `-c`, `--compact` — Use compact form of encoding if possible
+* `-p`, `--pretty` — Use a "pretty" form of encoding if possible
 * `--strip-scopes <STRIP_SCOPES>` — Scopes defining which properties of nodes should be stripped
 
   Possible values:
