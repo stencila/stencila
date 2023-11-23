@@ -6,7 +6,7 @@ component_management:
     - component_id: codec_cbor
       name: CBOR
       paths:
-        - rust/codec-cbor*/src/*
+        - rust/codec-cbor/src/*
 
     - component_id: codec_html
       name: HTML
@@ -27,6 +27,11 @@ component_management:
       name: JSON5
       paths:
         - rust/codec-json5*/src/*
+
+    - component_id: codec_jsonld
+      name: JSON-LD
+      paths:
+        - rust/codec-jsonld/src/*
 
     - component_id: codec_markdown
       name: Markdown
