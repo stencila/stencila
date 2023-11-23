@@ -6,6 +6,7 @@
 !Cargo.*
 !rust
 !rust-toolchain.toml
+!json/context.jsonld
 !node/Cargo.toml
 !node/src
 !python/Cargo.toml
