@@ -1,0 +1,31 @@
+{
+  "@context": {
+    "@vocab": "https://schema.org/",
+    "stencila": "https://stencila.org/"
+  },
+  "@type": "Article",
+  "stencila:content": [
+    {
+      "@type": "stencila:Paragraph",
+      "stencila:content": [
+        {
+          "@type": "Text",
+          "value": "An inline quote "
+        },
+        {
+          "@type": "stencila:QuoteInline",
+          "stencila:content": [
+            {
+              "@type": "Text",
+              "value": "Never memorize something that you can look up"
+            }
+          ]
+        },
+        {
+          "@type": "Text",
+          "value": "."
+        }
+      ]
+    }
+  ]
+}

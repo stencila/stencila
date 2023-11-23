@@ -1,0 +1,63 @@
+{
+  "@context": {
+    "@vocab": "https://schema.org/",
+    "stencila": "https://stencila.org/"
+  },
+  "@type": "Article",
+  "stencila:content": [
+    {
+      "@type": "stencila:Paragraph",
+      "stencila:content": [
+        {
+          "@type": "Text",
+          "value": "A TeX fragment "
+        },
+        {
+          "@type": "stencila:MathInline",
+          "stencila:code": "2 \\pi r^2",
+          "stencila:mathLanguage": "tex"
+        },
+        {
+          "@type": "Text",
+          "value": "."
+        }
+      ]
+    },
+    {
+      "@type": "stencila:Paragraph",
+      "stencila:content": [
+        {
+          "@type": "Text",
+          "value": "An ASCIIMath fragment "
+        },
+        {
+          "@type": "stencila:MathInline",
+          "stencila:code": "2 pi r^2",
+          "stencila:mathLanguage": "asciimath"
+        },
+        {
+          "@type": "Text",
+          "value": "."
+        }
+      ]
+    },
+    {
+      "@type": "stencila:Paragraph",
+      "stencila:content": [
+        {
+          "@type": "Text",
+          "value": "A MathML fragment "
+        },
+        {
+          "@type": "stencila:MathInline",
+          "stencila:code": "<math><mrow><mn>2</mn><mi>π</mi><msup><mi>r</mi><mn>2</mn></msup></mrow></math>",
+          "stencila:mathLanguage": "mathml"
+        },
+        {
+          "@type": "Text",
+          "value": "."
+        }
+      ]
+    }
+  ]
+}

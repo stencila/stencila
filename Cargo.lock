@@ -607,6 +607,13 @@ dependencies = [
 ]
 
 [[package]]
+name = "codec-jsonld"
+version = "0.0.0"
+dependencies = [
+ "codec",
+]
+
+[[package]]
 name = "codec-losses"
 version = "0.0.0"
 dependencies = [
@@ -686,6 +693,7 @@ dependencies = [
  "codec-jats",
  "codec-json",
  "codec-json5",
+ "codec-jsonld",
  "codec-markdown",
  "codec-text",
  "codec-yaml",

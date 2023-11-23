@@ -113,6 +113,28 @@ fn json5_compact() {
 }
 
 #[divan::bench]
+fn jsonld() {
+    to_string(
+        "jsonld",
+        Some(EncodeOptions {
+            compact: Some(false),
+            ..Default::default()
+        }),
+    )
+}
+
+#[divan::bench]
+fn jsonld_compact() {
+    to_string(
+        "jsonld",
+        Some(EncodeOptions {
+            compact: Some(true),
+            ..Default::default()
+        }),
+    )
+}
+
+#[divan::bench]
 fn markdown() {
     to_string("markdown", None)
 }

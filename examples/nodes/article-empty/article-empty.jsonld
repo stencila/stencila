@@ -1,0 +1,8 @@
+{
+  "@context": {
+    "@vocab": "https://schema.org/",
+    "stencila": "https://stencila.org/"
+  },
+  "@type": "Article",
+  "stencila:content": []
+}

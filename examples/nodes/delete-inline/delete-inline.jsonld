@@ -1,0 +1,80 @@
+{
+  "@context": {
+    "@vocab": "https://schema.org/",
+    "stencila": "https://stencila.org/"
+  },
+  "@type": "Article",
+  "stencila:content": [
+    {
+      "@type": "stencila:Paragraph",
+      "stencila:content": [
+        {
+          "@type": "Text",
+          "value": "Some "
+        },
+        {
+          "@type": "stencila:DeleteInline",
+          "stencila:content": [
+            {
+              "@type": "Text",
+              "value": "deleted "
+            }
+          ]
+        },
+        {
+          "@type": "Text",
+          "value": "text."
+        }
+      ]
+    },
+    {
+      "@type": "stencila:Paragraph",
+      "stencila:content": [
+        {
+          "@type": "Text",
+          "value": "Several deleted inlines "
+        },
+        {
+          "@type": "stencila:DeleteInline",
+          "stencila:content": [
+            {
+              "@type": "stencila:Strong",
+              "stencila:content": [
+                {
+                  "@type": "Text",
+                  "value": "strongly emphasized"
+                }
+              ]
+            },
+            {
+              "@type": "Text",
+              "value": " and "
+            },
+            {
+              "@type": "stencila:Underline",
+              "stencila:content": [
+                {
+                  "@type": "Text",
+                  "value": "underlined"
+                }
+              ]
+            },
+            {
+              "@type": "Text",
+              "value": " and "
+            },
+            {
+              "@type": "stencila:CodeExpression",
+              "stencila:code": "2 + 2",
+              "programmingLanguage": ""
+            }
+          ]
+        },
+        {
+          "@type": "Text",
+          "value": "."
+        }
+      ]
+    }
+  ]
+}

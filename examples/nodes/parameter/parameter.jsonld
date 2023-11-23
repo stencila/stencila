@@ -1,0 +1,266 @@
+{
+  "@context": {
+    "@vocab": "https://schema.org/",
+    "stencila": "https://stencila.org/"
+  },
+  "@type": "Article",
+  "stencila:content": [
+    {
+      "@type": "stencila:Paragraph",
+      "stencila:content": [
+        {
+          "@type": "Text",
+          "value": "A boolean parameter "
+        },
+        {
+          "@type": "stencila:Parameter",
+          "name": "par_bool_1",
+          "stencila:validator": {
+            "@type": "stencila:BooleanValidator"
+          }
+        },
+        {
+          "@type": "Text",
+          "value": ", with a default "
+        },
+        {
+          "@type": "stencila:Parameter",
+          "name": "par_bool_2",
+          "defaultValue": true,
+          "stencila:validator": {
+            "@type": "stencila:BooleanValidator"
+          }
+        },
+        {
+          "@type": "Text",
+          "value": ", with a default and value "
+        },
+        {
+          "@type": "stencila:Parameter",
+          "name": "par_bool_3",
+          "value": true,
+          "defaultValue": false,
+          "stencila:validator": {
+            "@type": "stencila:BooleanValidator"
+          }
+        }
+      ]
+    },
+    {
+      "@type": "stencila:Paragraph",
+      "stencila:content": [
+        {
+          "@type": "Text",
+          "value": "An integer parameter "
+        },
+        {
+          "@type": "stencila:Parameter",
+          "name": "par_int_1",
+          "stencila:validator": {
+            "@type": "stencila:IntegerValidator"
+          }
+        },
+        {
+          "@type": "Text",
+          "value": ", with a default "
+        },
+        {
+          "@type": "stencila:Parameter",
+          "name": "par_int_2",
+          "defaultValue": 123,
+          "stencila:validator": {
+            "@type": "stencila:IntegerValidator"
+          }
+        },
+        {
+          "@type": "Text",
+          "value": ", with a default and value "
+        },
+        {
+          "@type": "stencila:Parameter",
+          "name": "par_int_3",
+          "value": 456,
+          "defaultValue": 123,
+          "stencila:validator": {
+            "@type": "stencila:IntegerValidator"
+          }
+        },
+        {
+          "@type": "Text",
+          "value": ", with min, max and mult options "
+        },
+        {
+          "@type": "stencila:Parameter",
+          "name": "par_int_4",
+          "value": 45,
+          "defaultValue": 123,
+          "stencila:validator": {
+            "@type": "stencila:IntegerValidator",
+            "stencila:minimum": -100.0,
+            "stencila:maximum": 100.0,
+            "stencila:multipleOf": 2.0
+          }
+        }
+      ]
+    },
+    {
+      "@type": "stencila:Paragraph",
+      "stencila:content": [
+        {
+          "@type": "Text",
+          "value": "A number parameter "
+        },
+        {
+          "@type": "stencila:Parameter",
+          "name": "par_num_1",
+          "value": 4.5,
+          "defaultValue": 1.23,
+          "stencila:validator": {
+            "@type": "stencila:NumberValidator",
+            "stencila:minimum": -10.1,
+            "stencila:exclusiveMinimum": -10.1,
+            "stencila:maximum": 10.1,
+            "stencila:exclusiveMaximum": 10.1,
+            "stencila:multipleOf": 2.2
+          }
+        }
+      ]
+    },
+    {
+      "@type": "stencila:Paragraph",
+      "stencila:content": [
+        {
+          "@type": "Text",
+          "value": "A string parameter "
+        },
+        {
+          "@type": "stencila:Parameter",
+          "name": "par_str_1",
+          "value": "hi",
+          "defaultValue": "hello",
+          "stencila:validator": {
+            "@type": "stencila:StringValidator",
+            "stencila:minLength": 0,
+            "stencila:maxLength": 10,
+            "stencila:pattern": "[a-z]+"
+          }
+        },
+        {
+          "@type": "Text",
+          "value": " with quotes in properties "
+        },
+        {
+          "@type": "stencila:Parameter",
+          "name": "par_str_2",
+          "value": "a\"b",
+          "defaultValue": "a\"b",
+          "stencila:validator": {
+            "@type": "stencila:StringValidator",
+            "stencila:pattern": "a\"b"
+          }
+        }
+      ]
+    },
+    {
+      "@type": "stencila:Paragraph",
+      "stencila:content": [
+        {
+          "@type": "Text",
+          "value": "A date parameter "
+        },
+        {
+          "@type": "stencila:Parameter",
+          "name": "par_date",
+          "value": "2022-02-23",
+          "defaultValue": "2022-02-22",
+          "stencila:validator": {
+            "@type": "stencila:DateValidator",
+            "stencila:minimum": {
+              "@type": "Date",
+              "value": "2022-02-20"
+            },
+            "stencila:maximum": {
+              "@type": "Date",
+              "value": "2022-02-24"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "@type": "stencila:Paragraph",
+      "stencila:content": [
+        {
+          "@type": "Text",
+          "value": "A time parameter "
+        },
+        {
+          "@type": "stencila:Parameter",
+          "name": "par_time",
+          "value": "22:23",
+          "defaultValue": "22:22",
+          "stencila:validator": {
+            "@type": "stencila:TimeValidator",
+            "stencila:minimum": {
+              "@type": "Time",
+              "value": "22:20"
+            },
+            "stencila:maximum": {
+              "@type": "Time",
+              "value": "22:24"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "@type": "stencila:Paragraph",
+      "stencila:content": [
+        {
+          "@type": "Text",
+          "value": "A date-time parameter "
+        },
+        {
+          "@type": "stencila:Parameter",
+          "name": "par_date_time",
+          "value": "2022-02-22T22:23",
+          "defaultValue": "2022-02-22T22:22",
+          "stencila:validator": {
+            "@type": "stencila:DateTimeValidator",
+            "stencila:minimum": {
+              "@type": "DateTime",
+              "value": "2022-02-22T22:20"
+            },
+            "stencila:maximum": {
+              "@type": "DateTime",
+              "value": "2022-02-22T22:24"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "@type": "stencila:Paragraph",
+      "stencila:content": [
+        {
+          "@type": "Text",
+          "value": "An enum parameter "
+        },
+        {
+          "@type": "stencila:Parameter",
+          "name": "par_enum",
+          "value": "red",
+          "defaultValue": "green",
+          "stencila:validator": {
+            "@type": "stencila:EnumValidator",
+            "stencila:values": [
+              "blue",
+              "red",
+              "green"
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

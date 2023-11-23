@@ -44,9 +44,10 @@ pub enum Format {
     // Data serialization formats
     Json,
     Json5,
-    Yaml,
+    JsonLd,
     Cbor,
     CborZst,
+    Yaml,
     /// Image formats
     Gif,
     Jpeg,
@@ -90,6 +91,7 @@ impl Format {
             Jpeg => "JPEG",
             Json => "JSON",
             Json5 => "JSON5",
+            JsonLd => "JSON-LD",
             Markdown => "Markdown",
             Mkv => "Matroska",
             Mp3 => "MPEG-3",
@@ -114,7 +116,7 @@ impl Format {
     pub fn rank(&self) -> u8 {
         use Format::*;
         match self {
-            Json | Json5 | Yaml => 0,
+            Json | Json5 | JsonLd | Cbor | CborZst | Yaml => 0,
             Html | Jats | Markdown => 1,
             _ => u8::MAX,
         }
@@ -161,6 +163,9 @@ impl Format {
     /// Resolve a [`Format`] from a file path
     pub fn from_path(path: &Path) -> Result<Self> {
         let path_string = path.to_string_lossy();
+        if path_string.ends_with(".json-ld") {
+            return Ok(Format::JsonLd);
+        }
         if path_string.ends_with(".jats.xml") {
             return Ok(Format::Jats);
         }

@@ -1,0 +1,1 @@
+{"@context":{"@vocab":"https://schema.org/","stencila":"https://stencila.org/"},"null":null,"boolean":true,"integer":-123,"unsignedInteger":234,"number":3.45,"string":"Hello","object":{},"array":[false,-123,234,3.45,"Hello",{"a":1,"b":[]}]}

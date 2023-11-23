@@ -1,0 +1,23 @@
+{
+  "@context": {
+    "@vocab": "https://schema.org/",
+    "stencila": "https://stencila.org/"
+  },
+  "@type": "Article",
+  "stencila:content": [
+    {
+      "@type": "stencila:DeleteBlock",
+      "stencila:content": [
+        {
+          "@type": "stencila:Paragraph",
+          "stencila:content": [
+            {
+              "@type": "Text",
+              "value": "Deleted paragraph"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

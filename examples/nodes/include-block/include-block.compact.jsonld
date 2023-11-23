@@ -1,0 +1,1 @@
+{"@context":{"@vocab":"https://schema.org/","stencila":"https://stencila.org/"},"@type":"Article","stencila:content":[{"@type":"stencila:Paragraph","stencila:content":[{"@type":"Text","value":"An include of a sibling example"}]},{"@type":"stencila:IncludeBlock","stencila:source":"../heading/heading.md"}]}

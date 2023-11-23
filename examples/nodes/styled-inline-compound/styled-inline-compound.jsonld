@@ -1,0 +1,47 @@
+{
+  "@context": {
+    "@vocab": "https://schema.org/",
+    "stencila": "https://stencila.org/"
+  },
+  "@type": "Article",
+  "stencila:content": [
+    {
+      "@type": "stencila:Paragraph",
+      "stencila:content": [
+        {
+          "@type": "Text",
+          "value": "A styled inlines containing other compound inline nodes: "
+        },
+        {
+          "@type": "stencila:StyledInline",
+          "stencila:code": "text-blue-600",
+          "stencila:content": [
+            {
+              "@type": "stencila:Emphasis",
+              "stencila:content": [
+                {
+                  "@type": "Text",
+                  "value": "emphasis"
+                }
+              ]
+            },
+            {
+              "@type": "Text",
+              "value": ", "
+            },
+            {
+              "@type": "stencila:Link",
+              "stencila:content": [
+                {
+                  "@type": "Text",
+                  "value": "link"
+                }
+              ],
+              "stencila:target": "https://example.org"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,78 @@
+{
+  "@context": {
+    "@vocab": "https://schema.org/",
+    "stencila": "https://stencila.org/"
+  },
+  "@type": "Article",
+  "stencila:content": [
+    {
+      "@type": "stencila:Paragraph",
+      "stencila:content": [
+        {
+          "@type": "Text",
+          "value": "A call of sibling document"
+        }
+      ]
+    },
+    {
+      "@type": "stencila:CallBlock",
+      "stencila:source": "../parameter/parameter.md",
+      "stencila:arguments": []
+    },
+    {
+      "@type": "stencila:Paragraph",
+      "stencila:content": [
+        {
+          "@type": "Text",
+          "value": "A call with one argument"
+        }
+      ]
+    },
+    {
+      "@type": "stencila:CallBlock",
+      "stencila:source": "../parameter/parameter.md",
+      "stencila:arguments": [
+        {
+          "@type": "stencila:CallArgument",
+          "name": "arg1",
+          "stencila:code": "123"
+        }
+      ]
+    },
+    {
+      "@type": "stencila:Paragraph",
+      "stencila:content": [
+        {
+          "@type": "Text",
+          "value": "A call with several arguments"
+        }
+      ]
+    },
+    {
+      "@type": "stencila:CallBlock",
+      "stencila:source": "../parameter/parameter.md",
+      "stencila:arguments": [
+        {
+          "@type": "stencila:CallArgument",
+          "name": "arg1",
+          "stencila:code": "123"
+        },
+        {
+          "@type": "stencila:CallArgument",
+          "name": "argtwo",
+          "stencila:code": "\"two\""
+        },
+        {
+          "@type": "stencila:CallArgument",
+          "name": "arg_three",
+          "stencila:code": "3.0"
+        },
+        {
+          "@type": "stencila:CallArgument",
+          "name": "arg4",
+          "stencila:code": "2 * 2"
+        }
+      ]
+    }
+  ]
+}

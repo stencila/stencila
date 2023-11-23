@@ -1,0 +1,140 @@
+{
+  "@context": {
+    "@vocab": "https://schema.org/",
+    "stencila": "https://stencila.org/"
+  },
+  "@type": "Article",
+  "stencila:content": [
+    {
+      "@type": "stencila:Paragraph",
+      "stencila:content": [
+        {
+          "@type": "Text",
+          "value": "This is "
+        },
+        {
+          "@type": "stencila:Emphasis",
+          "stencila:content": [
+            {
+              "@type": "Text",
+              "value": "emphasized"
+            }
+          ]
+        },
+        {
+          "@type": "Text",
+          "value": ", and this is "
+        },
+        {
+          "@type": "stencila:Strong",
+          "stencila:content": [
+            {
+              "@type": "Text",
+              "value": "strongly emphasized"
+            }
+          ]
+        },
+        {
+          "@type": "Text",
+          "value": ", and this is "
+        },
+        {
+          "@type": "stencila:Underline",
+          "stencila:content": [
+            {
+              "@type": "Text",
+              "value": "underlined"
+            }
+          ]
+        },
+        {
+          "@type": "Text",
+          "value": "."
+        }
+      ]
+    },
+    {
+      "@type": "stencila:Paragraph",
+      "stencila:content": [
+        {
+          "@type": "Text",
+          "value": "This is "
+        },
+        {
+          "@type": "stencila:Subscript",
+          "stencila:content": [
+            {
+              "@type": "Text",
+              "value": "subscripted"
+            }
+          ]
+        },
+        {
+          "@type": "Text",
+          "value": ", and this is "
+        },
+        {
+          "@type": "stencila:Superscript",
+          "stencila:content": [
+            {
+              "@type": "Text",
+              "value": "superscripted"
+            }
+          ]
+        },
+        {
+          "@type": "Text",
+          "value": ", and this is "
+        },
+        {
+          "@type": "stencila:Strikeout",
+          "stencila:content": [
+            {
+              "@type": "Text",
+              "value": "struck out"
+            }
+          ]
+        },
+        {
+          "@type": "Text",
+          "value": "."
+        }
+      ]
+    },
+    {
+      "@type": "stencila:Paragraph",
+      "stencila:content": [
+        {
+          "@type": "Text",
+          "value": "This paragraph tests escaping within marks. "
+        },
+        {
+          "@type": "stencila:Emphasis",
+          "stencila:content": [
+            {
+              "@type": "Text",
+              "value": "_ under_scores _"
+            }
+          ]
+        },
+        {
+          "@type": "Text",
+          "value": ", and "
+        },
+        {
+          "@type": "stencila:Strong",
+          "stencila:content": [
+            {
+              "@type": "Text",
+              "value": "* aster*isks *"
+            }
+          ]
+        },
+        {
+          "@type": "Text",
+          "value": "."
+        }
+      ]
+    }
+  ]
+}

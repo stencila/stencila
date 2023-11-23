@@ -44,6 +44,11 @@ fn json5() {
 }
 
 #[divan::bench]
+fn jsonld() {
+    from_str(include_ark_str!("jsonld"), "jsonld", None)
+}
+
+#[divan::bench]
 fn json5_compact() {
     from_str(include_ark_str!("compact.json5"), "json5", None)
 }

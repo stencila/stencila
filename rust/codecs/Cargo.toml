@@ -17,6 +17,7 @@ codec-html = { path = "../codec-html" }
 codec-jats = { path = "../codec-jats" }
 codec-json = { path = "../codec-json" }
 codec-json5 = { path = "../codec-json5" }
+codec-jsonld = { path = "../codec-jsonld" }
 codec-markdown = { path = "../codec-markdown" }
 codec-text = { path = "../codec-text" }
 codec-yaml = { path = "../codec-yaml" }

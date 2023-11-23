@@ -1,0 +1,529 @@
+{
+  "@context": {
+    "@vocab": "https://schema.org/",
+    "stencila": "https://stencila.org/"
+  },
+  "@type": "Article",
+  "stencila:content": [
+    {
+      "@type": "stencila:Paragraph",
+      "stencila:content": [
+        {
+          "@type": "Text",
+          "value": "Simple lists"
+        }
+      ]
+    },
+    {
+      "@type": "ItemList",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "stencila:content": [
+            {
+              "@type": "stencila:Paragraph",
+              "stencila:content": [
+                {
+                  "@type": "Text",
+                  "value": "apple"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "@type": "ListItem",
+          "stencila:content": [
+            {
+              "@type": "stencila:Paragraph",
+              "stencila:content": [
+                {
+                  "@type": "Text",
+                  "value": "pear"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "@type": "ListItem",
+          "stencila:content": [
+            {
+              "@type": "stencila:Paragraph",
+              "stencila:content": [
+                {
+                  "@type": "Text",
+                  "value": "orange"
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "itemListOrder": "Unordered"
+    },
+    {
+      "@type": "ItemList",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "stencila:content": [
+            {
+              "@type": "stencila:Paragraph",
+              "stencila:content": [
+                {
+                  "@type": "Text",
+                  "value": "first"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "@type": "ListItem",
+          "stencila:content": [
+            {
+              "@type": "stencila:Paragraph",
+              "stencila:content": [
+                {
+                  "@type": "Text",
+                  "value": "second"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "@type": "ListItem",
+          "stencila:content": [
+            {
+              "@type": "stencila:Paragraph",
+              "stencila:content": [
+                {
+                  "@type": "Text",
+                  "value": "third"
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "itemListOrder": "Ascending"
+    },
+    {
+      "@type": "stencila:Paragraph",
+      "stencila:content": [
+        {
+          "@type": "Text",
+          "value": "Nested lists"
+        }
+      ]
+    },
+    {
+      "@type": "ItemList",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "stencila:content": [
+            {
+              "@type": "stencila:Paragraph",
+              "stencila:content": [
+                {
+                  "@type": "Text",
+                  "value": "1"
+                }
+              ]
+            },
+            {
+              "@type": "ItemList",
+              "itemListElement": [
+                {
+                  "@type": "ListItem",
+                  "stencila:content": [
+                    {
+                      "@type": "stencila:Paragraph",
+                      "stencila:content": [
+                        {
+                          "@type": "Text",
+                          "value": "2a"
+                        }
+                      ]
+                    },
+                    {
+                      "@type": "ItemList",
+                      "itemListElement": [
+                        {
+                          "@type": "ListItem",
+                          "stencila:content": [
+                            {
+                              "@type": "stencila:Paragraph",
+                              "stencila:content": [
+                                {
+                                  "@type": "Text",
+                                  "value": "3a"
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ],
+                      "itemListOrder": "Unordered"
+                    }
+                  ]
+                },
+                {
+                  "@type": "ListItem",
+                  "stencila:content": [
+                    {
+                      "@type": "stencila:Paragraph",
+                      "stencila:content": [
+                        {
+                          "@type": "Text",
+                          "value": "2b"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "@type": "ListItem",
+                  "stencila:content": [
+                    {
+                      "@type": "stencila:Paragraph",
+                      "stencila:content": [
+                        {
+                          "@type": "Text",
+                          "value": "2c"
+                        }
+                      ]
+                    },
+                    {
+                      "@type": "ItemList",
+                      "itemListElement": [
+                        {
+                          "@type": "ListItem",
+                          "stencila:content": [
+                            {
+                              "@type": "stencila:Paragraph",
+                              "stencila:content": [
+                                {
+                                  "@type": "Text",
+                                  "value": "3b"
+                                }
+                              ]
+                            },
+                            {
+                              "@type": "ItemList",
+                              "itemListElement": [
+                                {
+                                  "@type": "ListItem",
+                                  "stencila:content": [
+                                    {
+                                      "@type": "stencila:Paragraph",
+                                      "stencila:content": [
+                                        {
+                                          "@type": "Text",
+                                          "value": "4a"
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                }
+                              ],
+                              "itemListOrder": "Unordered"
+                            }
+                          ]
+                        }
+                      ],
+                      "itemListOrder": "Unordered"
+                    }
+                  ]
+                }
+              ],
+              "itemListOrder": "Unordered"
+            }
+          ]
+        }
+      ],
+      "itemListOrder": "Unordered"
+    },
+    {
+      "@type": "stencila:Paragraph",
+      "stencila:content": [
+        {
+          "@type": "Text",
+          "value": "Lists with check boxes"
+        }
+      ]
+    },
+    {
+      "@type": "ItemList",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "stencila:content": [
+            {
+              "@type": "stencila:Paragraph",
+              "stencila:content": [
+                {
+                  "@type": "Text",
+                  "value": "first"
+                }
+              ]
+            }
+          ],
+          "stencila:isChecked": false
+        },
+        {
+          "@type": "ListItem",
+          "stencila:content": [
+            {
+              "@type": "stencila:Paragraph",
+              "stencila:content": [
+                {
+                  "@type": "Text",
+                  "value": "second"
+                }
+              ]
+            }
+          ],
+          "stencila:isChecked": true
+        },
+        {
+          "@type": "ListItem",
+          "stencila:content": [
+            {
+              "@type": "stencila:Paragraph",
+              "stencila:content": [
+                {
+                  "@type": "Text",
+                  "value": "third"
+                }
+              ]
+            }
+          ],
+          "stencila:isChecked": false
+        }
+      ],
+      "itemListOrder": "Ascending"
+    },
+    {
+      "@type": "ItemList",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "stencila:content": [
+            {
+              "@type": "stencila:Paragraph",
+              "stencila:content": [
+                {
+                  "@type": "Text",
+                  "value": "done"
+                }
+              ]
+            }
+          ],
+          "stencila:isChecked": true
+        },
+        {
+          "@type": "ListItem",
+          "stencila:content": [
+            {
+              "@type": "stencila:Paragraph",
+              "stencila:content": [
+                {
+                  "@type": "Text",
+                  "value": "todo"
+                }
+              ]
+            }
+          ],
+          "stencila:isChecked": false
+        },
+        {
+          "@type": "ListItem",
+          "stencila:content": [
+            {
+              "@type": "stencila:Paragraph",
+              "stencila:content": [
+                {
+                  "@type": "Text",
+                  "value": "still todo"
+                }
+              ]
+            }
+          ],
+          "stencila:isChecked": false
+        }
+      ],
+      "itemListOrder": "Unordered"
+    },
+    {
+      "@type": "stencila:Paragraph",
+      "stencila:content": [
+        {
+          "@type": "Text",
+          "value": "A paragraph to keep the previous and following lists separate (otherwise they get merged)."
+        }
+      ]
+    },
+    {
+      "@type": "ItemList",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "stencila:content": [
+            {
+              "@type": "stencila:Paragraph",
+              "stencila:content": [
+                {
+                  "@type": "Text",
+                  "value": "an item with an image "
+                },
+                {
+                  "@type": "ImageObject",
+                  "contentUrl": "image.png"
+                },
+                {
+                  "@type": "Text",
+                  "value": ", see!"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "@type": "ListItem",
+          "stencila:content": [
+            {
+              "@type": "stencila:Paragraph",
+              "stencila:content": [
+                {
+                  "@type": "Text",
+                  "value": "an item with "
+                },
+                {
+                  "@type": "stencila:Emphasis",
+                  "stencila:content": [
+                    {
+                      "@type": "Text",
+                      "value": "emphasis"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "@type": "ListItem",
+          "stencila:content": [
+            {
+              "@type": "stencila:Paragraph",
+              "stencila:content": [
+                {
+                  "@type": "Text",
+                  "value": "an item with HTML "
+                },
+                {
+                  "@type": "stencila:Underline",
+                  "stencila:content": [
+                    {
+                      "@type": "Text",
+                      "value": "underlined"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "itemListOrder": "Unordered"
+    },
+    {
+      "@type": "stencila:Paragraph",
+      "stencila:content": [
+        {
+          "@type": "Text",
+          "value": "A list with multiple paragraphs in each item"
+        }
+      ]
+    },
+    {
+      "@type": "ItemList",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "stencila:content": [
+            {
+              "@type": "stencila:Paragraph",
+              "stencila:content": [
+                {
+                  "@type": "Text",
+                  "value": "para 1a"
+                }
+              ]
+            },
+            {
+              "@type": "stencila:Paragraph",
+              "stencila:content": [
+                {
+                  "@type": "Text",
+                  "value": "para 1b"
+                }
+              ]
+            },
+            {
+              "@type": "stencila:Paragraph",
+              "stencila:content": [
+                {
+                  "@type": "Text",
+                  "value": "para 1c"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "@type": "ListItem",
+          "stencila:content": [
+            {
+              "@type": "stencila:Paragraph",
+              "stencila:content": [
+                {
+                  "@type": "Text",
+                  "value": "para 2a"
+                }
+              ]
+            },
+            {
+              "@type": "stencila:Paragraph",
+              "stencila:content": [
+                {
+                  "@type": "Text",
+                  "value": "para 2b"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "@type": "ListItem",
+          "stencila:content": [
+            {
+              "@type": "stencila:Paragraph",
+              "stencila:content": [
+                {
+                  "@type": "Text",
+                  "value": "para 3"
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "itemListOrder": "Unordered"
+    }
+  ]
+}

@@ -1,0 +1,82 @@
+{
+  "@context": {
+    "@vocab": "https://schema.org/",
+    "stencila": "https://stencila.org/"
+  },
+  "@type": "Article",
+  "stencila:content": [
+    {
+      "@type": "stencila:Paragraph",
+      "stencila:content": [
+        {
+          "@type": "Text",
+          "value": "An image "
+        },
+        {
+          "@type": "ImageObject",
+          "contentUrl": "https://example.org/cat.jpg"
+        },
+        {
+          "@type": "Text",
+          "value": ", with a caption "
+        },
+        {
+          "@type": "ImageObject",
+          "contentUrl": "https://example.org/cat.jpg",
+          "caption": [
+            {
+              "@type": "Text",
+              "value": "A cat"
+            }
+          ]
+        },
+        {
+          "@type": "Text",
+          "value": ", with a caption and title "
+        },
+        {
+          "@type": "ImageObject",
+          "headline": [
+            {
+              "@type": "Text",
+              "value": "The cat"
+            }
+          ],
+          "contentUrl": "https://example.org/cat.jpg",
+          "caption": [
+            {
+              "@type": "Text",
+              "value": "A cat"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "@type": "stencila:Paragraph",
+      "stencila:content": [
+        {
+          "@type": "Text",
+          "value": "Some audio "
+        },
+        {
+          "@type": "AudioObject",
+          "contentUrl": "https://example.org/cat.mp3"
+        }
+      ]
+    },
+    {
+      "@type": "stencila:Paragraph",
+      "stencila:content": [
+        {
+          "@type": "Text",
+          "value": "A video "
+        },
+        {
+          "@type": "VideoObject",
+          "contentUrl": "https://example.org/cat.mp4"
+        }
+      ]
+    }
+  ]
+}

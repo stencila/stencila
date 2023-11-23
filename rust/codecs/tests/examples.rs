@@ -188,6 +188,34 @@ static CONFIG: Lazy<Config> = Lazy::new(|| {
             },
         ),
         (
+            String::from("jsonld"),
+            FormatConfig {
+                format: Format::JsonLd,
+                encode: EncodeConfig {
+                    options: EncodeOptions {
+                        compact: Some(false),
+                        ..Default::default()
+                    },
+                    ..Default::default()
+                },
+                ..Default::default()
+            },
+        ),
+        (
+            String::from("compact.jsonld"),
+            FormatConfig {
+                format: Format::JsonLd,
+                encode: EncodeConfig {
+                    options: EncodeOptions {
+                        compact: Some(true),
+                        ..Default::default()
+                    },
+                    ..Default::default()
+                },
+                ..Default::default()
+            },
+        ),
+        (
             String::from("md"),
             FormatConfig {
                 format: Format::Markdown,

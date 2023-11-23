@@ -91,6 +91,21 @@ expression: specs
     "supports_to_string": true,
     "supports_to_path": true
   },
+  "jsonld": {
+    "status": "beta",
+    "supports_from_formats": {
+      "jsonld": "NoLoss"
+    },
+    "supports_from_bytes": false,
+    "supports_from_string": true,
+    "supports_from_path": true,
+    "supports_to_formats": {
+      "jsonld": "NoLoss"
+    },
+    "supports_to_bytes": false,
+    "supports_to_string": true,
+    "supports_to_path": true
+  },
   "markdown": {
     "status": "alpha",
     "supports_from_formats": {
