@@ -21,6 +21,8 @@ jobs:
     steps:
       - name: Maximize build space
         uses: easimon/maximize-build-space@master
+        # Skip because on `ubuntu-latest-m` seems to be detrimental
+        if: false
         with:
           root-reserve-mb: '4096'
           remove-dotnet: 'true'
