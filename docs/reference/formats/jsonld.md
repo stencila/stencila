@@ -27,7 +27,7 @@ However, because the the schema.org is the most widely used vocabulary for JSON-
 
 In addition, when exporting to JSON-LD, the `@type` and `@id` [keywords](https://www.w3.org/TR/json-ld11/#syntax-tokens-and-keywords) are used instead of `type` and `id`.
 
-For example, the above article as exported to JSON-LD as follows. Note that because the types `Article` and `Text` are part of schema.org, there is no need to prefix their name. However because schema.org does not have a `Paragraph` type or a `content` property, it is necessary to prefix those with `stencila`.
+For example, the above article as exported to JSON-LD as follows. Note that because the types `Article` and `Text` are part of schema.org, there is no need to prefix their name. However because schema.org does not have a `Paragraph` type or a `content` property, it is necessary to prefix those with `stencila:`.
 
 ```json
 {
@@ -43,8 +43,6 @@ For example, the above article as exported to JSON-LD as follows. Note that beca
         {
           "@type": "Text",
 ```
-
-In many cases, the terms are the same (e.g. a)
 
 <!-- prettier-ignore-start -->
 <!-- CODEC-DOCS:START -->
