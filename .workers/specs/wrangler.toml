@@ -1,0 +1,8 @@
+name = "specs"
+compatibility_date = "2023-10-16"
+
+main = "specs.ts"
+
+routes = [{ pattern = "stencila.org", custom_domain = true }]
+
+send_metrics = false
