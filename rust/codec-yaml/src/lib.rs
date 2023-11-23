@@ -81,11 +81,11 @@ impl Codec for YamlCodec {
             let mut root = Mapping::with_capacity(object.len() + 1);
             root.insert(
                 Value::String(String::from("$schema")),
-                Value::String(format!("https://stencila.dev/{type}.schema.json")),
+                Value::String(format!("https://stencila.org/{type}.schema.json")),
             );
             root.insert(
                 Value::String(String::from("@context")),
-                Value::String(format!("https://stencila.dev/{type}.jsonld")),
+                Value::String(String::from("https://stencila.org/context.jsonld")),
             );
             for (key, value) in object.into_iter() {
                 root.insert(key, value);

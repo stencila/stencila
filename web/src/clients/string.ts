@@ -70,7 +70,7 @@ export class StringClient extends Client {
    * @param format The format of the string (e.g. "html", "markdown")
    */
   constructor(format: string) {
-    super("sync-string.stencila.dev", {format});
+    super("sync-string.stencila.org", {format});
   }
 
   /**

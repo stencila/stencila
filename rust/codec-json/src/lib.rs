@@ -91,11 +91,11 @@ impl Codec for JsonCodec {
             let mut root = Map::with_capacity(object.len() + 1);
             root.insert(
                 String::from("$schema"),
-                Value::String(format!("https://stencila.dev/{type}.schema.json")),
+                Value::String(format!("https://stencila.org/{type}.schema.json")),
             );
             root.insert(
                 String::from("@context"),
-                Value::String(format!("https://stencila.dev/context.jsonld")),
+                Value::String(String::from("https://stencila.org/context.jsonld")),
             );
             for (key, value) in object.into_iter() {
                 root.insert(key, value);

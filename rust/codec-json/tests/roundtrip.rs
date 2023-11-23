@@ -109,8 +109,8 @@ async fn standalone() -> Result<()> {
     assert_eq!(
         json,
         r#"{
-  "$schema": "https://stencila.dev/Article.schema.json",
-  "@context": "https://stencila.dev/Article.jsonld",
+  "$schema": "https://stencila.org/Article.schema.json",
+  "@context": "https://stencila.org/context.jsonld",
   "type": "Article",
   "content": [
     {

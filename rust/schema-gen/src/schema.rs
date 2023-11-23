@@ -33,7 +33,7 @@ use status::Status;
 /// https://json-schema.org/draft/2020-12/json-schema-core.html and
 /// https://json-schema.org/draft/2020-12/json-schema-validation.html.
 ///
-/// The current version of this meta-schema is published a https://stencila.dev/meta.schema.json.
+/// The current version of this meta-schema is published a https://stencila.org/meta.schema.json.
 /// Previous versions are available via https://raw.github.com/stencila/stencila/<version>/json/meta.schema.json
 /// (replace `<version>` with the version tag name e.g. `v2.0.0-alpha.6`).
 ///
@@ -51,7 +51,7 @@ use status::Status;
 pub struct Schema {
     /// The meta-schema of the schema
     ///
-    /// The value of this keyword MUST be "https://stencila.dev/meta.schema.json".
+    /// The value of this keyword MUST be "https://stencila.org/meta.schema.json".
     #[serde(rename = "$schema")]
     pub schema: Option<String>,
 
@@ -661,8 +661,8 @@ impl Schema {
             })
             .expect("all files to have a prefix");
 
-        schema.schema = Some("https://stencila.dev/meta.schema.json".to_string());
-        schema.id = Some(format!("https://stencila.dev/{title}.schema.json"));
+        schema.schema = Some("https://stencila.org/meta.schema.json".to_string());
+        schema.id = Some(format!("https://stencila.org/{title}.schema.json"));
 
         Ok((title, schema))
     }

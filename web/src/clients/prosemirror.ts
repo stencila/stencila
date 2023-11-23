@@ -8,7 +8,7 @@ import { Client } from "./client";
  */
 export class ProseMirrorClient extends Client {
   constructor() {
-    super("sync-node.stencila.dev");
+    super("sync-node.stencila.org");
   }
 
   /**

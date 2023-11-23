@@ -432,7 +432,7 @@ async fn serve_document(
 ///
 /// The naming of these follows the domain-like convention commonly used
 /// (see https://www.iana.org/assignments/websocket/websocket.xml#subprotocol-name).
-const WEBSOCKET_PROTOCOLS: [&str; 1] = ["sync-string.stencila.dev"];
+const WEBSOCKET_PROTOCOLS: [&str; 1] = ["sync-string.stencila.org"];
 
 /// Handle a WebSocket upgrade request
 async fn serve_ws(
@@ -465,7 +465,7 @@ async fn handle_ws(ws: WebSocket, doc: Arc<Document>, query: HashMap<String, Str
         .unwrap_or_default();
 
     match protocol {
-        "sync-string.stencila.dev" => {
+        "sync-string.stencila.org" => {
             handle_ws_sync_string(ws, doc, query).await;
         }
         _ => {

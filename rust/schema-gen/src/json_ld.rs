@@ -119,14 +119,14 @@ impl Schemas {
             }
 
             let jsonld = json!({
-                "@id": format!("https://stencila.dev/{title}"),
+                "@id": format!("https://stencila.org/{title}"),
                 "name": title,
                 //"version": version,
                 "license": "https://creativecommons.org/publicdomain/zero/1.0/",
                 "@context": {
                     "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
                     "schema": "https://schema.org/",
-                    "stencila": "https://stencila.dev/",
+                    "stencila": "https://stencila.org/",
                 },
                 "@graph": graph
             });
@@ -139,14 +139,14 @@ impl Schemas {
 
         // Generate a `@context` with all the types and all the properties
         let jsonld = json!({
-            "@id": "https://stencila.dev/context",
+            "@id": "https://stencila.org/context",
             "name": "Stencila JSON-LD Context",
             //"version": version,
             "license": "https://creativecommons.org/publicdomain/zero/1.0/",
             "isBasedOn": ["https://schema.org/"],
             "@context": {
                 "schema": "https://schema.org/",
-                "stencila": "https://stencila.dev/",
+                "stencila": "https://stencila.org/",
             },
             "@graph": overall
         });

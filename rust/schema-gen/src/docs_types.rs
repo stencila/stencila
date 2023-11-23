@@ -672,11 +672,11 @@ fn bindings(title: &str, schema: &Schema) -> Vec<Block> {
         ul([
             li([lnk(
                 [t("JSON-LD")],
-                format!("https://stencila.dev/{title}.jsonld"),
+                format!("https://stencila.org/{title}.jsonld"),
             )]),
             li([lnk(
                 [t("JSON Schema")],
-                format!("https://stencila.dev/{title}.schema.json"),
+                format!("https://stencila.org/{title}.schema.json"),
             )]),
             li([t("Python "), t(if schema.is_object() { "class "} else {"type "}), lnk(
                 [ci(title)],

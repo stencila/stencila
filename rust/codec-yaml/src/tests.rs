@@ -23,8 +23,8 @@ async fn standalone() -> Result<()> {
         .await?;
     assert_eq!(
         yaml,
-        r#"$schema: https://stencila.dev/Article.schema.json
-'@context': https://stencila.dev/Article.jsonld
+        r#"$schema: https://stencila.org/Article.schema.json
+'@context': https://stencila.org/context.jsonld
 type: Article
 content:
 - type: Paragraph
