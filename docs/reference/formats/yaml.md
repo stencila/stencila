@@ -10,12 +10,10 @@ Its benefits include human-friendly syntax and support for complex data structur
 
 Stencila support lossless, bi-directional conversion between Stencila documents and YAML.  The `codec-yaml` Rust crate implements `from_yaml` and `to_yaml` methods for all node types in Stencila Schema, powered by [`serde_yaml`](https://crates.io/crates/serde_yaml).
 
-## Encodings
-
 When the `--standalone` option is used (the default for encoding to files), two properties are added to the YAML encoding of root nodes to improve interoperability:
 
 - a `$schema` property which links to the [JSON Schema](https://json-schema.org) for the node type
-- a `@context` property which links to the [JSON-LD](https://json-ld.org) context for the node type
+- a `@context` property which links to the [JSON-LD](https://json-ld.org) context for the Stencila Schema
 
 For example,
 

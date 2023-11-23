@@ -10,14 +10,12 @@ Its benefits include simplicity, and support for nested data structures, making 
 
 Stencila support lossless, bi-directional conversion between Stencila documents and JSON. The `codec-json` Rust crate implements `from_json` and `to_json` methods (and variants of those) for all node types in Stencila Schema, powered by [`serde_json`](https://crates.io/crates/serde_json). 
 
-## Encodings
-
-By default, the encoded JSON is indented but the `--compact` option is supported which produces un-indented, single line JSON.
+By default, the encoded JSON is indented. However, the `--compact` option is supported which produces un-indented, single line JSON.
 
 When the `--standalone` option is used (the default for encoding to files), two properties are added to the JSON encoding of root nodes to improve interoperability:
 
 - a `$schema` property which links to the [JSON Schema](https://json-schema.org) for the node type
-- a `@context` property which links to the [JSON-LD](https://json-ld.org) context for the node type
+- a `@context` property which links to the [JSON-LD](https://json-ld.org) context for the Stencila Schema
 
 For example,
 
