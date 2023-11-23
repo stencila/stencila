@@ -32,7 +32,7 @@ test("toString", async () => {
       new Text("!"),
     ]),
   ]);
-  const jats = await toString(node, { format: "jats" });
+  const jats = await toString(node, { format: "jats", compact: false });
 
   expect(jats).toMatchSnapshot();
 });
