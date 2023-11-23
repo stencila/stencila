@@ -1,6 +1,6 @@
 {
-  "$schema": "https://stencila.dev/meta.schema.json",
-  "$id": "https://stencila.dev/InsertInline.schema.json",
+  "$schema": "https://stencila.org/meta.schema.json",
+  "$id": "https://stencila.org/InsertInline.schema.json",
   "@id": "stencila:InsertInline",
   "title": "InsertInline",
   "extends": [

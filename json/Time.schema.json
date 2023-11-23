@@ -1,6 +1,6 @@
 {
-  "$schema": "https://stencila.dev/meta.schema.json",
-  "$id": "https://stencila.dev/Time.schema.json",
+  "$schema": "https://stencila.org/meta.schema.json",
+  "$id": "https://stencila.org/Time.schema.json",
   "@id": "schema:Time",
   "title": "Time",
   "extends": [

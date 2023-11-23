@@ -1,6 +1,6 @@
 {
-  "$schema": "https://stencila.dev/meta.schema.json",
-  "$id": "https://stencila.dev/Brand.schema.json",
+  "$schema": "https://stencila.org/meta.schema.json",
+  "$id": "https://stencila.org/Brand.schema.json",
   "@id": "schema:Brand",
   "title": "Brand",
   "extends": [

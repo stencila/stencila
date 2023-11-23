@@ -1,6 +1,6 @@
 {
-  "$schema": "https://stencila.dev/meta.schema.json",
-  "$id": "https://stencila.dev/AutomaticExecution.schema.json",
+  "$schema": "https://stencila.org/meta.schema.json",
+  "$id": "https://stencila.org/AutomaticExecution.schema.json",
   "@id": "stencila:AutomaticExecution",
   "title": "AutomaticExecution",
   "extends": [

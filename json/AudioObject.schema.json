@@ -1,6 +1,6 @@
 {
-  "$schema": "https://stencila.dev/meta.schema.json",
-  "$id": "https://stencila.dev/AudioObject.schema.json",
+  "$schema": "https://stencila.org/meta.schema.json",
+  "$id": "https://stencila.org/AudioObject.schema.json",
   "@id": "schema:AudioObject",
   "title": "AudioObject",
   "extends": [

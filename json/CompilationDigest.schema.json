@@ -1,6 +1,6 @@
 {
-  "$schema": "https://stencila.dev/meta.schema.json",
-  "$id": "https://stencila.dev/CompilationDigest.schema.json",
+  "$schema": "https://stencila.org/meta.schema.json",
+  "$id": "https://stencila.org/CompilationDigest.schema.json",
   "@id": "stencila:CompilationDigest",
   "title": "CompilationDigest",
   "extends": [

@@ -1,6 +1,6 @@
 {
-  "$schema": "https://stencila.dev/meta.schema.json",
-  "$id": "https://stencila.dev/Enumeration.schema.json",
+  "$schema": "https://stencila.org/meta.schema.json",
+  "$id": "https://stencila.org/Enumeration.schema.json",
   "@id": "schema:Enumeration",
   "title": "Enumeration",
   "extends": [

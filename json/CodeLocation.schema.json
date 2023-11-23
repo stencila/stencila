@@ -1,6 +1,6 @@
 {
-  "$schema": "https://stencila.dev/meta.schema.json",
-  "$id": "https://stencila.dev/CodeLocation.schema.json",
+  "$schema": "https://stencila.org/meta.schema.json",
+  "$id": "https://stencila.org/CodeLocation.schema.json",
   "@id": "stencila:CodeLocation",
   "title": "CodeLocation",
   "extends": [

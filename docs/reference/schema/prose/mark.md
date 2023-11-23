@@ -24,8 +24,8 @@ The `Mark` type is related to these types:
 
 The `Mark` type is represented in these bindings:
 
-- [JSON-LD](https://stencila.dev/Mark.jsonld)
-- [JSON Schema](https://stencila.dev/Mark.schema.json)
+- [JSON-LD](https://stencila.org/Mark.jsonld)
+- [JSON Schema](https://stencila.org/Mark.schema.json)
 - Python class [`Mark`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/mark.py)
 - Rust struct [`Mark`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/mark.rs)
 - TypeScript class [`Mark`](https://github.com/stencila/stencila/blob/main/typescript/src/types/Mark.ts)

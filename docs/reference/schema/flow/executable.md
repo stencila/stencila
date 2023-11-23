@@ -37,8 +37,8 @@ The `Executable` type is related to these types:
 
 The `Executable` type is represented in these bindings:
 
-- [JSON-LD](https://stencila.dev/Executable.jsonld)
-- [JSON Schema](https://stencila.dev/Executable.schema.json)
+- [JSON-LD](https://stencila.org/Executable.jsonld)
+- [JSON Schema](https://stencila.org/Executable.schema.json)
 - Python class [`Executable`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/executable.py)
 - Rust struct [`Executable`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/executable.rs)
 - TypeScript class [`Executable`](https://github.com/stencila/stencila/blob/main/typescript/src/types/Executable.ts)

@@ -1,6 +1,6 @@
 {
-  "$schema": "https://stencila.dev/meta.schema.json",
-  "$id": "https://stencila.dev/CreativeWork.schema.json",
+  "$schema": "https://stencila.org/meta.schema.json",
+  "$id": "https://stencila.org/CreativeWork.schema.json",
   "@id": "schema:CreativeWork",
   "title": "CreativeWork",
   "extends": [

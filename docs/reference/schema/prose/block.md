@@ -34,8 +34,8 @@ The `Block` type has these members:
 
 The `Block` type is represented in these bindings:
 
-- [JSON-LD](https://stencila.dev/Block.jsonld)
-- [JSON Schema](https://stencila.dev/Block.schema.json)
+- [JSON-LD](https://stencila.org/Block.jsonld)
+- [JSON Schema](https://stencila.org/Block.schema.json)
 - Python type [`Block`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/block.py)
 - Rust type [`Block`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/block.rs)
 - TypeScript type [`Block`](https://github.com/stencila/stencila/blob/main/typescript/src/types/Block.ts)

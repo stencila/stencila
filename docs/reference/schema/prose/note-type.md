@@ -16,8 +16,8 @@ The `NoteType` type has these members:
 
 The `NoteType` type is represented in these bindings:
 
-- [JSON-LD](https://stencila.dev/NoteType.jsonld)
-- [JSON Schema](https://stencila.dev/NoteType.schema.json)
+- [JSON-LD](https://stencila.org/NoteType.jsonld)
+- [JSON Schema](https://stencila.org/NoteType.schema.json)
 - Python type [`NoteType`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/note_type.py)
 - Rust type [`NoteType`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/note_type.rs)
 - TypeScript type [`NoteType`](https://github.com/stencila/stencila/blob/main/typescript/src/types/NoteType.ts)

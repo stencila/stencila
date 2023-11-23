@@ -1,6 +1,6 @@
 {
-  "$schema": "https://stencila.dev/meta.schema.json",
-  "$id": "https://stencila.dev/CodeExecutable.schema.json",
+  "$schema": "https://stencila.org/meta.schema.json",
+  "$id": "https://stencila.org/CodeExecutable.schema.json",
   "@id": "stencila:CodeExecutable",
   "title": "CodeExecutable",
   "extends": [

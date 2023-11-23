@@ -1,6 +1,6 @@
 {
-  "$schema": "https://stencila.dev/meta.schema.json",
-  "$id": "https://stencila.dev/StringValidator.schema.json",
+  "$schema": "https://stencila.org/meta.schema.json",
+  "$id": "https://stencila.org/StringValidator.schema.json",
   "@id": "stencila:StringValidator",
   "title": "StringValidator",
   "extends": [

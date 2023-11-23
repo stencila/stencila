@@ -1,6 +1,6 @@
 {
-  "$schema": "https://stencila.dev/meta.schema.json",
-  "$id": "https://stencila.dev/ClaimType.schema.json",
+  "$schema": "https://stencila.org/meta.schema.json",
+  "$id": "https://stencila.org/ClaimType.schema.json",
   "@id": "stencila:ClaimType",
   "title": "ClaimType",
   "extends": [

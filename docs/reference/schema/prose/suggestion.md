@@ -32,8 +32,8 @@ The `Suggestion` type is related to these types:
 
 The `Suggestion` type is represented in these bindings:
 
-- [JSON-LD](https://stencila.dev/Suggestion.jsonld)
-- [JSON Schema](https://stencila.dev/Suggestion.schema.json)
+- [JSON-LD](https://stencila.org/Suggestion.jsonld)
+- [JSON Schema](https://stencila.org/Suggestion.schema.json)
 - Python class [`Suggestion`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/suggestion.py)
 - Rust struct [`Suggestion`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/suggestion.rs)
 - TypeScript class [`Suggestion`](https://github.com/stencila/stencila/blob/main/typescript/src/types/Suggestion.ts)

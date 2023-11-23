@@ -34,8 +34,8 @@ The `Math` type is related to these types:
 
 The `Math` type is represented in these bindings:
 
-- [JSON-LD](https://stencila.dev/Math.jsonld)
-- [JSON Schema](https://stencila.dev/Math.schema.json)
+- [JSON-LD](https://stencila.org/Math.jsonld)
+- [JSON Schema](https://stencila.org/Math.schema.json)
 - Python class [`Math`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/math.py)
 - Rust struct [`Math`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/math.rs)
 - TypeScript class [`Math`](https://github.com/stencila/stencila/blob/main/typescript/src/types/Math.ts)

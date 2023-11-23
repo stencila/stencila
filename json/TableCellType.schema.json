@@ -1,6 +1,6 @@
 {
-  "$schema": "https://stencila.dev/meta.schema.json",
-  "$id": "https://stencila.dev/TableCellType.schema.json",
+  "$schema": "https://stencila.org/meta.schema.json",
+  "$id": "https://stencila.org/TableCellType.schema.json",
   "@id": "stencila:TableCellType",
   "title": "TableCellType",
   "extends": [

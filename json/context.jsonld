@@ -1,5 +1,5 @@
 {
-  "@id": "https://stencila.dev/context",
+  "@id": "https://stencila.org/context",
   "name": "Stencila JSON-LD Context",
   "license": "https://creativecommons.org/publicdomain/zero/1.0/",
   "isBasedOn": [
@@ -7,7 +7,7 @@
   ],
   "@context": {
     "schema": "https://schema.org/",
-    "stencila": "https://stencila.dev/"
+    "stencila": "https://stencila.org/"
   },
   "@graph": {
     "Admonition": "stencila:Admonition",

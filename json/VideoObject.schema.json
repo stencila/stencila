@@ -1,6 +1,6 @@
 {
-  "$schema": "https://stencila.dev/meta.schema.json",
-  "$id": "https://stencila.dev/VideoObject.schema.json",
+  "$schema": "https://stencila.org/meta.schema.json",
+  "$id": "https://stencila.org/VideoObject.schema.json",
   "@id": "schema:VideoObject",
   "title": "VideoObject",
   "extends": [

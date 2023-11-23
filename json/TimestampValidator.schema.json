@@ -1,6 +1,6 @@
 {
-  "$schema": "https://stencila.dev/meta.schema.json",
-  "$id": "https://stencila.dev/TimestampValidator.schema.json",
+  "$schema": "https://stencila.org/meta.schema.json",
+  "$id": "https://stencila.org/TimestampValidator.schema.json",
   "@id": "stencila:TimestampValidator",
   "title": "TimestampValidator",
   "extends": [

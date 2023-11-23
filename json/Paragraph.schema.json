@@ -1,6 +1,6 @@
 {
-  "$schema": "https://stencila.dev/meta.schema.json",
-  "$id": "https://stencila.dev/Paragraph.schema.json",
+  "$schema": "https://stencila.org/meta.schema.json",
+  "$id": "https://stencila.org/Paragraph.schema.json",
   "@id": "stencila:Paragraph",
   "title": "Paragraph",
   "extends": [

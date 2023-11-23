@@ -22,8 +22,8 @@ The `AdmonitionType` type has these members:
 
 The `AdmonitionType` type is represented in these bindings:
 
-- [JSON-LD](https://stencila.dev/AdmonitionType.jsonld)
-- [JSON Schema](https://stencila.dev/AdmonitionType.schema.json)
+- [JSON-LD](https://stencila.org/AdmonitionType.jsonld)
+- [JSON Schema](https://stencila.org/AdmonitionType.schema.json)
 - Python type [`AdmonitionType`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/admonition_type.py)
 - Rust type [`AdmonitionType`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/admonition_type.rs)
 - TypeScript type [`AdmonitionType`](https://github.com/stencila/stencila/blob/main/typescript/src/types/AdmonitionType.ts)

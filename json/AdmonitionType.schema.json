@@ -1,6 +1,6 @@
 {
-  "$schema": "https://stencila.dev/meta.schema.json",
-  "$id": "https://stencila.dev/AdmonitionType.schema.json",
+  "$schema": "https://stencila.org/meta.schema.json",
+  "$id": "https://stencila.org/AdmonitionType.schema.json",
   "@id": "stencila:AdmonitionType",
   "title": "AdmonitionType",
   "extends": [

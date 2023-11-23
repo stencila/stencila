@@ -1,6 +1,6 @@
 {
-  "$schema": "https://stencila.dev/meta.schema.json",
-  "$id": "https://stencila.dev/BooleanValidator.schema.json",
+  "$schema": "https://stencila.org/meta.schema.json",
+  "$id": "https://stencila.org/BooleanValidator.schema.json",
   "@id": "stencila:BooleanValidator",
   "title": "BooleanValidator",
   "extends": [

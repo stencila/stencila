@@ -22,8 +22,8 @@ The `SectionType` type has these members:
 
 The `SectionType` type is represented in these bindings:
 
-- [JSON-LD](https://stencila.dev/SectionType.jsonld)
-- [JSON Schema](https://stencila.dev/SectionType.schema.json)
+- [JSON-LD](https://stencila.org/SectionType.jsonld)
+- [JSON Schema](https://stencila.org/SectionType.schema.json)
 - Python type [`SectionType`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/section_type.py)
 - Rust type [`SectionType`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/section_type.rs)
 - TypeScript type [`SectionType`](https://github.com/stencila/stencila/blob/main/typescript/src/types/SectionType.ts)

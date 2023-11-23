@@ -1,6 +1,6 @@
 {
-  "$schema": "https://stencila.dev/meta.schema.json",
-  "$id": "https://stencila.dev/DateTime.schema.json",
+  "$schema": "https://stencila.org/meta.schema.json",
+  "$id": "https://stencila.org/DateTime.schema.json",
   "@id": "schema:DateTime",
   "title": "DateTime",
   "extends": [

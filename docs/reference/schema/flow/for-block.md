@@ -53,17 +53,18 @@ The `ForBlock` type can be encoded (serialized) to, and/or decoded (deserialized
 | [Plain text](https://github.com/stencila/stencila/blob/main/docs/reference/formats/text.md)        | ⚠️ High loss     |              | ⚠️ Alpha               |                                                                                     |
 | [JSON](https://github.com/stencila/stencila/blob/main/docs/reference/formats/json.md)              | 🟢 No loss        | 🟢 No loss    | 🟢 Stable               |                                                                                     |
 | [JSON5](https://github.com/stencila/stencila/blob/main/docs/reference/formats/json5.md)            | 🟢 No loss        | 🟢 No loss    | 🟢 Stable               |                                                                                     |
-| [YAML](https://github.com/stencila/stencila/blob/main/docs/reference/formats/yaml.md)              | 🟢 No loss        | 🟢 No loss    | 🟢 Stable               |                                                                                     |
+| [JSON-LD](https://github.com/stencila/stencila/blob/main/docs/reference/formats/jsonld.md)         | 🟢 No loss        | 🟢 No loss    | 🔶 Beta                 |                                                                                     |
 | [CBOR](https://github.com/stencila/stencila/blob/main/docs/reference/formats/cbor.md)              | 🟢 No loss        | 🟢 No loss    | 🟢 Stable               |                                                                                     |
 | [CBOR+Zstandard](https://github.com/stencila/stencila/blob/main/docs/reference/formats/cborzst.md) | 🟢 No loss        | 🟢 No loss    | 🟢 Stable               |                                                                                     |
+| [YAML](https://github.com/stencila/stencila/blob/main/docs/reference/formats/yaml.md)              | 🟢 No loss        | 🟢 No loss    | 🟢 Stable               |                                                                                     |
 | [Debug](https://github.com/stencila/stencila/blob/main/docs/reference/formats/debug.md)            | 🔷 Low loss       |              | 🟢 Stable               |                                                                                     |
 
 ## Bindings
 
 The `ForBlock` type is represented in these bindings:
 
-- [JSON-LD](https://stencila.dev/ForBlock.jsonld)
-- [JSON Schema](https://stencila.dev/ForBlock.schema.json)
+- [JSON-LD](https://stencila.org/ForBlock.jsonld)
+- [JSON Schema](https://stencila.org/ForBlock.schema.json)
 - Python class [`ForBlock`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/for_block.py)
 - Rust struct [`ForBlock`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/for_block.rs)
 - TypeScript class [`ForBlock`](https://github.com/stencila/stencila/blob/main/typescript/src/types/ForBlock.ts)

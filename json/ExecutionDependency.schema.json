@@ -1,6 +1,6 @@
 {
-  "$schema": "https://stencila.dev/meta.schema.json",
-  "$id": "https://stencila.dev/ExecutionDependency.schema.json",
+  "$schema": "https://stencila.org/meta.schema.json",
+  "$id": "https://stencila.org/ExecutionDependency.schema.json",
   "@id": "stencila:ExecutionDependency",
   "title": "ExecutionDependency",
   "extends": [

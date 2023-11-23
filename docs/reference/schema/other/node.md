@@ -123,8 +123,8 @@ The `Node` type has these members:
 
 The `Node` type is represented in these bindings:
 
-- [JSON-LD](https://stencila.dev/Node.jsonld)
-- [JSON Schema](https://stencila.dev/Node.schema.json)
+- [JSON-LD](https://stencila.org/Node.jsonld)
+- [JSON Schema](https://stencila.org/Node.schema.json)
 - Python type [`Node`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/node.py)
 - Rust type [`Node`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/node.rs)
 - TypeScript type [`Node`](https://github.com/stencila/stencila/blob/main/typescript/src/types/Node.ts)

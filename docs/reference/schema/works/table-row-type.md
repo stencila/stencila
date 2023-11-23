@@ -16,8 +16,8 @@ The `TableRowType` type has these members:
 
 The `TableRowType` type is represented in these bindings:
 
-- [JSON-LD](https://stencila.dev/TableRowType.jsonld)
-- [JSON Schema](https://stencila.dev/TableRowType.schema.json)
+- [JSON-LD](https://stencila.org/TableRowType.jsonld)
+- [JSON Schema](https://stencila.org/TableRowType.schema.json)
 - Python type [`TableRowType`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/table_row_type.py)
 - Rust type [`TableRowType`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/table_row_type.rs)
 - TypeScript type [`TableRowType`](https://github.com/stencila/stencila/blob/main/typescript/src/types/TableRowType.ts)

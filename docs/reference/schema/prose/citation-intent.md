@@ -107,8 +107,8 @@ The `CitationIntent` type has these members:
 
 The `CitationIntent` type is represented in these bindings:
 
-- [JSON-LD](https://stencila.dev/CitationIntent.jsonld)
-- [JSON Schema](https://stencila.dev/CitationIntent.schema.json)
+- [JSON-LD](https://stencila.org/CitationIntent.jsonld)
+- [JSON Schema](https://stencila.org/CitationIntent.schema.json)
 - Python type [`CitationIntent`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/citation_intent.py)
 - Rust type [`CitationIntent`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/citation_intent.rs)
 - TypeScript type [`CitationIntent`](https://github.com/stencila/stencila/blob/main/typescript/src/types/CitationIntent.ts)

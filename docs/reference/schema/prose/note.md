@@ -41,17 +41,18 @@ The `Note` type can be encoded (serialized) to, and/or decoded (deserialized) fr
 | [Plain text](https://github.com/stencila/stencila/blob/main/docs/reference/formats/text.md)        | ⚠️ High loss     |               | ⚠️ Alpha               |                                                                                                |
 | [JSON](https://github.com/stencila/stencila/blob/main/docs/reference/formats/json.md)              | 🟢 No loss        | 🟢 No loss     | 🟢 Stable               |                                                                                                |
 | [JSON5](https://github.com/stencila/stencila/blob/main/docs/reference/formats/json5.md)            | 🟢 No loss        | 🟢 No loss     | 🟢 Stable               |                                                                                                |
-| [YAML](https://github.com/stencila/stencila/blob/main/docs/reference/formats/yaml.md)              | 🟢 No loss        | 🟢 No loss     | 🟢 Stable               |                                                                                                |
+| [JSON-LD](https://github.com/stencila/stencila/blob/main/docs/reference/formats/jsonld.md)         | 🟢 No loss        | 🟢 No loss     | 🔶 Beta                 |                                                                                                |
 | [CBOR](https://github.com/stencila/stencila/blob/main/docs/reference/formats/cbor.md)              | 🟢 No loss        | 🟢 No loss     | 🟢 Stable               |                                                                                                |
 | [CBOR+Zstandard](https://github.com/stencila/stencila/blob/main/docs/reference/formats/cborzst.md) | 🟢 No loss        | 🟢 No loss     | 🟢 Stable               |                                                                                                |
+| [YAML](https://github.com/stencila/stencila/blob/main/docs/reference/formats/yaml.md)              | 🟢 No loss        | 🟢 No loss     | 🟢 Stable               |                                                                                                |
 | [Debug](https://github.com/stencila/stencila/blob/main/docs/reference/formats/debug.md)            | 🔷 Low loss       |               | 🟢 Stable               |                                                                                                |
 
 ## Bindings
 
 The `Note` type is represented in these bindings:
 
-- [JSON-LD](https://stencila.dev/Note.jsonld)
-- [JSON Schema](https://stencila.dev/Note.schema.json)
+- [JSON-LD](https://stencila.org/Note.jsonld)
+- [JSON Schema](https://stencila.org/Note.schema.json)
 - Python class [`Note`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/note.py)
 - Rust struct [`Note`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/note.rs)
 - TypeScript class [`Note`](https://github.com/stencila/stencila/blob/main/typescript/src/types/Note.ts)

@@ -1,6 +1,6 @@
 {
-  "$schema": "https://stencila.dev/meta.schema.json",
-  "$id": "https://stencila.dev/ExecutionTag.schema.json",
+  "$schema": "https://stencila.org/meta.schema.json",
+  "$id": "https://stencila.org/ExecutionTag.schema.json",
   "@id": "stencila:ExecutionTag",
   "title": "ExecutionTag",
   "extends": [

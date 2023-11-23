@@ -1,6 +1,6 @@
 {
-  "$schema": "https://stencila.dev/meta.schema.json",
-  "$id": "https://stencila.dev/CallArgument.schema.json",
+  "$schema": "https://stencila.org/meta.schema.json",
+  "$id": "https://stencila.org/CallArgument.schema.json",
   "@id": "stencila:CallArgument",
   "title": "CallArgument",
   "extends": [

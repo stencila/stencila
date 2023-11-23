@@ -1,6 +1,6 @@
 {
-  "$schema": "https://stencila.dev/meta.schema.json",
-  "$id": "https://stencila.dev/IfBlockClause.schema.json",
+  "$schema": "https://stencila.org/meta.schema.json",
+  "$id": "https://stencila.org/IfBlockClause.schema.json",
   "@id": "stencila:IfBlockClause",
   "title": "IfBlockClause",
   "extends": [

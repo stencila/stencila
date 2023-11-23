@@ -41,17 +41,18 @@ The `MonetaryGrant` type can be encoded (serialized) to, and/or decoded (deseria
 | [Plain text](https://github.com/stencila/stencila/blob/main/docs/reference/formats/text.md)        | ⚠️ High loss     |              | ⚠️ Alpha               |       |
 | [JSON](https://github.com/stencila/stencila/blob/main/docs/reference/formats/json.md)              | 🟢 No loss        | 🟢 No loss    | 🟢 Stable               |       |
 | [JSON5](https://github.com/stencila/stencila/blob/main/docs/reference/formats/json5.md)            | 🟢 No loss        | 🟢 No loss    | 🟢 Stable               |       |
-| [YAML](https://github.com/stencila/stencila/blob/main/docs/reference/formats/yaml.md)              | 🟢 No loss        | 🟢 No loss    | 🟢 Stable               |       |
+| [JSON-LD](https://github.com/stencila/stencila/blob/main/docs/reference/formats/jsonld.md)         | 🟢 No loss        | 🟢 No loss    | 🔶 Beta                 |       |
 | [CBOR](https://github.com/stencila/stencila/blob/main/docs/reference/formats/cbor.md)              | 🟢 No loss        | 🟢 No loss    | 🟢 Stable               |       |
 | [CBOR+Zstandard](https://github.com/stencila/stencila/blob/main/docs/reference/formats/cborzst.md) | 🟢 No loss        | 🟢 No loss    | 🟢 Stable               |       |
+| [YAML](https://github.com/stencila/stencila/blob/main/docs/reference/formats/yaml.md)              | 🟢 No loss        | 🟢 No loss    | 🟢 Stable               |       |
 | [Debug](https://github.com/stencila/stencila/blob/main/docs/reference/formats/debug.md)            | 🔷 Low loss       |              | 🟢 Stable               |       |
 
 ## Bindings
 
 The `MonetaryGrant` type is represented in these bindings:
 
-- [JSON-LD](https://stencila.dev/MonetaryGrant.jsonld)
-- [JSON Schema](https://stencila.dev/MonetaryGrant.schema.json)
+- [JSON-LD](https://stencila.org/MonetaryGrant.jsonld)
+- [JSON Schema](https://stencila.org/MonetaryGrant.schema.json)
 - Python class [`MonetaryGrant`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/monetary_grant.py)
 - Rust struct [`MonetaryGrant`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/monetary_grant.rs)
 - TypeScript class [`MonetaryGrant`](https://github.com/stencila/stencila/blob/main/typescript/src/types/MonetaryGrant.ts)

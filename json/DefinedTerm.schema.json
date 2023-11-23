@@ -1,6 +1,6 @@
 {
-  "$schema": "https://stencila.dev/meta.schema.json",
-  "$id": "https://stencila.dev/DefinedTerm.schema.json",
+  "$schema": "https://stencila.org/meta.schema.json",
+  "$id": "https://stencila.org/DefinedTerm.schema.json",
   "@id": "schema:DefinedTerm",
   "title": "DefinedTerm",
   "extends": [

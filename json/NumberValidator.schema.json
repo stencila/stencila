@@ -1,6 +1,6 @@
 {
-  "$schema": "https://stencila.dev/meta.schema.json",
-  "$id": "https://stencila.dev/NumberValidator.schema.json",
+  "$schema": "https://stencila.org/meta.schema.json",
+  "$id": "https://stencila.org/NumberValidator.schema.json",
   "@id": "stencila:NumberValidator",
   "title": "NumberValidator",
   "extends": [

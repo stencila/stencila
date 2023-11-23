@@ -1,6 +1,6 @@
 {
-  "$schema": "https://stencila.dev/meta.schema.json",
-  "$id": "https://stencila.dev/DeleteBlock.schema.json",
+  "$schema": "https://stencila.org/meta.schema.json",
+  "$id": "https://stencila.org/DeleteBlock.schema.json",
   "@id": "stencila:DeleteBlock",
   "title": "DeleteBlock",
   "extends": [

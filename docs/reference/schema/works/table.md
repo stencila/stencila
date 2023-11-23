@@ -64,17 +64,18 @@ The `Table` type can be encoded (serialized) to, and/or decoded (deserialized) f
 | [Plain text](https://github.com/stencila/stencila/blob/main/docs/reference/formats/text.md)        | ⚠️ High loss     |               | ⚠️ Alpha               |                                |
 | [JSON](https://github.com/stencila/stencila/blob/main/docs/reference/formats/json.md)              | 🟢 No loss        | 🟢 No loss     | 🟢 Stable               |                                |
 | [JSON5](https://github.com/stencila/stencila/blob/main/docs/reference/formats/json5.md)            | 🟢 No loss        | 🟢 No loss     | 🟢 Stable               |                                |
-| [YAML](https://github.com/stencila/stencila/blob/main/docs/reference/formats/yaml.md)              | 🟢 No loss        | 🟢 No loss     | 🟢 Stable               |                                |
+| [JSON-LD](https://github.com/stencila/stencila/blob/main/docs/reference/formats/jsonld.md)         | 🟢 No loss        | 🟢 No loss     | 🔶 Beta                 |                                |
 | [CBOR](https://github.com/stencila/stencila/blob/main/docs/reference/formats/cbor.md)              | 🟢 No loss        | 🟢 No loss     | 🟢 Stable               |                                |
 | [CBOR+Zstandard](https://github.com/stencila/stencila/blob/main/docs/reference/formats/cborzst.md) | 🟢 No loss        | 🟢 No loss     | 🟢 Stable               |                                |
+| [YAML](https://github.com/stencila/stencila/blob/main/docs/reference/formats/yaml.md)              | 🟢 No loss        | 🟢 No loss     | 🟢 Stable               |                                |
 | [Debug](https://github.com/stencila/stencila/blob/main/docs/reference/formats/debug.md)            | 🔷 Low loss       |               | 🟢 Stable               |                                |
 
 ## Bindings
 
 The `Table` type is represented in these bindings:
 
-- [JSON-LD](https://stencila.dev/Table.jsonld)
-- [JSON Schema](https://stencila.dev/Table.schema.json)
+- [JSON-LD](https://stencila.org/Table.jsonld)
+- [JSON Schema](https://stencila.org/Table.schema.json)
 - Python class [`Table`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/table.py)
 - Rust struct [`Table`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/table.rs)
 - TypeScript class [`Table`](https://github.com/stencila/stencila/blob/main/typescript/src/types/Table.ts)

@@ -34,17 +34,18 @@ The `DurationValidator` type can be encoded (serialized) to, and/or decoded (des
 | [Plain text](https://github.com/stencila/stencila/blob/main/docs/reference/formats/text.md)        | ⚠️ High loss     |              | ⚠️ Alpha               |       |
 | [JSON](https://github.com/stencila/stencila/blob/main/docs/reference/formats/json.md)              | 🟢 No loss        | 🟢 No loss    | 🟢 Stable               |       |
 | [JSON5](https://github.com/stencila/stencila/blob/main/docs/reference/formats/json5.md)            | 🟢 No loss        | 🟢 No loss    | 🟢 Stable               |       |
-| [YAML](https://github.com/stencila/stencila/blob/main/docs/reference/formats/yaml.md)              | 🟢 No loss        | 🟢 No loss    | 🟢 Stable               |       |
+| [JSON-LD](https://github.com/stencila/stencila/blob/main/docs/reference/formats/jsonld.md)         | 🟢 No loss        | 🟢 No loss    | 🔶 Beta                 |       |
 | [CBOR](https://github.com/stencila/stencila/blob/main/docs/reference/formats/cbor.md)              | 🟢 No loss        | 🟢 No loss    | 🟢 Stable               |       |
 | [CBOR+Zstandard](https://github.com/stencila/stencila/blob/main/docs/reference/formats/cborzst.md) | 🟢 No loss        | 🟢 No loss    | 🟢 Stable               |       |
+| [YAML](https://github.com/stencila/stencila/blob/main/docs/reference/formats/yaml.md)              | 🟢 No loss        | 🟢 No loss    | 🟢 Stable               |       |
 | [Debug](https://github.com/stencila/stencila/blob/main/docs/reference/formats/debug.md)            | 🔷 Low loss       |              | 🟢 Stable               |       |
 
 ## Bindings
 
 The `DurationValidator` type is represented in these bindings:
 
-- [JSON-LD](https://stencila.dev/DurationValidator.jsonld)
-- [JSON Schema](https://stencila.dev/DurationValidator.schema.json)
+- [JSON-LD](https://stencila.org/DurationValidator.jsonld)
+- [JSON Schema](https://stencila.org/DurationValidator.schema.json)
 - Python class [`DurationValidator`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/duration_validator.py)
 - Rust struct [`DurationValidator`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/duration_validator.rs)
 - TypeScript class [`DurationValidator`](https://github.com/stencila/stencila/blob/main/typescript/src/types/DurationValidator.ts)

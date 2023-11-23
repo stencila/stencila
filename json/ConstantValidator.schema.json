@@ -1,6 +1,6 @@
 {
-  "$schema": "https://stencila.dev/meta.schema.json",
-  "$id": "https://stencila.dev/ConstantValidator.schema.json",
+  "$schema": "https://stencila.org/meta.schema.json",
+  "$id": "https://stencila.org/ConstantValidator.schema.json",
   "@id": "stencila:ConstantValidator",
   "title": "ConstantValidator",
   "extends": [

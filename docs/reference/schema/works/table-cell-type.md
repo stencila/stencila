@@ -19,8 +19,8 @@ The `TableCellType` type has these members:
 
 The `TableCellType` type is represented in these bindings:
 
-- [JSON-LD](https://stencila.dev/TableCellType.jsonld)
-- [JSON Schema](https://stencila.dev/TableCellType.schema.json)
+- [JSON-LD](https://stencila.org/TableCellType.jsonld)
+- [JSON Schema](https://stencila.org/TableCellType.schema.json)
 - Python type [`TableCellType`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/table_cell_type.py)
 - Rust type [`TableCellType`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/table_cell_type.rs)
 - TypeScript type [`TableCellType`](https://github.com/stencila/stencila/blob/main/typescript/src/types/TableCellType.ts)

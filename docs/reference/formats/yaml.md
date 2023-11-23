@@ -20,8 +20,8 @@ When the `--standalone` option is used (the default for encoding to files), two 
 For example,
 
 ```yaml
-$schema: https://stencila.dev/Article.schema.json
-'@context': https://stencila.dev/Article.jsonld
+$schema: https://stencila.org/Article.schema.json
+'@context': https://stencila.org/context.jsonld
 type: Article
 ...
 ```

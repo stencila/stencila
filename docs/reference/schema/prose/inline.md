@@ -47,8 +47,8 @@ The `Inline` type has these members:
 
 The `Inline` type is represented in these bindings:
 
-- [JSON-LD](https://stencila.dev/Inline.jsonld)
-- [JSON Schema](https://stencila.dev/Inline.schema.json)
+- [JSON-LD](https://stencila.org/Inline.jsonld)
+- [JSON Schema](https://stencila.org/Inline.schema.json)
 - Python type [`Inline`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/inline.py)
 - Rust type [`Inline`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/inline.rs)
 - TypeScript type [`Inline`](https://github.com/stencila/stencila/blob/main/typescript/src/types/Inline.ts)

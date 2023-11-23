@@ -33,17 +33,18 @@ The `Timestamp` type can be encoded (serialized) to, and/or decoded (deserialize
 | [Plain text](https://github.com/stencila/stencila/blob/main/docs/reference/formats/text.md)        | ⚠️ High loss     |              | ⚠️ Alpha               |                                                                                                                                     |
 | [JSON](https://github.com/stencila/stencila/blob/main/docs/reference/formats/json.md)              | 🟢 No loss        | 🟢 No loss    | 🟢 Stable               |                                                                                                                                     |
 | [JSON5](https://github.com/stencila/stencila/blob/main/docs/reference/formats/json5.md)            | 🟢 No loss        | 🟢 No loss    | 🟢 Stable               |                                                                                                                                     |
-| [YAML](https://github.com/stencila/stencila/blob/main/docs/reference/formats/yaml.md)              | 🟢 No loss        | 🟢 No loss    | 🟢 Stable               |                                                                                                                                     |
+| [JSON-LD](https://github.com/stencila/stencila/blob/main/docs/reference/formats/jsonld.md)         | 🟢 No loss        | 🟢 No loss    | 🔶 Beta                 |                                                                                                                                     |
 | [CBOR](https://github.com/stencila/stencila/blob/main/docs/reference/formats/cbor.md)              | 🟢 No loss        | 🟢 No loss    | 🟢 Stable               |                                                                                                                                     |
 | [CBOR+Zstandard](https://github.com/stencila/stencila/blob/main/docs/reference/formats/cborzst.md) | 🟢 No loss        | 🟢 No loss    | 🟢 Stable               |                                                                                                                                     |
+| [YAML](https://github.com/stencila/stencila/blob/main/docs/reference/formats/yaml.md)              | 🟢 No loss        | 🟢 No loss    | 🟢 Stable               |                                                                                                                                     |
 | [Debug](https://github.com/stencila/stencila/blob/main/docs/reference/formats/debug.md)            | 🔷 Low loss       |              | 🟢 Stable               |                                                                                                                                     |
 
 ## Bindings
 
 The `Timestamp` type is represented in these bindings:
 
-- [JSON-LD](https://stencila.dev/Timestamp.jsonld)
-- [JSON Schema](https://stencila.dev/Timestamp.schema.json)
+- [JSON-LD](https://stencila.org/Timestamp.jsonld)
+- [JSON Schema](https://stencila.org/Timestamp.schema.json)
 - Python class [`Timestamp`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/timestamp.py)
 - Rust struct [`Timestamp`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/timestamp.rs)
 - TypeScript class [`Timestamp`](https://github.com/stencila/stencila/blob/main/typescript/src/types/Timestamp.ts)

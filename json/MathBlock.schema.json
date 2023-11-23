@@ -1,6 +1,6 @@
 {
-  "$schema": "https://stencila.dev/meta.schema.json",
-  "$id": "https://stencila.dev/MathBlock.schema.json",
+  "$schema": "https://stencila.org/meta.schema.json",
+  "$id": "https://stencila.org/MathBlock.schema.json",
   "@id": "stencila:MathBlock",
   "title": "MathBlock",
   "extends": [

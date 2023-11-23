@@ -24,8 +24,8 @@ The `SuggestionInline` type is related to these types:
 
 The `SuggestionInline` type is represented in these bindings:
 
-- [JSON-LD](https://stencila.dev/SuggestionInline.jsonld)
-- [JSON Schema](https://stencila.dev/SuggestionInline.schema.json)
+- [JSON-LD](https://stencila.org/SuggestionInline.jsonld)
+- [JSON Schema](https://stencila.org/SuggestionInline.schema.json)
 - Python class [`SuggestionInline`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/suggestion_inline.py)
 - Rust struct [`SuggestionInline`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/suggestion_inline.rs)
 - TypeScript class [`SuggestionInline`](https://github.com/stencila/stencila/blob/main/typescript/src/types/SuggestionInline.ts)

@@ -60,8 +60,8 @@ The `ThingType` type has these members:
 
 The `ThingType` type is represented in these bindings:
 
-- [JSON-LD](https://stencila.dev/ThingType.jsonld)
-- [JSON Schema](https://stencila.dev/ThingType.schema.json)
+- [JSON-LD](https://stencila.org/ThingType.jsonld)
+- [JSON Schema](https://stencila.org/ThingType.schema.json)
 - Python type [`ThingType`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/thing_type.py)
 - Rust type [`ThingType`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/thing_type.rs)
 - TypeScript type [`ThingType`](https://github.com/stencila/stencila/blob/main/typescript/src/types/ThingType.ts)

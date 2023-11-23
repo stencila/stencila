@@ -16,8 +16,8 @@ The `ListOrder` type has these members:
 
 The `ListOrder` type is represented in these bindings:
 
-- [JSON-LD](https://stencila.dev/ListOrder.jsonld)
-- [JSON Schema](https://stencila.dev/ListOrder.schema.json)
+- [JSON-LD](https://stencila.org/ListOrder.jsonld)
+- [JSON Schema](https://stencila.org/ListOrder.schema.json)
 - Python type [`ListOrder`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/list_order.py)
 - Rust type [`ListOrder`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/list_order.rs)
 - TypeScript type [`ListOrder`](https://github.com/stencila/stencila/blob/main/typescript/src/types/ListOrder.ts)

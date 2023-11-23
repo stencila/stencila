@@ -1,6 +1,6 @@
 {
-  "$schema": "https://stencila.dev/meta.schema.json",
-  "$id": "https://stencila.dev/CodeStatic.schema.json",
+  "$schema": "https://stencila.org/meta.schema.json",
+  "$id": "https://stencila.org/CodeStatic.schema.json",
   "@id": "stencila:CodeStatic",
   "title": "CodeStatic",
   "extends": [

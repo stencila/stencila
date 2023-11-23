@@ -1,6 +1,6 @@
 {
-  "$schema": "https://stencila.dev/meta.schema.json",
-  "$id": "https://stencila.dev/TableRow.schema.json",
+  "$schema": "https://stencila.org/meta.schema.json",
+  "$id": "https://stencila.org/TableRow.schema.json",
   "@id": "stencila:TableRow",
   "title": "TableRow",
   "extends": [

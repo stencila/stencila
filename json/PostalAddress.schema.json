@@ -1,6 +1,6 @@
 {
-  "$schema": "https://stencila.dev/meta.schema.json",
-  "$id": "https://stencila.dev/PostalAddress.schema.json",
+  "$schema": "https://stencila.org/meta.schema.json",
+  "$id": "https://stencila.org/PostalAddress.schema.json",
   "@id": "schema:PostalAddress",
   "title": "PostalAddress",
   "extends": [
