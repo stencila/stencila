@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<article dtd-version="1.3" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:mml="http://www.w3.org/1998/Math/MathML">
+  <body>
+    <p>An example article for testing metadata encoding in various formats. It illustrates Stencila&apos;s focus on the<ext-link xlink:href="https://en.wikipedia.org/wiki/Robustness_principle">Robustness Principle</ext-link>:<inline-quote>be conservative in what you do, be liberal in what you accept from others</inline-quote>. Metadata can be added to YAML front-matter in Markdown documents in a variety of ways, and it is parsed into Stencila Schema nodes.</p>
+  </body>
+</article>

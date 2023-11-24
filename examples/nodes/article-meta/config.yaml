@@ -1,0 +1,7 @@
+md:
+  canonical: true
+
+compact.jats.xml:
+  decode:
+    # TODO: Enable metadata encoding/decoding
+    strip-scopes: [metadata]

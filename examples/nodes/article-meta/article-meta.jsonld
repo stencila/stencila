@@ -1,0 +1,100 @@
+{
+  "@context": {
+    "@vocab": "https://schema.org/",
+    "stencila": "https://stencila.org/"
+  },
+  "@type": "Article",
+  "author": [
+    {
+      "@type": "Person",
+      "familyName": [
+        "Anderson"
+      ],
+      "givenName": [
+        "Anne"
+      ],
+      "honorificPrefix": "Dr."
+    },
+    {
+      "@type": "Organization",
+      "name": "Acme Inc"
+    },
+    {
+      "@type": "Person",
+      "familyName": [
+        "Andrews"
+      ]
+    }
+  ],
+  "dateCreated": {
+    "@type": "Date",
+    "value": "2001-01-01"
+  },
+  "stencila:dateAccepted": {
+    "@type": "Date",
+    "value": "2011-11-11"
+  },
+  "datePublished": {
+    "@type": "Date",
+    "value": "2022-02-22"
+  },
+  "headline": [
+    {
+      "@type": "Text",
+      "value": "Adding metadata to articles in Stencila"
+    }
+  ],
+  "stencila:content": [
+    {
+      "@type": "stencila:Paragraph",
+      "stencila:content": [
+        {
+          "@type": "Text",
+          "value": "An example article for testing metadata encoding in various formats. It illustrates Stencila's focus on the "
+        },
+        {
+          "@type": "stencila:Link",
+          "stencila:content": [
+            {
+              "@type": "Text",
+              "value": "Robustness Principle"
+            }
+          ],
+          "stencila:target": "https://en.wikipedia.org/wiki/Robustness_principle"
+        },
+        {
+          "@type": "Text",
+          "value": ": "
+        },
+        {
+          "@type": "stencila:QuoteInline",
+          "stencila:content": [
+            {
+              "@type": "Text",
+              "value": "be conservative in what you do, be liberal in what you accept from others"
+            }
+          ]
+        },
+        {
+          "@type": "Text",
+          "value": ". Metadata can be added to YAML front-matter in Markdown documents in a variety of ways, and it is parsed into Stencila Schema nodes."
+        }
+      ]
+    }
+  ],
+  "funder": [
+    {
+      "@type": "Organization",
+      "name": "Example Inc"
+    },
+    {
+      "@type": "Person",
+      "familyName": [
+        "Zenon"
+      ],
+      "givenName": [
+        "Zorro"
+      ]
+    }
+  ]
+}
