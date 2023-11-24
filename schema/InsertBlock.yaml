@@ -1,7 +1,7 @@
 title: InsertBlock
 '@id': stencila:InsertBlock
 extends: SuggestionBlock
-category: prose
+category: actions
 description: A suggestion to insert some block content.
 html:
   elem: stencila-insert-block

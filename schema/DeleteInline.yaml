@@ -1,7 +1,7 @@
 title: DeleteInline
 '@id': stencila:DeleteInline
 extends: SuggestionInline
-category: prose
+category: actions
 description: A suggestion to delete some inline content.
 html:
   elem: del

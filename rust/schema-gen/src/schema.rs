@@ -354,6 +354,8 @@ pub enum Category {
     Flow,
     /// Node types related to visual styling
     Style,
+    /// Node types related to actions on documents
+    Actions,
     /// All other node types
     #[default]
     Other,

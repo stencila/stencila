@@ -1,7 +1,7 @@
 title: DeleteBlock
 '@id': stencila:DeleteBlock
 extends: SuggestionBlock
-category: prose
+category: actions
 description: A suggestion to delete some block content.
 html:
   elem: stencila-delete-block
