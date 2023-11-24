@@ -7,7 +7,7 @@ use crate::decode::{decode_blocks, decode_inlines};
 
 /// Decode any YAML front matter in a Markdown document into a `Node`
 ///
-/// Any front matter is deserialized to a [`Node`], defaulting to the
+/// Front matter is deserialized to a [`Node`], defaulting to the
 /// [`Node::Article`] variant if `type` is not defined. If there is no front matter detected,
 /// will return `None`.
 ///
@@ -52,15 +52,21 @@ pub(super) fn decode_frontmatter(md: &str) -> Result<(usize, Option<Node>)> {
             }
         };
 
-        // Parse title and abstract as Markdown (need to do here before deserializing to node)
-        let title = value
-            .get_mut("title")
-            .and_then(|value| value.as_str())
-            .map(|title| decode_inlines(title).0);
-        let abs = value
-            .get_mut("abstract")
-            .and_then(|value| value.as_str())
-            .map(|abs| decode_blocks(abs, None).0);
+        // Parse title and abstract as Markdown (need to do here before deserializing to node
+        // and remove from value so does not cause an error when deserializing)
+        let (title, abs) = if let Some(object) = value.as_object_mut() {
+            let title = object
+                .remove("title")
+                .and_then(|value| value.as_str().map(String::from))
+                .map(|title| decode_inlines(&title).0);
+            let abs = object
+                .remove("abstract")
+                .and_then(|value| value.as_str().map(String::from))
+                .map(|abs| decode_blocks(&abs, None).0);
+            (title, abs)
+        } else {
+            (None, None)
+        };
 
         // Deserialize to a `Node` not that `type` is ensured to be present
         let mut node = serde_json::from_value(value)?;
