@@ -450,20 +450,8 @@ impl Cli {
                         losses.clone(),
                     ));
 
-                    if file.ends_with("-") {
-                        let (change_sender, mut change_receiver) =
-                            common::tokio::sync::mpsc::channel(32);
-                        tokio::spawn(async move {
-                            while let Some(change) = change_receiver.recv().await {
-                                tracing::info!("Change {change:?}");
-                            }
-                        });
-                        doc.sync_string(None, Some(change_sender), decode_options, encode_options)
-                            .await?;
-                    } else {
-                        doc.sync_file(&file, direction, decode_options, encode_options)
-                            .await?;
-                    }
+                    doc.sync_file(&file, direction, decode_options, encode_options)
+                        .await?;
                 }
                 wait = true;
             }
