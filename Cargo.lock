@@ -192,7 +192,7 @@ dependencies = [
  "leb128",
  "serde",
  "sha2",
- "smol_str",
+ "smol_str 0.1.24",
  "thiserror",
  "tinyvec",
  "tracing",
@@ -2090,7 +2090,7 @@ dependencies = [
  "node-store-derive",
  "node-strip",
  "schema",
- "smol_str",
+ "smol_str 0.2.0",
 ]
 
 [[package]]
@@ -2928,7 +2928,7 @@ dependencies = [
  "proptest",
  "proptest-derive",
  "serde_with",
- "smol_str",
+ "smol_str 0.2.0",
 ]
 
 [[package]]
@@ -3224,6 +3224,15 @@ name = "smol_str"
 version = "0.1.24"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "fad6c857cbab2627dcf01ec85a623ca4e7dcb5691cbaa3d7fb7653671f0d09c9"
+dependencies = [
+ "serde",
+]
+
+[[package]]
+name = "smol_str"
+version = "0.2.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "74212e6bbe9a4352329b2f68ba3130c15a3f26fe88ff22dbdc6cdd58fa85e99c"
 dependencies = [
  "serde",
 ]
