@@ -27,10 +27,11 @@ type Config = BTreeMap<String, FormatConfig>;
 
 /// Config for a format which can be read from file
 #[derive(Debug, SmartDefault, Clone, Serialize, Deserialize)]
-#[serde(crate = "codec::common::serde")]
+#[serde(deny_unknown_fields, crate = "codec::common::serde")]
 struct FormatConfig {
     #[default(Format::Json)]
     format: Format,
+    canonical: bool,
     encode: EncodeConfig,
     decode: DecodeConfig,
 }
@@ -86,6 +87,7 @@ static CONFIG: Lazy<Config> = Lazy::new(|| {
                     skip: true,
                     ..Default::default()
                 },
+                ..Default::default()
             },
         ),
         (
@@ -104,6 +106,7 @@ static CONFIG: Lazy<Config> = Lazy::new(|| {
                     skip: true,
                     ..Default::default()
                 },
+                ..Default::default()
             },
         ),
         (
@@ -122,6 +125,14 @@ static CONFIG: Lazy<Config> = Lazy::new(|| {
                     skip: true,
                     ..Default::default()
                 },
+                ..Default::default()
+            },
+        ),
+        (
+            String::from("json"),
+            FormatConfig {
+                format: Format::Json,
+                ..Default::default()
             },
         ),
         (
@@ -142,6 +153,7 @@ static CONFIG: Lazy<Config> = Lazy::new(|| {
                     skip: true,
                     ..Default::default()
                 },
+                ..Default::default()
             },
         ),
         (
@@ -261,24 +273,24 @@ static CONFIG: Lazy<Config> = Lazy::new(|| {
 ///   UPDATE_EXAMPLES=true cargo test -p codecs examples
 #[tokio::test]
 async fn examples() -> Result<()> {
-    let dir = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+    let pattern = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
         .join("../../examples/nodes")
-        .canonicalize()?;
+        .canonicalize()?
+        .to_string_lossy()
+        .to_string()
+        + "/*";
 
-    let pattern = dir.join("*/*.json");
-    let pattern = pattern.to_str().unwrap_or_default();
+    let update = std::env::var("UPDATE_EXAMPLES").unwrap_or_default() == "true";
 
-    let examples = glob(pattern)?.flatten().collect_vec();
+    let examples = glob(&pattern)?.flatten().collect_vec();
 
-    for path in examples {
-        let name = path.file_name().unwrap().to_string_lossy();
+    for dir in examples {
+        let name = dir.file_name().unwrap().to_string_lossy();
         eprintln!("{name}");
-
-        let node = codecs::from_path(&path, None).await?;
 
         // If the folder has a config.yaml file then read it in and merge into the
         // default config.
-        let config = path.parent().unwrap().join("config.yaml");
+        let config = dir.join("config.yaml");
         let config: Config = if config.exists() {
             let overrides: serde_json::Value = serde_yaml::from_reader(File::open(&config)?)?;
             let mut config: serde_json::Value = serde_json::to_value(CONFIG.clone())?;
@@ -288,7 +300,19 @@ async fn examples() -> Result<()> {
             CONFIG.clone()
         };
 
-        for (extension, config) in config {
+        let canon = config
+            .iter()
+            .find_map(|(extension, config)| config.canonical.then_some(extension.as_ref()))
+            .unwrap_or("json");
+        let path = dir.join(format!("{name}.{canon}"));
+
+        let node = codecs::from_path(&path, None).await?;
+
+        for (extension, config) in &config {
+            if extension == canon {
+                continue;
+            }
+
             eprintln!("  - {extension}");
 
             let mut file = path.clone();
@@ -323,7 +347,7 @@ async fn examples() -> Result<()> {
                         // Existing file: compare string content of files
                         let expected = read_to_string(&file).await?;
                         if actual != expected {
-                            if std::env::var("UPDATE_EXAMPLES").unwrap_or_default() == "true" {
+                            if update {
                                 write(&file, actual).await?;
                             } else {
                                 assert_eq!(
@@ -348,9 +372,9 @@ async fn examples() -> Result<()> {
                         write(losses_file, serde_yaml::to_string(&losses)?).await?;
                     }
                 } else {
-                    // Just encode to file if it does not yet exist. At present not attempting
+                    // Just encode to file if it does not yet exist or updating. At present not attempting
                     // to compared binary files (e.g. may include timestamps and change each run)
-                    if !file.exists() {
+                    if !file.exists() || update {
                         codec.to_path(&original, &file, encode_options).await?;
                     }
                 }
