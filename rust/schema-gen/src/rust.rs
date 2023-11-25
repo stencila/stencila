@@ -46,6 +46,7 @@ const NO_READ_NODE: &[&str] = &[
     "Primitive",
     "PropertyValueOrString",
     "StringOrNumber",
+    "StringPatchOrPrimitive",
 ];
 
 /// Properties that need to be boxed to avoid recursive types
@@ -60,6 +61,7 @@ const BOX_PROPERTIES: &[&str] = &[
     "CodeExpression.output",
     "ConstantValidator.value",
     "ListItem.item",
+    "ModifyOperation.value",
     "Parameter.default",
     "Parameter.value",
     "PublicationIssue.is_part_of",

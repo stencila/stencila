@@ -12,8 +12,8 @@ use codec::{
         shortcuts::{cb, dei, em, isi, mb, ol, p, qb, qi, stg, stk, t, tb, tbl, u, ul},
         transforms::blocks_to_inlines,
         AudioObject, Block, CodeChunk, Cord, DeleteBlock, Heading, IfBlock, IfBlockClause,
-        ImageObject, Inline, InsertBlock, Link, ListItem, Note, NoteType, ReplaceBlock, TableCell,
-        TableRow, TableRowType, VideoObject,
+        ImageObject, Inline, InsertBlock, Link, ListItem, ModifyBlock, Note, NoteType,
+        ReplaceBlock, TableCell, TableRow, TableRowType, VideoObject,
     },
     Losses,
 };
@@ -24,7 +24,8 @@ use crate::decode::inlines::inlines_or_text;
 use super::{
     blocks::{
         admonition, call, claim, delete_block, else_block, end, for_block, form, if_elif, include,
-        insert_block, math_block, replace_block, replace_block_separator, section, styled_block,
+        insert_block, math_block, modify_block, modify_block_separator, replace_block,
+        replace_block_separator, section, styled_block,
     },
     inlines::inlines,
 };
@@ -272,6 +273,29 @@ pub fn decode_blocks(
                     } else if replace_block_separator(trimmed).is_ok() {
                         if let Some(Block::ReplaceBlock(current)) = divs.back_mut() {
                             current.content = blocks.pop_div();
+                            blocks.push_div();
+                            None
+                        } else {
+                            Some(p([t(trimmed)]))
+                        }
+                    } else if modify_block(trimmed).is_ok() {
+                        if let Some(Block::ModifyBlock(current)) = divs.pop_back() {
+                            // Pop a div but ignore the content since it is just a
+                            // preview of the `ModifyBlock.content` property after modification
+                            // is applied
+                            blocks.pop_div();
+                            Some(Block::ModifyBlock(ModifyBlock { ..current }))
+                        } else {
+                            blocks.push_div();
+                            divs.push_back(Block::ModifyBlock(ModifyBlock::default()));
+                            None
+                        }
+                    } else if modify_block_separator(trimmed).is_ok() {
+                        if let Some(Block::ModifyBlock(..)) = divs.back_mut() {
+                            // Pop a div but do not do anything with the content
+                            // since the `ModifyBlock.content` property is read-only
+                            // given that changes to it would invalidate the suggested modification
+                            blocks.pop_div();
                             blocks.push_div();
                             None
                         } else {

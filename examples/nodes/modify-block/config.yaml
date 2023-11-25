@@ -1,0 +1,12 @@
+compact.jats.xml:
+  decode:
+    strip-types:
+      - ModifyBlock
+
+md:
+  decode:
+    strip-props:
+      # This stripping should be part of the codec/merging
+      # back in to prevent overwrite of in-memory properties
+      - ModifyBlock.content
+      - ModifyBlock.operations

@@ -102,6 +102,15 @@ anyOf:
         description: Do not generate `MediaObject` nodes in inline content.
         skip: true
 
+  - $ref: ModifyInline
+    proptest:
+      min:
+        description: Do not generate `ModifyInline` nodes in inline content.
+        skip: true
+      max:
+        description: Generate `ModifyInline` nodes in inline content.
+        skip: false
+
   - $ref: Note
     proptest:
       min:

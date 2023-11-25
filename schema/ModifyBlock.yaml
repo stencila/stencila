@@ -1,0 +1,9 @@
+title: ModifyBlock
+'@id': stencila:ModifyBlock
+extends:
+  - SuggestionBlock
+  - Modify
+category: edits
+description: A suggestion to modify some block content.
+markdown:
+  special: true

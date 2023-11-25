@@ -196,6 +196,16 @@ pub fn replace_block_separator(input: &str) -> IResult<&str, &str> {
     all_consuming(tag("~>"))(input)
 }
 
+/// Parse the start or end of a [`ModifyBlock`] node
+pub fn modify_block(input: &str) -> IResult<&str, &str> {
+    all_consuming(tag("!!"))(input)
+}
+
+/// Parse the separator of a [`ModifyBlock`] node
+pub fn modify_block_separator(input: &str) -> IResult<&str, &str> {
+    all_consuming(tag("!>"))(input)
+}
+
 /// Parse a [`Section`] node
 pub fn section(input: &str) -> IResult<&str, Section> {
     map(

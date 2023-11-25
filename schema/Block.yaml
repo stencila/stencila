@@ -102,6 +102,12 @@ anyOf:
   - $ref: List
   
   - $ref: MathBlock
+
+  - $ref: ModifyBlock
+    proptest:
+      min:
+        description: Do not generate `ModifyBlock` nodes in block content.
+        skip: true
   
   - $ref: Paragraph
   

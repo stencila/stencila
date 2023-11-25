@@ -1,0 +1,20 @@
+title: StringPatch
+'@id': stencila:StringPatch
+extends: Entity
+category: edits
+description: An set of operations to modify a string.
+required:
+  - operations
+core:
+  - version
+properties:
+  version:
+    '@id': schema:version
+    description: The version of the string to which the patch should be applied.
+    type: string
+  operations:
+    '@id': stencila:operations
+    description: The operations to be applied to the string.
+    type: array
+    items:
+      $ref: StringOperation

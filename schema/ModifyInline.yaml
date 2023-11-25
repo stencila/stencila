@@ -1,0 +1,9 @@
+title: ModifyInline
+'@id': stencila:ModifyInline
+extends:
+  - SuggestionInline
+  - Modify
+category: edits
+description: A suggestion to modify some inline content.
+markdown:
+  special: true

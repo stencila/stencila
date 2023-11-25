@@ -19,8 +19,8 @@ use codec::{
         shortcuts::{dei, isi, mi, rei, stk, sub, sup, t},
         BooleanValidator, Button, Cite, CiteGroup, CodeExpression, CodeInline, Cord,
         DateTimeValidator, DateValidator, DurationValidator, EnumValidator, Inline,
-        IntegerValidator, Node, NumberValidator, Parameter, ParameterOptions, StringValidator,
-        StyledInline, TimeValidator, TimestampValidator, Validator,
+        IntegerValidator, ModifyInline, Node, NumberValidator, Parameter, ParameterOptions,
+        StringValidator, StyledInline, TimeValidator, TimestampValidator, Validator,
     },
 };
 
@@ -51,6 +51,7 @@ pub fn inlines(input: &str) -> IResult<&str, Vec<Inline>> {
             insert_inline,
             delete_inline,
             replace_inline,
+            modify_inline,
             string,
             character,
         )),
@@ -631,6 +632,21 @@ fn replace_inline(input: &str) -> IResult<&str, Inline> {
             tag("~~}"),
         ),
         |(content, replacement)| rei(inlines_or_text(content), inlines_or_text(replacement)),
+    )(input)
+}
+
+/// Parse a string into a `ModifyInline` node
+///
+/// Note that the parsed content and modification preview are ignored
+/// since this is "read-only".
+fn modify_inline(input: &str) -> IResult<&str, Inline> {
+    map(
+        delimited(
+            tag("{!!"),
+            pair(terminated(take_until("!>"), tag("!>")), take_until("!!}")),
+            tag("!!}"),
+        ),
+        |(_content, _preview)| Inline::ModifyInline(ModifyInline::default()),
     )(input)
 }
 

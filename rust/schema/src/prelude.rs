@@ -3,7 +3,7 @@ pub use serde_with::{self, serde_as, skip_serializing_none};
 
 pub use common::{
     derive_more::{self, Deref, DerefMut},
-    eyre::{bail, ErrReport, Result},
+    eyre::{bail, eyre, ErrReport, Result},
     itertools::Itertools,
     serde::{self, Deserialize, Serialize},
     serde_json,

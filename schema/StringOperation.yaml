@@ -1,0 +1,24 @@
+title: StringOperation
+'@id': stencila:StringOperation
+extends: Entity
+category: edits
+description: An operation that modifies a string.
+required:
+  - startPosition
+core:
+  - startPosition
+  - endPosition
+  - value
+properties:
+  startPosition:
+    '@id': stencila:startPosition
+    description: The start position in the string of the operation.
+    $ref: UnsignedInteger
+  endPosition:
+    '@id': stencila:endPosition
+    description: The end position in the string of the operation.
+    $ref: UnsignedInteger
+  value:
+    '@id': schema:value
+    description: The string value to insert or use as the replacement.
+    type: string

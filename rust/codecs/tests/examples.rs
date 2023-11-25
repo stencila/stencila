@@ -394,7 +394,7 @@ async fn examples() -> Result<()> {
 
                 // Write any losses to file
                 let mut losses_file = path.clone();
-                losses_file.set_extension([&extension, ".decode.losses"].concat());
+                losses_file.set_extension([extension, ".decode.losses"].concat());
                 if losses.is_empty() {
                     remove_file(losses_file).await.ok();
                 } else {

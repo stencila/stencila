@@ -57,6 +57,7 @@ impl ReadNode for Inline {
             Link,
             MathInline,
             MediaObject,
+            ModifyInline,
             Note,
             Parameter,
             QuoteInline,
