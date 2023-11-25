@@ -1,6 +1,6 @@
-use node_store::{automerge::ObjId, get_type, ReadNode, ReadStore};
+use node_store::{automerge::ObjId, ReadNode, ReadStore};
 
-use crate::{prelude::*, transforms::blocks_to_inlines, *};
+use crate::{prelude::*, transforms::blocks_to_inlines, utilities::node_type, *};
 
 impl ReadNode for Inline {
     fn load_null() -> Result<Self> {
@@ -24,45 +24,54 @@ impl ReadNode for Inline {
     }
 
     fn load_map<S: ReadStore>(store: &S, obj_id: &ObjId) -> Result<Self> {
-        let Some(node_type) = get_type(store, obj_id)? else {
-            bail!("Automerge object has no `type` property needed for loading `Inline`");
+        let Some(node_type) = node_type(store, obj_id)? else {
+            bail!("Object in Automerge store is not an `Inline`");
         };
 
-        let inline = match node_type.as_str() {
-            "AudioObject" => Inline::AudioObject(AudioObject::load_map(store, obj_id)?),
-            "Button" => Inline::Button(Button::load_map(store, obj_id)?),
-            "Cite" => Inline::Cite(Cite::load_map(store, obj_id)?),
-            "CiteGroup" => Inline::CiteGroup(CiteGroup::load_map(store, obj_id)?),
-            "CodeExpression" => Inline::CodeExpression(CodeExpression::load_map(store, obj_id)?),
-            "CodeInline" => Inline::CodeInline(CodeInline::load_map(store, obj_id)?),
-            "Date" => Inline::Date(Date::load_map(store, obj_id)?),
-            "DateTime" => Inline::DateTime(DateTime::load_map(store, obj_id)?),
-            "DeleteInline" => Inline::DeleteInline(DeleteInline::load_map(store, obj_id)?),
-            "Duration" => Inline::Duration(Duration::load_map(store, obj_id)?),
-            "Emphasis" => Inline::Emphasis(Emphasis::load_map(store, obj_id)?),
-            "ImageObject" => Inline::ImageObject(ImageObject::load_map(store, obj_id)?),
-            "InsertInline" => Inline::InsertInline(InsertInline::load_map(store, obj_id)?),
-            "Link" => Inline::Link(Link::load_map(store, obj_id)?),
-            "MathInline" => Inline::MathInline(MathInline::load_map(store, obj_id)?),
-            "MediaObject" => Inline::MediaObject(MediaObject::load_map(store, obj_id)?),
-            "Note" => Inline::Note(Note::load_map(store, obj_id)?),
-            "Parameter" => Inline::Parameter(Parameter::load_map(store, obj_id)?),
-            "QuoteInline" => Inline::QuoteInline(QuoteInline::load_map(store, obj_id)?),
-            "StyledInline" => Inline::StyledInline(StyledInline::load_map(store, obj_id)?),
-            "Strikeout" => Inline::Strikeout(Strikeout::load_map(store, obj_id)?),
-            "Strong" => Inline::Strong(Strong::load_map(store, obj_id)?),
-            "Subscript" => Inline::Subscript(Subscript::load_map(store, obj_id)?),
-            "Superscript" => Inline::Superscript(Superscript::load_map(store, obj_id)?),
-            "Text" => Inline::Text(Text::load_map(store, obj_id)?),
-            "Time" => Inline::Time(Time::load_map(store, obj_id)?),
-            "Timestamp" => Inline::Timestamp(Timestamp::load_map(store, obj_id)?),
-            "Underline" => Inline::Underline(Underline::load_map(store, obj_id)?),
-            "VideoObject" => Inline::VideoObject(VideoObject::load_map(store, obj_id)?),
+        macro_rules! load_map_variants {
+            ($( $variant:ident ),*) => {
+                match node_type {
+                    $(
+                        NodeType::$variant => Ok(Inline::$variant(crate::$variant::load_map(store, obj_id)?)),
+                    )*
 
-            _ => bail!("Unexpected type `{node_type}` in Automerge store for `Inline`"),
-        };
+                    _ => bail!("Unexpected type `{node_type}` in Automerge store for `Inline`"),
+                }
+            };
+        }
 
-        Ok(inline)
+        load_map_variants!(
+            AudioObject,
+            Button,
+            Cite,
+            CiteGroup,
+            CodeExpression,
+            CodeInline,
+            Date,
+            DateTime,
+            DeleteInline,
+            Duration,
+            Emphasis,
+            ImageObject,
+            InsertInline,
+            Link,
+            MathInline,
+            MediaObject,
+            Note,
+            Parameter,
+            QuoteInline,
+            ReplaceInline,
+            StyledInline,
+            Strikeout,
+            Strong,
+            Subscript,
+            Superscript,
+            Text,
+            Time,
+            Timestamp,
+            Underline,
+            VideoObject
+        )
     }
 }
 

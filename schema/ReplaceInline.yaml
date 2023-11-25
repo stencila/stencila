@@ -1,0 +1,18 @@
+title: ReplaceInline
+'@id': stencila:ReplaceInline
+extends: SuggestionInline
+category: edits
+description: A suggestion to replace some inline content with new inline content.
+markdown:
+  # CriticMarkup for "Substitutions"
+  template: '{{~~{content}~>{replacement}~~}}'
+proptest: {}
+required:
+  - replacement
+properties:
+  replacement:
+    '@id': stencila:replacement
+    description: The new replacement inline content.
+    type: array
+    items:
+      $ref: Inline

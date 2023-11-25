@@ -12,7 +12,7 @@ use codec::{
         shortcuts::{cb, dei, em, isi, mb, ol, p, qb, qi, stg, stk, t, tb, tbl, u, ul},
         transforms::blocks_to_inlines,
         AudioObject, Block, CodeChunk, Cord, DeleteBlock, Heading, IfBlock, IfBlockClause,
-        ImageObject, Inline, InsertBlock, Link, ListItem, Note, NoteType, TableCell,
+        ImageObject, Inline, InsertBlock, Link, ListItem, Note, NoteType, ReplaceBlock, TableCell,
         TableRow, TableRowType, VideoObject,
     },
     Losses,
@@ -24,7 +24,7 @@ use crate::decode::inlines::inlines_or_text;
 use super::{
     blocks::{
         admonition, call, claim, delete_block, else_block, end, for_block, form, if_elif, include,
-        insert_block, math_block, section, styled_block,
+        insert_block, math_block, replace_block, replace_block_separator, section, styled_block,
     },
     inlines::inlines,
 };
@@ -236,7 +236,7 @@ pub fn decode_blocks(
                         Some(Block::IncludeBlock(include))
                     } else if let Ok((.., call)) = call(trimmed) {
                         Some(Block::CallBlock(call))
-                    } else if let Ok((.., block)) = insert_block(trimmed) {
+                    } else if insert_block(trimmed).is_ok() {
                         if let Some(Block::InsertBlock(current)) = divs.pop_back() {
                             Some(Block::InsertBlock(InsertBlock {
                                 content: blocks.pop_div(),
@@ -244,10 +244,10 @@ pub fn decode_blocks(
                             }))
                         } else {
                             blocks.push_div();
-                            divs.push_back(Block::InsertBlock(block));
+                            divs.push_back(Block::InsertBlock(InsertBlock::default()));
                             None
                         }
-                    } else if let Ok((.., block)) = delete_block(trimmed) {
+                    } else if delete_block(trimmed).is_ok() {
                         if let Some(Block::DeleteBlock(current)) = divs.pop_back() {
                             Some(Block::DeleteBlock(DeleteBlock {
                                 content: blocks.pop_div(),
@@ -255,8 +255,27 @@ pub fn decode_blocks(
                             }))
                         } else {
                             blocks.push_div();
-                            divs.push_back(Block::DeleteBlock(block));
+                            divs.push_back(Block::DeleteBlock(DeleteBlock::default()));
                             None
+                        }
+                    } else if replace_block(trimmed).is_ok() {
+                        if let Some(Block::ReplaceBlock(current)) = divs.pop_back() {
+                            Some(Block::ReplaceBlock(ReplaceBlock {
+                                replacement: blocks.pop_div(),
+                                ..current
+                            }))
+                        } else {
+                            blocks.push_div();
+                            divs.push_back(Block::ReplaceBlock(ReplaceBlock::default()));
+                            None
+                        }
+                    } else if replace_block_separator(trimmed).is_ok() {
+                        if let Some(Block::ReplaceBlock(current)) = divs.back_mut() {
+                            current.content = blocks.pop_div();
+                            blocks.push_div();
+                            None
+                        } else {
+                            Some(p([t(trimmed)]))
                         }
                     } else if let Ok((.., claim)) = claim(trimmed) {
                         blocks.push_div();

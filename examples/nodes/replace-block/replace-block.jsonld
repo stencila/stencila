@@ -1,0 +1,56 @@
+{
+  "@context": {
+    "@vocab": "https://schema.org/",
+    "stencila": "https://stencila.org/"
+  },
+  "@type": "Article",
+  "stencila:content": [
+    {
+      "@type": "stencila:ReplaceBlock",
+      "stencila:content": [
+        {
+          "@type": "stencila:Paragraph",
+          "stencila:content": [
+            {
+              "@type": "Text",
+              "value": "Old paragraph"
+            }
+          ]
+        },
+        {
+          "@type": "stencila:Paragraph",
+          "stencila:content": [
+            {
+              "@type": "Text",
+              "value": "Another old paragraph"
+            }
+          ]
+        }
+      ],
+      "stencila:replacement": [
+        {
+          "@type": "stencila:Paragraph",
+          "stencila:content": [
+            {
+              "@type": "Text",
+              "value": "New paragraph"
+            }
+          ]
+        },
+        {
+          "@type": "stencila:CodeChunk",
+          "stencila:code": "A new code chunk"
+        },
+        {
+          "@type": "stencila:Paragraph",
+          "stencila:content": [
+            {
+              "@type": "Text",
+              "value": "Another new paragraph"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

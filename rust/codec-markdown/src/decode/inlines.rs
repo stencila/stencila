@@ -9,14 +9,14 @@ use nom::{
     character::complete::{char, digit1, multispace0, multispace1},
     combinator::{map, not, opt, peek},
     multi::{fold_many0, separated_list1},
-    sequence::{delimited, pair, preceded, tuple},
+    sequence::{delimited, pair, preceded, terminated, tuple},
     IResult,
 };
 
 use codec::{
     common::indexmap::IndexMap,
     schema::{
-        shortcuts::{dei, isi, mi, stk, sub, sup, t},
+        shortcuts::{dei, isi, mi, rei, stk, sub, sup, t},
         BooleanValidator, Button, Cite, CiteGroup, CodeExpression, CodeInline, Cord,
         DateTimeValidator, DateValidator, DurationValidator, EnumValidator, Inline,
         IntegerValidator, Node, NumberValidator, Parameter, ParameterOptions, StringValidator,
@@ -50,6 +50,7 @@ pub fn inlines(input: &str) -> IResult<&str, Vec<Inline>> {
             superscript,
             insert_inline,
             delete_inline,
+            replace_inline,
             string,
             character,
         )),
@@ -618,6 +619,18 @@ fn delete_inline(input: &str) -> IResult<&str, Inline> {
     map(
         delimited(tag("{--"), take_until("--}"), tag("--}")),
         |content: &str| dei(inlines_or_text(content)),
+    )(input)
+}
+
+/// Parse a string into a `ReplaceInline` node
+fn replace_inline(input: &str) -> IResult<&str, Inline> {
+    map(
+        delimited(
+            tag("{~~"),
+            pair(terminated(take_until("~>"), tag("~>")), take_until("~~}")),
+            tag("~~}"),
+        ),
+        |(content, replacement)| rei(inlines_or_text(content), inlines_or_text(replacement)),
     )(input)
 }
 

@@ -15,9 +15,9 @@ use nom::{
 use codec::{
     common::itertools::Itertools,
     schema::{
-        Admonition, Block, CallArgument, CallBlock, Claim, Cord, DeleteBlock, ForBlock, Form,
-        FormDeriveAction, FormOptions, IfBlockClause, IncludeBlock, Inline, InsertBlock,
-        IntegerOrString, MathBlock, Node, Section, StyledBlock, Text,
+        Admonition, Block, CallArgument, CallBlock, Claim, Cord, ForBlock, Form, FormDeriveAction,
+        FormOptions, IfBlockClause, IncludeBlock, Inline, IntegerOrString, MathBlock, Node,
+        Section, StyledBlock, Text,
     },
 };
 
@@ -177,17 +177,23 @@ fn call_arg(input: &str) -> IResult<&str, CallArgument> {
 }
 
 /// Parse the start or end an [`InsertBlock`] node
-pub fn insert_block(input: &str) -> IResult<&str, InsertBlock> {
-    map(all_consuming(tuple((tag("++"), multispace0))), |_| {
-        InsertBlock::default()
-    })(input)
+pub fn insert_block(input: &str) -> IResult<&str, &str> {
+    all_consuming(tag("++"))(input)
 }
 
 /// Parse the start or end of a [`DeleteBlock`] node
-pub fn delete_block(input: &str) -> IResult<&str, DeleteBlock> {
-    map(all_consuming(tuple((tag("--"), multispace0))), |_| {
-        DeleteBlock::default()
-    })(input)
+pub fn delete_block(input: &str) -> IResult<&str, &str> {
+    all_consuming(tag("--"))(input)
+}
+
+/// Parse the start or end of a [`ReplaceBlock`] node
+pub fn replace_block(input: &str) -> IResult<&str, &str> {
+    all_consuming(tag("~~"))(input)
+}
+
+/// Parse the separator of a [`ReplaceBlock`] node
+pub fn replace_block_separator(input: &str) -> IResult<&str, &str> {
+    all_consuming(tag("~>"))(input)
 }
 
 /// Parse a [`Section`] node

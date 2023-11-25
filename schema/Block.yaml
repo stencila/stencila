@@ -106,6 +106,12 @@ anyOf:
   - $ref: Paragraph
   
   - $ref: QuoteBlock
+
+  - $ref: ReplaceBlock
+    proptest:
+      min:
+        description: Do not generate `ReplaceBlock` nodes in block content.
+        skip: true
   
   - $ref: Section
     proptest:

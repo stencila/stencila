@@ -1,0 +1,18 @@
+title: ReplaceBlock
+'@id': stencila:ReplaceBlock
+extends: SuggestionBlock
+category: edits
+description: A suggestion to replace some block content with new block content.
+markdown:
+  # Consistent with the CriticMarkup for inline "Substitutions" (see `ReplaceInline`)
+  template: '~~\n\n{content}~>\n\n{replacement}~~\n\n'
+proptest: {}
+required:
+  - replacement
+properties:
+  replacement:
+    '@id': stencila:replacement
+    description: The new replacement block content.
+    type: array
+    items:
+      $ref: Block

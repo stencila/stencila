@@ -1,0 +1,18 @@
+{
+  "$schema": "https://stencila.dev/Article.schema.json",
+  "type": "Article",
+  "content": [
+    {
+      "type": "Paragraph",
+      "content": [
+        { "type": "Text", "value": "Some " },
+        {
+          "type": "ReplaceInline",
+          "content": [{ "type": "Text", "value": "old" }],
+          "replacement": [{ "type": "Text", "value": "new" }]
+        },
+        { "type": "Text", "value": " text." }
+      ]
+    }
+  ]
+}

@@ -122,6 +122,15 @@ anyOf:
 
   - $ref: QuoteInline
 
+  - $ref: ReplaceInline
+    proptest:
+      min:
+        description: Do not generate `ReplaceInline` nodes in inline content.
+        skip: true
+      max:
+        description: Generate `ReplaceInline` nodes in inline content.
+        skip: false
+
   - $ref: StyledInline
 
   - $ref: Strikeout
