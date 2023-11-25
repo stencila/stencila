@@ -6,17 +6,14 @@
   "extends": [
     "SuggestionInline"
   ],
-  "category": "prose",
+  "category": "edits",
   "description": "A suggestion to delete some inline content.",
   "proptest": {},
   "html": {
     "elem": "del"
   },
-  "jats": {
-    "special": true
-  },
   "markdown": {
-    "template": "<del>{content}</del>"
+    "template": "{{--{content}--}}"
   },
   "required": [
     "type",

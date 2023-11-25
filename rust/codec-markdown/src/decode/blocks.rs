@@ -176,6 +176,20 @@ fn call_arg(input: &str) -> IResult<&str, CallArgument> {
     )(input)
 }
 
+/// Parse the start or end an [`InsertBlock`] node
+pub fn insert_block(input: &str) -> IResult<&str, InsertBlock> {
+    map(all_consuming(tuple((tag("++"), multispace0))), |_| {
+        InsertBlock::default()
+    })(input)
+}
+
+/// Parse the start or end of a [`DeleteBlock`] node
+pub fn delete_block(input: &str) -> IResult<&str, DeleteBlock> {
+    map(all_consuming(tuple((tag("--"), multispace0))), |_| {
+        DeleteBlock::default()
+    })(input)
+}
+
 /// Parse a [`Section`] node
 pub fn section(input: &str) -> IResult<&str, Section> {
     map(
@@ -211,32 +225,6 @@ pub fn claim(input: &str) -> IResult<&str, Claim> {
             label: label.map(String::from),
             ..Default::default()
         },
-    )(input)
-}
-
-/// Parse a [`DeleteBlock`] node
-pub fn delete_block(input: &str) -> IResult<&str, DeleteBlock> {
-    map(
-        all_consuming(tuple((
-            semis,
-            multispace0,
-            tag("delete"),
-            opt(preceded(multispace1, is_not("\r\n"))),
-        ))),
-        |_| DeleteBlock::default(),
-    )(input)
-}
-
-/// Parse a [`InsertBlock`] node
-pub fn insert_block(input: &str) -> IResult<&str, InsertBlock> {
-    map(
-        all_consuming(tuple((
-            semis,
-            multispace0,
-            tag("insert"),
-            opt(preceded(multispace1, is_not("\r\n"))),
-        ))),
-        |_| InsertBlock::default(),
     )(input)
 }
 

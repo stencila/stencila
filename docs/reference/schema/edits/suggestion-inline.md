@@ -17,8 +17,8 @@ The `SuggestionInline` type has these properties:
 
 The `SuggestionInline` type is related to these types:
 
-- Parents: [`Suggestion`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/suggestion.md)
-- Children: [`DeleteInline`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/delete-inline.md), [`InsertInline`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/insert-inline.md)
+- Parents: [`Suggestion`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/edits/suggestion.md)
+- Children: [`DeleteInline`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/edits/delete-inline.md), [`InsertInline`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/edits/insert-inline.md)
 
 ## Bindings
 

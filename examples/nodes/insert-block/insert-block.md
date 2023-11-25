@@ -1,5 +1,5 @@
-::: insert
+++
 
 Inserted paragraph
 
-:::
+++

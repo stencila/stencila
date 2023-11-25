@@ -1,5 +1,5 @@
-::: delete
+--
 
 Deleted paragraph
 
-:::
+--

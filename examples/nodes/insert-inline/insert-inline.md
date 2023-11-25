@@ -1,3 +1,3 @@
-Some <ins>inserted </ins>text.
+Some {++inserted ++}text.
 
-Several inserted inlines<ins>**strongly emphasized** and ^superscripted^ and `2 + 2`{ exec}</ins>.
+Several inserted inlines{++**strongly emphasized** and ^superscripted^ and `2 + 2`{ exec}++}.

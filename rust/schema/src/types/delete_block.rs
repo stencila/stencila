@@ -13,9 +13,7 @@ use super::string::String;
 #[cfg_attr(feature = "proptest", derive(Arbitrary))]
 #[derive(derive_more::Display)]
 #[display(fmt = "DeleteBlock")]
-#[html(elem = "stencila-delete-block")]
-#[jats(special)]
-#[markdown(special)]
+#[markdown(template = "--\n\n{content}--\n\n")]
 pub struct DeleteBlock {
     /// The type of this item.
     #[cfg_attr(feature = "proptest", proptest(value = "Default::default()"))]

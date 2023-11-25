@@ -293,6 +293,13 @@
           ]
         },
         {
+          "description": "Node types related to editing documents",
+          "type": "string",
+          "enum": [
+            "edits"
+          ]
+        },
+        {
           "description": "All other node types",
           "type": "string",
           "enum": [

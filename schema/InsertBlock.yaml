@@ -1,12 +1,11 @@
 title: InsertBlock
 '@id': stencila:InsertBlock
 extends: SuggestionBlock
-category: actions
+category: edits
 description: A suggestion to insert some block content.
-html:
-  elem: stencila-insert-block
 jats:
   special: true
 markdown:
-  special: true
+  # Consistent with the CriticMarkup for inline "Additions" (see `InsertInline)
+  template: '++\n\n{content}++\n\n'
 proptest: {}

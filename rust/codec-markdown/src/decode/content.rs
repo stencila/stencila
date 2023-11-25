@@ -9,10 +9,11 @@ use codec::{
     },
     format::Format,
     schema::{
-        shortcuts::{cb, del, em, ins, mb, ol, p, qb, qi, stg, stk, t, tb, tbl, u, ul},
+        shortcuts::{cb, dei, em, isi, mb, ol, p, qb, qi, stg, stk, t, tb, tbl, u, ul},
         transforms::blocks_to_inlines,
-        AudioObject, Block, CodeChunk, Cord, Heading, IfBlock, IfBlockClause, ImageObject, Inline,
-        Link, ListItem, Note, NoteType, TableCell, TableRow, TableRowType, VideoObject,
+        AudioObject, Block, CodeChunk, Cord, DeleteBlock, Heading, IfBlock, IfBlockClause,
+        ImageObject, Inline, InsertBlock, Link, ListItem, Note, NoteType, TableCell,
+        TableRow, TableRowType, VideoObject,
     },
     Losses,
 };
@@ -235,17 +236,31 @@ pub fn decode_blocks(
                         Some(Block::IncludeBlock(include))
                     } else if let Ok((.., call)) = call(trimmed) {
                         Some(Block::CallBlock(call))
+                    } else if let Ok((.., block)) = insert_block(trimmed) {
+                        if let Some(Block::InsertBlock(current)) = divs.pop_back() {
+                            Some(Block::InsertBlock(InsertBlock {
+                                content: blocks.pop_div(),
+                                ..current
+                            }))
+                        } else {
+                            blocks.push_div();
+                            divs.push_back(Block::InsertBlock(block));
+                            None
+                        }
+                    } else if let Ok((.., block)) = delete_block(trimmed) {
+                        if let Some(Block::DeleteBlock(current)) = divs.pop_back() {
+                            Some(Block::DeleteBlock(DeleteBlock {
+                                content: blocks.pop_div(),
+                                ..current
+                            }))
+                        } else {
+                            blocks.push_div();
+                            divs.push_back(Block::DeleteBlock(block));
+                            None
+                        }
                     } else if let Ok((.., claim)) = claim(trimmed) {
                         blocks.push_div();
                         divs.push_back(Block::Claim(claim));
-                        None
-                    } else if let Ok((.., block)) = delete_block(trimmed) {
-                        blocks.push_div();
-                        divs.push_back(Block::DeleteBlock(block));
-                        None
-                    } else if let Ok((.., block)) = insert_block(trimmed) {
-                        blocks.push_div();
-                        divs.push_back(Block::InsertBlock(block));
                         None
                     } else if let Ok((.., styled_block)) = styled_block(trimmed) {
                         blocks.push_div();
@@ -916,12 +931,12 @@ impl Html {
                 .strip_prefix("<del>")
                 .and_then(|html| html.strip_suffix("</del>"))
             {
-                vec![p([del(inlines_or_text(content))])]
+                vec![p([dei(inlines_or_text(content))])]
             } else if let Some(content) = html
                 .strip_prefix("<ins>")
                 .and_then(|html| html.strip_suffix("</ins>"))
             {
-                vec![p([ins(inlines_or_text(content))])]
+                vec![p([isi(inlines_or_text(content))])]
             } else {
                 vec![]
             }

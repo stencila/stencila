@@ -15,8 +15,6 @@ mod compilation_error;
 mod cord;
 mod date;
 mod date_time;
-mod delete_block;
-mod delete_inline;
 mod duration;
 mod execution_error;
 mod for_block;

@@ -16,7 +16,7 @@ use nom::{
 use codec::{
     common::indexmap::IndexMap,
     schema::{
-        shortcuts::{mi, stk, sub, sup, t},
+        shortcuts::{dei, isi, mi, stk, sub, sup, t},
         BooleanValidator, Button, Cite, CiteGroup, CodeExpression, CodeInline, Cord,
         DateTimeValidator, DateValidator, DurationValidator, EnumValidator, Inline,
         IntegerValidator, Node, NumberValidator, Parameter, ParameterOptions, StringValidator,
@@ -48,6 +48,8 @@ pub fn inlines(input: &str) -> IResult<&str, Vec<Inline>> {
             strikeout,
             subscript,
             superscript,
+            insert_inline,
+            delete_inline,
             string,
             character,
         )),
@@ -600,6 +602,22 @@ fn superscript(input: &str) -> IResult<&str, Inline> {
     map(
         delimited(char('^'), take_until("^"), char('^')),
         |content: &str| sup(inlines_or_text(content)),
+    )(input)
+}
+
+/// Parse a string into a `InsertInline` node
+fn insert_inline(input: &str) -> IResult<&str, Inline> {
+    map(
+        delimited(tag("{++"), take_until("++}"), tag("++}")),
+        |content: &str| isi(inlines_or_text(content)),
+    )(input)
+}
+
+/// Parse a string into a `DeleteInline` node
+fn delete_inline(input: &str) -> IResult<&str, Inline> {
+    map(
+        delimited(tag("{--"), take_until("--}"), tag("--}")),
+        |content: &str| dei(inlines_or_text(content)),
     )(input)
 }
 

@@ -67,12 +67,8 @@ Support and degree of loss for node types:
 | [Cite](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/cite.md)                                | 🟢 No loss    | 🟢 No loss    |       |
 | [CiteGroup](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/cite_group.md)                     | 🟢 No loss    | 🟢 No loss    |       |
 | [DefinedTerm](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/defined_term.md)                 | 🟢 No loss    | 🟢 No loss    |       |
-| [DeleteBlock](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/delete_block.md)                 | 🟢 No loss    | 🟢 No loss    |       |
-| [DeleteInline](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/delete_inline.md)               | 🟢 No loss    | 🟢 No loss    |       |
 | [Emphasis](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/emphasis.md)                        | 🟢 No loss    | 🟢 No loss    |       |
 | [Heading](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/heading.md)                          | 🟢 No loss    | 🟢 No loss    |       |
-| [InsertBlock](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/insert_block.md)                 | 🟢 No loss    | 🟢 No loss    |       |
-| [InsertInline](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/insert_inline.md)               | 🟢 No loss    | 🟢 No loss    |       |
 | [Link](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/link.md)                                | 🟢 No loss    | 🟢 No loss    |       |
 | [List](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/list.md)                                | 🟢 No loss    | 🟢 No loss    |       |
 | [ListItem](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/list_item.md)                       | 🟢 No loss    | 🟢 No loss    |       |
@@ -148,6 +144,11 @@ Support and degree of loss for node types:
 | **Style**                                                                                                                 |
 | [StyledBlock](https://github.com/stencila/stencila/blob/main/docs/reference/schema/style/styled_block.md)                 | 🟢 No loss    | 🟢 No loss    |       |
 | [StyledInline](https://github.com/stencila/stencila/blob/main/docs/reference/schema/style/styled_inline.md)               | 🟢 No loss    | 🟢 No loss    |       |
+| **Edits**                                                                                                                 |
+| [DeleteBlock](https://github.com/stencila/stencila/blob/main/docs/reference/schema/edits/delete_block.md)                 | 🟢 No loss    | 🟢 No loss    |       |
+| [DeleteInline](https://github.com/stencila/stencila/blob/main/docs/reference/schema/edits/delete_inline.md)               | 🟢 No loss    | 🟢 No loss    |       |
+| [InsertBlock](https://github.com/stencila/stencila/blob/main/docs/reference/schema/edits/insert_block.md)                 | 🟢 No loss    | 🟢 No loss    |       |
+| [InsertInline](https://github.com/stencila/stencila/blob/main/docs/reference/schema/edits/insert_inline.md)               | 🟢 No loss    | 🟢 No loss    |       |
 | **Other**                                                                                                                 |
 | [Brand](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/brand.md)                              | 🟢 No loss    | 🟢 No loss    |       |
 | [ContactPoint](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/contact_point.md)               | 🟢 No loss    | 🟢 No loss    |       |

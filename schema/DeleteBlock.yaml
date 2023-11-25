@@ -1,12 +1,9 @@
 title: DeleteBlock
 '@id': stencila:DeleteBlock
 extends: SuggestionBlock
-category: actions
+category: edits
 description: A suggestion to delete some block content.
-html:
-  elem: stencila-delete-block
-jats:
-  special: true
 markdown:
-  special: true
+  # Consistent with the CriticMarkup for inline "Deletions" (see `DeleteInline`)
+  template: '--\n\n{content}--\n\n'
 proptest: {}

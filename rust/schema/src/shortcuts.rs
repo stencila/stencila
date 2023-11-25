@@ -51,7 +51,7 @@ pub fn ci<C: Into<Cord>>(code: C) -> Inline {
 }
 
 /// Create an [`Inline::Delete`] node
-pub fn del<I: Into<Vec<Inline>>>(content: I) -> Inline {
+pub fn dei<I: Into<Vec<Inline>>>(content: I) -> Inline {
     Inline::DeleteInline(DeleteInline::new(content.into()))
 }
 
@@ -66,7 +66,7 @@ pub fn img<S: Into<String>>(url: S) -> Inline {
 }
 
 /// Create an [`Inline::InsertInline`] node
-pub fn ins<I: Into<Vec<Inline>>>(content: I) -> Inline {
+pub fn isi<I: Into<Vec<Inline>>>(content: I) -> Inline {
     Inline::InsertInline(InsertInline::new(content.into()))
 }
 
@@ -192,9 +192,9 @@ pub fn cc<C: Into<Cord>, S: Into<String>>(code: C, lang: Option<S>) -> Block {
     })
 }
 
-/// Create a [`Block::StyledBlock`] node
-pub fn sb<C: Into<Cord>, B: Into<Vec<Block>>>(code: C, content: B) -> Block {
-    Block::StyledBlock(StyledBlock::new(code.into(), content.into()))
+/// Create a [`Block::DeleteBlock`] node
+pub fn deb<I: Into<Vec<Block>>>(content: I) -> Block {
+    Block::DeleteBlock(DeleteBlock::new(content.into()))
 }
 
 /// Create a [`Block::Figure`] node
@@ -268,6 +268,11 @@ pub fn ibc<C: Into<Cord>, S: Into<String>, B: Into<Vec<Block>>>(
 /// Create a [`Block::Include`] node
 pub fn inb<S: Into<String>>(source: S) -> Block {
     Block::IncludeBlock(IncludeBlock::new(source.into()))
+}
+
+/// Create a [`Block::InsertBlock`] node
+pub fn isb<I: Into<Vec<Block>>>(content: I) -> Block {
+    Block::InsertBlock(InsertBlock::new(content.into()))
 }
 
 /// Create a [`Block::List`] node with ascending order

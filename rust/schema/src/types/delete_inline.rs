@@ -14,8 +14,7 @@ use super::string::String;
 #[derive(derive_more::Display)]
 #[display(fmt = "DeleteInline")]
 #[html(elem = "del")]
-#[jats(special)]
-#[markdown(template = "<del>{content}</del>")]
+#[markdown(template = "{{--{content}--}}")]
 pub struct DeleteInline {
     /// The type of this item.
     #[cfg_attr(feature = "proptest", proptest(value = "Default::default()"))]

@@ -1,34 +1,34 @@
-# Delete Inline
+# Insert Inline
 
-**A suggestion to delete some inline content.**
+**A suggestion to insert some inline content.**
 
-**`@id`**: `stencila:DeleteInline`
+**`@id`**: `stencila:InsertInline`
 
 ## Properties
 
-The `DeleteInline` type has these properties:
+The `InsertInline` type has these properties:
 
 | Name      | Aliases | `@id`                                | Type                                                                                              | Description                                              | Inherited from                                                                                                        |
 | --------- | ------- | ------------------------------------ | ------------------------------------------------------------------------------------------------- | -------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------- |
 | `id`      | -       | [`schema:id`](https://schema.org/id) | [`String`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/string.md)   | The identifier for this item.                            | [`Entity`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/entity.md)                      |
-| `content` | -       | `stencila:content`                   | [`Inline`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/inline.md)* | The content that is suggested to be inserted or deleted. | [`SuggestionInline`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/suggestion-inline.md) |
+| `content` | -       | `stencila:content`                   | [`Inline`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/inline.md)* | The content that is suggested to be inserted or deleted. | [`SuggestionInline`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/edits/suggestion-inline.md) |
 
 ## Related
 
-The `DeleteInline` type is related to these types:
+The `InsertInline` type is related to these types:
 
-- Parents: [`SuggestionInline`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/suggestion-inline.md)
+- Parents: [`SuggestionInline`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/edits/suggestion-inline.md)
 - Children: none
 
 ## Formats
 
-The `DeleteInline` type can be encoded (serialized) to, and/or decoded (deserialized) from, these formats:
+The `InsertInline` type can be encoded (serialized) to, and/or decoded (deserialized) from, these formats:
 
 | Format                                                                                             | Encoding         | Decoding     | Status                 | Notes                                                                               |
 | -------------------------------------------------------------------------------------------------- | ---------------- | ------------ | ---------------------- | ----------------------------------------------------------------------------------- |
-| [HTML](https://github.com/stencila/stencila/blob/main/docs/reference/formats/html.md)              | 🔷 Low loss       |              | 🚧 Under development    | Encoded as [`<del>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/del) |
-| [JATS](https://github.com/stencila/stencila/blob/main/docs/reference/formats/jats.md)              | ⚠️ High loss     |              | 🚧 Under development    | Encoded using special function                                                      |
-| [Markdown](https://github.com/stencila/stencila/blob/main/docs/reference/formats/markdown.md)      | ⚠️ High loss     |              | ⚠️ Alpha               | Encoded as `<del>{content}</del>`                                                   |
+| [HTML](https://github.com/stencila/stencila/blob/main/docs/reference/formats/html.md)              | 🔷 Low loss       |              | 🚧 Under development    | Encoded as [`<ins>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/ins) |
+| [JATS](https://github.com/stencila/stencila/blob/main/docs/reference/formats/jats.md)              | 🟢 No loss        |              | 🚧 Under development    |                                                                                     |
+| [Markdown](https://github.com/stencila/stencila/blob/main/docs/reference/formats/markdown.md)      | ⚠️ High loss     |              | ⚠️ Alpha               | Encoded as `{{++{content}++}}`                                                      |
 | [Plain text](https://github.com/stencila/stencila/blob/main/docs/reference/formats/text.md)        | ⚠️ High loss     |              | ⚠️ Alpha               |                                                                                     |
 | [JSON](https://github.com/stencila/stencila/blob/main/docs/reference/formats/json.md)              | 🟢 No loss        | 🟢 No loss    | 🟢 Stable               |                                                                                     |
 | [JSON5](https://github.com/stencila/stencila/blob/main/docs/reference/formats/json5.md)            | 🟢 No loss        | 🟢 No loss    | 🟢 Stable               |                                                                                     |
@@ -40,17 +40,17 @@ The `DeleteInline` type can be encoded (serialized) to, and/or decoded (deserial
 
 ## Bindings
 
-The `DeleteInline` type is represented in these bindings:
+The `InsertInline` type is represented in these bindings:
 
-- [JSON-LD](https://stencila.org/DeleteInline.jsonld)
-- [JSON Schema](https://stencila.org/DeleteInline.schema.json)
-- Python class [`DeleteInline`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/delete_inline.py)
-- Rust struct [`DeleteInline`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/delete_inline.rs)
-- TypeScript class [`DeleteInline`](https://github.com/stencila/stencila/blob/main/typescript/src/types/DeleteInline.ts)
+- [JSON-LD](https://stencila.org/InsertInline.jsonld)
+- [JSON Schema](https://stencila.org/InsertInline.schema.json)
+- Python class [`InsertInline`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/insert_inline.py)
+- Rust struct [`InsertInline`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/insert_inline.rs)
+- TypeScript class [`InsertInline`](https://github.com/stencila/stencila/blob/main/typescript/src/types/InsertInline.ts)
 
 ## Testing
 
-During property-based (a.k.a generative) testing, the properties of the `DeleteInline` type are generated using the following strategies[^1] for each complexity level. Any optional properties that are not in this table are set to `None`.
+During property-based (a.k.a generative) testing, the properties of the `InsertInline` type are generated using the following strategies[^1] for each complexity level. Any optional properties that are not in this table are set to `None`.
 
 | Property  | Complexity | Description                                                | Strategy                       |
 | --------- | ---------- | ---------------------------------------------------------- | ------------------------------ |
@@ -61,6 +61,6 @@ During property-based (a.k.a generative) testing, the properties of the `DeleteI
 
 ## Source
 
-This documentation was generated from [`DeleteInline.yaml`](https://github.com/stencila/stencila/blob/main/schema/DeleteInline.yaml) by [`docs.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs.rs).
+This documentation was generated from [`InsertInline.yaml`](https://github.com/stencila/stencila/blob/main/schema/InsertInline.yaml) by [`docs.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs.rs).
 
 [^1]: See the `proptest` [book](https://proptest-rs.github.io/proptest/) and the [`proptest.rs`](https://github.com/stencila/stencila/blob/main/rust/schema/src/proptests.rs) module for details.

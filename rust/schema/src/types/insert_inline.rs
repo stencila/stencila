@@ -14,8 +14,7 @@ use super::string::String;
 #[derive(derive_more::Display)]
 #[display(fmt = "InsertInline")]
 #[html(elem = "ins")]
-#[jats(special)]
-#[markdown(template = "<ins>{content}</ins>")]
+#[markdown(template = "{{++{content}++}}")]
 pub struct InsertInline {
     /// The type of this item.
     #[cfg_attr(feature = "proptest", proptest(value = "Default::default()"))]

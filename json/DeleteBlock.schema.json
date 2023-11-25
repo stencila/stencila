@@ -6,17 +6,11 @@
   "extends": [
     "SuggestionBlock"
   ],
-  "category": "prose",
+  "category": "edits",
   "description": "A suggestion to delete some block content.",
   "proptest": {},
-  "html": {
-    "elem": "stencila-delete-block"
-  },
-  "jats": {
-    "special": true
-  },
   "markdown": {
-    "special": true
+    "template": "--\\n\\n{content}--\\n\\n"
   },
   "required": [
     "type",

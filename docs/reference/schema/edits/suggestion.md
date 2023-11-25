@@ -26,7 +26,7 @@ The `Suggestion` type has these properties:
 The `Suggestion` type is related to these types:
 
 - Parents: [`Entity`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/entity.md)
-- Children: [`SuggestionBlock`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/suggestion-block.md), [`SuggestionInline`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/suggestion-inline.md)
+- Children: [`SuggestionBlock`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/edits/suggestion-block.md), [`SuggestionInline`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/edits/suggestion-inline.md)
 
 ## Bindings
 

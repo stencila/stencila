@@ -1,12 +1,11 @@
 title: DeleteInline
 '@id': stencila:DeleteInline
 extends: SuggestionInline
-category: actions
+category: edits
 description: A suggestion to delete some inline content.
 html:
   elem: del
-jats:
-  special: true
 markdown:
-  template: '<del>{content}</del>'
+  # CriticMarkup for "Deletions"
+  template: '{{--{content}--}}'
 proptest: {}

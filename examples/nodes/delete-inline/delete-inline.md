@@ -1,3 +1,3 @@
-Some <del>deleted </del>text.
+Some {--deleted --}text.
 
-Several deleted inlines <del>**strongly emphasized** and <u>underlined</u> and `2 + 2`{ exec}</del>.
+Several deleted inlines {--**strongly emphasized** and <u>underlined</u> and `2 + 2`{ exec}--}.

@@ -10,9 +10,9 @@ use nom::{
         is_digit,
     },
     combinator::{map, map_res, opt, peek, recognize},
-    multi::{many0, many1, separated_list0},
+    multi::{many0, many0_count, many1, separated_list0},
     number::complete::double,
-    sequence::{delimited, preceded, terminated, tuple},
+    sequence::{delimited, pair, preceded, terminated, tuple},
     IResult,
 };
 
@@ -65,13 +65,13 @@ pub fn curly_attr(input: &str) -> IResult<&str, (String, Option<Node>)> {
         alt((
             map(
                 tuple((
-                    is_not(" =:}"),
+                    curly_attr_name,
                     tuple((multispace0, alt((tag("="), tag(":"))), multispace0)),
                     alt((primitive_node, unquoted_string_node)),
                 )),
                 |(name, _s, value)| (name, Some(value)),
             ),
-            map(is_not(" =:}"), |name| (name, None)),
+            map(curly_attr_name, |name| (name, None)),
         )),
         |(name, value): (&str, Option<Node>)| -> Result<(String, Option<Node>)> {
             // Previously this used snake case by that was problematic for attributes such as "json5"
@@ -79,6 +79,14 @@ pub fn curly_attr(input: &str) -> IResult<&str, (String, Option<Node>)> {
             Ok((name.replace('-', "_"), value))
         },
     )(input)
+}
+
+/// Parse a name of curly braces attribute
+pub fn curly_attr_name(input: &str) -> IResult<&str, &str> {
+    recognize(pair(
+        alt((alpha1, tag("_"))),
+        many0_count(alt((alphanumeric1, tag("_"), tag("-")))),
+    ))(input)
 }
 
 /// Parse a true/false (case-insensitive) into a `Boolean` node
