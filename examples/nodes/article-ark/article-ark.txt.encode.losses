@@ -25,10 +25,12 @@ ListItem#: 1
 MathBlock#: 1
 MathInline#: 1
 Note#: 1
-Paragraph#: 15
+Paragraph#: 17
 Parameter#: 1
 QuoteBlock#: 1
 QuoteInline#: 1
+ReplaceBlock#: 1
+ReplaceInline#: 1
 Section#: 1
 Strikeout#: 1
 Strong#: 1

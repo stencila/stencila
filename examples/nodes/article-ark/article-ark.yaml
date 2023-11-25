@@ -73,6 +73,13 @@ content:
     content:
     - type: Text
       value: inline quote
+  - type: ReplaceInline
+    content:
+    - type: Text
+      value: ', old'
+    replacement:
+    - type: Text
+      value: ', new'
   - type: Text
     value: ', '
   - type: StyledInline
@@ -193,6 +200,17 @@ content:
     content:
     - type: Text
       value: This is a quote block
+- type: ReplaceBlock
+  content:
+  - type: Paragraph
+    content:
+    - type: Text
+      value: Old paragraph
+  replacement:
+  - type: Paragraph
+    content:
+    - type: Text
+      value: New paragraph
 - type: Section
   content:
   - type: Paragraph

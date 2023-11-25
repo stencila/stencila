@@ -152,6 +152,21 @@
           ]
         },
         {
+          type: "ReplaceInline",
+          content: [
+            {
+              type: "Text",
+              value: ", old"
+            }
+          ],
+          replacement: [
+            {
+              type: "Text",
+              value: ", new"
+            }
+          ]
+        },
+        {
           type: "Text",
           value: ", "
         },
@@ -404,6 +419,31 @@
             {
               type: "Text",
               value: "This is a quote block"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      type: "ReplaceBlock",
+      content: [
+        {
+          type: "Paragraph",
+          content: [
+            {
+              type: "Text",
+              value: "Old paragraph"
+            }
+          ]
+        }
+      ],
+      replacement: [
+        {
+          type: "Paragraph",
+          content: [
+            {
+              type: "Text",
+              value: "New paragraph"
             }
           ]
         }

@@ -156,6 +156,21 @@
           ]
         },
         {
+          "@type": "stencila:ReplaceInline",
+          "stencila:content": [
+            {
+              "@type": "Text",
+              "value": ", old"
+            }
+          ],
+          "stencila:replacement": [
+            {
+              "@type": "Text",
+              "value": ", new"
+            }
+          ]
+        },
+        {
           "@type": "Text",
           "value": ", "
         },
@@ -408,6 +423,31 @@
             {
               "@type": "Text",
               "value": "This is a quote block"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "@type": "stencila:ReplaceBlock",
+      "stencila:content": [
+        {
+          "@type": "stencila:Paragraph",
+          "stencila:content": [
+            {
+              "@type": "Text",
+              "value": "Old paragraph"
+            }
+          ]
+        }
+      ],
+      "stencila:replacement": [
+        {
+          "@type": "stencila:Paragraph",
+          "stencila:content": [
+            {
+              "@type": "Text",
+              "value": "New paragraph"
             }
           ]
         }

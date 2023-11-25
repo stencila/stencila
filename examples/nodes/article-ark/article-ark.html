@@ -44,6 +44,9 @@
     <q>
       <span>inline quote</span>
     </q>
+    <stencila-replace-inline replacement='[{"type":"Text","value":", new"}]'>
+      <span>, old</span>
+    </stencila-replace-inline>
     <span>,</span>
     <span data-code='text-blue-400'>
       <span>styled inline</span>
@@ -129,6 +132,11 @@
       <span>This is a quote block</span>
     </p>
   </blockquote>
+  <stencila-replace-block replacement='[{"type":"Paragraph","content":[{"type":"Text","value":"New paragraph"}]}]'>
+    <p>
+      <span>Old paragraph</span>
+    </p>
+  </stencila-replace-block>
   <section>
     <p>
       <span>This is a section</span>

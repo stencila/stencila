@@ -7,6 +7,8 @@ compact.jats.xml:
       - DeleteInline
       - InsertBlock
       - InsertInline
+      - ReplaceBlock
+      - ReplaceInline
   decode:
     strip-types:
       - CallBlock

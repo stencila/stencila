@@ -1,6 +1,6 @@
 This article attempts to have at least one of each node type. Nodes are intentionally simple, see other examples for more variations.
 
-This is a paragraph with ![audio](https://example.org/cat.mp3), `code expression`{exec}, `inline code`{--, delete--}, _emphasis_, ![image](https://example.org/cat.jpg){++, insert++}, [link](https://example.org), $inline math$, [^1], &[parameter], <q>inline quote</q>, [styled inline]{text-blue-400}, ~~strikeout~~, **strong emphasis**, ~subscript~, ^superscript^, <u>underline</u>, ![video](https://example.org/cat.mp4).
+This is a paragraph with ![audio](https://example.org/cat.mp3), `code expression`{exec}, `inline code`{--, delete--}, _emphasis_, ![image](https://example.org/cat.jpg){++, insert++}, [link](https://example.org), $inline math$, [^1], &[parameter], <q>inline quote</q>{~~, old~>, new~~}, [styled inline]{text-blue-400}, ~~strikeout~~, **strong emphasis**, ~subscript~, ^superscript^, <u>underline</u>, ![video](https://example.org/cat.mp4).
 
 /this/is/a/call()
 
@@ -53,6 +53,16 @@ This is a math block
 $$
 
 > This is a quote block
+
+~~
+
+Old paragraph
+
+~>
+
+New paragraph
+
+~~
 
 ::: section
 
