@@ -2,11 +2,11 @@
 No language
 ```
 
-```pythonexec
+```python exec
 # Some python code
 a = 3
 ```
 
-```jsexec auto=always
+```js exec auto=always
 // Javascript
 ```

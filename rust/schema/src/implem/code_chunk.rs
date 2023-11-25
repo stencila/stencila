@@ -11,6 +11,7 @@ impl CodeChunk {
 
         if let Some(lang) = &self.programming_language {
             md.push_str(lang);
+            md.push(' ');
         }
 
         md.push_str("exec");
