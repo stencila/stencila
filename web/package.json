@@ -23,8 +23,8 @@
   "type": "module",
   "source": "src/index.ts",
   "scripts": {
-    "fix": "eslint --fix 'src/**/*.ts'",
-    "lint": "eslint 'src/**/*.ts'",
+    "fix": "eslint --fix 'src/**/*.ts' && tsc --noEmit",
+    "lint": "eslint 'src/**/*.ts' && tsc --noEmit",
     "start": "parcel watch",
     "build": "parcel build",
     "unused": "depcheck --quiet --ignores '@parcel/*,prosemirror-*' --ignore-patterns '.eslintrc*'"
