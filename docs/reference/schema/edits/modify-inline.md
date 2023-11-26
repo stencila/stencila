@@ -12,13 +12,13 @@ The `ModifyInline` type has these properties:
 | ------------ | ----------- | ------------------------------------ | -------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------- |
 | `id`         | -           | [`schema:id`](https://schema.org/id) | [`String`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/string.md)                      | The identifier for this item.                            | [`Entity`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/entity.md)                      |
 | `content`    | -           | `stencila:content`                   | [`Inline`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/inline.md)*                    | The content that is suggested to be inserted or deleted. | [`SuggestionInline`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/edits/suggestion-inline.md) |
-| `operations` | `operation` | `stencila:operations`                | [`ModifyOperation`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/edits/modify-operation.md)* | The operations to be applied to the nodes.               | [`Modify`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/edits/modify.md)                      |
+| `operations` | `operation` | `stencila:operations`                | [`ModifyOperation`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/edits/modify-operation.md)* | The operations to be applied to the nodes.               | -                                                                                                                     |
 
 ## Related
 
 The `ModifyInline` type is related to these types:
 
-- Parents: [`SuggestionInline`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/edits/suggestion-inline.md)[`Modify`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/edits/modify.md)
+- Parents: [`SuggestionInline`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/edits/suggestion-inline.md)
 - Children: none
 
 ## Formats

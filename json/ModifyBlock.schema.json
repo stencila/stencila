@@ -4,8 +4,7 @@
   "@id": "stencila:ModifyBlock",
   "title": "ModifyBlock",
   "extends": [
-    "SuggestionBlock",
-    "Modify"
+    "SuggestionBlock"
   ],
   "category": "edits",
   "description": "A suggestion to modify some block content.",

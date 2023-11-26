@@ -41,7 +41,10 @@
       "rdfs:comment": "The operations to be applied to the string.",
       "schema:domainIncludes": [
         {
-          "@id": "stencila:Modify"
+          "@id": "stencila:ModifyBlock"
+        },
+        {
+          "@id": "stencila:ModifyInline"
         },
         {
           "@id": "stencila:StringPatch"

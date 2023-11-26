@@ -15,6 +15,9 @@ class ModifyBlock(SuggestionBlock):
 
     type: Literal["ModifyBlock"] = field(default="ModifyBlock", init=False)
 
+    operations: List[ModifyOperation]
+    """The operations to be applied to the nodes."""
+
     def __init__(self, content: List[Block], operations: List[ModifyOperation], id: Optional[str] = None):
-        super().__init__(id = id, content = content, operations = operations)
-        
+        super().__init__(id = id, content = content)
+        self.operations = operations

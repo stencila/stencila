@@ -10,6 +10,11 @@ import { SuggestionBlock } from "./SuggestionBlock.js";
 export class ModifyBlock extends SuggestionBlock {
   type = "ModifyBlock";
 
+  /**
+   * The operations to be applied to the nodes.
+   */
+  operations: ModifyOperation[];
+
   constructor(content: Block[], operations: ModifyOperation[], options?: Partial<ModifyBlock>) {
     super(content);
     if (options) Object.assign(this, options);

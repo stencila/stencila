@@ -10,6 +10,11 @@ import { SuggestionInline } from "./SuggestionInline.js";
 export class ModifyInline extends SuggestionInline {
   type = "ModifyInline";
 
+  /**
+   * The operations to be applied to the nodes.
+   */
+  operations: ModifyOperation[];
+
   constructor(content: Inline[], operations: ModifyOperation[], options?: Partial<ModifyInline>) {
     super(content);
     if (options) Object.assign(this, options);

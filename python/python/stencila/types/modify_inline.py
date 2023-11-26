@@ -15,6 +15,9 @@ class ModifyInline(SuggestionInline):
 
     type: Literal["ModifyInline"] = field(default="ModifyInline", init=False)
 
+    operations: List[ModifyOperation]
+    """The operations to be applied to the nodes."""
+
     def __init__(self, content: List[Inline], operations: List[ModifyOperation], id: Optional[str] = None):
-        super().__init__(id = id, content = content, operations = operations)
-        
+        super().__init__(id = id, content = content)
+        self.operations = operations

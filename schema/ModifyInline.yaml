@@ -1,10 +1,17 @@
 title: ModifyInline
 '@id': stencila:ModifyInline
-extends:
-  - SuggestionInline
-  - Modify
+extends: SuggestionInline
 category: edits
 description: A suggestion to modify some inline content.
 markdown:
   special: true
 proptest: {}
+required:
+  - operations
+properties:
+  operations:
+    '@id': stencila:operations
+    description: The operations to be applied to the nodes.
+    type: array
+    items:
+      $ref: ModifyOperation

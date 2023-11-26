@@ -4,8 +4,7 @@
   "@id": "stencila:ModifyInline",
   "title": "ModifyInline",
   "extends": [
-    "SuggestionInline",
-    "Modify"
+    "SuggestionInline"
   ],
   "category": "edits",
   "description": "A suggestion to modify some inline content.",

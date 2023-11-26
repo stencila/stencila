@@ -96,7 +96,6 @@ export * from "./Math.js";
 export * from "./MathBlock.js";
 export * from "./MathInline.js";
 export * from "./MediaObject.js";
-export * from "./Modify.js";
 export * from "./ModifyBlock.js";
 export * from "./ModifyInline.js";
 export * from "./ModifyOperation.js";

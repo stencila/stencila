@@ -12,13 +12,13 @@ The `ModifyBlock` type has these properties:
 | ------------ | ----------- | ------------------------------------ | -------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------- |
 | `id`         | -           | [`schema:id`](https://schema.org/id) | [`String`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/string.md)                      | The identifier for this item.                            | [`Entity`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/entity.md)                    |
 | `content`    | -           | `stencila:content`                   | [`Block`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/block.md)*                      | The content that is suggested to be inserted or deleted. | [`SuggestionBlock`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/edits/suggestion-block.md) |
-| `operations` | `operation` | `stencila:operations`                | [`ModifyOperation`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/edits/modify-operation.md)* | The operations to be applied to the nodes.               | [`Modify`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/edits/modify.md)                    |
+| `operations` | `operation` | `stencila:operations`                | [`ModifyOperation`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/edits/modify-operation.md)* | The operations to be applied to the nodes.               | -                                                                                                                   |
 
 ## Related
 
 The `ModifyBlock` type is related to these types:
 
-- Parents: [`SuggestionBlock`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/edits/suggestion-block.md)[`Modify`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/edits/modify.md)
+- Parents: [`SuggestionBlock`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/edits/suggestion-block.md)
 - Children: none
 
 ## Formats
