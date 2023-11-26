@@ -50,7 +50,7 @@ pub(crate) fn one_of_each() -> Node {
         adm(AdmonitionType::default(), Some("title"), [p([t("text")])]),
         clb("source", [arg("name", "code")]),
         clm(ClaimType::default(), [p([t("text")])]),
-        sb("code", [p([t("text")])]),
+        stb("code", [p([t("text")])]),
         fig([p([img("url")])]),
         ifb([ibc("code", Some("lang"), [p([t("text")])])]),
         inb("source"),
