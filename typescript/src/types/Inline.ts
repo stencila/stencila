@@ -15,6 +15,7 @@ import { type Duration } from "./Duration.js";
 import { type Emphasis } from "./Emphasis.js";
 import { type ImageObject } from "./ImageObject.js";
 import { type InsertInline } from "./InsertInline.js";
+import { type InstructInline } from "./InstructInline.js";
 import { type Integer } from "./Integer.js";
 import { type Link } from "./Link.js";
 import { type MathInline } from "./MathInline.js";
@@ -53,6 +54,7 @@ export type Inline =
   Emphasis |
   ImageObject |
   InsertInline |
+  InstructInline |
   Link |
   MathInline |
   MediaObject |
@@ -98,6 +100,7 @@ export function inline(other: Inline): Inline {
     case "Emphasis":
     case "ImageObject":
     case "InsertInline":
+    case "InstructInline":
     case "Link":
     case "MathInline":
     case "MediaObject":

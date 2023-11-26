@@ -12,8 +12,8 @@ use codec::{
         shortcuts::{cb, dei, em, isi, mb, ol, p, qb, qi, stg, stk, t, tb, tbl, u, ul},
         transforms::blocks_to_inlines,
         AudioObject, Block, CodeChunk, Cord, DeleteBlock, Heading, IfBlock, IfBlockClause,
-        ImageObject, Inline, InsertBlock, Link, ListItem, ModifyBlock, Note, NoteType,
-        ReplaceBlock, TableCell, TableRow, TableRowType, VideoObject,
+        ImageObject, Inline, InsertBlock, InstructBlock, Link, ListItem, ModifyBlock, Note,
+        NoteType, ReplaceBlock, TableCell, TableRow, TableRowType, VideoObject,
     },
     Losses,
 };
@@ -24,8 +24,9 @@ use crate::decode::inlines::inlines_or_text;
 use super::{
     blocks::{
         admonition, call, claim, delete_block, else_block, end, for_block, form, if_elif, include,
-        insert_block, math_block, modify_block, modify_block_separator, replace_block,
-        replace_block_separator, section, styled_block,
+        insert_block, instruct_block_end, instruct_block_start, instruct_block_text_only,
+        math_block, modify_block, modify_block_separator, replace_block, replace_block_separator,
+        section, styled_block,
     },
     inlines::inlines,
 };
@@ -237,6 +238,27 @@ pub fn decode_blocks(
                         Some(Block::IncludeBlock(include))
                     } else if let Ok((.., call)) = call(trimmed) {
                         Some(Block::CallBlock(call))
+                    } else if let Ok((.., text)) = instruct_block_text_only(trimmed) {
+                        Some(Block::InstructBlock(InstructBlock {
+                            text: text.to_string(),
+                            ..Default::default()
+                        }))
+                    } else if let Ok((.., text)) = instruct_block_start(trimmed) {
+                        blocks.push_div();
+                        divs.push_back(Block::InstructBlock(InstructBlock {
+                            text: text.to_string(),
+                            ..Default::default()
+                        }));
+                        None
+                    } else if instruct_block_end(trimmed).is_ok() {
+                        if let Some(Block::InstructBlock(current)) = divs.pop_back() {
+                            Some(Block::InstructBlock(InstructBlock {
+                                content: Some(blocks.pop_div()),
+                                ..current
+                            }))
+                        } else {
+                            Some(p([t(trimmed)]))
+                        }
                     } else if insert_block(trimmed).is_ok() {
                         if let Some(Block::InsertBlock(current)) = divs.pop_back() {
                             Some(Block::InsertBlock(InsertBlock {

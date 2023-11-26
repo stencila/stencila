@@ -1,0 +1,70 @@
+{
+  "$schema": "https://stencila.org/meta.schema.json",
+  "$id": "https://stencila.org/Instruct.schema.json",
+  "@id": "stencila:Instruct",
+  "title": "Instruct",
+  "extends": [
+    "Entity"
+  ],
+  "category": "edits",
+  "abstract": true,
+  "description": "Abstract base type for a document editing instruction.",
+  "required": [
+    "type",
+    "text"
+  ],
+  "core": [
+    "id",
+    "agent",
+    "executionStatus"
+  ],
+  "properties": {
+    "type": {
+      "@id": "schema:type",
+      "description": "The type of this item.",
+      "$comment": "This is a special property analogous to JSON-LD's `@type` keyword.\n",
+      "type": "string"
+    },
+    "id": {
+      "@id": "schema:id",
+      "description": "The identifier for this item.",
+      "$comment": "This is a special property analogous to JSON-LD's `@id` keyword.\n",
+      "strip": [
+        "metadata"
+      ],
+      "html": {
+        "attr": "id"
+      },
+      "type": "string"
+    },
+    "text": {
+      "@id": "schema:text",
+      "description": "The text of the instruction.",
+      "type": "string"
+    },
+    "agent": {
+      "@id": "schema:agent",
+      "description": "The agent that executed the instruction.",
+      "anyOf": [
+        {
+          "$ref": "Person.schema.json"
+        },
+        {
+          "$ref": "Organization.schema.json"
+        },
+        {
+          "$ref": "SoftwareApplication.schema.json"
+        }
+      ]
+    },
+    "executionStatus": {
+      "@id": "stencila:executionStatus",
+      "description": "Status of the execution of the instruction.",
+      "aliases": [
+        "execution-status",
+        "execution_status"
+      ],
+      "$ref": "ExecutionStatus.schema.json"
+    }
+  }
+}

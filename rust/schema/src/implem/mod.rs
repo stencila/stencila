@@ -23,6 +23,8 @@ mod if_block;
 mod inline;
 mod insert_block;
 mod insert_inline;
+mod instruct_block;
+mod instruct_inline;
 mod integer_or_string;
 mod link;
 mod list;

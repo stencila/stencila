@@ -79,6 +79,8 @@ mod include_block;
 mod inline;
 mod insert_block;
 mod insert_inline;
+mod instruct_block;
+mod instruct_inline;
 mod integer;
 mod integer_or_string;
 mod integer_validator;
@@ -236,6 +238,8 @@ pub use include_block::*;
 pub use inline::*;
 pub use insert_block::*;
 pub use insert_inline::*;
+pub use instruct_block::*;
+pub use instruct_inline::*;
 pub use integer::*;
 pub use integer_or_string::*;
 pub use integer_validator::*;
@@ -382,6 +386,8 @@ pub enum NodeType {
     IncludeBlock,
     InsertBlock,
     InsertInline,
+    InstructBlock,
+    InstructInline,
     IntegerValidator,
     Link,
     List,

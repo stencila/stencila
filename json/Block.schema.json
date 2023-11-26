@@ -137,6 +137,15 @@
       "$ref": "InsertBlock.schema.json"
     },
     {
+      "proptest": {
+        "min": {
+          "description": "Do not generate `InstructBlock` nodes in block content.",
+          "skip": true
+        }
+      },
+      "$ref": "InstructBlock.schema.json"
+    },
+    {
       "$ref": "List.schema.json"
     },
     {

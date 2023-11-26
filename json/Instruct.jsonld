@@ -1,0 +1,75 @@
+{
+  "@id": "https://stencila.org/Instruct",
+  "name": "Instruct",
+  "license": "https://creativecommons.org/publicdomain/zero/1.0/",
+  "@context": {
+    "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
+    "schema": "https://schema.org/",
+    "stencila": "https://stencila.org/"
+  },
+  "@graph": [
+    {
+      "@id": "stencila:Instruct",
+      "@type": "rdfs:Class",
+      "rdfs:label": "Instruct",
+      "rdfs:comment": "Abstract base type for a document editing instruction.",
+      "rdfs:subClassOf": {
+        "@id": "stencila:Entity"
+      }
+    },
+    {
+      "@id": "schema:text",
+      "@type": "rdfs:Property",
+      "rdfs:label": "text",
+      "rdfs:comment": "The text of the instruction.",
+      "schema:domainIncludes": [
+        {
+          "@id": "schema:CreativeWork"
+        },
+        {
+          "@id": "stencila:Instruct"
+        }
+      ],
+      "schema:rangeIncludes": {
+        "@id": "schema:Text"
+      }
+    },
+    {
+      "@id": "schema:agent",
+      "@type": "rdfs:Property",
+      "rdfs:label": "agent",
+      "rdfs:comment": "The agent that executed the instruction.",
+      "schema:domainIncludes": {
+        "@id": "stencila:Instruct"
+      },
+      "schema:rangeIncludes": [
+        {
+          "@id": "schema:Person"
+        },
+        {
+          "@id": "schema:Organization"
+        },
+        {
+          "@id": "schema:SoftwareApplication"
+        }
+      ]
+    },
+    {
+      "@id": "stencila:executionStatus",
+      "@type": "rdfs:Property",
+      "rdfs:label": "executionStatus",
+      "rdfs:comment": "Status of the execution of the instruction.",
+      "schema:domainIncludes": [
+        {
+          "@id": "stencila:Executable"
+        },
+        {
+          "@id": "stencila:Instruct"
+        }
+      ],
+      "schema:rangeIncludes": {
+        "@id": "stencila:ExecutionStatus"
+      }
+    }
+  ]
+}

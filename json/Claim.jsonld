@@ -411,9 +411,14 @@
       "@type": "rdfs:Property",
       "rdfs:label": "text",
       "rdfs:comment": "The textual content of this creative work.",
-      "schema:domainIncludes": {
-        "@id": "schema:CreativeWork"
-      },
+      "schema:domainIncludes": [
+        {
+          "@id": "schema:CreativeWork"
+        },
+        {
+          "@id": "stencila:Instruct"
+        }
+      ],
       "schema:rangeIncludes": {
         "@id": "schema:Text"
       }
@@ -545,6 +550,12 @@
         },
         {
           "@id": "stencila:IncludeBlock"
+        },
+        {
+          "@id": "stencila:InstructBlock"
+        },
+        {
+          "@id": "stencila:InstructInline"
         },
         {
           "@id": "stencila:Link"

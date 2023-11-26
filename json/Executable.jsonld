@@ -158,9 +158,14 @@
       "@type": "rdfs:Property",
       "rdfs:label": "executionStatus",
       "rdfs:comment": "Status of the most recent, including any current, execution.",
-      "schema:domainIncludes": {
-        "@id": "stencila:Executable"
-      },
+      "schema:domainIncludes": [
+        {
+          "@id": "stencila:Executable"
+        },
+        {
+          "@id": "stencila:Instruct"
+        }
+      ],
       "schema:rangeIncludes": {
         "@id": "stencila:ExecutionStatus"
       }

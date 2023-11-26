@@ -195,6 +195,12 @@
       "$ref": "InsertInline.schema.json"
     },
     {
+      "$ref": "InstructBlock.schema.json"
+    },
+    {
+      "$ref": "InstructInline.schema.json"
+    },
+    {
       "$ref": "IntegerValidator.schema.json"
     },
     {

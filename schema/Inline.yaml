@@ -92,6 +92,15 @@ anyOf:
         description: Generate `InsertInline` nodes in inline content.
         skip: false
 
+  - $ref: InstructInline
+    proptest:
+      min:
+        description: Do not generate `InstructInline` nodes in inline content.
+        skip: true
+      max:
+        description: Generate `InstructInline` nodes in inline content.
+        skip: false
+
   - $ref: Link
 
   - $ref: MathInline

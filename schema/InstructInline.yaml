@@ -1,0 +1,30 @@
+title: InstructInline
+'@id': stencila:InstructInline
+extends: Instruct
+category: edits
+description: An instruction to edit some inline content.
+markdown:
+  special: true
+proptest: {}
+core:
+  - content
+properties:
+  content:
+    '@id': stencila:content
+    description: The content to which the instruction applies.
+    type: array
+    items:
+      $ref: Inline
+    proptest:
+      min:
+        description: No content
+        value: None
+      low:
+        description: Generate a single arbitrary, non-recursive, inline node
+        strategy: option::of(vec_inlines_non_recursive(1))
+      high:
+        description: Generate up to two arbitrary, non-recursive, inline nodes
+        strategy: option::of(vec_inlines_non_recursive(2))
+      max:
+        description: Generate up to four arbitrary, non-recursive, inline nodes
+        strategy: option::of(vec_inlines_non_recursive(4))

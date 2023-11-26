@@ -21,6 +21,7 @@ The `Inline` type has these members:
 - [`Emphasis`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/emphasis.md)
 - [`ImageObject`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/image-object.md)
 - [`InsertInline`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/edits/insert-inline.md)
+- [`InstructInline`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/edits/instruct-inline.md)
 - [`Link`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/link.md)
 - [`MathInline`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/math/math-inline.md)
 - [`MediaObject`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/media-object.md)
@@ -78,6 +79,8 @@ During property-based (a.k.a generative) testing, the variants of the `Inline` t
 |                   | High+      | Generate `Duration` nodes in inline content.                                                                                                                                                      | Default for level                                |
 | `InsertInline`    | Min+       | Do not generate `InsertInline` nodes in inline content.                                                                                                                                           | -                                                |
 |                   | Max        | Generate `InsertInline` nodes in inline content.                                                                                                                                                  | Default for level                                |
+| `InstructInline`  | Min+       | Do not generate `InstructInline` nodes in inline content.                                                                                                                                         | -                                                |
+|                   | Max        | Generate `InstructInline` nodes in inline content.                                                                                                                                                | Default for level                                |
 | `MediaObject`     | Min+       | Do not generate `MediaObject` nodes in inline content.                                                                                                                                            | -                                                |
 | `ModifyInline`    | Min+       | Do not generate `ModifyInline` nodes in inline content.                                                                                                                                           | -                                                |
 |                   | Max        | Generate `ModifyInline` nodes in inline content.                                                                                                                                                  | Default for level                                |

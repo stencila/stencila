@@ -176,6 +176,21 @@ fn call_arg(input: &str) -> IResult<&str, CallArgument> {
     )(input)
 }
 
+/// Parse an [`InstructBlock`] with only text
+pub fn instruct_block_text_only(input: &str) -> IResult<&str, &str> {
+    all_consuming(preceded(pair(tag("@@"), multispace0), is_not("\n")))(input)
+}
+
+/// Start an [`InstructBlock`] with content
+pub fn instruct_block_start(input: &str) -> IResult<&str, &str> {
+    all_consuming(preceded(pair(tag("%%"), multispace0), is_not("\n")))(input)
+}
+
+/// End an [`InstructBlock`] with content
+pub fn instruct_block_end(input: &str) -> IResult<&str, &str> {
+    all_consuming(tag("%%"))(input)
+}
+
 /// Parse the start or end an [`InsertBlock`] node
 pub fn insert_block(input: &str) -> IResult<&str, &str> {
     all_consuming(tag("++"))(input)

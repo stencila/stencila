@@ -15,6 +15,7 @@ import { type Heading } from "./Heading.js";
 import { type IfBlock } from "./IfBlock.js";
 import { type IncludeBlock } from "./IncludeBlock.js";
 import { type InsertBlock } from "./InsertBlock.js";
+import { type InstructBlock } from "./InstructBlock.js";
 import { type List } from "./List.js";
 import { type MathBlock } from "./MathBlock.js";
 import { type ModifyBlock } from "./ModifyBlock.js";
@@ -43,6 +44,7 @@ export type Block =
   IfBlock |
   IncludeBlock |
   InsertBlock |
+  InstructBlock |
   List |
   MathBlock |
   ModifyBlock |
@@ -72,6 +74,7 @@ export function block(other: Block): Block {
     case "IfBlock":
     case "IncludeBlock":
     case "InsertBlock":
+    case "InstructBlock":
     case "List":
     case "MathBlock":
     case "ModifyBlock":

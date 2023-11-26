@@ -15,6 +15,7 @@ Duration = ForwardRef("Duration")
 Emphasis = ForwardRef("Emphasis")
 ImageObject = ForwardRef("ImageObject")
 InsertInline = ForwardRef("InsertInline")
+InstructInline = ForwardRef("InstructInline")
 Link = ForwardRef("Link")
 MathInline = ForwardRef("MathInline")
 MediaObject = ForwardRef("MediaObject")
@@ -50,6 +51,7 @@ Inline = Union[
     Emphasis,
     ImageObject,
     InsertInline,
+    InstructInline,
     Link,
     MathInline,
     MediaObject,

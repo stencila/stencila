@@ -82,6 +82,12 @@
           "@id": "stencila:IncludeBlock"
         },
         {
+          "@id": "stencila:InstructBlock"
+        },
+        {
+          "@id": "stencila:InstructInline"
+        },
+        {
           "@id": "stencila:Link"
         },
         {

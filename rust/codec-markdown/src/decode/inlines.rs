@@ -18,7 +18,7 @@ use codec::{
     schema::{
         shortcuts::{dei, isi, mi, rei, stk, sub, sup, t},
         BooleanValidator, Button, Cite, CiteGroup, CodeExpression, CodeInline, Cord,
-        DateTimeValidator, DateValidator, DurationValidator, EnumValidator, Inline,
+        DateTimeValidator, DateValidator, DurationValidator, EnumValidator, Inline, InstructInline,
         IntegerValidator, ModifyInline, Node, NumberValidator, Parameter, ParameterOptions,
         StringValidator, StyledInline, TimeValidator, TimestampValidator, Validator,
     },
@@ -48,6 +48,8 @@ pub fn inlines(input: &str) -> IResult<&str, Vec<Inline>> {
             strikeout,
             subscript,
             superscript,
+            instruct_inline_text_only,
+            instruct_inline_with_content,
             insert_inline,
             delete_inline,
             replace_inline,
@@ -604,6 +606,37 @@ fn superscript(input: &str) -> IResult<&str, Inline> {
     map(
         delimited(char('^'), take_until("^"), char('^')),
         |content: &str| sup(inlines_or_text(content)),
+    )(input)
+}
+
+/// Parse a string into a `InstructInline` node
+fn instruct_inline_text_only(input: &str) -> IResult<&str, Inline> {
+    map(
+        delimited(tag("{@@"), take_until("@@}"), tag("@@}")),
+        |text: &str| {
+            Inline::InstructInline(InstructInline {
+                text: text.to_string(),
+                ..Default::default()
+            })
+        },
+    )(input)
+}
+
+/// Parse a string into a `InstructInline` node
+fn instruct_inline_with_content(input: &str) -> IResult<&str, Inline> {
+    map(
+        delimited(
+            tag("{%%"),
+            pair(terminated(take_until("%>"), tag("%>")), take_until("%%}")),
+            tag("%%}"),
+        ),
+        |(text, content): (&str, &str)| {
+            Inline::InstructInline(InstructInline {
+                text: text.to_string(),
+                content: Some(inlines_or_text(content)),
+                ..Default::default()
+            })
+        },
     )(input)
 }
 

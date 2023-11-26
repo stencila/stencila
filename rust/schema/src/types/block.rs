@@ -15,6 +15,7 @@ use super::heading::Heading;
 use super::if_block::IfBlock;
 use super::include_block::IncludeBlock;
 use super::insert_block::InsertBlock;
+use super::instruct_block::InstructBlock;
 use super::list::List;
 use super::math_block::MathBlock;
 use super::modify_block::ModifyBlock;
@@ -76,6 +77,12 @@ pub enum Block {
     #[cfg_attr(feature = "proptest-high", proptest(skip))]
     #[cfg_attr(feature = "proptest-max", proptest(skip))]
     InsertBlock(InsertBlock),
+
+    #[cfg_attr(feature = "proptest-min", proptest(skip))]
+    #[cfg_attr(feature = "proptest-low", proptest(skip))]
+    #[cfg_attr(feature = "proptest-high", proptest(skip))]
+    #[cfg_attr(feature = "proptest-max", proptest(skip))]
+    InstructBlock(InstructBlock),
 
     List(List),
 

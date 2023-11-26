@@ -121,6 +121,8 @@ impl ReadNode for Node {
             IncludeBlock,
             InsertBlock,
             InsertInline,
+            InstructBlock,
+            InstructInline,
             IntegerValidator,
             Link,
             List,

@@ -151,6 +151,12 @@ export function hydrate(value: types.Node): types.Node {
       return Object.setPrototypeOf(value, types.InsertBlock.prototype);
     case "InsertInline":
       return Object.setPrototypeOf(value, types.InsertInline.prototype);
+    case "Instruct":
+      return Object.setPrototypeOf(value, types.Instruct.prototype);
+    case "InstructBlock":
+      return Object.setPrototypeOf(value, types.InstructBlock.prototype);
+    case "InstructInline":
+      return Object.setPrototypeOf(value, types.InstructInline.prototype);
     case "IntegerValidator":
       return Object.setPrototypeOf(value, types.IntegerValidator.prototype);
     case "Link":

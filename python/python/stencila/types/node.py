@@ -60,6 +60,8 @@ ImageObject = ForwardRef("ImageObject")
 IncludeBlock = ForwardRef("IncludeBlock")
 InsertBlock = ForwardRef("InsertBlock")
 InsertInline = ForwardRef("InsertInline")
+InstructBlock = ForwardRef("InstructBlock")
+InstructInline = ForwardRef("InstructInline")
 IntegerValidator = ForwardRef("IntegerValidator")
 Link = ForwardRef("Link")
 List = ForwardRef("List")
@@ -183,6 +185,8 @@ Node = Union[
     IncludeBlock,
     InsertBlock,
     InsertInline,
+    InstructBlock,
+    InstructInline,
     IntegerValidator,
     Link,
     List,

@@ -81,6 +81,9 @@ from .include_block import IncludeBlock
 from .inline import Inline
 from .insert_block import InsertBlock
 from .insert_inline import InsertInline
+from .instruct import Instruct
+from .instruct_block import InstructBlock
+from .instruct_inline import InstructInline
 from .int_or_str import IntOrStr
 from .integer_validator import IntegerValidator
 from .link import Link

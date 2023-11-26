@@ -61,6 +61,8 @@ use super::image_object::ImageObject;
 use super::include_block::IncludeBlock;
 use super::insert_block::InsertBlock;
 use super::insert_inline::InsertInline;
+use super::instruct_block::InstructBlock;
+use super::instruct_inline::InstructInline;
 use super::integer::Integer;
 use super::integer_validator::IntegerValidator;
 use super::link::Link;
@@ -254,6 +256,10 @@ pub enum Node {
     InsertBlock(InsertBlock),
 
     InsertInline(InsertInline),
+
+    InstructBlock(InstructBlock),
+
+    InstructInline(InstructInline),
 
     IntegerValidator(IntegerValidator),
 
