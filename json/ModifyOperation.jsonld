@@ -12,7 +12,10 @@
       "@id": "stencila:ModifyOperation",
       "@type": "rdfs:Class",
       "rdfs:label": "ModifyOperation",
-      "rdfs:comment": "An operation that is part of a suggestion to modify the property of a node."
+      "rdfs:comment": "An operation that is part of a suggestion to modify the property of a node.",
+      "rdfs:subClassOf": {
+        "@id": "stencila:Entity"
+      }
     },
     {
       "@id": "schema:target",

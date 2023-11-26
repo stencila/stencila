@@ -3,13 +3,38 @@
   "$id": "https://stencila.org/ModifyOperation.schema.json",
   "@id": "stencila:ModifyOperation",
   "title": "ModifyOperation",
+  "extends": [
+    "Entity"
+  ],
   "category": "edits",
   "description": "An operation that is part of a suggestion to modify the property of a node.",
   "required": [
+    "type",
     "target",
     "value"
   ],
+  "core": [
+    "id"
+  ],
   "properties": {
+    "type": {
+      "@id": "schema:type",
+      "description": "The type of this item.",
+      "$comment": "This is a special property analogous to JSON-LD's `@type` keyword.\n",
+      "type": "string"
+    },
+    "id": {
+      "@id": "schema:id",
+      "description": "The identifier for this item.",
+      "$comment": "This is a special property analogous to JSON-LD's `@id` keyword.\n",
+      "strip": [
+        "metadata"
+      ],
+      "html": {
+        "attr": "id"
+      },
+      "type": "string"
+    },
     "target": {
       "@id": "schema:target",
       "description": "The target property of each node to be modified.",

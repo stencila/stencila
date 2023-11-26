@@ -8,16 +8,17 @@
 
 The `ModifyOperation` type has these properties:
 
-| Name     | Aliases | `@id`                                        | Type                                                                                                                                                                                                                | Description                                                      | Inherited from |
-| -------- | ------- | -------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------- | -------------- |
-| `target` | -       | [`schema:target`](https://schema.org/target) | [`String`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/string.md)                                                                                                                     | The target property of each node to be modified.                 | -              |
-| `value`  | -       | [`schema:value`](https://schema.org/value)   | [`StringPatch`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/edits/string-patch.md) \| [`Primitive`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/primitive.md) | The new value, or string patch, to apply to the target property. | -              |
+| Name     | Aliases | `@id`                                        | Type                                                                                                                                                                                                                | Description                                                      | Inherited from                                                                                   |
+| -------- | ------- | -------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------- | ------------------------------------------------------------------------------------------------ |
+| `id`     | -       | [`schema:id`](https://schema.org/id)         | [`String`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/string.md)                                                                                                                     | The identifier for this item.                                    | [`Entity`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/entity.md) |
+| `target` | -       | [`schema:target`](https://schema.org/target) | [`String`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/string.md)                                                                                                                     | The target property of each node to be modified.                 | -                                                                                                |
+| `value`  | -       | [`schema:value`](https://schema.org/value)   | [`StringPatch`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/edits/string-patch.md) \| [`Primitive`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/primitive.md) | The new value, or string patch, to apply to the target property. | -                                                                                                |
 
 ## Related
 
 The `ModifyOperation` type is related to these types:
 
-- Parents: none
+- Parents: [`Entity`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/entity.md)
 - Children: none
 
 ## Formats

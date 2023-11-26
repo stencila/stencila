@@ -1,5 +1,6 @@
 title: ModifyOperation
 '@id': stencila:ModifyOperation
+extends: Entity
 category: edits
 description: An operation that is part of a suggestion to modify the property of a node.
 required:

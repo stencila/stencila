@@ -1,11 +1,14 @@
 // Generated file; do not edit. See `../rust/schema-gen` crate.
 
+import { Entity } from "./Entity.js";
 import { StringPatchOrPrimitive } from "./StringPatchOrPrimitive.js";
 
 /**
  * An operation that is part of a suggestion to modify the property of a node.
  */
-export class ModifyOperation {
+export class ModifyOperation extends Entity {
+  type = "ModifyOperation";
+
   /**
    * The target property of each node to be modified.
    */
@@ -17,6 +20,7 @@ export class ModifyOperation {
   value: StringPatchOrPrimitive;
 
   constructor(target: string, value: StringPatchOrPrimitive, options?: Partial<ModifyOperation>) {
+    super();
     if (options) Object.assign(this, options);
     this.target = target;
     this.value = value;

@@ -2,11 +2,12 @@
 
 from .prelude import *
 
+from .entity import Entity
 from .string_patch_or_primitive import StringPatchOrPrimitive
 
 
 @dataclass(init=False)
-class ModifyOperation(DataClassJsonMixin):
+class ModifyOperation(Entity):
     """
     An operation that is part of a suggestion to modify the property of a node.
     """
@@ -19,7 +20,7 @@ class ModifyOperation(DataClassJsonMixin):
     value: StringPatchOrPrimitive
     """The new value, or string patch, to apply to the target property."""
 
-    def __init__(self, target: str, value: StringPatchOrPrimitive):
-        super().__init__()
+    def __init__(self, target: str, value: StringPatchOrPrimitive, id: Optional[str] = None):
+        super().__init__(id = id)
         self.target = target
         self.value = value

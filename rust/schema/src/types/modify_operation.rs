@@ -13,6 +13,14 @@ use super::string_patch_or_primitive::StringPatchOrPrimitive;
 #[derive(derive_more::Display)]
 #[display(fmt = "ModifyOperation")]
 pub struct ModifyOperation {
+    /// The type of this item.
+    pub r#type: MustBe!("ModifyOperation"),
+
+    /// The identifier for this item.
+    #[strip(metadata)]
+    #[html(attr = "id")]
+    pub id: Option<String>,
+
     /// The target property of each node to be modified.
     pub target: String,
 
@@ -24,7 +32,8 @@ impl ModifyOperation {
     pub fn new(target: String, value: Box<StringPatchOrPrimitive>) -> Self {
         Self {
             target,
-            value
+            value,
+            ..Default::default()
         }
     }
 }
