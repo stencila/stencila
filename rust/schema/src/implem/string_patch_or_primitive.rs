@@ -21,30 +21,30 @@ impl ReadNode for StringPatchOrPrimitive {
     }
 
     fn load_null() -> Result<Self> {
-        Primitive::load_null().map(|value| StringPatchOrPrimitive::Primitive(value))
+        Primitive::load_null().map(StringPatchOrPrimitive::Primitive)
     }
 
     fn load_boolean(value: &bool) -> Result<Self> {
-        Primitive::load_boolean(value).map(|value| StringPatchOrPrimitive::Primitive(value))
+        Primitive::load_boolean(value).map(StringPatchOrPrimitive::Primitive)
     }
 
     fn load_int(value: &i64) -> Result<Self> {
-        Primitive::load_int(value).map(|value| StringPatchOrPrimitive::Primitive(value))
+        Primitive::load_int(value).map(StringPatchOrPrimitive::Primitive)
     }
 
     fn load_uint(value: &u64) -> Result<Self> {
-        Primitive::load_uint(value).map(|value| StringPatchOrPrimitive::Primitive(value))
+        Primitive::load_uint(value).map(StringPatchOrPrimitive::Primitive)
     }
 
     fn load_f64(value: &f64) -> Result<Self> {
-        Primitive::load_f64(value).map(|value| StringPatchOrPrimitive::Primitive(value))
+        Primitive::load_f64(value).map(StringPatchOrPrimitive::Primitive)
     }
 
     fn load_str(value: &SmolStr) -> Result<Self> {
-        Primitive::load_str(value).map(|value| StringPatchOrPrimitive::Primitive(value))
+        Primitive::load_str(value).map(StringPatchOrPrimitive::Primitive)
     }
 
     fn load_list<S: ReadStore>(store: &S, obj: &ObjId) -> Result<Self> {
-        Primitive::load_list(store, obj).map(|value| StringPatchOrPrimitive::Primitive(value))
+        Primitive::load_list(store, obj).map(StringPatchOrPrimitive::Primitive)
     }
 }
