@@ -1,6 +1,6 @@
 import type {
   AutomaticExecution,
-  ExecutionDigest,
+  CompilationDigest,
   ExecutionDependency,
   ExecutionDependant,
   ExecutionTag,
@@ -19,13 +19,13 @@ export class Executable extends Entity {
   autoExec?: AutomaticExecution;
 
   @property()
-  compilationDigest?: ExecutionDigest;
+  compilationDigest?: CompilationDigest;
 
   @property()
   compilationErrors?: string;
 
   @property()
-  executionDigest?: ExecutionDigest;
+  executionDigest?: CompilationDigest;
 
   @property()
   executionDependencies?: ExecutionDependency;
