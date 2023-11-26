@@ -69,6 +69,9 @@ use super::list_item::ListItem;
 use super::math_block::MathBlock;
 use super::math_inline::MathInline;
 use super::media_object::MediaObject;
+use super::modify_block::ModifyBlock;
+use super::modify_inline::ModifyInline;
+use super::modify_operation::ModifyOperation;
 use super::monetary_grant::MonetaryGrant;
 use super::note::Note;
 use super::null::Null;
@@ -87,12 +90,16 @@ use super::publication_issue::PublicationIssue;
 use super::publication_volume::PublicationVolume;
 use super::quote_block::QuoteBlock;
 use super::quote_inline::QuoteInline;
+use super::replace_block::ReplaceBlock;
+use super::replace_inline::ReplaceInline;
 use super::review::Review;
 use super::section::Section;
 use super::software_application::SoftwareApplication;
 use super::software_source_code::SoftwareSourceCode;
 use super::strikeout::Strikeout;
 use super::string::String;
+use super::string_operation::StringOperation;
+use super::string_patch::StringPatch;
 use super::string_validator::StringValidator;
 use super::strong::Strong;
 use super::styled_block::StyledBlock;
@@ -262,6 +269,12 @@ pub enum Node {
 
     MediaObject(MediaObject),
 
+    ModifyBlock(ModifyBlock),
+
+    ModifyInline(ModifyInline),
+
+    ModifyOperation(ModifyOperation),
+
     MonetaryGrant(MonetaryGrant),
 
     Note(Note),
@@ -292,6 +305,10 @@ pub enum Node {
 
     QuoteInline(QuoteInline),
 
+    ReplaceBlock(ReplaceBlock),
+
+    ReplaceInline(ReplaceInline),
+
     Review(Review),
 
     Section(Section),
@@ -301,6 +318,10 @@ pub enum Node {
     SoftwareSourceCode(SoftwareSourceCode),
 
     Strikeout(Strikeout),
+
+    StringOperation(StringOperation),
+
+    StringPatch(StringPatch),
 
     StringValidator(StringValidator),
 

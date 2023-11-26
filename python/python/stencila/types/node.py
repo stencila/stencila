@@ -67,6 +67,9 @@ ListItem = ForwardRef("ListItem")
 MathBlock = ForwardRef("MathBlock")
 MathInline = ForwardRef("MathInline")
 MediaObject = ForwardRef("MediaObject")
+ModifyBlock = ForwardRef("ModifyBlock")
+ModifyInline = ForwardRef("ModifyInline")
+ModifyOperation = ForwardRef("ModifyOperation")
 MonetaryGrant = ForwardRef("MonetaryGrant")
 Note = ForwardRef("Note")
 NumberValidator = ForwardRef("NumberValidator")
@@ -83,11 +86,15 @@ PublicationIssue = ForwardRef("PublicationIssue")
 PublicationVolume = ForwardRef("PublicationVolume")
 QuoteBlock = ForwardRef("QuoteBlock")
 QuoteInline = ForwardRef("QuoteInline")
+ReplaceBlock = ForwardRef("ReplaceBlock")
+ReplaceInline = ForwardRef("ReplaceInline")
 Review = ForwardRef("Review")
 Section = ForwardRef("Section")
 SoftwareApplication = ForwardRef("SoftwareApplication")
 SoftwareSourceCode = ForwardRef("SoftwareSourceCode")
 Strikeout = ForwardRef("Strikeout")
+StringOperation = ForwardRef("StringOperation")
+StringPatch = ForwardRef("StringPatch")
 StringValidator = ForwardRef("StringValidator")
 Strong = ForwardRef("Strong")
 StyledBlock = ForwardRef("StyledBlock")
@@ -183,6 +190,9 @@ Node = Union[
     MathBlock,
     MathInline,
     MediaObject,
+    ModifyBlock,
+    ModifyInline,
+    ModifyOperation,
     MonetaryGrant,
     Note,
     NumberValidator,
@@ -198,11 +208,15 @@ Node = Union[
     PublicationVolume,
     QuoteBlock,
     QuoteInline,
+    ReplaceBlock,
+    ReplaceInline,
     Review,
     Section,
     SoftwareApplication,
     SoftwareSourceCode,
     Strikeout,
+    StringOperation,
+    StringPatch,
     StringValidator,
     Strong,
     StyledBlock,

@@ -139,6 +139,13 @@ Support and degree of loss for node types:
 | [DeleteInline](https://github.com/stencila/stencila/blob/main/docs/reference/schema/edits/delete_inline.md)               | 🟢 No loss    | 🟢 No loss    |       |
 | [InsertBlock](https://github.com/stencila/stencila/blob/main/docs/reference/schema/edits/insert_block.md)                 | 🟢 No loss    | 🟢 No loss    |       |
 | [InsertInline](https://github.com/stencila/stencila/blob/main/docs/reference/schema/edits/insert_inline.md)               | 🟢 No loss    | 🟢 No loss    |       |
+| [ModifyBlock](https://github.com/stencila/stencila/blob/main/docs/reference/schema/edits/modify_block.md)                 | 🟢 No loss    | 🟢 No loss    |       |
+| [ModifyInline](https://github.com/stencila/stencila/blob/main/docs/reference/schema/edits/modify_inline.md)               | 🟢 No loss    | 🟢 No loss    |       |
+| [ModifyOperation](https://github.com/stencila/stencila/blob/main/docs/reference/schema/edits/modify_operation.md)         | 🟢 No loss    | 🟢 No loss    |       |
+| [ReplaceBlock](https://github.com/stencila/stencila/blob/main/docs/reference/schema/edits/replace_block.md)               | 🟢 No loss    | 🟢 No loss    |       |
+| [ReplaceInline](https://github.com/stencila/stencila/blob/main/docs/reference/schema/edits/replace_inline.md)             | 🟢 No loss    | 🟢 No loss    |       |
+| [StringOperation](https://github.com/stencila/stencila/blob/main/docs/reference/schema/edits/string_operation.md)         | 🟢 No loss    | 🟢 No loss    |       |
+| [StringPatch](https://github.com/stencila/stencila/blob/main/docs/reference/schema/edits/string_patch.md)                 | 🟢 No loss    | 🟢 No loss    |       |
 | **Other**                                                                                                                 |
 | [Brand](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/brand.md)                              | 🟢 No loss    | 🟢 No loss    |       |
 | [ContactPoint](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/contact_point.md)               | 🟢 No loss    | 🟢 No loss    |       |

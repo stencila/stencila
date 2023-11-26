@@ -145,6 +145,18 @@
     {
       "proptest": {
         "min": {
+          "description": "Do not generate `ModifyInline` nodes in inline content.",
+          "skip": true
+        },
+        "max": {
+          "description": "Generate `ModifyInline` nodes in inline content."
+        }
+      },
+      "$ref": "ModifyInline.schema.json"
+    },
+    {
+      "proptest": {
+        "min": {
           "description": "Do not generate `Note` nodes in inline content.",
           "skip": true
         },
@@ -168,6 +180,18 @@
     },
     {
       "$ref": "QuoteInline.schema.json"
+    },
+    {
+      "proptest": {
+        "min": {
+          "description": "Do not generate `ReplaceInline` nodes in inline content.",
+          "skip": true
+        },
+        "max": {
+          "description": "Generate `ReplaceInline` nodes in inline content."
+        }
+      },
+      "$ref": "ReplaceInline.schema.json"
     },
     {
       "$ref": "StyledInline.schema.json"

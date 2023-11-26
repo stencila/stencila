@@ -216,6 +216,15 @@
       "$ref": "MediaObject.schema.json"
     },
     {
+      "$ref": "ModifyBlock.schema.json"
+    },
+    {
+      "$ref": "ModifyInline.schema.json"
+    },
+    {
+      "$ref": "ModifyOperation.schema.json"
+    },
+    {
       "$ref": "MonetaryGrant.schema.json"
     },
     {
@@ -261,6 +270,12 @@
       "$ref": "QuoteInline.schema.json"
     },
     {
+      "$ref": "ReplaceBlock.schema.json"
+    },
+    {
+      "$ref": "ReplaceInline.schema.json"
+    },
+    {
       "$ref": "Review.schema.json"
     },
     {
@@ -274,6 +289,12 @@
     },
     {
       "$ref": "Strikeout.schema.json"
+    },
+    {
+      "$ref": "StringOperation.schema.json"
+    },
+    {
+      "$ref": "StringPatch.schema.json"
     },
     {
       "$ref": "StringValidator.schema.json"

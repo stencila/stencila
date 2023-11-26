@@ -1,0 +1,55 @@
+{
+  "@id": "https://stencila.org/StringPatch",
+  "name": "StringPatch",
+  "license": "https://creativecommons.org/publicdomain/zero/1.0/",
+  "@context": {
+    "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
+    "schema": "https://schema.org/",
+    "stencila": "https://stencila.org/"
+  },
+  "@graph": [
+    {
+      "@id": "stencila:StringPatch",
+      "@type": "rdfs:Class",
+      "rdfs:label": "StringPatch",
+      "rdfs:comment": "An set of operations to modify a string.",
+      "rdfs:subClassOf": {
+        "@id": "stencila:Entity"
+      }
+    },
+    {
+      "@id": "schema:version",
+      "@type": "rdfs:Property",
+      "rdfs:label": "version",
+      "rdfs:comment": "The version of the string to which the patch should be applied.",
+      "schema:domainIncludes": [
+        {
+          "@id": "schema:CreativeWork"
+        },
+        {
+          "@id": "stencila:StringPatch"
+        }
+      ],
+      "schema:rangeIncludes": {
+        "@id": "schema:Text"
+      }
+    },
+    {
+      "@id": "stencila:operations",
+      "@type": "rdfs:Property",
+      "rdfs:label": "operations",
+      "rdfs:comment": "The operations to be applied to the string.",
+      "schema:domainIncludes": [
+        {
+          "@id": "stencila:Modify"
+        },
+        {
+          "@id": "stencila:StringPatch"
+        }
+      ],
+      "schema:rangeIncludes": {
+        "@id": "stencila:StringOperation"
+      }
+    }
+  ]
+}

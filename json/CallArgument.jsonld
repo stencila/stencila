@@ -299,7 +299,13 @@
           "@id": "stencila:ExecutionTag"
         },
         {
+          "@id": "stencila:ModifyOperation"
+        },
+        {
           "@id": "stencila:Parameter"
+        },
+        {
+          "@id": "stencila:StringOperation"
         },
         {
           "@id": "stencila:Variable"

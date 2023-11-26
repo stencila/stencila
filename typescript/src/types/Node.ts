@@ -68,6 +68,9 @@ import { type ListItem } from "./ListItem.js";
 import { type MathBlock } from "./MathBlock.js";
 import { type MathInline } from "./MathInline.js";
 import { type MediaObject } from "./MediaObject.js";
+import { type ModifyBlock } from "./ModifyBlock.js";
+import { type ModifyInline } from "./ModifyInline.js";
+import { type ModifyOperation } from "./ModifyOperation.js";
 import { type MonetaryGrant } from "./MonetaryGrant.js";
 import { type Note } from "./Note.js";
 import { type NumberValidator } from "./NumberValidator.js";
@@ -84,11 +87,15 @@ import { type PublicationIssue } from "./PublicationIssue.js";
 import { type PublicationVolume } from "./PublicationVolume.js";
 import { type QuoteBlock } from "./QuoteBlock.js";
 import { type QuoteInline } from "./QuoteInline.js";
+import { type ReplaceBlock } from "./ReplaceBlock.js";
+import { type ReplaceInline } from "./ReplaceInline.js";
 import { type Review } from "./Review.js";
 import { type Section } from "./Section.js";
 import { type SoftwareApplication } from "./SoftwareApplication.js";
 import { type SoftwareSourceCode } from "./SoftwareSourceCode.js";
 import { type Strikeout } from "./Strikeout.js";
+import { type StringOperation } from "./StringOperation.js";
+import { type StringPatch } from "./StringPatch.js";
 import { type StringValidator } from "./StringValidator.js";
 import { type Strong } from "./Strong.js";
 import { type StyledBlock } from "./StyledBlock.js";
@@ -186,6 +193,9 @@ export type Node =
   MathBlock |
   MathInline |
   MediaObject |
+  ModifyBlock |
+  ModifyInline |
+  ModifyOperation |
   MonetaryGrant |
   Note |
   NumberValidator |
@@ -201,11 +211,15 @@ export type Node =
   PublicationVolume |
   QuoteBlock |
   QuoteInline |
+  ReplaceBlock |
+  ReplaceInline |
   Review |
   Section |
   SoftwareApplication |
   SoftwareSourceCode |
   Strikeout |
+  StringOperation |
+  StringPatch |
   StringValidator |
   Strong |
   StyledBlock |
@@ -299,6 +313,9 @@ export function node(other: Node): Node {
     case "MathBlock":
     case "MathInline":
     case "MediaObject":
+    case "ModifyBlock":
+    case "ModifyInline":
+    case "ModifyOperation":
     case "MonetaryGrant":
     case "Note":
     case "NumberValidator":
@@ -314,11 +331,15 @@ export function node(other: Node): Node {
     case "PublicationVolume":
     case "QuoteBlock":
     case "QuoteInline":
+    case "ReplaceBlock":
+    case "ReplaceInline":
     case "Review":
     case "Section":
     case "SoftwareApplication":
     case "SoftwareSourceCode":
     case "Strikeout":
+    case "StringOperation":
+    case "StringPatch":
     case "StringValidator":
     case "Strong":
     case "StyledBlock":

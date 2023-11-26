@@ -1,0 +1,118 @@
+{
+  "@id": "https://stencila.org/ModifyBlock",
+  "name": "ModifyBlock",
+  "license": "https://creativecommons.org/publicdomain/zero/1.0/",
+  "@context": {
+    "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
+    "schema": "https://schema.org/",
+    "stencila": "https://stencila.org/"
+  },
+  "@graph": [
+    {
+      "@id": "stencila:ModifyBlock",
+      "@type": "rdfs:Class",
+      "rdfs:label": "ModifyBlock",
+      "rdfs:comment": "A suggestion to modify some block content.",
+      "rdfs:subClassOf": {
+        "@id": "stencila:SuggestionBlock"
+      }
+    },
+    {
+      "@id": "stencila:content",
+      "@type": "rdfs:Property",
+      "rdfs:label": "content",
+      "rdfs:comment": "The content that is suggested to be inserted or deleted.",
+      "schema:domainIncludes": [
+        {
+          "@id": "schema:Article"
+        },
+        {
+          "@id": "schema:Claim"
+        },
+        {
+          "@id": "schema:Comment"
+        },
+        {
+          "@id": "schema:ListItem"
+        },
+        {
+          "@id": "stencila:Admonition"
+        },
+        {
+          "@id": "stencila:Cite"
+        },
+        {
+          "@id": "stencila:Figure"
+        },
+        {
+          "@id": "stencila:ForBlock"
+        },
+        {
+          "@id": "stencila:Form"
+        },
+        {
+          "@id": "stencila:Heading"
+        },
+        {
+          "@id": "stencila:IfBlockClause"
+        },
+        {
+          "@id": "stencila:IncludeBlock"
+        },
+        {
+          "@id": "stencila:Link"
+        },
+        {
+          "@id": "stencila:Mark"
+        },
+        {
+          "@id": "stencila:Note"
+        },
+        {
+          "@id": "stencila:Paragraph"
+        },
+        {
+          "@id": "stencila:QuoteBlock"
+        },
+        {
+          "@id": "stencila:Section"
+        },
+        {
+          "@id": "stencila:StyledBlock"
+        },
+        {
+          "@id": "stencila:StyledInline"
+        },
+        {
+          "@id": "stencila:SuggestionBlock"
+        },
+        {
+          "@id": "stencila:SuggestionInline"
+        },
+        {
+          "@id": "stencila:TableCell"
+        }
+      ],
+      "schema:rangeIncludes": {
+        "@id": "stencila:Block"
+      }
+    },
+    {
+      "@id": "stencila:operations",
+      "@type": "rdfs:Property",
+      "rdfs:label": "operations",
+      "rdfs:comment": "The operations to be applied to the nodes.",
+      "schema:domainIncludes": [
+        {
+          "@id": "stencila:Modify"
+        },
+        {
+          "@id": "stencila:StringPatch"
+        }
+      ],
+      "schema:rangeIncludes": {
+        "@id": "stencila:ModifyOperation"
+      }
+    }
+  ]
+}

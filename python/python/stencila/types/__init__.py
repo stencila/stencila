@@ -92,6 +92,10 @@ from .math import Math
 from .math_block import MathBlock
 from .math_inline import MathInline
 from .media_object import MediaObject
+from .modify import Modify
+from .modify_block import ModifyBlock
+from .modify_inline import ModifyInline
+from .modify_operation import ModifyOperation
 from .monetary_grant import MonetaryGrant
 from .node import Node
 from .note import Note
@@ -115,6 +119,8 @@ from .publication_issue import PublicationIssue
 from .publication_volume import PublicationVolume
 from .quote_block import QuoteBlock
 from .quote_inline import QuoteInline
+from .replace_block import ReplaceBlock
+from .replace_inline import ReplaceInline
 from .review import Review
 from .section import Section
 from .section_type import SectionType
@@ -123,6 +129,9 @@ from .software_source_code import SoftwareSourceCode
 from .software_source_code_or_software_application_or_str import SoftwareSourceCodeOrSoftwareApplicationOrStr
 from .str_or_float import StrOrFloat
 from .strikeout import Strikeout
+from .string_operation import StringOperation
+from .string_patch import StringPatch
+from .string_patch_or_primitive import StringPatchOrPrimitive
 from .string_validator import StringValidator
 from .strong import Strong
 from .styled import Styled

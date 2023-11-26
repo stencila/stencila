@@ -1,0 +1,55 @@
+{
+  "$schema": "https://stencila.org/meta.schema.json",
+  "$id": "https://stencila.org/StringPatch.schema.json",
+  "@id": "stencila:StringPatch",
+  "title": "StringPatch",
+  "extends": [
+    "Entity"
+  ],
+  "category": "edits",
+  "description": "An set of operations to modify a string.",
+  "required": [
+    "type",
+    "operations"
+  ],
+  "core": [
+    "id",
+    "version"
+  ],
+  "properties": {
+    "type": {
+      "@id": "schema:type",
+      "description": "The type of this item.",
+      "$comment": "This is a special property analogous to JSON-LD's `@type` keyword.\n",
+      "type": "string"
+    },
+    "id": {
+      "@id": "schema:id",
+      "description": "The identifier for this item.",
+      "$comment": "This is a special property analogous to JSON-LD's `@id` keyword.\n",
+      "strip": [
+        "metadata"
+      ],
+      "html": {
+        "attr": "id"
+      },
+      "type": "string"
+    },
+    "version": {
+      "@id": "schema:version",
+      "description": "The version of the string to which the patch should be applied.",
+      "type": "string"
+    },
+    "operations": {
+      "@id": "stencila:operations",
+      "description": "The operations to be applied to the string.",
+      "aliases": [
+        "operation"
+      ],
+      "type": "array",
+      "items": {
+        "$ref": "StringOperation.schema.json"
+      }
+    }
+  }
+}

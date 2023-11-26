@@ -17,8 +17,10 @@ IncludeBlock = ForwardRef("IncludeBlock")
 InsertBlock = ForwardRef("InsertBlock")
 List = ForwardRef("List")
 MathBlock = ForwardRef("MathBlock")
+ModifyBlock = ForwardRef("ModifyBlock")
 Paragraph = ForwardRef("Paragraph")
 QuoteBlock = ForwardRef("QuoteBlock")
+ReplaceBlock = ForwardRef("ReplaceBlock")
 Section = ForwardRef("Section")
 StyledBlock = ForwardRef("StyledBlock")
 Table = ForwardRef("Table")
@@ -41,8 +43,10 @@ Block = Union[
     InsertBlock,
     List,
     MathBlock,
+    ModifyBlock,
     Paragraph,
     QuoteBlock,
+    ReplaceBlock,
     Section,
     StyledBlock,
     Table,

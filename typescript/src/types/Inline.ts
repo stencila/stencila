@@ -19,9 +19,11 @@ import { type Integer } from "./Integer.js";
 import { type Link } from "./Link.js";
 import { type MathInline } from "./MathInline.js";
 import { type MediaObject } from "./MediaObject.js";
+import { type ModifyInline } from "./ModifyInline.js";
 import { type Note } from "./Note.js";
 import { type Parameter } from "./Parameter.js";
 import { type QuoteInline } from "./QuoteInline.js";
+import { type ReplaceInline } from "./ReplaceInline.js";
 import { type Strikeout } from "./Strikeout.js";
 import { type Strong } from "./Strong.js";
 import { type StyledInline } from "./StyledInline.js";
@@ -54,9 +56,11 @@ export type Inline =
   Link |
   MathInline |
   MediaObject |
+  ModifyInline |
   Note |
   Parameter |
   QuoteInline |
+  ReplaceInline |
   StyledInline |
   Strikeout |
   Strong |
@@ -97,9 +101,11 @@ export function inline(other: Inline): Inline {
     case "Link":
     case "MathInline":
     case "MediaObject":
+    case "ModifyInline":
     case "Note":
     case "Parameter":
     case "QuoteInline":
+    case "ReplaceInline":
     case "StyledInline":
     case "Strikeout":
     case "Strong":

@@ -17,8 +17,10 @@ import { type IncludeBlock } from "./IncludeBlock.js";
 import { type InsertBlock } from "./InsertBlock.js";
 import { type List } from "./List.js";
 import { type MathBlock } from "./MathBlock.js";
+import { type ModifyBlock } from "./ModifyBlock.js";
 import { type Paragraph } from "./Paragraph.js";
 import { type QuoteBlock } from "./QuoteBlock.js";
+import { type ReplaceBlock } from "./ReplaceBlock.js";
 import { type Section } from "./Section.js";
 import { type StyledBlock } from "./StyledBlock.js";
 import { type Table } from "./Table.js";
@@ -43,8 +45,10 @@ export type Block =
   InsertBlock |
   List |
   MathBlock |
+  ModifyBlock |
   Paragraph |
   QuoteBlock |
+  ReplaceBlock |
   Section |
   StyledBlock |
   Table |
@@ -70,8 +74,10 @@ export function block(other: Block): Block {
     case "InsertBlock":
     case "List":
     case "MathBlock":
+    case "ModifyBlock":
     case "Paragraph":
     case "QuoteBlock":
+    case "ReplaceBlock":
     case "Section":
     case "StyledBlock":
     case "Table":

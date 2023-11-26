@@ -1,0 +1,93 @@
+{
+  "@id": "https://stencila.org/ModifyOperation",
+  "name": "ModifyOperation",
+  "license": "https://creativecommons.org/publicdomain/zero/1.0/",
+  "@context": {
+    "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
+    "schema": "https://schema.org/",
+    "stencila": "https://stencila.org/"
+  },
+  "@graph": [
+    {
+      "@id": "stencila:ModifyOperation",
+      "@type": "rdfs:Class",
+      "rdfs:label": "ModifyOperation",
+      "rdfs:comment": "An operation that is part of a suggestion to modify the property of a node."
+    },
+    {
+      "@id": "schema:target",
+      "@type": "rdfs:Property",
+      "rdfs:label": "target",
+      "rdfs:comment": "The target property of each node to be modified.",
+      "schema:domainIncludes": [
+        {
+          "@id": "stencila:Cite"
+        },
+        {
+          "@id": "stencila:Link"
+        },
+        {
+          "@id": "stencila:ModifyOperation"
+        }
+      ],
+      "schema:rangeIncludes": {
+        "@id": "schema:Text"
+      }
+    },
+    {
+      "@id": "schema:value",
+      "@type": "rdfs:Property",
+      "rdfs:label": "value",
+      "rdfs:comment": "The new value, or string patch, to apply to the target property.",
+      "schema:domainIncludes": [
+        {
+          "@id": "schema:Date"
+        },
+        {
+          "@id": "schema:DateTime"
+        },
+        {
+          "@id": "schema:Duration"
+        },
+        {
+          "@id": "schema:PropertyValue"
+        },
+        {
+          "@id": "schema:Text"
+        },
+        {
+          "@id": "schema:Time"
+        },
+        {
+          "@id": "schema:Timestamp"
+        },
+        {
+          "@id": "stencila:ConstantValidator"
+        },
+        {
+          "@id": "stencila:ExecutionTag"
+        },
+        {
+          "@id": "stencila:ModifyOperation"
+        },
+        {
+          "@id": "stencila:Parameter"
+        },
+        {
+          "@id": "stencila:StringOperation"
+        },
+        {
+          "@id": "stencila:Variable"
+        }
+      ],
+      "schema:rangeIncludes": [
+        {
+          "@id": "stencila:StringPatch"
+        },
+        {
+          "@id": "stencila:Primitive"
+        }
+      ]
+    }
+  ]
+}

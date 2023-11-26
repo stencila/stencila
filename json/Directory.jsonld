@@ -451,9 +451,14 @@
       "@type": "rdfs:Property",
       "rdfs:label": "version",
       "rdfs:comment": "The version of the creative work.",
-      "schema:domainIncludes": {
-        "@id": "schema:CreativeWork"
-      },
+      "schema:domainIncludes": [
+        {
+          "@id": "schema:CreativeWork"
+        },
+        {
+          "@id": "stencila:StringPatch"
+        }
+      ],
       "schema:rangeIncludes": [
         {
           "@id": "schema:Text"

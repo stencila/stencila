@@ -18,9 +18,11 @@ InsertInline = ForwardRef("InsertInline")
 Link = ForwardRef("Link")
 MathInline = ForwardRef("MathInline")
 MediaObject = ForwardRef("MediaObject")
+ModifyInline = ForwardRef("ModifyInline")
 Note = ForwardRef("Note")
 Parameter = ForwardRef("Parameter")
 QuoteInline = ForwardRef("QuoteInline")
+ReplaceInline = ForwardRef("ReplaceInline")
 Strikeout = ForwardRef("Strikeout")
 Strong = ForwardRef("Strong")
 StyledInline = ForwardRef("StyledInline")
@@ -51,9 +53,11 @@ Inline = Union[
     Link,
     MathInline,
     MediaObject,
+    ModifyInline,
     Note,
     Parameter,
     QuoteInline,
+    ReplaceInline,
     StyledInline,
     Strikeout,
     Strong,

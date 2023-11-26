@@ -17,8 +17,10 @@ use super::include_block::IncludeBlock;
 use super::insert_block::InsertBlock;
 use super::list::List;
 use super::math_block::MathBlock;
+use super::modify_block::ModifyBlock;
 use super::paragraph::Paragraph;
 use super::quote_block::QuoteBlock;
+use super::replace_block::ReplaceBlock;
 use super::section::Section;
 use super::styled_block::StyledBlock;
 use super::table::Table;
@@ -79,10 +81,22 @@ pub enum Block {
 
     MathBlock(MathBlock),
 
+    #[cfg_attr(feature = "proptest-min", proptest(skip))]
+    #[cfg_attr(feature = "proptest-low", proptest(skip))]
+    #[cfg_attr(feature = "proptest-high", proptest(skip))]
+    #[cfg_attr(feature = "proptest-max", proptest(skip))]
+    ModifyBlock(ModifyBlock),
+
     #[default]
     Paragraph(Paragraph),
 
     QuoteBlock(QuoteBlock),
+
+    #[cfg_attr(feature = "proptest-min", proptest(skip))]
+    #[cfg_attr(feature = "proptest-low", proptest(skip))]
+    #[cfg_attr(feature = "proptest-high", proptest(skip))]
+    #[cfg_attr(feature = "proptest-max", proptest(skip))]
+    ReplaceBlock(ReplaceBlock),
 
     #[cfg_attr(feature = "proptest-min", proptest(skip))]
     Section(Section),

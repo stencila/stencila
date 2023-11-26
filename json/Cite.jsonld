@@ -28,6 +28,9 @@
         },
         {
           "@id": "stencila:Link"
+        },
+        {
+          "@id": "stencila:ModifyOperation"
         }
       ],
       "schema:rangeIncludes": {

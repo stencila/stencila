@@ -1,0 +1,64 @@
+{
+  "$schema": "https://stencila.org/meta.schema.json",
+  "$id": "https://stencila.org/StringOperation.schema.json",
+  "@id": "stencila:StringOperation",
+  "title": "StringOperation",
+  "extends": [
+    "Entity"
+  ],
+  "category": "edits",
+  "description": "An operation that modifies a string.",
+  "required": [
+    "type",
+    "startPosition"
+  ],
+  "core": [
+    "id",
+    "startPosition",
+    "endPosition",
+    "value"
+  ],
+  "properties": {
+    "type": {
+      "@id": "schema:type",
+      "description": "The type of this item.",
+      "$comment": "This is a special property analogous to JSON-LD's `@type` keyword.\n",
+      "type": "string"
+    },
+    "id": {
+      "@id": "schema:id",
+      "description": "The identifier for this item.",
+      "$comment": "This is a special property analogous to JSON-LD's `@id` keyword.\n",
+      "strip": [
+        "metadata"
+      ],
+      "html": {
+        "attr": "id"
+      },
+      "type": "string"
+    },
+    "startPosition": {
+      "@id": "stencila:startPosition",
+      "description": "The start position in the string of the operation.",
+      "aliases": [
+        "start-position",
+        "start_position"
+      ],
+      "$ref": "UnsignedInteger.schema.json"
+    },
+    "endPosition": {
+      "@id": "stencila:endPosition",
+      "description": "The end position in the string of the operation.",
+      "aliases": [
+        "end-position",
+        "end_position"
+      ],
+      "$ref": "UnsignedInteger.schema.json"
+    },
+    "value": {
+      "@id": "schema:value",
+      "description": "The string value to insert or use as the replacement.",
+      "type": "string"
+    }
+  }
+}

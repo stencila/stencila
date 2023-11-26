@@ -1,0 +1,31 @@
+{
+  "$schema": "https://stencila.org/meta.schema.json",
+  "$id": "https://stencila.org/ModifyOperation.schema.json",
+  "@id": "stencila:ModifyOperation",
+  "title": "ModifyOperation",
+  "category": "edits",
+  "description": "An operation that is part of a suggestion to modify the property of a node.",
+  "required": [
+    "target",
+    "value"
+  ],
+  "properties": {
+    "target": {
+      "@id": "schema:target",
+      "description": "The target property of each node to be modified.",
+      "type": "string"
+    },
+    "value": {
+      "@id": "schema:value",
+      "description": "The new value, or string patch, to apply to the target property.",
+      "anyOf": [
+        {
+          "$ref": "StringPatch.schema.json"
+        },
+        {
+          "$ref": "Primitive.schema.json"
+        }
+      ]
+    }
+  }
+}

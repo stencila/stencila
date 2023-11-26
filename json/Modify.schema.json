@@ -1,0 +1,25 @@
+{
+  "$schema": "https://stencila.org/meta.schema.json",
+  "$id": "https://stencila.org/Modify.schema.json",
+  "@id": "stencila:Modify",
+  "title": "Modify",
+  "category": "edits",
+  "abstract": true,
+  "description": "A suggestion to modify one or more nodes.",
+  "required": [
+    "operations"
+  ],
+  "properties": {
+    "operations": {
+      "@id": "stencila:operations",
+      "description": "The operations to be applied to the nodes.",
+      "aliases": [
+        "operation"
+      ],
+      "type": "array",
+      "items": {
+        "$ref": "ModifyOperation.schema.json"
+      }
+    }
+  }
+}

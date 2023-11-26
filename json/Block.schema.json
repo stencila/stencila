@@ -143,10 +143,28 @@
       "$ref": "MathBlock.schema.json"
     },
     {
+      "proptest": {
+        "min": {
+          "description": "Do not generate `ModifyBlock` nodes in block content.",
+          "skip": true
+        }
+      },
+      "$ref": "ModifyBlock.schema.json"
+    },
+    {
       "$ref": "Paragraph.schema.json"
     },
     {
       "$ref": "QuoteBlock.schema.json"
+    },
+    {
+      "proptest": {
+        "min": {
+          "description": "Do not generate `ReplaceBlock` nodes in block content.",
+          "skip": true
+        }
+      },
+      "$ref": "ReplaceBlock.schema.json"
     },
     {
       "proptest": {

@@ -1,0 +1,35 @@
+{
+  "@id": "https://stencila.org/Modify",
+  "name": "Modify",
+  "license": "https://creativecommons.org/publicdomain/zero/1.0/",
+  "@context": {
+    "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
+    "schema": "https://schema.org/",
+    "stencila": "https://stencila.org/"
+  },
+  "@graph": [
+    {
+      "@id": "stencila:Modify",
+      "@type": "rdfs:Class",
+      "rdfs:label": "Modify",
+      "rdfs:comment": "A suggestion to modify one or more nodes."
+    },
+    {
+      "@id": "stencila:operations",
+      "@type": "rdfs:Property",
+      "rdfs:label": "operations",
+      "rdfs:comment": "The operations to be applied to the nodes.",
+      "schema:domainIncludes": [
+        {
+          "@id": "stencila:Modify"
+        },
+        {
+          "@id": "stencila:StringPatch"
+        }
+      ],
+      "schema:rangeIncludes": {
+        "@id": "stencila:ModifyOperation"
+      }
+    }
+  ]
+}

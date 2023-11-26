@@ -1,0 +1,95 @@
+{
+  "@id": "https://stencila.org/StringOperation",
+  "name": "StringOperation",
+  "license": "https://creativecommons.org/publicdomain/zero/1.0/",
+  "@context": {
+    "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
+    "schema": "https://schema.org/",
+    "stencila": "https://stencila.org/"
+  },
+  "@graph": [
+    {
+      "@id": "stencila:StringOperation",
+      "@type": "rdfs:Class",
+      "rdfs:label": "StringOperation",
+      "rdfs:comment": "An operation that modifies a string.",
+      "rdfs:subClassOf": {
+        "@id": "stencila:Entity"
+      }
+    },
+    {
+      "@id": "stencila:startPosition",
+      "@type": "rdfs:Property",
+      "rdfs:label": "startPosition",
+      "rdfs:comment": "The start position in the string of the operation.",
+      "schema:domainIncludes": {
+        "@id": "stencila:StringOperation"
+      },
+      "schema:rangeIncludes": {
+        "@id": "stencila:UnsignedInteger"
+      }
+    },
+    {
+      "@id": "stencila:endPosition",
+      "@type": "rdfs:Property",
+      "rdfs:label": "endPosition",
+      "rdfs:comment": "The end position in the string of the operation.",
+      "schema:domainIncludes": {
+        "@id": "stencila:StringOperation"
+      },
+      "schema:rangeIncludes": {
+        "@id": "stencila:UnsignedInteger"
+      }
+    },
+    {
+      "@id": "schema:value",
+      "@type": "rdfs:Property",
+      "rdfs:label": "value",
+      "rdfs:comment": "The string value to insert or use as the replacement.",
+      "schema:domainIncludes": [
+        {
+          "@id": "schema:Date"
+        },
+        {
+          "@id": "schema:DateTime"
+        },
+        {
+          "@id": "schema:Duration"
+        },
+        {
+          "@id": "schema:PropertyValue"
+        },
+        {
+          "@id": "schema:Text"
+        },
+        {
+          "@id": "schema:Time"
+        },
+        {
+          "@id": "schema:Timestamp"
+        },
+        {
+          "@id": "stencila:ConstantValidator"
+        },
+        {
+          "@id": "stencila:ExecutionTag"
+        },
+        {
+          "@id": "stencila:ModifyOperation"
+        },
+        {
+          "@id": "stencila:Parameter"
+        },
+        {
+          "@id": "stencila:StringOperation"
+        },
+        {
+          "@id": "stencila:Variable"
+        }
+      ],
+      "schema:rangeIncludes": {
+        "@id": "schema:Text"
+      }
+    }
+  ]
+}

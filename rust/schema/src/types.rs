@@ -89,6 +89,9 @@ mod list_order;
 mod math_block;
 mod math_inline;
 mod media_object;
+mod modify_block;
+mod modify_inline;
+mod modify_operation;
 mod monetary_grant;
 mod node;
 mod note;
@@ -114,6 +117,8 @@ mod publication_issue;
 mod publication_volume;
 mod quote_block;
 mod quote_inline;
+mod replace_block;
+mod replace_inline;
 mod review;
 mod section;
 mod section_type;
@@ -122,7 +127,10 @@ mod software_source_code;
 mod software_source_code_or_software_application_or_string;
 mod strikeout;
 mod string;
+mod string_operation;
 mod string_or_number;
+mod string_patch;
+mod string_patch_or_primitive;
 mod string_validator;
 mod strong;
 mod styled_block;
@@ -238,6 +246,9 @@ pub use list_order::*;
 pub use math_block::*;
 pub use math_inline::*;
 pub use media_object::*;
+pub use modify_block::*;
+pub use modify_inline::*;
+pub use modify_operation::*;
 pub use monetary_grant::*;
 pub use node::*;
 pub use note::*;
@@ -263,6 +274,8 @@ pub use publication_issue::*;
 pub use publication_volume::*;
 pub use quote_block::*;
 pub use quote_inline::*;
+pub use replace_block::*;
+pub use replace_inline::*;
 pub use review::*;
 pub use section::*;
 pub use section_type::*;
@@ -271,7 +284,10 @@ pub use software_source_code::*;
 pub use software_source_code_or_software_application_or_string::*;
 pub use strikeout::*;
 pub use string::*;
+pub use string_operation::*;
 pub use string_or_number::*;
+pub use string_patch::*;
+pub use string_patch_or_primitive::*;
 pub use string_validator::*;
 pub use strong::*;
 pub use styled_block::*;
@@ -373,6 +389,9 @@ pub enum NodeType {
     MathBlock,
     MathInline,
     MediaObject,
+    ModifyBlock,
+    ModifyInline,
+    ModifyOperation,
     MonetaryGrant,
     Note,
     NumberValidator,
@@ -388,11 +407,15 @@ pub enum NodeType {
     PublicationVolume,
     QuoteBlock,
     QuoteInline,
+    ReplaceBlock,
+    ReplaceInline,
     Review,
     Section,
     SoftwareApplication,
     SoftwareSourceCode,
     Strikeout,
+    StringOperation,
+    StringPatch,
     StringValidator,
     Strong,
     StyledBlock,
