@@ -170,6 +170,7 @@ pub async fn from_stdin(options: Option<DecodeOptions>) -> Result<Node> {
     let mut content = String::new();
     for line in stdin.lock().lines() {
         content += &line?;
+        content.push('\n'); // Need to add the newline back on (e.g for Markdown)
     }
 
     from_str(&content, options).await
