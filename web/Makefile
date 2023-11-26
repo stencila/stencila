@@ -30,9 +30,12 @@ audit: install
 	cd .. && npm run audit
 
 # Build the package
-build: install
+build: install clean
 	npm run build
 
 # Clean up development artifacts
 clean:
-	rm -rf ./dist
+	mv dist/.gitignore dist.gitignore
+	rm -rf dist
+	mkdir dist
+	mv dist.gitignore dist/.gitignore
