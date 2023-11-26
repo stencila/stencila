@@ -8,7 +8,7 @@
     "audit": "better-npm-audit audit"
   },
   "devDependencies": {
-    "@arethetypeswrong/cli": "0.13.1",
+    "@arethetypeswrong/cli": "0.13.2",
     "@types/benchmark": "2.1.5",
     "@types/jest": "29.5.10",
     "@types/tmp": "0.2.6",
