@@ -3,5 +3,15 @@
   "extends": ["config:base"],
   "minimumReleaseAge": "2",
   "internalChecksFilter": "strict",
-  "rebaseWhen": "behind-base-branch"
+  "rebaseWhen": "behind-base-branch",
+  "packageRules": [
+    {
+      "groupName": "NPM dev dependencies",
+      "description": "Group dev dependencies from all package.json files",
+      "matchFileNames": ["**/package.json"],
+      "matchDepTypes": ["devDependencies"],
+      "matchUpdateTypes": ["patch", "minor"],
+      "schedule": ["before 4am on monday"]
+    }
+  ]
 }
