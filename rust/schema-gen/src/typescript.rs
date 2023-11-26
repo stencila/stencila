@@ -556,10 +556,9 @@ export function {func_name}(other: {name}): {name} {{
   }}
 }}"#,
                 func_name = name.to_camel_case(),
-                primitives = if alternatives
-                    .iter()
-                    .any(|(variant, ..)| { PRIMITIVES.contains(&variant.to_lowercase().as_str()) })
-                {
+                primitives = if alternatives.iter().any(|(variant, ..)| {
+                    variant == "Primitive" || PRIMITIVES.contains(&variant.to_lowercase().as_str())
+                }) {
                     format!(
                         r#"if (other == null || typeof other !== "object" || Array.isArray(other) || typeof other.type === "undefined") {{
     return other as {name};

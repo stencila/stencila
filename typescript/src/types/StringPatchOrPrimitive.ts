@@ -16,6 +16,9 @@ export type StringPatchOrPrimitive =
  * Create a `StringPatchOrPrimitive` from an object
  */
 export function stringPatchOrPrimitive(other: StringPatchOrPrimitive): StringPatchOrPrimitive {
+  if (other == null || typeof other !== "object" || Array.isArray(other) || typeof other.type === "undefined") {
+    return other as StringPatchOrPrimitive;
+  }
   switch(other.type) {
     case "StringPatch":
     case "Primitive":
