@@ -49,6 +49,19 @@ The `ModifyBlock` type is represented in these bindings:
 - Rust struct [`ModifyBlock`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/modify_block.rs)
 - TypeScript class [`ModifyBlock`](https://github.com/stencila/stencila/blob/main/typescript/src/types/ModifyBlock.ts)
 
+## Testing
+
+During property-based (a.k.a generative) testing, the properties of the `ModifyBlock` type are generated using the following strategies[^1] for each complexity level. Any optional properties that are not in this table are set to `None`.
+
+| Property  | Complexity | Description                                               | Strategy                      |
+| --------- | ---------- | --------------------------------------------------------- | ----------------------------- |
+| `content` | Min+       | Generate a single fixed paragraph.                        | `vec![p([t("text")])]`        |
+|           | Low+       | Generate a single arbitrary, non-recursive, block node    | `vec_blocks_non_recursive(1)` |
+|           | High+      | Generate up to two arbitrary, non-recursive, block nodes  | `vec_blocks_non_recursive(2)` |
+|           | Max        | Generate up to four arbitrary, non-recursive, block nodes | `vec_blocks_non_recursive(4)` |
+
 ## Source
 
 This documentation was generated from [`ModifyBlock.yaml`](https://github.com/stencila/stencila/blob/main/schema/ModifyBlock.yaml) by [`docs.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs.rs).
+
+[^1]: See the `proptest` [book](https://proptest-rs.github.io/proptest/) and the [`proptest.rs`](https://github.com/stencila/stencila/blob/main/rust/schema/src/proptests.rs) module for details.

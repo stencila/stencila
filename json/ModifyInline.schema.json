@@ -9,6 +9,7 @@
   ],
   "category": "edits",
   "description": "A suggestion to modify some inline content.",
+  "proptest": {},
   "markdown": {
     "special": true
   },

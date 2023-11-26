@@ -49,6 +49,19 @@ The `ModifyInline` type is represented in these bindings:
 - Rust struct [`ModifyInline`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/modify_inline.rs)
 - TypeScript class [`ModifyInline`](https://github.com/stencila/stencila/blob/main/typescript/src/types/ModifyInline.ts)
 
+## Testing
+
+During property-based (a.k.a generative) testing, the properties of the `ModifyInline` type are generated using the following strategies[^1] for each complexity level. Any optional properties that are not in this table are set to `None`.
+
+| Property  | Complexity | Description                                                | Strategy                       |
+| --------- | ---------- | ---------------------------------------------------------- | ------------------------------ |
+| `content` | Min+       | Generate a single fixed text value.                        | `vec![t("text")]`              |
+|           | Low+       | Generate a single arbitrary, non-recursive, inline node    | `vec_inlines_non_recursive(1)` |
+|           | High+      | Generate up to two arbitrary, non-recursive, inline nodes  | `vec_inlines_non_recursive(2)` |
+|           | Max        | Generate up to four arbitrary, non-recursive, inline nodes | `vec_inlines_non_recursive(4)` |
+
 ## Source
 
 This documentation was generated from [`ModifyInline.yaml`](https://github.com/stencila/stencila/blob/main/schema/ModifyInline.yaml) by [`docs.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs.rs).
+
+[^1]: See the `proptest` [book](https://proptest-rs.github.io/proptest/) and the [`proptest.rs`](https://github.com/stencila/stencila/blob/main/rust/schema/src/proptests.rs) module for details.
