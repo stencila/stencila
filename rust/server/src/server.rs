@@ -369,7 +369,9 @@ async fn serve_document(
 
     // TODO: restrict the view to the highest based on the user's role
     let view = query.get("view").map_or("static", |value| value.as_ref());
-    let capability = query.get("capability").map_or("read", |value| value.as_ref());
+    let capability = query
+        .get("capability")
+        .map_or("read", |value| value.as_ref());
 
     // Generate the content from the document
     let body = if view == "source" {
@@ -377,7 +379,9 @@ async fn serve_document(
             .get("format")
             .map_or("markdown", |value| value.as_ref());
 
-        format!("<stencila-{view} id={id} capability={capability} format={format}></stencila-{view}>")
+        format!(
+            "<stencila-{view} id={id} capability={capability} format={format}></stencila-{view}>"
+        )
     } else {
         let html = doc
             .export(
@@ -495,7 +499,7 @@ async fn handle_ws(ws: WebSocket, doc: Arc<Document>, query: HashMap<String, Str
         return
     };
 
-    let Some((capability, format)) = protocol.split(".").collect_tuple() else {
+    let Some((capability, format)) = protocol.split('.').collect_tuple() else {
         tracing::debug!("Invalid WebSocket protocol: {protocol}");
         ws.close().await.ok();
         return

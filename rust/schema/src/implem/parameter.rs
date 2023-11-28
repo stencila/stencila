@@ -20,9 +20,7 @@ impl Parameter {
         );
         children.push(label);
 
-        let input = match &self.validator {
-            _ => elem("input", &[attr("name", &self.name)], &[]),
-        };
+        let input = elem("input", &[attr("name", &self.name)], &[]);
         children.push(input);
 
         elem("stencila-parameter", &attrs, &children)
