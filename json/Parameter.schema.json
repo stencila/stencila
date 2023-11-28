@@ -11,7 +11,7 @@
   "status": "under-development",
   "proptest": {},
   "html": {
-    "elem": "span"
+    "special": true
   },
   "jats": {
     "elem": "parameter"
