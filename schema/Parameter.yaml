@@ -7,7 +7,7 @@ description: A parameter of a document.
 jats:
   elem: parameter
 html:
-  elem: span
+  special: true
 markdown:
   special: true
 proptest: {}

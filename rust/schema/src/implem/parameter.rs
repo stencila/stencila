@@ -1,8 +1,33 @@
+use codec_html_trait::encode::{attr, elem};
 use codec_json5_trait::Json5Codec;
+use common::inflector::Inflector;
 
 use crate::{prelude::*, IntegerValidator, Node, NumberValidator, Parameter, Validator};
 
 impl Parameter {
+    pub fn to_html_special(&self) -> String {
+        let mut attrs = vec![];
+        let mut children = vec![];
+
+        if let Some(id) = &self.id {
+            attrs.push(attr("id", id));
+        }
+
+        let label = elem(
+            "label",
+            &[attr("for", &self.name)],
+            &[self.name.to_title_case()],
+        );
+        children.push(label);
+
+        let input = match &self.validator {
+            _ => elem("input", &[attr("name", &self.name)], &[]),
+        };
+        children.push(input);
+
+        elem("stencila-parameter", &attrs, &children)
+    }
+
     pub fn to_markdown_special(&self, _context: &mut MarkdownEncodeContext) -> (String, Losses) {
         let mut md = ["&[", &self.name, "]"].concat();
         let mut losses = Losses::none();
