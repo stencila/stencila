@@ -1,20 +1,23 @@
 import { Transaction } from "prosemirror-state";
 import { EditorView } from "prosemirror-view";
 
-import { Client } from "./client";
+import { Capability } from "../capability";
+import { DocumentId } from "../ids";
+
+import { NodesClient } from "./nodes";
 
 /**
  * A client for a ProseMirror editor
  */
-export class ProseMirrorClient extends Client {
-  constructor() {
-    super("sync-node.stencila.org");
+export class ProseMirrorClient extends NodesClient {
+  constructor(docId: DocumentId, capability: Capability, elem: HTMLElement) {
+    super(docId, capability, elem);
   }
 
   /**
    * Create a function to forward ProseMirror transactions to the server
-   * 
-   * @returns A function that can be used for the ProseMirror `dispatchTransaction` option 
+   *
+   * @returns A function that can be used for the ProseMirror `dispatchTransaction` option
    */
   sendPatches(): (transaction: Transaction) => void {
     return function (transaction: Transaction) {

@@ -21,10 +21,20 @@
     "documents"
   ],
   "type": "module",
-  "source": "src/index.ts",
+  "source": [
+    "src/views/static.css",
+    "src/views/live.ts",
+    "src/views/dynamic.ts",
+    "src/views/visual.ts",
+    "src/views/source.ts"
+  ],
+  "browserslist": [
+    "fully supports es6-class"
+  ],
   "scripts": {
-    "fix": "eslint --fix 'src/**/*.ts' && tsc --noEmit",
-    "lint": "eslint 'src/**/*.ts' && tsc --noEmit",
+    "fix": "eslint --fix 'src/**/*.ts'",
+    "lint": "eslint 'src/**/*.ts'",
+    "test": "tsc --noEmit",
     "start": "parcel watch",
     "build": "parcel build",
     "unused": "depcheck --quiet --ignores '@parcel/*,prosemirror-*' --ignore-patterns '.eslintrc*'"

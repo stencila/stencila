@@ -1,9 +1,30 @@
+import { Capability } from "../capability";
+import { DocumentId } from "../ids";
+
 import { Client } from "./client";
 
 /**
- * An operation on a string
+ * A patch to apply to a string representing a document in a particular format
+ *
+ * See the `server` Rust crate for the server-side structure of patches
+ * which should be the consistent (if not exactly the same) as this.
  */
-export interface StringOp {
+export interface FormatPatch {
+  /**
+   * The version of the patch
+   */
+  version: number;
+
+  /**
+   * The operations in the patch
+   */
+  ops?: FormatOperation[];
+}
+
+/**
+ * An operation on a format string
+ */
+export interface FormatOperation {
   /**
    * The position in the string from which the operation is applied
    */
@@ -24,25 +45,9 @@ export interface StringOp {
 }
 
 /**
- * A patch to apply to a string
+ * A client for a string representation of a document in a particular format
  */
-export interface StringPatch {
-  /**
-   * The version of the patch
-   */
-  version: number;
-
-  /**
-   * The operations in the patch
-   */
-  ops?: StringOp[];
-}
-
-/**
- * A client that keeps a string synchronized with a buffer
- * on the server
- */
-export class StringClient extends Client {
+export abstract class FormatClient extends Client {
   /**
    * The local state of the string
    */
@@ -57,7 +62,7 @@ export class StringClient extends Client {
   protected version: number = 0;
 
   /**
-   * A subscriber to the the string
+   * A subscriber to the string
    *
    * A function that is called whenever a patch is applied to the
    * string `state`.
@@ -65,21 +70,25 @@ export class StringClient extends Client {
   protected subscriber?: (value: string) => void;
 
   /**
-   * Construct a new `StringClient`
+   * Construct a new `FormatClient`
    *
+   * @param capability The capability of client (e.g. "read", "write")
    * @param format The format of the string (e.g. "html", "markdown")
    */
-  constructor(format: string) {
-    super("sync-string.stencila.org", {format});
+  constructor(docId: DocumentId, capability: Capability, format: string) {
+    super(docId, `${capability}.${format}`);
   }
 
   /**
    * Receive a message from the server
    *
+   * An override to apply the incoming `FormatPatch` message to the
+   * local, in-browser, version of the string.
+   *
    * @override
    */
   receiveMessage(message: Record<string, unknown>) {
-    const { version, ops } = message as unknown as StringPatch;
+    const { version, ops } = message as unknown as FormatPatch;
 
     // Is the patch a reset patch?
     const isReset = ops.length === 1 && ops[0].from === 0 && ops[0].to === 0;
@@ -120,7 +129,7 @@ export class StringClient extends Client {
   }
 
   /**
-   * Subscribe to changes in the string
+   * Subscribe to changes in the string from within the browser window
    *
    * @param subscriber The subscriber function which will be called
    *                   with the string, each time it changes

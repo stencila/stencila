@@ -1,0 +1,12 @@
+body {
+    margin: 0;
+    padding: 10px;
+    border-top: 10px solid hsl(0, 80%, 70%);
+}
+
+stencila-visual {
+    /* Hide the document DOM (which is separate to the ProseMirror editor)
+    & > *:first-child {
+        display: none
+    } */
+}

@@ -1,26 +1,23 @@
-import { StringClient } from "./string";
 import morphdom from "morphdom";
+
+import { DocumentId } from "../ids";
+
+import { FormatClient } from "./format";
 
 /**
  * A client that keeps a DOM element synchronized with a
  * HTML buffer on the server
  */
-export class DomClient extends StringClient {
+export class DomClient extends FormatClient {
   /**
    * Construct a new `DomClient`
    * 
-   * @param elem An `HTMLElement` or a CSS selector
+   * @param docId        The id of the document
+   * @param elem         The DOM element that will be updated
    */
-  constructor(elem: string | HTMLElement) {
-    super("html");
+  constructor(docId: DocumentId, elem: HTMLElement) {
+    super(docId, "read", "html");
 
-    let target: HTMLElement;
-    if (typeof elem === "string") {
-      target = document.querySelector(elem);
-    } else {
-      target = elem;
-    }
-
-    this.subscribe((html) => morphdom(target, html));
+    this.subscribe((html) => morphdom(elem, html));
   }
 }

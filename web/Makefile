@@ -16,6 +16,10 @@ fix: install
 lint: install
 	npm run lint
 
+# Run tests
+test: install
+	npm run test
+
 # Run watch
 run: install
 	npm start

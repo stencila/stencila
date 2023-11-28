@@ -1,0 +1,10 @@
+body {
+  margin: 0;
+  padding: 10px;
+  border-top: 10px solid hsl(100, 80%, 70%);
+}
+
+.cm-editor {
+  border: 1px solid rgb(189, 186, 186);
+  height: 30vh;
+}

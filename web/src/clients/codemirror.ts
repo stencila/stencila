@@ -1,7 +1,10 @@
-import { EditorView, ViewUpdate } from "@codemirror/view";
 import { Extension, TransactionSpec } from "@codemirror/state";
+import { EditorView, ViewUpdate } from "@codemirror/view";
 
-import { StringClient, StringOp, StringPatch } from "./string";
+import { Capability } from "../capability";
+import { DocumentId } from "../ids";
+
+import { FormatOperation, FormatPatch, FormatClient } from "./format";
 
 /// The number milliseconds to debounce sending updates
 const SEND_DEBOUNCE = 300;
@@ -26,7 +29,7 @@ const SEND_DEBOUNCE = 300;
  * client.receivePatches(editor)
  * ```
  */
-export class CodeMirrorClient extends StringClient {
+export class CodeMirrorClient extends FormatClient {
   /**
    * The CodeMirror view to update with patches from the server
    */
@@ -41,17 +44,17 @@ export class CodeMirrorClient extends StringClient {
   ignoreUpdates = false;
 
   /**
-   * A cache of `StringOp`s used to debounce sending patches to the server
+   * A cache of `FormatOperation`s used to debounce sending patches to the server
    */
-  cachedOperations: StringOp[] = [];
+  cachedOperations: FormatOperation[] = [];
 
   /**
    * Construct a new `CodeMirrorClient`
    *
    * @param format The format of the editor content (e.g. "markdown")
    */
-  constructor(format: string) {
-    super(format);
+  constructor(docId: DocumentId, capability: Capability, format: string) {
+    super(docId, capability, format);
   }
 
   /**
@@ -113,7 +116,7 @@ export class CodeMirrorClient extends StringClient {
   // Override `onmessage` to forward patches directly to the code editor
   // instead of updating local string
   receiveMessage(message: Record<string, unknown>) {
-    const { version, ops } = message as unknown as StringPatch;
+    const { version, ops } = message as unknown as FormatPatch;
 
     // Is the patch a reset patch?
     const isReset = ops.length === 1 && ops[0].from === 0 && ops[0].to === 0;
