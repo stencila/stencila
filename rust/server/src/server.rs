@@ -9,7 +9,7 @@ use std::{
 };
 
 use axum::{
-    body,
+    body::Body,
     extract::{
         ws::{Message, WebSocket},
         Path, Query, State, WebSocketUpgrade,
@@ -20,7 +20,7 @@ use axum::{
     },
     response::{Html, IntoResponse, Response},
     routing::get,
-    Router, Server,
+    Router,
 };
 use document::{Document, DocumentId, SyncDirection};
 use rust_embed::RustEmbed;
@@ -40,6 +40,7 @@ use common::{
     tokio::{
         self,
         fs::read,
+        net::TcpListener,
         sync::mpsc::{channel, Receiver, Sender},
     },
     tracing,
@@ -162,10 +163,10 @@ pub async fn serve(
             ..Default::default()
         });
 
+    let listener = TcpListener::bind(&address).await?;
+
     tracing::info!("Starting server at http://{address}");
-    Server::bind(&address)
-        .serve(router.into_make_service())
-        .await?;
+    axum::serve(listener, router.into_make_service()).await?;
 
     Ok(())
 }
@@ -246,7 +247,7 @@ async fn serve_static(
                 }
 
                 return response
-                    .body(body::boxed(body::Full::from(file.data)))
+                    .body(Body::from(file.data))
                     .map_err(InternalError::new);
             }
         }
@@ -289,7 +290,7 @@ async fn serve_document(
 
         return Response::builder()
             .header(CONTENT_TYPE, content_type.essence_str())
-            .body(body::boxed(body::Full::from(bytes)))
+            .body(Body::from(bytes))
             .map_err(InternalError::new);
     }
 
@@ -435,7 +436,7 @@ async fn serve_document(
             }
         }
 
-        Ok(response.body(body::boxed(body::Full::from(html)))?)
+        Ok(response.body(Body::from(html))?)
     })()
     .map_err(InternalError::new)?;
 

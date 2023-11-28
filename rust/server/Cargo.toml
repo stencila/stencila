@@ -5,7 +5,7 @@ authors = ["Nokome Bentley <nokome@stencila.io"]
 edition = "2021"
 
 [dependencies]
-axum = { version = "0.6.20", features = ["ws"] }
+axum = { version = "0.7.1", features = ["ws"] }
 codecs = { path = "../codecs" }
 common = { path = "../common" }
 document = { path = "../document" }
