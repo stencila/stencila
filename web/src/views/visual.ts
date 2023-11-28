@@ -12,9 +12,9 @@ import { ProseMirrorClient } from "../clients/prosemirror";
 import "prosemirror-menu/style/menu.css";
 
 // Include all node components required for this view
-import "../components/nodes/code-chunk";
-import "../components/nodes/code-expression";
-import "../components/nodes/parameter";
+import "../nodes/code-chunk";
+import "../nodes/code-expression";
+import "../nodes/parameter";
 
 import * as schemas from "./visual/schemas";
 import "./visual.css";

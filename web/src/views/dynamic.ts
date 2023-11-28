@@ -6,9 +6,9 @@ import { DomClient } from "../clients/dom";
 import { NodesClient } from "../clients/nodes";
 
 // Include all node components required for this view
-import "../components/nodes/code-chunk";
-import "../components/nodes/code-expression";
-import "../components/nodes/parameter";
+import "../nodes/code-chunk";
+import "../nodes/code-expression";
+import "../nodes/parameter";
 
 import "./dynamic.css";
 
