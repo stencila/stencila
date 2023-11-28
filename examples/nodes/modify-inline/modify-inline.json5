@@ -18,6 +18,7 @@
           ],
           operations: [
             {
+              type: "ModifyOperation",
               target: "code",
               value: {
                 type: "StringPatch",
@@ -31,6 +32,7 @@
               }
             },
             {
+              type: "ModifyOperation",
               target: "programmingLanguage",
               value: "python"
             }

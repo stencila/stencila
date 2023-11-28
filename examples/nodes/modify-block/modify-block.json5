@@ -21,10 +21,12 @@
       ],
       operations: [
         {
+          type: "ModifyOperation",
           target: "programmingLanguage",
           value: "javascript"
         },
         {
+          type: "ModifyOperation",
           target: "code",
           value: {
             type: "StringPatch",

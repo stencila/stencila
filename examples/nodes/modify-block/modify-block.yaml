@@ -10,9 +10,11 @@ content:
     code: '# Some code'
     programmingLanguage: python
   operations:
-  - target: programmingLanguage
+  - type: ModifyOperation
+    target: programmingLanguage
     value: javascript
-  - target: code
+  - type: ModifyOperation
+    target: code
     value:
       type: StringPatch
       operations:

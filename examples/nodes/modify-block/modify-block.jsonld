@@ -25,10 +25,12 @@
       ],
       "stencila:operations": [
         {
+          "@type": "stencila:ModifyOperation",
           "stencila:target": "programmingLanguage",
           "value": "javascript"
         },
         {
+          "@type": "stencila:ModifyOperation",
           "stencila:target": "code",
           "value": {
             "@type": "stencila:StringPatch",

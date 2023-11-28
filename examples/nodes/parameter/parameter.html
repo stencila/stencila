@@ -1,88 +1,102 @@
 <article>
   <p>
     <span>A boolean parameter</span>
-    <span data-name='par_bool_1'>
-      <stencila-boolean-validator>
-      </stencila-boolean-validator>
-    </span>
+    <stencila-parameter>
+      <label for='par_bool_1'>Par Bool1</label>
+      <input name='par_bool_1'>
+      </input>
+    </stencila-parameter>
     <span>, with a default</span>
-    <span data-name='par_bool_2' data-default='true'>
-      <stencila-boolean-validator>
-      </stencila-boolean-validator>
-    </span>
+    <stencila-parameter>
+      <label for='par_bool_2'>Par Bool2</label>
+      <input name='par_bool_2'>
+      </input>
+    </stencila-parameter>
     <span>, with a default and value</span>
-    <span data-name='par_bool_3' data-value='true' data-default='false'>
-      <stencila-boolean-validator>
-      </stencila-boolean-validator>
-    </span>
+    <stencila-parameter>
+      <label for='par_bool_3'>Par Bool3</label>
+      <input name='par_bool_3'>
+      </input>
+    </stencila-parameter>
   </p>
   <p>
     <span>An integer parameter</span>
-    <span data-name='par_int_1'>
-      <stencila-integer-validator>
-      </stencila-integer-validator>
-    </span>
+    <stencila-parameter>
+      <label for='par_int_1'>Par Int1</label>
+      <input name='par_int_1'>
+      </input>
+    </stencila-parameter>
     <span>, with a default</span>
-    <span data-name='par_int_2' data-default='123'>
-      <stencila-integer-validator>
-      </stencila-integer-validator>
-    </span>
+    <stencila-parameter>
+      <label for='par_int_2'>Par Int2</label>
+      <input name='par_int_2'>
+      </input>
+    </stencila-parameter>
     <span>, with a default and value</span>
-    <span data-name='par_int_3' data-value='456' data-default='123'>
-      <stencila-integer-validator>
-      </stencila-integer-validator>
-    </span>
+    <stencila-parameter>
+      <label for='par_int_3'>Par Int3</label>
+      <input name='par_int_3'>
+      </input>
+    </stencila-parameter>
     <span>, with min, max and mult options</span>
-    <span data-name='par_int_4' data-value='45' data-default='123'>
-      <stencila-integer-validator minimum='-100' maximum='100' multiple-of='2'>
-      </stencila-integer-validator>
-    </span>
+    <stencila-parameter>
+      <label for='par_int_4'>Par Int4</label>
+      <input name='par_int_4'>
+      </input>
+    </stencila-parameter>
   </p>
   <p>
     <span>A number parameter</span>
-    <span data-name='par_num_1' data-value='4.5' data-default='1.23'>
-      <stencila-number-validator minimum='-10.1' exclusive-minimum='-10.1' maximum='10.1' exclusive-maximum='10.1' multiple-of='2.2'>
-      </stencila-number-validator>
-    </span>
+    <stencila-parameter>
+      <label for='par_num_1'>Par Num1</label>
+      <input name='par_num_1'>
+      </input>
+    </stencila-parameter>
   </p>
   <p>
     <span>A string parameter</span>
-    <span data-name='par_str_1' data-value='hi' data-default='hello'>
-      <stencila-string-validator min-length='0' max-length='10' pattern='[a-z]+'>
-      </stencila-string-validator>
-    </span>
+    <stencila-parameter>
+      <label for='par_str_1'>Par Str1</label>
+      <input name='par_str_1'>
+      </input>
+    </stencila-parameter>
     <span>with quotes in properties</span>
-    <span data-name='par_str_2' data-value='a\"b' data-default='a\"b'>
-      <stencila-string-validator pattern='a\"b'>
-      </stencila-string-validator>
-    </span>
+    <stencila-parameter>
+      <label for='par_str_2'>Par Str2</label>
+      <input name='par_str_2'>
+      </input>
+    </stencila-parameter>
   </p>
   <p>
     <span>A date parameter</span>
-    <span data-name='par_date' data-value='2022-02-23' data-default='2022-02-22'>
-      <stencila-date-validator minimum='{"type":"Date","value":"2022-02-20"}' maximum='{"type":"Date","value":"2022-02-24"}'>
-      </stencila-date-validator>
-    </span>
+    <stencila-parameter>
+      <label for='par_date'>Par Date</label>
+      <input name='par_date'>
+      </input>
+    </stencila-parameter>
   </p>
   <p>
     <span>A time parameter</span>
-    <span data-name='par_time' data-value='22:23' data-default='22:22'>
-      <stencila-time-validator minimum='{"type":"Time","value":"22:20"}' maximum='{"type":"Time","value":"22:24"}'>
-      </stencila-time-validator>
-    </span>
+    <stencila-parameter>
+      <label for='par_time'>Par Time</label>
+      <input name='par_time'>
+      </input>
+    </stencila-parameter>
   </p>
   <p>
     <span>A date-time parameter</span>
-    <span data-name='par_date_time' data-value='2022-02-22T22:23' data-default='2022-02-22T22:22'>
-      <stencila-date-time-validator minimum='{"type":"DateTime","value":"2022-02-22T22:20"}' maximum='{"type":"DateTime","value":"2022-02-22T22:24"}'>
-      </stencila-date-time-validator>
-    </span>
+    <stencila-parameter>
+      <label for='par_date_time'>Par Date Time</label>
+      <input name='par_date_time'>
+      </input>
+    </stencila-parameter>
   </p>
   <p>
     <span>An enum parameter</span>
-    <span data-name='par_enum' data-value='red' data-default='green'>
-      <stencila-enum-validator values='["blue","red","green"]'>
-      </stencila-enum-validator>
-    </span>
+    <stencila-parameter>
+      <label for='par_enum'>Par Enum</label>
+      <input name='par_enum'>
+      </input>
+    </stencila-parameter>
   </p>
 </article>

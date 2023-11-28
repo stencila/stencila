@@ -12,10 +12,11 @@
   <div data-code='bg-$color-100 p-2'>
     <p>
       <span>A styled block with this parameter</span>
-      <span data-name='color'>
-        <stencila-enum-validator values='["red","blue","green"]'>
-        </stencila-enum-validator>
-      </span>
+      <stencila-parameter>
+        <label for='color'>Color</label>
+        <input name='color'>
+        </input>
+      </stencila-parameter>
       <span>interpolated into background color</span>
     </p>
   </div>
