@@ -10,11 +10,6 @@ export class StringPatch extends Entity {
   type = "StringPatch";
 
   /**
-   * The version of the string to which the patch should be applied.
-   */
-  version?: string;
-
-  /**
    * The operations to be applied to the string.
    */
   operations: StringOperation[];

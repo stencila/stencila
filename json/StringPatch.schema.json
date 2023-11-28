@@ -13,8 +13,7 @@
     "operations"
   ],
   "core": [
-    "id",
-    "version"
+    "id"
   ],
   "properties": {
     "type": {
@@ -33,11 +32,6 @@
       "html": {
         "attr": "id"
       },
-      "type": "string"
-    },
-    "version": {
-      "@id": "schema:version",
-      "description": "The version of the string to which the patch should be applied.",
       "type": "string"
     },
     "operations": {

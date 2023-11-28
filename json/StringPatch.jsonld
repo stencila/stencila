@@ -18,23 +18,6 @@
       }
     },
     {
-      "@id": "schema:version",
-      "@type": "rdfs:Property",
-      "rdfs:label": "version",
-      "rdfs:comment": "The version of the string to which the patch should be applied.",
-      "schema:domainIncludes": [
-        {
-          "@id": "schema:CreativeWork"
-        },
-        {
-          "@id": "stencila:StringPatch"
-        }
-      ],
-      "schema:rangeIncludes": {
-        "@id": "schema:Text"
-      }
-    },
-    {
       "@id": "stencila:operations",
       "@type": "rdfs:Property",
       "rdfs:label": "operations",

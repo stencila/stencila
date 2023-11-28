@@ -14,13 +14,9 @@ class StringPatch(Entity):
 
     type: Literal["StringPatch"] = field(default="StringPatch", init=False)
 
-    version: Optional[str] = None
-    """The version of the string to which the patch should be applied."""
-
     operations: List[StringOperation]
     """The operations to be applied to the string."""
 
-    def __init__(self, operations: List[StringOperation], id: Optional[str] = None, version: Optional[str] = None):
+    def __init__(self, operations: List[StringOperation], id: Optional[str] = None):
         super().__init__(id = id)
-        self.version = version
         self.operations = operations

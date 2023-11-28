@@ -21,9 +21,6 @@ pub struct StringPatch {
     #[html(attr = "id")]
     pub id: Option<String>,
 
-    /// The version of the string to which the patch should be applied.
-    pub version: Option<String>,
-
     /// The operations to be applied to the string.
     #[serde(alias = "operation")]
     #[serde(deserialize_with = "one_or_many")]
