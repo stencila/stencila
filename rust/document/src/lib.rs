@@ -22,7 +22,8 @@ use node_store::{inspect_store, load_store, ReadNode, WriteNode, WriteStore};
 use schema::{Article, Node};
 
 mod sync_file;
-mod sync_string;
+mod sync_format;
+mod sync_nodes;
 
 /// The document type
 ///

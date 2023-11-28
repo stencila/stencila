@@ -25,14 +25,36 @@ use common::{
 
 use crate::Document;
 
-/// An operation on a string
+/// A patch to apply to a string representing the document in a particular format
+///
+/// A `FormatPatch` is a collection of [`FormatOperation`]s with a version which is
+/// used to ensure that the operations are applied to the correct version.
+///
+/// An incoming patch with version `0` and empty `ops` is a request for
+/// a "reset" patch and is normally only received after a client has
+/// missed a patch (i.e. when versions are not sequential).
+///
+/// Similar to a `StringPatch` in the Stencila Schema which is used for in-document
+/// modifications to a string but which lacks the `version` property and
+/// used different, longer, names for properties.
+#[derive(Debug, Default, Serialize, Deserialize, PartialEq, Eq)]
+#[serde(default, crate = "common::serde")]
+pub struct FormatPatch {
+    /// The version of the patch
+    version: u32,
+
+    /// The operations in the patch
+    ops: Vec<FormatOperation>,
+}
+
+/// An operation on a string representing the document in a particular format
 ///
 /// Uses the same data model as a CodeMirror change (see https://codemirror.net/examples/change/)
 /// which allows this to be directly serialized to/from a browser based code editor.
 #[skip_serializing_none]
 #[derive(Debug, Default, Serialize, Deserialize, PartialEq, Eq)]
 #[serde(crate = "common::serde")]
-pub struct StringOp {
+pub struct FormatOperation {
     /// The position in the string from which the operation is applied
     from: usize,
 
@@ -47,7 +69,7 @@ pub struct StringOp {
     insert: Option<String>,
 }
 
-impl StringOp {
+impl FormatOperation {
     /// Create an insert operation
     fn insert<S>(from: usize, value: S) -> Self
     where
@@ -94,34 +116,16 @@ impl StringOp {
     }
 }
 
-/// A patch to apply to a string
-///
-/// A `StringPatch` is a collection of [`StringOp`]s with a version which is
-/// used to ensure that the operations are applied to the correct version.
-///
-/// An incoming patch with version `0` and empty `ops` is a request for
-/// a "reset" patch and is normally only received after a client has
-/// missed a patch (i.e. when versions are not sequential).
-#[derive(Debug, Default, Serialize, Deserialize, PartialEq, Eq)]
-#[serde(default, crate = "common::serde")]
-pub struct StringPatch {
-    /// The version of the patch
-    version: u32,
-
-    /// The operations in the patch
-    ops: Vec<StringOp>,
-}
-
 impl Document {
     /// Synchronize the document with a string buffer
     ///
     /// This function spawns a task to synchronize a document's root node
     /// with an in-memory string buffer.
     #[tracing::instrument(skip(self, patch_receiver, patch_sender))]
-    pub async fn sync_string(
+    pub async fn sync_format(
         &self,
-        patch_receiver: Option<Receiver<StringPatch>>,
-        patch_sender: Option<Sender<StringPatch>>,
+        patch_receiver: Option<Receiver<FormatPatch>>,
+        patch_sender: Option<Sender<FormatPatch>>,
         decode_options: Option<DecodeOptions>,
         encode_options: Option<EncodeOptions>,
     ) -> Result<()> {
@@ -153,9 +157,9 @@ impl Document {
                     let current_version = version_clone.load(Ordering::SeqCst);
                     if patch.version != current_version {
                         if let Some(patch_sender) = &patch_sender_clone {
-                            let reset = StringPatch {
+                            let reset = FormatPatch {
                                 version: current_version,
-                                ops: vec![StringOp::reset(&*buffer)],
+                                ops: vec![FormatOperation::reset(&*buffer)],
                             };
                             if let Err(error) = patch_sender.send(reset).await {
                                 tracing::error!("While sending reset string patch: {error}");
@@ -168,28 +172,28 @@ impl Document {
                     for op in patch.ops {
                         match op {
                             // Insert
-                            StringOp {
+                            FormatOperation {
                                 from,
                                 to: None,
                                 insert: Some(insert),
                             } => buffer.insert_str(from, &insert),
 
                             // Delete
-                            StringOp {
+                            FormatOperation {
                                 from,
                                 to: Some(to),
                                 insert: None,
                             } => buffer.replace_range(from..to, ""),
 
                             // Replace
-                            StringOp {
+                            FormatOperation {
                                 from,
                                 to: Some(to),
                                 insert: Some(insert),
                             } => buffer.replace_range(from..to, &insert),
 
                             // No op, ignore
-                            StringOp {
+                            FormatOperation {
                                 to: None,
                                 insert: None,
                                 ..
@@ -217,9 +221,9 @@ impl Document {
             let mut node_receiver = self.watch_receiver.clone();
             tokio::spawn(async move {
                 // Send initial patch to set initial content
-                let init = StringPatch {
+                let init = FormatPatch {
                     version: version.load(Ordering::SeqCst),
-                    ops: vec![StringOp::reset(content)],
+                    ops: vec![FormatOperation::reset(content)],
                 };
                 if let Err(error) = patch_sender.send(init).await {
                     tracing::error!("While sending initial string patch: {error}");
@@ -259,12 +263,12 @@ impl Document {
                     for op in diff.ops() {
                         match op.tag() {
                             DiffTag::Insert => {
-                                ops.push(StringOp::insert(from, &new[op.new_range()]))
+                                ops.push(FormatOperation::insert(from, &new[op.new_range()]))
                             }
                             DiffTag::Delete => {
-                                ops.push(StringOp::delete(from, from + op.old_range().len()))
+                                ops.push(FormatOperation::delete(from, from + op.old_range().len()))
                             }
-                            DiffTag::Replace => ops.push(StringOp::replace(
+                            DiffTag::Replace => ops.push(FormatOperation::replace(
                                 from,
                                 from + op.old_range().len(),
                                 new[op.new_range()].to_string(),
@@ -283,7 +287,7 @@ impl Document {
                     let version = version.fetch_add(1, Ordering::SeqCst) + 1;
 
                     // Create and send a `StringPatch`
-                    let patch = StringPatch { version, ops };
+                    let patch = FormatPatch { version, ops };
                     if patch_sender.send(patch).await.is_err() {
                         // Most likely receiver has dropped so just finish this task
                         break;
@@ -317,9 +321,9 @@ mod tests {
     async fn receive_patches() -> Result<()> {
         // Create a document and start syncing with Markdown buffer
         let document = Document::new(DocumentType::Article)?;
-        let (patch_sender, patch_receiver) = channel::<StringPatch>(1);
+        let (patch_sender, patch_receiver) = channel::<FormatPatch>(1);
         document
-            .sync_string(
+            .sync_format(
                 Some(patch_receiver),
                 None,
                 Some(DecodeOptions {
@@ -358,9 +362,9 @@ mod tests {
 
         // Test insert operation
         patch_sender
-            .send(StringPatch {
+            .send(FormatPatch {
                 version: 1,
-                ops: vec![StringOp::insert(0, "Hello world")],
+                ops: vec![FormatOperation::insert(0, "Hello world")],
             })
             .await?;
         watch.changed().await.ok();
@@ -368,9 +372,9 @@ mod tests {
 
         // Test delete operation
         patch_sender
-            .send(StringPatch {
+            .send(FormatPatch {
                 version: 2,
-                ops: vec![StringOp::delete(6, 9)],
+                ops: vec![FormatOperation::delete(6, 9)],
             })
             .await?;
         watch.changed().await.ok();
@@ -378,9 +382,9 @@ mod tests {
 
         // Test replace operation
         patch_sender
-            .send(StringPatch {
+            .send(FormatPatch {
                 version: 3,
-                ops: vec![StringOp::replace(6, 7, "frien")],
+                ops: vec![FormatOperation::replace(6, 7, "frien")],
             })
             .await?;
         watch.changed().await.ok();
@@ -394,9 +398,9 @@ mod tests {
     async fn send_patches() -> Result<()> {
         // Create a document and start syncing with Markdown buffer
         let document = Document::new(DocumentType::Article)?;
-        let (patch_sender, mut patch_receiver) = channel::<StringPatch>(4);
+        let (patch_sender, mut patch_receiver) = channel::<FormatPatch>(4);
         document
-            .sync_string(
+            .sync_format(
                 None,
                 Some(patch_sender),
                 Some(DecodeOptions {
@@ -414,9 +418,9 @@ mod tests {
         // First patch should be a reset with empty content
         assert_eq!(
             patch_receiver.recv().await.unwrap(),
-            StringPatch {
+            FormatPatch {
                 version: 1,
-                ops: vec![StringOp::reset("")]
+                ops: vec![FormatOperation::reset("")]
             }
         );
 
@@ -427,9 +431,9 @@ mod tests {
             .await?;
         assert_eq!(
             patch_receiver.recv().await.unwrap(),
-            StringPatch {
+            FormatPatch {
                 version: 2,
-                ops: vec![StringOp::insert(0, "Hello world")]
+                ops: vec![FormatOperation::insert(0, "Hello world")]
             }
         );
 
@@ -440,9 +444,9 @@ mod tests {
             .await?;
         assert_eq!(
             patch_receiver.recv().await.unwrap(),
-            StringPatch {
+            FormatPatch {
                 version: 3,
-                ops: vec![StringOp::delete(6, 9)]
+                ops: vec![FormatOperation::delete(6, 9)]
             }
         );
 
@@ -453,9 +457,9 @@ mod tests {
             .await?;
         assert_eq!(
             patch_receiver.recv().await.unwrap(),
-            StringPatch {
+            FormatPatch {
                 version: 4,
-                ops: vec![StringOp::replace(6, 7, "frien")]
+                ops: vec![FormatOperation::replace(6, 7, "frien")]
             }
         );
 

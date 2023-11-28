@@ -70,7 +70,7 @@ const STATIC_ENCODINGS: [(&str, &str); 3] = [("br", ".br"), ("gzip", ".gz"), (""
 /// but are embedded into the binary on release builds.
 #[derive(RustEmbed)]
 #[folder = "$CARGO_MANIFEST_DIR/../../web/dist"]
-#[exclude = "*.map"]
+#[cfg_attr(not(debug_assertions), exclude = "*.map")]
 #[exclude = ".gitignore"]
 struct Static;
 
@@ -367,40 +367,50 @@ async fn serve_document(
         .map_err(InternalError::new)?;
     let id = doc.id();
 
-    // TODO: Override the format based on ?format query param
-    let format = Some(Format::Html);
-    let compact = Some(true);
+    // TODO: restrict the view to the highest based on the user's role
+    let view = query.get("view").map_or("static", |value| value.as_ref());
+    let capability = query.get("capability").map_or("read", |value| value.as_ref());
 
     // Generate the content from the document
-    let content = doc
-        .export(
-            None,
-            Some(EncodeOptions {
-                format,
-                compact,
-                ..Default::default()
-            }),
-        )
-        .await
-        .map_err(InternalError::new)?;
+    let body = if view == "source" {
+        let format = query
+            .get("format")
+            .map_or("markdown", |value| value.as_ref());
 
-    let static_version = if cfg!(debug_assertions) {
+        format!("<stencila-{view} id={id} capability={capability} format={format}></stencila-{view}>")
+    } else {
+        let html = doc
+            .export(
+                None,
+                Some(EncodeOptions {
+                    format: Some(Format::Html),
+                    compact: Some(true),
+                    ..Default::default()
+                }),
+            )
+            .await
+            .map_err(InternalError::new)?;
+
+        format!("<stencila-{view} id={id} capability={capability}>{html}</stencila-{view}>")
+    };
+
+    let version = if cfg!(debug_assertions) {
         "dev"
     } else {
         STENCILA_VERSION
     };
+
     let html = format!(
         r#"<!doctype html>
     <html lang="en">
     <head>
         <meta charset="utf-8"/>
         <title>Stencila</title>
-        <meta name="id" value="{id}">
-        <link rel="stylesheet" href="/~static/{static_version}/index.css" />
-        <script type="module" src="/~static/{static_version}/index.js"></script>
+        <link rel="stylesheet" href="/~static/{version}/{view}.css" />
+        <script type="module" src="/~static/{version}/{view}.js"></script>
     </head>
     <body>
-        {content}
+        {body}
     </body>
     </html>"#
     );
@@ -428,12 +438,6 @@ async fn serve_document(
     Ok(response)
 }
 
-/// The WebSocket protocols that can be used with the server
-///
-/// The naming of these follows the domain-like convention commonly used
-/// (see https://www.iana.org/assignments/websocket/websocket.xml#subprotocol-name).
-const WEBSOCKET_PROTOCOLS: [&str; 1] = ["sync-string.stencila.org"];
-
 /// Handle a WebSocket upgrade request
 async fn serve_ws(
     State(ServerState { docs, .. }): State<ServerState>,
@@ -447,8 +451,28 @@ async fn serve_ws(
 
     let doc = docs.by_id(&id).await.map_err(InternalError::new)?;
 
+    // TODO: Change the allowed protocols based on the users permissions
+    let mut protocols = vec!["read.html.stencila.org".to_string()];
+    for format in [
+        // TODO: define this list of string formats better
+        Format::Json,
+        Format::Json5,
+        Format::JsonLd,
+        Format::Yaml,
+        Format::Markdown,
+        Format::Jats,
+    ] {
+        protocols.push(format!("read.{format}.stencila.org"));
+        protocols.push(format!("write.{format}.stencila.org"));
+    }
+    for capability in [
+        "comment", "suggest", "input", "code", "prose", "write", "admin",
+    ] {
+        protocols.push(format!("{capability}.nodes.stencila.org"));
+    }
+
     let response = ws
-        .protocols(WEBSOCKET_PROTOCOLS)
+        .protocols(protocols)
         .on_upgrade(move |ws| handle_ws(ws, doc, query));
 
     Ok(response)
@@ -462,68 +486,82 @@ async fn handle_ws(ws: WebSocket, doc: Arc<Document>, query: HashMap<String, Str
     let protocol = ws
         .protocol()
         .and_then(|header| header.to_str().ok())
-        .unwrap_or_default();
+        .unwrap_or_default()
+        .to_string();
 
-    match protocol {
-        "sync-string.stencila.org" => {
-            handle_ws_sync_string(ws, doc, query).await;
-        }
-        _ => {
-            tracing::debug!("Unknown WebSocket protocol: {protocol}");
-            ws.close().await.ok();
-        }
+    let Some(protocol) = protocol.strip_suffix(".stencila.org") else {
+        tracing::debug!("Unknown WebSocket protocol: {protocol}");
+        ws.close().await.ok();
+        return
+    };
+
+    let Some((capability, format)) = protocol.split(".").collect_tuple() else {
+        tracing::debug!("Invalid WebSocket protocol: {protocol}");
+        ws.close().await.ok();
+        return
+    };
+
+    if format == "nodes" {
+        handle_ws_nodes(ws, doc, capability).await;
+    } else {
+        handle_ws_format(ws, doc, capability, format).await;
     }
 }
 
-/// Handle a WebSocket connection using the `sync-string` protocol
+/// Handle a WebSocket connection using the "node" protocol
 #[tracing::instrument(skip(ws, doc))]
-async fn handle_ws_sync_string(ws: WebSocket, doc: Arc<Document>, query: HashMap<String, String>) {
-    tracing::trace!("WebSocket sync-string connection");
+async fn handle_ws_nodes(ws: WebSocket, doc: Arc<Document>, capability: &str) {
+    tracing::trace!("WebSocket nodes connection");
 
-    let format = query.get("format").and_then(|format| format.parse().ok());
+    let (.., ws_receiver) = ws.split();
 
-    let direction: SyncDirection = query
-        .get("direction")
-        .and_then(|direction| direction.parse().ok())
-        .unwrap_or(SyncDirection::InOut);
+    let (in_sender, in_receiver) = channel(1024);
+    receive_ws_messages(ws_receiver, in_sender);
+
+    if let Err(error) = doc.sync_nodes(in_receiver).await {
+        tracing::error!("While syncing nodes for WebSocket client: {error}")
+    }
+}
+
+/// Handle a WebSocket connection using a "format" protocol
+#[tracing::instrument(skip(ws, doc))]
+async fn handle_ws_format(ws: WebSocket, doc: Arc<Document>, capability: &str, format: &str) {
+    tracing::trace!("WebSocket format connection");
+
+    let format = format.parse().ok();
 
     let (ws_sender, ws_receiver) = ws.split();
 
-    let (in_receiver, decode_options) =
-        if matches!(direction, SyncDirection::In | SyncDirection::InOut) {
-            let (in_sender, in_receiver) = channel(1024);
-            receive_ws_messages(ws_receiver, in_sender);
+    let (in_sender, in_receiver) = channel(1024);
+    receive_ws_messages(ws_receiver, in_sender);
 
-            let options = DecodeOptions {
-                format,
-                ..Default::default()
-            };
+    let (out_sender, out_receiver) = channel(1024);
+    send_ws_messages(out_receiver, ws_sender);
 
-            (Some(in_receiver), Some(options))
+    let decode_options = DecodeOptions {
+        format,
+        ..Default::default()
+    };
+
+    let encode_options = EncodeOptions {
+        format,
+        // TODO: remove this from here and instead
+        // make a default for the codec
+        strip_props: if format == Some(Format::Html) {
+            vec![]
         } else {
-            (None, None)
-        };
-
-    let (out_sender, encode_options) =
-        if matches!(direction, SyncDirection::Out | SyncDirection::InOut) {
-            let (out_sender, out_receiver) = channel(1024);
-            send_ws_messages(out_receiver, ws_sender);
-
-            let options = EncodeOptions {
-                format,
-                // TODO: remove this from here and instead
-                // make a default for the codec
-                strip_props: vec!["id".to_string()],
-                ..Default::default()
-            };
-
-            (Some(out_sender), Some(options))
-        } else {
-            (None, None)
-        };
+            vec!["id".to_string()]
+        },
+        ..Default::default()
+    };
 
     if let Err(error) = doc
-        .sync_string(in_receiver, out_sender, decode_options, encode_options)
+        .sync_format(
+            Some(in_receiver),
+            Some(out_sender),
+            Some(decode_options),
+            Some(encode_options),
+        )
         .await
     {
         tracing::error!("While syncing string for WebSocket client: {error}")
