@@ -2,18 +2,15 @@ title: IfBlockClause
 '@id': stencila:IfBlockClause
 extends: CodeExecutable
 category: flow
-description: A clause within a `If` node.
+description: A clause within an `IfBlock` node.
 status: under-development
-html:
-  elem: div
-  custom: true
 proptest: {}
 required:
   - content
 properties:
   isActive:
     '@id': stencila:isActive
-    description: Whether this clause is the active clause in the parent `If` node
+    description: Whether this clause is the active clause in the parent `IfBlock` node
     type: boolean
     strip: [output]
   content:
@@ -22,6 +19,8 @@ properties:
     type: array
     items:
       $ref: Block
+    html:
+      slot: div
     proptest:
       min:
         description: A single, simple paragraph.

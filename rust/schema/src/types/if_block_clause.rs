@@ -19,7 +19,7 @@ use super::integer::Integer;
 use super::string::String;
 use super::timestamp::Timestamp;
 
-/// A clause within a `If` node.
+/// A clause within an `IfBlock` node.
 #[skip_serializing_none]
 #[serde_as]
 #[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, WalkNode, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec, WriteNode, ReadNode)]
@@ -27,7 +27,6 @@ use super::timestamp::Timestamp;
 #[cfg_attr(feature = "proptest", derive(Arbitrary))]
 #[derive(derive_more::Display)]
 #[display(fmt = "IfBlockClause")]
-#[html(elem = "div", custom)]
 pub struct IfBlockClause {
     /// The type of this item.
     #[cfg_attr(feature = "proptest", proptest(value = "Default::default()"))]
@@ -71,6 +70,7 @@ pub struct IfBlockClause {
     #[cfg_attr(feature = "proptest-low", proptest(strategy = r#"vec_blocks_non_recursive(2)"#))]
     #[cfg_attr(feature = "proptest-high", proptest(strategy = r#"vec_blocks_non_recursive(2)"#))]
     #[cfg_attr(feature = "proptest-max", proptest(strategy = r#"vec_blocks_non_recursive(4)"#))]
+    #[html(slot = "div")]
     pub content: Vec<Block>,
 
     /// Non-core optional fields
@@ -170,7 +170,7 @@ pub struct IfBlockClauseOptions {
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     pub execution_errors: Option<Vec<ExecutionError>>,
 
-    /// Whether this clause is the active clause in the parent `If` node
+    /// Whether this clause is the active clause in the parent `IfBlock` node
     #[serde(alias = "is-active", alias = "is_active")]
     #[strip(output)]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]

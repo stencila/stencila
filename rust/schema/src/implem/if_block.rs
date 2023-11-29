@@ -34,7 +34,7 @@ impl IfBlock {
 
             if let Some(lang) = programming_language {
                 if !lang.is_empty() {
-                    md.push('{');
+                    md.push_str(" {");
                     md.push_str(lang);
                     md.push('}');
                 }

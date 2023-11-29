@@ -12,7 +12,7 @@
       "@id": "stencila:IfBlockClause",
       "@type": "rdfs:Class",
       "rdfs:label": "IfBlockClause",
-      "rdfs:comment": "A clause within a `If` node.",
+      "rdfs:comment": "A clause within an `IfBlock` node.",
       "rdfs:subClassOf": {
         "@id": "stencila:CodeExecutable"
       }
@@ -259,7 +259,7 @@
       "@id": "stencila:isActive",
       "@type": "rdfs:Property",
       "rdfs:label": "isActive",
-      "rdfs:comment": "Whether this clause is the active clause in the parent `If` node",
+      "rdfs:comment": "Whether this clause is the active clause in the parent `IfBlock` node",
       "schema:domainIncludes": {
         "@id": "stencila:IfBlockClause"
       },

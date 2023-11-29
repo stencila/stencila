@@ -327,10 +327,6 @@
           "description": "Whether a property should be encoded as content of the parent element",
           "type": "boolean"
         },
-        "custom": {
-          "description": "Whether a custom element is defined for the node type\n\nIf this is `true`, then, if `elem` is not `None`, the HTML `is` attribute will be set to the kebab-cased type name.",
-          "type": "boolean"
-        },
         "elem": {
           "description": "The name of the HTML element to use for a type or property",
           "type": "string"

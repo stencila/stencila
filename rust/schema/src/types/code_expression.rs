@@ -26,7 +26,6 @@ use super::timestamp::Timestamp;
 #[cfg_attr(feature = "proptest", derive(Arbitrary))]
 #[derive(derive_more::Display)]
 #[display(fmt = "CodeExpression")]
-#[html(elem = "span", custom)]
 #[jats(elem = "code", attribs(executable = "yes"))]
 #[markdown(special)]
 pub struct CodeExpression {

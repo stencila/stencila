@@ -5,13 +5,13 @@ import { CodeExecutable } from "./CodeExecutable.js";
 import { Cord } from "./Cord.js";
 
 /**
- * A clause within a `If` node.
+ * A clause within an `IfBlock` node.
  */
 export class IfBlockClause extends CodeExecutable {
   type = "IfBlockClause";
 
   /**
-   * Whether this clause is the active clause in the parent `If` node
+   * Whether this clause is the active clause in the parent `IfBlock` node
    */
   isActive?: boolean;
 

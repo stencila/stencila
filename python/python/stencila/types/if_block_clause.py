@@ -21,13 +21,13 @@ from .timestamp import Timestamp
 @dataclass(init=False)
 class IfBlockClause(CodeExecutable):
     """
-    A clause within a `If` node.
+    A clause within an `IfBlock` node.
     """
 
     type: Literal["IfBlockClause"] = field(default="IfBlockClause", init=False)
 
     is_active: Optional[bool] = None
-    """Whether this clause is the active clause in the parent `If` node"""
+    """Whether this clause is the active clause in the parent `IfBlock` node"""
 
     content: List[Block]
     """The content to render if the result is truthy"""

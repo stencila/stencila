@@ -10,10 +10,6 @@
   "description": "An executable programming code expression.",
   "$comment": "Note that `CodeExpression` nodes lack the `executionPure` property that `CodeChunk` nodes have because they should be side-effect free.",
   "proptest": {},
-  "html": {
-    "elem": "span",
-    "custom": true
-  },
   "jats": {
     "elem": "code",
     "attrs": {

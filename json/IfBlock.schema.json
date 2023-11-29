@@ -10,10 +10,6 @@
   "description": "Show and execute alternative content conditional upon an executed expression.",
   "status": "under-development",
   "proptest": {},
-  "html": {
-    "elem": "div",
-    "custom": true
-  },
   "markdown": {
     "special": true
   },
@@ -247,7 +243,7 @@
     },
     "clauses": {
       "@id": "stencila:clauses",
-      "description": "The clauses making up the `If` node",
+      "description": "The clauses making up the `IfBlock` node",
       "aliases": [
         "clause"
       ],
@@ -269,7 +265,7 @@
         }
       },
       "html": {
-        "content": true
+        "slot": "div"
       },
       "type": "array",
       "items": {

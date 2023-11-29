@@ -27,7 +27,6 @@ use super::timestamp::Timestamp;
 #[cfg_attr(feature = "proptest", derive(Arbitrary))]
 #[derive(derive_more::Display)]
 #[display(fmt = "ForBlock")]
-#[html(elem = "div", custom)]
 #[markdown(special)]
 pub struct ForBlock {
     /// The type of this item.

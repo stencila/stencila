@@ -210,7 +210,7 @@
       "@id": "stencila:clauses",
       "@type": "rdfs:Property",
       "rdfs:label": "clauses",
-      "rdfs:comment": "The clauses making up the `If` node",
+      "rdfs:comment": "The clauses making up the `IfBlock` node",
       "schema:domainIncludes": {
         "@id": "stencila:IfBlock"
       },

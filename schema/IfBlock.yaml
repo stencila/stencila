@@ -4,9 +4,6 @@ extends: Executable
 category: flow
 description: Show and execute alternative content conditional upon an executed expression.
 status: under-development
-html:
-  elem: div
-  custom: true
 markdown:
   special: true
 proptest: {}
@@ -15,13 +12,13 @@ required:
 properties:
   clauses:
     '@id': 'stencila:clauses'
-    description: The clauses making up the `If` node
+    description: The clauses making up the `IfBlock` node
     type: array
     items:
       $ref: IfBlockClause
     strip: [code]
     html:
-      content: true
+      slot: div
     proptest:
       min:
         description: A single fixed clause with a single paragraph.

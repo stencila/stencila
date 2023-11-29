@@ -10,7 +10,7 @@ export class IfBlock extends Executable {
   type = "IfBlock";
 
   /**
-   * The clauses making up the `If` node
+   * The clauses making up the `IfBlock` node
    */
   clauses: IfBlockClause[];
 

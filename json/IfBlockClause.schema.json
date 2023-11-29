@@ -7,13 +7,9 @@
     "CodeExecutable"
   ],
   "category": "flow",
-  "description": "A clause within a `If` node.",
+  "description": "A clause within an `IfBlock` node.",
   "status": "under-development",
   "proptest": {},
-  "html": {
-    "elem": "div",
-    "custom": true
-  },
   "required": [
     "type",
     "code",
@@ -308,7 +304,7 @@
     },
     "isActive": {
       "@id": "stencila:isActive",
-      "description": "Whether this clause is the active clause in the parent `If` node",
+      "description": "Whether this clause is the active clause in the parent `IfBlock` node",
       "aliases": [
         "is-active",
         "is_active"
@@ -334,6 +330,9 @@
           "description": "Generate up to four arbitrary, non-recursive, block nodes.",
           "strategy": "vec_blocks_non_recursive(4)"
         }
+      },
+      "html": {
+        "slot": "div"
       },
       "type": "array",
       "items": {
