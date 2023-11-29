@@ -565,13 +565,6 @@ pub struct HtmlOptions {
     #[serde(skip_serializing_if = "IndexMap::is_empty")]
     pub attrs: IndexMap<String, String>,
 
-    /// Whether a custom element is defined for the node type
-    ///
-    /// If this is `true`, then, if `elem` is not `None`, the HTML `is` attribute
-    /// will be set to the kebab-cased type name.
-    #[serde(skip_serializing_if = "is_false")]
-    pub custom: bool,
-
     /// Whether the node type has a special function for encoding to HTML
     #[serde(skip_serializing_if = "is_false")]
     pub special: bool,

@@ -365,9 +365,6 @@ pub enum NodeType {{
                         .join(", ")
                 ));
             }
-            if html.custom {
-                args.push("custom".to_string());
-            }
             if html.special {
                 args.push("special".to_string());
             }

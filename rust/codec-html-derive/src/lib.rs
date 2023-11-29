@@ -25,9 +25,6 @@ struct TypeAttr {
     attribs: HashMap<String, String>,
 
     #[darling(default)]
-    custom: bool,
-
-    #[darling(default)]
     special: bool,
 }
 
@@ -94,12 +91,10 @@ fn derive_struct(type_attr: TypeAttr) -> TokenStream {
         };
     }
 
-    let custom_elem = ["stencila-", &struct_name.to_string().to_kebab_case()].concat();
-
     let elem = type_attr
         .elem
         .clone()
-        .unwrap_or_else(|| custom_elem.clone());
+        .unwrap_or_else(|| ["stencila-", &struct_name.to_string().to_kebab_case()].concat());
 
     let mut attrs = TokenStream::new();
 
@@ -109,10 +104,6 @@ fn derive_struct(type_attr: TypeAttr) -> TokenStream {
             (#name.to_string(), #value.to_string()),
         })
     }
-
-    if type_attr.custom {
-        attrs.extend(quote!(attr("is", #custom_elem),))
-    };
 
     let mut fields = TokenStream::new();
     type_attr.data.map_struct_fields(|field_attr| {
@@ -132,11 +123,6 @@ fn derive_struct(type_attr: TypeAttr) -> TokenStream {
                 attrs.append(&mut parts.1);
                 children.append(&mut parts.2);
             }
-        } else if field_name == "content" || field_attr.content {
-            // Always add content as direct children
-            quote! {
-                children.push(self.#field_name.to_html());
-            }
         } else if let Some(slot) = field_attr.slot {
             // Wrap the field in a slot
             quote! {
@@ -149,11 +135,16 @@ fn derive_struct(type_attr: TypeAttr) -> TokenStream {
                     ));
                 }
             }
+        } else if field_name == "content" || field_attr.content {
+            // Always add content as direct children
+            quote! {
+                children.push(self.#field_name.to_html());
+            }
         } else {
             let attr_name = if let Some(attr_name) = field_attr.attr {
                 // If `attr` defined then use that as the attr name
                 attr_name
-            } else if type_attr.elem.is_some() && !type_attr.custom {
+            } else if type_attr.elem.is_some() {
                 // If not a custom element, prefix property name with data-
                 ["data-", &field_name.to_string()].concat()
             } else {
