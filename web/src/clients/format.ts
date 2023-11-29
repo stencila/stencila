@@ -1,13 +1,12 @@
-import { Capability } from "../capability";
-import { DocumentId } from "../ids";
+import { type DocumentAccess, type DocumentId } from "../types";
 
 import { Client } from "./client";
 
 /**
  * A patch to apply to a string representing a document in a particular format
  *
- * See the `server` Rust crate for the server-side structure of patches
- * which should be the consistent (if not exactly the same) as this.
+ * See the `document` Rust crate for the server-side structure of patches
+ * (which this should be consistent with, if not exactly the same).
  */
 export interface FormatPatch {
   /**
@@ -39,13 +38,14 @@ export interface FormatOperation {
 
   /**
    * The string to insert between `from` and `to`.
+   * 
    * For additions and replacements; may be omitted for deletions.
    */
   insert?: string;
 }
 
 /**
- * A client for a string representation of a document in a particular format
+ * A read-write client for a string representation of a document in a particular format
  */
 export abstract class FormatClient extends Client {
   /**
@@ -72,11 +72,12 @@ export abstract class FormatClient extends Client {
   /**
    * Construct a new `FormatClient`
    *
-   * @param capability The capability of client (e.g. "read", "write")
+   * @param id The id of the document
+   * @param access The access level of the client
    * @param format The format of the string (e.g. "html", "markdown")
    */
-  constructor(docId: DocumentId, capability: Capability, format: string) {
-    super(docId, `${capability}.${format}`);
+  constructor(id: DocumentId, access: DocumentAccess, format: string) {
+    super(id, `${access}.${format}`);
   }
 
   /**
@@ -84,10 +85,8 @@ export abstract class FormatClient extends Client {
    *
    * An override to apply the incoming `FormatPatch` message to the
    * local, in-browser, version of the string.
-   *
-   * @override
    */
-  receiveMessage(message: Record<string, unknown>) {
+  override receiveMessage(message: Record<string, unknown>) {
     const { version, ops } = message as unknown as FormatPatch;
 
     // Is the patch a reset patch?
@@ -129,12 +128,12 @@ export abstract class FormatClient extends Client {
   }
 
   /**
-   * Subscribe to changes in the string from within the browser window
+   * Subscribe to changes in the string from within the browser
    *
    * @param subscriber The subscriber function which will be called
    *                   with the string, each time it changes
    */
-  subscribe(subscriber: (value: string) => void) {
+  public subscribe(subscriber: (value: string) => void) {
     this.subscriber = subscriber;
   }
 }

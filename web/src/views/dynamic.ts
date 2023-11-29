@@ -1,13 +1,15 @@
 import { LitElement } from "lit";
 import { customElement, property } from "lit/decorators.js";
 
-import { Capability } from "../capability";
 import { DomClient } from "../clients/dom";
 import { NodesClient } from "../clients/nodes";
+import { type DocumentAccess } from "../types";
 
 // Include all node components required for this view
 import "../nodes/code-chunk";
 import "../nodes/code-expression";
+import "../nodes/if-block";
+import "../nodes/if-block-clause";
 import "../nodes/parameter";
 
 import "./dynamic.css";
@@ -30,7 +32,7 @@ export class Dynamic extends LitElement {
    * does not provide the means to modify those.
    */
   @property()
-  capability: Capability = "code";
+  capability: DocumentAccess = "code";
 
   /**
    * A read-only client which updates the document's DOM when the

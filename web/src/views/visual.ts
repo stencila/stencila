@@ -3,17 +3,22 @@ import { customElement, property } from "lit/decorators.js";
 import { exampleSetup } from "prosemirror-example-setup";
 import { DOMParser, Schema } from "prosemirror-model";
 import { EditorState } from "prosemirror-state";
-import { EditorView as ProseMirrorView } from "prosemirror-view";
+import {
+  NodeViewConstructor,
+  EditorView as ProseMirrorView,
+} from "prosemirror-view";
 
-import { Capability } from "../capability";
 import { DomClient } from "../clients/dom";
 import { ProseMirrorClient } from "../clients/prosemirror";
+import { type DocumentAccess } from "../types";
 
 import "prosemirror-menu/style/menu.css";
 
 // Include all node components required for this view
 import "../nodes/code-chunk";
 import "../nodes/code-expression";
+import "../nodes/if-block";
+import "../nodes/if-block-clause";
 import "../nodes/parameter";
 
 import * as schemas from "./visual/schemas";
@@ -24,7 +29,7 @@ import "./visual.css";
  *
  * A view which, in addition to providing live updates of a document,
  * allows for the user to modify the prose and other node types in it
- * using a WYSIWG editor.
+ * using a WYSIWYG editor.
  */
 @customElement("stencila-visual")
 export class Visual extends LitElement {
@@ -38,7 +43,7 @@ export class Visual extends LitElement {
    * or `admin`.
    */
   @property()
-  capability: Capability = "admin";
+  capability: DocumentAccess = "admin";
 
   /**
    * A read-only client which updates the document's DOM when the
@@ -60,34 +65,31 @@ export class Visual extends LitElement {
   /**
    * Override so that the document's DOM is rendered in the Light DOM
    * which is necessary for the `domClient` to work.
-   *
-   * @override
    */
-  createRenderRoot(): HTMLElement {
+  override createRenderRoot(): HTMLElement {
     return this;
   }
 
   /**
    * Override so that the clients are instantiated _after_ this
    * element has a `renderRoot`.
-   *
-   * @override
    */
-  connectedCallback() {
+  override connectedCallback() {
     super.connectedCallback();
 
     // Get the ProseMirror schema corresponding to the node type
     // of the document
     const tagName = this.renderRoot.firstElementChild.tagName.toLowerCase();
     let schema: Schema;
+    let views: Record<string, NodeViewConstructor>;
     if (tagName === "article") {
-      schema = schemas.article;
+      ({ schema, views } = schemas.article);
     } else {
       throw new Error(`No schema for element '${tagName}'`);
     }
 
     // Parse the document's DOM into a ProseMirror document
-    // and then remove it since it is redundant
+    // and then remove it (because it will be redundant)
     const doc = DOMParser.fromSchema(schema).parse(this.renderRoot);
     this.renderRoot.firstElementChild.remove();
 
@@ -103,13 +105,12 @@ export class Visual extends LitElement {
         plugins: exampleSetup({ schema }),
       }),
       dispatchTransaction: this.proseMirrorClient.sendPatches(),
+      nodeViews: views,
     });
 
     // Attach the `DomClient` to the ProseMirror element
-    this.domClient = new DomClient(
-      this.id,
-      this.renderRoot.querySelector(".ProseMirror")
-        .firstElementChild as HTMLElement
-    );
+    const proseMirrorElem = this.renderRoot.querySelector(".ProseMirror")
+      .firstElementChild as HTMLElement;
+    this.domClient = new DomClient(this.id, proseMirrorElem);
   }
 }

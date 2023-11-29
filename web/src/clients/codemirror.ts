@@ -1,8 +1,7 @@
 import { Extension, TransactionSpec } from "@codemirror/state";
 import { EditorView, ViewUpdate } from "@codemirror/view";
 
-import { Capability } from "../capability";
-import { DocumentId } from "../ids";
+import { type DocumentAccess, type DocumentId } from "../types";
 
 import { FormatOperation, FormatPatch, FormatClient } from "./format";
 
@@ -10,20 +9,24 @@ import { FormatOperation, FormatPatch, FormatClient } from "./format";
 const SEND_DEBOUNCE = 300;
 
 /**
- * A client that keeps a CodeMirror editor synchronized with a buffer
- * on the server
- *
- * This client is read-write: it can send and receives patches to and from
- * the server. To send patches it is necessary to create the client first
- * and add the return value of `sendPatches` to the `extensions of the editor
+ * A read-write client that keeps a CodeMirror editor synchronized with a
+ * string representation of a document in a particular format.
+ * 
+ * To send patches it is necessary to create the client first
+ * and add the return value of `sendPatches` to the `extensions` of the
+ * editor constructor.
+ * 
+ * To receive patches call the `receivePatches` method with the editor
+ * instance.
+ * 
  * e.g.
  *
  * ```ts
- * const client = CodeMirrorClient("markdown");
+ * const client = new CodeMirrorClient(...);
  *
  * const editor = new EditorView({
  *   extensions: [client.sendPatches()]
- *   ..
+ *   ...
  * })
  *
  * client.receivePatches(editor)
@@ -33,7 +36,7 @@ export class CodeMirrorClient extends FormatClient {
   /**
    * The CodeMirror view to update with patches from the server
    */
-  editor?: EditorView;
+  private editor?: EditorView;
 
   /**
    * Whether updates from the editor should be ignored
@@ -41,20 +44,22 @@ export class CodeMirrorClient extends FormatClient {
    * Used to temporarily ignore updates while applying patches from
    * the server.
    */
-  ignoreUpdates = false;
+  private ignoreUpdates = false;
 
   /**
    * A cache of `FormatOperation`s used to debounce sending patches to the server
    */
-  cachedOperations: FormatOperation[] = [];
+  private cachedOperations: FormatOperation[] = [];
 
   /**
    * Construct a new `CodeMirrorClient`
    *
+   * @param id The id of the document
+   * @param access The access level of the client
    * @param format The format of the editor content (e.g. "markdown")
    */
-  constructor(docId: DocumentId, capability: Capability, format: string) {
-    super(docId, capability, format);
+  constructor(id: DocumentId, access: DocumentAccess, format: string) {
+    super(id, access, format);
   }
 
   /**
@@ -62,7 +67,7 @@ export class CodeMirrorClient extends FormatClient {
    *
    * @returns A CodeMirror `Extension` to use when creating a new editor
    */
-  sendPatches(): Extension {
+  public sendPatches(): Extension {
     let timer: string | number | NodeJS.Timeout;
     return EditorView.updateListener.of((update: ViewUpdate) => {
       if (this.ignoreUpdates || !update.docChanged) {
@@ -102,9 +107,9 @@ export class CodeMirrorClient extends FormatClient {
   /**
    * Receive patches from the server and apply them to the content of the code editor
    *
-   * @param editor The editor that will receive patches from the server
+   * @param editor The CodeMirror editor that will receive patches from the server
    */
-  receivePatches(editor: EditorView) {
+  public receivePatches(editor: EditorView) {
     this.editor = editor;
 
     // Set the initial content of the code editor to the current state
@@ -113,9 +118,11 @@ export class CodeMirrorClient extends FormatClient {
     });
   }
 
-  // Override `onmessage` to forward patches directly to the code editor
-  // instead of updating local string
-  receiveMessage(message: Record<string, unknown>) {
+  /**
+   * Override to forward patches directly to the CodeMirror editor instead
+   * of updating `this.state`
+   */
+  override receiveMessage(message: Record<string, unknown>) {
     const { version, ops } = message as unknown as FormatPatch;
 
     // Is the patch a reset patch?

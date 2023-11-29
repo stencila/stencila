@@ -9,12 +9,14 @@ import type {
   ExecutionError,
   Timestamp,
   ExecutionStatus,
+  CompilationError,
 } from "@stencila/types";
+import { html } from "lit";
 import { property } from "lit/decorators.js";
 
 import { Entity } from "./entity";
 
-export class Executable extends Entity {
+export abstract class Executable extends Entity {
   @property()
   autoExec?: AutomaticExecution;
 
@@ -22,19 +24,19 @@ export class Executable extends Entity {
   compilationDigest?: CompilationDigest;
 
   @property()
-  compilationErrors?: string;
+  compilationErrors?: CompilationError[];
 
   @property()
   executionDigest?: CompilationDigest;
 
   @property()
-  executionDependencies?: ExecutionDependency;
+  executionDependencies?: ExecutionDependency[];
 
   @property()
-  executionDependants?: ExecutionDependant;
+  executionDependants?: ExecutionDependant[];
 
   @property()
-  executionTags?: ExecutionTag;
+  executionTags?: ExecutionTag[];
 
   @property()
   executionCount?: number;
@@ -56,4 +58,16 @@ export class Executable extends Entity {
 
   @property()
   executionErrors?: ExecutionError;
+
+
+  /**
+   * Render the `compilationErrors` and `executionErrors` of the node
+   */
+  renderErrors() {
+    return html`
+        <div part="error">
+          <!-- TODO -->
+        </div>
+      `
+  }
 }

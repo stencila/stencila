@@ -2,8 +2,8 @@ import { EditorView as CodeMirrorView } from "@codemirror/view";
 import { LitElement } from "lit";
 import { customElement, property } from "lit/decorators.js";
 
-import { Capability } from "../capability";
 import { CodeMirrorClient } from "../clients/codemirror";
+import { type DocumentAccess } from "../types";
 
 import "./source.css";
 
@@ -26,7 +26,7 @@ export class Source extends LitElement {
    * does not provide the means to modify those.
    */
   @property()
-  capability: Capability = "write";
+  capability: DocumentAccess = "write";
 
   /**
    * The format of the source code

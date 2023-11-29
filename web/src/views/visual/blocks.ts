@@ -1,4 +1,15 @@
-import { NodeSpec, attrsParseToDOM, toDOMAttrs, getAttrs } from "./prelude";
+import {
+  type NodeSpec,
+  Node,
+  NodeViewConstructor,
+  attrsParseToDOM,
+  toDOMAttrs,
+  getAttrs,
+  attrsWithDefault,
+  parseDOMWithContent,
+  codeExecutableAttrs,
+  executableAttrs,
+} from "./prelude";
 
 /**
  * A ProseMirror `NodeSpec` for a Stencila `Heading`
@@ -7,7 +18,7 @@ import { NodeSpec, attrsParseToDOM, toDOMAttrs, getAttrs } from "./prelude";
  * This is because there should only be one `h1` (for the title) and when encoding to
  * HTML we add one to the level e.g. `level: 1` => `h2`
  */
-export const Heading: NodeSpec = {
+const Heading: NodeSpec = {
   group: "Block",
   content: "Inline*",
   marks: "_",
@@ -47,16 +58,73 @@ export const Heading: NodeSpec = {
 };
 
 /**
+ * A ProseMirror `NodeSpec` for a Stencila `IfBlock`
+ */
+const IfBlock: NodeSpec = {
+  group: "Block",
+  content: "IfBlockClause*",
+  attrs: attrsWithDefault(null, ...executableAttrs),
+  parseDOM: parseDOMWithContent(
+    "stencila-if-block",
+    "[slot=clauses]",
+    ...executableAttrs
+  ),
+  toDOM: (node: Node) => {
+    const dom = document.createElement("stencila-if-block");
+    dom.draggable = true;
+    dom.id = node.attrs.id;
+
+    const contentDOM = document.createElement("div");
+    contentDOM.slot = "clauses";
+    dom.appendChild(contentDOM);
+
+    return { dom, contentDOM };
+  },
+};
+
+/**
+ * A ProseMirror `NodeSpec` for a Stencila `IfBlockClause`
+ */
+const IfBlockClause: NodeSpec = {
+  group: "Block",
+  content: "Block*",
+  attrs: attrsWithDefault(null, ...executableAttrs),
+  parseDOM: parseDOMWithContent(
+    "stencila-if-block-clause",
+    "[slot=content]",
+    "is-active",
+    ...codeExecutableAttrs
+  ),
+  toDOM: (node: Node) => {
+    const dom = document.createElement("stencila-if-block-clause");
+    dom.draggable = true;
+    dom.id = node.attrs.id;
+
+    const contentDOM = document.createElement("div");
+    contentDOM.slot = "content";
+    dom.appendChild(contentDOM);
+
+    return { dom, contentDOM };
+  },
+};
+
+/**
  * A ProseMirror `NodeSpec` for a Stencila `Paragraph`
  */
-export const Paragraph: NodeSpec = {
+const Paragraph: NodeSpec = {
   group: "Block",
   content: "Inline*",
   marks: "_",
   ...attrsParseToDOM("p", "id"),
 };
 
-export const blocks = {
+// Export specs and views
+
+export const specs: Record<string, NodeSpec> = {
   Heading,
+  IfBlock,
+  IfBlockClause,
   Paragraph,
 };
+
+export const views: Record<string, NodeViewConstructor> = {};

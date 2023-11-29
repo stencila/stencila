@@ -1,22 +1,25 @@
 import morphdom from "morphdom";
 
-import { DocumentId } from "../ids";
+import { type DocumentId } from "../types";
 
 import { FormatClient } from "./format";
 
 /**
- * A client that keeps a DOM element synchronized with a
- * HTML buffer on the server
+ * A read-only client that keeps a DOM element synchronized with the HTML
+ * representation of a document on the server
+ * 
+ * This class simply extends `FormatClient` and uses `morphdom`
+ * to update the DOM element whenever the HTML changes.
  */
 export class DomClient extends FormatClient {
   /**
    * Construct a new `DomClient`
    * 
-   * @param docId        The id of the document
-   * @param elem         The DOM element that will be updated
+   * @param id The id of the document
+   * @param elem The DOM element that will be updated
    */
-  constructor(docId: DocumentId, elem: HTMLElement) {
-    super(docId, "read", "html");
+  constructor(id: DocumentId, elem: HTMLElement) {
+    super(id, "read", "html");
 
     this.subscribe((html) => morphdom(elem, html));
   }
