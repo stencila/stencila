@@ -370,9 +370,7 @@ async fn serve_document(
 
     // TODO: restrict the view to the highest based on the user's role
     let view = query.get("view").map_or("static", |value| value.as_ref());
-    let capability = query
-        .get("capability")
-        .map_or("read", |value| value.as_ref());
+    let access = query.get("access").map_or("write", |value| value.as_ref());
 
     // Generate the content from the document
     let body = if view == "source" {
@@ -380,9 +378,7 @@ async fn serve_document(
             .get("format")
             .map_or("markdown", |value| value.as_ref());
 
-        format!(
-            "<stencila-{view} id={id} capability={capability} format={format}></stencila-{view}>"
-        )
+        format!("<stencila-{view} view={view} id={id} access={access} format={format}></stencila-{view}>")
     } else {
         let html = doc
             .export(
@@ -396,7 +392,7 @@ async fn serve_document(
             .await
             .map_err(InternalError::new)?;
 
-        format!("<stencila-{view} id={id} capability={capability}>{html}</stencila-{view}>")
+        format!("<stencila-{view} view={view} id={id} access={access}>{html}</stencila-{view}>")
     };
 
     let version = if cfg!(debug_assertions) {
@@ -458,6 +454,9 @@ async fn serve_ws(
 
     // TODO: Change the allowed protocols based on the users permissions
     let mut protocols = vec!["read.html.stencila.org".to_string()];
+
+    protocols.push(format!("read.debug.stencila.org"));
+
     for format in [
         // TODO: define this list of string formats better
         Format::Json,
@@ -470,10 +469,11 @@ async fn serve_ws(
         protocols.push(format!("read.{format}.stencila.org"));
         protocols.push(format!("write.{format}.stencila.org"));
     }
-    for capability in [
+
+    for access in [
         "comment", "suggest", "input", "code", "prose", "write", "admin",
     ] {
-        protocols.push(format!("{capability}.nodes.stencila.org"));
+        protocols.push(format!("{access}.nodes.stencila.org"));
     }
 
     let response = ws
@@ -488,20 +488,21 @@ async fn serve_ws(
 async fn handle_ws(ws: WebSocket, doc: Arc<Document>, query: HashMap<String, String>) {
     tracing::trace!("WebSocket connection");
 
-    let protocol = ws
-        .protocol()
-        .and_then(|header| header.to_str().ok())
-        .unwrap_or_default()
-        .to_string();
+    let Some(protocol) = ws
+        .protocol().and_then(|header| header.to_str().ok()).map(String::from) else {
+            tracing::debug!("No WebSocket subprotocol");
+            ws.close().await.ok();
+            return
+        };
 
     let Some(protocol) = protocol.strip_suffix(".stencila.org") else {
-        tracing::debug!("Unknown WebSocket protocol: {protocol}");
+        tracing::debug!("Unknown WebSocket subprotocol: {protocol}");
         ws.close().await.ok();
         return
     };
 
     let Some((capability, format)) = protocol.split('.').collect_tuple() else {
-        tracing::debug!("Invalid WebSocket protocol: {protocol}");
+        tracing::debug!("Invalid WebSocket subprotocol: {protocol}");
         ws.close().await.ok();
         return
     };
