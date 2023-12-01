@@ -7,9 +7,10 @@
   "packageRules": [
     {
       "groupName": "NPM dev dependencies",
-      "description": "Group dev dependencies from all package.json files",
+      "description": "Group dev dependencies from all package.json files (except typescript with Renovate confuses with local workspace of same name)",
       "matchFileNames": ["**/package.json"],
       "matchDepTypes": ["devDependencies"],
+      "excludeDepNames": ["typescript"],
       "matchUpdateTypes": ["patch", "minor"],
       "schedule": ["before 4am on monday"]
     }
