@@ -1,7 +1,9 @@
 import { type Node, node } from "@stencila/types";
 
-import * as bindings from "./bindings.js";
+// eslint-disable-next-line import/no-unresolved
 import { type DecodeOptions, type EncodeOptions } from "./bindings.d.js";
+// eslint-disable-next-line import/no-unresolved
+import * as bindings from "./bindings.js";
 
 export { DecodeOptions, EncodeOptions };
 
