@@ -1,21 +1,21 @@
 <article>
   <p>
     <span>With a number output:</span>
-    <span is='stencila-code-expression' code='6 * 7' programming-language='python'>
+    <stencila-code-expression code='6 * 7' programming-language='python'>
       <span slot='output'>
         <span is='stencila-integer'>42</span>
       </span>
-    </span>
+    </stencila-code-expression>
   </p>
   <p>
     <span>With a string output:</span>
-    <span is='stencila-code-expression' code='a string' programming-language='python'>
+    <stencila-code-expression code='a string' programming-language='python'>
       <span slot='output'>a string</span>
-    </span>
+    </stencila-code-expression>
   </p>
   <p>
     <span>With an array output:</span>
-    <span is='stencila-code-expression' code='[1, 2, 3]' programming-language='python'>
+    <stencila-code-expression code='[1, 2, 3]' programming-language='python'>
       <span slot='output'>
         <span is='stencila-array'>
           <span is='stencila-array-item'>
@@ -29,11 +29,11 @@
           </span>
         </span>
       </span>
-    </span>
+    </stencila-code-expression>
   </p>
   <p>
     <span>With an object output:</span>
-    <span is='stencila-code-expression' code='dict(a=1,b=dict())' programming-language='python'>
+    <stencila-code-expression code='dict(a=1,b=dict())' programming-language='python'>
       <span slot='output'>
         <span is='stencila-object'>
           <span is='stencila-object-item' key='a'>
@@ -45,16 +45,16 @@
           </span>
         </span>
       </span>
-    </span>
+    </stencila-code-expression>
   </p>
   <p>
     <span>With no language:</span>
-    <span is='stencila-code-expression' code='a + b'>
-    </span>
+    <stencila-code-expression code='a + b'>
+    </stencila-code-expression>
   </p>
   <p>
     <span>With automatic execution behavior specified</span>
-    <span is='stencila-code-expression' auto-exec='Never' code='c * d' programming-language='javascript'>
-    </span>
+    <stencila-code-expression auto-exec='Never' code='c * d' programming-language='javascript'>
+    </stencila-code-expression>
   </p>
 </article>

@@ -7,8 +7,8 @@
     <audio src='https://example.org/cat.mp3' alt='audio' controls>
     </audio>
     <span>,</span>
-    <span is='stencila-code-expression' code='code expression'>
-    </span>
+    <stencila-code-expression code='code expression'>
+    </stencila-code-expression>
     <span>,</span>
     <code>inline code</code>
     <del>
@@ -87,8 +87,8 @@
     </p>
   </stencila-claim>
   <pre>This is a code block</pre>
-  <pre is='stencila-code-chunk' code='This is a code chunk'>
-  </pre>
+  <stencila-code-chunk code='This is a code chunk'>
+  </stencila-code-chunk>
   <stencila-delete-block>
     <p>
       <span>This paragraph is to be deleted</span>
@@ -99,23 +99,27 @@
       <span>This is a figure</span>
     </p>
   </figure>
-  <div is='stencila-for-block' code='items' symbol='item'>
+  <stencila-for-block code='items' symbol='item'>
     <p>
       <span>This is a for block</span>
     </p>
-  </div>
+  </stencila-for-block>
   <h1>
     <span>This is a heading</span>
   </h1>
-  <div is='stencila-if-block'>
-    <div is='stencila-if-block-clause' code='1 &lt; 2'>
-      <p>
-        <span>This is an if block</span>
-      </p>
+  <stencila-if-block>
+    <div slot='clauses'>
+      <stencila-if-block-clause code='1 &lt; 2'>
+        <div slot='content'>
+          <p>
+            <span>This is an if block</span>
+          </p>
+        </div>
+      </stencila-if-block-clause>
     </div>
-  </div>
-  <div is='stencila-include-block' source='this/is/an/include'>
-  </div>
+  </stencila-if-block>
+  <stencila-include-block source='this/is/an/include'>
+  </stencila-include-block>
   <stencila-insert-block>
     <p>
       <span>This paragraph is to be inserted</span>

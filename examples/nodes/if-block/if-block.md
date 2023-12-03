@@ -8,7 +8,7 @@ This paragraph should be shown
 
 An if block with programming language specified
 
-::: if True{python}
+::: if True {python}
 
 This paragraph should be shown
 
