@@ -7,8 +7,16 @@
   "packageRules": [
     {
       "groupName": "NPM dev dependencies",
-      "description": "Group dev dependencies from all package.json files",
+      "description": "Group development dependencies from all package.json files",
       "matchFileNames": ["**/package.json"],
+      "matchDepTypes": ["devDependencies"],
+      "matchUpdateTypes": ["patch", "minor"],
+      "schedule": ["before 4am on monday"]
+    },
+    {
+      "groupName": "Python dev dependencies",
+      "description": "Group development dependencies from pyproject.toml",
+      "matchFileNames": ["python/pyproject.toml"],
       "matchDepTypes": ["devDependencies"],
       "matchUpdateTypes": ["patch", "minor"],
       "schedule": ["before 4am on monday"]
