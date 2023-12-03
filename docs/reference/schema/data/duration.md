@@ -47,7 +47,7 @@ The `Duration` type is represented in these bindings:
 - [JSON Schema](https://stencila.org/Duration.schema.json)
 - Python class [`Duration`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/duration.py)
 - Rust struct [`Duration`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/duration.rs)
-- TypeScript class [`Duration`](https://github.com/stencila/stencila/blob/main/typescript/src/types/Duration.ts)
+- TypeScript class [`Duration`](https://github.com/stencila/stencila/blob/main/ts/src/types/Duration.ts)
 
 ## Source
 

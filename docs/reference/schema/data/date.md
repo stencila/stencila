@@ -46,7 +46,7 @@ The `Date` type is represented in these bindings:
 - [JSON Schema](https://stencila.org/Date.schema.json)
 - Python class [`Date`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/date.py)
 - Rust struct [`Date`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/date.rs)
-- TypeScript class [`Date`](https://github.com/stencila/stencila/blob/main/typescript/src/types/Date.ts)
+- TypeScript class [`Date`](https://github.com/stencila/stencila/blob/main/ts/src/types/Date.ts)
 
 ## Testing
 

@@ -50,7 +50,7 @@ The `CodeLocation` type is represented in these bindings:
 - [JSON Schema](https://stencila.org/CodeLocation.schema.json)
 - Python class [`CodeLocation`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/code_location.py)
 - Rust struct [`CodeLocation`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/code_location.rs)
-- TypeScript class [`CodeLocation`](https://github.com/stencila/stencila/blob/main/typescript/src/types/CodeLocation.ts)
+- TypeScript class [`CodeLocation`](https://github.com/stencila/stencila/blob/main/ts/src/types/CodeLocation.ts)
 
 ## Source
 

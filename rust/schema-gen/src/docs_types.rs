@@ -688,7 +688,7 @@ fn bindings(title: &str, schema: &Schema) -> Vec<Block> {
             )]),
             li([t("TypeScript "), t(if schema.is_object() { "class "} else {"type "}), lnk(
                 [ci(title)],
-                format!("https://github.com/stencila/stencila/blob/main/typescript/src/types/{module}.ts", module = title.to_pascal_case()),
+                format!("https://github.com/stencila/stencila/blob/main/ts/src/types/{module}.ts", module = title.to_pascal_case()),
             )]),
         ]),
     ]

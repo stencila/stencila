@@ -34,7 +34,7 @@ The `CreativeWorkType` type is represented in these bindings:
 - [JSON Schema](https://stencila.org/CreativeWorkType.schema.json)
 - Python type [`CreativeWorkType`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/creative_work_type.py)
 - Rust type [`CreativeWorkType`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/creative_work_type.rs)
-- TypeScript type [`CreativeWorkType`](https://github.com/stencila/stencila/blob/main/typescript/src/types/CreativeWorkType.ts)
+- TypeScript type [`CreativeWorkType`](https://github.com/stencila/stencila/blob/main/ts/src/types/CreativeWorkType.ts)
 
 ## Source
 

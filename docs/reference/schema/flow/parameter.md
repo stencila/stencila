@@ -68,7 +68,7 @@ The `Parameter` type is represented in these bindings:
 - [JSON Schema](https://stencila.org/Parameter.schema.json)
 - Python class [`Parameter`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/parameter.py)
 - Rust struct [`Parameter`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/parameter.rs)
-- TypeScript class [`Parameter`](https://github.com/stencila/stencila/blob/main/typescript/src/types/Parameter.ts)
+- TypeScript class [`Parameter`](https://github.com/stencila/stencila/blob/main/ts/src/types/Parameter.ts)
 
 ## Testing
 

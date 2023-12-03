@@ -51,7 +51,7 @@ The `ExecutionError` type is represented in these bindings:
 - [JSON Schema](https://stencila.org/ExecutionError.schema.json)
 - Python class [`ExecutionError`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/execution_error.py)
 - Rust struct [`ExecutionError`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/execution_error.rs)
-- TypeScript class [`ExecutionError`](https://github.com/stencila/stencila/blob/main/typescript/src/types/ExecutionError.ts)
+- TypeScript class [`ExecutionError`](https://github.com/stencila/stencila/blob/main/ts/src/types/ExecutionError.ts)
 
 ## Source
 

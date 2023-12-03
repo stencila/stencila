@@ -50,7 +50,7 @@ The `Underline` type is represented in these bindings:
 - [JSON Schema](https://stencila.org/Underline.schema.json)
 - Python class [`Underline`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/underline.py)
 - Rust struct [`Underline`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/underline.rs)
-- TypeScript class [`Underline`](https://github.com/stencila/stencila/blob/main/typescript/src/types/Underline.ts)
+- TypeScript class [`Underline`](https://github.com/stencila/stencila/blob/main/ts/src/types/Underline.ts)
 
 ## Testing
 

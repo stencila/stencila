@@ -30,7 +30,7 @@ The `Instruct` type is represented in these bindings:
 - [JSON Schema](https://stencila.org/Instruct.schema.json)
 - Python class [`Instruct`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/instruct.py)
 - Rust struct [`Instruct`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/instruct.rs)
-- TypeScript class [`Instruct`](https://github.com/stencila/stencila/blob/main/typescript/src/types/Instruct.ts)
+- TypeScript class [`Instruct`](https://github.com/stencila/stencila/blob/main/ts/src/types/Instruct.ts)
 
 ## Source
 

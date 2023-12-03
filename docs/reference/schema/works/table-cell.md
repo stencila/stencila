@@ -50,7 +50,7 @@ The `TableCell` type is represented in these bindings:
 - [JSON Schema](https://stencila.org/TableCell.schema.json)
 - Python class [`TableCell`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/table_cell.py)
 - Rust struct [`TableCell`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/table_cell.rs)
-- TypeScript class [`TableCell`](https://github.com/stencila/stencila/blob/main/typescript/src/types/TableCell.ts)
+- TypeScript class [`TableCell`](https://github.com/stencila/stencila/blob/main/ts/src/types/TableCell.ts)
 
 ## Testing
 

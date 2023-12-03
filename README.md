@@ -384,7 +384,7 @@ This repository is organized into the following modules. Please see their respec
 
 - [`python`](python): A Python package, with classes generated from Stencila Schema and bindings to Rust functions, so you can work with Stencila documents from within Python.
 
-- [`typescript`](typescript): A package of TypeScript types generated from Stencila Schema so you can create type-safe Stencila documents in the browser, Node.js, Deno etc.
+- [`ts`](ts): A package of TypeScript types generated from Stencila Schema so you can create type-safe Stencila documents in the browser, Node.js, Deno etc.
 
 - [`node`](node): A Node.js package, using the generated TypeScript types and bindings to Rust functions, so you can work with Stencila documents from within Node.js.
 

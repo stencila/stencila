@@ -20,7 +20,7 @@ The `ListOrder` type is represented in these bindings:
 - [JSON Schema](https://stencila.org/ListOrder.schema.json)
 - Python type [`ListOrder`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/list_order.py)
 - Rust type [`ListOrder`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/list_order.rs)
-- TypeScript type [`ListOrder`](https://github.com/stencila/stencila/blob/main/typescript/src/types/ListOrder.ts)
+- TypeScript type [`ListOrder`](https://github.com/stencila/stencila/blob/main/ts/src/types/ListOrder.ts)
 
 ## Source
 

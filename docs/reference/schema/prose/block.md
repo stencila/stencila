@@ -41,7 +41,7 @@ The `Block` type is represented in these bindings:
 - [JSON Schema](https://stencila.org/Block.schema.json)
 - Python type [`Block`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/block.py)
 - Rust type [`Block`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/block.rs)
-- TypeScript type [`Block`](https://github.com/stencila/stencila/blob/main/typescript/src/types/Block.ts)
+- TypeScript type [`Block`](https://github.com/stencila/stencila/blob/main/ts/src/types/Block.ts)
 
 ## Testing
 

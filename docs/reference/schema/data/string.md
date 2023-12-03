@@ -30,7 +30,7 @@ The `String` type is represented in these bindings:
 - [JSON Schema](https://stencila.org/String.schema.json)
 - Python type [`String`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/string.py)
 - Rust type [`String`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/string.rs)
-- TypeScript type [`String`](https://github.com/stencila/stencila/blob/main/typescript/src/types/String.ts)
+- TypeScript type [`String`](https://github.com/stencila/stencila/blob/main/ts/src/types/String.ts)
 
 ## Source
 

@@ -83,7 +83,7 @@ The `Periodical` type is represented in these bindings:
 - [JSON Schema](https://stencila.org/Periodical.schema.json)
 - Python class [`Periodical`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/periodical.py)
 - Rust struct [`Periodical`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/periodical.rs)
-- TypeScript class [`Periodical`](https://github.com/stencila/stencila/blob/main/typescript/src/types/Periodical.ts)
+- TypeScript class [`Periodical`](https://github.com/stencila/stencila/blob/main/ts/src/types/Periodical.ts)
 
 ## Source
 

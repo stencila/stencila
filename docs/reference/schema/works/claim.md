@@ -83,7 +83,7 @@ The `Claim` type is represented in these bindings:
 - [JSON Schema](https://stencila.org/Claim.schema.json)
 - Python class [`Claim`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/claim.py)
 - Rust struct [`Claim`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/claim.rs)
-- TypeScript class [`Claim`](https://github.com/stencila/stencila/blob/main/typescript/src/types/Claim.ts)
+- TypeScript class [`Claim`](https://github.com/stencila/stencila/blob/main/ts/src/types/Claim.ts)
 
 ## Testing
 

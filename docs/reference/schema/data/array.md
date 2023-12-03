@@ -34,7 +34,7 @@ The `Array` type is represented in these bindings:
 - [JSON Schema](https://stencila.org/Array.schema.json)
 - Python type [`Array`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/array.py)
 - Rust type [`Array`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/array.rs)
-- TypeScript type [`Array`](https://github.com/stencila/stencila/blob/main/typescript/src/types/Array.ts)
+- TypeScript type [`Array`](https://github.com/stencila/stencila/blob/main/ts/src/types/Array.ts)
 
 ## Source
 

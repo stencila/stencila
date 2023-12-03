@@ -65,7 +65,7 @@ The `Form` type is represented in these bindings:
 - [JSON Schema](https://stencila.org/Form.schema.json)
 - Python class [`Form`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/form.py)
 - Rust struct [`Form`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/form.rs)
-- TypeScript class [`Form`](https://github.com/stencila/stencila/blob/main/typescript/src/types/Form.ts)
+- TypeScript class [`Form`](https://github.com/stencila/stencila/blob/main/ts/src/types/Form.ts)
 
 ## Source
 

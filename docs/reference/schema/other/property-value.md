@@ -64,7 +64,7 @@ The `PropertyValue` type is represented in these bindings:
 - [JSON Schema](https://stencila.org/PropertyValue.schema.json)
 - Python class [`PropertyValue`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/property_value.py)
 - Rust struct [`PropertyValue`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/property_value.rs)
-- TypeScript class [`PropertyValue`](https://github.com/stencila/stencila/blob/main/typescript/src/types/PropertyValue.ts)
+- TypeScript class [`PropertyValue`](https://github.com/stencila/stencila/blob/main/ts/src/types/PropertyValue.ts)
 
 ## Source
 

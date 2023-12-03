@@ -30,7 +30,7 @@ The `Integer` type is represented in these bindings:
 - [JSON Schema](https://stencila.org/Integer.schema.json)
 - Python type [`Integer`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/integer.py)
 - Rust type [`Integer`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/integer.rs)
-- TypeScript type [`Integer`](https://github.com/stencila/stencila/blob/main/typescript/src/types/Integer.ts)
+- TypeScript type [`Integer`](https://github.com/stencila/stencila/blob/main/ts/src/types/Integer.ts)
 
 ## Source
 

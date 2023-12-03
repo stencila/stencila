@@ -28,7 +28,7 @@ The `SuggestionBlock` type is represented in these bindings:
 - [JSON Schema](https://stencila.org/SuggestionBlock.schema.json)
 - Python class [`SuggestionBlock`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/suggestion_block.py)
 - Rust struct [`SuggestionBlock`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/suggestion_block.rs)
-- TypeScript class [`SuggestionBlock`](https://github.com/stencila/stencila/blob/main/typescript/src/types/SuggestionBlock.ts)
+- TypeScript class [`SuggestionBlock`](https://github.com/stencila/stencila/blob/main/ts/src/types/SuggestionBlock.ts)
 
 ## Source
 

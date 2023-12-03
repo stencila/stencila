@@ -32,7 +32,7 @@ The `Primitive` type is represented in these bindings:
 - [JSON Schema](https://stencila.org/Primitive.schema.json)
 - Python type [`Primitive`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/primitive.py)
 - Rust type [`Primitive`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/primitive.rs)
-- TypeScript type [`Primitive`](https://github.com/stencila/stencila/blob/main/typescript/src/types/Primitive.ts)
+- TypeScript type [`Primitive`](https://github.com/stencila/stencila/blob/main/ts/src/types/Primitive.ts)
 
 ## Source
 

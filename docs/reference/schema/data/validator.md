@@ -30,7 +30,7 @@ The `Validator` type is represented in these bindings:
 - [JSON Schema](https://stencila.org/Validator.schema.json)
 - Python type [`Validator`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/validator.py)
 - Rust type [`Validator`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/validator.rs)
-- TypeScript type [`Validator`](https://github.com/stencila/stencila/blob/main/typescript/src/types/Validator.ts)
+- TypeScript type [`Validator`](https://github.com/stencila/stencila/blob/main/ts/src/types/Validator.ts)
 
 ## Source
 

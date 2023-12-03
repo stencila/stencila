@@ -7,6 +7,7 @@ ifdef CI
 else
 	cd .. && npm install --ignore-scripts
 endif
+	make -C ../ts build
 
 # Make formatting and linting fixes
 fix: install
@@ -17,16 +18,12 @@ lint: install
 	npm run lint
 
 # Run tests
-# It's necessary to build the @stencila/types package first because
-# at present that is linked in the package.json with a relative path
 test: install
-	make -C ../typescript build
 	npm run build:debug
 	npm test
 
 # Run tests with coverage
 cover: install
-	make -C ../typescript build
 	npm run build:debug
 	npm run cover
 
@@ -34,7 +31,6 @@ cover: install
 # This moves the release build of the addon to `stencila.node`
 # which is the expected path of the addon.
 bench: install
-	make -C ../typescript build
 	npm run build:addon
 	mv stencila.*.node stencila.node
 	npm run bench
@@ -57,7 +53,6 @@ addon: install
 # It is necessary to build the addon (just debug for speed) because that
 # generates the `bindings.d.cts` file.
 dist: install
-	make -C ../typescript build
 	npm run build:debug
 	npm run build:dist
 .PHONY: dist

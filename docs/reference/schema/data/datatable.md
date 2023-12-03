@@ -76,7 +76,7 @@ The `Datatable` type is represented in these bindings:
 - [JSON Schema](https://stencila.org/Datatable.schema.json)
 - Python class [`Datatable`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/datatable.py)
 - Rust struct [`Datatable`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/datatable.rs)
-- TypeScript class [`Datatable`](https://github.com/stencila/stencila/blob/main/typescript/src/types/Datatable.ts)
+- TypeScript class [`Datatable`](https://github.com/stencila/stencila/blob/main/ts/src/types/Datatable.ts)
 
 ## Source
 

@@ -83,7 +83,7 @@ The `Collection` type is represented in these bindings:
 - [JSON Schema](https://stencila.org/Collection.schema.json)
 - Python class [`Collection`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/collection.py)
 - Rust struct [`Collection`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/collection.rs)
-- TypeScript class [`Collection`](https://github.com/stencila/stencila/blob/main/typescript/src/types/Collection.ts)
+- TypeScript class [`Collection`](https://github.com/stencila/stencila/blob/main/ts/src/types/Collection.ts)
 
 ## Source
 

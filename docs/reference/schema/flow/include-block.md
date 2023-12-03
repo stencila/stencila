@@ -65,7 +65,7 @@ The `IncludeBlock` type is represented in these bindings:
 - [JSON Schema](https://stencila.org/IncludeBlock.schema.json)
 - Python class [`IncludeBlock`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/include_block.py)
 - Rust struct [`IncludeBlock`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/include_block.rs)
-- TypeScript class [`IncludeBlock`](https://github.com/stencila/stencila/blob/main/typescript/src/types/IncludeBlock.ts)
+- TypeScript class [`IncludeBlock`](https://github.com/stencila/stencila/blob/main/ts/src/types/IncludeBlock.ts)
 
 ## Testing
 

@@ -62,7 +62,7 @@ The `IfBlock` type is represented in these bindings:
 - [JSON Schema](https://stencila.org/IfBlock.schema.json)
 - Python class [`IfBlock`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/if_block.py)
 - Rust struct [`IfBlock`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/if_block.rs)
-- TypeScript class [`IfBlock`](https://github.com/stencila/stencila/blob/main/typescript/src/types/IfBlock.ts)
+- TypeScript class [`IfBlock`](https://github.com/stencila/stencila/blob/main/ts/src/types/IfBlock.ts)
 
 ## Testing
 

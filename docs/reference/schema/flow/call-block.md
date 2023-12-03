@@ -66,7 +66,7 @@ The `CallBlock` type is represented in these bindings:
 - [JSON Schema](https://stencila.org/CallBlock.schema.json)
 - Python class [`CallBlock`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/call_block.py)
 - Rust struct [`CallBlock`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/call_block.rs)
-- TypeScript class [`CallBlock`](https://github.com/stencila/stencila/blob/main/typescript/src/types/CallBlock.ts)
+- TypeScript class [`CallBlock`](https://github.com/stencila/stencila/blob/main/ts/src/types/CallBlock.ts)
 
 ## Testing
 

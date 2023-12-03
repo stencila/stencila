@@ -49,7 +49,7 @@ The `InstructBlock` type is represented in these bindings:
 - [JSON Schema](https://stencila.org/InstructBlock.schema.json)
 - Python class [`InstructBlock`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/instruct_block.py)
 - Rust struct [`InstructBlock`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/instruct_block.rs)
-- TypeScript class [`InstructBlock`](https://github.com/stencila/stencila/blob/main/typescript/src/types/InstructBlock.ts)
+- TypeScript class [`InstructBlock`](https://github.com/stencila/stencila/blob/main/ts/src/types/InstructBlock.ts)
 
 ## Testing
 

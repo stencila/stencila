@@ -64,7 +64,7 @@ The `CodeExpression` type is represented in these bindings:
 - [JSON Schema](https://stencila.org/CodeExpression.schema.json)
 - Python class [`CodeExpression`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/code_expression.py)
 - Rust struct [`CodeExpression`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/code_expression.rs)
-- TypeScript class [`CodeExpression`](https://github.com/stencila/stencila/blob/main/typescript/src/types/CodeExpression.ts)
+- TypeScript class [`CodeExpression`](https://github.com/stencila/stencila/blob/main/ts/src/types/CodeExpression.ts)
 
 ## Testing
 

@@ -80,7 +80,7 @@ The `CreativeWork` type is represented in these bindings:
 - [JSON Schema](https://stencila.org/CreativeWork.schema.json)
 - Python class [`CreativeWork`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/creative_work.py)
 - Rust struct [`CreativeWork`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/creative_work.rs)
-- TypeScript class [`CreativeWork`](https://github.com/stencila/stencila/blob/main/typescript/src/types/CreativeWork.ts)
+- TypeScript class [`CreativeWork`](https://github.com/stencila/stencila/blob/main/ts/src/types/CreativeWork.ts)
 
 ## Source
 

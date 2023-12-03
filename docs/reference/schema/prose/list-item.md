@@ -65,7 +65,7 @@ The `ListItem` type is represented in these bindings:
 - [JSON Schema](https://stencila.org/ListItem.schema.json)
 - Python class [`ListItem`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/list_item.py)
 - Rust struct [`ListItem`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/list_item.rs)
-- TypeScript class [`ListItem`](https://github.com/stencila/stencila/blob/main/typescript/src/types/ListItem.ts)
+- TypeScript class [`ListItem`](https://github.com/stencila/stencila/blob/main/ts/src/types/ListItem.ts)
 
 ## Testing
 

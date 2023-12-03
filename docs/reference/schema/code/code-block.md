@@ -47,7 +47,7 @@ The `CodeBlock` type is represented in these bindings:
 - [JSON Schema](https://stencila.org/CodeBlock.schema.json)
 - Python class [`CodeBlock`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/code_block.py)
 - Rust struct [`CodeBlock`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/code_block.rs)
-- TypeScript class [`CodeBlock`](https://github.com/stencila/stencila/blob/main/typescript/src/types/CodeBlock.ts)
+- TypeScript class [`CodeBlock`](https://github.com/stencila/stencila/blob/main/ts/src/types/CodeBlock.ts)
 
 ## Testing
 

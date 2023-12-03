@@ -81,7 +81,7 @@ The `SoftwareSourceCode` type is represented in these bindings:
 - [JSON Schema](https://stencila.org/SoftwareSourceCode.schema.json)
 - Python class [`SoftwareSourceCode`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/software_source_code.py)
 - Rust struct [`SoftwareSourceCode`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/software_source_code.rs)
-- TypeScript class [`SoftwareSourceCode`](https://github.com/stencila/stencila/blob/main/typescript/src/types/SoftwareSourceCode.ts)
+- TypeScript class [`SoftwareSourceCode`](https://github.com/stencila/stencila/blob/main/ts/src/types/SoftwareSourceCode.ts)
 
 ## Source
 

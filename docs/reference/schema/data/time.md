@@ -46,7 +46,7 @@ The `Time` type is represented in these bindings:
 - [JSON Schema](https://stencila.org/Time.schema.json)
 - Python class [`Time`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/time.py)
 - Rust struct [`Time`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/time.rs)
-- TypeScript class [`Time`](https://github.com/stencila/stencila/blob/main/typescript/src/types/Time.ts)
+- TypeScript class [`Time`](https://github.com/stencila/stencila/blob/main/ts/src/types/Time.ts)
 
 ## Testing
 

@@ -48,7 +48,7 @@ The `EnumValidator` type is represented in these bindings:
 - [JSON Schema](https://stencila.org/EnumValidator.schema.json)
 - Python class [`EnumValidator`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/enum_validator.py)
 - Rust struct [`EnumValidator`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/enum_validator.rs)
-- TypeScript class [`EnumValidator`](https://github.com/stencila/stencila/blob/main/typescript/src/types/EnumValidator.ts)
+- TypeScript class [`EnumValidator`](https://github.com/stencila/stencila/blob/main/ts/src/types/EnumValidator.ts)
 
 ## Source
 

@@ -50,7 +50,7 @@ The `Function` type is represented in these bindings:
 - [JSON Schema](https://stencila.org/Function.schema.json)
 - Python class [`Function`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/function.py)
 - Rust struct [`Function`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/function.rs)
-- TypeScript class [`Function`](https://github.com/stencila/stencila/blob/main/typescript/src/types/Function.ts)
+- TypeScript class [`Function`](https://github.com/stencila/stencila/blob/main/ts/src/types/Function.ts)
 
 ## Source
 

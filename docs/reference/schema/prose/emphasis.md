@@ -53,7 +53,7 @@ The `Emphasis` type is represented in these bindings:
 - [JSON Schema](https://stencila.org/Emphasis.schema.json)
 - Python class [`Emphasis`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/emphasis.py)
 - Rust struct [`Emphasis`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/emphasis.rs)
-- TypeScript class [`Emphasis`](https://github.com/stencila/stencila/blob/main/typescript/src/types/Emphasis.ts)
+- TypeScript class [`Emphasis`](https://github.com/stencila/stencila/blob/main/ts/src/types/Emphasis.ts)
 
 ## Testing
 

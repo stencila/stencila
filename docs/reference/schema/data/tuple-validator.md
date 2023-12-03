@@ -46,7 +46,7 @@ The `TupleValidator` type is represented in these bindings:
 - [JSON Schema](https://stencila.org/TupleValidator.schema.json)
 - Python class [`TupleValidator`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/tuple_validator.py)
 - Rust struct [`TupleValidator`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/tuple_validator.rs)
-- TypeScript class [`TupleValidator`](https://github.com/stencila/stencila/blob/main/typescript/src/types/TupleValidator.ts)
+- TypeScript class [`TupleValidator`](https://github.com/stencila/stencila/blob/main/ts/src/types/TupleValidator.ts)
 
 ## Source
 

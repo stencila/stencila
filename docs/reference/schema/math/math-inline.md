@@ -50,7 +50,7 @@ The `MathInline` type is represented in these bindings:
 - [JSON Schema](https://stencila.org/MathInline.schema.json)
 - Python class [`MathInline`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/math_inline.py)
 - Rust struct [`MathInline`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/math_inline.rs)
-- TypeScript class [`MathInline`](https://github.com/stencila/stencila/blob/main/typescript/src/types/MathInline.ts)
+- TypeScript class [`MathInline`](https://github.com/stencila/stencila/blob/main/ts/src/types/MathInline.ts)
 
 ## Testing
 

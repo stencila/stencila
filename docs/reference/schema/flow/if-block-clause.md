@@ -65,7 +65,7 @@ The `IfBlockClause` type is represented in these bindings:
 - [JSON Schema](https://stencila.org/IfBlockClause.schema.json)
 - Python class [`IfBlockClause`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/if_block_clause.py)
 - Rust struct [`IfBlockClause`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/if_block_clause.rs)
-- TypeScript class [`IfBlockClause`](https://github.com/stencila/stencila/blob/main/typescript/src/types/IfBlockClause.ts)
+- TypeScript class [`IfBlockClause`](https://github.com/stencila/stencila/blob/main/ts/src/types/IfBlockClause.ts)
 
 ## Testing
 

@@ -47,7 +47,7 @@ The `ReplaceInline` type is represented in these bindings:
 - [JSON Schema](https://stencila.org/ReplaceInline.schema.json)
 - Python class [`ReplaceInline`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/replace_inline.py)
 - Rust struct [`ReplaceInline`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/replace_inline.rs)
-- TypeScript class [`ReplaceInline`](https://github.com/stencila/stencila/blob/main/typescript/src/types/ReplaceInline.ts)
+- TypeScript class [`ReplaceInline`](https://github.com/stencila/stencila/blob/main/ts/src/types/ReplaceInline.ts)
 
 ## Testing
 

@@ -30,7 +30,7 @@ The `Boolean` type is represented in these bindings:
 - [JSON Schema](https://stencila.org/Boolean.schema.json)
 - Python type [`Boolean`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/boolean.py)
 - Rust type [`Boolean`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/boolean.rs)
-- TypeScript type [`Boolean`](https://github.com/stencila/stencila/blob/main/typescript/src/types/Boolean.ts)
+- TypeScript type [`Boolean`](https://github.com/stencila/stencila/blob/main/ts/src/types/Boolean.ts)
 
 ## Source
 

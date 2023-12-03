@@ -46,7 +46,7 @@ The `Superscript` type is represented in these bindings:
 - [JSON Schema](https://stencila.org/Superscript.schema.json)
 - Python class [`Superscript`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/superscript.py)
 - Rust struct [`Superscript`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/superscript.rs)
-- TypeScript class [`Superscript`](https://github.com/stencila/stencila/blob/main/typescript/src/types/Superscript.ts)
+- TypeScript class [`Superscript`](https://github.com/stencila/stencila/blob/main/ts/src/types/Superscript.ts)
 
 ## Testing
 

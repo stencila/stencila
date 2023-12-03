@@ -65,7 +65,7 @@ The `CodeChunk` type is represented in these bindings:
 - [JSON Schema](https://stencila.org/CodeChunk.schema.json)
 - Python class [`CodeChunk`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/code_chunk.py)
 - Rust struct [`CodeChunk`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/code_chunk.rs)
-- TypeScript class [`CodeChunk`](https://github.com/stencila/stencila/blob/main/typescript/src/types/CodeChunk.ts)
+- TypeScript class [`CodeChunk`](https://github.com/stencila/stencila/blob/main/ts/src/types/CodeChunk.ts)
 
 ## Testing
 

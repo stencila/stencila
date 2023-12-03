@@ -78,7 +78,7 @@ The `Table` type is represented in these bindings:
 - [JSON Schema](https://stencila.org/Table.schema.json)
 - Python class [`Table`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/table.py)
 - Rust struct [`Table`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/table.rs)
-- TypeScript class [`Table`](https://github.com/stencila/stencila/blob/main/typescript/src/types/Table.ts)
+- TypeScript class [`Table`](https://github.com/stencila/stencila/blob/main/ts/src/types/Table.ts)
 
 ## Testing
 

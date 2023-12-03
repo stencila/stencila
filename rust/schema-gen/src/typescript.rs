@@ -63,7 +63,7 @@ impl Schemas {
         eprintln!("Generating TypeScript types");
 
         // The top level destination
-        let dest = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../typescript/src");
+        let dest = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../ts/src");
         let dest = dest
             .canonicalize()
             .context(format!("can not find directory `{}`", dest.display()))?;

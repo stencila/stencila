@@ -85,7 +85,7 @@ The `Article` type is represented in these bindings:
 - [JSON Schema](https://stencila.org/Article.schema.json)
 - Python class [`Article`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/article.py)
 - Rust struct [`Article`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/article.rs)
-- TypeScript class [`Article`](https://github.com/stencila/stencila/blob/main/typescript/src/types/Article.ts)
+- TypeScript class [`Article`](https://github.com/stencila/stencila/blob/main/ts/src/types/Article.ts)
 
 ## Testing
 

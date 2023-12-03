@@ -76,7 +76,7 @@ The `Directory` type is represented in these bindings:
 - [JSON Schema](https://stencila.org/Directory.schema.json)
 - Python class [`Directory`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/directory.py)
 - Rust struct [`Directory`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/directory.rs)
-- TypeScript class [`Directory`](https://github.com/stencila/stencila/blob/main/typescript/src/types/Directory.ts)
+- TypeScript class [`Directory`](https://github.com/stencila/stencila/blob/main/ts/src/types/Directory.ts)
 
 ## Source
 

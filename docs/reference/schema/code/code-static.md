@@ -34,7 +34,7 @@ The `CodeStatic` type is represented in these bindings:
 - [JSON Schema](https://stencila.org/CodeStatic.schema.json)
 - Python class [`CodeStatic`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/code_static.py)
 - Rust struct [`CodeStatic`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/code_static.rs)
-- TypeScript class [`CodeStatic`](https://github.com/stencila/stencila/blob/main/typescript/src/types/CodeStatic.ts)
+- TypeScript class [`CodeStatic`](https://github.com/stencila/stencila/blob/main/ts/src/types/CodeStatic.ts)
 
 ## Source
 

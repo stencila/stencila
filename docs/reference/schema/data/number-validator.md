@@ -56,7 +56,7 @@ The `NumberValidator` type is represented in these bindings:
 - [JSON Schema](https://stencila.org/NumberValidator.schema.json)
 - Python class [`NumberValidator`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/number_validator.py)
 - Rust struct [`NumberValidator`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/number_validator.rs)
-- TypeScript class [`NumberValidator`](https://github.com/stencila/stencila/blob/main/typescript/src/types/NumberValidator.ts)
+- TypeScript class [`NumberValidator`](https://github.com/stencila/stencila/blob/main/ts/src/types/NumberValidator.ts)
 
 ## Source
 

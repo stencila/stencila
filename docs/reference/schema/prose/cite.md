@@ -59,7 +59,7 @@ The `Cite` type is represented in these bindings:
 - [JSON Schema](https://stencila.org/Cite.schema.json)
 - Python class [`Cite`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/cite.py)
 - Rust struct [`Cite`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/cite.rs)
-- TypeScript class [`Cite`](https://github.com/stencila/stencila/blob/main/typescript/src/types/Cite.ts)
+- TypeScript class [`Cite`](https://github.com/stencila/stencila/blob/main/ts/src/types/Cite.ts)
 
 ## Source
 

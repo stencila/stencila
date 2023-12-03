@@ -46,7 +46,7 @@ The `DeleteBlock` type is represented in these bindings:
 - [JSON Schema](https://stencila.org/DeleteBlock.schema.json)
 - Python class [`DeleteBlock`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/delete_block.py)
 - Rust struct [`DeleteBlock`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/delete_block.rs)
-- TypeScript class [`DeleteBlock`](https://github.com/stencila/stencila/blob/main/typescript/src/types/DeleteBlock.ts)
+- TypeScript class [`DeleteBlock`](https://github.com/stencila/stencila/blob/main/ts/src/types/DeleteBlock.ts)
 
 ## Testing
 

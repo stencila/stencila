@@ -45,7 +45,7 @@ The `ThematicBreak` type is represented in these bindings:
 - [JSON Schema](https://stencila.org/ThematicBreak.schema.json)
 - Python class [`ThematicBreak`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/thematic_break.py)
 - Rust struct [`ThematicBreak`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/thematic_break.rs)
-- TypeScript class [`ThematicBreak`](https://github.com/stencila/stencila/blob/main/typescript/src/types/ThematicBreak.ts)
+- TypeScript class [`ThematicBreak`](https://github.com/stencila/stencila/blob/main/ts/src/types/ThematicBreak.ts)
 
 ## Source
 

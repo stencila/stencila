@@ -47,7 +47,7 @@ The `ModifyOperation` type is represented in these bindings:
 - [JSON Schema](https://stencila.org/ModifyOperation.schema.json)
 - Python class [`ModifyOperation`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/modify_operation.py)
 - Rust struct [`ModifyOperation`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/modify_operation.rs)
-- TypeScript class [`ModifyOperation`](https://github.com/stencila/stencila/blob/main/typescript/src/types/ModifyOperation.ts)
+- TypeScript class [`ModifyOperation`](https://github.com/stencila/stencila/blob/main/ts/src/types/ModifyOperation.ts)
 
 ## Source
 

@@ -30,7 +30,7 @@ The `Number` type is represented in these bindings:
 - [JSON Schema](https://stencila.org/Number.schema.json)
 - Python type [`Number`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/number.py)
 - Rust type [`Number`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/number.rs)
-- TypeScript type [`Number`](https://github.com/stencila/stencila/blob/main/typescript/src/types/Number.ts)
+- TypeScript type [`Number`](https://github.com/stencila/stencila/blob/main/ts/src/types/Number.ts)
 
 ## Source
 

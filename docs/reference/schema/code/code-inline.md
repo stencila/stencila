@@ -47,7 +47,7 @@ The `CodeInline` type is represented in these bindings:
 - [JSON Schema](https://stencila.org/CodeInline.schema.json)
 - Python class [`CodeInline`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/code_inline.py)
 - Rust struct [`CodeInline`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/code_inline.rs)
-- TypeScript class [`CodeInline`](https://github.com/stencila/stencila/blob/main/typescript/src/types/CodeInline.ts)
+- TypeScript class [`CodeInline`](https://github.com/stencila/stencila/blob/main/ts/src/types/CodeInline.ts)
 
 ## Testing
 

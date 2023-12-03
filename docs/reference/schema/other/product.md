@@ -66,7 +66,7 @@ The `Product` type is represented in these bindings:
 - [JSON Schema](https://stencila.org/Product.schema.json)
 - Python class [`Product`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/product.py)
 - Rust struct [`Product`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/product.rs)
-- TypeScript class [`Product`](https://github.com/stencila/stencila/blob/main/typescript/src/types/Product.ts)
+- TypeScript class [`Product`](https://github.com/stencila/stencila/blob/main/ts/src/types/Product.ts)
 
 ## Source
 

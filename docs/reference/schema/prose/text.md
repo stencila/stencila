@@ -55,7 +55,7 @@ The `Text` type is represented in these bindings:
 - [JSON Schema](https://stencila.org/Text.schema.json)
 - Python class [`Text`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/text.py)
 - Rust struct [`Text`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/text.rs)
-- TypeScript class [`Text`](https://github.com/stencila/stencila/blob/main/typescript/src/types/Text.ts)
+- TypeScript class [`Text`](https://github.com/stencila/stencila/blob/main/ts/src/types/Text.ts)
 
 ## Testing
 

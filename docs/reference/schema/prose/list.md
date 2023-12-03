@@ -54,7 +54,7 @@ The `List` type is represented in these bindings:
 - [JSON Schema](https://stencila.org/List.schema.json)
 - Python class [`List`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/list.py)
 - Rust struct [`List`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/list.rs)
-- TypeScript class [`List`](https://github.com/stencila/stencila/blob/main/typescript/src/types/List.ts)
+- TypeScript class [`List`](https://github.com/stencila/stencila/blob/main/ts/src/types/List.ts)
 
 ## Testing
 

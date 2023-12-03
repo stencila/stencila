@@ -82,7 +82,7 @@ The `PublicationVolume` type is represented in these bindings:
 - [JSON Schema](https://stencila.org/PublicationVolume.schema.json)
 - Python class [`PublicationVolume`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/publication_volume.py)
 - Rust struct [`PublicationVolume`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/publication_volume.rs)
-- TypeScript class [`PublicationVolume`](https://github.com/stencila/stencila/blob/main/typescript/src/types/PublicationVolume.ts)
+- TypeScript class [`PublicationVolume`](https://github.com/stencila/stencila/blob/main/ts/src/types/PublicationVolume.ts)
 
 ## Source
 

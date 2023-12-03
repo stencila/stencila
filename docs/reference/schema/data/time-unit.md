@@ -30,7 +30,7 @@ The `TimeUnit` type is represented in these bindings:
 - [JSON Schema](https://stencila.org/TimeUnit.schema.json)
 - Python type [`TimeUnit`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/time_unit.py)
 - Rust type [`TimeUnit`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/time_unit.rs)
-- TypeScript type [`TimeUnit`](https://github.com/stencila/stencila/blob/main/typescript/src/types/TimeUnit.ts)
+- TypeScript type [`TimeUnit`](https://github.com/stencila/stencila/blob/main/ts/src/types/TimeUnit.ts)
 
 ## Source
 

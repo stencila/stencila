@@ -79,7 +79,7 @@ The `PublicationIssue` type is represented in these bindings:
 - [JSON Schema](https://stencila.org/PublicationIssue.schema.json)
 - Python class [`PublicationIssue`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/publication_issue.py)
 - Rust struct [`PublicationIssue`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/publication_issue.rs)
-- TypeScript class [`PublicationIssue`](https://github.com/stencila/stencila/blob/main/typescript/src/types/PublicationIssue.ts)
+- TypeScript class [`PublicationIssue`](https://github.com/stencila/stencila/blob/main/ts/src/types/PublicationIssue.ts)
 
 ## Source
 

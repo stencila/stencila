@@ -30,7 +30,7 @@ The `Null` type is represented in these bindings:
 - [JSON Schema](https://stencila.org/Null.schema.json)
 - Python type [`Null`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/null.py)
 - Rust type [`Null`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/null.rs)
-- TypeScript type [`Null`](https://github.com/stencila/stencila/blob/main/typescript/src/types/Null.ts)
+- TypeScript type [`Null`](https://github.com/stencila/stencila/blob/main/ts/src/types/Null.ts)
 
 ## Source
 

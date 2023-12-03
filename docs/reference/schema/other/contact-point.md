@@ -57,7 +57,7 @@ The `ContactPoint` type is represented in these bindings:
 - [JSON Schema](https://stencila.org/ContactPoint.schema.json)
 - Python class [`ContactPoint`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/contact_point.py)
 - Rust struct [`ContactPoint`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/contact_point.rs)
-- TypeScript class [`ContactPoint`](https://github.com/stencila/stencila/blob/main/typescript/src/types/ContactPoint.ts)
+- TypeScript class [`ContactPoint`](https://github.com/stencila/stencila/blob/main/ts/src/types/ContactPoint.ts)
 
 ## Source
 

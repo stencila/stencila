@@ -47,7 +47,7 @@ The `QuoteBlock` type is represented in these bindings:
 - [JSON Schema](https://stencila.org/QuoteBlock.schema.json)
 - Python class [`QuoteBlock`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/quote_block.py)
 - Rust struct [`QuoteBlock`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/quote_block.rs)
-- TypeScript class [`QuoteBlock`](https://github.com/stencila/stencila/blob/main/typescript/src/types/QuoteBlock.ts)
+- TypeScript class [`QuoteBlock`](https://github.com/stencila/stencila/blob/main/ts/src/types/QuoteBlock.ts)
 
 ## Testing
 

@@ -53,7 +53,7 @@ The `DatatableColumn` type is represented in these bindings:
 - [JSON Schema](https://stencila.org/DatatableColumn.schema.json)
 - Python class [`DatatableColumn`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/datatable_column.py)
 - Rust struct [`DatatableColumn`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/datatable_column.rs)
-- TypeScript class [`DatatableColumn`](https://github.com/stencila/stencila/blob/main/typescript/src/types/DatatableColumn.ts)
+- TypeScript class [`DatatableColumn`](https://github.com/stencila/stencila/blob/main/ts/src/types/DatatableColumn.ts)
 
 ## Source
 

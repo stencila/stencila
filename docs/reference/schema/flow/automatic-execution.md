@@ -20,7 +20,7 @@ The `AutomaticExecution` type is represented in these bindings:
 - [JSON Schema](https://stencila.org/AutomaticExecution.schema.json)
 - Python type [`AutomaticExecution`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/automatic_execution.py)
 - Rust type [`AutomaticExecution`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/automatic_execution.rs)
-- TypeScript type [`AutomaticExecution`](https://github.com/stencila/stencila/blob/main/typescript/src/types/AutomaticExecution.ts)
+- TypeScript type [`AutomaticExecution`](https://github.com/stencila/stencila/blob/main/ts/src/types/AutomaticExecution.ts)
 
 ## Source
 

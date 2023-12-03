@@ -54,7 +54,7 @@ The `Inline` type is represented in these bindings:
 - [JSON Schema](https://stencila.org/Inline.schema.json)
 - Python type [`Inline`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/inline.py)
 - Rust type [`Inline`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/inline.rs)
-- TypeScript type [`Inline`](https://github.com/stencila/stencila/blob/main/typescript/src/types/Inline.ts)
+- TypeScript type [`Inline`](https://github.com/stencila/stencila/blob/main/ts/src/types/Inline.ts)
 
 ## Testing
 

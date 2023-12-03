@@ -136,7 +136,7 @@ The `Node` type is represented in these bindings:
 - [JSON Schema](https://stencila.org/Node.schema.json)
 - Python type [`Node`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/node.py)
 - Rust type [`Node`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/node.rs)
-- TypeScript type [`Node`](https://github.com/stencila/stencila/blob/main/typescript/src/types/Node.ts)
+- TypeScript type [`Node`](https://github.com/stencila/stencila/blob/main/ts/src/types/Node.ts)
 
 ## Source
 

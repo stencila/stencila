@@ -88,7 +88,7 @@ The `VideoObject` type is represented in these bindings:
 - [JSON Schema](https://stencila.org/VideoObject.schema.json)
 - Python class [`VideoObject`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/video_object.py)
 - Rust struct [`VideoObject`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/video_object.rs)
-- TypeScript class [`VideoObject`](https://github.com/stencila/stencila/blob/main/typescript/src/types/VideoObject.ts)
+- TypeScript class [`VideoObject`](https://github.com/stencila/stencila/blob/main/ts/src/types/VideoObject.ts)
 
 ## Testing
 

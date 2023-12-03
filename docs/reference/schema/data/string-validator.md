@@ -53,7 +53,7 @@ The `StringValidator` type is represented in these bindings:
 - [JSON Schema](https://stencila.org/StringValidator.schema.json)
 - Python class [`StringValidator`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/string_validator.py)
 - Rust struct [`StringValidator`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/string_validator.rs)
-- TypeScript class [`StringValidator`](https://github.com/stencila/stencila/blob/main/typescript/src/types/StringValidator.ts)
+- TypeScript class [`StringValidator`](https://github.com/stencila/stencila/blob/main/ts/src/types/StringValidator.ts)
 
 ## Source
 

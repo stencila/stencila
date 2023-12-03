@@ -41,7 +41,7 @@ The `Styled` type is represented in these bindings:
 - [JSON Schema](https://stencila.org/Styled.schema.json)
 - Python class [`Styled`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/styled.py)
 - Rust struct [`Styled`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/styled.rs)
-- TypeScript class [`Styled`](https://github.com/stencila/stencila/blob/main/typescript/src/types/Styled.ts)
+- TypeScript class [`Styled`](https://github.com/stencila/stencila/blob/main/ts/src/types/Styled.ts)
 
 ## Source
 

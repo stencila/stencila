@@ -25,7 +25,7 @@ on:
         description: Build CLI
         type: boolean
         default: true
-      publish-typescript:
+      publish-ts:
         description: Publish @stencila/types
         type: boolean
         default: true
@@ -127,8 +127,8 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   # Build and publish @stencila/types package
-  publish-typescript:
-    if: ${{ inputs.publish-typescript }}
+  publish-ts:
+    if: ${{ inputs.publish-ts }}
     needs: [create-release]
     runs-on: ubuntu-latest
     steps:
@@ -144,7 +144,7 @@ jobs:
           registry-url: "https://registry.npmjs.org"
 
       - name: Publish @stencila/types
-        run: make -C typescript -B install publish
+        run: make -C ts -B install publish
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
@@ -358,7 +358,7 @@ jobs:
   # that this triggers tests this release and not a previous version
   publish-release:
     if: ${{ inputs.publish-release }}
-    needs: [build-cli, publish-typescript, publish-node, publish-python, publish-docker]
+    needs: [build-cli, publish-ts, publish-node, publish-python, publish-docker]
     runs-on: ubuntu-latest
     permissions:
       contents: write

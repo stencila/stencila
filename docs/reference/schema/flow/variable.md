@@ -50,7 +50,7 @@ The `Variable` type is represented in these bindings:
 - [JSON Schema](https://stencila.org/Variable.schema.json)
 - Python class [`Variable`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/variable.py)
 - Rust struct [`Variable`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/variable.rs)
-- TypeScript class [`Variable`](https://github.com/stencila/stencila/blob/main/typescript/src/types/Variable.ts)
+- TypeScript class [`Variable`](https://github.com/stencila/stencila/blob/main/ts/src/types/Variable.ts)
 
 ## Source
 

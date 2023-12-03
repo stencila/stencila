@@ -82,7 +82,7 @@ The `AudioObject` type is represented in these bindings:
 - [JSON Schema](https://stencila.org/AudioObject.schema.json)
 - Python class [`AudioObject`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/audio_object.py)
 - Rust struct [`AudioObject`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/audio_object.rs)
-- TypeScript class [`AudioObject`](https://github.com/stencila/stencila/blob/main/typescript/src/types/AudioObject.ts)
+- TypeScript class [`AudioObject`](https://github.com/stencila/stencila/blob/main/ts/src/types/AudioObject.ts)
 
 ## Testing
 

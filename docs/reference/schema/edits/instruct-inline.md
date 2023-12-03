@@ -49,7 +49,7 @@ The `InstructInline` type is represented in these bindings:
 - [JSON Schema](https://stencila.org/InstructInline.schema.json)
 - Python class [`InstructInline`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/instruct_inline.py)
 - Rust struct [`InstructInline`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/instruct_inline.rs)
-- TypeScript class [`InstructInline`](https://github.com/stencila/stencila/blob/main/typescript/src/types/InstructInline.ts)
+- TypeScript class [`InstructInline`](https://github.com/stencila/stencila/blob/main/ts/src/types/InstructInline.ts)
 
 ## Testing
 

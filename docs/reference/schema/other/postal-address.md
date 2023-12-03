@@ -60,7 +60,7 @@ The `PostalAddress` type is represented in these bindings:
 - [JSON Schema](https://stencila.org/PostalAddress.schema.json)
 - Python class [`PostalAddress`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/postal_address.py)
 - Rust struct [`PostalAddress`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/postal_address.rs)
-- TypeScript class [`PostalAddress`](https://github.com/stencila/stencila/blob/main/typescript/src/types/PostalAddress.ts)
+- TypeScript class [`PostalAddress`](https://github.com/stencila/stencila/blob/main/ts/src/types/PostalAddress.ts)
 
 ## Source
 

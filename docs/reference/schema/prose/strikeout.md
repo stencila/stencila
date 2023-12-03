@@ -54,7 +54,7 @@ The `Strikeout` type is represented in these bindings:
 - [JSON Schema](https://stencila.org/Strikeout.schema.json)
 - Python class [`Strikeout`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/strikeout.py)
 - Rust struct [`Strikeout`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/strikeout.rs)
-- TypeScript class [`Strikeout`](https://github.com/stencila/stencila/blob/main/typescript/src/types/Strikeout.ts)
+- TypeScript class [`Strikeout`](https://github.com/stencila/stencila/blob/main/ts/src/types/Strikeout.ts)
 
 ## Testing
 

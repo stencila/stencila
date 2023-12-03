@@ -86,7 +86,7 @@ The `Comment` type is represented in these bindings:
 - [JSON Schema](https://stencila.org/Comment.schema.json)
 - Python class [`Comment`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/comment.py)
 - Rust struct [`Comment`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/comment.rs)
-- TypeScript class [`Comment`](https://github.com/stencila/stencila/blob/main/typescript/src/types/Comment.ts)
+- TypeScript class [`Comment`](https://github.com/stencila/stencila/blob/main/ts/src/types/Comment.ts)
 
 ## Source
 

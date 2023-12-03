@@ -48,7 +48,7 @@ The `StringOperation` type is represented in these bindings:
 - [JSON Schema](https://stencila.org/StringOperation.schema.json)
 - Python class [`StringOperation`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/string_operation.py)
 - Rust struct [`StringOperation`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/string_operation.rs)
-- TypeScript class [`StringOperation`](https://github.com/stencila/stencila/blob/main/typescript/src/types/StringOperation.ts)
+- TypeScript class [`StringOperation`](https://github.com/stencila/stencila/blob/main/ts/src/types/StringOperation.ts)
 
 ## Source
 

@@ -7,7 +7,7 @@
   "bugs": {
     "url": "https://github.com/stencila/stencila/issues"
   },
-  "homepage": "https://github.com/stencila/stencila/tree/main/typescript#readme",
+  "homepage": "https://github.com/stencila/stencila/tree/main/ts#readme",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/stencila/stencila.git"

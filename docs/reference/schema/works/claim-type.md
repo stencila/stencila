@@ -25,7 +25,7 @@ The `ClaimType` type is represented in these bindings:
 - [JSON Schema](https://stencila.org/ClaimType.schema.json)
 - Python type [`ClaimType`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/claim_type.py)
 - Rust type [`ClaimType`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/claim_type.rs)
-- TypeScript type [`ClaimType`](https://github.com/stencila/stencila/blob/main/typescript/src/types/ClaimType.ts)
+- TypeScript type [`ClaimType`](https://github.com/stencila/stencila/blob/main/ts/src/types/ClaimType.ts)
 
 ## Source
 

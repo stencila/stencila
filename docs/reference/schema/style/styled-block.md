@@ -54,7 +54,7 @@ The `StyledBlock` type is represented in these bindings:
 - [JSON Schema](https://stencila.org/StyledBlock.schema.json)
 - Python class [`StyledBlock`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/styled_block.py)
 - Rust struct [`StyledBlock`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/styled_block.rs)
-- TypeScript class [`StyledBlock`](https://github.com/stencila/stencila/blob/main/typescript/src/types/StyledBlock.ts)
+- TypeScript class [`StyledBlock`](https://github.com/stencila/stencila/blob/main/ts/src/types/StyledBlock.ts)
 
 ## Testing
 

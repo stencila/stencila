@@ -6,7 +6,7 @@ all: fix test audit build
 # but ensures install of the top level NPM workspaces,
 # and Python module.
 install:
-	make -C typescript -B install
+	make -C ts -B install
 	make -C node -B install
 	make -C python -B install
 	make -C web -B install
@@ -14,7 +14,7 @@ install:
 # Make formatting and linting fixes
 fix:
 	make -C rust fix
-	make -C typescript fix
+	make -C ts fix
 	make -C node fix
 	make -C python fix
 	make -C web fix
@@ -22,7 +22,7 @@ fix:
 # Run linting checks
 lint:
 	make -C rust lint
-	make -C typescript lint
+	make -C ts lint
 	make -C node lint
 	make -C python lint
 	make -C web lint
@@ -30,14 +30,14 @@ lint:
 # Run tests
 test:
 	make -C rust test
-	make -C typescript test
+	make -C ts test
 	make -C node test
 	make -C python test
 
 # Run tests with coverage
 cover:
 	make -C rust cover
-	make -C typescript test
+	make -C ts test
 	make -C node cover
 	make -C python cover
 
@@ -51,7 +51,7 @@ bench:
 # List outdated dependencies
 outdated:
 	make -C rust outdated
-	make -C typescript outdated
+	make -C ts outdated
 	make -C node outdated
 	make -C python outdated
 	make -C web outdated
@@ -62,13 +62,13 @@ a11y:
 
 # Run package publishing checks
 pubcheck:
-	make -C typescript pubcheck
+	make -C ts pubcheck
 	make -C node pubcheck
 
 # Audit dependencies
 audit:
 	make -C rust audit
-	make -C typescript audit
+	make -C ts audit
 	make -C node audit
 	make -C python audit
 	make -C web audit
@@ -76,7 +76,7 @@ audit:
 # Build packages
 build:
 	make -C rust build
-	make -C typescript build
+	make -C ts build
 	make -C node build
 	make -C python build
 	make -C web build
@@ -97,7 +97,7 @@ examples:
 # Clean up development artifacts
 clean:
 	make -C rust clean
-	make -C typescript clean
+	make -C ts clean
 	make -C node clean
 	make -C python clean
 	make -C web clean

@@ -46,7 +46,7 @@ The `DeleteInline` type is represented in these bindings:
 - [JSON Schema](https://stencila.org/DeleteInline.schema.json)
 - Python class [`DeleteInline`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/delete_inline.py)
 - Rust struct [`DeleteInline`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/delete_inline.rs)
-- TypeScript class [`DeleteInline`](https://github.com/stencila/stencila/blob/main/typescript/src/types/DeleteInline.ts)
+- TypeScript class [`DeleteInline`](https://github.com/stencila/stencila/blob/main/ts/src/types/DeleteInline.ts)
 
 ## Testing
 

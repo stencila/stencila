@@ -54,7 +54,7 @@ The `Paragraph` type is represented in these bindings:
 - [JSON Schema](https://stencila.org/Paragraph.schema.json)
 - Python class [`Paragraph`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/paragraph.py)
 - Rust struct [`Paragraph`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/paragraph.rs)
-- TypeScript class [`Paragraph`](https://github.com/stencila/stencila/blob/main/typescript/src/types/Paragraph.ts)
+- TypeScript class [`Paragraph`](https://github.com/stencila/stencila/blob/main/ts/src/types/Paragraph.ts)
 
 ## Testing
 

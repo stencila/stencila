@@ -53,7 +53,7 @@ The `Heading` type is represented in these bindings:
 - [JSON Schema](https://stencila.org/Heading.schema.json)
 - Python class [`Heading`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/heading.py)
 - Rust struct [`Heading`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/heading.rs)
-- TypeScript class [`Heading`](https://github.com/stencila/stencila/blob/main/typescript/src/types/Heading.ts)
+- TypeScript class [`Heading`](https://github.com/stencila/stencila/blob/main/ts/src/types/Heading.ts)
 
 ## Testing
 

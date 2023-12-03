@@ -55,7 +55,7 @@ The `MonetaryGrant` type is represented in these bindings:
 - [JSON Schema](https://stencila.org/MonetaryGrant.schema.json)
 - Python class [`MonetaryGrant`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/monetary_grant.py)
 - Rust struct [`MonetaryGrant`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/monetary_grant.rs)
-- TypeScript class [`MonetaryGrant`](https://github.com/stencila/stencila/blob/main/typescript/src/types/MonetaryGrant.ts)
+- TypeScript class [`MonetaryGrant`](https://github.com/stencila/stencila/blob/main/ts/src/types/MonetaryGrant.ts)
 
 ## Source
 

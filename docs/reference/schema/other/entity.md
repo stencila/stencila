@@ -31,7 +31,7 @@ The `Entity` type is represented in these bindings:
 - [JSON Schema](https://stencila.org/Entity.schema.json)
 - Python class [`Entity`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/entity.py)
 - Rust struct [`Entity`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/entity.rs)
-- TypeScript class [`Entity`](https://github.com/stencila/stencila/blob/main/typescript/src/types/Entity.ts)
+- TypeScript class [`Entity`](https://github.com/stencila/stencila/blob/main/ts/src/types/Entity.ts)
 
 ## Source
 

@@ -49,7 +49,7 @@ The `Link` type is represented in these bindings:
 - [JSON Schema](https://stencila.org/Link.schema.json)
 - Python class [`Link`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/link.py)
 - Rust struct [`Link`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/link.rs)
-- TypeScript class [`Link`](https://github.com/stencila/stencila/blob/main/typescript/src/types/Link.ts)
+- TypeScript class [`Link`](https://github.com/stencila/stencila/blob/main/ts/src/types/Link.ts)
 
 ## Testing
 

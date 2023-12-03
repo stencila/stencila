@@ -47,7 +47,7 @@ The `ModifyInline` type is represented in these bindings:
 - [JSON Schema](https://stencila.org/ModifyInline.schema.json)
 - Python class [`ModifyInline`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/modify_inline.py)
 - Rust struct [`ModifyInline`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/modify_inline.rs)
-- TypeScript class [`ModifyInline`](https://github.com/stencila/stencila/blob/main/typescript/src/types/ModifyInline.ts)
+- TypeScript class [`ModifyInline`](https://github.com/stencila/stencila/blob/main/ts/src/types/ModifyInline.ts)
 
 ## Testing
 

@@ -63,7 +63,7 @@ The `Organization` type is represented in these bindings:
 - [JSON Schema](https://stencila.org/Organization.schema.json)
 - Python class [`Organization`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/organization.py)
 - Rust struct [`Organization`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/organization.rs)
-- TypeScript class [`Organization`](https://github.com/stencila/stencila/blob/main/typescript/src/types/Organization.ts)
+- TypeScript class [`Organization`](https://github.com/stencila/stencila/blob/main/ts/src/types/Organization.ts)
 
 ## Source
 

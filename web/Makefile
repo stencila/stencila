@@ -7,6 +7,7 @@ ifdef CI
 else
 	cd .. && npm install --ignore-scripts
 endif
+	make -C ../ts build
 
 # Make formatting and linting fixes
 fix: install

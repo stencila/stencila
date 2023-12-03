@@ -34,7 +34,7 @@ The `Object` type is represented in these bindings:
 - [JSON Schema](https://stencila.org/Object.schema.json)
 - Python type [`Object`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/object.py)
 - Rust type [`Object`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/object.rs)
-- TypeScript type [`Object`](https://github.com/stencila/stencila/blob/main/typescript/src/types/Object.ts)
+- TypeScript type [`Object`](https://github.com/stencila/stencila/blob/main/ts/src/types/Object.ts)
 
 ## Source
 

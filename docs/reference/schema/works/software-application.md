@@ -84,7 +84,7 @@ The `SoftwareApplication` type is represented in these bindings:
 - [JSON Schema](https://stencila.org/SoftwareApplication.schema.json)
 - Python class [`SoftwareApplication`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/software_application.py)
 - Rust struct [`SoftwareApplication`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/software_application.rs)
-- TypeScript class [`SoftwareApplication`](https://github.com/stencila/stencila/blob/main/typescript/src/types/SoftwareApplication.ts)
+- TypeScript class [`SoftwareApplication`](https://github.com/stencila/stencila/blob/main/ts/src/types/SoftwareApplication.ts)
 
 ## Source
 

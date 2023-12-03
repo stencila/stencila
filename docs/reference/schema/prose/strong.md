@@ -46,7 +46,7 @@ The `Strong` type is represented in these bindings:
 - [JSON Schema](https://stencila.org/Strong.schema.json)
 - Python class [`Strong`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/strong.py)
 - Rust struct [`Strong`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/strong.rs)
-- TypeScript class [`Strong`](https://github.com/stencila/stencila/blob/main/typescript/src/types/Strong.ts)
+- TypeScript class [`Strong`](https://github.com/stencila/stencila/blob/main/ts/src/types/Strong.ts)
 
 ## Testing
 

@@ -47,7 +47,7 @@ The `Timestamp` type is represented in these bindings:
 - [JSON Schema](https://stencila.org/Timestamp.schema.json)
 - Python class [`Timestamp`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/timestamp.py)
 - Rust struct [`Timestamp`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/timestamp.rs)
-- TypeScript class [`Timestamp`](https://github.com/stencila/stencila/blob/main/typescript/src/types/Timestamp.ts)
+- TypeScript class [`Timestamp`](https://github.com/stencila/stencila/blob/main/ts/src/types/Timestamp.ts)
 
 ## Source
 

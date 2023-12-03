@@ -78,7 +78,7 @@ The `Figure` type is represented in these bindings:
 - [JSON Schema](https://stencila.org/Figure.schema.json)
 - Python class [`Figure`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/figure.py)
 - Rust struct [`Figure`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/figure.rs)
-- TypeScript class [`Figure`](https://github.com/stencila/stencila/blob/main/typescript/src/types/Figure.ts)
+- TypeScript class [`Figure`](https://github.com/stencila/stencila/blob/main/ts/src/types/Figure.ts)
 
 ## Testing
 

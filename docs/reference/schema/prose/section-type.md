@@ -26,7 +26,7 @@ The `SectionType` type is represented in these bindings:
 - [JSON Schema](https://stencila.org/SectionType.schema.json)
 - Python type [`SectionType`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/section_type.py)
 - Rust type [`SectionType`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/section_type.rs)
-- TypeScript type [`SectionType`](https://github.com/stencila/stencila/blob/main/typescript/src/types/SectionType.ts)
+- TypeScript type [`SectionType`](https://github.com/stencila/stencila/blob/main/ts/src/types/SectionType.ts)
 
 ## Source
 

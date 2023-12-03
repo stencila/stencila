@@ -47,7 +47,7 @@ The `ModifyBlock` type is represented in these bindings:
 - [JSON Schema](https://stencila.org/ModifyBlock.schema.json)
 - Python class [`ModifyBlock`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/modify_block.py)
 - Rust struct [`ModifyBlock`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/modify_block.rs)
-- TypeScript class [`ModifyBlock`](https://github.com/stencila/stencila/blob/main/typescript/src/types/ModifyBlock.ts)
+- TypeScript class [`ModifyBlock`](https://github.com/stencila/stencila/blob/main/ts/src/types/ModifyBlock.ts)
 
 ## Testing
 

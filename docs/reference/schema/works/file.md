@@ -76,7 +76,7 @@ The `File` type is represented in these bindings:
 - [JSON Schema](https://stencila.org/File.schema.json)
 - Python class [`File`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/file.py)
 - Rust struct [`File`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/file.rs)
-- TypeScript class [`File`](https://github.com/stencila/stencila/blob/main/typescript/src/types/File.ts)
+- TypeScript class [`File`](https://github.com/stencila/stencila/blob/main/ts/src/types/File.ts)
 
 ## Source
 

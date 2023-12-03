@@ -23,7 +23,7 @@ The `ExecutionDependencyRelation` type is represented in these bindings:
 - [JSON Schema](https://stencila.org/ExecutionDependencyRelation.schema.json)
 - Python type [`ExecutionDependencyRelation`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/execution_dependency_relation.py)
 - Rust type [`ExecutionDependencyRelation`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/execution_dependency_relation.rs)
-- TypeScript type [`ExecutionDependencyRelation`](https://github.com/stencila/stencila/blob/main/typescript/src/types/ExecutionDependencyRelation.ts)
+- TypeScript type [`ExecutionDependencyRelation`](https://github.com/stencila/stencila/blob/main/ts/src/types/ExecutionDependencyRelation.ts)
 
 ## Source
 

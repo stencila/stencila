@@ -62,7 +62,7 @@ The `Person` type is represented in these bindings:
 - [JSON Schema](https://stencila.org/Person.schema.json)
 - Python class [`Person`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/person.py)
 - Rust struct [`Person`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/person.rs)
-- TypeScript class [`Person`](https://github.com/stencila/stencila/blob/main/typescript/src/types/Person.ts)
+- TypeScript class [`Person`](https://github.com/stencila/stencila/blob/main/ts/src/types/Person.ts)
 
 ## Source
 

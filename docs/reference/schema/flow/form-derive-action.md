@@ -21,7 +21,7 @@ The `FormDeriveAction` type is represented in these bindings:
 - [JSON Schema](https://stencila.org/FormDeriveAction.schema.json)
 - Python type [`FormDeriveAction`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/form_derive_action.py)
 - Rust type [`FormDeriveAction`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/form_derive_action.rs)
-- TypeScript type [`FormDeriveAction`](https://github.com/stencila/stencila/blob/main/typescript/src/types/FormDeriveAction.ts)
+- TypeScript type [`FormDeriveAction`](https://github.com/stencila/stencila/blob/main/ts/src/types/FormDeriveAction.ts)
 
 ## Source
 

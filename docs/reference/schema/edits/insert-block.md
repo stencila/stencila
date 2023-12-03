@@ -46,7 +46,7 @@ The `InsertBlock` type is represented in these bindings:
 - [JSON Schema](https://stencila.org/InsertBlock.schema.json)
 - Python class [`InsertBlock`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/insert_block.py)
 - Rust struct [`InsertBlock`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/insert_block.rs)
-- TypeScript class [`InsertBlock`](https://github.com/stencila/stencila/blob/main/typescript/src/types/InsertBlock.ts)
+- TypeScript class [`InsertBlock`](https://github.com/stencila/stencila/blob/main/ts/src/types/InsertBlock.ts)
 
 ## Testing
 

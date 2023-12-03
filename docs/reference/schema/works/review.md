@@ -82,7 +82,7 @@ The `Review` type is represented in these bindings:
 - [JSON Schema](https://stencila.org/Review.schema.json)
 - Python class [`Review`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/review.py)
 - Rust struct [`Review`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/review.rs)
-- TypeScript class [`Review`](https://github.com/stencila/stencila/blob/main/typescript/src/types/Review.ts)
+- TypeScript class [`Review`](https://github.com/stencila/stencila/blob/main/ts/src/types/Review.ts)
 
 ## Source
 

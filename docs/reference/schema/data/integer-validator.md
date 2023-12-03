@@ -55,7 +55,7 @@ The `IntegerValidator` type is represented in these bindings:
 - [JSON Schema](https://stencila.org/IntegerValidator.schema.json)
 - Python class [`IntegerValidator`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/integer_validator.py)
 - Rust struct [`IntegerValidator`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/integer_validator.rs)
-- TypeScript class [`IntegerValidator`](https://github.com/stencila/stencila/blob/main/typescript/src/types/IntegerValidator.ts)
+- TypeScript class [`IntegerValidator`](https://github.com/stencila/stencila/blob/main/ts/src/types/IntegerValidator.ts)
 
 ## Source
 

@@ -50,7 +50,7 @@ The `CompilationDigest` type is represented in these bindings:
 - [JSON Schema](https://stencila.org/CompilationDigest.schema.json)
 - Python class [`CompilationDigest`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/compilation_digest.py)
 - Rust struct [`CompilationDigest`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/compilation_digest.rs)
-- TypeScript class [`CompilationDigest`](https://github.com/stencila/stencila/blob/main/typescript/src/types/CompilationDigest.ts)
+- TypeScript class [`CompilationDigest`](https://github.com/stencila/stencila/blob/main/ts/src/types/CompilationDigest.ts)
 
 ## Source
 

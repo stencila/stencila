@@ -82,7 +82,7 @@ The `ImageObject` type is represented in these bindings:
 - [JSON Schema](https://stencila.org/ImageObject.schema.json)
 - Python class [`ImageObject`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/image_object.py)
 - Rust struct [`ImageObject`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/image_object.rs)
-- TypeScript class [`ImageObject`](https://github.com/stencila/stencila/blob/main/typescript/src/types/ImageObject.ts)
+- TypeScript class [`ImageObject`](https://github.com/stencila/stencila/blob/main/ts/src/types/ImageObject.ts)
 
 ## Testing
 

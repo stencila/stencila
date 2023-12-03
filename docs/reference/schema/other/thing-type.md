@@ -64,7 +64,7 @@ The `ThingType` type is represented in these bindings:
 - [JSON Schema](https://stencila.org/ThingType.schema.json)
 - Python type [`ThingType`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/thing_type.py)
 - Rust type [`ThingType`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/thing_type.rs)
-- TypeScript type [`ThingType`](https://github.com/stencila/stencila/blob/main/typescript/src/types/ThingType.ts)
+- TypeScript type [`ThingType`](https://github.com/stencila/stencila/blob/main/ts/src/types/ThingType.ts)
 
 ## Source
 

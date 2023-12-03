@@ -51,7 +51,7 @@ The `MathBlock` type is represented in these bindings:
 - [JSON Schema](https://stencila.org/MathBlock.schema.json)
 - Python class [`MathBlock`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/math_block.py)
 - Rust struct [`MathBlock`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/math_block.rs)
-- TypeScript class [`MathBlock`](https://github.com/stencila/stencila/blob/main/typescript/src/types/MathBlock.ts)
+- TypeScript class [`MathBlock`](https://github.com/stencila/stencila/blob/main/ts/src/types/MathBlock.ts)
 
 ## Testing
 

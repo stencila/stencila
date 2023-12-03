@@ -48,7 +48,7 @@ The `ExecutionDependency` type is represented in these bindings:
 - [JSON Schema](https://stencila.org/ExecutionDependency.schema.json)
 - Python class [`ExecutionDependency`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/execution_dependency.py)
 - Rust struct [`ExecutionDependency`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/execution_dependency.rs)
-- TypeScript class [`ExecutionDependency`](https://github.com/stencila/stencila/blob/main/typescript/src/types/ExecutionDependency.ts)
+- TypeScript class [`ExecutionDependency`](https://github.com/stencila/stencila/blob/main/ts/src/types/ExecutionDependency.ts)
 
 ## Source
 

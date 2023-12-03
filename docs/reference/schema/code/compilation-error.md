@@ -50,7 +50,7 @@ The `CompilationError` type is represented in these bindings:
 - [JSON Schema](https://stencila.org/CompilationError.schema.json)
 - Python class [`CompilationError`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/compilation_error.py)
 - Rust struct [`CompilationError`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/compilation_error.rs)
-- TypeScript class [`CompilationError`](https://github.com/stencila/stencila/blob/main/typescript/src/types/CompilationError.ts)
+- TypeScript class [`CompilationError`](https://github.com/stencila/stencila/blob/main/ts/src/types/CompilationError.ts)
 
 ## Source
 

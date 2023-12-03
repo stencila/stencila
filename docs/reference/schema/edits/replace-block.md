@@ -47,7 +47,7 @@ The `ReplaceBlock` type is represented in these bindings:
 - [JSON Schema](https://stencila.org/ReplaceBlock.schema.json)
 - Python class [`ReplaceBlock`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/replace_block.py)
 - Rust struct [`ReplaceBlock`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/replace_block.rs)
-- TypeScript class [`ReplaceBlock`](https://github.com/stencila/stencila/blob/main/typescript/src/types/ReplaceBlock.ts)
+- TypeScript class [`ReplaceBlock`](https://github.com/stencila/stencila/blob/main/ts/src/types/ReplaceBlock.ts)
 
 ## Testing
 

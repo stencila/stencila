@@ -46,7 +46,7 @@ The `DateTime` type is represented in these bindings:
 - [JSON Schema](https://stencila.org/DateTime.schema.json)
 - Python class [`DateTime`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/date_time.py)
 - Rust struct [`DateTime`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/date_time.rs)
-- TypeScript class [`DateTime`](https://github.com/stencila/stencila/blob/main/typescript/src/types/DateTime.ts)
+- TypeScript class [`DateTime`](https://github.com/stencila/stencila/blob/main/ts/src/types/DateTime.ts)
 
 ## Testing
 

@@ -46,7 +46,7 @@ The `Subscript` type is represented in these bindings:
 - [JSON Schema](https://stencila.org/Subscript.schema.json)
 - Python class [`Subscript`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/subscript.py)
 - Rust struct [`Subscript`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/subscript.rs)
-- TypeScript class [`Subscript`](https://github.com/stencila/stencila/blob/main/typescript/src/types/Subscript.ts)
+- TypeScript class [`Subscript`](https://github.com/stencila/stencila/blob/main/ts/src/types/Subscript.ts)
 
 ## Testing
 

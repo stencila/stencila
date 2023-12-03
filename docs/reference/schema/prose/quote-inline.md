@@ -47,7 +47,7 @@ The `QuoteInline` type is represented in these bindings:
 - [JSON Schema](https://stencila.org/QuoteInline.schema.json)
 - Python class [`QuoteInline`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/quote_inline.py)
 - Rust struct [`QuoteInline`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/quote_inline.rs)
-- TypeScript class [`QuoteInline`](https://github.com/stencila/stencila/blob/main/typescript/src/types/QuoteInline.ts)
+- TypeScript class [`QuoteInline`](https://github.com/stencila/stencila/blob/main/ts/src/types/QuoteInline.ts)
 
 ## Testing
 

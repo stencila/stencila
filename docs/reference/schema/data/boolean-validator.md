@@ -49,7 +49,7 @@ The `BooleanValidator` type is represented in these bindings:
 - [JSON Schema](https://stencila.org/BooleanValidator.schema.json)
 - Python class [`BooleanValidator`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/boolean_validator.py)
 - Rust struct [`BooleanValidator`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/boolean_validator.rs)
-- TypeScript class [`BooleanValidator`](https://github.com/stencila/stencila/blob/main/typescript/src/types/BooleanValidator.ts)
+- TypeScript class [`BooleanValidator`](https://github.com/stencila/stencila/blob/main/ts/src/types/BooleanValidator.ts)
 
 ## Source
 

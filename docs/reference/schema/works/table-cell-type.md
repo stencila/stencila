@@ -23,7 +23,7 @@ The `TableCellType` type is represented in these bindings:
 - [JSON Schema](https://stencila.org/TableCellType.schema.json)
 - Python type [`TableCellType`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/table_cell_type.py)
 - Rust type [`TableCellType`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/table_cell_type.rs)
-- TypeScript type [`TableCellType`](https://github.com/stencila/stencila/blob/main/typescript/src/types/TableCellType.ts)
+- TypeScript type [`TableCellType`](https://github.com/stencila/stencila/blob/main/ts/src/types/TableCellType.ts)
 
 ## Source
 

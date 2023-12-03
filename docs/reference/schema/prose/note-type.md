@@ -20,7 +20,7 @@ The `NoteType` type is represented in these bindings:
 - [JSON Schema](https://stencila.org/NoteType.schema.json)
 - Python type [`NoteType`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/note_type.py)
 - Rust type [`NoteType`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/note_type.rs)
-- TypeScript type [`NoteType`](https://github.com/stencila/stencila/blob/main/typescript/src/types/NoteType.ts)
+- TypeScript type [`NoteType`](https://github.com/stencila/stencila/blob/main/ts/src/types/NoteType.ts)
 
 ## Source
 

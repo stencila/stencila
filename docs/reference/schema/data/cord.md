@@ -38,7 +38,7 @@ The `Cord` type is represented in these bindings:
 - [JSON Schema](https://stencila.org/Cord.schema.json)
 - Python type [`Cord`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/cord.py)
 - Rust type [`Cord`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/cord.rs)
-- TypeScript type [`Cord`](https://github.com/stencila/stencila/blob/main/typescript/src/types/Cord.ts)
+- TypeScript type [`Cord`](https://github.com/stencila/stencila/blob/main/ts/src/types/Cord.ts)
 
 ## Source
 

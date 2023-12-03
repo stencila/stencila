@@ -24,7 +24,7 @@ The `ExecutionStatus` type is represented in these bindings:
 - [JSON Schema](https://stencila.org/ExecutionStatus.schema.json)
 - Python type [`ExecutionStatus`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/execution_status.py)
 - Rust type [`ExecutionStatus`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/execution_status.rs)
-- TypeScript type [`ExecutionStatus`](https://github.com/stencila/stencila/blob/main/typescript/src/types/ExecutionStatus.ts)
+- TypeScript type [`ExecutionStatus`](https://github.com/stencila/stencila/blob/main/ts/src/types/ExecutionStatus.ts)
 
 ## Source
 

@@ -48,7 +48,7 @@ The `ExecutionTag` type is represented in these bindings:
 - [JSON Schema](https://stencila.org/ExecutionTag.schema.json)
 - Python class [`ExecutionTag`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/execution_tag.py)
 - Rust struct [`ExecutionTag`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/execution_tag.rs)
-- TypeScript class [`ExecutionTag`](https://github.com/stencila/stencila/blob/main/typescript/src/types/ExecutionTag.ts)
+- TypeScript class [`ExecutionTag`](https://github.com/stencila/stencila/blob/main/ts/src/types/ExecutionTag.ts)
 
 ## Source
 

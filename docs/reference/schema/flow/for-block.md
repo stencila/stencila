@@ -67,7 +67,7 @@ The `ForBlock` type is represented in these bindings:
 - [JSON Schema](https://stencila.org/ForBlock.schema.json)
 - Python class [`ForBlock`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/for_block.py)
 - Rust struct [`ForBlock`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/for_block.rs)
-- TypeScript class [`ForBlock`](https://github.com/stencila/stencila/blob/main/typescript/src/types/ForBlock.ts)
+- TypeScript class [`ForBlock`](https://github.com/stencila/stencila/blob/main/ts/src/types/ForBlock.ts)
 
 ## Testing
 

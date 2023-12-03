@@ -54,7 +54,7 @@ The `StyledInline` type is represented in these bindings:
 - [JSON Schema](https://stencila.org/StyledInline.schema.json)
 - Python class [`StyledInline`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/styled_inline.py)
 - Rust struct [`StyledInline`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/styled_inline.rs)
-- TypeScript class [`StyledInline`](https://github.com/stencila/stencila/blob/main/typescript/src/types/StyledInline.ts)
+- TypeScript class [`StyledInline`](https://github.com/stencila/stencila/blob/main/ts/src/types/StyledInline.ts)
 
 ## Testing
 

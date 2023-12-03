@@ -47,7 +47,7 @@ The `TableRow` type is represented in these bindings:
 - [JSON Schema](https://stencila.org/TableRow.schema.json)
 - Python class [`TableRow`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/table_row.py)
 - Rust struct [`TableRow`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/table_row.rs)
-- TypeScript class [`TableRow`](https://github.com/stencila/stencila/blob/main/typescript/src/types/TableRow.ts)
+- TypeScript class [`TableRow`](https://github.com/stencila/stencila/blob/main/ts/src/types/TableRow.ts)
 
 ## Testing
 

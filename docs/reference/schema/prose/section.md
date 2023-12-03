@@ -47,7 +47,7 @@ The `Section` type is represented in these bindings:
 - [JSON Schema](https://stencila.org/Section.schema.json)
 - Python class [`Section`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/section.py)
 - Rust struct [`Section`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/section.rs)
-- TypeScript class [`Section`](https://github.com/stencila/stencila/blob/main/typescript/src/types/Section.ts)
+- TypeScript class [`Section`](https://github.com/stencila/stencila/blob/main/ts/src/types/Section.ts)
 
 ## Testing
 

@@ -50,7 +50,7 @@ The `ConstantValidator` type is represented in these bindings:
 - [JSON Schema](https://stencila.org/ConstantValidator.schema.json)
 - Python class [`ConstantValidator`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/constant_validator.py)
 - Rust struct [`ConstantValidator`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/constant_validator.rs)
-- TypeScript class [`ConstantValidator`](https://github.com/stencila/stencila/blob/main/typescript/src/types/ConstantValidator.ts)
+- TypeScript class [`ConstantValidator`](https://github.com/stencila/stencila/blob/main/ts/src/types/ConstantValidator.ts)
 
 ## Source
 

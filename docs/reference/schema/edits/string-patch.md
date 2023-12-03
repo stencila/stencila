@@ -46,7 +46,7 @@ The `StringPatch` type is represented in these bindings:
 - [JSON Schema](https://stencila.org/StringPatch.schema.json)
 - Python class [`StringPatch`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/string_patch.py)
 - Rust struct [`StringPatch`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/string_patch.rs)
-- TypeScript class [`StringPatch`](https://github.com/stencila/stencila/blob/main/typescript/src/types/StringPatch.ts)
+- TypeScript class [`StringPatch`](https://github.com/stencila/stencila/blob/main/ts/src/types/StringPatch.ts)
 
 ## Source
 

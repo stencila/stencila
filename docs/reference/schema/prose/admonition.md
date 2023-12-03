@@ -49,7 +49,7 @@ The `Admonition` type is represented in these bindings:
 - [JSON Schema](https://stencila.org/Admonition.schema.json)
 - Python class [`Admonition`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/admonition.py)
 - Rust struct [`Admonition`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/admonition.rs)
-- TypeScript class [`Admonition`](https://github.com/stencila/stencila/blob/main/typescript/src/types/Admonition.ts)
+- TypeScript class [`Admonition`](https://github.com/stencila/stencila/blob/main/ts/src/types/Admonition.ts)
 
 ## Testing
 
