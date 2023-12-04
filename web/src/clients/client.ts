@@ -2,6 +2,9 @@ import { type DocumentId } from "../types";
 
 /**
  * The abstract base class for all clients
+ * 
+ * TODO: Implement WebSocket connection state and reconnection logic
+ * https://github.com/stencila/stencila/issues/1785
  */
 export abstract class Client {
   /**
