@@ -39,3 +39,6 @@ anyOf:
     description: |
       Re-execution is required because the kernel that the node was last executed in
       was restarted.
+  - const: UserRequested
+    '@id': stencila:UserRequested
+    description: Execution is required because it was explicitly requested by a user.

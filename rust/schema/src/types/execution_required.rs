@@ -21,4 +21,6 @@ pub enum ExecutionRequired {
     Failed,
 
     KernelRestarted,
+
+    UserRequested,
 }

@@ -15,3 +15,4 @@ class ExecutionRequired(StrEnum):
     DependenciesFailed = "DependenciesFailed"
     Failed = "Failed"
     KernelRestarted = "KernelRestarted"
+    UserRequested = "UserRequested"

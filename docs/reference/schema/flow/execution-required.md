@@ -15,6 +15,7 @@ The `ExecutionRequired` type has these members:
 - `DependenciesFailed`
 - `Failed`
 - `KernelRestarted`
+- `UserRequested`
 
 ## Bindings
 

@@ -151,6 +151,11 @@
       "@id": "stencila:KernelRestarted",
       "description": "Re-execution is required because the kernel that the node was last executed in\nwas restarted.\n",
       "const": "KernelRestarted"
+    },
+    {
+      "@id": "stencila:UserRequested",
+      "description": "Execution is required because it was explicitly requested by a user.",
+      "const": "UserRequested"
     }
   ],
   "default": "NeverExecuted"

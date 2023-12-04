@@ -9,6 +9,7 @@ export type ExecutionRequired =
   'DependenciesChanged' |
   'DependenciesFailed' |
   'Failed' |
-  'KernelRestarted';
+  'KernelRestarted' |
+  'UserRequested';
 
 
