@@ -66,7 +66,7 @@ export class VisualView extends LitElement {
    * Override so that the document's DOM is rendered in the Light DOM
    * which is necessary for the `domClient` to work.
    */
-  override createRenderRoot(): HTMLElement {
+  override createRenderRoot() {
     return this;
   }
 
