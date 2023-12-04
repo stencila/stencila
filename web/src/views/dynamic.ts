@@ -49,20 +49,16 @@ export class Dynamic extends LitElement {
   /**
    * Override so that the document's DOM is rendered in the Light DOM
    * which is necessary for the `domClient` to work.
-   *
-   * @override
    */
-  createRenderRoot(): HTMLElement {
+  override createRenderRoot(): HTMLElement {
     return this;
   }
 
   /**
    * Override so that the clients ae instantiated _after_ this
    * element has a `renderRoot`.
-   *
-   * @override
    */
-  connectedCallback() {
+  override connectedCallback() {
     super.connectedCallback();
 
     this.domClient = new DomClient(

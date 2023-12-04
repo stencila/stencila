@@ -48,10 +48,8 @@ export class Source extends LitElement {
   /**
    * Override so that the `CodeMirrorView` is instantiated _after_ this
    * element has a `renderRoot`.
-   *
-   * @override
    */
-  connectedCallback() {
+  override connectedCallback() {
     super.connectedCallback();
 
     this.codeMirrorClient = new CodeMirrorClient(this.id, this.access, this.format);
