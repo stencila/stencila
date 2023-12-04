@@ -18,7 +18,7 @@ export class Parameter extends Executable {
   @property()
   default?: Node
 
-  @property()
+  @property({type: Object})
   validator?: Validator
 
   constructor() {

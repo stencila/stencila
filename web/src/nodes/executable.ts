@@ -1,4 +1,4 @@
-import type {
+import {
   AutomaticExecution,
   CompilationDigest,
   ExecutionDependency,
@@ -17,52 +17,52 @@ import { property } from "lit/decorators.js";
 import { Entity } from "./entity";
 
 /**
- * Abstract base class for Web Components representing executable nodes
+ * Abstract base class for web components representing Stencila Schema `Executable` node types
  *
  * @see https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/executable.md
  */
 export abstract class Executable extends Entity {
-  @property()
+  @property({ attribute: "auto-exec" })
   autoExec?: AutomaticExecution;
 
-  @property()
+  @property({ attribute: "compilation-digest", type: Object })
   compilationDigest?: CompilationDigest;
 
-  @property({ type: Array })
+  @property({ attribute: "compilation-errors", type: Array })
   compilationErrors?: CompilationError[];
 
-  @property()
+  @property({ attribute: "execution-digest", type: Object })
   executionDigest?: CompilationDigest;
 
-  @property({ type: Array })
+  @property({ attribute: "execution-dependencies", type: Array })
   executionDependencies?: ExecutionDependency[];
 
-  @property({ type: Array })
+  @property({ attribute: "execution-dependants", type: Array })
   executionDependants?: ExecutionDependant[];
 
-  @property({ type: Array })
+  @property({ attribute: "execution-tags", type: Array })
   executionTags?: ExecutionTag[];
 
-  @property({ type: Number })
+  @property({ attribute: "execution-count", type: Number })
   executionCount?: number;
 
-  @property()
+  @property({ attribute: "execution-required" })
   executionRequired?: ExecutionRequired;
 
-  @property()
+  @property({ attribute: "execution-kernel" })
   executionKernel?: string;
 
-  @property()
+  @property({ attribute: "execution-status" })
   executionStatus?: ExecutionStatus;
 
-  @property()
+  @property({ attribute: "execution-ended", type: Object })
   executionEnded?: Timestamp;
 
-  @property()
+  @property({ attribute: "execution-duration", type: Object })
   executionDuration?: Duration;
 
-  @property()
-  executionErrors?: ExecutionError;
+  @property({ attribute: "execution-errors", type: Array })
+  executionErrors?: ExecutionError[];
 
   /**
    * Render the `compilationErrors` and `executionErrors` of the node

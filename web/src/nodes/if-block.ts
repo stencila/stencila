@@ -8,7 +8,9 @@ import { Executable } from "./executable";
 const withTwind = installTwind()
 
 /**
- * Custom element for a Stencila `IfBlock` node
+ * Web component representing a Stencila Schema `IfBlock` node
+ * 
+ * @see https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/if-block.md
  */
 @customElement("stencila-if-block")
 @withTwind
@@ -22,7 +24,7 @@ export class IfBlock extends Executable {
     `
   }
 
-  renderHeader() {
+  private renderHeader() {
     return html`
       <div part="header" contenteditable="false">
         ${this.renderErrors()}
@@ -30,7 +32,7 @@ export class IfBlock extends Executable {
     `
   }
 
-  renderClauses() {
+  private renderClauses() {
     return html`
       <div part="clauses">
         <slot name="clauses"></slot>
