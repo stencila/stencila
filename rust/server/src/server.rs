@@ -380,12 +380,12 @@ async fn serve_document(
             .header(CONTENT_TYPE, content_type.essence_str())
             .body(Body::from(bytes))
             .map_err(InternalError::new);
-    } else if view == "source" {
+    } else if view == "source" || view == "split" {
         let format = query
             .get("format")
             .map_or("markdown", |value| value.as_ref());
 
-        format!("<stencila-{view} view={view} id={id} access={access} format={format}></stencila-{view}>")
+        format!("<stencila-{view}-view view={view} id={id} access={access} format={format}></stencila-{view}-view>")
     } else {
         let html = doc
             .export(
@@ -399,7 +399,7 @@ async fn serve_document(
             .await
             .map_err(InternalError::new)?;
 
-        format!("<stencila-{view} view={view} id={id} access={access}>{html}</stencila-{view}>")
+        format!("<stencila-{view}-view view={view} id={id} access={access}>{html}</stencila-{view}-view>")
     };
 
     let version = if cfg!(debug_assertions) {

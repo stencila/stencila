@@ -26,7 +26,8 @@
     "src/views/live.ts",
     "src/views/dynamic.ts",
     "src/views/visual.ts",
-    "src/views/source.ts"
+    "src/views/source.ts",
+    "src/views/split.ts"
   ],
   "browserslist": [
     "fully supports es6-class"
