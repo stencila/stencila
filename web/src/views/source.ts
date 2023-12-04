@@ -16,7 +16,7 @@ import "./source.css";
 @customElement("stencila-source")
 export class Source extends LitElement {
   /**
-   * The capability of the editor
+   * The access level of the editor
    *
    * This property is passed through to the `CodeMirrorClient`
    * and used to determine whether or not the document is
@@ -26,7 +26,7 @@ export class Source extends LitElement {
    * does not provide the means to modify those.
    */
   @property()
-  capability: DocumentAccess = "write";
+  access: DocumentAccess = "write";
 
   /**
    * The format of the source code
@@ -54,7 +54,7 @@ export class Source extends LitElement {
   connectedCallback() {
     super.connectedCallback();
 
-    this.codeMirrorClient = new CodeMirrorClient(this.id, this.capability, this.format);
+    this.codeMirrorClient = new CodeMirrorClient(this.id, this.access, this.format);
 
     this.codeMirrorView = new CodeMirrorView({
       extensions: [this.codeMirrorClient.sendPatches()],

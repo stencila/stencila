@@ -34,7 +34,7 @@ import "./visual.css";
 @customElement("stencila-visual")
 export class Visual extends LitElement {
   /**
-   * The capability of the view
+   * The access level of the view
    *
    * This property is passed through to the `NodesClient` but may also
    * be inspected by descendent WebComponents to determine their behavior.
@@ -43,7 +43,7 @@ export class Visual extends LitElement {
    * or `admin`.
    */
   @property()
-  capability: DocumentAccess = "admin";
+  access: DocumentAccess = "admin";
 
   /**
    * A read-only client which updates the document's DOM when the
@@ -95,7 +95,7 @@ export class Visual extends LitElement {
 
     this.proseMirrorClient = new ProseMirrorClient(
       this.id,
-      this.capability,
+      this.access,
       this.renderRoot as HTMLElement
     );
 

@@ -23,7 +23,7 @@ import "./dynamic.css";
 @customElement("stencila-dynamic")
 export class Dynamic extends LitElement {
   /**
-   * The capability of the view
+   * The access level of the view
    *
    * This property is passed through to the `NodesClient` but may also
    * be inspected by descendent WebComponents to determine their behavior.
@@ -32,7 +32,7 @@ export class Dynamic extends LitElement {
    * does not provide the means to modify those.
    */
   @property()
-  capability: DocumentAccess = "code";
+  access: DocumentAccess = "code";
 
   /**
    * A read-only client which updates the document's DOM when the
@@ -72,7 +72,7 @@ export class Dynamic extends LitElement {
 
     this.nodesClient = new NodesClient(
       this.id,
-      this.capability,
+      this.access,
       this.renderRoot as HTMLElement
     );
   }
