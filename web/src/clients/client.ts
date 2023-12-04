@@ -30,7 +30,7 @@ export abstract class Client {
       const message = JSON.parse(event.data);
 
       if (process.env.NODE_ENV === "development") {
-        console.log("🚩 Received:", message);
+        console.log(`🚩 ${this.constructor.name} received:`, message);
       }
 
       this.receiveMessage(message);
@@ -55,7 +55,7 @@ export abstract class Client {
    */
   protected sendMessage(message: Record<string, unknown>) {
     if (process.env.NODE_ENV === "development") {
-      console.log("📨 Sending:", message);
+      console.log(`📨 ${this.constructor.name} sending:`, message);
     }
 
     this.ws.send(JSON.stringify(message));
