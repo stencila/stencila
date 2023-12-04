@@ -283,18 +283,13 @@ async fn serve_document(
         return Ok(StatusCode::NOT_FOUND.into_response());
     }
 
-    // Serve the raw file if flag is on and file exists
-    if raw && path.exists() && path.is_file() {
-        let bytes = read(&path).await.map_err(InternalError::new)?;
-        let content_type = mime_guess::from_path(path).first_or_octet_stream();
-
-        return Response::builder()
-            .header(CONTENT_TYPE, content_type.essence_str())
-            .body(Body::from(bytes))
-            .map_err(InternalError::new);
-    }
-
+    // Resolve a file for the URL path
     let path = 'resolve: {
+        // If the file exists then use that
+        if path.exists() && path.is_file() {
+            break 'resolve Some(path);
+        }
+
         // If any files have the same stem as the path (everything minus the extension)
         // then use the one with the format with highest precedence and latest modification date
         let pattern = format!("{}.*", path.display());
@@ -373,7 +368,19 @@ async fn serve_document(
     let access = query.get("access").map_or("write", |value| value.as_ref());
 
     // Generate the content from the document
-    let body = if view == "source" {
+    let body = if view == "raw" {
+        if !raw {
+            return Ok(StatusCode::FORBIDDEN.into_response())
+        }
+
+        let bytes = read(&path).await.map_err(InternalError::new)?;
+        let content_type = mime_guess::from_path(path).first_or_octet_stream();
+
+        return Response::builder()
+            .header(CONTENT_TYPE, content_type.essence_str())
+            .body(Body::from(bytes))
+            .map_err(InternalError::new);
+    } else if view == "source" {
         let format = query
             .get("format")
             .map_or("markdown", |value| value.as_ref());
