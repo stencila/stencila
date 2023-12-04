@@ -11,14 +11,14 @@ const SEND_DEBOUNCE = 300;
 /**
  * A read-write client that keeps a CodeMirror editor synchronized with a
  * string representation of a document in a particular format.
- * 
+ *
  * To send patches it is necessary to create the client first
  * and add the return value of `sendPatches` to the `extensions` of the
  * editor constructor.
- * 
+ *
  * To receive patches call the `receivePatches` method with the editor
  * instance.
- * 
+ *
  * e.g.
  *
  * ```ts
@@ -76,20 +76,27 @@ export class CodeMirrorClient extends FormatClient {
 
       update.changes.iterChanges((from, to, fromB, toB, inserted) => {
         const insert = inserted.toJSON().join("\n");
-        this.cachedOperations.push({ from, to, insert });
+        const op: FormatOperation = { from, to };
+        if (insert) op.insert = insert;
+        this.cachedOperations.push(op);
       });
 
       clearTimeout(timer);
 
       timer = setTimeout(() => {
         // If the last operation is only inserting whitespace, do not send.
-        // This needs to be more refined: it needs to allow for spaces to be
-        // inserted in paragraphs and send immediately, but not spaces at end of
+        //
+        // TODO: This needs to be more refined: it needs to allow for spaces to be
+        // inserted in paragraphs and sent immediately, but not spaces at end of
         // paragraphs.
+        // https://github.com/stencila/stencila/issues/1788
         const op = this.cachedOperations[this.cachedOperations.length - 1];
-        if (op.insert.length > 0 && op.insert.trim().length === 0) {
+        if (op.insert && op.insert.trim().length === 0) {
           return;
         }
+
+        // TODO: Coalesce operations as much as possible to reduce the number sent
+        // https://github.com/stencila/stencila/issues/1787
 
         // Send the patch
         this.sendMessage({
