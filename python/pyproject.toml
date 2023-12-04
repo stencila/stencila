@@ -68,7 +68,7 @@ coverage = "7.3.2"
 maturin = "1.4.0"
 pip-audit = "2.6.1"
 pytest = "7.4.3"
-pytest-asyncio = "0.23.0"
+pytest-asyncio = "0.23.2"
 pytest-benchmark = "4.0.0"
 
 [tool.pytest.ini_options]
