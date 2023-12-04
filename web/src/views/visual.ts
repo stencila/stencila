@@ -31,8 +31,8 @@ import "./visual.css";
  * allows for the user to modify the prose and other node types in it
  * using a WYSIWYG editor.
  */
-@customElement("stencila-visual")
-export class Visual extends LitElement {
+@customElement("stencila-visual-view")
+export class VisualView extends LitElement {
   /**
    * The access level of the view
    *

@@ -13,8 +13,8 @@ import "./source.css";
  * A view which provides read-write access to the document using
  * a particular format.
  */
-@customElement("stencila-source")
-export class Source extends LitElement {
+@customElement("stencila-source-view")
+export class SourceView extends LitElement {
   /**
    * The access level of the editor
    *

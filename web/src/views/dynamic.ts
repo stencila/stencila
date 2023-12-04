@@ -20,8 +20,8 @@ import "./dynamic.css";
  * A view which, in addition to providing live updates of a document,
  * allows for the user to change input values (e.g. the `value` of a `Parameter` node)
  */
-@customElement("stencila-dynamic")
-export class Dynamic extends LitElement {
+@customElement("stencila-dynamic-view")
+export class DynamicView extends LitElement {
   /**
    * The access level of the view
    *

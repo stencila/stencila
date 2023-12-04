@@ -11,8 +11,8 @@ import "./live.css";
  * A view which provides live updates of a document's DOM as it changes
  * on the server.
  */
-@customElement("stencila-live")
-export class Live extends LitElement {
+@customElement("stencila-live-view")
+export class LiveView extends LitElement {
   /**
    * A read-only client which will update the document's DOM when the
    * document changes
