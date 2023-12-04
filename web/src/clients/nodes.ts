@@ -1,9 +1,6 @@
-import {
-  type Node,
-  type NodeId,
-  type DocumentAccess,
-  type DocumentId,
-} from "../types";
+import { type Node } from "@stencila/types";
+
+import { type NodeId, type DocumentAccess, type DocumentId } from "../types";
 
 import { Client } from "./client";
 
