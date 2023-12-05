@@ -370,7 +370,7 @@ async fn serve_document(
     // Generate the content from the document
     let body = if view == "raw" {
         if !raw {
-            return Ok(StatusCode::FORBIDDEN.into_response())
+            return Ok(StatusCode::FORBIDDEN.into_response());
         }
 
         let bytes = read(&path).await.map_err(InternalError::new)?;
@@ -711,7 +711,8 @@ mod tests {
             );
         }
 
-        // Will serve files when `raw` flag is `true`, but will 404 otherwise
+        // Will serve files when `raw` flag is `true`, but will 403 otherwise
+        let query = Query(HashMap::from([("view".to_string(), "raw".to_string())]));
         for (path, mime) in [
             ("README.md", "text/markdown"),
             ("bird/jay/index.json5", "application/json5"),
@@ -724,7 +725,7 @@ mod tests {
                     ..Default::default()
                 }),
                 Path(path.to_string()),
-                Default::default(),
+                query.clone(),
             )
             .await?;
             assert_eq!(response.status(), StatusCode::OK);
@@ -740,10 +741,10 @@ mod tests {
                     ..Default::default()
                 }),
                 Path(path.to_string()),
-                Default::default(),
+                query.clone(),
             )
             .await?;
-            assert_eq!(response.status(), StatusCode::NOT_FOUND);
+            assert_eq!(response.status(), StatusCode::FORBIDDEN);
         }
 
         // Will route a path to a file with a matching stem according to rules
