@@ -41,8 +41,10 @@
     "unused": "depcheck --quiet --ignores '@parcel/*,prosemirror-*' --ignore-patterns '.eslintrc*'"
   },
   "dependencies": {
+    "@codemirror/lang-json": "^6.0.1",
     "@codemirror/lang-markdown": "^6.2.3",
     "@codemirror/language": "^6.9.3",
+    "@codemirror/legacy-modes": "^6.3.3",
     "@codemirror/state": "6.3.2",
     "@codemirror/view": "6.22.1",
     "@stencila/types": "2.0.0-alpha.23",

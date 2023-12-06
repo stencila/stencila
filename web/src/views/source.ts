@@ -1,4 +1,4 @@
-import { LanguageDescription, LanguageSupport, syntaxHighlighting, defaultHighlightStyle } from '@codemirror/language';
+import { LanguageDescription, LanguageSupport, syntaxHighlighting, defaultHighlightStyle, StreamLanguage } from '@codemirror/language';
 import { EditorView as CodeMirrorView } from "@codemirror/view";
 import { LitElement } from "lit";
 import { customElement, property } from "lit/decorators.js";
@@ -46,7 +46,7 @@ export class SourceView extends LitElement {
    */
   private codeMirrorView: CodeMirrorView;
 
-  static defaultLangExtension = LanguageDescription.of({
+  static defaultLangDescription = LanguageDescription.of({
       name: 'markdown',
       extensions: ['md'],
       load: async () => {
@@ -54,14 +54,33 @@ export class SourceView extends LitElement {
       }
   })
   
-  static languageExtensions  = []
+  // array of the available language descriptions for formatting
+  static languageDescriptions  = [
+    LanguageDescription.of({
+      name: 'json',
+      extensions: ['json'],
+      load: async () => {
+        return import('@codemirror/lang-json').then((obj) => obj.json())
+      }
+    }),
+    LanguageDescription.of({
+      name: 'yaml',
+      extensions: ['yaml', 'yml'],
+      load: async () => {
+        return import('@codemirror/legacy-modes/mode/yaml').then((yml) => 
+          new LanguageSupport(StreamLanguage.define(yml.yaml))
+        )
+      }
+    })
+  ]
 
-  // get load in the initial languae
+  // load in the initial language mode
   private async getLanguageExtension(format: string): Promise<LanguageSupport> {
-    const ext = SourceView.languageExtensions.find(
-      (l) => l.name.toLowerCase() === format.toLowerCase()
-    ) 
-      ?? SourceView.defaultLangExtension
+    const ext = LanguageDescription.matchLanguageName(
+      SourceView.languageDescriptions,
+      format
+    ) ??
+    SourceView.defaultLangDescription
   
     return await ext.load()
   }
