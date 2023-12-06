@@ -566,6 +566,8 @@ async fn handle_ws_format(ws: WebSocket, doc: Arc<Document>, capability: &str, f
         } else {
             vec!["id".to_string()]
         },
+        // Prefer un-compacted (e.g. indented) encodings
+        compact: Some(false),
         ..Default::default()
     };
 
