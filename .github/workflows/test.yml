@@ -15,8 +15,37 @@ env:
   PYTHON_VERSION: '3.11'
 
 jobs:
-  test:
+  # Detect which folders have changes
+  changes:
+    runs-on: ubuntu-latest
+
+    outputs:
+      main: ${{ steps.changes.outputs.main }}
+      ts: ${{ steps.changes.outputs.ts }}
+      web: ${{ steps.changes.outputs.web }}
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+      - name: Detect changes
+        uses: dorny/paths-filter@v2
+        id: changes
+        with:
+          filters: |
+            main:
+              - 'node/**' 
+              - 'python/**'
+              - 'rust/**'
+            ts:
+              - 'ts/**'
+            web:
+              - 'web/**'
+
+  main:
     runs-on: ubuntu-latest-m
+
+    needs: changes
+    if: needs.changes.outputs.main == 'true'
 
     steps:
       - name: Maximize build space
@@ -79,7 +108,7 @@ jobs:
           verbose: true
 
       - name: Run accessibility checks
-        run:	make a11y
+        run: make a11y
 
       - name: Run dependency audits
         run: make audit
@@ -102,3 +131,41 @@ jobs:
 
       - name: Show disk usage
         run: df -h && du -hd1
+
+  ts:
+    runs-on: ubuntu-latest
+
+    needs: changes
+    if: needs.changes.outputs.ts == 'true'
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: make -C ts install
+
+      - name: Run linting
+        run: make -C ts lint
+
+      - name: Run tests
+        run: make -C ts test
+      
+  web:
+    runs-on: ubuntu-latest
+
+    needs: changes
+    if: needs.changes.outputs.web == 'true'
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: make -C web install
+
+      - name: Run linting
+        run: make -C web lint
+
+      - name: Run tests
+        run: make -C web test
