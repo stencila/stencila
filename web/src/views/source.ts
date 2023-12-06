@@ -1,15 +1,15 @@
-import { 
+import {
   LanguageDescription,
   LanguageSupport,
   syntaxHighlighting,
   defaultHighlightStyle,
-  StreamLanguage
-} from '@codemirror/language';
-import { Extension } from '@codemirror/state';
-import { 
+  StreamLanguage,
+} from "@codemirror/language";
+import { Extension } from "@codemirror/state";
+import {
   EditorView as CodeMirrorView,
   lineNumbers,
-  highlightActiveLineGutter
+  highlightActiveLineGutter,
 } from "@codemirror/view";
 import { LitElement } from "lit";
 import { customElement, property } from "lit/decorators.js";
@@ -18,7 +18,6 @@ import { CodeMirrorClient } from "../clients/codemirror";
 import { type DocumentAccess } from "../types";
 
 import "./source.css";
-
 
 /**
  * Source code editor for a document
@@ -34,7 +33,7 @@ export class SourceView extends LitElement {
    * This property is passed through to the `CodeMirrorClient`
    * and used to determine whether or not the document is
    * read-only or writable.
-   * 
+   *
    * This should not be `edit`, `write` or `admin` since this view
    * does not provide the means to modify those.
    */
@@ -59,85 +58,90 @@ export class SourceView extends LitElement {
   private codeMirrorView: CodeMirrorView;
 
   /**
-   * default language description
-   * set as 'markdown'
+   * Array of CodeMirror `LanguageDescription` objects available for the edit view
+   *
+   * Note: The first language description is used as the default.
    */
-  private defaultLangDescription = LanguageDescription.of({
-      name: 'markdown',
-      extensions: ['md'],
-      load: async () => {
-        return import('@codemirror/lang-markdown').then((obj) => obj.markdown())
-      }
-  })
-  
-  /**
-   * Array of `LanguageDescription` objects available for the edit view
-   */
-  static languageDescriptions  = [
+  static languageDescriptions = [
     LanguageDescription.of({
-      name: 'jats',
-      extensions: ['jats.xml'],
+      name: "markdown",
+      extensions: ["md"],
       load: async () => {
-        return import('@codemirror/lang-xml').then((obj) => obj.xml())
-      }
+        return import("@codemirror/lang-markdown").then((obj) =>
+          obj.markdown()
+        );
+      },
     }),
     LanguageDescription.of({
-      name: 'json',
-      extensions: ['json'],
+      name: "jats",
+      extensions: ["jats.xml"],
       load: async () => {
-        return import('@codemirror/lang-json').then((obj) => obj.json())
-      }
+        return import("@codemirror/lang-xml").then((obj) => obj.xml());
+      },
     }),
     LanguageDescription.of({
-      name: 'json5',
-      extensions: ['json5'],
+      name: "json",
+      extensions: ["json"],
       load: async () => {
-        return import('codemirror-json5').then(obj => obj.json5())
-      }
+        return import("@codemirror/lang-json").then((obj) => obj.json());
+      },
     }),
     LanguageDescription.of({
-      name: 'html',
-      extensions: ['html'],
+      name: "json5",
+      extensions: ["json5"],
       load: async () => {
-        return import('@codemirror/lang-html').then((obj) => obj.html())
-      }
+        return import("codemirror-json5").then((obj) => obj.json5());
+      },
     }),
     LanguageDescription.of({
-      name: 'yaml',
-      extensions: ['yaml', 'yml'],
+      name: "html",
+      extensions: ["html"],
       load: async () => {
-        return import('@codemirror/legacy-modes/mode/yaml').then((yml) => 
-          new LanguageSupport(StreamLanguage.define(yml.yaml))
-        )
-      }
+        return import("@codemirror/lang-html").then((obj) => obj.html());
+      },
     }),
-  ]
+    LanguageDescription.of({
+      name: "yaml",
+      extensions: ["yaml", "yml"],
+      load: async () => {
+        return import("@codemirror/legacy-modes/mode/yaml").then(
+          (yml) => new LanguageSupport(StreamLanguage.define(yml.yaml))
+        );
+      },
+    }),
+  ];
 
   /**
-   * Get the required `LanguageSupport` for the format of the source view
+   * Get the CodeMirror `LanguageSupport` for a particular format
+   *
+   * Defaults to the first `SourceView.languageDescriptions` if it does no
+   * matching language extension is found. 
    * 
-   * default to `defaultLangDescription` if format does not exist
    * @param {string} format `format` parameter of the source view
    * @returns `LanguageSupport` instance
    */
   private async getLanguageExtension(format: string): Promise<LanguageSupport> {
-    const ext = LanguageDescription.matchLanguageName(
-      SourceView.languageDescriptions,
-      format
-    ) ?? this.defaultLangDescription
-  
-    return await ext.load()
+    const ext =
+      LanguageDescription.matchLanguageName(
+        SourceView.languageDescriptions,
+        format
+      ) ?? SourceView.languageDescriptions[0];
+
+    return await ext.load();
   }
 
+  /**
+   * Get the CodeMirror editor view extensions
+   */
   private async getViewExtensions(): Promise<Extension[]> {
-    const langExt = await this.getLanguageExtension(this.format)
+    const langExt = await this.getLanguageExtension(this.format);
 
     return [
       syntaxHighlighting(defaultHighlightStyle, { fallback: true }),
       langExt,
       lineNumbers(),
-      highlightActiveLineGutter()
-    ]
+      highlightActiveLineGutter(),
+    ];
   }
 
   /**
@@ -146,17 +150,18 @@ export class SourceView extends LitElement {
    */
   override connectedCallback() {
     super.connectedCallback();
-    
-    this.getViewExtensions().then((extensions) =>{
-      this.codeMirrorClient = new CodeMirrorClient(this.id, this.access, this.format);
+
+    this.getViewExtensions().then((extensions) => {
+      this.codeMirrorClient = new CodeMirrorClient(
+        this.id,
+        this.access,
+        this.format
+      );
       this.codeMirrorView = new CodeMirrorView({
-        extensions: [
-          this.codeMirrorClient.sendPatches(), 
-          ...extensions
-        ],
+        extensions: [this.codeMirrorClient.sendPatches(), ...extensions],
         parent: this.renderRoot,
-      })
+      });
       this.codeMirrorClient.receivePatches(this.codeMirrorView);
-    })
+    });
   }
 }
