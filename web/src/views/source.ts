@@ -46,7 +46,11 @@ export class SourceView extends LitElement {
    */
   private codeMirrorView: CodeMirrorView;
 
-  static defaultLangDescription = LanguageDescription.of({
+  /**
+   * default language description
+   * set as 'markdown'
+   */
+  private defaultLangDescription = LanguageDescription.of({
       name: 'markdown',
       extensions: ['md'],
       load: async () => {
@@ -54,13 +58,36 @@ export class SourceView extends LitElement {
       }
   })
   
-  // array of the available language descriptions for formatting
+  /**
+   * Array of `LanguageDescription` objects available for the edit view
+   */
   static languageDescriptions  = [
+    LanguageDescription.of({
+      name: 'jats',
+      extensions: ['jats.xml'],
+      load: async () => {
+        return import('@codemirror/lang-xml').then((obj) => obj.xml())
+      }
+    }),
     LanguageDescription.of({
       name: 'json',
       extensions: ['json'],
       load: async () => {
         return import('@codemirror/lang-json').then((obj) => obj.json())
+      }
+    }),
+    LanguageDescription.of({
+      name: 'json5',
+      extensions: ['json5'],
+      load: async () => {
+        return import('codemirror-json5').then(obj => obj.json5())
+      }
+    }),
+    LanguageDescription.of({
+      name: 'html',
+      extensions: ['html'],
+      load: async () => {
+        return import('@codemirror/lang-html').then((obj) => obj.html())
       }
     }),
     LanguageDescription.of({
@@ -71,16 +98,21 @@ export class SourceView extends LitElement {
           new LanguageSupport(StreamLanguage.define(yml.yaml))
         )
       }
-    })
+    }),
   ]
 
-  // load in the initial language mode
+  /**
+   * Get the required `LanguageSupport` for the format of the source view
+   * 
+   * default to `defaultLangDescription` if format does not exist
+   * @param {string} format `format` parameter of the source view
+   * @returns `LanguageSupport` instance
+   */
   private async getLanguageExtension(format: string): Promise<LanguageSupport> {
     const ext = LanguageDescription.matchLanguageName(
       SourceView.languageDescriptions,
       format
-    ) ??
-    SourceView.defaultLangDescription
+    ) ?? this.defaultLangDescription
   
     return await ext.load()
   }

@@ -472,6 +472,7 @@ async fn serve_ws(
         Format::Yaml,
         Format::Markdown,
         Format::Jats,
+        Format::Html
     ] {
         protocols.push(format!("read.{format}.stencila.org"));
         protocols.push(format!("write.{format}.stencila.org"));
