@@ -472,6 +472,7 @@ async fn serve_ws(
         Format::Yaml,
         Format::Markdown,
         Format::Jats,
+        Format::Html
     ] {
         protocols.push(format!("read.{format}.stencila.org"));
         protocols.push(format!("write.{format}.stencila.org"));
@@ -565,6 +566,8 @@ async fn handle_ws_format(ws: WebSocket, doc: Arc<Document>, capability: &str, f
         } else {
             vec!["id".to_string()]
         },
+        // Prefer un-compacted (e.g. indented) encodings
+        compact: Some(false),
         ..Default::default()
     };
 
