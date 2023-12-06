@@ -1,3 +1,4 @@
+import { LanguageDescription, LanguageSupport, syntaxHighlighting, defaultHighlightStyle } from '@codemirror/language';
 import { EditorView as CodeMirrorView } from "@codemirror/view";
 import { LitElement } from "lit";
 import { customElement, property } from "lit/decorators.js";
@@ -45,20 +46,41 @@ export class SourceView extends LitElement {
    */
   private codeMirrorView: CodeMirrorView;
 
+  static defaultLangExtension = LanguageDescription.of({
+      name: 'markdown',
+      extensions: ['md'],
+      load: async () => {
+        return import('@codemirror/lang-markdown').then((obj) => obj.markdown())
+      }
+  })
+  
+  static languageExtensions  = []
+
+  // get load in the initial languae
+  private async getLanguageExtension(format: string): Promise<LanguageSupport> {
+    const ext = SourceView.languageExtensions.find(
+      (l) => l.name.toLowerCase() === format.toLowerCase()
+    ) 
+      ?? SourceView.defaultLangExtension
+  
+    return await ext.load()
+  }
+
   /**
    * Override so that the `CodeMirrorView` is instantiated _after_ this
    * element has a `renderRoot`.
    */
   override connectedCallback() {
     super.connectedCallback();
+    
+    this.getLanguageExtension(this.format).then((ext) =>{
+      this.codeMirrorClient = new CodeMirrorClient(this.id, this.access, this.format);
+      this.codeMirrorView = new CodeMirrorView({
+        extensions: [this.codeMirrorClient.sendPatches(), syntaxHighlighting(defaultHighlightStyle, { fallback: true }), ext],
+        parent: this.renderRoot,
+      })
+      this.codeMirrorClient.receivePatches(this.codeMirrorView);
+    })
 
-    this.codeMirrorClient = new CodeMirrorClient(this.id, this.access, this.format);
-
-    this.codeMirrorView = new CodeMirrorView({
-      extensions: [this.codeMirrorClient.sendPatches()],
-      parent: this.renderRoot,
-    });
-
-    this.codeMirrorClient.receivePatches(this.codeMirrorView);
   }
 }

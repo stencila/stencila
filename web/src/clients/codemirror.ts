@@ -118,7 +118,6 @@ export class CodeMirrorClient extends FormatClient {
    */
   public receivePatches(editor: EditorView) {
     this.editor = editor;
-
     // Set the initial content of the code editor to the current state
     editor.dispatch({
       changes: { from: 0, to: editor.state.doc.length, insert: this.state },
