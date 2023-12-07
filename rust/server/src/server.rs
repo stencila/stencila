@@ -363,8 +363,12 @@ async fn serve_document(
         .map_err(InternalError::new)?;
     let id = doc.id();
 
-    // TODO: restrict the access to the highest based on the user's role
+    // Get various query parameters
     let view = query.get("view").map(|value| value.as_ref());
+    let theme = query
+        .get("theme")
+        .map_or("default", |value: &String| value.as_ref());
+    // TODO: restrict the access to the highest based on the user's role
     let access = query.get("access").map_or("write", |value| value.as_ref());
 
     // Generate the body of the HTML (or an early-returned response for `raw` view)
@@ -424,7 +428,7 @@ async fn serve_document(
     // The stylesheet tag for the theme
     // TODO: resolve the theme for the document
     let theme_tag = format!(
-        r#"<link rel="stylesheet" type="text/css" href="/~static/{version}/themes/default.css">"#
+        r#"<link rel="stylesheet" type="text/css" href="/~static/{version}/themes/{theme}.css">"#
     );
 
     // The stylesheet tag for the view or app

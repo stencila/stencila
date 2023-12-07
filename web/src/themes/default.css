@@ -1,15 +1,21 @@
-article {
-    background: hsl(0, 60%, 92%);
-    padding: 1em;
+/*
+ * The default theme for document content
+ * 
+ * TODO: Refine. Currently a very minimal draft based on Tailwind's prose plugin
+ * and with placeholders illustrating the used of styles targeting
+ * print mode.
+*/
+
+#AA {
+  @apply mx-auto prose;
 }
 
 @media print {
-    article {
-        background: #fff;
-    }
+  #AA {
+  }
 }
 
 @page {
-    size: 21cm 29.7cm;
-    margin: 1cm;
+  size: 21cm 29.7cm;
+  margin: 1cm;
 }
