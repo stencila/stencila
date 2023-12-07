@@ -24,6 +24,7 @@
   "source": [
     "src/apps/main.ts",
     "src/themes/default.css",
+    "src/themes/latex.css",
     "src/views/dynamic.ts",
     "src/views/live.ts",
     "src/views/print.ts",

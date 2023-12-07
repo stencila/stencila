@@ -1,0 +1,324 @@
+/*
+ * A LaTeX-like theme (for when you want to bring out your inner retro nerd)
+ * 
+ * Based on LaTeX.css (https://latex.now.sh/, https://github.com/vincentdoerig/latex-css).
+ * Thank you!
+ *
+ * At present the main differences to LaTeX.css are:
+ * 
+ * - styles are nested within the document's root node (currently #AA) rather than
+ *   targeting the <body>
+ *
+ * - all styles involving classes have been removed e.g `p.indent-pars`, `table.borders-custom`,
+ *  `.abstract`, `.footnote` etc
+ *
+*/
+
+@import "../fonts/latin-modern/latin-modern.css";
+
+:root {
+  --body-color: hsl(0, 5%, 10%);
+  --body-bg-color: hsl(210, 20%, 98%);
+  --link-visited: hsl(0, 100%, 33%);
+  --link-focus-outline: hsl(220, 90%, 52%);
+  --pre-bg-color: hsl(210, 28%, 93%);
+  --kbd-bg-color: hsl(210, 5%, 100%);
+  --kbd-border-color: hsl(210, 5%, 70%);
+  --table-border-color: black;
+  --border-width-thin: 1.36px;
+  --border-width-thick: 2.27px;
+  --sidenote-target-border-color: hsl(55, 55%, 70%);
+  --footnotes-border-color: hsl(0, 0%, 39%);
+  --text-indent-size: 1.463rem; /* In 12pt [Latin Modern font] LaTeX article
+    \parindent =~ 17.625pt; taking also into account the ratio
+    1pt[LaTeX] = (72 / 72.27) * 1pt[HTML], with default 12pt/1rem LaTeX.css font
+    size, the identation value in rem CSS units is: 
+    \parindent =~ 17.625 * (72 / 72.27) / 12 = 1.463rem. */
+}
+
+.latex-dark {
+  --body-color: hsl(0, 0%, 86%);
+  --body-bg-color: hsl(0, 0%, 16%);
+  --link-visited: hsl(196 80% 77%);
+  --link-focus-outline: hsl(215, 63%, 73%);
+  --pre-bg-color: hsl(0, 1%, 25%);
+  --kbd-bg-color: hsl(0, 0%, 16%);
+  --kbd-border-color: hsl(210, 5%, 70%);
+  --table-border-color: white;
+  --sidenote-target-border-color: hsl(0, 0%, 59%);
+  --footnotes-border-color: hsl(0, 0%, 59%);
+  --proof-symbol-filter: invert(80%);
+}
+
+@media (prefers-color-scheme: dark) {
+  .latex-dark-auto {
+    --body-color: hsl(0, 0%, 86%);
+    --body-bg-color: hsl(0, 0%, 16%);
+    --link-visited: hsl(196 80% 77%);
+    --link-focus-outline: hsl(215, 63%, 73%);
+    --pre-bg-color: hsl(0, 1%, 25%);
+    --kbd-bg-color: hsl(0, 0%, 16%);
+    --kbd-border-color: hsl(210, 5%, 70%);
+    --table-border-color: white;
+    --sidenote-target-border-color: hsl(0, 0%, 59%);
+    --footnotes-border-color: hsl(0, 0%, 59%);
+    --proof-symbol-filter: invert(80%);
+  }
+}
+
+#AA {
+  /* Box sizing rules */
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+  }
+
+  font-family: "Latin Modern", Georgia, Cambria, "Times New Roman", Times, serif;
+  line-height: 1.8;
+
+  max-width: 80ch;
+  min-height: 100vh;
+  overflow-x: hidden;
+  margin: 0 auto;
+  padding: 2rem 1.25rem;
+
+  counter-reset: theorem definition sidenote-counter;
+
+  color: var(--body-color);
+  background-color: var(--body-bg-color);
+
+  text-rendering: optimizeLegibility;
+
+  /* Remove default margin */
+  h1,
+  h2,
+  h3,
+  h4,
+  p,
+  ul[class],
+  ol[class],
+  li,
+  figure,
+  figcaption,
+  dl,
+  dd {
+    margin: 0;
+  }
+
+  /* Justify and hyphenate all paragraphs */
+  p {
+    text-align: justify;
+    hyphens: auto;
+    -webkit-hyphens: auto;
+    -moz-hyphens: auto;
+    margin-top: 1rem;
+  }
+
+  /* A elements that don't have a class get default styles */
+  a:not([class]) {
+    text-decoration-skip-ink: auto;
+  }
+
+  /* Make links red */
+  a,
+  a:visited {
+    color: var(--link-visited);
+  }
+
+  a:focus {
+    outline-offset: 2px;
+    outline: 2px solid var(--link-focus-outline);
+  }
+
+  /* Make images easier to work with */
+  img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+  }
+
+  /* Inherit fonts for inputs and buttons */
+  input,
+  button,
+  textarea,
+  select {
+    font: inherit;
+  }
+
+  /* Prevent textarea from overflowing */
+  textarea {
+    width: 100%;
+  }
+
+  /* Natural flow and rhythm in articles by default */
+  article > * + * {
+    margin-top: 1em;
+  }
+
+  /* Styles for inline code or code snippets */
+  code,
+  pre,
+  kbd {
+    font-family: Menlo, Monaco, Consolas, "Liberation Mono", "Courier New",
+      monospace;
+    font-size: 85%;
+  }
+  pre {
+    padding: 1rem 1.4rem;
+    max-width: 100%;
+    overflow: auto;
+    border-radius: 4px;
+    background: var(--pre-bg-color);
+  }
+  pre code {
+    font-size: 95%;
+    position: relative;
+  }
+  kbd {
+    background: var(--kbd-bg-color);
+    border: 1px solid var(--kbd-border-color);
+    border-radius: 2px;
+    padding: 2px 4px;
+    font-size: 75%;
+  }
+
+  /* Better tables */
+  table {
+    border-collapse: collapse;
+    border-spacing: 0;
+    width: auto;
+    max-width: 100%;
+    border-top: var(--border-width-thick) solid var(--table-border-color);
+    border-bottom: var(--border-width-thick) solid var(--table-border-color);
+    /* display: block; */
+    overflow-x: auto; /* does not work because element is not block */
+    /* white-space: nowrap; */
+    counter-increment: caption;
+  }
+  /* add bottom border on column table headings  */
+  table tr > th[scope="col"] {
+    border-bottom: var(--border-width-thin) solid var(--table-border-color);
+  }
+  /* add right border on row table headings  */
+  table tr > th[scope="row"] {
+    border-right: var(--border-width-thin) solid var(--table-border-color);
+  }
+  table > tbody > tr:first-child > td,
+  table > tbody > tr:first-child > th {
+    border-top: var(--border-width-thin) solid var(--table-border-color);
+  }
+  table > tbody > tr:last-child > td,
+  table > tbody > tr:last-child > th {
+    border-bottom: var(--border-width-thin) solid var(--table-border-color);
+  }
+
+  th,
+  td {
+    text-align: left;
+    padding: 0.5rem;
+    line-height: 1.1;
+  }
+  /* Table caption */
+  caption {
+    text-align: left;
+    font-size: 0.923em;
+    /* border-bottom: 2pt solid #000; */
+    padding: 0 0.25em 0.25em;
+    width: 100%;
+    margin-left: 0;
+  }
+
+  caption::before {
+    content: "Table " counter(caption) ". ";
+    font-weight: bold;
+  }
+
+  /* Center align the title */
+  h1:first-child {
+    text-align: center;
+  }
+
+  /* Nested ordered list for ToC */
+  nav ol {
+    counter-reset: item;
+    padding-left: 2rem;
+  }
+  nav li {
+    display: block;
+  }
+  nav li:before {
+    content: counters(item, ".") " ";
+    counter-increment: item;
+    padding-right: 0.85rem;
+  }
+
+  /* Center definitions (most useful for display equations) */
+  dl dd {
+    text-align: center;
+  }
+
+  /* Heading typography */
+  h1 {
+    font-size: 2.5rem;
+    line-height: 3.25rem;
+    margin-bottom: 1.625rem;
+  }
+
+  h2 {
+    font-size: 1.7rem;
+    line-height: 2rem;
+    margin-top: 3rem;
+  }
+
+  h3 {
+    font-size: 1.4rem;
+    margin-top: 2.5rem;
+  }
+
+  h4 {
+    font-size: 1.2rem;
+    margin-top: 2rem;
+  }
+
+  h5 {
+    font-size: 1rem;
+    margin-top: 1.8rem;
+  }
+
+  h6 {
+    font-size: 1rem;
+    font-style: italic;
+    font-weight: normal;
+    margin-top: 2.5rem;
+  }
+
+  h3,
+  h4,
+  h5,
+  h6 {
+    line-height: 1.625rem;
+  }
+
+  h1 + h2 {
+    margin-top: 1.625rem;
+  }
+
+  h2 + h3,
+  h3 + h4,
+  h4 + h5 {
+    margin-top: 0.8rem;
+  }
+
+  h5 + h6 {
+    margin-top: -0.8rem;
+  }
+
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    margin-bottom: 0.8rem;
+  }
+}

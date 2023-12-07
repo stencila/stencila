@@ -76,9 +76,10 @@ There are several views in the [`src/views`](src/views) folder which make use of
 
 The [`src/themes`](src/themes) folder contains builtin themes. Builtin themes (and the fonts and other static assets that they use) are embedded into distributed binaries and can be referred to by name.
 
-| Name    | Description                                         |
-| ------- | --------------------------------------------------- |
-| Default | The default theme used when none other is specified |
+| Name    | Description                                                    |
+| ------- | -------------------------------------------------------------- |
+| Default | The default theme used when none other is specified            |
+| LaTeX   | A LaTeX-like theme based on [LaTeX.css](https://latex.now.sh/) |
 
 ## 🛠️ Develop
 
