@@ -3,8 +3,6 @@ import { customElement } from "lit/decorators.js";
 
 import { DomClient } from "../clients/dom";
 
-import "./live.css";
-
 /**
  * Live view of a document
  *

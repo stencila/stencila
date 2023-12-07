@@ -22,7 +22,6 @@ import "../nodes/if-block-clause";
 import "../nodes/parameter";
 
 import * as schemas from "./visual/schemas";
-import "./visual.css";
 
 /**
  * Visual editor for a document

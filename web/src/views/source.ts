@@ -11,13 +11,11 @@ import {
   lineNumbers,
   highlightActiveLineGutter,
 } from "@codemirror/view";
-import { LitElement } from "lit";
+import { LitElement, css } from "lit";
 import { customElement, property } from "lit/decorators.js";
 
 import { CodeMirrorClient } from "../clients/codemirror";
 import { type DocumentAccess } from "../types";
-
-import "./source.css";
 
 /**
  * Source code editor for a document
@@ -115,8 +113,8 @@ export class SourceView extends LitElement {
    * Get the CodeMirror `LanguageSupport` for a particular format
    *
    * Defaults to the first `SourceView.languageDescriptions` if it does no
-   * matching language extension is found. 
-   * 
+   * matching language extension is found.
+   *
    * @param {string} format `format` parameter of the source view
    * @returns `LanguageSupport` instance
    */
@@ -164,4 +162,16 @@ export class SourceView extends LitElement {
       this.codeMirrorClient.receivePatches(this.codeMirrorView);
     });
   }
+
+  /**
+   * CSS styling for the CodeMirror editor
+   * 
+   * Overrides some of the default styles used by CodeMirror.
+   */
+  static css = css`
+    .cm-editor {
+      border: 1px solid rgb(189, 186, 186);
+      height: 30vh;
+    }
+  `;
 }

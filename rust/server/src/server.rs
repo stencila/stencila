@@ -363,12 +363,13 @@ async fn serve_document(
         .map_err(InternalError::new)?;
     let id = doc.id();
 
-    // TODO: restrict the view to the highest based on the user's role
-    let view = query.get("view").map_or("static", |value| value.as_ref());
+    // TODO: restrict the access to the highest based on the user's role
+    let view = query.get("view").map(|value| value.as_ref());
     let access = query.get("access").map_or("write", |value| value.as_ref());
 
-    // Generate the content from the document
-    let body = if view == "raw" {
+    // Generate the body of the HTML (or an early-returned response for `raw` view)
+    let body = if let Some("raw") = view {
+        // If raw is enabled early return a response with the content of the file
         if !raw {
             return Ok(StatusCode::FORBIDDEN.into_response());
         }
@@ -380,13 +381,15 @@ async fn serve_document(
             .header(CONTENT_TYPE, content_type.essence_str())
             .body(Body::from(bytes))
             .map_err(InternalError::new);
-    } else if view == "source" || view == "split" {
+    } else if let Some("source" | "split") = view {
+        // The body is just the web component
         let format = query
             .get("format")
             .map_or("markdown", |value| value.as_ref());
 
+        let view = view.expect("should be some; checked above");
         format!("<stencila-{view}-view view={view} id={id} access={access} format={format}></stencila-{view}-view>")
-    } else {
+    } else if let Some(view) = view {
         let html = doc
             .export(
                 None,
@@ -399,28 +402,46 @@ async fn serve_document(
             .await
             .map_err(InternalError::new)?;
 
-        format!("<stencila-{view}-view view={view} id={id} access={access}>{html}</stencila-{view}-view>")
+        if let "static" | "print" = view {
+            // The body is just the HTML of the document
+            html
+        } else {
+            // The body is the HTML of the document wrapped by the web component for the view
+            format!("<stencila-{view}-view view={view} id={id} access={access}>{html}</stencila-{view}-view>")
+        }
+    } else {
+        // No view specified so the body is the main app with the doc property set
+        format!("<stencila-main-app doc={id}></stencila-main-app>")
     };
 
+    // The version path segment for static assets (JS & CSS)
     let version = if cfg!(debug_assertions) {
         "dev"
     } else {
         STENCILA_VERSION
     };
 
+    // The script tag for the view or app
+    let script_tag = if let Some("static" | "print") = view {
+        String::new()
+    } else if let Some(view) = view {
+        format!(r#"<script type="module" src="/~static/{version}/views/{view}.js"></script>"#)
+    } else {
+        format!(r#"<script type="module" src="/~static/{version}/apps/main.js"></script>"#)
+    };
+
     let html = format!(
         r#"<!doctype html>
-    <html lang="en">
+<html lang="en">
     <head>
         <meta charset="utf-8"/>
         <title>Stencila</title>
-        <link rel="stylesheet" href="/~static/{version}/{view}.css" />
-        <script type="module" src="/~static/{version}/{view}.js"></script>
+        {script_tag}
     </head>
     <body>
         {body}
     </body>
-    </html>"#
+</html>"#
     );
 
     // Build the response
@@ -472,7 +493,7 @@ async fn serve_ws(
         Format::Yaml,
         Format::Markdown,
         Format::Jats,
-        Format::Html
+        Format::Html,
     ] {
         protocols.push(format!("read.{format}.stencila.org"));
         protocols.push(format!("write.{format}.stencila.org"));

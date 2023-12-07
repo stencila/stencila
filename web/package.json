@@ -22,7 +22,7 @@
   ],
   "type": "module",
   "source": [
-    "src/views/static.css",
+    "src/apps/main.ts",
     "src/views/live.ts",
     "src/views/dynamic.ts",
     "src/views/visual.ts",

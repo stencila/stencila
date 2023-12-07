@@ -12,8 +12,6 @@ import "../nodes/if-block";
 import "../nodes/if-block-clause";
 import "../nodes/parameter";
 
-import "./dynamic.css";
-
 /**
  * Dynamic view of a document
  *
