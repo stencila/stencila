@@ -1,0 +1,15 @@
+article {
+    background: hsl(0, 60%, 92%);
+    padding: 1em;
+}
+
+@media print {
+    article {
+        background: #fff;
+    }
+}
+
+@page {
+    size: 21cm 29.7cm;
+    margin: 1cm;
+}

@@ -421,8 +421,23 @@ async fn serve_document(
         STENCILA_VERSION
     };
 
+    // The stylesheet tag for the theme
+    // TODO: resolve the theme for the document
+    let theme_tag = format!(
+        r#"<link rel="stylesheet" type="text/css" href="/~static/{version}/themes/default.css">"#
+    );
+
+    // The stylesheet tag for the view or app
+    let styles_tag = if let Some("print") = view {
+        format!(
+            r#"<link rel="stylesheet" type="text/css" href="/~static/{version}/views/print.css">"#
+        )
+    } else {
+        String::new()
+    };
+
     // The script tag for the view or app
-    let script_tag = if let Some("static" | "print") = view {
+    let script_tag = if let Some("static") = view {
         String::new()
     } else if let Some(view) = view {
         format!(r#"<script type="module" src="/~static/{version}/views/{view}.js"></script>"#)
@@ -436,6 +451,8 @@ async fn serve_document(
     <head>
         <meta charset="utf-8"/>
         <title>Stencila</title>
+        {theme_tag}
+        {styles_tag}
         {script_tag}
     </head>
     <body>

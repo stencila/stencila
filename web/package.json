@@ -23,11 +23,13 @@
   "type": "module",
   "source": [
     "src/apps/main.ts",
-    "src/views/live.ts",
+    "src/themes/default.css",
     "src/views/dynamic.ts",
-    "src/views/visual.ts",
+    "src/views/live.ts",
+    "src/views/print.ts",
     "src/views/source.ts",
-    "src/views/split.ts"
+    "src/views/split.ts",
+    "src/views/visual.ts"
   ],
   "browserslist": [
     "fully supports es6-class"
@@ -58,6 +60,7 @@
     "codemirror-json5": "1.0.3",
     "lit": "3.1.0",
     "morphdom": "2.7.1",
+    "pagedjs": "0.4.3",
     "prosemirror-model": "1.19.3",
     "prosemirror-state": "1.4.3",
     "prosemirror-view": "1.32.5"
