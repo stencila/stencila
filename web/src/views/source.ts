@@ -1,4 +1,9 @@
 import {
+  history,
+  historyKeymap,
+  indentWithTab,
+} from '@codemirror/commands'
+import {
   bracketMatching,
   defaultHighlightStyle,
   indentOnInput,
@@ -7,10 +12,16 @@ import {
   syntaxHighlighting,
   StreamLanguage,
 } from "@codemirror/language";
-import { Extension, Compartment, StateEffect } from "@codemirror/state";
+import { 
+  Extension,
+  Compartment,
+  StateEffect,
+  // EditorState
+} from "@codemirror/state";
 import {
   EditorView as CodeMirrorView,
   highlightActiveLineGutter,
+  keymap,
   lineNumbers,
 } from "@codemirror/view";
 import { LitElement, html, css } from "lit";
@@ -181,19 +192,17 @@ export class SourceView extends LitElement {
     const lineWrapping = this.lineWrappingConfig.of(CodeMirrorView.lineWrapping)
 
     return [
-      langExt,
-      bracketMatching(),
       indentOnInput(),
+      history(),
+      bracketMatching(),
       syntaxHighlighting(defaultHighlightStyle, { fallback: true }),
       lineNumbers(),
       highlightActiveLineGutter(),
-      lineWrapping
+      keymap.of([indentWithTab, ...historyKeymap]), 
+      langExt,
+      lineWrapping,
     ];
   }
-
-
-
-
 
   /**
    * Override so that the `CodeMirrorView` is instantiated _after_ this
