@@ -1,21 +1,27 @@
 import {
+  bracketMatching,
+  defaultHighlightStyle,
+  indentOnInput,
   LanguageDescription,
   LanguageSupport,
   syntaxHighlighting,
-  defaultHighlightStyle,
   StreamLanguage,
 } from "@codemirror/language";
-import { Extension } from "@codemirror/state";
+import { Extension, Compartment, StateEffect } from "@codemirror/state";
 import {
   EditorView as CodeMirrorView,
-  lineNumbers,
   highlightActiveLineGutter,
+  lineNumbers,
 } from "@codemirror/view";
-import { LitElement, css } from "lit";
+import { LitElement, html, css } from "lit";
 import { customElement, property } from "lit/decorators.js";
 
 import { CodeMirrorClient } from "../clients/codemirror";
+import { installTwind } from "../twind";
 import { type DocumentAccess } from "../types";
+
+
+const withTwind = installTwind()
 
 /**
  * Source code editor for a document
@@ -24,6 +30,7 @@ import { type DocumentAccess } from "../types";
  * a particular format.
  */
 @customElement("stencila-source-view")
+@withTwind
 export class SourceView extends LitElement {
   /**
    * The access level of the editor
@@ -45,6 +52,12 @@ export class SourceView extends LitElement {
   format: string = "markdown";
 
   /**
+   * Allow for line wrapping
+   */
+  @property({ attribute: "line-wrapping", type: Boolean })
+  lineWrap: boolean = true;
+
+  /**
    * A read-write client which sends and receives string patches
    * for the source code to and from the server
    */
@@ -54,6 +67,11 @@ export class SourceView extends LitElement {
    * A CodeMirror editor view which the client interacts with
    */
   private codeMirrorView: CodeMirrorView;
+
+  /**
+   * `Compartment` for setting `CodeMirrorView.lineWrapping` extension
+   */
+  private lineWrappingConfig = new Compartment()
 
   /**
    * Array of CodeMirror `LanguageDescription` objects available for the edit view
@@ -110,6 +128,20 @@ export class SourceView extends LitElement {
   ];
 
   /**
+   * Dispatch a CodeMirror `StateEffect` to the editor
+   */
+  private dispatchEffect(effect: StateEffect<unknown>) {
+    const docState = this.codeMirrorView?.state
+
+    const transaction =
+      docState?.update({
+        effects: [effect],
+      }) ?? {}
+
+    this.codeMirrorView?.dispatch(transaction)
+  }
+
+  /**
    * Get the CodeMirror `LanguageSupport` for a particular format
    *
    * Defaults to the first `SourceView.languageDescriptions` if it does no
@@ -128,19 +160,40 @@ export class SourceView extends LitElement {
     return await ext.load();
   }
 
+  protected async update(changedProperties: Map<string, string | boolean>) {
+    super.update(changedProperties)
+
+    if (changedProperties.has('lineWrap')) {
+      this.dispatchEffect(this.lineWrappingConfig.reconfigure(
+        this.lineWrap
+          ? CodeMirrorView.lineWrapping 
+          : []
+      ))
+    }
+  }
+
   /**
    * Get the CodeMirror editor view extensions
    */
   private async getViewExtensions(): Promise<Extension[]> {
     const langExt = await this.getLanguageExtension(this.format);
 
+    const lineWrapping = this.lineWrappingConfig.of(CodeMirrorView.lineWrapping)
+
     return [
-      syntaxHighlighting(defaultHighlightStyle, { fallback: true }),
       langExt,
+      bracketMatching(),
+      indentOnInput(),
+      syntaxHighlighting(defaultHighlightStyle, { fallback: true }),
       lineNumbers(),
       highlightActiveLineGutter(),
+      lineWrapping
     ];
   }
+
+
+
+
 
   /**
    * Override so that the `CodeMirrorView` is instantiated _after_ this
@@ -157,7 +210,7 @@ export class SourceView extends LitElement {
       );
       this.codeMirrorView = new CodeMirrorView({
         extensions: [this.codeMirrorClient.sendPatches(), ...extensions],
-        parent: this.renderRoot,
+        parent: this.renderRoot.querySelector("#codemirror"),
       });
       this.codeMirrorClient.receivePatches(this.codeMirrorView);
     });
@@ -174,4 +227,39 @@ export class SourceView extends LitElement {
       height: 30vh;
     }
   `;
+
+  private renderControls() {
+    return html`
+      <div class="mt-4 flex">
+       <div>${this.renderLineWrapCheckbox()}</div>
+      </div>
+    `
+  }
+
+  private renderLineWrapCheckbox() {
+    return html`
+      <label class="text-sm">
+        ${'Enable line wrapping'}
+        <input 
+          type="checkbox"
+          class="ml-1"
+          ?checked="${this.lineWrap}" 
+          @change="${
+            (e: Event) => this.lineWrap = (e.target as HTMLInputElement).checked
+          }" 
+        />
+      </label>
+    `
+  }
+
+  render() {
+    return html`
+      <div>
+        <div id="codemirror"></div>
+        <div>
+          ${this.renderControls()}
+        </div>
+      </div>
+    `;
+  }
 }
