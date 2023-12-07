@@ -1,0 +1,213 @@
+/*
+ * A theme inspired by Edward Tufte’s books and handouts
+ * 
+ * Based on Tufte CSS (https://edwardtufte.github.io/tufte-css/, https://github.com/edwardtufte/tufte-css).
+ * Thank you!
+ *
+ * At present the main differences to Tufte CSS are:
+ *
+ * - styles are nested within the document's root node (currently #AA) rather than
+ *   targeting the <body>
+ *
+ * - all styles involving classes have been removed e.g `.sidenote`, `.epigraph`
+*/
+
+@import "../fonts/et-book/et-book.css";
+
+#AA {
+  font-size: 15px;
+
+  width: 87.5%;
+  max-width: 55rem;
+  
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 12.5%;
+  font-family: et-book, Palatino, "Palatino Linotype", "Palatino LT STD",
+    "Book Antiqua", Georgia, serif;
+  background-color: #fffff8;
+  color: #111;
+  counter-reset: sidenote-counter;
+
+  h1 {
+    font-weight: 400;
+    margin-top: 4rem;
+    margin-bottom: 1.5rem;
+    font-size: 3.2rem;
+    line-height: 1;
+  }
+
+  h2 {
+    font-style: italic;
+    font-weight: 400;
+    margin-top: 2.1rem;
+    margin-bottom: 1.4rem;
+    font-size: 2.2rem;
+    line-height: 1;
+  }
+
+  h3 {
+    font-style: italic;
+    font-weight: 400;
+    font-size: 1.7rem;
+    margin-top: 2rem;
+    margin-bottom: 1.4rem;
+    line-height: 1;
+  }
+
+  hr {
+    display: block;
+    height: 1px;
+    width: 55%;
+    border: 0;
+    border-top: 1px solid #ccc;
+    margin: 1em 0;
+    padding: 0;
+  }
+
+  article {
+    padding: 5rem 0rem;
+  }
+
+  section {
+    padding-top: 1rem;
+    padding-bottom: 1rem;
+  }
+
+  p,
+  dl,
+  ol,
+  ul {
+    font-size: 1.4rem;
+    line-height: 2rem;
+  }
+
+  p {
+    margin-top: 1.4rem;
+    margin-bottom: 1.4rem;
+    padding-right: 0;
+    vertical-align: baseline;
+  }
+
+  blockquote {
+    font-size: 1.4rem;
+  }
+
+  blockquote p {
+    width: 55%;
+    margin-right: 40px;
+  }
+
+  blockquote footer {
+    width: 55%;
+    font-size: 1.1rem;
+    text-align: right;
+  }
+
+  section > p,
+  section > footer,
+  section > table {
+    width: 55%;
+  }
+
+  /* 50 + 5 == 55, to be the same width as paragraph */
+  section > dl,
+  section > ol,
+  section > ul {
+    width: 50%;
+    -webkit-padding-start: 5%;
+  }
+
+  dt:not(:first-child),
+  li:not(:first-child) {
+    margin-top: 0.25rem;
+  }
+
+  figure {
+    padding: 0;
+    border: 0;
+    font-size: 100%;
+    font: inherit;
+    vertical-align: baseline;
+    max-width: 55%;
+    -webkit-margin-start: 0;
+    -webkit-margin-end: 0;
+    margin: 0 0 3em 0;
+  }
+
+  figcaption {
+    float: right;
+    clear: right;
+    margin-top: 0;
+    margin-bottom: 0;
+    font-size: 1.1rem;
+    line-height: 1.6;
+    vertical-align: baseline;
+    position: relative;
+    max-width: 40%;
+  }
+
+  a:link,
+  a:visited {
+    color: inherit;
+  }
+
+  a:link {
+    text-decoration: none;
+    background: -webkit-linear-gradient(#fffff8, #fffff8),
+      -webkit-linear-gradient(#fffff8, #fffff8),
+      -webkit-linear-gradient(currentColor, currentColor);
+    background: linear-gradient(#fffff8, #fffff8),
+      linear-gradient(#fffff8, #fffff8),
+      linear-gradient(currentColor, currentColor);
+    -webkit-background-size: 0.05em 1px, 0.05em 1px, 1px 1px;
+    -moz-background-size: 0.05em 1px, 0.05em 1px, 1px 1px;
+    background-size: 0.05em 1px, 0.05em 1px, 1px 1px;
+    background-repeat: no-repeat, no-repeat, repeat-x;
+    text-shadow: 0.03em 0 #fffff8, -0.03em 0 #fffff8, 0 0.03em #fffff8,
+      0 -0.03em #fffff8, 0.06em 0 #fffff8, -0.06em 0 #fffff8, 0.09em 0 #fffff8,
+      -0.09em 0 #fffff8, 0.12em 0 #fffff8, -0.12em 0 #fffff8, 0.15em 0 #fffff8,
+      -0.15em 0 #fffff8;
+    background-position: 0% 93%, 100% 93%, 0% 93%;
+  }
+
+  @media screen and (-webkit-min-device-pixel-ratio: 0) {
+    a:link {
+      background-position-y: 87%, 87%, 87%;
+    }
+  }
+
+  a:link::selection,
+  a:link::-moz-selection {
+    text-shadow: 0.03em 0 #b4d5fe, -0.03em 0 #b4d5fe, 0 0.03em #b4d5fe,
+      0 -0.03em #b4d5fe, 0.06em 0 #b4d5fe, -0.06em 0 #b4d5fe, 0.09em 0 #b4d5fe,
+      -0.09em 0 #b4d5fe, 0.12em 0 #b4d5fe, -0.12em 0 #b4d5fe, 0.15em 0 #b4d5fe,
+      -0.15em 0 #b4d5fe;
+    background: #b4d5fe;
+  }
+
+  img {
+    max-width: 100%;
+  }
+
+  code,
+  pre > code {
+    font-family: Consolas, "Liberation Mono", Menlo, Courier, monospace;
+    font-size: 1rem;
+    line-height: 1.42;
+    -webkit-text-size-adjust: 100%; /* Prevent adjustments of font size after orientation changes in iOS. See https://github.com/edwardtufte/tufte-css/issues/81#issuecomment-261953409 */
+  }
+  h1 > code,
+  h2 > code,
+  h3 > code {
+    font-size: 0.8em;
+  }
+
+  pre > code {
+    font-size: 0.9rem;
+    width: 52.5%;
+    margin-left: 2.5%;
+    overflow-x: auto;
+    display: block;
+  }
+}
