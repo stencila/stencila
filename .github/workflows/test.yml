@@ -38,8 +38,10 @@ jobs:
               - 'rust/**'
             ts:
               - 'ts/**'
+              - 'package.json'
             web:
               - 'web/**'
+              - 'package.json'
 
   main:
     runs-on: ubuntu-latest-m
