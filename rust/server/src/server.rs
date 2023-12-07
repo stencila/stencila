@@ -367,6 +367,12 @@ async fn serve_document(
     let view = query.get("view").map_or("static", |value| value.as_ref());
     let access = query.get("access").map_or("write", |value| value.as_ref());
 
+    let version = if cfg!(debug_assertions) {
+        "dev"
+    } else {
+        STENCILA_VERSION
+    };
+
     // Generate the content from the document
     let body = if view == "raw" {
         if !raw {
@@ -380,12 +386,12 @@ async fn serve_document(
             .header(CONTENT_TYPE, content_type.essence_str())
             .body(Body::from(bytes))
             .map_err(InternalError::new);
-    } else if view == "source" || view == "split" {
+    } else if view == "source" || view == "split" || view == "app" {
         let format = query
             .get("format")
             .map_or("markdown", |value| value.as_ref());
 
-        format!("<stencila-{view}-view view={view} id={id} access={access} format={format}></stencila-{view}-view>")
+        format!("<stencila-{view}-view view={view} id={id} access={access} format={format} version={version}></stencila-{view}-view>")
     } else {
         let html = doc
             .export(
@@ -402,20 +408,16 @@ async fn serve_document(
         format!("<stencila-{view}-view view={view} id={id} access={access}>{html}</stencila-{view}-view>")
     };
 
-    let version = if cfg!(debug_assertions) {
-        "dev"
-    } else {
-        STENCILA_VERSION
-    };
-
     let html = format!(
         r#"<!doctype html>
     <html lang="en">
     <head>
         <meta charset="utf-8"/>
         <title>Stencila</title>
-        <link rel="stylesheet" href="/~static/{version}/{view}.css" />
-        <script type="module" src="/~static/{version}/{view}.js"></script>
+        <link rel="stylesheet" href="/~static/{version}/views/{view}.css" />
+        <link rel="stylesheet" href="/~static/{version}/app/app.css" />
+        <script type="module" src="/~static/{version}/views/{view}.js"></script>
+        <script type="module" src="/~static/{version}/app/app.js"></script>
     </head>
     <body>
         {body}
