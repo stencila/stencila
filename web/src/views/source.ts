@@ -254,7 +254,7 @@ export class SourceView extends LitElement {
    * 
    * Overrides some of the default styles used by CodeMirror.
    */
-  static css = css`
+  static styles = css`
     .cm-editor {
       border: 1px solid rgb(189, 186, 186);
       height: 30vh;
