@@ -504,7 +504,7 @@ async fn serve_ws(
     // TODO: Change the allowed protocols based on the users permissions
     let mut protocols = vec!["read.html.stencila.org".to_string()];
 
-    protocols.push(format!("read.debug.stencila.org"));
+    protocols.push("read.debug.stencila.org".to_string());
 
     for format in [
         // TODO: define this list of string formats better

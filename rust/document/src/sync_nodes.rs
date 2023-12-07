@@ -10,7 +10,7 @@ use crate::Document;
 
 /**
  * A patch to apply to a node in a document
- * 
+ *
  * Intentionally similar to JSON Patch (https://jsonpatch.com/) but adds
  * an `id` field and has a singular `path`.
  */
@@ -31,13 +31,13 @@ pub struct NodePatch {
     path: NodePatchSlot,
 
     /// The path to the property or item from which to move or copy
-    /// 
+    ///
     /// Only applies to [`NodePatchOperation::Move`] and [`NodePatchOperation::Copy`]
     /// operations.
     from: Option<NodePatchSlot>,
 
     /// The value of the property or item to add or replace
-    /// 
+    ///
     /// Only applies to [`NodePatchOperation::Add`] and [`NodePatchOperation::Replace`]
     /// operations.
     value: Option<Node>,
