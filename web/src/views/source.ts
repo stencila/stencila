@@ -1,9 +1,15 @@
 import {
+  autocompletion,
+  startCompletion,
+  completionKeymap,
+} from '@codemirror/autocomplete'
+import {
   history,
   historyKeymap,
   indentWithTab,
 } from '@codemirror/commands'
 import {
+  foldGutter,
   bracketMatching,
   defaultHighlightStyle,
   indentOnInput,
@@ -16,11 +22,12 @@ import {
   Extension,
   Compartment,
   StateEffect,
-  // EditorState
 } from "@codemirror/state";
 import {
+  dropCursor,
   EditorView as CodeMirrorView,
   highlightActiveLineGutter,
+  highlightSpecialChars,
   keymap,
   lineNumbers,
 } from "@codemirror/view";
@@ -63,7 +70,7 @@ export class SourceView extends LitElement {
   format: string = "markdown";
 
   /**
-   * Allow for line wrapping
+   * property that sets editor line wrapping config
    */
   @property({ attribute: "line-wrapping", type: Boolean })
   lineWrap: boolean = true;
@@ -171,6 +178,44 @@ export class SourceView extends LitElement {
     return await ext.load();
   }
 
+  /**
+   * Get the CodeMirror editor view extensions
+   */
+  private async getViewExtensions(): Promise<Extension[]> {
+    const langExt = await this.getLanguageExtension(this.format);
+
+    const lineWrapping = this.lineWrappingConfig.of(CodeMirrorView.lineWrapping)
+
+    const keyMaps = keymap.of([
+      indentWithTab,
+      ...historyKeymap,
+      ...completionKeymap,
+      { key: 'Ctrl-Space', run: startCompletion }
+    ])
+
+    return [
+      langExt,
+      keyMaps, 
+      history(),
+      lineNumbers(),
+      foldGutter(),
+      lineWrapping,
+      dropCursor(),
+      highlightActiveLineGutter(),
+      indentOnInput(),
+      highlightSpecialChars(),
+      syntaxHighlighting(defaultHighlightStyle, { fallback: true }),
+      bracketMatching(),
+      autocompletion(),
+    ];
+  }
+
+
+  /**
+   * Components update function, 
+   * fires when a property value has been changed
+   * @param changedProperties 
+   */
   protected async update(changedProperties: Map<string, string | boolean>) {
     super.update(changedProperties)
 
@@ -181,27 +226,6 @@ export class SourceView extends LitElement {
           : []
       ))
     }
-  }
-
-  /**
-   * Get the CodeMirror editor view extensions
-   */
-  private async getViewExtensions(): Promise<Extension[]> {
-    const langExt = await this.getLanguageExtension(this.format);
-
-    const lineWrapping = this.lineWrappingConfig.of(CodeMirrorView.lineWrapping)
-
-    return [
-      indentOnInput(),
-      history(),
-      bracketMatching(),
-      syntaxHighlighting(defaultHighlightStyle, { fallback: true }),
-      lineNumbers(),
-      highlightActiveLineGutter(),
-      keymap.of([indentWithTab, ...historyKeymap]), 
-      langExt,
-      lineWrapping,
-    ];
   }
 
   /**
