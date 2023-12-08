@@ -455,6 +455,8 @@ async fn serve_document(
     <head>
         <meta charset="utf-8"/>
         <title>Stencila</title>
+        <link rel="icon" type="image/png" href="/~static/{version}/images/favicon.png">
+        <link rel="stylesheet" type="text/css" href="/~static/{version}/apps/main.css">
         {theme_tag}
         {styles_tag}
         {script_tag}

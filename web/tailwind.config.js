@@ -1,9 +1,6 @@
 /** @type {import('tailwindcss').Config} */
 export default {
-  content: ["./src/*.html"],
-  theme: {
-    extend: {},
-  },
+  content: ["./dist/**/*.js", "./src/**/*.js"],
   plugins: [require('@tailwindcss/typography')],
 }
 

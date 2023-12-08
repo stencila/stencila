@@ -16,8 +16,12 @@ const config = defineConfig({
         red: "#e53e3e",
         yellow: "#ecc94b"
       },
+      grays: {
+        mid: "#e2e8f0",
+      }
     },
   }), presetTypography()],
+  hash: false
 });
 
 export const installTwind = () => install(config);
