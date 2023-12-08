@@ -92,11 +92,43 @@ In a console run Parcel (the bundler we use) in watch mode (so that JavaScript m
 npm start
 ```
 
-In a separate console run the Stencila CLI's `serve` command in debug mode using `cargo` from the directory that will be the home for the server paths e.g.
+In a separate console run the Stencila CLI's `serve` command in debug mode using `cargo` from the directory that you want to be the home for the server paths e.g.
 
 ```console
 cd ../examples/nodes
 cargo run --bin stencila -- serve
+```
+
+When contributing code please run the following linting, formatting and testing scripts. Linting checks are run on CI, so for faster iteration, fewer failed runs and less noise, it's generally a good idea to run them locally before pushing code.
+
+### Linting && formatting
+
+We use [ESLint](https://eslint.org/) and [Prettier](https://prettier.io/) for code linting and formatting respectively. To apply linting and formatting fixes:
+
+```console
+npm run fix
+```
+
+To just check linting and formatting:
+
+```console
+npm run lint
+```
+
+### Testing
+
+At present we don't have comprehensive tests for this package ([coming soon!](https://github.com/stencila/stencila/issues/1781)) so, for now, the `npm test` script just checks the code using Typescript.
+
+```console
+npm test
+```
+
+### `Makefile`
+
+As with most modules in this repo, there is a `Makefile` which you may prefer to use for common development tasks. For example to easily run multiple NPM scripts at once:
+
+```console
+make install fix test
 ```
 
 > [!NOTE]

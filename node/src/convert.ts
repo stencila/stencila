@@ -16,7 +16,7 @@ export { DecodeOptions, EncodeOptions };
  */
 export async function fromString<T = Node>(
   string: string,
-  options?: DecodeOptions
+  options?: DecodeOptions,
 ): Promise<T> {
   return node(JSON.parse(await bindings.fromString(string, options))) as T;
 }
@@ -30,7 +30,7 @@ export async function fromString<T = Node>(
  */
 export async function fromPath<T = Node>(
   string: string,
-  options?: DecodeOptions
+  options?: DecodeOptions,
 ): Promise<T> {
   return node(JSON.parse(await bindings.fromPath(string, options))) as T;
 }
@@ -47,7 +47,7 @@ export async function fromPath<T = Node>(
  */
 export async function toString(
   node: Node,
-  options?: EncodeOptions
+  options?: EncodeOptions,
 ): Promise<string> {
   return bindings.toString(JSON.stringify(node), options);
 }
@@ -62,7 +62,7 @@ export async function toString(
 export async function toPath(
   node: Node,
   path: string,
-  options?: EncodeOptions
+  options?: EncodeOptions,
 ): Promise<void> {
   return bindings.toPath(JSON.stringify(node), path, options);
 }
@@ -78,7 +78,7 @@ export async function fromTo(
   input?: string,
   output?: string,
   decodeOptions?: DecodeOptions,
-  encodeOptions?: EncodeOptions
+  encodeOptions?: EncodeOptions,
 ): Promise<string> {
   return bindings.fromTo(input, output, decodeOptions, encodeOptions);
 }

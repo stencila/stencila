@@ -43,7 +43,7 @@ export class ProseMirrorClient extends NodesClient {
       const patch = ProseMirrorClient.transactionToPatch(
         transaction,
         view.state,
-        newState
+        newState,
       );
       if (patch) this.sendMessage(patch);
 
@@ -62,7 +62,7 @@ export class ProseMirrorClient extends NodesClient {
   private static transactionToPatch(
     transaction: Transaction,
     pre: EditorState,
-    post: EditorState
+    post: EditorState,
   ): NodePatch | null {
     const steps = transaction.steps;
 
@@ -113,7 +113,7 @@ export class ProseMirrorClient extends NodesClient {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     pre: EditorState,
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    post: EditorState
+    post: EditorState,
   ): NodePatch | null {
     if (process.env.NODE_ENV === "development") {
       console.log("🔀 Diffing editor states to derive patch");

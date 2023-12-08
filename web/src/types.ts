@@ -1,12 +1,12 @@
 /**
  * The type for a node identifier
  */
-export type NodeId = string
+export type NodeId = string;
 
 /**
  * The type for a document identifier
  */
-export type DocumentId = string
+export type DocumentId = string;
 
 /**
  * The access level that a client has for a document

@@ -7,19 +7,19 @@ import { Executable } from "./executable";
 @customElement("stencila-parameter")
 export class Parameter extends Executable {
   @property()
-  name: string
+  name: string;
 
   @property()
-  label?: string
+  label?: string;
 
   @property()
-  value?: Node
+  value?: Node;
 
   @property()
-  default?: Node
+  default?: Node;
 
-  @property({type: Object})
-  validator?: Validator
+  @property({ type: Object })
+  validator?: Validator;
 
   constructor() {
     super();
@@ -27,24 +27,24 @@ export class Parameter extends Executable {
     this.addEventListener("input", (event: Event) => {
       const target = event.target as HTMLInputElement;
 
-      const value = target.value
+      const value = target.value;
 
       // TODO: Handle different types of values
       // using target.valueAsNumber and target.valueAsDate
 
       this.patchNode({
-        op: 'replace',
+        op: "replace",
         id: this.id,
         path: "value",
         value,
-      })
+      });
     });
   }
 
   render() {
     return html`
       <label for="${this.name}">${this.label ?? this.name}</label>
-      <input name="${this.name}">
-    `
+      <input name="${this.name}" />
+    `;
   }
 }

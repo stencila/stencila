@@ -2,12 +2,16 @@ import * as types from "./types/index.js";
 
 /**
  * Hydrate a value to a class instance if appropriate
- * 
+ *
  * @param value The value to hydrate into a class
  * @returns The value, hydrated into a class instance if appropriate
  */
 export function hydrate(value: types.Node): types.Node {
-  if (value == null || typeof value !== "object" || value instanceof types.Entity) {
+  if (
+    value == null ||
+    typeof value !== "object" ||
+    value instanceof types.Entity
+  ) {
     return value as types.Node;
   }
 

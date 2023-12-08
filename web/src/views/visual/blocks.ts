@@ -67,7 +67,7 @@ const IfBlock: NodeSpec = {
   parseDOM: parseDOMWithContent(
     "stencila-if-block",
     "[slot=clauses]",
-    ...executableAttrs
+    ...executableAttrs,
   ),
   toDOM: (node: Node) => {
     const dom = document.createElement("stencila-if-block");
@@ -93,7 +93,7 @@ const IfBlockClause: NodeSpec = {
     "stencila-if-block-clause",
     "[slot=content]",
     "is-active",
-    ...codeExecutableAttrs
+    ...codeExecutableAttrs,
   ),
   toDOM: (node: Node) => {
     const dom = document.createElement("stencila-if-block-clause");

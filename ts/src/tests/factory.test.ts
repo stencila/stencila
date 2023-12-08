@@ -48,6 +48,6 @@ test("new block", () => {
   expect(p2).toBeInstanceOf(Paragraph);
 
   expect(() => block(subscript([]))).toThrowError(
-    "Unexpected type for Block: Subscript"
+    "Unexpected type for Block: Subscript",
   );
 });

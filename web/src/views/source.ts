@@ -66,7 +66,7 @@ export class SourceView extends LitElement {
       extensions: ["md"],
       load: async () => {
         return import("@codemirror/lang-markdown").then((obj) =>
-          obj.markdown()
+          obj.markdown(),
         );
       },
     }),
@@ -103,7 +103,7 @@ export class SourceView extends LitElement {
       extensions: ["yaml", "yml"],
       load: async () => {
         return import("@codemirror/legacy-modes/mode/yaml").then(
-          (yml) => new LanguageSupport(StreamLanguage.define(yml.yaml))
+          (yml) => new LanguageSupport(StreamLanguage.define(yml.yaml)),
         );
       },
     }),
@@ -122,7 +122,7 @@ export class SourceView extends LitElement {
     const ext =
       LanguageDescription.matchLanguageName(
         SourceView.languageDescriptions,
-        format
+        format,
       ) ?? SourceView.languageDescriptions[0];
 
     return await ext.load();
@@ -153,7 +153,7 @@ export class SourceView extends LitElement {
       this.codeMirrorClient = new CodeMirrorClient(
         this.id,
         this.access,
-        this.format
+        this.format,
       );
       this.codeMirrorView = new CodeMirrorView({
         extensions: [this.codeMirrorClient.sendPatches(), ...extensions],
@@ -165,7 +165,7 @@ export class SourceView extends LitElement {
 
   /**
    * CSS styling for the CodeMirror editor
-   * 
+   *
    * Overrides some of the default styles used by CodeMirror.
    */
   static css = css`

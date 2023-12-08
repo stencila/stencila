@@ -42,8 +42,8 @@
   "main": "./dist/index.cjs",
   "types": "./dist/index.d.cts",
   "scripts": {
-    "fix": "eslint --fix '**/*.ts'",
-    "lint": "eslint '**/*.ts'",
+    "fix": "eslint --fix 'src/**/*.ts' && prettier --write .",
+    "lint": "eslint 'src/**/*.ts' && prettier --check .",
     "build:debug": "napi build --js false --dts src/bindings.d.ts",
     "build:addon": "napi build --platform --release --js false --dts src/bindings.d.ts && npm run compress",
     "build:dist": "tsup --external ../stencila.node",

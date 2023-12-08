@@ -159,21 +159,45 @@ export type CitationIntent =
 
 Most of the types are generated from the Stencila Schema by the Rust [`schema-gen`](https://github.com/stencila/stencila/tree/main/rust/schema-gen#readme) crate. See there for contributing instructions.
 
-### Linting and testing
+When contributing code please run the following linting, formatting and testing scripts. Linting checks are run on CI, so for faster iteration, fewer failed runs and less noise, it's generally a good idea to run them locally before pushing code.
 
-Please run linting checks and tests before contributing any code changes.
+### Linting && formatting
 
-```sh
+We use [ESLint](https://eslint.org/) and [Prettier](https://prettier.io/) for code linting and formatting respectively. To apply linting and formatting fixes:
+
+```console
+npm run fix
+```
+
+To just check linting and formatting:
+
+```console
 npm run lint
+```
+
+### Testing
+
+We use [Jest](https://jestjs.io/) for tests. To run them:
+
+```console
 npm test
-
-# or
-
-make lint test
 ```
 
 ### Packaging
 
-There is a `npm run check` for checking aspects of packaging. At present, CommonJS modules are not supported, only ESM.
+The packaging and publishing configuration is checked using [`arethetypeswrong``)(https://github.com/arethetypeswrong/arethetypeswrong.github.io) and [`publint`](https://publint.dev/):
 
-So that debuggers and other tools can show the original source code, `declarationMap` and `sourceMap` are turned on in `tsconfig.json` and `src` is included in the `files` option of `package.json`.
+```console
+npm pubcheck
+```
+
+> [!NOTE]
+> So that debuggers and other tools can show the original source code, `declarationMap` and `sourceMap` are turned on in `tsconfig.json` and `src` is included in the `files` option of `package.json`.
+
+### `Makefile`
+
+As with most modules in this repo, there is a `Makefile` which you may prefer to use for common development tasks. For example to easily run multiple NPM scripts at once:
+
+```console
+make install fix test pubcheck
+```
