@@ -9,7 +9,7 @@ const withTwind = installTwind();
 
 /**
  * Web component representing a Stencila Schema `IfBlockClause` node
- * 
+ *
  * @see https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/if-block-clause.md
  */
 @customElement("stencila-if-block-clause")
@@ -73,10 +73,7 @@ export class IfBlockClause extends CodeExecutable {
         <p class="text-gray-400" contenteditable="false">
           ${this.hasContent ? "" : "No content"}
         </p>
-        <slot
-          name="content"
-          @slotchange=${this.onContentSlotChange}
-        ></slot>
+        <slot name="content" @slotchange=${this.onContentSlotChange}></slot>
       </div>
     `;
   }

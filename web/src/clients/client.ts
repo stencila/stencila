@@ -2,7 +2,7 @@ import { type DocumentId } from "../types";
 
 /**
  * The abstract base class for all clients
- * 
+ *
  * TODO: Implement WebSocket connection state and reconnection logic
  * https://github.com/stencila/stencila/issues/1785
  */
@@ -20,10 +20,10 @@ export abstract class Client {
    */
   constructor(id: DocumentId, subprotocol: string) {
     const protocol = window.location.protocol === "http:" ? "ws" : "wss";
-    const host = window.location.host
+    const host = window.location.host;
     this.ws = new WebSocket(
       `${protocol}://${host}/~ws/${id}`,
-      subprotocol + ".stencila.org"
+      subprotocol + ".stencila.org",
     );
 
     this.ws.onmessage = (event: MessageEvent<string>) => {
@@ -42,11 +42,11 @@ export abstract class Client {
    *
    * This method should be overridden by clients that need to
    * handle incoming messages from the server.
-   * 
+   *
    * @param message The message as a JavaScript object
    */
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  protected receiveMessage(message: Record<string, unknown>) { }
+  protected receiveMessage(message: Record<string, unknown>) {}
 
   /**
    * Send a message to the server

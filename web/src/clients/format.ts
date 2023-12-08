@@ -38,7 +38,7 @@ export interface FormatOperation {
 
   /**
    * The string to insert between `from` and `to`.
-   * 
+   *
    * For additions and replacements; may be omitted for deletions.
    */
   insert?: string;

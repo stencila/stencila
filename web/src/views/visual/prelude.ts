@@ -28,7 +28,7 @@ export const getAttrs =
     typeof elem === "string"
       ? false
       : Object.fromEntries(
-          attrs.map((attr) => [attr, elem.getAttribute(attr)])
+          attrs.map((attr) => [attr, elem.getAttribute(attr)]),
         );
 
 export const parseDOM = (tag: string, ...attrs: string[]) => [
@@ -55,8 +55,7 @@ export const toDOMAttrs = (node: Node, ...attrs: string[]) =>
 
 export const toDOM =
   (tag: string, ...attrs: string[]) =>
-  (node: Node): DOMOutputSpec =>
-    [tag, toDOMAttrs(node, ...attrs), 0];
+  (node: Node): DOMOutputSpec => [tag, toDOMAttrs(node, ...attrs), 0];
 
 export const parseToDOM = (tag: string, ...attrs: string[]) => ({
   parseDOM: parseDOM(tag, ...attrs),

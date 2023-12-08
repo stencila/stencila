@@ -95,7 +95,7 @@ export class VisualView extends LitElement {
     this.proseMirrorClient = new ProseMirrorClient(
       this.id,
       this.access,
-      this.renderRoot as HTMLElement
+      this.renderRoot as HTMLElement,
     );
 
     this.proseMirrorView = new ProseMirrorView(this.renderRoot, {

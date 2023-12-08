@@ -34,7 +34,7 @@ export class LiveView extends LitElement {
 
     this.domClient = new DomClient(
       this.id,
-      this.renderRoot.firstElementChild as HTMLElement
+      this.renderRoot.firstElementChild as HTMLElement,
     );
   }
 }

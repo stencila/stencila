@@ -37,8 +37,8 @@
     "fully supports es6-class"
   ],
   "scripts": {
-    "fix": "eslint --fix 'src/**/*.ts'",
-    "lint": "eslint 'src/**/*.ts'",
+    "fix": "eslint --fix 'src/**/*.ts' && prettier --write .",
+    "lint": "eslint 'src/**/*.ts' && prettier --check .",
     "test": "tsc --skipLibCheck --noEmit",
     "start": "parcel watch",
     "build": "parcel build",

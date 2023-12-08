@@ -61,13 +61,13 @@ export class DynamicView extends LitElement {
 
     this.domClient = new DomClient(
       this.id,
-      this.renderRoot.firstElementChild as HTMLElement
+      this.renderRoot.firstElementChild as HTMLElement,
     );
 
     this.nodesClient = new NodesClient(
       this.id,
       this.access,
-      this.renderRoot as HTMLElement
+      this.renderRoot as HTMLElement,
     );
   }
 }
