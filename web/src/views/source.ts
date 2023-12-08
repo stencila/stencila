@@ -70,7 +70,7 @@ export class SourceView extends LitElement {
   format: string = "markdown";
 
   /**
-   * property that sets editor line wrapping config
+   * Turn on/off editor line wrapping
    */
   @property({ attribute: "line-wrapping", type: Boolean })
   lineWrap: boolean = true;
@@ -212,11 +212,10 @@ export class SourceView extends LitElement {
 
 
   /**
-   * Components update function, 
-   * fires when a property value has been changed
-   * @param changedProperties 
+   * Override `LitElement.update` to dispatch any changes to editor config
+   * to the editor. 
    */
-  protected async update(changedProperties: Map<string, string | boolean>) {
+  override update(changedProperties: Map<string, string | boolean>) {
     super.update(changedProperties)
 
     if (changedProperties.has('lineWrap')) {
@@ -229,8 +228,8 @@ export class SourceView extends LitElement {
   }
 
   /**
-   * Override so that the `CodeMirrorView` is instantiated _after_ this
-   * element has a `renderRoot`.
+   * Override `LitElement.connectedCallback` so that the `CodeMirrorView` is instantiated
+   * _after_ this element has a `renderRoot`.
    */
   override connectedCallback() {
     super.connectedCallback();
@@ -261,6 +260,17 @@ export class SourceView extends LitElement {
     }
   `;
 
+  render() {
+    return html`
+      <div>
+        <div id="codemirror"></div>
+        <div>
+          ${this.renderControls()}
+        </div>
+      </div>
+    `;
+  }
+
   private renderControls() {
     return html`
       <div class="mt-4 flex">
@@ -283,16 +293,5 @@ export class SourceView extends LitElement {
         />
       </label>
     `
-  }
-
-  render() {
-    return html`
-      <div>
-        <div id="codemirror"></div>
-        <div>
-          ${this.renderControls()}
-        </div>
-      </div>
-    `;
   }
 }
