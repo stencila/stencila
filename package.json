@@ -25,7 +25,7 @@
     "tmp": "0.2.1",
     "ts-jest": "29.1.1",
     "tsup": "8.0.1",
-    "typescript": "5.3.2",
+    "typescript": "5.3.3",
     "wrangler": "3.18.0"
   }
 }
