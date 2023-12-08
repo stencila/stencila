@@ -45,6 +45,8 @@
     "unused": "depcheck --quiet --ignores '@parcel/*,prosemirror-*' --ignore-patterns '.eslintrc*'"
   },
   "dependencies": {
+    "@codemirror/autocomplete": "^6.11.1",
+    "@codemirror/commands": "^6.3.2",
     "@codemirror/lang-html": "6.4.7",
     "@codemirror/lang-json": "6.0.1",
     "@codemirror/lang-markdown": "6.2.3",
