@@ -9,7 +9,7 @@ test("fromString", async () => {
     '{type: "Article", content: [{type: "Paragraph", content: [{type: "Text", value: "Hello world"}]}]}',
     {
       format: "json5",
-    }
+    },
   );
 
   expect(node instanceof Article);
@@ -57,7 +57,7 @@ test("fromTo", async () => {
     undefined,
     {
       format: "md",
-    }
+    },
   );
   expect(md).toMatchSnapshot();
 
@@ -68,7 +68,7 @@ test("fromTo", async () => {
     {
       format: "html",
       compact: true,
-    }
+    },
   );
   expect(html).toMatchSnapshot();
 });

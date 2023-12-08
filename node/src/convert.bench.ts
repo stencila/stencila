@@ -11,13 +11,13 @@ suite
     fn: async () => {
       await fromString('{"type": "Article", "content": []}');
     },
-    minSamples: 100
+    minSamples: 100,
   })
   .add("convert.toString", {
     fn: async () => {
       await toString(new Article([]));
     },
-    minSamples: 100
+    minSamples: 100,
   })
   .on("cycle", (event: Event) => {
     console.log(String(event.target));

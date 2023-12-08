@@ -39,7 +39,7 @@ const doc = await convert.fromString(
   '{type: "Article", content: [{type: "Paragraph", content: ["Hello world"]}]}',
   {
     format: "json5",
-  }
+  },
 );
 
 doc instanceof Article; // true
@@ -58,7 +58,9 @@ Use `fromPath` to decode a file system path (usually a file) to a Stencila Schem
 ```ts
 import { convert } from "@stencila/node";
 
-const doc = await convert.fromPath("../examples/nodes/paragraph/paragraph.jats.xml");
+const doc = await convert.fromPath(
+  "../examples/nodes/paragraph/paragraph.jats.xml",
+);
 ```
 
 #### `DecodeOptions`

@@ -9,7 +9,7 @@ const https = require("https");
 const { createGunzip } = require("zlib");
 
 const version = JSON.parse(
-  readFileSync(path.join(__dirname, "package.json"))
+  readFileSync(path.join(__dirname, "package.json")),
 ).version;
 
 const { platform, arch } = process;
@@ -40,7 +40,7 @@ const target = (() => {
   }
 
   throw new Error(
-    `Unsupported platform: ${platform}-${arch}. To request support, please submit an issue with these details at https://github.com/stencila/stencila/issues.`
+    `Unsupported platform: ${platform}-${arch}. To request support, please submit an issue with these details at https://github.com/stencila/stencila/issues.`,
   );
 })();
 
@@ -63,7 +63,7 @@ function followRedirects(url, callback) {
 followRedirects(url, (res) => {
   if (res.statusCode !== 200) {
     throw new Error(
-      `Failed to download ${url}: ${res.statusCode}. Please submit an issue a https://github.com/stencila/stencila/issues.`
+      `Failed to download ${url}: ${res.statusCode}. Please submit an issue a https://github.com/stencila/stencila/issues.`,
     );
   }
 

@@ -6,48 +6,66 @@
 /** Decoding options */
 export interface DecodeOptions {
   /** The format to be decode from */
-  format?: string
+  format?: string;
   /**
    * What to do if there are losses when decoding from the input
    *
    * Possible values are "ignore", "trace", "debug", "info", "warn", "error", or "abort", or
    * a file path to write the losses to (`json` or `yaml` file extensions are supported).
    */
-  losses?: string
+  losses?: string;
 }
 /** Encoding options */
 export interface EncodeOptions {
   /** The format to encode to */
-  format?: string
+  format?: string;
   /**
    * Whether to encode as a standalone document
    *
    * Unless specified otherwise, this is the default when encoding to a file
    * (as opposed to a string).
    */
-  standalone?: boolean
+  standalone?: boolean;
   /**
    * Whether to encode in compact form
    *
    * Some formats (e.g HTML and JSON) can be encoded in either compact
    * or "pretty-printed" (e.g. indented) forms.
    */
-  compact?: boolean
+  compact?: boolean;
   /**
    * What to do if there are losses when encoding to the output
    *
    * Possible values are "ignore", "trace", "debug", "info", "warn", "error", or "abort", or
    * a file path to write the losses to (`json` or `yaml` file extensions are supported).
    */
-  losses?: string
+  losses?: string;
 }
 /** Decode a Stencila Schema node from a string */
-export function fromString(input: string, options?: DecodeOptions | undefined | null): Promise<string>
+export function fromString(
+  input: string,
+  options?: DecodeOptions | undefined | null,
+): Promise<string>;
 /** Decode a Stencila Schema node from a file system path */
-export function fromPath(path: string, options?: DecodeOptions | undefined | null): Promise<string>
+export function fromPath(
+  path: string,
+  options?: DecodeOptions | undefined | null,
+): Promise<string>;
 /** Encode a Stencila Schema node to a string */
-export function toString(json: string, options?: EncodeOptions | undefined | null): Promise<string>
+export function toString(
+  json: string,
+  options?: EncodeOptions | undefined | null,
+): Promise<string>;
 /** Encode a Stencila Schema node to a filesystem path */
-export function toPath(json: string, path: string, options?: EncodeOptions | undefined | null): Promise<void>
+export function toPath(
+  json: string,
+  path: string,
+  options?: EncodeOptions | undefined | null,
+): Promise<void>;
 /** Convert a document from one format to another */
-export function fromTo(input?: string | undefined | null, output?: string | undefined | null, decodeOptions?: DecodeOptions | undefined | null, encodeOptions?: EncodeOptions | undefined | null): Promise<string>
+export function fromTo(
+  input?: string | undefined | null,
+  output?: string | undefined | null,
+  decodeOptions?: DecodeOptions | undefined | null,
+  encodeOptions?: EncodeOptions | undefined | null,
+): Promise<string>;
