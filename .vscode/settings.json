@@ -18,6 +18,7 @@
         "json/meta.schema.json": "schema/*.yaml"
     },
     "cSpell.words": [
+        "arethetypeswrong",
         "asciimath",
         "asyncio",
         "attribs",
@@ -66,6 +67,7 @@
         "proptest",
         "proptests",
         "prosemirror",
+        "pubcheck",
         "publint",
         "Pydantic",
         "pyfunction",

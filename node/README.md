@@ -133,14 +133,46 @@ This packages uses [NAPI-RS](https://napi.rs) to generate a Node.js native addon
 
 NAPI-RS [recommends](https://napi.rs/docs/deep-dive/release) distributing native addons using different NPM packages for each platform supported. However, given how we are distributing other binaries (e.g. for the CLI), and to avoid the complexity of multiple NPM packages, we have opted for the "download in a postinstall phase" approach. See [`install.js`](install.js).
 
-### Linting and testing
-
-Please run linting and tests before contributing any code changes.
-
-```console
-make lint test
-```
-
 ### `convert` module
 
 The `convert` module is implemented in Rust (`src/convert.rs`) with a thin TypeScript wrapper (`src/convert.mts`) to provide documentation and conversion to the types in the `@stencila/types`.
+
+When contributing code please run the following linting, formatting and testing scripts. Linting checks are run on CI, so for faster iteration, fewer failed runs and less noise, it's generally a good idea to run them locally before pushing code.
+
+### Linting && formatting
+
+We use [ESLint](https://eslint.org/) and [Prettier](https://prettier.io/) for code linting and formatting respectively. To apply linting and formatting fixes:
+
+```console
+npm run fix
+```
+
+To just check linting and formatting:
+
+```console
+npm run lint
+```
+
+### Testing
+
+We use [Jest](https://jestjs.io/) for tests. To run them:
+
+```console
+npm test
+```
+
+### Packaging
+
+The packaging and publishing configuration is checked using [`arethetypeswrong``)(https://github.com/arethetypeswrong/arethetypeswrong.github.io) and [`publint`](https://publint.dev/):
+
+```console
+npm pubcheck
+```
+
+### `Makefile`
+
+As with most modules in this repo, there is a `Makefile` which you may prefer to use for common development tasks. For example to easily run multiple NPM scripts at once:
+
+```console
+make install fix test pubcheck
+```
