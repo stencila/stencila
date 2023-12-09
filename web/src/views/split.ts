@@ -42,7 +42,7 @@ export class SplitView extends LitElement {
       ></stencila-source-view>
 
       <stencila-dynamic-view view="dynamic" id=${this.id} access=${this.access}>
-        <article id="AA"></article>
+        <article data-root></article>
       </stencila-dynamic-view>
     `;
   }

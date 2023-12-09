@@ -14,7 +14,7 @@
 
 @import "../fonts/et-book/et-book.css";
 
-#AA {
+[data-root] {
   font-size: 15px;
 
   width: 87.5%;

@@ -55,7 +55,12 @@ impl Codec for HtmlCodec {
             ..
         } = options.unwrap_or_default();
 
-        let html = node.to_html();
+        let mut html = node.to_html();
+
+        // Add the data-root attribute to the root node
+        if let Some(pos) = html.find(" id=") {
+            html.insert_str(pos, " data-root");
+        }
 
         let html = if standalone == Some(true) {
             format!(

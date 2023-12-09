@@ -6,12 +6,12 @@
  * print mode.
 */
 
-#AA {
+[data-root] {
   @apply mx-auto prose;
 }
 
 @media print {
-  #AA {
+  [data-root] {
   }
 }
 
