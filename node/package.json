@@ -90,7 +90,7 @@
     "clean": true
   },
   "devDependencies": {
-    "@napi-rs/cli": "2.16.5"
+    "@napi-rs/cli": "2.17.0"
   },
   "dependencies": {
     "@stencila/types": "2.0.0-alpha.23"
