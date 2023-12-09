@@ -11,7 +11,7 @@ common = { path = "../common" }
 document = { path = "../document" }
 format = { path = "../format" }
 mime_guess = "2.0.4"
-rust-embed = { version = "8.0.0", features = ["interpolate-folder-path", "include-exclude"] }
+rust-embed = { version = "8.1.0", features = ["interpolate-folder-path", "include-exclude"] }
 
 [dev-dependencies]
 common-dev = { path = "../common-dev" }
