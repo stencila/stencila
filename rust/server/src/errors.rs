@@ -1,6 +1,6 @@
 use std::{
     error,
-    fmt::{self, Display},
+    fmt::{self, Display, Debug},
 };
 
 use axum::{
@@ -15,8 +15,15 @@ use common::tracing;
 pub(crate) struct InternalError;
 
 impl InternalError {
-    pub fn new<T: Display>(error: T) -> Self {
-        tracing::trace!("{error}");
+    /// Create a new internal error
+    /// 
+    /// Creates an error log entry with all the debugging niceties
+    /// of `eyre`.
+    pub fn new<T: Display>(error: T) -> Self
+    where
+        T: Debug,
+    {
+        tracing::error!("{error:?}");
         Self
     }
 }
