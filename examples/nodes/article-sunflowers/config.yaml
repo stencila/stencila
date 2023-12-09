@@ -1,2 +1,12 @@
 compact.jats.xml:
   canonical: true
+
+jats.xml:
+  decode:
+    # TODO: Enable when Cite nodes are supported
+    skip: true
+
+md:
+  decode:
+    # TODO: Enable when Cite nodes are supported
+    skip: true
