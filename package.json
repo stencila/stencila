@@ -7,6 +7,9 @@
   "scripts": {
     "audit": "better-npm-audit audit"
   },
+  "engines": {
+    "node": ">=18"
+  },
   "devDependencies": {
     "@arethetypeswrong/cli": "0.13.3",
     "@types/benchmark": "2.1.5",
@@ -28,8 +31,5 @@
     "tsup": "8.0.1",
     "typescript": "5.3.3",
     "wrangler": "3.19.0"
-  },
-  "optionalDependencies": {
-    "@rollup/rollup-linux-x64-gnu": "4.6.1"
   }
 }
