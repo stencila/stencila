@@ -5,11 +5,11 @@ import install from "@twind/with-web-components";
 
 /**
  * The configuration for `twind` Tailwind-in-JS
- * 
+ *
  * This configuration only applies to the use of Tailwind
  * within TypeScript/Javascript (i.e. where `installTwind` is
  * called).
- * 
+ *
  * For configuration of Tailwind for themes see the `tailwind.config.js` file.
  */
 const config = defineConfig({

@@ -1,28 +1,33 @@
 import { LitElement, html } from "lit";
-import { customElement, property, state } from "lit/decorators.js";
+import { customElement, property } from "lit/decorators.js";
 
 import { installTwind } from "../twind";
 
-
 /**
  * Application Wrapper
- * 
- * Wraps the application in the `app-chrome`. Contains the main header and 
+ *
+ * Wraps the application in the `app-chrome`. Contains the main header and
  * footer.
  */
 @customElement("stencila-navbar")
 @installTwind()
 export class App extends LitElement {
-
   @property({ type: String })
-  version = 'dev';
+  version = "dev";
 
   override render() {
     return html`
-      <header class="fixed w-full top-0 left-0 z-30 h-16 drop-shadow-[0_2px_0_#edf2f7] border-t-[3px] bg-white border-t-brand-blue p-4">
-        
+      <header
+        class="fixed w-full top-0 left-0 z-30 h-16 drop-shadow-[0_2px_0_#edf2f7] border-t-[3px] bg-white border-t-brand-blue p-4"
+      >
         <nav class="container mx-auto flex justify-items-center">
-          <a href="/"><img src="/~static/${this.version}/images/stencilaIcon.svg" alt="Stencila logo" width="28" height="28" /></a>
+          <a href="/"
+            ><img
+              src="/~static/${this.version}/images/stencilaIcon.svg"
+              alt="Stencila logo"
+              width="28"
+              height="28"
+          /></a>
           <select @change=${this._changeViewSelector}>
             <option value="dynamic">dynamic</option>
             <option value="static">static</option>
@@ -30,23 +35,25 @@ export class App extends LitElement {
         </nav>
       </header>
       <div class="h-screen flex flex-col">
-        <main role="main" class="flex-grow">
-          ${this.renderView()}
-        </main>
+        <main role="main" class="flex-grow">${this.renderView()}</main>
         <footer>Footer</footer>
       </div>
-      `
+    `;
   }
 
   private _changeViewSelector(e: Event) {
-    this.view = (e.target as HTMLSelectElement).value as View
+    // @ts-expect-error because view is not defined on this
+    this.view = (e.target as HTMLSelectElement).value as View;
   }
 
   private renderView() {
+    // @ts-expect-error because view is not defined on this
     switch (this.view) {
-      case 'dynamic':
-        return html`<stencila-dynamic-view><slot></slot></stencila-dynamic-view>`;
-      case 'static':
+      case "dynamic":
+        return html`<stencila-dynamic-view
+          ><slot></slot
+        ></stencila-dynamic-view>`;
+      case "static":
         return html`<stencila-static-view><slot></slot></stencila-static-view>`;
     }
   }

@@ -2,12 +2,8 @@ import {
   autocompletion,
   startCompletion,
   completionKeymap,
-} from '@codemirror/autocomplete'
-import {
-  history,
-  historyKeymap,
-  indentWithTab,
-} from '@codemirror/commands'
+} from "@codemirror/autocomplete";
+import { history, historyKeymap, indentWithTab } from "@codemirror/commands";
 import {
   foldGutter,
   bracketMatching,
@@ -18,11 +14,7 @@ import {
   syntaxHighlighting,
   StreamLanguage,
 } from "@codemirror/language";
-import { 
-  Extension,
-  Compartment,
-  StateEffect,
-} from "@codemirror/state";
+import { Extension, Compartment, StateEffect } from "@codemirror/state";
 import {
   dropCursor,
   EditorView as CodeMirrorView,
@@ -38,8 +30,7 @@ import { CodeMirrorClient } from "../clients/codemirror";
 import { installTwind } from "../twind";
 import { type DocumentAccess } from "../types";
 
-
-const withTwind = installTwind()
+const withTwind = installTwind();
 
 /**
  * Source code editor for a document
@@ -89,7 +80,7 @@ export class SourceView extends LitElement {
   /**
    * `Compartment` for setting `CodeMirrorView.lineWrapping` extension
    */
-  private lineWrappingConfig = new Compartment()
+  private lineWrappingConfig = new Compartment();
 
   /**
    * Array of CodeMirror `LanguageDescription` objects available for the edit view
@@ -149,14 +140,14 @@ export class SourceView extends LitElement {
    * Dispatch a CodeMirror `StateEffect` to the editor
    */
   private dispatchEffect(effect: StateEffect<unknown>) {
-    const docState = this.codeMirrorView?.state
+    const docState = this.codeMirrorView?.state;
 
     const transaction =
       docState?.update({
         effects: [effect],
-      }) ?? {}
+      }) ?? {};
 
-    this.codeMirrorView?.dispatch(transaction)
+    this.codeMirrorView?.dispatch(transaction);
   }
 
   /**
@@ -184,18 +175,20 @@ export class SourceView extends LitElement {
   private async getViewExtensions(): Promise<Extension[]> {
     const langExt = await this.getLanguageExtension(this.format);
 
-    const lineWrapping = this.lineWrappingConfig.of(CodeMirrorView.lineWrapping)
+    const lineWrapping = this.lineWrappingConfig.of(
+      CodeMirrorView.lineWrapping,
+    );
 
     const keyMaps = keymap.of([
       indentWithTab,
       ...historyKeymap,
       ...completionKeymap,
-      { key: 'Ctrl-Space', run: startCompletion }
-    ])
+      { key: "Ctrl-Space", run: startCompletion },
+    ]);
 
     return [
       langExt,
-      keyMaps, 
+      keyMaps,
       history(),
       lineNumbers(),
       foldGutter(),
@@ -210,20 +203,19 @@ export class SourceView extends LitElement {
     ];
   }
 
-
   /**
    * Override `LitElement.update` to dispatch any changes to editor config
-   * to the editor. 
+   * to the editor.
    */
   override update(changedProperties: Map<string, string | boolean>) {
-    super.update(changedProperties)
+    super.update(changedProperties);
 
-    if (changedProperties.has('lineWrap')) {
-      this.dispatchEffect(this.lineWrappingConfig.reconfigure(
-        this.lineWrap
-          ? CodeMirrorView.lineWrapping 
-          : []
-      ))
+    if (changedProperties.has("lineWrap")) {
+      this.dispatchEffect(
+        this.lineWrappingConfig.reconfigure(
+          this.lineWrap ? CodeMirrorView.lineWrapping : [],
+        ),
+      );
     }
   }
 
@@ -264,9 +256,7 @@ export class SourceView extends LitElement {
     return html`
       <div>
         <div id="codemirror"></div>
-        <div>
-          ${this.renderControls()}
-        </div>
+        <div>${this.renderControls()}</div>
       </div>
     `;
   }
@@ -274,24 +264,23 @@ export class SourceView extends LitElement {
   private renderControls() {
     return html`
       <div class="mt-4 flex">
-       <div>${this.renderLineWrapCheckbox()}</div>
+        <div>${this.renderLineWrapCheckbox()}</div>
       </div>
-    `
+    `;
   }
 
   private renderLineWrapCheckbox() {
     return html`
       <label class="text-sm">
-        ${'Enable line wrapping'}
-        <input 
+        ${"Enable line wrapping"}
+        <input
           type="checkbox"
           class="ml-1"
-          ?checked="${this.lineWrap}" 
-          @change="${
-            (e: Event) => this.lineWrap = (e.target as HTMLInputElement).checked
-          }" 
+          ?checked="${this.lineWrap}"
+          @change="${(e: Event) =>
+            (this.lineWrap = (e.target as HTMLInputElement).checked)}"
         />
       </label>
-    `
+    `;
   }
 }
