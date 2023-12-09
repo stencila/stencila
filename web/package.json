@@ -63,7 +63,6 @@
     "@twind/preset-tailwind": "1.1.4",
     "@twind/with-web-components": "1.1.3",
     "codemirror-json5": "1.0.3",
-    "lightningcss": "^1.22.1",
     "lit": "3.1.0",
     "morphdom": "2.7.1",
     "pagedjs": "0.4.3",
