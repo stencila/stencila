@@ -155,6 +155,7 @@ pub async fn serve(
         .route("/~static/*path", get(serve_static))
         .route("/~ws/*id", get(serve_ws))
         .route("/*path", get(serve_document))
+        .route("/", get(serve_home))
         .with_state(ServerState {
             dir,
             raw,
@@ -275,7 +276,7 @@ async fn serve_document(
 ) -> Result<Response, InternalError> {
     let path = dir.join(path);
 
-    // Check for a directory traversal and attempt to access private file or folder.
+    // Check for a directory traversal and attempts to access private file or folder.
     if path.components().any(|component| {
         matches!(component, Component::ParentDir)
             || component.as_os_str().to_string_lossy().starts_with('_')
@@ -291,12 +292,17 @@ async fn serve_document(
         }
 
         // If any files have the same stem as the path (everything minus the extension)
-        // then use the one with the format with highest precedence and latest modification date
+        // then use the one with the format with highest precedence and latest modification date.
+        // This checks that the file has a stem otherwise files like `.gitignore` match against it.
         let pattern = format!("{}.*", path.display());
         if let Some(path) = glob(&pattern)
             .map_err(InternalError::new)?
             .flatten()
-            .filter(|path| path.is_file())
+            .filter(|path| {
+                path.file_name()
+                    .map_or(false, |name| !name.to_string_lossy().starts_with("."))
+                    && path.is_file()
+            })
             .sorted_by(|a, b| {
                 let a_format = Format::from_path(a).unwrap_or_default();
                 let b_format = Format::from_path(b).unwrap_or_default();
@@ -488,6 +494,18 @@ async fn serve_document(
     .map_err(InternalError::new)?;
 
     Ok(response)
+}
+
+/// Serve the home
+///
+/// Only exists to serve the "main" (if any) for the home
+/// directory of the server e.g. a README in a repo.
+#[tracing::instrument(skip_all)]
+async fn serve_home(
+    state: State<ServerState>,
+    query: Query<HashMap<String, String>>,
+) -> Result<Response, InternalError> {
+    serve_document(state, Path(String::new()), query).await
 }
 
 /// Handle a WebSocket upgrade request
