@@ -108,7 +108,7 @@ export class App extends LitElement {
                 ?selected=${this.view === view}
               >
                 ${view}
-              </option>`
+              </option>`,
           )}
         </select>
       </label>
@@ -131,7 +131,7 @@ export class App extends LitElement {
                 ?selected=${this.theme === theme}
               >
                 ${theme}
-              </option>`
+              </option>`,
           )}
         </select>
       </label>
