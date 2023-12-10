@@ -817,7 +817,7 @@ mod tests {
         }
 
         // Will serve files when `raw` flag is `true`, but will 403 otherwise
-        let query = Query(HashMap::from([("view".to_string(), "raw".to_string())]));
+        let query = Query(HashMap::from([("mode".to_string(), "raw".to_string())]));
         for (path, mime) in [
             ("README.md", "text/markdown"),
             ("bird/jay/index.json5", "application/json5"),
