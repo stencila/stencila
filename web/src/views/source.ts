@@ -14,7 +14,7 @@ import {
   syntaxHighlighting,
   StreamLanguage,
 } from "@codemirror/language";
-import { searchKeymap, search } from '@codemirror/search'
+import { searchKeymap, search } from "@codemirror/search";
 import { Extension, Compartment, StateEffect } from "@codemirror/state";
 import {
   dropCursor,
