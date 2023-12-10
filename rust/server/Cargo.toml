@@ -12,6 +12,7 @@ document = { path = "../document" }
 format = { path = "../format" }
 mime_guess = "2.0.4"
 rust-embed = { version = "8.1.0", features = ["interpolate-folder-path", "include-exclude"] }
+tower-http = { version = "0.5.0", features = ["trace"] }
 
 [dev-dependencies]
 common-dev = { path = "../common-dev" }

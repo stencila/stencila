@@ -46,6 +46,7 @@ use common::{
     tracing,
 };
 use format::Format;
+use tower_http::trace::TraceLayer;
 
 use crate::documents::Documents;
 use crate::errors::InternalError;
@@ -156,6 +157,7 @@ pub async fn serve(
         .route("/~ws/*id", get(serve_ws))
         .route("/*path", get(serve_document))
         .route("/", get(serve_home))
+        .layer(TraceLayer::new_for_http())
         .with_state(ServerState {
             dir,
             raw,
@@ -367,18 +369,26 @@ async fn serve_document(
         .by_path(&path, sync)
         .await
         .map_err(InternalError::new)?;
-    let id = doc.id();
+    let doc_id = doc.id();
 
     // Get various query parameters
-    let view = query.get("view").map(|value| value.as_ref());
+    let mode = query
+        .get("mode")
+        .map_or("app", |value: &String| value.as_ref());
+    let view = query
+        .get("view")
+        .map_or("static", |value: &String| value.as_ref());
+    // TODO: restrict the access to the highest based on the user's role
+    let access = query.get("access").map_or("write", |value| value.as_ref());
     let theme = query
         .get("theme")
         .map_or("default", |value: &String| value.as_ref());
-    // TODO: restrict the access to the highest based on the user's role
-    let access = query.get("access").map_or("write", |value| value.as_ref());
+    let format = query
+        .get("format")
+        .map_or("markdown", |value| value.as_ref());
 
     // Generate the body of the HTML (or an early-returned response for `raw` view)
-    let body = if let Some("raw") = view {
+    let body = if mode == "raw" {
         // If raw is enabled early return a response with the content of the file
         if !raw {
             return Ok(StatusCode::FORBIDDEN.into_response());
@@ -391,17 +401,9 @@ async fn serve_document(
             .header(CONTENT_TYPE, content_type.essence_str())
             .body(Body::from(bytes))
             .map_err(InternalError::new);
-    } else if let Some("source" | "split") = view {
-        // The body is just the web component
-        let format = query
-            .get("format")
-            .map_or("markdown", |value| value.as_ref());
-
-        let view = view.expect("should be some; checked above");
-        format!("<stencila-{view}-view view={view} id={id} access={access} format={format}></stencila-{view}-view>")
-    } else if let Some(view) = view {
-        let html = doc
-            .export(
+    } else if mode == "doc" {
+        let inner = if let "static" | "print" = view {
+            doc.export(
                 None,
                 Some(EncodeOptions {
                     format: Some(Format::Html),
@@ -410,18 +412,13 @@ async fn serve_document(
                 }),
             )
             .await
-            .map_err(InternalError::new)?;
-
-        if let "static" | "print" = view {
-            // The body is just the HTML of the document
-            html
+            .map_err(InternalError::new)?
         } else {
-            // The body is the HTML of the document wrapped by the web component for the view
-            format!("<stencila-{view}-view view={view} id={id} access={access}>{html}</stencila-{view}-view>")
-        }
+            String::new()
+        };
+        format!("<stencila-{view}-view doc={doc_id} view={view} access={access} theme={theme} format={format}>{inner}</stencila-{view}-view>")
     } else {
-        // No view specified so the body is the main app with the doc property set
-        format!("<stencila-main-app doc={id}></stencila-main-app>")
+        format!("<stencila-main-app doc={doc_id} view={view} theme={theme} format={format} format={format}></stencila-main-app>")
     };
 
     // The version path segment for static assets (JS & CSS)
@@ -434,25 +431,21 @@ async fn serve_document(
     // The stylesheet tag for the theme
     // TODO: resolve the theme for the document
     let theme_tag = format!(
-        r#"<link rel="stylesheet" type="text/css" href="/~static/{version}/themes/{theme}.css">"#
+        r#"<link title="theme:{theme}" rel="stylesheet" type="text/css" href="/~static/{version}/themes/{theme}.css">"#
     );
 
-    // The stylesheet tag for the view or app
-    let styles_tag = if let Some("print") = view {
+    // The script tag for the view or app
+    let extra_head = if mode == "doc" {
+        format!(r#"<script type="module" src="/~static/{version}/views/{view}.js"></script>"#)
+    } else if mode == "app" {
         format!(
-            r#"<link rel="stylesheet" type="text/css" href="/~static/{version}/views/print.css">"#
+            r#"
+        <link rel="stylesheet" type="text/css" href="/~static/{version}/apps/main.css">
+        <script type="module" src="/~static/{version}/apps/main.js"></script>
+"#
         )
     } else {
         String::new()
-    };
-
-    // The script tag for the view or app
-    let script_tag = if let Some("static") = view {
-        String::new()
-    } else if let Some(view) = view {
-        format!(r#"<script type="module" src="/~static/{version}/views/{view}.js"></script>"#)
-    } else {
-        format!(r#"<script type="module" src="/~static/{version}/apps/main.js"></script>"#)
     };
 
     let html = format!(
@@ -462,10 +455,8 @@ async fn serve_document(
         <meta charset="utf-8"/>
         <title>Stencila</title>
         <link rel="icon" type="image/png" href="/~static/{version}/images/favicon.png">
-        <link rel="stylesheet" type="text/css" href="/~static/{version}/apps/main.css">
         {theme_tag}
-        {styles_tag}
-        {script_tag}
+        {extra_head}
     </head>
     <body>
         {body}
