@@ -30,7 +30,6 @@ export type DocumentAccess =
  */
 export type DocumentView =
   | "static"
-  | "print"
   | "live"
   | "dynamic"
   | "source"

@@ -8,7 +8,6 @@ import type { DocumentId, DocumentView } from "../types";
 import { VIEWS } from "../views/views";
 
 import "../views/static";
-// import "../views/print";
 import "../views/live";
 import "../views/dynamic";
 import "../views/source";
@@ -89,6 +88,7 @@ export class App extends LitElement {
         /></a>
       </nav>
       ${this.renderViewSelect()} ${this.renderThemeSelect()}
+      ${this.renderPrintLink()}
     </header>`;
   }
 
@@ -108,7 +108,7 @@ export class App extends LitElement {
                 ?selected=${this.view === view}
               >
                 ${view}
-              </option>`,
+              </option>`
           )}
         </select>
       </label>
@@ -131,11 +131,19 @@ export class App extends LitElement {
                 ?selected=${this.theme === theme}
               >
                 ${theme}
-              </option>`,
+              </option>`
           )}
         </select>
       </label>
     `;
+  }
+
+  private renderPrintLink() {
+    return html`<a
+      href="?mode=doc&view=print&theme=${this.theme}"
+      target="_blank"
+      >Print preview</a
+    >`;
   }
 
   private renderFooter() {
@@ -155,13 +163,6 @@ export class App extends LitElement {
           theme=${this.theme}
           fetch
         ></stencila-static-view>`;
-
-      case "print":
-        return html`<stencila-print-view
-          view="print"
-          doc=${this.doc}
-          theme=${this.theme}
-        ></stencila-print-view>`;
 
       case "live":
         return html`<stencila-live-view

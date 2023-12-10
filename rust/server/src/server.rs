@@ -403,7 +403,7 @@ async fn serve_document(
             .body(Body::from(bytes))
             .map_err(InternalError::new);
     } else if mode == "doc" {
-        let inner = if let "static" | "print" = view {
+        if let "static" | "print" = view {
             doc.export(
                 None,
                 Some(EncodeOptions {
@@ -415,11 +415,10 @@ async fn serve_document(
             .await
             .map_err(InternalError::new)?
         } else {
-            String::new()
-        };
-        format!("<stencila-{view}-view doc={doc_id} view={view} access={access} theme={theme} format={format}>{inner}</stencila-{view}-view>")
+            format!("<stencila-{view}-view doc={doc_id} view={view} access={access} theme={theme} format={format}></stencila-{view}-view>")
+        }
     } else {
-        format!("<stencila-main-app doc={doc_id} view={view} theme={theme} format={format} format={format}></stencila-main-app>")
+        format!("<stencila-main-app doc={doc_id} view={view} access={access} theme={theme} format={format}></stencila-main-app>")
     };
 
     // The version path segment for static assets (JS & CSS)
@@ -437,13 +436,21 @@ async fn serve_document(
 
     // The script tag for the view or app
     let extra_head = if mode == "doc" {
-        format!(r#"<script type="module" src="/~static/{version}/views/{view}.js"></script>"#)
+        if view == "static" {
+            // No need for any JS in this mode for this view
+            String::new()
+        } else if view == "print" {
+            format!(
+                r#"<link rel="stylesheet" type="text/css" href="/~static/{version}/views/print.css">
+                   <script type="module" src="/~static/{version}/views/print.js"></script>"#
+            )
+        } else {
+            format!(r#"<script type="module" src="/~static/{version}/views/{view}.js"></script>"#)
+        }
     } else if mode == "app" {
         format!(
-            r#"
-        <link rel="stylesheet" type="text/css" href="/~static/{version}/apps/main.css">
-        <script type="module" src="/~static/{version}/apps/main.js"></script>
-"#
+            r#"<link rel="stylesheet" type="text/css" href="/~static/{version}/apps/main.css">
+               <script type="module" src="/~static/{version}/apps/main.js"></script>"#
         )
     } else {
         String::new()
@@ -501,7 +508,7 @@ async fn serve_home(
 }
 
 /// Handle a request to export a document
-/// 
+///
 /// TODO: This should add correct MIME type to response
 /// and handle binary formats.
 async fn serve_export(

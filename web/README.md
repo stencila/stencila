@@ -62,15 +62,16 @@ Several client classes are implemented, each using one or more of the WebSocket 
 
 There are several views in the [`src/views`](src/views) folder which make use of various combinations of clients. Each view is a Web Component custom element and is bundled and served in a separate JavaScript bundles.
 
-| Custom element            | Description                                                                                                                                                                                 | Clients, or other views, used                         |
-| ------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------- |
-| `<stencila-static-view>`  | A static view of a document which does not update as the document changes and which does node all changes to the document                                                          | None                                                  |
-| `<stencila-print-view>`   | A preview of how the document will look when saved as PDF. The same as the static view but enables the [`@page`](https://developer.mozilla.org/en-US/docs/Web/CSS/@page) rules in the theme | None                                                  |
-| `<stencila-live-view>`    | A live view of a document which updates the browser DOM when the document changes but which does not allow changes to the document                                                          | `DomClient`                                           |
-| `<stencila-dynamic-view>` | A live view of the document which also allows the user to make changes to the document via Web Components for nodes                                                                         | `DomClient`and `NodesClient`                          |
-| `<stencila-source-view>`  | A source code editor for a document                                                                                                                                                         | `CodeMirrorClient`                                    |
-| `<stencila-split-view>`   | A split pane view with a source code editor and a dynamic view                                                                                                                              | `<stencila-split-view>` and `<stencila-dynamic-view>` |
-| `<stencila-visual-view>`  | A visual (WYSIWYG) editor for a document including Web Components for nodes                                                                                                                 | `ProseMirrorClient` and `DomClient`                   |
+| Custom element            | Description                                                                                                                        | Clients, or other views, used                         |
+| ------------------------- | ---------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------- |
+| `<stencila-static-view>`  | A static view of a document which does not update as the document changes, nor allows changes to it                                | None                                                  |
+| `<stencila-live-view>`    | A live view of a document which updates the browser DOM when the document changes but which does not allow changes to the document | `DomClient`                                           |
+| `<stencila-dynamic-view>` | A live view of the document which also allows the user to make changes to the document via Web Components for nodes                | `DomClient`and `NodesClient`                          |
+| `<stencila-source-view>`  | A source code editor for a document                                                                                                | `CodeMirrorClient`                                    |
+| `<stencila-split-view>`   | A split pane view with a source code editor and a dynamic view                                                                     | `<stencila-split-view>` and `<stencila-dynamic-view>` |
+| `<stencila-visual-view>`  | A visual (WYSIWYG) editor for a document including Web Components for nodes                                                        | `ProseMirrorClient` and `DomClient`                   |
+
+In addition there is a `print.ts` file, powered by [Paged.js](https://pagedjs.org/), which provides a preview of how the document will look when saved as PDF.
 
 ## 🎨 Themes
 
