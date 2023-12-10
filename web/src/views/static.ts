@@ -4,6 +4,7 @@ import { customElement, property } from "lit/decorators.js";
 import type { DocumentId } from "../types";
 
 import { ThemedView as ThemedView } from "./themed";
+import { ExportClient } from "../clients/export";
 
 /**
  * Static view of a document
@@ -35,11 +36,9 @@ export class StaticView extends ThemedView {
     super.connectedCallback();
 
     if (this.fetch) {
-      fetch(`/~export/${this.doc}?format=html`)
-        .then((response) => response.text())
-        .then((html) => {
-          this.shadowRoot.innerHTML = html;
-        });
+      new ExportClient(this.doc, "html").fetch().then((html) => {
+        this.shadowRoot.innerHTML = html;
+      });
     }
   }
 
