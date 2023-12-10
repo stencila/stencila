@@ -409,6 +409,7 @@ async fn serve_document(
                 Some(EncodeOptions {
                     format: Some(Format::Html),
                     compact: Some(true),
+                    dom: Some(true),
                     ..Default::default()
                 }),
             )
@@ -526,8 +527,11 @@ async fn serve_export(
         .get("format")
         .and_then(|format| Format::from_name(format).ok());
 
+    let dom = query.get("dom").and_then(|dom| dom.parse().ok());
+
     let options = EncodeOptions {
         format,
+        dom,
         ..Default::default()
     };
 
@@ -552,9 +556,10 @@ async fn serve_ws(
     let doc = docs.by_id(&id).await.map_err(InternalError::new)?;
 
     // TODO: Change the allowed protocols based on the users permissions
-    let mut protocols = vec!["read.html.stencila.org".to_string()];
-
-    protocols.push("read.debug.stencila.org".to_string());
+    let mut protocols = vec![
+        "read.dom.stencila.org".to_string(),
+        "read.debug.stencila.org".to_string(),
+    ];
 
     for format in [
         // TODO: define this list of string formats better
@@ -567,6 +572,7 @@ async fn serve_ws(
         Format::Html,
     ] {
         protocols.push(format!("read.{format}.stencila.org"));
+        protocols.push(format!("write.{format}.stencila.org"));
         protocols.push(format!("write.{format}.stencila.org"));
     }
 
@@ -634,7 +640,11 @@ async fn handle_ws_nodes(ws: WebSocket, doc: Arc<Document>, capability: &str) {
 async fn handle_ws_format(ws: WebSocket, doc: Arc<Document>, capability: &str, format: &str) {
     tracing::trace!("WebSocket format connection");
 
-    let format = format.parse().ok();
+    let (format, dom, compact) = match format {
+        "dom" => (Some(Format::Html), Some(true), Some(true)),
+        // Prefer un-compacted (e.g. indented) encodings for everything else
+        _ => (format.parse().ok(), None, Some(false)),
+    };
 
     let (ws_sender, ws_receiver) = ws.split();
 
@@ -651,6 +661,8 @@ async fn handle_ws_format(ws: WebSocket, doc: Arc<Document>, capability: &str, f
 
     let encode_options = EncodeOptions {
         format,
+        dom,
+        compact,
         // TODO: remove this from here and instead
         // make a default for the codec
         strip_props: if format == Some(Format::Html) {
@@ -658,8 +670,6 @@ async fn handle_ws_format(ws: WebSocket, doc: Arc<Document>, capability: &str, f
         } else {
             vec!["id".to_string()]
         },
-        // Prefer un-compacted (e.g. indented) encodings
-        compact: Some(false),
         ..Default::default()
     };
 

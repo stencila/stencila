@@ -343,6 +343,7 @@ impl EncodeOptions {
             strip_types: strip_options.strip_types,
             strip_props: strip_options.strip_props,
             losses,
+            ..Default::default()
         }
     }
 }

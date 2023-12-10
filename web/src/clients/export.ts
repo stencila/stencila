@@ -9,8 +9,14 @@ export class ExportClient {
    */
   url: string;
 
-  constructor(doc: DocumentId, format: string = "json") {
-    this.url = `/~export/${doc}?format=${format}`;
+  constructor(
+    doc: DocumentId,
+    format = "json",
+    options: {
+      dom?: boolean;
+    } = {},
+  ) {
+    this.url = `/~export/${doc}?format=${format}&dom=${options.dom ?? false}`;
   }
 
   /**

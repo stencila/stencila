@@ -52,14 +52,18 @@ impl Codec for HtmlCodec {
         let EncodeOptions {
             compact,
             standalone,
+            dom,
             ..
         } = options.unwrap_or_default();
 
         let mut html = node.to_html();
 
         // Add the data-root attribute to the root node
-        if let Some(pos) = html.find(" id=") {
-            html.insert_str(pos, " data-root");
+        // (the first opening tag)
+        if dom.unwrap_or_default() {
+            if let Some(pos) = html.find('>') {
+                html.insert_str(pos, " data-root");
+            }
         }
 
         let html = if standalone == Some(true) {

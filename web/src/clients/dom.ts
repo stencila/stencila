@@ -19,7 +19,7 @@ export class DomClient extends FormatClient {
    * @param elem The DOM element that will be updated
    */
   constructor(id: DocumentId, elem: HTMLElement) {
-    super(id, "read", "html");
+    super(id, "read", "dom");
 
     this.subscribe((html) => {
       if (process.env.NODE_ENV === "development") {

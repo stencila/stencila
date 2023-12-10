@@ -384,6 +384,12 @@ pub struct EncodeOptions {
     /// for the format will be used.
     pub compact: Option<bool>,
 
+    /// Whether to encode HTML for use by Stencila's web themes, clients & components
+    ///
+    /// Adds ids and other attributes to HTML which provide compatibility
+    /// with web themes, clients and components which operate on the browser DOM.
+    pub dom: Option<bool>,
+
     /// Scopes defining which properties of nodes should be stripped before encoding
     #[serde(skip_serializing_if = "Vec::is_empty")]
     pub strip_scopes: Vec<StripScope>,

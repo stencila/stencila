@@ -36,7 +36,7 @@ export class StaticView extends ThemedView {
     super.connectedCallback();
 
     if (this.fetch) {
-      new ExportClient(this.doc, "html").fetch().then((html) => {
+      new ExportClient(this.doc, "html", { dom: true }).fetch().then((html) => {
         this.shadowRoot.innerHTML = html;
       });
     }
