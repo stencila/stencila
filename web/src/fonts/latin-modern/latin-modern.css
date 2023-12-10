@@ -1,12 +1,15 @@
+/* This file is inlined at @import statements in themes and so the url paths
+ * below are relative to the themes directory, not the location of this file */
+
 @font-face {
   font-family: "Latin Modern";
   font-style: normal;
   font-weight: normal;
   font-display: swap;
   src:
-    url("./LM-regular.woff2") format("woff2"),
-    url("./LM-regular.woff") format("woff"),
-    url("./LM-regular.ttf") format("truetype");
+    url("../fonts/latin-modern/LM-regular.woff2") format("woff2"),
+    url("../fonts/latin-modern/LM-regular.woff") format("woff"),
+    url("../fonts/latin-modern/LM-regular.ttf") format("truetype");
 }
 
 @font-face {
@@ -15,9 +18,9 @@
   font-weight: normal;
   font-display: swap;
   src:
-    url("./LM-italic.woff2") format("woff2"),
-    url("./LM-italic.woff") format("woff"),
-    url("./LM-italic.ttf") format("truetype");
+    url("../fonts/latin-modern/LM-italic.woff2") format("woff2"),
+    url("../fonts/latin-modern/LM-italic.woff") format("woff"),
+    url("../fonts/latin-modern/LM-italic.ttf") format("truetype");
 }
 
 @font-face {
@@ -26,9 +29,9 @@
   font-weight: bold;
   font-display: swap;
   src:
-    url("./LM-bold.woff2") format("woff2"),
-    url("./LM-bold.woff") format("woff"),
-    url("./LM-bold.ttf") format("truetype");
+    url("../fonts/latin-modern/LM-bold.woff2") format("woff2"),
+    url("../fonts/latin-modern/LM-bold.woff") format("woff"),
+    url("../fonts/latin-modern/LM-bold.ttf") format("truetype");
 }
 
 @font-face {
@@ -37,7 +40,7 @@
   font-weight: bold;
   font-display: swap;
   src:
-    url("./LM-bold-italic.woff2") format("woff2"),
-    url("./LM-bold-italic.woff") format("woff"),
-    url("./LM-bold-italic.ttf") format("truetype");
+    url("../fonts/latin-modern/LM-bold-italic.woff2") format("woff2"),
+    url("../fonts/latin-modern/LM-bold-italic.woff") format("woff"),
+    url("../fonts/latin-modern/LM-bold-italic.ttf") format("truetype");
 }
