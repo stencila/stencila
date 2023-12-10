@@ -154,6 +154,7 @@ pub async fn serve(
 
     let router = Router::new()
         .route("/~static/*path", get(serve_static))
+        .route("/~export/*id", get(serve_export))
         .route("/~ws/*id", get(serve_ws))
         .route("/*path", get(serve_document))
         .route("/", get(serve_home))
@@ -499,12 +500,43 @@ async fn serve_home(
     serve_document(state, Path(String::new()), query).await
 }
 
+/// Handle a request to export a document
+/// 
+/// TODO: This should add correct MIME type to response
+/// and handle binary formats.
+async fn serve_export(
+    State(ServerState { docs, .. }): State<ServerState>,
+    Path(id): Path<String>,
+    Query(query): Query<HashMap<String, String>>,
+) -> Result<Response, InternalError> {
+    let Ok(id) = DocumentId::from_str(&id) else {
+        return Ok((StatusCode::BAD_REQUEST, "Invalid document id").into_response())
+    };
+
+    let doc = docs.by_id(&id).await.map_err(InternalError::new)?;
+
+    let format = query
+        .get("format")
+        .and_then(|format| Format::from_name(format).ok());
+
+    let options = EncodeOptions {
+        format,
+        ..Default::default()
+    };
+
+    let content = doc
+        .export(None, Some(options))
+        .await
+        .map_err(InternalError::new)?;
+
+    Ok(content.into_response())
+}
+
 /// Handle a WebSocket upgrade request
 async fn serve_ws(
     State(ServerState { docs, .. }): State<ServerState>,
     ws: WebSocketUpgrade,
     Path(id): Path<String>,
-    Query(query): Query<HashMap<String, String>>,
 ) -> Result<Response, InternalError> {
     let Ok(id) = DocumentId::from_str(&id) else {
         return Ok((StatusCode::BAD_REQUEST, "Invalid document id").into_response())
@@ -539,14 +571,14 @@ async fn serve_ws(
 
     let response = ws
         .protocols(protocols)
-        .on_upgrade(move |ws| handle_ws(ws, doc, query));
+        .on_upgrade(move |ws| handle_ws(ws, doc));
 
     Ok(response)
 }
 
 /// Handle a WebSocket connection
 #[tracing::instrument(skip(ws, doc))]
-async fn handle_ws(ws: WebSocket, doc: Arc<Document>, query: HashMap<String, String>) {
+async fn handle_ws(ws: WebSocket, doc: Arc<Document>) {
     tracing::trace!("WebSocket connection");
 
     let Some(protocol) = ws

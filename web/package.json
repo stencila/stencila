@@ -33,6 +33,7 @@
     "src/views/print.ts",
     "src/views/source.ts",
     "src/views/split.ts",
+    "src/views/static.ts",
     "src/views/visual.ts"
   ],
   "browserslist": [

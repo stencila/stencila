@@ -7,11 +7,13 @@ import { installTwind } from "../twind";
 import type { DocumentId, DocumentView } from "../types";
 import { VIEWS } from "../views/views";
 
-import "../views/split";
-import "../views/live";
-import "../views/source";
-import "../views/dynamic";
+import "../views/static";
 // import "../views/print";
+import "../views/live";
+import "../views/dynamic";
+import "../views/source";
+import "../views/split";
+import "../views/visual";
 
 import "./main.css";
 
@@ -151,6 +153,7 @@ export class App extends LitElement {
           view="static"
           doc=${this.doc}
           theme=${this.theme}
+          fetch
         ></stencila-static-view>`;
 
       case "print":
