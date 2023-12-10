@@ -14,6 +14,7 @@ import {
   syntaxHighlighting,
   StreamLanguage,
 } from "@codemirror/language";
+import { searchKeymap, search } from "@codemirror/search";
 import { Extension, Compartment, StateEffect } from "@codemirror/state";
 import {
   dropCursor,
@@ -197,6 +198,7 @@ export class SourceView extends LitElement {
       indentWithTab,
       ...historyKeymap,
       ...completionKeymap,
+      ...searchKeymap,
       { key: "Ctrl-Space", run: startCompletion },
     ]);
 
@@ -204,6 +206,7 @@ export class SourceView extends LitElement {
       langExt,
       keyMaps,
       history(),
+      search({ top: true }),
       lineNumbers(),
       foldGutter(),
       lineWrapping,
@@ -277,7 +280,7 @@ export class SourceView extends LitElement {
 
   private renderControls() {
     return html`
-      <div class="mt-4 flex">
+      <div class="mb-4 flex">
         <div>${this.renderFormatSelect()} ${this.renderLineWrapCheckbox()}</div>
       </div>
     `;
