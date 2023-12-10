@@ -30,7 +30,14 @@ import { CodeMirrorClient } from "../clients/codemirror";
 import { installTwind } from "../twind";
 import type { DocumentId, DocumentAccess } from "../types";
 
-const withTwind = installTwind();
+const FORMATS = {
+  markdown: "Markdown",
+  html: "HTML",
+  jats: "JATS",
+  json: "JSON",
+  json5: "JSON5",
+  yaml: "YAML",
+};
 
 /**
  * Source code editor for a document
@@ -39,7 +46,7 @@ const withTwind = installTwind();
  * a particular format.
  */
 @customElement("stencila-source-view")
-@withTwind
+@installTwind()
 export class SourceView extends LitElement {
   /**
    * The id of the document
@@ -213,8 +220,29 @@ export class SourceView extends LitElement {
    * Override `LitElement.update` to dispatch any changes to editor config
    * to the editor.
    */
-  override update(changedProperties: Map<string, string | boolean>) {
+  override async update(changedProperties: Map<string, string | boolean>) {
     super.update(changedProperties);
+
+    if (changedProperties.has("format")) {
+      // Destroy the existing editor if there is one
+      this.codeMirrorView?.destroy();
+
+      // Setup client and editor for the format
+      this.getViewExtensions().then((extensions) => {
+        this.codeMirrorClient = new CodeMirrorClient(
+          this.doc,
+          this.access,
+          this.format,
+        );
+
+        this.codeMirrorView = new CodeMirrorView({
+          extensions: [this.codeMirrorClient.sendPatches(), ...extensions],
+          parent: this.renderRoot.querySelector("#codemirror"),
+        });
+
+        this.codeMirrorClient.receivePatches(this.codeMirrorView);
+      });
+    }
 
     if (changedProperties.has("lineWrap")) {
       this.dispatchEffect(
@@ -223,27 +251,6 @@ export class SourceView extends LitElement {
         ),
       );
     }
-  }
-
-  /**
-   * Override `LitElement.connectedCallback` so that the `CodeMirrorView` is instantiated
-   * _after_ this element has a `renderRoot`.
-   */
-  override connectedCallback() {
-    super.connectedCallback();
-
-    this.getViewExtensions().then((extensions) => {
-      this.codeMirrorClient = new CodeMirrorClient(
-        this.doc,
-        this.access,
-        this.format,
-      );
-      this.codeMirrorView = new CodeMirrorView({
-        extensions: [this.codeMirrorClient.sendPatches(), ...extensions],
-        parent: this.renderRoot.querySelector("#codemirror"),
-      });
-      this.codeMirrorClient.receivePatches(this.codeMirrorView);
-    });
   }
 
   /**
@@ -270,8 +277,27 @@ export class SourceView extends LitElement {
   private renderControls() {
     return html`
       <div class="mt-4 flex">
-        <div>${this.renderLineWrapCheckbox()}</div>
+        <div>${this.renderFormatSelect()} ${this.renderLineWrapCheckbox()}</div>
       </div>
+    `;
+  }
+
+  private renderFormatSelect() {
+    return html`
+      <label>
+        Format
+        <select
+          @change=${(e: Event) =>
+            (this.format = (e.target as HTMLSelectElement).value)}
+        >
+          ${Object.entries(FORMATS).map(
+            ([format, name]) =>
+              html`<option value=${format} ?selected=${this.format === format}>
+                ${name}
+              </option>`,
+          )}
+        </select>
+      </label>
     `;
   }
 
