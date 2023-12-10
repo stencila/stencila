@@ -35,6 +35,7 @@ const FORMATS = {
   html: "HTML",
   jats: "JATS",
   json: "JSON",
+  jsonld: "JSON-LD",
   json5: "JSON5",
   yaml: "YAML",
 };
