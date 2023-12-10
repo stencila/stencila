@@ -303,7 +303,7 @@ async fn serve_document(
             .flatten()
             .filter(|path| {
                 path.file_name()
-                    .map_or(false, |name| !name.to_string_lossy().starts_with("."))
+                    .map_or(false, |name| !name.to_string_lossy().starts_with('.'))
                     && path.is_file()
             })
             .sorted_by(|a, b| {

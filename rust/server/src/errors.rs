@@ -1,6 +1,6 @@
 use std::{
     error,
-    fmt::{self, Display, Debug},
+    fmt::{self, Debug, Display},
 };
 
 use axum::{
@@ -16,7 +16,7 @@ pub(crate) struct InternalError;
 
 impl InternalError {
     /// Create a new internal error
-    /// 
+    ///
     /// Creates an error log entry with all the debugging niceties
     /// of `eyre`.
     pub fn new<T: Display>(error: T) -> Self

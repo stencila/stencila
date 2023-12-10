@@ -315,8 +315,11 @@ async fn examples() -> Result<()> {
 
             eprintln!("  - {extension}");
 
-            let prefix = path.file_name().expect("should have name").to_string_lossy();
-            let prefix = prefix[..prefix.find(".").expect("should have dot")].to_string();
+            let prefix = path
+                .file_name()
+                .expect("should have name")
+                .to_string_lossy();
+            let prefix = prefix[..prefix.find('.').expect("should have dot")].to_string();
             let mut file = path.parent().expect("should have parent").join(prefix);
             file.set_extension(extension.as_str());
 
