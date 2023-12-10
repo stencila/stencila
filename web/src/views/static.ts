@@ -1,10 +1,10 @@
 import { html } from "lit";
 import { customElement, property } from "lit/decorators.js";
 
+import { ExportClient } from "../clients/export";
 import type { DocumentId } from "../types";
 
 import { ThemedView as ThemedView } from "./themed";
-import { ExportClient } from "../clients/export";
 
 /**
  * Static view of a document

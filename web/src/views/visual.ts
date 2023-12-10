@@ -1,5 +1,5 @@
+import { html } from "lit";
 import { customElement, property } from "lit/decorators.js";
-import { exampleSetup } from "prosemirror-example-setup";
 import { DOMParser, Schema } from "prosemirror-model";
 import { EditorState } from "prosemirror-state";
 import {
@@ -68,23 +68,17 @@ export class VisualView extends ThemedView {
   private proseMirrorView: ProseMirrorView;
 
   /**
-   * Override so that the document's DOM is rendered in the Light DOM
-   * which is necessary for the `domClient` to work.
+   * Override so that clients are instantiated _after_ this
+   * element has a document `[data-root]` element in its `renderRoot`.
    */
-  override createRenderRoot() {
-    return this;
-  }
-
-  /**
-   * Override so that the clients are instantiated _after_ this
-   * element has a `renderRoot`.
-   */
-  override connectedCallback() {
-    super.connectedCallback();
+  override firstUpdated(changedProperties: Map<string, string | boolean>) {
+    super.firstUpdated(changedProperties);
 
     // Get the ProseMirror schema corresponding to the node type
     // of the document
-    const tagName = this.renderRoot.firstElementChild.tagName.toLowerCase();
+    const tagName =
+      this.renderRoot.querySelector("[data-root]")?.tagName.toLowerCase() ??
+      "article";
     let schema: Schema;
     let views: Record<string, NodeViewConstructor>;
     if (tagName === "article") {
@@ -101,13 +95,12 @@ export class VisualView extends ThemedView {
     this.proseMirrorClient = new ProseMirrorClient(
       this.doc,
       this.access,
-      this.renderRoot as HTMLElement,
+      this.renderRoot as HTMLElement
     );
 
     this.proseMirrorView = new ProseMirrorView(this.renderRoot, {
       state: EditorState.create({
         doc,
-        plugins: exampleSetup({ schema }),
       }),
       dispatchTransaction: this.proseMirrorClient.sendPatches(),
       nodeViews: views,
@@ -117,5 +110,9 @@ export class VisualView extends ThemedView {
     const proseMirrorElem = this.renderRoot.querySelector(".ProseMirror")
       .firstElementChild as HTMLElement;
     this.domClient = new DomClient(this.doc, proseMirrorElem);
+  }
+
+  render() {
+    return html`<article data-root></article>`;
   }
 }
