@@ -1,10 +1,12 @@
 import { LitElement, html } from "lit";
-import { customElement, state } from "lit/decorators.js";
+import { customElement, property } from "lit/decorators.js";
 
 import logo from "../images/stencilaIcon.svg";
+import { THEMES } from "../themes/themes";
 import { installTwind } from "../twind";
+import type { DocumentId, DocumentView } from "../types";
+import { VIEWS } from "../views/views";
 
-// Include all node components required for this view
 import "../views/split";
 import "../views/live";
 import "../views/source";
@@ -12,8 +14,6 @@ import "../views/dynamic";
 // import "../views/print";
 
 import "./main.css";
-
-type View = "dynamic" | "live" | "source" | "split" | "visual";
 
 /**
  * Application Wrapper
@@ -24,8 +24,37 @@ type View = "dynamic" | "live" | "source" | "split" | "visual";
 @customElement("stencila-main-app")
 @installTwind()
 export class App extends LitElement {
-  @state()
-  private view: View = "live";
+  /**
+   * The id of the current document (if any)
+   *
+   * The app can be opened with a document or not. If there is no `doc` attribute
+   * (e.g. because the server could not resolve a file from the URL path)
+   * then the app should offer some suggestions.
+   */
+  @property()
+  doc?: DocumentId;
+
+  /**
+   * The current view of the current document
+   *
+   * If there is no `view` attribute then this will be dynamically
+   * determined based on the maximum access level that the user has for
+   * the document.
+   */
+  @property()
+  view?: DocumentView = "live";
+
+  /**
+   * The theme to use for HTML-based views of the document (e.g. `static`, `live`)
+   */
+  @property()
+  theme: string = "default";
+
+  /**
+   * The format to use for source views of the document (`source` and `split` view)
+   */
+  @property()
+  format: string = "markdown";
 
   override render() {
     return html`
@@ -39,7 +68,7 @@ export class App extends LitElement {
             <div
               class="bg-white border border-grays-mid container p-4 mx-0 h-full shadow-[0_0_8px_rgba(0,0,0,.035)]"
             >
-              here ${this.renderView()}
+              ${this.doc ? this.renderView() : "No document specified"}
             </div>
           </main>
           ${this.renderFooter()}
@@ -47,10 +76,6 @@ export class App extends LitElement {
       </div>
     `;
   }
-
-  // private _changeViewSelector(e: Event) {
-  //   this.view = (e.target as HTMLSelectElement).value as View
-  // }
 
   private renderHeader() {
     return html`<header
@@ -61,7 +86,54 @@ export class App extends LitElement {
           ><img src="${logo}" alt="Stencila logo" width="28" height="28"
         /></a>
       </nav>
+      ${this.renderViewSelect()} ${this.renderThemeSelect()}
     </header>`;
+  }
+
+  private renderViewSelect() {
+    return html`
+      <label>
+        View
+        <select
+          @change=${(e: Event) =>
+            (this.view = (e.target as HTMLSelectElement).value as DocumentView)}
+        >
+          ${Object.entries(VIEWS).map(
+            ([view, desc]) =>
+              html`<option
+                value=${view}
+                title=${desc}
+                ?selected=${this.view === view}
+              >
+                ${view}
+              </option>`,
+          )}
+        </select>
+      </label>
+    `;
+  }
+
+  private renderThemeSelect() {
+    return html`
+      <label>
+        Theme
+        <select
+          @change=${(e: Event) =>
+            (this.theme = (e.target as HTMLSelectElement).value)}
+        >
+          ${Object.entries(THEMES).map(
+            ([theme, desc]) =>
+              html`<option
+                value=${theme}
+                title=${desc}
+                ?selected=${this.theme === theme}
+              >
+                ${theme}
+              </option>`,
+          )}
+        </select>
+      </label>
+    `;
   }
 
   private renderFooter() {
@@ -74,10 +146,55 @@ export class App extends LitElement {
 
   private renderView() {
     switch (this.view) {
+      case "static":
+        return html`<stencila-static-view
+          view="static"
+          doc=${this.doc}
+          theme=${this.theme}
+        ></stencila-static-view>`;
+
+      case "print":
+        return html`<stencila-print-view
+          view="print"
+          doc=${this.doc}
+          theme=${this.theme}
+        ></stencila-print-view>`;
+
       case "live":
-        return html`<stencila-live-view></stencila-live-view>`;
-      default:
-        return html`<stencila-dynamic-view></stencila-dynamic-view>`;
+        return html`<stencila-live-view
+          view="live"
+          doc=${this.doc}
+          theme=${this.theme}
+        ></stencila-live-view>`;
+
+      case "dynamic":
+        return html`<stencila-dynamic-view
+          view="dynamic"
+          doc=${this.doc}
+          theme=${this.theme}
+        ></stencila-dynamic-view>`;
+
+      case "source":
+        return html`<stencila-source-view
+          view="source"
+          doc=${this.doc}
+          format=${this.format}
+        ></stencila-source-view>`;
+
+      case "split":
+        return html`<stencila-split-view
+          view="split"
+          doc=${this.doc}
+          format=${this.format}
+          theme=${this.theme}
+        ></stencila-split-view>`;
+
+      case "visual":
+        return html`<stencila-visual-view
+          view="visual"
+          doc=${this.doc}
+          theme=${this.theme}
+        ></stencila-visual-view>`;
     }
   }
 }

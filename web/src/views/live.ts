@@ -1,7 +1,10 @@
-import { LitElement } from "lit";
-import { customElement } from "lit/decorators.js";
+import { html } from "lit";
+import { customElement, property } from "lit/decorators.js";
 
 import { DomClient } from "../clients/dom";
+import type { DocumentId } from "../types";
+
+import { ThemedElement } from "./themed";
 
 /**
  * Live view of a document
@@ -10,7 +13,13 @@ import { DomClient } from "../clients/dom";
  * on the server.
  */
 @customElement("stencila-live-view")
-export class LiveView extends LitElement {
+export class LiveView extends ThemedElement {
+  /**
+   * The id of the document
+   */
+  @property()
+  doc: DocumentId;
+
   /**
    * A read-only client which will update the document's DOM when the
    * document changes
@@ -18,23 +27,19 @@ export class LiveView extends LitElement {
   private domClient: DomClient;
 
   /**
-   * Override so that the document's DOM is rendered in the Light DOM
-   * which is necessary for the `domClient` to work.
+   * Override so that the `DomClient` is instantiated _after_ this
+   * element has a document `[data-root]` element in its `renderRoot`.
    */
-  override createRenderRoot(): HTMLElement {
-    return this;
-  }
-
-  /**
-   * Override so that the `domClient` is instantiated _after_ this
-   * element has a `renderRoot`.
-   */
-  override connectedCallback() {
-    super.connectedCallback();
+  override firstUpdated(changedProperties: Map<string, string | boolean>) {
+    super.firstUpdated(changedProperties);
 
     this.domClient = new DomClient(
-      this.id,
+      this.doc,
       this.renderRoot.firstElementChild as HTMLElement,
     );
+  }
+
+  render() {
+    return html`<article [data-root]></article>`;
   }
 }

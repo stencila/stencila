@@ -1,4 +1,3 @@
-import { LitElement } from "lit";
 import { customElement, property } from "lit/decorators.js";
 import { exampleSetup } from "prosemirror-example-setup";
 import { DOMParser, Schema } from "prosemirror-model";
@@ -10,7 +9,7 @@ import {
 
 import { DomClient } from "../clients/dom";
 import { ProseMirrorClient } from "../clients/prosemirror";
-import { type DocumentAccess } from "../types";
+import type { DocumentId, DocumentAccess } from "../types";
 
 import "prosemirror-menu/style/menu.css";
 
@@ -21,6 +20,7 @@ import "../nodes/if-block";
 import "../nodes/if-block-clause";
 import "../nodes/parameter";
 
+import { ThemedElement } from "./themed";
 import * as schemas from "./visual/schemas";
 
 /**
@@ -31,7 +31,13 @@ import * as schemas from "./visual/schemas";
  * using a WYSIWYG editor.
  */
 @customElement("stencila-visual-view")
-export class VisualView extends LitElement {
+export class VisualView extends ThemedElement {
+  /**
+   * The id of the document
+   */
+  @property()
+  doc: DocumentId;
+
   /**
    * The access level of the view
    *
@@ -93,7 +99,7 @@ export class VisualView extends LitElement {
     this.renderRoot.firstElementChild.remove();
 
     this.proseMirrorClient = new ProseMirrorClient(
-      this.id,
+      this.doc,
       this.access,
       this.renderRoot as HTMLElement,
     );
@@ -110,6 +116,6 @@ export class VisualView extends LitElement {
     // Attach the `DomClient` to the ProseMirror element
     const proseMirrorElem = this.renderRoot.querySelector(".ProseMirror")
       .firstElementChild as HTMLElement;
-    this.domClient = new DomClient(this.id, proseMirrorElem);
+    this.domClient = new DomClient(this.doc, proseMirrorElem);
   }
 }

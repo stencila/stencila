@@ -23,12 +23,12 @@ import {
   keymap,
   lineNumbers,
 } from "@codemirror/view";
-import { LitElement, html, css } from "lit";
+import { html, css, LitElement } from "lit";
 import { customElement, property } from "lit/decorators.js";
 
 import { CodeMirrorClient } from "../clients/codemirror";
 import { installTwind } from "../twind";
-import { type DocumentAccess } from "../types";
+import type { DocumentId, DocumentAccess } from "../types";
 
 const withTwind = installTwind();
 
@@ -41,6 +41,12 @@ const withTwind = installTwind();
 @customElement("stencila-source-view")
 @withTwind
 export class SourceView extends LitElement {
+  /**
+   * The id of the document
+   */
+  @property()
+  doc: DocumentId;
+
   /**
    * The access level of the editor
    *
@@ -228,7 +234,7 @@ export class SourceView extends LitElement {
 
     this.getViewExtensions().then((extensions) => {
       this.codeMirrorClient = new CodeMirrorClient(
-        this.id,
+        this.doc,
         this.access,
         this.format,
       );
@@ -248,15 +254,15 @@ export class SourceView extends LitElement {
   static styles = css`
     .cm-editor {
       border: 1px solid rgb(189, 186, 186);
-      height: 30vh;
+      height: 100vh;
     }
   `;
 
   render() {
     return html`
       <div>
-        <div id="codemirror"></div>
         <div>${this.renderControls()}</div>
+        <div id="codemirror"></div>
       </div>
     `;
   }

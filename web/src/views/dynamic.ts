@@ -1,9 +1,9 @@
-import { LitElement } from "lit";
+import { html } from "lit";
 import { customElement, property } from "lit/decorators.js";
 
 import { DomClient } from "../clients/dom";
 import { NodesClient } from "../clients/nodes";
-import { type DocumentAccess } from "../types";
+import type { DocumentId, DocumentAccess } from "../types";
 
 // Include all node components required for this view
 import "../nodes/code-chunk";
@@ -12,6 +12,8 @@ import "../nodes/if-block";
 import "../nodes/if-block-clause";
 import "../nodes/parameter";
 
+import { ThemedElement } from "./themed";
+
 /**
  * Dynamic view of a document
  *
@@ -19,7 +21,13 @@ import "../nodes/parameter";
  * allows for the user to change input values (e.g. the `value` of a `Parameter` node)
  */
 @customElement("stencila-dynamic-view")
-export class DynamicView extends LitElement {
+export class DynamicView extends ThemedElement {
+  /**
+   * The id of the document
+   */
+  @property()
+  doc: DocumentId;
+
   /**
    * The access level of the view
    *
@@ -45,29 +53,25 @@ export class DynamicView extends LitElement {
   private nodesClient: NodesClient;
 
   /**
-   * Override so that the document's DOM is rendered in the Light DOM
-   * which is necessary for the `domClient` to work.
+   * Override so that clients are instantiated _after_ this
+   * element has a document `[data-root]` element in its `renderRoot`.
    */
-  override createRenderRoot() {
-    return this;
-  }
-
-  /**
-   * Override so that the clients ae instantiated _after_ this
-   * element has a `renderRoot`.
-   */
-  override connectedCallback() {
-    super.connectedCallback();
+  override firstUpdated(changedProperties: Map<string, string | boolean>) {
+    super.firstUpdated(changedProperties);
 
     this.domClient = new DomClient(
-      this.id,
+      this.doc,
       this.renderRoot.firstElementChild as HTMLElement,
     );
 
     this.nodesClient = new NodesClient(
-      this.id,
+      this.doc,
       this.access,
       this.renderRoot as HTMLElement,
     );
+  }
+
+  render() {
+    return html`<article [data-root]></article>`;
   }
 }
