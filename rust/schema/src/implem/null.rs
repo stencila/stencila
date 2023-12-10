@@ -1,4 +1,3 @@
-use codec_html_trait::encode::attr;
 use node_store::{
     automerge::{transaction::Transactable, ObjId, Prop, ScalarValue, Value},
     ReadNode, ReadStore, WriteNode, WriteStore, SIMILARITY_MAX,
@@ -39,11 +38,7 @@ impl WriteNode for Null {
 
 impl HtmlCodec for Null {
     fn to_html_parts(&self) -> (&str, Vec<String>, Vec<String>) {
-        (
-            "span",
-            vec![attr("is", "stencila-null")],
-            vec!["null".to_string()],
-        )
+        ("stencila-null", vec![], vec!["null".to_string()])
     }
 
     fn to_html_attr(&self) -> String {

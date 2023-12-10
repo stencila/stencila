@@ -1,4 +1,4 @@
-use codec_html_trait::encode::{attr, elem};
+use codec_html_trait::encode::elem;
 
 use crate::{prelude::*, List, ListOrder};
 
@@ -11,7 +11,7 @@ impl List {
 
         let items = self.items.to_html();
 
-        elem(tag, &[attr("is", "stencila-list")], &[items])
+        elem(tag, &[], &[items])
     }
 
     pub fn to_markdown_special(&self, context: &mut MarkdownEncodeContext) -> (String, Losses) {

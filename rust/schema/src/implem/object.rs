@@ -89,13 +89,13 @@ impl HtmlCodec for Object {
         // Uses spans, rather than say <ul>/<li> because needs to be
         // include e.g for output of a `CodeExpression`
         (
-            "span",
-            vec![attr("is", "stencila-object")],
+            "stencila-object",
+            vec![],
             self.iter()
                 .map(|(key, value)| {
                     elem(
-                        "span",
-                        &[attr("is", "stencila-object-item"), attr("key", key)],
+                        "stencila-object-item",
+                        &[attr("key", key)],
                         &[value.to_html()],
                     )
                 })

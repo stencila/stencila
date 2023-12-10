@@ -1,4 +1,4 @@
-use codec_html_trait::encode::{attr, elem};
+use codec_html_trait::encode::elem;
 use node_store::{
     automerge::{ObjId, Prop},
     ReadNode, ReadStore, WriteNode, WriteStore,
@@ -43,16 +43,10 @@ impl HtmlCodec for Array {
         // Uses spans, rather than say <ol>/<li> because needs to be
         // include e.g for output of a `CodeExpression`
         (
-            "span",
-            vec![attr("is", "stencila-array")],
+            "stencila-array",
+            vec![],
             self.iter()
-                .map(|value| {
-                    elem(
-                        "span",
-                        &[attr("is", "stencila-array-item")],
-                        &[value.to_html()],
-                    )
-                })
+                .map(|value| elem("stencila-array-item", &[], &[value.to_html()]))
                 .collect_vec(),
         )
     }

@@ -26,7 +26,7 @@ impl Table {
 
         let body = elem("tbody", &[], &[self.rows.to_html()]);
 
-        elem("table", &[attr("is", "stencila-table")], &[caption, body])
+        elem("table", &[], &[caption, body])
     }
 
     pub fn to_markdown_special(&self, context: &mut MarkdownEncodeContext) -> (String, Losses) {
