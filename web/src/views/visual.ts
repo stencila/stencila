@@ -95,7 +95,7 @@ export class VisualView extends ThemedView {
     this.proseMirrorClient = new ProseMirrorClient(
       this.doc,
       this.access,
-      this.renderRoot as HTMLElement
+      this.renderRoot as HTMLElement,
     );
 
     this.proseMirrorView = new ProseMirrorView(this.renderRoot, {
