@@ -4,7 +4,7 @@ import { property } from "lit/decorators";
 /**
  * Abstract base class for theme-able document views
  */
-export abstract class ThemedElement extends LitElement {
+export abstract class ThemedView extends LitElement {
   /**
    * The theme to apply to the document view
    */

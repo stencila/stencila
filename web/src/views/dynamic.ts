@@ -12,7 +12,7 @@ import "../nodes/if-block";
 import "../nodes/if-block-clause";
 import "../nodes/parameter";
 
-import { ThemedElement } from "./themed";
+import { ThemedView } from "./themed";
 
 /**
  * Dynamic view of a document
@@ -21,7 +21,7 @@ import { ThemedElement } from "./themed";
  * allows for the user to change input values (e.g. the `value` of a `Parameter` node)
  */
 @customElement("stencila-dynamic-view")
-export class DynamicView extends ThemedElement {
+export class DynamicView extends ThemedView {
   /**
    * The id of the document
    */

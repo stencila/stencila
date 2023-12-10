@@ -20,7 +20,7 @@ import "../nodes/if-block";
 import "../nodes/if-block-clause";
 import "../nodes/parameter";
 
-import { ThemedElement } from "./themed";
+import { ThemedView } from "./themed";
 import * as schemas from "./visual/schemas";
 
 /**
@@ -31,7 +31,7 @@ import * as schemas from "./visual/schemas";
  * using a WYSIWYG editor.
  */
 @customElement("stencila-visual-view")
-export class VisualView extends ThemedElement {
+export class VisualView extends ThemedView {
   /**
    * The id of the document
    */

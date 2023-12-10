@@ -4,7 +4,7 @@ import { customElement, property } from "lit/decorators.js";
 import { DomClient } from "../clients/dom";
 import type { DocumentId } from "../types";
 
-import { ThemedElement } from "./themed";
+import { ThemedView } from "./themed";
 
 /**
  * Live view of a document
@@ -13,7 +13,7 @@ import { ThemedElement } from "./themed";
  * on the server.
  */
 @customElement("stencila-live-view")
-export class LiveView extends ThemedElement {
+export class LiveView extends ThemedView {
   /**
    * The id of the document
    */
