@@ -41,4 +41,4 @@ const config = defineConfig({
   hash: false,
 });
 
-export const installTwind = () => install(config);
+export const withTwind = () => install(config);

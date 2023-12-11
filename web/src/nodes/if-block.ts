@@ -1,11 +1,10 @@
 import { html } from "lit";
 import { customElement } from "lit/decorators.js";
 
-import { installTwind } from "../twind";
+import { withTwind } from "../twind";
 
 import { Executable } from "./executable";
 
-const withTwind = installTwind();
 
 /**
  * Web component representing a Stencila Schema `IfBlock` node
@@ -13,7 +12,7 @@ const withTwind = installTwind();
  * @see https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/if-block.md
  */
 @customElement("stencila-if-block")
-@withTwind
+@withTwind()
 export class IfBlock extends Executable {
   override render() {
     return html`

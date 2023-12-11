@@ -1,11 +1,9 @@
 import { html } from "lit";
 import { customElement, state } from "lit/decorators.js";
 
-import { installTwind } from "../twind";
+import { withTwind } from "../twind";
 
 import { CodeExecutable } from "./code-executable";
-
-const withTwind = installTwind();
 
 /**
  * Web component representing a Stencila Schema `IfBlockClause` node
@@ -13,7 +11,7 @@ const withTwind = installTwind();
  * @see https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/if-block-clause.md
  */
 @customElement("stencila-if-block-clause")
-@withTwind
+@withTwind()
 export class IfBlockClause extends CodeExecutable {
   /**
    * Whether the clause has any content

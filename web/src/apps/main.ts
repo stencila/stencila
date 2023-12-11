@@ -3,7 +3,7 @@ import { customElement, property } from "lit/decorators.js";
 
 import logo from "../images/stencilaIcon.svg";
 import { THEMES } from "../themes/themes";
-import { installTwind } from "../twind";
+import { withTwind } from "../twind";
 import type { DocumentId, DocumentView } from "../types";
 import { VIEWS } from "../views/views";
 
@@ -32,7 +32,7 @@ type RenderListProps = {
  * footer.
  */
 @customElement("stencila-main-app")
-@installTwind()
+@withTwind()
 export class App extends LitElement {
   /**
    * The id of the current document (if any)
@@ -76,7 +76,7 @@ export class App extends LitElement {
             class="flex-grow px-4 py-8 w-full justify-center flex flex-col"
           >
             <header class="container mx-auto">
-              <h1 class="text-xl text-bold leading-tight md:text-2xl lg:text-3xl xl:text-4xl">Document title<br>mpre jshdgs hjsgd</h1>
+              <h1 class="text-xl text-bold leading-tight md:text-2xl lg:text-3xl xl:text-4xl">Document name</h1>
             </header>
 
             <nav class="container mx-auto mt-8 mb-4 sm:flex">

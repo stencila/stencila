@@ -28,7 +28,7 @@ import { html, css, LitElement } from "lit";
 import { customElement, property } from "lit/decorators.js";
 
 import { CodeMirrorClient } from "../clients/codemirror";
-import { installTwind } from "../twind";
+import { withTwind } from "../twind";
 import type { DocumentId, DocumentAccess } from "../types";
 
 const FORMATS = {
@@ -48,7 +48,7 @@ const FORMATS = {
  * a particular format.
  */
 @customElement("stencila-source-view")
-@installTwind()
+@withTwind()
 export class SourceView extends LitElement {
   /**
    * The id of the document
