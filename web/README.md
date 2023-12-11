@@ -129,7 +129,13 @@ npm test
 As with most modules in this repo, there is a `Makefile` which you may prefer to use for common development tasks. For example to easily run multiple NPM scripts at once:
 
 ```console
-make install fix test
+make fix test
+```
+
+A recommended combination of recipes to run before committing code is:
+
+```console
+make audit lint test
 ```
 
 > [!NOTE]
