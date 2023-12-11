@@ -4,6 +4,7 @@ import {
   completionKeymap,
 } from "@codemirror/autocomplete";
 import { history, historyKeymap, indentWithTab } from "@codemirror/commands";
+import { markdownLanguage,  } from '@codemirror/lang-markdown';
 import {
   foldGutter,
   bracketMatching,
@@ -13,6 +14,7 @@ import {
   LanguageSupport,
   syntaxHighlighting,
   StreamLanguage,
+  HighlightStyle,
 } from "@codemirror/language";
 import { Extension, Compartment, StateEffect } from "@codemirror/state";
 import {
@@ -23,6 +25,8 @@ import {
   keymap,
   lineNumbers,
 } from "@codemirror/view";
+import { Tag, styleTags, tags } from '@lezer/highlight';
+import { BlockContext, Line, MarkdownConfig } from '@lezer/markdown';
 import { html, css, LitElement } from "lit";
 import { customElement, property } from "lit/decorators.js";
 
@@ -39,6 +43,81 @@ const FORMATS = {
   json5: "JSON5",
   yaml: "YAML",
 };
+
+
+
+// block/inline node names
+const blockIf = "BlockIf"
+const blockIfMark = "BlockIfMark"
+
+const customTags = {
+  blockIf: Tag.define(),
+  blockIfMark: Tag.define()
+}
+
+const isIfForStyleMark = (line: Line): boolean => /:::[\s|:]?/.test(line.text.substring(0, 4))
+
+const findIfBockEnd = (context: BlockContext, line: Line): number => {
+  let hasNextLine: boolean
+  let lineHasClosingMark: boolean
+  console.log("finding end")
+  do {
+    hasNextLine = context.nextLine()
+    lineHasClosingMark = isIfForStyleMark(line)
+  } while (hasNextLine && !lineHasClosingMark)
+
+  if (!hasNextLine) {
+    return -1
+  }
+
+  return context.lineStart + line.pos
+}
+
+const stencilaBlockConfig: MarkdownConfig = {
+  defineNodes: [blockIf, blockIfMark],
+  parseBlock: [{
+    name: blockIf,
+    parse: (context, line) => { 
+      if (!isIfForStyleMark(line)) {
+        return false
+      }
+      const from = context.lineStart
+      context.addElement(context.elt(blockIfMark, from, from + 4))
+
+      const to = findIfBockEnd(context, line)
+
+      if (to === -1) {
+        return false
+      }
+
+      context.addElement(context.elt(blockIf, from, to))
+
+      context.addElement(context.elt(blockIfMark, context.lineStart, to))
+      return true
+    },
+    endLeaf: (_, line) => { return isIfForStyleMark(line) }
+  }],
+  props: [
+    styleTags({
+      [blockIfMark]: customTags.blockIfMark,
+      [`${blockIf}/...`]: customTags.blockIf
+    })
+  ]
+}
+
+const markDownHighlightStyle = HighlightStyle.define([
+   ...defaultHighlightStyle.specs,
+   {
+     tag: tags.heading,
+     fontWeight: 700,
+     textDecoration: 'none'
+   },
+   {
+    tag: customTags.blockIfMark,
+    fontWeight: 700,
+    color: 'blue'
+   },
+ ]);
 
 /**
  * Source code editor for a document
@@ -107,7 +186,7 @@ export class SourceView extends LitElement {
       extensions: ["md"],
       load: async () => {
         return import("@codemirror/lang-markdown").then((obj) =>
-          obj.markdown(),
+          obj.markdown({ base: markdownLanguage, extensions: [stencilaBlockConfig] }),
         );
       },
     }),
@@ -200,6 +279,10 @@ export class SourceView extends LitElement {
       { key: "Ctrl-Space", run: startCompletion },
     ]);
 
+    const syntaxHighlights = this.format === "markdown" 
+      ? markDownHighlightStyle 
+      : defaultHighlightStyle
+
     return [
       langExt,
       keyMaps,
@@ -211,7 +294,7 @@ export class SourceView extends LitElement {
       highlightActiveLineGutter(),
       indentOnInput(),
       highlightSpecialChars(),
-      syntaxHighlighting(defaultHighlightStyle, { fallback: true }),
+      syntaxHighlighting(syntaxHighlights, { fallback: true }),
       bracketMatching(),
       autocompletion(),
     ];
