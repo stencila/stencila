@@ -45,7 +45,7 @@
     "test": "tsc --skipLibCheck --noEmit",
     "start": "parcel watch",
     "build": "parcel build",
-    "unused": "depcheck --quiet --ignores '@parcel/*,prosemirror-*' --ignore-patterns '.eslintrc*'"
+    "unused": "depcheck --quiet --ignores '@parcel/*,postcss-*,prosemirror-*' --ignore-patterns '.eslintrc*'"
   },
   "dependencies": {
     "@codemirror/autocomplete": "6.11.1",
@@ -59,7 +59,6 @@
     "@codemirror/search": "^6.5.5",
     "@codemirror/state": "6.3.3",
     "@codemirror/view": "6.22.2",
-    "@lit/context": "1.1.0",
     "@stencila/types": "2.0.0-alpha.23",
     "@tailwindcss/typography": "0.5.10",
     "@twind/core": "1.1.3",
