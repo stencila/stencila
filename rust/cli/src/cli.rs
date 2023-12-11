@@ -2,11 +2,11 @@ use std::path::PathBuf;
 
 use yansi::Color;
 
-use agents::agent::AgentIO;
 use common::{
     chrono::{Local, SecondsFormat, TimeZone},
     clap::{self, Args, Parser, Subcommand},
     eyre::{eyre, Result},
+    itertools::Itertools,
     tokio, tracing,
 };
 use document::{Document, DocumentType, SyncDirection};
@@ -541,21 +541,21 @@ impl Cli {
 
             Command::Agents => {
                 let agents = agents::list().await;
-                println!("{:<40} {:>10} {:>10}", "Agent", "Text", "Image");
+                println!("{:<40} {:<20} {:<20}", "Agent", "Inputs", "Outputs");
                 for agent in agents {
                     println!(
-                        "{:<40} {:>10} {:>10}",
+                        "{:<40} {:<20} {:<20}",
                         agent.name(),
-                        if agent.supports_generating(AgentIO::Text) {
-                            "yes"
-                        } else {
-                            "no"
-                        },
-                        if agent.supports_generating(AgentIO::Image) {
-                            "yes"
-                        } else {
-                            "no"
-                        }
+                        agent
+                            .supported_inputs()
+                            .iter()
+                            .map(|input| input.to_string())
+                            .join(", "),
+                        agent
+                            .supported_outputs()
+                            .iter()
+                            .map(|output| output.to_string())
+                            .join(", "),
                     )
                 }
             }
@@ -566,12 +566,12 @@ impl Cli {
                 agent,
             } => match image {
                 false => {
-                    let (agent, text) = agents::generate_text(&instruction, agent).await?;
+                    let (agent, text) = agents::text_to_text(&instruction, agent).await?;
                     print!("{}", Color::Green.paint(format!("{} > ", agent)));
                     display::highlighted(&text, Format::Markdown)?;
                 }
                 true => {
-                    let (agent, url) = agents::generate_image(&instruction, agent).await?;
+                    let (agent, url) = agents::text_to_image(&instruction, agent).await?;
                     print!("{}", Color::Green.paint(format!("{} > ", agent)));
                     print!("{}", Color::Blue.paint(url));
                 }

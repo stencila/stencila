@@ -14,6 +14,8 @@ pub use common;
 pub enum AgentIO {
     Text,
     Image,
+    Audio,
+    Video,
 }
 
 /// Options for the `Agent::generate_text` method
@@ -136,18 +138,31 @@ pub trait Agent: Sync + Send {
     fn name(&self) -> String;
 
     /**
-     * Does the agent support generation of an output type?
+     * Get a list of input types this agent supports
      */
-    #[allow(unused)]
-    fn supports_generating(&self, output: AgentIO) -> bool {
-        false
+    fn supported_inputs(&self) -> &[AgentIO] {
+        &[]
+    }
+
+    /**
+     * Get a list of output types this agent supports
+     */
+    fn supported_outputs(&self) -> &[AgentIO] {
+        &[]
+    }
+
+    /**
+     * Get a list of output types this agent supports
+     */
+    fn supports_from_to(&self, input: AgentIO, output: AgentIO) -> bool {
+        self.supported_inputs().contains(&input) && self.supported_outputs().contains(&output)
     }
 
     /**
      * Generate text in response to an instruction
      */
     #[allow(unused)]
-    async fn generate_text(
+    async fn text_to_text(
         &self,
         instruction: &str,
         options: Option<GenerateTextOptions>,
@@ -159,7 +174,7 @@ pub trait Agent: Sync + Send {
      * Generate image in response to an instruction
      */
     #[allow(unused)]
-    async fn generate_image(
+    async fn text_to_image(
         &self,
         instruction: &str,
         options: Option<GenerateImageOptions>,

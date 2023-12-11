@@ -12,19 +12,19 @@ use agent::{
 };
 
 /// An agent running on a Ollama (https://github.com/jmorganca/ollama/) server
-/// 
+///
 /// To start an Ollama server:
-/// 
+///
 /// ```sh
 /// ollama serve
 /// ```
-/// 
+///
 /// On Linux, to stop the server:
-/// 
+///
 /// ```sh
 /// sudo service ollama stop
 /// ```
-/// 
+///
 /// An agent is listed for each Ollama model that has previously been pulled.
 struct OllamaAgent {
     /// The Ollama name for a model including any tag e.g. "llama2:13b"
@@ -62,11 +62,15 @@ impl Agent for OllamaAgent {
         format!("ollama/{}", self.model)
     }
 
-    fn supports_generating(&self, output: AgentIO) -> bool {
-        matches!(output, AgentIO::Text)
+    fn supported_inputs(&self) -> &[AgentIO] {
+        &[AgentIO::Text]
     }
 
-    async fn generate_text(
+    fn supported_outputs(&self) -> &[AgentIO] {
+        &[AgentIO::Text]
+    }
+
+    async fn text_to_text(
         &self,
         instruction: &str,
         options: Option<GenerateTextOptions>,

@@ -12,6 +12,7 @@ use agent::{
     common::{
         async_trait::async_trait,
         eyre::{bail, Result},
+        itertools::Itertools,
     },
     Agent, AgentIO, GenerateImageOptions, GenerateTextOptions,
 };
@@ -28,19 +29,19 @@ struct OpenAIAgent {
 
     /// The type of input that the model consumes
     #[allow(unused)]
-    input: AgentIO,
+    inputs: Vec<AgentIO>,
 
     /// The type of output that the model generates
-    output: AgentIO,
+    outputs: Vec<AgentIO>,
 }
 
 impl OpenAIAgent {
     /// Create a OpenAI-based agent
-    pub fn new(model: &str, input: AgentIO, output: AgentIO) -> Self {
+    pub fn new(model: String, inputs: Vec<AgentIO>, outputs: Vec<AgentIO>) -> Self {
         Self {
-            model: model.into(),
-            input,
-            output,
+            model,
+            inputs,
+            outputs,
         }
     }
 }
@@ -51,11 +52,15 @@ impl Agent for OpenAIAgent {
         format!("openai/{}", self.model)
     }
 
-    fn supports_generating(&self, output: AgentIO) -> bool {
-        self.output == output
+    fn supported_inputs(&self) -> &[AgentIO] {
+        &self.inputs
     }
 
-    async fn generate_text(
+    fn supported_outputs(&self) -> &[AgentIO] {
+        &self.outputs
+    }
+
+    async fn text_to_text(
         &self,
         instruction: &str,
         _options: Option<GenerateTextOptions>,
@@ -88,7 +93,7 @@ impl Agent for OpenAIAgent {
         Ok(text)
     }
 
-    async fn generate_image(
+    async fn text_to_image(
         &self,
         instruction: &str,
         _options: Option<GenerateImageOptions>,
@@ -119,22 +124,47 @@ impl Agent for OpenAIAgent {
 /// Get a list of all available OpenAI agents
 ///
 /// Errors if the `OPENAI_API_KEY` env var is not set.
+/// Lists the agents available to the account in descending order
+/// or creation date so that more recent (i.e. "better") models are
+/// first.
 pub async fn list() -> Result<Vec<Box<dyn Agent>>> {
     if env::var("OPENAI_API_KEY").is_err() {
         bail!("The OPENAI_API_KEY environment variable is not set")
     }
 
-    use AgentIO::*;
-    let models = [
-        ("gpt-3.5-turbo-1106", Text, Text),
-        ("gpt-3.5-turbo-0613", Text, Text),
-        ("dall-e-3", Text, Image),
-    ];
+    let client = Client::new();
+
+    let models = client.models().list().await?;
 
     let agents = models
+        .data
         .into_iter()
-        .map(|(model, input, output)| {
-            Box::new(OpenAIAgent::new(model, input, output)) as Box<dyn Agent>
+        .sorted_by(|a, b| a.created.cmp(&b.created).reverse())
+        .filter_map(|model| {
+            let name = model.id;
+
+            // This mapping of model name to input/output types will need to be
+            // updated periodically based on https://platform.openai.com/docs/models/
+            use AgentIO::*;
+            let (inputs, outputs) = if name.starts_with("gpt-4-vision") {
+                (vec![Text, Image], vec![Text])
+            } else if name.starts_with("gpt-4") {
+                (vec![Text], vec![Text])
+            } else if name.starts_with("gpt-3.5") {
+                (vec![Text], vec![Text])
+            } else if name.starts_with("dall-e") {
+                (vec![Text], vec![Image])
+            } else if name.starts_with("tts") {
+                (vec![Text], vec![Audio])
+            } else if name.starts_with("whisper") {
+                (vec![Audio], vec![Text])
+            } else {
+                // Other models, are not mapped into models
+                return None;
+            };
+
+            let agent = OpenAIAgent::new(name, inputs, outputs);
+            Some(Box::new(agent) as Box<dyn Agent>)
         })
         .collect();
 

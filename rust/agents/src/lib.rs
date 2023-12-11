@@ -12,25 +12,38 @@ pub use agent;
 pub async fn list() -> Vec<Box<dyn Agent>> {
     let mut list = Vec::new();
 
-    match agents_ollama::list().await {
-        Ok(mut agents) => list.append(&mut agents),
-        Err(error) => tracing::debug!("While listing Ollama agents: {error}"),
-    }
+    // The order that agents are added matters because the first
+    // agent capable of executing an instruction will be used (unless a
+    // specific model is specified). Generally, "better" agents should
+    // come first.
 
     match agents_openai::list().await {
         Ok(mut agents) => list.append(&mut agents),
         Err(error) => tracing::debug!("While listing OpenAI agents: {error}"),
     }
 
+    match agents_ollama::list().await {
+        Ok(mut agents) => list.append(&mut agents),
+        Err(error) => tracing::debug!("While listing Ollama agents: {error}"),
+    }
+
     list
 }
 
 /// Generate text
-pub async fn generate_text(instruction: &str, agent: Option<String>) -> Result<(String, String)> {
-    let agent_name = agent.unwrap_or_default();
+pub async fn text_to_text(
+    instruction: &str,
+    agent_name: Option<String>,
+) -> Result<(String, String)> {
     for agent in list().await {
-        if agent.name() == agent_name || agent.supports_generating(AgentIO::Text) {
-            return Ok((agent.name(), agent.generate_text(instruction, None).await?));
+        let should_use = if let Some(agent_name) = &agent_name {
+            &agent.name() == agent_name
+        } else {
+            agent.supports_from_to(AgentIO::Text, AgentIO::Text)
+        };
+
+        if should_use {
+            return Ok((agent.name(), agent.text_to_text(instruction, None).await?));
         }
     }
 
@@ -38,11 +51,19 @@ pub async fn generate_text(instruction: &str, agent: Option<String>) -> Result<(
 }
 
 /// Generate image
-pub async fn generate_image(instruction: &str, agent: Option<String>) -> Result<(String, String)> {
-    let agent_name = agent.unwrap_or_default();
+pub async fn text_to_image(
+    instruction: &str,
+    agent_name: Option<String>,
+) -> Result<(String, String)> {
     for agent in list().await {
-        if agent.name() == agent_name || agent.supports_generating(AgentIO::Image) {
-            return Ok((agent.name(), agent.generate_image(instruction, None).await?));
+        let should_use = if let Some(agent_name) = &agent_name {
+            &agent.name() == agent_name
+        } else {
+            agent.supports_from_to(AgentIO::Text, AgentIO::Image)
+        };
+
+        if should_use {
+            return Ok((agent.name(), agent.text_to_image(instruction, None).await?));
         }
     }
 
