@@ -4,3 +4,10 @@ body {
   margin: 0;
   padding: 0;
 }
+
+
+summary > details::marker,
+::marker,
+::-webkit-details-marker {
+  display: unset !important;
+}

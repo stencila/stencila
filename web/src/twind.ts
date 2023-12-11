@@ -27,9 +27,13 @@ const config = defineConfig({
           red: "#e53e3e",
           yellow: "#ecc94b",
         },
-        grays: {
-          mid: "#e2e8f0",
+        gray: {
+          "wild-sand": "#526d8b",
+          "shady": "#9d9d9d",
+          "aluminium": "#999999",
+          "mine-shaft": "#333333"
         },
+        "eerie-black": "#171817"
       },
     },
   },

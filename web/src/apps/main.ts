@@ -14,7 +14,16 @@ import "../views/source";
 import "../views/split";
 import "../views/visual";
 
+import "./selector";
+
 import "./main.css";
+
+type RenderListProps = {
+  label: string
+  list: [string, string][]
+  target: DocumentView | string
+  clickEvent: (e: Event) => void
+}
 
 /**
  * Application Wrapper
@@ -64,11 +73,24 @@ export class App extends LitElement {
         <div class="h-screen flex flex-col">
           <main
             role="main"
-            class="flex-grow px-4 py-8 w-full justify-center flex"
+            class="flex-grow px-4 py-8 w-full justify-center flex flex-col"
           >
+            <header class="container mx-auto">
+              <h1 class="text-xl text-bold leading-tight md:text-2xl lg:text-3xl xl:text-4xl">Document title<br>mpre jshdgs hjsgd</h1>
+            </header>
+
+            <nav class="container mx-auto mt-8 mb-4 sm:flex">
+              <div class="flex-grow justify-start flex flex-col sm:flex-row sm:space-x-4">
+                ${this.renderViewSelect()} 
+                ${this.renderThemeSelect()}
+              </div>
+              ${this.renderPrintLink()}
+            </nav>
+            
             <div
-              class="bg-white border border-grays-mid container p-4 mx-0 h-full shadow-[0_0_8px_rgba(0,0,0,.035)]"
+              class="bg-white border border-grays-mid container p-4 mx-auto h-full shadow-[0_0_8px_rgba(0,0,0,.035)]"
             >
+              
               ${this.doc ? this.renderView() : "No document specified"}
             </div>
           </main>
@@ -87,55 +109,53 @@ export class App extends LitElement {
           ><img src="${logo}" alt="Stencila logo" width="28" height="28"
         /></a>
       </nav>
-      ${this.renderViewSelect()} ${this.renderThemeSelect()}
-      ${this.renderPrintLink()}
     </header>`;
   }
 
-  private renderViewSelect() {
+  private renderList(props: RenderListProps) {
+    const { label, list, target, clickEvent } = props
+
     return html`
-      <label>
-        View
-        <select
-          @change=${(e: Event) =>
-            (this.view = (e.target as HTMLSelectElement).value as DocumentView)}
-        >
-          ${Object.entries(VIEWS).map(
-            ([view, desc]) =>
-              html`<option
-                value=${view}
-                title=${desc}
-                ?selected=${this.view === view}
-              >
-                ${view}
-              </option>`,
+    <details role="list" class="p-0 relative block">
+      <summary aria-haspopup="listbox" role="button">${label}</summary>
+      <ul role="listbox">
+        <li>
+          ${list.map(
+            ([value, desc]) =>
+              html`<button data-value="${value}" class="${target === value ? 'text-brand-red' : ''}" @click=${clickEvent}>
+                ${desc}
+              </button>`,
           )}
-        </select>
-      </label>
-    `;
+          <button></button>
+        </li>
+      </ul>
+    </details>
+    `
+  }
+
+  private renderViewSelect() {
+    const clickEvent = (e: Event) => {
+      this.view = (e.target as HTMLButtonElement).dataset['value'] as DocumentView
+    }
+
+    return html`
+      <stencila-ui-selector
+        label="View"
+        target=${this.view}
+        .list=${Object.entries(VIEWS)}
+        .clickEvent=${clickEvent}>
+      </stencila-ui-selector>`
   }
 
   private renderThemeSelect() {
-    return html`
-      <label>
-        Theme
-        <select
-          @change=${(e: Event) =>
-            (this.theme = (e.target as HTMLSelectElement).value)}
-        >
-          ${Object.entries(THEMES).map(
-            ([theme, desc]) =>
-              html`<option
-                value=${theme}
-                title=${desc}
-                ?selected=${this.theme === theme}
-              >
-                ${theme}
-              </option>`,
-          )}
-        </select>
-      </label>
-    `;
+    return this.renderList({
+      label: "Theme",
+      target: this.theme,
+      clickEvent: (e: Event) => {
+        this.theme = (e.target as HTMLButtonElement).dataset['value']
+      },
+      list: Object.entries(THEMES)
+    })
   }
 
   private renderPrintLink() {
