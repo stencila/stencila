@@ -7,3 +7,6 @@ edition = "2021"
 common = { path = "../common" }
 minijinja = { version = "1.0.10", features = ["loader"] }
 rust-embed = { version = "8.1.0", features = ["interpolate-folder-path", "include-exclude"] }
+
+# Upgrade a `minijinja` dependency to address https://rustsec.org/advisories/RUSTSEC-2023-0070
+self_cell = { version = "1.0.2" }
