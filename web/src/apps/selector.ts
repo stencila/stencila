@@ -75,7 +75,6 @@ export class UISelector extends TWLitElement {
       'transition-all ease-in-out',
       'flex',
       'items-center',
-      '',
       'group-hover:text-brand-blue group-hover:border-b-brand-blue',
     ])
 

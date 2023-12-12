@@ -2,6 +2,7 @@
   "env": {
     "browser": true,
     "es2021": true,
+    "es6": true,
     "node": true
   },
   "plugins": ["@typescript-eslint"],
@@ -19,6 +20,11 @@
   },
   "rules": {
     "semi": ["error", "never"],
+    "quotes": [
+      "error",
+      "single",
+      { "avoidEscape": true, "allowTemplateLiterals": true }
+    ],
     "@typescript-eslint/ban-types": "off",
     "import/order": [
       "error",
