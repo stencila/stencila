@@ -7,8 +7,9 @@ use agent::{
     common::{
         async_trait::async_trait,
         eyre::{eyre, Result},
+        tracing,
     },
-    Agent, AgentIO, GenerateTextOptions,
+    Agent, AgentIO, GenerateOptions,
 };
 
 /// An agent running on a Ollama (https://github.com/jmorganca/ollama/) server
@@ -73,12 +74,13 @@ impl Agent for OllamaAgent {
     async fn text_to_text(
         &self,
         instruction: &str,
-        options: Option<GenerateTextOptions>,
+        options: Option<GenerateOptions>,
     ) -> Result<String> {
         let mut request = GenerationRequest::new(self.model.clone(), instruction.into());
         if let Some(options) = options {
             request.system = options.system_prompt;
 
+            // Map options to Ollama options
             let mut opts = GenerationOptions::default();
             macro_rules! map_option {
                 ($from:ident, $to:ident) => {
@@ -88,6 +90,17 @@ impl Agent for OllamaAgent {
                 };
                 ($name:ident) => {
                     map_option!($name, $name)
+                };
+            }
+            macro_rules! ignore_option {
+                ($name:ident) => {
+                    if options.$name.is_some() {
+                        tracing::warn!(
+                            "Option `{}` is ignored by agent `{}` for text-to-text generation",
+                            stringify!($name),
+                            self.name()
+                        )
+                    }
                 };
             }
             map_option!(mirostat);
@@ -102,10 +115,15 @@ impl Agent for OllamaAgent {
             map_option!(temperature);
             map_option!(seed);
             map_option!(stop);
+            ignore_option!(max_tokens);
             map_option!(tfs_z);
             map_option!(num_predict);
             map_option!(top_k);
             map_option!(top_p);
+            ignore_option!(image_size);
+            ignore_option!(image_quality);
+            ignore_option!(image_style);
+
             request.options = Some(opts);
         }
 

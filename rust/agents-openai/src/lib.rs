@@ -2,8 +2,9 @@ use std::env;
 
 use async_openai::{
     types::{
+        ChatCompletionRequestAssistantMessageArgs, ChatCompletionRequestSystemMessageArgs,
         ChatCompletionRequestUserMessageArgs, CreateChatCompletionRequestArgs,
-        CreateImageRequestArgs, Image, ImageSize, ResponseFormat,
+        CreateImageRequestArgs, Image, ImageQuality, ImageSize, ImageStyle, ResponseFormat,
     },
     Client,
 };
@@ -13,8 +14,9 @@ use agent::{
         async_trait::async_trait,
         eyre::{bail, Result},
         itertools::Itertools,
+        tracing,
     },
-    Agent, AgentIO, GenerateImageOptions, GenerateTextOptions,
+    Agent, AgentIO, GenerateOptions,
 };
 
 /// An agent running on OpenAI
@@ -63,27 +65,102 @@ impl Agent for OpenAIAgent {
     async fn text_to_text(
         &self,
         instruction: &str,
-        _options: Option<GenerateTextOptions>,
+        options: Option<GenerateOptions>,
+    ) -> Result<String> {
+        // Just execute as a chat with a single message
+        self.chat_to_text(&[instruction], options).await
+    }
+
+    async fn chat_to_text(
+        &self,
+        chat: &[&str],
+        options: Option<GenerateOptions>,
     ) -> Result<String> {
         let client = Client::new();
 
-        // TODO: Add system prompt message first
+        // Create the chat with any system prompt first and then alternating
+        // between user and agent messages
+        let mut messages = Vec::with_capacity(chat.len());
+        if let Some(system_prompt) = options
+            .as_ref()
+            .and_then(|options| options.system_prompt.clone())
+        {
+            messages.push(
+                ChatCompletionRequestSystemMessageArgs::default()
+                    .content(system_prompt)
+                    .build()?
+                    .into(),
+            );
+        }
+        for (index, content) in chat.iter().enumerate() {
+            let message = if index % 2 == 0 {
+                ChatCompletionRequestUserMessageArgs::default()
+                    .content(*content)
+                    .build()?
+                    .into()
+            } else {
+                ChatCompletionRequestAssistantMessageArgs::default()
+                    .content(*content)
+                    .build()?
+                    .into()
+            };
+            messages.push(message);
+        }
 
-        let messages = [ChatCompletionRequestUserMessageArgs::default()
-            .content(instruction)
-            .build()?
-            .into()];
+        // Create the request
+        let mut request = CreateChatCompletionRequestArgs::default();
+        let request = request.model(&self.model).messages(messages);
 
-        // TODO: map options into request
+        // Map options onto the request
+        if let Some(options) = options {
+            macro_rules! map_option {
+                ($from:ident, $to:ident) => {
+                    if let Some(value) = options.$from {
+                        request.$to(value);
+                    }
+                };
+                ($name:ident) => {
+                    map_option!($name, $name)
+                };
+            }
+            macro_rules! ignore_option {
+                ($name:ident) => {
+                    if options.$name.is_some() {
+                        tracing::warn!(
+                            "Option `{}` is ignored by agent `{}` for text-to-text generation",
+                            stringify!($name),
+                            self.name()
+                        )
+                    }
+                };
+            }
+            ignore_option!(mirostat);
+            ignore_option!(mirostat_eta);
+            ignore_option!(mirostat_tau);
+            ignore_option!(num_ctx);
+            ignore_option!(num_gqa);
+            ignore_option!(num_gpu);
+            ignore_option!(num_thread);
+            ignore_option!(repeat_last_n);
+            map_option!(repeat_penalty, presence_penalty);
+            map_option!(temperature);
+            map_option!(seed);
+            map_option!(stop);
+            map_option!(max_tokens);
+            ignore_option!(tfs_z);
+            ignore_option!(num_predict);
+            ignore_option!(top_k);
+            map_option!(top_p);
+            ignore_option!(image_size);
+            ignore_option!(image_quality);
+            ignore_option!(image_style);
+        }
 
-        let request = CreateChatCompletionRequestArgs::default()
-            .max_tokens(512u16)
-            .model(&self.model)
-            .messages(messages)
-            .build()?;
-
+        // Send the request
+        let request = request.build()?;
         let mut response = client.chat().create(request).await?;
 
+        // Get the content of the first message
         let text = response
             .choices
             .pop()
@@ -96,18 +173,98 @@ impl Agent for OpenAIAgent {
     async fn text_to_image(
         &self,
         instruction: &str,
-        _options: Option<GenerateImageOptions>,
+        options: Option<GenerateOptions>,
     ) -> Result<String> {
         let client = Client::new();
 
-        let request = CreateImageRequestArgs::default()
+        // Create the base request
+        let mut request = CreateImageRequestArgs::default();
+        let request = request
             .prompt(instruction)
-            .response_format(ResponseFormat::Url)
-            .size(ImageSize::S256x256)
-            .build()?;
+            .response_format(ResponseFormat::Url);
 
+        // Map options onto the request
+        if let Some(options) = options {
+            macro_rules! ignore_option {
+                ($name:ident) => {
+                    if options.$name.is_some() {
+                        tracing::warn!(
+                            "Option `{}` is ignored by agent `{}` for text-to-image generation",
+                            stringify!($name),
+                            self.name()
+                        )
+                    }
+                };
+            }
+            ignore_option!(mirostat);
+            ignore_option!(mirostat_eta);
+            ignore_option!(mirostat_tau);
+            ignore_option!(num_ctx);
+            ignore_option!(num_gqa);
+            ignore_option!(num_gpu);
+            ignore_option!(num_thread);
+            ignore_option!(repeat_last_n);
+            ignore_option!(repeat_penalty);
+            ignore_option!(temperature);
+            ignore_option!(seed);
+            ignore_option!(stop);
+            ignore_option!(max_tokens);
+            ignore_option!(tfs_z);
+            ignore_option!(num_predict);
+            ignore_option!(top_k);
+            ignore_option!(top_p);
+
+            if let Some((w, h)) = options.image_size {
+                match (w, h) {
+                    (256, 256) => {
+                        request.size(ImageSize::S256x256);
+                    }
+                    (512, 512) => {
+                        request.size(ImageSize::S512x512);
+                    }
+                    (1024, 1024) => {
+                        request.size(ImageSize::S1024x1024);
+                    }
+                    (1024, 1792) => {
+                        request.size(ImageSize::S1024x1792);
+                    }
+                    (1792, 1024) => {
+                        request.size(ImageSize::S1792x1024);
+                    }
+                    _ => bail!("Unsupported image size `{w}x{h}`"),
+                };
+            }
+
+            if let Some(quality) = options.image_quality {
+                match quality.to_lowercase().as_str() {
+                    "std" | "standard" => {
+                        request.quality(ImageQuality::Standard);
+                    }
+                    "hd" | "high-definition" => {
+                        request.quality(ImageQuality::HD);
+                    }
+                    _ => bail!("Unsupported image quality `{quality}`"),
+                };
+            }
+
+            if let Some(style) = options.image_style {
+                match style.to_lowercase().as_str() {
+                    "nat" | "natural" => {
+                        request.style(ImageStyle::Natural);
+                    }
+                    "viv" | "vivid" => {
+                        request.style(ImageStyle::Vivid);
+                    }
+                    _ => bail!("Unsupported image style `{style}`"),
+                };
+            }
+        }
+
+        // Send the request
+        let request = request.build()?;
         let response = client.images().create(request).await?;
 
+        // Get the image URL
         let url = response
             .data
             .first()
