@@ -1,4 +1,8 @@
-use std::sync::{RwLock, RwLockReadGuard};
+use std::{
+    fs::read_dir,
+    path::PathBuf,
+    sync::{RwLock, RwLockReadGuard},
+};
 
 use common::{
     eyre::{eyre, Result},
@@ -10,54 +14,80 @@ use common::{
 use minijinja::Environment;
 use rust_embed::RustEmbed;
 
-/// Embedded library of prompt files
+/// Builtin prompts
 ///
-/// During development these are served directly from the folder
-/// but are embedded into the binary on release builds.
+/// During development these are served directly from the `/prompts/builtin`
+/// directory at the root of the repository but are embedded into the binary on release builds.
 #[derive(RustEmbed)]
-#[folder = "$CARGO_MANIFEST_DIR/src/prompts"]
-struct Library;
+#[folder = "$CARGO_MANIFEST_DIR/../../prompts/builtin"]
+struct Builtin;
 
-static ENV: Lazy<RwLock<Environment>> = Lazy::new(|| RwLock::new(Environment::new()));
+/// The template environment populated with prompts
+///
+/// Needs to be  RWLock because gets mutated in development.
+/// If this causes perf or other issues, could be refactored to
+/// avoid RWLock for release builds.
+static ENV: Lazy<RwLock<Environment>> =
+    Lazy::new(|| RwLock::new(new_env().expect("unable to create prompt environment")));
 
-/// Lazily load the prompt template environment
-fn load_env() -> Result<RwLockReadGuard<'static, Environment<'static>>> {
-    // In production, take a read lock on environment and if the special sentinel template
-    // exists return early
-    if !cfg!(debug_assertions) {
-        let env = ENV
-            .read()
-            .map_err(|error| eyre!("Unable to read environment: {error}"))?;
-        if env.get_template("__loaded__").is_ok() {
-            return Ok(env);
+/// Create a new environment with all prompts loaded into it
+fn new_env() -> Result<Environment<'static>> {
+    let mut env = Environment::new();
+
+    // Add all builtin prompts, erroring if there is syntax errors in them
+    for (file_name, content) in
+        Builtin::iter().filter_map(|name| Builtin::get(&name).map(|file| (name, file.data)))
+    {
+        let path = PathBuf::from(file_name.to_string());
+        let Some(name, ..) = path
+                .file_stem() else {
+                    continue;
+                };
+
+        let name = name.to_string_lossy().to_string();
+        let source = String::from_utf8_lossy(&content).to_string();
+
+        env.add_template_owned(name, source)?;
+    }
+
+    // If in development, also load all test prompts
+    #[cfg(debug_assertions)]
+    {
+        let tests = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../prompts/test");
+        for file in read_dir(tests)?.flatten() {
+            let path = file.path();
+            let Some(name, ..) = path
+                .file_stem() else {
+                    continue;
+                };
+
+            let name = name.to_string_lossy().to_string();
+            let source = std::fs::read_to_string(file.path())?;
+
+            env.add_template_owned(name, source)?;
         }
     }
 
-    // Get a write lock on the environment and load all the templates into it
-    // Note that in development, this is intentionally done on each call to this function
-    {
+    Ok(env)
+}
+
+/// Load the prompt template environment
+///
+/// In development builds the environment is re-populated each time
+/// the function is called (to ensure any changes to the prompt on disk are
+/// reflected in a running session).
+fn load_env() -> Result<RwLockReadGuard<'static, Environment<'static>>> {
+    // In development, take a write lock and reload the environment
+    if cfg!(debug_assertions) {
         let mut env = ENV
             .write()
-            .map_err(|error| eyre!("Unable to read environment: {error}"))?;
-
-        if cfg!(debug_assertions) {
-            env.clear_templates()
-        }
-
-        // Add all the templates in the library, erroring if there is syntax errors in them
-        for (name, content) in
-            Library::iter().filter_map(|name| Library::get(&name).map(|file| (name, file.data)))
-        {
-            env.add_template_owned(name, String::from_utf8_lossy(&content).to_string())?;
-        }
-
-        // Add the specially named sentinel template to indicate that the environment is loaded
-        env.add_template_owned("__loaded__", "yes")?;
+            .map_err(|error| eyre!("unable to write environment: {error}"))?;
+        *env = new_env()?;
     }
 
-    // Finally, return a read lock on the environment
+    // Return a read lock on the environment
     ENV.read()
-        .map_err(|error| eyre!("Unable to read environment: {error}"))
+        .map_err(|error| eyre!("unable to read environment: {error}"))
 }
 
 pub struct Prompt {
