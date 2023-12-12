@@ -1,6 +1,7 @@
-A prompt for when a user creates an `InstructionBlock` which does not contain any `content` (i.e. the user expects a `InsertBlock` response).
-
-***
+---
+description: |
+  A prompt for when a user creates an `InstructionBlock` which does not contain any `content` (i.e. the user expects a `InsertBlock` response).
+---
 
 An instruction will be provided to you within an XML <instruction> tag. Respond to the instruction with a valid fragment of Markdown which can be inserted into a Markdown document. Do not wrap the response in a ```markdown code block.
 
@@ -26,7 +27,7 @@ Python code block
 |          |          |
 </response>
 
-***
+---
 
 <instruction>
 {{ instruction }}

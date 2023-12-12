@@ -109,12 +109,6 @@ impl Prompt {
         Ok(Self { name: name.into() })
     }
 
-    /// Load a prompt, or if none, then the default prompt
-    pub fn load_or_default(name: &Option<String>) -> Result<Self> {
-        let name = name.as_ref().map_or("default.md", |name| name.as_str());
-        Self::load(name)
-    }
-
     /// Render the prompt
     ///
     /// Returns the rendered system and user prompts
@@ -123,26 +117,27 @@ impl Prompt {
     }
 
     /// Render the prompt with some context data
-    pub fn render_with<S>(&self, data: S) -> Result<(String, String)>
+    pub fn render_with<S>(&self, context: S) -> Result<(String, String)>
     where
         S: Serialize,
     {
         let env = load_env()?;
         let template = env.get_template(&self.name)?;
 
-        let content = template.render(data)?;
+        let content = template.render(context)?;
         let (.., system_prompt, user_prompt) = Prompt::split(&content)?;
 
         Ok((system_prompt, user_prompt))
     }
 
-    /// Split a string into the three parts of a prompt: description, system prompt and user prompt
+    /// Split a string into the three parts of a prompt: YAML header, system prompt and user prompt
     fn split(content: &str) -> Result<(String, String, String)> {
         content
-            .splitn(3, "***")
+            .splitn(4, "---")
             .map(|part| part.trim().to_string())
+            .skip(1)
             .collect_tuple()
-            .ok_or_else(|| eyre!("Content does not have at least two *** separators"))
+            .ok_or_else(|| eyre!("Content does not have at least three --- separators"))
     }
 }
 

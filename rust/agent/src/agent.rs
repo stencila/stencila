@@ -1,13 +1,17 @@
 use common::{
     async_trait::async_trait,
-    clap::{self, ValueEnum, Args},
+    chrono::Utc,
+    clap::{self, Args, ValueEnum},
     eyre::{bail, Result},
     itertools::Itertools,
+    serde_json::{self, json},
     strum::Display,
 };
 
 // Export crates for the convenience of dependant crates
 pub use common;
+
+use crate::Prompt;
 
 /// The type of input or output an agent can consume or generate
 #[derive(Debug, Clone, PartialEq, Eq, ValueEnum, Display)]
@@ -34,7 +38,7 @@ pub enum AgentIO {
 #[derive(Debug, Default, Args)]
 pub struct GenerateOptions {
     /// The name of the prompt to use
-    /// 
+    ///
     /// Each agent has a default prompt template but this option can be used to
     /// override that.
     #[arg(long = "prompt", short)]
@@ -232,6 +236,45 @@ pub trait Agent: Sync + Send {
      */
     fn supports_from_to(&self, input: AgentIO, output: AgentIO) -> bool {
         self.supported_inputs().contains(&input) && self.supported_outputs().contains(&output)
+    }
+
+    /**
+     * Get the name of the default prompt to use with the agent
+     */
+    fn default_prompt(&self) -> &str {
+        "default"
+    }
+
+    /**
+     * Render a prompt with some context
+     *
+     * If no prompt name is provided, the default prompt for the agent is used.
+     *
+     * If the provided context is a JSON object, then some additional context
+     * variables are added.
+     *
+     * Returns a tuple of the system and user prompt.
+     */
+    fn render_prompt(
+        &self,
+        prompt: &Option<String>,
+        mut context: serde_json::Value,
+    ) -> Result<(String, String)> {
+        let prompt_name = prompt
+            .as_ref()
+            .map_or_else(|| self.default_prompt(), |name| name.as_str());
+
+        if let Some(context) = context.as_object_mut() {
+            context.insert("agent_name".to_string(), json!(self.name()));
+            context.insert("prompt_name".to_string(), json!(prompt_name));
+            context.insert(
+                "current_timestamp".to_string(),
+                json!(Utc::now().to_rfc3339()),
+            );
+        }
+
+        let prompt = Prompt::load(prompt_name)?;
+        prompt.render_with(context)
     }
 
     /**

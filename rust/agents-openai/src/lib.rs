@@ -12,13 +12,12 @@ use async_openai::{
 use agent::{
     common::{
         async_trait::async_trait,
-        chrono::Utc,
         eyre::{bail, Result},
         itertools::Itertools,
-        serde_json::json,
+        serde_json::{json, Value},
         tracing,
     },
-    Agent, AgentIO, GenerateOptions, Prompt,
+    Agent, AgentIO, GenerateOptions,
 };
 
 /// An agent running on OpenAI
@@ -71,11 +70,12 @@ impl Agent for OpenAIAgent {
     ) -> Result<String> {
         let options = options.unwrap_or_default();
 
-        let (system_prompt, user_prompt) = Prompt::load_or_default(&options.prompt_name)?
-            .render_with(json!({
-                "instruction": instruction,
-                "timestamp": Utc::now().to_rfc3339()
-            }))?;
+        let (system_prompt, user_prompt) = self.render_prompt(
+            &options.prompt_name,
+            json!({
+                "instruction": instruction
+            }),
+        )?;
 
         chat_completion(
             &self.name(),
@@ -94,8 +94,8 @@ impl Agent for OpenAIAgent {
     ) -> Result<String> {
         let options = options.unwrap_or_default();
 
-        // TODO: Should the user prompt be used here?
-        let (system_prompt, ..) = Prompt::load_or_default(&options.prompt_name)?.render()?;
+        // TODO: Should the chat be used in the render context and the returned user_prompt be passed on?
+        let (system_prompt, ..) = self.render_prompt(&options.prompt_name, Value::Null)?;
 
         chat_completion(&self.name(), &self.model, &system_prompt, chat, options).await
     }
