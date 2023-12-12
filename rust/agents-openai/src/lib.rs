@@ -12,11 +12,13 @@ use async_openai::{
 use agent::{
     common::{
         async_trait::async_trait,
+        chrono::Utc,
         eyre::{bail, Result},
         itertools::Itertools,
+        serde_json::json,
         tracing,
     },
-    Agent, AgentIO, GenerateOptions,
+    Agent, AgentIO, GenerateOptions, Prompt,
 };
 
 /// An agent running on OpenAI
@@ -67,8 +69,22 @@ impl Agent for OpenAIAgent {
         instruction: &str,
         options: Option<GenerateOptions>,
     ) -> Result<String> {
-        // Just execute as a chat with a single message
-        self.chat_to_text(&[instruction], options).await
+        let options = options.unwrap_or_default();
+
+        let (system_prompt, user_prompt) = Prompt::load_or_default(&options.prompt_name)?
+            .render_with(json!({
+                "instruction": instruction,
+                "timestamp": Utc::now().to_rfc3339()
+            }))?;
+
+        chat_completion(
+            &self.name(),
+            &self.model,
+            &system_prompt,
+            &[&user_prompt],
+            options,
+        )
+        .await
     }
 
     async fn chat_to_text(
@@ -76,98 +92,12 @@ impl Agent for OpenAIAgent {
         chat: &[&str],
         options: Option<GenerateOptions>,
     ) -> Result<String> {
-        let client = Client::new();
+        let options = options.unwrap_or_default();
 
-        // Create the chat with any system prompt first and then alternating
-        // between user and agent messages
-        let mut messages = Vec::with_capacity(chat.len());
-        if let Some(system_prompt) = options
-            .as_ref()
-            .and_then(|options| options.system_prompt.clone())
-        {
-            messages.push(
-                ChatCompletionRequestSystemMessageArgs::default()
-                    .content(system_prompt)
-                    .build()?
-                    .into(),
-            );
-        }
-        for (index, content) in chat.iter().enumerate() {
-            let message = if index % 2 == 0 {
-                ChatCompletionRequestUserMessageArgs::default()
-                    .content(*content)
-                    .build()?
-                    .into()
-            } else {
-                ChatCompletionRequestAssistantMessageArgs::default()
-                    .content(*content)
-                    .build()?
-                    .into()
-            };
-            messages.push(message);
-        }
+        // TODO: Should the user prompt be used here?
+        let (system_prompt, ..) = Prompt::load_or_default(&options.prompt_name)?.render()?;
 
-        // Create the request
-        let mut request = CreateChatCompletionRequestArgs::default();
-        let request = request.model(&self.model).messages(messages);
-
-        // Map options onto the request
-        if let Some(options) = options {
-            macro_rules! map_option {
-                ($from:ident, $to:ident) => {
-                    if let Some(value) = options.$from {
-                        request.$to(value);
-                    }
-                };
-                ($name:ident) => {
-                    map_option!($name, $name)
-                };
-            }
-            macro_rules! ignore_option {
-                ($name:ident) => {
-                    if options.$name.is_some() {
-                        tracing::warn!(
-                            "Option `{}` is ignored by agent `{}` for text-to-text generation",
-                            stringify!($name),
-                            self.name()
-                        )
-                    }
-                };
-            }
-            ignore_option!(mirostat);
-            ignore_option!(mirostat_eta);
-            ignore_option!(mirostat_tau);
-            ignore_option!(num_ctx);
-            ignore_option!(num_gqa);
-            ignore_option!(num_gpu);
-            ignore_option!(num_thread);
-            ignore_option!(repeat_last_n);
-            map_option!(repeat_penalty, presence_penalty);
-            map_option!(temperature);
-            map_option!(seed);
-            map_option!(stop);
-            map_option!(max_tokens);
-            ignore_option!(tfs_z);
-            ignore_option!(num_predict);
-            ignore_option!(top_k);
-            map_option!(top_p);
-            ignore_option!(image_size);
-            ignore_option!(image_quality);
-            ignore_option!(image_style);
-        }
-
-        // Send the request
-        let request = request.build()?;
-        let mut response = client.chat().create(request).await?;
-
-        // Get the content of the first message
-        let text = response
-            .choices
-            .pop()
-            .and_then(|choice| choice.message.content)
-            .unwrap_or_default();
-
-        Ok(text)
+        chat_completion(&self.name(), &self.model, &system_prompt, chat, options).await
     }
 
     async fn text_to_image(
@@ -278,6 +208,106 @@ impl Agent for OpenAIAgent {
     }
 }
 
+/// Complete a chat
+#[tracing::instrument]
+async fn chat_completion(
+    agent_name: &str,
+    model_name: &str,
+    system_prompt: &str,
+    chat: &[&str],
+    options: GenerateOptions,
+) -> Result<String> {
+    tracing::debug!("Sending chat completion response");
+
+    let client = Client::new();
+
+    // Create the chat with any system prompt first and then alternating
+    // between user and agent messages
+    let mut messages = Vec::with_capacity(chat.len() + 1);
+    if !system_prompt.is_empty() {
+        messages.push(
+            ChatCompletionRequestSystemMessageArgs::default()
+                .content(system_prompt)
+                .build()?
+                .into(),
+        );
+    }
+    for (index, content) in chat.iter().enumerate() {
+        let message = if index % 2 == 0 {
+            ChatCompletionRequestUserMessageArgs::default()
+                .content(*content)
+                .build()?
+                .into()
+        } else {
+            ChatCompletionRequestAssistantMessageArgs::default()
+                .content(*content)
+                .build()?
+                .into()
+        };
+        messages.push(message);
+    }
+
+    // Create the request
+    let mut request = CreateChatCompletionRequestArgs::default();
+    let request = request.model(model_name).messages(messages);
+
+    // Map options onto the request
+    macro_rules! map_option {
+        ($from:ident, $to:ident) => {
+            if let Some(value) = options.$from {
+                request.$to(value);
+            }
+        };
+        ($name:ident) => {
+            map_option!($name, $name)
+        };
+    }
+    macro_rules! ignore_option {
+        ($name:ident) => {
+            if options.$name.is_some() {
+                tracing::warn!(
+                    "Option `{}` is ignored by agent `{}` for text-to-text generation",
+                    stringify!($name),
+                    agent_name
+                )
+            }
+        };
+    }
+    ignore_option!(mirostat);
+    ignore_option!(mirostat_eta);
+    ignore_option!(mirostat_tau);
+    ignore_option!(num_ctx);
+    ignore_option!(num_gqa);
+    ignore_option!(num_gpu);
+    ignore_option!(num_thread);
+    ignore_option!(repeat_last_n);
+    map_option!(repeat_penalty, presence_penalty);
+    map_option!(temperature);
+    map_option!(seed);
+    map_option!(stop);
+    map_option!(max_tokens);
+    ignore_option!(tfs_z);
+    ignore_option!(num_predict);
+    ignore_option!(top_k);
+    map_option!(top_p);
+    ignore_option!(image_size);
+    ignore_option!(image_quality);
+    ignore_option!(image_style);
+
+    // Send the request
+    let request = request.build()?;
+    let mut response = client.chat().create(request).await?;
+
+    // Get the content of the first message
+    let text = response
+        .choices
+        .pop()
+        .and_then(|choice| choice.message.content)
+        .unwrap_or_default();
+
+    Ok(text)
+}
+
 /// Get a list of all available OpenAI agents
 ///
 /// Errors if the `OPENAI_API_KEY` env var is not set.
@@ -305,9 +335,7 @@ pub async fn list() -> Result<Vec<Box<dyn Agent>>> {
             use AgentIO::*;
             let (inputs, outputs) = if name.starts_with("gpt-4-vision") {
                 (vec![Text, Image], vec![Text])
-            } else if name.starts_with("gpt-4") {
-                (vec![Text], vec![Text])
-            } else if name.starts_with("gpt-3.5") {
+            } else if name.starts_with("gpt-4") || name.starts_with("gpt-3.5") {
                 (vec![Text], vec![Text])
             } else if name.starts_with("dall-e") {
                 (vec![Text], vec![Image])

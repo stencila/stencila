@@ -78,7 +78,7 @@ impl Agent for OllamaAgent {
     ) -> Result<String> {
         let mut request = GenerationRequest::new(self.model.clone(), instruction.into());
         if let Some(options) = options {
-            request.system = options.system_prompt;
+            request.system = options.prompt_name;
 
             // Map options to Ollama options
             let mut opts = GenerationOptions::default();

@@ -3,7 +3,7 @@ use agent::{
         eyre::{bail, Result},
         tracing,
     },
-    Agent, AgentIO,
+    Agent, AgentIO, GenerateOptions,
 };
 
 pub use agent;
@@ -34,6 +34,7 @@ pub async fn list() -> Vec<Box<dyn Agent>> {
 pub async fn text_to_text(
     instruction: &str,
     agent_name: Option<String>,
+    options: Option<GenerateOptions>,
 ) -> Result<(String, String)> {
     for agent in list().await {
         let should_use = if let Some(agent_name) = &agent_name {
@@ -43,7 +44,7 @@ pub async fn text_to_text(
         };
 
         if should_use {
-            return Ok((agent.name(), agent.text_to_text(instruction, None).await?));
+            return Ok((agent.name(), agent.text_to_text(instruction, options).await?));
         }
     }
 

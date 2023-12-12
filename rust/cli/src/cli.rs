@@ -1,5 +1,6 @@
 use std::path::PathBuf;
 
+use agents::agent::GenerateOptions;
 use yansi::Color;
 
 use common::{
@@ -248,9 +249,9 @@ enum Command {
     /// Generate text using an AI agents
     ///
     /// Mainly intended for testing. This command runs the same code as when you
-    /// create an instruction in
+    /// create an instruction within a document.
     Generate {
-        /// The instruction of what to generate (i.e. the "prompt")
+        /// An instruction of what the agent should generate
         instruction: String,
 
         /// Generate an image rather than text
@@ -260,6 +261,9 @@ enum Command {
         /// The name of the agent to use
         #[arg(long, short)]
         agent: Option<String>,
+
+        #[clap(flatten)]
+        options: Option<GenerateOptions>
     },
 }
 
@@ -564,9 +568,10 @@ impl Cli {
                 instruction,
                 image,
                 agent,
+                options
             } => match image {
                 false => {
-                    let (agent, text) = agents::text_to_text(&instruction, agent).await?;
+                    let (agent, text) = agents::text_to_text(&instruction, agent, options).await?;
                     print!("{}", Color::Green.paint(format!("{} > ", agent)));
                     display::highlighted(&text, Format::Markdown)?;
                 }
