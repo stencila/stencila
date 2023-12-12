@@ -33,34 +33,6 @@ const hasStartIfDelimiter = (line: Line): boolean => /^:::(:{1,2})?\s(\b(if|elif
  */
 const hasEndDelimiter = (line: Line): boolean => /^:::(:{1,2})?$/.test(line.text.trim())
 
-// const isNestedEndDelimiter = (line: Line): boolean => /^:::::$/.test(line.text.trim())
-
-// const findIfBlockEnd = (context: BlockContext, line: Line, nestedLevel: number = 0): number => {
-//   let hasNextLine: boolean
-//   let lineHasCloseDelim: boolean
-//   do {
-//     hasNextLine = context.nextLine()
-//     // find a nested if blocks OR else / elif statements
-//     if (isDelimeterNestedIfBlock(line)) {
-//       context.addElement(context.elt(nodes.colonDelimiterMark, context.lineStart, context.lineStart + 5))
-//       findIfBlockEnd(context, line, nestedLevel + 1)
-//       context.addElement(context.elt(nodes.colonDelimiterMark, context.lineStart, context.lineStart + 5))
-//       context.nextLine()
-//     } else if (isStartElseBLock(line)) {
-//       const delimLength = nestedLevel > 0 ? 5 : 4
-//       context.addElement(context.elt(nodes.colonDelimiterMark, context.lineStart, context.lineStart + delimLength))
-//     }
-
-//     lineHasCloseDelim = nestedLevel > 0 ? isNestedEndDelimiter(line) : isEndDelimiter(line) 
-//   } while (hasNextLine && !lineHasCloseDelim)
-
-//   if (!hasNextLine) {
-//     return -1
-//   }
-
-//   return context.lineStart + 3
-// }
-
 const stencilaBlockConfig: MarkdownConfig = {
   defineNodes: [nodes.colonDelimiterMark, nodes.blockIf, nodes.blockIfMark],
   parseBlock: [{
@@ -84,9 +56,9 @@ const stencilaBlockConfig: MarkdownConfig = {
       const delimiter = context.elt(nodes.colonDelimiterMark, from, to)
       context.addElement(delimiter)
 
-      // if th
+      // if the 
       if (hasStartIfDelimiter(line)) {
-        // find one of the keywords after 
+        // find one of the keywords after the whitespace following the delim.
         const ifMatches = line.text.substring(wsIndex + 1).match(/^\b(if|elif|else)\b/)
         if (ifMatches) {
           const keyWord = ifMatches[0]
@@ -95,27 +67,11 @@ const stencilaBlockConfig: MarkdownConfig = {
           context.addElement(context.elt(nodes.blockIfMark, kwFrom, kwTo))
         }
       }
-      // Send context to the next line before ending block
       context.nextLine()
 
-      // add a if block element, which will create a wrap around the non delimiter or keyword text on the line
       context.addElement(context.elt(nodes.blockIf, from, context.prevLineEnd()))
 
       return true
-
-      // // get the end of the block
-      // const to = findIfBlockEnd(context, line)
-
-      // if (to === -1) {
-      //   return false
-      // }
-
-      // const ifElt = context.elt(nodes.blockIf, from, to)
-      // context.addElement(ifElt)
-
-      // context.addElement(context.elt(nodes.colonDelimiterMark, context.lineStart, to))
-      // context.nextLine()
-      // return true
     },
   }],
   props: [
