@@ -1,11 +1,13 @@
 use std::path::PathBuf;
 
+use agents::agent::GenerateOptions;
 use yansi::Color;
 
 use common::{
     chrono::{Local, SecondsFormat, TimeZone},
     clap::{self, Args, Parser, Subcommand},
     eyre::{eyre, Result},
+    itertools::Itertools,
     tokio, tracing,
 };
 use document::{Document, DocumentType, SyncDirection};
@@ -240,6 +242,29 @@ enum Command {
 
     /// Serve
     Serve(ServeOptions),
+
+    /// List the available AI agents
+    Agents,
+
+    /// Generate text using an AI agents
+    ///
+    /// Mainly intended for testing. This command runs the same code as when you
+    /// create an instruction within a document.
+    Generate {
+        /// An instruction of what the agent should generate
+        instruction: String,
+
+        /// Generate an image rather than text
+        #[arg(long, short)]
+        image: bool,
+
+        /// The name of the agent to use
+        #[arg(long, short)]
+        agent: Option<String>,
+
+        #[clap(flatten)]
+        options: Option<GenerateOptions>
+    },
 }
 
 /// Command line arguments for stripping nodes
@@ -517,6 +542,45 @@ impl Cli {
             }
 
             Command::Serve(options) => serve(options).await?,
+
+            Command::Agents => {
+                let agents = agents::list().await;
+                println!("{:<40} {:<20} {:<20}", "Agent", "Inputs", "Outputs");
+                for agent in agents {
+                    println!(
+                        "{:<40} {:<20} {:<20}",
+                        agent.name(),
+                        agent
+                            .supported_inputs()
+                            .iter()
+                            .map(|input| input.to_string())
+                            .join(", "),
+                        agent
+                            .supported_outputs()
+                            .iter()
+                            .map(|output| output.to_string())
+                            .join(", "),
+                    )
+                }
+            }
+
+            Command::Generate {
+                instruction,
+                image,
+                agent,
+                options
+            } => match image {
+                false => {
+                    let (agent, text) = agents::text_to_text(&instruction, agent, options).await?;
+                    print!("{}", Color::Green.paint(format!("{} > ", agent)));
+                    display::highlighted(&text, Format::Markdown)?;
+                }
+                true => {
+                    let (agent, url) = agents::text_to_image(&instruction, agent).await?;
+                    print!("{}", Color::Green.paint(format!("{} > ", agent)));
+                    print!("{}", Color::Blue.paint(url));
+                }
+            },
         }
 
         if wait {
