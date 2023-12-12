@@ -1,50 +1,50 @@
-import type { Validator, Node } from "@stencila/types";
-import { html } from "lit";
-import { customElement, property } from "lit/decorators.js";
+import type { Validator, Node } from '@stencila/types'
+import { html } from 'lit'
+import { customElement, property } from 'lit/decorators.js'
 
-import { Executable } from "./executable";
+import { Executable } from './executable'
 
-@customElement("stencila-parameter")
+@customElement('stencila-parameter')
 export class Parameter extends Executable {
   @property()
-  name: string;
+  name: string
 
   @property()
-  label?: string;
+  label?: string
 
   @property()
-  value?: Node;
+  value?: Node
 
   @property()
-  default?: Node;
+  default?: Node
 
   @property({ type: Object })
-  validator?: Validator;
+  validator?: Validator
 
   constructor() {
-    super();
+    super()
 
-    this.addEventListener("input", (event: Event) => {
-      const target = event.target as HTMLInputElement;
+    this.addEventListener('input', (event: Event) => {
+      const target = event.target as HTMLInputElement
 
-      const value = target.value;
+      const value = target.value
 
       // TODO: Handle different types of values
       // using target.valueAsNumber and target.valueAsDate
 
       this.patchNode({
-        op: "replace",
+        op: 'replace',
         id: this.id,
-        path: "value",
+        path: 'value',
         value,
-      });
-    });
+      })
+    })
   }
 
   render() {
     return html`
       <label for="${this.name}">${this.label ?? this.name}</label>
       <input name="${this.name}" />
-    `;
+    `
   }
 }

@@ -1,4 +1,4 @@
-import { type DocumentId } from "../types";
+import { type DocumentId } from '../types'
 
 /**
  * The abstract base class for all clients
@@ -10,7 +10,7 @@ export abstract class Client {
   /**
    * The client's WebSocket connection
    */
-  private ws: WebSocket;
+  private ws: WebSocket
 
   /**
    * Construct a new document client
@@ -19,22 +19,22 @@ export abstract class Client {
    * @param subprotocol The WebSocket subprotocol to use
    */
   constructor(id: DocumentId, subprotocol: string) {
-    const protocol = window.location.protocol === "http:" ? "ws" : "wss";
-    const host = window.location.host;
+    const protocol = window.location.protocol === 'http:' ? 'ws' : 'wss'
+    const host = window.location.host
     this.ws = new WebSocket(
       `${protocol}://${host}/~ws/${id}`,
-      subprotocol + ".stencila.org",
-    );
+      subprotocol + '.stencila.org'
+    )
 
     this.ws.onmessage = (event: MessageEvent<string>) => {
-      const message = JSON.parse(event.data);
+      const message = JSON.parse(event.data)
 
-      if (process.env.NODE_ENV === "development") {
-        console.log(`🚩 ${this.constructor.name} received:`, message);
+      if (process.env.NODE_ENV === 'development') {
+        console.log(`🚩 ${this.constructor.name} received:`, message)
       }
 
-      this.receiveMessage(message);
-    };
+      this.receiveMessage(message)
+    }
   }
 
   /**
@@ -54,10 +54,10 @@ export abstract class Client {
    * @param message The message as a JavaScript object
    */
   protected sendMessage(message: Record<string, unknown>) {
-    if (process.env.NODE_ENV === "development") {
-      console.log(`📨 ${this.constructor.name} sending:`, message);
+    if (process.env.NODE_ENV === 'development') {
+      console.log(`📨 ${this.constructor.name} sending:`, message)
     }
 
-    this.ws.send(JSON.stringify(message));
+    this.ws.send(JSON.stringify(message))
   }
 }

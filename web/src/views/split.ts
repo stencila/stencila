@@ -1,10 +1,10 @@
-import { LitElement, html } from "lit";
-import { customElement, property } from "lit/decorators";
+import { LitElement, html } from 'lit'
+import { customElement, property } from 'lit/decorators'
 
-import type { DocumentAccess, DocumentId } from "../types";
+import type { DocumentAccess, DocumentId } from '../types'
 
-import "./dynamic";
-import "./source";
+import './dynamic'
+import './source'
 
 /**
  * Split panes view for a document
@@ -13,13 +13,13 @@ import "./source";
  * but it is possible that in the future the user could choose
  * between alternative views in each pane.
  */
-@customElement("stencila-split-view")
+@customElement('stencila-split-view')
 export class SplitView extends LitElement {
   /**
    * The id of the document
    */
   @property()
-  doc: DocumentId;
+  doc: DocumentId
 
   /**
    * The access level of the view
@@ -27,19 +27,19 @@ export class SplitView extends LitElement {
    * Passed through to child views.
    */
   @property()
-  access: DocumentAccess = "code";
+  access: DocumentAccess = 'code'
 
   /**
    * The format of the source code editor
    */
   @property()
-  format: string;
+  format: string
 
   /**
    * The theme to apply to any themed child views in this view
    */
   @property()
-  theme: string = "default";
+  theme: string = 'default'
 
   protected render() {
     return html`
@@ -58,6 +58,6 @@ export class SplitView extends LitElement {
         theme=${this.theme}
       >
       </stencila-dynamic-view>
-    `;
+    `
   }
 }

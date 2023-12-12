@@ -1,5 +1,5 @@
-import { LitElement } from "lit";
-import { property } from "lit/decorators";
+import { LitElement } from 'lit'
+import { property } from 'lit/decorators'
 
 /**
  * Abstract base class for theme-able document views
@@ -9,7 +9,7 @@ export abstract class ThemedView extends LitElement {
    * The theme to apply to the document view
    */
   @property()
-  theme: string = "default";
+  theme: string = 'default'
 
   /**
    * Set the theme of the document
@@ -24,15 +24,15 @@ export abstract class ThemedView extends LitElement {
   setTheme(theme: string) {
     const adoptTheme = () => {
       // Find the stylesheet for the theme
-      let styleSheet: CSSStyleSheet;
+      let styleSheet: CSSStyleSheet
       for (const sheet of document.styleSheets) {
         if (sheet.title === `theme:${theme}`) {
-          styleSheet = sheet;
-          break;
+          styleSheet = sheet
+          break
         }
       }
       if (!styleSheet) {
-        throw new Error(`Stylesheet for theme "${theme}" not loaded yet!`);
+        throw new Error(`Stylesheet for theme "${theme}" not loaded yet!`)
       }
 
       // It is only possible to adopt constructed stylesheets so
@@ -40,28 +40,28 @@ export abstract class ThemedView extends LitElement {
       // into CSS and construct a new stylesheet using that.
       const newCSS = [...styleSheet.cssRules]
         .map((rule) => rule.cssText)
-        .join("");
-      const constructedStyleSheet = new CSSStyleSheet();
-      constructedStyleSheet.replaceSync(newCSS);
-      this.shadowRoot.adoptedStyleSheets = [constructedStyleSheet];
-    };
+        .join('')
+      const constructedStyleSheet = new CSSStyleSheet()
+      constructedStyleSheet.replaceSync(newCSS)
+      this.shadowRoot.adoptedStyleSheets = [constructedStyleSheet]
+    }
 
     // Check if the theme is already been loaded and if so just adopt it
     const alreadyLoaded =
-      document.head.querySelector(`link[title="theme:${theme}"]`) !== null;
+      document.head.querySelector(`link[title="theme:${theme}"]`) !== null
     if (alreadyLoaded) {
-      adoptTheme();
-      return;
+      adoptTheme()
+      return
     }
 
     // Create a <link> element for the theme and when it is loaded adopt it
-    const newStyleSheet = document.createElement("link") as HTMLLinkElement;
-    newStyleSheet.title = `theme:${theme}`;
-    newStyleSheet.rel = "stylesheet";
-    newStyleSheet.type = "text/css";
-    newStyleSheet.href = `/~static/dev/themes/${theme}.css`;
-    newStyleSheet.onload = () => adoptTheme();
-    document.head.appendChild(newStyleSheet);
+    const newStyleSheet = document.createElement('link') as HTMLLinkElement
+    newStyleSheet.title = `theme:${theme}`
+    newStyleSheet.rel = 'stylesheet'
+    newStyleSheet.type = 'text/css'
+    newStyleSheet.href = `/~static/dev/themes/${theme}.css`
+    newStyleSheet.onload = () => adoptTheme()
+    document.head.appendChild(newStyleSheet)
   }
 
   /**
@@ -69,10 +69,10 @@ export abstract class ThemedView extends LitElement {
    * of theme it can be adopted by this element's Shadow DOM.
    */
   override update(changedProperties: Map<string, string | boolean>) {
-    super.update(changedProperties);
+    super.update(changedProperties)
 
-    if (changedProperties.has("theme")) {
-      this.setTheme(this.theme);
+    if (changedProperties.has('theme')) {
+      this.setTheme(this.theme)
     }
   }
 }

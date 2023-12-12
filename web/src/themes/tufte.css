@@ -12,7 +12,7 @@
  * - all styles involving classes have been removed e.g `.sidenote`, `.epigraph`
 */
 
-@import "../fonts/et-book/et-book.css";
+@import '../fonts/et-book/et-book.css';
 
 [data-root] {
   font-size: 15px;
@@ -23,8 +23,8 @@
   margin-left: auto;
   margin-right: auto;
   padding-left: 12.5%;
-  font-family: et-book, Palatino, "Palatino Linotype", "Palatino LT STD",
-    "Book Antiqua", Georgia, serif;
+  font-family: et-book, Palatino, 'Palatino Linotype', 'Palatino LT STD',
+    'Book Antiqua', Georgia, serif;
   background-color: #fffff8;
   color: #111;
   counter-reset: sidenote-counter;
@@ -223,7 +223,7 @@
 
   code,
   pre > code {
-    font-family: Consolas, "Liberation Mono", Menlo, Courier, monospace;
+    font-family: Consolas, 'Liberation Mono', Menlo, Courier, monospace;
     font-size: 1rem;
     line-height: 1.42;
     -webkit-text-size-adjust: 100%; /* Prevent adjustments of font size after orientation changes in iOS. See https://github.com/edwardtufte/tufte-css/issues/81#issuecomment-261953409 */

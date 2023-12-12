@@ -1,29 +1,22 @@
-import { LitElement, html } from "lit";
-import { customElement, property } from "lit/decorators.js";
+import { LitElement, html } from 'lit'
+import { customElement, property } from 'lit/decorators.js'
 
-import logo from "../images/stencilaIcon.svg";
-import { THEMES } from "../themes/themes";
-import { withTwind } from "../twind";
-import type { DocumentId, DocumentView } from "../types";
-import { VIEWS } from "../views/views";
+import logo from '../images/stencilaIcon.svg'
+import { THEMES } from '../themes/themes'
+import { withTwind } from '../twind'
+import type { DocumentId, DocumentView } from '../types'
+import { VIEWS } from '../views/views'
 
-import "../views/static";
-import "../views/live";
-import "../views/dynamic";
-import "../views/source";
-import "../views/split";
-import "../views/visual";
+import '../views/static'
+import '../views/live'
+import '../views/dynamic'
+import '../views/source'
+import '../views/split'
+import '../views/visual'
 
-import "./selector";
+import './selector'
 
-import "./main.css";
-
-type RenderListProps = {
-  label: string
-  list: [string, string][]
-  target: DocumentView | string
-  clickEvent: (e: Event) => void
-}
+import './main.css'
 
 /**
  * Application Wrapper
@@ -31,7 +24,7 @@ type RenderListProps = {
  * Wraps the application in the `app-chrome`. Contains the main header and
  * footer.
  */
-@customElement("stencila-main-app")
+@customElement('stencila-main-app')
 @withTwind()
 export class App extends LitElement {
   /**
@@ -42,7 +35,7 @@ export class App extends LitElement {
    * then the app should offer some suggestions.
    */
   @property()
-  doc?: DocumentId;
+  doc?: DocumentId
 
   /**
    * The current view of the current document
@@ -52,19 +45,19 @@ export class App extends LitElement {
    * the document.
    */
   @property()
-  view?: DocumentView = "live";
+  view?: DocumentView = 'live'
 
   /**
    * The theme to use for HTML-based views of the document (e.g. `static`, `live`)
    */
   @property()
-  theme: string = "default";
+  theme: string = 'default'
 
   /**
    * The format to use for source views of the document (`source` and `split` view)
    */
   @property()
-  format: string = "markdown";
+  format: string = 'markdown'
 
   override render() {
     return html`
@@ -76,28 +69,32 @@ export class App extends LitElement {
             class="flex-grow px-4 py-8 w-full justify-center flex flex-col"
           >
             <header class="container mx-auto">
-              <h1 class="text-xl text-bold leading-tight md:text-2xl lg:text-3xl xl:text-4xl">Document name</h1>
+              <h1
+                class="text-xl text-bold leading-tight md:text-2xl lg:text-3xl xl:text-4xl"
+              >
+                Document name
+              </h1>
             </header>
 
             <nav class="container mx-auto mt-8 mb-4 sm:flex">
-              <div class="flex-grow justify-start flex flex-col sm:flex-row sm:space-x-4">
-                ${this.renderViewSelect()} 
-                ${this.renderThemeSelect()}
+              <div
+                class="flex-grow justify-start flex flex-col sm:flex-row sm:space-x-4"
+              >
+                ${this.renderViewSelect()} ${this.renderThemeSelect()}
               </div>
               ${this.renderPrintLink()}
             </nav>
-            
+
             <div
               class="bg-white border border-grays-mid container p-4 mx-auto h-full shadow-[0_0_8px_rgba(0,0,0,.035)]"
             >
-              
-              ${this.doc ? this.renderView() : "No document specified"}
+              ${this.doc ? this.renderView() : 'No document specified'}
             </div>
           </main>
           ${this.renderFooter()}
         </div>
       </div>
-    `;
+    `
   }
 
   private renderHeader() {
@@ -109,116 +106,102 @@ export class App extends LitElement {
           ><img src="${logo}" alt="Stencila logo" width="28" height="28"
         /></a>
       </nav>
-    </header>`;
-  }
-
-  private renderList(props: RenderListProps) {
-    const { label, list, target, clickEvent } = props
-
-    return html`
-    <details role="list" class="p-0 relative block">
-      <summary aria-haspopup="listbox" role="button">${label}</summary>
-      <ul role="listbox">
-        <li>
-          ${list.map(
-            ([value, desc]) =>
-              html`<button data-value="${value}" class="${target === value ? 'text-brand-red' : ''}" @click=${clickEvent}>
-                ${desc}
-              </button>`,
-          )}
-          <button></button>
-        </li>
-      </ul>
-    </details>
-    `
+    </header>`
   }
 
   private renderViewSelect() {
     const clickEvent = (e: Event) => {
-      this.view = (e.target as HTMLButtonElement).dataset['value'] as DocumentView
+      this.view = (e.target as HTMLButtonElement).dataset[
+        'value'
+      ] as DocumentView
     }
 
-    return html`
-      <stencila-ui-selector
-        label="View"
-        target=${this.view}
-        .list=${Object.entries(VIEWS)}
-        .clickEvent=${clickEvent}>
-      </stencila-ui-selector>`
+    return html` <stencila-ui-selector
+      label="View"
+      target=${this.view}
+      .list=${Object.entries(VIEWS)}
+      .clickEvent=${clickEvent}
+    >
+    </stencila-ui-selector>`
   }
 
   private renderThemeSelect() {
-    return this.renderList({
-      label: "Theme",
-      target: this.theme,
-      clickEvent: (e: Event) => {
-        this.theme = (e.target as HTMLButtonElement).dataset['value']
-      },
-      list: Object.entries(THEMES)
-    })
+    const clickEvent = (e: Event) => {
+      this.theme = (e.target as HTMLButtonElement).dataset['value']
+    }
+
+    return html` <stencila-ui-selector
+      label="Theme"
+      target=${this.theme}
+      .list=${Object.entries(THEMES)}
+      .clickEvent=${clickEvent}
+    >
+    </stencila-ui-selector>`
   }
 
+  /* eslint-disable lit/attribute-value-entities */
   private renderPrintLink() {
     return html`<a
       href="?mode=doc&view=print&theme=${this.theme}"
       target="_blank"
       >Print preview</a
-    >`;
+    >`
   }
+  /* eslint-enable lit/attribute-value-entities */
 
   private renderFooter() {
     return html`<footer class="bg-brand-blue px-4 py-6 text-white">
       <div class="container mx-auto">
         <p class="text-sm my-0">&copy; 2023 Stencila Ltd.</p>
       </div>
-    </footer>`;
+    </footer>`
   }
 
   private renderView() {
     switch (this.view) {
-      case "static":
+      case 'static':
         return html`<stencila-static-view
           view="static"
           doc=${this.doc}
           theme=${this.theme}
           fetch
-        ></stencila-static-view>`;
+        ></stencila-static-view>`
 
-      case "live":
+      case 'live':
         return html`<stencila-live-view
           view="live"
           doc=${this.doc}
           theme=${this.theme}
-        ></stencila-live-view>`;
+        ></stencila-live-view>`
 
-      case "dynamic":
+      case 'dynamic':
         return html`<stencila-dynamic-view
           view="dynamic"
           doc=${this.doc}
           theme=${this.theme}
-        ></stencila-dynamic-view>`;
+        ></stencila-dynamic-view>`
 
-      case "source":
+      case 'source':
         return html`<stencila-source-view
           view="source"
           doc=${this.doc}
           format=${this.format}
-        ></stencila-source-view>`;
+        ></stencila-source-view>`
 
-      case "split":
+      case 'split':
         return html`<stencila-split-view
           view="split"
           doc=${this.doc}
           format=${this.format}
           theme=${this.theme}
-        ></stencila-split-view>`;
+        ></stencila-split-view>`
 
-      case "visual":
+      case 'visual':
         return html`<stencila-visual-view
           view="visual"
           doc=${this.doc}
           theme=${this.theme}
-        ></stencila-visual-view>`;
+        ></stencila-visual-view>`
     }
   }
 }

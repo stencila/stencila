@@ -1,6 +1,6 @@
-import { property } from "lit/decorators.js";
+import { property } from 'lit/decorators.js'
 
-import { Executable } from "./executable";
+import { Executable } from './executable'
 
 /**
  * Abstract base class for web components representing Stencila Schema `CodeExecutable` node types
@@ -9,8 +9,8 @@ import { Executable } from "./executable";
  */
 export abstract class CodeExecutable extends Executable {
   @property()
-  code: string = "";
+  code: string = ''
 
-  @property({ attribute: "programming-language" })
-  programmingLanguage?: string;
+  @property({ attribute: 'programming-language' })
+  programmingLanguage?: string
 }
