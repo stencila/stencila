@@ -13,6 +13,7 @@ import {
   LanguageSupport,
   syntaxHighlighting,
   StreamLanguage,
+  // syntaxTree
 } from "@codemirror/language";
 import { searchKeymap, search } from "@codemirror/search";
 import { Extension, Compartment, StateEffect } from "@codemirror/state";
@@ -28,7 +29,7 @@ import { html, css, LitElement } from "lit";
 import { customElement, property } from "lit/decorators.js";
 
 import { CodeMirrorClient } from "../clients/codemirror";
-import { markDownHighlightStyle } from '../language/markdown';
+import { markDownHighlightStyle } from '../languages/markdown';
 import { installTwind } from "../twind";
 import type { DocumentId, DocumentAccess } from "../types";
 
@@ -108,7 +109,7 @@ export class SourceView extends LitElement {
       name: "markdown",
       extensions: ["md"],
       load: async () => {
-        return import("../language/markdown").then((md) =>
+        return import("../languages/markdown").then((md) =>
           md.stencilaMarkdown(),
         );
       },
@@ -247,9 +248,27 @@ export class SourceView extends LitElement {
         this.codeMirrorView = new CodeMirrorView({
           extensions: [this.codeMirrorClient.sendPatches(), ...extensions],
           parent: this.renderRoot.querySelector("#codemirror"),
+          
         });
-
+        
         this.codeMirrorClient.receivePatches(this.codeMirrorView);
+        // this.codeMirrorView.dom.addEventListener('input', () => {
+        //   const tree = syntaxTree(this.codeMirrorView.state)
+        //   tree.children.forEach(rootNode => {
+        //   const traverse = (node: Tree, depth = 0) => {
+        //     // Log the node type and depth
+        //     if (node.type.name === "BlockIf") {
+        //       console.log(node.type.name, node.cursor());
+        //     }
+        //     // Recursively traverse child nodes
+        //     if (node.children) {
+        //       node.children.forEach(child => traverse(child, depth + 1));
+        //     }
+        //   };
+        //   // Start traversing from the root node
+          
+        //   traverse(rootNode);
+        // })})
       });
     }
 
