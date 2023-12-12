@@ -1,4 +1,12 @@
 # Workflow for running linting, tests, and other checks
+#
+# Detects where file changes occur so that the main Rust-based job
+# (which takes up to 30 mins) is only run when there are related changes
+# (and not when the `web` module changes for example).
+#
+# Tries to take a fail fast approach : dependency audits, linting etc,
+# (which are faster), are run before tests (which are slower, particularly
+# for Rust-based modules including the Node and Pythn SDKs).
 
 name: Test
 
@@ -98,6 +106,12 @@ jobs:
       - name: Install dependencies
         run: make install
 
+      - name: Run dependency audits
+        run: make audit
+
+      - name: Run package publishing checks
+        run: make pubcheck
+
       - name: Run linting
         run: make lint
 
@@ -111,12 +125,6 @@ jobs:
 
       - name: Run accessibility checks
         run: make a11y
-
-      - name: Run dependency audits
-        run: make audit
-
-      - name: Run package publishing checks
-        run: make pubcheck
 
       - name: Make generated files
         run: make generated
@@ -147,6 +155,9 @@ jobs:
       - name: Install dependencies
         run: make -C ts install
 
+      - name: Run dependency audit and publishing checks
+        run: make -C ts audit pubcheck
+
       - name: Run linting
         run: make -C ts lint
 
@@ -165,6 +176,9 @@ jobs:
 
       - name: Install dependencies
         run: make -C web install
+
+      - name: Run dependency audit
+        run: make -C web audit
 
       - name: Run linting
         run: make -C web lint
