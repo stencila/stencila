@@ -13,6 +13,8 @@ This document contains the help content for the `stencila` command-line program.
 * [`stencila inspect`↴](#stencila-inspect)
 * [`stencila convert`↴](#stencila-convert)
 * [`stencila serve`↴](#stencila-serve)
+* [`stencila agents`↴](#stencila-agents)
+* [`stencila generate`↴](#stencila-generate)
 
 ## `stencila`
 
@@ -30,6 +32,8 @@ CLI subcommands and global options
 * `inspect` — Inspect a document as JSON
 * `convert` — Convert a document between formats
 * `serve` — Serve
+* `agents` — List the available AI agents
+* `generate` — Generate text using an AI agents
 
 ###### **Options:**
 
@@ -338,6 +342,53 @@ Serve
 
   Possible values: `in`, `out`, `in-out`
 
+
+
+
+## `stencila agents`
+
+List the available AI agents
+
+**Usage:** `stencila agents`
+
+
+
+## `stencila generate`
+
+Generate text using an AI agents
+
+Mainly intended for testing. This command runs the same code as when you create an instruction within a document.
+
+**Usage:** `stencila generate [OPTIONS] <INSTRUCTION>`
+
+###### **Arguments:**
+
+* `<INSTRUCTION>` — An instruction of what the agent should generate
+
+###### **Options:**
+
+* `-i`, `--image` — Generate an image rather than text
+* `-a`, `--agent <AGENT>` — The name of the agent to use
+* `-p`, `--prompt <PROMPT_NAME>` — The name of the prompt to use
+* `--mirostat <MIROSTAT>` — Enable Mirostat sampling for controlling perplexity
+* `--mirostat-eta <MIROSTAT_ETA>` — Influences how quickly the algorithm responds to feedback from the generated text
+* `--mirostat-tau <MIROSTAT_TAU>` — Controls the balance between coherence and diversity of the output
+* `--num-ctx <NUM_CTX>` — Sets the size of the context window used to generate the next token
+* `--num-gqa <NUM_GQA>` — The number of GQA groups in the transformer layer
+* `--num-gpu <NUM_GPU>` — The number of layers to send to the GPU(s)
+* `--num-thread <NUM_THREAD>` — Sets the number of threads to use during computation
+* `--repeat-last-n <REPEAT_LAST_N>` — Sets how far back for the model to look back to prevent repetition
+* `--repeat-penalty <REPEAT_PENALTY>` — Sets how strongly to penalize repetitions
+* `--temperature <TEMPERATURE>` — The temperature of the model
+* `--seed <SEED>` — Sets the random number seed to use for generation
+* `--stop <STOP>` — Sets the stop sequences to use
+* `--max-tokens <MAX_TOKENS>` — The maximum number of tokens to generate
+* `--tfs-z <TFS_Z>` — Tail free sampling is used to reduce the impact of less probable tokens from the output
+* `--num-predict <NUM_PREDICT>` — Maximum number of tokens to predict when generating text
+* `--top-k <TOP_K>` — Reduces the probability of generating nonsense
+* `--top-p <TOP_P>` — Works together with top-k
+* `--image-quality <IMAGE_QUALITY>` — The quality of the image that will be generated
+* `--image-style <IMAGE_STYLE>` — The style of the generated images. Must be one of `vivid` or `natural`. Vivid causes the model to lean towards generating hyper-real and dramatic images. Natural causes the model to produce more natural, less hyper-real looking images. Supported by `openai/dall-e-3`
 
 
 
