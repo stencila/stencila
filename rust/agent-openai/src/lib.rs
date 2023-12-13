@@ -23,7 +23,7 @@ use agent::{
 /// An agent running on OpenAI
 ///
 /// The environment variable OPENAI_API_KEY must be set to use these agents.
-struct OpenAIAgent {
+pub struct OpenAIAgent {
     /// The OpenAI name for a model including any tag e.g. "llama2:13b"
     ///
     /// Used as the required `model` parameter in each request to `POST /api/generate`
@@ -51,8 +51,8 @@ impl OpenAIAgent {
 
 #[async_trait]
 impl Agent for OpenAIAgent {
-    fn name(&self) -> String {
-        format!("openai-{}", self.model)
+    fn provider(&self) -> String {
+        "openai".to_string()
     }
 
     fn model(&self) -> String {

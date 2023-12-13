@@ -30,7 +30,7 @@ use agent::{
 /// ```
 ///
 /// An agent is listed for each Ollama model that has previously been pulled.
-struct OllamaAgent {
+pub struct OllamaAgent {
     /// The Ollama name for a model including any tag e.g. "llama2:13b"
     ///
     /// Used as the required `model` parameter in each request to `POST /api/generate`
@@ -62,8 +62,8 @@ impl OllamaAgent {
 
 #[async_trait]
 impl Agent for OllamaAgent {
-    fn name(&self) -> String {
-        format!("ollama-{}", self.model)
+    fn provider(&self) -> String {
+        "ollama".to_string()
     }
 
     fn model(&self) -> String {

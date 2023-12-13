@@ -564,15 +564,14 @@ impl Cli {
                     println!("There are no agents available. Perhaps you need to set some environment variables with API keys?")
                 } else {
                     println!(
-                        "{:<40} {:<30} {:<20} {:<20} {:<20}",
-                        "Agent", "Model", "Prompt", "Inputs", "Outputs"
+                        "{:<40} {:<20} {:<20} {:<20}",
+                        "Agent", "Prompt", "Inputs", "Outputs"
                     );
                     for agent in agents {
                         println!(
-                            "{:<40} {:<30} {:<20} {:<20} {:<20}",
+                            "{:<40} {:<20} {:<20} {:<20}",
                             agent.name(),
-                            agent.model(),
-                            agent.default_prompt(),
+                            agent.prompt(),
                             agent
                                 .supported_inputs()
                                 .iter()

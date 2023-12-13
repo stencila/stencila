@@ -25,6 +25,11 @@ pub async fn list() -> Vec<Arc<dyn Agent>> {
     // specific model is specified). Generally, "better" agents should
     // come first.
 
+    match agent_custom::list().await {
+        Ok(mut agents) => list.append(&mut agents),
+        Err(error) => tracing::debug!("While listing custom agents: {error}"),
+    }
+
     match agent_openai::list().await {
         Ok(mut agents) => list.append(&mut agents),
         Err(error) => tracing::debug!("While listing OpenAI agents: {error}"),

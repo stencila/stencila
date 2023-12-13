@@ -6,7 +6,8 @@ use common::{
     itertools::Itertools,
     serde::Serialize,
     serde_json::{self, json},
-    strum::Display, serde_with::skip_serializing_none,
+    serde_with::skip_serializing_none,
+    strum::Display,
 };
 
 // Export crates for the convenience of dependant crates
@@ -218,11 +219,18 @@ pub trait Agent: Sync + Send {
     /**
      * Get the name of the agent
      *
-     * This name should be unique amongst agents. It should not be
-     * the model name (remembering that an agent is a combination of
-     * a model, prompt template, and options)
+     * This name should be unique amongst agents. This default
+     * implementation combines the provider and model name but this
+     * should be overridden if necessary for uniqueness.
      */
-    fn name(&self) -> String;
+    fn name(&self) -> String {
+        format!("{}/{}", self.provider(), self.model())
+    }
+
+    /**
+     * Get the name of the model provider that the agent uses
+     */
+    fn provider(&self) -> String;
 
     /**
      * Get the name of the model that the agent uses
@@ -235,7 +243,7 @@ pub trait Agent: Sync + Send {
      * This prompt will be used if none is provided by the
      * user.
      */
-    fn default_prompt(&self) -> String {
+    fn prompt(&self) -> String {
         "default".to_string()
     }
 
@@ -275,9 +283,7 @@ pub trait Agent: Sync + Send {
         prompt: &Option<String>,
         mut context: serde_json::Value,
     ) -> Result<(String, String)> {
-        let prompt_name = prompt
-            .as_ref()
-            .map_or_else(|| self.default_prompt(), |name| name.clone());
+        let prompt_name = prompt.clone().unwrap_or_else(|| self.prompt());
 
         if let Some(context) = context.as_object_mut() {
             context.insert("agent_name".to_string(), json!(self.name()));
