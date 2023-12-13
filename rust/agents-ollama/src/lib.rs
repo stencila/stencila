@@ -60,7 +60,11 @@ impl OllamaAgent {
 #[async_trait]
 impl Agent for OllamaAgent {
     fn name(&self) -> String {
-        format!("ollama/{}", self.model)
+        format!("ollama-{}", self.model)
+    }
+
+    fn model(&self) -> String {
+        self.model.clone()
     }
 
     fn supported_inputs(&self) -> &[AgentIO] {

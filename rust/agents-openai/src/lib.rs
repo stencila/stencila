@@ -52,7 +52,11 @@ impl OpenAIAgent {
 #[async_trait]
 impl Agent for OpenAIAgent {
     fn name(&self) -> String {
-        format!("openai/{}", self.model)
+        format!("openai-{}", self.model)
+    }
+
+    fn model(&self) -> String {
+        self.model.clone()
     }
 
     fn supported_inputs(&self) -> &[AgentIO] {

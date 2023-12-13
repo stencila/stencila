@@ -263,7 +263,7 @@ enum Command {
         agent: Option<String>,
 
         #[clap(flatten)]
-        options: Option<GenerateOptions>
+        options: Option<GenerateOptions>,
     },
 }
 
@@ -545,11 +545,21 @@ impl Cli {
 
             Command::Agents => {
                 let agents = agents::list().await;
-                println!("{:<40} {:<20} {:<20}", "Agent", "Inputs", "Outputs");
+
+                if agents.is_empty() {
+                    println!("There are no agents available. Perhaps you need to set some environment variables with API keys?")
+                }
+
+                println!(
+                    "{:<40} {:<20} {:<20} {:<20} {:<20}",
+                    "Agent", "Model", "Default prompt", "Inputs", "Outputs"
+                );
                 for agent in agents {
                     println!(
-                        "{:<40} {:<20} {:<20}",
+                        "{:<40} {:<20} {:<20} {:<20} {:<20}",
                         agent.name(),
+                        agent.model(),
+                        agent.default_prompt(),
                         agent
                             .supported_inputs()
                             .iter()
@@ -568,7 +578,7 @@ impl Cli {
                 instruction,
                 image,
                 agent,
-                options
+                options,
             } => match image {
                 false => {
                     let (agent, text) = agents::text_to_text(&instruction, agent, options).await?;

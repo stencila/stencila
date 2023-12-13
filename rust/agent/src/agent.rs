@@ -213,9 +213,28 @@ macro_rules! unsupported {
 #[async_trait]
 pub trait Agent: Sync + Send {
     /**
-     * Get the fully qualified name of the agent
+     * Get the name of the agent
+     * 
+     * This name should be unique amongst agents. It should not be
+     * the model name (remembering that an agent is a combination of
+     * a model, prompt template, and options)
      */
     fn name(&self) -> String;
+
+    /**
+     * Get the name of the model that the agent uses
+     */
+    fn model(&self) -> String;
+    
+    /**
+     * Get the name of the default prompt for this agent
+     * 
+     * This prompt will be used if none is provided by the
+     * user.
+     */
+    fn default_prompt(&self) -> String {
+        "default".to_string()
+    }
 
     /**
      * Get a list of input types this agent supports
@@ -239,13 +258,6 @@ pub trait Agent: Sync + Send {
     }
 
     /**
-     * Get the name of the default prompt to use with the agent
-     */
-    fn default_prompt(&self) -> &str {
-        "default"
-    }
-
-    /**
      * Render a prompt with some context
      *
      * If no prompt name is provided, the default prompt for the agent is used.
@@ -262,7 +274,7 @@ pub trait Agent: Sync + Send {
     ) -> Result<(String, String)> {
         let prompt_name = prompt
             .as_ref()
-            .map_or_else(|| self.default_prompt(), |name| name.as_str());
+            .map_or_else(|| self.default_prompt(), |name| name.clone());
 
         if let Some(context) = context.as_object_mut() {
             context.insert("agent_name".to_string(), json!(self.name()));
@@ -273,7 +285,7 @@ pub trait Agent: Sync + Send {
             );
         }
 
-        let prompt = Prompt::load(prompt_name)?;
+        let prompt = Prompt::load(&prompt_name)?;
         prompt.render_with(context)
     }
 
