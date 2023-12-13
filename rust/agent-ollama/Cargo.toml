@@ -1,5 +1,5 @@
 [package]
-name = "agents-ollama"
+name = "agent-ollama"
 version = "0.0.0"
 edition = "2021"
 

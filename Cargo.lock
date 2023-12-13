@@ -47,17 +47,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "agents"
-version = "0.0.0"
-dependencies = [
- "agent",
- "agents-ollama",
- "agents-openai",
- "cached",
-]
-
-[[package]]
-name = "agents-ollama"
+name = "agent-ollama"
 version = "0.0.0"
 dependencies = [
  "agent",
@@ -65,11 +55,21 @@ dependencies = [
 ]
 
 [[package]]
-name = "agents-openai"
+name = "agent-openai"
 version = "0.0.0"
 dependencies = [
  "agent",
  "async-openai",
+]
+
+[[package]]
+name = "agents"
+version = "0.0.0"
+dependencies = [
+ "agent",
+ "agent-ollama",
+ "agent-openai",
+ "cached",
 ]
 
 [[package]]
