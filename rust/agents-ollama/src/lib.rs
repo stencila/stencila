@@ -1,3 +1,5 @@
+use std::sync::Arc;
+
 use ollama_rs::{
     generation::{completion::request::GenerationRequest, options::GenerationOptions},
     Ollama,
@@ -145,11 +147,11 @@ impl Agent for OllamaAgent {
 ///
 /// Fetches the list of Ollama models from the server and maps them
 /// into agents.
-pub async fn list() -> Result<Vec<Box<dyn Agent>>> {
+pub async fn list() -> Result<Vec<Arc<dyn Agent>>> {
     let models = Ollama::default().list_local_models().await?;
     let agents = models
         .iter()
-        .map(|model| Box::new(OllamaAgent::new(&model.name)) as Box<dyn Agent>)
+        .map(|model| Arc::new(OllamaAgent::new(&model.name)) as Arc<dyn Agent>)
         .collect();
     Ok(agents)
 }

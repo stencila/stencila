@@ -551,12 +551,12 @@ impl Cli {
                 }
 
                 println!(
-                    "{:<40} {:<20} {:<20} {:<20} {:<20}",
-                    "Agent", "Model", "Default prompt", "Inputs", "Outputs"
+                    "{:<40} {:<30} {:<20} {:<20} {:<20}",
+                    "Agent", "Model", "Prompt", "Inputs", "Outputs"
                 );
                 for agent in agents {
                     println!(
-                        "{:<40} {:<20} {:<20} {:<20} {:<20}",
+                        "{:<40} {:<30} {:<20} {:<20} {:<20}",
                         agent.name(),
                         agent.model(),
                         agent.default_prompt(),

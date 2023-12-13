@@ -1,4 +1,4 @@
-use std::env;
+use std::{env, sync::Arc};
 
 use async_openai::{
     types::{
@@ -318,7 +318,7 @@ async fn chat_completion(
 /// Lists the agents available to the account in descending order
 /// or creation date so that more recent (i.e. "better") models are
 /// first.
-pub async fn list() -> Result<Vec<Box<dyn Agent>>> {
+pub async fn list() -> Result<Vec<Arc<dyn Agent>>> {
     if env::var("OPENAI_API_KEY").is_err() {
         bail!("The OPENAI_API_KEY environment variable is not set")
     }
@@ -353,7 +353,7 @@ pub async fn list() -> Result<Vec<Box<dyn Agent>>> {
             };
 
             let agent = OpenAIAgent::new(name, inputs, outputs);
-            Some(Box::new(agent) as Box<dyn Agent>)
+            Some(Arc::new(agent) as Arc<dyn Agent>)
         })
         .collect();
 

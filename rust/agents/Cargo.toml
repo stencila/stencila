@@ -7,3 +7,4 @@ edition = "2021"
 agent = { path = "../agent" }
 agents-ollama = { path = "../agents-ollama" }
 agents-openai = { path = "../agents-openai" }
+cached = { version = "0.46.1", features = ["async"] }

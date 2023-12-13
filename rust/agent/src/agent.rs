@@ -214,7 +214,7 @@ macro_rules! unsupported {
 pub trait Agent: Sync + Send {
     /**
      * Get the name of the agent
-     * 
+     *
      * This name should be unique amongst agents. It should not be
      * the model name (remembering that an agent is a combination of
      * a model, prompt template, and options)
@@ -225,10 +225,10 @@ pub trait Agent: Sync + Send {
      * Get the name of the model that the agent uses
      */
     fn model(&self) -> String;
-    
+
     /**
      * Get the name of the default prompt for this agent
-     * 
+     *
      * This prompt will be used if none is provided by the
      * user.
      */

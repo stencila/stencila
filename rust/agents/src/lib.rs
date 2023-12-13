@@ -1,3 +1,7 @@
+use std::sync::Arc;
+
+use cached::proc_macro::cached;
+
 use agent::{
     common::{
         eyre::{bail, Result},
@@ -9,7 +13,11 @@ use agent::{
 pub use agent;
 
 /// Get a list of available agents
-pub async fn list() -> Vec<Box<dyn Agent>> {
+///
+/// Memoizes the result for an hour to reduce the number of times that
+/// remote APIs need to be called to get a list of available models.
+#[cached(time = 3600)]
+pub async fn list() -> Vec<Arc<dyn Agent>> {
     let mut list = Vec::new();
 
     // The order that agents are added matters because the first
@@ -44,7 +52,10 @@ pub async fn text_to_text(
         };
 
         if should_use {
-            return Ok((agent.name(), agent.text_to_text(instruction, options).await?));
+            return Ok((
+                agent.name(),
+                agent.text_to_text(instruction, options).await?,
+            ));
         }
     }
 
