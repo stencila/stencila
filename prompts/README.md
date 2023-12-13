@@ -44,7 +44,7 @@ You will be provided with several fragments of text, each within an XML <fragmen
 
 ---
 
-<style>{{ instruction }}</style>
+<style>{{ user_instruction }}</style>
 
 {% for fragment in fragments %}
 <fragment>{{ fragment }}</fragment>
@@ -56,7 +56,7 @@ Currently, the following are added to each prompt rendering context:
 - `agent_name`: The name of the agent
 - `prompt_name`: The name of the prompt
 - `current_timestamp`: The current time formatted as a ISO RFC3339 (8601) timestamp
-- `instruction`: The instruction provided by the user
+- `user_instruction`: The instruction provided by the user
 
 ## ⚡ Usage
 

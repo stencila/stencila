@@ -33,7 +33,9 @@ pub fn highlighted(content: &str, format: Format) -> Result<()> {
         for line in content.lines() {
             let ranges: Vec<(Style, &str)> = highlighter.highlight_line(line, &SYNTAXES)?;
             let escaped = as_24_bit_terminal_escaped(&ranges[..], false);
-            println!("{}", escaped);
+            // Ensure terminal attributes are reset to their defaults otherwise
+            // the styling on the last line will persist (e.g. in a REPL)
+            println!("{}\x1b[0m", escaped);
         }
     } else {
         println!("{}", content)

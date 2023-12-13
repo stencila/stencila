@@ -8,7 +8,7 @@ Summarize this information in the style of the Winnie the Pooh books inserting c
 
 ---
 
-<instruction>{{ instruction }}</instruction>
+<instruction>{{ user_instruction }}</instruction>
 <agent_name>{{ agent_name }}</agent_name>
 <prompt_name>{{ prompt_name }}</prompt_name>
 <timestamp>{{ current_timestamp }}</timestamp>

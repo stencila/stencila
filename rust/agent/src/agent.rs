@@ -4,8 +4,9 @@ use common::{
     clap::{self, Args, ValueEnum},
     eyre::{bail, Result},
     itertools::Itertools,
+    serde::Serialize,
     serde_json::{self, json},
-    strum::Display,
+    strum::Display, serde_with::skip_serializing_none,
 };
 
 // Export crates for the convenience of dependant crates
@@ -35,7 +36,9 @@ pub enum AgentIO {
 ///
 /// Currently, the names and descriptions are based mainly on those documented for `ollama`
 /// with some additions for OpenAI.
-#[derive(Debug, Default, Args)]
+#[skip_serializing_none]
+#[derive(Debug, Default, Clone, Args, Serialize)]
+#[serde(crate = "common::serde")]
 pub struct GenerateOptions {
     /// The name of the prompt to use
     ///
@@ -213,9 +216,28 @@ macro_rules! unsupported {
 #[async_trait]
 pub trait Agent: Sync + Send {
     /**
-     * Get the fully qualified name of the agent
+     * Get the name of the agent
+     *
+     * This name should be unique amongst agents. It should not be
+     * the model name (remembering that an agent is a combination of
+     * a model, prompt template, and options)
      */
     fn name(&self) -> String;
+
+    /**
+     * Get the name of the model that the agent uses
+     */
+    fn model(&self) -> String;
+
+    /**
+     * Get the name of the default prompt for this agent
+     *
+     * This prompt will be used if none is provided by the
+     * user.
+     */
+    fn default_prompt(&self) -> String {
+        "default".to_string()
+    }
 
     /**
      * Get a list of input types this agent supports
@@ -239,13 +261,6 @@ pub trait Agent: Sync + Send {
     }
 
     /**
-     * Get the name of the default prompt to use with the agent
-     */
-    fn default_prompt(&self) -> &str {
-        "default"
-    }
-
-    /**
      * Render a prompt with some context
      *
      * If no prompt name is provided, the default prompt for the agent is used.
@@ -262,7 +277,7 @@ pub trait Agent: Sync + Send {
     ) -> Result<(String, String)> {
         let prompt_name = prompt
             .as_ref()
-            .map_or_else(|| self.default_prompt(), |name| name.as_str());
+            .map_or_else(|| self.default_prompt(), |name| name.clone());
 
         if let Some(context) = context.as_object_mut() {
             context.insert("agent_name".to_string(), json!(self.name()));
@@ -273,7 +288,7 @@ pub trait Agent: Sync + Send {
             );
         }
 
-        let prompt = Prompt::load(prompt_name)?;
+        let prompt = Prompt::load(&prompt_name)?;
         prompt.render_with(context)
     }
 
@@ -281,11 +296,7 @@ pub trait Agent: Sync + Send {
      * Generate text in response to an instruction
      */
     #[allow(unused)]
-    async fn text_to_text(
-        &self,
-        instruction: &str,
-        options: Option<GenerateOptions>,
-    ) -> Result<String> {
+    async fn text_to_text(&self, instruction: &str, options: &GenerateOptions) -> Result<String> {
         unsupported!(self, "Text to text")
     }
 
@@ -302,13 +313,9 @@ pub trait Agent: Sync + Send {
      * text and passes it to the `text_to_text` method.
      */
     #[allow(unused)]
-    async fn chat_to_text(
-        &self,
-        chat: &[&str],
-        options: Option<GenerateOptions>,
-    ) -> Result<String> {
+    async fn chat_to_text(&self, chat: &[&str], options: &GenerateOptions) -> Result<String> {
         let instruction = chat.iter().map(|message| message.trim()).join("\n\n");
-        self.text_to_text(&instruction, options).await
+        self.text_to_text(&instruction, &options).await
     }
 
     /**
@@ -318,11 +325,7 @@ pub trait Agent: Sync + Send {
      * as well as the format of the image(?).
      */
     #[allow(unused)]
-    async fn text_to_image(
-        &self,
-        instruction: &str,
-        options: Option<GenerateOptions>,
-    ) -> Result<String> {
+    async fn text_to_image(&self, instruction: &str, options: &GenerateOptions) -> Result<String> {
         unsupported!(self, "Text to image")
     }
 }
