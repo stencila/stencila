@@ -67,13 +67,7 @@ impl Agent for OpenAIAgent {
         &self.outputs
     }
 
-    async fn text_to_text(
-        &self,
-        instruction: &str,
-        options: Option<GenerateOptions>,
-    ) -> Result<String> {
-        let options = options.unwrap_or_default();
-
+    async fn text_to_text(&self, instruction: &str, options: &GenerateOptions) -> Result<String> {
         let (system_prompt, user_prompt) = self.render_prompt(
             &options.prompt_name,
             json!({
@@ -86,29 +80,19 @@ impl Agent for OpenAIAgent {
             &self.model,
             &system_prompt,
             &[&user_prompt],
-            options,
+            &options,
         )
         .await
     }
 
-    async fn chat_to_text(
-        &self,
-        chat: &[&str],
-        options: Option<GenerateOptions>,
-    ) -> Result<String> {
-        let options = options.unwrap_or_default();
-
+    async fn chat_to_text(&self, chat: &[&str], options: &GenerateOptions) -> Result<String> {
         // TODO: Should the chat be used in the render context and the returned user_prompt be passed on?
         let (system_prompt, ..) = self.render_prompt(&options.prompt_name, Value::Null)?;
 
         chat_completion(&self.name(), &self.model, &system_prompt, chat, options).await
     }
 
-    async fn text_to_image(
-        &self,
-        instruction: &str,
-        options: Option<GenerateOptions>,
-    ) -> Result<String> {
+    async fn text_to_image(&self, instruction: &str, options: &GenerateOptions) -> Result<String> {
         let client = Client::new();
 
         // Create the base request
@@ -118,80 +102,78 @@ impl Agent for OpenAIAgent {
             .response_format(ResponseFormat::Url);
 
         // Map options onto the request
-        if let Some(options) = options {
-            macro_rules! ignore_option {
-                ($name:ident) => {
-                    if options.$name.is_some() {
-                        tracing::warn!(
-                            "Option `{}` is ignored by agent `{}` for text-to-image generation",
-                            stringify!($name),
-                            self.name()
-                        )
-                    }
-                };
-            }
-            ignore_option!(mirostat);
-            ignore_option!(mirostat_eta);
-            ignore_option!(mirostat_tau);
-            ignore_option!(num_ctx);
-            ignore_option!(num_gqa);
-            ignore_option!(num_gpu);
-            ignore_option!(num_thread);
-            ignore_option!(repeat_last_n);
-            ignore_option!(repeat_penalty);
-            ignore_option!(temperature);
-            ignore_option!(seed);
-            ignore_option!(stop);
-            ignore_option!(max_tokens);
-            ignore_option!(tfs_z);
-            ignore_option!(num_predict);
-            ignore_option!(top_k);
-            ignore_option!(top_p);
+        macro_rules! ignore_option {
+            ($name:ident) => {
+                if options.$name.is_some() {
+                    tracing::warn!(
+                        "Option `{}` is ignored by agent `{}` for text-to-image generation",
+                        stringify!($name),
+                        self.name()
+                    )
+                }
+            };
+        }
+        ignore_option!(mirostat);
+        ignore_option!(mirostat_eta);
+        ignore_option!(mirostat_tau);
+        ignore_option!(num_ctx);
+        ignore_option!(num_gqa);
+        ignore_option!(num_gpu);
+        ignore_option!(num_thread);
+        ignore_option!(repeat_last_n);
+        ignore_option!(repeat_penalty);
+        ignore_option!(temperature);
+        ignore_option!(seed);
+        ignore_option!(stop);
+        ignore_option!(max_tokens);
+        ignore_option!(tfs_z);
+        ignore_option!(num_predict);
+        ignore_option!(top_k);
+        ignore_option!(top_p);
 
-            if let Some((w, h)) = options.image_size {
-                match (w, h) {
-                    (256, 256) => {
-                        request.size(ImageSize::S256x256);
-                    }
-                    (512, 512) => {
-                        request.size(ImageSize::S512x512);
-                    }
-                    (1024, 1024) => {
-                        request.size(ImageSize::S1024x1024);
-                    }
-                    (1024, 1792) => {
-                        request.size(ImageSize::S1024x1792);
-                    }
-                    (1792, 1024) => {
-                        request.size(ImageSize::S1792x1024);
-                    }
-                    _ => bail!("Unsupported image size `{w}x{h}`"),
-                };
-            }
+        if let Some((w, h)) = options.image_size {
+            match (w, h) {
+                (256, 256) => {
+                    request.size(ImageSize::S256x256);
+                }
+                (512, 512) => {
+                    request.size(ImageSize::S512x512);
+                }
+                (1024, 1024) => {
+                    request.size(ImageSize::S1024x1024);
+                }
+                (1024, 1792) => {
+                    request.size(ImageSize::S1024x1792);
+                }
+                (1792, 1024) => {
+                    request.size(ImageSize::S1792x1024);
+                }
+                _ => bail!("Unsupported image size `{w}x{h}`"),
+            };
+        }
 
-            if let Some(quality) = options.image_quality {
-                match quality.to_lowercase().as_str() {
-                    "std" | "standard" => {
-                        request.quality(ImageQuality::Standard);
-                    }
-                    "hd" | "high-definition" => {
-                        request.quality(ImageQuality::HD);
-                    }
-                    _ => bail!("Unsupported image quality `{quality}`"),
-                };
-            }
+        if let Some(quality) = &options.image_quality {
+            match quality.to_lowercase().as_str() {
+                "std" | "standard" => {
+                    request.quality(ImageQuality::Standard);
+                }
+                "hd" | "high-definition" => {
+                    request.quality(ImageQuality::HD);
+                }
+                _ => bail!("Unsupported image quality `{quality}`"),
+            };
+        }
 
-            if let Some(style) = options.image_style {
-                match style.to_lowercase().as_str() {
-                    "nat" | "natural" => {
-                        request.style(ImageStyle::Natural);
-                    }
-                    "viv" | "vivid" => {
-                        request.style(ImageStyle::Vivid);
-                    }
-                    _ => bail!("Unsupported image style `{style}`"),
-                };
-            }
+        if let Some(style) = &options.image_style {
+            match style.to_lowercase().as_str() {
+                "nat" | "natural" => {
+                    request.style(ImageStyle::Natural);
+                }
+                "viv" | "vivid" => {
+                    request.style(ImageStyle::Vivid);
+                }
+                _ => bail!("Unsupported image style `{style}`"),
+            };
         }
 
         // Send the request
@@ -219,7 +201,7 @@ async fn chat_completion(
     model_name: &str,
     system_prompt: &str,
     chat: &[&str],
-    options: GenerateOptions,
+    options: &GenerateOptions,
 ) -> Result<String> {
     tracing::debug!("Sending chat completion response");
 
@@ -258,8 +240,8 @@ async fn chat_completion(
     // Map options onto the request
     macro_rules! map_option {
         ($from:ident, $to:ident) => {
-            if let Some(value) = options.$from {
-                request.$to(value);
+            if let Some(value) = &options.$from {
+                request.$to(value.clone());
             }
         };
         ($name:ident) => {

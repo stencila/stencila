@@ -77,61 +77,56 @@ impl Agent for OllamaAgent {
         &[AgentIO::Text]
     }
 
-    async fn text_to_text(
-        &self,
-        instruction: &str,
-        options: Option<GenerateOptions>,
-    ) -> Result<String> {
+    async fn text_to_text(&self, instruction: &str, options: &GenerateOptions) -> Result<String> {
         let mut request = GenerationRequest::new(self.model.clone(), instruction.into());
-        if let Some(options) = options {
-            request.system = options.prompt_name;
 
-            // Map options to Ollama options
-            let mut opts = GenerationOptions::default();
-            macro_rules! map_option {
-                ($from:ident, $to:ident) => {
-                    if let Some(value) = options.$from {
-                        opts = opts.$to(value);
-                    }
-                };
-                ($name:ident) => {
-                    map_option!($name, $name)
-                };
-            }
-            macro_rules! ignore_option {
-                ($name:ident) => {
-                    if options.$name.is_some() {
-                        tracing::warn!(
-                            "Option `{}` is ignored by agent `{}` for text-to-text generation",
-                            stringify!($name),
-                            self.name()
-                        )
-                    }
-                };
-            }
-            map_option!(mirostat);
-            map_option!(mirostat_eta);
-            map_option!(mirostat_tau);
-            map_option!(num_ctx);
-            map_option!(num_gqa);
-            map_option!(num_gpu);
-            map_option!(num_thread);
-            map_option!(repeat_last_n);
-            map_option!(repeat_penalty);
-            map_option!(temperature);
-            map_option!(seed);
-            map_option!(stop);
-            ignore_option!(max_tokens);
-            map_option!(tfs_z);
-            map_option!(num_predict);
-            map_option!(top_k);
-            map_option!(top_p);
-            ignore_option!(image_size);
-            ignore_option!(image_quality);
-            ignore_option!(image_style);
+        request.system = options.prompt_name.clone();
 
-            request.options = Some(opts);
+        // Map options to Ollama options
+        let mut opts = GenerationOptions::default();
+        macro_rules! map_option {
+            ($from:ident, $to:ident) => {
+                if let Some(value) = &options.$from {
+                    opts = opts.$to(value.clone());
+                }
+            };
+            ($name:ident) => {
+                map_option!($name, $name)
+            };
         }
+        macro_rules! ignore_option {
+            ($name:ident) => {
+                if options.$name.is_some() {
+                    tracing::warn!(
+                        "Option `{}` is ignored by agent `{}` for text-to-text generation",
+                        stringify!($name),
+                        self.name()
+                    )
+                }
+            };
+        }
+        map_option!(mirostat);
+        map_option!(mirostat_eta);
+        map_option!(mirostat_tau);
+        map_option!(num_ctx);
+        map_option!(num_gqa);
+        map_option!(num_gpu);
+        map_option!(num_thread);
+        map_option!(repeat_last_n);
+        map_option!(repeat_penalty);
+        map_option!(temperature);
+        map_option!(seed);
+        map_option!(stop);
+        ignore_option!(max_tokens);
+        map_option!(tfs_z);
+        map_option!(num_predict);
+        map_option!(top_k);
+        map_option!(top_p);
+        ignore_option!(image_size);
+        ignore_option!(image_quality);
+        ignore_option!(image_style);
+
+        request.options = Some(opts);
 
         let response = self
             .client

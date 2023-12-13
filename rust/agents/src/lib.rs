@@ -39,11 +39,14 @@ pub async fn list() -> Vec<Arc<dyn Agent>> {
 }
 
 /// Generate text
+///
+/// Returns a tuple of the agent that did the generation and
+/// the string it generated
 pub async fn text_to_text(
     instruction: &str,
-    agent_name: Option<String>,
-    options: Option<GenerateOptions>,
-) -> Result<(String, String)> {
+    agent_name: &Option<String>,
+    options: &GenerateOptions,
+) -> Result<(Arc<dyn Agent>, String)> {
     for agent in list().await {
         let should_use = if let Some(agent_name) = &agent_name {
             &agent.name() == agent_name
@@ -53,7 +56,7 @@ pub async fn text_to_text(
 
         if should_use {
             return Ok((
-                agent.name(),
+                agent.clone(),
                 agent.text_to_text(instruction, options).await?,
             ));
         }
@@ -63,10 +66,14 @@ pub async fn text_to_text(
 }
 
 /// Generate image
+///
+/// Returns a tuple of the agent that did the generation and
+/// the string it generated
 pub async fn text_to_image(
     instruction: &str,
     agent_name: Option<String>,
-) -> Result<(String, String)> {
+    options: &GenerateOptions,
+) -> Result<(Arc<dyn Agent>, String)> {
     for agent in list().await {
         let should_use = if let Some(agent_name) = &agent_name {
             &agent.name() == agent_name
@@ -75,7 +82,10 @@ pub async fn text_to_image(
         };
 
         if should_use {
-            return Ok((agent.name(), agent.text_to_image(instruction, None).await?));
+            return Ok((
+                agent.clone(),
+                agent.text_to_image(instruction, options).await?,
+            ));
         }
     }
 

@@ -4,8 +4,9 @@ use common::{
     clap::{self, Args, ValueEnum},
     eyre::{bail, Result},
     itertools::Itertools,
+    serde::Serialize,
     serde_json::{self, json},
-    strum::Display,
+    strum::Display, serde_with::skip_serializing_none,
 };
 
 // Export crates for the convenience of dependant crates
@@ -35,7 +36,9 @@ pub enum AgentIO {
 ///
 /// Currently, the names and descriptions are based mainly on those documented for `ollama`
 /// with some additions for OpenAI.
-#[derive(Debug, Default, Args)]
+#[skip_serializing_none]
+#[derive(Debug, Default, Clone, Args, Serialize)]
+#[serde(crate = "common::serde")]
 pub struct GenerateOptions {
     /// The name of the prompt to use
     ///
@@ -293,11 +296,7 @@ pub trait Agent: Sync + Send {
      * Generate text in response to an instruction
      */
     #[allow(unused)]
-    async fn text_to_text(
-        &self,
-        instruction: &str,
-        options: Option<GenerateOptions>,
-    ) -> Result<String> {
+    async fn text_to_text(&self, instruction: &str, options: &GenerateOptions) -> Result<String> {
         unsupported!(self, "Text to text")
     }
 
@@ -314,13 +313,9 @@ pub trait Agent: Sync + Send {
      * text and passes it to the `text_to_text` method.
      */
     #[allow(unused)]
-    async fn chat_to_text(
-        &self,
-        chat: &[&str],
-        options: Option<GenerateOptions>,
-    ) -> Result<String> {
+    async fn chat_to_text(&self, chat: &[&str], options: &GenerateOptions) -> Result<String> {
         let instruction = chat.iter().map(|message| message.trim()).join("\n\n");
-        self.text_to_text(&instruction, options).await
+        self.text_to_text(&instruction, &options).await
     }
 
     /**
@@ -330,11 +325,7 @@ pub trait Agent: Sync + Send {
      * as well as the format of the image(?).
      */
     #[allow(unused)]
-    async fn text_to_image(
-        &self,
-        instruction: &str,
-        options: Option<GenerateOptions>,
-    ) -> Result<String> {
+    async fn text_to_image(&self, instruction: &str, options: &GenerateOptions) -> Result<String> {
         unsupported!(self, "Text to image")
     }
 }
