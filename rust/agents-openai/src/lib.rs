@@ -71,7 +71,7 @@ impl Agent for OpenAIAgent {
         let (system_prompt, user_prompt) = self.render_prompt(
             &options.prompt_name,
             json!({
-                "instruction": instruction
+                "user_instruction": instruction
             }),
         )?;
 

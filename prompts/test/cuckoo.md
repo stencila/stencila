@@ -8,5 +8,5 @@ Respond to the instruction as accurately as possible. Always end the response wi
 
 ---
 
-<instruction>{{ instruction }}</instruction>
+<instruction>{{ user_instruction }}</instruction>
 <timestamp>{{ current_timestamp }}</timestamp>

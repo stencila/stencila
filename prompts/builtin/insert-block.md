@@ -30,5 +30,5 @@ Python code block
 ---
 
 <instruction>
-{{ instruction }}
+{{ user_instruction }}
 </instruction>

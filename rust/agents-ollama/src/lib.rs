@@ -9,6 +9,7 @@ use agent::{
     common::{
         async_trait::async_trait,
         eyre::{eyre, Result},
+        serde_json::json,
         tracing,
     },
     Agent, AgentIO, GenerateOptions,
@@ -78,9 +79,16 @@ impl Agent for OllamaAgent {
     }
 
     async fn text_to_text(&self, instruction: &str, options: &GenerateOptions) -> Result<String> {
-        let mut request = GenerationRequest::new(self.model.clone(), instruction.into());
+        let (system_prompt, user_prompt) = self.render_prompt(
+            &options.prompt_name,
+            json!({
+                "user_instruction": instruction
+            }),
+        )?;
 
-        request.system = options.prompt_name.clone();
+        let mut request = GenerationRequest::new(self.model.clone(), user_prompt);
+
+        request.system = Some(system_prompt);
 
         // Map options to Ollama options
         let mut opts = GenerationOptions::default();
