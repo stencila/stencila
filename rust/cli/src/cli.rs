@@ -657,7 +657,7 @@ impl Cli {
                                                 println!("{}", error.format(&mut cmd))
                                             }
                                             _ => {
-                                                println!("Error: {}", error.format(&mut cmd))
+                                                println!("{}", error.format(&mut cmd))
                                             }
                                         }
                                     }
@@ -681,13 +681,13 @@ impl Cli {
 
                                 // Record in database if user wants to
                                 if record {
-                                    println!(
+                                    let question = format!(
                                         ">> {}",
-                                        "Would you like to record this trial? (y/n)"
+                                        "Would you like to record this trial? (y/n): "
                                             .dimmed()
                                             .yellow()
                                     );
-                                    let answer = reader.readline(">> ")?;
+                                    let answer = reader.readline(&question)?;
                                     if answer == "y" || answer.is_empty() {
                                         agents::testing::insert_trial(
                                             agent,
