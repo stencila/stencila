@@ -1,11 +1,12 @@
-import { LitElement, html } from 'lit'
+import { html } from 'lit'
 import { customElement, property } from 'lit/decorators'
 
+import { TWLitElement } from '../features/base/TwindLitElement'
+import { withTwind } from '../twind'
 import type { DocumentAccess, DocumentId } from '../types'
 
-import './dynamic'
 import './source'
-
+import './dynamic'
 /**
  * Split panes view for a document
  *
@@ -14,7 +15,8 @@ import './source'
  * between alternative views in each pane.
  */
 @customElement('stencila-split-view')
-export class SplitView extends LitElement {
+@withTwind()
+export class SplitView extends TWLitElement {
   /**
    * The id of the document
    */
@@ -43,21 +45,24 @@ export class SplitView extends LitElement {
 
   protected render() {
     return html`
-      <stencila-source-view
-        view="source"
-        doc=${this.doc}
-        access="write"
-        format=${this.format}
-      >
-      </stencila-source-view>
+      <div class="grid grid-cols-2">
+        <stencila-source-view
+          view="source"
+          doc=${this.doc}
+          access="write"
+          format=${this.format}
+          displayMode="split"
+        >
+        </stencila-source-view>
 
-      <stencila-dynamic-view
-        view="dynamic"
-        doc=${this.doc}
-        access=${this.access}
-        theme=${this.theme}
-      >
-      </stencila-dynamic-view>
+        <stencila-dynamic-view
+          view="dynamic"
+          doc=${this.doc}
+          access=${this.access}
+          theme=${this.theme}
+        >
+        </stencila-dynamic-view>
+      </div>
     `
   }
 }

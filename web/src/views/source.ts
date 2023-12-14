@@ -24,10 +24,12 @@ import {
   keymap,
   lineNumbers,
 } from '@codemirror/view'
-import { html, css, LitElement } from 'lit'
+import { css as twCSS } from '@twind/core'
+import { html } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
 
 import { CodeMirrorClient } from '../clients/codemirror'
+import { TWLitElement } from '../features/base/TwindLitElement'
 import { withTwind } from '../twind'
 import type { DocumentId, DocumentAccess } from '../types'
 
@@ -49,7 +51,7 @@ const FORMATS = {
  */
 @customElement('stencila-source-view')
 @withTwind()
-export class SourceView extends LitElement {
+export class SourceView extends TWLitElement {
   /**
    * The id of the document
    */
@@ -80,6 +82,13 @@ export class SourceView extends LitElement {
    */
   @property({ attribute: 'line-wrapping', type: Boolean })
   lineWrap: boolean = true
+
+  /**
+   * Where is this component rendered? Either as a single view or in a split
+   * code & preview editor?
+   */
+  @property()
+  displayMode?: 'single' | 'split' = 'single'
 
   /**
    * A read-write client which sends and receives string patches
@@ -257,19 +266,33 @@ export class SourceView extends LitElement {
    * CSS styling for the CodeMirror editor
    *
    * Overrides some of the default styles used by CodeMirror.
+   *
+   * This needs to be defined outside of the static styles property, as we need
+   * to be able to access the instance property "displayMode" to determine the
+   * height to use.
    */
-  static styles = css`
-    .cm-editor {
-      border: 1px solid rgb(189, 186, 186);
-      height: 100vh;
-    }
-  `
+  private get codeMirrorCSS() {
+    const height = (
+      this.displayMode === 'single'
+        ? this.tw.theme(`height.screen`)
+        : this.tw.theme(`height.full`)
+    ) as string
 
-  render() {
+    return twCSS`
+      .cm-editor {
+        border: 1px solid rgb(189, 186, 186);
+        height: ${height};
+      }
+    `
+  }
+
+  protected render() {
     return html`
-      <div>
-        <div>${this.renderControls()}</div>
-        <div id="codemirror"></div>
+      <div class="flex flex-col">
+        <div class="flex-grow-0 flex-shrink-0">${this.renderControls()}</div>
+        <div class="flex-grow">
+          <div id="codemirror" class=${this.codeMirrorCSS}></div>
+        </div>
       </div>
     `
   }

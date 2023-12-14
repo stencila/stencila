@@ -1,16 +1,11 @@
-import { apply, css, tw } from '@twind/core'
-import { LitElement, html } from 'lit'
+import { apply, css } from '@twind/core'
+import { html } from 'lit'
 import { customElement, property, state } from 'lit/decorators.js'
 import { Ref, createRef, ref } from 'lit/directives/ref.js'
 
-import { withTwind } from '../twind'
-import type { DocumentView } from '../types'
-/**
- * This class extends LitElement to include a tw instance.
- */
-class TWLitElement extends LitElement {
-  protected tw: typeof tw
-}
+import { withTwind } from '../../twind'
+import type { DocumentView } from '../../types'
+import { TWLitElement } from '../base/TwindLitElement'
 
 /**
  * UI selector
