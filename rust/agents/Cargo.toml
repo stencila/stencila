@@ -8,5 +8,6 @@ agent = { path = "../agent" }
 agent-custom = { path = "../agent-custom" }
 agent-ollama = { path = "../agent-ollama" }
 agent-openai = { path = "../agent-openai" }
+agent-anthropic = { path = "../agent-anthropic" }
 cached = { version = "0.46.1", features = ["async"] }
 sea-orm = { version = "0.12.9", features = ["sqlx-sqlite", "runtime-tokio-rustls"] }

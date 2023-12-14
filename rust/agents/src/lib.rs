@@ -43,6 +43,11 @@ pub async fn list() -> Vec<Arc<dyn Agent>> {
         Err(error) => tracing::debug!("While listing Ollama agents: {error}"),
     }
 
+    match agent_anthropic::list().await {
+        Ok(mut agents) => list.append(&mut agents),
+        Err(error) => tracing::debug!("While listing Anthropic agents: {error}"),
+    }
+
     list
 }
 
