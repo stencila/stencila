@@ -1,8 +1,8 @@
-import morphdom from "morphdom";
+import morphdom from 'morphdom'
 
-import { type DocumentId } from "../types";
+import { type DocumentId } from '../types'
 
-import { FormatClient } from "./format";
+import { FormatClient } from './format'
 
 /**
  * A read-only client that keeps a DOM element synchronized with the HTML
@@ -19,13 +19,13 @@ export class DomClient extends FormatClient {
    * @param elem The DOM element that will be updated
    */
   constructor(id: DocumentId, elem: HTMLElement) {
-    super(id, "read", "dom");
+    super(id, 'read', 'dom')
 
     this.subscribe((html) => {
-      if (process.env.NODE_ENV === "development") {
-        console.log(`📝 DomClient morphing element`, elem);
+      if (process.env.NODE_ENV === 'development') {
+        console.log(`📝 DomClient morphing element`, elem)
       }
-      morphdom(elem, html);
-    });
+      morphdom(elem, html)
+    })
   }
 }

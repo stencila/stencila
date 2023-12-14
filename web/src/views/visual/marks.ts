@@ -1,1 +1,1 @@
-export const marks = {};
+export const marks = {}

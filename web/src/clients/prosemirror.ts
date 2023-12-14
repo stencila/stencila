@@ -1,10 +1,10 @@
-import { EditorState, Transaction } from "prosemirror-state";
-import { Step } from "prosemirror-transform";
-import { EditorView } from "prosemirror-view";
+import { EditorState, Transaction } from 'prosemirror-state'
+import { Step } from 'prosemirror-transform'
+import { EditorView } from 'prosemirror-view'
 
-import { type DocumentAccess, type DocumentId } from "../types";
+import { type DocumentAccess, type DocumentId } from '../types'
 
-import { NodePatch, NodesClient } from "./nodes";
+import { NodePatch, NodesClient } from './nodes'
 
 /**
  * A write-only client that keeps a ProseMirror editor synchronized with
@@ -20,7 +20,7 @@ export class ProseMirrorClient extends NodesClient {
    *             descendent Web Components)
    */
   constructor(id: DocumentId, access: DocumentAccess, elem: HTMLElement) {
-    super(id, access, elem);
+    super(id, access, elem)
   }
 
   /**
@@ -34,22 +34,22 @@ export class ProseMirrorClient extends NodesClient {
       // This function is called with a ProseMirror `EditorView` as `this`
       // and must update the state with the transaction (in addition to
       // forwarding the transformed transaction to the server)
-      const view = this as EditorView;
+      const view = this as EditorView
 
       // Apply the transaction to the state to get a new state
-      const newState = view.state.apply(transaction);
+      const newState = view.state.apply(transaction)
 
       // Generate a patch from the transaction and send to the server
       const patch = ProseMirrorClient.transactionToPatch(
         transaction,
         view.state,
-        newState,
-      );
-      if (patch) this.sendMessage(patch);
+        newState
+      )
+      if (patch) this.sendMessage(patch)
 
       // Update this view with the new state
-      this.updateState(newState);
-    };
+      this.updateState(newState)
+    }
   }
 
   /**
@@ -62,23 +62,23 @@ export class ProseMirrorClient extends NodesClient {
   private static transactionToPatch(
     transaction: Transaction,
     pre: EditorState,
-    post: EditorState,
+    post: EditorState
   ): NodePatch | null {
-    const steps = transaction.steps;
+    const steps = transaction.steps
 
     if (steps.length === 0) {
-      return null;
+      return null
     }
 
     if (steps.length === 1) {
-      const step = steps[0];
-      const stepType = step.constructor.prototype.jsonID;
-      if (stepType === "replace") {
-        return ProseMirrorClient.textPatch(step);
+      const step = steps[0]
+      const stepType = step.constructor.prototype.jsonID
+      if (stepType === 'replace') {
+        return ProseMirrorClient.textPatch(step)
       }
     }
 
-    return ProseMirrorClient.diffPatch(pre, post);
+    return ProseMirrorClient.diffPatch(pre, post)
   }
 
   /**
@@ -90,7 +90,7 @@ export class ProseMirrorClient extends NodesClient {
    */
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   private static textPatch(step: Step): NodePatch | null {
-    return null;
+    return null
   }
 
   /**
@@ -113,12 +113,12 @@ export class ProseMirrorClient extends NodesClient {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     pre: EditorState,
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    post: EditorState,
+    post: EditorState
   ): NodePatch | null {
-    if (process.env.NODE_ENV === "development") {
-      console.log("🔀 Diffing editor states to derive patch");
+    if (process.env.NODE_ENV === 'development') {
+      console.log('🔀 Diffing editor states to derive patch')
     }
 
-    return null;
+    return null
   }
 }

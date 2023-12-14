@@ -1,6 +1,6 @@
-import { type DocumentAccess, type DocumentId } from "../types";
+import { type DocumentAccess, type DocumentId } from '../types'
 
-import { Client } from "./client";
+import { Client } from './client'
 
 /**
  * A patch to apply to a string representing a document in a particular format
@@ -12,12 +12,12 @@ export interface FormatPatch {
   /**
    * The version of the patch
    */
-  version: number;
+  version: number
 
   /**
    * The operations in the patch
    */
-  ops?: FormatOperation[];
+  ops?: FormatOperation[]
 }
 
 /**
@@ -27,21 +27,21 @@ export interface FormatOperation {
   /**
    * The position in the string from which the operation is applied
    */
-  from: number;
+  from: number
 
   /**
    * The position in the string to which the operation is applied
    *
    * May be omitted for additions.
    */
-  to?: number;
+  to?: number
 
   /**
    * The string to insert between `from` and `to`.
    *
    * For additions and replacements; may be omitted for deletions.
    */
-  insert?: string;
+  insert?: string
 }
 
 /**
@@ -51,7 +51,7 @@ export abstract class FormatClient extends Client {
   /**
    * The local state of the string
    */
-  protected state: string = "";
+  protected state: string = ''
 
   /**
    * The local version of the string
@@ -59,7 +59,7 @@ export abstract class FormatClient extends Client {
    * Used to check for missed patches and request a
    * reset patch if necessary.
    */
-  protected version: number = 0;
+  protected version: number = 0
 
   /**
    * A subscriber to the string
@@ -67,7 +67,7 @@ export abstract class FormatClient extends Client {
    * A function that is called whenever a patch is applied to the
    * string `state`.
    */
-  protected subscriber?: (value: string) => void;
+  protected subscriber?: (value: string) => void
 
   /**
    * Construct a new `FormatClient`
@@ -77,7 +77,7 @@ export abstract class FormatClient extends Client {
    * @param format The format of the string (e.g. "html", "markdown")
    */
   constructor(id: DocumentId, access: DocumentAccess, format: string) {
-    super(id, `${access}.${format}`);
+    super(id, `${access}.${format}`)
   }
 
   /**
@@ -87,43 +87,42 @@ export abstract class FormatClient extends Client {
    * local, in-browser, version of the string.
    */
   override receiveMessage(message: Record<string, unknown>) {
-    const { version, ops } = message as unknown as FormatPatch;
+    const { version, ops } = message as unknown as FormatPatch
 
     // Is the patch a reset patch?
-    const isReset = ops.length === 1 && ops[0].from === 0 && ops[0].to === 0;
+    const isReset = ops.length === 1 && ops[0].from === 0 && ops[0].to === 0
 
     // Check for non-sequential patch and request a reset patch if necessary
     if (!isReset && version != this.version + 1) {
-      this.sendMessage({ version: 0 });
-      return;
+      this.sendMessage({ version: 0 })
+      return
     }
 
     // Apply each operation in the patch
     for (const op of ops) {
-      const { from, to, insert } = op;
+      const { from, to, insert } = op
 
       if (to === undefined && insert !== undefined) {
         // Insert
-        this.state =
-          this.state.slice(0, from) + insert + this.state.slice(from);
+        this.state = this.state.slice(0, from) + insert + this.state.slice(from)
       } else if (to !== undefined && insert === undefined) {
         // Delete
-        this.state = this.state.slice(0, from) + this.state.slice(to);
+        this.state = this.state.slice(0, from) + this.state.slice(to)
       } else if (to !== undefined && insert !== undefined) {
         // Replace
-        this.state = this.state.slice(0, from) + insert + this.state.slice(to);
+        this.state = this.state.slice(0, from) + insert + this.state.slice(to)
       } else if (to === 0 && from == 0 && insert !== undefined) {
         // Reset
-        this.state = insert;
+        this.state = insert
       }
     }
 
     // Update local version number
-    this.version = version;
+    this.version = version
 
     // Notify the subscriber (if any)
     if (this.subscriber) {
-      this.subscriber(this.state);
+      this.subscriber(this.state)
     }
   }
 
@@ -134,6 +133,6 @@ export abstract class FormatClient extends Client {
    *                   with the string, each time it changes
    */
   public subscribe(subscriber: (value: string) => void) {
-    this.subscriber = subscriber;
+    this.subscriber = subscriber
   }
 }

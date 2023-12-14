@@ -1,7 +1,7 @@
-import { LitElement } from "lit";
+import { LitElement } from 'lit'
 
-import { nodePatchEvent, NodePatch } from "../clients/nodes";
-import { DocumentAccess } from "../types";
+import { nodePatchEvent, NodePatch } from '../clients/nodes'
+import { DocumentAccess } from '../types'
 
 /**
  * Abstract base class for web components representing Stencila Schema `Entity` node types
@@ -23,7 +23,7 @@ export abstract class Entity extends LitElement {
    * behavior based on the view.
    */
   protected documentView(): string {
-    return this.closest("[view]").getAttribute("view");
+    return this.closest('[view]').getAttribute('view')
   }
 
   /**
@@ -34,7 +34,7 @@ export abstract class Entity extends LitElement {
    * behavior based on the view.
    */
   protected documentAccess(): DocumentAccess {
-    return this.closest("[view]").getAttribute("access") as DocumentAccess;
+    return this.closest('[view]').getAttribute('access') as DocumentAccess
   }
 
   /**
@@ -44,6 +44,6 @@ export abstract class Entity extends LitElement {
    * the `NodesClient` to the document on the server.
    */
   protected patchNode(patch: NodePatch) {
-    this.dispatchEvent(nodePatchEvent(patch));
+    this.dispatchEvent(nodePatchEvent(patch))
   }
 }
