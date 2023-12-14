@@ -54,6 +54,8 @@ You will be provided with several fragments of text, each within an XML <fragmen
 Currently, the following are added to each prompt rendering context:
 
 - `agent_name`: The name of the agent
+- `provider_name`: The name of the model provider e.g. `openai`
+- `model_name`: The name of the model e.g. `gpt3.5-turbo`
 - `prompt_name`: The name of the prompt
 - `current_timestamp`: The current time formatted as a ISO RFC3339 (8601) timestamp
 - `user_instruction`: The instruction provided by the user

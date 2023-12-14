@@ -287,6 +287,8 @@ pub trait Agent: Sync + Send {
 
         if let Some(context) = context.as_object_mut() {
             context.insert("agent_name".to_string(), json!(self.name()));
+            context.insert("provider_name".to_string(), json!(self.provider()));
+            context.insert("model_name".to_string(), json!(self.model()));
             context.insert("prompt_name".to_string(), json!(prompt_name));
             context.insert(
                 "current_timestamp".to_string(),
