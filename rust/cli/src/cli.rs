@@ -609,7 +609,7 @@ impl Cli {
             Command::Repl { mut agent, options } => {
                 #[derive(Parser)]
                 struct GenerateOptionsParser {
-                    #[clap(flatten)]
+                    #[command(flatten)]
                     options: GenerateOptions,
                 }
                 let mut options_parser = GenerateOptionsParser { options };
@@ -632,9 +632,11 @@ impl Cli {
                                     "{}",
                                     agent.as_deref().unwrap_or("No specific agent chosen; use `--agent` to specify one").cyan()
                                 )
-                            } else if line.starts_with("--") {
+                            } else if line.starts_with("-") {
                                 // Update option/s
-                                match options_parser.try_update_from(line.split_whitespace()) {
+                                let mut args = vec!["options"];
+                                args.append(&mut line.split_whitespace().collect_vec());
+                                match options_parser.try_update_from(&args) {
                                     Ok(..) => {
                                         println!("{}", "Options were updated".cyan());
                                     }
