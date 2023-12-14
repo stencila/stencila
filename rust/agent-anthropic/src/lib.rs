@@ -12,35 +12,27 @@ use agent::{
     common::{
         async_trait::async_trait,
         eyre::{bail, Result},
+        serde_json::json,
     },
     Agent, AgentIO, GenerateOptions,
 };
 
-/// An agent running on OpenAI
+/// An agent running on Anthropic
 ///
-/// The environment variable OPENAI_API_KEY must be set to use these agents.
+/// The environment variable ANTHROPIC_API_KEY must be set to use these agents.
 pub struct AnthropicAgent {
-    /// The OpenAI name for a model including any tag e.g. "llama2:13b"
+    /// The Anthropic name for a model including any tag e.g. "claude-v1"
     ///
-    /// Used as the required `model` parameter in each request to `POST /api/generate`
-    /// (along with `prompt`).
     model: String,
 
 }
 
 impl AnthropicAgent {
-    /// Create a OpenAI-based agent
+    /// Create a Anthropic agent
     pub fn new(model: String) -> Self {
         Self {
             model,
         }
-    }
-   fn supported_inputs(&self) -> &[AgentIO] {
-        &[AgentIO::Text]
-    }
-
-    fn supported_outputs(&self) -> &[AgentIO] {
-        &[AgentIO::Text]
     }
 }
 
@@ -55,15 +47,22 @@ impl Agent for AnthropicAgent {
         self.model.clone()
     }
 
-    // fn supported_inputs(&self) -> &[AgentIO] {
-    //     &[AgentIO::Text]
-    // }
+    fn supported_inputs(&self) -> &[AgentIO] {
+        &[AgentIO::Text]
+    }
 
-    // fn supported_outputs(&self) -> &[AgentIO] {
-    //     &[AgentIO::Text]
-    // }
+    fn supported_outputs(&self) -> &[AgentIO] {
+        &[AgentIO::Text]
+    }
 
     async fn text_to_text(&self, instruction: &str, options: &GenerateOptions) -> Result<String> {
+
+        let (system_prompt, user_prompt) = self.render_prompt(  
+            &options.prompt_name,  
+            json!({  
+                "user_instruction": instruction  
+            }),  
+        )?;  
         // Build from configuration.
         // TODO: We need to use the configuration here.
         // Currently just a cut/paste from the example.
