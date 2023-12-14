@@ -7,7 +7,7 @@ use agent::{
         eyre::{bail, Result},
         tracing,
     },
-    Agent, AgentIO, GenerateOptions,
+    Agent, AgentIO, GenerateContext, GenerateOptions,
 };
 
 pub use agent;
@@ -51,7 +51,7 @@ pub async fn list() -> Vec<Arc<dyn Agent>> {
 /// Returns a tuple of the agent that did the generation and
 /// the string it generated
 pub async fn text_to_text(
-    instruction: &str,
+    context: GenerateContext,
     agent_name: &Option<String>,
     options: &GenerateOptions,
 ) -> Result<(Arc<dyn Agent>, String)> {
@@ -63,10 +63,7 @@ pub async fn text_to_text(
         };
 
         if should_use {
-            return Ok((
-                agent.clone(),
-                agent.text_to_text(instruction, options).await?,
-            ));
+            return Ok((agent.clone(), agent.text_to_text(context, options).await?));
         }
     }
 

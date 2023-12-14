@@ -14,10 +14,9 @@ use agent::{
         async_trait::async_trait,
         eyre::{bail, Result},
         itertools::Itertools,
-        serde_json::{json, Value},
         tracing,
     },
-    Agent, AgentIO, GenerateOptions,
+    Agent, AgentIO, GenerateContext, GenerateOptions,
 };
 
 /// An agent running on OpenAI
@@ -67,13 +66,12 @@ impl Agent for OpenAIAgent {
         &self.outputs
     }
 
-    async fn text_to_text(&self, instruction: &str, options: &GenerateOptions) -> Result<String> {
-        let (system_prompt, user_prompt) = self.render_prompt(
-            &options.prompt_name,
-            json!({
-                "user_instruction": instruction
-            }),
-        )?;
+    async fn text_to_text(
+        &self,
+        context: GenerateContext,
+        options: &GenerateOptions,
+    ) -> Result<String> {
+        let (system_prompt, user_prompt) = self.render_prompt(context, options).await?;
 
         chat_completion(
             &self.name(),
@@ -83,13 +81,6 @@ impl Agent for OpenAIAgent {
             options,
         )
         .await
-    }
-
-    async fn chat_to_text(&self, chat: &[&str], options: &GenerateOptions) -> Result<String> {
-        // TODO: Should the chat be used in the render context and the returned user_prompt be passed on?
-        let (system_prompt, ..) = self.render_prompt(&options.prompt_name, Value::Null)?;
-
-        chat_completion(&self.name(), &self.model, &system_prompt, chat, options).await
     }
 
     async fn text_to_image(&self, instruction: &str, options: &GenerateOptions) -> Result<String> {
