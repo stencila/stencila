@@ -7,7 +7,7 @@ use yansi::Color;
 
 use common::{
     chrono::{Local, SecondsFormat, TimeZone},
-    clap::{self, Args, Parser, Subcommand},
+    clap::{self, error::ErrorKind, Args, Parser, Subcommand},
     eyre::{eyre, Result},
     itertools::Itertools,
     serde_json, tokio, tracing,
@@ -642,7 +642,14 @@ impl Cli {
                                     }
                                     Err(error) => {
                                         let mut cmd = clap::Command::new("options");
-                                        println!("Error: {}", error.format(&mut cmd))
+                                        match error.kind() {
+                                            ErrorKind::DisplayHelp => {
+                                                println!("{}", error.format(&mut cmd))
+                                            }
+                                            _ => {
+                                                println!("Error: {}", error.format(&mut cmd))
+                                            }
+                                        }
                                     }
                                 }
                             } else if line == "?options" {
