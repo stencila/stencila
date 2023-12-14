@@ -60,25 +60,91 @@ Currently, the following are added to each prompt rendering context:
 - `current_timestamp`: The current time formatted as a ISO RFC3339 (8601) timestamp
 - `user_instruction`: The instruction provided by the user
 
-## ⚡ Usage
+## 🛠️ Development
+
+There are some tools in Stencila for helping with [prompt engineering](https://en.wikipedia.org/wiki/Prompt_engineering): improving the performance of prompts used by agents for a specific task.
 
 ### CLI
 
-The `stencila ai chat` and `stencila ai gen` commands (🦄 both in development and don't actually exist at the moment!) have a `--prompt` option which you can pass the name of the prompt to.
+The `stencila repl` command (⚠️ this is planned to be renamed to `stencila ai repl` soon) provides a workbench for engineering the prompts used in Stencila. When the CLI is compiled in debug mode, prompts will be reloaded from disk each time they are used. This means that you can alter the prompt during a REPL session and check how it affects performance. The REPL has up and down arrow history support so you can easily repeat the same instructions after modifying the prompt.
 
-This is mainly useful for development testing. When the CLI is compiled in debug mode, prompts will be reloaded from disk each time they are used. This means that you can alter the prompt during a chat session and check how it alters responses. To run a chat in debug mode with a specific prompt:
+#### Options
+
+Options such as the prompt and agent can be set at the start of a session e.g.
 
 ```console
-cargo run --bin stencila -- ai chat --prompt <NAME>
+cargo run --bin stencila repl --prompt <NAME>
+```
+
+or during the session:
+
+```
+>> --prompt winnie
+Options were updated
+>> ?options
+{"prompt_name":"winnie"}
+```
+
+For a full list of options use `--help`. You can set any of the options this way. For example, setting the temperature of the model:
+
+```
+>> --temperature 0.2
+Options were updated
+>> ?options
+{"prompt_name":"winnie","temperature":0.2}
+```
+
+#### Agent
+
+By default the best agent for the given instruction is used (currently we have a simple ordering, but that will be improved). If you want to use a specific agent use the `--agent` option.
+
+```
+>> ?agent
+No specific agent chosen; use `--agent` to specify one
+>> --agent openai/gpt-3.5-turbo-1106
+>> ?agent
+openai/gpt-3.5-turbo-1106
+```
+
+#### Recording trials
+
+At session start up, you can specify the `--record` flag to make the REPL ask you whether you want to store the trial (the agent, prompt, instruction, response, options used etc) in a local SQLite database:
+
+```sh
+$ touch testing.sqlite3 # In the future this should not be necessary
+$ cargo run --bin stencila repl --record
+```
+
+```
+>> create a 3x5 table with animal names as column headers
+custom/insert-block
+
+| Animal 1 | Animal 2 | Animal 3 | Animal 4 | Animal 5 |
+|----------|----------|----------|----------|----------|
+|          |          |          |          |          |
+|          |          |          |          |          |
+|          |          |          |          |          |
+>> Would you like to record this trial? (y/n)
+>> y
+>> create a 3x5 table with specific animal names as column headers
+custom/insert-block
+
+| Lion | Tiger | Elephant | Giraffe | Zebra |
+|------|-------|----------|---------|-------|
+|      |       |          |         |       |
+|      |       |          |         |       |
+|      |       |          |         |       |
+>> Would you like to record this trial? (y/n)
+>> 
 ```
 
 ### Rust
 
-Within Stencila's Rust code several types of agents are implemented. Each type of agent has a default prompt (which is used unless the user specifies one). To declare which prompt an agent should use override the `Agent.default_prompt` method with the name of a builtin prompt e.g.
+Within Stencila's Rust code several types of agents are implemented. Each type of agent has a default prompt (which is used unless the user specifies one). To declare which prompt an agent should use override the `Agent.prompt` method with the name of a builtin prompt e.g.
 
 ```rust
 impl Agent for SpecialAgent {
-    fn default_prompt(&self) -> &str {
+    fn prompt(&self) -> &str {
         "special"
     }
 
