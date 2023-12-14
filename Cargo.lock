@@ -2547,23 +2547,23 @@ checksum = "d4b4532cf86bfef556348ac65e561e3123879f0e7566cca6d43a6ff5326f13df"
 
 [[package]]
 name = "napi-derive"
-version = "2.14.3"
+version = "2.14.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "2b0c0743f6a3f29c20851b8377f01d485a837e2bfa57dd56d519ab7ed98ae2af"
+checksum = "9b5af262f1d8e660742eb722abc7113a5b3c3de4144d0ef23ede2518672ceff1"
 dependencies = [
  "cfg-if",
  "convert_case 0.6.0",
  "napi-derive-backend",
  "proc-macro2",
  "quote",
- "syn 1.0.109",
+ "syn 2.0.41",
 ]
 
 [[package]]
 name = "napi-derive-backend"
-version = "1.0.56"
+version = "1.0.57"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "4869e4d80615fdab57dffe38c36a5bc62fae37352a00a35ee7aca1cea41b1bb3"
+checksum = "4ea236321b521d6926213a2021e407b0562e28a257c037a45919e414d2cdb4f8"
 dependencies = [
  "convert_case 0.6.0",
  "once_cell",
@@ -2571,7 +2571,7 @@ dependencies = [
  "quote",
  "regex",
  "semver",
- "syn 1.0.109",
+ "syn 2.0.41",
 ]
 
 [[package]]
