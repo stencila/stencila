@@ -25,7 +25,7 @@ node-strip = { path = "../node-strip" }
 
 [dev-dependencies]
 common-dev = { path = "../common-dev" }
-divan = "0.1.5"
+divan = "0.1.7"
 json_value_merge = "2.0.0"
 
 [[bench]]
