@@ -14,7 +14,7 @@ import '../views/source'
 import '../views/split'
 import '../views/visual'
 
-import './selector'
+import '../ui/selector'
 
 import './main.css'
 
