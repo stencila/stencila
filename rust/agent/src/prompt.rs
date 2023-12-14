@@ -11,7 +11,7 @@ use common::{
     serde::Serialize,
     serde_json::json,
 };
-use minijinja::Environment;
+use minijinja::{Environment, UndefinedBehavior};
 use rust_embed::RustEmbed;
 
 /// Builtin prompts
@@ -33,6 +33,9 @@ static ENV: Lazy<RwLock<Environment>> =
 /// Create a new environment with all prompts loaded into it
 fn new_env() -> Result<Environment<'static>> {
     let mut env = Environment::new();
+
+    // Make undefined behavior as permissive as possible
+    env.set_undefined_behavior(UndefinedBehavior::Chainable);
 
     // Add all builtin prompts, erroring if there is syntax errors in them
     for (file_name, content) in

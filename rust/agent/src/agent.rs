@@ -1,17 +1,17 @@
+use codecs::{EncodeOptions, Format};
 use common::{
     async_trait::async_trait,
     chrono::Utc,
     clap::{self, Args, ValueEnum},
     eyre::{bail, Result},
-    itertools::Itertools,
     serde::Serialize,
-    serde_json::{self, json},
     serde_with::skip_serializing_none,
     strum::Display,
 };
 
 // Export crates for the convenience of dependant crates
 pub use common;
+use schema::Node;
 
 use crate::Prompt;
 
@@ -23,6 +23,64 @@ pub enum AgentIO {
     Image,
     Audio,
     Video,
+}
+
+/// Context for a generation request
+///
+/// An instance of this context is created for each generation (aka completion)
+/// request to an AI model. It is then included in the rendering context for
+/// the prompt.
+#[skip_serializing_none]
+#[derive(Debug, Default, Serialize)]
+#[serde(crate = "common::serde")]
+pub struct GenerateContext {
+    /// The instruction provided by the user
+    user_instruction: String,
+
+    /// The document that the instruction is contained within
+    /// (usually an `Article`).
+    document: Option<Node>,
+
+    /// The content of the document in the format specified
+    /// in the `GenerateOptions` (defaulting to HTML)
+    document_content: Option<String>,
+
+    /// The specific node in the document to which the instruction
+    /// applies (if any)
+    node: Option<Node>,
+
+    /// The content of the specific node in the format specified
+    /// in the `GenerateOptions` (defaulting to HTML)
+    node_content: Option<String>,
+
+    // The following fields do NOT need to be provided by the
+    // caller of the generation functions. They are populated automatically
+    // before the prompt is rendered.
+    /// The name of the agent
+    agent_name: String,
+
+    /// The name of the model provider
+    provider_name: String,
+
+    /// The name of the model
+    model_name: String,
+
+    /// The name of the prompt
+    prompt_name: String,
+
+    /// The current timestamp in ISO format
+    current_timestamp: String,
+}
+
+impl GenerateContext {
+    pub fn new(instruction: &str, document: Option<Node>, node: Option<Node>) -> Self {
+        Self {
+            user_instruction: instruction.to_string(),
+            document,
+            node,
+            ..Default::default()
+        }
+    }
 }
 
 /// Options for various agent generation methods
@@ -47,6 +105,14 @@ pub struct GenerateOptions {
     /// override that.
     #[arg(long = "prompt", short)]
     pub prompt_name: Option<String>,
+
+    /// The format to convert the document content into when rendered into the prompt.
+    #[arg(long)]
+    pub document_format: Option<Format>,
+
+    /// The format to convert the node content into when rendered into the prompt.
+    #[arg(long)]
+    pub node_format: Option<Format>,
 
     /// Enable Mirostat sampling for controlling perplexity.
     ///
@@ -273,28 +339,48 @@ pub trait Agent: Sync + Send {
      *
      * If no prompt name is provided, the default prompt for the agent is used.
      *
-     * If the provided context is a JSON object, then some additional context
-     * variables are added.
+     * Additional context variables are added.
      *
      * Returns a tuple of the system and user prompt.
      */
-    fn render_prompt(
+    async fn render_prompt(
         &self,
-        prompt: &Option<String>,
-        mut context: serde_json::Value,
+        mut context: GenerateContext,
+        options: &GenerateOptions,
     ) -> Result<(String, String)> {
-        let prompt_name = prompt.clone().unwrap_or_else(|| self.prompt());
+        if let Some(document) = &context.document {
+            context.document_content = Some(
+                codecs::to_string(
+                    document,
+                    Some(EncodeOptions {
+                        format: options.document_format.or(Some(Format::Html)),
+                        ..Default::default()
+                    }),
+                )
+                .await?,
+            )
+        };
 
-        if let Some(context) = context.as_object_mut() {
-            context.insert("agent_name".to_string(), json!(self.name()));
-            context.insert("provider_name".to_string(), json!(self.provider()));
-            context.insert("model_name".to_string(), json!(self.model()));
-            context.insert("prompt_name".to_string(), json!(prompt_name));
-            context.insert(
-                "current_timestamp".to_string(),
-                json!(Utc::now().to_rfc3339()),
-            );
-        }
+        if let Some(node) = &context.node {
+            context.node_content = Some(
+                codecs::to_string(
+                    node,
+                    Some(EncodeOptions {
+                        format: options.node_format.or(Some(Format::Html)),
+                        ..Default::default()
+                    }),
+                )
+                .await?,
+            )
+        };
+
+        let prompt_name = options.prompt_name.clone().unwrap_or_else(|| self.prompt());
+
+        context.agent_name = self.name();
+        context.provider_name = self.provider();
+        context.model_name = self.model();
+        context.prompt_name = prompt_name.clone();
+        context.current_timestamp = Utc::now().to_rfc3339();
 
         let prompt = Prompt::load(&prompt_name)?;
         prompt.render_with(context)
@@ -304,7 +390,11 @@ pub trait Agent: Sync + Send {
      * Generate text in response to an instruction
      */
     #[allow(unused)]
-    async fn text_to_text(&self, instruction: &str, options: &GenerateOptions) -> Result<String> {
+    async fn text_to_text(
+        &self,
+        context: GenerateContext,
+        options: &GenerateOptions,
+    ) -> Result<String> {
         unsupported!(self, "Text to text")
     }
 
@@ -321,9 +411,12 @@ pub trait Agent: Sync + Send {
      * text and passes it to the `text_to_text` method.
      */
     #[allow(unused)]
-    async fn chat_to_text(&self, chat: &[&str], options: &GenerateOptions) -> Result<String> {
-        let instruction = chat.iter().map(|message| message.trim()).join("\n\n");
-        self.text_to_text(&instruction, options).await
+    async fn chat_to_text(
+        &self,
+        context: GenerateContext,
+        options: &GenerateOptions,
+    ) -> Result<String> {
+        unsupported!(self, "Chat to text")
     }
 
     /**

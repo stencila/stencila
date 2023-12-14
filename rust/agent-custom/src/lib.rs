@@ -12,7 +12,7 @@ use agent::{
         async_trait::async_trait,
         eyre::{bail, Result},
     },
-    Agent, AgentIO, GenerateOptions,
+    Agent, AgentIO, GenerateOptions, GenerateContext,
 };
 use agent_ollama::OllamaAgent;
 use agent_openai::OpenAIAgent;
@@ -93,14 +93,14 @@ impl Agent for CustomAgent {
         &[AgentIO::Text]
     }
 
-    async fn text_to_text(&self, instruction: &str, options: &GenerateOptions) -> Result<String> {
+    async fn text_to_text(&self, context: GenerateContext, options: &GenerateOptions) -> Result<String> {
         // TODO: Work out how best to merge supplied options with self.options
         let mut options = options.clone();
         if options.prompt_name.is_none() {
             options.prompt_name = Some(self.prompt.clone());
         }
 
-        self.base.text_to_text(instruction, &options).await
+        self.base.text_to_text(context, &options).await
     }
 }
 
