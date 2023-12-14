@@ -276,6 +276,12 @@ enum Command {
         #[arg(long, short)]
         agent: Option<String>,
 
+        /// Whether to offer the option to record each evaluation trial
+        ///
+        /// Trials can be recorded in a local SQLite database.
+        #[arg(long, short)]
+        record: bool,
+
         #[clap(flatten)]
         options: GenerateOptions,
     },
@@ -606,7 +612,11 @@ impl Cli {
                 }
             },
 
-            Command::Repl { mut agent, options } => {
+            Command::Repl {
+                mut agent,
+                record,
+                options,
+            } => {
                 #[derive(Parser)]
                 struct GenerateOptionsParser {
                     #[command(flatten)]
@@ -632,7 +642,7 @@ impl Cli {
                                     "{}",
                                     agent.as_deref().unwrap_or("No specific agent chosen; use `--agent` to specify one").cyan()
                                 )
-                            } else if line.starts_with("-") {
+                            } else if line.starts_with('-') {
                                 // Update option/s
                                 let mut args = vec!["options"];
                                 args.append(&mut line.split_whitespace().collect_vec());
@@ -658,7 +668,7 @@ impl Cli {
                                 display::highlighted(&json, Format::Json)?;
                             } else {
                                 // Generate a response
-                                let (agent, text) =
+                                let (agent, response) =
                                     agents::text_to_text(line, &agent, &options_parser.options)
                                         .await?;
 
@@ -667,7 +677,27 @@ impl Cli {
                                 println!("{}\n", agent.name().dimmed().cyan());
 
                                 // Display response highlighted as Markdown
-                                display::highlighted(&text, Format::Markdown)?;
+                                display::highlighted(&response, Format::Markdown)?;
+
+                                // Record in database if user wants to
+                                if record {
+                                    println!(
+                                        ">> {}",
+                                        "Would you like to record this trial? (y/n)"
+                                            .dimmed()
+                                            .yellow()
+                                    );
+                                    let answer = reader.readline(">> ")?;
+                                    if answer == "y" || answer.is_empty() {
+                                        agents::testing::insert_trial(
+                                            agent,
+                                            line,
+                                            &response,
+                                            &options_parser.options,
+                                        )
+                                        .await?
+                                    }
+                                }
                             }
                         }
                         Err(ReadlineError::Interrupted) | Err(ReadlineError::Eof) => {

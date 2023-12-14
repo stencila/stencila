@@ -323,7 +323,7 @@ pub trait Agent: Sync + Send {
     #[allow(unused)]
     async fn chat_to_text(&self, chat: &[&str], options: &GenerateOptions) -> Result<String> {
         let instruction = chat.iter().map(|message| message.trim()).join("\n\n");
-        self.text_to_text(&instruction, &options).await
+        self.text_to_text(&instruction, options).await
     }
 
     /**

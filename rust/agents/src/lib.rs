@@ -12,6 +12,9 @@ use agent::{
 
 pub use agent;
 
+pub mod testing;
+mod testing_db;
+
 /// Get a list of available agents
 ///
 /// Memoizes the result for an hour to reduce the number of times that
