@@ -80,7 +80,7 @@ impl Agent for OpenAIAgent {
             &self.model,
             &system_prompt,
             &[&user_prompt],
-            &options,
+            options,
         )
         .await
     }

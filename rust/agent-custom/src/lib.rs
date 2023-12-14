@@ -52,7 +52,7 @@ impl CustomAgent {
                 vec![AgentIO::Text],
                 vec![AgentIO::Text],
             )) as Arc<dyn Agent>,
-            "ollama" => Arc::new(OllamaAgent::new(model.into())) as Arc<dyn Agent>,
+            "ollama" => Arc::new(OllamaAgent::new(model)) as Arc<dyn Agent>,
             _ => bail!("Unknown provider agent: {provider}"),
         };
 
