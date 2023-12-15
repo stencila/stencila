@@ -1,4 +1,4 @@
-import { NodeSpec, parseToDOM } from "./prelude";
+import { NodeSpec, parseToDOM } from './prelude'
 
 /**
  * A ProseMirror `NodeSpec` for a Stencila `Article`
@@ -7,12 +7,12 @@ import { NodeSpec, parseToDOM } from "./prelude";
  * https://github.com/stencila/stencila/blob/v1/web/src/components/editors/prose-editor/nodes/article.ts
  */
 export const Article: NodeSpec = {
-  group: "CreativeWorkType",
-  content: "Block*",
+  group: 'CreativeWorkType',
+  content: 'Block*',
   attrs: {
     id: {},
   },
-  ...parseToDOM("article", "id"),
-};
+  ...parseToDOM('article', 'id'),
+}
 
-export const works = { Article };
+export const works = { Article }

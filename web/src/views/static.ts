@@ -1,10 +1,10 @@
-import { html } from "lit";
-import { customElement, property } from "lit/decorators.js";
+import { html } from 'lit'
+import { customElement, property } from 'lit/decorators.js'
 
-import { ExportClient } from "../clients/export";
-import type { DocumentId } from "../types";
+import { ExportClient } from '../clients/export'
+import type { DocumentId } from '../types'
 
-import { ThemedView as ThemedView } from "./themed";
+import { ThemedView as ThemedView } from './themed'
 
 /**
  * Static view of a document
@@ -12,13 +12,13 @@ import { ThemedView as ThemedView } from "./themed";
  * A static view of a document which does not update as the document changes,
  * nor allows changes to it.
  */
-@customElement("stencila-static-view")
+@customElement('stencila-static-view')
 export class StaticView extends ThemedView {
   /**
    * The id of the document
    */
   @property()
-  doc: DocumentId;
+  doc: DocumentId
 
   /**
    * Whether the document's HTML should be fetched
@@ -27,28 +27,28 @@ export class StaticView extends ThemedView {
    * content of the document.
    */
   @property({ type: Boolean })
-  fetch: boolean;
+  fetch: boolean
 
   /**
    * Override to fetch document's HTML if necessary
    */
   override connectedCallback() {
-    super.connectedCallback();
+    super.connectedCallback()
 
     if (this.fetch) {
-      new ExportClient(this.doc, "html", { dom: true }).fetch().then((html) => {
-        this.shadowRoot.innerHTML = html;
-      });
+      new ExportClient(this.doc, 'html', { dom: true }).fetch().then((html) => {
+        this.shadowRoot.innerHTML = html
+      })
     }
   }
 
   render() {
     if (this.fetch) {
       // Render a spinner which will spin until fetched content replaces it
-      return html`<p>TODO: Spinner</p>`;
+      return html`<p>TODO: Spinner</p>`
     } else {
       // Render a slot for server provided HTML to go into
-      return html`<slot></slot>`;
+      return html`<slot></slot>`
     }
   }
 }

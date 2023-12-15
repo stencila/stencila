@@ -139,6 +139,22 @@ The `convert` module is implemented in Rust (`src/convert.rs`) with a thin TypeS
 
 When contributing code please run the following linting, formatting and testing scripts. Linting checks are run on CI, so for faster iteration, fewer failed runs and less noise, it's generally a good idea to run them locally before pushing code.
 
+### Workspace dependencies
+
+This module uses types from `@stencila/types`, a package that is defined in the sibling [`ts`](../ts) directory, and which is also part of the NPM [workspace](https://docs.npmjs.com/cli/v7/using-npm/workspaces) defined in the root [package.json](../package.json).
+
+You may find that ESLint will complain that `@stencila/types` does not exist because [../ts/dist](../ts/dist) does not yet exist. To fix this build that package:
+
+```console
+cd ../ts && npm run build
+```
+
+or
+
+```console
+make -C ../ts build
+```
+
 ### Linting && formatting
 
 We use [ESLint](https://eslint.org/) and [Prettier](https://prettier.io/) for code linting and formatting respectively. To apply linting and formatting fixes:

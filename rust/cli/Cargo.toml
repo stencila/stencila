@@ -12,6 +12,7 @@ path = "src/main.rs"
 tokio-console = ["console-subscriber"]
 
 [dependencies]
+agents = { path = "../agents" }
 codecs = { path = "../codecs" }
 color-eyre = { version = "0.6.2", features = ["issue-url"] }
 common = { path = "../common" }
@@ -20,6 +21,7 @@ document = { path = "../document" }
 format = { path = "../format" }
 is-terminal = "0.4.9"
 node-strip = { path = "../node-strip" }
+rustyline = "13.0.0"
 server = { path = "../server" }
 syntect = "5.1.0"
 tracing-error = "0.2.0"

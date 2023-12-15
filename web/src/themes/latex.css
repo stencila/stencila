@@ -14,7 +14,7 @@
  *
 */
 
-@import "../fonts/latin-modern/latin-modern.css";
+@import '../fonts/latin-modern/latin-modern.css';
 
 :root {
   --body-color: hsl(0, 5%, 10%);
@@ -74,7 +74,7 @@
     box-sizing: border-box;
   }
 
-  font-family: "Latin Modern", Georgia, Cambria, "Times New Roman", Times, serif;
+  font-family: 'Latin Modern', Georgia, Cambria, 'Times New Roman', Times, serif;
   line-height: 1.8;
 
   max-width: 80ch;
@@ -160,7 +160,7 @@
   code,
   pre,
   kbd {
-    font-family: Menlo, Monaco, Consolas, "Liberation Mono", "Courier New",
+    font-family: Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New',
       monospace;
     font-size: 85%;
   }
@@ -197,11 +197,11 @@
     counter-increment: caption;
   }
   /* add bottom border on column table headings  */
-  table tr > th[scope="col"] {
+  table tr > th[scope='col'] {
     border-bottom: var(--border-width-thin) solid var(--table-border-color);
   }
   /* add right border on row table headings  */
-  table tr > th[scope="row"] {
+  table tr > th[scope='row'] {
     border-right: var(--border-width-thin) solid var(--table-border-color);
   }
   table > tbody > tr:first-child > td,
@@ -230,7 +230,7 @@
   }
 
   caption::before {
-    content: "Table " counter(caption) ". ";
+    content: 'Table ' counter(caption) '. ';
     font-weight: bold;
   }
 
@@ -248,7 +248,7 @@
     display: block;
   }
   nav li:before {
-    content: counters(item, ".") " ";
+    content: counters(item, '.') ' ';
     counter-increment: item;
     padding-right: 0.85rem;
   }

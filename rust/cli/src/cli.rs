@@ -1,12 +1,16 @@
 use std::path::PathBuf;
 
+use agents::agent::GenerateOptions;
+use color_eyre::owo_colors::OwoColorize;
+use rustyline::{error::ReadlineError, DefaultEditor};
 use yansi::Color;
 
 use common::{
     chrono::{Local, SecondsFormat, TimeZone},
-    clap::{self, Args, Parser, Subcommand},
+    clap::{self, error::ErrorKind, Args, Parser, Subcommand},
     eyre::{eyre, Result},
-    tokio, tracing,
+    itertools::Itertools,
+    serde_json, tokio, tracing,
 };
 use document::{Document, DocumentType, SyncDirection};
 use format::Format;
@@ -240,6 +244,47 @@ enum Command {
 
     /// Serve
     Serve(ServeOptions),
+
+    /// List the available AI agents
+    Agents,
+
+    /// Generate text using an AI agents
+    ///
+    /// Mainly intended for testing. This command runs the same code as when you
+    /// create an instruction within a document.
+    Generate {
+        /// An instruction of what the agent should generate
+        instruction: String,
+
+        /// Generate an image rather than text
+        #[arg(long, short)]
+        image: bool,
+
+        /// The name of the agent to use
+        #[arg(long, short)]
+        agent: Option<String>,
+
+        #[clap(flatten)]
+        options: GenerateOptions,
+    },
+
+    /// A read-evaluate-print loop for AI agents
+    ///
+    ///
+    Repl {
+        /// The name of the agent to interact with
+        #[arg(long, short)]
+        agent: Option<String>,
+
+        /// Whether to offer the option to record each evaluation trial
+        ///
+        /// Trials can be recorded in a local SQLite database.
+        #[arg(long, short)]
+        record: bool,
+
+        #[clap(flatten)]
+        options: GenerateOptions,
+    },
 }
 
 /// Command line arguments for stripping nodes
@@ -517,6 +562,153 @@ impl Cli {
             }
 
             Command::Serve(options) => serve(options).await?,
+
+            Command::Agents => {
+                let agents = agents::list().await;
+
+                if agents.is_empty() {
+                    println!("There are no agents available. Perhaps you need to set some environment variables with API keys?")
+                } else {
+                    println!(
+                        "{:<40} {:<20} {:<20} {:<20}",
+                        "Agent", "Prompt", "Inputs", "Outputs"
+                    );
+                    for agent in agents {
+                        println!(
+                            "{:<40} {:<20} {:<20} {:<20}",
+                            agent.name(),
+                            agent.prompt(),
+                            agent
+                                .supported_inputs()
+                                .iter()
+                                .map(|input| input.to_string())
+                                .join(", "),
+                            agent
+                                .supported_outputs()
+                                .iter()
+                                .map(|output| output.to_string())
+                                .join(", "),
+                        )
+                    }
+                }
+            }
+
+            Command::Generate {
+                instruction,
+                image,
+                agent,
+                options,
+            } => match image {
+                false => {
+                    let (agent, text) =
+                        agents::text_to_text(&instruction, &agent, &options).await?;
+                    println!("{}:", agent.name().dimmed().cyan());
+                    display::highlighted(&text, Format::Markdown)?;
+                }
+                true => {
+                    let (agent, url) = agents::text_to_image(&instruction, agent, &options).await?;
+                    println!("{}:", agent.name().dimmed().cyan());
+                    println!("{}", url.blue());
+                }
+            },
+
+            Command::Repl {
+                mut agent,
+                record,
+                options,
+            } => {
+                #[derive(Parser)]
+                struct GenerateOptionsParser {
+                    #[command(flatten)]
+                    options: GenerateOptions,
+                }
+                let mut options_parser = GenerateOptionsParser { options };
+
+                let mut reader = DefaultEditor::new()?;
+                loop {
+                    let line = reader.readline(">> ");
+                    match line {
+                        Ok(line) => {
+                            let line = line.as_str().trim();
+
+                            reader.add_history_entry(line)?;
+
+                            if let Some(agent_name) = line.strip_prefix("--agent") {
+                                // Set the agent to use
+                                agent = Some(agent_name.trim().to_string());
+                            } else if line == "?agent" {
+                                // Print the agent being used
+                                println!(
+                                    "{}",
+                                    agent.as_deref().unwrap_or("No specific agent chosen; use `--agent` to specify one").cyan()
+                                )
+                            } else if line.starts_with('-') {
+                                // Update option/s
+                                let mut args = vec!["options"];
+                                args.append(&mut line.split_whitespace().collect_vec());
+                                match options_parser.try_update_from(&args) {
+                                    Ok(..) => {
+                                        println!("{}", "Options were updated".cyan());
+                                    }
+                                    Err(error) => {
+                                        let mut cmd = clap::Command::new("options");
+                                        match error.kind() {
+                                            ErrorKind::DisplayHelp => {
+                                                println!("{}", error.format(&mut cmd))
+                                            }
+                                            _ => {
+                                                println!("{}", error.format(&mut cmd))
+                                            }
+                                        }
+                                    }
+                                }
+                            } else if line == "?options" {
+                                // Print the current options as JSON
+                                let json = serde_json::to_string(&options_parser.options)?;
+                                display::highlighted(&json, Format::Json)?;
+                            } else {
+                                // Generate a response
+                                let (agent, response) =
+                                    agents::text_to_text(line, &agent, &options_parser.options)
+                                        .await?;
+
+                                // Give some details of the agent used since if the agent is not
+                                // specified this may change from one response to the next
+                                println!("{}\n", agent.name().dimmed().cyan());
+
+                                // Display response highlighted as Markdown
+                                display::highlighted(&response, Format::Markdown)?;
+
+                                // Record in database if user wants to
+                                if record {
+                                    let question = format!(
+                                        ">> {}",
+                                        "Would you like to record this trial? (y/n): "
+                                            .dimmed()
+                                            .yellow()
+                                    );
+                                    let answer = reader.readline(&question)?;
+                                    if answer == "y" || answer.is_empty() {
+                                        agents::testing::insert_trial(
+                                            agent,
+                                            line,
+                                            &response,
+                                            &options_parser.options,
+                                        )
+                                        .await?
+                                    }
+                                }
+                            }
+                        }
+                        Err(ReadlineError::Interrupted) | Err(ReadlineError::Eof) => {
+                            break;
+                        }
+                        Err(error) => {
+                            println!("Error: {error:?}");
+                        }
+                    }
+                }
+            }
         }
 
         if wait {

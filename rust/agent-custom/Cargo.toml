@@ -1,0 +1,9 @@
+[package]
+name = "agent-custom"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+agent = { path = "../agent" }
+agent-ollama = { path = "../agent-ollama" }
+agent-openai = { path = "../agent-openai" }

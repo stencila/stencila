@@ -1,11 +1,10 @@
 import { markdown, markdownLanguage } from '@codemirror/lang-markdown'
+import { defaultHighlightStyle, HighlightStyle } from '@codemirror/language'
+
 import {
-  defaultHighlightStyle,
-  HighlightStyle,
-} from "@codemirror/language";
-
-import { StencilaColonSyntax, highlightStyles as cSyntaxStyles } from './extensions/colonSyntax';
-
+  StencilaColonSyntax,
+  highlightStyles as cSyntaxStyles,
+} from './extensions/colonSyntax'
 
 // const stencilaMarkdownExtension: MarkdownConfig = {
 //   defineNodes: [...ifBlockNodeList],
@@ -14,14 +13,13 @@ import { StencilaColonSyntax, highlightStyles as cSyntaxStyles } from './extensi
 
 const markDownHighlightStyle = HighlightStyle.define([
   ...defaultHighlightStyle.specs,
-  ...cSyntaxStyles
-]);
+  ...cSyntaxStyles,
+])
 
-const stencilaMarkdown = () => markdown({ 
-  base: markdownLanguage, 
-  extensions: [
-    StencilaColonSyntax
-  ]  
-})
+const stencilaMarkdown = () =>
+  markdown({
+    base: markdownLanguage,
+    extensions: [StencilaColonSyntax],
+  })
 
 export { stencilaMarkdown, markDownHighlightStyle }

@@ -2,8 +2,8 @@ import {
   autocompletion,
   startCompletion,
   completionKeymap,
-} from "@codemirror/autocomplete";
-import { history, historyKeymap, indentWithTab } from "@codemirror/commands";
+} from '@codemirror/autocomplete'
+import { history, historyKeymap, indentWithTab } from '@codemirror/commands'
 import {
   foldGutter,
   bracketMatching,
@@ -13,10 +13,9 @@ import {
   LanguageSupport,
   syntaxHighlighting,
   StreamLanguage,
-  // syntaxTree
-} from "@codemirror/language";
-import { searchKeymap, search } from "@codemirror/search";
-import { Extension, Compartment, StateEffect } from "@codemirror/state";
+} from '@codemirror/language'
+import { searchKeymap, search } from '@codemirror/search'
+import { Extension, Compartment, StateEffect } from '@codemirror/state'
 import {
   dropCursor,
   EditorView as CodeMirrorView,
@@ -24,24 +23,24 @@ import {
   highlightSpecialChars,
   keymap,
   lineNumbers,
-} from "@codemirror/view";
-import { html, css, LitElement } from "lit";
-import { customElement, property } from "lit/decorators.js";
+} from '@codemirror/view'
+import { html, css, LitElement } from 'lit'
+import { customElement, property } from 'lit/decorators.js'
 
-import { CodeMirrorClient } from "../clients/codemirror";
-import { markDownHighlightStyle } from '../languages/markdown';
-import { installTwind } from "../twind";
-import type { DocumentId, DocumentAccess } from "../types";
+import { CodeMirrorClient } from '../clients/codemirror'
+import { markDownHighlightStyle } from '../languages/markdown'
+import { withTwind } from '../twind'
+import type { DocumentId, DocumentAccess } from '../types'
 
 const FORMATS = {
-  markdown: "Markdown",
-  html: "HTML",
-  jats: "JATS",
-  json: "JSON",
-  jsonld: "JSON-LD",
-  json5: "JSON5",
-  yaml: "YAML",
-};
+  markdown: 'Markdown',
+  html: 'HTML',
+  jats: 'JATS',
+  json: 'JSON',
+  jsonld: 'JSON-LD',
+  json5: 'JSON5',
+  yaml: 'YAML',
+}
 
 /**
  * Source code editor for a document
@@ -49,14 +48,14 @@ const FORMATS = {
  * A view which provides read-write access to the document using
  * a particular format.
  */
-@customElement("stencila-source-view")
-@installTwind()
+@customElement('stencila-source-view')
+@withTwind()
 export class SourceView extends LitElement {
   /**
    * The id of the document
    */
   @property()
-  doc: DocumentId;
+  doc: DocumentId
 
   /**
    * The access level of the editor
@@ -69,35 +68,35 @@ export class SourceView extends LitElement {
    * does not provide the means to modify those.
    */
   @property()
-  access: DocumentAccess = "write";
+  access: DocumentAccess = 'write'
 
   /**
    * The format of the source code
    */
   @property()
-  format: string = "markdown";
+  format: string = 'markdown'
 
   /**
    * Turn on/off editor line wrapping
    */
-  @property({ attribute: "line-wrapping", type: Boolean })
-  lineWrap: boolean = true;
+  @property({ attribute: 'line-wrapping', type: Boolean })
+  lineWrap: boolean = true
 
   /**
    * A read-write client which sends and receives string patches
    * for the source code to and from the server
    */
-  private codeMirrorClient: CodeMirrorClient;
+  private codeMirrorClient: CodeMirrorClient
 
   /**
    * A CodeMirror editor view which the client interacts with
    */
-  private codeMirrorView: CodeMirrorView;
+  private codeMirrorView: CodeMirrorView
 
   /**
    * `Compartment` for setting `CodeMirrorView.lineWrapping` extension
    */
-  private lineWrappingConfig = new Compartment();
+  private lineWrappingConfig = new Compartment()
 
   /**
    * Array of CodeMirror `LanguageDescription` objects available for the edit view
@@ -106,65 +105,65 @@ export class SourceView extends LitElement {
    */
   static languageDescriptions = [
     LanguageDescription.of({
-      name: "markdown",
-      extensions: ["md"],
+      name: 'markdown',
+      extensions: ['md'],
       load: async () => {
-        return import("../languages/markdown").then((md) =>
-          md.stencilaMarkdown(),
-        );
+        return import('../languages/markdown').then((md) =>
+          md.stencilaMarkdown()
+        )
       },
     }),
     LanguageDescription.of({
-      name: "jats",
-      extensions: ["jats.xml"],
+      name: 'jats',
+      extensions: ['jats.xml'],
       load: async () => {
-        return import("@codemirror/lang-xml").then((obj) => obj.xml());
+        return import('@codemirror/lang-xml').then((obj) => obj.xml())
       },
     }),
     LanguageDescription.of({
-      name: "json",
-      extensions: ["json"],
+      name: 'json',
+      extensions: ['json'],
       load: async () => {
-        return import("@codemirror/lang-json").then((obj) => obj.json());
+        return import('@codemirror/lang-json').then((obj) => obj.json())
       },
     }),
     LanguageDescription.of({
-      name: "json5",
-      extensions: ["json5"],
+      name: 'json5',
+      extensions: ['json5'],
       load: async () => {
-        return import("codemirror-json5").then((obj) => obj.json5());
+        return import('codemirror-json5').then((obj) => obj.json5())
       },
     }),
     LanguageDescription.of({
-      name: "html",
-      extensions: ["html"],
+      name: 'html',
+      extensions: ['html'],
       load: async () => {
-        return import("@codemirror/lang-html").then((obj) => obj.html());
+        return import('@codemirror/lang-html').then((obj) => obj.html())
       },
     }),
     LanguageDescription.of({
-      name: "yaml",
-      extensions: ["yaml", "yml"],
+      name: 'yaml',
+      extensions: ['yaml', 'yml'],
       load: async () => {
-        return import("@codemirror/legacy-modes/mode/yaml").then(
-          (yml) => new LanguageSupport(StreamLanguage.define(yml.yaml)),
-        );
+        return import('@codemirror/legacy-modes/mode/yaml').then(
+          (yml) => new LanguageSupport(StreamLanguage.define(yml.yaml))
+        )
       },
     }),
-  ];
+  ]
 
   /**
    * Dispatch a CodeMirror `StateEffect` to the editor
    */
   private dispatchEffect(effect: StateEffect<unknown>) {
-    const docState = this.codeMirrorView?.state;
+    const docState = this.codeMirrorView?.state
 
     const transaction =
       docState?.update({
         effects: [effect],
-      }) ?? {};
+      }) ?? {}
 
-    this.codeMirrorView?.dispatch(transaction);
+    this.codeMirrorView?.dispatch(transaction)
   }
 
   /**
@@ -180,33 +179,32 @@ export class SourceView extends LitElement {
     const ext =
       LanguageDescription.matchLanguageName(
         SourceView.languageDescriptions,
-        format,
-      ) ?? SourceView.languageDescriptions[0];
+        format
+      ) ?? SourceView.languageDescriptions[0]
 
-    return await ext.load();
+    return await ext.load()
   }
 
   /**
    * Get the CodeMirror editor view extensions
    */
   private async getViewExtensions(): Promise<Extension[]> {
-    const langExt = await this.getLanguageExtension(this.format);
+    const langExt = await this.getLanguageExtension(this.format)
 
-    const lineWrapping = this.lineWrappingConfig.of(
-      CodeMirrorView.lineWrapping,
-    );
+    const lineWrapping = this.lineWrappingConfig.of(CodeMirrorView.lineWrapping)
 
     const keyMaps = keymap.of([
       indentWithTab,
       ...historyKeymap,
       ...completionKeymap,
       ...searchKeymap,
-      { key: "Ctrl-Space", run: startCompletion },
-    ]);
+      { key: 'Ctrl-Space', run: startCompletion },
+    ])
 
-    const syntaxHighlights = this.format === "markdown" 
-      ? markDownHighlightStyle 
-      : defaultHighlightStyle
+    const syntaxHighlights =
+      this.format === 'markdown'
+        ? markDownHighlightStyle
+        : defaultHighlightStyle
 
     return [
       langExt,
@@ -223,7 +221,7 @@ export class SourceView extends LitElement {
       syntaxHighlighting(syntaxHighlights, { fallback: true }),
       bracketMatching(),
       autocompletion(),
-    ];
+    ]
   }
 
   /**
@@ -231,53 +229,35 @@ export class SourceView extends LitElement {
    * to the editor.
    */
   override async update(changedProperties: Map<string, string | boolean>) {
-    super.update(changedProperties);
+    super.update(changedProperties)
 
-    if (changedProperties.has("format")) {
+    if (changedProperties.has('format')) {
       // Destroy the existing editor if there is one
-      this.codeMirrorView?.destroy();
+      this.codeMirrorView?.destroy()
 
       // Setup client and editor for the format
       this.getViewExtensions().then((extensions) => {
         this.codeMirrorClient = new CodeMirrorClient(
           this.doc,
           this.access,
-          this.format,
-        );
+          this.format
+        )
 
         this.codeMirrorView = new CodeMirrorView({
           extensions: [this.codeMirrorClient.sendPatches(), ...extensions],
-          parent: this.renderRoot.querySelector("#codemirror"),
-          
-        });
-        
-        this.codeMirrorClient.receivePatches(this.codeMirrorView);
-        // this.codeMirrorView.dom.addEventListener('input', () => {
-        //   const tree = syntaxTree(this.codeMirrorView.state)
-        //   tree.children.forEach(rootNode => {
-        //   const traverse = (node: Tree, depth = 0) => {
-        //     // Log the node type and depth
-        //     if (node.type.name === "BlockIf") {
-        //       console.log(node.type.name, node.cursor());
-        //     }
-        //     // Recursively traverse child nodes
-        //     if (node.children) {
-        //       node.children.forEach(child => traverse(child, depth + 1));
-        //     }
-        //   };
-        //   // Start traversing from the root node
-          
-        //   traverse(rootNode);
-        // })})
-      });
+          parent: this.renderRoot.querySelector('#codemirror'),
+        })
+
+        this.codeMirrorClient.receivePatches(this.codeMirrorView)
+      })
     }
 
-    if (changedProperties.has("lineWrap")) {
+    if (changedProperties.has('lineWrap')) {
       this.dispatchEffect(
         this.lineWrappingConfig.reconfigure(
-          this.lineWrap ? CodeMirrorView.lineWrapping : [],
-        ),
-      );
+          this.lineWrap ? CodeMirrorView.lineWrapping : []
+        )
+      )
     }
   }
 
@@ -291,7 +271,7 @@ export class SourceView extends LitElement {
       border: 1px solid rgb(189, 186, 186);
       height: 100vh;
     }
-  `;
+  `
 
   render() {
     return html`
@@ -299,7 +279,7 @@ export class SourceView extends LitElement {
         <div>${this.renderControls()}</div>
         <div id="codemirror"></div>
       </div>
-    `;
+    `
   }
 
   private renderControls() {
@@ -307,7 +287,7 @@ export class SourceView extends LitElement {
       <div class="mb-4 flex">
         <div>${this.renderFormatSelect()} ${this.renderLineWrapCheckbox()}</div>
       </div>
-    `;
+    `
   }
 
   private renderFormatSelect() {
@@ -322,17 +302,17 @@ export class SourceView extends LitElement {
             ([format, name]) =>
               html`<option value=${format} ?selected=${this.format === format}>
                 ${name}
-              </option>`,
+              </option>`
           )}
         </select>
       </label>
-    `;
+    `
   }
 
   private renderLineWrapCheckbox() {
     return html`
       <label class="text-sm">
-        ${"Enable line wrapping"}
+        ${'Enable line wrapping'}
         <input
           type="checkbox"
           class="ml-1"
@@ -341,6 +321,6 @@ export class SourceView extends LitElement {
             (this.lineWrap = (e.target as HTMLInputElement).checked)}"
         />
       </label>
-    `;
+    `
   }
 }
