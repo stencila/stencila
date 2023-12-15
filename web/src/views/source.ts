@@ -29,9 +29,9 @@ import { html } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
 
 import { CodeMirrorClient } from '../clients/codemirror'
-import { TWLitElement } from '../features/base/TwindLitElement'
 import { withTwind } from '../twind'
 import type { DocumentId, DocumentAccess } from '../types'
+import { TWLitElement } from '../ui/twind'
 
 const FORMATS = {
   markdown: 'Markdown',
@@ -272,16 +272,12 @@ export class SourceView extends TWLitElement {
    * height to use.
    */
   private get codeMirrorCSS() {
-    const height = (
-      this.displayMode === 'single'
-        ? this.tw.theme(`height.screen`)
-        : this.tw.theme(`height.full`)
-    ) as string
+    // const height = this.tw.theme(`height.screen`) as string
 
     return twCSS`
       .cm-editor {
         border: 1px solid rgb(189, 186, 186);
-        height: ${height};
+        height: 100%;
       }
     `
   }

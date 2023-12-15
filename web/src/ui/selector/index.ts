@@ -5,7 +5,7 @@ import { Ref, createRef, ref } from 'lit/directives/ref.js'
 
 import { withTwind } from '../../twind'
 import type { DocumentView } from '../../types'
-import { TWLitElement } from '../base/TwindLitElement'
+import { TWLitElement } from '../twind'
 
 /**
  * UI selector

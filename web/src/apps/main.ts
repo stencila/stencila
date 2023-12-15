@@ -14,7 +14,7 @@ import '../views/source'
 import '../views/split'
 import '../views/visual'
 
-import '../features/selector'
+import '../ui/selector'
 
 import './main.css'
 
@@ -63,7 +63,7 @@ export class App extends LitElement {
     return html`
       <div class="font-sans">
         ${this.renderHeader()}
-        <div class="h-screen flex flex-col">
+        <div class="h-screen mt-14 flex flex-col">
           <main
             role="main"
             class="flex-grow px-4 py-8 w-full justify-center flex flex-col"
@@ -86,7 +86,7 @@ export class App extends LitElement {
             </nav>
 
             <div
-              class="bg-white border border-grays-mid container p-4 mx-auto h-full shadow-[0_0_8px_rgba(0,0,0,.035)]"
+              class="bg-white border border-grays-mid container p-4 mx-auto shadow-[0_0_8px_rgba(0,0,0,.035)] overflow-hidden"
             >
               ${this.doc ? this.renderView() : 'No document specified'}
             </div>
@@ -99,7 +99,7 @@ export class App extends LitElement {
 
   private renderHeader() {
     return html`<header
-      class="sticky w-full top-0 left-0 z-30 h-16 drop-shadow-[0_2px_0_#edf2f7] border-t-[3px] bg-white border-t-brand-blue p-4"
+      class="fixed w-full top-0 left-0 z-30 h-16 drop-shadow-[0_2px_0_#edf2f7] border-t-[3px] bg-white border-t-brand-blue p-4"
     >
       <nav class="container mx-auto flex justify-items-center">
         <a href="/"
