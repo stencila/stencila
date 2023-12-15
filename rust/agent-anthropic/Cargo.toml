@@ -5,4 +5,6 @@ edition = "2021"
 
 [dependencies]
 agent = { path = "../agent" }
-anthropic = "0.0.7"
+# anthropic = "0.0.7" -- the latest release does not work.
+# This one does
+anthropic = { git = "https://github.com/abdelhamidbakhta/anthropic-rs.git", rev="c3d48caad57a26dbcbe37c63299a451cc1cc7254"}
