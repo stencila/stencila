@@ -5,5 +5,8 @@ edition = "2021"
 
 [dependencies]
 agent = { path = "../agent" }
-agents-ollama = { path = "../agents-ollama" }
-agents-openai = { path = "../agents-openai" }
+agent-custom = { path = "../agent-custom" }
+agent-ollama = { path = "../agent-ollama" }
+agent-openai = { path = "../agent-openai" }
+cached = { version = "0.46.1", features = ["async"] }
+sea-orm = { version = "0.12.9", features = ["sqlx-sqlite", "runtime-tokio-rustls"] }

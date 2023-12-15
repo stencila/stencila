@@ -34,7 +34,7 @@ export class Parameter extends Executable {
 
       this.patchNode({
         op: 'replace',
-        id: this.id,
+        id: this._id,
         path: 'value',
         value,
       })
@@ -46,5 +46,12 @@ export class Parameter extends Executable {
       <label for="${this.name}">${this.label ?? this.name}</label>
       <input name="${this.name}" />
     `
+  }
+
+  /**
+   * This accessor exists to allow us to get around the eslint rule: wc/no-constructor-attributes (as called in the constructor) - via: plugin:wc/recommended
+   */
+  get _id() {
+    return this.id
   }
 }

@@ -3,7 +3,6 @@ import { html } from 'lit'
 import { customElement, property, state } from 'lit/decorators.js'
 import { Ref, createRef, ref } from 'lit/directives/ref.js'
 
-import { withTwind } from '../../twind'
 import type { DocumentView } from '../../types'
 import { TWLitElement } from '../twind'
 
@@ -13,37 +12,42 @@ import { TWLitElement } from '../twind'
  * A selector that updates some display portion of the UI
  */
 @customElement('stencila-ui-selector')
-@withTwind()
 export class UISelector extends TWLitElement {
   /**
    * Ref to allow us to close the details element when needed.
    */
   detailsRef: Ref<HTMLDetailsElement> = createRef()
+
   /**
    * Manages the open state of the open listbox
    */
   @state()
   private open: boolean = false
+
   /**
    * Label displayed when listbox is not open
    */
   @property()
   label: string = ''
+
   /**
    * List of values to render in the list
    */
   @property({ type: Array })
   list: [string, string][] = []
+
   /**
    * Event to call when a list element is selected
    */
   @property()
   clickEvent: (e: Event) => void | undefined
+
   /**
    * Target property in parent component to evaluate
    */
   @property()
   target: DocumentView | string
+
   override render() {
     return html`
       ${this.renderOverlay()}

@@ -6,4 +6,4 @@ You are a helpful assistant. You will be provided an instruction, answer it as a
 
 ---
 
-{{ instruction }}
+{{ user_instruction }}

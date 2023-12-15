@@ -109,6 +109,13 @@ impl Prompt {
         Ok(Self { name: name.into() })
     }
 
+    /// Get the content of a prompt
+    pub fn content(&self) -> Result<String> {
+        let env = load_env()?;
+        let template = env.get_template(&self.name)?;
+        Ok(template.source().to_string())
+    }
+
     /// Render the prompt
     ///
     /// Returns the rendered system and user prompts
