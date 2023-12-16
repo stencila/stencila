@@ -9,6 +9,8 @@ codec-json5-trait = { path = "../codec-json5-trait" }
 codec-markdown-trait = { path = "../codec-markdown-trait" }
 codec-text-trait = { path = "../codec-text-trait" }
 nom = "7.1.3"
+# TODO: check for a new release later than this rev
+# https://github.com/stencila/stencila/issues/1840
 pulldown-cmark = { git = "https://github.com/raphlinus/pulldown-cmark", rev = "61cc1ba16d9ac0d95babafccbb2ed5754dd80ea8" }
 
 [dev-dependencies]
