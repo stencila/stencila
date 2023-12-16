@@ -29,7 +29,9 @@ jobs:
               ./install.sh -C json . -C ../docs .
 
       - name: Upload the archive as a `github-pages` artifact
-        uses: actions/upload-artifact@v4
+        # upload-artifact@v4 is available but does not appear
+        # to be compatable with actions/deploy-pages@v3
+        uses: actions/upload-artifact@v3
         with:
             name: github-pages
             path: ${{ runner.temp }}/archive.tar
