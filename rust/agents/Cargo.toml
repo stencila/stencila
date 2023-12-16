@@ -5,6 +5,7 @@ edition = "2021"
 
 [dependencies]
 agent = { path = "../agent" }
+agent-anthropic = { path = "../agent-anthropic" }
 agent-custom = { path = "../agent-custom" }
 agent-ollama = { path = "../agent-ollama" }
 agent-openai = { path = "../agent-openai" }
