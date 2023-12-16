@@ -8,9 +8,8 @@ use agent::{
     common::{
         async_trait::async_trait,
         eyre::{bail, Result},
-        serde_json::json,
     },
-    Agent, AgentIO, GenerateOptions,
+    Agent, AgentIO, GenerateContext, GenerateOptions,
 };
 
 /// An agent running on Anthropic
@@ -46,13 +45,12 @@ impl Agent for AnthropicAgent {
         &[AgentIO::Text]
     }
 
-    async fn text_to_text(&self, instruction: &str, options: &GenerateOptions) -> Result<String> {
-        let (system_prompt, user_prompt) = self.render_prompt(
-            &options.prompt_name,
-            json!({
-                "user_instruction": instruction
-            }),
-        )?;
+    async fn text_to_text(
+        &self,
+        context: GenerateContext,
+        options: &GenerateOptions,
+    ) -> Result<String> {
+        let (system_prompt, user_prompt) = self.render_prompt(context, options).await?;
 
         let cfg = AnthropicConfig::new()?;
         let client = Client::try_from(cfg)?;
