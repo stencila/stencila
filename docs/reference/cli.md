@@ -14,6 +14,10 @@ This document contains the help content for the `stencila` command-line program.
 * [`stencila convert`↴](#stencila-convert)
 * [`stencila serve`↴](#stencila-serve)
 * [`stencila agents`↴](#stencila-agents)
+<<<<<<< HEAD
+* [`stencila generate`↴](#stencila-generate)
+=======
+>>>>>>> 7479df7f517ca16dfc0c34d986d539bbe286efb9
 * [`stencila repl`↴](#stencila-repl)
 
 ## `stencila`
@@ -33,6 +37,10 @@ CLI subcommands and global options
 * `convert` — Convert a document between formats
 * `serve` — Serve
 * `agents` — List the available AI agents
+<<<<<<< HEAD
+* `generate` — Generate text using an AI agents
+=======
+>>>>>>> 7479df7f517ca16dfc0c34d986d539bbe286efb9
 * `repl` — A read-evaluate-print loop for AI agents
 
 ###### **Options:**
@@ -353,17 +361,65 @@ List the available AI agents
 
 
 
+<<<<<<< HEAD
+## `stencila generate`
+
+Generate text using an AI agents
+
+Mainly intended for testing. This command runs the same code as when you create an instruction within a document.
+
+**Usage:** `stencila generate [OPTIONS] <INSTRUCTION>`
+
+###### **Arguments:**
+
+* `<INSTRUCTION>` — An instruction of what the agent should generate
+
+###### **Options:**
+
+* `-i`, `--image` — Generate an image rather than text
+* `-a`, `--agent <AGENT>` — The name of the agent to use
+* `-p`, `--prompt <PROMPT_NAME>` — The name of the prompt to use
+* `--mirostat <MIROSTAT>` — Enable Mirostat sampling for controlling perplexity
+* `--mirostat-eta <MIROSTAT_ETA>` — Influences how quickly the algorithm responds to feedback from the generated text
+* `--mirostat-tau <MIROSTAT_TAU>` — Controls the balance between coherence and diversity of the output
+* `--num-ctx <NUM_CTX>` — Sets the size of the context window used to generate the next token
+* `--num-gqa <NUM_GQA>` — The number of GQA groups in the transformer layer
+* `--num-gpu <NUM_GPU>` — The number of layers to send to the GPU(s)
+* `--num-thread <NUM_THREAD>` — Sets the number of threads to use during computation
+* `--repeat-last-n <REPEAT_LAST_N>` — Sets how far back for the model to look back to prevent repetition
+* `--repeat-penalty <REPEAT_PENALTY>` — Sets how strongly to penalize repetitions
+* `--temperature <TEMPERATURE>` — The temperature of the model
+* `--seed <SEED>` — Sets the random number seed to use for generation
+* `--stop <STOP>` — Sets the stop sequences to use
+* `--max-tokens <MAX_TOKENS>` — The maximum number of tokens to generate
+* `--tfs-z <TFS_Z>` — Tail free sampling is used to reduce the impact of less probable tokens from the output
+* `--num-predict <NUM_PREDICT>` — Maximum number of tokens to predict when generating text
+* `--top-k <TOP_K>` — Reduces the probability of generating nonsense
+* `--top-p <TOP_P>` — Works together with top-k
+* `--image-quality <IMAGE_QUALITY>` — The quality of the image that will be generated
+* `--image-style <IMAGE_STYLE>` — The style of the generated images. Must be one of `vivid` or `natural`. Vivid causes the model to lean towards generating hyper-real and dramatic images. Natural causes the model to produce more natural, less hyper-real looking images. Supported by `openai/dall-e-3`
+
+
+
+=======
+>>>>>>> 7479df7f517ca16dfc0c34d986d539bbe286efb9
 ## `stencila repl`
 
 A read-evaluate-print loop for AI agents
 
+<<<<<<< HEAD
+=======
 Mainly intended for prompt engineering during development of Stencila.
 
+>>>>>>> 7479df7f517ca16dfc0c34d986d539bbe286efb9
 **Usage:** `stencila repl [OPTIONS]`
 
 ###### **Options:**
 
 * `-a`, `--agent <AGENT>` — The name of the agent to interact with
+<<<<<<< HEAD
+* `-p`, `--prompt <PROMPT_NAME>` — The name of the prompt to use
+=======
 * `-d`, `--document <DOCUMENT>` — The path of the document to use in the context
 * `-n`, `--node <NODE>` — The path of a file to use as the node in the context
 * `-r`, `--record` — Whether to offer the option to record each evaluation trial
@@ -437,6 +493,7 @@ Mainly intended for prompt engineering during development of Stencila.
   - `debug`
   - `unknown`
 
+>>>>>>> 7479df7f517ca16dfc0c34d986d539bbe286efb9
 * `--mirostat <MIROSTAT>` — Enable Mirostat sampling for controlling perplexity
 * `--mirostat-eta <MIROSTAT_ETA>` — Influences how quickly the algorithm responds to feedback from the generated text
 * `--mirostat-tau <MIROSTAT_TAU>` — Controls the balance between coherence and diversity of the output
