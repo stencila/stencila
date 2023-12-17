@@ -84,8 +84,9 @@ outdated:
 	cargo outdated -d 1
 
 # Audit dependencies
+# Not that this operates at the root dir of the repo on the Cargo.lock file
 audit:
-	cargo audit -f ../Cargo.lock
+	cd .. && cargo audit
 
 # List unused dependencies
 # Not included in `audit` recipe (as in SDK Makefiles) because

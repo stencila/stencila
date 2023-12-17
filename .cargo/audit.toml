@@ -1,0 +1,14 @@
+# Cargo audit config file
+#
+# TODO: Periodically check whether ignores of advisories
+# can be removed. https://github.com/stencila/stencila/issues/1841
+
+[advisories]
+ignore = [
+    # At time of writing the `rsa` crate for which this advisory
+    # is for, is only depended upon by the `sqlx-mysql` crate
+    # which is functionality we don't use.
+    # https://rustsec.org/advisories/RUSTSEC-2023-0071
+    "RUSTSEC-2023-0071"
+]
+
