@@ -11,7 +11,7 @@ use agent::{
         eyre::{eyre, Result},
         tracing,
     },
-    Agent, AgentIO, GenerateContext, GenerateOptions,
+    Agent, AgentIO, GenerateContext, GenerateDetails, GenerateOptions,
 };
 
 /// An agent running on a Ollama (https://github.com/jmorganca/ollama/) server
@@ -81,12 +81,13 @@ impl Agent for OllamaAgent {
         &self,
         context: GenerateContext,
         options: &GenerateOptions,
-    ) -> Result<String> {
-        let (system_prompt, user_prompt) = self.render_prompt(context, options).await?;
+    ) -> Result<(String, GenerateDetails)> {
+        let mut request =
+            GenerationRequest::new(self.model.clone(), context.user_prompt().to_string());
 
-        let mut request = GenerationRequest::new(self.model.clone(), user_prompt);
-
-        request.system = Some(system_prompt);
+        if let Some(system_prompt) = context.system_prompt() {
+            request.system = Some(system_prompt.into());
+        }
 
         // Map options to Ollama options
         let mut opts = GenerationOptions::default();
@@ -139,8 +140,15 @@ impl Agent for OllamaAgent {
             .generate(request)
             .await
             .map_err(|error| eyre!(error))?;
+        let text = response.response;
 
-        Ok(response.response)
+        let details = GenerateDetails {
+            agent_chain: vec![self.name()],
+            generate_options: options.clone(),
+            ..Default::default()
+        };
+
+        Ok((text, details))
     }
 }
 

@@ -1,5 +1,8 @@
 ---
-description: Tests the ability to use the `current_timestamp` context variable.
+name: example/cuckoo
+extends: openai/gpt-3.5-turbo-1106
+description: |
+    Illustrates the ability to use the `current_timestamp` context variable
 ---
 
 You will be provided an instruction within an XML <instruction> tag. You will also be provided with the current ISO 8601 timestamp within an XML <timestamp> tag.

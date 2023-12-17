@@ -4,8 +4,7 @@ version = "0.0.0"
 edition = "2021"
 
 [dependencies]
-codecs = { path = "../codecs" }
 common = { path = "../common" }
-minijinja = { version = "1.0.10", features = ["loader"] }
-rust-embed = { version = "8.1.0", features = ["interpolate-folder-path", "include-exclude"] }
+format = { path = "../format" }
+merge = "0.1.0"
 schema = { path = "../schema" }

@@ -1,5 +1,8 @@
 ---
-description: Tests the ability to use all the default context variables.
+name: example/winnie
+extends: openai/gpt-3.5-turbo-1106
+description: |
+    Illustrates the ability to use context variables in the style of Winnie the Pooh.
 ---
 
 You will be provided an instruction within an XML <user-instruction> tag. You will also be provided with your name in an XML <agent-name> tag, the name of this prompt in an XML <prompt-name> tag, and the current ISO 8601 timestamp within an XML <current-timestamp> tag.

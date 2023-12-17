@@ -1,4 +1,6 @@
 ---
+name: stencila/insert-block
+extends: openai/gpt-3.5-turbo-1106
 description: |
   A prompt for when a user creates an `InstructionBlock` which does not contain any `content` (i.e. the user expects a `InsertBlock` response).
 ---

@@ -10,7 +10,7 @@ use common::{
     clap::{self, error::ErrorKind, Args, Parser, Subcommand},
     eyre::{eyre, Result},
     itertools::Itertools,
-    serde_json, tokio, tracing,
+    serde_json, serde_yaml, tokio, tracing,
 };
 use document::{Document, DocumentType, SyncDirection};
 use format::Format;
@@ -561,15 +561,11 @@ impl Cli {
                 if agents.is_empty() {
                     println!("There are no agents available. Perhaps you need to set some environment variables with API keys?")
                 } else {
-                    println!(
-                        "{:<40} {:<20} {:<20} {:<20}",
-                        "Agent", "Prompt", "Inputs", "Outputs"
-                    );
+                    println!("{:<40} {:<20} {:<20}", "Agent", "Inputs", "Outputs");
                     for agent in agents {
                         println!(
-                            "{:<40} {:<20} {:<20} {:<20}",
+                            "{:<40} {:<20} {:<20}",
                             agent.name(),
-                            agent.prompt(),
                             agent
                                 .supported_inputs()
                                 .iter()
@@ -690,13 +686,14 @@ impl Cli {
                                     GenerateContext::new(line, document_imported, node_imported);
 
                                 // Generate a response
-                                let (agent, response) =
+                                let (response, details) =
                                     agents::text_to_text(context, &agent, &options_parser.options)
                                         .await?;
 
-                                // Give some details of the agent used since if the agent is not
-                                // specified this may change from one response to the next
-                                println!("{}\n", agent.name().dimmed().cyan());
+                                // Display details
+                                let yaml = serde_yaml::to_string(&details)?;
+                                display::highlighted(&yaml, Format::Yaml)?;
+                                println!("---");
 
                                 // Display response highlighted as Markdown
                                 display::highlighted(&response, Format::Markdown)?;
@@ -712,10 +709,9 @@ impl Cli {
                                     let answer = reader.readline(&question)?;
                                     if answer == "y" || answer.is_empty() {
                                         agents::testing::insert_trial(
-                                            agent,
                                             line,
                                             &response,
-                                            &options_parser.options,
+                                            details,
                                         )
                                         .await?
                                     }

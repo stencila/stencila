@@ -16,7 +16,7 @@ use agent::{
         itertools::Itertools,
         tracing,
     },
-    Agent, AgentIO, GenerateContext, GenerateOptions,
+    Agent, AgentIO, GenerateContext, GenerateDetails, GenerateOptions,
 };
 
 /// An agent running on OpenAI
@@ -70,14 +70,12 @@ impl Agent for OpenAIAgent {
         &self,
         context: GenerateContext,
         options: &GenerateOptions,
-    ) -> Result<String> {
-        let (system_prompt, user_prompt) = self.render_prompt(context, options).await?;
-
+    ) -> Result<(String, GenerateDetails)> {
         chat_completion(
             &self.name(),
             &self.model,
-            &system_prompt,
-            &[&user_prompt],
+            context.system_prompt().unwrap_or_default(),
+            &[&context.user_prompt()],
             options,
         )
         .await
@@ -193,7 +191,7 @@ async fn chat_completion(
     system_prompt: &str,
     chat: &[&str],
     options: &GenerateOptions,
-) -> Result<String> {
+) -> Result<(String, GenerateDetails)> {
     tracing::debug!("Sending chat completion response");
 
     let client = Client::new();
@@ -282,7 +280,15 @@ async fn chat_completion(
         .and_then(|choice| choice.message.content)
         .unwrap_or_default();
 
-    Ok(text)
+    // Create details of the generation
+    let details = GenerateDetails {
+        agent_chain: vec![agent_name.to_string()],
+        generate_options: options.clone(),
+        model_fingerprint: response.system_fingerprint,
+        ..Default::default()
+    };
+
+    Ok((text, details))
 }
 
 /// Get a list of all available OpenAI agents

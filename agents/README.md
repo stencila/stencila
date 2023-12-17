@@ -1,27 +1,29 @@
-# Stencila Prompts
+# Stencila Agents
 
-**Prompts for AI agents specialized for scientific research and writing**
+**AI agents specialized for scientific research and writing**
 
 ## 🤖 Introduction
 
 Custom prompts are an effective way to improve the performance of large language models and other generative AI on specific tasks in specific contexts. This module contains custom prompts which are, or can be, used by Stencila when creating tasks for AI agents.
 
-There are three types of prompts in this module:
+There are three types of agents in this module:
 
-- [`builtin`](builtin): prompts that are embedded into the `stencila` CLI binary to be used by builtin agents
+- [`builtin`](builtin): agents that are embedded into the `stencila` CLI binary to be used by builtin agents
 
-- [`contrib`](contrib): contributed prompts that are not builtin but which can be fetched from this repo
+- [`contrib`](contrib): contributed agents that are not builtin but which can be fetched from this repo (this does not yet exist)
 
-- [`test`](test): prompts used during development for testing
+- [`example`](example): example agents which illustrate alternative approaches to prompt engineering and are useful for testing when developing Stencila
  
 
 ## ✏️ Format
 
-Prompts are written in Markdown files with a YAML header, the system prompt, a thematic break (three dashes i.e. `---`), and the user prompt:
+Agents are specified in Markdown files with a YAML header, the system prompt, a thematic break (three dashes i.e. `---`), and the user prompt:
 
 ```markdown
 ---
-description: A description of the prompt.
+name: example/agent
+extends: openai/gpt-3.5-turbo-0613
+description: A description of the agent.
 ---
 
 The system prompt
