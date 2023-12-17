@@ -77,19 +77,6 @@ impl Agent for OllamaAgent {
         &[AgentIO::Text]
     }
 
-<<<<<<< HEAD
-    async fn text_to_text(&self, instruction: &str, options: &GenerateOptions) -> Result<String> {
-        let (system_prompt, user_prompt) = self.render_prompt(
-            &options.prompt_name,
-            json!({
-                "user_instruction": instruction
-            }),
-        )?;
-
-        let mut request = GenerationRequest::new(self.model.clone(), user_prompt);
-
-        request.system = Some(system_prompt);
-=======
     async fn text_to_text(
         &self,
         context: GenerateContext,
@@ -101,7 +88,6 @@ impl Agent for OllamaAgent {
         if let Some(system_prompt) = context.system_prompt() {
             request.system = Some(system_prompt.into());
         }
->>>>>>> 7479df7f517ca16dfc0c34d986d539bbe286efb9
 
         // Map options to Ollama options
         let mut opts = GenerationOptions::default();
@@ -154,10 +140,6 @@ impl Agent for OllamaAgent {
             .generate(request)
             .await
             .map_err(|error| eyre!(error))?;
-<<<<<<< HEAD
-
-        Ok(response.response)
-=======
         let text = response.response;
 
         let details = GenerateDetails {
@@ -167,7 +149,6 @@ impl Agent for OllamaAgent {
         };
 
         Ok((text, details))
->>>>>>> 7479df7f517ca16dfc0c34d986d539bbe286efb9
     }
 }
 
