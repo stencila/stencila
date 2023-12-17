@@ -9,10 +9,9 @@ use agent::{
     common::{
         async_trait::async_trait,
         eyre::{eyre, Result},
-        serde_json::json,
         tracing,
     },
-    Agent, AgentIO, GenerateOptions,
+    Agent, AgentIO, GenerateContext, GenerateDetails, GenerateOptions,
 };
 
 /// An agent running on a Ollama (https://github.com/jmorganca/ollama/) server
@@ -78,6 +77,7 @@ impl Agent for OllamaAgent {
         &[AgentIO::Text]
     }
 
+<<<<<<< HEAD
     async fn text_to_text(&self, instruction: &str, options: &GenerateOptions) -> Result<String> {
         let (system_prompt, user_prompt) = self.render_prompt(
             &options.prompt_name,
@@ -89,6 +89,19 @@ impl Agent for OllamaAgent {
         let mut request = GenerationRequest::new(self.model.clone(), user_prompt);
 
         request.system = Some(system_prompt);
+=======
+    async fn text_to_text(
+        &self,
+        context: GenerateContext,
+        options: &GenerateOptions,
+    ) -> Result<(String, GenerateDetails)> {
+        let mut request =
+            GenerationRequest::new(self.model.clone(), context.user_prompt().to_string());
+
+        if let Some(system_prompt) = context.system_prompt() {
+            request.system = Some(system_prompt.into());
+        }
+>>>>>>> 7479df7f517ca16dfc0c34d986d539bbe286efb9
 
         // Map options to Ollama options
         let mut opts = GenerationOptions::default();
@@ -141,8 +154,20 @@ impl Agent for OllamaAgent {
             .generate(request)
             .await
             .map_err(|error| eyre!(error))?;
+<<<<<<< HEAD
 
         Ok(response.response)
+=======
+        let text = response.response;
+
+        let details = GenerateDetails {
+            agent_chain: vec![self.name()],
+            generate_options: options.clone(),
+            ..Default::default()
+        };
+
+        Ok((text, details))
+>>>>>>> 7479df7f517ca16dfc0c34d986d539bbe286efb9
     }
 }
 

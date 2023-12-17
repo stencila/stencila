@@ -7,15 +7,10 @@ use sea_orm::entity::prelude::*;
 pub struct Model {
     #[sea_orm(primary_key)]
     pub id: i32,
-    pub agent_name: String,
-    pub provider_name: String,
-    pub model_name: String,
-    pub prompt_name: String,
-    pub prompt_content: String,
-    pub options: String,
     pub current_timestamp: DateTimeUtc,
     pub user_instruction: String,
     pub agent_response: String,
+    pub generate_detail: String,
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]

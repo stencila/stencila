@@ -14,10 +14,9 @@ use agent::{
         async_trait::async_trait,
         eyre::{bail, Result},
         itertools::Itertools,
-        serde_json::{json, Value},
         tracing,
     },
-    Agent, AgentIO, GenerateOptions,
+    Agent, AgentIO, GenerateContext, GenerateDetails, GenerateOptions,
 };
 
 /// An agent running on OpenAI
@@ -67,6 +66,7 @@ impl Agent for OpenAIAgent {
         &self.outputs
     }
 
+<<<<<<< HEAD
     async fn text_to_text(&self, instruction: &str, options: &GenerateOptions) -> Result<String> {
         let (system_prompt, user_prompt) = self.render_prompt(
             &options.prompt_name,
@@ -80,11 +80,24 @@ impl Agent for OpenAIAgent {
             &self.model,
             &system_prompt,
             &[&user_prompt],
+=======
+    async fn text_to_text(
+        &self,
+        context: GenerateContext,
+        options: &GenerateOptions,
+    ) -> Result<(String, GenerateDetails)> {
+        chat_completion(
+            &self.name(),
+            &self.model,
+            context.system_prompt().unwrap_or_default(),
+            &[&context.user_prompt()],
+>>>>>>> 7479df7f517ca16dfc0c34d986d539bbe286efb9
             options,
         )
         .await
     }
 
+<<<<<<< HEAD
     async fn chat_to_text(&self, chat: &[&str], options: &GenerateOptions) -> Result<String> {
         // TODO: Should the chat be used in the render context and the returned user_prompt be passed on?
         let (system_prompt, ..) = self.render_prompt(&options.prompt_name, Value::Null)?;
@@ -92,6 +105,8 @@ impl Agent for OpenAIAgent {
         chat_completion(&self.name(), &self.model, &system_prompt, chat, options).await
     }
 
+=======
+>>>>>>> 7479df7f517ca16dfc0c34d986d539bbe286efb9
     async fn text_to_image(&self, instruction: &str, options: &GenerateOptions) -> Result<String> {
         let client = Client::new();
 
@@ -202,7 +217,11 @@ async fn chat_completion(
     system_prompt: &str,
     chat: &[&str],
     options: &GenerateOptions,
+<<<<<<< HEAD
 ) -> Result<String> {
+=======
+) -> Result<(String, GenerateDetails)> {
+>>>>>>> 7479df7f517ca16dfc0c34d986d539bbe286efb9
     tracing::debug!("Sending chat completion response");
 
     let client = Client::new();
@@ -291,7 +310,19 @@ async fn chat_completion(
         .and_then(|choice| choice.message.content)
         .unwrap_or_default();
 
+<<<<<<< HEAD
     Ok(text)
+=======
+    // Create details of the generation
+    let details = GenerateDetails {
+        agent_chain: vec![agent_name.to_string()],
+        generate_options: options.clone(),
+        model_fingerprint: response.system_fingerprint,
+        ..Default::default()
+    };
+
+    Ok((text, details))
+>>>>>>> 7479df7f517ca16dfc0c34d986d539bbe286efb9
 }
 
 /// Get a list of all available OpenAI agents

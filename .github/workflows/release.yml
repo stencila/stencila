@@ -282,7 +282,7 @@ jobs:
           args: --release --out dist --interpreter ${{ matrix.interpreter }}
 
       - name: Upload wheel
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: wheels
           path: python/dist
@@ -295,7 +295,7 @@ jobs:
     needs: [build-python]
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/download-artifact@v3
+      - uses: actions/download-artifact@v4
         with:
           name: wheels
 

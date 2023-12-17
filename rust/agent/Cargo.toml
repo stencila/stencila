@@ -5,8 +5,6 @@ edition = "2021"
 
 [dependencies]
 common = { path = "../common" }
-minijinja = { version = "1.0.10", features = ["loader"] }
-rust-embed = { version = "8.1.0", features = ["interpolate-folder-path", "include-exclude"] }
-
-# Upgrade a `minijinja` dependency to address https://rustsec.org/advisories/RUSTSEC-2023-0070
-self_cell = { version = "1.0.2" }
+format = { path = "../format" }
+merge = "0.1.0"
+schema = { path = "../schema" }

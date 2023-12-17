@@ -3,3 +3,6 @@ lcov.info
 node_modules
 /target
 .DS_Store
+/.envrc
+/.idea
+/tags

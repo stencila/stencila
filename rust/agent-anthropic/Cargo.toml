@@ -1,0 +1,10 @@
+[package]
+name = "agent-anthropic"
+version = "0.0.0"
+edition = "2021"
+
+[dependencies]
+agent = { path = "../agent" }
+# TODO: check for a new release later than this rev
+# https://github.com/stencila/stencila/issues/1840
+anthropic = { git = "https://github.com/abdelhamidbakhta/anthropic-rs.git", rev="c3d48caad57a26dbcbe37c63299a451cc1cc7254"}

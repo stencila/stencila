@@ -7,7 +7,7 @@ use agent::{
         eyre::{bail, Result},
         tracing,
     },
-    Agent, AgentIO, GenerateOptions,
+    Agent, AgentIO, GenerateContext, GenerateDetails, GenerateOptions,
 };
 
 pub use agent;
@@ -16,10 +16,6 @@ pub mod testing;
 mod testing_db;
 
 /// Get a list of available agents
-///
-/// Memoizes the result for an hour to reduce the number of times that
-/// remote APIs need to be called to get a list of available models.
-#[cached(time = 3600)]
 pub async fn list() -> Vec<Arc<dyn Agent>> {
     let mut list = Vec::new();
 
@@ -30,12 +26,14 @@ pub async fn list() -> Vec<Arc<dyn Agent>> {
 
     match agent_custom::list().await {
         Ok(mut agents) => list.append(&mut agents),
-        Err(error) => tracing::debug!("While listing custom agents: {error}"),
+        Err(error) => tracing::debug!("While listing Stencila agents: {error}"),
     }
 
-    match agent_openai::list().await {
+    list.append(&mut list_openai().await);
+
+    match agent_anthropic::list().await {
         Ok(mut agents) => list.append(&mut agents),
-        Err(error) => tracing::debug!("While listing OpenAI agents: {error}"),
+        Err(error) => tracing::debug!("While listing Anthropic agents: {error}"),
     }
 
     match agent_ollama::list().await {
@@ -46,15 +44,30 @@ pub async fn list() -> Vec<Arc<dyn Agent>> {
     list
 }
 
+/// Get a list of OpenAI agents
+///
+/// Memoizes the result for an hour to reduce the number of times that
+/// remote APIs need to be called to get a list of available models.
+#[cached(time = 3600)]
+async fn list_openai() -> Vec<Arc<dyn Agent>> {
+    match agent_openai::list().await {
+        Ok(agents) => agents,
+        Err(error) => {
+            tracing::debug!("While listing OpenAI agents: {error}");
+            vec![]
+        }
+    }
+}
+
 /// Generate text
 ///
 /// Returns a tuple of the agent that did the generation and
 /// the string it generated
 pub async fn text_to_text(
-    instruction: &str,
+    context: GenerateContext,
     agent_name: &Option<String>,
     options: &GenerateOptions,
-) -> Result<(Arc<dyn Agent>, String)> {
+) -> Result<(String, GenerateDetails)> {
     for agent in list().await {
         let should_use = if let Some(agent_name) = &agent_name {
             &agent.name() == agent_name
@@ -63,10 +76,7 @@ pub async fn text_to_text(
         };
 
         if should_use {
-            return Ok((
-                agent.clone(),
-                agent.text_to_text(instruction, options).await?,
-            ));
+            return agent.text_to_text(context, options).await;
         }
     }
 
