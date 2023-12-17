@@ -22,7 +22,7 @@ const delimiterElseIf = /^:::(:{1,10})?\s(\belif\b)/
 
 const delimiterFor = /^:::(:{1,10})?\s(\bfor\b)/
 
-// const delimiterStyle = /^:::(:{1,10})?\s((\bcss\b)\s)?{*}/
+const delimiterBlockStyle = /^:::(:{1,10})?\s(\bcss\b\s)?{[\S\s]*?}/
 
 const closeDelimiter = /^:::(:{1,10})?$/
 
@@ -33,10 +33,12 @@ const customTags = {
   codeStatement: Tag.define(),
 }
 
+// `NodeSpec` objects for elements
 const openIfStatement = { name: 'OpenIfStatement', style: customTags.base }
 const elseIfStatement = { name: 'ElseIfStatement', style: customTags.base }
 const openForStatement = { name: 'OpenForStatement', style: customTags.base }
 const elseStatement = { name: 'ElseStatement', style: customTags.base }
+const openBlockStyle = { name: 'OpenBlockStyle', style: customTags.base }
 const closingDelimiter = {
   name: 'ClosingColonDelimiter',
   style: customTags.base,
@@ -44,7 +46,7 @@ const closingDelimiter = {
 
 const delimiterMark = { name: 'DelimiterMark', style: customTags.colonDelim }
 const keywordMark = { name: 'KeywordMark', style: customTags.keyword }
-const condition = { name: 'Condition', style: customTags.codeStatement }
+const codeStatement = { name: 'CodeStatement', style: customTags.codeStatement }
 
 const createDelimiter = (
   cx: BlockContext,
@@ -85,10 +87,10 @@ class OpeningIfParser implements LeafBlockParser {
 
     elements.push(createKeyWordEl(cx, kwStart, kwLength))
 
-    // add condition el, runs from 1 after kw to the end of the leaf (line)
+    // add CodeStatement el, runs from 1 after kw to the end of the leaf (line)
     const condStart = kwStart + kwLength + 1
     elements.push(
-      cx.elt(condition.name, condStart, leaf.start + leaf.content.length)
+      cx.elt(codeStatement.name, condStart, leaf.start + leaf.content.length)
     )
 
     cx.addLeafElement(
@@ -123,22 +125,23 @@ class ElseIfParser implements LeafBlockParser {
     }
     const kwEl = createKeyWordEl(cx, kwStart, kwLength)
     elements.push(kwEl)
-    // add condition el, runs from 1 after the kw element to the end of the leaf
+    // add CodeStatement el, runs from 1 after the kw element to the end of the leaf
     const condStart = kwEl.to + 1
     elements.push(
-      cx.elt(condition.name, condStart, leaf.start + leaf.content.length)
+      cx.elt(codeStatement.name, condStart, leaf.start + leaf.content.length)
     )
 
     cx.addLeafElement(
       leaf,
-      cx.elt(openIfStatement.name, leaf.start, getLeafEnd(leaf), elements)
+      cx.elt(elseIfStatement.name, leaf.start, getLeafEnd(leaf), elements)
     )
     return true
   }
 }
 
 /**
- *
+ *  `LeafBLockParser` for parsing a 'for' statement
+ *  eg `::: for x in y`
  */
 class OpeningForParser implements LeafBlockParser {
   nextLine = () => false
@@ -162,20 +165,24 @@ class OpeningForParser implements LeafBlockParser {
     const kwEl = createKeyWordEl(cx, kwStart, kwLength)
     elements.push(kwEl)
 
-    // add condition el, runs from 1 after the kw element to the end of the leaf
+    // add codeStatement el, runs from 1 after the kw element to the end of the leaf
     const statementStart = kwEl.to + 1
     const inIdx = leaf.content.indexOf(` ${IN} `) + 1
 
     if (inIdx === -1) {
       elements.push(
-        cx.elt(condition.name, statementStart, leaf.start + leaf.content.length)
+        cx.elt(
+          codeStatement.name,
+          statementStart,
+          leaf.start + leaf.content.length
+        )
       )
     } else {
       const inStart = leaf.start + inIdx
       const inKwEl = cx.elt(keywordMark.name, inStart, inStart + IN.length)
       elements.push(
         cx.elt(
-          condition.name,
+          codeStatement.name,
           statementStart,
           leaf.start + leaf.content.length,
           [inKwEl]
@@ -185,7 +192,7 @@ class OpeningForParser implements LeafBlockParser {
 
     cx.addLeafElement(
       leaf,
-      cx.elt(openIfStatement.name, leaf.start, getLeafEnd(leaf), elements)
+      cx.elt(openForStatement.name, leaf.start, getLeafEnd(leaf), elements)
     )
     return true
   }
@@ -215,6 +222,45 @@ class ElseParser implements LeafBlockParser {
 }
 
 /**
+ *  `LeafBlockParser` for parsing and else statement for an `if` or `for`
+ *  eg: `::: {}` or `::: css {color: red;}`
+ */
+class OpenBlockStyleParser implements LeafBlockParser {
+  nextLine = () => false
+  finish = (cx: BlockContext, leaf: LeafBlock): boolean => {
+    const delimLength = leaf.content.trim().search(/\s/)
+    if (delimLength === -1) {
+      return false
+    }
+
+    const elements = [createDelimiter(cx, leaf.start, delimLength)]
+
+    const hasLanguageSpec = /^:::(:{1,10})?\s(\bcss\b)\s/.test(leaf.content)
+
+    if (hasLanguageSpec) {
+      const langKwStart = leaf.start + delimLength + 1
+      const langKwLength = leaf.content.substring(delimLength + 1).search(/\s/)
+      if (langKwLength !== -1) {
+        elements.push(createKeyWordEl(cx, langKwStart, langKwLength))
+      }
+    }
+
+    const rulesStart = leaf.content.search('{')
+    if (rulesStart !== -1) {
+      elements.push(
+        cx.elt(codeStatement.name, leaf.start + rulesStart, getLeafEnd(leaf))
+      )
+    }
+
+    cx.addElement(
+      cx.elt(openBlockStyle.name, leaf.start, getLeafEnd(leaf), elements)
+    )
+
+    return true
+  }
+}
+
+/**
  *  `LeafBlockParser` for parsing the closing delimiter
  *  for `if`, `for` and `style` blocks
  *  eg `:::` | `:::::`
@@ -235,14 +281,21 @@ class ClosingDelimiterParser implements LeafBlockParser {
   }
 }
 
+/**
+ * `MarkdownConfig` to apply the necessary parsers for highlighting the
+ * colon delimitir syntax as an `Extension` for the markdown language
+ */
 const StencilaColonSyntax: MarkdownConfig = {
   defineNodes: [
     openIfStatement,
+    elseIfStatement,
+    openForStatement,
     elseStatement,
+    openBlockStyle,
     closingDelimiter,
     delimiterMark,
     keywordMark,
-    condition,
+    codeStatement,
   ],
   parseBlock: [
     {
@@ -268,6 +321,14 @@ const StencilaColonSyntax: MarkdownConfig = {
       leaf: (_, leaf) =>
         delimiterElse.test(leaf.content) ? new ElseParser() : null,
       endLeaf: (_, line) => !delimiterElse.test(line.text),
+    },
+    {
+      name: openBlockStyle.name,
+      leaf: (_, leaf) =>
+        delimiterBlockStyle.test(leaf.content)
+          ? new OpenBlockStyleParser()
+          : null,
+      endLeaf: (_, line) => !delimiterBlockStyle.test(line.text),
     },
     {
       name: closingDelimiter.name,
