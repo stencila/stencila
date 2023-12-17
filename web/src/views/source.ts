@@ -272,8 +272,6 @@ export class SourceView extends TWLitElement {
    * height to use.
    */
   private get codeMirrorCSS() {
-    // const height = this.tw.theme(`height.screen`) as string
-
     return twCSS`
       .cm-editor {
         border: 1px solid rgb(189, 186, 186);
@@ -284,9 +282,9 @@ export class SourceView extends TWLitElement {
 
   protected render() {
     return html`
-      <div class="flex flex-col">
-        <div class="flex-grow-0 flex-shrink-0">${this.renderControls()}</div>
-        <div class="flex-grow">
+      <div class="max-h-screen relative">
+        ${this.renderControls()}
+        <div>
           <div id="codemirror" class=${this.codeMirrorCSS}></div>
         </div>
       </div>
@@ -295,8 +293,11 @@ export class SourceView extends TWLitElement {
 
   private renderControls() {
     return html`
-      <div class="mb-4 flex">
-        <div>${this.renderFormatSelect()} ${this.renderLineWrapCheckbox()}</div>
+      <div
+        class="flex flex-row items-center justify-between w-full bg-brand-white px-1 py-2"
+      >
+        <div>${this.renderFormatSelect()}</div>
+        <div>${this.renderLineWrapCheckbox()}</div>
       </div>
     `
   }
