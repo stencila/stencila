@@ -28,7 +28,7 @@ import { html, css, LitElement } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
 
 import { CodeMirrorClient } from '../clients/codemirror'
-import { markDownHighlightStyle } from '../languages/markdown'
+import { markdownHighlightStyle } from '../languages/markdown'
 import { withTwind } from '../twind'
 import type { DocumentId, DocumentAccess } from '../types'
 
@@ -203,7 +203,7 @@ export class SourceView extends LitElement {
 
     const syntaxHighlights =
       this.format === 'markdown'
-        ? markDownHighlightStyle
+        ? markdownHighlightStyle
         : defaultHighlightStyle
 
     return [

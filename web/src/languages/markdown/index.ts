@@ -11,7 +11,7 @@ import {
 //   parseBlock: [...ifParsers]
 // }
 
-const markDownHighlightStyle = HighlightStyle.define([
+const markdownHighlightStyle = HighlightStyle.define([
   ...defaultHighlightStyle.specs,
   ...cSyntaxStyles,
 ])
@@ -22,4 +22,4 @@ const stencilaMarkdown = () =>
     extensions: [StencilaColonSyntax],
   })
 
-export { stencilaMarkdown, markDownHighlightStyle }
+export { stencilaMarkdown, markdownHighlightStyle }

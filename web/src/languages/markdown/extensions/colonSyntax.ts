@@ -1,3 +1,9 @@
+/**
+ * CodeMirror syntax extensions for Stencila block nodes that
+ * use Pandoc-style "fenced div" syntax (paragraphs beginning
+ * with at least three colons)
+ */
+
 import { TagStyle } from '@codemirror/language'
 import { Tag } from '@lezer/highlight'
 import {
@@ -14,7 +20,7 @@ const ELSE = 'else'
 const FOR = 'for'
 const IN = 'in'
 
-const openDelimiterIf = /^:::(:{1,10})?\s(\bif\b)/
+const delimiterIf = /^:::(:{1,10})?\s(\bif\b)/
 
 const delimiterElse = /^:::(:{1,10})?\s(\belse\b)/
 
@@ -22,7 +28,7 @@ const delimiterElseIf = /^:::(:{1,10})?\s(\belif\b)/
 
 const delimiterFor = /^:::(:{1,10})?\s(\bfor\b)/
 
-const delimiterBlockStyle = /^:::(:{1,10})?\s(\bcss\b\s)?{[\S\s]*?}/
+const delimiterStyled = /^:::(:{1,10})?\s(\bcss\b\s)?{[\S\s]*?}/
 
 const closeDelimiter = /^:::(:{1,10})?$/
 
@@ -34,13 +40,13 @@ const customTags = {
 }
 
 // `NodeSpec` objects for elements
-const openIfStatement = { name: 'OpenIfStatement', style: customTags.base }
+const ifStatement = { name: 'IfStatement', style: customTags.base }
 const elseIfStatement = { name: 'ElseIfStatement', style: customTags.base }
-const openForStatement = { name: 'OpenForStatement', style: customTags.base }
+const forStatement = { name: 'ForStatement', style: customTags.base }
 const elseStatement = { name: 'ElseStatement', style: customTags.base }
-const openBlockStyle = { name: 'OpenBlockStyle', style: customTags.base }
-const closingDelimiter = {
-  name: 'ClosingColonDelimiter',
+const styledStatement = { name: 'StyledStatement', style: customTags.base }
+const closeStatement = {
+  name: 'CloseStatement',
   style: customTags.base,
 }
 
@@ -64,10 +70,10 @@ const getLeafEnd = (leaf: LeafBlock): number =>
   leaf.start + leaf.content.trim().length
 
 /**
- * `LeafBlockParser` for parsing the opening of an `if` statement
- * eg `::: if true`
+ * `LeafBlockParser` for parsing the opening of an `if` block e.g.
+ * `::: if a > 10`
  */
-class OpeningIfParser implements LeafBlockParser {
+class IfParser implements LeafBlockParser {
   nextLine = () => false
   finish = (cx: BlockContext, leaf: LeafBlock): boolean => {
     const elements = []
@@ -95,7 +101,7 @@ class OpeningIfParser implements LeafBlockParser {
 
     cx.addLeafElement(
       leaf,
-      cx.elt(openIfStatement.name, leaf.start, getLeafEnd(leaf), elements)
+      cx.elt(ifStatement.name, leaf.start, getLeafEnd(leaf), elements)
     )
 
     return true
@@ -103,8 +109,8 @@ class OpeningIfParser implements LeafBlockParser {
 }
 
 /**
- * `LeafBLockParser` for parsing an 'Else if' statement
- *  eg: `:::: elif`
+ * `LeafBLockParser` for parsing an 'else if' statement e.g.
+ *  `::: elif x < 10`
  */
 class ElseIfParser implements LeafBlockParser {
   nextLine = () => false
@@ -140,10 +146,10 @@ class ElseIfParser implements LeafBlockParser {
 }
 
 /**
- *  `LeafBLockParser` for parsing a 'for' statement
- *  eg `::: for x in y`
+ *  `LeafBLockParser` for parsing the opening of a 'for' block e.g.
+ *  `::: for x in y`
  */
-class OpeningForParser implements LeafBlockParser {
+class ForParser implements LeafBlockParser {
   nextLine = () => false
   finish = (cx: BlockContext, leaf: LeafBlock): boolean => {
     const elements = []
@@ -192,15 +198,15 @@ class OpeningForParser implements LeafBlockParser {
 
     cx.addLeafElement(
       leaf,
-      cx.elt(openForStatement.name, leaf.start, getLeafEnd(leaf), elements)
+      cx.elt(forStatement.name, leaf.start, getLeafEnd(leaf), elements)
     )
     return true
   }
 }
 
 /**
- *  `LeafBlockParser` for parsing and else statement for an `if` or `for`
- *  eg: `::: else`
+ *  `LeafBlockParser` for parsing the `else` clause of an `if` or `for` block e.g.
+ * `::: else`
  */
 class ElseParser implements LeafBlockParser {
   nextLine = () => false
@@ -222,10 +228,10 @@ class ElseParser implements LeafBlockParser {
 }
 
 /**
- *  `LeafBlockParser` for parsing and else statement for an `if` or `for`
- *  eg: `::: {}` or `::: css {color: red;}`
+ *  `LeafBlockParser` for parsing the opening of a styled block e.g.
+ * `::: {}` or `::: css {color: red;}`
  */
-class OpenBlockStyleParser implements LeafBlockParser {
+class StyledParser implements LeafBlockParser {
   nextLine = () => false
   finish = (cx: BlockContext, leaf: LeafBlock): boolean => {
     const delimLength = leaf.content.trim().search(/\s/)
@@ -253,7 +259,7 @@ class OpenBlockStyleParser implements LeafBlockParser {
     }
 
     cx.addElement(
-      cx.elt(openBlockStyle.name, leaf.start, getLeafEnd(leaf), elements)
+      cx.elt(styledStatement.name, leaf.start, getLeafEnd(leaf), elements)
     )
 
     return true
@@ -261,17 +267,17 @@ class OpenBlockStyleParser implements LeafBlockParser {
 }
 
 /**
- *  `LeafBlockParser` for parsing the closing delimiter
- *  for `if`, `for` and `style` blocks
- *  eg `:::` | `:::::`
+ *  `LeafBlockParser` for parsing the closing delimiter for `if`, `for` and
+ *  styled blocks e.g.
+ *  `:::` or `:::::`
  */
-class ClosingDelimiterParser implements LeafBlockParser {
+class CloseParser implements LeafBlockParser {
   nextLine = () => false
   finish = (cx: BlockContext, leaf: LeafBlock): boolean => {
     cx.addLeafElement(
       leaf,
       cx.elt(
-        closingDelimiter.name,
+        closeStatement.name,
         leaf.start,
         leaf.start + leaf.content.length,
         [createDelimiter(cx, leaf.start, leaf.content.trim().length)]
@@ -283,26 +289,26 @@ class ClosingDelimiterParser implements LeafBlockParser {
 
 /**
  * `MarkdownConfig` to apply the necessary parsers for highlighting the
- * colon delimitir syntax as an `Extension` for the markdown language
+ * colon delimiter syntax as an `Extension` for the markdown language
  */
 const StencilaColonSyntax: MarkdownConfig = {
   defineNodes: [
-    openIfStatement,
+    ifStatement,
     elseIfStatement,
-    openForStatement,
+    forStatement,
     elseStatement,
-    openBlockStyle,
-    closingDelimiter,
+    styledStatement,
+    closeStatement,
     delimiterMark,
     keywordMark,
     codeStatement,
   ],
   parseBlock: [
     {
-      name: openIfStatement.name,
+      name: ifStatement.name,
       leaf: (_, leaf) =>
-        openDelimiterIf.test(leaf.content) ? new OpeningIfParser() : null,
-      endLeaf: (_, line) => !openDelimiterIf.test(line.text),
+        delimiterIf.test(leaf.content) ? new IfParser() : null,
+      endLeaf: (_, line) => !delimiterIf.test(line.text),
     },
     {
       name: elseIfStatement.name,
@@ -311,9 +317,9 @@ const StencilaColonSyntax: MarkdownConfig = {
       endLeaf: (_, line) => !delimiterElseIf.test(line.text),
     },
     {
-      name: openForStatement.name,
+      name: forStatement.name,
       leaf: (_, leaf) =>
-        delimiterFor.test(leaf.content) ? new OpeningForParser() : null,
+        delimiterFor.test(leaf.content) ? new ForParser() : null,
       endLeaf: (_, line) => !delimiterFor.test(line.text),
     },
     {
@@ -323,19 +329,15 @@ const StencilaColonSyntax: MarkdownConfig = {
       endLeaf: (_, line) => !delimiterElse.test(line.text),
     },
     {
-      name: openBlockStyle.name,
+      name: styledStatement.name,
       leaf: (_, leaf) =>
-        delimiterBlockStyle.test(leaf.content)
-          ? new OpenBlockStyleParser()
-          : null,
-      endLeaf: (_, line) => !delimiterBlockStyle.test(line.text),
+        delimiterStyled.test(leaf.content) ? new StyledParser() : null,
+      endLeaf: (_, line) => !delimiterStyled.test(line.text),
     },
     {
-      name: closingDelimiter.name,
+      name: closeStatement.name,
       leaf: (_, leaf) =>
-        closeDelimiter.test(leaf.content.trim())
-          ? new ClosingDelimiterParser()
-          : null,
+        closeDelimiter.test(leaf.content.trim()) ? new CloseParser() : null,
       endLeaf: (_, line) => !closeDelimiter.test(line.text.trim()),
     },
   ],
