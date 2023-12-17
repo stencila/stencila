@@ -195,10 +195,10 @@
       "$ref": "InsertInline.schema.json"
     },
     {
-      "$ref": "InstructBlock.schema.json"
+      "$ref": "InstructionBlock.schema.json"
     },
     {
-      "$ref": "InstructInline.schema.json"
+      "$ref": "InstructionInline.schema.json"
     },
     {
       "$ref": "IntegerValidator.schema.json"

@@ -416,7 +416,7 @@
           "@id": "schema:CreativeWork"
         },
         {
-          "@id": "stencila:Instruct"
+          "@id": "stencila:Instruction"
         }
       ],
       "schema:rangeIncludes": {
@@ -547,10 +547,10 @@
           "@id": "stencila:IncludeBlock"
         },
         {
-          "@id": "stencila:InstructBlock"
+          "@id": "stencila:InstructionBlock"
         },
         {
-          "@id": "stencila:InstructInline"
+          "@id": "stencila:InstructionInline"
         },
         {
           "@id": "stencila:Link"

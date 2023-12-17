@@ -162,10 +162,10 @@
           "@id": "stencila:IncludeBlock"
         },
         {
-          "@id": "stencila:InstructBlock"
+          "@id": "stencila:InstructionBlock"
         },
         {
-          "@id": "stencila:InstructInline"
+          "@id": "stencila:InstructionInline"
         },
         {
           "@id": "stencila:Link"

@@ -142,32 +142,27 @@
       }
     },
     {
-      "@id": "stencila:executionKernel",
+      "@id": "stencila:executionStatus",
       "@type": "rdfs:Property",
-      "rdfs:label": "executionKernel",
-      "rdfs:comment": "The id of the kernel that the node was last executed in.",
+      "rdfs:label": "executionStatus",
+      "rdfs:comment": "Status of the most recent, including any current, execution.",
+      "schema:domainIncludes": {
+        "@id": "stencila:Executable"
+      },
+      "schema:rangeIncludes": {
+        "@id": "stencila:ExecutionStatus"
+      }
+    },
+    {
+      "@id": "stencila:executionActor",
+      "@type": "rdfs:Property",
+      "rdfs:label": "executionActor",
+      "rdfs:comment": "The id of the actor that the node was last executed by.",
       "schema:domainIncludes": {
         "@id": "stencila:Executable"
       },
       "schema:rangeIncludes": {
         "@id": "schema:Text"
-      }
-    },
-    {
-      "@id": "stencila:executionStatus",
-      "@type": "rdfs:Property",
-      "rdfs:label": "executionStatus",
-      "rdfs:comment": "Status of the most recent, including any current, execution.",
-      "schema:domainIncludes": [
-        {
-          "@id": "stencila:Executable"
-        },
-        {
-          "@id": "stencila:Instruct"
-        }
-      ],
-      "schema:rangeIncludes": {
-        "@id": "stencila:ExecutionStatus"
       }
     },
     {

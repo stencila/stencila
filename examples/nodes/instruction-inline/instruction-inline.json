@@ -1,0 +1,46 @@
+{
+  "$schema": "https://stencila.dev/Article.schema.json",
+  "type": "Article",
+  "content": [
+    {
+      "type": "Paragraph",
+      "content": [
+        {
+          "type": "Text",
+          "value": "A paragraph with an instruction to insert content "
+        },
+        {
+          "type": "InstructionInline",
+          "text": "insert an inline"
+        },
+        {
+          "type": "Text",
+          "value": "."
+        }
+      ]
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        {
+          "type": "Text",
+          "value": "A paragraph with an instruction to edit some existing content: "
+        },
+        {
+          "type": "InstructionInline",
+          "text": "improve this",
+          "content": [
+            {
+              "type": "Text",
+              "value": "existing content"
+            }
+          ]
+        },
+        {
+          "type": "Text",
+          "value": "."
+        }
+      ]
+    }
+  ]
+}

@@ -54,7 +54,7 @@ impl ReadNode for Inline {
             Emphasis,
             ImageObject,
             InsertInline,
-            InstructInline,
+            InstructionInline,
             Link,
             MathInline,
             MediaObject,
