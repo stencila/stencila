@@ -118,10 +118,10 @@ export class CodeMirrorClient extends FormatClient {
 
   /**
    * Send a special operation to the server
-   * 
+   *
    * The `from` and `to` character positions are resolved into document node(s)
    * on the server and the operation is applied there.
-   * 
+   *
    * @param type The type of the operation
    * @param from The character position of the cursor or the start of the selection (if any)
    * @param to   The character position of the end of the selection (if any)
