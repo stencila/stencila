@@ -177,17 +177,17 @@ export class DragSplit extends TWLitElement {
     })
   }
 
-  firstUpdated() {
+  override firstUpdated() {
     this.createSplitInstance()
   }
 
-  connectedCallback() {
+  override connectedCallback() {
     super.connectedCallback()
     window.addEventListener('resize', this.handleWindowResize(this))
     window.dispatchEvent(new Event('resize'))
   }
 
-  disconnectedCallback() {
+  override disconnectedCallback() {
     window.removeEventListener('resize', this.handleWindowResize(this))
     super.disconnectedCallback()
   }
