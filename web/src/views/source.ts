@@ -187,7 +187,7 @@ export class SourceView extends LitElement {
 
   /**
    * Send an 'execute' operation on the selection of the document
-   * 
+   *
    * @returns false to tell CodeMirror that this does not change the editor state
    */
   private executeSelection(view: CodeMirrorView): boolean {
