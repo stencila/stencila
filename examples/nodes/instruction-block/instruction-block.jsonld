@@ -1,0 +1,28 @@
+{
+  "@context": {
+    "@vocab": "https://schema.org/",
+    "stencila": "https://stencila.org/"
+  },
+  "@type": "Article",
+  "stencila:content": [
+    {
+      "@type": "stencila:InstructionBlock",
+      "text": "4x10 table"
+    },
+    {
+      "@type": "stencila:InstructionBlock",
+      "text": "Improve this paragraph.",
+      "stencila:content": [
+        {
+          "@type": "stencila:Paragraph",
+          "stencila:content": [
+            {
+              "@type": "Text",
+              "value": "Target paragraph."
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

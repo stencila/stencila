@@ -233,8 +233,8 @@ macro_rules! lost_exec_options {
             execution_tags,
             execution_count,
             execution_required,
-            execution_kernel,
             execution_status,
+            execution_actor,
             execution_ended,
             execution_duration,
             execution_errors

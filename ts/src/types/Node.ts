@@ -60,8 +60,8 @@ import { type ImageObject } from "./ImageObject.js";
 import { type IncludeBlock } from "./IncludeBlock.js";
 import { type InsertBlock } from "./InsertBlock.js";
 import { type InsertInline } from "./InsertInline.js";
-import { type InstructBlock } from "./InstructBlock.js";
-import { type InstructInline } from "./InstructInline.js";
+import { type InstructionBlock } from "./InstructionBlock.js";
+import { type InstructionInline } from "./InstructionInline.js";
 import { type Integer } from "./Integer.js";
 import { type IntegerValidator } from "./IntegerValidator.js";
 import { type Link } from "./Link.js";
@@ -188,8 +188,8 @@ export type Node =
   IncludeBlock |
   InsertBlock |
   InsertInline |
-  InstructBlock |
-  InstructInline |
+  InstructionBlock |
+  InstructionInline |
   IntegerValidator |
   Link |
   List |
@@ -310,8 +310,8 @@ export function node(other: Node): Node {
     case "IncludeBlock":
     case "InsertBlock":
     case "InsertInline":
-    case "InstructBlock":
-    case "InstructInline":
+    case "InstructionBlock":
+    case "InstructionInline":
     case "IntegerValidator":
     case "Link":
     case "List":

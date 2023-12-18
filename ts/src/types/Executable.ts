@@ -66,14 +66,14 @@ export class Executable extends Entity {
   executionRequired?: ExecutionRequired;
 
   /**
-   * The id of the kernel that the node was last executed in.
-   */
-  executionKernel?: string;
-
-  /**
    * Status of the most recent, including any current, execution.
    */
   executionStatus?: ExecutionStatus;
+
+  /**
+   * The id of the actor that the node was last executed by.
+   */
+  executionActor?: string;
 
   /**
    * The timestamp when the last execution ended.

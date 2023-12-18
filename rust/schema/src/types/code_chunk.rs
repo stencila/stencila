@@ -139,17 +139,17 @@ pub struct CodeChunkOptions {
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     pub execution_required: Option<ExecutionRequired>,
 
-    /// The id of the kernel that the node was last executed in.
-    #[serde(alias = "execution-kernel", alias = "execution_kernel")]
-    #[strip(execution)]
-    #[cfg_attr(feature = "proptest", proptest(value = "None"))]
-    pub execution_kernel: Option<String>,
-
     /// Status of the most recent, including any current, execution.
     #[serde(alias = "execution-status", alias = "execution_status")]
     #[strip(execution)]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     pub execution_status: Option<ExecutionStatus>,
+
+    /// The id of the actor that the node was last executed by.
+    #[serde(alias = "execution-actor", alias = "execution_actor")]
+    #[strip(execution)]
+    #[cfg_attr(feature = "proptest", proptest(value = "None"))]
+    pub execution_actor: Option<String>,
 
     /// The timestamp when the last execution ended.
     #[serde(alias = "execution-ended", alias = "execution_ended")]

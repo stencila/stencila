@@ -114,15 +114,15 @@ pub struct ButtonOptions {
     #[strip(execution)]
     pub execution_required: Option<ExecutionRequired>,
 
-    /// The id of the kernel that the node was last executed in.
-    #[serde(alias = "execution-kernel", alias = "execution_kernel")]
-    #[strip(execution)]
-    pub execution_kernel: Option<String>,
-
     /// Status of the most recent, including any current, execution.
     #[serde(alias = "execution-status", alias = "execution_status")]
     #[strip(execution)]
     pub execution_status: Option<ExecutionStatus>,
+
+    /// The id of the actor that the node was last executed by.
+    #[serde(alias = "execution-actor", alias = "execution_actor")]
+    #[strip(execution)]
+    pub execution_actor: Option<String>,
 
     /// The timestamp when the last execution ended.
     #[serde(alias = "execution-ended", alias = "execution_ended")]

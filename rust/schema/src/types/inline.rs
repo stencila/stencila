@@ -16,7 +16,7 @@ use super::duration::Duration;
 use super::emphasis::Emphasis;
 use super::image_object::ImageObject;
 use super::insert_inline::InsertInline;
-use super::instruct_inline::InstructInline;
+use super::instruction_inline::InstructionInline;
 use super::integer::Integer;
 use super::link::Link;
 use super::math_inline::MathInline;
@@ -101,7 +101,7 @@ pub enum Inline {
     #[cfg_attr(feature = "proptest-min", proptest(skip))]
     #[cfg_attr(feature = "proptest-low", proptest(skip))]
     #[cfg_attr(feature = "proptest-high", proptest(skip))]
-    InstructInline(InstructInline),
+    InstructionInline(InstructionInline),
 
     Link(Link),
 

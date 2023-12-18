@@ -1,0 +1,276 @@
+{
+  "$schema": "https://stencila.org/meta.schema.json",
+  "$id": "https://stencila.org/InstructionBlock.schema.json",
+  "@id": "stencila:InstructionBlock",
+  "title": "InstructionBlock",
+  "extends": [
+    "Instruction"
+  ],
+  "category": "edits",
+  "description": "An instruction to edit some block content.",
+  "proptest": {},
+  "markdown": {
+    "special": true
+  },
+  "required": [
+    "type",
+    "text"
+  ],
+  "core": [
+    "id",
+    "autoExec",
+    "content"
+  ],
+  "properties": {
+    "type": {
+      "@id": "schema:type",
+      "description": "The type of this item.",
+      "$comment": "This is a special property analogous to JSON-LD's `@type` keyword.\n",
+      "type": "string"
+    },
+    "id": {
+      "@id": "schema:id",
+      "description": "The identifier for this item.",
+      "$comment": "This is a special property analogous to JSON-LD's `@id` keyword.\n",
+      "strip": [
+        "metadata"
+      ],
+      "html": {
+        "attr": "id"
+      },
+      "type": "string"
+    },
+    "autoExec": {
+      "@id": "stencila:autoExec",
+      "description": "Under which circumstances the code should be automatically executed.",
+      "aliases": [
+        "auto",
+        "auto-exec",
+        "auto_exec"
+      ],
+      "strip": [
+        "execution"
+      ],
+      "$ref": "AutomaticExecution.schema.json"
+    },
+    "compilationDigest": {
+      "@id": "stencila:compilationDigest",
+      "description": "A digest of the content, semantics and dependencies of the node.",
+      "aliases": [
+        "compilation-digest",
+        "compilation_digest"
+      ],
+      "strip": [
+        "execution"
+      ],
+      "$ref": "CompilationDigest.schema.json"
+    },
+    "compilationErrors": {
+      "@id": "stencila:compilationErrors",
+      "description": "Errors generated when compiling the code.",
+      "aliases": [
+        "compilation-errors",
+        "compilation_errors",
+        "compilationError",
+        "compilation-error",
+        "compilation_error"
+      ],
+      "strip": [
+        "execution"
+      ],
+      "type": "array",
+      "items": {
+        "$ref": "CompilationError.schema.json"
+      }
+    },
+    "executionDigest": {
+      "@id": "stencila:executionDigest",
+      "description": "The `compilationDigest` of the node when it was last executed.",
+      "aliases": [
+        "execution-digest",
+        "execution_digest"
+      ],
+      "strip": [
+        "execution"
+      ],
+      "$ref": "CompilationDigest.schema.json"
+    },
+    "executionDependencies": {
+      "@id": "stencila:executionDependencies",
+      "description": "The upstream dependencies of this node.",
+      "aliases": [
+        "execution-dependencies",
+        "execution_dependencies",
+        "executionDependency",
+        "execution-dependency",
+        "execution_dependency"
+      ],
+      "strip": [
+        "execution"
+      ],
+      "type": "array",
+      "items": {
+        "$ref": "ExecutionDependency.schema.json"
+      }
+    },
+    "executionDependants": {
+      "@id": "stencila:executionDependants",
+      "description": "The downstream dependants of this node.",
+      "aliases": [
+        "execution-dependants",
+        "execution_dependants",
+        "executionDependant",
+        "execution-dependant",
+        "execution_dependant"
+      ],
+      "strip": [
+        "execution"
+      ],
+      "type": "array",
+      "items": {
+        "$ref": "ExecutionDependant.schema.json"
+      }
+    },
+    "executionTags": {
+      "@id": "stencila:executionTags",
+      "description": "Tags in the code which affect its execution.",
+      "aliases": [
+        "execution-tags",
+        "execution_tags",
+        "executionTag",
+        "execution-tag",
+        "execution_tag"
+      ],
+      "strip": [
+        "execution"
+      ],
+      "type": "array",
+      "items": {
+        "$ref": "ExecutionTag.schema.json"
+      }
+    },
+    "executionCount": {
+      "@id": "stencila:executionCount",
+      "description": "A count of the number of times that the node has been executed.",
+      "$comment": "Intended to increment with each successive execution of the node, including across sessions.\nNote that this differs to the `execution_count` in Jupyter Notebook format which is\nthe \"code cell's prompt number\" and which resets at the start of each new session.\n",
+      "aliases": [
+        "execution-count",
+        "execution_count"
+      ],
+      "strip": [
+        "execution"
+      ],
+      "type": "integer",
+      "minimum": 0.0
+    },
+    "executionRequired": {
+      "@id": "stencila:executionRequired",
+      "description": "Whether, and why, the code requires execution or re-execution.",
+      "aliases": [
+        "execution-required",
+        "execution_required"
+      ],
+      "strip": [
+        "execution"
+      ],
+      "$ref": "ExecutionRequired.schema.json"
+    },
+    "executionStatus": {
+      "@id": "stencila:executionStatus",
+      "description": "Status of the most recent, including any current, execution.",
+      "aliases": [
+        "execution-status",
+        "execution_status"
+      ],
+      "strip": [
+        "execution"
+      ],
+      "$ref": "ExecutionStatus.schema.json"
+    },
+    "executionActor": {
+      "@id": "stencila:executionActor",
+      "description": "The id of the actor that the node was last executed by.",
+      "aliases": [
+        "execution-actor",
+        "execution_actor"
+      ],
+      "strip": [
+        "execution"
+      ],
+      "type": "string"
+    },
+    "executionEnded": {
+      "@id": "stencila:executionEnded",
+      "description": "The timestamp when the last execution ended.",
+      "aliases": [
+        "execution-ended",
+        "execution_ended"
+      ],
+      "strip": [
+        "execution"
+      ],
+      "$ref": "Timestamp.schema.json"
+    },
+    "executionDuration": {
+      "@id": "stencila:executionDuration",
+      "description": "Duration of the last execution.",
+      "aliases": [
+        "execution-duration",
+        "execution_duration"
+      ],
+      "strip": [
+        "execution"
+      ],
+      "$ref": "Duration.schema.json"
+    },
+    "executionErrors": {
+      "@id": "stencila:executionErrors",
+      "description": "Errors when executing the node.",
+      "aliases": [
+        "execution-errors",
+        "execution_errors",
+        "executionError",
+        "execution-error",
+        "execution_error"
+      ],
+      "strip": [
+        "execution"
+      ],
+      "type": "array",
+      "items": {
+        "$ref": "ExecutionError.schema.json"
+      }
+    },
+    "text": {
+      "@id": "schema:text",
+      "description": "The text of the instruction.",
+      "type": "string"
+    },
+    "content": {
+      "@id": "stencila:content",
+      "description": "The content to which the instruction applies.",
+      "proptest": {
+        "min": {
+          "description": "No content",
+          "value": "None"
+        },
+        "low": {
+          "description": "Generate a single arbitrary, non-recursive, block node",
+          "strategy": "option::of(vec_blocks_non_recursive(1))"
+        },
+        "high": {
+          "description": "Generate up to two arbitrary, non-recursive, block nodes",
+          "strategy": "option::of(vec_blocks_non_recursive(2))"
+        },
+        "max": {
+          "description": "Generate up to four arbitrary, non-recursive, block nodes",
+          "strategy": "option::of(vec_blocks_non_recursive(4))"
+        }
+      },
+      "type": "array",
+      "items": {
+        "$ref": "Block.schema.json"
+      }
+    }
+  }
+}

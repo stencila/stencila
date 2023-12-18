@@ -67,16 +67,16 @@ properties:
     description: Whether, and why, the code requires execution or re-execution.
     strip: [execution]
     $ref: ExecutionRequired
-  executionKernel:
-    '@id': stencila:executionKernel
-    description: The id of the kernel that the node was last executed in.
-    strip: [execution]
-    type: string
   executionStatus:
     '@id': stencila:executionStatus
     description: Status of the most recent, including any current, execution.
     strip: [execution]
     $ref: ExecutionStatus
+  executionActor:
+    '@id': stencila:executionActor
+    description: The id of the actor that the node was last executed by.
+    strip: [execution]
+    type: string
   executionEnded:
     '@id': stencila:executionEnded
     description: The timestamp when the last execution ended.
