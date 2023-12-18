@@ -284,7 +284,7 @@ async fn chat_completion(
     let details = GenerateDetails {
         agent_chain: vec![agent_name.to_string()],
         generate_options: options.clone(),
-        model_fingerprint: response.system_fingerprint
+        model_fingerprint: response.system_fingerprint,
     };
 
     Ok((text, details))

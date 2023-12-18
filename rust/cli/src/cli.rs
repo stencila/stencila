@@ -708,12 +708,8 @@ impl Cli {
                                     );
                                     let answer = reader.readline(&question)?;
                                     if answer == "y" || answer.is_empty() {
-                                        agents::testing::insert_trial(
-                                            line,
-                                            &response,
-                                            details,
-                                        )
-                                        .await?
+                                        agents::testing::insert_trial(line, &response, details)
+                                            .await?
                                     }
                                 }
                             }
