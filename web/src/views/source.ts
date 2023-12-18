@@ -186,6 +186,16 @@ export class SourceView extends LitElement {
   }
 
   /**
+   * Send an 'execute' operation on the selection of the document
+   * 
+   * @returns false to tell CodeMirror that this does not change the editor state
+   */
+  private executeSelection(view: CodeMirrorView): boolean {
+    this.codeMirrorClient.sendSpecial('execute', view.state.selection.main)
+    return false
+  }
+
+  /**
    * Get the CodeMirror editor view extensions
    */
   private async getViewExtensions(): Promise<Extension[]> {
@@ -199,6 +209,7 @@ export class SourceView extends LitElement {
       ...completionKeymap,
       ...searchKeymap,
       { key: 'Ctrl-Space', run: startCompletion },
+      { key: 'Ctrl-Enter', run: (view) => this.executeSelection(view) },
     ])
 
     const syntaxHighlights =

@@ -25,9 +25,14 @@ export interface FormatPatch {
  */
 export interface FormatOperation {
   /**
+   * The type of operation
+   */
+  type: 'reset' | 'insert' | 'replace' | 'delete' | 'execute' | 'selection'
+
+  /**
    * The position in the string from which the operation is applied
    */
-  from: number
+  from?: number
 
   /**
    * The position in the string to which the operation is applied
@@ -42,23 +47,6 @@ export interface FormatOperation {
    * For additions and replacements; may be omitted for deletions.
    */
   insert?: string
-
-  /**
-   * The type of operation
-   *
-   * This is optional because insert, replace and delete operations are implied by
-   * the presence of `to` and `insert` (if only `to` then it is a delete, if only
-   * `insert` then an insert, if both then a replace).
-   *
-   * Where this is necessary is to apply non-string operations (sent by the client)
-   * to the nodes  themselves (in memory on the server). The properties `from` and `to`
-   * are used to specify the character range (in the format) of the nodes to which the
-   * operation should be supplied. If there is no selection in the editor, then only
-   * `from` will be defined (as the current cursor position). If there is a selection,
-   * then both `to` and `from` (and `type`) will be defined and all nodes in that
-   * character range will have the operation applied.
-   */
-  type?: 'insert' | 'replace' | 'delete' | 'execute'
 }
 
 /**
@@ -98,6 +86,19 @@ export abstract class FormatClient extends Client {
   }
 
   /**
+   * Send patch operations to the server with current version and increment
+   * the version
+   */
+  protected sendPatch(ops: FormatOperation[]) {
+    this.sendMessage({
+      version: this.version,
+      ops,
+    })
+
+    this.version += 1
+  }
+
+  /**
    * Receive a message from the server
    *
    * An override to apply the incoming `FormatPatch` message to the
@@ -107,7 +108,7 @@ export abstract class FormatClient extends Client {
     const { version, ops } = message as unknown as FormatPatch
 
     // Is the patch a reset patch?
-    const isReset = ops.length === 1 && ops[0].from === 0 && ops[0].to === 0
+    const isReset = ops.length === 1 && ops[0].type === 'reset'
 
     // Check for non-sequential patch and request a reset patch if necessary
     if (!isReset && version != this.version + 1) {
@@ -116,30 +117,47 @@ export abstract class FormatClient extends Client {
     }
 
     // Apply each operation in the patch
+    let updated = false
     for (const op of ops) {
-      const { from, to, insert } = op
+      const { type, from, to, insert } = op
 
-      if (to === undefined && insert !== undefined) {
-        // Insert
-        this.state = this.state.slice(0, from) + insert + this.state.slice(from)
-      } else if (to !== undefined && insert === undefined) {
-        // Delete
-        this.state = this.state.slice(0, from) + this.state.slice(to)
-      } else if (to !== undefined && insert !== undefined) {
-        // Replace
-        this.state = this.state.slice(0, from) + insert + this.state.slice(to)
-      } else if (to === 0 && from == 0 && insert !== undefined) {
-        // Reset
+      if (type === 'reset' && to === 0 && from == 0 && insert !== undefined) {
         this.state = insert
+        updated = true
+      } else if (
+        type === 'insert' &&
+        to === undefined &&
+        insert !== undefined
+      ) {
+        this.state = this.state.slice(0, from) + insert + this.state.slice(from)
+        updated = true
+      } else if (
+        type === 'delete' &&
+        to !== undefined &&
+        insert === undefined
+      ) {
+        this.state = this.state.slice(0, from) + this.state.slice(to)
+        updated = true
+      } else if (
+        type === 'replace' &&
+        to !== undefined &&
+        insert !== undefined
+      ) {
+        this.state = this.state.slice(0, from) + insert + this.state.slice(to)
+        updated = true
+      } else {
+        console.error('Operation from server was not handled', op)
       }
     }
 
-    // Update local version number
-    this.version = version
+    if (updated) {
+      // Update local version number
+      this.version = version
 
-    // Notify the subscriber (if any)
-    if (this.subscriber) {
-      this.subscriber(this.state)
+      // Notify the subscriber (if any)
+      if (this.subscriber) {
+        this.subscriber(this.state)
+      }
     }
   }
 
