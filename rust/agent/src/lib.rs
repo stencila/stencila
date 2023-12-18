@@ -93,7 +93,7 @@ impl GenerateContext {
     pub fn user_prompt(&self) -> &str {
         self.user_prompt
             .as_deref()
-            .unwrap_or_else(|| self.user_instruction.as_str())
+            .unwrap_or(self.user_instruction.as_str())
     }
 
     /// Get the system prompt of the context (if any)

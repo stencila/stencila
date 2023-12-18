@@ -75,7 +75,7 @@ impl Agent for OpenAIAgent {
             &self.name(),
             &self.model,
             context.system_prompt().unwrap_or_default(),
-            &[&context.user_prompt()],
+            &[context.user_prompt()],
             options,
         )
         .await
@@ -284,8 +284,7 @@ async fn chat_completion(
     let details = GenerateDetails {
         agent_chain: vec![agent_name.to_string()],
         generate_options: options.clone(),
-        model_fingerprint: response.system_fingerprint,
-        ..Default::default()
+        model_fingerprint: response.system_fingerprint
     };
 
     Ok((text, details))
