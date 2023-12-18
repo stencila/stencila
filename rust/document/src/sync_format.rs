@@ -49,14 +49,21 @@ pub struct FormatPatch {
 
 /// An operation on a string representing the document in a particular format
 ///
-/// Uses the same data model as a CodeMirror change (see https://codemirror.net/examples/change/)
-/// which allows this to be directly serialized to/from a browser based code editor.
+/// Uses a similar data model as a CodeMirror change (see https://codemirror.net/examples/change/)
+/// which allows this to be directly passed to/from a browser based code editor.
+///
+/// Extends the data model with a `type` field to allow us to also use these operations
+/// for things like tracking the current selection of the user and applying operation
+/// to the nodes that are currently selected.
 #[skip_serializing_none]
 #[derive(Debug, Default, Serialize, Deserialize, PartialEq, Eq)]
 #[serde(crate = "common::serde")]
 pub struct FormatOperation {
+    /// The type of operation
+    r#type: FormatOperationType,
+
     /// The position in the string from which the operation is applied
-    from: usize,
+    from: Option<usize>,
 
     /// The position in the string to which the operation is applied
     ///
@@ -70,13 +77,26 @@ pub struct FormatOperation {
 }
 
 impl FormatOperation {
+    /// Create a reset operation
+    fn reset<S>(value: S) -> Self
+    where
+        S: Into<String>,
+    {
+        Self {
+            r#type: FormatOperationType::Reset,
+            insert: Some(value.into()),
+            ..Default::default()
+        }
+    }
+
     /// Create an insert operation
     fn insert<S>(from: usize, value: S) -> Self
     where
         S: Into<String>,
     {
         Self {
-            from,
+            r#type: FormatOperationType::Insert,
+            from: Some(from),
             insert: Some(value.into()),
             ..Default::default()
         }
@@ -85,7 +105,8 @@ impl FormatOperation {
     /// Create a delete operation
     fn delete(from: usize, to: usize) -> Self {
         Self {
-            from,
+            r#type: FormatOperationType::Delete,
+            from: Some(from),
             to: Some(to),
             ..Default::default()
         }
@@ -97,23 +118,39 @@ impl FormatOperation {
         S: Into<String>,
     {
         Self {
-            from,
+            r#type: FormatOperationType::Replace,
+            from: Some(from),
             to: Some(to),
             insert: Some(value.into()),
         }
     }
+}
 
-    /// Create a reset operation
-    fn reset<S>(value: S) -> Self
-    where
-        S: Into<String>,
-    {
-        Self {
-            from: 0,
-            to: Some(0),
-            insert: Some(value.into()),
-        }
-    }
+/// The type of an operation
+#[derive(Debug, Default, Serialize, Deserialize, PartialEq, Eq)]
+#[serde(crate = "common::serde", rename_all = "lowercase")]
+enum FormatOperationType {
+    /// Reset content
+    #[default]
+    Reset,
+
+    /// Insert characters (sent by clients and server)
+    Insert,
+
+    /// Delete characters (sent by clients and server)
+    Delete,
+
+    /// Replace characters (sent by clients and server)
+    Replace,
+
+    /// Execute node/s corresponding to character positions (sent by clients only)
+    Execute,
+
+    /// Update the current viewport of the user (sent by clients only)
+    Viewport,
+
+    /// Update the current selection of the user (sent by clients only)
+    Selection,
 }
 
 impl Document {
@@ -170,34 +207,54 @@ impl Document {
 
                     // Apply the patch to the buffer
                     for op in patch.ops {
+                        use FormatOperationType::*;
                         match op {
-                            // Insert
+                            FormatOperation { r#type: Reset, .. } => {
+                                tracing::warn!("Client attempted to reset buffer")
+                            }
+
                             FormatOperation {
-                                from,
+                                r#type: Insert,
+                                from: Some(from),
                                 to: None,
                                 insert: Some(insert),
                             } => buffer.insert_str(from, &insert),
 
-                            // Delete
                             FormatOperation {
-                                from,
+                                r#type: Delete,
+                                from: Some(from),
                                 to: Some(to),
                                 insert: None,
                             } => buffer.replace_range(from..to, ""),
 
-                            // Replace
                             FormatOperation {
-                                from,
+                                r#type: Replace,
+                                from: Some(from),
                                 to: Some(to),
                                 insert: Some(insert),
                             } => buffer.replace_range(from..to, &insert),
 
-                            // No op, ignore
                             FormatOperation {
-                                to: None,
+                                r#type: Execute,
+                                from: Some(from),
+                                to: Some(to),
                                 insert: None,
-                                ..
-                            } => {}
+                            } => {
+                                // TODO
+                                tracing::debug!("Execute operation {from}-{to}")
+                            }
+
+                            FormatOperation {
+                                r#type: Selection,
+                                from: Some(from),
+                                to: Some(to),
+                                insert: None,
+                            } => {
+                                // TODO
+                                tracing::debug!("Selection operation {from}-{to}")
+                            }
+
+                            _ => tracing::warn!("Client sent invalid operation"),
                         }
                     }
 
