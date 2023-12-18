@@ -51,11 +51,11 @@ class Executable(Entity):
     execution_required: Optional[ExecutionRequired] = None
     """Whether, and why, the code requires execution or re-execution."""
 
-    execution_kernel: Optional[str] = None
-    """The id of the kernel that the node was last executed in."""
-
     execution_status: Optional[ExecutionStatus] = None
     """Status of the most recent, including any current, execution."""
+
+    execution_actor: Optional[str] = None
+    """The id of the actor that the node was last executed by."""
 
     execution_ended: Optional[Timestamp] = None
     """The timestamp when the last execution ended."""
@@ -66,7 +66,7 @@ class Executable(Entity):
     execution_errors: Optional[List[ExecutionError]] = None
     """Errors when executing the node."""
 
-    def __init__(self, id: Optional[str] = None, auto_exec: Optional[AutomaticExecution] = None, compilation_digest: Optional[CompilationDigest] = None, compilation_errors: Optional[List[CompilationError]] = None, execution_digest: Optional[CompilationDigest] = None, execution_dependencies: Optional[List[ExecutionDependency]] = None, execution_dependants: Optional[List[ExecutionDependant]] = None, execution_tags: Optional[List[ExecutionTag]] = None, execution_count: Optional[int] = None, execution_required: Optional[ExecutionRequired] = None, execution_kernel: Optional[str] = None, execution_status: Optional[ExecutionStatus] = None, execution_ended: Optional[Timestamp] = None, execution_duration: Optional[Duration] = None, execution_errors: Optional[List[ExecutionError]] = None):
+    def __init__(self, id: Optional[str] = None, auto_exec: Optional[AutomaticExecution] = None, compilation_digest: Optional[CompilationDigest] = None, compilation_errors: Optional[List[CompilationError]] = None, execution_digest: Optional[CompilationDigest] = None, execution_dependencies: Optional[List[ExecutionDependency]] = None, execution_dependants: Optional[List[ExecutionDependant]] = None, execution_tags: Optional[List[ExecutionTag]] = None, execution_count: Optional[int] = None, execution_required: Optional[ExecutionRequired] = None, execution_status: Optional[ExecutionStatus] = None, execution_actor: Optional[str] = None, execution_ended: Optional[Timestamp] = None, execution_duration: Optional[Duration] = None, execution_errors: Optional[List[ExecutionError]] = None):
         super().__init__(id = id)
         self.auto_exec = auto_exec
         self.compilation_digest = compilation_digest
@@ -77,8 +77,8 @@ class Executable(Entity):
         self.execution_tags = execution_tags
         self.execution_count = execution_count
         self.execution_required = execution_required
-        self.execution_kernel = execution_kernel
         self.execution_status = execution_status
+        self.execution_actor = execution_actor
         self.execution_ended = execution_ended
         self.execution_duration = execution_duration
         self.execution_errors = execution_errors

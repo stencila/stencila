@@ -15,7 +15,7 @@ Heading = ForwardRef("Heading")
 IfBlock = ForwardRef("IfBlock")
 IncludeBlock = ForwardRef("IncludeBlock")
 InsertBlock = ForwardRef("InsertBlock")
-InstructBlock = ForwardRef("InstructBlock")
+InstructionBlock = ForwardRef("InstructionBlock")
 List = ForwardRef("List")
 MathBlock = ForwardRef("MathBlock")
 ModifyBlock = ForwardRef("ModifyBlock")
@@ -42,7 +42,7 @@ Block = Union[
     IfBlock,
     IncludeBlock,
     InsertBlock,
-    InstructBlock,
+    InstructionBlock,
     List,
     MathBlock,
     ModifyBlock,

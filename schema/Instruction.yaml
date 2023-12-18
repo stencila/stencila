@@ -1,0 +1,13 @@
+title: Instruction
+"@id": stencila:Instruction
+extends: Executable
+abstract: true
+category: edits
+description: Abstract base type for a document editing instruction.
+required:
+  - text
+properties:
+  text:
+    '@id': schema:text
+    description: The text of the instruction.
+    type: string

@@ -139,11 +139,11 @@
     {
       "proptest": {
         "min": {
-          "description": "Do not generate `InstructBlock` nodes in block content.",
+          "description": "Do not generate `InstructionBlock` nodes in block content.",
           "skip": true
         }
       },
-      "$ref": "InstructBlock.schema.json"
+      "$ref": "InstructionBlock.schema.json"
     },
     {
       "$ref": "List.schema.json"

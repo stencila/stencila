@@ -130,14 +130,14 @@
     {
       "proptest": {
         "min": {
-          "description": "Do not generate `InstructInline` nodes in inline content.",
+          "description": "Do not generate `InstructionInline` nodes in inline content.",
           "skip": true
         },
         "max": {
-          "description": "Generate `InstructInline` nodes in inline content."
+          "description": "Generate `InstructionInline` nodes in inline content."
         }
       },
-      "$ref": "InstructInline.schema.json"
+      "$ref": "InstructionInline.schema.json"
     },
     {
       "$ref": "Link.schema.json"

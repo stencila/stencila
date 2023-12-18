@@ -1,0 +1,11 @@
+type: Article
+content:
+- type: InstructionBlock
+  text: 4x10 table
+- type: InstructionBlock
+  text: Improve this paragraph.
+  content:
+  - type: Paragraph
+    content:
+    - type: Text
+      value: Target paragraph.
