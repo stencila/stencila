@@ -20,7 +20,7 @@ use agent::{
         serde_json, serde_yaml,
     },
     merge::Merge,
-    Agent, AgentIO, GenerateContext, GenerateOptions, GenerateDetails,
+    Agent, AgentIO, GenerateContext, GenerateDetails, GenerateOptions,
 };
 use agent_anthropic::AnthropicAgent;
 use agent_ollama::OllamaAgent;
@@ -63,7 +63,7 @@ impl CustomAgent {
         options: GenerateOptions,
     ) -> Result<Self> {
         let (provider, model) = extends
-            .split("/")
+            .split('/')
             .collect_tuple()
             .ok_or_else(|| eyre!("Expected base agent name to have a forward slash"))?;
 
