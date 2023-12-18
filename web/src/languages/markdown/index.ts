@@ -5,20 +5,21 @@ import {
   StencilaColonSyntax,
   highlightStyles as cSyntaxStyles,
 } from './extensions/colonSyntax'
-
-customMarkdown = markdownLanguage.data.of({
-  closeBrackets,
-})
+import {
+  StencilaInstructSyntax,
+  highlightStyles as instSyntaxStyles,
+} from './extensions/instructSyntax'
 
 const markdownHighlightStyle = HighlightStyle.define([
   ...defaultHighlightStyle.specs,
   ...cSyntaxStyles,
+  ...instSyntaxStyles,
 ])
 
 const stencilaMarkdown = () =>
   markdown({
     base: markdownLanguage,
-    extensions: [StencilaColonSyntax],
+    extensions: [StencilaColonSyntax, StencilaInstructSyntax],
   })
 
 export { stencilaMarkdown, markdownHighlightStyle }

@@ -258,7 +258,8 @@ class StyledParser implements LeafBlockParser {
       )
     }
 
-    cx.addElement(
+    cx.addLeafElement(
+      leaf,
       cx.elt(styledStatement.name, leaf.start, getLeafEnd(leaf), elements)
     )
 
@@ -276,12 +277,9 @@ class CloseParser implements LeafBlockParser {
   finish = (cx: BlockContext, leaf: LeafBlock): boolean => {
     cx.addLeafElement(
       leaf,
-      cx.elt(
-        closeStatement.name,
-        leaf.start,
-        leaf.start + leaf.content.length,
-        [createDelimiter(cx, leaf.start, leaf.content.trim().length)]
-      )
+      cx.elt(closeStatement.name, leaf.start, getLeafEnd(leaf), [
+        createDelimiter(cx, leaf.start, leaf.content.trim().length),
+      ])
     )
     return true
   }
