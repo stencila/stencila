@@ -1,4 +1,4 @@
-import { Extension, TransactionSpec } from '@codemirror/state'
+import { Extension, SelectionRange, TransactionSpec } from '@codemirror/state'
 import { EditorView, ViewUpdate } from '@codemirror/view'
 
 import { type DocumentAccess, type DocumentId } from '../types'
@@ -52,6 +52,14 @@ export class CodeMirrorClient extends FormatClient {
   private bufferedOperations: FormatOperation[] = []
 
   /**
+   * The current selection in the editor
+   *
+   * Used to detect changes in the user's selection and send presence updates
+   * accordingly.
+   */
+  private currentSelection?: SelectionRange
+
+  /**
    * Construct a new `CodeMirrorClient`
    *
    * @param id The id of the document
@@ -73,21 +81,22 @@ export class CodeMirrorClient extends FormatClient {
     // paragraphs.
     // https://github.com/stencila/stencila/issues/1788
     const op = this.bufferedOperations[this.bufferedOperations.length - 1]
-    if (op.insert && op.insert.trim().length === 0) {
+    // For some reason (maybe because this runs async and cached operations
+    // get filtered above?) `op` can occasionally be undefined so catch that here
+    if (op && op.insert && op.insert.trim().length === 0) {
       return
     }
 
     // TODO: Coalesce operations as much as possible to reduce the number sent
     // https://github.com/stencila/stencila/issues/1787
 
-    // Send the patch
-    this.sendMessage({
-      version: this.version,
-      ops: this.bufferedOperations,
-    })
+    // Don't send empty patches
+    if (this.bufferedOperations.length === 0) {
+      return
+    }
 
-    // Increment version and clear cache of ops
-    this.version += 1
+    // Send the patch and clear buffered operations
+    this.sendPatch(this.bufferedOperations)
     this.bufferedOperations = []
   }
 
@@ -99,34 +108,74 @@ export class CodeMirrorClient extends FormatClient {
   public sendPatches(): Extension {
     let timer: string | number | NodeJS.Timeout
     return EditorView.updateListener.of((update: ViewUpdate) => {
-      if (this.ignoreUpdates || !update.docChanged) {
+      if (this.ignoreUpdates) {
         return
       }
 
+      let newOperations = false
+
+      // Update the selection if necessary
+      const selection = update.view.state.selection.main
+      if (
+        this.currentSelection?.from !== selection.from ||
+        this.currentSelection?.to !== selection.to
+      ) {
+        this.currentSelection = selection
+
+        // Only want to send the last presence so remove any existing
+        // presence update patches
+        this.bufferedOperations = this.bufferedOperations.filter(
+          (op) => op.type !== 'selection'
+        )
+
+        // Add this one
+        const { from, to } = selection
+        this.bufferedOperations.push({ type: 'selection', from, to })
+        newOperations = true
+      }
+
+      // Send changes
       update.changes.iterChanges((from, to, fromB, toB, inserted) => {
+        //console.log(from, to, fromB, toB, inserted)
+
         const insert = inserted.toJSON().join('\n')
-        const op: FormatOperation = { from, to }
-        if (insert) op.insert = insert
+
+        let op: FormatOperation
+        if (from === to && insert) {
+          op = { type: 'insert', from, insert }
+        } else if (from !== to && !insert) {
+          op = { type: 'delete', from, to }
+        } else if (from !== to && insert) {
+          op = { type: 'replace', from, to, insert }
+        } else {
+          return
+        }
+
         this.bufferedOperations.push(op)
+        newOperations = true
       })
 
-      clearTimeout(timer)
-
-      timer = setTimeout(() => this.sendBufferedOperations(), SEND_DEBOUNCE)
+      if (newOperations) {
+        clearTimeout(timer)
+        timer = setTimeout(() => this.sendBufferedOperations(), SEND_DEBOUNCE)
+      }
     })
   }
 
   /**
    * Send a special operation to the server
-   * 
+   *
    * The `from` and `to` character positions are resolved into document node(s)
    * on the server and the operation is applied there.
-   * 
+   *
    * @param type The type of the operation
-   * @param from The character position of the cursor or the start of the selection (if any)
-   * @param to   The character position of the end of the selection (if any)
    */
-  public sendSpecial(type: 'execute', from: number, to?: number) {
+  public sendSpecial(type: 'execute', selection: SelectionRange) {
+    const { from, to } = selection
+    if (from === undefined) {
+      console.error('Current selection is undefined')
+    }
+
     // Ensure any buffered operations are sent first
     this.sendBufferedOperations()
 
@@ -158,14 +207,14 @@ export class CodeMirrorClient extends FormatClient {
   }
 
   /**
-   * Override to forward patches directly to the CodeMirror editor instead
-   * of updating `this.state`
+   * Override to forward patches from the server directly to the CodeMirror
+   * view instead of updating `this.state`
    */
   override receiveMessage(message: Record<string, unknown>) {
     const { version, ops } = message as unknown as FormatPatch
 
     // Is the patch a reset patch?
-    const isReset = ops.length === 1 && ops[0].from === 0 && ops[0].to === 0
+    const isReset = ops.length === 1 && ops[0].type === 'reset'
 
     // Check for non-sequential patch and request a reset patch if necessary
     if (!isReset && version != this.version + 1) {
@@ -185,7 +234,7 @@ export class CodeMirrorClient extends FormatClient {
         selection: this.editor.state.selection,
       })
     } else {
-      transaction = { changes: ops }
+      transaction = { changes: ops as ({ from: number } & FormatOperation)[] }
     }
 
     // Dispatch the transaction, ignoring any updates while doing so
