@@ -6,10 +6,9 @@ import {
   highlightStyles as cSyntaxStyles,
 } from './extensions/colonSyntax'
 
-// const stencilaMarkdownExtension: MarkdownConfig = {
-//   defineNodes: [...ifBlockNodeList],
-//   parseBlock: [...ifParsers]
-// }
+customMarkdown = markdownLanguage.data.of({
+  closeBrackets,
+})
 
 const markdownHighlightStyle = HighlightStyle.define([
   ...defaultHighlightStyle.specs,
