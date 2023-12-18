@@ -29,6 +29,7 @@ import { html } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
 
 import { CodeMirrorClient } from '../clients/codemirror'
+import { markdownHighlightStyle } from '../languages/markdown'
 import { withTwind } from '../twind'
 import type { DocumentId, DocumentAccess } from '../types'
 import { TWLitElement } from '../ui/twind'
@@ -116,7 +117,9 @@ export class SourceView extends TWLitElement {
       name: 'markdown',
       extensions: ['md'],
       load: async () => {
-        return import('@codemirror/lang-markdown').then((obj) => obj.markdown())
+        return import('../languages/markdown').then((md) =>
+          md.stencilaMarkdown()
+        )
       },
     }),
     LanguageDescription.of({
@@ -207,6 +210,11 @@ export class SourceView extends TWLitElement {
       { key: 'Ctrl-Space', run: startCompletion },
     ])
 
+    const syntaxHighlights =
+      this.format === 'markdown'
+        ? markdownHighlightStyle
+        : defaultHighlightStyle
+
     return [
       langExt,
       keyMaps,
@@ -219,7 +227,7 @@ export class SourceView extends TWLitElement {
       highlightActiveLineGutter(),
       indentOnInput(),
       highlightSpecialChars(),
-      syntaxHighlighting(defaultHighlightStyle, { fallback: true }),
+      syntaxHighlighting(syntaxHighlights, { fallback: true }),
       bracketMatching(),
       autocompletion(),
     ]

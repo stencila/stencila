@@ -42,6 +42,23 @@ export interface FormatOperation {
    * For additions and replacements; may be omitted for deletions.
    */
   insert?: string
+
+  /**
+   * The type of operation
+   *
+   * This is optional because insert, replace and delete operations are implied by
+   * the presence of `to` and `insert` (if only `to` then it is a delete, if only
+   * `insert` then an insert, if both then a replace).
+   *
+   * Where this is necessary is to apply non-string operations (sent by the client)
+   * to the nodes  themselves (in memory on the server). The properties `from` and `to`
+   * are used to specify the character range (in the format) of the nodes to which the
+   * operation should be supplied. If there is no selection in the editor, then only
+   * `from` will be defined (as the current cursor position). If there is a selection,
+   * then both `to` and `from` (and `type`) will be defined and all nodes in that
+   * character range will have the operation applied.
+   */
+  type?: 'insert' | 'replace' | 'delete' | 'execute'
 }
 
 /**

@@ -12,7 +12,7 @@ use codec::{
         shortcuts::{cb, dei, em, isi, mb, ol, p, qb, qi, stg, stk, t, tb, tbl, u, ul},
         transforms::blocks_to_inlines,
         AudioObject, Block, CodeChunk, Cord, DeleteBlock, Heading, IfBlock, IfBlockClause,
-        ImageObject, Inline, InsertBlock, InstructBlock, Link, ListItem, ModifyBlock, Note,
+        ImageObject, Inline, InsertBlock, InstructionBlock, Link, ListItem, ModifyBlock, Note,
         NoteType, ReplaceBlock, TableCell, TableRow, TableRowType, VideoObject,
     },
     Losses,
@@ -239,20 +239,20 @@ pub fn decode_blocks(
                     } else if let Ok((.., call)) = call(trimmed) {
                         Some(Block::CallBlock(call))
                     } else if let Ok((.., text)) = instruct_block_text_only(trimmed) {
-                        Some(Block::InstructBlock(InstructBlock {
+                        Some(Block::InstructionBlock(InstructionBlock {
                             text: text.to_string(),
                             ..Default::default()
                         }))
                     } else if let Ok((.., text)) = instruct_block_start(trimmed) {
                         blocks.push_div();
-                        divs.push_back(Block::InstructBlock(InstructBlock {
+                        divs.push_back(Block::InstructionBlock(InstructionBlock {
                             text: text.to_string(),
                             ..Default::default()
                         }));
                         None
                     } else if instruct_block_end(trimmed).is_ok() {
-                        if let Some(Block::InstructBlock(current)) = divs.pop_back() {
-                            Some(Block::InstructBlock(InstructBlock {
+                        if let Some(Block::InstructionBlock(current)) = divs.pop_back() {
+                            Some(Block::InstructionBlock(InstructionBlock {
                                 content: Some(blocks.pop_div()),
                                 ..current
                             }))

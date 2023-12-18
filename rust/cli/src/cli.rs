@@ -1,6 +1,6 @@
 use std::path::PathBuf;
 
-use agents::agent::GenerateOptions;
+use agents::agent::{GenerateContext, GenerateOptions};
 use color_eyre::owo_colors::OwoColorize;
 use rustyline::{error::ReadlineError, DefaultEditor};
 use yansi::Color;
@@ -10,7 +10,7 @@ use common::{
     clap::{self, error::ErrorKind, Args, Parser, Subcommand},
     eyre::{eyre, Result},
     itertools::Itertools,
-    serde_json, tokio, tracing,
+    serde_json, serde_yaml, tokio, tracing,
 };
 use document::{Document, DocumentType, SyncDirection};
 use format::Format;
@@ -248,33 +248,25 @@ enum Command {
     /// List the available AI agents
     Agents,
 
-    /// Generate text using an AI agents
-    ///
-    /// Mainly intended for testing. This command runs the same code as when you
-    /// create an instruction within a document.
-    Generate {
-        /// An instruction of what the agent should generate
-        instruction: String,
-
-        /// Generate an image rather than text
-        #[arg(long, short)]
-        image: bool,
-
-        /// The name of the agent to use
-        #[arg(long, short)]
-        agent: Option<String>,
-
-        #[clap(flatten)]
-        options: GenerateOptions,
-    },
-
     /// A read-evaluate-print loop for AI agents
     ///
-    ///
+    /// Mainly intended for prompt engineering during development of Stencila.
     Repl {
         /// The name of the agent to interact with
         #[arg(long, short)]
         agent: Option<String>,
+
+        /// The path of the document to use in the context
+        ///
+        /// For testing, you probably want this to be an example Markdown file.
+        #[arg(long, short)]
+        document: Option<PathBuf>,
+
+        /// The path of a file to use as the node in the context
+        ///
+        /// This is probably best as a JSON or YAML file of the specific node type
+        #[arg(long, short)]
+        node: Option<PathBuf>,
 
         /// Whether to offer the option to record each evaluation trial
         ///
@@ -569,15 +561,11 @@ impl Cli {
                 if agents.is_empty() {
                     println!("There are no agents available. Perhaps you need to set some environment variables with API keys?")
                 } else {
-                    println!(
-                        "{:<40} {:<20} {:<20} {:<20}",
-                        "Agent", "Prompt", "Inputs", "Outputs"
-                    );
+                    println!("{:<40} {:<20} {:<20}", "Agent", "Inputs", "Outputs");
                     for agent in agents {
                         println!(
-                            "{:<40} {:<20} {:<20} {:<20}",
+                            "{:<40} {:<20} {:<20}",
                             agent.name(),
-                            agent.prompt(),
                             agent
                                 .supported_inputs()
                                 .iter()
@@ -593,27 +581,10 @@ impl Cli {
                 }
             }
 
-            Command::Generate {
-                instruction,
-                image,
-                agent,
-                options,
-            } => match image {
-                false => {
-                    let (agent, text) =
-                        agents::text_to_text(&instruction, &agent, &options).await?;
-                    println!("{}:", agent.name().dimmed().cyan());
-                    display::highlighted(&text, Format::Markdown)?;
-                }
-                true => {
-                    let (agent, url) = agents::text_to_image(&instruction, agent, &options).await?;
-                    println!("{}:", agent.name().dimmed().cyan());
-                    println!("{}", url.blue());
-                }
-            },
-
             Command::Repl {
                 mut agent,
+                mut document,
+                mut node,
                 record,
                 options,
             } => {
@@ -642,6 +613,37 @@ impl Cli {
                                     "{}",
                                     agent.as_deref().unwrap_or("No specific agent chosen; use `--agent` to specify one").cyan()
                                 )
+                            } else if let Some(document_path) = line.strip_prefix("--document") {
+                                // Set the document to use
+                                document = Some(PathBuf::from(document_path.trim()));
+                            } else if line == "?document" {
+                                // Print the document being used
+                                println!(
+                                    "{}",
+                                    document
+                                        .as_ref()
+                                        .map_or(
+                                            "No context document; use `--document` to specify one"
+                                                .to_string(),
+                                            |path| path.to_str().unwrap_or_default().to_string()
+                                        )
+                                        .cyan()
+                                )
+                            } else if let Some(node_path) = line.strip_prefix("--node") {
+                                // Set the node to use
+                                node = Some(PathBuf::from(node_path.trim()));
+                            } else if line == "?node" {
+                                // Print the node being used
+                                println!(
+                                    "{}",
+                                    node.as_ref()
+                                        .map_or(
+                                            "No context node; use `--node` to specify one"
+                                                .to_string(),
+                                            |path| path.to_str().unwrap_or_default().to_string()
+                                        )
+                                        .cyan()
+                                )
                             } else if line.starts_with('-') {
                                 // Update option/s
                                 let mut args = vec!["options"];
@@ -667,14 +669,31 @@ impl Cli {
                                 let json = serde_json::to_string(&options_parser.options)?;
                                 display::highlighted(&json, Format::Json)?;
                             } else {
+                                // Import any document or node
+                                let document_imported = match &document {
+                                    Some(path) => Some(codecs::from_path(path, None).await?),
+                                    None => None,
+                                };
+                                let node_imported = match &node {
+                                    Some(path) => Some(codecs::from_path(path, None).await?),
+                                    None => None,
+                                };
+
+                                // Create a text generation context including the instruction from the user,
+                                // the containing document (if any), and the node to which the instruction
+                                // applies (if any)
+                                let context =
+                                    GenerateContext::new(line, document_imported, node_imported);
+
                                 // Generate a response
-                                let (agent, response) =
-                                    agents::text_to_text(line, &agent, &options_parser.options)
+                                let (response, details) =
+                                    agents::text_to_text(context, &agent, &options_parser.options)
                                         .await?;
 
-                                // Give some details of the agent used since if the agent is not
-                                // specified this may change from one response to the next
-                                println!("{}\n", agent.name().dimmed().cyan());
+                                // Display details
+                                let yaml = serde_yaml::to_string(&details)?;
+                                display::highlighted(&yaml, Format::Yaml)?;
+                                println!("---");
 
                                 // Display response highlighted as Markdown
                                 display::highlighted(&response, Format::Markdown)?;
@@ -690,10 +709,9 @@ impl Cli {
                                     let answer = reader.readline(&question)?;
                                     if answer == "y" || answer.is_empty() {
                                         agents::testing::insert_trial(
-                                            agent,
                                             line,
                                             &response,
-                                            &options_parser.options,
+                                            details,
                                         )
                                         .await?
                                     }

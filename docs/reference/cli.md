@@ -14,7 +14,10 @@ This document contains the help content for the `stencila` command-line program.
 * [`stencila convert`↴](#stencila-convert)
 * [`stencila serve`↴](#stencila-serve)
 * [`stencila agents`↴](#stencila-agents)
+<<<<<<< HEAD
 * [`stencila generate`↴](#stencila-generate)
+=======
+>>>>>>> 7479df7f517ca16dfc0c34d986d539bbe286efb9
 * [`stencila repl`↴](#stencila-repl)
 
 ## `stencila`
@@ -34,7 +37,10 @@ CLI subcommands and global options
 * `convert` — Convert a document between formats
 * `serve` — Serve
 * `agents` — List the available AI agents
+<<<<<<< HEAD
 * `generate` — Generate text using an AI agents
+=======
+>>>>>>> 7479df7f517ca16dfc0c34d986d539bbe286efb9
 * `repl` — A read-evaluate-print loop for AI agents
 
 ###### **Options:**
@@ -355,6 +361,7 @@ List the available AI agents
 
 
 
+<<<<<<< HEAD
 ## `stencila generate`
 
 Generate text using an AI agents
@@ -394,16 +401,99 @@ Mainly intended for testing. This command runs the same code as when you create 
 
 
 
+=======
+>>>>>>> 7479df7f517ca16dfc0c34d986d539bbe286efb9
 ## `stencila repl`
 
 A read-evaluate-print loop for AI agents
 
+<<<<<<< HEAD
+=======
+Mainly intended for prompt engineering during development of Stencila.
+
+>>>>>>> 7479df7f517ca16dfc0c34d986d539bbe286efb9
 **Usage:** `stencila repl [OPTIONS]`
 
 ###### **Options:**
 
 * `-a`, `--agent <AGENT>` — The name of the agent to interact with
+<<<<<<< HEAD
 * `-p`, `--prompt <PROMPT_NAME>` — The name of the prompt to use
+=======
+* `-d`, `--document <DOCUMENT>` — The path of the document to use in the context
+* `-n`, `--node <NODE>` — The path of a file to use as the node in the context
+* `-r`, `--record` — Whether to offer the option to record each evaluation trial
+* `--document-format <DOCUMENT_FORMAT>` — The format to convert the document content into when rendered into the prompt
+
+  Possible values:
+  - `article`
+  - `html`
+  - `jats`
+  - `markdown`
+  - `text`
+  - `json`
+  - `json5`
+  - `json-ld`
+  - `cbor`
+  - `cbor-zst`
+  - `yaml`
+  - `gif`:
+    Image formats
+  - `jpeg`
+  - `png`
+  - `svg`
+  - `web-p`
+  - `aac`:
+    Audio formats
+  - `flac`
+  - `mp3`
+  - `ogg`
+  - `wav`
+  - `avi`:
+    Video formats
+  - `mkv`
+  - `mp4`
+  - `ogv`
+  - `web-m`
+  - `debug`
+  - `unknown`
+
+* `--node-format <NODE_FORMAT>` — The format to convert the node content into when rendered into the prompt
+
+  Possible values:
+  - `article`
+  - `html`
+  - `jats`
+  - `markdown`
+  - `text`
+  - `json`
+  - `json5`
+  - `json-ld`
+  - `cbor`
+  - `cbor-zst`
+  - `yaml`
+  - `gif`:
+    Image formats
+  - `jpeg`
+  - `png`
+  - `svg`
+  - `web-p`
+  - `aac`:
+    Audio formats
+  - `flac`
+  - `mp3`
+  - `ogg`
+  - `wav`
+  - `avi`:
+    Video formats
+  - `mkv`
+  - `mp4`
+  - `ogv`
+  - `web-m`
+  - `debug`
+  - `unknown`
+
+>>>>>>> 7479df7f517ca16dfc0c34d986d539bbe286efb9
 * `--mirostat <MIROSTAT>` — Enable Mirostat sampling for controlling perplexity
 * `--mirostat-eta <MIROSTAT_ETA>` — Influences how quickly the algorithm responds to feedback from the generated text
 * `--mirostat-tau <MIROSTAT_TAU>` — Controls the balance between coherence and diversity of the output

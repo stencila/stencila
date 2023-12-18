@@ -174,18 +174,6 @@
       ],
       "$ref": "ExecutionRequired.schema.json"
     },
-    "executionKernel": {
-      "@id": "stencila:executionKernel",
-      "description": "The id of the kernel that the node was last executed in.",
-      "aliases": [
-        "execution-kernel",
-        "execution_kernel"
-      ],
-      "strip": [
-        "execution"
-      ],
-      "type": "string"
-    },
     "executionStatus": {
       "@id": "stencila:executionStatus",
       "description": "Status of the most recent, including any current, execution.",
@@ -197,6 +185,18 @@
         "execution"
       ],
       "$ref": "ExecutionStatus.schema.json"
+    },
+    "executionActor": {
+      "@id": "stencila:executionActor",
+      "description": "The id of the actor that the node was last executed by.",
+      "aliases": [
+        "execution-actor",
+        "execution_actor"
+      ],
+      "strip": [
+        "execution"
+      ],
+      "type": "string"
     },
     "executionEnded": {
       "@id": "stencila:executionEnded",

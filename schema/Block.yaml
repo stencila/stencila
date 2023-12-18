@@ -99,10 +99,10 @@ anyOf:
         description: Do not generate `InsertBlock` nodes in block content.
         skip: true
 
-  - $ref: InstructBlock
+  - $ref: InstructionBlock
     proptest:
       min:
-        description: Do not generate `InstructBlock` nodes in block content.
+        description: Do not generate `InstructionBlock` nodes in block content.
         skip: true
   
   - $ref: List

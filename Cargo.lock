@@ -41,8 +41,9 @@ name = "agent"
 version = "0.0.0"
 dependencies = [
  "common",
- "minijinja",
- "rust-embed",
+ "format",
+ "merge",
+ "schema",
 ]
 
 [[package]]
@@ -58,8 +59,12 @@ name = "agent-custom"
 version = "0.1.0"
 dependencies = [
  "agent",
+ "agent-anthropic",
  "agent-ollama",
  "agent-openai",
+ "codecs",
+ "minijinja",
+ "rust-embed",
 ]
 
 [[package]]
@@ -1474,15 +1479,13 @@ dependencies = [
 
 [[package]]
 name = "divan"
-version = "0.1.7"
+version = "0.1.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "77f3c37609833a14a598385904bd43c79724964bc4b0a3339968da85bec4e1e4"
+checksum = "40199864856263dbaada0c9e1afd042416a3f947293eb1c4475b68df3e6a1042"
 dependencies = [
- "cfg-if",
  "clap",
  "condtype",
  "divan-macros",
- "libc",
  "regex-lite",
 ]
 
@@ -2674,6 +2677,28 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "5a634b1c61a95585bd15607c6ab0c4e5b226e695ff2800ba0cdccddf208c406c"
 dependencies = [
  "autocfg",
+]
+
+[[package]]
+name = "merge"
+version = "0.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "10bbef93abb1da61525bbc45eeaff6473a41907d19f8f9aa5168d214e10693e9"
+dependencies = [
+ "merge_derive",
+ "num-traits",
+]
+
+[[package]]
+name = "merge_derive"
+version = "0.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "209d075476da2e63b4b29e72a2ef627b840589588e71400a25e3565c4f849d07"
+dependencies = [
+ "proc-macro-error",
+ "proc-macro2",
+ "quote",
+ "syn 1.0.109",
 ]
 
 [[package]]

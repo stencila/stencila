@@ -18,9 +18,10 @@ use codec::{
     schema::{
         shortcuts::{dei, isi, mi, rei, stk, sub, sup, t},
         BooleanValidator, Button, Cite, CiteGroup, CodeExpression, CodeInline, Cord,
-        DateTimeValidator, DateValidator, DurationValidator, EnumValidator, Inline, InstructInline,
-        IntegerValidator, ModifyInline, Node, NumberValidator, Parameter, ParameterOptions,
-        StringValidator, StyledInline, TimeValidator, TimestampValidator, Validator,
+        DateTimeValidator, DateValidator, DurationValidator, EnumValidator, Inline,
+        InstructionInline, IntegerValidator, ModifyInline, Node, NumberValidator, Parameter,
+        ParameterOptions, StringValidator, StyledInline, TimeValidator, TimestampValidator,
+        Validator,
     },
 };
 
@@ -609,12 +610,12 @@ fn superscript(input: &str) -> IResult<&str, Inline> {
     )(input)
 }
 
-/// Parse a string into a `InstructInline` node
+/// Parse a string into a `InstructionInline` node
 fn instruct_inline_text_only(input: &str) -> IResult<&str, Inline> {
     map(
         delimited(tag("{@@"), take_until("@@}"), tag("@@}")),
         |text: &str| {
-            Inline::InstructInline(InstructInline {
+            Inline::InstructionInline(InstructionInline {
                 text: text.to_string(),
                 ..Default::default()
             })
@@ -622,7 +623,7 @@ fn instruct_inline_text_only(input: &str) -> IResult<&str, Inline> {
     )(input)
 }
 
-/// Parse a string into a `InstructInline` node
+/// Parse a string into a `InstructionInline` node
 fn instruct_inline_with_content(input: &str) -> IResult<&str, Inline> {
     map(
         delimited(
@@ -631,7 +632,7 @@ fn instruct_inline_with_content(input: &str) -> IResult<&str, Inline> {
             tag("%%}"),
         ),
         |(text, content): (&str, &str)| {
-            Inline::InstructInline(InstructInline {
+            Inline::InstructionInline(InstructionInline {
                 text: text.to_string(),
                 content: Some(inlines_or_text(content)),
                 ..Default::default()
