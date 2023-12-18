@@ -2,7 +2,6 @@ import { defineConfig } from '@twind/core'
 import presetAutoprefix from '@twind/preset-autoprefix'
 import presetTailwind from '@twind/preset-tailwind/base'
 import install from '@twind/with-web-components'
-
 /**
  * The configuration for `twind` Tailwind-in-JS
  *
