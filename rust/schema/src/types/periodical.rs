@@ -41,6 +41,11 @@ pub struct Periodical {
     #[jats(flatten)]
     #[markdown(flatten)]
     pub options: Box<PeriodicalOptions>,
+
+    /// A unique identifier for this node
+    
+    #[serde(skip)]
+    pub node_id: NodeId
 }
 
 #[skip_serializing_none]
@@ -234,5 +239,15 @@ impl Periodical {
         Self {
             ..Default::default()
         }
+    }
+}
+
+impl Entity for Periodical {
+    fn node_type() -> NodeType {
+        NodeType::Periodical
+    }
+
+    fn node_id(&self) -> &NodeId {
+        &self.node_id
     }
 }

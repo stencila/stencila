@@ -127,6 +127,11 @@ pub struct Article {
     #[jats(flatten)]
     #[markdown(flatten)]
     pub options: Box<ArticleOptions>,
+
+    /// A unique identifier for this node
+    #[cfg_attr(feature = "proptest", proptest(value = "Default::default()"))]
+    #[serde(skip)]
+    pub node_id: NodeId
 }
 
 #[skip_serializing_none]
@@ -285,5 +290,15 @@ impl Article {
             content,
             ..Default::default()
         }
+    }
+}
+
+impl Entity for Article {
+    fn node_type() -> NodeType {
+        NodeType::Article
+    }
+
+    fn node_id(&self) -> &NodeId {
+        &self.node_id
     }
 }

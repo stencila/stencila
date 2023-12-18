@@ -39,19 +39,19 @@ impl WriteNode for Array {
 }
 
 impl HtmlCodec for Array {
-    fn to_html_parts(&self) -> (&str, Vec<String>, Vec<String>) {
+    fn to_html_parts(&self, context: &mut HtmlEncodeContext) -> (&str, Vec<String>, Vec<String>) {
         // Uses spans, rather than say <ol>/<li> because needs to be
         // include e.g for output of a `CodeExpression`
         (
             "stencila-array",
             vec![],
             self.iter()
-                .map(|value| elem("stencila-array-item", &[], &[value.to_html()]))
+                .map(|value| elem("stencila-array-item", &[], &[value.to_html(context)]))
                 .collect_vec(),
         )
     }
 
-    fn to_html_attr(&self) -> String {
+    fn to_html_attr(&self, _context: &mut HtmlEncodeContext) -> String {
         serde_json::to_string(self).unwrap_or_default()
     }
 }

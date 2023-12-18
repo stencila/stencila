@@ -32,6 +32,11 @@ pub struct TimestampValidator {
 
     /// The inclusive upper limit for a timestamp.
     pub maximum: Option<Timestamp>,
+
+    /// A unique identifier for this node
+    
+    #[serde(skip)]
+    pub node_id: NodeId
 }
 
 impl TimestampValidator {
@@ -39,5 +44,15 @@ impl TimestampValidator {
         Self {
             ..Default::default()
         }
+    }
+}
+
+impl Entity for TimestampValidator {
+    fn node_type() -> NodeType {
+        NodeType::TimestampValidator
+    }
+
+    fn node_id(&self) -> &NodeId {
+        &self.node_id
     }
 }

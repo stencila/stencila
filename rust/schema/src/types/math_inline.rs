@@ -64,6 +64,11 @@ pub struct MathInline {
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     #[html(content)]
     pub mathml: Option<String>,
+
+    /// A unique identifier for this node
+    #[cfg_attr(feature = "proptest", proptest(value = "Default::default()"))]
+    #[serde(skip)]
+    pub node_id: NodeId
 }
 
 impl MathInline {
@@ -72,5 +77,15 @@ impl MathInline {
             code,
             ..Default::default()
         }
+    }
+}
+
+impl Entity for MathInline {
+    fn node_type() -> NodeType {
+        NodeType::MathInline
+    }
+
+    fn node_id(&self) -> &NodeId {
+        &self.node_id
     }
 }

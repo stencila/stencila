@@ -18,10 +18,18 @@ pub use codec_html_derive::HtmlCodec;
 
 pub mod encode;
 
+#[derive(Default)]
+pub struct HtmlEncodeContext {
+    /// Whether to encode for use in browser DOM
+    ///
+    /// See `EncodeOptions` for more details.
+    pub dom: bool,
+}
+
 pub trait HtmlCodec {
     /// Encode a Stencila Schema node to HTML
-    fn to_html(&self) -> String {
-        let parts = self.to_html_parts();
+    fn to_html(&self, context: &mut HtmlEncodeContext) -> String {
+        let parts = self.to_html_parts(context);
         encode::elem(parts.0, &parts.1, &parts.2)
     }
 
@@ -29,7 +37,7 @@ pub trait HtmlCodec {
     ///
     /// Implementations should return the element name, a vector of
     /// filly formed attribute strings, and a vector of child elements.
-    fn to_html_parts(&self) -> (&str, Vec<String>, Vec<String>);
+    fn to_html_parts(&self, context: &mut HtmlEncodeContext) -> (&str, Vec<String>, Vec<String>);
 
     /// Encode a Stencila Schema node as an HTML attribute **value**
     ///
@@ -37,5 +45,5 @@ pub trait HtmlCodec {
     /// string (including quotes around strings) so that the `Vec`
     /// implementation of this method can construct valid JSON. The
     /// `encode::attr` function will deal with superfluous quotes.
-    fn to_html_attr(&self) -> String;
+    fn to_html_attr(&self, context: &mut HtmlEncodeContext) -> String;
 }

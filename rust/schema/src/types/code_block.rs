@@ -44,6 +44,11 @@ pub struct CodeBlock {
     #[cfg_attr(feature = "proptest-max", proptest(strategy = r#"option::of(String::arbitrary())"#))]
     #[jats(attr = "language")]
     pub programming_language: Option<String>,
+
+    /// A unique identifier for this node
+    #[cfg_attr(feature = "proptest", proptest(value = "Default::default()"))]
+    #[serde(skip)]
+    pub node_id: NodeId
 }
 
 impl CodeBlock {
@@ -52,5 +57,15 @@ impl CodeBlock {
             code,
             ..Default::default()
         }
+    }
+}
+
+impl Entity for CodeBlock {
+    fn node_type() -> NodeType {
+        NodeType::CodeBlock
+    }
+
+    fn node_id(&self) -> &NodeId {
+        &self.node_id
     }
 }

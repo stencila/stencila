@@ -40,6 +40,11 @@ pub struct ModifyBlock {
     #[serde(deserialize_with = "one_or_many")]
     #[cfg_attr(feature = "proptest", proptest(value = "Default::default()"))]
     pub operations: Vec<ModifyOperation>,
+
+    /// A unique identifier for this node
+    #[cfg_attr(feature = "proptest", proptest(value = "Default::default()"))]
+    #[serde(skip)]
+    pub node_id: NodeId
 }
 
 impl ModifyBlock {
@@ -49,5 +54,15 @@ impl ModifyBlock {
             operations,
             ..Default::default()
         }
+    }
+}
+
+impl Entity for ModifyBlock {
+    fn node_type() -> NodeType {
+        NodeType::ModifyBlock
+    }
+
+    fn node_id(&self) -> &NodeId {
+        &self.node_id
     }
 }

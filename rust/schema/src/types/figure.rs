@@ -64,6 +64,11 @@ pub struct Figure {
     #[jats(flatten)]
     #[markdown(flatten)]
     pub options: Box<FigureOptions>,
+
+    /// A unique identifier for this node
+    #[cfg_attr(feature = "proptest", proptest(value = "Default::default()"))]
+    #[serde(skip)]
+    pub node_id: NodeId
 }
 
 #[skip_serializing_none]
@@ -274,5 +279,15 @@ impl Figure {
             content,
             ..Default::default()
         }
+    }
+}
+
+impl Entity for Figure {
+    fn node_type() -> NodeType {
+        NodeType::Figure
+    }
+
+    fn node_id(&self) -> &NodeId {
+        &self.node_id
     }
 }

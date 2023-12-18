@@ -38,6 +38,11 @@ pub struct ReplaceInline {
     #[serde(deserialize_with = "one_or_many")]
     #[cfg_attr(feature = "proptest", proptest(value = "Default::default()"))]
     pub replacement: Vec<Inline>,
+
+    /// A unique identifier for this node
+    #[cfg_attr(feature = "proptest", proptest(value = "Default::default()"))]
+    #[serde(skip)]
+    pub node_id: NodeId
 }
 
 impl ReplaceInline {
@@ -47,5 +52,15 @@ impl ReplaceInline {
             replacement,
             ..Default::default()
         }
+    }
+}
+
+impl Entity for ReplaceInline {
+    fn node_type() -> NodeType {
+        NodeType::ReplaceInline
+    }
+
+    fn node_id(&self) -> &NodeId {
+        &self.node_id
     }
 }

@@ -68,6 +68,11 @@ pub struct MathBlock {
     /// A short label for the math block.
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     pub label: Option<String>,
+
+    /// A unique identifier for this node
+    #[cfg_attr(feature = "proptest", proptest(value = "Default::default()"))]
+    #[serde(skip)]
+    pub node_id: NodeId
 }
 
 impl MathBlock {
@@ -76,5 +81,15 @@ impl MathBlock {
             code,
             ..Default::default()
         }
+    }
+}
+
+impl Entity for MathBlock {
+    fn node_type() -> NodeType {
+        NodeType::MathBlock
+    }
+
+    fn node_id(&self) -> &NodeId {
+        &self.node_id
     }
 }

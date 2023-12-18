@@ -11,7 +11,7 @@ pub use common::{
     strum,
 };
 
-pub use codec_html_trait::HtmlCodec;
+pub use codec_html_trait::{HtmlCodec, HtmlEncodeContext};
 pub use codec_jats_trait::JatsCodec;
 pub use codec_losses::Losses;
 pub use codec_markdown_trait::{MarkdownCodec, MarkdownEncodeContext};
@@ -22,7 +22,11 @@ pub use node_walk_derive::WalkNode;
 
 pub use crate::deserialize::*;
 pub use crate::shortcuts::*;
-pub use crate::walk::{Visitor, VisitorMut, WalkNode};
+pub use crate::traits::{
+    entity::{Entity, NodeId},
+    walk::{Visitor, VisitorMut, WalkNode},
+};
+pub use crate::types::NodeType;
 
 #[cfg(feature = "proptest")]
 pub use crate::proptests::*;

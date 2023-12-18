@@ -61,6 +61,11 @@ pub struct ListItem {
     #[jats(flatten)]
     #[markdown(flatten)]
     pub options: Box<ListItemOptions>,
+
+    /// A unique identifier for this node
+    #[cfg_attr(feature = "proptest", proptest(value = "Default::default()"))]
+    #[serde(skip)]
+    pub node_id: NodeId
 }
 
 #[skip_serializing_none]
@@ -112,5 +117,15 @@ impl ListItem {
             content,
             ..Default::default()
         }
+    }
+}
+
+impl Entity for ListItem {
+    fn node_type() -> NodeType {
+        NodeType::ListItem
+    }
+
+    fn node_id(&self) -> &NodeId {
+        &self.node_id
     }
 }

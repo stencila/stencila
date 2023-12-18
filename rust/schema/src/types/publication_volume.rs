@@ -51,6 +51,11 @@ pub struct PublicationVolume {
     #[jats(flatten)]
     #[markdown(flatten)]
     pub options: Box<PublicationVolumeOptions>,
+
+    /// A unique identifier for this node
+    
+    #[serde(skip)]
+    pub node_id: NodeId
 }
 
 #[skip_serializing_none]
@@ -235,5 +240,15 @@ impl PublicationVolume {
         Self {
             ..Default::default()
         }
+    }
+}
+
+impl Entity for PublicationVolume {
+    fn node_type() -> NodeType {
+        NodeType::PublicationVolume
+    }
+
+    fn node_id(&self) -> &NodeId {
+        &self.node_id
     }
 }

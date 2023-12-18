@@ -40,6 +40,11 @@ pub struct QuoteBlock {
     #[cfg_attr(feature = "proptest-high", proptest(strategy = r#"vec_blocks_non_recursive(4)"#))]
     #[cfg_attr(feature = "proptest-max", proptest(strategy = r#"vec_blocks_non_recursive(8)"#))]
     pub content: Vec<Block>,
+
+    /// A unique identifier for this node
+    #[cfg_attr(feature = "proptest", proptest(value = "Default::default()"))]
+    #[serde(skip)]
+    pub node_id: NodeId
 }
 
 impl QuoteBlock {
@@ -48,5 +53,15 @@ impl QuoteBlock {
             content,
             ..Default::default()
         }
+    }
+}
+
+impl Entity for QuoteBlock {
+    fn node_type() -> NodeType {
+        NodeType::QuoteBlock
+    }
+
+    fn node_id(&self) -> &NodeId {
+        &self.node_id
     }
 }

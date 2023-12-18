@@ -38,6 +38,11 @@ pub struct ReplaceBlock {
     #[serde(deserialize_with = "one_or_many")]
     #[cfg_attr(feature = "proptest", proptest(value = "Default::default()"))]
     pub replacement: Vec<Block>,
+
+    /// A unique identifier for this node
+    #[cfg_attr(feature = "proptest", proptest(value = "Default::default()"))]
+    #[serde(skip)]
+    pub node_id: NodeId
 }
 
 impl ReplaceBlock {
@@ -47,5 +52,15 @@ impl ReplaceBlock {
             replacement,
             ..Default::default()
         }
+    }
+}
+
+impl Entity for ReplaceBlock {
+    fn node_type() -> NodeType {
+        NodeType::ReplaceBlock
+    }
+
+    fn node_id(&self) -> &NodeId {
+        &self.node_id
     }
 }

@@ -38,6 +38,11 @@ pub struct NumberValidator {
     /// A number that a numeric node must be a multiple of.
     #[serde(alias = "multiple-of", alias = "multiple_of")]
     pub multiple_of: Option<Number>,
+
+    /// A unique identifier for this node
+    
+    #[serde(skip)]
+    pub node_id: NodeId
 }
 
 impl NumberValidator {
@@ -45,5 +50,15 @@ impl NumberValidator {
         Self {
             ..Default::default()
         }
+    }
+}
+
+impl Entity for NumberValidator {
+    fn node_type() -> NodeType {
+        NodeType::NumberValidator
+    }
+
+    fn node_id(&self) -> &NodeId {
+        &self.node_id
     }
 }

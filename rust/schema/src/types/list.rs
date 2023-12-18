@@ -45,6 +45,11 @@ pub struct List {
     #[cfg_attr(feature = "proptest-max", proptest(strategy = r#"ListOrder::arbitrary()"#))]
     #[jats(attr = "list-type")]
     pub order: ListOrder,
+
+    /// A unique identifier for this node
+    #[cfg_attr(feature = "proptest", proptest(value = "Default::default()"))]
+    #[serde(skip)]
+    pub node_id: NodeId
 }
 
 impl List {
@@ -54,5 +59,15 @@ impl List {
             order,
             ..Default::default()
         }
+    }
+}
+
+impl Entity for List {
+    fn node_type() -> NodeType {
+        NodeType::List
+    }
+
+    fn node_id(&self) -> &NodeId {
+        &self.node_id
     }
 }

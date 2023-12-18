@@ -60,6 +60,11 @@ pub struct PostalAddress {
     #[jats(flatten)]
     #[markdown(flatten)]
     pub options: Box<PostalAddressOptions>,
+
+    /// A unique identifier for this node
+    
+    #[serde(skip)]
+    pub node_id: NodeId
 }
 
 #[skip_serializing_none]
@@ -112,5 +117,15 @@ impl PostalAddress {
         Self {
             ..Default::default()
         }
+    }
+}
+
+impl Entity for PostalAddress {
+    fn node_type() -> NodeType {
+        NodeType::PostalAddress
+    }
+
+    fn node_id(&self) -> &NodeId {
+        &self.node_id
     }
 }

@@ -104,6 +104,11 @@ pub struct ForBlock {
     #[jats(flatten)]
     #[markdown(flatten)]
     pub options: Box<ForBlockOptions>,
+
+    /// A unique identifier for this node
+    #[cfg_attr(feature = "proptest", proptest(value = "Default::default()"))]
+    #[serde(skip)]
+    pub node_id: NodeId
 }
 
 #[skip_serializing_none]
@@ -204,5 +209,15 @@ impl ForBlock {
             content,
             ..Default::default()
         }
+    }
+}
+
+impl Entity for ForBlock {
+    fn node_type() -> NodeType {
+        NodeType::ForBlock
+    }
+
+    fn node_id(&self) -> &NodeId {
+        &self.node_id
     }
 }

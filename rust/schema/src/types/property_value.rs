@@ -37,6 +37,11 @@ pub struct PropertyValue {
     #[jats(flatten)]
     #[markdown(flatten)]
     pub options: Box<PropertyValueOptions>,
+
+    /// A unique identifier for this node
+    
+    #[serde(skip)]
+    pub node_id: NodeId
 }
 
 #[skip_serializing_none]
@@ -81,5 +86,15 @@ impl PropertyValue {
             value,
             ..Default::default()
         }
+    }
+}
+
+impl Entity for PropertyValue {
+    fn node_type() -> NodeType {
+        NodeType::PropertyValue
+    }
+
+    fn node_id(&self) -> &NodeId {
+        &self.node_id
     }
 }

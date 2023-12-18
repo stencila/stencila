@@ -30,7 +30,7 @@ async fn examples() -> Result<()> {
 
         let mut store = WriteStore::default();
         node.dump(&mut store)?;
-        let roundtrip = Node::load_without_ids(&store)?;
+        let roundtrip = Node::load(&store)?;
 
         assert_eq!(roundtrip, node)
     }

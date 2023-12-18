@@ -30,6 +30,11 @@ pub struct Time {
     #[cfg_attr(feature = "proptest-high", proptest(regex = r#"[a-zA-Z0-9\-:]{1,20}"#))]
     #[cfg_attr(feature = "proptest-max", proptest(strategy = r#"String::arbitrary()"#))]
     pub value: String,
+
+    /// A unique identifier for this node
+    #[cfg_attr(feature = "proptest", proptest(value = "Default::default()"))]
+    #[serde(skip)]
+    pub node_id: NodeId
 }
 
 impl Time {
@@ -38,5 +43,15 @@ impl Time {
             value,
             ..Default::default()
         }
+    }
+}
+
+impl Entity for Time {
+    fn node_type() -> NodeType {
+        NodeType::Time
+    }
+
+    fn node_id(&self) -> &NodeId {
+        &self.node_id
     }
 }

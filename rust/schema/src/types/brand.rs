@@ -33,6 +33,11 @@ pub struct Brand {
     #[jats(flatten)]
     #[markdown(flatten)]
     pub options: Box<BrandOptions>,
+
+    /// A unique identifier for this node
+    
+    #[serde(skip)]
+    pub node_id: NodeId
 }
 
 #[skip_serializing_none]
@@ -81,5 +86,15 @@ impl Brand {
             name,
             ..Default::default()
         }
+    }
+}
+
+impl Entity for Brand {
+    fn node_type() -> NodeType {
+        NodeType::Brand
+    }
+
+    fn node_id(&self) -> &NodeId {
+        &self.node_id
     }
 }

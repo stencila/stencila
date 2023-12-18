@@ -30,6 +30,11 @@ pub struct ExecutionTag {
     /// Whether the tag is global to the document
     #[serde(alias = "is-global", alias = "is_global")]
     pub is_global: Boolean,
+
+    /// A unique identifier for this node
+    
+    #[serde(skip)]
+    pub node_id: NodeId
 }
 
 impl ExecutionTag {
@@ -40,5 +45,15 @@ impl ExecutionTag {
             is_global,
             ..Default::default()
         }
+    }
+}
+
+impl Entity for ExecutionTag {
+    fn node_type() -> NodeType {
+        NodeType::ExecutionTag
+    }
+
+    fn node_id(&self) -> &NodeId {
+        &self.node_id
     }
 }

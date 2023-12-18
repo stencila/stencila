@@ -47,6 +47,11 @@ pub struct Datatable {
     #[jats(flatten)]
     #[markdown(flatten)]
     pub options: Box<DatatableOptions>,
+
+    /// A unique identifier for this node
+    
+    #[serde(skip)]
+    pub node_id: NodeId
 }
 
 #[skip_serializing_none]
@@ -226,5 +231,15 @@ impl Datatable {
             columns,
             ..Default::default()
         }
+    }
+}
+
+impl Entity for Datatable {
+    fn node_type() -> NodeType {
+        NodeType::Datatable
+    }
+
+    fn node_id(&self) -> &NodeId {
+        &self.node_id
     }
 }

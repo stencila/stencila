@@ -39,6 +39,11 @@ pub struct ContactPoint {
     #[jats(flatten)]
     #[markdown(flatten)]
     pub options: Box<ContactPointOptions>,
+
+    /// A unique identifier for this node
+    
+    #[serde(skip)]
+    pub node_id: NodeId
 }
 
 #[skip_serializing_none]
@@ -87,5 +92,15 @@ impl ContactPoint {
         Self {
             ..Default::default()
         }
+    }
+}
+
+impl Entity for ContactPoint {
+    fn node_type() -> NodeType {
+        NodeType::ContactPoint
+    }
+
+    fn node_id(&self) -> &NodeId {
+        &self.node_id
     }
 }

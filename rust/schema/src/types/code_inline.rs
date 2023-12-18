@@ -44,6 +44,11 @@ pub struct CodeInline {
     #[cfg_attr(feature = "proptest-max", proptest(strategy = r#"option::of(String::arbitrary())"#))]
     #[jats(attr = "language")]
     pub programming_language: Option<String>,
+
+    /// A unique identifier for this node
+    #[cfg_attr(feature = "proptest", proptest(value = "Default::default()"))]
+    #[serde(skip)]
+    pub node_id: NodeId
 }
 
 impl CodeInline {
@@ -52,5 +57,15 @@ impl CodeInline {
             code,
             ..Default::default()
         }
+    }
+}
+
+impl Entity for CodeInline {
+    fn node_type() -> NodeType {
+        NodeType::CodeInline
+    }
+
+    fn node_id(&self) -> &NodeId {
+        &self.node_id
     }
 }

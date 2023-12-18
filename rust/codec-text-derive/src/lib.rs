@@ -51,7 +51,8 @@ fn derive_struct(input: &DeriveInput, data: &DataStruct) -> TokenStream {
             .as_ref()
             .map(|ident| ident.to_string())
             .unwrap_or_default();
-        if field_name_string == "r#type" {
+
+        if field_name_string == "r#type" || field_name_string == "node_id" {
             continue;
         }
 

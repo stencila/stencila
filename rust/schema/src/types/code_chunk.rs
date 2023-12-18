@@ -79,6 +79,11 @@ pub struct CodeChunk {
     #[jats(flatten)]
     #[markdown(flatten)]
     pub options: Box<CodeChunkOptions>,
+
+    /// A unique identifier for this node
+    #[cfg_attr(feature = "proptest", proptest(value = "Default::default()"))]
+    #[serde(skip)]
+    pub node_id: NodeId
 }
 
 #[skip_serializing_none]
@@ -192,5 +197,15 @@ impl CodeChunk {
             code,
             ..Default::default()
         }
+    }
+}
+
+impl Entity for CodeChunk {
+    fn node_type() -> NodeType {
+        NodeType::CodeChunk
+    }
+
+    fn node_id(&self) -> &NodeId {
+        &self.node_id
     }
 }

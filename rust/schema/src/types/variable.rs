@@ -29,6 +29,11 @@ pub struct Variable {
 
     /// The value of the variable.
     pub value: Option<Box<Node>>,
+
+    /// A unique identifier for this node
+    
+    #[serde(skip)]
+    pub node_id: NodeId
 }
 
 impl Variable {
@@ -37,5 +42,15 @@ impl Variable {
             name,
             ..Default::default()
         }
+    }
+}
+
+impl Entity for Variable {
+    fn node_type() -> NodeType {
+        NodeType::Variable
+    }
+
+    fn node_id(&self) -> &NodeId {
+        &self.node_id
     }
 }

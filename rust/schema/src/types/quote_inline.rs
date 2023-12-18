@@ -40,6 +40,11 @@ pub struct QuoteInline {
     /// The source of the quote.
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     pub cite: Option<CiteOrText>,
+
+    /// A unique identifier for this node
+    #[cfg_attr(feature = "proptest", proptest(value = "Default::default()"))]
+    #[serde(skip)]
+    pub node_id: NodeId
 }
 
 impl QuoteInline {
@@ -48,5 +53,15 @@ impl QuoteInline {
             content,
             ..Default::default()
         }
+    }
+}
+
+impl Entity for QuoteInline {
+    fn node_type() -> NodeType {
+        NodeType::QuoteInline
+    }
+
+    fn node_id(&self) -> &NodeId {
+        &self.node_id
     }
 }

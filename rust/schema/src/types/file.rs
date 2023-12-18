@@ -44,6 +44,11 @@ pub struct File {
     #[jats(flatten)]
     #[markdown(flatten)]
     pub options: Box<FileOptions>,
+
+    /// A unique identifier for this node
+    
+    #[serde(skip)]
+    pub node_id: NodeId
 }
 
 #[skip_serializing_none]
@@ -223,5 +228,15 @@ impl File {
             path,
             ..Default::default()
         }
+    }
+}
+
+impl Entity for File {
+    fn node_type() -> NodeType {
+        NodeType::File
+    }
+
+    fn node_id(&self) -> &NodeId {
+        &self.node_id
     }
 }

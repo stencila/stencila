@@ -33,6 +33,11 @@ pub struct DeleteBlock {
     #[cfg_attr(feature = "proptest-high", proptest(strategy = r#"vec_blocks_non_recursive(2)"#))]
     #[cfg_attr(feature = "proptest-max", proptest(strategy = r#"vec_blocks_non_recursive(4)"#))]
     pub content: Vec<Block>,
+
+    /// A unique identifier for this node
+    #[cfg_attr(feature = "proptest", proptest(value = "Default::default()"))]
+    #[serde(skip)]
+    pub node_id: NodeId
 }
 
 impl DeleteBlock {
@@ -41,5 +46,15 @@ impl DeleteBlock {
             content,
             ..Default::default()
         }
+    }
+}
+
+impl Entity for DeleteBlock {
+    fn node_type() -> NodeType {
+        NodeType::DeleteBlock
+    }
+
+    fn node_id(&self) -> &NodeId {
+        &self.node_id
     }
 }

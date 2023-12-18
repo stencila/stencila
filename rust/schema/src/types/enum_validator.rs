@@ -24,6 +24,11 @@ pub struct EnumValidator {
     /// A node is valid if it is equal to any of these values.
     #[serde(alias = "value")]
     pub values: Vec<Node>,
+
+    /// A unique identifier for this node
+    
+    #[serde(skip)]
+    pub node_id: NodeId
 }
 
 impl EnumValidator {
@@ -32,5 +37,15 @@ impl EnumValidator {
             values,
             ..Default::default()
         }
+    }
+}
+
+impl Entity for EnumValidator {
+    fn node_type() -> NodeType {
+        NodeType::EnumValidator
+    }
+
+    fn node_id(&self) -> &NodeId {
+        &self.node_id
     }
 }

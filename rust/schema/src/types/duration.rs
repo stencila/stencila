@@ -34,6 +34,11 @@ pub struct Duration {
     #[serde(alias = "time-unit", alias = "time_unit")]
     #[cfg_attr(feature = "proptest", proptest(value = "Default::default()"))]
     pub time_unit: TimeUnit,
+
+    /// A unique identifier for this node
+    #[cfg_attr(feature = "proptest", proptest(value = "Default::default()"))]
+    #[serde(skip)]
+    pub node_id: NodeId
 }
 
 impl Duration {
@@ -43,5 +48,15 @@ impl Duration {
             time_unit,
             ..Default::default()
         }
+    }
+}
+
+impl Entity for Duration {
+    fn node_type() -> NodeType {
+        NodeType::Duration
+    }
+
+    fn node_id(&self) -> &NodeId {
+        &self.node_id
     }
 }

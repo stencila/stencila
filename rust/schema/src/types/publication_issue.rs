@@ -51,6 +51,11 @@ pub struct PublicationIssue {
     #[jats(flatten)]
     #[markdown(flatten)]
     pub options: Box<PublicationIssueOptions>,
+
+    /// A unique identifier for this node
+    
+    #[serde(skip)]
+    pub node_id: NodeId
 }
 
 #[skip_serializing_none]
@@ -235,5 +240,15 @@ impl PublicationIssue {
         Self {
             ..Default::default()
         }
+    }
+}
+
+impl Entity for PublicationIssue {
+    fn node_type() -> NodeType {
+        NodeType::PublicationIssue
+    }
+
+    fn node_id(&self) -> &NodeId {
+        &self.node_id
     }
 }

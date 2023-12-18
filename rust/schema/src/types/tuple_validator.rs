@@ -25,6 +25,11 @@ pub struct TupleValidator {
     #[serde(alias = "item")]
     #[serde(default, deserialize_with = "option_one_or_many")]
     pub items: Option<Vec<Validator>>,
+
+    /// A unique identifier for this node
+    
+    #[serde(skip)]
+    pub node_id: NodeId
 }
 
 impl TupleValidator {
@@ -32,5 +37,15 @@ impl TupleValidator {
         Self {
             ..Default::default()
         }
+    }
+}
+
+impl Entity for TupleValidator {
+    fn node_type() -> NodeType {
+        NodeType::TupleValidator
+    }
+
+    fn node_id(&self) -> &NodeId {
+        &self.node_id
     }
 }

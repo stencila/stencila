@@ -41,6 +41,11 @@ pub struct CreativeWork {
     #[jats(flatten)]
     #[markdown(flatten)]
     pub options: Box<CreativeWorkOptions>,
+
+    /// A unique identifier for this node
+    
+    #[serde(skip)]
+    pub node_id: NodeId
 }
 
 #[skip_serializing_none]
@@ -219,5 +224,15 @@ impl CreativeWork {
         Self {
             ..Default::default()
         }
+    }
+}
+
+impl Entity for CreativeWork {
+    fn node_type() -> NodeType {
+        NodeType::CreativeWork
+    }
+
+    fn node_id(&self) -> &NodeId {
+        &self.node_id
     }
 }

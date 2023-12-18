@@ -65,6 +65,11 @@ pub struct Table {
     #[jats(flatten)]
     #[markdown(flatten)]
     pub options: Box<TableOptions>,
+
+    /// A unique identifier for this node
+    #[cfg_attr(feature = "proptest", proptest(value = "Default::default()"))]
+    #[serde(skip)]
+    pub node_id: NodeId
 }
 
 #[skip_serializing_none]
@@ -275,5 +280,15 @@ impl Table {
             rows,
             ..Default::default()
         }
+    }
+}
+
+impl Entity for Table {
+    fn node_type() -> NodeType {
+        NodeType::Table
+    }
+
+    fn node_id(&self) -> &NodeId {
+        &self.node_id
     }
 }

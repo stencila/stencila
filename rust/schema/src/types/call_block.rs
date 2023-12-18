@@ -86,6 +86,11 @@ pub struct CallBlock {
     #[jats(flatten)]
     #[markdown(flatten)]
     pub options: Box<CallBlockOptions>,
+
+    /// A unique identifier for this node
+    #[cfg_attr(feature = "proptest", proptest(value = "Default::default()"))]
+    #[serde(skip)]
+    pub node_id: NodeId
 }
 
 #[skip_serializing_none]
@@ -185,5 +190,15 @@ impl CallBlock {
             arguments,
             ..Default::default()
         }
+    }
+}
+
+impl Entity for CallBlock {
+    fn node_type() -> NodeType {
+        NodeType::CallBlock
+    }
+
+    fn node_id(&self) -> &NodeId {
+        &self.node_id
     }
 }

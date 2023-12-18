@@ -52,6 +52,11 @@ pub struct Link {
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     #[html(attr = "rel")]
     pub rel: Option<String>,
+
+    /// A unique identifier for this node
+    #[cfg_attr(feature = "proptest", proptest(value = "Default::default()"))]
+    #[serde(skip)]
+    pub node_id: NodeId
 }
 
 impl Link {
@@ -61,5 +66,15 @@ impl Link {
             target,
             ..Default::default()
         }
+    }
+}
+
+impl Entity for Link {
+    fn node_type() -> NodeType {
+        NodeType::Link
+    }
+
+    fn node_id(&self) -> &NodeId {
+        &self.node_id
     }
 }

@@ -1,7 +1,7 @@
 use crate::{prelude::*, Section, SectionType};
 
 impl Section {
-    pub fn to_html_special(&self) -> String {
+    pub fn to_html_special(&self, context: &mut HtmlEncodeContext) -> String {
         use codec_html_trait::encode::{attr, elem};
 
         let (tag, attrs) = match &self.section_type {
@@ -12,7 +12,7 @@ impl Section {
             None => ("section", vec![]),
         };
 
-        let children = self.content.to_html();
+        let children = self.content.to_html(context);
 
         elem(tag, &attrs, &[children])
     }

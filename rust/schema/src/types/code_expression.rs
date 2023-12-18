@@ -77,6 +77,11 @@ pub struct CodeExpression {
     #[jats(flatten)]
     #[markdown(flatten)]
     pub options: Box<CodeExpressionOptions>,
+
+    /// A unique identifier for this node
+    #[cfg_attr(feature = "proptest", proptest(value = "Default::default()"))]
+    #[serde(skip)]
+    pub node_id: NodeId
 }
 
 #[skip_serializing_none]
@@ -175,5 +180,15 @@ impl CodeExpression {
             code,
             ..Default::default()
         }
+    }
+}
+
+impl Entity for CodeExpression {
+    fn node_type() -> NodeType {
+        NodeType::CodeExpression
+    }
+
+    fn node_id(&self) -> &NodeId {
+        &self.node_id
     }
 }

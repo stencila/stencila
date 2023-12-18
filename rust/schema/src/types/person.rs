@@ -47,6 +47,11 @@ pub struct Person {
     #[jats(flatten)]
     #[markdown(flatten)]
     pub options: Box<PersonOptions>,
+
+    /// A unique identifier for this node
+    
+    #[serde(skip)]
+    pub node_id: NodeId
 }
 
 #[skip_serializing_none]
@@ -125,5 +130,15 @@ impl Person {
         Self {
             ..Default::default()
         }
+    }
+}
+
+impl Entity for Person {
+    fn node_type() -> NodeType {
+        NodeType::Person
+    }
+
+    fn node_id(&self) -> &NodeId {
+        &self.node_id
     }
 }

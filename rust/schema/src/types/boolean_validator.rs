@@ -19,6 +19,11 @@ pub struct BooleanValidator {
     #[strip(metadata)]
     #[html(attr = "id")]
     pub id: Option<String>,
+
+    /// A unique identifier for this node
+    
+    #[serde(skip)]
+    pub node_id: NodeId
 }
 
 impl BooleanValidator {
@@ -26,5 +31,15 @@ impl BooleanValidator {
         Self {
             ..Default::default()
         }
+    }
+}
+
+impl Entity for BooleanValidator {
+    fn node_type() -> NodeType {
+        NodeType::BooleanValidator
+    }
+
+    fn node_id(&self) -> &NodeId {
+        &self.node_id
     }
 }

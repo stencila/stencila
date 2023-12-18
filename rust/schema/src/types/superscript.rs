@@ -35,6 +35,11 @@ pub struct Superscript {
     #[cfg_attr(feature = "proptest-high", proptest(strategy = r#"vec_inlines_non_recursive(2)"#))]
     #[cfg_attr(feature = "proptest-max", proptest(strategy = r#"vec_inlines_non_recursive(4)"#))]
     pub content: Vec<Inline>,
+
+    /// A unique identifier for this node
+    #[cfg_attr(feature = "proptest", proptest(value = "Default::default()"))]
+    #[serde(skip)]
+    pub node_id: NodeId
 }
 
 impl Superscript {
@@ -43,5 +48,15 @@ impl Superscript {
             content,
             ..Default::default()
         }
+    }
+}
+
+impl Entity for Superscript {
+    fn node_type() -> NodeType {
+        NodeType::Superscript
+    }
+
+    fn node_id(&self) -> &NodeId {
+        &self.node_id
     }
 }

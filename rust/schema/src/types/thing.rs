@@ -29,6 +29,11 @@ pub struct Thing {
     #[jats(flatten)]
     #[markdown(flatten)]
     pub options: Box<ThingOptions>,
+
+    /// A unique identifier for this node
+    
+    #[serde(skip)]
+    pub node_id: NodeId
 }
 
 #[skip_serializing_none]
@@ -72,5 +77,15 @@ impl Thing {
         Self {
             ..Default::default()
         }
+    }
+}
+
+impl Entity for Thing {
+    fn node_type() -> NodeType {
+        NodeType::Thing
+    }
+
+    fn node_id(&self) -> &NodeId {
+        &self.node_id
     }
 }

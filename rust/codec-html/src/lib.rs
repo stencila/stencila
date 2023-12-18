@@ -5,7 +5,7 @@ use codec::{
     status::Status,
     Codec, CodecSupport, EncodeOptions, Losses,
 };
-use codec_html_trait::HtmlCodec as _;
+use codec_html_trait::{HtmlCodec as _, HtmlEncodeContext};
 
 /// A codec for HTML
 pub struct HtmlCodec;
@@ -56,11 +56,15 @@ impl Codec for HtmlCodec {
             ..
         } = options.unwrap_or_default();
 
-        let mut html = node.to_html();
+        let mut context = HtmlEncodeContext {
+            dom: dom.unwrap_or_default(),
+        };
+
+        let mut html = node.to_html(&mut context);
 
         // Add the data-root attribute to the root node
         // (the first opening tag)
-        if dom.unwrap_or_default() {
+        if context.dom {
             if let Some(pos) = html.find('>') {
                 html.insert_str(pos, " data-root");
             }

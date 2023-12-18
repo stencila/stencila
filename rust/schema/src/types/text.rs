@@ -34,6 +34,11 @@ pub struct Text {
     #[cfg_attr(feature = "proptest-max", proptest(strategy = r#"String::arbitrary().prop_map(Cord::new)"#))]
     #[html(content)]
     pub value: Cord,
+
+    /// A unique identifier for this node
+    #[cfg_attr(feature = "proptest", proptest(value = "Default::default()"))]
+    #[serde(skip)]
+    pub node_id: NodeId
 }
 
 impl Text {
@@ -42,5 +47,15 @@ impl Text {
             value,
             ..Default::default()
         }
+    }
+}
+
+impl Entity for Text {
+    fn node_type() -> NodeType {
+        NodeType::Text
+    }
+
+    fn node_id(&self) -> &NodeId {
+        &self.node_id
     }
 }

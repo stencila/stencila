@@ -23,7 +23,7 @@ proptest! {
     fn article(node: Article) {
         let mut store = WriteStore::default();
         node.dump(&mut store).unwrap();
-        let roundtrip = Article::load_without_ids(&store).unwrap();
+        let roundtrip = Article::load(&store).unwrap();
 
         assert_eq!(roundtrip, node);
     }

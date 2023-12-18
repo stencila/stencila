@@ -51,6 +51,11 @@ pub struct Form {
     #[jats(flatten)]
     #[markdown(flatten)]
     pub options: Box<FormOptions>,
+
+    /// A unique identifier for this node
+    
+    #[serde(skip)]
+    pub node_id: NodeId
 }
 
 #[skip_serializing_none]
@@ -147,5 +152,15 @@ impl Form {
             content,
             ..Default::default()
         }
+    }
+}
+
+impl Entity for Form {
+    fn node_type() -> NodeType {
+        NodeType::Form
+    }
+
+    fn node_id(&self) -> &NodeId {
+        &self.node_id
     }
 }

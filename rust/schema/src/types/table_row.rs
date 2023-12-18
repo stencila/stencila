@@ -39,6 +39,11 @@ pub struct TableRow {
     #[serde(alias = "row-type", alias = "row_type")]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     pub row_type: Option<TableRowType>,
+
+    /// A unique identifier for this node
+    #[cfg_attr(feature = "proptest", proptest(value = "Default::default()"))]
+    #[serde(skip)]
+    pub node_id: NodeId
 }
 
 impl TableRow {
@@ -47,5 +52,15 @@ impl TableRow {
             cells,
             ..Default::default()
         }
+    }
+}
+
+impl Entity for TableRow {
+    fn node_type() -> NodeType {
+        NodeType::TableRow
+    }
+
+    fn node_id(&self) -> &NodeId {
+        &self.node_id
     }
 }

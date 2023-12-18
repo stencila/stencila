@@ -39,6 +39,11 @@ pub struct CodeLocation {
     /// The 1-based index if the last column on which the error occurred.
     #[serde(alias = "end-column", alias = "end_column")]
     pub end_column: Option<UnsignedInteger>,
+
+    /// A unique identifier for this node
+    
+    #[serde(skip)]
+    pub node_id: NodeId
 }
 
 impl CodeLocation {
@@ -46,5 +51,15 @@ impl CodeLocation {
         Self {
             ..Default::default()
         }
+    }
+}
+
+impl Entity for CodeLocation {
+    fn node_type() -> NodeType {
+        NodeType::CodeLocation
+    }
+
+    fn node_id(&self) -> &NodeId {
+        &self.node_id
     }
 }

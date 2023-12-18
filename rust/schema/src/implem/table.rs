@@ -3,16 +3,19 @@ use codec_html_trait::encode::{attr, elem};
 use crate::{prelude::*, Table};
 
 impl Table {
-    pub fn to_html_special(&self) -> String {
+    pub fn to_html_special(&self, context: &mut HtmlEncodeContext) -> String {
         let label = self
             .label
             .as_ref()
-            .map(|label| elem("span", &[attr("slot", "label")], &[label.to_html()]));
+            .map(|label| elem("span", &[attr("slot", "label")], &[label.to_html(context)]));
 
-        let caption = self
-            .caption
-            .as_ref()
-            .map(|caption| elem("span", &[attr("slot", "caption")], &[caption.to_html()]));
+        let caption = self.caption.as_ref().map(|caption| {
+            elem(
+                "span",
+                &[attr("slot", "caption")],
+                &[caption.to_html(context)],
+            )
+        });
 
         let caption = if label.is_some() && caption.is_some() {
             elem(
@@ -24,7 +27,7 @@ impl Table {
             String::new()
         };
 
-        let body = elem("tbody", &[], &[self.rows.to_html()]);
+        let body = elem("tbody", &[], &[self.rows.to_html(context)]);
 
         elem("table", &[], &[caption, body])
     }

@@ -32,6 +32,11 @@ pub struct CompilationError {
     /// The location that the error occurred.
     #[serde(alias = "code-location", alias = "code_location")]
     pub code_location: Option<CodeLocation>,
+
+    /// A unique identifier for this node
+    
+    #[serde(skip)]
+    pub node_id: NodeId
 }
 
 impl CompilationError {
@@ -40,5 +45,15 @@ impl CompilationError {
             error_message,
             ..Default::default()
         }
+    }
+}
+
+impl Entity for CompilationError {
+    fn node_type() -> NodeType {
+        NodeType::CompilationError
+    }
+
+    fn node_id(&self) -> &NodeId {
+        &self.node_id
     }
 }

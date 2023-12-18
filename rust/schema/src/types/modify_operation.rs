@@ -26,6 +26,11 @@ pub struct ModifyOperation {
 
     /// The new value, or string patch, to apply to the target property.
     pub value: Box<StringPatchOrPrimitive>,
+
+    /// A unique identifier for this node
+    
+    #[serde(skip)]
+    pub node_id: NodeId
 }
 
 impl ModifyOperation {
@@ -35,5 +40,15 @@ impl ModifyOperation {
             value,
             ..Default::default()
         }
+    }
+}
+
+impl Entity for ModifyOperation {
+    fn node_type() -> NodeType {
+        NodeType::ModifyOperation
+    }
+
+    fn node_id(&self) -> &NodeId {
+        &self.node_id
     }
 }

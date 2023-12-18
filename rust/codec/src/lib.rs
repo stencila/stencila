@@ -386,7 +386,7 @@ pub struct EncodeOptions {
 
     /// Whether to encode HTML for use by Stencila's web themes, clients & components
     ///
-    /// Adds ids and other attributes to HTML which provide compatibility
+    /// Adds node ids and other attributes to HTML which provide compatibility
     /// with web themes, clients and components which operate on the browser DOM.
     pub dom: Option<bool>,
 

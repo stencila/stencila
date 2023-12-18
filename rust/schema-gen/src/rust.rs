@@ -714,6 +714,12 @@ pub struct {title}Options {{
             String::new()
         };
 
+        let node_id_proptest = if schema.proptest.is_some() {
+            r#"#[cfg_attr(feature = "proptest", proptest(value = "Default::default()"))]"#
+        } else {
+            ""
+        };
+
         write(
             path,
             &format!(
@@ -725,9 +731,24 @@ use crate::prelude::*;
 {attrs}
 pub struct {title} {{
     {core_fields}
+
+    /// A unique identifier for this node
+    {node_id_proptest}
+    #[serde(skip)]
+    pub node_id: NodeId
 }}{options}
 
 impl {title} {{{new}}}
+
+impl Entity for {title} {{
+    fn node_type() -> NodeType {{
+        NodeType::{title}
+    }}
+
+    fn node_id(&self) -> &NodeId {{
+        &self.node_id
+    }}
+}}
 "#
             ),
         )

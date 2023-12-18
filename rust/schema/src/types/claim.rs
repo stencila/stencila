@@ -67,6 +67,11 @@ pub struct Claim {
     #[jats(flatten)]
     #[markdown(flatten)]
     pub options: Box<ClaimOptions>,
+
+    /// A unique identifier for this node
+    #[cfg_attr(feature = "proptest", proptest(value = "Default::default()"))]
+    #[serde(skip)]
+    pub node_id: NodeId
 }
 
 #[skip_serializing_none]
@@ -278,5 +283,15 @@ impl Claim {
             content,
             ..Default::default()
         }
+    }
+}
+
+impl Entity for Claim {
+    fn node_type() -> NodeType {
+        NodeType::Claim
+    }
+
+    fn node_id(&self) -> &NodeId {
+        &self.node_id
     }
 }

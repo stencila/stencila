@@ -54,6 +54,11 @@ pub struct Directory {
     #[jats(flatten)]
     #[markdown(flatten)]
     pub options: Box<DirectoryOptions>,
+
+    /// A unique identifier for this node
+    
+    #[serde(skip)]
+    pub node_id: NodeId
 }
 
 #[skip_serializing_none]
@@ -225,5 +230,15 @@ impl Directory {
             path,
             ..Default::default()
         }
+    }
+}
+
+impl Entity for Directory {
+    fn node_type() -> NodeType {
+        NodeType::Directory
+    }
+
+    fn node_id(&self) -> &NodeId {
+        &self.node_id
     }
 }

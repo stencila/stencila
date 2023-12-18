@@ -72,6 +72,11 @@ pub struct StyledBlock {
     #[walk]
     #[cfg_attr(feature = "proptest", proptest(value = "Default::default()"))]
     pub content: Vec<Block>,
+
+    /// A unique identifier for this node
+    #[cfg_attr(feature = "proptest", proptest(value = "Default::default()"))]
+    #[serde(skip)]
+    pub node_id: NodeId
 }
 
 impl StyledBlock {
@@ -81,5 +86,15 @@ impl StyledBlock {
             content,
             ..Default::default()
         }
+    }
+}
+
+impl Entity for StyledBlock {
+    fn node_type() -> NodeType {
+        NodeType::StyledBlock
+    }
+
+    fn node_id(&self) -> &NodeId {
+        &self.node_id
     }
 }

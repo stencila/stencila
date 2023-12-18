@@ -75,16 +75,16 @@ fn derive_struct(type_attr: TypeAttr) -> TokenStream {
 
     if type_attr.special {
         return quote! {
-            impl codec_html_trait::HtmlCodec for #struct_name {
-                fn to_html(&self) -> String {
-                    self.to_html_special()
+            impl HtmlCodec for #struct_name {
+                fn to_html(&self, context: &mut HtmlEncodeContext) -> String {
+                    self.to_html_special(context)
                 }
 
-                fn to_html_parts(&self) -> (&str, Vec<String>, Vec<String>) {
+                fn to_html_parts(&self, _context: &mut HtmlEncodeContext) -> (&str, Vec<String>, Vec<String>) {
                     unreachable!()
                 }
 
-                fn to_html_attr(&self) -> String {
+                fn to_html_attr(&self, _context: &mut HtmlEncodeContext) -> String {
                     unreachable!()
                 }
             }
@@ -112,21 +112,20 @@ fn derive_struct(type_attr: TypeAttr) -> TokenStream {
         };
 
         if field_name == "r#type" {
-            // Skip the type field
             return;
         }
 
         let field_tokens = if field_attr.flatten {
             // Flatten out the attributes and children of the options field
             quote! {
-                let mut parts = self.#field_name.to_html_parts();
+                let mut parts = self.#field_name.to_html_parts(context);
                 attrs.append(&mut parts.1);
                 children.append(&mut parts.2);
             }
         } else if let Some(slot) = field_attr.slot {
             // Wrap the field in a slot
             quote! {
-                let slot_html = self.#field_name.to_html();
+                let slot_html = self.#field_name.to_html(context);
                 if !slot_html.is_empty() {
                     children.push(elem(
                         #slot,
@@ -135,10 +134,16 @@ fn derive_struct(type_attr: TypeAttr) -> TokenStream {
                     ));
                 }
             }
+        } else if field_name == "node_id" {
+            quote! {
+                if context.dom {
+                    attrs.push(attr("id", &self.node_id.to_string()));
+                }
+            }
         } else if field_name == "content" || field_attr.content {
             // Always add content as direct children
             quote! {
-                children.push(self.#field_name.to_html());
+                children.push(self.#field_name.to_html(context));
             }
         } else {
             let attr_name = if let Some(attr_name) = field_attr.attr {
@@ -153,15 +158,15 @@ fn derive_struct(type_attr: TypeAttr) -> TokenStream {
             };
 
             quote! {
-                attrs.push(attr(stringify!(#attr_name), &self.#field_name.to_html_attr()));
+                attrs.push(attr(stringify!(#attr_name), &self.#field_name.to_html_attr(context)));
             }
         };
         fields.extend(field_tokens)
     });
 
     quote! {
-        impl codec_html_trait::HtmlCodec for #struct_name {
-            fn to_html_parts(&self) -> (&str, Vec<String>, Vec<String>) {
+        impl HtmlCodec for #struct_name {
+            fn to_html_parts(&self, context: &mut HtmlEncodeContext) -> (&str, Vec<String>, Vec<String>) {
                 use codec_html_trait::encode::{attr, elem};
 
                 let mut attrs = vec![#attrs];
@@ -172,7 +177,7 @@ fn derive_struct(type_attr: TypeAttr) -> TokenStream {
                 (#elem, attrs, children)
             }
 
-            fn to_html_attr(&self) -> String {
+            fn to_html_attr(&self, _context: &mut HtmlEncodeContext) -> String {
                 serde_json::to_string(self).unwrap_or_default()
             }
         }
@@ -192,13 +197,13 @@ fn derive_enum(type_attr: TypeAttr, data: &DataEnum) -> TokenStream {
         match &variant.fields {
             Fields::Named(..) | Fields::Unnamed(..) => {
                 variants_to_html.extend(quote! {
-                    Self::#variant_name(v) => v.to_html(),
+                    Self::#variant_name(v) => v.to_html(context),
                 });
                 variants_to_parts.extend(quote! {
-                    Self::#variant_name(v) => v.to_html_parts(),
+                    Self::#variant_name(v) => v.to_html_parts(context),
                 });
                 variants_to_attr.extend(quote! {
-                    Self::#variant_name(v) => v.to_html_attr(),
+                    Self::#variant_name(v) => v.to_html_attr(context),
                 });
             }
             Fields::Unit => {
@@ -216,20 +221,20 @@ fn derive_enum(type_attr: TypeAttr, data: &DataEnum) -> TokenStream {
     }
 
     quote! {
-        impl codec_html_trait::HtmlCodec for #enum_name {
-            fn to_html(&self) -> String {
+        impl HtmlCodec for #enum_name {
+            fn to_html(&self, context: &mut HtmlEncodeContext) -> String {
                 match self {
                     #variants_to_html
                 }
             }
 
-            fn to_html_parts(&self) -> (&str, Vec<String>, Vec<String>) {
+            fn to_html_parts(&self, context: &mut HtmlEncodeContext) -> (&str, Vec<String>, Vec<String>) {
                 match self {
                     #variants_to_parts
                 }
             }
 
-            fn to_html_attr(&self) -> String {
+            fn to_html_attr(&self, context: &mut HtmlEncodeContext) -> String {
                 match self {
                     #variants_to_attr
                 }

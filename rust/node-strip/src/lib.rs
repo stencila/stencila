@@ -72,11 +72,6 @@ impl StripTargets {
             properties,
         }
     }
-
-    /// Strip the `id` property from nodes
-    pub fn id() -> Self {
-        StripTargets::new(vec![], vec![], vec![String::from("id")])
-    }
 }
 
 pub trait StripNode: Sized {

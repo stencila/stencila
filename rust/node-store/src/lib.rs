@@ -11,7 +11,7 @@ use common::{
     eyre::{bail, Context, Result},
     tokio::fs::{read, write},
 };
-use node_strip::{StripNode, StripTargets};
+use node_strip::StripNode;
 
 pub use automerge::{
     self, AutoCommit as WriteStore, ChangeHash as CommitHash, ObjId, ObjType, Prop,
@@ -79,15 +79,6 @@ pub trait ReadNode: StripNode + Sized {
     /// implemented for the node type (e.g. `Number` and `Vec` nodes).
     fn load<S: ReadStore>(store: &S) -> Result<Self> {
         Self::load_map(store, &ROOT)
-    }
-
-    /// Load a Stencila Schema node from an Automerge store without any ids
-    fn load_without_ids<S: ReadStore>(store: &S) -> Result<Self> {
-        let mut node = Self::load(store)?;
-
-        node.strip(&StripTargets::id());
-
-        Ok(node)
     }
 
     /// Load the Stencila Schema node from a property for an object in an Automerge store
@@ -312,21 +303,4 @@ pub fn get_type<S: ReadStore>(store: &S, obj_id: &ObjId) -> Result<Option<String
     };
 
     Ok(Some(value.to_string()))
-}
-
-/// Serialize an Automerge object id as a Base64 string
-pub fn id_to_base64(obj_id: &ObjId) -> String {
-    use common::base64::prelude::{Engine, BASE64_URL_SAFE_NO_PAD};
-
-    let bytes = obj_id.to_bytes();
-    BASE64_URL_SAFE_NO_PAD.encode(bytes)
-}
-
-/// Deserialize a Base64 string to an Automerge object id
-pub fn base64_to_id(base64: &str) -> Result<ObjId> {
-    use common::base64::prelude::{Engine, BASE64_URL_SAFE_NO_PAD};
-
-    let bytes = BASE64_URL_SAFE_NO_PAD.decode(base64)?;
-    let id = ObjId::try_from(bytes.as_slice())?;
-    Ok(id)
 }

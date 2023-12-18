@@ -32,12 +32,8 @@ pub fn derive_struct(input: &DeriveInput, data: &DataStruct) -> TokenStream {
             .map(|ident| ident.to_string())
             .unwrap_or_default();
 
-        let field = if field_name == "r#type" {
+        let field = if field_name == "r#type" || field_name == "node_id" {
             quote! {}
-        } else if field_name == "id" {
-            quote! {
-                node.id = Some(node_store::id_to_base64(obj_id));
-            }
         } else if field_name == "options" {
             quote! {
                 let prop = node_store::Prop::Map("options".to_string());

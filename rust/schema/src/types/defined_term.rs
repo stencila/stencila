@@ -33,6 +33,11 @@ pub struct DefinedTerm {
     #[jats(flatten)]
     #[markdown(flatten)]
     pub options: Box<DefinedTermOptions>,
+
+    /// A unique identifier for this node
+    
+    #[serde(skip)]
+    pub node_id: NodeId
 }
 
 #[skip_serializing_none]
@@ -77,5 +82,15 @@ impl DefinedTerm {
             name,
             ..Default::default()
         }
+    }
+}
+
+impl Entity for DefinedTerm {
+    fn node_type() -> NodeType {
+        NodeType::DefinedTerm
+    }
+
+    fn node_id(&self) -> &NodeId {
+        &self.node_id
     }
 }

@@ -25,6 +25,11 @@ pub struct CiteGroup {
     #[serde(alias = "item")]
     #[serde(deserialize_with = "one_or_many")]
     pub items: Vec<Cite>,
+
+    /// A unique identifier for this node
+    
+    #[serde(skip)]
+    pub node_id: NodeId
 }
 
 impl CiteGroup {
@@ -33,5 +38,15 @@ impl CiteGroup {
             items,
             ..Default::default()
         }
+    }
+}
+
+impl Entity for CiteGroup {
+    fn node_type() -> NodeType {
+        NodeType::CiteGroup
+    }
+
+    fn node_id(&self) -> &NodeId {
+        &self.node_id
     }
 }

@@ -60,6 +60,11 @@ pub struct SoftwareSourceCode {
     #[jats(flatten)]
     #[markdown(flatten)]
     pub options: Box<SoftwareSourceCodeOptions>,
+
+    /// A unique identifier for this node
+    
+    #[serde(skip)]
+    pub node_id: NodeId
 }
 
 #[skip_serializing_none]
@@ -250,5 +255,15 @@ impl SoftwareSourceCode {
             programming_language,
             ..Default::default()
         }
+    }
+}
+
+impl Entity for SoftwareSourceCode {
+    fn node_type() -> NodeType {
+        NodeType::SoftwareSourceCode
+    }
+
+    fn node_id(&self) -> &NodeId {
+        &self.node_id
     }
 }

@@ -63,6 +63,11 @@ pub struct Button {
     #[jats(flatten)]
     #[markdown(flatten)]
     pub options: Box<ButtonOptions>,
+
+    /// A unique identifier for this node
+    
+    #[serde(skip)]
+    pub node_id: NodeId
 }
 
 #[skip_serializing_none]
@@ -152,5 +157,15 @@ impl Button {
             name,
             ..Default::default()
         }
+    }
+}
+
+impl Entity for Button {
+    fn node_type() -> NodeType {
+        NodeType::Button
+    }
+
+    fn node_id(&self) -> &NodeId {
+        &self.node_id
     }
 }

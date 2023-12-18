@@ -32,6 +32,11 @@ pub struct DurationValidator {
 
     /// The inclusive upper limit for a duration.
     pub maximum: Option<Duration>,
+
+    /// A unique identifier for this node
+    
+    #[serde(skip)]
+    pub node_id: NodeId
 }
 
 impl DurationValidator {
@@ -39,5 +44,15 @@ impl DurationValidator {
         Self {
             ..Default::default()
         }
+    }
+}
+
+impl Entity for DurationValidator {
+    fn node_type() -> NodeType {
+        NodeType::DurationValidator
+    }
+
+    fn node_id(&self) -> &NodeId {
+        &self.node_id
     }
 }

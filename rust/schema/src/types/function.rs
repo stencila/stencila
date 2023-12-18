@@ -36,6 +36,11 @@ pub struct Function {
     #[jats(flatten)]
     #[markdown(flatten)]
     pub options: Box<FunctionOptions>,
+
+    /// A unique identifier for this node
+    
+    #[serde(skip)]
+    pub node_id: NodeId
 }
 
 #[skip_serializing_none]
@@ -54,5 +59,15 @@ impl Function {
             parameters,
             ..Default::default()
         }
+    }
+}
+
+impl Entity for Function {
+    fn node_type() -> NodeType {
+        NodeType::Function
+    }
+
+    fn node_id(&self) -> &NodeId {
+        &self.node_id
     }
 }

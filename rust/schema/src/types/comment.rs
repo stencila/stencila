@@ -57,6 +57,11 @@ pub struct Comment {
     #[jats(flatten)]
     #[markdown(flatten)]
     pub options: Box<CommentOptions>,
+
+    /// A unique identifier for this node
+    
+    #[serde(skip)]
+    pub node_id: NodeId
 }
 
 #[skip_serializing_none]
@@ -232,5 +237,15 @@ impl Comment {
             content,
             ..Default::default()
         }
+    }
+}
+
+impl Entity for Comment {
+    fn node_type() -> NodeType {
+        NodeType::Comment
+    }
+
+    fn node_id(&self) -> &NodeId {
+        &self.node_id
     }
 }

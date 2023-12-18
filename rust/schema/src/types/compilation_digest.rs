@@ -40,6 +40,11 @@ pub struct CompilationDigest {
     /// A count of the number of dependencies that failed.
     #[serde(alias = "dependencies-failed", alias = "dependencies_failed")]
     pub dependencies_failed: Option<UnsignedInteger>,
+
+    /// A unique identifier for this node
+    
+    #[serde(skip)]
+    pub node_id: NodeId
 }
 
 impl CompilationDigest {
@@ -48,5 +53,15 @@ impl CompilationDigest {
             state_digest,
             ..Default::default()
         }
+    }
+}
+
+impl Entity for CompilationDigest {
+    fn node_type() -> NodeType {
+        NodeType::CompilationDigest
+    }
+
+    fn node_id(&self) -> &NodeId {
+        &self.node_id
     }
 }

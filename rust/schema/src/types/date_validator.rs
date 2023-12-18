@@ -26,6 +26,11 @@ pub struct DateValidator {
 
     /// The inclusive upper limit for a date.
     pub maximum: Option<Date>,
+
+    /// A unique identifier for this node
+    
+    #[serde(skip)]
+    pub node_id: NodeId
 }
 
 impl DateValidator {
@@ -33,5 +38,15 @@ impl DateValidator {
         Self {
             ..Default::default()
         }
+    }
+}
+
+impl Entity for DateValidator {
+    fn node_type() -> NodeType {
+        NodeType::DateValidator
+    }
+
+    fn node_id(&self) -> &NodeId {
+        &self.node_id
     }
 }

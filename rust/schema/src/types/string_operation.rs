@@ -31,6 +31,11 @@ pub struct StringOperation {
 
     /// The string value to insert or use as the replacement.
     pub value: Option<String>,
+
+    /// A unique identifier for this node
+    
+    #[serde(skip)]
+    pub node_id: NodeId
 }
 
 impl StringOperation {
@@ -39,5 +44,15 @@ impl StringOperation {
             start_position,
             ..Default::default()
         }
+    }
+}
+
+impl Entity for StringOperation {
+    fn node_type() -> NodeType {
+        NodeType::StringOperation
+    }
+
+    fn node_id(&self) -> &NodeId {
+        &self.node_id
     }
 }

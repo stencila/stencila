@@ -25,6 +25,11 @@ pub struct ThematicBreak {
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     #[html(attr = "id")]
     pub id: Option<String>,
+
+    /// A unique identifier for this node
+    #[cfg_attr(feature = "proptest", proptest(value = "Default::default()"))]
+    #[serde(skip)]
+    pub node_id: NodeId
 }
 
 impl ThematicBreak {
@@ -32,5 +37,15 @@ impl ThematicBreak {
         Self {
             ..Default::default()
         }
+    }
+}
+
+impl Entity for ThematicBreak {
+    fn node_type() -> NodeType {
+        NodeType::ThematicBreak
+    }
+
+    fn node_id(&self) -> &NodeId {
+        &self.node_id
     }
 }

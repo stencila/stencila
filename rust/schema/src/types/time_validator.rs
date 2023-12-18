@@ -26,6 +26,11 @@ pub struct TimeValidator {
 
     /// The inclusive upper limit for a time.
     pub maximum: Option<Time>,
+
+    /// A unique identifier for this node
+    
+    #[serde(skip)]
+    pub node_id: NodeId
 }
 
 impl TimeValidator {
@@ -33,5 +38,15 @@ impl TimeValidator {
         Self {
             ..Default::default()
         }
+    }
+}
+
+impl Entity for TimeValidator {
+    fn node_type() -> NodeType {
+        NodeType::TimeValidator
+    }
+
+    fn node_id(&self) -> &NodeId {
+        &self.node_id
     }
 }

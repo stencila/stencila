@@ -38,9 +38,9 @@ pub fn derive_struct(input: &DeriveInput, data: &DataStruct) -> TokenStream {
                 store.put::<_,_,&str>(obj_id, "type", stringify!(#struct_name))?;
                 keys.remove("type");
             }
-        } else if field_name == "id" {
-            // Never put id in the store (because we use the object id on load)
-            continue;
+        } else if field_name == "node_id" {
+            // Do not put node_id in store
+            quote! {}
         } else {
             // Put fields that are in both map and store
             quote! {
@@ -83,6 +83,9 @@ pub fn derive_struct(input: &DeriveInput, data: &DataStruct) -> TokenStream {
             quote! {
                 store.put::<_,_,&str>(&prop_obj_id, "type", stringify!(#struct_name))?;
             }
+        } else if field_name_string == "node_id" {
+            // Do not put node_id in store
+            quote! {}
         } else {
             quote! {
                 self.#field_name.insert_prop(store, &prop_obj_id, stringify!(#field_name).into())?;

@@ -75,6 +75,11 @@ pub struct VideoObject {
     #[jats(flatten)]
     #[markdown(flatten)]
     pub options: Box<VideoObjectOptions>,
+
+    /// A unique identifier for this node
+    #[cfg_attr(feature = "proptest", proptest(value = "Default::default()"))]
+    #[serde(skip)]
+    pub node_id: NodeId
 }
 
 #[skip_serializing_none]
@@ -300,5 +305,15 @@ impl VideoObject {
             content_url,
             ..Default::default()
         }
+    }
+}
+
+impl Entity for VideoObject {
+    fn node_type() -> NodeType {
+        NodeType::VideoObject
+    }
+
+    fn node_id(&self) -> &NodeId {
+        &self.node_id
     }
 }

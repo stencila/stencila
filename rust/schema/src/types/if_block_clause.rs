@@ -79,6 +79,11 @@ pub struct IfBlockClause {
     #[jats(flatten)]
     #[markdown(flatten)]
     pub options: Box<IfBlockClauseOptions>,
+
+    /// A unique identifier for this node
+    #[cfg_attr(feature = "proptest", proptest(value = "Default::default()"))]
+    #[serde(skip)]
+    pub node_id: NodeId
 }
 
 #[skip_serializing_none]
@@ -184,5 +189,15 @@ impl IfBlockClause {
             content,
             ..Default::default()
         }
+    }
+}
+
+impl Entity for IfBlockClause {
+    fn node_type() -> NodeType {
+        NodeType::IfBlockClause
+    }
+
+    fn node_id(&self) -> &NodeId {
+        &self.node_id
     }
 }

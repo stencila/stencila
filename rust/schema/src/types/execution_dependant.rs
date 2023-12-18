@@ -34,6 +34,11 @@ pub struct ExecutionDependant {
     /// The location that the dependant is defined.
     #[serde(alias = "code-location", alias = "code_location")]
     pub code_location: Option<CodeLocation>,
+
+    /// A unique identifier for this node
+    
+    #[serde(skip)]
+    pub node_id: NodeId
 }
 
 impl ExecutionDependant {
@@ -43,5 +48,15 @@ impl ExecutionDependant {
             dependant_node,
             ..Default::default()
         }
+    }
+}
+
+impl Entity for ExecutionDependant {
+    fn node_type() -> NodeType {
+        NodeType::ExecutionDependant
+    }
+
+    fn node_id(&self) -> &NodeId {
+        &self.node_id
     }
 }

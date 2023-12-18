@@ -45,6 +45,11 @@ pub struct Section {
     #[cfg_attr(feature = "proptest-max", proptest(strategy = r#"option::of(SectionType::arbitrary())"#))]
     #[jats(attr = "content-type")]
     pub section_type: Option<SectionType>,
+
+    /// A unique identifier for this node
+    #[cfg_attr(feature = "proptest", proptest(value = "Default::default()"))]
+    #[serde(skip)]
+    pub node_id: NodeId
 }
 
 impl Section {
@@ -53,5 +58,15 @@ impl Section {
             content,
             ..Default::default()
         }
+    }
+}
+
+impl Entity for Section {
+    fn node_type() -> NodeType {
+        NodeType::Section
+    }
+
+    fn node_id(&self) -> &NodeId {
+        &self.node_id
     }
 }

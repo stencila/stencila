@@ -23,6 +23,11 @@ pub struct ConstantValidator {
 
     /// The value that the node must have.
     pub value: Box<Node>,
+
+    /// A unique identifier for this node
+    
+    #[serde(skip)]
+    pub node_id: NodeId
 }
 
 impl ConstantValidator {
@@ -31,5 +36,15 @@ impl ConstantValidator {
             value,
             ..Default::default()
         }
+    }
+}
+
+impl Entity for ConstantValidator {
+    fn node_type() -> NodeType {
+        NodeType::ConstantValidator
+    }
+
+    fn node_id(&self) -> &NodeId {
+        &self.node_id
     }
 }

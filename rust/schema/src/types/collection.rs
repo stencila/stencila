@@ -47,6 +47,11 @@ pub struct Collection {
     #[jats(flatten)]
     #[markdown(flatten)]
     pub options: Box<CollectionOptions>,
+
+    /// A unique identifier for this node
+    
+    #[serde(skip)]
+    pub node_id: NodeId
 }
 
 #[skip_serializing_none]
@@ -220,5 +225,15 @@ impl Collection {
             parts,
             ..Default::default()
         }
+    }
+}
+
+impl Entity for Collection {
+    fn node_type() -> NodeType {
+        NodeType::Collection
+    }
+
+    fn node_id(&self) -> &NodeId {
+        &self.node_id
     }
 }

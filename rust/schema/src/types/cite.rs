@@ -37,6 +37,11 @@ pub struct Cite {
     #[jats(flatten)]
     #[markdown(flatten)]
     pub options: Box<CiteOptions>,
+
+    /// A unique identifier for this node
+    
+    #[serde(skip)]
+    pub node_id: NodeId
 }
 
 #[skip_serializing_none]
@@ -81,5 +86,15 @@ impl Cite {
             citation_mode,
             ..Default::default()
         }
+    }
+}
+
+impl Entity for Cite {
+    fn node_type() -> NodeType {
+        NodeType::Cite
+    }
+
+    fn node_id(&self) -> &NodeId {
+        &self.node_id
     }
 }

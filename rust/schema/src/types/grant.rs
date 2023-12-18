@@ -31,6 +31,11 @@ pub struct Grant {
     #[jats(flatten)]
     #[markdown(flatten)]
     pub options: Box<GrantOptions>,
+
+    /// A unique identifier for this node
+    
+    #[serde(skip)]
+    pub node_id: NodeId
 }
 
 #[skip_serializing_none]
@@ -84,5 +89,15 @@ impl Grant {
         Self {
             ..Default::default()
         }
+    }
+}
+
+impl Entity for Grant {
+    fn node_type() -> NodeType {
+        NodeType::Grant
+    }
+
+    fn node_id(&self) -> &NodeId {
+        &self.node_id
     }
 }

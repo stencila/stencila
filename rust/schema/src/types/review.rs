@@ -42,6 +42,11 @@ pub struct Review {
     #[jats(flatten)]
     #[markdown(flatten)]
     pub options: Box<ReviewOptions>,
+
+    /// A unique identifier for this node
+    
+    #[serde(skip)]
+    pub node_id: NodeId
 }
 
 #[skip_serializing_none]
@@ -228,5 +233,15 @@ impl Review {
         Self {
             ..Default::default()
         }
+    }
+}
+
+impl Entity for Review {
+    fn node_type() -> NodeType {
+        NodeType::Review
+    }
+
+    fn node_id(&self) -> &NodeId {
+        &self.node_id
     }
 }

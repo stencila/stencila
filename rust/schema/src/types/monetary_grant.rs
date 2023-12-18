@@ -32,6 +32,11 @@ pub struct MonetaryGrant {
     #[jats(flatten)]
     #[markdown(flatten)]
     pub options: Box<MonetaryGrantOptions>,
+
+    /// A unique identifier for this node
+    
+    #[serde(skip)]
+    pub node_id: NodeId
 }
 
 #[skip_serializing_none]
@@ -93,5 +98,15 @@ impl MonetaryGrant {
         Self {
             ..Default::default()
         }
+    }
+}
+
+impl Entity for MonetaryGrant {
+    fn node_type() -> NodeType {
+        NodeType::MonetaryGrant
+    }
+
+    fn node_id(&self) -> &NodeId {
+        &self.node_id
     }
 }

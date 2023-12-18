@@ -44,6 +44,11 @@ pub struct Heading {
     #[cfg_attr(feature = "proptest-high", proptest(strategy = r#"vec_inlines(4)"#))]
     #[cfg_attr(feature = "proptest-max", proptest(strategy = r#"vec(Inline::arbitrary(), size_range(0..=8))"#))]
     pub content: Vec<Inline>,
+
+    /// A unique identifier for this node
+    #[cfg_attr(feature = "proptest", proptest(value = "Default::default()"))]
+    #[serde(skip)]
+    pub node_id: NodeId
 }
 
 impl Heading {
@@ -53,5 +58,15 @@ impl Heading {
             content,
             ..Default::default()
         }
+    }
+}
+
+impl Entity for Heading {
+    fn node_type() -> NodeType {
+        NodeType::Heading
+    }
+
+    fn node_id(&self) -> &NodeId {
+        &self.node_id
     }
 }

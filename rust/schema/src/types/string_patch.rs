@@ -25,6 +25,11 @@ pub struct StringPatch {
     #[serde(alias = "operation")]
     #[serde(deserialize_with = "one_or_many")]
     pub operations: Vec<StringOperation>,
+
+    /// A unique identifier for this node
+    
+    #[serde(skip)]
+    pub node_id: NodeId
 }
 
 impl StringPatch {
@@ -33,5 +38,15 @@ impl StringPatch {
             operations,
             ..Default::default()
         }
+    }
+}
+
+impl Entity for StringPatch {
+    fn node_type() -> NodeType {
+        NodeType::StringPatch
+    }
+
+    fn node_id(&self) -> &NodeId {
+        &self.node_id
     }
 }

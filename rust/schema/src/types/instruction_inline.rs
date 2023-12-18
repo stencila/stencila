@@ -62,6 +62,11 @@ pub struct InstructionInline {
     #[jats(flatten)]
     #[markdown(flatten)]
     pub options: Box<InstructionInlineOptions>,
+
+    /// A unique identifier for this node
+    #[cfg_attr(feature = "proptest", proptest(value = "Default::default()"))]
+    #[serde(skip)]
+    pub node_id: NodeId
 }
 
 #[skip_serializing_none]
@@ -160,5 +165,15 @@ impl InstructionInline {
             text,
             ..Default::default()
         }
+    }
+}
+
+impl Entity for InstructionInline {
+    fn node_type() -> NodeType {
+        NodeType::InstructionInline
+    }
+
+    fn node_id(&self) -> &NodeId {
+        &self.node_id
     }
 }

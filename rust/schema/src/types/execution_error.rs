@@ -36,6 +36,11 @@ pub struct ExecutionError {
     /// Stack trace leading up to the error.
     #[serde(alias = "trace", alias = "stack-trace", alias = "stack_trace")]
     pub stack_trace: Option<String>,
+
+    /// A unique identifier for this node
+    
+    #[serde(skip)]
+    pub node_id: NodeId
 }
 
 impl ExecutionError {
@@ -44,5 +49,15 @@ impl ExecutionError {
             error_message,
             ..Default::default()
         }
+    }
+}
+
+impl Entity for ExecutionError {
+    fn node_type() -> NodeType {
+        NodeType::ExecutionError
+    }
+
+    fn node_id(&self) -> &NodeId {
+        &self.node_id
     }
 }

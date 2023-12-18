@@ -29,6 +29,11 @@ pub struct Enumeration {
     #[jats(flatten)]
     #[markdown(flatten)]
     pub options: Box<EnumerationOptions>,
+
+    /// A unique identifier for this node
+    
+    #[serde(skip)]
+    pub node_id: NodeId
 }
 
 #[skip_serializing_none]
@@ -72,5 +77,15 @@ impl Enumeration {
         Self {
             ..Default::default()
         }
+    }
+}
+
+impl Entity for Enumeration {
+    fn node_type() -> NodeType {
+        NodeType::Enumeration
+    }
+
+    fn node_id(&self) -> &NodeId {
+        &self.node_id
     }
 }

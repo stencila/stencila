@@ -31,6 +31,11 @@ pub struct Product {
     #[jats(flatten)]
     #[markdown(flatten)]
     pub options: Box<ProductOptions>,
+
+    /// A unique identifier for this node
+    
+    #[serde(skip)]
+    pub node_id: NodeId
 }
 
 #[skip_serializing_none]
@@ -86,5 +91,15 @@ impl Product {
         Self {
             ..Default::default()
         }
+    }
+}
+
+impl Entity for Product {
+    fn node_type() -> NodeType {
+        NodeType::Product
+    }
+
+    fn node_id(&self) -> &NodeId {
+        &self.node_id
     }
 }
