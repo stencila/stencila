@@ -1,7 +1,6 @@
 import { html } from 'lit'
 import { customElement, property } from 'lit/decorators'
 
-import { withTwind } from '../twind'
 import type { DocumentAccess, DocumentId } from '../types'
 import { TWLitElement } from '../ui/twind'
 
@@ -18,7 +17,6 @@ import '../ui/split-drag'
  * between alternative views in each pane.
  */
 @customElement('stencila-split-view')
-@withTwind()
 export class SplitView extends TWLitElement {
   /**
    * The id of the document

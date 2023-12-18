@@ -30,7 +30,6 @@ import { customElement, property } from 'lit/decorators.js'
 
 import { CodeMirrorClient } from '../clients/codemirror'
 import { markdownHighlightStyle } from '../languages/markdown'
-import { withTwind } from '../twind'
 import type { DocumentId, DocumentAccess } from '../types'
 import { TWLitElement } from '../ui/twind'
 
@@ -51,7 +50,6 @@ const FORMATS = {
  * a particular format.
  */
 @customElement('stencila-source-view')
-@withTwind()
 export class SourceView extends TWLitElement {
   /**
    * The id of the document
