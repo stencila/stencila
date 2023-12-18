@@ -21,7 +21,7 @@ The `Block` type has these members:
 - [`IfBlock`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/if-block.md)
 - [`IncludeBlock`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/include-block.md)
 - [`InsertBlock`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/edits/insert-block.md)
-- [`InstructBlock`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/edits/instruct-block.md)
+- [`InstructionBlock`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/edits/instruction-block.md)
 - [`List`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/list.md)
 - [`MathBlock`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/math/math-block.md)
 - [`ModifyBlock`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/edits/modify-block.md)
@@ -47,32 +47,32 @@ The `Block` type is represented in these bindings:
 
 During property-based (a.k.a generative) testing, the variants of the `Block` type are generated using the following strategies[^1] for each complexity level. Any variant not shown is generated using the default strategy for the corresponding type and complexity level.
 
-| Variant         | Complexity | Description                                             | Strategy          |
-| --------------- | ---------- | ------------------------------------------------------- | ----------------- |
-| `Admonition`    | Min+       | Do not generate `Admonition` nodes in block content.    | -                 |
-|                 | Low+       | Generate `Admonition` nodes in block content.           | Default for level |
-| `CallBlock`     | Min+       | Do not generate `CallBlock` nodes in block content.     | -                 |
-|                 | Low+       | Generate `CallBlock` nodes in block content.            | Default for level |
-| `Claim`         | Min+       | Do not generate `Claim` nodes in block content.         | -                 |
-|                 | Low+       | Generate `Claim` nodes in block content.                | Default for level |
-| `CodeChunk`     | Min+       | Do not generate `CodeChunk` nodes in block content.     | -                 |
-|                 | Low+       | Generate `CodeChunk` nodes in block content.            | Default for level |
-| `DeleteBlock`   | Min+       | Do not generate `DeleteBlock` nodes in block content.   | -                 |
-| `Figure`        | Min+       | Do not generate `Figure` nodes in block content.        | -                 |
-|                 | Low+       | Generate `Figure` nodes in block content.               | Default for level |
-| `ForBlock`      | Min+       | Do not generate `ForBlock` nodes in block content.      | -                 |
-|                 | Low+       | Generate `ForBlock` nodes in block content.             | Default for level |
-| `Form`          | Min+       | Do not generate `Form` nodes in block content.          | -                 |
-| `IfBlock`       | Min+       | Do not generate `IfBlock` nodes in block content.       | -                 |
-|                 | Low+       | Generate `IfBlock` nodes in block content.              | Default for level |
-| `IncludeBlock`  | Min+       | Do not generate `IncludeBlock` nodes in block content.  | -                 |
-|                 | Low+       | Generate `IncludeBlock` nodes in block content.         | Default for level |
-| `InsertBlock`   | Min+       | Do not generate `InsertBlock` nodes in block content.   | -                 |
-| `InstructBlock` | Min+       | Do not generate `InstructBlock` nodes in block content. | -                 |
-| `ModifyBlock`   | Min+       | Do not generate `ModifyBlock` nodes in block content.   | -                 |
-| `ReplaceBlock`  | Min+       | Do not generate `ReplaceBlock` nodes in block content.  | -                 |
-| `Section`       | Min+       | Do not generate `Section` nodes in block content.       | -                 |
-|                 | Low+       | Generate `Section` nodes in block content.              | Default for level |
+| Variant            | Complexity | Description                                                | Strategy          |
+| ------------------ | ---------- | ---------------------------------------------------------- | ----------------- |
+| `Admonition`       | Min+       | Do not generate `Admonition` nodes in block content.       | -                 |
+|                    | Low+       | Generate `Admonition` nodes in block content.              | Default for level |
+| `CallBlock`        | Min+       | Do not generate `CallBlock` nodes in block content.        | -                 |
+|                    | Low+       | Generate `CallBlock` nodes in block content.               | Default for level |
+| `Claim`            | Min+       | Do not generate `Claim` nodes in block content.            | -                 |
+|                    | Low+       | Generate `Claim` nodes in block content.                   | Default for level |
+| `CodeChunk`        | Min+       | Do not generate `CodeChunk` nodes in block content.        | -                 |
+|                    | Low+       | Generate `CodeChunk` nodes in block content.               | Default for level |
+| `DeleteBlock`      | Min+       | Do not generate `DeleteBlock` nodes in block content.      | -                 |
+| `Figure`           | Min+       | Do not generate `Figure` nodes in block content.           | -                 |
+|                    | Low+       | Generate `Figure` nodes in block content.                  | Default for level |
+| `ForBlock`         | Min+       | Do not generate `ForBlock` nodes in block content.         | -                 |
+|                    | Low+       | Generate `ForBlock` nodes in block content.                | Default for level |
+| `Form`             | Min+       | Do not generate `Form` nodes in block content.             | -                 |
+| `IfBlock`          | Min+       | Do not generate `IfBlock` nodes in block content.          | -                 |
+|                    | Low+       | Generate `IfBlock` nodes in block content.                 | Default for level |
+| `IncludeBlock`     | Min+       | Do not generate `IncludeBlock` nodes in block content.     | -                 |
+|                    | Low+       | Generate `IncludeBlock` nodes in block content.            | Default for level |
+| `InsertBlock`      | Min+       | Do not generate `InsertBlock` nodes in block content.      | -                 |
+| `InstructionBlock` | Min+       | Do not generate `InstructionBlock` nodes in block content. | -                 |
+| `ModifyBlock`      | Min+       | Do not generate `ModifyBlock` nodes in block content.      | -                 |
+| `ReplaceBlock`     | Min+       | Do not generate `ReplaceBlock` nodes in block content.     | -                 |
+| `Section`          | Min+       | Do not generate `Section` nodes in block content.          | -                 |
+|                    | Low+       | Generate `Section` nodes in block content.                 | Default for level |
 
 ## Source
 
