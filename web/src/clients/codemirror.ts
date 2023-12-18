@@ -47,9 +47,9 @@ export class CodeMirrorClient extends FormatClient {
   private ignoreUpdates = false
 
   /**
-   * A cache of `FormatOperation`s used to debounce sending patches to the server
+   * A buffer of `FormatOperation`s used to debounce sending patches to the server
    */
-  private cachedOperations: FormatOperation[] = []
+  private bufferedOperations: FormatOperation[] = []
 
   /**
    * Construct a new `CodeMirrorClient`
@@ -60,6 +60,35 @@ export class CodeMirrorClient extends FormatClient {
    */
   constructor(id: DocumentId, access: DocumentAccess, format: string) {
     super(id, access, format)
+  }
+
+  /**
+   * Send any buffered operations and increment the version number
+   */
+  private sendBufferedOperations() {
+    // If the last operation is only inserting whitespace, do not send.
+    //
+    // TODO: This needs to be more refined: it needs to allow for spaces to be
+    // inserted in paragraphs and sent immediately, but not spaces at end of
+    // paragraphs.
+    // https://github.com/stencila/stencila/issues/1788
+    const op = this.bufferedOperations[this.bufferedOperations.length - 1]
+    if (op.insert && op.insert.trim().length === 0) {
+      return
+    }
+
+    // TODO: Coalesce operations as much as possible to reduce the number sent
+    // https://github.com/stencila/stencila/issues/1787
+
+    // Send the patch
+    this.sendMessage({
+      version: this.version,
+      ops: this.bufferedOperations,
+    })
+
+    // Increment version and clear cache of ops
+    this.version += 1
+    this.bufferedOperations = []
   }
 
   /**
@@ -78,37 +107,41 @@ export class CodeMirrorClient extends FormatClient {
         const insert = inserted.toJSON().join('\n')
         const op: FormatOperation = { from, to }
         if (insert) op.insert = insert
-        this.cachedOperations.push(op)
+        this.bufferedOperations.push(op)
       })
 
       clearTimeout(timer)
 
-      timer = setTimeout(() => {
-        // If the last operation is only inserting whitespace, do not send.
-        //
-        // TODO: This needs to be more refined: it needs to allow for spaces to be
-        // inserted in paragraphs and sent immediately, but not spaces at end of
-        // paragraphs.
-        // https://github.com/stencila/stencila/issues/1788
-        const op = this.cachedOperations[this.cachedOperations.length - 1]
-        if (op.insert && op.insert.trim().length === 0) {
-          return
-        }
-
-        // TODO: Coalesce operations as much as possible to reduce the number sent
-        // https://github.com/stencila/stencila/issues/1787
-
-        // Send the patch
-        this.sendMessage({
-          version: this.version,
-          ops: this.cachedOperations,
-        })
-
-        // Increment version and clear cache of ops
-        this.version += 1
-        this.cachedOperations = []
-      }, SEND_DEBOUNCE)
+      timer = setTimeout(() => this.sendBufferedOperations(), SEND_DEBOUNCE)
     })
+  }
+
+  /**
+   * Send a special operation to the server
+   * 
+   * The `from` and `to` character positions are resolved into document node(s)
+   * on the server and the operation is applied there.
+   * 
+   * @param type The type of the operation
+   * @param from The character position of the cursor or the start of the selection (if any)
+   * @param to   The character position of the end of the selection (if any)
+   */
+  public sendSpecial(type: 'execute', from: number, to?: number) {
+    // Ensure any buffered operations are sent first
+    this.sendBufferedOperations()
+
+    // Send the special operation itself
+    const patch = {
+      version: this.version,
+      ops: [
+        {
+          type,
+          from,
+          to,
+        },
+      ],
+    }
+    this.sendMessage(patch)
   }
 
   /**
