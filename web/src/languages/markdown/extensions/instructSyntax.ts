@@ -6,9 +6,14 @@ import {
   MarkdownConfig,
   LeafBlock,
   Element,
+  InlineParser,
+  InlineContext,
 } from '@lezer/markdown'
 
 import { getLeafEnd } from '../utilty'
+
+// import { markdownLanguage } from '@codemirror/lang-markdown'
+// import { Parser } from '@lezer'
 
 const MARK_LENGTH = 2
 
@@ -43,16 +48,20 @@ const instructMark = { name: 'InstructMark', style: customTags.instructionMark }
 const instructText = {
   name: 'InstructText',
   style: customTags.instructionText,
+  class: 'el',
 }
 
 const createMarkerEl = (
-  cx: BlockContext,
+  cx: BlockContext | InlineContext,
   start: number,
   length: number
 ): Element => cx.elt(instructMark.name, start, start + length)
 
-const createTextEl = (cx: BlockContext, start: number, end: number): Element =>
-  cx.elt(instructText.name, start, end)
+const createInstructTextEl = (
+  cx: BlockContext | InlineContext,
+  start: number,
+  end: number
+): Element => cx.elt(instructText.name, start, end)
 
 /**
  * Utility fucntion to create the elements for the
@@ -60,7 +69,7 @@ const createTextEl = (cx: BlockContext, start: number, end: number): Element =>
  */
 const parseIntructBlock = (cx: BlockContext, leaf: LeafBlock): void => {
   const marker = createMarkerEl(cx, leaf.start, MARK_LENGTH)
-  const instruction = createTextEl(cx, marker.to + 1, getLeafEnd(leaf))
+  const instruction = createInstructTextEl(cx, marker.to + 1, getLeafEnd(leaf))
   cx.addLeafElement(
     leaf,
     cx.elt(instructBlockInsert.name, leaf.start, getLeafEnd(leaf), [
@@ -75,7 +84,7 @@ const parseIntructBlock = (cx: BlockContext, leaf: LeafBlock): void => {
  * which inserts content.
  * eg: `@@ 4x10 table`
  */
-class InsertBlockParser implements LeafBlockParser {
+class InsertInstructBlockParser implements LeafBlockParser {
   nextLine = () => false
   finish = (cx: BlockContext, leaf: LeafBlock): boolean => {
     try {
@@ -92,7 +101,7 @@ class InsertBlockParser implements LeafBlockParser {
  * which edits content within the `%%` delimiters.
  * eg: `%% write this paragraph in the style of Charles Dickens`
  */
-class EditBlockParser implements LeafBlockParser {
+class EditInstructBlockParser implements LeafBlockParser {
   nextLine = () => false
   finish = (cx: BlockContext, leaf: LeafBlock): boolean => {
     try {
@@ -105,11 +114,11 @@ class EditBlockParser implements LeafBlockParser {
 }
 
 /**
- * `LeafBlockParser` for
+ * `LeafBlockParser` for the closing an instruct block
  * which edits content within the `%%` delimiters.
- * eg: `@@ 4x10 table`
+ * eg: `%%`
  */
-class CloseEditParser implements LeafBlockParser {
+class CloseEditInstructParser implements LeafBlockParser {
   nextLine = () => false
   finish = (cx: BlockContext, leaf: LeafBlock): boolean => {
     const marker = createMarkerEl(cx, leaf.start, MARK_LENGTH)
@@ -120,8 +129,67 @@ class CloseEditParser implements LeafBlockParser {
         marker,
       ])
     )
-
     return true
+  }
+}
+
+const INLINE_MARK_1 = '{@@'
+const INLINE_MARK_2 = '@@}'
+const INLINE_MARK_3 = '{%%'
+const INLINE_MARK_4 = '%>'
+const INLINE_MARK_5 = '%%}'
+
+/**
+ *  `InlineParser` for parsing an inline insert instruction
+ *  eg `{@@ create a sentence about frogs @@}`
+ */
+class InsertInstructInlineParser implements InlineParser {
+  name = instructInlineInsert.name
+  parse(cx: InlineContext, next: number, pos: number): number {
+    const elements = []
+    if (cx.slice(pos, pos + INLINE_MARK_1.length) === INLINE_MARK_1) {
+      // create opening mark
+      const openMark = createMarkerEl(cx, pos, INLINE_MARK_1.length)
+      elements.push(openMark)
+
+      const closeMarkIndex = cx
+        .slice(pos + INLINE_MARK_1.length, pos + cx.text.length)
+        .search(INLINE_MARK_2)
+
+      let textEnd: number
+      let endMark: Element | undefined
+
+      // check for closing delim
+      // use existance of closing delim to determine end of text element
+      if (closeMarkIndex !== -1) {
+        endMark = createMarkerEl(
+          cx,
+          openMark.to + closeMarkIndex,
+          INLINE_MARK_2.length
+        )
+        textEnd = endMark.from
+      } else {
+        textEnd = pos + cx.text.length
+      }
+
+      // add instruct text
+      elements.push(createInstructTextEl(cx, openMark.to, textEnd))
+
+      // add the end mark element if it exists
+      if (endMark) {
+        elements.push(endMark)
+      }
+
+      return cx.addElement(
+        cx.elt(
+          instructInlineInsert.name,
+          pos,
+          pos + closeMarkIndex + INLINE_MARK_2.length,
+          elements
+        )
+      )
+    }
+    return -1
   }
 }
 
@@ -139,22 +207,27 @@ const StencilaInstructSyntax: MarkdownConfig = {
     {
       name: instructBlockInsert.name,
       leaf: (_, leaf) =>
-        insertBlockMarker.test(leaf.content) ? new InsertBlockParser() : null,
+        insertBlockMarker.test(leaf.content)
+          ? new InsertInstructBlockParser()
+          : null,
       endLeaf: (_, line) => !insertBlockMarker.test(line.text),
     },
     {
       name: instructBlockEdit.name,
       leaf: (_, leaf) =>
-        editBlockStart.test(leaf.content) ? new EditBlockParser() : null,
+        editBlockStart.test(leaf.content)
+          ? new EditInstructBlockParser()
+          : null,
       endLeaf: (_, line) => !editBlockStart.test(line.text),
     },
     {
       name: instructBlockEditClose.name,
       leaf: (_, leaf) =>
-        editBlockEnd.test(leaf.content) ? new CloseEditParser() : null,
+        editBlockEnd.test(leaf.content) ? new CloseEditInstructParser() : null,
       endLeaf: (_, line) => !editBlockEnd.test(line.text),
     },
   ],
+  parseInline: [new InsertInstructInlineParser()],
 }
 
 const INSTRUCT_SYNTAX_BG = 'rgba(0,255,0,0.1)'
