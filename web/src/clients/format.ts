@@ -121,25 +121,22 @@ export abstract class FormatClient extends Client {
     for (const op of ops) {
       const { type, from, to, insert } = op
 
-      if (type === 'reset' && to === 0 && from == 0 && insert !== undefined) {
+      if (type === 'reset' && insert !== undefined) {
         this.state = insert
         updated = true
       } else if (
         type === 'insert' &&
-        to === undefined &&
+        from !== undefined &&
         insert !== undefined
       ) {
         this.state = this.state.slice(0, from) + insert + this.state.slice(from)
         updated = true
-      } else if (
-        type === 'delete' &&
-        to !== undefined &&
-        insert === undefined
-      ) {
+      } else if (type === 'delete' && from !== undefined && to !== undefined) {
         this.state = this.state.slice(0, from) + this.state.slice(to)
         updated = true
       } else if (
         type === 'replace' &&
+        from !== undefined &&
         to !== undefined &&
         insert !== undefined
       ) {
