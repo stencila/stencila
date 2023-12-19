@@ -1,4 +1,4 @@
-from typing import Union, Iterable
+from typing import Union, Iterable, Optional
 
 from beartype import beartype
 
@@ -13,8 +13,10 @@ try:
     from typing import TypeAlias
 
     ConvertibleToInline: TypeAlias = Union[str, Inline, Iterable[Union[Inline, str]]]
+    ConvertibleToBlocks: TypeAlias = Union[str, Block, Iterable[Union[Block, str]]]
 except ImportError:
     ConvertibleToInline = Union[str, Inline, Iterable[Union[Inline, str]]]
+    ConvertibleToBlocks = Union[str, Block, Iterable[Union[Block, str]]]
 
 
 def flatten(args):
@@ -31,8 +33,39 @@ def convert_to_inlines(args: ConvertibleToInline):
     return [Text(value=arg) if isinstance(arg, str) else arg for arg in flatten(args)]
 
 
-# TODO: Copy the types from short.rs, in the same order.
-# Here is a start.
+@beartype
+def convert_to_blocks(args: ConvertibleToBlocks):
+    return [
+        Paragraph(content=[Text(arg)]) if isinstance(arg, str) else arg
+        for arg in flatten(args)
+    ]
+
+
+# TODO: Finish coping the types from short.rs, in the same order.
+@beartype
+def aud(url: str) -> AudioObject:
+    return AudioObject(content_url=url)
+
+
+# Force keywords, otherwise it is ambiguous
+@beartype
+def btn(*, name: str, code: str) -> Button:
+    return Button(name=name, code=code)
+
+
+@beartype
+def ct(target: str):
+    return Cite(target=target, citation_mode=CitationMode.Parenthetical)
+
+
+@beartype
+def ctg(targets: Iterable[str]):
+    return CiteGroup(items=[ct(t) for t in targets])
+
+
+@beartype
+def ce(code: str, *, lang: Optional[str] = None) -> CodeExpression:
+    return CodeExpression(code=code, programming_language=lang)
 
 
 @beartype
@@ -41,6 +74,11 @@ def em(content: Union[str, Text]) -> Emphasis:
     if isinstance(content, str):
         content = Text(value=content)
     return Emphasis(content=[content])
+
+
+@beartype
+def h(level: int, content: ConvertibleToInline):
+    return Heading(level=level, content=convert_to_inlines(content))
 
 
 @beartype
@@ -56,3 +94,13 @@ def p(*args: ConvertibleToInline) -> Paragraph:
 @beartype
 def qi(content: ConvertibleToInline) -> QuoteInline:
     return QuoteInline(convert_to_inlines(content))
+
+
+@beartype
+def sec(*args: ConvertibleToBlocks) -> Section:
+    return Section(content=convert_to_blocks(args))
+
+
+@beartype
+def fig(*args: ConvertibleToBlocks) -> Figure:
+    return Figure(content=convert_to_blocks(args))
