@@ -1,4 +1,6 @@
+import { markdownLanguage } from '@codemirror/lang-markdown'
 import { TagStyle } from '@codemirror/language'
+import { parseMixed } from '@lezer/common'
 import { Tag } from '@lezer/highlight'
 import {
   BlockContext,
@@ -8,27 +10,25 @@ import {
   Element,
   InlineParser,
   InlineContext,
+  BlockParser,
+  Line,
 } from '@lezer/markdown'
 
 import { getLeafEnd } from '../utilty'
 
-// import { markdownLanguage } from '@codemirror/lang-markdown'
-// import { Parser } from '@lezer'
-
-const MARK_LENGTH = 2
-
 const insertBlockMarker = /^@@\s/
 const editBlockStart = /^%%\s/
 const editBlockEnd = /^%%$/
-// const insertInline = /{@@([\S\s]*?)@@}/
-// const editInline = /{%%{([\S\s]*?)%>([\S\s]*?)}%%}/
+const insertBlockDelim = /^\+\+$/
 
 const customTags = {
   instructionBase: Tag.define(),
   instructionMark: Tag.define(),
   instructionText: Tag.define(),
+  insertMark: Tag.define(),
 }
 
+// Instruct `NodeSpecs`
 const instructBlockInsert = {
   name: 'InstructBlockInsert',
   style: customTags.instructionBase,
@@ -44,6 +44,16 @@ const instructBlockEditClose = {
 const instructInlineInsert = { name: 'InstructInsertInline' }
 const instructInlineEdit = { name: 'InstructEditInline' }
 
+// Insert `NodeSpecs`
+const insertBlock = {
+  name: 'InsertBlock',
+  block: true,
+  style: customTags.instructionBase,
+}
+// const insertInline = { name: 'InsertInline' }
+
+// Marker / Text `NodeSpecs`
+const insertMark = { name: 'InsertMark', style: customTags.insertMark }
 const instructMark = { name: 'InstructMark', style: customTags.instructionMark }
 const instructText = {
   name: 'InstructText',
@@ -62,6 +72,8 @@ const createInstructTextEl = (
   start: number,
   end: number
 ): Element => cx.elt(instructText.name, start, end)
+
+const MARK_LENGTH = 2
 
 /**
  * Utility fucntion to create the elements for the
@@ -135,9 +147,9 @@ class CloseEditInstructParser implements LeafBlockParser {
 
 const INLINE_MARK_1 = '{@@'
 const INLINE_MARK_2 = '@@}'
-const INLINE_MARK_3 = '{%%'
-const INLINE_MARK_4 = '%>'
-const INLINE_MARK_5 = '%%}'
+// const INLINE_MARK_3 = '{%%'
+// const INLINE_MARK_4 = '%>'
+// const INLINE_MARK_5 = '%%}'
 
 /**
  *  `InlineParser` for parsing an inline insert instruction
@@ -193,6 +205,44 @@ class InsertInstructInlineParser implements InlineParser {
   }
 }
 
+// class EditInstructInlineParser implements InlineParser {
+
+// }
+
+// class CloseEditInlineParser implements InlineParser {
+
+// }
+
+class InsertBlockParser implements BlockParser {
+  name = insertBlock.name
+  parse(cx: BlockContext, line: Line): boolean {
+    if (!insertBlockDelim.test(line.text)) {
+      return false
+    }
+    const start = cx.lineStart
+    const elements = [
+      cx.elt(insertMark.name, cx.lineStart, cx.lineStart + MARK_LENGTH),
+    ]
+    // cx.addElement(cx.elt(insertMark.name, cx.lineStart, cx.lineStart + 2))
+    while (cx.nextLine()) {
+      if (insertBlockDelim.test(line.text)) {
+        elements.push(
+          cx.elt(insertMark.name, cx.lineStart, cx.lineStart + MARK_LENGTH)
+        )
+        cx.addElement(
+          cx.elt(insertBlock.name, start, cx.lineStart + 2, elements)
+        )
+        break
+      }
+    }
+    return true
+  }
+}
+
+// class InsertInline implements InlineParser {
+
+// }
+
 const StencilaInstructSyntax: MarkdownConfig = {
   defineNodes: [
     instructBlockInsert,
@@ -202,6 +252,8 @@ const StencilaInstructSyntax: MarkdownConfig = {
     instructInlineEdit,
     instructMark,
     instructText,
+    insertBlock,
+    insertMark,
   ],
   parseBlock: [
     {
@@ -226,8 +278,24 @@ const StencilaInstructSyntax: MarkdownConfig = {
         editBlockEnd.test(leaf.content) ? new CloseEditInstructParser() : null,
       endLeaf: (_, line) => !editBlockEnd.test(line.text),
     },
+    new InsertBlockParser(),
   ],
   parseInline: [new InsertInstructInlineParser()],
+  // parse the content of insert tags as plain markdown
+  wrap: parseMixed((node) => {
+    if (node.type)
+      if (node.type.name === insertBlock.name) {
+        const parseStart = node.from + MARK_LENGTH
+        const parseEnd = node.to - MARK_LENGTH
+        if (parseStart >= parseEnd) {
+          return null
+        }
+        return {
+          parser: markdownLanguage.parser,
+          overlay: [{ from: parseStart, to: parseEnd }],
+        }
+      }
+  }),
 }
 
 const INSTRUCT_SYNTAX_BG = 'rgba(0,255,0,0.1)'
@@ -247,6 +315,10 @@ const highlightStyles: TagStyle[] = [
     tag: customTags.instructionText,
     color: '#140D5A',
     backgroundColor: INSTRUCT_SYNTAX_BG,
+  },
+  {
+    tag: customTags.insertMark,
+    color: 'red',
   },
 ]
 
