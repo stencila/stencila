@@ -50,10 +50,17 @@ const insertBlock = {
   block: true,
   style: customTags.instructionBase,
 }
-// const insertInline = { name: 'InsertInline' }
+const insertInline = { name: 'InsertInline' }
 
 // Marker / Text `NodeSpecs`
-const insertMark = { name: 'InsertMark', style: customTags.insertMark }
+const insertBlockMark = {
+  name: 'InsertBlockMark',
+  style: customTags.insertMark,
+}
+const insertInlineMark = {
+  name: 'InsertInlineMark',
+  style: customTags.insertMark,
+}
 const instructMark = { name: 'InstructMark', style: customTags.instructionMark }
 const instructText = {
   name: 'InstructText',
@@ -73,14 +80,14 @@ const createInstructTextEl = (
   end: number
 ): Element => cx.elt(instructText.name, start, end)
 
-const MARK_LENGTH = 2
+const BLOCK_MARK_LENGTH = 2
 
 /**
  * Utility fucntion to create the elements for the
  * Instruct block syntax
  */
 const parseIntructBlock = (cx: BlockContext, leaf: LeafBlock): void => {
-  const marker = createMarkerEl(cx, leaf.start, MARK_LENGTH)
+  const marker = createMarkerEl(cx, leaf.start, BLOCK_MARK_LENGTH)
   const instruction = createInstructTextEl(cx, marker.to + 1, getLeafEnd(leaf))
   cx.addLeafElement(
     leaf,
@@ -133,7 +140,7 @@ class EditInstructBlockParser implements LeafBlockParser {
 class CloseEditInstructParser implements LeafBlockParser {
   nextLine = () => false
   finish = (cx: BlockContext, leaf: LeafBlock): boolean => {
-    const marker = createMarkerEl(cx, leaf.start, MARK_LENGTH)
+    const marker = createMarkerEl(cx, leaf.start, BLOCK_MARK_LENGTH)
 
     cx.addLeafElement(
       leaf,
@@ -157,7 +164,7 @@ const INLINE_MARK_2 = '@@}'
  */
 class InsertInstructInlineParser implements InlineParser {
   name = instructInlineInsert.name
-  parse(cx: InlineContext, next: number, pos: number): number {
+  parse(cx: InlineContext, _next: number, pos: number): number {
     const elements = []
     if (cx.slice(pos, pos + INLINE_MARK_1.length) === INLINE_MARK_1) {
       // create opening mark
@@ -221,13 +228,21 @@ class InsertBlockParser implements BlockParser {
     }
     const start = cx.lineStart
     const elements = [
-      cx.elt(insertMark.name, cx.lineStart, cx.lineStart + MARK_LENGTH),
+      cx.elt(
+        insertBlockMark.name,
+        cx.lineStart,
+        cx.lineStart + BLOCK_MARK_LENGTH
+      ),
     ]
     // cx.addElement(cx.elt(insertMark.name, cx.lineStart, cx.lineStart + 2))
     while (cx.nextLine()) {
       if (insertBlockDelim.test(line.text)) {
         elements.push(
-          cx.elt(insertMark.name, cx.lineStart, cx.lineStart + MARK_LENGTH)
+          cx.elt(
+            insertBlockMark.name,
+            cx.lineStart,
+            cx.lineStart + BLOCK_MARK_LENGTH
+          )
         )
         cx.addElement(
           cx.elt(insertBlock.name, start, cx.lineStart + 2, elements)
@@ -239,10 +254,47 @@ class InsertBlockParser implements BlockParser {
   }
 }
 
-// class InsertInline implements InlineParser {
+const INSERT_INLINE_OPEN = '{++'
+const INSERT_INLINE_CLOSE = '++}'
 
-// }
+const delimiter = { resolve: insertInline.name, mark: insertInlineMark.name }
 
+class InsertInlineParser implements InlineParser {
+  name = insertInline.name
+  parse = (cx: InlineContext, _next: number, pos: number): number => {
+    // add open or close delim
+    if (cx.slice(pos, pos + INSERT_INLINE_OPEN.length) === INSERT_INLINE_OPEN) {
+      return cx.addDelimiter(
+        delimiter,
+        pos,
+        pos + INSERT_INLINE_OPEN.length,
+        true,
+        false
+      )
+    } else if (
+      cx.slice(pos, pos + INSERT_INLINE_CLOSE.length) === INSERT_INLINE_CLOSE
+    ) {
+      return cx.addDelimiter(
+        delimiter,
+        pos,
+        pos + INSERT_INLINE_CLOSE.length,
+        false,
+        true
+      )
+    }
+    return -1
+  }
+}
+
+/**
+ * `MarkDownConfig` for applying syntax highlights to:
+ *  - instruct blocks - as leaf nodes
+ *  - instruct inline
+ *  - insert blocks - as a block node
+ *  - insert inline - as an inline node
+ *
+ * This is added as a codemirror `Extension` for the markdown language
+ */
 const StencilaInstructSyntax: MarkdownConfig = {
   defineNodes: [
     instructBlockInsert,
@@ -253,7 +305,9 @@ const StencilaInstructSyntax: MarkdownConfig = {
     instructMark,
     instructText,
     insertBlock,
-    insertMark,
+    insertBlockMark,
+    insertInline,
+    insertInlineMark,
   ],
   parseBlock: [
     {
@@ -280,21 +334,29 @@ const StencilaInstructSyntax: MarkdownConfig = {
     },
     new InsertBlockParser(),
   ],
-  parseInline: [new InsertInstructInlineParser()],
+  parseInline: [new InsertInstructInlineParser(), new InsertInlineParser()],
   // parse the content of insert tags as plain markdown
   wrap: parseMixed((node) => {
     if (node.type)
       if (node.type.name === insertBlock.name) {
-        const parseStart = node.from + MARK_LENGTH
-        const parseEnd = node.to - MARK_LENGTH
-        if (parseStart >= parseEnd) {
+        const from = node.from + BLOCK_MARK_LENGTH
+        const to = node.to - BLOCK_MARK_LENGTH
+        if (from >= to) {
           return null
         }
         return {
           parser: markdownLanguage.parser,
-          overlay: [{ from: parseStart, to: parseEnd }],
+          overlay: [{ from, to }],
         }
       }
+    if (node.type.name === insertInline.name) {
+      const from = node.from + INSERT_INLINE_OPEN.length
+      const to = node.to - INSERT_INLINE_CLOSE.length
+      return {
+        parser: markdownLanguage.parser,
+        overlay: [{ from, to }],
+      }
+    }
   }),
 }
 
