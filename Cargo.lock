@@ -4121,6 +4121,7 @@ version = "0.0.0"
 dependencies = [
  "codecs",
  "common",
+ "lazy_static",
  "schema",
  "schemars",
  "status",

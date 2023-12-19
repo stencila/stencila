@@ -1,6 +1,7 @@
 //! Generation of Python types from Stencila Schema
 
 use std::{
+    collections::HashMap,
     collections::HashSet,
     fs::read_dir,
     path::{Path, PathBuf},
@@ -14,6 +15,8 @@ use common::{
     itertools::Itertools,
     tokio::fs::{create_dir_all, remove_file, write},
 };
+use lazy_static::lazy_static;
+use schema::Boolean;
 
 use crate::{
     schema::{Items, Schema, Type, Value},
@@ -29,12 +32,20 @@ const GENERATED_COMMENT: &str = "# Generated file; do not edit. See the Rust `sc
 /// an alias for a native Python type) and so should not be removed
 /// during cleanup.
 const HANDWRITTEN_MODULES: &[&str] = &[
-    "array.py",
-    "cord.py",
-    "object.py",
+    "_array.py",
+    "_cord.py",
+    "_object.py",
+    "_unsigned_integer.py",
     "prelude.py",
-    "unsigned_integer.py",
 ];
+
+lazy_static! {
+    static ref PYTHON_RENAMES: HashMap<&'static str, &'static str> = {
+        let mut m = HashMap::new();
+        m.insert("List", "List_");
+        m
+    };
+}
 
 /// Native Python or Pydantic types which do not need to be imported
 const NATIVE_TYPES: &[&str] = &["None", "bool", "int", "float", "str"];
@@ -101,7 +112,7 @@ impl Schemas {
 
         // Create an __init__.py which export types from all modules (including those
         // that are not generated)
-        let exports = read_dir(&types)
+        let exportable = read_dir(&types)
             .wrap_err(format!("unable to read directory `{}`", types.display()))?
             .flatten()
             .filter(|entry| entry.path().is_file())
@@ -116,26 +127,53 @@ impl Schemas {
                     .to_string()
             })
             .filter(|module| module != "prelude")
-            .sorted()
+            .sorted();
+
+        let exports = exportable
+            .clone()
             .map(|module| {
                 format!(
                     "from .{module} import {name}",
-                    name = module.to_pascal_case()
+                    name = Self::module_to_name(&module, true)
                 )
             })
             .join("\n");
+
+        let all = exportable
+            .clone()
+            .map(|module| format!("    '{name}',", name = Self::module_to_name(&module, false)))
+            .join("\n");
+
         write(
             types.join("__init__.py"),
             format!(
                 r"{GENERATED_COMMENT}
 
 {exports}
+
+__all__ = [
+{all}
+]
 "
             ),
         )
         .await?;
 
         Ok(())
+    }
+
+    fn module_to_name(module: &String, as_import: Boolean) -> String {
+        let mut name = module.to_pascal_case();
+        if PYTHON_RENAMES.contains_key(&name.as_str()) {
+            let new_name = PYTHON_RENAMES.get(&name.as_str()).unwrap().to_string();
+            if as_import {
+                name.push_str(" as ");
+                name.push_str(new_name.as_str());
+            } else {
+                name = new_name;
+            }
+        }
+        name
     }
 
     /// Generate a Python module for a schema
@@ -229,7 +267,7 @@ impl Schemas {
     ///
     /// Returns the name of the generated `class`.
     async fn python_object(&self, dest: &Path, title: &String, schema: &Schema) -> Result<String> {
-        let path = dest.join(format!("{}.py", module_name(title)));
+        let path = dest.join(format!("_{}.py", module_name(title)));
         if path.exists() {
             return Ok(title.to_string());
         }
@@ -320,7 +358,7 @@ impl Schemas {
                     format!(r#"{used_type} = ForwardRef("{used_type}")"#,)
                 } else {
                     format!(
-                        "from .{module} import {used_type}",
+                        "from ._{module} import {used_type}",
                         module = used_type.to_snake_case()
                     )
                 }
@@ -418,7 +456,7 @@ class {title}({base}):
                 .join("Or")
         });
 
-        let path = dest.join(format!("{}.py", name.to_snake_case()));
+        let path = dest.join(format!("_{}.py", name.to_snake_case()));
         if path.exists() {
             return Ok(name);
         }
