@@ -56,11 +56,13 @@ name = "stencila"
 version = "2.0.0-alpha.23"
 description = "Python SDK for Stencila"
 authors = ["Stencila and Contributors <hello@stencila.io>"]
+packages = [{include = "stencila", from="python"}]
 
 [tool.poetry.dependencies]
 python = "^3.8"
 dataclasses-json = "0.6.3"
 StrEnum = { version = "0.4.15", python = "<3.11" }
+beartype = "^0.16.4"
 
 [tool.poetry.group.dev.dependencies]
 black = "24.1.1"

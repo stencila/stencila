@@ -2,7 +2,7 @@ all: fix audit test build
 
 # Install dependencies
 poetry.lock: pyproject.toml
-	poetry install
+	poetry install --sync
 	touch poetry.lock
 
 # Install alias for consistency
