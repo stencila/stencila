@@ -10,8 +10,7 @@ jats:
   elem: inline-graphic
   special: true
 markdown:
-  template: '![{caption}]({content_url} \"{title}\")'
-  special: true
+  derive: false
 core:
   - caption
   - title

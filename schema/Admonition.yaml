@@ -8,7 +8,7 @@ html:
 jats:
   elem: boxed-text
 markdown:
-  special: true
+  derive: false
 proptest: {}
 required:
   - admonitionType

@@ -17,7 +17,7 @@
     "elem": "list-item"
   },
   "markdown": {
-    "special": true
+    "derive": false
   },
   "required": [
     "type",

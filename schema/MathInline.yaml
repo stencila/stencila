@@ -9,5 +9,5 @@ jats:
   elem: inline-formula
   special: true
 markdown:
-  special: true
+  derive: false
 proptest: {}

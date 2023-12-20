@@ -7,5 +7,5 @@ jats:
   special: true
 markdown:
   # Consistent with the CriticMarkup for inline "Additions" (see `InsertInline)
-  template: '++\n\n{content}++\n\n'
+  template: '++\n\n{{content}}++\n\n'
 proptest: {}

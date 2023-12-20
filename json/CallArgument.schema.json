@@ -11,6 +11,9 @@
   "$comment": "A `CallArgument` extends `Parameter` by also has some of the same properties as `CodeExecutable` allowing\nan expression to be used to set the value of the parameter.\n",
   "status": "under-development",
   "proptest": {},
+  "markdown": {
+    "derive": false
+  },
   "required": [
     "type",
     "name",

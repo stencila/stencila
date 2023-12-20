@@ -10,8 +10,7 @@ $comment: |
 jats:
   elem: statement
 markdown:
-  template: '::: {claim_type} {label}\n\n{content}\n\n:::\n\n'
-  special: true
+  derive: false
 proptest: {}
 required:
   - claimType

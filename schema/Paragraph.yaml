@@ -15,7 +15,7 @@ html:
 jats:
   elem: p
 markdown:
-  template: '{content}\n\n'
+  template: '{{content}}\n\n'
 proptest: {}
 required:
   - content

@@ -10,7 +10,7 @@
   "description": "A suggestion to modify some block content.",
   "proptest": {},
   "markdown": {
-    "special": true
+    "derive": false
   },
   "required": [
     "type",

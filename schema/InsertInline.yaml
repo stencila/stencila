@@ -7,5 +7,5 @@ html:
   elem: ins
 markdown:
   # CriticMarkup for "Additions"
-  template: '{{++{content}++}}'
+  template: '{++{{content}}++}'
 proptest: {}

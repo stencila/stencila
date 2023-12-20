@@ -6,7 +6,7 @@ description: A table.
 html:
   special: true
 markdown:
-  special: true
+  derive: false
 proptest: {}
 required:
   - rows

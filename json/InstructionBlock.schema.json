@@ -10,7 +10,7 @@
   "description": "An instruction to edit some block content.",
   "proptest": {},
   "markdown": {
-    "special": true
+    "derive": false
   },
   "required": [
     "type",

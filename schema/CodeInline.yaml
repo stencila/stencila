@@ -8,5 +8,5 @@ html:
 jats:
   elem: code
 markdown:
-  special: true
+  derive: false
 proptest: {}

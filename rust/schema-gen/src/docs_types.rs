@@ -15,7 +15,9 @@ use common::{
     strum::IntoEnumIterator,
     tokio::fs::{create_dir_all, remove_dir_all, remove_file},
 };
-use schema::{shortcuts::*, Article, Block, Inline, Node, NodeType, NoteType, TableCell};
+use schema::{
+    node_type::NodeType, shortcuts::*, Article, Block, Inline, Node, NoteType, TableCell,
+};
 use status::Status;
 
 use crate::{
@@ -706,8 +708,8 @@ fn source(title: &str) -> Vec<Block> {
             ),
             t(" by "),
             lnk(
-                [ci("docs.rs")],
-                "https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs.rs",
+                [ci("docs_type.rs")],
+                "https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_type.rs",
             ),
             t("."),
         ]),

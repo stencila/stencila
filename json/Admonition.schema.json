@@ -16,7 +16,7 @@
     "elem": "boxed-text"
   },
   "markdown": {
-    "special": true
+    "derive": false
   },
   "required": [
     "type",

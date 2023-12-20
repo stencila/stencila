@@ -9,8 +9,7 @@ jats:
 html:
   elem: span
 markdown:
-  template: '[{content}]{{{code}}}'
-  special: true
+  derive: false
 proptest: {}
 required:
   - content

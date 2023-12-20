@@ -12,7 +12,7 @@ jats:
 html:
   elem: q
 markdown:
-  template: '<q>{content}</q>'
+  template: '<q>{{content}}</q>'
 proptest: {}
 core:
   - cite

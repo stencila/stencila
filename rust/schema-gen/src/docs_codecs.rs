@@ -10,7 +10,7 @@ use codecs::{CodecSupport, EncodeOptions, Format};
 use common::{
     eyre::Result, glob::glob, inflector::Inflector, itertools::Itertools, strum::IntoEnumIterator,
 };
-use schema::{shortcuts::*, Article, Inline, Node, NodeType, TableCell};
+use schema::{node_type::NodeType, shortcuts::*, Article, Inline, Node, TableCell};
 
 use crate::{
     schema::{Category, HtmlOptions, JatsOptions, MarkdownOptions, Schema},
@@ -216,12 +216,12 @@ impl Schemas {
         } else if let (
             Format::Markdown,
             Some(MarkdownOptions {
-                special, template, ..
+                derive, template, ..
             }),
         ) = (template, &schema.markdown)
         {
-            if *special {
-                vec![t("Encoded using special function")]
+            if !derive {
+                vec![t("Encoded using implemented function")]
             } else if let Some(template) = template {
                 vec![t("Encoded as "), ci(template)]
             } else {
