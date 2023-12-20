@@ -6,7 +6,7 @@
 
 Custom prompts are an effective way to improve the performance of large language models and other generative AI on specific tasks in specific contexts. This module contains custom prompts which are, or can be, used by Stencila when creating tasks for AI agents.
 
-There are three types of agents in this module:
+There are two types of agents in this module:
 
 - [`builtin`](builtin): agents that are embedded into the `stencila` CLI binary to be used by builtin agents
 
