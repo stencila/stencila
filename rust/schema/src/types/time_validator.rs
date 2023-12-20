@@ -8,7 +8,7 @@ use super::time::Time;
 /// A validator specifying the constraints on a time.
 #[skip_serializing_none]
 #[serde_as]
-#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, WalkNode, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec, WriteNode, ReadNode)]
+#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, WalkNode, WriteNode, ReadNode, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 #[derive(derive_more::Display)]
 #[display(fmt = "TimeValidator")]
@@ -27,10 +27,10 @@ pub struct TimeValidator {
     /// The inclusive upper limit for a time.
     pub maximum: Option<Time>,
 
-    /// A unique identifier for this node
+    /// A universally unique identifier for this node
     
     #[serde(skip)]
-    pub node_id: NodeId
+    pub uuid: NodeUuid
 }
 
 impl TimeValidator {
@@ -42,11 +42,13 @@ impl TimeValidator {
 }
 
 impl Entity for TimeValidator {
-    fn node_type() -> NodeType {
+    const NICK: &'static str = "tim";
+
+    fn node_type(&self) -> NodeType {
         NodeType::TimeValidator
     }
 
-    fn node_id(&self) -> &NodeId {
-        &self.node_id
+    fn node_id(&self) -> NodeId {
+        NodeId::new(Self::NICK, &self.uuid)
     }
 }

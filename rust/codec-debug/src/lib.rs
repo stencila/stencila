@@ -1,9 +1,10 @@
 use codec::{
     common::{async_trait::async_trait, eyre::Result},
     format::Format,
-    schema::{Node, NodeType},
+    node_type::NodeType,
+    schema::Node,
     status::Status,
-    Codec, CodecSupport, EncodeOptions, Losses,
+    Codec, CodecSupport, EncodeOptions, Losses, Mapping,
 };
 
 /// A codec for the Rust debug format
@@ -46,7 +47,7 @@ impl Codec for DebugCodec {
         &self,
         node: &Node,
         options: Option<EncodeOptions>,
-    ) -> Result<(String, Losses)> {
+    ) -> Result<(String, Losses, Mapping)> {
         let EncodeOptions { compact, .. } = options.unwrap_or_default();
 
         let debug = match compact {
@@ -54,6 +55,6 @@ impl Codec for DebugCodec {
             Some(false) | None => format!("{node:#?}"),
         };
 
-        Ok((debug, Losses::none()))
+        Ok((debug, Losses::none(), Mapping::none()))
     }
 }

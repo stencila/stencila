@@ -1,9 +1,10 @@
 use codec::{
     common::{async_trait::async_trait, eyre::Result},
     format::Format,
-    schema::{Node, NodeType},
+    node_type::NodeType,
+    schema::Node,
     status::Status,
-    Codec, CodecSupport, DecodeOptions, EncodeOptions, Losses,
+    Codec, CodecSupport, DecodeOptions, EncodeOptions, Losses, Mapping,
 };
 
 use codec_json5_trait::Json5Codec as _;
@@ -56,7 +57,7 @@ impl Codec for Json5Codec {
         &self,
         node: &Node,
         options: Option<EncodeOptions>,
-    ) -> Result<(String, Losses)> {
+    ) -> Result<(String, Losses, Mapping)> {
         let EncodeOptions { compact, .. } = options.unwrap_or_default();
 
         let json5 = match compact {
@@ -64,6 +65,6 @@ impl Codec for Json5Codec {
             Some(false) | None => node.to_json5_pretty(),
         }?;
 
-        Ok((json5, Losses::none()))
+        Ok((json5, Losses::none(), Mapping::none()))
     }
 }

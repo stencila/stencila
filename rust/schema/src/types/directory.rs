@@ -23,7 +23,7 @@ use super::thing_type::ThingType;
 /// A directory on the file system.
 #[skip_serializing_none]
 #[serde_as]
-#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, WalkNode, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec, WriteNode, ReadNode)]
+#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, WalkNode, WriteNode, ReadNode, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 #[derive(derive_more::Display)]
 #[display(fmt = "Directory")]
@@ -52,18 +52,17 @@ pub struct Directory {
     #[serde(flatten)]
     #[html(flatten)]
     #[jats(flatten)]
-    #[markdown(flatten)]
     pub options: Box<DirectoryOptions>,
 
-    /// A unique identifier for this node
+    /// A universally unique identifier for this node
     
     #[serde(skip)]
-    pub node_id: NodeId
+    pub uuid: NodeUuid
 }
 
 #[skip_serializing_none]
 #[serde_as]
-#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, WalkNode, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec, WriteNode, ReadNode)]
+#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, WalkNode, WriteNode, ReadNode, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 pub struct DirectoryOptions {
     /// Alternate names (aliases) for the item.
@@ -234,11 +233,13 @@ impl Directory {
 }
 
 impl Entity for Directory {
-    fn node_type() -> NodeType {
+    const NICK: &'static str = "dir";
+
+    fn node_type(&self) -> NodeType {
         NodeType::Directory
     }
 
-    fn node_id(&self) -> &NodeId {
-        &self.node_id
+    fn node_id(&self) -> NodeId {
+        NodeId::new(Self::NICK, &self.uuid)
     }
 }

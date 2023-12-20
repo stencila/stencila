@@ -21,7 +21,7 @@ use super::timestamp::Timestamp;
 /// A button.
 #[skip_serializing_none]
 #[serde_as]
-#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, WalkNode, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec, WriteNode, ReadNode)]
+#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, WalkNode, WriteNode, ReadNode, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 #[derive(derive_more::Display)]
 #[display(fmt = "Button")]
@@ -61,18 +61,17 @@ pub struct Button {
     #[serde(flatten)]
     #[html(flatten)]
     #[jats(flatten)]
-    #[markdown(flatten)]
     pub options: Box<ButtonOptions>,
 
-    /// A unique identifier for this node
+    /// A universally unique identifier for this node
     
     #[serde(skip)]
-    pub node_id: NodeId
+    pub uuid: NodeUuid
 }
 
 #[skip_serializing_none]
 #[serde_as]
-#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, WalkNode, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec, WriteNode, ReadNode)]
+#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, WalkNode, WriteNode, ReadNode, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 pub struct ButtonOptions {
     /// A digest of the content, semantics and dependencies of the node.
@@ -161,11 +160,13 @@ impl Button {
 }
 
 impl Entity for Button {
-    fn node_type() -> NodeType {
+    const NICK: &'static str = "but";
+
+    fn node_type(&self) -> NodeType {
         NodeType::Button
     }
 
-    fn node_id(&self) -> &NodeId {
-        &self.node_id
+    fn node_id(&self) -> NodeId {
+        NodeId::new(Self::NICK, &self.uuid)
     }
 }

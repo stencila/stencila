@@ -8,13 +8,13 @@ use super::string::String;
 /// A suggestion to insert some block content.
 #[skip_serializing_none]
 #[serde_as]
-#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, WalkNode, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec, WriteNode, ReadNode)]
+#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, WalkNode, WriteNode, ReadNode, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 #[cfg_attr(feature = "proptest", derive(Arbitrary))]
 #[derive(derive_more::Display)]
 #[display(fmt = "InsertBlock")]
 #[jats(special)]
-#[markdown(template = "++\n\n{content}++\n\n")]
+#[markdown(template = "++\n\n{{content}}++\n\n")]
 pub struct InsertBlock {
     /// The type of this item.
     #[cfg_attr(feature = "proptest", proptest(value = "Default::default()"))]
@@ -35,10 +35,10 @@ pub struct InsertBlock {
     #[cfg_attr(feature = "proptest-max", proptest(strategy = r#"vec_blocks_non_recursive(4)"#))]
     pub content: Vec<Block>,
 
-    /// A unique identifier for this node
+    /// A universally unique identifier for this node
     #[cfg_attr(feature = "proptest", proptest(value = "Default::default()"))]
     #[serde(skip)]
-    pub node_id: NodeId
+    pub uuid: NodeUuid
 }
 
 impl InsertBlock {
@@ -51,11 +51,13 @@ impl InsertBlock {
 }
 
 impl Entity for InsertBlock {
-    fn node_type() -> NodeType {
+    const NICK: &'static str = "ins";
+
+    fn node_type(&self) -> NodeType {
         NodeType::InsertBlock
     }
 
-    fn node_id(&self) -> &NodeId {
-        &self.node_id
+    fn node_id(&self) -> NodeId {
+        NodeId::new(Self::NICK, &self.uuid)
     }
 }

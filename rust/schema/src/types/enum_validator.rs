@@ -8,7 +8,7 @@ use super::string::String;
 /// A schema specifying that a node must be one of several values.
 #[skip_serializing_none]
 #[serde_as]
-#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, WalkNode, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec, WriteNode, ReadNode)]
+#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, WalkNode, WriteNode, ReadNode, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 #[derive(derive_more::Display)]
 #[display(fmt = "EnumValidator")]
@@ -25,10 +25,10 @@ pub struct EnumValidator {
     #[serde(alias = "value")]
     pub values: Vec<Node>,
 
-    /// A unique identifier for this node
+    /// A universally unique identifier for this node
     
     #[serde(skip)]
-    pub node_id: NodeId
+    pub uuid: NodeUuid
 }
 
 impl EnumValidator {
@@ -41,11 +41,13 @@ impl EnumValidator {
 }
 
 impl Entity for EnumValidator {
-    fn node_type() -> NodeType {
+    const NICK: &'static str = "enu";
+
+    fn node_type(&self) -> NodeType {
         NodeType::EnumValidator
     }
 
-    fn node_id(&self) -> &NodeId {
-        &self.node_id
+    fn node_id(&self) -> NodeId {
+        NodeId::new(Self::NICK, &self.uuid)
     }
 }

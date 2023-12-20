@@ -8,7 +8,7 @@ use super::unsigned_integer::UnsignedInteger;
 /// An operation that modifies a string.
 #[skip_serializing_none]
 #[serde_as]
-#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, WalkNode, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec, WriteNode, ReadNode)]
+#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, WalkNode, WriteNode, ReadNode, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 #[derive(derive_more::Display)]
 #[display(fmt = "StringOperation")]
@@ -32,10 +32,10 @@ pub struct StringOperation {
     /// The string value to insert or use as the replacement.
     pub value: Option<String>,
 
-    /// A unique identifier for this node
+    /// A universally unique identifier for this node
     
     #[serde(skip)]
-    pub node_id: NodeId
+    pub uuid: NodeUuid
 }
 
 impl StringOperation {
@@ -48,11 +48,13 @@ impl StringOperation {
 }
 
 impl Entity for StringOperation {
-    fn node_type() -> NodeType {
+    const NICK: &'static str = "str";
+
+    fn node_type(&self) -> NodeType {
         NodeType::StringOperation
     }
 
-    fn node_id(&self) -> &NodeId {
-        &self.node_id
+    fn node_id(&self) -> NodeId {
+        NodeId::new(Self::NICK, &self.uuid)
     }
 }

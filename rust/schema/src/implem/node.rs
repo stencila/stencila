@@ -1,8 +1,8 @@
-use smol_str::SmolStr;
+use common::smol_str::SmolStr;
+use node_store::{automerge::ObjId, get_node_type, ReadCrdt, ReadNode};
+use node_type::NodeType;
 
-use node_store::{automerge::ObjId, ReadNode, ReadStore};
-
-use crate::{prelude::*, utilities::node_type, Array, Node, NodeType, Null, Object, Primitive};
+use crate::{prelude::*, Array, Node, Null, Object, Primitive};
 
 impl ReadNode for Node {
     fn load_null() -> Result<Self> {
@@ -29,28 +29,28 @@ impl ReadNode for Node {
         Ok(Node::String(value.to_string()))
     }
 
-    fn load_list<S: ReadStore>(store: &S, obj_id: &ObjId) -> Result<Self> {
-        Ok(Node::Array(Array::load_list(store, obj_id)?))
+    fn load_list<C: ReadCrdt>(crdt: &C, obj_id: &ObjId) -> Result<Self> {
+        Ok(Node::Array(Array::load_list(crdt, obj_id)?))
     }
 
-    fn load_map<S: ReadStore>(store: &S, obj_id: &ObjId) -> Result<Self> {
-        let node_type = node_type(store, obj_id)?;
+    fn load_map<C: ReadCrdt>(crdt: &C, obj_id: &ObjId) -> Result<Self> {
+        let node_type = get_node_type(crdt, obj_id)?;
 
         let Some(node_type) = node_type else {
             // There is no type, or it does not match any known type, so load as an `Object`
-            return Ok(Node::Object(Object::load_map(store, obj_id)?));
+            return Ok(Node::Object(Object::load_map(crdt, obj_id)?));
         };
 
         macro_rules! load_map_variants {
             ($( $variant:ident ),*) => {
                 match node_type {
                     $(
-                        NodeType::$variant => Ok(Node::$variant(crate::$variant::load_map(store, obj_id)?)),
+                        NodeType::$variant => Ok(Node::$variant(crate::$variant::load_map(crdt, obj_id)?)),
                     )*
 
                     // It is not expected to have a map with type: "Object", but if there is,
                     // then treat it as such
-                    NodeType::Object => Ok(Node::Object(Object::load_map(store, obj_id)?)),
+                    NodeType::Object => Ok(Node::Object(Object::load_map(crdt, obj_id)?)),
 
                     NodeType::Null |
                     NodeType::Boolean |

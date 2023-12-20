@@ -8,10 +8,10 @@ impl<T> ReadNode for HashMap<String, T>
 where
     T: ReadNode,
 {
-    fn load_map<S: ReadStore>(store: &S, obj_id: &ObjId) -> Result<Self> {
+    fn load_map<C: ReadCrdt>(crdt: &C, obj_id: &ObjId) -> Result<Self> {
         let mut map = Self::new();
-        for MapRangeItem { key, .. } in store.map_range(obj_id, ..) {
-            let node = T::load_prop(store, obj_id, key.into())?;
+        for MapRangeItem { key, .. } in crdt.map_range(obj_id, ..) {
+            let node = T::load_prop(crdt, obj_id, key.into())?;
             map.insert(key.to_string(), node);
         }
 
@@ -27,61 +27,73 @@ impl<T> WriteNode for HashMap<String, T>
 where
     T: WriteNode,
 {
-    fn sync_map(&self, store: &mut WriteStore, obj_id: &ObjId) -> Result<()> {
-        // Get all the keys for the map in the store
-        let mut keys: HashSet<String> = store.keys(obj_id).collect();
+    fn sync_map(&self, crdt: &mut WriteCrdt, map: &mut StoreMap, obj_id: &ObjId) -> Result<()> {
+        // Get all the keys for the map in the CRDT
+        let mut keys: HashSet<String> = crdt.keys(obj_id).collect();
 
-        // Update values for keys that are in both map and store
+        // Update values for keys that are in both map and crdt
         for (key, node) in self.iter() {
-            node.put_prop(store, obj_id, key.into())?;
+            node.put_prop(crdt, map, obj_id, key.into())?;
             keys.remove(key);
         }
 
-        // Remove keys that are in the store but not in map
+        // Remove keys that are in the CRDT but not in map
         for key in keys {
-            store.delete(obj_id, key.as_str())?;
+            crdt.delete(obj_id, key.as_str())?;
         }
 
         Ok(())
     }
 
-    fn insert_prop(&self, store: &mut WriteStore, obj_id: &ObjId, prop: Prop) -> Result<()> {
-        // Create the new map in the store
+    fn insert_prop(
+        &self,
+        crdt: &mut WriteCrdt,
+        map: &mut StoreMap,
+        obj_id: &ObjId,
+        prop: Prop,
+    ) -> Result<()> {
+        // Create the new map in the CRDT
         let prop_obj_id = match prop {
-            Prop::Map(key) => store.put_object(obj_id, key, ObjType::Map)?,
-            Prop::Seq(index) => store.insert_object(obj_id, index, ObjType::Map)?,
+            Prop::Map(key) => crdt.put_object(obj_id, key, ObjType::Map)?,
+            Prop::Seq(index) => crdt.insert_object(obj_id, index, ObjType::Map)?,
         };
 
         // Insert each key into that new map
         for (key, node) in self.iter() {
-            node.insert_prop(store, &prop_obj_id, key.into())?;
+            node.insert_prop(crdt, map, &prop_obj_id, key.into())?;
         }
 
         Ok(())
     }
 
-    fn put_prop(&self, store: &mut WriteStore, obj_id: &ObjId, prop: Prop) -> Result<()> {
+    fn put_prop(
+        &self,
+        crdt: &mut WriteCrdt,
+        map: &mut StoreMap,
+        obj_id: &ObjId,
+        prop: Prop,
+    ) -> Result<()> {
         // Get the existing object at the property
-        let existing = store.get(obj_id, prop.clone())?;
+        let existing = crdt.get(obj_id, prop.clone())?;
 
         if let Some((Value::Object(ObjType::Map), prop_obj_id)) = existing {
             // Existing object is a map so sync it
-            self.sync_map(store, &prop_obj_id)
+            self.sync_map(crdt, map, &prop_obj_id)
         } else {
             // Remove any existing object of different type
             if existing.is_some() {
-                store.delete(obj_id, prop.clone())?;
+                crdt.delete(obj_id, prop.clone())?;
             }
 
             // Insert a new map object
-            self.insert_prop(store, obj_id, prop)?;
+            self.insert_prop(crdt, map, obj_id, prop)?;
 
             Ok(())
         }
     }
 
-    fn similarity<S: ReadStore>(&self, store: &S, obj_id: &ObjId, prop: Prop) -> Result<usize> {
-        if let Some((Value::Object(ObjType::Map), _prop_obj_id)) = store.get(obj_id, prop)? {
+    fn similarity<C: ReadCrdt>(&self, crdt: &C, obj_id: &ObjId, prop: Prop) -> Result<usize> {
+        if let Some((Value::Object(ObjType::Map), _prop_obj_id)) = crdt.get(obj_id, prop)? {
             // TODO
         }
         Ok(0)

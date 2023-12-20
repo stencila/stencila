@@ -27,8 +27,16 @@ impl Article {
             losses,
         )
     }
+}
 
-    pub fn to_markdown_special(&self, context: &mut MarkdownEncodeContext) -> (String, Losses) {
+impl MarkdownCodec for Article {
+    fn to_markdown(&self, context: &mut MarkdownEncodeContext) {
+        context.enter_node(self.node_type(), self.node_id());
+
+        context.push_prop_fn("content", |context| self.content.to_markdown(context));
+
+        context.exit_node();
+        /*
         use common::serde_yaml;
 
         let mut md = String::new();
@@ -84,5 +92,6 @@ impl Article {
             .join("\n\n");
 
         (md, losses)
+        */
     }
 }

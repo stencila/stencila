@@ -1,7 +1,8 @@
 use codec::{
     common::{async_trait::async_trait, eyre::Result},
     format::Format,
-    schema::{Node, NodeType},
+    node_type::NodeType,
+    schema::Node,
     status::Status,
     Codec, CodecSupport, DecodeOptions, EncodeOptions, Losses,
 };

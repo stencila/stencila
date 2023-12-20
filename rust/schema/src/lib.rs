@@ -9,7 +9,9 @@ pub use types::*;
 pub mod shortcuts;
 pub mod traits;
 pub mod transforms;
-pub mod utilities;
+
+pub use node_id;
+pub use node_type;
 
 #[cfg(feature = "proptest")]
 mod proptests;

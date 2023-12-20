@@ -1,7 +1,5 @@
-use smol_str::SmolStr;
-
-use common::eyre::Result;
-use node_store::{automerge::ObjId, ReadNode, ReadStore};
+use common::{eyre::Result, smol_str::SmolStr};
+use node_store::{automerge::ObjId, ReadCrdt, ReadNode};
 
 use crate::{Null, Primitive, StringPatch, StringPatchOrPrimitive};
 
@@ -14,9 +12,9 @@ impl Default for StringPatchOrPrimitive {
 }
 
 impl ReadNode for StringPatchOrPrimitive {
-    fn load_map<S: ReadStore>(store: &S, obj: &ObjId) -> Result<Self> {
+    fn load_map<C: ReadCrdt>(crdt: &C, obj: &ObjId) -> Result<Self> {
         Ok(StringPatchOrPrimitive::StringPatch(StringPatch::load_map(
-            store, obj,
+            crdt, obj,
         )?))
     }
 
@@ -44,7 +42,7 @@ impl ReadNode for StringPatchOrPrimitive {
         Primitive::load_str(value).map(StringPatchOrPrimitive::Primitive)
     }
 
-    fn load_list<S: ReadStore>(store: &S, obj: &ObjId) -> Result<Self> {
-        Primitive::load_list(store, obj).map(StringPatchOrPrimitive::Primitive)
+    fn load_list<C: ReadCrdt>(crdt: &C, obj: &ObjId) -> Result<Self> {
+        Primitive::load_list(crdt, obj).map(StringPatchOrPrimitive::Primitive)
     }
 }

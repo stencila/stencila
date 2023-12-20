@@ -32,29 +32,29 @@ pub fn derive_struct(input: &DeriveInput, data: &DataStruct) -> TokenStream {
             .map(|ident| ident.to_string())
             .unwrap_or_default();
 
-        let field = if field_name == "r#type" || field_name == "node_id" {
+        let field = if field_name == "r#type" || field_name == "uuid" {
             quote! {}
         } else if field_name == "options" {
             quote! {
                 let prop = node_store::Prop::Map("options".to_string());
-                if store.get(obj_id, prop.clone())?.is_some() {
-                    node.options.load_from(store, &obj_id, prop)?;
+                if crdt.get(obj_id, prop.clone())?.is_some() {
+                    node.options.load_from(crdt, &obj_id, prop)?;
                 }
             }
         } else {
             quote! {
-                node.#field_ident.load_from(store, obj_id, stringify!(#field_ident).into())?;
+                node.#field_ident.load_from(crdt, obj_id, stringify!(#field_ident).into())?;
             }
         };
 
         fields.extend(field);
     }
     methods.extend(quote! {
-        fn load_map<S: node_store::ReadStore>(store: &S, obj_id: &node_store::ObjId) -> common::eyre::Result<Self> {
+        fn load_map<C: node_store::ReadCrdt>(crdt: &C, obj_id: &node_store::ObjId) -> common::eyre::Result<Self> {
             // Create a new node
             let mut node = Self::default();
 
-            // Load each field from the store
+            // Load each field from the CRDT
             #fields
 
             Ok(node)
@@ -80,7 +80,7 @@ pub fn derive_enum(input: &DeriveInput, data: &DataEnum, attrs: &Vec<Attribute>)
         let variant_name = &variant.ident;
         let case = match &variant.fields {
             Fields::Named(..) | Fields::Unnamed(..) => quote! {
-                stringify!(#variant_name) => Ok(Self::#variant_name(#variant_name::load_map(store, obj_id)?)),
+                stringify!(#variant_name) => Ok(Self::#variant_name(#variant_name::load_map(crdt, obj_id)?)),
             },
             Fields::Unit => quote! {
                 stringify!(#variant_name) => common::eyre::bail!(
@@ -93,8 +93,8 @@ pub fn derive_enum(input: &DeriveInput, data: &DataEnum, attrs: &Vec<Attribute>)
         cases.extend(case)
     }
     methods.extend(quote! {
-        fn load_map<S: node_store::ReadStore>(store: &S, obj_id: &node_store::ObjId) -> common::eyre::Result<Self> {
-            let Some(node_type) = node_store::get_type(store, obj_id)? else {
+        fn load_map<C: node_store::ReadCrdt>(crdt: &C, obj_id: &node_store::ObjId) -> common::eyre::Result<Self> {
+            let Some(node_type) = node_store::get_type(crdt, obj_id)? else {
                 common::eyre::bail!("Automerge object has no `type` property needed for loading enum `{}`", stringify!(#enum_name));
             };
             match node_type.as_str() {
@@ -111,7 +111,7 @@ pub fn derive_enum(input: &DeriveInput, data: &DataEnum, attrs: &Vec<Attribute>)
         .all(|variant| matches!(variant.fields, Fields::Unit))
     {
         methods.extend(quote! {
-            fn load_str(value: &smol_str::SmolStr) -> common::eyre::Result<Self> {
+            fn load_str(value: &common::smol_str::SmolStr) -> common::eyre::Result<Self> {
                 Ok(serde_json::from_str(&["\"", &value, "\""].concat())?)
             }
         });

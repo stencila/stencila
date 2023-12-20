@@ -2,34 +2,35 @@ use codec_losses::{lost_exec_options, lost_options};
 
 use crate::{prelude::*, CodeChunk};
 
-impl CodeChunk {
-    pub fn to_markdown_special(&self, _context: &mut MarkdownEncodeContext) -> (String, Losses) {
-        let mut losses = lost_options!(self, id, outputs);
-        losses.merge(lost_exec_options!(self));
+impl MarkdownCodec for CodeChunk {
+    fn to_markdown(&self, context: &mut MarkdownEncodeContext) {
+        context
+            .enter_node(self.node_type(), self.node_id())
+            .merge_losses(lost_options!(self, id, outputs))
+            .merge_losses(lost_exec_options!(self));
 
-        let mut md = "```".to_string();
+        context.push_str("```");
 
         if let Some(lang) = &self.programming_language {
-            md.push_str(lang);
-            md.push(' ');
+            context
+                .push_prop_str("programming_language", lang)
+                .push_str(" ");
         }
 
-        md.push_str("exec");
+        context.push_str("exec");
 
         if let Some(auto) = &self.auto_exec {
-            md.push_str(" auto=");
-            md.push_str(&auto.to_string().to_lowercase())
+            context
+                .push_str(" auto=")
+                .push_prop_str("auto_exec", &auto.to_string().to_lowercase());
         }
 
-        md.push('\n');
-        md.push_str(&self.code);
+        context.push_str("\n").push_prop_str("code", &self.code);
 
         if !self.code.ends_with('\n') {
-            md.push('\n');
+            context.push_str("\n");
         }
 
-        md.push_str("```\n\n");
-
-        (md, losses)
+        context.push_str("```\n").exit_node().push_str("\n");
     }
 }

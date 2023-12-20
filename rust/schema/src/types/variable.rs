@@ -8,7 +8,7 @@ use super::string::String;
 /// A variable representing a name / value pair.
 #[skip_serializing_none]
 #[serde_as]
-#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, WalkNode, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec, WriteNode, ReadNode)]
+#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, WalkNode, WriteNode, ReadNode, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 #[derive(derive_more::Display)]
 #[display(fmt = "Variable")]
@@ -30,10 +30,10 @@ pub struct Variable {
     /// The value of the variable.
     pub value: Option<Box<Node>>,
 
-    /// A unique identifier for this node
+    /// A universally unique identifier for this node
     
     #[serde(skip)]
-    pub node_id: NodeId
+    pub uuid: NodeUuid
 }
 
 impl Variable {
@@ -46,11 +46,13 @@ impl Variable {
 }
 
 impl Entity for Variable {
-    fn node_type() -> NodeType {
+    const NICK: &'static str = "var";
+
+    fn node_type(&self) -> NodeType {
         NodeType::Variable
     }
 
-    fn node_id(&self) -> &NodeId {
-        &self.node_id
+    fn node_id(&self) -> NodeId {
+        NodeId::new(Self::NICK, &self.uuid)
     }
 }

@@ -11,13 +11,12 @@ use super::string::String;
 /// Styled block content.
 #[skip_serializing_none]
 #[serde_as]
-#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, WalkNode, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec, WriteNode, ReadNode)]
+#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, WalkNode, WriteNode, ReadNode, HtmlCodec, JatsCodec, TextCodec)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 #[cfg_attr(feature = "proptest", derive(Arbitrary))]
 #[derive(derive_more::Display)]
 #[display(fmt = "StyledBlock")]
 #[html(elem = "div")]
-#[markdown(special)]
 pub struct StyledBlock {
     /// The type of this item.
     #[cfg_attr(feature = "proptest", proptest(value = "Default::default()"))]
@@ -73,10 +72,10 @@ pub struct StyledBlock {
     #[cfg_attr(feature = "proptest", proptest(value = "Default::default()"))]
     pub content: Vec<Block>,
 
-    /// A unique identifier for this node
+    /// A universally unique identifier for this node
     #[cfg_attr(feature = "proptest", proptest(value = "Default::default()"))]
     #[serde(skip)]
-    pub node_id: NodeId
+    pub uuid: NodeUuid
 }
 
 impl StyledBlock {
@@ -90,11 +89,13 @@ impl StyledBlock {
 }
 
 impl Entity for StyledBlock {
-    fn node_type() -> NodeType {
+    const NICK: &'static str = "sty";
+
+    fn node_type(&self) -> NodeType {
         NodeType::StyledBlock
     }
 
-    fn node_id(&self) -> &NodeId {
-        &self.node_id
+    fn node_id(&self) -> NodeId {
+        NodeId::new(Self::NICK, &self.uuid)
     }
 }

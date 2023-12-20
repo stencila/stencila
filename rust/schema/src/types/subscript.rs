@@ -8,14 +8,14 @@ use super::string::String;
 /// Subscripted content.
 #[skip_serializing_none]
 #[serde_as]
-#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, WalkNode, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec, WriteNode, ReadNode)]
+#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, WalkNode, WriteNode, ReadNode, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 #[cfg_attr(feature = "proptest", derive(Arbitrary))]
 #[derive(derive_more::Display)]
 #[display(fmt = "Subscript")]
 #[html(elem = "sub")]
 #[jats(elem = "sub")]
-#[markdown(template = "~{content}~", escape = "~")]
+#[markdown(template = "~{{content}}~", escape = "~")]
 pub struct Subscript {
     /// The type of this item.
     #[cfg_attr(feature = "proptest", proptest(value = "Default::default()"))]
@@ -36,10 +36,10 @@ pub struct Subscript {
     #[cfg_attr(feature = "proptest-max", proptest(strategy = r#"vec_inlines_non_recursive(4)"#))]
     pub content: Vec<Inline>,
 
-    /// A unique identifier for this node
+    /// A universally unique identifier for this node
     #[cfg_attr(feature = "proptest", proptest(value = "Default::default()"))]
     #[serde(skip)]
-    pub node_id: NodeId
+    pub uuid: NodeUuid
 }
 
 impl Subscript {
@@ -52,11 +52,13 @@ impl Subscript {
 }
 
 impl Entity for Subscript {
-    fn node_type() -> NodeType {
+    const NICK: &'static str = "sub";
+
+    fn node_type(&self) -> NodeType {
         NodeType::Subscript
     }
 
-    fn node_id(&self) -> &NodeId {
-        &self.node_id
+    fn node_id(&self) -> NodeId {
+        NodeId::new(Self::NICK, &self.uuid)
     }
 }

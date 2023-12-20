@@ -8,7 +8,7 @@ use super::unsigned_integer::UnsignedInteger;
 /// A digest of the content, semantics and dependencies of an executable node.
 #[skip_serializing_none]
 #[serde_as]
-#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, WalkNode, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec, WriteNode, ReadNode)]
+#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, WalkNode, WriteNode, ReadNode, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 #[derive(derive_more::Display)]
 #[display(fmt = "CompilationDigest")]
@@ -41,10 +41,10 @@ pub struct CompilationDigest {
     #[serde(alias = "dependencies-failed", alias = "dependencies_failed")]
     pub dependencies_failed: Option<UnsignedInteger>,
 
-    /// A unique identifier for this node
+    /// A universally unique identifier for this node
     
     #[serde(skip)]
-    pub node_id: NodeId
+    pub uuid: NodeUuid
 }
 
 impl CompilationDigest {
@@ -57,11 +57,13 @@ impl CompilationDigest {
 }
 
 impl Entity for CompilationDigest {
-    fn node_type() -> NodeType {
+    const NICK: &'static str = "com";
+
+    fn node_type(&self) -> NodeType {
         NodeType::CompilationDigest
     }
 
-    fn node_id(&self) -> &NodeId {
-        &self.node_id
+    fn node_id(&self) -> NodeId {
+        NodeId::new(Self::NICK, &self.uuid)
     }
 }

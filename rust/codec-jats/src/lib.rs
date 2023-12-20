@@ -1,9 +1,10 @@
 use codec::{
     common::{async_trait::async_trait, eyre::Result},
     format::Format,
-    schema::{Node, NodeType},
+    node_type::NodeType,
+    schema::Node,
     status::Status,
-    Codec, CodecSupport, DecodeOptions, EncodeOptions, Losses,
+    Codec, CodecSupport, DecodeOptions, EncodeOptions, Losses, Mapping,
 };
 
 mod decode;
@@ -101,7 +102,7 @@ impl Codec for JatsCodec {
         &self,
         node: &Node,
         options: Option<EncodeOptions>,
-    ) -> Result<(String, Losses)> {
+    ) -> Result<(String, Losses, Mapping)> {
         encode::encode(node, options)
     }
 }

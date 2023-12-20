@@ -4,7 +4,7 @@ use std::path::PathBuf;
 
 use common::{eyre::Result, glob::glob, itertools::Itertools, tokio};
 use common_dev::pretty_assertions::assert_eq;
-use node_store::{ReadNode, WriteNode, WriteStore};
+use node_store::{ReadNode, Store, WriteNode};
 use schema::Node;
 
 /// Test writing/reading examples to/from store
@@ -28,7 +28,7 @@ async fn examples() -> Result<()> {
 
         let node = codecs::from_path(&path, None).await?;
 
-        let mut store = WriteStore::default();
+        let mut store = Store::new();
         node.dump(&mut store)?;
         let roundtrip = Node::load(&store)?;
 

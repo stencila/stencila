@@ -18,7 +18,7 @@ use common::{
     type_safe_id::{StaticType, TypeSafeId},
 };
 use format::Format;
-use node_store::{inspect_store, load_store, ReadNode, WriteNode, WriteStore};
+use node_store::{ReadNode, Store, WriteNode};
 use schema::{Article, Node};
 
 mod sync_file;
@@ -119,7 +119,7 @@ pub struct LogEntry {
     pub message: String,
 }
 
-type DocumentStore = Arc<RwLock<WriteStore>>;
+type DocumentStore = Arc<RwLock<Store>>;
 
 type DocumentWatchSender = watch::Sender<Node>;
 type DocumentWatchReceiver = watch::Receiver<Node>;
@@ -167,7 +167,7 @@ impl Document {
     /// This initializes the document's "watch" and "update" channels and starts the
     /// `update_task` to respond to incoming updates to the root node of the document.
     #[tracing::instrument(skip(store))]
-    fn init(store: WriteStore, path: Option<PathBuf>) -> Result<Self> {
+    fn init(store: Store, path: Option<PathBuf>) -> Result<Self> {
         let id = DocumentId::new();
 
         let node = Node::load(&store)?;
@@ -194,7 +194,7 @@ impl Document {
     pub fn new(r#type: DocumentType) -> Result<Self> {
         let root = r#type.empty();
 
-        let mut store = WriteStore::new();
+        let mut store = Store::new();
         root.dump(&mut store)?;
 
         Self::init(store, None)
@@ -240,7 +240,7 @@ impl Document {
             (r#type.empty(), format!("Initial commit of empty {type}"))
         };
 
-        let mut store = WriteStore::new();
+        let mut store = Store::new();
         root.write(&mut store, &path, &message).await?;
 
         Self::init(store, Some(path))
@@ -254,11 +254,11 @@ impl Document {
     pub async fn open(path: &Path) -> Result<Self> {
         let format = Format::from_path(path)?;
         if format.is_store() {
-            let store = load_store(path).await?;
+            let store = Store::read(path).await?;
             Self::init(store, Some(path.to_path_buf()))
         } else {
             let root = codecs::from_path(path, None).await?;
-            let mut store = WriteStore::new();
+            let mut store = Store::new();
             root.dump(&mut store)?;
             Self::init(store, None)
         }
@@ -272,7 +272,7 @@ impl Document {
     /// Load the root [`Node`] from the document's Automerge store
     async fn load(&self) -> Result<Node> {
         let store = self.store.read().await;
-        Node::load(&*store)
+        Node::load(&store)
     }
 
     /// Dump a [`Node`] to the root of the document's Automerge store
@@ -302,7 +302,7 @@ impl Document {
             // sending watchers the incoming node, because the incoming node
             // may be partial (e.g. may be missing `id` or other fields) but watchers
             // need complete nodes (e.g `id` for HTML)
-            let node = match Node::load(&*store) {
+            let node = match Node::load(&store) {
                 Ok(node) => node,
                 Err(error) => {
                     tracing::error!("While loading node from store: {error}");
@@ -327,8 +327,8 @@ impl Document {
     /// us to inspect the "raw" structure in the store.
     #[tracing::instrument]
     pub async fn inspect(path: &Path) -> Result<String> {
-        let store = load_store(path).await?;
-        inspect_store(&store)
+        let store = Store::read(path).await?;
+        store.inspect()
     }
 
     /// Import a file into a new, or existing, document
@@ -407,9 +407,8 @@ impl Document {
     pub async fn log(&self) -> Result<Vec<LogEntry>> {
         let mut store = self.store.write().await;
 
-        let changes = store.get_changes(&[]);
-
-        let entries = changes
+        let entries = store
+            .changes()
             .iter()
             .map(|change| {
                 let hash = change.hash().to_string();

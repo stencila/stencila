@@ -7,7 +7,7 @@ use super::string::String;
 /// A thematic break, such as a scene change in a story, a transition to another topic, or a new document.
 #[skip_serializing_none]
 #[serde_as]
-#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, WalkNode, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec, WriteNode, ReadNode)]
+#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, WalkNode, WriteNode, ReadNode, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 #[cfg_attr(feature = "proptest", derive(Arbitrary))]
 #[derive(derive_more::Display)]
@@ -26,10 +26,10 @@ pub struct ThematicBreak {
     #[html(attr = "id")]
     pub id: Option<String>,
 
-    /// A unique identifier for this node
+    /// A universally unique identifier for this node
     #[cfg_attr(feature = "proptest", proptest(value = "Default::default()"))]
     #[serde(skip)]
-    pub node_id: NodeId
+    pub uuid: NodeUuid
 }
 
 impl ThematicBreak {
@@ -41,11 +41,13 @@ impl ThematicBreak {
 }
 
 impl Entity for ThematicBreak {
-    fn node_type() -> NodeType {
+    const NICK: &'static str = "the";
+
+    fn node_type(&self) -> NodeType {
         NodeType::ThematicBreak
     }
 
-    fn node_id(&self) -> &NodeId {
-        &self.node_id
+    fn node_id(&self) -> NodeId {
+        NodeId::new(Self::NICK, &self.uuid)
     }
 }

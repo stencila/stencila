@@ -281,12 +281,24 @@ async fn examples() -> Result<()> {
         + "/*";
 
     let update = std::env::var("UPDATE_EXAMPLES").unwrap_or_default() == "true";
+    let includes = std::env::var("INCLUDE_EXAMPLES")
+        .unwrap_or_default()
+        .split(',')
+        .filter(|name| !name.is_empty())
+        .map(String::from)
+        .collect_vec();
 
     let examples = glob(&pattern)?.flatten().collect_vec();
 
     for dir in examples {
-        let name = dir.file_name().unwrap().to_string_lossy();
-        eprintln!("{name}");
+        let name = dir.file_name().unwrap().to_string_lossy().to_string();
+        eprint!("{name}:");
+
+        if !includes.is_empty() && !includes.contains(&name) {
+            eprintln!("skipped");
+            continue;
+        }
+        eprintln!();
 
         // If the folder has a config.yaml file then read it in and merge into the
         // default config.
@@ -346,7 +358,8 @@ async fn examples() -> Result<()> {
 
                 if codec.supports_to_string() {
                     // Encode to string
-                    let (actual, losses) = codec.to_string(&original, encode_options).await?;
+                    let (actual, losses, mapping) =
+                        codec.to_string(&original, encode_options).await?;
 
                     if file.exists() {
                         // Existing file: compare string content of files
@@ -375,6 +388,15 @@ async fn examples() -> Result<()> {
                         remove_file(losses_file).await.ok();
                     } else {
                         write(losses_file, serde_yaml::to_string(&losses)?).await?;
+                    }
+
+                    // Write any mapping to file
+                    let mut mapping_file = path.clone();
+                    mapping_file.set_extension([extension.as_str(), ".encode.mapping"].concat());
+                    if mapping.is_empty() {
+                        remove_file(mapping_file).await.ok();
+                    } else {
+                        write(mapping_file, mapping.to_string()).await?;
                     }
                 } else {
                     // Just encode to file if it does not yet exist or updating. At present not attempting

@@ -1,21 +1,24 @@
 //! Interface between Stencila Schema and Automerge
 
-use std::path::Path;
+use std::fmt::Display;
 use std::time::SystemTime;
+use std::{collections::HashMap, path::Path};
 
-use automerge::ROOT;
-use smol_str::SmolStr;
+use automerge::{Change, ROOT};
 
+use common::eyre::{bail, Context};
 use common::{
     async_trait::async_trait,
-    eyre::{bail, Context, Result},
+    eyre::{eyre, Result},
+    smol_str::SmolStr,
     tokio::fs::{read, write},
 };
+use node_id::NodeId;
 use node_strip::StripNode;
 
 pub use automerge::{
-    self, AutoCommit as WriteStore, ChangeHash as CommitHash, ObjId, ObjType, Prop,
-    ReadDoc as ReadStore,
+    self, AutoCommit as WriteCrdt, ChangeHash as CommitHash, ObjId, ObjType, Prop,
+    ReadDoc as ReadCrdt,
 };
 pub(crate) use automerge::{transaction::CommitOptions, ScalarValue, Value};
 
@@ -33,8 +36,118 @@ mod string;
 mod unsigned_integer;
 mod vec;
 
+mod utilities;
+pub use utilities::*;
+
 /// The maximum similarity index between to nodes
 pub const SIMILARITY_MAX: usize = 1000;
+
+#[derive(Debug, Default)]
+pub struct Store {
+    /// The Automerge CRDT
+    crdt: WriteCrdt,
+
+    /// A mapping between Automerge [`ObjId`]s in the CRDT
+    /// and Stencila [`NodeId`]s in the root node
+    pub map: StoreMap,
+}
+
+impl Store {
+    pub fn new() -> Self {
+        Self::default()
+    }
+
+    /// Read a store into memory
+    pub async fn read(path: &Path) -> Result<Self> {
+        if !path.exists() {
+            bail!("Path `{}` does not exist", path.display());
+        }
+        if path.is_dir() {
+            bail!("Path `{}` is a directory; expected a file", path.display());
+        }
+
+        let bytes = read(path).await?;
+        let crdt = WriteCrdt::load(&bytes)
+            .wrap_err_with(|| format!("Unable to open file `{}`", path.display()))?;
+
+        Ok(Self {
+            crdt,
+            ..Default::default()
+        })
+    }
+
+    /// Inspect a store by serializing it to JSON
+    pub fn inspect(&self) -> Result<String> {
+        Ok(common::serde_json::to_string_pretty(
+            &automerge::AutoSerde::from(&self.crdt),
+        )?)
+    }
+
+    pub fn fork(&mut self) -> Self {
+        Self {
+            crdt: self.crdt.fork(),
+            map: self.map.clone(),
+        }
+    }
+
+    pub fn merge(&mut self, other: &mut Store) -> Result<()> {
+        self.crdt.merge(&mut other.crdt)?;
+        // TODO: consider merging maps
+
+        Ok(())
+    }
+
+    pub fn changes(&mut self) -> Vec<&Change> {
+        self.crdt.get_changes(&[])
+    }
+
+    pub fn set_property<V>(&mut self, node_id: &NodeId, property: &str, value: V) -> Result<()>
+    where
+        V: WriteNode,
+    {
+        let obj_id = self
+            .map
+            .get_obj_id(node_id)
+            .ok_or_else(|| eyre!("unable to find `ObjId` for node `{node_id}`"))?
+            .clone();
+
+        value.put_prop(&mut self.crdt, &mut self.map, &obj_id, property.into())?;
+
+        Ok(())
+    }
+}
+
+#[derive(Debug, Default, Clone)]
+pub struct StoreMap {
+    node_to_obj: HashMap<NodeId, ObjId>,
+}
+
+impl StoreMap {
+    pub fn clear(&mut self) {
+        self.node_to_obj.clear();
+    }
+
+    pub fn insert(&mut self, node_id: NodeId, obj_id: &ObjId) {
+        self.node_to_obj.insert(node_id, obj_id.clone());
+    }
+
+    pub fn sync(&mut self, node_id: NodeId, obj_id: &ObjId) {
+        self.node_to_obj.insert(node_id, obj_id.clone());
+    }
+
+    pub fn get_obj_id(&self, node_id: &NodeId) -> Option<&ObjId> {
+        self.node_to_obj.get(node_id)
+    }
+}
+
+impl Display for StoreMap {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        for (node, obj) in &self.node_to_obj {
+            writeln!(f, "{node} {obj}")?;
+        }
+        Ok(())
+    }
+}
 
 /// Bail from a function with the type of node included in the message
 #[macro_export]
@@ -58,39 +171,40 @@ macro_rules! bail_load_unexpected {
 
 /// A trait for reading Stencila Schema nodes from an Automerge store
 #[async_trait]
+#[allow(unused)]
 pub trait ReadNode: StripNode + Sized {
     /// Read a Stencila Schema node from an Automerge file
-    async fn read(path: &Path) -> Result<(WriteStore, Self)> {
-        let store = load_store(path).await?;
+    async fn read(path: &Path) -> Result<(Store, Self)> {
+        let store = Store::read(path).await?;
 
         // If the following call to `Self::load` fails it can be useful to use `inspect_store(&store)?`
         // to inspect the shape of the data in the store
-        inspect_store(&store)?;
+        // inspect_store(&store)?;
 
         let node = Self::load(&store)?;
 
         Ok((store, node))
     }
 
-    /// Load a Stencila Schema node from an Automerge store
+    /// Load a Stencila Schema node from a [`Store`]
     ///
     /// Because Automerge stores must have a map at the root, this method calls
     /// the `load_map` method. As such it will fail if that method is not
     /// implemented for the node type (e.g. `Number` and `Vec` nodes).
-    fn load<S: ReadStore>(store: &S) -> Result<Self> {
-        Self::load_map(store, &ROOT)
+    fn load(store: &Store) -> Result<Self> {
+        Self::load_map(&store.crdt, &ROOT)
     }
 
-    /// Load the Stencila Schema node from a property for an object in an Automerge store
-    fn load_from<S: ReadStore>(&mut self, store: &S, obj_id: &ObjId, prop: Prop) -> Result<()> {
-        *self = Self::load_prop(store, obj_id, prop)?;
+    /// Load the Stencila Schema node from a property for an object in a store
+    fn load_from<C: ReadCrdt>(&mut self, crdt: &C, obj_id: &ObjId, prop: Prop) -> Result<()> {
+        *self = Self::load_prop(crdt, obj_id, prop)?;
 
         Ok(())
     }
 
-    /// Load a new Stencila Schema node from a property for an object in an Automerge store
-    fn load_prop<S: ReadStore>(store: &S, obj_id: &ObjId, prop: Prop) -> Result<Self> {
-        match store.get(obj_id, prop)? {
+    /// Load a new Stencila Schema node from a property for an object in a store
+    fn load_prop<C: ReadCrdt>(crdt: &C, obj_id: &ObjId, prop: Prop) -> Result<Self> {
+        match crdt.get(obj_id, prop)? {
             Some((Value::Scalar(scalar), ..)) => match scalar.as_ref() {
                 ScalarValue::Null => Self::load_null(),
                 ScalarValue::Boolean(value) => Self::load_boolean(value),
@@ -103,10 +217,10 @@ pub trait ReadNode: StripNode + Sized {
                 ScalarValue::Bytes(value) => Self::load_bytes(value),
                 ScalarValue::Unknown { type_code, bytes } => Self::load_unknown(*type_code, bytes),
             },
-            Some((Value::Object(ObjType::Text), id)) => Self::load_text(store, &id),
-            Some((Value::Object(ObjType::List), id)) => Self::load_list(store, &id),
+            Some((Value::Object(ObjType::Text), id)) => Self::load_text(crdt, &id),
+            Some((Value::Object(ObjType::List), id)) => Self::load_list(crdt, &id),
             Some((Value::Object(ObjType::Map), id)) | Some((Value::Object(ObjType::Table), id)) => {
-                Self::load_map(store, &id)
+                Self::load_map(crdt, &id)
             }
             None => Self::load_none(),
         }
@@ -163,17 +277,17 @@ pub trait ReadNode: StripNode + Sized {
     }
 
     /// Load a Stencila Schema node from an [`automerge::ObjType::Text`] value
-    fn load_text<S: ReadStore>(_store: &S, _obj_id: &ObjId) -> Result<Self> {
+    fn load_text<C: ReadCrdt>(crdt: &C, obj_id: &ObjId) -> Result<Self> {
         bail_load_unexpected!("Text")
     }
 
     /// Load a Stencila Schema node from an [`automerge::ObjType::List`]
-    fn load_list<S: ReadStore>(_store: &S, _obj_id: &ObjId) -> Result<Self> {
+    fn load_list<C: ReadCrdt>(crdt: &C, obj_id: &ObjId) -> Result<Self> {
         bail_load_unexpected!("List")
     }
 
     /// Load a Stencila Schema node from an [`automerge::ObjType::Map`]
-    fn load_map<S: ReadStore>(_store: &S, _obj_id: &ObjId) -> Result<Self> {
+    fn load_map<C: ReadCrdt>(crdt: &C, obj_id: &ObjId) -> Result<Self> {
         bail_load_unexpected!("Map")
     }
 
@@ -185,14 +299,10 @@ pub trait ReadNode: StripNode + Sized {
 
 /// A trait for writing a Stencila node to an Automerge store
 #[async_trait]
+#[allow(unused)]
 pub trait WriteNode {
-    /// Write a Stencila node to an Automerge store
-    async fn write(
-        &self,
-        store: &mut WriteStore,
-        path: &Path,
-        message: &str,
-    ) -> Result<CommitHash> {
+    /// Write a Stencila node to a store
+    async fn write(&self, store: &mut Store, path: &Path, message: &str) -> Result<CommitHash> {
         self.dump(store)?;
 
         let time = SystemTime::now()
@@ -208,99 +318,63 @@ pub trait WriteNode {
                 .with_message(message)
         };
 
-        let change = store.commit_with(options()).unwrap_or_else(|| {
+        let change = store.crdt.commit_with(options()).unwrap_or_else(|| {
             // If there were no changes to commit, then
             // create an "empty change"
-            store.empty_change(options())
+            store.crdt.empty_change(options())
         });
 
-        let bytes = store.save();
+        let bytes = store.crdt.save();
         write(path, bytes).await?;
 
         Ok(change)
     }
 
-    /// Dump a Stencila node to an Automerge store
+    /// Dump a Stencila node to a store
     ///
     /// Because Automerge stores must have a map at the root, this method calls
     /// the `dump_map` method. As such it will fail if that method is not
     /// implemented for the node type (e.g. `Number` and `Vec` nodes).
-    fn dump(&self, store: &mut WriteStore) -> Result<()> {
-        self.sync_map(store, &ROOT)
+    fn dump(&self, store: &mut Store) -> Result<()> {
+        store.map.clear();
+        self.sync_map(&mut store.crdt, &mut store.map, &ROOT)
     }
 
-    /// Dump a Stencila node to a map in an Automerge store
+    /// Dump a Stencila node to a map in a store
     ///
     /// This method is used to dump a node to an existing object in an Automerge
     /// store. It only needs to be implemented for node types that are represented
-    /// as maps in an Automerge store.
-    fn sync_map(&self, _store: &mut WriteStore, _obj_id: &ObjId) -> Result<()> {
-        bail_type!("method `Write::sync_map` not implemented for type `{type}`")
+    /// as maps in a store.
+    fn sync_map(&self, crdt: &mut WriteCrdt, map: &mut StoreMap, obj_id: &ObjId) -> Result<()> {
+        bail_type!("method `WriteNode::sync_map` not implemented for type `{type}`")
     }
 
-    /// Insert a node into a new property of an Automerge store
-    fn insert_prop(&self, _store: &mut WriteStore, _obj_id: &ObjId, _prop: Prop) -> Result<()> {
-        bail_type!("method `Write::insert_prop` not implemented for type `{type}`")
+    /// Insert a node into a new property of a store
+    fn insert_prop(
+        &self,
+        crdt: &mut WriteCrdt,
+        map: &mut StoreMap,
+        obj_id: &ObjId,
+        prop: Prop,
+    ) -> Result<()> {
+        bail_type!("method `WriteNode::insert_prop` not implemented for type `{type}`")
     }
 
-    /// Put a node into an existing property of an Automerge store
-    fn put_prop(&self, _store: &mut WriteStore, _obj_id: &ObjId, _prop: Prop) -> Result<()> {
-        bail_type!("method `Write::put_prop` not implemented for type `{type}`")
+    /// Put a node into an existing property of a store
+    fn put_prop(
+        &self,
+        crdt: &mut WriteCrdt,
+        map: &mut StoreMap,
+        obj_id: &ObjId,
+        prop: Prop,
+    ) -> Result<()> {
+        bail_type!("method `WriteNode::put_prop` not implemented for type `{type}`")
     }
 
-    /// Calculate the similarity index between the current node and a property in an Automerge store
+    /// Calculate the similarity index between the current node and a property in a store
     ///
     /// The similarity index is used as part of the diffing algorithm.
-    fn similarity<S: ReadStore>(&self, _store: &S, _obj_id: &ObjId, _prop: Prop) -> Result<usize> {
-        bail_type!("method `Write::similarity` not implemented for type `{type}`")
+    fn similarity<C: ReadCrdt>(&self, crdt: &C, obj_id: &ObjId, prop: Prop) -> Result<usize> {
+        bail_type!("method `WriteNode::similarity` not implemented for type `{type}`")
     }
-}
-
-/// Load an Automerge store into memory
-pub async fn load_store(path: &Path) -> Result<WriteStore> {
-    if !path.exists() {
-        bail!("Path `{}` does not exist", path.display());
-    }
-    if path.is_dir() {
-        bail!("Path `{}` is a directory; expected a file", path.display());
-    }
-
-    let bytes = read(path).await?;
-    let store = WriteStore::load(&bytes)
-        .wrap_err_with(|| format!("Unable to open file `{}`", path.display()))?;
-    Ok(store)
-}
-
-/// Inspect an Automerge store by serializing it to JSON
-pub fn inspect_store<S: ReadStore>(store: &S) -> Result<String> {
-    Ok(common::serde_json::to_string_pretty(
-        &automerge::AutoSerde::from(store),
-    )?)
-}
-
-/// Get the `NodeType` of an object in an Automerge store
-pub fn get_type<S: ReadStore>(store: &S, obj_id: &ObjId) -> Result<Option<String>> {
-    // This function is normally only be called for Stencila struct types (not for primitives)
-    // However, if the Automerge object is not a `Map` the following `get` call will panic!
-    // So its important to do this check, and return the closest Stencila type to the
-    // Automerge type.
-    match store.object_type(obj_id)? {
-        ObjType::List => return Ok(Some("Array".to_string())),
-        ObjType::Text => return Ok(Some("String".to_string())),
-        _ => {}
-    };
-
-    let Some((value,..)) = store.get(obj_id, Prop::from("type"))? else {
-        return Ok(None)
-    };
-
-    let Value::Scalar(value) = value else {
-        bail!("Expected `type` property to be a scalar");
-    };
-
-    let ScalarValue::Str(value) = value.as_ref() else {
-        bail!("Expected `type` property to be a string");
-    };
-
-    Ok(Some(value.to_string()))
 }

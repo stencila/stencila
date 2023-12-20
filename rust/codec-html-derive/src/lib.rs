@@ -134,10 +134,10 @@ fn derive_struct(type_attr: TypeAttr) -> TokenStream {
                     ));
                 }
             }
-        } else if field_name == "node_id" {
+        } else if field_name == "uuid" {
             quote! {
                 if context.dom {
-                    attrs.push(attr("id", &self.node_id.to_string()));
+                    attrs.push(attr("id", &self.node_id().to_string()));
                 }
             }
         } else if field_name == "content" || field_attr.content {

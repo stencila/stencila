@@ -35,6 +35,7 @@ pub use serde_yaml;
 pub use similar;
 pub use slug;
 pub use smart_default;
+pub use smol_str;
 pub use strum;
 pub use syn;
 pub use tempfile;

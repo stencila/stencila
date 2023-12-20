@@ -1,6 +1,6 @@
 use node_store::{
     automerge::{transaction::Transactable, ObjId, Prop, ScalarValue, Value},
-    ReadNode, ReadStore, WriteNode, WriteStore, SIMILARITY_MAX,
+    ReadCrdt, ReadNode, StoreMap, WriteCrdt, WriteNode, SIMILARITY_MAX,
 };
 
 use crate::{prelude::*, Null};
@@ -14,20 +14,32 @@ impl ReadNode for Null {
 }
 
 impl WriteNode for Null {
-    fn insert_prop(&self, store: &mut WriteStore, obj_id: &ObjId, prop: Prop) -> Result<()> {
+    fn insert_prop(
+        &self,
+        crdt: &mut WriteCrdt,
+        _map: &mut StoreMap,
+        obj_id: &ObjId,
+        prop: Prop,
+    ) -> Result<()> {
         match prop {
-            Prop::Map(key) => store.put(obj_id, key, ScalarValue::Null)?,
-            Prop::Seq(index) => store.insert(obj_id, index, ScalarValue::Null)?,
+            Prop::Map(key) => crdt.put(obj_id, key, ScalarValue::Null)?,
+            Prop::Seq(index) => crdt.insert(obj_id, index, ScalarValue::Null)?,
         };
         Ok(())
     }
 
-    fn put_prop(&self, store: &mut WriteStore, obj_id: &ObjId, prop: Prop) -> Result<()> {
-        Ok(store.put(obj_id, prop, ScalarValue::Null)?)
+    fn put_prop(
+        &self,
+        crdt: &mut WriteCrdt,
+        _map: &mut StoreMap,
+        obj_id: &ObjId,
+        prop: Prop,
+    ) -> Result<()> {
+        Ok(crdt.put(obj_id, prop, ScalarValue::Null)?)
     }
 
-    fn similarity<S: ReadStore>(&self, store: &S, obj_id: &ObjId, prop: Prop) -> Result<usize> {
-        if let Some((Value::Scalar(scalar), ..)) = store.get(obj_id, prop)? {
+    fn similarity<C: ReadCrdt>(&self, crdt: &C, obj_id: &ObjId, prop: Prop) -> Result<usize> {
+        if let Some((Value::Scalar(scalar), ..)) = crdt.get(obj_id, prop)? {
             if let ScalarValue::Null = *scalar {
                 return Ok(SIMILARITY_MAX);
             }
@@ -54,8 +66,10 @@ impl JatsCodec for Null {
 }
 
 impl MarkdownCodec for Null {
-    fn to_markdown(&self, _context: &mut MarkdownEncodeContext) -> (String, Losses) {
-        self.to_text()
+    fn to_markdown(&self, context: &mut MarkdownEncodeContext) {
+        let (text, losses) = self.to_text();
+        context.push_str(&text);
+        context.merge_losses(losses);
     }
 }
 

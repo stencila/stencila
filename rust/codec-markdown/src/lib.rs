@@ -1,9 +1,10 @@
 use codec::{
     common::{async_trait::async_trait, eyre::Result},
     format::Format,
-    schema::{Node, NodeType},
+    node_type::NodeType,
+    schema::Node,
     status::Status,
-    Codec, CodecSupport, DecodeOptions, EncodeOptions, Losses,
+    Codec, CodecSupport, DecodeOptions, EncodeOptions, Losses, Mapping,
 };
 
 use codec_markdown_trait::{MarkdownCodec as _, MarkdownEncodeContext};
@@ -99,12 +100,12 @@ impl Codec for MarkdownCodec {
         &self,
         node: &Node,
         _options: Option<EncodeOptions>,
-    ) -> Result<(String, Losses)> {
+    ) -> Result<(String, Losses, Mapping)> {
         let mut context = MarkdownEncodeContext::default();
-        let (markdown, losses) = node.to_markdown(&mut context);
+        node.to_markdown(&mut context);
 
-        let markdown = markdown.trim().to_string();
+        let markdown = context.content.trim().to_string();
 
-        Ok((markdown, losses))
+        Ok((markdown, context.losses, context.mapping))
     }
 }

@@ -1,7 +1,17 @@
-use crate::{prelude::*, shortcuts::t, Block, ListItem};
+use codec_losses::lost_options;
 
-impl ListItem {
-    pub fn to_markdown_special(&self, context: &mut MarkdownEncodeContext) -> (String, Losses) {
+use crate::{prelude::*, ListItem};
+
+impl MarkdownCodec for ListItem {
+    fn to_markdown(&self, context: &mut MarkdownEncodeContext) {
+        context
+            .enter_node(self.node_type(), self.node_id())
+            .merge_losses(lost_options!(self, id, item, position))
+            .push_prop_fn("content", |context| self.content.to_markdown(context));
+
+        context.exit_node();
+
+        /*
         let checkbox = self.is_checked.map(|is_checked| match is_checked {
             true => t("[x] "),
             false => t("[ ] "),
@@ -27,17 +37,6 @@ impl ListItem {
             }
             None => self.content.to_markdown(context),
         };
-
-        if self.id.is_some() {
-            losses.add("ListItem.id")
-        }
-        if self.item.is_some() {
-            losses.add("ListItem.item")
-        }
-        if self.position.is_some() {
-            losses.add("ListItem.position")
-        }
-
-        (md, losses)
+        */
     }
 }

@@ -175,11 +175,21 @@ impl Schemas {
             dest.join("types.rs"),
             format!(
                 r#"{GENERATED_COMMENT}
-use common::strum::{{Display, EnumString, EnumIter}};
-
 {mods}
 
 {uses}
+"#
+            ),
+        )
+        .await?;
+
+        // Enumeration of node types
+        write(
+            PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../node-type/src/node_type.rs"),
+            format!(
+                r#"{GENERATED_COMMENT}
+
+use common::strum::{{Display, EnumString, EnumIter}};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Display, EnumString, EnumIter)]
 #[strum(crate="common::strum")]
@@ -285,6 +295,7 @@ pub enum NodeType {{
             "#[serde_as]".to_string(),
         ];
 
+        // Construct list of traits to derive for the struct
         let mut derives = vec![
             "Debug",
             "SmartDefault",
@@ -294,18 +305,29 @@ pub enum NodeType {{
             "Deserialize",
             "StripNode",
             "WalkNode",
-            "HtmlCodec",
-            "JatsCodec",
-            "MarkdownCodec",
-            "TextCodec",
             "WriteNode",
         ];
-        let title = title.as_str();
-        if !NO_READ_NODE.contains(&title) {
+
+        if !NO_READ_NODE.contains(&title.as_str()) {
             derives.push("ReadNode");
         }
+
+        derives.append(&mut vec!["HtmlCodec", "JatsCodec"]);
+
+        if schema
+            .markdown
+            .as_ref()
+            .map(|spec| spec.derive)
+            .unwrap_or(true)
+        {
+            derives.push("MarkdownCodec");
+        }
+
+        derives.push("TextCodec");
+
         attrs.push(format!("#[derive({})]", derives.join(", ")));
 
+        // Serde attributes
         attrs.push("#[serde(rename_all = \"camelCase\", crate = \"common::serde\")]".to_string());
 
         // Add proptest related attributes
@@ -400,19 +422,18 @@ pub enum NodeType {{
 
         // Add #[markdown] attribute for main struct if necessary
         if let Some(markdown) = &schema.markdown {
-            let mut args = Vec::new();
+            if markdown.derive {
+                let mut args = Vec::new();
 
-            if let Some(template) = &markdown.template {
-                args.push(format!("template = \"{template}\""));
-            }
-            if let Some(escape) = &markdown.escape {
-                args.push(format!("escape = \"{escape}\""));
-            }
-            if markdown.special {
-                args.push("special".to_string());
-            }
+                if let Some(template) = &markdown.template {
+                    args.push(format!("template = \"{template}\""));
+                }
+                if let Some(escape) = &markdown.escape {
+                    args.push(format!("escape = \"{escape}\""));
+                }
 
-            attrs.push(format!("#[markdown({})]", args.join(", ")))
+                attrs.push(format!("#[markdown({})]", args.join(", ")))
+            }
         }
 
         let attrs = attrs.join("\n");
@@ -665,7 +686,6 @@ pub struct {title}Options {{
     #[serde(flatten)]
     #[html(flatten)]
     #[jats(flatten)]
-    #[markdown(flatten)]
     pub options: Box<{title}Options>,"
             );
         }
@@ -714,11 +734,13 @@ pub struct {title}Options {{
             String::new()
         };
 
-        let node_id_proptest = if schema.proptest.is_some() {
+        let uuid_proptest = if schema.proptest.is_some() {
             r#"#[cfg_attr(feature = "proptest", proptest(value = "Default::default()"))]"#
         } else {
             ""
         };
+
+        let nick = &title.to_lowercase()[..3];
 
         write(
             path,
@@ -732,21 +754,23 @@ use crate::prelude::*;
 pub struct {title} {{
     {core_fields}
 
-    /// A unique identifier for this node
-    {node_id_proptest}
+    /// A universally unique identifier for this node
+    {uuid_proptest}
     #[serde(skip)]
-    pub node_id: NodeId
+    pub uuid: NodeUuid
 }}{options}
 
 impl {title} {{{new}}}
 
 impl Entity for {title} {{
-    fn node_type() -> NodeType {{
+    const NICK: &'static str = "{nick}";
+
+    fn node_type(&self) -> NodeType {{
         NodeType::{title}
     }}
 
-    fn node_id(&self) -> &NodeId {{
-        &self.node_id
+    fn node_id(&self) -> NodeId {{
+        NodeId::new(Self::NICK, &self.uuid)
     }}
 }}
 "#

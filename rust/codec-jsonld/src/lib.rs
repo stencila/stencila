@@ -8,9 +8,10 @@ use codec::{
         serde_json::{self, json, Map, Value},
     },
     format::Format,
-    schema::{Node, NodeType},
+    node_type::NodeType,
+    schema::Node,
     status::Status,
-    Codec, CodecSupport, DecodeOptions, EncodeOptions, Losses,
+    Codec, CodecSupport, DecodeOptions, EncodeOptions, Losses, Mapping,
 };
 
 /// A codec for JSON-LD
@@ -94,7 +95,7 @@ impl Codec for JsonLdCodec {
         &self,
         node: &Node,
         options: Option<EncodeOptions>,
-    ) -> Result<(String, Losses)> {
+    ) -> Result<(String, Losses, Mapping)> {
         let EncodeOptions { compact, .. } = options.unwrap_or_default();
 
         let value = serde_json::to_value(node)?;
@@ -102,7 +103,7 @@ impl Codec for JsonLdCodec {
         let Some(object) = value.as_object() else {
             // In the rare case the node does not encode to a JSON object, just return the JSON
             let json = serde_json::to_string_pretty(&value)?;
-            return Ok((json, Losses::none()))
+            return Ok((json, Losses::none(), Mapping::none()))
         };
 
         let mut encoded = json!({
@@ -127,7 +128,7 @@ impl Codec for JsonLdCodec {
             Some(false) | None => serde_json::to_string_pretty(&encoded),
         }?;
 
-        Ok((json, Losses::none()))
+        Ok((json, Losses::none(), Mapping::none()))
     }
 }
 

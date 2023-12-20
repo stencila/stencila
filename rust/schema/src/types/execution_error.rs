@@ -8,7 +8,7 @@ use super::string::String;
 /// An error that occurred when executing an executable node.
 #[skip_serializing_none]
 #[serde_as]
-#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, WalkNode, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec, WriteNode, ReadNode)]
+#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, WalkNode, WriteNode, ReadNode, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 #[derive(derive_more::Display)]
 #[display(fmt = "ExecutionError")]
@@ -37,10 +37,10 @@ pub struct ExecutionError {
     #[serde(alias = "trace", alias = "stack-trace", alias = "stack_trace")]
     pub stack_trace: Option<String>,
 
-    /// A unique identifier for this node
+    /// A universally unique identifier for this node
     
     #[serde(skip)]
-    pub node_id: NodeId
+    pub uuid: NodeUuid
 }
 
 impl ExecutionError {
@@ -53,11 +53,13 @@ impl ExecutionError {
 }
 
 impl Entity for ExecutionError {
-    fn node_type() -> NodeType {
+    const NICK: &'static str = "exe";
+
+    fn node_type(&self) -> NodeType {
         NodeType::ExecutionError
     }
 
-    fn node_id(&self) -> &NodeId {
-        &self.node_id
+    fn node_id(&self) -> NodeId {
+        NodeId::new(Self::NICK, &self.uuid)
     }
 }

@@ -1,9 +1,8 @@
-use codec_losses::lost_options;
-
 use crate::{prelude::*, Note};
 
-impl Note {
-    pub fn to_markdown_special(&self, context: &mut MarkdownEncodeContext) -> (String, Losses) {
+impl MarkdownCodec for Note {
+    fn to_markdown(&self, _context: &mut MarkdownEncodeContext) {
+        /*
         let mut losses = lost_options!(self, id);
 
         let (content, content_losses) = self.content.to_markdown(context);
@@ -16,5 +15,6 @@ impl Note {
         let md = ["[^", &index.to_string(), "]"].concat();
 
         (md, losses)
+        */
     }
 }

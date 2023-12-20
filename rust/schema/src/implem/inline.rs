@@ -1,6 +1,7 @@
-use node_store::{automerge::ObjId, ReadNode, ReadStore};
+use node_store::{automerge::ObjId, get_node_type, ReadCrdt, ReadNode};
+use node_type::NodeType;
 
-use crate::{prelude::*, transforms::blocks_to_inlines, utilities::node_type, *};
+use crate::{prelude::*, transforms::blocks_to_inlines, *};
 
 impl ReadNode for Inline {
     fn load_null() -> Result<Self> {
@@ -23,19 +24,19 @@ impl ReadNode for Inline {
         Ok(Inline::Number(*value))
     }
 
-    fn load_map<S: ReadStore>(store: &S, obj_id: &ObjId) -> Result<Self> {
-        let Some(node_type) = node_type(store, obj_id)? else {
-            bail!("Object in Automerge store is not an `Inline`");
+    fn load_map<C: ReadCrdt>(crdt: &C, obj_id: &ObjId) -> Result<Self> {
+        let Some(node_type) = get_node_type(crdt, obj_id)? else {
+            bail!("Object in Automerge CRDT is not an `Inline`");
         };
 
         macro_rules! load_map_variants {
             ($( $variant:ident ),*) => {
                 match node_type {
                     $(
-                        NodeType::$variant => Ok(Inline::$variant(crate::$variant::load_map(store, obj_id)?)),
+                        NodeType::$variant => Ok(Inline::$variant(crate::$variant::load_map(crdt, obj_id)?)),
                     )*
 
-                    _ => bail!("Unexpected type `{node_type}` in Automerge store for `Inline`"),
+                    _ => bail!("Unexpected type `{node_type}` in Automerge CRDT for `Inline`"),
                 }
             };
         }

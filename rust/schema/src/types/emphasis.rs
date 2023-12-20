@@ -8,14 +8,14 @@ use super::string::String;
 /// Emphasized content.
 #[skip_serializing_none]
 #[serde_as]
-#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, WalkNode, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec, WriteNode, ReadNode)]
+#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, WalkNode, WriteNode, ReadNode, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 #[cfg_attr(feature = "proptest", derive(Arbitrary))]
 #[derive(derive_more::Display)]
 #[display(fmt = "Emphasis")]
 #[html(elem = "em")]
 #[jats(elem = "italic")]
-#[markdown(template = "_{content}_", escape = "_")]
+#[markdown(template = "_{{content}}_", escape = "_")]
 pub struct Emphasis {
     /// The type of this item.
     #[cfg_attr(feature = "proptest", proptest(value = "Default::default()"))]
@@ -36,10 +36,10 @@ pub struct Emphasis {
     #[cfg_attr(feature = "proptest-max", proptest(strategy = r#"vec_inlines_non_recursive(4)"#))]
     pub content: Vec<Inline>,
 
-    /// A unique identifier for this node
+    /// A universally unique identifier for this node
     #[cfg_attr(feature = "proptest", proptest(value = "Default::default()"))]
     #[serde(skip)]
-    pub node_id: NodeId
+    pub uuid: NodeUuid
 }
 
 impl Emphasis {
@@ -52,11 +52,13 @@ impl Emphasis {
 }
 
 impl Entity for Emphasis {
-    fn node_type() -> NodeType {
+    const NICK: &'static str = "emp";
+
+    fn node_type(&self) -> NodeType {
         NodeType::Emphasis
     }
 
-    fn node_id(&self) -> &NodeId {
-        &self.node_id
+    fn node_id(&self) -> NodeId {
+        NodeId::new(Self::NICK, &self.uuid)
     }
 }

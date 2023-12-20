@@ -8,7 +8,7 @@ use super::string::String;
 /// A tag on code that affects its execution.
 #[skip_serializing_none]
 #[serde_as]
-#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, WalkNode, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec, WriteNode, ReadNode)]
+#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, WalkNode, WriteNode, ReadNode, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 #[derive(derive_more::Display)]
 #[display(fmt = "ExecutionTag")]
@@ -31,10 +31,10 @@ pub struct ExecutionTag {
     #[serde(alias = "is-global", alias = "is_global")]
     pub is_global: Boolean,
 
-    /// A unique identifier for this node
+    /// A universally unique identifier for this node
     
     #[serde(skip)]
-    pub node_id: NodeId
+    pub uuid: NodeUuid
 }
 
 impl ExecutionTag {
@@ -49,11 +49,13 @@ impl ExecutionTag {
 }
 
 impl Entity for ExecutionTag {
-    fn node_type() -> NodeType {
+    const NICK: &'static str = "exe";
+
+    fn node_type(&self) -> NodeType {
         NodeType::ExecutionTag
     }
 
-    fn node_id(&self) -> &NodeId {
-        &self.node_id
+    fn node_id(&self) -> NodeId {
+        NodeId::new(Self::NICK, &self.uuid)
     }
 }

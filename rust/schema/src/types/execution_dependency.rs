@@ -10,7 +10,7 @@ use super::string::String;
 /// An upstream execution dependency of a node.
 #[skip_serializing_none]
 #[serde_as]
-#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, WalkNode, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec, WriteNode, ReadNode)]
+#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, WalkNode, WriteNode, ReadNode, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 #[derive(derive_more::Display)]
 #[display(fmt = "ExecutionDependency")]
@@ -35,10 +35,10 @@ pub struct ExecutionDependency {
     #[serde(alias = "code-location", alias = "code_location")]
     pub code_location: Option<CodeLocation>,
 
-    /// A unique identifier for this node
+    /// A universally unique identifier for this node
     
     #[serde(skip)]
-    pub node_id: NodeId
+    pub uuid: NodeUuid
 }
 
 impl ExecutionDependency {
@@ -52,11 +52,13 @@ impl ExecutionDependency {
 }
 
 impl Entity for ExecutionDependency {
-    fn node_type() -> NodeType {
+    const NICK: &'static str = "exe";
+
+    fn node_type(&self) -> NodeType {
         NodeType::ExecutionDependency
     }
 
-    fn node_id(&self) -> &NodeId {
-        &self.node_id
+    fn node_id(&self) -> NodeId {
+        NodeId::new(Self::NICK, &self.uuid)
     }
 }

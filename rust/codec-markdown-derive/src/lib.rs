@@ -3,7 +3,7 @@
 use darling::{self, FromDeriveInput, FromField};
 
 use common::{
-    proc_macro2::TokenStream,
+    proc_macro2::{Span, TokenStream},
     quote::quote,
     syn::{parse_macro_input, Data, DataEnum, DeriveInput, Fields, Ident, PathSegment, Type},
 };
@@ -19,9 +19,6 @@ struct TypeAttr {
 
     #[darling(default)]
     escape: Option<String>,
-
-    #[darling(default)]
-    special: bool,
 }
 
 #[derive(FromField)]
@@ -29,9 +26,6 @@ struct TypeAttr {
 struct FieldAttr {
     ident: Option<Ident>,
     ty: Type,
-
-    #[darling(default)]
-    flatten: bool,
 }
 
 /// Derive the `MarkdownCodec` trait for a `struct` or an `enum`
@@ -61,78 +55,80 @@ pub fn derive(input: proc_macro::TokenStream) -> proc_macro::TokenStream {
 fn derive_struct(type_attr: TypeAttr) -> TokenStream {
     let struct_name = type_attr.ident;
 
-    if type_attr.special {
-        quote! {
-            impl MarkdownCodec for #struct_name {
-                fn to_markdown(&self, context: &mut MarkdownEncodeContext) -> (String, Losses) {
-                    self.to_markdown_special(context)
-                }
+    if let Some(template) = type_attr.template {
+        // When a template is provided render each of the interpolated string and push the other content
+        // in between
+        let mut fields = TokenStream::new();
+        let mut included = vec![];
+        for segment in template
+            .split_inclusive("}}")
+            .flat_map(|segment| segment.split("{{"))
+        {
+            if let Some(field_name) = segment.strip_suffix("}}") {
+                let field_ident = Ident::new(field_name, Span::call_site());
+                let tokens = if let Some(escape) = &type_attr.escape {
+                    quote! {
+                        context
+                            .set_escape(#escape)
+                            .push_prop_fn(#field_name, |context| self.#field_ident.to_markdown(context))
+                            .clear_escape()
+                        ;
+                    }
+                } else {
+                    quote! {
+                        context.push_prop_fn(#field_name, |context| self.#field_ident.to_markdown(context));
+                    }
+                };
+                fields.extend(tokens);
+                included.push(field_name);
+            } else {
+                fields.extend(quote! {
+                    context.push_str(#segment);
+                });
             }
         }
-    } else if let Some(template) = type_attr.template {
-        // When a format is provided record loss of properties not interpolated in it
 
-        let mut fields = TokenStream::new();
+        // Create tokens for losses
+        let mut losses = TokenStream::new();
         type_attr.data.map_struct_fields(|field_attr| {
             let Some(field_name) = field_attr.ident else {
                 return
             };
-
-            if field_name == "r#type" || field_name == "node_id" {
+            if field_name == "r#type"
+                || field_name == "uuid"
+                || included.contains(&field_name.to_string().as_str())
+            {
                 return;
             }
-
-            let field_tokens = if template.contains(&["{", &field_name.to_string(), "}"].concat()) {
-                let mut tokens = quote! {
-                    let (#field_name, field_losses) = self.#field_name.to_markdown(context);
-                    losses.merge(field_losses);
-                };
-                if let Some(escape) = &type_attr.escape {
-                    tokens.extend(quote! {
-                        let #field_name = #field_name.replace(#escape, &[r"\", #escape].concat());
-                    });
-                }
-                tokens
-            } else if field_attr.flatten {
-                // The best that we can do here is to add an loss for options,
-                // if any options are `Some`, as we can not easily get higher granularity
-                quote! {
-                    let (field_md, _) = self.#field_name.to_markdown(context);
-                    if !field_md.is_empty() {
-                        losses.add(concat!(stringify!(#struct_name), ".options"));
-                    }
-                }
-            } else {
-                let Type::Path(type_path) = field_attr.ty else {
-                    return
-                };
-                let Some(PathSegment{ident: field_type,..}) = type_path.path.segments.last() else {
-                    return
-                };
-
-                let record_loss = quote! {
-                    losses.add(concat!(stringify!(#struct_name), ".", stringify!(#field_name)));
-                };
-
-                if field_type == "Option" {
-                    quote! { if self.#field_name.is_some() { #record_loss }}
-                } else if field_type == "Vec" {
-                    quote! { if !self.#field_name.is_empty() { #record_loss }}
-                } else {
-                    record_loss
-                }
+            let Type::Path(type_path) = field_attr.ty else {
+                return
             };
-            fields.extend(field_tokens);
+            let Some(PathSegment{ident: field_type,..}) = type_path.path.segments.last() else {
+                return
+            };
+
+            let record_loss = quote! {
+                context.add_loss(concat!(stringify!(#struct_name), ".", stringify!(#field_name)));
+            };
+
+            let loss = if field_type == "Option" {
+                quote! { if self.#field_name.is_some() { #record_loss }}
+            } else if field_type == "Vec" {
+                quote! { if !self.#field_name.is_empty() { #record_loss }}
+            } else {
+                record_loss
+            };
+
+            losses.extend(loss);
         });
 
         quote! {
             impl MarkdownCodec for #struct_name {
-                fn to_markdown(&self, context: &mut MarkdownEncodeContext) -> (String, Losses) {
-                    let mut losses = Losses::none();
-
+                fn to_markdown(&self, context: &mut MarkdownEncodeContext) {
+                    context.enter_node(self.node_type(), self.node_id());
                     #fields
-
-                    (format!(#template), losses)
+                    #losses
+                    context.exit_node();
                 }
             }
         }
@@ -140,39 +136,41 @@ fn derive_struct(type_attr: TypeAttr) -> TokenStream {
         // Fallback is to encode all fields but to record loss of structure of this type
         // (but not for XxxxOptions)
 
+        let (enter, exit) = if struct_name.to_string().ends_with("Options") {
+            (TokenStream::new(), TokenStream::new())
+        } else {
+            (
+                quote!(
+                    context.enter_node(self.node_type(), self.node_id()).add_loss(concat!(stringify!(#struct_name), "#"));
+                ),
+                quote!(
+                    context.exit_node();
+                ),
+            )
+        };
+
         let mut fields = TokenStream::new();
         type_attr.data.map_struct_fields(|field_attr| {
             let Some(field_name) = field_attr.ident else {
                 return
             };
 
-            if field_name == "r#type" || field_name == "node_id" {
+            if field_name == "r#type" || field_name == "uuid" {
                 return;
             }
 
             let field_tokens = quote! {
-                let (field_markdown, field_losses) = self.#field_name.to_markdown(context);
-                markdown.push_str(&field_markdown);
-                losses.merge(field_losses);
+                context.push_prop_fn(stringify!(#field_name), |context| self.#field_name.to_markdown(context));
             };
             fields.extend(field_tokens)
         });
 
-        let losses = if struct_name.to_string().ends_with("Options") {
-            quote!(Losses::none())
-        } else {
-            quote!(Losses::one(concat!(stringify!(#struct_name), "#")))
-        };
-
         quote! {
             impl MarkdownCodec for #struct_name {
-                fn to_markdown(&self, context: &mut MarkdownEncodeContext) -> (String, Losses) {
-                    let mut markdown = String::new();
-                    let mut losses = #losses;
-
+                fn to_markdown(&self, context: &mut MarkdownEncodeContext) {
+                    #enter
                     #fields
-
-                    (markdown, losses)
+                    #exit
                 }
             }
         }
@@ -188,10 +186,10 @@ fn derive_enum(type_attr: TypeAttr, data: &DataEnum) -> TokenStream {
         let variant_name = &variant.ident;
         let variant_tokens = match &variant.fields {
             Fields::Named(..) | Fields::Unnamed(..) => quote! {
-                Self::#variant_name(v) => v.to_markdown(context),
+                Self::#variant_name(variant) => { variant.to_markdown(context); },
             },
             Fields::Unit => quote! {
-                Self::#variant_name => (stringify!(#variant_name).to_string(), Losses::none()),
+                Self::#variant_name => { context.push_str(stringify!(#variant_name)); },
             },
         };
         variants.extend(variant_tokens)
@@ -199,7 +197,7 @@ fn derive_enum(type_attr: TypeAttr, data: &DataEnum) -> TokenStream {
 
     quote! {
         impl MarkdownCodec for #enum_name {
-            fn to_markdown(&self, context: &mut MarkdownEncodeContext) -> (String, Losses) {
+            fn to_markdown(&self, context: &mut MarkdownEncodeContext) {
                 match self {
                     #variants
                 }

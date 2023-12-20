@@ -7,7 +7,7 @@ use common_dev::{
     pretty_assertions::assert_eq,
     proptest::prelude::{proptest, ProptestConfig},
 };
-use node_store::{ReadNode, WriteNode, WriteStore};
+use node_store::{ReadNode, WriteCrdt, WriteNode};
 use schema::Article;
 
 #[cfg(any(
@@ -21,7 +21,7 @@ proptest! {
 
     #[test]
     fn article(node: Article) {
-        let mut store = WriteStore::default();
+        let mut store = WriteCrdt::default();
         node.dump(&mut store).unwrap();
         let roundtrip = Article::load(&store).unwrap();
 

@@ -17,11 +17,12 @@ use common::{
         self,
         sync::{
             mpsc::{Receiver, Sender},
-            Mutex,
+            Mutex, RwLock,
         },
     },
     tracing,
 };
+use schema::ExecutionRequired;
 
 use crate::Document;
 
@@ -170,16 +171,19 @@ impl Document {
 
         // Create initial encoding of the root node
         let node = self.load().await?;
-        let content = codecs::to_string(&node, encode_options.clone()).await?;
+        let (content, .., mapping) = codecs::to_string_with(&node, encode_options.clone()).await?;
 
         // Create the buffer and initialize the version
         let buffer = Arc::new(Mutex::new(content.clone()));
+        let mapping = Arc::new(RwLock::new(mapping));
         let version = Arc::new(AtomicU32::new(1));
 
         // Start task to receive incoming `StringPatch`s from the client, apply them
         // to the buffer, and update the document's root node
         if let Some(mut patch_receiver) = patch_receiver {
+            let store_clone = self.store.clone();
             let buffer_clone = buffer.clone();
+            let mapping_clone = mapping.clone();
             let version_clone = version.clone();
             let patch_sender_clone = patch_sender.clone();
             let update_sender = self.update_sender.clone();
@@ -206,6 +210,7 @@ impl Document {
                     }
 
                     // Apply the patch to the buffer
+                    let mut buffer_changed = false;
                     for op in patch.ops {
                         use FormatOperationType::*;
                         match op {
@@ -218,30 +223,59 @@ impl Document {
                                 from: Some(from),
                                 to: None,
                                 insert: Some(insert),
-                            } => buffer.insert_str(from, &insert),
+                            } => {
+                                buffer.insert_str(from, &insert);
+                                buffer_changed = true;
+                            }
 
                             FormatOperation {
                                 r#type: Delete,
                                 from: Some(from),
                                 to: Some(to),
                                 insert: None,
-                            } => buffer.replace_range(from..to, ""),
+                            } => {
+                                buffer.replace_range(from..to, "");
+                                buffer_changed = true;
+                            }
 
                             FormatOperation {
                                 r#type: Replace,
                                 from: Some(from),
                                 to: Some(to),
                                 insert: Some(insert),
-                            } => buffer.replace_range(from..to, &insert),
+                            } => {
+                                buffer.replace_range(from..to, &insert);
+                                buffer_changed = true;
+                            }
 
                             FormatOperation {
                                 r#type: Execute,
                                 from: Some(from),
-                                to: Some(to),
+                                to: Some(_to),
                                 insert: None,
                             } => {
-                                // TODO
-                                tracing::debug!("Execute operation {from}-{to}")
+                                let entry = mapping_clone
+                                    .read()
+                                    .await
+                                    .closest_where(from, |entry| entry.node_type.can_execute());
+                                tracing::debug!("Execute operation on: {:?}", entry);
+
+                                println!("{}", mapping_clone.read().await);
+
+                                if let Some(entry) = entry {
+                                    let mut store = store_clone.write().await;
+                                    let node_id = entry.node_id;
+                                    if let Err(error) = store.set_property(
+                                        &node_id,
+                                        "execution_required",
+                                        ExecutionRequired::UserRequested,
+                                    ) {
+                                        tracing::error!(
+                                            "Unable to set `execution_required` property: {error}"
+                                        );
+                                        println!("{}", store.map)
+                                    }
+                                }
                             }
 
                             FormatOperation {
@@ -256,6 +290,11 @@ impl Document {
 
                             _ => tracing::warn!("Client sent invalid operation"),
                         }
+                    }
+
+                    // Continue if the buffer was not changed
+                    if !buffer_changed {
+                        continue;
                     }
 
                     // Increment the buffer's version number
@@ -293,18 +332,22 @@ impl Document {
                     let node = node_receiver.borrow_and_update().clone();
 
                     // Encode the node to a string in the format
-                    let new = match codecs::to_string(&node, encode_options.clone()).await {
-                        Ok(string) => string,
-                        Err(error) => {
-                            tracing::error!("While encoding node to string: {error}");
-                            continue;
-                        }
-                    };
+                    let (new_string, .., new_mapping) =
+                        match codecs::to_string_with(&node, encode_options.clone()).await {
+                            Ok(string) => string,
+                            Err(error) => {
+                                tracing::error!("While encoding node to string: {error}");
+                                continue;
+                            }
+                        };
+
+                    // Update mapping
+                    *mapping.write().await = new_mapping;
 
                     let mut buffer = buffer.lock().await;
 
                     // Continue if there is no change in the string
-                    if new == *buffer {
+                    if new_string == *buffer {
                         continue;
                     }
 
@@ -312,7 +355,7 @@ impl Document {
                     let diff = TextDiffConfig::default()
                         .algorithm(Algorithm::Patience)
                         .timeout(Duration::from_secs(5))
-                        .diff_chars(buffer.as_str(), new.as_str());
+                        .diff_chars(buffer.as_str(), new_string.as_str());
 
                     // Convert the diff to a set of `StringOp`s
                     let mut ops = Vec::new();
@@ -320,7 +363,7 @@ impl Document {
                     for op in diff.ops() {
                         match op.tag() {
                             DiffTag::Insert => {
-                                ops.push(FormatOperation::insert(from, &new[op.new_range()]))
+                                ops.push(FormatOperation::insert(from, &new_string[op.new_range()]))
                             }
                             DiffTag::Delete => {
                                 ops.push(FormatOperation::delete(from, from + op.old_range().len()))
@@ -328,7 +371,7 @@ impl Document {
                             DiffTag::Replace => ops.push(FormatOperation::replace(
                                 from,
                                 from + op.old_range().len(),
-                                new[op.new_range()].to_string(),
+                                new_string[op.new_range()].to_string(),
                             )),
                             DiffTag::Equal => {}
                         };
@@ -337,7 +380,7 @@ impl Document {
                     }
 
                     // Update buffer
-                    *buffer = new;
+                    *buffer = new_string;
                     drop(buffer);
 
                     // Increment version

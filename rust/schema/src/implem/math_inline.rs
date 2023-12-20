@@ -23,22 +23,40 @@ impl MathInline {
 
         (jats, losses)
     }
+}
 
-    pub fn to_markdown_special(&self, _context: &mut MarkdownEncodeContext) -> (String, Losses) {
+impl MarkdownCodec for MathInline {
+    fn to_markdown(&self, context: &mut MarkdownEncodeContext) {
+        context
+            .enter_node(self.node_type(), self.node_id())
+            .merge_losses(lost_options!(
+                self,
+                id,
+                compilation_digest,
+                compilation_errors,
+                mathml
+            ));
+
         let lang = self
             .math_language
             .as_deref()
             .unwrap_or("tex")
             .to_lowercase();
 
-        let md = if lang == "tex" {
-            ["$", &self.code.replace('$', r"\$"), "$"].concat()
+        if lang == "tex" {
+            context
+                .push_str("$")
+                .push_prop_str("code", &self.code.replace('$', r"\$"))
+                .push_str("$");
         } else {
-            ["`", &self.code.replace('`', r"\`"), "`{", &lang, "}"].concat()
-        };
+            context
+                .push_str("`")
+                .push_prop_str("code", &self.code.replace('`', r"\`"))
+                .push_str("`{")
+                .push_prop_str("math_language", &lang)
+                .push_str("}");
+        }
 
-        let losses = lost_options!(self, id, compilation_digest, compilation_errors, mathml);
-
-        (md, losses)
+        context.exit_node();
     }
 }

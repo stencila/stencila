@@ -8,7 +8,7 @@ use super::string::String;
 /// A validator specifying a constant value that a node must have.
 #[skip_serializing_none]
 #[serde_as]
-#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, WalkNode, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec, WriteNode, ReadNode)]
+#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, WalkNode, WriteNode, ReadNode, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 #[derive(derive_more::Display)]
 #[display(fmt = "ConstantValidator")]
@@ -24,10 +24,10 @@ pub struct ConstantValidator {
     /// The value that the node must have.
     pub value: Box<Node>,
 
-    /// A unique identifier for this node
+    /// A universally unique identifier for this node
     
     #[serde(skip)]
-    pub node_id: NodeId
+    pub uuid: NodeUuid
 }
 
 impl ConstantValidator {
@@ -40,11 +40,13 @@ impl ConstantValidator {
 }
 
 impl Entity for ConstantValidator {
-    fn node_type() -> NodeType {
+    const NICK: &'static str = "con";
+
+    fn node_type(&self) -> NodeType {
         NodeType::ConstantValidator
     }
 
-    fn node_id(&self) -> &NodeId {
-        &self.node_id
+    fn node_id(&self) -> NodeId {
+        NodeId::new(Self::NICK, &self.uuid)
     }
 }

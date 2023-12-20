@@ -1,6 +1,5 @@
-use smol_str::SmolStr;
-
-use node_store::{automerge::ObjId, ReadNode, ReadStore};
+use common::smol_str::SmolStr;
+use node_store::{automerge::ObjId, ReadCrdt, ReadNode};
 
 use crate::{prelude::*, Array, Null, Object, Primitive};
 
@@ -29,11 +28,11 @@ impl ReadNode for Primitive {
         Ok(Primitive::String(value.to_string()))
     }
 
-    fn load_list<S: ReadStore>(store: &S, obj: &ObjId) -> Result<Self> {
-        Ok(Primitive::Array(Array::load_list(store, obj)?))
+    fn load_list<C: ReadCrdt>(crdt: &C, obj: &ObjId) -> Result<Self> {
+        Ok(Primitive::Array(Array::load_list(crdt, obj)?))
     }
 
-    fn load_map<S: ReadStore>(store: &S, obj: &ObjId) -> Result<Self> {
-        Ok(Primitive::Object(Object::load_map(store, obj)?))
+    fn load_map<C: ReadCrdt>(crdt: &C, obj: &ObjId) -> Result<Self> {
+        Ok(Primitive::Object(Object::load_map(crdt, obj)?))
     }
 }

@@ -1,8 +1,8 @@
 pub(crate) use automerge::{
-    transaction::Transactable, AutoCommit as WriteStore, ObjId, ObjType, Prop,
-    ReadDoc as ReadStore, ScalarValue, Value,
+    transaction::Transactable, AutoCommit as WriteCrdt, ObjId, ObjType, Prop, ReadDoc as ReadCrdt,
+    ScalarValue, Value,
 };
 
-pub(crate) use common::eyre::Result;
+pub(crate) use common::{eyre::Result, smol_str::SmolStr};
 
-pub(crate) use crate::{ReadNode, WriteNode, SIMILARITY_MAX};
+pub(crate) use crate::{ReadNode, StoreMap, WriteNode, SIMILARITY_MAX};

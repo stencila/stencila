@@ -8,7 +8,7 @@ use super::unsigned_integer::UnsignedInteger;
 /// The location within some source code.
 #[skip_serializing_none]
 #[serde_as]
-#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, WalkNode, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec, WriteNode, ReadNode)]
+#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, WalkNode, WriteNode, ReadNode, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 #[derive(derive_more::Display)]
 #[display(fmt = "CodeLocation")]
@@ -40,10 +40,10 @@ pub struct CodeLocation {
     #[serde(alias = "end-column", alias = "end_column")]
     pub end_column: Option<UnsignedInteger>,
 
-    /// A unique identifier for this node
+    /// A universally unique identifier for this node
     
     #[serde(skip)]
-    pub node_id: NodeId
+    pub uuid: NodeUuid
 }
 
 impl CodeLocation {
@@ -55,11 +55,13 @@ impl CodeLocation {
 }
 
 impl Entity for CodeLocation {
-    fn node_type() -> NodeType {
+    const NICK: &'static str = "cod";
+
+    fn node_type(&self) -> NodeType {
         NodeType::CodeLocation
     }
 
-    fn node_id(&self) -> &NodeId {
-        &self.node_id
+    fn node_id(&self) -> NodeId {
+        NodeId::new(Self::NICK, &self.uuid)
     }
 }

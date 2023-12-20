@@ -1,9 +1,10 @@
 use codec::{
     common::{async_trait::async_trait, eyre::Result},
     format::Format,
-    schema::{Node, NodeType},
+    node_type::NodeType,
+    schema::Node,
     status::Status,
-    Codec, CodecSupport, EncodeOptions, Losses,
+    Codec, CodecSupport, EncodeOptions, Losses, Mapping,
 };
 use codec_html_trait::{HtmlCodec as _, HtmlEncodeContext};
 
@@ -48,7 +49,7 @@ impl Codec for HtmlCodec {
         &self,
         node: &Node,
         options: Option<EncodeOptions>,
-    ) -> Result<(String, Losses)> {
+    ) -> Result<(String, Losses, Mapping)> {
         let EncodeOptions {
             compact,
             standalone,
@@ -83,7 +84,7 @@ impl Codec for HtmlCodec {
             Some(false) => indent(&html),
         };
 
-        Ok((html, Losses::none()))
+        Ok((html, Losses::none(), Mapping::none()))
     }
 }
 

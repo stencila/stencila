@@ -1,24 +1,23 @@
+use codec_losses::lost_options;
+
 use crate::{prelude::*, ModifyBlock, ModifyOperation};
 
-impl ModifyBlock {
-    pub fn to_markdown_special(&self, context: &mut MarkdownEncodeContext) -> (String, Losses) {
-        let mut md = String::from("!!\n\n");
-        let mut losses = Losses::none();
+impl MarkdownCodec for ModifyBlock {
+    fn to_markdown(&self, context: &mut MarkdownEncodeContext) {
+        context
+            .enter_node(self.node_type(), self.node_id())
+            .merge_losses(lost_options!(self, id));
 
-        let (content_md, content_losses) = self.content.to_markdown(context);
-        md += &content_md;
-        losses.merge(content_losses);
-
-        md += "!>\n\n";
+        context
+            .push_str("!!\n\n")
+            .push_prop_fn("content", |context| self.content.to_markdown(context));
 
         let modified =
             ModifyOperation::apply_many(&self.operations, &self.content).unwrap_or_default();
-        let (modified_md, modified_losses) = modified.to_markdown(context);
-        md += &modified_md;
-        losses.merge(modified_losses);
+        context
+            .push_str("!>\n\n")
+            .push_prop_fn("operations", |context| modified.to_markdown(context));
 
-        md += "!!\n\n";
-
-        (md, losses)
+        context.push_str("!!\n").exit_node().push_str("\n");
     }
 }

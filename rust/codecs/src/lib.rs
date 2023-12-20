@@ -6,6 +6,7 @@ use codec::{
         tracing,
     },
     schema::Node,
+    Mapping,
 };
 pub use codec::{
     format::Format, Codec, CodecDirection, CodecSupport, DecodeOptions, EncodeOptions, Losses,
@@ -179,7 +180,7 @@ pub async fn from_stdin(options: Option<DecodeOptions>) -> Result<Node> {
 /// Encode a Stencila Schema node to a string
 #[tracing::instrument(skip(node))]
 pub async fn to_string(node: &Node, options: Option<EncodeOptions>) -> Result<String> {
-    let (content, losses) = to_string_with_losses(node, options.clone()).await?;
+    let (content, losses, ..) = to_string_with(node, options.clone()).await?;
     if !losses.is_empty() {
         let options = options.unwrap_or_default();
         let format = options
@@ -194,10 +195,10 @@ pub async fn to_string(node: &Node, options: Option<EncodeOptions>) -> Result<St
 
 /// Encode a Stencila Schema node to a string with encoding losses
 #[tracing::instrument(skip(node))]
-pub async fn to_string_with_losses(
+pub async fn to_string_with(
     node: &Node,
     options: Option<EncodeOptions>,
-) -> Result<(String, Losses)> {
+) -> Result<(String, Losses, Mapping)> {
     let codec = options.as_ref().and_then(|options| options.codec.as_ref());
 
     let format = options

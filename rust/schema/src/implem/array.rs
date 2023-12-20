@@ -1,7 +1,7 @@
 use codec_html_trait::encode::elem;
 use node_store::{
     automerge::{ObjId, Prop},
-    ReadNode, ReadStore, WriteNode, WriteStore,
+    ReadCrdt, ReadNode, StoreMap, WriteCrdt, WriteNode,
 };
 
 use crate::{prelude::*, Array, Primitive};
@@ -15,8 +15,8 @@ impl std::fmt::Display for Array {
 impl StripNode for Array {}
 
 impl ReadNode for Array {
-    fn load_list<S: ReadStore>(store: &S, obj_id: &ObjId) -> Result<Self> {
-        Ok(Self(Vec::<Primitive>::load_list(store, obj_id)?))
+    fn load_list<C: ReadCrdt>(crdt: &C, obj_id: &ObjId) -> Result<Self> {
+        Ok(Self(Vec::<Primitive>::load_list(crdt, obj_id)?))
     }
 
     fn load_none() -> Result<Self> {
@@ -25,16 +25,28 @@ impl ReadNode for Array {
 }
 
 impl WriteNode for Array {
-    fn insert_prop(&self, store: &mut WriteStore, obj_id: &ObjId, prop: Prop) -> Result<()> {
-        self.0.insert_prop(store, obj_id, prop)
+    fn insert_prop(
+        &self,
+        crdt: &mut WriteCrdt,
+        map: &mut StoreMap,
+        obj_id: &ObjId,
+        prop: Prop,
+    ) -> Result<()> {
+        self.0.insert_prop(crdt, map, obj_id, prop)
     }
 
-    fn put_prop(&self, store: &mut WriteStore, obj_id: &ObjId, prop: Prop) -> Result<()> {
-        self.0.put_prop(store, obj_id, prop)
+    fn put_prop(
+        &self,
+        crdt: &mut WriteCrdt,
+        map: &mut StoreMap,
+        obj_id: &ObjId,
+        prop: Prop,
+    ) -> Result<()> {
+        self.0.put_prop(crdt, map, obj_id, prop)
     }
 
-    fn similarity<S: ReadStore>(&self, store: &S, obj_id: &ObjId, prop: Prop) -> Result<usize> {
-        self.0.similarity(store, obj_id, prop)
+    fn similarity<C: ReadCrdt>(&self, crdt: &C, obj_id: &ObjId, prop: Prop) -> Result<usize> {
+        self.0.similarity(crdt, obj_id, prop)
     }
 }
 
@@ -57,8 +69,10 @@ impl HtmlCodec for Array {
 }
 
 impl MarkdownCodec for Array {
-    fn to_markdown(&self, _context: &mut MarkdownEncodeContext) -> (String, Losses) {
-        self.to_text()
+    fn to_markdown(&self, context: &mut MarkdownEncodeContext) {
+        let (text, losses) = self.to_text();
+        context.push_str(&text);
+        context.merge_losses(losses);
     }
 }
 

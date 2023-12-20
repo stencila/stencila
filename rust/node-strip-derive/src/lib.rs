@@ -70,7 +70,7 @@ fn derive_struct(type_attr: TypeAttr) -> TokenStream {
             return
         };
 
-        if field_name == "r#type" || field_name == "node_id" {
+        if field_name == "r#type" || field_name == "uuid" {
             return;
         }
 

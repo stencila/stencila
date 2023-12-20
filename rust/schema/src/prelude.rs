@@ -16,17 +16,18 @@ pub use codec_jats_trait::JatsCodec;
 pub use codec_losses::Losses;
 pub use codec_markdown_trait::{MarkdownCodec, MarkdownEncodeContext};
 pub use codec_text_trait::TextCodec;
+pub use node_id::{NodeId, NodeUuid};
 pub use node_store::{ReadNode, WriteNode};
 pub use node_strip::StripNode;
+pub use node_type::NodeType;
 pub use node_walk_derive::WalkNode;
 
 pub use crate::deserialize::*;
 pub use crate::shortcuts::*;
 pub use crate::traits::{
-    entity::{Entity, NodeId},
+    entity::Entity,
     walk::{Visitor, VisitorMut, WalkNode},
 };
-pub use crate::types::NodeType;
 
 #[cfg(feature = "proptest")]
 pub use crate::proptests::*;
