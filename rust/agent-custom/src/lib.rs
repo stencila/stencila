@@ -34,9 +34,13 @@ struct CustomAgentHeader {
     /// The name of the agent
     name: String,
 
+    /// A description of the custom agent
+    #[allow(unused)]
+    description: String,
+
     /// The names of the agents this agent will delegate
     /// to in descending order of preference
-    delegates_to: Vec<String>,
+    delegates: Vec<String>,
 
     /// The type of instruction the agent executes
     instruction_type: Option<InstructionType>,
@@ -52,11 +56,7 @@ struct CustomAgentHeader {
 
     /// Default generate options
     #[serde(flatten)]
-    options: GenerateOptions,
-
-    /// A description of the custom agent
-    #[allow(unused)]
-    description: String,
+    options: GenerateOptions
 }
 
 /// A custom agent
@@ -66,7 +66,7 @@ struct CustomAgent {
 
     /// The names of the agents this agent will delegate
     /// to in descending order of preference
-    delegates_to: Vec<String>,
+    delegates: Vec<String>,
 
     /// The type of instruction the agent executes
     instruction_type: Option<InstructionType>,
@@ -115,7 +115,7 @@ impl CustomAgent {
 
         Ok(Self {
             name: header.name,
-            delegates_to: header.delegates_to,
+            delegates: header.delegates,
             instruction_type: header.instruction_type,
             instruction_regexes: regexes,
             preference_rank: header.preference_rank.unwrap_or(50),
@@ -184,7 +184,7 @@ impl CustomAgent {
 
     /// Get an agent to delegate a task to
     async fn delegate(&self) -> Result<Arc<dyn Agent>> {
-        for name in &self.delegates_to {
+        for name in &self.delegates {
             let (provider, _model) = name
                 .split('/')
                 .collect_tuple()
@@ -202,7 +202,7 @@ impl CustomAgent {
             }
         }
 
-        bail!("Unable to delegate task, none of the agents listed in `delegates-to` are available")
+        bail!("Unable to delegate task, none of the agents listed in `delegates` are available")
     }
 }
 

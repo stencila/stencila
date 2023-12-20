@@ -3,7 +3,6 @@ name: stencila/insert-code-chunk
 description: |
   An agent specialized for the insertion of single executable code chunks.
 
-
 preference-rank: 100
 instruction-type: insert-blocks
 instruction-regexes:
@@ -11,7 +10,7 @@ instruction-regexes:
   - (?i)\bexecutable code\b
   - (?i)\bcode to\b
 
-delegates-to:
+delegates:
   - openai/gpt-3.5-turbo-1106
   - anthropic/claude-2.1
 

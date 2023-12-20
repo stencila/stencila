@@ -5,7 +5,7 @@ description: |
 
 instruction-type: modify-inlines
 
-delegates-to:
+delegates:
   - openai/gpt-3.5-turbo-1106
   - anthropic/claude-2.1
 
