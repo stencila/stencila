@@ -8,6 +8,7 @@ agent = { path = "../agent" }
 agent-anthropic = { path = "../agent-anthropic" }
 agent-ollama = { path = "../agent-ollama" }
 agent-openai = { path = "../agent-openai" }
+cached = { version = "0.46.1", features = ["async"] }
 codecs = { path = "../codecs" }
 minijinja = { version = "1.0.10", features = ["loader"] }
 rust-embed = { version = "8.1.0", features = ["interpolate-folder-path", "include-exclude"] }

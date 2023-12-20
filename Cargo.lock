@@ -62,6 +62,7 @@ dependencies = [
  "agent-anthropic",
  "agent-ollama",
  "agent-openai",
+ "cached",
  "codecs",
  "minijinja",
  "rust-embed",
@@ -81,6 +82,7 @@ version = "0.0.0"
 dependencies = [
  "agent",
  "async-openai",
+ "cached",
 ]
 
 [[package]]
@@ -92,7 +94,7 @@ dependencies = [
  "agent-custom",
  "agent-ollama",
  "agent-openai",
- "cached",
+ "codecs",
  "sea-orm",
 ]
 

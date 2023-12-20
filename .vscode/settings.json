@@ -78,6 +78,7 @@
         "pyfunction",
         "pyproject",
         "rdfs",
+        "regexes",
         "requireds",
         "reqwest",
         "rfind",
