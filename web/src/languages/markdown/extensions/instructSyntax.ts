@@ -83,7 +83,7 @@ const parseIntructBlock = (cx: BlockContext, leaf: LeafBlock): void => {
  * which inserts content.
  * eg: `@@ 4x10 table`
  */
-class InsertInstructBlockParser implements LeafBlockParser {
+class InsertBlockParser implements LeafBlockParser {
   nextLine = () => false
   finish = (cx: BlockContext, leaf: LeafBlock): boolean => {
     try {
@@ -100,7 +100,7 @@ class InsertInstructBlockParser implements LeafBlockParser {
  * which edits content within the `%%` delimiters.
  * eg: `%% write this paragraph in the style of Charles Dickens`
  */
-class EditInstructBlockParser implements LeafBlockParser {
+class EditBlockParser implements LeafBlockParser {
   nextLine = () => false
   finish = (cx: BlockContext, leaf: LeafBlock): boolean => {
     try {
@@ -117,7 +117,7 @@ class EditInstructBlockParser implements LeafBlockParser {
  * which edits content within the `%%` delimiters.
  * eg: `%%`
  */
-class CloseEditInstructParser implements LeafBlockParser {
+class CloseEditParser implements LeafBlockParser {
   nextLine = () => false
   finish = (cx: BlockContext, leaf: LeafBlock): boolean => {
     const marker = createMarkerEl(cx, leaf.start, BLOCK_MARK_LENGTH)
@@ -267,23 +267,19 @@ const StencilaInstructSyntax: MarkdownConfig = {
     {
       name: instructBlockInsert.name,
       leaf: (_, leaf) =>
-        insertBlockMarker.test(leaf.content)
-          ? new InsertInstructBlockParser()
-          : null,
+        insertBlockMarker.test(leaf.content) ? new InsertBlockParser() : null,
       endLeaf: (_, line) => !insertBlockMarker.test(line.text),
     },
     {
       name: instructBlockEdit.name,
       leaf: (_, leaf) =>
-        editBlockStart.test(leaf.content)
-          ? new EditInstructBlockParser()
-          : null,
+        editBlockStart.test(leaf.content) ? new EditBlockParser() : null,
       endLeaf: (_, line) => !editBlockStart.test(line.text),
     },
     {
       name: instructBlockEditClose.name,
       leaf: (_, leaf) =>
-        editBlockEnd.test(leaf.content) ? new CloseEditInstructParser() : null,
+        editBlockEnd.test(leaf.content) ? new CloseEditParser() : null,
       endLeaf: (_, line) => !editBlockEnd.test(line.text),
     },
   ],

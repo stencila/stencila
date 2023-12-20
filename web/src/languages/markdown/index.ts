@@ -1,5 +1,6 @@
 import { markdown, markdownLanguage } from '@codemirror/lang-markdown'
 import { defaultHighlightStyle, HighlightStyle } from '@codemirror/language'
+import { Table } from '@lezer/markdown'
 
 import {
   StencilaColonSyntax,
@@ -25,6 +26,7 @@ const stencilaMarkdown = () =>
   markdown({
     base: markdownLanguage,
     extensions: [
+      Table,
       StencilaColonSyntax,
       StencilaInstructSyntax,
       StencilaSuggestionSyntax,

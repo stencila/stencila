@@ -14,6 +14,8 @@ import {
 const customTags = {
   insertBase: Tag.define(),
   insertMark: Tag.define(),
+  modifyBase: Tag.define(),
+  modifyMark: Tag.define(),
 }
 
 // TODO ->
@@ -21,7 +23,7 @@ const customTags = {
 // replace block, replace inline,
 // delete block, delete inline
 
-// Insert -------------------------------------------
+// Insert --------------------------------------------
 
 const insertBlockDelim = /^\+\+$/
 
@@ -47,6 +49,10 @@ const INSERT_INLINE_CLOSE = '++}'
 
 const delimiter = { resolve: insertInline.name, mark: insertInlineMark.name }
 
+/**
+ * `BlockParser` for block insertions syntax highlighting
+ * eg: `++`
+ */
 class InsertBlockParser implements BlockParser {
   name = insertBlock.name
   parse(cx: BlockContext, line: Line): boolean {
@@ -81,6 +87,10 @@ class InsertBlockParser implements BlockParser {
   }
 }
 
+/**
+ * `InlineParser` for inline insertion syntax highlighting
+ * eg: `{++ ++}`
+ */
 class InsertInlineParser implements InlineParser {
   name = insertInline.name
   parse = (cx: InlineContext, _next: number, pos: number): number => {
@@ -108,6 +118,12 @@ class InsertInlineParser implements InlineParser {
   }
 }
 
+// Modify --------------------------------------------
+
+// Replace -------------------------------------------
+
+// Delete --------------------------------------------
+
 // ---------------------------------------------------
 
 /**
@@ -127,18 +143,17 @@ const StencilaSuggestionSyntax: MarkdownConfig = {
   parseBlock: [new InsertBlockParser()],
   parseInline: [new InsertInlineParser()],
   wrap: parseMixed((node) => {
-    if (node.type)
-      if (node.type.name === insertBlock.name) {
-        const from = node.from + BLOCK_MARK_LENGTH
-        const to = node.to - BLOCK_MARK_LENGTH
-        if (from >= to) {
-          return null
-        }
-        return {
-          parser: markdownLanguage.parser,
-          overlay: [{ from, to }],
-        }
+    if (node.type.name === insertBlock.name) {
+      const from = node.from + BLOCK_MARK_LENGTH
+      const to = node.to - BLOCK_MARK_LENGTH
+      if (from >= to) {
+        return null
       }
+      return {
+        parser: markdownLanguage.parser,
+        overlay: [{ from, to }],
+      }
+    }
     if (node.type.name === insertInline.name) {
       const from = node.from + INSERT_INLINE_OPEN.length
       const to = node.to - INSERT_INLINE_CLOSE.length
