@@ -39,11 +39,11 @@ The following fields are required in the header:
 
 - `name`: a unique name for the agent
 - `description`: a description of what the agent does and how it does it
-- `delegates`: a list of general agents that will be delegated to; each will be attempted to b delegated to in the order specified
+- `delegates`: a list of general agents that will be delegated to; delegation will be attempted in the order specified
 
 ### Prompts
 
-The user prompt is Jinja templates so you can use [this syntax](https://docs.rs/minijinja/latest/minijinja/syntax/index.html) to alter the prompt based on the context of the instruction. e.g.
+The user prompts are Jinja templates so you can use [this syntax](https://docs.rs/minijinja/latest/minijinja/syntax/index.html) to alter the prompt based on the context of the instruction. e.g.
 
 ```markdown
 You will be provided with several fragments of text, each within an XML <fragment> tag. Summarize the fragments as accurately as possible in the style provided in the XML <style> tag. Use no more than 4 sentences.
