@@ -15,6 +15,7 @@ This document contains the help content for the `stencila` command-line program.
 * [`stencila serve`↴](#stencila-serve)
 * [`stencila agents`↴](#stencila-agents)
 * [`stencila repl`↴](#stencila-repl)
+* [`stencila test`↴](#stencila-test)
 
 ## `stencila`
 
@@ -34,6 +35,7 @@ CLI subcommands and global options
 * `serve` — Serve
 * `agents` — List the available AI agents
 * `repl` — A read-evaluate-print loop for AI agents
+* `test` — 
 
 ###### **Options:**
 
@@ -363,46 +365,12 @@ Mainly intended for prompt engineering during development of Stencila.
 
 ###### **Options:**
 
-* `-a`, `--agent <AGENT>` — The name of the agent to interact with
-* `-d`, `--document <DOCUMENT>` — The path of the document to use in the context
-* `-n`, `--node <NODE>` — The path of a file to use as the node in the context
 * `-r`, `--record` — Whether to offer the option to record each evaluation trial
+* `-d`, `--document <DOCUMENT>` — The path of the document to use in the context
+* `--agent <AGENT>` — The name of the agent to use
 * `--document-format <DOCUMENT_FORMAT>` — The format to convert the document content into when rendered into the prompt
 
-  Possible values:
-  - `article`
-  - `html`
-  - `jats`
-  - `markdown`
-  - `text`
-  - `json`
-  - `json5`
-  - `json-ld`
-  - `cbor`
-  - `cbor-zst`
-  - `yaml`
-  - `gif`:
-    Image formats
-  - `jpeg`
-  - `png`
-  - `svg`
-  - `web-p`
-  - `aac`:
-    Audio formats
-  - `flac`
-  - `mp3`
-  - `ogg`
-  - `wav`
-  - `avi`:
-    Video formats
-  - `mkv`
-  - `mp4`
-  - `ogv`
-  - `web-m`
-  - `debug`
-  - `unknown`
-
-* `--node-format <NODE_FORMAT>` — The format to convert the node content into when rendered into the prompt
+  Default value: `html`
 
   Possible values:
   - `article`
@@ -437,6 +405,85 @@ Mainly intended for prompt engineering during development of Stencila.
   - `debug`
   - `unknown`
 
+* `--content-format <CONTENT_FORMAT>` — The format to convert the instruction content (if any) into when rendered into the prompt
+
+  Default value: `html`
+
+  Possible values:
+  - `article`
+  - `html`
+  - `jats`
+  - `markdown`
+  - `text`
+  - `json`
+  - `json5`
+  - `json-ld`
+  - `cbor`
+  - `cbor-zst`
+  - `yaml`
+  - `gif`:
+    Image formats
+  - `jpeg`
+  - `png`
+  - `svg`
+  - `web-p`
+  - `aac`:
+    Audio formats
+  - `flac`
+  - `mp3`
+  - `ogg`
+  - `wav`
+  - `avi`:
+    Video formats
+  - `mkv`
+  - `mp4`
+  - `ogv`
+  - `web-m`
+  - `debug`
+  - `unknown`
+
+* `--generated-format <GENERATED_FORMAT>` — The format of the generated content
+
+  Default value: `html`
+
+  Possible values:
+  - `article`
+  - `html`
+  - `jats`
+  - `markdown`
+  - `text`
+  - `json`
+  - `json5`
+  - `json-ld`
+  - `cbor`
+  - `cbor-zst`
+  - `yaml`
+  - `gif`:
+    Image formats
+  - `jpeg`
+  - `png`
+  - `svg`
+  - `web-p`
+  - `aac`:
+    Audio formats
+  - `flac`
+  - `mp3`
+  - `ogg`
+  - `wav`
+  - `avi`:
+    Video formats
+  - `mkv`
+  - `mp4`
+  - `ogv`
+  - `web-m`
+  - `debug`
+  - `unknown`
+
+* `--coerce-nodes <COERCE_NODES>` — A pattern to coerce the generated document nodes into
+* `--assert-nodes <ASSERT_NODES>` — A pattern for the type and number of nodes that should be generated
+* `--max-retries <MAX_RETRIES>` — The maximum number of retries for generating valid nodes
+
+  Default value: `1`
 * `--mirostat <MIROSTAT>` — Enable Mirostat sampling for controlling perplexity
 * `--mirostat-eta <MIROSTAT_ETA>` — Influences how quickly the algorithm responds to feedback from the generated text
 * `--mirostat-tau <MIROSTAT_TAU>` — Controls the balance between coherence and diversity of the output
@@ -456,6 +503,23 @@ Mainly intended for prompt engineering during development of Stencila.
 * `--top-p <TOP_P>` — Works together with top-k
 * `--image-quality <IMAGE_QUALITY>` — The quality of the image that will be generated
 * `--image-style <IMAGE_STYLE>` — The style of the generated images. Must be one of `vivid` or `natural`. Vivid causes the model to lean towards generating hyper-real and dramatic images. Natural causes the model to produce more natural, less hyper-real looking images. Supported by `openai/dall-e-3`
+
+
+
+## `stencila test`
+
+**Usage:** `stencila test [OPTIONS] <PATH> <NAME>`
+
+###### **Arguments:**
+
+* `<PATH>` — The path of test directory
+* `<NAME>` — The name of the instruction
+
+###### **Options:**
+
+* `-r`, `--reps <REPS>` — The number of repetitions
+
+  Default value: `1`
 
 
 

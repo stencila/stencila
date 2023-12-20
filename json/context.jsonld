@@ -345,7 +345,7 @@
     "streetAddress": "schema:streetAddress",
     "styleLanguage": "stencila:styleLanguage",
     "symbol": "stencila:symbol",
-    "target": "stencila:target",
+    "target": "schema:target",
     "targetProducts": "schema:targetProduct",
     "telephoneNumbers": "schema:telephone",
     "termCode": "schema:termCode",
