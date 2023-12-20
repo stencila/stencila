@@ -9,17 +9,26 @@ import {
   StencilaInstructSyntax,
   highlightStyles as instSyntaxStyles,
 } from './extensions/instructSyntax'
+import {
+  StencilaSuggestionSyntax,
+  highlightStyles as suggSyntaxStyles,
+} from './extensions/suggestionSyntax'
 
 const markdownHighlightStyle = HighlightStyle.define([
-  ...defaultHighlightStyle.specs,
   ...cSyntaxStyles,
+  ...suggSyntaxStyles,
   ...instSyntaxStyles,
+  ...defaultHighlightStyle.specs,
 ])
 
 const stencilaMarkdown = () =>
   markdown({
     base: markdownLanguage,
-    extensions: [StencilaColonSyntax, StencilaInstructSyntax],
+    extensions: [
+      StencilaColonSyntax,
+      StencilaInstructSyntax,
+      StencilaSuggestionSyntax,
+    ],
   })
 
 export { stencilaMarkdown, markdownHighlightStyle }
