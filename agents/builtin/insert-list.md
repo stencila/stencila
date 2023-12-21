@@ -35,7 +35,7 @@ Create a list of 5 interesting sports cars
 - Ferrari Dino
 </response>
 
-Note: model response(s) above are include in <response> tags, but DO NOT include these in your actual response.
+Note: model response(s) above are include in <response> tags, but DO NOT include these in your actual response. Also DO NOT include any comments either above or below the list (unless absolutely necessary).
 ---
 
 {{ document_formatted }}
