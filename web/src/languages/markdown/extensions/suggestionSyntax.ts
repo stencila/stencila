@@ -49,6 +49,32 @@ const parseLeaf = (
   return true
 }
 
+/**
+ * `LeafBlockParser` for the delimiters
+ * of a suggest type block
+ * eg: `!!`, `--`, `~~`
+ */
+class SuggestLeafParser implements LeafBlockParser {
+  delimiter: string
+  nodeType: string
+  markType: string
+
+  constructor(delim: string, nodeType, markType) {
+    this.delimiter = delim
+    ;(this.nodeType = nodeType), (this.markType = markType)
+  }
+
+  nextLine = () => false
+
+  finish(cx: BlockContext, leaf: LeafBlock): boolean {
+    try {
+      return parseLeaf(cx, leaf, this.nodeType, this.markType, this.delimiter)
+    } catch {
+      return false
+    }
+  }
+}
+
 // TODO ->
 // modify inline, modify block,
 // replace block, replace inline,
@@ -168,48 +194,39 @@ const MOD_INNER_DELIM = '!>'
 const MOD_INLINE_OPEN = '{!!'
 const MOD_INLINE_CLOSE = '!!}'
 
+const modifyLeafParser = new SuggestLeafParser(
+  MOD_BLOCK_DELIM,
+  modBlockOuter.name,
+  modMark.name
+)
+
 /**
- * `LeafBlockParser` for the opening and closing delimiter
+ * `BlockParser` for the opening and closing delimiter
  * of a modify block.
  * eg: `!!`
  */
-class ModifyBlockParser implements LeafBlockParser {
-  nextLine = () => false
-  finish(cx: BlockContext, leaf: LeafBlock): boolean {
-    try {
-      return parseLeaf(
-        cx,
-        leaf,
-        modBlockOuter.name,
-        modMark.name,
-        MOD_BLOCK_DELIM
-      )
-    } catch {
-      return false
-    }
-  }
+class ModifyBlockParser implements BlockParser {
+  name = modBlockOuter.name
+  leaf = (_, leaf) => (modOuterRe.test(leaf.content) ? modifyLeafParser : null)
+  endLeaf = (_, line) => !modOuterRe.test(line.text)
 }
 
+const modifyInnerLeafParser = new SuggestLeafParser(
+  MOD_INNER_DELIM,
+  modBlockInner.name,
+  modMark.name
+)
+
 /**
- * `LeafBlockParser` for the inner delimiter
+ * BlockParser` for the inner delimiter
  * of a modify block.
  * eg: `!>`
  */
-class ModifyInnerParser implements LeafBlockParser {
-  nextLine = () => false
-  finish = (cx: BlockContext, leaf: LeafBlock): boolean => {
-    try {
-      return parseLeaf(
-        cx,
-        leaf,
-        modBlockInner.name,
-        modMark.name,
-        MOD_INNER_DELIM
-      )
-    } catch {
-      return false
-    }
-  }
+class ModifyInnerParser implements BlockParser {
+  name = modBlockInner.name
+  leaf = (_, leaf) =>
+    modInnerRe.test(leaf.content) ? modifyInnerLeafParser : null
+  endLeaf = (_, line) => !modInnerRe.test(line.text)
 }
 
 /**
@@ -270,30 +287,44 @@ const REP_INNER_DELIM = '~>'
 const REP_INLINE_OPEN = '{~~'
 const REP_INLINE_CLOSE = '~~}'
 
-class ReplaceBlockParser implements LeafBlockParser {
-  nextLine = () => false
-  finish = (cx: BlockContext, leaf: LeafBlock): boolean => {
-    try {
-      parseLeaf(cx, leaf, repBlockOuter.name, repMark.name, REP_BLOCK_DELIM)
-    } catch {
-      return false
-    }
-  }
+const replaceBlockLeaf = new SuggestLeafParser(
+  REP_BLOCK_DELIM,
+  repBlockOuter.name,
+  repMark.name
+)
+
+/**
+ * `BlockParser` for the inner delimiter
+ * of a replace block.
+ * eg: `~>`
+ */
+class ReplaceBlockParser implements BlockParser {
+  name = repBlockOuter.name
+  leaf = (_, leaf) => (repOuterRe.test(leaf.content) ? replaceBlockLeaf : null)
+  endLeaf = (_, line) => !repOuterRe.test(line.text)
 }
 
-class ReplaceInnerParser implements LeafBlockParser {
-  nextLine = () => false
-  finish = (cx: BlockContext, leaf: LeafBlock): boolean => {
-    try {
-      parseLeaf(cx, leaf, repBlockOuter.name, repMark.name, REP_INNER_DELIM)
-    } catch {
-      return false
-    }
-  }
+const replaceInnerLeaf = new SuggestLeafParser(
+  REP_INNER_DELIM,
+  repBlockInner.name,
+  repMark.name
+)
+
+/**
+ * `BlockParser` for the inner delimiter
+ * of a replace block.
+ * eg: `~>`
+ */
+class ReplaceInnerParser implements BlockParser {
+  name = repBlockInner.name
+  leaf = (_, leaf) => (repInnerRe.test(leaf.content) ? replaceInnerLeaf : null)
+  endLeaf = (_, line) => !repInnerRe.test(line.text)
 }
 
-const OFFSET = 1
-
+/**
+ * `InlineParser` for the inline replace markers
+ * eg `{~~ ~> ~~}`
+ */
 class ReplaceInlineParser implements InlineParser {
   name = repInline.name
   parse = (cx: InlineContext, _next: number, pos: number): number => {
@@ -304,12 +335,12 @@ class ReplaceInlineParser implements InlineParser {
         ])
       )
     } else if (
-      /[\s\S]~~}/.test(cx.slice(pos, pos + REP_INLINE_CLOSE.length + OFFSET)) &&
-      hasOpeningDelimitir(cx, pos + OFFSET, REP_INLINE_OPEN, REP_INLINE_CLOSE)
+      cx.slice(pos, pos + REP_INLINE_CLOSE.length) === REP_INLINE_CLOSE &&
+      hasOpeningDelimitir(cx, pos, REP_INLINE_OPEN, REP_INLINE_CLOSE)
     ) {
       return cx.addElement(
-        cx.elt(repInline.name, pos + 1, pos + REP_INLINE_CLOSE.length + 1, [
-          cx.elt(repMark.name, pos + 1, pos + REP_INLINE_CLOSE.length + 1),
+        cx.elt(repInline.name, pos, pos + REP_INLINE_CLOSE.length, [
+          cx.elt(repMark.name, pos, pos + REP_INLINE_CLOSE.length),
         ])
       )
     } else if (
@@ -328,11 +359,60 @@ class ReplaceInlineParser implements InlineParser {
 
 // Delete --------------------------------------------
 
-// const delDelimRe = /^--$/
+const delDelimRe = /^--$/
 
-// const delBlock = { name: 'ReplaceBlock' }
-// const delInline = { name: 'DeleteInline' }
-// const delMark = { name: 'DeleteMark', style: customTags.suggestMark }
+const delBlock = { name: 'ReplaceBlock' }
+const delInline = { name: 'DeleteInline' }
+const delMark = { name: 'DeleteMark', style: customTags.suggestMark }
+
+const DELETE_BLOCK = '--'
+const DELETE_INLINE_OPEN = '{--'
+const DELETE_INLINE_CLOSE = '--}'
+
+const deleteBlockLeaf = new SuggestLeafParser(
+  DELETE_BLOCK,
+  delBlock.name,
+  delMark.name
+)
+
+/**
+ * `BlockParser` for the delete markers
+ * eg `{-- --}`
+ */
+class DeleteBlockParser implements BlockParser {
+  name = delBlock.name
+  leaf = (_, leaf) => {
+    return delDelimRe.test(leaf.content.trim()) ? deleteBlockLeaf : null
+  }
+  endLeaf = (_, line) => !delDelimRe.test(line.text)
+}
+
+/**
+ * `InlineParser` for the inline replace markers
+ * eg `{-- --}`
+ */
+class DeleteInlineParser implements InlineParser {
+  name = delInline.name
+  parse = (cx: InlineContext, next: number, pos: number): number => {
+    if (cx.slice(pos, pos + DELETE_INLINE_OPEN.length) === DELETE_INLINE_OPEN) {
+      return cx.addElement(
+        cx.elt(delInline.name, pos, pos + DELETE_INLINE_OPEN.length, [
+          cx.elt(delMark.name, pos, pos + DELETE_INLINE_OPEN.length),
+        ])
+      )
+    } else if (
+      cx.slice(pos, pos + DELETE_INLINE_CLOSE.length) === DELETE_INLINE_CLOSE &&
+      hasOpeningDelimitir(cx, pos, DELETE_INLINE_OPEN, DELETE_INLINE_CLOSE)
+    ) {
+      return cx.addElement(
+        cx.elt(delInline.name, pos, pos + DELETE_INLINE_CLOSE.length, [
+          cx.elt(delMark.name, pos, pos + DELETE_INLINE_CLOSE.length),
+        ])
+      )
+    }
+    return -1
+  }
+}
 
 // ---------------------------------------------------
 
@@ -364,40 +444,23 @@ const StencilaSuggestionSyntax: MarkdownConfig = {
     repInline,
     repInlineInner,
     repMark,
+    delBlock,
+    delInline,
+    delMark,
   ],
   parseBlock: [
     new InsertBlockParser(),
-    // modify block parsers
-    {
-      name: modBlockOuter.name,
-      leaf: (_, leaf) =>
-        modOuterRe.test(leaf.content) ? new ModifyBlockParser() : null,
-      endLeaf: (_, line) => !modOuterRe.test(line.text),
-    },
-    {
-      name: modBlockInner.name,
-      leaf: (_, leaf) =>
-        modInnerRe.test(leaf.content) ? new ModifyInnerParser() : null,
-      endLeaf: (_, line) => !modInnerRe.test(line.text),
-    },
-    // replace block parsers
-    {
-      name: repBlockOuter.name,
-      leaf: (_, leaf) =>
-        repOuterRe.test(leaf.content) ? new ReplaceBlockParser() : null,
-      endLeaf: (_, line) => !repOuterRe.test(line.text),
-    },
-    {
-      name: repBlockInner.name,
-      leaf: (_, leaf) =>
-        repInnerRe.test(leaf.content) ? new ReplaceInnerParser() : null,
-      endLeaf: (_, line) => !repInnerRe.test(line.text),
-    },
+    new ModifyBlockParser(),
+    new ModifyInnerParser(),
+    new ReplaceBlockParser(),
+    new ReplaceInnerParser(),
+    new DeleteBlockParser(),
   ],
   parseInline: [
     new InsertInlineParser(),
     new ModifyInlineParser(),
     new ReplaceInlineParser(),
+    new DeleteInlineParser(),
   ],
   wrap: parseMixed((node) => {
     if (node.type.name === insertBlock.name) {
