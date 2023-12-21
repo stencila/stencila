@@ -10,7 +10,7 @@ import {
   InlineContext,
 } from '@lezer/markdown'
 
-import { getLeafEnd } from '../utilty'
+import { getLeafEnd, hasOpeningDelimitir } from '../utilty'
 
 const insertBlockMarker = /^@@\s/
 const editBlockStart = /^%%\s/
@@ -184,7 +184,7 @@ const createInlineElements = (
 
 /**
  *  `InlineParser` for parsing an inline insert instruction
- *  eg `{@@ create a sentence about frogs @@}`
+ *  eg `{@@ create a sentence about.. frogs @@}`
  */
 class InsertInlineParser implements InlineParser {
   name = instructInlineInsert.name
@@ -213,7 +213,6 @@ class EditInlineParser implements InlineParser {
   name = instructInlineEdit.name
   parse = (cx: InlineContext, _next: number, pos: number): number => {
     if (cx.slice(pos, pos + INLINE_MARK_3.length) === INLINE_MARK_3) {
-      console.log('hi')
       const { elements, closingPos } = createInlineElements(
         cx,
         pos,
@@ -233,7 +232,10 @@ class EditInlineParser implements InlineParser {
 class CloseEditInlineParser implements InlineParser {
   name = instructInlineEditClose.name
   parse = (cx: InlineContext, _next: number, pos: number): number => {
-    if (cx.slice(pos, pos + INLINE_MARK_5.length) === INLINE_MARK_5) {
+    if (
+      cx.slice(pos, pos + INLINE_MARK_5.length) === INLINE_MARK_5 &&
+      hasOpeningDelimitir(cx, pos, INLINE_MARK_3, INLINE_MARK_5)
+    ) {
       return cx.addElement(
         cx.elt(instructInlineEditClose.name, pos, pos + INLINE_MARK_5.length, [
           createMarkerEl(cx, pos, INLINE_MARK_5.length),

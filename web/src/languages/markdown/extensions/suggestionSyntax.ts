@@ -13,6 +13,8 @@ import {
   LeafBlock,
 } from '@lezer/markdown'
 
+import { hasOpeningDelimitir } from '../utilty'
+
 const customTags = {
   suggestMark: Tag.define(),
   suggestBase: Tag.define(),
@@ -105,7 +107,8 @@ class InsertInlineParser implements InlineParser {
         false
       )
     } else if (
-      cx.slice(pos, pos + INSERT_INLINE_CLOSE.length) === INSERT_INLINE_CLOSE
+      cx.slice(pos, pos + INSERT_INLINE_CLOSE.length) === INSERT_INLINE_CLOSE &&
+      cx.slice(pos - 3, pos) !== INSERT_INLINE_OPEN // <- check that there is content between the two delims
     ) {
       return cx.addDelimiter(
         delimiter,
@@ -124,17 +127,17 @@ class InsertInlineParser implements InlineParser {
 const modOuterRe = /^!!$/
 const modInnerRe = /^!>$/
 
+// modify `NodeSpecs`
 const modBlockOuter = { name: 'ModifyBlockDelimiter' }
 const modBlockInner = { name: 'ModifyBlockInner' }
-const modInlineOuter = { name: 'ModifyInlineDelimiter' }
+const modInline = { name: 'ModifyInlineDelimiter' }
 const modInlineInner = { name: 'ModifyInlineInner' }
 const modMark = { name: 'ModifyMark', style: customTags.suggestMark }
-// const modInlineMark = { n}
 
 const MOD_BLOCK_DELIM = '!!'
 const MOD_INNER_DELIM = '!>'
-// const MOD_ININE_OPEN = '{!!'
-// const MOD_ININE_CLOSE = '!!}'
+const MOD_INLINE_OPEN = '{!!'
+const MOD_INLINE_CLOSE = '!!}'
 
 const parseModifyLeaf = (
   cx: BlockContext,
@@ -147,11 +150,9 @@ const parseModifyLeaf = (
   if (start >= end) {
     return false
   }
-  console.log('hi')
   cx.addElement(
     cx.elt(nodeType, start, end, [cx.elt(modMark.name, start, end)])
   )
-  console.log('hello')
   return true
 }
 
@@ -171,6 +172,11 @@ class ModifyBlockParser implements LeafBlockParser {
   }
 }
 
+/**
+ * `LeafBlockParser` for the inner delimiter
+ * of a modify block.
+ * eg: `!>`
+ */
 class ModifyInnerParser implements LeafBlockParser {
   nextLine = () => false
   finish = (cx: BlockContext, leaf: LeafBlock): boolean => {
@@ -182,9 +188,44 @@ class ModifyInnerParser implements LeafBlockParser {
   }
 }
 
-// class ModifyBlockCloseParser implements LeafBlockParser {}
-
-// class ModifyInlineParser implements InlineParser {}
+/**
+ * `InlineParser` for the modify inline delimiters, creates a new element for each delimiter
+ * eg: `{!! !> !!}`
+ */
+class ModifyInlineParser implements InlineParser {
+  name = modInline.name
+  parse = (cx: InlineContext, _next: number, pos: number): number => {
+    if (cx.slice(pos, pos + MOD_INLINE_OPEN.length) === MOD_INLINE_OPEN) {
+      // create open delim element
+      return cx.addElement(
+        cx.elt(modInline.name, pos, pos + MOD_INLINE_OPEN.length, [
+          cx.elt(modMark.name, pos, pos + MOD_INLINE_OPEN.length),
+        ])
+      )
+    } else if (
+      cx.slice(pos, pos + MOD_INLINE_CLOSE.length) === MOD_INLINE_CLOSE &&
+      hasOpeningDelimitir(cx, pos, MOD_INLINE_OPEN, MOD_INLINE_CLOSE)
+    ) {
+      // create closing delim element
+      return cx.addElement(
+        cx.elt(modInlineInner.name, pos, pos + MOD_INLINE_CLOSE.length, [
+          cx.elt(modMark.name, pos, pos + MOD_INLINE_CLOSE.length),
+        ])
+      )
+    } else if (
+      cx.slice(pos, pos + MOD_INNER_DELIM.length) === MOD_INNER_DELIM &&
+      hasOpeningDelimitir(cx, pos, MOD_INLINE_OPEN, MOD_INNER_DELIM)
+    ) {
+      // create inner delim element
+      return cx.addElement(
+        cx.elt(modInline.name, pos, pos + MOD_INNER_DELIM.length, [
+          cx.elt(modMark.name, pos, pos + MOD_INNER_DELIM.length),
+        ])
+      )
+    }
+    return -1
+  }
+}
 
 // Replace -------------------------------------------
 
@@ -212,7 +253,7 @@ const StencilaSuggestionSyntax: MarkdownConfig = {
     insertInlineMark,
     modBlockInner,
     modBlockOuter,
-    modInlineOuter,
+    modInline,
     modInlineInner,
     modMark,
   ],
@@ -232,7 +273,7 @@ const StencilaSuggestionSyntax: MarkdownConfig = {
       endLeaf: (_, line) => !modInnerRe.test(line.text),
     },
   ],
-  parseInline: [new InsertInlineParser()],
+  parseInline: [new InsertInlineParser(), new ModifyInlineParser()],
   wrap: parseMixed((node) => {
     if (node.type.name === insertBlock.name) {
       const from = node.from + BLOCK_MARK_LENGTH
