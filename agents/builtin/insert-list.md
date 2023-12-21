@@ -6,7 +6,7 @@ description: |
 preference-rank: 100
 instruction-type: insert-blocks
 instruction-regexes:
-  - (?i)\bcreate a list\b
+  - (?i)\blist\b
 
 delegates:
   - openai/gpt-3.5-turbo-1106
