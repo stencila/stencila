@@ -6,7 +6,7 @@
 
 Custom prompts are an effective way to improve the performance of large language models and other generative AI on specific tasks in specific contexts. This module contains custom prompts which are, or can be, used by Stencila when creating tasks for AI agents.
 
-There are three types of agents in this module:
+There are two types of agents in this module:
 
 - [`builtin`](builtin): agents that are embedded into the `stencila` CLI binary to be used by builtin agents
 
@@ -39,11 +39,11 @@ The following fields are required in the header:
 
 - `name`: a unique name for the agent
 - `description`: a description of what the agent does and how it does it
-- `delegates`: a list of general agents that will be delegated to; each will be attempted to b delegated to in the order specified
+- `delegates`: a list of general agents that will be delegated to; delegation will be attempted in the order specified
 
 ### Prompts
 
-The user prompt is Jinja templates so you can use [this syntax](https://docs.rs/minijinja/latest/minijinja/syntax/index.html) to alter the prompt based on the context of the instruction. e.g.
+The user prompts are Jinja templates so you can use [this syntax](https://docs.rs/minijinja/latest/minijinja/syntax/index.html) to alter the prompt based on the context of the instruction. e.g.
 
 ```markdown
 You will be provided with several fragments of text, each within an XML <fragment> tag. Summarize the fragments as accurately as possible in the style provided in the XML <style> tag. Use no more than 4 sentences.
