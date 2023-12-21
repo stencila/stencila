@@ -19,6 +19,7 @@ use agent::{
     merge::Merge,
     Agent, AgentIO, GenerateDetails, GenerateOptions, GenerateTask, InstructionType,
 };
+use codec_text_trait::TextCodec;
 use codecs::{EncodeOptions, Format};
 use minijinja::{Environment, UndefinedBehavior};
 use rust_embed::RustEmbed;
@@ -42,24 +43,32 @@ struct CustomAgentHeader {
     /// to in descending order of preference
     delegates: Vec<String>,
 
+    /// The preference rank of the custom agent
+    ///
+    /// Defaults to 50 so that custom agents are by default
+    /// preferred over generic agents.
+    preference_rank: Option<u8>,
+
     /// The type of instruction the agent executes
     instruction_type: Option<InstructionType>,
 
     /// Regexes to match in the instruction text
     instruction_regexes: Option<Vec<String>>,
 
-    /// The preference rank of the custom agent
-    ///
-    /// Defaults to 50 so that custom agents are by
-    /// default preferred over generic agents
-    preference_rank: Option<u8>,
+    /// A regex to match against a comma separated list of the
+    /// node types in the instruction content.
+    content_nodes: Option<String>,
+
+    /// Regexes to match in the text of the instruction content
+    content_regexes: Option<Vec<String>>,
 
     /// Default generate options
     #[serde(flatten)]
-    options: GenerateOptions
+    options: GenerateOptions,
 }
 
 /// A custom agent
+#[derive(Default)]
 struct CustomAgent {
     /// The name of the agent
     name: String,
@@ -68,14 +77,21 @@ struct CustomAgent {
     /// to in descending order of preference
     delegates: Vec<String>,
 
+    /// The preference rank of the custom agent
+    preference_rank: u8,
+
     /// The type of instruction the agent executes
     instruction_type: Option<InstructionType>,
 
     /// Regexes to match in the instruction text
     instruction_regexes: Option<Vec<Regex>>,
 
-    /// The preference rank of the custom agent
-    preference_rank: u8,
+    /// A regex to match against a comma separated list of the
+    /// node types in the instruction content
+    content_nodes: Option<Regex>,
+
+    /// Regexes to match in the text of the instruction content
+    content_regexes: Option<Vec<Regex>>,
 
     /// The system prompt of the agent
     system_prompt: String,
@@ -103,7 +119,20 @@ impl CustomAgent {
         let header: CustomAgentHeader = serde_yaml::from_str(&header)?;
 
         // Parse any regexes
-        let regexes = match header.instruction_regexes {
+        let instruction_regexes = match header.instruction_regexes {
+            Some(regexes) => Some(
+                regexes
+                    .into_iter()
+                    .map(|regex| Regex::new(&regex))
+                    .collect::<Result<Vec<_>, _>>()?,
+            ),
+            None => None,
+        };
+        let content_nodes = match header.content_nodes {
+            Some(regex) => Some(Regex::new(&regex)?),
+            None => None,
+        };
+        let content_regexes = match header.content_regexes {
             Some(regexes) => Some(
                 regexes
                     .into_iter()
@@ -116,9 +145,11 @@ impl CustomAgent {
         Ok(Self {
             name: header.name,
             delegates: header.delegates,
-            instruction_type: header.instruction_type,
-            instruction_regexes: regexes,
             preference_rank: header.preference_rank.unwrap_or(50),
+            instruction_type: header.instruction_type,
+            instruction_regexes,
+            content_nodes,
+            content_regexes,
             system_prompt,
             user_prompt_template,
             options: header.options,
@@ -182,7 +213,7 @@ impl CustomAgent {
         Ok(task)
     }
 
-    /// Get an agent to delegate a task to
+    /// Get the first agent that is available in the list of delegates
     async fn delegate(&self) -> Result<Arc<dyn Agent>> {
         for name in &self.delegates {
             let (provider, _model) = name
@@ -230,11 +261,29 @@ impl Agent for CustomAgent {
 
         // If instruction regexes are specified then at least one must match
         if let Some(regexes) = &self.instruction_regexes {
-            if !regexes
-                .iter()
-                .any(|regex| regex.is_match(task.instruction.text()))
-            {
+            let text = task.instruction.text();
+            if !regexes.iter().any(|regex| regex.is_match(text)) {
                 return false;
+            }
+        }
+
+        if let Some(content) = task.instruction.content() {
+            // If content node type regex specified then, create a comma
+            // separated list of node types, and ensure that the regex matches it
+            if let Some(regex) = &self.content_nodes {
+                let list = content.iter().map(|node| node.to_string()).join(",");
+                if !regex.is_match(&list) {
+                    return false;
+                }
+            }
+
+            // If context regexes are specified then, extract the text of the content, and
+            // ensure that at least one regex matches
+            if let Some(regexes) = &self.content_regexes {
+                let (text, ..) = content.to_text();
+                if !regexes.iter().any(|regex| regex.is_match(&text)) {
+                    return false;
+                }
             }
         }
 
@@ -285,16 +334,15 @@ struct Builtin;
 /// TODO: caching
 //#[cfg_attr(not(debug_assertions), cached(time = 3600))]
 pub async fn list() -> Result<Vec<Arc<dyn Agent>>> {
-    list_sync()
+    list_builtin()
 }
 
-/// Get a list of all available custom agents
+/// Get a list of all builtin agents
 ///
 /// Sorts in descending order of delegation rank.
-fn list_sync() -> Result<Vec<Arc<dyn Agent>>> {
+fn list_builtin() -> Result<Vec<Arc<dyn Agent>>> {
     let mut agents = vec![];
 
-    // Add all builtin agents
     for (name, content) in
         Builtin::iter().filter_map(|name| Builtin::get(&name).map(|file| (name, file.data)))
     {
@@ -309,11 +357,169 @@ fn list_sync() -> Result<Vec<Arc<dyn Agent>>> {
 
 #[cfg(test)]
 mod tests {
+    use agent::{
+        schema::{
+            shortcuts::{p, t},
+            InstructionBlock, InstructionInline,
+        },
+        Instruction,
+    };
+
     use super::*;
 
     #[test]
-    fn builtin_and_example_agents_can_be_parsed() -> Result<()> {
-        list_sync()?;
+    fn builtin_agents_can_be_parsed() -> Result<()> {
+        list_builtin()?;
+
+        Ok(())
+    }
+
+    #[test]
+    fn supports_task_works_as_expected() -> Result<()> {
+        let tasks = [
+            GenerateTask {
+                instruction: Instruction::from(InstructionInline {
+                    text: String::from("modify-inlines-regex-nodes-regex"),
+                    content: Some(vec![t("the"), t(" keyword")]),
+                    ..Default::default()
+                }),
+                ..Default::default()
+            },
+            GenerateTask {
+                instruction: Instruction::from(InstructionBlock {
+                    text: String::from("modify-blocks-regex-nodes"),
+                    content: Some(vec![p([])]),
+                    ..Default::default()
+                }),
+                ..Default::default()
+            },
+            GenerateTask {
+                instruction: Instruction::from(InstructionBlock {
+                    text: String::from("insert-blocks-regex"),
+                    ..Default::default()
+                }),
+                ..Default::default()
+            },
+            GenerateTask {
+                instruction: Instruction::from(InstructionInline {
+                    text: String::from("modify-inlines-regex"),
+                    content: Some(vec![t("")]),
+                    ..Default::default()
+                }),
+                ..Default::default()
+            },
+            GenerateTask {
+                instruction: Instruction::from(InstructionBlock {
+                    text: String::from("insert-blocks"),
+                    ..Default::default()
+                }),
+                ..Default::default()
+            },
+            GenerateTask {
+                instruction: Instruction::from(InstructionBlock {
+                    text: String::from("modify-blocks"),
+                    content: Some(vec![p([])]),
+                    ..Default::default()
+                }),
+                ..Default::default()
+            },
+            GenerateTask {
+                instruction: Instruction::from(InstructionInline {
+                    text: String::from("insert-inlines"),
+                    ..Default::default()
+                }),
+                ..Default::default()
+            },
+            GenerateTask {
+                instruction: Instruction::from(InstructionInline {
+                    text: String::from("modify-inlines"),
+                    content: Some(vec![t("")]),
+                    ..Default::default()
+                }),
+                ..Default::default()
+            },
+        ];
+
+        let agents = [
+            // Agents with regexes and content nodes and content regexes specified
+            CustomAgent {
+                name: "modify-inlines-regex-nodes-regex".to_string(),
+                instruction_type: Some(InstructionType::ModifyInlines),
+                instruction_regexes: Some(vec![Regex::new("^modify-inlines-regex-nodes-regex$")?]),
+                content_nodes: Some(Regex::new("^(Text,?)+$")?),
+                content_regexes: Some(vec![Regex::new("keyword")?]),
+                ..Default::default()
+            },
+            // Agents with regexes and content nodes specified
+            CustomAgent {
+                name: "modify-blocks-regex-nodes".to_string(),
+                instruction_type: Some(InstructionType::ModifyBlocks),
+                instruction_regexes: Some(vec![Regex::new("^modify-blocks-regex-nodes$")?]),
+                content_nodes: Some(Regex::new("^Paragraph$")?),
+                ..Default::default()
+            },
+            // Agents with regexes specified
+            CustomAgent {
+                name: "insert-blocks-regex".to_string(),
+                instruction_type: Some(InstructionType::InsertBlocks),
+                instruction_regexes: Some(vec![Regex::new("^insert-blocks-regex$")?]),
+                ..Default::default()
+            },
+            CustomAgent {
+                name: "modify-inlines-regex".to_string(),
+                instruction_type: Some(InstructionType::ModifyInlines),
+                instruction_regexes: Some(vec![
+                    Regex::new("foo")?,
+                    Regex::new("^modify-inlines-regex$")?,
+                ]),
+                ..Default::default()
+            },
+            // Generic agents
+            CustomAgent {
+                name: "insert-blocks".to_string(),
+                instruction_type: Some(InstructionType::InsertBlocks),
+                ..Default::default()
+            },
+            CustomAgent {
+                name: "modify-blocks".to_string(),
+                instruction_type: Some(InstructionType::ModifyBlocks),
+                ..Default::default()
+            },
+            CustomAgent {
+                name: "insert-inlines".to_string(),
+                instruction_type: Some(InstructionType::InsertInlines),
+                ..Default::default()
+            },
+            CustomAgent {
+                name: "modify-inlines".to_string(),
+                instruction_type: Some(InstructionType::ModifyInlines),
+                ..Default::default()
+            },
+        ];
+
+        // Iterate over tasks (in reverse order, generic to specific) and ensure that the agents
+        // that it matches against has the name equal to the instruction text of the task
+        for task in tasks.iter().rev() {
+            let task_name = task.instruction.text();
+
+            let mut matched = false;
+            for agent in &agents {
+                if agent.supports_task(task) {
+                    let agent_name = agent.name.as_str();
+                    if agent_name != task_name {
+                        bail!(
+                            "Task `{task_name}` was unexpectedly matched by agent `{agent_name}`"
+                        );
+                    }
+                    matched = true;
+                    break;
+                }
+            }
+
+            if !matched {
+                bail!("Task `{task_name}` was not matched by any agent");
+            }
+        }
 
         Ok(())
     }

@@ -58,11 +58,11 @@ Several header fields affect the which instructions an agent will execute on:
 
 - `instruction-regexes`: A list of regular expressions to apply to the text of the instruction. At least one of these should match.
 
-If the instruction has any `content`, then the following matching options will also apply (🦄 not yet implemented!):
-
-- `content-regexes`: A list of regular expressions to apply to the text of the content. At least one of these should match.
+If the instruction has any `content`, then the following matching options will also apply:
 
 - `content-nodes`: A regular expression to apply to a comma separated list of the types of nodes in the content. e.g. `^CodeChunk$` means only one `CodeChunk` node.
+
+- `content-regexes`: A list of regular expressions to apply to the text of the content. At least one of these should match.
 
 #### Prompt context
 
