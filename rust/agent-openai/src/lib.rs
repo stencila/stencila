@@ -16,7 +16,7 @@ use agent::{
         itertools::Itertools,
         tracing,
     },
-    Agent, AgentIO, GenerateContext, GenerateDetails, GenerateOptions,
+    Agent, AgentIO, GenerateDetails, GenerateOptions, GenerateTask,
 };
 
 /// An agent running on OpenAI
@@ -68,27 +68,24 @@ impl Agent for OpenAIAgent {
 
     async fn text_to_text(
         &self,
-        context: GenerateContext,
+        task: GenerateTask,
         options: &GenerateOptions,
     ) -> Result<(String, GenerateDetails)> {
-        chat_completion(
-            &self.name(),
-            &self.model,
-            context.system_prompt().unwrap_or_default(),
-            &[&context.user_prompt()],
-            options,
-        )
-        .await
+        chat_completion(&self.name(), &self.model, task, options).await
     }
 
-    async fn text_to_image(&self, instruction: &str, options: &GenerateOptions) -> Result<String> {
+    async fn text_to_image(&self, task: GenerateTask, options: &GenerateOptions) -> Result<String> {
         let client = Client::new();
+
+        let prompt = format!(
+            "{system_prompt}\n\n{user_prompt}",
+            system_prompt = task.system_prompt().unwrap_or_default(),
+            user_prompt = task.user_prompt()
+        );
 
         // Create the base request
         let mut request = CreateImageRequestArgs::default();
-        let request = request
-            .prompt(instruction)
-            .response_format(ResponseFormat::Url);
+        let request = request.prompt(prompt).response_format(ResponseFormat::Url);
 
         // Map options onto the request
         macro_rules! ignore_option {
@@ -184,17 +181,19 @@ impl Agent for OpenAIAgent {
 }
 
 /// Complete a chat
-#[tracing::instrument]
+#[tracing::instrument(skip(task))]
 async fn chat_completion(
     agent_name: &str,
     model_name: &str,
-    system_prompt: &str,
-    chat: &[&str],
+    task: GenerateTask,
     options: &GenerateOptions,
 ) -> Result<(String, GenerateDetails)> {
     tracing::debug!("Sending chat completion response");
 
     let client = Client::new();
+
+    let system_prompt = task.system_prompt().unwrap_or_default();
+    let chat = &[task.user_prompt()];
 
     // Create the chat with any system prompt first and then alternating
     // between user and agent messages
@@ -282,10 +281,10 @@ async fn chat_completion(
 
     // Create details of the generation
     let details = GenerateDetails {
-        agent_chain: vec![agent_name.to_string()],
-        generate_options: options.clone(),
-        model_fingerprint: response.system_fingerprint,
-        ..Default::default()
+        agents: vec![agent_name.to_string()],
+        task,
+        options: options.clone(),
+        fingerprint: response.system_fingerprint,
     };
 
     Ok((text, details))
@@ -297,6 +296,11 @@ async fn chat_completion(
 /// Lists the agents available to the account in descending order
 /// or creation date so that more recent (i.e. "better") models are
 /// first.
+///
+/// Memoized for an hour to reduce the number of times that
+/// remote APIs need to be called to get a list of available models.
+/// TODO: caching
+//#[cached(time = 3600)]
 pub async fn list() -> Result<Vec<Arc<dyn Agent>>> {
     if env::var("OPENAI_API_KEY").is_err() {
         bail!("The OPENAI_API_KEY environment variable is not set")

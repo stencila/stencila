@@ -6,10 +6,14 @@ use common::{
     eyre::{bail, Result},
     serde::{Deserialize, Serialize},
     serde_with::skip_serializing_none,
+    smart_default::SmartDefault,
     strum::Display,
 };
 use format::Format;
-use schema::Node;
+use schema::{
+    transforms::{blocks_to_nodes, inlines_to_nodes},
+    InstructionBlock, InstructionInline, Node,
+};
 
 // Export crates for the convenience of dependant crates
 pub use common;
@@ -27,17 +31,110 @@ pub enum AgentIO {
     Video,
 }
 
-/// Context for a generation request
+/// An instruction created within a document
+#[skip_serializing_none]
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(untagged, crate = "common::serde")]
+pub enum Instruction {
+    /// The user created an `InstructionBlock` node
+    Block(InstructionBlock),
+
+    /// The user created an `InstructionInline` node
+    Inline(InstructionInline),
+}
+
+impl Default for Instruction {
+    fn default() -> Self {
+        Self::Block(InstructionBlock::default())
+    }
+}
+
+impl From<InstructionBlock> for Instruction {
+    fn from(instruct: InstructionBlock) -> Self {
+        Self::Block(instruct)
+    }
+}
+
+impl From<InstructionInline> for Instruction {
+    fn from(instruct: InstructionInline) -> Self {
+        Self::Inline(instruct)
+    }
+}
+
+impl Instruction {
+    /// Get the text of the instruction
+    pub fn text(&self) -> &str {
+        match self {
+            Instruction::Block(block) => block.text.as_str(),
+            Instruction::Inline(inline) => inline.text.as_str(),
+        }
+    }
+
+    /// Get the content of the instruction (if any)
+    pub fn content(&self) -> Option<Vec<Node>> {
+        match self {
+            Instruction::Block(InstructionBlock {
+                content: Some(content),
+                ..
+            }) => Some(blocks_to_nodes(content.clone())),
+
+            Instruction::Inline(InstructionInline {
+                content: Some(content),
+                ..
+            }) => Some(inlines_to_nodes(content.clone())),
+
+            _ => None,
+        }
+    }
+}
+
+/// A enumeration of the type of instructions
 ///
-/// An instance of this context is created for each generation (aka completion)
+/// Used to delegate to different types of agents
+#[derive(Deserialize, Clone, Copy, PartialEq, Eq)]
+#[serde(rename_all = "kebab-case", crate = "common::serde")]
+pub enum InstructionType {
+    InsertBlocks,
+    InsertInlines,
+    ModifyBlocks,
+    ModifyInlines,
+}
+
+impl From<&Instruction> for InstructionType {
+    fn from(instruct: &Instruction) -> Self {
+        use InstructionType::*;
+        match instruct {
+            Instruction::Block(InstructionBlock { content: None, .. }) => InsertBlocks,
+
+            Instruction::Block(InstructionBlock {
+                content: Some(..), ..
+            }) => ModifyBlocks,
+
+            Instruction::Inline(InstructionInline { content: None, .. }) => InsertInlines,
+
+            Instruction::Inline(InstructionInline {
+                content: Some(..), ..
+            }) => ModifyInlines,
+        }
+    }
+}
+
+/// A task to generate content
+///
+/// A task is created for each generation (aka completion)
 /// request to an AI model. It is then included in the rendering context for
 /// the prompt.
+///
+/// The ordering of fields follows the order that they are usually included
+/// in the request to the AI model: the system prompt, the document context,
+/// the user instruction (including any specific content it has), and
+/// finally the rendered user_prompt.
 #[skip_serializing_none]
-#[derive(Debug, Default, Serialize)]
+#[derive(Debug, Default, Clone, Serialize)]
 #[serde(crate = "common::serde")]
-pub struct GenerateContext {
-    /// The instruction provided by the user
-    pub user_instruction: String,
+pub struct GenerateTask {
+    /// An optional system prompt
+    pub system_prompt: Option<String>,
 
     /// The document that the instruction is contained within
     /// (usually an `Article`).
@@ -45,43 +142,30 @@ pub struct GenerateContext {
 
     /// The content of the document in the format specified
     /// in the `GenerateOptions` (defaulting to HTML)
-    pub document_content: Option<String>,
+    pub document_formatted: Option<String>,
 
-    /// The specific node in the document to which the instruction
-    /// applies (if any)
-    pub node: Option<Node>,
+    /// The instruction provided by the user
+    pub instruction: Instruction,
 
-    /// The content of the specific node in the format specified
+    /// The instruction text provided for convenient access in the
+    /// user prompt template
+    pub instruction_text: String,
+
+    /// The content of the instruction in the format specified
     /// in the `GenerateOptions` (defaulting to HTML)
-    pub node_content: Option<String>,
+    pub content_formatted: Option<String>,
 
-    /// The name of the agent
-    pub agent_name: Option<String>,
-
-    /// The name of the model provider
-    pub provider_name: Option<String>,
-
-    /// The name of the model
-    pub model_name: Option<String>,
-
-    /// The current timestamp in ISO format
-    pub current_timestamp: Option<String>,
-
-    /// The user prompt usually generated from the `user_instruction` and
-    /// other fields above by rendering a user prompt template
+    /// The user prompt usually generated from the `instruction_text` and
+    /// other fields by rendering a user prompt template
     pub user_prompt: Option<String>,
-
-    /// An optional system prompt
-    pub system_prompt: Option<String>,
 }
 
-impl GenerateContext {
-    /// Create a [`GenerateContext`] with a user instruction, document and node
-    pub fn new(instruction: &str, document: Option<Node>, node: Option<Node>) -> Self {
+impl GenerateTask {
+    /// Create a [`GenerateContext`] with an instruction & document
+    pub fn new(instruction: Instruction, document: Option<Node>) -> Self {
         Self {
-            user_instruction: instruction.to_string(),
+            instruction,
             document,
-            node,
             ..Default::default()
         }
     }
@@ -89,11 +173,12 @@ impl GenerateContext {
     /// Get the user prompt of the context
     ///
     /// If the `user_prompt` field has been set (e.g. a template rendered into it)
-    /// then that is returned. Otherwise, the raw `user_instruction` is returned.
+    /// then that is returned. Otherwise, the raw text of the `instruction` is
+    /// returned.
     pub fn user_prompt(&self) -> &str {
         self.user_prompt
             .as_deref()
-            .unwrap_or_else(|| self.user_instruction.as_str())
+            .unwrap_or(self.instruction.text())
     }
 
     /// Get the system prompt of the context (if any)
@@ -115,16 +200,58 @@ impl GenerateContext {
 /// Currently, the names and descriptions are based mainly on those documented for `ollama`
 /// with some additions for OpenAI.
 #[skip_serializing_none]
-#[derive(Debug, Default, Clone, Merge, Args, Serialize, Deserialize)]
-#[serde(crate = "common::serde")]
+#[derive(Debug, SmartDefault, Clone, Merge, Args, Serialize, Deserialize)]
+#[serde(
+    rename_all = "kebab-case",
+    deny_unknown_fields,
+    crate = "common::serde"
+)]
 pub struct GenerateOptions {
-    /// The format to convert the document content into when rendered into the prompt.
+    /// The name of the agent to use
+    ///
+    /// Specify this option when you want to use a specific agent and skip
+    /// the agent delegation algorithm.
     #[arg(long)]
+    pub agent: Option<String>,
+
+    /// The format to convert the document content into when rendered into the prompt.
+    #[arg(long, default_value = "html")]
+    #[default(Some(Format::Html))]
     pub document_format: Option<Format>,
 
-    /// The format to convert the node content into when rendered into the prompt.
+    /// The format to convert the instruction content (if any) into when rendered into the prompt.
     #[arg(long)]
-    pub node_format: Option<Format>,
+    #[arg(long, default_value = "html")]
+    #[default(Some(Format::Html))]
+    pub content_format: Option<Format>,
+
+    /// The format of the generated content
+    ///
+    /// Used to decode (i.e. parse) the generated content into an array of
+    /// Stencila Schema nodes.
+    #[arg(long)]
+    #[arg(long, default_value = "html")]
+    #[default(Some(Format::Html))]
+    pub generated_format: Option<Format>,
+
+    /// A pattern to coerce the generated document nodes into
+    ///
+    /// TODO: Not yet implemented!
+    #[arg(long)]
+    pub coerce_nodes: Option<String>,
+
+    /// A pattern for the type and number of nodes that should be generated
+    ///
+    /// TODO: Not yet implemented!
+    #[arg(long)]
+    pub assert_nodes: Option<String>,
+
+    /// The maximum number of retries for generating valid nodes
+    ///
+    /// TODO: Not yet implemented!
+    #[arg(long, default_value = "1")]
+    #[default(Some(1))]
+    pub max_retries: Option<u32>,
 
     /// Enable Mirostat sampling for controlling perplexity.
     ///
@@ -284,11 +411,21 @@ pub struct GenerateOptions {
 #[derive(Debug, Default, Serialize)]
 #[serde(crate = "common::serde")]
 pub struct GenerateDetails {
-    pub agent_chain: Vec<String>,
+    /// The chain of agents used in the generation
+    pub agents: Vec<String>,
 
-    pub generate_options: GenerateOptions,
+    /// The model (a.k.a system) fingerprint at the time of generation
+    /// for the last agent in the chain
+    pub fingerprint: Option<String>,
 
-    pub model_fingerprint: Option<String>,
+    /// The options used for the generation
+    pub options: GenerateOptions,
+
+    /// The task for the generation
+    ///
+    /// This may differ from the original task e.g. optional fields
+    /// populated by rendering prompt templates
+    pub task: GenerateTask,
 }
 
 /// Macro to return an error for a method that is not supported by an agent
@@ -327,6 +464,14 @@ pub trait Agent: Sync + Send {
     fn model(&self) -> String;
 
     /**
+     * Does the agent support a `GenerateTask`
+     */
+    #[allow(unused)]
+    fn supports_task(&self, task: &GenerateTask) -> bool {
+        true
+    }
+
+    /**
      * Get a list of input types this agent supports
      */
     fn supported_inputs(&self) -> &[AgentIO] {
@@ -348,12 +493,19 @@ pub trait Agent: Sync + Send {
     }
 
     /**
+     * The relative rank of preference to delegate to the agent
+     */
+    fn preference_rank(&self) -> u8 {
+        0
+    }
+
+    /**
      * Generate text in response to an instruction
      */
     #[allow(unused)]
     async fn text_to_text(
         &self,
-        context: GenerateContext,
+        task: GenerateTask,
         options: &GenerateOptions,
     ) -> Result<(String, GenerateDetails)> {
         unsupported!(self, "Text to text")
@@ -374,7 +526,7 @@ pub trait Agent: Sync + Send {
     #[allow(unused)]
     async fn chat_to_text(
         &self,
-        context: GenerateContext,
+        task: GenerateTask,
         options: &GenerateOptions,
     ) -> Result<(String, GenerateDetails)> {
         unsupported!(self, "Chat to text")
@@ -387,7 +539,7 @@ pub trait Agent: Sync + Send {
      * as well as the format of the image(?).
      */
     #[allow(unused)]
-    async fn text_to_image(&self, instruction: &str, options: &GenerateOptions) -> Result<String> {
+    async fn text_to_image(&self, task: GenerateTask, options: &GenerateOptions) -> Result<String> {
         unsupported!(self, "Text to image")
     }
 }

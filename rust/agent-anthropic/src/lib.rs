@@ -9,7 +9,7 @@ use agent::{
         async_trait::async_trait,
         eyre::{bail, Result},
     },
-    Agent, AgentIO, GenerateContext, GenerateDetails, GenerateOptions,
+    Agent, AgentIO, GenerateDetails, GenerateOptions, GenerateTask,
 };
 
 /// An agent running on Anthropic
@@ -47,7 +47,7 @@ impl Agent for AnthropicAgent {
 
     async fn text_to_text(
         &self,
-        context: GenerateContext,
+        task: GenerateTask,
         options: &GenerateOptions,
     ) -> Result<(String, GenerateDetails)> {
         let cfg = AnthropicConfig::new()?;
@@ -64,9 +64,9 @@ impl Agent for AnthropicAgent {
             // System prompts in Claude are just put before the HUMAN_PROMPT.
             // https://docs.anthropic.com/claude/docs/how-to-use-system-prompts
             .prompt(format!(
-                "{system_prompt}{HUMAN_PROMPT}{user_prompt}{AI_PROMPT}",
-                system_prompt = context.system_prompt().unwrap_or(""),
-                user_prompt = context.user_prompt()
+                "{system_prompt} {HUMAN_PROMPT}{user_prompt}{AI_PROMPT}",
+                system_prompt = task.system_prompt().unwrap_or(""),
+                user_prompt = task.user_prompt()
             ))
             .model(&self.model)
             // Not sure the best way to do this, but 256 is the default.
@@ -77,8 +77,9 @@ impl Agent for AnthropicAgent {
         let text = client.complete(complete_request).await?.completion;
 
         let details = GenerateDetails {
-            agent_chain: vec![self.name()],
-            generate_options: options.clone(),
+            task,
+            options: options.clone(),
+            agents: vec![self.name()],
             ..Default::default()
         };
 

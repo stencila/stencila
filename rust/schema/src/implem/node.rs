@@ -2,7 +2,9 @@ use smol_str::SmolStr;
 
 use node_store::{automerge::ObjId, ReadNode, ReadStore};
 
-use crate::{prelude::*, utilities::node_type, Array, Node, NodeType, Null, Object, Primitive};
+use crate::{
+    prelude::*, utilities::node_type, Array, Block, Inline, Node, NodeType, Null, Object, Primitive,
+};
 
 impl ReadNode for Node {
     fn load_null() -> Result<Self> {
@@ -193,5 +195,100 @@ impl From<Primitive> for Node {
             Primitive::Array(node) => Node::Array(node),
             Primitive::Object(node) => Node::Object(node),
         }
+    }
+}
+
+impl From<Inline> for Node {
+    fn from(inline: Inline) -> Self {
+        macro_rules! variants {
+            ($( $variant:ident ),*) => {
+                match inline {
+                    $(
+                        Inline::$variant(node) => Node::$variant(node),
+                    )*
+                }
+            };
+        }
+
+        variants!(
+            AudioObject,
+            Boolean,
+            Button,
+            Cite,
+            CiteGroup,
+            CodeExpression,
+            CodeInline,
+            Date,
+            DateTime,
+            DeleteInline,
+            Duration,
+            Emphasis,
+            ImageObject,
+            InsertInline,
+            InstructionInline,
+            Integer,
+            Link,
+            MathInline,
+            MediaObject,
+            ModifyInline,
+            Note,
+            Null,
+            Number,
+            Parameter,
+            QuoteInline,
+            ReplaceInline,
+            Strikeout,
+            Strong,
+            StyledInline,
+            Subscript,
+            Superscript,
+            Text,
+            Time,
+            Timestamp,
+            Underline,
+            UnsignedInteger,
+            VideoObject
+        )
+    }
+}
+
+impl From<Block> for Node {
+    fn from(block: Block) -> Self {
+        macro_rules! variants {
+            ($( $variant:ident ),*) => {
+                match block {
+                    $(
+                        Block::$variant(node) => Node::$variant(node),
+                    )*
+                }
+            };
+        }
+
+        variants!(
+            Admonition,
+            CallBlock,
+            Claim,
+            CodeBlock,
+            CodeChunk,
+            DeleteBlock,
+            Figure,
+            ForBlock,
+            Form,
+            Heading,
+            IfBlock,
+            IncludeBlock,
+            InsertBlock,
+            InstructionBlock,
+            List,
+            MathBlock,
+            ModifyBlock,
+            Paragraph,
+            QuoteBlock,
+            ReplaceBlock,
+            Section,
+            StyledBlock,
+            Table,
+            ThematicBreak
+        )
     }
 }

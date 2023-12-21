@@ -11,7 +11,7 @@ use agent::{
         eyre::{eyre, Result},
         tracing,
     },
-    Agent, AgentIO, GenerateContext, GenerateDetails, GenerateOptions,
+    Agent, AgentIO, GenerateDetails, GenerateOptions, GenerateTask,
 };
 
 /// An agent running on a Ollama (https://github.com/jmorganca/ollama/) server
@@ -79,13 +79,13 @@ impl Agent for OllamaAgent {
 
     async fn text_to_text(
         &self,
-        context: GenerateContext,
+        task: GenerateTask,
         options: &GenerateOptions,
     ) -> Result<(String, GenerateDetails)> {
         let mut request =
-            GenerationRequest::new(self.model.clone(), context.user_prompt().to_string());
+            GenerationRequest::new(self.model.clone(), task.user_prompt().to_string());
 
-        if let Some(system_prompt) = context.system_prompt() {
+        if let Some(system_prompt) = task.system_prompt() {
             request.system = Some(system_prompt.into());
         }
 
@@ -143,8 +143,9 @@ impl Agent for OllamaAgent {
         let text = response.response;
 
         let details = GenerateDetails {
-            agent_chain: vec![self.name()],
-            generate_options: options.clone(),
+            task,
+            options: options.clone(),
+            agents: vec![self.name()],
             ..Default::default()
         };
 
