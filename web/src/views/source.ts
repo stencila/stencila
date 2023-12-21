@@ -22,6 +22,7 @@ import {
   dropCursor,
   EditorView as CodeMirrorView,
   highlightActiveLineGutter,
+  highlightActiveLine,
   highlightSpecialChars,
   keymap,
   lineNumbers,
@@ -206,7 +207,7 @@ export class SourceView extends LitElement {
 
   /**
    * Send an 'execute' operation on the selection of the document
-   * 
+   *
    * @returns false to tell CodeMirror that this does not change the editor state
    */
   private executeSelection(view: CodeMirrorView): boolean {
@@ -246,6 +247,7 @@ export class SourceView extends LitElement {
       lineWrapping,
       autocompletion({ override: [this.stencilaCompleteOptions] }),
       dropCursor(),
+      highlightActiveLine(),
       highlightActiveLineGutter(),
       indentOnInput(),
       highlightSpecialChars(),

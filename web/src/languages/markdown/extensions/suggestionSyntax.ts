@@ -20,6 +20,35 @@ const customTags = {
   suggestBase: Tag.define(),
 }
 
+/**
+ * Parse a simple block marker leaf element using provided
+ * node and marker types
+ * @param cx
+ * @param leaf
+ * @param nodeType
+ * @param markType
+ * @param mark
+ * @returns
+ */
+const parseLeaf = (
+  cx: BlockContext,
+  leaf: LeafBlock,
+  nodeType: string,
+  markType: string,
+  mark: string
+): boolean => {
+  const start = leaf.start
+  const end = start + mark.length
+  if (start >= end) {
+    return false
+  }
+  cx.addLeafElement(
+    leaf,
+    cx.elt(nodeType, start, end, [cx.elt(markType, start, end)])
+  )
+  return true
+}
+
 // TODO ->
 // modify inline, modify block,
 // replace block, replace inline,
@@ -139,23 +168,6 @@ const MOD_INNER_DELIM = '!>'
 const MOD_INLINE_OPEN = '{!!'
 const MOD_INLINE_CLOSE = '!!}'
 
-const parseModifyLeaf = (
-  cx: BlockContext,
-  leaf: LeafBlock,
-  nodeType: string,
-  mark: string
-): boolean => {
-  const start = leaf.start
-  const end = start + mark.length
-  if (start >= end) {
-    return false
-  }
-  cx.addElement(
-    cx.elt(nodeType, start, end, [cx.elt(modMark.name, start, end)])
-  )
-  return true
-}
-
 /**
  * `LeafBlockParser` for the opening and closing delimiter
  * of a modify block.
@@ -165,7 +177,13 @@ class ModifyBlockParser implements LeafBlockParser {
   nextLine = () => false
   finish(cx: BlockContext, leaf: LeafBlock): boolean {
     try {
-      return parseModifyLeaf(cx, leaf, modBlockOuter.name, MOD_BLOCK_DELIM)
+      return parseLeaf(
+        cx,
+        leaf,
+        modBlockOuter.name,
+        modMark.name,
+        MOD_BLOCK_DELIM
+      )
     } catch {
       return false
     }
@@ -181,7 +199,13 @@ class ModifyInnerParser implements LeafBlockParser {
   nextLine = () => false
   finish = (cx: BlockContext, leaf: LeafBlock): boolean => {
     try {
-      return parseModifyLeaf(cx, leaf, modBlockInner.name, MOD_INNER_DELIM)
+      return parseLeaf(
+        cx,
+        leaf,
+        modBlockInner.name,
+        modMark.name,
+        MOD_INNER_DELIM
+      )
     } catch {
       return false
     }
@@ -189,7 +213,8 @@ class ModifyInnerParser implements LeafBlockParser {
 }
 
 /**
- * `InlineParser` for the modify inline delimiters, creates a new element for each delimiter
+ * `InlineParser` for the modify inline delimiters,
+ * creates a new element for each delimiter
  * eg: `{!! !> !!}`
  */
 class ModifyInlineParser implements InlineParser {
@@ -208,7 +233,7 @@ class ModifyInlineParser implements InlineParser {
     ) {
       // create closing delim element
       return cx.addElement(
-        cx.elt(modInlineInner.name, pos, pos + MOD_INLINE_CLOSE.length, [
+        cx.elt(modInline.name, pos, pos + MOD_INLINE_CLOSE.length, [
           cx.elt(modMark.name, pos, pos + MOD_INLINE_CLOSE.length),
         ])
       )
@@ -217,8 +242,9 @@ class ModifyInlineParser implements InlineParser {
       hasOpeningDelimitir(cx, pos, MOD_INLINE_OPEN, MOD_INNER_DELIM)
     ) {
       // create inner delim element
+      console.log('meag')
       return cx.addElement(
-        cx.elt(modInline.name, pos, pos + MOD_INNER_DELIM.length, [
+        cx.elt(modInlineInner.name, pos, pos + MOD_INNER_DELIM.length, [
           cx.elt(modMark.name, pos, pos + MOD_INNER_DELIM.length),
         ])
       )
@@ -229,7 +255,84 @@ class ModifyInlineParser implements InlineParser {
 
 // Replace -------------------------------------------
 
+const repOuterRe = /^~~$/
+const repInnerRe = /^~>$/
+
+// Replace `NodeSpecs`
+const repBlockOuter = { name: 'ReplaceBlockDelimiter' }
+const repBlockInner = { name: 'ReplaceBlockInner' }
+const repInline = { name: 'ReplaceInlineDelimiter' }
+const repInlineInner = { name: 'ReplaceInlineInner' }
+const repMark = { name: 'ReplaceMark', style: customTags.suggestMark }
+
+const REP_BLOCK_DELIM = '~~'
+const REP_INNER_DELIM = '~>'
+const REP_INLINE_OPEN = '{~~'
+const REP_INLINE_CLOSE = '~~}'
+
+class ReplaceBlockParser implements LeafBlockParser {
+  nextLine = () => false
+  finish = (cx: BlockContext, leaf: LeafBlock): boolean => {
+    try {
+      parseLeaf(cx, leaf, repBlockOuter.name, repMark.name, REP_BLOCK_DELIM)
+    } catch {
+      return false
+    }
+  }
+}
+
+class ReplaceInnerParser implements LeafBlockParser {
+  nextLine = () => false
+  finish = (cx: BlockContext, leaf: LeafBlock): boolean => {
+    try {
+      parseLeaf(cx, leaf, repBlockOuter.name, repMark.name, REP_INNER_DELIM)
+    } catch {
+      return false
+    }
+  }
+}
+
+const OFFSET = 1
+
+class ReplaceInlineParser implements InlineParser {
+  name = repInline.name
+  parse = (cx: InlineContext, _next: number, pos: number): number => {
+    if (cx.slice(pos, pos + REP_INLINE_OPEN.length) === REP_INLINE_OPEN) {
+      return cx.addElement(
+        cx.elt(repInline.name, pos, pos + REP_INLINE_OPEN.length, [
+          cx.elt(repMark.name, pos, pos + REP_INLINE_OPEN.length),
+        ])
+      )
+    } else if (
+      /[\s\S]~~}/.test(cx.slice(pos, pos + REP_INLINE_CLOSE.length + OFFSET)) &&
+      hasOpeningDelimitir(cx, pos + OFFSET, REP_INLINE_OPEN, REP_INLINE_CLOSE)
+    ) {
+      return cx.addElement(
+        cx.elt(repInline.name, pos + 1, pos + REP_INLINE_CLOSE.length + 1, [
+          cx.elt(repMark.name, pos + 1, pos + REP_INLINE_CLOSE.length + 1),
+        ])
+      )
+    } else if (
+      cx.slice(pos, pos + REP_INNER_DELIM.length) === REP_INNER_DELIM &&
+      hasOpeningDelimitir(cx, pos, REP_INLINE_OPEN, REP_INNER_DELIM)
+    ) {
+      return cx.addElement(
+        cx.elt(repInlineInner.name, pos, pos + REP_INNER_DELIM.length, [
+          cx.elt(repMark.name, pos, pos + REP_INNER_DELIM.length),
+        ])
+      )
+    }
+    return -1
+  }
+}
+
 // Delete --------------------------------------------
+
+// const delDelimRe = /^--$/
+
+// const delBlock = { name: 'ReplaceBlock' }
+// const delInline = { name: 'DeleteInline' }
+// const delMark = { name: 'DeleteMark', style: customTags.suggestMark }
 
 // ---------------------------------------------------
 
@@ -256,6 +359,11 @@ const StencilaSuggestionSyntax: MarkdownConfig = {
     modInline,
     modInlineInner,
     modMark,
+    repBlockInner,
+    repBlockOuter,
+    repInline,
+    repInlineInner,
+    repMark,
   ],
   parseBlock: [
     new InsertBlockParser(),
@@ -272,8 +380,25 @@ const StencilaSuggestionSyntax: MarkdownConfig = {
         modInnerRe.test(leaf.content) ? new ModifyInnerParser() : null,
       endLeaf: (_, line) => !modInnerRe.test(line.text),
     },
+    // replace block parsers
+    {
+      name: repBlockOuter.name,
+      leaf: (_, leaf) =>
+        repOuterRe.test(leaf.content) ? new ReplaceBlockParser() : null,
+      endLeaf: (_, line) => !repOuterRe.test(line.text),
+    },
+    {
+      name: repBlockInner.name,
+      leaf: (_, leaf) =>
+        repInnerRe.test(leaf.content) ? new ReplaceInnerParser() : null,
+      endLeaf: (_, line) => !repInnerRe.test(line.text),
+    },
   ],
-  parseInline: [new InsertInlineParser(), new ModifyInlineParser()],
+  parseInline: [
+    new InsertInlineParser(),
+    new ModifyInlineParser(),
+    new ReplaceInlineParser(),
+  ],
   wrap: parseMixed((node) => {
     if (node.type.name === insertBlock.name) {
       const from = node.from + BLOCK_MARK_LENGTH

@@ -23,7 +23,6 @@ const hasOpeningDelimitir = (
   closeDelim: string
 ): boolean => {
   const text = cx.slice(0, pos)
-
   const indices = []
   let index = text.indexOf(openDelim)
   while (index !== -1) {
@@ -31,11 +30,10 @@ const hasOpeningDelimitir = (
     index = text.indexOf(openDelim, index + 1)
   }
 
-  // no open delim exists return false
+  // no open delim exists -> return false
   if (indices.length === 0) {
     return false
   }
-
   const lastOccurence = indices[indices.length - 1]
 
   /* 
@@ -43,7 +41,7 @@ const hasOpeningDelimitir = (
     return false
     else true
   */
-  return text.indexOf(closeDelim, lastOccurence + 1) === -1
+  return text.indexOf(closeDelim, lastOccurence) === -1
 }
 
 export { getLeafEnd, hasOpeningDelimitir }
