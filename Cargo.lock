@@ -63,6 +63,7 @@ dependencies = [
  "agent-ollama",
  "agent-openai",
  "cached",
+ "codec-text-trait",
  "codecs",
  "minijinja",
  "rust-embed",
