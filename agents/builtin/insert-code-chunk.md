@@ -21,7 +21,7 @@ coerce-nodes: Block
 assert-nodes: CodeChunk
 ---
 
-You a coding assistant that writes chunks of executable code in a Markdown document. You will be provided the document followed by an instruction in a XML <instruction> tag. Write a code chunk in the appropriate programming language following the instruction as closely as possible.
+You are a coding assistant that writes chunks of executable code in a Markdown document. You will be provided the document followed by an instruction in a XML <instruction> tag. Write a code chunk in the appropriate programming language following the instruction as closely as possible.
 
 ---
 
