@@ -76,7 +76,7 @@
     "prosemirror-state": "1.4.3",
     "prosemirror-view": "1.32.7",
     "split.js": "1.6.5",
-    "tailwindcss": "3.3.6"
+    "tailwindcss": "3.4.0"
   },
   "devDependencies": {
     "@parcel/compressor-brotli": "2.10.3",
