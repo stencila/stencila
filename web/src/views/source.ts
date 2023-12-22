@@ -2,6 +2,8 @@ import {
   autocompletion,
   startCompletion,
   completionKeymap,
+  CompletionContext,
+  CompletionResult,
 } from '@codemirror/autocomplete'
 import { history, historyKeymap, indentWithTab } from '@codemirror/commands'
 import {
@@ -20,6 +22,7 @@ import {
   dropCursor,
   EditorView as CodeMirrorView,
   highlightActiveLineGutter,
+  highlightActiveLine,
   highlightSpecialChars,
   keymap,
   lineNumbers,
@@ -173,6 +176,23 @@ export class SourceView extends TWLitElement {
     this.codeMirrorView?.dispatch(transaction)
   }
 
+  private stencilaCompleteOptions(
+    context: CompletionContext
+  ): CompletionResult {
+    const char = context.matchBefore(/:+/)
+    if (char?.from == char?.to && !context.explicit) return null
+    const suggestions: string[] = [':::', '::: if', '::: for']
+
+    return {
+      from: char.from,
+      options: suggestions.map((label) => ({
+        label,
+        type: 'keyword',
+        apply: label,
+      })),
+    }
+  }
+
   /**
    * Get the CodeMirror `LanguageSupport` for a particular format
    *
@@ -232,7 +252,9 @@ export class SourceView extends TWLitElement {
       lineNumbers(),
       foldGutter(),
       lineWrapping,
+      autocompletion({ override: [this.stencilaCompleteOptions] }),
       dropCursor(),
+      highlightActiveLine(),
       highlightActiveLineGutter(),
       indentOnInput(),
       highlightSpecialChars(),
