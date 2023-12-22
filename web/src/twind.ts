@@ -2,7 +2,6 @@ import { defineConfig } from '@twind/core'
 import presetAutoprefix from '@twind/preset-autoprefix'
 import presetTailwind from '@twind/preset-tailwind/base'
 import install from '@twind/with-web-components'
-
 /**
  * The configuration for `twind` Tailwind-in-JS
  *
@@ -12,7 +11,7 @@ import install from '@twind/with-web-components'
  *
  * For configuration of Tailwind for themes see the `tailwind.config.js` file.
  */
-const config = defineConfig({
+export const config = defineConfig({
   presets: [presetAutoprefix(), presetTailwind()],
 
   theme: {

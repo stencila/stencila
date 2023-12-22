@@ -24,13 +24,14 @@ import {
   keymap,
   lineNumbers,
 } from '@codemirror/view'
-import { html, css, LitElement } from 'lit'
+import { css as twCSS } from '@twind/core'
+import { html } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
 
 import { CodeMirrorClient } from '../clients/codemirror'
 import { markdownHighlightStyle } from '../languages/markdown'
-import { withTwind } from '../twind'
 import type { DocumentId, DocumentAccess } from '../types'
+import { TWLitElement } from '../ui/twind'
 
 const FORMATS = {
   markdown: 'Markdown',
@@ -49,8 +50,7 @@ const FORMATS = {
  * a particular format.
  */
 @customElement('stencila-source-view')
-@withTwind()
-export class SourceView extends LitElement {
+export class SourceView extends TWLitElement {
   /**
    * The id of the document
    */
@@ -81,6 +81,13 @@ export class SourceView extends LitElement {
    */
   @property({ attribute: 'line-wrapping', type: Boolean })
   lineWrap: boolean = true
+
+  /**
+   * Where is this component rendered? Either as a single view or in a split
+   * code & preview editor?
+   */
+  @property()
+  displayMode?: 'single' | 'split' = 'single'
 
   /**
    * A read-write client which sends and receives string patches
@@ -276,27 +283,38 @@ export class SourceView extends LitElement {
    * CSS styling for the CodeMirror editor
    *
    * Overrides some of the default styles used by CodeMirror.
+   *
+   * This needs to be defined outside of the static styles property, as we need
+   * to be able to access the instance property "displayMode" to determine the
+   * height to use.
    */
-  static styles = css`
-    .cm-editor {
-      border: 1px solid rgb(189, 186, 186);
-      height: 100vh;
-    }
-  `
+  private get codeMirrorCSS() {
+    return twCSS`
+      .cm-editor {
+        border: 1px solid rgb(189, 186, 186);
+        height: 100%;
+      }
+    `
+  }
 
-  render() {
+  protected render() {
     return html`
-      <div>
-        <div>${this.renderControls()}</div>
-        <div id="codemirror"></div>
+      <div class="max-h-screen relative">
+        ${this.renderControls()}
+        <div>
+          <div id="codemirror" class=${this.codeMirrorCSS}></div>
+        </div>
       </div>
     `
   }
 
   private renderControls() {
     return html`
-      <div class="mb-4 flex">
-        <div>${this.renderFormatSelect()} ${this.renderLineWrapCheckbox()}</div>
+      <div
+        class="flex flex-row items-center justify-between w-full bg-brand-white px-1 py-2"
+      >
+        <div>${this.renderFormatSelect()}</div>
+        <div>${this.renderLineWrapCheckbox()}</div>
       </div>
     `
   }
