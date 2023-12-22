@@ -259,7 +259,6 @@ class ModifyInlineParser implements InlineParser {
       hasOpeningDelimitir(cx, pos, MOD_INLINE_OPEN, MOD_INNER_DELIM)
     ) {
       // create inner delim element
-      console.log('meag')
       return cx.addElement(
         cx.elt(modInlineInner.name, pos, pos + MOD_INNER_DELIM.length, [
           cx.elt(modMark.name, pos, pos + MOD_INNER_DELIM.length),
@@ -488,7 +487,7 @@ const StencilaSuggestionSyntax: MarkdownConfig = {
 const highlightStyles: TagStyle[] = [
   {
     tag: customTags.suggestMark,
-    color: 'red',
+    color: '#800000',
   },
 ]
 
