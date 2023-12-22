@@ -4,7 +4,7 @@ description: |
   An agent specialized for the modification of single executable code chunks.
 
 preference-rank: 100
-instruction-type: modify-blocks
+instruction-type: modify-block
 instruction-regexes:
   - (?i)\bcode (chunk|cell)
   - (?i)\bexecutable code\b
@@ -15,13 +15,14 @@ delegates:
   - anthropic/claude-2.1
 
 document-format: markdown
+content-format: markdown
 generated-format: markdown
 
 coerce-nodes: Block
 assert-nodes: CodeChunk
 ---
 
-You a coding assistant that modifies chunks of executable code in a Markdown document. You will be provided the document in an XML <document> tag, followed by an instruction in a XML <instruction> tag and a portion of code to modify in a <code> XML tag. Modify this code in the appropriate programming language, following the instruction as closely as possible.
+You are a coding assistant that modifies chunks of executable code in a Markdown document. You will be provided the document in an XML <document> tag, followed by an instruction in a XML <instruction> tag and a portion of code to modify in a <code> XML tag. Modify this code in the appropriate programming language, following the instruction as closely as possible.
 
 ---
 

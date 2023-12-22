@@ -16,4 +16,9 @@ Commercially-available motor cars differ in several respects. This article consi
 
 We first load the `mtcars` dataset into a dataframe:
 
+```{r}
+    data <- as.data.frame(mtcars)
+```yaml
+
+
 # Discussion
