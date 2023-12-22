@@ -15,20 +15,20 @@ import {
 
 import {
   StencilaColonSyntax,
-  highlightStyles as cSyntaxStyles,
+  highlightStyles as colonSyntaxStyles,
 } from './extensions/colonSyntax'
-import { StencilaInlineStyle } from './extensions/inlineStyleSyntax'
+import { StencilaStyleInlineSyntax } from './extensions/inlineStyleSyntax'
 import {
   StencilaInstructSyntax,
-  highlightStyles as instSyntaxStyles,
+  highlightStyles as instructionSyntaxStyles,
 } from './extensions/instructSyntax'
 import {
   StencilaSuggestionSyntax,
-  highlightStyles as suggSyntaxStyles,
+  highlightStyles as suggestionSyntaxStyles,
 } from './extensions/suggestionSyntax'
 
-// choose the markdown extensions from @lezer/markdown
-// to provide more customisation
+// Add extensions from @lezer/markdown for more customization
+// over base commonMark
 const LezerMdExtensions = [
   Table,
   TaskList,
@@ -49,9 +49,9 @@ const LezerMdExtensions = [
 ]
 
 const markdownHighlightStyle = HighlightStyle.define([
-  ...cSyntaxStyles,
-  ...suggSyntaxStyles,
-  ...instSyntaxStyles,
+  ...colonSyntaxStyles,
+  ...suggestionSyntaxStyles,
+  ...instructionSyntaxStyles,
   ...defaultHighlightStyle.specs,
 ])
 
@@ -70,6 +70,7 @@ const stencilaMarkdown = () =>
       StencilaColonSyntax,
       StencilaInstructSyntax,
       StencilaSuggestionSyntax,
+      StencilaStyleInlineSyntax,
     ],
   })
 

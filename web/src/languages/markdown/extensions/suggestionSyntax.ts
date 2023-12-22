@@ -23,12 +23,6 @@ const customTags = {
 /**
  * Parse a simple block marker leaf element using provided
  * node and marker types
- * @param cx
- * @param leaf
- * @param nodeType
- * @param markType
- * @param mark
- * @returns
  */
 const parseLeaf = (
   cx: BlockContext,
@@ -74,11 +68,6 @@ class SuggestLeafParser implements LeafBlockParser {
     }
   }
 }
-
-// TODO ->
-// modify inline, modify block,
-// replace block, replace inline,
-// delete block, delete inline
 
 // Insert --------------------------------------------
 
