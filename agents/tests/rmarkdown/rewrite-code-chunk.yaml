@@ -1,0 +1,8 @@
+type: InstructionBlock
+text: make R code more succinct, change target variable to `df`
+content:
+  - type: Text
+    value: |
+      ```{r}
+      data <- as.data.frame(mtcars)
+      ```yaml
