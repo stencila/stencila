@@ -5,6 +5,7 @@ import {
   StencilaColonSyntax,
   highlightStyles as cSyntaxStyles,
 } from './extensions/colonSyntax'
+import { StencilaInlineStyle } from './extensions/inlineStyleSyntax'
 
 // const stencilaMarkdownExtension: MarkdownConfig = {
 //   defineNodes: [...ifBlockNodeList],
@@ -19,7 +20,7 @@ const markdownHighlightStyle = HighlightStyle.define([
 const stencilaMarkdown = () =>
   markdown({
     base: markdownLanguage,
-    extensions: [StencilaColonSyntax],
+    extensions: [StencilaColonSyntax, StencilaInlineStyle],
   })
 
 export { stencilaMarkdown, markdownHighlightStyle }
