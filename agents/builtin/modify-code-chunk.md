@@ -4,7 +4,7 @@ description: |
   An agent specialized for the modification of single executable code chunks.
 
 preference-rank: 100
-instruction-type: modify-block
+instruction-type: modify-blocks
 instruction-regexes:
   - (?i)\bcode (chunk|cell)
   - (?i)\bexecutable code\b

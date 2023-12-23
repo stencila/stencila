@@ -1,5 +1,5 @@
 ---
-name: stencila/modify-block
+name: stencila/modify-blocks
 description: |
   A generic, fallback agent for modifying block content (i.e. when a user creates an `InstructionBlock` with `content` to be edited by the agent).
 
