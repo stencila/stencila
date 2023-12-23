@@ -23,7 +23,7 @@
           "stencila:operations": [
             {
               "@type": "stencila:ModifyOperation",
-              "stencila:target": "code",
+              "target": "code",
               "value": {
                 "@type": "stencila:StringPatch",
                 "stencila:operations": [
@@ -37,7 +37,7 @@
             },
             {
               "@type": "stencila:ModifyOperation",
-              "stencila:target": "programmingLanguage",
+              "target": "programmingLanguage",
               "value": "python"
             }
           ]

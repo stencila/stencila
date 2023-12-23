@@ -20,7 +20,7 @@
               "value": "example.org"
             }
           ],
-          "stencila:target": "https://example.org"
+          "target": "https://example.org"
         },
         {
           "@type": "Text",
@@ -48,7 +48,7 @@
               ]
             }
           ],
-          "stencila:target": "https://example.org",
+          "target": "https://example.org",
           "headline": "a title"
         },
         {

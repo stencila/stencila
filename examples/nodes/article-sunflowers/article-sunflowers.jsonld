@@ -1309,7 +1309,7 @@
                       "value": "https://biodare2.ed.ac.uk/"
                     }
                   ],
-                  "stencila:target": "https://biodare2.ed.ac.uk/"
+                  "target": "https://biodare2.ed.ac.uk/"
                 },
                 {
                   "@type": "Text",
