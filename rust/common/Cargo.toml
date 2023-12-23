@@ -26,7 +26,7 @@ regex = "1.10.2"
 serde = { version = "1.0.193", features = ["derive", "rc"] }
 serde_json = { version = "1.0.108", features = ["preserve_order"] }
 serde_with = "3.4.0"
-serde_yaml = "0.9.27"
+serde_yaml = "0.9.29"
 similar = { version = "2.3.0", features = ["unicode"] }
 slug = "0.1.5"
 smart-default = "0.7.1"
