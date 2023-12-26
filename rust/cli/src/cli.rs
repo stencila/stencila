@@ -668,8 +668,8 @@ impl Cli {
                                 let task = GenerateTask::new(instruction, document_imported);
 
                                 // Execute the task
-                                let (content, details) =
-                                    agents::generate_content(task, &options_parser.options).await?;
+                                let (output, details) =
+                                    agents::perform_task(task, &options_parser.options).await?;
 
                                 // Display generation details
                                 let yaml = serde_yaml::to_string(&details)?;
@@ -677,8 +677,10 @@ impl Cli {
 
                                 println!("---");
 
-                                // Display the generated content as YAML
-                                let yaml = serde_yaml::to_string(&content)?;
+                                let output = output.into_string().unwrap_or_default();
+
+                                // Display the generated text
+                                let yaml = serde_yaml::to_string(&output)?;
                                 display::highlighted(&yaml, Format::Yaml)?;
 
                                 // Record in database if user wants
@@ -691,7 +693,7 @@ impl Cli {
                                     );
                                     let answer = reader.readline(&question)?;
                                     if answer == "y" || answer.is_empty() {
-                                        agents::testing::insert_trial(line, &content, details)
+                                        agents::testing::insert_trial(line, &output, details)
                                             .await?
                                     }
                                 }

@@ -64,14 +64,14 @@ pub async fn test_example(path: &Path, instruction: &str, reps: u16) -> Result<(
     // Run repetitions in parallel
     let tasks = (0..reps).map(|_| {
         let task = task.clone();
-        async { crate::generate_content(task, &GenerateOptions::default()).await }
+        async { crate::perform_task(task, &GenerateOptions::default()).await }
     });
     let results = try_join_all(tasks).await?;
 
     // Create output file
-    let mut output = File::create(path.join(format!("{instruction}.md")))?;
-    for (index, (content, details)) in results.iter().enumerate() {
-        output.write_all(
+    let mut file = File::create(path.join(format!("{instruction}.md")))?;
+    for (index, (output, details)) in results.iter().enumerate() {
+        file.write_all(
             if index == 0 {
                 format!("---\n{}\n---\n\n", serde_yaml::to_string(details)?)
             } else {
@@ -79,7 +79,7 @@ pub async fn test_example(path: &Path, instruction: &str, reps: u16) -> Result<(
             }
             .as_bytes(),
         )?;
-        output.write_all(content.as_bytes())?;
+        file.write_all(output.as_bytes())?;
     }
 
     Ok(())

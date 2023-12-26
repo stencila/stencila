@@ -16,7 +16,7 @@ use agent::{
         itertools::Itertools,
         tracing,
     },
-    Agent, AgentIO, GenerateDetails, GenerateOptions, GenerateTask,
+    Agent, AgentIO, GenerateDetails, GenerateOptions, GenerateOutput, GenerateTask,
 };
 
 /// An agent running on OpenAI
@@ -66,15 +66,143 @@ impl Agent for OpenAIAgent {
         &self.outputs
     }
 
-    async fn text_to_text(
+    async fn perform_task(
         &self,
         task: GenerateTask,
         options: &GenerateOptions,
-    ) -> Result<(String, GenerateDetails)> {
-        chat_completion(&self.name(), &self.model, task, options).await
+    ) -> Result<(GenerateOutput, GenerateDetails)> {
+        use AgentIO::*;
+        match (task.input, task.output) {
+            (Text, Text) => self.chat_completion(task, options).await,
+            (Text, Image) => self.create_image(task, options).await,
+            _ => bail!(
+                "{} to {} is not supported by agent `{}`",
+                task.input,
+                task.output,
+                self.name()
+            ),
+        }
+    }
+}
+
+impl OpenAIAgent {
+    #[tracing::instrument(skip(self))]
+    async fn chat_completion(
+        &self,
+        task: GenerateTask,
+        options: &GenerateOptions,
+    ) -> Result<(GenerateOutput, GenerateDetails)> {
+        tracing::debug!("Sending chat completion request");
+
+        let client = Client::new();
+
+        let system_prompt = task.system_prompt().unwrap_or_default();
+        let chat = &[task.user_prompt()];
+
+        // Create the chat with any system prompt first and then alternating
+        // between user and agent messages
+        let mut messages = Vec::with_capacity(chat.len() + 1);
+        if !system_prompt.is_empty() {
+            messages.push(
+                ChatCompletionRequestSystemMessageArgs::default()
+                    .content(system_prompt)
+                    .build()?
+                    .into(),
+            );
+        }
+        for (index, content) in chat.iter().enumerate() {
+            let message = if index % 2 == 0 {
+                ChatCompletionRequestUserMessageArgs::default()
+                    .content(*content)
+                    .build()?
+                    .into()
+            } else {
+                ChatCompletionRequestAssistantMessageArgs::default()
+                    .content(*content)
+                    .build()?
+                    .into()
+            };
+            messages.push(message);
+        }
+
+        // Create the request
+        let mut request = CreateChatCompletionRequestArgs::default();
+        let request = request.model(self.model()).messages(messages);
+
+        // Map options onto the request
+        macro_rules! map_option {
+            ($from:ident, $to:ident) => {
+                if let Some(value) = &options.$from {
+                    request.$to(value.clone());
+                }
+            };
+            ($name:ident) => {
+                map_option!($name, $name)
+            };
+        }
+        macro_rules! ignore_option {
+            ($name:ident) => {
+                if options.$name.is_some() {
+                    tracing::warn!(
+                        "Option `{}` is ignored by agent `{}` for text-to-text generation",
+                        stringify!($name),
+                        self.name()
+                    )
+                }
+            };
+        }
+        ignore_option!(mirostat);
+        ignore_option!(mirostat_eta);
+        ignore_option!(mirostat_tau);
+        ignore_option!(num_ctx);
+        ignore_option!(num_gqa);
+        ignore_option!(num_gpu);
+        ignore_option!(num_thread);
+        ignore_option!(repeat_last_n);
+        map_option!(repeat_penalty, presence_penalty);
+        map_option!(temperature);
+        map_option!(seed);
+        map_option!(stop);
+        map_option!(max_tokens);
+        ignore_option!(tfs_z);
+        ignore_option!(num_predict);
+        ignore_option!(top_k);
+        map_option!(top_p);
+        ignore_option!(image_size);
+        ignore_option!(image_quality);
+        ignore_option!(image_style);
+
+        // Send the request
+        let request = request.build()?;
+        let mut response = client.chat().create(request).await?;
+
+        // Get the content of the first message
+        let text = response
+            .choices
+            .pop()
+            .and_then(|choice| choice.message.content)
+            .unwrap_or_default();
+        let output = GenerateOutput::Text(text);
+
+        // Create details of the generation
+        let details = GenerateDetails {
+            agents: vec![self.name()],
+            task,
+            options: options.clone(),
+            fingerprint: response.system_fingerprint,
+        };
+
+        Ok((output, details))
     }
 
-    async fn text_to_image(&self, task: GenerateTask, options: &GenerateOptions) -> Result<String> {
+    #[tracing::instrument(skip(self))]
+    async fn create_image(
+        &self,
+        task: GenerateTask,
+        options: &GenerateOptions,
+    ) -> Result<(GenerateOutput, GenerateDetails)> {
+        tracing::debug!("Sending create image request");
+
         let client = Client::new();
 
         let prompt = format!(
@@ -175,119 +303,18 @@ impl Agent for OpenAIAgent {
                 _ => None,
             })
             .unwrap_or_default();
+        let output = GenerateOutput::Image(url);
 
-        Ok(url)
-    }
-}
-
-/// Complete a chat
-#[tracing::instrument(skip(task))]
-async fn chat_completion(
-    agent_name: &str,
-    model_name: &str,
-    task: GenerateTask,
-    options: &GenerateOptions,
-) -> Result<(String, GenerateDetails)> {
-    tracing::debug!("Sending chat completion response");
-
-    let client = Client::new();
-
-    let system_prompt = task.system_prompt().unwrap_or_default();
-    let chat = &[task.user_prompt()];
-
-    // Create the chat with any system prompt first and then alternating
-    // between user and agent messages
-    let mut messages = Vec::with_capacity(chat.len() + 1);
-    if !system_prompt.is_empty() {
-        messages.push(
-            ChatCompletionRequestSystemMessageArgs::default()
-                .content(system_prompt)
-                .build()?
-                .into(),
-        );
-    }
-    for (index, content) in chat.iter().enumerate() {
-        let message = if index % 2 == 0 {
-            ChatCompletionRequestUserMessageArgs::default()
-                .content(*content)
-                .build()?
-                .into()
-        } else {
-            ChatCompletionRequestAssistantMessageArgs::default()
-                .content(*content)
-                .build()?
-                .into()
+        // Create details of the generation
+        let details = GenerateDetails {
+            agents: vec![self.name()],
+            task,
+            options: options.clone(),
+            ..Default::default()
         };
-        messages.push(message);
+
+        Ok((output, details))
     }
-
-    // Create the request
-    let mut request = CreateChatCompletionRequestArgs::default();
-    let request = request.model(model_name).messages(messages);
-
-    // Map options onto the request
-    macro_rules! map_option {
-        ($from:ident, $to:ident) => {
-            if let Some(value) = &options.$from {
-                request.$to(value.clone());
-            }
-        };
-        ($name:ident) => {
-            map_option!($name, $name)
-        };
-    }
-    macro_rules! ignore_option {
-        ($name:ident) => {
-            if options.$name.is_some() {
-                tracing::warn!(
-                    "Option `{}` is ignored by agent `{}` for text-to-text generation",
-                    stringify!($name),
-                    agent_name
-                )
-            }
-        };
-    }
-    ignore_option!(mirostat);
-    ignore_option!(mirostat_eta);
-    ignore_option!(mirostat_tau);
-    ignore_option!(num_ctx);
-    ignore_option!(num_gqa);
-    ignore_option!(num_gpu);
-    ignore_option!(num_thread);
-    ignore_option!(repeat_last_n);
-    map_option!(repeat_penalty, presence_penalty);
-    map_option!(temperature);
-    map_option!(seed);
-    map_option!(stop);
-    map_option!(max_tokens);
-    ignore_option!(tfs_z);
-    ignore_option!(num_predict);
-    ignore_option!(top_k);
-    map_option!(top_p);
-    ignore_option!(image_size);
-    ignore_option!(image_quality);
-    ignore_option!(image_style);
-
-    // Send the request
-    let request = request.build()?;
-    let mut response = client.chat().create(request).await?;
-
-    // Get the content of the first message
-    let text = response
-        .choices
-        .pop()
-        .and_then(|choice| choice.message.content)
-        .unwrap_or_default();
-
-    // Create details of the generation
-    let details = GenerateDetails {
-        agents: vec![agent_name.to_string()],
-        task,
-        options: options.clone(),
-        fingerprint: response.system_fingerprint,
-    };
-
-    Ok((text, details))
 }
 
 /// Get a list of all available OpenAI agents

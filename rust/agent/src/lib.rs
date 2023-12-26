@@ -22,13 +22,16 @@ pub use merge;
 pub use schema;
 
 /// The type of input or output an agent can consume or generate
-#[derive(Debug, Clone, PartialEq, Eq, ValueEnum, Display)]
+#[derive(Debug, Default, Clone, Copy, PartialEq, Eq, ValueEnum, Display, Serialize)]
 #[strum(serialize_all = "lowercase")]
+#[serde(rename_all = "lowercase", crate = "common::serde")]
 pub enum AgentIO {
+    #[default]
     Text,
     Image,
     Audio,
     Video,
+    Node,
 }
 
 /// An instruction created within a document
@@ -158,6 +161,12 @@ pub struct GenerateTask {
     /// The user prompt usually generated from the `instruction_text` and
     /// other fields by rendering a user prompt template
     pub user_prompt: Option<String>,
+
+    /// The input type of the task
+    pub input: AgentIO,
+
+    /// The output type of the task
+    pub output: AgentIO,
 }
 
 impl GenerateTask {
@@ -407,6 +416,31 @@ pub struct GenerateOptions {
     pub image_style: Option<String>,
 }
 
+/// Output generated for a task
+pub enum GenerateOutput {
+    Text(String),
+    // TODO: Use bytes of an image here
+    Image(String),
+}
+
+impl GenerateOutput {
+    pub fn into_string(self) -> Option<String> {
+        use GenerateOutput::*;
+        match self {
+            Text(text) => Some(text),
+            _ => None,
+        }
+    }
+
+    pub fn as_bytes(&self) -> &[u8] {
+        use GenerateOutput::*;
+        match self {
+            Text(text) => text.as_bytes(),
+            Image(image) => image.as_bytes(),
+        }
+    }
+}
+
 /// Details returned along with whatever is generated
 #[derive(Debug, Default, Serialize)]
 #[serde(crate = "common::serde")]
@@ -426,13 +460,6 @@ pub struct GenerateDetails {
     /// This may differ from the original task e.g. optional fields
     /// populated by rendering prompt templates
     pub task: GenerateTask,
-}
-
-/// Macro to return an error for a method that is not supported by an agent
-macro_rules! unsupported {
-    ($self:expr, $what:literal) => {
-        bail!("{} is not supported by agent `{}`", $what, $self.name())
-    };
 }
 
 /// An AI agent
@@ -464,11 +491,15 @@ pub trait Agent: Sync + Send {
     fn model(&self) -> String;
 
     /**
-     * Does the agent support a `GenerateTask`
+     * Does the agent support a specific task
+     *
+     * This default implementation is based solely on whether the agents
+     * supports the input/output combination of the task. Overrides may
+     * add other criteria such as the type of the task's instruction.
      */
     #[allow(unused)]
     fn supports_task(&self, task: &GenerateTask) -> bool {
-        true
+        self.supports_from_to(task.input, task.output)
     }
 
     /**
@@ -486,60 +517,50 @@ pub trait Agent: Sync + Send {
     }
 
     /**
-     * Get a list of output types this agent supports
+     * Whether this agent support a specific input/output combination
      */
     fn supports_from_to(&self, input: AgentIO, output: AgentIO) -> bool {
         self.supported_inputs().contains(&input) && self.supported_outputs().contains(&output)
     }
 
     /**
-     * The relative rank of preference to delegate to the agent
+     * A score of the suitability of this agent for a performing a task
+     *
+     * A score between 0 and 1. A task will be delegated to the assistant
+     * with the highest suitability score for that task.
+     * Tied scores are broken using [`Self::preference_rank`].
+     *
+     * This default implementation returns 0.1 if the agent supports the
+     * task, 0.0 otherwise.
+     */
+    fn suitability_score(&self, task: &GenerateTask) -> f32 {
+        if self.supports_task(task) {
+            0.1
+        } else {
+            0.0
+        }
+    }
+
+    /**
+     * The relative rank of preference to delegate tasks to this agent
+     *
+     * Used to break ties when to agents have the same suitability score
+     * for a task.
      */
     fn preference_rank(&self) -> u8 {
         0
     }
 
     /**
-     * Generate text in response to an instruction
+     * Perform a task
+     *
+     * Will call the appropriate method of the agent, erroring if it does not
+     * support the input/output combination of the task (this will normally
+     * have been checked prior to calling this method)
      */
-    #[allow(unused)]
-    async fn text_to_text(
+    async fn perform_task(
         &self,
         task: GenerateTask,
         options: &GenerateOptions,
-    ) -> Result<(String, GenerateDetails)> {
-        unsupported!(self, "Text to text")
-    }
-
-    /**
-     * Generate text to complete a chat conversation
-     *
-     * Takes a sequence of messages, alternating between a
-     * user prompts and agent responses, and returns a new text message
-     * in the chat sequence.
-     *
-     * If the agent's model does not explicitly support a chat mode
-     * (i.e. if this method is not overridden) this default implementation
-     * simply concatenates the chat messages into blank line separated
-     * text and passes it to the `text_to_text` method.
-     */
-    #[allow(unused)]
-    async fn chat_to_text(
-        &self,
-        task: GenerateTask,
-        options: &GenerateOptions,
-    ) -> Result<(String, GenerateDetails)> {
-        unsupported!(self, "Chat to text")
-    }
-
-    /**
-     * Generate image in response to an instruction
-     *
-     * TODO: This should return a Vec<u8> (the bytes of the image)
-     * as well as the format of the image(?).
-     */
-    #[allow(unused)]
-    async fn text_to_image(&self, task: GenerateTask, options: &GenerateOptions) -> Result<String> {
-        unsupported!(self, "Text to image")
-    }
+    ) -> Result<(GenerateOutput, GenerateDetails)>;
 }

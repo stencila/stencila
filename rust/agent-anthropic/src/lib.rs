@@ -9,7 +9,7 @@ use agent::{
         async_trait::async_trait,
         eyre::{bail, Result},
     },
-    Agent, AgentIO, GenerateDetails, GenerateOptions, GenerateTask,
+    Agent, AgentIO, GenerateDetails, GenerateOptions, GenerateOutput, GenerateTask,
 };
 
 /// An agent running on Anthropic
@@ -45,11 +45,11 @@ impl Agent for AnthropicAgent {
         &[AgentIO::Text]
     }
 
-    async fn text_to_text(
+    async fn perform_task(
         &self,
         task: GenerateTask,
         options: &GenerateOptions,
-    ) -> Result<(String, GenerateDetails)> {
+    ) -> Result<(GenerateOutput, GenerateDetails)> {
         let cfg = AnthropicConfig::new()?;
         let client = Client::try_from(cfg)?;
 
@@ -75,6 +75,7 @@ impl Agent for AnthropicAgent {
             .build()?;
 
         let text = client.complete(complete_request).await?.completion;
+        let output = GenerateOutput::Text(text);
 
         let details = GenerateDetails {
             task,
@@ -83,7 +84,7 @@ impl Agent for AnthropicAgent {
             ..Default::default()
         };
 
-        Ok((text, details))
+        Ok((output, details))
     }
 }
 

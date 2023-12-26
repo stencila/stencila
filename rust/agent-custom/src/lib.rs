@@ -17,7 +17,7 @@ use agent::{
         serde_yaml,
     },
     merge::Merge,
-    Agent, AgentIO, GenerateDetails, GenerateOptions, GenerateTask, InstructionType,
+    Agent, AgentIO, GenerateDetails, GenerateOptions, GenerateTask, InstructionType, GenerateOutput,
 };
 use codec_text_trait::TextCodec;
 use codecs::{EncodeOptions, Format};
@@ -302,20 +302,20 @@ impl Agent for CustomAgent {
         self.preference_rank
     }
 
-    async fn text_to_text(
+    async fn perform_task(
         &self,
         task: GenerateTask,
         options: &GenerateOptions,
-    ) -> Result<(String, GenerateDetails)> {
+    ) -> Result<(GenerateOutput, GenerateDetails)> {
         let options = self.merge_options(options);
         let task = self.update_task(task, &options).await?;
 
         let agent = self.delegate().await?;
 
-        let (text, mut details) = agent.text_to_text(task, &options).await?;
+        let (output, mut details) = agent.perform_task(task, &options).await?;
         details.agents.insert(0, self.name());
 
-        Ok((text, details))
+        Ok((output, details))
     }
 }
 

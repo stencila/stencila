@@ -3,9 +3,10 @@ use std::sync::Arc;
 use agent::{
     common::{
         eyre::{bail, Result},
+        itertools::Itertools,
         tracing,
     },
-    Agent, AgentIO, GenerateDetails, GenerateOptions, GenerateTask,
+    Agent, AgentIO, GenerateDetails, GenerateOptions, GenerateTask, GenerateOutput,
 };
 
 pub use agent;
@@ -43,16 +44,32 @@ pub async fn list() -> Vec<Arc<dyn Agent>> {
 }
 
 /// Perform a `GenerateTask` and return the generated content as a string
-pub async fn generate_content(
+pub async fn perform_task(
     task: GenerateTask,
     options: &GenerateOptions,
-) -> Result<(String, GenerateDetails)> {
+) -> Result<(GenerateOutput, GenerateDetails)> {
     let agents = list().await;
-    for agent in agents {
-        if agent.supports_task(&task) && agent.supports_from_to(AgentIO::Text, AgentIO::Text) {
-            return agent.text_to_text(task, options).await;
+
+    // It is tempting to use the position_max iterator method here but, in the case of
+    // ties, that returns the agent with the higher index (ie. lower preference), whereas
+    // we want the one with the lowest index.
+    let mut best = (0., 0);
+    for (index, agent) in agents.iter().enumerate() {
+        let score = agent.suitability_score(&task);
+        if score > best.0 {
+            best = (score, index);
         }
     }
 
-    bail!("Unable to delegate the task, no agents with suitable capabilities")
+    let (max, index) = best;
+
+    if max == 0. {
+        bail!("Unable to delegate the task, no agents with suitable capabilities")
+    }
+
+    let Some(agent) = agents.get(index) else {
+        bail!("Best agent not in list of agents!?")
+    };
+
+    agent.perform_task(task, options).await
 }

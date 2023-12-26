@@ -11,7 +11,7 @@ use agent::{
         eyre::{eyre, Result},
         tracing,
     },
-    Agent, AgentIO, GenerateDetails, GenerateOptions, GenerateTask,
+    Agent, AgentIO, GenerateDetails, GenerateOptions, GenerateOutput, GenerateTask,
 };
 
 /// An agent running on a Ollama (https://github.com/jmorganca/ollama/) server
@@ -77,11 +77,11 @@ impl Agent for OllamaAgent {
         &[AgentIO::Text]
     }
 
-    async fn text_to_text(
+    async fn perform_task(
         &self,
         task: GenerateTask,
         options: &GenerateOptions,
-    ) -> Result<(String, GenerateDetails)> {
+    ) -> Result<(GenerateOutput, GenerateDetails)> {
         let mut request =
             GenerationRequest::new(self.model.clone(), task.user_prompt().to_string());
 
@@ -141,6 +141,7 @@ impl Agent for OllamaAgent {
             .await
             .map_err(|error| eyre!(error))?;
         let text = response.response;
+        let output = GenerateOutput::Text(text);
 
         let details = GenerateDetails {
             task,
@@ -149,7 +150,7 @@ impl Agent for OllamaAgent {
             ..Default::default()
         };
 
-        Ok((text, details))
+        Ok((output, details))
     }
 }
 
