@@ -3,7 +3,7 @@ use merge::Merge;
 use common::{
     async_trait::async_trait,
     clap::{self, Args, ValueEnum},
-    eyre::{bail, Result},
+    eyre::Result,
     serde::{Deserialize, Serialize},
     serde_with::skip_serializing_none,
     smart_default::SmartDefault,

@@ -3,10 +3,9 @@ use std::sync::Arc;
 use agent::{
     common::{
         eyre::{bail, Result},
-        itertools::Itertools,
         tracing,
     },
-    Agent, AgentIO, GenerateDetails, GenerateOptions, GenerateTask, GenerateOutput,
+    Agent, GenerateDetails, GenerateOptions, GenerateTask, GenerateOutput,
 };
 
 pub use agent;
