@@ -550,25 +550,21 @@ pub struct GenerateDetails {
 #[async_trait]
 pub trait Assistant: Sync + Send {
     /**
-     * Get the name of the assistant
+     * Get the id of the assistant
      *
-     * This name should be unique amongst assistants. This default
-     * implementation combines the provider and model name but this
-     * should be overridden if necessary for uniqueness.
+     * This id should be unique amongst assistants. For base assistants which directly
+     * use a large language model (as opposed to a custom assistant that delegates)
+     * the id should follow the pattern <PROVIDER>/<MODEL>.
      */
-    fn name(&self) -> String {
-        format!("{}/{}", self.provider(), self.model())
-    }
+    fn id(&self) -> String;
 
     /**
-     * Get the name of the model provider that the assistant uses
+     * Get the context length of the assistant
+     *
+     * Used by custom assistants to dynamically adjust the content of prompts
+     * based on the context length of the underlying model being delegated to.
      */
-    fn provider(&self) -> String;
-
-    /**
-     * Get the name of the model that the assistant uses
-     */
-    fn model(&self) -> String;
+    fn context_length(&self) -> usize;
 
     /**
      * Does the assistant support a specific task

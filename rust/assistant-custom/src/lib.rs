@@ -45,6 +45,13 @@ struct CustomAssistantHeader {
     /// to in descending order of preference
     delegates: Vec<String>,
 
+    /// The context length of the first delegate
+    ///
+    /// This is indicative only and defaults to 4096.
+    /// At runtime, the context length of the assistant delegated to is
+    /// used (for example to trim prompts).
+    context_length: Option<usize>,
+
     /// The preference rank of the custom assistant
     ///
     /// Defaults to 50 so that custom assistants are by default
@@ -76,12 +83,16 @@ struct CustomAssistantHeader {
 /// A custom assistant
 #[derive(Default)]
 struct CustomAssistant {
-    /// The name of the assistant
-    name: String,
+    /// The id of the assistant
+    id: String,
 
-    /// The names of the assistants this assistant will delegate
+    /// The ids of the assistants this assistant will delegate
     /// to in descending order of preference
     delegates: Vec<String>,
+
+    /// An indication of the context length. The actual context
+    /// length for a task will depend upon the assistant delegated to.
+    context_length: usize,
 
     /// The preference rank of the custom assistant
     preference_rank: u8,
@@ -168,8 +179,9 @@ impl CustomAssistant {
         };
 
         Ok(Self {
-            name: header.name,
+            id: header.name,
             delegates: header.delegates,
+            context_length: header.context_length.unwrap_or(4_096),
             preference_rank: header.preference_rank.unwrap_or(50),
             instruction_type: header.instruction_type,
             instruction_regexes,
@@ -239,8 +251,8 @@ impl CustomAssistant {
 
     /// Get the first assistant that is available in the list of delegates
     async fn delegate(&self) -> Result<Arc<dyn Assistant>> {
-        for name in &self.delegates {
-            let (provider, _model) = name
+        for id in &self.delegates {
+            let (provider, _model) = id
                 .split('/')
                 .collect_tuple()
                 .ok_or_else(|| eyre!("Expected delegate assistant name to have a forward slash"))?;
@@ -254,7 +266,7 @@ impl CustomAssistant {
 
             if let Some(assistant) = list
                 .into_iter()
-                .find(|assistant| &assistant.name() == name)
+                .find(|assistant| &assistant.id() == id)
                 .take()
             {
                 return Ok(assistant);
@@ -267,16 +279,12 @@ impl CustomAssistant {
 
 #[async_trait]
 impl Assistant for CustomAssistant {
-    fn name(&self) -> String {
-        self.name.clone()
+    fn id(&self) -> String {
+        self.id.clone()
     }
 
-    fn provider(&self) -> String {
-        "stencila".to_string()
-    }
-
-    fn model(&self) -> String {
-        "delegated".to_string()
+    fn context_length(&self) -> usize {
+        self.context_length
     }
 
     fn supports_task(&self, task: &GenerateTask) -> bool {
@@ -363,7 +371,7 @@ impl Assistant for CustomAssistant {
         let assistant = self.delegate().await?;
 
         let (output, mut details) = assistant.perform_task(task, &options).await?;
-        details.assistants.insert(0, self.name());
+        details.assistants.insert(0, self.id());
 
         Ok((output, details))
     }
@@ -493,7 +501,7 @@ mod tests {
         let assistants = [
             // Assistants with regexes and content nodes and content regexes specified
             CustomAssistant {
-                name: "modify-inlines-regex-nodes-regex".to_string(),
+                id: "modify-inlines-regex-nodes-regex".to_string(),
                 instruction_type: Some(InstructionType::ModifyInlines),
                 instruction_regexes: Some(vec![Regex::new("^modify-inlines-regex-nodes-regex$")?]),
                 content_nodes: Some(Regex::new("^(Text,?)+$")?),
@@ -502,7 +510,7 @@ mod tests {
             },
             // Assistants with regexes and content nodes specified
             CustomAssistant {
-                name: "modify-blocks-regex-nodes".to_string(),
+                id: "modify-blocks-regex-nodes".to_string(),
                 instruction_type: Some(InstructionType::ModifyBlocks),
                 instruction_regexes: Some(vec![Regex::new("^modify-blocks-regex-nodes$")?]),
                 content_nodes: Some(Regex::new("^Paragraph$")?),
@@ -510,13 +518,13 @@ mod tests {
             },
             // Assistants with regexes specified
             CustomAssistant {
-                name: "insert-blocks-regex".to_string(),
+                id: "insert-blocks-regex".to_string(),
                 instruction_type: Some(InstructionType::InsertBlocks),
                 instruction_regexes: Some(vec![Regex::new("^insert-blocks-regex$")?]),
                 ..Default::default()
             },
             CustomAssistant {
-                name: "modify-inlines-regex".to_string(),
+                id: "modify-inlines-regex".to_string(),
                 instruction_type: Some(InstructionType::ModifyInlines),
                 instruction_regexes: Some(vec![
                     Regex::new("foo")?,
@@ -526,22 +534,22 @@ mod tests {
             },
             // Generic assistants
             CustomAssistant {
-                name: "insert-blocks".to_string(),
+                id: "insert-blocks".to_string(),
                 instruction_type: Some(InstructionType::InsertBlocks),
                 ..Default::default()
             },
             CustomAssistant {
-                name: "modify-blocks".to_string(),
+                id: "modify-blocks".to_string(),
                 instruction_type: Some(InstructionType::ModifyBlocks),
                 ..Default::default()
             },
             CustomAssistant {
-                name: "insert-inlines".to_string(),
+                id: "insert-inlines".to_string(),
                 instruction_type: Some(InstructionType::InsertInlines),
                 ..Default::default()
             },
             CustomAssistant {
-                name: "modify-inlines".to_string(),
+                id: "modify-inlines".to_string(),
                 instruction_type: Some(InstructionType::ModifyInlines),
                 ..Default::default()
             },
@@ -555,7 +563,7 @@ mod tests {
             let mut matched = false;
             for assistant in &assistants {
                 if assistant.supports_task(task) {
-                    let assistant_name = assistant.name.as_str();
+                    let assistant_name = assistant.id.as_str();
                     if assistant_name != task_name {
                         bail!(
                             "Task `{task_name}` was unexpectedly matched by assistant `{assistant_name}`"

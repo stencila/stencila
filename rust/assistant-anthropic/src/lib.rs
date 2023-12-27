@@ -18,23 +18,29 @@ use assistant::{
 pub struct AnthropicAssistant {
     /// The name of the model including its version e.g. "claude-2.1"
     model: String,
+
+    /// The context length of the model
+    context_length: usize,
 }
 
 impl AnthropicAssistant {
     /// Create a Anthropic assistant
-    pub fn new(model: String) -> Self {
-        Self { model }
+    pub fn new(model: String, context_length: usize) -> Self {
+        Self {
+            model,
+            context_length,
+        }
     }
 }
 
 #[async_trait]
 impl Assistant for AnthropicAssistant {
-    fn provider(&self) -> String {
-        "anthropic".to_string()
+    fn id(&self) -> String {
+        format!("anthropic/{}", self.model)
     }
 
-    fn model(&self) -> String {
-        self.model.clone()
+    fn context_length(&self) -> usize {
+        self.context_length
     }
 
     fn supported_inputs(&self) -> &[AssistantIO] {
@@ -80,7 +86,7 @@ impl Assistant for AnthropicAssistant {
         let details = GenerateDetails {
             task,
             options: options.clone(),
-            assistants: vec![self.name()],
+            assistants: vec![self.id()],
             ..Default::default()
         };
 
@@ -90,13 +96,9 @@ impl Assistant for AnthropicAssistant {
 
 /// Get a list of all available Anthropic assistants.
 ///
-/// Currently there is not API route to obtain a list of
-/// models. Therefore, this uses a static list with versions from
-/// https://docs.anthropic.com/claude/reference/selecting-a-model.
-///
-/// We use full versions of models so that specialized assistants
-/// can be pinned to a specific version and different specialized
-/// assistants can use different versions if appropriate.
+/// Currently there is no Anthropic API route to obtain a list of models.
+/// Therefore, this uses a static list with versions and other info from
+/// https://docs.anthropic.com/claude/reference/input-and-output-sizes.
 ///
 /// Errors if the `ANTHROPIC_API_KEY` env var is not set.
 pub async fn list() -> Result<Vec<Arc<dyn Assistant>>> {
@@ -104,11 +106,16 @@ pub async fn list() -> Result<Vec<Arc<dyn Assistant>>> {
         bail!("The ANTHROPIC_API_KEY environment variable is not set")
     }
 
-    let models = vec!["claude-instant-1.2", "claude-2.1"];
-    let assistants: Vec<Arc<dyn Assistant>> = models
-        .iter()
-        .map(|&name| Arc::new(AnthropicAssistant::new(name.to_string())) as Arc<dyn Assistant>)
-        .collect();
+    let assistants = [
+        ("claude-2.1", 200_000),
+        ("claude-2.0", 100_000),
+        ("claude-instant-1.2", 100_000),
+    ]
+    .into_iter()
+    .map(|(model, context_length)| {
+        Arc::new(AnthropicAssistant::new(model.to_string(), context_length)) as Arc<dyn Assistant>
+    })
+    .collect();
 
     Ok(assistants)
 }

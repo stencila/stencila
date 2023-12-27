@@ -36,24 +36,33 @@ pub struct OllamaAssistant {
     /// (along with `prompt`).
     model: String,
 
+    /// The context length of the model
+    context_length: usize,
+
     /// The Ollama API client
     client: Ollama,
 }
 
 impl OllamaAssistant {
     /// Create a Ollama-based assistant
-    pub fn new(model: &str) -> Self {
-        Self::new_with(model, None, None)
+    pub fn new(model: String, context_length: usize) -> Self {
+        Self::new_with(model, context_length, None, None)
     }
 
     /// Create a Ollama-based assistant with options for address of server
-    pub fn new_with(model: &str, host: Option<String>, port: Option<u16>) -> Self {
+    pub fn new_with(
+        model: String,
+        context_length: usize,
+        host: Option<String>,
+        port: Option<u16>,
+    ) -> Self {
         let host = host.unwrap_or("http://localhost".to_string());
         let port = port.unwrap_or(11434);
         let client = Ollama::new(host, port);
 
         Self {
-            model: model.into(),
+            model,
+            context_length,
             client,
         }
     }
@@ -61,12 +70,12 @@ impl OllamaAssistant {
 
 #[async_trait]
 impl Assistant for OllamaAssistant {
-    fn provider(&self) -> String {
-        "ollama".to_string()
+    fn id(&self) -> String {
+        format!("ollama/{}", self.model)
     }
 
-    fn model(&self) -> String {
-        self.model.clone()
+    fn context_length(&self) -> usize {
+        self.context_length
     }
 
     fn supported_inputs(&self) -> &[AssistantIO] {
@@ -107,7 +116,7 @@ impl Assistant for OllamaAssistant {
                     tracing::warn!(
                         "Option `{}` is ignored by assistant `{}` for text-to-text generation",
                         stringify!($name),
-                        self.name()
+                        self.id()
                     )
                 }
             };
@@ -146,7 +155,7 @@ impl Assistant for OllamaAssistant {
         let details = GenerateDetails {
             task,
             options: options.clone(),
-            assistants: vec![self.name()],
+            assistants: vec![self.id()],
             ..Default::default()
         };
 
@@ -158,11 +167,18 @@ impl Assistant for OllamaAssistant {
 ///
 /// Fetches the list of Ollama models from the server and maps them
 /// into assistants.
+///
+/// Note that this uses a fixed assume context length for all models
+/// (which will be probably be wrong for some). At the time of writing
+/// there does not appear to be an easy way to get the actual context
+/// length of an Ollama model (i.e. it is not in the API).
 pub async fn list() -> Result<Vec<Arc<dyn Assistant>>> {
     let models = Ollama::default().list_local_models().await?;
+
     let assistants = models
-        .iter()
-        .map(|model| Arc::new(OllamaAssistant::new(&model.name)) as Arc<dyn Assistant>)
+        .into_iter()
+        .map(|model| Arc::new(OllamaAssistant::new(model.name, 4096)) as Arc<dyn Assistant>)
         .collect();
+
     Ok(assistants)
 }

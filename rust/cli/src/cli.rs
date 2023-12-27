@@ -567,13 +567,14 @@ impl Cli {
                     println!("There are no assistants available. Perhaps you need to set some environment variables with API keys?")
                 } else {
                     println!(
-                        "{:<40} {:>10}  {:<20} {:<20}",
-                        "Assistant", "Pref", "Inputs", "Outputs"
+                        "{:<40} {:>12} {:>12} {:>20} {:>20}",
+                        "Assistant", "Context len.", "Pref.", "Inputs", "Outputs"
                     );
                     for assistant in assistants {
                         println!(
-                            "{:<40} {:>10}  {:<20} {:<20}",
-                            assistant.name(),
+                            "{:<40} {:>12} {:>12} {:>20} {:>20}",
+                            assistant.id(),
+                            assistant.context_length(),
                             assistant.preference_rank(),
                             assistant
                                 .supported_inputs()

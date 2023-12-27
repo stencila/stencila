@@ -29,8 +29,10 @@ pub struct OpenAIAssistant {
     /// (along with `prompt`).
     model: String,
 
+    /// The context length of the model
+    context_length: usize,
+
     /// The type of input that the model consumes
-    #[allow(unused)]
     inputs: Vec<AssistantIO>,
 
     /// The type of output that the model generates
@@ -39,9 +41,15 @@ pub struct OpenAIAssistant {
 
 impl OpenAIAssistant {
     /// Create a OpenAI-based assistant
-    pub fn new(model: String, inputs: Vec<AssistantIO>, outputs: Vec<AssistantIO>) -> Self {
+    pub fn new(
+        model: String,
+        context_length: usize,
+        inputs: Vec<AssistantIO>,
+        outputs: Vec<AssistantIO>,
+    ) -> Self {
         Self {
             model,
+            context_length,
             inputs,
             outputs,
         }
@@ -50,12 +58,12 @@ impl OpenAIAssistant {
 
 #[async_trait]
 impl Assistant for OpenAIAssistant {
-    fn provider(&self) -> String {
-        "openai".to_string()
+    fn id(&self) -> String {
+        format!("openai/{}", self.model)
     }
 
-    fn model(&self) -> String {
-        self.model.clone()
+    fn context_length(&self) -> usize {
+        self.context_length
     }
 
     fn supported_inputs(&self) -> &[AssistantIO] {
@@ -79,7 +87,7 @@ impl Assistant for OpenAIAssistant {
                 "{} to {} is not supported by assistant `{}`",
                 task.input,
                 task.output,
-                self.name()
+                self.id()
             ),
         }
     }
@@ -127,7 +135,7 @@ impl OpenAIAssistant {
 
         // Create the request
         let mut request = CreateChatCompletionRequestArgs::default();
-        let request = request.model(self.model()).messages(messages);
+        let request = request.model(&self.model).messages(messages);
 
         // Map options onto the request
         macro_rules! map_option {
@@ -146,7 +154,7 @@ impl OpenAIAssistant {
                     tracing::warn!(
                         "Option `{}` is ignored by assistant `{}` for text-to-text generation",
                         stringify!($name),
-                        self.name()
+                        self.id()
                     )
                 }
             };
@@ -186,7 +194,7 @@ impl OpenAIAssistant {
 
         // Create details of the generation
         let details = GenerateDetails {
-            assistants: vec![self.name()],
+            assistants: vec![self.id()],
             task,
             options: options.clone(),
             fingerprint: response.system_fingerprint,
@@ -222,7 +230,7 @@ impl OpenAIAssistant {
                     tracing::warn!(
                         "Option `{}` is ignored by assistant `{}` for text-to-image generation",
                         stringify!($name),
-                        self.name()
+                        self.id()
                     )
                 }
             };
@@ -307,7 +315,7 @@ impl OpenAIAssistant {
 
         // Create details of the generation
         let details = GenerateDetails {
-            assistants: vec![self.name()],
+            assistants: vec![self.id()],
             task,
             options: options.clone(),
             ..Default::default()
@@ -320,9 +328,10 @@ impl OpenAIAssistant {
 /// Get a list of all available OpenAI assistants
 ///
 /// Errors if the `OPENAI_API_KEY` env var is not set.
-/// Lists the assistants available to the account in descending order
-/// or creation date so that more recent (i.e. "better") models are
-/// first.
+/// Lists the assistants available for the account in lexical order.
+///
+/// This mapping of model name to context_length and input/output types will need to be
+/// updated periodically based on https://platform.openai.com/docs/models/.
 ///
 /// Memoized for an hour to reduce the number of times that
 /// remote APIs need to be called to get a list of available models.
@@ -334,18 +343,28 @@ pub async fn list() -> Result<Vec<Arc<dyn Assistant>>> {
     }
 
     let client = Client::new();
-
     let models = client.models().list().await?;
 
     let assistants = models
         .data
         .into_iter()
-        .sorted_by(|a, b| a.created.cmp(&b.created).reverse())
+        .sorted_by(|a, b| a.id.cmp(&b.id))
         .filter_map(|model| {
             let name = model.id;
 
-            // This mapping of model name to input/output types will need to be
-            // updated periodically based on https://platform.openai.com/docs/models/
+            let context_length =
+                if name.starts_with("gpt-4-1106") || name.starts_with("gpt-4-vision") {
+                    128_000
+                } else if name.contains("-32k") {
+                    32_768
+                } else if name.contains("-16k") || name == "gpt-3.5-turbo-1106" {
+                    16_385
+                } else if name.starts_with("gpt-4") {
+                    8_192
+                } else {
+                    4_096
+                };
+
             use AssistantIO::*;
             let (inputs, outputs) = if name.starts_with("gpt-4-vision") {
                 (vec![Text, Image], vec![Text])
@@ -358,12 +377,14 @@ pub async fn list() -> Result<Vec<Arc<dyn Assistant>>> {
             } else if name.starts_with("whisper") {
                 (vec![Audio], vec![Text])
             } else {
-                // Other models, are not mapped into models
+                // Other models, are not mapped into assistants
                 return None;
             };
 
-            let assistant = OpenAIAssistant::new(name, inputs, outputs);
-            Some(Arc::new(assistant) as Arc<dyn Assistant>)
+            Some(
+                Arc::new(OpenAIAssistant::new(name, context_length, inputs, outputs))
+                    as Arc<dyn Assistant>,
+            )
         })
         .collect();
 
