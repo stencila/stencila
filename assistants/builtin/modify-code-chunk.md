@@ -10,10 +10,6 @@ instruction-regexes:
   - (?i)\bexecutable code\b
   - (?i)\bcode to\b
 
-delegates:
-  - openai/gpt-3.5-turbo-1106
-  - anthropic/claude-2.1
-
 document-format: markdown
 content-format: markdown
 generated-format: markdown

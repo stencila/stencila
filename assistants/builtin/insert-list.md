@@ -8,10 +8,6 @@ instruction-type: insert-blocks
 instruction-regexes:
   - (?i)\blist\b
 
-delegates:
-  - openai/gpt-3.5-turbo-1106
-  - anthropic/claude-2.1
-
 document-format: markdown
 generated-format: markdown
 

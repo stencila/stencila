@@ -29,6 +29,28 @@ use assistant::{
 use codec_text_trait::TextCodec;
 use codecs::{EncodeOptions, Format};
 
+/// Default ordered list of delegates
+///
+/// Ordering based on https://huggingface.co/spaces/lmsys/chatbot-arena-leaderboard
+/// but with more recent models in a series always preferred over older models
+/// in the same series.
+/// 
+/// Local models are at the end of the list on the assumption that
+/// if an API key is available for one of the other remote providers then
+/// that will usually be preferred.
+const DELEGATES: &[&str] = &[
+    "openai/gpt-4-1106-preview",
+    "openai/gpt-4-0613",
+    "openai/gpt-4-0314",
+    "anthropic/claude-2.1",
+    "anthropic/claude-2.0",
+    "anthropic/claude-instant-1.2",
+    "openai/gpt-3.5-turbo-1106",
+    "openai/gpt-3.5-turbo-0613",
+    "openai/gpt-3.5-turbo-0301",
+    "ollama/llama2:latest",
+];
+
 /// Specifications for a custom assistant read in from YAML header in Markdown
 #[derive(Default, Deserialize)]
 #[serde(
@@ -46,7 +68,11 @@ struct CustomAssistantHeader {
 
     /// The names of the assistants this assistant will delegate
     /// to in descending order of preference
-    delegates: Vec<String>,
+    ///
+    /// The default ordered list of delegates can be prepended
+    /// using this options. If the last item is `only` then the
+    /// list will be limited to those specified.
+    delegates: Option<Vec<String>>,
 
     /// The context length of the first delegate
     ///
@@ -150,6 +176,22 @@ impl CustomAssistant {
         system_prompt: String,
         user_prompt_template: String,
     ) -> Result<Self> {
+        // Determine list of delegates
+        let mut delegates = DELEGATES
+            .iter()
+            .map(|delegate| delegate.to_string())
+            .collect();
+        if let Some(mut specified) = header.delegates {
+            if let Some("only") = specified.last().map(|id| id.as_str()) {
+                specified.pop();
+                delegates = specified;
+            } else {
+                delegates.retain(|delegate| !specified.contains(delegate));
+                specified.append(&mut delegates);
+                delegates = specified;
+            }
+        }
+
         // Parse any regexes
         let instruction_regexes = match header.instruction_regexes {
             Some(regexes) => Some(
@@ -182,7 +224,7 @@ impl CustomAssistant {
 
         Ok(Self {
             id: header.name,
-            delegates: header.delegates,
+            delegates,
             context_length: header.context_length.unwrap_or(4_096),
             preference_rank: header.preference_rank.unwrap_or(50),
             instruction_type: header.instruction_type,
