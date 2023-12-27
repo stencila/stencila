@@ -279,7 +279,7 @@ enum Command {
         name: String,
 
         /// The number of repetitions
-        #[arg(long, short, alias = "n", default_value_t = 1)]
+        #[arg(long, short = 'n', alias = "num", default_value_t = 1)]
         reps: u16,
     },
 }
