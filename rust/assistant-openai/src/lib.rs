@@ -8,6 +8,7 @@ use async_openai::{
     },
     Client,
 };
+use cached::proc_macro::cached;
 
 use assistant::{
     common::{
@@ -335,8 +336,7 @@ impl OpenAIAssistant {
 ///
 /// Memoized for an hour to reduce the number of times that
 /// remote APIs need to be called to get a list of available models.
-/// TODO: caching
-//#[cached(time = 3600)]
+#[cached(time = 3600, result = true)]
 pub async fn list() -> Result<Vec<Arc<dyn Assistant>>> {
     if env::var("OPENAI_API_KEY").is_err() {
         bail!("The OPENAI_API_KEY environment variable is not set")

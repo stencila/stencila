@@ -7,6 +7,9 @@
 
 use std::sync::Arc;
 
+#[cfg(not(debug_assertions))]
+use cached::proc_macro::once;
+
 use minijinja::{Environment, UndefinedBehavior};
 use rust_embed::RustEmbed;
 
@@ -386,17 +389,14 @@ struct Builtin;
 
 /// Get a list of all available custom assistants
 ///
-/// Memoized in production for performance, but not in debug (so that
-/// custom assistants can be reloaded from disk).
-/// TODO: caching
-//#[cfg_attr(not(debug_assertions), cached(time = 3600))]
+/// Memoized in production for performance (i.e not parsing files or creating
+/// embeddings), but not in debug (so that custom assistants can be reloaded from disk).
+#[cfg_attr(not(debug_assertions), once(result = true))]
 pub async fn list() -> Result<Vec<Arc<dyn Assistant>>> {
     list_builtin()
 }
 
 /// Get a list of all builtin assistants
-///
-/// Sorts in descending order of delegation rank.
 fn list_builtin() -> Result<Vec<Arc<dyn Assistant>>> {
     let mut assistants = vec![];
 
