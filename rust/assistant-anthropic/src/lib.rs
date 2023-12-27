@@ -5,10 +5,7 @@ use anthropic::{
 };
 
 use assistant::{
-    common::{
-        async_trait::async_trait,
-        eyre::{bail, Result},
-    },
+    common::{async_trait::async_trait, eyre::Result, tracing},
     Assistant, AssistantIO, GenerateDetails, GenerateOptions, GenerateOutput, GenerateTask,
 };
 
@@ -100,10 +97,11 @@ impl Assistant for AnthropicAssistant {
 /// Therefore, this uses a static list with versions and other info from
 /// https://docs.anthropic.com/claude/reference/input-and-output-sizes.
 ///
-/// Errors if the `ANTHROPIC_API_KEY` env var is not set.
+/// If the `ANTHROPIC_API_KEY` env var is not set returns an empty list.
 pub async fn list() -> Result<Vec<Arc<dyn Assistant>>> {
     if env::var("ANTHROPIC_API_KEY").is_err() {
-        bail!("The ANTHROPIC_API_KEY environment variable is not set")
+        tracing::debug!("The ANTHROPIC_API_KEY environment variable is not set");
+        return Ok(vec![]);
     }
 
     let assistants = [

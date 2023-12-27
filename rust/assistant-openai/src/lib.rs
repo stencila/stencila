@@ -328,7 +328,7 @@ impl OpenAIAssistant {
 
 /// Get a list of all available OpenAI assistants
 ///
-/// Errors if the `OPENAI_API_KEY` env var is not set.
+/// If the `OPENAI_API_KEY` env var is not set returns an empty list.
 /// Lists the assistants available for the account in lexical order.
 ///
 /// This mapping of model name to context_length and input/output types will need to be
@@ -339,7 +339,8 @@ impl OpenAIAssistant {
 #[cached(time = 3600, result = true)]
 pub async fn list() -> Result<Vec<Arc<dyn Assistant>>> {
     if env::var("OPENAI_API_KEY").is_err() {
-        bail!("The OPENAI_API_KEY environment variable is not set")
+        tracing::debug!("The OPENAI_API_KEY environment variable is not set");
+        return Ok(vec![]);
     }
 
     let client = Client::new();
