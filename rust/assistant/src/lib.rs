@@ -211,7 +211,7 @@ impl GenerateTask {
             }
         };
 
-        Ok(Self::calculate_similarity(&embedding, other))
+        Ok(Self::calculate_similarity(embedding, other))
     }
 
     /// Get the user prompt of the context

@@ -252,7 +252,11 @@ impl CustomAssistant {
                 _ => bail!("Unknown assistant provider: {provider}"),
             };
 
-            if let Some(assistant) = list.into_iter().find(|assistant| &assistant.name() == name).take() {
+            if let Some(assistant) = list
+                .into_iter()
+                .find(|assistant| &assistant.name() == name)
+                .take()
+            {
                 return Ok(assistant);
             }
         }
@@ -604,7 +608,8 @@ mod tests {
             String::new(),
         )?;
 
-        let score_perfect = assistant_improve_wording.suitability_score(&mut task_improve_wording)?;
+        let score_perfect =
+            assistant_improve_wording.suitability_score(&mut task_improve_wording)?;
         assert!(score_perfect > 0.9999);
 
         let score_high =
