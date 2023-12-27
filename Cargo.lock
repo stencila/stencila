@@ -37,71 +37,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "f26201604c87b1e01bd3d98f8d5d9a8fcbb815e8cedb41ffccbeb4bf593a35fe"
 
 [[package]]
-name = "agent"
-version = "0.0.0"
-dependencies = [
- "app",
- "common",
- "fastembed",
- "format",
- "merge",
- "schema",
-]
-
-[[package]]
-name = "agent-anthropic"
-version = "0.0.0"
-dependencies = [
- "agent",
- "anthropic",
-]
-
-[[package]]
-name = "agent-custom"
-version = "0.1.0"
-dependencies = [
- "agent",
- "agent-anthropic",
- "agent-ollama",
- "agent-openai",
- "cached",
- "codec-text-trait",
- "codecs",
- "minijinja",
- "rust-embed",
-]
-
-[[package]]
-name = "agent-ollama"
-version = "0.0.0"
-dependencies = [
- "agent",
- "ollama-rs",
-]
-
-[[package]]
-name = "agent-openai"
-version = "0.0.0"
-dependencies = [
- "agent",
- "async-openai",
- "cached",
-]
-
-[[package]]
-name = "agents"
-version = "0.0.0"
-dependencies = [
- "agent",
- "agent-anthropic",
- "agent-custom",
- "agent-ollama",
- "agent-openai",
- "codecs",
- "sea-orm",
-]
-
-[[package]]
 name = "ahash"
 version = "0.7.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -258,6 +193,71 @@ name = "arrayvec"
 version = "0.7.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "96d30a06541fbafbc7f82ed10c06164cfbd2c401138f6addd8404629c4b16711"
+
+[[package]]
+name = "assistant"
+version = "0.0.0"
+dependencies = [
+ "app",
+ "common",
+ "fastembed",
+ "format",
+ "merge",
+ "schema",
+]
+
+[[package]]
+name = "assistant-anthropic"
+version = "0.0.0"
+dependencies = [
+ "anthropic",
+ "assistant",
+]
+
+[[package]]
+name = "assistant-custom"
+version = "0.1.0"
+dependencies = [
+ "assistant",
+ "assistant-anthropic",
+ "assistant-ollama",
+ "assistant-openai",
+ "cached",
+ "codec-text-trait",
+ "codecs",
+ "minijinja",
+ "rust-embed",
+]
+
+[[package]]
+name = "assistant-ollama"
+version = "0.0.0"
+dependencies = [
+ "assistant",
+ "ollama-rs",
+]
+
+[[package]]
+name = "assistant-openai"
+version = "0.0.0"
+dependencies = [
+ "assistant",
+ "async-openai",
+ "cached",
+]
+
+[[package]]
+name = "assistants"
+version = "0.0.0"
+dependencies = [
+ "assistant",
+ "assistant-anthropic",
+ "assistant-custom",
+ "assistant-ollama",
+ "assistant-openai",
+ "codecs",
+ "sea-orm",
+]
 
 [[package]]
 name = "async-convert"
@@ -825,7 +825,7 @@ checksum = "702fc72eb24e5a1e48ce58027a675bc24edd52096d5397d4aea7c6dd9eca0bd1"
 name = "cli"
 version = "2.0.0-alpha.23"
 dependencies = [
- "agents",
+ "assistants",
  "codecs",
  "color-eyre",
  "common",

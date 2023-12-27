@@ -12,7 +12,7 @@ path = "src/main.rs"
 tokio-console = ["console-subscriber"]
 
 [dependencies]
-agents = { path = "../agents" }
+assistants = { path = "../assistants" }
 codecs = { path = "../codecs" }
 color-eyre = { version = "0.6.2", features = ["issue-url"] }
 common = { path = "../common" }

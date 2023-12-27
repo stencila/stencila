@@ -1,0 +1,8 @@
+[package]
+name = "assistant-ollama"
+version = "0.0.0"
+edition = "2021"
+
+[dependencies]
+assistant = { path = "../assistant" }
+ollama-rs = { version = "0.1.5", features = ["rustls", "stream"] }

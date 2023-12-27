@@ -1,6 +1,6 @@
 use std::path::PathBuf;
 
-use agents::agent::{schema::InstructionBlock, GenerateOptions, GenerateTask, Instruction};
+use assistants::assistant::{schema::InstructionBlock, GenerateOptions, GenerateTask, Instruction};
 use color_eyre::owo_colors::OwoColorize;
 use rustyline::{error::ReadlineError, DefaultEditor};
 use yansi::Color;
@@ -247,10 +247,10 @@ enum Command {
     /// Serve
     Serve(ServeOptions),
 
-    /// List the available AI agents
-    Agents,
+    /// List the available AI assistants
+    Assistants,
 
-    /// A read-evaluate-print loop for AI agents
+    /// A read-evaluate-print loop for AI assistants
     ///
     /// Mainly intended for prompt engineering during development of Stencila.
     Repl {
@@ -560,27 +560,27 @@ impl Cli {
 
             Command::Serve(options) => serve(options).await?,
 
-            Command::Agents => {
-                let agents = agents::list().await;
+            Command::Assistants => {
+                let assistants = assistants::list().await;
 
-                if agents.is_empty() {
-                    println!("There are no agents available. Perhaps you need to set some environment variables with API keys?")
+                if assistants.is_empty() {
+                    println!("There are no assistants available. Perhaps you need to set some environment variables with API keys?")
                 } else {
                     println!(
                         "{:<40} {:>10}  {:<20} {:<20}",
-                        "Agent", "Pref", "Inputs", "Outputs"
+                        "Assistant", "Pref", "Inputs", "Outputs"
                     );
-                    for agent in agents {
+                    for assistant in assistants {
                         println!(
                             "{:<40} {:>10}  {:<20} {:<20}",
-                            agent.name(),
-                            agent.preference_rank(),
-                            agent
+                            assistant.name(),
+                            assistant.preference_rank(),
+                            assistant
                                 .supported_inputs()
                                 .iter()
                                 .map(|input| input.to_string())
                                 .join(", "),
-                            agent
+                            assistant
                                 .supported_outputs()
                                 .iter()
                                 .map(|output| output.to_string())
@@ -669,7 +669,7 @@ impl Cli {
 
                                 // Execute the task
                                 let (output, details) =
-                                    agents::perform_task(task, &options_parser.options).await?;
+                                    assistants::perform_task(task, &options_parser.options).await?;
 
                                 // Display generation details
                                 let yaml = serde_yaml::to_string(&details)?;
@@ -693,7 +693,7 @@ impl Cli {
                                     );
                                     let answer = reader.readline(&question)?;
                                     if answer == "y" || answer.is_empty() {
-                                        agents::testing::insert_trial(line, &output, details)
+                                        assistants::testing::insert_trial(line, &output, details)
                                             .await?
                                     }
                                 }
@@ -710,7 +710,7 @@ impl Cli {
             }
 
             Command::Test { path, name, reps } => {
-                agents::testing::test_example(&path, &name, reps).await?
+                assistants::testing::test_example(&path, &name, reps).await?
             }
         }
 

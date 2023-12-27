@@ -13,7 +13,7 @@ This document contains the help content for the `stencila` command-line program.
 * [`stencila inspect`↴](#stencila-inspect)
 * [`stencila convert`↴](#stencila-convert)
 * [`stencila serve`↴](#stencila-serve)
-* [`stencila agents`↴](#stencila-agents)
+* [`stencila assistants`↴](#stencila-assistants)
 * [`stencila repl`↴](#stencila-repl)
 * [`stencila test`↴](#stencila-test)
 
@@ -33,8 +33,8 @@ CLI subcommands and global options
 * `inspect` — Inspect a document as JSON
 * `convert` — Convert a document between formats
 * `serve` — Serve
-* `agents` — List the available AI agents
-* `repl` — A read-evaluate-print loop for AI agents
+* `assistants` — List the available AI assistants
+* `repl` — A read-evaluate-print loop for AI assistants
 * `test` — 
 
 ###### **Options:**
@@ -347,17 +347,17 @@ Serve
 
 
 
-## `stencila agents`
+## `stencila assistants`
 
-List the available AI agents
+List the available AI assistants
 
-**Usage:** `stencila agents`
+**Usage:** `stencila assistants`
 
 
 
 ## `stencila repl`
 
-A read-evaluate-print loop for AI agents
+A read-evaluate-print loop for AI assistants
 
 Mainly intended for prompt engineering during development of Stencila.
 
@@ -367,7 +367,7 @@ Mainly intended for prompt engineering during development of Stencila.
 
 * `-r`, `--record` — Whether to offer the option to record each evaluation trial
 * `-d`, `--document <DOCUMENT>` — The path of the document to use in the context
-* `--agent <AGENT>` — The name of the agent to use
+* `--assistant <assistant>` — The name of the assistant to use
 * `--document-format <DOCUMENT_FORMAT>` — The format to convert the document content into when rendered into the prompt
 
   Default value: `html`

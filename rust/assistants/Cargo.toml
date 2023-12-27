@@ -1,0 +1,13 @@
+[package]
+name = "assistants"
+version = "0.0.0"
+edition = "2021"
+
+[dependencies]
+assistant = { path = "../assistant" }
+assistant-anthropic = { path = "../assistant-anthropic" }
+assistant-custom = { path = "../assistant-custom" }
+assistant-ollama = { path = "../assistant-ollama" }
+assistant-openai = { path = "../assistant-openai" }
+codecs = { path = "../codecs" }
+sea-orm = { version = "0.12.10",  default-features = false, features = ["macros", "sqlx", "sqlx-sqlite", "runtime-tokio-rustls", "with-json", "with-chrono"] }

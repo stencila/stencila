@@ -388,7 +388,7 @@ This repository is organized into the following modules. Please see their respec
 
 - [`node`](node): A Node.js package, using the generated TypeScript types and bindings to Rust functions, so you can work with Stencila documents from within Node.js.
 
-- [`prompts`](prompts): Prompts for used to instruct AI agents in different contexts and for different purposes.
+- [`prompts`](prompts): Prompts for used to instruct AI assistants in different contexts and for different purposes.
 
 - [`docs`](docs): Documentation, including reference documentation generated from `schema` and CLI tool.
 

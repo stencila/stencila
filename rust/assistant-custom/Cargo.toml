@@ -1,0 +1,15 @@
+[package]
+name = "assistant-custom"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+assistant = { path = "../assistant" }
+assistant-anthropic = { path = "../assistant-anthropic" }
+assistant-ollama = { path = "../assistant-ollama" }
+assistant-openai = { path = "../assistant-openai" }
+cached = { version = "0.46.1", features = ["async"] }
+codec-text-trait = { path = "../codec-text-trait" }
+codecs = { path = "../codecs" }
+minijinja = { version = "1.0.10", features = ["loader"] }
+rust-embed = { version = "8.1.0", features = ["interpolate-folder-path", "include-exclude"] }
