@@ -1,9 +1,13 @@
+use std::path::PathBuf;
+
+use fastembed::{EmbeddingBase, EmbeddingModel, FlagEmbedding, InitOptions};
 use merge::Merge;
 
 use common::{
     async_trait::async_trait,
     clap::{self, Args, ValueEnum},
-    eyre::Result,
+    eyre::{bail, eyre, Result},
+    once_cell::sync::OnceCell,
     serde::{Deserialize, Serialize},
     serde_with::skip_serializing_none,
     smart_default::SmartDefault,
@@ -152,7 +156,10 @@ pub struct GenerateTask {
 
     /// The instruction text provided for convenient access in the
     /// user prompt template
-    pub instruction_text: String,
+    instruction_text: Option<String>,
+
+    /// The instruction embedding
+    instruction_embedding: Option<Vec<f32>>,
 
     /// The content of the instruction in the format specified
     /// in the `GenerateOptions` (defaulting to HTML)
@@ -179,6 +186,34 @@ impl GenerateTask {
         }
     }
 
+    /// Get the text of the instruction
+    ///
+    /// Will populate `self.instruction_text` if necessary for use
+    /// in user prompt templates
+    pub fn instruction_text(&mut self) -> &str {
+        self.instruction_text
+            .get_or_insert_with(|| self.instruction.text().to_string())
+    }
+
+    /// Get the similarity between the text of the instruction and some other, precalculated embedding
+    ///
+    /// Will populate `self.instruction_embedding` is necessary, so that this only needs to
+    /// be done once for each call to this function (e.g. when calculating similarity with
+    /// a number of other embeddings).
+    pub fn instruction_similarity(&mut self, other: &[f32]) -> Result<f32> {
+        let embedding = match &self.instruction_embedding {
+            Some(embedding) => embedding,
+            None => {
+                let text = self.instruction_text();
+                let mut embedding = Self::create_embeddings(vec![text])?;
+                self.instruction_embedding = Some(embedding.swap_remove(0));
+                self.instruction_embedding.as_ref().unwrap()
+            }
+        };
+
+        Ok(Self::calculate_similarity(&embedding, other))
+    }
+
     /// Get the user prompt of the context
     ///
     /// If the `user_prompt` field has been set (e.g. a template rendered into it)
@@ -193,6 +228,51 @@ impl GenerateTask {
     /// Get the system prompt of the context (if any)
     pub fn system_prompt(&self) -> Option<&str> {
         self.system_prompt.as_deref()
+    }
+
+    /// Create embeddings for a list of instructions texts
+    pub fn create_embeddings<S>(texts: Vec<S>) -> Result<Vec<Vec<f32>>>
+    where
+        S: AsRef<str> + Send + Sync,
+    {
+        // Informal perf tests during development indicated that using
+        // a static improved speed substantially (rather than reloading for each call)
+        static MODEL: OnceCell<FlagEmbedding> = OnceCell::new();
+
+        let model = match MODEL.get_or_try_init(|| {
+            FlagEmbedding::try_new(InitOptions {
+                // This model was chosen good performance for a small size.
+                // For benchmarks see https://huggingface.co/spaces/mteb/leaderboard
+                model_name: EmbeddingModel::BGESmallENV15,
+                cache_dir: app::cache_dir(true)
+                    .unwrap_or_else(|_| PathBuf::from("."))
+                    .join("models")
+                    .join("bge-small-en-v1.5"),
+                ..Default::default()
+            })
+        }) {
+            Ok(model) => model,
+            Err(error) => bail!(error),
+        };
+
+        model.embed(texts, None).map_err(|error| eyre!(error))
+    }
+
+    /// Calculate the cosine similarity of two embeddings
+    fn calculate_similarity(a: &[f32], b: &[f32]) -> f32 {
+        if a.len() != b.len() {
+            return 0.0;
+        }
+
+        let dot_product: f32 = a.iter().zip(b.iter()).map(|(&x, &y)| x * y).sum();
+        let magnitude_a: f32 = a.iter().map(|&x| x * x).sum::<f32>().sqrt();
+        let magnitude_b: f32 = b.iter().map(|&y| y * y).sum::<f32>().sqrt();
+
+        if magnitude_a == 0.0 || magnitude_b == 0.0 {
+            return 0.0;
+        }
+
+        dot_product / (magnitude_a * magnitude_b)
     }
 }
 
@@ -533,12 +613,8 @@ pub trait Agent: Sync + Send {
      * This default implementation returns 0.1 if the agent supports the
      * task, 0.0 otherwise.
      */
-    fn suitability_score(&self, task: &GenerateTask) -> f32 {
-        if self.supports_task(task) {
-            0.1
-        } else {
-            0.0
-        }
+    fn suitability_score(&self, task: &mut GenerateTask) -> Result<f32> {
+        Ok(if self.supports_task(task) { 0.1 } else { 0.0 })
     }
 
     /**

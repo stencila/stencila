@@ -7,6 +7,9 @@
 
 use std::sync::Arc;
 
+use minijinja::{Environment, UndefinedBehavior};
+use rust_embed::RustEmbed;
+
 use agent::{
     common::{
         async_trait::async_trait,
@@ -17,15 +20,14 @@ use agent::{
         serde_yaml,
     },
     merge::Merge,
-    Agent, AgentIO, GenerateDetails, GenerateOptions, GenerateTask, InstructionType, GenerateOutput,
+    Agent, AgentIO, GenerateDetails, GenerateOptions, GenerateOutput, GenerateTask,
+    InstructionType,
 };
 use codec_text_trait::TextCodec;
 use codecs::{EncodeOptions, Format};
-use minijinja::{Environment, UndefinedBehavior};
-use rust_embed::RustEmbed;
 
 /// Specifications for a custom agent read in from YAML header in Markdown
-#[derive(Deserialize)]
+#[derive(Default, Deserialize)]
 #[serde(
     rename_all = "kebab-case",
     deny_unknown_fields,
@@ -54,6 +56,10 @@ struct CustomAgentHeader {
 
     /// Regexes to match in the instruction text
     instruction_regexes: Option<Vec<String>>,
+
+    /// Examples of instructions to use for generating suitability score based on
+    /// similarity with the actual instruction
+    instruction_examples: Option<Vec<String>>,
 
     /// A regex to match against a comma separated list of the
     /// node types in the instruction content.
@@ -86,6 +92,10 @@ struct CustomAgent {
     /// Regexes to match in the instruction text
     instruction_regexes: Option<Vec<Regex>>,
 
+    /// Embeddings of the instructions phrases used to generate
+    /// a suitability score based on similarity to instruction
+    instruction_embeddings: Option<Vec<Vec<f32>>>,
+
     /// A regex to match against a comma separated list of the
     /// node types in the instruction content
     content_nodes: Option<Regex>,
@@ -106,7 +116,7 @@ struct CustomAgent {
 
 impl CustomAgent {
     /// Parse Markdown content into a custom agent
-    fn parse(content: &str) -> Result<CustomAgent> {
+    fn parse(content: &str) -> Result<Self> {
         // Split a string into the three parts of a prompt: YAML header, system prompt and user prompt
         let (header, system_prompt, user_prompt_template) = content
             .splitn(4, "---")
@@ -118,6 +128,15 @@ impl CustomAgent {
         // Parse the header into JSON value and extract out name and extends
         let header: CustomAgentHeader = serde_yaml::from_str(&header)?;
 
+        Self::try_new(header, system_prompt, user_prompt_template)
+    }
+
+    /// Create from header and prompts
+    fn try_new(
+        header: CustomAgentHeader,
+        system_prompt: String,
+        user_prompt_template: String,
+    ) -> Result<Self> {
         // Parse any regexes
         let instruction_regexes = match header.instruction_regexes {
             Some(regexes) => Some(
@@ -142,12 +161,19 @@ impl CustomAgent {
             None => None,
         };
 
+        // Generate any embeddings
+        let instruction_embeddings = match header.instruction_examples {
+            Some(phrases) => Some(GenerateTask::create_embeddings(phrases)?),
+            None => None,
+        };
+
         Ok(Self {
             name: header.name,
             delegates: header.delegates,
             preference_rank: header.preference_rank.unwrap_or(50),
             instruction_type: header.instruction_type,
             instruction_regexes,
+            instruction_embeddings,
             content_nodes,
             content_regexes,
             system_prompt,
@@ -165,9 +191,6 @@ impl CustomAgent {
 
     /// Update context supplied to generation functions with the system prompt and
     /// user prompt template defined in this agent
-    ///
-    /// Currently, this uses `minijinja` but the intension is to use Stencila Markdown
-    /// to render them in the future.
     async fn update_task(
         &self,
         mut task: GenerateTask,
@@ -175,7 +198,8 @@ impl CustomAgent {
     ) -> Result<GenerateTask> {
         task.system_prompt = Some(self.system_prompt.clone());
 
-        task.instruction_text = task.instruction.text().to_string();
+        // This will populate the task.instruction_text if necessary
+        task.instruction_text();
 
         if let Some(document) = &task.document {
             task.document_formatted = Some(
@@ -298,6 +322,28 @@ impl Agent for CustomAgent {
         &[AgentIO::Text]
     }
 
+    fn suitability_score(&self, task: &mut GenerateTask) -> Result<f32> {
+        if !self.supports_task(task) {
+            return Ok(0.0);
+        }
+
+        let Some(instruction_embeddings) = &self.instruction_embeddings else {
+            return Ok(0.1);
+        };
+
+        // Suitability score is the maximum cosine similarity between the instruction
+        // and the phrases registered for this agent
+        let mut score = 0.;
+        for embedding in instruction_embeddings {
+            let similarity = task.instruction_similarity(embedding)?;
+            if similarity > score {
+                score = similarity
+            }
+        }
+
+        Ok(score)
+    }
+
     fn preference_rank(&self) -> u8 {
         self.preference_rank
     }
@@ -377,67 +423,67 @@ mod tests {
     #[test]
     fn supports_task_works_as_expected() -> Result<()> {
         let tasks = [
-            GenerateTask {
-                instruction: Instruction::from(InstructionInline {
+            GenerateTask::new(
+                Instruction::from(InstructionInline {
                     text: String::from("modify-inlines-regex-nodes-regex"),
                     content: Some(vec![t("the"), t(" keyword")]),
                     ..Default::default()
                 }),
-                ..Default::default()
-            },
-            GenerateTask {
-                instruction: Instruction::from(InstructionBlock {
+                None,
+            ),
+            GenerateTask::new(
+                Instruction::from(InstructionBlock {
                     text: String::from("modify-blocks-regex-nodes"),
                     content: Some(vec![p([])]),
                     ..Default::default()
                 }),
-                ..Default::default()
-            },
-            GenerateTask {
-                instruction: Instruction::from(InstructionBlock {
+                None,
+            ),
+            GenerateTask::new(
+                Instruction::from(InstructionBlock {
                     text: String::from("insert-blocks-regex"),
                     ..Default::default()
                 }),
-                ..Default::default()
-            },
-            GenerateTask {
-                instruction: Instruction::from(InstructionInline {
+                None,
+            ),
+            GenerateTask::new(
+                Instruction::from(InstructionInline {
                     text: String::from("modify-inlines-regex"),
                     content: Some(vec![t("")]),
                     ..Default::default()
                 }),
-                ..Default::default()
-            },
-            GenerateTask {
-                instruction: Instruction::from(InstructionBlock {
+                None,
+            ),
+            GenerateTask::new(
+                Instruction::from(InstructionBlock {
                     text: String::from("insert-blocks"),
                     ..Default::default()
                 }),
-                ..Default::default()
-            },
-            GenerateTask {
-                instruction: Instruction::from(InstructionBlock {
+                None,
+            ),
+            GenerateTask::new(
+                Instruction::from(InstructionBlock {
                     text: String::from("modify-blocks"),
                     content: Some(vec![p([])]),
                     ..Default::default()
                 }),
-                ..Default::default()
-            },
-            GenerateTask {
-                instruction: Instruction::from(InstructionInline {
+                None,
+            ),
+            GenerateTask::new(
+                Instruction::from(InstructionInline {
                     text: String::from("insert-inlines"),
                     ..Default::default()
                 }),
-                ..Default::default()
-            },
-            GenerateTask {
-                instruction: Instruction::from(InstructionInline {
+                None,
+            ),
+            GenerateTask::new(
+                Instruction::from(InstructionInline {
                     text: String::from("modify-inlines"),
                     content: Some(vec![t("")]),
                     ..Default::default()
                 }),
-                ..Default::default()
-            },
+                None,
+            ),
         ];
 
         let agents = [
@@ -520,6 +566,53 @@ mod tests {
                 bail!("Task `{task_name}` was not matched by any agent");
             }
         }
+
+        Ok(())
+    }
+
+    //#[ignore]
+    #[test]
+    fn suitability_score_works_as_expected() -> Result<()> {
+        let mut task_improve_wording = GenerateTask::new(
+            Instruction::from(InstructionInline {
+                text: String::from("improve wording"),
+                ..Default::default()
+            }),
+            None,
+        );
+        let mut task_the_improve_wording_of_this = GenerateTask::new(
+            Instruction::from(InstructionInline {
+                text: String::from("improve the wording of this"),
+                ..Default::default()
+            }),
+            None,
+        );
+        let mut task_make_table = GenerateTask::new(
+            Instruction::from(InstructionInline {
+                text: String::from("make a 4x4 table"),
+                ..Default::default()
+            }),
+            None,
+        );
+
+        let agent_improve_wording = CustomAgent::try_new(
+            CustomAgentHeader {
+                instruction_examples: Some(vec![String::from("improve wording")]),
+                ..Default::default()
+            },
+            String::new(),
+            String::new(),
+        )?;
+
+        let score_perfect = agent_improve_wording.suitability_score(&mut task_improve_wording)?;
+        assert!(score_perfect > 0.9999);
+
+        let score_high =
+            agent_improve_wording.suitability_score(&mut task_the_improve_wording_of_this)?;
+        assert!(score_high < score_perfect);
+
+        let score_low = agent_improve_wording.suitability_score(&mut task_make_table)?;
+        assert!(score_low < score_high);
 
         Ok(())
     }

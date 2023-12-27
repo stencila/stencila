@@ -5,7 +5,7 @@ use agent::{
         eyre::{bail, Result},
         tracing,
     },
-    Agent, GenerateDetails, GenerateOptions, GenerateTask, GenerateOutput,
+    Agent, GenerateDetails, GenerateOptions, GenerateOutput, GenerateTask,
 };
 
 pub use agent;
@@ -44,7 +44,7 @@ pub async fn list() -> Vec<Arc<dyn Agent>> {
 
 /// Perform a `GenerateTask` and return the generated content as a string
 pub async fn perform_task(
-    task: GenerateTask,
+    mut task: GenerateTask,
     options: &GenerateOptions,
 ) -> Result<(GenerateOutput, GenerateDetails)> {
     let agents = list().await;
@@ -54,7 +54,7 @@ pub async fn perform_task(
     // we want the one with the lowest index.
     let mut best = (0., 0);
     for (index, agent) in agents.iter().enumerate() {
-        let score = agent.suitability_score(&task);
+        let score = agent.suitability_score(&mut task)?;
         if score > best.0 {
             best = (score, index);
         }
