@@ -145,7 +145,7 @@ The `stencila test` command (⚠️ will be renamed to `stencila ai test`) can b
 Each test folder has a `document.md`, an example document written in Markdown, and one or more instructions written in YAML files. You can run each test instruction individually, e.g.
 
 ```console
-cd assistants/tests
+cd examples/instructions
 cargo run -p cli test doctor-who create-summary --reps 3
 ```
 
