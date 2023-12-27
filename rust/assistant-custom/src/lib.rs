@@ -121,7 +121,6 @@ struct CustomAssistant {
     user_prompt_template: String,
 
     /// The default options to use for the assistant
-    #[allow(unused)]
     options: GenerateOptions,
 }
 

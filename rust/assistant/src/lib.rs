@@ -573,7 +573,6 @@ pub trait Assistant: Sync + Send {
      * supports the input/output combination of the task. Overrides may
      * add other criteria such as the type of the task's instruction.
      */
-    #[allow(unused)]
     fn supports_task(&self, task: &GenerateTask) -> bool {
         self.supports_from_to(task.input, task.output)
     }
