@@ -7,6 +7,7 @@ edition = "2021"
 assistant = { path = "../assistant" }
 assistant-anthropic = { path = "../assistant-anthropic" }
 assistant-custom = { path = "../assistant-custom" }
+assistant-google = { path = "../assistant-google" }
 assistant-mistral = { path = "../assistant-mistral" }
 assistant-ollama = { path = "../assistant-ollama" }
 assistant-openai = { path = "../assistant-openai" }

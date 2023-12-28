@@ -6,6 +6,7 @@ edition = "2021"
 [dependencies]
 assistant = { path = "../assistant" }
 assistant-anthropic = { path = "../assistant-anthropic" }
+assistant-google = { path = "../assistant-google" }
 assistant-mistral = { path = "../assistant-mistral" }
 assistant-ollama = { path = "../assistant-ollama" }
 assistant-openai = { path = "../assistant-openai" }

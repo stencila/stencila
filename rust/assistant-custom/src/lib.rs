@@ -31,7 +31,7 @@ use codecs::{EncodeOptions, Format};
 
 /// Default ordered list of delegates
 ///
-/// Ordering based on https://huggingface.co/spaces/lmsys/chatbot-arena-leaderboard
+/// Ordering loosely based on https://huggingface.co/spaces/lmsys/chatbot-arena-leaderboard
 /// but with more recent models in a series always preferred over older models
 /// in the same series.
 /// 
@@ -46,6 +46,7 @@ const DELEGATES: &[&str] = &[
     "anthropic/claude-2.0",
     "anthropic/claude-instant-1.2",
     "mistral/mistral-medium",
+    "google/gemini-pro",
     "openai/gpt-3.5-turbo-1106",
     "openai/gpt-3.5-turbo-0613",
     "openai/gpt-3.5-turbo-0301",
@@ -306,6 +307,7 @@ impl CustomAssistant {
 
             let list = match provider {
                 "anthropic" => assistant_anthropic::list().await?,
+                "google" => assistant_google::list().await?,
                 "mistral" => assistant_mistral::list().await?,
                 "ollama" => assistant_ollama::list().await?,
                 "openai" => assistant_openai::list().await?,

@@ -1,0 +1,8 @@
+[package]
+name = "assistant-google"
+version = "0.0.0"
+edition = "2021"
+
+[dependencies]
+assistant = { path = "../assistant" }
+cached = { version = "0.46.1", features = ["async"] }

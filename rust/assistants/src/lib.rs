@@ -17,19 +17,26 @@ mod testing_db;
 pub async fn list() -> Vec<Arc<dyn Assistant>> {
     let mut all = Vec::new();
 
+    // TODO: get these lists in parallel
+
     match assistant_custom::list().await {
         Ok(mut assistants) => all.append(&mut assistants),
         Err(error) => tracing::error!("While listing Stencila assistants: {error}"),
     }
 
-    match assistant_openai::list().await {
-        Ok(mut assistants) => all.append(&mut assistants),
-        Err(error) => tracing::error!("While listing OpenAI assistants: {error}"),
-    }
-
     match assistant_anthropic::list().await {
         Ok(mut assistants) => all.append(&mut assistants),
         Err(error) => tracing::error!("While listing Anthropic assistants: {error}"),
+    }
+
+    match assistant_google::list().await {
+        Ok(mut assistants) => all.append(&mut assistants),
+        Err(error) => tracing::error!("While listing Google assistants: {error}"),
+    }
+
+    match assistant_openai::list().await {
+        Ok(mut assistants) => all.append(&mut assistants),
+        Err(error) => tracing::error!("While listing OpenAI assistants: {error}"),
     }
 
     match assistant_mistral::list().await {

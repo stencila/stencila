@@ -220,6 +220,7 @@ version = "0.1.0"
 dependencies = [
  "assistant",
  "assistant-anthropic",
+ "assistant-google",
  "assistant-mistral",
  "assistant-ollama",
  "assistant-openai",
@@ -228,6 +229,14 @@ dependencies = [
  "codecs",
  "minijinja",
  "rust-embed",
+]
+
+[[package]]
+name = "assistant-google"
+version = "0.0.0"
+dependencies = [
+ "assistant",
+ "cached",
 ]
 
 [[package]]
@@ -262,6 +271,7 @@ dependencies = [
  "assistant",
  "assistant-anthropic",
  "assistant-custom",
+ "assistant-google",
  "assistant-mistral",
  "assistant-ollama",
  "assistant-openai",
