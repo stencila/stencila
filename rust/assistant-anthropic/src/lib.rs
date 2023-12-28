@@ -21,8 +21,8 @@ pub struct AnthropicAssistant {
 }
 
 impl AnthropicAssistant {
-    /// Create a Anthropic assistant
-    pub fn new(model: String, context_length: usize) -> Self {
+    /// Create an Anthropic assistant
+    fn new(model: String, context_length: usize) -> Self {
         Self {
             model,
             context_length,

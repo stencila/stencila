@@ -41,8 +41,8 @@ pub struct OpenAIAssistant {
 }
 
 impl OpenAIAssistant {
-    /// Create a OpenAI-based assistant
-    pub fn new(
+    /// Create an OpenAI-based assistant
+    fn new(
         model: String,
         context_length: usize,
         inputs: Vec<AssistantIO>,
