@@ -28,6 +28,7 @@ pub use once_cell;
 pub use proc_macro2;
 pub use quote;
 pub use regex;
+pub use reqwest;
 pub use serde;
 pub use serde_json;
 pub use serde_with;

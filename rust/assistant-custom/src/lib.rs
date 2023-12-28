@@ -45,9 +45,12 @@ const DELEGATES: &[&str] = &[
     "anthropic/claude-2.1",
     "anthropic/claude-2.0",
     "anthropic/claude-instant-1.2",
+    "mistral/mistral-medium",
     "openai/gpt-3.5-turbo-1106",
     "openai/gpt-3.5-turbo-0613",
     "openai/gpt-3.5-turbo-0301",
+    "mistral/mistral-small",
+    "mistral/mistral-tiny",
     "ollama/llama2:latest",
 ];
 
@@ -303,6 +306,7 @@ impl CustomAssistant {
 
             let list = match provider {
                 "anthropic" => assistant_anthropic::list().await?,
+                "mistral" => assistant_mistral::list().await?,
                 "ollama" => assistant_ollama::list().await?,
                 "openai" => assistant_openai::list().await?,
                 _ => bail!("Unknown assistant provider: {provider}"),

@@ -24,17 +24,22 @@ pub async fn list() -> Vec<Arc<dyn Assistant>> {
 
     match assistant_openai::list().await {
         Ok(mut assistants) => all.append(&mut assistants),
-        Err(error) => tracing::debug!("While listing OpenAI assistants: {error}"),
+        Err(error) => tracing::error!("While listing OpenAI assistants: {error}"),
     }
 
     match assistant_anthropic::list().await {
         Ok(mut assistants) => all.append(&mut assistants),
-        Err(error) => tracing::debug!("While listing Anthropic assistants: {error}"),
+        Err(error) => tracing::error!("While listing Anthropic assistants: {error}"),
+    }
+
+    match assistant_mistral::list().await {
+        Ok(mut assistants) => all.append(&mut assistants),
+        Err(error) => tracing::error!("While listing Mistral assistants: {error}"),
     }
 
     match assistant_ollama::list().await {
         Ok(mut assistants) => all.append(&mut assistants),
-        Err(error) => tracing::debug!("While listing Ollama assistants: {error}"),
+        Err(error) => tracing::error!("While listing Ollama assistants: {error}"),
     }
 
     all.sort_by(|a, b| a.preference_rank().cmp(&b.preference_rank()).reverse());
