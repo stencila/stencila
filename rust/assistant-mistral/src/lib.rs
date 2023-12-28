@@ -89,7 +89,7 @@ impl Assistant for MistralAssistant {
 
         let response = self
             .client
-            .get(format!("{}/chat/completions", BASE_URL))
+            .post(format!("{}/chat/completions", BASE_URL))
             .bearer_auth(env::var(API_KEY)?)
             .json(&request)
             .send()
