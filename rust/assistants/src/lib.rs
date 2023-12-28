@@ -1,8 +1,10 @@
-use std::sync::Arc;
+use std::{cmp::Ordering, sync::Arc};
 
 use assistant::{
     common::{
         eyre::{bail, Result},
+        futures::future::join_all,
+        itertools::Itertools,
         tracing,
     },
     Assistant, GenerateDetails, GenerateOptions, GenerateOutput, GenerateTask,
@@ -15,43 +17,37 @@ mod testing_db;
 
 /// Get a list of available assistants in descending preference rank
 pub async fn list() -> Vec<Arc<dyn Assistant>> {
-    let mut all = Vec::new();
+    let futures = (0..=5).into_iter().map(|provider| async move {
+        let (provider, result) = match provider {
+            0 => ("Anthropic", assistant_anthropic::list().await),
+            1 => ("Google", assistant_google::list().await),
+            2 => ("Mistral", assistant_mistral::list().await),
+            3 => ("Ollama", assistant_ollama::list().await),
+            4 => ("OpenAI", assistant_openai::list().await),
+            5 => ("Stencila", assistant_custom::list().await),
+            _ => return vec![],
+        };
 
-    // TODO: get these lists in parallel
+        match result {
+            Ok(list) => list,
+            Err(error) => {
+                tracing::error!("While listing {provider} assistants: {error}");
+                vec![]
+            }
+        }
+    });
 
-    match assistant_custom::list().await {
-        Ok(mut assistants) => all.append(&mut assistants),
-        Err(error) => tracing::error!("While listing Stencila assistants: {error}"),
-    }
-
-    match assistant_anthropic::list().await {
-        Ok(mut assistants) => all.append(&mut assistants),
-        Err(error) => tracing::error!("While listing Anthropic assistants: {error}"),
-    }
-
-    match assistant_google::list().await {
-        Ok(mut assistants) => all.append(&mut assistants),
-        Err(error) => tracing::error!("While listing Google assistants: {error}"),
-    }
-
-    match assistant_openai::list().await {
-        Ok(mut assistants) => all.append(&mut assistants),
-        Err(error) => tracing::error!("While listing OpenAI assistants: {error}"),
-    }
-
-    match assistant_mistral::list().await {
-        Ok(mut assistants) => all.append(&mut assistants),
-        Err(error) => tracing::error!("While listing Mistral assistants: {error}"),
-    }
-
-    match assistant_ollama::list().await {
-        Ok(mut assistants) => all.append(&mut assistants),
-        Err(error) => tracing::error!("While listing Ollama assistants: {error}"),
-    }
-
-    all.sort_by(|a, b| a.preference_rank().cmp(&b.preference_rank()).reverse());
-
-    all
+    join_all(futures)
+        .await
+        .into_iter()
+        .flatten()
+        .sorted_by(
+            |a, b| match a.preference_rank().cmp(&b.preference_rank()).reverse() {
+                Ordering::Equal => a.id().cmp(&b.id()),
+                ordering => ordering,
+            },
+        )
+        .collect_vec()
 }
 
 /// Perform a `GenerateTask` and return the generated content as a string
