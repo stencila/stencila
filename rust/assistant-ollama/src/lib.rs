@@ -9,6 +9,7 @@ use assistant::{
     common::{
         async_trait::async_trait,
         eyre::{eyre, Result},
+        inflector::Inflector,
         tracing,
     },
     Assistant, AssistantIO, GenerateDetails, GenerateOptions, GenerateOutput, GenerateTask,
@@ -74,6 +75,28 @@ impl Assistant for OllamaAssistant {
         format!("ollama/{}", self.model)
     }
 
+    fn publisher(&self) -> String {
+        "Ollama".to_string()
+    }
+
+    fn name(&self) -> String {
+        let id = self.id();
+        let name = id
+            .rsplit_once("/")
+            .map(|(.., name)| name.split_once(":").map_or(name, |(name, ..)| name))
+            .unwrap_or(&id);
+        name.to_title_case()
+    }
+
+    fn version(&self) -> String {
+        let id = self.id();
+        let version = id
+            .split_once(":")
+            .map(|(.., version)| version)
+            .unwrap_or(&id);
+        version.to_string()
+    }
+
     fn context_length(&self) -> usize {
         self.context_length
     }
@@ -133,9 +156,10 @@ impl Assistant for OllamaAssistant {
         map_option!(temperature);
         map_option!(seed);
         map_option!(stop);
-        ignore_option!(max_tokens);
+        if let Some(value) = options.max_tokens {
+            opts = opts.num_predict(value as i32);
+        }
         map_option!(tfs_z);
-        map_option!(num_predict);
         map_option!(top_k);
         map_option!(top_p);
         ignore_option!(image_size);
@@ -150,7 +174,7 @@ impl Assistant for OllamaAssistant {
             .await
             .map_err(|error| eyre!(error))?;
         let text = response.response;
-        let output = GenerateOutput::Text(text);
+        let output = GenerateOutput::new_text(text);
 
         let details = GenerateDetails {
             task,

@@ -14,6 +14,7 @@ use assistant::{
     common::{
         async_trait::async_trait,
         eyre::{bail, Result},
+        inflector::Inflector,
         itertools::Itertools,
         tracing,
     },
@@ -61,6 +62,40 @@ impl OpenAIAssistant {
 impl Assistant for OpenAIAssistant {
     fn id(&self) -> String {
         format!("openai/{}", self.model)
+    }
+
+    fn publisher(&self) -> String {
+        "OpenAI".to_string()
+    }
+
+    fn name(&self) -> String {
+        if self.model.starts_with("gpt") {
+            "GPT".to_string()
+        } else if self.model.starts_with("tts") {
+            "TTS".to_string()
+        } else if self.model.starts_with("dall-e") {
+            "DALL·E".to_string()
+        } else {
+            let name = self
+                .model
+                .split_once("-")
+                .map(|(name, ..)| name)
+                .unwrap_or(&self.model.as_str());
+            name.to_title_case()
+        }
+    }
+
+    fn version(&self) -> String {
+        let model = if self.model.starts_with("dall-e") {
+            self.model.replace("dall-e", "dall_e")
+        } else {
+            self.model.clone()
+        };
+        let version = model
+            .split_once("-")
+            .map(|(.., version)| version)
+            .unwrap_or_default();
+        version.to_string()
     }
 
     fn context_length(&self) -> usize {
@@ -174,7 +209,6 @@ impl OpenAIAssistant {
         map_option!(stop);
         map_option!(max_tokens);
         ignore_option!(tfs_z);
-        ignore_option!(num_predict);
         ignore_option!(top_k);
         map_option!(top_p);
         ignore_option!(image_size);
@@ -191,7 +225,7 @@ impl OpenAIAssistant {
             .pop()
             .and_then(|choice| choice.message.content)
             .unwrap_or_default();
-        let output = GenerateOutput::Text(text);
+        let output = GenerateOutput::new_text(text);
 
         // Create details of the generation
         let details = GenerateDetails {
@@ -199,6 +233,7 @@ impl OpenAIAssistant {
             task,
             options: options.clone(),
             fingerprint: response.system_fingerprint,
+            ..Default::default()
         };
 
         Ok((output, details))
@@ -214,11 +249,10 @@ impl OpenAIAssistant {
 
         let client = Client::new();
 
-        let prompt = format!(
-            "{system_prompt}\n\n{user_prompt}",
-            system_prompt = task.system_prompt().unwrap_or_default(),
-            user_prompt = task.user_prompt()
-        );
+        let system_prompt = task.system_prompt().unwrap_or_default();
+        let separator = if system_prompt.is_empty() { "" } else { " " };
+        let user_prompt = task.user_prompt();
+        let prompt = format!("{system_prompt}{separator}{user_prompt}");
 
         // Create the base request
         let mut request = CreateImageRequestArgs::default();
@@ -250,7 +284,6 @@ impl OpenAIAssistant {
         ignore_option!(stop);
         ignore_option!(max_tokens);
         ignore_option!(tfs_z);
-        ignore_option!(num_predict);
         ignore_option!(top_k);
         ignore_option!(top_p);
 
@@ -301,18 +334,17 @@ impl OpenAIAssistant {
 
         // Send the request
         let request = request.build()?;
-        let response = client.images().create(request).await?;
+        let mut response = client.images().create(request).await?;
 
-        // Get the image URL
-        let url = response
-            .data
-            .first()
-            .and_then(|image| match image.as_ref() {
-                Image::Url { url, .. } => Some(url.clone()),
-                _ => None,
-            })
-            .unwrap_or_default();
-        let output = GenerateOutput::Image(url);
+        // Get the output
+        if response.data.is_empty() {
+            bail!("Response data is unexpectedly empty")
+        }
+        let image = response.data.remove(0);
+        let output = match image.as_ref() {
+            Image::Url { url, .. } => GenerateOutput::new_url(&"image/png", url.to_string()),
+            _ => bail!("Unexpected image type"),
+        };
 
         // Create details of the generation
         let details = GenerateDetails {
@@ -362,6 +394,9 @@ pub async fn list() -> Result<Vec<Arc<dyn Assistant>>> {
                     16_385
                 } else if name.starts_with("gpt-4") {
                     8_192
+                } else if name.starts_with("dall-e-2") {
+                    // Note: This seems to be characters, not tokens?
+                    1_000
                 } else {
                     4_096
                 };
@@ -378,7 +413,7 @@ pub async fn list() -> Result<Vec<Arc<dyn Assistant>>> {
             } else if name.starts_with("whisper") {
                 (vec![Audio], vec![Text])
             } else {
-                // Other models, are not mapped into assistants
+                // Other models are not mapped into assistants
                 return None;
             };
 

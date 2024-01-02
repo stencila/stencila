@@ -102,7 +102,7 @@ impl Assistant for MistralAssistant {
         let mut response: ChatCompletionResponse = response.json().await?;
 
         let text = response.choices.swap_remove(0).message.content;
-        let output = GenerateOutput::Text(text);
+        let output = GenerateOutput::new_text(text);
 
         let details = GenerateDetails {
             task,

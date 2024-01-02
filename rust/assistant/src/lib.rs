@@ -7,8 +7,10 @@ use common::{
     async_trait::async_trait,
     clap::{self, Args, ValueEnum},
     eyre::{bail, eyre, Result},
+    inflector::Inflector,
     once_cell::sync::OnceCell,
     serde::{Deserialize, Serialize},
+    serde_json,
     serde_with::skip_serializing_none,
     smart_default::SmartDefault,
     strum::Display,
@@ -16,7 +18,9 @@ use common::{
 use format::Format;
 use schema::{
     transforms::{blocks_to_nodes, inlines_to_nodes},
-    InstructionBlock, InstructionInline, Node,
+    InstructionBlock, InstructionInline, Node, Organization, OrganizationOptions,
+    PersonOrOrganization, PersonOrOrganizationOrSoftwareApplication, SoftwareApplication,
+    SoftwareApplicationOptions, StringOrNumber,
 };
 
 // Export crates for the convenience of dependant crates
@@ -24,19 +28,6 @@ pub use common;
 pub use format;
 pub use merge;
 pub use schema;
-
-/// The type of input or output an assistant can consume or generate
-#[derive(Debug, Default, Clone, Copy, PartialEq, Eq, ValueEnum, Display, Serialize)]
-#[strum(serialize_all = "lowercase")]
-#[serde(rename_all = "lowercase", crate = "common::serde")]
-pub enum AssistantIO {
-    #[default]
-    Text,
-    Image,
-    Audio,
-    Video,
-    Node,
-}
 
 /// An instruction created within a document
 #[skip_serializing_none]
@@ -131,15 +122,19 @@ impl From<&Instruction> for InstructionType {
 /// A task is created for each generation (aka completion)
 /// request to an AI model. It is then included in the rendering context for
 /// the prompt.
-///
-/// The ordering of fields follows the order that they are usually included
-/// in the request to the AI model: the system prompt, the document context,
-/// the user instruction (including any specific content it has), and
-/// finally the rendered user_prompt.
 #[skip_serializing_none]
 #[derive(Debug, Default, Clone, Serialize)]
 #[serde(crate = "common::serde")]
 pub struct GenerateTask {
+    /// The input type of the task
+    pub input: AssistantIO,
+
+    /// The output type of the task
+    pub output: AssistantIO,
+
+    /// The instruction provided by the user
+    pub instruction: Instruction,
+
     /// An optional system prompt
     pub system_prompt: Option<String>,
 
@@ -151,15 +146,12 @@ pub struct GenerateTask {
     /// in the `GenerateOptions` (defaulting to HTML)
     pub document_formatted: Option<String>,
 
-    /// The instruction provided by the user
-    pub instruction: Instruction,
-
     /// The instruction text provided for convenient access in the
     /// user prompt template
-    instruction_text: Option<String>,
+    pub instruction_text: Option<String>,
 
     /// The instruction embedding
-    instruction_embedding: Option<Vec<f32>>,
+    pub instruction_embedding: Option<Vec<f32>>,
 
     /// The content of the instruction in the format specified
     /// in the `GenerateOptions` (defaulting to HTML)
@@ -169,11 +161,12 @@ pub struct GenerateTask {
     /// other fields by rendering a user prompt template
     pub user_prompt: Option<String>,
 
-    /// The input type of the task
-    pub input: AssistantIO,
-
-    /// The output type of the task
-    pub output: AssistantIO,
+    /// The context length of assistant performing the task
+    ///
+    /// Provided here so that user prompt templates can change rendering
+    /// to take into account the specific context length of the specific base
+    /// assistant being used for the task.
+    pub context_length: Option<usize>,
 }
 
 impl GenerateTask {
@@ -283,6 +276,9 @@ impl GenerateTask {
 /// implementation, and implementations may differ in their application of, and
 /// defaults for each option.
 ///
+/// For details, see:
+///
+/// Google: https://ai.google.dev/api/rest/v1beta/GenerationConfig
 /// Ollama: https://github.com/jmorganca/ollama/blob/main/docs/modelfile.md#valid-parameters-and-values
 /// OpenAI: https://platform.openai.com/docs/api-reference/parameter-details
 ///
@@ -303,48 +299,9 @@ pub struct GenerateOptions {
     #[arg(long)]
     pub assistant: Option<String>,
 
-    /// The format to convert the document content into when rendered into the prompt.
-    #[arg(long, default_value = "html")]
-    #[default(Some(Format::Html))]
-    pub document_format: Option<Format>,
-
-    /// The format to convert the instruction content (if any) into when rendered into the prompt.
-    #[arg(long)]
-    #[arg(long, default_value = "html")]
-    #[default(Some(Format::Html))]
-    pub content_format: Option<Format>,
-
-    /// The format of the generated content
-    ///
-    /// Used to decode (i.e. parse) the generated content into an array of
-    /// Stencila Schema nodes.
-    #[arg(long)]
-    #[arg(long, default_value = "html")]
-    #[default(Some(Format::Html))]
-    pub generated_format: Option<Format>,
-
-    /// A pattern to coerce the generated document nodes into
-    ///
-    /// TODO: Not yet implemented!
-    #[arg(long)]
-    pub coerce_nodes: Option<String>,
-
-    /// A pattern for the type and number of nodes that should be generated
-    ///
-    /// TODO: Not yet implemented!
-    #[arg(long)]
-    pub assert_nodes: Option<String>,
-
-    /// The maximum number of retries for generating valid nodes
-    ///
-    /// TODO: Not yet implemented!
-    #[arg(long, default_value = "1")]
-    #[default(Some(1))]
-    pub max_retries: Option<u32>,
-
     /// Enable Mirostat sampling for controlling perplexity.
     ///
-    /// Supported by: Ollama                                                                                                                              
+    /// Supported by Ollama.
     #[arg(long)]
     pub mirostat: Option<u8>,
 
@@ -353,37 +310,37 @@ pub struct GenerateOptions {
     /// A lower learning rate will result in slower adjustments, while a higher learning
     /// rate will make the algorithm more responsive.
     ///
-    /// Supported by: Ollama                    
+    /// Supported by Ollama.
     #[arg(long)]
     pub mirostat_eta: Option<f32>,
 
     /// Controls the balance between coherence and diversity of the output.
     ///
-    /// A lower value will result in more focused and coherent text.                                                                                                     
+    /// A lower value will result in more focused and coherent text.
     ///
-    /// Supported by: Ollama                    
+    /// Supported by Ollama.
     #[arg(long)]
     pub mirostat_tau: Option<f32>,
 
-    /// Sets the size of the context window used to generate the next token.                                                                                                                                                             
+    /// Sets the size of the context window used to generate the next token.
     ///
-    /// Supported by: Ollama                    
+    /// Supported by Ollama.
     #[arg(long)]
     pub num_ctx: Option<u32>,
 
     /// The number of GQA groups in the transformer layer.
     ///
-    /// Required for some models, for example it is 8 for llama2:70b                                                                                                                                       
+    /// Required for some models, for example it is 8 for llama2:70b
     ///
-    /// Supported by: Ollama                    
+    /// Supported by Ollama.
     #[arg(long)]
     pub num_gqa: Option<u32>,
 
     /// The number of layers to send to the GPU(s).
     ///
-    /// On macOS it defaults to 1 to enable metal support, 0 to disable.                                                                                                                                          
+    /// On macOS it defaults to 1 to enable metal support, 0 to disable.
     ///
-    /// Supported by: Ollama                    
+    /// Supported by Ollama.
     #[arg(long)]
     pub num_gpu: Option<u32>,
 
@@ -391,86 +348,68 @@ pub struct GenerateOptions {
     ///
     /// By default, Ollama will detect this for optimal performance. It is recommended to set this
     /// value to the number of physical CPU cores your system has (as opposed to the logical
-    /// number of cores).    
+    /// number of cores).
     ///
-    /// Supported by: Ollama                    
+    /// Supported by Ollama.
     #[arg(long)]
     pub num_thread: Option<u32>,
 
     /// Sets how far back for the model to look back to prevent repetition.
     ///
-    /// Supported by: Ollama                    
+    /// Supported by Ollama.
     #[arg(long)]
     pub repeat_last_n: Option<i32>,
 
     /// Sets how strongly to penalize repetitions.
     ///
-    /// A higher value (e.g., 1.5) will penalize repetitions more strongly, while a lower value (e.g., 0.9) will be more lenient.                                                              
+    /// A higher value (e.g., 1.5) will penalize repetitions more strongly, while a lower value (e.g., 0.9) will be more lenient.
     ///
-    /// Supported by: Ollama, OpenAI Chat                    
+    /// Supported by Ollama, OpenAI Chat.
     #[arg(long)]
     pub repeat_penalty: Option<f32>,
 
     /// The temperature of the model.
     ///
     /// Increasing the temperature will make the model answer more creatively.
-    ///
-    /// Supported by: Ollama, OpenAI Chat                   
     #[arg(long)]
     pub temperature: Option<f32>,
 
     /// Sets the random number seed to use for generation.
     ///
-    /// Setting this to a specific number will make the model generate the same text for the same prompt.                                                                            
-    ///
-    /// Supported by: Ollama, OpenAI Chat                    
+    /// Setting this to a specific number will make the model generate the same text for the same prompt.
     #[arg(long)]
     pub seed: Option<i32>,
 
     /// Sets the stop sequences to use.
     ///
-    /// When this pattern is encountered the LLM will stop generating text and return.                                   
-    ///
-    /// Supported by: Ollama, OpenAI Chat                    
+    /// When this pattern is encountered the LLM will stop generating text and return.
     #[arg(long)]
     pub stop: Option<String>,
 
     /// The maximum number of tokens to generate.
     ///
     /// The total length of input tokens and generated tokens is limited by the model's context length.
-    ///
-    /// Supported by: OpenAI Chat
     #[arg(long)]
     pub max_tokens: Option<u16>,
 
     /// Tail free sampling is used to reduce the impact of less probable tokens from the output.
     ///
-    /// A higher value (e.g., 2.0) will reduce the impact more, while a value of 1.0 disables this setting.                                         
+    /// A higher value (e.g., 2.0) will reduce the impact more, while a value of 1.0 disables this setting.
     ///
-    /// Supported by: Ollama                    
+    /// Supported by Ollama.
     #[arg(long)]
     pub tfs_z: Option<f32>,
 
-    /// Maximum number of tokens to predict when generating text.                                                                                                                                    
-    ///
-    /// Supported by: Ollama                    
-    #[arg(long)]
-    pub num_predict: Option<i32>,
-
     /// Reduces the probability of generating nonsense.
     ///
-    /// A higher value (e.g. 100) will give more diverse answers, while a lower value (e.g. 10) will be more conservative.                                                                    
-    ///
-    /// Supported by: Ollama                    
+    /// A higher value (e.g. 100) will give more diverse answers, while a lower value (e.g. 10) will be more conservative.
     #[arg(long)]
     pub top_k: Option<u32>,
 
     /// Works together with top-k.
     ///
     /// A higher value (e.g., 0.95) will lead to more diverse text, while a lower value (e.g., 0.5) will generate more
-    /// focused and conservative text.                                                            
-    ///
-    /// Supported by: Ollama, OpenAI Chat                    
+    /// focused and conservative text.
     #[arg(long)]
     pub top_p: Option<f32>,
 
@@ -484,49 +423,124 @@ pub struct GenerateOptions {
 
     /// The quality of the image that will be generated.
     ///
-    /// Supported for `openai/dall-e-3`.
+    /// Supported by `openai/dall-e-3`.
     #[arg(long)]
     pub image_quality: Option<String>,
 
     /// The style of the generated images. Must be one of `vivid` or `natural`.
+    ///
     /// Vivid causes the model to lean towards generating hyper-real and dramatic images.
     /// Natural causes the model to produce more natural, less hyper-real looking images.
+    ///
     /// Supported by `openai/dall-e-3`.
     #[arg(long)]
     pub image_style: Option<String>,
 }
 
 /// Output generated for a task
-pub enum GenerateOutput {
-    Text(String),
-    // TODO: Use bytes of an image here
-    Image(String),
+pub struct GenerateOutput {
+    /// The content generated by the assistant
+    pub content: GenerateContent,
+
+    /// The format of the generated content
+    pub format: Format,
+
+    /// Stencila Schema nodes decoded from the generated content
+    ///
+    /// At present this is only set by custom Stencila assistants in the
+    /// `CustomAssistant::update_output` method.
+    pub nodes: Option<Vec<Node>>,
 }
 
 impl GenerateOutput {
-    pub fn into_string(self) -> Option<String> {
-        use GenerateOutput::*;
-        match self {
-            Text(text) => Some(text),
-            _ => None,
+    /// Create a text output of unknown format
+    pub fn new_text(text: String) -> Self {
+        Self {
+            content: GenerateContent::Text(text),
+            format: Format::Unknown,
+            nodes: None,
         }
     }
 
-    pub fn as_bytes(&self) -> &[u8] {
-        use GenerateOutput::*;
-        match self {
-            Text(text) => text.as_bytes(),
-            Image(image) => image.as_bytes(),
+    /// Create a URL output of a specific node type
+    pub fn new_url(media_type: &str, url: String) -> Self {
+        Self {
+            content: GenerateContent::Url(url),
+            format: Format::from_media_type(&media_type).unwrap_or(Format::Unknown),
+            nodes: None,
         }
+    }
+
+    /// Create a Base64 encoded output of a specific media type
+    pub fn new_base64(media_type: &str, data: String) -> Self {
+        Self {
+            content: GenerateContent::Base64(data),
+            format: Format::from_media_type(&media_type).unwrap_or(Format::Unknown),
+            nodes: None,
+        }
+    }
+
+    /// Display the generated output as Markdown
+    ///
+    /// This is mainly intended for the `stencila ai repl` and `stencila ai test`
+    /// commands. It provides an easily human readable representation of the output
+    /// of a generative task.
+    pub fn display(&self) -> String {
+        let mut md = String::new();
+
+        // Display the output's generated content
+        md += &format!(
+            "The generated {format}:\n\n",
+            format = if self.format.is_unknown() {
+                "content"
+            } else {
+                self.format.name()
+            }
+        );
+        md += &match &self.content {
+            GenerateContent::Text(text) => text.to_string(),
+            GenerateContent::Url(url) => format!("![]({url})"),
+            GenerateContent::Base64(data) => format!(
+                "![]({media_type};base64,{data})",
+                media_type = self.format.media_type()
+            ),
+        };
+        md += "\n";
+
+        // If the output has nodes, display them as a JSON code block
+        if let Some(nodes) = &self.nodes {
+            let nodes = format!(
+                "\nThis content was decoded to these nodes:\n\n```json\n{}\n```\n",
+                serde_json::to_string_pretty(nodes).unwrap_or_default()
+            );
+            md += &nodes;
+        }
+
+        md
     }
 }
 
-/// Details returned along with whatever is generated
+/// The content generated for a task
+pub enum GenerateContent {
+    /// Generated text
+    Text(String),
+
+    /// Generated content at a URL
+    Url(String),
+
+    /// Generated content as Base64 encoded bytes
+    Base64(String),
+}
+
+/// Details returned along with generated output
 #[derive(Debug, Default, Serialize)]
 #[serde(crate = "common::serde")]
 pub struct GenerateDetails {
-    /// The chain of assistants used in the generation
+    /// A list of the assistants used to generate the output
     pub assistants: Vec<String>,
+
+    /// The number of retries required to generate valid output
+    pub retries: u32,
 
     /// The model (a.k.a system) fingerprint at the time of generation
     /// for the last assistant in the chain
@@ -537,9 +551,23 @@ pub struct GenerateDetails {
 
     /// The task for the generation
     ///
-    /// This may differ from the original task e.g. optional fields
-    /// populated by rendering prompt templates
+    /// This may differ from the original task (e.g. optional fields
+    /// populated by rendering prompt templates)
     pub task: GenerateTask,
+}
+
+/// The type of input or output an assistant can consume or generate
+#[derive(
+    Debug, Default, Clone, Copy, PartialEq, Eq, ValueEnum, Display, Deserialize, Serialize,
+)]
+#[strum(serialize_all = "lowercase")]
+#[serde(rename_all = "lowercase", crate = "common::serde")]
+pub enum AssistantIO {
+    #[default]
+    Text,
+    Image,
+    Audio,
+    Video,
 }
 
 /// An AI assistant
@@ -549,86 +577,129 @@ pub struct GenerateDetails {
 /// `supports_generating` and other methods.
 #[async_trait]
 pub trait Assistant: Sync + Send {
-    /**
-     * Get the id of the assistant
-     *
-     * This id should be unique amongst assistants. For base assistants which directly
-     * use a large language model (as opposed to a custom assistant that delegates)
-     * the id should follow the pattern <PROVIDER>/<MODEL>.
-     */
+    /// Get the id of the assistant
+    ///
+    /// This id should be unique amongst assistants. For base assistants which directly
+    /// use a large language model (as opposed to a custom assistant that delegates)
+    /// the id should follow the pattern <PUBLISHER>/<MODEL>.
     fn id(&self) -> String;
 
-    /**
-     * Get the context length of the assistant
-     *
-     * Used by custom assistants to dynamically adjust the content of prompts
-     * based on the context length of the underlying model being delegated to.
-     */
+    /// Get the name of the publisher of the assistant
+    ///
+    /// This default implementation returns the title cased name
+    /// before the first forward slash in the id. Derived assistants
+    /// should override if necessary.
+    fn publisher(&self) -> String {
+        let id = self.id();
+        let publisher = id
+            .split_once("/")
+            .map(|(publisher, ..)| publisher)
+            .unwrap_or(&id);
+        publisher.to_title_case()
+    }
+
+    /// Get the name of the assistant
+    ///
+    /// This default implementation returns the title cased name
+    /// after the last forward slash but before the first dash in the id.
+    /// Derived assistants should override if necessary.
+    fn name(&self) -> String {
+        let id = self.id();
+        let name = id
+            .rsplit_once("/")
+            .map(|(.., name)| name.split_once("-").map_or(name, |(name, ..)| name))
+            .unwrap_or(&id);
+        name.to_title_case()
+    }
+
+    /// Get the version of the assistant
+    ///
+    /// This default implementation returns the version after the
+    /// first dash in the id. Derived assistants should override if necessary.
+    fn version(&self) -> String {
+        let id = self.id();
+        let version = id
+            .split_once("-")
+            .map(|(.., version)| version)
+            .unwrap_or_default();
+        version.to_string()
+    }
+
+    /// Create an item for the `contributors` property of a `CreativeWork` to represent the assistant
+    fn to_contributor(&self) -> PersonOrOrganizationOrSoftwareApplication {
+        PersonOrOrganizationOrSoftwareApplication::SoftwareApplication(SoftwareApplication {
+            id: Some(self.id()),
+            name: self.name(),
+            options: Box::new(SoftwareApplicationOptions {
+                version: Some(StringOrNumber::String(self.version())),
+                publisher: Some(PersonOrOrganization::Organization(Organization {
+                    options: Box::new(OrganizationOptions {
+                        name: Some(self.publisher()),
+                        ..Default::default()
+                    }),
+                    ..Default::default()
+                })),
+                ..Default::default()
+            }),
+            ..Default::default()
+        })
+    }
+
+    /// Get the context length of the assistant
+    ///
+    /// Used by custom assistants to dynamically adjust the content of prompts
+    /// based on the context length of the underlying model being delegated to.
     fn context_length(&self) -> usize;
 
-    /**
-     * Does the assistant support a specific task
-     *
-     * This default implementation is based solely on whether the assistants
-     * supports the input/output combination of the task. Overrides may
-     * add other criteria such as the type of the task's instruction.
-     */
+    /// Does the assistant support a specific task
+    ///
+    /// This default implementation is based solely on whether the assistants
+    /// supports the input/output combination of the task. Overrides may
+    /// add other criteria such as the type of the task's instruction.
     fn supports_task(&self, task: &GenerateTask) -> bool {
         self.supports_from_to(task.input, task.output)
     }
 
-    /**
-     * Get a list of input types this assistant supports
-     */
+    /// Get a list of input types this assistant supports
     fn supported_inputs(&self) -> &[AssistantIO] {
         &[]
     }
 
-    /**
-     * Get a list of output types this assistant supports
-     */
+    /// Get a list of output types this assistant supports
     fn supported_outputs(&self) -> &[AssistantIO] {
         &[]
     }
 
-    /**
-     * Whether this assistant support a specific input/output combination
-     */
+    /// Whether this assistant support a specific input/output combination
     fn supports_from_to(&self, input: AssistantIO, output: AssistantIO) -> bool {
         self.supported_inputs().contains(&input) && self.supported_outputs().contains(&output)
     }
 
-    /**
-     * A score of the suitability of this assistant for a performing a task
-     *
-     * A score between 0 and 1. A task will be delegated to the assistant
-     * with the highest suitability score for that task.
-     * Tied scores are broken using [`Self::preference_rank`].
-     *
-     * This default implementation returns 0.1 if the assistant supports the
-     * task, 0.0 otherwise.
-     */
+    /// A score of the suitability of this assistant for a performing a task
+    ///
+    /// A score between 0 and 1. A task will be delegated to the assistant
+    /// with the highest suitability score for that task.
+    /// Tied scores are broken using [`Self::preference_rank`].
+    ///
+    /// This default implementation returns 0.1 if the assistant supports the
+    /// task, 0.0 otherwise.
     fn suitability_score(&self, task: &mut GenerateTask) -> Result<f32> {
         Ok(if self.supports_task(task) { 0.1 } else { 0.0 })
     }
 
-    /**
-     * The relative rank of preference to delegate tasks to this assistant
-     *
-     * Used to break ties when to assistants have the same suitability score
-     * for a task.
-     */
+    /// The relative rank of preference to delegate tasks to this assistant
+    ///
+    /// Used to break ties when to assistants have the same suitability score
+    /// for a task.
     fn preference_rank(&self) -> u8 {
         0
     }
 
-    /**
-     * Perform a task
-     *
-     * Will call the appropriate method of the assistant, erroring if it does not
-     * support the input/output combination of the task (this will normally
-     * have been checked prior to calling this method)
-     */
+    /// Perform a task
+    ///
+    /// Will call the appropriate method of the assistant, erroring if it does not
+    /// support the input/output combination of the task (this will normally
+    /// have been checked prior to calling this method)
     async fn perform_task(
         &self,
         task: GenerateTask,

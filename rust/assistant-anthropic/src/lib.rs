@@ -77,8 +77,13 @@ impl Assistant for AnthropicAssistant {
             .stop_sequences(vec![HUMAN_PROMPT.to_string()])
             .build()?;
 
-        let text = client.complete(complete_request).await?.completion;
-        let output = GenerateOutput::Text(text);
+        let text = client
+            .complete(complete_request)
+            .await?
+            .completion
+            .trim_start()
+            .to_string();
+        let output = GenerateOutput::new_text(text);
 
         let details = GenerateDetails {
             task,

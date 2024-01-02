@@ -51,7 +51,11 @@ impl Assistant for GoogleAssistant {
     }
 
     fn supported_inputs(&self) -> &[AssistantIO] {
-        &[AssistantIO::Text]
+        use AssistantIO::*;
+        match self.model.as_str() {
+            "gemini-pro-vision" => &[Text, Video],
+            _ => &[Text],
+        }
     }
 
     fn supported_outputs(&self) -> &[AssistantIO] {
@@ -116,7 +120,13 @@ impl Assistant for GoogleAssistant {
             .parts
             .swap_remove(0);
         let output = match content {
-            Part { text: Some(text) } => GenerateOutput::Text(text),
+            Part {
+                text: Some(text), ..
+            } => GenerateOutput::new_text(text),
+            Part {
+                image_data: Some(Blob { mime_type, data }),
+                ..
+            } => GenerateOutput::new_base64(&mime_type, data),
             _ => unreachable!(),
         };
 
@@ -204,14 +214,40 @@ struct Content {
 #[serde(rename_all = "camelCase", crate = "assistant::common::serde")]
 struct Part {
     text: Option<String>,
+    image_data: Option<Blob>,
 }
 
 impl Part {
+    /// Create a new text part
     fn text(value: &str) -> Self {
         Self {
             text: Some(value.into()),
+            image_data: None,
         }
     }
+
+    /// Create a new image data part
+    #[allow(unused)]
+    fn image_data(mime_type: &str, data: &str) -> Self {
+        Self {
+            image_data: Some(Blob {
+                mime_type: mime_type.into(),
+                data: data.into(),
+            }),
+            text: None,
+        }
+    }
+}
+
+/// Media content
+///
+/// Based on https://ai.google.dev/api/rest/v1beta/Content#Blob.
+#[skip_serializing_none]
+#[derive(Serialize, Deserialize)]
+#[serde(rename_all = "camelCase", crate = "assistant::common::serde")]
+struct Blob {
+    mime_type: String,
+    data: String,
 }
 
 /// A role in a `Content` object
