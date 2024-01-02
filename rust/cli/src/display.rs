@@ -22,7 +22,7 @@ pub fn highlighted(content: &str, format: Format) -> Result<()> {
             Format::Json5 => "js".to_string(),
             Format::JsonLd => "json".to_string(),
             Format::Jats => "xml".to_string(),
-            _ => format.get_extension(),
+            _ => format.extension(),
         };
 
         let syntax = SYNTAXES

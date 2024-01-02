@@ -122,6 +122,12 @@ impl Format {
         }
     }
 
+    /// Is this an unknown format?
+    pub fn is_unknown(&self) -> bool {
+        use Format::*;
+        matches!(self, Unknown)
+    }
+
     /// Is this a document store format?
     pub fn is_store(&self) -> bool {
         use Format::*;
@@ -189,8 +195,65 @@ impl Format {
         Self::from_path(&PathBuf::from(string.as_ref()))
     }
 
+    /// Resolve a [`Format`] from a IANA media type
+    /// 
+    /// See https://www.iana.org/assignments/media-types/media-types.xhtml
+    pub fn from_media_type<S: AsRef<str>>(string: S) -> Result<Self> {
+        // This is home grown implementation avoids depending on the `mime_guess`
+        // crate for no other reason that adding a dependency. That may be reviewed in the future.
+        let media_type = string.as_ref();
+
+        use Format::*;
+        match media_type {
+            "application/cbor" => Ok(Cbor),
+            "application/cbor+zstd" => Ok(CborZst),
+            "application/json" => Ok(Json),
+            "application/ld+json" => Ok(JsonLd),
+            "application/yaml" => Ok(Yaml),
+            "text/jats+xml" => Ok(Jats),
+            "text/markdown" => Ok(Markdown),
+            "text/plain" => Ok(Text),
+            _ => {
+                let name = if let Some((.., name)) = media_type.split_once("/") {
+                    name
+                } else {
+                    media_type
+                };
+                Self::from_name(name)
+            }
+        }
+    }
+
+    /// Get the media type of the format
+    pub fn media_type(&self) -> String {
+        // This is home grown implementation avoids depending on the `mime_guess`
+        // crate for no other reason that adding a dependency. That may be reviewed in the future.
+        use Format::*;
+        match self {
+            Cbor => "application/cbor".to_string(),
+            CborZst => "application/cbor+zstd".to_string(),
+            Json => "application/json".to_string(),
+            JsonLd => "application/ld+json".to_string(),
+            Yaml => "application/yaml".to_string(),
+            Jats => "text/jats+xml".to_string(),
+            Markdown => "text/markdown".to_string(),
+            Text => "text/plain".to_string(),
+            _ => {
+                if self.is_audio() {
+                    format!("audio/{}", self.extension())
+                } else if self.is_image() {
+                    format!("image/{}", self.extension())
+                } else if self.is_video() {
+                    format!("video/{}", self.extension())
+                } else {
+                    format!("text/{}", self.extension())
+                }
+            }
+        }
+    }
+
     /// Get the default file name extension for a format
-    pub fn get_extension(&self) -> String {
+    pub fn extension(&self) -> String {
         self.to_string()
     }
 }
