@@ -87,10 +87,10 @@ impl Assistant for GoogleAssistant {
         let request = GenerateContentRequest {
             contents,
             generation_config: Some(GenerationConfig {
-                max_output_tokens: options.max_tokens.clone(),
-                temperature: options.temperature.clone(),
-                top_p: options.top_p.clone(),
-                top_k: options.top_k.clone(),
+                max_output_tokens: options.max_tokens,
+                temperature: options.temperature,
+                top_p: options.top_p,
+                top_k: options.top_k,
                 ..Default::default()
             }),
         };

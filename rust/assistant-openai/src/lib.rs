@@ -78,9 +78,9 @@ impl Assistant for OpenAIAssistant {
         } else {
             let name = self
                 .model
-                .split_once("-")
+                .split_once('-')
                 .map(|(name, ..)| name)
-                .unwrap_or(&self.model.as_str());
+                .unwrap_or(self.model.as_str());
             name.to_title_case()
         }
     }
@@ -92,7 +92,7 @@ impl Assistant for OpenAIAssistant {
             self.model.clone()
         };
         let version = model
-            .split_once("-")
+            .split_once('-')
             .map(|(.., version)| version)
             .unwrap_or_default();
         version.to_string()
@@ -342,7 +342,7 @@ impl OpenAIAssistant {
         }
         let image = response.data.remove(0);
         let output = match image.as_ref() {
-            Image::Url { url, .. } => GenerateOutput::new_url(&"image/png", url.to_string()),
+            Image::Url { url, .. } => GenerateOutput::new_url("image/png", url.to_string()),
             _ => bail!("Unexpected image type"),
         };
 

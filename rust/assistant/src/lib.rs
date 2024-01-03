@@ -466,7 +466,7 @@ impl GenerateOutput {
     pub fn new_url(media_type: &str, url: String) -> Self {
         Self {
             content: GenerateContent::Url(url),
-            format: Format::from_media_type(&media_type).unwrap_or(Format::Unknown),
+            format: Format::from_media_type(media_type).unwrap_or(Format::Unknown),
             nodes: None,
         }
     }
@@ -475,7 +475,7 @@ impl GenerateOutput {
     pub fn new_base64(media_type: &str, data: String) -> Self {
         Self {
             content: GenerateContent::Base64(data),
-            format: Format::from_media_type(&media_type).unwrap_or(Format::Unknown),
+            format: Format::from_media_type(media_type).unwrap_or(Format::Unknown),
             nodes: None,
         }
     }
@@ -592,7 +592,7 @@ pub trait Assistant: Sync + Send {
     fn publisher(&self) -> String {
         let id = self.id();
         let publisher = id
-            .split_once("/")
+            .split_once('/')
             .map(|(publisher, ..)| publisher)
             .unwrap_or(&id);
         publisher.to_title_case()
@@ -606,8 +606,8 @@ pub trait Assistant: Sync + Send {
     fn name(&self) -> String {
         let id = self.id();
         let name = id
-            .rsplit_once("/")
-            .map(|(.., name)| name.split_once("-").map_or(name, |(name, ..)| name))
+            .rsplit_once('/')
+            .map(|(.., name)| name.split_once('-').map_or(name, |(name, ..)| name))
             .unwrap_or(&id);
         name.to_title_case()
     }
@@ -619,7 +619,7 @@ pub trait Assistant: Sync + Send {
     fn version(&self) -> String {
         let id = self.id();
         let version = id
-            .split_once("-")
+            .split_once('-')
             .map(|(.., version)| version)
             .unwrap_or_default();
         version.to_string()

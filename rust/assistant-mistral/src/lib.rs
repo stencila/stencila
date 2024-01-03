@@ -81,10 +81,10 @@ impl Assistant for MistralAssistant {
         let request = ChatCompletionRequest {
             model: self.model.clone(),
             messages,
-            temperature: options.temperature.clone(),
-            top_p: options.top_p.clone(),
-            max_tokens: options.max_tokens.clone(),
-            random_seed: options.seed.clone(),
+            temperature: options.temperature,
+            top_p: options.top_p,
+            max_tokens: options.max_tokens,
+            random_seed: options.seed,
         };
 
         let response = self

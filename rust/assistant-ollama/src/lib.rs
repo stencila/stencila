@@ -82,8 +82,8 @@ impl Assistant for OllamaAssistant {
     fn name(&self) -> String {
         let id = self.id();
         let name = id
-            .rsplit_once("/")
-            .map(|(.., name)| name.split_once(":").map_or(name, |(name, ..)| name))
+            .rsplit_once('/')
+            .map(|(.., name)| name.split_once(':').map_or(name, |(name, ..)| name))
             .unwrap_or(&id);
         name.to_title_case()
     }
@@ -91,7 +91,7 @@ impl Assistant for OllamaAssistant {
     fn version(&self) -> String {
         let id = self.id();
         let version = id
-            .split_once(":")
+            .split_once(':')
             .map(|(.., version)| version)
             .unwrap_or(&id);
         version.to_string()
