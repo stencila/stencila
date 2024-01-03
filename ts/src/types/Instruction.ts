@@ -13,6 +13,11 @@ export class Instruction extends Executable {
    */
   text: string;
 
+  /**
+   * An identifier for the agent assigned to perform the instruction
+   */
+  assignee?: string;
+
   constructor(text: string, options?: Partial<Instruction>) {
     super();
     if (options) Object.assign(this, options);

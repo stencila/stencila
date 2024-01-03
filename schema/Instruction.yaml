@@ -6,8 +6,27 @@ category: edits
 description: Abstract base type for a document editing instruction.
 required:
   - text
+core:
+  - assignee
 properties:
   text:
     '@id': schema:text
     description: The text of the instruction.
     type: string
+  assignee:
+    '@id': stencila:assignee
+    description: An identifier for the agent assigned to perform the instruction
+    type: string
+    $comment: |
+      This property is a string because on creation of the instruction the identifier has not yet been
+      resolved into a person, organization, or software application.
+    proptest:
+      min:
+        description: No assignee
+        value: None
+      low:
+        description: Generate an arbitrary id using expected characters
+        strategy: option::of(r"[a-zA-Z][a-zA-Z\-_/.@]")
+      max:
+        description: Generate an arbitrary assignee id using any characters
+        strategy: option::of(String::arbitrary())

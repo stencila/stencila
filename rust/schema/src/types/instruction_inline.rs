@@ -47,6 +47,13 @@ pub struct InstructionInline {
     #[cfg_attr(feature = "proptest", proptest(value = "Default::default()"))]
     pub text: String,
 
+    /// An identifier for the agent assigned to perform the instruction
+    #[cfg_attr(feature = "proptest-min", proptest(value = r#"None"#))]
+    #[cfg_attr(feature = "proptest-low", proptest(strategy = r#"option::of(r"[a-zA-Z][a-zA-Z\-_/.@]")"#))]
+    #[cfg_attr(feature = "proptest-high", proptest(strategy = r#"option::of(r"[a-zA-Z][a-zA-Z\-_/.@]")"#))]
+    #[cfg_attr(feature = "proptest-max", proptest(strategy = r#"option::of(String::arbitrary())"#))]
+    pub assignee: Option<String>,
+
     /// The content to which the instruction applies.
     #[serde(default, deserialize_with = "option_one_or_many")]
     #[walk]

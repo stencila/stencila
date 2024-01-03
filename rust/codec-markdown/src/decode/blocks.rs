@@ -21,7 +21,7 @@ use codec::{
     },
 };
 
-use super::parse::{curly_attrs, node_to_from_str, node_to_string, symbol};
+use super::parse::{assignee, curly_attrs, node_to_from_str, node_to_string, symbol};
 
 // Note: Most of these parsers are all consuming because they are used
 // to test a match against a whole line.
@@ -176,14 +176,23 @@ fn call_arg(input: &str) -> IResult<&str, CallArgument> {
     )(input)
 }
 
-/// Parse an [`InstructBlock`] with only text
-pub fn instruct_block_text_only(input: &str) -> IResult<&str, &str> {
-    all_consuming(preceded(pair(tag("@@"), multispace0), is_not("\n")))(input)
-}
+/// Start an [`InstructBlock`]
+pub fn instruct_block_start(input: &str) -> IResult<&str, (Option<&str>, &str, bool)> {
+    let (input, has_content) = if let Some(stripped) = input.strip_suffix("%>") {
+        (stripped, true)
+    } else {
+        (input, false)
+    };
 
-/// Start an [`InstructBlock`] with content
-pub fn instruct_block_start(input: &str) -> IResult<&str, &str> {
-    all_consuming(preceded(pair(tag("%%"), multispace0), is_not("\n")))(input)
+    let (remains, (assignee, text)) = all_consuming(preceded(
+        pair(tag("%%"), multispace0),
+        pair(
+            opt(delimited(char('@'), assignee, multispace1)),
+            is_not("\n"),
+        ),
+    ))(input)?;
+
+    Ok((remains, (assignee, text.trim(), has_content)))
 }
 
 /// End an [`InstructBlock`] with content

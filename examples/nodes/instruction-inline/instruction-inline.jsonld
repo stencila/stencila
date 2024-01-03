@@ -44,6 +44,39 @@
           "value": "."
         }
       ]
+    },
+    {
+      "@type": "stencila:Paragraph",
+      "stencila:content": [
+        {
+          "@type": "Text",
+          "value": "Instructions with an assignee: "
+        },
+        {
+          "@type": "stencila:InstructionInline",
+          "text": "equation for surface area of cube",
+          "stencila:assignee": "insert-inline-math"
+        },
+        {
+          "@type": "Text",
+          "value": " and "
+        },
+        {
+          "@type": "stencila:InstructionInline",
+          "text": "please improve this",
+          "stencila:assignee": "joe",
+          "stencila:content": [
+            {
+              "@type": "Text",
+              "value": " existing content"
+            }
+          ]
+        },
+        {
+          "@type": "Text",
+          "value": "."
+        }
+      ]
     }
   ]
 }

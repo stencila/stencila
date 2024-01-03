@@ -3,9 +3,20 @@ content:
 - type: InstructionBlock
   text: 4x10 table
 - type: InstructionBlock
+  text: top five highest mountains, with height in metres
+  assignee: insert-table
+- type: InstructionBlock
   text: Improve this paragraph.
   content:
   - type: Paragraph
     content:
     - type: Text
       value: Target paragraph.
+- type: InstructionBlock
+  text: please improve this paragraph.
+  assignee: anne
+  content:
+  - type: Paragraph
+    content:
+    - type: Text
+      value: Another paragraph.

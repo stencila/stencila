@@ -41,6 +41,39 @@
           "value": "."
         }
       ]
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        {
+          "type": "Text",
+          "value": "Instructions with an assignee: "
+        },
+        {
+          "type": "InstructionInline",
+          "assignee": "insert-inline-math",
+          "text": "equation for surface area of cube"
+        },
+        {
+          "type": "Text",
+          "value": " and "
+        },
+        {
+          "type": "InstructionInline",
+          "assignee": "joe",
+          "text": "please improve this",
+          "content": [
+            {
+              "type": "Text",
+              "value": " existing content"
+            }
+          ]
+        },
+        {
+          "type": "Text",
+          "value": "."
+        }
+      ]
     }
   ]
 }

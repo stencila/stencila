@@ -6,11 +6,12 @@ use codec_text_trait::TextCodec;
 use nom::{
     branch::alt,
     bytes::complete::{is_not, tag, take, take_until, take_while1},
-    character::complete::{char, digit1, multispace0, multispace1},
+    character::complete::{anychar, char, digit1, multispace0, multispace1},
     combinator::{map, not, opt, peek},
-    multi::{fold_many0, separated_list1},
+    error::{Error, ErrorKind},
+    multi::{fold_many0, many_till, separated_list1},
     sequence::{delimited, pair, preceded, terminated, tuple},
-    IResult,
+    Err, IResult,
 };
 
 use codec::{
@@ -26,7 +27,7 @@ use codec::{
 };
 
 use super::parse::{
-    curly_attrs, node_to_option_date, node_to_option_datetime, node_to_option_duration,
+    assignee, curly_attrs, node_to_option_date, node_to_option_datetime, node_to_option_duration,
     node_to_option_i64, node_to_option_number, node_to_option_time, node_to_option_timestamp,
     node_to_string, symbol,
 };
@@ -49,8 +50,7 @@ pub fn inlines(input: &str) -> IResult<&str, Vec<Inline>> {
             strikeout,
             subscript,
             superscript,
-            instruct_inline_text_only,
-            instruct_inline_with_content,
+            instruction_inline,
             insert_inline,
             delete_inline,
             replace_inline,
@@ -611,30 +611,25 @@ fn superscript(input: &str) -> IResult<&str, Inline> {
 }
 
 /// Parse a string into a `InstructionInline` node
-fn instruct_inline_text_only(input: &str) -> IResult<&str, Inline> {
-    map(
-        delimited(tag("{@@"), take_until("@@}"), tag("@@}")),
-        |text: &str| {
-            Inline::InstructionInline(InstructionInline {
-                text: text.to_string(),
-                ..Default::default()
-            })
-        },
-    )(input)
-}
-
-/// Parse a string into a `InstructionInline` node
-fn instruct_inline_with_content(input: &str) -> IResult<&str, Inline> {
+fn instruction_inline(input: &str) -> IResult<&str, Inline> {
     map(
         delimited(
-            tag("{%%"),
-            pair(terminated(take_until("%>"), tag("%>")), take_until("%%}")),
+            terminated(tag("{%%"), multispace0),
+            tuple((
+                opt(delimited(char('@'), assignee, multispace1)),
+                map(
+                    many_till(anychar, peek(alt((tag("%>"), tag("%%}"))))),
+                    |(chars, ..)| -> String { chars.iter().collect() },
+                ),
+                opt(preceded(tag("%>"), take_until("%%}"))),
+            )),
             tag("%%}"),
         ),
-        |(text, content): (&str, &str)| {
+        |(assignee, text, content)| {
             Inline::InstructionInline(InstructionInline {
-                text: text.to_string(),
-                content: Some(inlines_or_text(content)),
+                assignee: assignee.map(|handle| handle.to_string()),
+                text: text.trim().to_string(),
+                content: content.map(inlines_or_text),
                 ..Default::default()
             })
         },
@@ -704,10 +699,7 @@ fn character(input: &str) -> IResult<&str, Inline> {
 ///
 /// Based on https://docs.rs/parse-hyperlinks/latest/parse_hyperlinks/fn.take_until_unbalanced.html
 pub fn take_until_unbalanced(opening: char, closing: char) -> impl Fn(&str) -> IResult<&str, &str> {
-    use nom::error::Error;
-    use nom::error::ErrorKind;
     use nom::error::ParseError;
-    use nom::Err;
 
     move |input: &str| {
         let mut index = 0;

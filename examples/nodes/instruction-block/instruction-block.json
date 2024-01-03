@@ -8,11 +8,27 @@
     },
     {
       "type": "InstructionBlock",
+      "assignee": "insert-table",
+      "text": "top five highest mountains, with height in metres"
+    },
+    {
+      "type": "InstructionBlock",
       "text": "Improve this paragraph.",
       "content": [
         {
           "type": "Paragraph",
           "content": [{ "type": "Text", "value": "Target paragraph." }]
+        }
+      ]
+    },
+    {
+      "type": "InstructionBlock",
+      "assignee": "anne",
+      "text": "please improve this paragraph.",
+      "content": [
+        {
+          "type": "Paragraph",
+          "content": [{ "type": "Text", "value": "Another paragraph." }]
         }
       ]
     }

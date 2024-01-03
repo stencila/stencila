@@ -11,6 +11,11 @@
     },
     {
       "@type": "stencila:InstructionBlock",
+      "text": "top five highest mountains, with height in metres",
+      "stencila:assignee": "insert-table"
+    },
+    {
+      "@type": "stencila:InstructionBlock",
       "text": "Improve this paragraph.",
       "stencila:content": [
         {
@@ -19,6 +24,22 @@
             {
               "@type": "Text",
               "value": "Target paragraph."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "@type": "stencila:InstructionBlock",
+      "text": "please improve this paragraph.",
+      "stencila:assignee": "anne",
+      "stencila:content": [
+        {
+          "@type": "stencila:Paragraph",
+          "stencila:content": [
+            {
+              "@type": "Text",
+              "value": "Another paragraph."
             }
           ]
         }

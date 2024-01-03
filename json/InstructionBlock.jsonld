@@ -219,6 +219,18 @@
       }
     },
     {
+      "@id": "stencila:assignee",
+      "@type": "rdfs:Property",
+      "rdfs:label": "assignee",
+      "rdfs:comment": "An identifier for the agent assigned to perform the instruction",
+      "schema:domainIncludes": {
+        "@id": "stencila:Instruction"
+      },
+      "schema:rangeIncludes": {
+        "@id": "schema:Text"
+      }
+    },
+    {
       "@id": "stencila:content",
       "@type": "rdfs:Property",
       "rdfs:label": "content",

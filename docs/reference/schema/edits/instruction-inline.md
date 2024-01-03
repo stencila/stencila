@@ -26,6 +26,7 @@ The `InstructionInline` type has these properties:
 | `executionDuration`     | `execution-duration`, `execution_duration`                                                                                | `stencila:executionDuration`             | [`Duration`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/duration.md)                         | Duration of the last execution.                                      | [`Executable`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/executable.md)    |
 | `executionErrors`       | `execution-errors`, `execution_errors`, `executionError`, `execution-error`, `execution_error`                            | `stencila:executionErrors`               | [`ExecutionError`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/code/execution-error.md)*           | Errors when executing the node.                                      | [`Executable`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/executable.md)    |
 | `text`                  | -                                                                                                                         | [`schema:text`](https://schema.org/text) | [`String`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/string.md)                             | The text of the instruction.                                         | [`Instruction`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/edits/instruction.md) |
+| `assignee`              | -                                                                                                                         | `stencila:assignee`                      | [`String`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/string.md)                             | An identifier for the agent assigned to perform the instruction      | [`Instruction`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/edits/instruction.md) |
 | `content`               | -                                                                                                                         | `stencila:content`                       | [`Inline`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/inline.md)*                           | The content to which the instruction applies.                        | -                                                                                                          |
 
 ## Related
@@ -67,12 +68,15 @@ The `InstructionInline` type is represented in these bindings:
 
 During property-based (a.k.a generative) testing, the properties of the `InstructionInline` type are generated using the following strategies[^1] for each complexity level. Any optional properties that are not in this table are set to `None`.
 
-| Property  | Complexity | Description                                                | Strategy                                   |
-| --------- | ---------- | ---------------------------------------------------------- | ------------------------------------------ |
-| `content` | Min+       | No content                                                 | `None`                                     |
-|           | Low+       | Generate a single arbitrary, non-recursive, inline node    | `option::of(vec_inlines_non_recursive(1))` |
-|           | High+      | Generate up to two arbitrary, non-recursive, inline nodes  | `option::of(vec_inlines_non_recursive(2))` |
-|           | Max        | Generate up to four arbitrary, non-recursive, inline nodes | `option::of(vec_inlines_non_recursive(4))` |
+| Property   | Complexity | Description                                                | Strategy                                   |
+| ---------- | ---------- | ---------------------------------------------------------- | ------------------------------------------ |
+| `assignee` | Min+       | No assignee                                                | `None`                                     |
+|            | Low+       | Generate an arbitrary id using expected characters         | `option::of(r"[a-zA-Z][a-zA-Z\-_/.@]")`    |
+|            | Max        | Generate an arbitrary assignee id using any characters     | `option::of(String::arbitrary())`          |
+| `content`  | Min+       | No content                                                 | `None`                                     |
+|            | Low+       | Generate a single arbitrary, non-recursive, inline node    | `option::of(vec_inlines_non_recursive(1))` |
+|            | High+      | Generate up to two arbitrary, non-recursive, inline nodes  | `option::of(vec_inlines_non_recursive(2))` |
+|            | Max        | Generate up to four arbitrary, non-recursive, inline nodes | `option::of(vec_inlines_non_recursive(4))` |
 
 ## Source
 

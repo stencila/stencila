@@ -19,3 +19,20 @@ content:
       value: existing content
   - type: Text
     value: .
+- type: Paragraph
+  content:
+  - type: Text
+    value: 'Instructions with an assignee: '
+  - type: InstructionInline
+    text: equation for surface area of cube
+    assignee: insert-inline-math
+  - type: Text
+    value: ' and '
+  - type: InstructionInline
+    text: please improve this
+    assignee: joe
+    content:
+    - type: Text
+      value: ' existing content'
+  - type: Text
+    value: .

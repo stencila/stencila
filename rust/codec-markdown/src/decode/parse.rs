@@ -37,6 +37,21 @@ pub fn symbol(input: &str) -> IResult<&str, String> {
     )(input)
 }
 
+/// Parse the id of an assignee of an instruction (e.g. `insert-image-object`, `openai/gpt-4`, `joe@example.org`)
+pub fn assignee(input: &str) -> IResult<&str, &str> {
+    recognize(pair(
+        alpha1,
+        many0(alt((
+            alphanumeric1,
+            tag("_"),
+            tag("-"),
+            tag("/"),
+            tag("."),
+            tag("@"),
+        ))),
+    ))(input)
+}
+
 /// Parse attributes inside curly braces
 ///
 /// Curly braced attributes are used to specify options on various inline
