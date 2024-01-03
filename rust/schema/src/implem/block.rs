@@ -1,8 +1,8 @@
-use crate::{Block, Inline, Paragraph, StyledBlock};
+use crate::{Block, Inline, Paragraph, Section};
 
 impl From<Vec<Block>> for Block {
     fn from(blocks: Vec<Block>) -> Block {
-        Block::StyledBlock(StyledBlock {
+        Block::Section(Section {
             content: blocks,
             ..Default::default()
         })
