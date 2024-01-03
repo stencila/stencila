@@ -19,7 +19,7 @@ common = { path = "../common" }
 console-subscriber = { version = "0.2.0", optional = true }
 document = { path = "../document" }
 format = { path = "../format" }
-is-terminal = "0.4.9"
+is-terminal = "0.4.10"
 node-strip = { path = "../node-strip" }
 rustyline = "13.0.0"
 server = { path = "../server" }
