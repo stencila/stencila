@@ -1,6 +1,6 @@
 use std::path::PathBuf;
 
-use assistants::assistant::{schema::InstructionBlock, GenerateOptions, GenerateTask, Instruction};
+use assistants::assistant::{schema::InstructionBlock, GenerateOptions, Instruction};
 use color_eyre::owo_colors::OwoColorize;
 use rustyline::{error::ReadlineError, DefaultEditor};
 use yansi::Color;
@@ -567,13 +567,23 @@ impl Cli {
                     println!("There are no assistants available. Perhaps you need to set some environment variables with API keys?")
                 } else {
                     println!(
-                        "{:<40} {:>12} {:>12} {:>20} {:>20}",
-                        "Assistant", "Context len.", "Pref.", "Inputs", "Outputs"
+                        "{:<35} {:<12} {:<30} {:<24} {:>12} {:>5} {:>12} {:>12}",
+                        "Id",
+                        "Publisher",
+                        "Name",
+                        "Version",
+                        "Context len.",
+                        "Pref.",
+                        "Inputs",
+                        "Outputs"
                     );
                     for assistant in assistants {
                         println!(
-                            "{:<40} {:>12} {:>12} {:>20} {:>20}",
+                            "{:<35} {:<12} {:<30} {:<24} {:>12} {:>5} {:>12} {:>12}",
                             assistant.id(),
+                            assistant.publisher(),
+                            assistant.name(),
+                            assistant.version(),
                             assistant.context_length(),
                             assistant.preference_rank(),
                             assistant
@@ -653,24 +663,25 @@ impl Cli {
                                 let json = serde_json::to_string(&options_parser.options)?;
                                 display::highlighted(&json, Format::Json)?;
                             } else {
-                                // Import any document or node
-                                let document_imported = match &document {
-                                    Some(path) => Some(codecs::from_path(path, None).await?),
-                                    None => None,
-                                };
-
-                                // Create a generation task including the instruction from the user,
-                                // the containing document (if any), and the node to which the instruction
-                                // applies (if any)
+                                // Create an instruction from the user
                                 let instruction = Instruction::from(InstructionBlock {
                                     text: line.into(),
                                     ..Default::default()
                                 });
-                                let task = GenerateTask::new(instruction, document_imported);
+
+                                // Import any document or node
+                                let document = match &document {
+                                    Some(path) => Some(codecs::from_path(path, None).await?),
+                                    None => None,
+                                };
 
                                 // Execute the task
-                                let (output, details) =
-                                    assistants::perform_task(task, &options_parser.options).await?;
+                                let (output, details) = assistants::perform_instruction(
+                                    instruction,
+                                    document,
+                                    &options_parser.options,
+                                )
+                                .await?;
 
                                 // Display generation details
                                 let yaml = serde_yaml::to_string(&details)?;
@@ -678,11 +689,11 @@ impl Cli {
 
                                 println!("---");
 
-                                let output = output.into_string().unwrap_or_default();
+                                let output = output.display();
 
                                 // Display the generated text
                                 let yaml = serde_yaml::to_string(&output)?;
-                                display::highlighted(&yaml, Format::Yaml)?;
+                                display::highlighted(&yaml, Format::Markdown)?;
 
                                 // Record in database if user wants
                                 if record {
