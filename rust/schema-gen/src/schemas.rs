@@ -126,6 +126,8 @@ impl Schemas {
         for (base, category) in [
             ("Thing", Category::Other),
             ("CreativeWork", Category::Works),
+            ("SuggestionInline", Category::Edits),
+            ("SuggestionBlock", Category::Edits),
         ] {
             let mut any_of = Vec::new();
             for (name, schema) in &self.schemas {

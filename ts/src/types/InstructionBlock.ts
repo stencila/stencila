@@ -2,6 +2,7 @@
 
 import { Block } from "./Block.js";
 import { Instruction } from "./Instruction.js";
+import { SuggestionBlockType } from "./SuggestionBlockType.js";
 
 /**
  * An instruction to edit some block content.
@@ -13,6 +14,11 @@ export class InstructionBlock extends Instruction {
    * The content to which the instruction applies.
    */
   content?: Block[];
+
+  /**
+   * A suggestion for the instruction
+   */
+  suggestion?: SuggestionBlockType;
 
   constructor(text: string, options?: Partial<InstructionBlock>) {
     super(text);

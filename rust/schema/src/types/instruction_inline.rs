@@ -15,6 +15,7 @@ use super::execution_tag::ExecutionTag;
 use super::inline::Inline;
 use super::integer::Integer;
 use super::string::String;
+use super::suggestion_inline_type::SuggestionInlineType;
 use super::timestamp::Timestamp;
 
 /// An instruction to edit some inline content.
@@ -62,6 +63,10 @@ pub struct InstructionInline {
     #[cfg_attr(feature = "proptest-high", proptest(strategy = r#"option::of(vec_inlines_non_recursive(2))"#))]
     #[cfg_attr(feature = "proptest-max", proptest(strategy = r#"option::of(vec_inlines_non_recursive(4))"#))]
     pub content: Option<Vec<Inline>>,
+
+    /// A suggestion for the instruction
+    #[cfg_attr(feature = "proptest", proptest(value = "None"))]
+    pub suggestion: Option<SuggestionInlineType>,
 
     /// Non-core optional fields
     #[serde(flatten)]

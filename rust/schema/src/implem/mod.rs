@@ -20,6 +20,7 @@ mod execution_error;
 mod for_block;
 mod heading;
 mod if_block;
+mod figure;
 mod inline;
 mod insert_block;
 mod insert_inline;

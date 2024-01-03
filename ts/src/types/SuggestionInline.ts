@@ -10,7 +10,7 @@ export class SuggestionInline extends Suggestion {
   type = "SuggestionInline";
 
   /**
-   * The content that is suggested to be inserted or deleted.
+   * The content that is suggested to be inserted, modified, replaced, or deleted.
    */
   content: Inline[];
 

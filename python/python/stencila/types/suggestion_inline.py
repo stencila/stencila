@@ -15,7 +15,7 @@ class SuggestionInline(Suggestion):
     type: Literal["SuggestionInline"] = field(default="SuggestionInline", init=False)
 
     content: List[Inline]
-    """The content that is suggested to be inserted or deleted."""
+    """The content that is suggested to be inserted, modified, replaced, or deleted."""
 
     def __init__(self, content: List[Inline], id: Optional[str] = None):
         super().__init__(id = id)

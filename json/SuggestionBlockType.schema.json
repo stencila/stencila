@@ -1,0 +1,19 @@
+{
+  "title": "SuggestionBlockType",
+  "category": "edits",
+  "description": "Union type for all types that are descended from `SuggestionBlock`",
+  "anyOf": [
+    {
+      "$ref": "DeleteBlock.schema.json"
+    },
+    {
+      "$ref": "InsertBlock.schema.json"
+    },
+    {
+      "$ref": "ModifyBlock.schema.json"
+    },
+    {
+      "$ref": "ReplaceBlock.schema.json"
+    }
+  ]
+}

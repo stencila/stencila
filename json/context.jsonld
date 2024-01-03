@@ -345,6 +345,7 @@
     "stateDigest": "stencila:stateDigest",
     "streetAddress": "schema:streetAddress",
     "styleLanguage": "stencila:styleLanguage",
+    "suggestion": "stencila:suggestion",
     "symbol": "stencila:symbol",
     "target": "stencila:target",
     "targetProducts": "schema:targetProduct",

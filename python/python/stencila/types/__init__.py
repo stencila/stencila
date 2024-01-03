@@ -142,7 +142,9 @@ from .styled_inline import StyledInline
 from .subscript import Subscript
 from .suggestion import Suggestion
 from .suggestion_block import SuggestionBlock
+from .suggestion_block_type import SuggestionBlockType
 from .suggestion_inline import SuggestionInline
+from .suggestion_inline_type import SuggestionInlineType
 from .superscript import Superscript
 from .table import Table
 from .table_cell import TableCell

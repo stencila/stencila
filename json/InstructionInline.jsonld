@@ -315,6 +315,20 @@
       "schema:rangeIncludes": {
         "@id": "stencila:Inline"
       }
+    },
+    {
+      "@id": "stencila:suggestion",
+      "@type": "rdfs:Property",
+      "rdfs:label": "suggestion",
+      "rdfs:comment": "A suggestion for the instruction",
+      "schema:domainIncludes": [
+        {
+          "@id": "stencila:InstructionBlock"
+        },
+        {
+          "@id": "stencila:InstructionInline"
+        }
+      ]
     }
   ]
 }

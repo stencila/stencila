@@ -15,7 +15,7 @@ class SuggestionBlock(Suggestion):
     type: Literal["SuggestionBlock"] = field(default="SuggestionBlock", init=False)
 
     content: List[Block]
-    """The content that is suggested to be inserted or deleted."""
+    """The content that is suggested to be inserted, modified, replaced, or deleted."""
 
     def __init__(self, content: List[Block], id: Optional[str] = None):
         super().__init__(id = id)

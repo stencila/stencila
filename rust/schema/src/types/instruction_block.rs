@@ -15,6 +15,7 @@ use super::execution_status::ExecutionStatus;
 use super::execution_tag::ExecutionTag;
 use super::integer::Integer;
 use super::string::String;
+use super::suggestion_block_type::SuggestionBlockType;
 use super::timestamp::Timestamp;
 
 /// An instruction to edit some block content.
@@ -62,6 +63,10 @@ pub struct InstructionBlock {
     #[cfg_attr(feature = "proptest-high", proptest(strategy = r#"option::of(vec_blocks_non_recursive(2))"#))]
     #[cfg_attr(feature = "proptest-max", proptest(strategy = r#"option::of(vec_blocks_non_recursive(4))"#))]
     pub content: Option<Vec<Block>>,
+
+    /// A suggestion for the instruction
+    #[cfg_attr(feature = "proptest", proptest(value = "None"))]
+    pub suggestion: Option<SuggestionBlockType>,
 
     /// Non-core optional fields
     #[serde(flatten)]

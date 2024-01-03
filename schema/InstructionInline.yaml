@@ -8,6 +8,7 @@ markdown:
 proptest: {}
 core:
   - content
+  - suggestion
 properties:
   content:
     '@id': stencila:content
@@ -28,3 +29,7 @@ properties:
       max:
         description: Generate up to four arbitrary, non-recursive, inline nodes
         strategy: option::of(vec_inlines_non_recursive(4))
+  suggestion:
+    '@id': stencila:suggestion
+    description: A suggestion for the instruction
+    $ref: SuggestionInlineType

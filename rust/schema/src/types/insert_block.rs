@@ -26,7 +26,7 @@ pub struct InsertBlock {
     #[html(attr = "id")]
     pub id: Option<String>,
 
-    /// The content that is suggested to be inserted or deleted.
+    /// The content that is suggested to be inserted, modified, replaced, or deleted.
     #[serde(deserialize_with = "one_or_many")]
     #[walk]
     #[cfg_attr(feature = "proptest-min", proptest(value = r#"vec![p([t("text")])]"#))]

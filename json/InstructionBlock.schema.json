@@ -20,7 +20,8 @@
     "id",
     "autoExec",
     "assignee",
-    "content"
+    "content",
+    "suggestion"
   ],
   "properties": {
     "type": {
@@ -292,6 +293,11 @@
       "items": {
         "$ref": "Block.schema.json"
       }
+    },
+    "suggestion": {
+      "@id": "stencila:suggestion",
+      "description": "A suggestion for the instruction",
+      "$ref": "SuggestionBlockType.schema.json"
     }
   }
 }

@@ -2,6 +2,7 @@
 
 import { Inline } from "./Inline.js";
 import { Instruction } from "./Instruction.js";
+import { SuggestionInlineType } from "./SuggestionInlineType.js";
 
 /**
  * An instruction to edit some inline content.
@@ -13,6 +14,11 @@ export class InstructionInline extends Instruction {
    * The content to which the instruction applies.
    */
   content?: Inline[];
+
+  /**
+   * A suggestion for the instruction
+   */
+  suggestion?: SuggestionInlineType;
 
   constructor(text: string, options?: Partial<InstructionInline>) {
     super(text);

@@ -9,7 +9,7 @@ required:
 properties:
   content:
     '@id': stencila:content
-    description: The content that is suggested to be inserted or deleted.
+    description: The content that is suggested to be inserted, modified, replaced, or deleted.
     type: array
     items:
       $ref: Inline
