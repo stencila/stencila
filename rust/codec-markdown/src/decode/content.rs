@@ -23,9 +23,9 @@ use crate::decode::inlines::inlines_or_text;
 
 use super::{
     blocks::{
-        admonition, call, claim, delete_block, else_block, end, for_block, form, if_elif, include,
-        insert_block, instruct_block_end, instruct_block_start, math_block, modify_block,
-        modify_block_separator, replace_block, replace_block_separator, section, styled_block,
+        admonition, call, claim, delete_block, else_block, end, figure, for_block, form, if_elif,
+        include, insert_block, instruct_block_end, instruct_block_start, math_block, modify_block,
+        modify_block_separator, replace_block, replace_block_separator, section, sep, styled_block,
     },
     inlines::inlines,
 };
@@ -325,6 +325,22 @@ pub fn decode_blocks(
                         } else {
                             Some(p([t(trimmed)]))
                         }
+                    } else if let Ok((.., figure)) = figure(trimmed) {
+                        blocks.push_div();
+                        divs.push_back(Block::Figure(figure));
+                        None
+                    } else if sep(trimmed).is_ok() {
+                        if let Some(Block::Figure(figure)) = divs.back_mut() {
+                            let content = blocks.pop_div();
+
+                            figure.caption = Some(content);
+
+                            blocks.push_div();
+                            None
+                        } else {
+                            tracing::warn!("Found a `::>` outside of a figure or table");
+                            Some(p([t(trimmed)]))
+                        }
                     } else if let Ok((.., claim)) = claim(trimmed) {
                         blocks.push_div();
                         divs.push_back(Block::Claim(claim));
@@ -401,6 +417,10 @@ pub fn decode_blocks(
                         None
                     } else if end(trimmed).is_ok() {
                         divs.pop_back().map(|div| match div {
+                            Block::Figure(mut figure) => {
+                                figure.content = blocks.pop_div();
+                                Block::Figure(figure)
+                            }
                             Block::Claim(mut claim) => {
                                 claim.content = blocks.pop_div();
                                 Block::Claim(claim)

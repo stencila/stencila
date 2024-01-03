@@ -1,0 +1,76 @@
+{
+  "$schema": "https://stencila.dev/Article.schema.json",
+  "type": "Article",
+  "content": [
+    {
+      "type": "Figure",
+      "content": [
+        {
+          "type": "Paragraph",
+          "content": [
+            {
+              "type": "ImageObject",
+              "contentUrl": "https://example.org/cat.jpg"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "Figure",
+      "label": "2",
+      "content": [
+        {
+          "type": "Paragraph",
+          "content": [
+            {
+              "type": "ImageObject",
+              "contentUrl": "https://example.org/dog.jpg"
+            }
+          ]
+        }
+      ],
+      "caption": [
+        {
+          "type": "Paragraph",
+          "content": [
+            {
+              "type": "Text",
+              "value": "A dog."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "Section",
+      "content": [
+        {
+          "type": "Figure",
+          "content": [
+            {
+              "type": "Paragraph",
+              "content": [
+                {
+                  "type": "ImageObject",
+                  "contentUrl": "https://example.org/mouse.jpg"
+                }
+              ]
+            }
+          ],
+          "caption": [
+            {
+              "type": "Paragraph",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": "A figure of a mouse inside a section."
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

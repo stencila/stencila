@@ -29,6 +29,7 @@ use super::thing_type::ThingType;
 #[display(fmt = "Figure")]
 #[html(elem = "figure")]
 #[jats(elem = "figure")]
+#[markdown(special)]
 pub struct Figure {
     /// The type of this item.
     #[cfg_attr(feature = "proptest", proptest(value = "Default::default()"))]
@@ -50,12 +51,19 @@ pub struct Figure {
     pub content: Vec<Block>,
 
     /// A short label for the figure.
-    #[cfg_attr(feature = "proptest", proptest(value = "None"))]
+    #[cfg_attr(feature = "proptest-min", proptest(value = r#"None"#))]
+    #[cfg_attr(feature = "proptest-low", proptest(strategy = r#"option::of(r"[a-zA-Z0-9]+")"#))]
+    #[cfg_attr(feature = "proptest-high", proptest(strategy = r#"option::of(r"[a-zA-Z0-9]+")"#))]
+    #[cfg_attr(feature = "proptest-max", proptest(strategy = r#"option::of(String::arbitrary())"#))]
     pub label: Option<String>,
 
     /// A caption for the figure.
     #[serde(default, deserialize_with = "option_one_or_many")]
-    #[cfg_attr(feature = "proptest", proptest(value = "None"))]
+    #[walk]
+    #[cfg_attr(feature = "proptest-min", proptest(value = r#"None"#))]
+    #[cfg_attr(feature = "proptest-low", proptest(strategy = r#"option::of(vec_paragraphs(2))"#))]
+    #[cfg_attr(feature = "proptest-high", proptest(strategy = r#"option::of(vec_paragraphs(2))"#))]
+    #[cfg_attr(feature = "proptest-max", proptest(strategy = r#"option::of(vec_blocks_non_recursive(3))"#))]
     pub caption: Option<Vec<Block>>,
 
     /// Non-core optional fields

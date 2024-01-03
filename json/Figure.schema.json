@@ -15,6 +15,9 @@
   "jats": {
     "elem": "figure"
   },
+  "markdown": {
+    "special": true
+  },
   "required": [
     "type",
     "content"
@@ -559,12 +562,40 @@
     "label": {
       "@id": "stencila:label",
       "description": "A short label for the figure.",
+      "proptest": {
+        "min": {
+          "description": "No label",
+          "value": "None"
+        },
+        "low": {
+          "description": "Generate a simple label",
+          "strategy": "option::of(r\"[a-zA-Z0-9]+\")"
+        },
+        "max": {
+          "description": "Generate an arbitrary string",
+          "strategy": "option::of(String::arbitrary())"
+        }
+      },
       "type": "string"
     },
     "caption": {
       "@id": "schema:caption",
       "description": "A caption for the figure.",
-      "$comment": "An array of nodes or, to be compatible with https://schema.org/caption,\na string.\n",
+      "walk": true,
+      "proptest": {
+        "min": {
+          "description": "No caption",
+          "value": "None"
+        },
+        "low": {
+          "description": "Generate up to two arbitrary paragraphs.",
+          "strategy": "option::of(vec_paragraphs(2))"
+        },
+        "max": {
+          "description": "Generate up to three arbitrary, non-recursive, block nodes.",
+          "strategy": "option::of(vec_blocks_non_recursive(3))"
+        }
+      },
       "type": "array",
       "items": {
         "$ref": "Block.schema.json"

@@ -69,16 +69,7 @@ proptest! {
     /// Roundtrip test for Markdown
     #[test]
     fn article_markdown(article: Article) {
-        let mut article = Node::Article(article);
-
-        article.strip(&StripTargets {
-            types: vec![
-                // TODO Remove these as implemented
-                String::from("Figure")
-            ],
-            ..Default::default()
-        });
-
+        let article = Node::Article(article);
         assert_eq!(roundtrip(Format::Markdown, &article, None, None).unwrap(), article);
     }
 }

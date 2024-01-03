@@ -15,9 +15,9 @@ use nom::{
 use codec::{
     common::itertools::Itertools,
     schema::{
-        Admonition, Block, CallArgument, CallBlock, Claim, Cord, ForBlock, Form, FormDeriveAction,
-        FormOptions, IfBlockClause, IncludeBlock, Inline, IntegerOrString, MathBlock, Node,
-        Section, StyledBlock, Text,
+        Admonition, Block, CallArgument, CallBlock, Claim, Cord, Figure, ForBlock, Form,
+        FormDeriveAction, FormOptions, IfBlockClause, IncludeBlock, Inline, IntegerOrString,
+        MathBlock, Node, Section, StyledBlock, Text,
     },
 };
 
@@ -241,6 +241,25 @@ pub fn section(input: &str) -> IResult<&str, Section> {
     )(input)
 }
 
+/// Parse a [`Figure`] node
+pub fn figure(input: &str) -> IResult<&str, Figure> {
+    map(
+        all_consuming(preceded(
+            tuple((
+                semis,
+                multispace0,
+                alt((tag("figure"), tag("fig"))),
+                multispace0,
+            )),
+            opt(is_not("\r\n")),
+        )),
+        |label| Figure {
+            label: label.map(|label| label.to_string()),
+            ..Default::default()
+        },
+    )(input)
+}
+
 /// Parse a [`Claim`] node
 pub fn claim(input: &str) -> IResult<&str, Claim> {
     map(
@@ -399,6 +418,11 @@ pub fn styled_block(input: &str) -> IResult<&str, StyledBlock> {
             ..Default::default()
         },
     )(input)
+}
+
+/// Parse a separator in a division
+pub fn sep(input: &str) -> IResult<&str, &str> {
+    recognize(pair(many_m_n(2, 99, char(':')), char('>')))(input)
 }
 
 /// Parse the end of a division
