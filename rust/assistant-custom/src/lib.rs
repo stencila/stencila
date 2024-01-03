@@ -288,13 +288,19 @@ impl CustomAssistant {
         assistant.system_prompt = parts.next().and_then(not_blank);
         assistant.user_prompt_template = parts.next().and_then(not_blank);
 
-        // Calculate embeddings if necessary
-        if let Some(examples) = &assistant.instruction_examples {
-            assistant.instruction_embeddings =
-                Some(GenerateTask::create_embeddings(examples.clone())?);
-        }
+        assistant.init()?;
 
         Ok(assistant)
+    }
+
+    /// Initialize the assistant
+    fn init(&mut self) -> Result<()> {
+        // Calculate embeddings if necessary
+        if let Some(examples) = &self.instruction_examples {
+            self.instruction_embeddings = Some(GenerateTask::create_embeddings(examples.clone())?);
+        }
+
+        Ok(())
     }
 
     /// Merge options supplied to generation functions into the default options for this custom assistant
@@ -1014,13 +1020,15 @@ mod tests {
             None,
         );
 
-        let assistant_improve_wording = CustomAssistant {
+        let mut assistant_improve_wording = CustomAssistant {
             instruction_examples: Some(vec![String::from("improve wording")]),
             ..Default::default()
         };
+        assistant_improve_wording.init()?;
 
         let score_perfect =
             assistant_improve_wording.suitability_score(&mut task_improve_wording)?;
+        println!("{}", score_perfect);
         assert!(score_perfect > 0.9999);
 
         let score_high =
