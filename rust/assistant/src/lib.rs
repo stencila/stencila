@@ -17,8 +17,8 @@ use common::{
 };
 use format::Format;
 use schema::{
-    transforms::{blocks_to_nodes, inlines_to_nodes},
-    InstructionBlock, InstructionInline, Node, Organization, OrganizationOptions,
+    transforms::{blocks_to_inlines, blocks_to_nodes, inlines_to_blocks, inlines_to_nodes},
+    Block, Inline, InstructionBlock, InstructionInline, Node, Organization, OrganizationOptions,
     PersonOrOrganization, PersonOrOrganizationOrSoftwareApplication, SoftwareApplication,
     SoftwareApplicationOptions, StringOrNumber,
 };
@@ -60,6 +60,14 @@ impl From<InstructionInline> for Instruction {
 }
 
 impl Instruction {
+    /// Get the assignee of the instruction (if any)
+    pub fn assignee(&self) -> Option<&str> {
+        match self {
+            Instruction::Block(block) => block.assignee.as_deref(),
+            Instruction::Inline(inline) => inline.assignee.as_deref(),
+        }
+    }
+
     /// Get the text of the instruction
     pub fn text(&self) -> &str {
         match self {
@@ -126,40 +134,14 @@ impl From<&Instruction> for InstructionType {
 #[derive(Debug, Default, Clone, Serialize)]
 #[serde(crate = "common::serde")]
 pub struct GenerateTask {
+    /// The instruction provided by the user
+    pub instruction: Instruction,
+
     /// The input type of the task
     pub input: AssistantIO,
 
     /// The output type of the task
     pub output: AssistantIO,
-
-    /// The instruction provided by the user
-    pub instruction: Instruction,
-
-    /// An optional system prompt
-    pub system_prompt: Option<String>,
-
-    /// The document that the instruction is contained within
-    /// (usually an `Article`).
-    pub document: Option<Node>,
-
-    /// The content of the document in the format specified
-    /// in the `GenerateOptions` (defaulting to HTML)
-    pub document_formatted: Option<String>,
-
-    /// The instruction text provided for convenient access in the
-    /// user prompt template
-    pub instruction_text: Option<String>,
-
-    /// The instruction embedding
-    pub instruction_embedding: Option<Vec<f32>>,
-
-    /// The content of the instruction in the format specified
-    /// in the `GenerateOptions` (defaulting to HTML)
-    pub content_formatted: Option<String>,
-
-    /// The user prompt usually generated from the `instruction_text` and
-    /// other fields by rendering a user prompt template
-    pub user_prompt: Option<String>,
 
     /// The context length of assistant performing the task
     ///
@@ -167,6 +149,37 @@ pub struct GenerateTask {
     /// to take into account the specific context length of the specific base
     /// assistant being used for the task.
     pub context_length: Option<usize>,
+
+    /// The document that the instruction is contained within
+    /// (usually an `Article`).
+    #[serde(skip)]
+    pub document: Option<Node>,
+
+    /// The content of the document in the format specified
+    /// in the `GenerateOptions` (defaulting to HTML)
+    #[serde(skip)]
+    pub document_formatted: Option<String>,
+
+    /// The instruction text provided for convenient access in the
+    /// user prompt template
+    #[serde(skip)]
+    pub instruction_text: Option<String>,
+
+    /// The instruction embedding
+    #[serde(skip)]
+    pub instruction_embedding: Option<Vec<f32>>,
+
+    /// The content of the instruction in the format specified
+    /// in the `GenerateOptions` (defaulting to HTML)
+    #[serde(skip)]
+    pub content_formatted: Option<String>,
+
+    /// An optional system prompt
+    pub system_prompt: Option<String>,
+
+    /// The user prompt usually generated from the `instruction_text` and
+    /// other fields by rendering a user prompt template
+    pub user_prompt: Option<String>,
 }
 
 impl GenerateTask {
@@ -449,7 +462,37 @@ pub struct GenerateOutput {
     ///
     /// At present this is only set by custom Stencila assistants in the
     /// `CustomAssistant::update_output` method.
-    pub nodes: Option<Vec<Node>>,
+    pub nodes: Option<Nodes>,
+}
+
+/// Generated nodes
+///
+/// This enum allows us to differentiate between different types of
+/// generated nodes associated with different types of instructions
+/// (block or inline)
+#[derive(Serialize)]
+#[serde(untagged, crate = "common::serde")]
+pub enum Nodes {
+    Blocks(Vec<Block>),
+    Inlines(Vec<Inline>),
+}
+
+impl Nodes {
+    /// Move nodes into blocks
+    pub fn into_blocks(self) -> Vec<Block> {
+        match self {
+            Nodes::Blocks(blocks) => blocks,
+            Nodes::Inlines(inlines) => inlines_to_blocks(inlines),
+        }
+    }
+
+    /// Move nodes into inlines
+    pub fn into_inlines(self) -> Vec<Inline> {
+        match self {
+            Nodes::Blocks(blocks) => blocks_to_inlines(blocks),
+            Nodes::Inlines(inlines) => inlines,
+        }
+    }
 }
 
 impl GenerateOutput {
