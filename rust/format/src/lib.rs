@@ -196,7 +196,7 @@ impl Format {
     }
 
     /// Resolve a [`Format`] from a IANA media type
-    /// 
+    ///
     /// See https://www.iana.org/assignments/media-types/media-types.xhtml
     pub fn from_media_type<S: AsRef<str>>(string: S) -> Result<Self> {
         // This is home grown implementation avoids depending on the `mime_guess`
@@ -214,7 +214,7 @@ impl Format {
             "text/markdown" => Ok(Markdown),
             "text/plain" => Ok(Text),
             _ => {
-                let name = if let Some((.., name)) = media_type.split_once("/") {
+                let name = if let Some((.., name)) = media_type.split_once('/') {
                     name
                 } else {
                     media_type
