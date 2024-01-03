@@ -84,6 +84,7 @@ const MAX_RETRIES: u8 = 1;
 )]
 struct CustomAssistant {
     /// The id of the assistant
+    #[serde(skip_deserializing)]
     id: String,
 
     /// The version of the assistant
@@ -91,6 +92,7 @@ struct CustomAssistant {
 
     /// A description of the custom assistant
     #[allow(unused)]
+    #[serde(skip_deserializing)]
     description: String,
 
     /// The names of the assistants this assistant will delegate
@@ -260,7 +262,7 @@ where
 
 impl CustomAssistant {
     /// Parse Markdown content into a custom assistant
-    fn parse(content: &str) -> Result<Self> {
+    fn parse(id: &str, content: &str) -> Result<Self> {
         // Split a string into parts and ensure that there is at least a header
         let mut parts = content
             .split("---\n")
@@ -270,7 +272,7 @@ impl CustomAssistant {
             bail!("Assistant file should have a YAML header delimited by ---");
         };
 
-        // Parse the header into an assistant
+        // Parse header into an assistant
         let mut assistant: CustomAssistant = serde_yaml::from_str(&header)?;
         // Add prompts if not blank
         fn not_blank(prompt: String) -> Option<String> {
@@ -281,6 +283,8 @@ impl CustomAssistant {
                 Some(trimmed.to_string())
             }
         }
+        assistant.id = id.to_string();
+        assistant.description = parts.next().unwrap_or_else(|| "No description".to_string());
         assistant.system_prompt = parts.next().and_then(not_blank);
         assistant.user_prompt_template = parts.next().and_then(not_blank);
 
@@ -806,8 +810,9 @@ fn list_builtin() -> Result<Vec<Arc<dyn Assistant>>> {
     for (name, content) in
         Builtin::iter().filter_map(|name| Builtin::get(&name).map(|file| (name, file.data)))
     {
+        let id = format!("stencila/{}", name.strip_suffix(".md").unwrap_or(&name));
         let content = String::from_utf8_lossy(&content);
-        let assistant = CustomAssistant::parse(&content)
+        let assistant = CustomAssistant::parse(&id, &content)
             .map_err(|error| eyre!("While parsing `{name}`: {error}"))?;
         assistants.push(Arc::new(assistant) as Arc<dyn Assistant>)
     }
