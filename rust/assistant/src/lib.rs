@@ -127,9 +127,11 @@ impl From<&Instruction> for InstructionType {
 
 /// A task to generate content
 ///
-/// A task is created for each generation (aka completion)
-/// request to an AI model. It is then included in the rendering context for
-/// the prompt.
+/// A task is created for each generation request to an AI model.
+/// It is then included in the rendering context for the prompt.
+/// 
+/// Only properties not required within rendered templates should
+/// have `#[serde(skip)]`.
 #[skip_serializing_none]
 #[derive(Debug, Default, Clone, Serialize)]
 #[serde(crate = "common::serde")]
@@ -157,12 +159,10 @@ pub struct GenerateTask {
 
     /// The content of the document in the format specified
     /// in the `GenerateOptions` (defaulting to HTML)
-    #[serde(skip)]
     pub document_formatted: Option<String>,
 
     /// The instruction text provided for convenient access in the
     /// user prompt template
-    #[serde(skip)]
     pub instruction_text: Option<String>,
 
     /// The instruction embedding
@@ -171,7 +171,6 @@ pub struct GenerateTask {
 
     /// The content of the instruction in the format specified
     /// in the `GenerateOptions` (defaulting to HTML)
-    #[serde(skip)]
     pub content_formatted: Option<String>,
 
     /// An optional system prompt
