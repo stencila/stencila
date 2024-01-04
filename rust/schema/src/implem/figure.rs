@@ -14,6 +14,7 @@ impl Figure {
         md += &fence;
         md += " figure";
         if let Some(label) = &self.label {
+            md += " ";
             md += label;
         }
         md += "\n\n";

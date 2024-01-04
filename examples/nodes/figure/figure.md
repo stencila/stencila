@@ -4,7 +4,7 @@
 
 :::
 
-::: figure2
+::: figure 2
 
 A dog.
 
