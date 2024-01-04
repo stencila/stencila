@@ -129,7 +129,7 @@ impl From<&Instruction> for InstructionType {
 ///
 /// A task is created for each generation request to an AI model.
 /// It is then included in the rendering context for the prompt.
-/// 
+///
 /// Only properties not required within rendered templates should
 /// have `#[serde(skip)]`.
 #[skip_serializing_none]
