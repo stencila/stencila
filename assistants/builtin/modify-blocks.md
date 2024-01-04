@@ -1,12 +1,13 @@
 ---
-name: stencila/modify-blocks
-description: |
-  A generic, fallback assistant for modifying block content (i.e. when a user creates an `InstructionBlock` with `content` to be edited by the assistant).
+version: "0.1.0"
 
 instruction-type: modify-blocks
 
-coerce-nodes: Block[]
 assert-nodes: Block+
+---
+
+A generic, fallback assistant for modifying block content (i.e. when a user creates an `InstructionBlock` with `content` to be edited by the assistant).
+
 ---
 
 You are an assistant helping to write a document. The document, instruction and content to modify are provided in <document>, <instruction> and <content> XML tags, respectively. Follow the instruction in rewriting the content. 
@@ -14,6 +15,7 @@ You are an assistant helping to write a document. The document, instruction and 
 Follow the instruction for creating new content provided in an XML <instruction> tag. Only use valid, semantic HTML. The outer HTML element should be a block content element such as <p>.
 
 DO NOT REPEAT THE <document> or <instruction> TAGS. WRITE ONLY ONE <p> TAG!
+
 ---
 
 <document>
