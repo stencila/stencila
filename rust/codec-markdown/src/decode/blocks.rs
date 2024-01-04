@@ -17,7 +17,7 @@ use codec::{
     schema::{
         Admonition, Block, CallArgument, CallBlock, Claim, Cord, Figure, ForBlock, Form,
         FormDeriveAction, FormOptions, IfBlockClause, IncludeBlock, Inline, IntegerOrString,
-        MathBlock, Node, Section, StyledBlock, Text,
+        MathBlock, Node, Section, StyledBlock, Table, Text,
     },
 };
 
@@ -254,6 +254,20 @@ pub fn figure(input: &str) -> IResult<&str, Figure> {
             opt(is_not("\r\n")),
         )),
         |label| Figure {
+            label: label.map(|label| label.to_string()),
+            ..Default::default()
+        },
+    )(input)
+}
+
+/// Parse a [`Table`] with a label and/or caption
+pub fn table(input: &str) -> IResult<&str, Table> {
+    map(
+        all_consuming(preceded(
+            tuple((semis, multispace0, tag("table"), multispace0)),
+            opt(is_not("\r\n")),
+        )),
+        |label| Table {
             label: label.map(|label| label.to_string()),
             ..Default::default()
         },

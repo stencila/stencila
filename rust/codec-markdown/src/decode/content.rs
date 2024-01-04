@@ -13,7 +13,7 @@ use codec::{
         transforms::blocks_to_inlines,
         AudioObject, Block, CodeChunk, Cord, DeleteBlock, Heading, IfBlock, IfBlockClause,
         ImageObject, Inline, InsertBlock, InstructionBlock, Link, ListItem, ModifyBlock, Note,
-        NoteType, ReplaceBlock, TableCell, TableRow, TableRowType, VideoObject,
+        NoteType, ReplaceBlock, Table, TableCell, TableRow, TableRowType, VideoObject,
     },
     Losses,
 };
@@ -26,6 +26,7 @@ use super::{
         admonition, call, claim, delete_block, else_block, end, figure, for_block, form, if_elif,
         include, insert_block, instruct_block_end, instruct_block_start, math_block, modify_block,
         modify_block_separator, replace_block, replace_block_separator, section, sep, styled_block,
+        table,
     },
     inlines::inlines,
 };
@@ -329,6 +330,10 @@ pub fn decode_blocks(
                         blocks.push_div();
                         divs.push_back(Block::Figure(figure));
                         None
+                    } else if let Ok((.., table)) = table(trimmed) {
+                        blocks.push_div();
+                        divs.push_back(Block::Table(table));
+                        None
                     } else if sep(trimmed).is_ok() {
                         if let Some(Block::Figure(figure)) = divs.back_mut() {
                             let content = blocks.pop_div();
@@ -338,7 +343,7 @@ pub fn decode_blocks(
                             blocks.push_div();
                             None
                         } else {
-                            tracing::warn!("Found a `::>` outside of a figure or table");
+                            tracing::warn!("Found a `::>` outside of a figure");
                             Some(p([t(trimmed)]))
                         }
                     } else if let Ok((.., claim)) = claim(trimmed) {
@@ -420,6 +425,34 @@ pub fn decode_blocks(
                             Block::Figure(mut figure) => {
                                 figure.content = blocks.pop_div();
                                 Block::Figure(figure)
+                            }
+                            Block::Table(mut table) => {
+                                let mut before = true;
+                                for block in blocks.pop_div() {
+                                    if let Block::Table(Table { rows, .. }) = block {
+                                        table.rows = rows;
+                                        before = false;
+                                    } else if before {
+                                        match &mut table.caption {
+                                            Some(caption) => {
+                                                caption.push(block);
+                                            }
+                                            None => {
+                                                table.caption = Some(vec![block]);
+                                            }
+                                        }
+                                    } else {
+                                        match &mut table.notes {
+                                            Some(notes) => {
+                                                notes.push(block);
+                                            }
+                                            None => {
+                                                table.notes = Some(vec![block]);
+                                            }
+                                        }
+                                    }
+                                }
+                                Block::Table(table)
                             }
                             Block::Claim(mut claim) => {
                                 claim.content = blocks.pop_div();

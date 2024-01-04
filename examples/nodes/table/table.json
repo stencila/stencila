@@ -176,6 +176,77 @@
           ]
         }
       ]
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        { "type": "Text", "value": "Table with label, caption & notes" }
+      ]
+    },
+    {
+      "type": "Table",
+      "label": "3",
+      "caption": [
+        {
+          "type": "Paragraph",
+          "content": [{ "type": "Text", "value": "The caption." }]
+        }
+      ],
+      "rows": [
+        {
+          "type": "TableRow",
+          "rowType": "HeaderRow",
+          "cells": [
+            {
+              "type": "TableCell",
+              "content": [
+                {
+                  "type": "Paragraph",
+                  "content": [{ "type": "Text", "value": "A" }]
+                }
+              ]
+            },
+            {
+              "type": "TableCell",
+              "content": [
+                {
+                  "type": "Paragraph",
+                  "content": [{ "type": "Text", "value": "B" }]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "TableRow",
+          "cells": [
+            {
+              "type": "TableCell",
+              "content": [
+                {
+                  "type": "Paragraph",
+                  "content": [{ "type": "Text", "value": "1" }]
+                }
+              ]
+            },
+            {
+              "type": "TableCell",
+              "content": [
+                {
+                  "type": "Paragraph",
+                  "content": [{ "type": "Text", "value": "2" }]
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "notes": [
+        {
+          "type": "Paragraph",
+          "content": [{ "type": "Text", "value": "Some notes." }]
+        }
+      ]
     }
   ]
 }

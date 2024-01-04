@@ -254,6 +254,110 @@
           ]
         }
       ]
+    },
+    {
+      "@type": "stencila:Paragraph",
+      "stencila:content": [
+        {
+          "@type": "Text",
+          "value": "Table with label, caption & notes"
+        }
+      ]
+    },
+    {
+      "@type": "Table",
+      "stencila:label": "3",
+      "caption": [
+        {
+          "@type": "stencila:Paragraph",
+          "stencila:content": [
+            {
+              "@type": "Text",
+              "value": "The caption."
+            }
+          ]
+        }
+      ],
+      "stencila:rows": [
+        {
+          "@type": "stencila:TableRow",
+          "stencila:cells": [
+            {
+              "@type": "stencila:TableCell",
+              "stencila:content": [
+                {
+                  "@type": "stencila:Paragraph",
+                  "stencila:content": [
+                    {
+                      "@type": "Text",
+                      "value": "A"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "@type": "stencila:TableCell",
+              "stencila:content": [
+                {
+                  "@type": "stencila:Paragraph",
+                  "stencila:content": [
+                    {
+                      "@type": "Text",
+                      "value": "B"
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "stencila:rowType": "HeaderRow"
+        },
+        {
+          "@type": "stencila:TableRow",
+          "stencila:cells": [
+            {
+              "@type": "stencila:TableCell",
+              "stencila:content": [
+                {
+                  "@type": "stencila:Paragraph",
+                  "stencila:content": [
+                    {
+                      "@type": "Text",
+                      "value": "1"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "@type": "stencila:TableCell",
+              "stencila:content": [
+                {
+                  "@type": "stencila:Paragraph",
+                  "stencila:content": [
+                    {
+                      "@type": "Text",
+                      "value": "2"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "notes": [
+        {
+          "@type": "stencila:Paragraph",
+          "stencila:content": [
+            {
+              "@type": "Text",
+              "value": "Some notes."
+            }
+          ]
+        }
+      ]
     }
   ]
 }

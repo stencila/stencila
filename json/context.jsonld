@@ -300,6 +300,7 @@
     "multipleOf": "stencila:multipleOf",
     "name": "schema:name",
     "noteType": "stencila:noteType",
+    "notes": "schema:notes",
     "operations": "stencila:operations",
     "order": "schema:itemListOrder",
     "otherwise": "stencila:otherwise",

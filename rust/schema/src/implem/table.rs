@@ -97,10 +97,45 @@ impl Table {
             .map(|width| "-".repeat(*width))
             .join(" | ");
 
-        let md = [
+        let mut md = String::new();
+
+        let fence = if self.label.is_some() || self.caption.is_some() || self.notes.is_some() {
+            let fence = ":".repeat(3 + context.depth * 2);
+
+            md += &fence;
+            md += " table";
+            if let Some(label) = &self.label {
+                md += " ";
+                md += label;
+            }
+            md += "\n\n";
+
+            if let Some(caption) = &self.caption {
+                let (caption_md, caption_losses) = caption.to_markdown(context);
+                md += &caption_md;
+                losses.merge(caption_losses)
+            }
+
+            Some(fence)
+        } else {
+            None
+        };
+
+        md += &[
             "| ", &first, " |\n", "| ", &dashes, " |\n", "| ", &rest, " |\n\n",
         ]
         .concat();
+
+        if let Some(notes) = &self.notes {
+            let (notes_md, notes_losses) = notes.to_markdown(context);
+            md += &notes_md;
+            losses.merge(notes_losses)
+        }
+
+        if let Some(fence) = fence {
+            md += &fence;
+            md += "\n\n";
+        }
 
         // TODO add losses for creative work properties
 

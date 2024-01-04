@@ -461,35 +461,6 @@
       ]
     },
     {
-      "@id": "schema:caption",
-      "@type": "rdfs:Property",
-      "rdfs:label": "caption",
-      "rdfs:comment": "A caption for the table.",
-      "schema:domainIncludes": [
-        {
-          "@id": "schema:AudioObject"
-        },
-        {
-          "@id": "schema:ImageObject"
-        },
-        {
-          "@id": "schema:Table"
-        },
-        {
-          "@id": "schema:VideoObject"
-        },
-        {
-          "@id": "stencila:CodeChunk"
-        },
-        {
-          "@id": "stencila:Figure"
-        }
-      ],
-      "schema:rangeIncludes": {
-        "@id": "stencila:Block"
-      }
-    },
-    {
       "@id": "stencila:label",
       "@type": "rdfs:Property",
       "rdfs:label": "label",
@@ -522,6 +493,35 @@
       }
     },
     {
+      "@id": "schema:caption",
+      "@type": "rdfs:Property",
+      "rdfs:label": "caption",
+      "rdfs:comment": "A caption for the table.",
+      "schema:domainIncludes": [
+        {
+          "@id": "schema:AudioObject"
+        },
+        {
+          "@id": "schema:ImageObject"
+        },
+        {
+          "@id": "schema:Table"
+        },
+        {
+          "@id": "schema:VideoObject"
+        },
+        {
+          "@id": "stencila:CodeChunk"
+        },
+        {
+          "@id": "stencila:Figure"
+        }
+      ],
+      "schema:rangeIncludes": {
+        "@id": "stencila:Block"
+      }
+    },
+    {
       "@id": "stencila:rows",
       "@type": "rdfs:Property",
       "rdfs:label": "rows",
@@ -531,6 +531,18 @@
       },
       "schema:rangeIncludes": {
         "@id": "stencila:TableRow"
+      }
+    },
+    {
+      "@id": "schema:notes",
+      "@type": "rdfs:Property",
+      "rdfs:label": "notes",
+      "rdfs:comment": "Notes for the table.",
+      "schema:domainIncludes": {
+        "@id": "schema:Table"
+      },
+      "schema:rangeIncludes": {
+        "@id": "stencila:Block"
       }
     }
   ]

@@ -60,7 +60,7 @@ The `Figure` type can be encoded (serialized) to, and/or decoded (deserialized) 
 | -------------------------------------------------------------------------------------------------- | ---------------- | ------------ | ---------------------- | ------------------------------------------------------------------------------------------------------ |
 | [HTML](https://github.com/stencila/stencila/blob/main/docs/reference/formats/html.md)              | 🔷 Low loss       |              | 🚧 Under development    | Encoded as [`<figure>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/figure)              |
 | [JATS](https://github.com/stencila/stencila/blob/main/docs/reference/formats/jats.md)              | 🔷 Low loss       |              | 🚧 Under development    | Encoded as [`<figure>`](https://jats.nlm.nih.gov/articleauthoring/tag-library/1.3/element/figure.html) |
-| [Markdown](https://github.com/stencila/stencila/blob/main/docs/reference/formats/markdown.md)      | ⚠️ High loss     |              | ⚠️ Alpha               |                                                                                                        |
+| [Markdown](https://github.com/stencila/stencila/blob/main/docs/reference/formats/markdown.md)      | ⚠️ High loss     |              | ⚠️ Alpha               | Encoded using special function                                                                         |
 | [Plain text](https://github.com/stencila/stencila/blob/main/docs/reference/formats/text.md)        | ⚠️ High loss     |              | ⚠️ Alpha               |                                                                                                        |
 | [JSON](https://github.com/stencila/stencila/blob/main/docs/reference/formats/json.md)              | 🟢 No loss        | 🟢 No loss    | 🟢 Stable               |                                                                                                        |
 | [JSON5](https://github.com/stencila/stencila/blob/main/docs/reference/formats/json5.md)            | 🟢 No loss        | 🟢 No loss    | 🟢 Stable               |                                                                                                        |
@@ -84,11 +84,17 @@ The `Figure` type is represented in these bindings:
 
 During property-based (a.k.a generative) testing, the properties of the `Figure` type are generated using the following strategies[^1] for each complexity level. Any optional properties that are not in this table are set to `None`.
 
-| Property  | Complexity | Description                                                | Strategy                      |
-| --------- | ---------- | ---------------------------------------------------------- | ----------------------------- |
-| `content` | Min+       | Generate a single arbitrary paragraph.                     | `vec_paragraphs(1)`           |
-|           | Low+       | Generate up to two arbitrary, non-recursive, block nodes.  | `vec_blocks_non_recursive(2)` |
-|           | Max        | Generate up to four arbitrary, non-recursive, block nodes. | `vec_blocks_non_recursive(4)` |
+| Property  | Complexity | Description                                                 | Strategy                                  |
+| --------- | ---------- | ----------------------------------------------------------- | ----------------------------------------- |
+| `content` | Min+       | Generate a single arbitrary paragraph.                      | `vec_paragraphs(1)`                       |
+|           | Low+       | Generate up to two arbitrary, non-recursive, block nodes.   | `vec_blocks_non_recursive(2)`             |
+|           | Max        | Generate up to four arbitrary, non-recursive, block nodes.  | `vec_blocks_non_recursive(4)`             |
+| `label`   | Min+       | No label                                                    | `None`                                    |
+|           | Low+       | Generate a simple label                                     | `option::of(r"[a-zA-Z0-9]+")`             |
+|           | Max        | Generate an arbitrary string                                | `option::of(String::arbitrary())`         |
+| `caption` | Min+       | No caption                                                  | `None`                                    |
+|           | Low+       | Generate up to two arbitrary paragraphs.                    | `option::of(vec_paragraphs(2))`           |
+|           | Max        | Generate up to three arbitrary, non-recursive, block nodes. | `option::of(vec_blocks_non_recursive(3))` |
 
 ## Source
 

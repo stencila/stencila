@@ -22,7 +22,8 @@
   "core": [
     "id",
     "label",
-    "caption"
+    "caption",
+    "notes"
   ],
   "properties": {
     "type": {
@@ -534,19 +535,33 @@
         }
       ]
     },
-    "caption": {
-      "@id": "schema:caption",
-      "description": "A caption for the table.",
-      "$comment": "An array of nodes or, to be compatible with https://schema.org/caption,\na string.\n",
-      "type": "array",
-      "items": {
-        "$ref": "Block.schema.json"
-      }
-    },
     "label": {
       "@id": "stencila:label",
       "description": "A short label for the table.",
       "type": "string"
+    },
+    "caption": {
+      "@id": "schema:caption",
+      "description": "A caption for the table.",
+      "walk": true,
+      "proptest": {
+        "min": {
+          "description": "No caption.",
+          "value": "None"
+        },
+        "low": {
+          "description": "Generate up to two arbitrary paragraphs.",
+          "strategy": "option::of(vec_paragraphs(2))"
+        },
+        "max": {
+          "description": "Generate up to three arbitrary, non-recursive, block nodes.",
+          "strategy": "option::of(vec_blocks_non_recursive(3))"
+        }
+      },
+      "type": "array",
+      "items": {
+        "$ref": "Block.schema.json"
+      }
     },
     "rows": {
       "@id": "stencila:rows",
@@ -575,6 +590,32 @@
       "type": "array",
       "items": {
         "$ref": "TableRow.schema.json"
+      }
+    },
+    "notes": {
+      "@id": "schema:notes",
+      "description": "Notes for the table.",
+      "aliases": [
+        "note"
+      ],
+      "walk": true,
+      "proptest": {
+        "min": {
+          "description": "No notes.",
+          "value": "None"
+        },
+        "low": {
+          "description": "Generate an arbitrary paragraph.",
+          "strategy": "option::of(vec_paragraphs(1))"
+        },
+        "max": {
+          "description": "Generate up to two arbitrary, non-recursive, block nodes.",
+          "strategy": "option::of(vec_blocks_non_recursive(2))"
+        }
+      },
+      "type": "array",
+      "items": {
+        "$ref": "Block.schema.json"
       }
     }
   }

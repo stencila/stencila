@@ -3,5 +3,6 @@
   <body>
     <p>Regular table</p>
     <p>Table with empty cells</p>
+    <p>Table with label, caption &amp; notes</p>
   </body>
 </article>

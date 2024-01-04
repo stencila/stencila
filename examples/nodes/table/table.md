@@ -11,3 +11,17 @@ Table with empty cells
 | --- | --- |
 | 1   |     |
 |     | 2   |
+
+Table with label, caption & notes
+
+::: table 3
+
+The caption.
+
+| A   | B   |
+| --- | --- |
+| 1   | 2   |
+
+Some notes.
+
+:::

@@ -41,14 +41,18 @@ pub struct Table {
     #[html(attr = "id")]
     pub id: Option<String>,
 
-    /// A caption for the table.
-    #[serde(default, deserialize_with = "option_one_or_many")]
-    #[cfg_attr(feature = "proptest", proptest(value = "None"))]
-    pub caption: Option<Vec<Block>>,
-
     /// A short label for the table.
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     pub label: Option<String>,
+
+    /// A caption for the table.
+    #[serde(default, deserialize_with = "option_one_or_many")]
+    #[walk]
+    #[cfg_attr(feature = "proptest-min", proptest(value = r#"None"#))]
+    #[cfg_attr(feature = "proptest-low", proptest(strategy = r#"option::of(vec_paragraphs(2))"#))]
+    #[cfg_attr(feature = "proptest-high", proptest(strategy = r#"option::of(vec_paragraphs(2))"#))]
+    #[cfg_attr(feature = "proptest-max", proptest(strategy = r#"option::of(vec_blocks_non_recursive(3))"#))]
+    pub caption: Option<Vec<Block>>,
 
     /// Rows of cells in the table.
     #[serde(alias = "row")]
@@ -58,6 +62,16 @@ pub struct Table {
     #[cfg_attr(feature = "proptest-high", proptest(strategy = r#"vec(TableRow::arbitrary(), size_range(1..=4))"#))]
     #[cfg_attr(feature = "proptest-max", proptest(strategy = r#"vec(TableRow::arbitrary(), size_range(1..=8))"#))]
     pub rows: Vec<TableRow>,
+
+    /// Notes for the table.
+    #[serde(alias = "note")]
+    #[serde(default, deserialize_with = "option_one_or_many")]
+    #[walk]
+    #[cfg_attr(feature = "proptest-min", proptest(value = r#"None"#))]
+    #[cfg_attr(feature = "proptest-low", proptest(strategy = r#"option::of(vec_paragraphs(1))"#))]
+    #[cfg_attr(feature = "proptest-high", proptest(strategy = r#"option::of(vec_paragraphs(1))"#))]
+    #[cfg_attr(feature = "proptest-max", proptest(strategy = r#"option::of(vec_blocks_non_recursive(2))"#))]
+    pub notes: Option<Vec<Block>>,
 
     /// Non-core optional fields
     #[serde(flatten)]

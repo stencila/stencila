@@ -11,19 +11,24 @@ export class Table extends CreativeWork {
   type = "Table";
 
   /**
-   * A caption for the table.
-   */
-  caption?: Block[];
-
-  /**
    * A short label for the table.
    */
   label?: string;
 
   /**
+   * A caption for the table.
+   */
+  caption?: Block[];
+
+  /**
    * Rows of cells in the table.
    */
   rows: TableRow[];
+
+  /**
+   * Notes for the table.
+   */
+  notes?: Block[];
 
   constructor(rows: TableRow[], options?: Partial<Table>) {
     super();

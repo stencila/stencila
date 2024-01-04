@@ -13,20 +13,29 @@ required:
 core:
   - label
   - caption
+  - notes
 properties:
-  caption:
-    '@id': schema:caption
-    description: A caption for the table.
-    $comment: |
-      An array of nodes or, to be compatible with https://schema.org/caption,
-      a string.
-    type: array
-    items:
-      $ref: Block
   label:
     '@id': stencila:label
     description: A short label for the table.
     type: string
+  caption:
+    '@id': schema:caption
+    description: A caption for the table.
+    type: array
+    items:
+      $ref: Block
+    walk: true
+    proptest:
+      min:
+        description: No caption.
+        value: None
+      low:
+        description: Generate up to two arbitrary paragraphs.
+        strategy: option::of(vec_paragraphs(2))
+      max:
+        description: Generate up to three arbitrary, non-recursive, block nodes.
+        strategy: option::of(vec_blocks_non_recursive(3))
   rows:
     '@id': stencila:rows
     description: |
@@ -47,3 +56,20 @@ properties:
       max:
         description: Generate up to eight, arbitrary, table rows.
         strategy: vec(TableRow::arbitrary(), size_range(1..=8))
+  notes:
+    '@id': schema:notes
+    description: Notes for the table.
+    type: array
+    items:
+      $ref: Block
+    walk: true
+    proptest:
+      min:
+        description: No notes.
+        value: None
+      low:
+        description: Generate an arbitrary paragraph.
+        strategy: option::of(vec_paragraphs(1))
+      max:
+        description: Generate up to two arbitrary, non-recursive, block nodes.
+        strategy: option::of(vec_blocks_non_recursive(2))
