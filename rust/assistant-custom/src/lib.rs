@@ -403,6 +403,15 @@ impl CustomAssistant {
         let mut env = Environment::new();
         env.set_undefined_behavior(UndefinedBehavior::Chainable);
 
+        env.add_filter("trim_start_chars", |content: &str, length: u32| -> String {
+            let current_length = content.chars().count();
+            content
+                .chars()
+                .skip(current_length.saturating_sub(length as usize))
+                .take(length as usize)
+                .collect()
+        });
+
         env.add_filter("trim_end_chars", |content: &str, length: u32| -> String {
             content.chars().take(length as usize).collect()
         });
