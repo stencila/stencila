@@ -56,7 +56,7 @@
     "unused": "depcheck --quiet --ignores @types/jest,benchmark,tmp --ignore-patterns '.eslintrc*'"
   },
   "engines": {
-    "node": ">= 10"
+    "node": ">=16"
   },
   "napi": {
     "name": "stencila",

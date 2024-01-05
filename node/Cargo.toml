@@ -9,8 +9,7 @@ crate-type = ["cdylib"]
 [dependencies]
 codecs = { path = "../rust/codecs" }
 common = { path = "../rust/common" }
-# Enable napi4 feature, see https://nodejs.org/api/n-api.html#node-api-version-matrix
-napi = { version = "2.14.2", default-features = false, features = ["async", "napi4"] }
+napi = { version = "2.14.2", default-features = false, features = ["async", "napi8"] }
 napi-derive = "2.14.6"
 schema = { path = "../rust/schema" }
 
