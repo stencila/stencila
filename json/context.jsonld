@@ -258,7 +258,6 @@
     "funders": "schema:funder",
     "genre": "schema:genre",
     "givenNames": "schema:givenName",
-    "hidden": "stencila:hidden",
     "honorificPrefix": "schema:honorificPrefix",
     "honorificSuffix": "schema:honorificSuffix",
     "identifiers": "schema:identifier",

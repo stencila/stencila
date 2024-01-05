@@ -36,11 +36,6 @@ export class Parameter extends Executable {
   validator?: Validator;
 
   /**
-   * Whether the parameter should be hidden.
-   */
-  hidden?: boolean;
-
-  /**
    * The dotted path to the object (e.g. a database table column) that the parameter should be derived from
    */
   derivedFrom?: string;

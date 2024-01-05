@@ -57,7 +57,7 @@ impl Parameter {
         };
 
         let attr_default = |attrs: &mut String| {
-            if let Some(def) = &self.default {
+            if let Some(def) = &self.options.default {
                 attrs.push_str(" def=");
                 attrs.push_str(&node_to_md(def));
             }
@@ -84,7 +84,7 @@ impl Parameter {
             }};
         }
 
-        if let Some(validator) = &self.validator {
+        if let Some(validator) = &self.options.validator {
             let attrs = match validator {
                 Validator::BooleanValidator(..) => {
                     let mut attrs = "bool".to_string();

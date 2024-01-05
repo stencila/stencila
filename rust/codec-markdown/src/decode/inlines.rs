@@ -407,11 +407,11 @@ fn parameter(input: &str) -> IResult<&str, Inline> {
 
             Inline::Parameter(Parameter {
                 name,
-                label,
-                validator,
-                default,
                 value,
                 options: Box::new(ParameterOptions {
+                    label,
+                    validator,
+                    default,
                     derived_from,
                     ..Default::default()
                 }),

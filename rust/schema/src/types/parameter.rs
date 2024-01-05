@@ -3,7 +3,6 @@
 use crate::prelude::*;
 
 use super::automatic_execution::AutomaticExecution;
-use super::boolean::Boolean;
 use super::compilation_digest::CompilationDigest;
 use super::compilation_error::CompilationError;
 use super::duration::Duration;
@@ -55,22 +54,9 @@ pub struct Parameter {
     #[jats(attr = "name")]
     pub name: String,
 
-    /// A short label for the parameter.
-    #[cfg_attr(feature = "proptest", proptest(value = "None"))]
-    pub label: Option<String>,
-
     /// The current value of the parameter.
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     pub value: Option<Box<Node>>,
-
-    /// The default value of the parameter.
-    #[cfg_attr(feature = "proptest", proptest(value = "None"))]
-    pub default: Option<Box<Node>>,
-
-    /// The validator that the value is validated against.
-    #[cfg_attr(feature = "proptest", proptest(value = "None"))]
-    #[html(content)]
-    pub validator: Option<Validator>,
 
     /// Non-core optional fields
     #[serde(flatten)]
@@ -169,9 +155,18 @@ pub struct ParameterOptions {
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     pub execution_errors: Option<Vec<ExecutionError>>,
 
-    /// Whether the parameter should be hidden.
+    /// A short label for the parameter.
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
-    pub hidden: Option<Boolean>,
+    pub label: Option<String>,
+
+    /// The default value of the parameter.
+    #[cfg_attr(feature = "proptest", proptest(value = "None"))]
+    pub default: Option<Box<Node>>,
+
+    /// The validator that the value is validated against.
+    #[cfg_attr(feature = "proptest", proptest(value = "None"))]
+    #[html(content)]
+    pub validator: Option<Validator>,
 
     /// The dotted path to the object (e.g. a database table column) that the parameter should be derived from
     #[serde(alias = "derived-from", alias = "derived_from")]

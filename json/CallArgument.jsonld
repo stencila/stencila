@@ -339,18 +339,6 @@
       }
     },
     {
-      "@id": "stencila:hidden",
-      "@type": "rdfs:Property",
-      "rdfs:label": "hidden",
-      "rdfs:comment": "Whether the parameter should be hidden.",
-      "schema:domainIncludes": {
-        "@id": "stencila:Parameter"
-      },
-      "schema:rangeIncludes": {
-        "@id": "schema:Boolean"
-      }
-    },
-    {
       "@id": "stencila:derivedFrom",
       "@type": "rdfs:Property",
       "rdfs:label": "derivedFrom",

@@ -14,10 +14,7 @@ proptest: {}
 required:
   - name
 core:
-  - label
   - value
-  - default
-  - validator
 properties:
   name:
     '@id': schema:name
@@ -60,16 +57,12 @@ properties:
   validator:
     '@id': stencila:validator
     description: The validator that the value is validated against.
+    $comment: |
+      This property is large (in terms of bytes) so is best kept as a non-core
+      property, so as not to inflate the size of the `Inline` enum in Rust.
     html:
       content: true
     $ref: Validator
-  hidden:
-    '@id': stencila:hidden
-    description: Whether the parameter should be hidden.
-    type: boolean
-    $comment: |
-      For HTML renderings of a document it is often desirable to hide parameters of a
-      document that are already represented in the URL of the document.
   derivedFrom:
     '@id': stencila:derivedFrom
     description: The dotted path to the object (e.g. a database table column) that the parameter should be derived from
