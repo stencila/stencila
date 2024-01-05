@@ -14,7 +14,7 @@ use assistant::{
         Block, ExecutionError, Inline, InsertBlock, InsertInline, Node, SuggestionBlockType,
         SuggestionInlineType,
     },
-    Assistant, GenerateDetails, GenerateOptions, GenerateOutput, GenerateTask, Instruction, Nodes,
+    Assistant, GenerateOptions, GenerateOutput, GenerateTask, Instruction, Nodes,
 };
 
 pub use assistant;
@@ -64,7 +64,7 @@ pub async fn perform_instruction(
     instruction: Instruction,
     document: Option<Node>,
     options: &GenerateOptions,
-) -> Result<(GenerateOutput, GenerateDetails)> {
+) -> Result<GenerateOutput> {
     let mut task = GenerateTask::new(instruction, document.clone());
 
     let assistants = list().await;
@@ -107,7 +107,7 @@ pub async fn perform_instruction(
     };
 
     // Perform the task
-    let (mut output, details) = assistant.perform_task(task, options).await?;
+    let mut output = assistant.perform_task(task, options).await?;
 
     // Walk over any generated nodes and recursively perform any instructions within them
     if let Some(nodes) = &mut output.nodes {
@@ -139,7 +139,7 @@ pub async fn perform_instruction(
         }
     }
 
-    Ok((output, details))
+    Ok(output)
 }
 
 /// A node visitor which collects instructions
@@ -178,7 +178,7 @@ impl VisitorMut for InstructionCollector {
 /// A node visitor which applies generation results to instructions
 struct ResultApplier {
     /// A map of generation results by instruction id
-    results: HashMap<String, Result<(GenerateOutput, GenerateDetails)>>,
+    results: HashMap<String, Result<GenerateOutput>>,
 }
 
 impl VisitorMut for ResultApplier {
@@ -190,12 +190,12 @@ impl VisitorMut for ResultApplier {
                 .and_then(|id| self.results.remove(id))
             {
                 match result {
-                    Ok((
+                    Ok(
                         GenerateOutput {
                             nodes: Some(nodes), ..
                         },
                         ..,
-                    )) => {
+                    ) => {
                         instruction.suggestion = Some(SuggestionInlineType::InsertInline(
                             InsertInline::new(nodes.into_inlines()),
                         ))
@@ -225,12 +225,12 @@ impl VisitorMut for ResultApplier {
                 .and_then(|id| self.results.remove(id))
             {
                 match result {
-                    Ok((
+                    Ok(
                         GenerateOutput {
                             nodes: Some(nodes), ..
                         },
                         ..,
-                    )) => {
+                    ) => {
                         instruction.suggestion = Some(SuggestionBlockType::InsertBlock(
                             InsertBlock::new(nodes.into_blocks()),
                         ))

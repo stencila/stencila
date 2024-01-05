@@ -4,9 +4,9 @@ use assistant::{
     common::{
         eyre::{eyre, Result},
         futures::future::try_join_all,
-        serde_json, serde_yaml, tracing,
+        serde_yaml, tracing,
     },
-    GenerateDetails, GenerateOptions, Instruction,
+    GenerateOptions, Instruction,
 };
 use sea_orm::{
     ActiveValue, ConnectOptions, ConnectionTrait, Database, DatabaseBackend, EntityTrait, Statement,
@@ -15,15 +15,10 @@ use sea_orm::{
 use super::testing_db::{prelude::*, *};
 
 /// Add a new assistant testing trial
-pub async fn insert_trial(
-    user_instruction: &str,
-    assistant_response: &str,
-    details: GenerateDetails,
-) -> Result<()> {
+pub async fn insert_trial(user_instruction: &str, assistant_response: &str) -> Result<()> {
     let trial = trials::ActiveModel {
         user_instruction: ActiveValue::Set(user_instruction.to_string()),
         assistant_response: ActiveValue::Set(assistant_response.to_string()),
-        generate_detail: ActiveValue::Set(serde_json::to_string(&details)?),
         ..Default::default()
     };
 
@@ -70,18 +65,10 @@ pub async fn test_example(path: &Path, instruction_name: &str, reps: u16) -> Res
 
     // Create output file
     let mut file = File::create(path.join(format!("{instruction_name}.md")))?;
-    for (index, (output, details)) in results.iter().enumerate() {
-        // Write details as YAML header for the first rep, otherwise a separator for other reps
-        file.write_all(
-            if index == 0 {
-                format!("---\n{}\n---\n\n", serde_yaml::to_string(details)?)
-            } else {
-                "\n\n---\n\n".to_string()
-            }
-            .as_bytes(),
-        )?;
-
-        // Write the output as Markdown
+    for (index, output) in results.iter().enumerate() {
+        if index > 0 {
+            file.write_all("\n\n---\n\n".as_bytes())?;
+        }
         file.write_all(output.display().as_bytes())?;
     }
 

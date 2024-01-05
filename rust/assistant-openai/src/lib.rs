@@ -18,7 +18,7 @@ use assistant::{
         itertools::Itertools,
         tracing,
     },
-    Assistant, AssistantIO, GenerateDetails, GenerateOptions, GenerateOutput, GenerateTask,
+    Assistant, AssistantIO, GenerateOptions, GenerateOutput, GenerateTask,
 };
 
 /// An assistant running on OpenAI
@@ -114,7 +114,7 @@ impl Assistant for OpenAIAssistant {
         &self,
         task: GenerateTask,
         options: &GenerateOptions,
-    ) -> Result<(GenerateOutput, GenerateDetails)> {
+    ) -> Result<GenerateOutput> {
         use AssistantIO::*;
         match (task.input, task.output) {
             (Text, Text) => self.chat_completion(task, options).await,
@@ -135,7 +135,7 @@ impl OpenAIAssistant {
         &self,
         task: GenerateTask,
         options: &GenerateOptions,
-    ) -> Result<(GenerateOutput, GenerateDetails)> {
+    ) -> Result<GenerateOutput> {
         tracing::debug!("Sending chat completion request");
 
         let client = Client::new();
@@ -225,18 +225,8 @@ impl OpenAIAssistant {
             .pop()
             .and_then(|choice| choice.message.content)
             .unwrap_or_default();
-        let output = GenerateOutput::new_text(text);
 
-        // Create details of the generation
-        let details = GenerateDetails {
-            assistants: vec![self.id()],
-            task,
-            options: options.clone(),
-            fingerprint: response.system_fingerprint,
-            ..Default::default()
-        };
-
-        Ok((output, details))
+        GenerateOutput::from_text(text).await
     }
 
     #[tracing::instrument(skip(self))]
@@ -244,7 +234,7 @@ impl OpenAIAssistant {
         &self,
         task: GenerateTask,
         options: &GenerateOptions,
-    ) -> Result<(GenerateOutput, GenerateDetails)> {
+    ) -> Result<GenerateOutput> {
         tracing::debug!("Sending create image request");
 
         let client = Client::new();
@@ -341,20 +331,11 @@ impl OpenAIAssistant {
             bail!("Response data is unexpectedly empty")
         }
         let image = response.data.remove(0);
-        let output = match image.as_ref() {
-            Image::Url { url, .. } => GenerateOutput::new_url("image/png", url.to_string()),
+
+        match image.as_ref() {
+            Image::Url { url, .. } => GenerateOutput::from_url("image/png", url.to_string()).await,
             _ => bail!("Unexpected image type"),
-        };
-
-        // Create details of the generation
-        let details = GenerateDetails {
-            assistants: vec![self.id()],
-            task,
-            options: options.clone(),
-            ..Default::default()
-        };
-
-        Ok((output, details))
+        }
     }
 }
 

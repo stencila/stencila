@@ -464,62 +464,32 @@ pub struct GenerateOutput {
     pub nodes: Option<Nodes>,
 }
 
-/// Generated nodes
-///
-/// This enum allows us to differentiate between different types of
-/// generated nodes associated with different types of instructions
-/// (block or inline)
-#[derive(Serialize)]
-#[serde(untagged, crate = "common::serde")]
-pub enum Nodes {
-    Blocks(Vec<Block>),
-    Inlines(Vec<Inline>),
-}
-
-impl Nodes {
-    /// Move nodes into blocks
-    pub fn into_blocks(self) -> Vec<Block> {
-        match self {
-            Nodes::Blocks(blocks) => blocks,
-            Nodes::Inlines(inlines) => inlines_to_blocks(inlines),
-        }
-    }
-
-    /// Move nodes into inlines
-    pub fn into_inlines(self) -> Vec<Inline> {
-        match self {
-            Nodes::Blocks(blocks) => blocks_to_inlines(blocks),
-            Nodes::Inlines(inlines) => inlines,
-        }
-    }
-}
-
 impl GenerateOutput {
-    /// Create a text output of unknown format
-    pub fn new_text(text: String) -> Self {
-        Self {
+    /// Create a `GenerateOutput` from text
+    pub async fn from_text(text: String) -> Result<Self> {
+        Ok(Self {
             content: GenerateContent::Text(text),
             format: Format::Unknown,
             nodes: None,
-        }
+        })
     }
 
-    /// Create a URL output of a specific node type
-    pub fn new_url(media_type: &str, url: String) -> Self {
-        Self {
+    /// Create a `GenerateOutput` from a URL with a specific media type
+    pub async fn from_url(media_type: &str, url: String) -> Result<Self> {
+        Ok(Self {
             content: GenerateContent::Url(url),
             format: Format::from_media_type(media_type).unwrap_or(Format::Unknown),
             nodes: None,
-        }
+        })
     }
 
-    /// Create a Base64 encoded output of a specific media type
-    pub fn new_base64(media_type: &str, data: String) -> Self {
-        Self {
+    /// Create a `GenerateOutput` from Base64 encoded data of a specific media type
+    pub async fn from_base64(media_type: &str, data: String) -> Result<Self> {
+        Ok(Self {
             content: GenerateContent::Base64(data),
             format: Format::from_media_type(media_type).unwrap_or(Format::Unknown),
             nodes: None,
-        }
+        })
     }
 
     /// Display the generated output as Markdown
@@ -574,28 +544,34 @@ pub enum GenerateContent {
     Base64(String),
 }
 
-/// Details returned along with generated output
-#[derive(Debug, Default, Serialize)]
-#[serde(crate = "common::serde")]
-pub struct GenerateDetails {
-    /// A list of the assistants used to generate the output
-    pub assistants: Vec<String>,
+/// Generated nodes
+///
+/// This enum allows us to differentiate between different types of
+/// generated nodes associated with different types of instructions
+/// (block or inline)
+#[derive(Serialize)]
+#[serde(untagged, crate = "common::serde")]
+pub enum Nodes {
+    Blocks(Vec<Block>),
+    Inlines(Vec<Inline>),
+}
 
-    /// The number of retries required to generate valid output
-    pub retries: u32,
+impl Nodes {
+    /// Move nodes into blocks
+    pub fn into_blocks(self) -> Vec<Block> {
+        match self {
+            Nodes::Blocks(blocks) => blocks,
+            Nodes::Inlines(inlines) => inlines_to_blocks(inlines),
+        }
+    }
 
-    /// The model (a.k.a system) fingerprint at the time of generation
-    /// for the last assistant in the chain
-    pub fingerprint: Option<String>,
-
-    /// The options used for the generation
-    pub options: GenerateOptions,
-
-    /// The task for the generation
-    ///
-    /// This may differ from the original task (e.g. optional fields
-    /// populated by rendering prompt templates)
-    pub task: GenerateTask,
+    /// Move nodes into inlines
+    pub fn into_inlines(self) -> Vec<Inline> {
+        match self {
+            Nodes::Blocks(blocks) => blocks_to_inlines(blocks),
+            Nodes::Inlines(inlines) => inlines,
+        }
+    }
 }
 
 /// The type of input or output an assistant can consume or generate
@@ -746,5 +722,5 @@ pub trait Assistant: Sync + Send {
         &self,
         task: GenerateTask,
         options: &GenerateOptions,
-    ) -> Result<(GenerateOutput, GenerateDetails)>;
+    ) -> Result<GenerateOutput>;
 }

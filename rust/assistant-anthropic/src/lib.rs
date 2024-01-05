@@ -6,7 +6,7 @@ use anthropic::{
 
 use assistant::{
     common::{async_trait::async_trait, eyre::Result, tracing},
-    Assistant, AssistantIO, GenerateDetails, GenerateOptions, GenerateOutput, GenerateTask,
+    Assistant, AssistantIO, GenerateOptions, GenerateOutput, GenerateTask,
 };
 
 /// An assistant running on Anthropic
@@ -52,7 +52,7 @@ impl Assistant for AnthropicAssistant {
         &self,
         task: GenerateTask,
         options: &GenerateOptions,
-    ) -> Result<(GenerateOutput, GenerateDetails)> {
+    ) -> Result<GenerateOutput> {
         let cfg = AnthropicConfig::new()?;
         let client = Client::try_from(cfg)?;
 
@@ -83,16 +83,8 @@ impl Assistant for AnthropicAssistant {
             .completion
             .trim_start()
             .to_string();
-        let output = GenerateOutput::new_text(text);
 
-        let details = GenerateDetails {
-            task,
-            options: options.clone(),
-            assistants: vec![self.id()],
-            ..Default::default()
-        };
-
-        Ok((output, details))
+        GenerateOutput::from_text(text).await
     }
 }
 

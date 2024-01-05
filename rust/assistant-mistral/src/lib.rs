@@ -12,7 +12,7 @@ use assistant::{
         serde_with::skip_serializing_none,
         tracing,
     },
-    Assistant, AssistantIO, GenerateDetails, GenerateOptions, GenerateOutput, GenerateTask,
+    Assistant, AssistantIO, GenerateOptions, GenerateOutput, GenerateTask,
 };
 
 const BASE_URL: &str = "https://api.mistral.ai/v1";
@@ -63,7 +63,7 @@ impl Assistant for MistralAssistant {
         &self,
         task: GenerateTask,
         options: &GenerateOptions,
-    ) -> Result<(GenerateOutput, GenerateDetails)> {
+    ) -> Result<GenerateOutput> {
         let mut messages = vec![];
 
         if let Some(system_prompt) = task.system_prompt() {
@@ -102,16 +102,8 @@ impl Assistant for MistralAssistant {
         let mut response: ChatCompletionResponse = response.json().await?;
 
         let text = response.choices.swap_remove(0).message.content;
-        let output = GenerateOutput::new_text(text);
 
-        let details = GenerateDetails {
-            task,
-            options: options.clone(),
-            assistants: vec![self.id()],
-            ..Default::default()
-        };
-
-        Ok((output, details))
+        GenerateOutput::from_text(text).await
     }
 }
 

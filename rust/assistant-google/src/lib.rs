@@ -12,7 +12,7 @@ use assistant::{
         serde_with::skip_serializing_none,
         tracing,
     },
-    Assistant, AssistantIO, GenerateDetails, GenerateOptions, GenerateOutput, GenerateTask,
+    Assistant, AssistantIO, GenerateOptions, GenerateOutput, GenerateTask,
 };
 
 const BASE_URL: &str = "https://generativelanguage.googleapis.com/v1";
@@ -67,7 +67,7 @@ impl Assistant for GoogleAssistant {
         &self,
         task: GenerateTask,
         options: &GenerateOptions,
-    ) -> Result<(GenerateOutput, GenerateDetails)> {
+    ) -> Result<GenerateOutput> {
         let mut contents = vec![];
 
         // Concatenate system and user prompt because there is not
@@ -119,25 +119,17 @@ impl Assistant for GoogleAssistant {
             .content
             .parts
             .swap_remove(0);
-        let output = match content {
+
+        match content {
             Part {
                 text: Some(text), ..
-            } => GenerateOutput::new_text(text),
+            } => GenerateOutput::from_text(text).await,
             Part {
                 image_data: Some(Blob { mime_type, data }),
                 ..
-            } => GenerateOutput::new_base64(&mime_type, data),
-            _ => unreachable!(),
-        };
-
-        let details = GenerateDetails {
-            task,
-            options: options.clone(),
-            assistants: vec![self.id()],
-            ..Default::default()
-        };
-
-        Ok((output, details))
+            } => GenerateOutput::from_base64(&mime_type, data).await,
+            _ => bail!("Unexpected response content part"),
+        }
     }
 }
 

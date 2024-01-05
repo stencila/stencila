@@ -30,8 +30,8 @@ use assistant::{
         transforms::{blocks_to_inlines, transform_block, transform_inline},
         Article, AudioObject, Block, ImageObject, Inline, Link, Node, NodeType, VideoObject,
     },
-    Assistant, AssistantIO, GenerateContent, GenerateDetails, GenerateOptions, GenerateOutput,
-    GenerateTask, InstructionType, Nodes,
+    Assistant, AssistantIO, GenerateContent, GenerateOptions, GenerateOutput, GenerateTask,
+    InstructionType, Nodes,
 };
 use codec_text_trait::TextCodec;
 use codecs::{DecodeOptions, EncodeOptions, Format, LossesResponse};
@@ -599,13 +599,6 @@ impl CustomAssistant {
         Ok(output)
     }
 
-    /// Update a `GenerateDetails` to indicate this assistant was the first in the delegation chain
-    fn update_details(&self, mut details: GenerateDetails, retries: u8) -> GenerateDetails {
-        details.assistants.insert(0, self.id());
-        details.retries = retries as u32;
-        details
-    }
-
     /// Get the first assistant in the list of delegates capable to performing task
     #[tracing::instrument(skip_all)]
     async fn first_available_delegate(&self, task: &GenerateTask) -> Result<Arc<dyn Assistant>> {
@@ -737,28 +730,20 @@ impl Assistant for CustomAssistant {
         &self,
         task: GenerateTask,
         options: &GenerateOptions,
-    ) -> Result<(GenerateOutput, GenerateDetails)> {
+    ) -> Result<GenerateOutput> {
         let options = self.merge_options(options);
         let task = self.merge_task(task);
 
-        let (output, details) = if self.delegates.is_empty() {
+        let output = if self.delegates.is_empty() {
             // No delegates, so simply render the template into an output
 
             // Update the task, to render template, before performing it (without delegate)
             let task = self.prepare_task(task, None).await?;
 
-            let output = GenerateOutput::new_text(task.user_prompt().to_string());
-            let details = GenerateDetails {
-                options: options.clone(),
-                task: task.clone(),
-                ..Default::default()
-            };
-
-            // Update output & details
+            let output = GenerateOutput::from_text(task.user_prompt().to_string()).await?;
             let output = self.update_output(None, output).await?;
-            let details = self.update_details(details, 0);
 
-            (output, details)
+            output
         } else {
             // Get the first available assistant to delegate to
             let delegate = self.first_available_delegate(&task).await?;
@@ -770,11 +755,10 @@ impl Assistant for CustomAssistant {
             let max_retries = self.max_retries.unwrap_or(MAX_RETRIES);
             let mut results = None;
             for retry in 0..=max_retries {
-                let result: Result<(GenerateOutput, GenerateDetails)> = {
-                    let (output, details) = delegate.perform_task(task.clone(), &options).await?;
+                let result: Result<GenerateOutput> = {
+                    let output = delegate.perform_task(task.clone(), &options).await?;
                     let output = self.update_output(Some(delegate.as_ref()), output).await?;
-                    let details = self.update_details(details, retry);
-                    Ok((output, details))
+                    Ok(output)
                 };
                 match result {
                     Ok(result) => {
@@ -797,7 +781,7 @@ impl Assistant for CustomAssistant {
 
         // TODO: walk over nodes and perform any new instructions
 
-        Ok((output, details))
+        Ok(output)
     }
 }
 

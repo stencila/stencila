@@ -12,7 +12,7 @@ use assistant::{
         inflector::Inflector,
         tracing,
     },
-    Assistant, AssistantIO, GenerateDetails, GenerateOptions, GenerateOutput, GenerateTask,
+    Assistant, AssistantIO, GenerateOptions, GenerateOutput, GenerateTask,
 };
 
 /// An assistant running on a Ollama (https://github.com/jmorganca/ollama/) server
@@ -113,7 +113,7 @@ impl Assistant for OllamaAssistant {
         &self,
         task: GenerateTask,
         options: &GenerateOptions,
-    ) -> Result<(GenerateOutput, GenerateDetails)> {
+    ) -> Result<GenerateOutput> {
         let mut request =
             GenerationRequest::new(self.model.clone(), task.user_prompt().to_string());
 
@@ -173,17 +173,10 @@ impl Assistant for OllamaAssistant {
             .generate(request)
             .await
             .map_err(|error| eyre!(error))?;
+
         let text = response.response;
-        let output = GenerateOutput::new_text(text);
 
-        let details = GenerateDetails {
-            task,
-            options: options.clone(),
-            assistants: vec![self.id()],
-            ..Default::default()
-        };
-
-        Ok((output, details))
+        GenerateOutput::from_text(text).await
     }
 }
 

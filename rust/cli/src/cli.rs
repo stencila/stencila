@@ -676,18 +676,12 @@ impl Cli {
                                 };
 
                                 // Execute the task
-                                let (output, details) = assistants::perform_instruction(
+                                let output = assistants::perform_instruction(
                                     instruction,
                                     document,
                                     &options_parser.options,
                                 )
                                 .await?;
-
-                                // Display generation details
-                                let yaml = serde_yaml::to_string(&details)?;
-                                display::highlighted(&yaml, Format::Yaml)?;
-
-                                println!("---");
 
                                 let output = output.display();
 
@@ -705,8 +699,7 @@ impl Cli {
                                     );
                                     let answer = reader.readline(&question)?;
                                     if answer == "y" || answer.is_empty() {
-                                        assistants::testing::insert_trial(line, &output, details)
-                                            .await?
+                                        assistants::testing::insert_trial(line, &output).await?
                                     }
                                 }
                             }
