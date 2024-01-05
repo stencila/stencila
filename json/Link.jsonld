@@ -104,7 +104,7 @@
       }
     },
     {
-      "@id": "stencila:target",
+      "@id": "schema:target",
       "@type": "rdfs:Property",
       "rdfs:label": "target",
       "rdfs:comment": "The target of the link.",

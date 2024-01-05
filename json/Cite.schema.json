@@ -37,7 +37,7 @@
       "type": "string"
     },
     "target": {
-      "@id": "stencila:target",
+      "@id": "schema:target",
       "description": "The target of the citation (URL or reference ID).",
       "type": "string"
     },

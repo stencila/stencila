@@ -75,7 +75,7 @@
       }
     },
     "target": {
-      "@id": "stencila:target",
+      "@id": "schema:target",
       "description": "The target of the link.",
       "$comment": "Note that this is equivalent to the `href` attribute on a HTML `<a>` element,\nnot the `target` attribute (which is used to defined where to display the linked content,\ne.g. in a new browser window).\n",
       "html": {

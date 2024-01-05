@@ -38,7 +38,7 @@ properties:
         description: Generate up to four arbitrary, non-recursive, inline nodes
         strategy: vec_inlines_non_recursive(4)
   target:
-    '@id': stencila:target
+    '@id': schema:target
     description: The target of the link.
     $comment: |
       Note that this is equivalent to the `href` attribute on a HTML `<a>` element,

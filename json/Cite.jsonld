@@ -18,7 +18,7 @@
       }
     },
     {
-      "@id": "stencila:target",
+      "@id": "schema:target",
       "@type": "rdfs:Property",
       "rdfs:label": "target",
       "rdfs:comment": "The target of the citation (URL or reference ID).",
