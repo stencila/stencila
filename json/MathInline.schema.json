@@ -25,10 +25,7 @@
   ],
   "core": [
     "id",
-    "mathLanguage",
-    "compilationDigest",
-    "compilationErrors",
-    "mathml"
+    "mathLanguage"
   ],
   "properties": {
     "type": {

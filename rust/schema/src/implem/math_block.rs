@@ -13,6 +13,7 @@ impl MathBlock {
             .unwrap_or_default();
 
         let mathml = self
+            .options
             .mathml
             .as_ref()
             .map(|mathml| elem_no_attrs("mml:math", mathml))
@@ -25,7 +26,12 @@ impl MathBlock {
 
         let jats = elem("disp-formula", attrs, [label, mathml].concat());
 
-        let losses = lost_options!(self, id, compilation_digest, compilation_errors);
+        let mut losses = lost_options!(self, id);
+        losses.merge(lost_options!(
+            self.options,
+            compilation_digest,
+            compilation_errors
+        ));
 
         (jats, losses)
     }
@@ -48,14 +54,13 @@ impl MathBlock {
             ["```", &lang, "\n", &code, "```\n\n"].concat()
         };
 
-        let losses = lost_options!(
-            self,
-            id,
+        let mut losses = lost_options!(self, id, label);
+        losses.merge(lost_options!(
+            self.options,
             compilation_digest,
             compilation_errors,
-            mathml,
-            label
-        );
+            mathml
+        ));
 
         (md, losses)
     }

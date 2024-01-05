@@ -4,14 +4,14 @@ use crate::{prelude::*, StyledBlock};
 
 impl StyledBlock {
     pub fn to_markdown_special(&self, context: &mut MarkdownEncodeContext) -> (String, Losses) {
-        let mut losses = lost_options!(
-            self,
-            id,
+        let mut losses = lost_options!(self, id);
+        losses.merge(lost_options!(
+            self.options,
             compilation_digest,
             compilation_errors,
             css,
             classes
-        );
+        ));
 
         let fence = ":".repeat(3 + context.depth * 2);
 

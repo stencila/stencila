@@ -46,6 +46,24 @@ pub struct MathBlock {
     #[cfg_attr(feature = "proptest-max", proptest(strategy = r#"option::of(String::arbitrary())"#))]
     pub math_language: Option<String>,
 
+    /// A short label for the math block.
+    #[cfg_attr(feature = "proptest", proptest(value = "None"))]
+    pub label: Option<String>,
+
+    /// Non-core optional fields
+    #[serde(flatten)]
+    #[html(flatten)]
+    #[jats(flatten)]
+    #[markdown(flatten)]
+    pub options: Box<MathBlockOptions>,
+}
+
+#[skip_serializing_none]
+#[serde_as]
+#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, WalkNode, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec, WriteNode, ReadNode)]
+#[serde(rename_all = "camelCase", crate = "common::serde")]
+#[cfg_attr(feature = "proptest", derive(Arbitrary))]
+pub struct MathBlockOptions {
     /// A digest of the `code` and `mathLanguage`.
     #[serde(alias = "compilation-digest", alias = "compilation_digest")]
     #[strip(execution)]
@@ -64,10 +82,6 @@ pub struct MathBlock {
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     #[html(content)]
     pub mathml: Option<String>,
-
-    /// A short label for the math block.
-    #[cfg_attr(feature = "proptest", proptest(value = "None"))]
-    pub label: Option<String>,
 }
 
 impl MathBlock {

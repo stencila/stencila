@@ -47,6 +47,29 @@ pub struct StyledInline {
     #[jats(attr = "style-detail")]
     pub style_language: Option<String>,
 
+    /// The content within the span.
+    #[serde(deserialize_with = "one_or_many")]
+    #[walk]
+    #[cfg_attr(feature = "proptest-min", proptest(value = r#"vec![t("text")]"#))]
+    #[cfg_attr(feature = "proptest-low", proptest(value = r#"vec![t("text")]"#))]
+    #[cfg_attr(feature = "proptest-high", proptest(strategy = r#"vec_inlines_non_recursive(2)"#))]
+    #[cfg_attr(feature = "proptest-max", proptest(strategy = r#"vec_inlines_non_recursive(4)"#))]
+    pub content: Vec<Inline>,
+
+    /// Non-core optional fields
+    #[serde(flatten)]
+    #[html(flatten)]
+    #[jats(flatten)]
+    #[markdown(flatten)]
+    pub options: Box<StyledInlineOptions>,
+}
+
+#[skip_serializing_none]
+#[serde_as]
+#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, WalkNode, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec, WriteNode, ReadNode)]
+#[serde(rename_all = "camelCase", crate = "common::serde")]
+#[cfg_attr(feature = "proptest", derive(Arbitrary))]
+pub struct StyledInlineOptions {
     /// A digest of the `code` and `styleLanguage`.
     #[serde(alias = "compilation-digest", alias = "compilation_digest")]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
@@ -67,15 +90,6 @@ pub struct StyledInline {
     #[serde(default, deserialize_with = "option_one_or_many")]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     pub classes: Option<Vec<String>>,
-
-    /// The content within the span.
-    #[serde(deserialize_with = "one_or_many")]
-    #[walk]
-    #[cfg_attr(feature = "proptest-min", proptest(value = r#"vec![t("text")]"#))]
-    #[cfg_attr(feature = "proptest-low", proptest(value = r#"vec![t("text")]"#))]
-    #[cfg_attr(feature = "proptest-high", proptest(strategy = r#"vec_inlines_non_recursive(2)"#))]
-    #[cfg_attr(feature = "proptest-max", proptest(strategy = r#"vec_inlines_non_recursive(4)"#))]
-    pub content: Vec<Inline>,
 }
 
 impl StyledInline {

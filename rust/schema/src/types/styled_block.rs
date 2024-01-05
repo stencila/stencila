@@ -46,6 +46,26 @@ pub struct StyledBlock {
     #[jats(attr = "style-detail")]
     pub style_language: Option<String>,
 
+    /// The content within the styled block
+    #[serde(deserialize_with = "one_or_many")]
+    #[walk]
+    #[cfg_attr(feature = "proptest", proptest(value = "Default::default()"))]
+    pub content: Vec<Block>,
+
+    /// Non-core optional fields
+    #[serde(flatten)]
+    #[html(flatten)]
+    #[jats(flatten)]
+    #[markdown(flatten)]
+    pub options: Box<StyledBlockOptions>,
+}
+
+#[skip_serializing_none]
+#[serde_as]
+#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, WalkNode, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec, WriteNode, ReadNode)]
+#[serde(rename_all = "camelCase", crate = "common::serde")]
+#[cfg_attr(feature = "proptest", derive(Arbitrary))]
+pub struct StyledBlockOptions {
     /// A digest of the `code` and `styleLanguage`.
     #[serde(alias = "compilation-digest", alias = "compilation_digest")]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
@@ -66,12 +86,6 @@ pub struct StyledBlock {
     #[serde(default, deserialize_with = "option_one_or_many")]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     pub classes: Option<Vec<String>>,
-
-    /// The content within the styled block
-    #[serde(deserialize_with = "one_or_many")]
-    #[walk]
-    #[cfg_attr(feature = "proptest", proptest(value = "Default::default()"))]
-    pub content: Vec<Block>,
 }
 
 impl StyledBlock {

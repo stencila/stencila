@@ -14,10 +14,6 @@ required:
   - code
 core:
   - styleLanguage
-  - compilationDigest
-  - compilationErrors
-  - css
-  - classes
 properties:
   code:
     '@id': stencila:code

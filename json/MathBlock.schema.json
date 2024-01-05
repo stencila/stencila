@@ -26,9 +26,6 @@
   "core": [
     "id",
     "mathLanguage",
-    "compilationDigest",
-    "compilationErrors",
-    "mathml",
     "label"
   ],
   "properties": {

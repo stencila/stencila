@@ -7,6 +7,7 @@ impl MathInline {
         use codec_jats_trait::encode::{elem, elem_no_attrs};
 
         let mathml = self
+            .options
             .mathml
             .as_ref()
             .map(|mathml| elem_no_attrs("mml:math", mathml))
@@ -19,7 +20,12 @@ impl MathInline {
 
         let jats = elem("inline-formula", attrs, mathml);
 
-        let losses = lost_options!(self, id, compilation_digest, compilation_errors);
+        let mut losses = lost_options!(self, id);
+        losses.merge(lost_options!(
+            self.options,
+            compilation_digest,
+            compilation_errors
+        ));
 
         (jats, losses)
     }
@@ -37,7 +43,13 @@ impl MathInline {
             ["`", &self.code.replace('`', r"\`"), "`{", &lang, "}"].concat()
         };
 
-        let losses = lost_options!(self, id, compilation_digest, compilation_errors, mathml);
+        let mut losses = lost_options!(self, id);
+        losses.merge(lost_options!(
+            self.options,
+            compilation_digest,
+            compilation_errors,
+            mathml
+        ));
 
         (md, losses)
     }

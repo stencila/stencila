@@ -17,11 +17,7 @@
   ],
   "core": [
     "id",
-    "styleLanguage",
-    "compilationDigest",
-    "compilationErrors",
-    "css",
-    "classes"
+    "styleLanguage"
   ],
   "properties": {
     "type": {

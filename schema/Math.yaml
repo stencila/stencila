@@ -13,9 +13,6 @@ required:
   - code
 core:
   - mathLanguage
-  - compilationDigest
-  - compilationErrors
-  - mathml
 properties:
   code:
     '@id': stencila:code
