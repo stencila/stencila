@@ -578,13 +578,13 @@ files = [
 
 [[package]]
 name = "packageurl-python"
-version = "0.13.1"
+version = "0.13.2"
 description = "A purl aka. Package URL parser and builder"
 optional = false
 python-versions = ">=3.7"
 files = [
-    {file = "packageurl-python-0.13.1.tar.gz", hash = "sha256:84f8053f4b85294b98b3b78715475847fb48f4525ec302d06dc35b26a9b3078a"},
-    {file = "packageurl_python-0.13.1-py3-none-any.whl", hash = "sha256:d35090c7ec1d7afc611679912151b2157f28f68e729b6fa56f8ea5422819eaed"},
+    {file = "packageurl-python-0.13.2.tar.gz", hash = "sha256:af4af4732e3265b6acafad97b03db1bf9740b196011dd23d41e565fbdd58244c"},
+    {file = "packageurl_python-0.13.2-py3-none-any.whl", hash = "sha256:c2d8f5d584486e82d1b9677cb0efc4e01e25c30a6edef1d71f74828c01b13e9a"},
 ]
 
 [package.extras]
@@ -773,13 +773,13 @@ diagrams = ["jinja2", "railroad-diagrams"]
 
 [[package]]
 name = "pytest"
-version = "7.4.3"
+version = "7.4.4"
 description = "pytest: simple powerful testing with Python"
 optional = false
 python-versions = ">=3.7"
 files = [
-    {file = "pytest-7.4.3-py3-none-any.whl", hash = "sha256:0d009c083ea859a71b76adf7c1d502e4bc170b80a8ef002da5806527b9591fac"},
-    {file = "pytest-7.4.3.tar.gz", hash = "sha256:d989d136982de4e3b29dabcc838ad581c64e8ed52c11fbe86ddebd9da0818cd5"},
+    {file = "pytest-7.4.4-py3-none-any.whl", hash = "sha256:b090cdf5ed60bf4c45261be03239c2c1c22df034fbffe691abe93cd80cea01d8"},
+    {file = "pytest-7.4.4.tar.gz", hash = "sha256:2cf0005922c6ace4a3e2ec8b4080eb0d9753fdc93107415332f50ce9e7994280"},
 ]
 
 [package.dependencies]
@@ -795,13 +795,13 @@ testing = ["argcomplete", "attrs (>=19.2.0)", "hypothesis (>=3.56)", "mock", "no
 
 [[package]]
 name = "pytest-asyncio"
-version = "0.23.2"
+version = "0.23.3"
 description = "Pytest support for asyncio"
 optional = false
 python-versions = ">=3.8"
 files = [
-    {file = "pytest-asyncio-0.23.2.tar.gz", hash = "sha256:c16052382554c7b22d48782ab3438d5b10f8cf7a4bdcae7f0f67f097d95beecc"},
-    {file = "pytest_asyncio-0.23.2-py3-none-any.whl", hash = "sha256:ea9021364e32d58f0be43b91c6233fb8d2224ccef2398d6837559e587682808f"},
+    {file = "pytest-asyncio-0.23.3.tar.gz", hash = "sha256:af313ce900a62fbe2b1aed18e37ad757f1ef9940c6b6a88e2954de38d6b1fb9f"},
+    {file = "pytest_asyncio-0.23.3-py3-none-any.whl", hash = "sha256:37a9d912e8338ee7b4a3e917381d1c95bfc8682048cb0fbc35baba316ec1faba"},
 ]
 
 [package.dependencies]
@@ -987,4 +987,4 @@ files = [
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.8"
-content-hash = "f27de37943c8bac6489f86d89ffaa0e7427fd8cda79124bf61656438ee602dcc"
+content-hash = "57b7d5adc4ace68af59288ee215d7c3dd24222e8e02001268958c4b156dfec3a"
