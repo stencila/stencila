@@ -4,6 +4,7 @@ from .prelude import *
 
 from .cord import Cord
 from .entity import Entity
+from .person_or_organization_or_software_application import PersonOrOrganizationOrSoftwareApplication
 
 
 @dataclass(init=False)
@@ -20,7 +21,11 @@ class CodeStatic(Entity):
     programming_language: Optional[str] = None
     """The programming language of the code."""
 
-    def __init__(self, code: Cord, id: Optional[str] = None, programming_language: Optional[str] = None):
+    authors: Optional[List[PersonOrOrganizationOrSoftwareApplication]] = None
+    """The authors of the code."""
+
+    def __init__(self, code: Cord, id: Optional[str] = None, programming_language: Optional[str] = None, authors: Optional[List[PersonOrOrganizationOrSoftwareApplication]] = None):
         super().__init__(id = id)
         self.code = code
         self.programming_language = programming_language
+        self.authors = authors

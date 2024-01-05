@@ -3,6 +3,7 @@
 import { Block } from "./Block.js";
 import { CiteOrText } from "./CiteOrText.js";
 import { Entity } from "./Entity.js";
+import { PersonOrOrganizationOrSoftwareApplication } from "./PersonOrOrganizationOrSoftwareApplication.js";
 
 /**
  * A section quoted from somewhere else.
@@ -19,6 +20,11 @@ export class QuoteBlock extends Entity {
    * The content of the quote.
    */
   content: Block[];
+
+  /**
+   * The authors of the quote.
+   */
+  authors?: PersonOrOrganizationOrSoftwareApplication[];
 
   constructor(content: Block[], options?: Partial<QuoteBlock>) {
     super();

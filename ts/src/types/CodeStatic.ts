@@ -2,6 +2,7 @@
 
 import { Cord } from "./Cord.js";
 import { Entity } from "./Entity.js";
+import { PersonOrOrganizationOrSoftwareApplication } from "./PersonOrOrganizationOrSoftwareApplication.js";
 
 /**
  * Abstract base type for non-executable code nodes (e.g. `CodeBlock`).
@@ -18,6 +19,11 @@ export class CodeStatic extends Entity {
    * The programming language of the code.
    */
   programmingLanguage?: string;
+
+  /**
+   * The authors of the code.
+   */
+  authors?: PersonOrOrganizationOrSoftwareApplication[];
 
   constructor(code: Cord, options?: Partial<CodeStatic>) {
     super();

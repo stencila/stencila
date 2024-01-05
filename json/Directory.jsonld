@@ -140,15 +140,53 @@
       "@type": "rdfs:Property",
       "rdfs:label": "authors",
       "rdfs:comment": "The authors of the `CreativeWork`.",
-      "schema:domainIncludes": {
-        "@id": "schema:CreativeWork"
-      },
+      "schema:domainIncludes": [
+        {
+          "@id": "schema:Claim"
+        },
+        {
+          "@id": "schema:CreativeWork"
+        },
+        {
+          "@id": "schema:ItemList"
+        },
+        {
+          "@id": "stencila:Admonition"
+        },
+        {
+          "@id": "stencila:CodeExecutable"
+        },
+        {
+          "@id": "stencila:CodeStatic"
+        },
+        {
+          "@id": "stencila:Heading"
+        },
+        {
+          "@id": "stencila:IfBlock"
+        },
+        {
+          "@id": "stencila:Math"
+        },
+        {
+          "@id": "stencila:Paragraph"
+        },
+        {
+          "@id": "stencila:QuoteBlock"
+        },
+        {
+          "@id": "stencila:Styled"
+        }
+      ],
       "schema:rangeIncludes": [
         {
           "@id": "schema:Person"
         },
         {
           "@id": "schema:Organization"
+        },
+        {
+          "@id": "schema:SoftwareApplication"
         }
       ]
     },

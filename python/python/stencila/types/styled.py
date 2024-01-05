@@ -6,6 +6,7 @@ from .compilation_digest import CompilationDigest
 from .compilation_error import CompilationError
 from .cord import Cord
 from .entity import Entity
+from .person_or_organization_or_software_application import PersonOrOrganizationOrSoftwareApplication
 
 
 @dataclass(init=False)
@@ -22,6 +23,9 @@ class Styled(Entity):
     style_language: Optional[str] = None
     """The language used for the style specification e.g. css, tw"""
 
+    authors: Optional[List[PersonOrOrganizationOrSoftwareApplication]] = None
+    """The authors of the styling code."""
+
     compilation_digest: Optional[CompilationDigest] = None
     """A digest of the `code` and `styleLanguage`."""
 
@@ -34,10 +38,11 @@ class Styled(Entity):
     classes: Optional[List[str]] = None
     """A list of class names associated with the node."""
 
-    def __init__(self, code: Cord, id: Optional[str] = None, style_language: Optional[str] = None, compilation_digest: Optional[CompilationDigest] = None, compilation_errors: Optional[List[CompilationError]] = None, css: Optional[str] = None, classes: Optional[List[str]] = None):
+    def __init__(self, code: Cord, id: Optional[str] = None, style_language: Optional[str] = None, authors: Optional[List[PersonOrOrganizationOrSoftwareApplication]] = None, compilation_digest: Optional[CompilationDigest] = None, compilation_errors: Optional[List[CompilationError]] = None, css: Optional[str] = None, classes: Optional[List[str]] = None):
         super().__init__(id = id)
         self.code = code
         self.style_language = style_language
+        self.authors = authors
         self.compilation_digest = compilation_digest
         self.compilation_errors = compilation_errors
         self.css = css

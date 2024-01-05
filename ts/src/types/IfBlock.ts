@@ -2,6 +2,7 @@
 
 import { Executable } from "./Executable.js";
 import { IfBlockClause } from "./IfBlockClause.js";
+import { PersonOrOrganizationOrSoftwareApplication } from "./PersonOrOrganizationOrSoftwareApplication.js";
 
 /**
  * Show and execute alternative content conditional upon an executed expression.
@@ -13,6 +14,11 @@ export class IfBlock extends Executable {
    * The clauses making up the `IfBlock` node
    */
   clauses: IfBlockClause[];
+
+  /**
+   * The authors of the if block.
+   */
+  authors?: PersonOrOrganizationOrSoftwareApplication[];
 
   constructor(clauses: IfBlockClause[], options?: Partial<IfBlock>) {
     super();

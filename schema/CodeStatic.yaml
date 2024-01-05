@@ -56,4 +56,15 @@ properties:
       max:
         description: Generate an arbitrary string.
         strategy: option::of(String::arbitrary())
-
+  authors:
+    '@id': schema:author
+    description: The authors of the code.
+    type: array
+    items:
+      anyOf:
+        - $ref: Person
+        - $ref: Organization
+        - $ref: SoftwareApplication
+    strip: [metadata]
+    serde:
+      deserializeWith: option_one_or_many_string_or_object

@@ -5,6 +5,7 @@ use crate::prelude::*;
 use super::compilation_digest::CompilationDigest;
 use super::compilation_error::CompilationError;
 use super::cord::Cord;
+use super::person_or_organization_or_software_application::PersonOrOrganizationOrSoftwareApplication;
 use super::string::String;
 
 /// A fragment of math, e.g a variable name, to be treated as inline content.
@@ -60,6 +61,13 @@ pub struct MathInline {
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 #[cfg_attr(feature = "proptest", derive(Arbitrary))]
 pub struct MathInlineOptions {
+    /// The authors of the math.
+    #[serde(alias = "author")]
+    #[serde(default, deserialize_with = "option_one_or_many_string_or_object")]
+    #[strip(metadata)]
+    #[cfg_attr(feature = "proptest", proptest(value = "None"))]
+    pub authors: Option<Vec<PersonOrOrganizationOrSoftwareApplication>>,
+
     /// A digest of the `code` and `mathLanguage`.
     #[serde(alias = "compilation-digest", alias = "compilation_digest")]
     #[strip(execution)]

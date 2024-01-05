@@ -2,6 +2,7 @@
 
 import { Entity } from "./Entity.js";
 import { Inline } from "./Inline.js";
+import { PersonOrOrganizationOrSoftwareApplication } from "./PersonOrOrganizationOrSoftwareApplication.js";
 
 /**
  * A paragraph.
@@ -13,6 +14,11 @@ export class Paragraph extends Entity {
    * The contents of the paragraph.
    */
   content: Inline[];
+
+  /**
+   * The authors of the paragraph.
+   */
+  authors?: PersonOrOrganizationOrSoftwareApplication[];
 
   constructor(content: Inline[], options?: Partial<Paragraph>) {
     super();

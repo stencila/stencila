@@ -4,6 +4,7 @@ import { AdmonitionType } from "./AdmonitionType.js";
 import { Block } from "./Block.js";
 import { Entity } from "./Entity.js";
 import { Inline } from "./Inline.js";
+import { PersonOrOrganizationOrSoftwareApplication } from "./PersonOrOrganizationOrSoftwareApplication.js";
 
 /**
  * A admonition within a document.
@@ -30,6 +31,11 @@ export class Admonition extends Entity {
    * The content within the section.
    */
   content: Block[];
+
+  /**
+   * The authors of the admonition.
+   */
+  authors?: PersonOrOrganizationOrSoftwareApplication[];
 
   constructor(admonitionType: AdmonitionType, content: Block[], options?: Partial<Admonition>) {
     super();

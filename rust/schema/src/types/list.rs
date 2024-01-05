@@ -4,6 +4,7 @@ use crate::prelude::*;
 
 use super::list_item::ListItem;
 use super::list_order::ListOrder;
+use super::person_or_organization_or_software_application::PersonOrOrganizationOrSoftwareApplication;
 use super::string::String;
 
 /// A list of items.
@@ -45,6 +46,27 @@ pub struct List {
     #[cfg_attr(feature = "proptest-max", proptest(strategy = r#"ListOrder::arbitrary()"#))]
     #[jats(attr = "list-type")]
     pub order: ListOrder,
+
+    /// Non-core optional fields
+    #[serde(flatten)]
+    #[html(flatten)]
+    #[jats(flatten)]
+    #[markdown(flatten)]
+    pub options: Box<ListOptions>,
+}
+
+#[skip_serializing_none]
+#[serde_as]
+#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, WalkNode, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec, WriteNode, ReadNode)]
+#[serde(rename_all = "camelCase", crate = "common::serde")]
+#[cfg_attr(feature = "proptest", derive(Arbitrary))]
+pub struct ListOptions {
+    /// The authors of the list.
+    #[serde(alias = "author")]
+    #[serde(default, deserialize_with = "option_one_or_many_string_or_object")]
+    #[strip(metadata)]
+    #[cfg_attr(feature = "proptest", proptest(value = "None"))]
+    pub authors: Option<Vec<PersonOrOrganizationOrSoftwareApplication>>,
 }
 
 impl List {

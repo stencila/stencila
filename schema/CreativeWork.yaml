@@ -35,6 +35,7 @@ properties:
       anyOf:
         - $ref: Person
         - $ref: Organization
+        - $ref: SoftwareApplication
     strip: [metadata]
     serde:
       deserializeWith: option_one_or_many_string_or_object
@@ -48,6 +49,8 @@ properties:
         - $ref: Organization
         - $ref: SoftwareApplication
     strip: [metadata]
+    serde:
+      deserializeWith: option_one_or_many_string_or_object
   editors:
     '@id': schema:editor
     description: People who edited the `CreativeWork`.

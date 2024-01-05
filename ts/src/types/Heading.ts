@@ -3,6 +3,7 @@
 import { Entity } from "./Entity.js";
 import { Inline } from "./Inline.js";
 import { Integer } from "./Integer.js";
+import { PersonOrOrganizationOrSoftwareApplication } from "./PersonOrOrganizationOrSoftwareApplication.js";
 
 /**
  * A heading.
@@ -19,6 +20,11 @@ export class Heading extends Entity {
    * Content of the heading.
    */
   content: Inline[];
+
+  /**
+   * The authors of the heading.
+   */
+  authors?: PersonOrOrganizationOrSoftwareApplication[];
 
   constructor(level: Integer, content: Inline[], options?: Partial<Heading>) {
     super();

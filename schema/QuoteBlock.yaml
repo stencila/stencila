@@ -41,3 +41,15 @@ properties:
       max:
         description: Generate up to eight arbitrary, non-recursive, block nodes.
         strategy: vec_blocks_non_recursive(8)
+  authors:
+    '@id': schema:author
+    description: The authors of the quote.
+    type: array
+    items:
+      anyOf:
+        - $ref: Person
+        - $ref: Organization
+        - $ref: SoftwareApplication
+    strip: [metadata]
+    serde:
+      deserializeWith: option_one_or_many_string_or_object

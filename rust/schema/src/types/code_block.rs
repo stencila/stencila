@@ -3,6 +3,7 @@
 use crate::prelude::*;
 
 use super::cord::Cord;
+use super::person_or_organization_or_software_application::PersonOrOrganizationOrSoftwareApplication;
 use super::string::String;
 
 /// A code block.
@@ -44,6 +45,27 @@ pub struct CodeBlock {
     #[cfg_attr(feature = "proptest-max", proptest(strategy = r#"option::of(String::arbitrary())"#))]
     #[jats(attr = "language")]
     pub programming_language: Option<String>,
+
+    /// Non-core optional fields
+    #[serde(flatten)]
+    #[html(flatten)]
+    #[jats(flatten)]
+    #[markdown(flatten)]
+    pub options: Box<CodeBlockOptions>,
+}
+
+#[skip_serializing_none]
+#[serde_as]
+#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, WalkNode, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec, WriteNode, ReadNode)]
+#[serde(rename_all = "camelCase", crate = "common::serde")]
+#[cfg_attr(feature = "proptest", derive(Arbitrary))]
+pub struct CodeBlockOptions {
+    /// The authors of the code.
+    #[serde(alias = "author")]
+    #[serde(default, deserialize_with = "option_one_or_many_string_or_object")]
+    #[strip(metadata)]
+    #[cfg_attr(feature = "proptest", proptest(value = "None"))]
+    pub authors: Option<Vec<PersonOrOrganizationOrSoftwareApplication>>,
 }
 
 impl CodeBlock {

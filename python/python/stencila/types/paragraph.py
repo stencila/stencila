@@ -4,6 +4,7 @@ from .prelude import *
 
 from .entity import Entity
 from .inline import Inline
+from .person_or_organization_or_software_application import PersonOrOrganizationOrSoftwareApplication
 
 
 @dataclass(init=False)
@@ -17,6 +18,10 @@ class Paragraph(Entity):
     content: List[Inline]
     """The contents of the paragraph."""
 
-    def __init__(self, content: List[Inline], id: Optional[str] = None):
+    authors: Optional[List[PersonOrOrganizationOrSoftwareApplication]] = None
+    """The authors of the paragraph."""
+
+    def __init__(self, content: List[Inline], id: Optional[str] = None, authors: Optional[List[PersonOrOrganizationOrSoftwareApplication]] = None):
         super().__init__(id = id)
         self.content = content
+        self.authors = authors

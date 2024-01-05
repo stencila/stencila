@@ -3,12 +3,18 @@
 import { Block } from "./Block.js";
 import { ClaimType } from "./ClaimType.js";
 import { CreativeWork } from "./CreativeWork.js";
+import { PersonOrOrganizationOrSoftwareApplication } from "./PersonOrOrganizationOrSoftwareApplication.js";
 
 /**
  * A claim represents specific reviewable facts or statements.
  */
 export class Claim extends CreativeWork {
   type = "Claim";
+
+  /**
+   * The authors of the claim.
+   */
+  authors?: PersonOrOrganizationOrSoftwareApplication[];
 
   /**
    * The type of the claim.

@@ -6,6 +6,7 @@ use super::compilation_digest::CompilationDigest;
 use super::compilation_error::CompilationError;
 use super::cord::Cord;
 use super::inline::Inline;
+use super::person_or_organization_or_software_application::PersonOrOrganizationOrSoftwareApplication;
 use super::string::String;
 
 /// Styled inline content.
@@ -70,6 +71,13 @@ pub struct StyledInline {
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 #[cfg_attr(feature = "proptest", derive(Arbitrary))]
 pub struct StyledInlineOptions {
+    /// The authors of the styling code.
+    #[serde(alias = "author")]
+    #[serde(default, deserialize_with = "option_one_or_many_string_or_object")]
+    #[strip(metadata)]
+    #[cfg_attr(feature = "proptest", proptest(value = "None"))]
+    pub authors: Option<Vec<PersonOrOrganizationOrSoftwareApplication>>,
+
     /// A digest of the `code` and `styleLanguage`.
     #[serde(alias = "compilation-digest", alias = "compilation_digest")]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]

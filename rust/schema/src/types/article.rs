@@ -53,7 +53,7 @@ pub struct Article {
     #[serde(default, deserialize_with = "option_one_or_many_string_or_object")]
     #[strip(metadata)]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
-    pub authors: Option<Vec<PersonOrOrganization>>,
+    pub authors: Option<Vec<PersonOrOrganizationOrSoftwareApplication>>,
 
     /// Date/time of creation.
     #[serde(alias = "date-created", alias = "date_created")]
@@ -179,7 +179,7 @@ pub struct ArticleOptions {
 
     /// A secondary contributor to the `CreativeWork`.
     #[serde(alias = "contributor")]
-    #[serde(default, deserialize_with = "option_one_or_many")]
+    #[serde(default, deserialize_with = "option_one_or_many_string_or_object")]
     #[strip(metadata)]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     pub contributors: Option<Vec<PersonOrOrganizationOrSoftwareApplication>>,

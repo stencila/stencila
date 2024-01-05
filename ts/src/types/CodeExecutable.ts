@@ -2,6 +2,7 @@
 
 import { Cord } from "./Cord.js";
 import { Executable } from "./Executable.js";
+import { PersonOrOrganizationOrSoftwareApplication } from "./PersonOrOrganizationOrSoftwareApplication.js";
 
 /**
  * Abstract base type for executable code nodes (e.g. `CodeChunk`).
@@ -18,6 +19,11 @@ export class CodeExecutable extends Executable {
    * The programming language of the code.
    */
   programmingLanguage?: string;
+
+  /**
+   * The authors of the executable code.
+   */
+  authors?: PersonOrOrganizationOrSoftwareApplication[];
 
   constructor(code: Cord, options?: Partial<CodeExecutable>) {
     super();

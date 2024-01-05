@@ -5,6 +5,7 @@ from .prelude import *
 from .entity import Entity
 from .list_item import ListItem
 from .list_order import ListOrder
+from .person_or_organization_or_software_application import PersonOrOrganizationOrSoftwareApplication
 
 
 @dataclass(init=False)
@@ -21,7 +22,11 @@ class List(Entity):
     order: ListOrder
     """The ordering of the list."""
 
-    def __init__(self, items: List[ListItem], order: ListOrder, id: Optional[str] = None):
+    authors: Optional[List[PersonOrOrganizationOrSoftwareApplication]] = None
+    """The authors of the list."""
+
+    def __init__(self, items: List[ListItem], order: ListOrder, id: Optional[str] = None, authors: Optional[List[PersonOrOrganizationOrSoftwareApplication]] = None):
         super().__init__(id = id)
         self.items = items
         self.order = order
+        self.authors = authors

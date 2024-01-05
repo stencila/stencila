@@ -14,6 +14,7 @@ use super::execution_status::ExecutionStatus;
 use super::execution_tag::ExecutionTag;
 use super::if_block_clause::IfBlockClause;
 use super::integer::Integer;
+use super::person_or_organization_or_software_application::PersonOrOrganizationOrSoftwareApplication;
 use super::string::String;
 use super::timestamp::Timestamp;
 
@@ -150,6 +151,13 @@ pub struct IfBlockOptions {
     #[strip(execution)]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     pub execution_errors: Option<Vec<ExecutionError>>,
+
+    /// The authors of the if block.
+    #[serde(alias = "author")]
+    #[serde(default, deserialize_with = "option_one_or_many_string_or_object")]
+    #[strip(metadata)]
+    #[cfg_attr(feature = "proptest", proptest(value = "None"))]
+    pub authors: Option<Vec<PersonOrOrganizationOrSoftwareApplication>>,
 }
 
 impl IfBlock {

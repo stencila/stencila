@@ -4,6 +4,7 @@ import { CompilationDigest } from "./CompilationDigest.js";
 import { CompilationError } from "./CompilationError.js";
 import { Cord } from "./Cord.js";
 import { Entity } from "./Entity.js";
+import { PersonOrOrganizationOrSoftwareApplication } from "./PersonOrOrganizationOrSoftwareApplication.js";
 
 /**
  * An abstract base class for a document node that has styling applied to it and/or its content.
@@ -20,6 +21,11 @@ export class Styled extends Entity {
    * The language used for the style specification e.g. css, tw
    */
   styleLanguage?: string;
+
+  /**
+   * The authors of the styling code.
+   */
+  authors?: PersonOrOrganizationOrSoftwareApplication[];
 
   /**
    * A digest of the `code` and `styleLanguage`.

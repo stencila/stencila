@@ -6,6 +6,7 @@ use super::admonition_type::AdmonitionType;
 use super::block::Block;
 use super::boolean::Boolean;
 use super::inline::Inline;
+use super::person_or_organization_or_software_application::PersonOrOrganizationOrSoftwareApplication;
 use super::string::String;
 
 /// A admonition within a document.
@@ -65,6 +66,27 @@ pub struct Admonition {
     #[cfg_attr(feature = "proptest-high", proptest(strategy = r#"vec_blocks_non_recursive(4)"#))]
     #[cfg_attr(feature = "proptest-max", proptest(strategy = r#"vec_blocks_non_recursive(4)"#))]
     pub content: Vec<Block>,
+
+    /// Non-core optional fields
+    #[serde(flatten)]
+    #[html(flatten)]
+    #[jats(flatten)]
+    #[markdown(flatten)]
+    pub options: Box<AdmonitionOptions>,
+}
+
+#[skip_serializing_none]
+#[serde_as]
+#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, WalkNode, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec, WriteNode, ReadNode)]
+#[serde(rename_all = "camelCase", crate = "common::serde")]
+#[cfg_attr(feature = "proptest", derive(Arbitrary))]
+pub struct AdmonitionOptions {
+    /// The authors of the admonition.
+    #[serde(alias = "author")]
+    #[serde(default, deserialize_with = "option_one_or_many_string_or_object")]
+    #[strip(metadata)]
+    #[cfg_attr(feature = "proptest", proptest(value = "None"))]
+    pub authors: Option<Vec<PersonOrOrganizationOrSoftwareApplication>>,
 }
 
 impl Admonition {

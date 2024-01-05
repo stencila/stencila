@@ -34,7 +34,7 @@ export class CreativeWork extends Thing {
   /**
    * The authors of the `CreativeWork`.
    */
-  authors?: PersonOrOrganization[];
+  authors?: PersonOrOrganizationOrSoftwareApplication[];
 
   /**
    * A secondary contributor to the `CreativeWork`.

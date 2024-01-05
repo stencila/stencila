@@ -3,6 +3,7 @@
 import { Entity } from "./Entity.js";
 import { ListItem } from "./ListItem.js";
 import { ListOrder } from "./ListOrder.js";
+import { PersonOrOrganizationOrSoftwareApplication } from "./PersonOrOrganizationOrSoftwareApplication.js";
 
 /**
  * A list of items.
@@ -19,6 +20,11 @@ export class List extends Entity {
    * The ordering of the list.
    */
   order: ListOrder;
+
+  /**
+   * The authors of the list.
+   */
+  authors?: PersonOrOrganizationOrSoftwareApplication[];
 
   constructor(items: ListItem[], order: ListOrder, options?: Partial<List>) {
     super();

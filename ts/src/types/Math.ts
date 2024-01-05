@@ -4,6 +4,7 @@ import { CompilationDigest } from "./CompilationDigest.js";
 import { CompilationError } from "./CompilationError.js";
 import { Cord } from "./Cord.js";
 import { Entity } from "./Entity.js";
+import { PersonOrOrganizationOrSoftwareApplication } from "./PersonOrOrganizationOrSoftwareApplication.js";
 
 /**
  * Abstract base type for a mathematical variable or equation.
@@ -20,6 +21,11 @@ export class Math extends Entity {
    * The language used for the equation e.g tex, mathml, asciimath.
    */
   mathLanguage?: string;
+
+  /**
+   * The authors of the math.
+   */
+  authors?: PersonOrOrganizationOrSoftwareApplication[];
 
   /**
    * A digest of the `code` and `mathLanguage`.

@@ -3,6 +3,7 @@
 use crate::prelude::*;
 
 use super::inline::Inline;
+use super::person_or_organization_or_software_application::PersonOrOrganizationOrSoftwareApplication;
 use super::string::String;
 
 /// A paragraph.
@@ -35,6 +36,27 @@ pub struct Paragraph {
     #[cfg_attr(feature = "proptest-high", proptest(strategy = r#"vec_inlines(4)"#))]
     #[cfg_attr(feature = "proptest-max", proptest(strategy = r#"vec(Inline::arbitrary(), size_range(0..=8))"#))]
     pub content: Vec<Inline>,
+
+    /// Non-core optional fields
+    #[serde(flatten)]
+    #[html(flatten)]
+    #[jats(flatten)]
+    #[markdown(flatten)]
+    pub options: Box<ParagraphOptions>,
+}
+
+#[skip_serializing_none]
+#[serde_as]
+#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, WalkNode, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec, WriteNode, ReadNode)]
+#[serde(rename_all = "camelCase", crate = "common::serde")]
+#[cfg_attr(feature = "proptest", derive(Arbitrary))]
+pub struct ParagraphOptions {
+    /// The authors of the paragraph.
+    #[serde(alias = "author")]
+    #[serde(default, deserialize_with = "option_one_or_many_string_or_object")]
+    #[strip(metadata)]
+    #[cfg_attr(feature = "proptest", proptest(value = "None"))]
+    pub authors: Option<Vec<PersonOrOrganizationOrSoftwareApplication>>,
 }
 
 impl Paragraph {

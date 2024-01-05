@@ -271,6 +271,34 @@
       "items": {
         "$ref": "IfBlockClause.schema.json"
       }
+    },
+    "authors": {
+      "@id": "schema:author",
+      "description": "The authors of the if block.",
+      "$comment": "Note that the `IfBlockClause`s within this `IfBlock` are derived from `CodeExecutable`\nand as such also have a `authors` property. Given that, this `authors` property is\nsomewhat redundant but added for consistency with `CodeChunk`, `ForBlock` and other\nblock level nodes that have the `authors` property. \n",
+      "aliases": [
+        "author"
+      ],
+      "strip": [
+        "metadata"
+      ],
+      "serde": {
+        "deserializeWith": "option_one_or_many_string_or_object"
+      },
+      "type": "array",
+      "items": {
+        "anyOf": [
+          {
+            "$ref": "Person.schema.json"
+          },
+          {
+            "$ref": "Organization.schema.json"
+          },
+          {
+            "$ref": "SoftwareApplication.schema.json"
+          }
+        ]
+      }
     }
   }
 }

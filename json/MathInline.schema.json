@@ -103,6 +103,33 @@
       },
       "type": "string"
     },
+    "authors": {
+      "@id": "schema:author",
+      "description": "The authors of the math.",
+      "aliases": [
+        "author"
+      ],
+      "strip": [
+        "metadata"
+      ],
+      "serde": {
+        "deserializeWith": "option_one_or_many_string_or_object"
+      },
+      "type": "array",
+      "items": {
+        "anyOf": [
+          {
+            "$ref": "Person.schema.json"
+          },
+          {
+            "$ref": "Organization.schema.json"
+          },
+          {
+            "$ref": "SoftwareApplication.schema.json"
+          }
+        ]
+      }
+    },
     "compilationDigest": {
       "@id": "stencila:compilationDigest",
       "description": "A digest of the `code` and `mathLanguage`.",

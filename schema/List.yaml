@@ -57,3 +57,15 @@ properties:
       high:
         description: Generate an arbitrary list ordering.
         strategy: ListOrder::arbitrary()
+  authors:
+    '@id': schema:author
+    description: The authors of the list.
+    type: array
+    items:
+      anyOf:
+        - $ref: Person
+        - $ref: Organization
+        - $ref: SoftwareApplication
+    strip: [metadata]
+    serde:
+      deserializeWith: option_one_or_many_string_or_object

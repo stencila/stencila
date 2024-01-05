@@ -38,7 +38,7 @@ pub struct Comment {
     #[serde(alias = "author")]
     #[serde(default, deserialize_with = "option_one_or_many_string_or_object")]
     #[strip(metadata)]
-    pub authors: Option<Vec<PersonOrOrganization>>,
+    pub authors: Option<Vec<PersonOrOrganizationOrSoftwareApplication>>,
 
     /// Date of first publication.
     #[serde(alias = "date", alias = "date-published", alias = "date_published")]
@@ -106,7 +106,7 @@ pub struct CommentOptions {
 
     /// A secondary contributor to the `CreativeWork`.
     #[serde(alias = "contributor")]
-    #[serde(default, deserialize_with = "option_one_or_many")]
+    #[serde(default, deserialize_with = "option_one_or_many_string_or_object")]
     #[strip(metadata)]
     pub contributors: Option<Vec<PersonOrOrganizationOrSoftwareApplication>>,
 
