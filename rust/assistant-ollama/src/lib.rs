@@ -111,7 +111,7 @@ impl Assistant for OllamaAssistant {
 
     async fn perform_task(
         &self,
-        task: GenerateTask,
+        task: &GenerateTask,
         options: &GenerateOptions,
     ) -> Result<GenerateOutput> {
         let mut request =
@@ -176,7 +176,7 @@ impl Assistant for OllamaAssistant {
 
         let text = response.response;
 
-        GenerateOutput::from_text(text).await
+        GenerateOutput::from_text(task, text).await
     }
 }
 

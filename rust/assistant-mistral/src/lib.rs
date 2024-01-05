@@ -61,7 +61,7 @@ impl Assistant for MistralAssistant {
     #[tracing::instrument(skip(self))]
     async fn perform_task(
         &self,
-        task: GenerateTask,
+        task: &GenerateTask,
         options: &GenerateOptions,
     ) -> Result<GenerateOutput> {
         let mut messages = vec![];
@@ -103,7 +103,7 @@ impl Assistant for MistralAssistant {
 
         let text = response.choices.swap_remove(0).message.content;
 
-        GenerateOutput::from_text(text).await
+        GenerateOutput::from_text(task, text).await
     }
 }
 

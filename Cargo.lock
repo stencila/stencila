@@ -199,6 +199,7 @@ name = "assistant"
 version = "0.0.0"
 dependencies = [
  "app",
+ "codecs",
  "common",
  "fastembed",
  "format",
@@ -226,7 +227,6 @@ dependencies = [
  "assistant-openai",
  "cached",
  "codec-text-trait",
- "codecs",
  "minijinja",
  "rust-embed",
 ]

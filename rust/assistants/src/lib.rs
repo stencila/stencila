@@ -107,36 +107,33 @@ pub async fn perform_instruction(
     };
 
     // Perform the task
-    let mut output = assistant.perform_task(task, options).await?;
+    let mut output = assistant.perform_task(&task, options).await?;
 
-    // Walk over any generated nodes and recursively perform any instructions within them
-    if let Some(nodes) = &mut output.nodes {
-        // Collect instructions within the nodes
-        let mut collector = InstructionCollector::default();
-        match nodes {
-            Nodes::Blocks(nodes) => nodes.walk_mut(&mut collector),
-            Nodes::Inlines(nodes) => nodes.walk_mut(&mut collector),
+    // Collect instructions within the generated nodes
+    let mut collector = InstructionCollector::default();
+    match &mut output.nodes {
+        Nodes::Blocks(nodes) => nodes.walk_mut(&mut collector),
+        Nodes::Inlines(nodes) => nodes.walk_mut(&mut collector),
+    }
+
+    // Perform inner instructions in parallel and put results into a hash map
+    // so they can be applied to the instructions
+    let futures = collector.instructions.into_iter().map(|(id, instruction)| {
+        let document = document.clone();
+        async move {
+            (
+                id,
+                perform_instruction(instruction, document, options).await,
+            )
         }
+    });
+    let results = join_all(futures).await.into_iter().collect();
 
-        // Perform inner instructions in parallel and put results into a hash map
-        // so they can be applied to the instructions
-        let futures = collector.instructions.into_iter().map(|(id, instruction)| {
-            let document = document.clone();
-            async move {
-                (
-                    id,
-                    perform_instruction(instruction, document, options).await,
-                )
-            }
-        });
-        let results = join_all(futures).await.into_iter().collect();
-
-        // Apply the results to the instructions
-        let mut applier = ResultApplier { results };
-        match nodes {
-            Nodes::Blocks(nodes) => nodes.walk_mut(&mut applier),
-            Nodes::Inlines(nodes) => nodes.walk_mut(&mut applier),
-        }
+    // Apply the results to the instructions
+    let mut applier = ResultApplier { results };
+    match &mut output.nodes {
+        Nodes::Blocks(nodes) => nodes.walk_mut(&mut applier),
+        Nodes::Inlines(nodes) => nodes.walk_mut(&mut applier),
     }
 
     Ok(output)
@@ -190,20 +187,10 @@ impl VisitorMut for ResultApplier {
                 .and_then(|id| self.results.remove(id))
             {
                 match result {
-                    Ok(
-                        GenerateOutput {
-                            nodes: Some(nodes), ..
-                        },
-                        ..,
-                    ) => {
+                    Ok(GenerateOutput { nodes, .. }, ..) => {
                         instruction.suggestion = Some(SuggestionInlineType::InsertInline(
                             InsertInline::new(nodes.into_inlines()),
                         ))
-                    }
-                    Ok(..) => {
-                        instruction.options.execution_errors = Some(vec![ExecutionError::new(
-                            "No nodes in generation result".to_string(),
-                        )]);
                     }
                     Err(error) => {
                         instruction.options.execution_errors =
@@ -225,20 +212,10 @@ impl VisitorMut for ResultApplier {
                 .and_then(|id| self.results.remove(id))
             {
                 match result {
-                    Ok(
-                        GenerateOutput {
-                            nodes: Some(nodes), ..
-                        },
-                        ..,
-                    ) => {
+                    Ok(GenerateOutput { nodes, .. }, ..) => {
                         instruction.suggestion = Some(SuggestionBlockType::InsertBlock(
                             InsertBlock::new(nodes.into_blocks()),
                         ))
-                    }
-                    Ok(..) => {
-                        instruction.options.execution_errors = Some(vec![ExecutionError::new(
-                            "No nodes in generation result".to_string(),
-                        )]);
                     }
                     Err(error) => {
                         instruction.options.execution_errors =

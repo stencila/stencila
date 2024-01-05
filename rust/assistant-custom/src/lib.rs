@@ -15,6 +15,7 @@ use minijinja::{Environment, UndefinedBehavior};
 use rust_embed::RustEmbed;
 
 use assistant::{
+    codecs::{self, EncodeOptions, Format, LossesResponse},
     common::{
         async_trait::async_trait,
         eyre::{bail, eyre, Result},
@@ -27,14 +28,12 @@ use assistant::{
     },
     merge::Merge,
     schema::{
-        transforms::{blocks_to_inlines, transform_block, transform_inline},
-        Article, AudioObject, Block, ImageObject, Inline, Link, Node, NodeType, VideoObject,
+        transforms::{transform_block, transform_inline},
+        Block, Inline, NodeType,
     },
-    Assistant, AssistantIO, GenerateContent, GenerateOptions, GenerateOutput, GenerateTask,
-    InstructionType, Nodes,
+    Assistant, AssistantIO, GenerateOptions, GenerateOutput, GenerateTask, InstructionType, Nodes,
 };
 use codec_text_trait::TextCodec;
-use codecs::{DecodeOptions, EncodeOptions, Format, LossesResponse};
 
 /// Default preference rank
 const PREFERENCE_RANK: u8 = 50;
@@ -303,18 +302,13 @@ impl CustomAssistant {
         Ok(())
     }
 
-    /// Merge options supplied to generation functions into the default options for this custom assistant
-    fn merge_options(&self, options: &GenerateOptions) -> GenerateOptions {
-        let mut merged_options = self.options.clone();
-        merged_options.merge(options.clone());
-        merged_options
-    }
-
     /// Merge a `GenerateTask` with the relevant options of this assistant
     ///
     /// This should be called before selecting an assistant to delegate to
     /// (since the input and output type of the task influences that)
-    fn merge_task(&self, mut task: GenerateTask) -> GenerateTask {
+    fn merge_task(&self, task: &GenerateTask) -> GenerateTask {
+        let mut task = task.clone();
+
         if let Some(input) = self.task_input {
             task.input = input;
         }
@@ -323,7 +317,16 @@ impl CustomAssistant {
             task.output = output;
         }
 
+        task.format = self.generated_format.or(self.format).unwrap_or(FORMAT);
+
         task
+    }
+
+    /// Merge options supplied to generation functions into the default options for this custom assistant
+    fn merge_options(&self, options: &GenerateOptions) -> GenerateOptions {
+        let mut merged_options = self.options.clone();
+        merged_options.merge(options.clone());
+        merged_options
     }
 
     /// Prepare a `GenerateTask` with the system prompt, rendered user prompt of
@@ -427,108 +430,7 @@ impl CustomAssistant {
         delegate: Option<&dyn Assistant>,
         mut output: GenerateOutput,
     ) -> Result<GenerateOutput> {
-        // Convert the generated content into a node
-        let nodes = match &output.content {
-            GenerateContent::Text(text) => {
-                // Decode the node from the generated content based on `generated_format`
-                let format = self.generated_format.or(self.format).unwrap_or(FORMAT);
-
-                // Update the output format
-                output.format = format;
-
-                // Decode the text, assuming that format, to a node
-                let node = codecs::from_str(
-                    text,
-                    Some(DecodeOptions {
-                        format: Some(format),
-                        ..Default::default()
-                    }),
-                )
-                .await?;
-
-                let Node::Article(Article{content,..}) = node else {
-                    bail!("Expected decoded nde to be an article, got `{node}`")
-                };
-
-                // Transform the decoded node to inlines or blocks based on the `instruction_type`.
-                // (usually the decoded node is a top level `Article`)
-                match self.instruction_type {
-                    Some(InstructionType::InsertInlines) | Some(InstructionType::ModifyInlines) => {
-                        Nodes::Inlines(blocks_to_inlines(content))
-                    }
-                    Some(InstructionType::InsertBlocks)
-                    | Some(InstructionType::ModifyBlocks)
-                    | None => Nodes::Blocks(content),
-                }
-            }
-            GenerateContent::Url(url) => {
-                // Create a media object or `Link` depending on the type
-                // of the format
-                let media_type = Some(output.format.media_type());
-                let node = if output.format.is_audio() {
-                    Inline::AudioObject(AudioObject {
-                        content_url: url.clone(),
-                        media_type,
-                        ..Default::default()
-                    })
-                } else if output.format.is_image() {
-                    Inline::ImageObject(ImageObject {
-                        content_url: url.clone(),
-                        media_type,
-                        ..Default::default()
-                    })
-                } else if output.format.is_video() {
-                    Inline::VideoObject(VideoObject {
-                        content_url: url.clone(),
-                        media_type,
-                        ..Default::default()
-                    })
-                } else {
-                    Inline::Link(Link {
-                        target: url.clone(),
-                        ..Default::default()
-                    })
-                };
-
-                Nodes::Inlines(vec![node])
-            }
-            GenerateContent::Base64(data) => {
-                // If the media type corresponds to one of the `MediaObject` node types
-                // (e.g. an image or video) then a node of that type (e.g. `ImageObject`)
-                // will be created. Otherwise, a `Link` node will be created. In all cases
-                // the URL of the node will be a DataURI.
-                let media_type = output.format.media_type();
-                let url = format!("{};base64,{}", media_type, data);
-                let media_type = Some(media_type);
-
-                let node = if output.format.is_audio() {
-                    Inline::AudioObject(AudioObject {
-                        content_url: url,
-                        media_type,
-                        ..Default::default()
-                    })
-                } else if output.format.is_image() {
-                    Inline::ImageObject(ImageObject {
-                        content_url: url,
-                        media_type,
-                        ..Default::default()
-                    })
-                } else if output.format.is_video() {
-                    Inline::VideoObject(VideoObject {
-                        content_url: url,
-                        media_type,
-                        ..Default::default()
-                    })
-                } else {
-                    Inline::Link(Link {
-                        target: url,
-                        ..Default::default()
-                    })
-                };
-
-                Nodes::Inlines(vec![node])
-            }
-        };
+        let nodes = output.nodes;
 
         // Transform the nodes to the expected type if specified
         let mut nodes = if let Some(node_type) = self.transform_nodes {
@@ -594,7 +496,7 @@ impl CustomAssistant {
         }
 
         // Finally, update the output's nodes
-        output.nodes = Some(nodes);
+        output.nodes = nodes;
 
         Ok(output)
     }
@@ -728,11 +630,11 @@ impl Assistant for CustomAssistant {
     #[tracing::instrument(skip_all)]
     async fn perform_task(
         &self,
-        task: GenerateTask,
+        task: &GenerateTask,
         options: &GenerateOptions,
     ) -> Result<GenerateOutput> {
-        let options = self.merge_options(options);
         let task = self.merge_task(task);
+        let options = self.merge_options(options);
 
         let output = if self.delegates.is_empty() {
             // No delegates, so simply render the template into an output
@@ -740,7 +642,7 @@ impl Assistant for CustomAssistant {
             // Update the task, to render template, before performing it (without delegate)
             let task = self.prepare_task(task, None).await?;
 
-            let output = GenerateOutput::from_text(task.user_prompt().to_string()).await?;
+            let output = GenerateOutput::from_text(&task, task.user_prompt().to_string()).await?;
             let output = self.update_output(None, output).await?;
 
             output
@@ -756,7 +658,7 @@ impl Assistant for CustomAssistant {
             let mut results = None;
             for retry in 0..=max_retries {
                 let result: Result<GenerateOutput> = {
-                    let output = delegate.perform_task(task.clone(), &options).await?;
+                    let output = delegate.perform_task(&task, &options).await?;
                     let output = self.update_output(Some(delegate.as_ref()), output).await?;
                     Ok(output)
                 };
@@ -778,8 +680,6 @@ impl Assistant for CustomAssistant {
                 None => bail!("Maximum number of retries reached"),
             }
         };
-
-        // TODO: walk over nodes and perform any new instructions
 
         Ok(output)
     }

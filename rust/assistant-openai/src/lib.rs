@@ -112,7 +112,7 @@ impl Assistant for OpenAIAssistant {
 
     async fn perform_task(
         &self,
-        task: GenerateTask,
+        task: &GenerateTask,
         options: &GenerateOptions,
     ) -> Result<GenerateOutput> {
         use AssistantIO::*;
@@ -133,7 +133,7 @@ impl OpenAIAssistant {
     #[tracing::instrument(skip(self))]
     async fn chat_completion(
         &self,
-        task: GenerateTask,
+        task: &GenerateTask,
         options: &GenerateOptions,
     ) -> Result<GenerateOutput> {
         tracing::debug!("Sending chat completion request");
@@ -226,13 +226,13 @@ impl OpenAIAssistant {
             .and_then(|choice| choice.message.content)
             .unwrap_or_default();
 
-        GenerateOutput::from_text(text).await
+        GenerateOutput::from_text(task, text).await
     }
 
     #[tracing::instrument(skip(self))]
     async fn create_image(
         &self,
-        task: GenerateTask,
+        task: &GenerateTask,
         options: &GenerateOptions,
     ) -> Result<GenerateOutput> {
         tracing::debug!("Sending create image request");

@@ -50,7 +50,7 @@ impl Assistant for AnthropicAssistant {
 
     async fn perform_task(
         &self,
-        task: GenerateTask,
+        task: &GenerateTask,
         options: &GenerateOptions,
     ) -> Result<GenerateOutput> {
         let cfg = AnthropicConfig::new()?;
@@ -84,7 +84,7 @@ impl Assistant for AnthropicAssistant {
             .trim_start()
             .to_string();
 
-        GenerateOutput::from_text(text).await
+        GenerateOutput::from_text(task, text).await
     }
 }
 

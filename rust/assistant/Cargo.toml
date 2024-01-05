@@ -5,6 +5,7 @@ edition = "2021"
 
 [dependencies]
 app = { path = "../app" }
+codecs = { path = "../codecs" }
 common = { path = "../common" }
 fastembed = "1.10.0"
 format = { path = "../format" }
