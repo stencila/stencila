@@ -2,7 +2,13 @@
 resolver = "2"
 members = ["rust/*", "node", "python"]
 
-# Profile that help reduce the binary size based on https://github.com/johnthagen/min-sized-rust
+# Reduce the amount of debug info in dev binaries. 
+# Initially introduced to avoid a fatal error when running tests for the Node SDK
+# seemingly caused by large addon size.
+[profile.dev]
+debug = 1
+
+# Profile to reduce the binary size based on https://github.com/johnthagen/min-sized-rust
 [profile.release]
 strip = true
 lto = true
