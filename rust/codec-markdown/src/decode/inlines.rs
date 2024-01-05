@@ -789,7 +789,10 @@ mod tests {
             parameter(r#"&[name]{bool}"#).unwrap().1,
             Inline::Parameter(Parameter {
                 name: "name".to_string(),
-                validator: Some(Validator::BooleanValidator(BooleanValidator::default())),
+                options: Box::new(ParameterOptions {
+                    validator: Some(Validator::BooleanValidator(BooleanValidator::default())),
+                    ..Default::default()
+                }),
                 ..Default::default()
             })
         );
