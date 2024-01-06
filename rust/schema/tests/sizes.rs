@@ -17,10 +17,9 @@ use schema::*;
 macro_rules! sizes {
     ($($t:ty),*) => {
         {
-            let mut sizes: Vec<(&str, usize)> = Vec::new();
-            $(
-                sizes.push((stringify!($t), std::mem::size_of::<$t>()));
-            )*
+            let mut sizes: Vec<(&str, usize)> = vec![
+                $((stringify!($t), std::mem::size_of::<$t>()),)*
+            ];
             sizes.sort_by(|a, b| b.1.cmp(&a.1));
 
             for (name, size) in sizes {
