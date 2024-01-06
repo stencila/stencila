@@ -104,7 +104,7 @@
               "value": "link"
             }
           ],
-          "stencila:target": "https://example.org"
+          "target": "https://example.org"
         },
         {
           "@type": "Text",

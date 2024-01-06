@@ -60,7 +60,7 @@
               "value": "Robustness Principle"
             }
           ],
-          "stencila:target": "https://en.wikipedia.org/wiki/Robustness_principle"
+          "target": "https://en.wikipedia.org/wiki/Robustness_principle"
         },
         {
           "@type": "Text",
