@@ -1,0 +1,20 @@
+title: AuthorRole
+'@id': stencila:AuthorRole
+extends: Role
+category: works
+description: An author and their role.
+required:
+  - author
+  - roleName
+properties:
+  author:
+    '@id': schema:author
+    description: The author.
+    anyOf:
+      - $ref: Person
+      - $ref: Organization
+      - $ref: SoftwareApplication
+  roleName:
+    '@id': schema:roleName
+    description: A role played by the author.
+    $ref: AuthorRoleName

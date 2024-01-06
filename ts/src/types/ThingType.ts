@@ -2,6 +2,7 @@
 import { type AdmonitionType } from "./AdmonitionType.js";
 import { type Article } from "./Article.js";
 import { type AudioObject } from "./AudioObject.js";
+import { type AuthorRoleName } from "./AuthorRoleName.js";
 import { type AutomaticExecution } from "./AutomaticExecution.js";
 import { type Brand } from "./Brand.js";
 import { type CitationIntent } from "./CitationIntent.js";
@@ -56,6 +57,7 @@ export type ThingType =
   AdmonitionType |
   Article |
   AudioObject |
+  AuthorRoleName |
   AutomaticExecution |
   Brand |
   CitationIntent |

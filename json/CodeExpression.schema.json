@@ -325,17 +325,7 @@
       },
       "type": "array",
       "items": {
-        "anyOf": [
-          {
-            "$ref": "Person.schema.json"
-          },
-          {
-            "$ref": "Organization.schema.json"
-          },
-          {
-            "$ref": "SoftwareApplication.schema.json"
-          }
-        ]
+        "$ref": "Author.schema.json"
       }
     },
     "output": {

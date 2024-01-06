@@ -6,6 +6,9 @@ from .array import Array
 from .array_validator import ArrayValidator
 from .article import Article
 from .audio_object import AudioObject
+from .author import Author
+from .author_role import AuthorRole
+from .author_role_name import AuthorRoleName
 from .automatic_execution import AutomaticExecution
 from .block import Block
 from .boolean_validator import BooleanValidator
@@ -124,6 +127,7 @@ from .quote_inline import QuoteInline
 from .replace_block import ReplaceBlock
 from .replace_inline import ReplaceInline
 from .review import Review
+from .role import Role
 from .section import Section
 from .section_type import SectionType
 from .software_application import SoftwareApplication

@@ -2,6 +2,7 @@
 
 use crate::prelude::*;
 
+use super::author::Author;
 use super::block::Block;
 use super::claim_type::ClaimType;
 use super::comment::Comment;
@@ -13,7 +14,6 @@ use super::image_object::ImageObject;
 use super::inline::Inline;
 use super::person::Person;
 use super::person_or_organization::PersonOrOrganization;
-use super::person_or_organization_or_software_application::PersonOrOrganizationOrSoftwareApplication;
 use super::property_value_or_string::PropertyValueOrString;
 use super::string::String;
 use super::string_or_number::StringOrNumber;
@@ -123,19 +123,19 @@ pub struct ClaimOptions {
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     pub r#abstract: Option<Vec<Block>>,
 
-    /// The authors of the claim.
+    /// The authors of the `CreativeWork`.
     #[serde(alias = "author")]
     #[serde(default, deserialize_with = "option_one_or_many_string_or_object")]
     #[strip(metadata)]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
-    pub authors: Option<Vec<PersonOrOrganizationOrSoftwareApplication>>,
+    pub authors: Option<Vec<Author>>,
 
     /// A secondary contributor to the `CreativeWork`.
     #[serde(alias = "contributor")]
     #[serde(default, deserialize_with = "option_one_or_many_string_or_object")]
     #[strip(metadata)]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
-    pub contributors: Option<Vec<PersonOrOrganizationOrSoftwareApplication>>,
+    pub contributors: Option<Vec<Author>>,
 
     /// People who edited the `CreativeWork`.
     #[serde(alias = "editor")]

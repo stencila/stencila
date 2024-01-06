@@ -2,11 +2,11 @@
 
 use crate::prelude::*;
 
+use super::author::Author;
 use super::block::Block;
 use super::compilation_digest::CompilationDigest;
 use super::compilation_error::CompilationError;
 use super::cord::Cord;
-use super::person_or_organization_or_software_application::PersonOrOrganizationOrSoftwareApplication;
 use super::string::String;
 
 /// Styled block content.
@@ -72,7 +72,7 @@ pub struct StyledBlockOptions {
     #[serde(default, deserialize_with = "option_one_or_many_string_or_object")]
     #[strip(metadata)]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
-    pub authors: Option<Vec<PersonOrOrganizationOrSoftwareApplication>>,
+    pub authors: Option<Vec<Author>>,
 
     /// A digest of the `code` and `styleLanguage`.
     #[serde(alias = "compilation-digest", alias = "compilation_digest")]

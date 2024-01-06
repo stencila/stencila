@@ -2,6 +2,7 @@
 
 use crate::prelude::*;
 
+use super::author::Author;
 use super::block::Block;
 use super::comment::Comment;
 use super::creative_work_type::CreativeWorkType;
@@ -12,7 +13,6 @@ use super::image_object::ImageObject;
 use super::inline::Inline;
 use super::person::Person;
 use super::person_or_organization::PersonOrOrganization;
-use super::person_or_organization_or_software_application::PersonOrOrganizationOrSoftwareApplication;
 use super::property_value_or_string::PropertyValueOrString;
 use super::software_application::SoftwareApplication;
 use super::software_source_code_or_software_application_or_string::SoftwareSourceCodeOrSoftwareApplicationOrString;
@@ -107,13 +107,13 @@ pub struct SoftwareSourceCodeOptions {
     #[serde(alias = "author")]
     #[serde(default, deserialize_with = "option_one_or_many_string_or_object")]
     #[strip(metadata)]
-    pub authors: Option<Vec<PersonOrOrganizationOrSoftwareApplication>>,
+    pub authors: Option<Vec<Author>>,
 
     /// A secondary contributor to the `CreativeWork`.
     #[serde(alias = "contributor")]
     #[serde(default, deserialize_with = "option_one_or_many_string_or_object")]
     #[strip(metadata)]
-    pub contributors: Option<Vec<PersonOrOrganizationOrSoftwareApplication>>,
+    pub contributors: Option<Vec<Author>>,
 
     /// People who edited the `CreativeWork`.
     #[serde(alias = "editor")]

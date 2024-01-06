@@ -1,0 +1,24 @@
+{
+  "$schema": "https://stencila.org/meta.schema.json",
+  "$id": "https://stencila.org/Author.schema.json",
+  "@id": "stencila:Author",
+  "title": "Author",
+  "category": "works",
+  "description": "Union type for things that can be an author of a `CreativeWork` or other type.",
+  "$comment": "This type merely exists to avoid the excessively long type name\n(`PersonOrOrganizationOrSoftwareApplicationOrAuthorRole`) that is otherwise generated.\n",
+  "anyOf": [
+    {
+      "$ref": "Person.schema.json"
+    },
+    {
+      "$ref": "Organization.schema.json"
+    },
+    {
+      "$ref": "SoftwareApplication.schema.json"
+    },
+    {
+      "$ref": "AuthorRole.schema.json"
+    }
+  ],
+  "default": "Person"
+}

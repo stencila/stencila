@@ -1,0 +1,13 @@
+title: Author
+'@id': stencila:Author
+category: works
+description: Union type for things that can be an author of a `CreativeWork` or other type.
+$comment: |
+  This type merely exists to avoid the excessively long type name
+  (`PersonOrOrganizationOrSoftwareApplicationOrAuthorRole`) that is otherwise generated.
+default: Person
+anyOf:
+  - $ref: Person
+  - $ref: Organization
+  - $ref: SoftwareApplication
+  - $ref: AuthorRole

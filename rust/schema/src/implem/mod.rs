@@ -3,6 +3,7 @@
 mod admonition;
 mod array;
 mod article;
+mod author;
 mod automatic_execution;
 mod block;
 mod call_block;
@@ -43,7 +44,6 @@ mod object;
 mod parameter;
 mod person;
 mod person_or_organization;
-mod person_or_organization_or_software_application;
 mod primitive;
 mod property_value_or_string;
 mod quote_block;

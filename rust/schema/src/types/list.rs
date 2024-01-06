@@ -2,9 +2,9 @@
 
 use crate::prelude::*;
 
+use super::author::Author;
 use super::list_item::ListItem;
 use super::list_order::ListOrder;
-use super::person_or_organization_or_software_application::PersonOrOrganizationOrSoftwareApplication;
 use super::string::String;
 
 /// A list of items.
@@ -66,7 +66,7 @@ pub struct ListOptions {
     #[serde(default, deserialize_with = "option_one_or_many_string_or_object")]
     #[strip(metadata)]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
-    pub authors: Option<Vec<PersonOrOrganizationOrSoftwareApplication>>,
+    pub authors: Option<Vec<Author>>,
 }
 
 impl List {

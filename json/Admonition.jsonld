@@ -154,9 +154,6 @@
       "rdfs:comment": "The authors of the admonition.",
       "schema:domainIncludes": [
         {
-          "@id": "schema:Claim"
-        },
-        {
           "@id": "schema:CreativeWork"
         },
         {
@@ -190,17 +187,9 @@
           "@id": "stencila:Styled"
         }
       ],
-      "schema:rangeIncludes": [
-        {
-          "@id": "schema:Person"
-        },
-        {
-          "@id": "schema:Organization"
-        },
-        {
-          "@id": "schema:SoftwareApplication"
-        }
-      ]
+      "schema:rangeIncludes": {
+        "@id": "stencila:Author"
+      }
     }
   ]
 }

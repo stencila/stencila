@@ -1,5 +1,6 @@
 // Generated file; do not edit. See `../rust/schema-gen` crate.
 
+import { Author } from "./Author.js";
 import { Block } from "./Block.js";
 import { Comment } from "./Comment.js";
 import { CreativeWorkType } from "./CreativeWorkType.js";
@@ -9,7 +10,6 @@ import { GrantOrMonetaryGrant } from "./GrantOrMonetaryGrant.js";
 import { Inline } from "./Inline.js";
 import { Person } from "./Person.js";
 import { PersonOrOrganization } from "./PersonOrOrganization.js";
-import { PersonOrOrganizationOrSoftwareApplication } from "./PersonOrOrganizationOrSoftwareApplication.js";
 import { StringOrNumber } from "./StringOrNumber.js";
 import { Text } from "./Text.js";
 import { Thing } from "./Thing.js";
@@ -34,12 +34,12 @@ export class CreativeWork extends Thing {
   /**
    * The authors of the `CreativeWork`.
    */
-  authors?: PersonOrOrganizationOrSoftwareApplication[];
+  authors?: Author[];
 
   /**
    * A secondary contributor to the `CreativeWork`.
    */
-  contributors?: PersonOrOrganizationOrSoftwareApplication[];
+  contributors?: Author[];
 
   /**
    * People who edited the `CreativeWork`.

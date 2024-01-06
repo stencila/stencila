@@ -1,8 +1,8 @@
 // Generated file; do not edit. See `../rust/schema-gen` crate.
 
+import { Author } from "./Author.js";
 import { Executable } from "./Executable.js";
 import { IfBlockClause } from "./IfBlockClause.js";
-import { PersonOrOrganizationOrSoftwareApplication } from "./PersonOrOrganizationOrSoftwareApplication.js";
 
 /**
  * Show and execute alternative content conditional upon an executed expression.
@@ -18,7 +18,7 @@ export class IfBlock extends Executable {
   /**
    * The authors of the if block.
    */
-  authors?: PersonOrOrganizationOrSoftwareApplication[];
+  authors?: Author[];
 
   constructor(clauses: IfBlockClause[], options?: Partial<IfBlock>) {
     super();

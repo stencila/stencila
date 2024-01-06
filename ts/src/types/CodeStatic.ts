@@ -1,8 +1,8 @@
 // Generated file; do not edit. See `../rust/schema-gen` crate.
 
+import { Author } from "./Author.js";
 import { Cord } from "./Cord.js";
 import { Entity } from "./Entity.js";
-import { PersonOrOrganizationOrSoftwareApplication } from "./PersonOrOrganizationOrSoftwareApplication.js";
 
 /**
  * Abstract base type for non-executable code nodes (e.g. `CodeBlock`).
@@ -23,7 +23,7 @@ export class CodeStatic extends Entity {
   /**
    * The authors of the code.
    */
-  authors?: PersonOrOrganizationOrSoftwareApplication[];
+  authors?: Author[];
 
   constructor(code: Cord, options?: Partial<CodeStatic>) {
     super();

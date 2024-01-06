@@ -123,11 +123,11 @@ impl Assistant for GoogleAssistant {
         match content {
             Part {
                 text: Some(text), ..
-            } => GenerateOutput::from_text(task, text).await,
+            } => GenerateOutput::from_text(self, task, text).await,
             Part {
                 image_data: Some(Blob { mime_type, data }),
                 ..
-            } => GenerateOutput::from_base64(&mime_type, data).await,
+            } => GenerateOutput::from_base64(self, task, &mime_type, data).await,
             _ => bail!("Unexpected response content part"),
         }
     }

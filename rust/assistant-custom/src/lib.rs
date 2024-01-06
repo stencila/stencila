@@ -27,9 +27,10 @@ use assistant::{
         serde_yaml, tracing,
     },
     merge::Merge,
+    node_authorship::author_roles,
     schema::{
         transforms::{transform_block, transform_inline},
-        Block, Inline, NodeType,
+        AuthorRoleName, NodeType,
     },
     Assistant, AssistantIO, GenerateOptions, GenerateOutput, GenerateTask, InstructionType, Nodes,
 };
@@ -425,15 +426,11 @@ impl CustomAssistant {
     /// Update a `GenerateOutput` by decoding its `content` to a Stencila Schema node
     /// based on the configuration of this assistant.
     #[tracing::instrument(skip_all)]
-    async fn update_output(
-        &self,
-        delegate: Option<&dyn Assistant>,
-        mut output: GenerateOutput,
-    ) -> Result<GenerateOutput> {
+    async fn update_output(&self, mut output: GenerateOutput) -> Result<GenerateOutput> {
         let nodes = output.nodes;
 
         // Transform the nodes to the expected type if specified
-        let mut nodes = if let Some(node_type) = self.transform_nodes {
+        let nodes = if let Some(node_type) = self.transform_nodes {
             match nodes {
                 Nodes::Blocks(nodes) => Nodes::Blocks(
                     nodes
@@ -460,38 +457,6 @@ impl CustomAssistant {
             };
             if !regex.is_match(&list) {
                 bail!("Expected generated node types to match pattern `{regex}`, got `{list}`")
-            }
-        }
-
-        // For any of the final nodes that are creative works, add this assistant and the delegate
-        // (if any) to the list of contributors.
-        let mut contributors = vec![self.to_contributor()];
-        if let Some(delegate) = delegate {
-            contributors.push(delegate.to_contributor());
-        }
-        let contributors = Some(contributors);
-        match &mut nodes {
-            Nodes::Blocks(nodes) => {
-                for node in nodes.iter_mut() {
-                    use Block::*;
-                    match node {
-                        Table(node) => node.options.contributors = contributors.clone(),
-                        Figure(node) => node.options.contributors = contributors.clone(),
-                        Claim(node) => node.options.contributors = contributors.clone(),
-                        _ => {}
-                    }
-                }
-            }
-            Nodes::Inlines(nodes) => {
-                for node in nodes.iter_mut() {
-                    use Inline::*;
-                    match node {
-                        AudioObject(node) => node.options.contributors = contributors.clone(),
-                        ImageObject(node) => node.options.contributors = contributors.clone(),
-                        VideoObject(node) => node.options.contributors = contributors.clone(),
-                        _ => {}
-                    }
-                }
             }
         }
 
@@ -642,10 +607,10 @@ impl Assistant for CustomAssistant {
             // Update the task, to render template, before performing it (without delegate)
             let task = self.prepare_task(task, None).await?;
 
-            let output = GenerateOutput::from_text(&task, task.user_prompt().to_string()).await?;
-            let output = self.update_output(None, output).await?;
+            let output =
+                GenerateOutput::from_text(self, &task, task.user_prompt().to_string()).await?;
 
-            output
+            self.update_output(output).await?
         } else {
             // Get the first available assistant to delegate to
             let delegate = self.first_available_delegate(&task).await?;
@@ -659,7 +624,15 @@ impl Assistant for CustomAssistant {
             for retry in 0..=max_retries {
                 let result: Result<GenerateOutput> = {
                     let output = delegate.perform_task(&task, &options).await?;
-                    let output = self.update_output(Some(delegate.as_ref()), output).await?;
+                    let mut output = self.update_output(output).await?;
+
+                    // Add this assistant as an author for generating the prompt used by the delegate
+                    let roles = vec![self.to_author_role(AuthorRoleName::Prompter)];
+                    match &mut output.nodes {
+                        Nodes::Blocks(blocks) => author_roles(blocks, roles),
+                        Nodes::Inlines(inlines) => author_roles(inlines, roles),
+                    }
+
                     Ok(output)
                 };
                 match result {

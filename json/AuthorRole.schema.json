@@ -1,0 +1,63 @@
+{
+  "$schema": "https://stencila.org/meta.schema.json",
+  "$id": "https://stencila.org/AuthorRole.schema.json",
+  "@id": "stencila:AuthorRole",
+  "title": "AuthorRole",
+  "extends": [
+    "Role"
+  ],
+  "category": "works",
+  "description": "An author and their role.",
+  "required": [
+    "type",
+    "author",
+    "roleName"
+  ],
+  "core": [
+    "id"
+  ],
+  "properties": {
+    "type": {
+      "@id": "schema:type",
+      "description": "The type of this item.",
+      "$comment": "This is a special property analogous to JSON-LD's `@type` keyword.\n",
+      "type": "string"
+    },
+    "id": {
+      "@id": "schema:id",
+      "description": "The identifier for this item.",
+      "$comment": "This is a special property analogous to JSON-LD's `@id` keyword.\n",
+      "strip": [
+        "metadata"
+      ],
+      "html": {
+        "attr": "id"
+      },
+      "type": "string"
+    },
+    "author": {
+      "@id": "schema:author",
+      "description": "The author.",
+      "anyOf": [
+        {
+          "$ref": "Person.schema.json"
+        },
+        {
+          "$ref": "Organization.schema.json"
+        },
+        {
+          "$ref": "SoftwareApplication.schema.json"
+        }
+      ]
+    },
+    "roleName": {
+      "@id": "schema:roleName",
+      "description": "A role played by the author.",
+      "aliases": [
+        "role-name",
+        "role_name"
+      ],
+      "$ref": "AuthorRoleName.schema.json"
+    }
+  }
+}

@@ -7,6 +7,7 @@ import { type Array } from "./Array.js";
 import { type ArrayValidator } from "./ArrayValidator.js";
 import { type Article } from "./Article.js";
 import { type AudioObject } from "./AudioObject.js";
+import { type AuthorRole } from "./AuthorRole.js";
 import { type BooleanValidator } from "./BooleanValidator.js";
 import { type Brand } from "./Brand.js";
 import { type Button } from "./Button.js";
@@ -92,6 +93,7 @@ import { type QuoteInline } from "./QuoteInline.js";
 import { type ReplaceBlock } from "./ReplaceBlock.js";
 import { type ReplaceInline } from "./ReplaceInline.js";
 import { type Review } from "./Review.js";
+import { type Role } from "./Role.js";
 import { type Section } from "./Section.js";
 import { type SoftwareApplication } from "./SoftwareApplication.js";
 import { type SoftwareSourceCode } from "./SoftwareSourceCode.js";
@@ -136,6 +138,7 @@ export type Node =
   ArrayValidator |
   Article |
   AudioObject |
+  AuthorRole |
   BooleanValidator |
   Brand |
   Button |
@@ -218,6 +221,7 @@ export type Node =
   ReplaceBlock |
   ReplaceInline |
   Review |
+  Role |
   Section |
   SoftwareApplication |
   SoftwareSourceCode |
@@ -258,6 +262,7 @@ export function node(other: Node): Node {
     case "ArrayValidator":
     case "Article":
     case "AudioObject":
+    case "AuthorRole":
     case "BooleanValidator":
     case "Brand":
     case "Button":
@@ -340,6 +345,7 @@ export function node(other: Node): Node {
     case "ReplaceBlock":
     case "ReplaceInline":
     case "Review":
+    case "Role":
     case "Section":
     case "SoftwareApplication":
     case "SoftwareSourceCode":

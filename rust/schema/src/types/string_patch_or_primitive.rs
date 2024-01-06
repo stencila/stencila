@@ -6,9 +6,10 @@ use super::primitive::Primitive;
 use super::string_patch::StringPatch;
 
 /// [`StringPatch`] or [`Primitive`]
-#[derive(Debug, strum::Display, Clone, PartialEq, Serialize, Deserialize, StripNode, WalkNode, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec, WriteNode)]
+#[derive(Debug, strum::Display, Clone, PartialEq, Serialize, Deserialize, StripNode, WalkNode, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec, WriteNode, SmartDefault)]
 #[serde(untagged, crate = "common::serde")]
 pub enum StringPatchOrPrimitive {
+    #[default]
     StringPatch(StringPatch),
 
     Primitive(Primitive),

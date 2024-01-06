@@ -2,6 +2,7 @@
 
 use crate::prelude::*;
 
+use super::author::Author;
 use super::automatic_execution::AutomaticExecution;
 use super::block::Block;
 use super::boolean::Boolean;
@@ -16,7 +17,6 @@ use super::execution_required::ExecutionRequired;
 use super::execution_status::ExecutionStatus;
 use super::execution_tag::ExecutionTag;
 use super::integer::Integer;
-use super::person_or_organization_or_software_application::PersonOrOrganizationOrSoftwareApplication;
 use super::string::String;
 use super::timestamp::Timestamp;
 
@@ -176,7 +176,7 @@ pub struct IfBlockClauseOptions {
     #[serde(default, deserialize_with = "option_one_or_many_string_or_object")]
     #[strip(metadata)]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
-    pub authors: Option<Vec<PersonOrOrganizationOrSoftwareApplication>>,
+    pub authors: Option<Vec<Author>>,
 
     /// Whether this clause is the active clause in the parent `IfBlock` node
     #[serde(alias = "is-active", alias = "is_active")]

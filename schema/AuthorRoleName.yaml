@@ -1,0 +1,19 @@
+title: AuthorRoleName
+'@id': stencila:AuthorRoleName
+extends: Enumeration
+category: works
+description: A `roleName` for an `AuthorRole`.
+default: Writer
+anyOf:
+  - const: Writer
+    '@id': stencila:Writer
+    description: The author, usually a `Person`, directly wrote content such as prose or code.
+  - const: Instructor
+    '@id': stencila:Instructor
+    description: The author, usually a `Person`, instructed another author, usually a `SoftwareApplication`, to create content.
+  - const: Prompter
+    '@id': stencila:Prompter
+    description: The author, usually a `SoftwareApplication`, prompted another author, also usually a `SoftwareApplication`, to generate content.
+  - const: Generator
+    '@id': stencila:Generator
+    description: The author is a `SoftwareApplication` that generated content such as prose, code, or images.

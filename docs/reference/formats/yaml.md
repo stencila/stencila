@@ -43,6 +43,7 @@ Support and degree of loss for node types:
 | **Works**                                                                                                                 |
 | [Article](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/article.md)                          | 🟢 No loss    | 🟢 No loss    |       |
 | [AudioObject](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/audio_object.md)                 | 🟢 No loss    | 🟢 No loss    |       |
+| [AuthorRole](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/author_role.md)                   | 🟢 No loss    | 🟢 No loss    |       |
 | [Claim](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/claim.md)                              | 🟢 No loss    | 🟢 No loss    |       |
 | [Collection](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/collection.md)                    | 🟢 No loss    | 🟢 No loss    |       |
 | [Comment](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/comment.md)                          | 🟢 No loss    | 🟢 No loss    |       |
@@ -169,6 +170,7 @@ Support and degree of loss for node types:
 | [PostalAddress](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/postal_address.md)             | 🟢 No loss    | 🟢 No loss    |       |
 | [Product](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/product.md)                          | 🟢 No loss    | 🟢 No loss    |       |
 | [PropertyValue](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/property_value.md)             | 🟢 No loss    | 🟢 No loss    |       |
+| [Role](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/role.md)                                | 🟢 No loss    | 🟢 No loss    |       |
 | [Thing](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/thing.md)                              | 🟢 No loss    | 🟢 No loss    |       |
 
 <!-- CODEC-DOCS:STOP -->

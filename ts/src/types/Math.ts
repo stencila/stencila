@@ -1,10 +1,10 @@
 // Generated file; do not edit. See `../rust/schema-gen` crate.
 
+import { Author } from "./Author.js";
 import { CompilationDigest } from "./CompilationDigest.js";
 import { CompilationError } from "./CompilationError.js";
 import { Cord } from "./Cord.js";
 import { Entity } from "./Entity.js";
-import { PersonOrOrganizationOrSoftwareApplication } from "./PersonOrOrganizationOrSoftwareApplication.js";
 
 /**
  * Abstract base type for a mathematical variable or equation.
@@ -25,7 +25,7 @@ export class Math extends Entity {
   /**
    * The authors of the math.
    */
-  authors?: PersonOrOrganizationOrSoftwareApplication[];
+  authors?: Author[];
 
   /**
    * A digest of the `code` and `mathLanguage`.

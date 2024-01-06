@@ -17,10 +17,11 @@ use common::{
     strum::Display,
 };
 use format::Format;
+use node_authorship::author_roles;
 use schema::{
     transforms::{blocks_to_inlines, blocks_to_nodes, inlines_to_blocks, inlines_to_nodes},
-    Article, AudioObject, Block, ImageObject, Inline, InstructionBlock, InstructionInline, Link,
-    Node, Organization, OrganizationOptions, PersonOrOrganization,
+    Article, AudioObject, AuthorRole, AuthorRoleName, Block, ImageObject, Inline, InstructionBlock,
+    InstructionInline, Link, Node, Organization, OrganizationOptions, PersonOrOrganization,
     PersonOrOrganizationOrSoftwareApplication, SoftwareApplication, SoftwareApplicationOptions,
     StringOrNumber, VideoObject,
 };
@@ -30,6 +31,7 @@ pub use codecs;
 pub use common;
 pub use format;
 pub use merge;
+pub use node_authorship;
 pub use schema;
 
 /// An instruction created within a document
@@ -456,7 +458,7 @@ pub struct GenerateOptions {
 }
 
 /// Output generated for a task
-/// 
+///
 /// Yes, this could have been named `GeneratedOutput`! But it wasn't to
 /// maintain consistency with `GenerateTask` and `GenerateOptions`.
 pub struct GenerateOutput {
@@ -472,10 +474,14 @@ pub struct GenerateOutput {
 
 impl GenerateOutput {
     /// Create a `GenerateOutput` from text
-    /// 
+    ///
     /// If the output format of the task in unknown (i.e. was not specified)
     /// then assumes it is Markdown.
-    pub async fn from_text(task: &GenerateTask, text: String) -> Result<Self> {
+    pub async fn from_text(
+        assistant: &dyn Assistant,
+        task: &GenerateTask,
+        text: String,
+    ) -> Result<Self> {
         let format = match task.format {
             Format::Unknown => Format::Markdown,
             _ => task.format,
@@ -490,9 +496,14 @@ impl GenerateOutput {
         )
         .await?;
 
-        let Node::Article(Article{content,..}) = node else {
+        let Node::Article(Article{mut content,..}) = node else {
             bail!("Expected decoded node to be an article, got `{node}`")
         };
+
+        author_roles(
+            &mut content,
+            vec![assistant.to_author_role(AuthorRoleName::Generator)],
+        );
 
         let instruction_type = InstructionType::from(&task.instruction);
         let nodes = if matches!(
@@ -512,12 +523,17 @@ impl GenerateOutput {
     }
 
     /// Create a `GenerateOutput` from a URL with a specific media type
-    pub async fn from_url(media_type: &str, url: String) -> Result<Self> {
+    pub async fn from_url(
+        assistant: &dyn Assistant,
+        _task: &GenerateTask,
+        media_type: &str,
+        url: String,
+    ) -> Result<Self> {
         let format = Format::from_media_type(media_type).unwrap_or(Format::Unknown);
 
         let media_type = Some(media_type.to_string());
 
-        let node = if format.is_audio() {
+        let mut node = if format.is_audio() {
             Inline::AudioObject(AudioObject {
                 content_url: url.clone(),
                 media_type,
@@ -542,6 +558,11 @@ impl GenerateOutput {
             })
         };
 
+        author_roles(
+            &mut node,
+            vec![assistant.to_author_role(AuthorRoleName::Generator)],
+        );
+
         let nodes = Nodes::Inlines(vec![node]);
 
         Ok(Self {
@@ -552,14 +573,19 @@ impl GenerateOutput {
     }
 
     /// Create a `GenerateOutput` from Base64 encoded data of a specific media type
-    pub async fn from_base64(media_type: &str, data: String) -> Result<Self> {
+    pub async fn from_base64(
+        assistant: &dyn Assistant,
+        _task: &GenerateTask,
+        media_type: &str,
+        data: String,
+    ) -> Result<Self> {
         let url = format!("{};base64,{}", media_type, data);
 
         let format = Format::from_media_type(media_type).unwrap_or(Format::Unknown);
 
         let media_type = Some(media_type.to_string());
 
-        let node = if format.is_audio() {
+        let mut node = if format.is_audio() {
             Inline::AudioObject(AudioObject {
                 content_url: url,
                 media_type,
@@ -583,6 +609,11 @@ impl GenerateOutput {
                 ..Default::default()
             })
         };
+
+        author_roles(
+            &mut node,
+            vec![assistant.to_author_role(AuthorRoleName::Generator)],
+        );
 
         let nodes = Nodes::Inlines(vec![node]);
 
@@ -742,9 +773,19 @@ pub trait Assistant: Sync + Send {
         version.to_string()
     }
 
-    /// Create an item for the `contributors` property of a `CreativeWork` to represent the assistant
-    fn to_contributor(&self) -> PersonOrOrganizationOrSoftwareApplication {
-        PersonOrOrganizationOrSoftwareApplication::SoftwareApplication(SoftwareApplication {
+    /// Create an `AuthorRole` node for this assistant
+    fn to_author_role(&self, role_name: AuthorRoleName) -> AuthorRole {
+        AuthorRole::new(
+            PersonOrOrganizationOrSoftwareApplication::SoftwareApplication(
+                self.to_software_application(),
+            ),
+            role_name,
+        )
+    }
+
+    /// Create a `SoftwareApplication` node representing this assistant
+    fn to_software_application(&self) -> SoftwareApplication {
+        SoftwareApplication {
             id: Some(self.id()),
             name: self.name(),
             options: Box::new(SoftwareApplicationOptions {
@@ -759,7 +800,7 @@ pub trait Assistant: Sync + Send {
                 ..Default::default()
             }),
             ..Default::default()
-        })
+        }
     }
 
     /// Get the context length of the assistant

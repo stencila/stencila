@@ -1,9 +1,9 @@
 // Generated file; do not edit. See `../rust/schema-gen` crate.
 
+import { Author } from "./Author.js";
 import { Entity } from "./Entity.js";
 import { Inline } from "./Inline.js";
 import { Integer } from "./Integer.js";
-import { PersonOrOrganizationOrSoftwareApplication } from "./PersonOrOrganizationOrSoftwareApplication.js";
 
 /**
  * A heading.
@@ -24,7 +24,7 @@ export class Heading extends Entity {
   /**
    * The authors of the heading.
    */
-  authors?: PersonOrOrganizationOrSoftwareApplication[];
+  authors?: Author[];
 
   constructor(level: Integer, content: Inline[], options?: Partial<Heading>) {
     super();

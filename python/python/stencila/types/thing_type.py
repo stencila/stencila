@@ -5,6 +5,7 @@ from .prelude import *
 AdmonitionType = ForwardRef("AdmonitionType")
 Article = ForwardRef("Article")
 AudioObject = ForwardRef("AudioObject")
+AuthorRoleName = ForwardRef("AuthorRoleName")
 AutomaticExecution = ForwardRef("AutomaticExecution")
 Brand = ForwardRef("Brand")
 CitationIntent = ForwardRef("CitationIntent")
@@ -57,6 +58,7 @@ ThingType = Union[
     AdmonitionType,
     Article,
     AudioObject,
+    AuthorRoleName,
     AutomaticExecution,
     Brand,
     CitationIntent,

@@ -39,6 +39,9 @@
       "$ref": "AudioObject.schema.json"
     },
     {
+      "$ref": "AuthorRole.schema.json"
+    },
+    {
       "$ref": "BooleanValidator.schema.json"
     },
     {
@@ -283,6 +286,9 @@
     },
     {
       "$ref": "Review.schema.json"
+    },
+    {
+      "$ref": "Role.schema.json"
     },
     {
       "$ref": "Section.schema.json"

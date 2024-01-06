@@ -3,15 +3,7 @@ use smol_str::SmolStr;
 use common::eyre::Result;
 use node_store::{automerge::ObjId, ReadNode, ReadStore};
 
-use crate::{Null, Primitive, StringPatch, StringPatchOrPrimitive};
-
-// It is necessary to implement this because `ModifyOperation.value`
-// is required.
-impl Default for StringPatchOrPrimitive {
-    fn default() -> Self {
-        Self::Primitive(Primitive::Null(Null))
-    }
-}
+use crate::{Primitive, StringPatch, StringPatchOrPrimitive};
 
 impl ReadNode for StringPatchOrPrimitive {
     fn load_map<S: ReadStore>(store: &S, obj: &ObjId) -> Result<Self> {

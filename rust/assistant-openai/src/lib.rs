@@ -226,7 +226,7 @@ impl OpenAIAssistant {
             .and_then(|choice| choice.message.content)
             .unwrap_or_default();
 
-        GenerateOutput::from_text(task, text).await
+        GenerateOutput::from_text(self, task, text).await
     }
 
     #[tracing::instrument(skip(self))]
@@ -333,7 +333,9 @@ impl OpenAIAssistant {
         let image = response.data.remove(0);
 
         match image.as_ref() {
-            Image::Url { url, .. } => GenerateOutput::from_url("image/png", url.to_string()).await,
+            Image::Url { url, .. } => {
+                GenerateOutput::from_url(self, task, "image/png", url.to_string()).await
+            }
             _ => bail!("Unexpected image type"),
         }
     }

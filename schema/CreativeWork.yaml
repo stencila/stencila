@@ -32,10 +32,7 @@ properties:
     description: The authors of the `CreativeWork`.
     type: array
     items:
-      anyOf:
-        - $ref: Person
-        - $ref: Organization
-        - $ref: SoftwareApplication
+      $ref: Author
     strip: [metadata]
     serde:
       deserializeWith: option_one_or_many_string_or_object
@@ -44,10 +41,7 @@ properties:
     description: A secondary contributor to the `CreativeWork`.
     type: array
     items:
-      anyOf:
-        - $ref: Person
-        - $ref: Organization
-        - $ref: SoftwareApplication
+      $ref: Author
     strip: [metadata]
     serde:
       deserializeWith: option_one_or_many_string_or_object

@@ -1,10 +1,10 @@
 // Generated file; do not edit. See `../rust/schema-gen` crate.
 
 import { AdmonitionType } from "./AdmonitionType.js";
+import { Author } from "./Author.js";
 import { Block } from "./Block.js";
 import { Entity } from "./Entity.js";
 import { Inline } from "./Inline.js";
-import { PersonOrOrganizationOrSoftwareApplication } from "./PersonOrOrganizationOrSoftwareApplication.js";
 
 /**
  * A admonition within a document.
@@ -35,7 +35,7 @@ export class Admonition extends Entity {
   /**
    * The authors of the admonition.
    */
-  authors?: PersonOrOrganizationOrSoftwareApplication[];
+  authors?: Author[];
 
   constructor(admonitionType: AdmonitionType, content: Block[], options?: Partial<Admonition>) {
     super();

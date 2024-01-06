@@ -2,9 +2,9 @@
 
 use crate::prelude::*;
 
+use super::author::Author;
 use super::block::Block;
 use super::cite_or_text::CiteOrText;
-use super::person_or_organization_or_software_application::PersonOrOrganizationOrSoftwareApplication;
 use super::string::String;
 
 /// A section quoted from somewhere else.
@@ -61,7 +61,7 @@ pub struct QuoteBlockOptions {
     #[serde(default, deserialize_with = "option_one_or_many_string_or_object")]
     #[strip(metadata)]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
-    pub authors: Option<Vec<PersonOrOrganizationOrSoftwareApplication>>,
+    pub authors: Option<Vec<Author>>,
 }
 
 impl QuoteBlock {

@@ -5,6 +5,7 @@ use crate::prelude::*;
 use super::admonition_type::AdmonitionType;
 use super::article::Article;
 use super::audio_object::AudioObject;
+use super::author_role_name::AuthorRoleName;
 use super::automatic_execution::AutomaticExecution;
 use super::brand::Brand;
 use super::citation_intent::CitationIntent;
@@ -53,14 +54,17 @@ use super::time_unit::TimeUnit;
 use super::video_object::VideoObject;
 
 /// Union type for all types that are descended from `Thing`
-#[derive(Debug, strum::Display, Clone, PartialEq, Serialize, Deserialize, StripNode, WalkNode, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec, WriteNode, ReadNode)]
+#[derive(Debug, strum::Display, Clone, PartialEq, Serialize, Deserialize, StripNode, WalkNode, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec, WriteNode, SmartDefault, ReadNode)]
 #[serde(untagged, crate = "common::serde")]
 pub enum ThingType {
+    #[default]
     AdmonitionType(AdmonitionType),
 
     Article(Article),
 
     AudioObject(AudioObject),
+
+    AuthorRoleName(AuthorRoleName),
 
     AutomaticExecution(AutomaticExecution),
 

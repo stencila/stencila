@@ -7,6 +7,7 @@ Array = ForwardRef("Array")
 ArrayValidator = ForwardRef("ArrayValidator")
 Article = ForwardRef("Article")
 AudioObject = ForwardRef("AudioObject")
+AuthorRole = ForwardRef("AuthorRole")
 BooleanValidator = ForwardRef("BooleanValidator")
 Brand = ForwardRef("Brand")
 Button = ForwardRef("Button")
@@ -91,6 +92,7 @@ QuoteInline = ForwardRef("QuoteInline")
 ReplaceBlock = ForwardRef("ReplaceBlock")
 ReplaceInline = ForwardRef("ReplaceInline")
 Review = ForwardRef("Review")
+Role = ForwardRef("Role")
 Section = ForwardRef("Section")
 SoftwareApplication = ForwardRef("SoftwareApplication")
 SoftwareSourceCode = ForwardRef("SoftwareSourceCode")
@@ -133,6 +135,7 @@ Node = Union[
     ArrayValidator,
     Article,
     AudioObject,
+    AuthorRole,
     BooleanValidator,
     Brand,
     Button,
@@ -215,6 +218,7 @@ Node = Union[
     ReplaceBlock,
     ReplaceInline,
     Review,
+    Role,
     Section,
     SoftwareApplication,
     SoftwareSourceCode,

@@ -7,6 +7,9 @@ mod array;
 mod array_validator;
 mod article;
 mod audio_object;
+mod author;
+mod author_role;
+mod author_role_name;
 mod automatic_execution;
 mod block;
 mod boolean;
@@ -122,6 +125,7 @@ mod quote_inline;
 mod replace_block;
 mod replace_inline;
 mod review;
+mod role;
 mod section;
 mod section_type;
 mod software_application;
@@ -168,6 +172,9 @@ pub use array::*;
 pub use array_validator::*;
 pub use article::*;
 pub use audio_object::*;
+pub use author::*;
+pub use author_role::*;
+pub use author_role_name::*;
 pub use automatic_execution::*;
 pub use block::*;
 pub use boolean::*;
@@ -283,6 +290,7 @@ pub use quote_inline::*;
 pub use replace_block::*;
 pub use replace_inline::*;
 pub use review::*;
+pub use role::*;
 pub use section::*;
 pub use section_type::*;
 pub use software_application::*;
@@ -338,6 +346,7 @@ pub enum NodeType {
     ArrayValidator,
     Article,
     AudioObject,
+    AuthorRole,
     BooleanValidator,
     Brand,
     Button,
@@ -420,6 +429,7 @@ pub enum NodeType {
     ReplaceBlock,
     ReplaceInline,
     Review,
+    Role,
     Section,
     SoftwareApplication,
     SoftwareSourceCode,

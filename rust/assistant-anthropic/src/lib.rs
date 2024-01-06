@@ -84,7 +84,7 @@ impl Assistant for AnthropicAssistant {
             .trim_start()
             .to_string();
 
-        GenerateOutput::from_text(task, text).await
+        GenerateOutput::from_text(self, task, text).await
     }
 }
 

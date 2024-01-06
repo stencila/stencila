@@ -1,9 +1,9 @@
 // Generated file; do not edit. See `../rust/schema-gen` crate.
 
+import { Author } from "./Author.js";
 import { Entity } from "./Entity.js";
 import { ListItem } from "./ListItem.js";
 import { ListOrder } from "./ListOrder.js";
-import { PersonOrOrganizationOrSoftwareApplication } from "./PersonOrOrganizationOrSoftwareApplication.js";
 
 /**
  * A list of items.
@@ -24,7 +24,7 @@ export class List extends Entity {
   /**
    * The authors of the list.
    */
-  authors?: PersonOrOrganizationOrSoftwareApplication[];
+  authors?: Author[];
 
   constructor(items: ListItem[], order: ListOrder, options?: Partial<List>) {
     super();

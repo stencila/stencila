@@ -6,9 +6,10 @@ use super::grant::Grant;
 use super::monetary_grant::MonetaryGrant;
 
 /// [`Grant`] or [`MonetaryGrant`]
-#[derive(Debug, strum::Display, Clone, PartialEq, Serialize, Deserialize, StripNode, WalkNode, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec, WriteNode, ReadNode)]
+#[derive(Debug, strum::Display, Clone, PartialEq, Serialize, Deserialize, StripNode, WalkNode, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec, WriteNode, SmartDefault, ReadNode)]
 #[serde(untagged, crate = "common::serde")]
 pub enum GrantOrMonetaryGrant {
+    #[default]
     Grant(Grant),
 
     MonetaryGrant(MonetaryGrant),

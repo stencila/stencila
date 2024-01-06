@@ -2,10 +2,10 @@
 
 from .prelude import *
 
+from .author import Author
 from .block import Block
 from .cite_or_text import CiteOrText
 from .entity import Entity
-from .person_or_organization_or_software_application import PersonOrOrganizationOrSoftwareApplication
 
 
 @dataclass(init=False)
@@ -22,10 +22,10 @@ class QuoteBlock(Entity):
     content: List[Block]
     """The content of the quote."""
 
-    authors: Optional[List[PersonOrOrganizationOrSoftwareApplication]] = None
+    authors: Optional[List[Author]] = None
     """The authors of the quote."""
 
-    def __init__(self, content: List[Block], id: Optional[str] = None, cite: Optional[CiteOrText] = None, authors: Optional[List[PersonOrOrganizationOrSoftwareApplication]] = None):
+    def __init__(self, content: List[Block], id: Optional[str] = None, cite: Optional[CiteOrText] = None, authors: Optional[List[Author]] = None):
         super().__init__(id = id)
         self.cite = cite
         self.content = content

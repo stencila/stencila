@@ -795,7 +795,11 @@ impl {title} {{{new}}}
             uses.push_str("\n\n");
         }
 
-        let default = schema.default.as_ref().map(Self::rust_value);
+        let default = schema
+            .default
+            .as_ref()
+            .map(Self::rust_value)
+            .or(variants.first().map(|(variant, ..)| variant.clone()));
 
         let mut unit_variants = true;
         let variants = variants

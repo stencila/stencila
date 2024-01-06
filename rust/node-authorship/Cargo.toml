@@ -1,0 +1,7 @@
+[package]
+name = "node-authorship"
+version = "0.0.0"
+edition = "2021"
+
+[dependencies]
+schema = { path = "../schema" }

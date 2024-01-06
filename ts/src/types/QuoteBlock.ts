@@ -1,9 +1,9 @@
 // Generated file; do not edit. See `../rust/schema-gen` crate.
 
+import { Author } from "./Author.js";
 import { Block } from "./Block.js";
 import { CiteOrText } from "./CiteOrText.js";
 import { Entity } from "./Entity.js";
-import { PersonOrOrganizationOrSoftwareApplication } from "./PersonOrOrganizationOrSoftwareApplication.js";
 
 /**
  * A section quoted from somewhere else.
@@ -24,7 +24,7 @@ export class QuoteBlock extends Entity {
   /**
    * The authors of the quote.
    */
-  authors?: PersonOrOrganizationOrSoftwareApplication[];
+  authors?: Author[];
 
   constructor(content: Block[], options?: Partial<QuoteBlock>) {
     super();

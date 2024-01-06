@@ -1,8 +1,8 @@
 // Generated file; do not edit. See `../rust/schema-gen` crate.
 
+import { Author } from "./Author.js";
 import { Cord } from "./Cord.js";
 import { Executable } from "./Executable.js";
-import { PersonOrOrganizationOrSoftwareApplication } from "./PersonOrOrganizationOrSoftwareApplication.js";
 
 /**
  * Abstract base type for executable code nodes (e.g. `CodeChunk`).
@@ -23,7 +23,7 @@ export class CodeExecutable extends Executable {
   /**
    * The authors of the executable code.
    */
-  authors?: PersonOrOrganizationOrSoftwareApplication[];
+  authors?: Author[];
 
   constructor(code: Cord, options?: Partial<CodeExecutable>) {
     super();

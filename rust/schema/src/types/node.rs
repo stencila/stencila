@@ -7,6 +7,7 @@ use super::array::Array;
 use super::array_validator::ArrayValidator;
 use super::article::Article;
 use super::audio_object::AudioObject;
+use super::author_role::AuthorRole;
 use super::boolean::Boolean;
 use super::boolean_validator::BooleanValidator;
 use super::brand::Brand;
@@ -95,6 +96,7 @@ use super::quote_inline::QuoteInline;
 use super::replace_block::ReplaceBlock;
 use super::replace_inline::ReplaceInline;
 use super::review::Review;
+use super::role::Role;
 use super::section::Section;
 use super::software_application::SoftwareApplication;
 use super::software_source_code::SoftwareSourceCode;
@@ -152,6 +154,8 @@ pub enum Node {
     Article(Article),
 
     AudioObject(AudioObject),
+
+    AuthorRole(AuthorRole),
 
     BooleanValidator(BooleanValidator),
 
@@ -316,6 +320,8 @@ pub enum Node {
     ReplaceInline(ReplaceInline),
 
     Review(Review),
+
+    Role(Role),
 
     Section(Section),
 

@@ -6,9 +6,10 @@ use super::postal_address::PostalAddress;
 use super::string::String;
 
 /// [`PostalAddress`] or [`String`]
-#[derive(Debug, strum::Display, Clone, PartialEq, Serialize, Deserialize, StripNode, WalkNode, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec, WriteNode, ReadNode)]
+#[derive(Debug, strum::Display, Clone, PartialEq, Serialize, Deserialize, StripNode, WalkNode, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec, WriteNode, SmartDefault, ReadNode)]
 #[serde(untagged, crate = "common::serde")]
 pub enum PostalAddressOrString {
+    #[default]
     PostalAddress(PostalAddress),
 
     String(String),

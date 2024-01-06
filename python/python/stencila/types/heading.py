@@ -2,9 +2,9 @@
 
 from .prelude import *
 
+from .author import Author
 from .entity import Entity
 from .inline import Inline
-from .person_or_organization_or_software_application import PersonOrOrganizationOrSoftwareApplication
 
 
 @dataclass(init=False)
@@ -21,10 +21,10 @@ class Heading(Entity):
     content: List[Inline]
     """Content of the heading."""
 
-    authors: Optional[List[PersonOrOrganizationOrSoftwareApplication]] = None
+    authors: Optional[List[Author]] = None
     """The authors of the heading."""
 
-    def __init__(self, content: List[Inline], id: Optional[str] = None, level: int = 0, authors: Optional[List[PersonOrOrganizationOrSoftwareApplication]] = None):
+    def __init__(self, content: List[Inline], id: Optional[str] = None, level: int = 0, authors: Optional[List[Author]] = None):
         super().__init__(id = id)
         self.level = level
         self.content = content

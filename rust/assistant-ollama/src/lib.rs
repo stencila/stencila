@@ -176,7 +176,7 @@ impl Assistant for OllamaAssistant {
 
         let text = response.response;
 
-        GenerateOutput::from_text(task, text).await
+        GenerateOutput::from_text(self, task, text).await
     }
 }
 

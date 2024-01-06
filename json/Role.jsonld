@@ -1,0 +1,21 @@
+{
+  "@id": "https://stencila.org/Role",
+  "name": "Role",
+  "license": "https://creativecommons.org/publicdomain/zero/1.0/",
+  "@context": {
+    "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
+    "schema": "https://schema.org/",
+    "stencila": "https://stencila.org/"
+  },
+  "@graph": [
+    {
+      "@id": "schema:Role",
+      "@type": "rdfs:Class",
+      "rdfs:label": "Role",
+      "rdfs:comment": "Represents additional information about a relationship or property.",
+      "rdfs:subClassOf": {
+        "@id": "stencila:Entity"
+      }
+    }
+  ]
+}

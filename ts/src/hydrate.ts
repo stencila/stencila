@@ -43,6 +43,8 @@ export function hydrate(value: types.Node): types.Node {
       return Object.setPrototypeOf(value, types.Article.prototype);
     case "AudioObject":
       return Object.setPrototypeOf(value, types.AudioObject.prototype);
+    case "AuthorRole":
+      return Object.setPrototypeOf(value, types.AuthorRole.prototype);
     case "BooleanValidator":
       return Object.setPrototypeOf(value, types.BooleanValidator.prototype);
     case "Brand":
@@ -221,6 +223,8 @@ export function hydrate(value: types.Node): types.Node {
       return Object.setPrototypeOf(value, types.ReplaceInline.prototype);
     case "Review":
       return Object.setPrototypeOf(value, types.Review.prototype);
+    case "Role":
+      return Object.setPrototypeOf(value, types.Role.prototype);
     case "Section":
       return Object.setPrototypeOf(value, types.Section.prototype);
     case "SoftwareApplication":

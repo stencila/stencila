@@ -2,6 +2,7 @@
 
 use crate::prelude::*;
 
+use super::author::Author;
 use super::block::Block;
 use super::comment::Comment;
 use super::creative_work_type::CreativeWorkType;
@@ -13,7 +14,6 @@ use super::inline::Inline;
 use super::integer_or_string::IntegerOrString;
 use super::person::Person;
 use super::person_or_organization::PersonOrOrganization;
-use super::person_or_organization_or_software_application::PersonOrOrganizationOrSoftwareApplication;
 use super::property_value_or_string::PropertyValueOrString;
 use super::string::String;
 use super::string_or_number::StringOrNumber;
@@ -53,7 +53,7 @@ pub struct Article {
     #[serde(default, deserialize_with = "option_one_or_many_string_or_object")]
     #[strip(metadata)]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
-    pub authors: Option<Vec<PersonOrOrganizationOrSoftwareApplication>>,
+    pub authors: Option<Vec<Author>>,
 
     /// Date/time of creation.
     #[serde(alias = "date-created", alias = "date_created")]
@@ -182,7 +182,7 @@ pub struct ArticleOptions {
     #[serde(default, deserialize_with = "option_one_or_many_string_or_object")]
     #[strip(metadata)]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
-    pub contributors: Option<Vec<PersonOrOrganizationOrSoftwareApplication>>,
+    pub contributors: Option<Vec<Author>>,
 
     /// People who edited the `CreativeWork`.
     #[serde(alias = "editor")]

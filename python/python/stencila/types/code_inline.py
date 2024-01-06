@@ -2,9 +2,9 @@
 
 from .prelude import *
 
+from .author import Author
 from .code_static import CodeStatic
 from .cord import Cord
-from .person_or_organization_or_software_application import PersonOrOrganizationOrSoftwareApplication
 
 
 @dataclass(init=False)
@@ -15,6 +15,6 @@ class CodeInline(CodeStatic):
 
     type: Literal["CodeInline"] = field(default="CodeInline", init=False)
 
-    def __init__(self, code: Cord, id: Optional[str] = None, programming_language: Optional[str] = None, authors: Optional[List[PersonOrOrganizationOrSoftwareApplication]] = None):
+    def __init__(self, code: Cord, id: Optional[str] = None, programming_language: Optional[str] = None, authors: Optional[List[Author]] = None):
         super().__init__(id = id, code = code, programming_language = programming_language, authors = authors)
         

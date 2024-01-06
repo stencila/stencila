@@ -1,0 +1,53 @@
+{
+  "@id": "https://stencila.org/AuthorRole",
+  "name": "AuthorRole",
+  "license": "https://creativecommons.org/publicdomain/zero/1.0/",
+  "@context": {
+    "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
+    "schema": "https://schema.org/",
+    "stencila": "https://stencila.org/"
+  },
+  "@graph": [
+    {
+      "@id": "stencila:AuthorRole",
+      "@type": "rdfs:Class",
+      "rdfs:label": "AuthorRole",
+      "rdfs:comment": "An author and their role.",
+      "rdfs:subClassOf": {
+        "@id": "schema:Role"
+      }
+    },
+    {
+      "@id": "schema:author",
+      "@type": "rdfs:Property",
+      "rdfs:label": "author",
+      "rdfs:comment": "The author.",
+      "schema:domainIncludes": {
+        "@id": "stencila:AuthorRole"
+      },
+      "schema:rangeIncludes": [
+        {
+          "@id": "schema:Person"
+        },
+        {
+          "@id": "schema:Organization"
+        },
+        {
+          "@id": "schema:SoftwareApplication"
+        }
+      ]
+    },
+    {
+      "@id": "schema:roleName",
+      "@type": "rdfs:Property",
+      "rdfs:label": "roleName",
+      "rdfs:comment": "A role played by the author.",
+      "schema:domainIncludes": {
+        "@id": "stencila:AuthorRole"
+      },
+      "schema:rangeIncludes": {
+        "@id": "stencila:AuthorRoleName"
+      }
+    }
+  ]
+}

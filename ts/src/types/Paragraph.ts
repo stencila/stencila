@@ -1,8 +1,8 @@
 // Generated file; do not edit. See `../rust/schema-gen` crate.
 
+import { Author } from "./Author.js";
 import { Entity } from "./Entity.js";
 import { Inline } from "./Inline.js";
-import { PersonOrOrganizationOrSoftwareApplication } from "./PersonOrOrganizationOrSoftwareApplication.js";
 
 /**
  * A paragraph.
@@ -18,7 +18,7 @@ export class Paragraph extends Entity {
   /**
    * The authors of the paragraph.
    */
-  authors?: PersonOrOrganizationOrSoftwareApplication[];
+  authors?: Author[];
 
   constructor(content: Inline[], options?: Partial<Paragraph>) {
     super();
