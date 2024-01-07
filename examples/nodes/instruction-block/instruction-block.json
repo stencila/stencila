@@ -4,16 +4,31 @@
   "content": [
     {
       "type": "InstructionBlock",
-      "text": "4x10 table"
+      "messages": [
+        {
+          "type": "Message",
+          "parts": ["4x10 table"]
+        }
+      ]
     },
     {
       "type": "InstructionBlock",
       "assignee": "insert-table",
-      "text": "top five highest mountains, with height in metres"
+      "messages": [
+        {
+          "type": "Message",
+          "parts": ["top five highest mountains, with height in metres"]
+        }
+      ]
     },
     {
       "type": "InstructionBlock",
-      "text": "Improve this paragraph.",
+      "messages": [
+        {
+          "type": "Message",
+          "parts": ["Improve this paragraph."]
+        }
+      ],
       "content": [
         {
           "type": "Paragraph",
@@ -24,7 +39,12 @@
     {
       "type": "InstructionBlock",
       "assignee": "anne",
-      "text": "please improve this paragraph.",
+      "messages": [
+        {
+          "type": "Message",
+          "parts": ["please improve this paragraph."]
+        }
+      ],
       "content": [
         {
           "type": "Paragraph",

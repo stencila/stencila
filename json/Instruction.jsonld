@@ -202,20 +202,15 @@
       }
     },
     {
-      "@id": "schema:text",
+      "@id": "stencila:messages",
       "@type": "rdfs:Property",
-      "rdfs:label": "text",
-      "rdfs:comment": "The text of the instruction.",
-      "schema:domainIncludes": [
-        {
-          "@id": "schema:CreativeWork"
-        },
-        {
-          "@id": "stencila:Instruction"
-        }
-      ],
+      "rdfs:label": "messages",
+      "rdfs:comment": "Messages involved in the instruction.",
+      "schema:domainIncludes": {
+        "@id": "stencila:Instruction"
+      },
       "schema:rangeIncludes": {
-        "@id": "schema:Text"
+        "@id": "schema:Message"
       }
     },
     {
@@ -228,6 +223,53 @@
       },
       "schema:rangeIncludes": {
         "@id": "schema:Text"
+      }
+    },
+    {
+      "@id": "schema:author",
+      "@type": "rdfs:Property",
+      "rdfs:label": "authors",
+      "rdfs:comment": "The authors of the instruction.",
+      "schema:domainIncludes": [
+        {
+          "@id": "schema:CreativeWork"
+        },
+        {
+          "@id": "schema:ItemList"
+        },
+        {
+          "@id": "stencila:Admonition"
+        },
+        {
+          "@id": "stencila:CodeExecutable"
+        },
+        {
+          "@id": "stencila:CodeStatic"
+        },
+        {
+          "@id": "stencila:Heading"
+        },
+        {
+          "@id": "stencila:IfBlock"
+        },
+        {
+          "@id": "stencila:Instruction"
+        },
+        {
+          "@id": "stencila:Math"
+        },
+        {
+          "@id": "stencila:Paragraph"
+        },
+        {
+          "@id": "stencila:QuoteBlock"
+        },
+        {
+          "@id": "stencila:Styled"
+        }
+      ],
+      "schema:rangeIncludes": {
+        "@id": "stencila:Author"
       }
     }
   ]

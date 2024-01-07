@@ -7,16 +7,37 @@
   "stencila:content": [
     {
       "@type": "stencila:InstructionBlock",
-      "text": "4x10 table"
+      "stencila:messages": [
+        {
+          "@type": "Message",
+          "hasParts": [
+            "4x10 table"
+          ]
+        }
+      ]
     },
     {
       "@type": "stencila:InstructionBlock",
-      "text": "top five highest mountains, with height in metres",
+      "stencila:messages": [
+        {
+          "@type": "Message",
+          "hasParts": [
+            "top five highest mountains, with height in metres"
+          ]
+        }
+      ],
       "stencila:assignee": "insert-table"
     },
     {
       "@type": "stencila:InstructionBlock",
-      "text": "Improve this paragraph.",
+      "stencila:messages": [
+        {
+          "@type": "Message",
+          "hasParts": [
+            "Improve this paragraph."
+          ]
+        }
+      ],
       "stencila:content": [
         {
           "@type": "stencila:Paragraph",
@@ -31,8 +52,14 @@
     },
     {
       "@type": "stencila:InstructionBlock",
-      "text": "please improve this paragraph.",
-      "stencila:assignee": "anne",
+      "stencila:messages": [
+        {
+          "@type": "Message",
+          "hasParts": [
+            "please improve this paragraph."
+          ]
+        }
+      ],
       "stencila:content": [
         {
           "@type": "stencila:Paragraph",
@@ -43,7 +70,8 @@
             }
           ]
         }
-      ]
+      ],
+      "stencila:assignee": "anne"
     }
   ]
 }

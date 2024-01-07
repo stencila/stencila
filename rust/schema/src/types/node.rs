@@ -72,6 +72,7 @@ use super::list_item::ListItem;
 use super::math_block::MathBlock;
 use super::math_inline::MathInline;
 use super::media_object::MediaObject;
+use super::message::Message;
 use super::modify_block::ModifyBlock;
 use super::modify_inline::ModifyInline;
 use super::modify_operation::ModifyOperation;
@@ -96,7 +97,6 @@ use super::quote_inline::QuoteInline;
 use super::replace_block::ReplaceBlock;
 use super::replace_inline::ReplaceInline;
 use super::review::Review;
-use super::role::Role;
 use super::section::Section;
 use super::software_application::SoftwareApplication;
 use super::software_source_code::SoftwareSourceCode;
@@ -279,6 +279,8 @@ pub enum Node {
 
     MediaObject(MediaObject),
 
+    Message(Message),
+
     ModifyBlock(ModifyBlock),
 
     ModifyInline(ModifyInline),
@@ -320,8 +322,6 @@ pub enum Node {
     ReplaceInline(ReplaceInline),
 
     Review(Review),
-
-    Role(Role),
 
     Section(Section),
 

@@ -14,14 +14,12 @@
   },
   "required": [
     "type",
-    "text"
+    "messages"
   ],
   "core": [
     "id",
     "autoExec",
-    "assignee",
-    "content",
-    "suggestion"
+    "content"
   ],
   "properties": {
     "type": {
@@ -243,10 +241,17 @@
         "$ref": "ExecutionError.schema.json"
       }
     },
-    "text": {
-      "@id": "schema:text",
-      "description": "The text of the instruction.",
-      "type": "string"
+    "messages": {
+      "@id": "stencila:messages",
+      "description": "Messages involved in the instruction.",
+      "$comment": "This array of messages starts with the initial instruction from the\nuser and includes responses from the agent performing the instruction,\nand potentially further instructions for refinement by the user.\n",
+      "aliases": [
+        "message"
+      ],
+      "type": "array",
+      "items": {
+        "$ref": "Message.schema.json"
+      }
     },
     "assignee": {
       "@id": "stencila:assignee",
@@ -267,6 +272,20 @@
         }
       },
       "type": "string"
+    },
+    "authors": {
+      "@id": "schema:author",
+      "description": "The authors of the instruction.",
+      "aliases": [
+        "author"
+      ],
+      "strip": [
+        "metadata"
+      ],
+      "type": "array",
+      "items": {
+        "$ref": "Author.schema.json"
+      }
     },
     "content": {
       "@id": "stencila:content",

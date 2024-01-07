@@ -1,0 +1,18 @@
+{
+  "@id": "https://stencila.org/MessagePart",
+  "name": "MessagePart",
+  "license": "https://creativecommons.org/publicdomain/zero/1.0/",
+  "@context": {
+    "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
+    "schema": "https://schema.org/",
+    "stencila": "https://stencila.org/"
+  },
+  "@graph": [
+    {
+      "@id": "stencila:MessagePart",
+      "@type": "rdfs:Class",
+      "rdfs:label": "MessagePart",
+      "rdfs:comment": "A union type for a part of a message."
+    }
+  ]
+}

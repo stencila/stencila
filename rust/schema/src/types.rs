@@ -94,6 +94,8 @@ mod list_order;
 mod math_block;
 mod math_inline;
 mod media_object;
+mod message;
+mod message_part;
 mod modify_block;
 mod modify_inline;
 mod modify_operation;
@@ -125,7 +127,6 @@ mod quote_inline;
 mod replace_block;
 mod replace_inline;
 mod review;
-mod role;
 mod section;
 mod section_type;
 mod software_application;
@@ -259,6 +260,8 @@ pub use list_order::*;
 pub use math_block::*;
 pub use math_inline::*;
 pub use media_object::*;
+pub use message::*;
+pub use message_part::*;
 pub use modify_block::*;
 pub use modify_inline::*;
 pub use modify_operation::*;
@@ -290,7 +293,6 @@ pub use quote_inline::*;
 pub use replace_block::*;
 pub use replace_inline::*;
 pub use review::*;
-pub use role::*;
 pub use section::*;
 pub use section_type::*;
 pub use software_application::*;
@@ -408,6 +410,7 @@ pub enum NodeType {
     MathBlock,
     MathInline,
     MediaObject,
+    Message,
     ModifyBlock,
     ModifyInline,
     ModifyOperation,
@@ -429,7 +432,6 @@ pub enum NodeType {
     ReplaceBlock,
     ReplaceInline,
     Review,
-    Role,
     Section,
     SoftwareApplication,
     SoftwareSourceCode,

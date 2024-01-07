@@ -1,23 +1,23 @@
 <article>
   <p>
     <span>A paragraph with an instruction to insert content</span>
-    <stencila-instruction-inline text='insert an inline'>
+    <stencila-instruction-inline messages='[{"type":"Message","parts":["insert an inline"]}]'>
     </stencila-instruction-inline>
     <span>.</span>
   </p>
   <p>
     <span>A paragraph with an instruction to edit some existing content:</span>
-    <stencila-instruction-inline text='improve this'>
+    <stencila-instruction-inline messages='[{"type":"Message","parts":["improve this"]}]'>
       <span>existing content</span>
     </stencila-instruction-inline>
     <span>.</span>
   </p>
   <p>
     <span>Instructions with an assignee:</span>
-    <stencila-instruction-inline text='equation for surface area of cube' assignee='insert-inline-math'>
+    <stencila-instruction-inline messages='[{"type":"Message","parts":["equation for surface area of cube"]}]' assignee='insert-inline-math'>
     </stencila-instruction-inline>
     <span>and</span>
-    <stencila-instruction-inline text='please improve this' assignee='joe'>
+    <stencila-instruction-inline messages='[{"type":"Message","parts":["please improve this"]}]' assignee='joe'>
       <span>existing content</span>
     </stencila-instruction-inline>
     <span>.</span>

@@ -1,0 +1,61 @@
+{
+  "@id": "https://stencila.org/Message",
+  "name": "Message",
+  "license": "https://creativecommons.org/publicdomain/zero/1.0/",
+  "@context": {
+    "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
+    "schema": "https://schema.org/",
+    "stencila": "https://stencila.org/"
+  },
+  "@graph": [
+    {
+      "@id": "schema:Message",
+      "@type": "rdfs:Class",
+      "rdfs:label": "Message",
+      "rdfs:comment": "A message from a sender to one or more people, organizations or software application.",
+      "rdfs:subClassOf": {
+        "@id": "stencila:Entity"
+      }
+    },
+    {
+      "@id": "schema:hasParts",
+      "@type": "rdfs:Property",
+      "rdfs:label": "parts",
+      "rdfs:comment": "Parts of the message.",
+      "schema:domainIncludes": [
+        {
+          "@id": "schema:CreativeWork"
+        },
+        {
+          "@id": "schema:Message"
+        },
+        {
+          "@id": "stencila:Directory"
+        }
+      ],
+      "schema:rangeIncludes": {
+        "@id": "stencila:MessagePart"
+      }
+    },
+    {
+      "@id": "schema:sender",
+      "@type": "rdfs:Property",
+      "rdfs:label": "sender",
+      "rdfs:comment": "The sender of the message.",
+      "schema:domainIncludes": {
+        "@id": "schema:Message"
+      },
+      "schema:rangeIncludes": [
+        {
+          "@id": "schema:Person"
+        },
+        {
+          "@id": "schema:Organization"
+        },
+        {
+          "@id": "schema:SoftwareApplication"
+        }
+      ]
+    }
+  ]
+}

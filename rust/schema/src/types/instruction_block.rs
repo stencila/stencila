@@ -2,6 +2,7 @@
 
 use crate::prelude::*;
 
+use super::author::Author;
 use super::automatic_execution::AutomaticExecution;
 use super::block::Block;
 use super::compilation_digest::CompilationDigest;
@@ -14,6 +15,7 @@ use super::execution_required::ExecutionRequired;
 use super::execution_status::ExecutionStatus;
 use super::execution_tag::ExecutionTag;
 use super::integer::Integer;
+use super::message::Message;
 use super::string::String;
 use super::suggestion_block_type::SuggestionBlockType;
 use super::timestamp::Timestamp;
@@ -44,16 +46,11 @@ pub struct InstructionBlock {
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     pub auto_exec: Option<AutomaticExecution>,
 
-    /// The text of the instruction.
+    /// Messages involved in the instruction.
+    #[serde(alias = "message")]
+    #[serde(deserialize_with = "one_or_many")]
     #[cfg_attr(feature = "proptest", proptest(value = "Default::default()"))]
-    pub text: String,
-
-    /// An identifier for the agent assigned to perform the instruction
-    #[cfg_attr(feature = "proptest-min", proptest(value = r#"None"#))]
-    #[cfg_attr(feature = "proptest-low", proptest(strategy = r#"option::of(r"[a-zA-Z][a-zA-Z\-_/.@]")"#))]
-    #[cfg_attr(feature = "proptest-high", proptest(strategy = r#"option::of(r"[a-zA-Z][a-zA-Z\-_/.@]")"#))]
-    #[cfg_attr(feature = "proptest-max", proptest(strategy = r#"option::of(String::arbitrary())"#))]
-    pub assignee: Option<String>,
+    pub messages: Vec<Message>,
 
     /// The content to which the instruction applies.
     #[serde(default, deserialize_with = "option_one_or_many")]
@@ -63,10 +60,6 @@ pub struct InstructionBlock {
     #[cfg_attr(feature = "proptest-high", proptest(strategy = r#"option::of(vec_blocks_non_recursive(2))"#))]
     #[cfg_attr(feature = "proptest-max", proptest(strategy = r#"option::of(vec_blocks_non_recursive(4))"#))]
     pub content: Option<Vec<Block>>,
-
-    /// A suggestion for the instruction
-    #[cfg_attr(feature = "proptest", proptest(value = "None"))]
-    pub suggestion: Option<SuggestionBlockType>,
 
     /// Non-core optional fields
     #[serde(flatten)]
@@ -164,12 +157,30 @@ pub struct InstructionBlockOptions {
     #[strip(execution)]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     pub execution_errors: Option<Vec<ExecutionError>>,
+
+    /// An identifier for the agent assigned to perform the instruction
+    #[cfg_attr(feature = "proptest-min", proptest(value = r#"None"#))]
+    #[cfg_attr(feature = "proptest-low", proptest(strategy = r#"option::of(r"[a-zA-Z][a-zA-Z\-_/.@]")"#))]
+    #[cfg_attr(feature = "proptest-high", proptest(strategy = r#"option::of(r"[a-zA-Z][a-zA-Z\-_/.@]")"#))]
+    #[cfg_attr(feature = "proptest-max", proptest(strategy = r#"option::of(String::arbitrary())"#))]
+    pub assignee: Option<String>,
+
+    /// The authors of the instruction.
+    #[serde(alias = "author")]
+    #[serde(default, deserialize_with = "option_one_or_many")]
+    #[strip(metadata)]
+    #[cfg_attr(feature = "proptest", proptest(value = "None"))]
+    pub authors: Option<Vec<Author>>,
+
+    /// A suggestion for the instruction
+    #[cfg_attr(feature = "proptest", proptest(value = "None"))]
+    pub suggestion: Option<SuggestionBlockType>,
 }
 
 impl InstructionBlock {
-    pub fn new(text: String) -> Self {
+    pub fn new(messages: Vec<Message>) -> Self {
         Self {
-            text,
+            messages,
             ..Default::default()
         }
     }

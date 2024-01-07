@@ -5,7 +5,10 @@ content:
   - type: Text
     value: 'A paragraph with an instruction to insert content '
   - type: InstructionInline
-    text: insert an inline
+    messages:
+    - type: Message
+      parts:
+      - insert an inline
   - type: Text
     value: .
 - type: Paragraph
@@ -13,7 +16,10 @@ content:
   - type: Text
     value: 'A paragraph with an instruction to edit some existing content: '
   - type: InstructionInline
-    text: improve this
+    messages:
+    - type: Message
+      parts:
+      - improve this
     content:
     - type: Text
       value: existing content
@@ -24,15 +30,21 @@ content:
   - type: Text
     value: 'Instructions with an assignee: '
   - type: InstructionInline
-    text: equation for surface area of cube
+    messages:
+    - type: Message
+      parts:
+      - equation for surface area of cube
     assignee: insert-inline-math
   - type: Text
     value: ' and '
   - type: InstructionInline
-    text: please improve this
-    assignee: joe
+    messages:
+    - type: Message
+      parts:
+      - please improve this
     content:
     - type: Text
       value: ' existing content'
+    assignee: joe
   - type: Text
     value: .

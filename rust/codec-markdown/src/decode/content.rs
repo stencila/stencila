@@ -12,8 +12,9 @@ use codec::{
         shortcuts::{cb, dei, em, isi, mb, ol, p, qb, qi, stg, stk, t, tb, tbl, u, ul},
         transforms::blocks_to_inlines,
         AudioObject, Block, CodeChunk, Cord, DeleteBlock, Heading, IfBlock, IfBlockClause,
-        ImageObject, Inline, InsertBlock, InstructionBlock, Link, ListItem, ModifyBlock, Note,
-        NoteType, ReplaceBlock, Table, TableCell, TableRow, TableRowType, VideoObject,
+        ImageObject, Inline, InsertBlock, InstructionBlock, InstructionBlockOptions, Link,
+        ListItem, Message, MessagePart, ModifyBlock, Note, NoteType, ReplaceBlock, Table,
+        TableCell, TableRow, TableRowType, VideoObject,
     },
     Losses,
 };
@@ -242,8 +243,14 @@ pub fn decode_blocks(
                         instruct_block_start(trimmed)
                     {
                         let block = Block::InstructionBlock(InstructionBlock {
-                            assignee: assignee.map(|handle| handle.to_string()),
-                            text: text.to_string(),
+                            messages: vec![Message {
+                                parts: vec![MessagePart::String(text.into())],
+                                ..Default::default()
+                            }],
+                            options: Box::new(InstructionBlockOptions {
+                                assignee: assignee.map(|handle| handle.to_string()),
+                                ..Default::default()
+                            }),
                             ..Default::default()
                         });
                         if has_content {

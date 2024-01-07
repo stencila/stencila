@@ -20,9 +20,9 @@ use codec::{
         shortcuts::{dei, isi, mi, rei, stk, sub, sup, t},
         BooleanValidator, Button, Cite, CiteGroup, CodeExpression, CodeInline, Cord,
         DateTimeValidator, DateValidator, DurationValidator, EnumValidator, Inline,
-        InstructionInline, IntegerValidator, ModifyInline, Node, NumberValidator, Parameter,
-        ParameterOptions, StringValidator, StyledInline, TimeValidator, TimestampValidator,
-        Validator,
+        InstructionInline, InstructionInlineOptions, IntegerValidator, Message, MessagePart,
+        ModifyInline, Node, NumberValidator, Parameter, ParameterOptions, StringValidator,
+        StyledInline, TimeValidator, TimestampValidator, Validator,
     },
 };
 
@@ -627,8 +627,14 @@ fn instruction_inline(input: &str) -> IResult<&str, Inline> {
         ),
         |(assignee, text, content)| {
             Inline::InstructionInline(InstructionInline {
-                assignee: assignee.map(|handle| handle.to_string()),
-                text: text.trim().to_string(),
+                messages: vec![Message {
+                    parts: vec![MessagePart::String(text.trim().to_string())],
+                    ..Default::default()
+                }],
+                options: Box::new(InstructionInlineOptions {
+                    assignee: assignee.map(|handle| handle.to_string()),
+                    ..Default::default()
+                }),
                 content: content.map(inlines_or_text),
                 ..Default::default()
             })

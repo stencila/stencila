@@ -172,6 +172,7 @@ Support and degree of loss for node types:
 | [InsertInline](https://github.com/stencila/stencila/blob/main/docs/reference/schema/edits/insert_inline.md)               | 🟢 No loss    | 🟢 No loss    |       |
 | [InstructionBlock](https://github.com/stencila/stencila/blob/main/docs/reference/schema/edits/instruction_block.md)       | 🟢 No loss    | 🟢 No loss    |       |
 | [InstructionInline](https://github.com/stencila/stencila/blob/main/docs/reference/schema/edits/instruction_inline.md)     | 🟢 No loss    | 🟢 No loss    |       |
+| [Message](https://github.com/stencila/stencila/blob/main/docs/reference/schema/edits/message.md)                          | 🟢 No loss    | 🟢 No loss    |       |
 | [ModifyBlock](https://github.com/stencila/stencila/blob/main/docs/reference/schema/edits/modify_block.md)                 | 🟢 No loss    | 🟢 No loss    |       |
 | [ModifyInline](https://github.com/stencila/stencila/blob/main/docs/reference/schema/edits/modify_inline.md)               | 🟢 No loss    | 🟢 No loss    |       |
 | [ModifyOperation](https://github.com/stencila/stencila/blob/main/docs/reference/schema/edits/modify_operation.md)         | 🟢 No loss    | 🟢 No loss    |       |
@@ -190,7 +191,6 @@ Support and degree of loss for node types:
 | [PostalAddress](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/postal_address.md)             | 🟢 No loss    | 🟢 No loss    |       |
 | [Product](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/product.md)                          | 🟢 No loss    | 🟢 No loss    |       |
 | [PropertyValue](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/property_value.md)             | 🟢 No loss    | 🟢 No loss    |       |
-| [Role](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/role.md)                                | 🟢 No loss    | 🟢 No loss    |       |
 | [Thing](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/thing.md)                              | 🟢 No loss    | 🟢 No loss    |       |
 
 <!-- CODEC-DOCS:STOP -->

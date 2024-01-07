@@ -34,6 +34,7 @@ mod list_item;
 mod math_block;
 mod math_inline;
 mod media_objects;
+mod message_part;
 mod modify_block;
 mod modify_inline;
 mod modify_operation;

@@ -71,6 +71,7 @@ import { type ListItem } from "./ListItem.js";
 import { type MathBlock } from "./MathBlock.js";
 import { type MathInline } from "./MathInline.js";
 import { type MediaObject } from "./MediaObject.js";
+import { type Message } from "./Message.js";
 import { type ModifyBlock } from "./ModifyBlock.js";
 import { type ModifyInline } from "./ModifyInline.js";
 import { type ModifyOperation } from "./ModifyOperation.js";
@@ -93,7 +94,6 @@ import { type QuoteInline } from "./QuoteInline.js";
 import { type ReplaceBlock } from "./ReplaceBlock.js";
 import { type ReplaceInline } from "./ReplaceInline.js";
 import { type Review } from "./Review.js";
-import { type Role } from "./Role.js";
 import { type Section } from "./Section.js";
 import { type SoftwareApplication } from "./SoftwareApplication.js";
 import { type SoftwareSourceCode } from "./SoftwareSourceCode.js";
@@ -200,6 +200,7 @@ export type Node =
   MathBlock |
   MathInline |
   MediaObject |
+  Message |
   ModifyBlock |
   ModifyInline |
   ModifyOperation |
@@ -221,7 +222,6 @@ export type Node =
   ReplaceBlock |
   ReplaceInline |
   Review |
-  Role |
   Section |
   SoftwareApplication |
   SoftwareSourceCode |
@@ -324,6 +324,7 @@ export function node(other: Node): Node {
     case "MathBlock":
     case "MathInline":
     case "MediaObject":
+    case "Message":
     case "ModifyBlock":
     case "ModifyInline":
     case "ModifyOperation":
@@ -345,7 +346,6 @@ export function node(other: Node): Node {
     case "ReplaceBlock":
     case "ReplaceInline":
     case "Review":
-    case "Role":
     case "Section":
     case "SoftwareApplication":
     case "SoftwareSourceCode":

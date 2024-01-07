@@ -1,0 +1,9 @@
+title: MessagePart
+'@id': stencila:MessagePart
+category: edits
+description: A union type for a part of a message.
+anyOf:
+  - type: string
+  - $ref: ImageObject
+  - $ref: AudioObject
+  - $ref: VideoObject

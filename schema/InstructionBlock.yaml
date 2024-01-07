@@ -8,7 +8,6 @@ markdown:
 proptest: {}
 core:
   - content
-  - suggestion
 properties:
   content:
     '@id': stencila:content

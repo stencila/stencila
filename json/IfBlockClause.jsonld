@@ -278,6 +278,9 @@
           "@id": "stencila:IfBlock"
         },
         {
+          "@id": "stencila:Instruction"
+        },
+        {
           "@id": "stencila:Math"
         },
         {

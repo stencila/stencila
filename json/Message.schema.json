@@ -1,0 +1,65 @@
+{
+  "$schema": "https://stencila.org/meta.schema.json",
+  "$id": "https://stencila.org/Message.schema.json",
+  "@id": "schema:Message",
+  "title": "Message",
+  "extends": [
+    "Entity"
+  ],
+  "category": "edits",
+  "description": "A message from a sender to one or more people, organizations or software application.",
+  "required": [
+    "type",
+    "parts"
+  ],
+  "core": [
+    "id",
+    "sender"
+  ],
+  "properties": {
+    "type": {
+      "@id": "schema:type",
+      "description": "The type of this item.",
+      "$comment": "This is a special property analogous to JSON-LD's `@type` keyword.\n",
+      "type": "string"
+    },
+    "id": {
+      "@id": "schema:id",
+      "description": "The identifier for this item.",
+      "$comment": "This is a special property analogous to JSON-LD's `@id` keyword.\n",
+      "strip": [
+        "metadata"
+      ],
+      "html": {
+        "attr": "id"
+      },
+      "type": "string"
+    },
+    "parts": {
+      "@id": "schema:hasParts",
+      "description": "Parts of the message.",
+      "aliases": [
+        "part"
+      ],
+      "type": "array",
+      "items": {
+        "$ref": "MessagePart.schema.json"
+      }
+    },
+    "sender": {
+      "@id": "schema:sender",
+      "description": "The sender of the message.",
+      "anyOf": [
+        {
+          "$ref": "Person.schema.json"
+        },
+        {
+          "$ref": "Organization.schema.json"
+        },
+        {
+          "$ref": "SoftwareApplication.schema.json"
+        }
+      ]
+    }
+  }
+}

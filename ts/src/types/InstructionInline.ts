@@ -2,6 +2,7 @@
 
 import { Inline } from "./Inline.js";
 import { Instruction } from "./Instruction.js";
+import { Message } from "./Message.js";
 import { SuggestionInlineType } from "./SuggestionInlineType.js";
 
 /**
@@ -20,16 +21,16 @@ export class InstructionInline extends Instruction {
    */
   suggestion?: SuggestionInlineType;
 
-  constructor(text: string, options?: Partial<InstructionInline>) {
-    super(text);
+  constructor(messages: Message[], options?: Partial<InstructionInline>) {
+    super(messages);
     if (options) Object.assign(this, options);
-    this.text = text;
+    this.messages = messages;
   }
 }
 
 /**
 * Create a new `InstructionInline`
 */
-export function instructionInline(text: string, options?: Partial<InstructionInline>): InstructionInline {
-  return new InstructionInline(text, options);
+export function instructionInline(messages: Message[], options?: Partial<InstructionInline>): InstructionInline {
+  return new InstructionInline(messages, options);
 }

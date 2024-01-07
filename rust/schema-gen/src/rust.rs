@@ -42,6 +42,7 @@ const NO_GENERATE_MODULE: &[&str] = &[
 const NO_READ_NODE: &[&str] = &[
     "Inline",
     "IntegerOrString",
+    "MessagePart",
     "Node",
     "Primitive",
     "PropertyValueOrString",

@@ -1,6 +1,7 @@
 title: Role
 '@id': schema:Role
 extends: Entity
+abstract: true
 category: other
 description: Represents additional information about a relationship or property.
 $comment: |

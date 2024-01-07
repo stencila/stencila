@@ -5,14 +5,18 @@ abstract: true
 category: edits
 description: Abstract base type for a document editing instruction.
 required:
-  - text
-core:
-  - assignee
+  - messages
 properties:
-  text:
-    '@id': schema:text
-    description: The text of the instruction.
-    type: string
+  messages:
+    '@id': stencila:messages
+    description: Messages involved in the instruction.
+    $comment: |
+      This array of messages starts with the initial instruction from the
+      user and includes responses from the agent performing the instruction,
+      and potentially further instructions for refinement by the user.
+    type: array
+    items:
+      $ref: Message
   assignee:
     '@id': stencila:assignee
     description: An identifier for the agent assigned to perform the instruction
@@ -30,3 +34,10 @@ properties:
       max:
         description: Generate an arbitrary assignee id using any characters
         strategy: option::of(String::arbitrary())
+  authors:
+    '@id': schema:author
+    description: The authors of the instruction.
+    type: array
+    items:
+      $ref: Author
+    strip: [metadata]

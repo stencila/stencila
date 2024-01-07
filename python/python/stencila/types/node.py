@@ -70,6 +70,7 @@ ListItem = ForwardRef("ListItem")
 MathBlock = ForwardRef("MathBlock")
 MathInline = ForwardRef("MathInline")
 MediaObject = ForwardRef("MediaObject")
+Message = ForwardRef("Message")
 ModifyBlock = ForwardRef("ModifyBlock")
 ModifyInline = ForwardRef("ModifyInline")
 ModifyOperation = ForwardRef("ModifyOperation")
@@ -92,7 +93,6 @@ QuoteInline = ForwardRef("QuoteInline")
 ReplaceBlock = ForwardRef("ReplaceBlock")
 ReplaceInline = ForwardRef("ReplaceInline")
 Review = ForwardRef("Review")
-Role = ForwardRef("Role")
 Section = ForwardRef("Section")
 SoftwareApplication = ForwardRef("SoftwareApplication")
 SoftwareSourceCode = ForwardRef("SoftwareSourceCode")
@@ -197,6 +197,7 @@ Node = Union[
     MathBlock,
     MathInline,
     MediaObject,
+    Message,
     ModifyBlock,
     ModifyInline,
     ModifyOperation,
@@ -218,7 +219,6 @@ Node = Union[
     ReplaceBlock,
     ReplaceInline,
     Review,
-    Role,
     Section,
     SoftwareApplication,
     SoftwareSourceCode,

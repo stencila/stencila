@@ -98,6 +98,8 @@ from .math import Math
 from .math_block import MathBlock
 from .math_inline import MathInline
 from .media_object import MediaObject
+from .message import Message
+from .message_part import MessagePart
 from .modify_block import ModifyBlock
 from .modify_inline import ModifyInline
 from .modify_operation import ModifyOperation

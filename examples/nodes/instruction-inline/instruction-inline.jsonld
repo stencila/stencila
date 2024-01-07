@@ -14,7 +14,14 @@
         },
         {
           "@type": "stencila:InstructionInline",
-          "text": "insert an inline"
+          "stencila:messages": [
+            {
+              "@type": "Message",
+              "hasParts": [
+                "insert an inline"
+              ]
+            }
+          ]
         },
         {
           "@type": "Text",
@@ -31,7 +38,14 @@
         },
         {
           "@type": "stencila:InstructionInline",
-          "text": "improve this",
+          "stencila:messages": [
+            {
+              "@type": "Message",
+              "hasParts": [
+                "improve this"
+              ]
+            }
+          ],
           "stencila:content": [
             {
               "@type": "Text",
@@ -54,7 +68,14 @@
         },
         {
           "@type": "stencila:InstructionInline",
-          "text": "equation for surface area of cube",
+          "stencila:messages": [
+            {
+              "@type": "Message",
+              "hasParts": [
+                "equation for surface area of cube"
+              ]
+            }
+          ],
           "stencila:assignee": "insert-inline-math"
         },
         {
@@ -63,14 +84,21 @@
         },
         {
           "@type": "stencila:InstructionInline",
-          "text": "please improve this",
-          "stencila:assignee": "joe",
+          "stencila:messages": [
+            {
+              "@type": "Message",
+              "hasParts": [
+                "please improve this"
+              ]
+            }
+          ],
           "stencila:content": [
             {
               "@type": "Text",
               "value": " existing content"
             }
-          ]
+          ],
+          "stencila:assignee": "joe"
         },
         {
           "@type": "Text",

@@ -11,7 +11,12 @@
         },
         {
           "type": "InstructionInline",
-          "text": "insert an inline"
+          "messages": [
+            {
+              "type": "Message",
+              "parts": ["insert an inline"]
+            }
+          ]
         },
         {
           "type": "Text",
@@ -28,7 +33,12 @@
         },
         {
           "type": "InstructionInline",
-          "text": "improve this",
+          "messages": [
+            {
+              "type": "Message",
+              "parts": ["improve this"]
+            }
+          ],
           "content": [
             {
               "type": "Text",
@@ -52,7 +62,12 @@
         {
           "type": "InstructionInline",
           "assignee": "insert-inline-math",
-          "text": "equation for surface area of cube"
+          "messages": [
+            {
+              "type": "Message",
+              "parts": ["equation for surface area of cube"]
+            }
+          ]
         },
         {
           "type": "Text",
@@ -61,7 +76,12 @@
         {
           "type": "InstructionInline",
           "assignee": "joe",
-          "text": "please improve this",
+          "messages": [
+            {
+              "type": "Message",
+              "parts": ["please improve this"]
+            }
+          ],
           "content": [
             {
               "type": "Text",

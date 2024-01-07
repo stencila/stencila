@@ -225,6 +225,9 @@
       "$ref": "MediaObject.schema.json"
     },
     {
+      "$ref": "Message.schema.json"
+    },
+    {
       "$ref": "ModifyBlock.schema.json"
     },
     {
@@ -286,9 +289,6 @@
     },
     {
       "$ref": "Review.schema.json"
-    },
-    {
-      "$ref": "Role.schema.json"
     },
     {
       "$ref": "Section.schema.json"

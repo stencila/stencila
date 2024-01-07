@@ -1,0 +1,22 @@
+{
+  "$schema": "https://stencila.org/meta.schema.json",
+  "$id": "https://stencila.org/MessagePart.schema.json",
+  "@id": "stencila:MessagePart",
+  "title": "MessagePart",
+  "category": "edits",
+  "description": "A union type for a part of a message.",
+  "anyOf": [
+    {
+      "type": "string"
+    },
+    {
+      "$ref": "ImageObject.schema.json"
+    },
+    {
+      "$ref": "AudioObject.schema.json"
+    },
+    {
+      "$ref": "VideoObject.schema.json"
+    }
+  ]
+}

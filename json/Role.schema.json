@@ -6,6 +6,7 @@
   "extends": [
     "Entity"
   ],
+  "abstract": true,
   "description": "Represents additional information about a relationship or property.",
   "$comment": "For example a `Role` can be used to say that a 'member' role linking some `SportsTeam` \nto a player occurred during a particular time period. Or that a `Person`'s 'actor' role in a `Movie`\nwas for some particular `characterName`. Such properties can be attached to a `Role` entity,\nwhich is then associated with the main entities using ordinary properties like 'member' or 'actor'.\n\nSee http://blog.schema.org/2014/06/introducing-role.html.\n",
   "required": [

@@ -169,6 +169,7 @@ Support and degree of loss for node types:
 | [InsertInline](https://github.com/stencila/stencila/blob/main/docs/reference/schema/edits/insert_inline.md)               | ⚠️ High loss     |               | Encoded as `{{++{content}++}}`                        |
 | [InstructionBlock](https://github.com/stencila/stencila/blob/main/docs/reference/schema/edits/instruction_block.md)       | ⚠️ High loss     |               | Encoded using special function                        |
 | [InstructionInline](https://github.com/stencila/stencila/blob/main/docs/reference/schema/edits/instruction_inline.md)     | ⚠️ High loss     |               | Encoded using special function                        |
+| [Message](https://github.com/stencila/stencila/blob/main/docs/reference/schema/edits/message.md)                          | ⚠️ High loss     |               |                                                       |
 | [ModifyBlock](https://github.com/stencila/stencila/blob/main/docs/reference/schema/edits/modify_block.md)                 | ⚠️ High loss     |               | Encoded using special function                        |
 | [ModifyInline](https://github.com/stencila/stencila/blob/main/docs/reference/schema/edits/modify_inline.md)               | ⚠️ High loss     |               | Encoded using special function                        |
 | [ModifyOperation](https://github.com/stencila/stencila/blob/main/docs/reference/schema/edits/modify_operation.md)         | ⚠️ High loss     |               |                                                       |
@@ -187,7 +188,6 @@ Support and degree of loss for node types:
 | [PostalAddress](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/postal_address.md)             | ⚠️ High loss     |               |                                                       |
 | [Product](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/product.md)                          | ⚠️ High loss     |               |                                                       |
 | [PropertyValue](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/property_value.md)             | ⚠️ High loss     |               |                                                       |
-| [Role](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/role.md)                                | ⚠️ High loss     |               |                                                       |
 | [Thing](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/thing.md)                              | ⚠️ High loss     |               |                                                       |
 
 <!-- CODEC-DOCS:STOP -->

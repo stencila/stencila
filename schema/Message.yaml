@@ -1,0 +1,23 @@
+title: Message
+'@id': schema:Message
+extends: Entity
+category: edits
+description: A message from a sender to one or more people, organizations or software application.
+required:
+  - parts
+core:
+  - sender
+properties:
+  parts:
+    '@id': schema:hasParts
+    description: Parts of the message.
+    type: array
+    items:
+      $ref: MessagePart
+  sender:
+    '@id': schema:sender
+    description: The sender of the message.
+    anyOf:
+      - $ref: Person
+      - $ref: Organization
+      - $ref: SoftwareApplication
