@@ -20,10 +20,11 @@ use format::Format;
 use node_authorship::author_roles;
 use schema::{
     transforms::{blocks_to_inlines, blocks_to_nodes, inlines_to_blocks, inlines_to_nodes},
-    Article, AudioObject, AuthorRole, AuthorRoleName, Block, ImageObject, Inline, InstructionBlock,
-    InstructionInline, Link, Node, Organization, OrganizationOptions, PersonOrOrganization,
+    Article, AudioObject, AuthorRole, AuthorRoleName, Block, ImageObject, Inline, InsertBlock,
+    InsertInline, InstructionBlock, InstructionInline, Link, Message, MessagePart, Node,
+    Organization, OrganizationOptions, PersonOrOrganization,
     PersonOrOrganizationOrSoftwareApplication, SoftwareApplication, SoftwareApplicationOptions,
-    StringOrNumber, VideoObject,
+    StringOrNumber, SuggestionBlockType, SuggestionInlineType, VideoObject,
 };
 
 // Export crates for the convenience of dependant crates
@@ -65,20 +66,87 @@ impl From<InstructionInline> for Instruction {
 }
 
 impl Instruction {
+    /// Create an inline instruction from some text
+    pub fn inline_text<S: AsRef<str>>(text: S) -> Self {
+        Instruction::Inline(InstructionInline {
+            messages: vec![Message {
+                parts: vec![MessagePart::String(text.as_ref().into())],
+                ..Default::default()
+            }],
+            ..Default::default()
+        })
+    }
+
+    /// Create an inline instruction from some text with content
+    pub fn inline_text_with<S: AsRef<str>, C: IntoIterator<Item = Inline>>(
+        text: S,
+        content: C,
+    ) -> Self {
+        Instruction::Inline(InstructionInline {
+            messages: vec![Message {
+                parts: vec![MessagePart::String(text.as_ref().into())],
+                ..Default::default()
+            }],
+            content: Some(content.into_iter().collect()),
+            ..Default::default()
+        })
+    }
+
+    /// Create a block instruction from some text
+    pub fn block_text<S: AsRef<str>>(text: S) -> Self {
+        Instruction::Block(InstructionBlock {
+            messages: vec![Message {
+                parts: vec![MessagePart::String(text.as_ref().into())],
+                ..Default::default()
+            }],
+            ..Default::default()
+        })
+    }
+
+    /// Create a block instruction from some text with content
+    pub fn block_text_with<S: AsRef<str>, C: IntoIterator<Item = Block>>(
+        text: S,
+        content: C,
+    ) -> Self {
+        Instruction::Block(InstructionBlock {
+            messages: vec![Message {
+                parts: vec![MessagePart::String(text.as_ref().into())],
+                ..Default::default()
+            }],
+            content: Some(content.into_iter().collect()),
+            ..Default::default()
+        })
+    }
+
     /// Get the assignee of the instruction (if any)
     pub fn assignee(&self) -> Option<&str> {
         match self {
-            Instruction::Block(block) => block.assignee.as_deref(),
-            Instruction::Inline(inline) => inline.assignee.as_deref(),
+            Instruction::Block(block) => block.options.assignee.as_deref(),
+            Instruction::Inline(inline) => inline.options.assignee.as_deref(),
+        }
+    }
+
+    /// Get the messages of the instruction
+    pub fn messages(&self) -> &Vec<Message> {
+        match self {
+            Instruction::Block(block) => &block.messages,
+            Instruction::Inline(inline) => &inline.messages,
         }
     }
 
     /// Get the text of the instruction
-    pub fn text(&self) -> &str {
-        match self {
-            Instruction::Block(block) => block.text.as_str(),
-            Instruction::Inline(inline) => inline.text.as_str(),
-        }
+    ///
+    /// TODO: This is temporary as a replacement to previous approach. It is preferable
+    /// to use all messages. This just uses first one, and only if it is text!
+    pub fn text(&self) -> String {
+        self.messages()
+            .first()
+            .and_then(|message| message.parts.first())
+            .map(|part| match part {
+                MessagePart::String(text) => text.clone(),
+                _ => String::new(),
+            })
+            .unwrap_or_default()
     }
 
     /// Get the content of the instruction (if any)
@@ -183,20 +251,29 @@ pub struct GenerateTask {
 
     /// An optional system prompt
     pub system_prompt: Option<String>,
-
-    /// The user prompt usually generated from the `instruction_text` and
-    /// other fields by rendering a user prompt template
-    pub user_prompt: Option<String>,
 }
 
 impl GenerateTask {
-    /// Create a [`GenerateContext`] with an instruction & document
-    pub fn new(instruction: Instruction, document: Option<Node>) -> Self {
+    /// Create a generation task from an instruction
+    pub fn new(instruction: Instruction) -> Self {
+        Self {
+            instruction,
+            ..Default::default()
+        }
+    }
+
+    /// Create a generation task from an instruction and document
+    pub fn with_doc(instruction: Instruction, document: Option<Node>) -> Self {
         Self {
             instruction,
             document,
             ..Default::default()
         }
+    }
+
+    /// Get the messages of the task
+    pub fn instruction_messages(&self) -> impl Iterator<Item = &Message> {
+        self.instruction.messages().iter()
     }
 
     /// Get the text of the instruction
@@ -225,22 +302,6 @@ impl GenerateTask {
         };
 
         Ok(Self::calculate_similarity(embedding, other))
-    }
-
-    /// Get the user prompt of the context
-    ///
-    /// If the `user_prompt` field has been set (e.g. a template rendered into it)
-    /// then that is returned. Otherwise, the raw text of the `instruction` is
-    /// returned.
-    pub fn user_prompt(&self) -> &str {
-        self.user_prompt
-            .as_deref()
-            .unwrap_or(self.instruction.text())
-    }
-
-    /// Get the system prompt of the context (if any)
-    pub fn system_prompt(&self) -> Option<&str> {
-        self.system_prompt.as_deref()
     }
 
     /// Create embeddings for a list of instructions texts
@@ -461,7 +522,11 @@ pub struct GenerateOptions {
 ///
 /// Yes, this could have been named `GeneratedOutput`! But it wasn't to
 /// maintain consistency with `GenerateTask` and `GenerateOptions`.
+#[derive(Debug)]
 pub struct GenerateOutput {
+    /// The assistant that generated the contest
+    pub assistant: SoftwareApplication,
+
     /// The content generated by the assistant
     pub content: GenerateContent,
 
@@ -516,6 +581,7 @@ impl GenerateOutput {
         };
 
         Ok(Self {
+            assistant: assistant.to_software_application(),
             content: GenerateContent::Text(text),
             format,
             nodes,
@@ -566,61 +632,58 @@ impl GenerateOutput {
         let nodes = Nodes::Inlines(vec![node]);
 
         Ok(Self {
+            assistant: assistant.to_software_application(),
             content: GenerateContent::Url(url),
             format,
             nodes,
         })
     }
 
-    /// Create a `GenerateOutput` from Base64 encoded data of a specific media type
-    pub async fn from_base64(
-        assistant: &dyn Assistant,
-        _task: &GenerateTask,
-        media_type: &str,
-        data: String,
-    ) -> Result<Self> {
-        let url = format!("{};base64,{}", media_type, data);
-
-        let format = Format::from_media_type(media_type).unwrap_or(Format::Unknown);
-
-        let media_type = Some(media_type.to_string());
-
-        let mut node = if format.is_audio() {
-            Inline::AudioObject(AudioObject {
-                content_url: url,
-                media_type,
-                ..Default::default()
-            })
-        } else if format.is_image() {
-            Inline::ImageObject(ImageObject {
-                content_url: url,
-                media_type,
-                ..Default::default()
-            })
-        } else if format.is_video() {
-            Inline::VideoObject(VideoObject {
-                content_url: url,
-                media_type,
-                ..Default::default()
-            })
-        } else {
-            Inline::Link(Link {
-                target: url,
-                ..Default::default()
-            })
-        };
-
-        author_roles(
-            &mut node,
-            vec![assistant.to_author_role(AuthorRoleName::Generator)],
+    /// Create a `Message` from the output that can be added to the `messages` property
+    /// of the instruction
+    pub fn to_message(&self) -> Message {
+        let sender = Some(
+            PersonOrOrganizationOrSoftwareApplication::SoftwareApplication(self.assistant.clone()),
         );
 
-        let nodes = Nodes::Inlines(vec![node]);
+        let parts = vec![match &self.content {
+            GenerateContent::Text(text) => MessagePart::String(text.clone()),
+            GenerateContent::Url(url) => {
+                let url = url.clone();
+                if self.format.is_audio() {
+                    MessagePart::AudioObject(AudioObject::new(url))
+                } else if self.format.is_image() {
+                    MessagePart::ImageObject(ImageObject::new(url))
+                } else if self.format.is_video() {
+                    MessagePart::VideoObject(VideoObject::new(url))
+                } else {
+                    MessagePart::String(url)
+                }
+            }
+        }];
 
-        Ok(Self {
-            content: GenerateContent::Base64(data),
-            format,
-            nodes,
+        Message {
+            sender,
+            parts,
+            ..Default::default()
+        }
+    }
+
+    /// Create a `SuggestionInlineType` from the output that can be used for the `suggestion`
+    /// property of the instruction
+    pub fn to_suggestion_inline(self) -> SuggestionInlineType {
+        SuggestionInlineType::InsertInline(InsertInline {
+            content: self.nodes.into_inlines(),
+            ..Default::default()
+        })
+    }
+
+    /// Create a `SuggestionBlockType` from the output that can be used for the `suggestion`
+    /// property of the instruction
+    pub fn to_suggestion_block(self) -> SuggestionBlockType {
+        SuggestionBlockType::InsertBlock(InsertBlock {
+            content: self.nodes.into_blocks(),
+            ..Default::default()
         })
     }
 
@@ -644,10 +707,6 @@ impl GenerateOutput {
         md += &match &self.content {
             GenerateContent::Text(text) => text.to_string(),
             GenerateContent::Url(url) => format!("![]({url})"),
-            GenerateContent::Base64(data) => format!(
-                "![]({media_type};base64,{data})",
-                media_type = self.format.media_type()
-            ),
         };
         md += "\n";
 
@@ -663,15 +722,13 @@ impl GenerateOutput {
 }
 
 /// The content generated for a task
+#[derive(Debug, PartialEq, Eq)]
 pub enum GenerateContent {
     /// Generated text
     Text(String),
 
     /// Generated content at a URL
     Url(String),
-
-    /// Generated content as Base64 encoded bytes
-    Base64(String),
 }
 
 /// Generated nodes
@@ -679,7 +736,7 @@ pub enum GenerateContent {
 /// This enum allows us to differentiate between different types of
 /// generated nodes associated with different types of instructions
 /// (block or inline)
-#[derive(Serialize)]
+#[derive(Debug, Serialize)]
 #[serde(untagged, crate = "common::serde")]
 pub enum Nodes {
     Blocks(Vec<Block>),
@@ -859,4 +916,41 @@ pub trait Assistant: Sync + Send {
         task: &GenerateTask,
         options: &GenerateOptions,
     ) -> Result<GenerateOutput>;
+}
+
+/// Generate a test task which has system, user and assistant messages
+///
+/// Used for tests of implementations of the `Assistant` trait to check that
+/// the system prompt, and each user and assistant message, are being sent to
+/// and processed by the assistant.
+#[allow(unused)]
+pub fn test_task_repeat_word() -> GenerateTask {
+    GenerateTask {
+        system_prompt: Some(
+            "When asked to repeat a word, you should repeat it in ALL CAPS. Do not provide any other notes, explanation or content.".to_string(),
+        ),
+        instruction: Instruction::from(InstructionInline {
+            messages: vec![
+                Message {
+                    parts: vec![MessagePart::String("Say the word \"Hello\".".to_string())],
+                    ..Default::default()
+                },
+                Message {
+                    sender: Some(
+                        PersonOrOrganizationOrSoftwareApplication::SoftwareApplication(
+                            SoftwareApplication::default(),
+                        ),
+                    ),
+                    parts: vec![MessagePart::String("Hello".to_string())],
+                    ..Default::default()
+                },
+                Message {
+                    parts: vec![MessagePart::String("Repeat the word.".to_string())],
+                    ..Default::default()
+                },
+            ],
+            ..Default::default()
+        }),
+        ..Default::default()
+    }
 }

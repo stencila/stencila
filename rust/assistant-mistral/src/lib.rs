@@ -12,6 +12,7 @@ use assistant::{
         serde_with::skip_serializing_none,
         tracing,
     },
+    schema::{MessagePart, PersonOrOrganizationOrSoftwareApplication},
     Assistant, AssistantIO, GenerateOptions, GenerateOutput, GenerateTask,
 };
 
@@ -64,19 +65,38 @@ impl Assistant for MistralAssistant {
         task: &GenerateTask,
         options: &GenerateOptions,
     ) -> Result<GenerateOutput> {
-        let mut messages = vec![];
-
-        if let Some(system_prompt) = task.system_prompt() {
-            messages.push(ChatMessage {
+        let messages = task
+            .system_prompt
+            .iter()
+            .map(|prompt| ChatMessage {
                 role: ChatRole::System,
-                content: system_prompt.into(),
+                content: prompt.clone(),
             })
-        }
+            .chain(task.instruction_messages().map(|message| {
+                use PersonOrOrganizationOrSoftwareApplication::*;
+                let role = match message.sender {
+                    None | Some(Person(..) | Organization(..)) => ChatRole::User,
+                    Some(SoftwareApplication(..)) => ChatRole::Assistant,
+                };
 
-        messages.push(ChatMessage {
-            role: ChatRole::User,
-            content: task.user_prompt().into(),
-        });
+                let content = message
+                    .parts
+                    .iter()
+                    .filter_map(|part| match part {
+                        MessagePart::String(text) => Some(text),
+                        _ => {
+                            tracing::warn!(
+                                "Message part of type `{part}` is ignored by assistant `{}`",
+                                self.id()
+                            );
+                            None
+                        }
+                    })
+                    .join("");
+
+                ChatMessage { role, content }
+            }))
+            .collect();
 
         let request = ChatCompletionRequest {
             model: self.model.clone(),
@@ -89,7 +109,7 @@ impl Assistant for MistralAssistant {
 
         let response = self
             .client
-            .post(format!("{}/chat/completions", BASE_URL))
+            .post(format!("{BASE_URL}/chat/completions"))
             .bearer_auth(env::var(API_KEY)?)
             .json(&request)
             .send()
@@ -220,4 +240,43 @@ pub async fn list() -> Result<Vec<Arc<dyn Assistant>>> {
         .collect();
 
     Ok(assistants)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use assistant::{common::tokio, test_task_repeat_word, GenerateContent};
+
+    #[tokio::test]
+    async fn list_assistants() -> Result<()> {
+        let list = list().await?;
+
+        if env::var(API_KEY).is_err() {
+            assert_eq!(list.len(), 0)
+        } else {
+            assert!(!list.is_empty())
+        }
+
+        Ok(())
+    }
+
+    #[tokio::test]
+    async fn perform_task() -> Result<()> {
+        if env::var(API_KEY).is_err() {
+            return Ok(());
+        }
+
+        let assistant = &list().await?[0];
+        let output = assistant
+            .perform_task(&test_task_repeat_word(), &GenerateOptions::default())
+            .await?;
+
+        let text = match output.content {
+            GenerateContent::Text(text) => text,
+            _ => bail!("Expected text content"),
+        };
+        assert!(text.starts_with("HELLO"));
+
+        Ok(())
+    }
 }

@@ -1,7 +1,11 @@
 use std::sync::Arc;
 
 use ollama_rs::{
-    generation::{completion::request::GenerationRequest, options::GenerationOptions},
+    generation::{
+        chat::{request::ChatMessageRequest, ChatMessage, MessageRole},
+        images::Image,
+        options::GenerationOptions,
+    },
     Ollama,
 };
 
@@ -12,6 +16,7 @@ use assistant::{
         inflector::Inflector,
         tracing,
     },
+    schema::{ImageObject, MessagePart, PersonOrOrganizationOrSoftwareApplication},
     Assistant, AssistantIO, GenerateOptions, GenerateOutput, GenerateTask,
 };
 
@@ -114,12 +119,57 @@ impl Assistant for OllamaAssistant {
         task: &GenerateTask,
         options: &GenerateOptions,
     ) -> Result<GenerateOutput> {
-        let mut request =
-            GenerationRequest::new(self.model.clone(), task.user_prompt().to_string());
+        let messages = task
+            .system_prompt
+            .iter()
+            .map(|prompt| ChatMessage::new(MessageRole::System, prompt.clone()))
+            .chain(task.instruction_messages().map(|message| {
+                use PersonOrOrganizationOrSoftwareApplication::*;
+                let role = match message.sender {
+                    None | Some(Person(..) | Organization(..)) => MessageRole::User,
+                    Some(SoftwareApplication(..)) => MessageRole::Assistant,
+                };
 
-        if let Some(system_prompt) = task.system_prompt() {
-            request.system = Some(system_prompt.into());
-        }
+                let mut content = String::new();
+                let mut images = vec![];
+                for part in &message.parts {
+                    match part {
+                        MessagePart::String(text) => {
+                            content += text;
+                        }
+                        MessagePart::ImageObject(ImageObject { content_url, .. }) => {
+                            if let Some(pos) = content_url.find(";base64,") {
+                                let base64 = &content_url[(pos + 8)..];
+                                images.push(Image::from_base64(base64))
+                            } else {
+                                tracing::warn!(
+                                    "Image does not appear to have a DataURI so was ignored by assistant `{}`",
+                                    self.id()
+                                );
+                            }
+                        }
+                        _ => {
+                            tracing::warn!(
+                                "Message part `{part}` is ignored by assistant `{}`",
+                                self.id()
+                            );
+                        }
+                    }
+                }
+
+                ChatMessage {
+                    role,
+                    content,
+                    images: if images.is_empty() {
+                        None
+                    } else {
+                        Some(images)
+                    },
+                }
+            }))
+            .collect();
+
+        let mut request = ChatMessageRequest::new(self.model.clone(), messages);
 
         // Map options to Ollama options
         let mut opts = GenerationOptions::default();
@@ -170,11 +220,14 @@ impl Assistant for OllamaAssistant {
 
         let response = self
             .client
-            .generate(request)
+            .send_chat_messages(request)
             .await
             .map_err(|error| eyre!(error))?;
 
-        let text = response.response;
+        let text = response
+            .message
+            .map(|message| message.content)
+            .unwrap_or_default();
 
         GenerateOutput::from_text(self, task, text).await
     }
@@ -198,4 +251,35 @@ pub async fn list() -> Result<Vec<Arc<dyn Assistant>>> {
         .collect();
 
     Ok(assistants)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use assistant::{common::tokio, test_task_repeat_word, GenerateContent};
+
+    #[tokio::test]
+    async fn list_assistants() -> Result<()> {
+        // Just check this does not error since list may be empty is Ollama
+        // not installed or has no models.
+        list().await?;
+
+        Ok(())
+    }
+
+    #[tokio::test]
+    async fn perform_task() -> Result<()> {
+        let list = list().await?;
+        let Some(assistant) = list.get(0) else {
+            return Ok(())
+        };
+
+        let output = assistant
+            .perform_task(&test_task_repeat_word(), &GenerateOptions::default())
+            .await?;
+
+        assert_eq!(output.content, GenerateContent::Text("HELLO".to_string()));
+
+        Ok(())
+    }
 }

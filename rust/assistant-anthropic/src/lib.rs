@@ -5,9 +5,12 @@ use anthropic::{
 };
 
 use assistant::{
-    common::{async_trait::async_trait, eyre::Result, tracing},
+    common::{async_trait::async_trait, eyre::Result, itertools::Itertools, tracing},
+    schema::{MessagePart, PersonOrOrganizationOrSoftwareApplication},
     Assistant, AssistantIO, GenerateOptions, GenerateOutput, GenerateTask,
 };
+
+const API_KEY: &str = "ANTHROPIC_API_KEY";
 
 /// An assistant running on Anthropic
 ///
@@ -53,8 +56,45 @@ impl Assistant for AnthropicAssistant {
         task: &GenerateTask,
         options: &GenerateOptions,
     ) -> Result<GenerateOutput> {
-        let cfg = AnthropicConfig::new()?;
-        let client = Client::try_from(cfg)?;
+        // TODO: This does not use the new Messages API and instead concatenates messages into a chat string
+        // https://docs.anthropic.com/claude/reference/messages_post
+
+        let system_prompt = match &task.system_prompt {
+            Some(prompt) => prompt.clone(),
+            None => String::new(),
+        };
+
+        let chat = task
+            .instruction_messages()
+            .map(|message| {
+                use PersonOrOrganizationOrSoftwareApplication::*;
+                let prompt = match message.sender {
+                    None | Some(Person(..) | Organization(..)) => HUMAN_PROMPT,
+                    Some(SoftwareApplication(..)) => AI_PROMPT,
+                };
+
+                let content = message
+                    .parts
+                    .iter()
+                    .filter_map(|part| match part {
+                        MessagePart::String(text) => Some(text),
+                        _ => {
+                            tracing::warn!(
+                                "User message part `{part}` is ignored by assistant `{}`",
+                                self.id()
+                            );
+                            None
+                        }
+                    })
+                    .join("");
+
+                format!("{prompt}{content}")
+            })
+            .join("\n\n");
+
+        // With the Completions API system prompts are just put before the chat
+        // https://docs.anthropic.com/claude/docs/how-to-use-system-prompts
+        let prompt = format!("{system_prompt}{chat}{AI_PROMPT}");
 
         // Build completion request from `options`
         // TODO: We need to add the following which are not in the CompleteRequest (maybe by PR).
@@ -63,19 +103,15 @@ impl Assistant for AnthropicAssistant {
         // top_k
         // top_p
         let complete_request = CompleteRequestBuilder::default()
-            // The .._PROMPT values have embedded carriage returns.
-            // System prompts in Claude are just put before the HUMAN_PROMPT.
-            // https://docs.anthropic.com/claude/docs/how-to-use-system-prompts
-            .prompt(format!(
-                "{system_prompt} {HUMAN_PROMPT}{user_prompt}{AI_PROMPT}",
-                system_prompt = task.system_prompt().unwrap_or(""),
-                user_prompt = task.user_prompt()
-            ))
             .model(&self.model)
+            .prompt(prompt)
             // Not sure the best way to do this, but 256 is the default.
             .max_tokens_to_sample(options.max_tokens.unwrap_or(256) as usize)
             .stop_sequences(vec![HUMAN_PROMPT.to_string()])
             .build()?;
+
+        let cfg = AnthropicConfig::new()?;
+        let client = Client::try_from(cfg)?;
 
         let text = client
             .complete(complete_request)
@@ -96,8 +132,8 @@ impl Assistant for AnthropicAssistant {
 ///
 /// If the `ANTHROPIC_API_KEY` env var is not set returns an empty list.
 pub async fn list() -> Result<Vec<Arc<dyn Assistant>>> {
-    if env::var("ANTHROPIC_API_KEY").is_err() {
-        tracing::debug!("The ANTHROPIC_API_KEY environment variable is not set");
+    if env::var(API_KEY).is_err() {
+        tracing::debug!("The {API_KEY} environment variable is not set");
         return Ok(vec![]);
     }
 
@@ -113,4 +149,39 @@ pub async fn list() -> Result<Vec<Arc<dyn Assistant>>> {
     .collect();
 
     Ok(assistants)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use assistant::{common::tokio, test_task_repeat_word, GenerateContent};
+
+    #[tokio::test]
+    async fn list_assistants() -> Result<()> {
+        let list = list().await?;
+
+        if env::var(API_KEY).is_err() {
+            assert_eq!(list.len(), 0)
+        } else {
+            assert!(!list.is_empty())
+        }
+
+        Ok(())
+    }
+
+    #[tokio::test]
+    async fn perform_task() -> Result<()> {
+        if env::var(API_KEY).is_err() {
+            return Ok(());
+        }
+
+        let assistant = &list().await?[0];
+        let output = assistant
+            .perform_task(&test_task_repeat_word(), &GenerateOptions::default())
+            .await?;
+
+        assert_eq!(output.content, GenerateContent::Text("HELLO".to_string()));
+
+        Ok(())
+    }
 }

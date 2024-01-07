@@ -2,9 +2,12 @@ use std::{env, sync::Arc};
 
 use async_openai::{
     types::{
-        ChatCompletionRequestAssistantMessageArgs, ChatCompletionRequestSystemMessageArgs,
-        ChatCompletionRequestUserMessageArgs, CreateChatCompletionRequestArgs,
-        CreateImageRequestArgs, Image, ImageQuality, ImageSize, ImageStyle, ResponseFormat,
+        ChatCompletionRequestAssistantMessage, ChatCompletionRequestMessage,
+        ChatCompletionRequestMessageContentPart, ChatCompletionRequestMessageContentPartImage,
+        ChatCompletionRequestMessageContentPartText, ChatCompletionRequestSystemMessage,
+        ChatCompletionRequestUserMessage, ChatCompletionRequestUserMessageContent,
+        CreateChatCompletionRequest, CreateImageRequestArgs, Image, ImageQuality, ImageSize,
+        ImageStyle, ImageUrl, ImageUrlDetail, ResponseFormat, Role, Stop,
     },
     Client,
 };
@@ -18,8 +21,11 @@ use assistant::{
         itertools::Itertools,
         tracing,
     },
+    schema::{ImageObject, MessagePart, PersonOrOrganizationOrSoftwareApplication},
     Assistant, AssistantIO, GenerateOptions, GenerateOutput, GenerateTask,
 };
+
+const API_KEY: &str = "OPENAI_API_KEY";
 
 /// An assistant running on OpenAI
 ///
@@ -138,85 +144,125 @@ impl OpenAIAssistant {
     ) -> Result<GenerateOutput> {
         tracing::debug!("Sending chat completion request");
 
-        let client = Client::new();
+        // Create messages
+        let messages = task
+            .system_prompt
+            .iter()
+            .map(|prompt| ChatCompletionRequestMessage::System(ChatCompletionRequestSystemMessage {
+                role: Role::System,
+                content: prompt.clone(),
+                ..Default::default()
+            }))
+            .chain(task
+                .instruction_messages()
+                .map(|message| {
+                    use PersonOrOrganizationOrSoftwareApplication::*;
+                    match message.sender {
+                        None | Some(Person(..) | Organization(..)) => {
+                            let content = message
+                                .parts
+                                .iter()
+                                .filter_map(|part| match part {
+                                    MessagePart::String(text) => Some(
+                                        ChatCompletionRequestMessageContentPart::Text(ChatCompletionRequestMessageContentPartText{
+                                            r#type: "text".to_string(),
+                                            text: text.to_string()
+                                        })
+                                    ),
+                                    MessagePart::ImageObject(ImageObject { content_url, .. }) => Some(
+                                        ChatCompletionRequestMessageContentPart::Image(ChatCompletionRequestMessageContentPartImage{
+                                            r#type: "image_url".to_string(),
+                                            image_url: ImageUrl {
+                                                url: content_url.clone(),
+                                                detail: ImageUrlDetail::Auto
+                                            }
+                                        })
+                                    ),
+                                    _ => {
+                                        tracing::warn!(
+                                            "User message part `{part}` is ignored by assistant `{}`", self.id()
+                                        );
+                                        None
+                                    }
+                                })
+                                .collect_vec();
 
-        let system_prompt = task.system_prompt().unwrap_or_default();
-        let chat = &[task.user_prompt()];
+                            ChatCompletionRequestMessage::User(ChatCompletionRequestUserMessage {
+                                role: Role::User,
+                                content: ChatCompletionRequestUserMessageContent::Array(content),
+                                ..Default::default()
+                            })
+                        }
+                        Some(SoftwareApplication(..)) => {
+                            let content = message
+                                .parts
+                                .iter()
+                                .filter_map(|part| match part {
+                                    MessagePart::String(text) => Some(text),
+                                    _ => {
+                                        tracing::warn!(
+                                            "Assistant message part `{part}` is ignored by assistant `{}`", self.id()
+                                        );
+                                        None
+                                    }
+                                })
+                                .join("");
 
-        // Create the chat with any system prompt first and then alternating
-        // between user and assistant messages
-        let mut messages = Vec::with_capacity(chat.len() + 1);
-        if !system_prompt.is_empty() {
-            messages.push(
-                ChatCompletionRequestSystemMessageArgs::default()
-                    .content(system_prompt)
-                    .build()?
-                    .into(),
-            );
-        }
-        for (index, content) in chat.iter().enumerate() {
-            let message = if index % 2 == 0 {
-                ChatCompletionRequestUserMessageArgs::default()
-                    .content(*content)
-                    .build()?
-                    .into()
-            } else {
-                ChatCompletionRequestAssistantMessageArgs::default()
-                    .content(*content)
-                    .build()?
-                    .into()
-            };
-            messages.push(message);
-        }
+                            ChatCompletionRequestMessage::Assistant(
+                                ChatCompletionRequestAssistantMessage {
+                                    role: Role::Assistant,
+                                    content: Some(content),
+                                    ..Default::default()
+                                },
+                            )
+                        }
+                    }
+                }))
+                .collect();
 
         // Create the request
-        let mut request = CreateChatCompletionRequestArgs::default();
-        let request = request.model(&self.model).messages(messages);
+        let request = CreateChatCompletionRequest {
+            model: self.model.clone(),
+            messages,
+            presence_penalty: options.repeat_penalty,
+            temperature: options.temperature,
+            seed: options.seed.map(|seed| seed as i64),
+            max_tokens: options.max_tokens,
+            top_p: options.top_p,
+            stop: options.stop.clone().map(Stop::String),
+            ..Default::default()
+        };
 
-        // Map options onto the request
-        macro_rules! map_option {
-            ($from:ident, $to:ident) => {
-                if let Some(value) = &options.$from {
-                    request.$to(value.clone());
-                }
-            };
-            ($name:ident) => {
-                map_option!($name, $name)
-            };
-        }
+        // Warn about ignored options
         macro_rules! ignore_option {
             ($name:ident) => {
                 if options.$name.is_some() {
                     tracing::warn!(
-                        "Option `{}` is ignored by assistant `{}` for text-to-text generation",
+                        "Option `{}` is ignored by assistant `{}` for chat completion",
                         stringify!($name),
                         self.id()
                     )
                 }
             };
+            ($($name:ident),*) => {
+                $( ignore_option!($name); )*
+            }
         }
-        ignore_option!(mirostat);
-        ignore_option!(mirostat_eta);
-        ignore_option!(mirostat_tau);
-        ignore_option!(num_ctx);
-        ignore_option!(num_gqa);
-        ignore_option!(num_gpu);
-        ignore_option!(num_thread);
-        ignore_option!(repeat_last_n);
-        map_option!(repeat_penalty, presence_penalty);
-        map_option!(temperature);
-        map_option!(seed);
-        map_option!(stop);
-        map_option!(max_tokens);
-        ignore_option!(tfs_z);
-        ignore_option!(top_k);
-        map_option!(top_p);
-        ignore_option!(image_size);
-        ignore_option!(image_quality);
-        ignore_option!(image_style);
+        ignore_option!(
+            mirostat,
+            mirostat_eta,
+            mirostat_tau,
+            num_ctx,
+            num_gqa,
+            num_gpu,
+            num_thread,
+            repeat_last_n,
+            tfs_z,
+            top_k
+        );
 
         // Send the request
-        let request = request.build()?;
+        let client = Client::new();
         let mut response = client.chat().create(request).await?;
 
         // Get the content of the first message
@@ -237,45 +283,31 @@ impl OpenAIAssistant {
     ) -> Result<GenerateOutput> {
         tracing::debug!("Sending create image request");
 
-        let client = Client::new();
+        // Create a prompt from the last message (assumed to be a user message)
+        let prompt = task
+            .instruction_messages()
+            .last()
+            .map(|message| {
+                message
+                    .parts
+                    .iter()
+                    .flat_map(|part| match part {
+                        MessagePart::String(text) => Some(text),
+                        _ => {
+                            tracing::warn!(
+                                "Message part `{part}` is ignored by assistant `{}`",
+                                self.id()
+                            );
+                            None
+                        }
+                    })
+                    .join("")
+            })
+            .unwrap_or_default();
 
-        let system_prompt = task.system_prompt().unwrap_or_default();
-        let separator = if system_prompt.is_empty() { "" } else { " " };
-        let user_prompt = task.user_prompt();
-        let prompt = format!("{system_prompt}{separator}{user_prompt}");
-
-        // Create the base request
+        // Create the request
         let mut request = CreateImageRequestArgs::default();
         let request = request.prompt(prompt).response_format(ResponseFormat::Url);
-
-        // Map options onto the request
-        macro_rules! ignore_option {
-            ($name:ident) => {
-                if options.$name.is_some() {
-                    tracing::warn!(
-                        "Option `{}` is ignored by assistant `{}` for text-to-image generation",
-                        stringify!($name),
-                        self.id()
-                    )
-                }
-            };
-        }
-        ignore_option!(mirostat);
-        ignore_option!(mirostat_eta);
-        ignore_option!(mirostat_tau);
-        ignore_option!(num_ctx);
-        ignore_option!(num_gqa);
-        ignore_option!(num_gpu);
-        ignore_option!(num_thread);
-        ignore_option!(repeat_last_n);
-        ignore_option!(repeat_penalty);
-        ignore_option!(temperature);
-        ignore_option!(seed);
-        ignore_option!(stop);
-        ignore_option!(max_tokens);
-        ignore_option!(tfs_z);
-        ignore_option!(top_k);
-        ignore_option!(top_p);
 
         if let Some((w, h)) = options.image_size {
             match (w, h) {
@@ -322,8 +354,44 @@ impl OpenAIAssistant {
             };
         }
 
-        // Send the request
         let request = request.build()?;
+
+        // Warn about ignored options
+        macro_rules! ignore_option {
+            ($name:ident) => {
+                if options.$name.is_some() {
+                    tracing::warn!(
+                        "Option `{}` is ignored by assistant `{}` for text-to-image generation",
+                        stringify!($name),
+                        self.id()
+                    )
+                }
+            };
+            ($($name:ident),*) => {
+                $( ignore_option!($name); )*
+            }
+        }
+        ignore_option!(
+            mirostat,
+            mirostat_eta,
+            mirostat_tau,
+            num_ctx,
+            num_gqa,
+            num_gpu,
+            num_thread,
+            repeat_last_n,
+            repeat_penalty,
+            temperature,
+            seed,
+            stop,
+            max_tokens,
+            tfs_z,
+            top_k,
+            top_p
+        );
+
+        // Send the request
+        let client = Client::new();
         let mut response = client.images().create(request).await?;
 
         // Get the output
@@ -353,8 +421,8 @@ impl OpenAIAssistant {
 /// remote APIs need to be called to get a list of available models.
 #[cached(time = 3600, result = true)]
 pub async fn list() -> Result<Vec<Arc<dyn Assistant>>> {
-    if env::var("OPENAI_API_KEY").is_err() {
-        tracing::debug!("The OPENAI_API_KEY environment variable is not set");
+    if env::var(API_KEY).is_err() {
+        tracing::debug!("The {API_KEY} environment variable is not set");
         return Ok(vec![]);
     }
 
@@ -408,4 +476,43 @@ pub async fn list() -> Result<Vec<Arc<dyn Assistant>>> {
         .collect();
 
     Ok(assistants)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use assistant::{common::tokio, test_task_repeat_word, GenerateContent};
+
+    #[tokio::test]
+    async fn list_assistants() -> Result<()> {
+        let list = list().await?;
+
+        if env::var(API_KEY).is_err() {
+            assert_eq!(list.len(), 0)
+        } else {
+            assert!(!list.is_empty())
+        }
+
+        Ok(())
+    }
+
+    #[tokio::test]
+    async fn perform_task() -> Result<()> {
+        if env::var(API_KEY).is_err() {
+            return Ok(());
+        }
+
+        let list = list().await?;
+        let assistant = list
+            .iter()
+            .find(|assistant| assistant.name().starts_with("GPT"))
+            .unwrap();
+        let output = assistant
+            .perform_task(&test_task_repeat_word(), &GenerateOptions::default())
+            .await?;
+
+        assert_eq!(output.content, GenerateContent::Text("HELLO".to_string()));
+
+        Ok(())
+    }
 }

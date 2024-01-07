@@ -11,8 +11,7 @@ use assistant::{
     },
     schema::{
         walk::{VisitorMut, WalkControl, WalkNode},
-        Block, ExecutionError, Inline, InsertBlock, InsertInline, Node, SuggestionBlockType,
-        SuggestionInlineType,
+        Block, ExecutionError, Inline, Node,
     },
     Assistant, GenerateOptions, GenerateOutput, GenerateTask, Instruction, Nodes,
 };
@@ -65,7 +64,7 @@ pub async fn perform_instruction(
     document: Option<Node>,
     options: &GenerateOptions,
 ) -> Result<GenerateOutput> {
-    let mut task = GenerateTask::new(instruction, document.clone());
+    let mut task = GenerateTask::with_doc(instruction, document.clone());
 
     let assistants = list().await;
 
@@ -187,10 +186,9 @@ impl VisitorMut for ResultApplier {
                 .and_then(|id| self.results.remove(id))
             {
                 match result {
-                    Ok(GenerateOutput { nodes, .. }, ..) => {
-                        instruction.suggestion = Some(SuggestionInlineType::InsertInline(
-                            InsertInline::new(nodes.into_inlines()),
-                        ))
+                    Ok(output) => {
+                        instruction.messages.push(output.to_message());
+                        instruction.options.suggestion = Some(output.to_suggestion_inline())
                     }
                     Err(error) => {
                         instruction.options.execution_errors =
@@ -212,10 +210,9 @@ impl VisitorMut for ResultApplier {
                 .and_then(|id| self.results.remove(id))
             {
                 match result {
-                    Ok(GenerateOutput { nodes, .. }, ..) => {
-                        instruction.suggestion = Some(SuggestionBlockType::InsertBlock(
-                            InsertBlock::new(nodes.into_blocks()),
-                        ))
+                    Ok(output) => {
+                        instruction.messages.push(output.to_message());
+                        instruction.options.suggestion = Some(output.to_suggestion_block());
                     }
                     Err(error) => {
                         instruction.options.execution_errors =

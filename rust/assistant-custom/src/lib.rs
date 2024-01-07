@@ -394,9 +394,7 @@ impl CustomAssistant {
             // opening of inline instructions in Markdown templates
             let template = template.replace("{%%", "{_%%");
             let rendered = ENVIRONMENT.render_str(&template, &task)?.trim().to_string();
-            let prompt = rendered.replace("{_%%", "{%%");
-
-            task.user_prompt = Some(prompt);
+            let _prompt = rendered.replace("{_%%", "{%%");
         }
 
         Ok(task)
@@ -530,7 +528,7 @@ impl Assistant for CustomAssistant {
         // If instruction regexes are specified then at least one must match
         if let Some(regexes) = &self.instruction_regexes {
             let text = task.instruction.text();
-            if !regexes.iter().any(|regex| regex.is_match(text)) {
+            if !regexes.iter().any(|regex| regex.is_match(&text)) {
                 return false;
             }
         }
@@ -608,7 +606,7 @@ impl Assistant for CustomAssistant {
             let task = self.prepare_task(task, None).await?;
 
             let output =
-                GenerateOutput::from_text(self, &task, task.user_prompt().to_string()).await?;
+                GenerateOutput::from_text(self, &task, task.instruction.text().to_string()).await?;
 
             self.update_output(output).await?
         } else {
@@ -695,10 +693,7 @@ fn list_builtin() -> Result<Vec<Arc<dyn Assistant>>> {
 #[cfg(test)]
 mod tests {
     use assistant::{
-        schema::{
-            shortcuts::{p, t},
-            InstructionBlock, InstructionInline,
-        },
+        schema::shortcuts::{p, t},
         Instruction,
     };
 
@@ -714,67 +709,23 @@ mod tests {
     #[test]
     fn supports_task_works_as_expected() -> Result<()> {
         let tasks = [
-            GenerateTask::new(
-                Instruction::from(InstructionInline {
-                    text: String::from("modify-inlines-regex-nodes-regex"),
-                    content: Some(vec![t("the"), t(" keyword")]),
-                    ..Default::default()
-                }),
-                None,
-            ),
-            GenerateTask::new(
-                Instruction::from(InstructionBlock {
-                    text: String::from("modify-blocks-regex-nodes"),
-                    content: Some(vec![p([])]),
-                    ..Default::default()
-                }),
-                None,
-            ),
-            GenerateTask::new(
-                Instruction::from(InstructionBlock {
-                    text: String::from("insert-blocks-regex"),
-                    ..Default::default()
-                }),
-                None,
-            ),
-            GenerateTask::new(
-                Instruction::from(InstructionInline {
-                    text: String::from("modify-inlines-regex"),
-                    content: Some(vec![t("")]),
-                    ..Default::default()
-                }),
-                None,
-            ),
-            GenerateTask::new(
-                Instruction::from(InstructionBlock {
-                    text: String::from("insert-blocks"),
-                    ..Default::default()
-                }),
-                None,
-            ),
-            GenerateTask::new(
-                Instruction::from(InstructionBlock {
-                    text: String::from("modify-blocks"),
-                    content: Some(vec![p([])]),
-                    ..Default::default()
-                }),
-                None,
-            ),
-            GenerateTask::new(
-                Instruction::from(InstructionInline {
-                    text: String::from("insert-inlines"),
-                    ..Default::default()
-                }),
-                None,
-            ),
-            GenerateTask::new(
-                Instruction::from(InstructionInline {
-                    text: String::from("modify-inlines"),
-                    content: Some(vec![t("")]),
-                    ..Default::default()
-                }),
-                None,
-            ),
+            GenerateTask::new(Instruction::inline_text_with(
+                "modify-inlines-regex-nodes-regex",
+                [t("the"), t(" keyword")],
+            )),
+            GenerateTask::new(Instruction::block_text_with(
+                "modify-blocks-regex-nodes",
+                [p([])],
+            )),
+            GenerateTask::new(Instruction::block_text("insert-blocks-regex")),
+            GenerateTask::new(Instruction::inline_text_with(
+                "modify-inlines-regex",
+                [t("")],
+            )),
+            GenerateTask::new(Instruction::block_text("insert-blocks")),
+            GenerateTask::new(Instruction::block_text_with("modify-blocks", [p([])])),
+            GenerateTask::new(Instruction::inline_text("insert-inlines")),
+            GenerateTask::new(Instruction::inline_text_with("modify-inlines", [t("")])),
         ];
 
         let assistants = [
@@ -864,27 +815,11 @@ mod tests {
     //#[ignore]
     #[test]
     fn suitability_score_works_as_expected() -> Result<()> {
-        let mut task_improve_wording = GenerateTask::new(
-            Instruction::from(InstructionInline {
-                text: String::from("improve wording"),
-                ..Default::default()
-            }),
-            None,
-        );
-        let mut task_the_improve_wording_of_this = GenerateTask::new(
-            Instruction::from(InstructionInline {
-                text: String::from("improve the wording of this"),
-                ..Default::default()
-            }),
-            None,
-        );
-        let mut task_make_table = GenerateTask::new(
-            Instruction::from(InstructionInline {
-                text: String::from("make a 4x4 table"),
-                ..Default::default()
-            }),
-            None,
-        );
+        let mut task_improve_wording =
+            GenerateTask::new(Instruction::inline_text("improve wording"));
+        let mut task_the_improve_wording_of_this =
+            GenerateTask::new(Instruction::inline_text("improve the wording of this"));
+        let mut task_make_table = GenerateTask::new(Instruction::inline_text("make a 4x4 table"));
 
         let mut assistant_improve_wording = CustomAssistant {
             instruction_examples: Some(vec![String::from("improve wording")]),

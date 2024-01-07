@@ -12,6 +12,7 @@ use assistant::{
         serde_with::skip_serializing_none,
         tracing,
     },
+    schema::{ImageObject, MessagePart, PersonOrOrganizationOrSoftwareApplication},
     Assistant, AssistantIO, GenerateOptions, GenerateOutput, GenerateTask,
 };
 
@@ -68,21 +69,62 @@ impl Assistant for GoogleAssistant {
         task: &GenerateTask,
         options: &GenerateOptions,
     ) -> Result<GenerateOutput> {
-        let mut contents = vec![];
+        let contents = task
+            .system_prompt
+            .iter()
+            .flat_map(|prompt| {
+                // There is no "system" role and successive user prompts are not
+                // allowed so separate any system prompt with a fake model response.
+                vec![
+                    Content {
+                        role: Some(Role::User),
+                        parts: vec![Part::text(prompt)],
+                    },
+                    Content {
+                        role: Some(Role::Model),
+                        parts: vec![Part::text("I understand those high level instructions and will follow them.")],
+                    }
+                ]
+                .into_iter()
+            })
+            .chain(task.instruction_messages().map(|message| {
+                use PersonOrOrganizationOrSoftwareApplication::*;
+                let role = Some(match message.sender {
+                    None | Some(Person(..) | Organization(..)) => Role::User,
+                    Some(SoftwareApplication(..)) => Role::Model,
+                });
 
-        // Concatenate system and user prompt because there is not
-        // "system" role and the API does not like to successive user messages
-        let mut prompt = String::new();
-        if let Some(system_prompt) = task.system_prompt() {
-            prompt.push_str(system_prompt);
-            prompt.push_str("\n\n");
-        }
-        prompt.push_str(task.user_prompt());
+                let parts = message
+                    .parts
+                    .iter()
+                    .filter_map(|part| match part {
+                        MessagePart::String(text) => Some(Part::text(text)),
+                        MessagePart::ImageObject(ImageObject{content_url,..}) => {
+                            if let Some(pos) = content_url.find(";base64,") {
+                                let mime_type = &content_url[..pos];
+                                let base64 = &content_url[(pos + 8)..];
+                                Some(Part::inline_data(mime_type, base64))
+                            } else {
+                                tracing::warn!(
+                                    "Image does not appear to have a DataURI so was ignored by assistant `{}`",
+                                    self.id()
+                                );
+                                None
+                            }
+                        },
+                        _ => {
+                            tracing::warn!(
+                                "User message part `{part}` is ignored by assistant `{}`",
+                                self.id()
+                            );
+                            None
+                        }
+                    })
+                    .collect();
 
-        contents.push(Content {
-            role: Some(Role::User),
-            parts: vec![Part::text(&prompt)],
-        });
+                Content { role, parts }
+            }))
+            .collect();
 
         let request = GenerateContentRequest {
             contents,
@@ -125,9 +167,17 @@ impl Assistant for GoogleAssistant {
                 text: Some(text), ..
             } => GenerateOutput::from_text(self, task, text).await,
             Part {
-                image_data: Some(Blob { mime_type, data }),
+                inline_data: Some(Blob { mime_type, data }),
                 ..
-            } => GenerateOutput::from_base64(self, task, &mime_type, data).await,
+            } => {
+                GenerateOutput::from_url(
+                    self,
+                    task,
+                    &mime_type,
+                    format!("{};base64,{}", mime_type, data),
+                )
+                .await
+            }
             _ => bail!("Unexpected response content part"),
         }
     }
@@ -206,7 +256,7 @@ struct Content {
 #[serde(rename_all = "camelCase", crate = "assistant::common::serde")]
 struct Part {
     text: Option<String>,
-    image_data: Option<Blob>,
+    inline_data: Option<Blob>,
 }
 
 impl Part {
@@ -214,15 +264,15 @@ impl Part {
     fn text(value: &str) -> Self {
         Self {
             text: Some(value.into()),
-            image_data: None,
+            inline_data: None,
         }
     }
 
     /// Create a new image data part
     #[allow(unused)]
-    fn image_data(mime_type: &str, data: &str) -> Self {
+    fn inline_data(mime_type: &str, data: &str) -> Self {
         Self {
-            image_data: Some(Blob {
+            inline_data: Some(Blob {
                 mime_type: mime_type.into(),
                 data: data.into(),
             }),
@@ -311,4 +361,39 @@ pub async fn list() -> Result<Vec<Arc<dyn Assistant>>> {
         .collect();
 
     Ok(assistants)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use assistant::{common::tokio, test_task_repeat_word, GenerateContent};
+
+    #[tokio::test]
+    async fn list_assistants() -> Result<()> {
+        let list = list().await?;
+
+        if env::var(API_KEY).is_err() {
+            assert_eq!(list.len(), 0)
+        } else {
+            assert!(!list.is_empty())
+        }
+
+        Ok(())
+    }
+
+    #[tokio::test]
+    async fn perform_task() -> Result<()> {
+        if env::var(API_KEY).is_err() {
+            return Ok(());
+        }
+
+        let assistant = &list().await?[0];
+        let output = assistant
+            .perform_task(&test_task_repeat_word(), &GenerateOptions::default())
+            .await?;
+
+        assert_eq!(output.content, GenerateContent::Text("HELLO".to_string()));
+
+        Ok(())
+    }
 }

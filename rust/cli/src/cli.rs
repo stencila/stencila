@@ -1,6 +1,6 @@
 use std::path::PathBuf;
 
-use assistants::assistant::{schema::InstructionBlock, GenerateOptions, Instruction};
+use assistants::assistant::{GenerateOptions, Instruction};
 use color_eyre::owo_colors::OwoColorize;
 use rustyline::{error::ReadlineError, DefaultEditor};
 use yansi::Color;
@@ -664,10 +664,7 @@ impl Cli {
                                 display::highlighted(&json, Format::Json)?;
                             } else {
                                 // Create an instruction from the user
-                                let instruction = Instruction::from(InstructionBlock {
-                                    text: line.into(),
-                                    ..Default::default()
-                                });
+                                let instruction = Instruction::block_text(line);
 
                                 // Import any document or node
                                 let document = match &document {
