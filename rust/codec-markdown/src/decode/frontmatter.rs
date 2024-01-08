@@ -40,7 +40,7 @@ pub(super) fn decode_frontmatter(md: &str) -> Result<(usize, Option<Node>)> {
                 serde_json::Value::Object(value)
             }
             Ok(_) => {
-                tracing::warn!("YAML frontmatter is not an object, will be ignored");
+                tracing::debug!("YAML frontmatter is not an object, will be ignored");
                 return Ok((end, None));
             }
             Err(error) => {
