@@ -66,7 +66,7 @@ StrEnum = { version = "0.4.15", python = "<3.11" }
 black = "23.12.1"
 coverage = "7.4.0"
 maturin = "1.4.0"
-pip-audit = "2.6.2"
+pip-audit = "2.6.3"
 pytest = "7.4.4"
 pytest-asyncio = "0.23.3"
 pytest-benchmark = "4.0.0"
