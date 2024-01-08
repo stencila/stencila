@@ -272,11 +272,8 @@ enum Command {
     },
 
     Test {
-        /// The path of test directory
+        /// The path of test directory or file
         path: PathBuf,
-
-        /// The name of the instruction
-        name: String,
 
         /// The number of repetitions
         #[arg(long, short = 'n', alias = "num", default_value_t = 1)]
@@ -675,7 +672,7 @@ impl Cli {
                                 // Execute the task
                                 let output = assistants::perform_instruction(
                                     instruction,
-                                    document,
+                                    document.as_ref(),
                                     &options_parser.options,
                                 )
                                 .await?;
@@ -711,8 +708,8 @@ impl Cli {
                 }
             }
 
-            Command::Test { path, name, reps } => {
-                assistants::testing::test_example(&path, &name, reps).await?
+            Command::Test { path, reps } => {
+                assistants::testing::test_example(&path, reps).await?
             }
         }
 

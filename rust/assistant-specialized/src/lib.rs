@@ -82,7 +82,7 @@ const MAX_RETRIES: u8 = 1;
     deny_unknown_fields,
     crate = "assistant::common::serde"
 )]
-struct CustomAssistant {
+struct SpecializedAssistant {
     /// The id of the assistant
     #[serde(skip_deserializing)]
     id: String,
@@ -260,7 +260,7 @@ where
     })
 }
 
-impl CustomAssistant {
+impl SpecializedAssistant {
     /// Parse Markdown content into a custom assistant
     fn parse(id: &str, content: &str) -> Result<Self> {
         // Split a string into parts and ensure that there is at least a header
@@ -273,7 +273,7 @@ impl CustomAssistant {
         };
 
         // Parse header into an assistant
-        let mut assistant: CustomAssistant = serde_yaml::from_str(&header)?;
+        let mut assistant: SpecializedAssistant = serde_yaml::from_str(&header)?;
         // Add prompts if not blank
         fn not_blank(prompt: String) -> Option<String> {
             let trimmed = prompt.trim();
@@ -307,7 +307,7 @@ impl CustomAssistant {
     ///
     /// This should be called before selecting an assistant to delegate to
     /// (since the input and output type of the task influences that)
-    fn merge_task(&self, task: &GenerateTask) -> GenerateTask {
+    fn merge_task<'task>(&self, task: &GenerateTask<'task>) -> GenerateTask<'task> {
         let mut task = task.clone();
 
         if let Some(input) = self.task_input {
@@ -333,11 +333,11 @@ impl CustomAssistant {
     /// Prepare a `GenerateTask` with the system prompt, rendered user prompt of
     /// this assistant, and other details
     #[tracing::instrument(skip_all)]
-    async fn prepare_task(
+    async fn prepare_task<'task>(
         &self,
-        mut task: GenerateTask,
+        mut task: GenerateTask<'task>,
         delegate: Option<&dyn Assistant>,
-    ) -> Result<GenerateTask> {
+    ) -> Result<GenerateTask<'task>> {
         if let Some(system_prompt) = &self.system_prompt {
             task.system_prompt = Some(system_prompt.clone());
         }
@@ -388,7 +388,7 @@ impl CustomAssistant {
         // Render the user prompt template with the task as context
         if let Some(template) = &self.user_prompt_template {
             static ENVIRONMENT: Lazy<Environment> =
-                Lazy::new(CustomAssistant::template_environment);
+                Lazy::new(SpecializedAssistant::template_environment);
 
             // To avoid clash with Jinja tags it is necessary to escape the opening
             // opening of inline instructions in Markdown templates
@@ -466,7 +466,7 @@ impl CustomAssistant {
 
     /// Get the first assistant in the list of delegates capable to performing task
     #[tracing::instrument(skip_all)]
-    async fn first_available_delegate(&self, task: &GenerateTask) -> Result<Arc<dyn Assistant>> {
+    async fn first_available_delegate<'task>(&self, task: &GenerateTask<'task>) -> Result<Arc<dyn Assistant>> {
         for id in &self.delegates {
             let (provider, _model) = id
                 .split('/')
@@ -498,7 +498,7 @@ impl CustomAssistant {
 }
 
 #[async_trait]
-impl Assistant for CustomAssistant {
+impl Assistant for SpecializedAssistant {
     fn id(&self) -> String {
         self.id.clone()
     }
@@ -682,7 +682,7 @@ fn list_builtin() -> Result<Vec<Arc<dyn Assistant>>> {
     {
         let id = format!("stencila/{}", name.strip_suffix(".md").unwrap_or(&name));
         let content = String::from_utf8_lossy(&content);
-        let assistant = CustomAssistant::parse(&id, &content)
+        let assistant = SpecializedAssistant::parse(&id, &content)
             .map_err(|error| eyre!("While parsing `{name}`: {error}"))?;
         assistants.push(Arc::new(assistant) as Arc<dyn Assistant>)
     }
@@ -730,7 +730,7 @@ mod tests {
 
         let assistants = [
             // Assistants with regexes and content nodes and content regexes specified
-            CustomAssistant {
+            SpecializedAssistant {
                 id: "modify-inlines-regex-nodes-regex".to_string(),
                 instruction_type: Some(InstructionType::ModifyInlines),
                 instruction_regexes: Some(vec![Regex::new("^modify-inlines-regex-nodes-regex$")?]),
@@ -739,7 +739,7 @@ mod tests {
                 ..Default::default()
             },
             // Assistants with regexes and content nodes specified
-            CustomAssistant {
+            SpecializedAssistant {
                 id: "modify-blocks-regex-nodes".to_string(),
                 instruction_type: Some(InstructionType::ModifyBlocks),
                 instruction_regexes: Some(vec![Regex::new("^modify-blocks-regex-nodes$")?]),
@@ -747,13 +747,13 @@ mod tests {
                 ..Default::default()
             },
             // Assistants with regexes specified
-            CustomAssistant {
+            SpecializedAssistant {
                 id: "insert-blocks-regex".to_string(),
                 instruction_type: Some(InstructionType::InsertBlocks),
                 instruction_regexes: Some(vec![Regex::new("^insert-blocks-regex$")?]),
                 ..Default::default()
             },
-            CustomAssistant {
+            SpecializedAssistant {
                 id: "modify-inlines-regex".to_string(),
                 instruction_type: Some(InstructionType::ModifyInlines),
                 instruction_regexes: Some(vec![
@@ -763,22 +763,22 @@ mod tests {
                 ..Default::default()
             },
             // Generic assistants
-            CustomAssistant {
+            SpecializedAssistant {
                 id: "insert-blocks".to_string(),
                 instruction_type: Some(InstructionType::InsertBlocks),
                 ..Default::default()
             },
-            CustomAssistant {
+            SpecializedAssistant {
                 id: "modify-blocks".to_string(),
                 instruction_type: Some(InstructionType::ModifyBlocks),
                 ..Default::default()
             },
-            CustomAssistant {
+            SpecializedAssistant {
                 id: "insert-inlines".to_string(),
                 instruction_type: Some(InstructionType::InsertInlines),
                 ..Default::default()
             },
-            CustomAssistant {
+            SpecializedAssistant {
                 id: "modify-inlines".to_string(),
                 instruction_type: Some(InstructionType::ModifyInlines),
                 ..Default::default()
@@ -821,7 +821,7 @@ mod tests {
             GenerateTask::new(Instruction::inline_text("improve the wording of this"));
         let mut task_make_table = GenerateTask::new(Instruction::inline_text("make a 4x4 table"));
 
-        let mut assistant_improve_wording = CustomAssistant {
+        let mut assistant_improve_wording = SpecializedAssistant {
             instruction_examples: Some(vec![String::from("improve wording")]),
             ..Default::default()
         };

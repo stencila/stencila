@@ -13,7 +13,7 @@ use assistant::{
         walk::{VisitorMut, WalkControl, WalkNode},
         Block, ExecutionError, Inline, Node,
     },
-    Assistant, GenerateOptions, GenerateOutput, GenerateTask, Instruction, Nodes,
+    Assistant, GenerateOptions, GenerateOutput, GenerateTask, Instruction,
 };
 
 pub use assistant;
@@ -30,7 +30,7 @@ pub async fn list() -> Vec<Arc<dyn Assistant>> {
             2 => ("Mistral", assistant_mistral::list().await),
             3 => ("Ollama", assistant_ollama::list().await),
             4 => ("OpenAI", assistant_openai::list().await),
-            5 => ("Stencila", assistant_custom::list()),
+            5 => ("specialized", assistant_specialized::list()),
             _ => return vec![],
         };
 
@@ -56,15 +56,60 @@ pub async fn list() -> Vec<Arc<dyn Assistant>> {
         .collect_vec()
 }
 
-/// Perform an instruction and return the generated content as a string
+/// Perform the instructions within a root document
+#[tracing::instrument(skip_all)]
+pub async fn perform_document<'doc>(document: &'doc mut Node, options: &GenerateOptions) -> Result<()> {
+    let clone = document.clone();
+    perform_instructions(document, Some(&clone), options).await
+}
+
+/// Perform the instructions within a node
+#[tracing::instrument(skip_all)]
+pub async fn perform_instructions<'doc, T>(
+    node: &mut T,
+    document: Option<&'doc Node>,
+    options: &GenerateOptions,
+) -> Result<()>
+where
+    T: WalkNode,
+{
+    // Collect instructions within the node/s
+    let mut collector = InstructionCollector::default();
+    node.walk_mut(&mut collector);
+
+    // Perform instructions in parallel and put results into a hash map
+    // so they can be applied to the instructions
+    let futures = collector
+        .instructions
+        .into_iter()
+        .map(|(id, instruction)| async move {
+            (
+                id,
+                perform_instruction(instruction, document, options).await,
+            )
+        });
+    let results = join_all(futures).await.into_iter().collect();
+
+    // Apply the results to the collected instructions
+    let mut applier = ResultApplier { results };
+    node.walk_mut(&mut applier);
+
+    Ok(())
+}
+
+/// Perform an instruction and return the generated output
 #[tracing::instrument(skip_all)]
 #[async_recursion]
-pub async fn perform_instruction(
+pub async fn perform_instruction<'doc: 'async_recursion>(
     instruction: Instruction,
-    document: Option<Node>,
+    document: Option<&'doc Node>,
     options: &GenerateOptions,
 ) -> Result<GenerateOutput> {
-    let mut task = GenerateTask::with_doc(instruction, document.clone());
+    let mut task = GenerateTask {
+        instruction,
+        document,
+        ..Default::default()
+    };
 
     let assistants = list().await;
 
@@ -108,32 +153,8 @@ pub async fn perform_instruction(
     // Perform the task
     let mut output = assistant.perform_task(&task, options).await?;
 
-    // Collect instructions within the generated nodes
-    let mut collector = InstructionCollector::default();
-    match &mut output.nodes {
-        Nodes::Blocks(nodes) => nodes.walk_mut(&mut collector),
-        Nodes::Inlines(nodes) => nodes.walk_mut(&mut collector),
-    }
-
-    // Perform inner instructions in parallel and put results into a hash map
-    // so they can be applied to the instructions
-    let futures = collector.instructions.into_iter().map(|(id, instruction)| {
-        let document = document.clone();
-        async move {
-            (
-                id,
-                perform_instruction(instruction, document, options).await,
-            )
-        }
-    });
-    let results = join_all(futures).await.into_iter().collect();
-
-    // Apply the results to the instructions
-    let mut applier = ResultApplier { results };
-    match &mut output.nodes {
-        Nodes::Blocks(nodes) => nodes.walk_mut(&mut applier),
-        Nodes::Inlines(nodes) => nodes.walk_mut(&mut applier),
-    }
+    // Recursively perform any instructions within the output nodes
+    perform_instructions(&mut output.nodes, document, options).await?;
 
     Ok(output)
 }

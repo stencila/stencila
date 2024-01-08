@@ -1,9 +1,15 @@
-use std::{fs::File, io::Write, path::Path};
+use std::{
+    fs::{read_dir, File},
+    io::Write,
+    path::{Path, PathBuf},
+};
 
 use assistant::{
     common::{
-        eyre::{eyre, Result},
+        eyre::{eyre, Report, Result},
         futures::future::try_join_all,
+        glob::glob,
+        itertools::Itertools,
         serde_yaml, tracing,
     },
     GenerateOptions, Instruction,
@@ -38,39 +44,48 @@ pub async fn insert_trial(user_instruction: &str, assistant_response: &str) -> R
 }
 
 /// Run an example
+///
+/// Reads in one or more Markdown documents in a directory, executes the instructions
+/// within them, and outputs a `.x.md` and a `.x.json` file of the executed document
+/// for each repetition.
 #[tracing::instrument]
-pub async fn test_example(path: &Path, instruction_name: &str, reps: u16) -> Result<()> {
-    // Read instruction
-    let instruction_file = File::open(path.join(format!("{instruction_name}.yaml")))
-        .map_err(|error| eyre!("unable to read {instruction_name}.yaml: {error}"))?;
-    let instruction: Instruction = serde_yaml::from_reader(instruction_file)?;
-
-    // Read document
-    let document = path.join("document.md");
-    let document = if document.exists() {
-        Some(codecs::from_path(&document, None).await?)
+pub async fn test_example(path: &Path, reps: u16) -> Result<()> {
+    let paths = if path.is_dir() {
+        glob(&path.join("*.md").to_string_lossy())?
+            .flatten()
+            .filter(|path| !path.ends_with(".out.md"))
+            .map(PathBuf::from)
+            .collect_vec()
     } else {
-        None
+        vec![path.to_path_buf()]
     };
 
-    // Run repetitions in parallel
-    let tasks = (0..reps).map(|_| {
-        let instruction = instruction.clone();
-        let document = document.clone();
-        async {
-            crate::perform_instruction(instruction, document, &GenerateOptions::default()).await
-        }
+    let docs = paths.iter().map(|path| async {
+        let doc = codecs::from_path(path, None).await?;
+
+        let reps = (0..reps).map(|rep| {
+            let path = path.clone();
+            let mut doc = doc.clone();
+
+            async move {
+                crate::perform_document(&mut doc, &GenerateOptions::default()).await?;
+
+                let mut md = path.clone();
+                md.set_extension(format!("{rep}.md"));
+                codecs::to_path(&doc, &md, None).await?;
+
+                let mut json = path.clone();
+                json.set_extension(format!("{rep}.json"));
+                codecs::to_path(&doc, &json, None).await?;
+
+                Ok::<(), Report>(())
+            }
+        });
+
+        try_join_all(reps).await?;
+        Ok::<(), Report>(())
     });
-    let results = try_join_all(tasks).await?;
 
-    // Create output file
-    let mut file = File::create(path.join(format!("{instruction_name}.md")))?;
-    for (index, output) in results.iter().enumerate() {
-        if index > 0 {
-            file.write_all("\n\n---\n\n".as_bytes())?;
-        }
-        file.write_all(output.display().as_bytes())?;
-    }
-
+    try_join_all(docs).await?;
     Ok(())
 }

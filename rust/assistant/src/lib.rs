@@ -20,6 +20,7 @@ use format::Format;
 use node_authorship::author_roles;
 use schema::{
     transforms::{blocks_to_inlines, blocks_to_nodes, inlines_to_blocks, inlines_to_nodes},
+    walk::{VisitorMut, WalkNode},
     Article, AudioObject, AuthorRole, AuthorRoleName, Block, ImageObject, Inline, InsertBlock,
     InsertInline, InstructionBlock, InstructionInline, Link, Message, MessagePart, Node,
     Organization, OrganizationOptions, PersonOrOrganization,
@@ -208,9 +209,14 @@ impl From<&Instruction> for InstructionType {
 #[skip_serializing_none]
 #[derive(Debug, Default, Clone, Serialize)]
 #[serde(crate = "common::serde")]
-pub struct GenerateTask {
+pub struct GenerateTask<'doc> {
     /// The instruction provided by the user
     pub instruction: Instruction,
+
+    /// The document that the instruction is contained within
+    /// (usually an `Article`).
+    #[serde(skip)]
+    pub document: Option<&'doc Node>,
 
     /// The input type of the task
     pub input: AssistantIO,
@@ -227,11 +233,6 @@ pub struct GenerateTask {
     /// to take into account the specific context length of the specific base
     /// assistant being used for the task.
     pub context_length: Option<usize>,
-
-    /// The document that the instruction is contained within
-    /// (usually an `Article`).
-    #[serde(skip)]
-    pub document: Option<Node>,
 
     /// The content of the document in the format specified
     /// in the `GenerateOptions` (defaulting to HTML)
@@ -253,20 +254,11 @@ pub struct GenerateTask {
     pub system_prompt: Option<String>,
 }
 
-impl GenerateTask {
+impl<'doc> GenerateTask<'doc> {
     /// Create a generation task from an instruction
     pub fn new(instruction: Instruction) -> Self {
         Self {
             instruction,
-            ..Default::default()
-        }
-    }
-
-    /// Create a generation task from an instruction and document
-    pub fn with_doc(instruction: Instruction, document: Option<Node>) -> Self {
-        Self {
-            instruction,
-            document,
             ..Default::default()
         }
     }
@@ -542,9 +534,9 @@ impl GenerateOutput {
     ///
     /// If the output format of the task in unknown (i.e. was not specified)
     /// then assumes it is Markdown.
-    pub async fn from_text(
+    pub async fn from_text<'gt>(
         assistant: &dyn Assistant,
-        task: &GenerateTask,
+        task: &GenerateTask<'gt>,
         text: String,
     ) -> Result<Self> {
         let format = match task.format {
@@ -589,9 +581,9 @@ impl GenerateOutput {
     }
 
     /// Create a `GenerateOutput` from a URL with a specific media type
-    pub async fn from_url(
+    pub async fn from_url<'gt>(
         assistant: &dyn Assistant,
-        _task: &GenerateTask,
+        _task: &GenerateTask<'gt>,
         media_type: &str,
         url: String,
     ) -> Result<Self> {
@@ -761,6 +753,15 @@ impl Nodes {
     }
 }
 
+impl WalkNode for Nodes {
+    fn walk_mut<V: VisitorMut>(&mut self, visitor: &mut V) {
+        match self {
+            Nodes::Blocks(nodes) => nodes.walk_mut(visitor),
+            Nodes::Inlines(nodes) => nodes.walk_mut(visitor),
+        }
+    }
+}
+
 /// The type of input or output an assistant can consume or generate
 #[derive(
     Debug, Default, Clone, Copy, PartialEq, Eq, ValueEnum, Display, Deserialize, Serialize,
@@ -924,7 +925,7 @@ pub trait Assistant: Sync + Send {
 /// the system prompt, and each user and assistant message, are being sent to
 /// and processed by the assistant.
 #[allow(unused)]
-pub fn test_task_repeat_word() -> GenerateTask {
+pub fn test_task_repeat_word<'lt>() -> GenerateTask<'lt> {
     GenerateTask {
         system_prompt: Some(
             "When asked to repeat a word, you should repeat it in ALL CAPS. Do not provide any other notes, explanation or content.".to_string(),

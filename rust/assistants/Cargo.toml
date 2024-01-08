@@ -6,10 +6,10 @@ edition = "2021"
 [dependencies]
 assistant = { path = "../assistant" }
 assistant-anthropic = { path = "../assistant-anthropic" }
-assistant-custom = { path = "../assistant-custom" }
 assistant-google = { path = "../assistant-google" }
 assistant-mistral = { path = "../assistant-mistral" }
 assistant-ollama = { path = "../assistant-ollama" }
 assistant-openai = { path = "../assistant-openai" }
+assistant-specialized = { path = "../assistant-specialized" }
 codecs = { path = "../codecs" }
 sea-orm = { version = "0.12.10",  default-features = false, features = ["macros", "sqlx", "sqlx-sqlite", "runtime-tokio-rustls", "with-json", "with-chrono"] }
