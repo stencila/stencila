@@ -217,22 +217,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "assistant-custom"
-version = "0.1.0"
-dependencies = [
- "assistant",
- "assistant-anthropic",
- "assistant-google",
- "assistant-mistral",
- "assistant-ollama",
- "assistant-openai",
- "cached",
- "codec-text-trait",
- "minijinja",
- "rust-embed",
-]
-
-[[package]]
 name = "assistant-google"
 version = "0.0.0"
 dependencies = [
@@ -266,16 +250,32 @@ dependencies = [
 ]
 
 [[package]]
+name = "assistant-specialized"
+version = "0.1.0"
+dependencies = [
+ "assistant",
+ "assistant-anthropic",
+ "assistant-google",
+ "assistant-mistral",
+ "assistant-ollama",
+ "assistant-openai",
+ "cached",
+ "codec-text-trait",
+ "minijinja",
+ "rust-embed",
+]
+
+[[package]]
 name = "assistants"
 version = "0.0.0"
 dependencies = [
  "assistant",
  "assistant-anthropic",
- "assistant-custom",
  "assistant-google",
  "assistant-mistral",
  "assistant-ollama",
  "assistant-openai",
+ "assistant-specialized",
  "codecs",
  "sea-orm",
 ]
