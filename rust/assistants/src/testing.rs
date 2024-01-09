@@ -1,18 +1,14 @@
-use std::{
-    fs::{read_dir, File},
-    io::Write,
-    path::{Path, PathBuf},
-};
+use std::path::{Path, PathBuf};
 
 use assistant::{
     common::{
-        eyre::{eyre, Report, Result},
+        eyre::{Report, Result},
         futures::future::try_join_all,
         glob::glob,
         itertools::Itertools,
-        serde_yaml, tracing,
+        tracing,
     },
-    GenerateOptions, Instruction,
+    GenerateOptions,
 };
 use sea_orm::{
     ActiveValue, ConnectOptions, ConnectionTrait, Database, DatabaseBackend, EntityTrait, Statement,
@@ -53,7 +49,7 @@ pub async fn test_example(path: &Path, reps: u16) -> Result<()> {
     let paths = if path.is_dir() {
         glob(&path.join("*.md").to_string_lossy())?
             .flatten()
-            .filter(|path| !path.ends_with(".out.md"))
+            .filter(|path| path.to_string_lossy().chars().filter(|&c| c == '.').count() == 1)
             .map(PathBuf::from)
             .collect_vec()
     } else {
