@@ -7,16 +7,11 @@ instruction-regexes:
   - (?i)\bimage\b
 
 delegates: [none]
-
-transform-nodes: Paragraph
-assert-nodes: ^Paragraph$
 ---
 
 An assistant specialized for inserting a new `Paragraph` containing a single inline `ImageObject`. Intended for when a user wants to insert a block level image that is not encapsulated within a `Figure`.
 
-The user prompt template is rendered to create a `Paragraph` with a single instruction, assigned to `insert-inline-image`, to create an inline `ImageObject`.
-
----
+The system prompt template renders to a `Paragraph` with a new instruction, assigned to `insert-inline-image`, to create an inline `ImageObject` following the instruction text.
 
 ---
 
