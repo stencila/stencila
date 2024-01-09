@@ -11,7 +11,7 @@ use assistant::{
     },
     schema::{
         walk::{VisitorMut, WalkControl, WalkNode},
-        Block, ExecutionError, Inline, Node,
+        Block, ExecutionError, ExecutionStatus, Inline, Node,
     },
     Assistant, GenerateOptions, GenerateOutput, GenerateTask, Instruction,
 };
@@ -56,9 +56,12 @@ pub async fn list() -> Vec<Arc<dyn Assistant>> {
         .collect_vec()
 }
 
-/// Perform the instructions within a root document
+/// Perform all the instructions within a root document
 #[tracing::instrument(skip_all)]
-pub async fn perform_document<'doc>(document: &'doc mut Node, options: &GenerateOptions) -> Result<()> {
+pub async fn perform_document<'doc>(
+    document: &'doc mut Node,
+    options: &GenerateOptions,
+) -> Result<()> {
     let clone = document.clone();
     perform_instructions(document, Some(&clone), options).await
 }
@@ -122,10 +125,17 @@ pub async fn perform_instruction<'doc: 'async_recursion>(
             ["stencila/", assignee].concat()
         };
 
-        assistants
+        let assistant = assistants
             .iter()
             .find(|assistant| assistant.id() == id)
-            .ok_or_else(|| eyre!("No assistant with id `{id}`"))?
+            .ok_or_else(|| eyre!("No assistant with id `{id}`"))?;
+
+        // Check that the assignee supports the task
+        if !assistant.supports_task(&task) {
+            bail!("The assigned assigned assistant `{id}` does not support this task")
+        }
+
+        assistant
     } else {
         // Get the assistant with the highest suitability score for the task
 
@@ -209,9 +219,12 @@ impl VisitorMut for ResultApplier {
                 match result {
                     Ok(output) => {
                         instruction.messages.push(output.to_message());
-                        instruction.options.suggestion = Some(output.to_suggestion_inline())
+                        instruction.options.suggestion = Some(output.to_suggestion_inline());
+
+                        instruction.options.execution_status = Some(ExecutionStatus::Succeeded);
                     }
                     Err(error) => {
+                        instruction.options.execution_status = Some(ExecutionStatus::Failed);
                         instruction.options.execution_errors =
                             Some(vec![ExecutionError::new(error.to_string())]);
                     }
@@ -234,8 +247,11 @@ impl VisitorMut for ResultApplier {
                     Ok(output) => {
                         instruction.messages.push(output.to_message());
                         instruction.options.suggestion = Some(output.to_suggestion_block());
+
+                        instruction.options.execution_status = Some(ExecutionStatus::Succeeded);
                     }
                     Err(error) => {
+                        instruction.options.execution_status = Some(ExecutionStatus::Failed);
                         instruction.options.execution_errors =
                             Some(vec![ExecutionError::new(error.to_string())]);
                     }
