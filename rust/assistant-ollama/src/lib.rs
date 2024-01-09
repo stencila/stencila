@@ -229,7 +229,7 @@ impl Assistant for OllamaAssistant {
             .map(|message| message.content)
             .unwrap_or_default();
 
-        GenerateOutput::from_text(self, task, text).await
+        GenerateOutput::from_text(self, task, options, text).await
     }
 }
 

@@ -123,7 +123,7 @@ impl Assistant for MistralAssistant {
 
         let text = response.choices.swap_remove(0).message.content;
 
-        GenerateOutput::from_text(self, task, text).await
+        GenerateOutput::from_text(self, task, options, text).await
     }
 }
 

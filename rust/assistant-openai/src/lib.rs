@@ -136,7 +136,7 @@ impl Assistant for OpenAIAssistant {
 }
 
 impl OpenAIAssistant {
-    #[tracing::instrument(skip(self))]
+    #[tracing::instrument(skip_all)]
     async fn chat_completion<'task>(
         &self,
         task: &GenerateTask<'task>,
@@ -272,10 +272,10 @@ impl OpenAIAssistant {
             .and_then(|choice| choice.message.content)
             .unwrap_or_default();
 
-        GenerateOutput::from_text(self, task, text).await
+        GenerateOutput::from_text(self, task, options, text).await
     }
 
-    #[tracing::instrument(skip(self))]
+    #[tracing::instrument(skip_all)]
     async fn create_image<'task>(
         &self,
         task: &GenerateTask<'task>,

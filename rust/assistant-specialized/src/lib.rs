@@ -5,7 +5,6 @@
 //! assistants build on top of lower level, more generalized assistants
 //! in other crates and prompts defined in the top level `prompts` module.
 
-use std::str::FromStr;
 use std::sync::Arc;
 
 #[cfg(not(debug_assertions))]
@@ -26,15 +25,13 @@ use assistant::{
         serde::{de::Error, Deserialize, Deserializer},
         serde_yaml, tracing,
     },
+    deserialize_option_regex,
     merge::Merge,
     node_authorship::author_roles,
-    schema::{
-        transforms::{transform_block, transform_inline},
-        AuthorRoleName, NodeType,
-    },
-    Assistant, AssistantIO, GenerateOptions, GenerateOutput, GenerateTask, InstructionType, Nodes,
+    schema::{AuthorRoleName, Message},
+    Assistant, AssistantIO, GenerateOptions, GenerateOutput, GenerateTask, Instruction,
+    InstructionType, Nodes,
 };
-use codec_text_trait::TextCodec;
 
 /// Default preference rank
 const PREFERENCE_RANK: u8 = 50;
@@ -166,24 +163,12 @@ struct SpecializedAssistant {
     /// The format of the generated content
     generated_format: Option<Format>,
 
-    /// The type of node that each decoded node should be coerced to
-    #[serde(deserialize_with = "deserialize_option_node_type", default)]
-    transform_nodes: Option<NodeType>,
-
-    /// A pattern for the type and number of nodes that should be generated
-    #[serde(deserialize_with = "deserialize_option_regex", default)]
-    assert_nodes: Option<Regex>,
-
-    /// The maximum number of retries for generating valid nodes
-    max_retries: Option<u8>,
-
     /// The system prompt of the assistant
     #[serde(skip_deserializing)]
     system_prompt: Option<String>,
 
-    /// The template used to render the user prompt
-    #[serde(skip_deserializing)]
-    user_prompt_template: Option<String>,
+    /// The maximum number of retries for generating valid nodes
+    max_retries: Option<u8>,
 
     /// The default options to use for the assistant
     #[serde(flatten)]
@@ -216,32 +201,6 @@ where
     } else {
         Ok(defaults)
     }
-}
-
-fn deserialize_option_node_type<'de, D>(deserializer: D) -> Result<Option<NodeType>, D::Error>
-where
-    D: Deserializer<'de>,
-{
-    Ok(match Option::<String>::deserialize(deserializer)? {
-        Some(value) => Some(
-            NodeType::from_str(&value)
-                .map_err(|error| D::Error::custom(format!("invalid node type: {error}")))?,
-        ),
-        None => None,
-    })
-}
-
-fn deserialize_option_regex<'de, D>(deserializer: D) -> Result<Option<Regex>, D::Error>
-where
-    D: Deserializer<'de>,
-{
-    Ok(match Option::<String>::deserialize(deserializer)? {
-        Some(value) => Some(
-            Regex::new(&value)
-                .map_err(|error| D::Error::custom(format!("invalid regex: {error}")))?,
-        ),
-        None => None,
-    })
 }
 
 fn deserialize_option_vec_regex<'de, D>(deserializer: D) -> Result<Option<Vec<Regex>>, D::Error>
@@ -286,7 +245,6 @@ impl SpecializedAssistant {
         assistant.id = id.to_string();
         assistant.description = parts.next().unwrap_or_else(|| "No description".to_string());
         assistant.system_prompt = parts.next().and_then(not_blank);
-        assistant.user_prompt_template = parts.next().and_then(not_blank);
 
         assistant.init()?;
 
@@ -386,7 +344,7 @@ impl SpecializedAssistant {
         }
 
         // Render the user prompt template with the task as context
-        if let Some(template) = &self.user_prompt_template {
+        if let Some(template) = &self.system_prompt {
             static ENVIRONMENT: Lazy<Environment> =
                 Lazy::new(SpecializedAssistant::template_environment);
 
@@ -394,7 +352,9 @@ impl SpecializedAssistant {
             // opening of inline instructions in Markdown templates
             let template = template.replace("{%%", "{_%%");
             let rendered = ENVIRONMENT.render_str(&template, &task)?.trim().to_string();
-            let _prompt = rendered.replace("{_%%", "{%%");
+            let prompt = rendered.replace("{_%%", "{%%");
+
+            task.system_prompt = Some(prompt);
         }
 
         Ok(task)
@@ -421,52 +381,12 @@ impl SpecializedAssistant {
         env
     }
 
-    /// Update a `GenerateOutput` by decoding its `content` to a Stencila Schema node
-    /// based on the configuration of this assistant.
-    #[tracing::instrument(skip_all)]
-    async fn update_output(&self, mut output: GenerateOutput) -> Result<GenerateOutput> {
-        let nodes = output.nodes;
-
-        // Transform the nodes to the expected type if specified
-        let nodes = if let Some(node_type) = self.transform_nodes {
-            match nodes {
-                Nodes::Blocks(nodes) => Nodes::Blocks(
-                    nodes
-                        .into_iter()
-                        .map(|node| transform_block(node, node_type))
-                        .collect(),
-                ),
-                Nodes::Inlines(nodes) => Nodes::Inlines(
-                    nodes
-                        .into_iter()
-                        .map(|node| transform_inline(node, node_type))
-                        .collect(),
-                ),
-            }
-        } else {
-            nodes
-        };
-
-        // Assert the number and type of nodes if specified
-        if let Some(regex) = &self.assert_nodes {
-            let list = match &nodes {
-                Nodes::Blocks(nodes) => nodes.iter().map(|node| node.to_string()).join(","),
-                Nodes::Inlines(nodes) => nodes.iter().map(|node| node.to_string()).join(","),
-            };
-            if !regex.is_match(&list) {
-                bail!("Expected generated node types to match pattern `{regex}`, got `{list}`")
-            }
-        }
-
-        // Finally, update the output's nodes
-        output.nodes = nodes;
-
-        Ok(output)
-    }
-
     /// Get the first assistant in the list of delegates capable to performing task
     #[tracing::instrument(skip_all)]
-    async fn first_available_delegate<'task>(&self, task: &GenerateTask<'task>) -> Result<Arc<dyn Assistant>> {
+    async fn first_available_delegate<'task>(
+        &self,
+        task: &GenerateTask<'task>,
+    ) -> Result<Arc<dyn Assistant>> {
         for id in &self.delegates {
             let (provider, _model) = id
                 .split('/')
@@ -525,6 +445,25 @@ impl Assistant for SpecializedAssistant {
             }
         }
 
+        true
+    }
+
+    fn supported_inputs(&self) -> &[AssistantIO] {
+        &[AssistantIO::Text]
+    }
+
+    fn supported_outputs(&self) -> &[AssistantIO] {
+        &[AssistantIO::Text]
+    }
+
+    fn suitability_score(&self, task: &mut GenerateTask) -> Result<f32> {
+        if !self.supports_task(task) {
+            return Ok(0.0);
+        }
+
+        /*
+        TODO: Consider how these might be used
+
         // If instruction regexes are specified then at least one must match
         if let Some(regexes) = &self.instruction_regexes {
             let text = task.instruction.text();
@@ -552,22 +491,7 @@ impl Assistant for SpecializedAssistant {
                 }
             }
         }
-
-        true
-    }
-
-    fn supported_inputs(&self) -> &[AssistantIO] {
-        &[AssistantIO::Text]
-    }
-
-    fn supported_outputs(&self) -> &[AssistantIO] {
-        &[AssistantIO::Text]
-    }
-
-    fn suitability_score(&self, task: &mut GenerateTask) -> Result<f32> {
-        if !self.supports_task(task) {
-            return Ok(0.0);
-        }
+        */
 
         let Some(instruction_embeddings) = &self.instruction_embeddings else {
             return Ok(0.1);
@@ -602,54 +526,61 @@ impl Assistant for SpecializedAssistant {
         let output = if self.delegates.is_empty() {
             // No delegates, so simply render the template into an output
 
-            // Update the task, to render template, before performing it (without delegate)
+            // Update the task, to render template, before performing it
             let task = self.prepare_task(task, None).await?;
 
-            let output =
-                GenerateOutput::from_text(self, &task, task.instruction.text().to_string()).await?;
-
-            self.update_output(output).await?
+            GenerateOutput::from_text(
+                self,
+                &task,
+                &options,
+                task.system_prompt.clone().unwrap_or_default(),
+            )
+            .await?
         } else {
             // Get the first available assistant to delegate to
             let delegate = self.first_available_delegate(&task).await?;
 
             // Update the task, to render template etc based on the delegate, before performing it
-            let task = self.prepare_task(task, Some(delegate.as_ref())).await?;
+            let mut task = self.prepare_task(task, Some(delegate.as_ref())).await?;
 
             // Try once, and then up to `max_retries`, breaking early if successful
             let max_retries = self.max_retries.unwrap_or(MAX_RETRIES);
-            let mut results = None;
             for retry in 0..=max_retries {
-                let result: Result<GenerateOutput> = {
-                    let output = delegate.perform_task(&task, &options).await?;
-                    let mut output = self.update_output(output).await?;
-
-                    // Add this assistant as an author for generating the prompt used by the delegate
-                    let roles = vec![self.to_author_role(AuthorRoleName::Prompter)];
-                    match &mut output.nodes {
-                        Nodes::Blocks(blocks) => author_roles(blocks, roles),
-                        Nodes::Inlines(inlines) => author_roles(inlines, roles),
-                    }
-
-                    Ok(output)
-                };
+                let result: Result<GenerateOutput> = delegate.perform_task(&task, &options).await;
                 match result {
-                    Ok(result) => {
-                        results = Some(result);
-                        break;
+                    Ok(mut output) => {
+                        // Add this assistant as an author for generating the prompt used by the delegate
+                        let roles = vec![self.to_author_role(AuthorRoleName::Prompter)];
+                        match &mut output.nodes {
+                            Nodes::Blocks(blocks) => author_roles(blocks, roles),
+                            Nodes::Inlines(inlines) => author_roles(inlines, roles),
+                        }
+
+                        return Ok(output);
                     }
                     Err(error) => {
                         if retry >= max_retries {
                             return Err(error);
                         }
+
+                        tracing::debug!("Error on retry {retry}: {error}");
+
+                        // Add the error to the instruction messages so that the assistant
+                        // can use it to try to correct
+                        match &mut task.instruction {
+                            Instruction::Block(instr) => instr
+                                .messages
+                                .push(Message::from(format!("Error: {error}"))),
+                            Instruction::Inline(instr) => instr
+                                .messages
+                                .push(Message::from(format!("Error: {error}"))),
+                        }
                     }
                 }
             }
 
-            match results {
-                Some(results) => results,
-                None => bail!("Maximum number of retries reached"),
-            }
+            // Should not be reached but in case it is...
+            bail!("Maximum number of retries reached")
         };
 
         Ok(output)

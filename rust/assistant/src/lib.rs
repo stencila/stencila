@@ -1,4 +1,4 @@
-use std::path::PathBuf;
+use std::{path::PathBuf, str::FromStr};
 
 use codecs::DecodeOptions;
 use fastembed::{EmbeddingBase, EmbeddingModel, FlagEmbedding, InitOptions};
@@ -9,8 +9,10 @@ use common::{
     clap::{self, Args, ValueEnum},
     eyre::{bail, eyre, Result},
     inflector::Inflector,
+    itertools::Itertools,
     once_cell::sync::OnceCell,
-    serde::{Deserialize, Serialize},
+    regex::Regex,
+    serde::{de::Error, Deserialize, Deserializer, Serialize},
     serde_json,
     serde_with::skip_serializing_none,
     smart_default::SmartDefault,
@@ -19,10 +21,13 @@ use common::{
 use format::Format;
 use node_authorship::author_roles;
 use schema::{
-    transforms::{blocks_to_inlines, blocks_to_nodes, inlines_to_blocks, inlines_to_nodes},
+    transforms::{
+        blocks_to_inlines, blocks_to_nodes, inlines_to_blocks, inlines_to_nodes, transform_block,
+        transform_inline,
+    },
     walk::{VisitorMut, WalkNode},
     Article, AudioObject, AuthorRole, AuthorRoleName, Block, ImageObject, Inline, InsertBlock,
-    InsertInline, InstructionBlock, InstructionInline, Link, Message, MessagePart, Node,
+    InsertInline, InstructionBlock, InstructionInline, Link, Message, MessagePart, Node, NodeType,
     Organization, OrganizationOptions, PersonOrOrganization,
     PersonOrOrganizationOrSoftwareApplication, SoftwareApplication, SoftwareApplicationOptions,
     StringOrNumber, SuggestionBlockType, SuggestionInlineType, VideoObject,
@@ -171,7 +176,7 @@ impl Instruction {
 /// A enumeration of the type of instructions
 ///
 /// Used to delegate to different types of assistants
-#[derive(Deserialize, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Deserialize, Clone, Copy, PartialEq, Eq)]
 #[serde(rename_all = "kebab-case", crate = "common::serde")]
 pub enum InstructionType {
     InsertBlocks,
@@ -508,6 +513,59 @@ pub struct GenerateOptions {
     /// Supported by `openai/dall-e-3`.
     #[arg(long)]
     pub image_style: Option<String>,
+
+    /// The type of node that each decoded node should be transformed to
+    #[serde(
+        deserialize_with = "deserialize_option_node_type",
+        default,
+        skip_serializing
+    )]
+    pub transform_nodes: Option<NodeType>,
+
+    /// The pattern for the type of node that filtered for after transform in applied
+    #[serde(
+        deserialize_with = "deserialize_option_regex",
+        default,
+        skip_serializing
+    )]
+    pub filter_nodes: Option<Regex>,
+
+    /// The number of nodes to take after filtering
+    pub take_nodes: Option<usize>,
+
+    /// A pattern for the type and number of nodes that should be generated
+    #[serde(
+        deserialize_with = "deserialize_option_regex",
+        default,
+        skip_serializing
+    )]
+    pub assert_nodes: Option<Regex>,
+}
+
+pub fn deserialize_option_node_type<'de, D>(deserializer: D) -> Result<Option<NodeType>, D::Error>
+where
+    D: Deserializer<'de>,
+{
+    Ok(match Option::<String>::deserialize(deserializer)? {
+        Some(value) => Some(
+            NodeType::from_str(&value)
+                .map_err(|error| D::Error::custom(format!("invalid node type: {error}")))?,
+        ),
+        None => None,
+    })
+}
+
+pub fn deserialize_option_regex<'de, D>(deserializer: D) -> Result<Option<Regex>, D::Error>
+where
+    D: Deserializer<'de>,
+{
+    Ok(match Option::<String>::deserialize(deserializer)? {
+        Some(value) => Some(
+            Regex::new(&value)
+                .map_err(|error| D::Error::custom(format!("invalid regex: {error}")))?,
+        ),
+        None => None,
+    })
 }
 
 /// Output generated for a task
@@ -534,9 +592,10 @@ impl GenerateOutput {
     ///
     /// If the output format of the task in unknown (i.e. was not specified)
     /// then assumes it is Markdown.
-    pub async fn from_text<'gt>(
+    pub async fn from_text<'task>(
         assistant: &dyn Assistant,
-        task: &GenerateTask<'gt>,
+        task: &GenerateTask<'task>,
+        options: &GenerateOptions,
         text: String,
     ) -> Result<Self> {
         let format = match task.format {
@@ -544,6 +603,7 @@ impl GenerateOutput {
             _ => task.format,
         };
 
+        // Decode text to an article
         let node = codecs::from_str(
             &text,
             Some(DecodeOptions {
@@ -552,25 +612,93 @@ impl GenerateOutput {
             }),
         )
         .await?;
-
-        let Node::Article(Article{mut content,..}) = node else {
+        let Node::Article(Article{content,..}) = node else {
             bail!("Expected decoded node to be an article, got `{node}`")
         };
 
-        author_roles(
-            &mut content,
-            vec![assistant.to_author_role(AuthorRoleName::Generator)],
-        );
-
-        let instruction_type = InstructionType::from(&task.instruction);
+        // Transform content to blocks or inlines depending upon instruction type
         let nodes = if matches!(
-            instruction_type,
+            InstructionType::from(&task.instruction),
             InstructionType::InsertBlocks | InstructionType::ModifyBlocks
         ) {
             Nodes::Blocks(content)
         } else {
             Nodes::Inlines(blocks_to_inlines(content))
         };
+
+        let unfiltered_types = match &nodes {
+            Nodes::Blocks(nodes) => nodes.iter().map(|node| node.to_string()).join(","),
+            Nodes::Inlines(nodes) => nodes.iter().map(|node| node.to_string()).join(","),
+        };
+
+        // Transform the nodes to the expected type if specified
+        let nodes = if let Some(node_type) = options.transform_nodes {
+            match nodes {
+                Nodes::Blocks(nodes) => Nodes::Blocks(
+                    nodes
+                        .into_iter()
+                        .map(|node| transform_block(node, node_type))
+                        .collect(),
+                ),
+                Nodes::Inlines(nodes) => Nodes::Inlines(
+                    nodes
+                        .into_iter()
+                        .map(|node| transform_inline(node, node_type))
+                        .collect(),
+                ),
+            }
+        } else {
+            nodes
+        };
+
+        // Filter nodes if regex specified
+        let nodes = if let Some(regex) = &options.filter_nodes {
+            match nodes {
+                Nodes::Blocks(nodes) => Nodes::Blocks(
+                    nodes
+                        .into_iter()
+                        .filter(|node| regex.is_match(&node.to_string()))
+                        .collect(),
+                ),
+                Nodes::Inlines(nodes) => Nodes::Inlines(
+                    nodes
+                        .into_iter()
+                        .filter(|node| regex.is_match(&node.to_string()))
+                        .collect(),
+                ),
+            }
+        } else {
+            nodes
+        };
+
+        // Take a certain number of nodes is specified
+        let mut nodes = if let Some(take) = options.take_nodes {
+            match nodes {
+                Nodes::Blocks(nodes) => Nodes::Blocks(nodes.into_iter().take(take).collect()),
+                Nodes::Inlines(nodes) => Nodes::Inlines(nodes.into_iter().take(take).collect()),
+            }
+        } else {
+            nodes
+        };
+
+        // Assert the number and type of nodes if specified
+        if let Some(regex) = &options.assert_nodes {
+            let list = match &nodes {
+                Nodes::Blocks(nodes) => nodes.iter().map(|node| node.to_string()).join(","),
+                Nodes::Inlines(nodes) => nodes.iter().map(|node| node.to_string()).join(","),
+            };
+            if !regex.is_match(&list) {
+                bail!(
+                    "Expected types of generated {format} to match pattern `{regex}`, got `{unfiltered_types}`"
+                )
+            }
+        }
+
+        // Add the assistant as an author
+        author_roles(
+            &mut nodes,
+            vec![assistant.to_author_role(AuthorRoleName::Generator)],
+        );
 
         Ok(Self {
             assistant: assistant.to_software_application(),
@@ -581,9 +709,9 @@ impl GenerateOutput {
     }
 
     /// Create a `GenerateOutput` from a URL with a specific media type
-    pub async fn from_url<'gt>(
+    pub async fn from_url<'task>(
         assistant: &dyn Assistant,
-        _task: &GenerateTask<'gt>,
+        _task: &GenerateTask<'task>,
         media_type: &str,
         url: String,
     ) -> Result<Self> {
@@ -841,8 +969,24 @@ pub trait Assistant: Sync + Send {
         )
     }
 
-    /// Create a `SoftwareApplication` node representing this assistant
+    /// Create a `SoftwareApplication` node identifying this assistant
+    ///
+    /// Intended for usage in the `authors` property of inner document
+    /// nodes where it is desirable to have minimal identifying information
+    /// only.
     fn to_software_application(&self) -> SoftwareApplication {
+        SoftwareApplication {
+            id: Some(self.id()),
+            name: self.name(),
+            ..Default::default()
+        }
+    }
+
+    /// Create a `SoftwareApplication` node representing this assistant
+    ///
+    /// Intended for usage in the `authors` or `contributors` property
+    /// of the root `CreativeWork`.
+    fn to_software_application_complete(&self) -> SoftwareApplication {
         SoftwareApplication {
             id: Some(self.id()),
             name: self.name(),

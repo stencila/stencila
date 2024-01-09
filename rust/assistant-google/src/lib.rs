@@ -165,7 +165,7 @@ impl Assistant for GoogleAssistant {
         match content {
             Part {
                 text: Some(text), ..
-            } => GenerateOutput::from_text(self, task, text).await,
+            } => GenerateOutput::from_text(self, task, options, text).await,
             Part {
                 inline_data: Some(Blob { mime_type, data }),
                 ..

@@ -28,3 +28,12 @@ impl ReadNode for MessagePart {
         })
     }
 }
+
+impl<S> From<S> for MessagePart
+where
+    S: AsRef<str>,
+{
+    fn from(value: S) -> Self {
+        Self::String(value.as_ref().to_string())
+    }
+}
