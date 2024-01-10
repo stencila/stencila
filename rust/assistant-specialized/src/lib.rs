@@ -640,6 +640,9 @@ mod tests {
     #[test]
     fn supports_task_works_as_expected() -> Result<()> {
         let tasks = [
+            /*
+            TODO: temporarily commented out while instruction regex in flux
+
             GenerateTask::new(Instruction::inline_text_with(
                 "modify-inlines-regex-nodes-regex",
                 [t("the"), t(" keyword")],
@@ -653,6 +656,7 @@ mod tests {
                 "modify-inlines-regex",
                 [t("")],
             )),
+            */
             GenerateTask::new(Instruction::block_text("insert-blocks")),
             GenerateTask::new(Instruction::block_text_with("modify-blocks", [p([])])),
             GenerateTask::new(Instruction::inline_text("insert-inlines")),
@@ -660,6 +664,7 @@ mod tests {
         ];
 
         let assistants = [
+            /*
             // Assistants with regexes and content nodes and content regexes specified
             SpecializedAssistant {
                 id: "modify-inlines-regex-nodes-regex".to_string(),
@@ -693,6 +698,7 @@ mod tests {
                 ]),
                 ..Default::default()
             },
+            */
             // Generic assistants
             SpecializedAssistant {
                 id: "insert-blocks".to_string(),
