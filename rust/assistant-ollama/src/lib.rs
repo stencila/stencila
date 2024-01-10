@@ -238,11 +238,18 @@ impl Assistant for OllamaAssistant {
 /// Fetches the list of Ollama models from the server and maps them
 /// into assistants.
 ///
+/// If there is no server listening on port 11434 (the default for Ollama)
+/// returns an empty list.
+///
 /// Note that this uses a fixed assume context length for all models
 /// (which will be probably be wrong for some). At the time of writing
 /// there does not appear to be an easy way to get the actual context
 /// length of an Ollama model (i.e. it is not in the API).
 pub async fn list() -> Result<Vec<Arc<dyn Assistant>>> {
+    if std::net::TcpListener::bind(("127.0.0.1", 11434)).is_err() {
+        return Ok(vec![]);
+    }
+
     let models = Ollama::default().list_local_models().await?;
 
     let assistants = models
