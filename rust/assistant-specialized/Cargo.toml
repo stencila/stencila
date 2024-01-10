@@ -12,5 +12,5 @@ assistant-ollama = { path = "../assistant-ollama" }
 assistant-openai = { path = "../assistant-openai" }
 cached = { version = "0.47.0", features = ["async"] }
 codec-text-trait = { path = "../codec-text-trait" }
-minijinja = { version = "1.0.10", features = ["loader"] }
+minijinja = { version = "1.0.11", features = ["loader"] }
 rust-embed = { version = "8.2.0", features = ["interpolate-folder-path", "include-exclude"] }

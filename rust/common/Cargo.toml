@@ -7,9 +7,9 @@ edition = "2021"
 Inflector = "0.11.4"
 async-recursion = "1.0.5"
 async-trait = "0.1.77"
-base64 = "0.21.5"
+base64 = "0.21.6"
 chrono = { version = "0.4.31", features = ["serde"] }
-clap = { version = "4.4.13", features = ["derive", "color"] }
+clap = { version = "4.4.14", features = ["derive", "color"] }
 derivative = "2.2.0"
 derive_more = "0.99.17"
 dirs = "5.0.1"
