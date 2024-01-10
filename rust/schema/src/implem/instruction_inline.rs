@@ -23,7 +23,7 @@ impl InstructionInline {
             losses.merge(part_losses);
 
             md += &part_md;
-            md += "\n";
+            md += " ";
         }
 
         if let Some(content) = &self.content {
