@@ -3,8 +3,16 @@
   "type": "Article",
   "content": [
     {
+      "type": "Paragraph",
+      "content": [{"type": "Text", "value": "With no language: "}]
+    },
+    {
       "type": "CodeChunk",
       "code": "No language"
+    },
+    {
+      "type": "Paragraph",
+      "content": [{"type": "Text", "value": "With language: "}]
     },
     {
       "type": "CodeChunk",
@@ -12,10 +20,53 @@
       "code": "# Some python code\na = 3"
     },
     {
+      "type": "Paragraph",
+      "content": [{"type": "Text", "value": "With language and autoExec: "}]
+    },
+    {
       "type": "CodeChunk",
       "programmingLanguage": "js",
       "code": "// Javascript",
       "autoExec": "Always"
+    },
+    {
+      "type": "Paragraph",
+      "content": [{"type": "Text", "value": "With label: "}]
+    },
+    {
+      "type": "CodeChunk",
+      "code": "# Chunk 1A",
+      "label": "1A"
+    },
+    {
+      "type": "Paragraph",
+      "content": [{"type": "Text", "value": "Code figure with caption: "}]
+    },
+    {
+      "type": "CodeChunk",
+      "programmingLanguage": "r",
+      "code": "plot(y~x)",
+      "labelType": "FigureLabel",
+      "label": "1",
+      "caption":[{
+        "type": "Paragraph",
+        "content": [{"type": "Text", "value": "Y against X."}]
+      }]
+    },
+    {
+      "type": "Paragraph",
+      "content": [{"type": "Text", "value": "Code table with caption: "}]
+    },
+    {
+      "type": "CodeChunk",
+      "programmingLanguage": "r",
+      "code": "head(mtcars)",
+      "labelType": "TableLabel",
+      "label": "1",
+      "caption":[{
+        "type": "Paragraph",
+        "content": [{"type": "Text", "value": "Some cars."}]
+      }]
     }
   ]
 }

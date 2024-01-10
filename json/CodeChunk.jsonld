@@ -298,31 +298,22 @@
       }
     },
     {
-      "@id": "stencila:executionPure",
+      "@id": "stencila:labelType",
       "@type": "rdfs:Property",
-      "rdfs:label": "executionPure",
-      "rdfs:comment": "Whether the code should be treated as side-effect free when executed.",
+      "rdfs:label": "labelType",
+      "rdfs:comment": "The type of the label for the chunk.",
       "schema:domainIncludes": {
         "@id": "stencila:CodeChunk"
       },
       "schema:rangeIncludes": {
-        "@id": "schema:Boolean"
-      }
-    },
-    {
-      "@id": "stencila:outputs",
-      "@type": "rdfs:Property",
-      "rdfs:label": "outputs",
-      "rdfs:comment": "Outputs from executing the chunk.",
-      "schema:domainIncludes": {
-        "@id": "stencila:CodeChunk"
+        "@id": "stencila:LabelType"
       }
     },
     {
       "@id": "stencila:label",
       "@type": "rdfs:Property",
       "rdfs:label": "label",
-      "rdfs:comment": "A short label for the CodeChunk.",
+      "rdfs:comment": "A short label for the chunk.",
       "schema:domainIncludes": [
         {
           "@id": "schema:Claim"
@@ -354,7 +345,7 @@
       "@id": "schema:caption",
       "@type": "rdfs:Property",
       "rdfs:label": "caption",
-      "rdfs:comment": "A caption for the CodeChunk.",
+      "rdfs:comment": "A caption for the chunk.",
       "schema:domainIncludes": [
         {
           "@id": "schema:AudioObject"
@@ -377,6 +368,27 @@
       ],
       "schema:rangeIncludes": {
         "@id": "stencila:Block"
+      }
+    },
+    {
+      "@id": "stencila:outputs",
+      "@type": "rdfs:Property",
+      "rdfs:label": "outputs",
+      "rdfs:comment": "Outputs from executing the chunk.",
+      "schema:domainIncludes": {
+        "@id": "stencila:CodeChunk"
+      }
+    },
+    {
+      "@id": "stencila:executionPure",
+      "@type": "rdfs:Property",
+      "rdfs:label": "executionPure",
+      "rdfs:comment": "Whether the code should be treated as side-effect free when executed.",
+      "schema:domainIncludes": {
+        "@id": "stencila:CodeChunk"
+      },
+      "schema:rangeIncludes": {
+        "@id": "schema:Boolean"
       }
     }
   ]

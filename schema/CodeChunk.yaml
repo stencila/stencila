@@ -1,39 +1,73 @@
 title: CodeChunk
-'@id': stencila:CodeChunk
+"@id": stencila:CodeChunk
 extends: CodeExecutable
 category: code
 description: A executable chunk of code.
 jats:
   elem: code
   attrs:
-    executable: 'yes'
+    executable: "yes"
 markdown:
   special: true
 proptest: {}
 core:
+  - labelType
+  - label
+  - caption
   - outputs
 properties:
-  executionPure:
-    '@id': stencila:executionPure
-    description: Whether the code should be treated as side-effect free when executed.
-    strip: [execution]
-    type: boolean
+  labelType:
+    "@id": stencila:labelType
+    description: The type of the label for the chunk.
+    $comment: |
+      Used during automatic sequential numbering of figures and tables within the document.
+      Without this property it is not possible to know if the chunk should be in the
+      series of figures, or in the series of tables.
+    $ref: LabelType
+    proptest:
+      min:
+        description: No label type
+        value: None
+      low:
+        description: Generate an arbitrary label type
+        strategy: option::of(LabelType::arbitrary())
+  label:
+    "@id": stencila:label
+    description: A short label for the chunk.
+    type: string
+    proptest:
+      min:
+        description: No label
+        value: None
+      low:
+        description: Generate a simple label
+        strategy: option::of(r"[a-zA-Z0-9]+")
+      max:
+        description: Generate an arbitrary string
+        strategy: option::of(String::arbitrary())
+  caption:
+    "@id": schema:caption
+    description: A caption for the chunk.
+    type: array
+    items:
+      $ref: Block
+    walk: true
+    proptest:
+      min:
+        description: No caption
+        value: None
+      low:
+        description: Generate up to two arbitrary paragraphs.
+        strategy: option::of(vec_paragraphs(2))
   outputs:
-    '@id': stencila:outputs
+    "@id": stencila:outputs
     description: Outputs from executing the chunk.
     strip: [output]
     type: array
     items:
       $ref: Node
-  label:
-    '@id': stencila:label
-    description: A short label for the CodeChunk.
-    type: string
-  caption:
-    '@id': schema:caption
-    description: A caption for the CodeChunk.
-    $comment: |
-      An array of nodes or, to be compatible with https://schema.org/caption, a string.
-    type: array
-    items:
-      $ref: Block
+  executionPure:
+    "@id": stencila:executionPure
+    description: Whether the code should be treated as side-effect free when executed.
+    strip: [execution]
+    type: boolean

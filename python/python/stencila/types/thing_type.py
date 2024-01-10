@@ -30,6 +30,7 @@ File = ForwardRef("File")
 FormDeriveAction = ForwardRef("FormDeriveAction")
 Grant = ForwardRef("Grant")
 ImageObject = ForwardRef("ImageObject")
+LabelType = ForwardRef("LabelType")
 ListItem = ForwardRef("ListItem")
 ListOrder = ForwardRef("ListOrder")
 MediaObject = ForwardRef("MediaObject")
@@ -83,6 +84,7 @@ ThingType = Union[
     FormDeriveAction,
     Grant,
     ImageObject,
+    LabelType,
     ListItem,
     ListOrder,
     MediaObject,

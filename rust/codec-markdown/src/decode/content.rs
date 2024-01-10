@@ -12,9 +12,9 @@ use codec::{
         shortcuts::{cb, dei, em, isi, mb, ol, p, qb, qi, stg, stk, t, tb, tbl, u, ul},
         transforms::blocks_to_inlines,
         AudioObject, Block, CodeChunk, Cord, DeleteBlock, Heading, IfBlock, IfBlockClause,
-        ImageObject, Inline, InsertBlock, InstructionBlock, InstructionBlockOptions, Link,
-        ListItem, Message, MessagePart, ModifyBlock, Note, NoteType, ReplaceBlock, Table,
-        TableCell, TableRow, TableRowType, VideoObject,
+        ImageObject, Inline, InsertBlock, InstructionBlock, InstructionBlockOptions, LabelType,
+        Link, ListItem, Message, MessagePart, ModifyBlock, Note, NoteType, Paragraph, ReplaceBlock,
+        Table, TableCell, TableRow, TableRowType, VideoObject,
     },
     Losses,
 };
@@ -24,10 +24,10 @@ use crate::decode::inlines::inlines_or_text;
 
 use super::{
     blocks::{
-        admonition, call, claim, delete_block, else_block, end, figure, for_block, form, if_elif,
-        include, insert_block, instruct_block_end, instruct_block_start, math_block, modify_block,
-        modify_block_separator, replace_block, replace_block_separator, section, sep, styled_block,
-        table,
+        admonition, call, claim, code_chunk, delete_block, else_block, end, figure, for_block,
+        form, if_elif, include, insert_block, instruct_block_end, instruct_block_start, math_block,
+        modify_block, modify_block_separator, replace_block, replace_block_separator, section,
+        styled_block, table,
     },
     inlines::inlines,
 };
@@ -333,6 +333,10 @@ pub fn decode_blocks(
                         } else {
                             Some(p([t(trimmed)]))
                         }
+                    } else if let Ok((.., chunk)) = code_chunk(trimmed) {
+                        blocks.push_div();
+                        divs.push_back(Block::CodeChunk(chunk));
+                        None
                     } else if let Ok((.., figure)) = figure(trimmed) {
                         blocks.push_div();
                         divs.push_back(Block::Figure(figure));
@@ -341,18 +345,6 @@ pub fn decode_blocks(
                         blocks.push_div();
                         divs.push_back(Block::Table(table));
                         None
-                    } else if sep(trimmed).is_ok() {
-                        if let Some(Block::Figure(figure)) = divs.back_mut() {
-                            let content = blocks.pop_div();
-
-                            figure.caption = Some(content);
-
-                            blocks.push_div();
-                            None
-                        } else {
-                            tracing::warn!("Found a `::>` outside of a figure");
-                            Some(p([t(trimmed)]))
-                        }
                     } else if let Ok((.., claim)) = claim(trimmed) {
                         blocks.push_div();
                         divs.push_back(Block::Claim(claim));
@@ -429,37 +421,130 @@ pub fn decode_blocks(
                         None
                     } else if end(trimmed).is_ok() {
                         divs.pop_back().map(|div| match div {
-                            Block::Figure(mut figure) => {
-                                figure.content = blocks.pop_div();
-                                Block::Figure(figure)
-                            }
-                            Block::Table(mut table) => {
-                                let mut before = true;
+                            Block::CodeChunk(mut chunk) => {
                                 for block in blocks.pop_div() {
-                                    if let Block::Table(Table { rows, .. }) = block {
-                                        table.rows = rows;
-                                        before = false;
-                                    } else if before {
-                                        match &mut table.caption {
+                                    if let Block::CodeChunk(inner) = block {
+                                        chunk.programming_language = inner.programming_language;
+                                        chunk.auto_exec = inner.auto_exec;
+                                        chunk.code = inner.code;
+                                    } else {
+                                        match &mut chunk.caption {
                                             Some(caption) => {
                                                 caption.push(block);
                                             }
                                             None => {
-                                                table.caption = Some(vec![block]);
-                                            }
-                                        }
-                                    } else {
-                                        match &mut table.notes {
-                                            Some(notes) => {
-                                                notes.push(block);
-                                            }
-                                            None => {
-                                                table.notes = Some(vec![block]);
+                                                chunk.caption = Some(vec![block]);
                                             }
                                         }
                                     }
                                 }
-                                Block::Table(table)
+                                Block::CodeChunk(chunk)
+                            }
+                            Block::Figure(mut figure) => {
+                                let mut blocks = blocks.pop_div();
+                                if blocks
+                                    .iter()
+                                    .filter(|block| matches!(block, Block::CodeChunk(..)))
+                                    .count()
+                                    == 1
+                                {
+                                    // The figure has a single code chunk so return the code chunk with label type, label,
+                                    // and caption set
+                                    let chunk = blocks
+                                        .iter()
+                                        .position(|block| matches!(block, Block::CodeChunk(..)))
+                                        .expect("checked above");
+                                    let Block::CodeChunk(chunk) = blocks.remove(chunk) else {
+                                        unreachable!("checked above")
+                                    };
+
+                                    Block::CodeChunk(CodeChunk {
+                                        label_type: Some(LabelType::FigureLabel),
+                                        label: figure.label,
+                                        caption: (!blocks.is_empty()).then_some(blocks),
+                                        ..chunk
+                                    })
+                                } else {
+                                    // Put all paragraphs into the caption (unless they have just a single image) and
+                                    // everything else in the content
+                                    let mut caption = vec![];
+                                    let mut content = vec![];
+                                    for block in blocks {
+                                        if let Block::Paragraph(Paragraph {
+                                            content: inlines,
+                                            ..
+                                        }) = &block
+                                        {
+                                            if let (1, Some(Inline::ImageObject(..))) =
+                                                (inlines.len(), inlines.get(0))
+                                            {
+                                                content.push(block)
+                                            } else {
+                                                caption.push(block)
+                                            }
+                                        } else {
+                                            content.push(block)
+                                        }
+                                    }
+                                    figure.caption = (!caption.is_empty()).then_some(caption);
+                                    figure.content = content;
+
+                                    Block::Figure(figure)
+                                }
+                            }
+                            Block::Table(mut table) => {
+                                let mut blocks = blocks.pop_div();
+                                if blocks
+                                    .iter()
+                                    .filter(|block| matches!(block, Block::CodeChunk(..)))
+                                    .count()
+                                    == 1
+                                {
+                                    // The table has a single code chunk so return the code chunk with the table label type,
+                                    // and label and caption set to all other nodes
+                                    let chunk = blocks
+                                        .iter()
+                                        .position(|block| matches!(block, Block::CodeChunk(..)))
+                                        .expect("checked above");
+                                    let Block::CodeChunk(chunk) = blocks.remove(chunk) else {
+                                        unreachable!("checked above")
+                                    };
+
+                                    Block::CodeChunk(CodeChunk {
+                                        label_type: Some(LabelType::TableLabel),
+                                        label: table.label,
+                                        caption: (!blocks.is_empty()).then_some(blocks),
+                                        ..chunk
+                                    })
+                                } else {
+                                    // Put all blocks before the table into caption, and after into notes.
+                                    let mut before = true;
+                                    for block in blocks {
+                                        if let Block::Table(Table { rows, .. }) = block {
+                                            table.rows = rows;
+                                            before = false;
+                                        } else if before {
+                                            match &mut table.caption {
+                                                Some(caption) => {
+                                                    caption.push(block);
+                                                }
+                                                None => {
+                                                    table.caption = Some(vec![block]);
+                                                }
+                                            }
+                                        } else {
+                                            match &mut table.notes {
+                                                Some(notes) => {
+                                                    notes.push(block);
+                                                }
+                                                None => {
+                                                    table.notes = Some(vec![block]);
+                                                }
+                                            }
+                                        }
+                                    }
+                                    Block::Table(table)
+                                }
                             }
                             Block::Claim(mut claim) => {
                                 claim.content = blocks.pop_div();

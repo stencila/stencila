@@ -89,6 +89,7 @@ from .instruction_block import InstructionBlock
 from .instruction_inline import InstructionInline
 from .int_or_str import IntOrStr
 from .integer_validator import IntegerValidator
+from .label_type import LabelType
 from .link import Link
 from .list import List
 from .list_item import ListItem

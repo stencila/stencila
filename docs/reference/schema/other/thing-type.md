@@ -34,6 +34,7 @@ The `ThingType` type has these members:
 - [`FormDeriveAction`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/form-derive-action.md)
 - [`Grant`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/grant.md)
 - [`ImageObject`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/image-object.md)
+- [`LabelType`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/label-type.md)
 - [`ListItem`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/list-item.md)
 - [`ListOrder`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/list-order.md)
 - [`MediaObject`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/media-object.md)

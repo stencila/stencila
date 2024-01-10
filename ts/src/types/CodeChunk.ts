@@ -3,6 +3,7 @@
 import { Block } from "./Block.js";
 import { CodeExecutable } from "./CodeExecutable.js";
 import { Cord } from "./Cord.js";
+import { LabelType } from "./LabelType.js";
 import { Node } from "./Node.js";
 
 /**
@@ -12,9 +13,19 @@ export class CodeChunk extends CodeExecutable {
   type = "CodeChunk";
 
   /**
-   * Whether the code should be treated as side-effect free when executed.
+   * The type of the label for the chunk.
    */
-  executionPure?: boolean;
+  labelType?: LabelType;
+
+  /**
+   * A short label for the chunk.
+   */
+  label?: string;
+
+  /**
+   * A caption for the chunk.
+   */
+  caption?: Block[];
 
   /**
    * Outputs from executing the chunk.
@@ -22,14 +33,9 @@ export class CodeChunk extends CodeExecutable {
   outputs?: Node[];
 
   /**
-   * A short label for the CodeChunk.
+   * Whether the code should be treated as side-effect free when executed.
    */
-  label?: string;
-
-  /**
-   * A caption for the CodeChunk.
-   */
-  caption?: Block[];
+  executionPure?: boolean;
 
   constructor(code: Cord, options?: Partial<CodeChunk>) {
     super(code);

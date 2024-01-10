@@ -26,6 +26,9 @@
     "id",
     "autoExec",
     "programmingLanguage",
+    "labelType",
+    "label",
+    "caption",
     "outputs"
   ],
   "properties": {
@@ -327,17 +330,63 @@
         "$ref": "Author.schema.json"
       }
     },
-    "executionPure": {
-      "@id": "stencila:executionPure",
-      "description": "Whether the code should be treated as side-effect free when executed.",
+    "labelType": {
+      "@id": "stencila:labelType",
+      "description": "The type of the label for the chunk.",
+      "$comment": "Used during automatic sequential numbering of figures and tables within the document.\nWithout this property it is not possible to know if the chunk should be in the\nseries of figures, or in the series of tables.\n",
       "aliases": [
-        "execution-pure",
-        "execution_pure"
+        "label-type",
+        "label_type"
       ],
-      "strip": [
-        "execution"
-      ],
-      "type": "boolean"
+      "proptest": {
+        "min": {
+          "description": "No label type",
+          "value": "None"
+        },
+        "low": {
+          "description": "Generate an arbitrary label type",
+          "strategy": "option::of(LabelType::arbitrary())"
+        }
+      },
+      "$ref": "LabelType.schema.json"
+    },
+    "label": {
+      "@id": "stencila:label",
+      "description": "A short label for the chunk.",
+      "proptest": {
+        "min": {
+          "description": "No label",
+          "value": "None"
+        },
+        "low": {
+          "description": "Generate a simple label",
+          "strategy": "option::of(r\"[a-zA-Z0-9]+\")"
+        },
+        "max": {
+          "description": "Generate an arbitrary string",
+          "strategy": "option::of(String::arbitrary())"
+        }
+      },
+      "type": "string"
+    },
+    "caption": {
+      "@id": "schema:caption",
+      "description": "A caption for the chunk.",
+      "walk": true,
+      "proptest": {
+        "min": {
+          "description": "No caption",
+          "value": "None"
+        },
+        "low": {
+          "description": "Generate up to two arbitrary paragraphs.",
+          "strategy": "option::of(vec_paragraphs(2))"
+        }
+      },
+      "type": "array",
+      "items": {
+        "$ref": "Block.schema.json"
+      }
     },
     "outputs": {
       "@id": "stencila:outputs",
@@ -353,19 +402,17 @@
         "$ref": "Node.schema.json"
       }
     },
-    "label": {
-      "@id": "stencila:label",
-      "description": "A short label for the CodeChunk.",
-      "type": "string"
-    },
-    "caption": {
-      "@id": "schema:caption",
-      "description": "A caption for the CodeChunk.",
-      "$comment": "An array of nodes or, to be compatible with https://schema.org/caption, a string.\n",
-      "type": "array",
-      "items": {
-        "$ref": "Block.schema.json"
-      }
+    "executionPure": {
+      "@id": "stencila:executionPure",
+      "description": "Whether the code should be treated as side-effect free when executed.",
+      "aliases": [
+        "execution-pure",
+        "execution_pure"
+      ],
+      "strip": [
+        "execution"
+      ],
+      "type": "boolean"
     }
   }
 }

@@ -15,9 +15,9 @@ use nom::{
 use codec::{
     common::itertools::Itertools,
     schema::{
-        Admonition, Block, CallArgument, CallBlock, Claim, Cord, Figure, ForBlock, Form,
+        Admonition, Block, CallArgument, CallBlock, Claim, CodeChunk, Cord, Figure, ForBlock, Form,
         FormDeriveAction, FormOptions, IfBlockClause, IncludeBlock, Inline, IntegerOrString,
-        MathBlock, Node, Section, StyledBlock, Table, Text,
+        LabelType, MathBlock, Node, Section, StyledBlock, Table, Text,
     },
 };
 
@@ -241,14 +241,41 @@ pub fn section(input: &str) -> IResult<&str, Section> {
     )(input)
 }
 
-/// Parse a [`Figure`] node
+/// Parse a [`CodeChunk`] node with a label and/or caption
+pub fn code_chunk(input: &str) -> IResult<&str, CodeChunk> {
+    map(
+        all_consuming(preceded(
+            tuple((semis, multispace0, tag("chunk"), multispace0)),
+            pair(
+                opt(terminated(
+                    alt((tag("figure"), tag("fig"), tag("fig."), tag("table"))),
+                    multispace0,
+                )),
+                opt(is_not("\r\n")),
+            ),
+        )),
+        |(label_type, label)| CodeChunk {
+            label_type: label_type.and_then(|label_type| {
+                match label_type.to_lowercase().as_str() {
+                    "figure" | "fig" | "fig." => Some(LabelType::FigureLabel),
+                    "table" => Some(LabelType::TableLabel),
+                    _ => None,
+                }
+            }),
+            label: label.map(|label| label.to_string()),
+            ..Default::default()
+        },
+    )(input)
+}
+
+/// Parse a [`Figure`] node with a label and/or caption
 pub fn figure(input: &str) -> IResult<&str, Figure> {
     map(
         all_consuming(preceded(
             tuple((
                 semis,
                 multispace0,
-                alt((tag("figure"), tag("fig"))),
+                alt((tag("figure"), tag("fig"), tag("fig."))),
                 multispace0,
             )),
             opt(is_not("\r\n")),
@@ -432,11 +459,6 @@ pub fn styled_block(input: &str) -> IResult<&str, StyledBlock> {
             ..Default::default()
         },
     )(input)
-}
-
-/// Parse a separator in a division
-pub fn sep(input: &str) -> IResult<&str, &str> {
-    recognize(pair(many_m_n(2, 99, char(':')), char('>')))(input)
 }
 
 /// Parse the end of a division

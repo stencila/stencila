@@ -8,8 +8,6 @@
 
 A dog.
 
-:::>
-
 ![](https://example.org/dog.jpg)
 
 :::
@@ -19,8 +17,6 @@ A dog.
 ::::: figure
 
 A figure of a mouse inside a section.
-
-:::::>
 
 ![](https://example.org/mouse.jpg)
 

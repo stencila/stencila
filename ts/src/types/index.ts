@@ -90,6 +90,7 @@ export * from "./InstructionInline.js";
 export * from "./Integer.js";
 export * from "./IntegerOrString.js";
 export * from "./IntegerValidator.js";
+export * from "./LabelType.js";
 export * from "./Link.js";
 export * from "./List.js";
 export * from "./ListItem.js";

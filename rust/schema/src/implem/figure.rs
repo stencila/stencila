@@ -22,8 +22,6 @@ impl Figure {
         if let Some(caption) = &self.caption {
             let (caption_md, caption_losses) = caption.to_markdown(context);
             md += &caption_md;
-            md += &fence;
-            md += ">\n\n";
             losses.merge(caption_losses)
         }
 

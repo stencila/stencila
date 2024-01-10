@@ -87,6 +87,9 @@
       "$ref": "ImageObject.schema.json"
     },
     {
+      "$ref": "LabelType.schema.json"
+    },
+    {
       "$ref": "ListItem.schema.json"
     },
     {

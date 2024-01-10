@@ -27,6 +27,7 @@ import { type File } from "./File.js";
 import { type FormDeriveAction } from "./FormDeriveAction.js";
 import { type Grant } from "./Grant.js";
 import { type ImageObject } from "./ImageObject.js";
+import { type LabelType } from "./LabelType.js";
 import { type ListItem } from "./ListItem.js";
 import { type ListOrder } from "./ListOrder.js";
 import { type MediaObject } from "./MediaObject.js";
@@ -82,6 +83,7 @@ export type ThingType =
   FormDeriveAction |
   Grant |
   ImageObject |
+  LabelType |
   ListItem |
   ListOrder |
   MediaObject |

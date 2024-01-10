@@ -17,6 +17,7 @@ use super::execution_required::ExecutionRequired;
 use super::execution_status::ExecutionStatus;
 use super::execution_tag::ExecutionTag;
 use super::integer::Integer;
+use super::label_type::LabelType;
 use super::node::Node;
 use super::string::String;
 use super::timestamp::Timestamp;
@@ -66,6 +67,30 @@ pub struct CodeChunk {
     #[cfg_attr(feature = "proptest-max", proptest(strategy = r#"option::of(String::arbitrary())"#))]
     #[jats(attr = "language")]
     pub programming_language: Option<String>,
+
+    /// The type of the label for the chunk.
+    #[serde(alias = "label-type", alias = "label_type")]
+    #[cfg_attr(feature = "proptest-min", proptest(value = r#"None"#))]
+    #[cfg_attr(feature = "proptest-low", proptest(strategy = r#"option::of(LabelType::arbitrary())"#))]
+    #[cfg_attr(feature = "proptest-high", proptest(strategy = r#"option::of(LabelType::arbitrary())"#))]
+    #[cfg_attr(feature = "proptest-max", proptest(strategy = r#"option::of(LabelType::arbitrary())"#))]
+    pub label_type: Option<LabelType>,
+
+    /// A short label for the chunk.
+    #[cfg_attr(feature = "proptest-min", proptest(value = r#"None"#))]
+    #[cfg_attr(feature = "proptest-low", proptest(strategy = r#"option::of(r"[a-zA-Z0-9]+")"#))]
+    #[cfg_attr(feature = "proptest-high", proptest(strategy = r#"option::of(r"[a-zA-Z0-9]+")"#))]
+    #[cfg_attr(feature = "proptest-max", proptest(strategy = r#"option::of(String::arbitrary())"#))]
+    pub label: Option<String>,
+
+    /// A caption for the chunk.
+    #[serde(default, deserialize_with = "option_one_or_many")]
+    #[walk]
+    #[cfg_attr(feature = "proptest-min", proptest(value = r#"None"#))]
+    #[cfg_attr(feature = "proptest-low", proptest(strategy = r#"option::of(vec_paragraphs(2))"#))]
+    #[cfg_attr(feature = "proptest-high", proptest(strategy = r#"option::of(vec_paragraphs(2))"#))]
+    #[cfg_attr(feature = "proptest-max", proptest(strategy = r#"option::of(vec_paragraphs(2))"#))]
+    pub caption: Option<Vec<Block>>,
 
     /// Outputs from executing the chunk.
     #[serde(alias = "output")]
@@ -183,15 +208,6 @@ pub struct CodeChunkOptions {
     #[strip(execution)]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     pub execution_pure: Option<Boolean>,
-
-    /// A short label for the CodeChunk.
-    #[cfg_attr(feature = "proptest", proptest(value = "None"))]
-    pub label: Option<String>,
-
-    /// A caption for the CodeChunk.
-    #[serde(default, deserialize_with = "option_one_or_many")]
-    #[cfg_attr(feature = "proptest", proptest(value = "None"))]
-    pub caption: Option<Vec<Block>>,
 }
 
 impl CodeChunk {

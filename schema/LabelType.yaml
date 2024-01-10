@@ -1,0 +1,12 @@
+title: LabelType
+"@id": stencila:LabelType
+extends: Enumeration
+category: works
+description: Indicates how a block (usually a `CodeChunk`) should be automatically labelled.
+proptest: {}
+default: FigureLabel
+anyOf:
+  - const: FigureLabel
+    "@id": stencila:FigureLabel
+  - const: TableLabel
+    "@id": stencila:TableLabel

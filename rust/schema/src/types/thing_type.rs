@@ -30,6 +30,7 @@ use super::file::File;
 use super::form_derive_action::FormDeriveAction;
 use super::grant::Grant;
 use super::image_object::ImageObject;
+use super::label_type::LabelType;
 use super::list_item::ListItem;
 use super::list_order::ListOrder;
 use super::media_object::MediaObject;
@@ -113,6 +114,8 @@ pub enum ThingType {
     Grant(Grant),
 
     ImageObject(ImageObject),
+
+    LabelType(LabelType),
 
     ListItem(ListItem),
 

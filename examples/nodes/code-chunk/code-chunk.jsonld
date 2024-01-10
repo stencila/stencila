@@ -6,8 +6,26 @@
   "@type": "Article",
   "stencila:content": [
     {
+      "@type": "stencila:Paragraph",
+      "stencila:content": [
+        {
+          "@type": "Text",
+          "value": "With no language: "
+        }
+      ]
+    },
+    {
       "@type": "stencila:CodeChunk",
       "stencila:code": "No language"
+    },
+    {
+      "@type": "stencila:Paragraph",
+      "stencila:content": [
+        {
+          "@type": "Text",
+          "value": "With language: "
+        }
+      ]
     },
     {
       "@type": "stencila:CodeChunk",
@@ -15,10 +33,87 @@
       "programmingLanguage": "python"
     },
     {
+      "@type": "stencila:Paragraph",
+      "stencila:content": [
+        {
+          "@type": "Text",
+          "value": "With language and autoExec: "
+        }
+      ]
+    },
+    {
       "@type": "stencila:CodeChunk",
       "stencila:autoExec": "Always",
       "stencila:code": "// Javascript",
       "programmingLanguage": "js"
+    },
+    {
+      "@type": "stencila:Paragraph",
+      "stencila:content": [
+        {
+          "@type": "Text",
+          "value": "With label: "
+        }
+      ]
+    },
+    {
+      "@type": "stencila:CodeChunk",
+      "stencila:code": "# Chunk 1A",
+      "stencila:label": "1A"
+    },
+    {
+      "@type": "stencila:Paragraph",
+      "stencila:content": [
+        {
+          "@type": "Text",
+          "value": "Code figure with caption: "
+        }
+      ]
+    },
+    {
+      "@type": "stencila:CodeChunk",
+      "stencila:code": "plot(y~x)",
+      "programmingLanguage": "r",
+      "stencila:labelType": "FigureLabel",
+      "stencila:label": "1",
+      "caption": [
+        {
+          "@type": "stencila:Paragraph",
+          "stencila:content": [
+            {
+              "@type": "Text",
+              "value": "Y against X."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "@type": "stencila:Paragraph",
+      "stencila:content": [
+        {
+          "@type": "Text",
+          "value": "Code table with caption: "
+        }
+      ]
+    },
+    {
+      "@type": "stencila:CodeChunk",
+      "stencila:code": "head(mtcars)",
+      "programmingLanguage": "r",
+      "stencila:labelType": "TableLabel",
+      "stencila:label": "1",
+      "caption": [
+        {
+          "@type": "stencila:Paragraph",
+          "stencila:content": [
+            {
+              "@type": "Text",
+              "value": "Some cars."
+            }
+          ]
+        }
+      ]
     }
   ]
 }
