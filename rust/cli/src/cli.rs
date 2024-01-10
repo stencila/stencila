@@ -708,9 +708,7 @@ impl Cli {
                 }
             }
 
-            Command::Test { path, reps } => {
-                assistants::testing::test_example(&path, reps).await?
-            }
+            Command::Test { path, reps } => assistants::testing::test_example(&path, reps).await?,
         }
 
         if wait {
