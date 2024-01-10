@@ -36,6 +36,13 @@ impl InstructionInline {
 
         md += "%%}";
 
+        if let Some(suggestion) = &self.options.suggestion {
+            let (suggestion_md, suggestion_losses) = suggestion.to_markdown(context);
+            losses.merge(suggestion_losses);
+
+            md += &suggestion_md;
+        };
+
         (md, losses)
     }
 }
