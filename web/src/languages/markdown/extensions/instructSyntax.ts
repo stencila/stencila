@@ -12,9 +12,9 @@ import {
 
 import { getLeafEnd, hasOpeningDelimitir } from '../utilty'
 
-const insertBlockMarker = /^@@\s/
-const editBlockStart = /^%%\s/
-const editBlockEnd = /^%%$/
+const instructBlockRe = /^%%\s/
+const startContentRe = /^%>$/
+const endContentRe = /^%%$/
 
 const customTags = {
   instructionBase: Tag.define(),
@@ -24,22 +24,24 @@ const customTags = {
 }
 
 // Instruct `NodeSpecs`
-const instructBlockInsert = {
-  name: 'InstructBlockInsert',
+const instructBlock = {
+  name: 'InstructBlock',
   style: customTags.instructionBase,
 }
-const instructBlockEdit = {
-  name: 'InstructBockEdit',
-  style: customTags.instructionBase,
-}
-const instructBlockEditClose = {
-  name: 'InstructBlockEditClose',
-  style: customTags.instructionBase,
-}
-const instructInlineInsert = { name: 'InstructInsertInline' }
-const instructInlineEdit = { name: 'InstructEditInline' }
 
-const instructInlineEditClose = { name: 'InstructInlineEditClose' }
+const startContentBlock = {
+  name: 'InstructContentStartBlock',
+  style: customTags.instructionBase,
+}
+
+const endContentBlock = {
+  name: 'InstructContentEndBlock',
+  style: customTags.instructionBase,
+}
+
+const instructInline = { name: 'InstructInline' }
+
+const instructInlineClose = { name: 'InstructInlineClose' }
 
 const instructMark = { name: 'InstructMark', style: customTags.instructionMark }
 const instructText = {
@@ -66,103 +68,108 @@ const BLOCK_MARK_LENGTH = 2
  * Utility fucntion to create the elements for the
  * Instruct block syntax
  */
-const parseIntructBlock = (cx: BlockContext, leaf: LeafBlock): void => {
+const parseBlockMarker = (
+  cx: BlockContext,
+  leaf: LeafBlock,
+  name: string
+): void => {
   const marker = createMarkerEl(cx, leaf.start, BLOCK_MARK_LENGTH)
-  const instruction = createInstructTextEl(cx, marker.to + 1, getLeafEnd(leaf))
-  cx.addLeafElement(
-    leaf,
-    cx.elt(instructBlockInsert.name, leaf.start, getLeafEnd(leaf), [
-      marker,
-      instruction,
-    ])
-  )
+
+  const elements = [marker]
+  if (name === instructBlock.name) {
+    const instruction = createInstructTextEl(
+      cx,
+      marker.to + 1,
+      getLeafEnd(leaf)
+    )
+    elements.push(instruction)
+  }
+  cx.addLeafElement(leaf, cx.elt(name, leaf.start, getLeafEnd(leaf), elements))
 }
 
 /**
  * `LeafBlockParser` for parsing an instruction block
- * which inserts content.
- * eg: `@@ 4x10 table`
+ * eg: `%% 4x10 table`
  */
 class InsertBlockParser implements LeafBlockParser {
   nextLine = () => false
   finish = (cx: BlockContext, leaf: LeafBlock): boolean => {
-    try {
-      parseIntructBlock(cx, leaf)
-      return true
-    } catch (_) {
-      return false
-    }
+    parseBlockMarker(cx, leaf, instructBlock.name)
+    return true
   }
 }
 
 /**
- * `LeafBlockParser` for an instruction block
- * which edits content within the `%%` delimiters.
- * eg: `%% write this paragraph in the style of Charles Dickens`
+ * `LeafBlockParser` for the opening content of an instruct block
+ * which edits content within the `%>` `%%` delimiters.
+ * eg: `%%`
  */
-class EditBlockParser implements LeafBlockParser {
+class StartContentParser implements LeafBlockParser {
   nextLine = () => false
-  finish = (cx: BlockContext, leaf: LeafBlock): boolean => {
-    try {
-      parseIntructBlock(cx, leaf)
-      return true
-    } catch (_) {
-      return false
-    }
+  finish(cx: BlockContext, leaf: LeafBlock): boolean {
+    parseBlockMarker(cx, leaf, startContentBlock.name)
+    return true
   }
 }
 
 /**
  * `LeafBlockParser` for the closing an instruct block
- * which edits content within the `%%` delimiters.
+ * which edits content within the `%>` `%%` delimiters.
  * eg: `%%`
  */
-class CloseEditParser implements LeafBlockParser {
+class EndContentParser implements LeafBlockParser {
   nextLine = () => false
   finish = (cx: BlockContext, leaf: LeafBlock): boolean => {
-    const marker = createMarkerEl(cx, leaf.start, BLOCK_MARK_LENGTH)
-
-    cx.addLeafElement(
-      leaf,
-      cx.elt(instructBlockEditClose.name, leaf.start, getLeafEnd(leaf), [
-        marker,
-      ])
-    )
+    parseBlockMarker(cx, leaf, endContentBlock.name)
     return true
   }
 }
 
-const INLINE_MARK_1 = '{@@'
-const INLINE_MARK_2 = '@@}'
-const INLINE_MARK_3 = '{%%'
-const INLINE_MARK_4 = '%>'
-const INLINE_MARK_5 = '%%}'
+const INLINE_MARK_OPEN = '{%%'
+const INLINE_MARK_CONTENT = '%>'
+const INLINE_MARK_CLOSE = '%%}'
 
 const createInlineElements = (
   cx: InlineContext,
-  pos: number,
-  openMark: string,
-  closeMark: string
+  pos: number
 ): { elements: Element[]; closingPos: number } => {
   const elements = []
 
-  const openMarkEl = createMarkerEl(cx, pos, openMark.length)
+  const openMarkEl = createMarkerEl(cx, pos, INLINE_MARK_OPEN.length)
   elements.push(openMarkEl)
 
+  const contentMarkIndex = cx
+    .slice(pos + INLINE_MARK_OPEN.length, pos + cx.text.length)
+    .search(INLINE_MARK_CONTENT)
   const closeMarkIndex = cx
-    .slice(pos + openMark.length, pos + cx.text.length)
-    .search(closeMark)
+    .slice(pos + INLINE_MARK_OPEN.length, pos + cx.text.length)
+    .search(INLINE_MARK_CLOSE)
+
+  let endIndex = -1
+  let endMarker = INLINE_MARK_CLOSE
+
+  if (contentMarkIndex !== -1 && closeMarkIndex !== -1) {
+    console.log('hello')
+    if (contentMarkIndex < closeMarkIndex) {
+      endIndex = contentMarkIndex
+      endMarker = INLINE_MARK_CONTENT
+    } else {
+      endIndex = closeMarkIndex
+    }
+  } else if (contentMarkIndex !== -1) {
+    endIndex = contentMarkIndex
+    endMarker = INLINE_MARK_CONTENT
+  } else if (closeMarkIndex !== -1) {
+    endIndex = closeMarkIndex
+  }
 
   let textEnd: number
   let closeMarkEl: Element | undefined
 
   // check for closing delim, use pos to determine end of text element
-  if (closeMarkIndex !== -1) {
-    closeMarkEl = createMarkerEl(
-      cx,
-      openMarkEl.to + closeMarkIndex,
-      closeMark.length
-    )
+  if (endIndex !== -1) {
+    console.log(endMarker, endIndex)
+    closeMarkEl = createMarkerEl(cx, openMarkEl.to + endIndex, endMarker.length)
     textEnd = closeMarkEl.from
   } else {
     textEnd = pos + cx.text.length
@@ -183,43 +190,15 @@ const createInlineElements = (
 }
 
 /**
- *  `InlineParser` for parsing an inline insert instruction
- *  eg `{@@ create a sentence about.. frogs @@}`
+ * `InlineParser` for an inline instruction for editing or insertion.
+ * eg: `{%%improve this%> ...%%}` || `{%% write a paragraph about birds %%}`
  */
-class InsertInlineParser implements InlineParser {
-  name = instructInlineInsert.name
-  parse(cx: InlineContext, _next: number, pos: number): number {
-    if (cx.slice(pos, pos + INLINE_MARK_1.length) === INLINE_MARK_1) {
-      const { elements, closingPos } = createInlineElements(
-        cx,
-        pos,
-        INLINE_MARK_1,
-        INLINE_MARK_2
-      )
-
-      return cx.addElement(
-        cx.elt(instructInlineInsert.name, pos, closingPos, elements)
-      )
-    }
-    return -1
-  }
-}
-
-/**
- * `InlineParser` for an inline edit instruction.
- * eg: `{%%improve this%> ...`
- */
-class EditInlineParser implements InlineParser {
-  name = instructInlineEdit.name
+class IntructInlineParser implements InlineParser {
+  name = instructInline.name
   parse = (cx: InlineContext, _next: number, pos: number): number => {
-    if (cx.slice(pos, pos + INLINE_MARK_3.length) === INLINE_MARK_3) {
-      const { elements, closingPos } = createInlineElements(
-        cx,
-        pos,
-        INLINE_MARK_3,
-        INLINE_MARK_4
-      )
-      cx.addElement(cx.elt(instructInlineEdit.name, pos, closingPos, elements))
+    if (cx.slice(pos, pos + INLINE_MARK_OPEN.length) === INLINE_MARK_OPEN) {
+      const { elements, closingPos } = createInlineElements(cx, pos)
+      cx.addElement(cx.elt(instructInline.name, pos, closingPos, elements))
     }
     return -1
   }
@@ -229,16 +208,16 @@ class EditInlineParser implements InlineParser {
  * `InlineParser` for the closing delim of an inline edit instruction.
  * eg: `%%}`
  */
-class CloseEditInlineParser implements InlineParser {
-  name = instructInlineEditClose.name
+class CloseInlineParser implements InlineParser {
+  name = instructInlineClose.name
   parse = (cx: InlineContext, _next: number, pos: number): number => {
     if (
-      cx.slice(pos, pos + INLINE_MARK_5.length) === INLINE_MARK_5 &&
-      hasOpeningDelimitir(cx, pos, INLINE_MARK_3, INLINE_MARK_5)
+      cx.slice(pos, pos + INLINE_MARK_CLOSE.length) === INLINE_MARK_CLOSE &&
+      hasOpeningDelimitir(cx, pos, INLINE_MARK_OPEN, INLINE_MARK_CLOSE)
     ) {
       return cx.addElement(
-        cx.elt(instructInlineEditClose.name, pos, pos + INLINE_MARK_5.length, [
-          createMarkerEl(cx, pos, INLINE_MARK_5.length),
+        cx.elt(instructInlineClose.name, pos, pos + INLINE_MARK_CLOSE.length, [
+          createMarkerEl(cx, pos, INLINE_MARK_CLOSE.length),
         ])
       )
     }
@@ -255,41 +234,35 @@ class CloseEditInlineParser implements InlineParser {
  */
 const StencilaInstructSyntax: MarkdownConfig = {
   defineNodes: [
-    instructBlockInsert,
-    instructBlockEdit,
-    instructBlockEditClose,
-    instructInlineInsert,
-    instructInlineEdit,
-    instructBlockEditClose,
-    instructInlineEditClose,
+    instructBlock,
+    startContentBlock,
+    endContentBlock,
+    instructInline,
+    instructInlineClose,
     instructMark,
     instructText,
   ],
   parseBlock: [
     {
-      name: instructBlockInsert.name,
+      name: instructBlock.name,
       leaf: (_, leaf) =>
-        insertBlockMarker.test(leaf.content) ? new InsertBlockParser() : null,
-      endLeaf: (_, line) => !insertBlockMarker.test(line.text),
+        instructBlockRe.test(leaf.content) ? new InsertBlockParser() : null,
+      endLeaf: (_, line) => !instructBlockRe.test(line.text),
     },
     {
-      name: instructBlockEdit.name,
+      name: startContentBlock.name,
       leaf: (_, leaf) =>
-        editBlockStart.test(leaf.content) ? new EditBlockParser() : null,
-      endLeaf: (_, line) => !editBlockStart.test(line.text),
+        startContentRe.test(leaf.content) ? new StartContentParser() : null,
+      endLeaf: (_, line) => !startContentRe.test(line.text),
     },
     {
-      name: instructBlockEditClose.name,
+      name: endContentBlock.name,
       leaf: (_, leaf) =>
-        editBlockEnd.test(leaf.content) ? new CloseEditParser() : null,
-      endLeaf: (_, line) => !editBlockEnd.test(line.text),
+        endContentRe.test(leaf.content) ? new EndContentParser() : null,
+      endLeaf: (_, line) => !endContentRe.test(line.text),
     },
   ],
-  parseInline: [
-    new InsertInlineParser(),
-    new EditInlineParser(),
-    new CloseEditInlineParser(),
-  ],
+  parseInline: [new IntructInlineParser(), new CloseInlineParser()],
 }
 
 const INSTRUCT_SYNTAX_BG = 'rgba(0,255,0,0.1)'
