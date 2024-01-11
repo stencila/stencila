@@ -32,6 +32,7 @@ import { html } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
 
 import { CodeMirrorClient } from '../clients/codemirror'
+import { ObjectClient } from '../clients/object'
 import { markdownHighlightStyle } from '../languages/markdown'
 import type { DocumentId, DocumentAccess } from '../types'
 import { TWLitElement } from '../ui/twind'
@@ -91,6 +92,12 @@ export class SourceView extends TWLitElement {
    */
   @property()
   displayMode?: 'single' | 'split' = 'single'
+
+  /**
+   * A read-only client which receives patches for the JavaScript object
+   * representing the entire document
+   */
+  private objectClient: ObjectClient
 
   /**
    * A read-write client which sends and receives string patches
@@ -262,6 +269,17 @@ export class SourceView extends TWLitElement {
       bracketMatching(),
       autocompletion(),
     ]
+  }
+
+  /**
+   * Override to initialize `objectClient` (unlike `codeMirrorClient`,
+   * which needs to be re-instantiated if the format changes) this only
+   * needs to be done once.
+   */
+  connectedCallback() {
+    super.connectedCallback()
+
+    this.objectClient = new ObjectClient(this.doc)
   }
 
   /**

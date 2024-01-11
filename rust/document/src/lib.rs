@@ -24,6 +24,7 @@ use schema::{Article, Node};
 mod sync_file;
 mod sync_format;
 mod sync_nodes;
+mod sync_object;
 
 /// The document type
 ///
