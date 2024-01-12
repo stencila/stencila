@@ -246,7 +246,7 @@ impl Assistant for OllamaAssistant {
 /// there does not appear to be an easy way to get the actual context
 /// length of an Ollama model (i.e. it is not in the API).
 pub async fn list() -> Result<Vec<Arc<dyn Assistant>>> {
-    if std::net::TcpListener::bind(("127.0.0.1", 11434)).is_err() {
+    if std::net::TcpStream::connect("127.0.0.1:11434").is_err() {
         return Ok(vec![]);
     }
 
