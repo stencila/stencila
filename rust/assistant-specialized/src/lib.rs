@@ -73,6 +73,8 @@ const FORMAT: Format = Format::Markdown;
 const MAX_RETRIES: u8 = 1;
 
 /// A custom assistant
+/// TODO: Remove this when the options are being used.
+#[allow(dead_code)]
 #[derive(Default, Deserialize)]
 #[serde(
     rename_all = "kebab-case",
