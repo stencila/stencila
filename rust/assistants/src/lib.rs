@@ -134,7 +134,7 @@ pub async fn perform_instruction<'doc: 'async_recursion>(
 
         // Check that the assignee supports the task
         if !assistant.supports_task(&task) {
-            bail!("The assigned assigned assistant `{id}` does not support this task")
+            bail!("The assigned assistant `{id}` does not support this task")
         }
 
         assistant
