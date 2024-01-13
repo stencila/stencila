@@ -4,6 +4,8 @@ extends: CodeExecutable
 category: flow
 description: A clause within an `IfBlock` node.
 status: under-development
+markdown:
+  derive: false
 proptest: {}
 required:
   - content

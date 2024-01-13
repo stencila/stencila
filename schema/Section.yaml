@@ -9,8 +9,7 @@ html:
   elem: section
   special: true
 markdown:
-  template: '::: section\n\n{content}\n\n:::\n\n'
-  special: true
+  derive: false
 proptest: {}
 required:
   - content

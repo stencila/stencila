@@ -5,7 +5,7 @@ category: flow
 description: Show and execute alternative content conditional upon an executed expression.
 status: under-development
 markdown:
-  special: true
+  derive: false
 proptest: {}
 required:
   - clauses

@@ -7,5 +7,5 @@ html:
   elem: del
 markdown:
   # CriticMarkup for "Deletions"
-  template: '{{--{content}--}}'
+  template: '{--{{content}}--}'
 proptest: {}

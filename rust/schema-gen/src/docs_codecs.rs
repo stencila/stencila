@@ -216,12 +216,12 @@ impl Schemas {
         } else if let (
             Format::Markdown,
             Some(MarkdownOptions {
-                special, template, ..
+                derive, template, ..
             }),
         ) = (template, &schema.markdown)
         {
-            if *special {
-                vec![t("Encoded using special function")]
+            if !derive {
+                vec![t("Encoded using implemented function")]
             } else if let Some(template) = template {
                 vec![t("Encoded as "), ci(template)]
             } else {

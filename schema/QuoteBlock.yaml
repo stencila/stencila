@@ -8,8 +8,7 @@ jats:
 html:
   elem: blockquote
 markdown:
-  template: '> {content}'
-  special: true
+  derive: false
 proptest: {}
 required:
   - content

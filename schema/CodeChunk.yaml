@@ -8,7 +8,7 @@ jats:
   attrs:
     executable: "yes"
 markdown:
-  special: true
+  derive: false
 proptest: {}
 core:
   - labelType
