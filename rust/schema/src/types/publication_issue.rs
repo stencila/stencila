@@ -51,6 +51,11 @@ pub struct PublicationIssue {
     #[jats(flatten)]
     #[markdown(flatten)]
     pub options: Box<PublicationIssueOptions>,
+
+    /// A unique identifier for a node within a document
+    
+    #[serde(skip)]
+    pub uid: NodeUid
 }
 
 #[skip_serializing_none]
@@ -231,6 +236,16 @@ pub struct PublicationIssueOptions {
 }
 
 impl PublicationIssue {
+    const NICK: &'static str = "pub";
+    
+    pub fn node_type(&self) -> NodeType {
+        NodeType::PublicationIssue
+    }
+
+    pub fn node_id(&self) -> NodeId {
+        NodeId::new(Self::NICK, &self.uid)
+    }
+    
     pub fn new() -> Self {
         Self {
             ..Default::default()

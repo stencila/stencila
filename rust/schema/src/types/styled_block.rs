@@ -59,6 +59,11 @@ pub struct StyledBlock {
     #[jats(flatten)]
     #[markdown(flatten)]
     pub options: Box<StyledBlockOptions>,
+
+    /// A unique identifier for a node within a document
+    #[cfg_attr(feature = "proptest", proptest(value = "Default::default()"))]
+    #[serde(skip)]
+    pub uid: NodeUid
 }
 
 #[skip_serializing_none]
@@ -97,6 +102,16 @@ pub struct StyledBlockOptions {
 }
 
 impl StyledBlock {
+    const NICK: &'static str = "sty";
+    
+    pub fn node_type(&self) -> NodeType {
+        NodeType::StyledBlock
+    }
+
+    pub fn node_id(&self) -> NodeId {
+        NodeId::new(Self::NICK, &self.uid)
+    }
+    
     pub fn new(code: Cord, content: Vec<Block>) -> Self {
         Self {
             code,

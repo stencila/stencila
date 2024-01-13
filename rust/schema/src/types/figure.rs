@@ -72,6 +72,11 @@ pub struct Figure {
     #[jats(flatten)]
     #[markdown(flatten)]
     pub options: Box<FigureOptions>,
+
+    /// A unique identifier for a node within a document
+    #[cfg_attr(feature = "proptest", proptest(value = "Default::default()"))]
+    #[serde(skip)]
+    pub uid: NodeUid
 }
 
 #[skip_serializing_none]
@@ -277,6 +282,16 @@ pub struct FigureOptions {
 }
 
 impl Figure {
+    const NICK: &'static str = "fig";
+    
+    pub fn node_type(&self) -> NodeType {
+        NodeType::Figure
+    }
+
+    pub fn node_id(&self) -> NodeId {
+        NodeId::new(Self::NICK, &self.uid)
+    }
+    
     pub fn new(content: Vec<Block>) -> Self {
         Self {
             content,

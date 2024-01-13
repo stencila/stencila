@@ -38,9 +38,24 @@ pub struct ReplaceBlock {
     #[serde(deserialize_with = "one_or_many")]
     #[cfg_attr(feature = "proptest", proptest(value = "Default::default()"))]
     pub replacement: Vec<Block>,
+
+    /// A unique identifier for a node within a document
+    #[cfg_attr(feature = "proptest", proptest(value = "Default::default()"))]
+    #[serde(skip)]
+    pub uid: NodeUid
 }
 
 impl ReplaceBlock {
+    const NICK: &'static str = "rep";
+    
+    pub fn node_type(&self) -> NodeType {
+        NodeType::ReplaceBlock
+    }
+
+    pub fn node_id(&self) -> NodeId {
+        NodeId::new(Self::NICK, &self.uid)
+    }
+    
     pub fn new(content: Vec<Block>, replacement: Vec<Block>) -> Self {
         Self {
             content,

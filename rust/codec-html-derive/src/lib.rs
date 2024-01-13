@@ -112,7 +112,6 @@ fn derive_struct(type_attr: TypeAttr) -> TokenStream {
         };
 
         if field_name == "r#type" {
-            // Skip the type field
             return;
         }
 
@@ -134,6 +133,11 @@ fn derive_struct(type_attr: TypeAttr) -> TokenStream {
                         &[slot_html]
                     ));
                 }
+            }
+        } else if field_name == "uid" {
+            quote! {
+                // TODO enable this only in "dom" mode
+                //attrs.push(attr("id", &self.node_id().to_string()));
             }
         } else if field_name == "content" || field_attr.content {
             // Always add content as direct children

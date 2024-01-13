@@ -298,7 +298,7 @@ struct StripOptions {
     strip_types: Vec<String>,
 
     /// A list of node properties to strip
-    #[arg(long, default_value = "id")]
+    #[arg(long)]
     strip_props: Vec<String>,
 }
 

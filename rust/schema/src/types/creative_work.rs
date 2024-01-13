@@ -41,6 +41,11 @@ pub struct CreativeWork {
     #[jats(flatten)]
     #[markdown(flatten)]
     pub options: Box<CreativeWorkOptions>,
+
+    /// A unique identifier for a node within a document
+    
+    #[serde(skip)]
+    pub uid: NodeUid
 }
 
 #[skip_serializing_none]
@@ -215,6 +220,16 @@ pub struct CreativeWorkOptions {
 }
 
 impl CreativeWork {
+    const NICK: &'static str = "cre";
+    
+    pub fn node_type(&self) -> NodeType {
+        NodeType::CreativeWork
+    }
+
+    pub fn node_id(&self) -> NodeId {
+        NodeId::new(Self::NICK, &self.uid)
+    }
+    
     pub fn new() -> Self {
         Self {
             ..Default::default()

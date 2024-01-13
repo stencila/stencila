@@ -36,9 +36,24 @@ pub struct ExecutionError {
     /// Stack trace leading up to the error.
     #[serde(alias = "trace", alias = "stack-trace", alias = "stack_trace")]
     pub stack_trace: Option<String>,
+
+    /// A unique identifier for a node within a document
+    
+    #[serde(skip)]
+    pub uid: NodeUid
 }
 
 impl ExecutionError {
+    const NICK: &'static str = "exe";
+    
+    pub fn node_type(&self) -> NodeType {
+        NodeType::ExecutionError
+    }
+
+    pub fn node_id(&self) -> NodeId {
+        NodeId::new(Self::NICK, &self.uid)
+    }
+    
     pub fn new(error_message: String) -> Self {
         Self {
             error_message,

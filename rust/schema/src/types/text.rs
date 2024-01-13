@@ -34,9 +34,24 @@ pub struct Text {
     #[cfg_attr(feature = "proptest-max", proptest(strategy = r#"String::arbitrary().prop_map(Cord::new)"#))]
     #[html(content)]
     pub value: Cord,
+
+    /// A unique identifier for a node within a document
+    #[cfg_attr(feature = "proptest", proptest(value = "Default::default()"))]
+    #[serde(skip)]
+    pub uid: NodeUid
 }
 
 impl Text {
+    const NICK: &'static str = "tex";
+    
+    pub fn node_type(&self) -> NodeType {
+        NodeType::Text
+    }
+
+    pub fn node_id(&self) -> NodeId {
+        NodeId::new(Self::NICK, &self.uid)
+    }
+    
     pub fn new(value: Cord) -> Self {
         Self {
             value,

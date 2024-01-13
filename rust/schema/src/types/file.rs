@@ -44,6 +44,11 @@ pub struct File {
     #[jats(flatten)]
     #[markdown(flatten)]
     pub options: Box<FileOptions>,
+
+    /// A unique identifier for a node within a document
+    
+    #[serde(skip)]
+    pub uid: NodeUid
 }
 
 #[skip_serializing_none]
@@ -218,6 +223,16 @@ pub struct FileOptions {
 }
 
 impl File {
+    const NICK: &'static str = "fil";
+    
+    pub fn node_type(&self) -> NodeType {
+        NodeType::File
+    }
+
+    pub fn node_id(&self) -> NodeId {
+        NodeId::new(Self::NICK, &self.uid)
+    }
+    
     pub fn new(path: String) -> Self {
         Self {
             path,

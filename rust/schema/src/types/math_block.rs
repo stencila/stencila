@@ -57,6 +57,11 @@ pub struct MathBlock {
     #[jats(flatten)]
     #[markdown(flatten)]
     pub options: Box<MathBlockOptions>,
+
+    /// A unique identifier for a node within a document
+    #[cfg_attr(feature = "proptest", proptest(value = "Default::default()"))]
+    #[serde(skip)]
+    pub uid: NodeUid
 }
 
 #[skip_serializing_none]
@@ -93,6 +98,16 @@ pub struct MathBlockOptions {
 }
 
 impl MathBlock {
+    const NICK: &'static str = "mat";
+    
+    pub fn node_type(&self) -> NodeType {
+        NodeType::MathBlock
+    }
+
+    pub fn node_id(&self) -> NodeId {
+        NodeId::new(Self::NICK, &self.uid)
+    }
+    
     pub fn new(code: Cord) -> Self {
         Self {
             code,

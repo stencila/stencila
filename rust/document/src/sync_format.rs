@@ -389,7 +389,6 @@ mod tests {
                 }),
                 Some(EncodeOptions {
                     format: Some(Format::Markdown),
-                    strip_props: vec!["id".to_string()],
                     ..Default::default()
                 }),
             )
@@ -406,7 +405,6 @@ mod tests {
                     None,
                     Some(EncodeOptions {
                         format: Some(Format::Markdown),
-                        strip_props: vec!["id".to_string()],
                         ..Default::default()
                     }),
                 )
@@ -466,7 +464,6 @@ mod tests {
                 }),
                 Some(EncodeOptions {
                     format: Some(Format::Markdown),
-                    strip_props: vec!["id".to_string()],
                     ..Default::default()
                 }),
             )

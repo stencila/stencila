@@ -26,9 +26,24 @@ pub struct TimeValidator {
 
     /// The inclusive upper limit for a time.
     pub maximum: Option<Time>,
+
+    /// A unique identifier for a node within a document
+    
+    #[serde(skip)]
+    pub uid: NodeUid
 }
 
 impl TimeValidator {
+    const NICK: &'static str = "tim";
+    
+    pub fn node_type(&self) -> NodeType {
+        NodeType::TimeValidator
+    }
+
+    pub fn node_id(&self) -> NodeId {
+        NodeId::new(Self::NICK, &self.uid)
+    }
+    
     pub fn new() -> Self {
         Self {
             ..Default::default()

@@ -38,8 +38,8 @@ pub fn derive_struct(input: &DeriveInput, data: &DataStruct) -> TokenStream {
                 store.put::<_,_,&str>(obj_id, "type", stringify!(#struct_name))?;
                 keys.remove("type");
             }
-        } else if field_name == "id" {
-            // Never put id in the store (because we use the object id on load)
+        } else if field_name == "uid" {
+            // Never put the uid in the store (because we use the obj_id on load)
             continue;
         } else {
             // Put fields that are in both map and store
@@ -73,19 +73,22 @@ pub fn derive_struct(input: &DeriveInput, data: &DataStruct) -> TokenStream {
     // Derive `insert_prop` method
     let mut fields = TokenStream::new();
     for field in &data.fields {
-        let field_name = &field.ident;
-        let field_name_string = &field
-            .ident
+        let field_ident = &field.ident;
+        let field_name = &field_ident
             .as_ref()
             .map(|ident| ident.to_string())
             .unwrap_or_default();
-        let field = if field_name_string == "r#type" {
+
+        let field = if field_name == "r#type" {
             quote! {
                 store.put::<_,_,&str>(&prop_obj_id, "type", stringify!(#struct_name))?;
             }
+        } else if field_name == "uid" {
+            // Never put the uid in the store (because we use the obj_id on load)
+            continue;
         } else {
             quote! {
-                self.#field_name.insert_prop(store, &prop_obj_id, stringify!(#field_name).into())?;
+                self.#field_ident.insert_prop(store, &prop_obj_id, stringify!(#field_ident).into())?;
             }
         };
         fields.extend(field);

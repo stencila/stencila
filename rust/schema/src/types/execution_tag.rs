@@ -30,9 +30,24 @@ pub struct ExecutionTag {
     /// Whether the tag is global to the document
     #[serde(alias = "is-global", alias = "is_global")]
     pub is_global: Boolean,
+
+    /// A unique identifier for a node within a document
+    
+    #[serde(skip)]
+    pub uid: NodeUid
 }
 
 impl ExecutionTag {
+    const NICK: &'static str = "exe";
+    
+    pub fn node_type(&self) -> NodeType {
+        NodeType::ExecutionTag
+    }
+
+    pub fn node_id(&self) -> NodeId {
+        NodeId::new(Self::NICK, &self.uid)
+    }
+    
     pub fn new(name: String, value: String, is_global: Boolean) -> Self {
         Self {
             name,

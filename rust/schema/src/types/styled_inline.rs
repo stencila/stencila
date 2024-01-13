@@ -63,6 +63,11 @@ pub struct StyledInline {
     #[jats(flatten)]
     #[markdown(flatten)]
     pub options: Box<StyledInlineOptions>,
+
+    /// A unique identifier for a node within a document
+    #[cfg_attr(feature = "proptest", proptest(value = "Default::default()"))]
+    #[serde(skip)]
+    pub uid: NodeUid
 }
 
 #[skip_serializing_none]
@@ -101,6 +106,16 @@ pub struct StyledInlineOptions {
 }
 
 impl StyledInline {
+    const NICK: &'static str = "sty";
+    
+    pub fn node_type(&self) -> NodeType {
+        NodeType::StyledInline
+    }
+
+    pub fn node_id(&self) -> NodeId {
+        NodeId::new(Self::NICK, &self.uid)
+    }
+    
     pub fn new(code: Cord, content: Vec<Inline>) -> Self {
         Self {
             code,

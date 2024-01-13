@@ -67,6 +67,11 @@ pub struct Claim {
     #[jats(flatten)]
     #[markdown(flatten)]
     pub options: Box<ClaimOptions>,
+
+    /// A unique identifier for a node within a document
+    #[cfg_attr(feature = "proptest", proptest(value = "Default::default()"))]
+    #[serde(skip)]
+    pub uid: NodeUid
 }
 
 #[skip_serializing_none]
@@ -272,6 +277,16 @@ pub struct ClaimOptions {
 }
 
 impl Claim {
+    const NICK: &'static str = "cla";
+    
+    pub fn node_type(&self) -> NodeType {
+        NodeType::Claim
+    }
+
+    pub fn node_id(&self) -> NodeId {
+        NodeId::new(Self::NICK, &self.uid)
+    }
+    
     pub fn new(claim_type: ClaimType, content: Vec<Block>) -> Self {
         Self {
             claim_type,

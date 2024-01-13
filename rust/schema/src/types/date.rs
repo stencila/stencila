@@ -30,9 +30,24 @@ pub struct Date {
     #[cfg_attr(feature = "proptest-high", proptest(regex = r#"[a-zA-Z0-9\-]{1,10}"#))]
     #[cfg_attr(feature = "proptest-max", proptest(strategy = r#"String::arbitrary()"#))]
     pub value: String,
+
+    /// A unique identifier for a node within a document
+    #[cfg_attr(feature = "proptest", proptest(value = "Default::default()"))]
+    #[serde(skip)]
+    pub uid: NodeUid
 }
 
 impl Date {
+    const NICK: &'static str = "dat";
+    
+    pub fn node_type(&self) -> NodeType {
+        NodeType::Date
+    }
+
+    pub fn node_id(&self) -> NodeId {
+        NodeId::new(Self::NICK, &self.uid)
+    }
+    
     pub fn new(value: String) -> Self {
         Self {
             value,

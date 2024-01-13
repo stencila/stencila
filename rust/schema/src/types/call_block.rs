@@ -86,6 +86,11 @@ pub struct CallBlock {
     #[jats(flatten)]
     #[markdown(flatten)]
     pub options: Box<CallBlockOptions>,
+
+    /// A unique identifier for a node within a document
+    #[cfg_attr(feature = "proptest", proptest(value = "Default::default()"))]
+    #[serde(skip)]
+    pub uid: NodeUid
 }
 
 #[skip_serializing_none]
@@ -179,6 +184,16 @@ pub struct CallBlockOptions {
 }
 
 impl CallBlock {
+    const NICK: &'static str = "cal";
+    
+    pub fn node_type(&self) -> NodeType {
+        NodeType::CallBlock
+    }
+
+    pub fn node_id(&self) -> NodeId {
+        NodeId::new(Self::NICK, &self.uid)
+    }
+    
     pub fn new(source: String, arguments: Vec<CallArgument>) -> Self {
         Self {
             source,

@@ -1,8 +1,8 @@
 use smol_str::SmolStr;
 
-use node_store::{automerge::ObjId, ReadNode, ReadStore};
+use node_store::{automerge::ObjId, get_node_type, ReadNode, ReadStore};
 
-use crate::{prelude::*, utilities::node_type, *};
+use crate::{prelude::*, *};
 
 impl ReadNode for MessagePart {
     fn load_str(value: &SmolStr) -> Result<Self> {
@@ -10,7 +10,7 @@ impl ReadNode for MessagePart {
     }
 
     fn load_map<S: ReadStore>(store: &S, obj_id: &ObjId) -> Result<Self> {
-        let Some(node_type) = node_type(store, obj_id)? else {
+        let Some(node_type) = get_node_type(store, obj_id)? else {
             bail!("Object in Automerge store is not a Stencila node");
         };
 

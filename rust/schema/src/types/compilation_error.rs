@@ -32,9 +32,24 @@ pub struct CompilationError {
     /// The location that the error occurred.
     #[serde(alias = "code-location", alias = "code_location")]
     pub code_location: Option<CodeLocation>,
+
+    /// A unique identifier for a node within a document
+    
+    #[serde(skip)]
+    pub uid: NodeUid
 }
 
 impl CompilationError {
+    const NICK: &'static str = "com";
+    
+    pub fn node_type(&self) -> NodeType {
+        NodeType::CompilationError
+    }
+
+    pub fn node_id(&self) -> NodeId {
+        NodeId::new(Self::NICK, &self.uid)
+    }
+    
     pub fn new(error_message: String) -> Self {
         Self {
             error_message,

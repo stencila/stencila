@@ -60,6 +60,11 @@ pub struct SoftwareSourceCode {
     #[jats(flatten)]
     #[markdown(flatten)]
     pub options: Box<SoftwareSourceCodeOptions>,
+
+    /// A unique identifier for a node within a document
+    
+    #[serde(skip)]
+    pub uid: NodeUid
 }
 
 #[skip_serializing_none]
@@ -244,6 +249,16 @@ pub struct SoftwareSourceCodeOptions {
 }
 
 impl SoftwareSourceCode {
+    const NICK: &'static str = "sof";
+    
+    pub fn node_type(&self) -> NodeType {
+        NodeType::SoftwareSourceCode
+    }
+
+    pub fn node_id(&self) -> NodeId {
+        NodeId::new(Self::NICK, &self.uid)
+    }
+    
     pub fn new(name: String, programming_language: String) -> Self {
         Self {
             name,

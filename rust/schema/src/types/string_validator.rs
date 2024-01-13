@@ -31,9 +31,24 @@ pub struct StringValidator {
 
     /// A regular expression that a string node must match.
     pub pattern: Option<String>,
+
+    /// A unique identifier for a node within a document
+    
+    #[serde(skip)]
+    pub uid: NodeUid
 }
 
 impl StringValidator {
+    const NICK: &'static str = "str";
+    
+    pub fn node_type(&self) -> NodeType {
+        NodeType::StringValidator
+    }
+
+    pub fn node_id(&self) -> NodeId {
+        NodeId::new(Self::NICK, &self.uid)
+    }
+    
     pub fn new() -> Self {
         Self {
             ..Default::default()

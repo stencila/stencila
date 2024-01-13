@@ -684,13 +684,6 @@ async fn handle_ws_format(ws: WebSocket, doc: Arc<Document>, capability: &str, f
         format,
         dom,
         compact,
-        // TODO: remove this from here and instead
-        // make a default for the codec
-        strip_props: if format == Some(Format::Html) {
-            vec![]
-        } else {
-            vec!["id".to_string()]
-        },
         ..Default::default()
     };
 

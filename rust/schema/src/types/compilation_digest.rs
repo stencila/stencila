@@ -40,9 +40,24 @@ pub struct CompilationDigest {
     /// A count of the number of dependencies that failed.
     #[serde(alias = "dependencies-failed", alias = "dependencies_failed")]
     pub dependencies_failed: Option<UnsignedInteger>,
+
+    /// A unique identifier for a node within a document
+    
+    #[serde(skip)]
+    pub uid: NodeUid
 }
 
 impl CompilationDigest {
+    const NICK: &'static str = "com";
+    
+    pub fn node_type(&self) -> NodeType {
+        NodeType::CompilationDigest
+    }
+
+    pub fn node_id(&self) -> NodeId {
+        NodeId::new(Self::NICK, &self.uid)
+    }
+    
     pub fn new(state_digest: UnsignedInteger) -> Self {
         Self {
             state_digest,

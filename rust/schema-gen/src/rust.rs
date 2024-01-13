@@ -160,7 +160,7 @@ impl Schemas {
             .map(|module| format!("pub use {module}::*;"))
             .join("\n");
 
-        // Create an enum with unit variants for each node type
+        // Export all types from one file
         let nodes = self
             .schemas
             .get("Node")
@@ -176,11 +176,21 @@ impl Schemas {
             dest.join("types.rs"),
             format!(
                 r#"{GENERATED_COMMENT}
-use common::strum::{{Display, EnumString, EnumIter}};
-
 {mods}
 
 {uses}
+"#
+            ),
+        )
+        .await?;
+
+        //  Create an enum with unit variants for each node type
+        write(
+            PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../node-type/src/node_type.rs"),
+            format!(
+                r#"{GENERATED_COMMENT}
+
+use common::strum::{{Display, EnumString, EnumIter}};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Display, EnumString, EnumIter)]
 #[strum(crate="common::strum")]
@@ -708,12 +718,19 @@ pub struct {title}Options {{
         Self {{
             {args}{defaults}
         }}
-    }}
-"#
+    }}"#
             )
         } else {
             String::new()
         };
+
+        let uid_proptest = if schema.proptest.is_some() {
+            r#"#[cfg_attr(feature = "proptest", proptest(value = "Default::default()"))]"#
+        } else {
+            ""
+        };
+
+        let nick = &title.to_lowercase()[..3];
 
         write(
             path,
@@ -726,9 +743,25 @@ use crate::prelude::*;
 {attrs}
 pub struct {title} {{
     {core_fields}
+
+    /// A unique identifier for a node within a document
+    {uid_proptest}
+    #[serde(skip)]
+    pub uid: NodeUid
 }}{options}
 
-impl {title} {{{new}}}
+impl {title} {{
+    const NICK: &'static str = "{nick}";
+    
+    pub fn node_type(&self) -> NodeType {{
+        NodeType::{title}
+    }}
+
+    pub fn node_id(&self) -> NodeId {{
+        NodeId::new(Self::NICK, &self.uid)
+    }}
+    {new}
+}}
 "#
             ),
         )

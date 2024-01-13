@@ -37,6 +37,11 @@ pub struct PropertyValue {
     #[jats(flatten)]
     #[markdown(flatten)]
     pub options: Box<PropertyValueOptions>,
+
+    /// A unique identifier for a node within a document
+    
+    #[serde(skip)]
+    pub uid: NodeUid
 }
 
 #[skip_serializing_none]
@@ -76,6 +81,16 @@ pub struct PropertyValueOptions {
 }
 
 impl PropertyValue {
+    const NICK: &'static str = "pro";
+    
+    pub fn node_type(&self) -> NodeType {
+        NodeType::PropertyValue
+    }
+
+    pub fn node_id(&self) -> NodeId {
+        NodeId::new(Self::NICK, &self.uid)
+    }
+    
     pub fn new(value: Primitive) -> Self {
         Self {
             value,

@@ -38,9 +38,24 @@ pub struct IntegerValidator {
     /// A number that a numeric node must be a multiple of.
     #[serde(alias = "multiple-of", alias = "multiple_of")]
     pub multiple_of: Option<Number>,
+
+    /// A unique identifier for a node within a document
+    
+    #[serde(skip)]
+    pub uid: NodeUid
 }
 
 impl IntegerValidator {
+    const NICK: &'static str = "int";
+    
+    pub fn node_type(&self) -> NodeType {
+        NodeType::IntegerValidator
+    }
+
+    pub fn node_id(&self) -> NodeId {
+        NodeId::new(Self::NICK, &self.uid)
+    }
+    
     pub fn new() -> Self {
         Self {
             ..Default::default()

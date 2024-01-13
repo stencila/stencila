@@ -32,6 +32,11 @@ pub struct MonetaryGrant {
     #[jats(flatten)]
     #[markdown(flatten)]
     pub options: Box<MonetaryGrantOptions>,
+
+    /// A unique identifier for a node within a document
+    
+    #[serde(skip)]
+    pub uid: NodeUid
 }
 
 #[skip_serializing_none]
@@ -89,6 +94,16 @@ pub struct MonetaryGrantOptions {
 }
 
 impl MonetaryGrant {
+    const NICK: &'static str = "mon";
+    
+    pub fn node_type(&self) -> NodeType {
+        NodeType::MonetaryGrant
+    }
+
+    pub fn node_id(&self) -> NodeId {
+        NodeId::new(Self::NICK, &self.uid)
+    }
+    
     pub fn new() -> Self {
         Self {
             ..Default::default()

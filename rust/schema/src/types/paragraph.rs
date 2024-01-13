@@ -43,6 +43,11 @@ pub struct Paragraph {
     #[jats(flatten)]
     #[markdown(flatten)]
     pub options: Box<ParagraphOptions>,
+
+    /// A unique identifier for a node within a document
+    #[cfg_attr(feature = "proptest", proptest(value = "Default::default()"))]
+    #[serde(skip)]
+    pub uid: NodeUid
 }
 
 #[skip_serializing_none]
@@ -60,6 +65,16 @@ pub struct ParagraphOptions {
 }
 
 impl Paragraph {
+    const NICK: &'static str = "par";
+    
+    pub fn node_type(&self) -> NodeType {
+        NodeType::Paragraph
+    }
+
+    pub fn node_id(&self) -> NodeId {
+        NodeId::new(Self::NICK, &self.uid)
+    }
+    
     pub fn new(content: Vec<Inline>) -> Self {
         Self {
             content,

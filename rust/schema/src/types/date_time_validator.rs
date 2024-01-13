@@ -26,9 +26,24 @@ pub struct DateTimeValidator {
 
     /// The inclusive upper limit for a date-time.
     pub maximum: Option<DateTime>,
+
+    /// A unique identifier for a node within a document
+    
+    #[serde(skip)]
+    pub uid: NodeUid
 }
 
 impl DateTimeValidator {
+    const NICK: &'static str = "dat";
+    
+    pub fn node_type(&self) -> NodeType {
+        NodeType::DateTimeValidator
+    }
+
+    pub fn node_id(&self) -> NodeId {
+        NodeId::new(Self::NICK, &self.uid)
+    }
+    
     pub fn new() -> Self {
         Self {
             ..Default::default()

@@ -39,6 +39,11 @@ pub struct ContactPoint {
     #[jats(flatten)]
     #[markdown(flatten)]
     pub options: Box<ContactPointOptions>,
+
+    /// A unique identifier for a node within a document
+    
+    #[serde(skip)]
+    pub uid: NodeUid
 }
 
 #[skip_serializing_none]
@@ -83,6 +88,16 @@ pub struct ContactPointOptions {
 }
 
 impl ContactPoint {
+    const NICK: &'static str = "con";
+    
+    pub fn node_type(&self) -> NodeType {
+        NodeType::ContactPoint
+    }
+
+    pub fn node_id(&self) -> NodeId {
+        NodeId::new(Self::NICK, &self.uid)
+    }
+    
     pub fn new() -> Self {
         Self {
             ..Default::default()

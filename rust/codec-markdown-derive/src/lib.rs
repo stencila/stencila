@@ -78,8 +78,7 @@ fn derive_struct(type_attr: TypeAttr) -> TokenStream {
                 return
             };
 
-            if field_name == "r#type" {
-                // Skip the type field
+            if field_name == "r#type" || field_name == "uid" {
                 return;
             }
 
@@ -147,8 +146,7 @@ fn derive_struct(type_attr: TypeAttr) -> TokenStream {
                 return
             };
 
-            if field_name == "r#type" {
-                // Skip the type field
+            if field_name == "r#type" || field_name == "uid" {
                 return;
             }
 
