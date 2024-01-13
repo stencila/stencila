@@ -4,7 +4,7 @@ extends: Instruction
 category: edits
 description: An instruction to edit some inline content.
 markdown:
-  special: true
+  derive: false
 proptest: {}
 core:
   - content

@@ -14,7 +14,7 @@ html:
 jats:
   elem: list
 markdown:
-  special: true
+  derive: false
 proptest: {}
 required:
   - items

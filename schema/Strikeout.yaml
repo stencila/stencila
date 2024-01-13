@@ -15,6 +15,6 @@ html:
 jats:
   elem: strike
 markdown:
-  template: '~~{content}~~'
+  template: '~~{{content}}~~'
   escape: '~'
 proptest: {}

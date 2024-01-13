@@ -8,8 +8,7 @@ html:
 jats:
   elem: ext-link
 markdown:
-  template: '[{content}]({target} \"{title}\")'
-  special: true
+  derive: false
 proptest: {}
 required:
   - content

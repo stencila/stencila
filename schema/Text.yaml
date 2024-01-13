@@ -16,7 +16,7 @@ html:
 jats:
   special: true
 markdown:
-  template: '{value}'
+  template: '{{value}}'
 proptest: {}
 required:
   - value

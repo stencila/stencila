@@ -14,8 +14,7 @@ jats:
   elem: inline-media
   special: true
 markdown:
-  template: '![{caption}]({content_url} \"{title}\")'
-  special: true
+  derive: false
 proptest: {}
 core:
   - caption

@@ -5,5 +5,5 @@ category: edits
 description: A suggestion to delete some block content.
 markdown:
   # Consistent with the CriticMarkup for inline "Deletions" (see `DeleteInline`)
-  template: '--\n\n{content}--\n\n'
+  template: '--\n\n{{content}}--\n\n'
 proptest: {}

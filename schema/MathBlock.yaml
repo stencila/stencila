@@ -9,7 +9,7 @@ jats:
   elem: disp-formula
   special: true
 markdown:
-  special: true
+  derive: false
 proptest: {}
 core:
   - label

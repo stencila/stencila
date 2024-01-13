@@ -7,6 +7,8 @@ description: The value of a `Parameter` to call a document with.
 $comment: |
   A `CallArgument` extends `Parameter` by also has some of the same properties as `CodeExecutable` allowing
   an expression to be used to set the value of the parameter.
+markdown:
+  derive: false
 proptest: {}
 required:
   - code

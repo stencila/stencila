@@ -616,9 +616,9 @@ pub struct JatsOptions {
     pub content: bool,
 }
 
-/// Options for conversion to Markdown
+/// Options for deriving the `MarkdownCodec` trait
 #[skip_serializing_none]
-#[derive(Debug, Clone, Default, Deserialize, Serialize, JsonSchema)]
+#[derive(Debug, Clone, SmartDefault, Deserialize, Serialize, JsonSchema)]
 #[serde(
     default,
     rename_all = "camelCase",
@@ -626,15 +626,16 @@ pub struct JatsOptions {
     crate = "common::serde"
 )]
 pub struct MarkdownOptions {
+    /// Whether the `MarkdownCodec` should be derived for the type
+    #[serde(skip_serializing_if = "is_true")]
+    #[default = true]
+    pub derive: bool,
+
     /// The Rust formatting string to use as a template to encode to Markdown
     pub template: Option<String>,
 
     /// Character to escape when using `format!` macro to encode to Markdown
     pub escape: Option<String>,
-
-    /// Whether the node type has a special function for encoding to Markdown
-    #[serde(skip_serializing_if = "is_false")]
-    pub special: bool,
 }
 
 impl Schema {
@@ -841,6 +842,11 @@ where
         Some(r#ref) => serializer.serialize_str(&format!("{ref}.schema.json")),
         None => serializer.serialize_none(),
     }
+}
+
+/// Is a boolean true?
+fn is_true(bool: &bool) -> bool {
+    *bool
 }
 
 /// Is a boolean false?

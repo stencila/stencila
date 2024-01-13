@@ -4,7 +4,7 @@ extends: SuggestionBlock
 category: edits
 description: A suggestion to modify some block content.
 markdown:
-  special: true
+  derive: false
 proptest: {}
 required:
   - operations

@@ -9,7 +9,7 @@ jats:
 html:
   special: true
 markdown:
-  special: true
+  derive: false
 proptest: {}
 required:
   - name
