@@ -91,7 +91,7 @@ impl MediaObject {
 }
 
 impl AudioObject {
-    pub fn to_html_special(&self) -> String {
+    pub fn to_html_special(&self, _context: &mut HtmlEncodeContext) -> String {
         use codec_html_trait::encode::elem;
 
         let mut attrs = html_attrs!(self);
@@ -122,7 +122,7 @@ impl AudioObject {
 }
 
 impl ImageObject {
-    pub fn to_html_special(&self) -> String {
+    pub fn to_html_special(&self, _context: &mut HtmlEncodeContext) -> String {
         use codec_html_trait::encode::elem;
 
         elem("img", &html_attrs!(self), &[])
@@ -145,7 +145,7 @@ impl ImageObject {
 }
 
 impl VideoObject {
-    pub fn to_html_special(&self) -> String {
+    pub fn to_html_special(&self, _context: &mut HtmlEncodeContext) -> String {
         use codec_html_trait::encode::elem;
 
         let mut attrs = html_attrs!(self);

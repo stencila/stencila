@@ -3,13 +3,13 @@ use codec_html_trait::encode::elem;
 use crate::{prelude::*, List, ListOrder};
 
 impl List {
-    pub fn to_html_special(&self) -> String {
+    pub fn to_html_special(&self, context: &mut HtmlEncodeContext) -> String {
         let tag = match &self.order {
             ListOrder::Ascending => "ol",
             _ => "ul",
         };
 
-        let items = self.items.to_html();
+        let items = self.items.to_html(context);
 
         elem(tag, &[], &[items])
     }

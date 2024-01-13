@@ -5,7 +5,7 @@ use common::inflector::Inflector;
 use crate::{prelude::*, IntegerValidator, Node, NumberValidator, Parameter, Validator};
 
 impl Parameter {
-    pub fn to_html_special(&self) -> String {
+    pub fn to_html_special(&self, _context: &mut HtmlEncodeContext) -> String {
         let mut attrs = vec![];
         let mut children = vec![];
 

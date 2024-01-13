@@ -17,12 +17,12 @@ impl Heading {
         (elem("title", attrs, content), losses)
     }
 
-    pub fn to_html_special(&self) -> String {
+    pub fn to_html_special(&self, context: &mut HtmlEncodeContext) -> String {
         use codec_html_trait::encode::{attr, elem};
         elem(
             &["h", &self.level.max(1).min(6).to_string()].concat(),
-            &[attr("id", &self.id.to_html_attr())],
-            &[self.content.to_html()],
+            &[attr("id", &self.id.to_html_attr(context))],
+            &[self.content.to_html(context)],
         )
     }
 
