@@ -54,6 +54,11 @@ pub struct Directory {
     #[jats(flatten)]
     #[markdown(flatten)]
     pub options: Box<DirectoryOptions>,
+
+    /// A unique identifier for a node within a document
+    
+    #[serde(skip)]
+    pub uid: NodeUid
 }
 
 #[skip_serializing_none]
@@ -218,6 +223,16 @@ pub struct DirectoryOptions {
 }
 
 impl Directory {
+    const NICK: &'static str = "dir";
+    
+    pub fn node_type(&self) -> NodeType {
+        NodeType::Directory
+    }
+
+    pub fn node_id(&self) -> NodeId {
+        NodeId::new(Self::NICK, &self.uid)
+    }
+    
     pub fn new(name: String, parts: Vec<FileOrDirectory>, path: String) -> Self {
         Self {
             name,

@@ -105,6 +105,11 @@ pub struct ForBlock {
     #[jats(flatten)]
     #[markdown(flatten)]
     pub options: Box<ForBlockOptions>,
+
+    /// A unique identifier for a node within a document
+    #[cfg_attr(feature = "proptest", proptest(value = "Default::default()"))]
+    #[serde(skip)]
+    pub uid: NodeUid
 }
 
 #[skip_serializing_none]
@@ -205,6 +210,16 @@ pub struct ForBlockOptions {
 }
 
 impl ForBlock {
+    const NICK: &'static str = "for";
+    
+    pub fn node_type(&self) -> NodeType {
+        NodeType::ForBlock
+    }
+
+    pub fn node_id(&self) -> NodeId {
+        NodeId::new(Self::NICK, &self.uid)
+    }
+    
     pub fn new(code: Cord, symbol: String, content: Vec<Block>) -> Self {
         Self {
             code,

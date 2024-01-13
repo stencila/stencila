@@ -25,9 +25,24 @@ pub struct CiteGroup {
     #[serde(alias = "item")]
     #[serde(deserialize_with = "one_or_many")]
     pub items: Vec<Cite>,
+
+    /// A unique identifier for a node within a document
+    
+    #[serde(skip)]
+    pub uid: NodeUid
 }
 
 impl CiteGroup {
+    const NICK: &'static str = "cit";
+    
+    pub fn node_type(&self) -> NodeType {
+        NodeType::CiteGroup
+    }
+
+    pub fn node_id(&self) -> NodeId {
+        NodeId::new(Self::NICK, &self.uid)
+    }
+    
     pub fn new(items: Vec<Cite>) -> Self {
         Self {
             items,

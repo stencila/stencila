@@ -32,9 +32,24 @@ pub struct DurationValidator {
 
     /// The inclusive upper limit for a duration.
     pub maximum: Option<Duration>,
+
+    /// A unique identifier for a node within a document
+    
+    #[serde(skip)]
+    pub uid: NodeUid
 }
 
 impl DurationValidator {
+    const NICK: &'static str = "dur";
+    
+    pub fn node_type(&self) -> NodeType {
+        NodeType::DurationValidator
+    }
+
+    pub fn node_id(&self) -> NodeId {
+        NodeId::new(Self::NICK, &self.uid)
+    }
+    
     pub fn new() -> Self {
         Self {
             ..Default::default()

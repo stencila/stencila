@@ -39,9 +39,24 @@ pub struct TableRow {
     #[serde(alias = "row-type", alias = "row_type")]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     pub row_type: Option<TableRowType>,
+
+    /// A unique identifier for a node within a document
+    #[cfg_attr(feature = "proptest", proptest(value = "Default::default()"))]
+    #[serde(skip)]
+    pub uid: NodeUid
 }
 
 impl TableRow {
+    const NICK: &'static str = "tab";
+    
+    pub fn node_type(&self) -> NodeType {
+        NodeType::TableRow
+    }
+
+    pub fn node_id(&self) -> NodeId {
+        NodeId::new(Self::NICK, &self.uid)
+    }
+    
     pub fn new(cells: Vec<TableCell>) -> Self {
         Self {
             cells,

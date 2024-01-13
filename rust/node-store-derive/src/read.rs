@@ -33,10 +33,10 @@ pub fn derive_struct(input: &DeriveInput, data: &DataStruct) -> TokenStream {
             .unwrap_or_default();
 
         let field = if field_name == "r#type" {
-            quote! {}
-        } else if field_name == "id" {
+            continue;
+        } else if field_name == "uid" {
             quote! {
-                node.id = Some(node_store::id_to_base64(obj_id));
+                node.uid = NodeUid::from(obj_id.to_bytes());
             }
         } else if field_name == "options" {
             quote! {

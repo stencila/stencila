@@ -5,7 +5,9 @@
 //! trait. If possible, prefer to implement `From`, or `Into` in the `implem/*.rs`
 //! file for the type, rather than add another function here.
 
-use crate::{Block, CodeBlock, CodeChunk, CodeExpression, CodeInline, Inline, Node, NodeType};
+use node_type::NodeType;
+
+use crate::{Block, CodeBlock, CodeChunk, CodeExpression, CodeInline, Inline, Node};
 
 /// Transform a vector of [`Block`]s into a vector of [`Inline`]s
 pub fn blocks_to_inlines(blocks: Vec<Block>) -> Vec<Inline> {

@@ -33,6 +33,11 @@ pub struct DefinedTerm {
     #[jats(flatten)]
     #[markdown(flatten)]
     pub options: Box<DefinedTermOptions>,
+
+    /// A unique identifier for a node within a document
+    
+    #[serde(skip)]
+    pub uid: NodeUid
 }
 
 #[skip_serializing_none]
@@ -72,6 +77,16 @@ pub struct DefinedTermOptions {
 }
 
 impl DefinedTerm {
+    const NICK: &'static str = "def";
+    
+    pub fn node_type(&self) -> NodeType {
+        NodeType::DefinedTerm
+    }
+
+    pub fn node_id(&self) -> NodeId {
+        NodeId::new(Self::NICK, &self.uid)
+    }
+    
     pub fn new(name: String) -> Self {
         Self {
             name,

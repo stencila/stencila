@@ -43,6 +43,11 @@ pub struct DatatableColumn {
     #[jats(flatten)]
     #[markdown(flatten)]
     pub options: Box<DatatableColumnOptions>,
+
+    /// A unique identifier for a node within a document
+    
+    #[serde(skip)]
+    pub uid: NodeUid
 }
 
 #[skip_serializing_none]
@@ -78,6 +83,16 @@ pub struct DatatableColumnOptions {
 }
 
 impl DatatableColumn {
+    const NICK: &'static str = "dat";
+    
+    pub fn node_type(&self) -> NodeType {
+        NodeType::DatatableColumn
+    }
+
+    pub fn node_id(&self) -> NodeId {
+        NodeId::new(Self::NICK, &self.uid)
+    }
+    
     pub fn new(name: String, values: Vec<Primitive>) -> Self {
         Self {
             name,

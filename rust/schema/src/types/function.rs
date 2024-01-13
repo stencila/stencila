@@ -36,6 +36,11 @@ pub struct Function {
     #[jats(flatten)]
     #[markdown(flatten)]
     pub options: Box<FunctionOptions>,
+
+    /// A unique identifier for a node within a document
+    
+    #[serde(skip)]
+    pub uid: NodeUid
 }
 
 #[skip_serializing_none]
@@ -48,6 +53,16 @@ pub struct FunctionOptions {
 }
 
 impl Function {
+    const NICK: &'static str = "fun";
+    
+    pub fn node_type(&self) -> NodeType {
+        NodeType::Function
+    }
+
+    pub fn node_id(&self) -> NodeId {
+        NodeId::new(Self::NICK, &self.uid)
+    }
+    
     pub fn new(name: String, parameters: Vec<Parameter>) -> Self {
         Self {
             name,

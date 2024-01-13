@@ -34,9 +34,24 @@ pub struct Duration {
     #[serde(alias = "time-unit", alias = "time_unit")]
     #[cfg_attr(feature = "proptest", proptest(value = "Default::default()"))]
     pub time_unit: TimeUnit,
+
+    /// A unique identifier for a node within a document
+    #[cfg_attr(feature = "proptest", proptest(value = "Default::default()"))]
+    #[serde(skip)]
+    pub uid: NodeUid
 }
 
 impl Duration {
+    const NICK: &'static str = "dur";
+    
+    pub fn node_type(&self) -> NodeType {
+        NodeType::Duration
+    }
+
+    pub fn node_id(&self) -> NodeId {
+        NodeId::new(Self::NICK, &self.uid)
+    }
+    
     pub fn new(value: Integer, time_unit: TimeUnit) -> Self {
         Self {
             value,

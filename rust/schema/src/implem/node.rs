@@ -1,10 +1,8 @@
 use smol_str::SmolStr;
 
-use node_store::{automerge::ObjId, ReadNode, ReadStore};
+use node_store::{automerge::ObjId, get_node_type, ReadNode, ReadStore};
 
-use crate::{
-    prelude::*, utilities::node_type, Array, Block, Inline, Node, NodeType, Null, Object, Primitive,
-};
+use crate::{prelude::*, Array, Block, Inline, Node, Null, Object, Primitive};
 
 impl ReadNode for Node {
     fn load_null() -> Result<Self> {
@@ -36,7 +34,7 @@ impl ReadNode for Node {
     }
 
     fn load_map<S: ReadStore>(store: &S, obj_id: &ObjId) -> Result<Self> {
-        let node_type = node_type(store, obj_id)?;
+        let node_type = get_node_type(store, obj_id)?;
 
         let Some(node_type) = node_type else {
             // There is no type, or it does not match any known type, so load as an `Object`

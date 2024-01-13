@@ -34,9 +34,24 @@ pub struct ExecutionDependency {
     /// The location that the dependency is defined.
     #[serde(alias = "code-location", alias = "code_location")]
     pub code_location: Option<CodeLocation>,
+
+    /// A unique identifier for a node within a document
+    
+    #[serde(skip)]
+    pub uid: NodeUid
 }
 
 impl ExecutionDependency {
+    const NICK: &'static str = "exe";
+    
+    pub fn node_type(&self) -> NodeType {
+        NodeType::ExecutionDependency
+    }
+
+    pub fn node_id(&self) -> NodeId {
+        NodeId::new(Self::NICK, &self.uid)
+    }
+    
     pub fn new(dependency_relation: ExecutionDependencyRelation, dependency_node: ExecutionDependencyNode) -> Self {
         Self {
             dependency_relation,

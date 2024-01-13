@@ -34,6 +34,11 @@ pub struct Organization {
     #[jats(flatten)]
     #[markdown(flatten)]
     pub options: Box<OrganizationOptions>,
+
+    /// A unique identifier for a node within a document
+    
+    #[serde(skip)]
+    pub uid: NodeUid
 }
 
 #[skip_serializing_none]
@@ -112,6 +117,16 @@ pub struct OrganizationOptions {
 }
 
 impl Organization {
+    const NICK: &'static str = "org";
+    
+    pub fn node_type(&self) -> NodeType {
+        NodeType::Organization
+    }
+
+    pub fn node_id(&self) -> NodeId {
+        NodeId::new(Self::NICK, &self.uid)
+    }
+    
     pub fn new() -> Self {
         Self {
             ..Default::default()

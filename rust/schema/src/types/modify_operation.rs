@@ -26,9 +26,24 @@ pub struct ModifyOperation {
 
     /// The new value, or string patch, to apply to the target property.
     pub value: Box<StringPatchOrPrimitive>,
+
+    /// A unique identifier for a node within a document
+    
+    #[serde(skip)]
+    pub uid: NodeUid
 }
 
 impl ModifyOperation {
+    const NICK: &'static str = "mod";
+    
+    pub fn node_type(&self) -> NodeType {
+        NodeType::ModifyOperation
+    }
+
+    pub fn node_id(&self) -> NodeId {
+        NodeId::new(Self::NICK, &self.uid)
+    }
+    
     pub fn new(target: String, value: Box<StringPatchOrPrimitive>) -> Self {
         Self {
             target,

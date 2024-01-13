@@ -45,9 +45,24 @@ pub struct ArrayValidator {
     /// A flag to indicate that each value in the array should be unique.
     #[serde(alias = "unique-items", alias = "unique_items")]
     pub unique_items: Option<Boolean>,
+
+    /// A unique identifier for a node within a document
+    
+    #[serde(skip)]
+    pub uid: NodeUid
 }
 
 impl ArrayValidator {
+    const NICK: &'static str = "arr";
+    
+    pub fn node_type(&self) -> NodeType {
+        NodeType::ArrayValidator
+    }
+
+    pub fn node_id(&self) -> NodeId {
+        NodeId::new(Self::NICK, &self.uid)
+    }
+    
     pub fn new() -> Self {
         Self {
             ..Default::default()

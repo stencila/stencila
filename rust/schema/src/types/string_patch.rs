@@ -25,9 +25,24 @@ pub struct StringPatch {
     #[serde(alias = "operation")]
     #[serde(deserialize_with = "one_or_many")]
     pub operations: Vec<StringOperation>,
+
+    /// A unique identifier for a node within a document
+    
+    #[serde(skip)]
+    pub uid: NodeUid
 }
 
 impl StringPatch {
+    const NICK: &'static str = "str";
+    
+    pub fn node_type(&self) -> NodeType {
+        NodeType::StringPatch
+    }
+
+    pub fn node_id(&self) -> NodeId {
+        NodeId::new(Self::NICK, &self.uid)
+    }
+    
     pub fn new(operations: Vec<StringOperation>) -> Self {
         Self {
             operations,

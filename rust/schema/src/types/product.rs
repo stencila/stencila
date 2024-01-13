@@ -31,6 +31,11 @@ pub struct Product {
     #[jats(flatten)]
     #[markdown(flatten)]
     pub options: Box<ProductOptions>,
+
+    /// A unique identifier for a node within a document
+    
+    #[serde(skip)]
+    pub uid: NodeUid
 }
 
 #[skip_serializing_none]
@@ -82,6 +87,16 @@ pub struct ProductOptions {
 }
 
 impl Product {
+    const NICK: &'static str = "pro";
+    
+    pub fn node_type(&self) -> NodeType {
+        NodeType::Product
+    }
+
+    pub fn node_id(&self) -> NodeId {
+        NodeId::new(Self::NICK, &self.uid)
+    }
+    
     pub fn new() -> Self {
         Self {
             ..Default::default()

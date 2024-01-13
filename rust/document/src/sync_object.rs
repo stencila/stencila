@@ -129,7 +129,7 @@ impl Document {
                 let ops = json_patch::diff(&current, &new).0;
 
                 // Do not send a patch if no operations (i.e. no change in doc)
-                if ops.len() == 0 {
+                if ops.is_empty() {
                     continue;
                 }
 

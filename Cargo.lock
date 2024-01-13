@@ -640,6 +640,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "bs58"
+version = "0.5.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "f5353f36341f7451062466f0b755b96ac3a9547e4d7f6b70d603fc721a7d7896"
+dependencies = [
+ "tinyvec",
+]
+
+[[package]]
 name = "bstr"
 version = "0.2.17"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1130,6 +1139,7 @@ dependencies = [
  "async-recursion",
  "async-trait",
  "base64 0.21.6",
+ "bs58",
  "chrono",
  "clap",
  "derivative",
@@ -3296,6 +3306,13 @@ dependencies = [
 ]
 
 [[package]]
+name = "node-id"
+version = "0.0.0"
+dependencies = [
+ "common",
+]
+
+[[package]]
 name = "node-store"
 version = "0.0.0"
 dependencies = [
@@ -3303,8 +3320,10 @@ dependencies = [
  "codecs",
  "common",
  "common-dev",
+ "node-id",
  "node-store-derive",
  "node-strip",
+ "node-type",
  "schema",
  "smol_str",
 ]
@@ -3330,6 +3349,13 @@ version = "0.0.0"
 dependencies = [
  "common",
  "darling 0.20.3",
+]
+
+[[package]]
+name = "node-type"
+version = "0.0.0"
+dependencies = [
+ "common",
 ]
 
 [[package]]
@@ -4751,8 +4777,10 @@ dependencies = [
  "human_name",
  "interim",
  "monostate",
+ "node-id",
  "node-store",
  "node-strip",
+ "node-type",
  "node-walk-derive",
  "proptest",
  "proptest-derive",

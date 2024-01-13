@@ -52,6 +52,11 @@ pub struct CodeInline {
     #[jats(flatten)]
     #[markdown(flatten)]
     pub options: Box<CodeInlineOptions>,
+
+    /// A unique identifier for a node within a document
+    #[cfg_attr(feature = "proptest", proptest(value = "Default::default()"))]
+    #[serde(skip)]
+    pub uid: NodeUid
 }
 
 #[skip_serializing_none]
@@ -69,6 +74,16 @@ pub struct CodeInlineOptions {
 }
 
 impl CodeInline {
+    const NICK: &'static str = "cod";
+    
+    pub fn node_type(&self) -> NodeType {
+        NodeType::CodeInline
+    }
+
+    pub fn node_id(&self) -> NodeId {
+        NodeId::new(Self::NICK, &self.uid)
+    }
+    
     pub fn new(code: Cord) -> Self {
         Self {
             code,

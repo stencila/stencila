@@ -33,6 +33,11 @@ pub struct Brand {
     #[jats(flatten)]
     #[markdown(flatten)]
     pub options: Box<BrandOptions>,
+
+    /// A unique identifier for a node within a document
+    
+    #[serde(skip)]
+    pub uid: NodeUid
 }
 
 #[skip_serializing_none]
@@ -76,6 +81,16 @@ pub struct BrandOptions {
 }
 
 impl Brand {
+    const NICK: &'static str = "bra";
+    
+    pub fn node_type(&self) -> NodeType {
+        NodeType::Brand
+    }
+
+    pub fn node_id(&self) -> NodeId {
+        NodeId::new(Self::NICK, &self.uid)
+    }
+    
     pub fn new(name: String) -> Self {
         Self {
             name,

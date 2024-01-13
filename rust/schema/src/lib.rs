@@ -8,8 +8,10 @@ pub use types::*;
 
 pub mod shortcuts;
 pub mod transforms;
-pub mod utilities;
 pub mod walk;
+
+pub use node_id::NodeId;
+pub use node_type::NodeType;
 
 #[cfg(feature = "proptest")]
 mod proptests;

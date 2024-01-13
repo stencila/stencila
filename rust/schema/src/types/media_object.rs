@@ -52,6 +52,11 @@ pub struct MediaObject {
     #[jats(flatten)]
     #[markdown(flatten)]
     pub options: Box<MediaObjectOptions>,
+
+    /// A unique identifier for a node within a document
+    
+    #[serde(skip)]
+    pub uid: NodeUid
 }
 
 #[skip_serializing_none]
@@ -237,6 +242,16 @@ pub struct MediaObjectOptions {
 }
 
 impl MediaObject {
+    const NICK: &'static str = "med";
+    
+    pub fn node_type(&self) -> NodeType {
+        NodeType::MediaObject
+    }
+
+    pub fn node_id(&self) -> NodeId {
+        NodeId::new(Self::NICK, &self.uid)
+    }
+    
     pub fn new(content_url: String) -> Self {
         Self {
             content_url,

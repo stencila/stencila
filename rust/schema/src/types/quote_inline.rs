@@ -40,9 +40,24 @@ pub struct QuoteInline {
     /// The source of the quote.
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     pub cite: Option<CiteOrText>,
+
+    /// A unique identifier for a node within a document
+    #[cfg_attr(feature = "proptest", proptest(value = "Default::default()"))]
+    #[serde(skip)]
+    pub uid: NodeUid
 }
 
 impl QuoteInline {
+    const NICK: &'static str = "quo";
+    
+    pub fn node_type(&self) -> NodeType {
+        NodeType::QuoteInline
+    }
+
+    pub fn node_id(&self) -> NodeId {
+        NodeId::new(Self::NICK, &self.uid)
+    }
+    
     pub fn new(content: Vec<Inline>) -> Self {
         Self {
             content,

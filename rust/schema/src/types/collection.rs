@@ -47,6 +47,11 @@ pub struct Collection {
     #[jats(flatten)]
     #[markdown(flatten)]
     pub options: Box<CollectionOptions>,
+
+    /// A unique identifier for a node within a document
+    
+    #[serde(skip)]
+    pub uid: NodeUid
 }
 
 #[skip_serializing_none]
@@ -215,6 +220,16 @@ pub struct CollectionOptions {
 }
 
 impl Collection {
+    const NICK: &'static str = "col";
+    
+    pub fn node_type(&self) -> NodeType {
+        NodeType::Collection
+    }
+
+    pub fn node_id(&self) -> NodeId {
+        NodeId::new(Self::NICK, &self.uid)
+    }
+    
     pub fn new(parts: Vec<CreativeWorkType>) -> Self {
         Self {
             parts,

@@ -52,9 +52,24 @@ pub struct Link {
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     #[html(attr = "rel")]
     pub rel: Option<String>,
+
+    /// A unique identifier for a node within a document
+    #[cfg_attr(feature = "proptest", proptest(value = "Default::default()"))]
+    #[serde(skip)]
+    pub uid: NodeUid
 }
 
 impl Link {
+    const NICK: &'static str = "lin";
+    
+    pub fn node_type(&self) -> NodeType {
+        NodeType::Link
+    }
+
+    pub fn node_id(&self) -> NodeId {
+        NodeId::new(Self::NICK, &self.uid)
+    }
+    
     pub fn new(content: Vec<Inline>, target: String) -> Self {
         Self {
             content,

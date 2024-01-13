@@ -45,9 +45,24 @@ pub struct Section {
     #[cfg_attr(feature = "proptest-max", proptest(strategy = r#"option::of(SectionType::arbitrary())"#))]
     #[jats(attr = "content-type")]
     pub section_type: Option<SectionType>,
+
+    /// A unique identifier for a node within a document
+    #[cfg_attr(feature = "proptest", proptest(value = "Default::default()"))]
+    #[serde(skip)]
+    pub uid: NodeUid
 }
 
 impl Section {
+    const NICK: &'static str = "sec";
+    
+    pub fn node_type(&self) -> NodeType {
+        NodeType::Section
+    }
+
+    pub fn node_id(&self) -> NodeId {
+        NodeId::new(Self::NICK, &self.uid)
+    }
+    
     pub fn new(content: Vec<Block>) -> Self {
         Self {
             content,

@@ -60,6 +60,11 @@ pub struct PostalAddress {
     #[jats(flatten)]
     #[markdown(flatten)]
     pub options: Box<PostalAddressOptions>,
+
+    /// A unique identifier for a node within a document
+    
+    #[serde(skip)]
+    pub uid: NodeUid
 }
 
 #[skip_serializing_none]
@@ -108,6 +113,16 @@ pub struct PostalAddressOptions {
 }
 
 impl PostalAddress {
+    const NICK: &'static str = "pos";
+    
+    pub fn node_type(&self) -> NodeType {
+        NodeType::PostalAddress
+    }
+
+    pub fn node_id(&self) -> NodeId {
+        NodeId::new(Self::NICK, &self.uid)
+    }
+    
     pub fn new() -> Self {
         Self {
             ..Default::default()

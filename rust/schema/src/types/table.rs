@@ -79,6 +79,11 @@ pub struct Table {
     #[jats(flatten)]
     #[markdown(flatten)]
     pub options: Box<TableOptions>,
+
+    /// A unique identifier for a node within a document
+    #[cfg_attr(feature = "proptest", proptest(value = "Default::default()"))]
+    #[serde(skip)]
+    pub uid: NodeUid
 }
 
 #[skip_serializing_none]
@@ -284,6 +289,16 @@ pub struct TableOptions {
 }
 
 impl Table {
+    const NICK: &'static str = "tab";
+    
+    pub fn node_type(&self) -> NodeType {
+        NodeType::Table
+    }
+
+    pub fn node_id(&self) -> NodeId {
+        NodeId::new(Self::NICK, &self.uid)
+    }
+    
     pub fn new(rows: Vec<TableRow>) -> Self {
         Self {
             rows,

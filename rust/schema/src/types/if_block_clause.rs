@@ -80,6 +80,11 @@ pub struct IfBlockClause {
     #[jats(flatten)]
     #[markdown(flatten)]
     pub options: Box<IfBlockClauseOptions>,
+
+    /// A unique identifier for a node within a document
+    #[cfg_attr(feature = "proptest", proptest(value = "Default::default()"))]
+    #[serde(skip)]
+    pub uid: NodeUid
 }
 
 #[skip_serializing_none]
@@ -186,6 +191,16 @@ pub struct IfBlockClauseOptions {
 }
 
 impl IfBlockClause {
+    const NICK: &'static str = "ifb";
+    
+    pub fn node_type(&self) -> NodeType {
+        NodeType::IfBlockClause
+    }
+
+    pub fn node_id(&self) -> NodeId {
+        NodeId::new(Self::NICK, &self.uid)
+    }
+    
     pub fn new(code: Cord, content: Vec<Block>) -> Self {
         Self {
             code,

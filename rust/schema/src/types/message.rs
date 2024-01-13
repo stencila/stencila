@@ -29,9 +29,24 @@ pub struct Message {
 
     /// The sender of the message.
     pub sender: Option<PersonOrOrganizationOrSoftwareApplication>,
+
+    /// A unique identifier for a node within a document
+    
+    #[serde(skip)]
+    pub uid: NodeUid
 }
 
 impl Message {
+    const NICK: &'static str = "mes";
+    
+    pub fn node_type(&self) -> NodeType {
+        NodeType::Message
+    }
+
+    pub fn node_id(&self) -> NodeId {
+        NodeId::new(Self::NICK, &self.uid)
+    }
+    
     pub fn new(parts: Vec<MessagePart>) -> Self {
         Self {
             parts,

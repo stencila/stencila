@@ -51,6 +51,11 @@ pub struct Form {
     #[jats(flatten)]
     #[markdown(flatten)]
     pub options: Box<FormOptions>,
+
+    /// A unique identifier for a node within a document
+    
+    #[serde(skip)]
+    pub uid: NodeUid
 }
 
 #[skip_serializing_none]
@@ -142,6 +147,16 @@ pub struct FormOptions {
 }
 
 impl Form {
+    const NICK: &'static str = "for";
+    
+    pub fn node_type(&self) -> NodeType {
+        NodeType::Form
+    }
+
+    pub fn node_id(&self) -> NodeId {
+        NodeId::new(Self::NICK, &self.uid)
+    }
+    
     pub fn new(content: Vec<Block>) -> Self {
         Self {
             content,

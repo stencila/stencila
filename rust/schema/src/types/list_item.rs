@@ -61,6 +61,11 @@ pub struct ListItem {
     #[jats(flatten)]
     #[markdown(flatten)]
     pub options: Box<ListItemOptions>,
+
+    /// A unique identifier for a node within a document
+    #[cfg_attr(feature = "proptest", proptest(value = "Default::default()"))]
+    #[serde(skip)]
+    pub uid: NodeUid
 }
 
 #[skip_serializing_none]
@@ -107,6 +112,16 @@ pub struct ListItemOptions {
 }
 
 impl ListItem {
+    const NICK: &'static str = "lis";
+    
+    pub fn node_type(&self) -> NodeType {
+        NodeType::ListItem
+    }
+
+    pub fn node_id(&self) -> NodeId {
+        NodeId::new(Self::NICK, &self.uid)
+    }
+    
     pub fn new(content: Vec<Block>) -> Self {
         Self {
             content,

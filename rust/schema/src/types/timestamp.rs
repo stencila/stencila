@@ -34,9 +34,24 @@ pub struct Timestamp {
     #[serde(alias = "time-unit", alias = "time_unit")]
     #[cfg_attr(feature = "proptest", proptest(value = "Default::default()"))]
     pub time_unit: TimeUnit,
+
+    /// A unique identifier for a node within a document
+    #[cfg_attr(feature = "proptest", proptest(value = "Default::default()"))]
+    #[serde(skip)]
+    pub uid: NodeUid
 }
 
 impl Timestamp {
+    const NICK: &'static str = "tim";
+    
+    pub fn node_type(&self) -> NodeType {
+        NodeType::Timestamp
+    }
+
+    pub fn node_id(&self) -> NodeId {
+        NodeId::new(Self::NICK, &self.uid)
+    }
+    
     pub fn new(value: Integer, time_unit: TimeUnit) -> Self {
         Self {
             value,

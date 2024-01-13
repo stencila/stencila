@@ -48,6 +48,11 @@ pub struct QuoteBlock {
     #[jats(flatten)]
     #[markdown(flatten)]
     pub options: Box<QuoteBlockOptions>,
+
+    /// A unique identifier for a node within a document
+    #[cfg_attr(feature = "proptest", proptest(value = "Default::default()"))]
+    #[serde(skip)]
+    pub uid: NodeUid
 }
 
 #[skip_serializing_none]
@@ -65,6 +70,16 @@ pub struct QuoteBlockOptions {
 }
 
 impl QuoteBlock {
+    const NICK: &'static str = "quo";
+    
+    pub fn node_type(&self) -> NodeType {
+        NodeType::QuoteBlock
+    }
+
+    pub fn node_id(&self) -> NodeId {
+        NodeId::new(Self::NICK, &self.uid)
+    }
+    
     pub fn new(content: Vec<Block>) -> Self {
         Self {
             content,

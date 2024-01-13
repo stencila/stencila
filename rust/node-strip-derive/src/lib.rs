@@ -66,7 +66,12 @@ fn derive_struct(type_attr: TypeAttr) -> TokenStream {
 
     let mut fields = TokenStream::new();
     type_attr.data.map_struct_fields(|field| {
-        let field_name = field.ident;
+        let Some(field_name) = field.ident else {
+            return
+        };
+        if field_name == "r#type" || field_name == "uid" {
+            return;
+        }
 
         let Type::Path(type_path) = field.ty else {
             return

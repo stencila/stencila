@@ -64,6 +64,11 @@ pub struct Button {
     #[jats(flatten)]
     #[markdown(flatten)]
     pub options: Box<ButtonOptions>,
+
+    /// A unique identifier for a node within a document
+    
+    #[serde(skip)]
+    pub uid: NodeUid
 }
 
 #[skip_serializing_none]
@@ -153,6 +158,16 @@ pub struct ButtonOptions {
 }
 
 impl Button {
+    const NICK: &'static str = "but";
+    
+    pub fn node_type(&self) -> NodeType {
+        NodeType::Button
+    }
+
+    pub fn node_id(&self) -> NodeId {
+        NodeId::new(Self::NICK, &self.uid)
+    }
+    
     pub fn new(code: Cord, name: String) -> Self {
         Self {
             code,

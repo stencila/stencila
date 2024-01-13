@@ -44,9 +44,24 @@ pub struct Note {
     #[cfg_attr(feature = "proptest-high", proptest(value = r#"vec![p([t("Note paragraph")])]"#))]
     #[cfg_attr(feature = "proptest-max", proptest(value = r#"vec![p([t("Note paragraph")])]"#))]
     pub content: Vec<Block>,
+
+    /// A unique identifier for a node within a document
+    #[cfg_attr(feature = "proptest", proptest(value = "Default::default()"))]
+    #[serde(skip)]
+    pub uid: NodeUid
 }
 
 impl Note {
+    const NICK: &'static str = "not";
+    
+    pub fn node_type(&self) -> NodeType {
+        NodeType::Note
+    }
+
+    pub fn node_id(&self) -> NodeId {
+        NodeId::new(Self::NICK, &self.uid)
+    }
+    
     pub fn new(note_type: NoteType, content: Vec<Block>) -> Self {
         Self {
             note_type,

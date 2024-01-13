@@ -29,9 +29,24 @@ pub struct Variable {
 
     /// The value of the variable.
     pub value: Option<Box<Node>>,
+
+    /// A unique identifier for a node within a document
+    
+    #[serde(skip)]
+    pub uid: NodeUid
 }
 
 impl Variable {
+    const NICK: &'static str = "var";
+    
+    pub fn node_type(&self) -> NodeType {
+        NodeType::Variable
+    }
+
+    pub fn node_id(&self) -> NodeId {
+        NodeId::new(Self::NICK, &self.uid)
+    }
+    
     pub fn new(name: String) -> Self {
         Self {
             name,

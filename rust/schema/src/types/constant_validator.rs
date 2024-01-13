@@ -23,9 +23,24 @@ pub struct ConstantValidator {
 
     /// The value that the node must have.
     pub value: Box<Node>,
+
+    /// A unique identifier for a node within a document
+    
+    #[serde(skip)]
+    pub uid: NodeUid
 }
 
 impl ConstantValidator {
+    const NICK: &'static str = "con";
+    
+    pub fn node_type(&self) -> NodeType {
+        NodeType::ConstantValidator
+    }
+
+    pub fn node_id(&self) -> NodeId {
+        NodeId::new(Self::NICK, &self.uid)
+    }
+    
     pub fn new(value: Box<Node>) -> Self {
         Self {
             value,

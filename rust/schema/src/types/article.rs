@@ -127,6 +127,11 @@ pub struct Article {
     #[jats(flatten)]
     #[markdown(flatten)]
     pub options: Box<ArticleOptions>,
+
+    /// A unique identifier for a node within a document
+    #[cfg_attr(feature = "proptest", proptest(value = "Default::default()"))]
+    #[serde(skip)]
+    pub uid: NodeUid
 }
 
 #[skip_serializing_none]
@@ -280,6 +285,16 @@ pub struct ArticleOptions {
 }
 
 impl Article {
+    const NICK: &'static str = "art";
+    
+    pub fn node_type(&self) -> NodeType {
+        NodeType::Article
+    }
+
+    pub fn node_id(&self) -> NodeId {
+        NodeId::new(Self::NICK, &self.uid)
+    }
+    
     pub fn new(content: Vec<Block>) -> Self {
         Self {
             content,

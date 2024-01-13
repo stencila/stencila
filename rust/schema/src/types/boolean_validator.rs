@@ -19,9 +19,24 @@ pub struct BooleanValidator {
     #[strip(metadata)]
     #[html(attr = "id")]
     pub id: Option<String>,
+
+    /// A unique identifier for a node within a document
+    
+    #[serde(skip)]
+    pub uid: NodeUid
 }
 
 impl BooleanValidator {
+    const NICK: &'static str = "boo";
+    
+    pub fn node_type(&self) -> NodeType {
+        NodeType::BooleanValidator
+    }
+
+    pub fn node_id(&self) -> NodeId {
+        NodeId::new(Self::NICK, &self.uid)
+    }
+    
     pub fn new() -> Self {
         Self {
             ..Default::default()

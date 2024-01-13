@@ -47,6 +47,11 @@ pub struct Person {
     #[jats(flatten)]
     #[markdown(flatten)]
     pub options: Box<PersonOptions>,
+
+    /// A unique identifier for a node within a document
+    
+    #[serde(skip)]
+    pub uid: NodeUid
 }
 
 #[skip_serializing_none]
@@ -121,6 +126,16 @@ pub struct PersonOptions {
 }
 
 impl Person {
+    const NICK: &'static str = "per";
+    
+    pub fn node_type(&self) -> NodeType {
+        NodeType::Person
+    }
+
+    pub fn node_id(&self) -> NodeId {
+        NodeId::new(Self::NICK, &self.uid)
+    }
+    
     pub fn new() -> Self {
         Self {
             ..Default::default()

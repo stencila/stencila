@@ -32,9 +32,24 @@ pub struct TimestampValidator {
 
     /// The inclusive upper limit for a timestamp.
     pub maximum: Option<Timestamp>,
+
+    /// A unique identifier for a node within a document
+    
+    #[serde(skip)]
+    pub uid: NodeUid
 }
 
 impl TimestampValidator {
+    const NICK: &'static str = "tim";
+    
+    pub fn node_type(&self) -> NodeType {
+        NodeType::TimestampValidator
+    }
+
+    pub fn node_id(&self) -> NodeId {
+        NodeId::new(Self::NICK, &self.uid)
+    }
+    
     pub fn new() -> Self {
         Self {
             ..Default::default()

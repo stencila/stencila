@@ -28,9 +28,24 @@ pub struct AuthorRole {
     /// A role played by the author.
     #[serde(alias = "role-name", alias = "role_name")]
     pub role_name: AuthorRoleName,
+
+    /// A unique identifier for a node within a document
+    
+    #[serde(skip)]
+    pub uid: NodeUid
 }
 
 impl AuthorRole {
+    const NICK: &'static str = "aut";
+    
+    pub fn node_type(&self) -> NodeType {
+        NodeType::AuthorRole
+    }
+
+    pub fn node_id(&self) -> NodeId {
+        NodeId::new(Self::NICK, &self.uid)
+    }
+    
     pub fn new(author: PersonOrOrganizationOrSoftwareApplication, role_name: AuthorRoleName) -> Self {
         Self {
             author,

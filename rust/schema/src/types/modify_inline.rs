@@ -40,9 +40,24 @@ pub struct ModifyInline {
     #[serde(deserialize_with = "one_or_many")]
     #[cfg_attr(feature = "proptest", proptest(value = "Default::default()"))]
     pub operations: Vec<ModifyOperation>,
+
+    /// A unique identifier for a node within a document
+    #[cfg_attr(feature = "proptest", proptest(value = "Default::default()"))]
+    #[serde(skip)]
+    pub uid: NodeUid
 }
 
 impl ModifyInline {
+    const NICK: &'static str = "mod";
+    
+    pub fn node_type(&self) -> NodeType {
+        NodeType::ModifyInline
+    }
+
+    pub fn node_id(&self) -> NodeId {
+        NodeId::new(Self::NICK, &self.uid)
+    }
+    
     pub fn new(content: Vec<Inline>, operations: Vec<ModifyOperation>) -> Self {
         Self {
             content,

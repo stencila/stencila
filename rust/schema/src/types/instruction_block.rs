@@ -67,6 +67,11 @@ pub struct InstructionBlock {
     #[jats(flatten)]
     #[markdown(flatten)]
     pub options: Box<InstructionBlockOptions>,
+
+    /// A unique identifier for a node within a document
+    #[cfg_attr(feature = "proptest", proptest(value = "Default::default()"))]
+    #[serde(skip)]
+    pub uid: NodeUid
 }
 
 #[skip_serializing_none]
@@ -178,6 +183,16 @@ pub struct InstructionBlockOptions {
 }
 
 impl InstructionBlock {
+    const NICK: &'static str = "ins";
+    
+    pub fn node_type(&self) -> NodeType {
+        NodeType::InstructionBlock
+    }
+
+    pub fn node_id(&self) -> NodeId {
+        NodeId::new(Self::NICK, &self.uid)
+    }
+    
     pub fn new(messages: Vec<Message>) -> Self {
         Self {
             messages,

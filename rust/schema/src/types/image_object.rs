@@ -74,6 +74,11 @@ pub struct ImageObject {
     #[jats(flatten)]
     #[markdown(flatten)]
     pub options: Box<ImageObjectOptions>,
+
+    /// A unique identifier for a node within a document
+    #[cfg_attr(feature = "proptest", proptest(value = "Default::default()"))]
+    #[serde(skip)]
+    pub uid: NodeUid
 }
 
 #[skip_serializing_none]
@@ -290,6 +295,16 @@ pub struct ImageObjectOptions {
 }
 
 impl ImageObject {
+    const NICK: &'static str = "ima";
+    
+    pub fn node_type(&self) -> NodeType {
+        NodeType::ImageObject
+    }
+
+    pub fn node_id(&self) -> NodeId {
+        NodeId::new(Self::NICK, &self.uid)
+    }
+    
     pub fn new(content_url: String) -> Self {
         Self {
             content_url,
