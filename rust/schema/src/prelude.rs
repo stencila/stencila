@@ -11,7 +11,7 @@ pub use common::{
     strum,
 };
 
-pub use codec_html_trait::HtmlCodec;
+pub use codec_html_trait::{HtmlCodec, HtmlEncodeContext};
 pub use codec_jats_trait::JatsCodec;
 pub use codec_losses::Losses;
 pub use codec_markdown_trait::{MarkdownCodec, MarkdownEncodeContext};
