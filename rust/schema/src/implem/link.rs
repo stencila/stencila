@@ -2,26 +2,23 @@ use codec_losses::lost_options;
 
 use crate::{prelude::*, Link};
 
-impl Link {
-    pub fn to_markdown_special(&self, context: &mut MarkdownEncodeContext) -> (String, Losses) {
-        let mut losses = lost_options!(self, id, rel);
-
-        let (content_md, content_losses) = self.content.to_markdown(context);
-        losses.merge(content_losses);
-
-        let mut md = ["[", &content_md, "](", &self.target].concat();
+impl MarkdownCodec for Link {
+    fn to_markdown(&self, context: &mut MarkdownEncodeContext) {
+        context
+            .enter_node(self.node_type(), self.node_id())
+            .merge_losses(lost_options!(self, id, rel))
+            .push_str("[")
+            .push_prop_fn("content", |context| self.content.to_markdown(context))
+            .push_str("](")
+            .push_prop_str("target", &self.target);
 
         if let Some(title) = &self.title {
-            let (title_text, title_losses) = title.to_text();
-            losses.merge(title_losses);
-
-            md.push_str(" \"");
-            md.push_str(&title_text);
-            md.push('"');
+            context
+                .push_str(" \"")
+                .push_prop_fn("title", |context| title.to_markdown(context))
+                .push_str("\"");
         }
 
-        md.push(')');
-
-        (md, losses)
+        context.push_str(")").exit_node();
     }
 }

@@ -1,20 +1,29 @@
 use codec_losses::lost_options;
 
-use crate::{prelude::*, Note};
+use crate::{prelude::*, Note, NoteType};
 
-impl Note {
-    pub fn to_markdown_special(&self, context: &mut MarkdownEncodeContext) -> (String, Losses) {
-        let mut losses = lost_options!(self, id);
+impl MarkdownCodec for Note {
+    fn to_markdown(&self, context: &mut MarkdownEncodeContext) {
+        context.merge_losses(lost_options!(self, id));
 
-        let (content, content_losses) = self.content.to_markdown(context);
-        losses.merge(content_losses);
+        if self.note_type != NoteType::Footnote {
+            context.add_loss("Note.noteType");
+        }
 
-        // This content is added to the Markdown by `Article::to_markdown_special`
-        context.footnotes.push(content);
-        let index = context.footnotes.len();
+        let index = context.footnotes.len() + 1;
 
-        let md = ["[^", &index.to_string(), "]"].concat();
+        let mut footnote_context = MarkdownEncodeContext::default();
+        footnote_context.enter_node(NodeType::Note, self.node_id());
+        footnote_context.push_str("[^");
+        footnote_context.push_str(&index.to_string());
+        footnote_context.push_str("]: ");
+        footnote_context.push_line_prefix("  ");
+        self.content.to_markdown(&mut footnote_context);
+        footnote_context.exit_node();
+        context.footnotes.push(footnote_context);
 
-        (md, losses)
+        context.push_str("[^");
+        context.push_str(&index.to_string());
+        context.push_str("]");
     }
 }

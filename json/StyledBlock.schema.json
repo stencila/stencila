@@ -14,7 +14,7 @@
     "elem": "div"
   },
   "markdown": {
-    "special": true
+    "derive": false
   },
   "required": [
     "type",

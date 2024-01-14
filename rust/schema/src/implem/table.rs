@@ -31,8 +31,12 @@ impl Table {
 
         elem("table", &[], &[caption, body])
     }
+}
 
-    pub fn to_markdown_special(&self, context: &mut MarkdownEncodeContext) -> (String, Losses) {
+impl MarkdownCodec for Table {
+    fn to_markdown(&self, _context: &mut MarkdownEncodeContext) {
+        /*
+        TODO
         let mut losses = Losses::none();
 
         let mut column_widths: Vec<usize> = Vec::new();
@@ -142,6 +146,6 @@ impl Table {
 
         // TODO add losses for creative work properties
 
-        (md, losses)
+        */
     }
 }

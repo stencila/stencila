@@ -1,9 +1,6 @@
-use smol_str::SmolStr;
-
-use common::eyre::Result;
 use node_store::{automerge::ObjId, ReadNode, ReadStore};
 
-use crate::{Primitive, StringPatch, StringPatchOrPrimitive};
+use crate::{prelude::*, Primitive, StringPatch, StringPatchOrPrimitive};
 
 impl ReadNode for StringPatchOrPrimitive {
     fn load_map<S: ReadStore>(store: &S, obj: &ObjId) -> Result<Self> {

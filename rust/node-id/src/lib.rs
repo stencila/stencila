@@ -13,7 +13,7 @@ use common::{bs58, derive_more::Deref, uuid::Uuid};
 ///
 /// - define a `Default` implementation which creates a random UUID, and
 /// - define a `PartialEq` implementation which ignores the
-#[derive(Debug, Clone, Deref)]
+#[derive(Clone, Deref)]
 pub struct NodeUid(Vec<u8>);
 
 impl Default for NodeUid {
@@ -28,6 +28,13 @@ impl From<Vec<u8>> for NodeUid {
     }
 }
 
+impl fmt::Debug for NodeUid {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        let id = bs58::encode(&self.0).into_string();
+        f.write_str(&id)
+    }
+}
+
 impl PartialEq for NodeUid {
     fn eq(&self, _other: &Self) -> bool {
         // Node uid should not affect node equality
@@ -37,18 +44,21 @@ impl PartialEq for NodeUid {
 
 /// A unique id for a node including a short nickname for the type of node
 #[derive(Clone, PartialEq, Eq, Hash)]
-pub struct NodeId<'uid> {
+pub struct NodeId {
     nick: &'static str,
-    uid: &'uid [u8],
+    uid: Vec<u8>,
 }
 
-impl<'uid> NodeId<'uid> {
-    pub fn new(nick: &'static str, uid: &'uid [u8]) -> Self {
-        Self { nick, uid }
+impl NodeId {
+    pub fn new(nick: &'static str, uid: &[u8]) -> Self {
+        Self {
+            nick,
+            uid: uid.into(),
+        }
     }
 }
 
-impl<'uid> fmt::Display for NodeId<'uid> {
+impl fmt::Display for NodeId {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         f.write_str(self.nick)?;
         f.write_str("_")?;
@@ -58,7 +68,7 @@ impl<'uid> fmt::Display for NodeId<'uid> {
     }
 }
 
-impl<'uid> fmt::Debug for NodeId<'uid> {
+impl fmt::Debug for NodeId {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         f.write_str(&self.to_string())
     }

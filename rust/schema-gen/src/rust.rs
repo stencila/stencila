@@ -296,6 +296,7 @@ pub enum NodeType {{
             "#[serde_as]".to_string(),
         ];
 
+        // Construct list of traits to derive for the struct
         let mut derives = vec![
             "Debug",
             "SmartDefault",
@@ -305,18 +306,29 @@ pub enum NodeType {{
             "Deserialize",
             "StripNode",
             "WalkNode",
-            "HtmlCodec",
-            "JatsCodec",
-            "MarkdownCodec",
-            "TextCodec",
             "WriteNode",
         ];
-        let title = title.as_str();
-        if !NO_READ_NODE.contains(&title) {
+
+        if !NO_READ_NODE.contains(&title.as_str()) {
             derives.push("ReadNode");
         }
+
+        derives.append(&mut vec!["HtmlCodec", "JatsCodec"]);
+
+        if schema
+            .markdown
+            .as_ref()
+            .map(|spec| spec.derive)
+            .unwrap_or(true)
+        {
+            derives.push("MarkdownCodec");
+        }
+
+        derives.push("TextCodec");
+
         attrs.push(format!("#[derive({})]", derives.join(", ")));
 
+        // Add serde related attributes
         attrs.push("#[serde(rename_all = \"camelCase\", crate = \"common::serde\")]".to_string());
 
         // Add proptest related attributes
@@ -411,19 +423,18 @@ pub enum NodeType {{
 
         // Add #[markdown] attribute for main struct if necessary
         if let Some(markdown) = &schema.markdown {
-            let mut args = Vec::new();
+            if markdown.derive {
+                let mut args = Vec::new();
 
-            if let Some(template) = &markdown.template {
-                args.push(format!("template = \"{template}\""));
-            }
-            if let Some(escape) = &markdown.escape {
-                args.push(format!("escape = \"{escape}\""));
-            }
-            if markdown.special {
-                args.push("special".to_string());
-            }
+                if let Some(template) = &markdown.template {
+                    args.push(format!("template = \"{template}\""));
+                }
+                if let Some(escape) = &markdown.escape {
+                    args.push(format!("escape = \"{escape}\""));
+                }
 
-            attrs.push(format!("#[markdown({})]", args.join(", ")))
+                attrs.push(format!("#[markdown({})]", args.join(", ")))
+            }
         }
 
         let attrs = attrs.join("\n");
@@ -676,7 +687,6 @@ pub struct {title}Options {{
     #[serde(flatten)]
     #[html(flatten)]
     #[jats(flatten)]
-    #[markdown(flatten)]
     pub options: Box<{title}Options>,"
             );
         }

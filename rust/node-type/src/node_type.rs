@@ -1,9 +1,9 @@
 // Generated file; do not edit. See `schema-gen` crate.
 
-use common::strum::{Display, EnumIter, EnumString};
+use common::strum::{Display, EnumString, EnumIter};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Display, EnumString, EnumIter)]
-#[strum(crate = "common::strum")]
+#[strum(crate="common::strum")]
 pub enum NodeType {
     Null,
     Boolean,
@@ -127,5 +127,5 @@ pub enum NodeType {
     Underline,
     Variable,
     VideoObject,
-    Object,
+    Object
 }

@@ -1,5 +1,3 @@
-use smol_str::SmolStr;
-
 use node_store::{automerge::ObjId, get_node_type, ReadNode, ReadStore};
 
 use crate::{prelude::*, *};

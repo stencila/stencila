@@ -109,8 +109,8 @@ impl HtmlCodec for Cord {
 }
 
 impl MarkdownCodec for Cord {
-    fn to_markdown(&self, _context: &mut MarkdownEncodeContext) -> (String, Losses) {
-        (self.to_string(), Losses::none())
+    fn to_markdown(&self, context: &mut MarkdownEncodeContext) {
+        context.push_str(&self.to_string());
     }
 }
 

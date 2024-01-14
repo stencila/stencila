@@ -18,8 +18,7 @@
     "special": true
   },
   "markdown": {
-    "template": "![{caption}]({content_url} \\\"{title}\\\")",
-    "special": true
+    "derive": false
   },
   "required": [
     "type",

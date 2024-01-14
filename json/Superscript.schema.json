@@ -16,7 +16,7 @@
     "elem": "sup"
   },
   "markdown": {
-    "template": "^{content}^",
+    "template": "^{{content}}^",
     "escape": "^"
   },
   "required": [

@@ -16,7 +16,6 @@ node-id = { path = "../node-id" }
 node-store-derive = { path = "../node-store-derive" }
 node-strip = { path = "../node-strip" }
 node-type = { path = "../node-type" }
-smol_str = "0.2.0"
 
 [dev-dependencies]
 codecs = { path = "../codecs" }
