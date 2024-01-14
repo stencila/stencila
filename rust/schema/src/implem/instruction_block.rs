@@ -1,9 +1,9 @@
-use codec_losses::lost_exec_options;
-
 use crate::{prelude::*, InstructionBlock};
 
-impl InstructionBlock {
-    pub fn to_markdown_special(&self, context: &mut MarkdownEncodeContext) -> (String, Losses) {
+impl MarkdownCodec for InstructionBlock {
+    fn to_markdown(&self, _context: &mut MarkdownEncodeContext) {
+        /*
+        TODO
         let mut losses = lost_exec_options!(self);
 
         let mut md = "%% ".to_string();
@@ -43,7 +43,6 @@ impl InstructionBlock {
 
             md += &suggestion_md;
         };
-
-        (md, losses)
+        */
     }
 }

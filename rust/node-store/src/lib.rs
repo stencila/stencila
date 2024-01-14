@@ -4,11 +4,11 @@ use std::path::Path;
 use std::time::SystemTime;
 
 use automerge::ROOT;
-use smol_str::SmolStr;
 
 use common::{
     async_trait::async_trait,
     eyre::{bail, Context, Result},
+    smol_str::SmolStr,
     tokio::fs::{read, write},
 };
 use node_strip::StripNode;

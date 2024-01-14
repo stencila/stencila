@@ -32,6 +32,7 @@ serde_yaml = "0.9.30"
 similar = { version = "2.4.0", features = ["unicode"] }
 slug = "0.1.5"
 smart-default = "0.7.1"
+smol_str = "0.2.0"
 strum = { version = "0.25.0", features = ["derive"] }
 syn = "2.0.48"
 tempfile = "3.9.0"

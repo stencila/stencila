@@ -8,7 +8,7 @@ html:
 jats:
   elem: figure
 markdown:
-  special: true
+  derive: false
 proptest: {}
 required:
   - content

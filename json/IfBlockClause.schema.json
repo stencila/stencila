@@ -10,6 +10,9 @@
   "description": "A clause within an `IfBlock` node.",
   "status": "under-development",
   "proptest": {},
+  "markdown": {
+    "derive": false
+  },
   "required": [
     "type",
     "code",

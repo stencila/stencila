@@ -1,21 +1,25 @@
+use codec_losses::lost_options;
+
 use crate::{prelude::*, CodeInline};
 
-impl CodeInline {
-    pub fn to_markdown_special(&self, _context: &mut MarkdownEncodeContext) -> (String, Losses) {
-        let mut md = ["`", &self.code.replace('`', r"\`"), "`"].concat();
+impl MarkdownCodec for CodeInline {
+    fn to_markdown(&self, context: &mut MarkdownEncodeContext) {
+        context
+            .enter_node(self.node_type(), self.node_id())
+            .merge_losses(lost_options!(self, id));
+
+        context
+            .push_str("`")
+            .push_prop_str("code", &self.code)
+            .push_str("`");
 
         if let Some(lang) = &self.programming_language {
-            md.push('{');
-            md.push_str(&lang.replace('}', r"\}"));
-            md.push('}');
+            context
+                .push_str("{")
+                .push_prop_str("programming_language", &lang.replace('}', r"\}"))
+                .push_str("}");
         }
 
-        let losses = if self.id.is_some() {
-            Losses::one("CodeFragment.id")
-        } else {
-            Losses::none()
-        };
-
-        (md, losses)
+        context.exit_node();
     }
 }

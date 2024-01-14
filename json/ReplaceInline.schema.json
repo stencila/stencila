@@ -10,7 +10,7 @@
   "description": "A suggestion to replace some inline content with new inline content.",
   "proptest": {},
   "markdown": {
-    "template": "{{~~{content}~>{replacement}~~}}"
+    "template": "{~~{{content}}~>{{replacement}}~~}"
   },
   "required": [
     "type",

@@ -2,58 +2,37 @@ use codec_losses::lost_exec_options;
 
 use crate::{prelude::*, IfBlock, IfBlockClause};
 
-impl IfBlock {
-    pub fn to_markdown_special(&self, context: &mut MarkdownEncodeContext) -> (String, Losses) {
-        let mut md = String::new();
-        let mut losses = lost_exec_options!(self);
+impl MarkdownCodec for IfBlock {
+    fn to_markdown(&self, context: &mut MarkdownEncodeContext) {
+        context
+            .enter_node(self.node_type(), self.node_id())
+            .merge_losses(lost_exec_options!(self));
 
         let fence = ":".repeat(3 + context.depth * 2);
 
-        context.down();
-
-        for (
-            index,
-            IfBlockClause {
-                code,
-                programming_language,
-                content,
-                ..
-            },
-        ) in self.clauses.iter().enumerate()
-        {
-            md.push_str(&fence);
-            let keyword = if index == 0 {
-                " if "
-            } else if code.is_empty() && index == self.clauses.len() - 1 {
-                " else "
-            } else {
-                " elif "
-            };
-            md.push_str(keyword);
-            md.push_str(code);
-
-            if let Some(lang) = programming_language {
-                if !lang.is_empty() {
-                    md.push_str(" {");
-                    md.push_str(lang);
-                    md.push('}');
-                }
-            }
-
-            md.push_str("\n\n");
-
-            let (content_md, content_losses) = content.to_markdown(context);
-            md.push_str(&content_md);
-            losses.merge(content_losses);
+        for (index, clause @ IfBlockClause { code, .. }) in self.clauses.iter().enumerate() {
+            context
+                .push_str(&fence)
+                .push_str(if index == 0 {
+                    " if "
+                } else if code.is_empty() && index == self.clauses.len() - 1 {
+                    " else "
+                } else {
+                    " elif "
+                })
+                .increase_depth()
+                .push_prop_fn("clause", |context| clause.to_markdown(context))
+                .decrease_depth();
         }
-
-        context.up();
 
         if !self.clauses.is_empty() {
-            md.push_str(&fence);
-            md.push_str("\n\n");
+            context
+                .push_str(&fence)
+                .push_str("\n")
+                .exit_node()
+                .push_str("\n");
         }
 
-        (md, losses)
+        context.exit_node();
     }
 }

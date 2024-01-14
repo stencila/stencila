@@ -8,6 +8,7 @@ pub use common::{
     serde::{self, Deserialize, Serialize},
     serde_json,
     smart_default::SmartDefault,
+    smol_str::{self, SmolStr},
     strum,
 };
 

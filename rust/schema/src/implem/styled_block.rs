@@ -2,36 +2,36 @@ use codec_losses::lost_options;
 
 use crate::{prelude::*, StyledBlock};
 
-impl StyledBlock {
-    pub fn to_markdown_special(&self, context: &mut MarkdownEncodeContext) -> (String, Losses) {
-        let mut losses = lost_options!(
-            self,
-            id,
-            compilation_digest,
-            compilation_errors,
-            css,
-            classes
-        );
+impl MarkdownCodec for StyledBlock {
+    fn to_markdown(&self, context: &mut MarkdownEncodeContext) {
+        context
+            .enter_node(self.node_type(), self.node_id())
+            .merge_losses(lost_options!(self, id))
+            .merge_losses(lost_options!(
+                self.options,
+                compilation_digest,
+                compilation_errors,
+                css,
+                classes
+            ));
 
         let fence = ":".repeat(3 + context.depth * 2);
+        context.push_str(&fence);
 
-        let lang = self
-            .style_language
-            .as_ref()
-            .map(|lang| format!(" {lang}"))
-            .unwrap_or_default();
+        if let Some(lang) = &self.style_language {
+            context.push_str(" ").push_prop_str("style_language", lang);
+        }
 
-        context.down();
-        let (md, md_losses) = self.content.to_markdown(context);
-        context.up();
-
-        losses.merge(md_losses);
-
-        let md = [
-            &fence, &lang, " {", &self.code, "}", "\n\n", &md, &fence, "\n\n",
-        ]
-        .concat();
-
-        (md, losses)
+        context
+            .push_str("{")
+            .push_prop_str("code", &self.code)
+            .push_str("}\n\n")
+            .increase_depth()
+            .push_prop_fn("content", |context| self.content.to_markdown(context))
+            .decrease_depth()
+            .push_str(&fence)
+            .push_str("\n")
+            .exit_node()
+            .push_str("\n");
     }
 }

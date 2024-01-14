@@ -428,16 +428,16 @@
       "additionalProperties": false
     },
     "MarkdownOptions": {
-      "description": "Options for conversion to Markdown",
+      "description": "Options for deriving the `MarkdownCodec` trait",
       "type": "object",
       "properties": {
+        "derive": {
+          "description": "Whether the `MarkdownCodec` should be derived for the type",
+          "type": "boolean"
+        },
         "escape": {
           "description": "Character to escape when using `format!` macro to encode to Markdown",
           "type": "string"
-        },
-        "special": {
-          "description": "Whether the node type has a special function for encoding to Markdown",
-          "type": "boolean"
         },
         "template": {
           "description": "The Rust formatting string to use as a template to encode to Markdown",

@@ -1,17 +1,17 @@
-use codec_losses::lost_options;
-
 use crate::{prelude::*, StyledInline};
 
-impl StyledInline {
-    pub fn to_markdown_special(&self, context: &mut MarkdownEncodeContext) -> (String, Losses) {
-        let mut losses = lost_options!(self, id);
-        losses.merge(lost_options!(
-            self.options,
+impl MarkdownCodec for StyledInline {
+    fn to_markdown(&self, _context: &mut MarkdownEncodeContext) {
+        /*
+        TODO:
+        let mut losses = lost_options!(
+            self,
+            id,
             compilation_digest,
             compilation_errors,
             css,
             classes
-        ));
+        );
 
         let (md, md_losses) = self.content.to_markdown(context);
         losses.merge(md_losses);
@@ -25,5 +25,6 @@ impl StyledInline {
         let md = ["[", &md, "]{", &self.code, "}", &lang].concat();
 
         (md, losses)
+        */
     }
 }

@@ -1,8 +1,8 @@
 use codec_html_trait::encode::{attr, elem};
-use codec_json5_trait::Json5Codec;
+
 use common::inflector::Inflector;
 
-use crate::{prelude::*, IntegerValidator, Node, NumberValidator, Parameter, Validator};
+use crate::{prelude::*, Parameter};
 
 impl Parameter {
     pub fn to_html_special(&self, _context: &mut HtmlEncodeContext) -> String {
@@ -25,8 +25,11 @@ impl Parameter {
 
         elem("stencila-parameter", &attrs, &children)
     }
+}
 
-    pub fn to_markdown_special(&self, _context: &mut MarkdownEncodeContext) -> (String, Losses) {
+impl MarkdownCodec for Parameter {
+    fn to_markdown(&self, _context: &mut MarkdownEncodeContext) {
+        /*
         let mut md = ["&[", &self.name, "]"].concat();
         let mut losses = Losses::none();
 
@@ -57,7 +60,7 @@ impl Parameter {
         };
 
         let attr_default = |attrs: &mut String| {
-            if let Some(def) = &self.options.default {
+            if let Some(def) = &self.default {
                 attrs.push_str(" def=");
                 attrs.push_str(&node_to_md(def));
             }
@@ -84,7 +87,7 @@ impl Parameter {
             }};
         }
 
-        if let Some(validator) = &self.options.validator {
+        if let Some(validator) = &self.validator {
             let attrs = match validator {
                 Validator::BooleanValidator(..) => {
                     let mut attrs = "bool".to_string();
@@ -211,5 +214,6 @@ impl Parameter {
         // TODO other losses for executable nodes
 
         (md, losses)
+        */
     }
 }

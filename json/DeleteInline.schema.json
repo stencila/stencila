@@ -13,7 +13,7 @@
     "elem": "del"
   },
   "markdown": {
-    "template": "{{--{content}--}}"
+    "template": "{--{{content}}--}"
   },
   "required": [
     "type",

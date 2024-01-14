@@ -1,3 +1,5 @@
+use codec_losses::lost_options;
+
 use crate::{prelude::*, Heading};
 
 impl Heading {
@@ -25,20 +27,18 @@ impl Heading {
             &[self.content.to_html(context)],
         )
     }
+}
 
-    pub fn to_markdown_special(&self, context: &mut MarkdownEncodeContext) -> (String, Losses) {
-        let mut md = "#".repeat(self.level.max(1).min(6) as usize);
-        md.push(' ');
-
-        let (content, mut losses) = self.content.to_markdown(context);
-        md.push_str(&content);
-
-        md.push_str("\n\n");
-
-        if self.id.is_some() {
-            losses.add("Heading.id")
-        }
-
-        (md, losses)
+impl MarkdownCodec for Heading {
+    fn to_markdown(&self, context: &mut MarkdownEncodeContext) {
+        context
+            .enter_node(self.node_type(), self.node_id())
+            .merge_losses(lost_options!(self, id))
+            .push_prop_str("level", &"#".repeat(self.level.max(1).min(6) as usize))
+            .push_str(" ")
+            .push_prop_fn("content", |context| self.content.to_markdown(context))
+            .push_str("\n")
+            .exit_node()
+            .push_str("\n");
     }
 }

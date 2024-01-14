@@ -1016,6 +1016,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "codec-mapping"
+version = "0.0.0"
+dependencies = [
+ "common",
+ "node-id",
+ "node-type",
+]
+
+[[package]]
 name = "codec-markdown"
 version = "0.0.0"
 dependencies = [
@@ -1041,6 +1050,7 @@ name = "codec-markdown-trait"
 version = "0.0.0"
 dependencies = [
  "codec-losses",
+ "codec-mapping",
  "codec-markdown-derive",
  "common",
 ]
@@ -1163,6 +1173,7 @@ dependencies = [
  "similar",
  "slug",
  "smart-default",
+ "smol_str",
  "strum",
  "syn 2.0.48",
  "tempfile",
@@ -3325,7 +3336,6 @@ dependencies = [
  "node-strip",
  "node-type",
  "schema",
- "smol_str",
 ]
 
 [[package]]
@@ -4785,7 +4795,6 @@ dependencies = [
  "proptest",
  "proptest-derive",
  "serde_with",
- "smol_str",
 ]
 
 [[package]]

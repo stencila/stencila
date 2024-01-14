@@ -1,9 +1,10 @@
-use codec_losses::lost_options;
-
 use crate::{prelude::*, Figure};
 
-impl Figure {
-    pub fn to_markdown_special(&self, context: &mut MarkdownEncodeContext) -> (String, Losses) {
+impl MarkdownCodec for Figure {
+    fn to_markdown(&self, _context: &mut MarkdownEncodeContext) {
+        /*
+        TODO
+
         let mut md = String::new();
         let mut losses = lost_options!(self, id);
 
@@ -33,7 +34,6 @@ impl Figure {
         md += "\n\n";
 
         context.up();
-
-        (md, losses)
+        */
     }
 }

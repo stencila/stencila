@@ -16,7 +16,7 @@
     }
   },
   "markdown": {
-    "special": true
+    "derive": false
   },
   "required": [
     "type",

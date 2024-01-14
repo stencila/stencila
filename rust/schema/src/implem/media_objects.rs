@@ -54,26 +54,29 @@ macro_rules! jats_content {
 }
 
 macro_rules! to_markdown {
-    ($object:expr, $context:expr) => {{
-        let mut losses = lost_options!($object, id);
+    ($object:expr, $context:expr, $losses:expr) => {{
+        $context
+            .enter_node($object.node_type(), $object.node_id())
+            .merge_losses(lost_options!($object, id))
+            .merge_losses($losses)
+            .push_str("![");
 
-        let (caption_md, caption_losses) = $object.caption.to_markdown($context);
-        losses.merge(caption_losses);
-
-        let mut md = ["![", &caption_md, "](", &$object.content_url].concat();
-
-        if let Some(title) = &$object.title {
-            let (title_text, title_losses) = title.to_text();
-            losses.merge(title_losses);
-
-            md.push_str(" \"");
-            md.push_str(&title_text);
-            md.push('"');
+        if let Some(caption) = &$object.caption {
+            $context.push_prop_fn("caption", |context| caption.to_markdown(context));
         }
 
-        md.push(')');
+        $context
+            .push_str("](")
+            .push_prop_str("content_url", &$object.content_url);
 
-        (md, losses)
+        if let Some(title) = &$object.title {
+            $context
+                .push_str(" \"")
+                .push_prop_fn("title", |context| title.to_markdown(context))
+                .push_str("\"");
+        }
+
+        $context.push_str(")").exit_node();
     }};
 }
 
@@ -113,11 +116,11 @@ impl AudioObject {
             Losses::todo(),
         )
     }
+}
 
-    pub fn to_markdown_special(&self, context: &mut MarkdownEncodeContext) -> (String, Losses) {
-        let (md, mut losses) = to_markdown!(self, context);
-        losses.merge(lost_options!(self.options, transcript));
-        (md, losses)
+impl MarkdownCodec for AudioObject {
+    fn to_markdown(&self, context: &mut MarkdownEncodeContext) {
+        to_markdown!(self, context, lost_options!(self.options, transcript))
     }
 }
 
@@ -136,11 +139,11 @@ impl ImageObject {
             Losses::todo(),
         )
     }
+}
 
-    pub fn to_markdown_special(&self, context: &mut MarkdownEncodeContext) -> (String, Losses) {
-        let (md, mut losses) = to_markdown!(self, context);
-        losses.merge(lost_options!(self.options, thumbnail));
-        (md, losses)
+impl MarkdownCodec for ImageObject {
+    fn to_markdown(&self, context: &mut MarkdownEncodeContext) {
+        to_markdown!(self, context, lost_options!(self.options, thumbnail))
     }
 }
 
@@ -167,10 +170,14 @@ impl VideoObject {
             Losses::todo(),
         )
     }
+}
 
-    pub fn to_markdown_special(&self, context: &mut MarkdownEncodeContext) -> (String, Losses) {
-        let (md, mut losses) = to_markdown!(self, context);
-        losses.merge(lost_options!(self.options, thumbnail, transcript));
-        (md, losses)
+impl MarkdownCodec for VideoObject {
+    fn to_markdown(&self, context: &mut MarkdownEncodeContext) {
+        to_markdown!(
+            self,
+            context,
+            lost_options!(self.options, thumbnail, transcript)
+        )
     }
 }

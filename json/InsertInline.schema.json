@@ -13,7 +13,7 @@
     "elem": "ins"
   },
   "markdown": {
-    "template": "{{++{content}++}}"
+    "template": "{++{{content}}++}"
   },
   "required": [
     "type",
