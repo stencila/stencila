@@ -214,10 +214,10 @@ export class CodeMirrorClient extends FormatClient {
     const { version, ops } = message as unknown as FormatPatch
 
     // Is the patch a reset patch?
-    const isReset = ops.length === 1 && ops[0].type === 'reset'
+    const isReset = ops.length >= 1 && ops[0].type === 'reset'
 
     // Check for non-sequential patch and request a reset patch if necessary
-    if (!isReset && version != this.version + 1) {
+    if (!isReset && version > this.version + 1) {
       this.sendMessage({ version: 0 })
       return
     }
@@ -234,7 +234,10 @@ export class CodeMirrorClient extends FormatClient {
         selection: this.editor.state.selection,
       })
     } else {
-      transaction = { changes: ops as ({ from: number } & FormatOperation)[] }
+      const changes = ops.filter((op) => op.type !== undefined) as ({
+        from: number
+      } & FormatOperation)[]
+      transaction = { changes }
     }
 
     // Dispatch the transaction, ignoring any updates while doing so
@@ -242,7 +245,7 @@ export class CodeMirrorClient extends FormatClient {
     this.editor.dispatch(transaction)
     this.ignoreUpdates = false
 
-    // Update local version number
-    this.version = version
+    // Call `FormatClient.receiveMessage` to update mapping and version
+    super.receiveMessage(message)
   }
 }

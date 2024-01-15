@@ -1,4 +1,11 @@
-import { type DocumentAccess, type DocumentId } from '../types'
+import { diffApply, jsonPatchPathConverter } from 'just-diff-apply'
+
+import {
+  NodeId,
+  type DocumentAccess,
+  type DocumentId,
+  NodeType,
+} from '../types'
 
 import { Client } from './client'
 
@@ -25,14 +32,14 @@ export interface FormatPatch {
  */
 export interface FormatOperation {
   /**
-   * The type of operation
+   * The type of operation for operations on the string content
    */
-  type: 'reset' | 'insert' | 'replace' | 'delete' | 'execute' | 'selection'
+  type?: 'reset' | 'insert' | 'replace' | 'delete' | 'viewport' | 'selection'
 
   /**
    * The position in the string from which the operation is applied
    */
-  from?: number
+  from?: number | string
 
   /**
    * The position in the string to which the operation is applied
@@ -47,6 +54,54 @@ export interface FormatOperation {
    * For additions and replacements; may be omitted for deletions.
    */
   insert?: string
+
+  /**
+   * The type of operation for operations on the mapping object
+   */
+  op?: 'add' | 'remove' | 'replace'
+
+  /**
+   * The JSON path to be added to, removed, replaced etc in the mapping object
+   */
+  path?: string
+
+  /**
+   * The value to be added or is the replacement in the mapping object
+   */
+  value?: unknown
+}
+
+/**
+ * An entry in the mapping between character positions and nodes and their properties
+ *
+ * Uses offsets for the start and end positions (rather than absolute values) to reduce
+ * the size of patches sent by the server to update the mapping.
+ */
+interface MappingEntry {
+  /**
+   * The offset of the start this entry from the start of the previous entry
+   */
+  start: number
+
+  /**
+   * The offset of the end this entry from the end of the previous entry
+   */
+  end: number
+
+  /**
+   * The type of the node
+   */
+  nodeType: string
+
+  /**
+   * The id of the node
+   */
+  nodeId: string
+
+  /**
+   * The name of the node property, if applicable
+   */
+  property?: string
 }
 
 /**
@@ -57,6 +112,11 @@ export abstract class FormatClient extends Client {
    * The local state of the string
    */
   protected state: string = ''
+
+  /**
+   * The mapping between character ranges and nodes and their properties
+   */
+  protected mapping: MappingEntry[]
 
   /**
    * The local version of the string
@@ -83,19 +143,27 @@ export abstract class FormatClient extends Client {
    */
   constructor(id: DocumentId, access: DocumentAccess, format: string) {
     super(id, `${access}.${format}`)
+
+    this.mapping = []
   }
 
   /**
    * Send patch operations to the server with current version and increment
-   * the version
+   * the version if any of the operations modify content
    */
   protected sendPatch(ops: FormatOperation[]) {
+    const modified = ops.find((op) =>
+      ['reset', 'insert', 'replace', 'delete'].includes(op.type)
+    )
+
     this.sendMessage({
       version: this.version,
       ops,
     })
 
-    this.version += 1
+    if (modified) {
+      this.version += 1
+    }
   }
 
   /**
@@ -108,10 +176,10 @@ export abstract class FormatClient extends Client {
     const { version, ops } = message as unknown as FormatPatch
 
     // Is the patch a reset patch?
-    const isReset = ops.length === 1 && ops[0].type === 'reset'
+    const isReset = ops.length >= 1 && ops[0].type === 'reset'
 
     // Check for non-sequential patch and request a reset patch if necessary
-    if (!isReset && version != this.version + 1) {
+    if (!isReset && version > this.version + 1) {
       this.sendMessage({ version: 0 })
       return
     }
@@ -126,22 +194,34 @@ export abstract class FormatClient extends Client {
         updated = true
       } else if (
         type === 'insert' &&
-        from !== undefined &&
+        typeof from === 'number' &&
         insert !== undefined
       ) {
         this.state = this.state.slice(0, from) + insert + this.state.slice(from)
         updated = true
-      } else if (type === 'delete' && from !== undefined && to !== undefined) {
+      } else if (
+        type === 'delete' &&
+        typeof from === 'number' &&
+        typeof to === 'number'
+      ) {
         this.state = this.state.slice(0, from) + this.state.slice(to)
         updated = true
       } else if (
         type === 'replace' &&
-        from !== undefined &&
-        to !== undefined &&
+        typeof from === 'number' &&
+        typeof to === 'number' &&
         insert !== undefined
       ) {
         this.state = this.state.slice(0, from) + insert + this.state.slice(to)
         updated = true
+      } else if (op.op !== undefined) {
+        if (op.op == 'replace' && op.path === '') {
+          this.mapping = op.value as MappingEntry[]
+        } else {
+          // @ts-expect-error because the `diffApply` typings for the path of ops is wrong
+          // when using a path converter
+          diffApply(this.mapping, [op], jsonPatchPathConverter)
+        }
       } else {
         console.error('Operation from server was not handled', op)
       }
@@ -166,5 +246,26 @@ export abstract class FormatClient extends Client {
    */
   public subscribe(subscriber: (value: string) => void) {
     this.subscriber = subscriber
+  }
+
+  /**
+   * Get the mapping entry at a character position
+   */
+  public nodeAt(
+    position: number
+  ): { nodeType: NodeType; nodeId: NodeId; property?: string } | undefined {
+    let start = 0
+    let end = 0
+    for (const entry of this.mapping) {
+      start += entry.start
+      end += entry.end
+      if (position >= start && position < end) {
+        return {
+          nodeType: entry.nodeType,
+          nodeId: entry.nodeId,
+          property: entry.property,
+        }
+      }
+    }
   }
 }

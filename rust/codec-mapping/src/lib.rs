@@ -1,24 +1,39 @@
 use std::{fmt::Display, ops::Range};
 
-use common::{
-    derive_more::{Deref, DerefMut},
-    smol_str::SmolStr,
-};
+use common::{serde::Serialize, serde_with::skip_serializing_none, smol_str::SmolStr};
 
 pub use node_id::NodeId;
 pub use node_type::NodeType;
 
 /// A mapping between UTF-8 character positions and nodes and their properties
-#[derive(Default, Deref, DerefMut)]
+#[derive(Default, Clone, PartialEq, Serialize)]
+#[serde(transparent, crate = "common::serde")]
 pub struct Mapping {
-    inner: Vec<MappingEntry>,
+    entries: Vec<MappingEntry>,
+}
+
+impl Mapping {
+    pub fn entries(&self) -> &Vec<MappingEntry> {
+        &self.entries
+    }
 }
 
 /// An entry in a [`Mapping`]
-#[derive(Debug, Clone)]
+#[skip_serializing_none]
+#[derive(Debug, Clone, PartialEq, Serialize)]
+#[serde(rename_all = "camelCase", crate = "common::serde")]
 pub struct MappingEntry {
-    /// The range of positions the node spans
+    /// The range of positions
+    #[serde(skip)]
     pub range: Range<usize>,
+
+    /// The offset of the start this entry from the start of the previous entry
+    #[serde(rename = "start")]
+    pub start_offset: i32,
+
+    /// The offset of the end this entry from the end of the previous entry
+    #[serde(rename = "end")]
+    pub end_offset: i32,
 
     /// The type of the node
     pub node_type: NodeType,
@@ -30,23 +45,6 @@ pub struct MappingEntry {
     pub property: Option<SmolStr>,
 }
 
-impl MappingEntry {
-    /// Create a new mapping entry
-    pub fn new(
-        range: Range<usize>,
-        node_type: NodeType,
-        node_id: NodeId,
-        property: Option<SmolStr>,
-    ) -> Self {
-        Self {
-            range,
-            node_type,
-            node_id,
-            property,
-        }
-    }
-}
-
 impl Mapping {
     /// Create an empty mapping
     ///
@@ -56,27 +54,28 @@ impl Mapping {
         Self::default()
     }
 
-    /// Find the node that is closest to a position
-    pub fn closest(&self, position: usize) -> Option<MappingEntry> {
-        for entry in self.iter() {
-            if entry.range.contains(&position) {
-                return Some(entry.clone());
-            }
-        }
-        None
-    }
-
-    /// Find the node that is closest to a position and for which the predicate function returns true
-    pub fn closest_where<F>(&self, position: usize, predicate: F) -> Option<MappingEntry>
-    where
-        F: Fn(&MappingEntry) -> bool,
-    {
-        for entry in self.iter() {
-            if entry.range.contains(&position) && predicate(entry) {
-                return Some(entry.clone());
-            }
-        }
-        None
+    /// Add a new mapping entry
+    pub fn add(
+        &mut self,
+        start: usize,
+        end: usize,
+        node_type: NodeType,
+        node_id: NodeId,
+        property: Option<SmolStr>,
+    ) {
+        let last = match self.entries.last() {
+            Some(entry) => &entry.range,
+            None => &(0..0),
+        };
+        let entry = MappingEntry {
+            range: start..end,
+            start_offset: start as i32 - last.start as i32,
+            end_offset: end as i32 - last.end as i32,
+            node_type,
+            node_id,
+            property,
+        };
+        self.entries.push(entry)
     }
 }
 
@@ -84,18 +83,18 @@ impl Display for Mapping {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         for MappingEntry {
             range,
+            start_offset,
+            end_offset,
             node_type,
             node_id,
             property,
-        } in &self.inner
+        } in &self.entries
         {
             writeln!(
                 f,
-                "{:<5} {:<5} {} {}{}",
+                "{:<5} {:<5} {start_offset:<5} {end_offset:<5} {node_id} {node_type}{}",
                 range.start,
                 range.end,
-                node_id,
-                node_type,
                 property
                     .as_ref()
                     .map_or_else(String::new, |prop| format!(".{prop}"))

@@ -1,6 +1,6 @@
 use std::fmt;
 
-use common::{bs58, derive_more::Deref, uuid::Uuid};
+use common::{bs58, derive_more::Deref, serde_with::SerializeDisplay, uuid::Uuid};
 
 /// A unique id for a node
 ///
@@ -43,7 +43,8 @@ impl PartialEq for NodeUid {
 }
 
 /// A unique id for a node including a short nickname for the type of node
-#[derive(Clone, PartialEq, Eq, Hash)]
+#[derive(Clone, PartialEq, Eq, Hash, SerializeDisplay)]
+#[serde_with(crate = "common::serde_with")]
 pub struct NodeId {
     nick: &'static str,
     uid: Vec<u8>,

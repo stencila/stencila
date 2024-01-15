@@ -70,7 +70,7 @@ async fn compact() -> Result<()> {
 
     let doc1 = art([p([t("Hello world")])]);
 
-    let (json, _) = codec
+    let (json, ..) = codec
         .to_string(
             &doc1,
             Some(EncodeOptions {
@@ -97,7 +97,7 @@ async fn standalone() -> Result<()> {
 
     let doc1 = art([p([t("Hello world")])]);
 
-    let (json, _) = codec
+    let (json, ..) = codec
         .to_string(
             &doc1,
             Some(EncodeOptions {

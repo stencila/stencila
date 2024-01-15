@@ -14,7 +14,7 @@ async fn escaping_unicode_2028_and_2029() -> Result<()> {
 
     let doc1 = art([p([t("\u{2028}")])]);
 
-    let (json5, _) = codec
+    let (json5, ..) = codec
         .to_string(
             &doc1,
             Some(EncodeOptions {

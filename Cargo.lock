@@ -896,6 +896,7 @@ name = "codec"
 version = "0.0.0"
 dependencies = [
  "codec-losses",
+ "codec-mapping",
  "common",
  "format",
  "node-strip",
