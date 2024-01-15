@@ -116,7 +116,7 @@ export abstract class FormatClient extends Client {
   /**
    * The mapping between character ranges and nodes and their properties
    */
-  protected mapping: MappingEntry[]
+  protected mapping: MappingEntry[] = []
 
   /**
    * The local version of the string
@@ -143,8 +143,6 @@ export abstract class FormatClient extends Client {
    */
   constructor(id: DocumentId, access: DocumentAccess, format: string) {
     super(id, `${access}.${format}`)
-
-    this.mapping = []
   }
 
   /**
@@ -249,7 +247,10 @@ export abstract class FormatClient extends Client {
   }
 
   /**
-   * Get the mapping entry at a character position
+   * Get the type and id of the node (and any property name) corresponding to character position
+   *
+   * Returns the first entry in the mapping which spans the position (i.e. the most
+   * leafiest node in the node tree)
    */
   public nodeAt(
     position: number
@@ -267,5 +268,29 @@ export abstract class FormatClient extends Client {
         }
       }
     }
+  }
+
+  /**
+   * Get the id of all nodes corresponding to character position
+   *
+   * Returns a list of nodes that have a range that spans the position.
+   * The first node in the list is the leafiest node, the last is the
+   * root node (an `Article`, or possibly some other `CreativeWork` in the future).
+   */
+  public nodesAt(position: number): NodeId[] {
+    let start = 0
+    let end = 0
+    const nodes = []
+    for (const entry of this.mapping) {
+      start += entry.start
+      end += entry.end
+      if (position >= start && position < end) {
+        if (!nodes.includes(entry.nodeId)) {
+          nodes.push(entry.nodeId)
+        }
+      }
+    }
+
+    return nodes
   }
 }
