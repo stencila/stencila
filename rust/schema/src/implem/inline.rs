@@ -2,6 +2,59 @@ use node_store::{automerge::ObjId, get_node_type, ReadNode, ReadStore};
 
 use crate::{prelude::*, transforms::blocks_to_inlines, *};
 
+impl Inline {
+    pub fn node_id(&self) -> Option<NodeId> {
+        macro_rules! variants {
+            ($( $variant:ident ),*) => {
+                match self {
+                    $(Inline::$variant(node) => Some(node.node_id()),)*
+                    
+                    Inline::Null(..) |
+                    Inline::Boolean(..) |
+                    Inline::Integer(..) |
+                    Inline::UnsignedInteger(..) |
+                    Inline::Number(..) => None,
+                }
+            };
+        }
+
+        variants!(
+            AudioObject,
+            Button,
+            Cite,
+            CiteGroup,
+            CodeExpression,
+            CodeInline,
+            Date,
+            DateTime,
+            DeleteInline,
+            Duration,
+            Emphasis,
+            ImageObject,
+            InsertInline,
+            InstructionInline,
+            Link,
+            MathInline,
+            MediaObject,
+            ModifyInline,
+            Note,
+            Parameter,
+            QuoteInline,
+            ReplaceInline,
+            Strikeout,
+            Strong,
+            StyledInline,
+            Subscript,
+            Superscript,
+            Text,
+            Time,
+            Timestamp,
+            Underline,
+            VideoObject
+        )
+    }
+}
+
 impl ReadNode for Inline {
     fn load_null() -> Result<Self> {
         Ok(Inline::Null(Null {}))

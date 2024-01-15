@@ -1724,6 +1724,7 @@ dependencies = [
  "common-dev",
  "format",
  "json-patch",
+ "node-map",
  "node-store",
  "notify",
  "schema",
@@ -3322,6 +3323,14 @@ name = "node-id"
 version = "0.0.0"
 dependencies = [
  "common",
+]
+
+[[package]]
+name = "node-map"
+version = "0.0.0"
+dependencies = [
+ "common",
+ "schema",
 ]
 
 [[package]]

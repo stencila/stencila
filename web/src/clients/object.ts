@@ -1,8 +1,30 @@
+import { Node } from '@stencila/types'
 import { diffApply, jsonPatchPathConverter } from 'just-diff-apply'
 
-import { type DocumentId } from '../types'
+import { NodeId, type DocumentId } from '../types'
 
 import { Client } from './client'
+
+/**
+ * A representation of a Stencila Schema node as a JavaScript object
+ *
+ * This state is synced with state of the node on the Stencila server
+ * through `ObjectPatch`s sent by the server.
+ */
+interface ObjectState {
+  /**
+   * The root node which the object represents
+   */
+  node: object
+
+  /**
+   * A map between node ids and paths within the root node
+   *
+   * This map allows us to retrieve a child node from the root node
+   * using its node id.
+   */
+  map: Record<NodeId, (string | number)[]>
+}
 
 /**
  * A patch to apply to a JavaScript object representing a document
@@ -11,7 +33,7 @@ import { Client } from './client'
  * number to be able to detect lost patches and request a reset patch
  * if necessary.
  *
- * A reset patch had a single 'replace' operation and the root path ('/')
+ * A reset patch had a single 'replace' operation and the root path ('')
  * specified.
  */
 export interface ObjectPatch {
@@ -56,9 +78,9 @@ export interface ObjectOperation {
  */
 export class ObjectClient extends Client {
   /**
-   * The JavaScript object representing the state of the document
+   * The state of the document represented as a JavaScript object and mapping
    */
-  protected state: object = {}
+  protected state: ObjectState = { node: {}, map: {} }
 
   /**
    * The local version of the object
@@ -101,7 +123,7 @@ export class ObjectClient extends Client {
 
     if (isReset) {
       // Apply the new value
-      this.state = patch.ops[0].value as object
+      this.state = patch.ops[0].value as ObjectState
     } else {
       // Check for non-sequential patch and request a reset patch if necessary
       if (version != this.version + 1) {
@@ -138,5 +160,26 @@ export class ObjectClient extends Client {
    */
   public subscribe(subscriber: (patch: ObjectPatch, object: object) => void) {
     this.subscriber = subscriber
+  }
+
+  /**
+   * Get a node from within the object using its node id
+   */
+  public getNode(nodeId: NodeId): Node {
+    const path = this.state.map[nodeId]
+
+    if (path === undefined) {
+      throw new Error(`No node with id ${nodeId}`)
+    }
+
+    let node = this.state.node
+    for (const segment of path) {
+      node = node[segment]
+      if (node === undefined) {
+        throw new Error(`Invalid path for node ${nodeId}`)
+      }
+    }
+
+    return node as Node
   }
 }
