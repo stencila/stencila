@@ -54,10 +54,14 @@ fn derive_struct(type_attr: TypeAttr) -> TokenStream {
         if !field.attrs.is_empty() {
             let field_name = field.ident;
             fields.extend(quote! {
+                visitor.enter_property(stringify!(#field_name));
                 self.#field_name.walk(visitor);
+                visitor.exit_property();
             });
             fields_mut.extend(quote! {
+                visitor.enter_property(stringify!(#field_name));
                 self.#field_name.walk_mut(visitor);
+                visitor.exit_property();
             })
         }
     });

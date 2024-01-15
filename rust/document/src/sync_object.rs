@@ -1,6 +1,9 @@
-use std::sync::{
-    atomic::{AtomicU32, Ordering},
-    Arc,
+use std::{
+    collections::HashMap,
+    sync::{
+        atomic::{AtomicU32, Ordering},
+        Arc,
+    },
 };
 
 use json_patch::{PatchOperation, ReplaceOperation};
@@ -18,8 +21,24 @@ use common::{
     },
     tracing,
 };
+use node_map::{node_map, NodePath};
+use schema::{Node, NodeId};
 
 use crate::Document;
+
+/// The state of a Stencila Schema node including a map of node ids to paths
+///
+/// This struct simply exists to provide a single serializable entity that
+/// can be diffed to create patches for both the node and its map.
+#[derive(Serialize)]
+#[serde(crate = "common::serde")]
+struct ObjectState {
+    /// The root node which the object represents
+    node: Node,
+
+    /// A map between node ids and paths within the root node
+    map: HashMap<NodeId, NodePath>,
+}
 
 /// A patch to apply to a JSON object representing the document
 ///
@@ -73,7 +92,8 @@ impl Document {
 
         // Get the node and its JSON value
         let node = self.load().await?;
-        let value = serde_json::to_value(&node)?;
+        let map = node_map(&node);
+        let value = serde_json::to_value(&ObjectState { node, map })?;
 
         // Create current state mutex and initialize the version
         let current = Arc::new(Mutex::new(value.clone()));
@@ -114,8 +134,9 @@ impl Document {
                 tracing::trace!("Root node changed, updating JSON object");
 
                 // Get the new version of the node and its JSON serialization
-                let new = node_receiver.borrow_and_update().clone();
-                let new = match serde_json::to_value(&new) {
+                let node = node_receiver.borrow_and_update().clone();
+                let map = node_map(&node);
+                let new = match serde_json::to_value(&ObjectState { node, map }) {
                     Ok(new) => new,
                     Err(error) => {
                         tracing::error!("While serializing node: {error}");

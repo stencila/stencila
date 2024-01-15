@@ -27,6 +27,7 @@ import {
   keymap,
   lineNumbers,
 } from '@codemirror/view'
+import { Node } from '@stencila/types'
 import { css as twCSS } from '@twind/core'
 import { html } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
@@ -317,6 +318,37 @@ export class SourceView extends TWLitElement {
         )
       )
     }
+  }
+
+  /**
+   * Get the Stencila Schema node, and property name (if any), corresponding to a character position
+   *
+   * @param position The character position. Defaults to the current cursor position.
+   */
+  public getNodeAt(position?: number): { node: Node; property?: string } {
+    position = position ?? this.codeMirrorView.state.selection.main.from
+
+    const { nodeId, property } = this.codeMirrorClient.nodeAt(position)
+    const node = this.objectClient.getNode(nodeId)
+
+    return {
+      node,
+      property,
+    }
+  }
+
+  /**
+   * Get the hierarchy of Stencila Schema nodes corresponding to a character position
+   *
+   * @param position The character position. Defaults to the current cursor position.
+   */
+  public getNodesAt(position?: number): Node[] {
+    position = position ?? this.codeMirrorView.state.selection.main.from
+
+    const nodeIds = this.codeMirrorClient.nodesAt(position)
+    const nodes = nodeIds.map((nodeId) => this.objectClient.getNode(nodeId))
+
+    return nodes
   }
 
   /**
