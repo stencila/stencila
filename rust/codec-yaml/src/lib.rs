@@ -2,12 +2,12 @@ use codec::{
     common::{
         async_trait::async_trait,
         eyre::Result,
-        serde_yaml::{Mapping, Value},
+        serde_yaml::{self, Value},
     },
     format::Format,
     schema::{Node, NodeType},
     status::Status,
-    Codec, CodecSupport, DecodeOptions, EncodeOptions, Losses,
+    Codec, CodecSupport, DecodeOptions, EncodeOptions, Losses, Mapping,
 };
 
 pub mod r#trait;
@@ -61,11 +61,11 @@ impl Codec for YamlCodec {
         &self,
         node: &Node,
         options: Option<EncodeOptions>,
-    ) -> Result<(String, Losses)> {
+    ) -> Result<(String, Losses, Mapping)> {
         let EncodeOptions { standalone, .. } = options.unwrap_or_default();
 
         if !standalone.unwrap_or_default() {
-            return Ok((node.to_yaml()?, Losses::none()));
+            return Ok((node.to_yaml()?, Losses::none(), Mapping::none()));
         }
 
         let value = node.to_yaml_value()?;
@@ -78,7 +78,7 @@ impl Codec for YamlCodec {
             let object = value.as_mapping().expect("checked above").to_owned();
 
             // Insert the `$schema` and `@context` at the top of the root
-            let mut root = Mapping::with_capacity(object.len() + 1);
+            let mut root = serde_yaml::Mapping::with_capacity(object.len() + 1);
             root.insert(
                 Value::String(String::from("$schema")),
                 Value::String(format!("https://stencila.org/{type}.schema.json")),
@@ -96,6 +96,6 @@ impl Codec for YamlCodec {
             value
         };
 
-        Ok((value.to_yaml()?, Losses::none()))
+        Ok((value.to_yaml()?, Losses::none(), Mapping::none()))
     }
 }

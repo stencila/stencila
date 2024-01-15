@@ -11,6 +11,7 @@ proptest-max = ["schema/proptest-max"]
 
 [dependencies]
 codec-losses = { path = "../codec-losses" }
+codec-mapping = { path = "../codec-mapping" }
 node-strip = { path = "../node-strip" }
 common = { path = "../common" }
 format = { path = "../format" }

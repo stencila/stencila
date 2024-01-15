@@ -12,7 +12,7 @@ async fn standalone() -> Result<()> {
 
     let doc1 = art([p([t("Hello world")])]);
 
-    let (yaml, _) = codec
+    let (yaml, ..) = codec
         .to_string(
             &doc1,
             Some(EncodeOptions {

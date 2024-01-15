@@ -96,6 +96,7 @@ fn derive_struct(type_attr: TypeAttr) -> TokenStream {
             };
             if field_name == "r#type"
                 || field_name == "uid"
+                || field_name == "options" // Ignore options!
                 || included.contains(&field_name.to_string().as_str())
             {
                 return;

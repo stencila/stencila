@@ -1,7 +1,7 @@
 //! Provides the `MarkdownCodec` trait for generating Markdown for Stencila Schema nodes
 
 use codec_losses::Losses;
-use codec_mapping::{Mapping, MappingEntry, NodeId, NodeType};
+use codec_mapping::{Mapping, NodeId, NodeType};
 
 pub use codec_markdown_derive::MarkdownCodec;
 use common::smol_str::SmolStr;
@@ -55,8 +55,7 @@ impl MarkdownEncodeContext {
     pub fn exit_node(&mut self) -> &mut Self {
         if let Some((node_type, node_id, start)) = self.node_stack.pop() {
             let end = self.content.len();
-            self.mapping
-                .push(MappingEntry::new(start..end, node_type, node_id, None))
+            self.mapping.add(start, end, node_type, node_id, None)
         }
         self
     }
@@ -134,12 +133,13 @@ impl MarkdownEncodeContext {
 
         if let Some((node_type, node_id, ..)) = self.node_stack.last() {
             let end = self.content.len();
-            self.mapping.push(MappingEntry::new(
-                start..end,
+            self.mapping.add(
+                start,
+                end,
                 *node_type,
                 node_id.clone(),
                 Some(SmolStr::from(prop)),
-            ));
+            );
         }
         self
     }
@@ -157,12 +157,13 @@ impl MarkdownEncodeContext {
 
         if let Some((node_type, node_id, ..)) = self.node_stack.last() {
             let end = self.content.len();
-            self.mapping.push(MappingEntry::new(
-                start..end,
+            self.mapping.add(
+                start,
+                end,
                 *node_type,
                 node_id.clone(),
                 Some(SmolStr::from(prop)),
-            ));
+            );
         }
         self
     }
@@ -171,11 +172,14 @@ impl MarkdownEncodeContext {
     pub fn append_footnotes(&mut self) {
         for footnote in self.footnotes.drain(..) {
             let offset = self.content.len();
-            for entry in footnote.mapping.iter() {
-                self.mapping.push(MappingEntry {
-                    range: (offset + entry.range.start)..(offset + entry.range.end),
-                    ..entry.clone()
-                });
+            for entry in footnote.mapping.entries() {
+                self.mapping.add(
+                    offset + entry.range.start,
+                    offset + entry.range.end,
+                    entry.node_type,
+                    entry.node_id.clone(),
+                    entry.property.clone(),
+                );
             }
             self.content.push_str(&footnote.content);
         }
