@@ -23,7 +23,7 @@ impl MarkdownCodec for StyledBlock {
         }
 
         context
-            .push_str("{")
+            .push_str(" {")
             .push_prop_str("code", &self.code)
             .push_str("}\n\n")
             .increase_depth()
