@@ -253,6 +253,7 @@ dependencies = [
 name = "assistant-specialized"
 version = "0.1.0"
 dependencies = [
+ "app",
  "assistant",
  "assistant-anthropic",
  "assistant-google",

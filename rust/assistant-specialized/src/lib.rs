@@ -5,7 +5,7 @@
 //! assistants build on top of lower level, more generalized assistants
 //! in other crates and prompts defined in the top level `prompts` module.
 
-use std::sync::Arc;
+use std::{fs::read_to_string, sync::Arc};
 
 #[cfg(not(debug_assertions))]
 use cached::proc_macro::once;
@@ -13,11 +13,13 @@ use cached::proc_macro::once;
 use minijinja::{Environment, UndefinedBehavior};
 use rust_embed::RustEmbed;
 
+use app::config_dir;
 use assistant::{
     codecs::{self, EncodeOptions, Format, LossesResponse},
     common::{
         async_trait::async_trait,
         eyre::{bail, eyre, Result},
+        glob::glob,
         inflector::Inflector,
         itertools::Itertools,
         once_cell::sync::Lazy,
@@ -597,16 +599,18 @@ impl Assistant for SpecializedAssistant {
 #[folder = "$CARGO_MANIFEST_DIR/../../assistants/builtin"]
 struct Builtin;
 
-/// Get a list of all available custom assistants
+/// Get a list of all available specialized assistants
 ///
 /// Memoized in production for performance (i.e not parsing files or creating
 /// embeddings), but not in debug (so that custom assistants can be reloaded from disk).
 #[cfg_attr(not(debug_assertions), once(result = true))]
 pub fn list() -> Result<Vec<Arc<dyn Assistant>>> {
-    list_builtin()
+    let mut list = list_builtin()?;
+    list.append(&mut list_local()?);
+    Ok(list)
 }
 
-/// Get a list of all builtin assistants
+/// Get a list of all builtin specialized assistants
 fn list_builtin() -> Result<Vec<Arc<dyn Assistant>>> {
     let mut assistants = vec![];
 
@@ -617,6 +621,36 @@ fn list_builtin() -> Result<Vec<Arc<dyn Assistant>>> {
         let content = String::from_utf8_lossy(&content);
         let assistant = SpecializedAssistant::parse(&id, &content)
             .map_err(|error| eyre!("While parsing `{name}`: {error}"))?;
+        assistants.push(Arc::new(assistant) as Arc<dyn Assistant>)
+    }
+
+    Ok(assistants)
+}
+
+/// Get a list of all local specialized assistants
+fn list_local() -> Result<Vec<Arc<dyn Assistant>>> {
+    let mut assistants = vec![];
+
+    let dir = config_dir(false)?.join("assistants").join("local");
+
+    if !dir.exists() {
+        return Ok(assistants);
+    }
+
+    tracing::debug!("Reading assistants from `{}`", dir.display());
+
+    for path in glob(&dir.join("*.md").to_string_lossy())?.flatten() {
+        let Some(name) = path
+            .file_name()
+            .map(|name| name.to_string_lossy()) else {
+                continue
+            };
+        let id = format!("local/{}", name.strip_suffix(".md").unwrap_or(&name));
+
+        let content = read_to_string(&path)?;
+
+        let assistant = SpecializedAssistant::parse(&id, &content)
+            .map_err(|error| eyre!("While parsing `{}`: {error}", path.display()))?;
         assistants.push(Arc::new(assistant) as Arc<dyn Assistant>)
     }
 
