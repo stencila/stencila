@@ -34,6 +34,7 @@ import { customElement, property } from 'lit/decorators.js'
 
 import { CodeMirrorClient } from '../clients/codemirror'
 import { ObjectClient } from '../clients/object'
+import { tooltipOnHover, autoWrapKeys } from '../codemirror'
 import { markdownHighlightStyle } from '../languages/markdown'
 import type { DocumentId, DocumentAccess } from '../types'
 import { TWLitElement } from '../ui/twind'
@@ -245,6 +246,7 @@ export class SourceView extends TWLitElement {
       ...searchKeymap,
       { key: 'Ctrl-Space', run: startCompletion },
       { key: 'Ctrl-Enter', run: (view) => this.executeSelection(view) },
+      ...autoWrapKeys,
     ])
 
     const syntaxHighlights =
@@ -269,6 +271,7 @@ export class SourceView extends TWLitElement {
       syntaxHighlighting(syntaxHighlights, { fallback: true }),
       bracketMatching(),
       autocompletion(),
+      tooltipOnHover(this),
     ]
   }
 
