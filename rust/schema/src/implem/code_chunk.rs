@@ -65,12 +65,12 @@ impl MarkdownCodec for CodeChunk {
             context.push_str("\n");
         }
 
-        context.push_str("```\n\n");
+        context.push_str("```\n");
 
         if wrapped {
-            context.push_str(&fence).push_str("\n\n");
+            context.push_str("\n").push_str(&fence).push_str("\n");
         }
 
-        context.exit_node();
+        context.exit_node().push_str("\n");
     }
 }
