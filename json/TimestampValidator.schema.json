@@ -8,6 +8,9 @@
   ],
   "category": "data",
   "description": "A validator specifying the constraints on a timestamp.",
+  "markdown": {
+    "derive": false
+  },
   "required": [
     "type"
   ],

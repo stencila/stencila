@@ -3,6 +3,8 @@ title: ArrayValidator
 extends: Entity
 category: data
 description: A validator specifying constraints on an array node.
+markdown:
+  derive: false
 core:
   - itemsNullable
   - itemsValidator
