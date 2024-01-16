@@ -3,6 +3,8 @@ title: TimestampValidator
 extends: Entity
 category: data
 description: A validator specifying the constraints on a timestamp.
+markdown:
+  derive: false
 core:
   - timeUnits
   - minimum

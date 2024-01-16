@@ -3,6 +3,8 @@ title: DateValidator
 extends: Entity
 category: data
 description: A validator specifying the constraints on a date.
+markdown:
+  derive: false
 core:
   - minimum
   - maximum

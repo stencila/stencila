@@ -61,3 +61,4 @@ mod table;
 mod text;
 mod time;
 mod timestamp;
+mod validators;

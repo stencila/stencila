@@ -1,8 +1,11 @@
 use codec_html_trait::encode::{attr, elem};
 
+use codec_losses::{lost_exec_options, lost_options};
 use common::inflector::Inflector;
 
-use crate::{prelude::*, Parameter};
+use crate::{prelude::*, Parameter, Validator};
+
+use super::validators::node_to_md;
 
 impl Parameter {
     pub fn to_html_special(&self, _context: &mut HtmlEncodeContext) -> String {
@@ -28,192 +31,62 @@ impl Parameter {
 }
 
 impl MarkdownCodec for Parameter {
-    fn to_markdown(&self, _context: &mut MarkdownEncodeContext) {
-        /*
-        let mut md = ["&[", &self.name, "]"].concat();
-        let mut losses = Losses::none();
+    fn to_markdown(&self, context: &mut MarkdownEncodeContext) {
+        context
+            .enter_node(self.node_type(), self.node_id())
+            .merge_losses(lost_options!(self, id))
+            .merge_losses(lost_exec_options!(self))
+            .push_str("&[")
+            .push_prop_str("name", &self.name)
+            .push_str("]");
 
-        /// Convert a node to a string
-        ///
-        /// Uses `to_json5` except for strings containing double
-        /// quotes for which JSON5 can not be used because it uses backslash
-        /// escapes which are also used by Markdown.
-        fn node_to_md(node: &Node) -> String {
-            match node {
-                Node::String(node) => string_to_md(node),
-                _ => node.to_json5().unwrap_or_default(),
-            }
-        }
-        fn string_to_md(string: &str) -> String {
-            if string.contains('"') {
-                ["'", string, "'"].concat()
-            } else {
-                ["\"", string, "\""].concat()
-            }
+        // Return early if no attributes to add
+        if self.value.is_none()
+            && self.options.default.is_none()
+            && self.options.validator.is_none()
+        {
+            context.exit_node();
+            return;
         }
 
-        let attr_value = |attrs: &mut String| {
-            if let Some(val) = &self.value {
-                attrs.push_str(" val=");
-                attrs.push_str(&node_to_md(val));
-            }
-        };
+        context.push_str("{");
 
-        let attr_default = |attrs: &mut String| {
-            if let Some(def) = &self.default {
-                attrs.push_str(" def=");
-                attrs.push_str(&node_to_md(def));
-            }
-        };
-
-        // A macro for date/time validators
-        macro_rules! attrs_min_max {
-            ($name:expr, $validator:expr) => {{
-                let mut attrs = $name.to_string();
-                attr_value(&mut attrs);
-                attr_default(&mut attrs);
-
-                if let Some(min) = $validator.minimum.as_ref().map(|min| &min.value) {
-                    attrs.push_str(" min=");
-                    attrs.push_str(&min.to_json5().unwrap_or_default());
-                }
-
-                if let Some(max) = $validator.maximum.as_ref().map(|max| &max.value) {
-                    attrs.push_str(" max=");
-                    attrs.push_str(&max.to_json5().unwrap_or_default());
-                }
-
-                attrs
-            }};
-        }
-
-        if let Some(validator) = &self.validator {
-            let attrs = match validator {
-                Validator::BooleanValidator(..) => {
-                    let mut attrs = "bool".to_string();
-
-                    attr_value(&mut attrs);
-                    attr_default(&mut attrs);
-
-                    attrs
-                }
-
-                Validator::IntegerValidator(IntegerValidator {
-                    minimum,
-                    exclusive_minimum,
-                    maximum,
-                    exclusive_maximum,
-                    multiple_of,
-                    ..
-                })
-                | Validator::NumberValidator(NumberValidator {
-                    minimum,
-                    exclusive_minimum,
-                    maximum,
-                    exclusive_maximum,
-                    multiple_of,
-                    ..
-                }) => {
-                    let mut attrs = match validator {
-                        Validator::IntegerValidator(..) => "int",
-                        Validator::NumberValidator(..) => "num",
-                        _ => unreachable!(),
-                    }
-                    .to_string();
-
-                    attr_value(&mut attrs);
-                    attr_default(&mut attrs);
-
-                    if let Some(min) = &minimum {
-                        attrs.push_str(" min=");
-                        attrs.push_str(&min.to_string());
-                    }
-
-                    if let Some(emin) = &exclusive_minimum {
-                        attrs.push_str(" emin=");
-                        attrs.push_str(&emin.to_string());
-                    }
-
-                    if let Some(max) = &maximum {
-                        attrs.push_str(" max=");
-                        attrs.push_str(&max.to_string());
-                    }
-
-                    if let Some(emax) = &exclusive_maximum {
-                        attrs.push_str(" emax=");
-                        attrs.push_str(&emax.to_string());
-                    }
-
-                    if let Some(mult) = &multiple_of {
-                        attrs.push_str(" mult=");
-                        attrs.push_str(&mult.to_string());
-                    }
-
-                    attrs
-                }
-
-                Validator::StringValidator(validator) => {
-                    let mut attrs = "str".to_string();
-
-                    attr_value(&mut attrs);
-                    attr_default(&mut attrs);
-
-                    if let Some(min) = &validator.min_length {
-                        attrs.push_str(" min=");
-                        attrs.push_str(&min.to_string());
-                    }
-
-                    if let Some(max) = &validator.max_length {
-                        attrs.push_str(" max=");
-                        attrs.push_str(&max.to_string());
-                    }
-
-                    if let Some(pattern) = &validator.pattern {
-                        attrs.push_str(" pattern=");
-                        attrs.push_str(&string_to_md(pattern));
-                    }
-
-                    attrs
-                }
-
-                Validator::DateValidator(validator) => {
-                    attrs_min_max!("date", validator)
-                }
-                Validator::TimeValidator(validator) => {
-                    attrs_min_max!("time", validator)
-                }
-                Validator::DateTimeValidator(validator) => {
-                    attrs_min_max!("datetime", validator)
-                }
-
-                Validator::EnumValidator(validator) => {
-                    let mut attrs = "enum".to_string();
-
-                    attr_value(&mut attrs);
-                    attr_default(&mut attrs);
-
-                    attrs.push_str(" vals=");
-                    attrs.push_str(&validator.values.to_json5().unwrap_or_default());
-
-                    attrs
-                }
-
-                _ => {
-                    // TODO: Implement encoding for other validators
-                    losses.add("Parameter.validator");
-
-                    String::new()
-                }
+        if let Some(validator) = &self.options.validator {
+            use Validator::*;
+            let name = match validator {
+                ArrayValidator(..) => "array",
+                BooleanValidator(..) => "bool",
+                ConstantValidator(..) => "const",
+                DateTimeValidator(..) => "datetime",
+                DateValidator(..) => "date",
+                DurationValidator(..) => "duration",
+                EnumValidator(..) => "enum",
+                IntegerValidator(..) => "int",
+                NumberValidator(..) => "num",
+                StringValidator(..) => "str",
+                TimestampValidator(..) => "timestamp",
+                TimeValidator(..) => "time",
+                TupleValidator(..) => "tuple",
             };
-
-            md.push('{');
-            md.push_str(&attrs);
-            md.push('}');
+            context.push_prop_str("validator", name);
         }
 
-        // TODO other losses for executable nodes
+        if let Some(val) = &self.value {
+            context
+                .push_str(" val=")
+                .push_prop_str("value", &node_to_md(val));
+        }
 
-        (md, losses)
-        */
+        if let Some(val) = &self.options.default {
+            context
+                .push_str(" def=")
+                .push_prop_str("default", &node_to_md(val));
+        }
+
+        if let Some(validator) = &self.options.validator {
+            context.push_prop_fn("validator", |context| validator.to_markdown(context));
+        }
+
+        context.push_str("}").exit_node();
     }
 }
