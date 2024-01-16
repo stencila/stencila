@@ -116,6 +116,30 @@ pub async fn perform_instruction<'doc: 'async_recursion>(
         ..Default::default()
     };
 
+    let assistant = match get_assistant(&mut task).await {
+        Err(error) => {
+            tracing::warn!("While getting assistant: {}", error);
+            return Err(error);
+        }
+        Ok(assistant) => assistant,
+    };
+
+    // Perform the task
+    let mut output = match assistant.perform_task(&task, options).await {
+        Err(error) => {
+            tracing::warn!("While performing task: {}", error);
+            return Err(error);
+        }
+        Ok(output) => output,
+    };
+
+    // Recursively perform any instructions within the output nodes
+    perform_instructions(&mut output.nodes, document, options).await?;
+
+    Ok(output)
+}
+
+async fn get_assistant<'doc>(mut task: &mut GenerateTask<'doc>) -> Result<Arc<dyn Assistant>> {
     let assistants = list().await;
 
     let assistant = if let Some(assignee) = task.instruction.assignee() {
@@ -162,13 +186,7 @@ pub async fn perform_instruction<'doc: 'async_recursion>(
             .ok_or_else(|| eyre!("Best assistant not in list of assistants!?"))?
     };
 
-    // Perform the task
-    let mut output = assistant.perform_task(&task, options).await?;
-
-    // Recursively perform any instructions within the output nodes
-    perform_instructions(&mut output.nodes, document, options).await?;
-
-    Ok(output)
+    Ok(assistant.clone())
 }
 
 /// A node visitor which collects instructions
@@ -226,6 +244,7 @@ impl VisitorMut for ResultApplier {
                         instruction.options.execution_status = Some(ExecutionStatus::Succeeded);
                     }
                     Err(error) => {
+                        tracing::error!("Instruction failed: {}", error.to_string());
                         instruction.options.execution_status = Some(ExecutionStatus::Failed);
                         instruction.options.execution_errors =
                             Some(vec![ExecutionError::new(error.to_string())]);
