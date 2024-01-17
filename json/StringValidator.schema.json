@@ -9,6 +9,9 @@
   "category": "data",
   "description": "A schema specifying constraints on a string node.",
   "$comment": "A node will be valid against the schema if it is a string that\nmeets the schemas `minLength`, `maxLength` and `pattern` properties.\nAnalogous to the JSON Schema `string` validation [type](https://json-schema.org/draft/2019-09/json-schema-validation.html#rfc.section.6.1.1).\n",
+  "markdown": {
+    "derive": false
+  },
   "required": [
     "type"
   ],

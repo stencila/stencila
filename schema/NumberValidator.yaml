@@ -8,6 +8,8 @@ $comment: |
   Analogous to the JSON Schema `number` validation [type](https://json-schema.org/draft/2019-09/json-schema-validation.html#rfc.section.6.1.1).
   Note that the `IntegerValidator` type extends this validator with the additional
   constraint that the number have no fractional part.
+markdown:
+  derive: false
 core:
   - minimum
   - exclusiveMinimum

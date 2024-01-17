@@ -3,6 +3,8 @@ title: TupleValidator
 extends: Entity
 category: data
 description: A validator specifying constraints on an array of heterogeneous items.
+markdown:
+  derive: false
 core:
   - items
 properties:

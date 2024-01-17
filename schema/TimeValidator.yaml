@@ -3,6 +3,8 @@ title: TimeValidator
 extends: Entity
 category: data
 description: A validator specifying the constraints on a time.
+markdown:
+  derive: false
 core:
   - minimum
   - maximum

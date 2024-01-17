@@ -8,6 +8,9 @@
   ],
   "category": "data",
   "description": "A validator specifying constraints on an array of heterogeneous items.",
+  "markdown": {
+    "derive": false
+  },
   "required": [
     "type"
   ],
