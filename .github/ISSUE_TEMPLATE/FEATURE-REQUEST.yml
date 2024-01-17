@@ -1,6 +1,6 @@
 name: "💡 Feature"
 description: Document a new feature
-title: "💡 [FEATURE] - <title>"
+title: "feat(<context>): <title>"
 labels:
   - "question"
   - "needs triaging"

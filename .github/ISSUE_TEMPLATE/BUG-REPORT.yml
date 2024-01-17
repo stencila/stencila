@@ -1,6 +1,6 @@
 name: "🐛 Bug Report"
 description: File a new bug/issue
-title: "🐛 [BUG] <title>"
+title: "bug(<context>): <title>"
 labels:
   - "type: bug"
   - "needs triaging"
