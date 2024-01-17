@@ -8,8 +8,10 @@ impl MarkdownCodec for QuoteBlock {
             .enter_node(self.node_type(), self.node_id())
             .merge_losses(lost_options!(self, id, cite))
             .push_line_prefix("> ")
+            .prefix_empty_lines(true)
             .push_prop_fn("content", |context| self.content.to_markdown(context))
             .pop_line_prefix()
+            .trim_end_matches(|char| char == '\n' || char == ' ' || char == '>')
             .push_str("\n")
             .exit_node()
             .push_str("\n");
