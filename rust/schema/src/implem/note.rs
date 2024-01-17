@@ -17,7 +17,7 @@ impl MarkdownCodec for Note {
         footnote_context.push_str("[^");
         footnote_context.push_str(&index.to_string());
         footnote_context.push_str("]: ");
-        footnote_context.push_line_prefix("  ");
+        footnote_context.push_line_prefix("    ");
         self.content.to_markdown(&mut footnote_context);
         footnote_context.exit_node();
         context.footnotes.push(footnote_context);
