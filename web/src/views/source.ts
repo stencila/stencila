@@ -34,7 +34,7 @@ import { customElement, property } from 'lit/decorators.js'
 
 import { CodeMirrorClient } from '../clients/codemirror'
 import { ObjectClient } from '../clients/object'
-import { tooltipOnHover, autoWrapKeys } from '../codemirror'
+import { tooltipOnHover, autoWrapKeys, bottomPanel } from '../codemirror'
 import { markdownHighlightStyle } from '../languages/markdown'
 import type { DocumentId, DocumentAccess } from '../types'
 import { TWLitElement } from '../ui/twind'
@@ -272,6 +272,7 @@ export class SourceView extends TWLitElement {
       bracketMatching(),
       autocompletion(),
       tooltipOnHover(this),
+      bottomPanel(this),
     ]
   }
 
