@@ -13,7 +13,7 @@ use cached::proc_macro::once;
 use minijinja::{Environment, UndefinedBehavior};
 use rust_embed::RustEmbed;
 
-use app::config_dir;
+use app::{get_app_dir, DirType};
 use assistant::{
     codecs::{self, EncodeOptions, Format, LossesResponse},
     common::{
@@ -631,13 +631,16 @@ fn list_builtin() -> Result<Vec<Arc<dyn Assistant>>> {
 fn list_local() -> Result<Vec<Arc<dyn Assistant>>> {
     let mut assistants = vec![];
 
-    let dir = config_dir(false)?.join("assistants").join("local");
+    let dir = get_app_dir(DirType::Assistants, false)?;
+
+    tracing::debug!(
+        "Attempting to reading assistants from `{}` (if it exists)",
+        dir.display()
+    );
 
     if !dir.exists() {
         return Ok(assistants);
     }
-
-    tracing::debug!("Reading assistants from `{}`", dir.display());
 
     for path in glob(&dir.join("*.md").to_string_lossy())?.flatten() {
         let Some(name) = path

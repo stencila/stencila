@@ -34,6 +34,7 @@ use schema::{
 };
 
 // Export crates for the convenience of dependant crates
+use app::DirType;
 pub use codecs;
 pub use common;
 pub use format;
@@ -315,7 +316,7 @@ impl<'doc> GenerateTask<'doc> {
                 // This model was chosen good performance for a small size.
                 // For benchmarks see https://huggingface.co/spaces/mteb/leaderboard
                 model_name: EmbeddingModel::BGESmallENV15,
-                cache_dir: app::cache_dir(true)
+                cache_dir: app::get_app_dir(DirType::Cache, true)
                     .unwrap_or_else(|_| PathBuf::from("."))
                     .join("models")
                     .join("bge-small-en-v1.5"),
