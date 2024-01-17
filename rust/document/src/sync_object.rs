@@ -210,8 +210,9 @@ mod tests {
             .await?;
         let patch = out_receiver.recv().await.unwrap();
         assert_eq!(patch.version, 2);
-        if let PatchOperation::Add(AddOperation { path, .. }) = &patch.ops[0] {
-            assert_eq!(path, "/content/0");
+        // 2 map additions before
+        if let PatchOperation::Add(AddOperation { path, .. }) = &patch.ops[2] {
+            assert_eq!(path, "/node/content/0");
         } else {
             bail!("unexpected patch operation {patch:?}")
         }
@@ -221,7 +222,7 @@ mod tests {
         let patch = out_receiver.recv().await.unwrap();
         assert_eq!(patch.version, 3);
         if let PatchOperation::Replace(ReplaceOperation { path, .. }) = &patch.ops[0] {
-            assert_eq!(path, "/content/0/content/0/value");
+            assert_eq!(path, "/node/content/0/content/0/value");
         } else {
             bail!("unexpected patch operation {patch:?}")
         }
@@ -230,8 +231,9 @@ mod tests {
         document.update_sender.send(art([p([])])).await?;
         let patch = out_receiver.recv().await.unwrap();
         assert_eq!(patch.version, 4);
-        if let PatchOperation::Remove(RemoveOperation { path, .. }) = &patch.ops[0] {
-            assert_eq!(path, "/content/0/content/0");
+        // 1 map removal before
+        if let PatchOperation::Remove(RemoveOperation { path, .. }) = &patch.ops[1] {
+            assert_eq!(path, "/node/content/0/content/0");
         } else {
             bail!("unexpected patch operation {patch:?}")
         }
