@@ -21,7 +21,7 @@ impl MarkdownCodec for InstructionBlock {
         {
             context
                 .push_prop_fn("message", |context| part.to_markdown(context))
-                .push_str("\n");
+                .newline();
         }
 
         if let Some(content) = &self.content {
@@ -31,7 +31,7 @@ impl MarkdownCodec for InstructionBlock {
                 .push_str("%%\n");
         };
 
-        context.push_str("\n");
+        context.newline();
 
         if let Some(suggestion) = &self.options.suggestion {
             context.push_prop_fn("suggestion", |context| suggestion.to_markdown(context));

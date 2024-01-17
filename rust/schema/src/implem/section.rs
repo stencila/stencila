@@ -43,8 +43,8 @@ impl MarkdownCodec for Section {
             .push_prop_fn("content", |context| self.content.to_markdown(context))
             .decrease_depth()
             .push_str(&fence)
-            .push_str("\n")
+            .newline()
             .exit_node()
-            .push_str("\n");
+            .newline();
     }
 }

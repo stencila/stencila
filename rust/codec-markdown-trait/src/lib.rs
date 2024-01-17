@@ -111,11 +111,11 @@ impl MarkdownEncodeContext {
             let prefix = self.line_prefix.join("");
 
             // If at start of content or last char is a newline add line prefix
-            if matches!(self.content.chars().last(), None | Some('\n')) {
-                if (value.starts_with("\n") && self.prefix_empty_lines) || !value.starts_with("\n")
-                {
-                    self.content.push_str(&prefix);
-                }
+            if matches!(self.content.chars().last(), None | Some('\n'))
+                && ((value.starts_with('\n') && self.prefix_empty_lines)
+                    || !value.starts_with('\n'))
+            {
+                self.content.push_str(&prefix);
             }
 
             // If content contains inner empty lines then ensure those are prefixed too
@@ -180,6 +180,12 @@ impl MarkdownEncodeContext {
                 Some(SmolStr::from(prop)),
             );
         }
+        self
+    }
+
+    /// A a single newline to the end of the content
+    pub fn newline(&mut self) -> &mut Self {
+        self.content.push('\n');
         self
     }
 
