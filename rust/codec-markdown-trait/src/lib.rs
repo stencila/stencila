@@ -110,8 +110,8 @@ impl MarkdownEncodeContext {
         let value = if !self.line_prefix.is_empty() {
             let prefix = self.line_prefix.join("");
 
-            // If last char is a newline add line prefix
-            if let Some('\n') = self.content.chars().last() {
+            // If at start of content or last char is a newline add line prefix
+            if matches!(self.content.chars().last(), None | Some('\n')) {
                 if (value.starts_with("\n") && self.prefix_empty_lines) || !value.starts_with("\n")
                 {
                     self.content.push_str(&prefix);
@@ -183,12 +183,22 @@ impl MarkdownEncodeContext {
         self
     }
 
-    /// Trim the content in-place
+    /// Trim whitespace from the end of the content in-place
     ///
     /// According to [this](https://users.rust-lang.org/t/trim-string-in-place/15809/18)
-    /// this is the recommended way to trim in place. 
+    /// this is the recommended way to trim in place.
     pub fn trim_end(&mut self) -> &mut Self {
         let trimmed = self.content.trim_end();
+        self.content.truncate(trimmed.len());
+        self
+    }
+
+    /// Trim the end matches of the content in-place
+    pub fn trim_end_matches<F>(&mut self, func: F) -> &mut Self
+    where
+        F: Fn(char) -> bool,
+    {
+        let trimmed = self.content.trim_end_matches(func);
         self.content.truncate(trimmed.len());
         self
     }
