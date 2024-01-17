@@ -1,0 +1,72 @@
+name: "🐛 Bug Report"
+description: File a new bug/issue
+title: "🐛 [BUG] <title>"
+labels:
+  - "type: bug"
+  - "needs triaging"
+projects:
+  - stencila/8
+assignees:
+  - simonwinter
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to fill out this bug report!
+  - type: checkboxes
+    attributes:
+      label: Is there an existing issue for this?
+      description: Please search to see if an issue already exists for the bug you encountered.
+      options:
+      - label: I have searched the existing issues
+        required: true
+  - type: input
+    attributes:
+      label: Reproduction URL (if applicable)
+      description: Please enter the URL where the bug was found
+      placeholder: ex. http://localhost:9000/<some-url>/
+    validations:
+      required: false
+  - type: input
+    attributes:
+      label: branch
+      description: The branch where you found this issue
+    validations:
+      required: false
+  - type: input
+    attributes:
+      label: commit hash
+      description: The commit's sha where you found this issue
+    validations:
+      required: false
+  - type: textarea
+    attributes:
+      label: Current Behaviour
+      description: A concise description of what you're experiencing.
+    validations:
+      required: false
+  - type: textarea
+    attributes:
+      label: Expected Behaviour
+      description: A concise description of what you expected to happen.
+    validations:
+      required: false
+  - type: textarea
+    attributes:
+      label: Browsers
+      description: What browsers are you seeing the problem on?
+      placeholder: |
+        List the browser type, version & OS you are seeing this on. e.g.:
+
+        Firefox: 19.0.1 (64-bit), Mac
+    validations:
+      required: false
+  - type: textarea
+    attributes:
+      label: Anything else?
+      description: |
+        Links? References? Anything that will give us more context about the issue you are encountering!
+
+        Tip: You can attach images or log files by clicking this area to highlight it and then dragging files in.
+    validations:
+      required: false
