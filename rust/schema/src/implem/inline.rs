@@ -8,7 +8,7 @@ impl Inline {
             ($( $variant:ident ),*) => {
                 match self {
                     $(Inline::$variant(node) => Some(node.node_id()),)*
-                    
+
                     Inline::Null(..) |
                     Inline::Boolean(..) |
                     Inline::Integer(..) |

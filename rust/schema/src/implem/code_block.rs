@@ -14,12 +14,12 @@ impl MarkdownCodec for CodeBlock {
             context.push_prop_str("programming_language", lang);
         }
 
-        context.push_str("\n").push_prop_str("code", &self.code);
+        context.newline().push_prop_str("code", &self.code);
 
         if !self.code.ends_with('\n') {
-            context.push_str("\n");
+            context.newline();
         }
 
-        context.push_str("```\n").exit_node().push_str("\n");
+        context.push_str("```\n").exit_node().newline();
     }
 }

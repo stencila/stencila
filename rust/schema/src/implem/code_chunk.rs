@@ -59,18 +59,18 @@ impl MarkdownCodec for CodeChunk {
                 .push_prop_str("auto_exec", &auto.to_string().to_lowercase());
         }
 
-        context.push_str("\n").push_prop_str("code", &self.code);
+        context.newline().push_prop_str("code", &self.code);
 
         if !self.code.ends_with('\n') {
-            context.push_str("\n");
+            context.newline();
         }
 
         context.push_str("```\n");
 
         if wrapped {
-            context.push_str("\n").push_str(&fence).push_str("\n");
+            context.newline().push_str(&fence).newline();
         }
 
-        context.exit_node().push_str("\n");
+        context.exit_node().newline();
     }
 }

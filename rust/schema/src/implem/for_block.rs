@@ -41,10 +41,6 @@ impl MarkdownCodec for ForBlock {
                 .decrease_depth();
         }
 
-        context
-            .push_str(&fence)
-            .push_str("\n")
-            .exit_node()
-            .push_str("\n");
+        context.push_str(&fence).newline().exit_node().newline();
     }
 }

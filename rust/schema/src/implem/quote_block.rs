@@ -12,8 +12,8 @@ impl MarkdownCodec for QuoteBlock {
             .push_prop_fn("content", |context| self.content.to_markdown(context))
             .pop_line_prefix()
             .trim_end_matches(|char| char == '\n' || char == ' ' || char == '>')
-            .push_str("\n")
+            .newline()
             .exit_node()
-            .push_str("\n");
+            .newline();
     }
 }
