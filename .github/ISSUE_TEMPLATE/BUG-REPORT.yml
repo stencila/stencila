@@ -7,6 +7,7 @@ labels:
 projects:
   - stencila/8
 assignees:
+  - nokome
   - simonwinter
 body:
   - type: markdown
@@ -41,14 +42,19 @@ body:
       required: false
   - type: textarea
     attributes:
-      label: Current Behaviour
+      label: Description
       description: A concise description of what you're experiencing.
     validations:
       required: false
   - type: textarea
     attributes:
-      label: Expected Behaviour
-      description: A concise description of what you expected to happen.
+      label: Reproduction steps
+      description: Please enter the steps to reproduce the error
+      placeholder: |
+        1. Go to '...'
+        2. Click on '....'
+        3. Scroll down to '....'
+        4. See error
     validations:
       required: false
   - type: textarea
