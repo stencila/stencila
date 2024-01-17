@@ -25,6 +25,9 @@ pub struct MarkdownEncodeContext {
     /// A prefix to prefix all lines with
     line_prefix: Vec<String>,
 
+    /// Should empty lines be prefixed?
+    prefix_empty_lines: bool,
+
     /// Node to position mapping
     pub mapping: Mapping,
 
@@ -96,6 +99,12 @@ impl MarkdownEncodeContext {
         self
     }
 
+    /// Set whether to prefix empty lines
+    pub fn prefix_empty_lines(&mut self, yes_no: bool) -> &mut Self {
+        self.prefix_empty_lines = yes_no;
+        self
+    }
+
     /// Push a string onto the Markdown content
     pub fn push_str(&mut self, value: &str) -> &mut Self {
         let value = if !self.line_prefix.is_empty() {
@@ -103,12 +112,18 @@ impl MarkdownEncodeContext {
 
             // If last char is a newline add line prefix
             if let Some('\n') = self.content.chars().last() {
-                self.content.push_str(&prefix);
+                if (value.starts_with("\n") && self.prefix_empty_lines) || !value.starts_with("\n")
+                {
+                    self.content.push_str(&prefix);
+                }
             }
 
-            // If content contains inner blank lines then ensure those
-            // are prefixed too
-            value.replace("\n\n", &["\n", &prefix, "\n"].concat())
+            // If content contains inner empty lines then ensure those are prefixed too
+            if self.prefix_empty_lines {
+                value.replace("\n\n", &["\n", &prefix, "\n"].concat())
+            } else {
+                value.to_string()
+            }
         } else {
             value.to_string()
         };
@@ -165,6 +180,16 @@ impl MarkdownEncodeContext {
                 Some(SmolStr::from(prop)),
             );
         }
+        self
+    }
+
+    /// Trim the content in-place
+    ///
+    /// According to [this](https://users.rust-lang.org/t/trim-string-in-place/15809/18)
+    /// this is the recommended way to trim in place. 
+    pub fn trim_end(&mut self) -> &mut Self {
+        let trimmed = self.content.trim_end();
+        self.content.truncate(trimmed.len());
         self
     }
 
