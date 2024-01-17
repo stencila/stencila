@@ -723,7 +723,7 @@ impl Cli {
             Command::Test { path, reps } => assistants::testing::test_example(&path, reps).await?,
 
             Command::Config(options) => {
-                let dir = app::get_app_dir(options.dir?, options.ensure)?;
+                let dir = app::get_app_dir(options.dir.unwrap(), options.ensure)?;
                 println!("{}", dir.display());
             }
         }
