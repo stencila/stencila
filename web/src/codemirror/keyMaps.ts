@@ -13,6 +13,10 @@ const wrappers: { [k: string]: TextWrapper } = {
 }
 
 /**
+ * Returns a key-mapping event handler which will auto wrap selected content in the
+ * chosen bracket char, or quote marks.
+ * If no text is selected, it creates the closing char automatically, placing the cursor
+ * in the middle
  *
  * @param wrapper the set of wrappers to be applied to the event handler
  * @returns `Command` function
