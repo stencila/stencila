@@ -42,12 +42,16 @@ pub struct MarkdownEncodeContext {
 }
 
 impl MarkdownEncodeContext {
+    /// Get the current insertion position (i.e. the number of characters in the content)
+    fn position(&self) -> usize {
+        self.content.chars().count()
+    }
+
     /// Enter a node
     ///
     /// Pushes the node id and start position onto the stack.
     pub fn enter_node(&mut self, node_type: NodeType, node_id: NodeId) -> &mut Self {
-        self.node_stack
-            .push((node_type, node_id, self.content.len()));
+        self.node_stack.push((node_type, node_id, self.position()));
         self
     }
 
@@ -57,7 +61,7 @@ impl MarkdownEncodeContext {
     /// new mapping entry with those and the current position as end position.
     pub fn exit_node(&mut self) -> &mut Self {
         if let Some((node_type, node_id, start)) = self.node_stack.pop() {
-            let end = self.content.len();
+            let end = self.position();
             self.mapping.add(start, end, node_type, node_id, None)
         }
         self
@@ -142,12 +146,12 @@ impl MarkdownEncodeContext {
     ///
     /// Creates a new mapping entry for the property.
     pub fn push_prop_str(&mut self, prop: &str, value: &str) -> &mut Self {
-        let start = self.content.len();
+        let start = self.position();
 
         self.push_str(value);
 
         if let Some((node_type, node_id, ..)) = self.node_stack.last() {
-            let end = self.content.len();
+            let end = self.position();
             self.mapping.add(
                 start,
                 end,
@@ -166,12 +170,12 @@ impl MarkdownEncodeContext {
     where
         F: Fn(&mut Self),
     {
-        let start = self.content.len();
+        let start = self.position();
 
         func(self);
 
         if let Some((node_type, node_id, ..)) = self.node_stack.last() {
-            let end = self.content.len();
+            let end = self.position();
             self.mapping.add(
                 start,
                 end,
@@ -212,7 +216,7 @@ impl MarkdownEncodeContext {
     /// Append footnotes to the end of the content
     pub fn append_footnotes(&mut self) {
         for footnote in self.footnotes.drain(..) {
-            let offset = self.content.len();
+            let offset = self.content.chars().count();
             for entry in footnote.mapping.entries() {
                 self.mapping.add(
                     offset + entry.range.start,
