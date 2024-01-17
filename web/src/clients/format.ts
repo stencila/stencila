@@ -254,7 +254,15 @@ export abstract class FormatClient extends Client {
    */
   public nodeAt(
     position: number
-  ): { nodeType: NodeType; nodeId: NodeId; property?: string } | undefined {
+  ):
+    | {
+        nodeType: NodeType
+        nodeId: NodeId
+        property?: string
+        start: number
+        end: number
+      }
+    | undefined {
     let start = 0
     let end = 0
     for (const entry of this.mapping) {
@@ -265,6 +273,8 @@ export abstract class FormatClient extends Client {
           nodeType: entry.nodeType,
           nodeId: entry.nodeId,
           property: entry.property,
+          start,
+          end,
         }
       }
     }

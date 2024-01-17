@@ -86,7 +86,7 @@ export class App extends LitElement {
             </nav>
 
             <div
-              class="bg-white border border-grays-mid container p-4 mx-auto shadow-[0_0_8px_rgba(0,0,0,.035)] overflow-hidden"
+              class="bg-white border border-grays-mid container p-4 mx-auto shadow-[0_0_8px_rgba(0,0,0,.035)]"
             >
               ${this.doc ? this.renderView() : 'No document specified'}
             </div>

@@ -328,15 +328,23 @@ export class SourceView extends TWLitElement {
    *
    * @param position The character position. Defaults to the current cursor position.
    */
-  public getNodeAt(position?: number): { node: Node; property?: string } {
+  public getNodeAt(position?: number): {
+    node: Node
+    property?: string
+    start: number
+    end: number
+  } {
     position = position ?? this.codeMirrorView.state.selection.main.from
 
-    const { nodeId, property } = this.codeMirrorClient.nodeAt(position)
+    const { nodeId, property, start, end } =
+      this.codeMirrorClient.nodeAt(position)
     const node = this.objectClient.getNode(nodeId)
 
     return {
       node,
       property,
+      start,
+      end,
     }
   }
 
@@ -368,6 +376,8 @@ export class SourceView extends TWLitElement {
       .cm-editor {
         border: 1px solid rgb(189, 186, 186);
         height: 100%;
+        max-height: 70vh;
+        overflow-y: auto;
       }
     `
   }
