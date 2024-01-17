@@ -36,7 +36,6 @@ const tooltipOnHover = (sourceView: SourceView) =>
       const nodeSpec = sourceView.getNodeAt(pos)
       let node = nodeSpec.node as Object
       let i = 1
-      console.log(pos, nodeSpec.start)
       while (node.type && node.type === 'Text') {
         const nodes = sourceView.getNodesAt(pos)
         node = nodes[i] as Object
