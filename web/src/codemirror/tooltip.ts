@@ -1,4 +1,3 @@
-import { syntaxTree } from '@codemirror/language'
 import { EditorView, hoverTooltip } from '@codemirror/view'
 import { Object } from '@stencila/types'
 import { html } from 'lit'
@@ -34,20 +33,15 @@ class TooltipElement extends TWLitElement {
 const tooltipOnHover = (sourceView: SourceView) =>
   hoverTooltip(
     (_view: EditorView, pos: number) => {
-      let node = sourceView.getNodeAt(pos).node as Object
+      const nodeSpec = sourceView.getNodeAt(pos)
+      let node = nodeSpec as Object
       let i = 1
-
-      const test = syntaxTree(_view.state)
-
-      console.log(test)
 
       while (node.type && node.type === 'Text') {
         const nodes = sourceView.getNodesAt(pos)
         node = nodes[i] as Object
         i++
       }
-
-      console.log(pos, node)
 
       if (node.type) {
         return {
