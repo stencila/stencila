@@ -5,6 +5,7 @@ use color_eyre::owo_colors::OwoColorize;
 use rustyline::{error::ReadlineError, DefaultEditor};
 use yansi::Color;
 
+use app::DirType;
 use common::{
     chrono::{Local, SecondsFormat, TimeZone},
     clap::{self, error::ErrorKind, Args, Parser, Subcommand},
@@ -279,6 +280,8 @@ enum Command {
         #[arg(long, short = 'n', alias = "num", default_value_t = 1)]
         reps: u16,
     },
+
+    Config(ConfigOptions),
 }
 
 /// Command line arguments for stripping nodes
@@ -385,6 +388,15 @@ impl EncodeOptions {
             ..Default::default()
         }
     }
+}
+
+#[derive(Debug, Args)]
+struct ConfigOptions {
+    #[arg(long, default_value = "config")]
+    dir: Option<DirType>,
+
+    #[arg(long)]
+    ensure: bool,
 }
 
 impl Cli {
@@ -709,6 +721,11 @@ impl Cli {
             }
 
             Command::Test { path, reps } => assistants::testing::test_example(&path, reps).await?,
+
+            Command::Config(options) => {
+                let dir = app::get_app_dir(options.dir?, options.ensure)?;
+                println!("{}", dir.display());
+            }
         }
 
         if wait {
