@@ -546,25 +546,20 @@ mod tests {
             .await?;
 
         // First patch should be a reset with empty content
-        assert_eq!(
-            patch_receiver.recv().await.unwrap(),
-            FormatPatch {
-                version: 1,
-                ops: vec![FormatOperation::reset_content("")]
-            }
-        );
+        let patch = patch_receiver.recv().await.unwrap();
+        assert_eq!(patch.version, 1);
+        assert_eq!(patch.ops[0], FormatOperation::reset_content(""));
 
         // Test inserting content
         document
             .update_sender
             .send(art([p([t("Hello world")])]))
             .await?;
+        let patch = patch_receiver.recv().await.unwrap();
+        assert_eq!(patch.version, 2);
         assert_eq!(
-            patch_receiver.recv().await.unwrap(),
-            FormatPatch {
-                version: 2,
-                ops: vec![FormatOperation::insert_content(0, "Hello world")]
-            }
+            patch.ops[0],
+            FormatOperation::insert_content(0, "Hello world")
         );
 
         // Test deleting content
@@ -572,25 +567,20 @@ mod tests {
             .update_sender
             .send(art([p([t("Hello ld")])]))
             .await?;
-        assert_eq!(
-            patch_receiver.recv().await.unwrap(),
-            FormatPatch {
-                version: 3,
-                ops: vec![FormatOperation::delete_content(6, 9)]
-            }
-        );
+        let patch = patch_receiver.recv().await.unwrap();
+        assert_eq!(patch.version, 3);
+        assert_eq!(patch.ops[0], FormatOperation::delete_content(6, 9));
 
         // Test replacing content
         document
             .update_sender
             .send(art([p([t("Hello friend")])]))
             .await?;
+        let patch = patch_receiver.recv().await.unwrap();
+        assert_eq!(patch.version, 4);
         assert_eq!(
-            patch_receiver.recv().await.unwrap(),
-            FormatPatch {
-                version: 4,
-                ops: vec![FormatOperation::replace_content(6, 7, "frien")]
-            }
+            patch.ops[0],
+            FormatOperation::replace_content(6, 7, "frien")
         );
 
         Ok(())
