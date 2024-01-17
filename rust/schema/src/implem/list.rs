@@ -39,10 +39,10 @@ impl MarkdownCodec for List {
             context.pop_line_prefix();
 
             if tight {
-                context.trim_end().push_str("\n");
+                context.trim_end().newline();
             }
         }
 
-        context.trim_end().push_str("\n").exit_node().push_str("\n");
+        context.trim_end().newline().exit_node().newline();
     }
 }

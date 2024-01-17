@@ -18,6 +18,6 @@ impl MarkdownCodec for ModifyBlock {
             .push_str("!>\n\n")
             .push_prop_fn("operations", |context| modified.to_markdown(context));
 
-        context.push_str("!!\n").exit_node().push_str("\n");
+        context.push_str("!!\n").exit_node().newline();
     }
 }

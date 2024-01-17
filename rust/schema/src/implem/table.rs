@@ -120,7 +120,7 @@ impl MarkdownCodec for Table {
                         .push_str(&"-".repeat(*width))
                         .push_str(" |");
                 }
-                context.push_str("\n");
+                context.newline();
             }
 
             context.enter_node(row.node_type(), row.node_id());
@@ -141,24 +141,24 @@ impl MarkdownCodec for Table {
                     .exit_node()
                     .push_str("|");
             }
-            context.push_str("\n").exit_node();
+            context.newline().exit_node();
         }
 
         if let Some(notes) = &self.notes {
             context
-                .push_str("\n")
+                .newline()
                 .increase_depth()
                 .push_prop_fn("notes", |context| notes.to_markdown(context))
                 .decrease_depth();
         }
 
         if wrapped {
-            if !self.notes.is_some() {
-                context.push_str("\n");
+            if self.notes.is_none() {
+                context.newline();
             }
-            context.push_str(&fence).push_str("\n");
+            context.push_str(&fence).newline();
         }
 
-        context.exit_node().push_str("\n");
+        context.exit_node().newline();
     }
 }

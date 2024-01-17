@@ -37,8 +37,8 @@ impl MarkdownCodec for Heading {
             .push_prop_str("level", &"#".repeat(self.level.max(1).min(6) as usize))
             .push_str(" ")
             .push_prop_fn("content", |context| self.content.to_markdown(context))
-            .push_str("\n")
+            .newline()
             .exit_node()
-            .push_str("\n");
+            .newline();
     }
 }

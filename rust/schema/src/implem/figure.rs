@@ -29,8 +29,8 @@ impl MarkdownCodec for Figure {
         context
             .decrease_depth()
             .push_str(&fence)
-            .push_str("\n")
+            .newline()
             .exit_node()
-            .push_str("\n");
+            .newline();
     }
 }

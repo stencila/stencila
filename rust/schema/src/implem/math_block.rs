@@ -65,12 +65,12 @@ impl MarkdownCodec for MathBlock {
             context
                 .push_str("```")
                 .push_prop_str("math_language", &lang)
-                .push_str("\n")
+                .newline()
                 .push_prop_str("code", &self.code)
                 .push_str(if self.code.ends_with('\n') { "" } else { "\n" })
                 .push_str("```");
         }
 
-        context.push_str("\n").exit_node().push_str("\n");
+        context.newline().exit_node().newline();
     }
 }

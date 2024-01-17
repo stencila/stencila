@@ -27,7 +27,7 @@ impl MarkdownCodec for Admonition {
         }
 
         context
-            .push_str("\n")
+            .newline()
             .push_line_prefix("> ")
             .prefix_empty_lines(true)
             .push_prop_fn("content", |context| self.content.to_markdown(context))
