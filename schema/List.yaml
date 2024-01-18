@@ -27,6 +27,7 @@ properties:
     type: array
     items:
       $ref: ListItem
+    walk: true
     jats:
       content: true
     proptest:

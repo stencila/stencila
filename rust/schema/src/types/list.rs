@@ -31,6 +31,7 @@ pub struct List {
     /// The items in the list.
     #[serde(alias = "item")]
     #[serde(deserialize_with = "one_or_many")]
+    #[walk]
     #[cfg_attr(feature = "proptest-min", proptest(strategy = r#"vec(ListItem::arbitrary(), size_range(1..=1))"#))]
     #[cfg_attr(feature = "proptest-low", proptest(strategy = r#"vec(ListItem::arbitrary(), size_range(1..=2))"#))]
     #[cfg_attr(feature = "proptest-high", proptest(strategy = r#"vec(ListItem::arbitrary(), size_range(1..=4))"#))]
