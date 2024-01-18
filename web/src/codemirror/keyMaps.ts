@@ -42,7 +42,6 @@ const autoWrapHandler =
       ) {
         const prevChar = state.doc.sliceString(cursor - 1, cursor)
         const nextChar = state.doc.sliceString(cursor, cursor + 1)
-        console.log(prevChar, nextChar)
         if (prevChar === wrapper[0] && nextChar === wrapper[1]) {
           trSpec = { selection: EditorSelection.single(cursor + 1) }
           override = true
@@ -50,31 +49,54 @@ const autoWrapHandler =
           return false
         }
       }
-      trSpec = {
-        changes: {
-          from: cursor,
-          insert: wrapper[1],
-        },
+      if (!trSpec) {
+        trSpec = {
+          changes: {
+            from: cursor,
+            insert: wrapper[1],
+          },
+        }
       }
       const tr = view.state.update(trSpec)
       view.dispatch(tr)
       return override
     } else {
-      console.log('hi')
       const { from, to } = state.selection.main
-      if (to > from) {
-        const tr = view.state.changeByRange(() => ({
-          changes: [
-            { from, insert: wrapper[0] },
-            { from: to, insert: wrapper[1] },
-          ],
-          range: EditorSelection.range(from + 1, to + 1),
-        }))
-        view.dispatch(tr)
+      const tr = view.state.changeByRange(() => ({
+        changes: [
+          { from, insert: wrapper[0] },
+          { from: to, insert: wrapper[1] },
+        ],
+        range: EditorSelection.range(from + 1, to + 1),
+      }))
+      view.dispatch(tr)
+      return true
+    }
+  }
+
+/**
+ * A handler for the closing wrapper characters,
+ * if cursor directly in between the chars, then it will move the cursor
+ * 1 position, instead of creating a new closing char.
+ * @param wrapper the set of wrappers to be applied to the event handler
+ * @returns `Command` function
+ */
+const handleAutoWrapClose =
+  (wrapper: TextWrapper): Command =>
+  (view: EditorView) => {
+    const { state } = view
+    if (state.selection.main.empty) {
+      const cursor = state.selection.main.head
+      const prevChar = state.doc.sliceString(cursor - 1, cursor)
+      const nextChar = state.doc.sliceString(cursor, cursor + 1)
+      if (prevChar === wrapper[0] && nextChar === wrapper[1]) {
+        view.dispatch(
+          view.state.update({ selection: EditorSelection.single(cursor + 1) })
+        )
         return true
       }
-      return false
     }
+    return false
   }
 
 const autoWrapKeys: KeyBinding[] = [
@@ -97,6 +119,18 @@ const autoWrapKeys: KeyBinding[] = [
   {
     key: "'",
     run: autoWrapHandler(wrappers.singleQuote),
+  },
+  {
+    key: ')',
+    run: handleAutoWrapClose(wrappers.parenthesis),
+  },
+  {
+    key: ']',
+    run: handleAutoWrapClose(wrappers.bracket),
+  },
+  {
+    key: '}',
+    run: handleAutoWrapClose(wrappers.curlyBrace),
   },
 ]
 
