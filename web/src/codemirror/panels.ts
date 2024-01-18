@@ -31,9 +31,6 @@ const nodeTreeBreadCrumbs = (nodes: Node[]) => {
   const nodeList = nodes.map((node: Object) =>
     node.type ? `<span class="mx-2">${node.type as string}</span>` : ''
   )
-  while (nodeList[0] === 'Text') {
-    nodeList.shift()
-  }
   return nodeList
     .reverse()
     .join(`<span class='font-bold'>${BREADCRUMB_SEPERATOR}</span>`)

@@ -252,9 +252,7 @@ export abstract class FormatClient extends Client {
    * Returns the first entry in the mapping which spans the position (i.e. the most
    * leafiest node in the node tree)
    */
-  public nodeAt(
-    position: number
-  ):
+  public nodeAt(position: number):
     | {
         nodeType: NodeType
         nodeId: NodeId

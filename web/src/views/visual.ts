@@ -8,7 +8,9 @@ import {
 } from 'prosemirror-view'
 
 import { DomClient } from '../clients/dom'
+import { ObjectClient } from '../clients/object'
 import { ProseMirrorClient } from '../clients/prosemirror'
+import { hoverTooltipPlugin } from '../prosemirror'
 import type { DocumentId, DocumentAccess } from '../types'
 
 import 'prosemirror-menu/style/menu.css'
@@ -63,9 +65,21 @@ export class VisualView extends ThemedView {
   private proseMirrorClient: ProseMirrorClient
 
   /**
+   * A read-only client which receives patches for the JavaScript object
+   * representing the entire document
+   */
+  private objectClient: ObjectClient
+
+  /**
    * A ProseMirror editor view which the client interacts with
    */
   private proseMirrorView: ProseMirrorView
+
+  override connectedCallback() {
+    super.connectedCallback()
+
+    this.objectClient = new ObjectClient(this.doc)
+  }
 
   /**
    * Override so that clients are instantiated _after_ this
@@ -102,6 +116,7 @@ export class VisualView extends ThemedView {
     this.proseMirrorView = new ProseMirrorView(this.renderRoot, {
       state: EditorState.create({
         doc,
+        plugins: [hoverTooltipPlugin()],
       }),
       dispatchTransaction: this.proseMirrorClient.sendPatches(),
       nodeViews: views,
