@@ -1,6 +1,6 @@
 use crate::{
-    Array, Block, Boolean, CreativeWorkType, Inline, Integer, Node, Null, Number, Object,
-    UnsignedInteger,
+    Array, Block, Boolean, CreativeWorkType, Inline, Integer, ListItem, Node, Null, Number, Object,
+    TableCell, TableRow, UnsignedInteger,
 };
 
 /// Controls whether to continue walking over a node or not
@@ -61,6 +61,21 @@ pub trait Visitor: Sized {
         WalkControl::Continue
     }
 
+    /// Visit a `ListItem` node
+    fn visit_list_item(&mut self, list_item: &ListItem) -> WalkControl {
+        WalkControl::Continue
+    }
+
+    /// Visit a `TableRow` node
+    fn visit_table_row(&mut self, table_row: &TableRow) -> WalkControl {
+        WalkControl::Continue
+    }
+
+    /// Visit a `TableCell` node
+    fn visit_table_cell(&mut self, table_cell: &TableCell) -> WalkControl {
+        WalkControl::Continue
+    }
+
     /// Enter a property
     fn enter_property(&mut self, name: &str) {}
 
@@ -102,6 +117,21 @@ pub trait VisitorMut: Sized {
 
     /// Visit, and potentially mutate, an `Inline` node type
     fn visit_inline_mut(&mut self, inline: &mut Inline) -> WalkControl {
+        WalkControl::Continue
+    }
+
+    /// Visit a `ListItem` node
+    fn visit_list_item_mut(&mut self, list_item: &ListItem) -> WalkControl {
+        WalkControl::Continue
+    }
+
+    /// Visit a `TableRow` node
+    fn visit_table_row_mut(&mut self, table_row: &TableRow) -> WalkControl {
+        WalkControl::Continue
+    }
+
+    /// Visit a `TableCell` node
+    fn visit_table_cell_mut(&mut self, table_cell: &TableCell) -> WalkControl {
         WalkControl::Continue
     }
 

@@ -18,6 +18,7 @@ properties:
     type: array
     items:
       $ref: TableCell
+    walk: true
     proptest:
       min:
         description: Generate a single, arbitrary, table cell.

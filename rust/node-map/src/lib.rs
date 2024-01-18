@@ -1,17 +1,16 @@
-use std::collections::HashMap;
-
 use common::{
     derive_more::{Deref, DerefMut},
+    indexmap::IndexMap,
     serde::Serialize,
     smol_str::SmolStr,
 };
 use schema::{
     walk::{Visitor, WalkControl, WalkNode},
-    Block, Inline, Node, NodeId,
+    Block, Inline, ListItem, Node, NodeId, TableCell, TableRow,
 };
 
 /// Walk over a node to generate a mapping of `NodeId`s to paths within the node
-pub fn node_map<T: WalkNode>(node: &T) -> HashMap<NodeId, NodePath> {
+pub fn node_map<T: WalkNode>(node: &T) -> IndexMap<NodeId, NodePath> {
     let mut mapper = Mapper::default();
     mapper.visit(node);
     mapper.map
@@ -37,7 +36,7 @@ struct Mapper {
     path: NodePath,
 
     /// The collected mapping between node ids and paths
-    map: HashMap<NodeId, NodePath>,
+    map: IndexMap<NodeId, NodePath>,
 }
 
 impl Visitor for Mapper {
@@ -62,6 +61,24 @@ impl Visitor for Mapper {
         if let Some(node_id) = inline.node_id() {
             self.map.insert(node_id, self.path.clone());
         }
+        WalkControl::Continue
+    }
+
+    /// Visit a `ListItem` node
+    fn visit_list_item(&mut self, list_item: &ListItem) -> WalkControl {
+        self.map.insert(list_item.node_id(), self.path.clone());
+        WalkControl::Continue
+    }
+
+    /// Visit a `TableRow` node
+    fn visit_table_row(&mut self, table_row: &TableRow) -> WalkControl {
+        self.map.insert(table_row.node_id(), self.path.clone());
+        WalkControl::Continue
+    }
+
+    /// Visit a `TableCell` node
+    fn visit_table_cell(&mut self, table_cell: &TableCell) -> WalkControl {
+        self.map.insert(table_cell.node_id(), self.path.clone());
         WalkControl::Continue
     }
 

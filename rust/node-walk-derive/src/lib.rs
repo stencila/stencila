@@ -48,6 +48,31 @@ pub fn derive(input: proc_macro::TokenStream) -> proc_macro::TokenStream {
 fn derive_struct(type_attr: TypeAttr) -> TokenStream {
     let struct_name = type_attr.ident;
 
+    let (visit, visit_mut) = match struct_name.to_string().as_str() {
+        name @ ("ListItem" | "TableRow" | "TableCell") => {
+            let (method, method_mut) = match name {
+                "ListItem" => (quote!(visit_list_item), quote!(visit_list_item_mut)),
+                "TableRow" => (quote!(visit_table_row), quote!(visit_table_row_mut)),
+                "TableCell" => (quote!(visit_table_cell), quote!(visit_table_cell_mut)),
+                _ => unreachable!(),
+            };
+
+            (
+                quote! {
+                    if visitor.#method(self).is_break() {
+                        return
+                    }
+                },
+                quote! {
+                    if visitor.#method_mut(self).is_break() {
+                        return
+                    }
+                },
+            )
+        }
+        _ => (TokenStream::new(), TokenStream::new()),
+    };
+
     let mut fields = TokenStream::new();
     let mut fields_mut = TokenStream::new();
     type_attr.data.map_struct_fields(|field| {
@@ -74,10 +99,12 @@ fn derive_struct(type_attr: TypeAttr) -> TokenStream {
         quote! {
             impl WalkNode for #struct_name {
                 fn walk<V: Visitor>(&self, visitor: &mut V) {
+                    #visit
                     #fields
                 }
 
                 fn walk_mut<V: VisitorMut>(&mut self, visitor: &mut V) {
+                    #visit_mut
                     #fields_mut
                 }
             }

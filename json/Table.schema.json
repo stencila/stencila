@@ -556,6 +556,7 @@
       "aliases": [
         "row"
       ],
+      "walk": true,
       "proptest": {
         "min": {
           "description": "Generate up to a 2x2 table with a header row.",

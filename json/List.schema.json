@@ -53,6 +53,7 @@
       "aliases": [
         "item"
       ],
+      "walk": true,
       "proptest": {
         "min": {
           "description": "Generate a single, arbitrary, list item.",

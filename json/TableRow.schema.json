@@ -46,6 +46,7 @@
       "aliases": [
         "cell"
       ],
+      "walk": true,
       "proptest": {
         "min": {
           "description": "Generate a single, arbitrary, table cell.",
