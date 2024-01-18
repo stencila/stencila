@@ -3,6 +3,7 @@
   "$id": "https://stencila.org/Table.schema.json",
   "@id": "schema:Table",
   "title": "Table",
+  "nick": "tbl",
   "extends": [
     "CreativeWork"
   ],

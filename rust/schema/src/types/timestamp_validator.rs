@@ -40,7 +40,7 @@ pub struct TimestampValidator {
 }
 
 impl TimestampValidator {
-    const NICK: &'static str = "tim";
+    const NICK: &'static str = "tsv";
     
     pub fn node_type(&self) -> NodeType {
         NodeType::TimestampValidator

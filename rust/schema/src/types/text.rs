@@ -42,7 +42,7 @@ pub struct Text {
 }
 
 impl Text {
-    const NICK: &'static str = "tex";
+    const NICK: &'static str = "txt";
     
     pub fn node_type(&self) -> NodeType {
         NodeType::Text

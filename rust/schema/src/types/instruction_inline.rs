@@ -181,7 +181,7 @@ pub struct InstructionInlineOptions {
 }
 
 impl InstructionInline {
-    const NICK: &'static str = "ins";
+    const NICK: &'static str = "isi";
     
     pub fn node_type(&self) -> NodeType {
         NodeType::InstructionInline

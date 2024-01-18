@@ -40,7 +40,7 @@ pub struct DurationValidator {
 }
 
 impl DurationValidator {
-    const NICK: &'static str = "dur";
+    const NICK: &'static str = "duv";
     
     pub fn node_type(&self) -> NodeType {
         NodeType::DurationValidator

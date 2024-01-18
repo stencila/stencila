@@ -3,6 +3,7 @@
   "$id": "https://stencila.org/TimestampValidator.schema.json",
   "@id": "stencila:TimestampValidator",
   "title": "TimestampValidator",
+  "nick": "tsv",
   "extends": [
     "Entity"
   ],

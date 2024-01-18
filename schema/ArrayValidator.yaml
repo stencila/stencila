@@ -1,5 +1,6 @@
 title: ArrayValidator
 '@id': stencila:ArrayValidator
+nick: arv
 extends: Entity
 category: data
 description: A validator specifying constraints on an array node.

@@ -46,7 +46,7 @@ pub struct ReplaceInline {
 }
 
 impl ReplaceInline {
-    const NICK: &'static str = "rep";
+    const NICK: &'static str = "rpi";
     
     pub fn node_type(&self) -> NodeType {
         NodeType::ReplaceInline

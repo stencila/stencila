@@ -1,5 +1,6 @@
 title: DurationValidator
 '@id': stencila:DurationValidator
+nick: duv
 extends: Entity
 category: data
 description: A validator specifying the constraints on a duration.

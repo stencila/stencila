@@ -3,6 +3,7 @@
   "$id": "https://stencila.org/SoftwareSourceCode.schema.json",
   "@id": "schema:SoftwareSourceCode",
   "title": "SoftwareSourceCode",
+  "nick": "ssc",
   "extends": [
     "CreativeWork"
   ],

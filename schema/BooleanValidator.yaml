@@ -1,5 +1,6 @@
 title: BooleanValidator
 '@id': stencila:BooleanValidator
+nick: bov
 extends: Entity
 category: data
 description: A schema specifying that a node must be a boolean value.

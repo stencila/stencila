@@ -3,6 +3,7 @@
   "$id": "https://stencila.org/ModifyInline.schema.json",
   "@id": "stencila:ModifyInline",
   "title": "ModifyInline",
+  "nick": "mdi",
   "extends": [
     "SuggestionInline"
   ],

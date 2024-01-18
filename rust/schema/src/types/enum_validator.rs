@@ -32,7 +32,7 @@ pub struct EnumValidator {
 }
 
 impl EnumValidator {
-    const NICK: &'static str = "enu";
+    const NICK: &'static str = "env";
     
     pub fn node_type(&self) -> NodeType {
         NodeType::EnumValidator

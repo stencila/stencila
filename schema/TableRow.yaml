@@ -1,5 +1,6 @@
 title: TableRow
 '@id': stencila:TableRow
+nick: tbr
 extends: Entity
 category: works
 description: A row within a Table.

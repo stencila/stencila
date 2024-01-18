@@ -3,6 +3,7 @@
   "$id": "https://stencila.org/TableRow.schema.json",
   "@id": "stencila:TableRow",
   "title": "TableRow",
+  "nick": "tbr",
   "extends": [
     "Entity"
   ],

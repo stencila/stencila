@@ -3,6 +3,7 @@
   "$id": "https://stencila.org/QuoteBlock.schema.json",
   "@id": "stencila:QuoteBlock",
   "title": "QuoteBlock",
+  "nick": "qtb",
   "extends": [
     "Entity"
   ],

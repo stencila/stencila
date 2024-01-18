@@ -82,7 +82,7 @@ pub struct DatatableColumnOptions {
 }
 
 impl DatatableColumn {
-    const NICK: &'static str = "dat";
+    const NICK: &'static str = "dtc";
     
     pub fn node_type(&self) -> NodeType {
         NodeType::DatatableColumn

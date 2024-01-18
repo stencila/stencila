@@ -1,5 +1,6 @@
 title: InstructionInline
 '@id': stencila:InstructionInline
+nick: isi
 extends: Instruction
 category: edits
 description: An instruction to edit some inline content.

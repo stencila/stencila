@@ -3,6 +3,7 @@
   "$id": "https://stencila.org/ConstantValidator.schema.json",
   "@id": "stencila:ConstantValidator",
   "title": "ConstantValidator",
+  "nick": "cov",
   "extends": [
     "Entity"
   ],

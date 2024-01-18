@@ -235,7 +235,7 @@ pub struct PublicationIssueOptions {
 }
 
 impl PublicationIssue {
-    const NICK: &'static str = "pub";
+    const NICK: &'static str = "pbi";
     
     pub fn node_type(&self) -> NodeType {
         NodeType::PublicationIssue

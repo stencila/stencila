@@ -3,6 +3,7 @@
   "$id": "https://stencila.org/CallArgument.schema.json",
   "@id": "stencila:CallArgument",
   "title": "CallArgument",
+  "nick": "cla",
   "extends": [
     "Parameter"
   ],

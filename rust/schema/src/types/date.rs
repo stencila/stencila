@@ -38,7 +38,7 @@ pub struct Date {
 }
 
 impl Date {
-    const NICK: &'static str = "dat";
+    const NICK: &'static str = "dae";
     
     pub fn node_type(&self) -> NodeType {
         NodeType::Date

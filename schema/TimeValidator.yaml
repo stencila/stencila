@@ -1,5 +1,6 @@
 title: TimeValidator
 '@id': stencila:TimeValidator
+nick: tmv
 extends: Entity
 category: data
 description: A validator specifying the constraints on a time.

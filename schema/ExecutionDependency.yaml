@@ -1,5 +1,6 @@
 title: ExecutionDependency
 '@id': stencila:ExecutionDependency
+nick: exy
 extends: Entity
 category: flow
 description: An upstream execution dependency of a node.

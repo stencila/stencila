@@ -3,6 +3,7 @@
   "$id": "https://stencila.org/InsertInline.schema.json",
   "@id": "stencila:InsertInline",
   "title": "InsertInline",
+  "nick": "ini",
   "extends": [
     "SuggestionInline"
   ],

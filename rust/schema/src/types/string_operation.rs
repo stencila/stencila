@@ -39,7 +39,7 @@ pub struct StringOperation {
 }
 
 impl StringOperation {
-    const NICK: &'static str = "str";
+    const NICK: &'static str = "sto";
     
     pub fn node_type(&self) -> NodeType {
         NodeType::StringOperation

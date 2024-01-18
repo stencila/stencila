@@ -3,6 +3,7 @@
   "$id": "https://stencila.org/ThematicBreak.schema.json",
   "@id": "stencila:ThematicBreak",
   "title": "ThematicBreak",
+  "nick": "thb",
   "extends": [
     "Entity"
   ],

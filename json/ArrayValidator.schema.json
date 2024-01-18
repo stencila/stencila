@@ -3,6 +3,7 @@
   "$id": "https://stencila.org/ArrayValidator.schema.json",
   "@id": "stencila:ArrayValidator",
   "title": "ArrayValidator",
+  "nick": "arv",
   "extends": [
     "Entity"
   ],

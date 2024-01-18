@@ -3,6 +3,7 @@
   "$id": "https://stencila.org/CodeInline.schema.json",
   "@id": "stencila:CodeInline",
   "title": "CodeInline",
+  "nick": "cdi",
   "extends": [
     "CodeStatic"
   ],

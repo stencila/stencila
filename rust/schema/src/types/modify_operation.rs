@@ -34,7 +34,7 @@ pub struct ModifyOperation {
 }
 
 impl ModifyOperation {
-    const NICK: &'static str = "mod";
+    const NICK: &'static str = "mdo";
     
     pub fn node_type(&self) -> NodeType {
         NodeType::ModifyOperation

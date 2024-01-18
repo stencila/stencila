@@ -1,5 +1,6 @@
 title: Datatable
 '@id': stencila:Datatable
+nick: dtb
 extends: CreativeWork
 category: data
 description: A table of data.

@@ -33,7 +33,7 @@ pub struct CiteGroup {
 }
 
 impl CiteGroup {
-    const NICK: &'static str = "cit";
+    const NICK: &'static str = "ctg";
     
     pub fn node_type(&self) -> NodeType {
         NodeType::CiteGroup

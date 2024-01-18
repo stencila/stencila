@@ -1,5 +1,6 @@
 title: Table
 '@id': schema:Table
+nick: tbl
 extends: CreativeWork
 category: works
 description: A table.

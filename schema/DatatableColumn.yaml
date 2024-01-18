@@ -1,5 +1,6 @@
 title: DatatableColumn
 '@id': stencila:DatatableColumn
+nick: dtc
 extends: Thing
 category: data
 description: A column of data within a `Datatable`.

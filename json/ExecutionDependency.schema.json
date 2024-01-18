@@ -3,6 +3,7 @@
   "$id": "https://stencila.org/ExecutionDependency.schema.json",
   "@id": "stencila:ExecutionDependency",
   "title": "ExecutionDependency",
+  "nick": "exy",
   "extends": [
     "Entity"
   ],

@@ -104,7 +104,7 @@ pub struct StyledInlineOptions {
 }
 
 impl StyledInline {
-    const NICK: &'static str = "sty";
+    const NICK: &'static str = "sti";
     
     pub fn node_type(&self) -> NodeType {
         NodeType::StyledInline

@@ -1,5 +1,6 @@
 title: SuggestionBlock
 '@id': stencila:SuggestionBlock
+nick: sgb
 extends: Suggestion
 category: edits
 abstract: true

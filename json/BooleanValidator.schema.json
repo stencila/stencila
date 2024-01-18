@@ -3,6 +3,7 @@
   "$id": "https://stencila.org/BooleanValidator.schema.json",
   "@id": "stencila:BooleanValidator",
   "title": "BooleanValidator",
+  "nick": "bov",
   "extends": [
     "Entity"
   ],

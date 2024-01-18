@@ -1,5 +1,6 @@
 title: CodeExpression
 '@id': stencila:CodeExpression
+nick: cde
 extends: CodeExecutable
 category: code
 description: An executable programming code expression.

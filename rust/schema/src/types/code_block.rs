@@ -72,7 +72,7 @@ pub struct CodeBlockOptions {
 }
 
 impl CodeBlock {
-    const NICK: &'static str = "cod";
+    const NICK: &'static str = "cdb";
     
     pub fn node_type(&self) -> NodeType {
         NodeType::CodeBlock

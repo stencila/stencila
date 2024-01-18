@@ -41,7 +41,7 @@ pub struct DeleteBlock {
 }
 
 impl DeleteBlock {
-    const NICK: &'static str = "del";
+    const NICK: &'static str = "deb";
     
     pub fn node_type(&self) -> NodeType {
         NodeType::DeleteBlock

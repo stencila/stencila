@@ -1,5 +1,6 @@
 title: ModifyBlock
 '@id': stencila:ModifyBlock
+nick: mdb
 extends: SuggestionBlock
 category: edits
 description: A suggestion to modify some block content.

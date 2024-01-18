@@ -1,5 +1,6 @@
 title: Text
 '@id': schema:Text
+nick: txt
 extends: Entity
 category: prose
 description: Textual content.

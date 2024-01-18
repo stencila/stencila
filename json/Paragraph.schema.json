@@ -3,6 +3,7 @@
   "$id": "https://stencila.org/Paragraph.schema.json",
   "@id": "stencila:Paragraph",
   "title": "Paragraph",
+  "nick": "pgh",
   "extends": [
     "Entity"
   ],

@@ -1,5 +1,6 @@
 title: SoftwareApplication
 '@id': schema:SoftwareApplication
+nick: sap
 extends: CreativeWork
 category: works
 description: A software application.

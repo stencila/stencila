@@ -1,5 +1,6 @@
 title: ThematicBreak
 '@id': stencila:ThematicBreak
+nick: thb
 extends: Entity
 category: prose
 description: |

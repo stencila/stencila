@@ -76,6 +76,12 @@ pub struct Schema {
     /// The value of this keyword MUST be a string.
     pub title: Option<String>,
 
+    /// The short identifier for this type
+    /// 
+    /// Used to prefix `NodeId`s to add type information to them.
+    /// Defaults to the lowercase first three letters of the `title`.
+    pub nick: Option<String>,
+
     /// The title of the schema that this schema extends
     #[serde(
         deserialize_with = "deserialize_string_or_array",

@@ -3,6 +3,7 @@
   "$id": "https://stencila.org/DateTime.schema.json",
   "@id": "schema:DateTime",
   "title": "DateTime",
+  "nick": "dti",
   "extends": [
     "Entity"
   ],

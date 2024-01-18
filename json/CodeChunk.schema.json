@@ -3,6 +3,7 @@
   "$id": "https://stencila.org/CodeChunk.schema.json",
   "@id": "stencila:CodeChunk",
   "title": "CodeChunk",
+  "nick": "cdc",
   "extends": [
     "CodeExecutable"
   ],

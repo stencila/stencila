@@ -1,5 +1,6 @@
 title: TimestampValidator
 '@id': stencila:TimestampValidator
+nick: tsv
 extends: Entity
 category: data
 description: A validator specifying the constraints on a timestamp.

@@ -1,5 +1,6 @@
 title: DeleteBlock
 '@id': stencila:DeleteBlock
+nick: deb
 extends: SuggestionBlock
 category: edits
 description: A suggestion to delete some block content.

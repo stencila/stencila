@@ -3,6 +3,7 @@
   "$id": "https://stencila.org/EnumValidator.schema.json",
   "@id": "stencila:EnumValidator",
   "title": "EnumValidator",
+  "nick": "env",
   "extends": [
     "Entity"
   ],

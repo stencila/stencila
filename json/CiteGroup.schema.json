@@ -3,6 +3,7 @@
   "$id": "https://stencila.org/CiteGroup.schema.json",
   "@id": "stencila:CiteGroup",
   "title": "CiteGroup",
+  "nick": "ctg",
   "extends": [
     "Entity"
   ],

@@ -3,6 +3,7 @@
   "$id": "https://stencila.org/CodeLocation.schema.json",
   "@id": "stencila:CodeLocation",
   "title": "CodeLocation",
+  "nick": "cdl",
   "extends": [
     "Entity"
   ],

@@ -1,5 +1,6 @@
 title: ExecutionTag
 '@id': stencila:ExecutionTag
+nick: ext
 extends: Entity
 category: flow
 description: A tag on code that affects its execution.

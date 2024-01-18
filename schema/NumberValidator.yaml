@@ -1,5 +1,6 @@
 title: NumberValidator
 '@id': stencila:NumberValidator
+nick: nuv
 extends: Entity
 category: data
 description: A validator specifying the constraints on a numeric node.

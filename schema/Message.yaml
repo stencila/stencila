@@ -1,5 +1,6 @@
 title: Message
 '@id': schema:Message
+nick: msg
 extends: Entity
 category: edits
 description: A message from a sender to one or more people, organizations or software application.

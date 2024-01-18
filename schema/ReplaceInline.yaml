@@ -1,5 +1,6 @@
 title: ReplaceInline
 '@id': stencila:ReplaceInline
+nick: rpi
 extends: SuggestionInline
 category: edits
 description: A suggestion to replace some inline content with new inline content.

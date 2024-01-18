@@ -146,7 +146,7 @@ pub struct FormOptions {
 }
 
 impl Form {
-    const NICK: &'static str = "for";
+    const NICK: &'static str = "frm";
     
     pub fn node_type(&self) -> NodeType {
         NodeType::Form

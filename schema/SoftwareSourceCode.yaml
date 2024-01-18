@@ -1,5 +1,6 @@
 title: SoftwareSourceCode
 '@id': schema:SoftwareSourceCode
+nick: ssc
 extends: CreativeWork
 category: works
 description: |

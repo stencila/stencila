@@ -1,5 +1,6 @@
 title: QuoteInline
 '@id': stencila:QuoteInline
+nick: qti
 extends: Mark
 category: prose
 description: Inline, quoted content.

@@ -3,6 +3,7 @@
   "$id": "https://stencila.org/SuggestionInline.schema.json",
   "@id": "stencila:SuggestionInline",
   "title": "SuggestionInline",
+  "nick": "sgi",
   "extends": [
     "Suggestion"
   ],
