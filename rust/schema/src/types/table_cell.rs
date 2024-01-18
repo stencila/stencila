@@ -77,7 +77,7 @@ pub struct TableCellOptions {
 }
 
 impl TableCell {
-    const NICK: &'static str = "tab";
+    const NICK: &'static str = "tbc";
     
     pub fn node_type(&self) -> NodeType {
         NodeType::TableCell

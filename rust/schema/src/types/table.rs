@@ -287,7 +287,7 @@ pub struct TableOptions {
 }
 
 impl Table {
-    const NICK: &'static str = "tab";
+    const NICK: &'static str = "tbl";
     
     pub fn node_type(&self) -> NodeType {
         NodeType::Table

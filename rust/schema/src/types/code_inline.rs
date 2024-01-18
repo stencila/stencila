@@ -72,7 +72,7 @@ pub struct CodeInlineOptions {
 }
 
 impl CodeInline {
-    const NICK: &'static str = "cod";
+    const NICK: &'static str = "cdi";
     
     pub fn node_type(&self) -> NodeType {
         NodeType::CodeInline

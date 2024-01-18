@@ -191,7 +191,7 @@ pub struct CallArgumentOptions {
 }
 
 impl CallArgument {
-    const NICK: &'static str = "cal";
+    const NICK: &'static str = "cla";
     
     pub fn node_type(&self) -> NodeType {
         NodeType::CallArgument

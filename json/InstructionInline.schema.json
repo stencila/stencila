@@ -3,6 +3,7 @@
   "$id": "https://stencila.org/InstructionInline.schema.json",
   "@id": "stencila:InstructionInline",
   "title": "InstructionInline",
+  "nick": "isi",
   "extends": [
     "Instruction"
   ],

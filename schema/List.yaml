@@ -1,5 +1,6 @@
 title: List
 '@id': schema:ItemList
+nick: lst
 extends: Entity
 category: prose
 description: A list of items.

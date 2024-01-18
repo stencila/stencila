@@ -1,5 +1,6 @@
 title: CallArgument
 '@id': stencila:CallArgument
+nick: cla
 status: under-development
 extends: Parameter
 category: flow

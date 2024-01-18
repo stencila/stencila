@@ -3,6 +3,7 @@
   "$id": "https://stencila.org/ExecutionDependant.schema.json",
   "@id": "stencila:ExecutionDependant",
   "title": "ExecutionDependant",
+  "nick": "exd",
   "extends": [
     "Entity"
   ],

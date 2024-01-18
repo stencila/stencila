@@ -3,6 +3,7 @@
   "$id": "https://stencila.org/ReplaceInline.schema.json",
   "@id": "stencila:ReplaceInline",
   "title": "ReplaceInline",
+  "nick": "rpi",
   "extends": [
     "SuggestionInline"
   ],

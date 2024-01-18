@@ -228,7 +228,7 @@ pub struct SoftwareApplicationOptions {
 }
 
 impl SoftwareApplication {
-    const NICK: &'static str = "sof";
+    const NICK: &'static str = "sap";
     
     pub fn node_type(&self) -> NodeType {
         NodeType::SoftwareApplication

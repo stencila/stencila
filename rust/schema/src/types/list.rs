@@ -73,7 +73,7 @@ pub struct ListOptions {
 }
 
 impl List {
-    const NICK: &'static str = "lis";
+    const NICK: &'static str = "lst";
     
     pub fn node_type(&self) -> NodeType {
         NodeType::List

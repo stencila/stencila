@@ -3,6 +3,7 @@
   "$id": "https://stencila.org/ExecutionTag.schema.json",
   "@id": "stencila:ExecutionTag",
   "title": "ExecutionTag",
+  "nick": "ext",
   "extends": [
     "Entity"
   ],

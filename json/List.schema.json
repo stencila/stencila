@@ -3,6 +3,7 @@
   "$id": "https://stencila.org/List.schema.json",
   "@id": "schema:ItemList",
   "title": "List",
+  "nick": "lst",
   "extends": [
     "Entity"
   ],

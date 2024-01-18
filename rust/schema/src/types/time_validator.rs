@@ -34,7 +34,7 @@ pub struct TimeValidator {
 }
 
 impl TimeValidator {
-    const NICK: &'static str = "tim";
+    const NICK: &'static str = "tmv";
     
     pub fn node_type(&self) -> NodeType {
         NodeType::TimeValidator

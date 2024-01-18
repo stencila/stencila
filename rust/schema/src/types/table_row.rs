@@ -47,7 +47,7 @@ pub struct TableRow {
 }
 
 impl TableRow {
-    const NICK: &'static str = "tab";
+    const NICK: &'static str = "tbr";
     
     pub fn node_type(&self) -> NodeType {
         NodeType::TableRow

@@ -235,7 +235,7 @@ pub struct PublicationVolumeOptions {
 }
 
 impl PublicationVolume {
-    const NICK: &'static str = "pub";
+    const NICK: &'static str = "pbv";
     
     pub fn node_type(&self) -> NodeType {
         NodeType::PublicationVolume

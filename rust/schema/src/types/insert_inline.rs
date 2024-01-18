@@ -42,7 +42,7 @@ pub struct InsertInline {
 }
 
 impl InsertInline {
-    const NICK: &'static str = "ins";
+    const NICK: &'static str = "ini";
     
     pub fn node_type(&self) -> NodeType {
         NodeType::InsertInline

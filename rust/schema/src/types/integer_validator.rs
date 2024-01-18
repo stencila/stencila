@@ -46,7 +46,7 @@ pub struct IntegerValidator {
 }
 
 impl IntegerValidator {
-    const NICK: &'static str = "int";
+    const NICK: &'static str = "inv";
     
     pub fn node_type(&self) -> NodeType {
         NodeType::IntegerValidator

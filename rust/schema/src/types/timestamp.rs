@@ -42,7 +42,7 @@ pub struct Timestamp {
 }
 
 impl Timestamp {
-    const NICK: &'static str = "tim";
+    const NICK: &'static str = "tst";
     
     pub fn node_type(&self) -> NodeType {
         NodeType::Timestamp

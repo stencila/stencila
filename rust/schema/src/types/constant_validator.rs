@@ -31,7 +31,7 @@ pub struct ConstantValidator {
 }
 
 impl ConstantValidator {
-    const NICK: &'static str = "con";
+    const NICK: &'static str = "cov";
     
     pub fn node_type(&self) -> NodeType {
         NodeType::ConstantValidator

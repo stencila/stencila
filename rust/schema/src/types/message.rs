@@ -37,7 +37,7 @@ pub struct Message {
 }
 
 impl Message {
-    const NICK: &'static str = "mes";
+    const NICK: &'static str = "msg";
     
     pub fn node_type(&self) -> NodeType {
         NodeType::Message

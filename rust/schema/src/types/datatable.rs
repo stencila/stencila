@@ -225,7 +225,7 @@ pub struct DatatableOptions {
 }
 
 impl Datatable {
-    const NICK: &'static str = "dat";
+    const NICK: &'static str = "dtb";
     
     pub fn node_type(&self) -> NodeType {
         NodeType::Datatable

@@ -3,6 +3,7 @@
   "$id": "https://stencila.org/CodeExpression.schema.json",
   "@id": "stencila:CodeExpression",
   "title": "CodeExpression",
+  "nick": "cde",
   "extends": [
     "CodeExecutable"
   ],

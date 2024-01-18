@@ -1,5 +1,6 @@
 title: StyledInline
 '@id': stencila:StyledInline
+nick: sti
 extends: Styled
 category: style
 description: Styled inline content.

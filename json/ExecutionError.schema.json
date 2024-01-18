@@ -3,6 +3,7 @@
   "$id": "https://stencila.org/ExecutionError.schema.json",
   "@id": "stencila:ExecutionError",
   "title": "ExecutionError",
+  "nick": "exe",
   "extends": [
     "Entity"
   ],

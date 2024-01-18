@@ -3,6 +3,7 @@
   "$id": "https://stencila.org/StringOperation.schema.json",
   "@id": "stencila:StringOperation",
   "title": "StringOperation",
+  "nick": "sto",
   "extends": [
     "Entity"
   ],

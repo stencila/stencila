@@ -92,7 +92,7 @@ pub struct MathInlineOptions {
 }
 
 impl MathInline {
-    const NICK: &'static str = "mat";
+    const NICK: &'static str = "mti";
     
     pub fn node_type(&self) -> NodeType {
         NodeType::MathInline

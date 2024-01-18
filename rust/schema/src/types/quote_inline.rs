@@ -48,7 +48,7 @@ pub struct QuoteInline {
 }
 
 impl QuoteInline {
-    const NICK: &'static str = "quo";
+    const NICK: &'static str = "qti";
     
     pub fn node_type(&self) -> NodeType {
         NodeType::QuoteInline

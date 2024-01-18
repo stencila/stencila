@@ -1,5 +1,6 @@
 title: Periodical
 '@id': schema:Periodical
+nick: pdl
 extends: CreativeWork
 category: works
 description: A periodical publication.

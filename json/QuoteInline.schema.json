@@ -3,6 +3,7 @@
   "$id": "https://stencila.org/QuoteInline.schema.json",
   "@id": "stencila:QuoteInline",
   "title": "QuoteInline",
+  "nick": "qti",
   "extends": [
     "Mark"
   ],

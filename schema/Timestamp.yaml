@@ -1,5 +1,6 @@
 title: Timestamp
 '@id': schema:Timestamp
+nick: tst
 extends: Entity
 category: data
 description: A value that represents a point in time.

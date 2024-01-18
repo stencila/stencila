@@ -34,7 +34,7 @@ pub struct DateTimeValidator {
 }
 
 impl DateTimeValidator {
-    const NICK: &'static str = "dat";
+    const NICK: &'static str = "dtv";
     
     pub fn node_type(&self) -> NodeType {
         NodeType::DateTimeValidator

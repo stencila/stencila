@@ -3,6 +3,7 @@
   "$id": "https://stencila.org/TimeValidator.schema.json",
   "@id": "stencila:TimeValidator",
   "title": "TimeValidator",
+  "nick": "tmv",
   "extends": [
     "Entity"
   ],

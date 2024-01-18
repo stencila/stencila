@@ -3,6 +3,7 @@
   "$id": "https://stencila.org/CallBlock.schema.json",
   "@id": "stencila:CallBlock",
   "title": "CallBlock",
+  "nick": "clb",
   "extends": [
     "IncludeBlock"
   ],

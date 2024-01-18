@@ -3,6 +3,7 @@
   "$id": "https://stencila.org/StringValidator.schema.json",
   "@id": "stencila:StringValidator",
   "title": "StringValidator",
+  "nick": "stv",
   "extends": [
     "Entity"
   ],

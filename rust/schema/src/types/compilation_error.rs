@@ -40,7 +40,7 @@ pub struct CompilationError {
 }
 
 impl CompilationError {
-    const NICK: &'static str = "com";
+    const NICK: &'static str = "cme";
     
     pub fn node_type(&self) -> NodeType {
         NodeType::CompilationError

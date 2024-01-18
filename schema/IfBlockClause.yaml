@@ -1,5 +1,6 @@
 title: IfBlockClause
 '@id': stencila:IfBlockClause
+nick: ibc
 extends: CodeExecutable
 category: flow
 description: A clause within an `IfBlock` node.

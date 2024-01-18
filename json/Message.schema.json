@@ -3,6 +3,7 @@
   "$id": "https://stencila.org/Message.schema.json",
   "@id": "schema:Message",
   "title": "Message",
+  "nick": "msg",
   "extends": [
     "Entity"
   ],

@@ -1,5 +1,6 @@
 title: InsertBlock
 '@id': stencila:InsertBlock
+nick: inb
 extends: SuggestionBlock
 category: edits
 description: A suggestion to insert some block content.

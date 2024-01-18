@@ -1,5 +1,6 @@
 title: EnumValidator
 '@id': stencila:EnumValidator
+nick: env
 extends: Entity
 category: data
 description: A schema specifying that a node must be one of several values.

@@ -48,7 +48,7 @@ pub struct CompilationDigest {
 }
 
 impl CompilationDigest {
-    const NICK: &'static str = "com";
+    const NICK: &'static str = "cmd";
     
     pub fn node_type(&self) -> NodeType {
         NodeType::CompilationDigest

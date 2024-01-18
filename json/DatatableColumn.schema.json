@@ -3,6 +3,7 @@
   "$id": "https://stencila.org/DatatableColumn.schema.json",
   "@id": "stencila:DatatableColumn",
   "title": "DatatableColumn",
+  "nick": "dtc",
   "extends": [
     "Thing"
   ],

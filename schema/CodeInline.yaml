@@ -1,5 +1,6 @@
 title: CodeInline
 '@id': stencila:CodeInline
+nick: cdi
 extends: CodeStatic
 category: code
 description: Inline code.

@@ -46,7 +46,7 @@ pub struct ReplaceBlock {
 }
 
 impl ReplaceBlock {
-    const NICK: &'static str = "rep";
+    const NICK: &'static str = "rpb";
     
     pub fn node_type(&self) -> NodeType {
         NodeType::ReplaceBlock

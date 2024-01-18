@@ -214,7 +214,7 @@ pub struct CodeChunkOptions {
 }
 
 impl CodeChunk {
-    const NICK: &'static str = "cod";
+    const NICK: &'static str = "cdc";
     
     pub fn node_type(&self) -> NodeType {
         NodeType::CodeChunk

@@ -1,5 +1,6 @@
 title: CodeBlock
 '@id': stencila:CodeBlock
+nick: cdb
 extends: CodeStatic
 category: code
 description: A code block.

@@ -741,7 +741,10 @@ pub struct {title}Options {{
             ""
         };
 
-        let nick = &title.to_lowercase()[..3];
+        let nick = match &schema.nick {
+            Some(nick) => nick.to_lowercase(),
+            None => title.to_lowercase()[..3].to_string(),
+        };
 
         write(
             path,

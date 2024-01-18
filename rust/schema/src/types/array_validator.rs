@@ -53,7 +53,7 @@ pub struct ArrayValidator {
 }
 
 impl ArrayValidator {
-    const NICK: &'static str = "arr";
+    const NICK: &'static str = "arv";
     
     pub fn node_type(&self) -> NodeType {
         NodeType::ArrayValidator

@@ -27,7 +27,7 @@ pub struct BooleanValidator {
 }
 
 impl BooleanValidator {
-    const NICK: &'static str = "boo";
+    const NICK: &'static str = "bov";
     
     pub fn node_type(&self) -> NodeType {
         NodeType::BooleanValidator

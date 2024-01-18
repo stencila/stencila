@@ -34,7 +34,7 @@ pub struct DateValidator {
 }
 
 impl DateValidator {
-    const NICK: &'static str = "dat";
+    const NICK: &'static str = "dav";
     
     pub fn node_type(&self) -> NodeType {
         NodeType::DateValidator

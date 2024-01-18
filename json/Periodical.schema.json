@@ -3,6 +3,7 @@
   "$id": "https://stencila.org/Periodical.schema.json",
   "@id": "schema:Periodical",
   "title": "Periodical",
+  "nick": "pdl",
   "extends": [
     "CreativeWork"
   ],

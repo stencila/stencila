@@ -42,7 +42,7 @@ pub struct InsertBlock {
 }
 
 impl InsertBlock {
-    const NICK: &'static str = "ins";
+    const NICK: &'static str = "inb";
     
     pub fn node_type(&self) -> NodeType {
         NodeType::InsertBlock

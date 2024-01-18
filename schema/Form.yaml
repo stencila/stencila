@@ -1,5 +1,6 @@
 title: Form
 '@id': stencila:Form
+nick: frm
 description: A form to batch updates in document parameters.
 status: under-development
 extends: Executable

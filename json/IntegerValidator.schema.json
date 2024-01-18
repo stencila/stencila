@@ -3,6 +3,7 @@
   "$id": "https://stencila.org/IntegerValidator.schema.json",
   "@id": "stencila:IntegerValidator",
   "title": "IntegerValidator",
+  "nick": "inv",
   "extends": [
     "NumberValidator"
   ],

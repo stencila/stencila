@@ -3,6 +3,7 @@
   "$id": "https://stencila.org/Timestamp.schema.json",
   "@id": "schema:Timestamp",
   "title": "Timestamp",
+  "nick": "tst",
   "extends": [
     "Entity"
   ],
