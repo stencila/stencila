@@ -1,5 +1,6 @@
 title: StringValidator
 '@id': stencila:StringValidator
+nick: stv
 extends: Entity
 category: data
 description: A schema specifying constraints on a string node.

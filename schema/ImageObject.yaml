@@ -1,5 +1,6 @@
 title: ImageObject
 '@id': schema:ImageObject
+nick: img
 extends: MediaObject
 category: works
 description: An image file.

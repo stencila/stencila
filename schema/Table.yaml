@@ -1,5 +1,6 @@
 title: Table
 '@id': schema:Table
+nick: tbl
 extends: CreativeWork
 category: works
 description: A table.
@@ -43,6 +44,7 @@ properties:
     type: array
     items:
       $ref: TableRow
+    walk: true
     proptest:
       min:
         description: Generate up to a 2x2 table with a header row.

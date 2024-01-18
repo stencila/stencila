@@ -38,7 +38,7 @@ pub struct ExecutionTag {
 }
 
 impl ExecutionTag {
-    const NICK: &'static str = "exe";
+    const NICK: &'static str = "ext";
     
     pub fn node_type(&self) -> NodeType {
         NodeType::ExecutionTag

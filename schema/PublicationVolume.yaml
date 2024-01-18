@@ -1,5 +1,6 @@
 title: PublicationVolume
 '@id': schema:PublicationVolume
+nick: pbv
 extends: CreativeWork
 category: works
 description: |

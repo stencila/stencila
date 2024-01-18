@@ -33,7 +33,7 @@ pub struct StringPatch {
 }
 
 impl StringPatch {
-    const NICK: &'static str = "str";
+    const NICK: &'static str = "stp";
     
     pub fn node_type(&self) -> NodeType {
         NodeType::StringPatch

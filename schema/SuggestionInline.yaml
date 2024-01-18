@@ -1,5 +1,6 @@
 title: SuggestionInline
 '@id': stencila:SuggestionInline
+nick: sgi
 extends: Suggestion
 category: edits
 abstract: true

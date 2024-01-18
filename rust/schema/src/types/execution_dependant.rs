@@ -42,7 +42,7 @@ pub struct ExecutionDependant {
 }
 
 impl ExecutionDependant {
-    const NICK: &'static str = "exe";
+    const NICK: &'static str = "exd";
     
     pub fn node_type(&self) -> NodeType {
         NodeType::ExecutionDependant

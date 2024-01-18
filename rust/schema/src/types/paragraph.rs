@@ -64,7 +64,7 @@ pub struct ParagraphOptions {
 }
 
 impl Paragraph {
-    const NICK: &'static str = "par";
+    const NICK: &'static str = "pgh";
     
     pub fn node_type(&self) -> NodeType {
         NodeType::Paragraph

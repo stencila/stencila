@@ -3,6 +3,7 @@
   "$id": "https://stencila.org/StringPatch.schema.json",
   "@id": "stencila:StringPatch",
   "title": "StringPatch",
+  "nick": "stp",
   "extends": [
     "Entity"
   ],

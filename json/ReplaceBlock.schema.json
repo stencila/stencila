@@ -3,6 +3,7 @@
   "$id": "https://stencila.org/ReplaceBlock.schema.json",
   "@id": "stencila:ReplaceBlock",
   "title": "ReplaceBlock",
+  "nick": "rpb",
   "extends": [
     "SuggestionBlock"
   ],

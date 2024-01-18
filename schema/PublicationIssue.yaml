@@ -1,5 +1,6 @@
 title: PublicationIssue
 '@id': schema:PublicationIssue
+nick: pbi
 extends: CreativeWork
 category: works
 description: |

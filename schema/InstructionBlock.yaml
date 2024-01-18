@@ -1,5 +1,6 @@
 title: InstructionBlock
 '@id': stencila:InstructionBlock
+nick: isb
 extends: Instruction
 category: edits
 description: An instruction to edit some block content.

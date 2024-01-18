@@ -234,7 +234,7 @@ pub struct PeriodicalOptions {
 }
 
 impl Periodical {
-    const NICK: &'static str = "per";
+    const NICK: &'static str = "pdl";
     
     pub fn node_type(&self) -> NodeType {
         NodeType::Periodical

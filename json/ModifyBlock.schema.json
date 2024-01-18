@@ -3,6 +3,7 @@
   "$id": "https://stencila.org/ModifyBlock.schema.json",
   "@id": "stencila:ModifyBlock",
   "title": "ModifyBlock",
+  "nick": "mdb",
   "extends": [
     "SuggestionBlock"
   ],

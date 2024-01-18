@@ -1,5 +1,6 @@
 title: QuoteBlock
 '@id': stencila:QuoteBlock
+nick: qtb
 extends: Entity
 category: prose
 description: A section quoted from somewhere else.

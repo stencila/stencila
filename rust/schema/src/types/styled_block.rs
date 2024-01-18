@@ -100,7 +100,7 @@ pub struct StyledBlockOptions {
 }
 
 impl StyledBlock {
-    const NICK: &'static str = "sty";
+    const NICK: &'static str = "stb";
     
     pub fn node_type(&self) -> NodeType {
         NodeType::StyledBlock

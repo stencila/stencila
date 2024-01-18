@@ -1,5 +1,6 @@
 title: DateTime
 '@id': schema:DateTime
+nick: dti
 extends: Entity
 category: data
 description: A combination of date and time of day in the form `[-]CCYY-MM-DDThh:mm:ss[Z|(+|-)hh:mm]`.

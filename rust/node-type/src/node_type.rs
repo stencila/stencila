@@ -1,9 +1,6 @@
 // Generated file; do not edit. See `schema-gen` crate.
 
-use common::{
-    serde::Serialize,
-    strum::{Display, EnumIter, EnumString},
-};
+use common::{serde::Serialize, strum::{Display, EnumString, EnumIter}};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Display, EnumString, EnumIter)]
 #[serde(crate = "common::serde")]
@@ -131,5 +128,5 @@ pub enum NodeType {
     Underline,
     Variable,
     VideoObject,
-    Object,
+    Object
 }

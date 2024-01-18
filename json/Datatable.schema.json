@@ -3,6 +3,7 @@
   "$id": "https://stencila.org/Datatable.schema.json",
   "@id": "stencila:Datatable",
   "title": "Datatable",
+  "nick": "dtb",
   "extends": [
     "CreativeWork"
   ],

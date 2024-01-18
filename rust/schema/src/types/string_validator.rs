@@ -39,7 +39,7 @@ pub struct StringValidator {
 }
 
 impl StringValidator {
-    const NICK: &'static str = "str";
+    const NICK: &'static str = "stv";
     
     pub fn node_type(&self) -> NodeType {
         NodeType::StringValidator

@@ -1,5 +1,6 @@
 title: TupleValidator
 '@id': stencila:TupleValidator
+nick: tuv
 extends: Entity
 category: data
 description: A validator specifying constraints on an array of heterogeneous items.

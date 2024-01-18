@@ -47,7 +47,7 @@ pub struct ModifyInline {
 }
 
 impl ModifyInline {
-    const NICK: &'static str = "mod";
+    const NICK: &'static str = "mdi";
     
     pub fn node_type(&self) -> NodeType {
         NodeType::ModifyInline

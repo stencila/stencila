@@ -190,7 +190,7 @@ pub struct IfBlockClauseOptions {
 }
 
 impl IfBlockClause {
-    const NICK: &'static str = "ifb";
+    const NICK: &'static str = "ibc";
     
     pub fn node_type(&self) -> NodeType {
         NodeType::IfBlockClause

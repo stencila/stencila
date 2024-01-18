@@ -181,7 +181,7 @@ pub struct InstructionBlockOptions {
 }
 
 impl InstructionBlock {
-    const NICK: &'static str = "ins";
+    const NICK: &'static str = "isb";
     
     pub fn node_type(&self) -> NodeType {
         NodeType::InstructionBlock

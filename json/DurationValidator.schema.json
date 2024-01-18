@@ -3,6 +3,7 @@
   "$id": "https://stencila.org/DurationValidator.schema.json",
   "@id": "stencila:DurationValidator",
   "title": "DurationValidator",
+  "nick": "duv",
   "extends": [
     "Entity"
   ],

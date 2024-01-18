@@ -1,5 +1,6 @@
 title: ExecutionError
 '@id': stencila:ExecutionError
+nick: exe
 extends: Entity
 category: code
 status: alpha

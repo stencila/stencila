@@ -3,6 +3,7 @@
   "$id": "https://stencila.org/DeleteBlock.schema.json",
   "@id": "stencila:DeleteBlock",
   "title": "DeleteBlock",
+  "nick": "deb",
   "extends": [
     "SuggestionBlock"
   ],

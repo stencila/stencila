@@ -3,6 +3,7 @@
   "$id": "https://stencila.org/StyledBlock.schema.json",
   "@id": "stencila:StyledBlock",
   "title": "StyledBlock",
+  "nick": "stb",
   "extends": [
     "Styled"
   ],

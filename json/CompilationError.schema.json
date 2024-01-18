@@ -3,6 +3,7 @@
   "$id": "https://stencila.org/CompilationError.schema.json",
   "@id": "stencila:CompilationError",
   "title": "CompilationError",
+  "nick": "cme",
   "extends": [
     "Entity"
   ],

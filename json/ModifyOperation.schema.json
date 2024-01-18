@@ -3,6 +3,7 @@
   "$id": "https://stencila.org/ModifyOperation.schema.json",
   "@id": "stencila:ModifyOperation",
   "title": "ModifyOperation",
+  "nick": "mdo",
   "extends": [
     "Entity"
   ],

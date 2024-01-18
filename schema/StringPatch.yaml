@@ -1,5 +1,6 @@
 title: StringPatch
 '@id': stencila:StringPatch
+nick: stp
 extends: Entity
 category: edits
 description: An set of operations to modify a string.

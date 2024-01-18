@@ -1,5 +1,6 @@
 title: List
 '@id': schema:ItemList
+nick: lst
 extends: Entity
 category: prose
 description: A list of items.
@@ -26,6 +27,7 @@ properties:
     type: array
     items:
       $ref: ListItem
+    walk: true
     jats:
       content: true
     proptest:

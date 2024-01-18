@@ -47,7 +47,7 @@ pub struct CodeLocation {
 }
 
 impl CodeLocation {
-    const NICK: &'static str = "cod";
+    const NICK: &'static str = "cdl";
     
     pub fn node_type(&self) -> NodeType {
         NodeType::CodeLocation

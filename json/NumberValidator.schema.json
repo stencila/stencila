@@ -3,6 +3,7 @@
   "$id": "https://stencila.org/NumberValidator.schema.json",
   "@id": "stencila:NumberValidator",
   "title": "NumberValidator",
+  "nick": "nuv",
   "extends": [
     "Entity"
   ],

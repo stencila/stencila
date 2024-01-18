@@ -1,5 +1,6 @@
 title: InsertInline
 '@id': stencila:InsertInline
+nick: ini
 extends: SuggestionInline
 category: edits
 description: A suggestion to insert some inline content.

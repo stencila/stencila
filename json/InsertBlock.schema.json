@@ -3,6 +3,7 @@
   "$id": "https://stencila.org/InsertBlock.schema.json",
   "@id": "stencila:InsertBlock",
   "title": "InsertBlock",
+  "nick": "inb",
   "extends": [
     "SuggestionBlock"
   ],

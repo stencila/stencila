@@ -1,5 +1,6 @@
 title: ModifyInline
 '@id': stencila:ModifyInline
+nick: mdi
 extends: SuggestionInline
 category: edits
 description: A suggestion to modify some inline content.

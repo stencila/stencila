@@ -208,7 +208,7 @@ pub struct ForBlockOptions {
 }
 
 impl ForBlock {
-    const NICK: &'static str = "for";
+    const NICK: &'static str = "frb";
     
     pub fn node_type(&self) -> NodeType {
         NodeType::ForBlock

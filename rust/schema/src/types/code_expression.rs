@@ -181,7 +181,7 @@ pub struct CodeExpressionOptions {
 }
 
 impl CodeExpression {
-    const NICK: &'static str = "cod";
+    const NICK: &'static str = "cde";
     
     pub fn node_type(&self) -> NodeType {
         NodeType::CodeExpression

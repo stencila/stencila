@@ -3,6 +3,7 @@
   "$id": "https://stencila.org/Table.schema.json",
   "@id": "schema:Table",
   "title": "Table",
+  "nick": "tbl",
   "extends": [
     "CreativeWork"
   ],
@@ -555,6 +556,7 @@
       "aliases": [
         "row"
       ],
+      "walk": true,
       "proptest": {
         "min": {
           "description": "Generate up to a 2x2 table with a header row.",

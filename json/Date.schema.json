@@ -3,6 +3,7 @@
   "$id": "https://stencila.org/Date.schema.json",
   "@id": "schema:Date",
   "title": "Date",
+  "nick": "dae",
   "extends": [
     "Entity"
   ],

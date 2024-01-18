@@ -42,7 +42,7 @@ pub struct DeleteInline {
 }
 
 impl DeleteInline {
-    const NICK: &'static str = "del";
+    const NICK: &'static str = "dei";
     
     pub fn node_type(&self) -> NodeType {
         NodeType::DeleteInline

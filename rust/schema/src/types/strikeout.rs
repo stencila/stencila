@@ -43,7 +43,7 @@ pub struct Strikeout {
 }
 
 impl Strikeout {
-    const NICK: &'static str = "str";
+    const NICK: &'static str = "stk";
     
     pub fn node_type(&self) -> NodeType {
         NodeType::Strikeout

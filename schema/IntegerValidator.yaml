@@ -1,5 +1,6 @@
 title: IntegerValidator
 '@id': stencila:IntegerValidator
+nick: inv
 extends: NumberValidator
 category: data
 description: A validator specifying the constraints on an integer node.

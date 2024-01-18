@@ -1,15 +1,13 @@
-use std::{
-    collections::HashMap,
-    sync::{
-        atomic::{AtomicU32, Ordering},
-        Arc,
-    },
+use std::sync::{
+    atomic::{AtomicU32, Ordering},
+    Arc,
 };
 
 use json_patch::{PatchOperation, ReplaceOperation};
 
 use common::{
     eyre::Result,
+    indexmap::IndexMap,
     serde::{Deserialize, Serialize},
     serde_json,
     tokio::{
@@ -37,7 +35,7 @@ struct ObjectState {
     node: Node,
 
     /// A map between node ids and paths within the root node
-    map: HashMap<NodeId, NodePath>,
+    map: IndexMap<NodeId, NodePath>,
 }
 
 /// A patch to apply to a JSON object representing the document

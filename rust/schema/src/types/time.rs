@@ -38,7 +38,7 @@ pub struct Time {
 }
 
 impl Time {
-    const NICK: &'static str = "tim";
+    const NICK: &'static str = "tme";
     
     pub fn node_type(&self) -> NodeType {
         NodeType::Time

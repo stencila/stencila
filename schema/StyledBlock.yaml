@@ -1,5 +1,6 @@
 title: StyledBlock
 '@id': stencila:StyledBlock
+nick: stb
 status: under-development
 extends: Styled
 category: style

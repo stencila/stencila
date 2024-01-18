@@ -248,7 +248,7 @@ pub struct SoftwareSourceCodeOptions {
 }
 
 impl SoftwareSourceCode {
-    const NICK: &'static str = "sof";
+    const NICK: &'static str = "ssc";
     
     pub fn node_type(&self) -> NodeType {
         NodeType::SoftwareSourceCode

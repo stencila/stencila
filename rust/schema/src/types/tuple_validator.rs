@@ -33,7 +33,7 @@ pub struct TupleValidator {
 }
 
 impl TupleValidator {
-    const NICK: &'static str = "tup";
+    const NICK: &'static str = "tuv";
     
     pub fn node_type(&self) -> NodeType {
         NodeType::TupleValidator

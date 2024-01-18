@@ -1,5 +1,6 @@
 title: StringOperation
 '@id': stencila:StringOperation
+nick: sto
 extends: Entity
 category: edits
 description: An operation that modifies a string.

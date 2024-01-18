@@ -96,7 +96,7 @@ pub struct MathBlockOptions {
 }
 
 impl MathBlock {
-    const NICK: &'static str = "mat";
+    const NICK: &'static str = "mtb";
     
     pub fn node_type(&self) -> NodeType {
         NodeType::MathBlock

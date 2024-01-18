@@ -47,7 +47,7 @@ pub struct ModifyBlock {
 }
 
 impl ModifyBlock {
-    const NICK: &'static str = "mod";
+    const NICK: &'static str = "mdb";
     
     pub fn node_type(&self) -> NodeType {
         NodeType::ModifyBlock

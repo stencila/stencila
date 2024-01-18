@@ -68,7 +68,7 @@ pub struct QuoteBlockOptions {
 }
 
 impl QuoteBlock {
-    const NICK: &'static str = "quo";
+    const NICK: &'static str = "qtb";
     
     pub fn node_type(&self) -> NodeType {
         NodeType::QuoteBlock

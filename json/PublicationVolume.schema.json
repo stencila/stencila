@@ -3,6 +3,7 @@
   "$id": "https://stencila.org/PublicationVolume.schema.json",
   "@id": "schema:PublicationVolume",
   "title": "PublicationVolume",
+  "nick": "pbv",
   "extends": [
     "CreativeWork"
   ],

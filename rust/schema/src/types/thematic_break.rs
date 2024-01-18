@@ -33,7 +33,7 @@ pub struct ThematicBreak {
 }
 
 impl ThematicBreak {
-    const NICK: &'static str = "the";
+    const NICK: &'static str = "thb";
     
     pub fn node_type(&self) -> NodeType {
         NodeType::ThematicBreak

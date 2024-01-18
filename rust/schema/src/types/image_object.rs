@@ -293,7 +293,7 @@ pub struct ImageObjectOptions {
 }
 
 impl ImageObject {
-    const NICK: &'static str = "ima";
+    const NICK: &'static str = "img";
     
     pub fn node_type(&self) -> NodeType {
         NodeType::ImageObject

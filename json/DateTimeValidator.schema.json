@@ -3,6 +3,7 @@
   "$id": "https://stencila.org/DateTimeValidator.schema.json",
   "@id": "stencila:DateTimeValidator",
   "title": "DateTimeValidator",
+  "nick": "dtv",
   "extends": [
     "Entity"
   ],

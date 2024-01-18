@@ -110,7 +110,7 @@ pub struct ListItemOptions {
 }
 
 impl ListItem {
-    const NICK: &'static str = "lis";
+    const NICK: &'static str = "lsi";
     
     pub fn node_type(&self) -> NodeType {
         NodeType::ListItem

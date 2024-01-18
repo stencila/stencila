@@ -1,5 +1,6 @@
 title: Strikeout
 '@id': stencila:Strikeout
+nick: stk
 extends: Mark
 category: prose
 description: Content that is marked as struck out.

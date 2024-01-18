@@ -182,7 +182,7 @@ pub struct CallBlockOptions {
 }
 
 impl CallBlock {
-    const NICK: &'static str = "cal";
+    const NICK: &'static str = "clb";
     
     pub fn node_type(&self) -> NodeType {
         NodeType::CallBlock

@@ -3,6 +3,7 @@
   "$id": "https://stencila.org/MathBlock.schema.json",
   "@id": "stencila:MathBlock",
   "title": "MathBlock",
+  "nick": "mtb",
   "extends": [
     "Math"
   ],

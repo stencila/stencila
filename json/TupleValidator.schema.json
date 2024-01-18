@@ -3,6 +3,7 @@
   "$id": "https://stencila.org/TupleValidator.schema.json",
   "@id": "stencila:TupleValidator",
   "title": "TupleValidator",
+  "nick": "tuv",
   "extends": [
     "Entity"
   ],
