@@ -265,6 +265,7 @@ dependencies = [
  "codec-text-trait",
  "minijinja",
  "rust-embed",
+ "serde",
 ]
 
 [[package]]
