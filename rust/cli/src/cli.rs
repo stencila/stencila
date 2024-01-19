@@ -393,7 +393,7 @@ impl EncodeOptions {
 #[derive(Debug, Args)]
 struct ConfigOptions {
     #[arg(long, default_value = "config")]
-    dir: Option<DirType>,
+    dir: DirType,
 
     #[arg(long)]
     ensure: bool,
@@ -723,7 +723,8 @@ impl Cli {
             Command::Test { path, reps } => assistants::testing::test_example(&path, reps).await?,
 
             Command::Config(options) => {
-                let dir = app::get_app_dir(options.dir.unwrap(), options.ensure)?;
+                // TODO: Make options.dir an option, and if it not there, show all folders.
+                let dir = app::get_app_dir(options.dir, options.ensure)?;
                 println!("{}", dir.display());
             }
         }
