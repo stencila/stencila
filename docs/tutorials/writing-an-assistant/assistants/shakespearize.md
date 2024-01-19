@@ -2,6 +2,7 @@
 version: "0.1.0"
 
 instruction-type: modify-blocks
+expected-nodes: Paragraph+
 ---
 
 Get help from an ancient bard to raise the standard of your prose.
