@@ -9,11 +9,13 @@ use std::{fs::read_to_string, sync::Arc};
 
 #[cfg(not(debug_assertions))]
 use cached::proc_macro::once;
-
 use minijinja::{Environment, UndefinedBehavior};
 use rust_embed::RustEmbed;
+use serde::Serialize;
 
 use app::{get_app_dir, DirType};
+use assistant::common::eyre;
+use assistant::schema::NodeType;
 use assistant::{
     codecs::{self, EncodeOptions, Format, LossesResponse},
     common::{
@@ -68,6 +70,76 @@ const DELEGATES: &[&str] = &[
     "openai/dall-e-2",
 ];
 
+/// This structure eases the process of creating a specialized assistant
+/// by providing a shorthand for the type of nodes expected to be returned
+/// by the instruction.
+/// For now, it is simple, just a node type and a boolean indicating whether
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(try_from = "&str", into = "String")]
+pub struct ExpectedNodes {
+    node_type: NodeType,
+    repeated: bool,
+}
+
+impl ExpectedNodes {
+    fn as_regex(&self, use_repeat: bool) -> Result<Regex> {
+        let pattern = if use_repeat && self.repeated {
+            format!("^({},?)+$", self.node_type)
+        } else {
+            format!("^{}$", self.node_type)
+        };
+        Ok(Regex::new(&pattern)?)
+    }
+
+    /// Update the options based on the expected nodes.
+    fn apply(&self, options: &mut GenerateOptions) -> Result<()> {
+        if options.transform_nodes.is_none() {
+            options.transform_nodes = Some(self.node_type);
+        }
+        if options.filter_nodes.is_none() {
+            options.filter_nodes = Some(self.as_regex(false)?);
+        }
+
+        if options.take_nodes.is_none() && !self.repeated {
+            options.take_nodes = Some(1);
+        }
+
+        if options.assert_nodes.is_none() {
+            options.assert_nodes = Some(self.as_regex(true)?);
+        }
+        Ok(())
+    }
+}
+
+// Providing these conversions means we don't need a specialized Serialize and
+// Deserialize implementation for the `ExpectedNodes` struct.
+// And they can be used more widely.
+impl From<ExpectedNodes> for String {
+    fn from(en: ExpectedNodes) -> Self {
+        let mut result = en.node_type.to_string();
+        if en.repeated {
+            result.push('+');
+        }
+        result
+    }
+}
+
+impl TryFrom<&str> for ExpectedNodes {
+    type Error = eyre::Report;
+
+    fn try_from(s: &str) -> Result<Self> {
+        let repeated = s.ends_with('+');
+        let node_type_str = if repeated { &s[..s.len() - 1] } else { s };
+        let node_type = node_type_str
+            .parse::<NodeType>()
+            .map_err(|_| eyre::eyre!("Invalid NodeType: {}", node_type_str))?;
+
+        Ok(ExpectedNodes {
+            node_type,
+            repeated,
+        })
+    }
+}
 /// Default format
 const FORMAT: Format = Format::Markdown;
 
@@ -130,6 +202,9 @@ struct SpecializedAssistant {
 
     /// The type of instruction the assistant executes
     instruction_type: Option<InstructionType>,
+
+    /// A description of the kinds of nodes expected to be returned by the instruction.
+    expected_nodes: Option<ExpectedNodes>,
 
     /// Regexes to match in the instruction text
     #[serde(deserialize_with = "deserialize_option_vec_regex", default)]
@@ -261,6 +336,32 @@ impl SpecializedAssistant {
         if let Some(examples) = &self.instruction_examples {
             self.instruction_embeddings = Some(GenerateTask::create_embeddings(examples.clone())?);
         }
+
+        // Apply expected nodes to options, updating them if necessary
+        if let Some(expected_nodes) = &self.expected_nodes {
+            expected_nodes.apply(&mut self.options)?;
+        }
+
+        // pub transform_nodes: Option<NodeType>,
+        //
+        // /// The pattern for the type of node that filtered for after transform in applied
+        // #[serde(
+        //     deserialize_with = "deserialize_option_regex",
+        //     default,
+        //     skip_serializing
+        // )]
+        // pub filter_nodes: Option<Regex>,
+        //
+        // /// The number of nodes to take after filtering
+        // pub take_nodes: Option<usize>,
+        //
+        // /// A pattern for the type and number of nodes that should be generated
+        // #[serde(
+        //     deserialize_with = "deserialize_option_regex",
+        //     default,
+        //     skip_serializing
+        // )]
+        // pub assert_nodes: Option<Regex>,
 
         Ok(())
     }
@@ -672,6 +773,67 @@ mod tests {
     #[test]
     fn builtin_assistants_can_be_parsed() -> Result<()> {
         list_builtin()?;
+
+        Ok(())
+    }
+
+    #[test]
+    fn test_expected_nodes_conversion() {
+        let test_cases = [
+            ("Paragraph", NodeType::Paragraph, false),
+            ("CodeBlock+", NodeType::CodeBlock, true),
+            ("Cite", NodeType::Cite, false),
+            ("Claim+", NodeType::Claim, true),
+        ];
+
+        for &(input, expected_node_type, expected_repeated) in &test_cases {
+            match ExpectedNodes::try_from(input) {
+                Ok(en) => {
+                    assert_eq!(en.node_type, expected_node_type);
+                    assert_eq!(en.repeated, expected_repeated);
+                }
+                Err(e) => panic!("Failed to convert from str: {}", e),
+            }
+
+            let en = ExpectedNodes {
+                node_type: expected_node_type,
+                repeated: expected_repeated,
+            };
+            let output: String = en.into();
+            assert_eq!(output, input)
+        }
+    }
+
+    #[test]
+    fn expected_nodes_fills_out_options() -> Result<()> {
+        let mut assistant = SpecializedAssistant {
+            id: "insert-blocks".to_string(),
+            instruction_type: Some(InstructionType::InsertBlocks),
+            expected_nodes: Some(ExpectedNodes {
+                node_type: NodeType::Paragraph,
+                repeated: true,
+            }),
+            ..Default::default()
+        };
+        assistant.init()?;
+
+        assert_eq!(assistant.options.transform_nodes, Some(NodeType::Paragraph));
+
+        let rx = assistant
+            .options
+            .filter_nodes
+            .ok_or_else(|| eyre!("Expected filter_nodes to be Some"))?;
+
+        assert_eq!("^Paragraph$", rx.as_str());
+
+        assert_eq!(assistant.options.take_nodes, None);
+
+        let rx = assistant
+            .options
+            .assert_nodes
+            .ok_or_else(|| eyre!("Expected assert_nodes to be Some"))?;
+
+        assert_eq!("^(Paragraph,?)+$", rx.as_str());
 
         Ok(())
     }
