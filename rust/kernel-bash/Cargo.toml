@@ -1,0 +1,7 @@
+[package]
+name = "kernel-bash"
+version = "0.0.0"
+edition = "2021"
+
+[dependencies]
+kernel-micro = { path = "../kernel-micro" }

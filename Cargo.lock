@@ -2471,6 +2471,35 @@ dependencies = [
 ]
 
 [[package]]
+name = "kernel"
+version = "0.0.0"
+dependencies = [
+ "common",
+]
+
+[[package]]
+name = "kernel-bash"
+version = "0.0.0"
+dependencies = [
+ "kernel-micro",
+]
+
+[[package]]
+name = "kernel-micro"
+version = "0.0.0"
+dependencies = [
+ "kernel",
+]
+
+[[package]]
+name = "kernels"
+version = "0.0.0"
+dependencies = [
+ "kernel",
+ "kernel-bash",
+]
+
+[[package]]
 name = "kqueue"
 version = "1.0.8"
 source = "registry+https://github.com/rust-lang/crates.io-index"

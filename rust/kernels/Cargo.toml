@@ -1,0 +1,8 @@
+[package]
+name = "kernels"
+version = "0.0.0"
+edition = "2021"
+
+[dependencies]
+kernel = { path = "../kernel" }
+kernel-bash = { path = "../kernel-bash" }
