@@ -100,6 +100,19 @@ cd ../examples/nodes
 cargo run --bin stencila -- serve
 ```
 
+#### Via Docker
+
+If you are running in an environment where you don't have npm installed, you can
+run the web build command & use those assets when displaying content from the
+server. You _must_ have docker installed for this to work!
+
+```console
+make build-in-docker
+```
+
+Run this prior to starting the server. Unlike `npm start` this does not respond
+to changes to the web code.
+
 When contributing code please run the following linting, formatting and testing scripts. Linting checks are run on CI, so for faster iteration, fewer failed runs and less noise, it's generally a good idea to run them locally before pushing code.
 
 ### Workspace dependencies
