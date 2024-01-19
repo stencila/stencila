@@ -16,7 +16,7 @@ class TooltipElement extends TWLitElement {
 
   render() {
     return html`
-      <div class="p-4">
+      <div class="p-4 bg-black text-white">
         <div class="mb-1 font-bold">Example Tooltip</div>
         ${this.type ? html`<div>Node: ${this.type}</div>` : ''}
         ${this.error ? html`<div>Error: ${this.error}</div>` : ''}
