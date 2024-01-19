@@ -6,3 +6,5 @@ node_modules
 /.envrc
 /.idea
 /tags
+/python/.idea
+/python/.envrc
