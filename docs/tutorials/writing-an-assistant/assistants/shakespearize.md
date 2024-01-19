@@ -5,7 +5,7 @@ instruction-type: modify-blocks
 expected-nodes: Paragraph+
 ---
 
-Get help from an ancient bard to raise the standard of your prose.
+Get help from an ancient bard to raise the standard of your prose and story writing.
 
 ---
 
