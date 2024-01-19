@@ -1,6 +1,7 @@
 //! Application level (e.g. Stencila CLI or Stencila Desktop) config and directories
 
 use clap::ValueEnum;
+use std::env;
 use std::{fs::create_dir_all, path::PathBuf};
 
 use directories::ProjectDirs;
@@ -21,14 +22,21 @@ pub enum DirType {
     Assistants,
 }
 
-pub fn get_app_dir(dt: DirType, ensure: bool) -> Result<PathBuf> {
+pub fn get_app_dir(dt: DirType, mut ensure: bool) -> Result<PathBuf> {
     let dirs = project_dirs()?;
 
     let dir = {
         match dt {
             DirType::Config => dirs.config_dir().to_path_buf(),
             DirType::Cache => dirs.cache_dir().to_path_buf(),
-            DirType::Assistants => dirs.config_dir().join("assistants"),
+            DirType::Assistants => {
+                if let Ok(dir) = env::var("STENCILA_ASSISTANTS_DIR") {
+                    ensure = false;
+                    PathBuf::from(dir)
+                } else {
+                    dirs.config_dir().join("assistants")
+                }
+            }
         }
     };
     if ensure && !dir.exists() {
