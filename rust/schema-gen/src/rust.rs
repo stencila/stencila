@@ -192,14 +192,14 @@ impl Schemas {
 
 use common::{{
     serde::Serialize,
-    strum::{{Display, EnumIter, EnumString}}
+    strum::{{Display, EnumIter, EnumString}},
 }};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Display, EnumString, EnumIter)]
 #[serde(crate = "common::serde")]
 #[strum(crate = "common::strum")]
 pub enum NodeType {{
-{node_types}
+{node_types},
 }}
 "#
             ),

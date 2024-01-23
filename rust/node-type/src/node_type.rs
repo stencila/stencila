@@ -2,7 +2,7 @@
 
 use common::{
     serde::Serialize,
-    strum::{Display, EnumIter, EnumString}
+    strum::{Display, EnumIter, EnumString},
 };
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Display, EnumString, EnumIter)]
@@ -131,5 +131,5 @@ pub enum NodeType {
     Underline,
     Variable,
     VideoObject,
-    Object
+    Object,
 }
