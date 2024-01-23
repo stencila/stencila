@@ -77,7 +77,7 @@ pub struct Schema {
     pub title: Option<String>,
 
     /// The short identifier for this type
-    /// 
+    ///
     /// Used to prefix `NodeId`s to add type information to them.
     /// Defaults to the lowercase first three letters of the `title`.
     pub nick: Option<String>,

@@ -190,7 +190,10 @@ impl Schemas {
             format!(
                 r#"{GENERATED_COMMENT}
 
-use common::{{serde::Serialize, strum::{{Display, EnumString, EnumIter}}}};
+use common::{{
+    serde::Serialize,
+    strum::{{Display, EnumIter, EnumString}}
+}};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Display, EnumString, EnumIter)]
 #[serde(crate = "common::serde")]
