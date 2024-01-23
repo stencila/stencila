@@ -1,5 +1,6 @@
 title: Paragraph
 '@id': stencila:Paragraph
+nick: pgh
 extends: Entity
 category: prose
 description: A paragraph.
@@ -15,7 +16,7 @@ html:
 jats:
   elem: p
 markdown:
-  template: '{content}\n\n'
+  template: '{{content}}\n\n'
 proptest: {}
 required:
   - content

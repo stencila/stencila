@@ -3,11 +3,15 @@
   "$id": "https://stencila.org/TupleValidator.schema.json",
   "@id": "stencila:TupleValidator",
   "title": "TupleValidator",
+  "nick": "tuv",
   "extends": [
     "Entity"
   ],
   "category": "data",
   "description": "A validator specifying constraints on an array of heterogeneous items.",
+  "markdown": {
+    "derive": false
+  },
   "required": [
     "type"
   ],

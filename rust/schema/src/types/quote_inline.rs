@@ -9,14 +9,14 @@ use super::string::String;
 /// Inline, quoted content.
 #[skip_serializing_none]
 #[serde_as]
-#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, WalkNode, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec, WriteNode, ReadNode)]
+#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, WalkNode, WriteNode, ReadNode, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 #[cfg_attr(feature = "proptest", derive(Arbitrary))]
 #[derive(derive_more::Display)]
 #[display(fmt = "QuoteInline")]
 #[html(elem = "q")]
 #[jats(elem = "inline-quote")]
-#[markdown(template = "<q>{content}</q>")]
+#[markdown(template = "<q>{{content}}</q>")]
 pub struct QuoteInline {
     /// The type of this item.
     #[cfg_attr(feature = "proptest", proptest(value = "Default::default()"))]
@@ -40,9 +40,24 @@ pub struct QuoteInline {
     /// The source of the quote.
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     pub cite: Option<CiteOrText>,
+
+    /// A unique identifier for a node within a document
+    #[cfg_attr(feature = "proptest", proptest(value = "Default::default()"))]
+    #[serde(skip)]
+    pub uid: NodeUid
 }
 
 impl QuoteInline {
+    const NICK: &'static str = "qti";
+    
+    pub fn node_type(&self) -> NodeType {
+        NodeType::QuoteInline
+    }
+
+    pub fn node_id(&self) -> NodeId {
+        NodeId::new(Self::NICK, &self.uid)
+    }
+    
     pub fn new(content: Vec<Inline>) -> Self {
         Self {
             content,

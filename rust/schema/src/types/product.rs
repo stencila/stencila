@@ -11,7 +11,7 @@ use super::text::Text;
 /// Any offered product or service. For example, a pair of shoes; a haircut; or an episode of a TV show streamed online.
 #[skip_serializing_none]
 #[serde_as]
-#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, WalkNode, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec, WriteNode, ReadNode)]
+#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, WalkNode, WriteNode, ReadNode, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 #[derive(derive_more::Display)]
 #[display(fmt = "Product")]
@@ -29,13 +29,17 @@ pub struct Product {
     #[serde(flatten)]
     #[html(flatten)]
     #[jats(flatten)]
-    #[markdown(flatten)]
     pub options: Box<ProductOptions>,
+
+    /// A unique identifier for a node within a document
+    
+    #[serde(skip)]
+    pub uid: NodeUid
 }
 
 #[skip_serializing_none]
 #[serde_as]
-#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, WalkNode, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec, WriteNode, ReadNode)]
+#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, WalkNode, WriteNode, ReadNode, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 pub struct ProductOptions {
     /// Alternate names (aliases) for the item.
@@ -82,6 +86,16 @@ pub struct ProductOptions {
 }
 
 impl Product {
+    const NICK: &'static str = "pro";
+    
+    pub fn node_type(&self) -> NodeType {
+        NodeType::Product
+    }
+
+    pub fn node_id(&self) -> NodeId {
+        NodeId::new(Self::NICK, &self.uid)
+    }
+    
     pub fn new() -> Self {
         Self {
             ..Default::default()

@@ -1,5 +1,6 @@
 title: QuoteBlock
 '@id': stencila:QuoteBlock
+nick: qtb
 extends: Entity
 category: prose
 description: A section quoted from somewhere else.
@@ -8,8 +9,7 @@ jats:
 html:
   elem: blockquote
 markdown:
-  template: '> {content}'
-  special: true
+  derive: false
 proptest: {}
 required:
   - content

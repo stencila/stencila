@@ -1,9 +1,12 @@
 title: EnumValidator
 '@id': stencila:EnumValidator
+nick: env
 extends: Entity
 category: data
 description: A schema specifying that a node must be one of several values.
 $comment: Analogous to the JSON Schema [`enum` keyword](https://json-schema.org/draft/2019-09/json-schema-validation.html#rfc.section.6.1.2).
+markdown:
+  derive: false
 required:
   - values
 properties:

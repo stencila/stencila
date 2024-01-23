@@ -23,14 +23,13 @@ use super::thing_type::ThingType;
 /// An audio file.
 #[skip_serializing_none]
 #[serde_as]
-#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, WalkNode, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec, WriteNode, ReadNode)]
+#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, WalkNode, WriteNode, ReadNode, HtmlCodec, JatsCodec, TextCodec)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 #[cfg_attr(feature = "proptest", derive(Arbitrary))]
 #[derive(derive_more::Display)]
 #[display(fmt = "AudioObject")]
 #[html(elem = "audio", special)]
 #[jats(elem = "inline-media", special)]
-#[markdown(template = "![{caption}]({content_url} \"{title}\")", special)]
 pub struct AudioObject {
     /// The type of this item.
     #[cfg_attr(feature = "proptest", proptest(value = "Default::default()"))]
@@ -73,13 +72,17 @@ pub struct AudioObject {
     #[serde(flatten)]
     #[html(flatten)]
     #[jats(flatten)]
-    #[markdown(flatten)]
     pub options: Box<AudioObjectOptions>,
+
+    /// A unique identifier for a node within a document
+    #[cfg_attr(feature = "proptest", proptest(value = "Default::default()"))]
+    #[serde(skip)]
+    pub uid: NodeUid
 }
 
 #[skip_serializing_none]
 #[serde_as]
-#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, WalkNode, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec, WriteNode, ReadNode)]
+#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, WalkNode, WriteNode, ReadNode, HtmlCodec, JatsCodec, TextCodec)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 #[cfg_attr(feature = "proptest", derive(Arbitrary))]
 pub struct AudioObjectOptions {
@@ -291,6 +294,16 @@ pub struct AudioObjectOptions {
 }
 
 impl AudioObject {
+    const NICK: &'static str = "aud";
+    
+    pub fn node_type(&self) -> NodeType {
+        NodeType::AudioObject
+    }
+
+    pub fn node_id(&self) -> NodeId {
+        NodeId::new(Self::NICK, &self.uid)
+    }
+    
     pub fn new(content_url: String) -> Self {
         Self {
             content_url,

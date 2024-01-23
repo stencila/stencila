@@ -3,12 +3,16 @@
   "$id": "https://stencila.org/IntegerValidator.schema.json",
   "@id": "stencila:IntegerValidator",
   "title": "IntegerValidator",
+  "nick": "inv",
   "extends": [
     "NumberValidator"
   ],
   "category": "data",
   "description": "A validator specifying the constraints on an integer node.",
   "$comment": "A node will be valid if it is a number with no fractional part and meets any additional constraints,\nsuch as `multipleOf`, specified in the validator.\nAnalogous to the JSON Schema `integer` validation [type](https://json-schema.org/draft/2019-09/json-schema-validation.html#rfc.section.6.1.1).\n",
+  "markdown": {
+    "derive": false
+  },
   "required": [
     "type"
   ],

@@ -21,7 +21,7 @@ use super::thing_type::ThingType;
 /// A comment on an item, e.g on a `Article` or `SoftwareSourceCode`.
 #[skip_serializing_none]
 #[serde_as]
-#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, WalkNode, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec, WriteNode, ReadNode)]
+#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, WalkNode, WriteNode, ReadNode, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 #[derive(derive_more::Display)]
 #[display(fmt = "Comment")]
@@ -55,13 +55,17 @@ pub struct Comment {
     #[serde(flatten)]
     #[html(flatten)]
     #[jats(flatten)]
-    #[markdown(flatten)]
     pub options: Box<CommentOptions>,
+
+    /// A unique identifier for a node within a document
+    
+    #[serde(skip)]
+    pub uid: NodeUid
 }
 
 #[skip_serializing_none]
 #[serde_as]
-#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, WalkNode, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec, WriteNode, ReadNode)]
+#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, WalkNode, WriteNode, ReadNode, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 pub struct CommentOptions {
     /// Alternate names (aliases) for the item.
@@ -227,6 +231,16 @@ pub struct CommentOptions {
 }
 
 impl Comment {
+    const NICK: &'static str = "com";
+    
+    pub fn node_type(&self) -> NodeType {
+        NodeType::Comment
+    }
+
+    pub fn node_id(&self) -> NodeId {
+        NodeId::new(Self::NICK, &self.uid)
+    }
+    
     pub fn new(content: Vec<Block>) -> Self {
         Self {
             content,

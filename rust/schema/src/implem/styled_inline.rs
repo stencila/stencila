@@ -2,28 +2,31 @@ use codec_losses::lost_options;
 
 use crate::{prelude::*, StyledInline};
 
-impl StyledInline {
-    pub fn to_markdown_special(&self, context: &mut MarkdownEncodeContext) -> (String, Losses) {
-        let mut losses = lost_options!(self, id);
-        losses.merge(lost_options!(
-            self.options,
-            compilation_digest,
-            compilation_errors,
-            css,
-            classes
-        ));
+impl MarkdownCodec for StyledInline {
+    fn to_markdown(&self, context: &mut MarkdownEncodeContext) {
+        context
+            .enter_node(self.node_type(), self.node_id())
+            .merge_losses(lost_options!(self, id))
+            .merge_losses(lost_options!(
+                self.options,
+                compilation_digest,
+                compilation_errors,
+                css,
+                classes
+            ))
+            .push_str("[")
+            .push_prop_fn("content", |context| self.content.to_markdown(context))
+            .push_str("]{")
+            .push_prop_str("code", &self.code)
+            .push_str("}");
 
-        let (md, md_losses) = self.content.to_markdown(context);
-        losses.merge(md_losses);
+        if let Some(lang) = &self.style_language {
+            context
+                .push_str("{")
+                .push_prop_str("style_language", lang)
+                .push_str("}");
+        }
 
-        let lang = self
-            .style_language
-            .as_ref()
-            .map(|lang| ["{", lang, "}"].concat())
-            .unwrap_or_default();
-
-        let md = ["[", &md, "]{", &self.code, "}", &lang].concat();
-
-        (md, losses)
+        context.exit_node();
     }
 }

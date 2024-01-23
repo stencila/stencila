@@ -17,7 +17,7 @@ async fn media_objects() -> Result<()> {
         vid("http://example.org/video.mp4"),
     ])]);
 
-    let (jats, _) = codec
+    let (jats, ..) = codec
         .to_string(
             &doc1,
             Some(EncodeOptions {
@@ -47,7 +47,7 @@ async fn spans() -> Result<()> {
     // Code contains whitespace characters that need to be escaped
     let doc1 = art([p([sti("\t\n\r", [])])]);
 
-    let (jats, _) = codec
+    let (jats, ..) = codec
         .to_string(
             &doc1,
             Some(EncodeOptions {

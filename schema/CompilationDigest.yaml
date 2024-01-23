@@ -1,5 +1,6 @@
 title: CompilationDigest
 '@id': stencila:CompilationDigest
+nick: cmd
 extends: Entity
 category: flow
 description: A digest of the content, semantics and dependencies of an executable node.

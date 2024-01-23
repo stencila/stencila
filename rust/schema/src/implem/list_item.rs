@@ -1,43 +1,22 @@
-use crate::{prelude::*, shortcuts::t, Block, ListItem};
+use codec_losses::lost_options;
 
-impl ListItem {
-    pub fn to_markdown_special(&self, context: &mut MarkdownEncodeContext) -> (String, Losses) {
-        let checkbox = self.is_checked.map(|is_checked| match is_checked {
-            true => t("[x] "),
-            false => t("[ ] "),
-        });
+use crate::{prelude::*, Block, ListItem};
 
-        let (md, mut losses) = match checkbox {
-            Some(checkbox) => {
-                // Check box is only added is the first block is a paragraph
-                if let Some(Block::Paragraph(paragraph)) = self.content.first() {
-                    let mut paragraph = paragraph.clone();
-                    paragraph.content.insert(0, checkbox);
+impl MarkdownCodec for ListItem {
+    fn to_markdown(&self, context: &mut MarkdownEncodeContext) {
+        context
+            .enter_node(self.node_type(), self.node_id())
+            .merge_losses(lost_options!(self, id, item, position));
 
-                    let (mut md, mut losses) = paragraph.to_markdown(context);
-                    let (rest_md, rest_losses) = self.content[1..].to_vec().to_markdown(context);
-
-                    md.push_str(&rest_md);
-                    losses.merge(rest_losses);
-
-                    (md, losses)
-                } else {
-                    self.content.to_markdown(context)
-                }
+        // Check box is only added if the first block is a paragraph
+        if let Some(is_checked) = self.is_checked {
+            if let Some(Block::Paragraph(..)) = self.content.first() {
+                context.push_str(if is_checked { "[x] " } else { "[ ] " });
             }
-            None => self.content.to_markdown(context),
-        };
-
-        if self.id.is_some() {
-            losses.add("ListItem.id")
-        }
-        if self.item.is_some() {
-            losses.add("ListItem.item")
-        }
-        if self.position.is_some() {
-            losses.add("ListItem.position")
         }
 
-        (md, losses)
+        context
+            .push_prop_fn("content", |context| self.content.to_markdown(context))
+            .exit_node();
     }
 }

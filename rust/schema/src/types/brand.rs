@@ -10,7 +10,7 @@ use super::text::Text;
 /// A brand used by an organization or person for labeling a product, product group, or similar.
 #[skip_serializing_none]
 #[serde_as]
-#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, WalkNode, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec, WriteNode, ReadNode)]
+#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, WalkNode, WriteNode, ReadNode, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 #[derive(derive_more::Display)]
 #[display(fmt = "Brand")]
@@ -31,13 +31,17 @@ pub struct Brand {
     #[serde(flatten)]
     #[html(flatten)]
     #[jats(flatten)]
-    #[markdown(flatten)]
     pub options: Box<BrandOptions>,
+
+    /// A unique identifier for a node within a document
+    
+    #[serde(skip)]
+    pub uid: NodeUid
 }
 
 #[skip_serializing_none]
 #[serde_as]
-#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, WalkNode, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec, WriteNode, ReadNode)]
+#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, WalkNode, WriteNode, ReadNode, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 pub struct BrandOptions {
     /// Alternate names (aliases) for the item.
@@ -76,6 +80,16 @@ pub struct BrandOptions {
 }
 
 impl Brand {
+    const NICK: &'static str = "bra";
+    
+    pub fn node_type(&self) -> NodeType {
+        NodeType::Brand
+    }
+
+    pub fn node_id(&self) -> NodeId {
+        NodeId::new(Self::NICK, &self.uid)
+    }
+    
     pub fn new(name: String) -> Self {
         Self {
             name,

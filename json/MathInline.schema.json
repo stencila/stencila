@@ -3,6 +3,7 @@
   "$id": "https://stencila.org/MathInline.schema.json",
   "@id": "stencila:MathInline",
   "title": "MathInline",
+  "nick": "mti",
   "extends": [
     "Math"
   ],
@@ -17,7 +18,7 @@
     "special": true
   },
   "markdown": {
-    "special": true
+    "derive": false
   },
   "required": [
     "type",

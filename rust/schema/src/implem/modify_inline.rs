@@ -1,24 +1,23 @@
+use codec_losses::lost_options;
+
 use crate::{prelude::*, ModifyInline, ModifyOperation};
 
-impl ModifyInline {
-    pub fn to_markdown_special(&self, context: &mut MarkdownEncodeContext) -> (String, Losses) {
-        let mut md = String::from("{!!");
-        let mut losses = Losses::none();
+impl MarkdownCodec for ModifyInline {
+    fn to_markdown(&self, context: &mut MarkdownEncodeContext) {
+        context
+            .enter_node(self.node_type(), self.node_id())
+            .merge_losses(lost_options!(self, id));
 
-        let (content_md, content_losses) = self.content.to_markdown(context);
-        md += &content_md;
-        losses.merge(content_losses);
-
-        md += "!>";
+        context
+            .push_str("{!!")
+            .push_prop_fn("content", |context| self.content.to_markdown(context));
 
         let modified =
             ModifyOperation::apply_many(&self.operations, &self.content).unwrap_or_default();
-        let (modified_md, modified_losses) = modified.to_markdown(context);
-        md += &modified_md;
-        losses.merge(modified_losses);
+        context
+            .push_str("!>")
+            .push_prop_fn("operations", |context| modified.to_markdown(context));
 
-        md += "!!}";
-
-        (md, losses)
+        context.push_str("!!}").exit_node();
     }
 }

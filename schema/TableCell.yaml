@@ -1,5 +1,6 @@
 title: TableCell
 '@id': stencila:TableCell
+nick: tbc
 extends: Entity
 category: works
 description: A cell within a `Table`.

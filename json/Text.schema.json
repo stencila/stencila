@@ -3,6 +3,7 @@
   "$id": "https://stencila.org/Text.schema.json",
   "@id": "schema:Text",
   "title": "Text",
+  "nick": "txt",
   "extends": [
     "Entity"
   ],
@@ -17,7 +18,7 @@
     "special": true
   },
   "markdown": {
-    "template": "{value}"
+    "template": "{{value}}"
   },
   "required": [
     "type",

@@ -3,6 +3,7 @@
   "$id": "https://stencila.org/ModifyBlock.schema.json",
   "@id": "stencila:ModifyBlock",
   "title": "ModifyBlock",
+  "nick": "mdb",
   "extends": [
     "SuggestionBlock"
   ],
@@ -10,7 +11,7 @@
   "description": "A suggestion to modify some block content.",
   "proptest": {},
   "markdown": {
-    "special": true
+    "derive": false
   },
   "required": [
     "type",

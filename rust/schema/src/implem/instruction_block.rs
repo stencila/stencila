@@ -1,17 +1,17 @@
-use codec_losses::lost_exec_options;
+use codec_losses::{lost_exec_options, lost_options};
 
 use crate::{prelude::*, InstructionBlock};
 
-impl InstructionBlock {
-    pub fn to_markdown_special(&self, context: &mut MarkdownEncodeContext) -> (String, Losses) {
-        let mut losses = lost_exec_options!(self);
-
-        let mut md = "%% ".to_string();
+impl MarkdownCodec for InstructionBlock {
+    fn to_markdown(&self, context: &mut MarkdownEncodeContext) {
+        context
+            .enter_node(self.node_type(), self.node_id())
+            .merge_losses(lost_options!(self, id, auto_exec))
+            .merge_losses(lost_exec_options!(self))
+            .push_str("%% ");
 
         if let Some(assignee) = &self.options.assignee {
-            md += "@";
-            md += assignee;
-            md += " ";
+            context.push_str("@").push_str(assignee).push_str(" ");
         }
 
         if let Some(part) = self
@@ -19,31 +19,24 @@ impl InstructionBlock {
             .first()
             .and_then(|message| message.parts.first())
         {
-            let (part_md, part_losses) = part.to_markdown(context);
-            losses.merge(part_losses);
-
-            md += &part_md;
-            md += "\n";
+            context
+                .push_prop_fn("message", |context| part.to_markdown(context))
+                .newline();
         }
 
         if let Some(content) = &self.content {
-            let (content_md, content_losses) = content.to_markdown(context);
-            losses.merge(content_losses);
-
-            md += "%>\n\n";
-            md += &content_md;
-            md += "%%\n";
+            context
+                .push_str("%>\n\n")
+                .push_prop_fn("content", |context| content.to_markdown(context))
+                .push_str("%%\n");
         };
 
-        md += "\n";
+        context.newline();
 
         if let Some(suggestion) = &self.options.suggestion {
-            let (suggestion_md, suggestion_losses) = suggestion.to_markdown(context);
-            losses.merge(suggestion_losses);
+            context.push_prop_fn("suggestion", |context| suggestion.to_markdown(context));
+        }
 
-            md += &suggestion_md;
-        };
-
-        (md, losses)
+        context.exit_node();
     }
 }

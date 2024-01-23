@@ -3,6 +3,7 @@
   "$id": "https://stencila.org/DeleteBlock.schema.json",
   "@id": "stencila:DeleteBlock",
   "title": "DeleteBlock",
+  "nick": "deb",
   "extends": [
     "SuggestionBlock"
   ],
@@ -10,7 +11,7 @@
   "description": "A suggestion to delete some block content.",
   "proptest": {},
   "markdown": {
-    "template": "--\\n\\n{content}--\\n\\n"
+    "template": "--\\n\\n{{content}}--\\n\\n"
   },
   "required": [
     "type",

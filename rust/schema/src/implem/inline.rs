@@ -1,6 +1,59 @@
-use node_store::{automerge::ObjId, ReadNode, ReadStore};
+use node_store::{automerge::ObjId, get_node_type, ReadNode, ReadStore};
 
-use crate::{prelude::*, transforms::blocks_to_inlines, utilities::node_type, *};
+use crate::{prelude::*, transforms::blocks_to_inlines, *};
+
+impl Inline {
+    pub fn node_id(&self) -> Option<NodeId> {
+        macro_rules! variants {
+            ($( $variant:ident ),*) => {
+                match self {
+                    $(Inline::$variant(node) => Some(node.node_id()),)*
+
+                    Inline::Null(..) |
+                    Inline::Boolean(..) |
+                    Inline::Integer(..) |
+                    Inline::UnsignedInteger(..) |
+                    Inline::Number(..) => None,
+                }
+            };
+        }
+
+        variants!(
+            AudioObject,
+            Button,
+            Cite,
+            CiteGroup,
+            CodeExpression,
+            CodeInline,
+            Date,
+            DateTime,
+            DeleteInline,
+            Duration,
+            Emphasis,
+            ImageObject,
+            InsertInline,
+            InstructionInline,
+            Link,
+            MathInline,
+            MediaObject,
+            ModifyInline,
+            Note,
+            Parameter,
+            QuoteInline,
+            ReplaceInline,
+            Strikeout,
+            Strong,
+            StyledInline,
+            Subscript,
+            Superscript,
+            Text,
+            Time,
+            Timestamp,
+            Underline,
+            VideoObject
+        )
+    }
+}
 
 impl ReadNode for Inline {
     fn load_null() -> Result<Self> {
@@ -24,7 +77,7 @@ impl ReadNode for Inline {
     }
 
     fn load_map<S: ReadStore>(store: &S, obj_id: &ObjId) -> Result<Self> {
-        let Some(node_type) = node_type(store, obj_id)? else {
+        let Some(node_type) = get_node_type(store, obj_id)? else {
             bail!("Object in Automerge store is not an `Inline`");
         };
 

@@ -1,5 +1,6 @@
 title: Text
 '@id': schema:Text
+nick: txt
 extends: Entity
 category: prose
 description: Textual content.
@@ -16,7 +17,7 @@ html:
 jats:
   special: true
 markdown:
-  template: '{value}'
+  template: '{{value}}'
 proptest: {}
 required:
   - value

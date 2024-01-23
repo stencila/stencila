@@ -22,7 +22,7 @@ use super::thing_type::ThingType;
 /// A periodical publication.
 #[skip_serializing_none]
 #[serde_as]
-#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, WalkNode, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec, WriteNode, ReadNode)]
+#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, WalkNode, WriteNode, ReadNode, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 #[derive(derive_more::Display)]
 #[display(fmt = "Periodical")]
@@ -39,13 +39,17 @@ pub struct Periodical {
     #[serde(flatten)]
     #[html(flatten)]
     #[jats(flatten)]
-    #[markdown(flatten)]
     pub options: Box<PeriodicalOptions>,
+
+    /// A unique identifier for a node within a document
+    
+    #[serde(skip)]
+    pub uid: NodeUid
 }
 
 #[skip_serializing_none]
 #[serde_as]
-#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, WalkNode, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec, WriteNode, ReadNode)]
+#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, WalkNode, WriteNode, ReadNode, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 pub struct PeriodicalOptions {
     /// Alternate names (aliases) for the item.
@@ -230,6 +234,16 @@ pub struct PeriodicalOptions {
 }
 
 impl Periodical {
+    const NICK: &'static str = "pdl";
+    
+    pub fn node_type(&self) -> NodeType {
+        NodeType::Periodical
+    }
+
+    pub fn node_id(&self) -> NodeId {
+        NodeId::new(Self::NICK, &self.uid)
+    }
+    
     pub fn new() -> Self {
         Self {
             ..Default::default()

@@ -3,6 +3,7 @@
   "$id": "https://stencila.org/MessagePart.schema.json",
   "@id": "stencila:MessagePart",
   "title": "MessagePart",
+  "nick": "msp",
   "category": "edits",
   "description": "A union type for a part of a message.",
   "anyOf": [

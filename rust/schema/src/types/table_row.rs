@@ -9,7 +9,7 @@ use super::table_row_type::TableRowType;
 /// A row within a Table.
 #[skip_serializing_none]
 #[serde_as]
-#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, WalkNode, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec, WriteNode, ReadNode)]
+#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, WalkNode, WriteNode, ReadNode, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 #[cfg_attr(feature = "proptest", derive(Arbitrary))]
 #[derive(derive_more::Display)]
@@ -29,6 +29,7 @@ pub struct TableRow {
     /// An array of cells in the row.
     #[serde(alias = "cell")]
     #[serde(deserialize_with = "one_or_many")]
+    #[walk]
     #[cfg_attr(feature = "proptest-min", proptest(strategy = r#"vec(TableCell::arbitrary(), size_range(1..=1))"#))]
     #[cfg_attr(feature = "proptest-low", proptest(strategy = r#"vec(TableCell::arbitrary(), size_range(2..=2))"#))]
     #[cfg_attr(feature = "proptest-high", proptest(strategy = r#"vec(TableCell::arbitrary(), size_range(4..=4))"#))]
@@ -39,9 +40,24 @@ pub struct TableRow {
     #[serde(alias = "row-type", alias = "row_type")]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     pub row_type: Option<TableRowType>,
+
+    /// A unique identifier for a node within a document
+    #[cfg_attr(feature = "proptest", proptest(value = "Default::default()"))]
+    #[serde(skip)]
+    pub uid: NodeUid
 }
 
 impl TableRow {
+    const NICK: &'static str = "tbr";
+    
+    pub fn node_type(&self) -> NodeType {
+        NodeType::TableRow
+    }
+
+    pub fn node_id(&self) -> NodeId {
+        NodeId::new(Self::NICK, &self.uid)
+    }
+    
     pub fn new(cells: Vec<TableCell>) -> Self {
         Self {
             cells,

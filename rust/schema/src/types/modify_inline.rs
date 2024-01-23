@@ -9,12 +9,11 @@ use super::string::String;
 /// A suggestion to modify some inline content.
 #[skip_serializing_none]
 #[serde_as]
-#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, WalkNode, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec, WriteNode, ReadNode)]
+#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, WalkNode, WriteNode, ReadNode, HtmlCodec, JatsCodec, TextCodec)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 #[cfg_attr(feature = "proptest", derive(Arbitrary))]
 #[derive(derive_more::Display)]
 #[display(fmt = "ModifyInline")]
-#[markdown(special)]
 pub struct ModifyInline {
     /// The type of this item.
     #[cfg_attr(feature = "proptest", proptest(value = "Default::default()"))]
@@ -40,9 +39,24 @@ pub struct ModifyInline {
     #[serde(deserialize_with = "one_or_many")]
     #[cfg_attr(feature = "proptest", proptest(value = "Default::default()"))]
     pub operations: Vec<ModifyOperation>,
+
+    /// A unique identifier for a node within a document
+    #[cfg_attr(feature = "proptest", proptest(value = "Default::default()"))]
+    #[serde(skip)]
+    pub uid: NodeUid
 }
 
 impl ModifyInline {
+    const NICK: &'static str = "mdi";
+    
+    pub fn node_type(&self) -> NodeType {
+        NodeType::ModifyInline
+    }
+
+    pub fn node_id(&self) -> NodeId {
+        NodeId::new(Self::NICK, &self.uid)
+    }
+    
     pub fn new(content: Vec<Inline>, operations: Vec<ModifyOperation>) -> Self {
         Self {
             content,

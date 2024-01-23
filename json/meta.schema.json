@@ -174,6 +174,10 @@
       "type": "number",
       "format": "double"
     },
+    "nick": {
+      "description": "The short identifier for this type\n\nUsed to prefix `NodeId`s to add type information to them. Defaults to the lowercase first three letters of the `title`.",
+      "type": "string"
+    },
     "pattern": {
       "description": "The expected format of the value\n\nThe value of this keyword MUST be a string. This string SHOULD be a valid regular expression, according to the ECMA-262 regular expression dialect. A string instance is considered valid if the regular expression matches the instance successfully. Recall: regular expressions are not implicitly anchored.",
       "type": "string"
@@ -428,16 +432,16 @@
       "additionalProperties": false
     },
     "MarkdownOptions": {
-      "description": "Options for conversion to Markdown",
+      "description": "Options for deriving the `MarkdownCodec` trait",
       "type": "object",
       "properties": {
+        "derive": {
+          "description": "Whether the `MarkdownCodec` should be derived for the type",
+          "type": "boolean"
+        },
         "escape": {
           "description": "Character to escape when using `format!` macro to encode to Markdown",
           "type": "string"
-        },
-        "special": {
-          "description": "Whether the node type has a special function for encoding to Markdown",
-          "type": "boolean"
         },
         "template": {
           "description": "The Rust formatting string to use as a template to encode to Markdown",
@@ -656,6 +660,10 @@
           "description": "The minimum valid value\n\nThe value of \"minimum\" MUST be a number, representing an inclusive lower limit for a numeric instance. If the instance is a number, then this keyword validates only if the instance is greater than or exactly equal to \"minimum\".",
           "type": "number",
           "format": "double"
+        },
+        "nick": {
+          "description": "The short identifier for this type\n\nUsed to prefix `NodeId`s to add type information to them. Defaults to the lowercase first three letters of the `title`.",
+          "type": "string"
         },
         "pattern": {
           "description": "The expected format of the value\n\nThe value of this keyword MUST be a string. This string SHOULD be a valid regular expression, according to the ECMA-262 regular expression dialect. A string instance is considered valid if the regular expression matches the instance successfully. Recall: regular expressions are not implicitly anchored.",

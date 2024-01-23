@@ -3,11 +3,15 @@
   "$id": "https://stencila.org/DurationValidator.schema.json",
   "@id": "stencila:DurationValidator",
   "title": "DurationValidator",
+  "nick": "duv",
   "extends": [
     "Entity"
   ],
   "category": "data",
   "description": "A validator specifying the constraints on a duration.",
+  "markdown": {
+    "derive": false
+  },
   "required": [
     "type"
   ],

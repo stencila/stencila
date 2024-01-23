@@ -3,6 +3,7 @@
   "$id": "https://stencila.org/PublicationIssue.schema.json",
   "@id": "schema:PublicationIssue",
   "title": "PublicationIssue",
+  "nick": "pbi",
   "extends": [
     "CreativeWork"
   ],

@@ -8,7 +8,7 @@ use super::string::String;
 /// A schema specifying constraints on a string node.
 #[skip_serializing_none]
 #[serde_as]
-#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, WalkNode, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec, WriteNode, ReadNode)]
+#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, WalkNode, WriteNode, ReadNode, HtmlCodec, JatsCodec, TextCodec)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 #[derive(derive_more::Display)]
 #[display(fmt = "StringValidator")]
@@ -31,9 +31,24 @@ pub struct StringValidator {
 
     /// A regular expression that a string node must match.
     pub pattern: Option<String>,
+
+    /// A unique identifier for a node within a document
+    
+    #[serde(skip)]
+    pub uid: NodeUid
 }
 
 impl StringValidator {
+    const NICK: &'static str = "stv";
+    
+    pub fn node_type(&self) -> NodeType {
+        NodeType::StringValidator
+    }
+
+    pub fn node_id(&self) -> NodeId {
+        NodeId::new(Self::NICK, &self.uid)
+    }
+    
     pub fn new() -> Self {
         Self {
             ..Default::default()

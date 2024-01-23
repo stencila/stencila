@@ -1,39 +1,36 @@
-use codec_losses::lost_options;
+use codec_losses::{lost_options, lost_work_options};
 
 use crate::{prelude::*, Figure};
 
-impl Figure {
-    pub fn to_markdown_special(&self, context: &mut MarkdownEncodeContext) -> (String, Losses) {
-        let mut md = String::new();
-        let mut losses = lost_options!(self, id);
+impl MarkdownCodec for Figure {
+    fn to_markdown(&self, context: &mut MarkdownEncodeContext) {
+        context
+            .enter_node(self.node_type(), self.node_id())
+            .merge_losses(lost_options!(self, id))
+            .merge_losses(lost_work_options!(self));
 
         let fence = ":".repeat(3 + context.depth * 2);
 
-        context.down();
+        context.push_str(&fence).push_str(" figure");
 
-        md += &fence;
-        md += " figure";
         if let Some(label) = &self.label {
-            md += " ";
-            md += label;
+            context.push_str(" ");
+            context.push_prop_str("label", label);
         }
-        md += "\n\n";
+
+        context.push_str("\n\n").increase_depth();
 
         if let Some(caption) = &self.caption {
-            let (caption_md, caption_losses) = caption.to_markdown(context);
-            md += &caption_md;
-            losses.merge(caption_losses)
+            context.push_prop_fn("caption", |context| caption.to_markdown(context));
         }
 
-        let (content_md, content_losses) = self.content.to_markdown(context);
-        md += &content_md;
-        losses.merge(content_losses);
+        context.push_prop_fn("content", |context| self.content.to_markdown(context));
 
-        md += &fence;
-        md += "\n\n";
-
-        context.up();
-
-        (md, losses)
+        context
+            .decrease_depth()
+            .push_str(&fence)
+            .newline()
+            .exit_node()
+            .newline();
     }
 }

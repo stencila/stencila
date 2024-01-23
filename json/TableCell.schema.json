@@ -3,6 +3,7 @@
   "$id": "https://stencila.org/TableCell.schema.json",
   "@id": "stencila:TableCell",
   "title": "TableCell",
+  "nick": "tbc",
   "extends": [
     "Entity"
   ],

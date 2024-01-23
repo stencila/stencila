@@ -8,14 +8,13 @@ use super::string::String;
 /// A hyperlink to other pages, sections within the same document, resources, or any URL.
 #[skip_serializing_none]
 #[serde_as]
-#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, WalkNode, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec, WriteNode, ReadNode)]
+#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, WalkNode, WriteNode, ReadNode, HtmlCodec, JatsCodec, TextCodec)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 #[cfg_attr(feature = "proptest", derive(Arbitrary))]
 #[derive(derive_more::Display)]
 #[display(fmt = "Link")]
 #[html(elem = "a")]
 #[jats(elem = "ext-link")]
-#[markdown(template = "[{content}]({target} \"{title}\")", special)]
 pub struct Link {
     /// The type of this item.
     #[cfg_attr(feature = "proptest", proptest(value = "Default::default()"))]
@@ -52,9 +51,24 @@ pub struct Link {
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     #[html(attr = "rel")]
     pub rel: Option<String>,
+
+    /// A unique identifier for a node within a document
+    #[cfg_attr(feature = "proptest", proptest(value = "Default::default()"))]
+    #[serde(skip)]
+    pub uid: NodeUid
 }
 
 impl Link {
+    const NICK: &'static str = "lin";
+    
+    pub fn node_type(&self) -> NodeType {
+        NodeType::Link
+    }
+
+    pub fn node_id(&self) -> NodeId {
+        NodeId::new(Self::NICK, &self.uid)
+    }
+    
     pub fn new(content: Vec<Inline>, target: String) -> Self {
         Self {
             content,

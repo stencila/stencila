@@ -1,10 +1,11 @@
 title: InstructionBlock
 '@id': stencila:InstructionBlock
+nick: isb
 extends: Instruction
 category: edits
 description: An instruction to edit some block content.
 markdown:
-  special: true
+  derive: false
 proptest: {}
 core:
   - content

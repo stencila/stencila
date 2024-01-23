@@ -3,6 +3,7 @@
   "$id": "https://stencila.org/CallBlock.schema.json",
   "@id": "stencila:CallBlock",
   "title": "CallBlock",
+  "nick": "clb",
   "extends": [
     "IncludeBlock"
   ],
@@ -11,7 +12,7 @@
   "status": "under-development",
   "proptest": {},
   "markdown": {
-    "special": true
+    "derive": false
   },
   "required": [
     "type",

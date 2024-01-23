@@ -3,11 +3,15 @@
   "$id": "https://stencila.org/TimeValidator.schema.json",
   "@id": "stencila:TimeValidator",
   "title": "TimeValidator",
+  "nick": "tmv",
   "extends": [
     "Entity"
   ],
   "category": "data",
   "description": "A validator specifying the constraints on a time.",
+  "markdown": {
+    "derive": false
+  },
   "required": [
     "type"
   ],

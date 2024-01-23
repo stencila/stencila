@@ -45,19 +45,20 @@ fn derive_struct(input: &DeriveInput, data: &DataStruct) -> TokenStream {
 
     let mut fields = TokenStream::new();
     for field in &data.fields {
-        let field_name = &field.ident;
-        let field_name_string = &field
+        let field_indent = &field.ident;
+        let field_name = &field
             .ident
             .as_ref()
             .map(|ident| ident.to_string())
             .unwrap_or_default();
-        if field_name_string == "r#type" {
+
+        if field_name == "r#type" || field_name == "uid" {
             continue;
         }
 
         let field = {
             quote! {
-                let (field_text, field_losses) = self.#field_name.to_text();
+                let (field_text, field_losses) = self.#field_indent.to_text();
                 text.push_str(&field_text);
                 losses.merge(field_losses);
             }

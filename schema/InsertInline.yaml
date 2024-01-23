@@ -1,5 +1,6 @@
 title: InsertInline
 '@id': stencila:InsertInline
+nick: ini
 extends: SuggestionInline
 category: edits
 description: A suggestion to insert some inline content.
@@ -7,5 +8,5 @@ html:
   elem: ins
 markdown:
   # CriticMarkup for "Additions"
-  template: '{{++{content}++}}'
+  template: '{++{{content}}++}'
 proptest: {}

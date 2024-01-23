@@ -3,11 +3,15 @@
   "$id": "https://stencila.org/TimestampValidator.schema.json",
   "@id": "stencila:TimestampValidator",
   "title": "TimestampValidator",
+  "nick": "tsv",
   "extends": [
     "Entity"
   ],
   "category": "data",
   "description": "A validator specifying the constraints on a timestamp.",
+  "markdown": {
+    "derive": false
+  },
   "required": [
     "type"
   ],

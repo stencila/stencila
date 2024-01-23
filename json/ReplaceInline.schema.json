@@ -3,6 +3,7 @@
   "$id": "https://stencila.org/ReplaceInline.schema.json",
   "@id": "stencila:ReplaceInline",
   "title": "ReplaceInline",
+  "nick": "rpi",
   "extends": [
     "SuggestionInline"
   ],
@@ -10,7 +11,7 @@
   "description": "A suggestion to replace some inline content with new inline content.",
   "proptest": {},
   "markdown": {
-    "template": "{{~~{content}~>{replacement}~~}}"
+    "template": "{~~{{content}}~>{{replacement}}~~}"
   },
   "required": [
     "type",

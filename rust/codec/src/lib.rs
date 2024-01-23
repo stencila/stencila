@@ -20,6 +20,7 @@ use status::Status;
 
 // Re-exports for the convenience of internal crates implementing `Codec`
 pub use codec_losses::{Losses, LossesResponse};
+pub use codec_mapping::{Mapping, MappingEntry};
 pub use common;
 pub use format;
 pub use schema;
@@ -252,10 +253,14 @@ pub trait Codec: Sync + Send {
         &self,
         node: &Node,
         options: Option<EncodeOptions>,
-    ) -> Result<(String, Losses)> {
-        self.to_bytes(node, options)
-            .await
-            .map(|(bytes, losses)| (String::from_utf8_lossy(&bytes).to_string(), losses))
+    ) -> Result<(String, Losses, Mapping)> {
+        self.to_bytes(node, options).await.map(|(bytes, losses)| {
+            (
+                String::from_utf8_lossy(&bytes).to_string(),
+                losses,
+                Mapping::none(),
+            )
+        })
     }
 
     /// Encode a Stencila Schema to a file
@@ -276,7 +281,7 @@ pub trait Codec: Sync + Send {
         } else {
             self.to_string(node, Some(options))
                 .await
-                .map(|(string, losses)| (string.as_bytes().to_vec(), losses))
+                .map(|(string, losses, ..)| (string.as_bytes().to_vec(), losses))
         }?;
         file.write_all(&content).await?;
 

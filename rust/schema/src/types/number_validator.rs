@@ -8,7 +8,7 @@ use super::string::String;
 /// A validator specifying the constraints on a numeric node.
 #[skip_serializing_none]
 #[serde_as]
-#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, WalkNode, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec, WriteNode, ReadNode)]
+#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, WalkNode, WriteNode, ReadNode, HtmlCodec, JatsCodec, TextCodec)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 #[derive(derive_more::Display)]
 #[display(fmt = "NumberValidator")]
@@ -38,9 +38,24 @@ pub struct NumberValidator {
     /// A number that a numeric node must be a multiple of.
     #[serde(alias = "multiple-of", alias = "multiple_of")]
     pub multiple_of: Option<Number>,
+
+    /// A unique identifier for a node within a document
+    
+    #[serde(skip)]
+    pub uid: NodeUid
 }
 
 impl NumberValidator {
+    const NICK: &'static str = "nuv";
+    
+    pub fn node_type(&self) -> NodeType {
+        NodeType::NumberValidator
+    }
+
+    pub fn node_id(&self) -> NodeId {
+        NodeId::new(Self::NICK, &self.uid)
+    }
+    
     pub fn new() -> Self {
         Self {
             ..Default::default()

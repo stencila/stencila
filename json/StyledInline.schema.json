@@ -3,6 +3,7 @@
   "$id": "https://stencila.org/StyledInline.schema.json",
   "@id": "stencila:StyledInline",
   "title": "StyledInline",
+  "nick": "sti",
   "extends": [
     "Styled"
   ],
@@ -17,8 +18,7 @@
     "elem": "styled-content"
   },
   "markdown": {
-    "template": "[{content}]{{{code}}}",
-    "special": true
+    "derive": false
   },
   "required": [
     "type",

@@ -8,6 +8,6 @@ html:
 jats:
   elem: bold
 markdown:
-  template: '**{content}**'
+  template: '**{{content}}**'
   escape: '*'
 proptest: {}

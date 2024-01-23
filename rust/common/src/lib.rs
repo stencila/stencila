@@ -12,6 +12,7 @@
 pub use async_recursion;
 pub use async_trait;
 pub use base64;
+pub use bs58;
 pub use chrono;
 pub use clap;
 pub use derivative;
@@ -36,6 +37,7 @@ pub use serde_yaml;
 pub use similar;
 pub use slug;
 pub use smart_default;
+pub use smol_str;
 pub use strum;
 pub use syn;
 pub use tempfile;

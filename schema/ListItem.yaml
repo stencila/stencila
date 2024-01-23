@@ -1,5 +1,6 @@
 title: ListItem
 "@id": schema:ListItem
+nick: lsi
 extends: Thing
 category: prose
 description: A single item in a list.
@@ -17,7 +18,7 @@ html:
 jats:
   elem: list-item
 markdown:
-  special: true
+  derive: false
 proptest: {}
 required:
   - content

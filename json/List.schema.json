@@ -3,6 +3,7 @@
   "$id": "https://stencila.org/List.schema.json",
   "@id": "schema:ItemList",
   "title": "List",
+  "nick": "lst",
   "extends": [
     "Entity"
   ],
@@ -17,7 +18,7 @@
     "elem": "list"
   },
   "markdown": {
-    "special": true
+    "derive": false
   },
   "required": [
     "type",
@@ -52,6 +53,7 @@
       "aliases": [
         "item"
       ],
+      "walk": true,
       "proptest": {
         "min": {
           "description": "Generate a single, arbitrary, list item.",

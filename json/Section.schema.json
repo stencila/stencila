@@ -17,8 +17,7 @@
     "elem": "sec"
   },
   "markdown": {
-    "template": "::: section\\n\\n{content}\\n\\n:::\\n\\n",
-    "special": true
+    "derive": false
   },
   "required": [
     "type",

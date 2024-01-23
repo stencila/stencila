@@ -3,6 +3,7 @@
   "$id": "https://stencila.org/Time.schema.json",
   "@id": "schema:Time",
   "title": "Time",
+  "nick": "tme",
   "extends": [
     "Entity"
   ],

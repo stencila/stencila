@@ -3,6 +3,7 @@
   "$id": "https://stencila.org/Strikeout.schema.json",
   "@id": "stencila:Strikeout",
   "title": "Strikeout",
+  "nick": "stk",
   "extends": [
     "Mark"
   ],
@@ -17,7 +18,7 @@
     "elem": "strike"
   },
   "markdown": {
-    "template": "~~{content}~~",
+    "template": "~~{{content}}~~",
     "escape": "~"
   },
   "required": [

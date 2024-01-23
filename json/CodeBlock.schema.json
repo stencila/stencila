@@ -3,6 +3,7 @@
   "$id": "https://stencila.org/CodeBlock.schema.json",
   "@id": "stencila:CodeBlock",
   "title": "CodeBlock",
+  "nick": "cdb",
   "extends": [
     "CodeStatic"
   ],
@@ -16,7 +17,7 @@
     "elem": "code"
   },
   "markdown": {
-    "special": true
+    "derive": false
   },
   "required": [
     "type",

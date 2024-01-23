@@ -1,5 +1,6 @@
 title: StyledBlock
 '@id': stencila:StyledBlock
+nick: stb
 status: under-development
 extends: Styled
 category: style
@@ -7,7 +8,7 @@ description: Styled block content.
 html:
   elem: div
 markdown:
-  special: true
+  derive: false
 proptest: {}
 required:
   - content

@@ -23,13 +23,12 @@ use super::thing_type::ThingType;
 /// A table.
 #[skip_serializing_none]
 #[serde_as]
-#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, WalkNode, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec, WriteNode, ReadNode)]
+#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, WalkNode, WriteNode, ReadNode, HtmlCodec, JatsCodec, TextCodec)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 #[cfg_attr(feature = "proptest", derive(Arbitrary))]
 #[derive(derive_more::Display)]
 #[display(fmt = "Table")]
 #[html(special)]
-#[markdown(special)]
 pub struct Table {
     /// The type of this item.
     #[cfg_attr(feature = "proptest", proptest(value = "Default::default()"))]
@@ -57,6 +56,7 @@ pub struct Table {
     /// Rows of cells in the table.
     #[serde(alias = "row")]
     #[serde(deserialize_with = "one_or_many")]
+    #[walk]
     #[cfg_attr(feature = "proptest-min", proptest(strategy = r#"table_rows_with_header(2,2)"#))]
     #[cfg_attr(feature = "proptest-low", proptest(strategy = r#"table_rows_with_header(3,3)"#))]
     #[cfg_attr(feature = "proptest-high", proptest(strategy = r#"vec(TableRow::arbitrary(), size_range(1..=4))"#))]
@@ -77,13 +77,17 @@ pub struct Table {
     #[serde(flatten)]
     #[html(flatten)]
     #[jats(flatten)]
-    #[markdown(flatten)]
     pub options: Box<TableOptions>,
+
+    /// A unique identifier for a node within a document
+    #[cfg_attr(feature = "proptest", proptest(value = "Default::default()"))]
+    #[serde(skip)]
+    pub uid: NodeUid
 }
 
 #[skip_serializing_none]
 #[serde_as]
-#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, WalkNode, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec, WriteNode, ReadNode)]
+#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, WalkNode, WriteNode, ReadNode, HtmlCodec, JatsCodec, TextCodec)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 #[cfg_attr(feature = "proptest", derive(Arbitrary))]
 pub struct TableOptions {
@@ -284,6 +288,16 @@ pub struct TableOptions {
 }
 
 impl Table {
+    const NICK: &'static str = "tbl";
+    
+    pub fn node_type(&self) -> NodeType {
+        NodeType::Table
+    }
+
+    pub fn node_id(&self) -> NodeId {
+        NodeId::new(Self::NICK, &self.uid)
+    }
+    
     pub fn new(rows: Vec<TableRow>) -> Self {
         Self {
             rows,

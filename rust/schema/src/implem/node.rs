@@ -1,10 +1,145 @@
-use smol_str::SmolStr;
+use node_store::{automerge::ObjId, get_node_type, ReadNode, ReadStore};
 
-use node_store::{automerge::ObjId, ReadNode, ReadStore};
+use crate::{prelude::*, Array, Block, Inline, Node, Null, Object, Primitive};
 
-use crate::{
-    prelude::*, utilities::node_type, Array, Block, Inline, Node, NodeType, Null, Object, Primitive,
-};
+impl Node {
+    pub fn node_id(&self) -> Option<NodeId> {
+        macro_rules! variants {
+            ($( $variant:ident ),*) => {
+                match self {
+                    $(Node::$variant(node) => Some(node.node_id()),)*
+
+                    Node::Null(..) |
+                    Node::Boolean(..) |
+                    Node::Integer(..) |
+                    Node::UnsignedInteger(..) |
+                    Node::Number(..) |
+                    Node::String(..) |
+                    Node::Cord(..) |
+                    Node::Array(..) |
+                    Node::Object(..) => None,
+                }
+            };
+        }
+
+        variants!(
+            Admonition,
+            ArrayValidator,
+            Article,
+            AudioObject,
+            AuthorRole,
+            BooleanValidator,
+            Brand,
+            Button,
+            CallBlock,
+            CallArgument,
+            Cite,
+            CiteGroup,
+            Claim,
+            CodeBlock,
+            CodeChunk,
+            CodeExpression,
+            CodeInline,
+            CodeLocation,
+            Collection,
+            Comment,
+            CompilationDigest,
+            CompilationError,
+            ConstantValidator,
+            ContactPoint,
+            CreativeWork,
+            Datatable,
+            DatatableColumn,
+            Date,
+            DateTime,
+            DateTimeValidator,
+            DateValidator,
+            DefinedTerm,
+            DeleteBlock,
+            DeleteInline,
+            Directory,
+            Duration,
+            DurationValidator,
+            Emphasis,
+            EnumValidator,
+            Enumeration,
+            ExecutionDependant,
+            ExecutionDependency,
+            ExecutionError,
+            ExecutionTag,
+            Figure,
+            File,
+            ForBlock,
+            Form,
+            Function,
+            Grant,
+            Heading,
+            IfBlock,
+            IfBlockClause,
+            ImageObject,
+            IncludeBlock,
+            InsertBlock,
+            InsertInline,
+            InstructionBlock,
+            InstructionInline,
+            IntegerValidator,
+            Link,
+            List,
+            ListItem,
+            MathBlock,
+            MathInline,
+            MediaObject,
+            Message,
+            ModifyBlock,
+            ModifyInline,
+            ModifyOperation,
+            MonetaryGrant,
+            Note,
+            NumberValidator,
+            Organization,
+            Paragraph,
+            Parameter,
+            Periodical,
+            Person,
+            PostalAddress,
+            Product,
+            PropertyValue,
+            PublicationIssue,
+            PublicationVolume,
+            QuoteBlock,
+            QuoteInline,
+            ReplaceBlock,
+            ReplaceInline,
+            Review,
+            Section,
+            SoftwareApplication,
+            SoftwareSourceCode,
+            Strikeout,
+            StringOperation,
+            StringPatch,
+            StringValidator,
+            Strong,
+            StyledBlock,
+            StyledInline,
+            Subscript,
+            Superscript,
+            Table,
+            TableCell,
+            TableRow,
+            Text,
+            ThematicBreak,
+            Thing,
+            Time,
+            TimeValidator,
+            Timestamp,
+            TimestampValidator,
+            TupleValidator,
+            Underline,
+            Variable,
+            VideoObject
+        )
+    }
+}
 
 impl ReadNode for Node {
     fn load_null() -> Result<Self> {
@@ -36,7 +171,7 @@ impl ReadNode for Node {
     }
 
     fn load_map<S: ReadStore>(store: &S, obj_id: &ObjId) -> Result<Self> {
-        let node_type = node_type(store, obj_id)?;
+        let node_type = get_node_type(store, obj_id)?;
 
         let Some(node_type) = node_type else {
             // There is no type, or it does not match any known type, so load as an `Object`

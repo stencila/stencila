@@ -1,7 +1,9 @@
+use codec_losses::lost_options;
+
 use crate::{prelude::*, Section, SectionType};
 
 impl Section {
-    pub fn to_html_special(&self) -> String {
+    pub fn to_html_special(&self, context: &mut HtmlEncodeContext) -> String {
         use codec_html_trait::encode::{attr, elem};
 
         let (tag, attrs) = match &self.section_type {
@@ -12,25 +14,37 @@ impl Section {
             None => ("section", vec![]),
         };
 
-        let children = self.content.to_html();
+        let children = self.content.to_html(context);
 
         elem(tag, &attrs, &[children])
     }
+}
 
-    pub fn to_markdown_special(&self, context: &mut MarkdownEncodeContext) -> (String, Losses) {
+impl MarkdownCodec for Section {
+    fn to_markdown(&self, context: &mut MarkdownEncodeContext) {
+        context
+            .enter_node(self.node_type(), self.node_id())
+            .merge_losses(lost_options!(self, id));
+
         let fence = ":".repeat(3 + context.depth * 2);
 
-        let typ = match &self.section_type {
-            Some(typ) => typ.to_string().to_lowercase(),
-            None => String::from("section"),
-        };
+        if let Some(section) = &self.section_type {
+            context
+                .push_str(&fence)
+                .push_str(" ")
+                .push_prop_str("section_type", &section.to_string().to_lowercase());
+        } else {
+            context.push_str(&fence).push_str(" section");
+        }
 
-        context.down();
-        let (md, losses) = self.content.to_markdown(context);
-        context.up();
-
-        let md = [&fence, " ", &typ, "\n\n", &md, &fence, "\n\n"].concat();
-
-        (md, losses)
+        context
+            .push_str("\n\n")
+            .increase_depth()
+            .push_prop_fn("content", |context| self.content.to_markdown(context))
+            .decrease_depth()
+            .push_str(&fence)
+            .newline()
+            .exit_node()
+            .newline();
     }
 }

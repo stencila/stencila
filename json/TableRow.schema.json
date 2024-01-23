@@ -3,6 +3,7 @@
   "$id": "https://stencila.org/TableRow.schema.json",
   "@id": "stencila:TableRow",
   "title": "TableRow",
+  "nick": "tbr",
   "extends": [
     "Entity"
   ],
@@ -45,6 +46,7 @@
       "aliases": [
         "cell"
       ],
+      "walk": true,
       "proptest": {
         "min": {
           "description": "Generate a single, arbitrary, table cell.",

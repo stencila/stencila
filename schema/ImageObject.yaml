@@ -1,5 +1,6 @@
 title: ImageObject
 '@id': schema:ImageObject
+nick: img
 extends: MediaObject
 category: works
 description: An image file.
@@ -10,8 +11,7 @@ jats:
   elem: inline-graphic
   special: true
 markdown:
-  template: '![{caption}]({content_url} \"{title}\")'
-  special: true
+  derive: false
 core:
   - caption
   - title

@@ -3,11 +3,15 @@
   "$id": "https://stencila.org/ArrayValidator.schema.json",
   "@id": "stencila:ArrayValidator",
   "title": "ArrayValidator",
+  "nick": "arv",
   "extends": [
     "Entity"
   ],
   "category": "data",
   "description": "A validator specifying constraints on an array node.",
+  "markdown": {
+    "derive": false
+  },
   "required": [
     "type"
   ],

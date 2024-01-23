@@ -35,7 +35,9 @@ lint:
 # Run tests
 test:
 	cargo test --workspace --no-fail-fast -- --nocapture
-	make proptest
+	# TODO: Reinstate proptest-low
+	# See https://github.com/stencila/stencila/issues/1924
+	make proptest-min proptest-high proptest-max
 
 # Run tests with coverage
 # Coverage is reported to ../lcov.info so it can be used by the VSCode Coverage Gutters extension

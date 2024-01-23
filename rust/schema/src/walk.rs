@@ -1,6 +1,6 @@
 use crate::{
-    Array, Block, Boolean, CreativeWorkType, Inline, Integer, Node, Null, Number, Object,
-    UnsignedInteger,
+    Array, Block, Boolean, CreativeWorkType, Inline, Integer, ListItem, Node, Null, Number, Object,
+    TableCell, TableRow, UnsignedInteger,
 };
 
 /// Controls whether to continue walking over a node or not
@@ -37,7 +37,7 @@ impl WalkControl {
 #[allow(unused_variables)]
 pub trait Visitor: Sized {
     /// Visit a node
-    fn visit<T: WalkNode>(&mut self, node: T) {
+    fn visit<T: WalkNode>(&mut self, node: &T) {
         node.walk(self)
     }
 
@@ -60,6 +60,33 @@ pub trait Visitor: Sized {
     fn visit_inline(&mut self, inline: &Inline) -> WalkControl {
         WalkControl::Continue
     }
+
+    /// Visit a `ListItem` node
+    fn visit_list_item(&mut self, list_item: &ListItem) -> WalkControl {
+        WalkControl::Continue
+    }
+
+    /// Visit a `TableRow` node
+    fn visit_table_row(&mut self, table_row: &TableRow) -> WalkControl {
+        WalkControl::Continue
+    }
+
+    /// Visit a `TableCell` node
+    fn visit_table_cell(&mut self, table_cell: &TableCell) -> WalkControl {
+        WalkControl::Continue
+    }
+
+    /// Enter a property
+    fn enter_property(&mut self, name: &str) {}
+
+    /// Exit a property
+    fn exit_property(&mut self) {}
+
+    /// Enter a node at an index
+    fn enter_index(&mut self, index: usize) {}
+
+    /// Exit a node at an index
+    fn exit_index(&mut self) {}
 }
 
 /// A mutating node visitor
@@ -92,6 +119,33 @@ pub trait VisitorMut: Sized {
     fn visit_inline_mut(&mut self, inline: &mut Inline) -> WalkControl {
         WalkControl::Continue
     }
+
+    /// Visit a `ListItem` node
+    fn visit_list_item_mut(&mut self, list_item: &ListItem) -> WalkControl {
+        WalkControl::Continue
+    }
+
+    /// Visit a `TableRow` node
+    fn visit_table_row_mut(&mut self, table_row: &TableRow) -> WalkControl {
+        WalkControl::Continue
+    }
+
+    /// Visit a `TableCell` node
+    fn visit_table_cell_mut(&mut self, table_cell: &TableCell) -> WalkControl {
+        WalkControl::Continue
+    }
+
+    /// Enter a property
+    fn enter_property(&mut self, name: &str) {}
+
+    /// Exit a property
+    fn exit_property(&mut self) {}
+
+    /// Enter a node at an index
+    fn enter_index(&mut self, index: usize) {}
+
+    /// Exit a node at an index
+    fn exit_index(&mut self) {}
 }
 
 /// A trait for walking over a node's children
@@ -151,14 +205,18 @@ where
     T: WalkNode,
 {
     fn walk<V: Visitor>(&self, visitor: &mut V) {
-        for node in self.iter() {
+        for (index, node) in self.iter().enumerate() {
+            visitor.enter_index(index);
             node.walk(visitor);
+            visitor.exit_index();
         }
     }
 
     fn walk_mut<V: VisitorMut>(&mut self, visitor: &mut V) {
-        for node in self.iter_mut() {
+        for (index, node) in self.iter_mut().enumerate() {
+            visitor.enter_index(index);
             node.walk_mut(visitor);
+            visitor.exit_index();
         }
     }
 }

@@ -8,12 +8,12 @@ use super::string::String;
 /// A suggestion to replace some block content with new block content.
 #[skip_serializing_none]
 #[serde_as]
-#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, WalkNode, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec, WriteNode, ReadNode)]
+#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, WalkNode, WriteNode, ReadNode, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 #[cfg_attr(feature = "proptest", derive(Arbitrary))]
 #[derive(derive_more::Display)]
 #[display(fmt = "ReplaceBlock")]
-#[markdown(template = "~~\n\n{content}~>\n\n{replacement}~~\n\n")]
+#[markdown(template = "~~\n\n{{content}}~>\n\n{{replacement}}~~\n\n")]
 pub struct ReplaceBlock {
     /// The type of this item.
     #[cfg_attr(feature = "proptest", proptest(value = "Default::default()"))]
@@ -38,9 +38,24 @@ pub struct ReplaceBlock {
     #[serde(deserialize_with = "one_or_many")]
     #[cfg_attr(feature = "proptest", proptest(value = "Default::default()"))]
     pub replacement: Vec<Block>,
+
+    /// A unique identifier for a node within a document
+    #[cfg_attr(feature = "proptest", proptest(value = "Default::default()"))]
+    #[serde(skip)]
+    pub uid: NodeUid
 }
 
 impl ReplaceBlock {
+    const NICK: &'static str = "rpb";
+    
+    pub fn node_type(&self) -> NodeType {
+        NodeType::ReplaceBlock
+    }
+
+    pub fn node_id(&self) -> NodeId {
+        NodeId::new(Self::NICK, &self.uid)
+    }
+    
     pub fn new(content: Vec<Block>, replacement: Vec<Block>) -> Self {
         Self {
             content,

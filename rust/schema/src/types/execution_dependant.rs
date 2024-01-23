@@ -10,7 +10,7 @@ use super::string::String;
 /// A downstream execution dependant of a node.
 #[skip_serializing_none]
 #[serde_as]
-#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, WalkNode, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec, WriteNode, ReadNode)]
+#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, WalkNode, WriteNode, ReadNode, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 #[derive(derive_more::Display)]
 #[display(fmt = "ExecutionDependant")]
@@ -34,9 +34,24 @@ pub struct ExecutionDependant {
     /// The location that the dependant is defined.
     #[serde(alias = "code-location", alias = "code_location")]
     pub code_location: Option<CodeLocation>,
+
+    /// A unique identifier for a node within a document
+    
+    #[serde(skip)]
+    pub uid: NodeUid
 }
 
 impl ExecutionDependant {
+    const NICK: &'static str = "exd";
+    
+    pub fn node_type(&self) -> NodeType {
+        NodeType::ExecutionDependant
+    }
+
+    pub fn node_id(&self) -> NodeId {
+        NodeId::new(Self::NICK, &self.uid)
+    }
+    
     pub fn new(dependant_relation: ExecutionDependantRelation, dependant_node: ExecutionDependantNode) -> Self {
         Self {
             dependant_relation,

@@ -3,11 +3,15 @@
   "$id": "https://stencila.org/DateTimeValidator.schema.json",
   "@id": "stencila:DateTimeValidator",
   "title": "DateTimeValidator",
+  "nick": "dtv",
   "extends": [
     "Entity"
   ],
   "category": "data",
   "description": "A validator specifying the constraints on a date-time.",
+  "markdown": {
+    "derive": false
+  },
   "required": [
     "type"
   ],

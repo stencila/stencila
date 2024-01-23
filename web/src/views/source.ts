@@ -27,11 +27,14 @@ import {
   keymap,
   lineNumbers,
 } from '@codemirror/view'
+import { Node } from '@stencila/types'
 import { css as twCSS } from '@twind/core'
 import { html } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
 
 import { CodeMirrorClient } from '../clients/codemirror'
+import { ObjectClient } from '../clients/object'
+import { tooltipOnHover, autoWrapKeys, bottomPanel } from '../codemirror'
 import { markdownHighlightStyle } from '../languages/markdown'
 import type { DocumentId, DocumentAccess } from '../types'
 import { TWLitElement } from '../ui/twind'
@@ -91,6 +94,12 @@ export class SourceView extends TWLitElement {
    */
   @property()
   displayMode?: 'single' | 'split' = 'single'
+
+  /**
+   * A read-only client which receives patches for the JavaScript object
+   * representing the entire document
+   */
+  private objectClient: ObjectClient
 
   /**
    * A read-write client which sends and receives string patches
@@ -237,6 +246,7 @@ export class SourceView extends TWLitElement {
       ...searchKeymap,
       { key: 'Ctrl-Space', run: startCompletion },
       { key: 'Ctrl-Enter', run: (view) => this.executeSelection(view) },
+      ...autoWrapKeys,
     ])
 
     const syntaxHighlights =
@@ -261,7 +271,20 @@ export class SourceView extends TWLitElement {
       syntaxHighlighting(syntaxHighlights, { fallback: true }),
       bracketMatching(),
       autocompletion(),
+      tooltipOnHover(this),
+      bottomPanel(this),
     ]
+  }
+
+  /**
+   * Override to initialize `objectClient` (unlike `codeMirrorClient`,
+   * which needs to be re-instantiated if the format changes) this only
+   * needs to be done once.
+   */
+  connectedCallback() {
+    super.connectedCallback()
+
+    this.objectClient = new ObjectClient(this.doc)
   }
 
   /**
@@ -302,6 +325,45 @@ export class SourceView extends TWLitElement {
   }
 
   /**
+   * Get the Stencila Schema node, and property name (if any), corresponding to a character position
+   *
+   * @param position The character position. Defaults to the current cursor position.
+   */
+  public getNodeAt(position?: number): {
+    node: Node
+    property?: string
+    start: number
+    end: number
+  } {
+    position = position ?? this.codeMirrorView.state.selection.main.from
+
+    const { nodeId, property, start, end } =
+      this.codeMirrorClient.nodeAt(position)
+    const node = this.objectClient.getNode(nodeId)
+
+    return {
+      node,
+      property,
+      start,
+      end,
+    }
+  }
+
+  /**
+   * Get the hierarchy of Stencila Schema nodes corresponding to a character position
+   *
+   * @param position The character position. Defaults to the current cursor position.
+   */
+  public getNodesAt(position?: number): Node[] {
+    position = position ?? this.codeMirrorView.state.selection.main.from
+
+    const nodeIds = this.codeMirrorClient.nodesAt(position)
+    const nodes = nodeIds.map((nodeId) => this.objectClient.getNode(nodeId))
+
+    return nodes
+  }
+
+  /**
    * CSS styling for the CodeMirror editor
    *
    * Overrides some of the default styles used by CodeMirror.
@@ -315,6 +377,8 @@ export class SourceView extends TWLitElement {
       .cm-editor {
         border: 1px solid rgb(189, 186, 186);
         height: 100%;
+        max-height: 70vh;
+        overflow-y: auto;
       }
     `
   }

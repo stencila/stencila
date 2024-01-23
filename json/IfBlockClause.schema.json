@@ -3,6 +3,7 @@
   "$id": "https://stencila.org/IfBlockClause.schema.json",
   "@id": "stencila:IfBlockClause",
   "title": "IfBlockClause",
+  "nick": "ibc",
   "extends": [
     "CodeExecutable"
   ],
@@ -10,6 +11,9 @@
   "description": "A clause within an `IfBlock` node.",
   "status": "under-development",
   "proptest": {},
+  "markdown": {
+    "derive": false
+  },
   "required": [
     "type",
     "code",

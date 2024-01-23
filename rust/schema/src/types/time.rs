@@ -7,7 +7,7 @@ use super::string::String;
 /// A point in time recurring on multiple days.
 #[skip_serializing_none]
 #[serde_as]
-#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, WalkNode, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec, WriteNode, ReadNode)]
+#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, WalkNode, WriteNode, ReadNode, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 #[cfg_attr(feature = "proptest", derive(Arbitrary))]
 #[derive(derive_more::Display)]
@@ -30,9 +30,24 @@ pub struct Time {
     #[cfg_attr(feature = "proptest-high", proptest(regex = r#"[a-zA-Z0-9\-:]{1,20}"#))]
     #[cfg_attr(feature = "proptest-max", proptest(strategy = r#"String::arbitrary()"#))]
     pub value: String,
+
+    /// A unique identifier for a node within a document
+    #[cfg_attr(feature = "proptest", proptest(value = "Default::default()"))]
+    #[serde(skip)]
+    pub uid: NodeUid
 }
 
 impl Time {
+    const NICK: &'static str = "tme";
+    
+    pub fn node_type(&self) -> NodeType {
+        NodeType::Time
+    }
+
+    pub fn node_id(&self) -> NodeId {
+        NodeId::new(Self::NICK, &self.uid)
+    }
+    
     pub fn new(value: String) -> Self {
         Self {
             value,

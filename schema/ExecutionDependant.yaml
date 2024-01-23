@@ -1,5 +1,6 @@
 title: ExecutionDependant
 '@id': stencila:ExecutionDependant
+nick: exd
 extends: Entity
 category: flow
 description: A downstream execution dependant of a node.

@@ -3,6 +3,7 @@
   "$id": "https://stencila.org/ForBlock.schema.json",
   "@id": "stencila:ForBlock",
   "title": "ForBlock",
+  "nick": "frb",
   "extends": [
     "CodeExecutable"
   ],
@@ -11,7 +12,7 @@
   "status": "under-development",
   "proptest": {},
   "markdown": {
-    "special": true
+    "derive": false
   },
   "required": [
     "type",

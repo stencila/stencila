@@ -3,6 +3,7 @@
   "$id": "https://stencila.org/QuoteInline.schema.json",
   "@id": "stencila:QuoteInline",
   "title": "QuoteInline",
+  "nick": "qti",
   "extends": [
     "Mark"
   ],
@@ -16,7 +17,7 @@
     "elem": "inline-quote"
   },
   "markdown": {
-    "template": "<q>{content}</q>"
+    "template": "<q>{{content}}</q>"
   },
   "required": [
     "type",

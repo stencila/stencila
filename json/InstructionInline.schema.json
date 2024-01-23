@@ -3,6 +3,7 @@
   "$id": "https://stencila.org/InstructionInline.schema.json",
   "@id": "stencila:InstructionInline",
   "title": "InstructionInline",
+  "nick": "isi",
   "extends": [
     "Instruction"
   ],
@@ -10,7 +11,7 @@
   "description": "An instruction to edit some inline content.",
   "proptest": {},
   "markdown": {
-    "special": true
+    "derive": false
   },
   "required": [
     "type",

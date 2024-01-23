@@ -2,21 +2,19 @@ use codec_losses::lost_options;
 
 use crate::{prelude::*, QuoteBlock};
 
-impl QuoteBlock {
-    pub fn to_markdown_special(&self, context: &mut MarkdownEncodeContext) -> (String, Losses) {
-        let mut losses = lost_options!(self, id, cite);
-
-        let (content, content_losses) = self.content.to_markdown(context);
-        losses.merge(content_losses);
-
-        let content = content
-            .trim()
-            .lines()
-            .map(|line| ["> ", line].concat())
-            .join("\n");
-
-        let md = [content, "\n\n".to_string()].concat();
-
-        (md, losses)
+impl MarkdownCodec for QuoteBlock {
+    fn to_markdown(&self, context: &mut MarkdownEncodeContext) {
+        context
+            .enter_node(self.node_type(), self.node_id())
+            .merge_losses(lost_options!(self, id, cite))
+            .push_line_prefix("> ")
+            .prefix_empty_lines(true)
+            .push_prop_fn("content", |context| self.content.to_markdown(context))
+            .trim_end_matches(|char| char == '\n' || char == ' ' || char == '>')
+            .prefix_empty_lines(false)
+            .pop_line_prefix()
+            .newline()
+            .exit_node()
+            .newline();
     }
 }

@@ -3,6 +3,7 @@
   "$id": "https://stencila.org/ImageObject.schema.json",
   "@id": "schema:ImageObject",
   "title": "ImageObject",
+  "nick": "img",
   "extends": [
     "MediaObject"
   ],
@@ -18,8 +19,7 @@
     "special": true
   },
   "markdown": {
-    "template": "![{caption}]({content_url} \\\"{title}\\\")",
-    "special": true
+    "derive": false
   },
   "required": [
     "type",

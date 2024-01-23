@@ -3,12 +3,16 @@
   "$id": "https://stencila.org/BooleanValidator.schema.json",
   "@id": "stencila:BooleanValidator",
   "title": "BooleanValidator",
+  "nick": "bov",
   "extends": [
     "Entity"
   ],
   "category": "data",
   "description": "A schema specifying that a node must be a boolean value.",
   "$comment": "A node will be valid against this schema if it is either true or false.\nAnalogous to the JSON Schema `boolean` validation [type](https://json-schema.org/draft/2019-09/json-schema-validation.html#rfc.section.6.1.1).\n",
+  "markdown": {
+    "derive": false
+  },
   "required": [
     "type"
   ],

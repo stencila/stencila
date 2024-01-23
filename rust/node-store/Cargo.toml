@@ -12,9 +12,10 @@ proptest-max = ["schema/proptest-max"]
 [dependencies]
 automerge = "0.5.7"
 common = { path = "../common" }
+node-id = { path = "../node-id" }
 node-store-derive = { path = "../node-store-derive" }
 node-strip = { path = "../node-strip" }
-smol_str = "0.2.0"
+node-type = { path = "../node-type" }
 
 [dev-dependencies]
 codecs = { path = "../codecs" }

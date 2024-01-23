@@ -1,11 +1,12 @@
 title: CallBlock
 '@id': stencila:CallBlock
+nick: clb
 extends: IncludeBlock
 category: flow
 description: Call another document, optionally with arguments, and include its executed content.
 status: under-development
 markdown:
-  special: true
+  derive: false
 proptest: {}
 required:
   - arguments

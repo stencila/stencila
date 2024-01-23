@@ -85,7 +85,7 @@ impl WriteNode for Object {
 }
 
 impl HtmlCodec for Object {
-    fn to_html_parts(&self) -> (&str, Vec<String>, Vec<String>) {
+    fn to_html_parts(&self, context: &mut HtmlEncodeContext) -> (&str, Vec<String>, Vec<String>) {
         // Uses spans, rather than say <ul>/<li> because needs to be
         // include e.g for output of a `CodeExpression`
         (
@@ -96,14 +96,14 @@ impl HtmlCodec for Object {
                     elem(
                         "stencila-object-item",
                         &[attr("key", key)],
-                        &[value.to_html()],
+                        &[value.to_html(context)],
                     )
                 })
                 .collect_vec(),
         )
     }
 
-    fn to_html_attr(&self) -> String {
+    fn to_html_attr(&self, _context: &mut HtmlEncodeContext) -> String {
         serde_json::to_string(self).unwrap_or_default()
     }
 }
@@ -116,8 +116,10 @@ impl JatsCodec for Object {
 }
 
 impl MarkdownCodec for Object {
-    fn to_markdown(&self, _context: &mut MarkdownEncodeContext) -> (String, Losses) {
-        self.to_text()
+    fn to_markdown(&self, context: &mut MarkdownEncodeContext) {
+        let (text, losses) = self.to_text();
+        context.push_str(&text);
+        context.merge_losses(losses);
     }
 }
 

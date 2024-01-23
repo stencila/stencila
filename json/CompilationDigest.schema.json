@@ -3,6 +3,7 @@
   "$id": "https://stencila.org/CompilationDigest.schema.json",
   "@id": "stencila:CompilationDigest",
   "title": "CompilationDigest",
+  "nick": "cmd",
   "extends": [
     "Entity"
   ],

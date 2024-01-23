@@ -9,7 +9,7 @@ use super::string::String;
 /// A message from a sender to one or more people, organizations or software application.
 #[skip_serializing_none]
 #[serde_as]
-#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, WalkNode, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec, WriteNode, ReadNode)]
+#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, WalkNode, WriteNode, ReadNode, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 #[derive(derive_more::Display)]
 #[display(fmt = "Message")]
@@ -29,9 +29,24 @@ pub struct Message {
 
     /// The sender of the message.
     pub sender: Option<PersonOrOrganizationOrSoftwareApplication>,
+
+    /// A unique identifier for a node within a document
+    
+    #[serde(skip)]
+    pub uid: NodeUid
 }
 
 impl Message {
+    const NICK: &'static str = "msg";
+    
+    pub fn node_type(&self) -> NodeType {
+        NodeType::Message
+    }
+
+    pub fn node_id(&self) -> NodeId {
+        NodeId::new(Self::NICK, &self.uid)
+    }
+    
     pub fn new(parts: Vec<MessagePart>) -> Self {
         Self {
             parts,

@@ -9,7 +9,7 @@ use super::timestamp::Timestamp;
 /// A validator specifying the constraints on a timestamp.
 #[skip_serializing_none]
 #[serde_as]
-#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, WalkNode, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec, WriteNode, ReadNode)]
+#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, WalkNode, WriteNode, ReadNode, HtmlCodec, JatsCodec, TextCodec)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 #[derive(derive_more::Display)]
 #[display(fmt = "TimestampValidator")]
@@ -32,9 +32,24 @@ pub struct TimestampValidator {
 
     /// The inclusive upper limit for a timestamp.
     pub maximum: Option<Timestamp>,
+
+    /// A unique identifier for a node within a document
+    
+    #[serde(skip)]
+    pub uid: NodeUid
 }
 
 impl TimestampValidator {
+    const NICK: &'static str = "tsv";
+    
+    pub fn node_type(&self) -> NodeType {
+        NodeType::TimestampValidator
+    }
+
+    pub fn node_id(&self) -> NodeId {
+        NodeId::new(Self::NICK, &self.uid)
+    }
+    
     pub fn new() -> Self {
         Self {
             ..Default::default()

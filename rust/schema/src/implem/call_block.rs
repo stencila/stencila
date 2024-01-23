@@ -2,32 +2,25 @@ use codec_losses::{lost_exec_options, lost_options};
 
 use crate::{prelude::*, CallBlock};
 
-impl CallBlock {
-    pub fn to_markdown_special(&self, _context: &mut MarkdownEncodeContext) -> (String, Losses) {
-        let mut md = ["/", &self.source, "("].concat();
+impl MarkdownCodec for CallBlock {
+    fn to_markdown(&self, context: &mut MarkdownEncodeContext) {
+        context
+            .enter_node(self.node_type(), self.node_id())
+            .merge_losses(lost_options!(self, id, media_type, select, content))
+            .merge_losses(lost_exec_options!(self));
+
+        context
+            .push_str("/")
+            .push_prop_str("source", &self.source)
+            .push_str("(");
 
         for (index, arg) in self.arguments.iter().enumerate() {
             if index != 0 {
-                md.push_str(", ");
+                context.push_str(", ");
             }
-            md.push_str(&arg.name);
-
-            md.push('=');
-
-            if arg.code.contains([',', ' ', ')']) {
-                md.push('`');
-                md.push_str(&arg.code);
-                md.push('`');
-            } else {
-                md.push_str(&arg.code);
-            }
+            arg.to_markdown(context);
         }
 
-        md.push_str(")\n\n");
-
-        let mut losses = lost_options!(self, id, media_type, select, content);
-        losses.merge(lost_exec_options!(self));
-
-        (md, losses)
+        context.push_str(")\n").exit_node().newline();
     }
 }

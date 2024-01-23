@@ -8,7 +8,7 @@ use super::string::String;
 /// A tag on code that affects its execution.
 #[skip_serializing_none]
 #[serde_as]
-#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, WalkNode, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec, WriteNode, ReadNode)]
+#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, WalkNode, WriteNode, ReadNode, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 #[derive(derive_more::Display)]
 #[display(fmt = "ExecutionTag")]
@@ -30,9 +30,24 @@ pub struct ExecutionTag {
     /// Whether the tag is global to the document
     #[serde(alias = "is-global", alias = "is_global")]
     pub is_global: Boolean,
+
+    /// A unique identifier for a node within a document
+    
+    #[serde(skip)]
+    pub uid: NodeUid
 }
 
 impl ExecutionTag {
+    const NICK: &'static str = "ext";
+    
+    pub fn node_type(&self) -> NodeType {
+        NodeType::ExecutionTag
+    }
+
+    pub fn node_id(&self) -> NodeId {
+        NodeId::new(Self::NICK, &self.uid)
+    }
+    
     pub fn new(name: String, value: String, is_global: Boolean) -> Self {
         Self {
             name,

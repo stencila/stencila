@@ -706,8 +706,8 @@ fn source(title: &str) -> Vec<Block> {
             ),
             t(" by "),
             lnk(
-                [ci("docs.rs")],
-                "https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs.rs",
+                [ci("docs_type.rs")],
+                "https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_type.rs",
             ),
             t("."),
         ]),

@@ -8,7 +8,7 @@ use super::validator::Validator;
 /// A validator specifying constraints on an array of heterogeneous items.
 #[skip_serializing_none]
 #[serde_as]
-#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, WalkNode, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec, WriteNode, ReadNode)]
+#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, WalkNode, WriteNode, ReadNode, HtmlCodec, JatsCodec, TextCodec)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 #[derive(derive_more::Display)]
 #[display(fmt = "TupleValidator")]
@@ -25,9 +25,24 @@ pub struct TupleValidator {
     #[serde(alias = "item")]
     #[serde(default, deserialize_with = "option_one_or_many")]
     pub items: Option<Vec<Validator>>,
+
+    /// A unique identifier for a node within a document
+    
+    #[serde(skip)]
+    pub uid: NodeUid
 }
 
 impl TupleValidator {
+    const NICK: &'static str = "tuv";
+    
+    pub fn node_type(&self) -> NodeType {
+        NodeType::TupleValidator
+    }
+
+    pub fn node_id(&self) -> NodeId {
+        NodeId::new(Self::NICK, &self.uid)
+    }
+    
     pub fn new() -> Self {
         Self {
             ..Default::default()

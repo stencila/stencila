@@ -7,7 +7,7 @@ use codec::{
     format::Format,
     schema::{Node, NodeType},
     status::Status,
-    Codec, CodecSupport, DecodeOptions, EncodeOptions, Losses,
+    Codec, CodecSupport, DecodeOptions, EncodeOptions, Losses, Mapping,
 };
 
 pub mod r#trait;
@@ -58,7 +58,7 @@ impl Codec for JsonCodec {
         &self,
         node: &Node,
         options: Option<EncodeOptions>,
-    ) -> Result<(String, Losses)> {
+    ) -> Result<(String, Losses, Mapping)> {
         let EncodeOptions {
             standalone,
             compact,
@@ -72,6 +72,7 @@ impl Codec for JsonCodec {
                     Some(false) | None => node.to_json_pretty(),
                 }?,
                 Losses::none(),
+                Mapping::none(),
             ));
         }
 
@@ -112,6 +113,7 @@ impl Codec for JsonCodec {
                 Some(false) | None => value.to_json_pretty(),
             }?,
             Losses::none(),
+            Mapping::none(),
         ))
     }
 }

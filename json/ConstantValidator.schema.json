@@ -3,12 +3,16 @@
   "$id": "https://stencila.org/ConstantValidator.schema.json",
   "@id": "stencila:ConstantValidator",
   "title": "ConstantValidator",
+  "nick": "cov",
   "extends": [
     "Entity"
   ],
   "category": "data",
   "description": "A validator specifying a constant value that a node must have.",
   "$comment": "A node will be valid against this validator if it is equal to the\n`value` property. Analogous to the JSON Schema [`const`](https://json-schema.org/draft/2019-09/json-schema-validation.html#rfc.section.6.1.3) keyword.\n",
+  "markdown": {
+    "derive": false
+  },
   "required": [
     "type",
     "value"

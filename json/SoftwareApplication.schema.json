@@ -3,6 +3,7 @@
   "$id": "https://stencila.org/SoftwareApplication.schema.json",
   "@id": "schema:SoftwareApplication",
   "title": "SoftwareApplication",
+  "nick": "sap",
   "extends": [
     "CreativeWork"
   ],

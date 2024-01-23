@@ -1,5 +1,6 @@
 title: MathBlock
 '@id': stencila:MathBlock
+nick: mtb
 extends: Math
 category: math
 description: A block of math, e.g an equation, to be treated as block content.
@@ -9,7 +10,7 @@ jats:
   elem: disp-formula
   special: true
 markdown:
-  special: true
+  derive: false
 proptest: {}
 core:
   - label

@@ -3,7 +3,7 @@ use codec::{
     format::Format,
     schema::{Node, NodeType},
     status::Status,
-    Codec, CodecSupport, EncodeOptions, Losses,
+    Codec, CodecSupport, EncodeOptions, Losses, Mapping,
 };
 
 use codec_text_trait::TextCodec as _;
@@ -42,7 +42,8 @@ impl Codec for TextCodec {
         &self,
         node: &Node,
         _options: Option<EncodeOptions>,
-    ) -> Result<(String, Losses)> {
-        Ok(node.to_text())
+    ) -> Result<(String, Losses, Mapping)> {
+        let (text, losses) = node.to_text();
+        Ok((text, losses, Mapping::none()))
     }
 }

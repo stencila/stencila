@@ -1,5 +1,6 @@
 title: CodeLocation
 '@id': stencila:CodeLocation
+nick: cdl
 extends: Entity
 category: flow
 description: The location within some source code.

@@ -2,72 +2,75 @@ use codec_losses::{lost_exec_options, lost_options};
 
 use crate::{prelude::*, CodeChunk, LabelType};
 
-impl CodeChunk {
-    pub fn to_markdown_special(&self, context: &mut MarkdownEncodeContext) -> (String, Losses) {
-        let mut losses = lost_options!(self, id, outputs);
-        losses.merge(lost_exec_options!(self));
+impl MarkdownCodec for CodeChunk {
+    fn to_markdown(&self, context: &mut MarkdownEncodeContext) {
+        context
+            .enter_node(self.node_type(), self.node_id())
+            .merge_losses(lost_options!(self, id, outputs))
+            .merge_losses(lost_exec_options!(self));
 
         let fence = ":".repeat(3 + context.depth * 2);
 
-        let (wrapped, mut md) =
-            if self.label_type.is_some() || self.label.is_some() || self.caption.is_some() {
-                let mut md = format!("{fence} ");
+        let wrapped = if self.label_type.is_some() || self.label.is_some() || self.caption.is_some()
+        {
+            context.push_str(&fence);
 
-                if let Some(label_type) = &self.label_type {
-                    md += match label_type {
-                        LabelType::FigureLabel => "figure",
-                        LabelType::TableLabel => "table",
-                    }
-                } else {
-                    md += "chunk";
-                }
-
-                if let Some(label) = &self.label {
-                    md += " ";
-                    md += label;
-                }
-
-                md += "\n\n";
-
-                (true, md)
+            if let Some(label_type) = &self.label_type {
+                context.push_str(match label_type {
+                    LabelType::FigureLabel => " figure",
+                    LabelType::TableLabel => " table",
+                });
             } else {
-                Default::default()
-            };
+                context.push_str(" chunk");
+            }
+
+            if let Some(label) = &self.label {
+                context.push_str(" ");
+                context.push_prop_str("label", label);
+            }
+
+            context.push_str("\n\n");
+
+            true
+        } else {
+            false
+        };
 
         if let Some(caption) = &self.caption {
-            let (caption_md, caption_losses) = caption.to_markdown(context);
-            md += &caption_md;
-            losses.merge(caption_losses)
+            context
+                .increase_depth()
+                .push_prop_fn("caption", |context| caption.to_markdown(context))
+                .decrease_depth();
         }
 
-        md += "```";
+        context.push_str("```");
 
         if let Some(lang) = &self.programming_language {
-            md.push_str(lang);
-            md.push(' ');
+            context
+                .push_prop_str("programming_language", lang)
+                .push_str(" ");
         }
 
-        md.push_str("exec");
+        context.push_str("exec");
 
         if let Some(auto) = &self.auto_exec {
-            md.push_str(" auto=");
-            md.push_str(&auto.to_string().to_lowercase())
+            context
+                .push_str(" auto=")
+                .push_prop_str("auto_exec", &auto.to_string().to_lowercase());
         }
 
-        md.push('\n');
-        md.push_str(&self.code);
+        context.newline().push_prop_str("code", &self.code);
 
         if !self.code.ends_with('\n') {
-            md.push('\n');
+            context.newline();
         }
 
-        md.push_str("```\n\n");
+        context.push_str("```\n");
 
         if wrapped {
-            md += &fence;
-            md += "\n\n";
+            context.newline().push_str(&fence).newline();
         }
 
-        (md, losses)
+        context.exit_node().newline();
     }
 }

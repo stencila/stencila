@@ -1,3 +1,5 @@
+use codec_losses::lost_options;
+
 use crate::{prelude::*, Heading};
 
 impl Heading {
@@ -17,28 +19,26 @@ impl Heading {
         (elem("title", attrs, content), losses)
     }
 
-    pub fn to_html_special(&self) -> String {
+    pub fn to_html_special(&self, context: &mut HtmlEncodeContext) -> String {
         use codec_html_trait::encode::{attr, elem};
         elem(
             &["h", &self.level.max(1).min(6).to_string()].concat(),
-            &[attr("id", &self.id.to_html_attr())],
-            &[self.content.to_html()],
+            &[attr("id", &self.id.to_html_attr(context))],
+            &[self.content.to_html(context)],
         )
     }
+}
 
-    pub fn to_markdown_special(&self, context: &mut MarkdownEncodeContext) -> (String, Losses) {
-        let mut md = "#".repeat(self.level.max(1).min(6) as usize);
-        md.push(' ');
-
-        let (content, mut losses) = self.content.to_markdown(context);
-        md.push_str(&content);
-
-        md.push_str("\n\n");
-
-        if self.id.is_some() {
-            losses.add("Heading.id")
-        }
-
-        (md, losses)
+impl MarkdownCodec for Heading {
+    fn to_markdown(&self, context: &mut MarkdownEncodeContext) {
+        context
+            .enter_node(self.node_type(), self.node_id())
+            .merge_losses(lost_options!(self, id))
+            .push_prop_str("level", &"#".repeat(self.level.max(1).min(6) as usize))
+            .push_str(" ")
+            .push_prop_fn("content", |context| self.content.to_markdown(context))
+            .newline()
+            .exit_node()
+            .newline();
     }
 }

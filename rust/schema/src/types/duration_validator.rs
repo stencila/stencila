@@ -9,7 +9,7 @@ use super::time_unit::TimeUnit;
 /// A validator specifying the constraints on a duration.
 #[skip_serializing_none]
 #[serde_as]
-#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, WalkNode, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec, WriteNode, ReadNode)]
+#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, WalkNode, WriteNode, ReadNode, HtmlCodec, JatsCodec, TextCodec)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 #[derive(derive_more::Display)]
 #[display(fmt = "DurationValidator")]
@@ -32,9 +32,24 @@ pub struct DurationValidator {
 
     /// The inclusive upper limit for a duration.
     pub maximum: Option<Duration>,
+
+    /// A unique identifier for a node within a document
+    
+    #[serde(skip)]
+    pub uid: NodeUid
 }
 
 impl DurationValidator {
+    const NICK: &'static str = "duv";
+    
+    pub fn node_type(&self) -> NodeType {
+        NodeType::DurationValidator
+    }
+
+    pub fn node_id(&self) -> NodeId {
+        NodeId::new(Self::NICK, &self.uid)
+    }
+    
     pub fn new() -> Self {
         Self {
             ..Default::default()

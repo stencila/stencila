@@ -3,12 +3,16 @@
   "$id": "https://stencila.org/NumberValidator.schema.json",
   "@id": "stencila:NumberValidator",
   "title": "NumberValidator",
+  "nick": "nuv",
   "extends": [
     "Entity"
   ],
   "category": "data",
   "description": "A validator specifying the constraints on a numeric node.",
   "$comment": "A node will be valid if it is a number that meets the `maximum`, `multipleOf` etc properties.\nAnalogous to the JSON Schema `number` validation [type](https://json-schema.org/draft/2019-09/json-schema-validation.html#rfc.section.6.1.1).\nNote that the `IntegerValidator` type extends this validator with the additional\nconstraint that the number have no fractional part.\n",
+  "markdown": {
+    "derive": false
+  },
   "required": [
     "type"
   ],

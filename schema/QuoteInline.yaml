@@ -1,5 +1,6 @@
 title: QuoteInline
 '@id': stencila:QuoteInline
+nick: qti
 extends: Mark
 category: prose
 description: Inline, quoted content.
@@ -12,7 +13,7 @@ jats:
 html:
   elem: q
 markdown:
-  template: '<q>{content}</q>'
+  template: '<q>{{content}}</q>'
 proptest: {}
 core:
   - cite

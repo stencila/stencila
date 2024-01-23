@@ -1,28 +1,25 @@
+use codec_losses::lost_options;
+
 use crate::{prelude::*, CodeBlock};
 
-impl CodeBlock {
-    pub fn to_markdown_special(&self, _context: &mut MarkdownEncodeContext) -> (String, Losses) {
-        let mut md = "```".to_string();
+impl MarkdownCodec for CodeBlock {
+    fn to_markdown(&self, context: &mut MarkdownEncodeContext) {
+        context
+            .enter_node(self.node_type(), self.node_id())
+            .merge_losses(lost_options!(self, id));
+
+        context.push_str("```");
 
         if let Some(lang) = &self.programming_language {
-            md.push_str(lang);
+            context.push_prop_str("programming_language", lang);
         }
 
-        md.push('\n');
-        md.push_str(&self.code);
+        context.newline().push_prop_str("code", &self.code);
 
         if !self.code.ends_with('\n') {
-            md.push('\n');
+            context.newline();
         }
 
-        md.push_str("```\n\n");
-
-        let losses = if self.id.is_some() {
-            Losses::one("CodeBlock.id")
-        } else {
-            Losses::none()
-        };
-
-        (md, losses)
+        context.push_str("```\n").exit_node().newline();
     }
 }

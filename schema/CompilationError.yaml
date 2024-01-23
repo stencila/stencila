@@ -1,5 +1,6 @@
 title: CompilationError
 '@id': stencila:CompilationError
+nick: cme
 extends: Entity
 category: code
 status: alpha

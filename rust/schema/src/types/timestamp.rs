@@ -9,7 +9,7 @@ use super::time_unit::TimeUnit;
 /// A value that represents a point in time.
 #[skip_serializing_none]
 #[serde_as]
-#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, WalkNode, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec, WriteNode, ReadNode)]
+#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, WalkNode, WriteNode, ReadNode, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 #[cfg_attr(feature = "proptest", derive(Arbitrary))]
 #[derive(derive_more::Display)]
@@ -34,9 +34,24 @@ pub struct Timestamp {
     #[serde(alias = "time-unit", alias = "time_unit")]
     #[cfg_attr(feature = "proptest", proptest(value = "Default::default()"))]
     pub time_unit: TimeUnit,
+
+    /// A unique identifier for a node within a document
+    #[cfg_attr(feature = "proptest", proptest(value = "Default::default()"))]
+    #[serde(skip)]
+    pub uid: NodeUid
 }
 
 impl Timestamp {
+    const NICK: &'static str = "tst";
+    
+    pub fn node_type(&self) -> NodeType {
+        NodeType::Timestamp
+    }
+
+    pub fn node_id(&self) -> NodeId {
+        NodeId::new(Self::NICK, &self.uid)
+    }
+    
     pub fn new(value: Integer, time_unit: TimeUnit) -> Self {
         Self {
             value,

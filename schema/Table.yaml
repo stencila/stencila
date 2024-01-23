@@ -1,12 +1,13 @@
 title: Table
 '@id': schema:Table
+nick: tbl
 extends: CreativeWork
 category: works
 description: A table.
 html:
   special: true
 markdown:
-  special: true
+  derive: false
 proptest: {}
 required:
   - rows
@@ -43,6 +44,7 @@ properties:
     type: array
     items:
       $ref: TableRow
+    walk: true
     proptest:
       min:
         description: Generate up to a 2x2 table with a header row.

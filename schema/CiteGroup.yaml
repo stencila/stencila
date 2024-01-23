@@ -1,5 +1,6 @@
 title: CiteGroup
 '@id': stencila:CiteGroup
+nick: ctg
 extends: Entity
 category: prose
 description: A group of `Cite` nodes.

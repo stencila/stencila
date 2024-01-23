@@ -1,5 +1,6 @@
 title: ConstantValidator
 '@id': stencila:ConstantValidator
+nick: cov
 extends: Entity
 category: data
 description: A validator specifying a constant value that a node must have.
@@ -13,3 +14,5 @@ properties:
     '@id': schema:value
     description: The value that the node must have.
     $ref: Node
+markdown:
+  derive: false

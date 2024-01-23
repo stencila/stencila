@@ -37,11 +37,11 @@ impl WriteNode for Null {
 }
 
 impl HtmlCodec for Null {
-    fn to_html_parts(&self) -> (&str, Vec<String>, Vec<String>) {
+    fn to_html_parts(&self, _context: &mut HtmlEncodeContext) -> (&str, Vec<String>, Vec<String>) {
         ("stencila-null", vec![], vec!["null".to_string()])
     }
 
-    fn to_html_attr(&self) -> String {
+    fn to_html_attr(&self, _context: &mut HtmlEncodeContext) -> String {
         serde_json::to_string(self).unwrap_or_default()
     }
 }
@@ -54,8 +54,10 @@ impl JatsCodec for Null {
 }
 
 impl MarkdownCodec for Null {
-    fn to_markdown(&self, _context: &mut MarkdownEncodeContext) -> (String, Losses) {
-        self.to_text()
+    fn to_markdown(&self, context: &mut MarkdownEncodeContext) {
+        let (text, losses) = self.to_text();
+        context.push_str(&text);
+        context.merge_losses(losses);
     }
 }
 

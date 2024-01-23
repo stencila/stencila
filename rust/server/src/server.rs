@@ -559,6 +559,7 @@ async fn serve_ws(
     let mut protocols = vec![
         "read.dom.stencila.org".to_string(),
         "read.debug.stencila.org".to_string(),
+        "read.object.stencila.org".to_string(),
     ];
 
     for format in [
@@ -615,6 +616,8 @@ async fn handle_ws(ws: WebSocket, doc: Arc<Document>) {
 
     if format == "nodes" {
         handle_ws_nodes(ws, doc, capability).await;
+    } else if format == "object" {
+        handle_ws_object(ws, doc, capability).await;
     } else {
         handle_ws_format(ws, doc, capability, format).await;
     }
@@ -623,7 +626,7 @@ async fn handle_ws(ws: WebSocket, doc: Arc<Document>) {
 /// Handle a WebSocket connection using the "node" protocol
 #[tracing::instrument(skip(ws, doc))]
 async fn handle_ws_nodes(ws: WebSocket, doc: Arc<Document>, capability: &str) {
-    tracing::trace!("WebSocket nodes connection");
+    tracing::trace!("WebSocket `nodes` connection");
 
     let (.., ws_receiver) = ws.split();
 
@@ -635,10 +638,28 @@ async fn handle_ws_nodes(ws: WebSocket, doc: Arc<Document>, capability: &str) {
     }
 }
 
+/// Handle a WebSocket connection using the "object" protocol
+#[tracing::instrument(skip(ws, doc))]
+async fn handle_ws_object(ws: WebSocket, doc: Arc<Document>, capability: &str) {
+    tracing::trace!("WebSocket `object` connection");
+
+    let (ws_sender, ws_receiver) = ws.split();
+
+    let (in_sender, in_receiver) = channel(8);
+    receive_ws_messages(ws_receiver, in_sender);
+
+    let (out_sender, out_receiver) = channel(1024);
+    send_ws_messages(out_receiver, ws_sender);
+
+    if let Err(error) = doc.sync_object(in_receiver, out_sender).await {
+        tracing::error!("While syncing nodes for WebSocket client: {error}")
+    }
+}
+
 /// Handle a WebSocket connection using a "format" protocol
 #[tracing::instrument(skip(ws, doc))]
 async fn handle_ws_format(ws: WebSocket, doc: Arc<Document>, capability: &str, format: &str) {
-    tracing::trace!("WebSocket format connection");
+    tracing::trace!("WebSocket `format` connection");
 
     let (format, dom, compact) = match format {
         "dom" => (Some(Format::Html), Some(true), Some(true)),
@@ -663,13 +684,6 @@ async fn handle_ws_format(ws: WebSocket, doc: Arc<Document>, capability: &str, f
         format,
         dom,
         compact,
-        // TODO: remove this from here and instead
-        // make a default for the codec
-        strip_props: if format == Some(Format::Html) {
-            vec![]
-        } else {
-            vec!["id".to_string()]
-        },
         ..Default::default()
     };
 

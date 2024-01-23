@@ -3,6 +3,7 @@
   "$id": "https://stencila.org/InsertBlock.schema.json",
   "@id": "stencila:InsertBlock",
   "title": "InsertBlock",
+  "nick": "inb",
   "extends": [
     "SuggestionBlock"
   ],
@@ -13,7 +14,7 @@
     "special": true
   },
   "markdown": {
-    "template": "++\\n\\n{content}++\\n\\n"
+    "template": "++\\n\\n{{content}}++\\n\\n"
   },
   "required": [
     "type",

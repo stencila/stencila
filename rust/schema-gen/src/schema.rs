@@ -76,6 +76,12 @@ pub struct Schema {
     /// The value of this keyword MUST be a string.
     pub title: Option<String>,
 
+    /// The short identifier for this type
+    ///
+    /// Used to prefix `NodeId`s to add type information to them.
+    /// Defaults to the lowercase first three letters of the `title`.
+    pub nick: Option<String>,
+
     /// The title of the schema that this schema extends
     #[serde(
         deserialize_with = "deserialize_string_or_array",
@@ -616,9 +622,9 @@ pub struct JatsOptions {
     pub content: bool,
 }
 
-/// Options for conversion to Markdown
+/// Options for deriving the `MarkdownCodec` trait
 #[skip_serializing_none]
-#[derive(Debug, Clone, Default, Deserialize, Serialize, JsonSchema)]
+#[derive(Debug, Clone, SmartDefault, Deserialize, Serialize, JsonSchema)]
 #[serde(
     default,
     rename_all = "camelCase",
@@ -626,15 +632,16 @@ pub struct JatsOptions {
     crate = "common::serde"
 )]
 pub struct MarkdownOptions {
+    /// Whether the `MarkdownCodec` should be derived for the type
+    #[serde(skip_serializing_if = "is_true")]
+    #[default = true]
+    pub derive: bool,
+
     /// The Rust formatting string to use as a template to encode to Markdown
     pub template: Option<String>,
 
     /// Character to escape when using `format!` macro to encode to Markdown
     pub escape: Option<String>,
-
-    /// Whether the node type has a special function for encoding to Markdown
-    #[serde(skip_serializing_if = "is_false")]
-    pub special: bool,
 }
 
 impl Schema {
@@ -841,6 +848,11 @@ where
         Some(r#ref) => serializer.serialize_str(&format!("{ref}.schema.json")),
         None => serializer.serialize_none(),
     }
+}
+
+/// Is a boolean true?
+fn is_true(bool: &bool) -> bool {
+    *bool
 }
 
 /// Is a boolean false?

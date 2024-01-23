@@ -1,5 +1,6 @@
 title: CodeInline
 '@id': stencila:CodeInline
+nick: cdi
 extends: CodeStatic
 category: code
 description: Inline code.
@@ -8,5 +9,5 @@ html:
 jats:
   elem: code
 markdown:
-  special: true
+  derive: false
 proptest: {}

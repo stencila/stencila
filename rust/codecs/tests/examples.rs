@@ -346,7 +346,8 @@ async fn examples() -> Result<()> {
 
                 if codec.supports_to_string() {
                     // Encode to string
-                    let (actual, losses) = codec.to_string(&original, encode_options).await?;
+                    let (actual, losses, mapping) =
+                        codec.to_string(&original, encode_options).await?;
 
                     if file.exists() {
                         // Existing file: compare string content of files
@@ -375,6 +376,15 @@ async fn examples() -> Result<()> {
                         remove_file(losses_file).await.ok();
                     } else {
                         write(losses_file, serde_yaml::to_string(&losses)?).await?;
+                    }
+
+                    // Write any mapping to file
+                    let mut mapping_file = path.clone();
+                    mapping_file.set_extension([extension.as_str(), ".encode.mapping"].concat());
+                    if mapping.entries().is_empty() {
+                        remove_file(mapping_file).await.ok();
+                    } else {
+                        write(mapping_file, mapping.to_string()).await?;
                     }
                 } else {
                     // Just encode to file if it does not yet exist or updating. At present not attempting

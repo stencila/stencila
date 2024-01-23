@@ -3,6 +3,7 @@
   "$id": "https://stencila.org/DeleteInline.schema.json",
   "@id": "stencila:DeleteInline",
   "title": "DeleteInline",
+  "nick": "dei",
   "extends": [
     "SuggestionInline"
   ],
@@ -13,7 +14,7 @@
     "elem": "del"
   },
   "markdown": {
-    "template": "{{--{content}--}}"
+    "template": "{--{{content}}--}"
   },
   "required": [
     "type",

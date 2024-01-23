@@ -8,7 +8,7 @@ use super::string_patch_or_primitive::StringPatchOrPrimitive;
 /// An operation that is part of a suggestion to modify the property of a node.
 #[skip_serializing_none]
 #[serde_as]
-#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, WalkNode, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec, WriteNode, ReadNode)]
+#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, WalkNode, WriteNode, ReadNode, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 #[derive(derive_more::Display)]
 #[display(fmt = "ModifyOperation")]
@@ -26,9 +26,24 @@ pub struct ModifyOperation {
 
     /// The new value, or string patch, to apply to the target property.
     pub value: Box<StringPatchOrPrimitive>,
+
+    /// A unique identifier for a node within a document
+    
+    #[serde(skip)]
+    pub uid: NodeUid
 }
 
 impl ModifyOperation {
+    const NICK: &'static str = "mdo";
+    
+    pub fn node_type(&self) -> NodeType {
+        NodeType::ModifyOperation
+    }
+
+    pub fn node_id(&self) -> NodeId {
+        NodeId::new(Self::NICK, &self.uid)
+    }
+    
     pub fn new(target: String, value: Box<StringPatchOrPrimitive>) -> Self {
         Self {
             target,

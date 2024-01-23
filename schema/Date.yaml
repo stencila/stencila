@@ -1,5 +1,6 @@
 title: Date
 '@id': schema:Date
+nick: dae
 extends: Entity
 category: data
 description: A calendar date encoded as a ISO 8601 string.

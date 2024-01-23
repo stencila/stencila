@@ -8,12 +8,12 @@ use super::string::String;
 /// A suggestion to replace some inline content with new inline content.
 #[skip_serializing_none]
 #[serde_as]
-#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, WalkNode, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec, WriteNode, ReadNode)]
+#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, WalkNode, WriteNode, ReadNode, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 #[cfg_attr(feature = "proptest", derive(Arbitrary))]
 #[derive(derive_more::Display)]
 #[display(fmt = "ReplaceInline")]
-#[markdown(template = "{{~~{content}~>{replacement}~~}}")]
+#[markdown(template = "{~~{{content}}~>{{replacement}}~~}")]
 pub struct ReplaceInline {
     /// The type of this item.
     #[cfg_attr(feature = "proptest", proptest(value = "Default::default()"))]
@@ -38,9 +38,24 @@ pub struct ReplaceInline {
     #[serde(deserialize_with = "one_or_many")]
     #[cfg_attr(feature = "proptest", proptest(value = "Default::default()"))]
     pub replacement: Vec<Inline>,
+
+    /// A unique identifier for a node within a document
+    #[cfg_attr(feature = "proptest", proptest(value = "Default::default()"))]
+    #[serde(skip)]
+    pub uid: NodeUid
 }
 
 impl ReplaceInline {
+    const NICK: &'static str = "rpi";
+    
+    pub fn node_type(&self) -> NodeType {
+        NodeType::ReplaceInline
+    }
+
+    pub fn node_id(&self) -> NodeId {
+        NodeId::new(Self::NICK, &self.uid)
+    }
+    
     pub fn new(content: Vec<Inline>, replacement: Vec<Inline>) -> Self {
         Self {
             content,

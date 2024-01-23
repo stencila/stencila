@@ -1,11 +1,12 @@
 title: ReplaceInline
 '@id': stencila:ReplaceInline
+nick: rpi
 extends: SuggestionInline
 category: edits
 description: A suggestion to replace some inline content with new inline content.
 markdown:
   # CriticMarkup for "Substitutions"
-  template: '{{~~{content}~>{replacement}~~}}'
+  template: '{~~{{content}}~>{{replacement}}~~}'
 proptest: {}
 required:
   - replacement

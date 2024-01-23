@@ -1,8 +1,11 @@
 title: DateValidator
 '@id': stencila:DateValidator
+nick: dav
 extends: Entity
 category: data
 description: A validator specifying the constraints on a date.
+markdown:
+  derive: false
 core:
   - minimum
   - maximum

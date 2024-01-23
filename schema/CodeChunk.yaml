@@ -1,5 +1,6 @@
 title: CodeChunk
 "@id": stencila:CodeChunk
+nick: cdc
 extends: CodeExecutable
 category: code
 description: A executable chunk of code.
@@ -8,7 +9,7 @@ jats:
   attrs:
     executable: "yes"
 markdown:
-  special: true
+  derive: false
 proptest: {}
 core:
   - labelType

@@ -3,6 +3,7 @@
   "$id": "https://stencila.org/QuoteBlock.schema.json",
   "@id": "stencila:QuoteBlock",
   "title": "QuoteBlock",
+  "nick": "qtb",
   "extends": [
     "Entity"
   ],
@@ -16,8 +17,7 @@
     "elem": "disp-quote"
   },
   "markdown": {
-    "template": "> {content}",
-    "special": true
+    "derive": false
   },
   "required": [
     "type",

@@ -1,11 +1,12 @@
 title: ForBlock
 '@id': stencila:ForBlock
+nick: frb
 extends: CodeExecutable
 category: flow
 description: Repeat a block content for each item in an array.
 status: under-development
 markdown:
-  special: true
+  derive: false
 proptest: {}
 required:
   - symbol

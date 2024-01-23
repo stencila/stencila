@@ -3,6 +3,7 @@
   "$id": "https://stencila.org/Form.schema.json",
   "@id": "stencila:Form",
   "title": "Form",
+  "nick": "frm",
   "extends": [
     "Executable"
   ],

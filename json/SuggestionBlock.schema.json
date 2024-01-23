@@ -3,6 +3,7 @@
   "$id": "https://stencila.org/SuggestionBlock.schema.json",
   "@id": "stencila:SuggestionBlock",
   "title": "SuggestionBlock",
+  "nick": "sgb",
   "extends": [
     "Suggestion"
   ],
