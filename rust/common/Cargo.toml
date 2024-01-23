@@ -7,10 +7,10 @@ edition = "2021"
 Inflector = "0.11.4"
 async-recursion = "1.0.5"
 async-trait = "0.1.77"
-base64 = "0.21.6"
+base64 = "0.21.7"
 bs58 = "0.5.0"
 chrono = { version = "0.4.31", features = ["serde"] }
-clap = { version = "4.4.14", features = ["derive", "color"] }
+clap = { version = "4.4.18", features = ["derive", "color"] }
 derivative = "2.2.0"
 derive_more = "0.99.17"
 dirs = "5.0.1"
@@ -32,7 +32,7 @@ serde_yaml = "0.9.30"
 similar = { version = "2.4.0", features = ["unicode"] }
 slug = "0.1.5"
 smart-default = "0.7.1"
-smol_str = "0.2.0"
+smol_str = "0.2.1"
 strum = { version = "0.25.0", features = ["derive"] }
 syn = "2.0.48"
 tempfile = "3.9.0"
