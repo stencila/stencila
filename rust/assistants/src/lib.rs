@@ -139,12 +139,15 @@ pub async fn perform_instruction<'doc: 'async_recursion>(
     Ok(output)
 }
 
-async fn get_assistant<'doc>(mut task: &mut GenerateTask<'doc>) -> Result<Arc<dyn Assistant>> {
+/// Get the assistant for a task
+///
+/// If the task's instruction has an `assignee` (and assignee exists and supports the
+/// task) then returns that assistant. Otherwise returns the assignee with the highest
+/// suitability score for the task.
+async fn get_assistant<'doc>(task: &mut GenerateTask<'doc>) -> Result<Arc<dyn Assistant>> {
     let assistants = list().await;
 
     let assistant = if let Some(assignee) = task.instruction.assignee() {
-        // Get the assistant assigned to the task
-
         let id = if assignee.contains('/') {
             assignee.to_string()
         } else {
@@ -157,20 +160,18 @@ async fn get_assistant<'doc>(mut task: &mut GenerateTask<'doc>) -> Result<Arc<dy
             .ok_or_else(|| eyre!("No assistant with id `{id}`"))?;
 
         // Check that the assignee supports the task
-        if !assistant.supports_task(&task) {
+        if !assistant.supports_task(task) {
             bail!("The assigned assistant `{id}` does not support this task")
         }
 
         assistant
     } else {
-        // Get the assistant with the highest suitability score for the task
-
         // It is tempting to use the position_max iterator method here but, in the case of
         // ties, that returns the assistant with the higher index (ie. lower preference), whereas
         // we want the one with the lowest index.
         let mut best = (0., 0);
         for (index, assistant) in assistants.iter().enumerate() {
-            let score = assistant.suitability_score(&mut task)?;
+            let score = assistant.suitability_score(task)?;
             if score > best.0 {
                 best = (score, index);
             }
