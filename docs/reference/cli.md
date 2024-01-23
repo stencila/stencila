@@ -16,6 +16,7 @@ This document contains the help content for the `stencila` command-line program.
 * [`stencila assistants`↴](#stencila-assistants)
 * [`stencila repl`↴](#stencila-repl)
 * [`stencila test`↴](#stencila-test)
+* [`stencila config`↴](#stencila-config)
 
 ## `stencila`
 
@@ -36,6 +37,7 @@ CLI subcommands and global options
 * `assistants` — List the available AI assistants
 * `repl` — A read-evaluate-print loop for AI assistants
 * `test` — 
+* `config` — 
 
 ###### **Options:**
 
@@ -47,7 +49,7 @@ CLI subcommands and global options
 
 * `--log-filter <LOG_FILTER>` — A filter for log entries
 
-  Default value: `hyper=info,mio=info,tokio=info,tungstenite=info`
+  Default value: `hyper=info,mio=info,reqwest=info,tokio=info,tungstenite=info`
 * `--log-format <LOG_FORMAT>` — The log format to use
 
   Default value: `auto`
@@ -58,6 +60,9 @@ CLI subcommands and global options
 
   Default value: `auto`
 * `--error-link` — Output a link to more easily report an issue
+
+  Possible values: `true`, `false`
+
 
 
 
@@ -118,6 +123,9 @@ Create a new document
 * `--codec <CODEC>` — The codec to use to decode the source
 * `-o`, `--overwrite` — Overwrite the document if it already exists
 
+  Possible values: `true`, `false`
+
+
 
 
 ## `stencila import`
@@ -158,8 +166,6 @@ Import a file in another format into a new or existing document
 * `--strip-types <STRIP_TYPES>` — A list of node types to strip
 * `--strip-props <STRIP_PROPS>` — A list of node properties to strip
 
-  Default value: `id`
-
 
 
 ## `stencila export`
@@ -180,9 +186,21 @@ Export a document to a file in another format
 
   Default value: `warn`
 * `--standalone` — Encode as a standalone document
+
+  Possible values: `true`, `false`
+
 * `--not-standalone` — Do not encode as a standalone document when writing to file
+
+  Possible values: `true`, `false`
+
 * `-c`, `--compact` — Use compact form of encoding if possible
+
+  Possible values: `true`, `false`
+
 * `-p`, `--pretty` — Use a "pretty" form of encoding if possible
+
+  Possible values: `true`, `false`
+
 * `--strip-scopes <STRIP_SCOPES>` — Scopes defining which properties of nodes should be stripped
 
   Possible values:
@@ -199,8 +217,6 @@ Export a document to a file in another format
 
 * `--strip-types <STRIP_TYPES>` — A list of node types to strip
 * `--strip-props <STRIP_PROPS>` — A list of node properties to strip
-
-  Default value: `id`
 
 
 
@@ -222,9 +238,21 @@ Synchronize a document with one of more other files in other formats
 
   Default value: `warn`
 * `--standalone` — Encode as a standalone document
+
+  Possible values: `true`, `false`
+
 * `--not-standalone` — Do not encode as a standalone document when writing to file
+
+  Possible values: `true`, `false`
+
 * `-c`, `--compact` — Use compact form of encoding if possible
+
+  Possible values: `true`, `false`
+
 * `-p`, `--pretty` — Use a "pretty" form of encoding if possible
+
+  Possible values: `true`, `false`
+
 * `--strip-scopes <STRIP_SCOPES>` — Scopes defining which properties of nodes should be stripped
 
   Possible values:
@@ -241,8 +269,6 @@ Synchronize a document with one of more other files in other formats
 
 * `--strip-types <STRIP_TYPES>` — A list of node types to strip
 * `--strip-props <STRIP_PROPS>` — A list of node properties to strip
-
-  Default value: `id`
 
 
 
@@ -294,9 +320,21 @@ Convert a document between formats
 
   Default value: `warn`
 * `--standalone` — Encode as a standalone document
+
+  Possible values: `true`, `false`
+
 * `--not-standalone` — Do not encode as a standalone document when writing to file
+
+  Possible values: `true`, `false`
+
 * `-c`, `--compact` — Use compact form of encoding if possible
+
+  Possible values: `true`, `false`
+
 * `-p`, `--pretty` — Use a "pretty" form of encoding if possible
+
+  Possible values: `true`, `false`
+
 * `--strip-scopes <STRIP_SCOPES>` — Scopes defining which properties of nodes should be stripped
 
   Possible values:
@@ -313,8 +351,6 @@ Convert a document between formats
 
 * `--strip-types <STRIP_TYPES>` — A list of node types to strip
 * `--strip-props <STRIP_PROPS>` — A list of node properties to strip
-
-  Default value: `id`
 
 
 
@@ -339,7 +375,13 @@ Serve
 
   Default value: `9000`
 * `--raw` — Should files be served raw?
+
+  Possible values: `true`, `false`
+
 * `--source` — Should `SourceMap` headers be sent?
+
+  Possible values: `true`, `false`
+
 * `--sync <SYNC>` — Whether and in which direction(s) to sync served documents
 
   Possible values: `in`, `out`, `in-out`
@@ -361,11 +403,21 @@ A read-evaluate-print loop for AI assistants
 
 Mainly intended for prompt engineering during development of Stencila.
 
-**Usage:** `stencila repl [OPTIONS]`
+**Usage:** `stencila repl [OPTIONS] [TRANSFORM_NODES] [FILTER_NODES] [TAKE_NODES] [ASSERT_NODES]`
+
+###### **Arguments:**
+
+* `<TRANSFORM_NODES>` — The type of node that each decoded node should be transformed to
+* `<FILTER_NODES>` — The pattern for the type of node that filtered for after transform in applied
+* `<TAKE_NODES>` — The number of nodes to take after filtering
+* `<ASSERT_NODES>` — A pattern for the type and number of nodes that should be generated
 
 ###### **Options:**
 
 * `-r`, `--record` — Whether to offer the option to record each evaluation trial
+
+  Possible values: `true`, `false`
+
 * `-d`, `--document <DOCUMENT>` — The path of the document to use in the context
 * `--assistant <ASSISTANT>` — The name of the assistant to use
 * `--mirostat <MIROSTAT>` — Enable Mirostat sampling for controlling perplexity
@@ -391,18 +443,36 @@ Mainly intended for prompt engineering during development of Stencila.
 
 ## `stencila test`
 
-**Usage:** `stencila test [OPTIONS] <PATH> <NAME>`
+**Usage:** `stencila test [OPTIONS] <PATH>`
 
 ###### **Arguments:**
 
-* `<PATH>` — The path of test directory
-* `<NAME>` — The name of the instruction
+* `<PATH>` — The path of test directory or file
 
 ###### **Options:**
 
 * `-n`, `--reps <REPS>` — The number of repetitions
 
   Default value: `1`
+
+
+
+## `stencila config`
+
+**Usage:** `stencila config [OPTIONS]`
+
+###### **Options:**
+
+* `--dir <DIR>`
+
+  Default value: `config`
+
+  Possible values: `config`, `cache`, `assistants`
+
+* `--ensure`
+
+  Possible values: `true`, `false`
+
 
 
 
