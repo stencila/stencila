@@ -1109,6 +1109,7 @@ dependencies = [
  "common-dev",
  "divan",
  "json_value_merge",
+ "node-id",
  "node-strip",
 ]
 

@@ -21,6 +21,7 @@ codec-jsonld = { path = "../codec-jsonld" }
 codec-markdown = { path = "../codec-markdown" }
 codec-text = { path = "../codec-text" }
 codec-yaml = { path = "../codec-yaml" }
+node-id = { path = "../node-id" }
 node-strip = { path = "../node-strip" }
 
 [dev-dependencies]

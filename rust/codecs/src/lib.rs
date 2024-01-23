@@ -11,6 +11,7 @@ pub use codec::{
     format::Format, Codec, CodecDirection, CodecSupport, DecodeOptions, EncodeOptions, Losses,
     LossesResponse, Mapping, MappingEntry,
 };
+use node_id::NodeUid;
 use node_strip::{StripNode, StripTargets};
 
 /// Get a list of all codecs
@@ -109,6 +110,8 @@ pub async fn from_str_with_losses(
 
     let codec = get(codec, Some(format), Some(CodecDirection::Decode))?;
 
+    NodeUid::reset();
+
     codec
         .from_str(
             str,
@@ -149,6 +152,8 @@ pub async fn from_path_with_losses(
     };
 
     let codec = get(codec, Some(format), Some(CodecDirection::Decode))?;
+
+    NodeUid::reset();
 
     codec
         .from_path(

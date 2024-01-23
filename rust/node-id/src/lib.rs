@@ -1,6 +1,12 @@
-use std::fmt;
+use std::{
+    fmt,
+    sync::atomic::{AtomicU64, Ordering},
+};
 
-use common::{bs58, derive_more::Deref, serde_with::SerializeDisplay, uuid::Uuid};
+#[allow(unused)]
+use common::{
+    bs58, derive_more::Deref, once_cell::sync::Lazy, serde_with::SerializeDisplay, uuid::Uuid,
+};
 
 /// A unique id for a node
 ///
@@ -16,9 +22,31 @@ use common::{bs58, derive_more::Deref, serde_with::SerializeDisplay, uuid::Uuid}
 #[derive(Clone, Deref)]
 pub struct NodeUid(Vec<u8>);
 
+/// An atomic counter for deterministic auto-incremented ids
+/// during development
+///
+/// Having deterministic ids is particularly useful for snapshot tests
+/// to avoid changes in snapshots due to random ids.
+#[cfg(debug_assertions)]
+static NODE_UID: Lazy<AtomicU64> = Lazy::new(AtomicU64::default);
+
+impl NodeUid {
+    // Reset the `NodeUid` counter
+    pub fn reset() {
+        #[cfg(debug_assertions)]
+        NODE_UID.store(0, Ordering::SeqCst)
+    }
+}
+
 impl Default for NodeUid {
     fn default() -> Self {
-        Self(Uuid::new_v4().as_bytes().to_vec())
+        #[cfg(not(debug_assertions))]
+        let bytes = Uuid::new_v4().as_bytes();
+
+        #[cfg(debug_assertions)]
+        let bytes = NODE_UID.fetch_add(1, Ordering::SeqCst).to_be_bytes();
+
+        Self(bytes.to_vec())
     }
 }
 
