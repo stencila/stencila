@@ -84,7 +84,7 @@
     "@parcel/compressor-gzip": "2.11.0",
     "@parcel/transformer-typescript-tsc": "2.11.0",
     "parcel": "2.11.0",
-    "postcss-import": "15.1.0",
+    "postcss-import": "16.0.0",
     "prosemirror-example-setup": "1.2.2"
   }
 }
