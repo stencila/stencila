@@ -6,5 +6,4 @@ edition = "2021"
 [dependencies]
 codec = { path = "../codec" }
 codec-html-trait = { path = "../codec-html-trait" }
-minify-html = "0.15.0"
 quick-xml = "0.31.0"

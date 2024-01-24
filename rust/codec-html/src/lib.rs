@@ -79,35 +79,12 @@ impl Codec for HtmlCodec {
         };
 
         let html = match compact {
-            Some(true) | None => minify(&html),
+            Some(true) | None => html,
             Some(false) => indent(&html),
         };
 
         Ok((html, Losses::none(), Mapping::none()))
     }
-}
-
-/// Minify HTML
-pub fn minify(html: &str) -> String {
-    let cfg = minify_html::Cfg {
-        ensure_spec_compliant_unquoted_attribute_values: true,
-        minify_css: true,
-        minify_js: true,
-        remove_processing_instructions: true,
-        keep_closing_tags: false,
-        keep_comments: false,
-        // These more "extreme" (and sometimes hard to understand) minification options are
-        // not made configurable (more likely to cause problems and require documentation for little gain)
-        do_not_minify_doctype: true,
-        keep_html_and_head_opening_tags: true,
-        keep_spaces_between_attributes: true,
-        remove_bangs: false,
-        ..Default::default()
-    };
-
-    let bytes = minify_html::minify(html.as_bytes(), &cfg);
-
-    String::from_utf8_lossy(&bytes).to_string()
 }
 
 /// Indent HTML
