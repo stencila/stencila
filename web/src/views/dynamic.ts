@@ -6,7 +6,6 @@ import { NodesClient } from '../clients/nodes'
 import '../nodes'
 import type { DocumentId, DocumentAccess } from '../types'
 
-
 import { ThemedView } from './themed'
 
 /**
