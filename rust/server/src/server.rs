@@ -562,13 +562,14 @@ async fn serve_ws(
 
     for format in [
         // TODO: define this list of string formats better
+        Format::Dom,
+        Format::Html,
+        Format::Jats,
         Format::Json,
         Format::Json5,
         Format::JsonLd,
-        Format::Yaml,
         Format::Markdown,
-        Format::Jats,
-        Format::Html,
+        Format::Yaml,
     ] {
         protocols.push(format!("read.{format}.stencila.org"));
         protocols.push(format!("write.{format}.stencila.org"));

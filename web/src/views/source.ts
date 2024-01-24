@@ -47,6 +47,7 @@ const FORMATS = {
   jsonld: 'JSON-LD',
   json5: 'JSON5',
   yaml: 'YAML',
+  ...(process.env.NODE_ENV === 'development' ? { dom: 'DOM' } : {}),
 }
 
 /**
@@ -167,6 +168,13 @@ export class SourceView extends TWLitElement {
         return import('@codemirror/legacy-modes/mode/yaml').then(
           (yml) => new LanguageSupport(StreamLanguage.define(yml.yaml))
         )
+      },
+    }),
+    LanguageDescription.of({
+      name: 'dom',
+      extensions: ['dom'],
+      load: async () => {
+        return import('@codemirror/lang-html').then((obj) => obj.html())
       },
     }),
   ]
