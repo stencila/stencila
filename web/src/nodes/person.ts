@@ -10,16 +10,14 @@ import { customElement, property } from 'lit/decorators'
 export abstract class Person extends LitElement {
   // TODO: add other properties as needed
 
-  @property({ attribute: 'given-names' })
-  givenNames?: string
+  @property({ attribute: 'given-names', type: Array })
+  givenNames?: string[]
 
-  @property({ attribute: 'family-names' })
-  familyNames?: string
+  @property({ attribute: 'family-names', type: Array })
+  familyNames?: string[]
 
   render() {
     // TODO: improve rendering
-    return html`
-      ${this.givenNames} ${this.familyNames}
-    `
+    return html` ${this.givenNames} ${this.familyNames} `
   }
 }
