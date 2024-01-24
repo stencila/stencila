@@ -87,13 +87,36 @@ export class CodeMirrorClient extends FormatClient {
       return
     }
 
-    // TODO: Coalesce operations as much as possible to reduce the number sent
-    // https://github.com/stencila/stencila/issues/1787
-
     // Don't send empty patches
     if (this.bufferedOperations.length === 0) {
       return
     }
+
+    // Coalesce consecutive 'insert' operations into a single op
+    this.bufferedOperations = this.bufferedOperations.reduce<FormatOperation[]>(
+      (ops, current, i) => {
+        if (i === 0) {
+          ops.push(current)
+        } else {
+          const prev = ops[ops.length - 1]
+          if (
+            prev.type === 'insert' &&
+            current.type === 'insert' &&
+            +prev.from + prev.insert.length === current.from
+          ) {
+            ops[ops.length - 1] = {
+              ...prev,
+              insert: prev.insert + current.insert,
+              to: current.to,
+            }
+          } else {
+            ops.push(current)
+          }
+        }
+        return ops
+      },
+      []
+    )
 
     // Send the patch and clear buffered operations
     this.sendPatch(this.bufferedOperations)
