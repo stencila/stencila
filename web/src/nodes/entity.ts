@@ -1,7 +1,7 @@
 import { LitElement } from 'lit'
 
 import { nodePatchEvent, NodePatch } from '../clients/nodes'
-import { DocumentAccess } from '../types'
+import { DocumentAccess, DocumentView } from '../types'
 
 /**
  * Abstract base class for web components representing Stencila Schema `Entity` node types
@@ -40,8 +40,8 @@ export abstract class Entity extends LitElement {
    * This may be used by derived elements to alter their rendering and/or
    * behavior based on the view.
    */
-  protected documentView(): string {
-    return this.closestGlobally('[view]')?.getAttribute('view')
+  protected documentView(): DocumentView {
+    return this.closestGlobally('[view]')?.getAttribute('view') as DocumentView
   }
 
   /**
