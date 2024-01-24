@@ -23,6 +23,10 @@ import {
   highlightStyles as instructionSyntaxStyles,
 } from './extensions/instructSyntax'
 import {
+  StencilaMathSyntax,
+  highlightStyles as mathSyntaxStyles,
+} from './extensions/mathSyntax'
+import {
   StencilaSuggestionSyntax,
   highlightStyles as suggestionSyntaxStyles,
 } from './extensions/suggestionSyntax'
@@ -52,6 +56,7 @@ const markdownHighlightStyle = HighlightStyle.define([
   ...colonSyntaxStyles,
   ...suggestionSyntaxStyles,
   ...instructionSyntaxStyles,
+  ...mathSyntaxStyles,
   ...defaultHighlightStyle.specs,
 ])
 
@@ -71,6 +76,7 @@ const stencilaMarkdown = () =>
       StencilaInstructSyntax,
       StencilaSuggestionSyntax,
       StencilaStyleInlineSyntax,
+      StencilaMathSyntax,
     ],
   })
 
