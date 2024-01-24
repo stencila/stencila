@@ -255,12 +255,6 @@ enum Command {
     ///
     /// Mainly intended for prompt engineering during development of Stencila.
     Repl {
-        /// Whether to offer the option to record each evaluation trial
-        ///
-        /// Trials can be recorded in a local SQLite database.
-        #[arg(long, short)]
-        record: bool,
-
         /// The path of the document to use in the context
         ///
         /// For testing, you probably want this to be an example Markdown file
@@ -611,7 +605,6 @@ impl Cli {
             }
 
             Command::Repl {
-                record,
                 mut document,
                 options,
             } => {
@@ -694,20 +687,6 @@ impl Cli {
                                 // Display the generated text
                                 let yaml = serde_yaml::to_string(&output)?;
                                 display::highlighted(&yaml, Format::Markdown)?;
-
-                                // Record in database if user wants
-                                if record {
-                                    let question = format!(
-                                        ">> {}",
-                                        "Would you like to record this trial? (y/n): "
-                                            .dimmed()
-                                            .yellow()
-                                    );
-                                    let answer = reader.readline(&question)?;
-                                    if answer == "y" || answer.is_empty() {
-                                        assistants::testing::insert_trial(line, &output).await?
-                                    }
-                                }
                             }
                         }
                         Err(ReadlineError::Interrupted) | Err(ReadlineError::Eof) => {

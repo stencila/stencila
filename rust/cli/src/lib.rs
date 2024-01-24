@@ -1,3 +1,5 @@
+#![recursion_limit = "256"]
+
 mod cli;
 pub use crate::cli::Cli;
 
