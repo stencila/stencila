@@ -1,13 +1,14 @@
 //! Application level (e.g. Stencila CLI or Stencila Desktop) config and directories
 
-use clap::ValueEnum;
-use std::env;
-use std::{fs::create_dir_all, path::PathBuf};
+use std::{env, fs::create_dir_all, path::PathBuf};
 
 use directories::ProjectDirs;
 
-use common::eyre::{OptionExt, Result};
-use common::strum::{Display, EnumString};
+use common::{
+    clap::{self, ValueEnum},
+    eyre::{OptionExt, Result},
+    strum::{Display, EnumString},
+};
 
 fn project_dirs() -> Result<ProjectDirs> {
     ProjectDirs::from("io", "stencila", "stencila").ok_or_eyre("unable to build project dirs")

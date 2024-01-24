@@ -74,19 +74,6 @@ export class CodeMirrorClient extends FormatClient {
    * Send any buffered operations and increment the version number
    */
   private sendBufferedOperations() {
-    // If the last operation is only inserting whitespace, do not send.
-    //
-    // TODO: This needs to be more refined: it needs to allow for spaces to be
-    // inserted in paragraphs and sent immediately, but not spaces at end of
-    // paragraphs.
-    // https://github.com/stencila/stencila/issues/1788
-    const op = this.bufferedOperations[this.bufferedOperations.length - 1]
-    // For some reason (maybe because this runs async and cached operations
-    // get filtered above?) `op` can occasionally be undefined so catch that here
-    if (op && op.insert && op.insert.trim().length === 0) {
-      return
-    }
-
     // Don't send empty patches
     if (this.bufferedOperations.length === 0) {
       return

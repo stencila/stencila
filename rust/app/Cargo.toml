@@ -6,4 +6,3 @@ edition = "2021"
 [dependencies]
 common = { path = "../common" }
 directories = "5.0.1"
-clap = "4.4.14"
