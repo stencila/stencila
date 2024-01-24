@@ -79,10 +79,12 @@ export class CodeMirrorClient extends FormatClient {
       return
     }
 
-    // Coalesce consecutive 'insert' operations into a single op
-    this.bufferedOperations = this.bufferedOperations.reduce<FormatOperation[]>(
-      (ops, current, i) => {
-        if (i === 0) {
+    // To reduce the number of operations, coalesce consecutive 'insert'
+    // operations (as happens with successive key presses) into a single op
+    let selection: FormatOperation
+    const coalesced = this.bufferedOperations.reduce<FormatOperation[]>(
+      (ops, current, index) => {
+        if (index === 0) {
           ops.push(current)
         } else {
           const prev = ops[ops.length - 1]
@@ -96,6 +98,12 @@ export class CodeMirrorClient extends FormatClient {
               insert: prev.insert + current.insert,
               to: current.to,
             }
+          } else if (
+            selection === undefined &&
+            current.type == 'selection' &&
+            index == this.bufferedOperations.length - 2
+          ) {
+            selection = current
           } else {
             ops.push(current)
           }
@@ -104,9 +112,12 @@ export class CodeMirrorClient extends FormatClient {
       },
       []
     )
+    if (selection) {
+      coalesced.push(selection)
+    }
 
     // Send the patch and clear buffered operations
-    this.sendPatch(this.bufferedOperations)
+    this.sendPatch(coalesced)
     this.bufferedOperations = []
   }
 
