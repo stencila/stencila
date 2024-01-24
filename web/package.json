@@ -48,11 +48,11 @@
     "unused": "depcheck --quiet --ignores '@parcel/*,postcss-*,prosemirror-*' --ignore-patterns '.eslintrc*'"
   },
   "dependencies": {
-    "@codemirror/autocomplete": "6.11.1",
+    "@codemirror/autocomplete": "6.12.0",
     "@codemirror/commands": "6.3.3",
-    "@codemirror/lang-html": "6.4.7",
+    "@codemirror/lang-html": "6.4.8",
     "@codemirror/lang-json": "6.0.1",
-    "@codemirror/lang-markdown": "6.2.3",
+    "@codemirror/lang-markdown": "6.2.4",
     "@codemirror/lang-xml": "6.0.2",
     "@codemirror/language": "6.10.0",
     "@codemirror/legacy-modes": "6.3.3",
