@@ -573,7 +573,7 @@ pub struct DomOptions {
     pub derive: bool,
 
     /// The HTML element name for a property
-    /// 
+    ///
     /// If not supplied the property will be encoded as an attribute
     /// on the parent element.
     pub elem: Option<String>,

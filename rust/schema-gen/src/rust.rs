@@ -317,12 +317,7 @@ pub enum NodeType {{
             derives.push("ReadNode");
         }
 
-        if schema
-            .dom
-            .as_ref()
-            .map(|spec| spec.derive)
-            .unwrap_or(true)
-        {
+        if schema.dom.as_ref().map(|spec| spec.derive).unwrap_or(true) {
             derives.push("DomCodec");
         }
 
@@ -606,7 +601,7 @@ pub enum NodeType {{
 
                 attrs.push(format!("#[dom({})]", args.join(", ")))
             }
-            
+
             // Add #[html] attribute for field if necessary
             if let Some(html) = &property.html {
                 let mut args = Vec::new();
