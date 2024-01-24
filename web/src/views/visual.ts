@@ -10,16 +10,10 @@ import {
 import { DomClient } from '../clients/dom'
 import { ObjectClient } from '../clients/object'
 import { ProseMirrorClient } from '../clients/prosemirror'
+import '../nodes'
 import type { DocumentId, DocumentAccess } from '../types'
 
 import 'prosemirror-menu/style/menu.css'
-
-// Include all node components required for this view
-import '../nodes/code-chunk'
-import '../nodes/code-expression'
-import '../nodes/if-block'
-import '../nodes/if-block-clause'
-import '../nodes/parameter'
 
 import { ThemedView } from './themed'
 import * as schemas from './visual/schemas'

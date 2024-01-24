@@ -2,7 +2,6 @@ import {
   type NodeSpec,
   Node,
   NodeViewConstructor,
-  attrsParseToDOM,
   toDOMAttrs,
   getAttrs,
   attrsWithDefault,
@@ -115,7 +114,35 @@ const Paragraph: NodeSpec = {
   group: 'Block',
   content: 'Inline*',
   marks: '_',
-  ...attrsParseToDOM('p', 'id'),
+  attrs: attrsWithDefault(null, 'id', 'authors'),
+  parseDOM: [
+    {
+      tag: 'stencila-paragraph',
+      contentElement: '[slot=content]',
+      getAttrs: (elem: HTMLElement) => ({
+        authors: elem.querySelector('[slot=authors]')?.innerHTML,
+        ...getAttrs('id')(elem),
+      }),
+    },
+  ],
+  toDOM: (node: Node) => {
+    const dom = document.createElement('stencila-paragraph')
+    dom.draggable = true
+    dom.id = node.attrs.id
+
+    const contentDOM = document.createElement('p')
+    contentDOM.slot = 'content'
+    dom.appendChild(contentDOM)
+
+    if (node.attrs.authors) {
+      const authors = document.createElement('div')
+      authors.slot = 'authors'
+      authors.innerHTML = node.attrs.authors
+      dom.appendChild(authors)
+    }
+
+    return { dom, contentDOM }
+  },
 }
 
 // Export specs and views

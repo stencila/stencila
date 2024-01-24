@@ -2,6 +2,7 @@ import { html } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
 
 import { DomClient } from '../clients/dom'
+import '../nodes'
 import type { DocumentId } from '../types'
 
 import { ThemedView } from './themed'
