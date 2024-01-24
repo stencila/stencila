@@ -38,8 +38,19 @@ audit: install
 build: install clean
 	npm run build
 
+# Build in docker
+.docker:
+	docker build --no-cache -t stencila/web:latest .
+	touch $@
+build-in-docker: .docker
+	docker run --rm -it \
+		-v ./dist:/home/node/app/dist \
+		stencila/web:latest \
+		bash -c "npm run build"
+
 # Clean up development artifacts
 clean:
+	rm -f .docker
 	mv dist/.gitignore dist.gitignore
 	rm -rf dist
 	mkdir dist
