@@ -23,7 +23,7 @@ use super::timestamp::Timestamp;
 /// An instruction to edit some inline content.
 #[skip_serializing_none]
 #[serde_as]
-#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, WalkNode, WriteNode, ReadNode, HtmlCodec, JatsCodec, TextCodec)]
+#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, WalkNode, WriteNode, ReadNode, DomCodec, HtmlCodec, JatsCodec, TextCodec)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 #[cfg_attr(feature = "proptest", derive(Arbitrary))]
 #[derive(derive_more::Display)]
@@ -49,6 +49,7 @@ pub struct InstructionInline {
     #[serde(alias = "message")]
     #[serde(deserialize_with = "one_or_many")]
     #[cfg_attr(feature = "proptest", proptest(value = "Default::default()"))]
+    #[dom(elem = "div")]
     pub messages: Vec<Message>,
 
     /// The content to which the instruction applies.
@@ -58,10 +59,12 @@ pub struct InstructionInline {
     #[cfg_attr(feature = "proptest-low", proptest(strategy = r#"option::of(vec_inlines_non_recursive(1))"#))]
     #[cfg_attr(feature = "proptest-high", proptest(strategy = r#"option::of(vec_inlines_non_recursive(2))"#))]
     #[cfg_attr(feature = "proptest-max", proptest(strategy = r#"option::of(vec_inlines_non_recursive(4))"#))]
+    #[dom(elem = "span")]
     pub content: Option<Vec<Inline>>,
 
     /// Non-core optional fields
     #[serde(flatten)]
+    #[dom(elem = "none")]
     #[html(flatten)]
     #[jats(flatten)]
     pub options: Box<InstructionInlineOptions>,
@@ -74,7 +77,7 @@ pub struct InstructionInline {
 
 #[skip_serializing_none]
 #[serde_as]
-#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, WalkNode, WriteNode, ReadNode, HtmlCodec, JatsCodec, TextCodec)]
+#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, WalkNode, WriteNode, ReadNode, DomCodec, HtmlCodec, JatsCodec, TextCodec)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 #[cfg_attr(feature = "proptest", derive(Arbitrary))]
 pub struct InstructionInlineOptions {
@@ -173,6 +176,7 @@ pub struct InstructionInlineOptions {
     #[serde(default, deserialize_with = "option_one_or_many")]
     #[strip(metadata)]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
+    #[dom(elem = "div")]
     pub authors: Option<Vec<Author>>,
 
     /// A suggestion for the instruction

@@ -61,6 +61,9 @@
           "strategy": "vec_blocks_non_recursive(4)"
         }
       },
+      "dom": {
+        "elem": "div"
+      },
       "type": "array",
       "items": {
         "$ref": "Block.schema.json"
@@ -72,6 +75,9 @@
       "aliases": [
         "operation"
       ],
+      "dom": {
+        "elem": "span"
+      },
       "type": "array",
       "items": {
         "$ref": "ModifyOperation.schema.json"

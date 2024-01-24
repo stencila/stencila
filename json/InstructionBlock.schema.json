@@ -249,6 +249,9 @@
       "aliases": [
         "message"
       ],
+      "dom": {
+        "elem": "div"
+      },
       "type": "array",
       "items": {
         "$ref": "Message.schema.json"
@@ -283,6 +286,9 @@
       "strip": [
         "metadata"
       ],
+      "dom": {
+        "elem": "div"
+      },
       "type": "array",
       "items": {
         "$ref": "Author.schema.json"
@@ -308,6 +314,9 @@
           "description": "Generate up to four arbitrary, non-recursive, block nodes",
           "strategy": "option::of(vec_blocks_non_recursive(4))"
         }
+      },
+      "dom": {
+        "elem": "div"
       },
       "type": "array",
       "items": {

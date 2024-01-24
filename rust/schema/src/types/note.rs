@@ -9,7 +9,7 @@ use super::string::String;
 /// Additional content which is not part of the main content of a document.
 #[skip_serializing_none]
 #[serde_as]
-#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, WalkNode, WriteNode, ReadNode, HtmlCodec, JatsCodec, TextCodec)]
+#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, WalkNode, WriteNode, ReadNode, DomCodec, HtmlCodec, JatsCodec, TextCodec)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 #[cfg_attr(feature = "proptest", derive(Arbitrary))]
 #[derive(derive_more::Display)]
@@ -42,6 +42,7 @@ pub struct Note {
     #[cfg_attr(feature = "proptest-low", proptest(value = r#"vec![p([t("Note paragraph")])]"#))]
     #[cfg_attr(feature = "proptest-high", proptest(value = r#"vec![p([t("Note paragraph")])]"#))]
     #[cfg_attr(feature = "proptest-max", proptest(value = r#"vec![p([t("Note paragraph")])]"#))]
+    #[dom(elem = "aside")]
     pub content: Vec<Block>,
 
     /// A unique identifier for a node within a document

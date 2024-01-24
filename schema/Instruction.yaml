@@ -17,6 +17,8 @@ properties:
     type: array
     items:
       $ref: Message
+    dom:
+      elem: div
   assignee:
     '@id': stencila:assignee
     description: An identifier for the agent assigned to perform the instruction
@@ -41,3 +43,5 @@ properties:
     items:
       $ref: Author
     strip: [metadata]
+    dom:
+      elem: div

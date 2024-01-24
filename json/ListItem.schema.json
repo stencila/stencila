@@ -153,6 +153,9 @@
           "strategy": "vec_blocks_list_item(4)"
         }
       },
+      "dom": {
+        "elem": "li"
+      },
       "type": "array",
       "items": {
         "$ref": "Block.schema.json"

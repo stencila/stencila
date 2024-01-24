@@ -16,6 +16,8 @@ properties:
     type: array
     items:
       $ref: Block
+    dom:
+      elem: div
     proptest:
       min:
         description: No content

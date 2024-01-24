@@ -36,6 +36,7 @@ pub enum Format {
     // CRDTs
     Article,
     // Markup formats
+    Dom,
     Html,
     Jats,
     // Text formats
@@ -84,6 +85,7 @@ impl Format {
             Cbor => "CBOR",
             CborZst => "CBOR+Zstandard",
             Debug => "Debug",
+            Dom => "DOM HTML",
             Flac => "FLAC",
             Gif => "GIF",
             Html => "HTML",

@@ -53,6 +53,8 @@ properties:
     items:
       $ref: Block
     walk: true
+    dom:
+      elem: div
     proptest:
       min:
         description: No caption
@@ -67,6 +69,8 @@ properties:
     type: array
     items:
       $ref: Node
+    dom:
+      elem: div
   executionPure:
     "@id": stencila:executionPure
     description: Whether the code should be treated as side-effect free when executed.

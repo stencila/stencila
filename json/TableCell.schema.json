@@ -94,6 +94,9 @@
           "strategy": "vec_paragraphs(1)"
         }
       },
+      "dom": {
+        "elem": "td"
+      },
       "type": "array",
       "items": {
         "$ref": "Block.schema.json"

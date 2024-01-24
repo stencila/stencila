@@ -163,6 +163,9 @@
     "content": {
       "@id": "stencila:content",
       "description": "The content within the styled block",
+      "dom": {
+        "elem": "div"
+      },
       "type": "array",
       "items": {
         "$ref": "Block.schema.json"

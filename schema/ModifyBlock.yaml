@@ -16,3 +16,5 @@ properties:
     type: array
     items:
       $ref: ModifyOperation
+    dom:
+      elem: span

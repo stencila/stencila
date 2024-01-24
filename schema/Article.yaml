@@ -37,6 +37,8 @@ properties:
     items:
       $ref: Block
     strip: [content]
+    dom:
+      elem: section
     proptest:
       min:
         description: Generate a single arbitrary block node

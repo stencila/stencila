@@ -268,6 +268,9 @@
           "strategy": "String::arbitrary().prop_map(Cord::new)"
         }
       },
+      "dom": {
+        "elem": "pre"
+      },
       "jats": {
         "content": true
       },
@@ -318,6 +321,9 @@
       "serde": {
         "deserializeWith": "option_one_or_many_string_or_object"
       },
+      "dom": {
+        "elem": "span"
+      },
       "type": "array",
       "items": {
         "$ref": "Author.schema.json"
@@ -351,6 +357,9 @@
           "description": "Generate up to four arbitrary, non-recursive, block nodes.",
           "strategy": "vec_blocks_non_recursive(4)"
         }
+      },
+      "dom": {
+        "elem": "div"
       },
       "html": {
         "slot": "div"

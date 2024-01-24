@@ -15,7 +15,39 @@
       content: [
         {
           type: "Text",
-          value: "Paragraph two, only has one sentence."
+          value: "Paragraph two, has one person author."
+        }
+      ],
+      authors: [
+        {
+          type: "Person",
+          familyNames: [ "Aardvark" ],
+          givenNames: [ "Ann" ]
+        }
+      ]
+    },
+    {
+      type: "Paragraph",
+      content: [
+        {
+          type: "Text",
+          value: "Paragraph three, has three authors or different types."
+        }
+      ],
+      authors: [
+        {
+          type: "Person",
+          familyNames: [ "Baboon" ],
+          givenNames: [ "Bob" ]
+        },
+        {
+          type: "Organization",
+          name: "Acme Corp"
+        },
+        {
+          type: "SoftwareApplication",
+          id: "super-editor",
+          name: "Super-editor"
         }
       ]
     }

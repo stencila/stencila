@@ -27,6 +27,8 @@ properties:
     items:
       $ref: Block
     walk: true
+    dom:
+      elem: caption
     proptest:
       min:
         description: No caption.
@@ -45,6 +47,8 @@ properties:
     items:
       $ref: TableRow
     walk: true
+    dom:
+      elem: table
     proptest:
       min:
         description: Generate up to a 2x2 table with a header row.
@@ -65,6 +69,8 @@ properties:
     items:
       $ref: Block
     walk: true
+    dom:
+      elem: aside
     proptest:
       min:
         description: No notes.

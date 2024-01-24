@@ -65,6 +65,9 @@
           "strategy": "vec(TableCell::arbitrary(), size_range(1..=8))"
         }
       },
+      "dom": {
+        "elem": "tr"
+      },
       "type": "array",
       "items": {
         "$ref": "TableCell.schema.json"

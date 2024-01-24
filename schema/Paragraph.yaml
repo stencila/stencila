@@ -24,7 +24,11 @@ properties:
   content:
     '@id': stencila:content
     description: The contents of the paragraph.
-
+    type: array
+    items:
+      $ref: Inline
+    dom:
+      elem: p
     proptest:
       min:
         description: Generate a single arbitrary inline node
@@ -38,9 +42,6 @@ properties:
       max:
         description: Generate up to eight arbitrary inline nodes without restrictions on their order
         strategy: vec(Inline::arbitrary(), size_range(0..=8))
-    type: array
-    items:
-      $ref: Inline
   authors:
     '@id': schema:author
     description: The authors of the paragraph.
@@ -50,3 +51,6 @@ properties:
     strip: [metadata]
     serde:
       deserializeWith: option_one_or_many_string_or_object
+    dom:
+      elem: div
+

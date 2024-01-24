@@ -661,12 +661,6 @@ async fn handle_ws_object(ws: WebSocket, doc: Arc<Document>, capability: &str) {
 async fn handle_ws_format(ws: WebSocket, doc: Arc<Document>, capability: &str, format: &str) {
     tracing::trace!("WebSocket `format` connection");
 
-    let (format, dom, compact) = match format {
-        "dom" => (Some(Format::Html), Some(true), Some(true)),
-        // Prefer un-compacted (e.g. indented) encodings for everything else
-        _ => (format.parse().ok(), None, Some(false)),
-    };
-
     let (ws_sender, ws_receiver) = ws.split();
 
     let (in_sender, in_receiver) = channel(1024);
@@ -675,6 +669,8 @@ async fn handle_ws_format(ws: WebSocket, doc: Arc<Document>, capability: &str, f
     let (out_sender, out_receiver) = channel(1024);
     send_ws_messages(out_receiver, ws_sender);
 
+    let format = format.parse().ok();
+
     let decode_options = DecodeOptions {
         format,
         ..Default::default()
@@ -682,8 +678,7 @@ async fn handle_ws_format(ws: WebSocket, doc: Arc<Document>, capability: &str, f
 
     let encode_options = EncodeOptions {
         format,
-        dom,
-        compact,
+        compact: Some(false),
         ..Default::default()
     };
 

@@ -276,6 +276,9 @@
           "strategy": "String::arbitrary().prop_map(Cord::new)"
         }
       },
+      "dom": {
+        "elem": "pre"
+      },
       "jats": {
         "content": true
       },
@@ -325,6 +328,9 @@
       ],
       "serde": {
         "deserializeWith": "option_one_or_many_string_or_object"
+      },
+      "dom": {
+        "elem": "span"
       },
       "type": "array",
       "items": {
@@ -384,6 +390,9 @@
           "strategy": "option::of(vec_paragraphs(2))"
         }
       },
+      "dom": {
+        "elem": "div"
+      },
       "type": "array",
       "items": {
         "$ref": "Block.schema.json"
@@ -398,6 +407,9 @@
       "strip": [
         "output"
       ],
+      "dom": {
+        "elem": "div"
+      },
       "type": "array",
       "items": {
         "$ref": "Node.schema.json"

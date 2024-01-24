@@ -10,6 +10,7 @@ proptest-high = ["proptest", "proptest-derive"]
 proptest-max = ["proptest", "proptest-derive"]
 
 [dependencies]
+codec-dom-trait = { path = "../codec-dom-trait" }
 codec-html-trait = { path = "../codec-html-trait" }
 codec-jats-trait = { path = "../codec-jats-trait" }
 codec-json5-trait = { path = "../codec-json5-trait" }

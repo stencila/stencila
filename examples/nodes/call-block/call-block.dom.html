@@ -1,0 +1,39 @@
+<stencila-article id=art_1111111F root>
+  <section slot=content>
+    <stencila-paragraph id=pgh_11111112>
+      <p slot=content>
+        <stencila-text id=txt_11111111>A call of sibling document</stencila-text>
+      </p>
+    </stencila-paragraph>
+    <stencila-call-block source=../parameter/parameter.md id=clb_11111113>
+    </stencila-call-block>
+    <stencila-paragraph id=pgh_11111115>
+      <p slot=content>
+        <stencila-text id=txt_11111114>A call with one argument</stencila-text>
+      </p>
+    </stencila-paragraph>
+    <stencila-call-block source=../parameter/parameter.md id=clb_11111117>
+      <div slot=arguments>
+        <stencila-call-argument name=arg1 code=123 id=cla_11111116>
+        </stencila-call-argument>
+      </div>
+    </stencila-call-block>
+    <stencila-paragraph id=pgh_11111119>
+      <p slot=content>
+        <stencila-text id=txt_11111118>A call with several arguments</stencila-text>
+      </p>
+    </stencila-paragraph>
+    <stencila-call-block source=../parameter/parameter.md id=clb_1111111E>
+      <div slot=arguments>
+        <stencila-call-argument name=arg1 code=123 id=cla_1111111A>
+        </stencila-call-argument>
+        <stencila-call-argument name=argtwo code='"two"' id=cla_1111111B>
+        </stencila-call-argument>
+        <stencila-call-argument name=arg_three code=3.0 id=cla_1111111C>
+        </stencila-call-argument>
+        <stencila-call-argument name=arg4 code='2 * 2' id=cla_1111111D>
+        </stencila-call-argument>
+      </div>
+    </stencila-call-block>
+  </section>
+</stencila-article>

@@ -90,11 +90,11 @@ export class VisualView extends ThemedView {
     // Get the ProseMirror schema corresponding to the node type
     // of the document
     const tagName =
-      this.renderRoot.querySelector('[data-root]')?.tagName.toLowerCase() ??
-      'article'
+      this.renderRoot.querySelector('[root]')?.tagName.toLowerCase() ??
+      'stencila-article'
     let schema: Schema
     let views: Record<string, NodeViewConstructor>
-    if (tagName === 'article') {
+    if (tagName === 'stencila-article') {
       // eslint-disable-next-line no-extra-semi
       ;({ schema, views } = schemas.article)
     } else {
@@ -127,6 +127,6 @@ export class VisualView extends ThemedView {
   }
 
   render() {
-    return html`<article data-root></article>`
+    return html`<stencila-article root></stencila-article>`
   }
 }

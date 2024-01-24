@@ -43,6 +43,8 @@ properties:
     items:
       $ref: Block
     strip: [code]
+    dom:
+      elem: div
     proptest:
       min:
         description: A single simple paragraph.
@@ -60,6 +62,8 @@ properties:
     items:
       $ref: Block
     strip: [code]
+    dom:
+      elem: div
     proptest:
       min:
         description: No otherwise clause.
@@ -79,4 +83,5 @@ properties:
       items:
         $ref: Block
     strip: [output]
-
+    dom:
+      elem: div

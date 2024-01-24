@@ -67,6 +67,9 @@
           "strategy": "vec_blocks_non_recursive(8)"
         }
       },
+      "dom": {
+        "elem": "section"
+      },
       "type": "array",
       "items": {
         "$ref": "Block.schema.json"

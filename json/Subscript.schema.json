@@ -66,6 +66,9 @@
           "strategy": "vec_inlines_non_recursive(4)"
         }
       },
+      "dom": {
+        "elem": "none"
+      },
       "type": "array",
       "items": {
         "$ref": "Inline.schema.json"

@@ -301,6 +301,9 @@
       "strip": [
         "output"
       ],
+      "dom": {
+        "elem": "div"
+      },
       "type": "array",
       "items": {
         "$ref": "Block.schema.json"
@@ -328,6 +331,9 @@
           "description": "Generate up to 10 arbitrary arguments",
           "strategy": "vec(CallArgument::arbitrary(), size_range(0..=10))"
         }
+      },
+      "dom": {
+        "elem": "div"
       },
       "type": "array",
       "items": {

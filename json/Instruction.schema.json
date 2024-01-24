@@ -244,6 +244,9 @@
       "aliases": [
         "message"
       ],
+      "dom": {
+        "elem": "div"
+      },
       "type": "array",
       "items": {
         "$ref": "Message.schema.json"
@@ -278,6 +281,9 @@
       "strip": [
         "metadata"
       ],
+      "dom": {
+        "elem": "div"
+      },
       "type": "array",
       "items": {
         "$ref": "Author.schema.json"

@@ -12,6 +12,7 @@ pub use common::{
     strum,
 };
 
+pub use codec_dom_trait::{DomCodec, DomEncodeContext};
 pub use codec_html_trait::{HtmlCodec, HtmlEncodeContext};
 pub use codec_jats_trait::JatsCodec;
 pub use codec_losses::Losses;

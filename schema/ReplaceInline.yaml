@@ -17,3 +17,5 @@ properties:
     type: array
     items:
       $ref: Inline
+    dom:
+      elem: span

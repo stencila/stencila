@@ -27,6 +27,8 @@ properties:
     items:
       $ref: Block
     strip: [metadata]
+    dom:
+      elem: section
   authors:
     '@id': schema:author
     description: The authors of the `CreativeWork`.
@@ -36,6 +38,8 @@ properties:
     strip: [metadata]
     serde:
       deserializeWith: option_one_or_many_string_or_object
+    dom:
+      elem: section
   contributors:
     '@id': schema:contributor
     description: A secondary contributor to the `CreativeWork`.
@@ -45,6 +49,8 @@ properties:
     strip: [metadata]
     serde:
       deserializeWith: option_one_or_many_string_or_object
+    dom:
+      elem: section
   editors:
     '@id': schema:editor
     description: People who edited the `CreativeWork`.
@@ -58,6 +64,8 @@ properties:
     strip: [metadata]
     serde:
       deserializeWith: option_one_or_many_string_or_object
+    dom:
+      elem: section
   maintainers:
     '@id': schema:maintainer
     description: The maintainers of the `CreativeWork`.
@@ -81,6 +89,8 @@ properties:
     strip: [metadata]
     serde:
       deserializeWith: option_one_or_many_string_or_object
+    dom:
+      elem: section
   comments:
     '@id': schema:comment
     description: Comments about this creative work.
@@ -88,6 +98,8 @@ properties:
     items:
       $ref: Comment
     strip: [metadata]
+    dom:
+      elem: section
   dateCreated:
     '@id': schema:dateCreated
     description: Date/time of creation.
@@ -141,6 +153,8 @@ properties:
     strip: [metadata]
     serde:
       deserializeWith: option_one_or_many_string_or_object
+    dom:
+      elem: section
   fundedBy:
     '@id': stencila:fundedBy
     description: Grants that funded the `CreativeWork`; reverse of `fundedItems`.
@@ -155,6 +169,8 @@ properties:
         - $ref: Grant
         - $ref: MonetaryGrant
     strip: [metadata]
+    dom:
+      elem: section
   genre:
     '@id': schema:genre
     description: Genre of the creative work, broadcast channel or group.
@@ -191,6 +207,8 @@ properties:
         - $ref: CreativeWorkType
         - $ref: Text
     strip: [metadata]
+    dom:
+      elem: section
   parts:
     # The name "parts" seems more intuitive for users and developers than schema.orgs's "hasParts".
     # We provide the latter as an alias.
@@ -204,6 +222,8 @@ properties:
     items:
       $ref: CreativeWorkType
     strip: [content]
+    dom:
+      elem: section
   publisher:
     '@id': schema:publisher
     description: |
@@ -214,6 +234,8 @@ properties:
     strip: [metadata]
     serde:
       deserializeWith: option_string_or_object
+    dom:
+      elem: section
   references:
     '@id': schema:citation
     aliases:
@@ -227,6 +249,8 @@ properties:
         - $ref: CreativeWorkType
         - $ref: Text
     strip: [metadata]
+    dom:
+      elem: section
   text:
     '@id': schema:text
     description: The textual content of this creative work.
@@ -243,6 +267,8 @@ properties:
     items:
       $ref: Inline
     strip: [metadata]
+    dom:
+      elem: h1
   version:
     '@id': schema:version
     description: The version of the creative work.

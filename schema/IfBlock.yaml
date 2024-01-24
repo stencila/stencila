@@ -17,6 +17,8 @@ properties:
     items:
       $ref: IfBlockClause
     strip: [code]
+    dom:
+      elem: div
     html:
       slot: div
     proptest:

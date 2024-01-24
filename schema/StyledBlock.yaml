@@ -19,4 +19,5 @@ properties:
     type: array
     items:
       $ref: Block
-    
+    dom:
+      elem: div

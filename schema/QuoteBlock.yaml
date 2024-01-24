@@ -28,6 +28,8 @@ properties:
     type: array
     items:
       $ref: Block
+    dom:
+      elem: blockquote
     proptest:
       min:
         description: Generate a single arbitrary paragraph.
@@ -50,3 +52,5 @@ properties:
     strip: [metadata]
     serde:
       deserializeWith: option_one_or_many_string_or_object
+    dom:
+      elem: div

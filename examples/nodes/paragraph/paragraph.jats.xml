@@ -2,6 +2,7 @@
 <article dtd-version="1.3" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:mml="http://www.w3.org/1998/Math/MathML">
   <body>
     <p>This is paragraph one. It has two sentences.</p>
-    <p>Paragraph two, only has one sentence.</p>
+    <p>Paragraph two, has one person author.</p>
+    <p>Paragraph three, has three authors or different types.</p>
   </body>
 </article>

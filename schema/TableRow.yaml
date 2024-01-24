@@ -19,6 +19,8 @@ properties:
     items:
       $ref: TableCell
     walk: true
+    dom:
+      elem: tr
     proptest:
       min:
         description: Generate a single, arbitrary, table cell.

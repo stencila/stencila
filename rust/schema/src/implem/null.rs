@@ -36,6 +36,15 @@ impl WriteNode for Null {
     }
 }
 
+impl DomCodec for Null {
+    fn to_dom(&self, context: &mut DomEncodeContext) {
+        context
+            .enter_elem("stencila-null")
+            .push_text("null")
+            .exit_elem();
+    }
+}
+
 impl HtmlCodec for Null {
     fn to_html_parts(&self, _context: &mut HtmlEncodeContext) -> (&str, Vec<String>, Vec<String>) {
         ("stencila-null", vec![], vec!["null".to_string()])

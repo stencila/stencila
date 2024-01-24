@@ -18,6 +18,8 @@ properties:
     type: array
     items:
       $ref: CallArgument
+    dom:
+      elem: div
     proptest:
       min:
         description: An empty set of arguments.

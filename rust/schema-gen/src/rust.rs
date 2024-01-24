@@ -317,6 +317,15 @@ pub enum NodeType {{
             derives.push("ReadNode");
         }
 
+        if schema
+            .dom
+            .as_ref()
+            .map(|spec| spec.derive)
+            .unwrap_or(true)
+        {
+            derives.push("DomCodec");
+        }
+
         derives.append(&mut vec!["HtmlCodec", "JatsCodec"]);
 
         if schema
@@ -585,6 +594,19 @@ pub enum NodeType {{
                 }
             }
 
+            // Add #[dom] attribute for field if necessary
+            if let Some(dom) = &property.dom {
+                let mut args = Vec::new();
+
+                if let Some(elem) = &dom.elem {
+                    args.push(format!("elem = \"{elem}\""));
+                } else if let Some(attr) = &dom.attr {
+                    args.push(format!("attr = \"{attr}\""));
+                }
+
+                attrs.push(format!("#[dom({})]", args.join(", ")))
+            }
+            
             // Add #[html] attribute for field if necessary
             if let Some(html) = &property.html {
                 let mut args = Vec::new();
@@ -685,13 +707,14 @@ pub struct {title}Options {{
             .join("\n\n    ");
         if !options.is_empty() {
             core_fields += &format!(
-                "
+                r#"
 
     /// Non-core optional fields
     #[serde(flatten)]
+    #[dom(elem = "none")]
     #[html(flatten)]
     #[jats(flatten)]
-    pub options: Box<{title}Options>,"
+    pub options: Box<{title}Options>,"#
             );
         }
 
@@ -932,6 +955,7 @@ impl {title} {{
             "Deserialize",
             "StripNode",
             "WalkNode",
+            "DomCodec",
             "HtmlCodec",
             "JatsCodec",
             "MarkdownCodec",

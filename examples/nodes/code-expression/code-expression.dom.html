@@ -1,0 +1,74 @@
+<stencila-article id=art_1111111K root>
+  <section slot=content>
+    <stencila-paragraph id=pgh_11111113>
+      <p slot=content>
+        <stencila-text id=txt_11111111>With a number output:</stencila-text>
+        <stencila-code-expression programming-language=python id=cde_11111112>
+          <pre slot=code>6 * 7</pre>
+          <span slot=output>
+            <stencila-integer>42</stencila-integer>
+          </span>
+        </stencila-code-expression>
+      </p>
+    </stencila-paragraph>
+    <stencila-paragraph id=pgh_11111116>
+      <p slot=content>
+        <stencila-text id=txt_11111114>With a string output:</stencila-text>
+        <stencila-code-expression programming-language=python id=cde_11111115>
+          <pre slot=code>&#x27;a string&#x27;</pre>
+          <span slot=output>a string</span>
+        </stencila-code-expression>
+      </p>
+    </stencila-paragraph>
+    <stencila-paragraph id=pgh_11111119>
+      <p slot=content>
+        <stencila-text id=txt_11111117>With an array output:</stencila-text>
+        <stencila-code-expression programming-language=python id=cde_11111118>
+          <pre slot=code>[1, 2, 3]</pre>
+          <span slot=output>
+            <stencila-array>
+              <stencila-integer>1</stencila-integer>
+              <stencila-integer>2</stencila-integer>
+              <stencila-integer>3</stencila-integer>
+            </stencila-array>
+          </span>
+        </stencila-code-expression>
+      </p>
+    </stencila-paragraph>
+    <stencila-paragraph id=pgh_1111111C>
+      <p slot=content>
+        <stencila-text id=txt_1111111A>With an object output:</stencila-text>
+        <stencila-code-expression programming-language=python id=cde_1111111B>
+          <pre slot=code>dict(a=1,b=dict())</pre>
+          <span slot=output>
+            <stencila-object>
+              <stencila-object-item key=a>
+                <stencila-integer>1</stencila-integer>
+              </stencila-object-item>
+              <stencila-object-item key=b>
+                <stencila-object>
+                </stencila-object>
+              </stencila-object-item>
+            </stencila-object>
+          </span>
+        </stencila-code-expression>
+      </p>
+    </stencila-paragraph>
+    <stencila-paragraph id=pgh_1111111F>
+      <p slot=content>
+        <stencila-text id=txt_1111111D>With no language:</stencila-text>
+        <stencila-code-expression id=cde_1111111E>
+          <pre slot=code>a + b</pre>
+        </stencila-code-expression>
+      </p>
+    </stencila-paragraph>
+    <stencila-paragraph id=pgh_1111111J>
+      <p slot=content>
+        <stencila-text id=txt_1111111G>With automatic execution behavior specified</stencila-text>
+        <stencila-code-expression auto-exec=Never programming-language=javascript id=cde_1111111H>
+          <pre slot=code>c * d</pre>
+        </stencila-code-expression>
+      </p>
+    </stencila-paragraph>
+  </section>
+</stencila-article>

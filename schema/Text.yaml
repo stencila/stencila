@@ -25,6 +25,9 @@ properties:
   value:
     '@id': 'schema:value'
     description: The value of the text content
+    $ref: Cord
+    dom:
+      elem: none
     html:
       content: true
     proptest:
@@ -40,4 +43,3 @@ properties:
       max:
         description: Generate an arbitrary string.
         strategy: String::arbitrary().prop_map(Cord::new)
-    $ref: Cord

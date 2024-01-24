@@ -241,6 +241,9 @@
     "content": {
       "@id": "stencila:content",
       "description": "The content within the form, usually containing at least one `Parameter`.",
+      "dom": {
+        "elem": "div"
+      },
       "type": "array",
       "items": {
         "$ref": "Block.schema.json"

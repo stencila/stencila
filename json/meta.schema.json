@@ -85,6 +85,14 @@
       "description": "A description of the schema\n\nThe value of this keyword MUST be a string. The description SHOULD be short, use `$comment` for more extensive descriptive content.",
       "type": "string"
     },
+    "dom": {
+      "description": "Options for serializing the type or property to the browser DOM",
+      "allOf": [
+        {
+          "$ref": "#/definitions/DomOptions"
+        }
+      ]
+    },
     "enum": {
       "description": "The value of this keyword MUST be an array.  This array SHOULD have at least one element.  Elements in the array SHOULD be unique.\n\nAn instance validates successfully against this keyword if its value is equal to one of the elements in this keyword's array value.\n\nElements in the array might be of any type, including null.",
       "type": "array",
@@ -311,6 +319,25 @@
           ]
         }
       ]
+    },
+    "DomOptions": {
+      "description": "Options for deriving the `DomCodec` trait",
+      "type": "object",
+      "properties": {
+        "attr": {
+          "description": "The HTML attribute name for a property\n\nShould only be used if `elem` is `None`. If not supplied, defaults to the name of the attribute converted to kebab-case.",
+          "type": "string"
+        },
+        "derive": {
+          "description": "Whether the `DomCodec` should be derived for the type",
+          "type": "boolean"
+        },
+        "elem": {
+          "description": "The HTML element name for a property\n\nIf not supplied the property will be encoded as an attribute on the parent element.",
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
     },
     "HtmlOptions": {
       "description": "Options for conversion to/from HTML",
@@ -571,6 +598,14 @@
         "description": {
           "description": "A description of the schema\n\nThe value of this keyword MUST be a string. The description SHOULD be short, use `$comment` for more extensive descriptive content.",
           "type": "string"
+        },
+        "dom": {
+          "description": "Options for serializing the type or property to the browser DOM",
+          "allOf": [
+            {
+              "$ref": "#/definitions/DomOptions"
+            }
+          ]
         },
         "enum": {
           "description": "The value of this keyword MUST be an array.  This array SHOULD have at least one element.  Elements in the array SHOULD be unique.\n\nAn instance validates successfully against this keyword if its value is equal to one of the elements in this keyword's array value.\n\nElements in the array might be of any type, including null.",

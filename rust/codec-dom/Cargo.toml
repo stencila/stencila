@@ -1,0 +1,9 @@
+[package]
+name = "codec-dom"
+version = "0.0.0"
+edition = "2021"
+
+[dependencies]
+codec = { path = "../codec" }
+codec-dom-trait = { path = "../codec-dom-trait" }
+quick-xml = "0.31.0"

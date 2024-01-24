@@ -134,6 +134,9 @@
       "strip": [
         "metadata"
       ],
+      "dom": {
+        "elem": "section"
+      },
       "type": "array",
       "items": {
         "$ref": "Block.schema.json"
@@ -151,6 +154,9 @@
       "serde": {
         "deserializeWith": "option_one_or_many_string_or_object"
       },
+      "dom": {
+        "elem": "section"
+      },
       "type": "array",
       "items": {
         "$ref": "Author.schema.json"
@@ -167,6 +173,9 @@
       ],
       "serde": {
         "deserializeWith": "option_one_or_many_string_or_object"
+      },
+      "dom": {
+        "elem": "section"
       },
       "type": "array",
       "items": {
@@ -186,6 +195,9 @@
       "serde": {
         "deserializeWith": "option_one_or_many_string_or_object"
       },
+      "dom": {
+        "elem": "section"
+      },
       "type": "array",
       "items": {
         "$ref": "Person.schema.json"
@@ -203,6 +215,9 @@
       ],
       "serde": {
         "deserializeWith": "option_one_or_many_string_or_object"
+      },
+      "dom": {
+        "elem": "section"
       },
       "type": "array",
       "items": {
@@ -225,6 +240,9 @@
       "strip": [
         "metadata"
       ],
+      "dom": {
+        "elem": "section"
+      },
       "type": "array",
       "items": {
         "$ref": "Comment.schema.json"
@@ -319,6 +337,9 @@
       "serde": {
         "deserializeWith": "option_one_or_many_string_or_object"
       },
+      "dom": {
+        "elem": "section"
+      },
       "type": "array",
       "items": {
         "anyOf": [
@@ -342,6 +363,9 @@
       "strip": [
         "metadata"
       ],
+      "dom": {
+        "elem": "section"
+      },
       "type": "array",
       "items": {
         "anyOf": [
@@ -406,6 +430,9 @@
       "strip": [
         "metadata"
       ],
+      "dom": {
+        "elem": "section"
+      },
       "type": "array",
       "items": {
         "anyOf": [
@@ -428,6 +455,9 @@
       "strip": [
         "content"
       ],
+      "dom": {
+        "elem": "section"
+      },
       "type": "array",
       "items": {
         "$ref": "CreativeWorkType.schema.json"
@@ -441,6 +471,9 @@
       ],
       "serde": {
         "deserializeWith": "option_string_or_object"
+      },
+      "dom": {
+        "elem": "section"
       },
       "anyOf": [
         {
@@ -461,6 +494,9 @@
       "strip": [
         "metadata"
       ],
+      "dom": {
+        "elem": "section"
+      },
       "type": "array",
       "items": {
         "anyOf": [
@@ -490,6 +526,9 @@
       "strip": [
         "metadata"
       ],
+      "dom": {
+        "elem": "h1"
+      },
       "type": "array",
       "items": {
         "$ref": "Inline.schema.json"

@@ -924,6 +924,33 @@ dependencies = [
 ]
 
 [[package]]
+name = "codec-dom"
+version = "0.0.0"
+dependencies = [
+ "codec",
+ "codec-dom-trait",
+ "quick-xml",
+]
+
+[[package]]
+name = "codec-dom-derive"
+version = "0.0.0"
+dependencies = [
+ "common",
+ "darling 0.20.3",
+]
+
+[[package]]
+name = "codec-dom-trait"
+version = "0.0.0"
+dependencies = [
+ "codec-dom-derive",
+ "common",
+ "html-escape",
+ "node-type",
+]
+
+[[package]]
 name = "codec-html"
 version = "0.0.0"
 dependencies = [
@@ -1097,6 +1124,7 @@ dependencies = [
  "codec",
  "codec-cbor",
  "codec-debug",
+ "codec-dom",
  "codec-html",
  "codec-jats",
  "codec-json",
@@ -4791,6 +4819,7 @@ dependencies = [
 name = "schema"
 version = "0.0.0"
 dependencies = [
+ "codec-dom-trait",
  "codec-html-trait",
  "codec-jats-trait",
  "codec-json5-trait",

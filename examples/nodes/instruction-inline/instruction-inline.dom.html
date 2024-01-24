@@ -1,0 +1,31 @@
+<stencila-article id=art_1111111M root>
+  <section slot=content>
+    <stencila-paragraph id=pgh_11111115>
+      <p slot=content>
+        <stencila-text id=txt_11111111>A paragraph with an instruction to insert content</stencila-text>
+        <stencila-instruction-inline messages='[{"type":"Message","parts":["insert an inline"]}]' id=isi_11111113>
+        </stencila-instruction-inline>
+        <stencila-text id=txt_11111114>.</stencila-text>
+      </p>
+    </stencila-paragraph>
+    <stencila-paragraph id=pgh_1111111B>
+      <p slot=content>
+        <stencila-text id=txt_11111116>A paragraph with an instruction to edit some existing content:</stencila-text>
+        <stencila-instruction-inline messages='[{"type":"Message","parts":["improve this"]}]' content='[{"type":"Text","value":"existing content"}]' id=isi_11111119>
+        </stencila-instruction-inline>
+        <stencila-text id=txt_1111111A>.</stencila-text>
+      </p>
+    </stencila-paragraph>
+    <stencila-paragraph id=pgh_1111111L>
+      <p slot=content>
+        <stencila-text id=txt_1111111C>Instructions with an assignee:</stencila-text>
+        <stencila-instruction-inline messages='[{"type":"Message","parts":["equation for surface area of cube"]}]' id=isi_1111111E assignee=insert-inline-math>
+        </stencila-instruction-inline>
+        <stencila-text id=txt_1111111F>and</stencila-text>
+        <stencila-instruction-inline messages='[{"type":"Message","parts":["please improve this"]}]' content='[{"type":"Text","value":" existing content"}]' id=isi_1111111J assignee=joe>
+        </stencila-instruction-inline>
+        <stencila-text id=txt_1111111K>.</stencila-text>
+      </p>
+    </stencila-paragraph>
+  </section>
+</stencila-article>

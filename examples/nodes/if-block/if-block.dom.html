@@ -1,0 +1,160 @@
+<stencila-article id=art_1111111p root>
+  <section slot=content>
+    <stencila-paragraph id=pgh_11111112>
+      <p slot=content>
+        <stencila-text id=txt_11111111>A simple if block</stencila-text>
+      </p>
+    </stencila-paragraph>
+    <stencila-if-block id=ifb_11111116>
+      <div slot=clauses>
+        <stencila-if-block-clause id=ibc_11111115>
+          <pre slot=code>true</pre>
+          <div slot=content>
+            <stencila-paragraph id=pgh_11111114>
+              <p slot=content>
+                <stencila-text id=txt_11111113>This paragraph should be shown</stencila-text>
+              </p>
+            </stencila-paragraph>
+          </div>
+        </stencila-if-block-clause>
+      </div>
+    </stencila-if-block>
+    <stencila-paragraph id=pgh_11111118>
+      <p slot=content>
+        <stencila-text id=txt_11111117>An if block with programming language specified</stencila-text>
+      </p>
+    </stencila-paragraph>
+    <stencila-if-block id=ifb_1111111C>
+      <div slot=clauses>
+        <stencila-if-block-clause programming-language=python id=ibc_1111111B>
+          <pre slot=code>True</pre>
+          <div slot=content>
+            <stencila-paragraph id=pgh_1111111A>
+              <p slot=content>
+                <stencila-text id=txt_11111119>This paragraph should be shown</stencila-text>
+              </p>
+            </stencila-paragraph>
+          </div>
+        </stencila-if-block-clause>
+      </div>
+    </stencila-if-block>
+    <stencila-paragraph id=pgh_1111111E>
+      <p slot=content>
+        <stencila-text id=txt_1111111D>With an else clause</stencila-text>
+      </p>
+    </stencila-paragraph>
+    <stencila-if-block id=ifb_1111111M>
+      <div slot=clauses>
+        <stencila-if-block-clause id=ibc_1111111H>
+          <pre slot=code>false</pre>
+          <div slot=content>
+            <stencila-paragraph id=pgh_1111111G>
+              <p slot=content>
+                <stencila-text id=txt_1111111F>This paragraph should NOT be shown</stencila-text>
+              </p>
+            </stencila-paragraph>
+          </div>
+        </stencila-if-block-clause>
+        <stencila-if-block-clause id=ibc_1111111L>
+          <pre slot=code>
+          </pre>
+          <div slot=content>
+            <stencila-paragraph id=pgh_1111111K>
+              <p slot=content>
+                <stencila-text id=txt_1111111J>This paragraph should be shown</stencila-text>
+              </p>
+            </stencila-paragraph>
+          </div>
+        </stencila-if-block-clause>
+      </div>
+    </stencila-if-block>
+    <stencila-paragraph id=pgh_1111111P>
+      <p slot=content>
+        <stencila-text id=txt_1111111N>With multiple clauses</stencila-text>
+      </p>
+    </stencila-paragraph>
+    <stencila-if-block id=ifb_1111111f>
+      <div slot=clauses>
+        <stencila-if-block-clause id=ibc_1111111S>
+          <pre slot=code>false</pre>
+          <div slot=content>
+            <stencila-paragraph id=pgh_1111111R>
+              <p slot=content>
+                <stencila-text id=txt_1111111Q>This first paragraph should NOT be shown</stencila-text>
+              </p>
+            </stencila-paragraph>
+          </div>
+        </stencila-if-block-clause>
+        <stencila-if-block-clause id=ibc_1111111V>
+          <pre slot=code>false</pre>
+          <div slot=content>
+            <stencila-paragraph id=pgh_1111111U>
+              <p slot=content>
+                <stencila-text id=txt_1111111T>This second paragraph should NOT be shown</stencila-text>
+              </p>
+            </stencila-paragraph>
+          </div>
+        </stencila-if-block-clause>
+        <stencila-if-block-clause id=ibc_1111111Y>
+          <pre slot=code>true</pre>
+          <div slot=content>
+            <stencila-paragraph id=pgh_1111111X>
+              <p slot=content>
+                <stencila-text id=txt_1111111W>This third paragraph should be shown</stencila-text>
+              </p>
+            </stencila-paragraph>
+          </div>
+        </stencila-if-block-clause>
+        <stencila-if-block-clause id=ibc_1111111b>
+          <pre slot=code>true</pre>
+          <div slot=content>
+            <stencila-paragraph id=pgh_1111111a>
+              <p slot=content>
+                <stencila-text id=txt_1111111Z>This fourth paragraph should NOT be shown because above clause is</stencila-text>
+              </p>
+            </stencila-paragraph>
+          </div>
+        </stencila-if-block-clause>
+        <stencila-if-block-clause id=ibc_1111111e>
+          <pre slot=code>
+          </pre>
+          <div slot=content>
+            <stencila-paragraph id=pgh_1111111d>
+              <p slot=content>
+                <stencila-text id=txt_1111111c>This final paragraph should NOT be shown because above clause is</stencila-text>
+              </p>
+            </stencila-paragraph>
+          </div>
+        </stencila-if-block-clause>
+      </div>
+    </stencila-if-block>
+    <stencila-paragraph id=pgh_1111111h>
+      <p slot=content>
+        <stencila-text id=txt_1111111g>Nested if blocks</stencila-text>
+      </p>
+    </stencila-paragraph>
+    <stencila-if-block id=ifb_1111111o>
+      <div slot=clauses>
+        <stencila-if-block-clause id=ibc_1111111n>
+          <pre slot=code>true</pre>
+          <div slot=content>
+            <stencila-if-block id=ifb_1111111m>
+              <div slot=clauses>
+                <stencila-if-block-clause id=ibc_1111111k>
+                  <pre slot=code>true</pre>
+                  <div slot=content>
+                    <stencila-paragraph id=pgh_1111111j>
+                      <p slot=content>
+                        <stencila-text id=txt_1111111i>This paragraph should be shown</stencila-text>
+                      </p>
+                    </stencila-paragraph>
+                  </div>
+                </stencila-if-block-clause>
+              </div>
+            </stencila-if-block>
+          </div>
+        </stencila-if-block-clause>
+      </div>
+    </stencila-if-block>
+  </section>
+</stencila-article>

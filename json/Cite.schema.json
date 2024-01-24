@@ -65,6 +65,9 @@
     "content": {
       "@id": "stencila:content",
       "description": "Optional structured content/text of this citation.",
+      "dom": {
+        "elem": "span"
+      },
       "type": "array",
       "items": {
         "$ref": "Inline.schema.json"

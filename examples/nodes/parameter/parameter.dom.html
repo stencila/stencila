@@ -1,0 +1,134 @@
+<stencila-article id=art_1111111y root>
+  <section slot=content>
+    <stencila-paragraph id=pgh_1111111A>
+      <p slot=content>
+        <stencila-text id=txt_11111111>A boolean parameter</stencila-text>
+        <stencila-parameter name=par_bool_1 id=par_11111113>
+          <div slot=validator>
+            <stencila-boolean-validator id=bov_11111112>
+            </stencila-boolean-validator>
+          </div>
+        </stencila-parameter>
+        <stencila-text id=txt_11111114>, with a default</stencila-text>
+        <stencila-parameter name=par_bool_2 id=par_11111116 default=true>
+          <div slot=validator>
+            <stencila-boolean-validator id=bov_11111115>
+            </stencila-boolean-validator>
+          </div>
+        </stencila-parameter>
+        <stencila-text id=txt_11111117>, with a default and value</stencila-text>
+        <stencila-parameter name=par_bool_3 value=true id=par_11111119 default=false>
+          <div slot=validator>
+            <stencila-boolean-validator id=bov_11111118>
+            </stencila-boolean-validator>
+          </div>
+        </stencila-parameter>
+      </p>
+    </stencila-paragraph>
+    <stencila-paragraph id=pgh_1111111P>
+      <p slot=content>
+        <stencila-text id=txt_1111111B>An integer parameter</stencila-text>
+        <stencila-parameter name=par_int_1 id=par_1111111D>
+          <div slot=validator>
+            <stencila-integer-validator id=inv_1111111C>
+            </stencila-integer-validator>
+          </div>
+        </stencila-parameter>
+        <stencila-text id=txt_1111111E>, with a default</stencila-text>
+        <stencila-parameter name=par_int_2 id=par_1111111G default=123>
+          <div slot=validator>
+            <stencila-integer-validator id=inv_1111111F>
+            </stencila-integer-validator>
+          </div>
+        </stencila-parameter>
+        <stencila-text id=txt_1111111H>, with a default and value</stencila-text>
+        <stencila-parameter name=par_int_3 value=456 id=par_1111111K default=123>
+          <div slot=validator>
+            <stencila-integer-validator id=inv_1111111J>
+            </stencila-integer-validator>
+          </div>
+        </stencila-parameter>
+        <stencila-text id=txt_1111111L>, with min, max and mult options</stencila-text>
+        <stencila-parameter name=par_int_4 value=45 id=par_1111111N default=123>
+          <div slot=validator>
+            <stencila-integer-validator minimum=-100 maximum=100 multiple-of=2 id=inv_1111111M>
+            </stencila-integer-validator>
+          </div>
+        </stencila-parameter>
+      </p>
+    </stencila-paragraph>
+    <stencila-paragraph id=pgh_1111111T>
+      <p slot=content>
+        <stencila-text id=txt_1111111Q>A number parameter</stencila-text>
+        <stencila-parameter name=par_num_1 value=4.5 id=par_1111111S default=1.23>
+          <div slot=validator>
+            <stencila-number-validator minimum=-10.1 exclusive-minimum=-10.1 maximum=10.1 exclusive-maximum=10.1 multiple-of=2.2 id=nuv_1111111R>
+            </stencila-number-validator>
+          </div>
+        </stencila-parameter>
+      </p>
+    </stencila-paragraph>
+    <stencila-paragraph id=pgh_1111111a>
+      <p slot=content>
+        <stencila-text id=txt_1111111U>A string parameter</stencila-text>
+        <stencila-parameter name=par_str_1 value='"hi"' id=par_1111111W default='"hello"'>
+          <div slot=validator>
+            <stencila-string-validator min-length=0 max-length=10 pattern=[a-z]+ id=stv_1111111V>
+            </stencila-string-validator>
+          </div>
+        </stencila-parameter>
+        <stencila-text id=txt_1111111X>with quotes in properties</stencila-text>
+        <stencila-parameter name=par_str_2 value='"a\"b"' id=par_1111111Z default='"a\"b"'>
+          <div slot=validator>
+            <stencila-string-validator pattern='a"b' id=stv_1111111Y>
+            </stencila-string-validator>
+          </div>
+        </stencila-parameter>
+      </p>
+    </stencila-paragraph>
+    <stencila-paragraph id=pgh_1111111g>
+      <p slot=content>
+        <stencila-text id=txt_1111111b>A date parameter</stencila-text>
+        <stencila-parameter name=par_date value='"2022-02-23"' id=par_1111111f default='"2022-02-22"'>
+          <div slot=validator>
+            <stencila-date-validator minimum='{"type":"Date","value":"2022-02-20"}' maximum='{"type":"Date","value":"2022-02-24"}' id=dav_1111111e>
+            </stencila-date-validator>
+          </div>
+        </stencila-parameter>
+      </p>
+    </stencila-paragraph>
+    <stencila-paragraph id=pgh_1111111n>
+      <p slot=content>
+        <stencila-text id=txt_1111111h>A time parameter</stencila-text>
+        <stencila-parameter name=par_time value='"22:23"' id=par_1111111m default='"22:22"'>
+          <div slot=validator>
+            <stencila-time-validator minimum='{"type":"Time","value":"22:20"}' maximum='{"type":"Time","value":"22:24"}' id=tmv_1111111k>
+            </stencila-time-validator>
+          </div>
+        </stencila-parameter>
+      </p>
+    </stencila-paragraph>
+    <stencila-paragraph id=pgh_1111111t>
+      <p slot=content>
+        <stencila-text id=txt_1111111o>A date-time parameter</stencila-text>
+        <stencila-parameter name=par_date_time value='"2022-02-22T22:23"' id=par_1111111s default='"2022-02-22T22:22"'>
+          <div slot=validator>
+            <stencila-date-time-validator minimum='{"type":"DateTime","value":"2022-02-22T22:20"}' maximum='{"type":"DateTime","value":"2022-02-22T22:24"}' id=dtv_1111111r>
+            </stencila-date-time-validator>
+          </div>
+        </stencila-parameter>
+      </p>
+    </stencila-paragraph>
+    <stencila-paragraph id=pgh_1111111x>
+      <p slot=content>
+        <stencila-text id=txt_1111111u>An enum parameter</stencila-text>
+        <stencila-parameter name=par_enum value='"red"' id=par_1111111w default='"green"'>
+          <div slot=validator>
+            <stencila-enum-validator values='["blue","red","green"]' id=env_1111111v>
+            </stencila-enum-validator>
+          </div>
+        </stencila-parameter>
+      </p>
+    </stencila-paragraph>
+  </section>
+</stencila-article>

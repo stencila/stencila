@@ -8,7 +8,7 @@ use super::string::String;
 use super::video_object::VideoObject;
 
 /// A union type for a part of a message.
-#[derive(Debug, strum::Display, Clone, PartialEq, Serialize, Deserialize, StripNode, WalkNode, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec, WriteNode, SmartDefault)]
+#[derive(Debug, strum::Display, Clone, PartialEq, Serialize, Deserialize, StripNode, WalkNode, DomCodec, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec, WriteNode, SmartDefault)]
 #[serde(untagged, crate = "common::serde")]
 pub enum MessagePart {
     #[default]

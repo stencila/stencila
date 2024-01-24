@@ -21,7 +21,7 @@ use super::thing_type::ThingType;
 /// A comment on an item, e.g on a `Article` or `SoftwareSourceCode`.
 #[skip_serializing_none]
 #[serde_as]
-#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, WalkNode, WriteNode, ReadNode, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec)]
+#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, WalkNode, WriteNode, ReadNode, DomCodec, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 #[derive(derive_more::Display)]
 #[display(fmt = "Comment")]
@@ -38,6 +38,7 @@ pub struct Comment {
     #[serde(alias = "author")]
     #[serde(default, deserialize_with = "option_one_or_many_string_or_object")]
     #[strip(metadata)]
+    #[dom(elem = "section")]
     pub authors: Option<Vec<Author>>,
 
     /// Date of first publication.
@@ -49,10 +50,12 @@ pub struct Comment {
     /// Content of the comment, usually one or more paragraphs.
     #[serde(deserialize_with = "one_or_many")]
     #[walk]
+    #[dom(elem = "aside")]
     pub content: Vec<Block>,
 
     /// Non-core optional fields
     #[serde(flatten)]
+    #[dom(elem = "none")]
     #[html(flatten)]
     #[jats(flatten)]
     pub options: Box<CommentOptions>,
@@ -65,7 +68,7 @@ pub struct Comment {
 
 #[skip_serializing_none]
 #[serde_as]
-#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, WalkNode, WriteNode, ReadNode, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec)]
+#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, WalkNode, WriteNode, ReadNode, DomCodec, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 pub struct CommentOptions {
     /// Alternate names (aliases) for the item.
@@ -106,30 +109,35 @@ pub struct CommentOptions {
     /// A a short description that summarizes a `CreativeWork`.
     #[serde(default, deserialize_with = "option_one_or_many")]
     #[strip(metadata)]
+    #[dom(elem = "section")]
     pub r#abstract: Option<Vec<Block>>,
 
     /// A secondary contributor to the `CreativeWork`.
     #[serde(alias = "contributor")]
     #[serde(default, deserialize_with = "option_one_or_many_string_or_object")]
     #[strip(metadata)]
+    #[dom(elem = "section")]
     pub contributors: Option<Vec<Author>>,
 
     /// People who edited the `CreativeWork`.
     #[serde(alias = "editor")]
     #[serde(default, deserialize_with = "option_one_or_many_string_or_object")]
     #[strip(metadata)]
+    #[dom(elem = "section")]
     pub editors: Option<Vec<Person>>,
 
     /// The maintainers of the `CreativeWork`.
     #[serde(alias = "maintainer")]
     #[serde(default, deserialize_with = "option_one_or_many_string_or_object")]
     #[strip(metadata)]
+    #[dom(elem = "section")]
     pub maintainers: Option<Vec<PersonOrOrganization>>,
 
     /// Comments about this creative work.
     #[serde(alias = "comment")]
     #[serde(default, deserialize_with = "option_one_or_many")]
     #[strip(metadata)]
+    #[dom(elem = "section")]
     pub comments: Option<Vec<Comment>>,
 
     /// Date/time of creation.
@@ -160,12 +168,14 @@ pub struct CommentOptions {
     #[serde(alias = "funder")]
     #[serde(default, deserialize_with = "option_one_or_many_string_or_object")]
     #[strip(metadata)]
+    #[dom(elem = "section")]
     pub funders: Option<Vec<PersonOrOrganization>>,
 
     /// Grants that funded the `CreativeWork`; reverse of `fundedItems`.
     #[serde(alias = "funded-by", alias = "funded_by")]
     #[serde(default, deserialize_with = "option_one_or_many")]
     #[strip(metadata)]
+    #[dom(elem = "section")]
     pub funded_by: Option<Vec<GrantOrMonetaryGrant>>,
 
     /// Genre of the creative work, broadcast channel or group.
@@ -188,23 +198,27 @@ pub struct CommentOptions {
     #[serde(alias = "license")]
     #[serde(default, deserialize_with = "option_one_or_many")]
     #[strip(metadata)]
+    #[dom(elem = "section")]
     pub licenses: Option<Vec<CreativeWorkTypeOrText>>,
 
     /// Elements of the collection which can be a variety of different elements, such as Articles, Datatables, Tables and more.
     #[serde(alias = "hasParts", alias = "part")]
     #[serde(default, deserialize_with = "option_one_or_many")]
     #[strip(content)]
+    #[dom(elem = "section")]
     pub parts: Option<Vec<CreativeWorkType>>,
 
     /// A publisher of the CreativeWork.
     #[serde(default, deserialize_with = "option_string_or_object")]
     #[strip(metadata)]
+    #[dom(elem = "section")]
     pub publisher: Option<PersonOrOrganization>,
 
     /// References to other creative works, such as another publication, web page, scholarly article, etc.
     #[serde(alias = "citations", alias = "reference")]
     #[serde(default, deserialize_with = "option_one_or_many")]
     #[strip(metadata)]
+    #[dom(elem = "section")]
     pub references: Option<Vec<CreativeWorkTypeOrText>>,
 
     /// The textual content of this creative work.
@@ -215,6 +229,7 @@ pub struct CommentOptions {
     #[serde(alias = "headline")]
     #[serde(default, deserialize_with = "option_one_or_many")]
     #[strip(metadata)]
+    #[dom(elem = "h1")]
     pub title: Option<Vec<Inline>>,
 
     /// The version of the creative work.

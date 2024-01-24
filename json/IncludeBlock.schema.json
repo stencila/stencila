@@ -299,6 +299,9 @@
       "strip": [
         "output"
       ],
+      "dom": {
+        "elem": "div"
+      },
       "type": "array",
       "items": {
         "$ref": "Block.schema.json"

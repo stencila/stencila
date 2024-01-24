@@ -267,6 +267,9 @@
           "strategy": "String::arbitrary().prop_map(Cord::new)"
         }
       },
+      "dom": {
+        "elem": "pre"
+      },
       "jats": {
         "content": true
       },
@@ -316,6 +319,9 @@
       ],
       "serde": {
         "deserializeWith": "option_one_or_many_string_or_object"
+      },
+      "dom": {
+        "elem": "span"
       },
       "type": "array",
       "items": {

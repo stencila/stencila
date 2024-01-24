@@ -19,7 +19,47 @@
       "stencila:content": [
         {
           "@type": "Text",
-          "value": "Paragraph two, only has one sentence."
+          "value": "Paragraph two, has one person author."
+        }
+      ],
+      "author": [
+        {
+          "@type": "Person",
+          "familyName": [
+            "Aardvark"
+          ],
+          "givenName": [
+            "Ann"
+          ]
+        }
+      ]
+    },
+    {
+      "@type": "stencila:Paragraph",
+      "stencila:content": [
+        {
+          "@type": "Text",
+          "value": "Paragraph three, has three authors or different types."
+        }
+      ],
+      "author": [
+        {
+          "@type": "Person",
+          "familyName": [
+            "Baboon"
+          ],
+          "givenName": [
+            "Bob"
+          ]
+        },
+        {
+          "@type": "Organization",
+          "name": "Acme Corp"
+        },
+        {
+          "@type": "SoftwareApplication",
+          "@id": "super-editor",
+          "name": "Super-editor"
         }
       ]
     }

@@ -10,7 +10,7 @@ use super::string::String;
 /// A list of items.
 #[skip_serializing_none]
 #[serde_as]
-#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, WalkNode, WriteNode, ReadNode, HtmlCodec, JatsCodec, TextCodec)]
+#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, WalkNode, WriteNode, ReadNode, DomCodec, HtmlCodec, JatsCodec, TextCodec)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 #[cfg_attr(feature = "proptest", derive(Arbitrary))]
 #[derive(derive_more::Display)]
@@ -36,6 +36,7 @@ pub struct List {
     #[cfg_attr(feature = "proptest-low", proptest(strategy = r#"vec(ListItem::arbitrary(), size_range(1..=2))"#))]
     #[cfg_attr(feature = "proptest-high", proptest(strategy = r#"vec(ListItem::arbitrary(), size_range(1..=4))"#))]
     #[cfg_attr(feature = "proptest-max", proptest(strategy = r#"vec(ListItem::arbitrary(), size_range(1..=8))"#))]
+    #[dom(elem = "div")]
     #[jats(content)]
     pub items: Vec<ListItem>,
 
@@ -49,6 +50,7 @@ pub struct List {
 
     /// Non-core optional fields
     #[serde(flatten)]
+    #[dom(elem = "none")]
     #[html(flatten)]
     #[jats(flatten)]
     pub options: Box<ListOptions>,
@@ -61,7 +63,7 @@ pub struct List {
 
 #[skip_serializing_none]
 #[serde_as]
-#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, WalkNode, WriteNode, ReadNode, HtmlCodec, JatsCodec, TextCodec)]
+#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, WalkNode, WriteNode, ReadNode, DomCodec, HtmlCodec, JatsCodec, TextCodec)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 #[cfg_attr(feature = "proptest", derive(Arbitrary))]
 pub struct ListOptions {
@@ -70,6 +72,7 @@ pub struct ListOptions {
     #[serde(default, deserialize_with = "option_one_or_many_string_or_object")]
     #[strip(metadata)]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
+    #[dom(elem = "div")]
     pub authors: Option<Vec<Author>>,
 }
 

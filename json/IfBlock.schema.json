@@ -264,6 +264,9 @@
           "strategy": "vec(IfBlockClause::arbitrary(), size_range(1..=10))"
         }
       },
+      "dom": {
+        "elem": "div"
+      },
       "html": {
         "slot": "div"
       },

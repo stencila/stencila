@@ -12,7 +12,7 @@ export const Article: NodeSpec = {
   attrs: {
     id: {},
   },
-  ...parseToDOM('article', 'id'),
+  ...parseToDOM('stencila-article', 'id'),
 }
 
 export const works = { Article }

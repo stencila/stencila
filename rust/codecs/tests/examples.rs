@@ -72,6 +72,24 @@ static CONFIG: Lazy<Config> = Lazy::new(|| {
             },
         ),
         (
+            String::from("dom.html"),
+            FormatConfig {
+                format: Format::Dom,
+                encode: EncodeConfig {
+                    options: EncodeOptions {
+                        compact: Some(false),
+                        ..Default::default()
+                    },
+                    ..Default::default()
+                },
+                decode: DecodeConfig {
+                    skip: true,
+                    ..Default::default()
+                },
+                ..Default::default()
+            },
+        ),
+        (
             String::from("html"),
             FormatConfig {
                 format: Format::Html,

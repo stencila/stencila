@@ -78,6 +78,9 @@
           "value": "vec![p([t(\"Note paragraph\")])]"
         }
       },
+      "dom": {
+        "elem": "aside"
+      },
       "type": "array",
       "items": {
         "$ref": "Block.schema.json"

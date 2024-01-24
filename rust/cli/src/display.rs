@@ -19,6 +19,7 @@ pub fn highlighted(content: &str, format: Format) -> Result<()> {
         static THEMES: Lazy<ThemeSet> = Lazy::new(ThemeSet::load_defaults);
 
         let ext = match format {
+            Format::Dom => "html".to_string(),
             Format::Json5 => "js".to_string(),
             Format::JsonLd => "json".to_string(),
             Format::Jats => "xml".to_string(),

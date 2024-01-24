@@ -38,6 +38,18 @@ impl WriteNode for Array {
     }
 }
 
+impl DomCodec for Array {
+    fn to_dom(&self, context: &mut DomEncodeContext) {
+        context.enter_elem("stencila-array");
+
+        for value in self.iter() {
+            value.to_dom(context);
+        }
+
+        context.exit_elem();
+    }
+}
+
 impl HtmlCodec for Array {
     fn to_html_parts(&self, context: &mut HtmlEncodeContext) -> (&str, Vec<String>, Vec<String>) {
         // Uses spans, rather than say <ol>/<li> because needs to be

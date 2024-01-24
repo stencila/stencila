@@ -21,6 +21,8 @@ properties:
     '@id': stencila:output
     description: The value of the expression when it was last evaluated.
     strip: [output]
+    dom:
+      elem: span
     html:
       slot: span
     jats:

@@ -22,6 +22,8 @@ properties:
     type: array
     items:
       $ref: Block
+    dom:
+      elem: figure
     proptest:
       min:
         description: Generate a single arbitrary paragraph.
@@ -53,6 +55,8 @@ properties:
     items:
       $ref: Block
     walk: true
+    dom:
+      elem: figcaption
     proptest:
       min:
         description: No caption

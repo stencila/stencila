@@ -61,6 +61,9 @@
           "strategy": "vec_inlines_non_recursive(4)"
         }
       },
+      "dom": {
+        "elem": "span"
+      },
       "type": "array",
       "items": {
         "$ref": "Inline.schema.json"
@@ -69,6 +72,9 @@
     "replacement": {
       "@id": "stencila:replacement",
       "description": "The new replacement inline content.",
+      "dom": {
+        "elem": "span"
+      },
       "type": "array",
       "items": {
         "$ref": "Inline.schema.json"

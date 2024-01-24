@@ -84,6 +84,22 @@ impl WriteNode for Object {
     }
 }
 
+impl DomCodec for Object {
+    fn to_dom(&self, context: &mut DomEncodeContext) {
+        context.enter_elem("stencila-object");
+
+        for (key, value) in self.iter() {
+            context
+                .enter_elem("stencila-object-item")
+                .push_attr("key", key);
+            value.to_dom(context);
+            context.exit_elem();
+        }
+
+        context.exit_elem();
+    }
+}
+
 impl HtmlCodec for Object {
     fn to_html_parts(&self, context: &mut HtmlEncodeContext) -> (&str, Vec<String>, Vec<String>) {
         // Uses spans, rather than say <ul>/<li> because needs to be

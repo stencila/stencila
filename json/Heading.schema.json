@@ -94,6 +94,9 @@
           "strategy": "vec(Inline::arbitrary(), size_range(0..=8))"
         }
       },
+      "dom": {
+        "elem": "div"
+      },
       "type": "array",
       "items": {
         "$ref": "Inline.schema.json"
@@ -110,6 +113,9 @@
       ],
       "serde": {
         "deserializeWith": "option_one_or_many_string_or_object"
+      },
+      "dom": {
+        "elem": "div"
       },
       "type": "array",
       "items": {

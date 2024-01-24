@@ -1,0 +1,51 @@
+<stencila-article id=art_1111111H root>
+  <section slot=content>
+    <stencila-styled-block code='rounded border border-solid border-blue-200 bg-blue-100 p-2' id=stb_11111113>
+      <div slot=content>
+        <stencila-paragraph id=pgh_11111112>
+          <p slot=content>
+            <stencila-text id=txt_11111111>Paragraph within division.</stencila-text>
+          </p>
+        </stencila-paragraph>
+      </div>
+    </stencila-styled-block>
+    <stencila-styled-block code=color:red style-language=css id=stb_11111116>
+      <div slot=content>
+        <stencila-paragraph id=pgh_11111115>
+          <p slot=content>
+            <stencila-text id=txt_11111114>With style language specified.</stencila-text>
+          </p>
+        </stencila-paragraph>
+      </div>
+    </stencila-styled-block>
+    <stencila-styled-block code='bg-$color-100 p-2' id=stb_1111111C>
+      <div slot=content>
+        <stencila-paragraph id=pgh_1111111B>
+          <p slot=content>
+            <stencila-text id=txt_11111117>A styled block with this parameter</stencila-text>
+            <stencila-parameter name=color id=par_11111119>
+              <div slot=validator>
+                <stencila-enum-validator values='["red","blue","green"]' id=env_11111118>
+                </stencila-enum-validator>
+              </div>
+            </stencila-parameter>
+            <stencila-text id=txt_1111111A>interpolated into background color</stencila-text>
+          </p>
+        </stencila-paragraph>
+      </div>
+    </stencila-styled-block>
+    <stencila-styled-block code='bg-red-100 p-2' id=stb_1111111G>
+      <div slot=content>
+        <stencila-styled-block code=bg-blue-100 id=stb_1111111F>
+          <div slot=content>
+            <stencila-paragraph id=pgh_1111111E>
+              <p slot=content>
+                <stencila-text id=txt_1111111D>Nested styled block.</stencila-text>
+              </p>
+            </stencila-paragraph>
+          </div>
+        </stencila-styled-block>
+      </div>
+    </stencila-styled-block>
+  </section>
+</stencila-article>

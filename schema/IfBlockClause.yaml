@@ -22,6 +22,8 @@ properties:
     type: array
     items:
       $ref: Block
+    dom:
+      elem: div
     html:
       slot: div
     proptest:

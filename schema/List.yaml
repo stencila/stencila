@@ -28,6 +28,8 @@ properties:
     items:
       $ref: ListItem
     walk: true
+    dom:
+      elem: div
     jats:
       content: true
     proptest:
@@ -68,3 +70,5 @@ properties:
     strip: [metadata]
     serde:
       deserializeWith: option_one_or_many_string_or_object
+    dom:
+      elem: div

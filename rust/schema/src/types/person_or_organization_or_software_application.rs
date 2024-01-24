@@ -7,7 +7,7 @@ use super::person::Person;
 use super::software_application::SoftwareApplication;
 
 /// [`Person`] or [`Organization`] or [`SoftwareApplication`]
-#[derive(Debug, strum::Display, Clone, PartialEq, Serialize, Deserialize, StripNode, WalkNode, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec, WriteNode, SmartDefault, ReadNode)]
+#[derive(Debug, strum::Display, Clone, PartialEq, Serialize, Deserialize, StripNode, WalkNode, DomCodec, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec, WriteNode, SmartDefault, ReadNode)]
 #[serde(untagged, crate = "common::serde")]
 pub enum PersonOrOrganizationOrSoftwareApplication {
     #[default]

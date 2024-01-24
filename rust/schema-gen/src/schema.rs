@@ -136,6 +136,9 @@ pub struct Schema {
     /// The function to use to deserialize the property
     pub serde: Option<SerdeOptions>,
 
+    /// Options for serializing the type or property to the browser DOM
+    pub dom: Option<DomOptions>,
+
     /// Options for converting the type or property to/from HTML
     pub html: Option<HtmlOptions>,
 
@@ -552,6 +555,34 @@ pub struct SerdeOptions {
     ///
     /// See https://serde.rs/field-attrs.html#deserialize_with
     pub deserialize_with: Option<String>,
+}
+
+/// Options for deriving the `DomCodec` trait
+#[skip_serializing_none]
+#[derive(Debug, Clone, SmartDefault, Deserialize, Serialize, JsonSchema)]
+#[serde(
+    default,
+    rename_all = "camelCase",
+    deny_unknown_fields,
+    crate = "common::serde"
+)]
+pub struct DomOptions {
+    /// Whether the `DomCodec` should be derived for the type
+    #[serde(skip_serializing_if = "is_true")]
+    #[default = true]
+    pub derive: bool,
+
+    /// The HTML element name for a property
+    /// 
+    /// If not supplied the property will be encoded as an attribute
+    /// on the parent element.
+    pub elem: Option<String>,
+
+    /// The HTML attribute name for a property
+    ///
+    /// Should only be used if `elem` is `None`. If not supplied, defaults
+    /// to the name of the attribute converted to kebab-case.
+    pub attr: Option<String>,
 }
 
 /// Options for conversion to/from HTML
