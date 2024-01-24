@@ -8,7 +8,6 @@ import {
 } from 'prosemirror-view'
 
 import { DomClient } from '../clients/dom'
-import { ObjectClient } from '../clients/object'
 import { ProseMirrorClient } from '../clients/prosemirror'
 import '../nodes'
 import type { DocumentId, DocumentAccess } from '../types'
