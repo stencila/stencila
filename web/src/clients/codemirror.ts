@@ -67,7 +67,7 @@ export class CodeMirrorClient extends FormatClient {
    * @param format The format of the editor content (e.g. "markdown")
    */
   constructor(id: DocumentId, access: DocumentAccess, format: string) {
-    super(id, access, format)
+    super(id, access, format, 'codemirror')
   }
 
   /**

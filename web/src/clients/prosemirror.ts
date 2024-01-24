@@ -20,7 +20,7 @@ export class ProseMirrorClient extends NodesClient {
    *             descendent Web Components)
    */
   constructor(id: DocumentId, access: DocumentAccess, elem: HTMLElement) {
-    super(id, access, elem)
+    super(id, access, elem, 'prosemirror')
   }
 
   /**

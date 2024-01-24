@@ -141,8 +141,13 @@ export abstract class FormatClient extends Client {
    * @param access The access level of the client
    * @param format The format of the string (e.g. "html", "markdown")
    */
-  constructor(id: DocumentId, access: DocumentAccess, format: string) {
-    super(id, `${access}.${format}`)
+  constructor(
+    id: DocumentId,
+    access: DocumentAccess,
+    format: string,
+    clientType?: string
+  ) {
+    super(id, `${access}.${format}`, clientType ?? format)
   }
 
   /**
