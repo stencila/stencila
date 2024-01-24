@@ -8,7 +8,7 @@
     - [Client classes](#client-classes)
   - [🪟 Views](#-views)
   - [💅 Twind usage](#-twind-usage)
-    - [1. extend `TWLitElement`](#1-extend-twlitelement)
+    - [1. Extend `TWLitElement`](#1-extend-twlitelement)
     - [2. Long class lists](#2-long-class-lists)
     - [3. Custom CSS rules](#3-custom-css-rules)
     - [4. Rendering functions](#4-rendering-functions)
@@ -93,26 +93,19 @@ In addition there is a `print.ts` file, powered by [Paged.js](https://pagedjs.or
 
 ## 💅 Twind usage
 
-We use [twind](https://twind.style/) so that we can apply [tailwind](https://tailwindcss.com/)
-to our components. In order to do so, there are a few simple patterns we should
-follow:
+We use [twind](https://twind.style/) so that we can apply [tailwind](https://tailwindcss.com/) to our components. In order to do so, there are a few simple patterns we follow:
 
-### 1. extend `TWLitElement`
+### 1. Extend `TWLitElement`
 
-This component applies the `@withTailwind()` decorator to the class & correctly
-types the protected `tw` class property (used to access `css`, `theme` functions
-etc).
+This component applies the `@withTailwind()` decorator to the class & correctly types the protected `tw` class property (used to access `css`, `theme` functions etc).
 
-**Note:**
-
-The remaining points below are recommendations for _all_ functions of a
+> [!NOTE]
+> The remaining points below are recommendations for _all_ functions of a
 component that **render html**.
 
 ### 2. Long class lists
 
-If the component (or parts of a component) have long lists of tailwind classes,
-it's best to break this up into a single `apply` function to add to the html -
-e.g:
+If the component (or parts of a component) have long lists of Tailwind classes, it's best to break this up into a single `apply` function to add to the html e.g:
 
 ```ts
 const styles = apply([
@@ -131,20 +124,14 @@ const styles = apply([
 ])
 ```
 
-**Notes:**
-
-- Each entry in the array of classes should roughly correspond to a css area. In
-  the example above, the first entry `'text-base font-bold'` corresponds to font
-  rendering, whilst in a later entry `'border-b-4 border-b-transparent'` is
-  concerned with border rendering.
-- Variants **_must_** be at the end of the class list. This includes breakpoints,
-  states (hover, active etc.), et al.
+> [!NOTE]
+> Each entry in the array of classes should roughly correspond to a css area. In the example above, the first entry `'text-base font-bold'` corresponds to font rendering, whilst in a later entry `'border-b-4 border-b-transparent'` is concerned with border rendering.
+>
+> Variants **_must_** be at the end of the class list. This includes breakpoints, states (hover, active etc.), et al.
 
 ### 3. Custom CSS rules
 
-The vast majority of css can be applied directly with the `tw` classes. When
-this isn't possible (something missing in tailwind), use the `css` function to
-create the desired classes.
+The vast majority of css can be applied directly with the `tw` classes. When this isn't possible (something missing in tailwind), use the `css` function to create the desired classes.
 
 ```ts
 const hideMarker = css`
@@ -155,19 +142,14 @@ const hideMarker = css`
 `
 ```
 
-In this case, the `::marker` selector (for use in `details > summary`) isn't
-supported in tailwind.
+In this case, the `::marker` selector (for use in `details > summary`) isn't supported in Tailwind.
 
 ### 4. Rendering functions
 
-**Tip:**
+> [!TIP]
+> When adding a function to your class that breaks up the render function, you should create a private function with a prefix of `render` e.g. `renderHeader`, `renderBody` etc.
 
-When adding a function to your class that breaks up the render function, you
-should create a private function with a prefix of `render` e.g. `renderHeader`,
-`renderBody` etc.
-
-Wrapping all of the above, you will have a function that looks similar to the
-following:
+Wrapping all of the above, you will have a function that looks similar to the following:
 
 ```ts
 private renderSummary() {
