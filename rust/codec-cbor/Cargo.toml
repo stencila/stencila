@@ -4,6 +4,6 @@ version = "0.0.0"
 edition = "2021"
 
 [dependencies]
-ciborium = "0.2.1"
+ciborium = "0.2.2"
 codec = { path = "../codec" }
 zstd = "0.13.0"
