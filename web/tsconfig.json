@@ -5,6 +5,6 @@
     "esModuleInterop": true,
     "outDir": "dist",
     "module": "ESNext",
-    "moduleResolution": "Node"
-  }
+    "moduleResolution": "Node",
+  },
 }
