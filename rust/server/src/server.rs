@@ -407,9 +407,7 @@ async fn serve_document(
             doc.export(
                 None,
                 Some(EncodeOptions {
-                    format: Some(Format::Html),
-                    compact: Some(true),
-                    dom: Some(true),
+                    format: Some(Format::Dom),
                     ..Default::default()
                 }),
             )
