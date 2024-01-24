@@ -100,8 +100,7 @@ We use [twind](https://twind.style/) so that we can apply [tailwind](https://tai
 This component applies the `@withTailwind()` decorator to the class & correctly types the protected `tw` class property (used to access `css`, `theme` functions etc).
 
 > [!NOTE]
-> The remaining points below are recommendations for _all_ functions of a
-component that **render html**.
+> The remaining points below are recommendations for _all_ functions of a component that **render html**.
 
 ### 2. Long class lists
 
