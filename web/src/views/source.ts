@@ -27,13 +27,12 @@ import {
   keymap,
   lineNumbers,
 } from '@codemirror/view'
-import { Node } from '@stencila/types'
 import { css as twCSS } from '@twind/core'
 import { html } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
 
 import { CodeMirrorClient } from '../clients/codemirror'
-import { ObjectClient } from '../clients/object'
+import { MappingEntry } from '../clients/format'
 import { tooltipOnHover, autoWrapKeys, bottomPanel } from '../codemirror'
 import { markdownHighlightStyle } from '../languages/markdown'
 import type { DocumentId, DocumentAccess } from '../types'
@@ -95,12 +94,6 @@ export class SourceView extends TWLitElement {
    */
   @property()
   displayMode?: 'single' | 'split' = 'single'
-
-  /**
-   * A read-only client which receives patches for the JavaScript object
-   * representing the entire document
-   */
-  private objectClient: ObjectClient
 
   /**
    * A read-write client which sends and receives string patches
@@ -285,17 +278,6 @@ export class SourceView extends TWLitElement {
   }
 
   /**
-   * Override to initialize `objectClient` (unlike `codeMirrorClient`,
-   * which needs to be re-instantiated if the format changes) this only
-   * needs to be done once.
-   */
-  connectedCallback() {
-    super.connectedCallback()
-
-    this.objectClient = new ObjectClient(this.doc)
-  }
-
-  /**
    * Override `LitElement.update` to dispatch any changes to editor config
    * to the editor.
    */
@@ -337,24 +319,10 @@ export class SourceView extends TWLitElement {
    *
    * @param position The character position. Defaults to the current cursor position.
    */
-  public getNodeAt(position?: number): {
-    node: Node
-    property?: string
-    start: number
-    end: number
-  } {
+  public getNodeAt(position?: number): MappingEntry | undefined {
     position = position ?? this.codeMirrorView.state.selection.main.from
 
-    const { nodeId, property, start, end } =
-      this.codeMirrorClient.nodeAt(position)
-    const node = this.objectClient.getNode(nodeId)
-
-    return {
-      node,
-      property,
-      start,
-      end,
-    }
+    return this.codeMirrorClient.nodeAt(position)
   }
 
   /**
@@ -362,13 +330,10 @@ export class SourceView extends TWLitElement {
    *
    * @param position The character position. Defaults to the current cursor position.
    */
-  public getNodesAt(position?: number): Node[] {
+  public getNodesAt(position?: number): MappingEntry[] {
     position = position ?? this.codeMirrorView.state.selection.main.from
 
-    const nodeIds = this.codeMirrorClient.nodesAt(position)
-    const nodes = nodeIds.map((nodeId) => this.objectClient.getNode(nodeId))
-
-    return nodes
+    return this.codeMirrorClient.nodesAt(position)
   }
 
   /**

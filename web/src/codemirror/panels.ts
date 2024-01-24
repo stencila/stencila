@@ -1,10 +1,10 @@
 import { Extension } from '@codemirror/state'
 import { showPanel, Panel } from '@codemirror/view'
-import { Node, Object } from '@stencila/types'
 import { html } from 'lit'
 import { customElement, property } from 'lit/decorators'
 import { unsafeHTML } from 'lit/directives/unsafe-html.js'
 
+import { MappingEntry } from '../clients/format'
 import { TWLitElement } from '../ui/twind'
 import { SourceView } from '../views/source'
 
@@ -15,31 +15,35 @@ class EditorPanelElement extends TWLitElement {
 
   render() {
     return html`
-      <div class="flex justify-end">${html`${unsafeHTML(this.innerHTML)}`}</div>
+      <div class="h-6 flex justify-end">${html`${unsafeHTML(this.innerHTML)}`}</div>
     `
   }
 }
 
-const BREADCRUMB_SEPERATOR = '>>'
+const BREADCRUMB_SEPARATOR = '>'
 
 /**
- * Turn the node hierachy into the breadcrumbs html string for rendering.
- * @param nodes The hierachy of the nodes (from the node at cursor pos)
- * @returns html string of the
+ * Turn a hierarchy of format format `MappingEntry`s into node type breadcrumbs.
+ *
+ * To reduce visual clutter, the top level node (usually an Article)
+ * is popped off the list.
+ *
+ * @param entries The format `MappingEntry`s upwards from the node at cursor pos
  */
-const nodeTreeBreadCrumbs = (nodes: Node[]) => {
-  const nodeList = nodes.map((node: Object) =>
-    node.type ? `<span class="mx-2">${node.type as string}</span>` : ''
-  )
-  return nodeList
+const nodeTreeBreadCrumbs = (entries: MappingEntry[]) => {
+  return entries
     .reverse()
-    .join(`<span class='font-bold'>${BREADCRUMB_SEPERATOR}</span>`)
+    .slice(1)
+    .map((entry: MappingEntry) =>
+      entry.nodeType
+        ? `<span class="mx-2">${entry.nodeType as string}</span>`
+        : ''
+    )
+    .join(`<span class='font-bold'>${BREADCRUMB_SEPARATOR}</span>`)
 }
 
 /**
- * Creates a codemirror `Panel` which will show
- * @param sourceView
- * @returns
+ * Creates a CodeMirror `Panel` to display node type breadcrumbs
  */
 const nodeTreePanel = (sourceView: SourceView) => (): Panel => {
   const dom = document.createElement('stencila-editor-panel-bottom')
