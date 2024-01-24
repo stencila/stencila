@@ -67,6 +67,6 @@ export class DynamicView extends ThemedView {
   }
 
   render() {
-    return html`<article [data-root]></article>`
+    return html`<stencila-article root></stencila-article>`
   }
 }
