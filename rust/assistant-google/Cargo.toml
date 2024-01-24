@@ -5,4 +5,4 @@ edition = "2021"
 
 [dependencies]
 assistant = { path = "../assistant" }
-cached = { version = "0.47.0", features = ["async"] }
+cached = { version = "0.48.1", features = ["async"] }
