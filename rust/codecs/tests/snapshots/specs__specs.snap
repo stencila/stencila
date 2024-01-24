@@ -33,6 +33,19 @@ expression: specs
     "supports_to_string": true,
     "supports_to_path": true
   },
+  "dom": {
+    "status": "under-development",
+    "supports_from_formats": {},
+    "supports_from_bytes": false,
+    "supports_from_string": true,
+    "supports_from_path": true,
+    "supports_to_formats": {
+      "dom": "NoLoss"
+    },
+    "supports_to_bytes": false,
+    "supports_to_string": true,
+    "supports_to_path": true
+  },
   "html": {
     "status": "under-development",
     "supports_from_formats": {},
