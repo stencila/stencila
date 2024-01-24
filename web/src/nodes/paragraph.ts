@@ -15,6 +15,9 @@ export abstract class Paragraph extends Entity {
     return html`
       <slot name="content"></slot>
 
+      <!-- TODO: For demoing only, remove -->
+      View: ${this.documentView()}
+      
       <stencila-block-infobox icon="paragraph" title="Paragraph">
         <slot name="authors" slot="authors"></slot>
       </stencila-block-infobox>
