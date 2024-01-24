@@ -53,7 +53,7 @@ export class UISelector extends TWLitElement {
       ${this.renderOverlay()}
       <details
         role="list"
-        class="group text-gray-aluminium open:text-brand-blue open:border-b-brand-blue p-0 relative block flex-grow open:z-50"
+        class="group text-gray-aluminium p-0 relative block flex-grow open:text-brand-blue open:border-b-brand-blue open:z-50"
         ${ref(this.detailsRef)}
       >
         ${this.renderSummary()} ${this.renderList()}

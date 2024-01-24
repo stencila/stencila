@@ -2,6 +2,24 @@
 
 **Components, clients, and views for using Stencila from a web browser**
 
+- [Stencila Web](#stencila-web)
+  - [🤝 Clients](#-clients)
+    - [WebSocket subprotocols](#websocket-subprotocols)
+    - [Client classes](#client-classes)
+  - [🪟 Views](#-views)
+  - [💅 Twind usage](#-twind-usage)
+    - [1. extend `TWLitElement`](#1-extend-twlitelement)
+    - [2. Long class lists](#2-long-class-lists)
+    - [3. Custom CSS rules](#3-custom-css-rules)
+    - [4. Rendering functions](#4-rendering-functions)
+  - [🎨 Themes](#-themes)
+  - [🛠️ Develop](#️-develop)
+    - [Getting started](#getting-started)
+    - [Workspace dependencies](#workspace-dependencies)
+    - [Linting \&\& formatting](#linting--formatting)
+    - [Testing](#testing)
+    - [`Makefile`](#makefile)
+
 ## 🤝 Clients
 
 This module has several classes of clients which provide different types of access to documents.
@@ -72,6 +90,112 @@ There are several views in the [`src/views`](src/views) folder which make use of
 | `<stencila-visual-view>`  | A visual (WYSIWYG) editor for a document including Web Components for nodes                                                        | `ProseMirrorClient` and `DomClient`                   |
 
 In addition there is a `print.ts` file, powered by [Paged.js](https://pagedjs.org/), which provides a preview of how the document will look when saved as PDF.
+
+## 💅 Twind usage
+
+We use [twind](https://twind.style/) so that we can apply [tailwind](https://tailwindcss.com/)
+to our components. In order to do so, there are a few simple patterns we should
+follow:
+
+### 1. extend `TWLitElement`
+
+This component applies the `@withTailwind()` decorator to the class & correctly
+types the protected `tw` class property (used to access `css`, `theme` functions
+etc).
+
+**Note:**
+
+The remaining points below are recommendations for _all_ functions of a
+component that **render html**.
+
+### 2. Long class lists
+
+If the component (or parts of a component) have long lists of tailwind classes,
+it's best to break this up into a single `apply` function to add to the html -
+e.g:
+
+```ts
+const styles = apply([
+  'text-base font-bold',
+  'leading-none',
+  'select-none',
+  'appearance-none ',
+  'min-w-fit',
+  'py-2 px-4',
+  'bg-white',
+  'border-b-4 border-b-transparent',
+  'transition-all ease-in-out',
+  'flex',
+  'items-center',
+  'group-hover:text-brand-blue group-hover:border-b-brand-blue',
+])
+```
+
+**Notes:**
+
+- Each entry in the array of classes should roughly correspond to a css area. In
+  the example above, the first entry `'text-base font-bold'` corresponds to font
+  rendering, whilst in a later entry `'border-b-4 border-b-transparent'` is
+  concerned with border rendering.
+- Variants **_must_** be at the end of the class list. This includes breakpoints,
+  states (hover, active etc.), et al.
+
+### 3. Custom CSS rules
+
+The vast majority of css can be applied directly with the `tw` classes. When
+this isn't possible (something missing in tailwind), use the `css` function to
+create the desired classes.
+
+```ts
+const hideMarker = css`
+  &::marker {
+    display: none;
+    font-size: 0;
+  }
+`
+```
+
+In this case, the `::marker` selector (for use in `details > summary`) isn't
+supported in tailwind.
+
+### 4. Rendering functions
+
+**Tip:**
+
+When adding a function to your class that breaks up the render function, you
+should create a private function with a prefix of `render` e.g. `renderHeader`,
+`renderBody` etc.
+
+Wrapping all of the above, you will have a function that looks similar to the
+following:
+
+```ts
+private renderSummary() {
+  const styles = apply([
+    'text-base font-bold',
+    'leading-none',
+    ...,
+    'flex',
+    'items-center',
+    'group-hover:text-brand-blue group-hover:border-b-brand-blue',
+  ])
+
+  const hideMarker = css`
+    &::marker {
+      display: none;
+      font-size: 0;
+    }
+  `
+
+  return html`<summary
+    aria-haspopup="listbox"
+    role="button"
+    class="${styles} ${hideMarker}"
+  >
+    ...
+  </summary>`
+}
+```
 
 ## 🎨 Themes
 
