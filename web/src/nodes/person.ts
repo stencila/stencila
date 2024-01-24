@@ -1,5 +1,7 @@
-import { html, LitElement } from 'lit'
+import { html } from 'lit'
 import { customElement, property } from 'lit/decorators'
+
+import { Entity } from './entity'
 
 /**
  * Web component representing a Stencila Schema `Person` node
@@ -7,7 +9,7 @@ import { customElement, property } from 'lit/decorators'
  * @see https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/person.md
  */
 @customElement('stencila-person')
-export abstract class Person extends LitElement {
+export abstract class Person extends Entity {
   // TODO: add other properties as needed
 
   @property({ attribute: 'given-names', type: Array })
@@ -18,6 +20,6 @@ export abstract class Person extends LitElement {
 
   render() {
     // TODO: improve rendering
-    return html` ${this.givenNames} ${this.familyNames} `
+    return html`${this.givenNames} ${this.familyNames}`
   }
 }
