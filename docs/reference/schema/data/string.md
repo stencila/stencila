@@ -10,6 +10,7 @@ The `String` type can be encoded (serialized) to, and/or decoded (deserialized) 
 
 | Format                                                                                             | Encoding   | Decoding  | Status              | Notes |
 | -------------------------------------------------------------------------------------------------- | ---------- | --------- | ------------------- | ----- |
+| [DOM HTML](https://github.com/stencila/stencila/blob/main/docs/reference/formats/dom.md)           | 🟢 No loss  |           | 🚧 Under development |       |
 | [HTML](https://github.com/stencila/stencila/blob/main/docs/reference/formats/html.md)              | 🟢 No loss  |           | 🚧 Under development |       |
 | [JATS](https://github.com/stencila/stencila/blob/main/docs/reference/formats/jats.md)              | 🟢 No loss  | 🟢 No loss | 🚧 Under development |       |
 | [Markdown](https://github.com/stencila/stencila/blob/main/docs/reference/formats/markdown.md)      | 🟢 No loss  | 🟢 No loss | ⚠️ Alpha            |       |

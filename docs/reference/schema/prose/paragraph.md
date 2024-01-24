@@ -35,6 +35,7 @@ The `Paragraph` type can be encoded (serialized) to, and/or decoded (deserialize
 
 | Format                                                                                             | Encoding     | Decoding  | Status              | Notes                                                                                        |
 | -------------------------------------------------------------------------------------------------- | ------------ | --------- | ------------------- | -------------------------------------------------------------------------------------------- |
+| [DOM HTML](https://github.com/stencila/stencila/blob/main/docs/reference/formats/dom.md)           | 🟢 No loss    |           | 🚧 Under development |                                                                                              |
 | [HTML](https://github.com/stencila/stencila/blob/main/docs/reference/formats/html.md)              | 🟢 No loss    |           | 🚧 Under development | Encoded as [`<p>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/p)              |
 | [JATS](https://github.com/stencila/stencila/blob/main/docs/reference/formats/jats.md)              | 🟢 No loss    | 🟢 No loss | 🚧 Under development | Encoded as [`<p>`](https://jats.nlm.nih.gov/articleauthoring/tag-library/1.3/element/p.html) |
 | [Markdown](https://github.com/stencila/stencila/blob/main/docs/reference/formats/markdown.md)      | 🟢 No loss    | 🟢 No loss | ⚠️ Alpha            | Encoded as `{{content}}\n\n`                                                                 |

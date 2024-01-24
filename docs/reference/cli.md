@@ -89,6 +89,7 @@ Create a new document
 
   Possible values:
   - `article`
+  - `dom`
   - `html`
   - `jats`
   - `markdown`
@@ -413,10 +414,6 @@ Mainly intended for prompt engineering during development of Stencila.
 * `<ASSERT_NODES>` — A pattern for the type and number of nodes that should be generated
 
 ###### **Options:**
-
-* `-r`, `--record` — Whether to offer the option to record each evaluation trial
-
-  Possible values: `true`, `false`
 
 * `-d`, `--document <DOCUMENT>` — The path of the document to use in the context
 * `--assistant <ASSISTANT>` — The name of the assistant to use
