@@ -1,5 +1,4 @@
-import { EditorView, hoverTooltip } from '@codemirror/view'
-import { Object } from '@stencila/types'
+import { hoverTooltip } from '@codemirror/view'
 import { html } from 'lit'
 import { customElement, property } from 'lit/decorators'
 
@@ -32,28 +31,20 @@ class TooltipElement extends TWLitElement {
  */
 const tooltipOnHover = (sourceView: SourceView) =>
   hoverTooltip(
-    (_view: EditorView, pos: number) => {
-      const nodeSpec = sourceView.getNodeAt(pos)
-      let node = nodeSpec.node as Object
-      let i = 1
-      while (node.type && node.type === 'Text') {
-        const nodes = sourceView.getNodesAt(pos)
-        node = nodes[i] as Object
-        i++
+    (_, pos: number) => {
+      return {
+        pos,
+        above: true,
+        create: () => {
+          const { nodeId } = sourceView
+            .getNodesAt(pos)
+            .filter((node) => node.nodeType !== 'Text')[0]
+          const dom = sourceView.domElement.value.querySelector(
+            `#${nodeId}`
+          ) as HTMLElement
+          return { dom, offset: { x: 10, y: 10 } }
+        },
       }
-      if (node.type) {
-        return {
-          pos,
-          above: true,
-          create: () => {
-            const dom = document.createElement('stencila-editor-tooltip')
-            dom.setAttribute('type', node.type as string)
-            dom.setAttribute('error', 'Something is busted <test error>')
-            return { dom, offset: { x: 10, y: 10 } }
-          },
-        }
-      }
-      return null
     },
     { hoverTime: 500 }
   )

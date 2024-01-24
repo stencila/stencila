@@ -29,9 +29,11 @@ import {
 } from '@codemirror/view'
 import { css as twCSS } from '@twind/core'
 import { html } from 'lit'
-import { customElement, property } from 'lit/decorators.js'
+import { customElement, property } from 'lit/decorators'
+import { ref, Ref, createRef } from 'lit/directives/ref'
 
 import { CodeMirrorClient } from '../clients/codemirror'
+import { DomClient } from '../clients/dom'
 import { MappingEntry } from '../clients/format'
 import { tooltipOnHover, autoWrapKeys, bottomPanel } from '../codemirror'
 import { markdownHighlightStyle } from '../languages/markdown'
@@ -94,6 +96,15 @@ export class SourceView extends TWLitElement {
    */
   @property()
   displayMode?: 'single' | 'split' = 'single'
+
+  /**
+   * A read-only client which updates an invisible DOM element when the
+   * document changes on the server. We use this to extract custom elements
+   * for nodes to use in tooltips etc.
+   */
+  private domClient: DomClient
+
+  public domElement: Ref<HTMLElement> = createRef()
 
   /**
    * A read-write client which sends and receives string patches
@@ -278,6 +289,19 @@ export class SourceView extends TWLitElement {
   }
 
   /**
+   * Override `LitElement.firstUpdated` so that `DomClient` is instantiated _after_ this
+   * element has a document `[root]` element in its `renderRoot`.
+   */
+  override firstUpdated(changedProperties: Map<string, string | boolean>) {
+    super.firstUpdated(changedProperties)
+
+    this.domClient = new DomClient(
+      this.doc,
+      this.renderRoot.querySelector('[root]') as HTMLElement
+    )
+  }
+
+  /**
    * Override `LitElement.update` to dispatch any changes to editor config
    * to the editor.
    */
@@ -363,6 +387,9 @@ export class SourceView extends TWLitElement {
         <div>
           <div id="codemirror" class=${this.codeMirrorCSS}></div>
         </div>
+      </div>
+      <div hidden ${ref(this.domElement)}>
+        <stencila-article root></stencila-article>
       </div>
     `
   }
