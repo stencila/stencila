@@ -21,7 +21,6 @@ use assistant::{
 pub use assistant;
 
 pub mod testing;
-mod testing_db;
 
 /// Get a list of available assistants in descending preference rank
 pub async fn list() -> Vec<Arc<dyn Assistant>> {

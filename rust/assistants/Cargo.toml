@@ -12,4 +12,3 @@ assistant-ollama = { path = "../assistant-ollama" }
 assistant-openai = { path = "../assistant-openai" }
 assistant-specialized = { path = "../assistant-specialized" }
 codecs = { path = "../codecs" }
-sea-orm = { version = "0.12.10",  default-features = false, features = ["macros", "sqlx", "sqlx-sqlite", "runtime-tokio-rustls", "with-json", "with-chrono"] }

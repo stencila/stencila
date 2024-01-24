@@ -10,34 +10,6 @@ use assistant::{
     },
     GenerateOptions,
 };
-use sea_orm::{
-    ActiveValue, ConnectOptions, ConnectionTrait, Database, DatabaseBackend, EntityTrait, Statement,
-};
-
-use super::testing_db::{prelude::*, *};
-
-/// Add a new assistant testing trial
-pub async fn insert_trial(user_instruction: &str, assistant_response: &str) -> Result<()> {
-    let trial = trials::ActiveModel {
-        user_instruction: ActiveValue::Set(user_instruction.to_string()),
-        assistant_response: ActiveValue::Set(assistant_response.to_string()),
-        ..Default::default()
-    };
-
-    let mut options = ConnectOptions::new("sqlite://testing.sqlite3");
-    options.sqlx_logging(false);
-
-    let db = Database::connect(options).await?;
-    db.execute(Statement::from_string(
-        DatabaseBackend::Sqlite,
-        include_str!("./testing_db/schema.sql"),
-    ))
-    .await?;
-
-    Trials::insert(trial).exec(&db).await?;
-
-    Ok(())
-}
 
 /// Run an example
 ///
