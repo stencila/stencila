@@ -58,25 +58,13 @@ export class VisualView extends ThemedView {
   private proseMirrorClient: ProseMirrorClient
 
   /**
-   * A read-only client which receives patches for the JavaScript object
-   * representing the entire document
-   */
-  private objectClient: ObjectClient
-
-  /**
    * A ProseMirror editor view which the client interacts with
    */
   private proseMirrorView: ProseMirrorView
 
-  override connectedCallback() {
-    super.connectedCallback()
-
-    this.objectClient = new ObjectClient(this.doc)
-  }
-
   /**
    * Override so that clients are instantiated _after_ this
-   * element has a document `[data-root]` element in its `renderRoot`.
+   * element has a document `[root]` element in its `renderRoot`.
    */
   override firstUpdated(changedProperties: Map<string, string | boolean>) {
     super.firstUpdated(changedProperties)
