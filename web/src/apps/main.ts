@@ -5,6 +5,8 @@ import logo from '../images/stencilaIcon.svg'
 import { THEMES } from '../themes/themes'
 import { withTwind } from '../twind'
 import type { DocumentId, DocumentView } from '../types'
+import type { UISelectorSelectedEvent } from '../ui/selector'
+import '../ui/selector'
 import { VIEWS } from '../views/views'
 
 import '../views/static'
@@ -14,9 +16,9 @@ import '../views/source'
 import '../views/split'
 import '../views/visual'
 
-import '../ui/selector'
-
 import './main.css'
+
+import './shoelace'
 
 /**
  * Application Wrapper
@@ -110,15 +112,15 @@ export class App extends LitElement {
   }
 
   private renderViewSelect() {
-    const clickEvent = (e: Event) => {
-      this.view = (e.target as HTMLButtonElement).dataset[
-        'value'
-      ] as DocumentView
+    const clickEvent = (e: UISelectorSelectedEvent['detail']) => {
+      console.log(e)
+      this.view = e.item.value as DocumentView
     }
 
     return html` <stencila-ui-selector
       label="View"
       target=${this.view}
+      targetClass="view-selector"
       .list=${Object.entries(VIEWS)}
       .clickEvent=${clickEvent}
     >
@@ -126,13 +128,14 @@ export class App extends LitElement {
   }
 
   private renderThemeSelect() {
-    const clickEvent = (e: Event) => {
-      this.theme = (e.target as HTMLButtonElement).dataset['value']
+    const clickEvent = (e: UISelectorSelectedEvent['detail']) => {
+      this.theme = e.item.value
     }
 
     return html` <stencila-ui-selector
       label="Theme"
       target=${this.theme}
+      targetClass="theme-selector"
       .list=${Object.entries(THEMES)}
       .clickEvent=${clickEvent}
     >

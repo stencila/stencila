@@ -449,6 +449,7 @@ async fn serve_document(
     } else if mode == "app" {
         format!(
             r#"<link rel="stylesheet" type="text/css" href="/~static/{version}/apps/main.css">
+               <link rel="stylesheet" type="text/css" href="/~static/{version}/shoelace-style/themes/light.css">
                <script type="module" src="/~static/{version}/apps/main.js"></script>"#
         )
     } else {

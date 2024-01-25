@@ -6,5 +6,6 @@
     "outDir": "dist",
     "module": "ESNext",
     "moduleResolution": "Node",
+    "resolveJsonModule": true,
   },
 }

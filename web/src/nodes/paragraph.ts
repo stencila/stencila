@@ -12,11 +12,13 @@ import './helpers/block-infobox'
 @customElement('stencila-paragraph')
 export abstract class Paragraph extends Entity {
   render() {
+    const view = this.documentView()
+
     return html`
       <slot name="content"></slot>
 
       <!-- TODO: For demoing only, remove -->
-      View: ${this.documentView()}
+      View: ${view}
 
       <stencila-block-infobox icon="paragraph" title="Paragraph">
         <slot name="authors" slot="authors"></slot>
