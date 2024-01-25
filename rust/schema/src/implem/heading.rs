@@ -39,11 +39,13 @@ impl DomCodec for Heading {
                 &["h", &self.level.max(1).min(6).to_string()].concat(),
                 "content",
                 |context| self.content.to_dom(context),
-            )
-            .push_slot_fn("div", "authors", |context| {
-                self.options.authors.to_dom(context)
-            })
-            .exit_node();
+            );
+
+        if let Some(authors) = &self.options.authors {
+            context.push_slot_fn("div", "authors", |context| authors.to_dom(context));
+        }
+
+        context.exit_node();
     }
 }
 
