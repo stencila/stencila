@@ -21,13 +21,15 @@ pub enum DirType {
     Config,
     Cache,
     Assistants,
+    Kernels,
 }
 
-pub fn get_app_dir(dt: DirType, mut ensure: bool) -> Result<PathBuf> {
+/// Get an application directory
+pub fn get_app_dir(dir_type: DirType, mut ensure: bool) -> Result<PathBuf> {
     let dirs = project_dirs()?;
 
     let dir = {
-        match dt {
+        match dir_type {
             DirType::Config => dirs.config_dir().to_path_buf(),
             DirType::Cache => dirs.cache_dir().to_path_buf(),
             DirType::Assistants => {
@@ -38,6 +40,7 @@ pub fn get_app_dir(dt: DirType, mut ensure: bool) -> Result<PathBuf> {
                     dirs.config_dir().join("assistants")
                 }
             }
+            DirType::Kernels => dirs.config_dir().join("kernels"),
         }
     };
     if ensure && !dir.exists() {

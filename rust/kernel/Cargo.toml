@@ -6,3 +6,4 @@ edition = "2021"
 [dependencies]
 common = { path = "../common" }
 format = { path = "../format" }
+schema = { path = "../schema" }
