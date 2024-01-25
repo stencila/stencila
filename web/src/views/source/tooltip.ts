@@ -2,8 +2,8 @@ import { hoverTooltip } from '@codemirror/view'
 import { html } from 'lit'
 import { customElement, property } from 'lit/decorators'
 
-import { TWLitElement } from '../ui/twind'
-import { SourceView } from '../views/source'
+import { TWLitElement } from '../../ui/twind'
+import { SourceView } from '../source'
 
 @customElement('stencila-editor-tooltip')
 class TooltipElement extends TWLitElement {

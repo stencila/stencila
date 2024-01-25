@@ -35,21 +35,13 @@ import { ref, Ref, createRef } from 'lit/directives/ref'
 import { CodeMirrorClient } from '../clients/codemirror'
 import { DomClient } from '../clients/dom'
 import { MappingEntry } from '../clients/format'
-import { tooltipOnHover, autoWrapKeys, bottomPanel } from '../codemirror'
 import { markdownHighlightStyle } from '../languages/markdown'
 import type { DocumentId, DocumentAccess } from '../types'
 import { TWLitElement } from '../ui/twind'
 
-const FORMATS = {
-  markdown: 'Markdown',
-  html: 'HTML',
-  jats: 'JATS',
-  json: 'JSON',
-  jsonld: 'JSON-LD',
-  json5: 'JSON5',
-  yaml: 'YAML',
-  ...(process.env.NODE_ENV === 'development' ? { dom: 'DOM' } : {}),
-}
+import { autoWrapKeys } from './source/keyMaps'
+import { bottomPanel } from './source/panels'
+import { tooltipOnHover } from './source/tooltip'
 
 /**
  * Source code editor for a document
@@ -82,7 +74,7 @@ export class SourceView extends TWLitElement {
    * The format of the source code
    */
   @property()
-  format: string = 'markdown'
+  format: string = 'Markdown'
 
   /**
    * Turn on/off editor line wrapping
@@ -104,6 +96,9 @@ export class SourceView extends TWLitElement {
    */
   private domClient: DomClient
 
+  /**
+   * A ref for the hidden `DomClient` element
+   */
   public domElement: Ref<HTMLElement> = createRef()
 
   /**
@@ -383,7 +378,6 @@ export class SourceView extends TWLitElement {
   protected render() {
     return html`
       <div class="max-h-screen relative">
-        ${this.renderControls()}
         <div>
           <div id="codemirror" class=${this.codeMirrorCSS}></div>
         </div>
@@ -391,51 +385,6 @@ export class SourceView extends TWLitElement {
       <div hidden ${ref(this.domElement)}>
         <stencila-article root></stencila-article>
       </div>
-    `
-  }
-
-  private renderControls() {
-    return html`
-      <div
-        class="flex flex-row items-center justify-between w-full bg-brand-white px-1 py-2"
-      >
-        <div>${this.renderFormatSelect()}</div>
-        <div>${this.renderLineWrapCheckbox()}</div>
-      </div>
-    `
-  }
-
-  private renderFormatSelect() {
-    return html`
-      <label>
-        Format
-        <select
-          @change=${(e: Event) =>
-            (this.format = (e.target as HTMLSelectElement).value)}
-        >
-          ${Object.entries(FORMATS).map(
-            ([format, name]) =>
-              html`<option value=${format} ?selected=${this.format === format}>
-                ${name}
-              </option>`
-          )}
-        </select>
-      </label>
-    `
-  }
-
-  private renderLineWrapCheckbox() {
-    return html`
-      <label class="text-sm">
-        ${'Enable line wrapping'}
-        <input
-          type="checkbox"
-          class="ml-1"
-          ?checked="${this.lineWrap}"
-          @change="${(e: Event) =>
-            (this.lineWrap = (e.target as HTMLInputElement).checked)}"
-        />
-      </label>
     `
   }
 }
