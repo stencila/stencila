@@ -55,7 +55,6 @@ pub struct StyledBlock {
 
     /// Non-core optional fields
     #[serde(flatten)]
-    #[dom(elem = "none")]
     #[html(flatten)]
     #[jats(flatten)]
     pub options: Box<StyledBlockOptions>,

@@ -7,4 +7,5 @@ edition = "2021"
 codec-dom-derive = { path = "../codec-dom-derive" }
 common = { path = "../common" }
 html-escape = "0.2.13"
+node-id = { path = "../node-id" }
 node-type = { path = "../node-type" }

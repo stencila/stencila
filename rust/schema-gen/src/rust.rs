@@ -706,7 +706,6 @@ pub struct {title}Options {{
 
     /// Non-core optional fields
     #[serde(flatten)]
-    #[dom(elem = "none")]
     #[html(flatten)]
     #[jats(flatten)]
     pub options: Box<{title}Options>,"#

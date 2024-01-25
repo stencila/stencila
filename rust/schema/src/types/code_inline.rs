@@ -48,7 +48,6 @@ pub struct CodeInline {
 
     /// Non-core optional fields
     #[serde(flatten)]
-    #[dom(elem = "none")]
     #[html(flatten)]
     #[jats(flatten)]
     pub options: Box<CodeInlineOptions>,
