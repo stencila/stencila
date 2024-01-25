@@ -1,14 +1,6 @@
-use std::{path::Path, sync::Arc};
-
 use kernel_micro::{
-    common::{
-        async_trait::async_trait,
-        eyre::{bail, Result},
-    },
-    format::Format,
-    schema::{ExecutionError, Node},
-    Kernel, KernelAvailability, KernelEvaluation, KernelForking, KernelInstance, Microkernel,
-    MicrokernelInstance,
+    common::eyre::Result, format::Format, Kernel, KernelAvailability, KernelEvaluation,
+    KernelForking, KernelInstance, Microkernel,
 };
 
 /// A kernel for executing Bash code locally
@@ -35,8 +27,8 @@ impl Kernel for BashKernel {
         KernelForking::No
     }
 
-    fn create_instance(&self) -> Result<Arc<dyn KernelInstance>> {
-        Ok(Arc::new(Microkernel::microkernel_instance(self)?))
+    fn create_instance(&self) -> Result<Box<dyn KernelInstance>> {
+        Ok(Box::new(Microkernel::microkernel_instance(self)?))
     }
 }
 
@@ -53,18 +45,18 @@ impl Microkernel for BashKernel {
 #[cfg(test)]
 mod tests {
     use kernel_micro::{
-        common::tokio,
+        common::{eyre::bail, tokio},
         schema::{Array, Node, Object, Paragraph, Primitive},
     };
 
     use super::*;
 
     /// Create and start a new kernel instance if Bash is available
-    async fn bash_kernel() -> Result<Option<MicrokernelInstance>> {
+    async fn bash_kernel() -> Result<Option<Box<dyn KernelInstance>>> {
         let kernel = BashKernel {};
         match kernel.availability() {
             KernelAvailability::Available => {
-                let mut instance = kernel.microkernel_instance()?;
+                let mut instance = kernel.create_instance()?;
                 instance.start_here().await?;
                 Ok(Some(instance))
             }

@@ -42,7 +42,7 @@ pub trait Kernel: Sync + Send {
     fn supports_forking(&self) -> KernelForking;
 
     /// Create a new instance of the kernel
-    fn create_instance(&self) -> Result<Arc<dyn KernelInstance>>;
+    fn create_instance(&self) -> Result<Box<dyn KernelInstance>>;
 }
 
 /// The availability of a kernel on the current machine

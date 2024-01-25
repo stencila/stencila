@@ -1,5 +1,3 @@
-use std::sync::Arc;
-
 use kernel::Kernel;
 use kernel_bash::BashKernel;
 
