@@ -1,4 +1,4 @@
-use std::path::Path;
+use std::{path::Path, sync::Arc};
 
 use kernel_micro::{
     common::{
@@ -7,31 +7,13 @@ use kernel_micro::{
     },
     format::Format,
     schema::{ExecutionError, Node},
-    Kernel, KernelAvailability, KernelEvaluation, KernelForking, Microkernel, MicrokernelState,
+    Kernel, KernelAvailability, KernelEvaluation, KernelForking, KernelInstance, Microkernel,
+    MicrokernelInstance,
 };
 
 /// A kernel for executing Bash code locally
-pub struct BashKernel {
-    state: Option<MicrokernelState>,
-}
+pub struct BashKernel;
 
-impl BashKernel {
-    pub fn new() -> Self {
-        Self { state: None }
-    }
-}
-
-impl Microkernel for BashKernel {
-    fn executable_name(&self) -> String {
-        "bash".to_string()
-    }
-
-    fn microkernel_script(&self) -> String {
-        include_str!("kernel.bash").to_string()
-    }
-}
-
-#[async_trait]
 impl Kernel for BashKernel {
     fn id(&self) -> String {
         "bash-micro".to_string()
@@ -53,29 +35,18 @@ impl Kernel for BashKernel {
         KernelForking::No
     }
 
-    // TODO: I'm not happy with how the following methods need to be re-implemented
-    // for each microkernel but not sure how best to avoid it yet 
+    fn create_instance(&self) -> Result<Arc<dyn KernelInstance>> {
+        Ok(Arc::new(Microkernel::microkernel_instance(self)?))
+    }
+}
 
-    async fn start(&mut self, directory: &Path) -> Result<()> {
-        self.state = Some(MicrokernelState::new(self, directory).await?);
-
-        Ok(())
+impl Microkernel for BashKernel {
+    fn executable_name(&self) -> String {
+        "bash".to_string()
     }
 
-    async fn stop(&mut self) -> Result<()> {
-        if let Some(state) = self.state.as_mut() {
-            state.stop().await?;
-        }
-
-        Ok(())
-    }
-
-    async fn execute(&mut self, code: &str) -> Result<(Vec<Node>, Vec<ExecutionError>)> {
-        if let Some(state) = self.state.as_mut() {
-            state.execute(code).await
-        } else {
-            bail!("Kernel `{id}` not yet started", id = self.id())
-        }
+    fn microkernel_script(&self) -> String {
+        include_str!("kernel.bash").to_string()
     }
 }
 
@@ -88,13 +59,14 @@ mod tests {
 
     use super::*;
 
-    /// Create and start a new kernel if Bash is available
-    async fn bash_kernel() -> Result<Option<BashKernel>> {
-        let mut kernel = BashKernel::new();
+    /// Create and start a new kernel instance if Bash is available
+    async fn bash_kernel() -> Result<Option<MicrokernelInstance>> {
+        let kernel = BashKernel {};
         match kernel.availability() {
             KernelAvailability::Available => {
-                kernel.start_here().await?;
-                Ok(Some(kernel))
+                let mut instance = kernel.microkernel_instance()?;
+                instance.start_here().await?;
+                Ok(Some(instance))
             }
             _ => Ok(None),
         }

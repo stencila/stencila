@@ -1,4 +1,4 @@
-use std::{path::Path, process::Stdio};
+use std::{fs::write, path::Path, process::Stdio};
 
 use kernel::{
     common::{
@@ -7,14 +7,13 @@ use kernel::{
         itertools::Itertools,
         serde_json,
         tokio::{
-            fs::{write, File},
+            fs::File,
             io::{AsyncBufRead, AsyncBufReadExt, AsyncWrite, AsyncWriteExt, BufReader, BufWriter},
             process::{Child, ChildStderr, ChildStdin, ChildStdout, Command},
         },
         tracing,
     },
     schema::{ExecutionError, Node},
-    KernelStatus,
 };
 use which::which;
 
@@ -22,9 +21,10 @@ use which::which;
 // the `Microkernel` trait
 pub use kernel::{
     common, format, schema, Kernel, KernelAvailability, KernelEvaluation, KernelForking,
+    KernelInstance, KernelStatus,
 };
 
-/// A minimal, lightweight execution kernel in a spawned process
+/// A specification for a minimal, lightweight execution kernel in a spawned process
 #[async_trait]
 pub trait Microkernel: Sync + Send + Kernel {
     /// Get the name of the executable (e.g. `python`) used by this microkernel
@@ -43,7 +43,7 @@ pub trait Microkernel: Sync + Send + Kernel {
     ///
     /// For most microkernels the script will be written in an external file
     /// and then `include_str`d into the implementation of this function.
-    /// 
+    ///
     /// If you want to break the microkernel implementation into more than one
     /// file then include them and concat them in this method.
     fn microkernel_script(&self) -> String;
@@ -68,11 +68,63 @@ pub trait Microkernel: Sync + Send + Kernel {
             KernelAvailability::Installable
         }
     }
+
+    /// An implementation of `Kernel::create_instance` for microkernels
+    fn microkernel_instance(&self) -> Result<MicrokernelInstance> {
+        // Assign an id
+        let id = self.id(); // TODO make this unique
+
+        // Get the path to the executable, failing early if it can not be found
+        let executable_path = which(self.executable_name())?;
+
+        // Always write the script file, even if it already exists, to allow for changes
+        // to the microkernel's script
+        let kernels_dir = app::get_app_dir(app::DirType::Kernels, true)?;
+        let script_file = kernels_dir.join(self.id());
+        write(&script_file, self.microkernel_script())?;
+
+        // Replace placeholder in args with the script path
+        let args: Vec<String> = self
+            .executable_arguments()
+            .into_iter()
+            .map(|arg| {
+                if arg == "{{script}}" {
+                    script_file.to_string_lossy().to_string()
+                } else {
+                    arg
+                }
+            })
+            .collect();
+
+        // Create the command
+        let mut command = Command::new(executable_path);
+        command
+            .args(args)
+            .stdin(Stdio::piped())
+            .stdout(Stdio::piped())
+            .stderr(Stdio::piped());
+
+        Ok(MicrokernelInstance {
+            id,
+            command,
+            status: KernelStatus::Pending,
+            child: None,
+            pid: 0,
+            input: None,
+            output: None,
+            errors: None,
+        })
+    }
 }
 
-/// The state of a microkernel
-pub struct MicrokernelState {
-    /// The status of the microkernel
+/// An instance of a microkernel
+pub struct MicrokernelInstance {
+    /// The id of the microkernel instance
+    id: String,
+
+    command: Command,
+
+    /// The status of the microkernel instance
     status: KernelStatus,
 
     /// The child process (for main processes only, not forks)
@@ -81,18 +133,17 @@ pub struct MicrokernelState {
     /// The process identifier
     pid: u32,
 
-    /// The input stream for the microkernel
-    input: MicrokernelInput,
+    /// The input stream for the microkernel instance
+    input: Option<MicrokernelInput>,
 
-    /// The output stream for the microkernel
-    output: MicrokernelOutput,
+    /// The output stream for the microkernel instance
+    output: Option<MicrokernelOutput>,
 
-    /// The error stream for the microkernel
-    errors: MicrokernelErrors,
+    /// The error stream for the microkernel instance
+    errors: Option<MicrokernelErrors>,
 }
 
-/// An input stream for a microkernel
-
+/// An input stream for a microkernel instance
 enum MicrokernelInput {
     /// Standard input (stdin)
     Standard(BufWriter<ChildStdin>),
@@ -102,7 +153,7 @@ enum MicrokernelInput {
     Pipe(BufWriter<File>),
 }
 
-/// An output stream for a microkernel
+/// An output stream for a microkernel instance
 enum MicrokernelOutput {
     /// Standard output (stdout)
     Standard(BufReader<ChildStdout>),
@@ -112,7 +163,7 @@ enum MicrokernelOutput {
     Pipe(BufReader<File>),
 }
 
-/// An error stream for a microkernel
+/// An error stream for a microkernel instance
 enum MicrokernelErrors {
     /// Standard error (stderr)
     Standard(BufReader<ChildStderr>),
@@ -123,7 +174,7 @@ enum MicrokernelErrors {
 }
 
 enum MicrokernelFlag {
-    /// Sent by the microkernel to signal it is ready for a task
+    /// Sent by the microkernel instance to signal it is ready for a task
     Ready,
     /// Sent by Rust to signal the start of an `execute` task
     Exec,
@@ -133,7 +184,7 @@ enum MicrokernelFlag {
     Fork,
     /// Sent by Rust to signal a newline (`\n`) within the code of a task
     Line,
-    /// Sent by the microkernel to signal the end of an output or message
+    /// Sent by the microkernel instance to signal the end of an output or message
     End,
 }
 
@@ -155,41 +206,21 @@ impl MicrokernelFlag {
     }
 }
 
-impl MicrokernelState {
-    /// Create a new microkernel process
-    pub async fn new(microkernel: &impl Microkernel, directory: &Path) -> Result<Self> {
-        // Get the path to the executable, failing early if it can not be found
-        let executable_path = which(microkernel.executable_name())?;
+#[async_trait]
+impl KernelInstance for MicrokernelInstance {
+    fn id(&self) -> String {
+        self.id.clone()
+    }
 
-        // Always write the script file, even if it already exists, to allow for changes
-        // to the microkernel's script
-        let kernels_dir = app::get_app_dir(app::DirType::Kernels, true)?;
-        let script_file = kernels_dir.join(microkernel.id());
-        write(&script_file, microkernel.microkernel_script()).await?;
+    async fn status(&self) -> Result<KernelStatus> {
+        Ok(self.status)
+    }
 
-        // Replace placeholder in args with the script path
-        let args: Vec<String> = microkernel
-            .executable_arguments()
-            .into_iter()
-            .map(|arg| {
-                if arg == "{{script}}" {
-                    script_file.to_string_lossy().to_string()
-                } else {
-                    arg
-                }
-            })
-            .collect();
-
+    async fn start(&mut self, directory: &Path) -> Result<()> {
         // Spawn the binary in the directory with stdin, stdout and stderr piped to/from it
-        let mut child = Command::new(executable_path)
-            .args(args)
-            .stdin(Stdio::piped())
-            .stdout(Stdio::piped())
-            .stderr(Stdio::piped())
-            .current_dir(directory)
-            .spawn()?;
+        let mut child = self.command.current_dir(directory).spawn()?;
 
-        let pid = child
+        self.pid = child
             .id()
             .ok_or_eyre("Microkernel child process has no PID")?;
 
@@ -211,22 +242,14 @@ impl MicrokernelState {
         startup_warnings(&mut stdout, &mut stderr).await;
 
         // Create stream readers and writers
-        let input = MicrokernelInput::Standard(stdin);
-        let output = MicrokernelOutput::Standard(stdout);
-        let errors = MicrokernelErrors::Standard(stderr);
+        self.input = Some(MicrokernelInput::Standard(stdin));
+        self.output = Some(MicrokernelOutput::Standard(stdout));
+        self.errors = Some(MicrokernelErrors::Standard(stderr));
 
-        Ok(Self {
-            status: KernelStatus::Started,
-            child: Some(child),
-            pid,
-            input,
-            output,
-            errors,
-        })
+        Ok(())
     }
 
-    /// Stop this microkernel
-    pub async fn stop(&mut self) -> Result<()> {
+    async fn stop(&mut self) -> Result<()> {
         if let Some(child) = self.child.as_mut() {
             // For main kernels
             tracing::debug!("Killing kernel with pid `{:?}`", self.pid);
@@ -239,12 +262,13 @@ impl MicrokernelState {
         Ok(())
     }
 
-    /// Execute code in this microkernel
-    pub async fn execute(&mut self, code: &str) -> Result<(Vec<Node>, Vec<ExecutionError>)> {
+    async fn execute(&mut self, code: &str) -> Result<(Vec<Node>, Vec<ExecutionError>)> {
         self.send_receive(MicrokernelFlag::Exec, code).await
     }
+}
 
-    /// Send a task to the microkernel and receive results
+impl MicrokernelInstance {
+    /// Send a task to the microkernel instance and receive results
     async fn send_receive(
         &mut self,
         flag: MicrokernelFlag,
@@ -254,17 +278,25 @@ impl MicrokernelState {
         self.receive_result().await
     }
 
-    /// Send a task to this microkernel
+    /// Send a task to this microkernel instance
     async fn send_task(&mut self, flag: MicrokernelFlag, code: &str) -> Result<()> {
-        match &mut self.input {
+        let Some(input) = self.input.as_mut() else {
+            bail!("Microkernel has not been started yet!");
+        };
+
+        match input {
             MicrokernelInput::Standard(input) => send_task(flag, code, input).await,
             MicrokernelInput::Pipe(input) => send_task(flag, code, input).await,
         }
     }
 
-    /// Receive outputs and messages from this microkernel
+    /// Receive outputs and messages from this microkernel instance
     async fn receive_result(&mut self) -> Result<(Vec<Node>, Vec<ExecutionError>)> {
-        match (&mut self.output, &mut self.errors) {
+        let (Some(output),Some(errors)) = (self.output.as_mut(),self.errors.as_mut()) else {
+            bail!("Microkernel has not been started yet!");
+        };
+
+        match (output, errors) {
             (MicrokernelOutput::Standard(output), MicrokernelErrors::Standard(errors)) => {
                 receive_results(output, errors).await
             }
@@ -300,7 +332,7 @@ async fn startup_warnings<R1: AsyncBufRead + Unpin, R2: AsyncBufRead + Unpin>(
     }
 }
 
-/// Send a task to a microkernel
+/// Send a task to a microkernel instance
 async fn send_task<W: AsyncWrite + Unpin>(
     flag: MicrokernelFlag,
     code: &str,
@@ -325,7 +357,7 @@ async fn send_task<W: AsyncWrite + Unpin>(
     Ok(())
 }
 
-/// Receive results (outputs and messages) from a microkernel
+/// Receive results (outputs and messages) from a microkernel instance
 async fn receive_results<R1: AsyncBufRead + Unpin, R2: AsyncBufRead + Unpin>(
     output_stream: &mut R1,
     message_stream: &mut R2,

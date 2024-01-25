@@ -1,4 +1,4 @@
-use std::path::Path;
+use std::{path::Path, sync::Arc};
 
 use common::{
     async_trait::async_trait,
@@ -20,12 +20,13 @@ use schema::{ExecutionError, Node};
 /// including those that use embedded languages (e.g. Rhai, Lua), those that
 /// connect to databases to execute SQL (e.g. SQLite, Postgres, DuckDB),
 /// Stencila 'microkernels', and Jupyter kernels.
-#[allow(unused)]
-#[async_trait]
+///
+/// This trait specifies the kernel and its capabilities (similar to a Jupyter "kernel spec")
+/// The `KernelInstance` trait is the interface for instances of kernels.
 pub trait Kernel: Sync + Send {
     /// Get the id of the kernel
     ///
-    /// This id should be unique amongst kernels
+    /// This id should be unique amongst all kernels.
     fn id(&self) -> String;
 
     /// Get the availability of the kernel on the current machine
@@ -40,43 +41,8 @@ pub trait Kernel: Sync + Send {
     /// Does the kernel support forking?
     fn supports_forking(&self) -> KernelForking;
 
-    /// Start the kernel in a working directory
-    async fn start(&mut self, directory: &Path) -> Result<()>;
-
-    /// Start the kernel in the current working directory
-    async fn start_here(&mut self) -> Result<()> {
-        self.start(&std::env::current_dir()?).await
-    }
-
-    /// Stop the kernel
-    async fn stop(&mut self) -> Result<()>;
-
-    /// Execute some code, possibly with side effects, in the kernel
-    async fn execute(&mut self, code: &str) -> Result<(Vec<Node>, Vec<ExecutionError>)>;
-
-    /// Evaluate a code expression, without side effects, in the kernel
-    async fn evaluate(&mut self, code: &str) -> Result<(Vec<Node>, Vec<ExecutionError>)> {
-        bail!(
-            "Kernel `{id}` does not support evaluation of code",
-            id = self.id()
-        )
-    }
-
-    /// Execute some code in a fork of the kernel
-    async fn fork(&mut self, code: &str) -> Result<(Vec<Node>, Vec<ExecutionError>)> {
-        bail!("Kernel `{id}` does not support forking", id = self.id());
-    }
-}
-
-/// The status of a kernel instance
-#[derive(Display)]
-#[strum(serialize_all = "lowercase")]
-pub enum KernelStatus {
-    Started,
-    Ready,
-    Busy,
-    Stopped,
-    Failed,
+    /// Create a new instance of the kernel
+    fn create_instance(&self) -> Result<Arc<dyn KernelInstance>>;
 }
 
 /// The availability of a kernel on the current machine
@@ -109,4 +75,59 @@ pub enum KernelForking {
     Yes,
     /// Kernel does not support forking on this machine
     No,
+}
+
+/// An instance of a kernel
+#[async_trait]
+pub trait KernelInstance: Sync + Send {
+    /// Get the id of the kernel instance
+    ///
+    /// This id should be unique amongst all kernel instances,
+    /// including those for other `Kernel`s.
+    fn id(&self) -> String;
+
+    /// Get the status of the kernel
+    async fn status(&self) -> Result<KernelStatus>;
+
+    /// Start the kernel in a working directory
+    async fn start(&mut self, directory: &Path) -> Result<()>;
+
+    /// Start the kernel in the current working directory
+    async fn start_here(&mut self) -> Result<()> {
+        self.start(&std::env::current_dir()?).await
+    }
+
+    /// Stop the kernel
+    async fn stop(&mut self) -> Result<()>;
+
+    /// Execute some code, possibly with side effects, in the kernel
+    async fn execute(&mut self, code: &str) -> Result<(Vec<Node>, Vec<ExecutionError>)>;
+
+    /// Evaluate a code expression, without side effects, in the kernel
+    #[allow(unused)]
+    async fn evaluate(&mut self, code: &str) -> Result<(Vec<Node>, Vec<ExecutionError>)> {
+        bail!(
+            "Kernel `{id}` does not support evaluation of code",
+            id = self.id()
+        )
+    }
+
+    /// Execute some code in a fork of the kernel
+    #[allow(unused)]
+    async fn fork(&mut self, code: &str) -> Result<(Vec<Node>, Vec<ExecutionError>)> {
+        bail!("Kernel `{id}` does not support forking", id = self.id());
+    }
+}
+
+/// The status of a kernel instance
+#[derive(Default, Clone, Copy, Display)]
+#[strum(serialize_all = "lowercase")]
+pub enum KernelStatus {
+    #[default]
+    Pending,
+    Starting,
+    Ready,
+    Busy,
+    Stopped,
+    Failed,
 }
