@@ -848,6 +848,7 @@ dependencies = [
  "codec-dom-derive",
  "common",
  "html-escape",
+ "node-id",
  "node-type",
 ]
 

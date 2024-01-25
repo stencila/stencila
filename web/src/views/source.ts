@@ -29,25 +29,19 @@ import {
 } from '@codemirror/view'
 import { css as twCSS } from '@twind/core'
 import { html } from 'lit'
-import { customElement, property } from 'lit/decorators.js'
+import { customElement, property } from 'lit/decorators'
+import { ref, Ref, createRef } from 'lit/directives/ref'
 
 import { CodeMirrorClient } from '../clients/codemirror'
+import { DomClient } from '../clients/dom'
 import { MappingEntry } from '../clients/format'
-import { tooltipOnHover, autoWrapKeys, bottomPanel } from '../codemirror'
 import { markdownHighlightStyle } from '../languages/markdown'
 import type { DocumentId, DocumentAccess } from '../types'
 import { TWLitElement } from '../ui/twind'
 
-const FORMATS = {
-  markdown: 'Markdown',
-  html: 'HTML',
-  jats: 'JATS',
-  json: 'JSON',
-  jsonld: 'JSON-LD',
-  json5: 'JSON5',
-  yaml: 'YAML',
-  ...(process.env.NODE_ENV === 'development' ? { dom: 'DOM' } : {}),
-}
+import { autoWrapKeys } from './source/keyMaps'
+import { bottomPanel } from './source/panels'
+import { tooltipOnHover } from './source/tooltip'
 
 /**
  * Source code editor for a document
@@ -80,7 +74,7 @@ export class SourceView extends TWLitElement {
    * The format of the source code
    */
   @property()
-  format: string = 'markdown'
+  format: string = 'Markdown'
 
   /**
    * Turn on/off editor line wrapping
@@ -94,6 +88,18 @@ export class SourceView extends TWLitElement {
    */
   @property()
   displayMode?: 'single' | 'split' = 'single'
+
+  /**
+   * A read-only client which updates an invisible DOM element when the
+   * document changes on the server. We use this to extract custom elements
+   * for nodes to use in tooltips etc.
+   */
+  private domClient: DomClient
+
+  /**
+   * A ref for the hidden `DomClient` element
+   */
+  public domElement: Ref<HTMLElement> = createRef()
 
   /**
    * A read-write client which sends and receives string patches
@@ -278,6 +284,19 @@ export class SourceView extends TWLitElement {
   }
 
   /**
+   * Override `LitElement.firstUpdated` so that `DomClient` is instantiated _after_ this
+   * element has a document `[root]` element in its `renderRoot`.
+   */
+  override firstUpdated(changedProperties: Map<string, string | boolean>) {
+    super.firstUpdated(changedProperties)
+
+    this.domClient = new DomClient(
+      this.doc,
+      this.renderRoot.querySelector('[root]') as HTMLElement
+    )
+  }
+
+  /**
    * Override `LitElement.update` to dispatch any changes to editor config
    * to the editor.
    */
@@ -359,56 +378,13 @@ export class SourceView extends TWLitElement {
   protected render() {
     return html`
       <div class="max-h-screen relative">
-        ${this.renderControls()}
         <div>
           <div id="codemirror" class=${this.codeMirrorCSS}></div>
         </div>
       </div>
-    `
-  }
-
-  private renderControls() {
-    return html`
-      <div
-        class="flex flex-row items-center justify-between w-full bg-brand-white px-1 py-2"
-      >
-        <div>${this.renderFormatSelect()}</div>
-        <div>${this.renderLineWrapCheckbox()}</div>
+      <div hidden ${ref(this.domElement)}>
+        <stencila-article root></stencila-article>
       </div>
-    `
-  }
-
-  private renderFormatSelect() {
-    return html`
-      <label>
-        Format
-        <select
-          @change=${(e: Event) =>
-            (this.format = (e.target as HTMLSelectElement).value)}
-        >
-          ${Object.entries(FORMATS).map(
-            ([format, name]) =>
-              html`<option value=${format} ?selected=${this.format === format}>
-                ${name}
-              </option>`
-          )}
-        </select>
-      </label>
-    `
-  }
-
-  private renderLineWrapCheckbox() {
-    return html`
-      <label class="text-sm">
-        ${'Enable line wrapping'}
-        <input
-          type="checkbox"
-          class="ml-1"
-          ?checked="${this.lineWrap}"
-          @change="${(e: Event) =>
-            (this.lineWrap = (e.target as HTMLInputElement).checked)}"
-        />
-      </label>
     `
   }
 }

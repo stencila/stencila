@@ -1,5 +1,8 @@
 use codec::{
-    common::{async_trait::async_trait, eyre::Result},
+    common::{
+        async_trait::async_trait,
+        eyre::{bail, Result},
+    },
     format::Format,
     schema::{Node, NodeType},
     status::Status,
@@ -63,7 +66,7 @@ impl Codec for DomCodec {
 
         let html = match compact {
             Some(true) | None => html,
-            Some(false) => indent(&html),
+            Some(false) => indent(&html)?,
         };
 
         Ok((html, Losses::none(), Mapping::none()))
@@ -73,7 +76,7 @@ impl Codec for DomCodec {
 /// Indent HTML
 ///
 /// Originally based on https://gist.github.com/lwilli/14fb3178bd9adac3a64edfbc11f42e0d
-fn indent(html: &str) -> String {
+fn indent(html: &str) -> Result<String> {
     use quick_xml::{events::Event, Reader, Writer};
 
     let mut reader = Reader::from_str(html);
@@ -85,16 +88,15 @@ fn indent(html: &str) -> String {
         match reader.read_event() {
             Ok(Event::Eof) => break,
             Ok(event) => writer.write_event(event),
-            Err(error) => panic!(
+            Err(error) => bail!(
                 "Error at position {}: {:?}",
                 reader.buffer_position(),
                 error
             ),
-        }
-        .expect("Failed to parse XML");
+        }?;
     }
 
-    std::str::from_utf8(&writer.into_inner())
+    Ok(std::str::from_utf8(&writer.into_inner())
         .expect("Failed to convert a slice of bytes to a string slice")
-        .to_string()
+        .to_string())
 }

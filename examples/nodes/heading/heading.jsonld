@@ -51,7 +51,7 @@
       "stencila:content": [
         {
           "@type": "Text",
-          "value": "Level 6"
+          "value": "Level 5"
         }
       ]
     },
@@ -62,6 +62,30 @@
         {
           "@type": "Text",
           "value": "Level 6"
+        }
+      ]
+    },
+    {
+      "@type": "stencila:Heading",
+      "stencila:level": 1,
+      "stencila:content": [
+        {
+          "@type": "Text",
+          "value": "With authors"
+        }
+      ],
+      "author": [
+        {
+          "@type": "Person",
+          "givenName": [
+            "Alice"
+          ]
+        },
+        {
+          "@type": "Person",
+          "givenName": [
+            "Zoe"
+          ]
         }
       ]
     }
