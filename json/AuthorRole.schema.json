@@ -38,6 +38,9 @@
     "author": {
       "@id": "schema:author",
       "description": "The author.",
+      "dom": {
+        "elem": "none"
+      },
       "anyOf": [
         {
           "$ref": "Person.schema.json"

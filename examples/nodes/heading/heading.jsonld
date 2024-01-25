@@ -86,6 +86,14 @@
           "givenName": [
             "Zoe"
           ]
+        },
+        {
+          "@type": "stencila:AuthorRole",
+          "author": {
+            "@type": "SoftwareApplication",
+            "name": "GPT"
+          },
+          "roleName": "Generator"
         }
       ]
     }

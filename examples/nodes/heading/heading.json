@@ -79,6 +79,14 @@
         {
           "type": "Person",
           "givenNames": ["Zoe"]
+        },
+        {
+          "type": "AuthorRole",
+          "author": {
+            "type": "SoftwareApplication",
+            "name": "GPT"
+          },
+          "roleName": "Generator"
         }
       ]
     }

@@ -14,6 +14,8 @@ properties:
       - $ref: Person
       - $ref: Organization
       - $ref: SoftwareApplication
+    dom:
+      elem: none
   roleName:
     '@id': schema:roleName
     description: A role played by the author.
