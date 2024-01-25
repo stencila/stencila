@@ -29,8 +29,9 @@ use schema::{
     Article, AudioObject, AuthorRole, AuthorRoleName, Block, ImageObject, Inline, InsertBlock,
     InsertInline, InstructionBlock, InstructionInline, Link, Message, MessagePart, Node, NodeType,
     Organization, OrganizationOptions, PersonOrOrganization,
-    PersonOrOrganizationOrSoftwareApplication, SoftwareApplication, SoftwareApplicationOptions,
-    StringOrNumber, SuggestionBlockType, SuggestionInlineType, VideoObject,
+    PersonOrOrganizationOrSoftwareApplication, ReplaceBlock, ReplaceInline, SoftwareApplication,
+    SoftwareApplicationOptions, StringOrNumber, SuggestionBlockType, SuggestionInlineType,
+    VideoObject,
 };
 
 // Export crates for the convenience of dependant crates
@@ -800,7 +801,7 @@ impl GenerateOutput {
             });
         }
         SuggestionInlineType::ReplaceInline(ReplaceInline {
-            content: self.nodes.into_inlines(),
+            replacement: self.nodes.into_inlines(),
             ..Default::default()
         })
     }
@@ -815,7 +816,7 @@ impl GenerateOutput {
             });
         }
         return SuggestionBlockType::ReplaceBlock(ReplaceBlock {
-            content: self.nodes.into_blocks(),
+            replacement: self.nodes.into_blocks(),
             ..Default::default()
         });
     }
