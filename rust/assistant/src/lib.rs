@@ -795,30 +795,32 @@ impl GenerateOutput {
     /// property of the instruction
     pub fn to_suggestion_inline(self, insert: bool) -> SuggestionInlineType {
         if insert {
-            return SuggestionInlineType::InsertInline(InsertInline {
+            SuggestionInlineType::InsertInline(InsertInline {
                 content: self.nodes.into_inlines(),
                 ..Default::default()
-            });
+            })
+        } else {
+            SuggestionInlineType::ReplaceInline(ReplaceInline {
+                replacement: self.nodes.into_inlines(),
+                ..Default::default()
+            })
         }
-        SuggestionInlineType::ReplaceInline(ReplaceInline {
-            replacement: self.nodes.into_inlines(),
-            ..Default::default()
-        })
     }
 
     /// Create a `SuggestionBlockType` from the output that can be used for the `suggestion`
     /// property of the instruction
     pub fn to_suggestion_block(self, insert: bool) -> SuggestionBlockType {
         if insert {
-            return SuggestionBlockType::InsertBlock(InsertBlock {
+            SuggestionBlockType::InsertBlock(InsertBlock {
                 content: self.nodes.into_blocks(),
                 ..Default::default()
-            });
+            })
+        } else {
+            SuggestionBlockType::ReplaceBlock(ReplaceBlock {
+                replacement: self.nodes.into_blocks(),
+                ..Default::default()
+            })
         }
-        return SuggestionBlockType::ReplaceBlock(ReplaceBlock {
-            replacement: self.nodes.into_blocks(),
-            ..Default::default()
-        });
     }
 
     /// Display the generated output as Markdown
