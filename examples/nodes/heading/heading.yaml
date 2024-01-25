@@ -24,9 +24,21 @@ content:
   level: 5
   content:
   - type: Text
-    value: Level 6
+    value: Level 5
 - type: Heading
   level: 6
   content:
   - type: Text
     value: Level 6
+- type: Heading
+  level: 1
+  content:
+  - type: Text
+    value: With authors
+  authors:
+  - type: Person
+    givenNames:
+    - Alice
+  - type: Person
+    givenNames:
+    - Zoe

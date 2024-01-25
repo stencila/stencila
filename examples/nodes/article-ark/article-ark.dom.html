@@ -8,7 +8,7 @@
     <stencila-paragraph id=pgh_111111121>
       <p slot=content>
         <stencila-text id=txt_11111113>This is a paragraph with</stencila-text>
-        <stencila-audio-object content-url=https://example.org/cat.mp3 caption='[{"type":"Text","value":"audio"}]' id=aud_11111115>
+        <stencila-audio-object id=aud_11111115 content-url=https://example.org/cat.mp3 caption='[{"type":"Text","value":"audio"}]'>
         </stencila-audio-object>
         <stencila-text id=txt_11111116>,</stencila-text>
         <stencila-code-expression id=cde_11111117>
@@ -28,7 +28,7 @@
           <stencila-text id=txt_1111111D>emphasis</stencila-text>
         </stencila-emphasis>
         <stencila-text id=txt_1111111F>,</stencila-text>
-        <stencila-image-object content-url=https://example.org/cat.jpg id=img_1111111H>
+        <stencila-image-object id=img_1111111H content-url=https://example.org/cat.jpg>
           <span slot=caption>
             <stencila-text id=txt_1111111G>image</stencila-text>
           </span>
@@ -39,16 +39,16 @@
           </span>
         </stencila-insert-inline>
         <stencila-text id=txt_1111111L>,</stencila-text>
-        <stencila-link target=https://example.org id=lin_1111111N>
+        <stencila-link id=lin_1111111N target=https://example.org>
           <span slot=content>
             <stencila-text id=txt_1111111M>link</stencila-text>
           </span>
         </stencila-link>
         <stencila-text id=txt_1111111P>,</stencila-text>
-        <stencila-math-inline code='inline math' math-language=tex id=mti_1111111Q>
+        <stencila-math-inline id=mti_1111111Q code='inline math' math-language=tex>
         </stencila-math-inline>
         <stencila-text id=txt_1111111R>,</stencila-text>
-        <stencila-note note-type=Footnote id=not_1111111U>
+        <stencila-note id=not_1111111U note-type=Footnote>
           <aside slot=content>
             <stencila-paragraph id=pgh_1111111T>
               <p slot=content>
@@ -58,7 +58,7 @@
           </aside>
         </stencila-note>
         <stencila-text id=txt_1111111V>,</stencila-text>
-        <stencila-parameter name=parameter id=par_1111111W>
+        <stencila-parameter id=par_1111111W name=parameter>
         </stencila-parameter>
         <stencila-text id=txt_1111111X>,</stencila-text>
         <stencila-quote-inline id=qti_1111111Z>
@@ -73,7 +73,7 @@
           </span>
         </stencila-replace-inline>
         <stencila-text id=txt_1111111d>,</stencila-text>
-        <stencila-styled-inline code=text-blue-400 id=sti_1111111f>
+        <stencila-styled-inline id=sti_1111111f code=text-blue-400>
           <span slot=content>
             <stencila-text id=txt_1111111e>styled inline</stencila-text>
           </span>
@@ -99,14 +99,14 @@
           <stencila-text id=txt_1111111u>underline</stencila-text>
         </stencila-underline>
         <stencila-text id=txt_1111111w>,</stencila-text>
-        <stencila-video-object content-url=https://example.org/cat.mp4 caption='[{"type":"Text","value":"video"}]' id=vid_1111111y>
+        <stencila-video-object id=vid_1111111y content-url=https://example.org/cat.mp4 caption='[{"type":"Text","value":"video"}]'>
         </stencila-video-object>
         <stencila-text id=txt_1111111z>.</stencila-text>
       </p>
     </stencila-paragraph>
-    <stencila-call-block source=this/is/a/call id=clb_111111122>
+    <stencila-call-block id=clb_111111122 source=this/is/a/call>
     </stencila-call-block>
-    <stencila-claim claim-type=Statement id=cla_111111125>
+    <stencila-claim id=cla_111111125 claim-type=Statement>
       <aside slot=content>
         <stencila-paragraph id=pgh_111111124>
           <p slot=content>
@@ -139,7 +139,7 @@
         </stencila-paragraph>
       </figure>
     </stencila-figure>
-    <stencila-for-block symbol=item id=frb_11111112G>
+    <stencila-for-block id=frb_11111112G symbol=item>
       <pre slot=code>items</pre>
       <div slot=content>
         <stencila-paragraph id=pgh_11111112F>
@@ -149,9 +149,11 @@
         </stencila-paragraph>
       </div>
     </stencila-for-block>
-    <stencila-heading level=1 id=hea_11111112J>
-      <div slot=content>
+    <stencila-heading id=hea_11111112J level=1>
+      <h1 slot=content>
         <stencila-text id=txt_11111112H>This is a heading</stencila-text>
+      </h1>
+      <div slot=authors>
       </div>
     </stencila-heading>
     <stencila-if-block id=ifb_11111112N>
@@ -168,7 +170,7 @@
         </stencila-if-block-clause>
       </div>
     </stencila-if-block>
-    <stencila-include-block source=this/is/an/include id=inc_11111112P>
+    <stencila-include-block id=inc_11111112P source=this/is/an/include>
     </stencila-include-block>
     <stencila-insert-block id=inb_11111112S>
       <div slot=content>
@@ -179,7 +181,7 @@
         </stencila-paragraph>
       </div>
     </stencila-insert-block>
-    <stencila-list order=Unordered id=lst_11111112W>
+    <stencila-list id=lst_11111112W order=Unordered>
       <div slot=items>
         <stencila-list-item id=lsi_11111112V>
           <li slot=content>
@@ -192,7 +194,7 @@
         </stencila-list-item>
       </div>
     </stencila-list>
-    <stencila-math-block code='This is a math block' math-language=tex id=mtb_11111112X>
+    <stencila-math-block id=mtb_11111112X code='This is a math block' math-language=tex>
     </stencila-math-block>
     <stencila-quote-block id=qtb_11111112a>
       <blockquote slot=content>
@@ -228,7 +230,7 @@
         </stencila-paragraph>
       </section>
     </stencila-section>
-    <stencila-styled-block code='text-red-800 bg-indigo-100' id=stb_11111112m>
+    <stencila-styled-block id=stb_11111112m code='text-red-800 bg-indigo-100'>
       <div slot=content>
         <stencila-paragraph id=pgh_11111112k>
           <p slot=content>
@@ -239,7 +241,7 @@
     </stencila-styled-block>
     <stencila-table id=tbl_11111112v>
       <table slot=rows>
-        <stencila-table-row row-type=HeaderRow id=tbr_11111112q>
+        <stencila-table-row id=tbr_11111112q row-type=HeaderRow>
           <tr slot=cells>
             <stencila-table-cell id=tbc_11111112p>
               <td slot=content>

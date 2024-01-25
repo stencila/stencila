@@ -61,6 +61,26 @@
           "value": "Level 6"
         }
       ]
+    },
+    {
+      "type": "Heading",
+      "level": 1,
+      "content": [
+        {
+          "type": "Text",
+          "value": "With authors"
+        }
+      ],
+      "authors": [
+        {
+          "type": "Person",
+          "givenNames": ["Alice"]
+        },
+        {
+          "type": "Person",
+          "givenNames": ["Zoe"]
+        }
+      ]
     }
   ]
 }
