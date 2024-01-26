@@ -17,32 +17,39 @@ printf "$READY\n" | tee /dev/stderr
 # Read each stdin line as a task
 while read -r line
 do
-  # Unescape newlines in code
-  unescaped=$(echo "$line" | sed "s/$LINE/\n/g")
+  # Split the line into lines using the LINE flag as separator
+  IFS="$LINE" read -ra lines <<< "$line"
   
-  # Use printf to expand newlines (escape % in code to avoid being
-  # interpreted by printf as format spec)
-  printf -v lines "${unescaped//\%/%%}"
-  
-  if echo "$lines" | grep -q "^$EXEC"; then
-    # Execute code
-    eval $(echo "$lines" | sed "s/^$EXEC//")
-  elif echo "$lines" | grep -q "^$EVAL"; then
-    # Evaluate code (integer expressions only)
-    eval $(echo "$lines" | sed "s/^$EVAL/echo \$\(\(/; s/$/\)\)/")
-  elif echo "$lines" | grep -q "^$LIST"; then
-    # Return a list of variables
-    printenv | awk -v end="$END" -F= '{print "{\"type\":\"Variable\",\"kind\":\"String\",\"name\":\"" $1 "\"}" end}'
-  elif echo "$lines" | grep -q "^$GET"; then
-    # Get a variable (without trailing newline)
-    printf '%s' $(printenv $(echo "$lines" | sed "s/^$GET//"))
-  elif echo "$lines" | grep -q "^$SET"; then
-    # Set a variable
-    eval $(echo "$lines" | sed "s/^$SET//" | awk 'NR==1{var=$0} NR==2{print "export " var "=\"" $0 "\""}')
-  elif echo "$lines" | grep -q "^$REMOVE"; then
-    # Remove a variable
-    unset $(echo "$lines" | sed "s/^$REMOVE//")
-  fi
+  # Switch on the task flag (the first line)
+  case "${lines[0]}" in 
+    "$EXEC")
+      # Execute remaining lines
+      eval $(printf "%s\n" "${lines[@]:1}")
+      ;;
+    "$EVAL")
+      # Evaluate second line (integer expressions only)
+      eval "echo $((${lines[1]}))"
+      ;;
+    "$LIST")
+      # Return a list of variables (with END flag after each)
+      printenv | awk -v end="$END" -F= '{print "{\"type\":\"Variable\",\"kind\":\"String\",\"name\":\"" $1 "\"}" end}'
+      ;;
+    "$GET")
+      # Get a variable (using printf to avoid trailing newline)
+      printf '%s' $(printenv ${lines[1]})
+      ;;
+    "$SET")
+      # Set a variable
+      eval "export ${lines[1]}=${lines[2]}"
+      ;;
+    "$REMOVE")
+      # Remove a variable
+      unset "${lines[1]}"
+      ;;
+    *)
+      echo "Unrecognised flag" >&2
+      ;;
+  esac
   
   # Print READY flag on stdout and stderr
   printf "$READY\n" | tee /dev/stderr

@@ -581,6 +581,7 @@ async fn send_task<W: AsyncWrite + Unpin>(
 ) -> Result<()> {
     let task = [
         &flag.as_unicode(),
+        MicrokernelFlag::Line.as_unicode(),
         code.replace('\n', MicrokernelFlag::Line.as_unicode())
             .as_str(),
         "\n",
