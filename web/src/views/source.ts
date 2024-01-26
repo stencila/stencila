@@ -39,6 +39,7 @@ import { markdownHighlightStyle } from '../languages/markdown'
 import type { DocumentId, DocumentAccess } from '../types'
 import { TWLitElement } from '../ui/twind'
 
+import { infoSideBar } from './source/infoSideBar'
 import { autoWrapKeys } from './source/keyMaps'
 import { bottomPanel } from './source/panels'
 import { tooltipOnHover } from './source/tooltip'
@@ -280,6 +281,7 @@ export class SourceView extends TWLitElement {
       autocompletion(),
       tooltipOnHover(this),
       bottomPanel(this),
+      infoSideBar(this),
     ]
   }
 

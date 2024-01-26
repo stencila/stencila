@@ -42,10 +42,15 @@ const tooltipOnHover = (sourceView: SourceView) =>
             .filter((node) => node.nodeType !== 'Text')[0]
 
           // create clone of node from the `DomClient`
-          const dom = sourceView.domElement.value
-            .querySelector(`#${nodeId}`)
-            .cloneNode(true) as HTMLElement
+          const domNode = sourceView.domElement.value.querySelector(
+            `#${nodeId}`
+          )
 
+          if (!domNode) {
+            return
+          }
+
+          const dom = domNode.cloneNode(true) as HTMLElement
           // change id to avoid duplicates
           dom.setAttribute('id', `tooltip-${nodeId}`)
           return { dom, offset: { x: 10, y: 10 } }
