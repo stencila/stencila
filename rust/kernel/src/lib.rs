@@ -1,6 +1,11 @@
 use std::path::Path;
 
-use common::{async_trait::async_trait, eyre::Result, strum::Display};
+use common::{
+    async_trait::async_trait,
+    eyre::Result,
+    strum::Display,
+    tokio::sync::{mpsc, watch},
+};
 use format::Format;
 
 // Re-exports for the convenience of internal crates implementing
@@ -31,6 +36,9 @@ pub trait Kernel: Sync + Send {
     /// Get the languages supported by the kernel
     fn supports_languages(&self) -> Vec<Format>;
 
+    /// Does the kernel support interrupting?
+    fn supports_interrupting(&self) -> KernelInterrupting;
+
     /// Does the kernel support forking?
     fn supports_forking(&self) -> KernelForking;
 
@@ -48,6 +56,16 @@ pub enum KernelAvailability {
     Installable,
     /// Not available on this machine
     Unavailable,
+}
+
+/// Whether a kernel supports interrupting on the current machine
+#[derive(Display)]
+#[strum(serialize_all = "lowercase")]
+pub enum KernelInterrupting {
+    /// Kernel support interrupting on this machine
+    Yes,
+    /// Kernel does not support interrupting on this machine
+    No,
 }
 
 /// Whether a kernel supports forking on the current machine
@@ -69,8 +87,14 @@ pub trait KernelInstance: Sync + Send {
     /// including those for other `Kernel`s.
     fn id(&self) -> String;
 
-    /// Get the status of the kernel
+    /// Get the status of the kernel instance
     async fn status(&self) -> Result<KernelStatus>;
+
+    /// Get a watcher of the status of the kernel instance
+    fn watcher(&self) -> Result<watch::Receiver<KernelStatus>>;
+
+    /// Get a signaller to interrupt or kill the kernel instance
+    fn signaller(&self) -> Result<mpsc::Sender<KernelSignal>>;
 
     /// Start the kernel in a working directory
     async fn start(&mut self, directory: &Path) -> Result<()>;
@@ -106,7 +130,8 @@ pub trait KernelInstance: Sync + Send {
 }
 
 /// The status of a kernel instance
-#[derive(Default, Clone, Copy, Display)]
+#[repr(u8)]
+#[derive(Debug, Default, Clone, Copy, PartialEq, Eq, Display)]
 #[strum(serialize_all = "lowercase")]
 pub enum KernelStatus {
     #[default]
@@ -114,6 +139,36 @@ pub enum KernelStatus {
     Starting,
     Ready,
     Busy,
+    Stopping,
     Stopped,
     Failed,
+}
+
+impl From<KernelStatus> for u8 {
+    fn from(status: KernelStatus) -> Self {
+        status as u8
+    }
+}
+
+impl From<u8> for KernelStatus {
+    fn from(value: u8) -> Self {
+        use KernelStatus::*;
+        match value {
+            0 => Pending,
+            1 => Starting,
+            2 => Ready,
+            3 => Busy,
+            4 => Stopping,
+            5 => Stopped,
+            6 => Failed,
+            _ => Pending,
+        }
+    }
+}
+
+/// A signal to send to a kernel instance
+#[derive(Clone, Copy)]
+pub enum KernelSignal {
+    Interrupt,
+    Kill,
 }
