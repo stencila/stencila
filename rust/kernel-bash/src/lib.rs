@@ -1,6 +1,6 @@
 use kernel_micro::{
-    common::eyre::Result, format::Format, Kernel, KernelAvailability, KernelEvaluation,
-    KernelForking, KernelInstance, Microkernel,
+    common::eyre::Result, format::Format, Kernel, KernelAvailability, KernelForking,
+    KernelInstance, Microkernel,
 };
 
 /// A kernel for executing Bash code locally
@@ -17,10 +17,6 @@ impl Kernel for BashKernel {
 
     fn supports_languages(&self) -> Vec<Format> {
         vec![Format::Bash, Format::Shell]
-    }
-
-    fn supports_evaluation(&self) -> KernelEvaluation {
-        KernelEvaluation::No
     }
 
     fn supports_forking(&self) -> KernelForking {
@@ -135,6 +131,20 @@ mod tests {
         let (outputs, messages) = kernel.execute("echo $((a + b))").await?;
         assert_eq!(messages, vec![]);
         assert_eq!(outputs, vec![Node::Integer(3)]);
+
+        Ok(())
+    }
+
+    /// Test evaluate tasks
+    #[tokio::test]
+    async fn evaluate() -> Result<()> {
+        let Some(mut kernel) = bash_kernel().await? else {
+                return Ok(())
+            };
+
+        let (outputs, messages) = kernel.evaluate("1 + 3").await?;
+        assert_eq!(messages, vec![]);
+        assert_eq!(outputs, vec![Node::Integer(4)]);
 
         Ok(())
     }
