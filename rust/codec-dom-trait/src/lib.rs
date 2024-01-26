@@ -3,6 +3,7 @@
 
 use common::{inflector::Inflector, serde::Serialize, serde_json};
 use html_escape::{encode_safe, encode_single_quoted_attribute};
+use node_id::NodeId;
 use node_type::NodeType;
 
 pub use codec_dom_derive::DomCodec;
@@ -106,13 +107,7 @@ pub struct DomEncodeContext {
 }
 
 impl DomEncodeContext {
-    /// Enter a node
-    pub fn enter_node(&mut self, node_type: NodeType) -> &mut Self {
-        let name = ["stencila-", &node_type.to_string().to_kebab_case()].concat();
-        self.enter_elem(&name)
-    }
-
-    /// Enter a element
+    /// Enter an element
     pub fn enter_elem(&mut self, name: &str) -> &mut Self {
         self.content.push('<');
         self.content.push_str(name);
@@ -123,6 +118,29 @@ impl DomEncodeContext {
         self
     }
 
+    /// Enter an element with an attribute
+    ///
+    /// Optimized equivalent of `enter_elem(name).push(attr, value)`
+    pub fn enter_elem_with(&mut self, name: &str, attr: &str, value: &str) -> &mut Self {
+        self.content.push('<');
+        self.content.push_str(name);
+        self.content.push(' ');
+        self.content.push_str(attr);
+        self.content.push('=');
+        self.push_attr_value(value);
+        self.content.push('>');
+
+        self.elements.push(name.to_string());
+
+        self
+    }
+
+    /// Enter a node
+    pub fn enter_node(&mut self, node_type: NodeType, node_id: NodeId) -> &mut Self {
+        let name = ["stencila-", &node_type.to_string().to_kebab_case()].concat();
+        self.enter_elem_with(&name, "id", &node_id.to_string())
+    }
+
     /// Push an attribute onto the current element
     pub fn push_attr(&mut self, name: &str, value: &str) -> &mut Self {
         self.content.pop();
@@ -130,7 +148,14 @@ impl DomEncodeContext {
         self.content.push(' ');
         self.content.push_str(name);
         self.content.push('=');
+        self.push_attr_value(value);
+        self.content.push('>');
 
+        self
+    }
+
+    /// Push an attribute value onto the current element
+    fn push_attr_value(&mut self, value: &str) {
         if value.contains(['"', '\'', ' ', '\t', '\n', '>', '<']) {
             // Use single quoting (more terse for JSON attributes) only if necessary
             let escaped = encode_single_quoted_attribute(value);
@@ -141,15 +166,18 @@ impl DomEncodeContext {
             // Value does not contain quotes etc so does not need quoting
             self.content.push_str(value)
         }
-
-        self.content.push('>');
-
-        self
     }
 
-    /// Push a slot attribute
-    pub fn push_slot(&mut self, name: &str) -> &mut Self {
-        self.push_attr("slot", &name.to_kebab_case())
+    /// Push the `id`` property of `Entity` nodes
+    ///
+    /// Uses `@id` as the attribute to avoid conflict with `id` which is
+    /// necessary for DOM syncing etc
+    pub fn push_id(&mut self, id: &Option<String>) -> &mut Self {
+        if let Some(id) = id {
+            self.push_attr("@id", id);
+        }
+
+        self
     }
 
     /// Push text onto the content
@@ -158,6 +186,26 @@ impl DomEncodeContext {
         self.content.push_str(&escaped);
 
         self
+    }
+
+    /// Enter a slot child element
+    pub fn enter_slot(&mut self, tag: &str, name: &str) -> &mut Self {
+        self.enter_elem_with(tag, "slot", &name.to_kebab_case())
+    }
+
+    /// Exit a slot child element
+    pub fn exit_slot(&mut self) -> &mut Self {
+        self.exit_elem()
+    }
+
+    /// Push a property as a slotted child element
+    pub fn push_slot_fn<F>(&mut self, tag: &str, name: &str, func: F) -> &mut Self
+    where
+        F: Fn(&mut Self),
+    {
+        self.enter_slot(tag, name);
+        func(self);
+        self.exit_slot()
     }
 
     /// Exit a element

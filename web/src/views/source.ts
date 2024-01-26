@@ -27,27 +27,21 @@ import {
   keymap,
   lineNumbers,
 } from '@codemirror/view'
-import { Node } from '@stencila/types'
 import { css as twCSS } from '@twind/core'
 import { html } from 'lit'
-import { customElement, property } from 'lit/decorators.js'
+import { customElement, property } from 'lit/decorators'
+import { ref, Ref, createRef } from 'lit/directives/ref'
 
 import { CodeMirrorClient } from '../clients/codemirror'
-import { ObjectClient } from '../clients/object'
-import { tooltipOnHover, autoWrapKeys, bottomPanel } from '../codemirror'
+import { DomClient } from '../clients/dom'
+import { MappingEntry } from '../clients/format'
 import { markdownHighlightStyle } from '../languages/markdown'
 import type { DocumentId, DocumentAccess } from '../types'
 import { TWLitElement } from '../ui/twind'
 
-const FORMATS = {
-  markdown: 'Markdown',
-  html: 'HTML',
-  jats: 'JATS',
-  json: 'JSON',
-  jsonld: 'JSON-LD',
-  json5: 'JSON5',
-  yaml: 'YAML',
-}
+import { autoWrapKeys } from './source/keyMaps'
+import { bottomPanel } from './source/panels'
+import { tooltipOnHover } from './source/tooltip'
 
 /**
  * Source code editor for a document
@@ -80,7 +74,7 @@ export class SourceView extends TWLitElement {
    * The format of the source code
    */
   @property()
-  format: string = 'markdown'
+  format: string = 'Markdown'
 
   /**
    * Turn on/off editor line wrapping
@@ -96,10 +90,16 @@ export class SourceView extends TWLitElement {
   displayMode?: 'single' | 'split' = 'single'
 
   /**
-   * A read-only client which receives patches for the JavaScript object
-   * representing the entire document
+   * A read-only client which updates an invisible DOM element when the
+   * document changes on the server. We use this to extract custom elements
+   * for nodes to use in tooltips etc.
    */
-  private objectClient: ObjectClient
+  private domClient: DomClient
+
+  /**
+   * A ref for the hidden `DomClient` element
+   */
+  public domElement: Ref<HTMLElement> = createRef()
 
   /**
    * A read-write client which sends and receives string patches
@@ -167,6 +167,13 @@ export class SourceView extends TWLitElement {
         return import('@codemirror/legacy-modes/mode/yaml').then(
           (yml) => new LanguageSupport(StreamLanguage.define(yml.yaml))
         )
+      },
+    }),
+    LanguageDescription.of({
+      name: 'dom',
+      extensions: ['dom'],
+      load: async () => {
+        return import('@codemirror/lang-html').then((obj) => obj.html())
       },
     }),
   ]
@@ -277,14 +284,16 @@ export class SourceView extends TWLitElement {
   }
 
   /**
-   * Override to initialize `objectClient` (unlike `codeMirrorClient`,
-   * which needs to be re-instantiated if the format changes) this only
-   * needs to be done once.
+   * Override `LitElement.firstUpdated` so that `DomClient` is instantiated _after_ this
+   * element has a document `[root]` element in its `renderRoot`.
    */
-  connectedCallback() {
-    super.connectedCallback()
+  override firstUpdated(changedProperties: Map<string, string | boolean>) {
+    super.firstUpdated(changedProperties)
 
-    this.objectClient = new ObjectClient(this.doc)
+    this.domClient = new DomClient(
+      this.doc,
+      this.renderRoot.querySelector('[root]') as HTMLElement
+    )
   }
 
   /**
@@ -329,24 +338,10 @@ export class SourceView extends TWLitElement {
    *
    * @param position The character position. Defaults to the current cursor position.
    */
-  public getNodeAt(position?: number): {
-    node: Node
-    property?: string
-    start: number
-    end: number
-  } {
+  public getNodeAt(position?: number): MappingEntry | undefined {
     position = position ?? this.codeMirrorView.state.selection.main.from
 
-    const { nodeId, property, start, end } =
-      this.codeMirrorClient.nodeAt(position)
-    const node = this.objectClient.getNode(nodeId)
-
-    return {
-      node,
-      property,
-      start,
-      end,
-    }
+    return this.codeMirrorClient.nodeAt(position)
   }
 
   /**
@@ -354,13 +349,10 @@ export class SourceView extends TWLitElement {
    *
    * @param position The character position. Defaults to the current cursor position.
    */
-  public getNodesAt(position?: number): Node[] {
+  public getNodesAt(position?: number): MappingEntry[] {
     position = position ?? this.codeMirrorView.state.selection.main.from
 
-    const nodeIds = this.codeMirrorClient.nodesAt(position)
-    const nodes = nodeIds.map((nodeId) => this.objectClient.getNode(nodeId))
-
-    return nodes
+    return this.codeMirrorClient.nodesAt(position)
   }
 
   /**
@@ -386,56 +378,13 @@ export class SourceView extends TWLitElement {
   protected render() {
     return html`
       <div class="max-h-screen relative">
-        ${this.renderControls()}
         <div>
           <div id="codemirror" class=${this.codeMirrorCSS}></div>
         </div>
       </div>
-    `
-  }
-
-  private renderControls() {
-    return html`
-      <div
-        class="flex flex-row items-center justify-between w-full bg-brand-white px-1 py-2"
-      >
-        <div>${this.renderFormatSelect()}</div>
-        <div>${this.renderLineWrapCheckbox()}</div>
+      <div hidden ${ref(this.domElement)}>
+        <stencila-article root></stencila-article>
       </div>
-    `
-  }
-
-  private renderFormatSelect() {
-    return html`
-      <label>
-        Format
-        <select
-          @change=${(e: Event) =>
-            (this.format = (e.target as HTMLSelectElement).value)}
-        >
-          ${Object.entries(FORMATS).map(
-            ([format, name]) =>
-              html`<option value=${format} ?selected=${this.format === format}>
-                ${name}
-              </option>`
-          )}
-        </select>
-      </label>
-    `
-  }
-
-  private renderLineWrapCheckbox() {
-    return html`
-      <label class="text-sm">
-        ${'Enable line wrapping'}
-        <input
-          type="checkbox"
-          class="ml-1"
-          ?checked="${this.lineWrap}"
-          @change="${(e: Event) =>
-            (this.lineWrap = (e.target as HTMLInputElement).checked)}"
-        />
-      </label>
     `
   }
 }

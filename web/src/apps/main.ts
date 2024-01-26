@@ -1,10 +1,12 @@
-import { LitElement, html } from 'lit'
+import { html } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
 
-import logo from '../images/stencilaIcon.svg'
+// import logo from '../images/stencilaIcon.svg'
 import { THEMES } from '../themes/themes'
-import { withTwind } from '../twind'
 import type { DocumentId, DocumentView } from '../types'
+import type { UISelectorSelectedEvent } from '../ui/selector'
+import '../ui/selector'
+import { TWLitElement } from '../ui/twind'
 import { VIEWS } from '../views/views'
 
 import '../views/static'
@@ -14,9 +16,9 @@ import '../views/source'
 import '../views/split'
 import '../views/visual'
 
-import '../ui/selector'
-
 import './main.css'
+
+import './shoelace'
 
 /**
  * Application Wrapper
@@ -25,8 +27,7 @@ import './main.css'
  * footer.
  */
 @customElement('stencila-main-app')
-@withTwind()
-export class App extends LitElement {
+export class App extends TWLitElement {
   /**
    * The id of the current document (if any)
    *
@@ -60,65 +61,42 @@ export class App extends LitElement {
   format: string = 'markdown'
 
   override render() {
-    return html`
-      <div class="font-sans">
+    return html`<div
+      class="font-sans flex flex-row bg-neutral-100 min-h-screen w-full"
+    >
+      <div>sidebar</div>
+      <div class="flex flex-col flex-grow">
         ${this.renderHeader()}
-        <div class="h-screen mt-14 flex flex-col">
-          <main
-            role="main"
-            class="flex-grow px-4 py-8 w-full justify-center flex flex-col"
-          >
-            <header class="container mx-auto">
-              <h1
-                class="text-xl text-bold leading-tight md:text-2xl lg:text-3xl xl:text-4xl"
-              >
-                Document name
-              </h1>
-            </header>
-
-            <nav class="container mx-auto mt-8 mb-4 sm:flex">
-              <div
-                class="flex-grow justify-start flex flex-col sm:flex-row sm:space-x-4"
-              >
-                ${this.renderViewSelect()} ${this.renderThemeSelect()}
-              </div>
-              ${this.renderPrintLink()}
-            </nav>
-
-            <div
-              class="bg-white border border-grays-mid container p-4 mx-auto shadow-[0_0_8px_rgba(0,0,0,.035)]"
-            >
-              ${this.doc ? this.renderView() : 'No document specified'}
-            </div>
-          </main>
-          ${this.renderFooter()}
-        </div>
+        <div class="bg-white h-full">editor</div>
       </div>
-    `
+    </div>`
   }
 
   private renderHeader() {
-    return html`<header
-      class="fixed w-full top-0 left-0 z-30 h-16 drop-shadow-[0_2px_0_#edf2f7] border-t-[3px] bg-white border-t-brand-blue p-4"
-    >
-      <nav class="container mx-auto flex justify-items-center">
-        <a href="/"
-          ><img src="${logo}" alt="Stencila logo" width="28" height="28"
-        /></a>
+    return html`<header class="w-full flex items-end h-20">
+      <nav class="flex bg-red-400 h-full w-full">
+        <div class="flex-grow flex items-end h-full">tabs</div>
+        <div class="flex-shrink-0 flex items-end">
+          <div
+            class="flex-grow justify-start flex flex-col sm:flex-row sm:space-x-4"
+          >
+            ${this.renderViewSelect()} ${this.renderThemeSelect()}
+          </div>
+        </div>
       </nav>
     </header>`
   }
 
   private renderViewSelect() {
-    const clickEvent = (e: Event) => {
-      this.view = (e.target as HTMLButtonElement).dataset[
-        'value'
-      ] as DocumentView
+    const clickEvent = (e: UISelectorSelectedEvent['detail']) => {
+      console.log(e)
+      this.view = e.item.value as DocumentView
     }
 
     return html` <stencila-ui-selector
       label="View"
       target=${this.view}
+      targetClass="view-selector"
       .list=${Object.entries(VIEWS)}
       .clickEvent=${clickEvent}
     >
@@ -126,13 +104,14 @@ export class App extends LitElement {
   }
 
   private renderThemeSelect() {
-    const clickEvent = (e: Event) => {
-      this.theme = (e.target as HTMLButtonElement).dataset['value']
+    const clickEvent = (e: UISelectorSelectedEvent['detail']) => {
+      this.theme = e.item.value
     }
 
     return html` <stencila-ui-selector
       label="Theme"
       target=${this.theme}
+      targetClass="theme-selector"
       .list=${Object.entries(THEMES)}
       .clickEvent=${clickEvent}
     >

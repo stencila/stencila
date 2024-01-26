@@ -10,6 +10,9 @@
   "description": "A heading.",
   "$comment": "Analogues of `Heading` in other schemas include:\n  - HTML [`<h1>` to `<h6>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/h1)\n  - JATS XML [`<title>`](https://jats.nlm.nih.gov/archiving/tag-library/1.1/element/title.html)\n  - Pandoc [`Header`](https://github.com/jgm/pandoc-types/blob/1.17.5.4/Text/Pandoc/Definition.hs#L233)\n",
   "proptest": {},
+  "dom": {
+    "derive": false
+  },
   "html": {
     "special": true
   },
@@ -94,9 +97,6 @@
           "strategy": "vec(Inline::arbitrary(), size_range(0..=8))"
         }
       },
-      "dom": {
-        "elem": "div"
-      },
       "type": "array",
       "items": {
         "$ref": "Inline.schema.json"
@@ -113,9 +113,6 @@
       ],
       "serde": {
         "deserializeWith": "option_one_or_many_string_or_object"
-      },
-      "dom": {
-        "elem": "div"
       },
       "type": "array",
       "items": {

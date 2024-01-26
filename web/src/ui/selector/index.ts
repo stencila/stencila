@@ -1,10 +1,15 @@
+import SlMenuItem from '@shoelace-style/shoelace/dist/components/menu-item/menu-item.component.js'
 import { apply, css } from '@twind/core'
 import { html } from 'lit'
-import { customElement, property, state } from 'lit/decorators.js'
-import { Ref, createRef, ref } from 'lit/directives/ref.js'
+import { customElement, property } from 'lit/decorators.js'
 
 import type { DocumentView } from '../../types'
 import { TWLitElement } from '../twind'
+
+/**
+ * Enhance the event type to include shoelace's event details.
+ */
+export type UISelectorSelectedEvent = Event & { detail: { item: SlMenuItem } }
 
 /**
  * UI selector
@@ -13,17 +18,6 @@ import { TWLitElement } from '../twind'
  */
 @customElement('stencila-ui-selector')
 export class UISelector extends TWLitElement {
-  /**
-   * Ref to allow us to close the details element when needed.
-   */
-  detailsRef: Ref<HTMLDetailsElement> = createRef()
-
-  /**
-   * Manages the open state of the open listbox
-   */
-  @state()
-  private open: boolean = false
-
   /**
    * Label displayed when listbox is not open
    */
@@ -40,7 +34,7 @@ export class UISelector extends TWLitElement {
    * Event to call when a list element is selected
    */
   @property()
-  clickEvent: (e: Event) => void | undefined
+  clickEvent: (e: UISelectorSelectedEvent['detail']) => void | undefined
 
   /**
    * Target property in parent component to evaluate
@@ -48,27 +42,44 @@ export class UISelector extends TWLitElement {
   @property()
   target: DocumentView | string
 
+  /**
+   * css identifier to allow querying of the element in order to add event
+   * handlers. THIS MUST BE UNIQUE.
+   */
+  @property()
+  targetClass: string | undefined
+
   override render() {
-    return html`
-      ${this.renderOverlay()}
-      <details
-        role="list"
-        class="group text-gray-aluminium p-0 relative block flex-grow open:text-brand-blue open:border-b-brand-blue open:z-50"
-        ${ref(this.detailsRef)}
-      >
-        ${this.renderSummary()} ${this.renderList()}
-      </details>
+    const styles = apply([
+      'group',
+      'text-gray-aluminium',
+      'p-0',
+      'relative',
+      'block',
+      'flex-grow',
+      'open:text-brand-blue',
+      'open:border-b-brand-blue',
+    ])
+
+    const classes = css`
+      &[open] ::part(caret) {
+        transform: rotate(180deg);
+      }
     `
+
+    return html`<sl-dropdown
+      class="${this.targetClass ?? ''} ${classes} ${styles}"
+    >
+      ${this.renderButton()} ${this.renderList()}
+    </sl-dropdown>`
   }
 
-  private renderSummary() {
+  private renderButton() {
     const styles = apply([
-      'text-base font-bold',
-      'leading-none',
-      'select-none',
-      'appearance-none ',
+      'text-base font-bold leading-none',
+      'appearance-none select-none',
       'min-w-fit',
-      'py-2 px-4',
+      'py-0 px-4',
       'bg-white',
       'border-b-4 border-b-transparent',
       'transition-all ease-in-out',
@@ -77,65 +88,40 @@ export class UISelector extends TWLitElement {
       'group-hover:text-brand-blue group-hover:border-b-brand-blue',
     ])
 
-    const hideMarker = css`
-      &::marker {
-        display: none;
-        font-size: 0;
+    const classes = css`
+      &::part(base) {
+        border: none;
+        padding: 0;
+        outline: none;
+
+        &:hover {
+          background: none;
+        }
+      }
+
+      &::part(label) {
+        padding-left: 0;
       }
     `
 
-    return html`<summary
-      aria-haspopup="listbox"
-      role="button"
-      class="${styles} ${hideMarker}"
-      @click=${this.setOpen}
-    >
-      <span class="mr-2">${this.label}</span>${this.renderCarat()}
-    </summary>`
-  }
-
-  private renderOverlay() {
-    return this.open
-      ? html`<div
-          class="w-screen h-screen fixed z-10 top-0 left-0"
-          @click=${this.toggleOverlay}
-          aria-hidden="true"
-        ></div>`
-      : null
-  }
-
-  private renderCarat() {
-    const styles = apply([
-      'inline-block',
-      'w-2',
-      'h-2',
-      '-mt-0.5',
-      'text-aluminium',
-      'transform',
-      'rotate-45',
-      'transition-all',
-      'group-open:rotate-[225deg] group-open:mt-1',
-    ])
-
-    return html`<span class=${styles} aria-hidden="true">
-      <i class="w-full h-full border-r-2 border-b-2 block"></i>
-    </span>`
+    return html`<sl-button slot="trigger" class="${styles} ${classes}" caret
+      >${this.label}</sl-button
+    >`
   }
 
   private renderList() {
     const styles = apply([
       'block',
-      'py-2',
       'rounded-b-md border-t-4 border-t-brand-blue',
       'shadow-[0_8px_8px_hsla(0,0%,4%,.1)]',
-      'absolute top-8',
       'flex flex-col',
       'bg-white',
+      '-mt-1',
     ])
 
-    return html`<ul role="listbox" class=${styles}>
+    return html`<sl-menu class="${styles}">
       ${this.list.map(([value, label]) => this.renderListItem(value, label))}
-    </ul>`
+    </sl-menu>`
   }
 
   private renderListItem(value: string, label: string) {
@@ -151,28 +137,30 @@ export class UISelector extends TWLitElement {
       'hover:bg-gray-wild-sand hover:text-black',
     ])
 
-    return html`<li class="block whitespace-nowrap">
-      <button
-        data-value="${value}"
-        class=${styles}
-        @click=${(e: Event) => {
-          this.toggleOverlay()
-          this.clickEvent && this.clickEvent(e)
-        }}
-      >
-        ${label}
-      </button>
-    </li>`
+    const classes = css`
+      &::part(checked-icon),
+      &::part(submenu-icon) {
+        display: none;
+      }
+
+      &::part(base) {
+        padding: 0;
+      }
+    `
+
+    return html`<sl-menu-item value="${value}" class="${styles} ${classes}"
+      >${label}</sl-menu-item
+    >`
   }
 
-  private setOpen() {
-    this.open = !this.open
-  }
+  override firstUpdated() {
+    const menu = this.renderRoot.querySelector(`.${this.targetClass}`)
 
-  private toggleOverlay() {
-    this.setOpen()
-    if (!this.open && this.detailsRef.value !== undefined) {
-      this.detailsRef.value.open = false
-    }
+    menu.addEventListener(
+      'sl-select',
+      ({ detail }: Event & { detail: { item: SlMenuItem } }) => {
+        this.clickEvent && this.clickEvent(detail)
+      }
+    )
   }
 }

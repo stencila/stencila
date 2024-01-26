@@ -77,7 +77,7 @@ export interface FormatOperation {
  * Uses offsets for the start and end positions (rather than absolute values) to reduce
  * the size of patches sent by the server to update the mapping.
  */
-interface MappingEntry {
+export interface MappingEntry {
   /**
    * The offset of the start this entry from the start of the previous entry
    */
@@ -91,12 +91,12 @@ interface MappingEntry {
   /**
    * The type of the node
    */
-  nodeType: string
+  nodeType: NodeType
 
   /**
    * The id of the node
    */
-  nodeId: string
+  nodeId: NodeId
 
   /**
    * The name of the node property, if applicable
@@ -252,15 +252,7 @@ export abstract class FormatClient extends Client {
    * Returns the first entry in the mapping which spans the position (i.e. the most
    * leafiest node in the node tree)
    */
-  public nodeAt(position: number):
-    | {
-        nodeType: NodeType
-        nodeId: NodeId
-        property?: string
-        start: number
-        end: number
-      }
-    | undefined {
+  public nodeAt(position: number): MappingEntry | undefined {
     let start = 0
     let end = 0
     for (const entry of this.mapping) {
@@ -276,6 +268,8 @@ export abstract class FormatClient extends Client {
         }
       }
     }
+
+    return undefined
   }
 
   /**
@@ -285,7 +279,7 @@ export abstract class FormatClient extends Client {
    * The first node in the list is the leafiest node, the last is the
    * root node (an `Article`, or possibly some other `CreativeWork` in the future).
    */
-  public nodesAt(position: number): NodeId[] {
+  public nodesAt(position: number): MappingEntry[] {
     let start = 0
     let end = 0
     const nodes = []
@@ -293,8 +287,8 @@ export abstract class FormatClient extends Client {
       start += entry.start
       end += entry.end
       if (position >= start && position < end) {
-        if (!nodes.includes(entry.nodeId)) {
-          nodes.push(entry.nodeId)
+        if (!nodes.find((existing) => existing.nodeId === entry.nodeId)) {
+          nodes.push(entry)
         }
       }
     }

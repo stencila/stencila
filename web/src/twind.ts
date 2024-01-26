@@ -1,7 +1,9 @@
 import { defineConfig } from '@twind/core'
 import presetAutoprefix from '@twind/preset-autoprefix'
 import presetTailwind from '@twind/preset-tailwind/base'
+import theme from '@twind/preset-tailwind/defaultTheme'
 import install from '@twind/with-web-components'
+
 /**
  * The configuration for `twind` Tailwind-in-JS
  *
@@ -15,11 +17,13 @@ export const config = defineConfig({
   presets: [presetAutoprefix(), presetTailwind()],
 
   theme: {
+    ...theme,
     extend: {
       fontFamily: {
         sans: ['Lato', 'Montserrat'],
       },
       colors: {
+        white: '#fff',
         brand: {
           blue: '#2568ef',
           green: '#66ff66',

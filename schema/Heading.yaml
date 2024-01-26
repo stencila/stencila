@@ -8,6 +8,8 @@ $comment: |
     - HTML [`<h1>` to `<h6>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/h1)
     - JATS XML [`<title>`](https://jats.nlm.nih.gov/archiving/tag-library/1.1/element/title.html)
     - Pandoc [`Header`](https://github.com/jgm/pandoc-types/blob/1.17.5.4/Text/Pandoc/Definition.hs#L233)
+dom:
+  derive: false
 jats:
   elem: title
   special: true
@@ -46,8 +48,6 @@ properties:
     type: array
     items:
       $ref: Inline
-    dom:
-      elem: div
     proptest:
       min:
         description: Generate a single arbitrary inline node
@@ -70,5 +70,3 @@ properties:
     strip: [metadata]
     serde:
       deserializeWith: option_one_or_many_string_or_object
-    dom:
-      elem: div
