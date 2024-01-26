@@ -13,15 +13,14 @@ use kernel::{
         },
         tracing,
     },
-    schema::{ExecutionError, Node},
+    schema::{ExecutionError, Node, Variable},
 };
 use which::which;
 
 // Re-exports for the convenience of internal crates implementing
 // the `Microkernel` trait
 pub use kernel::{
-    common, format, schema, Kernel, KernelAvailability, KernelEvaluation, KernelForking,
-    KernelInstance, KernelStatus,
+    common, format, schema, Kernel, KernelAvailability, KernelForking, KernelInstance, KernelStatus,
 };
 
 /// A specification for a minimal, lightweight execution kernel in a spawned process
@@ -176,14 +175,20 @@ enum MicrokernelErrors {
 enum MicrokernelFlag {
     /// Sent by the microkernel instance to signal it is ready for a task
     Ready,
+    /// Sent by Rust to signal a newline (`\n`) within the code of a task
+    Line,
     /// Sent by Rust to signal the start of an `execute` task
     Exec,
     /// Sent by Rust to signal the start of an `evaluation` task
     Eval,
     /// Sent by Rust to signal the start of a `fork` task
     Fork,
-    /// Sent by Rust to signal a newline (`\n`) within the code of a task
-    Line,
+    /// Sent by Rust to signal the start of a `list` task
+    List,
+    /// Sent by Rust to signal the start of a `get` task
+    Get,
+    /// Sent by Rust to signal the start of a `set` task
+    Set,
     /// Sent by the microkernel instance to signal the end of an output or message
     End,
 }
@@ -197,10 +202,13 @@ impl MicrokernelFlag {
         use MicrokernelFlag::*;
         match self {
             Ready => "\u{10ACDC}",
+            Line => "\u{10ABBA}",
             Exec => "\u{10B522}",
             Eval => "\u{1010CC}",
             Fork => "\u{10DE70}",
-            Line => "\u{10ABBA}",
+            List => "\u{10C155}",
+            Get => "\u{10A51A}",
+            Set => "\u{107070}",
             End => "\u{10CB40}",
         }
     }
@@ -265,6 +273,65 @@ impl KernelInstance for MicrokernelInstance {
     async fn execute(&mut self, code: &str) -> Result<(Vec<Node>, Vec<ExecutionError>)> {
         self.send_receive(MicrokernelFlag::Exec, code).await
     }
+
+    async fn evaluate(&mut self, code: &str) -> Result<(Vec<Node>, Vec<ExecutionError>)> {
+        self.send_receive(MicrokernelFlag::Eval, code).await
+    }
+
+    async fn fork(&mut self, _code: &str) -> Result<(Vec<Node>, Vec<ExecutionError>)> {
+        bail!("Not yet implemented")
+    }
+
+    async fn list(&mut self) -> Result<Vec<Variable>> {
+        let (nodes, messages) = self.send_receive(MicrokernelFlag::List, "").await?;
+
+        if !messages.is_empty() {
+            bail!(
+                "While listing variables in microkernel `{}`: {}",
+                self.id(),
+                messages.iter().map(|message| message.to_string()).join("")
+            )
+        }
+
+        nodes
+            .into_iter()
+            .map(|node| match node {
+                Node::Variable(var) => Ok(var),
+                _ => bail!("Expected `Variable`s got `{}`", node.to_string()),
+            })
+            .collect::<Result<Vec<_>>>()
+    }
+
+    async fn get(&mut self, name: &str) -> Result<Option<Node>> {
+        let (mut nodes, messages) = self.send_receive(MicrokernelFlag::Get, name).await?;
+
+        if !messages.is_empty() {
+            bail!(
+                "While getting variable `{name}` in microkernel `{}`: {}",
+                self.id(),
+                messages.iter().map(|message| message.to_string()).join("")
+            )
+        }
+
+        let node = if nodes.is_empty() {
+            None
+        } else {
+            Some(nodes.swap_remove(0))
+        };
+
+        Ok(node)
+    }
+
+    async fn set(&mut self, name: &str, value: &Node) -> Result<()> {
+        let parts = &[
+            name,
+            MicrokernelFlag::Line.as_unicode(),
+            &serde_json::to_string(value)?,
+        ]
+        .concat();
+
+        self.send(MicrokernelFlag::Set, parts).await
+    }
 }
 
 impl MicrokernelInstance {
@@ -274,14 +341,14 @@ impl MicrokernelInstance {
         flag: MicrokernelFlag,
         code: &str,
     ) -> Result<(Vec<Node>, Vec<ExecutionError>)> {
-        self.send_task(flag, code).await?;
-        self.receive_result().await
+        self.send(flag, code).await?;
+        self.receive().await
     }
 
     /// Send a task to this microkernel instance
-    async fn send_task(&mut self, flag: MicrokernelFlag, code: &str) -> Result<()> {
+    async fn send(&mut self, flag: MicrokernelFlag, code: &str) -> Result<()> {
         let Some(input) = self.input.as_mut() else {
-            bail!("Microkernel has not been started yet!");
+            bail!("Microkernel `{}` has not been started yet!", self.id());
         };
 
         match input {
@@ -291,7 +358,7 @@ impl MicrokernelInstance {
     }
 
     /// Receive outputs and messages from this microkernel instance
-    async fn receive_result(&mut self) -> Result<(Vec<Node>, Vec<ExecutionError>)> {
+    async fn receive(&mut self) -> Result<(Vec<Node>, Vec<ExecutionError>)> {
         let (Some(output),Some(errors)) = (self.output.as_mut(),self.errors.as_mut()) else {
             bail!("Microkernel has not been started yet!");
         };
@@ -375,7 +442,7 @@ async fn receive_results<R1: AsyncBufRead + Unpin, R2: AsyncBufRead + Unpin>(
             }
         };
 
-        println!("Received on output stream: {}", &line);
+        //tracing::trace!("Received on output stream: {}", &line);
         if !handle_line(&line, &mut item, &mut items) {
             break;
         }
@@ -404,7 +471,7 @@ async fn receive_results<R1: AsyncBufRead + Unpin, R2: AsyncBufRead + Unpin>(
             }
         };
 
-        println!("Received on message stream: {}", &line);
+        //tracing::trace!("Received on message stream: {}", &line);
         if !handle_line(&line, &mut item, &mut items) {
             break;
         }

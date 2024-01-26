@@ -1,10 +1,6 @@
-use std::{path::Path, sync::Arc};
+use std::path::Path;
 
-use common::{
-    async_trait::async_trait,
-    eyre::{bail, Result},
-    strum::Display,
-};
+use common::{async_trait::async_trait, eyre::Result, strum::Display};
 use format::Format;
 
 // Re-exports for the convenience of internal crates implementing
@@ -12,7 +8,7 @@ use format::Format;
 pub use common;
 pub use format;
 pub use schema;
-use schema::{ExecutionError, Node};
+use schema::{ExecutionError, Node, Variable};
 
 /// A kernel for executing code in some language
 ///
@@ -35,9 +31,6 @@ pub trait Kernel: Sync + Send {
     /// Get the languages supported by the kernel
     fn supports_languages(&self) -> Vec<Format>;
 
-    /// Does the kernel support evaluation of code expression with no side effects possible?
-    fn supports_evaluation(&self) -> KernelEvaluation;
-
     /// Does the kernel support forking?
     fn supports_forking(&self) -> KernelForking;
 
@@ -55,16 +48,6 @@ pub enum KernelAvailability {
     Installable,
     /// Not available on this machine
     Unavailable,
-}
-
-/// Whether a kernel supports evaluation of code expressions without side effects
-#[derive(Display)]
-#[strum(serialize_all = "lowercase")]
-pub enum KernelEvaluation {
-    /// Kernel supports evaluation of code expressions
-    Yes,
-    /// Kernel does not support evaluation of code expressions
-    No,
 }
 
 /// Whether a kernel supports forking on the current machine
@@ -100,23 +83,23 @@ pub trait KernelInstance: Sync + Send {
     /// Stop the kernel
     async fn stop(&mut self) -> Result<()>;
 
-    /// Execute some code, possibly with side effects, in the kernel
+    /// Execute some code, possibly with side effects, in the kernel instance
     async fn execute(&mut self, code: &str) -> Result<(Vec<Node>, Vec<ExecutionError>)>;
 
-    /// Evaluate a code expression, without side effects, in the kernel
-    #[allow(unused)]
-    async fn evaluate(&mut self, code: &str) -> Result<(Vec<Node>, Vec<ExecutionError>)> {
-        bail!(
-            "Kernel `{id}` does not support evaluation of code",
-            id = self.id()
-        )
-    }
+    /// Evaluate a code expression, without side effects, in the kernel instance
+    async fn evaluate(&mut self, code: &str) -> Result<(Vec<Node>, Vec<ExecutionError>)>;
 
-    /// Execute some code in a fork of the kernel
-    #[allow(unused)]
-    async fn fork(&mut self, code: &str) -> Result<(Vec<Node>, Vec<ExecutionError>)> {
-        bail!("Kernel `{id}` does not support forking", id = self.id());
-    }
+    /// Execute some code in a fork of the kernel instance
+    async fn fork(&mut self, code: &str) -> Result<(Vec<Node>, Vec<ExecutionError>)>;
+
+    /// Get a list of variables in the kernel instance
+    async fn list(&mut self) -> Result<Vec<Variable>>;
+
+    /// Get a variable from the kernel instance
+    async fn get(&mut self, name: &str) -> Result<Option<Node>>;
+
+    /// Set a variable in the kernel instance
+    async fn set(&mut self, name: &str, value: &Node) -> Result<()>;
 }
 
 /// The status of a kernel instance
