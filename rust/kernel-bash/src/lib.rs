@@ -40,6 +40,8 @@ impl Microkernel for BashKernel {
 
 #[cfg(test)]
 mod tests {
+    use std::env;
+
     use kernel_micro::{
         common::{eyre::bail, tokio},
         schema::{Array, Node, Object, Paragraph, Primitive},
@@ -62,7 +64,7 @@ mod tests {
 
     /// Test execute tasks that just generate outputs of different types
     #[tokio::test]
-    async fn outputs() -> Result<()> {
+    async fn execute_outputs() -> Result<()> {
         let Some(mut kernel) = bash_kernel().await? else {
             return Ok(())
         };
@@ -117,7 +119,7 @@ mod tests {
 
     /// Test execute tasks that set and use state within the kernel
     #[tokio::test]
-    async fn state() -> Result<()> {
+    async fn execute_state() -> Result<()> {
         let Some(mut kernel) = bash_kernel().await? else {
             return Ok(())
         };
@@ -142,9 +144,49 @@ mod tests {
                 return Ok(())
             };
 
-        let (outputs, messages) = kernel.evaluate("1 + 3").await?;
+        let (outputs, messages) = kernel.evaluate("1 + 2").await?;
         assert_eq!(messages, vec![]);
-        assert_eq!(outputs, vec![Node::Integer(4)]);
+        assert_eq!(outputs, vec![Node::Integer(3)]);
+
+        Ok(())
+    }
+
+    /// Test list, set and get tasks
+    #[tokio::test]
+    async fn vars() -> Result<()> {
+        let Some(mut kernel) = bash_kernel().await? else {
+                return Ok(())
+            };
+
+        // List existing env vars
+        let initial = kernel.list().await?;
+        assert_eq!(
+            initial
+                .iter()
+                .filter(|var| var.name == "PATH" && var.kind.as_deref() == Some("String"))
+                .count(),
+            1
+        );
+
+        // Get a var
+        assert_eq!(
+            kernel.get("PATH").await?,
+            env::var("PATH").ok().map(Node::String)
+        );
+
+        // Set a var
+        let var_name = "MYVAR";
+        let var_val = Node::String("VAL".to_string());
+        kernel.set(var_name, &var_val).await?;
+        assert_eq!(kernel.list().await?.len(), initial.len() + 1);
+
+        // Get the var
+        assert_eq!(kernel.get(var_name).await?, Some(var_val));
+
+        // Remove the var
+        kernel.remove(var_name).await?;
+        assert_eq!(kernel.get(var_name).await?, None);
+        assert_eq!(kernel.list().await?.len(), initial.len());
 
         Ok(())
     }

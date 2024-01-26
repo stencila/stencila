@@ -189,6 +189,8 @@ enum MicrokernelFlag {
     Get,
     /// Sent by Rust to signal the start of a `set` task
     Set,
+    /// Sent by Rust to signal the start of a `remove` task
+    Remove,
     /// Sent by the microkernel instance to signal the end of an output or message
     End,
 }
@@ -209,6 +211,7 @@ impl MicrokernelFlag {
             List => "\u{10C155}",
             Get => "\u{10A51A}",
             Set => "\u{107070}",
+            Remove => "\u{10C41C}",
             End => "\u{10CB40}",
         }
     }
@@ -289,7 +292,10 @@ impl KernelInstance for MicrokernelInstance {
             bail!(
                 "While listing variables in microkernel `{}`: {}",
                 self.id(),
-                messages.iter().map(|message| message.to_string()).join("")
+                messages
+                    .into_iter()
+                    .map(|message| message.error_message)
+                    .join("")
             )
         }
 
@@ -309,7 +315,10 @@ impl KernelInstance for MicrokernelInstance {
             bail!(
                 "While getting variable `{name}` in microkernel `{}`: {}",
                 self.id(),
-                messages.iter().map(|message| message.to_string()).join("")
+                messages
+                    .into_iter()
+                    .map(|message| message.error_message)
+                    .join("")
             )
         }
 
@@ -330,7 +339,15 @@ impl KernelInstance for MicrokernelInstance {
         ]
         .concat();
 
-        self.send(MicrokernelFlag::Set, parts).await
+        self.send_receive(MicrokernelFlag::Set, parts).await?;
+
+        Ok(())
+    }
+
+    async fn remove(&mut self, name: &str) -> Result<()> {
+        self.send_receive(MicrokernelFlag::Remove, name).await?;
+
+        Ok(())
     }
 }
 

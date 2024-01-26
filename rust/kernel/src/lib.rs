@@ -100,6 +100,9 @@ pub trait KernelInstance: Sync + Send {
 
     /// Set a variable in the kernel instance
     async fn set(&mut self, name: &str, value: &Node) -> Result<()>;
+
+    /// Remove a variable from the kernel instance
+    async fn remove(&mut self, name: &str) -> Result<()>;
 }
 
 /// The status of a kernel instance
