@@ -8,6 +8,7 @@ use kernel::{
         eyre::{bail, OptionExt, Result},
         itertools::Itertools,
         serde_json,
+        strum::Display,
         tokio::{
             self,
             fs::File,
@@ -23,8 +24,8 @@ use kernel::{
 // Re-exports for the convenience of internal crates implementing
 // the `Microkernel` trait
 pub use kernel::{
-    common, format, schema, Kernel, KernelAvailability, KernelForking, KernelInstance,
-    KernelInterrupting, KernelSignal, KernelStatus,
+    common, format, schema, Kernel, KernelAvailability, KernelForks, KernelInstance,
+    KernelInterrupt, KernelKill, KernelSignal, KernelStatus,
 };
 
 /// A specification for a minimal, lightweight execution kernel in a spawned process
@@ -72,17 +73,26 @@ pub trait Microkernel: Sync + Send + Kernel {
         }
     }
 
-    /// An implementation of `Kernel::supports_interrupting` for microkernels
-    fn microkernel_interrupting(&self) -> KernelInterrupting {
-        if cfg!(target_os = "windows") {
-            KernelInterrupting::No
+    /// An implementation of `Kernel::supports_interrupt` for microkernels
+    fn microkernel_supports_interrupt(&self) -> KernelInterrupt {
+        if cfg!(unix) {
+            KernelInterrupt::Yes
         } else {
-            KernelInterrupting::Yes
+            KernelInterrupt::No
+        }
+    }
+
+    /// An implementation of `Kernel::supports_kill` for microkernels
+    fn microkernel_supports_kill(&self) -> KernelKill {
+        if cfg!(unix) {
+            KernelKill::Yes
+        } else {
+            KernelKill::No
         }
     }
 
     /// An implementation of `Kernel::create_instance` for microkernels
-    fn microkernel_instance(&self) -> Result<MicrokernelInstance> {
+    fn microkernel_create_instance(&self) -> Result<Box<dyn KernelInstance>> {
         // Assign an id
         let id = self.id(); // TODO make this unique
 
@@ -126,11 +136,11 @@ pub trait Microkernel: Sync + Send + Kernel {
         tokio::spawn(async move {
             while status_receiver.changed().await.is_ok() {
                 let status = *status_receiver.borrow_and_update();
-                tracing::trace!("Status of microkernel `{id_clone}` changed: {status}")
+                tracing::trace!("Status of `{id_clone}` kernel changed: {status}")
             }
         });
 
-        Ok(MicrokernelInstance {
+        Ok(Box::new(MicrokernelInstance {
             id,
             command,
             status,
@@ -141,7 +151,7 @@ pub trait Microkernel: Sync + Send + Kernel {
             input: None,
             output: None,
             errors: None,
-        })
+        }))
     }
 }
 
@@ -208,6 +218,9 @@ enum MicrokernelErrors {
     File(BufReader<File>),
 }
 
+/// A Unicode flag used within messages sent and received to/from microkernels
+#[derive(Display)]
+#[strum(serialize_all = "UPPERCASE")]
 enum MicrokernelFlag {
     /// Sent by the microkernel instance to signal it is ready for a task
     Ready,
@@ -260,7 +273,7 @@ impl KernelInstance for MicrokernelInstance {
     }
 
     async fn status(&self) -> Result<KernelStatus> {
-        Ok(self.status)
+        self.get_status()
     }
 
     fn watcher(&self) -> Result<watch::Receiver<KernelStatus>> {
@@ -309,9 +322,10 @@ impl KernelInstance for MicrokernelInstance {
 
         // Create channel and task for interrupting or killing the microkernel process
         let (signal_sender, mut signal_receiver) = mpsc::channel(1);
+        let id_clone = self.id.clone();
         tokio::spawn(async move {
             while let Some(signal) = signal_receiver.recv().await {
-                #[cfg(not(target_os = "windows"))]
+                #[cfg(unix)]
                 {
                     use nix::{
                         sys::signal::{self, Signal},
@@ -323,10 +337,15 @@ impl KernelInstance for MicrokernelInstance {
                         KernelSignal::Kill => ("kill", Signal::SIGKILL),
                     };
 
-                    tracing::debug!("Sending {name} signal to microkernel with pid `{pid}`");
+                    tracing::debug!("Sending {name} signal to `{id_clone}` kernel");
                     if let Err(error) = signal::kill(Pid::from_raw(pid as i32), sig) {
-                        tracing::warn!("While {name}ing microkernel with pid `{pid}`: {error}",)
+                        tracing::warn!("Error while {name}ing `{id_clone}` kernel: {error}")
                     }
+                }
+
+                #[cfg(windows)]
+                {
+                    tracing::error!("Signals not yet supported on Windows",)
                 }
             }
         });
@@ -431,6 +450,51 @@ impl KernelInstance for MicrokernelInstance {
 }
 
 impl MicrokernelInstance {
+    /// Get the status of the microkernel instance
+    ///
+    /// Will query the child process to check it is still alive and if
+    /// not its exit code
+    fn get_status(&self) -> Result<KernelStatus> {
+        if matches!(
+            self.status,
+            KernelStatus::Pending | KernelStatus::Stopping | KernelStatus::Stopped
+        ) {
+            return Ok(self.status);
+        }
+
+        #[cfg(unix)]
+        {
+            use nix::{
+                sys::{
+                    signal,
+                    wait::{waitpid, WaitPidFlag, WaitStatus},
+                },
+                unistd::Pid,
+            };
+
+            let pid = Pid::from_raw(self.pid as i32);
+            match signal::kill(pid, None) {
+                Ok(..) => match waitpid(pid, Some(WaitPidFlag::WNOHANG))? {
+                    WaitStatus::StillAlive => Ok(self.status),
+                    WaitStatus::Exited(.., code) => {
+                        if code == 0 {
+                            Ok(KernelStatus::Stopped)
+                        } else {
+                            Ok(KernelStatus::Failed)
+                        }
+                    }
+                    _ => Ok(KernelStatus::Failed),
+                },
+                Err(..) => Ok(KernelStatus::Failed),
+            }
+        }
+
+        #[cfg(windows)]
+        {
+            OK(self.status)
+        }
+    }
+
     /// Set the status of the microkernel instance and notify watchers
     fn set_status(&mut self, status: KernelStatus) -> Result<()> {
         self.status = status;
@@ -523,7 +587,7 @@ async fn send_task<W: AsyncWrite + Unpin>(
     ]
     .concat();
 
-    tracing::trace!("Sending task on writer");
+    tracing::trace!("Sending {flag} task to microkernel");
     if let Err(error) = input_stream.write_all(task.as_bytes()).await {
         bail!("When writing code to kernel: {error}")
     }
@@ -539,6 +603,8 @@ async fn receive_results<R1: AsyncBufRead + Unpin, R2: AsyncBufRead + Unpin>(
     output_stream: &mut R1,
     message_stream: &mut R2,
 ) -> Result<(Vec<Node>, Vec<ExecutionError>)> {
+    tracing::trace!("Receiving results from microkernel");
+
     // Collect separate output strings
     let mut item = String::new();
     let mut items = Vec::new();

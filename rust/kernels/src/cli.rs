@@ -5,7 +5,7 @@ use kernel::{
         eyre::Result,
         itertools::Itertools,
     },
-    KernelAvailability, KernelForking,
+    KernelAvailability, KernelForks, KernelInterrupt, KernelKill,
 };
 
 use crate::list;
@@ -31,12 +31,26 @@ impl Cli {
         match self.command.unwrap_or_default() {
             Command::List => {
                 let mut table = table::new();
-                table.set_header(["Id", "Availability", "Languages", "Forking"]);
+                table.set_header([
+                    "Id",
+                    "Availability",
+                    "Languages",
+                    "Interrupt",
+                    "Kill",
+                    "Fork",
+                ]);
                 for kernel in list().await {
                     use KernelAvailability::*;
 
                     let availability = kernel.availability();
-                    let forking = kernel.supports_forking();
+                    let langs = kernel
+                        .supports_languages()
+                        .iter()
+                        .map(|format| format.name())
+                        .join(", ");
+                    let interrupt = kernel.supports_interrupt();
+                    let kill = kernel.supports_kill();
+                    let forks = kernel.supports_forks();
 
                     table.add_row([
                         Cell::new(kernel.id()).add_attribute(Attribute::Bold),
@@ -45,16 +59,18 @@ impl Cli {
                             Installable => Cell::new(availability).fg(Color::DarkYellow),
                             Unavailable => Cell::new(availability).fg(Color::Grey),
                         },
-                        Cell::new(
-                            kernel
-                                .supports_languages()
-                                .iter()
-                                .map(|format| format.name())
-                                .join(", "),
-                        ),
-                        match forking {
-                            KernelForking::Yes => Cell::new(forking).fg(Color::Green),
-                            KernelForking::No => Cell::new(forking).fg(Color::DarkGrey),
+                        Cell::new(langs),
+                        match interrupt {
+                            KernelInterrupt::Yes => Cell::new(interrupt).fg(Color::Green),
+                            KernelInterrupt::No => Cell::new(interrupt).fg(Color::DarkGrey),
+                        },
+                        match kill {
+                            KernelKill::Yes => Cell::new(kill).fg(Color::Green),
+                            KernelKill::No => Cell::new(kill).fg(Color::DarkGrey),
+                        },
+                        match forks {
+                            KernelForks::Yes => Cell::new(forks).fg(Color::Green),
+                            KernelForks::No => Cell::new(forks).fg(Color::DarkGrey),
                         },
                     ]);
                 }

@@ -1,6 +1,6 @@
 use kernel_micro::{
-    common::eyre::Result, format::Format, Kernel, KernelAvailability, KernelForking,
-    KernelInstance, KernelInterrupting, Microkernel,
+    common::eyre::Result, format::Format, Kernel, KernelAvailability, KernelForks, KernelInstance,
+    KernelInterrupt, KernelKill, Microkernel,
 };
 
 /// A kernel for executing Bash code locally
@@ -12,23 +12,31 @@ impl Kernel for BashKernel {
     }
 
     fn availability(&self) -> KernelAvailability {
-        Microkernel::microkernel_availability(self)
+        self.microkernel_availability()
     }
 
     fn supports_languages(&self) -> Vec<Format> {
         vec![Format::Bash, Format::Shell]
     }
 
-    fn supports_interrupting(&self) -> KernelInterrupting {
-        Microkernel::microkernel_interrupting(self)
+    fn supports_interrupt(&self) -> KernelInterrupt {
+        // I tried in vain to implement interrupt in kernel.bash. In theory this should work but it didn't:
+        // - set a trap to kill the most recently background task: `trap 'kill -SIGTERM $!' SIGINT`
+        // - background EXEC and EVAL tasks: using `&` at the end of the line
+        // - wait for those tasks: using `wait $!` on the following line
+        KernelInterrupt::No
     }
 
-    fn supports_forking(&self) -> KernelForking {
-        KernelForking::No
+    fn supports_kill(&self) -> KernelKill {
+        self.microkernel_supports_kill()
+    }
+
+    fn supports_forks(&self) -> KernelForks {
+        KernelForks::No
     }
 
     fn create_instance(&self) -> Result<Box<dyn KernelInstance>> {
-        Ok(Box::new(Microkernel::microkernel_instance(self)?))
+        self.microkernel_create_instance()
     }
 }
 
@@ -48,8 +56,9 @@ mod tests {
 
     use kernel_micro::{
         common::{
-            eyre::bail,
+            eyre::{bail, Report},
             tokio::{self, sync::mpsc},
+            tracing,
         },
         schema::{Array, Node, Object, Paragraph, Primitive},
         KernelSignal, KernelStatus,
@@ -71,7 +80,7 @@ mod tests {
     }
 
     /// Test watching status and sending signals
-    /// 
+    ///
     /// Pro-tip! Use this to get logs for this test:
     ///
     /// ```sh
@@ -91,21 +100,26 @@ mod tests {
         assert_eq!(*watcher.borrow_and_update(), KernelStatus::Ready);
 
         // Move the kernel into a task so we can asynchronously do things in it
+        // The "step" channel helps coordinate with this thread
         let (step_sender, mut step_receiver) = mpsc::channel::<u8>(1);
         let task = tokio::spawn(async move {
+            // Short sleep
             step_receiver.recv().await;
-            kernel.execute("sleep 1").await?;
+            kernel.execute("sleep 0.5").await?;
+            let status = kernel.status().await?;
+            if status != KernelStatus::Ready {
+                tracing::error!("Unexpected status: {status}")
+            }
 
-            step_receiver.recv().await;
-            kernel.execute("sleep 100; exit 1").await?;
-
+            // Sleep with kill
             step_receiver.recv().await;
             kernel.execute("sleep 100").await?;
+            let status = kernel.status().await?;
+            if status != KernelStatus::Failed {
+                tracing::error!("Unexpected status: {status}")
+            }
 
-            step_receiver.recv().await;
-            kernel.stop().await?;
-
-            kernel.status().await
+            Ok::<KernelStatus, Report>(status)
         });
 
         {
@@ -122,34 +136,17 @@ mod tests {
         {
             step_sender.send(2).await?;
 
-            // Should be busy during second sleep
-            watcher.changed().await?;
-            assert_eq!(*watcher.borrow_and_update(), KernelStatus::Busy);
-
-            // Signal interrupt of second sleep
-            signaller.send(KernelSignal::Interrupt).await?;
-
-            // Should be ready after second sleep interrupted
-            watcher.changed().await?;
-            assert_eq!(*watcher.borrow_and_update(), KernelStatus::Ready);
-        }
-        {
-            step_sender.send(3).await?;
-
             // Should be busy during third sleep
             watcher.changed().await?;
-            // TODO: work out why this `Ready` and not `Busy`
-            assert_eq!(*watcher.borrow_and_update(), KernelStatus::Ready);
+            assert_eq!(*watcher.borrow_and_update(), KernelStatus::Busy);
 
             // Kill during third sleep (if this fails then the test would keep running for 100 seconds)
             signaller.send(KernelSignal::Kill).await?;
         }
 
-        step_sender.send(4).await?;
-
         // Should have finished the task with correct status
         let status = task.await??;
-        assert_eq!(status, KernelStatus::Stopped);
+        assert_eq!(status, KernelStatus::Failed);
 
         Ok(())
     }
@@ -221,8 +218,8 @@ mod tests {
         assert_eq!(messages, vec![]);
         assert_eq!(outputs, vec![]);
 
-        // Use the variables
-        let (outputs, messages) = kernel.execute("echo $((a + b))").await?;
+        // Evaluate an expression
+        let (outputs, messages) = kernel.evaluate("a + b").await?;
         assert_eq!(messages, vec![]);
         assert_eq!(outputs, vec![Node::Integer(3)]);
 

@@ -36,11 +36,14 @@ pub trait Kernel: Sync + Send {
     /// Get the languages supported by the kernel
     fn supports_languages(&self) -> Vec<Format>;
 
-    /// Does the kernel support interrupting?
-    fn supports_interrupting(&self) -> KernelInterrupting;
+    /// Does the kernel support the interrupt signal?
+    fn supports_interrupt(&self) -> KernelInterrupt;
+
+    /// Does the kernel support the kill signal?
+    fn supports_kill(&self) -> KernelKill;
 
     /// Does the kernel support forking?
-    fn supports_forking(&self) -> KernelForking;
+    fn supports_forks(&self) -> KernelForks;
 
     /// Create a new instance of the kernel
     fn create_instance(&self) -> Result<Box<dyn KernelInstance>>;
@@ -58,20 +61,30 @@ pub enum KernelAvailability {
     Unavailable,
 }
 
-/// Whether a kernel supports interrupting on the current machine
+/// Whether a kernel supports interrupt signal on the current machine
 #[derive(Display)]
 #[strum(serialize_all = "lowercase")]
-pub enum KernelInterrupting {
-    /// Kernel support interrupting on this machine
+pub enum KernelInterrupt {
+    /// Kernel support interrupt signal on this machine
     Yes,
-    /// Kernel does not support interrupting on this machine
+    /// Kernel does not support interrupt signal on this machine
+    No,
+}
+
+/// Whether a kernel supports kill signal on the current machine
+#[derive(Display)]
+#[strum(serialize_all = "lowercase")]
+pub enum KernelKill {
+    /// Kernel support kill signal on this machine
+    Yes,
+    /// Kernel does not support kill signal on this machine
     No,
 }
 
 /// Whether a kernel supports forking on the current machine
 #[derive(Display)]
 #[strum(serialize_all = "lowercase")]
-pub enum KernelForking {
+pub enum KernelForks {
     /// Kernel supports forking on this machine
     Yes,
     /// Kernel does not support forking on this machine
