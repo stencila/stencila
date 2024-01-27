@@ -2539,12 +2539,21 @@ dependencies = [
 ]
 
 [[package]]
+name = "kernel-node"
+version = "0.0.0"
+dependencies = [
+ "kernel-micro",
+ "test-log",
+]
+
+[[package]]
 name = "kernels"
 version = "0.0.0"
 dependencies = [
  "cli-utils",
  "kernel",
  "kernel-bash",
+ "kernel-node",
 ]
 
 [[package]]

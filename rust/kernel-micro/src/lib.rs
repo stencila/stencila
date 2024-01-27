@@ -593,7 +593,7 @@ async fn send_task<W: AsyncWrite + Unpin>(
         bail!("When writing code to kernel: {error}")
     }
     if let Err(error) = input_stream.flush().await {
-        tracing::debug!("When flushing code to kernel: {error}")
+        bail!("When flushing code to kernel: {error}")
     }
 
     Ok(())

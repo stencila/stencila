@@ -1,0 +1,10 @@
+[package]
+name = "kernel-node"
+version = "0.0.0"
+edition = "2021"
+
+[dependencies]
+kernel-micro = { path = "../kernel-micro" }
+
+[dev-dependencies]
+test-log = { version = "0.2.14", default-features = false, features = ["trace"] }
