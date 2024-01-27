@@ -15,8 +15,11 @@
   ],
   "core": [
     "id",
-    "kind",
-    "value"
+    "programmingLanguage",
+    "nativeType",
+    "nodeType",
+    "value",
+    "valueHint"
   ],
   "properties": {
     "type": {
@@ -44,14 +47,46 @@
       "type": "string",
       "pattern": "[a-zA-Z][a-zA-Z0-9_]*"
     },
-    "kind": {
-      "@id": "stencila:kind",
-      "description": "The expected type of variable e.g. `Number`, `Timestamp`, `Datatable`",
+    "programmingLanguage": {
+      "@id": "schema:programmingLanguage",
+      "description": "The programming language that the variable is defined in e.g. Python, JSON.",
+      "aliases": [
+        "programming-language",
+        "programming_language"
+      ],
+      "type": "string"
+    },
+    "nativeType": {
+      "@id": "stencila:nativeType",
+      "description": "The native type of the variable e.g. `float`, `datetime.datetime`, `pandas.DataFrame`",
+      "aliases": [
+        "native-type",
+        "native_type"
+      ],
+      "type": "string"
+    },
+    "nodeType": {
+      "@id": "stencila:nodeType",
+      "description": "The Stencila node type of the variable e.g. `Number`, `DateTime`, `Datatable`.",
+      "aliases": [
+        "node-type",
+        "node_type"
+      ],
       "type": "string"
     },
     "value": {
       "@id": "schema:value",
       "description": "The value of the variable.",
+      "$ref": "Node.schema.json"
+    },
+    "valueHint": {
+      "@id": "stencila:valueHint",
+      "description": "A hint for the value of the variable.",
+      "$comment": "The type of this hint depends on the type of the variable. For strings, arrays and objects\nit will be their length. For `Datatable`s it will be a copy of the table, including\nits column names and types, but with no data. \n",
+      "aliases": [
+        "value-hint",
+        "value_hint"
+      ],
       "$ref": "Node.schema.json"
     }
   }

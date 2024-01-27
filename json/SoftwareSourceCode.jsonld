@@ -506,6 +506,9 @@
         },
         {
           "@id": "stencila:CodeStatic"
+        },
+        {
+          "@id": "stencila:Variable"
         }
       ],
       "schema:rangeIncludes": {

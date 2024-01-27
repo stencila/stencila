@@ -24,11 +24,24 @@ pub struct Variable {
     /// The name of the variable.
     pub name: String,
 
-    /// The expected type of variable e.g. `Number`, `Timestamp`, `Datatable`
-    pub kind: Option<String>,
+    /// The programming language that the variable is defined in e.g. Python, JSON.
+    #[serde(alias = "programming-language", alias = "programming_language")]
+    pub programming_language: Option<String>,
+
+    /// The native type of the variable e.g. `float`, `datetime.datetime`, `pandas.DataFrame`
+    #[serde(alias = "native-type", alias = "native_type")]
+    pub native_type: Option<String>,
+
+    /// The Stencila node type of the variable e.g. `Number`, `DateTime`, `Datatable`.
+    #[serde(alias = "node-type", alias = "node_type")]
+    pub node_type: Option<String>,
 
     /// The value of the variable.
     pub value: Option<Box<Node>>,
+
+    /// A hint for the value of the variable.
+    #[serde(alias = "value-hint", alias = "value_hint")]
+    pub value_hint: Option<Box<Node>>,
 
     /// A unique identifier for a node within a document
     

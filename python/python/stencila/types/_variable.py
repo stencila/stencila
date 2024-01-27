@@ -17,14 +17,26 @@ class Variable(Entity):
     name: str
     """The name of the variable."""
 
-    kind: Optional[str] = None
-    """The expected type of variable e.g. `Number`, `Timestamp`, `Datatable`"""
+    programming_language: Optional[str] = None
+    """The programming language that the variable is defined in e.g. Python, JSON."""
+
+    native_type: Optional[str] = None
+    """The native type of the variable e.g. `float`, `datetime.datetime`, `pandas.DataFrame`"""
+
+    node_type: Optional[str] = None
+    """The Stencila node type of the variable e.g. `Number`, `DateTime`, `Datatable`."""
 
     value: Optional[Node] = None
     """The value of the variable."""
 
-    def __init__(self, name: str, id: Optional[str] = None, kind: Optional[str] = None, value: Optional[Node] = None):
+    value_hint: Optional[Node] = None
+    """A hint for the value of the variable."""
+
+    def __init__(self, name: str, id: Optional[str] = None, programming_language: Optional[str] = None, native_type: Optional[str] = None, node_type: Optional[str] = None, value: Optional[Node] = None, value_hint: Optional[Node] = None):
         super().__init__(id = id)
         self.name = name
-        self.kind = kind
+        self.programming_language = programming_language
+        self.native_type = native_type
+        self.node_type = node_type
         self.value = value
+        self.value_hint = value_hint
