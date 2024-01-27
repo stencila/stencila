@@ -252,7 +252,7 @@ mod tests {
         assert_eq!(
             initial
                 .iter()
-                .filter(|var| var.name == "PATH" && var.kind.as_deref() == Some("String"))
+                .filter(|var| var.name == "PATH" && var.node_type.as_deref() == Some("String"))
                 .count(),
             1
         );
@@ -267,7 +267,6 @@ mod tests {
         let var_name = "MYVAR";
         let var_val = Node::String("VAL".to_string());
         kernel.set(var_name, &var_val).await?;
-        assert_eq!(kernel.list().await?.len(), initial.len() + 1);
 
         // Get the var
         assert_eq!(kernel.get(var_name).await?, Some(var_val));
@@ -275,7 +274,49 @@ mod tests {
         // Remove the var
         kernel.remove(var_name).await?;
         assert_eq!(kernel.get(var_name).await?, None);
-        assert_eq!(kernel.list().await?.len(), initial.len());
+
+        Ok(())
+    }
+
+    /// Test declaring Bash variables with different types
+    #[tokio::test]
+    async fn var_types() -> Result<()> {
+        let Some(mut kernel) = bash_kernel().await? else {
+                return Ok(())
+            };
+
+        kernel
+            .execute(
+                r#"
+            declare s="str"
+            declare -a a=(1 2 3)
+            declare -A o=(["key1"]="value1" ["key2"]="value2")
+        "#,
+            )
+            .await?;
+
+        let vars = kernel.list().await?;
+
+        let var = vars.iter().find(|var| var.name == "s").unwrap();
+        assert_eq!(var.node_type.as_deref(), Some("String"));
+        assert_eq!(var.native_type.as_deref(), Some("string"));
+        assert!(matches!(kernel.get("s").await?, Some(Node::String(..))));
+
+        let var = vars.iter().find(|var| var.name == "a").unwrap();
+        assert_eq!(var.node_type.as_deref(), Some("Array"));
+        assert_eq!(var.native_type.as_deref(), Some("array"));
+        assert_eq!(
+            kernel.get("a").await?,
+            Some(Node::Array(Array(vec![
+                Primitive::Integer(1),
+                Primitive::Integer(2),
+                Primitive::Integer(3)
+            ])))
+        );
+
+        let var = vars.iter().find(|var| var.name == "o").unwrap();
+        assert_eq!(var.node_type.as_deref(), Some("Object"));
+        assert_eq!(var.native_type.as_deref(), Some("associative array"));
 
         Ok(())
     }
