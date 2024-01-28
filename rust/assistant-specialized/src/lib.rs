@@ -11,7 +11,6 @@ use std::{fs::read_to_string, sync::Arc};
 use cached::proc_macro::once;
 use minijinja::{Environment, UndefinedBehavior};
 use rust_embed::RustEmbed;
-use serde::Serialize;
 
 use app::{get_app_dir, DirType};
 use assistant::common::eyre;
@@ -26,7 +25,7 @@ use assistant::{
         itertools::Itertools,
         once_cell::sync::Lazy,
         regex::Regex,
-        serde::{de::Error, Deserialize, Deserializer},
+        serde::{de::Error, Deserialize, Deserializer, Serialize},
         serde_yaml, tracing,
     },
     deserialize_option_regex,
@@ -75,13 +74,14 @@ const DELEGATES: &[&str] = &[
 /// by the instruction.
 /// For now, it is simple, just a node type and a boolean indicating whether
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(try_from = "&str", into = "String")]
+#[serde(try_from = "&str", into = "String", crate = "assistant::common::serde")]
 pub struct ExpectedNodes {
     node_type: NodeType,
     repeated: bool,
 }
 
 impl ExpectedNodes {
+    /// Create a regex for the comma separated list of expected node type names
     fn as_regex(&self, use_repeat: bool) -> Result<Regex> {
         let pattern = if use_repeat && self.repeated {
             format!("^({},?)+$", self.node_type)
@@ -140,6 +140,7 @@ impl TryFrom<&str> for ExpectedNodes {
         })
     }
 }
+
 /// Default format
 const FORMAT: Format = Format::Markdown;
 
