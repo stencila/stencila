@@ -441,7 +441,7 @@ fn button(input: &str) -> IResult<&str, Inline> {
 
             let code = condition.map_or_else(Cord::default, Cord::from);
 
-            let label = options.remove("label").flatten().map(node_to_string);
+            let label = options.swap_remove("label").flatten().map(node_to_string);
 
             Inline::Button(Button {
                 name: name.to_string(),
