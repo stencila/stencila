@@ -239,7 +239,8 @@ impl VisitorMut for ResultApplier {
                 match result {
                     Ok(output) => {
                         instruction.messages.push(output.to_message());
-                        instruction.options.suggestion = Some(output.to_suggestion_inline());
+                        instruction.options.suggestion =
+                            Some(output.to_suggestion_inline(instruction.content.is_none()));
 
                         instruction.options.execution_status = Some(ExecutionStatus::Succeeded);
                     }
@@ -267,7 +268,8 @@ impl VisitorMut for ResultApplier {
                 match result {
                     Ok(output) => {
                         instruction.messages.push(output.to_message());
-                        instruction.options.suggestion = Some(output.to_suggestion_block());
+                        instruction.options.suggestion =
+                            Some(output.to_suggestion_block(instruction.content.is_none()));
 
                         instruction.options.execution_status = Some(ExecutionStatus::Succeeded);
                     }

@@ -29,8 +29,9 @@ use schema::{
     Article, AudioObject, AuthorRole, AuthorRoleName, Block, ImageObject, Inline, InsertBlock,
     InsertInline, InstructionBlock, InstructionInline, Link, Message, MessagePart, Node, NodeType,
     Organization, OrganizationOptions, PersonOrOrganization,
-    PersonOrOrganizationOrSoftwareApplication, SoftwareApplication, SoftwareApplicationOptions,
-    StringOrNumber, SuggestionBlockType, SuggestionInlineType, VideoObject,
+    PersonOrOrganizationOrSoftwareApplication, ReplaceBlock, ReplaceInline, SoftwareApplication,
+    SoftwareApplicationOptions, StringOrNumber, SuggestionBlockType, SuggestionInlineType,
+    VideoObject,
 };
 
 // Export crates for the convenience of dependant crates
@@ -792,20 +793,34 @@ impl GenerateOutput {
 
     /// Create a `SuggestionInlineType` from the output that can be used for the `suggestion`
     /// property of the instruction
-    pub fn to_suggestion_inline(self) -> SuggestionInlineType {
-        SuggestionInlineType::InsertInline(InsertInline {
-            content: self.nodes.into_inlines(),
-            ..Default::default()
-        })
+    pub fn to_suggestion_inline(self, insert: bool) -> SuggestionInlineType {
+        if insert {
+            SuggestionInlineType::InsertInline(InsertInline {
+                content: self.nodes.into_inlines(),
+                ..Default::default()
+            })
+        } else {
+            SuggestionInlineType::ReplaceInline(ReplaceInline {
+                replacement: self.nodes.into_inlines(),
+                ..Default::default()
+            })
+        }
     }
 
     /// Create a `SuggestionBlockType` from the output that can be used for the `suggestion`
     /// property of the instruction
-    pub fn to_suggestion_block(self) -> SuggestionBlockType {
-        SuggestionBlockType::InsertBlock(InsertBlock {
-            content: self.nodes.into_blocks(),
-            ..Default::default()
-        })
+    pub fn to_suggestion_block(self, insert: bool) -> SuggestionBlockType {
+        if insert {
+            SuggestionBlockType::InsertBlock(InsertBlock {
+                content: self.nodes.into_blocks(),
+                ..Default::default()
+            })
+        } else {
+            SuggestionBlockType::ReplaceBlock(ReplaceBlock {
+                replacement: self.nodes.into_blocks(),
+                ..Default::default()
+            })
+        }
     }
 
     /// Display the generated output as Markdown
