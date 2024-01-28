@@ -653,7 +653,15 @@ async fn receive_results<R1: AsyncBufRead + Unpin, R2: AsyncBufRead + Unpin>(
             break;
         }
     }
-    let messages = items.into_iter().map(ExecutionError::new).collect_vec();
+    let messages = items
+        .into_iter()
+        .map(|message| -> ExecutionError {
+            match serde_json::from_str(&message) {
+                Ok(message) => message,
+                Err(..) => ExecutionError::new(message),
+            }
+        })
+        .collect_vec();
 
     Ok((outputs, messages))
 }
