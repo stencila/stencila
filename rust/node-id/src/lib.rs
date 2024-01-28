@@ -1,7 +1,7 @@
-use std::{
-    fmt,
-    sync::atomic::{AtomicU64, Ordering},
-};
+use std::fmt;
+
+#[cfg(debug_assertions)]
+use std::sync::atomic::{AtomicU64, Ordering};
 
 #[allow(unused)]
 use common::{
@@ -41,12 +41,15 @@ impl NodeUid {
 impl Default for NodeUid {
     fn default() -> Self {
         #[cfg(not(debug_assertions))]
-        let bytes = Uuid::new_v4().as_bytes();
+        let bytes = Uuid::new_v4().as_bytes().to_vec();
 
         #[cfg(debug_assertions)]
-        let bytes = NODE_UID.fetch_add(1, Ordering::SeqCst).to_be_bytes();
+        let bytes = NODE_UID
+            .fetch_add(1, Ordering::SeqCst)
+            .to_be_bytes()
+            .to_vec();
 
-        Self(bytes.to_vec())
+        Self(bytes)
     }
 }
 
