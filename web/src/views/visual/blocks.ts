@@ -2,8 +2,6 @@ import {
   type NodeSpec,
   Node,
   NodeViewConstructor,
-  attrsParseToDOM,
-  toDOMAttrs,
   getAttrs,
   attrsWithDefault,
   parseDOMWithContent,
@@ -23,10 +21,22 @@ const Heading: NodeSpec = {
   content: 'Inline*',
   marks: '_',
   attrs: {
-    level: { default: 1 },
     id: { default: null },
+    level: { default: 1 },
+    authors: { default: null },
   },
   parseDOM: [
+    // For parsing Stencila DOM HTML
+    {
+      tag: 'stencila-heading',
+      contentElement: '[slot=content]',
+      getAttrs: (elem: HTMLElement) => ({
+        id: elem.getAttribute('id'),
+        level: parseInt(elem.getAttribute('level')),
+        authors: elem.querySelector('[slot=authors]')?.innerHTML,
+      }),
+    },
+    // For parsing any old HTML...
     {
       tag: 'h1',
       getAttrs: (elem: HTMLElement) => ({ level: 1, ...getAttrs('id')(elem) }),
@@ -52,8 +62,25 @@ const Heading: NodeSpec = {
       getAttrs: (elem: HTMLElement) => ({ level: 5, ...getAttrs('id')(elem) }),
     },
   ],
-  toDOM(node) {
-    return [`h${(node.attrs.level as number) + 1}`, toDOMAttrs(node, 'id'), 0]
+  toDOM(node: Node) {
+    const dom = document.createElement('stencila-heading')
+    dom.draggable = true
+    dom.id = node.attrs.id
+
+    const contentDOM = document.createElement(
+      `h${Math.min(6, node.attrs.level + 1)}`
+    )
+    contentDOM.slot = 'content'
+    dom.appendChild(contentDOM)
+
+    if (node.attrs.authors) {
+      const authors = document.createElement('div')
+      authors.slot = 'authors'
+      authors.innerHTML = node.attrs.authors
+      dom.appendChild(authors)
+    }
+
+    return { dom, contentDOM }
   },
 }
 
@@ -115,7 +142,40 @@ const Paragraph: NodeSpec = {
   group: 'Block',
   content: 'Inline*',
   marks: '_',
-  ...attrsParseToDOM('p', 'id'),
+  attrs: attrsWithDefault(null, 'id', 'authors'),
+  parseDOM: [
+    // For parsing Stencila DOM HTML
+    {
+      tag: 'stencila-paragraph',
+      contentElement: '[slot=content]',
+      getAttrs: (elem: HTMLElement) => ({
+        id: elem.getAttribute('id'),
+        authors: elem.querySelector('[slot=authors]')?.innerHTML,
+      }),
+    },
+    // For parsing any old HTML...
+    {
+      tag: 'p',
+    },
+  ],
+  toDOM(node: Node) {
+    const dom = document.createElement('stencila-paragraph')
+    dom.draggable = true
+    dom.id = node.attrs.id
+
+    const contentDOM = document.createElement('p')
+    contentDOM.slot = 'content'
+    dom.appendChild(contentDOM)
+
+    if (node.attrs.authors) {
+      const authors = document.createElement('div')
+      authors.slot = 'authors'
+      authors.innerHTML = node.attrs.authors
+      dom.appendChild(authors)
+    }
+
+    return { dom, contentDOM }
+  },
 }
 
 // Export specs and views

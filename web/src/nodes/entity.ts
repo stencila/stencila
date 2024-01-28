@@ -1,7 +1,7 @@
 import { LitElement } from 'lit'
 
 import { nodePatchEvent, NodePatch } from '../clients/nodes'
-import { DocumentAccess } from '../types'
+import { DocumentAccess, DocumentView } from '../types'
 
 /**
  * Abstract base class for web components representing Stencila Schema `Entity` node types
@@ -17,13 +17,31 @@ import { DocumentAccess } from '../types'
  */
 export abstract class Entity extends LitElement {
   /**
+   * Select the closest element matching a selector
+   *
+   * This is similar to the `closest` method of HTML elements but traverses
+   * up out of the shadow root is necessary.
+   *
+   * Based on https://stackoverflow.com/questions/54520554/custom-element-getrootnode-closest-function-crossing-multiple-parent-shadowd
+   */
+  protected closestGlobally(selector: string): HTMLElement | null {
+    function closest(elem: HTMLElement | Document | Window) {
+      if (!elem || elem === document || elem === window) return null
+      const found = (elem as HTMLElement).closest(selector)
+      // @ts-expect-error because `Node` has no host property
+      return found ? found : closest(elem.getRootNode().host)
+    }
+    return closest(this)
+  }
+
+  /**
    * Get the name of the view that this web component is contained within
    *
    * This may be used by derived elements to alter their rendering and/or
    * behavior based on the view.
    */
-  protected documentView(): string {
-    return this.closest('[view]').getAttribute('view')
+  protected documentView(): DocumentView {
+    return this.closestGlobally('[view]')?.getAttribute('view') as DocumentView
   }
 
   /**
@@ -34,7 +52,9 @@ export abstract class Entity extends LitElement {
    * behavior based on the view.
    */
   protected documentAccess(): DocumentAccess {
-    return this.closest('[view]').getAttribute('access') as DocumentAccess
+    return this.closestGlobally('[view]')?.getAttribute(
+      'access'
+    ) as DocumentAccess
   }
 
   /**

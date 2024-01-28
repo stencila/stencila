@@ -47,7 +47,7 @@
       content: [
         {
           type: "Text",
-          value: "Level 6"
+          value: "Level 5"
         }
       ]
     },
@@ -58,6 +58,34 @@
         {
           type: "Text",
           value: "Level 6"
+        }
+      ]
+    },
+    {
+      type: "Heading",
+      level: 1,
+      content: [
+        {
+          type: "Text",
+          value: "With authors"
+        }
+      ],
+      authors: [
+        {
+          type: "Person",
+          givenNames: [ "Alice" ]
+        },
+        {
+          type: "Person",
+          givenNames: [ "Zoe" ]
+        },
+        {
+          type: "AuthorRole",
+          author: {
+            type: "SoftwareApplication",
+            name: "GPT"
+          },
+          roleName: "Generator"
         }
       ]
     }

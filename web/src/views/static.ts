@@ -2,6 +2,7 @@ import { html } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
 
 import { ExportClient } from '../clients/export'
+import '../nodes'
 import type { DocumentId } from '../types'
 
 import { ThemedView as ThemedView } from './themed'
@@ -36,7 +37,7 @@ export class StaticView extends ThemedView {
     super.connectedCallback()
 
     if (this.fetch) {
-      new ExportClient(this.doc, 'html', { dom: true }).fetch().then((html) => {
+      new ExportClient(this.doc, 'dom').fetch().then((html) => {
         this.shadowRoot.innerHTML = html
       })
     }

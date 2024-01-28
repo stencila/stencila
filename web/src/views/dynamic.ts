@@ -3,14 +3,8 @@ import { customElement, property } from 'lit/decorators.js'
 
 import { DomClient } from '../clients/dom'
 import { NodesClient } from '../clients/nodes'
+import '../nodes'
 import type { DocumentId, DocumentAccess } from '../types'
-
-// Include all node components required for this view
-import '../nodes/code-chunk'
-import '../nodes/code-expression'
-import '../nodes/if-block'
-import '../nodes/if-block-clause'
-import '../nodes/parameter'
 
 import { ThemedView } from './themed'
 
@@ -72,6 +66,6 @@ export class DynamicView extends ThemedView {
   }
 
   render() {
-    return html`<article [data-root]></article>`
+    return html`<stencila-article root></stencila-article>`
   }
 }

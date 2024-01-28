@@ -2,6 +2,7 @@ import { html } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
 
 import { DomClient } from '../clients/dom'
+import '../nodes'
 import type { DocumentId } from '../types'
 
 import { ThemedView } from './themed'
@@ -40,6 +41,6 @@ export class LiveView extends ThemedView {
   }
 
   render() {
-    return html`<article [data-root]></article>`
+    return html`<stencila-article root></stencila-article>`
   }
 }

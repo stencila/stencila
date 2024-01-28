@@ -23,6 +23,7 @@ pub struct AuthorRole {
     pub id: Option<String>,
 
     /// The author.
+    #[dom(elem = "none")]
     pub author: PersonOrOrganizationOrSoftwareApplication,
 
     /// A role played by the author.

@@ -8,18 +8,11 @@ import {
 } from 'prosemirror-view'
 
 import { DomClient } from '../clients/dom'
-import { ObjectClient } from '../clients/object'
 import { ProseMirrorClient } from '../clients/prosemirror'
+import '../nodes'
 import type { DocumentId, DocumentAccess } from '../types'
 
 import 'prosemirror-menu/style/menu.css'
-
-// Include all node components required for this view
-import '../nodes/code-chunk'
-import '../nodes/code-expression'
-import '../nodes/if-block'
-import '../nodes/if-block-clause'
-import '../nodes/parameter'
 
 import { ThemedView } from './themed'
 import * as schemas from './visual/schemas'
@@ -64,25 +57,13 @@ export class VisualView extends ThemedView {
   private proseMirrorClient: ProseMirrorClient
 
   /**
-   * A read-only client which receives patches for the JavaScript object
-   * representing the entire document
-   */
-  private objectClient: ObjectClient
-
-  /**
    * A ProseMirror editor view which the client interacts with
    */
   private proseMirrorView: ProseMirrorView
 
-  override connectedCallback() {
-    super.connectedCallback()
-
-    this.objectClient = new ObjectClient(this.doc)
-  }
-
   /**
    * Override so that clients are instantiated _after_ this
-   * element has a document `[data-root]` element in its `renderRoot`.
+   * element has a document `[root]` element in its `renderRoot`.
    */
   override firstUpdated(changedProperties: Map<string, string | boolean>) {
     super.firstUpdated(changedProperties)

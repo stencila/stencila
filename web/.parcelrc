@@ -1,7 +1,9 @@
 {
   "extends": "@parcel/config-default",
   "transformers": {
-    "*.ts": ["@parcel/transformer-typescript-tsc"]
+    "*.ts": [
+      "@parcel/transformer-typescript-tsc"
+    ]
   },
   "compressors": {
     "*.{ts,js,css,svg}": [
@@ -9,5 +11,9 @@
       "@parcel/compressor-gzip",
       "@parcel/compressor-brotli"
     ]
-  }
+  },
+  "reporters": [
+    "...",
+    "parcel-reporter-static-files-copy"
+  ]
 }

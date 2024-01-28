@@ -18,7 +18,7 @@ const Text: NodeSpec = {
   inline: true,
   content: 'text*',
   marks: '',
-  ...attrsParseToDOM('span', 'id'),
+  ...attrsParseToDOM('stencila-text', 'id'),
 }
 
 // Export specs and views

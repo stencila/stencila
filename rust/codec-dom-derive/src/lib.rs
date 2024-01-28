@@ -61,7 +61,7 @@ fn derive_struct(type_attr: TypeAttr) -> TokenStream {
     } else {
         (
             quote!(
-                context.enter_node(self.node_type());
+                context.enter_node(self.node_type(), self.node_id());
             ),
             quote!(
                 context.exit_node();
@@ -76,15 +76,15 @@ fn derive_struct(type_attr: TypeAttr) -> TokenStream {
             return
         };
 
-        if field_name == "r#type" {
+        if field_name == "r#type" || field_name == "uid" {
             return;
         }
 
-        if field_name == "uid" {
+        if field_name == "id" {
             attrs.extend(quote! {
-                context.push_attr("id", &self.node_id().to_string());
+                context.push_id(&self.id);
             });
-        } else if let Some("none") = field_attr.elem.as_deref() {
+        } else if field_name == "options" || matches!(field_attr.elem.as_deref(), Some("none")) {
             children.extend(quote! {
                 self.#field_name.to_dom(context);
             });
@@ -97,9 +97,7 @@ fn derive_struct(type_attr: TypeAttr) -> TokenStream {
             };
 
             let tokens = quote! {
-                context.enter_elem(#elem).push_slot(stringify!(#field_name));
-                self.#field_name.to_dom(context);
-                context.exit_elem();
+                context.push_slot_fn(#elem, stringify!(#field_name), |context| self.#field_name.to_dom(context));
             };
 
             let tokens = if field_type == "Option" {
@@ -112,13 +110,9 @@ fn derive_struct(type_attr: TypeAttr) -> TokenStream {
 
             children.extend(tokens);
         } else {
-            let attr_name = if field_name == "id" {
-                "@id".to_string()
-            } else {
-                field_attr
-                    .attr
-                    .unwrap_or_else(|| field_name.to_string().to_kebab_case())
-            };
+            let attr_name = field_attr
+                .attr
+                .unwrap_or_else(|| field_name.to_string().to_kebab_case());
 
             attrs.extend(quote! {
                 self.#field_name.to_dom_attr(#attr_name, context);

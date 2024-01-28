@@ -407,9 +407,7 @@ async fn serve_document(
             doc.export(
                 None,
                 Some(EncodeOptions {
-                    format: Some(Format::Html),
-                    compact: Some(true),
-                    dom: Some(true),
+                    format: Some(Format::Dom),
                     ..Default::default()
                 }),
             )
@@ -451,6 +449,7 @@ async fn serve_document(
     } else if mode == "app" {
         format!(
             r#"<link rel="stylesheet" type="text/css" href="/~static/{version}/apps/main.css">
+               <link rel="stylesheet" type="text/css" href="/~static/{version}/shoelace-style/themes/light.css">
                <script type="module" src="/~static/{version}/apps/main.js"></script>"#
         )
     } else {
@@ -564,13 +563,14 @@ async fn serve_ws(
 
     for format in [
         // TODO: define this list of string formats better
+        Format::Dom,
+        Format::Html,
+        Format::Jats,
         Format::Json,
         Format::Json5,
         Format::JsonLd,
-        Format::Yaml,
         Format::Markdown,
-        Format::Jats,
-        Format::Html,
+        Format::Yaml,
     ] {
         protocols.push(format!("read.{format}.stencila.org"));
         protocols.push(format!("write.{format}.stencila.org"));
