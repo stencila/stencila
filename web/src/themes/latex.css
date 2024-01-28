@@ -66,7 +66,7 @@
   }
 }
 
-[data-root] {
+[root] {
   /* Box sizing rules */
   *,
   *::before,

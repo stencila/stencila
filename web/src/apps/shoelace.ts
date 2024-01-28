@@ -1,4 +1,5 @@
 import { setBasePath } from '@shoelace-style/shoelace/dist/utilities/base-path.js'
+import { registerIconLibrary } from '@shoelace-style/shoelace/dist/utilities/icon-library.js'
 
 import '@shoelace-style/shoelace/dist/components/icon/icon.js'
 import '@shoelace-style/shoelace/dist/components/dropdown/dropdown.js'
@@ -13,3 +14,8 @@ const { NODE_ENV } = process.env
 const base = NODE_ENV === 'development' ? 'dev' : version
 
 setBasePath(`~static/${base}/shoelace-style/`)
+
+// Add custom icons
+registerIconLibrary('stencila', {
+  resolver: (name) => `~static/${base}/app-assets/icons/${name}.svg`,
+})

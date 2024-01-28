@@ -1,13 +1,15 @@
 import { LitElement, html } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
 
-import logo from '../images/stencilaIcon.svg'
+// import logo from '../images/stencilaIcon.svg'
 import { THEMES } from '../themes/themes'
 import { withTwind } from '../twind'
 import type { DocumentId, DocumentView } from '../types'
 import type { UISelectorSelectedEvent } from '../ui/selector'
-import '../ui/selector'
 import { VIEWS } from '../views/views'
+
+import '../ui/selector'
+import '../ui/sidebar'
 
 import '../views/static'
 import '../views/live'
@@ -62,51 +64,39 @@ export class App extends LitElement {
   format: string = 'markdown'
 
   override render() {
-    return html`
-      <div class="font-sans">
+    return html`<div
+      class="font-sans flex flex-row bg-neutral-100 fixed top-0 left-0 min-h-screen w-full"
+    >
+      <stencila-ui-sidebar></stencila-ui-sidebar>
+      <div class="flex flex-col flex-grow">
         ${this.renderHeader()}
-        <div class="h-screen mt-14 flex flex-col">
-          <main
-            role="main"
-            class="flex-grow px-4 py-8 w-full justify-center flex flex-col"
-          >
-            <header class="container mx-auto">
-              <h1
-                class="text-xl text-bold leading-tight md:text-2xl lg:text-3xl xl:text-4xl"
-              >
-                Document name
-              </h1>
-            </header>
-
-            <nav class="container mx-auto mt-8 mb-4 sm:flex">
-              <div
-                class="flex-grow justify-start flex flex-col sm:flex-row sm:space-x-4"
-              >
-                ${this.renderViewSelect()} ${this.renderThemeSelect()}
-              </div>
-              ${this.renderPrintLink()}
-            </nav>
-
-            <div
-              class="bg-white border border-grays-mid container p-4 mx-auto shadow-[0_0_8px_rgba(0,0,0,.035)]"
-            >
-              ${this.doc ? this.renderView() : 'No document specified'}
-            </div>
-          </main>
-          ${this.renderFooter()}
+        <div
+          class="bg-white border border-gray-200 overflow-y-scroll max-h-[calc(100vh-5rem)]"
+        >
+          <div>${this.renderView()}</div>
         </div>
       </div>
-    `
+    </div> `
   }
 
   private renderHeader() {
-    return html`<header
-      class="fixed w-full top-0 left-0 z-30 h-16 drop-shadow-[0_2px_0_#edf2f7] border-t-[3px] bg-white border-t-brand-blue p-4"
-    >
-      <nav class="container mx-auto flex justify-items-center">
-        <a href="/"
-          ><img src="${logo}" alt="Stencila logo" width="28" height="28"
-        /></a>
+    console.log(this)
+    return html`<header class="w-full flex items-end h-20">
+      <nav class="flex bg-neutral-100 h-full w-full">
+        <div class="flex-grow flex items-end h-full relative z-10">
+          <div
+            class="bg-white block leading-none pl-4 pr-16 py-2 w-fit max-w-24 mr-auto rounded-t-md border border-gray-200 border-b-white -mb-[1px]"
+          >
+            README
+          </div>
+        </div>
+        <div class="flex-shrink-0 flex items-center p-5">
+          <div
+            class="flex-grow justify-start flex flex-col sm:flex-row sm:space-x-4"
+          >
+            ${this.renderViewSelect()} ${this.renderThemeSelect()}
+          </div>
+        </div>
       </nav>
     </header>`
   }
@@ -151,14 +141,6 @@ export class App extends LitElement {
     >`
   }
   /* eslint-enable lit/attribute-value-entities */
-
-  private renderFooter() {
-    return html`<footer class="bg-brand-blue px-4 py-6 text-white">
-      <div class="container mx-auto">
-        <p class="text-sm my-0">&copy; 2023 Stencila Ltd.</p>
-      </div>
-    </footer>`
-  }
 
   private renderView() {
     switch (this.view) {
