@@ -54,6 +54,7 @@ impl Microkernel for BashKernel {
 mod tests {
     use std::env;
 
+    use common_dev::pretty_assertions::assert_eq;
     use kernel_micro::{
         common::{
             eyre::{bail, Report},
@@ -104,19 +105,19 @@ mod tests {
         let (step_sender, mut step_receiver) = mpsc::channel::<u8>(1);
         let task = tokio::spawn(async move {
             // Short sleep
-            step_receiver.recv().await;
+            let step = step_receiver.recv().await.unwrap();
             kernel.execute("sleep 0.5").await?;
             let status = kernel.status().await?;
             if status != KernelStatus::Ready {
-                tracing::error!("Unexpected status: {status}")
+                tracing::error!("Unexpected status in step {step}: {status}")
             }
 
             // Sleep with kill
-            step_receiver.recv().await;
+            let step = step_receiver.recv().await.unwrap();
             kernel.execute("sleep 100").await?;
             let status = kernel.status().await?;
-            if status != KernelStatus::Failed {
-                tracing::error!("Unexpected status: {status}")
+            if status != KernelStatus::Ready {
+                tracing::error!("Unexpected status in step {step}: {status}")
             }
 
             Ok::<KernelStatus, Report>(status)
@@ -136,11 +137,11 @@ mod tests {
         {
             step_sender.send(2).await?;
 
-            // Should be busy during third sleep
+            // Should be busy during second sleep
             watcher.changed().await?;
             assert_eq!(*watcher.borrow_and_update(), KernelStatus::Busy);
 
-            // Kill during third sleep (if this fails then the test would keep running for 100 seconds)
+            // Kill during second sleep (if this fails then the test would keep running for 100 seconds)
             signaller.send(KernelSignal::Kill).await?;
         }
 

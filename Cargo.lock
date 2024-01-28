@@ -2524,6 +2524,7 @@ dependencies = [
 name = "kernel-bash"
 version = "0.0.0"
 dependencies = [
+ "common-dev",
  "kernel-micro",
  "test-log",
 ]
