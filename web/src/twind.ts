@@ -2,6 +2,7 @@ import { defineConfig } from '@twind/core'
 import presetAutoprefix from '@twind/preset-autoprefix'
 import presetTailwind from '@twind/preset-tailwind/base'
 import theme from '@twind/preset-tailwind/defaultTheme'
+import presetTypography from '@twind/preset-typography/'
 import install from '@twind/with-web-components'
 
 /**
@@ -14,8 +15,7 @@ import install from '@twind/with-web-components'
  * For configuration of Tailwind for themes see the `tailwind.config.js` file.
  */
 export const config = defineConfig({
-  presets: [presetAutoprefix(), presetTailwind()],
-
+  presets: [presetAutoprefix(), presetTailwind(), presetTypography()],
   theme: {
     ...theme,
     extend: {

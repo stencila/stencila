@@ -1,10 +1,10 @@
 import SlMenuItem from '@shoelace-style/shoelace/dist/components/menu-item/menu-item.component.js'
 import { apply, css } from '@twind/core'
-import { html } from 'lit'
+import { LitElement, html } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
 
+import { withTwind } from '../../twind'
 import type { DocumentView } from '../../types'
-import { TWLitElement } from '../twind'
 
 /**
  * Enhance the event type to include shoelace's event details.
@@ -17,7 +17,8 @@ export type UISelectorSelectedEvent = Event & { detail: { item: SlMenuItem } }
  * A selector that updates some display portion of the UI
  */
 @customElement('stencila-ui-selector')
-export class UISelector extends TWLitElement {
+@withTwind()
+export class UISelector extends LitElement {
   /**
    * Label displayed when listbox is not open
    */
@@ -76,16 +77,15 @@ export class UISelector extends TWLitElement {
 
   private renderButton() {
     const styles = apply([
-      'text-base font-bold leading-none',
+      'text-base leading-none',
       'appearance-none select-none',
       'min-w-fit',
-      'py-0 px-4',
-      'bg-white',
-      'border-b-4 border-b-transparent',
+      'p-0',
+      'bg-transparent',
       'transition-all ease-in-out',
       'flex',
       'items-center',
-      'group-hover:text-brand-blue group-hover:border-b-brand-blue',
+      'group-hover:text-brand-blue',
     ])
 
     const classes = css`
@@ -93,6 +93,8 @@ export class UISelector extends TWLitElement {
         border: none;
         padding: 0;
         outline: none;
+        background: none;
+        font-weight: 600;
 
         &:hover {
           background: none;

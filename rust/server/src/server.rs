@@ -450,6 +450,7 @@ async fn serve_document(
         format!(
             r#"<link rel="stylesheet" type="text/css" href="/~static/{version}/apps/main.css">
                <link rel="stylesheet" type="text/css" href="/~static/{version}/shoelace-style/themes/light.css">
+               <link rel="stylesheet" type="text/css" href="/~static/{version}/shoelace-style/themes/dark.css">
                <script type="module" src="/~static/{version}/apps/main.js"></script>"#
         )
     } else {

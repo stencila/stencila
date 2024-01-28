@@ -5,9 +5,11 @@ import { customElement, property } from 'lit/decorators.js'
 import { THEMES } from '../themes/themes'
 import type { DocumentId, DocumentView } from '../types'
 import type { UISelectorSelectedEvent } from '../ui/selector'
-import '../ui/selector'
 import { TWLitElement } from '../ui/twind'
 import { VIEWS } from '../views/views'
+
+import '../ui/selector'
+import '../ui/sidebar'
 
 import '../views/static'
 import '../views/live'
@@ -62,21 +64,32 @@ export class App extends TWLitElement {
 
   override render() {
     return html`<div
-      class="font-sans flex flex-row bg-neutral-100 min-h-screen w-full"
+      class="font-sans flex flex-row bg-neutral-100 fixed top-0 left-0 min-h-screen w-full"
     >
-      <div>sidebar</div>
+      <stencila-ui-sidebar></stencila-ui-sidebar>
       <div class="flex flex-col flex-grow">
         ${this.renderHeader()}
-        <div class="bg-white h-full">editor</div>
+        <div
+          class="bg-white border border-gray-200 overflow-y-scroll max-h-[calc(100vh-5rem)]"
+        >
+          <div>${this.renderView()}</div>
+        </div>
       </div>
     </div>`
   }
 
   private renderHeader() {
+    console.log(this)
     return html`<header class="w-full flex items-end h-20">
-      <nav class="flex bg-red-400 h-full w-full">
-        <div class="flex-grow flex items-end h-full">tabs</div>
-        <div class="flex-shrink-0 flex items-end">
+      <nav class="flex bg-neutral-100 h-full w-full">
+        <div class="flex-grow flex items-end h-full relative z-10">
+          <div
+            class="bg-white block leading-none pl-4 pr-16 py-2 w-fit max-w-24 mr-auto rounded-t-md border border-gray-200 border-b-white -mb-[1px]"
+          >
+            README
+          </div>
+        </div>
+        <div class="flex-shrink-0 flex items-center p-5">
           <div
             class="flex-grow justify-start flex flex-col sm:flex-row sm:space-x-4"
           >
@@ -127,14 +140,6 @@ export class App extends TWLitElement {
     >`
   }
   /* eslint-enable lit/attribute-value-entities */
-
-  private renderFooter() {
-    return html`<footer class="bg-brand-blue px-4 py-6 text-white">
-      <div class="container mx-auto">
-        <p class="text-sm my-0">&copy; 2023 Stencila Ltd.</p>
-      </div>
-    </footer>`
-  }
 
   private renderView() {
     switch (this.view) {

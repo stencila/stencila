@@ -6,12 +6,12 @@
  * print mode.
 */
 
-[data-root] {
-  @apply mx-auto prose;
+[root] {
+  @apply mx-auto prose lg:prose-xl;
 }
 
 @media print {
-  [data-root] {
+  [root] {
   }
 }
 
