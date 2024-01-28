@@ -7,4 +7,5 @@ edition = "2021"
 kernel-micro = { path = "../kernel-micro" }
 
 [dev-dependencies]
+common-dev = { path = "../common-dev" }
 test-log = { version = "0.2.14", default-features = false, features = ["trace"] }

@@ -48,15 +48,15 @@ impl Microkernel for NodeKernel {
 
 #[cfg(test)]
 mod tests {
-    use std::env;
-
+    use common_dev::pretty_assertions::assert_eq;
     use kernel_micro::{
         common::{
             eyre::Report,
+            indexmap::IndexMap,
             tokio::{self, sync::mpsc},
             tracing,
         },
-        schema::{Array, Node, Object, Paragraph, Primitive},
+        schema::{Array, ExecutionError, Node, Object, Paragraph, Primitive},
         KernelSignal, KernelStatus,
     };
 
@@ -204,7 +204,6 @@ mod tests {
     }
 
     /// Test execute tasks that set and use state within the kernel
-    #[ignore]
     #[tokio::test]
     async fn execute_state() -> Result<()> {
         let Some(mut kernel) = start_kernel().await? else {
@@ -212,7 +211,7 @@ mod tests {
         };
 
         // Set some variables
-        let (outputs, messages) = kernel.execute("a=1\nb=2").await?;
+        let (outputs, messages) = kernel.execute("const a=1\nconst b=2").await?;
         assert_eq!(messages, vec![]);
         assert_eq!(outputs, vec![]);
 
@@ -266,8 +265,7 @@ mod tests {
         Ok(())
     }
 
-    /// Test declaring Node variables with different types
-    #[ignore]
+    /// Test declaring JavaScript variables with different types
     #[tokio::test]
     async fn var_types() -> Result<()> {
         let Some(mut kernel) = start_kernel().await? else {
@@ -277,14 +275,20 @@ mod tests {
         kernel
             .execute(
                 r#"
-            declare s="str"
-            declare -a a=(1 2 3)
-            declare -A o=(["key1"]="value1" ["key2"]="value2")
+            var n = 1.23
+            var s = "str"
+            var a = [1, 2, 3]
+            var o = {a:1, b:2.3}
         "#,
             )
             .await?;
 
         let vars = kernel.list().await?;
+
+        let var = vars.iter().find(|var| var.name == "n").unwrap();
+        assert_eq!(var.node_type.as_deref(), Some("Number"));
+        assert_eq!(var.native_type.as_deref(), Some("number"));
+        assert_eq!(kernel.get("n").await?, Some(Node::Number(1.23)));
 
         let var = vars.iter().find(|var| var.name == "s").unwrap();
         assert_eq!(var.node_type.as_deref(), Some("String"));
@@ -293,7 +297,7 @@ mod tests {
 
         let var = vars.iter().find(|var| var.name == "a").unwrap();
         assert_eq!(var.node_type.as_deref(), Some("Array"));
-        assert_eq!(var.native_type.as_deref(), Some("array"));
+        assert_eq!(var.native_type.as_deref(), Some("Array"));
         assert_eq!(
             kernel.get("a").await?,
             Some(Node::Array(Array(vec![
@@ -305,7 +309,14 @@ mod tests {
 
         let var = vars.iter().find(|var| var.name == "o").unwrap();
         assert_eq!(var.node_type.as_deref(), Some("Object"));
-        assert_eq!(var.native_type.as_deref(), Some("associative array"));
+        assert_eq!(var.native_type.as_deref(), Some("object"));
+        assert_eq!(
+            kernel.get("o").await?,
+            Some(Node::Object(Object(IndexMap::from([
+                (String::from("a"), Primitive::Integer(1),),
+                (String::from("b"), Primitive::Number(2.3))
+            ]))))
+        );
 
         Ok(())
     }
@@ -318,14 +329,177 @@ mod tests {
         };
 
         // Syntax error
-        let (outputs, messages) = kernel.execute("if").await?;
-        assert_eq!(messages.len(), 1);
+        let (outputs, messages) = kernel.execute("bad ^ # syntax").await?;
+        assert_eq!(messages[0].error_type.as_deref(), Some("SyntaxError"));
+        assert_eq!(messages[0].error_message, "Invalid or unexpected token");
+        assert!(messages[0].stack_trace.is_some());
         assert_eq!(outputs, vec![]);
 
         // Runtime error
         let (outputs, messages) = kernel.execute("foo").await?;
-        assert_eq!(messages.len(), 1);
+        assert_eq!(messages[0].error_type.as_deref(), Some("ReferenceError"));
+        assert_eq!(messages[0].error_message, "foo is not defined");
+        assert!(messages[0].stack_trace.is_some());
         assert_eq!(outputs, vec![]);
+
+        Ok(())
+    }
+
+    /// Test that `console.log` arguments are treated as separate outputs
+    #[tokio::test]
+    async fn console_log() -> Result<()> {
+        let Some(mut kernel) = start_kernel().await? else {
+            return Ok(())
+        };
+
+        let (outputs, messages) = kernel.execute("console.log(1)").await?;
+        assert_eq!(messages, vec![]);
+        assert_eq!(outputs, vec![Node::Integer(1)]);
+
+        let (outputs, messages) = kernel.execute("console.log(1, 2, 3)").await?;
+        assert_eq!(messages, vec![]);
+        assert_eq!(
+            outputs,
+            vec![Node::Integer(1), Node::Integer(2), Node::Integer(3)]
+        );
+
+        let (outputs, messages) = kernel.execute("console.log([1, 2, 3], 4, 'str')").await?;
+        assert_eq!(messages, vec![]);
+        assert_eq!(
+            outputs,
+            vec![
+                Node::Array(Array(vec![
+                    Primitive::Integer(1),
+                    Primitive::Integer(2),
+                    Primitive::Integer(3)
+                ])),
+                Node::Integer(4),
+                Node::String("str".to_string())
+            ]
+        );
+
+        Ok(())
+    }
+
+    /// Test that `console.debug`, `console.warn` etc are treated as messages
+    /// separate from `console.log` outputs
+    #[tokio::test]
+    async fn console_messages() -> Result<()> {
+        let Some(mut kernel) = start_kernel().await? else {
+            return Ok(())
+        };
+
+        let (outputs, messages) = kernel
+            .execute(
+                r#"
+console.log(1)
+console.debug("Debug message")
+console.log(2)
+console.info("Info message")
+console.log(3)
+console.warn("Warning message")
+console.log(4)
+console.error("Error message")
+5
+"#,
+            )
+            .await?;
+
+        assert_eq!(
+            messages,
+            vec![
+                ExecutionError {
+                    error_type: Some("Debug".to_string()),
+                    error_message: "Debug message".to_string(),
+                    ..Default::default()
+                },
+                ExecutionError {
+                    error_type: Some("Info".to_string()),
+                    error_message: "Info message".to_string(),
+                    ..Default::default()
+                },
+                ExecutionError {
+                    error_type: Some("Warning".to_string()),
+                    error_message: "Warning message".to_string(),
+                    ..Default::default()
+                },
+                ExecutionError {
+                    error_type: Some("Error".to_string()),
+                    error_message: "Error message".to_string(),
+                    ..Default::default()
+                }
+            ]
+        );
+        assert_eq!(
+            outputs,
+            vec![
+                Node::Integer(1),
+                Node::Integer(2),
+                Node::Integer(3),
+                Node::Integer(4),
+                Node::Integer(5)
+            ]
+        );
+
+        Ok(())
+    }
+
+    /// Test re-declarations of variables
+    #[tokio::test]
+    async fn redeclarations() -> Result<()> {
+        let Some(mut kernel) = start_kernel().await? else {
+            return Ok(())
+        };
+
+        // A variable declared with `var`
+
+        let (outputs, messages) = kernel.execute("var a = 1\na").await?;
+        assert_eq!(messages, vec![]);
+        assert_eq!(outputs[0], Node::Integer(1));
+
+        let (outputs, messages) = kernel.execute("var a = 2\na").await?;
+        assert_eq!(messages, vec![]);
+        assert_eq!(outputs[0], Node::Integer(2));
+
+        let (outputs, messages) = kernel.execute("let a = 3\na").await?;
+        assert_eq!(messages, vec![]);
+        assert_eq!(outputs[0], Node::Integer(3));
+
+        let (outputs, messages) = kernel.execute("const a = 4\na").await?;
+        assert_eq!(messages, vec![]);
+        assert_eq!(outputs[0], Node::Integer(4));
+
+        // A variable declared with `let`
+
+        let (outputs, messages) = kernel.execute("let b = 1\nb").await?;
+        assert_eq!(messages, vec![]);
+        assert_eq!(outputs[0], Node::Integer(1));
+
+        let (outputs, messages) = kernel.execute("let b = 2\nb").await?;
+        assert_eq!(messages, vec![]);
+        assert_eq!(outputs[0], Node::Integer(2));
+
+        let (outputs, messages) = kernel.execute("b = 3\nb").await?;
+        assert_eq!(messages, vec![]);
+        assert_eq!(outputs[0], Node::Integer(3));
+
+        // A variable declared with `const`
+
+        let (outputs, messages) = kernel.execute("const c = 1\nc").await?;
+        assert_eq!(messages, vec![]);
+        assert_eq!(outputs[0], Node::Integer(1));
+
+        let (.., messages) = kernel.execute("const c = 2\nc").await?;
+        assert_eq!(
+            messages[0].error_message,
+            "Assignment to constant variable."
+        );
+
+        let (.., messages) = kernel.execute("c = 3\nc").await?;
+        assert_eq!(
+            messages[0].error_message,
+            "Assignment to constant variable."
+        );
 
         Ok(())
     }

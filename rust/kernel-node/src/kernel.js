@@ -48,25 +48,25 @@ const context = {
 };
 vm.createContext(context);
 
+const LET_REGEX = /^let\s+([\w_]+)\s*=/;
+const CONST_REGEX = /^const\s+([\w_]+)\s*=/;
+const VAR_REGEX = /^var\s+([\w_]+)\s*=/;
+const ASSIGN_REGEX = /^\s*[\w_]+\s*=/;
+
+// Determine if a variable is defined in the context
+// This needs to be done for `let` and `const` variables
+// because they do not get set on the context object
+function isDefined(name) {
+  try {
+    vm.runInContext(name, context);
+  } catch (error) {
+    return false;
+  }
+  return true;
+}
+
 // Execute lines of code
 function exec(lines) {
-  const LET_REGEX = /^let\s+([\w_]+)\s*=/;
-  const CONST_REGEX = /^const\s+([\w_]+)\s*=/;
-  const VAR_REGEX = /^var\s+([\w_]+)\s*=/;
-  const ASSIGN_REGEX = /^\s*[\w_]+\s*=/;
-
-  // Determine if a variable is defined in the context
-  // This needs to be done for `let` and `const` variables
-  // because they do not get set on the context object otherwise
-  function isDefined(name) {
-    try {
-      vm.runInContext(name, context);
-    } catch (error) {
-      return false;
-    }
-    return true;
-  }
-
   // Turn any re-declarations of variables at the top level into assignments
   // (replace with spaces to retain positions for errors and stacktraces)
   for (let index = 0; index < lines.length; index++) {

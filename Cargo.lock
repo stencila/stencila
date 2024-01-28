@@ -2542,6 +2542,7 @@ dependencies = [
 name = "kernel-node"
 version = "0.0.0"
 dependencies = [
+ "common-dev",
  "kernel-micro",
  "test-log",
 ]
