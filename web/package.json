@@ -55,7 +55,7 @@
     "test": "tsc --skipLibCheck --noEmit",
     "start": "parcel watch",
     "build": "NODE_ENV=production parcel build --no-scope-hoist --log-level verbose",
-    "unused": "depcheck --quiet --ignores '@parcel/*,postcss-*,prosemirror-*' --ignore-patterns '.eslintrc*'"
+    "unused": "depcheck --quiet --ignores '@parcel/*,parcel-*,postcss-*,prosemirror-*' --ignore-patterns '.eslintrc*'"
   },
   "dependencies": {
     "@codemirror/autocomplete": "6.12.0",
