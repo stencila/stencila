@@ -177,6 +177,12 @@ We use [Jest](https://jestjs.io/) for tests. To run them:
 npm test
 ```
 
+Some of the tests use snapshots. To update them:
+
+```console
+npm test -- -u
+```
+
 ### Packaging
 
 The packaging and publishing configuration is checked using [`arethetypeswrong``)(https://github.com/arethetypeswrong/arethetypeswrong.github.io) and [`publint`](https://publint.dev/):
