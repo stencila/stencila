@@ -87,26 +87,28 @@ const infoSideBar = (sourceView: SourceView): Extension => {
           this.dom.appendChild(this.currentInfoBox)
         }
 
-        // reposition the infobox on the yAxis
+        // reposition the infobox on the y-axis
         currentView.requestMeasure({
           read: (view) => {
-            const { top } = view.coordsAtPos(cursor)
+            if (this.currentInfoBox) {
+              const { top } = view.coordsAtPos(cursor)
 
-            // skip if cursor y position hasn't changed
-            if (this.cursorY === top) {
-              return
+              // skip if cursor y position hasn't changed
+              if (this.cursorY === top) {
+                return
+              }
+              this.cursorY = top
+              const editorTop = view.scrollDOM.getBoundingClientRect().top
+              const yOffset =
+                this.currentInfoBox.getBoundingClientRect().height / 2
+              let yPos = top - editorTop - yOffset
+
+              if (yPos < 0) {
+                yPos = 0
+              }
+
+              this.currentInfoBox.style.top = `${yPos}px`
             }
-            this.cursorY = top
-            const editorTop = view.scrollDOM.getBoundingClientRect().top
-            const yOffset =
-              this.currentInfoBox.getBoundingClientRect().height / 2
-            let yPos = top - editorTop - yOffset
-
-            if (yPos < 0) {
-              yPos = 0
-            }
-
-            this.currentInfoBox.style.top = `${yPos}px`
           },
         })
       }

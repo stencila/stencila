@@ -42,7 +42,6 @@ import { TWLitElement } from '../ui/twind'
 import { infoSideBar } from './source/infoSideBar'
 import { autoWrapKeys } from './source/keyMaps'
 import { bottomPanel } from './source/panels'
-import { tooltipOnHover } from './source/tooltip'
 
 /**
  * Source code editor for a document
@@ -279,7 +278,6 @@ export class SourceView extends TWLitElement {
       syntaxHighlighting(syntaxHighlights, { fallback: true }),
       bracketMatching(),
       autocompletion(),
-      tooltipOnHover(this),
       bottomPanel(this),
       infoSideBar(this),
     ]
