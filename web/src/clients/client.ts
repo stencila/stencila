@@ -13,18 +13,84 @@ export abstract class Client {
   private ws: WebSocket
 
   /**
+   * name of the context the client object is used
+   */
+  private clientType: string
+
+  /**
+   * status of the websocket connection
+   */
+  private hasConnected: boolean = false
+
+  /**
+   * initial interval timeout
+   */
+  private initialReconectInterval: number = 1000
+
+  /**
+   * current interval timeout
+   */
+  private currentReconnectInterval: number = this.initialReconectInterval
+
+  /**
    * Construct a new document client
    *
    * @param id  The id of the document
    * @param subprotocol The WebSocket subprotocol to use
    */
-  constructor(id: DocumentId, subprotocol: string) {
+  constructor(id: DocumentId, subprotocol: string, clientType?: string) {
     const protocol = window.location.protocol === 'http:' ? 'ws' : 'wss'
     const host = window.location.host
-    this.ws = new WebSocket(
-      `${protocol}://${host}/~ws/${id}`,
-      subprotocol + '.stencila.org'
-    )
+
+    this.clientType = clientType ?? 'unknown'
+
+    this.connect(`${protocol}://${host}/~ws/${id}`, subprotocol)
+  }
+
+  /**
+   * Create and connect new websocket, and assign methods.
+   *
+   * @param url
+   * @param subprotocol
+   */
+  private connect(url, subprotocol) {
+    this.ws = new WebSocket(url, subprotocol + '.stencila.org')
+
+    this.ws.onopen = () => {
+      console.debug(`${this.clientType}-client websocket open`)
+
+      const classList = document.body.classList
+      classList.add(`${this.clientType}-client-connected`)
+      classList.remove(`${this.clientType}-client-disconnected`)
+
+      window.dispatchEvent(
+        new CustomEvent(
+          this.hasConnected
+            ? `${this.clientType}-ws-reconnect`
+            : `${this.clientType}-ws-connect`
+        )
+      )
+
+      this.hasConnected = true
+    }
+
+    this.ws.onclose = () => {
+      console.debug(`${this.clientType}-client on closed`)
+
+      document.body.classList.add(`${this.clientType}-client-disconnected`)
+
+      window.dispatchEvent(new CustomEvent(`${this.clientType}-ws-disconnect`))
+
+      setTimeout(
+        () => {
+          if (this.currentReconnectInterval < 120000) {
+            this.currentReconnectInterval *= 1.5
+          }
+          this.connect(url, subprotocol)
+        },
+        this.currentReconnectInterval + Math.random() * 3000
+      )
+    }
 
     this.ws.onmessage = (event: MessageEvent<string>) => {
       const message = JSON.parse(event.data)

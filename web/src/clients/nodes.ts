@@ -58,8 +58,13 @@ export class NodesClient extends Client {
    * @param access The access level of the client
    * @param elem The element to which an event listener will be attached
    */
-  constructor(id: DocumentId, access: DocumentAccess, elem: HTMLElement) {
-    super(id, `${access}.nodes`)
+  constructor(
+    id: DocumentId,
+    access: DocumentAccess,
+    elem: HTMLElement,
+    clientType?: string
+  ) {
+    super(id, `${access}.nodes`, clientType ?? 'node')
 
     elem.addEventListener(NODE_PATCH_EVENT, (event: CustomEvent) => {
       this.sendMessage(event.detail)

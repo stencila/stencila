@@ -61,7 +61,8 @@ export class DynamicView extends ThemedView {
     this.nodesClient = new NodesClient(
       this.doc,
       this.access,
-      this.renderRoot as HTMLElement
+      this.renderRoot as HTMLElement,
+      'dynamic'
     )
   }
 
