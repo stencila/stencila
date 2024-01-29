@@ -62,7 +62,7 @@ class EditorPanelElement extends TWLitElement {
     const changeEvent = (e: Event) =>
       (this.sourceView.format = (e.target as HTMLSelectElement).value)
 
-    const styles = apply(['w-28 h-full', 'mx-3', 'bg-white', 'rounded-sm'])
+    const styles = apply(['w-28 h-full', 'mx-3 pl-2', 'bg-white', 'rounded-sm'])
 
     return html`
       <select title="Document format" class=${styles} @change=${changeEvent}>
@@ -100,14 +100,17 @@ class EditorPanelElement extends TWLitElement {
   private renderBreadcrumbs() {
     return html`
       <div class="text-xs leading-none flex items-center">
-        ${this.breadcrumbs.reverse().map((entry, i, arr) => {
-          const isLast = i === arr.length - 1
-          return html`
-            <span>${entry.nodeType}</span>${!isLast
-              ? html`<span class="px-2">${BREADCRUMB_SEPARATOR}</span>`
-              : ''}
-          `
-        })}
+        ${this.breadcrumbs
+          .reverse()
+          .slice(1)
+          .map((entry, i, arr) => {
+            const isLast = i === arr.length - 1
+            return html`
+              <span>${entry.nodeType}</span>${!isLast
+                ? html`<span class="px-2">${BREADCRUMB_SEPARATOR}</span>`
+                : ''}
+            `
+          })}
       </div>
     `
   }
