@@ -36,7 +36,7 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v4
       - name: Detect changes
-        uses: dorny/paths-filter@v2
+        uses: dorny/paths-filter@v3
         id: changes
         with:
           filters: |
