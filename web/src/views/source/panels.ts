@@ -64,8 +64,10 @@ class EditorPanelElement extends TWLitElement {
 
     const styles = apply(['w-28 h-full', 'mx-3 pl-2', 'bg-white', 'rounded-sm'])
 
+    const title = 'Select document format'
+
     return html`
-      <select title="Document format" class=${styles} @change=${changeEvent}>
+      <select title=${title} class=${styles} @change=${changeEvent}>
         ${Object.entries(FORMATS).map(
           ([format, name]) =>
             html`<option
@@ -83,11 +85,10 @@ class EditorPanelElement extends TWLitElement {
     const clickEvent = () => {
       this.sourceView.lineWrap = !this.sourceView.lineWrap
     }
-    const title = `Toggle line wrapping: ${this.sourceView.lineWrap ? 'ON' : 'OFF'}`
+    const title = `Turn ${this.sourceView.lineWrap ? 'off' : 'on'} line wrapping`
     const styles = apply([
       'h-4 w-4',
-      this.sourceView.lineWrap ? 'bg-gray-200' : '',
-      'hover:bg-green-000',
+      this.sourceView.lineWrap ? 'bg-gray-200' : 'hover:bg-green-000',
     ])
 
     return html`
@@ -145,7 +146,7 @@ const bottomPanel = (sourceView: SourceView): Extension => {
     // remove default border
     EditorView.baseTheme({
       '.cm-panels-bottom': {
-        borderTop: 'none',
+        borderTop: '1px solid #d3d3d3',
       },
     }),
   ]
