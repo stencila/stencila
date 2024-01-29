@@ -78,7 +78,7 @@ export class App extends TWLitElement {
       <div class="flex flex-col flex-grow">
         ${this.renderHeader()}
         <div
-          class="bg-white border border-gray-200 overflow-y-scroll max-h-[calc(100vh-5rem)]"
+          class="bg-white border border-gray-200 overflow-y-scroll h-full max-h-[calc(100vh-5rem)]"
         >
           <stencila-ui-view-container view=${this.view}>
             ${this.renderView()}
