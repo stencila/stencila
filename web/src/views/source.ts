@@ -39,6 +39,7 @@ import { markdownHighlightStyle } from '../languages/markdown'
 import type { DocumentId, DocumentAccess } from '../types'
 import { TWLitElement } from '../ui/twind'
 
+import { statusGutter } from './source/gutters'
 import { infoSideBar } from './source/infoSideBar'
 import { autoWrapKeys } from './source/keyMaps'
 import { bottomPanel } from './source/panels'
@@ -268,6 +269,7 @@ export class SourceView extends TWLitElement {
       search({ top: true }),
       lineNumbers(),
       foldGutter(),
+      statusGutter(this),
       lineWrapping,
       autocompletion({ override: [this.stencilaCompleteOptions] }),
       dropCursor(),

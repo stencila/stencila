@@ -33,6 +33,9 @@ export const config = defineConfig({
           'mine-shaft': '#333333',
         },
         black: '#171817',
+        green: {
+          200: '#D9F2D9',
+        },
       },
     },
   },
