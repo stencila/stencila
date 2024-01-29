@@ -1,4 +1,3 @@
-// import SlMenuItem from '@shoelace-style/shoelace/dist/components/menu-item/menu-item.component.js'
 import { apply, css } from '@twind/core'
 import { LitElement, html } from 'lit'
 import { customElement } from 'lit/decorators.js'

@@ -10,6 +10,8 @@ import { VIEWS } from '../views/views'
 
 import '../ui/selector'
 import '../ui/sidebar'
+import '../ui/tab'
+import '../ui/view-container'
 
 import '../views/static'
 import '../views/live'
@@ -63,6 +65,12 @@ export class App extends LitElement {
   @property()
   format: string = 'markdown'
 
+  /**
+   * The name of the editor tab which is active.
+   */
+  @property()
+  activeTab: string = ''
+
   override render() {
     return html`<div
       class="font-sans flex flex-row bg-neutral-100 fixed top-0 left-0 min-h-screen w-full"
@@ -73,27 +81,29 @@ export class App extends LitElement {
         <div
           class="bg-white border border-gray-200 overflow-y-scroll max-h-[calc(100vh-5rem)]"
         >
-          <div>${this.renderView()}</div>
+          <stencila-ui-view-container view=${this.view}>
+            ${this.renderView()}
+            <!-- <div slot="side"></div> -->
+          </stencila-ui-view-container>
         </div>
       </div>
     </div> `
   }
 
+  // TODO: the header should move to it's own component & maintain its own state.
   private renderHeader() {
-    console.log(this)
     return html`<header class="w-full flex items-end h-20">
       <nav class="flex bg-neutral-100 h-full w-full">
-        <div class="flex-grow flex items-end h-full relative z-10">
-          <div
-            class="bg-white block leading-none pl-4 pr-16 py-2 w-fit max-w-24 mr-auto rounded-t-md border border-gray-200 border-b-white -mb-[1px]"
+        <div class="flex-grow flex items-end h-full relative z-10 space-x-1">
+          <stencila-ui-editor-tab ?active=${this.activeTab === '0'}
+            >README</stencila-ui-editor-tab
           >
-            README
-          </div>
+          <stencila-ui-editor-tab ?active=${this.activeTab !== 'README'}
+            >README</stencila-ui-editor-tab
+          >
         </div>
-        <div class="flex-shrink-0 flex items-center p-5">
-          <div
-            class="flex-grow justify-start flex flex-col sm:flex-row sm:space-x-4"
-          >
+        <div class="flex-shrink-0 flex-grow-0 flex items-center p-5">
+          <div class="flex-grow justify-start flex flex-row space-x-4">
             ${this.renderViewSelect()} ${this.renderThemeSelect()}
           </div>
         </div>
