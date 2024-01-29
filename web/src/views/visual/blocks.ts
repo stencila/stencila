@@ -39,33 +39,34 @@ const Heading: NodeSpec = {
     // For parsing any old HTML...
     {
       tag: 'h1',
-      getAttrs: (elem: HTMLElement) => ({ level: 1, ...getAttrs('id')(elem) }),
+      getAttrs: () => ({ level: 1 }),
     },
     {
       tag: 'h2',
-      getAttrs: (elem: HTMLElement) => ({ level: 1, ...getAttrs('id')(elem) }),
+      getAttrs: () => ({ level: 1 }),
     },
     {
       tag: 'h3',
-      getAttrs: (elem: HTMLElement) => ({ level: 2, ...getAttrs('id')(elem) }),
+      getAttrs: () => ({ level: 2 }),
     },
     {
       tag: 'h4',
-      getAttrs: (elem: HTMLElement) => ({ level: 3, ...getAttrs('id')(elem) }),
+      getAttrs: () => ({ level: 3 }),
     },
     {
       tag: 'h5',
-      getAttrs: (elem: HTMLElement) => ({ level: 4, ...getAttrs('id')(elem) }),
+      getAttrs: () => ({ level: 4 }),
     },
     {
       tag: 'h6',
-      getAttrs: (elem: HTMLElement) => ({ level: 5, ...getAttrs('id')(elem) }),
+      getAttrs: () => ({ level: 5 }),
     },
   ],
   toDOM(node: Node) {
     const dom = document.createElement('stencila-heading')
     dom.draggable = true
     dom.id = node.attrs.id
+    dom.setAttribute('level', node.attrs.level)
 
     const contentDOM = document.createElement(
       `h${Math.min(6, node.attrs.level + 1)}`
@@ -136,6 +137,92 @@ const IfBlockClause: NodeSpec = {
 }
 
 /**
+ * A ProseMirror `NodeSpec` for a Stencila `List`
+ */
+const List: NodeSpec = {
+  group: 'Block',
+  content: 'ListItem*',
+  attrs: {
+    id: { default: null },
+    order: { default: 'Unordered' },
+    authors: { default: null },
+  },
+  parseDOM: [
+    // For parsing Stencila DOM HTML
+    {
+      tag: 'stencila-list',
+      contentElement: '[slot=items]',
+      getAttrs: (elem: HTMLElement) => ({
+        id: elem.getAttribute('id'),
+        order: elem.getAttribute('order'),
+        authors: elem.querySelector('[slot=authors]')?.innerHTML,
+      }),
+    },
+    // For parsing any old HTML...
+    {
+      tag: 'ul',
+      getAttrs: () => ({ order: 'Unordered' }),
+    },
+    {
+      tag: 'ol',
+      getAttrs: () => ({ order: 'Ascending' }),
+    },
+  ],
+  toDOM: (node: Node) => {
+    const dom = document.createElement('stencila-list')
+    dom.draggable = true
+    dom.id = node.attrs.id
+    dom.setAttribute('order', node.attrs.order)
+
+    const contentDOM = document.createElement(
+      node.attrs.order === 'Ascending' ? 'ol' : 'ul'
+    )
+    contentDOM.slot = 'items'
+    dom.appendChild(contentDOM)
+
+    if (node.attrs.authors) {
+      const authors = document.createElement('div')
+      authors.slot = 'authors'
+      authors.innerHTML = node.attrs.authors
+      dom.appendChild(authors)
+    }
+
+    return { dom, contentDOM }
+  },
+}
+
+/**
+ * A ProseMirror `NodeSpec` for a Stencila `ListItem`
+ */
+const ListItem: NodeSpec = {
+  content: 'Block*',
+  attrs: attrsWithDefault(null, 'id'),
+  parseDOM: [
+    // For parsing Stencila DOM HTML
+    {
+      tag: 'stencila-list-item',
+      contentElement: '[slot=content]',
+      getAttrs: getAttrs('id'),
+    },
+    // For parsing any old HTML...
+    {
+      tag: 'li',
+    },
+  ],
+  toDOM: (node: Node) => {
+    const dom = document.createElement('stencila-list-item')
+    dom.draggable = true
+    dom.id = node.attrs.id
+
+    const contentDOM = document.createElement('li')
+    contentDOM.slot = 'content'
+    dom.appendChild(contentDOM)
+
+    return { dom, contentDOM }
+  },
+}
+
+/**
  * A ProseMirror `NodeSpec` for a Stencila `Paragraph`
  */
 const Paragraph: NodeSpec = {
@@ -184,6 +271,8 @@ export const specs: Record<string, NodeSpec> = {
   Heading,
   IfBlock,
   IfBlockClause,
+  List,
+  ListItem,
   Paragraph,
 }
 

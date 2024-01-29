@@ -53,3 +53,9 @@ A list with multiple paragraphs in each item
   para 2b
 
 - para 3
+
+A list with it, and some of it's items, having authors
+
+- With two authors
+- No authors
+- With one author
