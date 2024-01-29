@@ -27,12 +27,16 @@ export const config = defineConfig({
           yellow: '#ecc94b',
         },
         gray: {
+          200: '#dedede',
           'wild-sand': '#f5f5f5',
           shady: '#9d9d9d',
           aluminium: '#999999',
           'mine-shaft': '#333333',
         },
         black: '#171817',
+        green: {
+          '000': '#f5fff5',
+        },
       },
     },
   },
