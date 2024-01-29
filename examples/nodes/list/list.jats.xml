@@ -109,5 +109,17 @@
         <p>para 3</p>
       </list-item>
     </list>
+    <p>A list with it, and some of it&apos;s items, having authors</p>
+    <list list-type="Unordered">
+      <list-item>
+        <p>With two authors</p>
+      </list-item>
+      <list-item>
+        <p>No authors</p>
+      </list-item>
+      <list-item>
+        <p>With one author</p>
+      </list-item>
+    </list>
   </body>
 </article>

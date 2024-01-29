@@ -3,3 +3,16 @@ compact.jats.xml:
     strip-types:
       # TODO: implement decoding `List`
       - List
+    strip-props:
+      - authors
+# TODO: Fix issues decoding AuthorRole with JSON-LD (?)
+compact.jsonld:
+  decode:
+    skip: true
+jsonld:
+  decode:
+    skip: true
+md:
+  decode:
+    strip-props:
+      - authors

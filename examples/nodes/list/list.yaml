@@ -233,3 +233,55 @@ content:
       - type: Text
         value: para 3
   order: Unordered
+- type: Paragraph
+  content:
+  - type: Text
+    value: A list with it, and some of it's items, having authors
+- type: List
+  items:
+  - type: ListItem
+    content:
+    - type: Paragraph
+      content:
+      - type: Text
+        value: With two authors
+      authors:
+      - type: Person
+        givenNames:
+        - Roger
+      - type: SoftwareApplication
+        name: Super-list-maker
+  - type: ListItem
+    content:
+    - type: Paragraph
+      content:
+      - type: Text
+        value: No authors
+  - type: ListItem
+    content:
+    - type: Paragraph
+      content:
+      - type: Text
+        value: With one author
+      authors:
+      - type: Person
+        givenNames:
+        - Alice
+      - type: Person
+        givenNames:
+        - Zoe
+      - type: AuthorRole
+        author:
+          type: SoftwareApplication
+          name: GPT
+        roleName: Generator
+  order: Unordered
+  authors:
+  - type: Person
+    givenNames:
+    - Patricia
+  - type: Person
+    givenNames:
+    - Roger
+  - type: SoftwareApplication
+    name: Super-list-maker

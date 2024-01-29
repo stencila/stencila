@@ -16,6 +16,30 @@ impl List {
     }
 }
 
+impl DomCodec for List {
+    fn to_dom(&self, context: &mut DomEncodeContext) {
+        context
+            .enter_node(self.node_type(), self.node_id())
+            .push_id(&self.id)
+            .push_attr("order", &self.order.to_string())
+            .push_slot_fn(
+                if matches!(self.order, ListOrder::Ascending) {
+                    "ol"
+                } else {
+                    "ul"
+                },
+                "items",
+                |context| self.items.to_dom(context),
+            );
+
+        if let Some(authors) = &self.options.authors {
+            context.push_slot_fn("div", "authors", |context| authors.to_dom(context));
+        }
+
+        context.exit_node();
+    }
+}
+
 impl MarkdownCodec for List {
     fn to_markdown(&self, context: &mut MarkdownEncodeContext) {
         context

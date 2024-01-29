@@ -10,6 +10,8 @@ $comment: |
   schema.org properties `itemListElement` and `itemListOrder` were renamed to `items` and `order`.
   Note that, as with every other such renaming in Stencila Schema, a mapping between names is
   defined and it is trivial to save Stencila Schema documents using the schema.org vocabulary if so desired.
+dom:
+  derive: false
 html:
   special: true
 jats:
@@ -28,8 +30,6 @@ properties:
     items:
       $ref: ListItem
     walk: true
-    dom:
-      elem: div
     jats:
       content: true
     proptest:
@@ -70,5 +70,3 @@ properties:
     strip: [metadata]
     serde:
       deserializeWith: option_one_or_many_string_or_object
-    dom:
-      elem: div

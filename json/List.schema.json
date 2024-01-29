@@ -11,6 +11,9 @@
   "description": "A list of items.",
   "$comment": "This is an implementation, and renaming, of schema.org [`ItemList`](https://schema.org/ItemList).\nRenaming was done as `List` was considered a more developer friendly alternative. Similarly,\nschema.org properties `itemListElement` and `itemListOrder` were renamed to `items` and `order`.\nNote that, as with every other such renaming in Stencila Schema, a mapping between names is\ndefined and it is trivial to save Stencila Schema documents using the schema.org vocabulary if so desired.\n",
   "proptest": {},
+  "dom": {
+    "derive": false
+  },
   "html": {
     "special": true
   },
@@ -72,9 +75,6 @@
           "strategy": "vec(ListItem::arbitrary(), size_range(1..=8))"
         }
       },
-      "dom": {
-        "elem": "div"
-      },
       "jats": {
         "content": true
       },
@@ -116,9 +116,6 @@
       ],
       "serde": {
         "deserializeWith": "option_one_or_many_string_or_object"
-      },
-      "dom": {
-        "elem": "div"
       },
       "type": "array",
       "items": {
