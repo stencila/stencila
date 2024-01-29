@@ -4,6 +4,7 @@ import presetTailwind from '@twind/preset-tailwind/base'
 import theme from '@twind/preset-tailwind/defaultTheme'
 import presetTypography from '@twind/preset-typography/'
 import install from '@twind/with-web-components'
+
 /**
  * The configuration for `twind` Tailwind-in-JS
  *
@@ -22,6 +23,7 @@ export const config = defineConfig({
         sans: ['Lato', 'Montserrat'],
       },
       colors: {
+        white: '#fff',
         brand: {
           blue: '#2568ef',
           green: '#66ff66',
