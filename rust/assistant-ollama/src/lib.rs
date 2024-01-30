@@ -16,8 +16,8 @@ use assistant::{
         inflector::Inflector,
         tracing,
     },
-    schema::{ImageObject, MessagePart, PersonOrOrganizationOrSoftwareApplication},
-    Assistant, AssistantIO, GenerateOptions, GenerateOutput, GenerateTask,
+    schema::{ImageObject, MessagePart},
+    Assistant, AssistantIO, GenerateOptions, GenerateOutput, GenerateTask, InstructionMessage,
 };
 
 /// An assistant running on a Ollama (https://github.com/jmorganca/ollama/) server
@@ -124,18 +124,17 @@ impl Assistant for OllamaAssistant {
             .iter()
             .map(|prompt| ChatMessage::new(MessageRole::System, prompt.clone()))
             .chain(task.instruction_messages().map(|message| {
-                use PersonOrOrganizationOrSoftwareApplication::*;
-                let role = match message.sender {
-                    None | Some(Person(..) | Organization(..)) => MessageRole::User,
-                    Some(SoftwareApplication(..)) => MessageRole::Assistant,
+                let role = match message.is_assistant() {
+                    true => MessageRole::Assistant,
+                    false => MessageRole::User,
                 };
 
                 let mut content = String::new();
                 let mut images = vec![];
                 for part in &message.parts {
                     match part {
-                        MessagePart::String(text) => {
-                            content += text;
+                        MessagePart::Text(text) => {
+                            content += &text.value;
                         }
                         MessagePart::ImageObject(ImageObject { content_url, .. }) => {
                             if let Some(pos) = content_url.find(";base64,") {

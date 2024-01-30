@@ -89,9 +89,8 @@ fn indent(html: &str) -> Result<String> {
             Ok(Event::Eof) => break,
             Ok(event) => writer.write_event(event),
             Err(error) => bail!(
-                "Error at position {}: {:?}",
-                reader.buffer_position(),
-                error
+                "Error at position {}: {error:?}\n{html}",
+                reader.buffer_position()
             ),
         }?;
     }
