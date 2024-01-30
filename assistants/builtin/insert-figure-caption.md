@@ -6,6 +6,11 @@ instruction-type: insert-blocks
 instruction-regexes:
   - (?i)\bfigure caption\b
 
+instruction-examples:
+  - write a figure caption
+  - write a caption for a figure
+  - add a figure caption
+
 transform-nodes: Paragraph
 filter-nodes: ^Paragraph$
 assert-nodes: ^(Paragraph,?)+$
