@@ -137,6 +137,69 @@ const IfBlockClause: NodeSpec = {
 }
 
 /**
+ * A ProseMirror `NodeSpec` for a Stencila `InstructionBlock`
+ */
+const InstructionBlock: NodeSpec = {
+  group: 'Block',
+  content: 'Block*',
+  attrs: attrsWithDefault(
+    null,
+    'messages',
+    'candidates',
+    'assignee',
+    'authors',
+    'suggestion',
+    ...executableAttrs
+  ),
+  parseDOM: [
+    {
+      tag: 'stencila-instruction-block',
+      contentElement: '[slot=content]',
+      getAttrs: (elem: HTMLElement) => ({
+        messages: elem.querySelector('[slot=messages]')?.innerHTML,
+        authors: elem.querySelector('[slot=authors]')?.innerHTML,
+        suggestion: elem.querySelector('[slot=suggestion]')?.innerHTML,
+        ...getAttrs('candidates', 'assignee', ...executableAttrs)(elem),
+      }),
+    },
+  ],
+  toDOM: (node: Node) => {
+    const dom = document.createElement('stencila-instruction-block')
+    dom.draggable = true
+    dom.id = node.attrs.id
+    dom.setAttribute('candidates', node.attrs.candidates)
+    dom.setAttribute('assignee', node.attrs.assignee)
+
+    const contentDOM = document.createElement('div')
+    contentDOM.slot = 'content'
+    dom.appendChild(contentDOM)
+
+    if (node.attrs.messages) {
+      const messages = document.createElement('div')
+      messages.slot = 'messages'
+      messages.innerHTML = node.attrs.messages
+      dom.appendChild(messages)
+    }
+    
+    if (node.attrs.authors) {
+      const authors = document.createElement('div')
+      authors.slot = 'authors'
+      authors.innerHTML = node.attrs.authors
+      dom.appendChild(authors)
+    }
+
+    if (node.attrs.suggestion) {
+      const suggestion = document.createElement('div')
+      suggestion.slot = 'suggestion'
+      suggestion.innerHTML = node.attrs.suggestion
+      dom.appendChild(suggestion)
+    }
+
+    return { dom, contentDOM }
+  },
+}
+
+/**
  * A ProseMirror `NodeSpec` for a Stencila `List`
  */
 const List: NodeSpec = {
@@ -271,6 +334,7 @@ export const specs: Record<string, NodeSpec> = {
   Heading,
   IfBlock,
   IfBlockClause,
+  InstructionBlock,
   List,
   ListItem,
   Paragraph,
