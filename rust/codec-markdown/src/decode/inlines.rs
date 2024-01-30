@@ -628,7 +628,7 @@ fn instruction_inline(input: &str) -> IResult<&str, Inline> {
         |(assignee, text, content)| {
             Inline::InstructionInline(InstructionInline {
                 messages: vec![Message {
-                    parts: vec![MessagePart::String(text.trim().to_string())],
+                    parts: vec![MessagePart::Text(text.trim().into())],
                     ..Default::default()
                 }],
                 options: Box::new(InstructionInlineOptions {

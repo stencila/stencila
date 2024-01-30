@@ -2,12 +2,17 @@
 
 **A union type for a part of a message.**
 
+This union type uses `Text`, instead of `string`, so that each type of par
+is an entity with a type and node id.
+
+
 **`@id`**: `stencila:MessagePart`
 
 ## Members
 
 The `MessagePart` type has these members:
 
+- [`Text`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/text.md)
 - [`ImageObject`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/image-object.md)
 - [`AudioObject`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/audio-object.md)
 - [`VideoObject`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/video-object.md)

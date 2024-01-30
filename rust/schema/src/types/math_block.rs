@@ -73,6 +73,7 @@ pub struct MathBlockOptions {
     #[serde(default, deserialize_with = "option_one_or_many_string_or_object")]
     #[strip(metadata)]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
+    #[dom(elem = "span")]
     pub authors: Option<Vec<Author>>,
 
     /// A digest of the `code` and `mathLanguage`.

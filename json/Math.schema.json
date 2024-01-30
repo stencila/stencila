@@ -106,6 +106,9 @@
       "serde": {
         "deserializeWith": "option_one_or_many_string_or_object"
       },
+      "dom": {
+        "elem": "span"
+      },
       "type": "array",
       "items": {
         "$ref": "Author.schema.json"

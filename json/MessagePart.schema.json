@@ -6,9 +6,10 @@
   "nick": "msp",
   "category": "edits",
   "description": "A union type for a part of a message.",
+  "$comment": "This union type uses `Text`, instead of `string`, so that each type of par\nis an entity with a type and node id.\n",
   "anyOf": [
     {
-      "type": "string"
+      "$ref": "Text.schema.json"
     },
     {
       "$ref": "ImageObject.schema.json"

@@ -48,6 +48,9 @@
           "@id": "schema:ListItem"
         },
         {
+          "@id": "schema:Message"
+        },
+        {
           "@id": "stencila:Admonition"
         },
         {
@@ -126,6 +129,9 @@
         },
         {
           "@id": "schema:ItemList"
+        },
+        {
+          "@id": "schema:Message"
         },
         {
           "@id": "stencila:Admonition"

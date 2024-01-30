@@ -244,7 +244,7 @@ pub fn decode_blocks(
                     {
                         let block = Block::InstructionBlock(InstructionBlock {
                             messages: vec![Message {
-                                parts: vec![MessagePart::String(text.into())],
+                                parts: vec![MessagePart::Text(text.into())],
                                 ..Default::default()
                             }],
                             options: Box::new(InstructionBlockOptions {
