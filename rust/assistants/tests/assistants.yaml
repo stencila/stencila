@@ -1,0 +1,32 @@
+# Testing for the embedding matching with instructions.
+insert-filled-table:
+  text: 
+    - put a table here
+    - insert a table with something interesting
+insert-unordered-list:
+  text:
+    - put a list here
+    - insert some bullet points below.
+edit-code-chunk:
+  text:
+    - edit the code below
+    - modify the code below
+    - correct the coding errors below
+    - correct the code
+    - fix the bugs
+insert-code-figure:
+  text:
+    - insert a graph here.
+#insert-blocks
+#edit-blocks
+#insert-math-block
+#insert-math-inline
+#insert-code-expression
+#edit-inlines
+#insert-figure-caption
+#insert-inline-image
+#insert-ordered-list
+#insert-code-chunk
+#insert-block-image
+#insert-empty-table
+#insert-image-figure

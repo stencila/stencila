@@ -12,3 +12,8 @@ assistant-ollama = { path = "../assistant-ollama" }
 assistant-openai = { path = "../assistant-openai" }
 assistant-specialized = { path = "../assistant-specialized" }
 codecs = { path = "../codecs" }
+
+[dev-dependencies]
+tokio = "1.35.1"
+serde = { version = "1.0.195", features = ["derive"] }
+serde_yaml = "0.9.30"
