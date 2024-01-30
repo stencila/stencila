@@ -143,7 +143,7 @@ pub async fn perform_instruction<'doc: 'async_recursion>(
 /// If the task's instruction has an `assignee` (and assignee exists and supports the
 /// task) then returns that assistant. Otherwise returns the assignee with the highest
 /// suitability score for the task.
-async fn get_assistant<'doc>(task: &mut GenerateTask<'doc>) -> Result<Arc<dyn Assistant>> {
+pub async fn get_assistant<'doc>(task: &mut GenerateTask<'doc>) -> Result<Arc<dyn Assistant>> {
     let assistants = list().await;
 
     let assistant = if let Some(assignee) = task.instruction.assignee() {
@@ -163,6 +163,7 @@ async fn get_assistant<'doc>(task: &mut GenerateTask<'doc>) -> Result<Arc<dyn As
             bail!("The assigned assistant `{id}` does not support this task")
         }
 
+        tracing::debug!("Using assistant matching id: {}", assistant.id());
         assistant
     } else {
         // It is tempting to use the position_max iterator method here but, in the case of
@@ -181,9 +182,16 @@ async fn get_assistant<'doc>(task: &mut GenerateTask<'doc>) -> Result<Arc<dyn As
             bail!("Unable to delegate the task, no assistants with suitable capabilities")
         }
 
-        assistants
+        let assistant = assistants
             .get(index)
-            .ok_or_else(|| eyre!("Best assistant not in list of assistants!?"))?
+            .ok_or_else(|| eyre!("Best assistant not in list of assistants!?"))?;
+
+        tracing::debug!(
+            "Found assistant {}, with best score {}",
+            assistant.id(),
+            max
+        );
+        assistant
     };
 
     Ok(assistant.clone())
