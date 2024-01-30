@@ -3,15 +3,11 @@ version: "0.1.0"
 
 preference-rank: 100
 instruction-type: insert-inlines
-instruction-regexes:
-  - (?i)\bimage\b
+instruction-examples:
+  - image
 
 task-output: image
-
-transform-nodes: ImageObject
-filter-nodes: ^ImageObject$
-take-nodes: 1
-assert-nodes: ^ImageObject$
+expected-nodes: ImageObject
 ---
 
 An assistant specialized for inserting an inline `ImageObject`.

@@ -4,11 +4,11 @@ version: "0.1.0"
 preference-rank: 100
 instruction-type: insert-blocks
 instruction-examples:
-- write an equation
-- write a math equation
-- write some math
-- insert a math equation
-- insert a LaTeX equation
+  - write an equation
+  - write a math equation
+  - write some math
+  - insert a math equation
+  - insert a LaTeX equation
 expected-nodes: MathBlock
 ---
 

@@ -2,6 +2,10 @@
 version: "0.1.0"
 
 instruction-type: modify-inlines
+instruction-examples:
+  - edit the following
+  - make this clearer
+  - make this more concise
 ---
 
 A generic assistant for editing inline content (i.e. when a user creates an `InstructionInline` with `content` to be edited by the assistant).

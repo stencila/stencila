@@ -301,14 +301,18 @@ where
 }
 
 impl SpecializedAssistant {
-    /// Return some internals
-    /// TODO: Wrap this in test assert?
+    // Added for testing
+    // TODO: Wrap these in test / debug assertions?
     pub fn instruction_examples(&self) -> &Option<Vec<String>> {
         &self.instruction_examples
     }
 
     pub fn instruction_embeddings(&self) -> &Option<Embeddings> {
         &self.instruction_embeddings
+    }
+
+    pub fn instruction_type(&self) -> &Option<InstructionType> {
+        &self.instruction_type
     }
 
     /// Return

@@ -3,10 +3,6 @@ insert-filled-table:
   text: 
     - put a table here
     - insert a table with something interesting
-insert-unordered-list:
-  text:
-    - put a list here
-    - insert some bullet points below.
 edit-code-chunk:
   text:
     - edit the code below
@@ -17,16 +13,65 @@ edit-code-chunk:
 insert-code-figure:
   text:
     - insert a graph here.
-#insert-blocks
-#edit-blocks
-#insert-math-block
-#insert-math-inline
-#insert-code-expression
-#edit-inlines
-#insert-figure-caption
-#insert-inline-image
-#insert-ordered-list
-#insert-code-chunk
-#insert-block-image
-#insert-empty-table
-#insert-image-figure
+insert-figure-caption:
+  text:
+    - add a caption here
+    - add a caption for the figure
+    - add a caption for the graph
+insert-math-block:
+  text:
+    - add some equations here
+    - add some math here
+    - write an equation for this.
+insert-math-inline:
+  text:
+    - add some math here
+    - write an equation for this.
+insert-code-expression:
+  text:
+    - add some code here to print the results
+    - add some code to calculate this.
+insert-blocks:
+  text:
+    - add some interesting paragraphs
+insert-empty-table:
+  text:
+    - add a table here with 3 rows.
+    - insert a table with columns for the following.
+insert-image-figure:
+  text:
+    - insert a picture of my dog here.
+    - insert an photo here.
+insert-code-chunk:
+  text:
+    - add some code here
+    - insert some code here
+    - add some code to calculate this.
+insert-ordered-list:
+  text:
+    - put a list of biggest cities here
+    - list the top five animals.
+insert-unordered-list:
+  text:
+    - put a list here
+    - insert some bullet points below.
+insert-inline-image:
+  text:
+    - insert a picture of my dog here.
+    - insert an photo here.
+insert-block-image:
+  text:
+    - insert a picture of my dog here.
+    - insert a photo of elvis here.
+edit-blocks:
+  text:
+    - edit the text below
+    - modify the text below
+    - correct the text below
+    - correct the text
+    - fix the text
+edit-inlines:
+  text:
+    - edit the following
+    - make this clearer
+    - make this more concise
