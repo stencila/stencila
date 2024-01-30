@@ -1,78 +1,31 @@
 import { BlockInfo, EditorView, gutter, GutterMarker } from '@codemirror/view'
-import { html } from 'lit'
-import { customElement, property } from 'lit/decorators'
 
 import { MappingEntry } from '../../../clients/format'
-import { NodeType } from '../../../types'
-import { TWLitElement } from '../../../ui/twind'
 import { SourceView } from '../../source'
 
+import { StencilaGutterMarker } from './component'
 import nodeGutterMarkers from './markers'
-
-@customElement('stencila-gutter-marker')
-class StencilaGutterMarker extends TWLitElement {
-  @property({ type: Boolean })
-  isFirstLine: boolean = false
-
-  @property({ type: Boolean })
-  isLastLine: boolean = false
-
-  @property({ type: Array })
-  nodes: NodeType[]
-
-  render() {
-    console.log(this.isFirstLine, this.isLastLine)
-    return html`
-      <div class="w-4 h-full relative">
-        ${!this.isLastLine ? this.renderBase() : ''}
-        ${this.isFirstLine ? this.renderIcon() : ''}
-        ${this.isLastLine && !this.isFirstLine ? this.renderEnd() : ''}
-      </div>
-    `
-  }
-
-  renderIcon(zIndex?: number) {
-    return html`
-      <img
-        src=${nodeGutterMarkers[this.nodes[0]].icon}
-        class="absolute top-0 left-0"
-        width="100%"
-        height="100%"
-        style="z-index=${zIndex ?? 10};"
-      />
-    `
-  }
-
-  renderBase() {
-    return html`<div
-      class="h-full w-1/2"
-      style="background-color: ${nodeGutterMarkers[this.nodes[0]].colour};"
-    ></div>`
-  }
-
-  renderEnd() {
-    return html`<div
-      class="h-full w-1/2 rounded-[]"
-      style="background-color: ${nodeGutterMarkers[this.nodes[0]]
-        .colour}; border-radius: 0 0 25px 25px;"
-    ></div>`
-  }
-}
 
 class NodeGutterMarker extends GutterMarker {
   /**
    * Array of the dom nodes at the start of the current line
    */
   nodes: MappingEntry[]
+
+  /**
+   *
+   */
   line: BlockInfo
 
   isFirstLine: boolean
   isLastLine: boolean
+  lineHeight: number
 
-  constructor(nodes: MappingEntry[], line: BlockInfo) {
+  constructor(nodes: MappingEntry[], line: BlockInfo, lineHeight: number) {
     super()
     this.nodes = nodes
     this.line = line
+    this.lineHeight = lineHeight
     this.isFirstLine = this.checkFirstLine(nodes[0], line)
     this.isLastLine = this.checkLastLine(nodes[0], line)
   }
@@ -101,7 +54,7 @@ class NodeGutterMarker extends GutterMarker {
 const statusGutter = (sourceView: SourceView) => [
   gutter({
     lineMarker: (view: EditorView, line: BlockInfo) => {
-      // fetch nodes and filter out any that are not part of the
+      // fetch nodes and filter out any node types that are not part of the
       // guttermarkers object
       const nodes = sourceView
         .getNodesAt(line.from)
@@ -121,7 +74,9 @@ const statusGutter = (sourceView: SourceView) => [
         //   'nodes:',
         //   nodes
         // )
-        return new NodeGutterMarker(nodes, line)
+        const lineHeight = view.defaultLineHeight
+
+        return new NodeGutterMarker(nodes, line, lineHeight)
       }
       return null
     },
