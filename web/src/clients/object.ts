@@ -104,7 +104,7 @@ export class ObjectClient extends Client {
    * @param id The id of the document
    */
   constructor(id: DocumentId) {
-    super(id, 'read.object', 'object')
+    super(id, 'read.object')
   }
 
   /**
