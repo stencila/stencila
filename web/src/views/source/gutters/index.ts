@@ -18,11 +18,12 @@ class StencilaGutterMarker extends TWLitElement {
   isLastLine: boolean = false
 
   @property({ type: Array })
-  nodesAtLine: NodeType[]
+  nodes: NodeType[]
 
   render() {
+    console.log(this.isFirstLine, this.isLastLine)
     return html`
-      <div class="w-4 h-4 relative">
+      <div class="w-4 h-full relative">
         ${!this.isLastLine ? this.renderBase() : ''}
         ${this.isFirstLine ? this.renderIcon() : ''}
         ${this.isLastLine && !this.isFirstLine ? this.renderEnd() : ''}
@@ -33,7 +34,7 @@ class StencilaGutterMarker extends TWLitElement {
   renderIcon(zIndex?: number) {
     return html`
       <img
-        src=${nodeGutterMarkers[this.nodesAtLine[0]].icon}
+        src=${nodeGutterMarkers[this.nodes[0]].icon}
         class="absolute top-0 left-0"
         width="100%"
         height="100%"
@@ -45,15 +46,14 @@ class StencilaGutterMarker extends TWLitElement {
   renderBase() {
     return html`<div
       class="h-full w-1/2"
-      style="background-color: ${nodeGutterMarkers[this.nodesAtLine[0]]
-        .colour};"
+      style="background-color: ${nodeGutterMarkers[this.nodes[0]].colour};"
     ></div>`
   }
 
   renderEnd() {
     return html`<div
       class="h-full w-1/2 rounded-[]"
-      style="background-color: ${nodeGutterMarkers[this.nodesAtLine[0]]
+      style="background-color: ${nodeGutterMarkers[this.nodes[0]]
         .colour}; border-radius: 0 0 25px 25px;"
     ></div>`
   }
@@ -82,18 +82,17 @@ class NodeGutterMarker extends GutterMarker {
   }
 
   private checkLastLine = (node: MappingEntry, line: BlockInfo) => {
-    return node.start === line.from
+    return node.end > line.from && node.end < line.to
   }
 
   toDOM = (): Node => {
-    const dom = document.createElement('stencila-gutter-marker')
+    const dom = document.createElement(
+      'stencila-gutter-marker'
+    ) as StencilaGutterMarker
 
-    dom.setAttribute('isFirstLine', String(this.isFirstLine))
-    dom.setAttribute('isLastLine', String(this.isLastLine))
-    dom.setAttribute(
-      'nodesAtLine',
-      JSON.stringify(this.nodes.map((node) => node.nodeType))
-    )
+    dom.isFirstLine = this.isFirstLine
+    dom.isLastLine = this.isLastLine
+    dom.nodes = this.nodes.map((node) => node.nodeType)
 
     return dom
   }
@@ -102,22 +101,26 @@ class NodeGutterMarker extends GutterMarker {
 const statusGutter = (sourceView: SourceView) => [
   gutter({
     lineMarker: (view: EditorView, line: BlockInfo) => {
+      // fetch nodes and filter out any that are not part of the
+      // guttermarkers object
       const nodes = sourceView
         .getNodesAt(line.from)
-        .filter((node) => !['Text', 'Article'].includes(node.nodeType))
-
-      // const node = sourceView.getNodeAt(line.from)
+        .filter((node) =>
+          Object.keys(nodeGutterMarkers).includes(node.nodeType)
+        )
 
       if (nodes.length > 0) {
-        console.log(
-          'line:',
-          view.state.doc.lineAt(line.from).number,
-
-          'line start:',
-          line.from,
-          'nodes:',
-          nodes
-        )
+        // useful debugging
+        // console.log(
+        //   'line:',
+        //   view.state.doc.lineAt(line.from).number,
+        //   'line start:',
+        //   line.from,
+        //   'line end: ',
+        //   line.to,
+        //   'nodes:',
+        //   nodes
+        // )
         return new NodeGutterMarker(nodes, line)
       }
       return null

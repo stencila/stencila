@@ -1,5 +1,6 @@
 import heading from './icons/heading.svg'
 import paragraph from './icons/paragraph.svg'
+import table from './icons/table.svg'
 
 const nodeGutterMarkers = {
   IntructionBlock: {
@@ -33,6 +34,10 @@ const nodeGutterMarkers = {
   Heading: {
     colour: '#CDC1F0', // purple-200
     icon: heading,
+  },
+  Table: {
+    colour: '#CDC1F0', // purple-200
+    icon: table,
   },
 }
 
