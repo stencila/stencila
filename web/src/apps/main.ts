@@ -12,6 +12,7 @@ import '../ui/selector'
 import '../ui/sidebar'
 import '../ui/tab'
 import '../ui/view-container'
+import '../ui/buttons/icon'
 
 import '../views/static'
 import '../views/live'
@@ -77,14 +78,11 @@ export class App extends TWLitElement {
       <stencila-ui-sidebar></stencila-ui-sidebar>
       <div class="flex flex-col flex-grow">
         ${this.renderHeader()}
-        <div
-          class="bg-white border border-gray-200 overflow-y-scroll h-full max-h-[calc(100vh-5rem)]"
-        >
-          <stencila-ui-view-container view=${this.view}>
-            ${this.renderView()}
-            <!-- <div slot="side"></div> -->
-          </stencila-ui-view-container>
-        </div>
+
+        <stencila-ui-view-container view=${this.view}>
+          ${this.renderView()}
+          <!-- <div slot="side"></div> -->
+        </stencila-ui-view-container>
       </div>
     </div> `
   }
@@ -94,16 +92,21 @@ export class App extends TWLitElement {
     return html`<header class="w-full flex items-end h-20">
       <nav class="flex bg-neutral-100 h-full w-full">
         <div class="flex-grow flex items-end h-full relative z-10 space-x-1">
-          <stencila-ui-editor-tab ?active=${this.activeTab === '0'}
-            >README</stencila-ui-editor-tab
-          >
-          <stencila-ui-editor-tab ?active=${this.activeTab !== 'README'}
+          <stencila-ui-editor-tab ?active=${true}
             >README</stencila-ui-editor-tab
           >
         </div>
         <div class="flex-shrink-0 flex-grow-0 flex items-center p-5">
           <div class="flex-grow justify-start flex flex-row space-x-4">
             ${this.renderViewSelect()} ${this.renderThemeSelect()}
+          </div>
+          <div class="ml-20 flex space-x-4">
+            <stencila-ui-icon-button
+              icon="status"
+              ?disabled=${true}
+            ></stencila-ui-icon-button>
+            <stencila-ui-icon-button icon="info"></stencila-ui-icon-button>
+            <stencila-ui-icon-button icon="print"></stencila-ui-icon-button>
           </div>
         </div>
       </nav>

@@ -88,8 +88,8 @@ export class DragSplit extends TWLitElement {
       'rounded-full',
       'relative',
       'transition-colors ease-in',
-      'bg-gray-shady',
-      'group-hover:bg-gray-mine-shaft',
+      'bg-grey-shady',
+      'group-hover:bg-grey-mine-shaft',
       'lg:(h-8 w-1)',
     ])
 

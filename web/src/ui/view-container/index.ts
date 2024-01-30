@@ -1,9 +1,20 @@
-import { apply, css } from '@twind/core'
+import { apply } from '@twind/core'
 import { LitElement, html } from 'lit'
 import { customElement, property, state } from 'lit/decorators.js'
 
 import { withTwind } from '../../twind'
 import { DocumentView } from '../../types'
+
+/**
+ * This type is used to quickly access any additional styles to add to a view's
+ * rendering.
+ */
+type StyleMap = {
+  [Prop in DocumentView]: {
+    outer: string | undefined
+    inner: string | undefined
+  }
+}
 
 /**
  * UI View Container
@@ -20,35 +31,73 @@ export class UIViewContainer extends LitElement {
   @property()
   view: DocumentView = 'live'
 
+  /**
+   * Manages if/how we show the side panel slot.
+   */
   @state()
   private _hasSide: boolean = true
 
   override render() {
-    const classes: {
-      [Prop in DocumentView]: string | undefined
-    } = {
+    const classes: StyleMap = {
       live: this.displayModeClasses(),
       static: this.displayModeClasses(),
       dynamic: this.displayModeClasses(),
-      source: undefined,
-      split: this.displayModeClasses(),
+      source: this.sourceModeClasses(),
+      split: this.splitModeClasses(),
       visual: this.displayModeClasses(),
     }
 
-    return html`<div class="flex flex-row">
-      <div class=${classes[this.view ?? 'live']}><slot></slot></div>
-      <div class="grow ${!this._hasSide ? 'hidden' : ''}">
-        <slot name="side"></slot>
+    const { inner, outer } = classes[this.view ?? 'live']
+
+    return html` <div class="bg-white border border-grey-200 h-full ${outer}">
+      <div class="flex flex-row h-full">
+        <div class=${inner}><slot></slot></div>
+        <div class="grow ${!this._hasSide ? 'hidden' : ''}">
+          <slot name="side"></slot>
+        </div>
       </div>
     </div>`
   }
 
-  displayModeClasses() {
-    const styles = css``
+  /**
+   * Any "display" mode (live, fixed views etc) need to be able to scroll any
+   * overflow, set a max width to the content & add sufficient padding between
+   * the content and the chrome.
+   *
+   */
+  private displayModeClasses() {
+    return {
+      inner: apply(['py-11 px-16', 'max-w-[65ch] lg:max-w-[120ch]']),
+      outer:
+        'overflow-y-scroll min-h-[calc(100vh-5rem)] max-h-[calc(100vh-5rem)]',
+    }
+  }
 
-    const twClasses = apply(['py-11 px-16', 'max-w-[65ch] lg:max-w-[120ch]'])
+  /**
+   * The source view needs to stretch the full height of the screen and have no
+   * padding.
+   */
+  private sourceModeClasses() {
+    const twClasses = apply([
+      'p-0',
+      'w-full h-screen max-w-[65ch] lg:max-w-[120ch]',
+      'overflow-y-hidden',
+    ])
 
-    return `${twClasses} ${styles}`
+    return {
+      inner: `${twClasses}`,
+      outer: '',
+    }
+  }
+
+  /**
+   * Split mode stretches the full screen and has no padding.
+   */
+  private splitModeClasses() {
+    return {
+      inner: apply(['p-0', 'w-full']),
+      outer: `overflow-y-hidden`,
+    }
   }
 
   /**

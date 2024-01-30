@@ -13,9 +13,9 @@ import { version } from '../../package.json'
 const { NODE_ENV } = process.env
 const base = NODE_ENV === 'development' ? 'dev' : version
 
-setBasePath(`~static/${base}/shoelace-style/`)
+setBasePath(`/~static/${base}/shoelace-style/`)
 
 // Add custom icons
 registerIconLibrary('stencila', {
-  resolver: (name) => `~static/${base}/app-assets/icons/${name}.svg`,
+  resolver: (name) => `/~static/${base}/app-assets/icons/${name}.svg`,
 })

@@ -1,12 +1,3 @@
-<svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-<g id="sidebar" clip-path="url(#clip0_411_7673)">
-<path id="Vector" d="M17 19H3C1.89543 19 1 18.1046 1 17V3C1 1.89543 1.89543 1 3 1H17C18.1046 1 19 1.89543 19 3V17C19 18.1046 18.1046 19 17 19Z" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-<path id="Vector_2" d="M7.5 19V1" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-<path id="Vector_3" d="M3.5 8L5.25 10L3.5 12" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-</g>
-<defs>
-<clipPath id="clip0_411_7673">
-<rect width="20" height="20"/>
-</clipPath>
-</defs>
+<svg width="20" height="20" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+<path id="sidebar" fill-rule="evenodd" clip-rule="evenodd" d="M3 1.75C2.30964 1.75 1.75 2.30964 1.75 3V17C1.75 17.6904 2.30964 18.25 3 18.25H6.75V1.75H3ZM17 1.75H8.25V18.25H17C17.6904 18.25 18.25 17.6904 18.25 17V3C18.25 2.30964 17.6904 1.75 17 1.75ZM3 19.75H7.5H17C18.5188 19.75 19.75 18.5188 19.75 17V3C19.75 1.48122 18.5188 0.25 17 0.25H7.5H3C1.48122 0.25 0.25 1.48122 0.25 3V17C0.25 18.5188 1.48122 19.75 3 19.75ZM4.06443 7.50612C3.79167 7.19439 3.31785 7.16281 3.00612 7.43557C2.69439 7.70833 2.66281 8.18215 2.93557 8.49388L4.25342 10L2.93557 11.5061C2.66281 11.8178 2.69439 12.2917 3.00612 12.5644C3.31785 12.8372 3.79167 12.8056 4.06443 12.4939L5.81443 10.4939C6.06186 10.2111 6.06186 9.78889 5.81443 9.50612L4.06443 7.50612Z"/>
 </svg>

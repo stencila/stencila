@@ -53,7 +53,7 @@ export class UISelector extends LitElement {
   override render() {
     const styles = apply([
       'group',
-      'text-gray-aluminium',
+      'text-grey-aluminium',
       'p-0',
       'relative',
       'block',
@@ -132,11 +132,11 @@ export class UISelector extends LitElement {
       'w-full',
       'py-2 pl-4 pr-12',
       'bg-white',
-      'text-sm font-bold text-gray-aluminium',
+      'text-sm font-bold text-grey-aluminium',
       'text-left',
       'border-l-4',
       this.target === value ? 'border-brand-blue' : 'border-transparent',
-      'hover:bg-gray-wild-sand hover:text-black',
+      'hover:bg-grey-wild-sand hover:text-black',
     ])
 
     const classes = css`

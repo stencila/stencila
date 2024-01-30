@@ -29,10 +29,10 @@ export class UIEditorTab extends LitElement {
       'pl-4 pr-16 py-2',
       'mr-auto',
       '-mb-[1px]',
-      this.active ? 'bg-white' : 'bg-gray-200',
+      this.active ? 'bg-white' : 'bg-grey-200',
       'rounded-t-md',
       'border',
-      'border-gray-200',
+      'border-grey-200',
       this.active && 'border-b-white',
       !this.active && 'hover:underline',
     ])

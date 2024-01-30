@@ -30,11 +30,22 @@ export const config = defineConfig({
           red: '#e53e3e',
           yellow: '#ecc94b',
         },
-        gray: {
+        grey: {
+          // TODO: replace with design spec colours
           'wild-sand': '#f5f5f5',
           shady: '#9d9d9d',
           aluminium: '#999999',
           'mine-shaft': '#333333',
+
+          '100': '#fefefe',
+          '200': '#DEDEDE',
+          '300': '#C7C7C7',
+          '400': '#B0B0B0',
+          '500': '#999999',
+          '600': '#808080',
+          '700': '#666666',
+          '800': '#4d4d4d',
+          '900': '#333333',
         },
         black: '#171817',
       },
