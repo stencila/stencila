@@ -6,7 +6,12 @@
       messages: [
         {
           type: "Message",
-          parts: [ "4x10 table" ]
+          parts: [
+            {
+              type: "Text",
+              value: "4x10 table"
+            }
+          ]
         }
       ]
     },
@@ -15,7 +20,12 @@
       messages: [
         {
           type: "Message",
-          parts: [ "top five highest mountains, with height in metres" ]
+          parts: [
+            {
+              type: "Text",
+              value: "top five highest mountains, with height in metres"
+            }
+          ]
         }
       ],
       assignee: "insert-table"
@@ -25,7 +35,12 @@
       messages: [
         {
           type: "Message",
-          parts: [ "Improve this paragraph." ]
+          parts: [
+            {
+              type: "Text",
+              value: "Improve this paragraph."
+            }
+          ]
         }
       ],
       content: [
@@ -45,7 +60,12 @@
       messages: [
         {
           type: "Message",
-          parts: [ "please improve this paragraph." ]
+          parts: [
+            {
+              type: "Text",
+              value: "please improve this paragraph."
+            }
+          ]
         }
       ],
       content: [

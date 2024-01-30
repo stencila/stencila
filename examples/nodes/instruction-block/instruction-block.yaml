@@ -4,18 +4,21 @@ content:
   messages:
   - type: Message
     parts:
-    - 4x10 table
+    - type: Text
+      value: 4x10 table
 - type: InstructionBlock
   messages:
   - type: Message
     parts:
-    - top five highest mountains, with height in metres
+    - type: Text
+      value: top five highest mountains, with height in metres
   assignee: insert-table
 - type: InstructionBlock
   messages:
   - type: Message
     parts:
-    - Improve this paragraph.
+    - type: Text
+      value: Improve this paragraph.
   content:
   - type: Paragraph
     content:
@@ -25,7 +28,8 @@ content:
   messages:
   - type: Message
     parts:
-    - please improve this paragraph.
+    - type: Text
+      value: please improve this paragraph.
   content:
   - type: Paragraph
     content:

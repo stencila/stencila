@@ -58,4 +58,4 @@ A list with it, and some of it's items, having authors
 
 - With two authors
 - No authors
-- With one author
+- With three authors
