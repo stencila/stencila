@@ -5,10 +5,10 @@ import { Executable } from './executable'
 
 /**
  * Abstract base class for web components representing Stencila Schema `Instruction` node types
- * 
+ *
  * The only difference between the two node types that extend this, `InstructionBlock`
  * and `InstructionInline`, is the type of the `content` and `suggestion` slots.
- * Given that, even the `render()` method should be able to be shared between the two.  
+ * Given that, even the `render()` method should be able to be shared between the two.
  *
  * @see https://github.com/stencila/stencila/blob/main/docs/reference/schema/edits/instruction.md
  */

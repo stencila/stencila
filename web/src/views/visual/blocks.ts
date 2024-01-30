@@ -180,7 +180,7 @@ const InstructionBlock: NodeSpec = {
       messages.innerHTML = node.attrs.messages
       dom.appendChild(messages)
     }
-    
+
     if (node.attrs.authors) {
       const authors = document.createElement('div')
       authors.slot = 'authors'
