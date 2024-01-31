@@ -3,13 +3,9 @@ version: "0.1.0"
 
 preference-rank: 100
 instruction-type: insert-blocks
-instruction-regexes:
-  - (?i)\bordered list\b
-
-transform-nodes: List
-filter-nodes: ^List$
-take-nodes: 1
-assert-nodes: ^List$
+instruction-examples:
+  - ordered list
+expected-nodes: List
 ---
 
 An assistant specialized for inserting a new ordered `List`.

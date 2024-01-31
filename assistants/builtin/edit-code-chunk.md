@@ -3,11 +3,13 @@ version: "0.1.0"
 
 preference-rank: 100
 instruction-type: modify-blocks
-
-transform-nodes: CodeChunk
-filter-nodes: ^CodeChunk$
-take-nodes: 1
-assert-nodes: ^CodeChunk$
+instruction-examples:
+  - edit the code below
+  - modify the code below
+  - correct the coding errors below
+  - correct the code
+  - fix the bugs
+expected-nodes: CodeChunk
 ---
 
 An assistant specialized for editing an executable `CodeChunk`. Intended for when there is an existing code chunk in a document that the user wants an assistant to modify in some way.

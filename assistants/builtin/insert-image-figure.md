@@ -3,8 +3,8 @@ version: "0.1.0"
 
 preference-rank: 150
 instruction-type: insert-blocks
-instruction-regexes:
-  - (?i)\bfigure with image\b
+instruction-examples:
+  - figure with image
 
 delegates: [none]
 ---

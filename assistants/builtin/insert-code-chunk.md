@@ -3,15 +3,11 @@ version: "0.1.0"
 
 preference-rank: 100
 instruction-type: insert-blocks
-instruction-regexes:
-  - (?i)\bexecutable code\b
-  - (?i)\bcode (chunk|cell)\b
-  - (?i)\bcode to\b
-
-transform-nodes: CodeChunk
-filter-nodes: ^CodeChunk$
-take-nodes: 1
-assert-nodes: ^CodeChunk$
+instruction-examples:
+  - insert a code chunk
+  - insert a code block
+  - insert code to
+expected-nodes: CodeChunk
 ---
 
 An assistant specialized for inserting a new executable `CodeChunk`. Note that other assistants are specialized for inserting code chunks that create figures and tables with captions (`insert-code-figure` and `insert-code-table`).

@@ -3,9 +3,9 @@ version: "0.1.0"
 
 preference-rank: 100
 instruction-type: insert-blocks
-instruction-regexes:
-  - (?i)\bimage\b
-
+instruction-examples:
+  - insert an inline image
+  - insert a inline picture
 delegates: [none]
 ---
 

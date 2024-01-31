@@ -3,13 +3,13 @@ version: "0.1.0"
 
 preference-rank: 100
 instruction-type: insert-blocks
-instruction-regexes:
-  - (?i)\bunordered list\b
+instruction-examples:
+  - make a bullet list
+  - make bullets
+  - make a list
+  - list the following 
 
-transform-nodes: List
-filter-nodes: ^List$
-take-nodes: 1
-assert-nodes: ^List$
+expected-nodes: List
 ---
 
 An assistant specialized for inserting a new unordered `List`.

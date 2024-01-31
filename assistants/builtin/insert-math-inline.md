@@ -3,15 +3,12 @@ version: "0.1.0"
 
 preference-rank: 100
 instruction-type: insert-inlines
-instruction-regexes:
-  - (?i)\bmaths?\b
-  - (?i)\bequation for\b
-  - (?i)\b(lat)?tex\b
+instruction-examples:
+  - maths for
+  - equation for
+  - latex for
 
-transform-nodes: MathInline
-filter-nodes: ^MathInline$
-take-nodes: 1
-assert-nodes: ^MathInline$
+expected-nodes: MathInline
 ---
 
 An assistant specialized for a new `MathInline` node (an inline math equation or symbol).

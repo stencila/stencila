@@ -3,13 +3,9 @@ version: "0.1.0"
 
 preference-rank: 150
 instruction-type: insert-blocks
-instruction-regexes:
-  - (?i)\bfigure from code\b
-
-transform-nodes: CodeChunk
-filter-nodes: ^CodeChunk$
-take-nodes: 1
-assert-nodes: ^CodeChunk$
+instruction-examples:
+  - figure from code
+expected-nodes: CodeChunk
 ---
 
 An assistant specialized for inserting a new executable `CodeChunk` with `FigureLabel` `labelType` and caption.
