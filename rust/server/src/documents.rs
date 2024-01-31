@@ -30,7 +30,7 @@ impl Documents {
     /// document, will return a branch or a twig document.
     pub async fn by_path(&self, path: &Path, sync: Option<SyncDirection>) -> Result<Arc<Document>> {
         {
-            // In block to ensure lock is dropped when no loner needed
+            // In block to ensure lock is dropped when no longer needed
             let paths = self.paths.read().await;
             if let Some(uuid) = paths.get(path) {
                 return self.by_uuid(uuid).await;
