@@ -30,6 +30,8 @@ const tooltipOnHover = (sourceView: SourceView) =>
             dom.setAttribute('id', `tooltip-${nodeId}`)
             return { dom, offset: { x: 10, y: 10 } }
           }
+
+          return null
         },
       }
     },

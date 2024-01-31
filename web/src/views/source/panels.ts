@@ -29,7 +29,7 @@ class EditorPanelElement extends TWLitElement {
   @property({ type: Object })
   sourceView: SourceView
 
-  render() {
+  override render() {
     return html`
       <div class="p-2 flex justify-between">
         ${this.renderControls()} ${this.renderBreadcrumbs()}

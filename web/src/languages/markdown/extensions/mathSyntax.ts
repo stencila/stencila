@@ -75,7 +75,7 @@ class TexBlockParser implements BlockParser {
     }
     return false
   }
-  endLeaf(_, line: Line): boolean {
+  endLeaf(_: unknown, line: Line): boolean {
     return line.text.startsWith(TEXBLOCK_MARK)
   }
 }

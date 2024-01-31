@@ -287,7 +287,7 @@ export abstract class FormatClient extends Client {
   public nodesAt(position: number): MappingEntry[] {
     let start = 0
     let end = 0
-    const nodes = []
+    const nodes: MappingEntry[] = []
     for (const entry of this.mapping) {
       start += entry.start
       end += entry.end

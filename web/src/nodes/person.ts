@@ -18,7 +18,7 @@ export abstract class Person extends Entity {
   @property({ attribute: 'family-names', type: Array })
   familyNames?: string[]
 
-  render() {
+  override render() {
     // TODO: improve rendering
     return html`${this.givenNames} ${this.familyNames}`
   }

@@ -1,15 +1,8 @@
-@import url('https://fonts.googleapis.com/css?family=Lato:400,400i,700,700i|Montserrat:400,600&display=swap');
-/* @import url("https://cdn.jsdelivr.net/npm/remixicon@3.7.0/fonts/remixicon.css"); */
+/* @import url('https://fonts.googleapis.com/css2?family=Lato:wght@400;900|Montserrat:wght@400;600&display=swap'); */
 
 body {
   margin: 0;
   padding: 0;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
-}
-
-summary > details::marker,
-::marker,
-::-webkit-details-marker {
-  display: unset !important;
 }

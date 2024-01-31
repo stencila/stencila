@@ -7,7 +7,7 @@ const styleInline = { name: 'StyleInline' }
 
 class StyleInlineParse implements InlineParser {
   name = styleInline.name
-  parse = (cx: InlineContext, next: number, pos: number): number => {
+  parse = (cx: InlineContext, _next: number, pos: number): number => {
     const styleIndex = cx.slice(pos, cx.text.length - 1).search(styleInlineRe)
     if (styleIndex !== -1) {
       console.log(styleIndex)

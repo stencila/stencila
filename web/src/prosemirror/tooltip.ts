@@ -20,7 +20,7 @@ const createTooltip = (editorView: ProseMirrorView): HTMLElement => {
  */
 const hoverTooltipPlugin: () => Plugin = () => {
   let tooltip: HTMLElement = null
-  let delayTimer = null
+  let delayTimer: NodeJS.Timeout | null = null
   return new Plugin({
     view: (editorView: ProseMirrorView) => {
       const { dom } = editorView

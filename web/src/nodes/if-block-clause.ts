@@ -68,7 +68,7 @@ export class IfBlockClause extends CodeExecutable {
   private renderContent() {
     return html`
       <div part="content">
-        <p class="text-gray-400" contenteditable="false">
+        <p class="text-grey-400" contenteditable="false">
           ${this.hasContent ? '' : 'No content'}
         </p>
         <slot name="content" @slotchange=${this.onContentSlotChange}></slot>

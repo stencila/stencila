@@ -53,7 +53,7 @@ class SuggestLeafParser implements LeafBlockParser {
   nodeType: string
   markType: string
 
-  constructor(delim: string, nodeType, markType) {
+  constructor(delim: string, nodeType: string, markType: string) {
     this.delimiter = delim
     ;(this.nodeType = nodeType), (this.markType = markType)
   }
@@ -196,8 +196,9 @@ const modifyLeafParser = new SuggestLeafParser(
  */
 class ModifyBlockParser implements BlockParser {
   name = modBlockOuter.name
-  leaf = (_, leaf) => (modOuterRe.test(leaf.content) ? modifyLeafParser : null)
-  endLeaf = (_, line) => !modOuterRe.test(line.text)
+  leaf = (_: BlockContext, leaf: LeafBlock) =>
+    modOuterRe.test(leaf.content) ? modifyLeafParser : null
+  endLeaf = (_: BlockContext, line: Line) => !modOuterRe.test(line.text)
 }
 
 const modifyInnerLeafParser = new SuggestLeafParser(
@@ -213,9 +214,9 @@ const modifyInnerLeafParser = new SuggestLeafParser(
  */
 class ModifyInnerParser implements BlockParser {
   name = modBlockInner.name
-  leaf = (_, leaf) =>
+  leaf = (_: BlockContext, leaf: LeafBlock) =>
     modInnerRe.test(leaf.content) ? modifyInnerLeafParser : null
-  endLeaf = (_, line) => !modInnerRe.test(line.text)
+  endLeaf = (_: BlockContext, line: Line) => !modInnerRe.test(line.text)
 }
 
 /**
@@ -288,8 +289,9 @@ const replaceBlockLeaf = new SuggestLeafParser(
  */
 class ReplaceBlockParser implements BlockParser {
   name = repBlockOuter.name
-  leaf = (_, leaf) => (repOuterRe.test(leaf.content) ? replaceBlockLeaf : null)
-  endLeaf = (_, line) => !repOuterRe.test(line.text)
+  leaf = (_: BlockContext, leaf: LeafBlock) =>
+    repOuterRe.test(leaf.content) ? replaceBlockLeaf : null
+  endLeaf = (_: BlockContext, line: Line) => !repOuterRe.test(line.text)
 }
 
 const replaceInnerLeaf = new SuggestLeafParser(
@@ -305,8 +307,9 @@ const replaceInnerLeaf = new SuggestLeafParser(
  */
 class ReplaceInnerParser implements BlockParser {
   name = repBlockInner.name
-  leaf = (_, leaf) => (repInnerRe.test(leaf.content) ? replaceInnerLeaf : null)
-  endLeaf = (_, line) => !repInnerRe.test(line.text)
+  leaf = (_: BlockContext, leaf: LeafBlock) =>
+    repInnerRe.test(leaf.content) ? replaceInnerLeaf : null
+  endLeaf = (_: BlockContext, line: Line) => !repInnerRe.test(line.text)
 }
 
 /**
@@ -369,10 +372,10 @@ const deleteBlockLeaf = new SuggestLeafParser(
  */
 class DeleteBlockParser implements BlockParser {
   name = delBlock.name
-  leaf = (_, leaf) => {
+  leaf = (_: BlockContext, leaf: LeafBlock) => {
     return delDelimRe.test(leaf.content.trim()) ? deleteBlockLeaf : null
   }
-  endLeaf = (_, line) => !delDelimRe.test(line.text)
+  endLeaf = (_: BlockContext, line: Line) => !delDelimRe.test(line.text)
 }
 
 /**
@@ -381,7 +384,7 @@ class DeleteBlockParser implements BlockParser {
  */
 class DeleteInlineParser implements InlineParser {
   name = delInline.name
-  parse = (cx: InlineContext, next: number, pos: number): number => {
+  parse = (cx: InlineContext, _next: number, pos: number): number => {
     if (cx.slice(pos, pos + DELETE_INLINE_OPEN.length) === DELETE_INLINE_OPEN) {
       return cx.addElement(
         cx.elt(delInline.name, pos, pos + DELETE_INLINE_OPEN.length, [
@@ -450,6 +453,7 @@ const StencilaSuggestionSyntax: MarkdownConfig = {
     new ReplaceInlineParser(),
     new DeleteInlineParser(),
   ],
+  // @ts-expect-error "TODO: this function isn't returning from all code paths"
   wrap: parseMixed((node) => {
     if (node.type.name === insertBlock.name) {
       const from = node.from + BLOCK_MARK_LENGTH
