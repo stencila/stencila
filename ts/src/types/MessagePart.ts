@@ -4,13 +4,14 @@ import { hydrate } from "../hydrate.js";
 
 import { type AudioObject } from "./AudioObject.js";
 import { type ImageObject } from "./ImageObject.js";
+import { type Text } from "./Text.js";
 import { type VideoObject } from "./VideoObject.js";
 
 /**
  * A union type for a part of a message.
  */
 export type MessagePart =
-  string |
+  Text |
   ImageObject |
   AudioObject |
   VideoObject;
@@ -19,10 +20,8 @@ export type MessagePart =
  * Create a `MessagePart` from an object
  */
 export function messagePart(other: MessagePart): MessagePart {
-  if (other == null || typeof other !== "object" || Array.isArray(other) || typeof other.type === "undefined") {
-    return other as MessagePart;
-  }
   switch(other.type) {
+    case "Text":
     case "ImageObject":
     case "AudioObject":
     case "VideoObject":

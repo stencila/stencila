@@ -171,6 +171,9 @@ impl Format {
     /// Resolve a [`Format`] from a file path
     pub fn from_path(path: &Path) -> Result<Self> {
         let path_string = path.to_string_lossy();
+        if path_string.ends_with(".dom.html") {
+            return Ok(Format::Dom);
+        }
         if path_string.ends_with(".json-ld") {
             return Ok(Format::JsonLd);
         }

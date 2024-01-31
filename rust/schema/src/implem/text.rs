@@ -1,6 +1,10 @@
 use crate::{prelude::*, Cord, Text};
 
 impl Text {
+    pub fn to_value_string(&self) -> String {
+        self.value.to_string()
+    }
+
     pub fn to_jats_special(&self) -> (String, Losses) {
         use codec_jats_trait::encode::escape;
 

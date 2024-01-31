@@ -63,6 +63,9 @@ properties:
     strip: [metadata]
     serde:
       deserializeWith: option_one_or_many_string_or_object
+    dom:
+      # Need to use <span> here to allow for both `MathBlock` and `MathInline`
+      elem: span
   compilationDigest:
     '@id': stencila:compilationDigest
     description: A digest of the `code` and `mathLanguage`.

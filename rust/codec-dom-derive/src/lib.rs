@@ -70,6 +70,8 @@ fn derive_struct(type_attr: TypeAttr) -> TokenStream {
     };
 
     let mut attrs = TokenStream::new();
+    // Options may include attrs so these need to go directly after the "main" attrs
+    let mut options = TokenStream::new();
     let mut children = TokenStream::new();
     type_attr.data.map_struct_fields(|field_attr| {
         let Some(field_name) = field_attr.ident else {
@@ -84,7 +86,11 @@ fn derive_struct(type_attr: TypeAttr) -> TokenStream {
             attrs.extend(quote! {
                 context.push_id(&self.id);
             });
-        } else if field_name == "options" || matches!(field_attr.elem.as_deref(), Some("none")) {
+        } else if field_name == "options" {
+            options.extend(quote! {
+                self.#field_name.to_dom(context);
+            });
+        } else if matches!(field_attr.elem.as_deref(), Some("none")) {
             children.extend(quote! {
                 self.#field_name.to_dom(context);
             });
@@ -125,6 +131,7 @@ fn derive_struct(type_attr: TypeAttr) -> TokenStream {
             fn to_dom(&self, context: &mut DomEncodeContext) {
                 #enter
                 #attrs
+                #options
                 #children
                 #exit
             }

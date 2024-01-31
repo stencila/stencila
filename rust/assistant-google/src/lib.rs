@@ -12,8 +12,8 @@ use assistant::{
         serde_with::skip_serializing_none,
         tracing,
     },
-    schema::{ImageObject, MessagePart, PersonOrOrganizationOrSoftwareApplication},
-    Assistant, AssistantIO, GenerateOptions, GenerateOutput, GenerateTask,
+    schema::{ImageObject, MessagePart},
+    Assistant, AssistantIO, GenerateOptions, GenerateOutput, GenerateTask, InstructionMessage,
 };
 
 const BASE_URL: &str = "https://generativelanguage.googleapis.com/v1";
@@ -88,17 +88,16 @@ impl Assistant for GoogleAssistant {
                 .into_iter()
             })
             .chain(task.instruction_messages().map(|message| {
-                use PersonOrOrganizationOrSoftwareApplication::*;
-                let role = Some(match message.sender {
-                    None | Some(Person(..) | Organization(..)) => Role::User,
-                    Some(SoftwareApplication(..)) => Role::Model,
+                let role = Some(match message.is_assistant() {
+                    true => Role::Model,
+                    false => Role::User
                 });
 
                 let parts = message
                     .parts
                     .iter()
                     .filter_map(|part| match part {
-                        MessagePart::String(text) => Some(Part::text(text)),
+                        MessagePart::Text(text) => Some(Part::text(&text.value)),
                         MessagePart::ImageObject(ImageObject{content_url,..}) => {
                             if let Some(pos) = content_url.find(";base64,") {
                                 let mime_type = &content_url[..pos];

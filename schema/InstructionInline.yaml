@@ -35,3 +35,5 @@ properties:
     '@id': stencila:suggestion
     description: A suggestion for the instruction
     $ref: SuggestionInlineType
+    dom:
+      elem: span

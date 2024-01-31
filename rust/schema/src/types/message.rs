@@ -2,6 +2,7 @@
 
 use crate::prelude::*;
 
+use super::block::Block;
 use super::message_part::MessagePart;
 use super::person_or_organization_or_software_application::PersonOrOrganizationOrSoftwareApplication;
 use super::string::String;
@@ -25,10 +26,20 @@ pub struct Message {
     /// Parts of the message.
     #[serde(alias = "part")]
     #[serde(deserialize_with = "one_or_many")]
+    #[dom(elem = "div")]
     pub parts: Vec<MessagePart>,
 
-    /// The sender of the message.
-    pub sender: Option<PersonOrOrganizationOrSoftwareApplication>,
+    /// Content of the message.
+    #[serde(default, deserialize_with = "option_one_or_many")]
+    #[walk]
+    #[dom(elem = "div")]
+    pub content: Option<Vec<Block>>,
+
+    /// The authors of the message.
+    #[serde(alias = "author")]
+    #[serde(default, deserialize_with = "option_one_or_many")]
+    #[dom(elem = "div")]
+    pub authors: Option<Vec<PersonOrOrganizationOrSoftwareApplication>>,
 
     /// A unique identifier for a node within a document
     

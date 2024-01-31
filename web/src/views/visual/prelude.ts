@@ -11,8 +11,14 @@ export { type NodeViewConstructor } from 'prosemirror-view'
 
 // TODO: Document this module
 
-export const executableAttrs = ['id']
+/**
+ * HTML element attributes for node types that extend `Executable`
+ */
+export const executableAttrs = ['id', 'executionStatus']
 
+/**
+ * HTML element attributes for node types that extend `CodeExecutable`
+ */
 export const codeExecutableAttrs = [
   ...executableAttrs,
   'code',

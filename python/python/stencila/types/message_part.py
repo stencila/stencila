@@ -4,11 +4,12 @@ from .prelude import *
 
 AudioObject = ForwardRef("AudioObject")
 ImageObject = ForwardRef("ImageObject")
+Text = ForwardRef("Text")
 VideoObject = ForwardRef("VideoObject")
 
 
 MessagePart = Union[
-    str,
+    Text,
     ImageObject,
     AudioObject,
     VideoObject,

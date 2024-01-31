@@ -14,7 +14,7 @@ use rust_embed::RustEmbed;
 
 use app::{get_app_dir, DirType};
 use assistant::common::eyre;
-use assistant::schema::NodeType;
+use assistant::schema::{MessagePart, NodeType};
 use assistant::{
     codecs::{self, EncodeOptions, Format, LossesResponse},
     common::{
@@ -30,10 +30,9 @@ use assistant::{
     },
     deserialize_option_regex,
     merge::Merge,
-    node_authorship::author_roles,
-    schema::{AuthorRoleName, Message},
+    schema::Message,
     Assistant, AssistantIO, GenerateOptions, GenerateOutput, GenerateTask, Instruction,
-    InstructionType, Nodes,
+    InstructionType,
 };
 
 /// Default preference rank
@@ -655,12 +654,9 @@ impl Assistant for SpecializedAssistant {
                 let result: Result<GenerateOutput> = delegate.perform_task(&task, &options).await;
                 match result {
                     Ok(mut output) => {
-                        // Add this assistant as an author for generating the prompt used by the delegate
-                        let roles = vec![self.to_author_role(AuthorRoleName::Prompter)];
-                        match &mut output.nodes {
-                            Nodes::Blocks(blocks) => author_roles(blocks, roles),
-                            Nodes::Inlines(inlines) => author_roles(inlines, roles),
-                        }
+                        // Assign this assistant as the prompter for the output so it can be recorded
+                        // in messages and output nodes
+                        output.assign_prompter(self);
 
                         return Ok(output);
                     }
@@ -673,13 +669,13 @@ impl Assistant for SpecializedAssistant {
 
                         // Add the error to the instruction messages so that the assistant
                         // can use it to try to correct
+                        let message = Message {
+                            parts: vec![MessagePart::Text(format!("Error: {error}").into())],
+                            ..Default::default()
+                        };
                         match &mut task.instruction {
-                            Instruction::Block(instr) => instr
-                                .messages
-                                .push(Message::from(format!("Error: {error}"))),
-                            Instruction::Inline(instr) => instr
-                                .messages
-                                .push(Message::from(format!("Error: {error}"))),
+                            Instruction::Block(instr) => instr.messages.push(message),
+                            Instruction::Inline(instr) => instr.messages.push(message),
                         }
                     }
                 }

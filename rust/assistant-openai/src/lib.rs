@@ -21,8 +21,8 @@ use assistant::{
         itertools::Itertools,
         tracing,
     },
-    schema::{ImageObject, MessagePart, PersonOrOrganizationOrSoftwareApplication},
-    Assistant, AssistantIO, GenerateOptions, GenerateOutput, GenerateTask,
+    schema::{ImageObject, MessagePart},
+    Assistant, AssistantIO, GenerateOptions, GenerateOutput, GenerateTask, InstructionMessage,
 };
 
 const API_KEY: &str = "OPENAI_API_KEY";
@@ -156,17 +156,16 @@ impl OpenAIAssistant {
             .chain(task
                 .instruction_messages()
                 .map(|message| {
-                    use PersonOrOrganizationOrSoftwareApplication::*;
-                    match message.sender {
-                        None | Some(Person(..) | Organization(..)) => {
+                    match message.is_assistant() {
+                        false => {
                             let content = message
                                 .parts
                                 .iter()
                                 .filter_map(|part| match part {
-                                    MessagePart::String(text) => Some(
+                                    MessagePart::Text(text) => Some(
                                         ChatCompletionRequestMessageContentPart::Text(ChatCompletionRequestMessageContentPartText{
                                             r#type: "text".to_string(),
-                                            text: text.to_string()
+                                            text: text.to_value_string()
                                         })
                                     ),
                                     MessagePart::ImageObject(ImageObject { content_url, .. }) => Some(
@@ -193,12 +192,12 @@ impl OpenAIAssistant {
                                 ..Default::default()
                             })
                         }
-                        Some(SoftwareApplication(..)) => {
+                        true => {
                             let content = message
                                 .parts
                                 .iter()
                                 .filter_map(|part| match part {
-                                    MessagePart::String(text) => Some(text),
+                                    MessagePart::Text(text) => Some(text.to_value_string()),
                                     _ => {
                                         tracing::warn!(
                                             "Assistant message part `{part}` is ignored by assistant `{}`", self.id()
@@ -292,7 +291,7 @@ impl OpenAIAssistant {
                     .parts
                     .iter()
                     .flat_map(|part| match part {
-                        MessagePart::String(text) => Some(text),
+                        MessagePart::Text(text) => Some(text.to_value_string()),
                         _ => {
                             tracing::warn!(
                                 "Message part `{part}` is ignored by assistant `{}`",
