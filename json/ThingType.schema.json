@@ -54,9 +54,6 @@
       "$ref": "DefinedTerm.schema.json"
     },
     {
-      "$ref": "Directory.schema.json"
-    },
-    {
       "$ref": "Enumeration.schema.json"
     },
     {
@@ -73,9 +70,6 @@
     },
     {
       "$ref": "Figure.schema.json"
-    },
-    {
-      "$ref": "File.schema.json"
     },
     {
       "$ref": "FormDeriveAction.schema.json"

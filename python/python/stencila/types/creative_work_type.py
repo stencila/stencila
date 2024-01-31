@@ -8,9 +8,7 @@ Claim = ForwardRef("Claim")
 Collection = ForwardRef("Collection")
 Comment = ForwardRef("Comment")
 Datatable = ForwardRef("Datatable")
-Directory = ForwardRef("Directory")
 Figure = ForwardRef("Figure")
-File = ForwardRef("File")
 ImageObject = ForwardRef("ImageObject")
 MediaObject = ForwardRef("MediaObject")
 Periodical = ForwardRef("Periodical")
@@ -30,9 +28,7 @@ CreativeWorkType = Union[
     Collection,
     Comment,
     Datatable,
-    Directory,
     Figure,
-    File,
     ImageObject,
     MediaObject,
     Periodical,

@@ -8,9 +8,7 @@ import { type Claim } from "./Claim.js";
 import { type Collection } from "./Collection.js";
 import { type Comment } from "./Comment.js";
 import { type Datatable } from "./Datatable.js";
-import { type Directory } from "./Directory.js";
 import { type Figure } from "./Figure.js";
-import { type File } from "./File.js";
 import { type ImageObject } from "./ImageObject.js";
 import { type MediaObject } from "./MediaObject.js";
 import { type Periodical } from "./Periodical.js";
@@ -32,9 +30,7 @@ export type CreativeWorkType =
   Collection |
   Comment |
   Datatable |
-  Directory |
   Figure |
-  File |
   ImageObject |
   MediaObject |
   Periodical |
@@ -57,9 +53,7 @@ export function creativeWorkType(other: CreativeWorkType): CreativeWorkType {
     case "Collection":
     case "Comment":
     case "Datatable":
-    case "Directory":
     case "Figure":
-    case "File":
     case "ImageObject":
     case "MediaObject":
     case "Periodical":
