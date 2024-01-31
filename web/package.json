@@ -44,6 +44,10 @@
     {
       "staticPath": "../node_modules/@shoelace-style/shoelace/dist/themes/",
       "staticOutPath": "shoelace-style/themes"
+    },
+    {
+      "staticPath": "./src/assets/",
+      "staticOutPath": "app-assets"
     }
   ],
   "browserslist": [

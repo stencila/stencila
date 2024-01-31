@@ -3,8 +3,8 @@ import { BlockInfo, EditorView, gutter, GutterMarker } from '@codemirror/view'
 import { MappingEntry } from '../../../clients/format'
 import { SourceView } from '../../source'
 
+import gutterColourMarkers from './colours'
 import { StencilaGutterMarker } from './component'
-import nodeGutterMarkers from './markers'
 
 class NodeGutterMarker extends GutterMarker {
   /**
@@ -13,21 +13,24 @@ class NodeGutterMarker extends GutterMarker {
   nodes: MappingEntry[]
 
   /**
-   *
+   * `BlockInfo` instance of the current line
    */
   line: BlockInfo
 
-  isFirstLine: boolean
-  isLastLine: boolean
-  lineHeight: number
+  /**
+   * the default line height of the `EditorView` instance
+   */
+  defaultLineHeight: number
 
-  constructor(nodes: MappingEntry[], line: BlockInfo, lineHeight: number) {
+  constructor(
+    nodes: MappingEntry[],
+    line: BlockInfo,
+    defaultLineHeight: number
+  ) {
     super()
     this.nodes = nodes
     this.line = line
-    this.lineHeight = lineHeight
-    this.isFirstLine = this.checkFirstLine(nodes[0], line)
-    this.isLastLine = this.checkLastLine(nodes[0], line)
+    this.defaultLineHeight = defaultLineHeight
   }
 
   private checkFirstLine = (node: MappingEntry, line: BlockInfo) => {
@@ -35,7 +38,7 @@ class NodeGutterMarker extends GutterMarker {
   }
 
   private checkLastLine = (node: MappingEntry, line: BlockInfo) => {
-    return node.end > line.from && node.end < line.to
+    return node.end > line.from && node.end <= line.to + 1
   }
 
   toDOM = (): Node => {
@@ -43,9 +46,11 @@ class NodeGutterMarker extends GutterMarker {
       'stencila-gutter-marker'
     ) as StencilaGutterMarker
 
-    dom.isFirstLine = this.isFirstLine
-    dom.isLastLine = this.isLastLine
+    dom.isFirstLine = this.checkFirstLine(this.nodes[0], this.line)
+    dom.isLastLine = this.checkLastLine(this.nodes[0], this.line)
     dom.nodes = this.nodes.map((node) => node.nodeType)
+    dom.defaultLineHeight = this.defaultLineHeight
+    dom.currentLineHeight = this.line.height
 
     return dom
   }
@@ -56,27 +61,28 @@ const statusGutter = (sourceView: SourceView) => [
     lineMarker: (view: EditorView, line: BlockInfo) => {
       // fetch nodes and filter out any node types that are not part of the
       // guttermarkers object
+      // also checks some positional
       const nodes = sourceView
         .getNodesAt(line.from)
         .filter((node) =>
-          Object.keys(nodeGutterMarkers).includes(node.nodeType)
+          Object.keys(gutterColourMarkers).includes(node.nodeType)
         )
 
       if (nodes.length > 0) {
         // useful debugging
-        // console.log(
-        //   'line:',
-        //   view.state.doc.lineAt(line.from).number,
-        //   'line start:',
-        //   line.from,
-        //   'line end: ',
-        //   line.to,
-        //   'nodes:',
-        //   nodes
-        // )
-        const lineHeight = view.defaultLineHeight
-
-        return new NodeGutterMarker(nodes, line, lineHeight)
+        console.log(
+          'line:',
+          view.state.doc.lineAt(line.from).number,
+          'line start:',
+          line.from,
+          'line end: ',
+          line.to,
+          // 'line height',
+          // line.height
+          'nodes:',
+          nodes
+        )
+        return new NodeGutterMarker(nodes, line, view.defaultLineHeight)
       }
       return null
     },
