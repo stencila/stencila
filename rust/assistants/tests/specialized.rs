@@ -33,7 +33,7 @@ async fn local_get_assistant(itype: InstructionType, text: String) -> Result<(St
 }
 
 fn short_name(id: &String) -> String {
-    id.split("/")
+    id.split('/')
         .nth(1)
         .expect("should be a `/` in an id")
         .to_string()
@@ -107,13 +107,9 @@ async fn ensure_assistants_are_distinct() -> Result<()> {
         .flat_map(|a| {
             a.instruction_examples()
                 .as_ref()
-                .unwrap_or_else(|| &empty_instr)
+                .unwrap_or(&empty_instr)
                 .iter()
-                .zip(
-                    a.instruction_embeddings()
-                        .as_ref()
-                        .unwrap_or_else(|| &empty_embed),
-                )
+                .zip(a.instruction_embeddings().as_ref().unwrap_or(&empty_embed))
                 .map(|i| (a, i))
                 .collect::<Vec<_>>()
         })
