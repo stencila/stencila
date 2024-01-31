@@ -103,6 +103,7 @@ export class UISelector extends LitElement {
 
       &::part(label) {
         padding-left: 0;
+        font-weight: 700;
       }
     `
 
@@ -132,7 +133,7 @@ export class UISelector extends LitElement {
       'w-full',
       'py-2 pl-4 pr-12',
       'bg-white',
-      'text-sm font-bold text-grey-aluminium',
+      'text-grey-aluminium',
       'text-left',
       'border-l-4',
       this.target === value ? 'border-brand-blue' : 'border-transparent',
@@ -147,6 +148,10 @@ export class UISelector extends LitElement {
 
       &::part(base) {
         padding: 0;
+      }
+
+      &::part(label) {
+        font-size: 0.875rem;
       }
     `
 

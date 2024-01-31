@@ -11,7 +11,7 @@ import './helpers/block-infobox'
  */
 @customElement('stencila-paragraph')
 export abstract class Paragraph extends Entity {
-  render() {
+  override render() {
     const view = this.documentView()
 
     return html`

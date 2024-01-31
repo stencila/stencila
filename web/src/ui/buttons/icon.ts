@@ -91,7 +91,7 @@ export class UIIconButton extends LitElement {
       'transition-all duration-300 ease-in-out',
       'stroke-none',
       stateColour[state],
-      state !== 'active' ? 'group-hover:fill-grey-900' : '',
+      state !== 'active' ? 'group-hover:fill-grey-900' : 'drop-shadow-2xl',
     ])
 
     return html`<sl-icon

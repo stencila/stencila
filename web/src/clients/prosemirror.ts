@@ -34,6 +34,7 @@ export class ProseMirrorClient extends NodesClient {
       // This function is called with a ProseMirror `EditorView` as `this`
       // and must update the state with the transaction (in addition to
       // forwarding the transformed transaction to the server)
+      // @ts-expect-error "this as any"
       const view = this as EditorView
 
       // Apply the transaction to the state to get a new state
@@ -45,9 +46,11 @@ export class ProseMirrorClient extends NodesClient {
         view.state,
         newState
       )
+      // @ts-expect-error "this as any"
       if (patch) this.sendMessage(patch)
 
       // Update this view with the new state
+      // @ts-expect-error "this as any"
       this.updateState(newState)
     }
   }
@@ -89,7 +92,7 @@ export class ProseMirrorClient extends NodesClient {
    * @param step The ProseMirror step to transform
    */
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  private static textPatch(step: Step): NodePatch | null {
+  private static textPatch(_step: Step): NodePatch | null {
     return null
   }
 
@@ -111,9 +114,9 @@ export class ProseMirrorClient extends NodesClient {
    */
   private static diffPatch(
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    pre: EditorState,
+    _pre: EditorState,
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    post: EditorState
+    _post: EditorState
   ): NodePatch | null {
     if (process.env.NODE_ENV === 'development') {
       console.log('🔀 Diffing editor states to derive patch')

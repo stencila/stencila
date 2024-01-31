@@ -145,6 +145,7 @@ export class App extends TWLitElement {
   }
 
   /* eslint-disable lit/attribute-value-entities */
+  // @ts-expect-error "will use soon enough"
   private renderPrintLink() {
     return html`<a
       href="?mode=doc&view=print&theme=${this.theme}"

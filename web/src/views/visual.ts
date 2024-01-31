@@ -48,6 +48,7 @@ export class VisualView extends ThemedView {
    * A read-only client which updates the document's DOM when the
    * document changes on the server
    */
+  // @ts-expect-error "dom client is set, not read"
   private domClient: DomClient
 
   /**
@@ -59,6 +60,7 @@ export class VisualView extends ThemedView {
   /**
    * A ProseMirror editor view which the client interacts with
    */
+  // @ts-expect-error "prose mirror view is set, not read"
   private proseMirrorView: ProseMirrorView
 
   /**
@@ -107,7 +109,7 @@ export class VisualView extends ThemedView {
     this.domClient = new DomClient(this.doc, proseMirrorElem)
   }
 
-  render() {
+  override render() {
     return html`<stencila-article root></stencila-article>`
   }
 }

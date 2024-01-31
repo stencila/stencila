@@ -43,7 +43,7 @@ export class StaticView extends ThemedView {
     }
   }
 
-  render() {
+  override render() {
     if (this.fetch) {
       // Render a spinner which will spin until fetched content replaces it
       return html`<p>TODO: Spinner</p>`

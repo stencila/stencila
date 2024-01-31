@@ -174,6 +174,7 @@ export class ObjectClient extends Client {
 
     let node = this.state.node
     for (const segment of path) {
+      // @ts-expect-error "node really should be a Node and not an object"
       node = node[segment]
       if (node === undefined) {
         throw new Error(`Invalid path for node ${nodeId}`)

@@ -94,6 +94,7 @@ export class SourceView extends TWLitElement {
    * document changes on the server. We use this to extract custom elements
    * for nodes to use in tooltips etc.
    */
+  // @ts-expect-error "dom client is set, but not read"
   private domClient: DomClient
 
   /**

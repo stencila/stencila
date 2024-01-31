@@ -53,7 +53,7 @@ export abstract class Client {
    * @param url
    * @param subprotocol
    */
-  private connect(url, subprotocol) {
+  private connect(url: string | URL, subprotocol: string) {
     this.ws = new WebSocket(url, subprotocol + '.stencila.org')
 
     this.ws.onopen = () => {
@@ -111,6 +111,7 @@ export abstract class Client {
    *
    * @param message The message as a JavaScript object
    */
+  // @ts-expect-error "function is a stub"
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   protected receiveMessage(message: Record<string, unknown>) {}
 

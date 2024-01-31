@@ -25,6 +25,7 @@ export class LiveView extends ThemedView {
    * A read-only client which will update the document's DOM when the
    * document changes
    */
+  // @ts-expect-error "dom client is set, not read"
   private domClient: DomClient
 
   /**
@@ -40,7 +41,7 @@ export class LiveView extends ThemedView {
     )
   }
 
-  render() {
+  override render() {
     return html`<stencila-article root></stencila-article>`
   }
 }

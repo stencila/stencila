@@ -22,6 +22,9 @@ export const config = defineConfig({
       fontFamily: {
         sans: ['Lato', 'Montserrat'],
       },
+      dropShadow: {
+        '2xl': '0 0 0.15em rgba(37, 104, 239, 1)',
+      },
       colors: {
         white: '#fff',
         brand: {
