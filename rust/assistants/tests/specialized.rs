@@ -1,19 +1,22 @@
-use assistant::{common::eyre::Result, Assistant, GenerateTask, Instruction, InstructionType};
-use assistant_specialized::{Embeddings, SpecializedAssistant};
-use assistants::get_assistant;
 use std::collections::{HashMap, HashSet};
 use std::fs;
 
-use assistant::common::{serde_yaml, tokio};
-use serde::Deserialize;
+use assistant::{
+    common::{eyre::Result, serde::Deserialize, serde_yaml, tokio},
+    Assistant, GenerateTask, Instruction, InstructionType,
+};
+use assistant_specialized::{Embeddings, SpecializedAssistant};
+use assistants::get_assistant;
 
 #[derive(Debug, Deserialize)]
+#[serde(crate = "assistant::common::serde")]
 struct AssistantTest {
     text: Vec<String>,
 }
 
 // If your YAML file contains an array of tests
 #[derive(Debug, Deserialize)]
+#[serde(crate = "assistant::common::serde")]
 struct TestCases(Vec<AssistantTest>);
 
 async fn local_get_assistant(itype: InstructionType, text: String) -> Result<(String, f32)> {

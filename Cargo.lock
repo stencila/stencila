@@ -251,9 +251,6 @@ dependencies = [
  "assistant-openai",
  "assistant-specialized",
  "codecs",
- "serde",
- "serde_yaml",
- "tokio",
 ]
 
 [[package]]
