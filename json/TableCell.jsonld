@@ -42,7 +42,13 @@
           "@id": "stencila:Button"
         },
         {
+          "@id": "stencila:Directory"
+        },
+        {
           "@id": "stencila:ExecutionTag"
+        },
+        {
+          "@id": "stencila:File"
         },
         {
           "@id": "stencila:Function"

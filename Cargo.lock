@@ -827,6 +827,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "codec-directory"
+version = "0.0.0"
+dependencies = [
+ "codec",
+ "ignore",
+ "mime_guess",
+]
+
+[[package]]
 name = "codec-dom"
 version = "0.0.0"
 dependencies = [
@@ -1027,6 +1036,7 @@ dependencies = [
  "codec",
  "codec-cbor",
  "codec-debug",
+ "codec-directory",
  "codec-dom",
  "codec-html",
  "codec-jats",
@@ -2240,6 +2250,22 @@ checksum = "634d9b1461af396cad843f47fdba5597a4f9e6ddd4bfb6ff5d85028c25cb12f6"
 dependencies = [
  "unicode-bidi",
  "unicode-normalization",
+]
+
+[[package]]
+name = "ignore"
+version = "0.4.22"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "b46810df39e66e925525d6e38ce1e7f6e1d208f72dc39757880fcb66e2c58af1"
+dependencies = [
+ "crossbeam-deque",
+ "globset",
+ "log",
+ "memchr",
+ "regex-automata 0.4.4",
+ "same-file",
+ "walkdir",
+ "winapi-util",
 ]
 
 [[package]]

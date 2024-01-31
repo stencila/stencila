@@ -1,0 +1,9 @@
+[package]
+name = "codec-directory"
+version = "0.0.0"
+edition = "2021"
+
+[dependencies]
+codec = { path = "../codec" }
+ignore = "0.4.22"
+mime_guess = "2.0.4"

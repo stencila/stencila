@@ -15,14 +15,16 @@ use common::{
     tokio::{self, time},
     tracing,
 };
+use schema::Node;
 
 use crate::{Document, SyncDirection};
 
 impl Document {
-    /// Synchronize the document with a file
+    /// Synchronize the document with a file (e.g. an `Article` root node)
+    /// or directory (a `Directory` root node)
     ///
-    /// This function spawns a task to synchronize the document with a file:
-    /// changes in the content of the file result in an update being sent to
+    /// This function spawns a task to synchronize the document with the file system:
+    /// changes in the content of the path result in an update being sent to
     /// the document, and changes to the document result in an update to the
     /// file (depending on the `direction` argument).
     #[tracing::instrument(skip(self))]
@@ -36,30 +38,34 @@ impl Document {
         tracing::trace!("Syncing file");
 
         // Before starting watches import and export as necessary.
-        match direction {
+        let node = match direction {
             SyncDirection::In => {
                 let node = codecs::from_path(path, decode_options.clone()).await?;
                 self.dump(&node).await?;
+                node
             }
             SyncDirection::Out => {
                 let node = self.load().await?;
                 codecs::to_path(&node, path, encode_options.clone()).await?;
+                node
             }
             SyncDirection::InOut => {
                 if path.exists() {
                     let node = codecs::from_path(path, decode_options.clone()).await?;
                     self.dump(&node).await?;
+                    node
                 } else {
                     let node = self.load().await?;
                     codecs::to_path(&node, path, encode_options.clone()).await?;
+                    node
                 }
             }
-        }
+        };
 
         // Record when file last written to
         let last_write = Arc::new(AtomicU64::default());
 
-        // Spawn a task to read the file when it changes
+        // Spawn a task to read the file or directory when it changes
         if matches!(direction, SyncDirection::In | SyncDirection::InOut) {
             // A channel to send file change events from the sync file watcher thread to the
             // async node updating thread
@@ -78,7 +84,7 @@ impl Document {
                     }
                 };
 
-                if let Err(error) = watcher.watch(&path_buf, RecursiveMode::NonRecursive) {
+                if let Err(error) = watcher.watch(&path_buf, RecursiveMode::Recursive) {
                     tracing::error!("While watching file `{}`: {error}", path_buf.display());
                 }
 
@@ -88,7 +94,12 @@ impl Document {
                     let event = watch_receiver.recv();
                     match event {
                         Ok(Ok(event)) => {
-                            if matches!(event.kind, EventKind::Create(..) | EventKind::Modify(..)) {
+                            if matches!(
+                                event.kind,
+                                EventKind::Create(..)
+                                    | EventKind::Modify(..)
+                                    | EventKind::Remove(..)
+                            ) {
                                 if let Err(error) = sender.send(()) {
                                     tracing::error!(
                                         "While forwarding file watching event: {}",
@@ -170,8 +181,10 @@ impl Document {
             });
         }
 
-        // Spawn a task to write to the file when the node changes
-        if matches!(direction, SyncDirection::Out | SyncDirection::InOut) {
+        // Spawn a task to write non-`Directory` nodes to the file when the node changes
+        if !matches!(node, Node::Directory(..))
+            && matches!(direction, SyncDirection::Out | SyncDirection::InOut)
+        {
             let mut receiver = self.watch_receiver.clone();
             let path_buf = path.to_path_buf();
             tokio::spawn(async move {

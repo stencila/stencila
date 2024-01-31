@@ -228,6 +228,9 @@
           "@id": "schema:MediaObject"
         },
         {
+          "@id": "stencila:File"
+        },
+        {
           "@id": "stencila:IncludeBlock"
         }
       ],

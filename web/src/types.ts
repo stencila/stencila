@@ -40,3 +40,4 @@ export type DocumentView =
   | 'source'
   | 'split'
   | 'visual'
+  | 'directory'

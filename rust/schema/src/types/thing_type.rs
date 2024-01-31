@@ -19,14 +19,12 @@ use super::creative_work::CreativeWork;
 use super::datatable::Datatable;
 use super::datatable_column::DatatableColumn;
 use super::defined_term::DefinedTerm;
-use super::directory::Directory;
 use super::enumeration::Enumeration;
 use super::execution_dependant_relation::ExecutionDependantRelation;
 use super::execution_dependency_relation::ExecutionDependencyRelation;
 use super::execution_required::ExecutionRequired;
 use super::execution_status::ExecutionStatus;
 use super::figure::Figure;
-use super::file::File;
 use super::form_derive_action::FormDeriveAction;
 use super::grant::Grant;
 use super::image_object::ImageObject;
@@ -93,8 +91,6 @@ pub enum ThingType {
 
     DefinedTerm(DefinedTerm),
 
-    Directory(Directory),
-
     Enumeration(Enumeration),
 
     ExecutionDependantRelation(ExecutionDependantRelation),
@@ -106,8 +102,6 @@ pub enum ThingType {
     ExecutionStatus(ExecutionStatus),
 
     Figure(Figure),
-
-    File(File),
 
     FormDeriveAction(FormDeriveAction),
 

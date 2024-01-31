@@ -1,5 +1,6 @@
 import { LitElement } from 'lit'
 
+import { DirectoryAction, directoryActionEvent } from '../clients/directory'
 import { nodePatchEvent, NodePatch } from '../clients/nodes'
 import { DocumentAccess, DocumentView } from '../types'
 
@@ -67,5 +68,16 @@ export abstract class Entity extends LitElement {
    */
   protected patchNode(patch: NodePatch) {
     this.dispatchEvent(nodePatchEvent(patch))
+  }
+
+  /**
+   * Convenience method to emit a directory action event
+   */
+  protected directoryAction(
+    type: DirectoryAction['type'],
+    path: string,
+    to?: string
+  ) {
+    this.dispatchEvent(directoryActionEvent({ type, path, to }))
   }
 }

@@ -28,6 +28,7 @@
     "src/themes/default.css",
     "src/themes/latex.css",
     "src/themes/tufte.css",
+    "src/views/directory.ts",
     "src/views/dynamic.ts",
     "src/views/live.ts",
     "src/views/print.ts",

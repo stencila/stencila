@@ -49,24 +49,26 @@ pub enum Format {
     Cbor,
     CborZst,
     Yaml,
-    /// Image formats
+    // Image formats
     Gif,
     Jpeg,
     Png,
     Svg,
     WebP,
-    /// Audio formats
+    // Audio formats
     Aac,
     Flac,
     Mp3,
     Ogg,
     Wav,
-    /// Video formats
+    // Video formats
     Avi,
     Mkv,
     Mp4,
     Ogv,
     WebM,
+    // Directory
+    Directory,
     // Development focussed formats
     Debug,
     // Unknown format
@@ -85,6 +87,7 @@ impl Format {
             Cbor => "CBOR",
             CborZst => "CBOR+Zstandard",
             Debug => "Debug",
+            Directory => "Directory",
             Dom => "DOM HTML",
             Flac => "FLAC",
             Gif => "GIF",
@@ -170,6 +173,10 @@ impl Format {
 
     /// Resolve a [`Format`] from a file path
     pub fn from_path(path: &Path) -> Result<Self> {
+        if path.is_dir() {
+            return Ok(Format::Directory);
+        }
+
         let path_string = path.to_string_lossy();
         if path_string.ends_with(".dom.html") {
             return Ok(Format::Dom);

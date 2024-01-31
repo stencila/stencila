@@ -20,6 +20,7 @@ import '../views/dynamic'
 import '../views/source'
 import '../views/split'
 import '../views/visual'
+import '../views/directory'
 
 import './main.css'
 
@@ -199,6 +200,14 @@ export class App extends TWLitElement {
           doc=${this.doc}
           theme=${this.theme}
         ></stencila-visual-view>`
+
+      // TODO: Can't imagine this will be here long term, especially with new
+      // app chrome. But for now it allows for testing
+      case 'directory':
+        return html`<stencila-directory-view
+          view="directory"
+          doc=${this.doc}
+        ></stencila-directory-view>`
     }
   }
 }

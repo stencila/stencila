@@ -16,14 +16,12 @@ import { type CreativeWork } from "./CreativeWork.js";
 import { type Datatable } from "./Datatable.js";
 import { type DatatableColumn } from "./DatatableColumn.js";
 import { type DefinedTerm } from "./DefinedTerm.js";
-import { type Directory } from "./Directory.js";
 import { type Enumeration } from "./Enumeration.js";
 import { type ExecutionDependantRelation } from "./ExecutionDependantRelation.js";
 import { type ExecutionDependencyRelation } from "./ExecutionDependencyRelation.js";
 import { type ExecutionRequired } from "./ExecutionRequired.js";
 import { type ExecutionStatus } from "./ExecutionStatus.js";
 import { type Figure } from "./Figure.js";
-import { type File } from "./File.js";
 import { type FormDeriveAction } from "./FormDeriveAction.js";
 import { type Grant } from "./Grant.js";
 import { type ImageObject } from "./ImageObject.js";
@@ -72,14 +70,12 @@ export type ThingType =
   Datatable |
   DatatableColumn |
   DefinedTerm |
-  Directory |
   Enumeration |
   ExecutionDependantRelation |
   ExecutionDependencyRelation |
   ExecutionRequired |
   ExecutionStatus |
   Figure |
-  File |
   FormDeriveAction |
   Grant |
   ImageObject |
