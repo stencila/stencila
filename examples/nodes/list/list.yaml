@@ -262,7 +262,7 @@ content:
     - type: Paragraph
       content:
       - type: Text
-        value: With one author
+        value: With three authors
       authors:
       - type: Person
         givenNames:

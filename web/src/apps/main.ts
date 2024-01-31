@@ -1,13 +1,18 @@
-import { LitElement, html } from 'lit'
+import { html } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
 
-import logo from '../images/stencilaIcon.svg'
+// import logo from '../images/stencilaIcon.svg'
 import { THEMES } from '../themes/themes'
-import { withTwind } from '../twind'
 import type { DocumentId, DocumentView } from '../types'
 import type { UISelectorSelectedEvent } from '../ui/selector'
-import '../ui/selector'
+import { TWLitElement } from '../ui/twind'
 import { VIEWS } from '../views/views'
+
+import '../ui/selector'
+import '../ui/sidebar'
+import '../ui/tab'
+import '../ui/view-container'
+import '../ui/buttons/icon'
 
 import '../views/static'
 import '../views/live'
@@ -15,6 +20,7 @@ import '../views/dynamic'
 import '../views/source'
 import '../views/split'
 import '../views/visual'
+import '../views/directory'
 
 import './main.css'
 
@@ -27,8 +33,7 @@ import './shoelace'
  * footer.
  */
 @customElement('stencila-main-app')
-@withTwind()
-export class App extends LitElement {
+export class App extends TWLitElement {
   /**
    * The id of the current document (if any)
    *
@@ -61,63 +66,60 @@ export class App extends LitElement {
   @property()
   format: string = 'markdown'
 
+  /**
+   * The name of the editor tab which is active.
+   */
+  @property()
+  activeTab: string = ''
+
   override render() {
-    return html`
-      <div class="font-sans">
+    return html`<div
+      class="font-sans flex flex-row bg-neutral-100 fixed top-0 left-0 min-h-screen w-full"
+    >
+      <stencila-ui-sidebar></stencila-ui-sidebar>
+      <div class="flex flex-col flex-grow">
         ${this.renderHeader()}
-        <div class="h-screen mt-14 flex flex-col">
-          <main
-            role="main"
-            class="flex-grow px-4 py-8 w-full justify-center flex flex-col"
-          >
-            <header class="container mx-auto">
-              <h1
-                class="text-xl text-bold leading-tight md:text-2xl lg:text-3xl xl:text-4xl"
-              >
-                Document name
-              </h1>
-            </header>
 
-            <nav class="container mx-auto mt-8 mb-4 sm:flex">
-              <div
-                class="flex-grow justify-start flex flex-col sm:flex-row sm:space-x-4"
-              >
-                ${this.renderViewSelect()} ${this.renderThemeSelect()}
-              </div>
-              ${this.renderPrintLink()}
-            </nav>
-
-            <div
-              class="bg-white border border-grays-mid container p-4 mx-auto shadow-[0_0_8px_rgba(0,0,0,.035)]"
-            >
-              ${this.doc ? this.renderView() : 'No document specified'}
-            </div>
-          </main>
-          ${this.renderFooter()}
-        </div>
+        <stencila-ui-view-container view=${this.view}>
+          ${this.renderView()}
+          <!-- <div slot="side"></div> -->
+        </stencila-ui-view-container>
       </div>
-    `
+    </div> `
   }
 
+  // TODO: the header should move to it's own component & maintain its own state.
   private renderHeader() {
-    return html`<header
-      class="fixed w-full top-0 left-0 z-30 h-16 drop-shadow-[0_2px_0_#edf2f7] border-t-[3px] bg-white border-t-brand-blue p-4"
-    >
-      <nav class="container mx-auto flex justify-items-center">
-        <a href="/"
-          ><img src="${logo}" alt="Stencila logo" width="28" height="28"
-        /></a>
+    return html`<header class="w-full flex items-end h-20">
+      <nav class="flex bg-neutral-100 h-full w-full">
+        <div class="flex-grow flex items-end h-full relative z-10 space-x-1">
+          <stencila-ui-editor-tab ?active=${true}
+            >README</stencila-ui-editor-tab
+          >
+        </div>
+        <div class="flex-shrink-0 flex-grow-0 flex items-center p-5">
+          <div class="flex-grow justify-start flex flex-row space-x-4">
+            ${this.renderViewSelect()} ${this.renderThemeSelect()}
+          </div>
+          <div class="ml-20 flex space-x-4">
+            <stencila-ui-icon-button
+              icon="status"
+              ?disabled=${true}
+            ></stencila-ui-icon-button>
+            <stencila-ui-icon-button icon="info"></stencila-ui-icon-button>
+            <stencila-ui-icon-button icon="print"></stencila-ui-icon-button>
+          </div>
+        </div>
       </nav>
     </header>`
   }
 
   private renderViewSelect() {
     const clickEvent = (e: UISelectorSelectedEvent['detail']) => {
-      console.log(e)
       this.view = e.item.value as DocumentView
     }
 
-    return html` <stencila-ui-selector
+    return html`<stencila-ui-selector
       label="View"
       target=${this.view}
       targetClass="view-selector"
@@ -143,6 +145,7 @@ export class App extends LitElement {
   }
 
   /* eslint-disable lit/attribute-value-entities */
+  // @ts-expect-error "will use soon enough"
   private renderPrintLink() {
     return html`<a
       href="?mode=doc&view=print&theme=${this.theme}"
@@ -151,14 +154,6 @@ export class App extends LitElement {
     >`
   }
   /* eslint-enable lit/attribute-value-entities */
-
-  private renderFooter() {
-    return html`<footer class="bg-brand-blue px-4 py-6 text-white">
-      <div class="container mx-auto">
-        <p class="text-sm my-0">&copy; 2023 Stencila Ltd.</p>
-      </div>
-    </footer>`
-  }
 
   private renderView() {
     switch (this.view) {
@@ -205,6 +200,14 @@ export class App extends LitElement {
           doc=${this.doc}
           theme=${this.theme}
         ></stencila-visual-view>`
+
+      // TODO: Can't imagine this will be here long term, especially with new
+      // app chrome. But for now it allows for testing
+      case 'directory':
+        return html`<stencila-directory-view
+          view="directory"
+          doc=${this.doc}
+        ></stencila-directory-view>`
     }
   }
 }

@@ -9,11 +9,10 @@ use assistant::{
         futures::future::join_all,
         itertools::Itertools,
         tracing,
-        uuid::Uuid,
     },
     schema::{
         walk::{VisitorMut, WalkControl, WalkNode},
-        Block, ExecutionError, ExecutionStatus, Inline, Node,
+        Block, ExecutionError, ExecutionStatus, Inline, Node, NodeId,
     },
     Assistant, GenerateOptions, GenerateOutput, GenerateTask, Instruction,
 };
@@ -143,7 +142,7 @@ pub async fn perform_instruction<'doc: 'async_recursion>(
 /// If the task's instruction has an `assignee` (and assignee exists and supports the
 /// task) then returns that assistant. Otherwise returns the assignee with the highest
 /// suitability score for the task.
-async fn get_assistant<'doc>(task: &mut GenerateTask<'doc>) -> Result<Arc<dyn Assistant>> {
+pub async fn get_assistant<'doc>(task: &mut GenerateTask<'doc>) -> Result<Arc<dyn Assistant>> {
     let assistants = list().await;
 
     let assistant = if let Some(assignee) = task.instruction.assignee() {
@@ -163,6 +162,7 @@ async fn get_assistant<'doc>(task: &mut GenerateTask<'doc>) -> Result<Arc<dyn As
             bail!("The assigned assistant `{id}` does not support this task")
         }
 
+        tracing::debug!("Using assistant matching id: {}", assistant.id());
         assistant
     } else {
         // It is tempting to use the position_max iterator method here but, in the case of
@@ -181,9 +181,16 @@ async fn get_assistant<'doc>(task: &mut GenerateTask<'doc>) -> Result<Arc<dyn As
             bail!("Unable to delegate the task, no assistants with suitable capabilities")
         }
 
-        assistants
+        let assistant = assistants
             .get(index)
-            .ok_or_else(|| eyre!("Best assistant not in list of assistants!?"))?
+            .ok_or_else(|| eyre!("Best assistant not in list of assistants!?"))?;
+
+        tracing::debug!(
+            "Found assistant {}, with best score {}",
+            assistant.id(),
+            max
+        );
+        assistant
     };
 
     Ok(assistant.clone())
@@ -193,16 +200,13 @@ async fn get_assistant<'doc>(task: &mut GenerateTask<'doc>) -> Result<Arc<dyn As
 #[derive(Default)]
 struct InstructionCollector {
     /// A map of instructions by their id
-    instructions: HashMap<String, Instruction>,
+    instructions: HashMap<NodeId, Instruction>,
 }
 
 impl VisitorMut for InstructionCollector {
     fn visit_inline_mut(&mut self, inline: &mut Inline) -> WalkControl {
         if let Inline::InstructionInline(instruction) = inline {
-            let id = instruction
-                .id
-                .get_or_insert_with(|| Uuid::new_v4().to_string())
-                .clone();
+            let id = instruction.node_id();
             let instruction = Instruction::from(instruction.clone());
             self.instructions.insert(id, instruction);
         }
@@ -211,10 +215,7 @@ impl VisitorMut for InstructionCollector {
 
     fn visit_block_mut(&mut self, block: &mut Block) -> WalkControl {
         if let Block::InstructionBlock(instruction) = block {
-            let id = instruction
-                .id
-                .get_or_insert_with(|| Uuid::new_v4().to_string())
-                .clone();
+            let id = instruction.node_id();
             let instruction = Instruction::from(instruction.clone());
             self.instructions.insert(id, instruction);
         }
@@ -225,17 +226,13 @@ impl VisitorMut for InstructionCollector {
 /// A node visitor which applies generation results to instructions
 struct ResultApplier {
     /// A map of generation results by instruction id
-    results: HashMap<String, Result<GenerateOutput>>,
+    results: HashMap<NodeId, Result<GenerateOutput>>,
 }
 
 impl VisitorMut for ResultApplier {
     fn visit_inline_mut(&mut self, inline: &mut Inline) -> WalkControl {
         if let Inline::InstructionInline(instruction) = inline {
-            if let Some(result) = instruction
-                .id
-                .as_ref()
-                .and_then(|id| self.results.remove(id))
-            {
+            if let Some(result) = self.results.remove(&instruction.node_id()) {
                 match result {
                     Ok(output) => {
                         instruction.messages.push(output.to_message());
@@ -260,11 +257,7 @@ impl VisitorMut for ResultApplier {
 
     fn visit_block_mut(&mut self, block: &mut Block) -> WalkControl {
         if let Block::InstructionBlock(instruction) = block {
-            if let Some(result) = instruction
-                .id
-                .as_ref()
-                .and_then(|id| self.results.remove(id))
-            {
+            if let Some(result) = self.results.remove(&instruction.node_id()) {
                 match result {
                     Ok(output) => {
                         instruction.messages.push(output.to_message());

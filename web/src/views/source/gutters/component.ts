@@ -1,15 +1,16 @@
 import { apply } from '@twind/core'
-import { html } from 'lit'
+import { LitElement, html } from 'lit'
 import { customElement, property } from 'lit/decorators'
 
+import { withTwind } from '../../../twind'
 import { NodeType } from '../../../types'
 import { getNodeIcon } from '../../../ui/icons/nodeIcons'
-import { TWLitElement } from '../../../ui/twind'
 
 import gutterMarkerColours from './colours'
 
 @customElement('stencila-gutter-marker')
-class StencilaGutterMarker extends TWLitElement {
+@withTwind()
+class StencilaGutterMarker extends LitElement {
   @property({ type: Boolean })
   isFirstLine: boolean
 
@@ -47,7 +48,7 @@ class StencilaGutterMarker extends TWLitElement {
     return 'none'
   }
 
-  render() {
+  protected override render() {
     return html`
       <div
         class="relative flex h-full"

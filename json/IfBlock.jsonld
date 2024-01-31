@@ -226,6 +226,9 @@
           "@id": "schema:ItemList"
         },
         {
+          "@id": "schema:Message"
+        },
+        {
           "@id": "stencila:Admonition"
         },
         {

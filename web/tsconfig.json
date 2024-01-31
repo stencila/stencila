@@ -7,5 +7,22 @@
     "module": "ESNext",
     "moduleResolution": "Node",
     "resolveJsonModule": true,
+    "plugins": [
+      {
+        "name": "ts-lit-plugin",
+        "strict": true,
+      },
+    ],
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noImplicitReturns": true,
+    "noFallthroughCasesInSwitch": true,
+    "noImplicitAny": true,
+    "noImplicitThis": true,
+    "allowSyntheticDefaultImports": true,
+    "forceConsistentCasingInFileNames": true,
+    "noImplicitOverride": true,
   },
+  "include": ["./src/**/*.ts"],
+  "exclude": [],
 }

@@ -10,7 +10,7 @@ use super::software_source_code::SoftwareSourceCode;
 use super::variable::Variable;
 
 /// Node types that can be execution dependencies.
-#[derive(Debug, strum::Display, Clone, PartialEq, Serialize, Deserialize, StripNode, WalkNode, DomCodec, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec, WriteNode, SmartDefault, ReadNode)]
+#[derive(Debug, strum::Display, Clone, PartialEq, Serialize, Deserialize, StripNode, WalkNode, WriteNode, SmartDefault, ReadNode, DomCodec, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec)]
 #[serde(untagged, crate = "common::serde")]
 pub enum ExecutionDependencyNode {
     Button(Button),

@@ -2,6 +2,7 @@
 
 from .prelude import *
 
+from .block import Block
 from .entity import Entity
 from .message_part import MessagePart
 from .person_or_organization_or_software_application import PersonOrOrganizationOrSoftwareApplication
@@ -18,10 +19,14 @@ class Message(Entity):
     parts: List[MessagePart]
     """Parts of the message."""
 
-    sender: Optional[PersonOrOrganizationOrSoftwareApplication] = None
-    """The sender of the message."""
+    content: Optional[List[Block]] = None
+    """Content of the message."""
 
-    def __init__(self, parts: List[MessagePart], id: Optional[str] = None, sender: Optional[PersonOrOrganizationOrSoftwareApplication] = None):
+    authors: Optional[List[PersonOrOrganizationOrSoftwareApplication]] = None
+    """The authors of the message."""
+
+    def __init__(self, parts: List[MessagePart], id: Optional[str] = None, content: Optional[List[Block]] = None, authors: Optional[List[PersonOrOrganizationOrSoftwareApplication]] = None):
         super().__init__(id = id)
         self.parts = parts
-        self.sender = sender
+        self.content = content
+        self.authors = authors

@@ -41,7 +41,7 @@ export class Parameter extends Executable {
     })
   }
 
-  render() {
+  override render() {
     return html`
       <label for="${this.name}">${this.label ?? this.name}</label>
       <input name="${this.name}" />

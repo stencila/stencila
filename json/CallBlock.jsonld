@@ -228,6 +228,9 @@
           "@id": "schema:MediaObject"
         },
         {
+          "@id": "stencila:File"
+        },
+        {
           "@id": "stencila:IncludeBlock"
         }
       ],
@@ -264,6 +267,9 @@
         },
         {
           "@id": "schema:ListItem"
+        },
+        {
+          "@id": "schema:Message"
         },
         {
           "@id": "stencila:Admonition"

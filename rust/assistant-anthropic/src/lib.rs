@@ -6,8 +6,8 @@ use anthropic::{
 
 use assistant::{
     common::{async_trait::async_trait, eyre::Result, itertools::Itertools, tracing},
-    schema::{MessagePart, PersonOrOrganizationOrSoftwareApplication},
-    Assistant, AssistantIO, GenerateOptions, GenerateOutput, GenerateTask,
+    schema::MessagePart,
+    Assistant, AssistantIO, GenerateOptions, GenerateOutput, GenerateTask, InstructionMessage,
 };
 
 const API_KEY: &str = "ANTHROPIC_API_KEY";
@@ -67,17 +67,16 @@ impl Assistant for AnthropicAssistant {
         let chat = task
             .instruction_messages()
             .map(|message| {
-                use PersonOrOrganizationOrSoftwareApplication::*;
-                let prompt = match message.sender {
-                    None | Some(Person(..) | Organization(..)) => HUMAN_PROMPT,
-                    Some(SoftwareApplication(..)) => AI_PROMPT,
+                let prompt = match message.is_assistant() {
+                    true => AI_PROMPT,
+                    false => HUMAN_PROMPT,
                 };
 
                 let content = message
                     .parts
                     .iter()
                     .filter_map(|part| match part {
-                        MessagePart::String(text) => Some(text),
+                        MessagePart::Text(text) => Some(text.to_value_string()),
                         _ => {
                             tracing::warn!(
                                 "User message part `{part}` is ignored by assistant `{}`",

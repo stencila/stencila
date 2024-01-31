@@ -141,13 +141,8 @@ export abstract class FormatClient extends Client {
    * @param access The access level of the client
    * @param format The format of the string (e.g. "html", "markdown")
    */
-  constructor(
-    id: DocumentId,
-    access: DocumentAccess,
-    format: string,
-    clientType?: string
-  ) {
-    super(id, `${access}.${format}`, clientType ?? format)
+  constructor(id: DocumentId, access: DocumentAccess, format: string) {
+    super(id, `${access}.${format}`)
   }
 
   /**
@@ -287,7 +282,7 @@ export abstract class FormatClient extends Client {
   public nodesAt(position: number): MappingEntry[] {
     let start = 0
     let end = 0
-    const nodes = []
+    const nodes: MappingEntry[] = []
     for (const entry of this.mapping) {
       start += entry.start
       end += entry.end

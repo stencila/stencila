@@ -95,6 +95,7 @@ export class SourceView extends TWLitElement {
    * document changes on the server. We use this to extract custom elements
    * for nodes to use in tooltips etc.
    */
+  // @ts-expect-error "dom client is set, but not read"
   private domClient: DomClient
 
   /**
@@ -369,20 +370,16 @@ export class SourceView extends TWLitElement {
   private get codeMirrorCSS() {
     return twCSS`
       .cm-editor {
-        border: 1px solid rgb(189, 186, 186);
         height: 100%;
-        max-height: 70vh;
         overflow-y: auto;
       }
     `
   }
 
-  protected render() {
+  protected override render() {
     return html`
-      <div class="max-h-screen relative">
-        <div>
-          <div id="codemirror" class=${this.codeMirrorCSS}></div>
-        </div>
+      <div class="max-h-screen h-[calc(100vh-5rem)] relative">
+        <div id="codemirror" class="h-full ${this.codeMirrorCSS}"></div>
       </div>
       <div hidden ${ref(this.domElement)}>
         <stencila-article root></stencila-article>

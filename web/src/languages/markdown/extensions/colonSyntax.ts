@@ -210,7 +210,7 @@ class ForParser implements LeafBlockParser {
  */
 class ElseParser implements LeafBlockParser {
   nextLine = () => false
-  finish = (cx: BlockContext, leaf: LeafBlock): boolean => {
+  finish = (cx: BlockContext, leaf: LeafBlock) => {
     const delimLength = leaf.content.trim().search(/\s/)
     if (delimLength === -1) {
       return false
@@ -224,6 +224,7 @@ class ElseParser implements LeafBlockParser {
         createKeyWordEl(cx, kwStart, kwLength),
       ])
     )
+    return true
   }
 }
 

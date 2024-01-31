@@ -15,8 +15,8 @@
     "@types/benchmark": "2.1.5",
     "@types/jest": "29.5.11",
     "@types/tmp": "0.2.6",
-    "@typescript-eslint/eslint-plugin": "6.19.1",
-    "@typescript-eslint/parser": "6.19.1",
+    "@typescript-eslint/eslint-plugin": "6.20.0",
+    "@typescript-eslint/parser": "6.20.0",
     "benchmark": "2.1.4",
     "better-npm-audit": "3.7.3",
     "depcheck": "1.4.7",
@@ -32,6 +32,6 @@
     "ts-jest": "29.1.2",
     "tsup": "8.0.1",
     "typescript": "5.3.3",
-    "wrangler": "3.25.0"
+    "wrangler": "3.26.0"
   }
 }

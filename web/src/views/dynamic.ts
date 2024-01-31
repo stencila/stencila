@@ -38,12 +38,14 @@ export class DynamicView extends ThemedView {
    * A read-only client which updates the document's DOM when the
    * document changes on the server
    */
+  // @ts-expect-error "dom client is set, not read"
   private domClient: DomClient
 
   /**
    * A write-only client which sends node patches to the document
    * on the server
    */
+  // @ts-expect-error "nodes client is set, not read"
   private nodesClient: NodesClient
 
   /**
@@ -66,7 +68,7 @@ export class DynamicView extends ThemedView {
     )
   }
 
-  render() {
+  override render() {
     return html`<stencila-article root></stencila-article>`
   }
 }

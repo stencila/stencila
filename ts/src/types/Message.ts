@@ -1,5 +1,6 @@
 // Generated file; do not edit. See `../rust/schema-gen` crate.
 
+import { Block } from "./Block.js";
 import { Entity } from "./Entity.js";
 import { MessagePart } from "./MessagePart.js";
 import { PersonOrOrganizationOrSoftwareApplication } from "./PersonOrOrganizationOrSoftwareApplication.js";
@@ -16,9 +17,14 @@ export class Message extends Entity {
   parts: MessagePart[];
 
   /**
-   * The sender of the message.
+   * Content of the message.
    */
-  sender?: PersonOrOrganizationOrSoftwareApplication;
+  content?: Block[];
+
+  /**
+   * The authors of the message.
+   */
+  authors?: PersonOrOrganizationOrSoftwareApplication[];
 
   constructor(parts: MessagePart[], options?: Partial<Message>) {
     super();

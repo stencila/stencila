@@ -18,7 +18,10 @@
             {
               "@type": "Message",
               "hasParts": [
-                "insert an inline"
+                {
+                  "@type": "Text",
+                  "value": "insert an inline"
+                }
               ]
             }
           ]
@@ -42,7 +45,10 @@
             {
               "@type": "Message",
               "hasParts": [
-                "improve this"
+                {
+                  "@type": "Text",
+                  "value": "improve this"
+                }
               ]
             }
           ],
@@ -72,7 +78,10 @@
             {
               "@type": "Message",
               "hasParts": [
-                "equation for surface area of cube"
+                {
+                  "@type": "Text",
+                  "value": "equation for surface area of cube"
+                }
               ]
             }
           ],
@@ -88,7 +97,10 @@
             {
               "@type": "Message",
               "hasParts": [
-                "please improve this"
+                {
+                  "@type": "Text",
+                  "value": "please improve this"
+                }
               ]
             }
           ],

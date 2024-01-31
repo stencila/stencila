@@ -20,7 +20,7 @@ use axum::{
     },
     response::{Html, IntoResponse, Response},
     routing::get,
-    Router,
+    Json, Router,
 };
 use document::{Document, DocumentId, SyncDirection};
 use rust_embed::RustEmbed;
@@ -88,7 +88,8 @@ struct ServerState {
     /// Whether the `SourceMap` header should be set for document responses
     source: bool,
 
-    /// Whether and in which direction(s) to sync served documents
+    /// Whether and in which direction(s) to sync served documents with
+    /// the file system
     sync: Option<SyncDirection>,
 
     /// The cache of documents
@@ -154,6 +155,7 @@ pub async fn serve(
 
     let router = Router::new()
         .route("/~static/*path", get(serve_static))
+        .route("/~open/*path", get(serve_open))
         .route("/~export/*id", get(serve_export))
         .route("/~ws/*id", get(serve_ws))
         .route("/*path", get(serve_document))
@@ -260,10 +262,143 @@ async fn serve_static(
     Ok(StatusCode::NOT_FOUND.into_response())
 }
 
-/// Serve a document
+/// Resolve a URL path into a file or directory path
 ///
 /// This is an interim implementation and is likely to be replaced with
 /// an implementation which uses a tries and which handles parameterized routes.
+fn resolve_path(path: PathBuf) -> Result<Option<PathBuf>, InternalError> {
+    // If the path ends with `*` and a directory exists there then resolve to it
+    if let Some(path) = path.to_string_lossy().strip_suffix('*') {
+        let path = PathBuf::from(path);
+        if path.exists() && path.is_dir() {
+            return Ok(Some(path));
+        }
+    }
+
+    // If a file exists at the path then just resolve to it
+    if path.exists() && path.is_file() {
+        return Ok(Some(path));
+    }
+
+    // If any files have the same stem as the path (everything minus the extension)
+    // then use the one with the format with highest precedence and latest modification date.
+    // This checks that the file has a stem otherwise files like `.gitignore` match against it.
+    let pattern = format!("{}.*", path.display());
+    if let Some(path) = glob(&pattern)
+        .map_err(InternalError::new)?
+        .flatten()
+        .filter(|path| {
+            path.file_name()
+                .map_or(false, |name| !name.to_string_lossy().starts_with('.'))
+                && path.is_file()
+        })
+        .sorted_by(|a, b| {
+            let a_format = Format::from_path(a).unwrap_or_default();
+            let b_format = Format::from_path(b).unwrap_or_default();
+            match a_format.rank().cmp(&b_format.rank()) {
+                Ordering::Equal => {
+                    let a_modified = std::fs::metadata(a)
+                        .and_then(|metadata| metadata.modified())
+                        .unwrap_or(UNIX_EPOCH);
+                    let b_modified = std::fs::metadata(b)
+                        .and_then(|metadata| metadata.modified())
+                        .unwrap_or(UNIX_EPOCH);
+                    a_modified.cmp(&b_modified).reverse()
+                }
+                ordering => ordering,
+            }
+        })
+        .next()
+    {
+        return Ok(Some(path));
+    }
+
+    // If the path correlates to a folder with an index, main, or readme file
+    // then use the one with the highest precedence
+    let pattern = format!("{}/*", path.display());
+    if let Some(path) = glob_with(
+        &pattern,
+        MatchOptions {
+            case_sensitive: false,
+            ..Default::default()
+        },
+    )
+    .map_err(InternalError::new)?
+    .flatten()
+    .find(|path| {
+        // Select the first file matching these criteria
+        // noting that `glob` returns entries sorted alphabetically
+        path.is_file()
+            && path
+                .file_name()
+                .and_then(|name| name.to_str())
+                .map(|name| {
+                    let name = name.to_lowercase();
+                    name.starts_with("index.")
+                        || name.starts_with("main.")
+                        || name.starts_with("readme.")
+                })
+                .unwrap_or_default()
+    }) {
+        return Ok(Some(path));
+    }
+
+    Ok(None)
+}
+
+/// Open a document and return its id
+#[tracing::instrument(skip(docs))]
+async fn serve_open(
+    State(ServerState {
+        dir,
+        raw,
+        source,
+        docs,
+        sync,
+        ..
+    }): State<ServerState>,
+    Path(path): Path<String>,
+    Query(query): Query<HashMap<String, String>>,
+) -> Result<Response, InternalError> {
+    // Path should be within served `dir`
+    let path = dir.join(path);
+
+    // Check for attempts at directory traversal and to access private file or directory.
+    if path.components().any(|component| {
+        matches!(component, Component::ParentDir)
+            || component.as_os_str().to_string_lossy().starts_with('_')
+    }) {
+        return Ok(StatusCode::NOT_FOUND.into_response());
+    }
+
+    // Resolve the URL path into a filesystem path
+    let path = resolve_path(path)?;
+
+    // Return early if no path resolved
+    let Some(path) = path else {
+        return Ok(StatusCode::NOT_FOUND.into_response())
+    };
+
+    // Get the document for the path
+    let doc = docs
+        .by_path(&path, sync)
+        .await
+        .map_err(InternalError::new)?;
+    let doc_id = doc.id();
+
+    #[derive(Serialize)]
+    #[serde(crate = "common::serde")]
+    struct OpenResponse {
+        id: String,
+    }
+
+    Ok(Json(OpenResponse {
+        id: doc_id.to_string(),
+    })
+    .into_response())
+}
+
+/// Serve a document
 #[tracing::instrument(skip(docs))]
 async fn serve_document(
     State(ServerState {
@@ -277,9 +412,10 @@ async fn serve_document(
     Path(path): Path<String>,
     Query(query): Query<HashMap<String, String>>,
 ) -> Result<Response, InternalError> {
+    // Path should be within served `dir`
     let path = dir.join(path);
 
-    // Check for a directory traversal and attempts to access private file or folder.
+    // Check for attempts at directory traversal and to access private file or directory.
     if path.components().any(|component| {
         matches!(component, Component::ParentDir)
             || component.as_os_str().to_string_lossy().starts_with('_')
@@ -287,78 +423,8 @@ async fn serve_document(
         return Ok(StatusCode::NOT_FOUND.into_response());
     }
 
-    // Resolve a file for the URL path
-    let path = 'resolve: {
-        // If the file exists then use that
-        if path.exists() && path.is_file() {
-            break 'resolve Some(path);
-        }
-
-        // If any files have the same stem as the path (everything minus the extension)
-        // then use the one with the format with highest precedence and latest modification date.
-        // This checks that the file has a stem otherwise files like `.gitignore` match against it.
-        let pattern = format!("{}.*", path.display());
-        if let Some(path) = glob(&pattern)
-            .map_err(InternalError::new)?
-            .flatten()
-            .filter(|path| {
-                path.file_name()
-                    .map_or(false, |name| !name.to_string_lossy().starts_with('.'))
-                    && path.is_file()
-            })
-            .sorted_by(|a, b| {
-                let a_format = Format::from_path(a).unwrap_or_default();
-                let b_format = Format::from_path(b).unwrap_or_default();
-                match a_format.rank().cmp(&b_format.rank()) {
-                    Ordering::Equal => {
-                        let a_modified = std::fs::metadata(a)
-                            .and_then(|metadata| metadata.modified())
-                            .unwrap_or(UNIX_EPOCH);
-                        let b_modified = std::fs::metadata(b)
-                            .and_then(|metadata| metadata.modified())
-                            .unwrap_or(UNIX_EPOCH);
-                        a_modified.cmp(&b_modified).reverse()
-                    }
-                    ordering => ordering,
-                }
-            })
-            .next()
-        {
-            break 'resolve Some(path);
-        }
-
-        // If the path correlates to a folder with an index, main, or readme file
-        // then use the one with the highest precedence
-        let pattern = format!("{}/*", path.display());
-        if let Some(path) = glob_with(
-            &pattern,
-            MatchOptions {
-                case_sensitive: false,
-                ..Default::default()
-            },
-        )
-        .map_err(InternalError::new)?
-        .flatten()
-        .find(|path| {
-            // Select the first file matching these criteria
-            // noting that `glob` returns entries sorted alphabetically
-            path.is_file()
-                && path
-                    .file_name()
-                    .and_then(|name| name.to_str())
-                    .map(|name| {
-                        let name = name.to_lowercase();
-                        name.starts_with("index.")
-                            || name.starts_with("main.")
-                            || name.starts_with("readme.")
-                    })
-                    .unwrap_or_default()
-        }) {
-            break 'resolve Some(path);
-        }
-
-        None
-    };
+    // Resolve the URL path into a filesystem path
+    let path = resolve_path(path)?;
 
     // Return early if no path resolved
     let Some(path) = path else {
@@ -448,9 +514,13 @@ async fn serve_document(
         }
     } else if mode == "app" {
         format!(
-            r#"<link rel="stylesheet" type="text/css" href="/~static/{version}/apps/main.css">
-               <link rel="stylesheet" type="text/css" href="/~static/{version}/shoelace-style/themes/light.css">
-               <script type="module" src="/~static/{version}/apps/main.js"></script>"#
+            r#" <link rel="preconnect" href="https://fonts.googleapis.com">
+                <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+                <link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;900&family=Montserrat:wght@400;600&display=swap" rel="stylesheet">
+                <link rel="stylesheet" type="text/css" href="/~static/{version}/apps/main.css">
+                <link rel="stylesheet" type="text/css" href="/~static/{version}/shoelace-style/themes/light.css">
+                <link rel="stylesheet" type="text/css" href="/~static/{version}/shoelace-style/themes/dark.css">
+                <script type="module" src="/~static/{version}/apps/main.js"></script>"#
         )
     } else {
         String::new()
@@ -544,7 +614,9 @@ async fn serve_export(
 
 /// Handle a WebSocket upgrade request
 async fn serve_ws(
-    State(ServerState { docs, .. }): State<ServerState>,
+    State(ServerState {
+        dir, docs, sync, ..
+    }): State<ServerState>,
     ws: WebSocketUpgrade,
     Path(id): Path<String>,
 ) -> Result<Response, InternalError> {
@@ -560,6 +632,11 @@ async fn serve_ws(
         "read.debug.stencila.org".to_string(),
         "read.object.stencila.org".to_string(),
     ];
+
+    // Protocols only permitted if sync direction includes `Out`
+    if matches!(sync, Some(SyncDirection::Out | SyncDirection::InOut)) {
+        protocols.push("write.directory.stencila.org".to_string())
+    }
 
     for format in [
         // TODO: define this list of string formats better
@@ -585,14 +662,14 @@ async fn serve_ws(
 
     let response = ws
         .protocols(protocols)
-        .on_upgrade(move |ws| handle_ws(ws, doc));
+        .on_upgrade(move |ws| handle_ws(ws, doc, dir));
 
     Ok(response)
 }
 
 /// Handle a WebSocket connection
 #[tracing::instrument(skip(ws, doc))]
-async fn handle_ws(ws: WebSocket, doc: Arc<Document>) {
+async fn handle_ws(ws: WebSocket, doc: Arc<Document>, dir: PathBuf) {
     tracing::trace!("WebSocket connection");
 
     let Some(protocol) = ws
@@ -618,12 +695,14 @@ async fn handle_ws(ws: WebSocket, doc: Arc<Document>) {
         handle_ws_nodes(ws, doc, capability).await;
     } else if format == "object" {
         handle_ws_object(ws, doc, capability).await;
+    } else if format == "directory" {
+        handle_ws_directory(ws, doc, dir).await;
     } else {
         handle_ws_format(ws, doc, capability, format).await;
     }
 }
 
-/// Handle a WebSocket connection using the "node" protocol
+/// Handle a WebSocket connection using the "nodes" protocol
 #[tracing::instrument(skip(ws, doc))]
 async fn handle_ws_nodes(ws: WebSocket, doc: Arc<Document>, capability: &str) {
     tracing::trace!("WebSocket `nodes` connection");
@@ -652,7 +731,25 @@ async fn handle_ws_object(ws: WebSocket, doc: Arc<Document>, capability: &str) {
     send_ws_messages(out_receiver, ws_sender);
 
     if let Err(error) = doc.sync_object(in_receiver, out_sender).await {
-        tracing::error!("While syncing nodes for WebSocket client: {error}")
+        tracing::error!("While syncing object for WebSocket client: {error}")
+    }
+}
+
+/// Handle a WebSocket connection using the "directory" protocol
+#[tracing::instrument(skip(ws, doc))]
+async fn handle_ws_directory(ws: WebSocket, doc: Arc<Document>, dir: PathBuf) {
+    tracing::trace!("WebSocket `directory` connection");
+
+    let (ws_sender, ws_receiver) = ws.split();
+
+    let (in_sender, in_receiver) = channel(8);
+    receive_ws_messages(ws_receiver, in_sender);
+
+    let (out_sender, out_receiver) = channel(8);
+    send_ws_messages(out_receiver, ws_sender);
+
+    if let Err(error) = doc.sync_directory(dir, in_receiver, out_sender).await {
+        tracing::error!("While syncing directory for WebSocket client: {error}")
     }
 }
 

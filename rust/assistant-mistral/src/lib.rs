@@ -12,8 +12,8 @@ use assistant::{
         serde_with::skip_serializing_none,
         tracing,
     },
-    schema::{MessagePart, PersonOrOrganizationOrSoftwareApplication},
-    Assistant, AssistantIO, GenerateOptions, GenerateOutput, GenerateTask,
+    schema::MessagePart,
+    Assistant, AssistantIO, GenerateOptions, GenerateOutput, GenerateTask, InstructionMessage,
 };
 
 const BASE_URL: &str = "https://api.mistral.ai/v1";
@@ -73,17 +73,16 @@ impl Assistant for MistralAssistant {
                 content: prompt.clone(),
             })
             .chain(task.instruction_messages().map(|message| {
-                use PersonOrOrganizationOrSoftwareApplication::*;
-                let role = match message.sender {
-                    None | Some(Person(..) | Organization(..)) => ChatRole::User,
-                    Some(SoftwareApplication(..)) => ChatRole::Assistant,
+                let role = match message.is_assistant() {
+                    true => ChatRole::Assistant,
+                    false => ChatRole::User,
                 };
 
                 let content = message
                     .parts
                     .iter()
-                    .filter_map(|part| match part {
-                        MessagePart::String(text) => Some(text),
+                    .filter_map(|part: &MessagePart| match part {
+                        MessagePart::Text(text) => Some(text.to_value_string()),
                         _ => {
                             tracing::warn!(
                                 "Message part of type `{part}` is ignored by assistant `{}`",

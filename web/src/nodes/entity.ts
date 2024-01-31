@@ -1,5 +1,6 @@
 import { LitElement } from 'lit'
 
+import { DirectoryAction, directoryActionEvent } from '../clients/directory'
 import { nodePatchEvent, NodePatch } from '../clients/nodes'
 import { DocumentAccess, DocumentView } from '../types'
 
@@ -25,7 +26,9 @@ export abstract class Entity extends LitElement {
    * Based on https://stackoverflow.com/questions/54520554/custom-element-getrootnode-closest-function-crossing-multiple-parent-shadowd
    */
   protected closestGlobally(selector: string): HTMLElement | null {
-    function closest(elem: HTMLElement | Document | Window) {
+    function closest(
+      elem: HTMLElement | Document | Window
+    ): HTMLElement | null {
       if (!elem || elem === document || elem === window) return null
       const found = (elem as HTMLElement).closest(selector)
       // @ts-expect-error because `Node` has no host property
@@ -65,5 +68,16 @@ export abstract class Entity extends LitElement {
    */
   protected patchNode(patch: NodePatch) {
     this.dispatchEvent(nodePatchEvent(patch))
+  }
+
+  /**
+   * Convenience method to emit a directory action event
+   */
+  protected directoryAction(
+    type: DirectoryAction['type'],
+    path: string,
+    to?: string
+  ) {
+    this.dispatchEvent(directoryActionEvent({ type, path, to }))
   }
 }

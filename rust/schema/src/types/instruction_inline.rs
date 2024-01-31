@@ -163,9 +163,18 @@ pub struct InstructionInlineOptions {
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     pub execution_errors: Option<Vec<ExecutionError>>,
 
+    /// A list of candidates for the assignee property.
+    #[serde(alias = "candidate")]
+    #[serde(default, deserialize_with = "option_one_or_many")]
+    #[cfg_attr(feature = "proptest-min", proptest(value = r#"None"#))]
+    #[cfg_attr(feature = "proptest-low", proptest(value = r#"None"#))]
+    #[cfg_attr(feature = "proptest-high", proptest(strategy = r#"option::of(vec(r"[a-zA-Z][a-zA-Z\-_/.@]", size_range(1..5)))"#))]
+    #[cfg_attr(feature = "proptest-max", proptest(strategy = r#"option::of(vec(String::arbitrary(), size_range(1..10)))"#))]
+    pub candidates: Option<Vec<String>>,
+
     /// An identifier for the agent assigned to perform the instruction
     #[cfg_attr(feature = "proptest-min", proptest(value = r#"None"#))]
-    #[cfg_attr(feature = "proptest-low", proptest(strategy = r#"option::of(r"[a-zA-Z][a-zA-Z\-_/.@]")"#))]
+    #[cfg_attr(feature = "proptest-low", proptest(value = r#"None"#))]
     #[cfg_attr(feature = "proptest-high", proptest(strategy = r#"option::of(r"[a-zA-Z][a-zA-Z\-_/.@]")"#))]
     #[cfg_attr(feature = "proptest-max", proptest(strategy = r#"option::of(String::arbitrary())"#))]
     pub assignee: Option<String>,
@@ -180,6 +189,7 @@ pub struct InstructionInlineOptions {
 
     /// A suggestion for the instruction
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
+    #[dom(elem = "span")]
     pub suggestion: Option<SuggestionInlineType>,
 }
 

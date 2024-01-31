@@ -1,25 +1,34 @@
 title: Directory
 '@id': stencila:Directory
-extends: Collection
+extends: Entity
 category: works
 description: A directory on the file system.
+$comment: |
+  Previously this type extended `Collection` (which in turn extends `CreativeWork`).
+  However, to avoid consuming more memory that necessary when creating directory listings
+  with many directories, it now extends `Entity`.
 required:
-  - path
   - name
+  - path
+  - parts
 properties:
+  name:
+    '@id': schema:name
+    description: The name of the directory.
+    type: string
   path:
     '@id': stencila:path
-    description: The path (absolute or relative) of the file on the filesystem
+    description: The path (absolute or relative) of the file on the file system.
     type: string
   parts:
     '@id': schema:hasParts
     aliases:
       - hasParts
-    description: The files and other directories that are within this directory
-    $comment: |
-      A restriction of `CreativeWork.parts` to only allow `File` and `Directory` parts.
+    description: The files and other directories within this directory.
     type: array
     items:
       anyOf:
         - $ref: File
         - $ref: Directory
+    dom:
+      elem: div

@@ -3,8 +3,21 @@ import { type DocumentId } from '../types'
 /**
  * The abstract base class for all clients
  *
- * TODO: Implement WebSocket connection state and reconnection logic
- * https://github.com/stencila/stencila/issues/1785
+ * Sets the following classes on `document.body` where `${clientType}` is the
+ * lowercase name of the client class:
+ *
+ * - ${clientType}-connected
+ * - ${clientType}-disconnected
+ *
+ * Note that these are not mutually exclusive and if both are present it indicates
+ * that the client was connected but got disconnected and is now attempting
+ * to reconnect.
+ *
+ * Emits the following events on `window`:
+ *
+ * - ${clientType}-connected
+ * - ${clientType}-disconnected
+ * - ${clientType}-reconnected
  */
 export abstract class Client {
   /**
@@ -13,24 +26,19 @@ export abstract class Client {
   private ws: WebSocket
 
   /**
-   * name of the context the client object is used
-   */
-  private clientType: string
-
-  /**
-   * status of the websocket connection
+   * Status of the websocket connection
    */
   private hasConnected: boolean = false
 
   /**
-   * initial interval timeout
+   * Initial reconnection interval
    */
-  private initialReconectInterval: number = 1000
+  private initialReconnectInterval: number = 1000
 
   /**
-   * current interval timeout
+   * Current reconnection interval
    */
-  private currentReconnectInterval: number = this.initialReconectInterval
+  private currentReconnectInterval: number = this.initialReconnectInterval
 
   /**
    * Construct a new document client
@@ -38,36 +46,37 @@ export abstract class Client {
    * @param id  The id of the document
    * @param subprotocol The WebSocket subprotocol to use
    */
-  constructor(id: DocumentId, subprotocol: string, clientType?: string) {
-    const protocol = window.location.protocol === 'http:' ? 'ws' : 'wss'
-    const host = window.location.host
-
-    this.clientType = clientType ?? 'unknown'
-
-    this.connect(`${protocol}://${host}/~ws/${id}`, subprotocol)
+  constructor(id: DocumentId, subprotocol: string) {
+    this.connect(id, subprotocol)
   }
 
   /**
-   * Create and connect new websocket, and assign methods.
+   * Create a new WebSocket and assign methods to it to handle `onopen` etc events.
    *
-   * @param url
-   * @param subprotocol
+   * @param id  The id of the document
+   * @param subprotocol The WebSocket subprotocol to use
    */
-  private connect(url, subprotocol) {
+  private connect(id: DocumentId, subprotocol: string) {
+    const protocol = window.location.protocol === 'http:' ? 'ws' : 'wss'
+    const host = window.location.host
+    const url = `${protocol}://${host}/~ws/${id}`
+
     this.ws = new WebSocket(url, subprotocol + '.stencila.org')
 
+    const clientType = this.constructor.name.toLowerCase()
+
     this.ws.onopen = () => {
-      console.debug(`${this.clientType}-client websocket open`)
+      console.debug(`${clientType} websocket open`)
 
       const classList = document.body.classList
-      classList.add(`${this.clientType}-client-connected`)
-      classList.remove(`${this.clientType}-client-disconnected`)
+      classList.add(`${clientType}-connected`)
+      classList.remove(`${clientType}-disconnected`)
 
       window.dispatchEvent(
         new CustomEvent(
           this.hasConnected
-            ? `${this.clientType}-ws-reconnect`
-            : `${this.clientType}-ws-connect`
+            ? `${clientType}-reconnected`
+            : `${clientType}-connected`
         )
       )
 
@@ -75,18 +84,18 @@ export abstract class Client {
     }
 
     this.ws.onclose = () => {
-      console.debug(`${this.clientType}-client on closed`)
+      console.debug(`${clientType} websocket closed`)
 
-      document.body.classList.add(`${this.clientType}-client-disconnected`)
+      document.body.classList.add(`${clientType}-disconnected`)
 
-      window.dispatchEvent(new CustomEvent(`${this.clientType}-ws-disconnect`))
+      window.dispatchEvent(new CustomEvent(`${clientType}-disconnected`))
 
       setTimeout(
         () => {
           if (this.currentReconnectInterval < 120000) {
             this.currentReconnectInterval *= 1.5
           }
-          this.connect(url, subprotocol)
+          this.connect(id, subprotocol)
         },
         this.currentReconnectInterval + Math.random() * 3000
       )
@@ -111,6 +120,7 @@ export abstract class Client {
    *
    * @param message The message as a JavaScript object
    */
+  // @ts-expect-error "function is a stub"
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   protected receiveMessage(message: Record<string, unknown>) {}
 

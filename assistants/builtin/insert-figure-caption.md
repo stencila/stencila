@@ -3,12 +3,11 @@ version: "0.1.0"
 
 preference-rank: 100
 instruction-type: insert-blocks
-instruction-regexes:
-  - (?i)\bfigure caption\b
-
-transform-nodes: Paragraph
-filter-nodes: ^Paragraph$
-assert-nodes: ^(Paragraph,?)+$
+instruction-examples:
+  - write a figure caption
+  - write a caption for a figure
+  - add a figure caption
+expected-nodes: Paragraph+
 ---
 
 An assistant specialized for inserting one or more `Paragraph`s for a figure caption.

@@ -8,7 +8,8 @@ content:
     messages:
     - type: Message
       parts:
-      - insert an inline
+      - type: Text
+        value: insert an inline
   - type: Text
     value: .
 - type: Paragraph
@@ -19,7 +20,8 @@ content:
     messages:
     - type: Message
       parts:
-      - improve this
+      - type: Text
+        value: improve this
     content:
     - type: Text
       value: existing content
@@ -33,7 +35,8 @@ content:
     messages:
     - type: Message
       parts:
-      - equation for surface area of cube
+      - type: Text
+        value: equation for surface area of cube
     assignee: insert-inline-math
   - type: Text
     value: ' and '
@@ -41,7 +44,8 @@ content:
     messages:
     - type: Message
       parts:
-      - please improve this
+      - type: Text
+        value: please improve this
     content:
     - type: Text
       value: ' existing content'

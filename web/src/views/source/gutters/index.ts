@@ -41,7 +41,7 @@ class NodeGutterMarker extends GutterMarker {
     return node.end > line.from && node.end <= line.to + 1
   }
 
-  toDOM = (): Node => {
+  override toDOM = (): Node => {
     const dom = document.createElement(
       'stencila-gutter-marker'
     ) as StencilaGutterMarker

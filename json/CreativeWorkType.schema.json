@@ -22,13 +22,7 @@
       "$ref": "Datatable.schema.json"
     },
     {
-      "$ref": "Directory.schema.json"
-    },
-    {
       "$ref": "Figure.schema.json"
-    },
-    {
-      "$ref": "File.schema.json"
     },
     {
       "$ref": "ImageObject.schema.json"

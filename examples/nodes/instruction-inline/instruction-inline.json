@@ -14,7 +14,7 @@
           "messages": [
             {
               "type": "Message",
-              "parts": ["insert an inline"]
+              "parts": [{ "type": "Text", "value": "insert an inline" }]
             }
           ]
         },
@@ -36,7 +36,7 @@
           "messages": [
             {
               "type": "Message",
-              "parts": ["improve this"]
+              "parts": [{ "type": "Text", "value": "improve this" }]
             }
           ],
           "content": [
@@ -65,7 +65,9 @@
           "messages": [
             {
               "type": "Message",
-              "parts": ["equation for surface area of cube"]
+              "parts": [
+                { "type": "Text", "value": "equation for surface area of cube" }
+              ]
             }
           ]
         },
@@ -79,7 +81,7 @@
           "messages": [
             {
               "type": "Message",
-              "parts": ["please improve this"]
+              "parts": [{ "type": "Text", "value": "please improve this" }]
             }
           ],
           "content": [

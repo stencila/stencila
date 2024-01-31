@@ -14,7 +14,7 @@ export abstract class Heading extends Entity {
   @property({ type: Number })
   level: Number
 
-  render() {
+  override render() {
     return html`
       <slot name="content"></slot>
 

@@ -1,6 +1,3 @@
 compact.jats.xml:
   decode:
     skip: true
-dom.html:
-  encode:
-    skip: true

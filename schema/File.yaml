@@ -1,12 +1,34 @@
 title: File
 '@id': stencila:File
-extends: CreativeWork
+extends: Entity
 category: works
 description: A file on the file system.
+$comment: |
+  Previously this type extended `CreativeWork`.
+  However, to avoid consuming more memory than necessary when creating directory listings
+  with many files, it now extends `Entity`.
 required:
+  - name
   - path
+core:
+  - mediaType
 properties:
+  name:
+    '@id': schema:name
+    description: The name of the file.
+    type: string
   path:
     '@id': stencila:path
-    description: The path (absolute or relative) of the file on the filesystem
+    description: The path (absolute or relative) of the file on the file system
     type: string
+  mediaType:
+    '@id': schema:encodingFormat
+    aliases:
+      - encodingFormat
+    description: IANA media type (MIME type).
+    $comment: |
+      This property is more restrictive than https://schema.org/encodingFormat which
+      expects either Text or URL for this property. This schema expects a media type e.g. `text/html`
+      as listed at http://www.iana.org/assignments/media-types/media-types.xhtml.
+    type: string
+    pattern: '^\w+/[-+.\w]+$'

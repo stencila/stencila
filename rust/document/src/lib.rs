@@ -21,6 +21,7 @@ use format::Format;
 use node_store::{inspect_store, load_store, ReadNode, WriteNode, WriteStore};
 use schema::{Article, Node};
 
+mod sync_directory;
 mod sync_file;
 mod sync_format;
 mod sync_nodes;
@@ -291,7 +292,7 @@ impl Document {
         tracing::debug!("Document update task started");
 
         while let Some(node) = update_receiver.recv().await {
-            tracing::trace!("Document node updated, dumping to store");
+            tracing::trace!("Document node updated");
 
             // Dump the node to the store
             let mut store = store.write().await;

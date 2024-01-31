@@ -10,9 +10,9 @@ export abstract class BlockInfobox extends LitElement {
   icon: string = ''
 
   @property()
-  title: string = ''
+  override title: string = ''
 
-  render() {
+  override render() {
     // TODO: design this
     return html`<div style="color:red">
       ${this.icon} ${this.title}</span>

@@ -1,8 +1,9 @@
-import { html } from 'lit'
+import { apply } from '@twind/core'
+import { LitElement, html } from 'lit'
 import { customElement, property } from 'lit/decorators'
 
+import { withTwind } from '../twind'
 import type { DocumentAccess, DocumentId } from '../types'
-import { TWLitElement } from '../ui/twind'
 
 import './source'
 import './dynamic'
@@ -17,7 +18,8 @@ import '../ui/split-drag'
  * between alternative views in each pane.
  */
 @customElement('stencila-split-view')
-export class SplitView extends TWLitElement {
+@withTwind()
+export class SplitView extends LitElement {
   /**
    * The id of the document
    */
@@ -44,7 +46,12 @@ export class SplitView extends TWLitElement {
   @property()
   theme: string = 'default'
 
-  protected render() {
+  override render() {
+    const dynamicStyles = apply([
+      'py-11 px-16',
+      'max-w-[65ch] lg:max-w-[120ch]',
+    ])
+
     return html`
       <div class="max-h-screen">
         <stencila-ui-drag-split>
@@ -57,13 +64,14 @@ export class SplitView extends TWLitElement {
             slot="left"
           >
           </stencila-source-view>
-          <stencila-dynamic-view
+          <div slot="right" class="${dynamicStyles}">
+            <stencila-dynamic-view
             view="dynamic"
             doc=${this.doc}
             access=${this.access}
             theme=${this.theme}
-            slot="right"
-          >
+            ></stencila-dynamic-view>
+          </div>
           </stencila-dynamic-view>
         </stencila-ui-drag-split>
       </div>

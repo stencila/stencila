@@ -11,7 +11,10 @@
         {
           "@type": "Message",
           "hasParts": [
-            "4x10 table"
+            {
+              "@type": "Text",
+              "value": "4x10 table"
+            }
           ]
         }
       ]
@@ -22,7 +25,10 @@
         {
           "@type": "Message",
           "hasParts": [
-            "top five highest mountains, with height in metres"
+            {
+              "@type": "Text",
+              "value": "top five highest mountains, with height in metres"
+            }
           ]
         }
       ],
@@ -34,7 +40,10 @@
         {
           "@type": "Message",
           "hasParts": [
-            "Improve this paragraph."
+            {
+              "@type": "Text",
+              "value": "Improve this paragraph."
+            }
           ]
         }
       ],
@@ -56,7 +65,10 @@
         {
           "@type": "Message",
           "hasParts": [
-            "please improve this paragraph."
+            {
+              "@type": "Text",
+              "value": "please improve this paragraph."
+            }
           ]
         }
       ],

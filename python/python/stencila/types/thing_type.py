@@ -19,14 +19,12 @@ CreativeWork = ForwardRef("CreativeWork")
 Datatable = ForwardRef("Datatable")
 DatatableColumn = ForwardRef("DatatableColumn")
 DefinedTerm = ForwardRef("DefinedTerm")
-Directory = ForwardRef("Directory")
 Enumeration = ForwardRef("Enumeration")
 ExecutionDependantRelation = ForwardRef("ExecutionDependantRelation")
 ExecutionDependencyRelation = ForwardRef("ExecutionDependencyRelation")
 ExecutionRequired = ForwardRef("ExecutionRequired")
 ExecutionStatus = ForwardRef("ExecutionStatus")
 Figure = ForwardRef("Figure")
-File = ForwardRef("File")
 FormDeriveAction = ForwardRef("FormDeriveAction")
 Grant = ForwardRef("Grant")
 ImageObject = ForwardRef("ImageObject")
@@ -73,14 +71,12 @@ ThingType = Union[
     Datatable,
     DatatableColumn,
     DefinedTerm,
-    Directory,
     Enumeration,
     ExecutionDependantRelation,
     ExecutionDependencyRelation,
     ExecutionRequired,
     ExecutionStatus,
     Figure,
-    File,
     FormDeriveAction,
     Grant,
     ImageObject,

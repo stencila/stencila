@@ -42,7 +42,6 @@ const NO_GENERATE_MODULE: &[&str] = &[
 const NO_READ_NODE: &[&str] = &[
     "Inline",
     "IntegerOrString",
-    "MessagePart",
     "Node",
     "Primitive",
     "PropertyValueOrString",
@@ -317,22 +316,25 @@ pub enum NodeType {{
             derives.push("ReadNode");
         }
 
-        if schema.dom.as_ref().map(|spec| spec.derive).unwrap_or(true) {
-            derives.push("DomCodec");
-        }
-
-        derives.append(&mut vec!["HtmlCodec", "JatsCodec"]);
-
-        if schema
-            .markdown
-            .as_ref()
-            .map(|spec| spec.derive)
-            .unwrap_or(true)
+        // Codec derives
         {
-            derives.push("MarkdownCodec");
-        }
+            if schema.dom.as_ref().map(|spec| spec.derive).unwrap_or(true) {
+                derives.push("DomCodec");
+            }
 
-        derives.push("TextCodec");
+            derives.append(&mut vec!["HtmlCodec", "JatsCodec"]);
+
+            if schema
+                .markdown
+                .as_ref()
+                .map(|spec| spec.derive)
+                .unwrap_or(true)
+            {
+                derives.push("MarkdownCodec");
+            }
+
+            derives.push("TextCodec");
+        }
 
         attrs.push(format!("#[derive({})]", derives.join(", ")));
 
@@ -949,11 +951,6 @@ impl {title} {{
             "Deserialize",
             "StripNode",
             "WalkNode",
-            "DomCodec",
-            "HtmlCodec",
-            "JatsCodec",
-            "MarkdownCodec",
-            "TextCodec",
             "WriteNode",
         ];
 
@@ -969,6 +966,27 @@ impl {title} {{
         if !NO_READ_NODE.contains(&title) {
             derives.push("ReadNode");
         }
+
+        // Codec derives
+        {
+            if schema.dom.as_ref().map(|spec| spec.derive).unwrap_or(true) {
+                derives.push("DomCodec");
+            }
+
+            derives.append(&mut vec!["HtmlCodec", "JatsCodec"]);
+
+            if schema
+                .markdown
+                .as_ref()
+                .map(|spec| spec.derive)
+                .unwrap_or(true)
+            {
+                derives.push("MarkdownCodec");
+            }
+
+            derives.push("TextCodec");
+        }
+
         attrs.push(format!("#[derive({})]", derives.join(", ")));
 
         attrs.push(format!(

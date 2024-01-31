@@ -14,7 +14,7 @@ use rust_embed::RustEmbed;
 
 use app::{get_app_dir, DirType};
 use assistant::common::eyre;
-use assistant::schema::NodeType;
+use assistant::schema::{MessagePart, NodeType};
 use assistant::{
     codecs::{self, EncodeOptions, Format, LossesResponse},
     common::{
@@ -30,10 +30,9 @@ use assistant::{
     },
     deserialize_option_regex,
     merge::Merge,
-    node_authorship::author_roles,
-    schema::{AuthorRoleName, Message},
+    schema::Message,
     Assistant, AssistantIO, GenerateOptions, GenerateOutput, GenerateTask, Instruction,
-    InstructionType, Nodes,
+    InstructionType,
 };
 
 /// Default preference rank
@@ -147,6 +146,8 @@ const FORMAT: Format = Format::Markdown;
 /// Default maximum retries
 const MAX_RETRIES: u8 = 1;
 
+pub type Embeddings = Vec<Vec<f32>>;
+
 /// A custom assistant
 /// TODO: Remove this when the options are being used.
 #[allow(dead_code)]
@@ -156,7 +157,7 @@ const MAX_RETRIES: u8 = 1;
     deny_unknown_fields,
     crate = "assistant::common::serde"
 )]
-struct SpecializedAssistant {
+pub struct SpecializedAssistant {
     /// The id of the assistant
     #[serde(skip_deserializing)]
     id: String,
@@ -215,7 +216,7 @@ struct SpecializedAssistant {
     instruction_examples: Option<Vec<String>>,
 
     /// Embeddings of the instructions examples
-    instruction_embeddings: Option<Vec<Vec<f32>>>,
+    instruction_embeddings: Option<Embeddings>,
 
     /// A regex to match against a comma separated list of the
     /// node types in the instruction content
@@ -300,6 +301,21 @@ where
 }
 
 impl SpecializedAssistant {
+    // Added for testing
+    // TODO: Wrap these in test / debug assertions?
+    pub fn instruction_examples(&self) -> &Option<Vec<String>> {
+        &self.instruction_examples
+    }
+
+    pub fn instruction_embeddings(&self) -> &Option<Embeddings> {
+        &self.instruction_embeddings
+    }
+
+    pub fn instruction_type(&self) -> &Option<InstructionType> {
+        &self.instruction_type
+    }
+
+    /// Return
     /// Parse Markdown content into a custom assistant
     fn parse(id: &str, content: &str) -> Result<Self> {
         // Split a string into parts and ensure that there is at least a header
@@ -567,38 +583,7 @@ impl Assistant for SpecializedAssistant {
             return Ok(0.0);
         }
 
-        /*
-        TODO: Consider how these might be used
-
-        // If instruction regexes are specified then at least one must match
-        if let Some(regexes) = &self.instruction_regexes {
-            let text = task.instruction.text();
-            if !regexes.iter().any(|regex| regex.is_match(&text)) {
-                return false;
-            }
-        }
-
-        if let Some(content) = task.instruction.content() {
-            // If content node type regex specified then, create a comma
-            // separated list of node types, and ensure that the regex matches it
-            if let Some(regex) = &self.content_nodes {
-                let list = content.iter().map(|node| node.to_string()).join(",");
-                if !regex.is_match(&list) {
-                    return false;
-                }
-            }
-
-            // If context regexes are specified then, extract the text of the content, and
-            // ensure that at least one regex matches
-            if let Some(regexes) = &self.content_regexes {
-                let (text, ..) = content.to_text();
-                if !regexes.iter().any(|regex| regex.is_match(&text)) {
-                    return false;
-                }
-            }
-        }
-        */
-
+        // FIXME: Warning here? There SHOULD be embeddings if there were instruction_examples
         let Some(instruction_embeddings) = &self.instruction_embeddings else {
             return Ok(0.1);
         };
@@ -612,6 +597,13 @@ impl Assistant for SpecializedAssistant {
                 score = similarity
             }
         }
+        // TODO: Maybe this instead
+        // let score = instruction_embeddings
+        //     .iter()
+        //     .try_fold(0.0, |max, embedding| {
+        //         let similarity = task.instruction_similarity(embedding)?;
+        //         Ok(max.max(similarity))
+        //     })?;
 
         Ok(score)
     }
@@ -655,12 +647,9 @@ impl Assistant for SpecializedAssistant {
                 let result: Result<GenerateOutput> = delegate.perform_task(&task, &options).await;
                 match result {
                     Ok(mut output) => {
-                        // Add this assistant as an author for generating the prompt used by the delegate
-                        let roles = vec![self.to_author_role(AuthorRoleName::Prompter)];
-                        match &mut output.nodes {
-                            Nodes::Blocks(blocks) => author_roles(blocks, roles),
-                            Nodes::Inlines(inlines) => author_roles(inlines, roles),
-                        }
+                        // Assign this assistant as the prompter for the output so it can be recorded
+                        // in messages and output nodes
+                        output.assign_prompter(self);
 
                         return Ok(output);
                     }
@@ -673,13 +662,13 @@ impl Assistant for SpecializedAssistant {
 
                         // Add the error to the instruction messages so that the assistant
                         // can use it to try to correct
+                        let message = Message {
+                            parts: vec![MessagePart::Text(format!("Error: {error}").into())],
+                            ..Default::default()
+                        };
                         match &mut task.instruction {
-                            Instruction::Block(instr) => instr
-                                .messages
-                                .push(Message::from(format!("Error: {error}"))),
-                            Instruction::Inline(instr) => instr
-                                .messages
-                                .push(Message::from(format!("Error: {error}"))),
+                            Instruction::Block(instr) => instr.messages.push(message),
+                            Instruction::Inline(instr) => instr.messages.push(message),
                         }
                     }
                 }
@@ -712,8 +701,9 @@ pub fn list() -> Result<Vec<Arc<dyn Assistant>>> {
     Ok(list)
 }
 
-/// Get a list of all builtin specialized assistants
-fn list_builtin() -> Result<Vec<Arc<dyn Assistant>>> {
+/// Get a list of the specialized assistants.
+/// Useful for testing.
+pub fn list_builtin_as_specialized() -> Result<Vec<SpecializedAssistant>> {
     let mut assistants = vec![];
 
     for (name, content) in
@@ -723,10 +713,19 @@ fn list_builtin() -> Result<Vec<Arc<dyn Assistant>>> {
         let content = String::from_utf8_lossy(&content);
         let assistant = SpecializedAssistant::parse(&id, &content)
             .map_err(|error| eyre!("While parsing `{name}`: {error}"))?;
-        assistants.push(Arc::new(assistant) as Arc<dyn Assistant>)
+        assistants.push(assistant)
     }
-
     Ok(assistants)
+}
+
+/// Get a list of all builtin specialized assistants as Assistant trait objects
+fn list_builtin() -> Result<Vec<Arc<dyn Assistant>>> {
+    list_builtin_as_specialized().map(|assistants| {
+        assistants
+            .into_iter()
+            .map(|assistant| Arc::new(assistant) as Arc<dyn Assistant>)
+            .collect()
+    })
 }
 
 /// Get a list of all local specialized assistants

@@ -3,13 +3,11 @@ version: "0.1.0"
 
 preference-rank: 100
 instruction-type: insert-blocks
-instruction-regexes:
-  - (?i)\btable\b
+instruction-examples:
+  - insert a table
+  - a table
 
-transform-nodes: Table
-filter-nodes: ^Table$
-take-nodes: 1
-assert-nodes: ^Table$
+expected-nodes: Table
 ---
 
 An assistant specialized for inserting a new, empty `Table`.

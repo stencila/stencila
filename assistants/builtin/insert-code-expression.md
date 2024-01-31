@@ -4,15 +4,12 @@ version: "0.1.0"
 preference-rank: 100
 instruction-type: insert-inlines
 instruction-regexes:
-  - (?i)\bexecutable code\b
-  - (?i)\bcode expr
-  - (?i)\bcode to\b
-  - (?i)^calculate\b
+  - insert code
+  - code to
+  - code for
+  - calculate
 
-transform-nodes: CodeExpression
-filter-nodes: ^CodeExpression$
-take-nodes: 1
-assert-nodes: ^CodeExpression$
+expected-nodes: CodeExpression
 ---
 
 An assistant specialized for inserting a new executable `CodeExpression` within a paragraph.
