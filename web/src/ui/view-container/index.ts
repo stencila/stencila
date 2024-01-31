@@ -45,6 +45,7 @@ export class UIViewContainer extends LitElement {
       source: this.sourceModeClasses(),
       split: this.splitModeClasses(),
       visual: this.displayModeClasses(),
+      directory: this.directoryModeClasses(),
     }
 
     const { inner, outer } = classes[this.view ?? 'live']
@@ -97,6 +98,16 @@ export class UIViewContainer extends LitElement {
     return {
       inner: apply(['p-0', 'w-full']),
       outer: `overflow-y-hidden`,
+    }
+  }
+
+  /**
+   * TODO: Just a placeholder to keep TypeScript happy
+   */
+  private directoryModeClasses() {
+    return {
+      inner: apply([]),
+      outer: ``,
     }
   }
 

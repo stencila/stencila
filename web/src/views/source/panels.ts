@@ -30,7 +30,7 @@ class EditorPanelElement extends TWLitElement {
   @property({ type: Object })
   sourceView: SourceView
 
-  render() {
+  override render() {
     const styles = apply([
       'flex justify-between',
       'h-6',
