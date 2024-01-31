@@ -1,10 +1,11 @@
 import { Extension } from '@codemirror/state'
-import { showPanel, Panel } from '@codemirror/view'
+import { showPanel, Panel, EditorView } from '@codemirror/view'
+import { apply } from '@twind/core'
 import { html } from 'lit'
 import { customElement, property } from 'lit/decorators'
-// import { unsafeHTML } from 'lit/directives/unsafe-html.js'
 
 import { MappingEntry } from '../../clients/format'
+import icon from '../../images/lineWrap.svg'
 import { TWLitElement } from '../../ui/twind'
 import { SourceView } from '../source'
 
@@ -19,7 +20,7 @@ const FORMATS = {
   ...(process.env.NODE_ENV === 'development' ? { dom: 'DOM' } : {}),
 }
 
-const BREADCRUMB_SEPARATOR = ' > '
+const BREADCRUMB_SEPARATOR = '>'
 
 @customElement('stencila-editor-panel-bottom')
 class EditorPanelElement extends TWLitElement {
@@ -29,74 +30,88 @@ class EditorPanelElement extends TWLitElement {
   @property({ type: Object })
   sourceView: SourceView
 
-  override render() {
+  render() {
+    const styles = apply([
+      'flex justify-between',
+      'h-6',
+      'px-4 py-0.5',
+      'bg-gray-wild-sand',
+    ])
+
     return html`
-      <div class="p-2 flex justify-between">
+      <div class=${styles}>
         ${this.renderControls()} ${this.renderBreadcrumbs()}
       </div>
     `
   }
 
   private renderControls() {
+    const styles = apply([
+      'flex flex-row items-center justify-start',
+      'text-sm',
+    ])
+
     return html`
-      <div
-        class="flex flex-row items-center justify-start bg-brand-white text-sm"
-      >
-        <div class="mr-2">${this.renderFormatSelect()}</div>
-        <div>${this.renderLineWrapCheckbox()}</div>
+      <div class=${styles}>
+        ${this.renderLineWrapButton()} ${this.renderFormatSelect()}
       </div>
     `
   }
 
   private renderFormatSelect() {
+    const changeEvent = (e: Event) =>
+      (this.sourceView.format = (e.target as HTMLSelectElement).value)
+
+    const styles = apply(['w-28 h-full', 'mx-3 pl-2', 'bg-white', 'rounded-sm'])
+
+    const title = 'Select document format'
+
     return html`
-      <label>
-        Format
-        <select
-          @change=${(e: Event) =>
-            (this.sourceView.format = (e.target as HTMLSelectElement).value)}
-        >
-          ${Object.entries(FORMATS).map(
-            ([format, name]) =>
-              html`<option
-                value=${format}
-                ?selected=${this.sourceView.format === format}
-              >
-                ${name}
-              </option>`
-          )}
-        </select>
-      </label>
+      <select title=${title} class=${styles} @change=${changeEvent}>
+        ${Object.entries(FORMATS).map(
+          ([format, name]) =>
+            html`<option
+              value=${format}
+              ?selected=${this.sourceView.format === format}
+            >
+              ${name}
+            </option>`
+        )}
+      </select>
     `
   }
 
-  private renderLineWrapCheckbox() {
+  private renderLineWrapButton() {
+    const clickEvent = () => {
+      this.sourceView.lineWrap = !this.sourceView.lineWrap
+    }
+    const title = `Turn ${this.sourceView.lineWrap ? 'off' : 'on'} line wrapping`
+    const styles = apply([
+      'h-4 w-4',
+      this.sourceView.lineWrap ? 'bg-gray-200' : 'hover:bg-green-000',
+    ])
+
     return html`
-      <label>
-        ${'Enable line wrapping'}
-        <input
-          type="checkbox"
-          class="ml-1"
-          ?checked="${this.sourceView.lineWrap}"
-          @change="${(e: Event) =>
-            (this.sourceView.lineWrap = (
-              e.target as HTMLInputElement
-            ).checked)}"
-        />
-      </label>
+      <button class=${styles} title=${title} @click=${clickEvent}>
+        <img src=${icon} width="100%" height="100%" />
+      </button>
     `
   }
 
   private renderBreadcrumbs() {
     return html`
-      <div>
-        ${this.breadcrumbs.reverse().map((entry, i, arr) => {
-          const isLast = i === arr.length - 1
-          return html`
-            <span class="${isLast ? 'font-bold' : ''}">${entry.nodeType}</span
-            >${!isLast ? html`<span>${BREADCRUMB_SEPARATOR}</span>` : ''}
-          `
-        })}
+      <div class="text-xs leading-none flex items-center">
+        ${this.breadcrumbs
+          .reverse()
+          .slice(1)
+          .map((entry, i, arr) => {
+            const isLast = i === arr.length - 1
+            return html`
+              <span>${entry.nodeType}</span>${!isLast
+                ? html`<span class="px-2">${BREADCRUMB_SEPARATOR}</span>`
+                : ''}
+            `
+          })}
       </div>
     `
   }
@@ -126,7 +141,15 @@ const nodeTreePanel = (sourceView: SourceView) => (): Panel => {
 }
 
 const bottomPanel = (sourceView: SourceView): Extension => {
-  return showPanel.of(nodeTreePanel(sourceView))
+  return [
+    showPanel.of(nodeTreePanel(sourceView)),
+    // remove default border
+    EditorView.baseTheme({
+      '.cm-panels-bottom': {
+        borderTop: '1px solid #d3d3d3',
+      },
+    }),
+  ]
 }
 
 export { bottomPanel, EditorPanelElement }

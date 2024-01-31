@@ -115,11 +115,10 @@ export class App extends TWLitElement {
 
   private renderViewSelect() {
     const clickEvent = (e: UISelectorSelectedEvent['detail']) => {
-      console.log(e)
       this.view = e.item.value as DocumentView
     }
 
-    return html` <stencila-ui-selector
+    return html`<stencila-ui-selector
       label="View"
       target=${this.view}
       targetClass="view-selector"
