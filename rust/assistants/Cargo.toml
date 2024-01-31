@@ -15,5 +15,5 @@ codecs = { path = "../codecs" }
 
 [dev-dependencies]
 tokio = "1.35.1"
-serde = { version = "1.0.195", features = ["derive"] }
+serde = { version = "1.0.196", features = ["derive"] }
 serde_yaml = "0.9.30"
