@@ -22,10 +22,12 @@ export class File extends Entity {
   @property({ attribute: 'media-type' })
   mediaType?: string
 
-  render() {
+  override render() {
     switch (this.documentView()) {
       case 'directory':
         return this.renderAsTreeItem()
+      default:
+        return html``
     }
   }
 

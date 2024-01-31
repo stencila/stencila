@@ -11,7 +11,7 @@ import './helpers/block-infobox'
  */
 @customElement('stencila-list')
 export abstract class List extends Entity {
-  render() {
+  override render() {
     return html`
       <slot name="items"></slot>
 

@@ -28,6 +28,7 @@ export class DirectoryView extends LitElement {
    * A read-only client which updates the DOM representation of
    * the directory when it changes
    */
+  // @ts-expect-error "property is written to, not read"
   private domClient: DomClient
 
   /**
@@ -35,6 +36,7 @@ export class DirectoryView extends LitElement {
    * renaming and deleting files and subdirectories and sends them
    * to the server for handling
    */
+  // @ts-expect-error "property is written to, not read"
   private directoryClient: DirectoryClient
 
   /**
@@ -55,7 +57,7 @@ export class DirectoryView extends LitElement {
     )
   }
 
-  render() {
+  override render() {
     return html`<sl-tree class="tree-with-lines tree-with-icons">
       <stencila-directory root></stencila-directory>
     </sl-tree>`

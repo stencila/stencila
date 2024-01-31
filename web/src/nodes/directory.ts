@@ -19,10 +19,12 @@ export class Directory extends Entity {
   @property()
   path: string
 
-  render() {
+  override render() {
     switch (this.documentView()) {
       case 'directory':
         return this.renderAsTreeItem()
+      default:
+        return html``
     }
   }
 
