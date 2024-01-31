@@ -48,6 +48,7 @@ class NodeGutterMarker extends GutterMarker {
 
     dom.isFirstLine = this.checkFirstLine(this.nodes[0], this.line)
     dom.isLastLine = this.checkLastLine(this.nodes[0], this.line)
+    dom.isSingleLine = dom.isFirstLine && dom.isLastLine
     dom.nodes = this.nodes.map((node) => node.nodeType)
     dom.defaultLineHeight = this.defaultLineHeight
     dom.currentLineHeight = this.line.height
@@ -69,19 +70,17 @@ const statusGutter = (sourceView: SourceView) => [
         )
 
       if (nodes.length > 0) {
-        // useful debugging
-        console.log(
-          'line:',
-          view.state.doc.lineAt(line.from).number,
-          'line start:',
-          line.from,
-          'line end: ',
-          line.to,
-          // 'line height',
-          // line.height
-          'nodes:',
-          nodes
-        )
+        // V useful debugging log V
+        // console.log(
+        //   'line:',
+        //   view.state.doc.lineAt(line.from).number,
+        //   'line start:',
+        //   line.from,
+        //   'line end: ',
+        //   line.to,
+        //   'nodes:',
+        //   nodes
+        // )
         return new NodeGutterMarker(nodes, line, view.defaultLineHeight)
       }
       return null

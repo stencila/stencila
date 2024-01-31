@@ -6,6 +6,10 @@ const gutterMarkerColours = {
   Table: '#CDC1F0', // purple-200
   IfBlock: DEFAULT_COLOUR,
   ForBlock: DEFAULT_COLOUR,
+  List: DEFAULT_COLOUR,
+  InstructBlock: DEFAULT_COLOUR,
+  InsertBlock: DEFAULT_COLOUR,
+  ModifyBlock: DEFAULT_COLOUR,
 }
 
 export default gutterMarkerColours

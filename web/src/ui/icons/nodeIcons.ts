@@ -1,8 +1,9 @@
 import { NodeType } from '../../types'
 
-const DEFAULT_NODE_ICON = 'text'
+const DEFAULT_NODE_ICON = 'admonition'
 
 const nodeTypeIconMap: { [k: NodeType]: string } = {
+  Admonition: 'admonition',
   Paragraph: 'paragraph',
   IfBlock: 'if-block',
   ForBlock: 'for-block',

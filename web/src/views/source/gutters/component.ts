@@ -11,10 +11,13 @@ import gutterMarkerColours from './colours'
 @customElement('stencila-gutter-marker')
 class StencilaGutterMarker extends TWLitElement {
   @property({ type: Boolean })
-  isFirstLine: boolean = false
+  isFirstLine: boolean
 
   @property({ type: Boolean })
-  isLastLine: boolean = false
+  isLastLine: boolean
+
+  @property({ type: Boolean })
+  isSingleLine: boolean
 
   @property({ type: Array })
   nodes: NodeType[]
@@ -51,7 +54,9 @@ class StencilaGutterMarker extends TWLitElement {
         style="width: ${this.defaultLineHeight}px;"
       >
         ${this.nodes.length > 1
-          ? this.renderGutterLine(this.nodes[1], true)
+          ? this.nodes
+              .slice(1)
+              .map((node, i) => this.renderGutterLine(node, i + 1))
           : ''}
         ${this.isFirstLine
           ? this.renderIcon(this.nodes[0])
@@ -69,11 +74,10 @@ class StencilaGutterMarker extends TWLitElement {
       'w-full',
       'p-1',
       'z-30',
-      'rounded-[5px]',
+      'rounded-[4px]',
     ])
 
     return html`
-      ${this.renderGutterLine(node)}
       <div
         class=${styles}
         style="height: ${this
@@ -81,16 +85,22 @@ class StencilaGutterMarker extends TWLitElement {
       >
         <sl-icon library="stencila" name=${getNodeIcon(node)}></sl-icon>
       </div>
+      ${!this.isSingleLine || this.currentLineHeight > this.defaultLineHeight
+        ? this.renderGutterLine(node)
+        : ''}
     `
   }
 
-  renderGutterLine(node: NodeType, isParentNode?: boolean) {
+  renderGutterLine(node: NodeType, depth: number = 0) {
     const colour = gutterMarkerColours[node]
-    const borderRadius = this.setBorderRadius(isParentNode)
+    const borderRadius = this.setBorderRadius(depth > 0)
+
     return html`
-      <div class="h-full w-1/2">
+      <div
+        class="h-full w-1/4 ${this.isFirstLine && depth === 0 ? 'pt-2' : ''}"
+      >
         <div
-          class="w-full h-full"
+          class="w-full h-full border-r border-gray-wild-sand"
           style="background-color: ${colour}; border-radius: ${borderRadius};"
         ></div>
       </div>
