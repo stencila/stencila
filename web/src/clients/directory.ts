@@ -1,5 +1,3 @@
-import { type Node } from '@stencila/types'
-
 import { type DocumentId } from '../types'
 
 import { Client } from './client'
@@ -22,9 +20,24 @@ export interface DirectoryAction {
   path: string
 
   /**
-   * The new path for renaming actions
+   * The new path for rename actions
    */
-  to?: Node
+  to?: string
+}
+
+/**
+ * An error sent by the server when there is an error applying an action
+ */
+export interface DirectoryActionError {
+  /**
+   * The action that caused the error
+   */
+  action: DirectoryAction
+
+  /**
+   * The error message
+   */
+  message: string
 }
 
 /**
@@ -36,9 +49,9 @@ const DIRECTORY_ACTION_EVENT = 'stencila-directory-action'
 /**
  * Create a `CustomEvent` containing a `DirectoryAction`
  */
-export function nodePatchEvent(patch: DirectoryAction): CustomEvent {
+export function directoryActionEvent(action: DirectoryAction): CustomEvent {
   return new CustomEvent(DIRECTORY_ACTION_EVENT, {
-    detail: patch,
+    detail: action,
     bubbles: true,
   })
 }
@@ -60,5 +73,12 @@ export class DirectoryClient extends Client {
     elem.addEventListener(DIRECTORY_ACTION_EVENT, (event: CustomEvent) => {
       this.sendMessage(event.detail)
     })
+  }
+
+  override receiveMessage(error: Record<string, unknown>): void {
+    const { message } = error as unknown as DirectoryActionError
+
+    // TODO display the message the user
+    console.error(message)
   }
 }
