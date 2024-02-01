@@ -9,7 +9,7 @@ import { withTwind } from '../../twind'
  */
 @customElement('stencila-block-infobox')
 @withTwind()
-export abstract class BlockInfobox extends LitElement {
+export class BlockInfobox extends LitElement {
   @property()
   icon: string = ''
 
