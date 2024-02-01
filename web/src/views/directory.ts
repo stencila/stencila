@@ -19,9 +19,16 @@ import type { DocumentId } from '../types'
 export class DirectoryView extends LitElement {
   /**
    * The id of the document for the directory
+   *
+   * This server's root directory is what this view is intended
+   * for and, at the time of writing, none of the directory
+   * actions will succeed for any other directory.
+   *
+   * If not set as an attribute on the element (it normally shouldn't)
+   * the id of the server's root directory will fetched in the constructor.
    */
   @property()
-  doc: DocumentId
+  doc?: DocumentId
 
   /**
    * The directory as a JavaScript object
@@ -41,11 +48,14 @@ export class DirectoryView extends LitElement {
    * renaming and deleting files and subdirectories and sends them
    * to the server for application
    */
-  // @ts-expect-error "is declared but its value is never read"
   private directoryClient: DirectoryClient
 
-  override connectedCallback() {
+  override async connectedCallback() {
     super.connectedCallback()
+
+    if (this.doc === undefined) {
+      this.doc = await DirectoryView.openFile('*')
+    }
 
     this.objectClient = new ObjectClient(this.doc)
     this.objectClient.subscribe((_, { node }) => {
@@ -54,6 +64,69 @@ export class DirectoryView extends LitElement {
     })
 
     this.directoryClient = new DirectoryClient(this.doc, this)
+  }
+
+  /**
+   * Open a file on the server
+   *
+   * Returns the id of the document which can be used to open a view for the
+   * document (by setting the `doc` attribute of the view element) e.g.
+   *
+   *   const view = document.createElement('stencila-live-view')
+   *   view.setAttribute('doc', docId)
+   *
+   * @param path The path of the file
+   */
+  static async openFile(path: string): Promise<DocumentId> {
+    const response = await fetch('/~open/' + path)
+    if (response.status !== 200) {
+      // TODO: Better error handling
+      console.error(response)
+    }
+    const doc = await response.json()
+    return doc.id
+  }
+
+  /**
+   * Create a file
+   *
+   * @param parentPath The path of the parent directory
+   * @param fileName The name of the file to create
+   */
+  createFile(parentPath: string, fileName: string) {
+    this.directoryClient.sendAction('create-file', `${parentPath}/${fileName}`)
+  }
+
+  /**
+   * Create a directory
+   *
+   * @param parentPath The path of the parent directory
+   * @param directoryName The name of the directory to create
+   */
+  createDirectory(parentPath: string, directoryName: string) {
+    this.directoryClient.sendAction(
+      'create-directory',
+      `${parentPath}/${directoryName}`
+    )
+  }
+
+  /**
+   * Delete a file or directory
+   *
+   * @param path The current path of the file or directory
+   */
+  delete(path: string) {
+    this.directoryClient.sendAction('delete', path)
+  }
+
+  /**
+   * Rename/move a file or directory
+   *
+   * @param oldPath The current path of the file or directory
+   * @param newPath The new path
+   */
+  rename(oldPath: string, newPath: string) {
+    this.directoryClient.sendAction('rename', oldPath, newPath)
   }
 
   override render() {
