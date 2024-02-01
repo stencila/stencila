@@ -11,9 +11,6 @@ const editorStyles = EditorView.baseTheme({
     maxWidth: '70%',
     height: 'content',
   },
-  // '.cm-content': {
-  //   maxWidth: '66%',
-  // },
 })
 
 export { editorStyles }

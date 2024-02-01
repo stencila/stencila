@@ -85,7 +85,7 @@ const statusGutter = (sourceView: SourceView) => [
         .filter((node) => gutterMarkerElements.includes(node.nodeType))
 
       if (nodes.length > 0) {
-        // V useful debugging log V
+        // useful debugging log - logs out line info and nodes picked up
         // console.log(
         //   'line:',
         //   view.state.doc.lineAt(line.from).number,

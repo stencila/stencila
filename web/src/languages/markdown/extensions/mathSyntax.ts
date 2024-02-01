@@ -114,7 +114,6 @@ const mathParser = parseMixed((node) => {
     const markLength = TEXBLOCK_MARK.length
     const start = node.from + markLength
     const end = node.to - markLength
-    console.log(node.type)
 
     if (start >= end) {
       return null
