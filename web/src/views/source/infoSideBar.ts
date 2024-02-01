@@ -34,17 +34,27 @@ const infoSideBar = (sourceView: SourceView): Extension => {
        */
       cursorY: number
 
+      /**
+       *
+       */
+      private domClassList = [
+        'absolute',
+        'top-0',
+        'right-4',
+        'h-full',
+        'w-full',
+        'max-w-[25%]',
+        'pb-6', // offset bottom panel
+      ]
+
       constructor(readonly view: EditorView) {
         this.dom = document.createElement('div')
 
         // this class has no functionality at this point
         // but may be needed for selecting
-        this.dom.className = 'cm-stencila-info-bar'
 
-        this.dom.style.width = '33%'
-        this.dom.style.maxWidth = '300px'
-        this.dom.style.minHeight = `${view.contentHeight / view.scaleY}px`
-        this.view.scrollDOM.appendChild(this.dom)
+        this.dom.classList.add('cm-info-sidebar', ...this.domClassList)
+        this.view.dom.appendChild(this.dom)
       }
 
       update = (update: ViewUpdate) => {

@@ -39,6 +39,7 @@ import { markdownHighlightStyle } from '../languages/markdown'
 import type { DocumentId, DocumentAccess } from '../types'
 import { TWLitElement } from '../ui/twind'
 
+import { editorStyles } from './source/editorStyles'
 import { statusGutter } from './source/gutters'
 import { infoSideBar } from './source/infoSideBar'
 import { autoWrapKeys } from './source/keyMaps'
@@ -283,6 +284,7 @@ export class SourceView extends TWLitElement {
       autocompletion(),
       bottomPanel(this),
       infoSideBar(this),
+      editorStyles,
     ]
   }
 
@@ -371,7 +373,7 @@ export class SourceView extends TWLitElement {
     return twCSS`
       .cm-editor {
         height: 100%;
-        overflow-y: auto;
+        max-width: calc(100vw-4rem);
       }
     `
   }
