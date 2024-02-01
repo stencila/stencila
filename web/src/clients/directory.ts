@@ -81,4 +81,11 @@ export class DirectoryClient extends Client {
     // TODO display the message the user
     console.error(message)
   }
+
+  /**
+   * Convenience method to create and send a directory action
+   */
+  public sendAction(type: DirectoryAction['type'], path: string, to?: string) {
+    this.sendMessage({ type, path, to })
+  }
 }
