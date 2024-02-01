@@ -31,7 +31,7 @@ use assistant::{
     deserialize_option_regex,
     merge::Merge,
     schema::Message,
-    Assistant, AssistantIO, GenerateOptions, GenerateOutput, GenerateTask, Instruction,
+    Assistant, AssistantIO, Embeddings, GenerateOptions, GenerateOutput, GenerateTask, Instruction,
     InstructionType,
 };
 
@@ -146,8 +146,6 @@ const FORMAT: Format = Format::Markdown;
 /// Default maximum retries
 const MAX_RETRIES: u8 = 1;
 
-pub type Embeddings = Vec<Vec<f32>>;
-
 /// A custom assistant
 /// TODO: Remove this when the options are being used.
 #[allow(dead_code)]
@@ -216,7 +214,8 @@ pub struct SpecializedAssistant {
     instruction_examples: Option<Vec<String>>,
 
     /// Embeddings of the instructions examples
-    instruction_embeddings: Option<Embeddings>,
+    #[serde(skip_deserializing)]
+    instruction_embeddings: Embeddings,
 
     /// A regex to match against a comma separated list of the
     /// node types in the instruction content
@@ -307,7 +306,7 @@ impl SpecializedAssistant {
         &self.instruction_examples
     }
 
-    pub fn instruction_embeddings(&self) -> &Option<Embeddings> {
+    pub fn instruction_embeddings(&self) -> &Embeddings {
         &self.instruction_embeddings
     }
 
@@ -348,10 +347,10 @@ impl SpecializedAssistant {
     }
 
     /// Initialize the assistant
-    fn init(&mut self) -> Result<()> {
+    pub fn init(&mut self) -> Result<()> {
         // Calculate embeddings if necessary
         if let Some(examples) = &self.instruction_examples {
-            self.instruction_embeddings = Some(GenerateTask::create_embeddings(examples.clone())?);
+            self.instruction_embeddings.build(examples.clone())?;
         }
 
         // Apply expected nodes to options, updating them if necessary
@@ -421,10 +420,6 @@ impl SpecializedAssistant {
         if let Some(system_prompt) = &self.system_prompt {
             task.system_prompt = Some(system_prompt.clone());
         }
-
-        // This will populate the task.instruction_text if necessary
-        task.instruction_text();
-
         // Encode document and content with these defaults
         let encode_options = EncodeOptions {
             // Do not use compact encodings
@@ -583,29 +578,7 @@ impl Assistant for SpecializedAssistant {
             return Ok(0.0);
         }
 
-        // FIXME: Warning here? There SHOULD be embeddings if there were instruction_examples
-        let Some(instruction_embeddings) = &self.instruction_embeddings else {
-            return Ok(0.1);
-        };
-
-        // Suitability score is the maximum cosine similarity between the instruction
-        // and the phrases registered for this assistant
-        let mut score = 0.;
-        for embedding in instruction_embeddings {
-            let similarity = task.instruction_similarity(embedding)?;
-            if similarity > score {
-                score = similarity
-            }
-        }
-        // TODO: Maybe this instead
-        // let score = instruction_embeddings
-        //     .iter()
-        //     .try_fold(0.0, |max, embedding| {
-        //         let similarity = task.instruction_similarity(embedding)?;
-        //         Ok(max.max(similarity))
-        //     })?;
-
-        Ok(score)
+        task.instruction_similarity(&self.instruction_embeddings)
     }
 
     fn preference_rank(&self) -> u8 {

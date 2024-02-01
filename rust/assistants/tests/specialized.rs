@@ -3,9 +3,9 @@ use std::fs;
 
 use assistant::{
     common::{eyre::Result, serde::Deserialize, serde_yaml, tokio},
-    Assistant, GenerateTask, Instruction, InstructionType,
+    Assistant, Embeddings, GenerateTask, Instruction, InstructionType,
 };
-use assistant_specialized::{Embeddings, SpecializedAssistant};
+use assistant_specialized::SpecializedAssistant;
 use assistants::get_assistant;
 
 #[derive(Debug, Deserialize)]
@@ -95,49 +95,35 @@ async fn check_we_get_the_right_assistant() -> Result<()> {
     Ok(())
 }
 
-// TODO: Remove this
-#[allow(unused_variables)]
-#[tokio::test]
-async fn ensure_assistants_are_distinct() -> Result<()> {
+#[test]
+fn ensure_instruction_examples_are_distinct() -> Result<()> {
     // Make a lookup of all special assistants built in to stencila.
-    let assistants = assistant_specialized::list_builtin_as_specialized()?;
-    let empty_instr: Vec<String> = vec![];
-    let empty_embed: Embeddings = vec![];
+    let mut assistants = assistant_specialized::list_builtin_as_specialized()?;
+    for a in assistants.iter_mut() {
+        a.init()?;
+    }
 
-    // EEK. I'm not sure I should be proud of this.
-    let asst_with_instr: Vec<_> = assistants
+    let all_comparisons: Vec<(&SpecializedAssistant, &str, &[f32])> = assistants
         .iter()
         .flat_map(|a| {
-            a.instruction_examples()
-                .as_ref()
-                .unwrap_or(&empty_instr)
-                .iter()
-                .zip(a.instruction_embeddings().as_ref().unwrap_or(&empty_embed))
-                .map(|i| (a, i))
-                .collect::<Vec<_>>()
+            a.instruction_embeddings()
+                .iter_items()
+                .map(move |(t, v)| (a, t, v))
         })
         .collect();
 
-    // Now do the full matrix of comparisons.
-    for (a1, (i1, e1)) in asst_with_instr.iter() {
-        for (a2, (i2, e2)) in asst_with_instr.iter() {
-            if a1.id() == a2.id() && i1 == i2 {
-                continue;
-            }
-            // TODO: Extract cosine similarity.
-            // I think the embeddings need to be refactored into a newtype struct: InstructionEmbeddings(Vec<Vec<f32>>)
-            // Then their creation and comparison can be done in a single place.
-            // let sim = e1.cosine_similarity(e2);
+    // TODO: Probably sort this.
+    for (a1, t1, v1) in all_comparisons.iter() {
+        for (a2, t2, v2) in all_comparisons.iter() {
             println!(
-                "{:<20} {:<20} / {:<20} {:<20}: {}",
+                "{:.4} | {}: `{}` --- {}: `{}`",
+                Embeddings::calculate_similarity(v1, v2),
                 short_name(&a1.id()),
-                i1,
+                t1,
                 short_name(&a2.id()),
-                i2,
-                0.0,
+                t2,
             );
         }
     }
-
     Ok(())
 }

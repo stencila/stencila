@@ -12,3 +12,4 @@ format = { path = "../format" }
 merge = "0.1.0"
 node-authorship = { path = "../node-authorship" }
 schema = { path = "../schema" }
+serde = { version = "1.0.196", features = ["derive"] }

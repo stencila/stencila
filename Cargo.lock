@@ -179,6 +179,7 @@ dependencies = [
  "merge",
  "node-authorship",
  "schema",
+ "serde",
 ]
 
 [[package]]
