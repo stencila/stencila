@@ -86,16 +86,16 @@ const statusGutter = (sourceView: SourceView) => [
 
       if (nodes.length > 0) {
         // V useful debugging log V
-        console.log(
-          'line:',
-          view.state.doc.lineAt(line.from).number,
-          'line start:',
-          line.from,
-          'line end: ',
-          line.to,
-          'nodes:',
-          nodes
-        )
+        // console.log(
+        //   'line:',
+        //   view.state.doc.lineAt(line.from).number,
+        //   'line start:',
+        //   line.from,
+        //   'line end: ',
+        //   line.to,
+        //   'nodes:',
+        //   nodes
+        // )
         return new NodeGutterMarker(nodes, line, view.defaultLineHeight)
       }
       return null

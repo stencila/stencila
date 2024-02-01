@@ -35,7 +35,7 @@ const infoSideBar = (sourceView: SourceView): Extension => {
       cursorY: number
 
       /**
-       *
+       * twind classlist for the sidebar dom element
        */
       private domClassList = [
         'absolute',
@@ -68,7 +68,7 @@ const infoSideBar = (sourceView: SourceView): Extension => {
         // need to handle this better
         const currentNode = sourceView
           .getNodesAt(cursor)
-          .filter((node) => node.nodeType !== 'Text')[0]
+          .filter((node) => !['Text', 'Article'].includes(node.nodeType))[0]
 
         if (!currentNode) {
           return
@@ -111,7 +111,8 @@ const infoSideBar = (sourceView: SourceView): Extension => {
               const editorTop = view.scrollDOM.getBoundingClientRect().top
               const yOffset =
                 this.currentInfoBox.getBoundingClientRect().height / 2
-              let yPos = top - editorTop - yOffset
+
+              let yPos = top - editorTop - yOffset + view.defaultLineHeight / 2
 
               if (yPos < 0) {
                 yPos = 0

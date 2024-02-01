@@ -149,7 +149,6 @@ const createInlineElements = (
   let endMarker = INLINE_MARK_CLOSE
 
   if (contentMarkIndex !== -1 && closeMarkIndex !== -1) {
-    console.log('hello')
     if (contentMarkIndex < closeMarkIndex) {
       endIndex = contentMarkIndex
       endMarker = INLINE_MARK_CONTENT
@@ -168,7 +167,6 @@ const createInlineElements = (
 
   // check for closing delim, use pos to determine end of text element
   if (endIndex !== -1) {
-    console.log(endMarker, endIndex)
     closeMarkEl = createMarkerEl(cx, openMarkEl.to + endIndex, endMarker.length)
     textEnd = closeMarkEl.from
   } else {

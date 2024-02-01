@@ -104,7 +104,7 @@ class EditorPanelElement extends LitElement {
       <div class="text-xs leading-none flex items-center">
         ${this.breadcrumbs
           .reverse()
-          .slice(1)
+          // .slice(1)
           .map((entry, i, arr) => {
             const isLast = i === arr.length - 1
             return html`
@@ -134,7 +134,9 @@ const nodeTreePanel = (sourceView: SourceView) => (): Panel => {
       dom.setAttribute(
         'breadcrumbs',
         JSON.stringify(
-          sourceView.getNodesAt().filter((entry) => entry.nodeType !== 'Text')
+          sourceView
+            .getNodesAt()
+            .filter((entry) => !['Text', 'Article'].includes(entry.nodeType))
         )
       )
     },

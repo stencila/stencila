@@ -1,7 +1,10 @@
 import { html } from 'lit'
 import { customElement } from 'lit/decorators'
 
+import { getNodeColour } from '../ui/nodes/nodeMapping'
+
 import { Entity } from './entity'
+
 import './helpers/block-infobox'
 
 /**
@@ -12,15 +15,16 @@ import './helpers/block-infobox'
 @customElement('stencila-paragraph')
 export abstract class Paragraph extends Entity {
   override render() {
-    const view = this.documentView()
-
     return html`
-      <slot name="content"></slot>
+      ${this.documentView() !== 'source'
+        ? html`<slot name="content"></slot>`
+        : ''}
 
-      <!-- TODO: For demoing only, remove -->
-      View: ${view}
-
-      <stencila-block-infobox icon="paragraph" title="Paragraph">
+      <stencila-block-infobox
+        icon="paragraph"
+        title="Paragraph"
+        colour=${getNodeColour('Paragraph')}
+      >
         <slot name="authors" slot="authors"></slot>
       </stencila-block-infobox>
     `
