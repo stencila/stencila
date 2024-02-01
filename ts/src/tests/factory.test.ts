@@ -47,6 +47,7 @@ test("new block", () => {
   const p2 = block(paragraph([]));
   expect(p2).toBeInstanceOf(Paragraph);
 
+  // @ts-expect-error because it is intentional - it is what we're testing
   expect(() => block(subscript([]))).toThrowError(
     "Unexpected type for Block: Subscript",
   );
