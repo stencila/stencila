@@ -6,7 +6,6 @@ import { THEMES } from '../themes/themes'
 import { withTwind } from '../twind'
 import type { DocumentId, DocumentView } from '../types'
 import type { UISelectorSelectedEvent } from '../ui/selector'
-import { TWLitElement } from '../ui/twind'
 import { VIEWS } from '../views/views'
 
 import '../ui/selector'

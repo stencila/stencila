@@ -1,10 +1,27 @@
 import { BlockInfo, EditorView, gutter, GutterMarker } from '@codemirror/view'
 
 import { MappingEntry } from '../../../clients/format'
+import { NodeType } from '../../../types'
 import { SourceView } from '../../source'
 
-import gutterColourMarkers from './colours'
 import { StencilaGutterMarker } from './component'
+
+const gutterMarkerElements: readonly NodeType[] = [
+  'IfBlock',
+  'ForBlock',
+  'Paragraph',
+  'Heading',
+  'List',
+  'Table',
+  'InstructBlock',
+  'InsertBlock',
+  'ModifyBlock',
+  'ReplaceBlock',
+  'DeleteBlock',
+  'CodeBlock',
+  'CodeChunk',
+  'MathBlock',
+] as const
 
 class NodeGutterMarker extends GutterMarker {
   /**
@@ -65,22 +82,20 @@ const statusGutter = (sourceView: SourceView) => [
       // also checks some positional
       const nodes = sourceView
         .getNodesAt(line.from)
-        .filter((node) =>
-          Object.keys(gutterColourMarkers).includes(node.nodeType)
-        )
+        .filter((node) => gutterMarkerElements.includes(node.nodeType))
 
       if (nodes.length > 0) {
         // V useful debugging log V
-        // console.log(
-        //   'line:',
-        //   view.state.doc.lineAt(line.from).number,
-        //   'line start:',
-        //   line.from,
-        //   'line end: ',
-        //   line.to,
-        //   'nodes:',
-        //   nodes
-        // )
+        console.log(
+          'line:',
+          view.state.doc.lineAt(line.from).number,
+          'line start:',
+          line.from,
+          'line end: ',
+          line.to,
+          'nodes:',
+          nodes
+        )
         return new NodeGutterMarker(nodes, line, view.defaultLineHeight)
       }
       return null
