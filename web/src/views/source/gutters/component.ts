@@ -48,7 +48,8 @@ class StencilaGutterMarker extends LitElement {
 
   protected override render() {
     const width =
-      this.defaultLineHeight + this.getGutterLineWidth() * this.nodes.length - 1
+      this.defaultLineHeight +
+      this.getGutterLineWidth() * (this.nodes.length - 1)
     return html`
       <div class="relative flex h-full" style="width: ${width}px;">
         ${this.nodes.reverse().map((node, i, arr) => {
