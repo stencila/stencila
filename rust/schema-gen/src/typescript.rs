@@ -21,7 +21,7 @@ use crate::{
 };
 
 /// Comment to place at top of a files to indicate it is generated
-const GENERATED_COMMENT: &str = "// Generated file; do not edit. See `../rust/schema-gen` crate.";
+const GENERATED_COMMENT: &str = "// Generated file; do not edit. See https://github.com/stencila/stencila/tree/main/rust/schema-gen";
 
 /// Modules that should not be generated
 ///
@@ -130,6 +130,29 @@ impl Schemas {
                     .iter()
                     .map(|module| format!("export * from \"./{module}.js\";"))
                     .join("\n")
+            ),
+        )
+        .await?;
+
+        // Create a nodeType.ts file with a discriminated union of node type names
+        let nodes = self
+            .schemas
+            .get("Node")
+            .and_then(|schema| schema.any_of.as_ref())
+            .expect("should always exist");
+        let node_types = nodes
+            .iter()
+            .filter_map(|schema| schema.r#ref.as_ref())
+            .map(|title| format!("  | \"{title}\""))
+            .join("\n");
+        write(
+            dest.join("nodeType.ts"),
+            format!(
+                r"{GENERATED_COMMENT}
+
+export type NodeType =
+{node_types};
+"
             ),
         )
         .await?;
@@ -268,7 +291,7 @@ impl Schemas {
             let name = name.to_camel_case();
 
             if name == "type" {
-                props.push(format!("  // @ts-expect-error 'not assignable to the same property in base type'\n  type: '{title}';"));
+                props.push(format!("  // @ts-expect-error 'not assignable to the same property in base type'\n  type: \"{title}\";"));
                 continue;
             }
 
@@ -553,7 +576,7 @@ export function {func_name}(other: {name}): {name} {{
     {cases}
       return hydrate(other) as {name}
     default:
-      // @ts-ignore-error that this can never happen because this function may be used in weakly-typed JavaScript
+      // @ts-expect-error that this can never happen because this function may be used in weakly-typed JavaScript
       throw new Error(`Unexpected type for {name}: ${{other.type}}`);
   }}
 }}"#,
