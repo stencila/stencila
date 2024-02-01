@@ -567,6 +567,13 @@ import { hydrate } from \"../hydrate.js\";
         };
 
         let from = if is_union_type {
+            let entity_alternatives = alternatives
+                .iter()
+                .filter(|(variant, is_type)| {
+                    *is_type && !PRIMITIVES.contains(&variant.to_lowercase().as_str())
+                })
+                .collect_vec();
+
             format!(
                 r#"/**
  * Create a `{name}` from an object
@@ -576,8 +583,7 @@ export function {func_name}(other: {name}): {name} {{
     {cases}
       return hydrate(other) as {name}
     default:
-      // @ts-expect-error that this can never happen because this function may be used in weakly-typed JavaScript
-      throw new Error(`Unexpected type for {name}: ${{other.type}}`);
+      {ignore_error}throw new Error(`Unexpected type for {name}: ${{other.type}}`);
   }}
 }}"#,
                 func_name = name.to_camel_case(),
@@ -593,13 +599,18 @@ export function {func_name}(other: {name}): {name} {{
                 } else {
                     String::new()
                 },
-                cases = alternatives
+                cases = entity_alternatives
                     .iter()
-                    .filter(|(variant, is_type)| {
-                        *is_type && !PRIMITIVES.contains(&variant.to_lowercase().as_str())
-                    })
                     .map(|(variant, ..)| format!("case \"{variant}\":"))
-                    .join("\n    ")
+                    .join("\n    "),
+                ignore_error = if entity_alternatives.len() == 1
+                    || name == "Node"
+                    || name == "StringPatchOrPrimitive"
+                {
+                    ""
+                } else {
+                    "// @ts-expect-error that this can never happen because this function may be used in weakly-typed JavaScript\n      "
+                }
             )
         } else {
             String::new()

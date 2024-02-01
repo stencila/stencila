@@ -22,7 +22,6 @@ export function propertyValueOrString(other: PropertyValueOrString): PropertyVal
     case "PropertyValue":
       return hydrate(other) as PropertyValueOrString
     default:
-      // @ts-expect-error that this can never happen because this function may be used in weakly-typed JavaScript
       throw new Error(`Unexpected type for PropertyValueOrString: ${other.type}`);
   }
 }

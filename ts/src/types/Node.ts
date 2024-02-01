@@ -374,7 +374,6 @@ export function node(other: Node): Node {
     case "VideoObject":
       return hydrate(other) as Node
     default:
-      // @ts-expect-error that this can never happen because this function may be used in weakly-typed JavaScript
       throw new Error(`Unexpected type for Node: ${other.type}`);
   }
 }

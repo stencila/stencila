@@ -22,7 +22,6 @@ export function postalAddressOrString(other: PostalAddressOrString): PostalAddre
     case "PostalAddress":
       return hydrate(other) as PostalAddressOrString
     default:
-      // @ts-expect-error that this can never happen because this function may be used in weakly-typed JavaScript
       throw new Error(`Unexpected type for PostalAddressOrString: ${other.type}`);
   }
 }
