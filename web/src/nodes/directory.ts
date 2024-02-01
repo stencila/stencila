@@ -23,14 +23,6 @@ export class Directory extends Entity {
     return this.renderAsTreeItem()
   }
 
-  renderAsTreeItem_() {
-    return html`<sl-tree-item>
-      <sl-icon name="folder"></sl-icon>
-      ${this.name}
-      <slot name="parts"></slot>
-    </sl-tree-item>`
-  }
-
   renderAsTreeItem() {
     const newFile = (event: Event) => {
       const name = (event.target as HTMLInputElement).value

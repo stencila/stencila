@@ -26,13 +26,6 @@ export class File extends Entity {
     return this.renderAsTreeItem()
   }
 
-  _renderAsTreeItem() {
-    return html`<sl-tree-item>
-      <sl-icon name="file"></sl-icon>
-      ${this.name}
-    </sl-tree-item>`
-  }
-
   renderAsTreeItem() {
     const open = async () => {
       const response = await fetch('/~open/' + this.path)
