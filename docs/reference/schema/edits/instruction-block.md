@@ -56,6 +56,7 @@ The `InstructionBlock` type can be encoded (serialized) to, and/or decoded (dese
 | [CBOR](https://github.com/stencila/stencila/blob/main/docs/reference/formats/cbor.md)              | 🟢 No loss    | 🟢 No loss | 🟢 Stable            |                                    |
 | [CBOR+Zstandard](https://github.com/stencila/stencila/blob/main/docs/reference/formats/cborzst.md) | 🟢 No loss    | 🟢 No loss | 🟢 Stable            |                                    |
 | [YAML](https://github.com/stencila/stencila/blob/main/docs/reference/formats/yaml.md)              | 🟢 No loss    | 🟢 No loss | 🟢 Stable            |                                    |
+| [Directory](https://github.com/stencila/stencila/blob/main/docs/reference/formats/directory.md)    |              |           | 🚧 Under development |                                    |
 | [Debug](https://github.com/stencila/stencila/blob/main/docs/reference/formats/debug.md)            | 🔷 Low loss   |           | 🟢 Stable            |                                    |
 
 ## Bindings
@@ -72,18 +73,18 @@ The `InstructionBlock` type is represented in these bindings:
 
 During property-based (a.k.a generative) testing, the properties of the `InstructionBlock` type are generated using the following strategies[^1] for each complexity level. Any optional properties that are not in this table are set to `None`.
 
-| Property     | Complexity | Description                                                    | Strategy                                           |
-| ------------ | ---------- | -------------------------------------------------------------- | -------------------------------------------------- |
-| `candidates` | Min+       | No candidates                                                  | `None`                                             |
-|              | High+      | Generate a list of arbitrary ids using expected characters     | `vec(r"[a-zA-Z][a-zA-Z\-_/.@]", size_range(1..5))` |
-|              | Max        | Generate a list of arbitrary assignee ids using any characters | `vec(String::arbitrary(), size_range(1..10))`      |
-| `assignee`   | Min+       | No assignee                                                    | `None`                                             |
-|              | High+      | Generate an arbitrary id using expected characters             | `option::of(r"[a-zA-Z][a-zA-Z\-_/.@]")`            |
-|              | Max        | Generate an arbitrary assignee id using any characters         | `option::of(String::arbitrary())`                  |
-| `content`    | Min+       | No content                                                     | `None`                                             |
-|              | Low+       | Generate a single arbitrary, non-recursive, block node         | `option::of(vec_blocks_non_recursive(1))`          |
-|              | High+      | Generate up to two arbitrary, non-recursive, block nodes       | `option::of(vec_blocks_non_recursive(2))`          |
-|              | Max        | Generate up to four arbitrary, non-recursive, block nodes      | `option::of(vec_blocks_non_recursive(4))`          |
+| Property     | Complexity | Description                                                    | Strategy                                                       |
+| ------------ | ---------- | -------------------------------------------------------------- | -------------------------------------------------------------- |
+| `candidates` | Min+       | No candidates                                                  | `None`                                                         |
+|              | High+      | Generate a list of arbitrary ids using expected characters     | `option::of(vec(r"[a-zA-Z][a-zA-Z\-_/.@]", size_range(1..5)))` |
+|              | Max        | Generate a list of arbitrary assignee ids using any characters | `option::of(vec(String::arbitrary(), size_range(1..10)))`      |
+| `assignee`   | Min+       | No assignee                                                    | `None`                                                         |
+|              | High+      | Generate an arbitrary id using expected characters             | `option::of(r"[a-zA-Z][a-zA-Z\-_/.@]")`                        |
+|              | Max        | Generate an arbitrary assignee id using any characters         | `option::of(String::arbitrary())`                              |
+| `content`    | Min+       | No content                                                     | `None`                                                         |
+|              | Low+       | Generate a single arbitrary, non-recursive, block node         | `option::of(vec_blocks_non_recursive(1))`                      |
+|              | High+      | Generate up to two arbitrary, non-recursive, block nodes       | `option::of(vec_blocks_non_recursive(2))`                      |
+|              | Max        | Generate up to four arbitrary, non-recursive, block nodes      | `option::of(vec_blocks_non_recursive(4))`                      |
 
 ## Source
 

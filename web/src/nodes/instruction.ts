@@ -19,7 +19,7 @@ export abstract class Instruction extends Executable {
   @property()
   assignee?: string
 
-  render() {
+  override render() {
     return html`
       <slot name="content"></slot>
 

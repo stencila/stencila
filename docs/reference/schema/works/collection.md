@@ -55,7 +55,7 @@ The `Collection` type has these properties:
 The `Collection` type is related to these types:
 
 - Parents: [`CreativeWork`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/creative-work.md)
-- Children: [`Directory`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/directory.md)
+- Children: none
 
 ## Formats
 
@@ -74,6 +74,7 @@ The `Collection` type can be encoded (serialized) to, and/or decoded (deserializ
 | [CBOR](https://github.com/stencila/stencila/blob/main/docs/reference/formats/cbor.md)              | 🟢 No loss    | 🟢 No loss | 🟢 Stable            |       |
 | [CBOR+Zstandard](https://github.com/stencila/stencila/blob/main/docs/reference/formats/cborzst.md) | 🟢 No loss    | 🟢 No loss | 🟢 Stable            |       |
 | [YAML](https://github.com/stencila/stencila/blob/main/docs/reference/formats/yaml.md)              | 🟢 No loss    | 🟢 No loss | 🟢 Stable            |       |
+| [Directory](https://github.com/stencila/stencila/blob/main/docs/reference/formats/directory.md)    |              |           | 🚧 Under development |       |
 | [Debug](https://github.com/stencila/stencila/blob/main/docs/reference/formats/debug.md)            | 🔷 Low loss   |           | 🟢 Stable            |       |
 
 ## Bindings
