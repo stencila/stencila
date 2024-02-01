@@ -158,7 +158,9 @@ export class ObjectClient extends Client {
    * @param subscriber The subscriber function which will be called
    *                   with the patch and the updated object each time it changes
    */
-  public subscribe(subscriber: (patch: ObjectPatch, object: object) => void) {
+  public subscribe(
+    subscriber: (patch: ObjectPatch, state: ObjectState) => void
+  ) {
     this.subscriber = subscriber
   }
 
