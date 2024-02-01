@@ -1,4 +1,4 @@
-// Generated file; do not edit. See `../rust/schema-gen` crate.
+// Generated file; do not edit. See https://github.com/stencila/stencila/tree/main/rust/schema-gen
 
 import { AdmonitionType } from "./AdmonitionType.js";
 import { Author } from "./Author.js";
@@ -10,7 +10,8 @@ import { Inline } from "./Inline.js";
  * A admonition within a document.
  */
 export class Admonition extends Entity {
-  type = "Admonition";
+  // @ts-expect-error 'not assignable to the same property in base type'
+  type: "Admonition";
 
   /**
    * The type of admonition.
@@ -39,6 +40,7 @@ export class Admonition extends Entity {
 
   constructor(admonitionType: AdmonitionType, content: Block[], options?: Partial<Admonition>) {
     super();
+    this.type = "Admonition";
     if (options) Object.assign(this, options);
     this.admonitionType = admonitionType;
     this.content = content;

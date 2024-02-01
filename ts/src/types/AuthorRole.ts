@@ -1,4 +1,4 @@
-// Generated file; do not edit. See `../rust/schema-gen` crate.
+// Generated file; do not edit. See https://github.com/stencila/stencila/tree/main/rust/schema-gen
 
 import { AuthorRoleName } from "./AuthorRoleName.js";
 import { PersonOrOrganizationOrSoftwareApplication } from "./PersonOrOrganizationOrSoftwareApplication.js";
@@ -8,7 +8,8 @@ import { Role } from "./Role.js";
  * An author and their role.
  */
 export class AuthorRole extends Role {
-  type = "AuthorRole";
+  // @ts-expect-error 'not assignable to the same property in base type'
+  type: "AuthorRole";
 
   /**
    * The author.
@@ -22,6 +23,7 @@ export class AuthorRole extends Role {
 
   constructor(author: PersonOrOrganizationOrSoftwareApplication, roleName: AuthorRoleName, options?: Partial<AuthorRole>) {
     super();
+    this.type = "AuthorRole";
     if (options) Object.assign(this, options);
     this.author = author;
     this.roleName = roleName;

@@ -1,4 +1,4 @@
-// Generated file; do not edit. See `../rust/schema-gen` crate.
+// Generated file; do not edit. See https://github.com/stencila/stencila/tree/main/rust/schema-gen
 
 import { Author } from "./Author.js";
 import { Executable } from "./Executable.js";
@@ -8,7 +8,8 @@ import { Message } from "./Message.js";
  * Abstract base type for a document editing instruction.
  */
 export class Instruction extends Executable {
-  type = "Instruction";
+  // @ts-expect-error 'not assignable to the same property in base type'
+  type: "Instruction";
 
   /**
    * Messages involved in the instruction.
@@ -32,6 +33,7 @@ export class Instruction extends Executable {
 
   constructor(messages: Message[], options?: Partial<Instruction>) {
     super();
+    this.type = "Instruction";
     if (options) Object.assign(this, options);
     this.messages = messages;
   }

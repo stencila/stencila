@@ -1,4 +1,4 @@
-// Generated file; do not edit. See `../rust/schema-gen` crate.
+// Generated file; do not edit. See https://github.com/stencila/stencila/tree/main/rust/schema-gen
 
 import { Inline } from "./Inline.js";
 import { Instruction } from "./Instruction.js";
@@ -9,7 +9,8 @@ import { SuggestionInlineType } from "./SuggestionInlineType.js";
  * An instruction to edit some inline content.
  */
 export class InstructionInline extends Instruction {
-  type = "InstructionInline";
+  // @ts-expect-error 'not assignable to the same property in base type'
+  type: "InstructionInline";
 
   /**
    * The content to which the instruction applies.
@@ -23,6 +24,7 @@ export class InstructionInline extends Instruction {
 
   constructor(messages: Message[], options?: Partial<InstructionInline>) {
     super(messages);
+    this.type = "InstructionInline";
     if (options) Object.assign(this, options);
     this.messages = messages;
   }

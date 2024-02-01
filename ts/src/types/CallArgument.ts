@@ -1,4 +1,4 @@
-// Generated file; do not edit. See `../rust/schema-gen` crate.
+// Generated file; do not edit. See https://github.com/stencila/stencila/tree/main/rust/schema-gen
 
 import { Cord } from "./Cord.js";
 import { Parameter } from "./Parameter.js";
@@ -7,7 +7,8 @@ import { Parameter } from "./Parameter.js";
  * The value of a `Parameter` to call a document with.
  */
 export class CallArgument extends Parameter {
-  type = "CallArgument";
+  // @ts-expect-error 'not assignable to the same property in base type'
+  type: "CallArgument";
 
   /**
    * The code to be evaluated for the parameter.
@@ -21,6 +22,7 @@ export class CallArgument extends Parameter {
 
   constructor(name: string, code: Cord, options?: Partial<CallArgument>) {
     super(name);
+    this.type = "CallArgument";
     if (options) Object.assign(this, options);
     this.name = name;
     this.code = code;

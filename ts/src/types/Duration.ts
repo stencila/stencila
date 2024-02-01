@@ -1,4 +1,4 @@
-// Generated file; do not edit. See `../rust/schema-gen` crate.
+// Generated file; do not edit. See https://github.com/stencila/stencila/tree/main/rust/schema-gen
 
 import { Entity } from "./Entity.js";
 import { Integer } from "./Integer.js";
@@ -8,7 +8,8 @@ import { TimeUnit } from "./TimeUnit.js";
  * A value that represents the difference between two timestamps.
  */
 export class Duration extends Entity {
-  type = "Duration";
+  // @ts-expect-error 'not assignable to the same property in base type'
+  type: "Duration";
 
   /**
    * The time difference in `timeUnit`s.
@@ -22,6 +23,7 @@ export class Duration extends Entity {
 
   constructor(value: Integer, timeUnit: TimeUnit, options?: Partial<Duration>) {
     super();
+    this.type = "Duration";
     if (options) Object.assign(this, options);
     this.value = value;
     this.timeUnit = timeUnit;

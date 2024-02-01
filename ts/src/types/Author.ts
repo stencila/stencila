@@ -1,4 +1,4 @@
-// Generated file; do not edit. See `../rust/schema-gen` crate.
+// Generated file; do not edit. See https://github.com/stencila/stencila/tree/main/rust/schema-gen
 
 import { hydrate } from "../hydrate.js";
 
@@ -27,6 +27,7 @@ export function author(other: Author): Author {
     case "AuthorRole":
       return hydrate(other) as Author
     default:
+      // @ts-expect-error that this can never happen because this function may be used in weakly-typed JavaScript
       throw new Error(`Unexpected type for Author: ${other.type}`);
   }
 }

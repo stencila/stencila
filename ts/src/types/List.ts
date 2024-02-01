@@ -1,4 +1,4 @@
-// Generated file; do not edit. See `../rust/schema-gen` crate.
+// Generated file; do not edit. See https://github.com/stencila/stencila/tree/main/rust/schema-gen
 
 import { Author } from "./Author.js";
 import { Entity } from "./Entity.js";
@@ -9,7 +9,8 @@ import { ListOrder } from "./ListOrder.js";
  * A list of items.
  */
 export class List extends Entity {
-  type = "List";
+  // @ts-expect-error 'not assignable to the same property in base type'
+  type: "List";
 
   /**
    * The items in the list.
@@ -28,6 +29,7 @@ export class List extends Entity {
 
   constructor(items: ListItem[], order: ListOrder, options?: Partial<List>) {
     super();
+    this.type = "List";
     if (options) Object.assign(this, options);
     this.items = items;
     this.order = order;

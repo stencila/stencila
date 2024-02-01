@@ -1,4 +1,4 @@
-// Generated file; do not edit. See `../rust/schema-gen` crate.
+// Generated file; do not edit. See https://github.com/stencila/stencila/tree/main/rust/schema-gen
 
 import { CallArgument } from "./CallArgument.js";
 import { IncludeBlock } from "./IncludeBlock.js";
@@ -7,7 +7,8 @@ import { IncludeBlock } from "./IncludeBlock.js";
  * Call another document, optionally with arguments, and include its executed content.
  */
 export class CallBlock extends IncludeBlock {
-  type = "CallBlock";
+  // @ts-expect-error 'not assignable to the same property in base type'
+  type: "CallBlock";
 
   /**
    * The value of the source document's parameters to call it with
@@ -16,6 +17,7 @@ export class CallBlock extends IncludeBlock {
 
   constructor(source: string, args: CallArgument[], options?: Partial<CallBlock>) {
     super(source);
+    this.type = "CallBlock";
     if (options) Object.assign(this, options);
     this.source = source;
     this.arguments = args;

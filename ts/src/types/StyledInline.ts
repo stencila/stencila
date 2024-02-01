@@ -1,4 +1,4 @@
-// Generated file; do not edit. See `../rust/schema-gen` crate.
+// Generated file; do not edit. See https://github.com/stencila/stencila/tree/main/rust/schema-gen
 
 import { Cord } from "./Cord.js";
 import { Inline } from "./Inline.js";
@@ -8,7 +8,8 @@ import { Styled } from "./Styled.js";
  * Styled inline content.
  */
 export class StyledInline extends Styled {
-  type = "StyledInline";
+  // @ts-expect-error 'not assignable to the same property in base type'
+  type: "StyledInline";
 
   /**
    * The content within the span.
@@ -17,6 +18,7 @@ export class StyledInline extends Styled {
 
   constructor(code: Cord, content: Inline[], options?: Partial<StyledInline>) {
     super(code);
+    this.type = "StyledInline";
     if (options) Object.assign(this, options);
     this.code = code;
     this.content = content;

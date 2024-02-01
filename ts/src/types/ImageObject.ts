@@ -1,4 +1,4 @@
-// Generated file; do not edit. See `../rust/schema-gen` crate.
+// Generated file; do not edit. See https://github.com/stencila/stencila/tree/main/rust/schema-gen
 
 import { Inline } from "./Inline.js";
 import { MediaObject } from "./MediaObject.js";
@@ -7,7 +7,8 @@ import { MediaObject } from "./MediaObject.js";
  * An image file.
  */
 export class ImageObject extends MediaObject {
-  type = "ImageObject";
+  // @ts-expect-error 'not assignable to the same property in base type'
+  type: "ImageObject";
 
   /**
    * The caption for this image.
@@ -21,6 +22,7 @@ export class ImageObject extends MediaObject {
 
   constructor(contentUrl: string, options?: Partial<ImageObject>) {
     super(contentUrl);
+    this.type = "ImageObject";
     if (options) Object.assign(this, options);
     this.contentUrl = contentUrl;
   }

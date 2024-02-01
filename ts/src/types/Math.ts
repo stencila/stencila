@@ -1,4 +1,4 @@
-// Generated file; do not edit. See `../rust/schema-gen` crate.
+// Generated file; do not edit. See https://github.com/stencila/stencila/tree/main/rust/schema-gen
 
 import { Author } from "./Author.js";
 import { CompilationDigest } from "./CompilationDigest.js";
@@ -10,7 +10,8 @@ import { Entity } from "./Entity.js";
  * Abstract base type for a mathematical variable or equation.
  */
 export class Math extends Entity {
-  type = "Math";
+  // @ts-expect-error 'not assignable to the same property in base type'
+  type: "Math";
 
   /**
    * The code of the equation in the `mathLanguage`.
@@ -44,6 +45,7 @@ export class Math extends Entity {
 
   constructor(code: Cord, options?: Partial<Math>) {
     super();
+    this.type = "Math";
     if (options) Object.assign(this, options);
     this.code = code;
   }

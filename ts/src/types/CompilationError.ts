@@ -1,4 +1,4 @@
-// Generated file; do not edit. See `../rust/schema-gen` crate.
+// Generated file; do not edit. See https://github.com/stencila/stencila/tree/main/rust/schema-gen
 
 import { CodeLocation } from "./CodeLocation.js";
 import { Entity } from "./Entity.js";
@@ -7,7 +7,8 @@ import { Entity } from "./Entity.js";
  * An error that occurred while compiling an executable node.
  */
 export class CompilationError extends Entity {
-  type = "CompilationError";
+  // @ts-expect-error 'not assignable to the same property in base type'
+  type: "CompilationError";
 
   /**
    * The error message or brief description of the error.
@@ -26,6 +27,7 @@ export class CompilationError extends Entity {
 
   constructor(errorMessage: string, options?: Partial<CompilationError>) {
     super();
+    this.type = "CompilationError";
     if (options) Object.assign(this, options);
     this.errorMessage = errorMessage;
   }

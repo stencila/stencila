@@ -1,4 +1,4 @@
-// Generated file; do not edit. See `../rust/schema-gen` crate.
+// Generated file; do not edit. See https://github.com/stencila/stencila/tree/main/rust/schema-gen
 
 import { Thing } from "./Thing.js";
 
@@ -6,7 +6,8 @@ import { Thing } from "./Thing.js";
  * A contact point, usually within an organization.
  */
 export class ContactPoint extends Thing {
-  type = "ContactPoint";
+  // @ts-expect-error 'not assignable to the same property in base type'
+  type: "ContactPoint";
 
   /**
    * Email address for correspondence.
@@ -25,6 +26,7 @@ export class ContactPoint extends Thing {
 
   constructor(options?: Partial<ContactPoint>) {
     super();
+    this.type = "ContactPoint";
     if (options) Object.assign(this, options);
     
   }

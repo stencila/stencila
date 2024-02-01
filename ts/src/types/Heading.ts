@@ -1,4 +1,4 @@
-// Generated file; do not edit. See `../rust/schema-gen` crate.
+// Generated file; do not edit. See https://github.com/stencila/stencila/tree/main/rust/schema-gen
 
 import { Author } from "./Author.js";
 import { Entity } from "./Entity.js";
@@ -9,7 +9,8 @@ import { Integer } from "./Integer.js";
  * A heading.
  */
 export class Heading extends Entity {
-  type = "Heading";
+  // @ts-expect-error 'not assignable to the same property in base type'
+  type: "Heading";
 
   /**
    * The level of the heading.
@@ -28,6 +29,7 @@ export class Heading extends Entity {
 
   constructor(level: Integer, content: Inline[], options?: Partial<Heading>) {
     super();
+    this.type = "Heading";
     if (options) Object.assign(this, options);
     this.level = level;
     this.content = content;

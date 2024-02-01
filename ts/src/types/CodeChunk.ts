@@ -1,4 +1,4 @@
-// Generated file; do not edit. See `../rust/schema-gen` crate.
+// Generated file; do not edit. See https://github.com/stencila/stencila/tree/main/rust/schema-gen
 
 import { Block } from "./Block.js";
 import { CodeExecutable } from "./CodeExecutable.js";
@@ -10,7 +10,8 @@ import { Node } from "./Node.js";
  * A executable chunk of code.
  */
 export class CodeChunk extends CodeExecutable {
-  type = "CodeChunk";
+  // @ts-expect-error 'not assignable to the same property in base type'
+  type: "CodeChunk";
 
   /**
    * The type of the label for the chunk.
@@ -39,6 +40,7 @@ export class CodeChunk extends CodeExecutable {
 
   constructor(code: Cord, options?: Partial<CodeChunk>) {
     super(code);
+    this.type = "CodeChunk";
     if (options) Object.assign(this, options);
     this.code = code;
   }

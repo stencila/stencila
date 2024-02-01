@@ -1,4 +1,4 @@
-// Generated file; do not edit. See `../rust/schema-gen` crate.
+// Generated file; do not edit. See https://github.com/stencila/stencila/tree/main/rust/schema-gen
 
 import { Entity } from "./Entity.js";
 import { Node } from "./Node.js";
@@ -7,7 +7,8 @@ import { Node } from "./Node.js";
  * A variable representing a name / value pair.
  */
 export class Variable extends Entity {
-  type = "Variable";
+  // @ts-expect-error 'not assignable to the same property in base type'
+  type: "Variable";
 
   /**
    * The name of the variable.
@@ -26,6 +27,7 @@ export class Variable extends Entity {
 
   constructor(name: string, options?: Partial<Variable>) {
     super();
+    this.type = "Variable";
     if (options) Object.assign(this, options);
     this.name = name;
   }

@@ -1,4 +1,4 @@
-// Generated file; do not edit. See `../rust/schema-gen` crate.
+// Generated file; do not edit. See https://github.com/stencila/stencila/tree/main/rust/schema-gen
 
 import { CreativeWork } from "./CreativeWork.js";
 import { SoftwareApplication } from "./SoftwareApplication.js";
@@ -8,7 +8,8 @@ import { SoftwareSourceCodeOrSoftwareApplicationOrString } from "./SoftwareSourc
  * Computer programming source code. Example: Full (compile ready) solutions, code snippet samples, scripts, templates.
  */
 export class SoftwareSourceCode extends CreativeWork {
-  type = "SoftwareSourceCode";
+  // @ts-expect-error 'not assignable to the same property in base type'
+  type: "SoftwareSourceCode";
 
   /**
    * The name of the item.
@@ -47,6 +48,7 @@ export class SoftwareSourceCode extends CreativeWork {
 
   constructor(name: string, programmingLanguage: string, options?: Partial<SoftwareSourceCode>) {
     super();
+    this.type = "SoftwareSourceCode";
     if (options) Object.assign(this, options);
     this.name = name;
     this.programmingLanguage = programmingLanguage;

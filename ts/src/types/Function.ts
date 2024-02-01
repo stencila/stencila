@@ -1,4 +1,4 @@
-// Generated file; do not edit. See `../rust/schema-gen` crate.
+// Generated file; do not edit. See https://github.com/stencila/stencila/tree/main/rust/schema-gen
 
 import { Entity } from "./Entity.js";
 import { Parameter } from "./Parameter.js";
@@ -8,7 +8,8 @@ import { Validator } from "./Validator.js";
  * A function with a name, which might take Parameters and return a value of a certain type.
  */
 export class Function extends Entity {
-  type = "Function";
+  // @ts-expect-error 'not assignable to the same property in base type'
+  type: "Function";
 
   /**
    * The name of the function.
@@ -27,6 +28,7 @@ export class Function extends Entity {
 
   constructor(name: string, parameters: Parameter[], options?: Partial<Function>) {
     super();
+    this.type = "Function";
     if (options) Object.assign(this, options);
     this.name = name;
     this.parameters = parameters;

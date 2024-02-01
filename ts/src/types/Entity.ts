@@ -1,10 +1,11 @@
-// Generated file; do not edit. See `../rust/schema-gen` crate.
+// Generated file; do not edit. See https://github.com/stencila/stencila/tree/main/rust/schema-gen
 
 /**
  * Abstract base type for compound (ie. non-atomic) nodes.
  */
 export class Entity {
-  type = "Entity";
+  // @ts-expect-error 'not assignable to the same property in base type'
+  type: "Entity";
 
   /**
    * The identifier for this item.

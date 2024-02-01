@@ -1,4 +1,4 @@
-// Generated file; do not edit. See `../rust/schema-gen` crate.
+// Generated file; do not edit. See https://github.com/stencila/stencila/tree/main/rust/schema-gen
 
 import { Block } from "./Block.js";
 import { Entity } from "./Entity.js";
@@ -8,7 +8,8 @@ import { SectionType } from "./SectionType.js";
  * A section of a document.
  */
 export class Section extends Entity {
-  type = "Section";
+  // @ts-expect-error 'not assignable to the same property in base type'
+  type: "Section";
 
   /**
    * The content within the section.
@@ -22,6 +23,7 @@ export class Section extends Entity {
 
   constructor(content: Block[], options?: Partial<Section>) {
     super();
+    this.type = "Section";
     if (options) Object.assign(this, options);
     this.content = content;
   }

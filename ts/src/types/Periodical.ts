@@ -1,4 +1,4 @@
-// Generated file; do not edit. See `../rust/schema-gen` crate.
+// Generated file; do not edit. See https://github.com/stencila/stencila/tree/main/rust/schema-gen
 
 import { CreativeWork } from "./CreativeWork.js";
 import { Date } from "./Date.js";
@@ -7,7 +7,8 @@ import { Date } from "./Date.js";
  * A periodical publication.
  */
 export class Periodical extends CreativeWork {
-  type = "Periodical";
+  // @ts-expect-error 'not assignable to the same property in base type'
+  type: "Periodical";
 
   /**
    * The date this Periodical was first published.
@@ -26,6 +27,7 @@ export class Periodical extends CreativeWork {
 
   constructor(options?: Partial<Periodical>) {
     super();
+    this.type = "Periodical";
     if (options) Object.assign(this, options);
     
   }

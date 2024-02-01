@@ -1,4 +1,4 @@
-// Generated file; do not edit. See `../rust/schema-gen` crate.
+// Generated file; do not edit. See https://github.com/stencila/stencila/tree/main/rust/schema-gen
 
 import { Block } from "./Block.js";
 import { Executable } from "./Executable.js";
@@ -7,7 +7,8 @@ import { Executable } from "./Executable.js";
  * Include block content from an external source (e.g. file, URL).
  */
 export class IncludeBlock extends Executable {
-  type = "IncludeBlock";
+  // @ts-expect-error 'not assignable to the same property in base type'
+  type: "IncludeBlock";
 
   /**
    * The external source of the content, a file path or URL.
@@ -31,6 +32,7 @@ export class IncludeBlock extends Executable {
 
   constructor(source: string, options?: Partial<IncludeBlock>) {
     super();
+    this.type = "IncludeBlock";
     if (options) Object.assign(this, options);
     this.source = source;
   }

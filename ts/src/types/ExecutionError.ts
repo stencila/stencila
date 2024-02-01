@@ -1,4 +1,4 @@
-// Generated file; do not edit. See `../rust/schema-gen` crate.
+// Generated file; do not edit. See https://github.com/stencila/stencila/tree/main/rust/schema-gen
 
 import { CodeLocation } from "./CodeLocation.js";
 import { Entity } from "./Entity.js";
@@ -7,7 +7,8 @@ import { Entity } from "./Entity.js";
  * An error that occurred when executing an executable node.
  */
 export class ExecutionError extends Entity {
-  type = "ExecutionError";
+  // @ts-expect-error 'not assignable to the same property in base type'
+  type: "ExecutionError";
 
   /**
    * The error message or brief description of the error.
@@ -31,6 +32,7 @@ export class ExecutionError extends Entity {
 
   constructor(errorMessage: string, options?: Partial<ExecutionError>) {
     super();
+    this.type = "ExecutionError";
     if (options) Object.assign(this, options);
     this.errorMessage = errorMessage;
   }

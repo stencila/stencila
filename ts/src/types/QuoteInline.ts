@@ -1,4 +1,4 @@
-// Generated file; do not edit. See `../rust/schema-gen` crate.
+// Generated file; do not edit. See https://github.com/stencila/stencila/tree/main/rust/schema-gen
 
 import { CiteOrText } from "./CiteOrText.js";
 import { Inline } from "./Inline.js";
@@ -8,7 +8,8 @@ import { Mark } from "./Mark.js";
  * Inline, quoted content.
  */
 export class QuoteInline extends Mark {
-  type = "QuoteInline";
+  // @ts-expect-error 'not assignable to the same property in base type'
+  type: "QuoteInline";
 
   /**
    * The source of the quote.
@@ -17,6 +18,7 @@ export class QuoteInline extends Mark {
 
   constructor(content: Inline[], options?: Partial<QuoteInline>) {
     super(content);
+    this.type = "QuoteInline";
     if (options) Object.assign(this, options);
     this.content = content;
   }

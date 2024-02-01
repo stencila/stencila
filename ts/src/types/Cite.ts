@@ -1,4 +1,4 @@
-// Generated file; do not edit. See `../rust/schema-gen` crate.
+// Generated file; do not edit. See https://github.com/stencila/stencila/tree/main/rust/schema-gen
 
 import { CitationIntent } from "./CitationIntent.js";
 import { CitationMode } from "./CitationMode.js";
@@ -10,7 +10,8 @@ import { IntegerOrString } from "./IntegerOrString.js";
  * A reference to a `CreativeWork` that is cited in another `CreativeWork`.
  */
 export class Cite extends Entity {
-  type = "Cite";
+  // @ts-expect-error 'not assignable to the same property in base type'
+  type: "Cite";
 
   /**
    * The target of the citation (URL or reference ID).
@@ -59,6 +60,7 @@ export class Cite extends Entity {
 
   constructor(target: string, citationMode: CitationMode, options?: Partial<Cite>) {
     super();
+    this.type = "Cite";
     if (options) Object.assign(this, options);
     this.target = target;
     this.citationMode = citationMode;

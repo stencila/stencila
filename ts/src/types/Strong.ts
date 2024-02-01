@@ -1,4 +1,4 @@
-// Generated file; do not edit. See `../rust/schema-gen` crate.
+// Generated file; do not edit. See https://github.com/stencila/stencila/tree/main/rust/schema-gen
 
 import { Inline } from "./Inline.js";
 import { Mark } from "./Mark.js";
@@ -7,10 +7,12 @@ import { Mark } from "./Mark.js";
  * Strongly emphasized content.
  */
 export class Strong extends Mark {
-  type = "Strong";
+  // @ts-expect-error 'not assignable to the same property in base type'
+  type: "Strong";
 
   constructor(content: Inline[], options?: Partial<Strong>) {
     super(content);
+    this.type = "Strong";
     if (options) Object.assign(this, options);
     this.content = content;
   }

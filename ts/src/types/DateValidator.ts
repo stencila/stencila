@@ -1,4 +1,4 @@
-// Generated file; do not edit. See `../rust/schema-gen` crate.
+// Generated file; do not edit. See https://github.com/stencila/stencila/tree/main/rust/schema-gen
 
 import { Date } from "./Date.js";
 import { Entity } from "./Entity.js";
@@ -7,7 +7,8 @@ import { Entity } from "./Entity.js";
  * A validator specifying the constraints on a date.
  */
 export class DateValidator extends Entity {
-  type = "DateValidator";
+  // @ts-expect-error 'not assignable to the same property in base type'
+  type: "DateValidator";
 
   /**
    * The inclusive lower limit for a date.
@@ -21,6 +22,7 @@ export class DateValidator extends Entity {
 
   constructor(options?: Partial<DateValidator>) {
     super();
+    this.type = "DateValidator";
     if (options) Object.assign(this, options);
     
   }

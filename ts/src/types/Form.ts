@@ -1,4 +1,4 @@
-// Generated file; do not edit. See `../rust/schema-gen` crate.
+// Generated file; do not edit. See https://github.com/stencila/stencila/tree/main/rust/schema-gen
 
 import { Block } from "./Block.js";
 import { Executable } from "./Executable.js";
@@ -9,7 +9,8 @@ import { IntegerOrString } from "./IntegerOrString.js";
  * A form to batch updates in document parameters.
  */
 export class Form extends Executable {
-  type = "Form";
+  // @ts-expect-error 'not assignable to the same property in base type'
+  type: "Form";
 
   /**
    * The content within the form, usually containing at least one `Parameter`.
@@ -33,6 +34,7 @@ export class Form extends Executable {
 
   constructor(content: Block[], options?: Partial<Form>) {
     super();
+    this.type = "Form";
     if (options) Object.assign(this, options);
     this.content = content;
   }

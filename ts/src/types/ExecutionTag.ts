@@ -1,4 +1,4 @@
-// Generated file; do not edit. See `../rust/schema-gen` crate.
+// Generated file; do not edit. See https://github.com/stencila/stencila/tree/main/rust/schema-gen
 
 import { Entity } from "./Entity.js";
 
@@ -6,7 +6,8 @@ import { Entity } from "./Entity.js";
  * A tag on code that affects its execution.
  */
 export class ExecutionTag extends Entity {
-  type = "ExecutionTag";
+  // @ts-expect-error 'not assignable to the same property in base type'
+  type: "ExecutionTag";
 
   /**
    * The name of the tag
@@ -25,6 +26,7 @@ export class ExecutionTag extends Entity {
 
   constructor(name: string, value: string, isGlobal: boolean, options?: Partial<ExecutionTag>) {
     super();
+    this.type = "ExecutionTag";
     if (options) Object.assign(this, options);
     this.name = name;
     this.value = value;

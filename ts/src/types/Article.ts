@@ -1,4 +1,4 @@
-// Generated file; do not edit. See `../rust/schema-gen` crate.
+// Generated file; do not edit. See https://github.com/stencila/stencila/tree/main/rust/schema-gen
 
 import { Block } from "./Block.js";
 import { CreativeWork } from "./CreativeWork.js";
@@ -8,7 +8,8 @@ import { IntegerOrString } from "./IntegerOrString.js";
  * An article, including news and scholarly articles.
  */
 export class Article extends CreativeWork {
-  type = "Article";
+  // @ts-expect-error 'not assignable to the same property in base type'
+  type: "Article";
 
   /**
    * The content of the article.
@@ -32,6 +33,7 @@ export class Article extends CreativeWork {
 
   constructor(content: Block[], options?: Partial<Article>) {
     super();
+    this.type = "Article";
     if (options) Object.assign(this, options);
     this.content = content;
   }

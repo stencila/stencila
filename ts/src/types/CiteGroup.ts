@@ -1,4 +1,4 @@
-// Generated file; do not edit. See `../rust/schema-gen` crate.
+// Generated file; do not edit. See https://github.com/stencila/stencila/tree/main/rust/schema-gen
 
 import { Cite } from "./Cite.js";
 import { Entity } from "./Entity.js";
@@ -7,7 +7,8 @@ import { Entity } from "./Entity.js";
  * A group of `Cite` nodes.
  */
 export class CiteGroup extends Entity {
-  type = "CiteGroup";
+  // @ts-expect-error 'not assignable to the same property in base type'
+  type: "CiteGroup";
 
   /**
    * One or more `Cite`s to be referenced in the same surrounding text.
@@ -16,6 +17,7 @@ export class CiteGroup extends Entity {
 
   constructor(items: Cite[], options?: Partial<CiteGroup>) {
     super();
+    this.type = "CiteGroup";
     if (options) Object.assign(this, options);
     this.items = items;
   }

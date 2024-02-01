@@ -1,4 +1,4 @@
-// Generated file; do not edit. See `../rust/schema-gen` crate.
+// Generated file; do not edit. See https://github.com/stencila/stencila/tree/main/rust/schema-gen
 
 import { Entity } from "./Entity.js";
 import { Validator } from "./Validator.js";
@@ -7,7 +7,8 @@ import { Validator } from "./Validator.js";
  * A validator specifying constraints on an array of heterogeneous items.
  */
 export class TupleValidator extends Entity {
-  type = "TupleValidator";
+  // @ts-expect-error 'not assignable to the same property in base type'
+  type: "TupleValidator";
 
   /**
    * An array of validators specifying the constraints on each successive item in the array.
@@ -16,6 +17,7 @@ export class TupleValidator extends Entity {
 
   constructor(options?: Partial<TupleValidator>) {
     super();
+    this.type = "TupleValidator";
     if (options) Object.assign(this, options);
     
   }

@@ -1,4 +1,4 @@
-// Generated file; do not edit. See `../rust/schema-gen` crate.
+// Generated file; do not edit. See https://github.com/stencila/stencila/tree/main/rust/schema-gen
 
 import { Entity } from "./Entity.js";
 import { UnsignedInteger } from "./UnsignedInteger.js";
@@ -7,7 +7,8 @@ import { UnsignedInteger } from "./UnsignedInteger.js";
  * A digest of the content, semantics and dependencies of an executable node.
  */
 export class CompilationDigest extends Entity {
-  type = "CompilationDigest";
+  // @ts-expect-error 'not assignable to the same property in base type'
+  type: "CompilationDigest";
 
   /**
    * A digest of the state of a node.
@@ -36,6 +37,7 @@ export class CompilationDigest extends Entity {
 
   constructor(stateDigest: UnsignedInteger, options?: Partial<CompilationDigest>) {
     super();
+    this.type = "CompilationDigest";
     if (options) Object.assign(this, options);
     this.stateDigest = stateDigest;
   }

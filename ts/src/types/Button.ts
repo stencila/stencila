@@ -1,4 +1,4 @@
-// Generated file; do not edit. See `../rust/schema-gen` crate.
+// Generated file; do not edit. See https://github.com/stencila/stencila/tree/main/rust/schema-gen
 
 import { CodeExecutable } from "./CodeExecutable.js";
 import { Cord } from "./Cord.js";
@@ -7,7 +7,8 @@ import { Cord } from "./Cord.js";
  * A button.
  */
 export class Button extends CodeExecutable {
-  type = "Button";
+  // @ts-expect-error 'not assignable to the same property in base type'
+  type: "Button";
 
   /**
    * The name of the variable associated with the button.
@@ -26,6 +27,7 @@ export class Button extends CodeExecutable {
 
   constructor(code: Cord, name: string, options?: Partial<Button>) {
     super(code);
+    this.type = "Button";
     if (options) Object.assign(this, options);
     this.code = code;
     this.name = name;

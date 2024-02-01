@@ -1,4 +1,4 @@
-// Generated file; do not edit. See `../rust/schema-gen` crate.
+// Generated file; do not edit. See https://github.com/stencila/stencila/tree/main/rust/schema-gen
 
 import { CreativeWork } from "./CreativeWork.js";
 import { IntegerOrString } from "./IntegerOrString.js";
@@ -7,7 +7,8 @@ import { IntegerOrString } from "./IntegerOrString.js";
  * A part of a successively published publication such as a periodical or multi-volume work.
  */
 export class PublicationVolume extends CreativeWork {
-  type = "PublicationVolume";
+  // @ts-expect-error 'not assignable to the same property in base type'
+  type: "PublicationVolume";
 
   /**
    * The page on which the volume starts; for example "135" or "xiii".
@@ -31,6 +32,7 @@ export class PublicationVolume extends CreativeWork {
 
   constructor(options?: Partial<PublicationVolume>) {
     super();
+    this.type = "PublicationVolume";
     if (options) Object.assign(this, options);
     
   }

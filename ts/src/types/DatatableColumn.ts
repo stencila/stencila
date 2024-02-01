@@ -1,4 +1,4 @@
-// Generated file; do not edit. See `../rust/schema-gen` crate.
+// Generated file; do not edit. See https://github.com/stencila/stencila/tree/main/rust/schema-gen
 
 import { ArrayValidator } from "./ArrayValidator.js";
 import { Primitive } from "./Primitive.js";
@@ -8,7 +8,8 @@ import { Thing } from "./Thing.js";
  * A column of data within a `Datatable`.
  */
 export class DatatableColumn extends Thing {
-  type = "DatatableColumn";
+  // @ts-expect-error 'not assignable to the same property in base type'
+  type: "DatatableColumn";
 
   /**
    * The name of the item.
@@ -27,6 +28,7 @@ export class DatatableColumn extends Thing {
 
   constructor(name: string, values: Primitive[], options?: Partial<DatatableColumn>) {
     super();
+    this.type = "DatatableColumn";
     if (options) Object.assign(this, options);
     this.name = name;
     this.values = values;

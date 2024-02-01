@@ -1,4 +1,4 @@
-// Generated file; do not edit. See `../rust/schema-gen` crate.
+// Generated file; do not edit. See https://github.com/stencila/stencila/tree/main/rust/schema-gen
 
 import { ContactPoint } from "./ContactPoint.js";
 
@@ -6,7 +6,8 @@ import { ContactPoint } from "./ContactPoint.js";
  * A physical mailing address.
  */
 export class PostalAddress extends ContactPoint {
-  type = "PostalAddress";
+  // @ts-expect-error 'not assignable to the same property in base type'
+  type: "PostalAddress";
 
   /**
    * The street address.
@@ -40,6 +41,7 @@ export class PostalAddress extends ContactPoint {
 
   constructor(options?: Partial<PostalAddress>) {
     super();
+    this.type = "PostalAddress";
     if (options) Object.assign(this, options);
     
   }

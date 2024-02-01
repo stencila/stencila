@@ -1,4 +1,4 @@
-// Generated file; do not edit. See `../rust/schema-gen` crate.
+// Generated file; do not edit. See https://github.com/stencila/stencila/tree/main/rust/schema-gen
 
 import { Brand } from "./Brand.js";
 import { ContactPoint } from "./ContactPoint.js";
@@ -11,7 +11,8 @@ import { Thing } from "./Thing.js";
  * An organization such as a school, NGO, corporation, club, etc.
  */
 export class Organization extends Thing {
-  type = "Organization";
+  // @ts-expect-error 'not assignable to the same property in base type'
+  type: "Organization";
 
   /**
    * Postal address for the organization.
@@ -60,6 +61,7 @@ export class Organization extends Thing {
 
   constructor(options?: Partial<Organization>) {
     super();
+    this.type = "Organization";
     if (options) Object.assign(this, options);
     
   }

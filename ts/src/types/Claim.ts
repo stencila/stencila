@@ -1,4 +1,4 @@
-// Generated file; do not edit. See `../rust/schema-gen` crate.
+// Generated file; do not edit. See https://github.com/stencila/stencila/tree/main/rust/schema-gen
 
 import { Block } from "./Block.js";
 import { ClaimType } from "./ClaimType.js";
@@ -8,7 +8,8 @@ import { CreativeWork } from "./CreativeWork.js";
  * A claim represents specific reviewable facts or statements.
  */
 export class Claim extends CreativeWork {
-  type = "Claim";
+  // @ts-expect-error 'not assignable to the same property in base type'
+  type: "Claim";
 
   /**
    * The type of the claim.
@@ -27,6 +28,7 @@ export class Claim extends CreativeWork {
 
   constructor(claimType: ClaimType, content: Block[], options?: Partial<Claim>) {
     super();
+    this.type = "Claim";
     if (options) Object.assign(this, options);
     this.claimType = claimType;
     this.content = content;

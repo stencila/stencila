@@ -1,4 +1,4 @@
-// Generated file; do not edit. See `../rust/schema-gen` crate.
+// Generated file; do not edit. See https://github.com/stencila/stencila/tree/main/rust/schema-gen
 
 import { Entity } from "./Entity.js";
 import { UnsignedInteger } from "./UnsignedInteger.js";
@@ -7,7 +7,8 @@ import { UnsignedInteger } from "./UnsignedInteger.js";
  * The location within some source code.
  */
 export class CodeLocation extends Entity {
-  type = "CodeLocation";
+  // @ts-expect-error 'not assignable to the same property in base type'
+  type: "CodeLocation";
 
   /**
    * The source of the code, a file path, label or URL.
@@ -36,6 +37,7 @@ export class CodeLocation extends Entity {
 
   constructor(options?: Partial<CodeLocation>) {
     super();
+    this.type = "CodeLocation";
     if (options) Object.assign(this, options);
     
   }

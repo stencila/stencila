@@ -1,4 +1,4 @@
-// Generated file; do not edit. See `../rust/schema-gen` crate.
+// Generated file; do not edit. See https://github.com/stencila/stencila/tree/main/rust/schema-gen
 
 import { Author } from "./Author.js";
 import { Entity } from "./Entity.js";
@@ -8,7 +8,8 @@ import { Inline } from "./Inline.js";
  * A paragraph.
  */
 export class Paragraph extends Entity {
-  type = "Paragraph";
+  // @ts-expect-error 'not assignable to the same property in base type'
+  type: "Paragraph";
 
   /**
    * The contents of the paragraph.
@@ -22,6 +23,7 @@ export class Paragraph extends Entity {
 
   constructor(content: Inline[], options?: Partial<Paragraph>) {
     super();
+    this.type = "Paragraph";
     if (options) Object.assign(this, options);
     this.content = content;
   }
