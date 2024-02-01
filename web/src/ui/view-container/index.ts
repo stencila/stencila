@@ -10,7 +10,7 @@ import { DocumentView } from '../../types'
  * rendering.
  */
 type StyleMap = {
-  [Prop in Exclude<DocumentView, 'directory'>]: {
+  [Prop in DocumentView]: {
     outer: string | undefined
     inner: string | undefined
   }
@@ -29,7 +29,7 @@ export class UIViewContainer extends LitElement {
    * The view we are rendering
    */
   @property()
-  view: Exclude<DocumentView, 'directory'> = 'live'
+  view: DocumentView = 'live'
 
   /**
    * Manages if/how we show the side panel slot.
@@ -39,6 +39,7 @@ export class UIViewContainer extends LitElement {
 
   override render() {
     const classes: StyleMap = {
+      directory: this.displayModeClasses(),
       dynamic: this.displayModeClasses(),
       live: this.displayModeClasses(),
       source: this.sourceModeClasses(),

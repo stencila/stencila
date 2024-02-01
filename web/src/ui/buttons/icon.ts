@@ -48,6 +48,9 @@ export class UIIconButton extends LitElement {
   @state()
   isActive: boolean
 
+  @property()
+  clickEvent: (e: Event) => void | undefined
+
   constructor() {
     super()
 
@@ -120,8 +123,8 @@ export class UIIconButton extends LitElement {
    * Add a click event to manage change of active state
    */
   override firstUpdated() {
-    this.ref.value.addEventListener('click', () => {
-      this.isActive = !this.isActive
+    this.ref.value.addEventListener('click', (e: Event) => {
+      this.clickEvent && this.clickEvent(e)
     })
   }
 }

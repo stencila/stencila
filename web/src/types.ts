@@ -41,3 +41,11 @@ export type DocumentView =
   | 'split'
   | 'visual'
   | 'directory'
+
+/**
+ * Types of events for updating the main context provider.
+ */
+export type MainContextEvent =
+  | 'stencila-file-toggle'
+  | 'stencila-view-change'
+  | 'stencila-settings-toggle'

@@ -60,14 +60,19 @@ export class File extends Entity {
       this.directoryAction('rename', this.path, to)
     }
 
-    return html`<div class="ml-3 mt-3">
-      <p class="text-xl">📄 ${this.name} <button @click=${open}>👁️</button></p>
-      <p class="text-sm">
-        ✏️ <input type="text" size="80" value=${this.path} @change=${rename} />
-      </p>
-      <p class="text-sm">
-        <button @click=${delete_}>🗑️</button>
-      </p>
-    </div>`
+    return html`<sl-tree-item slot="children">
+      <sl-icon name="file"></sl-icon>
+      ${this.name}
+    </sl-tree-item>`
+
+    // return html`<div class="ml-3 mt-3">
+    //   <p class="text-xl">📄 ${this.name} <button @click=${open}>👁️</button></p>
+    //   <p class="text-sm">
+    //     ✏️ <input type="text" size="80" value=${this.path} @change=${rename} />
+    //   </p>
+    //   <p class="text-sm">
+    //     <button @click=${delete_}>🗑️</button>
+    //   </p>
+    // </div>`
   }
 }
