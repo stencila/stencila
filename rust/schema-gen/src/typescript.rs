@@ -268,7 +268,7 @@ impl Schemas {
             let name = name.to_camel_case();
 
             if name == "type" {
-                props.push(format!("  type = \"{title}\";"));
+                props.push(format!("  // @ts-expect-error 'not assignable to the same property in base type'\n  type: '{title}';"));
                 continue;
             }
 
@@ -372,6 +372,7 @@ impl Schemas {
 
   constructor({required_args}options?: Partial<{title}>) {{
     super({super_args});
+    this.type = "{title}";
     if (options) Object.assign(this, options);
     {required_assignments}
   }}
@@ -552,6 +553,7 @@ export function {func_name}(other: {name}): {name} {{
     {cases}
       return hydrate(other) as {name}
     default:
+      // @ts-ignore-error that this can never happen because this function may be used in weakly-typed JavaScript
       throw new Error(`Unexpected type for {name}: ${{other.type}}`);
   }}
 }}"#,
