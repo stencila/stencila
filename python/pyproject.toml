@@ -28,7 +28,7 @@ classifiers = [
 ]
 
 dependencies = [
-    "dataclasses-json==0.6.3",
+    "dataclasses-json==0.6.4",
     'StrEnum==0.4.15;python_version<"3.11"',
 ]
 
@@ -59,7 +59,7 @@ authors = ["Stencila and Contributors <hello@stencila.io>"]
 
 [tool.poetry.dependencies]
 python = "^3.8"
-dataclasses-json = "0.6.3"
+dataclasses-json = "0.6.4"
 StrEnum = { version = "0.4.15", python = "<3.11" }
 
 [tool.poetry.group.dev.dependencies]
