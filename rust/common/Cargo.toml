@@ -36,7 +36,7 @@ smol_str = "0.2.1"
 strum = { version = "0.26.1", features = ["derive"] }
 syn = "2.0.48"
 tempfile = "3.9.0"
-tokio = { version = "1.35.1", features = ["full", "tracing"] }
+tokio = { version = "1.36.0", features = ["full", "tracing"] }
 toml = "0.8.9"
 tracing = { version = "0.1.40", features = ["log"] }
 type-safe-id = "0.2.1"
