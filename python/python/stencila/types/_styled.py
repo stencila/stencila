@@ -2,11 +2,11 @@
 
 from .prelude import *
 
-from .author import Author
-from .compilation_digest import CompilationDigest
-from .compilation_error import CompilationError
-from .cord import Cord
-from .entity import Entity
+from ._author import Author
+from ._compilation_digest import CompilationDigest
+from ._compilation_error import CompilationError
+from ._cord import Cord
+from ._entity import Entity
 
 
 @dataclass(init=False)

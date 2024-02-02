@@ -2,11 +2,11 @@
 
 from .prelude import *
 
-from .admonition_type import AdmonitionType
-from .author import Author
-from .block import Block
-from .entity import Entity
-from .inline import Inline
+from ._admonition_type import AdmonitionType
+from ._author import Author
+from ._block import Block
+from ._entity import Entity
+from ._inline import Inline
 
 
 @dataclass(init=False)

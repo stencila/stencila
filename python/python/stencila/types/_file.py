@@ -2,7 +2,7 @@
 
 from .prelude import *
 
-from .entity import Entity
+from ._entity import Entity
 
 
 @dataclass(init=False)

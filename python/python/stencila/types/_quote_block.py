@@ -2,10 +2,10 @@
 
 from .prelude import *
 
-from .author import Author
-from .block import Block
-from .cite_or_text import CiteOrText
-from .entity import Entity
+from ._author import Author
+from ._block import Block
+from ._cite_or_text import CiteOrText
+from ._entity import Entity
 
 
 @dataclass(init=False)

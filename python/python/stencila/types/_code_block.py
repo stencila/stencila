@@ -2,9 +2,9 @@
 
 from .prelude import *
 
-from .author import Author
-from .code_static import CodeStatic
-from .cord import Cord
+from ._author import Author
+from ._code_static import CodeStatic
+from ._cord import Cord
 
 
 @dataclass(init=False)

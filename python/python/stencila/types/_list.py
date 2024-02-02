@@ -2,10 +2,10 @@
 
 from .prelude import *
 
-from .author import Author
-from .entity import Entity
-from .list_item import ListItem
-from .list_order import ListOrder
+from ._author import Author
+from ._entity import Entity
+from ._list_item import ListItem
+from ._list_order import ListOrder
 
 
 @dataclass(init=False)

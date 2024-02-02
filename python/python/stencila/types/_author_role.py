@@ -2,9 +2,9 @@
 
 from .prelude import *
 
-from .author_role_name import AuthorRoleName
-from .person_or_organization_or_software_application import PersonOrOrganizationOrSoftwareApplication
-from .role import Role
+from ._author_role_name import AuthorRoleName
+from ._person_or_organization_or_software_application import PersonOrOrganizationOrSoftwareApplication
+from ._role import Role
 
 
 @dataclass(init=False)

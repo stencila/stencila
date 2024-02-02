@@ -2,10 +2,10 @@
 
 from .prelude import *
 
-from .block import Block
-from .entity import Entity
-from .message_part import MessagePart
-from .person_or_organization_or_software_application import PersonOrOrganizationOrSoftwareApplication
+from ._block import Block
+from ._entity import Entity
+from ._message_part import MessagePart
+from ._person_or_organization_or_software_application import PersonOrOrganizationOrSoftwareApplication
 
 
 @dataclass(init=False)

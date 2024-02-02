@@ -2,8 +2,8 @@
 
 from .prelude import *
 
-from .author import Author
-from .block import Block
+from ._author import Author
+from ._block import Block
 Comment = ForwardRef("Comment")
 from ._creative_work import CreativeWork
 from ._creative_work_type import CreativeWorkType
@@ -11,14 +11,14 @@ from ._creative_work_type_or_text import CreativeWorkTypeOrText
 from ._date import Date
 from ._grant_or_monetary_grant import GrantOrMonetaryGrant
 ImageObject = ForwardRef("ImageObject")
-from .inline import Inline
-from .person import Person
-from .person_or_organization import PersonOrOrganization
-from .property_value_or_str import PropertyValueOrStr
-from .str_or_float import StrOrFloat
-from .text import Text
-from .thing import Thing
-from .thing_type import ThingType
+from ._inline import Inline
+from ._person import Person
+from ._person_or_organization import PersonOrOrganization
+from ._property_value_or_str import PropertyValueOrStr
+from ._str_or_float import StrOrFloat
+from ._text import Text
+from ._thing import Thing
+from ._thing_type import ThingType
 
 
 @dataclass(init=False)

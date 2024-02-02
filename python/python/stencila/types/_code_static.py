@@ -2,9 +2,9 @@
 
 from .prelude import *
 
-from .author import Author
-from .cord import Cord
-from .entity import Entity
+from ._author import Author
+from ._cord import Cord
+from ._entity import Entity
 
 
 @dataclass(init=False)

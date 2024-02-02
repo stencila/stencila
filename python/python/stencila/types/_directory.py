@@ -2,8 +2,8 @@
 
 from .prelude import *
 
-from .entity import Entity
-from .file_or_directory import FileOrDirectory
+from ._entity import Entity
+from ._file_or_directory import FileOrDirectory
 
 
 @dataclass(init=False)

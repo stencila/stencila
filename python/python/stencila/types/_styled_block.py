@@ -2,12 +2,12 @@
 
 from .prelude import *
 
-from .author import Author
-from .block import Block
-from .compilation_digest import CompilationDigest
-from .compilation_error import CompilationError
-from .cord import Cord
-from .styled import Styled
+from ._author import Author
+from ._block import Block
+from ._compilation_digest import CompilationDigest
+from ._compilation_error import CompilationError
+from ._cord import Cord
+from ._styled import Styled
 
 
 @dataclass(init=False)
