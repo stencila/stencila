@@ -1,17 +1,18 @@
 from dataclasses import dataclass
 from functools import partial
-from typing import Iterable, Union, Iterator
+from typing import Iterable, Iterator, Union
 
 import pytest
 from beartype.roar import BeartypeCallHintParamViolation
 
-from stencila import shortcuts as S, types as T
+from stencila import shortcuts as S
+from stencila import types as T
 from stencila.convert import to_string
 
 TOS = partial(to_string, format="md")
 
 
-# TODO: Make these fixtures, maybe.
+# TODO: Make these into fixtures.
 def lots_of_numbers() -> Iterable[str]:
     for i in range(10):
         yield str(i) + ", "
@@ -62,8 +63,8 @@ async def test_paragraph():
 
     # Iterable!
     assert (
-        await TOS(S.p(lots_of_numbers_and_stuff()))
-        == "0, 1, 2, 3, 4, 5, 6, 7, 8, 9, [Example](https://example.com) **So Strong** 121 3.141529 true"
+            await TOS(S.p(lots_of_numbers_and_stuff()))
+            == "0, 1, 2, 3, 4, 5, 6, 7, 8, 9, [Example](https://example.com) **So Strong** 121 3.141529 true"
     )
 
     with pytest.raises(BeartypeCallHintParamViolation):
@@ -75,12 +76,21 @@ async def test_paragraph():
 
 async def test_link():
     assert (
-        await TOS(S.lnk("Example", "https://example.com"))
-        == "[Example](https://example.com)"
+            await TOS(S.lnk("Example", "https://example.com"))
+            == "[Example](https://example.com)"
     )
 
 
 async def test_quote():
     assert (
-        await TOS(S.qi("Methinks it is a weasel")) == "<q>Methinks it is a weasel</q>"
+    await TOS(S.qi("Methinks it is a weasel")) == "<q>Methinks it is a weasel</q>"
+    )
+
+
+async def test_dei():
+    assert (
+    await TOS(S.dei("Methinks it is a weasel")) == "{--Methinks it is a weasel--}"
+    )
+    assert (
+    await TOS(S.dei(S.ce("print(5)", lang="python"))) == "{--`print(5)`{python exec}--}"
     )
