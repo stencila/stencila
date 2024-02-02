@@ -2,7 +2,7 @@ from typing import Optional
 
 from stencila import _stencila
 from stencila.types import Node
-from stencila.utilities import to_json, from_json
+from stencila.utilities import from_json, to_json
 
 
 async def from_string(string: str, format: Optional[str] = "json") -> Node:
@@ -29,6 +29,7 @@ async def from_path(path: str, format: Optional[str] = None) -> Node:
 
 async def to_string(
     node: Node,
+    *,
     format: Optional[str] = "json",
     standalone: bool = False,
     compact: bool = False,
@@ -50,6 +51,7 @@ async def to_string(
 async def to_path(
     node: Node,
     path: str,
+    *,
     format: Optional[str] = None,
     standalone: bool = False,
     compact: bool = False,
@@ -73,6 +75,7 @@ async def to_path(
 async def from_to(
     input: Optional[str] = None,
     output: Optional[str] = None,
+    *,
     from_format=None,
     to_format=None,
     to_standalone=False,
@@ -85,8 +88,8 @@ async def from_to(
     :param str output: The output path (if not supplied, the converted input will be returned)
     :param str from_format: The format of the input (if not supplied, inferred from the input path)
     :param str to_format: The format of the output (if not supplied, inferred from the output path)
-    :param bool standalone: Whether to encode as a standalone document
-    :param bool compact: Whether to encode in compact form
+    :param bool to_standalone: Whether to encode as a standalone document
+    :param bool to_compact: Whether to encode in compact form
     """
     return await _stencila.convert.from_to(
         input if input else "",

@@ -2,11 +2,6 @@ import json
 
 from stencila.types import *
 
-# The above 'import *' imports `types/list.py` as list so
-# it is necessary to import it again from builtins.
-# This may be able to be removed later.
-from builtins import list
-
 
 def from_json(json_string: str) -> Node:
     """
@@ -22,13 +17,7 @@ def from_value(value) -> Node:  # pragma: no cover
     Create a `Node` from a value
     """
     if (
-        value is None
-        or isinstance(value, bool)
-        or isinstance(value, int)
-        or isinstance(value, float)
-        or isinstance(value, str)
-        or isinstance(value, tuple)
-        or isinstance(value, Entity)
+        value is None or isinstance(value, (bool, int, float, str, tuple, Entity))
     ):
         return value
 
