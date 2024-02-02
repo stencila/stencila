@@ -8,4 +8,7 @@ import { Instruction } from './instruction'
  * @see https://github.com/stencila/stencila/blob/main/docs/reference/schema/edits/instruction-block.md
  */
 @customElement('stencila-instruction-block')
-export class InstructionBlock extends Instruction {}
+export class InstructionBlock extends Instruction {
+  override currentNode: string = 'InstructionBlock'
+  override title: string = 'Instruction Block'
+}

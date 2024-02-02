@@ -27,7 +27,7 @@ const nodeTypeUIMap: { [k: NodeType]: NodeUISpecs } = {
   },
   IfBlock: { icon: 'if-block' },
   ForBlock: { icon: 'for-block' },
-  InstructBlock: { icon: 'instruct-block' },
+  InstructionBlock: { icon: 'instruct-block' },
 }
 
 const getNodeIcon = (node: NodeType) => {

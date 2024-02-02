@@ -1,8 +1,6 @@
 import { html } from 'lit'
 import { customElement } from 'lit/decorators'
 
-import { getNodeColour } from '../ui/nodes/nodeMapping'
-
 import { Entity } from './entity'
 
 import './helpers/block-infobox'
@@ -20,11 +18,7 @@ export abstract class Paragraph extends Entity {
         ? html`<slot name="content"></slot>`
         : ''}
 
-      <stencila-block-infobox
-        icon="paragraph"
-        title="Paragraph"
-        colour=${getNodeColour('Paragraph')}
-      >
+      <stencila-block-infobox title="Paragraph" currentNode="Paragraph">
         <slot name="authors" slot="authors"></slot>
       </stencila-block-infobox>
     `

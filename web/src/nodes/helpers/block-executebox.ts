@@ -4,20 +4,14 @@ import { customElement, property } from 'lit/decorators'
 
 import { withTwind } from '../../twind'
 import { DocumentView, NodeType } from '../../types'
-import { getNodeColour, getNodeIcon } from '../../ui/nodes/nodeMapping'
+import { getNodeIcon } from '../../ui/nodes/nodeMapping'
 
 /**
  * A component for displaying information about a `Block` node type (e.g. a `Heading` or `Table`)
  */
-@customElement('stencila-block-infobox')
+@customElement('stencila-block-executebox')
 @withTwind()
-export class BlockInfobox extends LitElement {
-  @property()
-  icon: string = ''
-
-  @property()
-  colour: string = ''
-
+export class BlockExecutableBox extends LitElement {
   @property()
   currentNode: NodeType
 
@@ -25,27 +19,26 @@ export class BlockInfobox extends LitElement {
   view: DocumentView
 
   @property()
-  override title: string = ''
+  override title: string
 
   override render() {
-    const colour = getNodeColour(this.currentNode)
     const icon = getNodeIcon(this.currentNode)
     const styles = apply([
       'w-full',
       'p-4',
       'bg-white',
-      `border border-[${this.colour}] rounded`,
+      'rounded drop-shadow-2xl',
     ])
 
-    // TODO: design this
     return html`
-      <div class=${styles} style="background-color: ${colour};">
-        <span>
+      <div class=${styles}>
+        <div class="mb-2">
           <sl-icon name=${icon} library="stencila"></sl-icon>
           ${this.title}
-        </span>
+        </div>
         <slot name="authors"></slot>
-        <slot name="items"></slot>
+        <slot name="messages"></slot>
+        <slot name="suggestion"></slot>
       </div>
     `
   }

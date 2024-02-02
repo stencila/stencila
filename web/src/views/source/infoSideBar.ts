@@ -87,10 +87,7 @@ const infoSideBar = (sourceView: SourceView): Extension => {
           if (!domNode) {
             return
           }
-
-          this.currentInfoBox = sourceView.domElement.value
-            .querySelector(`#${nodeId}`)
-            .cloneNode(true) as HTMLElement
+          this.currentInfoBox = domNode.cloneNode(true) as HTMLElement
 
           this.currentInfoBox.setAttribute('id', `info-box-${nodeId}`)
           this.currentInfoBox.style.position = 'absolute'
@@ -109,15 +106,23 @@ const infoSideBar = (sourceView: SourceView): Extension => {
               }
               this.cursorY = top
               const editorTop = view.scrollDOM.getBoundingClientRect().top
+              const editorBottom = view.dom.getBoundingClientRect().bottom
               const yOffset =
                 this.currentInfoBox.getBoundingClientRect().height / 2
 
               let yPos = top - editorTop - yOffset + view.defaultLineHeight / 2
 
               if (yPos < 0) {
-                yPos = 0
+                yPos = 2
               }
-
+              if (
+                yPos + this.currentInfoBox.getBoundingClientRect().height >
+                editorBottom
+              ) {
+                yPos =
+                  editorBottom -
+                  this.currentInfoBox.getBoundingClientRect().height
+              }
               this.currentInfoBox.style.top = `${yPos}px`
             }
           },

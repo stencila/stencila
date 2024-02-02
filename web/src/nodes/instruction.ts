@@ -3,6 +3,8 @@ import { property } from 'lit/decorators.js'
 
 import { Executable } from './executable'
 
+import './helpers/block-executebox'
+
 /**
  * Abstract base class for web components representing Stencila Schema `Instruction` node types
  *
@@ -19,16 +21,29 @@ export abstract class Instruction extends Executable {
   @property()
   assignee?: string
 
+  @property()
+  currentNode: string = ''
+
+  @property()
+  override title: string
+
   override render() {
     return html`
-      <slot name="content"></slot>
+      ${this.documentView() !== 'source'
+        ? html`<slot name="content"></slot>`
+        : ''}
 
       <!-- TODO: implement design exposing '@property's and these <slot>s -->
-      <div hidden>
+
+      <stencila-block-executebox
+        currentNode=${this.currentNode}
+        title=${this.title}
+      >
         <slot name="authors" slot="authors"></slot>
         <slot name="messages" slot="messages"></slot>
+        <slot name="content" slot="content"></slot>
         <slot name="suggestion" slot="suggestion"></slot>
-      </div>
+      </stencila-block-executebox>
     `
   }
 }

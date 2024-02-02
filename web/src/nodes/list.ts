@@ -2,6 +2,7 @@ import { html } from 'lit'
 import { customElement } from 'lit/decorators'
 
 import { Entity } from './entity'
+
 import './helpers/block-infobox'
 
 /**
@@ -13,10 +14,15 @@ import './helpers/block-infobox'
 export abstract class List extends Entity {
   override render() {
     return html`
-      <slot name="items"></slot>
+      ${this.documentView() !== 'source'
+        ? html`<slot name="items"></slot>`
+        : ''}
 
-      <stencila-block-infobox icon="list" title="List">
+      <stencila-block-infobox title="List" currentNode="List">
         <slot name="authors" slot="authors"></slot>
+        ${this.documentView() === 'source'
+          ? html`<slot name="items" slot="items"></slot>`
+          : ''}
       </stencila-block-infobox>
     `
   }
