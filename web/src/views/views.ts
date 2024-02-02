@@ -7,7 +7,4 @@ export const VIEWS: Record<Exclude<DocumentView, 'directory'>, string> = {
   split: 'Two panel split view',
   static: 'Fixed, read-only view',
   visual: 'Visual editor',
-  // TODO: We don't really want this in the menu but
-  // TypeScript complains without it.
-  directory: 'Tree view of the directory',
 }

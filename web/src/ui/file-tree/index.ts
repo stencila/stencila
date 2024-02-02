@@ -25,9 +25,9 @@ export class UIFileTreeLayout extends LitElement {
     return html` <div
       class="${this.context?.filesOpen
         ? 'block'
-        : 'hidden'} rounded-t border border-b-0 border-neutral-200 bg-white mt-auto mr-4 h-screen max-h-[calc(100vh-5rem)] w-48 overflow-x-scroll px-0 py-2"
+        : 'hidden'} rounded-t border border-b-0 border-neutral-200 bg-white mr-4 h-screen max-h-[calc(100vh-5rem)] w-80 overflow-x-hidden overflow-y-scroll px-0 pb-2"
     >
-      <stencila-directory-view doc=${this.doc}></stencila-directory-view>
+      <stencila-directory-view></stencila-directory-view>
     </div>`
   }
 }

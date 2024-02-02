@@ -95,7 +95,9 @@ export class App extends TWLitElement {
       class="font-sans flex flex-row bg-neutral-100 fixed top-0 left-0 min-h-screen w-full"
     >
       <stencila-ui-sidebar></stencila-ui-sidebar>
-      <stencila-ui-file-tree-layout></stencila-ui-file-tree-layout>
+      <stencila-ui-file-tree-layout
+        class="self-end"
+      ></stencila-ui-file-tree-layout>
 
       <div class="flex flex-col flex-grow">
         ${this.renderHeader()}

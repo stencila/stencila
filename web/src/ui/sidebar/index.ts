@@ -28,6 +28,7 @@ export class UISidebar extends LitElement {
             filesOpen: !this.context.filesOpen,
           })
         }}
+        ?active=${this.context.filesOpen}
       ></stencila-ui-icon-button>
       <stencila-ui-icon-button icon="settings"></stencila-ui-icon-button>
     </div> `

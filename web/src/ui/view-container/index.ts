@@ -104,12 +104,12 @@ export class UIViewContainer extends LitElement {
   /**
    * TODO: Just a placeholder to keep TypeScript happy
    */
-  private directoryModeClasses() {
-    return {
-      inner: apply([]),
-      outer: ``,
-    }
-  }
+  // private directoryModeClasses() {
+  //   return {
+  //     inner: apply([]),
+  //     outer: ``,
+  //   }
+  // }
 
   /**
    * If a side slot has not been defined, we set the `_hasSide` state to false

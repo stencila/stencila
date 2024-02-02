@@ -1,9 +1,11 @@
 import type { File, Directory } from '@stencila/types'
+import { css } from '@twind/core'
 import { LitElement, TemplateResult, html } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
 
 import { DirectoryClient } from '../clients/directory'
 import { ObjectClient } from '../clients/object'
+import { config, withTwind } from '../twind'
 import type { DocumentId } from '../types'
 
 /**
@@ -16,6 +18,7 @@ import type { DocumentId } from '../types'
  * and delete files and subdirectories.
  */
 @customElement('stencila-directory-view')
+@withTwind()
 export class DirectoryView extends LitElement {
   /**
    * The id of the document for the directory
@@ -136,8 +139,35 @@ export class DirectoryView extends LitElement {
   }
 
   private renderDirectory(directory: Directory): TemplateResult {
-    return html`<sl-tree-item>
-      <sl-icon name="folder"></sl-icon> ${directory.name}
+    const sticky =
+      directory.name === this.directory.name
+        ? css`
+            &::part(item) {
+              position: sticky;
+              top: 0;
+              z-index: 2;
+
+              &:after {
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                display: block;
+                content: '';
+                background-color: #ffffff;
+                opacity: 0.7;
+                z-index: -1;
+              }
+            }
+          `
+        : ''
+
+    return html`<sl-tree-item
+      title=${directory.name}
+      class=${`tree-directory ${this.generateSelectedItemStyles()} ${sticky}`}
+    >
+      <sl-icon name="folder"></sl-icon> ${this.renderLabel(directory.name)}
       ${directory.parts.map((part: Directory | File) =>
         part.type === 'Directory'
           ? this.renderDirectory(part as Directory)
@@ -148,7 +178,44 @@ export class DirectoryView extends LitElement {
 
   private renderFile(file: File) {
     return html`<sl-tree-item
-      ><sl-icon name="file"></sl-icon> ${file.name}</sl-tree-item
+      title=${file.name}
+      class=${this.generateSelectedItemStyles()}
+      ><sl-icon name="file"></sl-icon>
+      ${this.renderLabel(file.name)}
+    </sl-tree-item>`
+  }
+
+  /**
+   * Create all the associated styles for an sl-item element.
+   */
+  private generateSelectedItemStyles() {
+    const theme = config.theme
+    const colors = theme.extend.colors
+    const selection = colors['grey' as keyof typeof colors]['200']
+    const hover = colors['grey' as keyof typeof colors]['150']
+
+    return css`
+      &::part(item) {
+        display: inline-flex;
+      }
+
+      &::part(item):hover {
+        background-color: ${hover};
+        border-color: ${hover};
+      }
+
+      &::part(item--selected),
+      &::part(item--selected):hover {
+        background-color: ${selection};
+        border-color: ${selection};
+      }
+    `
+  }
+
+  private renderLabel(label: string) {
+    return html`<span
+      class="block w-48 overflow-hidden text-ellipsis whitespace-nowrap"
+      >${label}</span
     >`
   }
 }

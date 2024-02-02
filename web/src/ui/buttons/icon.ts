@@ -54,7 +54,7 @@ export class UIIconButton extends LitElement {
   constructor() {
     super()
 
-    this.isActive = this.active
+    // this.isActive = this.active
   }
 
   override render() {
@@ -112,7 +112,7 @@ export class UIIconButton extends LitElement {
       return 'disabled'
     }
 
-    if (this.isActive) {
+    if (this.active) {
       return 'active'
     }
 
