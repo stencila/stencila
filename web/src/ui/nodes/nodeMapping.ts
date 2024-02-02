@@ -3,23 +3,28 @@ import { NodeType } from '../../types'
 type NodeUISpecs = {
   icon?: string
   colour?: string
+  borderColour?: string
 }
 
 const DEFAULT_NODE_ICON = 'admonition'
 const DEFAULT_COLOUR = '#FF8000' // orange - for proof-of-concept only
+const DEFAULT_BORDER_COLOUR = '#FFE6CC' // orange - for proof-of-concept only
 
 const nodeTypeUIMap: { [k: NodeType]: NodeUISpecs } = {
   Heading: {
     icon: 'text',
-    colour: '#CDC1F0', // purple-200
+    colour: '#F5F3FC', // purple-200
+    borderColour: '#DED6F5', // purple-200
   },
   Table: {
     icon: 'table',
-    colour: '#CDC1F0', // purple-200
+    colour: '#F5F3FC', // purple-200
+    borderColour: '#DED6F5', // purple-200
   },
   Paragraph: {
     icon: 'paragraph',
-    colour: '#D9F2D9', // green-200
+    colour: '#F5FFF5', // green-000
+    borderColour: '#D9F2D9', // green-200
   },
   List: { icon: 'list' },
   Admonition: {
@@ -38,5 +43,9 @@ const getNodeColour = (node: NodeType) => {
   return nodeTypeUIMap[node]?.colour ?? DEFAULT_COLOUR
 }
 
-export { getNodeIcon, getNodeColour }
+const getNodeBorderColour = (node: NodeType) => {
+  return nodeTypeUIMap[node]?.borderColour ?? DEFAULT_BORDER_COLOUR
+}
+
+export { getNodeIcon, getNodeColour, getNodeBorderColour }
 export type { NodeUISpecs }

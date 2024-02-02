@@ -1,7 +1,11 @@
 import { html } from 'lit'
 import { customElement, property } from 'lit/decorators'
 
-import { getNodeColour, getNodeIcon } from '../ui/nodes/nodeMapping'
+import {
+  getNodeBorderColour,
+  getNodeColour,
+  getNodeIcon,
+} from '../ui/nodes/nodeMapping'
 
 import { Entity } from './entity'
 
@@ -27,8 +31,9 @@ export abstract class Heading extends Entity {
         icon=${getNodeIcon('Heading')}
         title="Heading"
         colour=${getNodeColour('Heading')}
+        borderColour=${getNodeBorderColour('Heading')}
       >
-        <slot name="authors" slot="authors"></slot>
+        <slot name="authors" slot="authors"> </slot>
       </stencila-block-infobox>
     `
   }

@@ -61,7 +61,9 @@ const infoSideBar = (sourceView: SourceView): Extension => {
         const { view: currentView } = update
 
         // update height of dom
-        this.dom.style.minHeight = `${currentView.contentHeight / currentView.scaleY}px`
+        this.dom.style.minHeight = `${
+          currentView.contentHeight / currentView.scaleY
+        }px`
 
         const cursor = currentView.state.selection.main.head
 
@@ -90,7 +92,8 @@ const infoSideBar = (sourceView: SourceView): Extension => {
           this.currentInfoBox = domNode.cloneNode(true) as HTMLElement
 
           this.currentInfoBox.setAttribute('id', `info-box-${nodeId}`)
-          this.currentInfoBox.style.position = 'absolute'
+          this.currentInfoBox.style.position = 'block'
+          this.currentInfoBox.style.width = '100%'
           this.dom.appendChild(this.currentInfoBox)
         }
 
