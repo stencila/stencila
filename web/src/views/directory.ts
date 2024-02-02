@@ -133,19 +133,19 @@ export class DirectoryView extends LitElement {
   }
 
   override render() {
-    return html`<div class="flex flex-col h-full justify-end">
+    return html`
       <nav class="py-2 px-4 flex justify-end space-x-2">
         <stencila-ui-icon-button icon="add-directory"></stencila-ui-icon-button>
         <stencila-ui-icon-button icon="add-file"></stencila-ui-icon-button>
       </nav>
       <div
-        class="border-neutral-200 bg-white rounded-t border border-b-0 h-screen max-h-[calc(100vh-5rem)] overflow-y-scroll px-0 pb-2 w-full"
+        class="border-neutral-200 bg-white rounded-t border border-b-0 h-[calc(100vh-5rem)] overflow-y-scroll px-0 pb-2 w-full"
       >
         <sl-tree class="tree-with-lines tree-with-icons">
           ${this.directory ? this.renderDirectory(this.directory) : ''}
         </sl-tree>
       </div>
-    </div>`
+    `
   }
 
   private renderDirectory(directory: Directory): TemplateResult {
@@ -176,6 +176,7 @@ export class DirectoryView extends LitElement {
     return html`<sl-tree-item
       title=${directory.name}
       class=${`tree-directory ${this.generateSelectedItemStyles()} ${sticky}`}
+      ?expanded=${this.directory.name === directory.name}
     >
       <sl-icon name="folder"></sl-icon> ${this.renderLabel(directory.name)}
       ${directory.parts.map((part: Directory | File) =>

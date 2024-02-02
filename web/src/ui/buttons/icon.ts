@@ -1,6 +1,6 @@
 import { apply, css } from '@twind/core'
 import { LitElement, html } from 'lit'
-import { customElement, property, state } from 'lit/decorators.js'
+import { customElement, property } from 'lit/decorators.js'
 import { Ref, ref, createRef } from 'lit/directives/ref'
 
 import { withTwind } from '../../twind'
@@ -42,21 +42,22 @@ export class UIIconButton extends LitElement {
   @property({ type: Boolean })
   active: boolean = false
 
-  /**
-   * Internally manage the active state.
-   */
-  @state()
-  isActive: boolean
-
   @property()
   clickEvent: (e: Event) => void | undefined
+
+  @property()
+  type: 'toggle' | 'selected' = 'toggle'
 
   constructor() {
     super()
   }
 
   override render() {
-    const classes = apply(['group', this.disabled ? 'pointer-events-none' : ''])
+    const classes = apply([
+      'group',
+      this.disabled ? 'pointer-events-none' : '',
+      this.type === 'selected' ? 'w-full' : '',
+    ])
     const styles = css`
       &::part(base) {
         border: none;
@@ -88,7 +89,6 @@ export class UIIconButton extends LitElement {
       default: 'fill-grey-700',
     }
     const classes = apply([
-      'text-lg',
       'transition-all duration-300 ease-in-out',
       'stroke-none',
       stateColour[state],
@@ -99,6 +99,7 @@ export class UIIconButton extends LitElement {
       library="stencila"
       name="${icon}"
       class="${classes}"
+      style="font-size: 20px;"
     ></sl-icon>`
   }
 

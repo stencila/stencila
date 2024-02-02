@@ -26,7 +26,9 @@ export class UIFileTreeLayout extends LitElement {
         ? 'block'
         : 'hidden'} mr-4 w-80 overflow-x-hidden h-full"
     >
-      <stencila-directory-view></stencila-directory-view>
+      <stencila-directory-view
+        class="flex flex-col h-screen justify-end"
+      ></stencila-directory-view>
     </div>`
   }
 }

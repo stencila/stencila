@@ -109,7 +109,7 @@ export class App extends TWLitElement {
 
   // TODO: the header should move to it's own component & maintain its own state.
   private renderHeader() {
-    return html`<header class="w-full flex items-end h-20">
+    return html`<header class="w-full flex items-end h-20 max-h-20">
       <nav class="flex bg-neutral-100 h-full w-full">
         <div class="flex-grow flex items-end h-full relative z-10 space-x-1">
           <stencila-ui-editor-tab ?active=${true}
@@ -143,7 +143,7 @@ export class App extends TWLitElement {
 
     return html`<stencila-ui-selector
       label="View"
-      target=${this.view}
+      target=${this.contextObject.view}
       targetClass="view-selector"
       .list=${Object.entries(VIEWS)}
       .clickEvent=${clickEvent}
@@ -246,8 +246,17 @@ export class App extends TWLitElement {
           ...this.contextObject,
           filesOpen: e.detail.filesOpen,
         }
+      }
+    )
 
-        console.log('event', this.contextObject)
+    // Event for changing the view
+    this.shadowRoot.addEventListener(
+      'stencila-view-change',
+      (e: Event & { detail: Required<Pick<SidebarContext, 'view'>> }) => {
+        this.contextObject = {
+          ...this.contextObject,
+          view: e.detail.view,
+        }
       }
     )
   }

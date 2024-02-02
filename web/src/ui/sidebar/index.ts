@@ -30,7 +30,37 @@ export class UISidebar extends LitElement {
         }}
         ?active=${this.context.filesOpen}
       ></stencila-ui-icon-button>
-      <stencila-ui-icon-button icon="settings"></stencila-ui-icon-button>
+      <div class="flex flex-col space-y-9 text-xl">
+        <stencila-ui-icon-button
+          icon="live-view"
+          .clickEvent=${() => {
+            this.createEvent('stencila-view-change', {
+              view: 'live',
+            })
+          }}
+          ?active=${this.context.view === 'live'}
+          type="selected"
+        ></stencila-ui-icon-button>
+        <stencila-ui-icon-button
+          icon="code-view"
+          .clickEvent=${() => {
+            this.createEvent('stencila-view-change', {
+              view: 'source',
+            })
+          }}
+          ?active=${this.context.view === 'source'}
+        ></stencila-ui-icon-button>
+        <stencila-ui-icon-button
+          icon="split-view"
+          .clickEvent=${() => {
+            this.createEvent('stencila-view-change', {
+              view: 'split',
+            })
+          }}
+          ?active=${this.context.view === 'split'}
+        ></stencila-ui-icon-button>
+        <stencila-ui-icon-button icon="settings"></stencila-ui-icon-button>
+      </div>
     </div> `
   }
 
