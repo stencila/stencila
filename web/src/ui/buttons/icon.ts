@@ -53,8 +53,6 @@ export class UIIconButton extends LitElement {
 
   constructor() {
     super()
-
-    // this.isActive = this.active
   }
 
   override render() {
@@ -90,7 +88,7 @@ export class UIIconButton extends LitElement {
       default: 'fill-grey-700',
     }
     const classes = apply([
-      'text-xl',
+      'text-lg',
       'transition-all duration-300 ease-in-out',
       'stroke-none',
       stateColour[state],

@@ -21,11 +21,10 @@ export class UIFileTreeLayout extends LitElement {
   context: SidebarContext
 
   override render() {
-    console.log('consume')
     return html` <div
       class="${this.context?.filesOpen
         ? 'block'
-        : 'hidden'} rounded-t border border-b-0 border-neutral-200 bg-white mr-4 h-screen max-h-[calc(100vh-5rem)] w-80 overflow-x-hidden overflow-y-scroll px-0 pb-2"
+        : 'hidden'} mr-4 w-80 overflow-x-hidden h-full"
     >
       <stencila-directory-view></stencila-directory-view>
     </div>`
