@@ -80,9 +80,8 @@ mod tests {
     /// Pro-tip! Use this to get logs for this test:
     ///
     /// ```sh
-    /// RUST_LOG=trace cargo test -p kernel-bash status_and_signals -- --nocapture
+    /// RUST_LOG=trace cargo test -p kernel-node status_and_signals -- --nocapture
     /// ```
-    #[ignore]
     #[test_log::test(tokio::test)]
     async fn status_and_signals() -> Result<()> {
         let Some(mut kernel) = start_kernel().await? else {
@@ -101,19 +100,42 @@ mod tests {
         let (step_sender, mut step_receiver) = mpsc::channel::<u8>(1);
         let task = tokio::spawn(async move {
             // Short sleep
-            step_receiver.recv().await;
-            kernel.execute("sleep 0.5").await?;
+            let step = step_receiver.recv().await.unwrap();
+            kernel
+                .execute(
+                    "
+                // Crude sleep function which can be called at top level without using await
+                function sleep(milliseconds) {
+                    const startTime = new Date().getTime();
+                    let currentTime = null;
+                
+                    do {
+                        currentTime = new Date().getTime();
+                    } while (currentTime - startTime < milliseconds);
+                }
+                sleep(250)
+            ",
+                )
+                .await?;
             let status = kernel.status().await?;
             if status != KernelStatus::Ready {
-                tracing::error!("Unexpected status: {status}")
+                tracing::error!("Unexpected status in step {step}: {status}")
+            }
+
+            // Sleep with interrupt
+            let step = step_receiver.recv().await.unwrap();
+            kernel.execute("sleep(100000)").await?;
+            let status = kernel.status().await?;
+            if status != KernelStatus::Ready {
+                tracing::error!("Unexpected status in step {step}: {status}")
             }
 
             // Sleep with kill
-            step_receiver.recv().await;
-            kernel.execute("sleep 100").await?;
+            let step = step_receiver.recv().await.unwrap();
+            kernel.execute("sleep(100000)").await?;
             let status = kernel.status().await?;
             if status != KernelStatus::Failed {
-                tracing::error!("Unexpected status: {status}")
+                tracing::error!("Unexpected status in step {step}: {status}")
             }
 
             Ok::<KernelStatus, Report>(status)
@@ -132,6 +154,20 @@ mod tests {
         }
         {
             step_sender.send(2).await?;
+
+            // Should be busy during second sleep
+            watcher.changed().await?;
+            assert_eq!(*watcher.borrow_and_update(), KernelStatus::Busy);
+
+            // Interrupt during third sleep (if this fails then the test would keep running for 100 seconds)
+            signaller.send(KernelSignal::Interrupt).await?;
+
+            // Should be ready after interrupt
+            watcher.changed().await?;
+            assert_eq!(*watcher.borrow_and_update(), KernelStatus::Ready);
+        }
+        {
+            step_sender.send(3).await?;
 
             // Should be busy during third sleep
             watcher.changed().await?;

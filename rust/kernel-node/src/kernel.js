@@ -1,18 +1,26 @@
 #!/usr/bin/env node
 
+// During development it can be useful to run this kernel script directly e.g.
+//
+//     DEV=true node rust/kernel-node/src/kernel.js
+//
+// Use Ctrl+D to quit, since Ctrl+C is captured.
+
 const readline = require("readline");
 const vm = require("vm");
 
-const READY = "\u{10ACDC}";
-const LINE = new RegExp("\u{10ABBA}", "g");
-const EXEC = "\u{10B522}";
-const EVAL = "\u{1010CC}";
-const FORK = "\u{10DE70}";
-const LIST = "\u{10C155}";
-const GET = "\u{10A51A}";
-const SET = "\u{107070}";
-const REMOVE = "\u{10C41C}";
-const END = "\u{10CB40}";
+const dev = process.env.DEV !== undefined;
+
+const READY = dev ? "READY" : "\u{10ACDC}";
+const LINE = dev ? "\\n" : new RegExp("\u{10ABBA}", "g");
+const EXEC = dev ? "EXEC" : "\u{10B522}";
+const EVAL = dev ? "EVAL" : "\u{1010CC}";
+const FORK = dev ? "FORK" : "\u{10DE70}";
+const LIST = dev ? "LIST" : "\u{10C155}";
+const GET = dev ? "GET" : "\u{10A51A}";
+const SET = dev ? "SET" : "\u{107070}";
+const REMOVE = dev ? "REMOVE" : "\u{10C41C}";
+const END = dev ? "END" : "\u{10CB40}";
 
 const { stdin, stdout, stderr } = process;
 
@@ -47,6 +55,13 @@ const context = {
   console,
 };
 vm.createContext(context);
+
+// SIGINT is handled by `vm.runInContext` but in case it a SIGINT is received
+// just after a task finishes, in the main loop, print that ready
+process.on("SIGINT", () => {
+  stdout.write(`${READY}\n`);
+  stderr.write(`${READY}\n`);
+});
 
 const LET_REGEX = /^let\s+([\w_]+)\s*=/;
 const CONST_REGEX = /^const\s+([\w_]+)\s*=/;
@@ -99,7 +114,7 @@ function exec(lines) {
 
   const code = lines.join("\n");
 
-  const output = vm.runInContext(code, context);
+  let output = vm.runInContext(code, context, { breakOnSigint: true });
   if (output !== undefined && !lastLineIsAssignment) {
     stdout.write(JSON.stringify(output));
   }
@@ -107,7 +122,7 @@ function exec(lines) {
 
 // Evaluate an expression
 function eval(expression) {
-  const value = vm.runInContext(expression, context);
+  const value = vm.runInContext(expression, context, { breakOnSigint: true });
   stdout.write(JSON.stringify(value));
 }
 
@@ -196,16 +211,22 @@ rl.on("line", (task) => {
           return set(lines[1], lines[2]);
         case REMOVE:
           return remove(lines[1]);
+        default:
+          throw new Error(`Unrecognized task ${lines[0]}`)
       }
     })();
   } catch (error) {
-    const msg = { type: "ExecutionError" };
-    if (error.name) msg.errorType = error.name;
-    if (error.message) msg.errorMessage = error.message;
-    else msg.errorMessage = error.toString();
-    if (error.stack) msg.stackTrace = error.stack;
+    if (error?.message === "Script execution was interrupted by `SIGINT`") {
+      // Ignore error generated when interrupted
+    } else {
+      const msg = { type: "ExecutionError" };
+      if (error.name) msg.errorType = error.name;
+      if (error.message) msg.errorMessage = error.message;
+      else msg.errorMessage = error.toString();
+      if (error.stack) msg.stackTrace = error.stack;
 
-    stderr.write(JSON.stringify(msg));
+      stderr.write(JSON.stringify(msg));
+    }
   }
 
   // Indicate ready for next task
