@@ -57,7 +57,7 @@ pub trait Microkernel: Sync + Send + Kernel {
     /// Returns `true` if an executable with `executable_name()` is in the `PATH`,
     /// and `false` otherwise.
     fn executable_available(&self) -> bool {
-        which(&self.executable_name()).is_ok()
+        which(self.executable_name()).is_ok()
     }
 
     /// An implementation of `Kernel::availability` for microkernels
@@ -580,7 +580,7 @@ async fn send_task<W: AsyncWrite + Unpin>(
     input_stream: &mut BufWriter<W>,
 ) -> Result<()> {
     let task = [
-        &flag.as_unicode(),
+        flag.as_unicode(),
         MicrokernelFlag::Line.as_unicode(),
         code.replace('\n', MicrokernelFlag::Line.as_unicode())
             .as_str(),
