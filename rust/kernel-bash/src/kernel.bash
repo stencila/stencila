@@ -1,15 +1,41 @@
 #!/usr/bin/env bash
 
-READY=$(printf "\U10ACDC")
-LINE=$(printf "\U10ABBA")
-EXEC=$(printf "\U10B522")
-EVAL=$(printf "\U1010CC")
-FORK=$(printf "\U10DE70")
-LIST=$(printf "\U10C155")
-GET=$(printf "\U10A51A")
-SET=$(printf "\U107070")
-REMOVE=$(printf "\U10C41C")
-END=$(printf "\U10CB40")
+# During development it can be useful to run this kernel script directly e.g.
+#
+#     DEV=true bash rust/kernel-bash/src/kernel.bash
+#
+# Use Ctrl+D to quit, since Ctrl+C is trapped for interrupting kernel tasks.
+
+if [ "$DEV" == "true" ]; then
+  READY="READY"
+  LINE="|"
+  EXEC="EXEC"
+  EVAL="EVAL"
+  FORK="FORK"
+  LIST="LIST"
+  GET="GET"
+  SET="SET"
+  REMOVE="REMOVE"
+  END="END"
+else
+  READY=$(printf "\U10ACDC")
+  LINE=$(printf "\U10ABBA")
+  EXEC=$(printf "\U10B522")
+  EVAL=$(printf "\U1010CC")
+  FORK=$(printf "\U10DE70")
+  LIST=$(printf "\U10C155")
+  GET=$(printf "\U10A51A")
+  SET=$(printf "\U107070")
+  REMOVE=$(printf "\U10C41C")
+  END=$(printf "\U10CB40")
+fi
+
+# Regular expression to match variable assignment
+stencila_assign_regex="^\s*((export|eval|(declare(\s+\-[-aAilnrtux])?))\s+)?[a-zA-Z_][a-zA-Z0-9_]*=.*$"
+
+# SIGINT is handled while EXEC tasks are running but in case SIGINT is received just after a
+# task finishes, or for some other reason inside the main loop, set trap to ignore it
+trap "" SIGINT
 
 # Print initial READY flag on stdout and stderr
 printf "$READY\n" | tee /dev/stderr
@@ -23,8 +49,23 @@ do
   # Switch on the task flag (the first line)
   case "${stencila_lines[0]}" in 
     "$EXEC")
-      # Execute remaining lines
-      eval $(printf "%s\n" "${stencila_lines[@]:1}")
+      for stencila_line in "${stencila_lines[@]}"; do
+        if [[ "$stencila_line" =~ $stencila_assign_regex ]]; then
+          stencila_assigns=true
+          break
+        fi
+      done
+      if [[ "$stencila_assigns" == true ]]; then
+        # Execute remaining lines, at least one containing an assignment, here
+        unset stencila_assigns
+        eval $(printf "%s\n" "${stencila_lines[@]:1}")
+      else
+        # Execute remaining lines in background so the task can be interrupted
+        eval $(printf "%s\n" "${stencila_lines[@]:1}") &
+        trap "kill -SIGTERM $!" SIGINT
+        wait $!
+        trap "" SIGINT
+      fi
       ;;
     "$EVAL")
       # Evaluate second line (integer expressions only)

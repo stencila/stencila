@@ -20,11 +20,7 @@ impl Kernel for BashKernel {
     }
 
     fn supports_interrupt(&self) -> KernelInterrupt {
-        // I tried in vain to implement interrupt in kernel.bash. In theory this should work but it didn't:
-        // - set a trap to kill the most recently background task: `trap 'kill -SIGTERM $!' SIGINT`
-        // - background EXEC and EVAL tasks: using `&` at the end of the line
-        // - wait for those tasks: using `wait $!` on the following line
-        KernelInterrupt::No
+        KernelInterrupt::Yes
     }
 
     fn supports_kill(&self) -> KernelKill {
@@ -106,7 +102,15 @@ mod tests {
         let task = tokio::spawn(async move {
             // Short sleep
             let step = step_receiver.recv().await.unwrap();
-            kernel.execute("sleep 0.5").await?;
+            kernel.execute("sleep 0.25").await?;
+            let status = kernel.status().await?;
+            if status != KernelStatus::Ready {
+                tracing::error!("Unexpected status in step {step}: {status}")
+            }
+
+            // Sleep with interrupt
+            let step = step_receiver.recv().await.unwrap();
+            kernel.execute("sleep 100").await?;
             let status = kernel.status().await?;
             if status != KernelStatus::Ready {
                 tracing::error!("Unexpected status in step {step}: {status}")
@@ -116,7 +120,7 @@ mod tests {
             let step = step_receiver.recv().await.unwrap();
             kernel.execute("sleep 100").await?;
             let status = kernel.status().await?;
-            if status != KernelStatus::Ready {
+            if status != KernelStatus::Failed {
                 tracing::error!("Unexpected status in step {step}: {status}")
             }
 
@@ -136,6 +140,20 @@ mod tests {
         }
         {
             step_sender.send(2).await?;
+
+            // Should be busy during second sleep
+            watcher.changed().await?;
+            assert_eq!(*watcher.borrow_and_update(), KernelStatus::Busy);
+
+            // Interrupt during third sleep (if this fails then the test would keep running for 100 seconds)
+            signaller.send(KernelSignal::Interrupt).await?;
+
+            // Should be ready after interrupt
+            watcher.changed().await?;
+            assert_eq!(*watcher.borrow_and_update(), KernelStatus::Ready);
+        }
+        {
+            step_sender.send(3).await?;
 
             // Should be busy during second sleep
             watcher.changed().await?;
