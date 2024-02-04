@@ -4,7 +4,7 @@
 //
 //     DEV=true node rust/kernel-node/src/kernel.js
 //
-// Use Ctrl+D to quit, since Ctrl+C is captured.
+// Use Ctrl+D to quit, since Ctrl+C is trapped for interrupting kernel tasks.
 
 const readline = require("readline");
 const vm = require("vm");
@@ -12,7 +12,7 @@ const vm = require("vm");
 const dev = process.env.DEV !== undefined;
 
 const READY = dev ? "READY" : "\u{10ACDC}";
-const LINE = dev ? "\\n" : new RegExp("\u{10ABBA}", "g");
+const LINE = dev ? "|" : new RegExp("\u{10ABBA}", "g");
 const EXEC = dev ? "EXEC" : "\u{10B522}";
 const EVAL = dev ? "EVAL" : "\u{1010CC}";
 const FORK = dev ? "FORK" : "\u{10DE70}";
@@ -56,12 +56,9 @@ const context = {
 };
 vm.createContext(context);
 
-// SIGINT is handled by `vm.runInContext` but in case it a SIGINT is received
-// just after a task finishes, in the main loop, print that ready
-process.on("SIGINT", () => {
-  stdout.write(`${READY}\n`);
-  stderr.write(`${READY}\n`);
-});
+// SIGINT is handled by `vm.runInContext` but in case SIGINT is received just after a
+// task finishes, or for some other reason inside the main loop, ignore it here
+process.on("SIGINT", () => ({}));
 
 const LET_REGEX = /^let\s+([\w_]+)\s*=/;
 const CONST_REGEX = /^const\s+([\w_]+)\s*=/;
