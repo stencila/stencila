@@ -324,22 +324,42 @@ impl KernelInstance for MicrokernelInstance {
         let (signal_sender, mut signal_receiver) = mpsc::channel(1);
         let id_clone = self.id.clone();
         tokio::spawn(async move {
-            while let Some(signal) = signal_receiver.recv().await {
+            while let Some(kernel_signal) = signal_receiver.recv().await {
                 #[cfg(unix)]
                 {
                     use nix::{
-                        sys::signal::{self, Signal},
+                        sys::signal::{kill, Signal},
                         unistd::Pid,
                     };
 
-                    let (name, sig) = match signal {
-                        KernelSignal::Interrupt => ("interrupt", Signal::SIGINT),
-                        KernelSignal::Kill => ("kill", Signal::SIGKILL),
+                    let (name, signal) = match kernel_signal {
+                        KernelSignal::Interrupt => ("Interrupt", Signal::SIGINT),
+                        KernelSignal::Kill => ("Kill", Signal::SIGKILL),
                     };
 
-                    tracing::debug!("Sending {name} signal to `{id_clone}` kernel");
-                    if let Err(error) = signal::kill(Pid::from_raw(pid as i32), sig) {
-                        tracing::warn!("Error while {name}ing `{id_clone}` kernel: {error}")
+                    tracing::debug!("{name}ing `{id_clone}` kernel with pid `{pid}`");
+
+                    if matches!(signal, Signal::SIGINT) {
+                        // On Linux using `nix::sys::signal::kill` with `SIGINT` has no effect
+                        // for some unknown reason.
+                        // This is a workaround which uses the system's `kill` command.
+                        let mut killer = match Command::new("kill")
+                            .args(["-s", signal.as_str(), &pid.to_string()])
+                            .spawn()
+                        {
+                            Ok(killer) => killer,
+                            Err(error) => {
+                                tracing::error!("While spawning killer: {error}");
+                                continue;
+                            }
+                        };
+                        if let Err(error) = killer.wait().await {
+                            tracing::error!("While {name}ing `{id_clone}` kernel: {error}")
+                        }
+                    } else {
+                        if let Err(error) = kill(Pid::from_raw(pid as i32), signal) {
+                            tracing::warn!("While {name}ing `{id_clone}` kernel: {error}")
+                        }
                     }
                 }
 
