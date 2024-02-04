@@ -20,7 +20,7 @@ impl Kernel for NodeKernel {
     }
 
     fn supports_interrupt(&self) -> KernelInterrupt {
-        KernelInterrupt::No
+        KernelInterrupt::Yes
     }
 
     fn supports_kill(&self) -> KernelKill {
