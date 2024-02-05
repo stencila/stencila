@@ -1,10 +1,16 @@
+use std::sync::atomic::{AtomicU64, Ordering};
+
 use kernel_micro::{
     common::eyre::Result, format::Format, Kernel, KernelAvailability, KernelForks, KernelInstance,
     KernelInterrupt, KernelKill, Microkernel,
 };
 
 /// A kernel for executing JavaScript code in Node.js
-pub struct NodeKernel;
+#[derive(Default)]
+pub struct NodeKernel {
+    /// A counter of instances of this microkernel
+    instances: AtomicU64,
+}
 
 impl Kernel for NodeKernel {
     fn id(&self) -> String {
@@ -20,7 +26,7 @@ impl Kernel for NodeKernel {
     }
 
     fn supports_interrupt(&self) -> KernelInterrupt {
-        KernelInterrupt::Yes
+        self.microkernel_supports_interrupt()
     }
 
     fn supports_kill(&self) -> KernelKill {
@@ -28,11 +34,11 @@ impl Kernel for NodeKernel {
     }
 
     fn supports_forks(&self) -> KernelForks {
-        KernelForks::No
+        self.microkernel_supports_forks()
     }
 
     fn create_instance(&self) -> Result<Box<dyn KernelInstance>> {
-        self.microkernel_create_instance()
+        self.microkernel_create_instance(self.instances.fetch_add(1, Ordering::SeqCst))
     }
 }
 
@@ -64,7 +70,7 @@ mod tests {
 
     /// Create and start a new kernel instance if Node.js is available
     async fn start_kernel() -> Result<Option<Box<dyn KernelInstance>>> {
-        let kernel = NodeKernel {};
+        let kernel = NodeKernel::default();
         match kernel.availability() {
             KernelAvailability::Available => {
                 let mut instance = kernel.create_instance()?;
@@ -377,6 +383,49 @@ mod tests {
         assert_eq!(messages[0].error_message, "foo is not defined");
         assert!(messages[0].stack_trace.is_some());
         assert_eq!(outputs, vec![]);
+
+        Ok(())
+    }
+
+    /// Test forking of microkernel
+    ///
+    /// Pro-tip! Use this to get logs for this test:
+    ///
+    /// ```sh
+    /// RUST_LOG=trace cargo test -p kernel-node forks -- --nocapture
+    /// ```
+    #[test_log::test(tokio::test)]
+    async fn forks() -> Result<()> {
+        let Some(mut kernel) = start_kernel().await? else {
+            return Ok(())
+        };
+
+        // Set variables in the kernel
+        kernel.set("var1", &Node::Integer(123)).await?;
+        kernel.set("var2", &Node::Number(4.56)).await?;
+        kernel
+            .set("var3", &Node::String("Hello world".to_string()))
+            .await?;
+
+        // Create a fork and check that the variables are available in it
+        let mut fork = kernel.fork().await?;
+        assert_eq!(fork.get("var1").await?, Some(Node::Integer(123)));
+        assert_eq!(fork.get("var2").await?, Some(Node::Number(4.56)));
+        assert_eq!(
+            fork.get("var3").await?,
+            Some(Node::String("Hello world".to_string()))
+        );
+
+        // Change variables in fork and check that they are unchanged in main kernel
+        fork.set("var1", &Node::Integer(321)).await?;
+        fork.remove("var2").await?;
+        fork.execute("var3 = 'Hello from fork'").await?;
+        assert_eq!(kernel.get("var1").await?, Some(Node::Integer(123)));
+        assert_eq!(kernel.get("var2").await?, Some(Node::Number(4.56)));
+        assert_eq!(
+            kernel.get("var3").await?,
+            Some(Node::String("Hello world".to_string()))
+        );
 
         Ok(())
     }

@@ -6,6 +6,8 @@
 //
 // Use Ctrl+D to quit, since Ctrl+C is trapped for interrupting kernel tasks.
 
+const child_process = require("child_process");
+const fs = require("fs");
 const readline = require("readline");
 const vm = require("vm");
 
@@ -22,7 +24,20 @@ const SET = dev ? "SET" : "\u{107070}";
 const REMOVE = dev ? "REMOVE" : "\u{10C41C}";
 const END = dev ? "END" : "\u{10CB40}";
 
-const { stdin, stdout, stderr } = process;
+// If IO streams are specified in args use them (for forks), otherwise
+// use standard IO on the process.
+let stdin;
+let stdout;
+let stderr;
+let variables = {};
+if (process.argv.length > 2) {
+  stdin = fs.createReadStream(process.argv[2]);
+  stdout = fs.createWriteStream(process.argv[3], { flags: "a" });
+  stderr = fs.createWriteStream(process.argv[4], { flags: "a" });
+  variables = JSON.parse(process.argv[5]);
+} else {
+  ({ stdin, stdout, stderr } = process);
+}
 
 // Override console log to write JSON to stdout with each arg
 // treated as a separate output
@@ -52,6 +67,7 @@ console.error = (message) =>
 
 // The execution context
 const context = {
+  ...variables,
   console,
 };
 vm.createContext(context);
@@ -78,7 +94,7 @@ function isDefined(name) {
 }
 
 // Execute lines of code
-function exec(lines) {
+function execute(lines) {
   // Turn any re-declarations of variables at the top level into assignments
   // (replace with spaces to retain positions for errors and stacktraces)
   for (let index = 0; index < lines.length; index++) {
@@ -118,7 +134,7 @@ function exec(lines) {
 }
 
 // Evaluate an expression
-function eval(expression) {
+function evaluate(expression) {
   const value = vm.runInContext(expression, context, { breakOnSigint: true });
   stdout.write(JSON.stringify(value));
 }
@@ -184,6 +200,15 @@ function remove(name) {
   delete context[name];
 }
 
+// Fork the kernel instance
+function fork(pipes) {
+  const child = child_process.fork(__filename, [
+    ...pipes,
+    JSON.stringify(context),
+  ]);
+  stdout.write(child.pid.toString());
+}
+
 // Read lines and handle tasks
 const rl = readline.createInterface({
   input: stdin,
@@ -197,9 +222,9 @@ rl.on("line", (task) => {
     (() => {
       switch (lines[0]) {
         case EXEC:
-          return exec(lines.slice(1));
+          return execute(lines.slice(1));
         case EVAL:
-          return eval(lines[1]);
+          return evaluate(lines[1]);
         case LIST:
           return list();
         case GET:
@@ -208,8 +233,10 @@ rl.on("line", (task) => {
           return set(lines[1], lines[2]);
         case REMOVE:
           return remove(lines[1]);
+        case FORK:
+          return fork(lines.slice(1));
         default:
-          throw new Error(`Unrecognized task ${lines[0]}`)
+          throw new Error(`Unrecognized task ${lines[0]}`);
       }
     })();
   } catch (error) {
