@@ -2,7 +2,7 @@ use std::path::Path;
 
 use common::{
     async_trait::async_trait,
-    eyre::Result,
+    eyre::{bail, Result},
     strum::Display,
     tokio::sync::{mpsc, watch},
 };
@@ -120,14 +120,11 @@ pub trait KernelInstance: Sync + Send {
     /// Stop the kernel
     async fn stop(&mut self) -> Result<()>;
 
-    /// Execute some code, possibly with side effects, in the kernel instance
+    /// Execute code, possibly with side effects, in the kernel instance
     async fn execute(&mut self, code: &str) -> Result<(Vec<Node>, Vec<ExecutionError>)>;
 
     /// Evaluate a code expression, without side effects, in the kernel instance
     async fn evaluate(&mut self, code: &str) -> Result<(Vec<Node>, Vec<ExecutionError>)>;
-
-    /// Execute some code in a fork of the kernel instance
-    async fn fork(&mut self, code: &str) -> Result<(Vec<Node>, Vec<ExecutionError>)>;
 
     /// Get a list of variables in the kernel instance
     async fn list(&mut self) -> Result<Vec<Variable>>;
@@ -140,6 +137,11 @@ pub trait KernelInstance: Sync + Send {
 
     /// Remove a variable from the kernel instance
     async fn remove(&mut self, name: &str) -> Result<()>;
+
+    /// Create a fork of the kernel instance
+    async fn fork(&mut self) -> Result<Box<dyn KernelInstance>> {
+        bail!("Kernel `{}` does not support forks", self.id())
+    }
 }
 
 /// The status of a kernel instance

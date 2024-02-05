@@ -1,22 +1,16 @@
-use std::{fs::write, path::Path, process::Stdio};
+use std::{fs::write, path::Path, process::Stdio, sync::atomic::{AtomicU64, Ordering}};
 
 use which::which;
 
 use kernel::{
     common::{
-        async_trait::async_trait,
-        eyre::{bail, OptionExt, Result},
-        itertools::Itertools,
-        serde_json,
-        strum::Display,
-        tokio::{
+        async_trait::async_trait, eyre::{bail, OptionExt, Result}, itertools::Itertools, serde_json, strum::Display, tempfile::TempDir, tokio::{
             self,
-            fs::File,
+            fs::{File, OpenOptions},
             io::{AsyncBufRead, AsyncBufReadExt, AsyncWrite, AsyncWriteExt, BufReader, BufWriter},
             process::{Child, ChildStderr, ChildStdin, ChildStdout, Command},
             sync::{mpsc, watch},
-        },
-        tracing,
+        }, tracing
     },
     schema::{ExecutionError, Node, Variable},
 };
@@ -91,10 +85,19 @@ pub trait Microkernel: Sync + Send + Kernel {
         }
     }
 
+    /// An implementation of `Kernel::supports_forks` for microkernels
+    fn microkernel_supports_forks(&self) -> KernelForks {
+        if cfg!(unix) {
+            KernelForks::Yes
+        } else {
+            KernelForks::No
+        }
+    }
+
     /// An implementation of `Kernel::create_instance` for microkernels
-    fn microkernel_create_instance(&self) -> Result<Box<dyn KernelInstance>> {
+    fn microkernel_create_instance(&self, count: u64) -> Result<Box<dyn KernelInstance>> {
         // Assign an id
-        let id = self.id(); // TODO make this unique
+        let id = format!("{}-{count}", self.id());
 
         // Get the path to the executable, failing early if it can not be found
         let executable_path = which(self.executable_name())?;
@@ -126,31 +129,23 @@ pub trait Microkernel: Sync + Send + Kernel {
             .stdout(Stdio::piped())
             .stderr(Stdio::piped());
 
-        // Set up status and sender
+        // Set up status and status channel
         let status = KernelStatus::Pending;
-        let (status_sender, mut status_receiver) = watch::channel(status);
-
-        // Start a task to log status. Not it is necessary to use the receiver
-        // in a task (or store it in a field on the instance) otherwise the channel is dropped
-        let id_clone = id.clone();
-        tokio::spawn(async move {
-            while status_receiver.changed().await.is_ok() {
-                let status = *status_receiver.borrow_and_update();
-                tracing::trace!("Status of `{id_clone}` kernel changed: {status}")
-            }
-        });
+        let status_sender = MicrokernelInstance::setup_status_channel(id.clone(), status);
 
         Ok(Box::new(MicrokernelInstance {
             id,
-            command,
-            status,
-            status_sender,
+            command: Some(command),
             child: None,
             pid: 0,
+            status,
+            status_sender,
             signal_sender: None,
+            pipes_dir: None,
             input: None,
             output: None,
             errors: None,
+            forks: Default::default(),
         }))
     }
 }
@@ -160,14 +155,8 @@ pub struct MicrokernelInstance {
     /// The id of the microkernel instance
     id: String,
 
-    /// The command used to start the microkernel instance
-    command: Command,
-
-    /// The status of the microkernel instance
-    status: KernelStatus,
-
-    /// A channel sender for the status of the microkernel instance
-    status_sender: watch::Sender<KernelStatus>,
+    /// The command used to start the microkernel instance (for main processes only, not forks)
+    command: Option<Command>,
 
     /// The child process (for main processes only, not forks)
     child: Option<Child>,
@@ -175,8 +164,21 @@ pub struct MicrokernelInstance {
     /// The process identifier
     pid: u32,
 
+    /// The status of the microkernel instance
+    status: KernelStatus,
+
+    /// A channel sender for the status of the microkernel instance
+    status_sender: watch::Sender<KernelStatus>,
+
     /// A channel sender for signals to interrupt or kill the process
     signal_sender: Option<mpsc::Sender<KernelSignal>>,
+
+    /// The temporary directory for FIFO pipes (for forks only)
+    /// 
+    /// Retained as a field because the temporary dir is automatically
+    /// deleted when the `TempDir` is dropped.
+    #[allow(unused)]
+    pipes_dir: Option<TempDir>,
 
     /// The input stream for the process
     input: Option<MicrokernelInput>,
@@ -186,6 +188,9 @@ pub struct MicrokernelInstance {
 
     /// The error stream for the process
     errors: Option<MicrokernelErrors>,
+
+    /// A counter of forks of this microkernel instance
+    forks: AtomicU64
 }
 
 /// An input stream for a microkernel instance
@@ -215,7 +220,7 @@ enum MicrokernelErrors {
 
     /// Pipe output (for forks; not used on Windows)
     #[allow(dead_code)]
-    File(BufReader<File>),
+    Pipe(BufReader<File>),
 }
 
 /// A Unicode flag used within messages sent and received to/from microkernels
@@ -290,8 +295,13 @@ impl KernelInstance for MicrokernelInstance {
     async fn start(&mut self, directory: &Path) -> Result<()> {
         self.set_status(KernelStatus::Starting)?;
 
+        let Some(command) = &mut self.command else {
+            // Must be a fork (already started, so return early)
+            return Ok(())
+        };
+
         // Spawn the binary in the directory with stdin, stdout and stderr piped to/from it
-        let mut child = self.command.current_dir(directory).spawn()?;
+        let mut child = command.current_dir(directory).spawn()?;
 
         let pid = child
             .id()
@@ -309,67 +319,20 @@ impl KernelInstance for MicrokernelInstance {
             .take()
             .ok_or_eyre("Child has no stderr handle")?;
 
-        // Emit any startup warnings and clear streams
-        let stdin = BufWriter::new(stdin);
-        let mut stdout = BufReader::new(stdout);
-        let mut stderr = BufReader::new(stderr);
-        startup_warnings(&mut stdout, &mut stderr).await;
-
         // Create stream readers and writers
-        self.input = Some(MicrokernelInput::Standard(stdin));
-        self.output = Some(MicrokernelOutput::Standard(stdout));
-        self.errors = Some(MicrokernelErrors::Standard(stderr));
+        let stdin_writer = BufWriter::new(stdin);
+        let mut stdout_reader = BufReader::new(stdout);
+        let mut stderr_reader = BufReader::new(stderr);
 
-        // Create channel and task for interrupting or killing the microkernel process
-        let (signal_sender, mut signal_receiver) = mpsc::channel(1);
-        let id_clone = self.id.clone();
-        tokio::spawn(async move {
-            while let Some(kernel_signal) = signal_receiver.recv().await {
-                #[cfg(unix)]
-                {
-                    use nix::{
-                        sys::signal::{kill, Signal},
-                        unistd::Pid,
-                    };
+        // Emit any startup warnings and clear streams
+        startup_warnings(&mut stdout_reader, &mut stderr_reader).await;
 
-                    let (name, signal) = match kernel_signal {
-                        KernelSignal::Interrupt => ("Interrupt", Signal::SIGINT),
-                        KernelSignal::Kill => ("Kill", Signal::SIGKILL),
-                    };
+        self.input = Some(MicrokernelInput::Standard(stdin_writer));
+        self.output = Some(MicrokernelOutput::Standard(stdout_reader));
+        self.errors = Some(MicrokernelErrors::Standard(stderr_reader));
 
-                    tracing::debug!("{name}ing `{id_clone}` kernel with pid `{pid}`");
-
-                    if matches!(signal, Signal::SIGINT) {
-                        // On Linux using `nix::sys::signal::kill` with `SIGINT` has no effect
-                        // for some unknown reason.
-                        // This is a workaround which uses the system's `kill` command.
-                        let mut killer = match Command::new("kill")
-                            .args(["-s", signal.as_str(), &pid.to_string()])
-                            .spawn()
-                        {
-                            Ok(killer) => killer,
-                            Err(error) => {
-                                tracing::error!("While spawning killer: {error}");
-                                continue;
-                            }
-                        };
-                        if let Err(error) = killer.wait().await {
-                            tracing::error!("While {name}ing `{id_clone}` kernel: {error}")
-                        }
-                    } else {
-                        if let Err(error) = kill(Pid::from_raw(pid as i32), signal) {
-                            tracing::warn!("While {name}ing `{id_clone}` kernel: {error}")
-                        }
-                    }
-                }
-
-                #[cfg(windows)]
-                {
-                    tracing::error!("Signals not yet supported on Windows",)
-                }
-            }
-        });
-        self.signal_sender = Some(signal_sender);
+        // Setup signalling channel
+        self.signal_sender = Some(Self::setup_signals_channel(self.id.clone(), pid));
 
         self.set_status(KernelStatus::Ready)?;
 
@@ -392,30 +355,17 @@ impl KernelInstance for MicrokernelInstance {
     }
 
     async fn execute(&mut self, code: &str) -> Result<(Vec<Node>, Vec<ExecutionError>)> {
-        self.send_receive(MicrokernelFlag::Exec, code).await
+        self.send_receive(MicrokernelFlag::Exec, [code]).await
     }
 
     async fn evaluate(&mut self, code: &str) -> Result<(Vec<Node>, Vec<ExecutionError>)> {
-        self.send_receive(MicrokernelFlag::Eval, code).await
-    }
-
-    async fn fork(&mut self, _code: &str) -> Result<(Vec<Node>, Vec<ExecutionError>)> {
-        bail!("Not yet implemented")
+        self.send_receive(MicrokernelFlag::Eval, [code]).await
     }
 
     async fn list(&mut self) -> Result<Vec<Variable>> {
-        let (nodes, messages) = self.send_receive(MicrokernelFlag::List, "").await?;
+        let (nodes, messages) = self.send_receive(MicrokernelFlag::List, []).await?;
 
-        if !messages.is_empty() {
-            bail!(
-                "While listing variables in microkernel `{}`: {}",
-                self.id(),
-                messages
-                    .into_iter()
-                    .map(|message| message.error_message)
-                    .join("")
-            )
-        }
+        self.check_for_errors(messages, "listing variables")?;
 
         nodes
             .into_iter()
@@ -427,18 +377,9 @@ impl KernelInstance for MicrokernelInstance {
     }
 
     async fn get(&mut self, name: &str) -> Result<Option<Node>> {
-        let (mut nodes, messages) = self.send_receive(MicrokernelFlag::Get, name).await?;
+        let (mut nodes, messages) = self.send_receive(MicrokernelFlag::Get, [name]).await?;
 
-        if !messages.is_empty() {
-            bail!(
-                "While getting variable `{name}` in microkernel `{}`: {}",
-                self.id(),
-                messages
-                    .into_iter()
-                    .map(|message| message.error_message)
-                    .join("")
-            )
-        }
+        self.check_for_errors(messages, "getting variable")?;
 
         let node = if nodes.is_empty() {
             None
@@ -450,35 +391,208 @@ impl KernelInstance for MicrokernelInstance {
     }
 
     async fn set(&mut self, name: &str, value: &Node) -> Result<()> {
-        let parts = &[
-            name,
-            MicrokernelFlag::Line.as_unicode(),
-            &serde_json::to_string(value)?,
-        ]
-        .concat();
+        let (.., messages) = self
+            .send_receive(MicrokernelFlag::Set, [name, &serde_json::to_string(value)?])
+            .await?;
 
-        self.send_receive(MicrokernelFlag::Set, parts).await?;
+        self.check_for_errors(messages, "setting variable")?;
 
         Ok(())
     }
 
     async fn remove(&mut self, name: &str) -> Result<()> {
-        self.send_receive(MicrokernelFlag::Remove, name).await?;
+        let (.., messages) = self.send_receive(MicrokernelFlag::Remove, [name]).await?;
+
+        self.check_for_errors(messages, "removing variable")?;
 
         Ok(())
+    }
+
+    async fn fork(&mut self) -> Result<Box<dyn KernelInstance>> {
+        #[cfg(unix)]
+        {
+            use kernel::common::tempfile::tempdir;
+            use nix::{sys::stat, unistd::mkfifo};
+
+            // Create FIFO pipes for stdin, stdout and stderr of fork
+            let pipes_dir = tempdir()?;
+            let stdin_path = pipes_dir.path().join("stdin.pipe");
+            mkfifo(&stdin_path, stat::Mode::S_IRWXU)?;
+            let stdout_path = pipes_dir.path().join("stdout.pipe");
+            mkfifo(&stdout_path, stat::Mode::S_IRWXU)?;
+            let stderr_path = pipes_dir.path().join("stderr.pipe");
+            mkfifo(&stderr_path, stat::Mode::S_IRWXU)?;
+
+            // Send task to microkernel process
+            let (outputs, messages) = self
+                .send_receive(
+                    MicrokernelFlag::Fork,
+                    [
+                        stdin_path.to_string_lossy().as_ref(),
+                        stdout_path.to_string_lossy().as_ref(),
+                        stderr_path.to_string_lossy().as_ref(),
+                    ],
+                )
+                .await?;
+
+            self.check_for_errors(messages, "creating fork")?;
+
+            // Get the PID of the fork
+            let Some(Node::Integer(pid)) = outputs.first() else {
+                bail!("Did not receive pid for fork of microkernel `{}`", self.id())
+            };
+            let pid = *pid as u32;
+
+            // Open the fork's `stdin` FIFO pipe. This must be opened in write-only mode.
+            // Otherwise this process and the fork will both be waiting on each other
+            // to act as the writer for their reader.
+            tracing::trace!("Creating {}", stdin_path.display());
+            let stdin_file = OpenOptions::new().write(true).open(&stdin_path).await?;
+            tracing::trace!("Fork has opened stdin pipe for reading");
+
+            // Open the fork's `stdout` and `stderr` FIFO pipes. These calls will block until the child
+            // process has opened the pipes for reading/writing. So perhaps this should have a timeout
+            // in case that fails.
+            tracing::trace!("Waiting to open {}", stdout_path.display());
+            let stdout_file = File::open(stdout_path).await?;
+            tracing::trace!("Waiting to open {}", stderr_path.display());
+            let stderr_file = File::open(stderr_path).await?;
+            tracing::trace!("Fork has opened stdout and stderr pipes for writing");
+
+            // Create stream readers and writers
+            let stdin_writer = BufWriter::new(stdin_file);
+            let mut stdout_reader = BufReader::new(stdout_file);
+            let mut stderr_reader = BufReader::new(stderr_file);
+
+            // Emit any startup warnings and clear streams
+            startup_warnings(&mut stdout_reader, &mut stderr_reader).await;
+
+            // Create stream readers and writers
+            let input = Some(MicrokernelInput::Pipe(stdin_writer));
+            let output = Some(MicrokernelOutput::Pipe(stdout_reader));
+            let errors = Some(MicrokernelErrors::Pipe(stderr_reader));
+
+            // Create fork id
+            let id = format!("{}-fork-{}", self.id, self.forks.fetch_add(1, Ordering::SeqCst));
+
+            let status = KernelStatus::Ready;
+            let status_sender = Self::setup_status_channel(id.clone(), status);
+
+            let signal_sender = Some(Self::setup_signals_channel(id.clone(), pid));
+
+            Ok(Box::new(Self {
+                id,
+                command: None,
+                child: None,
+                pid,
+                status,
+                status_sender,
+                signal_sender,
+                pipes_dir: Some(pipes_dir),
+                input,
+                output,
+                errors,
+                forks: Default::default()
+            }))
+        }
+
+        #[cfg(windows)]
+        {
+            bail!("Microkernel forking is not supported on Windows");
+        }
     }
 }
 
 impl MicrokernelInstance {
+    /// Whether a microkernel instance is a fork
+    fn is_fork(&self) -> bool {
+        self.command.is_none()
+    }
+
+    /// Crate a channel for receiving
+    fn setup_status_channel(id: String, init: KernelStatus) -> watch::Sender<KernelStatus> {
+        let (status_sender, mut status_receiver) = watch::channel(init);
+
+        // Start a task to log status. Note: it is necessary to use the receiver
+        // in a task (or store it in a field on the instance) otherwise the channel is dropped
+        tokio::spawn(async move {
+            while status_receiver.changed().await.is_ok() {
+                let status = *status_receiver.borrow_and_update();
+                tracing::trace!("Status of `{id}` kernel changed: {status}")
+            }
+        });
+
+        status_sender
+    }
+
+    /// Create a channel and task for sending signals to interrupt or kill the microkernel process
+    fn setup_signals_channel(id: String, pid: u32) -> mpsc::Sender<KernelSignal> {
+        let (signal_sender, mut signal_receiver) = mpsc::channel(1);
+
+        // Start a task to handle signals
+        tokio::spawn(async move {
+            while let Some(kernel_signal) = signal_receiver.recv().await {
+                #[cfg(unix)]
+                {
+                    use nix::{
+                        sys::signal::{kill, Signal},
+                        unistd::Pid,
+                    };
+
+                    let (name, signal) = match kernel_signal {
+                        KernelSignal::Interrupt => ("Interrupt", Signal::SIGINT),
+                        KernelSignal::Kill => ("Kill", Signal::SIGKILL),
+                    };
+
+                    tracing::debug!("{name}ing `{id}` kernel with pid `{pid}`");
+
+                    if matches!(signal, Signal::SIGINT) {
+                        // On Linux using `nix::sys::signal::kill` with `SIGINT` has no effect
+                        // for some unknown reason.
+                        // This is a workaround which uses the system's `kill` command.
+                        let mut killer = match Command::new("kill")
+                            .args(["-s", signal.as_str(), &pid.to_string()])
+                            .spawn()
+                        {
+                            Ok(killer) => killer,
+                            Err(error) => {
+                                tracing::error!("While spawning killer: {error}");
+                                continue;
+                            }
+                        };
+                        if let Err(error) = killer.wait().await {
+                            tracing::error!("While {name}ing `{id}` kernel: {error}")
+                        }
+                    } else {
+                        if let Err(error) = kill(Pid::from_raw(pid as i32), signal) {
+                            tracing::warn!("While {name}ing `{id}` kernel: {error}")
+                        }
+                    }
+                }
+
+                #[cfg(windows)]
+                {
+                    tracing::error!("Signals not yet supported on Windows",)
+                }
+            }
+        });
+
+        signal_sender
+    }
     /// Get the status of the microkernel instance
     ///
     /// Will query the child process to check it is still alive and if
-    /// not its exit code
+    /// not its exit code.
     fn get_status(&self) -> Result<KernelStatus> {
-        if matches!(
+        if
+        // Don't call `waitpid` if not yet started or has been explicitly stopped
+        self.pid == 0 || matches!(
             self.status,
             KernelStatus::Pending | KernelStatus::Stopping | KernelStatus::Stopped
-        ) {
+        ) 
+        // Can't call `waitpid` on forks because they are not direct child processes
+        || self.is_fork()
+        {
             return Ok(self.status);
         }
 
@@ -524,14 +638,19 @@ impl MicrokernelInstance {
     }
 
     /// Send a task to the microkernel instance and receive results
-    async fn send_receive(
+    async fn send_receive<'lt, I>(
         &mut self,
         flag: MicrokernelFlag,
-        code: &str,
-    ) -> Result<(Vec<Node>, Vec<ExecutionError>)> {
+        args: I,
+    ) -> Result<(Vec<Node>, Vec<ExecutionError>)>
+    where
+        I: IntoIterator<Item = &'lt str>,
+    {
         self.set_status(KernelStatus::Busy)?;
 
-        self.send(flag, code).await?;
+        let args = args.into_iter().join(&MicrokernelFlag::Line.as_unicode());
+
+        self.send(flag, &args).await?;
         let result = self.receive().await;
 
         self.set_status(KernelStatus::Ready)?;
@@ -561,10 +680,26 @@ impl MicrokernelInstance {
             (MicrokernelOutput::Standard(output), MicrokernelErrors::Standard(errors)) => {
                 receive_results(output, errors).await
             }
-            (MicrokernelOutput::Pipe(output), MicrokernelErrors::File(errors)) => {
+            (MicrokernelOutput::Pipe(output), MicrokernelErrors::Pipe(errors)) => {
                 receive_results(output, errors).await
             }
             _ => unreachable!(),
+        }
+    }
+
+    /// Create an `Err` if messages from the kernel include an error
+    fn check_for_errors(&self, messages: Vec<ExecutionError>, action: &str) -> Result<()> {
+        if !messages.is_empty() {
+            bail!(
+                "While {action} in microkernel `{}`: {}",
+                self.id(),
+                messages
+                    .into_iter()
+                    .map(|message| message.error_message)
+                    .join("")
+            )
+        } else {
+            Ok(())
         }
     }
 }
