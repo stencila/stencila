@@ -1,7 +1,14 @@
 import { html } from 'lit'
 import { customElement, property } from 'lit/decorators'
 
+import {
+  getNodeBorderColour,
+  getNodeColour,
+  getNodeIcon,
+} from '../ui/nodes/nodeMapping'
+
 import { Entity } from './entity'
+
 import './helpers/block-infobox'
 
 /**
@@ -16,10 +23,17 @@ export abstract class Heading extends Entity {
 
   override render() {
     return html`
-      <slot name="content"></slot>
+      ${this.documentView() !== 'source'
+        ? html`<slot name="content"></slot>`
+        : ''}
 
-      <stencila-block-infobox icon="heading" title="Heading">
-        <slot name="authors" slot="authors"></slot>
+      <stencila-block-infobox
+        icon=${getNodeIcon('Heading')}
+        title="Heading"
+        colour=${getNodeColour('Heading')}
+        borderColour=${getNodeBorderColour('Heading')}
+      >
+        <slot name="authors" slot="authors"> </slot>
       </stencila-block-infobox>
     `
   }

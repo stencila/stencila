@@ -54,6 +54,7 @@ export const config = defineConfig({
         black: '#171817',
         green: {
           '000': '#f5fff5',
+          200: '#D9F2D9',
         },
       },
     },

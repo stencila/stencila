@@ -1,12 +1,12 @@
 import { Extension } from '@codemirror/state'
 import { showPanel, Panel, EditorView } from '@codemirror/view'
 import { apply } from '@twind/core'
-import { html } from 'lit'
+import { LitElement, html } from 'lit'
 import { customElement, property } from 'lit/decorators'
 
 import { MappingEntry } from '../../clients/format'
 import icon from '../../images/lineWrap.svg'
-import { TWLitElement } from '../../ui/twind'
+import { withTwind } from '../../twind'
 import { SourceView } from '../source'
 
 const FORMATS = {
@@ -23,14 +23,15 @@ const FORMATS = {
 const BREADCRUMB_SEPARATOR = '>'
 
 @customElement('stencila-editor-panel-bottom')
-class EditorPanelElement extends TWLitElement {
+@withTwind()
+class EditorPanelElement extends LitElement {
   @property({ type: Array })
   breadcrumbs: MappingEntry[]
 
   @property({ type: Object })
   sourceView: SourceView
 
-  override render() {
+  protected override render() {
     const styles = apply([
       'flex justify-between',
       'h-6',
@@ -103,7 +104,7 @@ class EditorPanelElement extends TWLitElement {
       <div class="text-xs leading-none flex items-center">
         ${this.breadcrumbs
           .reverse()
-          .slice(1)
+          // .slice(1)
           .map((entry, i, arr) => {
             const isLast = i === arr.length - 1
             return html`
@@ -133,7 +134,9 @@ const nodeTreePanel = (sourceView: SourceView) => (): Panel => {
       dom.setAttribute(
         'breadcrumbs',
         JSON.stringify(
-          sourceView.getNodesAt().filter((entry) => entry.nodeType !== 'Text')
+          sourceView
+            .getNodesAt()
+            .filter((entry) => !['Text', 'Article'].includes(entry.nodeType))
         )
       )
     },

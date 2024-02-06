@@ -1,13 +1,13 @@
 import { provide } from '@lit/context'
-import { html } from 'lit'
+import { LitElement, html } from 'lit'
 import { customElement, property, state } from 'lit/decorators.js'
 
 // import logo from '../images/stencilaIcon.svg'
 import { SidebarContext, sidebarContext } from '../contexts/sidebar-context'
 import { THEMES } from '../themes/themes'
+import { withTwind } from '../twind'
 import type { DocumentId, DocumentView } from '../types'
 import type { UISelectorSelectedEvent } from '../ui/selector'
-import { TWLitElement } from '../ui/twind'
 import { VIEWS } from '../views/views'
 
 import '../ui/file-tree'
@@ -36,7 +36,8 @@ import './shoelace'
  * footer.
  */
 @customElement('stencila-main-app')
-export class App extends TWLitElement {
+@withTwind()
+export class App extends LitElement {
   /**
    * The id of the current document (if any)
    *

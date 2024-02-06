@@ -34,31 +34,43 @@ const infoSideBar = (sourceView: SourceView): Extension => {
        */
       cursorY: number
 
+      /**
+       * twind classlist for the sidebar dom element
+       */
+      private domClassList = [
+        'absolute',
+        'top-0',
+        'right-4',
+        'h-full',
+        'w-full',
+        'max-w-[25%]',
+        'pb-6', // offset bottom panel
+      ]
+
       constructor(readonly view: EditorView) {
         this.dom = document.createElement('div')
 
         // this class has no functionality at this point
         // but may be needed for selecting
-        this.dom.className = 'cm-stencila-info-bar'
 
-        this.dom.style.width = '33%'
-        this.dom.style.maxWidth = '300px'
-        this.dom.style.minHeight = `${view.contentHeight / view.scaleY}px`
-        this.view.scrollDOM.appendChild(this.dom)
+        this.dom.classList.add('cm-info-sidebar', ...this.domClassList)
+        this.view.dom.appendChild(this.dom)
       }
 
       update = (update: ViewUpdate) => {
         const { view: currentView } = update
 
         // update height of dom
-        this.dom.style.minHeight = `${currentView.contentHeight / currentView.scaleY}px`
+        this.dom.style.minHeight = `${
+          currentView.contentHeight / currentView.scaleY
+        }px`
 
         const cursor = currentView.state.selection.main.head
 
         // need to handle this better
         const currentNode = sourceView
           .getNodesAt(cursor)
-          .filter((node) => node.nodeType !== 'Text')[0]
+          .filter((node) => !['Text', 'Article'].includes(node.nodeType))[0]
 
         if (!currentNode) {
           return
@@ -77,13 +89,11 @@ const infoSideBar = (sourceView: SourceView): Extension => {
           if (!domNode) {
             return
           }
-
-          this.currentInfoBox = sourceView.domElement.value
-            .querySelector(`#${nodeId}`)
-            .cloneNode(true) as HTMLElement
+          this.currentInfoBox = domNode.cloneNode(true) as HTMLElement
 
           this.currentInfoBox.setAttribute('id', `info-box-${nodeId}`)
-          this.currentInfoBox.style.position = 'absolute'
+          this.currentInfoBox.style.position = 'block'
+          this.currentInfoBox.style.width = '100%'
           this.dom.appendChild(this.currentInfoBox)
         }
 
@@ -99,14 +109,23 @@ const infoSideBar = (sourceView: SourceView): Extension => {
               }
               this.cursorY = top
               const editorTop = view.scrollDOM.getBoundingClientRect().top
+              const editorBottom = view.dom.getBoundingClientRect().bottom
               const yOffset =
                 this.currentInfoBox.getBoundingClientRect().height / 2
-              let yPos = top - editorTop - yOffset
+
+              let yPos = top - editorTop - yOffset + view.defaultLineHeight / 2
 
               if (yPos < 0) {
-                yPos = 0
+                yPos = 2
               }
-
+              if (
+                yPos + this.currentInfoBox.getBoundingClientRect().height >
+                editorBottom
+              ) {
+                yPos =
+                  editorBottom -
+                  this.currentInfoBox.getBoundingClientRect().height
+              }
               this.currentInfoBox.style.top = `${yPos}px`
             }
           },

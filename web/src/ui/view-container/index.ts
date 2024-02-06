@@ -10,7 +10,7 @@ import { DocumentView } from '../../types'
  * rendering.
  */
 type StyleMap = {
-  [Prop in DocumentView]: {
+  [Prop in DocumentView]?: {
     outer: string | undefined
     inner: string | undefined
   }
@@ -79,11 +79,7 @@ export class UIViewContainer extends LitElement {
    * padding.
    */
   private sourceModeClasses() {
-    const twClasses = apply([
-      'p-0',
-      'w-full h-screen max-w-[65ch] lg:max-w-[120ch]',
-      'overflow-y-hidden',
-    ])
+    const twClasses = apply(['p-0', 'w-full h-screen', 'overflow-y-hidden'])
 
     return {
       inner: `${twClasses}`,

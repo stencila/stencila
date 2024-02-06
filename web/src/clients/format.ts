@@ -284,7 +284,7 @@ export abstract class FormatClient extends Client {
       end += entry.end
       if (position >= start && position < end) {
         if (!nodes.find((existing) => existing.nodeId === entry.nodeId)) {
-          nodes.push(entry)
+          nodes.push({ ...entry, start, end })
         }
       }
     }
