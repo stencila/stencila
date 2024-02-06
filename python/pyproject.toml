@@ -62,7 +62,7 @@ packages = [{ include = "stencila", from = "python" }]
 python = "^3.8"
 dataclasses-json = "0.6.4"
 StrEnum = { version = "0.4.15", python = "<3.11" }
-beartype = "^0.16.4"
+beartype = "^0.17.0"
 
 [tool.poetry.group.dev.dependencies]
 black = "24.1.1"
