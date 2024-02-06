@@ -104,9 +104,9 @@ pub trait Microkernel: Sync + Send + Kernel {
     }
 
     /// An implementation of `Kernel::create_instance` for microkernels
-    fn microkernel_create_instance(&self, count: u64) -> Result<Box<dyn KernelInstance>> {
-        // Assign an id
-        let id = format!("{}-{count}", self.id());
+    fn microkernel_create_instance(&self, index: u64) -> Result<Box<dyn KernelInstance>> {
+        // Assign an id for the instance using the index, if necessary, to ensure it is unique 
+        let id = if index==0 { self.id() } else { format!("{}-{index}", self.id())};
 
         // Get the path to the executable, failing early if it can not be found
         let executable_path = which(self.executable_name())?;
@@ -522,8 +522,8 @@ impl MicrokernelInstance {
     fn setup_status_channel(id: String, init: KernelStatus) -> watch::Sender<KernelStatus> {
         let (status_sender, mut status_receiver) = watch::channel(init);
 
-        // Start a task to log status. Note: it is necessary to use the receiver
-        // in a task (or store it in a field on the instance) otherwise the channel is dropped
+        // Start an async task to log status. This is useful for debugging but could be disabled
+        // for release builds.
         tokio::spawn(async move {
             while status_receiver.changed().await.is_ok() {
                 let status = *status_receiver.borrow_and_update();
@@ -642,7 +642,14 @@ impl MicrokernelInstance {
     /// Set the status of the microkernel instance and notify watchers
     fn set_status(&mut self, status: KernelStatus) -> Result<()> {
         self.status = status;
-        self.status_sender.send(status)?;
+        self.status_sender.send_if_modified(|previous| {
+            if status != *previous {
+                *previous = status;
+                true
+            } else {
+                false
+            }
+        });
 
         Ok(())
     }
