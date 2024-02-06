@@ -16,9 +16,7 @@ def from_value(value) -> Node:  # pragma: no cover
     """
     Create a `Node` from a value
     """
-    if (
-        value is None or isinstance(value, (bool, int, float, str, tuple, Entity))
-    ):
+    if value is None or isinstance(value, (bool, int, float, str, tuple, Entity)):
         return value
 
     if isinstance(value, list):
