@@ -168,7 +168,7 @@ pub trait KernelInstance: Sync + Send {
 
 /// The status of a kernel instance
 #[repr(u8)]
-#[derive(Debug, Default, Clone, Copy, PartialEq, Eq, Display)]
+#[derive(Debug, Default, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Display)]
 #[strum(serialize_all = "lowercase")]
 pub enum KernelStatus {
     #[default]

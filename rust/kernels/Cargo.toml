@@ -8,3 +8,4 @@ cli-utils = { path = "../cli-utils" }
 kernel = { path = "../kernel" }
 kernel-bash = { path = "../kernel-bash" }
 kernel-node = { path = "../kernel-node" }
+kernel-rhai = { path = "../kernel-rhai" }

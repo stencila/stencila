@@ -48,6 +48,7 @@ pub enum Format {
     JavaScript,
     Python,
     R,
+    Rhai,
     // Data serialization formats
     Json,
     Json5,
@@ -114,6 +115,7 @@ impl Format {
             Png => "PNG",
             Python => "Python",
             R => "R",
+            Rhai => "Rhai",
             Shell => "Shell",
             Svg => "SVG",
             Text => "Plain text",

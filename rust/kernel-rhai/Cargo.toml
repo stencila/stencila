@@ -1,0 +1,12 @@
+[package]
+name = "kernel-rhai"
+version = "0.0.0"
+edition = "2021"
+
+[dependencies]
+kernel = { path = "../kernel" }
+rhai = { version = "1.17.1", features = ["sync", "serde"] }
+
+[dev-dependencies]
+common-dev = { path = "../common-dev" }
+test-log = { version = "0.2.14", default-features = false, features = ["trace"] }
