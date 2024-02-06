@@ -13,3 +13,4 @@ common = { path = "../common" }
 schema = { path = "../schema", optional = true }
 schemars = { version = "0.8.16", features = ["indexmap2"] }
 status = { path = "../status" }
+lazy_static = { version = "1.4.0", features = [] }

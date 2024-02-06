@@ -10,21 +10,21 @@ license = "Apache-2.0"
 authors = [{ name = "Nokome Bentley", email = "nokome@stencila.io" }]
 
 keywords = [
-    "programmable",
-    "reproducible",
-    "interactive",
-    "documents",
-    "python",
-    "SDK",
+  "programmable",
+  "reproducible",
+  "interactive",
+  "documents",
+  "python",
+  "SDK",
 ]
 
 classifiers = [
-    "Development Status :: 3 - Alpha",
-    "Intended Audience :: Developers",
-    "Intended Audience :: Science/Research",
-    "Intended Audience :: Education",
-    "Topic :: Software Development",
-    "License :: OSI Approved :: Apache Software License",
+  "Development Status :: 3 - Alpha",
+  "Intended Audience :: Developers",
+  "Intended Audience :: Science/Research",
+  "Intended Audience :: Education",
+  "Topic :: Software Development",
+  "License :: OSI Approved :: Apache Software License",
 ]
 
 dependencies = [
@@ -56,11 +56,13 @@ name = "stencila"
 version = "2.0.0-alpha.23"
 description = "Python SDK for Stencila"
 authors = ["Stencila and Contributors <hello@stencila.io>"]
+packages = [{ include = "stencila", from = "python" }]
 
 [tool.poetry.dependencies]
 python = "^3.8"
 dataclasses-json = "0.6.4"
 StrEnum = { version = "0.4.15", python = "<3.11" }
+beartype = "^0.16.4"
 
 [tool.poetry.group.dev.dependencies]
 black = "24.1.1"
@@ -78,8 +80,64 @@ asyncio_mode = "auto"
 
 [tool.coverage.run]
 omit = [
-    # Omit generated type files
-    "python/stencila/types/*.py",
-    # Omit tests
-    "python/tests/*.py",
+  # Omit generated type files
+  "python/stencila/types/*.py",
+  # Omit tests
+  "python/tests/*.py",
 ]
+
+[tool.ruff]
+# https://docs.astral.sh/ruff/
+line-length = 88
+select = [
+  'F',    # pyflakes
+  'E',    # codestyle
+  'W',    # warning
+  'C90',  # complexity
+  'N',    # pep-naming
+  'UP',   # upgrade
+  'S',    # bandit
+  'B',    # bug-bear
+  'A',    # builtins
+  'C4',   # comprehensions
+  'PIE',  # misc
+  'ISC',  # literal concat
+  'T20',  # print statements
+  'PT',   # pytest
+  'RET',  # returns
+  'SIM',  # simplify
+  'PTH',  # use pathlib
+  'Q',    # quotes
+  'PLR',  # refactor
+  'PLE',  # pylint errors
+  'I001', # isort
+]
+ignore = [
+  "B019",   # let's not worry about this.
+  "SIM108", # Ternary not that clear (opinion!)
+  "RET504", # This seems broken to me.
+  "N812",   # Common practice.
+]
+
+# Automatically fixing is often premature.
+unfixable = [
+  "T20",  # Removes print statements
+  "F841", # Removes unused variables
+]
+
+src = ['python', 'tests']
+
+[tool.ruff.per-file-ignores]
+# Ignore ALL init import errors.
+#"__init__.py" = ['F401']
+
+# Ignore the import *, we need it to bring everything into the namespace for beartype.
+"shortcuts.py" = ['F405']
+"utilities.py" = ['F405']
+"**/types/*.py" = ['F405', 'F403', 'I001']
+
+# Shadowing python builtins, but we don't want to break the old interface.
+"convert.py" = ['A002']
+
+## asserts and hard-coded values are fine in tests.
+"**/tests/*.py" = ["S101", "PLR2004"]
