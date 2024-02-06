@@ -1,13 +1,16 @@
+import { provide } from '@lit/context'
 import { html } from 'lit'
-import { customElement, property } from 'lit/decorators.js'
+import { customElement, property, state } from 'lit/decorators.js'
 
 // import logo from '../images/stencilaIcon.svg'
+import { SidebarContext, sidebarContext } from '../contexts/sidebar-context'
 import { THEMES } from '../themes/themes'
 import type { DocumentId, DocumentView } from '../types'
 import type { UISelectorSelectedEvent } from '../ui/selector'
 import { TWLitElement } from '../ui/twind'
 import { VIEWS } from '../views/views'
 
+import '../ui/file-tree'
 import '../ui/selector'
 import '../ui/sidebar'
 import '../ui/tab'
@@ -72,17 +75,33 @@ export class App extends TWLitElement {
   @property()
   activeTab: string = ''
 
+  @state()
+  filesOpen: boolean = false
+
+  /**
+   * This context enables components to:
+   * - open the files viewer
+   * - change the view by clicking on a sidebar button
+   */
+  @provide({ context: sidebarContext })
+  @property({ attribute: false })
+  contextObject: SidebarContext = {
+    view: 'live',
+    filesOpen: false,
+  }
+
   override render() {
     return html`<div
       class="font-sans flex flex-row bg-neutral-100 fixed top-0 left-0 min-h-screen w-full"
     >
       <stencila-ui-sidebar></stencila-ui-sidebar>
+      <stencila-ui-file-tree-layout></stencila-ui-file-tree-layout>
+
       <div class="flex flex-col flex-grow">
         ${this.renderHeader()}
 
-        <stencila-ui-view-container view=${this.view}>
+        <stencila-ui-view-container view=${this.contextObject.view}>
           ${this.renderView()}
-          <!-- <div slot="side"></div> -->
         </stencila-ui-view-container>
       </div>
     </div> `
@@ -90,7 +109,7 @@ export class App extends TWLitElement {
 
   // TODO: the header should move to it's own component & maintain its own state.
   private renderHeader() {
-    return html`<header class="w-full flex items-end h-20">
+    return html`<header class="w-full flex items-end h-20 max-h-20">
       <nav class="flex bg-neutral-100 h-full w-full">
         <div class="flex-grow flex items-end h-full relative z-10 space-x-1">
           <stencila-ui-editor-tab ?active=${true}
@@ -116,12 +135,15 @@ export class App extends TWLitElement {
 
   private renderViewSelect() {
     const clickEvent = (e: UISelectorSelectedEvent['detail']) => {
-      this.view = e.item.value as DocumentView
+      this.contextObject = {
+        ...this.contextObject,
+        view: e.item.value as Exclude<DocumentView, 'directory'>,
+      }
     }
 
     return html`<stencila-ui-selector
       label="View"
-      target=${this.view}
+      target=${this.contextObject.view}
       targetClass="view-selector"
       .list=${Object.entries(VIEWS)}
       .clickEvent=${clickEvent}
@@ -156,7 +178,7 @@ export class App extends TWLitElement {
   /* eslint-enable lit/attribute-value-entities */
 
   private renderView() {
-    switch (this.view) {
+    switch (this.contextObject.view) {
       case 'static':
         return html`<stencila-static-view
           view="static"
@@ -201,13 +223,41 @@ export class App extends TWLitElement {
           theme=${this.theme}
         ></stencila-visual-view>`
 
-      // TODO: Can't imagine this will be here long term, especially with new
-      // app chrome. But for now it allows for testing
       case 'directory':
-        return html`<stencila-directory-view
-          view="directory"
+        return html`<stencila-live-view
+          view="live"
           doc=${this.doc}
-        ></stencila-directory-view>`
+          theme=${this.theme}
+        ></stencila-live-view>`
+
+      default:
+        return html``
     }
+  }
+
+  override connectedCallback() {
+    super.connectedCallback()
+
+    // Event listener for updating the file drawer open/close
+    this.shadowRoot.addEventListener(
+      'stencila-file-toggle',
+      (e: Event & { detail: Required<Pick<SidebarContext, 'filesOpen'>> }) => {
+        this.contextObject = {
+          ...this.contextObject,
+          filesOpen: e.detail.filesOpen,
+        }
+      }
+    )
+
+    // Event for changing the view
+    this.shadowRoot.addEventListener(
+      'stencila-view-change',
+      (e: Event & { detail: Required<Pick<SidebarContext, 'view'>> }) => {
+        this.contextObject = {
+          ...this.contextObject,
+          view: e.detail.view,
+        }
+      }
+    )
   }
 }

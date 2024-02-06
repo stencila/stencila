@@ -77,6 +77,7 @@
     "@lezer/common": "1.2.1",
     "@lezer/highlight": "1.2.0",
     "@lezer/markdown": "1.2.0",
+    "@lit/context": "1.1.0",
     "@shoelace-style/shoelace": "2.13.1",
     "@stencila/types": "2.0.0-alpha.23",
     "@tailwindcss/typography": "0.5.10",
