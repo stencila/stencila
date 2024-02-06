@@ -1,4 +1,4 @@
-// Generated file; do not edit. See `../rust/schema-gen` crate.
+// Generated file; do not edit. See https://github.com/stencila/stencila/tree/main/rust/schema-gen
 
 import { CreativeWork } from "./CreativeWork.js";
 import { DatatableColumn } from "./DatatableColumn.js";
@@ -7,7 +7,8 @@ import { DatatableColumn } from "./DatatableColumn.js";
  * A table of data.
  */
 export class Datatable extends CreativeWork {
-  type = "Datatable";
+  // @ts-expect-error 'not assignable to the same property in base type'
+  type: "Datatable";
 
   /**
    * The columns of data.
@@ -16,6 +17,7 @@ export class Datatable extends CreativeWork {
 
   constructor(columns: DatatableColumn[], options?: Partial<Datatable>) {
     super();
+    this.type = "Datatable";
     if (options) Object.assign(this, options);
     this.columns = columns;
   }

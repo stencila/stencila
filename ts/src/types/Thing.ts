@@ -1,4 +1,4 @@
-// Generated file; do not edit. See `../rust/schema-gen` crate.
+// Generated file; do not edit. See https://github.com/stencila/stencila/tree/main/rust/schema-gen
 
 import { Entity } from "./Entity.js";
 import { ImageObject } from "./ImageObject.js";
@@ -9,7 +9,8 @@ import { Text } from "./Text.js";
  * The most generic type of item.
  */
 export class Thing extends Entity {
-  type = "Thing";
+  // @ts-expect-error 'not assignable to the same property in base type'
+  type: "Thing";
 
   /**
    * Alternate names (aliases) for the item.
@@ -43,6 +44,7 @@ export class Thing extends Entity {
 
   constructor(options?: Partial<Thing>) {
     super();
+    this.type = "Thing";
     if (options) Object.assign(this, options);
     
   }

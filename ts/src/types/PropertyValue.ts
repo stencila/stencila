@@ -1,4 +1,4 @@
-// Generated file; do not edit. See `../rust/schema-gen` crate.
+// Generated file; do not edit. See https://github.com/stencila/stencila/tree/main/rust/schema-gen
 
 import { Primitive } from "./Primitive.js";
 import { Thing } from "./Thing.js";
@@ -7,7 +7,8 @@ import { Thing } from "./Thing.js";
  * A property-value pair.
  */
 export class PropertyValue extends Thing {
-  type = "PropertyValue";
+  // @ts-expect-error 'not assignable to the same property in base type'
+  type: "PropertyValue";
 
   /**
    * A commonly used identifier for the characteristic represented by the property.
@@ -21,6 +22,7 @@ export class PropertyValue extends Thing {
 
   constructor(value: Primitive, options?: Partial<PropertyValue>) {
     super();
+    this.type = "PropertyValue";
     if (options) Object.assign(this, options);
     this.value = value;
   }

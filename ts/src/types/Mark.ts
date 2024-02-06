@@ -1,4 +1,4 @@
-// Generated file; do not edit. See `../rust/schema-gen` crate.
+// Generated file; do not edit. See https://github.com/stencila/stencila/tree/main/rust/schema-gen
 
 import { Entity } from "./Entity.js";
 import { Inline } from "./Inline.js";
@@ -7,7 +7,8 @@ import { Inline } from "./Inline.js";
  * Abstract base class for nodes that mark some other inline content in some way (e.g. as being emphasised, or quoted).
  */
 export class Mark extends Entity {
-  type = "Mark";
+  // @ts-expect-error 'not assignable to the same property in base type'
+  type: "Mark";
 
   /**
    * The content that is marked.
@@ -16,6 +17,7 @@ export class Mark extends Entity {
 
   constructor(content: Inline[], options?: Partial<Mark>) {
     super();
+    this.type = "Mark";
     if (options) Object.assign(this, options);
     this.content = content;
   }

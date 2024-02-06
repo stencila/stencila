@@ -1,4 +1,4 @@
-// Generated file; do not edit. See `../rust/schema-gen` crate.
+// Generated file; do not edit. See https://github.com/stencila/stencila/tree/main/rust/schema-gen
 
 import { Thing } from "./Thing.js";
 
@@ -6,7 +6,8 @@ import { Thing } from "./Thing.js";
  * A word, name, acronym, phrase, etc. with a formal definition.
  */
 export class DefinedTerm extends Thing {
-  type = "DefinedTerm";
+  // @ts-expect-error 'not assignable to the same property in base type'
+  type: "DefinedTerm";
 
   /**
    * The name of the item.
@@ -20,6 +21,7 @@ export class DefinedTerm extends Thing {
 
   constructor(name: string, options?: Partial<DefinedTerm>) {
     super();
+    this.type = "DefinedTerm";
     if (options) Object.assign(this, options);
     this.name = name;
   }

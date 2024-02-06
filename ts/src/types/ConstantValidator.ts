@@ -1,4 +1,4 @@
-// Generated file; do not edit. See `../rust/schema-gen` crate.
+// Generated file; do not edit. See https://github.com/stencila/stencila/tree/main/rust/schema-gen
 
 import { Entity } from "./Entity.js";
 import { Node } from "./Node.js";
@@ -7,7 +7,8 @@ import { Node } from "./Node.js";
  * A validator specifying a constant value that a node must have.
  */
 export class ConstantValidator extends Entity {
-  type = "ConstantValidator";
+  // @ts-expect-error 'not assignable to the same property in base type'
+  type: "ConstantValidator";
 
   /**
    * The value that the node must have.
@@ -16,6 +17,7 @@ export class ConstantValidator extends Entity {
 
   constructor(value: Node, options?: Partial<ConstantValidator>) {
     super();
+    this.type = "ConstantValidator";
     if (options) Object.assign(this, options);
     this.value = value;
   }

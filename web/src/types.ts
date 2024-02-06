@@ -1,9 +1,4 @@
 /**
- * The type for the name of a node type
- */
-export type NodeType = string
-
-/**
  * The type for a node identifier
  */
 export type NodeId = string

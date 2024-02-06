@@ -1,4 +1,4 @@
-// Generated file; do not edit. See `../rust/schema-gen` crate.
+// Generated file; do not edit. See https://github.com/stencila/stencila/tree/main/rust/schema-gen
 
 import { Grant } from "./Grant.js";
 import { PersonOrOrganization } from "./PersonOrOrganization.js";
@@ -7,7 +7,8 @@ import { PersonOrOrganization } from "./PersonOrOrganization.js";
  * A monetary grant.
  */
 export class MonetaryGrant extends Grant {
-  type = "MonetaryGrant";
+  // @ts-expect-error 'not assignable to the same property in base type'
+  type: "MonetaryGrant";
 
   /**
    * The amount of money.
@@ -21,6 +22,7 @@ export class MonetaryGrant extends Grant {
 
   constructor(options?: Partial<MonetaryGrant>) {
     super();
+    this.type = "MonetaryGrant";
     if (options) Object.assign(this, options);
     
   }

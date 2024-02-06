@@ -1,4 +1,4 @@
-// Generated file; do not edit. See `../rust/schema-gen` crate.
+// Generated file; do not edit. See https://github.com/stencila/stencila/tree/main/rust/schema-gen
 
 import { Block } from "./Block.js";
 import { CreativeWork } from "./CreativeWork.js";
@@ -7,7 +7,8 @@ import { CreativeWork } from "./CreativeWork.js";
  * A comment on an item, e.g on a `Article` or `SoftwareSourceCode`.
  */
 export class Comment extends CreativeWork {
-  type = "Comment";
+  // @ts-expect-error 'not assignable to the same property in base type'
+  type: "Comment";
 
   /**
    * Content of the comment, usually one or more paragraphs.
@@ -26,6 +27,7 @@ export class Comment extends CreativeWork {
 
   constructor(content: Block[], options?: Partial<Comment>) {
     super();
+    this.type = "Comment";
     if (options) Object.assign(this, options);
     this.content = content;
   }

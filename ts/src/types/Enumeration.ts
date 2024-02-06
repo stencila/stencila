@@ -1,4 +1,4 @@
-// Generated file; do not edit. See `../rust/schema-gen` crate.
+// Generated file; do not edit. See https://github.com/stencila/stencila/tree/main/rust/schema-gen
 
 import { Thing } from "./Thing.js";
 
@@ -6,10 +6,12 @@ import { Thing } from "./Thing.js";
  * Lists or enumerations, for example, a list of cuisines or music genres, etc.
  */
 export class Enumeration extends Thing {
-  type = "Enumeration";
+  // @ts-expect-error 'not assignable to the same property in base type'
+  type: "Enumeration";
 
   constructor(options?: Partial<Enumeration>) {
     super();
+    this.type = "Enumeration";
     if (options) Object.assign(this, options);
     
   }

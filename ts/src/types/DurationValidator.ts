@@ -1,4 +1,4 @@
-// Generated file; do not edit. See `../rust/schema-gen` crate.
+// Generated file; do not edit. See https://github.com/stencila/stencila/tree/main/rust/schema-gen
 
 import { Duration } from "./Duration.js";
 import { Entity } from "./Entity.js";
@@ -8,7 +8,8 @@ import { TimeUnit } from "./TimeUnit.js";
  * A validator specifying the constraints on a duration.
  */
 export class DurationValidator extends Entity {
-  type = "DurationValidator";
+  // @ts-expect-error 'not assignable to the same property in base type'
+  type: "DurationValidator";
 
   /**
    * The time units that the duration can have.
@@ -27,6 +28,7 @@ export class DurationValidator extends Entity {
 
   constructor(options?: Partial<DurationValidator>) {
     super();
+    this.type = "DurationValidator";
     if (options) Object.assign(this, options);
     
   }

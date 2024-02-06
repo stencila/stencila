@@ -1,4 +1,4 @@
-// Generated file; do not edit. See `../rust/schema-gen` crate.
+// Generated file; do not edit. See https://github.com/stencila/stencila/tree/main/rust/schema-gen
 
 import { Entity } from "./Entity.js";
 import { Integer } from "./Integer.js";
@@ -8,7 +8,8 @@ import { Validator } from "./Validator.js";
  * A validator specifying constraints on an array node.
  */
 export class ArrayValidator extends Entity {
-  type = "ArrayValidator";
+  // @ts-expect-error 'not assignable to the same property in base type'
+  type: "ArrayValidator";
 
   /**
    * Whether items can have the value `Node::Null`
@@ -42,6 +43,7 @@ export class ArrayValidator extends Entity {
 
   constructor(options?: Partial<ArrayValidator>) {
     super();
+    this.type = "ArrayValidator";
     if (options) Object.assign(this, options);
     
   }

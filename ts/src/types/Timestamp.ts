@@ -1,4 +1,4 @@
-// Generated file; do not edit. See `../rust/schema-gen` crate.
+// Generated file; do not edit. See https://github.com/stencila/stencila/tree/main/rust/schema-gen
 
 import { Entity } from "./Entity.js";
 import { Integer } from "./Integer.js";
@@ -8,7 +8,8 @@ import { TimeUnit } from "./TimeUnit.js";
  * A value that represents a point in time.
  */
 export class Timestamp extends Entity {
-  type = "Timestamp";
+  // @ts-expect-error 'not assignable to the same property in base type'
+  type: "Timestamp";
 
   /**
    * The time, in `timeUnit`s, before or after the Unix Epoch (1970-01-01T00:00:00Z).
@@ -22,6 +23,7 @@ export class Timestamp extends Entity {
 
   constructor(value: Integer, timeUnit: TimeUnit, options?: Partial<Timestamp>) {
     super();
+    this.type = "Timestamp";
     if (options) Object.assign(this, options);
     this.value = value;
     this.timeUnit = timeUnit;

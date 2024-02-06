@@ -1,4 +1,4 @@
-// Generated file; do not edit. See `../rust/schema-gen` crate.
+// Generated file; do not edit. See https://github.com/stencila/stencila/tree/main/rust/schema-gen
 
 import { CodeLocation } from "./CodeLocation.js";
 import { Entity } from "./Entity.js";
@@ -9,7 +9,8 @@ import { ExecutionDependantRelation } from "./ExecutionDependantRelation.js";
  * A downstream execution dependant of a node.
  */
 export class ExecutionDependant extends Entity {
-  type = "ExecutionDependant";
+  // @ts-expect-error 'not assignable to the same property in base type'
+  type: "ExecutionDependant";
 
   /**
    * The relation to the dependant.
@@ -28,6 +29,7 @@ export class ExecutionDependant extends Entity {
 
   constructor(dependantRelation: ExecutionDependantRelation, dependantNode: ExecutionDependantNode, options?: Partial<ExecutionDependant>) {
     super();
+    this.type = "ExecutionDependant";
     if (options) Object.assign(this, options);
     this.dependantRelation = dependantRelation;
     this.dependantNode = dependantNode;

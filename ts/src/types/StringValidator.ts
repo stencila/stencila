@@ -1,4 +1,4 @@
-// Generated file; do not edit. See `../rust/schema-gen` crate.
+// Generated file; do not edit. See https://github.com/stencila/stencila/tree/main/rust/schema-gen
 
 import { Entity } from "./Entity.js";
 import { Integer } from "./Integer.js";
@@ -7,7 +7,8 @@ import { Integer } from "./Integer.js";
  * A schema specifying constraints on a string node.
  */
 export class StringValidator extends Entity {
-  type = "StringValidator";
+  // @ts-expect-error 'not assignable to the same property in base type'
+  type: "StringValidator";
 
   /**
    * The minimum length for a string node.
@@ -26,6 +27,7 @@ export class StringValidator extends Entity {
 
   constructor(options?: Partial<StringValidator>) {
     super();
+    this.type = "StringValidator";
     if (options) Object.assign(this, options);
     
   }

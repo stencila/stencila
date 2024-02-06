@@ -1,4 +1,4 @@
-// Generated file; do not edit. See `../rust/schema-gen` crate.
+// Generated file; do not edit. See https://github.com/stencila/stencila/tree/main/rust/schema-gen
 
 import { Author } from "./Author.js";
 import { Block } from "./Block.js";
@@ -9,7 +9,8 @@ import { Entity } from "./Entity.js";
  * A section quoted from somewhere else.
  */
 export class QuoteBlock extends Entity {
-  type = "QuoteBlock";
+  // @ts-expect-error 'not assignable to the same property in base type'
+  type: "QuoteBlock";
 
   /**
    * The source of the quote.
@@ -28,6 +29,7 @@ export class QuoteBlock extends Entity {
 
   constructor(content: Block[], options?: Partial<QuoteBlock>) {
     super();
+    this.type = "QuoteBlock";
     if (options) Object.assign(this, options);
     this.content = content;
   }

@@ -1,4 +1,4 @@
-// Generated file; do not edit. See `../rust/schema-gen` crate.
+// Generated file; do not edit. See https://github.com/stencila/stencila/tree/main/rust/schema-gen
 
 import { Entity } from "./Entity.js";
 
@@ -6,10 +6,12 @@ import { Entity } from "./Entity.js";
  * Represents additional information about a relationship or property.
  */
 export class Role extends Entity {
-  type = "Role";
+  // @ts-expect-error 'not assignable to the same property in base type'
+  type: "Role";
 
   constructor(options?: Partial<Role>) {
     super();
+    this.type = "Role";
     if (options) Object.assign(this, options);
     
   }

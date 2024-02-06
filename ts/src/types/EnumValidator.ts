@@ -1,4 +1,4 @@
-// Generated file; do not edit. See `../rust/schema-gen` crate.
+// Generated file; do not edit. See https://github.com/stencila/stencila/tree/main/rust/schema-gen
 
 import { Entity } from "./Entity.js";
 import { Node } from "./Node.js";
@@ -7,7 +7,8 @@ import { Node } from "./Node.js";
  * A schema specifying that a node must be one of several values.
  */
 export class EnumValidator extends Entity {
-  type = "EnumValidator";
+  // @ts-expect-error 'not assignable to the same property in base type'
+  type: "EnumValidator";
 
   /**
    * A node is valid if it is equal to any of these values.
@@ -16,6 +17,7 @@ export class EnumValidator extends Entity {
 
   constructor(values: Node[], options?: Partial<EnumValidator>) {
     super();
+    this.type = "EnumValidator";
     if (options) Object.assign(this, options);
     this.values = values;
   }

@@ -1,4 +1,4 @@
-// Generated file; do not edit. See `../rust/schema-gen` crate.
+// Generated file; do not edit. See https://github.com/stencila/stencila/tree/main/rust/schema-gen
 
 import { CodeStatic } from "./CodeStatic.js";
 import { Cord } from "./Cord.js";
@@ -7,10 +7,12 @@ import { Cord } from "./Cord.js";
  * A code block.
  */
 export class CodeBlock extends CodeStatic {
-  type = "CodeBlock";
+  // @ts-expect-error 'not assignable to the same property in base type'
+  type: "CodeBlock";
 
   constructor(code: Cord, options?: Partial<CodeBlock>) {
     super(code);
+    this.type = "CodeBlock";
     if (options) Object.assign(this, options);
     this.code = code;
   }

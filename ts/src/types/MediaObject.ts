@@ -1,4 +1,4 @@
-// Generated file; do not edit. See `../rust/schema-gen` crate.
+// Generated file; do not edit. See https://github.com/stencila/stencila/tree/main/rust/schema-gen
 
 import { CreativeWork } from "./CreativeWork.js";
 
@@ -6,7 +6,8 @@ import { CreativeWork } from "./CreativeWork.js";
  * A media object, such as an image, video, or audio object embedded in a web page or a downloadable dataset.
  */
 export class MediaObject extends CreativeWork {
-  type = "MediaObject";
+  // @ts-expect-error 'not assignable to the same property in base type'
+  type: "MediaObject";
 
   /**
    * Bitrate in megabits per second (Mbit/s, Mb/s, Mbps).
@@ -35,6 +36,7 @@ export class MediaObject extends CreativeWork {
 
   constructor(contentUrl: string, options?: Partial<MediaObject>) {
     super();
+    this.type = "MediaObject";
     if (options) Object.assign(this, options);
     this.contentUrl = contentUrl;
   }

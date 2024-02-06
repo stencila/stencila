@@ -1,4 +1,4 @@
-// Generated file; do not edit. See `../rust/schema-gen` crate.
+// Generated file; do not edit. See https://github.com/stencila/stencila/tree/main/rust/schema-gen
 
 import { Entity } from "./Entity.js";
 
@@ -6,7 +6,8 @@ import { Entity } from "./Entity.js";
  * A calendar date encoded as a ISO 8601 string.
  */
 export class Date extends Entity {
-  type = "Date";
+  // @ts-expect-error 'not assignable to the same property in base type'
+  type: "Date";
 
   /**
    * The date as an ISO 8601 string.
@@ -15,6 +16,7 @@ export class Date extends Entity {
 
   constructor(value: string, options?: Partial<Date>) {
     super();
+    this.type = "Date";
     if (options) Object.assign(this, options);
     this.value = value;
   }

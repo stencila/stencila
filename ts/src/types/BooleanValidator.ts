@@ -1,4 +1,4 @@
-// Generated file; do not edit. See `../rust/schema-gen` crate.
+// Generated file; do not edit. See https://github.com/stencila/stencila/tree/main/rust/schema-gen
 
 import { Entity } from "./Entity.js";
 
@@ -6,10 +6,12 @@ import { Entity } from "./Entity.js";
  * A schema specifying that a node must be a boolean value.
  */
 export class BooleanValidator extends Entity {
-  type = "BooleanValidator";
+  // @ts-expect-error 'not assignable to the same property in base type'
+  type: "BooleanValidator";
 
   constructor(options?: Partial<BooleanValidator>) {
     super();
+    this.type = "BooleanValidator";
     if (options) Object.assign(this, options);
     
   }

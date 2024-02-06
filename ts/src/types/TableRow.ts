@@ -1,4 +1,4 @@
-// Generated file; do not edit. See `../rust/schema-gen` crate.
+// Generated file; do not edit. See https://github.com/stencila/stencila/tree/main/rust/schema-gen
 
 import { Entity } from "./Entity.js";
 import { TableCell } from "./TableCell.js";
@@ -8,7 +8,8 @@ import { TableRowType } from "./TableRowType.js";
  * A row within a Table.
  */
 export class TableRow extends Entity {
-  type = "TableRow";
+  // @ts-expect-error 'not assignable to the same property in base type'
+  type: "TableRow";
 
   /**
    * An array of cells in the row.
@@ -22,6 +23,7 @@ export class TableRow extends Entity {
 
   constructor(cells: TableCell[], options?: Partial<TableRow>) {
     super();
+    this.type = "TableRow";
     if (options) Object.assign(this, options);
     this.cells = cells;
   }

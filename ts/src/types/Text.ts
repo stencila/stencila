@@ -1,4 +1,4 @@
-// Generated file; do not edit. See `../rust/schema-gen` crate.
+// Generated file; do not edit. See https://github.com/stencila/stencila/tree/main/rust/schema-gen
 
 import { Cord } from "./Cord.js";
 import { Entity } from "./Entity.js";
@@ -7,7 +7,8 @@ import { Entity } from "./Entity.js";
  * Textual content.
  */
 export class Text extends Entity {
-  type = "Text";
+  // @ts-expect-error 'not assignable to the same property in base type'
+  type: "Text";
 
   /**
    * The value of the text content
@@ -16,6 +17,7 @@ export class Text extends Entity {
 
   constructor(value: Cord, options?: Partial<Text>) {
     super();
+    this.type = "Text";
     if (options) Object.assign(this, options);
     this.value = value;
   }

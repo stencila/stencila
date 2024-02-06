@@ -1,4 +1,4 @@
-// Generated file; do not edit. See `../rust/schema-gen` crate.
+// Generated file; do not edit. See https://github.com/stencila/stencila/tree/main/rust/schema-gen
 
 import { Block } from "./Block.js";
 import { CodeExecutable } from "./CodeExecutable.js";
@@ -8,7 +8,8 @@ import { Cord } from "./Cord.js";
  * A clause within an `IfBlock` node.
  */
 export class IfBlockClause extends CodeExecutable {
-  type = "IfBlockClause";
+  // @ts-expect-error 'not assignable to the same property in base type'
+  type: "IfBlockClause";
 
   /**
    * Whether this clause is the active clause in the parent `IfBlock` node
@@ -22,6 +23,7 @@ export class IfBlockClause extends CodeExecutable {
 
   constructor(code: Cord, content: Block[], options?: Partial<IfBlockClause>) {
     super(code);
+    this.type = "IfBlockClause";
     if (options) Object.assign(this, options);
     this.code = code;
     this.content = content;

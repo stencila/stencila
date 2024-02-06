@@ -1,4 +1,4 @@
-// Generated file; do not edit. See `../rust/schema-gen` crate.
+// Generated file; do not edit. See https://github.com/stencila/stencila/tree/main/rust/schema-gen
 
 import { Author } from "./Author.js";
 import { CompilationDigest } from "./CompilationDigest.js";
@@ -10,7 +10,8 @@ import { Entity } from "./Entity.js";
  * An abstract base class for a document node that has styling applied to it and/or its content.
  */
 export class Styled extends Entity {
-  type = "Styled";
+  // @ts-expect-error 'not assignable to the same property in base type'
+  type: "Styled";
 
   /**
    * The code of the equation in the `styleLanguage`.
@@ -49,6 +50,7 @@ export class Styled extends Entity {
 
   constructor(code: Cord, options?: Partial<Styled>) {
     super();
+    this.type = "Styled";
     if (options) Object.assign(this, options);
     this.code = code;
   }

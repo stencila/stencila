@@ -1,4 +1,4 @@
-// Generated file; do not edit. See `../rust/schema-gen` crate.
+// Generated file; do not edit. See https://github.com/stencila/stencila/tree/main/rust/schema-gen
 
 import { Array } from "./Array.js";
 import { Block } from "./Block.js";
@@ -9,7 +9,8 @@ import { Cord } from "./Cord.js";
  * Repeat a block content for each item in an array.
  */
 export class ForBlock extends CodeExecutable {
-  type = "ForBlock";
+  // @ts-expect-error 'not assignable to the same property in base type'
+  type: "ForBlock";
 
   /**
    * The name to give to the variable representing each item in the iterated array
@@ -33,6 +34,7 @@ export class ForBlock extends CodeExecutable {
 
   constructor(code: Cord, symbol: string, content: Block[], options?: Partial<ForBlock>) {
     super(code);
+    this.type = "ForBlock";
     if (options) Object.assign(this, options);
     this.code = code;
     this.symbol = symbol;

@@ -1,4 +1,4 @@
-// Generated file; do not edit. See `../rust/schema-gen` crate.
+// Generated file; do not edit. See https://github.com/stencila/stencila/tree/main/rust/schema-gen
 
 import { CreativeWork } from "./CreativeWork.js";
 
@@ -6,7 +6,8 @@ import { CreativeWork } from "./CreativeWork.js";
  * A software application.
  */
 export class SoftwareApplication extends CreativeWork {
-  type = "SoftwareApplication";
+  // @ts-expect-error 'not assignable to the same property in base type'
+  type: "SoftwareApplication";
 
   /**
    * The name of the item.
@@ -25,6 +26,7 @@ export class SoftwareApplication extends CreativeWork {
 
   constructor(name: string, options?: Partial<SoftwareApplication>) {
     super();
+    this.type = "SoftwareApplication";
     if (options) Object.assign(this, options);
     this.name = name;
   }

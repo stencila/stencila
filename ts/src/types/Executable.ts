@@ -1,4 +1,4 @@
-// Generated file; do not edit. See `../rust/schema-gen` crate.
+// Generated file; do not edit. See https://github.com/stencila/stencila/tree/main/rust/schema-gen
 
 import { AutomaticExecution } from "./AutomaticExecution.js";
 import { CompilationDigest } from "./CompilationDigest.js";
@@ -18,7 +18,8 @@ import { Timestamp } from "./Timestamp.js";
  * Abstract base type for executable nodes (e.g. `CodeChunk`, `CodeExpression`, `Call`).
  */
 export class Executable extends Entity {
-  type = "Executable";
+  // @ts-expect-error 'not assignable to the same property in base type'
+  type: "Executable";
 
   /**
    * Under which circumstances the code should be automatically executed.
@@ -92,6 +93,7 @@ export class Executable extends Entity {
 
   constructor(options?: Partial<Executable>) {
     super();
+    this.type = "Executable";
     if (options) Object.assign(this, options);
     
   }
