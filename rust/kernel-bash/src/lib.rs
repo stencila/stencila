@@ -2,7 +2,7 @@ use std::sync::atomic::{AtomicU64, Ordering};
 
 use kernel_micro::{
     common::eyre::Result, format::Format, Kernel, KernelAvailability, KernelForks, KernelInstance,
-    KernelInterrupt, KernelKill, Microkernel,
+    KernelInterrupt, KernelKill, KernelTerminate, Microkernel,
 };
 
 /// A kernel for executing Bash code locally
@@ -27,6 +27,10 @@ impl Kernel for BashKernel {
 
     fn supports_interrupt(&self) -> KernelInterrupt {
         self.microkernel_supports_interrupt()
+    }
+
+    fn supports_terminate(&self) -> KernelTerminate {
+        self.microkernel_supports_terminate()
     }
 
     fn supports_kill(&self) -> KernelKill {

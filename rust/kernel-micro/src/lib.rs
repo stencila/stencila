@@ -19,7 +19,7 @@ use kernel::{
 // the `Microkernel` trait
 pub use kernel::{
     common, format, schema, Kernel, KernelAvailability, KernelForks, KernelInstance,
-    KernelInterrupt, KernelKill, KernelSignal, KernelStatus,
+    KernelInterrupt, KernelKill, KernelSignal, KernelStatus, KernelTerminate
 };
 
 /// A specification for a minimal, lightweight execution kernel in a spawned process
@@ -73,6 +73,15 @@ pub trait Microkernel: Sync + Send + Kernel {
             KernelInterrupt::Yes
         } else {
             KernelInterrupt::No
+        }
+    }
+
+    /// An implementation of `Kernel::supports_terminate` for microkernels
+    fn microkernel_supports_terminate(&self) -> KernelTerminate {
+        if cfg!(unix) {
+            KernelTerminate::Yes
+        } else {
+            KernelTerminate::No
         }
     }
 
@@ -170,7 +179,7 @@ pub struct MicrokernelInstance {
     /// A channel sender for the status of the microkernel instance
     status_sender: watch::Sender<KernelStatus>,
 
-    /// A channel sender for signals to interrupt or kill the process
+    /// A channel sender for sending signals to the microkernel instance
     signal_sender: Option<mpsc::Sender<KernelSignal>>,
 
     /// The temporary directory for FIFO pipes (for forks only)
@@ -525,7 +534,7 @@ impl MicrokernelInstance {
         status_sender
     }
 
-    /// Create a channel and task for sending signals to interrupt or kill the microkernel process
+    /// Create a channel and task for forwarding signals to the microkernel process
     fn setup_signals_channel(id: String, pid: u32) -> mpsc::Sender<KernelSignal> {
         let (signal_sender, mut signal_receiver) = mpsc::channel(1);
 
@@ -540,11 +549,12 @@ impl MicrokernelInstance {
                     };
 
                     let (name, signal) = match kernel_signal {
-                        KernelSignal::Interrupt => ("Interrupt", Signal::SIGINT),
-                        KernelSignal::Kill => ("Kill", Signal::SIGKILL),
+                        KernelSignal::Interrupt => ("Interrupting", Signal::SIGINT),
+                        KernelSignal::Terminate => ("Terminating", Signal::SIGTERM),
+                        KernelSignal::Kill => ("Killing", Signal::SIGKILL),
                     };
 
-                    tracing::debug!("{name}ing `{id}` kernel with pid `{pid}`");
+                    tracing::debug!("{name} `{id}` kernel with pid `{pid}`");
 
                     if matches!(signal, Signal::SIGINT) {
                         // On Linux using `nix::sys::signal::kill` with `SIGINT` has no effect
@@ -561,11 +571,11 @@ impl MicrokernelInstance {
                             }
                         };
                         if let Err(error) = killer.wait().await {
-                            tracing::error!("While {name}ing `{id}` kernel: {error}")
+                            tracing::error!("While {name} `{id}` kernel: {error}")
                         }
                     } else {
                         if let Err(error) = kill(Pid::from_raw(pid as i32), signal) {
-                            tracing::warn!("While {name}ing `{id}` kernel: {error}")
+                            tracing::warn!("While {name} `{id}` kernel: {error}")
                         }
                     }
                 }

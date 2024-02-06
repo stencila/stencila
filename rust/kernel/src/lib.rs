@@ -39,6 +39,9 @@ pub trait Kernel: Sync + Send {
     /// Does the kernel support the interrupt signal?
     fn supports_interrupt(&self) -> KernelInterrupt;
 
+    /// Does the kernel support the terminate signal?
+    fn supports_terminate(&self) -> KernelTerminate;
+
     /// Does the kernel support the kill signal?
     fn supports_kill(&self) -> KernelKill;
 
@@ -61,21 +64,40 @@ pub enum KernelAvailability {
     Unavailable,
 }
 
-/// Whether a kernel supports interrupt signal on the current machine
+/// Whether a kernel supports the interrupt signal on the current machine
+///
+/// The interrupt signal is used to stop the execution task the
+/// kernel instance is current performing.
 #[derive(Display)]
 #[strum(serialize_all = "lowercase")]
 pub enum KernelInterrupt {
-    /// Kernel support interrupt signal on this machine
+    /// Kernel supports interrupt signal on this machine
     Yes,
     /// Kernel does not support interrupt signal on this machine
     No,
 }
 
-/// Whether a kernel supports kill signal on the current machine
+/// Whether a kernel supports the terminate signal on the current machine
+///
+/// The terminate signal is used to stop the kernel instance gracefully
+/// (e.g. completing any current execution tasks)
+#[derive(Display)]
+#[strum(serialize_all = "lowercase")]
+pub enum KernelTerminate {
+    /// Kernel supports terminate signal on this machine
+    Yes,
+    /// Kernel does not support terminate signal on this machine
+    No,
+}
+
+/// Whether a kernel supports the kill signal on the current machine
+///
+/// The kill signal is used to stop the kernel instance forcefully
+/// (i.e. to exit immediately, aborting any current execution tasks)
 #[derive(Display)]
 #[strum(serialize_all = "lowercase")]
 pub enum KernelKill {
-    /// Kernel support kill signal on this machine
+    /// Kernel supports kill signal on this machine
     Yes,
     /// Kernel does not support kill signal on this machine
     No,
@@ -185,5 +207,6 @@ impl From<u8> for KernelStatus {
 #[derive(Clone, Copy)]
 pub enum KernelSignal {
     Interrupt,
+    Terminate,
     Kill,
 }
