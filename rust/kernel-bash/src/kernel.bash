@@ -120,12 +120,18 @@ do
       unset stencila_name
       ;;
     "$SET")
-      # Set a variable
-      declare "${stencila_lines[1]}=${stencila_lines[2]}"
+      # Set a variable. Uses -x option (for export) so that variables
+      # are available to forks
+      declare -x "${stencila_lines[1]}=${stencila_lines[2]}"
       ;;
     "$REMOVE")
       # Remove a variable
       unset "${stencila_lines[1]}"
+      ;;
+    "$FORK")
+      # Fork the kernel instance and echo back the new pid
+      bash "$0" 0<"${stencila_lines[1]}" 1>"${stencila_lines[2]}" 2>"${stencila_lines[3]}" &
+      echo $!
       ;;
     *)
       echo "Unrecognised flag" >&2
