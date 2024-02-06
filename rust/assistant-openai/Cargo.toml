@@ -5,5 +5,5 @@ edition = "2021"
 
 [dependencies]
 assistant = { path = "../assistant" }
-async-openai = "0.18.2"
+async-openai = "0.18.3"
 cached = { version = "0.48.1", features = ["async"] }
