@@ -223,6 +223,105 @@ impl InstructionMessage for Message {
     }
 }
 
+/// A wrapper for Embeddings.
+/// It starts out empty, and must be filled in.
+/// We store both the text and the vectors so that we can easily
+/// retrieve them in tests.
+#[derive(Debug, Clone, Default, Serialize)]
+pub struct Embeddings {
+    texts: Option<Vec<String>>,
+    vectors: Option<Vec<Vec<f32>>>,
+}
+
+impl Embeddings {
+    pub fn is_empty(&self) -> bool {
+        self.vectors.is_none()
+    }
+
+    pub fn iter_items(&self) -> impl Iterator<Item = (&str, &[f32])> {
+        match (self.texts.as_ref(), self.vectors.as_ref()) {
+            (Some(texts), Some(vectors)) => texts
+                .iter()
+                .zip(vectors.iter())
+                .map(|(text, vector)| (text.as_str(), vector.as_slice()))
+                .collect::<Vec<(&str, &[f32])>>()
+                .into_iter(),
+            _ => vec![].into_iter(),
+        }
+    }
+
+    /// Create embeddings for a list of instructions texts
+    pub fn build<S>(&mut self, texts: Vec<S>) -> Result<()>
+    where
+        S: AsRef<str> + Send + Sync,
+    {
+        // Store a copy of the strings.
+        self.texts = Some(texts.iter().map(|s| s.as_ref().to_string()).collect());
+
+        // Informal perf tests during development indicated that using
+        // a static improved speed substantially (rather than reloading for each call)
+        static MODEL: OnceCell<FlagEmbedding> = OnceCell::new();
+
+        let model = match MODEL.get_or_try_init(|| {
+            FlagEmbedding::try_new(InitOptions {
+                // This model was chosen good performance for a small size.
+                // For benchmarks see https://huggingface.co/spaces/mteb/leaderboard
+                model_name: EmbeddingModel::BGESmallENV15,
+                // model_name: EmbeddingModel::BGEBaseEN,
+                cache_dir: app::get_app_dir(DirType::Cache, true)
+                    .unwrap_or_else(|_| PathBuf::from("."))
+                    .join("models")
+                    .join("bge-small-en-v1.5"),
+                ..Default::default()
+            })
+        }) {
+            Ok(model) => model,
+            Err(error) => bail!(error),
+        };
+
+        self.vectors = Some(model.embed(texts, None).map_err(|error| eyre!(error))?);
+
+        Ok(())
+    }
+
+    /// Return the best score of matching between two sets of embeddings.
+    /// If either has not been filled, then we get None.
+    pub fn score_match(&self, other: &Embeddings) -> Option<f32> {
+        self.vectors
+            .as_ref()
+            .zip(other.vectors.as_ref())
+            .map(|(v1, v2)| {
+                let mut best = 0.0f32;
+                for e1 in v1 {
+                    for e2 in v2 {
+                        let score = Self::calculate_similarity(e1, e2);
+                        if score > best {
+                            best = score;
+                        }
+                    }
+                }
+                best
+            })
+    }
+
+    /// Calculate the cosine similarity of two embeddings
+    pub fn calculate_similarity(a: &[f32], b: &[f32]) -> f32 {
+        if a.len() != b.len() {
+            return 0.0;
+        }
+
+        let dot_product: f32 = a.iter().zip(b.iter()).map(|(&x, &y)| x * y).sum();
+        let magnitude_a: f32 = a.iter().map(|&x| x * x).sum::<f32>().sqrt();
+        let magnitude_b: f32 = b.iter().map(|&y| y * y).sum::<f32>().sqrt();
+
+        if magnitude_a == 0.0 || magnitude_b == 0.0 {
+            return 0.0;
+        }
+
+        dot_product / (magnitude_a * magnitude_b)
+    }
+}
+
 /// A task to generate content
 ///
 /// A task is created for each generation request to an AI model.
@@ -264,11 +363,10 @@ pub struct GenerateTask<'doc> {
 
     /// The instruction text provided for convenient access in the
     /// user prompt template
-    pub instruction_text: Option<String>,
+    pub instruction_text: String,
 
     /// The instruction embedding
-    #[serde(skip)]
-    pub instruction_embedding: Option<Vec<f32>>,
+    pub instruction_embedding: Embeddings,
 
     /// The content of the instruction in the format specified
     /// in the `GenerateOptions` (defaulting to HTML)
@@ -281,8 +379,12 @@ pub struct GenerateTask<'doc> {
 impl<'doc> GenerateTask<'doc> {
     /// Create a generation task from an instruction
     pub fn new(instruction: Instruction) -> Self {
+        // Pull the text out of the instruction here.
+        // TODO: Should we just build the embeddings here?
+        let text = instruction.text().to_string();
         Self {
             instruction,
+            instruction_text: text,
             ..Default::default()
         }
     }
@@ -292,77 +394,30 @@ impl<'doc> GenerateTask<'doc> {
         self.instruction.messages().iter()
     }
 
-    /// Get the text of the instruction
-    ///
-    /// Will populate `self.instruction_text` if necessary for use
-    /// in user prompt templates
-    pub fn instruction_text(&mut self) -> &str {
-        self.instruction_text
-            .get_or_insert_with(|| self.instruction.text().to_string())
-    }
+    // REMOVED FOR NOW (We do it in the constructor)
+    // /// Get the text of the instruction
+    // ///
+    // /// Will populate `self.instruction_text` if necessary for use
+    // /// in user prompt templates
+    // pub fn instruction_text(&mut self) -> &str {
+    //     self.instruction_text
+    //         .get_or_insert_with(|| self.instruction.text().to_string())
+    // }
 
     /// Get the similarity between the text of the instruction and some other, precalculated embedding
     ///
     /// Will populate `self.instruction_embedding` is necessary, so that this only needs to
     /// be done once for each call to this function (e.g. when calculating similarity with
     /// a number of other embeddings).
-    pub fn instruction_similarity(&mut self, other: &[f32]) -> Result<f32> {
-        let embedding = match &self.instruction_embedding {
-            Some(embedding) => embedding,
-            None => {
-                let text = self.instruction_text();
-                let mut embedding = Self::create_embeddings(vec![text])?;
-                self.instruction_embedding = Some(embedding.swap_remove(0));
-                self.instruction_embedding.as_ref().unwrap()
-            }
-        };
-
-        Ok(Self::calculate_similarity(embedding, other))
-    }
-
-    /// Create embeddings for a list of instructions texts
-    pub fn create_embeddings<S>(texts: Vec<S>) -> Result<Vec<Vec<f32>>>
-    where
-        S: AsRef<str> + Send + Sync,
-    {
-        // Informal perf tests during development indicated that using
-        // a static improved speed substantially (rather than reloading for each call)
-        static MODEL: OnceCell<FlagEmbedding> = OnceCell::new();
-
-        let model = match MODEL.get_or_try_init(|| {
-            FlagEmbedding::try_new(InitOptions {
-                // This model was chosen good performance for a small size.
-                // For benchmarks see https://huggingface.co/spaces/mteb/leaderboard
-                model_name: EmbeddingModel::BGESmallENV15,
-                cache_dir: app::get_app_dir(DirType::Cache, true)
-                    .unwrap_or_else(|_| PathBuf::from("."))
-                    .join("models")
-                    .join("bge-small-en-v1.5"),
-                ..Default::default()
-            })
-        }) {
-            Ok(model) => model,
-            Err(error) => bail!(error),
-        };
-
-        model.embed(texts, None).map_err(|error| eyre!(error))
-    }
-
-    /// Calculate the cosine similarity of two embeddings
-    fn calculate_similarity(a: &[f32], b: &[f32]) -> f32 {
-        if a.len() != b.len() {
-            return 0.0;
+    pub fn instruction_similarity(&mut self, embeddings: &Embeddings) -> Result<f32> {
+        if self.instruction_embedding.is_empty() {
+            self.instruction_embedding
+                .build(vec![&self.instruction_text])?;
         }
-
-        let dot_product: f32 = a.iter().zip(b.iter()).map(|(&x, &y)| x * y).sum();
-        let magnitude_a: f32 = a.iter().map(|&x| x * x).sum::<f32>().sqrt();
-        let magnitude_b: f32 = b.iter().map(|&y| y * y).sum::<f32>().sqrt();
-
-        if magnitude_a == 0.0 || magnitude_b == 0.0 {
-            return 0.0;
-        }
-
-        dot_product / (magnitude_a * magnitude_b)
+        Ok(self
+            .instruction_embedding
+            .score_match(embeddings)
+            .unwrap_or(0.1))
     }
 }
 
@@ -1157,5 +1212,30 @@ pub fn test_task_repeat_word<'lt>() -> GenerateTask<'lt> {
             ..Default::default()
         }),
         ..Default::default()
+    }
+}
+
+#[cfg(test)]
+
+mod tests {
+    use super::*;
+    #[test]
+    fn create_embeddings_and_compare_them() -> Result<()> {
+        let mut e1 = Embeddings::default();
+        let mut e2 = Embeddings::default();
+        let mut e3 = Embeddings::default();
+        let e4 = Embeddings::default();
+        e1.build(vec!["insert an equation", "insert some math"])?;
+        e2.build(vec!["insert some code"])?;
+        e3.build(vec!["edit this text"])?;
+
+        let s1 = e1.score_match(&e2).expect("Should have a score");
+        let s2 = e2.score_match(&e3).expect("Should have a score");
+        let s3 = e1.score_match(&e3).expect("Should have a score");
+        assert!(s1 > s2);
+        assert!(s2 > s3);
+        assert_eq!(e4.score_match(&e3), None);
+
+        Ok(())
     }
 }
