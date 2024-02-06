@@ -14,7 +14,7 @@ pub struct BashKernel {
 
 impl Kernel for BashKernel {
     fn id(&self) -> String {
-        "bash-micro".to_string()
+        "bash".to_string()
     }
 
     fn availability(&self) -> KernelAvailability {

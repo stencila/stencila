@@ -14,7 +14,7 @@ pub struct NodeKernel {
 
 impl Kernel for NodeKernel {
     fn id(&self) -> String {
-        "node-micro".to_string()
+        "node".to_string()
     }
 
     fn availability(&self) -> KernelAvailability {
