@@ -17,6 +17,6 @@ class Text(Entity):
     value: Cord
     """The value of the text content"""
 
-    def __init__(self, value: Cord, id: Optional[str] = None) -> object:
+    def __init__(self, value: Cord, id: Optional[str] = None):
         super().__init__(id = id)
         self.value = value
