@@ -38,7 +38,9 @@ impl Kernel for NodeKernel {
     }
 
     fn supports_forks(&self) -> KernelForks {
-        self.microkernel_supports_forks()
+        // Supported on all platforms because uses Node.js `child_process.fork`
+        // rather than Unix `fork`.
+        KernelForks::Yes
     }
 
     fn create_instance(&self) -> Result<Box<dyn KernelInstance>> {
