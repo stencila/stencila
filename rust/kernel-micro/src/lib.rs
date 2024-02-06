@@ -1,16 +1,28 @@
-use std::{fs::write, path::Path, process::Stdio, sync::atomic::{AtomicU64, Ordering}};
+use std::{
+    fs::write,
+    path::Path,
+    process::Stdio,
+    sync::atomic::{AtomicU64, Ordering},
+};
 
 use which::which;
 
 use kernel::{
     common::{
-        async_trait::async_trait, eyre::{bail, OptionExt, Result}, itertools::Itertools, serde_json, strum::Display, tempfile::TempDir, tokio::{
+        async_trait::async_trait,
+        eyre::{bail, OptionExt, Result},
+        itertools::Itertools,
+        serde_json,
+        strum::Display,
+        tempfile::TempDir,
+        tokio::{
             self,
             fs::{File, OpenOptions},
             io::{AsyncBufRead, AsyncBufReadExt, AsyncWrite, AsyncWriteExt, BufReader, BufWriter},
             process::{Child, ChildStderr, ChildStdin, ChildStdout, Command},
             sync::{mpsc, watch},
-        }, tracing
+        },
+        tracing,
     },
     schema::{ExecutionError, Node, Variable},
 };
@@ -19,7 +31,7 @@ use kernel::{
 // the `Microkernel` trait
 pub use kernel::{
     common, format, schema, Kernel, KernelAvailability, KernelForks, KernelInstance,
-    KernelInterrupt, KernelKill, KernelSignal, KernelStatus, KernelTerminate
+    KernelInterrupt, KernelKill, KernelSignal, KernelStatus, KernelTerminate,
 };
 
 /// A specification for a minimal, lightweight execution kernel in a spawned process
@@ -105,8 +117,12 @@ pub trait Microkernel: Sync + Send + Kernel {
 
     /// An implementation of `Kernel::create_instance` for microkernels
     fn microkernel_create_instance(&self, index: u64) -> Result<Box<dyn KernelInstance>> {
-        // Assign an id for the instance using the index, if necessary, to ensure it is unique 
-        let id = if index==0 { self.id() } else { format!("{}-{index}", self.id())};
+        // Assign an id for the instance using the index, if necessary, to ensure it is unique
+        let id = if index == 0 {
+            self.id()
+        } else {
+            format!("{}-{index}", self.id())
+        };
 
         // Get the path to the executable, failing early if it can not be found
         let executable_path = which(self.executable_name())?;
@@ -183,7 +199,7 @@ pub struct MicrokernelInstance {
     signal_sender: Option<mpsc::Sender<KernelSignal>>,
 
     /// The temporary directory for FIFO pipes (for forks only)
-    /// 
+    ///
     /// Retained as a field because the temporary dir is automatically
     /// deleted when the `TempDir` is dropped.
     #[allow(unused)]
@@ -199,7 +215,7 @@ pub struct MicrokernelInstance {
     errors: Option<MicrokernelErrors>,
 
     /// A counter of forks of this microkernel instance
-    forks: AtomicU64
+    forks: AtomicU64,
 }
 
 /// An input stream for a microkernel instance
@@ -482,7 +498,11 @@ impl KernelInstance for MicrokernelInstance {
             let errors = Some(MicrokernelErrors::Pipe(stderr_reader));
 
             // Create fork id
-            let id = format!("{}-fork-{}", self.id, self.forks.fetch_add(1, Ordering::SeqCst));
+            let id = format!(
+                "{}-fork-{}",
+                self.id,
+                self.forks.fetch_add(1, Ordering::SeqCst)
+            );
 
             let status = KernelStatus::Ready;
             let status_sender = Self::setup_status_channel(id.clone(), status);
@@ -501,7 +521,7 @@ impl KernelInstance for MicrokernelInstance {
                 input,
                 output,
                 errors,
-                forks: Default::default()
+                forks: Default::default(),
             }))
         }
 
@@ -573,10 +593,8 @@ impl MicrokernelInstance {
                         if let Err(error) = killer.wait().await {
                             tracing::error!("While {name} `{id}` kernel: {error}")
                         }
-                    } else {
-                        if let Err(error) = kill(Pid::from_raw(pid as i32), signal) {
-                            tracing::warn!("While {name} `{id}` kernel: {error}")
-                        }
+                    } else if let Err(error) = kill(Pid::from_raw(pid as i32), signal) {
+                        tracing::warn!("While {name} `{id}` kernel: {error}")
                     }
                 }
 
@@ -599,7 +617,7 @@ impl MicrokernelInstance {
         self.pid == 0 || matches!(
             self.status,
             KernelStatus::Pending | KernelStatus::Stopping | KernelStatus::Stopped
-        ) 
+        )
         // Can't call `waitpid` on forks because they are not direct child processes
         || self.is_fork()
         {
@@ -665,7 +683,7 @@ impl MicrokernelInstance {
     {
         self.set_status(KernelStatus::Busy)?;
 
-        let args = args.into_iter().join(&MicrokernelFlag::Line.as_unicode());
+        let args = args.into_iter().join(MicrokernelFlag::Line.as_unicode());
 
         self.send(flag, &args).await?;
         let result = self.receive().await;
