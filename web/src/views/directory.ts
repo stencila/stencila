@@ -141,7 +141,7 @@ export class DirectoryView extends LitElement {
       <div
         class="border-neutral-200 bg-white rounded-t border border-b-0 h-[calc(100vh-5rem)] overflow-y-scroll px-0 pb-2 w-full"
       >
-        <sl-tree class="tree-with-lines tree-with-icons">
+        <sl-tree>
           ${this.directory ? this.renderDirectory(this.directory) : ''}
         </sl-tree>
       </div>

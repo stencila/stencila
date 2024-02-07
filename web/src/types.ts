@@ -41,6 +41,6 @@ export type DocumentView =
  * Types of events for updating the main context provider.
  */
 export type MainContextEvent =
-  | 'stencila-file-toggle'
+  | 'stencila-directory-toggle'
   | 'stencila-view-change'
   | 'stencila-settings-toggle'

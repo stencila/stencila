@@ -24,40 +24,40 @@ export class UISidebar extends LitElement {
       <stencila-ui-icon-button
         icon="sidebar"
         .clickEvent=${() => {
-          this.createEvent('stencila-file-toggle', {
-            filesOpen: !this.context.filesOpen,
+          this.createEvent('stencila-directory-toggle', {
+            directoryOpen: !this.context.directoryOpen,
           })
         }}
-        ?active=${this.context.filesOpen}
+        ?active=${this.context.directoryOpen}
       ></stencila-ui-icon-button>
       <div class="flex flex-col space-y-9 text-xl">
         <stencila-ui-icon-button
           icon="live-view"
           .clickEvent=${() => {
             this.createEvent('stencila-view-change', {
-              view: 'live',
+              currentView: 'live',
             })
           }}
-          ?active=${this.context.view === 'live'}
+          ?active=${this.context.currentView === 'live'}
           type="selected"
         ></stencila-ui-icon-button>
         <stencila-ui-icon-button
           icon="code-view"
           .clickEvent=${() => {
             this.createEvent('stencila-view-change', {
-              view: 'source',
+              currentView: 'source',
             })
           }}
-          ?active=${this.context.view === 'source'}
+          ?active=${this.context.currentView === 'source'}
         ></stencila-ui-icon-button>
         <stencila-ui-icon-button
           icon="split-view"
           .clickEvent=${() => {
             this.createEvent('stencila-view-change', {
-              view: 'split',
+              currentView: 'split',
             })
           }}
-          ?active=${this.context.view === 'split'}
+          ?active=${this.context.currentView === 'split'}
         ></stencila-ui-icon-button>
         <stencila-ui-icon-button icon="settings"></stencila-ui-icon-button>
       </div>

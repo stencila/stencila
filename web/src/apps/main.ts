@@ -1,6 +1,6 @@
 import { provide } from '@lit/context'
 import { LitElement, html } from 'lit'
-import { customElement, property, state } from 'lit/decorators.js'
+import { customElement, property } from 'lit/decorators.js'
 
 // import logo from '../images/stencilaIcon.svg'
 import { SidebarContext, sidebarContext } from '../contexts/sidebar-context'
@@ -76,9 +76,6 @@ export class App extends LitElement {
   @property()
   activeTab: string = ''
 
-  @state()
-  filesOpen: boolean = false
-
   /**
    * This context enables components to:
    * - open the files viewer
@@ -87,8 +84,8 @@ export class App extends LitElement {
   @provide({ context: sidebarContext })
   @property({ attribute: false })
   contextObject: SidebarContext = {
-    view: 'live',
-    filesOpen: false,
+    currentView: 'live',
+    directoryOpen: false,
   }
 
   override render() {
@@ -101,7 +98,7 @@ export class App extends LitElement {
       <div class="flex flex-col flex-grow">
         ${this.renderHeader()}
 
-        <stencila-ui-view-container view=${this.contextObject.view}>
+        <stencila-ui-view-container view=${this.contextObject.currentView}>
           ${this.renderView()}
         </stencila-ui-view-container>
       </div>
@@ -138,13 +135,13 @@ export class App extends LitElement {
     const clickEvent = (e: UISelectorSelectedEvent['detail']) => {
       this.contextObject = {
         ...this.contextObject,
-        view: e.item.value as Exclude<DocumentView, 'directory'>,
+        currentView: e.item.value as Exclude<DocumentView, 'directory'>,
       }
     }
 
     return html`<stencila-ui-selector
       label="View"
-      target=${this.contextObject.view}
+      target=${this.contextObject.currentView}
       targetClass="view-selector"
       .list=${Object.entries(VIEWS)}
       .clickEvent=${clickEvent}
@@ -179,7 +176,7 @@ export class App extends LitElement {
   /* eslint-enable lit/attribute-value-entities */
 
   private renderView() {
-    switch (this.contextObject.view) {
+    switch (this.contextObject.currentView) {
       case 'static':
         return html`<stencila-static-view
           view="static"
@@ -241,11 +238,13 @@ export class App extends LitElement {
 
     // Event listener for updating the file drawer open/close
     this.shadowRoot.addEventListener(
-      'stencila-file-toggle',
-      (e: Event & { detail: Required<Pick<SidebarContext, 'filesOpen'>> }) => {
+      'stencila-directory-toggle',
+      (
+        e: Event & { detail: Required<Pick<SidebarContext, 'directoryOpen'>> }
+      ) => {
         this.contextObject = {
           ...this.contextObject,
-          filesOpen: e.detail.filesOpen,
+          directoryOpen: e.detail.directoryOpen,
         }
       }
     )
@@ -253,10 +252,12 @@ export class App extends LitElement {
     // Event for changing the view
     this.shadowRoot.addEventListener(
       'stencila-view-change',
-      (e: Event & { detail: Required<Pick<SidebarContext, 'view'>> }) => {
+      (
+        e: Event & { detail: Required<Pick<SidebarContext, 'currentView'>> }
+      ) => {
         this.contextObject = {
           ...this.contextObject,
-          view: e.detail.view,
+          currentView: e.detail.currentView,
         }
       }
     )

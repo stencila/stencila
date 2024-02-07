@@ -19,7 +19,7 @@ export class UIDirectory extends LitElement {
 
   override render() {
     return html` <div
-      class="${this.context?.filesOpen
+      class="${this.context?.directoryOpen
         ? 'block'
         : 'hidden'} mr-4 w-80 overflow-x-hidden h-full"
     >
