@@ -39,11 +39,11 @@ import { markdownHighlightStyle } from '../languages/markdown'
 import type { DocumentId, DocumentAccess } from '../types'
 import { TWLitElement } from '../ui/twind'
 
+import { bottomPanel } from './source/bottom-panel'
 import { editorStyles } from './source/editorStyles'
 import { statusGutter } from './source/gutters'
 import { infoSideBar } from './source/infoSideBar'
 import { autoWrapKeys } from './source/keyMaps'
-import { bottomPanel } from './source/panels'
 
 /**
  * Source code editor for a document
