@@ -3,8 +3,8 @@ import { apply } from '@twind/core'
 import { LitElement, html } from 'lit'
 import { customElement, property } from 'lit/decorators'
 
+import { nodeIcon, nodeBorderColour } from '../../../nodes/helpers/node-ui'
 import { withTwind } from '../../../twind'
-import { getNodeIcon, getNodeColour } from '../../../ui/nodes/nodeMapping'
 
 @customElement('stencila-gutter-marker')
 @withTwind()
@@ -65,7 +65,7 @@ class StencilaGutterMarker extends LitElement {
   }
 
   renderIcon(node: NodeType, depth: number = 0) {
-    const colour = getNodeColour(node)
+    const colour = nodeBorderColour(node)
     const offset = depth * this.getGutterLineWidth()
     const styles = apply([
       `absolute top-0 left-[${offset}px]`,
@@ -82,7 +82,7 @@ class StencilaGutterMarker extends LitElement {
         style="height: ${this
           .defaultLineHeight}px; background-color: ${colour};"
       >
-        <sl-icon library="stencila" name=${getNodeIcon(node)}></sl-icon>
+        <sl-icon library="stencila" name=${nodeIcon(node)}></sl-icon>
       </div>
       ${!this.isSingleLine || this.currentLineHeight > this.defaultLineHeight
         ? this.renderGutterLine(node, depth)
@@ -91,7 +91,7 @@ class StencilaGutterMarker extends LitElement {
   }
 
   renderGutterLine(node: NodeType, depth: number = 0) {
-    const colour = getNodeColour(node)
+    const colour = nodeBorderColour(node)
     const isLastNode = depth === this.nodes.length - 1
     const borderRadius = this.setBorderRadius(!isLastNode)
 

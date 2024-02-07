@@ -4,28 +4,29 @@ import { ViewPlugin, EditorView, ViewUpdate } from '@codemirror/view'
 import { SourceView } from '../source'
 
 /**
- * Returns a codemirror `Extension` which creates a new sidebar Element
- * which should be inserted to the right of the condemirror content,
+ * Returns a CodeMirror `Extension` which creates a new sidebar Element
+ * which should be inserted to the right of the CodeMirror content,
  *
  * This Bar should show the info box of the node where the cursor is present
  *
- * @param sourceView `SourceView`
- * @returns `Extension` for codemirror
+ * @param sourceView The `SourceView` that this extension is for
+ * @returns An `Extension` for codemirror
  */
 const infoSideBar = (sourceView: SourceView): Extension => {
   const infoSideBarPlugin = ViewPlugin.fromClass(
     class {
       /**
-       * the side bar container element
+       * The side bar container element
        */
       dom: HTMLElement
+
       /**
-       * the current info box element displayed
+       * The current info box element displayed
        */
       currentInfoBox: HTMLElement = null
 
       /**
-       * id of the currently cloned node for the info box
+       * Id of the currently cloned node for the info box
        */
       currentNodeId: string
 
