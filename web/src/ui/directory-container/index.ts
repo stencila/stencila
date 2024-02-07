@@ -1,22 +1,19 @@
 import { consume } from '@lit/context'
 import { LitElement, html } from 'lit'
-import { customElement, property } from 'lit/decorators.js'
+import { customElement } from 'lit/decorators.js'
 
 import { SidebarContext, sidebarContext } from '../../contexts/sidebar-context'
 import { withTwind } from '../../twind'
-import { DocumentId } from '../../types'
 
 /**
- * UI File tree layout
+ * UI directory view container
  *
- * Wraps our directory tree in a UI element and interacts with the context
+ * Wraps `<stencila-directory-view>` in a UI element and interacts with the
+ * sidebar context to show or hide it.
  */
-@customElement('stencila-ui-file-tree-layout')
+@customElement('stencila-ui-directory-container')
 @withTwind()
-export class UIFileTreeLayout extends LitElement {
-  @property()
-  doc?: DocumentId
-
+export class UIDirectory extends LitElement {
   @consume({ context: sidebarContext, subscribe: true })
   context: SidebarContext
 
