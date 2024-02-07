@@ -6,21 +6,29 @@ import { SourceView } from '../../source'
 
 import { StencilaGutterMarker } from './component'
 
+// TODO: This should be all `Block` node types and should be
+// an array/function in @stencila/types
 const gutterMarkerElements: readonly NodeType[] = [
-  'IfBlock',
-  'ForBlock',
-  'Paragraph',
-  'Heading',
-  'List',
-  'Table',
-  'InstructionBlock',
-  'InsertBlock',
-  'ModifyBlock',
-  'ReplaceBlock',
-  'DeleteBlock',
+  'Claim',
   'CodeBlock',
   'CodeChunk',
+  'DeleteBlock',
+  'Figure',
+  'ForBlock',
+  'Heading',
+  'IfBlock',
+  'InsertBlock',
+  'InstructionBlock',
+  'List',
   'MathBlock',
+  'ModifyBlock',
+  'Paragraph',
+  'QuoteBlock',
+  'ReplaceBlock',
+  'Section',
+  'StyledBlock',
+  'Table',
+  'ThematicBreak',
 ] as const
 
 class NodeGutterMarker extends GutterMarker {

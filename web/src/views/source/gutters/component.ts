@@ -1,9 +1,11 @@
+import '@shoelace-style/shoelace/dist/components/icon/icon'
+
 import type { NodeType } from '@stencila/types'
 import { apply } from '@twind/core'
 import { LitElement, html } from 'lit'
 import { customElement, property } from 'lit/decorators'
 
-import { nodeIcon, nodeBorderColour } from '../../../nodes/helpers/node-ui'
+import { nodeBorderColour, nodeUi } from '../../../nodes/helpers/node-ui'
 import { withTwind } from '../../../twind'
 
 @customElement('stencila-gutter-marker')
@@ -65,7 +67,8 @@ class StencilaGutterMarker extends LitElement {
   }
 
   renderIcon(node: NodeType, depth: number = 0) {
-    const colour = nodeBorderColour(node)
+    const { iconLibrary, icon, borderColour: colour } = nodeUi(node)
+
     const offset = depth * this.getGutterLineWidth()
     const styles = apply([
       `absolute top-0 left-[${offset}px]`,
@@ -82,7 +85,7 @@ class StencilaGutterMarker extends LitElement {
         style="height: ${this
           .defaultLineHeight}px; background-color: ${colour};"
       >
-        <sl-icon library="stencila" name=${nodeIcon(node)}></sl-icon>
+        <sl-icon library=${iconLibrary} name=${icon}></sl-icon>
       </div>
       ${!this.isSingleLine || this.currentLineHeight > this.defaultLineHeight
         ? this.renderGutterLine(node, depth)

@@ -24,7 +24,7 @@ export class NodeCard extends LitElement {
   type: NodeType
 
   override render() {
-    const { icon, title, colour, borderColour } = nodeUi(this.type)
+    const { iconLibrary, icon, title, colour, borderColour } = nodeUi(this.type)
 
     const headerStyles = apply([
       'w-full',
@@ -44,7 +44,7 @@ export class NodeCard extends LitElement {
     return html`
       <div class=${headerStyles}>
         <span class="items-center font-medium flex" style="font-bold">
-          <sl-icon name=${icon} library="stencila" class="pr-2"></sl-icon>
+          <sl-icon library=${iconLibrary} name=${icon} class="pr-2"></sl-icon>
           ${title}
         </span>
       </div>
