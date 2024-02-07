@@ -10,7 +10,7 @@ export type SidebarContext = {
 
   /**
    * The current document view
-   * 
+   *
    * When a document is opened, it will be opened with this view.
    */
   currentView?: DocumentView
