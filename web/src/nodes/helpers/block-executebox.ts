@@ -1,9 +1,10 @@
+import type { NodeType } from '@stencila/types'
 import { apply } from '@twind/core'
 import { html, LitElement } from 'lit'
 import { customElement, property } from 'lit/decorators'
 
 import { withTwind } from '../../twind'
-import { DocumentView, NodeType } from '../../types'
+import { DocumentView } from '../../types'
 import { getNodeIcon } from '../../ui/nodes/nodeMapping'
 
 /**

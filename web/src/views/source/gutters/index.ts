@@ -1,7 +1,7 @@
 import { BlockInfo, EditorView, gutter, GutterMarker } from '@codemirror/view'
+import type { NodeType } from '@stencila/types'
 
 import { MappingEntry } from '../../../clients/format'
-import { NodeType } from '../../../types'
 import { SourceView } from '../../source'
 
 import { StencilaGutterMarker } from './component'
@@ -13,7 +13,7 @@ const gutterMarkerElements: readonly NodeType[] = [
   'Heading',
   'List',
   'Table',
-  'InstructBlock',
+  'InstructionBlock',
   'InsertBlock',
   'ModifyBlock',
   'ReplaceBlock',

@@ -1,4 +1,4 @@
-import { NodeType } from '../../types'
+import type { NodeType } from '@stencila/types'
 
 type NodeUISpecs = {
   icon?: string

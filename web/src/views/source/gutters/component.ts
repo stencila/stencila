@@ -1,9 +1,9 @@
+import type { NodeType } from '@stencila/types'
 import { apply } from '@twind/core'
 import { LitElement, html } from 'lit'
 import { customElement, property } from 'lit/decorators'
 
 import { withTwind } from '../../../twind'
-import { NodeType } from '../../../types'
 import { getNodeIcon, getNodeColour } from '../../../ui/nodes/nodeMapping'
 
 @customElement('stencila-gutter-marker')
