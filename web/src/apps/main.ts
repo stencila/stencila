@@ -1,6 +1,6 @@
 import { provide } from '@lit/context'
 import { LitElement, html } from 'lit'
-import { customElement, property } from 'lit/decorators.js'
+import { customElement, property, state } from 'lit/decorators.js'
 
 // import logo from '../images/stencilaIcon.svg'
 import { SidebarContext, sidebarContext } from '../contexts/sidebar-context'
@@ -82,11 +82,8 @@ export class App extends LitElement {
    * - change the view by clicking on a sidebar button
    */
   @provide({ context: sidebarContext })
-  @property({ attribute: false })
-  contextObject: SidebarContext = {
-    currentView: 'visual',
-    directoryOpen: false,
-  }
+  @state()
+  contextObject: SidebarContext
 
   override render() {
     return html`<div
@@ -236,7 +233,14 @@ export class App extends LitElement {
   override connectedCallback() {
     super.connectedCallback()
 
-    // Event listener for updating the file drawer open/close
+    // Instantiate context passing through attribute values where possible.
+    // This allows query parameters e.g ?view=source to be effective.
+    this.contextObject = {
+      currentView: this.view,
+      directoryOpen: false,
+    }
+
+    // Event listener for updating whether the directory view is open or closed
     this.shadowRoot.addEventListener(
       'stencila-directory-toggle',
       (
