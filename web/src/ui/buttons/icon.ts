@@ -1,3 +1,7 @@
+import '@shoelace-style/shoelace/dist/components/button/button'
+import '@shoelace-style/shoelace/dist/components/icon/icon'
+import '@shoelace-style/shoelace/dist/components/tooltip/tooltip'
+
 import { apply, css } from '@twind/core'
 import { LitElement, html } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
@@ -25,6 +29,12 @@ export class UIIconButton extends LitElement {
   icon: string
 
   /**
+   * Content for the button's tooltip
+   */
+  @property()
+  tooltip?: string
+
+  /**
    * Any custom classes to pass to the button element
    */
   @property()
@@ -48,11 +58,20 @@ export class UIIconButton extends LitElement {
   @property()
   type: 'toggle' | 'selected' = 'toggle'
 
-  constructor() {
-    super()
+  override render() {
+    if (this.tooltip) {
+      return html`<sl-tooltip content=${this.tooltip}
+        >${this.renderButton()}</sl-tooltip
+      >`
+    } else {
+      return this.renderButton()
+    }
   }
 
-  override render() {
+  /**
+   * Render the button element and apply appropriate styles.
+   */
+  private renderButton() {
     const classes = apply([
       'group',
       this.disabled ? 'pointer-events-none' : '',
