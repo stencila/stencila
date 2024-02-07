@@ -61,7 +61,12 @@ impl MarkdownEncodeContext {
     /// new mapping entry with those and the current position as end position.
     pub fn exit_node(&mut self) -> &mut Self {
         if let Some((node_type, node_id, start)) = self.node_stack.pop() {
-            let end = self.position();
+            let mut end = self.position();
+            // Do not include any blank line after the node in the range
+            // for the node
+            if self.content.ends_with("\n\n") {
+                end -= 1;
+            }
             self.mapping.add(start, end, node_type, node_id, None)
         }
         self
