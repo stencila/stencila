@@ -2,7 +2,6 @@ import { html } from 'lit'
 import { customElement } from 'lit/decorators'
 
 import { Entity } from './entity'
-import './helpers/block-infobox'
 
 /**
  * Web component representing a Stencila Schema `ListItem` node
@@ -10,8 +9,8 @@ import './helpers/block-infobox'
  * @see https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/list-item.md
  */
 @customElement('stencila-list-item')
-export abstract class ListItem extends Entity {
+export class ListItem extends Entity {
   override render() {
-    return html` <slot name="content"></slot> `
+    return html`<slot name="content"></slot>`
   }
 }

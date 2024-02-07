@@ -1,5 +1,8 @@
+import '@shoelace-style/shoelace/dist/components/icon/icon'
 import { html } from 'lit'
 import { customElement, property } from 'lit/decorators'
+
+import { withTwind } from '../twind'
 
 import { Entity } from './entity'
 
@@ -9,9 +12,8 @@ import { Entity } from './entity'
  * @see https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/person.md
  */
 @customElement('stencila-person')
-export abstract class Person extends Entity {
-  // TODO: add other properties as needed
-
+@withTwind()
+export class Person extends Entity {
   @property({ attribute: 'given-names', type: Array })
   givenNames?: string[]
 
@@ -19,7 +21,11 @@ export abstract class Person extends Entity {
   familyNames?: string[]
 
   override render() {
-    // TODO: improve rendering
-    return html`${this.givenNames} ${this.familyNames}`
+    return html`<div class="my-1">
+      <span class="items-center flex">
+        <sl-icon name="person-circle" class="pr-2"></sl-icon>
+        ${this.givenNames} ${this.familyNames}
+      </span>
+    </div>`
   }
 }

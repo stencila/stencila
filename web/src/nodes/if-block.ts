@@ -15,7 +15,7 @@ import { Executable } from './executable'
 export class IfBlock extends Executable {
   override render() {
     return html`
-      <div part="root" class="border-(1 rose-500) p-2">
+      <div>
         ${this.renderHeader()} ${this.renderClauses()}
       </div>
     `
@@ -23,13 +23,13 @@ export class IfBlock extends Executable {
 
   private renderHeader() {
     return html`
-      <div part="header" contenteditable="false">${this.renderErrors()}</div>
+      <div contenteditable="false">${this.renderErrors()}</div>
     `
   }
 
   private renderClauses() {
     return html`
-      <div part="clauses">
+      <div>
         <slot name="clauses"></slot>
       </div>
     `

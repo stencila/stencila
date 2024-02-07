@@ -1,3 +1,4 @@
+import { NodeType } from '@stencila/types'
 import { customElement } from 'lit/decorators.js'
 
 import { Instruction } from './instruction'
@@ -9,6 +10,5 @@ import { Instruction } from './instruction'
  */
 @customElement('stencila-instruction-block')
 export class InstructionBlock extends Instruction {
-  override currentNode: string = 'InstructionBlock'
-  override title: string = 'Instruction Block'
+  override type: NodeType = 'InstructionBlock'
 }

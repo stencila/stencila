@@ -1,15 +1,11 @@
 import { html } from 'lit'
 import { customElement, property } from 'lit/decorators'
 
-import {
-  getNodeBorderColour,
-  getNodeColour,
-  getNodeIcon,
-} from '../ui/nodes/nodeMapping'
+import { withTwind } from '../twind'
 
 import { Entity } from './entity'
-
-import './helpers/block-infobox'
+import './helpers/node-authors'
+import { nodeCardParentStyles, nodeCardStyles } from './helpers/node-card'
 
 /**
  * Web component representing a Stencila Schema `Heading` node
@@ -17,24 +13,22 @@ import './helpers/block-infobox'
  * @see https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/heading.md
  */
 @customElement('stencila-heading')
-export abstract class Heading extends Entity {
+@withTwind()
+export class Heading extends Entity {
   @property({ type: Number })
   level: Number
 
   override render() {
-    return html`
-      ${this.documentView() !== 'source'
-        ? html`<slot name="content"></slot>`
-        : ''}
+    const view = this.documentView()
 
-      <stencila-block-infobox
-        icon=${getNodeIcon('Heading')}
-        title="Heading"
-        colour=${getNodeColour('Heading')}
-        borderColour=${getNodeBorderColour('Heading')}
-      >
-        <slot name="authors" slot="authors"> </slot>
-      </stencila-block-infobox>
-    `
+    return html`<div class=${nodeCardParentStyles(view)}>
+      ${view !== 'source' ? html`<slot name="content"></slot>` : ''}
+
+      <stencila-node-card type="Heading" class=${nodeCardStyles(view)}>
+        <stencila-node-authors type="Heading">
+          <slot name="authors"></slot>
+        </stencila-node-authors>
+      </stencila-node-card>
+    </div>`
   }
 }

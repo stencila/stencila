@@ -52,22 +52,16 @@ export class IfBlockClause extends CodeExecutable {
   }
 
   override render() {
-    return html`
-      <div part="root" class="border-(1 rose-200) p-2">
-        ${this.renderHeader()} ${this.renderContent()}
-      </div>
-    `
+    return html` <div>${this.renderHeader()} ${this.renderContent()}</div> `
   }
 
   private renderHeader() {
-    return html`
-      <div part="header" contenteditable="false">${this.renderErrors()}</div>
-    `
+    return html` <div contenteditable="false">${this.renderErrors()}</div> `
   }
 
   private renderContent() {
     return html`
-      <div part="content">
+      <div>
         <p class="text-grey-400" contenteditable="false">
           ${this.hasContent ? '' : 'No content'}
         </p>

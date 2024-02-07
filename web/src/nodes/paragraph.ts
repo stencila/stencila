@@ -1,9 +1,11 @@
 import { html } from 'lit'
 import { customElement } from 'lit/decorators'
 
-import { Entity } from './entity'
+import { withTwind } from '../twind'
 
-import './helpers/block-infobox'
+import { Entity } from './entity'
+import './helpers/node-authors'
+import { nodeCardParentStyles, nodeCardStyles } from './helpers/node-card'
 
 /**
  * Web component representing a Stencila Schema `Paragraph` node
@@ -11,16 +13,19 @@ import './helpers/block-infobox'
  * @see https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/paragraph.md
  */
 @customElement('stencila-paragraph')
-export abstract class Paragraph extends Entity {
+@withTwind()
+export class Paragraph extends Entity {
   override render() {
-    return html`
-      ${this.documentView() !== 'source'
-        ? html`<slot name="content"></slot>`
-        : ''}
+    const view = this.documentView()
 
-      <stencila-block-infobox title="Paragraph" currentNode="Paragraph">
-        <slot name="authors" slot="authors"></slot>
-      </stencila-block-infobox>
-    `
+    return html`<div class=${nodeCardParentStyles(view)}>
+      ${view !== 'source' ? html`<slot name="content"></slot>` : ''}
+
+      <stencila-node-card type="Paragraph" class=${nodeCardStyles(view)}>
+        <stencila-node-authors type="Paragraph">
+          <slot name="authors"></slot>
+        </stencila-node-authors>
+      </stencila-node-card>
+    </div>`
   }
 }
