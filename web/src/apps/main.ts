@@ -84,7 +84,7 @@ export class App extends LitElement {
   @provide({ context: sidebarContext })
   @property({ attribute: false })
   contextObject: SidebarContext = {
-    currentView: 'live',
+    currentView: 'visual',
     directoryOpen: false,
   }
 

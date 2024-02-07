@@ -32,13 +32,13 @@ export class UISidebar extends LitElement {
       ></stencila-ui-icon-button>
       <div class="flex flex-col space-y-9 text-xl">
         <stencila-ui-icon-button
-          icon="live-view"
+          icon="visual-view"
           .clickEvent=${() => {
             this.createEvent('stencila-view-change', {
-              currentView: 'live',
+              currentView: 'visual',
             })
           }}
-          ?active=${this.context.currentView === 'live'}
+          ?active=${this.context.currentView === 'visual'}
           type="selected"
         ></stencila-ui-icon-button>
         <stencila-ui-icon-button
