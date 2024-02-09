@@ -68,7 +68,7 @@ export class UISidebar extends LitElement {
 
   /**
    * Emit a `MainContextEvent`
-   * 
+   *
    * @param name The name of the event
    * @param detail The event details
    */
