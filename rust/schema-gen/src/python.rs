@@ -16,7 +16,6 @@ use common::{
     tokio::fs::{create_dir_all, remove_file, write},
 };
 use lazy_static::lazy_static;
-use schema::Boolean;
 
 use crate::{
     schema::{Items, Schema, Type, Value},
@@ -162,7 +161,7 @@ __all__ = [
         Ok(())
     }
 
-    fn module_to_name(module: &String, as_import: Boolean) -> String {
+    fn module_to_name(module: &String, as_import: bool) -> String {
         let mut name = module.to_pascal_case();
         if PYTHON_RENAMES.contains_key(&name.as_str()) {
             let new_name = PYTHON_RENAMES.get(&name.as_str()).unwrap().to_string();
