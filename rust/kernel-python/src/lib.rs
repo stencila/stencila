@@ -38,10 +38,8 @@ impl Kernel for PythonKernel {
     }
 
     fn supports_forks(&self) -> KernelForks {
-        // Supported on all platforms because uses Node.js `child_process.fork`
-        // rather than Unix `fork`.
-        // TODO: check this for python
-        KernelForks::Yes
+        // Uses Python `os.fork()` which is only available on POSIX-based systems
+        self.microkernel_supports_forks()
     }
 
     fn create_instance(&self) -> Result<Box<dyn KernelInstance>> {
