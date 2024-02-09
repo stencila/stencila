@@ -4,6 +4,7 @@ import json
 import os
 import resource
 import sys
+import traceback
 from io import StringIO
 from typing import Any, Dict
 
@@ -183,12 +184,26 @@ while True:
         pass
 
     except Exception as e:
+        stack_trace = StringIO()
+        traceback.print_exc(file=stack_trace)
+        stack_trace = stack_trace.getvalue()
+
+        # Remove the first three lines (the header and where we were in `kernel.py`)
+        # and the last line which repeats the message
+        stack_trace = "\n".join(stack_trace.split("\n")[3:-1])
+        
+        # Remove the "double" exception that can be caused by re-throwing the exception
+        position = stack_trace.find("During handling of the above exception")
+        if position:
+            stack_trace = stack_trace[:position].strip()
+
         sys.stderr.write(
             json.dumps(
                 {
                     "type": "ExecutionError",
                     "errorType": type(e).__name__,
                     "errorMessage": str(e),
+                    "stackTrace": stack_trace
                 }
             )
             + "\n"
