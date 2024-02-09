@@ -58,7 +58,7 @@ def list_variables():
             "programmingLanguage": "Python",
             "nativeType": native_type,
             "nodeType": node_type,
-            "valueHint": value_hint
+            "valueHint": value_hint,
         }
 
         print(json.dumps(variable), end=END + "\n")
@@ -116,9 +116,9 @@ def fork(pipes: str):
         sys.stdin.close()
         sys.stdout.close()
         sys.stderr.close()
-        with open(pipes[0], "rb", 0) as stdin, \
-                open(pipes[1], "wb", 0) as stdout, \
-                open(pipes[2], "wb", 0) as stderr:
+        with open(pipes[0], "rb", 0) as stdin, open(pipes[1], "wb", 0) as stdout, open(
+            pipes[2], "wb", 0
+        ) as stderr:
             sys.stdin = stdin
             sys.stdout = stdout
             sys.stderr = stderr
@@ -164,13 +164,19 @@ def main():
             # Ignore KeyboardInterrupt
             pass
         except Exception as e:
-            print(json.dumps({
-                "type": "ExecutionError",
-                "errorType": type(e).__name__,
-                "errorMessage": str(e)
-            }), file=sys.stderr)
+            print(
+                json.dumps(
+                    {
+                        "type": "ExecutionError",
+                        "errorType": type(e).__name__,
+                        "errorMessage": str(e),
+                    }
+                ),
+                file=sys.stderr,
+            )
 
-        for stream in (sys.stdout, sys.stderr): print(READY, file=stream)
+        for stream in (sys.stdout, sys.stderr):
+            print(READY, file=stream)
 
 
 # Create the initial context
@@ -179,9 +185,9 @@ context: Dict[str, Any] = {}
 
 # If command-line arguments are provided, use them for IO streams and initial context
 if len(sys.argv) > 1:
-    with open(sys.argv[1], "r") as stdin_file, \
-            open(sys.argv[2], "a") as stdout_file, \
-            open(sys.argv[3], "a") as stderr_file:
+    with open(sys.argv[1], "r") as stdin_file, open(
+        sys.argv[2], "a"
+    ) as stdout_file, open(sys.argv[3], "a") as stderr_file:
         sys.stdin = stdin_file
         sys.stdout = stdout_file
         sys.stderr = stderr_file
@@ -189,5 +195,6 @@ if len(sys.argv) > 1:
 
 # Run the main function
 if __name__ == "__main__":
-    for stream in (sys.stdout, sys.stderr): print(READY, file=stream)
+    for stream in (sys.stdout, sys.stderr):
+        print(READY, file=stream)
     main()
