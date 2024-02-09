@@ -2,6 +2,7 @@
 
 import json
 import os
+import resource
 import sys
 from io import StringIO
 from typing import Any, Dict
@@ -20,6 +21,17 @@ GET = "GET" if dev else "\U0010A51A"
 SET = "SET" if dev else "\U00107070"
 REMOVE = "REMOVE" if dev else "\U0010C41C"
 END = "END" if dev else "\U0010CB40"
+
+# Try to get the maximum number of file descriptors the process can have open
+# SC_OPEN_MAX "The maximum number of files that a process can have open at any time" sysconf(3)
+# RLIMIT_NOFILE "specifies a value one greater than the maximum file descriptor number that can be opened by this process." getrlimit(2)
+try:
+    MAXFD = os.sysconf("SC_OPEN_MAX")
+except Exception:
+    try:
+        MAXFD = resource.getrlimit(resource.RLIMIT_NOFILE)[1]
+    except Exception:
+        MAXFD = 256
 
 
 # Monkey patch `print` to encode individual objects (if no options used)
@@ -133,88 +145,66 @@ def remove_variable(name: str):
 def fork(pipes: str):
     global context
 
-    child_context = json.dumps(context)
     pid = os.fork()
     if pid == 0:
-        # Child process
-        sys.stdin.close()
-        sys.stdout.close()
-        sys.stderr.close()
-        with open(pipes[0], "rb", 0) as stdin, open(pipes[1], "wb", 0) as stdout, open(
-            pipes[2], "wb", 0
-        ) as stderr:
-            sys.stdin = stdin
-            sys.stdout = stdout
-            sys.stderr = stderr
-            context = json.loads(pipes[3])
-            sys.exit(main())
+        # Close all file descriptors so that we're not interfering with
+        # parent's file descriptors and so stdin, stdout and stderr get replaced below
+        # using the right file descriptor indices (0, 1, 2).
+        os.closerange(0, MAXFD)
+        os.open(pipes[0], os.O_RDONLY)
+        os.open(pipes[1], os.O_WRONLY | os.O_TRUNC)
+        os.open(pipes[2], os.O_WRONLY | os.O_TRUNC)
     else:
-        # Parent process
-        print(pid)
+        # Parent process: return pid of the fork
+        sys.stdout.write(str(pid))
 
 
-# Main function to handle tasks
-def main():
-    global context
+# Signal that ready to receive tasks
+for stream in (sys.stdout, sys.stderr):
+    stream.write(READY + "\n")
 
-    while True:
-        task = input().strip()
-        if not task:
-            continue
+# Handle tasks
+while True:
+    task = input().strip()
+    if not task:
+        continue
 
-        lines = task.split(LINE)
+    lines = task.split(LINE)
 
-        try:
-            task_type = lines[0]
+    try:
+        task_type = lines[0]
 
-            if task_type == EXEC:
-                execute(lines[1:])
-            elif task_type == EVAL:
-                evaluate(lines[1])
-            elif task_type == LIST:
-                list_variables()
-            elif task_type == GET:
-                get_variable(lines[1])
-            elif task_type == SET:
-                set_variable(lines[1], lines[2])
-            elif task_type == REMOVE:
-                remove_variable(lines[1])
-            elif task_type == FORK:
-                fork(lines[1:])
-            else:
-                raise ValueError(f"Unrecognized task: {task_type}")
+        if task_type == EXEC:
+            execute(lines[1:])
+        elif task_type == EVAL:
+            evaluate(lines[1])
+        elif task_type == LIST:
+            list_variables()
+        elif task_type == GET:
+            get_variable(lines[1])
+        elif task_type == SET:
+            set_variable(lines[1], lines[2])
+        elif task_type == REMOVE:
+            remove_variable(lines[1])
+        elif task_type == FORK:
+            fork(lines[1:])
+        else:
+            raise ValueError(f"Unrecognized task: {task_type}")
 
-        except KeyboardInterrupt:
-            # Ignore KeyboardInterrupt
-            pass
-        except Exception as e:
-            sys.stderr.write(
-                json.dumps(
-                    {
-                        "type": "ExecutionError",
-                        "errorType": type(e).__name__,
-                        "errorMessage": str(e),
-                    }
-                )
-                + "\n"
+    except KeyboardInterrupt:
+        pass
+
+    except Exception as e:
+        sys.stderr.write(
+            json.dumps(
+                {
+                    "type": "ExecutionError",
+                    "errorType": type(e).__name__,
+                    "errorMessage": str(e),
+                }
             )
+            + "\n"
+        )
 
-        for stream in (sys.stdout, sys.stderr):
-            stream.write(READY + "\n")
-
-
-# If command-line arguments are provided, use them for IO streams and initial context
-if len(sys.argv) > 1:
-    with open(sys.argv[1], "r") as stdin_file, open(
-        sys.argv[2], "a"
-    ) as stdout_file, open(sys.argv[3], "a") as stderr_file:
-        sys.stdin = stdin_file
-        sys.stdout = stdout_file
-        sys.stderr = stderr_file
-        context = json.load(sys.stdin)
-
-# Run the main function
-if __name__ == "__main__":
     for stream in (sys.stdout, sys.stderr):
         stream.write(READY + "\n")
-    main()
