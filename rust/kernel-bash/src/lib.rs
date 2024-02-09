@@ -38,7 +38,9 @@ impl Kernel for BashKernel {
     }
 
     fn supports_forks(&self) -> KernelForks {
-        self.microkernel_supports_forks()
+        // Supported on all platforms where `bash` is present because uses background
+        // process rather than Unix `fork`.
+        KernelForks::Yes
     }
 
     fn create_instance(&self) -> Result<Box<dyn KernelInstance>> {
