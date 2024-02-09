@@ -46,10 +46,8 @@ def print(*objects, sep=" ", end="\n", file=sys.stdout, flush=False):
 context: Dict[str, Any] = {"print": print}
 
 
-# Function to execute lines of code
+# Execute lines of code
 def execute(lines: str):
-    global context
-
     # If the last line is compilable as an `eval`-able
     # expression, then return it as a value. Otherwise
     # just execute all the lines
@@ -69,18 +67,14 @@ def execute(lines: str):
             sys.stdout.write(json.dumps(value))
 
 
-# Function to evaluate an expression
+# Evaluate an expression
 def evaluate(expression: str):
-    global context
-
     value = eval(expression, context)
     sys.stdout.write(json.dumps(value))
 
 
-# Function to list variables in the context
+# List variables in the context
 def list_variables():
-    global context
-
     for name, value in context.items():
         if name == "print":
             continue
@@ -100,7 +94,7 @@ def list_variables():
         sys.stdout.write(json.dumps(variable) + END + "\n")
 
 
-# Function to determine node type and value hint
+# Determine node type and value hint for a variable
 def determine_type_and_hint(value: Any):
     if value is None:
         return "Null", None
@@ -118,30 +112,24 @@ def determine_type_and_hint(value: Any):
         return "Object", None  # Fallback
 
 
-# Function to get a variable
+# Get a variable
 def get_variable(name: str):
-    global context
-
     value = context.get(name)
     if value is not None:
         sys.stdout.write(json.dumps(value))
 
 
-# Function to set a variable
+# Set a variable
 def set_variable(name: str, value: str):
-    global context
-
     context[name] = json.loads(value)
 
 
-# Function to remove a variable
+# Remove a variable
 def remove_variable(name: str):
-    global context
-
     context.pop(name, None)
 
 
-# Function to fork the kernel instance
+# Fork the kernel instance
 def fork(pipes: str):
     global context
 
