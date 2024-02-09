@@ -1,6 +1,7 @@
 use kernel::Kernel;
 use kernel_bash::BashKernel;
 use kernel_node::NodeKernel;
+use kernel_python::PythonKernel;
 use kernel_rhai::RhaiKernel;
 
 pub mod cli;
@@ -10,6 +11,7 @@ pub async fn list() -> Vec<Box<dyn Kernel>> {
     vec![
         Box::<BashKernel>::default() as Box<dyn Kernel>,
         Box::<NodeKernel>::default() as Box<dyn Kernel>,
+        Box::<PythonKernel>::default() as Box<dyn Kernel>,
         Box::<RhaiKernel>::default() as Box<dyn Kernel>,
     ]
 }
