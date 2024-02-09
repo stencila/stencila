@@ -1,12 +1,8 @@
 #!/usr/bin/env python3
 
 import json
-import logging
 import os
-import subprocess
 import sys
-from contextlib import redirect_stdout
-
 from io import StringIO
 from typing import Any, Dict
 
@@ -24,6 +20,18 @@ GET = "GET" if dev else "\U0010A51A"
 SET = "SET" if dev else "\U00107070"
 REMOVE = "REMOVE" if dev else "\U0010C41C"
 END = "END" if dev else "\U0010CB40"
+
+
+# Monkey patch `print` to encode individual objects (if no options used)
+def print(*objects, sep=" ", end="\n", file=sys.stdout, flush=False):
+    if sep != " " or end != "\n" or file != sys.stdout or flush:
+        return __builtins__.print(*objects, sep, end, file, flush)
+    for object in objects:
+        sys.stdout.write(json.dumps(object) + END + "\n")
+
+
+# Create the initial context with monkey patched print
+context: Dict[str, Any] = {"print": print}
 
 
 # Function to execute lines of code
@@ -46,16 +54,15 @@ def execute(lines: str):
             exec(compiled, context)
         value = eval(last, context)
         if value is not None:
-            print(json.dumps(value))
+            sys.stdout.write(json.dumps(value))
 
 
 # Function to evaluate an expression
 def evaluate(expression: str):
     global context
 
-    # Evaluate the expression within the context
     value = eval(expression, context)
-    print(json.dumps(value))
+    sys.stdout.write(json.dumps(value))
 
 
 # Function to list variables in the context
@@ -63,6 +70,9 @@ def list_variables():
     global context
 
     for name, value in context.items():
+        if name == "print":
+            continue
+
         native_type = type(value).__name__
         node_type, value_hint = determine_type_and_hint(value)
 
@@ -75,7 +85,7 @@ def list_variables():
             "valueHint": value_hint,
         }
 
-        print(json.dumps(variable), end=END + "\n")
+        sys.stdout.write(json.dumps(variable) + END + "\n")
 
 
 # Function to determine node type and value hint
@@ -102,7 +112,7 @@ def get_variable(name: str):
 
     value = context.get(name)
     if value is not None:
-        print(json.dumps(value))
+        sys.stdout.write(json.dumps(value))
 
 
 # Function to set a variable
@@ -178,23 +188,19 @@ def main():
             # Ignore KeyboardInterrupt
             pass
         except Exception as e:
-            print(
+            sys.stderr.write(
                 json.dumps(
                     {
                         "type": "ExecutionError",
                         "errorType": type(e).__name__,
                         "errorMessage": str(e),
                     }
-                ),
-                file=sys.stderr,
+                )
+                + "\n"
             )
 
         for stream in (sys.stdout, sys.stderr):
-            print(READY, file=stream)
-
-
-# Create the initial context
-context: Dict[str, Any] = {}
+            stream.write(READY + "\n")
 
 
 # If command-line arguments are provided, use them for IO streams and initial context
@@ -210,5 +216,5 @@ if len(sys.argv) > 1:
 # Run the main function
 if __name__ == "__main__":
     for stream in (sys.stdout, sys.stderr):
-        print(READY, file=stream)
+        stream.write(READY + "\n")
     main()
