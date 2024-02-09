@@ -210,3 +210,214 @@ pub enum KernelSignal {
     Terminate,
     Kill,
 }
+
+/// Standard tests for implementations of the `Kernel` and `KernelInstance` traits
+pub mod tests {
+    use common::{eyre::Report, tokio, tracing};
+
+    use super::*;
+
+    /// Create a new kernel instance if available
+    pub async fn create_instance<K>() -> Result<Option<Box<dyn KernelInstance>>>
+    where
+        K: Default + Kernel,
+    {
+        let kernel = K::default();
+        match kernel.availability() {
+            KernelAvailability::Available => Ok(Some(kernel.create_instance()?)),
+            _ => Ok(None),
+        }
+    }
+
+    /// Create and start a new kernel instance if available
+    pub async fn start_instance<K>() -> Result<Option<Box<dyn KernelInstance>>>
+    where
+        K: Default + Kernel,
+    {
+        match create_instance::<K>().await? {
+            Some(mut instance) => {
+                instance.start_here().await?;
+                Ok(Some(instance))
+            }
+            _ => Ok(None),
+        }
+    }
+
+    /// Test sending asynchronous signals to a kernel instance
+    ///
+    /// In addition to testing that kernel signals do what is intended, this also tests
+    /// the asynchronous watching of kernel status.
+    ///
+    /// The kernel stance passed to this function is expected to have status `pending`
+    /// (i.e. to have not been started yet).
+    pub async fn signals(
+        mut kernel: Box<dyn KernelInstance>,
+        setup_step: &str,
+        interrupt_step: Option<&str>,
+        terminate_step: Option<&str>,
+        kill_step: Option<&str>,
+    ) -> Result<()> {
+        let mut watcher = kernel.watcher()?;
+
+        // Convenience macro for checking changes in the watched status
+        macro_rules! assert_status_changed {
+            ($status:ident) => {
+                watcher.changed().await?;
+                assert_eq!(*watcher.borrow_and_update(), KernelStatus::$status);
+            };
+        }
+
+        // Kernel should be passed to this function as pending
+        assert_eq!(kernel.status().await?, KernelStatus::Pending);
+        assert_eq!(*watcher.borrow_and_update(), KernelStatus::Pending);
+
+        // Start kernel and check for status changes
+        kernel.start_here().await?;
+        assert_status_changed!(Ready);
+        assert_eq!(kernel.status().await?, KernelStatus::Ready);
+
+        // Signaller is only available once kernel has started
+        let signaller = kernel.signaller()?;
+
+        // Move the kernel into a task so we can asynchronously do things within it.
+        // The "step" channel helps coordinate with this thread.
+        // We collect errors and return them to main thread so they can be
+        // asserted to be empty.
+        let (step_sender, mut step_receiver) = mpsc::channel::<()>(1);
+        let setup_step = setup_step.to_owned();
+        let has_interrupt_step = interrupt_step.is_some();
+        let interrupt_step = interrupt_step.map(|value| value.to_owned());
+        let has_terminate_step = terminate_step.is_some();
+        let terminate_step = terminate_step.map(|value| value.to_owned());
+        let has_kill_step = kill_step.is_some();
+        let kill_step = kill_step.map(|value| value.to_owned());
+        let task = tokio::spawn(async move {
+            let mut errors = Vec::new();
+
+            // Macro to both log and collect errors
+            macro_rules! error {
+                ($($arg:tt)*) => {{
+                    tracing::error!($($arg)*);
+                    errors.push(format!($($arg)*));
+                }};
+            }
+
+            // Setup step
+            step_receiver.recv().await.unwrap();
+            let (outputs, messages) = kernel.execute(&setup_step).await?;
+            let initial_value = outputs.get(0).cloned();
+            if !messages.is_empty() {
+                error!("Unexpected messages in setup step: {messages:?}")
+            }
+            let status = kernel.status().await?;
+            if status != KernelStatus::Ready {
+                error!("Unexpected status after setup step: {status}")
+            }
+
+            if let Some(interrupt_step) = interrupt_step {
+                // Interrupt step
+                step_receiver.recv().await.unwrap();
+                let (.., messages) = kernel.execute(&interrupt_step).await?;
+                if !messages.is_empty() {
+                    error!("Unexpected messages in interrupt step: {messages:?}")
+                }
+                let status = kernel.status().await?;
+                if status != KernelStatus::Ready {
+                    error!("Unexpected status after interrupt step: {status}")
+                }
+
+                // Value should not have changed because task was interrupted
+                // before it completed
+                step_receiver.recv().await.unwrap();
+                let value = kernel.get("value").await?;
+                if value != initial_value {
+                    error!("Unexpected value after interrupt step: {value:?} !== {initial_value:?}")
+                }
+            }
+
+            if let Some(terminate_step) = terminate_step {
+                // Terminate step
+                step_receiver.recv().await.unwrap();
+                let (.., messages) = kernel.execute(&terminate_step).await?;
+                if !messages.is_empty() {
+                    error!("Unexpected messages in terminate step: {messages:?}")
+                }
+                let status = kernel.status().await?;
+                if status != KernelStatus::Stopped {
+                    error!("Unexpected status after terminate step: {status}")
+                }
+            }
+
+            if let Some(kill_step) = kill_step {
+                // Kill step
+                step_receiver.recv().await.unwrap();
+                let (.., messages) = kernel.execute(&kill_step).await?;
+                if !messages.is_empty() {
+                    error!("Unexpected messages in kill step: {messages:?}")
+                }
+                let status = kernel.status().await?;
+                if status != KernelStatus::Failed {
+                    error!("Unexpected status after kill step: {status}")
+                }
+            }
+
+            let status = kernel.status().await?;
+            Ok::<_, Report>((status, errors))
+        });
+
+        // Iterate over steps, sending signals and checking that status changes as expected
+
+        {
+            // Should have busy/ready status changes during setup step
+            step_sender.send(()).await?;
+            assert_status_changed!(Busy);
+            assert_status_changed!(Ready);
+        }
+
+        if has_interrupt_step {
+            // Should be busy at start of interrupt step
+            step_sender.send(()).await?;
+            assert_status_changed!(Busy);
+
+            // Interrupt (if this fails then the test would keep running)
+            signaller.send(KernelSignal::Interrupt).await?;
+
+            // Should be ready after interrupt
+            assert_status_changed!(Ready);
+
+            // Should have busy/ready status changes during get
+            step_sender.send(()).await?;
+            assert_status_changed!(Busy);
+            assert_status_changed!(Ready);
+        }
+
+        let expected_status = if has_terminate_step {
+            // Should be busy at start of terminate step
+            step_sender.send(()).await?;
+            assert_status_changed!(Busy);
+
+            // Terminate (if this fails then the test would keep running)
+            signaller.send(KernelSignal::Terminate).await?;
+
+            KernelStatus::Stopped
+        } else if has_kill_step {
+            // Should be busy at start of kill step
+            step_sender.send(()).await?;
+            assert_status_changed!(Busy);
+
+            // Kill (if this fails then the test would keep running)
+            signaller.send(KernelSignal::Kill).await?;
+
+            KernelStatus::Failed
+        } else {
+            KernelStatus::Ready
+        };
+
+        // Should have finished the task with correct status and no errors
+        let (status, errors) = task.await??;
+        assert_eq!(status, expected_status);
+        assert_eq!(errors, Vec::<String>::new());
+
+        Ok(())
+    }
+}

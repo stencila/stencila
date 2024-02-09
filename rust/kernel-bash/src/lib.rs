@@ -64,128 +64,46 @@ mod tests {
 
     use common_dev::pretty_assertions::assert_eq;
     use kernel_micro::{
-        common::{
-            eyre::{bail, Report},
-            tokio::{self, sync::mpsc},
-            tracing,
-        },
+        common::{eyre::bail, tokio},
         schema::{Array, Node, Object, Paragraph, Primitive},
-        KernelSignal, KernelStatus,
+        tests::{create_instance, start_instance},
     };
 
     use super::*;
 
-    /// Create and start a new kernel instance if Bash is available
-    async fn start_kernel() -> Result<Option<Box<dyn KernelInstance>>> {
-        let kernel = BashKernel::default();
-        match kernel.availability() {
-            KernelAvailability::Available => {
-                let mut instance = kernel.create_instance()?;
-                instance.start_here().await?;
-                Ok(Some(instance))
-            }
-            _ => Ok(None),
-        }
-    }
-
-    /// Test watching status and sending signals
-    ///
-    /// Pro-tip! Use this to get logs for this test:
-    ///
-    /// ```sh
-    /// RUST_LOG=trace cargo test -p kernel-bash status_and_signals -- --nocapture
-    /// ```
+    /// Run standard kernel test for signals
     #[test_log::test(tokio::test)]
-    async fn status_and_signals() -> Result<()> {
-        let Some(mut kernel) = start_kernel().await? else {
-            return Ok(())
+    async fn signals() -> Result<()> {
+        let Some(instance) = create_instance::<BashKernel>().await? else {
+            return Ok(());
         };
 
-        let mut watcher = kernel.watcher()?;
-        let signaller = kernel.signaller()?;
-
-        // Should be ready because already started
-        assert_eq!(kernel.status().await?, KernelStatus::Ready);
-        assert_eq!(*watcher.borrow_and_update(), KernelStatus::Ready);
-
-        // Move the kernel into a task so we can asynchronously do things in it
-        // The "step" channel helps coordinate with this thread
-        let (step_sender, mut step_receiver) = mpsc::channel::<u8>(1);
-        let task = tokio::spawn(async move {
-            // Short sleep
-            let step = step_receiver.recv().await.unwrap();
-            kernel.execute("sleep 0.25").await?;
-            let status = kernel.status().await?;
-            if status != KernelStatus::Ready {
-                tracing::error!("Unexpected status in step {step}: {status}")
-            }
-
-            // Sleep with interrupt
-            let step = step_receiver.recv().await.unwrap();
-            kernel.execute("sleep 100").await?;
-            let status = kernel.status().await?;
-            if status != KernelStatus::Ready {
-                tracing::error!("Unexpected status in step {step}: {status}")
-            }
-
-            // Sleep with kill
-            let step = step_receiver.recv().await.unwrap();
-            kernel.execute("sleep 100").await?;
-            let status = kernel.status().await?;
-            if status != KernelStatus::Failed {
-                tracing::error!("Unexpected status in step {step}: {status}")
-            }
-
-            Ok::<KernelStatus, Report>(status)
-        });
-
-        {
-            step_sender.send(1).await?;
-
-            // Should be busy during first sleep
-            watcher.changed().await?;
-            assert_eq!(*watcher.borrow_and_update(), KernelStatus::Busy);
-
-            // Should be ready after first sleep
-            watcher.changed().await?;
-            assert_eq!(*watcher.borrow_and_update(), KernelStatus::Ready);
-        }
-        {
-            step_sender.send(2).await?;
-
-            // Should be busy during second sleep
-            watcher.changed().await?;
-            assert_eq!(*watcher.borrow_and_update(), KernelStatus::Busy);
-
-            // Interrupt during third sleep (if this fails then the test would keep running for 100 seconds)
-            signaller.send(KernelSignal::Interrupt).await?;
-
-            // Should be ready after interrupt
-            watcher.changed().await?;
-            assert_eq!(*watcher.borrow_and_update(), KernelStatus::Ready);
-        }
-        {
-            step_sender.send(3).await?;
-
-            // Should be busy during second sleep
-            watcher.changed().await?;
-            assert_eq!(*watcher.borrow_and_update(), KernelStatus::Busy);
-
-            // Kill during second sleep (if this fails then the test would keep running for 100 seconds)
-            signaller.send(KernelSignal::Kill).await?;
-        }
-
-        // Should have finished the task with correct status
-        let status = task.await??;
-        assert_eq!(status, KernelStatus::Failed);
-
-        Ok(())
+        kernel_micro::tests::signals(
+            instance,
+            "
+# Setup step
+sleep(0.1)
+declare value=1",
+            Some(
+                "
+# Interrupt step
+sleep(100)
+declare value=2",
+            ),
+            None,
+            Some(
+                "
+# Kill step
+sleep(100)",
+            ),
+        )
+        .await
     }
 
     /// Test execute tasks that just generate outputs of different types
     #[tokio::test]
     async fn execute_outputs() -> Result<()> {
-        let Some(mut kernel) = start_kernel().await? else {
+        let Some(mut kernel) = start_instance::<BashKernel>().await? else {
             return Ok(())
         };
 
@@ -240,7 +158,7 @@ mod tests {
     /// Test execute tasks that set and use state within the kernel
     #[tokio::test]
     async fn execute_state() -> Result<()> {
-        let Some(mut kernel) = start_kernel().await? else {
+        let Some(mut kernel) = start_instance::<BashKernel>().await? else {
             return Ok(())
         };
 
@@ -260,7 +178,7 @@ mod tests {
     /// Test evaluate tasks
     #[tokio::test]
     async fn evaluate() -> Result<()> {
-        let Some(mut kernel) = start_kernel().await? else {
+        let Some(mut kernel) = start_instance::<BashKernel>().await? else {
                 return Ok(())
             };
 
@@ -274,7 +192,7 @@ mod tests {
     /// Test list, set and get tasks
     #[tokio::test]
     async fn vars() -> Result<()> {
-        let Some(mut kernel) = start_kernel().await? else {
+        let Some(mut kernel) = start_instance::<BashKernel>().await? else {
                 return Ok(())
             };
 
@@ -312,7 +230,7 @@ mod tests {
     /// Test declaring Bash variables with different types
     #[tokio::test]
     async fn var_types() -> Result<()> {
-        let Some(mut kernel) = start_kernel().await? else {
+        let Some(mut kernel) = start_instance::<BashKernel>().await? else {
                 return Ok(())
             };
 
@@ -355,7 +273,7 @@ mod tests {
     /// Test execute tasks that intentionally generate error messages
     #[tokio::test]
     async fn messages() -> Result<()> {
-        let Some(mut kernel) = start_kernel().await? else {
+        let Some(mut kernel) = start_instance::<BashKernel>().await? else {
             return Ok(())
         };
 
@@ -381,7 +299,7 @@ mod tests {
     /// ```
     #[test_log::test(tokio::test)]
     async fn forks() -> Result<()> {
-        let Some(mut kernel) = start_kernel().await? else {
+        let Some(mut kernel) = start_instance::<BashKernel>().await? else {
             return Ok(())
         };
 
@@ -418,7 +336,7 @@ mod tests {
     /// Test execution tasks that involve additional escaping
     #[tokio::test]
     async fn escaping() -> Result<()> {
-        let Some(mut kernel) = start_kernel().await? else {
+        let Some(mut kernel) = start_instance::<BashKernel>().await? else {
             return Ok(())
         };
 

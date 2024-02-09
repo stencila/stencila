@@ -30,7 +30,7 @@ use kernel::{
 // Re-exports for the convenience of internal crates implementing
 // the `Microkernel` trait
 pub use kernel::{
-    common, format, schema, Kernel, KernelAvailability, KernelForks, KernelInstance,
+    common, format, schema, tests, Kernel, KernelAvailability, KernelForks, KernelInstance,
     KernelInterrupt, KernelKill, KernelSignal, KernelStatus, KernelTerminate,
 };
 
@@ -156,7 +156,7 @@ pub trait Microkernel: Sync + Send + Kernel {
 
         // Set up status and status channel
         let status = KernelStatus::Pending;
-        let status_sender = MicrokernelInstance::setup_status_channel(id.clone(), status);
+        let status_sender = MicrokernelInstance::setup_status_channel(status);
 
         Ok(Box::new(MicrokernelInstance {
             id,
@@ -505,7 +505,7 @@ impl KernelInstance for MicrokernelInstance {
             );
 
             let status = KernelStatus::Ready;
-            let status_sender = Self::setup_status_channel(id.clone(), status);
+            let status_sender = Self::setup_status_channel(status);
 
             let signal_sender = Some(Self::setup_signals_channel(id.clone(), pid));
 
@@ -538,18 +538,9 @@ impl MicrokernelInstance {
         self.command.is_none()
     }
 
-    /// Crate a channel for receiving
-    fn setup_status_channel(id: String, init: KernelStatus) -> watch::Sender<KernelStatus> {
-        let (status_sender, mut status_receiver) = watch::channel(init);
-
-        // Start an async task to log status. This is useful for debugging but could be disabled
-        // for release builds.
-        tokio::spawn(async move {
-            while status_receiver.changed().await.is_ok() {
-                let status = *status_receiver.borrow_and_update();
-                tracing::trace!("Status of `{id}` kernel changed: {status}")
-            }
-        });
+    /// Crate a channel for broadcasting status updates
+    fn setup_status_channel(init: KernelStatus) -> watch::Sender<KernelStatus> {
+        let (status_sender, _) = watch::channel(init);
 
         status_sender
     }
@@ -662,6 +653,10 @@ impl MicrokernelInstance {
         self.status = status;
         self.status_sender.send_if_modified(|previous| {
             if status != *previous {
+                tracing::trace!(
+                    "Status of `{}` kernel changed from `{previous}` to `{status}`",
+                    self.id()
+                );
                 *previous = status;
                 true
             } else {

@@ -123,6 +123,8 @@ impl<'lt> KernelInstance for RhaiKernelInstance<'lt> {
     }
 
     async fn execute(&mut self, code: &str) -> Result<(Vec<Node>, Vec<ExecutionError>)> {
+        tracing::trace!("Executing Rhai code");
+
         let status = self.get_status();
         if status != KernelStatus::Ready {
             bail!("Kernel `{}` is not ready; status is `{status}`", self.id())
@@ -144,22 +146,25 @@ impl<'lt> KernelInstance for RhaiKernelInstance<'lt> {
         });
 
         // TODO: if last 'line' is an expression use it as output
-        let result = self.engine.run_with_scope(&mut self.scope, code);
-
-        let outputs = outputs
-            .read()
-            .map_err(|error| eyre!("While reading outputs: {error}"))?
-            .to_owned();
+        let result = match self.engine.run_with_scope(&mut self.scope, code) {
+            Ok(..) => Ok((
+                outputs
+                    .read()
+                    .map_err(|error| eyre!("While reading outputs: {error}"))?
+                    .to_owned(),
+                vec![],
+            )),
+            Err(error) => Ok((vec![], vec![ExecutionError::new(error.to_string())])),
+        };
 
         self.set_status(KernelStatus::Ready)?;
 
-        match result {
-            Ok(..) => Ok((outputs, vec![])),
-            Err(error) => Ok((vec![], vec![ExecutionError::new(error.to_string())])),
-        }
+        result
     }
 
     async fn evaluate(&mut self, code: &str) -> Result<(Vec<Node>, Vec<ExecutionError>)> {
+        tracing::trace!("Evaluating Rhai code");
+
         let status = self.get_status();
         if status != KernelStatus::Ready {
             bail!("Kernel `{}` is not ready; status is `{status}`", self.id())
@@ -167,19 +172,24 @@ impl<'lt> KernelInstance for RhaiKernelInstance<'lt> {
 
         self.set_status(KernelStatus::Busy)?;
 
-        let result = self
+        let result = match self
             .engine
-            .eval_expression_with_scope::<Dynamic>(&mut self.scope, code);
+            .eval_expression_with_scope::<Dynamic>(&mut self.scope, code)
+        {
+            Ok(value) => Ok((vec![dynamic_to_node(value)?], vec![])),
+            Err(error) => Ok((vec![], vec![ExecutionError::new(error.to_string())])),
+        };
 
         self.set_status(KernelStatus::Ready)?;
 
-        match result {
-            Ok(value) => Ok((vec![dynamic_to_node(value)?], vec![])),
-            Err(error) => Ok((vec![], vec![ExecutionError::new(error.to_string())])),
-        }
+        result
     }
 
     async fn list(&mut self) -> Result<Vec<Variable>> {
+        tracing::trace!("Listing Rhai variables");
+
+        self.set_status(KernelStatus::Busy)?;
+
         let variables = self
             .scope
             .iter()
@@ -201,31 +211,44 @@ impl<'lt> KernelInstance for RhaiKernelInstance<'lt> {
             })
             .collect();
 
+        self.set_status(KernelStatus::Ready)?;
+
         Ok(variables)
     }
 
     async fn get(&mut self, name: &str) -> Result<Option<Node>> {
-        let Some(value) = self.scope.get_value::<Dynamic>(name) else {
-            return Ok(None)
+        tracing::trace!("Getting Rhai variable");
+
+        self.set_status(KernelStatus::Busy)?;
+
+        let node = match self.scope.get_value::<Dynamic>(name) {
+            Some(value) => Some(dynamic_to_node(value)?),
+            None => None,
         };
 
-        let node = dynamic_to_node(value)?;
+        self.set_status(KernelStatus::Ready)?;
 
-        Ok(Some(node))
+        Ok(node)
     }
 
     async fn set(&mut self, name: &str, node: &Node) -> Result<()> {
-        let value = node_to_dynamic(node)?;
+        tracing::trace!("Setting Rhai variable");
 
-        self.scope.set_or_push(name, value);
+        self.set_status(KernelStatus::Busy)?;
 
-        Ok(())
+        self.scope.set_or_push(name, node_to_dynamic(node)?);
+
+        self.set_status(KernelStatus::Ready)
     }
 
     async fn remove(&mut self, name: &str) -> Result<()> {
+        tracing::trace!("Removing Rhai variable");
+
+        self.set_status(KernelStatus::Busy)?;
+
         let _ = self.scope.remove::<()>(name);
 
-        Ok(())
+        self.set_status(KernelStatus::Ready)
     }
 
     async fn fork(&mut self) -> Result<Box<dyn KernelInstance>> {
@@ -241,17 +264,7 @@ impl<'lt> RhaiKernelInstance<'lt> {
         let engine = Engine::new();
 
         let status = Arc::new(AtomicU8::new(KernelStatus::Pending.into()));
-        let (status_sender, mut status_receiver) = watch::channel(KernelStatus::Pending);
-
-        // Start an async task to log status. This is useful for debugging but could be disabled
-        // for release builds.
-        let id_clone = id.clone();
-        tokio::spawn(async move {
-            while status_receiver.changed().await.is_ok() {
-                let status = *status_receiver.borrow_and_update();
-                tracing::trace!("Status of `{id_clone}` kernel changed: {status}")
-            }
-        });
+        let (status_sender, ..) = watch::channel(KernelStatus::Pending);
 
         let (signal_sender, mut signal_receiver) = mpsc::channel(1);
 
@@ -293,6 +306,10 @@ impl<'lt> RhaiKernelInstance<'lt> {
 
         self.status_sender.send_if_modified(|previous| {
             if status != *previous {
+                tracing::trace!(
+                    "Status of `{}` kernel changed from `{previous}` to `{status}`",
+                    self.id()
+                );
                 *previous = status;
                 true
             } else {
@@ -368,105 +385,45 @@ fn node_to_dynamic(node: &Node) -> Result<Dynamic> {
 mod tests {
     use common_dev::pretty_assertions::assert_eq;
     use kernel::{
-        common::{
-            eyre::Report,
-            indexmap::IndexMap,
-            tokio::{self, sync::mpsc},
-            tracing,
-        },
+        common::{indexmap::IndexMap, tokio},
         schema::{Array, Node, Object, Paragraph, Primitive},
-        KernelSignal, KernelStatus,
+        tests::{create_instance, start_instance},
     };
 
     use super::*;
 
-    /// Create and start a new kernel instance
-    async fn start_kernel() -> Result<Option<Box<dyn KernelInstance>>> {
-        let mut instance = RhaiKernel::default().create_instance()?;
-        instance.start_here().await?;
-
-        Ok(Some(instance))
-    }
-
-    /// Test watching status and sending signals
-    ///
-    /// Pro-tip! Use this to get logs for this test:
-    ///
-    /// ```sh
-    /// RUST_LOG=trace cargo test -p kernel-node status_and_signals -- --nocapture
-    /// ```
+    /// Run standard kernel test for signals
     ///
     /// Needs to use multiple threads because no `await`s in `execute()` method
     /// for signals and watches to run on.
     #[test_log::test(tokio::test(flavor = "multi_thread", worker_threads = 2))]
-    async fn status_and_signals() -> Result<()> {
-        let Some(mut kernel) = start_kernel().await? else {
-            return Ok(())
+    async fn signals() -> Result<()> {
+        let Some(instance) = create_instance::<RhaiKernel>().await? else {
+            return Ok(());
         };
 
-        let mut watcher = kernel.watcher()?;
-        let signaller = kernel.signaller()?;
-
-        // Should be ready because already started
-        assert_eq!(kernel.status().await?, KernelStatus::Ready);
-        assert_eq!(*watcher.borrow_and_update(), KernelStatus::Ready);
-
-        // Move the kernel into a task so we can asynchronously do things in it
-        // The "step" channel helps coordinate with this thread
-        let (step_sender, mut step_receiver) = mpsc::channel::<u8>(1);
-        let task = tokio::spawn(async move {
-            // Short sleep
-            let step = step_receiver.recv().await.unwrap();
-            kernel.execute("sleep(0.2)").await?;
-            let status = kernel.status().await?;
-            if status != KernelStatus::Ready {
-                tracing::error!("Unexpected status in step {step}: {status}")
-            }
-
-            // Sleep with terminate
-            let step = step_receiver.recv().await.unwrap();
-            kernel.execute("sleep(0.2)").await?;
-            let status = kernel.status().await?;
-            if status != KernelStatus::Stopped {
-                tracing::error!("Unexpected status in step {step}: {status}")
-            }
-
-            Ok::<KernelStatus, Report>(status)
-        });
-
-        {
-            step_sender.send(1).await?;
-
-            // Should be busy during first sleep
-            watcher.changed().await?;
-            assert_eq!(*watcher.borrow_and_update(), KernelStatus::Busy);
-
-            // Should be ready after first sleep
-            watcher.changed().await?;
-            assert_eq!(*watcher.borrow_and_update(), KernelStatus::Ready);
-        }
-        {
-            step_sender.send(2).await?;
-
-            // Should be busy during second sleep
-            watcher.changed().await?;
-            assert_eq!(*watcher.borrow_and_update(), KernelStatus::Busy);
-
-            // Terminate during second sleep
-            signaller.send(KernelSignal::Terminate).await?;
-        }
-
-        // Should have finished the task with correct status
-        let status = task.await??;
-        assert_eq!(status, KernelStatus::Stopped);
-
-        Ok(())
+        kernel::tests::signals(
+            instance,
+            "
+sleep(0.1);
+let value = 1;
+value
+",
+            None,
+            Some(
+                "
+sleep(0.1)
+",
+            ),
+            None,
+        )
+        .await
     }
 
     /// Test evaluate tasks that just generate outputs of different types
     #[tokio::test]
     async fn outputs() -> Result<()> {
-        let Some(mut kernel) = start_kernel().await? else {
+        let Some(mut kernel) = start_instance::<RhaiKernel>().await? else {
             return Ok(())
         };
 
@@ -516,7 +473,7 @@ mod tests {
     /// Test execute tasks that declare and use state within the kernel
     #[tokio::test]
     async fn execute_state() -> Result<()> {
-        let Some(mut kernel) = start_kernel().await? else {
+        let Some(mut kernel) = start_instance::<RhaiKernel>().await? else {
             return Ok(())
         };
 
@@ -536,7 +493,7 @@ mod tests {
     /// Test evaluate tasks
     #[tokio::test]
     async fn evaluate() -> Result<()> {
-        let Some(mut kernel) = start_kernel().await? else {
+        let Some(mut kernel) = start_instance::<RhaiKernel>().await? else {
                 return Ok(())
             };
 
@@ -550,7 +507,7 @@ mod tests {
     /// Test list, set and get tasks
     #[tokio::test]
     async fn vars() -> Result<()> {
-        let Some(mut kernel) = start_kernel().await? else {
+        let Some(mut kernel) = start_instance::<RhaiKernel>().await? else {
                 return Ok(())
             };
 
@@ -578,7 +535,7 @@ mod tests {
     /// Test declaring variables with different types
     #[tokio::test]
     async fn var_types() -> Result<()> {
-        let Some(mut kernel) = start_kernel().await? else {
+        let Some(mut kernel) = start_instance::<RhaiKernel>().await? else {
                 return Ok(())
             };
 
@@ -634,7 +591,7 @@ mod tests {
     /// Test execute tasks that intentionally generate error messages
     #[tokio::test]
     async fn messages() -> Result<()> {
-        let Some(mut kernel) = start_kernel().await? else {
+        let Some(mut kernel) = start_instance::<RhaiKernel>().await? else {
             return Ok(())
         };
 
@@ -667,7 +624,7 @@ mod tests {
     #[ignore]
     #[test_log::test(tokio::test)]
     async fn forks() -> Result<()> {
-        let Some(mut kernel) = start_kernel().await? else {
+        let Some(mut kernel) = start_instance::<RhaiKernel>().await? else {
             return Ok(())
         };
 
@@ -704,7 +661,7 @@ mod tests {
     /// Test that `print`ed values are treated as outputs
     #[tokio::test]
     async fn printing() -> Result<()> {
-        let Some(mut kernel) = start_kernel().await? else {
+        let Some(mut kernel) = start_instance::<RhaiKernel>().await? else {
             return Ok(())
         };
 
