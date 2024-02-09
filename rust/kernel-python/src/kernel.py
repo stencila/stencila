@@ -30,9 +30,23 @@ END = "END" if dev else "\U0010CB40"
 def execute(lines: str):
     global context
 
-    # Execute each line in the context
-    for line in lines:
-        print(exec(line, context))
+    # If the last line is compilable as an `eval`-able
+    # expression, then return it as a value. Otherwise
+    # just execute all the lines
+    rest, last = lines[:-1], lines[-1]
+    try:
+        last = compile(last, "<code>", "eval")
+    except:
+        compiled = compile("\n".join(lines), "<code>", "exec")
+        exec(compiled, context)
+    else:
+        if rest:
+            joined = "\n".join(rest)
+            compiled = compile(joined, "<code>", "exec")
+            exec(compiled, context)
+        value = eval(last, context)
+        if value is not None:
+            print(json.dumps(value))
 
 
 # Function to evaluate an expression
