@@ -67,7 +67,7 @@ mod tests {
             tokio::{self, sync::mpsc},
             tracing,
         },
-        schema::{Array, ExecutionError, Node, Object, Paragraph, Primitive},
+        schema::{Array, Node, Object, Paragraph, Primitive},
         KernelSignal, KernelStatus,
     };
 
@@ -113,19 +113,7 @@ mod tests {
             // Short sleep
             let step = step_receiver.recv().await.unwrap();
             kernel
-                .execute(
-                    "
-                import time
-                # Crude sleep function which can be called at top level without using await
-                def sleep(milliseconds):
-                    start_time = int(time.time() * 1000)
-                    currentTime = int()
-                    while (current_time - start_time < milliseconds):
-                        current_time = int(time.time() * 1000)
-              
-                sleep(250)
-            ",
-                )
+                .execute("from time import sleep; sleep(0.25)")
                 .await?;
             let status = kernel.status().await?;
             if status != KernelStatus::Ready {
@@ -134,7 +122,7 @@ mod tests {
 
             // Sleep with interrupt
             let step = step_receiver.recv().await.unwrap();
-            kernel.execute("sleep(100000)").await?;
+            kernel.execute("sleep(100)").await?;
             let status = kernel.status().await?;
             if status != KernelStatus::Ready {
                 tracing::error!("Unexpected status in step {step}: {status}")
@@ -142,7 +130,7 @@ mod tests {
 
             // Sleep with kill
             let step = step_receiver.recv().await.unwrap();
-            kernel.execute("sleep(100000)").await?;
+            kernel.execute("sleep(100)").await?;
             let status = kernel.status().await?;
             if status != KernelStatus::Failed {
                 tracing::error!("Unexpected status in step {step}: {status}")
@@ -206,11 +194,6 @@ mod tests {
         assert_eq!(messages, vec![]);
         assert_eq!(outputs, vec![Node::String("Hello".to_string())]);
 
-        // A string in double quotes
-        let (outputs, messages) = kernel.execute("\"Hello\"").await?;
-        assert_eq!(messages, vec![]);
-        assert_eq!(outputs, vec![Node::String("Hello".to_string())]);
-
         // A number
         let (outputs, messages) = kernel.execute("1.23").await?;
         assert_eq!(messages, vec![]);
@@ -228,8 +211,8 @@ mod tests {
             ]))]
         );
 
-        // An object (needs to be parenthesized)
-        let (outputs, messages) = kernel.execute(r#"({a:1, b:2.3})"#).await?;
+        // An object (from a dict)
+        let (outputs, messages) = kernel.execute(r#"dict(a=1, b=2.3)"#).await?;
         assert_eq!(messages, vec![]);
         assert_eq!(
             outputs,
@@ -241,7 +224,7 @@ mod tests {
 
         // A content node type
         let (outputs, messages) = kernel
-            .execute(r#"({"type":"Paragraph", "content":[]})"#)
+            .execute(r#"{"type":"Paragraph", "content":[]}"#)
             .await?;
         assert_eq!(messages, vec![]);
         assert_eq!(outputs, vec![Node::Paragraph(Paragraph::new(vec![]))]);
@@ -295,7 +278,7 @@ mod tests {
         assert_eq!(initial.len(), 0);
 
         // Set a var
-        let var_name = "myVar";
+        let var_name = "my_var";
         let var_val = Node::String("Hello Python!".to_string());
         kernel.set(var_name, &var_val).await?;
         assert_eq!(kernel.list().await?.len(), initial.len() + 1);
@@ -321,10 +304,10 @@ mod tests {
         kernel
             .execute(
                 r#"
-            n = 1.23
-            s = "str"
-            a = [1, 2, 3]
-            o = {'a':1, 'b':2.3}
+n = 1.23
+s = "str"
+a = [1, 2, 3]
+o = {'a':1, 'b':2.3}
         "#,
             )
             .await?;
@@ -338,12 +321,12 @@ mod tests {
 
         let var = vars.iter().find(|var| var.name == "s").unwrap();
         assert_eq!(var.node_type.as_deref(), Some("String"));
-        assert_eq!(var.native_type.as_deref(), Some("string"));
+        assert_eq!(var.native_type.as_deref(), Some("str"));
         assert!(matches!(kernel.get("s").await?, Some(Node::String(..))));
 
         let var = vars.iter().find(|var| var.name == "a").unwrap();
         assert_eq!(var.node_type.as_deref(), Some("Array"));
-        assert_eq!(var.native_type.as_deref(), Some("Array"));
+        assert_eq!(var.native_type.as_deref(), Some("list"));
         assert_eq!(
             kernel.get("a").await?,
             Some(Node::Array(Array(vec![
@@ -355,7 +338,7 @@ mod tests {
 
         let var = vars.iter().find(|var| var.name == "o").unwrap();
         assert_eq!(var.node_type.as_deref(), Some("Object"));
-        assert_eq!(var.native_type.as_deref(), Some("object"));
+        assert_eq!(var.native_type.as_deref(), Some("dict"));
         assert_eq!(
             kernel.get("o").await?,
             Some(Node::Object(Object(IndexMap::from([
@@ -377,20 +360,15 @@ mod tests {
         // Syntax error
         let (outputs, messages) = kernel.execute("bad ^ # syntax").await?;
         assert_eq!(messages[0].error_type.as_deref(), Some("SyntaxError"));
-        assert_eq!(
-            messages[0].error_message,
-            "invalid syntax (<string>, line 1)"
-        );
-        // TODO: check if this is valid
-        // assert!(messages[0].stack_trace.is_some());
+        assert_eq!(messages[0].error_message, "invalid syntax (<code>, line 1)");
+        assert!(messages[0].stack_trace.is_some());
         assert_eq!(outputs, vec![]);
 
         // Runtime error
         let (outputs, messages) = kernel.execute("foo").await?;
         assert_eq!(messages[0].error_type.as_deref(), Some("NameError"));
         assert_eq!(messages[0].error_message, "name 'foo' is not defined");
-        // TODO: check if this is valid
-        // assert!(messages[0].stack_trace.is_some());
+        assert!(messages[0].stack_trace.is_some());
         assert_eq!(outputs, vec![]);
 
         Ok(())
@@ -439,25 +417,25 @@ mod tests {
         Ok(())
     }
 
-    /// Test that `console.log` arguments are treated as separate outputs
+    /// Test that `print` arguments are treated as separate outputs
     #[tokio::test]
-    async fn console_log() -> Result<()> {
+    async fn printing() -> Result<()> {
         let Some(mut kernel) = start_kernel().await? else {
             return Ok(());
         };
 
-        let (outputs, messages) = kernel.execute("console.log(1)").await?;
+        let (outputs, messages) = kernel.execute("print(1)").await?;
         assert_eq!(messages, vec![]);
         assert_eq!(outputs, vec![Node::Integer(1)]);
 
-        let (outputs, messages) = kernel.execute("console.log(1, 2, 3)").await?;
+        let (outputs, messages) = kernel.execute("print(1, 2, 3)").await?;
         assert_eq!(messages, vec![]);
         assert_eq!(
             outputs,
             vec![Node::Integer(1), Node::Integer(2), Node::Integer(3)]
         );
 
-        let (outputs, messages) = kernel.execute("console.log([1, 2, 3], 4, 'str')").await?;
+        let (outputs, messages) = kernel.execute("print([1, 2, 3], 4, 'str')").await?;
         assert_eq!(messages, vec![]);
         assert_eq!(
             outputs,
@@ -471,98 +449,6 @@ mod tests {
                 Node::String("str".to_string())
             ]
         );
-
-        Ok(())
-    }
-
-    // TODO: Check that this test is required
-    /// Test that `console.debug`, `console.warn` etc are treated as messages
-    /// separate from `console.log` outputs
-    //    #[tokio::test]
-    //    async fn console_messages() -> Result<()> {
-    //        let Some(mut kernel) = start_kernel().await? else {
-    //            return Ok(());
-    //        };
-    //
-    //        let (outputs, messages) = kernel
-    //            .execute(
-    //                r#"
-    //console.log(1)
-    //console.debug("Debug message")
-    //console.log(2)
-    //console.info("Info message")
-    //console.log(3)
-    //console.warn("Warning message")
-    //console.log(4)
-    //console.error("Error message")
-    //5
-    //"#,
-    //            )
-    //            .await?;
-    //
-    //        assert_eq!(
-    //            messages,
-    //            vec![
-    //                ExecutionError {
-    //                    error_type: Some("Debug".to_string()),
-    //                    error_message: "Debug message".to_string(),
-    //                    ..Default::default()
-    //                },
-    //                ExecutionError {
-    //                    error_type: Some("Info".to_string()),
-    //                    error_message: "Info message".to_string(),
-    //                    ..Default::default()
-    //                },
-    //                ExecutionError {
-    //                    error_type: Some("Warning".to_string()),
-    //                    error_message: "Warning message".to_string(),
-    //                    ..Default::default()
-    //                },
-    //                ExecutionError {
-    //                    error_type: Some("Error".to_string()),
-    //                    error_message: "Error message".to_string(),
-    //                    ..Default::default()
-    //                }
-    //            ]
-    //        );
-    //        assert_eq!(
-    //            outputs,
-    //            vec![
-    //                Node::Integer(1),
-    //                Node::Integer(2),
-    //                Node::Integer(3),
-    //                Node::Integer(4),
-    //                Node::Integer(5)
-    //            ]
-    //        );
-    //
-    //        Ok(())
-    //    }
-
-    // TODO: What is \n here??
-    /// Test re-declarations of variables
-    #[tokio::test]
-    async fn redeclarations() -> Result<()> {
-        let Some(mut kernel) = start_kernel().await? else {
-            return Ok(());
-        };
-
-        // Variable declaration
-
-        let (outputs, messages) = kernel.execute("a = 1\na").await?;
-        assert_eq!(messages, vec![]);
-        assert_eq!(outputs[0], Node::Integer(1));
-
-        let (outputs, messages) = kernel.execute("a = 2\na").await?;
-        assert_eq!(messages, vec![]);
-        assert_eq!(outputs[0], Node::Integer(2));
-
-        // A constant (typically declared in caps).
-        // Python doesn't care about redeclaration of constants though.
-
-        let (outputs, messages) = kernel.execute("A = 3\nA").await?;
-        assert_eq!(messages, vec![]);
-        assert_eq!(outputs[0], Node::Integer(3));
 
         Ok(())
     }
