@@ -70,8 +70,9 @@ def execute(lines: str):
 
 # Evaluate an expression
 def evaluate(expression: str):
-    value = eval(expression, context)
-    sys.stdout.write(json.dumps(value))
+    if expression:
+        value = eval(expression, context)
+        sys.stdout.write(json.dumps(value))
 
 
 # List variables in the context

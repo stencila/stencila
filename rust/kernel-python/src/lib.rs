@@ -62,11 +62,51 @@ mod tests {
     use common_dev::pretty_assertions::assert_eq;
     use kernel_micro::{
         common::{eyre::Ok, indexmap::IndexMap, tokio},
-        schema::{Array, Node, Object, Primitive},
+        schema::{Array, Node, Null, Object, Primitive},
         tests::{create_instance, start_instance},
     };
 
     use super::*;
+
+    /// Run standard kernel test for evaluation of expressions
+    #[test_log::test(tokio::test)]
+    async fn evaluation() -> Result<()> {
+        let Some(instance) = create_instance::<PythonKernel>().await? else {
+            return Ok(());
+        };
+
+        kernel_micro::tests::evaluation(
+            instance,
+            vec![
+                ("1 + 1", Node::Integer(2), None),
+                ("2.0 * 2.2", Node::Number(4.4), None),
+                ("16 ** 0.5", Node::Number(4.0), None),
+                ("'a' + 'bc'", Node::String("abc".to_string()), None),
+                ("'ABC'.lower()", Node::String("abc".to_string()), None),
+                (
+                    "[1, 2] + [3]",
+                    Node::Array(Array(vec![
+                        Primitive::Integer(1),
+                        Primitive::Integer(2),
+                        Primitive::Integer(3),
+                    ])),
+                    None,
+                ),
+                (
+                    "{**{'a': 1}, **{'b':2.3}}",
+                    Node::Object(Object(IndexMap::from([
+                        (String::from("a"), Primitive::Integer(1)),
+                        (String::from("b"), Primitive::Number(2.3)),
+                    ]))),
+                    None,
+                ),
+                ("", Node::Null(Null), None),
+                ("@", Node::Null(Null), Some("invalid syntax (<string>, line 1)")),
+                ("foo", Node::Null(Null), Some("name 'foo' is not defined")),
+            ],
+        )
+        .await
+    }
 
     /// Run standard kernel test for printing nodes
     #[test_log::test(tokio::test)]
@@ -129,23 +169,9 @@ sleep(100)",
         assert_eq!(outputs, vec![]);
 
         // Evaluate an expression
-        let (outputs, messages) = kernel.evaluate("a + b").await?;
+        let (output, messages) = kernel.evaluate("a + b").await?;
         assert_eq!(messages, vec![]);
-        assert_eq!(outputs, vec![Node::Integer(3)]);
-
-        Ok(())
-    }
-
-    /// Test evaluate tasks
-    #[tokio::test]
-    async fn evaluate() -> Result<()> {
-        let Some(mut kernel) = start_instance::<PythonKernel>().await? else {
-            return Ok(());
-        };
-
-        let (outputs, messages) = kernel.evaluate("1 + 2").await?;
-        assert_eq!(messages, vec![]);
-        assert_eq!(outputs, vec![Node::Integer(3)]);
+        assert_eq!(output, Node::Integer(3));
 
         Ok(())
     }

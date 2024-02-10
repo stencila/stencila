@@ -24,7 +24,7 @@ use kernel::{
         },
         tracing,
     },
-    schema::{ExecutionError, Node, Variable},
+    schema::{ExecutionError, Node, Null, Variable},
 };
 
 // Re-exports for the convenience of internal crates implementing
@@ -383,8 +383,16 @@ impl KernelInstance for MicrokernelInstance {
         self.send_receive(MicrokernelFlag::Exec, [code]).await
     }
 
-    async fn evaluate(&mut self, code: &str) -> Result<(Vec<Node>, Vec<ExecutionError>)> {
-        self.send_receive(MicrokernelFlag::Eval, [code]).await
+    async fn evaluate(&mut self, code: &str) -> Result<(Node, Vec<ExecutionError>)> {
+        let (mut outputs, messages) = self.send_receive(MicrokernelFlag::Eval, [code]).await?;
+
+        let output = if outputs.is_empty() {
+            Node::Null(Null)
+        } else {
+            outputs.swap_remove(0)
+        };
+
+        Ok((output, messages))
     }
 
     async fn list(&mut self) -> Result<Vec<Variable>> {

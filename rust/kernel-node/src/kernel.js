@@ -136,7 +136,9 @@ function execute(lines) {
 // Evaluate an expression
 function evaluate(expression) {
   const value = vm.runInContext(expression, context, { breakOnSigint: true });
-  stdout.write(JSON.stringify(value));
+  if (value !== undefined) {
+    stdout.write(JSON.stringify(value));
+  }
 }
 
 // List variables in the context

@@ -2538,6 +2538,7 @@ name = "kernel"
 version = "0.0.0"
 dependencies = [
  "common",
+ "common-dev",
  "format",
  "schema",
 ]

@@ -65,11 +65,32 @@ mod tests {
     use common_dev::pretty_assertions::assert_eq;
     use kernel_micro::{
         common::{eyre::bail, tokio},
-        schema::{Array, Node, Primitive},
+        schema::{Array, Node, Null, Primitive},
         tests::{create_instance, start_instance},
     };
 
     use super::*;
+
+    /// Run standard kernel test for evaluation of expressions
+    #[test_log::test(tokio::test)]
+    async fn evaluation() -> Result<()> {
+        let Some(instance) = create_instance::<BashKernel>().await? else {
+            return Ok(());
+        };
+
+        kernel_micro::tests::evaluation(
+            instance,
+            vec![
+                // Bash kernel only supports simple integer expressions...
+                ("1 + 1", Node::Integer(2), None),
+                ("2 * 2", Node::Integer(4), None),
+                ("16 / 2", Node::Integer(8), None),
+                // ...and will return null on other expressions
+                ("'a' + 'b'", Node::Null(Null), None),
+            ],
+        )
+        .await
+    }
 
     /// Run standard kernel test for printing nodes
     #[test_log::test(tokio::test)]
@@ -131,23 +152,9 @@ sleep(100)",
         assert_eq!(outputs, vec![]);
 
         // Evaluate an expression
-        let (outputs, messages) = kernel.evaluate("a + b").await?;
+        let (output, messages) = kernel.evaluate("a + b").await?;
         assert_eq!(messages, vec![]);
-        assert_eq!(outputs, vec![Node::Integer(3)]);
-
-        Ok(())
-    }
-
-    /// Test evaluate tasks
-    #[tokio::test]
-    async fn evaluate() -> Result<()> {
-        let Some(mut kernel) = start_instance::<BashKernel>().await? else {
-                return Ok(())
-            };
-
-        let (outputs, messages) = kernel.evaluate("1 + 2").await?;
-        assert_eq!(messages, vec![]);
-        assert_eq!(outputs, vec![Node::Integer(3)]);
+        assert_eq!(output, Node::Integer(3));
 
         Ok(())
     }

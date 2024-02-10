@@ -162,12 +162,16 @@ impl<'lt> KernelInstance for RhaiKernelInstance<'lt> {
         result
     }
 
-    async fn evaluate(&mut self, code: &str) -> Result<(Vec<Node>, Vec<ExecutionError>)> {
+    async fn evaluate(&mut self, code: &str) -> Result<(Node, Vec<ExecutionError>)> {
         tracing::trace!("Evaluating Rhai code");
 
         let status = self.get_status();
         if status != KernelStatus::Ready {
             bail!("Kernel `{}` is not ready; status is `{status}`", self.id())
+        }
+
+        if code.trim().is_empty() {
+            return Ok((Node::Null(Null), vec![]));
         }
 
         self.set_status(KernelStatus::Busy)?;
@@ -176,8 +180,11 @@ impl<'lt> KernelInstance for RhaiKernelInstance<'lt> {
             .engine
             .eval_expression_with_scope::<Dynamic>(&mut self.scope, code)
         {
-            Ok(value) => Ok((vec![dynamic_to_node(value)?], vec![])),
-            Err(error) => Ok((vec![], vec![ExecutionError::new(error.to_string())])),
+            Ok(value) => Ok((dynamic_to_node(value)?, vec![])),
+            Err(error) => Ok((
+                Node::Null(Null),
+                vec![ExecutionError::new(error.to_string())],
+            )),
         };
 
         self.set_status(KernelStatus::Ready)?;
@@ -392,6 +399,54 @@ mod tests {
 
     use super::*;
 
+    /// Run standard kernel test for evaluation of expressions
+    #[test_log::test(tokio::test)]
+    async fn evaluation() -> Result<()> {
+        let Some(instance) = create_instance::<RhaiKernel>().await? else {
+            return Ok(());
+        };
+
+        kernel::tests::evaluation(
+            instance,
+            vec![
+                ("1 + 1", Node::Integer(2), None),
+                ("2.0 * 2.2", Node::Number(4.4), None),
+                ("16 ** 0.5", Node::Number(4.0), None),
+                (r#"'a' + "bc""#, Node::String("abc".to_string()), None),
+                (r#""ABC".to_lower()"#, Node::String("abc".to_string()), None),
+                (
+                    "[1, 2] + [3]",
+                    Node::Array(Array(vec![
+                        Primitive::Integer(1),
+                        Primitive::Integer(2),
+                        Primitive::Integer(3),
+                    ])),
+                    None,
+                ),
+                (
+                    "#{a:1, b:2.3}",
+                    Node::Object(Object(IndexMap::from([
+                        (String::from("a"), Primitive::Integer(1)),
+                        (String::from("b"), Primitive::Number(2.3)),
+                    ]))),
+                    None,
+                ),
+                ("", Node::Null(Null), None),
+                (
+                    "@",
+                    Node::Null(Null),
+                    Some("Syntax error: '@' is a reserved symbol (line 1, position 1)"),
+                ),
+                (
+                    "foo",
+                    Node::Null(Null),
+                    Some("Variable not found: foo (line 1, position 1)"),
+                ),
+            ],
+        )
+        .await
+    }
+
     /// Run standard kernel test for printing nodes
     #[test_log::test(tokio::test)]
     async fn printing() -> Result<()> {
@@ -412,7 +467,7 @@ mod tests {
                 print([1, 2.3, "str"]);
                 print(#{a:1, b:2.3, c:"str"}.to_json())
             "#,
-            r#"print(#{type:"Paragraph", content:[]}.to_json())"#
+            r#"print(#{type:"Paragraph", content:[]}.to_json())"#,
         )
         .await
     }
@@ -458,23 +513,9 @@ sleep(0.1)
         assert_eq!(outputs, vec![]);
 
         // Evaluate an expression
-        let (outputs, messages) = kernel.evaluate("a + b").await?;
+        let (output, messages) = kernel.evaluate("a + b").await?;
         assert_eq!(messages, vec![]);
-        assert_eq!(outputs, vec![Node::Integer(3)]);
-
-        Ok(())
-    }
-
-    /// Test evaluate tasks
-    #[tokio::test]
-    async fn evaluate() -> Result<()> {
-        let Some(mut kernel) = start_instance::<RhaiKernel>().await? else {
-                return Ok(())
-            };
-
-        let (outputs, messages) = kernel.evaluate("1 + 2").await?;
-        assert_eq!(messages, vec![]);
-        assert_eq!(outputs, vec![Node::Integer(3)]);
+        assert_eq!(output, Node::Integer(3));
 
         Ok(())
     }

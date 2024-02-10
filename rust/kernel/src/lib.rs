@@ -146,7 +146,7 @@ pub trait KernelInstance: Sync + Send {
     async fn execute(&mut self, code: &str) -> Result<(Vec<Node>, Vec<ExecutionError>)>;
 
     /// Evaluate a code expression, without side effects, in the kernel instance
-    async fn evaluate(&mut self, code: &str) -> Result<(Vec<Node>, Vec<ExecutionError>)>;
+    async fn evaluate(&mut self, code: &str) -> Result<(Node, Vec<ExecutionError>)>;
 
     /// Get a list of variables in the kernel instance
     async fn list(&mut self) -> Result<Vec<Variable>>;
@@ -214,6 +214,7 @@ pub enum KernelSignal {
 /// Standard tests for implementations of the `Kernel` and `KernelInstance` traits
 pub mod tests {
     use common::{eyre::Report, indexmap::IndexMap, tokio, tracing};
+    use common_dev::pretty_assertions::assert_eq;
     use schema::{Array, Null, Object, Paragraph, Primitive};
 
     use super::*;
@@ -242,6 +243,33 @@ pub mod tests {
             }
             _ => Ok(None),
         }
+    }
+
+    /// Test evaluation of expressions by a kernel instance
+    /// 
+    /// All kernel instances must implement this method. This tests is
+    /// passed a vector of test cases and checks for expected output node
+    /// and any message (in case where there is an error).
+    pub async fn evaluation(
+        mut instance: Box<dyn KernelInstance>,
+        cases: Vec<(&str, Node, Option<&str>)>,
+    ) -> Result<()> {
+        instance.start_here().await?;
+        assert_eq!(instance.status().await?, KernelStatus::Ready);
+
+        for (code, expected_output, expected_message) in cases {
+            let (output, messages) = instance.evaluate(code).await?;
+            assert_eq!(
+                messages
+                    .get(0)
+                    .map(|message| message.error_message.as_ref()),
+                expected_message,
+                "with expression: {code}"
+            );
+            assert_eq!(output, expected_output);
+        }
+
+        Ok(())
     }
 
     /// Test printing of nodes by a kernel instance
