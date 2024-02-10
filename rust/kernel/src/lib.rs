@@ -213,7 +213,8 @@ pub enum KernelSignal {
 
 /// Standard tests for implementations of the `Kernel` and `KernelInstance` traits
 pub mod tests {
-    use common::{eyre::Report, tokio, tracing};
+    use common::{eyre::Report, indexmap::IndexMap, tokio, tracing};
+    use schema::{Array, Null, Object, Paragraph, Primitive};
 
     use super::*;
 
@@ -243,21 +244,87 @@ pub mod tests {
         }
     }
 
+    /// Test printing of nodes by a kernel instance
+    ///
+    /// Kernels implementations are encouraged to override the usual
+    /// print function/statement so that arguments are outputted from the
+    /// task as separate Stencila nodes rather than a blob of test.
+    ///
+    /// See arg names below and example usage of this function in the `kernel-*` crates for
+    /// what the code in each task should print to match expected output nodes.
+    pub async fn printing(
+        mut instance: Box<dyn KernelInstance>,
+        string: &str,
+        strings: &str,
+        null_bool_int_num_string_arr_obj: &str,
+        paragraph: &str,
+    ) -> Result<()> {
+        instance.start_here().await?;
+        assert_eq!(instance.status().await?, KernelStatus::Ready);
+
+        let (outputs, messages) = instance.execute(string).await?;
+        assert_eq!(messages, vec![]);
+        assert_eq!(outputs, vec![Node::String("str".to_string())]);
+
+        let (outputs, messages) = instance.execute(strings).await?;
+        assert_eq!(messages, vec![]);
+        assert_eq!(
+            outputs,
+            vec![
+                Node::String("str1".to_string()),
+                Node::String("str2".to_string())
+            ]
+        );
+
+        let (outputs, messages) = instance.execute(null_bool_int_num_string_arr_obj).await?;
+        assert_eq!(messages, vec![]);
+        assert_eq!(
+            outputs,
+            vec![
+                Node::Null(Null),
+                Node::Boolean(true),
+                Node::Integer(1),
+                Node::Number(2.3),
+                Node::String("str".to_string()),
+                Node::Array(Array(vec![
+                    Primitive::Integer(1),
+                    Primitive::Number(2.3),
+                    Primitive::String("str".to_string())
+                ])),
+                Node::Object(Object(IndexMap::from([
+                    (String::from("a"), Primitive::Integer(1),),
+                    (String::from("b"), Primitive::Number(2.3)),
+                    (String::from("c"), Primitive::String("str".to_string()))
+                ])))
+            ]
+        );
+
+        let (outputs, messages) = instance.execute(paragraph).await?;
+        assert_eq!(messages, vec![]);
+        assert_eq!(outputs, vec![Node::Paragraph(Paragraph::new(vec![]))]);
+
+        Ok(())
+    }
+
     /// Test sending asynchronous signals to a kernel instance
     ///
-    /// In addition to testing that kernel signals do what is intended, this also tests
-    /// the asynchronous watching of kernel status.
+    /// Kernel implementations can handle interrupt, terminate and kill signals to varying degrees
+    /// (e.g. some implementations handle all, some may only handle one).
     ///
-    /// The kernel stance passed to this function is expected to have status `pending`
-    /// (i.e. to have not been started yet).
+    /// This tests the signal handling logic of an implementation of `KernelInstance` trait.
+    /// In addition it also tests the asynchronous watching of kernel status.
+    ///
+    /// The kernel instance passed to this function is expected to have status `pending`
+    /// (i.e. to have not been started yet). See example usage of this function in the
+    /// `kernel-*` crates for what the code in each step should do.
     pub async fn signals(
-        mut kernel: Box<dyn KernelInstance>,
+        mut instance: Box<dyn KernelInstance>,
         setup_step: &str,
         interrupt_step: Option<&str>,
         terminate_step: Option<&str>,
         kill_step: Option<&str>,
     ) -> Result<()> {
-        let mut watcher = kernel.watcher()?;
+        let mut watcher = instance.watcher()?;
 
         // Convenience macro for checking changes in the watched status
         macro_rules! assert_status_changed {
@@ -268,16 +335,16 @@ pub mod tests {
         }
 
         // Kernel should be passed to this function as pending
-        assert_eq!(kernel.status().await?, KernelStatus::Pending);
+        assert_eq!(instance.status().await?, KernelStatus::Pending);
         assert_eq!(*watcher.borrow_and_update(), KernelStatus::Pending);
 
         // Start kernel and check for status changes
-        kernel.start_here().await?;
+        instance.start_here().await?;
         assert_status_changed!(Ready);
-        assert_eq!(kernel.status().await?, KernelStatus::Ready);
+        assert_eq!(instance.status().await?, KernelStatus::Ready);
 
         // Signaller is only available once kernel has started
-        let signaller = kernel.signaller()?;
+        let signaller = instance.signaller()?;
 
         // Move the kernel into a task so we can asynchronously do things within it.
         // The "step" channel helps coordinate with this thread.
@@ -304,12 +371,15 @@ pub mod tests {
 
             // Setup step
             step_receiver.recv().await.unwrap();
-            let (outputs, messages) = kernel.execute(&setup_step).await?;
-            let initial_value = outputs.get(0).cloned();
+            let (outputs, messages) = instance.execute(&setup_step).await?;
             if !messages.is_empty() {
                 error!("Unexpected messages in setup step: {messages:?}")
             }
-            let status = kernel.status().await?;
+            let initial_value = outputs.get(0).cloned();
+            if initial_value.is_none() {
+                error!("Setup step did not return a value")
+            }
+            let status = instance.status().await?;
             if status != KernelStatus::Ready {
                 error!("Unexpected status after setup step: {status}")
             }
@@ -317,11 +387,11 @@ pub mod tests {
             if let Some(interrupt_step) = interrupt_step {
                 // Interrupt step
                 step_receiver.recv().await.unwrap();
-                let (.., messages) = kernel.execute(&interrupt_step).await?;
+                let (.., messages) = instance.execute(&interrupt_step).await?;
                 if !messages.is_empty() {
                     error!("Unexpected messages in interrupt step: {messages:?}")
                 }
-                let status = kernel.status().await?;
+                let status = instance.status().await?;
                 if status != KernelStatus::Ready {
                     error!("Unexpected status after interrupt step: {status}")
                 }
@@ -329,7 +399,7 @@ pub mod tests {
                 // Value should not have changed because task was interrupted
                 // before it completed
                 step_receiver.recv().await.unwrap();
-                let value = kernel.get("value").await?;
+                let value = instance.get("value").await?;
                 if value != initial_value {
                     error!("Unexpected value after interrupt step: {value:?} !== {initial_value:?}")
                 }
@@ -338,11 +408,11 @@ pub mod tests {
             if let Some(terminate_step) = terminate_step {
                 // Terminate step
                 step_receiver.recv().await.unwrap();
-                let (.., messages) = kernel.execute(&terminate_step).await?;
+                let (.., messages) = instance.execute(&terminate_step).await?;
                 if !messages.is_empty() {
                     error!("Unexpected messages in terminate step: {messages:?}")
                 }
-                let status = kernel.status().await?;
+                let status = instance.status().await?;
                 if status != KernelStatus::Stopped {
                     error!("Unexpected status after terminate step: {status}")
                 }
@@ -351,17 +421,17 @@ pub mod tests {
             if let Some(kill_step) = kill_step {
                 // Kill step
                 step_receiver.recv().await.unwrap();
-                let (.., messages) = kernel.execute(&kill_step).await?;
+                let (.., messages) = instance.execute(&kill_step).await?;
                 if !messages.is_empty() {
                     error!("Unexpected messages in kill step: {messages:?}")
                 }
-                let status = kernel.status().await?;
+                let status = instance.status().await?;
                 if status != KernelStatus::Failed {
                     error!("Unexpected status after kill step: {status}")
                 }
             }
 
-            let status = kernel.status().await?;
+            let status = instance.status().await?;
             Ok::<_, Report>((status, errors))
         });
 

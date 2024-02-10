@@ -386,11 +386,36 @@ mod tests {
     use common_dev::pretty_assertions::assert_eq;
     use kernel::{
         common::{indexmap::IndexMap, tokio},
-        schema::{Array, Node, Object, Paragraph, Primitive},
+        schema::{Array, Node, Object, Primitive},
         tests::{create_instance, start_instance},
     };
 
     use super::*;
+
+    /// Run standard kernel test for printing nodes
+    #[test_log::test(tokio::test)]
+    async fn printing() -> Result<()> {
+        let Some(instance) = create_instance::<RhaiKernel>().await? else {
+            return Ok(());
+        };
+
+        kernel::tests::printing(
+            instance,
+            r#"print("str")"#,
+            r#"print("str1"); print("str2")"#,
+            r#"
+                print("null");
+                print(true);
+                print(1);
+                print(2.3);
+                print("str");
+                print([1, 2.3, "str"]);
+                print(#{a:1, b:2.3, c:"str"}.to_json())
+            "#,
+            r#"print(#{type:"Paragraph", content:[]}.to_json())"#
+        )
+        .await
+    }
 
     /// Run standard kernel test for signals
     ///
@@ -418,56 +443,6 @@ sleep(0.1)
             None,
         )
         .await
-    }
-
-    /// Test evaluate tasks that just generate outputs of different types
-    #[tokio::test]
-    async fn outputs() -> Result<()> {
-        let Some(mut kernel) = start_instance::<RhaiKernel>().await? else {
-            return Ok(())
-        };
-
-        // A number
-        let (outputs, messages) = kernel.evaluate("1.23").await?;
-        assert_eq!(messages, vec![]);
-        assert_eq!(outputs, vec![Node::Number(1.23)]);
-
-        // A string in double quotes
-        let (outputs, messages) = kernel.evaluate("\"Hello\"").await?;
-        assert_eq!(messages, vec![]);
-        assert_eq!(outputs, vec![Node::String("Hello".to_string())]);
-
-        // An array
-        let (outputs, messages) = kernel.evaluate("[1,2,3]").await?;
-        assert_eq!(messages, vec![]);
-        assert_eq!(
-            outputs,
-            vec![Node::Array(Array::from([
-                Primitive::Integer(1),
-                Primitive::Integer(2),
-                Primitive::Integer(3)
-            ]))]
-        );
-
-        // An object
-        let (outputs, messages) = kernel.evaluate(r#"#{a:1, b:2.3}"#).await?;
-        assert_eq!(messages, vec![]);
-        assert_eq!(
-            outputs,
-            vec![Node::Object(Object::from([
-                ("a", Primitive::Integer(1)),
-                ("b", Primitive::Number(2.3))
-            ]))]
-        );
-
-        // A content node type
-        let (outputs, messages) = kernel
-            .evaluate(r#"#{"type":"Paragraph", "content":[]}"#)
-            .await?;
-        assert_eq!(messages, vec![]);
-        assert_eq!(outputs, vec![Node::Paragraph(Paragraph::new(vec![]))]);
-
-        Ok(())
     }
 
     /// Test execute tasks that declare and use state within the kernel
@@ -653,38 +628,6 @@ sleep(0.1)
         assert_eq!(
             kernel.get("var3").await?,
             Some(Node::String("Hello world".to_string()))
-        );
-
-        Ok(())
-    }
-
-    /// Test that `print`ed values are treated as outputs
-    #[tokio::test]
-    async fn printing() -> Result<()> {
-        let Some(mut kernel) = start_instance::<RhaiKernel>().await? else {
-            return Ok(())
-        };
-
-        let (outputs, messages) = kernel
-            .execute(
-                r#"
-print(true);
-print(123);
-print(4.56);
-print("Hello")
-"#,
-            )
-            .await?;
-
-        assert_eq!(messages, vec![]);
-        assert_eq!(
-            outputs,
-            vec![
-                Node::Boolean(true),
-                Node::Integer(123),
-                Node::Number(4.56),
-                Node::String("Hello".to_string())
-            ]
         );
 
         Ok(())

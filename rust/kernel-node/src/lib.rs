@@ -63,11 +63,28 @@ mod tests {
     use common_dev::pretty_assertions::assert_eq;
     use kernel_micro::{
         common::{indexmap::IndexMap, tokio},
-        schema::{Array, ExecutionError, Node, Object, Paragraph, Primitive},
+        schema::{Array, ExecutionError, Node, Object, Primitive},
         tests::{create_instance, start_instance},
     };
 
     use super::*;
+
+    /// Run standard kernel test for printing nodes
+    #[test_log::test(tokio::test)]
+    async fn printing() -> Result<()> {
+        let Some(instance) = create_instance::<NodeKernel>().await? else {
+            return Ok(());
+        };
+
+        kernel_micro::tests::printing(
+            instance,
+            r#"console.log('str')"#,
+            r#"console.log('str1', 'str2')"#,
+            r#"console.log(null, true, 1, 2.3, 'str', [1, 2.3, 'str'], {a:1, b:2.3, c:'str'})"#,
+            r#"console.log({type:'Paragraph', content:[]})"#,
+        )
+        .await
+    }
 
     /// Run standard kernel test for signals
     #[test_log::test(tokio::test)]
@@ -107,61 +124,6 @@ sleep(100);",
             ),
         )
         .await
-    }
-
-    /// Test execute tasks that just generate outputs of different types
-    #[tokio::test]
-    async fn execute_outputs() -> Result<()> {
-        let Some(mut kernel) = start_instance::<NodeKernel>().await? else {
-            return Ok(())
-        };
-
-        // A string
-        let (outputs, messages) = kernel.execute("'Hello'").await?;
-        assert_eq!(messages, vec![]);
-        assert_eq!(outputs, vec![Node::String("Hello".to_string())]);
-
-        // A string in double quotes
-        let (outputs, messages) = kernel.execute("\"Hello\"").await?;
-        assert_eq!(messages, vec![]);
-        assert_eq!(outputs, vec![Node::String("Hello".to_string())]);
-
-        // A number
-        let (outputs, messages) = kernel.execute("1.23").await?;
-        assert_eq!(messages, vec![]);
-        assert_eq!(outputs, vec![Node::Number(1.23)]);
-
-        // An array
-        let (outputs, messages) = kernel.execute("[1,2,3]").await?;
-        assert_eq!(messages, vec![]);
-        assert_eq!(
-            outputs,
-            vec![Node::Array(Array::from([
-                Primitive::Integer(1),
-                Primitive::Integer(2),
-                Primitive::Integer(3)
-            ]))]
-        );
-
-        // An object (needs to be parenthesized)
-        let (outputs, messages) = kernel.execute(r#"({a:1, b:2.3})"#).await?;
-        assert_eq!(messages, vec![]);
-        assert_eq!(
-            outputs,
-            vec![Node::Object(Object::from([
-                ("a", Primitive::Integer(1)),
-                ("b", Primitive::Number(2.3))
-            ]))]
-        );
-
-        // A content node type
-        let (outputs, messages) = kernel
-            .execute(r#"({"type":"Paragraph", "content":[]})"#)
-            .await?;
-        assert_eq!(messages, vec![]);
-        assert_eq!(outputs, vec![Node::Paragraph(Paragraph::new(vec![]))]);
-
-        Ok(())
     }
 
     /// Test execute tasks that set and use state within the kernel
@@ -344,42 +306,6 @@ sleep(100);",
         assert_eq!(
             kernel.get("var3").await?,
             Some(Node::String("Hello world".to_string()))
-        );
-
-        Ok(())
-    }
-
-    /// Test that `console.log` arguments are treated as separate outputs
-    #[tokio::test]
-    async fn console_log() -> Result<()> {
-        let Some(mut kernel) = start_instance::<NodeKernel>().await? else {
-            return Ok(())
-        };
-
-        let (outputs, messages) = kernel.execute("console.log(1)").await?;
-        assert_eq!(messages, vec![]);
-        assert_eq!(outputs, vec![Node::Integer(1)]);
-
-        let (outputs, messages) = kernel.execute("console.log(1, 2, 3)").await?;
-        assert_eq!(messages, vec![]);
-        assert_eq!(
-            outputs,
-            vec![Node::Integer(1), Node::Integer(2), Node::Integer(3)]
-        );
-
-        let (outputs, messages) = kernel.execute("console.log([1, 2, 3], 4, 'str')").await?;
-        assert_eq!(messages, vec![]);
-        assert_eq!(
-            outputs,
-            vec![
-                Node::Array(Array(vec![
-                    Primitive::Integer(1),
-                    Primitive::Integer(2),
-                    Primitive::Integer(3)
-                ])),
-                Node::Integer(4),
-                Node::String("str".to_string())
-            ]
         );
 
         Ok(())

@@ -65,11 +65,28 @@ mod tests {
     use common_dev::pretty_assertions::assert_eq;
     use kernel_micro::{
         common::{eyre::bail, tokio},
-        schema::{Array, Node, Object, Paragraph, Primitive},
+        schema::{Array, Node, Primitive},
         tests::{create_instance, start_instance},
     };
 
     use super::*;
+
+    /// Run standard kernel test for printing nodes
+    #[test_log::test(tokio::test)]
+    async fn printing() -> Result<()> {
+        let Some(instance) = create_instance::<BashKernel>().await? else {
+            return Ok(());
+        };
+
+        kernel_micro::tests::printing(
+            instance,
+            r#"print str"#,
+            r#"print str1 str2"#,
+            r#"print null true 1 2.3 str '[1, 2.3, "str"]' '{"a":1, "b":2.3, "c":"str"}'"#,
+            r#"print '{"type":"Paragraph", "content":[]}'"#,
+        )
+        .await
+    }
 
     /// Run standard kernel test for signals
     #[test_log::test(tokio::test)]
@@ -83,12 +100,13 @@ mod tests {
             "
 # Setup step
 sleep(0.1)
-declare value=1",
+value=1
+echo $value",
             Some(
                 "
 # Interrupt step
 sleep(100)
-declare value=2",
+value=2",
             ),
             None,
             Some(
@@ -98,61 +116,6 @@ sleep(100)",
             ),
         )
         .await
-    }
-
-    /// Test execute tasks that just generate outputs of different types
-    #[tokio::test]
-    async fn execute_outputs() -> Result<()> {
-        let Some(mut kernel) = start_instance::<BashKernel>().await? else {
-            return Ok(())
-        };
-
-        // Print a string
-        let (outputs, messages) = kernel.execute("echo 'Hello'").await?;
-        assert_eq!(messages, vec![]);
-        assert_eq!(outputs, vec![Node::String("Hello\n".to_string())]);
-
-        // Print a string in double quotes
-        let (outputs, messages) = kernel.execute("printf \"Hello\"").await?;
-        assert_eq!(messages, vec![]);
-        assert_eq!(outputs, vec![Node::String("Hello".to_string())]);
-
-        // Print a number
-        let (outputs, messages) = kernel.execute("echo '1.23'").await?;
-        assert_eq!(messages, vec![]);
-        assert_eq!(outputs, vec![Node::Number(1.23)]);
-
-        // Print an array
-        let (outputs, messages) = kernel.execute("echo '[1,2,3]'").await?;
-        assert_eq!(messages, vec![]);
-        assert_eq!(
-            outputs,
-            vec![Node::Array(Array::from([
-                Primitive::Integer(1),
-                Primitive::Integer(2),
-                Primitive::Integer(3)
-            ]))]
-        );
-
-        // Print an object
-        let (outputs, messages) = kernel.execute(r#"echo '{"a":1, "b":2.3}'"#).await?;
-        assert_eq!(messages, vec![]);
-        assert_eq!(
-            outputs,
-            vec![Node::Object(Object::from([
-                ("a", Primitive::Integer(1)),
-                ("b", Primitive::Number(2.3))
-            ]))]
-        );
-
-        // Print a content node type
-        let (outputs, messages) = kernel
-            .execute(r#"echo '{"type":"Paragraph", "content":[]}'"#)
-            .await?;
-        assert_eq!(messages, vec![]);
-        assert_eq!(outputs, vec![Node::Paragraph(Paragraph::new(vec![]))]);
-
-        Ok(())
     }
 
     /// Test execute tasks that set and use state within the kernel
@@ -333,7 +296,7 @@ sleep(100)",
         Ok(())
     }
 
-    /// Test execution tasks that involve additional escaping
+    /// Test execution tasks that may involve additional escaping
     #[tokio::test]
     async fn escaping() -> Result<()> {
         let Some(mut kernel) = start_instance::<BashKernel>().await? else {
