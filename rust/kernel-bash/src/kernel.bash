@@ -33,6 +33,13 @@ fi
 # Regular expression to match variable assignment
 stencila_assign_regex="^\s*((export|eval|(declare(\s+\-[-aAilnrtux])?))\s+)?[a-zA-Z_][a-zA-Z0-9_]*=.*$"
 
+# Define the 'print' function for outputing one or more Stencila Schema nodes
+print() {
+  for arg in "$@"; do
+    printf "$arg$END\n"
+  done
+}
+
 # SIGINT is handled while EXEC tasks are running but in case SIGINT is received just after a
 # task finishes, or for some other reason inside the main loop, set trap to ignore it
 trap "" SIGINT
