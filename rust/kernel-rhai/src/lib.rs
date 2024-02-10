@@ -12,6 +12,7 @@ use kernel::{
     common::{
         async_trait::async_trait,
         eyre::{bail, eyre, Result},
+        itertools::Itertools,
         serde_json,
         tokio::{
             self,
@@ -145,21 +146,36 @@ impl<'lt> KernelInstance for RhaiKernelInstance<'lt> {
             }
         });
 
-        // TODO: if last 'line' is an expression use it as output
-        let result = match self.engine.run_with_scope(&mut self.scope, code) {
-            Ok(..) => Ok((
+        let mut lines = code.lines().collect_vec();
+        let (rest, last) = match lines.last().map(|line| {
+            self.engine
+                .eval_expression_with_scope::<Dynamic>(&mut self.scope, line)
+        }) {
+            Some(Ok(output)) => {
+                lines.pop();
+                (lines.join("\n"), Some(output))
+            }
+            _ => (lines.join("\n"), None),
+        };
+
+        let (mut outputs, messages) = match self.engine.run_with_scope(&mut self.scope, &rest) {
+            Ok(..) => (
                 outputs
                     .read()
                     .map_err(|error| eyre!("While reading outputs: {error}"))?
                     .to_owned(),
                 vec![],
-            )),
-            Err(error) => Ok((vec![], vec![ExecutionError::new(error.to_string())])),
+            ),
+            Err(error) => (vec![], vec![ExecutionError::new(error.to_string())]),
         };
+
+        if let Some(last) = last {
+            outputs.push(dynamic_to_node(last)?);
+        }
 
         self.set_status(KernelStatus::Ready)?;
 
-        result
+        Ok((outputs, messages))
     }
 
     async fn evaluate(&mut self, code: &str) -> Result<(Node, Vec<ExecutionError>)> {
@@ -399,7 +415,57 @@ mod tests {
 
     use super::*;
 
-    /// Run standard kernel test for evaluation of expressions
+    /// Standard kernel test for execution of code
+    #[test_log::test(tokio::test)]
+    async fn execution() -> Result<()> {
+        let Some(instance) = create_instance::<RhaiKernel>().await? else {
+            return Ok(());
+        };
+
+        kernel::tests::execution(
+            instance,
+            vec![
+                // Empty code: no outputs
+                ("", vec![], vec![]),
+                (" ", vec![], vec![]),
+                ("\n\n", vec![], vec![]),
+                // Only an expression: one output
+                (
+                    "
+1 + 1",
+                    vec![Node::Integer(2)],
+                    vec![],
+                ),
+                // Prints and an expression: multiple, separate outputs
+                (
+                    "
+print(1);
+print(2);
+1 + 2",
+                    vec![Node::Integer(1), Node::Integer(2), Node::Integer(3)],
+                    vec![],
+                ),
+                // Variables set in one chunk are available in the next
+                (
+                    "
+let a = 1;
+let b = 2;",
+                    vec![],
+                    vec![],
+                ),
+                (
+                    "
+print(a);
+b",
+                    vec![Node::Integer(1), Node::Integer(2)],
+                    vec![],
+                ),
+            ],
+        )
+        .await
+    }
+
+    /// Standard kernel test for evaluation of expressions
     #[test_log::test(tokio::test)]
     async fn evaluation() -> Result<()> {
         let Some(instance) = create_instance::<RhaiKernel>().await? else {
@@ -447,7 +513,7 @@ mod tests {
         .await
     }
 
-    /// Run standard kernel test for printing nodes
+    /// Standard kernel test for printing nodes
     #[test_log::test(tokio::test)]
     async fn printing() -> Result<()> {
         let Some(instance) = create_instance::<RhaiKernel>().await? else {
@@ -456,8 +522,8 @@ mod tests {
 
         kernel::tests::printing(
             instance,
-            r#"print("str")"#,
-            r#"print("str1"); print("str2")"#,
+            r#"print("str");"#,
+            r#"print("str1"); print("str2");"#,
             r#"
                 print("null");
                 print(true);
@@ -465,14 +531,14 @@ mod tests {
                 print(2.3);
                 print("str");
                 print([1, 2.3, "str"]);
-                print(#{a:1, b:2.3, c:"str"}.to_json())
+                print(#{a:1, b:2.3, c:"str"}.to_json());
             "#,
-            r#"print(#{type:"Paragraph", content:[]}.to_json())"#,
+            r#"print(#{type:"Paragraph", content:[]}.to_json());"#,
         )
         .await
     }
 
-    /// Run standard kernel test for signals
+    /// Standard kernel test for signals
     ///
     /// Needs to use multiple threads because no `await`s in `execute()` method
     /// for signals and watches to run on.
@@ -487,37 +553,25 @@ mod tests {
             "
 sleep(0.1);
 let value = 1;
-value
-",
+print(value);",
             None,
             Some(
                 "
-sleep(0.1)
-",
+sleep(0.1)",
             ),
             None,
         )
         .await
     }
 
-    /// Test execute tasks that declare and use state within the kernel
-    #[tokio::test]
-    async fn execute_state() -> Result<()> {
-        let Some(mut kernel) = start_instance::<RhaiKernel>().await? else {
-            return Ok(())
+    /// Standard kernel test for stopping
+    #[test_log::test(tokio::test)]
+    async fn stop() -> Result<()> {
+        let Some(instance) = create_instance::<RhaiKernel>().await? else {
+            return Ok(());
         };
 
-        // Declare some variables
-        let (outputs, messages) = kernel.execute("let a=1;\nlet b=2").await?;
-        assert_eq!(messages, vec![]);
-        assert_eq!(outputs, vec![]);
-
-        // Evaluate an expression
-        let (output, messages) = kernel.evaluate("a + b").await?;
-        assert_eq!(messages, vec![]);
-        assert_eq!(output, Node::Integer(3));
-
-        Ok(())
+        kernel::tests::stop(instance).await
     }
 
     /// Test list, set and get tasks
