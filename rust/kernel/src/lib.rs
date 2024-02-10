@@ -213,7 +213,7 @@ pub enum KernelSignal {
 
 /// Standard tests for implementations of the `Kernel` and `KernelInstance` traits
 pub mod tests {
-    use common::{eyre::Report, indexmap::IndexMap, tokio, tracing};
+    use common::{eyre::Report, indexmap::IndexMap, itertools::Itertools, tokio, tracing};
     use common_dev::pretty_assertions::assert_eq;
     use schema::{Array, Null, Object, Paragraph, Primitive};
 
@@ -245,8 +245,46 @@ pub mod tests {
         }
     }
 
+    /// Test execution of code by a kernel instance
+    ///
+    /// All kernel instances must implement this method. This tests is
+    /// passed a vector of test cases of code chunks and checks for
+    /// expected output nodes and any message.
+    ///
+    /// The following are examples of things that should be tested using this.
+    ///
+    /// - variables set in one chunk are available in following chunks
+    /// - packages imported in one chunk are available in following chunks
+    /// - if the last line is an expression it is returned as a value
+    /// - if outputs are printed, they should be separate to the returned last expression value
+    pub async fn execution(
+        mut instance: Box<dyn KernelInstance>,
+        cases: Vec<(&str, Vec<Node>, Vec<&str>)>,
+    ) -> Result<()> {
+        instance.start_here().await?;
+        assert_eq!(instance.status().await?, KernelStatus::Ready);
+
+        for (code, expected_outputs, expected_messages) in cases {
+            let (outputs, messages) = instance.execute(code).await?;
+            assert_eq!(
+                messages
+                    .iter()
+                    .map(|message| message.error_message.to_string())
+                    .collect_vec(),
+                expected_messages
+                    .iter()
+                    .map(|message| message.to_string())
+                    .collect_vec(),
+                "with code: {code}"
+            );
+            assert_eq!(outputs, expected_outputs);
+        }
+
+        Ok(())
+    }
+
     /// Test evaluation of expressions by a kernel instance
-    /// 
+    ///
     /// All kernel instances must implement this method. This tests is
     /// passed a vector of test cases and checks for expected output node
     /// and any message (in case where there is an error).
