@@ -372,6 +372,59 @@ pub mod tests {
         Ok(())
     }
 
+    /// Test managing of variables using `list`, `set`, `get` and `remove`
+    ///
+    /// All kernel instances must implement these methods by setting, getting
+    /// and removing variables of different types.
+    pub async fn var_management(mut instance: Box<dyn KernelInstance>) -> Result<()> {
+        instance.start_here().await?;
+        assert_eq!(instance.status().await?, KernelStatus::Ready);
+
+        // List existing vars
+        let initial = instance.list().await?;
+
+        for (name, value) in [
+            ("bool_", Node::Boolean(true)),
+            ("int_", Node::Integer(123)),
+            ("num_", Node::Number(1.23)),
+            ("string_", Node::String("str".to_string())),
+            (
+                "array_",
+                Node::Array(Array(vec![
+                    Primitive::Integer(1),
+                    Primitive::Number(2.3),
+                    Primitive::String("str".to_string()),
+                ])),
+            ),
+            (
+                "object_",
+                Node::Object(Object(IndexMap::from([
+                    (String::from("a"), Primitive::Integer(1)),
+                    (String::from("b"), Primitive::Number(2.3)),
+                    (String::from("c"), Primitive::String("str".to_string())),
+                ]))),
+            ),
+        ] {
+            // Set a var
+            instance.set(name, &value).await?;
+            let vars = instance.list().await?;
+            assert_eq!(vars.len(), initial.len() + 1);
+            assert!(vars.iter().find(|var| var.name == name).is_some());
+
+            // Get the var
+            assert_eq!(instance.get(name).await?, Some(value));
+
+            // Remove the var
+            instance.remove(name).await?;
+            assert_eq!(instance.get(name).await?, None);
+            let vars = instance.list().await?;
+            assert_eq!(vars.len(), initial.len());
+            assert!(vars.iter().find(|var| var.name == name).is_none());
+        }
+
+        Ok(())
+    }
+
     /// Test sending asynchronous signals to a kernel instance
     ///
     /// Kernel implementations can handle interrupt, terminate and kill signals to varying degrees
@@ -556,9 +609,7 @@ pub mod tests {
     }
 
     /// Test stopping a kernel instance
-    pub async fn stop(
-        mut instance: Box<dyn KernelInstance>
-    ) -> Result<()> {
+    pub async fn stop(mut instance: Box<dyn KernelInstance>) -> Result<()> {
         instance.start_here().await?;
         assert_eq!(instance.status().await?, KernelStatus::Ready);
 

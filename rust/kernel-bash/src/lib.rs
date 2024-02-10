@@ -60,8 +60,6 @@ impl Microkernel for BashKernel {
 
 #[cfg(test)]
 mod tests {
-    use std::env;
-
     use common_dev::{ntest::timeout, pretty_assertions::assert_eq};
     use kernel_micro::{
         common::{eyre::bail, tokio},
@@ -167,6 +165,16 @@ echo $value",
         .await
     }
 
+    /// Standard kernel test for variable management
+    #[test_log::test(tokio::test)]
+    async fn var_management() -> Result<()> {
+        let Some(instance) = create_instance::<BashKernel>().await? else {
+            return Ok(());
+        };
+
+        kernel_micro::tests::var_management(instance).await
+    }
+
     /// Standard kernel test for signals
     #[test_log::test(tokio::test)]
     #[timeout(5000)]
@@ -202,44 +210,6 @@ sleep 100",
         };
 
         kernel_micro::tests::stop(instance).await
-    }
-
-    /// Test list, set and get tasks
-    #[tokio::test]
-    async fn vars() -> Result<()> {
-        let Some(mut kernel) = start_instance::<BashKernel>().await? else {
-                return Ok(())
-            };
-
-        // List existing env vars
-        let initial = kernel.list().await?;
-        assert_eq!(
-            initial
-                .iter()
-                .filter(|var| var.name == "PATH" && var.node_type.as_deref() == Some("String"))
-                .count(),
-            1
-        );
-
-        // Get a var
-        assert_eq!(
-            kernel.get("PATH").await?,
-            env::var("PATH").ok().map(Node::String)
-        );
-
-        // Set a var
-        let var_name = "MYVAR";
-        let var_val = Node::String("VAL".to_string());
-        kernel.set(var_name, &var_val).await?;
-
-        // Get the var
-        assert_eq!(kernel.get(var_name).await?, Some(var_val));
-
-        // Remove the var
-        kernel.remove(var_name).await?;
-        assert_eq!(kernel.get(var_name).await?, None);
-
-        Ok(())
     }
 
     /// Test declaring Bash variables with different types

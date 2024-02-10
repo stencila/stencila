@@ -200,6 +200,16 @@ print(a, b)",
         .await
     }
 
+    /// Standard kernel test for variable management
+    #[test_log::test(tokio::test)]
+    async fn var_management() -> Result<()> {
+        let Some(instance) = create_instance::<PythonKernel>().await? else {
+                return Ok(());
+            };
+
+        kernel_micro::tests::var_management(instance).await
+    }
+
     /// Standard kernel test for signals
     #[test_log::test(tokio::test)]
     async fn signals() -> Result<()> {
@@ -239,34 +249,6 @@ sleep(100)",
         };
 
         kernel_micro::tests::stop(instance).await
-    }
-
-    /// Test list, set and get tasks
-    #[tokio::test]
-    async fn vars() -> Result<()> {
-        let Some(mut kernel) = start_instance::<PythonKernel>().await? else {
-            return Ok(());
-        };
-
-        // List existing env vars
-        let initial = kernel.list().await?;
-        assert_eq!(initial.len(), 0);
-
-        // Set a var
-        let var_name = "my_var";
-        let var_val = Node::String("Hello Python!".to_string());
-        kernel.set(var_name, &var_val).await?;
-        assert_eq!(kernel.list().await?.len(), initial.len() + 1);
-
-        // Get the var
-        assert_eq!(kernel.get(var_name).await?, Some(var_val));
-
-        // Remove the var
-        kernel.remove(var_name).await?;
-        assert_eq!(kernel.get(var_name).await?, None);
-        assert_eq!(kernel.list().await?.len(), initial.len());
-
-        Ok(())
     }
 
     /// Test declaring JavaScript variables with different types

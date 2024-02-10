@@ -538,6 +538,16 @@ b",
         .await
     }
 
+    /// Standard kernel test for variable management
+    #[test_log::test(tokio::test)]
+    async fn var_management() -> Result<()> {
+        let Some(instance) = create_instance::<RhaiKernel>().await? else {
+            return Ok(());
+        };
+
+        kernel::tests::var_management(instance).await
+    }
+
     /// Standard kernel test for signals
     ///
     /// Needs to use multiple threads because no `await`s in `execute()` method
@@ -572,34 +582,6 @@ sleep(0.1)",
         };
 
         kernel::tests::stop(instance).await
-    }
-
-    /// Test list, set and get tasks
-    #[tokio::test]
-    async fn vars() -> Result<()> {
-        let Some(mut kernel) = start_instance::<RhaiKernel>().await? else {
-                return Ok(())
-            };
-
-        // List existing vars
-        let initial = kernel.list().await?;
-        assert_eq!(initial.len(), 0);
-
-        // Set a var
-        let var_name = "var1";
-        let var_val = Node::String("Hello Rhai!".to_string());
-        kernel.set(var_name, &var_val).await?;
-        assert_eq!(kernel.list().await?.len(), initial.len() + 1);
-
-        // Get the var
-        assert_eq!(kernel.get(var_name).await?, Some(var_val));
-
-        // Remove the var
-        kernel.remove(var_name).await?;
-        assert_eq!(kernel.get(var_name).await?, None);
-        assert_eq!(kernel.list().await?.len(), initial.len());
-
-        Ok(())
     }
 
     /// Test declaring variables with different types
