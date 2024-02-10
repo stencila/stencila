@@ -73,8 +73,7 @@ do
         wait $!
         trap "" SIGINT
       fi
-      unset stencila_assigns
-      unset stencila_code
+      unset stencila_assigns stencila_code BASH_REMATCH
       ;;
     "$EVAL")
       # Evaluate second line (integer expressions only)
@@ -83,6 +82,9 @@ do
     "$LIST")
       # Return a list of variables (with limited type info and END flag after each)
       declare -p | sed -n 's/declare -\([-aAilnrtux]\) \([a-zA-Z_][a-zA-Z0-9_]*\)=\(.*\)/\1 \2/p' | while read -r stencila_options stencila_name; do
+        if [[ $stencila_name == stencila_* ]]; then
+          continue
+        fi
         if [[ $stencila_options == *"i"* ]]; then
           stencila_node_type="Integer"
           stencila_native_type="integer"
@@ -97,10 +99,7 @@ do
           stencila_native_type="string"
         fi
         echo "{\"type\":\"Variable\",\"name\":\"$stencila_name\",\"nodeType\":\"$stencila_node_type\",\"nativeType\":\"$stencila_native_type\",\"programmingLanguage\":\"Bash\"} $END"
-        unset stencila_options
-        unset stencila_name
-        unset stencila_node_type
-        unset stencila_native_type
+        unset stencila_options stencila_name stencila_node_type stencila_native_type
       done
       ;;
     "$GET")
@@ -126,7 +125,7 @@ do
         # Others: printf rather than echo to avoid trailing newline
         printf '%s' "${!stencila_name}"
       fi
-      unset stencila_name
+      unset stencila_name BASH_REMATCH
       ;;
     "$SET")
       # Set a variable. Uses -x option (for export) so that variables
