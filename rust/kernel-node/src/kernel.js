@@ -68,6 +68,7 @@ console.error = (message) =>
 // The execution context
 const context = {
   ...variables,
+  require,
   console,
 };
 vm.createContext(context);
