@@ -62,7 +62,7 @@ impl Microkernel for BashKernel {
 mod tests {
     use std::env;
 
-    use common_dev::pretty_assertions::assert_eq;
+    use common_dev::{ntest::timeout, pretty_assertions::assert_eq};
     use kernel_micro::{
         common::{eyre::bail, tokio},
         schema::{Array, Node, Null, Primitive},
@@ -71,7 +71,65 @@ mod tests {
 
     use super::*;
 
-    /// Run standard kernel test for evaluation of expressions
+    /// Standard kernel test for execution of code
+    #[test_log::test(tokio::test)]
+    async fn execution() -> Result<()> {
+        let Some(instance) = create_instance::<BashKernel>().await? else {
+            return Ok(());
+        };
+
+        kernel_micro::tests::execution(
+            instance,
+            vec![
+                // Empty code: no outputs
+                ("", vec![], vec![]),
+                (" ", vec![], vec![]),
+                ("\n\n", vec![], vec![]),
+                // Prints: multiple, separate outputs
+                (
+                    "
+print 1
+print 2 3
+echo 4",
+                    vec![
+                        Node::Integer(1),
+                        Node::Integer(2),
+                        Node::Integer(3),
+                        Node::Integer(4),
+                    ],
+                    vec![],
+                ),
+                // Variables set in one chunk are available in the next
+                (
+                    "
+declare a=1
+declare b=2
+export c=3",
+                    vec![],
+                    vec![],
+                ),
+                (
+                    "
+print $a $b $c",
+                    vec![Node::Integer(1), Node::Integer(2), Node::Integer(3)],
+                    vec![],
+                ),
+                // Comments are ignored
+                (
+                    "
+# Comment
+value=4 # Comment at line end
+# Another comment
+echo $value",
+                    vec![Node::Integer(4)],
+                    vec![],
+                ),
+            ],
+        )
+        .await
+    }
+
+    /// Standard kernel test for evaluation of expressions
     #[test_log::test(tokio::test)]
     async fn evaluation() -> Result<()> {
         let Some(instance) = create_instance::<BashKernel>().await? else {
@@ -92,7 +150,7 @@ mod tests {
         .await
     }
 
-    /// Run standard kernel test for printing nodes
+    /// Standard kernel test for printing nodes
     #[test_log::test(tokio::test)]
     async fn printing() -> Result<()> {
         let Some(instance) = create_instance::<BashKernel>().await? else {
@@ -109,8 +167,9 @@ mod tests {
         .await
     }
 
-    /// Run standard kernel test for signals
+    /// Standard kernel test for signals
     #[test_log::test(tokio::test)]
+    #[timeout(5000)]
     async fn signals() -> Result<()> {
         let Some(instance) = create_instance::<BashKernel>().await? else {
             return Ok(());
@@ -120,43 +179,29 @@ mod tests {
             instance,
             "
 # Setup step
-sleep(0.1)
+sleep 0.1
 value=1
 echo $value",
             Some(
                 "
-# Interrupt step
-sleep(100)
-value=2",
+# Interrupt step (can't attempt to assign because that will cause
+# this to run in main, uninterruptible bash process)
+sleep 100",
             ),
             None,
-            Some(
-                "
-# Kill step
-sleep(100)",
-            ),
+            None,
         )
         .await
     }
 
-    /// Test execute tasks that set and use state within the kernel
-    #[tokio::test]
-    async fn execute_state() -> Result<()> {
-        let Some(mut kernel) = start_instance::<BashKernel>().await? else {
-            return Ok(())
+    /// Standard kernel test for stopping
+    #[test_log::test(tokio::test)]
+    async fn stop() -> Result<()> {
+        let Some(instance) = create_instance::<BashKernel>().await? else {
+            return Ok(());
         };
 
-        // Set some variables
-        let (outputs, messages) = kernel.execute("a=1\nb=2").await?;
-        assert_eq!(messages, vec![]);
-        assert_eq!(outputs, vec![]);
-
-        // Evaluate an expression
-        let (output, messages) = kernel.evaluate("a + b").await?;
-        assert_eq!(messages, vec![]);
-        assert_eq!(output, Node::Integer(3));
-
-        Ok(())
+        kernel_micro::tests::stop(instance).await
     }
 
     /// Test list, set and get tasks

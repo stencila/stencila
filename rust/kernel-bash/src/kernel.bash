@@ -56,23 +56,25 @@ do
   # Switch on the task flag (the first line)
   case "${stencila_lines[0]}" in 
     "$EXEC")
-      for stencila_line in "${stencila_lines[@]}"; do
+      for stencila_line in "${stencila_lines[@]:1}"; do
         if [[ "$stencila_line" =~ $stencila_assign_regex ]]; then
           stencila_assigns=true
           break
         fi
       done
+      printf -v stencila_code "%s\n" "${stencila_lines[@]:1}"
       if [[ "$stencila_assigns" == true ]]; then
         # Execute remaining lines, at least one containing an assignment, here
-        unset stencila_assigns
-        eval $(printf "%s\n" "${stencila_lines[@]:1}")
+        eval "$stencila_code"
       else
         # Execute remaining lines in background so the task can be interrupted
-        eval $(printf "%s\n" "${stencila_lines[@]:1}") &
+        eval "$stencila_code" &
         trap "kill -SIGTERM $!" SIGINT
         wait $!
         trap "" SIGINT
       fi
+      unset stencila_assigns
+      unset stencila_code
       ;;
     "$EVAL")
       # Evaluate second line (integer expressions only)
