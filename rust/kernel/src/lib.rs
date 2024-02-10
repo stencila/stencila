@@ -482,9 +482,7 @@ pub mod tests {
                 if status != KernelStatus::Stopped {
                     error!("Unexpected status after terminate step: {status}")
                 }
-            }
-
-            if let Some(kill_step) = kill_step {
+            } else if let Some(kill_step) = kill_step {
                 // Kill step
                 step_receiver.recv().await.unwrap();
                 let (.., messages) = instance.execute(&kill_step).await?;
