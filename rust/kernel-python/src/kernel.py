@@ -35,12 +35,25 @@ except Exception:
         MAXFD = 256
 
 
+# Serialize a Python object as JSON (falling back to a string)
+def to_json(object):
+    try:
+        return json.dumps(object)
+    except:
+        return str(object)
+
+
+# Deserialize a Python object from JSON (falling back to a string)
+def from_json(string):
+    return json.loads(string)
+
+
 # Monkey patch `print` to encode individual objects (if no options used)
 def print(*objects, sep=" ", end="\n", file=sys.stdout, flush=False):
     if sep != " " or end != "\n" or file != sys.stdout or flush:
         return __builtins__.print(*objects, sep, end, file, flush)
     for object in objects:
-        sys.stdout.write(json.dumps(object) + END + "\n")
+        sys.stdout.write(to_json(object) + END + "\n")
 
 
 # Create the initial context with monkey patched print
@@ -65,14 +78,14 @@ def execute(lines: str):
             exec(compiled, context)
         value = eval(last, context)
         if value is not None:
-            sys.stdout.write(json.dumps(value))
+            sys.stdout.write(to_json(value))
 
 
 # Evaluate an expression
 def evaluate(expression: str):
     if expression:
         value = eval(expression, context)
-        sys.stdout.write(json.dumps(value))
+        sys.stdout.write(to_json(value))
 
 
 # List variables in the context
@@ -93,7 +106,7 @@ def list_variables():
             "valueHint": value_hint,
         }
 
-        sys.stdout.write(json.dumps(variable) + END + "\n")
+        sys.stdout.write(to_json(variable) + END + "\n")
 
 
 # Determine node type and value hint for a variable
@@ -118,12 +131,12 @@ def determine_type_and_hint(value: Any):
 def get_variable(name: str):
     value = context.get(name)
     if value is not None:
-        sys.stdout.write(json.dumps(value))
+        sys.stdout.write(to_json(value))
 
 
 # Set a variable
 def set_variable(name: str, value: str):
-    context[name] = json.loads(value)
+    context[name] = from_json(value)
 
 
 # Remove a variable
@@ -192,19 +205,19 @@ while True:
         # Remove the first three lines (the header and where we were in `kernel.py`)
         # and the last line which repeats the message
         stack_trace = "\n".join(stack_trace.split("\n")[3:-1])
-        
+
         # Remove the "double" exception that can be caused by re-throwing the exception
         position = stack_trace.find("During handling of the above exception")
         if position:
             stack_trace = stack_trace[:position].strip()
 
         sys.stderr.write(
-            json.dumps(
+            to_json(
                 {
                     "type": "ExecutionError",
                     "errorType": type(e).__name__,
                     "errorMessage": str(e),
-                    "stackTrace": stack_trace
+                    "stackTrace": stack_trace,
                 }
             )
             + "\n"

@@ -68,7 +68,81 @@ mod tests {
 
     use super::*;
 
-    /// Run standard kernel test for evaluation of expressions
+    /// Standard kernel test for execution of code
+    #[test_log::test(tokio::test)]
+    async fn execution() -> Result<()> {
+        let Some(instance) = create_instance::<PythonKernel>().await? else {
+            return Ok(());
+        };
+
+        kernel_micro::tests::execution(
+            instance,
+            vec![
+                // Empty code: no outputs
+                ("", vec![], vec![]),
+                (" ", vec![], vec![]),
+                ("\n\n", vec![], vec![]),
+                // Only an expression: one output
+                (
+                    "
+1 + 1",
+                    vec![Node::Integer(2)],
+                    vec![],
+                ),
+                // Prints and an expression: multiple, separate outputs
+                (
+                    "
+print(1);
+print(2, 3);
+2 + 2",
+                    vec![
+                        Node::Integer(1),
+                        Node::Integer(2),
+                        Node::Integer(3),
+                        Node::Integer(4),
+                    ],
+                    vec![],
+                ),
+                // Imports in one code chunk are available in the next
+                (
+                    "
+import sys
+from sys import argv",
+                    vec![],
+                    vec![],
+                ),
+                (
+                    "
+print(type(sys), type(argv))",
+                    vec![
+                        Node::String("<class 'module'>".to_string()),
+                        Node::String("<class 'list'>".to_string()),
+                    ],
+                    vec![],
+                ),
+                // Variables set in one chunk are available in the next
+                (
+                    "
+a = 1
+b = 2",
+                    vec![],
+                    vec![],
+                ),
+                (
+                    "
+print(a, b)",
+                    vec![
+                        Node::Integer(1),
+                        Node::Integer(2)
+                    ],
+                    vec![],
+                ),
+            ],
+        )
+        .await
+    }
+
+    /// Standard kernel test for evaluation of expressions
     #[test_log::test(tokio::test)]
     async fn evaluation() -> Result<()> {
         let Some(instance) = create_instance::<PythonKernel>().await? else {
@@ -101,14 +175,18 @@ mod tests {
                     None,
                 ),
                 ("", Node::Null(Null), None),
-                ("@", Node::Null(Null), Some("invalid syntax (<string>, line 1)")),
+                (
+                    "@",
+                    Node::Null(Null),
+                    Some("invalid syntax (<string>, line 1)"),
+                ),
                 ("foo", Node::Null(Null), Some("name 'foo' is not defined")),
             ],
         )
         .await
     }
 
-    /// Run standard kernel test for printing nodes
+    /// Standard kernel test for printing nodes
     #[test_log::test(tokio::test)]
     async fn printing() -> Result<()> {
         let Some(instance) = create_instance::<PythonKernel>().await? else {
@@ -125,7 +203,7 @@ mod tests {
         .await
     }
 
-    /// Run standard kernel test for signals
+    /// Standard kernel test for signals
     #[test_log::test(tokio::test)]
     async fn signals() -> Result<()> {
         let Some(instance) = create_instance::<PythonKernel>().await? else {
@@ -154,26 +232,6 @@ sleep(100)",
             ),
         )
         .await
-    }
-
-    /// Test execute tasks that set and use state within the kernel
-    #[tokio::test]
-    async fn execute_state() -> Result<()> {
-        let Some(mut kernel) = start_instance::<PythonKernel>().await? else {
-            return Ok(());
-        };
-
-        // Set some variables
-        let (outputs, messages) = kernel.execute("a=1\nb=2").await?;
-        assert_eq!(messages, vec![]);
-        assert_eq!(outputs, vec![]);
-
-        // Evaluate an expression
-        let (output, messages) = kernel.evaluate("a + b").await?;
-        assert_eq!(messages, vec![]);
-        assert_eq!(output, Node::Integer(3));
-
-        Ok(())
     }
 
     /// Test list, set and get tasks
