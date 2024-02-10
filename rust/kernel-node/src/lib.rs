@@ -240,6 +240,16 @@ sleep(100);",
         .await
     }
 
+    /// Standard kernel test for stopping
+    #[test_log::test(tokio::test)]
+    async fn stop() -> Result<()> {
+        let Some(instance) = create_instance::<NodeKernel>().await? else {
+            return Ok(());
+        };
+
+        kernel_micro::tests::stop(instance).await
+    }
+
     /// Test list, set and get tasks
     #[tokio::test]
     async fn vars() -> Result<()> {

@@ -131,10 +131,7 @@ b = 2",
                 (
                     "
 print(a, b)",
-                    vec![
-                        Node::Integer(1),
-                        Node::Integer(2)
-                    ],
+                    vec![Node::Integer(1), Node::Integer(2)],
                     vec![],
                 ),
             ],
@@ -232,6 +229,16 @@ sleep(100)",
             ),
         )
         .await
+    }
+
+    /// Standard kernel test for stopping
+    #[test_log::test(tokio::test)]
+    async fn stop() -> Result<()> {
+        let Some(instance) = create_instance::<PythonKernel>().await? else {
+            return Ok(());
+        };
+
+        kernel_micro::tests::stop(instance).await
     }
 
     /// Test list, set and get tasks

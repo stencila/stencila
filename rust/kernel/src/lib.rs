@@ -554,4 +554,17 @@ pub mod tests {
 
         Ok(())
     }
+
+    /// Test stopping a kernel instance
+    pub async fn stop(
+        mut instance: Box<dyn KernelInstance>
+    ) -> Result<()> {
+        instance.start_here().await?;
+        assert_eq!(instance.status().await?, KernelStatus::Ready);
+
+        instance.stop().await?;
+        assert_eq!(instance.status().await?, KernelStatus::Stopped);
+
+        Ok(())
+    }
 }

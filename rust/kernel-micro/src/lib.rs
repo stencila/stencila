@@ -367,11 +367,26 @@ impl KernelInstance for MicrokernelInstance {
     async fn stop(&mut self) -> Result<()> {
         self.set_status(KernelStatus::Stopping)?;
 
-        if let Some(child) = self.child.as_mut() {
-            // For main kernels
-            tracing::debug!("Killing kernel with pid `{:?}`", self.pid);
-            child.kill().await?;
-            self.child = None;
+        tracing::debug!("Killing kernel with pid `{:?}`", self.pid);
+        if let Some(mut child) = self.child.take() {
+            // Main kernel instance
+            // Spawn as task so this thread does not wait unnecessarily
+            tokio::spawn(async move {
+                child.kill().await.ok();
+            });
+        } else {
+            // Forked kernel instance
+            #[cfg(unix)]
+            {
+                use nix::{
+                    sys::signal::{kill, Signal},
+                    unistd::Pid,
+                };
+
+                if let Err(error) = kill(Pid::from_raw(self.pid as i32), Signal::SIGKILL) {
+                    tracing::warn!("While killing `{}` kernel: {error}", self.id())
+                }
+            }
         }
 
         self.set_status(KernelStatus::Stopped)?;
