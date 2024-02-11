@@ -131,6 +131,9 @@
         },
         {
           "@id": "stencila:EnumValidator"
+        },
+        {
+          "@id": "stencila:ObjectHint"
         }
       ],
       "schema:rangeIncludes": {

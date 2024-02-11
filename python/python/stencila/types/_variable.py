@@ -3,6 +3,7 @@
 from .prelude import *
 
 from ._entity import Entity
+from ._hint import Hint
 from ._node import Node
 
 
@@ -29,14 +30,14 @@ class Variable(Entity):
     value: Optional[Node] = None
     """The value of the variable."""
 
-    value_hint: Optional[Node] = None
-    """A hint for the value of the variable."""
+    hint: Optional[Hint] = None
+    """A hint of the value and/or structure of the variable."""
 
-    def __init__(self, name: str, id: Optional[str] = None, programming_language: Optional[str] = None, native_type: Optional[str] = None, node_type: Optional[str] = None, value: Optional[Node] = None, value_hint: Optional[Node] = None):
+    def __init__(self, name: str, id: Optional[str] = None, programming_language: Optional[str] = None, native_type: Optional[str] = None, node_type: Optional[str] = None, value: Optional[Node] = None, hint: Optional[Hint] = None):
         super().__init__(id = id)
         self.name = name
         self.programming_language = programming_language
         self.native_type = native_type
         self.node_type = node_type
         self.value = value
-        self.value_hint = value_hint
+        self.hint = hint

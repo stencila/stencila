@@ -1,0 +1,21 @@
+{
+  "@id": "https://stencila.org/Unknown",
+  "name": "Unknown",
+  "license": "https://creativecommons.org/publicdomain/zero/1.0/",
+  "@context": {
+    "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
+    "schema": "https://schema.org/",
+    "stencila": "https://stencila.org/"
+  },
+  "@graph": [
+    {
+      "@id": "stencila:Unknown",
+      "@type": "rdfs:Class",
+      "rdfs:label": "Unknown",
+      "rdfs:comment": "A type to indicate a value or or other type in unknown.",
+      "rdfs:subClassOf": {
+        "@id": "stencila:Entity"
+      }
+    }
+  ]
+}

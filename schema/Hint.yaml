@@ -1,0 +1,14 @@
+title: Hint
+"@id": stencila:Hint
+category: data
+description: Union type for hints of the value and/or structure of data.
+anyOf:
+  - $ref: ArrayHint
+  - $ref: Function
+  - $ref: ObjectHint
+  - $ref: StringHint
+  - $ref: Unknown
+  # Primitive types for which the value itself is the hint
+  - $ref: Boolean
+  - $ref: Integer
+  - $ref: Number

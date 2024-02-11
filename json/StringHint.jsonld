@@ -1,0 +1,33 @@
+{
+  "@id": "https://stencila.org/StringHint",
+  "name": "StringHint",
+  "license": "https://creativecommons.org/publicdomain/zero/1.0/",
+  "@context": {
+    "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
+    "schema": "https://schema.org/",
+    "stencila": "https://stencila.org/"
+  },
+  "@graph": [
+    {
+      "@id": "stencila:StringHint",
+      "@type": "rdfs:Class",
+      "rdfs:label": "StringHint",
+      "rdfs:comment": "A hint to the structure of an `String`.",
+      "rdfs:subClassOf": {
+        "@id": "stencila:Entity"
+      }
+    },
+    {
+      "@id": "stencila:chars",
+      "@type": "rdfs:Property",
+      "rdfs:label": "chars",
+      "rdfs:comment": "The number of characters in the string.",
+      "schema:domainIncludes": {
+        "@id": "stencila:StringHint"
+      },
+      "schema:rangeIncludes": {
+        "@id": "schema:Number"
+      }
+    }
+  ]
+}

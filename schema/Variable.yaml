@@ -11,7 +11,7 @@ core:
   - nativeType
   - nodeType
   - value
-  - valueHint
+  - hint
 properties:
   name:
     '@id': schema:name
@@ -37,12 +37,7 @@ properties:
     '@id': schema:value
     description: The value of the variable.
     $ref: Node
-  valueHint:
-    '@id': stencila:valueHint
-    description: A hint for the value of the variable.
-    $comment: |
-      The type of this hint depends on the type of the variable. For strings, arrays and objects
-      it will be their length. For `Datatable`s it will be a copy of the table, including
-      its column names and types, but with no data. 
-    $ref: Node
-  
+  hint:
+    '@id': stencila:hint
+    description: A hint of the value and/or structure of the variable.
+    $ref: Hint

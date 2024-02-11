@@ -2,6 +2,7 @@
 
 use crate::prelude::*;
 
+use super::hint::Hint;
 use super::node::Node;
 use super::string::String;
 
@@ -39,9 +40,8 @@ pub struct Variable {
     /// The value of the variable.
     pub value: Option<Box<Node>>,
 
-    /// A hint for the value of the variable.
-    #[serde(alias = "value-hint", alias = "value_hint")]
-    pub value_hint: Option<Box<Node>>,
+    /// A hint of the value and/or structure of the variable.
+    pub hint: Option<Hint>,
 
     /// A unique identifier for a node within a document
     

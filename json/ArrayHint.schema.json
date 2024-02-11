@@ -1,0 +1,75 @@
+{
+  "$schema": "https://stencila.org/meta.schema.json",
+  "$id": "https://stencila.org/ArrayHint.schema.json",
+  "@id": "stencila:ArrayHint",
+  "title": "ArrayHint",
+  "nick": "arh",
+  "extends": [
+    "Entity"
+  ],
+  "category": "data",
+  "description": "A hint to the content of an `Array`.",
+  "required": [
+    "type",
+    "length"
+  ],
+  "core": [
+    "id",
+    "types",
+    "minimum",
+    "maximum",
+    "nulls"
+  ],
+  "properties": {
+    "type": {
+      "@id": "schema:type",
+      "description": "The type of this item.",
+      "$comment": "This is a special property analogous to JSON-LD's `@type` keyword.\n",
+      "type": "string"
+    },
+    "id": {
+      "@id": "schema:id",
+      "description": "The identifier for this item.",
+      "$comment": "This is a special property analogous to JSON-LD's `@id` keyword.\n",
+      "strip": [
+        "metadata"
+      ],
+      "html": {
+        "attr": "id"
+      },
+      "type": "string"
+    },
+    "length": {
+      "@id": "stencila:length",
+      "description": "The length (number of items) of the array.",
+      "type": "integer",
+      "minimum": 0.0
+    },
+    "types": {
+      "@id": "stencila:types",
+      "description": "The distinct types of the array items.",
+      "aliases": [
+        "type"
+      ],
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "minimum": {
+      "@id": "stencila:minimum",
+      "description": "The minimum value in the array.",
+      "$ref": "Primitive.schema.json"
+    },
+    "maximum": {
+      "@id": "stencila:maximum",
+      "description": "The maximum value in the array.",
+      "$ref": "Primitive.schema.json"
+    },
+    "nulls": {
+      "@id": "stencila:nulls",
+      "description": "The number of `Null` values in the array.",
+      "type": "integer"
+    }
+  }
+}

@@ -3,6 +3,7 @@
 from ._admonition import Admonition
 from ._admonition_type import AdmonitionType
 from ._array import Array
+from ._array_hint import ArrayHint
 from ._array_validator import ArrayValidator
 from ._article import Article
 from ._audio_object import AudioObject
@@ -77,6 +78,7 @@ from ._function import Function
 from ._grant import Grant
 from ._grant_or_monetary_grant import GrantOrMonetaryGrant
 from ._heading import Heading
+from ._hint import Hint
 from ._if_block import IfBlock
 from ._if_block_clause import IfBlockClause
 from ._image_object import ImageObject
@@ -110,6 +112,7 @@ from ._note import Note
 from ._note_type import NoteType
 from ._number_validator import NumberValidator
 from ._object import Object
+from ._object_hint import ObjectHint
 from ._organization import Organization
 from ._paragraph import Paragraph
 from ._parameter import Parameter
@@ -138,6 +141,7 @@ from ._software_source_code import SoftwareSourceCode
 from ._software_source_code_or_software_application_or_str import SoftwareSourceCodeOrSoftwareApplicationOrStr
 from ._str_or_float import StrOrFloat
 from ._strikeout import Strikeout
+from ._string_hint import StringHint
 from ._string_operation import StringOperation
 from ._string_patch import StringPatch
 from ._string_patch_or_primitive import StringPatchOrPrimitive
@@ -169,6 +173,7 @@ from ._timestamp import Timestamp
 from ._timestamp_validator import TimestampValidator
 from ._tuple_validator import TupleValidator
 from ._underline import Underline
+from ._unknown import Unknown
 from ._unsigned_integer import UnsignedInteger
 from ._validator import Validator
 from ._variable import Variable
@@ -178,6 +183,7 @@ __all__ = [
     'Admonition',
     'AdmonitionType',
     'Array',
+    'ArrayHint',
     'ArrayValidator',
     'Article',
     'AudioObject',
@@ -252,6 +258,7 @@ __all__ = [
     'Grant',
     'GrantOrMonetaryGrant',
     'Heading',
+    'Hint',
     'IfBlock',
     'IfBlockClause',
     'ImageObject',
@@ -285,6 +292,7 @@ __all__ = [
     'NoteType',
     'NumberValidator',
     'Object',
+    'ObjectHint',
     'Organization',
     'Paragraph',
     'Parameter',
@@ -313,6 +321,7 @@ __all__ = [
     'SoftwareSourceCodeOrSoftwareApplicationOrStr',
     'StrOrFloat',
     'Strikeout',
+    'StringHint',
     'StringOperation',
     'StringPatch',
     'StringPatchOrPrimitive',
@@ -344,6 +353,7 @@ __all__ = [
     'TimestampValidator',
     'TupleValidator',
     'Underline',
+    'Unknown',
     'UnsignedInteger',
     'Validator',
     'Variable',

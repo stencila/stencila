@@ -4,6 +4,7 @@ import { hydrate } from "../hydrate.js";
 
 import { type Admonition } from "./Admonition.js";
 import { type Array } from "./Array.js";
+import { type ArrayHint } from "./ArrayHint.js";
 import { type ArrayValidator } from "./ArrayValidator.js";
 import { type Article } from "./Article.js";
 import { type AudioObject } from "./AudioObject.js";
@@ -79,6 +80,7 @@ import { type MonetaryGrant } from "./MonetaryGrant.js";
 import { type Note } from "./Note.js";
 import { type NumberValidator } from "./NumberValidator.js";
 import { type Object } from "./Object.js";
+import { type ObjectHint } from "./ObjectHint.js";
 import { type Organization } from "./Organization.js";
 import { type Paragraph } from "./Paragraph.js";
 import { type Parameter } from "./Parameter.js";
@@ -98,6 +100,7 @@ import { type Section } from "./Section.js";
 import { type SoftwareApplication } from "./SoftwareApplication.js";
 import { type SoftwareSourceCode } from "./SoftwareSourceCode.js";
 import { type Strikeout } from "./Strikeout.js";
+import { type StringHint } from "./StringHint.js";
 import { type StringOperation } from "./StringOperation.js";
 import { type StringPatch } from "./StringPatch.js";
 import { type StringValidator } from "./StringValidator.js";
@@ -118,6 +121,7 @@ import { type Timestamp } from "./Timestamp.js";
 import { type TimestampValidator } from "./TimestampValidator.js";
 import { type TupleValidator } from "./TupleValidator.js";
 import { type Underline } from "./Underline.js";
+import { type Unknown } from "./Unknown.js";
 import { type UnsignedInteger } from "./UnsignedInteger.js";
 import { type Variable } from "./Variable.js";
 import { type VideoObject } from "./VideoObject.js";
@@ -135,6 +139,7 @@ export type Node =
   Cord |
   Array |
   Admonition |
+  ArrayHint |
   ArrayValidator |
   Article |
   AudioObject |
@@ -207,6 +212,7 @@ export type Node =
   MonetaryGrant |
   Note |
   NumberValidator |
+  ObjectHint |
   Organization |
   Paragraph |
   Parameter |
@@ -226,6 +232,7 @@ export type Node =
   SoftwareApplication |
   SoftwareSourceCode |
   Strikeout |
+  StringHint |
   StringOperation |
   StringPatch |
   StringValidator |
@@ -246,6 +253,7 @@ export type Node =
   TimestampValidator |
   TupleValidator |
   Underline |
+  Unknown |
   Variable |
   VideoObject |
   Object;
@@ -259,6 +267,7 @@ export function node(other: Node): Node {
   }
   switch(other.type) {
     case "Admonition":
+    case "ArrayHint":
     case "ArrayValidator":
     case "Article":
     case "AudioObject":
@@ -331,6 +340,7 @@ export function node(other: Node): Node {
     case "MonetaryGrant":
     case "Note":
     case "NumberValidator":
+    case "ObjectHint":
     case "Organization":
     case "Paragraph":
     case "Parameter":
@@ -350,6 +360,7 @@ export function node(other: Node): Node {
     case "SoftwareApplication":
     case "SoftwareSourceCode":
     case "Strikeout":
+    case "StringHint":
     case "StringOperation":
     case "StringPatch":
     case "StringValidator":
@@ -370,6 +381,7 @@ export function node(other: Node): Node {
     case "TimestampValidator":
     case "TupleValidator":
     case "Underline":
+    case "Unknown":
     case "Variable":
     case "VideoObject":
       return hydrate(other) as Node

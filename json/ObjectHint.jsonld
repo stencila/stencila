@@ -1,0 +1,70 @@
+{
+  "@id": "https://stencila.org/ObjectHint",
+  "name": "ObjectHint",
+  "license": "https://creativecommons.org/publicdomain/zero/1.0/",
+  "@context": {
+    "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
+    "schema": "https://schema.org/",
+    "stencila": "https://stencila.org/"
+  },
+  "@graph": [
+    {
+      "@id": "stencila:ObjectHint",
+      "@type": "rdfs:Class",
+      "rdfs:label": "ObjectHint",
+      "rdfs:comment": "A hint to the structure of an `Object`.",
+      "rdfs:subClassOf": {
+        "@id": "stencila:Entity"
+      }
+    },
+    {
+      "@id": "stencila:length",
+      "@type": "rdfs:Property",
+      "rdfs:label": "length",
+      "rdfs:comment": "The length (number of entires) of the object.",
+      "schema:domainIncludes": [
+        {
+          "@id": "stencila:ArrayHint"
+        },
+        {
+          "@id": "stencila:ObjectHint"
+        }
+      ],
+      "schema:rangeIncludes": {
+        "@id": "schema:Number"
+      }
+    },
+    {
+      "@id": "stencila:keys",
+      "@type": "rdfs:Property",
+      "rdfs:label": "keys",
+      "rdfs:comment": "The keys of the object entries.",
+      "schema:domainIncludes": {
+        "@id": "stencila:ObjectHint"
+      },
+      "schema:rangeIncludes": {
+        "@id": "schema:Text"
+      }
+    },
+    {
+      "@id": "stencila:types",
+      "@type": "rdfs:Property",
+      "rdfs:label": "values",
+      "rdfs:comment": "The types of the object entries.",
+      "schema:domainIncludes": [
+        {
+          "@id": "stencila:DatatableColumn"
+        },
+        {
+          "@id": "stencila:EnumValidator"
+        },
+        {
+          "@id": "stencila:ObjectHint"
+        }
+      ],
+      "schema:rangeIncludes": {
+        "@id": "stencila:Hint"
+      }
+    }
+  ]
+}

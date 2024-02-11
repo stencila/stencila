@@ -41,6 +41,9 @@
       "rdfs:comment": "The inclusive lower limit for a timestamp.",
       "schema:domainIncludes": [
         {
+          "@id": "stencila:ArrayHint"
+        },
+        {
           "@id": "stencila:DateTimeValidator"
         },
         {
@@ -69,6 +72,9 @@
       "rdfs:label": "maximum",
       "rdfs:comment": "The inclusive upper limit for a timestamp.",
       "schema:domainIncludes": [
+        {
+          "@id": "stencila:ArrayHint"
+        },
         {
           "@id": "stencila:DateTimeValidator"
         },

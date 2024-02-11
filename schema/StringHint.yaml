@@ -1,0 +1,14 @@
+title: StringHint
+'@id': stencila:StringHint
+nick: sth
+extends: Entity
+category: data
+description: A hint to the structure of an `String`.
+required:
+  - chars
+properties:
+  chars:
+    "@id": stencila:chars
+    description: The number of characters in the string.
+    type: integer
+    minimum: 0

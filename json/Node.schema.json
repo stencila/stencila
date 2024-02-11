@@ -30,6 +30,9 @@
       "$ref": "Admonition.schema.json"
     },
     {
+      "$ref": "ArrayHint.schema.json"
+    },
+    {
       "$ref": "ArrayValidator.schema.json"
     },
     {
@@ -246,6 +249,9 @@
       "$ref": "NumberValidator.schema.json"
     },
     {
+      "$ref": "ObjectHint.schema.json"
+    },
+    {
       "$ref": "Organization.schema.json"
     },
     {
@@ -301,6 +307,9 @@
     },
     {
       "$ref": "Strikeout.schema.json"
+    },
+    {
+      "$ref": "StringHint.schema.json"
     },
     {
       "$ref": "StringOperation.schema.json"
@@ -361,6 +370,9 @@
     },
     {
       "$ref": "Underline.schema.json"
+    },
+    {
+      "$ref": "Unknown.schema.json"
     },
     {
       "$ref": "Variable.schema.json"

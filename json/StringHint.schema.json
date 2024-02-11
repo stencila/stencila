@@ -1,0 +1,45 @@
+{
+  "$schema": "https://stencila.org/meta.schema.json",
+  "$id": "https://stencila.org/StringHint.schema.json",
+  "@id": "stencila:StringHint",
+  "title": "StringHint",
+  "nick": "sth",
+  "extends": [
+    "Entity"
+  ],
+  "category": "data",
+  "description": "A hint to the structure of an `String`.",
+  "required": [
+    "type",
+    "chars"
+  ],
+  "core": [
+    "id"
+  ],
+  "properties": {
+    "type": {
+      "@id": "schema:type",
+      "description": "The type of this item.",
+      "$comment": "This is a special property analogous to JSON-LD's `@type` keyword.\n",
+      "type": "string"
+    },
+    "id": {
+      "@id": "schema:id",
+      "description": "The identifier for this item.",
+      "$comment": "This is a special property analogous to JSON-LD's `@id` keyword.\n",
+      "strip": [
+        "metadata"
+      ],
+      "html": {
+        "attr": "id"
+      },
+      "type": "string"
+    },
+    "chars": {
+      "@id": "stencila:chars",
+      "description": "The number of characters in the string.",
+      "type": "integer",
+      "minimum": 0.0
+    }
+  }
+}

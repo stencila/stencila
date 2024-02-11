@@ -4,6 +4,7 @@ from .prelude import *
 
 Admonition = ForwardRef("Admonition")
 Array = ForwardRef("Array")
+ArrayHint = ForwardRef("ArrayHint")
 ArrayValidator = ForwardRef("ArrayValidator")
 Article = ForwardRef("Article")
 AudioObject = ForwardRef("AudioObject")
@@ -78,6 +79,7 @@ MonetaryGrant = ForwardRef("MonetaryGrant")
 Note = ForwardRef("Note")
 NumberValidator = ForwardRef("NumberValidator")
 Object = ForwardRef("Object")
+ObjectHint = ForwardRef("ObjectHint")
 Organization = ForwardRef("Organization")
 Paragraph = ForwardRef("Paragraph")
 Parameter = ForwardRef("Parameter")
@@ -97,6 +99,7 @@ Section = ForwardRef("Section")
 SoftwareApplication = ForwardRef("SoftwareApplication")
 SoftwareSourceCode = ForwardRef("SoftwareSourceCode")
 Strikeout = ForwardRef("Strikeout")
+StringHint = ForwardRef("StringHint")
 StringOperation = ForwardRef("StringOperation")
 StringPatch = ForwardRef("StringPatch")
 StringValidator = ForwardRef("StringValidator")
@@ -117,6 +120,7 @@ Timestamp = ForwardRef("Timestamp")
 TimestampValidator = ForwardRef("TimestampValidator")
 TupleValidator = ForwardRef("TupleValidator")
 Underline = ForwardRef("Underline")
+Unknown = ForwardRef("Unknown")
 UnsignedInteger = ForwardRef("UnsignedInteger")
 Variable = ForwardRef("Variable")
 VideoObject = ForwardRef("VideoObject")
@@ -132,6 +136,7 @@ Node = Union[
     Cord,
     Array,
     Admonition,
+    ArrayHint,
     ArrayValidator,
     Article,
     AudioObject,
@@ -204,6 +209,7 @@ Node = Union[
     MonetaryGrant,
     Note,
     NumberValidator,
+    ObjectHint,
     Organization,
     Paragraph,
     Parameter,
@@ -223,6 +229,7 @@ Node = Union[
     SoftwareApplication,
     SoftwareSourceCode,
     Strikeout,
+    StringHint,
     StringOperation,
     StringPatch,
     StringValidator,
@@ -243,6 +250,7 @@ Node = Union[
     TimestampValidator,
     TupleValidator,
     Underline,
+    Unknown,
     Variable,
     VideoObject,
     Object,

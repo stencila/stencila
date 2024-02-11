@@ -1,6 +1,7 @@
 // Generated file; do not edit. See https://github.com/stencila/stencila/tree/main/rust/schema-gen
 
 import { Entity } from "./Entity.js";
+import { Hint } from "./Hint.js";
 import { Node } from "./Node.js";
 
 /**
@@ -36,9 +37,9 @@ export class Variable extends Entity {
   value?: Node;
 
   /**
-   * A hint for the value of the variable.
+   * A hint of the value and/or structure of the variable.
    */
-  valueHint?: Node;
+  hint?: Hint;
 
   constructor(name: string, options?: Partial<Variable>) {
     super();
