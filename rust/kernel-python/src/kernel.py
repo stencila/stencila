@@ -34,9 +34,70 @@ except Exception:
     except Exception:
         MAXFD = 256
 
+# Custom serialization/deserialization to Stencila JSON for ndarrays
+try:
+    import numpy as np
+    from numpy import ndarray
+
+    NUMPY_BOOL_TYPES = (np.bool_,)
+    NUMPY_INT_TYPES = (np.byte, np.short, np.intc, np.int_, np.longlong)
+    NUMPY_UINT_TYPES = (
+        np.ubyte,
+        np.ushort,
+        np.uintc,
+        np.uint,
+        np.ulonglong,
+    )
+    NUMPY_FLOAT_TYPES = (np.half, np.single, np.double, np.longdouble)
+
+    def ndarray_to_array_hint(array):
+        if array.dtype in NUMPY_BOOL_TYPES:
+            items_type = "Boolean"
+            convert_type = bool
+        elif array.dtype in NUMPY_INT_TYPES:
+            items_type = "Integer"
+            convert_type = int
+        elif array.dtype in NUMPY_UINT_TYPES:
+            items_type = "UnsignedInteger"
+            convert_type = int
+        elif array.dtype in NUMPY_FLOAT_TYPES:
+            items_type = "Number"
+            convert_type = float
+        elif str(array.dtype).startswith("datetime64"):
+            items_type = "Timestamp"
+            convert_type = int
+        elif str(array.dtype).startswith("timedelta64"):
+            items_type = "Duration"
+            convert_type = int
+        else:
+            items_type = "String"
+            convert_type = str
+
+        length = np.size(array)
+
+        return {
+            "type": "ArrayHint",
+            "length": length,
+            "types": [items_type],
+            "nulls": np.count_nonzero(np.isnan(array)) if length else None,
+            "minimum": convert_type(np.nanmin(array)) if length else None,
+            "maximum": convert_type(np.nanmax(array)) if length else None,
+        }
+
+except ImportError:
+
+    class ndarray:
+        pass
+
 
 # Serialize a Python object as JSON (falling back to a string)
 def to_json(object):
+    if isinstance(object, (bool, int, float, str)):
+        return json.dumps(object)
+
+    if isinstance(object, ndarray):
+        return json.dumps(object.tolist())
+
     try:
         return json.dumps(object)
     except:
@@ -95,7 +156,7 @@ def list_variables():
             continue
 
         native_type = type(value).__name__
-        node_type, value_hint = determine_type_and_hint(value)
+        node_type, hint = determine_type_and_hint(value)
 
         variable = {
             "type": "Variable",
@@ -103,10 +164,10 @@ def list_variables():
             "programmingLanguage": "Python",
             "nativeType": native_type,
             "nodeType": node_type,
-            "valueHint": value_hint,
+            "hint": hint,
         }
 
-        sys.stdout.write(to_json(variable) + END + "\n")
+        sys.stdout.write(json.dumps(variable) + END + "\n")
 
 
 # Determine node type and value hint for a variable
@@ -120,14 +181,31 @@ def determine_type_and_hint(value: Any):
     elif isinstance(value, float):
         return "Number", value
     elif isinstance(value, str):
-        return "String", len(value)
+        return "String", {"type": "StringHint", "chars": len(value)}
     elif isinstance(value, (list, tuple)):
-        return "Array", len(value)
+        return "Array", {"type": "ArrayHint", "length": len(value)}
+    elif isinstance(value, ndarray):
+        return "Array", ndarray_to_array_hint(value)
     elif isinstance(value, dict):
         typ = value.get("type")
-        return (str(typ), None) if typ else ("Object", len(value))
+        if typ:
+            return (str(typ), None)
+        else:
+            length = len(value)
+            keys = [str(key) for key in value.keys()]
+            values = [determine_type_and_hint(value)[1] for value in value.values()]
+            return (
+                "Object",
+                {
+                    "type": "ObjectHint",
+                    "length": length,
+                    "keys": keys,
+                    "values": values,
+                },
+            )
+
     else:
-        return "Object", None  # Fallback
+        return "Object", {"type": "Unknown"}
 
 
 # Get a variable
