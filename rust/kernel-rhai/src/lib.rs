@@ -222,13 +222,61 @@ impl<'lt> KernelInstance for RhaiKernelInstance<'lt> {
                 let programming_language = Some("Rhai".to_string());
                 let native_type = Some(value.type_name().to_string());
 
-                let node_type = dynamic_to_node_type(value);
+                let (node_type, value_hint) = match value.type_name() {
+                    "()" => (Some(NodeType::Null.to_string()), None),
+                    "bool" => (
+                        Some(NodeType::Boolean.to_string()),
+                        Some(Node::Boolean(value.as_bool().expect("should be bool"))),
+                    ),
+                    "i64" => (
+                        Some(NodeType::Integer.to_string()),
+                        Some(Node::Integer(value.as_int().expect("should be int"))),
+                    ),
+                    "f64" => (
+                        Some(NodeType::Number.to_string()),
+                        Some(Node::Number(value.as_float().expect("should be float"))),
+                    ),
+                    "char" => (Some(NodeType::String.to_string()), Some(Node::Integer(1))),
+                    "string" => (
+                        Some(NodeType::String.to_string()),
+                        Some(Node::Integer(
+                            value
+                                .into_immutable_string()
+                                .expect("should be string")
+                                .len() as i64,
+                        )),
+                    ),
+                    "array" => (
+                        Some(NodeType::Array.to_string()),
+                        Some(Node::Integer(
+                            value.into_array().expect("should be array").len() as i64,
+                        )),
+                    ),
+                    _ => {
+                        if let Some(map) = value.try_cast::<Map>() {
+                            if let Some(typ) = map
+                                .get("type")
+                                .and_then(|value| value.clone().try_cast::<String>())
+                            {
+                                (Some(typ), None)
+                            } else {
+                                (
+                                    Some(NodeType::Object.to_string()),
+                                    Some(Node::Integer(map.len() as i64)),
+                                )
+                            }
+                        } else {
+                            (None, None)
+                        }
+                    }
+                };
 
                 Variable {
                     name,
                     programming_language,
                     native_type,
                     node_type,
+                    value_hint: value_hint.map(Box::new),
                     ..Default::default()
                 }
             })
@@ -341,32 +389,6 @@ impl<'lt> RhaiKernelInstance<'lt> {
         });
 
         Ok(())
-    }
-}
-
-/// Get the `NodeType` corresponding to a Rhai `Dynamic` type
-fn dynamic_to_node_type(value: Dynamic) -> Option<String> {
-    match value.type_name() {
-        "()" => Some(NodeType::Null.to_string()),
-        "bool" => Some(NodeType::Boolean.to_string()),
-        "i64" => Some(NodeType::Integer.to_string()),
-        "f64" => Some(NodeType::Number.to_string()),
-        "string" | "char" => Some(NodeType::String.to_string()),
-        "array" => Some(NodeType::Array.to_string()),
-        _ => {
-            if let Some(map) = value.try_cast::<Map>() {
-                if let Some(typ) = map
-                    .get("type")
-                    .and_then(|value| value.clone().try_cast::<String>())
-                {
-                    Some(typ)
-                } else {
-                    Some(NodeType::Object.to_string())
-                }
-            } else {
-                None
-            }
-        }
     }
 }
 
@@ -534,6 +556,93 @@ b",
                 print(#{a:1, b:2.3, c:"str"}.to_json());
             "#,
             r#"print(#{type:"Paragraph", content:[]}.to_json());"#,
+        )
+        .await
+    }
+
+    /// Standard kernel test for variable listing
+    #[test_log::test(tokio::test)]
+    async fn var_listing() -> Result<()> {
+        let Some(instance) = create_instance::<RhaiKernel>().await? else {
+            return Ok(());
+        };
+
+        kernel::tests::var_listing(
+            instance,
+            r#"
+let nul = ();
+let bool = true;
+let int = 123;
+let num = 1.23;
+let str = "str";
+let arr = [1, 2, 3];
+let obj = #{a:1, b:2.3};
+let para = #{type:"Paragraph", content:[]};
+"#,
+            vec![
+                Variable {
+                    name: "nul".to_string(),
+                    native_type: Some("()".to_string()),
+                    node_type: Some("Null".to_string()),
+                    programming_language: Some("Rhai".to_string()),
+                    ..Default::default()
+                },
+                Variable {
+                    name: "bool".to_string(),
+                    native_type: Some("bool".to_string()),
+                    node_type: Some("Boolean".to_string()),
+                    value_hint: Some(Box::new(Node::Boolean(true))),
+                    programming_language: Some("Rhai".to_string()),
+                    ..Default::default()
+                },
+                Variable {
+                    name: "int".to_string(),
+                    native_type: Some("i64".to_string()),
+                    node_type: Some("Integer".to_string()),
+                    value_hint: Some(Box::new(Node::Integer(123))),
+                    programming_language: Some("Rhai".to_string()),
+                    ..Default::default()
+                },
+                Variable {
+                    name: "num".to_string(),
+                    native_type: Some("f64".to_string()),
+                    node_type: Some("Number".to_string()),
+                    value_hint: Some(Box::new(Node::Number(1.23))),
+                    programming_language: Some("Rhai".to_string()),
+                    ..Default::default()
+                },
+                Variable {
+                    name: "str".to_string(),
+                    native_type: Some("string".to_string()),
+                    node_type: Some("String".to_string()),
+                    value_hint: Some(Box::new(Node::Integer(3))),
+                    programming_language: Some("Rhai".to_string()),
+                    ..Default::default()
+                },
+                Variable {
+                    name: "arr".to_string(),
+                    native_type: Some("array".to_string()),
+                    node_type: Some("Array".to_string()),
+                    value_hint: Some(Box::new(Node::Integer(3))),
+                    programming_language: Some("Rhai".to_string()),
+                    ..Default::default()
+                },
+                Variable {
+                    name: "obj".to_string(),
+                    native_type: Some("map".to_string()),
+                    node_type: Some("Object".to_string()),
+                    value_hint: Some(Box::new(Node::Integer(2))),
+                    programming_language: Some("Rhai".to_string()),
+                    ..Default::default()
+                },
+                Variable {
+                    name: "para".to_string(),
+                    native_type: Some("map".to_string()),
+                    node_type: Some("Paragraph".to_string()),
+                    programming_language: Some("Rhai".to_string()),
+                    ..Default::default()
+                },
+            ],
         )
         .await
     }
