@@ -11,7 +11,7 @@
     "node": ">=18"
   },
   "devDependencies": {
-    "@arethetypeswrong/cli": "0.13.6",
+    "@arethetypeswrong/cli": "0.13.8",
     "@types/benchmark": "2.1.5",
     "@types/jest": "29.5.12",
     "@types/tmp": "0.2.6",
@@ -32,6 +32,6 @@
     "ts-jest": "29.1.2",
     "tsup": "8.0.1",
     "typescript": "5.3.3",
-    "wrangler": "3.27.0"
+    "wrangler": "3.28.0"
   }
 }

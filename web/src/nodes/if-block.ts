@@ -14,17 +14,11 @@ import { Executable } from './executable'
 @withTwind()
 export class IfBlock extends Executable {
   override render() {
-    return html`
-      <div>
-        ${this.renderHeader()} ${this.renderClauses()}
-      </div>
-    `
+    return html` <div>${this.renderHeader()} ${this.renderClauses()}</div> `
   }
 
   private renderHeader() {
-    return html`
-      <div contenteditable="false">${this.renderErrors()}</div>
-    `
+    return html` <div contenteditable="false">${this.renderErrors()}</div> `
   }
 
   private renderClauses() {
