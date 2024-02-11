@@ -29,12 +29,14 @@ const END = dev ? "END" : "\u{10CB40}";
 let stdin;
 let stdout;
 let stderr;
-let variables = {};
+let inheritedImports = [];
+let inheritedVariables = {};
 if (process.argv.length > 2) {
   stdin = fs.createReadStream(process.argv[2]);
   stdout = fs.createWriteStream(process.argv[3], { flags: "a" });
   stderr = fs.createWriteStream(process.argv[4], { flags: "a" });
-  variables = JSON.parse(process.argv[5]);
+  inheritedImports = JSON.parse(process.argv[5]);
+  inheritedVariables = JSON.parse(process.argv[6]);
 } else {
   ({ stdin, stdout, stderr } = process);
 }
@@ -65,18 +67,34 @@ console.error = (message) =>
     `{"type":"ExecutionError","errorType":"Error","errorMessage":"${message}"}${END}\n`
   );
 
-// The execution context
+// Create the execution context
 const context = {
-  ...variables,
+  ...inheritedVariables,
   require,
   console,
 };
 vm.createContext(context);
 
+// Apply inherited imports ignoring any errors
+for (const line of inheritedImports) {
+  try {
+    vm.runInContext(line, context);
+  } catch {
+    // Pass
+  }
+}
+
+// Lines which imported modules by the name of the variable for the module.
+// Used to pass these on to forks so that they have the same modules available
+// to them (in addition to variables)
+const imports = {};
+
 // SIGINT is handled by `vm.runInContext` but in case SIGINT is received just after a
 // task finishes, or for some other reason inside the main loop, ignore it here
 process.on("SIGINT", () => ({}));
 
+const IMPORT_REGEX =
+  /^(?:(const|let|var)\s+)?([\w_]+)\s*=\s*(require|import)\(/;
 const LET_REGEX = /^let\s+([\w_]+)\s*=/;
 const CONST_REGEX = /^const\s+([\w_]+)\s*=/;
 const VAR_REGEX = /^var\s+([\w_]+)\s*=/;
@@ -96,10 +114,18 @@ function isDefined(name) {
 
 // Execute lines of code
 function execute(lines) {
-  // Turn any re-declarations of variables at the top level into assignments
-  // (replace with spaces to retain positions for errors and stacktraces)
   for (let index = 0; index < lines.length; index++) {
     const line = lines[index];
+
+    // Record any lines for module imports so that they can be sent to forks
+    const importMatch = IMPORT_REGEX.exec(line);
+    if (importMatch) {
+      const name = importMatch[1];
+      imports[name] = line;
+    }
+
+    // Turn any re-declarations of variables at the top level into assignments
+    // (replace with spaces to retain positions for errors and stacktraces)
 
     const letMatch = LET_REGEX.exec(line);
     if (letMatch && isDefined(letMatch[1])) {
@@ -209,6 +235,7 @@ function remove(name) {
 function fork(pipes) {
   const child = child_process.fork(__filename, [
     ...pipes,
+    JSON.stringify(Object.values(imports)),
     JSON.stringify(context),
   ]);
   stdout.write(child.pid.toString());

@@ -374,6 +374,56 @@ var para = {type: "Paragraph", content:[]}
         kernel_micro::tests::forking(instance).await
     }
 
+    /// Custom test to check that modules imported in the main kernel instance are
+    /// available in the forked instance
+    #[test_log::test(tokio::test)]
+    async fn forking_imports() -> Result<()> {
+        let Some(mut instance) = start_instance::<NodeKernel>().await? else {
+            return Ok(());
+        };
+
+        let (outputs, messages) = instance
+            .execute(
+                r#"
+const fs = require("fs");
+let path = require("path");
+var crypto = require("crypto");
+
+console.log(typeof fs.read, typeof path.join, typeof crypto.createCipher)
+"#,
+            )
+            .await?;
+        assert_eq!(messages, vec![]);
+        assert_eq!(
+            outputs,
+            vec![
+                Node::String("function".to_string()),
+                Node::String("function".to_string()),
+                Node::String("function".to_string())
+            ]
+        );
+
+        let mut fork = instance.fork().await?;
+        let (outputs, messages) = fork
+            .execute(
+                r#"
+console.log(typeof fs.read, typeof path.join, typeof crypto.createCipher)
+"#,
+            )
+            .await?;
+        assert_eq!(messages, vec![]);
+        assert_eq!(
+            outputs,
+            vec![
+                Node::String("function".to_string()),
+                Node::String("function".to_string()),
+                Node::String("function".to_string())
+            ]
+        );
+
+        Ok(())
+    }
+
     /// Standard kernel test for signals
     #[test_log::test(tokio::test)]
     async fn signals() -> Result<()> {
