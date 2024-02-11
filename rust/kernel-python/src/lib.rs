@@ -488,7 +488,7 @@ a4 = np.array([1.23, 4.56], dtype=np.float_)
 
     /// `PythonKernel` specific test for `list` and `get` with `pandas.DataFrame`s
     #[test_log::test(tokio::test)]
-    async fn pandas() -> Result<()> {
+    async fn pandas_list_get() -> Result<()> {
         let Some(mut instance) = start_instance::<PythonKernel>().await? else {
             return Ok(());
         };
@@ -598,6 +598,64 @@ df1 = pd.DataFrame({
                 }
             ]))
         );
+
+        Ok(())
+    }
+
+    /// `PythonKernel` specific test to test round-trip `set`/`get` with `pandas.DataFrame`s
+    #[test_log::test(tokio::test)]
+    async fn pandas_set_get() -> Result<()> {
+        let Some(mut instance) = start_instance::<PythonKernel>().await? else {
+            return Ok(());
+        };
+
+        let dt_in = Node::Datatable(Datatable::new(vec![
+            DatatableColumn {
+                name: "c1".to_string(),
+                values: vec![Primitive::Boolean(true), Primitive::Boolean(false)],
+                validator: Some(ArrayValidator {
+                    items_validator: Some(Box::new(Validator::BooleanValidator(
+                        BooleanValidator::new(),
+                    ))),
+                    ..Default::default()
+                }),
+                ..Default::default()
+            },
+            DatatableColumn {
+                name: "c2".to_string(),
+                values: vec![Primitive::Integer(1), Primitive::Integer(2)],
+                validator: Some(ArrayValidator {
+                    items_validator: Some(Box::new(Validator::IntegerValidator(
+                        IntegerValidator::new(),
+                    ))),
+                    ..Default::default()
+                }),
+                ..Default::default()
+            },
+            DatatableColumn {
+                name: "c3".to_string(),
+                values: vec![Primitive::Number(1.23), Primitive::Number(4.56)],
+                validator: Some(ArrayValidator {
+                    items_validator: Some(Box::new(Validator::NumberValidator(
+                        NumberValidator::new(),
+                    ))),
+                    ..Default::default()
+                }),
+                ..Default::default()
+            },
+        ]));
+
+        instance.set("dt", &dt_in).await?;
+
+        let (output, messages) = instance.evaluate("type(dt)").await?;
+        assert_eq!(messages, []);
+        assert_eq!(
+            output,
+            Node::String("<class 'pandas.core.frame.DataFrame'>".to_string())
+        );
+
+        let dt_out = instance.get("dt").await?;
+        assert_eq!(dt_out, dt_out);
 
         Ok(())
     }

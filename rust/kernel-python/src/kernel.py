@@ -37,8 +37,8 @@ except Exception:
 # Custom serialization and hints for numpy
 try:
     import numpy as np
-    from numpy import ndarray
 
+    NUMPY_AVAILABLE = True
     NUMPY_BOOL_TYPES = (np.bool_,)
     NUMPY_INT_TYPES = (np.byte, np.short, np.intc, np.int_, np.longlong)
     NUMPY_UINT_TYPES = (
@@ -107,13 +107,14 @@ try:
 
 except ImportError:
 
-    class ndarray:
-        pass
+    NUMPY_AVAILABLE = False
 
 
 # Custom serialization and hints for pandas
 try:
-    from pandas import DataFrame
+    import pandas as pd
+
+    PANDAS_AVAILABLE = True
 
     def dataframe_hint(df):
         columns = []
@@ -133,14 +134,14 @@ try:
         columns = []
         for column_name in df.columns:
             column = df[column_name]
-            
+
             values = column.tolist()
             if column.dtype in NUMPY_BOOL_TYPES:
-               values = [bool(row) for row in values]
+                values = [bool(row) for row in values]
             elif column.dtype in NUMPY_INT_TYPES or column.dtype in NUMPY_UINT_TYPES:
-               values = [int(row) for row in values]
+                values = [int(row) for row in values]
             elif column.dtype in NUMPY_FLOAT_TYPES:
-               values = [float(row) for row in values]
+                values = [float(row) for row in values]
 
             columns.append(
                 {
@@ -153,10 +154,19 @@ try:
 
         return json.dumps({"type": "Datatable", "columns": columns})
 
-except ImportError:
+    def dataframe_from_datatable(dt):
+        columns = dt.get("columns") or []
+        data = dict(
+            [
+                (column.get("name") or "unnamed", column.get("values") or [])
+                for column in columns
+            ]
+        )
 
-    class DataFrame:
-        pass
+        return pd.DataFrame(data)
+
+except ImportError:
+    PANDAS_AVAILABLE = False
 
 
 # Serialize a Python object as JSON (falling back to a string)
@@ -164,10 +174,10 @@ def to_json(object):
     if isinstance(object, (bool, int, float, str)):
         return json.dumps(object)
 
-    if isinstance(object, ndarray):
+    if NUMPY_AVAILABLE and isinstance(object, np.ndarray):
         return ndarray_to_json(object)
 
-    if isinstance(object, DataFrame):
+    if PANDAS_AVAILABLE and isinstance(object, pd.DataFrame):
         return dataframe_to_json(object)
 
     try:
@@ -178,7 +188,14 @@ def to_json(object):
 
 # Deserialize a Python object from JSON (falling back to a string)
 def from_json(string):
-    return json.loads(string)
+    object = json.loads(string)
+
+    if isinstance(object, dict):
+        typ = object.get("type")
+        if typ == "Datatable" and PANDAS_AVAILABLE:
+            return dataframe_from_datatable(object)
+
+    return object
 
 
 # Monkey patch `print` to encode individual objects (if no options used)
@@ -256,9 +273,9 @@ def determine_type_and_hint(value: Any):
         return "String", {"type": "StringHint", "chars": len(value)}
     elif isinstance(value, (list, tuple)):
         return "Array", {"type": "ArrayHint", "length": len(value)}
-    elif isinstance(value, ndarray):
+    elif NUMPY_AVAILABLE and isinstance(value, np.ndarray):
         return "Array", ndarray_hint(value)
-    elif isinstance(value, DataFrame):
+    elif PANDAS_AVAILABLE and isinstance(value, pd.DataFrame):
         return "Datatable", dataframe_hint(value)
     elif isinstance(value, dict):
         typ = value.get("type")
