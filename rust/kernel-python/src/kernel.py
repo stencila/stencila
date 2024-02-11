@@ -50,7 +50,7 @@ try:
     )
     NUMPY_FLOAT_TYPES = (np.half, np.single, np.double, np.longdouble)
 
-    def ndarray_hint(array):
+    def ndarray_to_hint(array):
         if array.dtype in NUMPY_BOOL_TYPES:
             items_type = "Boolean"
             convert_type = bool
@@ -84,7 +84,7 @@ try:
             "maximum": convert_type(np.nanmax(array)) if length else None,
         }
 
-    def ndarray_validator(value):
+    def ndarray_to_validator(value):
         if value.dtype in NUMPY_BOOL_TYPES:
             validator = dict(type="BooleanValidator")
         elif value.dtype in NUMPY_INT_TYPES:
@@ -102,11 +102,10 @@ try:
 
         return dict(type="ArrayValidator", itemsValidator=validator)
 
-    def ndarray_to_json(array):
-        return json.dumps(array.tolist())
+    def ndarray_to_array(array):
+        return array.tolist()
 
 except ImportError:
-
     NUMPY_AVAILABLE = False
 
 
@@ -116,12 +115,12 @@ try:
 
     PANDAS_AVAILABLE = True
 
-    def dataframe_hint(df):
+    def dataframe_to_hint(df):
         columns = []
         for column_name in df.columns:
             column = df[column_name]
 
-            hint = ndarray_hint(column)
+            hint = ndarray_to_hint(column)
             hint["type"] = "DatatableColumnHint"
             hint["name"] = str(column_name)
             hint["itemType"] = hint["itemTypes"][0]
@@ -130,7 +129,7 @@ try:
 
         return {"type": "DatatableHint", "rows": len(df), "columns": columns}
 
-    def dataframe_to_json(df):
+    def dataframe_to_datatable(df):
         columns = []
         for column_name in df.columns:
             column = df[column_name]
@@ -148,11 +147,11 @@ try:
                     "type": "DatatableColumn",
                     "name": str(column_name),
                     "values": values,
-                    "validator": ndarray_validator(column),
+                    "validator": ndarray_to_validator(column),
                 }
             )
 
-        return json.dumps({"type": "Datatable", "columns": columns})
+        return {"type": "Datatable", "columns": columns}
 
     def dataframe_from_datatable(dt):
         columns = dt.get("columns") or []
@@ -168,6 +167,60 @@ try:
 except ImportError:
     PANDAS_AVAILABLE = False
 
+# Custom serialization for `matplotlib` plots
+try:
+    import matplotlib
+    import matplotlib.pyplot
+
+    MATPLOTLIB_AVAILABLE = True
+
+    matplotlib.use("Agg")
+
+    # Monkey patch pyplot.show to return itself to
+    # indicate that an image should be returned as an output
+    # rather than launching a display
+    def show(*args, **kwargs):
+        return matplotlib.pyplot.show
+
+    matplotlib.pyplot.show = show
+
+    def is_matplotlib(value):
+        """Is the value a matplotlib value or return of a matplotlib call?"""
+        from matplotlib.artist import Artist
+        from matplotlib.figure import Figure
+
+        if (
+            value == matplotlib.pyplot.show
+            or isinstance(value, Artist)
+            or isinstance(value, Figure)
+        ):
+            return True
+
+        # This is somewhat crude but allows for calls that return lists of
+        # matplotlib types not just single objects e.g. `pyplot.plot()`
+        rep = repr(value)
+        return rep.startswith("<matplotlib.") or rep.startswith("[<matplotlib.")
+
+    def matplotlib_to_image_object():
+        """Convert the current matplotlib figure to a `ImageObject`"""
+        import base64
+        import io
+        from matplotlib import pyplot
+
+        image = io.BytesIO()
+        pyplot.savefig(image, format="png")
+        pyplot.close()
+
+        url = "data:image/png;base64," + base64.encodebytes(image.getvalue()).decode()
+
+        return {
+            "type": "ImageObject",
+            "contentUrl": url,
+        }
+
+except ImportError:
+    MATPLOTLIB_AVAILABLE = False
+
 
 # Serialize a Python object as JSON (falling back to a string)
 def to_json(object):
@@ -175,10 +228,13 @@ def to_json(object):
         return json.dumps(object)
 
     if NUMPY_AVAILABLE and isinstance(object, np.ndarray):
-        return ndarray_to_json(object)
+        return json.dumps(ndarray_to_array(object))
 
     if PANDAS_AVAILABLE and isinstance(object, pd.DataFrame):
-        return dataframe_to_json(object)
+        return json.dumps(dataframe_to_datatable(object))
+    
+    if MATPLOTLIB_AVAILABLE and is_matplotlib(object):
+        return json.dumps(matplotlib_to_image_object())
 
     try:
         return json.dumps(object)
@@ -192,7 +248,8 @@ def from_json(string):
 
     if isinstance(object, dict):
         typ = object.get("type")
-        if typ == "Datatable" and PANDAS_AVAILABLE:
+
+        if PANDAS_AVAILABLE and typ == "Datatable":
             return dataframe_from_datatable(object)
 
     return object
@@ -274,9 +331,9 @@ def determine_type_and_hint(value: Any):
     elif isinstance(value, (list, tuple)):
         return "Array", {"type": "ArrayHint", "length": len(value)}
     elif NUMPY_AVAILABLE and isinstance(value, np.ndarray):
-        return "Array", ndarray_hint(value)
+        return "Array", ndarray_to_hint(value)
     elif PANDAS_AVAILABLE and isinstance(value, pd.DataFrame):
-        return "Datatable", dataframe_hint(value)
+        return "Datatable", dataframe_to_hint(value)
     elif isinstance(value, dict):
         typ = value.get("type")
         if typ:

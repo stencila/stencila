@@ -61,7 +61,11 @@ impl Microkernel for PythonKernel {
 mod tests {
     use common_dev::pretty_assertions::assert_eq;
     use kernel_micro::{
-        common::{eyre::Ok, indexmap::IndexMap, tokio},
+        common::{
+            eyre::{bail, Ok},
+            indexmap::IndexMap,
+            tokio,
+        },
         schema::{
             Array, ArrayHint, ArrayValidator, BooleanValidator, Datatable, DatatableColumn,
             DatatableColumnHint, DatatableHint, Hint, IntegerValidator, Node, Null,
@@ -656,6 +660,35 @@ df1 = pd.DataFrame({
 
         let dt_out = instance.get("dt").await?;
         assert_eq!(dt_out, dt_out);
+
+        Ok(())
+    }
+
+    /// `PythonKernel` specific test for getting a `matplotlib` plot as output
+    #[test_log::test(tokio::test)]
+    async fn matplotlib() -> Result<()> {
+        let Some(mut instance) = start_instance::<PythonKernel>().await? else {
+            return Ok(());
+        };
+
+        let (outputs, messages) = instance
+            .execute(
+                "
+import matplotlib.pyplot as plt
+
+plt.plot([1, 2], [3, 4]);
+plt.show()",
+            )
+            .await?;
+        assert_eq!(messages, []);
+
+        assert_eq!(outputs.len(), 1);
+
+        if let Some(Node::ImageObject(image)) = outputs.get(0) {
+            assert!(image.content_url.starts_with("data:image/png;base64"));
+        } else {
+            bail!("Expected an image, got: {outputs:?}")
+        }
 
         Ok(())
     }
