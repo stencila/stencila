@@ -200,6 +200,30 @@ print(a, b)",
         .await
     }
 
+    /// Custom test for execution messages
+    #[tokio::test]
+    async fn messages() -> Result<()> {
+        let Some(mut kernel) = start_instance::<PythonKernel>().await? else {
+            return Ok(());
+        };
+
+        // Syntax error
+        let (outputs, messages) = kernel.execute("bad ^ # syntax").await?;
+        assert_eq!(messages[0].error_type.as_deref(), Some("SyntaxError"));
+        assert_eq!(messages[0].error_message, "invalid syntax (<code>, line 1)");
+        assert!(messages[0].stack_trace.is_some());
+        assert_eq!(outputs, vec![]);
+
+        // Runtime error
+        let (outputs, messages) = kernel.execute("foo").await?;
+        assert_eq!(messages[0].error_type.as_deref(), Some("NameError"));
+        assert_eq!(messages[0].error_message, "name 'foo' is not defined");
+        assert!(messages[0].stack_trace.is_some());
+        assert_eq!(outputs, vec![]);
+
+        Ok(())
+    }
+
     /// Standard kernel test for variable listing
     #[test_log::test(tokio::test)]
     async fn var_listing() -> Result<()> {
@@ -336,30 +360,6 @@ sleep(100)",
         };
 
         kernel_micro::tests::stop(instance).await
-    }
-
-    /// Test execute tasks that intentionally generate error messages
-    #[tokio::test]
-    async fn messages() -> Result<()> {
-        let Some(mut kernel) = start_instance::<PythonKernel>().await? else {
-            return Ok(());
-        };
-
-        // Syntax error
-        let (outputs, messages) = kernel.execute("bad ^ # syntax").await?;
-        assert_eq!(messages[0].error_type.as_deref(), Some("SyntaxError"));
-        assert_eq!(messages[0].error_message, "invalid syntax (<code>, line 1)");
-        assert!(messages[0].stack_trace.is_some());
-        assert_eq!(outputs, vec![]);
-
-        // Runtime error
-        let (outputs, messages) = kernel.execute("foo").await?;
-        assert_eq!(messages[0].error_type.as_deref(), Some("NameError"));
-        assert_eq!(messages[0].error_message, "name 'foo' is not defined");
-        assert!(messages[0].stack_trace.is_some());
-        assert_eq!(outputs, vec![]);
-
-        Ok(())
     }
 
     /// Test forking of microkernel

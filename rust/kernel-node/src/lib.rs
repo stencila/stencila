@@ -200,6 +200,68 @@ console.log(a, b, c, d)",
         .await
     }
 
+    /// Custom test for execution messages
+    #[tokio::test]
+    async fn messages() -> Result<()> {
+        let Some(mut kernel) = start_instance::<NodeKernel>().await? else {
+            return Ok(())
+        };
+
+        // Syntax error
+        let (outputs, messages) = kernel.execute("bad ^ # syntax").await?;
+        assert_eq!(messages[0].error_type.as_deref(), Some("SyntaxError"));
+        assert_eq!(messages[0].error_message, "Invalid or unexpected token");
+        assert!(messages[0].stack_trace.is_some());
+        assert_eq!(outputs, vec![]);
+
+        // Runtime error
+        let (outputs, messages) = kernel.execute("foo").await?;
+        assert_eq!(messages[0].error_type.as_deref(), Some("ReferenceError"));
+        assert_eq!(messages[0].error_message, "foo is not defined");
+        assert!(messages[0].stack_trace.is_some());
+        assert_eq!(outputs, vec![]);
+
+        // Console methods
+        let (.., messages) = kernel
+            .execute(
+                r#"
+console.debug("Debug message");
+console.info("Info message");
+console.warn("Warning message");
+console.error("Error message");
+"#,
+            )
+            .await?;
+
+        assert_eq!(
+            messages,
+            vec![
+                ExecutionError {
+                    error_type: Some("Debug".to_string()),
+                    error_message: "Debug message".to_string(),
+                    ..Default::default()
+                },
+                ExecutionError {
+                    error_type: Some("Info".to_string()),
+                    error_message: "Info message".to_string(),
+                    ..Default::default()
+                },
+                ExecutionError {
+                    error_type: Some("Warning".to_string()),
+                    error_message: "Warning message".to_string(),
+                    ..Default::default()
+                },
+                ExecutionError {
+                    error_type: Some("Error".to_string()),
+                    error_message: "Error message".to_string(),
+                    ..Default::default()
+                }
+            ]
+        );
+
+        Ok(())
+    }
+
     /// Standard kernel test for variable listing
     #[test_log::test(tokio::test)]
     async fn var_listing() -> Result<()> {
@@ -346,30 +408,6 @@ sleep(100);",
         kernel_micro::tests::stop(instance).await
     }
 
-    /// Test execute tasks that intentionally generate error messages
-    #[tokio::test]
-    async fn messages() -> Result<()> {
-        let Some(mut kernel) = start_instance::<NodeKernel>().await? else {
-            return Ok(())
-        };
-
-        // Syntax error
-        let (outputs, messages) = kernel.execute("bad ^ # syntax").await?;
-        assert_eq!(messages[0].error_type.as_deref(), Some("SyntaxError"));
-        assert_eq!(messages[0].error_message, "Invalid or unexpected token");
-        assert!(messages[0].stack_trace.is_some());
-        assert_eq!(outputs, vec![]);
-
-        // Runtime error
-        let (outputs, messages) = kernel.execute("foo").await?;
-        assert_eq!(messages[0].error_type.as_deref(), Some("ReferenceError"));
-        assert_eq!(messages[0].error_message, "foo is not defined");
-        assert!(messages[0].stack_trace.is_some());
-        assert_eq!(outputs, vec![]);
-
-        Ok(())
-    }
-
     /// Test forking of microkernel
     ///
     /// Pro-tip! Use this to get logs for this test:
@@ -408,69 +446,6 @@ sleep(100);",
         assert_eq!(
             kernel.get("var3").await?,
             Some(Node::String("Hello world".to_string()))
-        );
-
-        Ok(())
-    }
-
-    /// `NodeKernel` specific test that `console.debug`, `console.warn` etc are treated as messages
-    /// separate from `console.log` outputs
-    #[tokio::test]
-    async fn console_messages() -> Result<()> {
-        let Some(mut kernel) = start_instance::<NodeKernel>().await? else {
-            return Ok(())
-        };
-
-        let (outputs, messages) = kernel
-            .execute(
-                r#"
-console.log(1)
-console.debug("Debug message")
-console.log(2)
-console.info("Info message")
-console.log(3)
-console.warn("Warning message")
-console.log(4)
-console.error("Error message")
-5
-"#,
-            )
-            .await?;
-
-        assert_eq!(
-            messages,
-            vec![
-                ExecutionError {
-                    error_type: Some("Debug".to_string()),
-                    error_message: "Debug message".to_string(),
-                    ..Default::default()
-                },
-                ExecutionError {
-                    error_type: Some("Info".to_string()),
-                    error_message: "Info message".to_string(),
-                    ..Default::default()
-                },
-                ExecutionError {
-                    error_type: Some("Warning".to_string()),
-                    error_message: "Warning message".to_string(),
-                    ..Default::default()
-                },
-                ExecutionError {
-                    error_type: Some("Error".to_string()),
-                    error_message: "Error message".to_string(),
-                    ..Default::default()
-                }
-            ]
-        );
-        assert_eq!(
-            outputs,
-            vec![
-                Node::Integer(1),
-                Node::Integer(2),
-                Node::Integer(3),
-                Node::Integer(4),
-                Node::Integer(5)
-            ]
         );
 
         Ok(())

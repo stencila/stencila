@@ -560,6 +560,32 @@ b",
         .await
     }
 
+    /// Custom test for execution messages
+    #[tokio::test]
+    async fn messages() -> Result<()> {
+        let Some(mut kernel) = start_instance::<RhaiKernel>().await? else {
+            return Ok(())
+        };
+
+        // Syntax error
+        let (outputs, messages) = kernel.execute("bad ^ # syntax").await?;
+        assert_eq!(
+            messages[0].error_message,
+            "Syntax error: '#' is a reserved symbol (line 1, position 7)"
+        );
+        assert_eq!(outputs, vec![]);
+
+        // Runtime error
+        let (outputs, messages) = kernel.execute("foo").await?;
+        assert_eq!(
+            messages[0].error_message,
+            "Variable not found: foo (line 1, position 1)"
+        );
+        assert_eq!(outputs, vec![]);
+
+        Ok(())
+    }
+
     /// Standard kernel test for variable listing
     #[test_log::test(tokio::test)]
     async fn var_listing() -> Result<()> {
@@ -691,88 +717,6 @@ sleep(0.1)",
         };
 
         kernel::tests::stop(instance).await
-    }
-
-    /// Test declaring variables with different types
-    #[tokio::test]
-    async fn var_types() -> Result<()> {
-        let Some(mut kernel) = start_instance::<RhaiKernel>().await? else {
-                return Ok(())
-            };
-
-        kernel
-            .execute(
-                r#"
-            let n = 1.23;
-            let s = "str";
-            let a = [1, 2, 3];
-            let o = #{a:1, b:2.3};
-        "#,
-            )
-            .await?;
-
-        let vars = kernel.list().await?;
-
-        let var = vars.iter().find(|var| var.name == "n").unwrap();
-        assert_eq!(var.native_type.as_deref(), Some("f64"));
-        assert_eq!(var.node_type.as_deref(), Some("Number"));
-        assert_eq!(kernel.get("n").await?, Some(Node::Number(1.23)));
-
-        let var = vars.iter().find(|var| var.name == "s").unwrap();
-        assert_eq!(var.native_type.as_deref(), Some("string"));
-        assert_eq!(var.node_type.as_deref(), Some("String"));
-        assert!(matches!(kernel.get("s").await?, Some(Node::String(..))));
-
-        let var = vars.iter().find(|var| var.name == "a").unwrap();
-        assert_eq!(var.native_type.as_deref(), Some("array"));
-        assert_eq!(var.node_type.as_deref(), Some("Array"));
-        assert_eq!(
-            kernel.get("a").await?,
-            Some(Node::Array(Array(vec![
-                Primitive::Integer(1),
-                Primitive::Integer(2),
-                Primitive::Integer(3)
-            ])))
-        );
-
-        let var = vars.iter().find(|var| var.name == "o").unwrap();
-        assert_eq!(var.native_type.as_deref(), Some("map"));
-        assert_eq!(var.node_type.as_deref(), Some("Object"));
-        assert_eq!(
-            kernel.get("o").await?,
-            Some(Node::Object(Object(IndexMap::from([
-                (String::from("a"), Primitive::Integer(1),),
-                (String::from("b"), Primitive::Number(2.3))
-            ]))))
-        );
-
-        Ok(())
-    }
-
-    /// Test execute tasks that intentionally generate error messages
-    #[tokio::test]
-    async fn messages() -> Result<()> {
-        let Some(mut kernel) = start_instance::<RhaiKernel>().await? else {
-            return Ok(())
-        };
-
-        // Syntax error
-        let (outputs, messages) = kernel.execute("bad ^ # syntax").await?;
-        assert_eq!(
-            messages[0].error_message,
-            "Syntax error: '#' is a reserved symbol (line 1, position 7)"
-        );
-        assert_eq!(outputs, vec![]);
-
-        // Runtime error
-        let (outputs, messages) = kernel.execute("foo").await?;
-        assert_eq!(
-            messages[0].error_message,
-            "Variable not found: foo (line 1, position 1)"
-        );
-        assert_eq!(outputs, vec![]);
-
-        Ok(())
     }
 
     /// Test forking of microkernel

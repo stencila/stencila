@@ -165,6 +165,30 @@ echo $value",
         .await
     }
 
+    /// Custom test for execution messages
+    #[test_log::test(tokio::test)]
+    async fn messages() -> Result<()> {
+        let Some(mut instance) = start_instance::<BashKernel>().await? else {
+            return Ok(());
+        };
+
+        let (outputs, messages) = instance.execute("if").await?;
+        assert_eq!(messages.len(), 1);
+        assert!(messages[0]
+            .error_message
+            .ends_with("syntax error: unexpected end of file\n"));
+        assert_eq!(outputs, vec![]);
+
+        let (outputs, messages) = instance.execute("foo").await?;
+        assert_eq!(messages.len(), 1);
+        assert!(messages[0]
+            .error_message
+            .ends_with("foo: command not found\n"));
+        assert_eq!(outputs, vec![]);
+
+        Ok(())
+    }
+
     /// Standard kernel test for variable listing
     #[test_log::test(tokio::test)]
     async fn var_listing() -> Result<()> {
@@ -259,26 +283,6 @@ sleep 100",
         };
 
         kernel_micro::tests::stop(instance).await
-    }
-
-    /// Test execute tasks that intentionally generate error messages
-    #[tokio::test]
-    async fn messages() -> Result<()> {
-        let Some(mut kernel) = start_instance::<BashKernel>().await? else {
-            return Ok(())
-        };
-
-        // Syntax error
-        let (outputs, messages) = kernel.execute("if").await?;
-        assert_eq!(messages.len(), 1);
-        assert_eq!(outputs, vec![]);
-
-        // Runtime error
-        let (outputs, messages) = kernel.execute("foo").await?;
-        assert_eq!(messages.len(), 1);
-        assert_eq!(outputs, vec![]);
-
-        Ok(())
     }
 
     /// Test forking of microkernel
