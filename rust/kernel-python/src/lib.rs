@@ -337,6 +337,56 @@ para = {'type':'Paragraph', 'content':[]}
         kernel_micro::tests::forking(instance).await
     }
 
+    /// Custom test to check that modules imported in the main kernel instance are
+    /// available in the forked instance
+    #[test_log::test(tokio::test)]
+    async fn forking_imports() -> Result<()> {
+        let Some(mut instance) = start_instance::<PythonKernel>().await? else {
+            return Ok(());
+        };
+
+        let (outputs, messages) = instance
+            .execute(
+                r#"
+import sys
+from datetime import datetime
+from glob import *
+
+print(type(sys), type(datetime), type(glob))
+"#,
+            )
+            .await?;
+        assert_eq!(messages, vec![]);
+        assert_eq!(
+            outputs,
+            vec![
+                Node::String("<class 'module'>".to_string()),
+                Node::String("<class 'type'>".to_string()),
+                Node::String("<class 'function'>".to_string())
+            ]
+        );
+
+        let mut fork = instance.fork().await?;
+        let (outputs, messages) = fork
+            .execute(
+                r#"
+print(type(sys), type(datetime), type(glob))
+"#,
+            )
+            .await?;
+        assert_eq!(messages, vec![]);
+        assert_eq!(
+            outputs,
+            vec![
+                Node::String("<class 'module'>".to_string()),
+                Node::String("<class 'type'>".to_string()),
+                Node::String("<class 'function'>".to_string())
+            ]
+        );
+
+        Ok(())
+    }
+
     /// Standard kernel test for signals
     #[test_log::test(tokio::test)]
     async fn signals() -> Result<()> {
