@@ -67,7 +67,6 @@ const BOX_PROPERTIES: &[&str] = &[
     "PublicationIssue.is_part_of",
     "PublicationVolume.is_part_of",
     "Variable.value",
-    "Variable.value_hint",
 ];
 
 /// Properties which can not allow deserialization from one or many items
