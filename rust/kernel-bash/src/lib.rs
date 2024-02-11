@@ -63,7 +63,7 @@ mod tests {
     use common_dev::{ntest::timeout, pretty_assertions::assert_eq};
     use kernel_micro::{
         common::{eyre::bail, tokio},
-        schema::{Array, Node, Null, Primitive},
+        schema::{Node, Null, Variable},
         tests::{create_instance, start_instance},
     };
 
@@ -165,6 +165,55 @@ echo $value",
         .await
     }
 
+    /// Standard kernel test for variable listing
+    #[test_log::test(tokio::test)]
+    async fn var_listing() -> Result<()> {
+        let Some(instance) = create_instance::<BashKernel>().await? else {
+            return Ok(());
+        };
+
+        kernel_micro::tests::var_listing(
+            instance,
+            r#"
+declare str="str"
+declare -i int=1
+declare -a arr=(1 2 3)
+declare -A obj=(["key1"]="value1" ["key2"]="value2")
+"#,
+            vec![
+                Variable {
+                    name: "str".to_string(),
+                    native_type: Some("string".to_string()),
+                    node_type: Some("String".to_string()),
+                    programming_language: Some("Bash".to_string()),
+                    ..Default::default()
+                },
+                Variable {
+                    name: "int".to_string(),
+                    native_type: Some("integer".to_string()),
+                    node_type: Some("Integer".to_string()),
+                    programming_language: Some("Bash".to_string()),
+                    ..Default::default()
+                },
+                Variable {
+                    name: "arr".to_string(),
+                    native_type: Some("array".to_string()),
+                    node_type: Some("Array".to_string()),
+                    programming_language: Some("Bash".to_string()),
+                    ..Default::default()
+                },
+                Variable {
+                    name: "obj".to_string(),
+                    native_type: Some("associative array".to_string()),
+                    node_type: Some("Object".to_string()),
+                    programming_language: Some("Bash".to_string()),
+                    ..Default::default()
+                },
+            ],
+        )
+        .await
+    }
+
     /// Standard kernel test for variable management
     #[test_log::test(tokio::test)]
     async fn var_management() -> Result<()> {
@@ -210,49 +259,6 @@ sleep 100",
         };
 
         kernel_micro::tests::stop(instance).await
-    }
-
-    /// Test declaring Bash variables with different types
-    #[tokio::test]
-    async fn var_types() -> Result<()> {
-        let Some(mut kernel) = start_instance::<BashKernel>().await? else {
-                return Ok(())
-            };
-
-        kernel
-            .execute(
-                r#"
-            declare s="str"
-            declare -a a=(1 2 3)
-            declare -A o=(["key1"]="value1" ["key2"]="value2")
-        "#,
-            )
-            .await?;
-
-        let vars = kernel.list().await?;
-
-        let var = vars.iter().find(|var| var.name == "s").unwrap();
-        assert_eq!(var.node_type.as_deref(), Some("String"));
-        assert_eq!(var.native_type.as_deref(), Some("string"));
-        assert!(matches!(kernel.get("s").await?, Some(Node::String(..))));
-
-        let var = vars.iter().find(|var| var.name == "a").unwrap();
-        assert_eq!(var.node_type.as_deref(), Some("Array"));
-        assert_eq!(var.native_type.as_deref(), Some("array"));
-        assert_eq!(
-            kernel.get("a").await?,
-            Some(Node::Array(Array(vec![
-                Primitive::Integer(1),
-                Primitive::Integer(2),
-                Primitive::Integer(3)
-            ])))
-        );
-
-        let var = vars.iter().find(|var| var.name == "o").unwrap();
-        assert_eq!(var.node_type.as_deref(), Some("Object"));
-        assert_eq!(var.native_type.as_deref(), Some("associative array"));
-
-        Ok(())
     }
 
     /// Test execute tasks that intentionally generate error messages

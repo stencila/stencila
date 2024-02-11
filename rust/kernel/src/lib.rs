@@ -372,7 +372,37 @@ pub mod tests {
         Ok(())
     }
 
-    /// Test managing of variables using `list`, `set`, `get` and `remove`
+    /// Test listing of variables
+    ///
+    /// All kernel instances must implement the `list` method
+    /// for retrieving a list of variables including their names, types
+    /// and hints on their values (e.g. lengths of array, column names etc).
+    ///
+    /// This function should be passed a code chunk that sets variables of various types
+    /// and a vector of expected variables.
+    pub async fn var_listing(
+        mut instance: Box<dyn KernelInstance>,
+        code: &str,
+        expected_vars: Vec<Variable>,
+    ) -> Result<()> {
+        instance.start_here().await?;
+        assert_eq!(instance.status().await?, KernelStatus::Ready);
+
+        let (.., messages) = instance.execute(code).await?;
+        assert_eq!(messages, vec![]);
+
+        let actual_vars = instance.list().await?;
+        for expected in expected_vars {
+            let Some(actual) = actual_vars.iter().find(|actual| actual.name == expected.name) else {
+                bail!("no variable named `{}` in list", expected.name);
+            };
+            assert_eq!(actual, &expected)
+        }
+
+        Ok(())
+    }
+
+    /// Test managing of variables using `set`, `get` and `remove`
     ///
     /// All kernel instances must implement these methods by setting, getting
     /// and removing variables of different types.
