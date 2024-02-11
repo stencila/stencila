@@ -1,6 +1,6 @@
 title: DatatableColumnHint
 '@id': stencila:DatatableColumnHint
-nick: dtc
+nick: dch
 extends: Entity
 category: data
 description: A hint to the type and values in a `DatatableColumn`.
