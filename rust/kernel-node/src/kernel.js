@@ -147,7 +147,7 @@ function list() {
   for (const [name, value] of Object.entries(context)) {
     let nativeType;
     if (value === null) nativeType = "null";
-    else if (Array.isArray(value)) nativeType = "Array";
+    else if (Array.isArray(value)) nativeType = "array";
     else nativeType = typeof value;
 
     const [nodeType, valueHint] = (() => {
@@ -160,12 +160,14 @@ function list() {
         case "number":
           return ["Number", value];
         case "bigint":
-          return ["Integer", value];
+          return ["Integer", undefined]; // BigInt not serializable to JSON for hint
         case "string":
           return ["String", value.length];
         case "object":
-          return ["Object", value.length];
-        case "Array":
+          return typeof value.type === "string"
+            ? [value.type, undefined]
+            : ["Object", Object.keys(value).length];
+        case "array":
           return ["Array", value.length];
         default:
           return ["Object", undefined];
