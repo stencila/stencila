@@ -419,7 +419,7 @@ impl KernelInstance for MicrokernelInstance {
             .into_iter()
             .map(|node| match node {
                 Node::Variable(var) => Ok(var),
-                _ => bail!("Expected `Variable`s got `{}`", node.to_string()),
+                _ => bail!("Expected a `Variable` got: {node:?}"),
             })
             .collect::<Result<Vec<_>>>()
     }
