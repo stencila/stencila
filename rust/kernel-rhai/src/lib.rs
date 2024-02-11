@@ -21,7 +21,10 @@ use kernel::{
         tracing,
     },
     format::Format,
-    schema::{ExecutionError, Node, NodeType, Null, Variable},
+    schema::{
+        ArrayHint, ExecutionError, Hint, Node, NodeType, Null, ObjectHint, StringHint, Unknown,
+        Variable,
+    },
     Kernel, KernelAvailability, KernelForks, KernelInstance, KernelInterrupt, KernelKill,
     KernelSignal, KernelStatus, KernelTerminate,
 };
@@ -224,62 +227,14 @@ impl<'lt> KernelInstance for RhaiKernelInstance<'lt> {
 
                 let programming_language = Some("Rhai".to_string());
                 let native_type = Some(value.type_name().to_string());
-
-                let (node_type, value_hint) = match value.type_name() {
-                    "()" => (Some(NodeType::Null.to_string()), None),
-                    "bool" => (
-                        Some(NodeType::Boolean.to_string()),
-                        Some(Node::Boolean(value.as_bool().expect("should be bool"))),
-                    ),
-                    "i64" => (
-                        Some(NodeType::Integer.to_string()),
-                        Some(Node::Integer(value.as_int().expect("should be int"))),
-                    ),
-                    "f64" => (
-                        Some(NodeType::Number.to_string()),
-                        Some(Node::Number(value.as_float().expect("should be float"))),
-                    ),
-                    "char" => (Some(NodeType::String.to_string()), Some(Node::Integer(1))),
-                    "string" => (
-                        Some(NodeType::String.to_string()),
-                        Some(Node::Integer(
-                            value
-                                .into_immutable_string()
-                                .expect("should be string")
-                                .len() as i64,
-                        )),
-                    ),
-                    "array" => (
-                        Some(NodeType::Array.to_string()),
-                        Some(Node::Integer(
-                            value.into_array().expect("should be array").len() as i64,
-                        )),
-                    ),
-                    _ => {
-                        if let Some(map) = value.try_cast::<Map>() {
-                            if let Some(typ) = map
-                                .get("type")
-                                .and_then(|value| value.clone().try_cast::<String>())
-                            {
-                                (Some(typ), None)
-                            } else {
-                                (
-                                    Some(NodeType::Object.to_string()),
-                                    Some(Node::Integer(map.len() as i64)),
-                                )
-                            }
-                        } else {
-                            (None, None)
-                        }
-                    }
-                };
+                let (node_type, hint) = dynamic_to_type_hint(value);
 
                 Variable {
                     name,
                     programming_language,
                     native_type,
                     node_type,
-                    value_hint: value_hint.map(Box::new),
+                    hint,
                     ..Default::default()
                 }
             })
@@ -411,6 +366,72 @@ impl<'lt> RhaiKernelInstance<'lt> {
         });
 
         Ok(())
+    }
+}
+
+/// Create a `NodeType` string and `Hint` for a Rhai `Dynamic` value
+fn dynamic_to_type_hint(value: Dynamic) -> (Option<String>, Option<Hint>) {
+    match value.type_name() {
+        "()" => (Some(NodeType::Null.to_string()), None),
+        "bool" => (
+            Some(NodeType::Boolean.to_string()),
+            Some(Hint::Boolean(value.as_bool().expect("should be bool"))),
+        ),
+        "i64" => (
+            Some(NodeType::Integer.to_string()),
+            Some(Hint::Integer(value.as_int().expect("should be int"))),
+        ),
+        "f64" => (
+            Some(NodeType::Number.to_string()),
+            Some(Hint::Number(value.as_float().expect("should be float"))),
+        ),
+        "char" => (
+            Some(NodeType::String.to_string()),
+            Some(Hint::StringHint(StringHint::new(1))),
+        ),
+        "string" => (
+            Some(NodeType::String.to_string()),
+            Some(Hint::StringHint(StringHint::new(
+                value
+                    .into_immutable_string()
+                    .expect("should be string")
+                    .chars()
+                    .count() as i64,
+            ))),
+        ),
+        "array" => (
+            Some(NodeType::Array.to_string()),
+            Some(Hint::ArrayHint(ArrayHint::new(
+                value.into_array().expect("should be array").len() as i64,
+            ))),
+        ),
+        _ => {
+            if let Some(map) = value.try_cast::<Map>() {
+                if let Some(typ) = map
+                    .get("type")
+                    .and_then(|value| value.clone().try_cast::<String>())
+                {
+                    (Some(typ), None)
+                } else {
+                    let length = map.len() as i64;
+                    let keys = map.keys().map(|key| key.to_string()).collect();
+                    let values = map
+                        .into_values()
+                        .map(|value| {
+                            dynamic_to_type_hint(value)
+                                .1
+                                .unwrap_or(Hint::Unknown(Unknown::new()))
+                        })
+                        .collect();
+                    (
+                        Some(NodeType::Object.to_string()),
+                        Some(Hint::ObjectHint(ObjectHint::new(length, keys, values))),
+                    )
+                }
+            } else {
+                (None, None)
+            }
+        }
     }
 }
 
@@ -628,7 +649,7 @@ let nul = ();
 let bool = true;
 let int = 123;
 let num = 1.23;
-let str = "str";
+let str = "abc👍";
 let arr = [1, 2, 3];
 let obj = #{a:1, b:2.3};
 let para = #{type:"Paragraph", content:[]};
@@ -645,7 +666,7 @@ let para = #{type:"Paragraph", content:[]};
                     name: "bool".to_string(),
                     native_type: Some("bool".to_string()),
                     node_type: Some("Boolean".to_string()),
-                    value_hint: Some(Box::new(Node::Boolean(true))),
+                    hint: Some(Hint::Boolean(true)),
                     programming_language: Some("Rhai".to_string()),
                     ..Default::default()
                 },
@@ -653,7 +674,7 @@ let para = #{type:"Paragraph", content:[]};
                     name: "int".to_string(),
                     native_type: Some("i64".to_string()),
                     node_type: Some("Integer".to_string()),
-                    value_hint: Some(Box::new(Node::Integer(123))),
+                    hint: Some(Hint::Integer(123)),
                     programming_language: Some("Rhai".to_string()),
                     ..Default::default()
                 },
@@ -661,7 +682,7 @@ let para = #{type:"Paragraph", content:[]};
                     name: "num".to_string(),
                     native_type: Some("f64".to_string()),
                     node_type: Some("Number".to_string()),
-                    value_hint: Some(Box::new(Node::Number(1.23))),
+                    hint: Some(Hint::Number(1.23)),
                     programming_language: Some("Rhai".to_string()),
                     ..Default::default()
                 },
@@ -669,7 +690,7 @@ let para = #{type:"Paragraph", content:[]};
                     name: "str".to_string(),
                     native_type: Some("string".to_string()),
                     node_type: Some("String".to_string()),
-                    value_hint: Some(Box::new(Node::Integer(3))),
+                    hint: Some(Hint::StringHint(StringHint::new(4))),
                     programming_language: Some("Rhai".to_string()),
                     ..Default::default()
                 },
@@ -677,7 +698,7 @@ let para = #{type:"Paragraph", content:[]};
                     name: "arr".to_string(),
                     native_type: Some("array".to_string()),
                     node_type: Some("Array".to_string()),
-                    value_hint: Some(Box::new(Node::Integer(3))),
+                    hint: Some(Hint::ArrayHint(ArrayHint::new(3))),
                     programming_language: Some("Rhai".to_string()),
                     ..Default::default()
                 },
@@ -685,7 +706,11 @@ let para = #{type:"Paragraph", content:[]};
                     name: "obj".to_string(),
                     native_type: Some("map".to_string()),
                     node_type: Some("Object".to_string()),
-                    value_hint: Some(Box::new(Node::Integer(2))),
+                    hint: Some(Hint::ObjectHint(ObjectHint::new(
+                        2,
+                        vec!["a".to_string(), "b".to_string()],
+                        vec![Hint::Integer(1), Hint::Number(2.3)],
+                    ))),
                     programming_language: Some("Rhai".to_string()),
                     ..Default::default()
                 },
