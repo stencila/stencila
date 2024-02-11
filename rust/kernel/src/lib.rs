@@ -476,16 +476,21 @@ pub mod tests {
             Some(Node::String("Hello from main".to_string()))
         );
 
-        // Change variables in fork and check that they are unchanged in main instance
+        // Change variables in fork
         fork.set("var1", &Node::Integer(321)).await?;
         fork.remove("var2").await?;
-        fork.execute("var3='Hello from fork'").await?;
+        let (.., messages) = fork.execute("var3=\"Hello from fork\"").await?;
+        assert_eq!(messages, vec![]);
+
+        // Check changes had effect in fork
         assert_eq!(fork.get("var1").await?, Some(Node::Integer(321)));
         assert_eq!(fork.get("var2").await?, None);
         assert_eq!(
             fork.get("var3").await?,
             Some(Node::String("Hello from fork".to_string()))
         );
+
+        // Check that variables are unchanged in main instance
         assert_eq!(instance.get("var1").await?, Some(Node::Integer(123)));
         assert_eq!(instance.get("var2").await?, Some(Node::Number(4.56)));
         assert_eq!(

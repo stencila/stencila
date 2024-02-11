@@ -95,6 +95,9 @@ pub struct RhaiKernelInstance<'lt> {
 
     /// A channel sender for sending signals to the instance
     signal_sender: mpsc::Sender<KernelSignal>,
+
+    /// A counter of forks of this instance
+    forks: AtomicU64,
 }
 
 #[async_trait]
@@ -323,8 +326,26 @@ impl<'lt> KernelInstance for RhaiKernelInstance<'lt> {
     }
 
     async fn fork(&mut self) -> Result<Box<dyn KernelInstance>> {
-        // TODO
-        todo!()
+        tracing::trace!("Forking Rhai kernel instance");
+
+        // Create fork id
+        let id = format!(
+            "{}-fork-{}",
+            self.id,
+            self.forks.fetch_add(1, Ordering::SeqCst)
+        );
+
+        // Create instance
+        let mut fork = RhaiKernelInstance::new(id);
+
+        // Clone variables into fork's scope
+        for (name, ..) in self.scope.iter() {
+            if let Some(value) = self.scope.get(name) {
+                fork.scope.set_value(name, value.clone());
+            }
+        }
+
+        Ok(Box::new(fork))
     }
 }
 
@@ -356,6 +377,7 @@ impl<'lt> RhaiKernelInstance<'lt> {
             status,
             status_sender,
             signal_sender,
+            forks: Default::default(),
         }
     }
 
@@ -690,7 +712,6 @@ let para = #{type:"Paragraph", content:[]};
     }
 
     /// Standard kernel test for forking
-    #[ignore = "not yet implemented"]
     #[test_log::test(tokio::test)]
     async fn forking() -> Result<()> {
         let Some(instance) = create_instance::<RhaiKernel>().await? else {
