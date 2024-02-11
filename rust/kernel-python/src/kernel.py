@@ -34,7 +34,7 @@ except Exception:
     except Exception:
         MAXFD = 256
 
-# Custom serialization/deserialization to Stencila JSON for ndarrays
+# Custom serialization and hints for numpy
 try:
     import numpy as np
     from numpy import ndarray
@@ -50,7 +50,7 @@ try:
     )
     NUMPY_FLOAT_TYPES = (np.half, np.single, np.double, np.longdouble)
 
-    def ndarray_to_array_hint(array):
+    def ndarray_hint(array):
         if array.dtype in NUMPY_BOOL_TYPES:
             items_type = "Boolean"
             convert_type = bool
@@ -78,15 +78,84 @@ try:
         return {
             "type": "ArrayHint",
             "length": length,
-            "types": [items_type],
+            "itemTypes": [items_type],
             "nulls": np.count_nonzero(np.isnan(array)) if length else None,
             "minimum": convert_type(np.nanmin(array)) if length else None,
             "maximum": convert_type(np.nanmax(array)) if length else None,
         }
 
+    def ndarray_validator(value):
+        if value.dtype in NUMPY_BOOL_TYPES:
+            validator = dict(type="BooleanValidator")
+        elif value.dtype in NUMPY_INT_TYPES:
+            validator = dict(type="IntegerValidator")
+        elif value.dtype in NUMPY_UINT_TYPES:
+            validator = dict(type="IntegerValidator", minimum=0)
+        elif value.dtype in NUMPY_FLOAT_TYPES:
+            validator = dict(type="NumberValidator")
+        elif str(value.dtype) == "datetime64":
+            validator = dict(type="TimestampValidator")
+        elif str(value.dtype) == "timedelta64":
+            validator = dict(type="DurationValidator")
+        else:
+            validator = None
+
+        return dict(type="ArrayValidator", itemsValidator=validator)
+
+    def ndarray_to_json(array):
+        return json.dumps(array.tolist())
+
 except ImportError:
 
     class ndarray:
+        pass
+
+
+# Custom serialization and hints for pandas
+try:
+    from pandas import DataFrame
+
+    def dataframe_hint(df):
+        columns = []
+        for column_name in df.columns:
+            column = df[column_name]
+
+            hint = ndarray_hint(column)
+            hint["type"] = "DatatableColumnHint"
+            hint["name"] = str(column_name)
+            hint["itemType"] = hint["itemTypes"][0]
+
+            columns.append(hint)
+
+        return {"type": "DatatableHint", "rows": len(df), "columns": columns}
+
+    def dataframe_to_json(df):
+        columns = []
+        for column_name in df.columns:
+            column = df[column_name]
+            
+            values = column.tolist()
+            if column.dtype in NUMPY_BOOL_TYPES:
+               values = [bool(row) for row in values]
+            elif column.dtype in NUMPY_INT_TYPES or column.dtype in NUMPY_UINT_TYPES:
+               values = [int(row) for row in values]
+            elif column.dtype in NUMPY_FLOAT_TYPES:
+               values = [float(row) for row in values]
+
+            columns.append(
+                {
+                    "type": "DatatableColumn",
+                    "name": str(column_name),
+                    "values": values,
+                    "validator": ndarray_validator(column),
+                }
+            )
+
+        return json.dumps({"type": "Datatable", "columns": columns})
+
+except ImportError:
+
+    class DataFrame:
         pass
 
 
@@ -96,7 +165,10 @@ def to_json(object):
         return json.dumps(object)
 
     if isinstance(object, ndarray):
-        return json.dumps(object.tolist())
+        return ndarray_to_json(object)
+
+    if isinstance(object, DataFrame):
+        return dataframe_to_json(object)
 
     try:
         return json.dumps(object)
@@ -185,7 +257,9 @@ def determine_type_and_hint(value: Any):
     elif isinstance(value, (list, tuple)):
         return "Array", {"type": "ArrayHint", "length": len(value)}
     elif isinstance(value, ndarray):
-        return "Array", ndarray_to_array_hint(value)
+        return "Array", ndarray_hint(value)
+    elif isinstance(value, DataFrame):
+        return "Datatable", dataframe_hint(value)
     elif isinstance(value, dict):
         typ = value.get("type")
         if typ:

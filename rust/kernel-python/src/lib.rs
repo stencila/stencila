@@ -63,7 +63,9 @@ mod tests {
     use kernel_micro::{
         common::{eyre::Ok, indexmap::IndexMap, tokio},
         schema::{
-            Array, ArrayHint, Hint, Node, Null, Object, ObjectHint, Primitive, StringHint, Variable,
+            Array, ArrayHint, ArrayValidator, BooleanValidator, Datatable, DatatableColumn,
+            DatatableColumnHint, DatatableHint, Hint, IntegerValidator, Node, Null,
+            NumberValidator, Object, ObjectHint, Primitive, StringHint, Validator, Variable,
         },
         tests::{create_instance, start_instance},
     };
@@ -336,7 +338,7 @@ para = {'type':'Paragraph', 'content':[]}
         kernel_micro::tests::var_management(instance).await
     }
 
-    /// `PythonKernel` specific test for `list` and `get` with `ndarray`s
+    /// `PythonKernel` specific test for `list` and `get` with `numpy.ndarray`s
     #[test_log::test(tokio::test)]
     async fn numpy() -> Result<()> {
         let Some(mut instance) = start_instance::<PythonKernel>().await? else {
@@ -347,6 +349,7 @@ para = {'type':'Paragraph', 'content':[]}
             .execute(
                 "
 import numpy as np
+
 a1 = np.array([True, False], dtype=np.bool_)
 a2 = np.array([-1, 0, 1], dtype=np.int_)
 a3 = np.array([1, 2 , 3], dtype=np.uint)
@@ -380,7 +383,7 @@ a4 = np.array([1.23, 4.56], dtype=np.float_)
                 node_type: Some("Array".to_string()),
                 hint: Some(Hint::ArrayHint(ArrayHint {
                     length: 2,
-                    types: Some(vec!["Boolean".to_string()]),
+                    item_types: Some(vec!["Boolean".to_string()]),
                     minimum: Some(Primitive::Boolean(false)),
                     maximum: Some(Primitive::Boolean(true)),
                     nulls: Some(0),
@@ -406,7 +409,7 @@ a4 = np.array([1.23, 4.56], dtype=np.float_)
                 node_type: Some("Array".to_string()),
                 hint: Some(Hint::ArrayHint(ArrayHint {
                     length: 3,
-                    types: Some(vec!["Integer".to_string()]),
+                    item_types: Some(vec!["Integer".to_string()]),
                     minimum: Some(Primitive::Integer(-1)),
                     maximum: Some(Primitive::Integer(1)),
                     nulls: Some(0),
@@ -433,7 +436,7 @@ a4 = np.array([1.23, 4.56], dtype=np.float_)
                 node_type: Some("Array".to_string()),
                 hint: Some(Hint::ArrayHint(ArrayHint {
                     length: 3,
-                    types: Some(vec!["UnsignedInteger".to_string()]),
+                    item_types: Some(vec!["UnsignedInteger".to_string()]),
                     minimum: Some(Primitive::Integer(1)),
                     maximum: Some(Primitive::Integer(3)),
                     nulls: Some(0),
@@ -460,7 +463,7 @@ a4 = np.array([1.23, 4.56], dtype=np.float_)
                 node_type: Some("Array".to_string()),
                 hint: Some(Hint::ArrayHint(ArrayHint {
                     length: 2,
-                    types: Some(vec!["Number".to_string()]),
+                    item_types: Some(vec!["Number".to_string()]),
                     minimum: Some(Primitive::Number(1.23)),
                     maximum: Some(Primitive::Number(4.56)),
                     nulls: Some(0),
@@ -475,6 +478,124 @@ a4 = np.array([1.23, 4.56], dtype=np.float_)
             Node::Array(Array(vec![
                 Primitive::Number(1.23),
                 Primitive::Number(4.56)
+            ]))
+        );
+
+        // TODO: asserts for a5, a6
+
+        Ok(())
+    }
+
+    /// `PythonKernel` specific test for `list` and `get` with `pandas.DataFrame`s
+    #[test_log::test(tokio::test)]
+    async fn pandas() -> Result<()> {
+        let Some(mut instance) = start_instance::<PythonKernel>().await? else {
+            return Ok(());
+        };
+
+        let (.., messages) = instance
+            .execute(
+                "
+import pandas as pd
+
+df1 = pd.DataFrame({
+    'c1': [True, False],
+    'c2': [1, 2],
+    'c3': [1.23, 4.56]
+})
+",
+            )
+            .await?;
+        assert_eq!(messages, []);
+
+        let list = instance.list().await?;
+
+        macro_rules! var {
+            ($name:expr) => {
+                list.iter().find(|var| var.name == $name).unwrap().clone()
+            };
+        }
+        macro_rules! get {
+            ($name:expr) => {
+                instance.get($name).await?.unwrap()
+            };
+        }
+
+        assert_eq!(
+            var!("df1"),
+            Variable {
+                name: "df1".to_string(),
+                native_type: Some("DataFrame".to_string()),
+                node_type: Some("Datatable".to_string()),
+                hint: Some(Hint::DatatableHint(DatatableHint::new(
+                    2,
+                    vec![
+                        DatatableColumnHint {
+                            name: "c1".to_string(),
+                            item_type: "Boolean".to_string(),
+                            minimum: Some(Primitive::Boolean(false)),
+                            maximum: Some(Primitive::Boolean(true)),
+                            nulls: Some(0),
+                            ..Default::default()
+                        },
+                        DatatableColumnHint {
+                            name: "c2".to_string(),
+                            item_type: "Integer".to_string(),
+                            minimum: Some(Primitive::Integer(1)),
+                            maximum: Some(Primitive::Integer(2)),
+                            nulls: Some(0),
+                            ..Default::default()
+                        },
+                        DatatableColumnHint {
+                            name: "c3".to_string(),
+                            item_type: "Number".to_string(),
+                            minimum: Some(Primitive::Number(1.23)),
+                            maximum: Some(Primitive::Number(4.56)),
+                            nulls: Some(0),
+                            ..Default::default()
+                        }
+                    ]
+                ))),
+                programming_language: Some("Python".to_string()),
+                ..Default::default()
+            },
+        );
+        assert_eq!(
+            get!("df1"),
+            Node::Datatable(Datatable::new(vec![
+                DatatableColumn {
+                    name: "c1".to_string(),
+                    values: vec![Primitive::Boolean(true), Primitive::Boolean(false)],
+                    validator: Some(ArrayValidator {
+                        items_validator: Some(Box::new(Validator::BooleanValidator(
+                            BooleanValidator::new()
+                        ))),
+                        ..Default::default()
+                    }),
+                    ..Default::default()
+                },
+                DatatableColumn {
+                    name: "c2".to_string(),
+                    values: vec![Primitive::Integer(1), Primitive::Integer(2)],
+                    validator: Some(ArrayValidator {
+                        items_validator: Some(Box::new(Validator::IntegerValidator(
+                            IntegerValidator::new()
+                        ))),
+                        ..Default::default()
+                    }),
+                    ..Default::default()
+                },
+                DatatableColumn {
+                    name: "c3".to_string(),
+                    values: vec![Primitive::Number(1.23), Primitive::Number(4.56)],
+                    validator: Some(ArrayValidator {
+                        items_validator: Some(Box::new(Validator::NumberValidator(
+                            NumberValidator::new()
+                        ))),
+                        ..Default::default()
+                    }),
+                    ..Default::default()
+                }
             ]))
         );
 
