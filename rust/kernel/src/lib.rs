@@ -439,7 +439,7 @@ pub mod tests {
             instance.set(name, &value).await?;
             let vars = instance.list().await?;
             assert_eq!(vars.len(), initial.len() + 1);
-            assert!(vars.iter().find(|var| var.name == name).is_some());
+            assert!(vars.iter().any(|var| var.name == name));
 
             // Get the var
             assert_eq!(instance.get(name).await?, Some(value));
@@ -449,8 +449,49 @@ pub mod tests {
             assert_eq!(instance.get(name).await?, None);
             let vars = instance.list().await?;
             assert_eq!(vars.len(), initial.len());
-            assert!(vars.iter().find(|var| var.name == name).is_none());
+            assert!(!vars.iter().any(|var| var.name == name));
         }
+
+        Ok(())
+    }
+
+    /// Test forking a kernel instance
+    pub async fn forking(mut instance: Box<dyn KernelInstance>) -> Result<()> {
+        instance.start_here().await?;
+        assert_eq!(instance.status().await?, KernelStatus::Ready);
+
+        // Set variables in the kernel
+        instance.set("var1", &Node::Integer(123)).await?;
+        instance.set("var2", &Node::Number(4.56)).await?;
+        instance
+            .set("var3", &Node::String("Hello from main".to_string()))
+            .await?;
+
+        // Create a fork and check that the variables are available in it
+        let mut fork = instance.fork().await?;
+        assert_eq!(fork.get("var1").await?, Some(Node::Integer(123)));
+        assert_eq!(fork.get("var2").await?, Some(Node::Number(4.56)));
+        assert_eq!(
+            fork.get("var3").await?,
+            Some(Node::String("Hello from main".to_string()))
+        );
+
+        // Change variables in fork and check that they are unchanged in main instance
+        fork.set("var1", &Node::Integer(321)).await?;
+        fork.remove("var2").await?;
+        fork.execute("var3='Hello from fork'").await?;
+        assert_eq!(fork.get("var1").await?, Some(Node::Integer(321)));
+        assert_eq!(fork.get("var2").await?, None);
+        assert_eq!(
+            fork.get("var3").await?,
+            Some(Node::String("Hello from fork".to_string()))
+        );
+        assert_eq!(instance.get("var1").await?, Some(Node::Integer(123)));
+        assert_eq!(instance.get("var2").await?, Some(Node::Number(4.56)));
+        assert_eq!(
+            instance.get("var3").await?,
+            Some(Node::String("Hello from main".to_string()))
+        );
 
         Ok(())
     }

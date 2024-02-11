@@ -69,6 +69,12 @@ mod tests {
 
     use super::*;
 
+    // Pro-tip! Use get logs for these tests use:
+    //
+    // ```sh
+    // RUST_LOG=trace cargo test -p kernel-node -- --nocapture
+    // ```
+
     /// Standard kernel test for execution of code
     #[test_log::test(tokio::test)]
     async fn execution() -> Result<()> {
@@ -358,6 +364,16 @@ var para = {type: "Paragraph", content:[]}
         kernel_micro::tests::var_management(instance).await
     }
 
+    /// Standard kernel test for forking
+    #[test_log::test(tokio::test)]
+    async fn forking() -> Result<()> {
+        let Some(instance) = create_instance::<NodeKernel>().await? else {
+            return Ok(());
+        };
+
+        kernel_micro::tests::forking(instance).await
+    }
+
     /// Standard kernel test for signals
     #[test_log::test(tokio::test)]
     async fn signals() -> Result<()> {
@@ -406,49 +422,6 @@ sleep(100);",
         };
 
         kernel_micro::tests::stop(instance).await
-    }
-
-    /// Test forking of microkernel
-    ///
-    /// Pro-tip! Use this to get logs for this test:
-    ///
-    /// ```sh
-    /// RUST_LOG=trace cargo test -p kernel-node forks -- --nocapture
-    /// ```
-    #[test_log::test(tokio::test)]
-    async fn forks() -> Result<()> {
-        let Some(mut kernel) = start_instance::<NodeKernel>().await? else {
-            return Ok(())
-        };
-
-        // Set variables in the kernel
-        kernel.set("var1", &Node::Integer(123)).await?;
-        kernel.set("var2", &Node::Number(4.56)).await?;
-        kernel
-            .set("var3", &Node::String("Hello world".to_string()))
-            .await?;
-
-        // Create a fork and check that the variables are available in it
-        let mut fork = kernel.fork().await?;
-        assert_eq!(fork.get("var1").await?, Some(Node::Integer(123)));
-        assert_eq!(fork.get("var2").await?, Some(Node::Number(4.56)));
-        assert_eq!(
-            fork.get("var3").await?,
-            Some(Node::String("Hello world".to_string()))
-        );
-
-        // Change variables in fork and check that they are unchanged in main kernel
-        fork.set("var1", &Node::Integer(321)).await?;
-        fork.remove("var2").await?;
-        fork.execute("var3 = 'Hello from fork'").await?;
-        assert_eq!(kernel.get("var1").await?, Some(Node::Integer(123)));
-        assert_eq!(kernel.get("var2").await?, Some(Node::Number(4.56)));
-        assert_eq!(
-            kernel.get("var3").await?,
-            Some(Node::String("Hello world".to_string()))
-        );
-
-        Ok(())
     }
 
     /// `NodeKernel` specific test for re-declarations of variables
