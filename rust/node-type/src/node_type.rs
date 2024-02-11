@@ -45,6 +45,8 @@ pub enum NodeType {
     CreativeWork,
     Datatable,
     DatatableColumn,
+    DatatableColumnHint,
+    DatatableHint,
     Date,
     DateTime,
     DateTimeValidator,

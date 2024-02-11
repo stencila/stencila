@@ -4,6 +4,7 @@ use crate::prelude::*;
 
 use super::array_hint::ArrayHint;
 use super::boolean::Boolean;
+use super::datatable_hint::DatatableHint;
 use super::function::Function;
 use super::integer::Integer;
 use super::number::Number;
@@ -17,6 +18,8 @@ use super::unknown::Unknown;
 pub enum Hint {
     #[default]
     ArrayHint(ArrayHint),
+
+    DatatableHint(DatatableHint),
 
     Function(Function),
 

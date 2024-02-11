@@ -19,7 +19,7 @@ export class ArrayHint extends Entity {
   /**
    * The distinct types of the array items.
    */
-  types?: string[];
+  itemTypes?: string[];
 
   /**
    * The minimum value in the array.

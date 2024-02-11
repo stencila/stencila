@@ -33,6 +33,8 @@ use super::cord::Cord;
 use super::creative_work::CreativeWork;
 use super::datatable::Datatable;
 use super::datatable_column::DatatableColumn;
+use super::datatable_column_hint::DatatableColumnHint;
+use super::datatable_hint::DatatableHint;
 use super::date::Date;
 use super::date_time::DateTime;
 use super::date_time_validator::DateTimeValidator;
@@ -206,6 +208,10 @@ pub enum Node {
     Datatable(Datatable),
 
     DatatableColumn(DatatableColumn),
+
+    DatatableColumnHint(DatatableColumnHint),
+
+    DatatableHint(DatatableHint),
 
     Date(Date),
 

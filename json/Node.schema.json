@@ -111,6 +111,12 @@
       "$ref": "DatatableColumn.schema.json"
     },
     {
+      "$ref": "DatatableColumnHint.schema.json"
+    },
+    {
+      "$ref": "DatatableHint.schema.json"
+    },
+    {
       "$ref": "Date.schema.json"
     },
     {

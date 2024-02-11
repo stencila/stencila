@@ -32,6 +32,8 @@ Cord = ForwardRef("Cord")
 CreativeWork = ForwardRef("CreativeWork")
 Datatable = ForwardRef("Datatable")
 DatatableColumn = ForwardRef("DatatableColumn")
+DatatableColumnHint = ForwardRef("DatatableColumnHint")
+DatatableHint = ForwardRef("DatatableHint")
 Date = ForwardRef("Date")
 DateTime = ForwardRef("DateTime")
 DateTimeValidator = ForwardRef("DateTimeValidator")
@@ -163,6 +165,8 @@ Node = Union[
     CreativeWork,
     Datatable,
     DatatableColumn,
+    DatatableColumnHint,
+    DatatableHint,
     Date,
     DateTime,
     DateTimeValidator,

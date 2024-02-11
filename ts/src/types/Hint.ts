@@ -3,6 +3,7 @@
 import { hydrate } from "../hydrate.js";
 
 import { type ArrayHint } from "./ArrayHint.js";
+import { type DatatableHint } from "./DatatableHint.js";
 import { type Function } from "./Function.js";
 import { type Integer } from "./Integer.js";
 import { type ObjectHint } from "./ObjectHint.js";
@@ -14,6 +15,7 @@ import { type Unknown } from "./Unknown.js";
  */
 export type Hint =
   ArrayHint |
+  DatatableHint |
   Function |
   ObjectHint |
   StringHint |
@@ -31,6 +33,7 @@ export function hint(other: Hint): Hint {
   }
   switch(other.type) {
     case "ArrayHint":
+    case "DatatableHint":
     case "Function":
     case "ObjectHint":
     case "StringHint":

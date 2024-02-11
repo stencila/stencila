@@ -43,6 +43,8 @@ from ._creative_work_type import CreativeWorkType
 from ._creative_work_type_or_text import CreativeWorkTypeOrText
 from ._datatable import Datatable
 from ._datatable_column import DatatableColumn
+from ._datatable_column_hint import DatatableColumnHint
+from ._datatable_hint import DatatableHint
 from ._date import Date
 from ._date_time import DateTime
 from ._date_time_validator import DateTimeValidator
@@ -223,6 +225,8 @@ __all__ = [
     'CreativeWorkTypeOrText',
     'Datatable',
     'DatatableColumn',
+    'DatatableColumnHint',
+    'DatatableHint',
     'Date',
     'DateTime',
     'DateTimeValidator',

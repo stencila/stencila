@@ -37,6 +37,8 @@ export type NodeType =
   | "CreativeWork"
   | "Datatable"
   | "DatatableColumn"
+  | "DatatableColumnHint"
+  | "DatatableHint"
   | "Date"
   | "DateTime"
   | "DateTimeValidator"

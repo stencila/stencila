@@ -1,0 +1,21 @@
+title: DatatableHint
+'@id': stencila:DatatableHint
+nick: dth
+extends: Entity
+category: data
+description: A hint to the structure of a table of data.
+required:
+  - rows
+  - columns
+properties:
+  rows:
+    '@id': stencila:rows
+    description: The number of rows of data.
+    type: integer
+    minimum: 0
+  columns:
+    '@id': stencila:columns
+    description: A hint for each column of data.
+    type: array
+    items:
+      $ref: DatatableColumnHint

@@ -1,0 +1,73 @@
+{
+  "$schema": "https://stencila.org/meta.schema.json",
+  "$id": "https://stencila.org/DatatableColumnHint.schema.json",
+  "@id": "stencila:DatatableColumnHint",
+  "title": "DatatableColumnHint",
+  "nick": "dtc",
+  "extends": [
+    "Entity"
+  ],
+  "category": "data",
+  "description": "A hint to the type and values in a `DatatableColumn`.",
+  "required": [
+    "type",
+    "name",
+    "itemType"
+  ],
+  "core": [
+    "id",
+    "minimum",
+    "maximum",
+    "nulls"
+  ],
+  "properties": {
+    "type": {
+      "@id": "schema:type",
+      "description": "The type of this item.",
+      "$comment": "This is a special property analogous to JSON-LD's `@type` keyword.\n",
+      "type": "string"
+    },
+    "id": {
+      "@id": "schema:id",
+      "description": "The identifier for this item.",
+      "$comment": "This is a special property analogous to JSON-LD's `@id` keyword.\n",
+      "strip": [
+        "metadata"
+      ],
+      "html": {
+        "attr": "id"
+      },
+      "type": "string"
+    },
+    "name": {
+      "@id": "stencila:name",
+      "description": "The name of the column.",
+      "type": "string"
+    },
+    "itemType": {
+      "@id": "stencila:itemType",
+      "description": "The type of items in the column.",
+      "aliases": [
+        "item-type",
+        "item_type"
+      ],
+      "type": "string"
+    },
+    "minimum": {
+      "@id": "stencila:minimum",
+      "description": "The minimum value in the column.",
+      "$ref": "Primitive.schema.json"
+    },
+    "maximum": {
+      "@id": "stencila:maximum",
+      "description": "The maximum value in the column.",
+      "$ref": "Primitive.schema.json"
+    },
+    "nulls": {
+      "@id": "stencila:nulls",
+      "description": "The number of `Null` values in the column.",
+      "type": "integer",
+      "minimum": 0.0
+    }
+  }
+}

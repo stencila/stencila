@@ -14,73 +14,26 @@
       "rdfs:label": "DatatableColumn",
       "rdfs:comment": "A column of data within a `Datatable`.",
       "rdfs:subClassOf": {
-        "@id": "schema:Thing"
+        "@id": "stencila:Entity"
       }
     },
     {
-      "@id": "schema:alternateName",
-      "@type": "rdfs:Property",
-      "rdfs:label": "alternateNames",
-      "rdfs:comment": "Alternate names (aliases) for the item.",
-      "schema:domainIncludes": {
-        "@id": "schema:Thing"
-      },
-      "schema:rangeIncludes": {
-        "@id": "schema:Text"
-      }
-    },
-    {
-      "@id": "schema:description",
-      "@type": "rdfs:Property",
-      "rdfs:label": "description",
-      "rdfs:comment": "A description of the item.",
-      "schema:domainIncludes": {
-        "@id": "schema:Thing"
-      },
-      "schema:rangeIncludes": {
-        "@id": "schema:Text"
-      }
-    },
-    {
-      "@id": "schema:identifier",
-      "@type": "rdfs:Property",
-      "rdfs:label": "identifiers",
-      "rdfs:comment": "Any kind of identifier for any kind of Thing.",
-      "schema:domainIncludes": {
-        "@id": "schema:Thing"
-      },
-      "schema:rangeIncludes": [
-        {
-          "@id": "schema:PropertyValue"
-        },
-        {
-          "@id": "schema:Text"
-        }
-      ]
-    },
-    {
-      "@id": "schema:image",
-      "@type": "rdfs:Property",
-      "rdfs:label": "images",
-      "rdfs:comment": "Images of the item.",
-      "schema:domainIncludes": {
-        "@id": "schema:Thing"
-      },
-      "schema:rangeIncludes": {
-        "@id": "schema:ImageObject"
-      }
-    },
-    {
-      "@id": "schema:name",
+      "@id": "stencila:name",
       "@type": "rdfs:Property",
       "rdfs:label": "name",
-      "rdfs:comment": "The name of the item.",
+      "rdfs:comment": "The name of the column.",
       "schema:domainIncludes": [
         {
           "@id": "schema:Thing"
         },
         {
           "@id": "stencila:Button"
+        },
+        {
+          "@id": "stencila:DatatableColumn"
+        },
+        {
+          "@id": "stencila:DatatableColumnHint"
         },
         {
           "@id": "stencila:Directory"
@@ -104,18 +57,6 @@
           "@id": "stencila:Variable"
         }
       ],
-      "schema:rangeIncludes": {
-        "@id": "schema:Text"
-      }
-    },
-    {
-      "@id": "schema:url",
-      "@type": "rdfs:Property",
-      "rdfs:label": "url",
-      "rdfs:comment": "The URL of the item.",
-      "schema:domainIncludes": {
-        "@id": "schema:Thing"
-      },
       "schema:rangeIncludes": {
         "@id": "schema:Text"
       }

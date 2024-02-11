@@ -17,7 +17,6 @@ Comment = ForwardRef("Comment")
 ContactPoint = ForwardRef("ContactPoint")
 CreativeWork = ForwardRef("CreativeWork")
 Datatable = ForwardRef("Datatable")
-DatatableColumn = ForwardRef("DatatableColumn")
 DefinedTerm = ForwardRef("DefinedTerm")
 Enumeration = ForwardRef("Enumeration")
 ExecutionDependantRelation = ForwardRef("ExecutionDependantRelation")
@@ -69,7 +68,6 @@ ThingType = Union[
     ContactPoint,
     CreativeWork,
     Datatable,
-    DatatableColumn,
     DefinedTerm,
     Enumeration,
     ExecutionDependantRelation,

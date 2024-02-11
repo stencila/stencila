@@ -4,6 +4,7 @@ category: data
 description: Union type for hints of the value and/or structure of data.
 anyOf:
   - $ref: ArrayHint
+  - $ref: DatatableHint
   - $ref: Function
   - $ref: ObjectHint
   - $ref: StringHint

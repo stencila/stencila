@@ -17,7 +17,7 @@ class ArrayHint(Entity):
     length: int
     """The length (number of items) of the array."""
 
-    types: Optional[List[str]] = None
+    item_types: Optional[List[str]] = None
     """The distinct types of the array items."""
 
     minimum: Optional[Primitive] = None
@@ -29,10 +29,10 @@ class ArrayHint(Entity):
     nulls: Optional[int] = None
     """The number of `Null` values in the array."""
 
-    def __init__(self, length: int, id: Optional[str] = None, types: Optional[List[str]] = None, minimum: Optional[Primitive] = None, maximum: Optional[Primitive] = None, nulls: Optional[int] = None):
+    def __init__(self, length: int, id: Optional[str] = None, item_types: Optional[List[str]] = None, minimum: Optional[Primitive] = None, maximum: Optional[Primitive] = None, nulls: Optional[int] = None):
         super().__init__(id = id)
         self.length = length
-        self.types = types
+        self.item_types = item_types
         self.minimum = minimum
         self.maximum = maximum
         self.nulls = nulls

@@ -7,7 +7,7 @@ description: A hint to the content of an `Array`.
 required:
   - length
 core:
-  - types
+  - itemTypes
   - minimum
   - maximum
   - nulls
@@ -17,8 +17,8 @@ properties:
     description: The length (number of items) of the array.
     type: integer
     minimum: 0
-  types:
-    "@id": stencila:types
+  itemTypes:
+    "@id": stencila:itemTypes
     description: The distinct types of the array items.
     type: array
     items:
@@ -35,3 +35,4 @@ properties:
     "@id": stencila:nulls
     description: The number of `Null` values in the array.
     type: integer
+    minimum: 0

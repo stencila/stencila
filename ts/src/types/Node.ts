@@ -32,6 +32,8 @@ import { type Cord } from "./Cord.js";
 import { type CreativeWork } from "./CreativeWork.js";
 import { type Datatable } from "./Datatable.js";
 import { type DatatableColumn } from "./DatatableColumn.js";
+import { type DatatableColumnHint } from "./DatatableColumnHint.js";
+import { type DatatableHint } from "./DatatableHint.js";
 import { type Date } from "./Date.js";
 import { type DateTime } from "./DateTime.js";
 import { type DateTimeValidator } from "./DateTimeValidator.js";
@@ -166,6 +168,8 @@ export type Node =
   CreativeWork |
   Datatable |
   DatatableColumn |
+  DatatableColumnHint |
+  DatatableHint |
   Date |
   DateTime |
   DateTimeValidator |
@@ -294,6 +298,8 @@ export function node(other: Node): Node {
     case "CreativeWork":
     case "Datatable":
     case "DatatableColumn":
+    case "DatatableColumnHint":
+    case "DatatableHint":
     case "Date":
     case "DateTime":
     case "DateTimeValidator":

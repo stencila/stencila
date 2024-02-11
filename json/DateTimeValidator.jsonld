@@ -27,6 +27,9 @@
           "@id": "stencila:ArrayHint"
         },
         {
+          "@id": "stencila:DatatableColumnHint"
+        },
+        {
           "@id": "stencila:DateTimeValidator"
         },
         {
@@ -57,6 +60,9 @@
       "schema:domainIncludes": [
         {
           "@id": "stencila:ArrayHint"
+        },
+        {
+          "@id": "stencila:DatatableColumnHint"
         },
         {
           "@id": "stencila:DateTimeValidator"

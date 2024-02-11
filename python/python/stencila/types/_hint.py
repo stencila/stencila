@@ -3,6 +3,7 @@
 from .prelude import *
 
 ArrayHint = ForwardRef("ArrayHint")
+DatatableHint = ForwardRef("DatatableHint")
 Function = ForwardRef("Function")
 ObjectHint = ForwardRef("ObjectHint")
 StringHint = ForwardRef("StringHint")
@@ -11,6 +12,7 @@ Unknown = ForwardRef("Unknown")
 
 Hint = Union[
     ArrayHint,
+    DatatableHint,
     Function,
     ObjectHint,
     StringHint,

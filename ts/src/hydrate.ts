@@ -95,6 +95,10 @@ export function hydrate(value: types.Node): types.Node {
       return Object.setPrototypeOf(value, types.Datatable.prototype);
     case "DatatableColumn":
       return Object.setPrototypeOf(value, types.DatatableColumn.prototype);
+    case "DatatableColumnHint":
+      return Object.setPrototypeOf(value, types.DatatableColumnHint.prototype);
+    case "DatatableHint":
+      return Object.setPrototypeOf(value, types.DatatableHint.prototype);
     case "Date":
       return Object.setPrototypeOf(value, types.Date.prototype);
     case "DateTime":

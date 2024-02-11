@@ -35,9 +35,9 @@
       }
     },
     {
-      "@id": "stencila:types",
+      "@id": "stencila:itemTypes",
       "@type": "rdfs:Property",
-      "rdfs:label": "types",
+      "rdfs:label": "itemTypes",
       "rdfs:comment": "The distinct types of the array items.",
       "schema:domainIncludes": {
         "@id": "stencila:ArrayHint"
@@ -54,6 +54,9 @@
       "schema:domainIncludes": [
         {
           "@id": "stencila:ArrayHint"
+        },
+        {
+          "@id": "stencila:DatatableColumnHint"
         },
         {
           "@id": "stencila:DateTimeValidator"
@@ -88,6 +91,9 @@
           "@id": "stencila:ArrayHint"
         },
         {
+          "@id": "stencila:DatatableColumnHint"
+        },
+        {
           "@id": "stencila:DateTimeValidator"
         },
         {
@@ -115,9 +121,14 @@
       "@type": "rdfs:Property",
       "rdfs:label": "nulls",
       "rdfs:comment": "The number of `Null` values in the array.",
-      "schema:domainIncludes": {
-        "@id": "stencila:ArrayHint"
-      },
+      "schema:domainIncludes": [
+        {
+          "@id": "stencila:ArrayHint"
+        },
+        {
+          "@id": "stencila:DatatableColumnHint"
+        }
+      ],
       "schema:rangeIncludes": {
         "@id": "schema:Number"
       }

@@ -17,7 +17,6 @@ use super::comment::Comment;
 use super::contact_point::ContactPoint;
 use super::creative_work::CreativeWork;
 use super::datatable::Datatable;
-use super::datatable_column::DatatableColumn;
 use super::defined_term::DefinedTerm;
 use super::enumeration::Enumeration;
 use super::execution_dependant_relation::ExecutionDependantRelation;
@@ -86,8 +85,6 @@ pub enum ThingType {
     CreativeWork(CreativeWork),
 
     Datatable(Datatable),
-
-    DatatableColumn(DatatableColumn),
 
     DefinedTerm(DefinedTerm),
 

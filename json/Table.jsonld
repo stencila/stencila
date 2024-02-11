@@ -83,6 +83,12 @@
           "@id": "stencila:Button"
         },
         {
+          "@id": "stencila:DatatableColumn"
+        },
+        {
+          "@id": "stencila:DatatableColumnHint"
+        },
+        {
           "@id": "stencila:Directory"
         },
         {
@@ -555,9 +561,14 @@
       "@type": "rdfs:Property",
       "rdfs:label": "rows",
       "rdfs:comment": "Rows of cells in the table.",
-      "schema:domainIncludes": {
-        "@id": "schema:Table"
-      },
+      "schema:domainIncludes": [
+        {
+          "@id": "schema:Table"
+        },
+        {
+          "@id": "stencila:DatatableHint"
+        }
+      ],
       "schema:rangeIncludes": {
         "@id": "stencila:TableRow"
       }

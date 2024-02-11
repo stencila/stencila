@@ -48,9 +48,6 @@
       "$ref": "Datatable.schema.json"
     },
     {
-      "$ref": "DatatableColumn.schema.json"
-    },
-    {
       "$ref": "DefinedTerm.schema.json"
     },
     {

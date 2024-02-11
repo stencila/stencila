@@ -14,7 +14,6 @@ import { type Comment } from "./Comment.js";
 import { type ContactPoint } from "./ContactPoint.js";
 import { type CreativeWork } from "./CreativeWork.js";
 import { type Datatable } from "./Datatable.js";
-import { type DatatableColumn } from "./DatatableColumn.js";
 import { type DefinedTerm } from "./DefinedTerm.js";
 import { type Enumeration } from "./Enumeration.js";
 import { type ExecutionDependantRelation } from "./ExecutionDependantRelation.js";
@@ -68,7 +67,6 @@ export type ThingType =
   ContactPoint |
   CreativeWork |
   Datatable |
-  DatatableColumn |
   DefinedTerm |
   Enumeration |
   ExecutionDependantRelation |

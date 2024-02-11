@@ -70,7 +70,7 @@ const BOX_PROPERTIES: &[&str] = &[
 ];
 
 /// Properties which can not allow deserialization from one or many items
-const NO_ONE_OR_MANY: &[&str] = &["EnumValidator.values"];
+const NO_ONE_OR_MANY: &[&str] = &["DatatableColumn.values", "EnumValidator.values"];
 
 const KEYWORDS: &[&str; 52] = &[
     "as", "break", "const", "continue", "crate", "else", "enum", "extern", "false", "fn", "for",

@@ -15,7 +15,7 @@
   ],
   "core": [
     "id",
-    "types",
+    "itemTypes",
     "minimum",
     "maximum",
     "nulls"
@@ -45,11 +45,15 @@
       "type": "integer",
       "minimum": 0.0
     },
-    "types": {
-      "@id": "stencila:types",
+    "itemTypes": {
+      "@id": "stencila:itemTypes",
       "description": "The distinct types of the array items.",
       "aliases": [
-        "type"
+        "item-types",
+        "item_types",
+        "itemType",
+        "item-type",
+        "item_type"
       ],
       "type": "array",
       "items": {
@@ -69,7 +73,8 @@
     "nulls": {
       "@id": "stencila:nulls",
       "description": "The number of `Null` values in the array.",
-      "type": "integer"
+      "type": "integer",
+      "minimum": 0.0
     }
   }
 }

@@ -43,6 +43,8 @@ export * from "./CreativeWorkType.js";
 export * from "./CreativeWorkTypeOrText.js";
 export * from "./Datatable.js";
 export * from "./DatatableColumn.js";
+export * from "./DatatableColumnHint.js";
+export * from "./DatatableHint.js";
 export * from "./Date.js";
 export * from "./DateTime.js";
 export * from "./DateTimeValidator.js";

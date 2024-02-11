@@ -30,6 +30,12 @@
           "@id": "stencila:Button"
         },
         {
+          "@id": "stencila:DatatableColumn"
+        },
+        {
+          "@id": "stencila:DatatableColumnHint"
+        },
+        {
           "@id": "stencila:Directory"
         },
         {

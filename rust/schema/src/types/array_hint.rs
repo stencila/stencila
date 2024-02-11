@@ -26,9 +26,9 @@ pub struct ArrayHint {
     pub length: Integer,
 
     /// The distinct types of the array items.
-    #[serde(alias = "type")]
+    #[serde(alias = "item-types", alias = "item_types", alias = "itemType", alias = "item-type", alias = "item_type")]
     #[serde(default, deserialize_with = "option_one_or_many")]
-    pub types: Option<Vec<String>>,
+    pub item_types: Option<Vec<String>>,
 
     /// The minimum value in the array.
     pub minimum: Option<Primitive>,
