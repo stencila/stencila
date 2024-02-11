@@ -427,4 +427,38 @@ sleep(100)",
 
         kernel_micro::tests::stop(instance).await
     }
+
+    /// `PythonKernel` specific test that imported modules are available in functions
+    ///
+    /// This is a regression test for a bug found during usage with v1.
+    /// Before the associated fix would get error "name 'time' is not defined"
+    #[tokio::test]
+    async fn imports() -> Result<()> {
+        let Some(mut instance) = start_instance::<PythonKernel>().await? else {
+            return Ok(());
+        };
+
+        // Import a module and a function from another module in one task
+        let (outputs, messages) = instance
+            .execute("
+import time
+from datetime import datetime
+")
+            .await?;
+        assert_eq!(messages, []);
+        assert_eq!(outputs, []);
+
+        // Check that both can be used from within a function in another task
+        let (outputs, messages) = instance
+            .execute("
+def func():
+    return (time.time(), datetime.now())
+
+func()")
+            .await?;
+        assert_eq!(messages, []);
+        assert_eq!(outputs.len(), 1);
+
+        Ok(())
+    }
 }
