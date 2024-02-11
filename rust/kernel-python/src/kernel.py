@@ -268,7 +268,7 @@ context: Dict[str, Any] = {"print": print}
 
 
 # Execute lines of code
-def execute(lines: str):
+def execute(lines):
     # If the last line is compilable as an `eval`-able
     # expression, then return it as a value. Otherwise
     # just execute all the lines
@@ -289,7 +289,7 @@ def execute(lines: str):
 
 
 # Evaluate an expression
-def evaluate(expression: str):
+def evaluate(expression):
     if expression:
         value = eval(expression, context)
         sys.stdout.write(to_json(value))
@@ -317,7 +317,7 @@ def list_variables():
 
 
 # Determine node type and value hint for a variable
-def determine_type_and_hint(value: Any):
+def determine_type_and_hint(value):
     if value is None:
         return "Null", None
     elif isinstance(value, bool):
@@ -357,25 +357,24 @@ def determine_type_and_hint(value: Any):
 
 
 # Get a variable
-def get_variable(name: str):
+def get_variable(name):
     value = context.get(name)
     if value is not None:
         sys.stdout.write(to_json(value))
 
 
 # Set a variable
-def set_variable(name: str, value: str):
+def set_variable(name, value):
     context[name] = from_json(value)
 
 
 # Remove a variable
-def remove_variable(name: str):
+def remove_variable(name):
     context.pop(name, None)
 
 
 # Fork the kernel instance
-def fork(pipes: str):
-    global context
+def fork(pipes):
 
     pid = os.fork()
     if pid == 0:
