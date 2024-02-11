@@ -658,8 +658,8 @@ df1 = pd.DataFrame({
             Node::String("<class 'pandas.core.frame.DataFrame'>".to_string())
         );
 
-        let dt_out = instance.get("dt").await?;
-        assert_eq!(dt_out, dt_out);
+        let dt_out = instance.get("dt").await?.unwrap();
+        assert_eq!(dt_out, dt_in);
 
         Ok(())
     }
