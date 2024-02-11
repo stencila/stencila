@@ -52,9 +52,11 @@ export const config = defineConfig({
           '900': '#333333',
         },
         black: '#171817',
-        green: {
+        greene: {
           '000': '#f5fff5',
+          100: '#E5FFE5',
           200: '#D9F2D9',
+          900: '#0B4C46',
         },
       },
     },
