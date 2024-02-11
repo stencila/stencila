@@ -115,14 +115,17 @@ def determine_type_and_hint(value: Any):
         return "Null", None
     elif isinstance(value, bool):
         return "Boolean", value
-    elif isinstance(value, (int, float)):
+    elif isinstance(value, int):
+        return "Integer", value
+    elif isinstance(value, float):
         return "Number", value
     elif isinstance(value, str):
         return "String", len(value)
     elif isinstance(value, (list, tuple)):
         return "Array", len(value)
     elif isinstance(value, dict):
-        return "Object", len(value)
+        typ = value.get("type")
+        return (str(typ), None) if typ else ("Object", len(value))
     else:
         return "Object", None  # Fallback
 

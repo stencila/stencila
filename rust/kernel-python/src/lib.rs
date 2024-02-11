@@ -62,7 +62,7 @@ mod tests {
     use common_dev::pretty_assertions::assert_eq;
     use kernel_micro::{
         common::{eyre::Ok, indexmap::IndexMap, tokio},
-        schema::{Array, Node, Null, Object, Primitive},
+        schema::{Array, Node, Null, Object, Primitive, Variable},
         tests::{create_instance, start_instance},
     };
 
@@ -200,6 +200,93 @@ print(a, b)",
         .await
     }
 
+    /// Standard kernel test for variable listing
+    #[test_log::test(tokio::test)]
+    async fn var_listing() -> Result<()> {
+        let Some(instance) = create_instance::<PythonKernel>().await? else {
+            return Ok(());
+        };
+
+        kernel_micro::tests::var_listing(
+            instance,
+            r#"
+nul = None
+bool = True
+int = 123
+num = 1.23
+str = "str"
+arr = [1, 2, 3]
+obj = {'a':1, 'b':2.3}
+para = {'type':'Paragraph', 'content':[]}
+"#,
+            vec![
+                Variable {
+                    name: "nul".to_string(),
+                    native_type: Some("NoneType".to_string()),
+                    node_type: Some("Null".to_string()),
+                    programming_language: Some("Python".to_string()),
+                    ..Default::default()
+                },
+                Variable {
+                    name: "bool".to_string(),
+                    native_type: Some("bool".to_string()),
+                    node_type: Some("Boolean".to_string()),
+                    value_hint: Some(Box::new(Node::Boolean(true))),
+                    programming_language: Some("Python".to_string()),
+                    ..Default::default()
+                },
+                Variable {
+                    name: "int".to_string(),
+                    native_type: Some("int".to_string()),
+                    node_type: Some("Integer".to_string()),
+                    value_hint: Some(Box::new(Node::Integer(123))),
+                    programming_language: Some("Python".to_string()),
+                    ..Default::default()
+                },
+                Variable {
+                    name: "num".to_string(),
+                    native_type: Some("float".to_string()),
+                    node_type: Some("Number".to_string()),
+                    value_hint: Some(Box::new(Node::Number(1.23))),
+                    programming_language: Some("Python".to_string()),
+                    ..Default::default()
+                },
+                Variable {
+                    name: "str".to_string(),
+                    native_type: Some("str".to_string()),
+                    node_type: Some("String".to_string()),
+                    value_hint: Some(Box::new(Node::Integer(3))),
+                    programming_language: Some("Python".to_string()),
+                    ..Default::default()
+                },
+                Variable {
+                    name: "arr".to_string(),
+                    native_type: Some("list".to_string()),
+                    node_type: Some("Array".to_string()),
+                    value_hint: Some(Box::new(Node::Integer(3))),
+                    programming_language: Some("Python".to_string()),
+                    ..Default::default()
+                },
+                Variable {
+                    name: "obj".to_string(),
+                    native_type: Some("dict".to_string()),
+                    node_type: Some("Object".to_string()),
+                    value_hint: Some(Box::new(Node::Integer(2))),
+                    programming_language: Some("Python".to_string()),
+                    ..Default::default()
+                },
+                Variable {
+                    name: "para".to_string(),
+                    native_type: Some("dict".to_string()),
+                    node_type: Some("Paragraph".to_string()),
+                    programming_language: Some("Python".to_string()),
+                    ..Default::default()
+                },
+            ],
+        )
+        .await
+    }
+
     /// Standard kernel test for variable management
     #[test_log::test(tokio::test)]
     async fn var_management() -> Result<()> {
@@ -249,62 +336,6 @@ sleep(100)",
         };
 
         kernel_micro::tests::stop(instance).await
-    }
-
-    /// Test declaring JavaScript variables with different types
-    #[tokio::test]
-    async fn var_types() -> Result<()> {
-        let Some(mut kernel) = start_instance::<PythonKernel>().await? else {
-            return Ok(());
-        };
-
-        kernel
-            .execute(
-                r#"
-n = 1.23
-s = "str"
-a = [1, 2, 3]
-o = {'a':1, 'b':2.3}
-        "#,
-            )
-            .await?;
-
-        let vars = kernel.list().await?;
-
-        let var = vars.iter().find(|var| var.name == "n").unwrap();
-        assert_eq!(var.node_type.as_deref(), Some("Number"));
-        assert_eq!(var.native_type.as_deref(), Some("float"));
-        assert_eq!(kernel.get("n").await?, Some(Node::Number(1.23)));
-
-        let var = vars.iter().find(|var| var.name == "s").unwrap();
-        assert_eq!(var.node_type.as_deref(), Some("String"));
-        assert_eq!(var.native_type.as_deref(), Some("str"));
-        assert!(matches!(kernel.get("s").await?, Some(Node::String(..))));
-
-        let var = vars.iter().find(|var| var.name == "a").unwrap();
-        assert_eq!(var.node_type.as_deref(), Some("Array"));
-        assert_eq!(var.native_type.as_deref(), Some("list"));
-        assert_eq!(
-            kernel.get("a").await?,
-            Some(Node::Array(Array(vec![
-                Primitive::Integer(1),
-                Primitive::Integer(2),
-                Primitive::Integer(3)
-            ])))
-        );
-
-        let var = vars.iter().find(|var| var.name == "o").unwrap();
-        assert_eq!(var.node_type.as_deref(), Some("Object"));
-        assert_eq!(var.native_type.as_deref(), Some("dict"));
-        assert_eq!(
-            kernel.get("o").await?,
-            Some(Node::Object(Object(IndexMap::from([
-                (String::from("a"), Primitive::Integer(1),),
-                (String::from("b"), Primitive::Number(2.3))
-            ]))))
-        );
-
-        Ok(())
     }
 
     /// Test execute tasks that intentionally generate error messages
