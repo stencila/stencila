@@ -171,34 +171,7 @@ function evaluate(expression) {
 // List variables in the context
 function list() {
   for (const [name, value] of Object.entries(context)) {
-    let nativeType;
-    if (value === null) nativeType = "null";
-    else if (Array.isArray(value)) nativeType = "array";
-    else nativeType = typeof value;
-
-    const [nodeType, valueHint] = (() => {
-      switch (nativeType) {
-        case "undefined":
-        case "null":
-          return ["Null", undefined];
-        case "boolean":
-          return ["Boolean", value];
-        case "number":
-          return ["Number", value];
-        case "bigint":
-          return ["Integer", undefined]; // BigInt not serializable to JSON for hint
-        case "string":
-          return ["String", value.length];
-        case "object":
-          return typeof value.type === "string"
-            ? [value.type, undefined]
-            : ["Object", Object.keys(value).length];
-        case "array":
-          return ["Array", value.length];
-        default:
-          return ["Object", undefined];
-      }
-    })();
+    const [nativeType, nodeType, hint] = nodeTypesHint(value);
 
     const variable = {
       type: "Variable",
@@ -206,10 +179,57 @@ function list() {
       programmingLanguage: "JavaScript",
       nativeType,
       nodeType,
-      valueHint,
+      hint,
     };
 
     stdout.write(`${JSON.stringify(variable)}${END}\n`);
+  }
+}
+
+// Get the types and hint for a value
+function nodeTypesHint(value) {
+  let nativeType;
+  if (value === null) nativeType = "null";
+  else if (Array.isArray(value)) nativeType = "array";
+  else nativeType = typeof value;
+
+  switch (nativeType) {
+    case "undefined":
+    case "null":
+      return [nativeType, "Null", undefined];
+    case "boolean":
+      return [nativeType, "Boolean", value];
+    case "number":
+      return [nativeType, "Number", value];
+    case "bigint":
+      return [nativeType, "Integer", undefined]; // BigInt not serializable to JSON for hint
+    case "string":
+      return [
+        nativeType,
+        "String",
+        { type: "StringHint", chars: [...value].length },
+      ];
+    case "array":
+      return [nativeType, "Array", { type: "ArrayHint", length: value.length }];
+    case "object":
+      return [
+        nativeType,
+        ...(typeof value.type === "string"
+          ? [value.type, undefined]
+          : [
+              "Object",
+              {
+                type: "ObjectHint",
+                length: Object.keys(value).length,
+                keys: Object.keys(value),
+                values: Object.values(value).map(
+                  (item) => nodeTypesHint(item)[2] ?? { type: "Unknown" }
+                ),
+              },
+            ]),
+      ];
+    default:
+      return [nativeType, "Object", { type: "Unknown" }];
   }
 }
 

@@ -63,7 +63,10 @@ mod tests {
     use common_dev::pretty_assertions::assert_eq;
     use kernel_micro::{
         common::{indexmap::IndexMap, tokio},
-        schema::{Array, ExecutionError, Node, Null, Object, Primitive, Variable},
+        schema::{
+            Array, ArrayHint, ExecutionError, Hint, Node, Null, Object, ObjectHint, Primitive,
+            StringHint, Variable,
+        },
         tests::{create_instance, start_instance},
     };
 
@@ -282,7 +285,7 @@ var nul = null;
 var bool = true;
 var int = 123n;
 var num = 1.23;
-var str = "str";
+var str = "abc👍";
 var arr = [1, 2, 3];
 var obj = {a:1, b:2.3};
 var para = {type: "Paragraph", content:[]}
@@ -299,7 +302,7 @@ var para = {type: "Paragraph", content:[]}
                     name: "bool".to_string(),
                     native_type: Some("boolean".to_string()),
                     node_type: Some("Boolean".to_string()),
-                    value_hint: Some(Box::new(Node::Boolean(true))),
+                    hint: Some(Hint::Boolean(true)),
                     programming_language: Some("JavaScript".to_string()),
                     ..Default::default()
                 },
@@ -314,7 +317,7 @@ var para = {type: "Paragraph", content:[]}
                     name: "num".to_string(),
                     native_type: Some("number".to_string()),
                     node_type: Some("Number".to_string()),
-                    value_hint: Some(Box::new(Node::Number(1.23))),
+                    hint: Some(Hint::Number(1.23)),
                     programming_language: Some("JavaScript".to_string()),
                     ..Default::default()
                 },
@@ -322,7 +325,7 @@ var para = {type: "Paragraph", content:[]}
                     name: "str".to_string(),
                     native_type: Some("string".to_string()),
                     node_type: Some("String".to_string()),
-                    value_hint: Some(Box::new(Node::Integer(3))),
+                    hint: Some(Hint::StringHint(StringHint::new(4))),
                     programming_language: Some("JavaScript".to_string()),
                     ..Default::default()
                 },
@@ -330,7 +333,7 @@ var para = {type: "Paragraph", content:[]}
                     name: "arr".to_string(),
                     native_type: Some("array".to_string()),
                     node_type: Some("Array".to_string()),
-                    value_hint: Some(Box::new(Node::Integer(3))),
+                    hint: Some(Hint::ArrayHint(ArrayHint::new(3))),
                     programming_language: Some("JavaScript".to_string()),
                     ..Default::default()
                 },
@@ -338,7 +341,11 @@ var para = {type: "Paragraph", content:[]}
                     name: "obj".to_string(),
                     native_type: Some("object".to_string()),
                     node_type: Some("Object".to_string()),
-                    value_hint: Some(Box::new(Node::Integer(2))),
+                    hint: Some(Hint::ObjectHint(ObjectHint::new(
+                        2,
+                        vec!["a".to_string(), "b".to_string()],
+                        vec![Hint::Integer(1), Hint::Number(2.3)],
+                    ))),
                     programming_language: Some("JavaScript".to_string()),
                     ..Default::default()
                 },
