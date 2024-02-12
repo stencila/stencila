@@ -34,7 +34,13 @@ lint:
 
 # Run tests
 test:
+	# Optimistically install language packages optionally used for tests
+	- pip -q install numpy pandas matplotlib
+	
+	# Run all the test in the workspace
 	cargo test --workspace --no-fail-fast -- --nocapture
+	
+	# Run proptests
 	# TODO: Reinstate proptest-low
 	# See https://github.com/stencila/stencila/issues/1924
 	make proptest-min proptest-high proptest-max
