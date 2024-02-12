@@ -5,8 +5,7 @@ import os
 import resource
 import sys
 import traceback
-from io import StringIO
-from typing import Any, Dict
+import io
 
 # During development, set DEV environment variable to True
 dev = os.getenv("DEV") == "true"
@@ -204,7 +203,6 @@ try:
     def matplotlib_to_image_object():
         """Convert the current matplotlib figure to a `ImageObject`"""
         import base64
-        import io
         from matplotlib import pyplot
 
         image = io.BytesIO()
@@ -232,7 +230,7 @@ def to_json(object):
 
     if PANDAS_AVAILABLE and isinstance(object, pd.DataFrame):
         return json.dumps(dataframe_to_datatable(object))
-    
+
     if MATPLOTLIB_AVAILABLE and is_matplotlib(object):
         return json.dumps(matplotlib_to_image_object())
 
@@ -264,7 +262,7 @@ def print(*objects, sep=" ", end="\n", file=sys.stdout, flush=False):
 
 
 # Create the initial context with monkey patched print
-context: Dict[str, Any] = {"print": print}
+context = {"print": print}
 
 
 # Execute lines of code
@@ -426,7 +424,7 @@ while True:
         pass
 
     except Exception as e:
-        stack_trace = StringIO()
+        stack_trace = io.StringIO()
         traceback.print_exc(file=stack_trace)
         stack_trace = stack_trace.getvalue()
 
