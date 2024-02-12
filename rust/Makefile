@@ -34,10 +34,6 @@ lint:
 
 # Setup before running tests
 test-setup:
-	# Optimistically install onnxruntime to try to avoid this on CI:
-	# /usr/bin/ld: cannot find -lonnxruntime: No such file or directory
-	- pip install onnxruntime
-
 	# Optimistically install language packages optionally used for tests
 	- pip -q install numpy pandas matplotlib
 
