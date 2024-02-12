@@ -213,6 +213,8 @@ pub enum KernelSignal {
 
 /// Standard tests for implementations of the `Kernel` and `KernelInstance` traits
 pub mod tests {
+    use std::{env, time::Duration};
+
     use common::{eyre::Report, indexmap::IndexMap, itertools::Itertools, tokio, tracing};
     use common_dev::pretty_assertions::assert_eq;
     use schema::{Array, Null, Object, Paragraph, Primitive};
@@ -616,6 +618,14 @@ pub mod tests {
                 if !messages.is_empty() {
                     error!("Unexpected messages in kill step: {messages:?}")
                 }
+                // Wait a little, to allow async kill signal to actually take effect,
+                // before confirming status
+                tokio::time::sleep(Duration::from_millis(if env::var("CI").is_ok() {
+                    1000
+                } else {
+                    200
+                }))
+                .await;
                 let status = instance.status().await?;
                 if status != KernelStatus::Failed {
                     error!("Unexpected status after kill step: {status}")
