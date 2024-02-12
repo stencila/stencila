@@ -1,18 +1,19 @@
 {
   "$schema": "https://stencila.org/meta.schema.json",
-  "$id": "https://stencila.org/ExecutionError.schema.json",
-  "@id": "stencila:ExecutionError",
-  "title": "ExecutionError",
+  "$id": "https://stencila.org/ExecutionMessage.schema.json",
+  "@id": "stencila:ExecutionMessage",
+  "title": "ExecutionMessage",
   "nick": "exe",
   "extends": [
     "Entity"
   ],
   "category": "code",
-  "description": "An error that occurred when executing an executable node.",
+  "description": "An error, warning or log message generated executing an executable node.",
   "status": "alpha",
   "required": [
     "type",
-    "errorMessage"
+    "level",
+    "message"
   ],
   "core": [
     "id",
@@ -39,14 +40,14 @@
       },
       "type": "string"
     },
-    "errorMessage": {
-      "@id": "stencila:errorMessage",
-      "description": "The error message or brief description of the error.",
-      "aliases": [
-        "message",
-        "error-message",
-        "error_message"
-      ],
+    "level": {
+      "@id": "stencila:level",
+      "description": "The text of the message.",
+      "$ref": "ExecutionMessageLevel.schema.json"
+    },
+    "message": {
+      "@id": "stencila:message",
+      "description": "The text of the message.",
       "type": "string"
     },
     "errorType": {
@@ -61,7 +62,7 @@
     },
     "codeLocation": {
       "@id": "stencila:codeLocation",
-      "description": "The location that the error occurred.",
+      "description": "The location that the error occurred or other message emanated from.",
       "aliases": [
         "code-location",
         "code_location"

@@ -62,7 +62,7 @@ pub enum NodeType {
     Enumeration,
     ExecutionDependant,
     ExecutionDependency,
-    ExecutionError,
+    ExecutionMessage,
     ExecutionTag,
     Figure,
     File,

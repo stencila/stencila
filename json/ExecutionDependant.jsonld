@@ -57,7 +57,7 @@
           "@id": "stencila:ExecutionDependency"
         },
         {
-          "@id": "stencila:ExecutionError"
+          "@id": "stencila:ExecutionMessage"
         }
       ],
       "schema:rangeIncludes": {

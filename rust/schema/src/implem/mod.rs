@@ -18,7 +18,6 @@ mod cord;
 mod date;
 mod date_time;
 mod duration;
-mod execution_error;
 mod figure;
 mod for_block;
 mod heading;

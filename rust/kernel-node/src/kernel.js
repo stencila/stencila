@@ -52,19 +52,19 @@ console.log = function (...args) {
 // Override other console methods to output structure messages
 console.debug = (message) =>
   stderr.write(
-    `{"type":"ExecutionError","errorType":"Debug","errorMessage":"${message}"}${END}\n`
+    `{"type":"ExecutionMessage","level":"Debug","message":"${message}"}${END}\n`
   );
 console.info = (message) =>
   stderr.write(
-    `{"type":"ExecutionError","errorType":"Info","errorMessage":"${message}"}${END}\n`
+    `{"type":"ExecutionMessage","level":"Info","message":"${message}"}${END}\n`
   );
 console.warn = (message) =>
   stderr.write(
-    `{"type":"ExecutionError","errorType":"Warning","errorMessage":"${message}"}${END}\n`
+    `{"type":"ExecutionMessage","level":"Warn","message":"${message}"}${END}\n`
   );
 console.error = (message) =>
   stderr.write(
-    `{"type":"ExecutionError","errorType":"Error","errorMessage":"${message}"}${END}\n`
+    `{"type":"ExecutionMessage","level":"Error","message":"${message}"}${END}\n`
   );
 
 // Create the execution context
@@ -295,10 +295,12 @@ rl.on("line", (task) => {
     if (error?.message === "Script execution was interrupted by `SIGINT`") {
       // Ignore error generated when interrupted
     } else {
-      const msg = { type: "ExecutionError" };
+      const msg = {
+        type: "ExecutionMessage",
+        level: "Error",
+        message: error.message ?? error.toString(),
+      };
       if (error.name) msg.errorType = error.name;
-      if (error.message) msg.errorMessage = error.message;
-      else msg.errorMessage = error.toString();
       if (error.stack) msg.stackTrace = error.stack;
 
       stderr.write(JSON.stringify(msg));

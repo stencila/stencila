@@ -1,22 +1,25 @@
-title: ExecutionError
-'@id': stencila:ExecutionError
+title: ExecutionMessage
+'@id': stencila:ExecutionMessage
 nick: exe
 extends: Entity
 category: code
 status: alpha
-description: An error that occurred when executing an executable node.
+description: An error, warning or log message generated executing an executable node.
 required:
-  - errorMessage
+  - level
+  - message
 core:
   - errorType
   - codeLocation
   - stackTrace
 properties:
-  errorMessage:
-    '@id': stencila:errorMessage
-    aliases:
-      - message
-    description: The error message or brief description of the error.
+  level:
+    '@id': stencila:level
+    description: The text of the message.
+    $ref: ExecutionMessageLevel
+  message:
+    '@id': stencila:message
+    description: The text of the message.
     type: string
   errorType:
     '@id': stencila:errorType
@@ -29,7 +32,7 @@ properties:
     type: string
   codeLocation:
     '@id': stencila:codeLocation
-    description: The location that the error occurred.
+    description: The location that the error occurred or other message emanated from.
     $ref: CodeLocation
   stackTrace:
     '@id': stencila:stackTrace

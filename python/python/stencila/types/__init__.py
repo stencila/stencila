@@ -66,7 +66,8 @@ from ._execution_dependant_relation import ExecutionDependantRelation
 from ._execution_dependency import ExecutionDependency
 from ._execution_dependency_node import ExecutionDependencyNode
 from ._execution_dependency_relation import ExecutionDependencyRelation
-from ._execution_error import ExecutionError
+from ._execution_message import ExecutionMessage
+from ._execution_message_level import ExecutionMessageLevel
 from ._execution_required import ExecutionRequired
 from ._execution_status import ExecutionStatus
 from ._execution_tag import ExecutionTag
@@ -248,7 +249,8 @@ __all__ = [
     'ExecutionDependency',
     'ExecutionDependencyNode',
     'ExecutionDependencyRelation',
-    'ExecutionError',
+    'ExecutionMessage',
+    'ExecutionMessageLevel',
     'ExecutionRequired',
     'ExecutionStatus',
     'ExecutionTag',

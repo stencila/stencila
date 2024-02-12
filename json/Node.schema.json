@@ -162,7 +162,7 @@
       "$ref": "ExecutionDependency.schema.json"
     },
     {
-      "$ref": "ExecutionError.schema.json"
+      "$ref": "ExecutionMessage.schema.json"
     },
     {
       "$ref": "ExecutionTag.schema.json"

@@ -133,8 +133,8 @@ export function hydrate(value: types.Node): types.Node {
       return Object.setPrototypeOf(value, types.ExecutionDependant.prototype);
     case "ExecutionDependency":
       return Object.setPrototypeOf(value, types.ExecutionDependency.prototype);
-    case "ExecutionError":
-      return Object.setPrototypeOf(value, types.ExecutionError.prototype);
+    case "ExecutionMessage":
+      return Object.setPrototypeOf(value, types.ExecutionMessage.prototype);
     case "ExecutionTag":
       return Object.setPrototypeOf(value, types.ExecutionTag.prototype);
     case "Figure":

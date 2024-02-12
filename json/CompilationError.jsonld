@@ -22,14 +22,9 @@
       "@type": "rdfs:Property",
       "rdfs:label": "errorMessage",
       "rdfs:comment": "The error message or brief description of the error.",
-      "schema:domainIncludes": [
-        {
-          "@id": "stencila:CompilationError"
-        },
-        {
-          "@id": "stencila:ExecutionError"
-        }
-      ],
+      "schema:domainIncludes": {
+        "@id": "stencila:CompilationError"
+      },
       "schema:rangeIncludes": {
         "@id": "schema:Text"
       }
@@ -44,7 +39,7 @@
           "@id": "stencila:CompilationError"
         },
         {
-          "@id": "stencila:ExecutionError"
+          "@id": "stencila:ExecutionMessage"
         }
       ],
       "schema:rangeIncludes": {
@@ -67,7 +62,7 @@
           "@id": "stencila:ExecutionDependency"
         },
         {
-          "@id": "stencila:ExecutionError"
+          "@id": "stencila:ExecutionMessage"
         }
       ],
       "schema:rangeIncludes": {

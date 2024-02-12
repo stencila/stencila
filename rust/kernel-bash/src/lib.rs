@@ -204,15 +204,13 @@ echo $value",
         let (outputs, messages) = instance.execute("if").await?;
         assert_eq!(messages.len(), 1);
         assert!(messages[0]
-            .error_message
+            .message
             .ends_with("syntax error: unexpected end of file\n"));
         assert_eq!(outputs, vec![]);
 
         let (outputs, messages) = instance.execute("foo").await?;
         assert_eq!(messages.len(), 1);
-        assert!(messages[0]
-            .error_message
-            .ends_with("foo: command not found\n"));
+        assert!(messages[0].message.ends_with("foo: command not found\n"));
         assert_eq!(outputs, vec![]);
 
         Ok(())

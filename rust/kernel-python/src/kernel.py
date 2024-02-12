@@ -440,9 +440,10 @@ while True:
         sys.stderr.write(
             to_json(
                 {
-                    "type": "ExecutionError",
+                    "type": "ExecutionMessage",
+                    "level": "Error",
+                    "message": str(e),
                     "errorType": type(e).__name__,
-                    "errorMessage": str(e),
                     "stackTrace": stack_trace,
                 }
             )

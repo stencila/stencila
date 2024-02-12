@@ -49,7 +49,7 @@ EnumValidator = ForwardRef("EnumValidator")
 Enumeration = ForwardRef("Enumeration")
 ExecutionDependant = ForwardRef("ExecutionDependant")
 ExecutionDependency = ForwardRef("ExecutionDependency")
-ExecutionError = ForwardRef("ExecutionError")
+ExecutionMessage = ForwardRef("ExecutionMessage")
 ExecutionTag = ForwardRef("ExecutionTag")
 Figure = ForwardRef("Figure")
 File = ForwardRef("File")
@@ -182,7 +182,7 @@ Node = Union[
     Enumeration,
     ExecutionDependant,
     ExecutionDependency,
-    ExecutionError,
+    ExecutionMessage,
     ExecutionTag,
     Figure,
     File,

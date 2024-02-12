@@ -54,7 +54,7 @@ export type NodeType =
   | "Enumeration"
   | "ExecutionDependant"
   | "ExecutionDependency"
-  | "ExecutionError"
+  | "ExecutionMessage"
   | "ExecutionTag"
   | "Figure"
   | "File"

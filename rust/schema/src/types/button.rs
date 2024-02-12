@@ -11,7 +11,7 @@ use super::cord::Cord;
 use super::duration::Duration;
 use super::execution_dependant::ExecutionDependant;
 use super::execution_dependency::ExecutionDependency;
-use super::execution_error::ExecutionError;
+use super::execution_message::ExecutionMessage;
 use super::execution_required::ExecutionRequired;
 use super::execution_status::ExecutionStatus;
 use super::execution_tag::ExecutionTag;
@@ -140,11 +140,11 @@ pub struct ButtonOptions {
     #[strip(execution)]
     pub execution_duration: Option<Duration>,
 
-    /// Errors when executing the node.
-    #[serde(alias = "execution-errors", alias = "execution_errors", alias = "executionError", alias = "execution-error", alias = "execution_error")]
+    /// Messages emitted when executing the node.
+    #[serde(alias = "execution-messages", alias = "execution_messages", alias = "executionMessage", alias = "execution-message", alias = "execution_message")]
     #[serde(default, deserialize_with = "option_one_or_many")]
     #[strip(execution)]
-    pub execution_errors: Option<Vec<ExecutionError>>,
+    pub execution_messages: Option<Vec<ExecutionMessage>>,
 
     /// The authors of the executable code.
     #[serde(alias = "author")]

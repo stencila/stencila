@@ -1,6 +1,6 @@
 {
-  "@id": "https://stencila.org/ExecutionError",
-  "name": "ExecutionError",
+  "@id": "https://stencila.org/ExecutionMessage",
+  "name": "ExecutionMessage",
   "license": "https://creativecommons.org/publicdomain/zero/1.0/",
   "@context": {
     "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
@@ -9,27 +9,39 @@
   },
   "@graph": [
     {
-      "@id": "stencila:ExecutionError",
+      "@id": "stencila:ExecutionMessage",
       "@type": "rdfs:Class",
-      "rdfs:label": "ExecutionError",
-      "rdfs:comment": "An error that occurred when executing an executable node.",
+      "rdfs:label": "ExecutionMessage",
+      "rdfs:comment": "An error, warning or log message generated executing an executable node.",
       "rdfs:subClassOf": {
         "@id": "stencila:Entity"
       }
     },
     {
-      "@id": "stencila:errorMessage",
+      "@id": "stencila:level",
       "@type": "rdfs:Property",
-      "rdfs:label": "errorMessage",
-      "rdfs:comment": "The error message or brief description of the error.",
+      "rdfs:label": "level",
+      "rdfs:comment": "The text of the message.",
       "schema:domainIncludes": [
         {
-          "@id": "stencila:CompilationError"
+          "@id": "stencila:ExecutionMessage"
         },
         {
-          "@id": "stencila:ExecutionError"
+          "@id": "stencila:Heading"
         }
       ],
+      "schema:rangeIncludes": {
+        "@id": "stencila:ExecutionMessageLevel"
+      }
+    },
+    {
+      "@id": "stencila:message",
+      "@type": "rdfs:Property",
+      "rdfs:label": "message",
+      "rdfs:comment": "The text of the message.",
+      "schema:domainIncludes": {
+        "@id": "stencila:ExecutionMessage"
+      },
       "schema:rangeIncludes": {
         "@id": "schema:Text"
       }
@@ -44,7 +56,7 @@
           "@id": "stencila:CompilationError"
         },
         {
-          "@id": "stencila:ExecutionError"
+          "@id": "stencila:ExecutionMessage"
         }
       ],
       "schema:rangeIncludes": {
@@ -55,7 +67,7 @@
       "@id": "stencila:codeLocation",
       "@type": "rdfs:Property",
       "rdfs:label": "codeLocation",
-      "rdfs:comment": "The location that the error occurred.",
+      "rdfs:comment": "The location that the error occurred or other message emanated from.",
       "schema:domainIncludes": [
         {
           "@id": "stencila:CompilationError"
@@ -67,7 +79,7 @@
           "@id": "stencila:ExecutionDependency"
         },
         {
-          "@id": "stencila:ExecutionError"
+          "@id": "stencila:ExecutionMessage"
         }
       ],
       "schema:rangeIncludes": {
@@ -80,7 +92,7 @@
       "rdfs:label": "stackTrace",
       "rdfs:comment": "Stack trace leading up to the error.",
       "schema:domainIncludes": {
-        "@id": "stencila:ExecutionError"
+        "@id": "stencila:ExecutionMessage"
       },
       "schema:rangeIncludes": {
         "@id": "schema:Text"

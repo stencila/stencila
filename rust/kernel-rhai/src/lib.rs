@@ -22,8 +22,8 @@ use kernel::{
     },
     format::Format,
     schema::{
-        ArrayHint, ExecutionError, Hint, Node, NodeType, Null, ObjectHint, StringHint, Unknown,
-        Variable,
+        ArrayHint, ExecutionMessage, ExecutionMessageLevel, Hint, Node, NodeType, Null, ObjectHint,
+        StringHint, Unknown, Variable,
     },
     Kernel, KernelAvailability, KernelForks, KernelInstance, KernelInterrupt, KernelKill,
     KernelSignal, KernelStatus, KernelTerminate,
@@ -129,7 +129,7 @@ impl<'lt> KernelInstance for RhaiKernelInstance<'lt> {
         self.set_status(KernelStatus::Stopped)
     }
 
-    async fn execute(&mut self, code: &str) -> Result<(Vec<Node>, Vec<ExecutionError>)> {
+    async fn execute(&mut self, code: &str) -> Result<(Vec<Node>, Vec<ExecutionMessage>)> {
         tracing::trace!("Executing Rhai code");
 
         let status = self.get_status();
@@ -172,7 +172,13 @@ impl<'lt> KernelInstance for RhaiKernelInstance<'lt> {
                     .to_owned(),
                 vec![],
             ),
-            Err(error) => (vec![], vec![ExecutionError::new(error.to_string())]),
+            Err(error) => (
+                vec![],
+                vec![ExecutionMessage::new(
+                    ExecutionMessageLevel::Error,
+                    error.to_string(),
+                )],
+            ),
         };
 
         if let Some(last) = last {
@@ -184,7 +190,7 @@ impl<'lt> KernelInstance for RhaiKernelInstance<'lt> {
         Ok((outputs, messages))
     }
 
-    async fn evaluate(&mut self, code: &str) -> Result<(Node, Vec<ExecutionError>)> {
+    async fn evaluate(&mut self, code: &str) -> Result<(Node, Vec<ExecutionMessage>)> {
         tracing::trace!("Evaluating Rhai code");
 
         let status = self.get_status();
@@ -205,7 +211,10 @@ impl<'lt> KernelInstance for RhaiKernelInstance<'lt> {
             Ok(value) => Ok((dynamic_to_node(value)?, vec![])),
             Err(error) => Ok((
                 Node::Null(Null),
-                vec![ExecutionError::new(error.to_string())],
+                vec![ExecutionMessage::new(
+                    ExecutionMessageLevel::Error,
+                    error.to_string(),
+                )],
             )),
         };
 
@@ -619,7 +628,7 @@ b",
         // Syntax error
         let (outputs, messages) = kernel.execute("bad ^ # syntax").await?;
         assert_eq!(
-            messages[0].error_message,
+            messages[0].message,
             "Syntax error: '#' is a reserved symbol (line 1, position 7)"
         );
         assert_eq!(outputs, vec![]);
@@ -627,7 +636,7 @@ b",
         // Runtime error
         let (outputs, messages) = kernel.execute("foo").await?;
         assert_eq!(
-            messages[0].error_message,
+            messages[0].message,
             "Variable not found: foo (line 1, position 1)"
         );
         assert_eq!(outputs, vec![]);

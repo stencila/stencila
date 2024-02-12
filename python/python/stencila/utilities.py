@@ -110,8 +110,8 @@ def from_value(value) -> Node:  # pragma: no cover
         return ExecutionDependency(**value)
     if typ == "ExecutionDigest":
         return ExecutionDigest(**value)
-    if typ == "ExecutionError":
-        return ExecutionError(**value)
+    if typ == "ExecutionMessage":
+        return ExecutionMessage(**value)
     if typ == "ExecutionTag":
         return ExecutionTag(**value)
     if typ == "Figure":

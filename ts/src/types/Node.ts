@@ -49,7 +49,7 @@ import { type EnumValidator } from "./EnumValidator.js";
 import { type Enumeration } from "./Enumeration.js";
 import { type ExecutionDependant } from "./ExecutionDependant.js";
 import { type ExecutionDependency } from "./ExecutionDependency.js";
-import { type ExecutionError } from "./ExecutionError.js";
+import { type ExecutionMessage } from "./ExecutionMessage.js";
 import { type ExecutionTag } from "./ExecutionTag.js";
 import { type Figure } from "./Figure.js";
 import { type File } from "./File.js";
@@ -185,7 +185,7 @@ export type Node =
   Enumeration |
   ExecutionDependant |
   ExecutionDependency |
-  ExecutionError |
+  ExecutionMessage |
   ExecutionTag |
   Figure |
   File |
@@ -315,7 +315,7 @@ export function node(other: Node): Node {
     case "Enumeration":
     case "ExecutionDependant":
     case "ExecutionDependency":
-    case "ExecutionError":
+    case "ExecutionMessage":
     case "ExecutionTag":
     case "Figure":
     case "File":

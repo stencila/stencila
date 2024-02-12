@@ -87,10 +87,10 @@ properties:
     description: Duration of the last execution.
     strip: [execution]
     $ref: Duration
-  executionErrors:
-    '@id': stencila:executionErrors
-    description: Errors when executing the node.
+  executionMessages:
+    '@id': stencila:executionMessages
+    description: Messages emitted when executing the node.
     strip: [execution]
     type: array
     items:
-      $ref: ExecutionError
+      $ref: ExecutionMessage

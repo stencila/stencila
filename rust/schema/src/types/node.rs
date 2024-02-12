@@ -50,7 +50,7 @@ use super::enum_validator::EnumValidator;
 use super::enumeration::Enumeration;
 use super::execution_dependant::ExecutionDependant;
 use super::execution_dependency::ExecutionDependency;
-use super::execution_error::ExecutionError;
+use super::execution_message::ExecutionMessage;
 use super::execution_tag::ExecutionTag;
 use super::figure::Figure;
 use super::file::File;
@@ -243,7 +243,7 @@ pub enum Node {
 
     ExecutionDependency(ExecutionDependency),
 
-    ExecutionError(ExecutionError),
+    ExecutionMessage(ExecutionMessage),
 
     ExecutionTag(ExecutionTag),
 

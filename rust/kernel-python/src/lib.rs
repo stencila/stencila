@@ -224,14 +224,14 @@ print(a, b)",
         // Syntax error
         let (outputs, messages) = kernel.execute("bad ^ # syntax").await?;
         assert_eq!(messages[0].error_type.as_deref(), Some("SyntaxError"));
-        assert_eq!(messages[0].error_message, "invalid syntax (<code>, line 1)");
+        assert_eq!(messages[0].message, "invalid syntax (<code>, line 1)");
         assert!(messages[0].stack_trace.is_some());
         assert_eq!(outputs, vec![]);
 
         // Runtime error
         let (outputs, messages) = kernel.execute("foo").await?;
         assert_eq!(messages[0].error_type.as_deref(), Some("NameError"));
-        assert_eq!(messages[0].error_message, "name 'foo' is not defined");
+        assert_eq!(messages[0].message, "name 'foo' is not defined");
         assert!(messages[0].stack_trace.is_some());
         assert_eq!(outputs, vec![]);
 

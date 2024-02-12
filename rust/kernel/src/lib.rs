@@ -13,7 +13,7 @@ use format::Format;
 pub use common;
 pub use format;
 pub use schema;
-use schema::{ExecutionError, Node, Variable};
+use schema::{ExecutionMessage, Node, Variable};
 
 /// A kernel for executing code in some language
 ///
@@ -143,10 +143,10 @@ pub trait KernelInstance: Sync + Send {
     async fn stop(&mut self) -> Result<()>;
 
     /// Execute code, possibly with side effects, in the kernel instance
-    async fn execute(&mut self, code: &str) -> Result<(Vec<Node>, Vec<ExecutionError>)>;
+    async fn execute(&mut self, code: &str) -> Result<(Vec<Node>, Vec<ExecutionMessage>)>;
 
     /// Evaluate a code expression, without side effects, in the kernel instance
-    async fn evaluate(&mut self, code: &str) -> Result<(Node, Vec<ExecutionError>)>;
+    async fn evaluate(&mut self, code: &str) -> Result<(Node, Vec<ExecutionMessage>)>;
 
     /// Get a list of variables in the kernel instance
     async fn list(&mut self) -> Result<Vec<Variable>>;
@@ -269,7 +269,7 @@ pub mod tests {
             assert_eq!(
                 messages
                     .iter()
-                    .map(|message| message.error_message.to_string())
+                    .map(|message| message.message.to_string())
                     .collect_vec(),
                 expected_messages
                     .iter()
@@ -298,9 +298,7 @@ pub mod tests {
         for (code, expected_output, expected_message) in cases {
             let (output, messages) = instance.evaluate(code).await?;
             assert_eq!(
-                messages
-                    .get(0)
-                    .map(|message| message.error_message.as_ref()),
+                messages.get(0).map(|message| message.message.as_ref()),
                 expected_message,
                 "with expression: {code}"
             );

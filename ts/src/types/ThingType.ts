@@ -18,6 +18,7 @@ import { type DefinedTerm } from "./DefinedTerm.js";
 import { type Enumeration } from "./Enumeration.js";
 import { type ExecutionDependantRelation } from "./ExecutionDependantRelation.js";
 import { type ExecutionDependencyRelation } from "./ExecutionDependencyRelation.js";
+import { type ExecutionMessageLevel } from "./ExecutionMessageLevel.js";
 import { type ExecutionRequired } from "./ExecutionRequired.js";
 import { type ExecutionStatus } from "./ExecutionStatus.js";
 import { type Figure } from "./Figure.js";
@@ -71,6 +72,7 @@ export type ThingType =
   Enumeration |
   ExecutionDependantRelation |
   ExecutionDependencyRelation |
+  ExecutionMessageLevel |
   ExecutionRequired |
   ExecutionStatus |
   Figure |

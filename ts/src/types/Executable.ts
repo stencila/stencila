@@ -7,7 +7,7 @@ import { Duration } from "./Duration.js";
 import { Entity } from "./Entity.js";
 import { ExecutionDependant } from "./ExecutionDependant.js";
 import { ExecutionDependency } from "./ExecutionDependency.js";
-import { ExecutionError } from "./ExecutionError.js";
+import { ExecutionMessage } from "./ExecutionMessage.js";
 import { ExecutionRequired } from "./ExecutionRequired.js";
 import { ExecutionStatus } from "./ExecutionStatus.js";
 import { ExecutionTag } from "./ExecutionTag.js";
@@ -87,9 +87,9 @@ export class Executable extends Entity {
   executionDuration?: Duration;
 
   /**
-   * Errors when executing the node.
+   * Messages emitted when executing the node.
    */
-  executionErrors?: ExecutionError[];
+  executionMessages?: ExecutionMessage[];
 
   constructor(options?: Partial<Executable>) {
     super();

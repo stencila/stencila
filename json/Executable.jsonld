@@ -190,15 +190,15 @@
       }
     },
     {
-      "@id": "stencila:executionErrors",
+      "@id": "stencila:executionMessages",
       "@type": "rdfs:Property",
-      "rdfs:label": "executionErrors",
-      "rdfs:comment": "Errors when executing the node.",
+      "rdfs:label": "executionMessages",
+      "rdfs:comment": "Messages emitted when executing the node.",
       "schema:domainIncludes": {
         "@id": "stencila:Executable"
       },
       "schema:rangeIncludes": {
-        "@id": "stencila:ExecutionError"
+        "@id": "stencila:ExecutionMessage"
       }
     }
   ]

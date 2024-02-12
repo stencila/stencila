@@ -21,6 +21,7 @@ DefinedTerm = ForwardRef("DefinedTerm")
 Enumeration = ForwardRef("Enumeration")
 ExecutionDependantRelation = ForwardRef("ExecutionDependantRelation")
 ExecutionDependencyRelation = ForwardRef("ExecutionDependencyRelation")
+ExecutionMessageLevel = ForwardRef("ExecutionMessageLevel")
 ExecutionRequired = ForwardRef("ExecutionRequired")
 ExecutionStatus = ForwardRef("ExecutionStatus")
 Figure = ForwardRef("Figure")
@@ -72,6 +73,7 @@ ThingType = Union[
     Enumeration,
     ExecutionDependantRelation,
     ExecutionDependencyRelation,
+    ExecutionMessageLevel,
     ExecutionRequired,
     ExecutionStatus,
     Figure,

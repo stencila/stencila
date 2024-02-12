@@ -60,6 +60,9 @@
       "$ref": "ExecutionDependencyRelation.schema.json"
     },
     {
+      "$ref": "ExecutionMessageLevel.schema.json"
+    },
+    {
       "$ref": "ExecutionRequired.schema.json"
     },
     {

@@ -64,8 +64,8 @@ mod tests {
     use kernel_micro::{
         common::{indexmap::IndexMap, tokio},
         schema::{
-            Array, ArrayHint, ExecutionError, Hint, Node, Null, Object, ObjectHint, Primitive,
-            StringHint, Variable,
+            Array, ArrayHint, ExecutionMessage, ExecutionMessageLevel, Hint, Node, Null, Object,
+            ObjectHint, Primitive, StringHint, Variable,
         },
         tests::{create_instance, start_instance},
     };
@@ -219,14 +219,14 @@ console.log(a, b, c, d)",
         // Syntax error
         let (outputs, messages) = kernel.execute("bad ^ # syntax").await?;
         assert_eq!(messages[0].error_type.as_deref(), Some("SyntaxError"));
-        assert_eq!(messages[0].error_message, "Invalid or unexpected token");
+        assert_eq!(messages[0].message, "Invalid or unexpected token");
         assert!(messages[0].stack_trace.is_some());
         assert_eq!(outputs, vec![]);
 
         // Runtime error
         let (outputs, messages) = kernel.execute("foo").await?;
         assert_eq!(messages[0].error_type.as_deref(), Some("ReferenceError"));
-        assert_eq!(messages[0].error_message, "foo is not defined");
+        assert_eq!(messages[0].message, "foo is not defined");
         assert!(messages[0].stack_trace.is_some());
         assert_eq!(outputs, vec![]);
 
@@ -245,24 +245,24 @@ console.error("Error message");
         assert_eq!(
             messages,
             vec![
-                ExecutionError {
-                    error_type: Some("Debug".to_string()),
-                    error_message: "Debug message".to_string(),
+                ExecutionMessage {
+                    level: ExecutionMessageLevel::Debug,
+                    message: "Debug message".to_string(),
                     ..Default::default()
                 },
-                ExecutionError {
-                    error_type: Some("Info".to_string()),
-                    error_message: "Info message".to_string(),
+                ExecutionMessage {
+                    level: ExecutionMessageLevel::Info,
+                    message: "Info message".to_string(),
                     ..Default::default()
                 },
-                ExecutionError {
-                    error_type: Some("Warning".to_string()),
-                    error_message: "Warning message".to_string(),
+                ExecutionMessage {
+                    level: ExecutionMessageLevel::Warn,
+                    message: "Warning message".to_string(),
                     ..Default::default()
                 },
-                ExecutionError {
-                    error_type: Some("Error".to_string()),
-                    error_message: "Error message".to_string(),
+                ExecutionMessage {
+                    level: ExecutionMessageLevel::Error,
+                    message: "Error message".to_string(),
                     ..Default::default()
                 }
             ]
@@ -530,16 +530,10 @@ sleep(100);",
         assert_eq!(outputs[0], Node::Integer(1));
 
         let (.., messages) = kernel.execute("const c = 2\nc").await?;
-        assert_eq!(
-            messages[0].error_message,
-            "Assignment to constant variable."
-        );
+        assert_eq!(messages[0].message, "Assignment to constant variable.");
 
         let (.., messages) = kernel.execute("c = 3\nc").await?;
-        assert_eq!(
-            messages[0].error_message,
-            "Assignment to constant variable."
-        );
+        assert_eq!(messages[0].message, "Assignment to constant variable.");
 
         Ok(())
     }

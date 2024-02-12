@@ -237,7 +237,7 @@ macro_rules! lost_exec_options {
             execution_actor,
             execution_ended,
             execution_duration,
-            execution_errors
+            execution_messages
         )
     };
 }

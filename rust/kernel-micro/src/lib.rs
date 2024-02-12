@@ -24,7 +24,7 @@ use kernel::{
         },
         tracing,
     },
-    schema::{ExecutionError, Node, Null, Variable},
+    schema::{ExecutionMessage, ExecutionMessageLevel, Node, Null, Variable},
 };
 
 // Re-exports for the convenience of internal crates implementing
@@ -394,11 +394,11 @@ impl KernelInstance for MicrokernelInstance {
         Ok(())
     }
 
-    async fn execute(&mut self, code: &str) -> Result<(Vec<Node>, Vec<ExecutionError>)> {
+    async fn execute(&mut self, code: &str) -> Result<(Vec<Node>, Vec<ExecutionMessage>)> {
         self.send_receive(MicrokernelFlag::Exec, [code]).await
     }
 
-    async fn evaluate(&mut self, code: &str) -> Result<(Node, Vec<ExecutionError>)> {
+    async fn evaluate(&mut self, code: &str) -> Result<(Node, Vec<ExecutionMessage>)> {
         let (mut outputs, messages) = self.send_receive(MicrokernelFlag::Eval, [code]).await?;
 
         let output = if outputs.is_empty() {
@@ -695,7 +695,7 @@ impl MicrokernelInstance {
         &mut self,
         flag: MicrokernelFlag,
         args: I,
-    ) -> Result<(Vec<Node>, Vec<ExecutionError>)>
+    ) -> Result<(Vec<Node>, Vec<ExecutionMessage>)>
     where
         I: IntoIterator<Item = &'lt str>,
     {
@@ -724,7 +724,7 @@ impl MicrokernelInstance {
     }
 
     /// Receive outputs and messages from this microkernel instance
-    async fn receive(&mut self) -> Result<(Vec<Node>, Vec<ExecutionError>)> {
+    async fn receive(&mut self) -> Result<(Vec<Node>, Vec<ExecutionMessage>)> {
         let (Some(output),Some(errors)) = (self.output.as_mut(),self.errors.as_mut()) else {
             bail!("Microkernel has not been started yet!");
         };
@@ -741,15 +741,12 @@ impl MicrokernelInstance {
     }
 
     /// Create an `Err` if messages from the kernel include an error
-    fn check_for_errors(&self, messages: Vec<ExecutionError>, action: &str) -> Result<()> {
+    fn check_for_errors(&self, messages: Vec<ExecutionMessage>, action: &str) -> Result<()> {
         if !messages.is_empty() {
             bail!(
                 "While {action} in microkernel `{}`: {}",
                 self.id(),
-                messages
-                    .into_iter()
-                    .map(|message| message.error_message)
-                    .join("")
+                messages.into_iter().map(|message| message.message).join("")
             )
         } else {
             Ok(())
@@ -769,7 +766,7 @@ async fn startup_warnings<R1: AsyncBufRead + Unpin, R2: AsyncBufRead + Unpin>(
             if !messages.is_empty() {
                 let messages = messages
                     .into_iter()
-                    .map(|message| message.error_message)
+                    .map(|message| message.message)
                     .collect::<Vec<String>>()
                     .join("\n");
                 tracing::warn!("While starting kernel got output on stderr: {messages}")
@@ -811,7 +808,7 @@ async fn send_task<W: AsyncWrite + Unpin>(
 async fn receive_results<R1: AsyncBufRead + Unpin, R2: AsyncBufRead + Unpin>(
     output_stream: &mut R1,
     message_stream: &mut R2,
-) -> Result<(Vec<Node>, Vec<ExecutionError>)> {
+) -> Result<(Vec<Node>, Vec<ExecutionMessage>)> {
     tracing::trace!("Receiving results from microkernel");
 
     // Collect separate output strings
@@ -863,10 +860,10 @@ async fn receive_results<R1: AsyncBufRead + Unpin, R2: AsyncBufRead + Unpin>(
     }
     let messages = items
         .into_iter()
-        .map(|message| -> ExecutionError {
+        .map(|message| -> ExecutionMessage {
             match serde_json::from_str(&message) {
                 Ok(message) => message,
-                Err(..) => ExecutionError::new(message),
+                Err(..) => ExecutionMessage::new(ExecutionMessageLevel::Error, message),
             }
         })
         .collect_vec();

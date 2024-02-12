@@ -218,22 +218,22 @@
       ],
       "$ref": "Duration.schema.json"
     },
-    "executionErrors": {
-      "@id": "stencila:executionErrors",
-      "description": "Errors when executing the node.",
+    "executionMessages": {
+      "@id": "stencila:executionMessages",
+      "description": "Messages emitted when executing the node.",
       "aliases": [
-        "execution-errors",
-        "execution_errors",
-        "executionError",
-        "execution-error",
-        "execution_error"
+        "execution-messages",
+        "execution_messages",
+        "executionMessage",
+        "execution-message",
+        "execution_message"
       ],
       "strip": [
         "execution"
       ],
       "type": "array",
       "items": {
-        "$ref": "ExecutionError.schema.json"
+        "$ref": "ExecutionMessage.schema.json"
       }
     }
   }

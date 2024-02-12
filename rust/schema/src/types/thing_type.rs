@@ -21,6 +21,7 @@ use super::defined_term::DefinedTerm;
 use super::enumeration::Enumeration;
 use super::execution_dependant_relation::ExecutionDependantRelation;
 use super::execution_dependency_relation::ExecutionDependencyRelation;
+use super::execution_message_level::ExecutionMessageLevel;
 use super::execution_required::ExecutionRequired;
 use super::execution_status::ExecutionStatus;
 use super::figure::Figure;
@@ -93,6 +94,8 @@ pub enum ThingType {
     ExecutionDependantRelation(ExecutionDependantRelation),
 
     ExecutionDependencyRelation(ExecutionDependencyRelation),
+
+    ExecutionMessageLevel(ExecutionMessageLevel),
 
     ExecutionRequired(ExecutionRequired),
 
