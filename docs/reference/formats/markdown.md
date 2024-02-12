@@ -111,9 +111,10 @@ Support and degree of loss for node types:
 | [CodeExpression](https://github.com/stencila/stencila/blob/main/docs/reference/schema/code/code_expression.md)            | 🔷 Low loss   | 🔷 Low loss | Encoded using implemented function                        |
 | [CodeInline](https://github.com/stencila/stencila/blob/main/docs/reference/schema/code/code_inline.md)                    | 🟢 No loss    | 🟢 No loss  | Encoded using implemented function                        |
 | [CompilationError](https://github.com/stencila/stencila/blob/main/docs/reference/schema/code/compilation_error.md)        | ⚠️ High loss |            |                                                           |
-| [ExecutionError](https://github.com/stencila/stencila/blob/main/docs/reference/schema/code/execution_error.md)            | ⚠️ High loss |            |                                                           |
+| [ExecutionMessage](https://github.com/stencila/stencila/blob/main/docs/reference/schema/code/execution_message.md)        | ⚠️ High loss |            |                                                           |
 | **Data**                                                                                                                  |
 | [Array](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/array.md)                               | ⚠️ High loss |            |                                                           |
+| [ArrayHint](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/array_hint.md)                      | ⚠️ High loss |            |                                                           |
 | [ArrayValidator](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/array_validator.md)            | ⚠️ High loss |            | Encoded using implemented function                        |
 | [Boolean](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/boolean.md)                           | 🔷 Low loss   | 🔷 Low loss |                                                           |
 | [BooleanValidator](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/boolean_validator.md)        | ⚠️ High loss |            | Encoded using implemented function                        |
@@ -121,6 +122,8 @@ Support and degree of loss for node types:
 | [Cord](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/cord.md)                                 | 🟢 No loss    | 🟢 No loss  |                                                           |
 | [Datatable](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/datatable.md)                       | ⚠️ High loss |            |                                                           |
 | [DatatableColumn](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/datatable_column.md)          | ⚠️ High loss |            |                                                           |
+| [DatatableColumnHint](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/datatable_column_hint.md) | ⚠️ High loss |            |                                                           |
+| [DatatableHint](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/datatable_hint.md)              | ⚠️ High loss |            |                                                           |
 | [Date](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/date.md)                                 | ⚠️ High loss |            |                                                           |
 | [DateTime](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/date_time.md)                        | ⚠️ High loss |            |                                                           |
 | [DateTimeValidator](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/date_time_validator.md)     | ⚠️ High loss |            | Encoded using implemented function                        |
@@ -134,13 +137,16 @@ Support and degree of loss for node types:
 | [Number](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/number.md)                             | 🔷 Low loss   | 🔷 Low loss |                                                           |
 | [NumberValidator](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/number_validator.md)          | ⚠️ High loss |            | Encoded using implemented function                        |
 | [Object](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/object.md)                             | ⚠️ High loss |            |                                                           |
+| [ObjectHint](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/object_hint.md)                    | ⚠️ High loss |            |                                                           |
 | [String](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/string.md)                             | 🟢 No loss    | 🟢 No loss  |                                                           |
+| [StringHint](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/string_hint.md)                    | ⚠️ High loss |            |                                                           |
 | [StringValidator](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/string_validator.md)          | ⚠️ High loss |            | Encoded using implemented function                        |
 | [Time](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/time.md)                                 | ⚠️ High loss |            |                                                           |
 | [TimeValidator](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/time_validator.md)              | ⚠️ High loss |            | Encoded using implemented function                        |
 | [Timestamp](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/timestamp.md)                       | ⚠️ High loss |            |                                                           |
 | [TimestampValidator](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/timestamp_validator.md)    | ⚠️ High loss |            | Encoded using implemented function                        |
 | [TupleValidator](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/tuple_validator.md)            | ⚠️ High loss |            | Encoded using implemented function                        |
+| [Unknown](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/unknown.md)                           | ⚠️ High loss |            |                                                           |
 | [UnsignedInteger](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/unsigned_integer.md)          | 🔷 Low loss   | 🔷 Low loss |                                                           |
 | **Flow**                                                                                                                  |
 | [Button](https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/button.md)                             | ⚠️ High loss |            |                                                           |

@@ -390,7 +390,7 @@
     "url": "schema:url",
     "validator": "stencila:validator",
     "value": "schema:value",
-    "values": "stencila:values",
+    "values": "stencila:types",
     "version": "schema:version",
     "volumeNumber": "schema:volumeNumber"
   }
