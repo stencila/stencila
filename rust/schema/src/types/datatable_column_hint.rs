@@ -45,7 +45,7 @@ pub struct DatatableColumnHint {
 }
 
 impl DatatableColumnHint {
-    const NICK: &'static str = "dtc";
+    const NICK: &'static str = "dch";
     
     pub fn node_type(&self) -> NodeType {
         NodeType::DatatableColumnHint

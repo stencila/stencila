@@ -3,7 +3,7 @@
   "$id": "https://stencila.org/DatatableColumnHint.schema.json",
   "@id": "stencila:DatatableColumnHint",
   "title": "DatatableColumnHint",
-  "nick": "dtc",
+  "nick": "dch",
   "extends": [
     "Entity"
   ],
