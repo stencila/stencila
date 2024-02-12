@@ -92,7 +92,7 @@ fn derive_struct(type_attr: TypeAttr) -> TokenStream {
         let mut losses = TokenStream::new();
         type_attr.data.map_struct_fields(|field_attr| {
             let Some(field_name) = field_attr.ident else {
-                return
+                return;
             };
             if field_name == "r#type"
                 || field_name == "uid"
@@ -102,10 +102,13 @@ fn derive_struct(type_attr: TypeAttr) -> TokenStream {
                 return;
             }
             let Type::Path(type_path) = field_attr.ty else {
-                return
+                return;
             };
-            let Some(PathSegment{ident: field_type,..}) = type_path.path.segments.last() else {
-                return
+            let Some(PathSegment {
+                ident: field_type, ..
+            }) = type_path.path.segments.last()
+            else {
+                return;
             };
 
             let record_loss = quote! {

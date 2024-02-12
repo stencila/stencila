@@ -52,7 +52,7 @@ impl Schemas {
             let stop = content.rfind(STOP);
 
             let (Some(start), Some(stop)) = (start, stop) else {
-                continue
+                continue;
             };
 
             let mut items = Vec::new();
@@ -85,7 +85,7 @@ impl Schemas {
                     .sorted_by(|(a, ..), (b, ..)| a.cmp(b))
                 {
                     let Ok(node_type) = NodeType::from_str(title) else {
-                        continue
+                        continue;
                     };
 
                     let title = td([lnk(

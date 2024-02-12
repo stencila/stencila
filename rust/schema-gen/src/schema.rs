@@ -753,17 +753,17 @@ impl Schema {
         let mut properties: IndexMap<String, Schema> = parents
             .iter_mut()
             .flat_map(|parent| std::mem::take(&mut parent.properties).into_iter())
-            .chain(extended.properties.clone().into_iter())
+            .chain(extended.properties.clone())
             .collect();
         let cores: Vec<String> = parents
             .iter_mut()
             .flat_map(|parent| std::mem::take(&mut parent.core).into_iter())
-            .chain(extended.core.into_iter())
+            .chain(extended.core)
             .collect();
         let requireds: Vec<String> = parents
             .iter_mut()
             .flat_map(|parent| std::mem::take(&mut parent.required).into_iter())
-            .chain(extended.required.into_iter())
+            .chain(extended.required)
             .collect();
 
         for (property_name, property) in properties.iter_mut() {

@@ -41,7 +41,7 @@ impl Schemas {
                 if property.is_inherited {
                     continue;
                 }
-                let Some(jid) = &schema.jid  else {
+                let Some(jid) = &schema.jid else {
                     continue;
                 };
 

@@ -276,8 +276,8 @@ mod tests {
     #[tokio::test]
     async fn perform_task() -> Result<()> {
         let list = list().await?;
-        let Some(assistant) = list.get(0) else {
-            return Ok(())
+        let Some(assistant) = list.first() else {
+            return Ok(());
         };
 
         let output = assistant

@@ -300,7 +300,7 @@ pub mod tests {
         for (code, expected_output, expected_message) in cases {
             let (output, messages) = instance.evaluate(code).await?;
             assert_eq!(
-                messages.get(0).map(|message| message.message.as_ref()),
+                messages.first().map(|message| message.message.as_ref()),
                 expected_message,
                 "with expression: {code}"
             );
@@ -393,7 +393,10 @@ pub mod tests {
 
         let actual_vars = instance.list().await?;
         for expected in expected_vars {
-            let Some(actual) = actual_vars.iter().find(|actual| actual.name == expected.name) else {
+            let Some(actual) = actual_vars
+                .iter()
+                .find(|actual| actual.name == expected.name)
+            else {
                 bail!("no variable named `{}` in list", expected.name);
             };
             assert_eq!(actual, &expected)
@@ -570,7 +573,7 @@ pub mod tests {
             if !messages.is_empty() {
                 error!("Unexpected messages in setup step: {messages:?}")
             }
-            let initial_value = outputs.get(0).cloned();
+            let initial_value = outputs.first().cloned();
             if initial_value.is_none() {
                 error!("Setup step did not return a value")
             }

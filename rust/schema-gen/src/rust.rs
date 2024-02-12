@@ -353,9 +353,7 @@ pub enum NodeType {{
                     modifiers = Some(mods);
                 };
 
-                let Some(mods) = modifiers else {
-                        continue
-                    };
+                let Some(mods) = modifiers else { continue };
 
                 let mut args = Vec::new();
                 if let Some(filter) = &mods.filter {
@@ -552,9 +550,7 @@ pub enum NodeType {{
                             modifiers = Some(mods);
                         };
 
-                        let Some(mods) = modifiers else {
-                            continue
-                        };
+                        let Some(mods) = modifiers else { continue };
 
                         let mut args = Vec::new();
                         if let Some(strategy) = &mods.strategy {
@@ -892,9 +888,7 @@ impl {title} {{
                             modifiers = Some(mods);
                         };
 
-                        let Some(mods) = modifiers else {
-                            continue
-                        };
+                        let Some(mods) = modifiers else { continue };
 
                         let mut args = Vec::new();
                         if mods.skip {
@@ -1015,9 +1009,7 @@ impl {title} {{
                     modifiers = Some(mods);
                 };
 
-                let Some(mods) = modifiers else {
-                    continue
-                };
+                let Some(mods) = modifiers else { continue };
 
                 let mut args = Vec::new();
                 if let Some(filter) = &mods.filter {

@@ -336,8 +336,8 @@ para = {'type':'Paragraph', 'content':[]}
     #[test_log::test(tokio::test)]
     async fn var_management() -> Result<()> {
         let Some(instance) = create_instance::<PythonKernel>().await? else {
-                return Ok(());
-            };
+            return Ok(());
+        };
 
         kernel_micro::tests::var_management(instance).await
     }
@@ -351,7 +351,7 @@ para = {'type':'Paragraph', 'content':[]}
 
         let (.., messages) = instance.execute("import numpy as np").await?;
         if messages
-            .get(0)
+            .first()
             .and_then(|message| message.error_type.as_deref())
             == Some("ModuleNotFoundError")
         {
@@ -508,7 +508,7 @@ a4 = np.array([1.23, 4.56], dtype=np.float_)
 
         let (.., messages) = instance.execute("import pandas as pd").await?;
         if messages
-            .get(0)
+            .first()
             .and_then(|message| message.error_type.as_deref())
             == Some("ModuleNotFoundError")
         {
@@ -632,7 +632,7 @@ df1 = pd.DataFrame({
 
         let (.., messages) = instance.execute("import pandas as pd").await?;
         if messages
-            .get(0)
+            .first()
             .and_then(|message| message.error_type.as_deref())
             == Some("ModuleNotFoundError")
         {
@@ -700,7 +700,7 @@ df1 = pd.DataFrame({
 
         let (.., messages) = instance.execute("import matplotlib.pyplot as plt").await?;
         if messages
-            .get(0)
+            .first()
             .and_then(|message| message.error_type.as_deref())
             == Some("ModuleNotFoundError")
         {
@@ -719,7 +719,7 @@ plt.show()",
 
         assert_eq!(outputs.len(), 1);
 
-        if let Some(Node::ImageObject(image)) = outputs.get(0) {
+        if let Some(Node::ImageObject(image)) = outputs.first() {
             assert!(image.content_url.starts_with("data:image/png;base64"));
         } else {
             bail!("Expected an image, got: {outputs:?}")

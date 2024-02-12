@@ -717,11 +717,9 @@ fn list_local() -> Result<Vec<Arc<dyn Assistant>>> {
     }
 
     for path in glob(&dir.join("*.md").to_string_lossy())?.flatten() {
-        let Some(name) = path
-            .file_name()
-            .map(|name| name.to_string_lossy()) else {
-                continue
-            };
+        let Some(name) = path.file_name().map(|name| name.to_string_lossy()) else {
+            continue;
+        };
         let id = format!("local/{}", name.strip_suffix(".md").unwrap_or(&name));
 
         let content = read_to_string(&path)?;

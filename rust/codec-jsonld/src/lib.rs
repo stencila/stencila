@@ -102,7 +102,7 @@ impl Codec for JsonLdCodec {
         let Some(object) = value.as_object() else {
             // In the rare case the node does not encode to a JSON object, just return the JSON
             let json = serde_json::to_string_pretty(&value)?;
-            return Ok((json, Losses::none(), Mapping::none()))
+            return Ok((json, Losses::none(), Mapping::none()));
         };
 
         let mut encoded = json!({

@@ -322,7 +322,7 @@ impl KernelInstance for MicrokernelInstance {
 
         let Some(command) = &mut self.command else {
             // Must be a fork (already started, so return early)
-            return Ok(())
+            return Ok(());
         };
 
         // Spawn the binary in the directory with stdin, stdout and stderr piped to/from it
@@ -487,7 +487,10 @@ impl KernelInstance for MicrokernelInstance {
 
             // Get the PID of the fork
             let Some(Node::Integer(pid)) = outputs.first() else {
-                bail!("Did not receive pid for fork of microkernel `{}`", self.id())
+                bail!(
+                    "Did not receive pid for fork of microkernel `{}`",
+                    self.id()
+                )
             };
             let pid = *pid as u32;
 
@@ -725,7 +728,7 @@ impl MicrokernelInstance {
 
     /// Receive outputs and messages from this microkernel instance
     async fn receive(&mut self) -> Result<(Vec<Node>, Vec<ExecutionMessage>)> {
-        let (Some(output),Some(errors)) = (self.output.as_mut(),self.errors.as_mut()) else {
+        let (Some(output), Some(errors)) = (self.output.as_mut(), self.errors.as_mut()) else {
             bail!("Microkernel has not been started yet!");
         };
 

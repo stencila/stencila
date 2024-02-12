@@ -356,7 +356,7 @@ sleep 100",
         }
 
         let Some(mut kernel) = start_instance::<BashKernel>().await? else {
-            return Ok(())
+            return Ok(());
         };
 
         // Test escaping of percent signs in commands

@@ -714,7 +714,7 @@ pub fn take_until_unbalanced(opening: char, closing: char) -> impl Fn(&str) -> I
             index += n;
             let mut it = input[index..].chars();
             match it.next() {
-                Some(c) if c == '\\' => {
+                Some('\\') => {
                     // Skip the escape char `\`.
                     index += '\\'.len_utf8();
                     // Skip also the following char.

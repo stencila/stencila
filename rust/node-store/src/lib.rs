@@ -101,7 +101,7 @@ pub trait ReadNode: StripNode + Sized {
                 ScalarValue::Uint(value) => Self::load_uint(value),
                 ScalarValue::F64(value) => Self::load_f64(value),
                 ScalarValue::Str(value) => Self::load_str(value),
-                ScalarValue::Counter(value) => Self::load_counter(&value.try_into()?),
+                ScalarValue::Counter(value) => Self::load_counter(&value.into()),
                 ScalarValue::Timestamp(value) => Self::load_timestamp(value),
                 ScalarValue::Bytes(value) => Self::load_bytes(value),
                 ScalarValue::Unknown { type_code, bytes } => Self::load_unknown(*type_code, bytes),

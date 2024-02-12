@@ -213,7 +213,7 @@ console.log(a, b, c, d)",
     #[tokio::test]
     async fn messages() -> Result<()> {
         let Some(mut kernel) = start_instance::<NodeKernel>().await? else {
-            return Ok(())
+            return Ok(());
         };
 
         // Syntax error
@@ -488,7 +488,7 @@ sleep(100);",
     #[tokio::test]
     async fn redeclarations() -> Result<()> {
         let Some(mut kernel) = start_instance::<NodeKernel>().await? else {
-            return Ok(())
+            return Ok(());
         };
 
         // A variable declared with `var`

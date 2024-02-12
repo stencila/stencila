@@ -689,7 +689,7 @@ impl GenerateOutput {
             }),
         )
         .await?;
-        let Node::Article(Article{content,..}) = node else {
+        let Node::Article(Article { content, .. }) = node else {
             bail!("Expected decoded node to be an article, got `{node}`")
         };
 

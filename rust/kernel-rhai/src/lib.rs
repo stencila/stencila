@@ -622,7 +622,7 @@ b",
     #[tokio::test]
     async fn messages() -> Result<()> {
         let Some(mut kernel) = start_instance::<RhaiKernel>().await? else {
-            return Ok(())
+            return Ok(());
         };
 
         // Syntax error
