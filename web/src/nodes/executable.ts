@@ -1,15 +1,15 @@
 import {
   AutomaticExecution,
   CompilationDigest,
-  ExecutionDependency,
-  ExecutionDependant,
-  ExecutionTag,
-  ExecutionRequired,
-  Duration,
-  ExecutionError,
-  Timestamp,
-  ExecutionStatus,
   CompilationError,
+  Duration,
+  ExecutionDependant,
+  ExecutionDependency,
+  ExecutionMessage,
+  ExecutionRequired,
+  ExecutionStatus,
+  ExecutionTag,
+  Timestamp,
 } from '@stencila/types'
 import { html } from 'lit'
 import { property } from 'lit/decorators.js'
@@ -62,7 +62,7 @@ export abstract class Executable extends Entity {
   executionDuration?: Duration
 
   @property({ attribute: 'execution-errors', type: Array })
-  executionErrors?: ExecutionError[]
+  executionMessages?: ExecutionMessage[]
 
   /**
    * Render the `compilationErrors` and `executionErrors` of the node
