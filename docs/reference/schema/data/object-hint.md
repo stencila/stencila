@@ -8,12 +8,12 @@
 
 The `ObjectHint` type has these properties:
 
-| Name     | Aliases | `@id`                                | Type                                                                                              | Description                                   | Inherited from                                                                                   |
-| -------- | ------- | ------------------------------------ | ------------------------------------------------------------------------------------------------- | --------------------------------------------- | ------------------------------------------------------------------------------------------------ |
-| `id`     | -       | [`schema:id`](https://schema.org/id) | [`String`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/string.md)   | The identifier for this item.                 | [`Entity`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/entity.md) |
-| `length` | -       | `stencila:length`                    | [`Integer`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/integer.md) | The length (number of entires) of the object. | -                                                                                                |
-| `keys`   | `key`   | `stencila:keys`                      | [`String`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/string.md)*  | The keys of the object entries.               | -                                                                                                |
-| `values` | `value` | `stencila:types`                     | [`Hint`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/hint.md)*      | The types of the object entries.              | -                                                                                                |
+| Name     | Aliases | `@id`                                | Type                                                                                              | Description                                  | Inherited from                                                                                   |
+| -------- | ------- | ------------------------------------ | ------------------------------------------------------------------------------------------------- | -------------------------------------------- | ------------------------------------------------------------------------------------------------ |
+| `id`     | -       | [`schema:id`](https://schema.org/id) | [`String`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/string.md)   | The identifier for this item.                | [`Entity`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/entity.md) |
+| `length` | -       | `stencila:length`                    | [`Integer`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/integer.md) | The number of entries in the object.         | -                                                                                                |
+| `keys`   | `key`   | `stencila:keys`                      | [`String`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/string.md)*  | The keys of the object's entries.            | -                                                                                                |
+| `values` | `value` | `stencila:values`                    | [`Hint`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/hint.md)*      | Hints to the values of the object's entries. | -                                                                                                |
 
 ## Related
 

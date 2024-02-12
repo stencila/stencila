@@ -110,7 +110,7 @@ Support and degree of loss for node types:
 | [CodeChunk](https://github.com/stencila/stencila/blob/main/docs/reference/schema/code/code_chunk.md)                      | 🔷 Low loss   | 🔷 Low loss | Encoded using implemented function                        |
 | [CodeExpression](https://github.com/stencila/stencila/blob/main/docs/reference/schema/code/code_expression.md)            | 🔷 Low loss   | 🔷 Low loss | Encoded using implemented function                        |
 | [CodeInline](https://github.com/stencila/stencila/blob/main/docs/reference/schema/code/code_inline.md)                    | 🟢 No loss    | 🟢 No loss  | Encoded using implemented function                        |
-| [CompilationError](https://github.com/stencila/stencila/blob/main/docs/reference/schema/code/compilation_error.md)        | ⚠️ High loss |            |                                                           |
+| [CompilationMessage](https://github.com/stencila/stencila/blob/main/docs/reference/schema/code/compilation_message.md)    | ⚠️ High loss |            |                                                           |
 | [ExecutionMessage](https://github.com/stencila/stencila/blob/main/docs/reference/schema/code/execution_message.md)        | ⚠️ High loss |            |                                                           |
 | **Data**                                                                                                                  |
 | [Array](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/array.md)                               | ⚠️ High loss |            |                                                           |

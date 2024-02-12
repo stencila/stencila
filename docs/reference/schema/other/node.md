@@ -36,7 +36,7 @@ The `Node` type has these members:
 - [`Collection`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/collection.md)
 - [`Comment`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/comment.md)
 - [`CompilationDigest`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/compilation-digest.md)
-- [`CompilationError`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/code/compilation-error.md)
+- [`CompilationMessage`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/code/compilation-message.md)
 - [`ConstantValidator`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/constant-validator.md)
 - [`ContactPoint`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/contact-point.md)
 - [`CreativeWork`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/creative-work.md)
