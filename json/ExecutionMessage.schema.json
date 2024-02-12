@@ -3,12 +3,12 @@
   "$id": "https://stencila.org/ExecutionMessage.schema.json",
   "@id": "stencila:ExecutionMessage",
   "title": "ExecutionMessage",
-  "nick": "exe",
+  "nick": "exm",
   "extends": [
     "Entity"
   ],
   "category": "code",
-  "description": "An error, warning or log message generated executing an executable node.",
+  "description": "An error, warning or log message generated during execution.",
   "status": "alpha",
   "required": [
     "type",
@@ -42,8 +42,8 @@
     },
     "level": {
       "@id": "stencila:level",
-      "description": "The text of the message.",
-      "$ref": "ExecutionMessageLevel.schema.json"
+      "description": "The severity level of the message.",
+      "$ref": "MessageLevel.schema.json"
     },
     "message": {
       "@id": "stencila:message",

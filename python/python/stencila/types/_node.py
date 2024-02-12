@@ -25,7 +25,7 @@ CodeLocation = ForwardRef("CodeLocation")
 Collection = ForwardRef("Collection")
 Comment = ForwardRef("Comment")
 CompilationDigest = ForwardRef("CompilationDigest")
-CompilationError = ForwardRef("CompilationError")
+CompilationMessage = ForwardRef("CompilationMessage")
 ConstantValidator = ForwardRef("ConstantValidator")
 ContactPoint = ForwardRef("ContactPoint")
 Cord = ForwardRef("Cord")
@@ -159,7 +159,7 @@ Node = Union[
     Collection,
     Comment,
     CompilationDigest,
-    CompilationError,
+    CompilationMessage,
     ConstantValidator,
     ContactPoint,
     CreativeWork,

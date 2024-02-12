@@ -12,7 +12,7 @@ use assistant::{
     },
     schema::{
         walk::{VisitorMut, WalkControl, WalkNode},
-        Block, ExecutionMessage, ExecutionMessageLevel, ExecutionStatus, Inline, Node, NodeId,
+        Block, ExecutionMessage, ExecutionStatus, Inline, MessageLevel, Node, NodeId,
     },
     Assistant, GenerateOptions, GenerateOutput, GenerateTask, Instruction,
 };
@@ -245,7 +245,7 @@ impl VisitorMut for ResultApplier {
                         tracing::error!("Instruction failed: {}", error.to_string());
                         instruction.options.execution_status = Some(ExecutionStatus::Failed);
                         instruction.options.execution_messages = Some(vec![ExecutionMessage::new(
-                            ExecutionMessageLevel::Error,
+                            MessageLevel::Error,
                             error.to_string(),
                         )]);
                     }
@@ -271,7 +271,7 @@ impl VisitorMut for ResultApplier {
                     Err(error) => {
                         instruction.options.execution_status = Some(ExecutionStatus::Failed);
                         instruction.options.execution_messages = Some(vec![ExecutionMessage::new(
-                            ExecutionMessageLevel::Error,
+                            MessageLevel::Error,
                             error.to_string(),
                         )]);
                     }

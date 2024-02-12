@@ -19,13 +19,13 @@ properties:
     description: A digest of the content, semantics and dependencies of the node.
     strip: [execution]
     $ref: CompilationDigest
-  compilationErrors:
-    '@id': stencila:compilationErrors
-    description: Errors generated when compiling the code.
+  compilationMessages:
+    '@id': stencila:compilationMessages
+    description: Messages generated while compiling the code.
     strip: [execution]
     type: array
     items:
-      $ref: CompilationError
+      $ref: CompilationMessage
   executionDigest:
     '@id': stencila:executionDigest
     description: The `compilationDigest` of the node when it was last executed.
@@ -89,7 +89,7 @@ properties:
     $ref: Duration
   executionMessages:
     '@id': stencila:executionMessages
-    description: Messages emitted when executing the node.
+    description: Messages emitted while executing the node.
     strip: [execution]
     type: array
     items:

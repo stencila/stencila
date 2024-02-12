@@ -2,7 +2,7 @@
 
 import { AutomaticExecution } from "./AutomaticExecution.js";
 import { CompilationDigest } from "./CompilationDigest.js";
-import { CompilationError } from "./CompilationError.js";
+import { CompilationMessage } from "./CompilationMessage.js";
 import { Duration } from "./Duration.js";
 import { Entity } from "./Entity.js";
 import { ExecutionDependant } from "./ExecutionDependant.js";
@@ -32,9 +32,9 @@ export class Executable extends Entity {
   compilationDigest?: CompilationDigest;
 
   /**
-   * Errors generated when compiling the code.
+   * Messages generated while compiling the code.
    */
-  compilationErrors?: CompilationError[];
+  compilationMessages?: CompilationMessage[];
 
   /**
    * The `compilationDigest` of the node when it was last executed.
@@ -87,7 +87,7 @@ export class Executable extends Entity {
   executionDuration?: Duration;
 
   /**
-   * Messages emitted when executing the node.
+   * Messages emitted while executing the node.
    */
   executionMessages?: ExecutionMessage[];
 

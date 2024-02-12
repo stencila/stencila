@@ -7,7 +7,7 @@ use super::automatic_execution::AutomaticExecution;
 use super::block::Block;
 use super::boolean::Boolean;
 use super::compilation_digest::CompilationDigest;
-use super::compilation_error::CompilationError;
+use super::compilation_message::CompilationMessage;
 use super::cord::Cord;
 use super::duration::Duration;
 use super::execution_dependant::ExecutionDependant;
@@ -100,12 +100,12 @@ pub struct IfBlockClauseOptions {
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     pub compilation_digest: Option<CompilationDigest>,
 
-    /// Errors generated when compiling the code.
-    #[serde(alias = "compilation-errors", alias = "compilation_errors", alias = "compilationError", alias = "compilation-error", alias = "compilation_error")]
+    /// Messages generated while compiling the code.
+    #[serde(alias = "compilation-messages", alias = "compilation_messages", alias = "compilationMessage", alias = "compilation-message", alias = "compilation_message")]
     #[serde(default, deserialize_with = "option_one_or_many")]
     #[strip(execution)]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
-    pub compilation_errors: Option<Vec<CompilationError>>,
+    pub compilation_messages: Option<Vec<CompilationMessage>>,
 
     /// The `compilationDigest` of the node when it was last executed.
     #[serde(alias = "execution-digest", alias = "execution_digest")]
@@ -170,7 +170,7 @@ pub struct IfBlockClauseOptions {
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     pub execution_duration: Option<Duration>,
 
-    /// Messages emitted when executing the node.
+    /// Messages emitted while executing the node.
     #[serde(alias = "execution-messages", alias = "execution_messages", alias = "executionMessage", alias = "execution-message", alias = "execution_message")]
     #[serde(default, deserialize_with = "option_one_or_many")]
     #[strip(execution)]

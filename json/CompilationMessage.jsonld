@@ -1,6 +1,6 @@
 {
-  "@id": "https://stencila.org/CompilationError",
-  "name": "CompilationError",
+  "@id": "https://stencila.org/CompilationMessage",
+  "name": "CompilationMessage",
   "license": "https://creativecommons.org/publicdomain/zero/1.0/",
   "@context": {
     "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
@@ -9,22 +9,50 @@
   },
   "@graph": [
     {
-      "@id": "stencila:CompilationError",
+      "@id": "stencila:CompilationMessage",
       "@type": "rdfs:Class",
-      "rdfs:label": "CompilationError",
-      "rdfs:comment": "An error that occurred while compiling an executable node.",
+      "rdfs:label": "CompilationMessage",
+      "rdfs:comment": "An error, warning or log message generated during compilation.",
       "rdfs:subClassOf": {
         "@id": "stencila:Entity"
       }
     },
     {
-      "@id": "stencila:errorMessage",
+      "@id": "stencila:level",
       "@type": "rdfs:Property",
-      "rdfs:label": "errorMessage",
-      "rdfs:comment": "The error message or brief description of the error.",
-      "schema:domainIncludes": {
-        "@id": "stencila:CompilationError"
-      },
+      "rdfs:label": "level",
+      "rdfs:comment": "The severity level of the message.",
+      "schema:domainIncludes": [
+        {
+          "@id": "schema:Message"
+        },
+        {
+          "@id": "stencila:CompilationMessage"
+        },
+        {
+          "@id": "stencila:ExecutionMessage"
+        },
+        {
+          "@id": "stencila:Heading"
+        }
+      ],
+      "schema:rangeIncludes": {
+        "@id": "stencila:MessageLevel"
+      }
+    },
+    {
+      "@id": "stencila:message",
+      "@type": "rdfs:Property",
+      "rdfs:label": "message",
+      "rdfs:comment": "The text of the message.",
+      "schema:domainIncludes": [
+        {
+          "@id": "stencila:CompilationMessage"
+        },
+        {
+          "@id": "stencila:ExecutionMessage"
+        }
+      ],
       "schema:rangeIncludes": {
         "@id": "schema:Text"
       }
@@ -36,7 +64,7 @@
       "rdfs:comment": "The type of error e.g. \"SyntaxError\", \"ZeroDivisionError\".",
       "schema:domainIncludes": [
         {
-          "@id": "stencila:CompilationError"
+          "@id": "stencila:CompilationMessage"
         },
         {
           "@id": "stencila:ExecutionMessage"
@@ -53,7 +81,7 @@
       "rdfs:comment": "The location that the error occurred.",
       "schema:domainIncludes": [
         {
-          "@id": "stencila:CompilationError"
+          "@id": "stencila:CompilationMessage"
         },
         {
           "@id": "stencila:ExecutionDependant"

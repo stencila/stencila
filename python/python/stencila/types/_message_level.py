@@ -3,9 +3,9 @@
 from .prelude import *
 
 
-class ExecutionMessageLevel(StrEnum):
+class MessageLevel(StrEnum):
     """
-    The severity level of an execution message.
+    The severity level of a message.
     """
 
     Trace = "Trace"

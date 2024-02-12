@@ -4,7 +4,7 @@ from .prelude import *
 
 from ._automatic_execution import AutomaticExecution
 from ._compilation_digest import CompilationDigest
-from ._compilation_error import CompilationError
+from ._compilation_message import CompilationMessage
 from ._duration import Duration
 from ._entity import Entity
 from ._execution_dependant import ExecutionDependant
@@ -30,8 +30,8 @@ class Executable(Entity):
     compilation_digest: Optional[CompilationDigest] = None
     """A digest of the content, semantics and dependencies of the node."""
 
-    compilation_errors: Optional[List[CompilationError]] = None
-    """Errors generated when compiling the code."""
+    compilation_messages: Optional[List[CompilationMessage]] = None
+    """Messages generated while compiling the code."""
 
     execution_digest: Optional[CompilationDigest] = None
     """The `compilationDigest` of the node when it was last executed."""
@@ -64,13 +64,13 @@ class Executable(Entity):
     """Duration of the last execution."""
 
     execution_messages: Optional[List[ExecutionMessage]] = None
-    """Messages emitted when executing the node."""
+    """Messages emitted while executing the node."""
 
-    def __init__(self, id: Optional[str] = None, auto_exec: Optional[AutomaticExecution] = None, compilation_digest: Optional[CompilationDigest] = None, compilation_errors: Optional[List[CompilationError]] = None, execution_digest: Optional[CompilationDigest] = None, execution_dependencies: Optional[List[ExecutionDependency]] = None, execution_dependants: Optional[List[ExecutionDependant]] = None, execution_tags: Optional[List[ExecutionTag]] = None, execution_count: Optional[int] = None, execution_required: Optional[ExecutionRequired] = None, execution_status: Optional[ExecutionStatus] = None, execution_actor: Optional[str] = None, execution_ended: Optional[Timestamp] = None, execution_duration: Optional[Duration] = None, execution_messages: Optional[List[ExecutionMessage]] = None):
+    def __init__(self, id: Optional[str] = None, auto_exec: Optional[AutomaticExecution] = None, compilation_digest: Optional[CompilationDigest] = None, compilation_messages: Optional[List[CompilationMessage]] = None, execution_digest: Optional[CompilationDigest] = None, execution_dependencies: Optional[List[ExecutionDependency]] = None, execution_dependants: Optional[List[ExecutionDependant]] = None, execution_tags: Optional[List[ExecutionTag]] = None, execution_count: Optional[int] = None, execution_required: Optional[ExecutionRequired] = None, execution_status: Optional[ExecutionStatus] = None, execution_actor: Optional[str] = None, execution_ended: Optional[Timestamp] = None, execution_duration: Optional[Duration] = None, execution_messages: Optional[List[ExecutionMessage]] = None):
         super().__init__(id = id)
         self.auto_exec = auto_exec
         self.compilation_digest = compilation_digest
-        self.compilation_errors = compilation_errors
+        self.compilation_messages = compilation_messages
         self.execution_digest = execution_digest
         self.execution_dependencies = execution_dependencies
         self.execution_dependants = execution_dependants

@@ -31,7 +31,7 @@ export type NodeType =
   | "Collection"
   | "Comment"
   | "CompilationDigest"
-  | "CompilationError"
+  | "CompilationMessage"
   | "ConstantValidator"
   | "ContactPoint"
   | "CreativeWork"

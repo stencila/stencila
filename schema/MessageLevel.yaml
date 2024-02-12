@@ -1,8 +1,7 @@
-title: ExecutionMessageLevel
-'@id': stencila:ExecutionMessageLevel
+title: MessageLevel
+'@id': stencila:MessageLevel
 extends: Enumeration
-category: flow
-description: The severity level of an execution message.
+description: The severity level of a message.
 anyOf:
   - const: Trace
     '@id': stencila:Trace

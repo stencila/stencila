@@ -2,7 +2,7 @@
 
 import { Author } from "./Author.js";
 import { CompilationDigest } from "./CompilationDigest.js";
-import { CompilationError } from "./CompilationError.js";
+import { CompilationMessage } from "./CompilationMessage.js";
 import { Cord } from "./Cord.js";
 import { Entity } from "./Entity.js";
 
@@ -34,9 +34,9 @@ export class Styled extends Entity {
   compilationDigest?: CompilationDigest;
 
   /**
-   * Errors generated when parsing and transpiling the style.
+   * Messages generated while parsing and transpiling the style.
    */
-  compilationErrors?: CompilationError[];
+  compilationMessages?: CompilationMessage[];
 
   /**
    * A Cascading Style Sheet (CSS) transpiled from the `code` property.

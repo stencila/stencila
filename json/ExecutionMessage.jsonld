@@ -12,7 +12,7 @@
       "@id": "stencila:ExecutionMessage",
       "@type": "rdfs:Class",
       "rdfs:label": "ExecutionMessage",
-      "rdfs:comment": "An error, warning or log message generated executing an executable node.",
+      "rdfs:comment": "An error, warning or log message generated during execution.",
       "rdfs:subClassOf": {
         "@id": "stencila:Entity"
       }
@@ -21,8 +21,14 @@
       "@id": "stencila:level",
       "@type": "rdfs:Property",
       "rdfs:label": "level",
-      "rdfs:comment": "The text of the message.",
+      "rdfs:comment": "The severity level of the message.",
       "schema:domainIncludes": [
+        {
+          "@id": "schema:Message"
+        },
+        {
+          "@id": "stencila:CompilationMessage"
+        },
         {
           "@id": "stencila:ExecutionMessage"
         },
@@ -31,7 +37,7 @@
         }
       ],
       "schema:rangeIncludes": {
-        "@id": "stencila:ExecutionMessageLevel"
+        "@id": "stencila:MessageLevel"
       }
     },
     {
@@ -39,9 +45,14 @@
       "@type": "rdfs:Property",
       "rdfs:label": "message",
       "rdfs:comment": "The text of the message.",
-      "schema:domainIncludes": {
-        "@id": "stencila:ExecutionMessage"
-      },
+      "schema:domainIncludes": [
+        {
+          "@id": "stencila:CompilationMessage"
+        },
+        {
+          "@id": "stencila:ExecutionMessage"
+        }
+      ],
       "schema:rangeIncludes": {
         "@id": "schema:Text"
       }
@@ -53,7 +64,7 @@
       "rdfs:comment": "The type of error e.g. \"SyntaxError\", \"ZeroDivisionError\".",
       "schema:domainIncludes": [
         {
-          "@id": "stencila:CompilationError"
+          "@id": "stencila:CompilationMessage"
         },
         {
           "@id": "stencila:ExecutionMessage"
@@ -70,7 +81,7 @@
       "rdfs:comment": "The location that the error occurred or other message emanated from.",
       "schema:domainIncludes": [
         {
-          "@id": "stencila:CompilationError"
+          "@id": "stencila:CompilationMessage"
         },
         {
           "@id": "stencila:ExecutionDependant"

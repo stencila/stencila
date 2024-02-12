@@ -1,21 +1,24 @@
-title: CompilationError
-'@id': stencila:CompilationError
+title: CompilationMessage
+'@id': stencila:CompilationMessage
 nick: cme
 extends: Entity
 category: code
 status: alpha
-description: An error that occurred while compiling an executable node.
+description: An error, warning or log message generated during compilation.
 required:
-  - errorMessage
+  - level
+  - message
 core:
   - errorType
   - codeLocation
 properties:
-  errorMessage:
-    '@id': stencila:errorMessage
-    aliases:
-      - message
-    description: The error message or brief description of the error.
+  level:
+    '@id': stencila:level
+    description: The severity level of the message.
+    $ref: MessageLevel
+  message:
+    '@id': stencila:message
+    description: The text of the message.
     type: string
   errorType:
     '@id': stencila:errorType

@@ -1,18 +1,19 @@
 {
   "$schema": "https://stencila.org/meta.schema.json",
-  "$id": "https://stencila.org/CompilationError.schema.json",
-  "@id": "stencila:CompilationError",
-  "title": "CompilationError",
+  "$id": "https://stencila.org/CompilationMessage.schema.json",
+  "@id": "stencila:CompilationMessage",
+  "title": "CompilationMessage",
   "nick": "cme",
   "extends": [
     "Entity"
   ],
   "category": "code",
-  "description": "An error that occurred while compiling an executable node.",
+  "description": "An error, warning or log message generated during compilation.",
   "status": "alpha",
   "required": [
     "type",
-    "errorMessage"
+    "level",
+    "message"
   ],
   "core": [
     "id",
@@ -38,14 +39,14 @@
       },
       "type": "string"
     },
-    "errorMessage": {
-      "@id": "stencila:errorMessage",
-      "description": "The error message or brief description of the error.",
-      "aliases": [
-        "message",
-        "error-message",
-        "error_message"
-      ],
+    "level": {
+      "@id": "stencila:level",
+      "description": "The severity level of the message.",
+      "$ref": "MessageLevel.schema.json"
+    },
+    "message": {
+      "@id": "stencila:message",
+      "description": "The text of the message.",
       "type": "string"
     },
     "errorType": {

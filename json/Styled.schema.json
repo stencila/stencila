@@ -121,19 +121,19 @@
       ],
       "$ref": "CompilationDigest.schema.json"
     },
-    "compilationErrors": {
-      "@id": "stencila:compilationErrors",
-      "description": "Errors generated when parsing and transpiling the style.",
+    "compilationMessages": {
+      "@id": "stencila:compilationMessages",
+      "description": "Messages generated while parsing and transpiling the style.",
       "aliases": [
-        "compilation-errors",
-        "compilation_errors",
-        "compilationError",
-        "compilation-error",
-        "compilation_error"
+        "compilation-messages",
+        "compilation_messages",
+        "compilationMessage",
+        "compilation-message",
+        "compilation_message"
       ],
       "type": "array",
       "items": {
-        "$ref": "CompilationError.schema.json"
+        "$ref": "CompilationMessage.schema.json"
       }
     },
     "css": {

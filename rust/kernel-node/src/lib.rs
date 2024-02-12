@@ -64,8 +64,8 @@ mod tests {
     use kernel_micro::{
         common::{indexmap::IndexMap, tokio},
         schema::{
-            Array, ArrayHint, ExecutionMessage, ExecutionMessageLevel, Hint, Node, Null, Object,
-            ObjectHint, Primitive, StringHint, Variable,
+            Array, ArrayHint, ExecutionMessage, Hint, MessageLevel, Node, Null, Object, ObjectHint,
+            Primitive, StringHint, Variable,
         },
         tests::{create_instance, start_instance},
     };
@@ -246,22 +246,22 @@ console.error("Error message");
             messages,
             vec![
                 ExecutionMessage {
-                    level: ExecutionMessageLevel::Debug,
+                    level: MessageLevel::Debug,
                     message: "Debug message".to_string(),
                     ..Default::default()
                 },
                 ExecutionMessage {
-                    level: ExecutionMessageLevel::Info,
+                    level: MessageLevel::Info,
                     message: "Info message".to_string(),
                     ..Default::default()
                 },
                 ExecutionMessage {
-                    level: ExecutionMessageLevel::Warn,
+                    level: MessageLevel::Warn,
                     message: "Warning message".to_string(),
                     ..Default::default()
                 },
                 ExecutionMessage {
-                    level: ExecutionMessageLevel::Error,
+                    level: MessageLevel::Error,
                     message: "Error message".to_string(),
                     ..Default::default()
                 }

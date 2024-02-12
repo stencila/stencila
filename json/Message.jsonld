@@ -183,6 +183,29 @@
           "@id": "schema:SoftwareApplication"
         }
       ]
+    },
+    {
+      "@id": "stencila:level",
+      "@type": "rdfs:Property",
+      "rdfs:label": "level",
+      "rdfs:comment": "The severity level of the message.",
+      "schema:domainIncludes": [
+        {
+          "@id": "schema:Message"
+        },
+        {
+          "@id": "stencila:CompilationMessage"
+        },
+        {
+          "@id": "stencila:ExecutionMessage"
+        },
+        {
+          "@id": "stencila:Heading"
+        }
+      ],
+      "schema:rangeIncludes": {
+        "@id": "stencila:MessageLevel"
+      }
     }
   ]
 }

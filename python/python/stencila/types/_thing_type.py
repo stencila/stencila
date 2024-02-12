@@ -21,7 +21,6 @@ DefinedTerm = ForwardRef("DefinedTerm")
 Enumeration = ForwardRef("Enumeration")
 ExecutionDependantRelation = ForwardRef("ExecutionDependantRelation")
 ExecutionDependencyRelation = ForwardRef("ExecutionDependencyRelation")
-ExecutionMessageLevel = ForwardRef("ExecutionMessageLevel")
 ExecutionRequired = ForwardRef("ExecutionRequired")
 ExecutionStatus = ForwardRef("ExecutionStatus")
 Figure = ForwardRef("Figure")
@@ -32,6 +31,7 @@ LabelType = ForwardRef("LabelType")
 ListItem = ForwardRef("ListItem")
 ListOrder = ForwardRef("ListOrder")
 MediaObject = ForwardRef("MediaObject")
+MessageLevel = ForwardRef("MessageLevel")
 MonetaryGrant = ForwardRef("MonetaryGrant")
 NoteType = ForwardRef("NoteType")
 Organization = ForwardRef("Organization")
@@ -73,7 +73,6 @@ ThingType = Union[
     Enumeration,
     ExecutionDependantRelation,
     ExecutionDependencyRelation,
-    ExecutionMessageLevel,
     ExecutionRequired,
     ExecutionStatus,
     Figure,
@@ -84,6 +83,7 @@ ThingType = Union[
     ListItem,
     ListOrder,
     MediaObject,
+    MessageLevel,
     MonetaryGrant,
     NoteType,
     Organization,

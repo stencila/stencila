@@ -8,12 +8,12 @@ from ._message_level import MessageLevel
 
 
 @dataclass(init=False)
-class ExecutionMessage(Entity):
+class CompilationMessage(Entity):
     """
-    An error, warning or log message generated during execution.
+    An error, warning or log message generated during compilation.
     """
 
-    type: Literal["ExecutionMessage"] = field(default="ExecutionMessage", init=False)
+    type: Literal["CompilationMessage"] = field(default="CompilationMessage", init=False)
 
     level: MessageLevel
     """The severity level of the message."""
@@ -25,15 +25,11 @@ class ExecutionMessage(Entity):
     """The type of error e.g. "SyntaxError", "ZeroDivisionError"."""
 
     code_location: Optional[CodeLocation] = None
-    """The location that the error occurred or other message emanated from."""
+    """The location that the error occurred."""
 
-    stack_trace: Optional[str] = None
-    """Stack trace leading up to the error."""
-
-    def __init__(self, level: MessageLevel, message: str, id: Optional[str] = None, error_type: Optional[str] = None, code_location: Optional[CodeLocation] = None, stack_trace: Optional[str] = None):
+    def __init__(self, level: MessageLevel, message: str, id: Optional[str] = None, error_type: Optional[str] = None, code_location: Optional[CodeLocation] = None):
         super().__init__(id = id)
         self.level = level
         self.message = message
         self.error_type = error_type
         self.code_location = code_location
-        self.stack_trace = stack_trace

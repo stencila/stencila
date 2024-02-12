@@ -1,10 +1,10 @@
 title: ExecutionMessage
 '@id': stencila:ExecutionMessage
-nick: exe
+nick: exm
 extends: Entity
 category: code
 status: alpha
-description: An error, warning or log message generated executing an executable node.
+description: An error, warning or log message generated during execution.
 required:
   - level
   - message
@@ -16,7 +16,7 @@ properties:
   level:
     '@id': stencila:level
     description: The severity level of the message.
-    $ref: ExecutionMessageLevel
+    $ref: MessageLevel
   message:
     '@id': stencila:message
     description: The text of the message.

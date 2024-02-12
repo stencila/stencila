@@ -60,9 +60,6 @@
       "$ref": "ExecutionDependencyRelation.schema.json"
     },
     {
-      "$ref": "ExecutionMessageLevel.schema.json"
-    },
-    {
       "$ref": "ExecutionRequired.schema.json"
     },
     {
@@ -91,6 +88,9 @@
     },
     {
       "$ref": "MediaObject.schema.json"
+    },
+    {
+      "$ref": "MessageLevel.schema.json"
     },
     {
       "$ref": "MonetaryGrant.schema.json"

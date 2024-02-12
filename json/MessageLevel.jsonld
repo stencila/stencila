@@ -1,6 +1,6 @@
 {
-  "@id": "https://stencila.org/ExecutionMessageLevel",
-  "name": "ExecutionMessageLevel",
+  "@id": "https://stencila.org/MessageLevel",
+  "name": "MessageLevel",
   "license": "https://creativecommons.org/publicdomain/zero/1.0/",
   "@context": {
     "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
@@ -9,10 +9,10 @@
   },
   "@graph": [
     {
-      "@id": "stencila:ExecutionMessageLevel",
+      "@id": "stencila:MessageLevel",
       "@type": "rdfs:Class",
-      "rdfs:label": "ExecutionMessageLevel",
-      "rdfs:comment": "The severity level of an execution message.",
+      "rdfs:label": "MessageLevel",
+      "rdfs:comment": "The severity level of a message.",
       "rdfs:subClassOf": {
         "@id": "schema:Enumeration"
       }

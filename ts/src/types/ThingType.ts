@@ -18,7 +18,6 @@ import { type DefinedTerm } from "./DefinedTerm.js";
 import { type Enumeration } from "./Enumeration.js";
 import { type ExecutionDependantRelation } from "./ExecutionDependantRelation.js";
 import { type ExecutionDependencyRelation } from "./ExecutionDependencyRelation.js";
-import { type ExecutionMessageLevel } from "./ExecutionMessageLevel.js";
 import { type ExecutionRequired } from "./ExecutionRequired.js";
 import { type ExecutionStatus } from "./ExecutionStatus.js";
 import { type Figure } from "./Figure.js";
@@ -29,6 +28,7 @@ import { type LabelType } from "./LabelType.js";
 import { type ListItem } from "./ListItem.js";
 import { type ListOrder } from "./ListOrder.js";
 import { type MediaObject } from "./MediaObject.js";
+import { type MessageLevel } from "./MessageLevel.js";
 import { type MonetaryGrant } from "./MonetaryGrant.js";
 import { type NoteType } from "./NoteType.js";
 import { type Organization } from "./Organization.js";
@@ -72,7 +72,6 @@ export type ThingType =
   Enumeration |
   ExecutionDependantRelation |
   ExecutionDependencyRelation |
-  ExecutionMessageLevel |
   ExecutionRequired |
   ExecutionStatus |
   Figure |
@@ -83,6 +82,7 @@ export type ThingType =
   ListItem |
   ListOrder |
   MediaObject |
+  MessageLevel |
   MonetaryGrant |
   NoteType |
   Organization |

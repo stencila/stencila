@@ -25,7 +25,7 @@ import { type CodeLocation } from "./CodeLocation.js";
 import { type Collection } from "./Collection.js";
 import { type Comment } from "./Comment.js";
 import { type CompilationDigest } from "./CompilationDigest.js";
-import { type CompilationError } from "./CompilationError.js";
+import { type CompilationMessage } from "./CompilationMessage.js";
 import { type ConstantValidator } from "./ConstantValidator.js";
 import { type ContactPoint } from "./ContactPoint.js";
 import { type Cord } from "./Cord.js";
@@ -162,7 +162,7 @@ export type Node =
   Collection |
   Comment |
   CompilationDigest |
-  CompilationError |
+  CompilationMessage |
   ConstantValidator |
   ContactPoint |
   CreativeWork |
@@ -292,7 +292,7 @@ export function node(other: Node): Node {
     case "Collection":
     case "Comment":
     case "CompilationDigest":
-    case "CompilationError":
+    case "CompilationMessage":
     case "ConstantValidator":
     case "ContactPoint":
     case "CreativeWork":

@@ -34,7 +34,7 @@ from ._code_static import CodeStatic
 from ._collection import Collection
 from ._comment import Comment
 from ._compilation_digest import CompilationDigest
-from ._compilation_error import CompilationError
+from ._compilation_message import CompilationMessage
 from ._constant_validator import ConstantValidator
 from ._contact_point import ContactPoint
 from ._cord import Cord
@@ -67,7 +67,6 @@ from ._execution_dependency import ExecutionDependency
 from ._execution_dependency_node import ExecutionDependencyNode
 from ._execution_dependency_relation import ExecutionDependencyRelation
 from ._execution_message import ExecutionMessage
-from ._execution_message_level import ExecutionMessageLevel
 from ._execution_required import ExecutionRequired
 from ._execution_status import ExecutionStatus
 from ._execution_tag import ExecutionTag
@@ -105,6 +104,7 @@ from ._math_block import MathBlock
 from ._math_inline import MathInline
 from ._media_object import MediaObject
 from ._message import Message
+from ._message_level import MessageLevel
 from ._message_part import MessagePart
 from ._modify_block import ModifyBlock
 from ._modify_inline import ModifyInline
@@ -217,7 +217,7 @@ __all__ = [
     'Collection',
     'Comment',
     'CompilationDigest',
-    'CompilationError',
+    'CompilationMessage',
     'ConstantValidator',
     'ContactPoint',
     'Cord',
@@ -250,7 +250,6 @@ __all__ = [
     'ExecutionDependencyNode',
     'ExecutionDependencyRelation',
     'ExecutionMessage',
-    'ExecutionMessageLevel',
     'ExecutionRequired',
     'ExecutionStatus',
     'ExecutionTag',
@@ -288,6 +287,7 @@ __all__ = [
     'MathInline',
     'MediaObject',
     'Message',
+    'MessageLevel',
     'MessagePart',
     'ModifyBlock',
     'ModifyInline',

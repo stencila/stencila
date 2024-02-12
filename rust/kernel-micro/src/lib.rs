@@ -24,7 +24,7 @@ use kernel::{
         },
         tracing,
     },
-    schema::{ExecutionMessage, ExecutionMessageLevel, Node, Null, Variable},
+    schema::{ExecutionMessage, MessageLevel, Node, Null, Variable},
 };
 
 // Re-exports for the convenience of internal crates implementing
@@ -866,7 +866,7 @@ async fn receive_results<R1: AsyncBufRead + Unpin, R2: AsyncBufRead + Unpin>(
         .map(|message| -> ExecutionMessage {
             match serde_json::from_str(&message) {
                 Ok(message) => message,
-                Err(..) => ExecutionMessage::new(ExecutionMessageLevel::Error, message),
+                Err(..) => ExecutionMessage::new(MessageLevel::Error, message),
             }
         })
         .collect_vec();

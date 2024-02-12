@@ -93,7 +93,7 @@
       "$ref": "CompilationDigest.schema.json"
     },
     {
-      "$ref": "CompilationError.schema.json"
+      "$ref": "CompilationMessage.schema.json"
     },
     {
       "$ref": "ConstantValidator.schema.json"

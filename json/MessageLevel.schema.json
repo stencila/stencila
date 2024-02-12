@@ -1,13 +1,12 @@
 {
   "$schema": "https://stencila.org/meta.schema.json",
-  "$id": "https://stencila.org/ExecutionMessageLevel.schema.json",
-  "@id": "stencila:ExecutionMessageLevel",
-  "title": "ExecutionMessageLevel",
+  "$id": "https://stencila.org/MessageLevel.schema.json",
+  "@id": "stencila:MessageLevel",
+  "title": "MessageLevel",
   "extends": [
     "Enumeration"
   ],
-  "category": "flow",
-  "description": "The severity level of an execution message.",
+  "description": "The severity level of a message.",
   "required": [
     "type"
   ],

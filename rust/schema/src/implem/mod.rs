@@ -13,7 +13,6 @@ mod code_block;
 mod code_chunk;
 mod code_expression;
 mod code_inline;
-mod compilation_error;
 mod cord;
 mod date;
 mod date_time;

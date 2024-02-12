@@ -48,7 +48,7 @@
       "rdfs:comment": "The location that the dependant is defined.",
       "schema:domainIncludes": [
         {
-          "@id": "stencila:CompilationError"
+          "@id": "stencila:CompilationMessage"
         },
         {
           "@id": "stencila:ExecutionDependant"

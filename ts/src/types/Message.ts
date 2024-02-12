@@ -2,6 +2,7 @@
 
 import { Block } from "./Block.js";
 import { Entity } from "./Entity.js";
+import { MessageLevel } from "./MessageLevel.js";
 import { MessagePart } from "./MessagePart.js";
 import { PersonOrOrganizationOrSoftwareApplication } from "./PersonOrOrganizationOrSoftwareApplication.js";
 
@@ -26,6 +27,11 @@ export class Message extends Entity {
    * The authors of the message.
    */
   authors?: PersonOrOrganizationOrSoftwareApplication[];
+
+  /**
+   * The severity level of the message.
+   */
+  level?: MessageLevel;
 
   constructor(parts: MessagePart[], options?: Partial<Message>) {
     super();

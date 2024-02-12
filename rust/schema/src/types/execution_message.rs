@@ -3,10 +3,10 @@
 use crate::prelude::*;
 
 use super::code_location::CodeLocation;
-use super::execution_message_level::ExecutionMessageLevel;
+use super::message_level::MessageLevel;
 use super::string::String;
 
-/// An error, warning or log message generated executing an executable node.
+/// An error, warning or log message generated during execution.
 #[skip_serializing_none]
 #[serde_as]
 #[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, WalkNode, WriteNode, ReadNode, DomCodec, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec)]
@@ -22,8 +22,8 @@ pub struct ExecutionMessage {
     #[html(attr = "id")]
     pub id: Option<String>,
 
-    /// The text of the message.
-    pub level: ExecutionMessageLevel,
+    /// The severity level of the message.
+    pub level: MessageLevel,
 
     /// The text of the message.
     pub message: String,
@@ -47,7 +47,7 @@ pub struct ExecutionMessage {
 }
 
 impl ExecutionMessage {
-    const NICK: &'static str = "exe";
+    const NICK: &'static str = "exm";
     
     pub fn node_type(&self) -> NodeType {
         NodeType::ExecutionMessage
@@ -57,7 +57,7 @@ impl ExecutionMessage {
         NodeId::new(Self::NICK, &self.uid)
     }
     
-    pub fn new(level: ExecutionMessageLevel, message: String) -> Self {
+    pub fn new(level: MessageLevel, message: String) -> Self {
         Self {
             level,
             message,

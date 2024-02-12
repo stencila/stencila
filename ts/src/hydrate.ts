@@ -83,8 +83,8 @@ export function hydrate(value: types.Node): types.Node {
       return Object.setPrototypeOf(value, types.Comment.prototype);
     case "CompilationDigest":
       return Object.setPrototypeOf(value, types.CompilationDigest.prototype);
-    case "CompilationError":
-      return Object.setPrototypeOf(value, types.CompilationError.prototype);
+    case "CompilationMessage":
+      return Object.setPrototypeOf(value, types.CompilationMessage.prototype);
     case "ConstantValidator":
       return Object.setPrototypeOf(value, types.ConstantValidator.prototype);
     case "ContactPoint":

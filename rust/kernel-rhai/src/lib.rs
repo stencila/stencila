@@ -22,7 +22,7 @@ use kernel::{
     },
     format::Format,
     schema::{
-        ArrayHint, ExecutionMessage, ExecutionMessageLevel, Hint, Node, NodeType, Null, ObjectHint,
+        ArrayHint, ExecutionMessage, Hint, MessageLevel, Node, NodeType, Null, ObjectHint,
         StringHint, Unknown, Variable,
     },
     Kernel, KernelAvailability, KernelForks, KernelInstance, KernelInterrupt, KernelKill,
@@ -175,7 +175,7 @@ impl<'lt> KernelInstance for RhaiKernelInstance<'lt> {
             Err(error) => (
                 vec![],
                 vec![ExecutionMessage::new(
-                    ExecutionMessageLevel::Error,
+                    MessageLevel::Error,
                     error.to_string(),
                 )],
             ),
@@ -212,7 +212,7 @@ impl<'lt> KernelInstance for RhaiKernelInstance<'lt> {
             Err(error) => Ok((
                 Node::Null(Null),
                 vec![ExecutionMessage::new(
-                    ExecutionMessageLevel::Error,
+                    MessageLevel::Error,
                     error.to_string(),
                 )],
             )),

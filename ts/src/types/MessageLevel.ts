@@ -1,8 +1,8 @@
 // Generated file; do not edit. See https://github.com/stencila/stencila/tree/main/rust/schema-gen
 /**
- * The severity level of an execution message.
+ * The severity level of a message.
  */
-export type ExecutionMessageLevel =
+export type MessageLevel =
   'Trace' |
   'Debug' |
   'Info' |

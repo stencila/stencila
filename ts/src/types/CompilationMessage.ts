@@ -5,11 +5,11 @@ import { Entity } from "./Entity.js";
 import { MessageLevel } from "./MessageLevel.js";
 
 /**
- * An error, warning or log message generated during execution.
+ * An error, warning or log message generated during compilation.
  */
-export class ExecutionMessage extends Entity {
+export class CompilationMessage extends Entity {
   // @ts-expect-error 'not assignable to the same property in base type'
-  type: "ExecutionMessage";
+  type: "CompilationMessage";
 
   /**
    * The severity level of the message.
@@ -27,18 +27,13 @@ export class ExecutionMessage extends Entity {
   errorType?: string;
 
   /**
-   * The location that the error occurred or other message emanated from.
+   * The location that the error occurred.
    */
   codeLocation?: CodeLocation;
 
-  /**
-   * Stack trace leading up to the error.
-   */
-  stackTrace?: string;
-
-  constructor(level: MessageLevel, message: string, options?: Partial<ExecutionMessage>) {
+  constructor(level: MessageLevel, message: string, options?: Partial<CompilationMessage>) {
     super();
-    this.type = "ExecutionMessage";
+    this.type = "CompilationMessage";
     if (options) Object.assign(this, options);
     this.level = level;
     this.message = message;
@@ -46,8 +41,8 @@ export class ExecutionMessage extends Entity {
 }
 
 /**
-* Create a new `ExecutionMessage`
+* Create a new `CompilationMessage`
 */
-export function executionMessage(level: MessageLevel, message: string, options?: Partial<ExecutionMessage>): ExecutionMessage {
-  return new ExecutionMessage(level, message, options);
+export function compilationMessage(level: MessageLevel, message: string, options?: Partial<CompilationMessage>): CompilationMessage {
+  return new CompilationMessage(level, message, options);
 }

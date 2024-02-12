@@ -18,7 +18,7 @@ export class IfBlock extends Executable {
   }
 
   private renderHeader() {
-    return html` <div contenteditable="false">${this.renderErrors()}</div> `
+    return html` <div contenteditable="false">${this.renderMessages()}</div> `
   }
 
   private renderClauses() {

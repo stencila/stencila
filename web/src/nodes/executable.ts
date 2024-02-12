@@ -1,7 +1,7 @@
 import {
   AutomaticExecution,
   CompilationDigest,
-  CompilationError,
+  CompilationMessage,
   Duration,
   ExecutionDependant,
   ExecutionDependency,
@@ -29,7 +29,7 @@ export abstract class Executable extends Entity {
   compilationDigest?: CompilationDigest
 
   @property({ attribute: 'compilation-errors', type: Array })
-  compilationErrors?: CompilationError[]
+  compilationMessages?: CompilationMessage[]
 
   @property({ attribute: 'execution-digest', type: Object })
   executionDigest?: CompilationDigest
@@ -65,7 +65,7 @@ export abstract class Executable extends Entity {
   executionMessages?: ExecutionMessage[]
 
   /**
-   * Render the `compilationErrors` and `executionErrors` of the node
+   * Render the `compilationMessages` and `executionMessages` of the node
    *
    * For use by derived custom elements to provide a consistent presentation of
    * errors for a node.
@@ -73,7 +73,7 @@ export abstract class Executable extends Entity {
    * TODO: Implement this and other methods for rendering properties of executable nodes
    * https://github.com/stencila/stencila/issues/1786
    */
-  protected renderErrors() {
-    return html`<div part="errors"></div>`
+  protected renderMessages() {
+    return html`<div part="messages"></div>`
   }
 }
