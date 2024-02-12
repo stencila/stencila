@@ -15,7 +15,7 @@ core:
 properties:
   level:
     '@id': stencila:level
-    description: The text of the message.
+    description: The severity level of the message.
     $ref: ExecutionMessageLevel
   message:
     '@id': stencila:message
