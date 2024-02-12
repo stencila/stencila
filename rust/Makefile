@@ -32,11 +32,17 @@ fix:
 lint:
 	cargo clippy --workspace --tests
 
-# Run tests
-test:
+# Setup before running tests
+test-setup:
+	# Optimistically install onnxruntime to try to avoid this on CI:
+	# /usr/bin/ld: cannot find -lonnxruntime: No such file or directory
+	- pip install onnxruntime
+
 	# Optimistically install language packages optionally used for tests
 	- pip -q install numpy pandas matplotlib
-	
+
+# Run tests
+test: test-setup	
 	# Run all the test in the workspace
 	cargo test --workspace --no-fail-fast -- --nocapture
 	
@@ -47,7 +53,7 @@ test:
 
 # Run tests with coverage
 # Coverage is reported to ../lcov.info so it can be used by the VSCode Coverage Gutters extension
-cover:
+cover: test-setup
 	cargo llvm-cov clean --workspace 
 	
 	cargo llvm-cov test --workspace --no-report
