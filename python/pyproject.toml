@@ -65,7 +65,7 @@ StrEnum = { version = "0.4.15", python = "<3.11" }
 beartype = "^0.17.0"
 
 [tool.poetry.group.dev.dependencies]
-black = "24.1.1"
+black = "24.2.0"
 coverage = "7.4.1"
 maturin = "1.4.0"
 pip-audit = "2.7.0"
