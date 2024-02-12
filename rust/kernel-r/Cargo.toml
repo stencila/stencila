@@ -1,0 +1,11 @@
+[package]
+name = "kernel-r"
+version = "0.0.0"
+edition = "2021"
+
+[dependencies]
+kernel-micro = { path = "../kernel-micro" }
+
+[dev-dependencies]
+common-dev = { path = "../common-dev" }
+test-log = { version = "0.2.14", default-features = false, features = ["trace"] }

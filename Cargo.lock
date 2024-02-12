@@ -3051,6 +3051,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "kernel-r"
+version = "0.0.0"
+dependencies = [
+ "common-dev",
+ "kernel-micro",
+ "test-log",
+]
+
+[[package]]
 name = "kernel-rhai"
 version = "0.0.0"
 dependencies = [
@@ -3069,6 +3078,7 @@ dependencies = [
  "kernel-bash",
  "kernel-node",
  "kernel-python",
+ "kernel-r",
  "kernel-rhai",
 ]
 
