@@ -10,6 +10,8 @@ pub use proptest::{
 
 use crate::*;
 
+pub use shortcuts::*;
+
 prop_compose! {
     /// Generate a vector of inline content of arbitrary length and content
     /// but always having strings interspersed by other inline content (to separate them
