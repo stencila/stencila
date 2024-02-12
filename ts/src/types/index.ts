@@ -143,7 +143,6 @@ export * from "./SoftwareApplication.js";
 export * from "./SoftwareSourceCode.js";
 export * from "./SoftwareSourceCodeOrSoftwareApplicationOrString.js";
 export * from "./Strikeout.js";
-export * from "./String.js";
 export * from "./StringHint.js";
 export * from "./StringOperation.js";
 export * from "./StringOrNumber.js";
