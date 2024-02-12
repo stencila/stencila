@@ -11,7 +11,7 @@ required:
 properties:
   length:
     "@id": stencila:length
-    description: The length (number of entires) of the object.
+    description: The number of entries in the object.
     $comment: |
       For large object with many entries, to save space, `keys` and `values` may not be
       complete (i.e. they may have lengths less than this `length` property).
@@ -19,13 +19,13 @@ properties:
     minimum: 0
   keys:
     '@id': stencila:keys
-    description: The keys of the object entries.
+    description: The keys of the object's entries.
     type: array
     items:
       type: string
   values:
-    '@id': stencila:types
-    description: The types of the object entries.
+    '@id': stencila:values
+    description: Hints to the values of the object's entries.
     type: array
     items:
       $ref: Hint

@@ -12,17 +12,17 @@ export class ObjectHint extends Entity {
   type: "ObjectHint";
 
   /**
-   * The length (number of entires) of the object.
+   * The number of entries in the object.
    */
   length: Integer;
 
   /**
-   * The keys of the object entries.
+   * The keys of the object's entries.
    */
   keys: string[];
 
   /**
-   * The types of the object entries.
+   * Hints to the values of the object's entries.
    */
   values: Hint[];
 

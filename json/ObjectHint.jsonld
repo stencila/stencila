@@ -21,7 +21,7 @@
       "@id": "stencila:length",
       "@type": "rdfs:Property",
       "rdfs:label": "length",
-      "rdfs:comment": "The length (number of entires) of the object.",
+      "rdfs:comment": "The number of entries in the object.",
       "schema:domainIncludes": [
         {
           "@id": "stencila:ArrayHint"
@@ -38,7 +38,7 @@
       "@id": "stencila:keys",
       "@type": "rdfs:Property",
       "rdfs:label": "keys",
-      "rdfs:comment": "The keys of the object entries.",
+      "rdfs:comment": "The keys of the object's entries.",
       "schema:domainIncludes": {
         "@id": "stencila:ObjectHint"
       },
@@ -47,10 +47,10 @@
       }
     },
     {
-      "@id": "stencila:types",
+      "@id": "stencila:values",
       "@type": "rdfs:Property",
       "rdfs:label": "values",
-      "rdfs:comment": "The types of the object entries.",
+      "rdfs:comment": "Hints to the values of the object's entries.",
       "schema:domainIncludes": [
         {
           "@id": "stencila:DatatableColumn"

@@ -15,13 +15,13 @@ class ObjectHint(Entity):
     type: Literal["ObjectHint"] = field(default="ObjectHint", init=False)
 
     length: int
-    """The length (number of entires) of the object."""
+    """The number of entries in the object."""
 
     keys: List[str]
-    """The keys of the object entries."""
+    """The keys of the object's entries."""
 
     values: List[Hint]
-    """The types of the object entries."""
+    """Hints to the values of the object's entries."""
 
     def __init__(self, length: int, keys: List[str], values: List[Hint], id: Optional[str] = None):
         super().__init__(id = id)

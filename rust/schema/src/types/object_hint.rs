@@ -22,15 +22,15 @@ pub struct ObjectHint {
     #[html(attr = "id")]
     pub id: Option<String>,
 
-    /// The length (number of entires) of the object.
+    /// The number of entries in the object.
     pub length: Integer,
 
-    /// The keys of the object entries.
+    /// The keys of the object's entries.
     #[serde(alias = "key")]
     #[serde(deserialize_with = "one_or_many")]
     pub keys: Vec<String>,
 
-    /// The types of the object entries.
+    /// Hints to the values of the object's entries.
     #[serde(alias = "value")]
     #[serde(deserialize_with = "one_or_many")]
     pub values: Vec<Hint>,
