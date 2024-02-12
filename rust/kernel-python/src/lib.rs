@@ -349,15 +349,24 @@ para = {'type':'Paragraph', 'content':[]}
             return Ok(());
         };
 
+        let (.., messages) = instance.execute("import numpy as np").await?;
+        if messages
+            .get(0)
+            .and_then(|message| message.error_type.as_deref())
+            == Some("ModuleNotFoundError")
+        {
+            println!("Skipping test because `numpy` not available");
+            return Ok(());
+        }
+
         let (.., messages) = instance
             .execute(
                 "
-import numpy as np
-
 a1 = np.array([True, False], dtype=np.bool_)
 a2 = np.array([-1, 0, 1], dtype=np.int_)
 a3 = np.array([1, 2 , 3], dtype=np.uint)
 a4 = np.array([1.23, 4.56], dtype=np.float_)
+
 # TODO: implement handling for these
 #a5 = np.array(['2020-01-01', '2020-01-02', '2020-01-03'], dtype=np.datetime64)
 #a6 = np.array([], dtype=np.timedelta64)
@@ -497,11 +506,19 @@ a4 = np.array([1.23, 4.56], dtype=np.float_)
             return Ok(());
         };
 
+        let (.., messages) = instance.execute("import pandas as pd").await?;
+        if messages
+            .get(0)
+            .and_then(|message| message.error_type.as_deref())
+            == Some("ModuleNotFoundError")
+        {
+            println!("Skipping test because `pandas` not available");
+            return Ok(());
+        }
+
         let (.., messages) = instance
             .execute(
                 "
-import pandas as pd
-
 df1 = pd.DataFrame({
     'c1': [True, False],
     'c2': [1, 2],
@@ -613,6 +630,16 @@ df1 = pd.DataFrame({
             return Ok(());
         };
 
+        let (.., messages) = instance.execute("import pandas as pd").await?;
+        if messages
+            .get(0)
+            .and_then(|message| message.error_type.as_deref())
+            == Some("ModuleNotFoundError")
+        {
+            println!("Skipping test because `pandas` not available");
+            return Ok(());
+        }
+
         let dt_in = Node::Datatable(Datatable::new(vec![
             DatatableColumn {
                 name: "c1".to_string(),
@@ -671,11 +698,19 @@ df1 = pd.DataFrame({
             return Ok(());
         };
 
+        let (.., messages) = instance.execute("import matplotlib.pyplot as plt").await?;
+        if messages
+            .get(0)
+            .and_then(|message| message.error_type.as_deref())
+            == Some("ModuleNotFoundError")
+        {
+            println!("Skipping test because `matplotlib` not available");
+            return Ok(());
+        }
+
         let (outputs, messages) = instance
             .execute(
                 "
-import matplotlib.pyplot as plt
-
 plt.plot([1, 2], [3, 4]);
 plt.show()",
             )
