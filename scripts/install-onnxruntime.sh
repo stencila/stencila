@@ -8,7 +8,7 @@ url="https://github.com/microsoft/onnxruntime/releases/download/v1.17.0/onnxrunt
 target_dir="/usr/local"
 
 # Download the file
-wget "$url" -O onnxruntime.tgz
+wget -q "$url" -O onnxruntime.tgz
 
 # Check if the download was successful
 if [ $? -ne 0 ]; then
@@ -21,10 +21,10 @@ tar -xzf onnxruntime.tgz
 
 # Assuming the structure of the tarball, adjust as necessary
 # Copy the relevant directories to /usr/local
-cp -r onnxruntime-linux-x64-1.17.0/include "$target_dir"
-cp -r onnxruntime-linux-x64-1.17.0/lib "$target_dir"
+sudo cp -r onnxruntime-linux-x64-1.17.0/include "$target_dir"
+sudo cp -r onnxruntime-linux-x64-1.17.0/lib "$target_dir"
 
 # Run ldconfig on the library directory to update the shared library cache
-ldconfig "$target_dir/lib"
+sudo ldconfig "$target_dir/lib"
 
 echo "ONNX Runtime installation completed successfully."
