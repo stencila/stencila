@@ -137,7 +137,7 @@ jobs:
         if: github.ref == 'refs/heads/main'
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
-          commit_message: "chore(*): Update generated files"
+          commit_message: "chore(*): update generated files"
 
       - name: Show disk usage
         run: df -h && du -hd1

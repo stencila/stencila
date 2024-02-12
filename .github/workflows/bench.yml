@@ -60,7 +60,7 @@ jobs:
         if: github.ref == 'refs/heads/main'
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
-          commit_message: "chore(*): Update benchmark data"
+          commit_message: "chore(*): update benchmark data"
 
       - name: Trigger pages workflow
         run: gh workflow run pages.yml
