@@ -30,8 +30,8 @@
     "publint": "0.2.7",
     "tmp": "0.2.1",
     "ts-jest": "29.1.2",
-    "tsup": "8.0.1",
+    "tsup": "8.0.2",
     "typescript": "5.3.3",
-    "wrangler": "3.28.0"
+    "wrangler": "3.28.1"
   }
 }
