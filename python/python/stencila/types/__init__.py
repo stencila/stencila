@@ -3,6 +3,7 @@
 from ._admonition import Admonition
 from ._admonition_type import AdmonitionType
 from ._array import Array
+from ._array_hint import ArrayHint
 from ._array_validator import ArrayValidator
 from ._article import Article
 from ._audio_object import AudioObject
@@ -33,7 +34,7 @@ from ._code_static import CodeStatic
 from ._collection import Collection
 from ._comment import Comment
 from ._compilation_digest import CompilationDigest
-from ._compilation_error import CompilationError
+from ._compilation_message import CompilationMessage
 from ._constant_validator import ConstantValidator
 from ._contact_point import ContactPoint
 from ._cord import Cord
@@ -42,6 +43,8 @@ from ._creative_work_type import CreativeWorkType
 from ._creative_work_type_or_text import CreativeWorkTypeOrText
 from ._datatable import Datatable
 from ._datatable_column import DatatableColumn
+from ._datatable_column_hint import DatatableColumnHint
+from ._datatable_hint import DatatableHint
 from ._date import Date
 from ._date_time import DateTime
 from ._date_time_validator import DateTimeValidator
@@ -63,7 +66,7 @@ from ._execution_dependant_relation import ExecutionDependantRelation
 from ._execution_dependency import ExecutionDependency
 from ._execution_dependency_node import ExecutionDependencyNode
 from ._execution_dependency_relation import ExecutionDependencyRelation
-from ._execution_error import ExecutionError
+from ._execution_message import ExecutionMessage
 from ._execution_required import ExecutionRequired
 from ._execution_status import ExecutionStatus
 from ._execution_tag import ExecutionTag
@@ -77,6 +80,7 @@ from ._function import Function
 from ._grant import Grant
 from ._grant_or_monetary_grant import GrantOrMonetaryGrant
 from ._heading import Heading
+from ._hint import Hint
 from ._if_block import IfBlock
 from ._if_block_clause import IfBlockClause
 from ._image_object import ImageObject
@@ -100,6 +104,7 @@ from ._math_block import MathBlock
 from ._math_inline import MathInline
 from ._media_object import MediaObject
 from ._message import Message
+from ._message_level import MessageLevel
 from ._message_part import MessagePart
 from ._modify_block import ModifyBlock
 from ._modify_inline import ModifyInline
@@ -110,6 +115,7 @@ from ._note import Note
 from ._note_type import NoteType
 from ._number_validator import NumberValidator
 from ._object import Object
+from ._object_hint import ObjectHint
 from ._organization import Organization
 from ._paragraph import Paragraph
 from ._parameter import Parameter
@@ -138,6 +144,7 @@ from ._software_source_code import SoftwareSourceCode
 from ._software_source_code_or_software_application_or_str import SoftwareSourceCodeOrSoftwareApplicationOrStr
 from ._str_or_float import StrOrFloat
 from ._strikeout import Strikeout
+from ._string_hint import StringHint
 from ._string_operation import StringOperation
 from ._string_patch import StringPatch
 from ._string_patch_or_primitive import StringPatchOrPrimitive
@@ -169,6 +176,7 @@ from ._timestamp import Timestamp
 from ._timestamp_validator import TimestampValidator
 from ._tuple_validator import TupleValidator
 from ._underline import Underline
+from ._unknown import Unknown
 from ._unsigned_integer import UnsignedInteger
 from ._validator import Validator
 from ._variable import Variable
@@ -178,6 +186,7 @@ __all__ = [
     'Admonition',
     'AdmonitionType',
     'Array',
+    'ArrayHint',
     'ArrayValidator',
     'Article',
     'AudioObject',
@@ -208,7 +217,7 @@ __all__ = [
     'Collection',
     'Comment',
     'CompilationDigest',
-    'CompilationError',
+    'CompilationMessage',
     'ConstantValidator',
     'ContactPoint',
     'Cord',
@@ -217,6 +226,8 @@ __all__ = [
     'CreativeWorkTypeOrText',
     'Datatable',
     'DatatableColumn',
+    'DatatableColumnHint',
+    'DatatableHint',
     'Date',
     'DateTime',
     'DateTimeValidator',
@@ -238,7 +249,7 @@ __all__ = [
     'ExecutionDependency',
     'ExecutionDependencyNode',
     'ExecutionDependencyRelation',
-    'ExecutionError',
+    'ExecutionMessage',
     'ExecutionRequired',
     'ExecutionStatus',
     'ExecutionTag',
@@ -252,6 +263,7 @@ __all__ = [
     'Grant',
     'GrantOrMonetaryGrant',
     'Heading',
+    'Hint',
     'IfBlock',
     'IfBlockClause',
     'ImageObject',
@@ -275,6 +287,7 @@ __all__ = [
     'MathInline',
     'MediaObject',
     'Message',
+    'MessageLevel',
     'MessagePart',
     'ModifyBlock',
     'ModifyInline',
@@ -285,6 +298,7 @@ __all__ = [
     'NoteType',
     'NumberValidator',
     'Object',
+    'ObjectHint',
     'Organization',
     'Paragraph',
     'Parameter',
@@ -313,6 +327,7 @@ __all__ = [
     'SoftwareSourceCodeOrSoftwareApplicationOrStr',
     'StrOrFloat',
     'Strikeout',
+    'StringHint',
     'StringOperation',
     'StringPatch',
     'StringPatchOrPrimitive',
@@ -344,6 +359,7 @@ __all__ = [
     'TimestampValidator',
     'TupleValidator',
     'Underline',
+    'Unknown',
     'UnsignedInteger',
     'Validator',
     'Variable',

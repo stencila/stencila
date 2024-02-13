@@ -226,7 +226,7 @@ macro_rules! lost_exec_options {
         codec_losses::lost_options!(
             $object.options,
             compilation_digest,
-            compilation_errors,
+            compilation_messages,
             execution_digest,
             execution_dependencies,
             execution_dependants,
@@ -237,7 +237,7 @@ macro_rules! lost_exec_options {
             execution_actor,
             execution_ended,
             execution_duration,
-            execution_errors
+            execution_messages
         )
     };
 }

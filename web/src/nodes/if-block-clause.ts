@@ -56,7 +56,7 @@ export class IfBlockClause extends CodeExecutable {
   }
 
   private renderHeader() {
-    return html` <div contenteditable="false">${this.renderErrors()}</div> `
+    return html` <div contenteditable="false">${this.renderMessages()}</div> `
   }
 
   private renderContent() {

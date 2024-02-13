@@ -42,6 +42,13 @@ pub enum Format {
     // Text formats
     Markdown,
     Text,
+    // Programming languages
+    Bash,
+    Shell,
+    JavaScript,
+    Python,
+    R,
+    Rhai,
     // Data serialization formats
     Json,
     Json5,
@@ -84,6 +91,7 @@ impl Format {
             Aac => "AAC",
             Article => "Stencila Article",
             Avi => "AVI",
+            Bash => "Bash",
             Cbor => "CBOR",
             CborZst => "CBOR+Zstandard",
             Debug => "Debug",
@@ -93,6 +101,7 @@ impl Format {
             Gif => "GIF",
             Html => "HTML",
             Jats => "JATS",
+            JavaScript => "JavaScript",
             Jpeg => "JPEG",
             Json => "JSON",
             Json5 => "JSON5",
@@ -104,6 +113,10 @@ impl Format {
             Ogg => "Ogg Vorbis",
             Ogv => "Ogg Vorbis Video",
             Png => "PNG",
+            Python => "Python",
+            R => "R",
+            Rhai => "Rhai",
+            Shell => "Shell",
             Svg => "SVG",
             Text => "Plain text",
             Wav => "WAV",
@@ -164,7 +177,10 @@ impl Format {
         Ok(match name.to_lowercase().trim() {
             // Only aliases listed here
             "sta" => Article,
+            "js" => JavaScript,
             "md" => Markdown,
+            "py" => Python,
+            "sh" => Shell,
             "txt" => Text,
             "yml" => Yaml,
             _ => Format::try_from(name).map_err(|_| eyre!("No format matching name `{name}`"))?,

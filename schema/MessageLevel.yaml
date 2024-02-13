@@ -1,0 +1,20 @@
+title: MessageLevel
+'@id': stencila:MessageLevel
+extends: Enumeration
+description: The severity level of a message.
+anyOf:
+  - const: Trace
+    '@id': stencila:Trace
+    description: A tracing message
+  - const: Debug
+    '@id': stencila:Debug
+    description: A debug message
+  - const: Info
+    '@id': stencila:Info
+    description: An information message
+  - const: Warn
+    '@id': stencila:Warn
+    description: A warning message
+  - const: Error
+    '@id': stencila:Error
+    description: An error message

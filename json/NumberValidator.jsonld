@@ -24,6 +24,12 @@
       "rdfs:comment": "The inclusive lower limit for a numeric node.",
       "schema:domainIncludes": [
         {
+          "@id": "stencila:ArrayHint"
+        },
+        {
+          "@id": "stencila:DatatableColumnHint"
+        },
+        {
           "@id": "stencila:DateTimeValidator"
         },
         {
@@ -64,6 +70,12 @@
       "rdfs:label": "maximum",
       "rdfs:comment": "The inclusive upper limit for a numeric node.",
       "schema:domainIncludes": [
+        {
+          "@id": "stencila:ArrayHint"
+        },
+        {
+          "@id": "stencila:DatatableColumnHint"
+        },
         {
           "@id": "stencila:DateTimeValidator"
         },

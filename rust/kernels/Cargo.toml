@@ -1,0 +1,12 @@
+[package]
+name = "kernels"
+version = "0.0.0"
+edition = "2021"
+
+[dependencies]
+cli-utils = { path = "../cli-utils" }
+kernel = { path = "../kernel" }
+kernel-bash = { path = "../kernel-bash" }
+kernel-node = { path = "../kernel-node" }
+kernel-python = { path = "../kernel-python" }
+kernel-rhai = { path = "../kernel-rhai" }

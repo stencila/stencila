@@ -4,6 +4,7 @@ use crate::prelude::*;
 
 use super::admonition::Admonition;
 use super::array::Array;
+use super::array_hint::ArrayHint;
 use super::array_validator::ArrayValidator;
 use super::article::Article;
 use super::audio_object::AudioObject;
@@ -25,13 +26,15 @@ use super::code_location::CodeLocation;
 use super::collection::Collection;
 use super::comment::Comment;
 use super::compilation_digest::CompilationDigest;
-use super::compilation_error::CompilationError;
+use super::compilation_message::CompilationMessage;
 use super::constant_validator::ConstantValidator;
 use super::contact_point::ContactPoint;
 use super::cord::Cord;
 use super::creative_work::CreativeWork;
 use super::datatable::Datatable;
 use super::datatable_column::DatatableColumn;
+use super::datatable_column_hint::DatatableColumnHint;
+use super::datatable_hint::DatatableHint;
 use super::date::Date;
 use super::date_time::DateTime;
 use super::date_time_validator::DateTimeValidator;
@@ -47,7 +50,7 @@ use super::enum_validator::EnumValidator;
 use super::enumeration::Enumeration;
 use super::execution_dependant::ExecutionDependant;
 use super::execution_dependency::ExecutionDependency;
-use super::execution_error::ExecutionError;
+use super::execution_message::ExecutionMessage;
 use super::execution_tag::ExecutionTag;
 use super::figure::Figure;
 use super::file::File;
@@ -82,6 +85,7 @@ use super::null::Null;
 use super::number::Number;
 use super::number_validator::NumberValidator;
 use super::object::Object;
+use super::object_hint::ObjectHint;
 use super::organization::Organization;
 use super::paragraph::Paragraph;
 use super::parameter::Parameter;
@@ -102,6 +106,7 @@ use super::software_application::SoftwareApplication;
 use super::software_source_code::SoftwareSourceCode;
 use super::strikeout::Strikeout;
 use super::string::String;
+use super::string_hint::StringHint;
 use super::string_operation::StringOperation;
 use super::string_patch::StringPatch;
 use super::string_validator::StringValidator;
@@ -122,6 +127,7 @@ use super::timestamp::Timestamp;
 use super::timestamp_validator::TimestampValidator;
 use super::tuple_validator::TupleValidator;
 use super::underline::Underline;
+use super::unknown::Unknown;
 use super::unsigned_integer::UnsignedInteger;
 use super::variable::Variable;
 use super::video_object::VideoObject;
@@ -148,6 +154,8 @@ pub enum Node {
     Array(Array),
 
     Admonition(Admonition),
+
+    ArrayHint(ArrayHint),
 
     ArrayValidator(ArrayValidator),
 
@@ -189,7 +197,7 @@ pub enum Node {
 
     CompilationDigest(CompilationDigest),
 
-    CompilationError(CompilationError),
+    CompilationMessage(CompilationMessage),
 
     ConstantValidator(ConstantValidator),
 
@@ -200,6 +208,10 @@ pub enum Node {
     Datatable(Datatable),
 
     DatatableColumn(DatatableColumn),
+
+    DatatableColumnHint(DatatableColumnHint),
+
+    DatatableHint(DatatableHint),
 
     Date(Date),
 
@@ -231,7 +243,7 @@ pub enum Node {
 
     ExecutionDependency(ExecutionDependency),
 
-    ExecutionError(ExecutionError),
+    ExecutionMessage(ExecutionMessage),
 
     ExecutionTag(ExecutionTag),
 
@@ -293,6 +305,8 @@ pub enum Node {
 
     NumberValidator(NumberValidator),
 
+    ObjectHint(ObjectHint),
+
     Organization(Organization),
 
     Paragraph(Paragraph),
@@ -330,6 +344,8 @@ pub enum Node {
     SoftwareSourceCode(SoftwareSourceCode),
 
     Strikeout(Strikeout),
+
+    StringHint(StringHint),
 
     StringOperation(StringOperation),
 
@@ -370,6 +386,8 @@ pub enum Node {
     TupleValidator(TupleValidator),
 
     Underline(Underline),
+
+    Unknown(Unknown),
 
     Variable(Variable),
 

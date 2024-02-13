@@ -1,0 +1,72 @@
+{
+  "$schema": "https://stencila.org/meta.schema.json",
+  "$id": "https://stencila.org/CompilationMessage.schema.json",
+  "@id": "stencila:CompilationMessage",
+  "title": "CompilationMessage",
+  "nick": "cme",
+  "extends": [
+    "Entity"
+  ],
+  "category": "code",
+  "description": "An error, warning or log message generated during compilation.",
+  "status": "alpha",
+  "required": [
+    "type",
+    "level",
+    "message"
+  ],
+  "core": [
+    "id",
+    "errorType",
+    "codeLocation"
+  ],
+  "properties": {
+    "type": {
+      "@id": "schema:type",
+      "description": "The type of this item.",
+      "$comment": "This is a special property analogous to JSON-LD's `@type` keyword.\n",
+      "type": "string"
+    },
+    "id": {
+      "@id": "schema:id",
+      "description": "The identifier for this item.",
+      "$comment": "This is a special property analogous to JSON-LD's `@id` keyword.\n",
+      "strip": [
+        "metadata"
+      ],
+      "html": {
+        "attr": "id"
+      },
+      "type": "string"
+    },
+    "level": {
+      "@id": "stencila:level",
+      "description": "The severity level of the message.",
+      "$ref": "MessageLevel.schema.json"
+    },
+    "message": {
+      "@id": "stencila:message",
+      "description": "The text of the message.",
+      "type": "string"
+    },
+    "errorType": {
+      "@id": "stencila:errorType",
+      "description": "The type of error e.g. \"SyntaxError\", \"ZeroDivisionError\".",
+      "$comment": "Many languages have the concept of alternative types of errors.\nFor example, Python has various [classes of exceptions](https://docs.python.org/3/tutorial/errors.html).\nThis property is intended to be used for storing these type names as additional\ninformation that maybe useful to the user attempting to resolve the error.\n",
+      "aliases": [
+        "error-type",
+        "error_type"
+      ],
+      "type": "string"
+    },
+    "codeLocation": {
+      "@id": "stencila:codeLocation",
+      "description": "The location that the error occurred.",
+      "aliases": [
+        "code-location",
+        "code_location"
+      ],
+      "$ref": "CodeLocation.schema.json"
+    }
+  }
+}

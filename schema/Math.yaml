@@ -72,13 +72,13 @@ properties:
     $comment: Used to avoid unnecessary transpilation to MathML.
     $ref: CompilationDigest
     strip: [execution]
-  compilationErrors:
-    '@id': stencila:compilationErrors
-    description: Errors generated when parsing and compiling the math expression.
+  compilationMessages:
+    '@id': stencila:compilationMessages
+    description: Messages generated while parsing and compiling the math expression.
     strip: [execution]
     type: array
     items:
-      $ref: CompilationError
+      $ref: CompilationMessage
   mathml:
     '@id': stencila:mathml
     description: The MathML transpiled from the `code`.

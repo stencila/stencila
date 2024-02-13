@@ -376,7 +376,7 @@ async fn serve_open(
 
     // Return early if no path resolved
     let Some(path) = path else {
-        return Ok(StatusCode::NOT_FOUND.into_response())
+        return Ok(StatusCode::NOT_FOUND.into_response());
     };
 
     // Get the document for the path
@@ -428,7 +428,7 @@ async fn serve_document(
 
     // Return early if no path resolved
     let Some(path) = path else {
-        return Ok(StatusCode::NOT_FOUND.into_response())
+        return Ok(StatusCode::NOT_FOUND.into_response());
     };
 
     // Get the document for the path
@@ -587,7 +587,7 @@ async fn serve_export(
     Query(query): Query<HashMap<String, String>>,
 ) -> Result<Response, InternalError> {
     let Ok(id) = DocumentId::from_str(&id) else {
-        return Ok((StatusCode::BAD_REQUEST, "Invalid document id").into_response())
+        return Ok((StatusCode::BAD_REQUEST, "Invalid document id").into_response());
     };
 
     let doc = docs.by_id(&id).await.map_err(InternalError::new)?;
@@ -621,7 +621,7 @@ async fn serve_ws(
     Path(id): Path<String>,
 ) -> Result<Response, InternalError> {
     let Ok(id) = DocumentId::from_str(&id) else {
-        return Ok((StatusCode::BAD_REQUEST, "Invalid document id").into_response())
+        return Ok((StatusCode::BAD_REQUEST, "Invalid document id").into_response());
     };
 
     let doc = docs.by_id(&id).await.map_err(InternalError::new)?;
@@ -673,22 +673,25 @@ async fn handle_ws(ws: WebSocket, doc: Arc<Document>, dir: PathBuf) {
     tracing::trace!("WebSocket connection");
 
     let Some(protocol) = ws
-        .protocol().and_then(|header| header.to_str().ok()).map(String::from) else {
-            tracing::debug!("No WebSocket subprotocol");
-            ws.close().await.ok();
-            return
-        };
+        .protocol()
+        .and_then(|header| header.to_str().ok())
+        .map(String::from)
+    else {
+        tracing::debug!("No WebSocket subprotocol");
+        ws.close().await.ok();
+        return;
+    };
 
     let Some(protocol) = protocol.strip_suffix(".stencila.org") else {
         tracing::debug!("Unknown WebSocket subprotocol: {protocol}");
         ws.close().await.ok();
-        return
+        return;
     };
 
     let Some((capability, format)) = protocol.split('.').collect_tuple() else {
         tracing::debug!("Invalid WebSocket subprotocol: {protocol}");
         ws.close().await.ok();
-        return
+        return;
     };
 
     if format == "nodes" {

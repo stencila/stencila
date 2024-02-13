@@ -1,0 +1,10 @@
+[package]
+name = "kernel"
+version = "0.0.0"
+edition = "2021"
+
+[dependencies]
+common = { path = "../common" }
+format = { path = "../format" }
+schema = { path = "../schema" }
+common-dev = { path = "../common-dev" }

@@ -37,6 +37,8 @@ export function hydrate(value: types.Node): types.Node {
     // TYPE-CASES:START
     case "Admonition":
       return Object.setPrototypeOf(value, types.Admonition.prototype);
+    case "ArrayHint":
+      return Object.setPrototypeOf(value, types.ArrayHint.prototype);
     case "ArrayValidator":
       return Object.setPrototypeOf(value, types.ArrayValidator.prototype);
     case "Article":
@@ -81,8 +83,8 @@ export function hydrate(value: types.Node): types.Node {
       return Object.setPrototypeOf(value, types.Comment.prototype);
     case "CompilationDigest":
       return Object.setPrototypeOf(value, types.CompilationDigest.prototype);
-    case "CompilationError":
-      return Object.setPrototypeOf(value, types.CompilationError.prototype);
+    case "CompilationMessage":
+      return Object.setPrototypeOf(value, types.CompilationMessage.prototype);
     case "ConstantValidator":
       return Object.setPrototypeOf(value, types.ConstantValidator.prototype);
     case "ContactPoint":
@@ -93,6 +95,10 @@ export function hydrate(value: types.Node): types.Node {
       return Object.setPrototypeOf(value, types.Datatable.prototype);
     case "DatatableColumn":
       return Object.setPrototypeOf(value, types.DatatableColumn.prototype);
+    case "DatatableColumnHint":
+      return Object.setPrototypeOf(value, types.DatatableColumnHint.prototype);
+    case "DatatableHint":
+      return Object.setPrototypeOf(value, types.DatatableHint.prototype);
     case "Date":
       return Object.setPrototypeOf(value, types.Date.prototype);
     case "DateTime":
@@ -127,8 +133,8 @@ export function hydrate(value: types.Node): types.Node {
       return Object.setPrototypeOf(value, types.ExecutionDependant.prototype);
     case "ExecutionDependency":
       return Object.setPrototypeOf(value, types.ExecutionDependency.prototype);
-    case "ExecutionError":
-      return Object.setPrototypeOf(value, types.ExecutionError.prototype);
+    case "ExecutionMessage":
+      return Object.setPrototypeOf(value, types.ExecutionMessage.prototype);
     case "ExecutionTag":
       return Object.setPrototypeOf(value, types.ExecutionTag.prototype);
     case "Figure":
@@ -195,6 +201,8 @@ export function hydrate(value: types.Node): types.Node {
       return Object.setPrototypeOf(value, types.Note.prototype);
     case "NumberValidator":
       return Object.setPrototypeOf(value, types.NumberValidator.prototype);
+    case "ObjectHint":
+      return Object.setPrototypeOf(value, types.ObjectHint.prototype);
     case "Organization":
       return Object.setPrototypeOf(value, types.Organization.prototype);
     case "Paragraph":
@@ -235,6 +243,8 @@ export function hydrate(value: types.Node): types.Node {
       return Object.setPrototypeOf(value, types.SoftwareSourceCode.prototype);
     case "Strikeout":
       return Object.setPrototypeOf(value, types.Strikeout.prototype);
+    case "StringHint":
+      return Object.setPrototypeOf(value, types.StringHint.prototype);
     case "StringOperation":
       return Object.setPrototypeOf(value, types.StringOperation.prototype);
     case "StringPatch":
@@ -283,6 +293,8 @@ export function hydrate(value: types.Node): types.Node {
       return Object.setPrototypeOf(value, types.TupleValidator.prototype);
     case "Underline":
       return Object.setPrototypeOf(value, types.Underline.prototype);
+    case "Unknown":
+      return Object.setPrototypeOf(value, types.Unknown.prototype);
     case "Variable":
       return Object.setPrototypeOf(value, types.Variable.prototype);
     case "VideoObject":

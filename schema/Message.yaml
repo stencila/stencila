@@ -39,3 +39,7 @@ properties:
         - $ref: SoftwareApplication
     dom:
       elem: div
+  level:
+    '@id': stencila:level
+    description: The severity level of the message.
+    $ref: MessageLevel

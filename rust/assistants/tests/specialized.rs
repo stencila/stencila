@@ -35,7 +35,7 @@ async fn local_get_assistant(itype: InstructionType, text: String) -> Result<(St
     Ok((assistant.id(), score))
 }
 
-fn short_name(id: &String) -> String {
+fn short_name(id: &str) -> String {
     id.split('/')
         .nth(1)
         .expect("should be a `/` in an id")

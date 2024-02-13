@@ -3,6 +3,7 @@
 use crate::prelude::*;
 
 use super::block::Block;
+use super::message_level::MessageLevel;
 use super::message_part::MessagePart;
 use super::person_or_organization_or_software_application::PersonOrOrganizationOrSoftwareApplication;
 use super::string::String;
@@ -41,10 +42,25 @@ pub struct Message {
     #[dom(elem = "div")]
     pub authors: Option<Vec<PersonOrOrganizationOrSoftwareApplication>>,
 
+    /// Non-core optional fields
+    #[serde(flatten)]
+    #[html(flatten)]
+    #[jats(flatten)]
+    pub options: Box<MessageOptions>,
+
     /// A unique identifier for a node within a document
     
     #[serde(skip)]
     pub uid: NodeUid
+}
+
+#[skip_serializing_none]
+#[serde_as]
+#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, WalkNode, WriteNode, ReadNode, DomCodec, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec)]
+#[serde(rename_all = "camelCase", crate = "common::serde")]
+pub struct MessageOptions {
+    /// The severity level of the message.
+    pub level: Option<MessageLevel>,
 }
 
 impl Message {

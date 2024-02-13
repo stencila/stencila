@@ -107,7 +107,7 @@ The Stencila Schema is the data model for Stencila documents (definition [here](
 | Data     | Fundamental data types (e.g. [`Number`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/number.md)) and validators (e.g. [`NumberValidator`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/number-validator.md))                                                                | 🔶 Beta (may change)                               |
 | Flow     | Types for control flow within a document (e.g. [`If`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/if.md), [`For`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/for.md), [`Call`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/call.md))       | 🚧 Under development (likely to change)            |
 | Style    | Types for styling parts of a documents ([`Span`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/style/span.md) and [`Division`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/style/division.md))                                                                                        | 🚧 Under development (likely to change)            |
-| Edits    | Types related to editing a documents (e.g. [`InstructionBlock`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/edits/instruction-block.md), [`DeleteInline`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/edits/delete-inline.md))                                                  | 🚧 Under development (likely to change)            |
+| Edits    | Types related to editing a documents (e.g. [`InstructionBlock`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/edits/instruction-block.md), [`DeleteInline`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/edits/delete-inline.md))                                                      | 🚧 Under development (likely to change)            |
 
 ### Storage and synchronization
 
@@ -155,18 +155,18 @@ Interoperability with existing formats has always been a key feature of Stencila
 
 Kernels are what executes the code in Stencila `CodeChunk`s and `CodeExpression`s, as well as in control flow document nodes such as `IfClause` and `For`. In addition to supporting interoperability with existing Jupyter kernels, we will bring over _microkernels_ from `v1`. Microkernels are lightweight kernels for executing code which do not require separate installation and allow for parallel execution. We'll also implement at least one kernel for an embedded scripting language so that it is possible to author a Stencila document which does not rely on any other external binary.
 
-| Kernel               | Purpose                                          | Status                                                                                      |
-| -------------------- | ------------------------------------------------ | ------------------------------------------------------------------------------------------- |
-| Embedded lang kernel | Default language for executable code             | 🚧 In progress using [Rhai](https://rhai.rs/)                                               |
-| Jupyter kernels      | Execute code in Jupyter kernels                  | 🚧 In progress; [PR](https://github.com/stencila/stencila/pull/1719)                        |
-| Bash microkernel     | Execute Bash code in documents                   | 🧭 Planned Q1 2024; [`v1`](https://github.com/stencila/stencila/tree/v1/rust/kernel-bash)   |
-| Zsh microkernel      | Execute Zsh code in documents                    | 🧭 Planned Q1 2024; [`v1`](https://github.com/stencila/stencila/tree/v1/rust/kernel-zsh)    |
-| Python microkernel   | Execute Python code in documents                 | 🧭 Planned Q1 2024; [`v1`](https://github.com/stencila/stencila/tree/v1/rust/kernel-python) |
-| R microkernel        | Execute R code in documents                      | 🧭 Planned Q1 2024; [`v1`](https://github.com/stencila/stencila/tree/v1/rust/kernel-r)      |
-| Node.js microkernel  | Execute JavaScript code in documents             | 🧭 Planned Q1 2024; [`v1`](https://github.com/stencila/stencila/tree/v1/rust/kernel-node)   |
-| Deno microkernel     | Execute TypeScript code in documents             | ❔ Maybe; [`v1`](https://github.com/stencila/stencila/tree/v1/rust/kernel-deno)             |
-| SQL microkernel      | Execute SQL code in documents                    | 🧭 Planned Q1 2024; [`v1`](https://github.com/stencila/stencila/tree/v1/rust/kernel-sql)    |
-| HTTP kernel          | Interact with RESTful APIs from within documents | ❔ Maybe; [`v1`](https://github.com/stencila/stencila/tree/v1/rust/kernel-http)             |
+| Kernel                                                                     | Purpose                                | Status                                                                                   |
+| -------------------------------------------------------------------------- | -------------------------------------- | ---------------------------------------------------------------------------------------- |
+| [Rhai](https://rhai.rs/)                                                   | Execute a sandboxed, embedded language | ⚠️ Alpha                                                                                 |
+| [Bash](https://gnu.org/software/bash/)                                     | Execute Bash code                      | ⚠️ Alpha                                                                                 |
+| [Zsh] (https://zsh.org/)                                                   | Execute Zsh code                       | ❔ Maybe; [`v1`](https://github.com/stencila/stencila/tree/v1/rust/kernel-zsh)           |
+| [Python](https://python.org/)                                              | Execute Python code                    | ⚠️ Alpha                                                                                 |
+| [R](https://r-project.org/)                                                | Execute R code                         | 🚧 In progress; [`v1`](https://github.com/stencila/stencila/tree/v1/rust/kernel-r)       |
+| [Node.js](https://nodejs.org)                                              | Execute JavaScript code                | ⚠️ Alpha                                                                                 |
+| [Deno](https://debo.com)                                                   | Execute TypeScript code                | ❔ Maybe; [`v1`](https://github.com/stencila/stencila/tree/v1/rust/kernel-deno)          |
+| [SQLite](https://sqlite.org)                                               | Execute SQL code                       | 🧭 Planned Q1 2024; [`v1`](https://github.com/stencila/stencila/tree/v1/rust/kernel-sql) |
+| [Jupyter kernels](https://github.com/jupyter/jupyter/wiki/Jupyter-kernels) | Execute code in Jupyter kernels        | 🚧 In progress; [PR](https://github.com/stencila/stencila/pull/1719)                     |
+| HTTP                                                                       | Interact with RESTful APIs             | ❔ Maybe; [`v1`](https://github.com/stencila/stencila/tree/v1/rust/kernel-http)          |
 
 ### Actors
 

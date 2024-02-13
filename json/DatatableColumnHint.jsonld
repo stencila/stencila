@@ -1,0 +1,164 @@
+{
+  "@id": "https://stencila.org/DatatableColumnHint",
+  "name": "DatatableColumnHint",
+  "license": "https://creativecommons.org/publicdomain/zero/1.0/",
+  "@context": {
+    "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
+    "schema": "https://schema.org/",
+    "stencila": "https://stencila.org/"
+  },
+  "@graph": [
+    {
+      "@id": "stencila:DatatableColumnHint",
+      "@type": "rdfs:Class",
+      "rdfs:label": "DatatableColumnHint",
+      "rdfs:comment": "A hint to the type and values in a `DatatableColumn`.",
+      "rdfs:subClassOf": {
+        "@id": "stencila:Entity"
+      }
+    },
+    {
+      "@id": "stencila:name",
+      "@type": "rdfs:Property",
+      "rdfs:label": "name",
+      "rdfs:comment": "The name of the column.",
+      "schema:domainIncludes": [
+        {
+          "@id": "schema:Thing"
+        },
+        {
+          "@id": "stencila:Button"
+        },
+        {
+          "@id": "stencila:DatatableColumn"
+        },
+        {
+          "@id": "stencila:DatatableColumnHint"
+        },
+        {
+          "@id": "stencila:Directory"
+        },
+        {
+          "@id": "stencila:ExecutionTag"
+        },
+        {
+          "@id": "stencila:File"
+        },
+        {
+          "@id": "stencila:Function"
+        },
+        {
+          "@id": "stencila:Parameter"
+        },
+        {
+          "@id": "stencila:TableCell"
+        },
+        {
+          "@id": "stencila:Variable"
+        }
+      ],
+      "schema:rangeIncludes": {
+        "@id": "schema:Text"
+      }
+    },
+    {
+      "@id": "stencila:itemType",
+      "@type": "rdfs:Property",
+      "rdfs:label": "itemType",
+      "rdfs:comment": "The type of items in the column.",
+      "schema:domainIncludes": {
+        "@id": "stencila:DatatableColumnHint"
+      },
+      "schema:rangeIncludes": {
+        "@id": "schema:Text"
+      }
+    },
+    {
+      "@id": "stencila:minimum",
+      "@type": "rdfs:Property",
+      "rdfs:label": "minimum",
+      "rdfs:comment": "The minimum value in the column.",
+      "schema:domainIncludes": [
+        {
+          "@id": "stencila:ArrayHint"
+        },
+        {
+          "@id": "stencila:DatatableColumnHint"
+        },
+        {
+          "@id": "stencila:DateTimeValidator"
+        },
+        {
+          "@id": "stencila:DateValidator"
+        },
+        {
+          "@id": "stencila:DurationValidator"
+        },
+        {
+          "@id": "stencila:NumberValidator"
+        },
+        {
+          "@id": "stencila:TimeValidator"
+        },
+        {
+          "@id": "stencila:TimestampValidator"
+        }
+      ],
+      "schema:rangeIncludes": {
+        "@id": "stencila:Primitive"
+      }
+    },
+    {
+      "@id": "stencila:maximum",
+      "@type": "rdfs:Property",
+      "rdfs:label": "maximum",
+      "rdfs:comment": "The maximum value in the column.",
+      "schema:domainIncludes": [
+        {
+          "@id": "stencila:ArrayHint"
+        },
+        {
+          "@id": "stencila:DatatableColumnHint"
+        },
+        {
+          "@id": "stencila:DateTimeValidator"
+        },
+        {
+          "@id": "stencila:DateValidator"
+        },
+        {
+          "@id": "stencila:DurationValidator"
+        },
+        {
+          "@id": "stencila:NumberValidator"
+        },
+        {
+          "@id": "stencila:TimeValidator"
+        },
+        {
+          "@id": "stencila:TimestampValidator"
+        }
+      ],
+      "schema:rangeIncludes": {
+        "@id": "stencila:Primitive"
+      }
+    },
+    {
+      "@id": "stencila:nulls",
+      "@type": "rdfs:Property",
+      "rdfs:label": "nulls",
+      "rdfs:comment": "The number of `Null` values in the column.",
+      "schema:domainIncludes": [
+        {
+          "@id": "stencila:ArrayHint"
+        },
+        {
+          "@id": "stencila:DatatableColumnHint"
+        }
+      ],
+      "schema:rangeIncludes": {
+        "@id": "schema:Number"
+      }
+    }
+  ]
+}

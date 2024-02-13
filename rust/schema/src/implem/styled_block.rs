@@ -10,7 +10,7 @@ impl MarkdownCodec for StyledBlock {
             .merge_losses(lost_options!(
                 self.options,
                 compilation_digest,
-                compilation_errors,
+                compilation_messages,
                 css,
                 classes
             ));

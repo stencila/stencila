@@ -1,0 +1,137 @@
+{
+  "@id": "https://stencila.org/ArrayHint",
+  "name": "ArrayHint",
+  "license": "https://creativecommons.org/publicdomain/zero/1.0/",
+  "@context": {
+    "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
+    "schema": "https://schema.org/",
+    "stencila": "https://stencila.org/"
+  },
+  "@graph": [
+    {
+      "@id": "stencila:ArrayHint",
+      "@type": "rdfs:Class",
+      "rdfs:label": "ArrayHint",
+      "rdfs:comment": "A hint to the content of an `Array`.",
+      "rdfs:subClassOf": {
+        "@id": "stencila:Entity"
+      }
+    },
+    {
+      "@id": "stencila:length",
+      "@type": "rdfs:Property",
+      "rdfs:label": "length",
+      "rdfs:comment": "The length (number of items) of the array.",
+      "schema:domainIncludes": [
+        {
+          "@id": "stencila:ArrayHint"
+        },
+        {
+          "@id": "stencila:ObjectHint"
+        }
+      ],
+      "schema:rangeIncludes": {
+        "@id": "schema:Number"
+      }
+    },
+    {
+      "@id": "stencila:itemTypes",
+      "@type": "rdfs:Property",
+      "rdfs:label": "itemTypes",
+      "rdfs:comment": "The distinct types of the array items.",
+      "schema:domainIncludes": {
+        "@id": "stencila:ArrayHint"
+      },
+      "schema:rangeIncludes": {
+        "@id": "schema:Text"
+      }
+    },
+    {
+      "@id": "stencila:minimum",
+      "@type": "rdfs:Property",
+      "rdfs:label": "minimum",
+      "rdfs:comment": "The minimum value in the array.",
+      "schema:domainIncludes": [
+        {
+          "@id": "stencila:ArrayHint"
+        },
+        {
+          "@id": "stencila:DatatableColumnHint"
+        },
+        {
+          "@id": "stencila:DateTimeValidator"
+        },
+        {
+          "@id": "stencila:DateValidator"
+        },
+        {
+          "@id": "stencila:DurationValidator"
+        },
+        {
+          "@id": "stencila:NumberValidator"
+        },
+        {
+          "@id": "stencila:TimeValidator"
+        },
+        {
+          "@id": "stencila:TimestampValidator"
+        }
+      ],
+      "schema:rangeIncludes": {
+        "@id": "stencila:Primitive"
+      }
+    },
+    {
+      "@id": "stencila:maximum",
+      "@type": "rdfs:Property",
+      "rdfs:label": "maximum",
+      "rdfs:comment": "The maximum value in the array.",
+      "schema:domainIncludes": [
+        {
+          "@id": "stencila:ArrayHint"
+        },
+        {
+          "@id": "stencila:DatatableColumnHint"
+        },
+        {
+          "@id": "stencila:DateTimeValidator"
+        },
+        {
+          "@id": "stencila:DateValidator"
+        },
+        {
+          "@id": "stencila:DurationValidator"
+        },
+        {
+          "@id": "stencila:NumberValidator"
+        },
+        {
+          "@id": "stencila:TimeValidator"
+        },
+        {
+          "@id": "stencila:TimestampValidator"
+        }
+      ],
+      "schema:rangeIncludes": {
+        "@id": "stencila:Primitive"
+      }
+    },
+    {
+      "@id": "stencila:nulls",
+      "@type": "rdfs:Property",
+      "rdfs:label": "nulls",
+      "rdfs:comment": "The number of `Null` values in the array.",
+      "schema:domainIncludes": [
+        {
+          "@id": "stencila:ArrayHint"
+        },
+        {
+          "@id": "stencila:DatatableColumnHint"
+        }
+      ],
+      "schema:rangeIncludes": {
+        "@id": "schema:Number"
+      }
+    }
+  ]
+}

@@ -86,6 +86,11 @@
           }
         ]
       }
+    },
+    "level": {
+      "@id": "stencila:level",
+      "description": "The severity level of the message.",
+      "$ref": "MessageLevel.schema.json"
     }
   }
 }

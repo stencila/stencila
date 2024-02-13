@@ -83,6 +83,12 @@
           "@id": "stencila:Button"
         },
         {
+          "@id": "stencila:DatatableColumn"
+        },
+        {
+          "@id": "stencila:DatatableColumnHint"
+        },
+        {
           "@id": "stencila:Directory"
         },
         {
@@ -494,9 +500,14 @@
       "@type": "rdfs:Property",
       "rdfs:label": "columns",
       "rdfs:comment": "The columns of data.",
-      "schema:domainIncludes": {
-        "@id": "stencila:Datatable"
-      },
+      "schema:domainIncludes": [
+        {
+          "@id": "stencila:Datatable"
+        },
+        {
+          "@id": "stencila:DatatableHint"
+        }
+      ],
       "schema:rangeIncludes": {
         "@id": "stencila:DatatableColumn"
       }

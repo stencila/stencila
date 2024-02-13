@@ -2,7 +2,7 @@
 
 import { Author } from "./Author.js";
 import { CompilationDigest } from "./CompilationDigest.js";
-import { CompilationError } from "./CompilationError.js";
+import { CompilationMessage } from "./CompilationMessage.js";
 import { Cord } from "./Cord.js";
 import { Entity } from "./Entity.js";
 
@@ -34,9 +34,9 @@ export class Math extends Entity {
   compilationDigest?: CompilationDigest;
 
   /**
-   * Errors generated when parsing and compiling the math expression.
+   * Messages generated while parsing and compiling the math expression.
    */
-  compilationErrors?: CompilationError[];
+  compilationMessages?: CompilationMessage[];
 
   /**
    * The MathML transpiled from the `code`.

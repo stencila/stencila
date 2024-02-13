@@ -1,0 +1,35 @@
+title: DatatableColumnHint
+'@id': stencila:DatatableColumnHint
+nick: dch
+extends: Entity
+category: data
+description: A hint to the type and values in a `DatatableColumn`.
+required:
+  - name
+  - itemType
+core:
+  - minimum
+  - maximum
+  - nulls
+properties:
+  name:
+    "@id": stencila:name
+    description: The name of the column.
+    type: string
+  itemType:
+    "@id": stencila:itemType
+    description: The type of items in the column.
+    type: string
+  minimum:
+    "@id": stencila:minimum
+    description: The minimum value in the column.
+    $ref: Primitive
+  maximum:
+    "@id": stencila:maximum
+    description: The maximum value in the column.
+    $ref: Primitive
+  nulls:
+    "@id": stencila:nulls
+    description: The number of `Null` values in the column.
+    type: integer
+    minimum: 0

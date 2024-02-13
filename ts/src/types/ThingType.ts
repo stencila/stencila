@@ -14,7 +14,6 @@ import { type Comment } from "./Comment.js";
 import { type ContactPoint } from "./ContactPoint.js";
 import { type CreativeWork } from "./CreativeWork.js";
 import { type Datatable } from "./Datatable.js";
-import { type DatatableColumn } from "./DatatableColumn.js";
 import { type DefinedTerm } from "./DefinedTerm.js";
 import { type Enumeration } from "./Enumeration.js";
 import { type ExecutionDependantRelation } from "./ExecutionDependantRelation.js";
@@ -29,6 +28,7 @@ import { type LabelType } from "./LabelType.js";
 import { type ListItem } from "./ListItem.js";
 import { type ListOrder } from "./ListOrder.js";
 import { type MediaObject } from "./MediaObject.js";
+import { type MessageLevel } from "./MessageLevel.js";
 import { type MonetaryGrant } from "./MonetaryGrant.js";
 import { type NoteType } from "./NoteType.js";
 import { type Organization } from "./Organization.js";
@@ -68,7 +68,6 @@ export type ThingType =
   ContactPoint |
   CreativeWork |
   Datatable |
-  DatatableColumn |
   DefinedTerm |
   Enumeration |
   ExecutionDependantRelation |
@@ -83,6 +82,7 @@ export type ThingType =
   ListItem |
   ListOrder |
   MediaObject |
+  MessageLevel |
   MonetaryGrant |
   NoteType |
   Organization |

@@ -15,8 +15,11 @@
   ],
   "core": [
     "id",
-    "kind",
-    "value"
+    "programmingLanguage",
+    "nativeType",
+    "nodeType",
+    "value",
+    "hint"
   ],
   "properties": {
     "type": {
@@ -44,15 +47,42 @@
       "type": "string",
       "pattern": "[a-zA-Z][a-zA-Z0-9_]*"
     },
-    "kind": {
-      "@id": "stencila:kind",
-      "description": "The expected type of variable e.g. `Number`, `Timestamp`, `Datatable`",
+    "programmingLanguage": {
+      "@id": "schema:programmingLanguage",
+      "description": "The programming language that the variable is defined in e.g. Python, JSON.",
+      "aliases": [
+        "programming-language",
+        "programming_language"
+      ],
+      "type": "string"
+    },
+    "nativeType": {
+      "@id": "stencila:nativeType",
+      "description": "The native type of the variable e.g. `float`, `datetime.datetime`, `pandas.DataFrame`",
+      "aliases": [
+        "native-type",
+        "native_type"
+      ],
+      "type": "string"
+    },
+    "nodeType": {
+      "@id": "stencila:nodeType",
+      "description": "The Stencila node type of the variable e.g. `Number`, `DateTime`, `Datatable`.",
+      "aliases": [
+        "node-type",
+        "node_type"
+      ],
       "type": "string"
     },
     "value": {
       "@id": "schema:value",
       "description": "The value of the variable.",
       "$ref": "Node.schema.json"
+    },
+    "hint": {
+      "@id": "stencila:hint",
+      "description": "A hint of the value and/or structure of the variable.",
+      "$ref": "Hint.schema.json"
     }
   }
 }

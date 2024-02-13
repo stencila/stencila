@@ -11,7 +11,7 @@ pub fn highlighted(content: &str, format: Format) -> Result<()> {
         util::as_24_bit_terminal_escaped,
     };
 
-    if is_terminal::is_terminal(&std::io::stdout()) {
+    if is_terminal::is_terminal(std::io::stdout()) {
         // Consider whether to only bake in a subset of syntaxes and themes? See the following for examples of this
         // https://github.com/ducaale/xh/blob/master/build.rs
         // https://github.com/sharkdp/bat/blob/0b44aa6f68ab967dd5d74b7e02d306f2b8388928/src/assets.rs

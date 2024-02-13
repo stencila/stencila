@@ -70,22 +70,22 @@
       ],
       "$ref": "CompilationDigest.schema.json"
     },
-    "compilationErrors": {
-      "@id": "stencila:compilationErrors",
-      "description": "Errors generated when compiling the code.",
+    "compilationMessages": {
+      "@id": "stencila:compilationMessages",
+      "description": "Messages generated while compiling the code.",
       "aliases": [
-        "compilation-errors",
-        "compilation_errors",
-        "compilationError",
-        "compilation-error",
-        "compilation_error"
+        "compilation-messages",
+        "compilation_messages",
+        "compilationMessage",
+        "compilation-message",
+        "compilation_message"
       ],
       "strip": [
         "execution"
       ],
       "type": "array",
       "items": {
-        "$ref": "CompilationError.schema.json"
+        "$ref": "CompilationMessage.schema.json"
       }
     },
     "executionDigest": {
@@ -228,22 +228,22 @@
       ],
       "$ref": "Duration.schema.json"
     },
-    "executionErrors": {
-      "@id": "stencila:executionErrors",
-      "description": "Errors when executing the node.",
+    "executionMessages": {
+      "@id": "stencila:executionMessages",
+      "description": "Messages emitted while executing the node.",
       "aliases": [
-        "execution-errors",
-        "execution_errors",
-        "executionError",
-        "execution-error",
-        "execution_error"
+        "execution-messages",
+        "execution_messages",
+        "executionMessage",
+        "execution-message",
+        "execution_message"
       ],
       "strip": [
         "execution"
       ],
       "type": "array",
       "items": {
-        "$ref": "ExecutionError.schema.json"
+        "$ref": "ExecutionMessage.schema.json"
       }
     },
     "name": {

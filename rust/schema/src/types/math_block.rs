@@ -4,7 +4,7 @@ use crate::prelude::*;
 
 use super::author::Author;
 use super::compilation_digest::CompilationDigest;
-use super::compilation_error::CompilationError;
+use super::compilation_message::CompilationMessage;
 use super::cord::Cord;
 use super::string::String;
 
@@ -82,12 +82,12 @@ pub struct MathBlockOptions {
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     pub compilation_digest: Option<CompilationDigest>,
 
-    /// Errors generated when parsing and compiling the math expression.
-    #[serde(alias = "compilation-errors", alias = "compilation_errors", alias = "compilationError", alias = "compilation-error", alias = "compilation_error")]
+    /// Messages generated while parsing and compiling the math expression.
+    #[serde(alias = "compilation-messages", alias = "compilation_messages", alias = "compilationMessage", alias = "compilation-message", alias = "compilation_message")]
     #[serde(default, deserialize_with = "option_one_or_many")]
     #[strip(execution)]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
-    pub compilation_errors: Option<Vec<CompilationError>>,
+    pub compilation_messages: Option<Vec<CompilationMessage>>,
 
     /// The MathML transpiled from the `code`.
     #[strip(output)]

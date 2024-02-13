@@ -22,9 +22,20 @@
       "@type": "rdfs:Property",
       "rdfs:label": "level",
       "rdfs:comment": "The level of the heading.",
-      "schema:domainIncludes": {
-        "@id": "stencila:Heading"
-      },
+      "schema:domainIncludes": [
+        {
+          "@id": "schema:Message"
+        },
+        {
+          "@id": "stencila:CompilationMessage"
+        },
+        {
+          "@id": "stencila:ExecutionMessage"
+        },
+        {
+          "@id": "stencila:Heading"
+        }
+      ],
       "schema:rangeIncludes": {
         "@id": "schema:Number"
       }

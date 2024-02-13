@@ -3,7 +3,7 @@ pub use serde_with::{self, serde_as, skip_serializing_none};
 
 pub use common::{
     derive_more::{self, Deref, DerefMut},
-    eyre::{bail, eyre, ErrReport, Result},
+    eyre::{bail, ErrReport, Result},
     itertools::Itertools,
     serde::{self, Deserialize, Serialize},
     serde_json,
@@ -25,7 +25,7 @@ pub use node_type::NodeType;
 pub use node_walk_derive::WalkNode;
 
 pub use crate::deserialize::*;
-pub use crate::shortcuts::*;
+
 pub use crate::walk::{Visitor, VisitorMut, WalkNode};
 
 #[cfg(feature = "proptest")]

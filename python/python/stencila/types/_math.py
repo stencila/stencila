@@ -4,7 +4,7 @@ from .prelude import *
 
 from ._author import Author
 from ._compilation_digest import CompilationDigest
-from ._compilation_error import CompilationError
+from ._compilation_message import CompilationMessage
 from ._cord import Cord
 from ._entity import Entity
 
@@ -29,17 +29,17 @@ class Math(Entity):
     compilation_digest: Optional[CompilationDigest] = None
     """A digest of the `code` and `mathLanguage`."""
 
-    compilation_errors: Optional[List[CompilationError]] = None
-    """Errors generated when parsing and compiling the math expression."""
+    compilation_messages: Optional[List[CompilationMessage]] = None
+    """Messages generated while parsing and compiling the math expression."""
 
     mathml: Optional[str] = None
     """The MathML transpiled from the `code`."""
 
-    def __init__(self, code: Cord, id: Optional[str] = None, math_language: Optional[str] = None, authors: Optional[List[Author]] = None, compilation_digest: Optional[CompilationDigest] = None, compilation_errors: Optional[List[CompilationError]] = None, mathml: Optional[str] = None):
+    def __init__(self, code: Cord, id: Optional[str] = None, math_language: Optional[str] = None, authors: Optional[List[Author]] = None, compilation_digest: Optional[CompilationDigest] = None, compilation_messages: Optional[List[CompilationMessage]] = None, mathml: Optional[str] = None):
         super().__init__(id = id)
         self.code = code
         self.math_language = math_language
         self.authors = authors
         self.compilation_digest = compilation_digest
-        self.compilation_errors = compilation_errors
+        self.compilation_messages = compilation_messages
         self.mathml = mathml

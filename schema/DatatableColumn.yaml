@@ -1,7 +1,7 @@
 title: DatatableColumn
 '@id': stencila:DatatableColumn
 nick: dtc
-extends: Thing
+extends: Entity
 category: data
 description: A column of data within a `Datatable`.
 required:
@@ -10,6 +10,10 @@ required:
 core:
   - validator
 properties:
+  name:
+    "@id": stencila:name
+    description: The name of the column.
+    type: string
   values:
     '@id': stencila:values
     description: The data values of the column.

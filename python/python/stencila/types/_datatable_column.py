@@ -3,20 +3,20 @@
 from .prelude import *
 
 from ._array_validator import ArrayValidator
-ImageObject = ForwardRef("ImageObject")
+from ._entity import Entity
 from ._primitive import Primitive
-from ._property_value_or_str import PropertyValueOrStr
-from ._text import Text
-from ._thing import Thing
 
 
 @dataclass(init=False)
-class DatatableColumn(Thing):
+class DatatableColumn(Entity):
     """
     A column of data within a `Datatable`.
     """
 
     type: Literal["DatatableColumn"] = field(default="DatatableColumn", init=False)
+
+    name: str
+    """The name of the column."""
 
     values: List[Primitive]
     """The data values of the column."""
@@ -24,7 +24,8 @@ class DatatableColumn(Thing):
     validator: Optional[ArrayValidator] = None
     """The validator to use to validate data in the column."""
 
-    def __init__(self, name: str, values: List[Primitive], id: Optional[str] = None, alternate_names: Optional[List[str]] = None, description: Optional[Text] = None, identifiers: Optional[List[PropertyValueOrStr]] = None, images: Optional[List[ImageObject]] = None, url: Optional[str] = None, validator: Optional[ArrayValidator] = None):
-        super().__init__(id = id, alternate_names = alternate_names, description = description, identifiers = identifiers, images = images, name = name, url = url)
+    def __init__(self, name: str, values: List[Primitive], id: Optional[str] = None, validator: Optional[ArrayValidator] = None):
+        super().__init__(id = id)
+        self.name = name
         self.values = values
         self.validator = validator

@@ -17,8 +17,8 @@ pub fn get_type<C: ReadStore>(crdt: &C, obj_id: &ObjId) -> Result<Option<String>
         _ => {}
     };
 
-    let Some((value,..)) = crdt.get(obj_id, Prop::from("type"))? else {
-        return Ok(None)
+    let Some((value, ..)) = crdt.get(obj_id, Prop::from("type"))? else {
+        return Ok(None);
     };
 
     let Value::Scalar(value) = value else {
@@ -37,7 +37,7 @@ pub fn get_type<C: ReadStore>(crdt: &C, obj_id: &ObjId) -> Result<Option<String>
 /// Returns `None` if the type can not be resolved for the object.
 pub fn get_node_type<C: ReadStore>(crdt: &C, obj_id: &ObjId) -> Result<Option<NodeType>> {
     let Some(node_type) = get_type(crdt, obj_id)? else {
-        return Ok(None)
+        return Ok(None);
     };
 
     Ok(Some(NodeType::try_from(node_type.as_str())?))

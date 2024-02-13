@@ -1,0 +1,12 @@
+[package]
+name = "kernel-micro"
+version = "0.0.0"
+edition = "2021"
+
+[dependencies]
+app = { path = "../app" }
+kernel = { path = "../kernel" }
+which = "6.0.0"
+
+[target.'cfg(unix)'.dependencies]
+nix = { version = "0.27.1", features = ["fs", "signal"] }

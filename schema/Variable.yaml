@@ -7,8 +7,11 @@ description: A variable representing a name / value pair.
 required:
   - name
 core:
-  - kind
+  - programmingLanguage
+  - nativeType
+  - nodeType
   - value
+  - hint
 properties:
   name:
     '@id': schema:name
@@ -18,11 +21,23 @@ properties:
     $comment: |
       This regex allows for snake_case and camelCase names but excludes
       PascalCase for names.
-  kind:
-    '@id': stencila:kind
+  programmingLanguage:
+    '@id': schema:programmingLanguage
     type: string
-    description: The expected type of variable e.g. `Number`, `Timestamp`, `Datatable`
+    description: The programming language that the variable is defined in e.g. Python, JSON.
+  nativeType:
+    '@id': stencila:nativeType
+    type: string
+    description: The native type of the variable e.g. `float`, `datetime.datetime`, `pandas.DataFrame`
+  nodeType:
+    '@id': stencila:nodeType
+    type: string
+    description: The Stencila node type of the variable e.g. `Number`, `DateTime`, `Datatable`.
   value:
     '@id': schema:value
     description: The value of the variable.
     $ref: Node
+  hint:
+    '@id': stencila:hint
+    description: A hint of the value and/or structure of the variable.
+    $ref: Hint

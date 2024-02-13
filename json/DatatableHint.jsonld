@@ -1,0 +1,55 @@
+{
+  "@id": "https://stencila.org/DatatableHint",
+  "name": "DatatableHint",
+  "license": "https://creativecommons.org/publicdomain/zero/1.0/",
+  "@context": {
+    "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
+    "schema": "https://schema.org/",
+    "stencila": "https://stencila.org/"
+  },
+  "@graph": [
+    {
+      "@id": "stencila:DatatableHint",
+      "@type": "rdfs:Class",
+      "rdfs:label": "DatatableHint",
+      "rdfs:comment": "A hint to the structure of a table of data.",
+      "rdfs:subClassOf": {
+        "@id": "stencila:Entity"
+      }
+    },
+    {
+      "@id": "stencila:rows",
+      "@type": "rdfs:Property",
+      "rdfs:label": "rows",
+      "rdfs:comment": "The number of rows of data.",
+      "schema:domainIncludes": [
+        {
+          "@id": "schema:Table"
+        },
+        {
+          "@id": "stencila:DatatableHint"
+        }
+      ],
+      "schema:rangeIncludes": {
+        "@id": "schema:Number"
+      }
+    },
+    {
+      "@id": "stencila:columns",
+      "@type": "rdfs:Property",
+      "rdfs:label": "columns",
+      "rdfs:comment": "A hint for each column of data.",
+      "schema:domainIncludes": [
+        {
+          "@id": "stencila:Datatable"
+        },
+        {
+          "@id": "stencila:DatatableHint"
+        }
+      ],
+      "schema:rangeIncludes": {
+        "@id": "stencila:DatatableColumnHint"
+      }
+    }
+  ]
+}

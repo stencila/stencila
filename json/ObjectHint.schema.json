@@ -1,0 +1,70 @@
+{
+  "$schema": "https://stencila.org/meta.schema.json",
+  "$id": "https://stencila.org/ObjectHint.schema.json",
+  "@id": "stencila:ObjectHint",
+  "title": "ObjectHint",
+  "nick": "obh",
+  "extends": [
+    "Entity"
+  ],
+  "category": "data",
+  "description": "A hint to the structure of an `Object`.",
+  "required": [
+    "type",
+    "length",
+    "keys",
+    "values"
+  ],
+  "core": [
+    "id"
+  ],
+  "properties": {
+    "type": {
+      "@id": "schema:type",
+      "description": "The type of this item.",
+      "$comment": "This is a special property analogous to JSON-LD's `@type` keyword.\n",
+      "type": "string"
+    },
+    "id": {
+      "@id": "schema:id",
+      "description": "The identifier for this item.",
+      "$comment": "This is a special property analogous to JSON-LD's `@id` keyword.\n",
+      "strip": [
+        "metadata"
+      ],
+      "html": {
+        "attr": "id"
+      },
+      "type": "string"
+    },
+    "length": {
+      "@id": "stencila:length",
+      "description": "The number of entries in the object.",
+      "$comment": "For large object with many entries, to save space, `keys` and `values` may not be\ncomplete (i.e. they may have lengths less than this `length` property).\n",
+      "type": "integer",
+      "minimum": 0.0
+    },
+    "keys": {
+      "@id": "stencila:keys",
+      "description": "The keys of the object's entries.",
+      "aliases": [
+        "key"
+      ],
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "values": {
+      "@id": "stencila:values",
+      "description": "Hints to the values of the object's entries.",
+      "aliases": [
+        "value"
+      ],
+      "type": "array",
+      "items": {
+        "$ref": "Hint.schema.json"
+      }
+    }
+  }
+}

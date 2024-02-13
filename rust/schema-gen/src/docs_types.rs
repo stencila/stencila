@@ -126,8 +126,8 @@ struct Context {
 /// Generate a documentation file for a schema
 async fn docs_file(dest: &Path, schema: &Schema, context: &Context) -> Result<String> {
     let Some(title) = &schema.title else {
-            bail!("Schema has no title");
-        };
+        bail!("Schema has no title");
+    };
 
     let path = dest.join(format!(
         "{category}/{title}.md",
@@ -379,7 +379,7 @@ fn formats(title: &str, schema: &Schema) -> Vec<Block> {
     let node_type = NodeType::try_from(title).ok();
     for format in Format::iter() {
         let Ok(codec) = codecs::get(None, Some(format), None) else {
-            continue
+            continue;
         };
 
         let name = format.name();
@@ -453,15 +453,15 @@ fn proptests_anyof(title: &str, schema: &Schema) -> Vec<Block> {
 
     for variant_schema in schema.any_of.as_ref().unwrap() {
         let Some(proptest) = &variant_schema.proptest else {
-            continue
+            continue;
         };
         let Some(variant_name) = &variant_schema.r#ref else {
-            continue
+            continue;
         };
 
         for level in ProptestLevel::iter() {
             let Some(options) = proptest.get(&level) else {
-                continue
+                continue;
             };
 
             let description = options
@@ -545,12 +545,12 @@ fn proptests_object(title: &str, schema: &Schema) -> Vec<Block> {
 
     for (property_name, property_schema) in &schema.properties {
         let Some(proptest) = &property_schema.proptest else {
-            continue
+            continue;
         };
 
         for level in ProptestLevel::iter() {
             let Some(options) = proptest.get(&level) else {
-                continue
+                continue;
             };
 
             let description = options

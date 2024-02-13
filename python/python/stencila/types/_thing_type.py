@@ -17,7 +17,6 @@ Comment = ForwardRef("Comment")
 ContactPoint = ForwardRef("ContactPoint")
 CreativeWork = ForwardRef("CreativeWork")
 Datatable = ForwardRef("Datatable")
-DatatableColumn = ForwardRef("DatatableColumn")
 DefinedTerm = ForwardRef("DefinedTerm")
 Enumeration = ForwardRef("Enumeration")
 ExecutionDependantRelation = ForwardRef("ExecutionDependantRelation")
@@ -32,6 +31,7 @@ LabelType = ForwardRef("LabelType")
 ListItem = ForwardRef("ListItem")
 ListOrder = ForwardRef("ListOrder")
 MediaObject = ForwardRef("MediaObject")
+MessageLevel = ForwardRef("MessageLevel")
 MonetaryGrant = ForwardRef("MonetaryGrant")
 NoteType = ForwardRef("NoteType")
 Organization = ForwardRef("Organization")
@@ -69,7 +69,6 @@ ThingType = Union[
     ContactPoint,
     CreativeWork,
     Datatable,
-    DatatableColumn,
     DefinedTerm,
     Enumeration,
     ExecutionDependantRelation,
@@ -84,6 +83,7 @@ ThingType = Union[
     ListItem,
     ListOrder,
     MediaObject,
+    MessageLevel,
     MonetaryGrant,
     NoteType,
     Organization,

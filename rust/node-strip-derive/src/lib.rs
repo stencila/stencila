@@ -67,17 +67,20 @@ fn derive_struct(type_attr: TypeAttr) -> TokenStream {
     let mut fields = TokenStream::new();
     type_attr.data.map_struct_fields(|field| {
         let Some(field_name) = field.ident else {
-            return
+            return;
         };
         if field_name == "r#type" || field_name == "uid" {
             return;
         }
 
         let Type::Path(type_path) = field.ty else {
-            return
+            return;
         };
-        let Some(PathSegment{ident: field_type,..}) = type_path.path.segments.last() else {
-           return
+        let Some(PathSegment {
+            ident: field_type, ..
+        }) = type_path.path.segments.last()
+        else {
+            return;
         };
 
         // The tokens needed to strip the field

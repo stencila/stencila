@@ -1,0 +1,31 @@
+title: ObjectHint
+'@id': stencila:ObjectHint
+nick: obh
+extends: Entity
+category: data
+description: A hint to the structure of an `Object`.
+required:
+  - length
+  - keys
+  - values
+properties:
+  length:
+    "@id": stencila:length
+    description: The number of entries in the object.
+    $comment: |
+      For large object with many entries, to save space, `keys` and `values` may not be
+      complete (i.e. they may have lengths less than this `length` property).
+    type: integer
+    minimum: 0
+  keys:
+    '@id': stencila:keys
+    description: The keys of the object's entries.
+    type: array
+    items:
+      type: string
+  values:
+    '@id': stencila:values
+    description: Hints to the values of the object's entries.
+    type: array
+    items:
+      $ref: Hint

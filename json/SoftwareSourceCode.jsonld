@@ -83,6 +83,12 @@
           "@id": "stencila:Button"
         },
         {
+          "@id": "stencila:DatatableColumn"
+        },
+        {
+          "@id": "stencila:DatatableColumnHint"
+        },
+        {
           "@id": "stencila:Directory"
         },
         {
@@ -506,6 +512,9 @@
         },
         {
           "@id": "stencila:CodeStatic"
+        },
+        {
+          "@id": "stencila:Variable"
         }
       ],
       "schema:rangeIncludes": {

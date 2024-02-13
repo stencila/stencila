@@ -87,7 +87,7 @@ Create a new document
 * `-s`, `--source <SOURCE>` — The source file to import from
 * `-f`, `--format <FORMAT>` — The format of the source file
 
-  Possible values: `article`, `dom`, `html`, `jats`, `markdown`, `text`, `json`, `json5`, `json-ld`, `cbor`, `cbor-zst`, `yaml`, `gif`, `jpeg`, `png`, `svg`, `web-p`, `aac`, `flac`, `mp3`, `ogg`, `wav`, `avi`, `mkv`, `mp4`, `ogv`, `web-m`, `directory`, `debug`, `unknown`
+  Possible values: `article`, `dom`, `html`, `jats`, `markdown`, `text`, `bash`, `shell`, `java-script`, `python`, `r`, `rhai`, `json`, `json5`, `json-ld`, `cbor`, `cbor-zst`, `yaml`, `gif`, `jpeg`, `png`, `svg`, `web-p`, `aac`, `flac`, `mp3`, `ogg`, `wav`, `avi`, `mkv`, `mp4`, `ogv`, `web-m`, `directory`, `debug`, `unknown`
 
 * `--codec <CODEC>` — The codec to use to decode the source
 * `-o`, `--overwrite` — Overwrite the document if it already exists
@@ -432,7 +432,7 @@ Mainly intended for prompt engineering during development of Stencila.
 
   Default value: `config`
 
-  Possible values: `config`, `cache`, `assistants`
+  Possible values: `config`, `cache`, `assistants`, `kernels`
 
 * `--ensure`
 

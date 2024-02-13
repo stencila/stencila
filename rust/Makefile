@@ -32,16 +32,24 @@ fix:
 lint:
 	cargo clippy --workspace --tests
 
+# Setup before running tests
+test-setup:
+	# Optimistically install language packages optionally used for tests
+	- pip -q install numpy pandas matplotlib
+
 # Run tests
-test:
+test: test-setup	
+	# Run all the test in the workspace
 	cargo test --workspace --no-fail-fast -- --nocapture
+	
+	# Run proptests
 	# TODO: Reinstate proptest-low
 	# See https://github.com/stencila/stencila/issues/1924
 	make proptest-min proptest-high proptest-max
 
 # Run tests with coverage
 # Coverage is reported to ../lcov.info so it can be used by the VSCode Coverage Gutters extension
-cover:
+cover: test-setup
 	cargo llvm-cov clean --workspace 
 	
 	cargo llvm-cov test --workspace --no-report

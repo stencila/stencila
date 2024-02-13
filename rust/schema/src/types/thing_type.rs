@@ -17,7 +17,6 @@ use super::comment::Comment;
 use super::contact_point::ContactPoint;
 use super::creative_work::CreativeWork;
 use super::datatable::Datatable;
-use super::datatable_column::DatatableColumn;
 use super::defined_term::DefinedTerm;
 use super::enumeration::Enumeration;
 use super::execution_dependant_relation::ExecutionDependantRelation;
@@ -32,6 +31,7 @@ use super::label_type::LabelType;
 use super::list_item::ListItem;
 use super::list_order::ListOrder;
 use super::media_object::MediaObject;
+use super::message_level::MessageLevel;
 use super::monetary_grant::MonetaryGrant;
 use super::note_type::NoteType;
 use super::organization::Organization;
@@ -87,8 +87,6 @@ pub enum ThingType {
 
     Datatable(Datatable),
 
-    DatatableColumn(DatatableColumn),
-
     DefinedTerm(DefinedTerm),
 
     Enumeration(Enumeration),
@@ -116,6 +114,8 @@ pub enum ThingType {
     ListOrder(ListOrder),
 
     MediaObject(MediaObject),
+
+    MessageLevel(MessageLevel),
 
     MonetaryGrant(MonetaryGrant),
 

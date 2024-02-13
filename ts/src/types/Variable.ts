@@ -1,6 +1,7 @@
 // Generated file; do not edit. See https://github.com/stencila/stencila/tree/main/rust/schema-gen
 
 import { Entity } from "./Entity.js";
+import { Hint } from "./Hint.js";
 import { Node } from "./Node.js";
 
 /**
@@ -16,14 +17,29 @@ export class Variable extends Entity {
   name: string;
 
   /**
-   * The expected type of variable e.g. `Number`, `Timestamp`, `Datatable`
+   * The programming language that the variable is defined in e.g. Python, JSON.
    */
-  kind?: string;
+  programmingLanguage?: string;
+
+  /**
+   * The native type of the variable e.g. `float`, `datetime.datetime`, `pandas.DataFrame`
+   */
+  nativeType?: string;
+
+  /**
+   * The Stencila node type of the variable e.g. `Number`, `DateTime`, `Datatable`.
+   */
+  nodeType?: string;
 
   /**
    * The value of the variable.
    */
   value?: Node;
+
+  /**
+   * A hint of the value and/or structure of the variable.
+   */
+  hint?: Hint;
 
   constructor(name: string, options?: Partial<Variable>) {
     super();

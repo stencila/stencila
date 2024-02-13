@@ -24,7 +24,7 @@ impl MathInline {
         losses.merge(lost_options!(
             self.options,
             compilation_digest,
-            compilation_errors
+            compilation_messages
         ));
         (jats, losses)
     }
@@ -38,7 +38,7 @@ impl MarkdownCodec for MathInline {
             .merge_losses(lost_options!(
                 self.options,
                 compilation_digest,
-                compilation_errors,
+                compilation_messages,
                 mathml
             ));
 

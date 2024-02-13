@@ -1,0 +1,6 @@
+title: Unknown
+'@id': stencila:Unknown
+nick: unk
+extends: Entity
+category: data
+description: A type to indicate a value or or other type in unknown.

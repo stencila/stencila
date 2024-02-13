@@ -2,12 +2,12 @@
 
 import { AutomaticExecution } from "./AutomaticExecution.js";
 import { CompilationDigest } from "./CompilationDigest.js";
-import { CompilationError } from "./CompilationError.js";
+import { CompilationMessage } from "./CompilationMessage.js";
 import { Duration } from "./Duration.js";
 import { Entity } from "./Entity.js";
 import { ExecutionDependant } from "./ExecutionDependant.js";
 import { ExecutionDependency } from "./ExecutionDependency.js";
-import { ExecutionError } from "./ExecutionError.js";
+import { ExecutionMessage } from "./ExecutionMessage.js";
 import { ExecutionRequired } from "./ExecutionRequired.js";
 import { ExecutionStatus } from "./ExecutionStatus.js";
 import { ExecutionTag } from "./ExecutionTag.js";
@@ -32,9 +32,9 @@ export class Executable extends Entity {
   compilationDigest?: CompilationDigest;
 
   /**
-   * Errors generated when compiling the code.
+   * Messages generated while compiling the code.
    */
-  compilationErrors?: CompilationError[];
+  compilationMessages?: CompilationMessage[];
 
   /**
    * The `compilationDigest` of the node when it was last executed.
@@ -87,9 +87,9 @@ export class Executable extends Entity {
   executionDuration?: Duration;
 
   /**
-   * Errors when executing the node.
+   * Messages emitted while executing the node.
    */
-  executionErrors?: ExecutionError[];
+  executionMessages?: ExecutionMessage[];
 
   constructor(options?: Partial<Executable>) {
     super();

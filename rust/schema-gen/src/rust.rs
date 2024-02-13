@@ -70,7 +70,7 @@ const BOX_PROPERTIES: &[&str] = &[
 ];
 
 /// Properties which can not allow deserialization from one or many items
-const NO_ONE_OR_MANY: &[&str] = &["EnumValidator.values"];
+const NO_ONE_OR_MANY: &[&str] = &["DatatableColumn.values", "EnumValidator.values"];
 
 const KEYWORDS: &[&str; 52] = &[
     "as", "break", "const", "continue", "crate", "else", "enum", "extern", "false", "fn", "for",
@@ -353,9 +353,7 @@ pub enum NodeType {{
                     modifiers = Some(mods);
                 };
 
-                let Some(mods) = modifiers else {
-                        continue
-                    };
+                let Some(mods) = modifiers else { continue };
 
                 let mut args = Vec::new();
                 if let Some(filter) = &mods.filter {
@@ -552,9 +550,7 @@ pub enum NodeType {{
                             modifiers = Some(mods);
                         };
 
-                        let Some(mods) = modifiers else {
-                            continue
-                        };
+                        let Some(mods) = modifiers else { continue };
 
                         let mut args = Vec::new();
                         if let Some(strategy) = &mods.strategy {
@@ -892,9 +888,7 @@ impl {title} {{
                             modifiers = Some(mods);
                         };
 
-                        let Some(mods) = modifiers else {
-                            continue
-                        };
+                        let Some(mods) = modifiers else { continue };
 
                         let mut args = Vec::new();
                         if mods.skip {
@@ -1015,9 +1009,7 @@ impl {title} {{
                     modifiers = Some(mods);
                 };
 
-                let Some(mods) = modifiers else {
-                    continue
-                };
+                let Some(mods) = modifiers else { continue };
 
                 let mut args = Vec::new();
                 if let Some(filter) = &mods.filter {

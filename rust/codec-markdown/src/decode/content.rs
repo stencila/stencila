@@ -476,7 +476,7 @@ pub fn decode_blocks(
                                         }) = &block
                                         {
                                             if let (1, Some(Inline::ImageObject(..))) =
-                                                (inlines.len(), inlines.get(0))
+                                                (inlines.len(), inlines.first())
                                             {
                                                 content.push(block)
                                             } else {

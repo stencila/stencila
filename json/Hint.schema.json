@@ -1,0 +1,37 @@
+{
+  "$schema": "https://stencila.org/meta.schema.json",
+  "$id": "https://stencila.org/Hint.schema.json",
+  "@id": "stencila:Hint",
+  "title": "Hint",
+  "category": "data",
+  "description": "Union type for hints of the value and/or structure of data.",
+  "anyOf": [
+    {
+      "$ref": "ArrayHint.schema.json"
+    },
+    {
+      "$ref": "DatatableHint.schema.json"
+    },
+    {
+      "$ref": "Function.schema.json"
+    },
+    {
+      "$ref": "ObjectHint.schema.json"
+    },
+    {
+      "$ref": "StringHint.schema.json"
+    },
+    {
+      "$ref": "Unknown.schema.json"
+    },
+    {
+      "$ref": "Boolean.schema.json"
+    },
+    {
+      "$ref": "Integer.schema.json"
+    },
+    {
+      "$ref": "Number.schema.json"
+    }
+  ]
+}

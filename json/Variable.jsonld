@@ -30,6 +30,12 @@
           "@id": "stencila:Button"
         },
         {
+          "@id": "stencila:DatatableColumn"
+        },
+        {
+          "@id": "stencila:DatatableColumnHint"
+        },
+        {
           "@id": "stencila:Directory"
         },
         {
@@ -56,10 +62,48 @@
       }
     },
     {
-      "@id": "stencila:kind",
+      "@id": "schema:programmingLanguage",
       "@type": "rdfs:Property",
-      "rdfs:label": "kind",
-      "rdfs:comment": "The expected type of variable e.g. `Number`, `Timestamp`, `Datatable`",
+      "rdfs:label": "programmingLanguage",
+      "rdfs:comment": "The programming language that the variable is defined in e.g. Python, JSON.",
+      "schema:domainIncludes": [
+        {
+          "@id": "schema:SoftwareSourceCode"
+        },
+        {
+          "@id": "stencila:CallArgument"
+        },
+        {
+          "@id": "stencila:CodeExecutable"
+        },
+        {
+          "@id": "stencila:CodeStatic"
+        },
+        {
+          "@id": "stencila:Variable"
+        }
+      ],
+      "schema:rangeIncludes": {
+        "@id": "schema:Text"
+      }
+    },
+    {
+      "@id": "stencila:nativeType",
+      "@type": "rdfs:Property",
+      "rdfs:label": "nativeType",
+      "rdfs:comment": "The native type of the variable e.g. `float`, `datetime.datetime`, `pandas.DataFrame`",
+      "schema:domainIncludes": {
+        "@id": "stencila:Variable"
+      },
+      "schema:rangeIncludes": {
+        "@id": "schema:Text"
+      }
+    },
+    {
+      "@id": "stencila:nodeType",
+      "@type": "rdfs:Property",
+      "rdfs:label": "nodeType",
+      "rdfs:comment": "The Stencila node type of the variable e.g. `Number`, `DateTime`, `Datatable`.",
       "schema:domainIncludes": {
         "@id": "stencila:Variable"
       },
@@ -113,6 +157,18 @@
           "@id": "stencila:Variable"
         }
       ]
+    },
+    {
+      "@id": "stencila:hint",
+      "@type": "rdfs:Property",
+      "rdfs:label": "hint",
+      "rdfs:comment": "A hint of the value and/or structure of the variable.",
+      "schema:domainIncludes": {
+        "@id": "stencila:Variable"
+      },
+      "schema:rangeIncludes": {
+        "@id": "stencila:Hint"
+      }
     }
   ]
 }

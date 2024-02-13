@@ -8,7 +8,7 @@ on:
   workflow_dispatch: {}
 
 env:
-  RUST_VERSION: "1.71.0"
+  RUST_VERSION: "1.76.0"
   CARGO_TERM_COLOR: always
   NODE_VERSION: "20"
   PYTHON_VERSION: "3.11"
@@ -60,7 +60,7 @@ jobs:
         if: github.ref == 'refs/heads/main'
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
-          commit_message: "chore(*): Update benchmark data"
+          commit_message: "chore(*): update benchmark data"
 
       - name: Trigger pages workflow
         run: gh workflow run pages.yml

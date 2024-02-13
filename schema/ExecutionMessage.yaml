@@ -1,0 +1,42 @@
+title: ExecutionMessage
+'@id': stencila:ExecutionMessage
+nick: exm
+extends: Entity
+category: code
+status: alpha
+description: An error, warning or log message generated during execution.
+required:
+  - level
+  - message
+core:
+  - errorType
+  - codeLocation
+  - stackTrace
+properties:
+  level:
+    '@id': stencila:level
+    description: The severity level of the message.
+    $ref: MessageLevel
+  message:
+    '@id': stencila:message
+    description: The text of the message.
+    type: string
+  errorType:
+    '@id': stencila:errorType
+    description: The type of error e.g. "SyntaxError", "ZeroDivisionError".
+    $comment: |
+      Many languages have the concept of alternative types of errors.
+      For example, Python has various [classes of exceptions](https://docs.python.org/3/tutorial/errors.html).
+      This property is intended to be used for storing these type names as additional
+      information that maybe useful to the user attempting to resolve the error.
+    type: string
+  codeLocation:
+    '@id': stencila:codeLocation
+    description: The location that the error occurred or other message emanated from.
+    $ref: CodeLocation
+  stackTrace:
+    '@id': stencila:stackTrace
+    aliases:
+      - trace
+    description: Stack trace leading up to the error.
+    type: string

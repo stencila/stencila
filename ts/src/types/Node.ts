@@ -4,6 +4,7 @@ import { hydrate } from "../hydrate.js";
 
 import { type Admonition } from "./Admonition.js";
 import { type Array } from "./Array.js";
+import { type ArrayHint } from "./ArrayHint.js";
 import { type ArrayValidator } from "./ArrayValidator.js";
 import { type Article } from "./Article.js";
 import { type AudioObject } from "./AudioObject.js";
@@ -24,13 +25,15 @@ import { type CodeLocation } from "./CodeLocation.js";
 import { type Collection } from "./Collection.js";
 import { type Comment } from "./Comment.js";
 import { type CompilationDigest } from "./CompilationDigest.js";
-import { type CompilationError } from "./CompilationError.js";
+import { type CompilationMessage } from "./CompilationMessage.js";
 import { type ConstantValidator } from "./ConstantValidator.js";
 import { type ContactPoint } from "./ContactPoint.js";
 import { type Cord } from "./Cord.js";
 import { type CreativeWork } from "./CreativeWork.js";
 import { type Datatable } from "./Datatable.js";
 import { type DatatableColumn } from "./DatatableColumn.js";
+import { type DatatableColumnHint } from "./DatatableColumnHint.js";
+import { type DatatableHint } from "./DatatableHint.js";
 import { type Date } from "./Date.js";
 import { type DateTime } from "./DateTime.js";
 import { type DateTimeValidator } from "./DateTimeValidator.js";
@@ -46,7 +49,7 @@ import { type EnumValidator } from "./EnumValidator.js";
 import { type Enumeration } from "./Enumeration.js";
 import { type ExecutionDependant } from "./ExecutionDependant.js";
 import { type ExecutionDependency } from "./ExecutionDependency.js";
-import { type ExecutionError } from "./ExecutionError.js";
+import { type ExecutionMessage } from "./ExecutionMessage.js";
 import { type ExecutionTag } from "./ExecutionTag.js";
 import { type Figure } from "./Figure.js";
 import { type File } from "./File.js";
@@ -79,6 +82,7 @@ import { type MonetaryGrant } from "./MonetaryGrant.js";
 import { type Note } from "./Note.js";
 import { type NumberValidator } from "./NumberValidator.js";
 import { type Object } from "./Object.js";
+import { type ObjectHint } from "./ObjectHint.js";
 import { type Organization } from "./Organization.js";
 import { type Paragraph } from "./Paragraph.js";
 import { type Parameter } from "./Parameter.js";
@@ -98,6 +102,7 @@ import { type Section } from "./Section.js";
 import { type SoftwareApplication } from "./SoftwareApplication.js";
 import { type SoftwareSourceCode } from "./SoftwareSourceCode.js";
 import { type Strikeout } from "./Strikeout.js";
+import { type StringHint } from "./StringHint.js";
 import { type StringOperation } from "./StringOperation.js";
 import { type StringPatch } from "./StringPatch.js";
 import { type StringValidator } from "./StringValidator.js";
@@ -118,6 +123,7 @@ import { type Timestamp } from "./Timestamp.js";
 import { type TimestampValidator } from "./TimestampValidator.js";
 import { type TupleValidator } from "./TupleValidator.js";
 import { type Underline } from "./Underline.js";
+import { type Unknown } from "./Unknown.js";
 import { type UnsignedInteger } from "./UnsignedInteger.js";
 import { type Variable } from "./Variable.js";
 import { type VideoObject } from "./VideoObject.js";
@@ -135,6 +141,7 @@ export type Node =
   Cord |
   Array |
   Admonition |
+  ArrayHint |
   ArrayValidator |
   Article |
   AudioObject |
@@ -155,12 +162,14 @@ export type Node =
   Collection |
   Comment |
   CompilationDigest |
-  CompilationError |
+  CompilationMessage |
   ConstantValidator |
   ContactPoint |
   CreativeWork |
   Datatable |
   DatatableColumn |
+  DatatableColumnHint |
+  DatatableHint |
   Date |
   DateTime |
   DateTimeValidator |
@@ -176,7 +185,7 @@ export type Node =
   Enumeration |
   ExecutionDependant |
   ExecutionDependency |
-  ExecutionError |
+  ExecutionMessage |
   ExecutionTag |
   Figure |
   File |
@@ -207,6 +216,7 @@ export type Node =
   MonetaryGrant |
   Note |
   NumberValidator |
+  ObjectHint |
   Organization |
   Paragraph |
   Parameter |
@@ -226,6 +236,7 @@ export type Node =
   SoftwareApplication |
   SoftwareSourceCode |
   Strikeout |
+  StringHint |
   StringOperation |
   StringPatch |
   StringValidator |
@@ -246,6 +257,7 @@ export type Node =
   TimestampValidator |
   TupleValidator |
   Underline |
+  Unknown |
   Variable |
   VideoObject |
   Object;
@@ -259,6 +271,7 @@ export function node(other: Node): Node {
   }
   switch(other.type) {
     case "Admonition":
+    case "ArrayHint":
     case "ArrayValidator":
     case "Article":
     case "AudioObject":
@@ -279,12 +292,14 @@ export function node(other: Node): Node {
     case "Collection":
     case "Comment":
     case "CompilationDigest":
-    case "CompilationError":
+    case "CompilationMessage":
     case "ConstantValidator":
     case "ContactPoint":
     case "CreativeWork":
     case "Datatable":
     case "DatatableColumn":
+    case "DatatableColumnHint":
+    case "DatatableHint":
     case "Date":
     case "DateTime":
     case "DateTimeValidator":
@@ -300,7 +315,7 @@ export function node(other: Node): Node {
     case "Enumeration":
     case "ExecutionDependant":
     case "ExecutionDependency":
-    case "ExecutionError":
+    case "ExecutionMessage":
     case "ExecutionTag":
     case "Figure":
     case "File":
@@ -331,6 +346,7 @@ export function node(other: Node): Node {
     case "MonetaryGrant":
     case "Note":
     case "NumberValidator":
+    case "ObjectHint":
     case "Organization":
     case "Paragraph":
     case "Parameter":
@@ -350,6 +366,7 @@ export function node(other: Node): Node {
     case "SoftwareApplication":
     case "SoftwareSourceCode":
     case "Strikeout":
+    case "StringHint":
     case "StringOperation":
     case "StringPatch":
     case "StringValidator":
@@ -370,6 +387,7 @@ export function node(other: Node): Node {
     case "TimestampValidator":
     case "TupleValidator":
     case "Underline":
+    case "Unknown":
     case "Variable":
     case "VideoObject":
       return hydrate(other) as Node

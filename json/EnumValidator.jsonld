@@ -28,6 +28,9 @@
         },
         {
           "@id": "stencila:EnumValidator"
+        },
+        {
+          "@id": "stencila:ObjectHint"
         }
       ]
     }
