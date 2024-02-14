@@ -43,7 +43,7 @@ pub struct Cli {
     /// syntax such as `tokio=debug`.
     #[arg(
         long,
-        default_value = "hyper=info,mio=info,reqwest=info,tokio=info,tungstenite=info",
+        default_value = "hyper=info,mio=info,ort=error,reqwest=info,tokio=info,tungstenite=info",
         global = true
     )]
     pub log_filter: String,
