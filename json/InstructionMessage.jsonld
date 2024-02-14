@@ -1,6 +1,6 @@
 {
-  "@id": "https://stencila.org/Message",
-  "name": "Message",
+  "@id": "https://stencila.org/InstructionMessage",
+  "name": "InstructionMessage",
   "license": "https://creativecommons.org/publicdomain/zero/1.0/",
   "@context": {
     "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
@@ -9,10 +9,10 @@
   },
   "@graph": [
     {
-      "@id": "schema:Message",
+      "@id": "stencila:InstructionMessage",
       "@type": "rdfs:Class",
-      "rdfs:label": "Message",
-      "rdfs:comment": "A message from a sender to one or more people, organizations or software application.",
+      "rdfs:label": "InstructionMessage",
+      "rdfs:comment": "A message within an `Instruction`.",
       "rdfs:subClassOf": {
         "@id": "stencila:Entity"
       }
@@ -27,10 +27,10 @@
           "@id": "schema:CreativeWork"
         },
         {
-          "@id": "schema:Message"
+          "@id": "stencila:Directory"
         },
         {
-          "@id": "stencila:Directory"
+          "@id": "stencila:InstructionMessage"
         }
       ],
       "schema:rangeIncludes": {
@@ -54,9 +54,6 @@
         },
         {
           "@id": "schema:ListItem"
-        },
-        {
-          "@id": "schema:Message"
         },
         {
           "@id": "stencila:Admonition"
@@ -87,6 +84,9 @@
         },
         {
           "@id": "stencila:InstructionInline"
+        },
+        {
+          "@id": "stencila:InstructionMessage"
         },
         {
           "@id": "stencila:Link"
@@ -139,9 +139,6 @@
           "@id": "schema:ItemList"
         },
         {
-          "@id": "schema:Message"
-        },
-        {
           "@id": "stencila:Admonition"
         },
         {
@@ -158,6 +155,9 @@
         },
         {
           "@id": "stencila:Instruction"
+        },
+        {
+          "@id": "stencila:InstructionMessage"
         },
         {
           "@id": "stencila:Math"
@@ -191,9 +191,6 @@
       "rdfs:comment": "The severity level of the message.",
       "schema:domainIncludes": [
         {
-          "@id": "schema:Message"
-        },
-        {
           "@id": "stencila:CompilationMessage"
         },
         {
@@ -201,6 +198,9 @@
         },
         {
           "@id": "stencila:Heading"
+        },
+        {
+          "@id": "stencila:InstructionMessage"
         }
       ],
       "schema:rangeIncludes": {

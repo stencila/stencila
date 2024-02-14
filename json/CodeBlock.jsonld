@@ -82,9 +82,6 @@
           "@id": "schema:ItemList"
         },
         {
-          "@id": "schema:Message"
-        },
-        {
           "@id": "stencila:Admonition"
         },
         {
@@ -101,6 +98,9 @@
         },
         {
           "@id": "stencila:Instruction"
+        },
+        {
+          "@id": "stencila:InstructionMessage"
         },
         {
           "@id": "stencila:Math"

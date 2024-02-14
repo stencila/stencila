@@ -66,6 +66,7 @@ import { type InsertBlock } from "./InsertBlock.js";
 import { type InsertInline } from "./InsertInline.js";
 import { type InstructionBlock } from "./InstructionBlock.js";
 import { type InstructionInline } from "./InstructionInline.js";
+import { type InstructionMessage } from "./InstructionMessage.js";
 import { type Integer } from "./Integer.js";
 import { type IntegerValidator } from "./IntegerValidator.js";
 import { type Link } from "./Link.js";
@@ -74,7 +75,6 @@ import { type ListItem } from "./ListItem.js";
 import { type MathBlock } from "./MathBlock.js";
 import { type MathInline } from "./MathInline.js";
 import { type MediaObject } from "./MediaObject.js";
-import { type Message } from "./Message.js";
 import { type ModifyBlock } from "./ModifyBlock.js";
 import { type ModifyInline } from "./ModifyInline.js";
 import { type ModifyOperation } from "./ModifyOperation.js";
@@ -202,6 +202,7 @@ export type Node =
   InsertInline |
   InstructionBlock |
   InstructionInline |
+  InstructionMessage |
   IntegerValidator |
   Link |
   List |
@@ -209,7 +210,6 @@ export type Node =
   MathBlock |
   MathInline |
   MediaObject |
-  Message |
   ModifyBlock |
   ModifyInline |
   ModifyOperation |
@@ -332,6 +332,7 @@ export function node(other: Node): Node {
     case "InsertInline":
     case "InstructionBlock":
     case "InstructionInline":
+    case "InstructionMessage":
     case "IntegerValidator":
     case "Link":
     case "List":
@@ -339,7 +340,6 @@ export function node(other: Node): Node {
     case "MathBlock":
     case "MathInline":
     case "MediaObject":
-    case "Message":
     case "ModifyBlock":
     case "ModifyInline":
     case "ModifyOperation":

@@ -88,10 +88,10 @@
           "@id": "schema:CreativeWork"
         },
         {
-          "@id": "schema:Message"
+          "@id": "stencila:Directory"
         },
         {
-          "@id": "stencila:Directory"
+          "@id": "stencila:InstructionMessage"
         }
       ],
       "schema:rangeIncludes": [

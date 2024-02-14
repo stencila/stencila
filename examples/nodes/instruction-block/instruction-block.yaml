@@ -2,20 +2,20 @@ type: Article
 content:
 - type: InstructionBlock
   messages:
-  - type: Message
+  - type: InstructionMessage
     parts:
     - type: Text
       value: 4x10 table
 - type: InstructionBlock
   messages:
-  - type: Message
+  - type: InstructionMessage
     parts:
     - type: Text
       value: top five highest mountains, with height in metres
   assignee: insert-table
 - type: InstructionBlock
   messages:
-  - type: Message
+  - type: InstructionMessage
     parts:
     - type: Text
       value: Improve this paragraph.
@@ -26,7 +26,7 @@ content:
       value: Target paragraph.
 - type: InstructionBlock
   messages:
-  - type: Message
+  - type: InstructionMessage
     parts:
     - type: Text
       value: please improve this paragraph.

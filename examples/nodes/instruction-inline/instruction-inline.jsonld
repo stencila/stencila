@@ -16,7 +16,7 @@
           "@type": "stencila:InstructionInline",
           "stencila:messages": [
             {
-              "@type": "Message",
+              "@type": "stencila:InstructionMessage",
               "hasParts": [
                 {
                   "@type": "Text",
@@ -43,7 +43,7 @@
           "@type": "stencila:InstructionInline",
           "stencila:messages": [
             {
-              "@type": "Message",
+              "@type": "stencila:InstructionMessage",
               "hasParts": [
                 {
                   "@type": "Text",
@@ -76,7 +76,7 @@
           "@type": "stencila:InstructionInline",
           "stencila:messages": [
             {
-              "@type": "Message",
+              "@type": "stencila:InstructionMessage",
               "hasParts": [
                 {
                   "@type": "Text",
@@ -95,7 +95,7 @@
           "@type": "stencila:InstructionInline",
           "stencila:messages": [
             {
-              "@type": "Message",
+              "@type": "stencila:InstructionMessage",
               "hasParts": [
                 {
                   "@type": "Text",

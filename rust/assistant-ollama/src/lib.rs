@@ -17,7 +17,7 @@ use assistant::{
         tracing,
     },
     schema::{ImageObject, MessagePart},
-    Assistant, AssistantIO, GenerateOptions, GenerateOutput, GenerateTask, InstructionMessage,
+    Assistant, AssistantIO, GenerateOptions, GenerateOutput, GenerateTask, IsAssistantMessage,
 };
 
 /// An assistant running on a Ollama (https://github.com/jmorganca/ollama/) server

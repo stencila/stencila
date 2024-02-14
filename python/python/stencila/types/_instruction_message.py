@@ -10,12 +10,12 @@ from ._person_or_organization_or_software_application import PersonOrOrganizatio
 
 
 @dataclass(init=False)
-class Message(Entity):
+class InstructionMessage(Entity):
     """
-    A message from a sender to one or more people, organizations or software application.
+    A message within an `Instruction`.
     """
 
-    type: Literal["Message"] = field(default="Message", init=False)
+    type: Literal["InstructionMessage"] = field(default="InstructionMessage", init=False)
 
     parts: List[MessagePart]
     """Parts of the message."""

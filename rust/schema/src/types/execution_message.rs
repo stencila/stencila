@@ -47,7 +47,7 @@ pub struct ExecutionMessage {
 }
 
 impl ExecutionMessage {
-    const NICK: &'static str = "exm";
+    const NICK: &'static str = "eme";
     
     pub fn node_type(&self) -> NodeType {
         NodeType::ExecutionMessage

@@ -6,7 +6,7 @@ content:
     value: 'A paragraph with an instruction to insert content '
   - type: InstructionInline
     messages:
-    - type: Message
+    - type: InstructionMessage
       parts:
       - type: Text
         value: insert an inline
@@ -18,7 +18,7 @@ content:
     value: 'A paragraph with an instruction to edit some existing content: '
   - type: InstructionInline
     messages:
-    - type: Message
+    - type: InstructionMessage
       parts:
       - type: Text
         value: improve this
@@ -33,7 +33,7 @@ content:
     value: 'Instructions with an assignee: '
   - type: InstructionInline
     messages:
-    - type: Message
+    - type: InstructionMessage
       parts:
       - type: Text
         value: equation for surface area of cube
@@ -42,7 +42,7 @@ content:
     value: ' and '
   - type: InstructionInline
     messages:
-    - type: Message
+    - type: InstructionMessage
       parts:
       - type: Text
         value: please improve this

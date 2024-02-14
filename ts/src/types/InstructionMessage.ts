@@ -7,11 +7,11 @@ import { MessagePart } from "./MessagePart.js";
 import { PersonOrOrganizationOrSoftwareApplication } from "./PersonOrOrganizationOrSoftwareApplication.js";
 
 /**
- * A message from a sender to one or more people, organizations or software application.
+ * A message within an `Instruction`.
  */
-export class Message extends Entity {
+export class InstructionMessage extends Entity {
   // @ts-expect-error 'not assignable to the same property in base type'
-  type: "Message";
+  type: "InstructionMessage";
 
   /**
    * Parts of the message.
@@ -33,17 +33,17 @@ export class Message extends Entity {
    */
   level?: MessageLevel;
 
-  constructor(parts: MessagePart[], options?: Partial<Message>) {
+  constructor(parts: MessagePart[], options?: Partial<InstructionMessage>) {
     super();
-    this.type = "Message";
+    this.type = "InstructionMessage";
     if (options) Object.assign(this, options);
     this.parts = parts;
   }
 }
 
 /**
-* Create a new `Message`
+* Create a new `InstructionMessage`
 */
-export function message(parts: MessagePart[], options?: Partial<Message>): Message {
-  return new Message(parts, options);
+export function instructionMessage(parts: MessagePart[], options?: Partial<InstructionMessage>): InstructionMessage {
+  return new InstructionMessage(parts, options);
 }

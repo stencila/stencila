@@ -22,7 +22,7 @@ use assistant::{
         tracing,
     },
     schema::{ImageObject, MessagePart},
-    Assistant, AssistantIO, GenerateOptions, GenerateOutput, GenerateTask, InstructionMessage,
+    Assistant, AssistantIO, GenerateOptions, GenerateOutput, GenerateTask, IsAssistantMessage,
 };
 
 const API_KEY: &str = "OPENAI_API_KEY";

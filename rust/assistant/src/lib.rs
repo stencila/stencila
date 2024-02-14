@@ -27,8 +27,8 @@ use schema::{
     },
     walk::{VisitorMut, WalkNode},
     Article, AudioObject, AuthorRole, AuthorRoleName, Block, ImageObject, Inline, InsertBlock,
-    InsertInline, InstructionBlock, InstructionInline, Link, Message, MessagePart, Node, NodeType,
-    Organization, OrganizationOptions, PersonOrOrganization,
+    InsertInline, InstructionBlock, InstructionInline, InstructionMessage, Link, MessagePart, Node,
+    NodeType, Organization, OrganizationOptions, PersonOrOrganization,
     PersonOrOrganizationOrSoftwareApplication, ReplaceBlock, ReplaceInline, SoftwareApplication,
     SoftwareApplicationOptions, StringOrNumber, SuggestionBlockType, SuggestionInlineType,
     VideoObject,
@@ -77,7 +77,7 @@ impl Instruction {
     /// Create an inline instruction from some text
     pub fn inline_text<S: AsRef<str>>(text: S) -> Self {
         Instruction::Inline(InstructionInline {
-            messages: vec![Message {
+            messages: vec![InstructionMessage {
                 parts: vec![MessagePart::Text(text.into())],
                 ..Default::default()
             }],
@@ -91,7 +91,7 @@ impl Instruction {
         content: C,
     ) -> Self {
         Instruction::Inline(InstructionInline {
-            messages: vec![Message {
+            messages: vec![InstructionMessage {
                 parts: vec![MessagePart::Text(text.into())],
                 ..Default::default()
             }],
@@ -103,7 +103,7 @@ impl Instruction {
     /// Create a block instruction from some text
     pub fn block_text<S: AsRef<str>>(text: S) -> Self {
         Instruction::Block(InstructionBlock {
-            messages: vec![Message {
+            messages: vec![InstructionMessage {
                 parts: vec![MessagePart::Text(text.into())],
                 ..Default::default()
             }],
@@ -117,7 +117,7 @@ impl Instruction {
         content: C,
     ) -> Self {
         Instruction::Block(InstructionBlock {
-            messages: vec![Message {
+            messages: vec![InstructionMessage {
                 parts: vec![MessagePart::Text(text.into())],
                 ..Default::default()
             }],
@@ -135,7 +135,7 @@ impl Instruction {
     }
 
     /// Get the messages of the instruction
-    pub fn messages(&self) -> &Vec<Message> {
+    pub fn messages(&self) -> &Vec<InstructionMessage> {
         match self {
             Instruction::Block(block) => &block.messages,
             Instruction::Inline(inline) => &inline.messages,
@@ -206,13 +206,13 @@ impl From<&Instruction> for InstructionType {
     }
 }
 
-/// A trait to determine if a [`Message`] in an instruction is from an
+/// A trait to determine if a [`InstructionMessage`] in an instruction is from an
 /// assistant, based on its `authors`
-pub trait InstructionMessage {
+pub trait IsAssistantMessage {
     fn is_assistant(&self) -> bool;
 }
 
-impl InstructionMessage for Message {
+impl IsAssistantMessage for InstructionMessage {
     fn is_assistant(&self) -> bool {
         self.authors.iter().flatten().any(|author| {
             matches!(
@@ -390,7 +390,7 @@ impl<'doc> GenerateTask<'doc> {
     }
 
     /// Get the messages of the task
-    pub fn instruction_messages(&self) -> impl Iterator<Item = &Message> {
+    pub fn instruction_messages(&self) -> impl Iterator<Item = &InstructionMessage> {
         self.instruction.messages().iter()
     }
 
@@ -853,7 +853,7 @@ impl GenerateOutput {
 
     /// Create a `Message` from the output that can be added to the `messages` property
     /// of the instruction
-    pub fn to_message(&self) -> Message {
+    pub fn to_message(&self) -> InstructionMessage {
         let authors = if let Some(prompter) = &self.prompter {
             vec![prompter.clone(), self.generator.clone()]
         } else {
@@ -882,7 +882,7 @@ impl GenerateOutput {
 
         let content = Some(self.nodes.clone().into_blocks());
 
-        Message {
+        InstructionMessage {
             authors,
             parts,
             content,
@@ -1191,11 +1191,11 @@ pub fn test_task_repeat_word<'lt>() -> GenerateTask<'lt> {
         ),
         instruction: Instruction::from(InstructionInline {
             messages: vec![
-                Message {
+                InstructionMessage {
                     parts: vec![MessagePart::Text("Say the word \"Hello\".".into())],
                     ..Default::default()
                 },
-                Message {
+                InstructionMessage {
                     authors: Some(vec![
                         PersonOrOrganizationOrSoftwareApplication::SoftwareApplication(
                             SoftwareApplication::default(),
@@ -1204,7 +1204,7 @@ pub fn test_task_repeat_word<'lt>() -> GenerateTask<'lt> {
                     parts: vec![MessagePart::Text("Hello".into())],
                     ..Default::default()
                 },
-                Message {
+                InstructionMessage {
                     parts: vec![MessagePart::Text("Repeat the word.".into())],
                     ..Default::default()
                 },

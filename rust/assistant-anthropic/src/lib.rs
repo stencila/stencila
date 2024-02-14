@@ -7,7 +7,7 @@ use anthropic::{
 use assistant::{
     common::{async_trait::async_trait, eyre::Result, itertools::Itertools, tracing},
     schema::MessagePart,
-    Assistant, AssistantIO, GenerateOptions, GenerateOutput, GenerateTask, InstructionMessage,
+    Assistant, AssistantIO, GenerateOptions, GenerateOutput, GenerateTask, IsAssistantMessage,
 };
 
 const API_KEY: &str = "ANTHROPIC_API_KEY";

@@ -160,9 +160,6 @@
           "@id": "schema:ItemList"
         },
         {
-          "@id": "schema:Message"
-        },
-        {
           "@id": "stencila:Admonition"
         },
         {
@@ -179,6 +176,9 @@
         },
         {
           "@id": "stencila:Instruction"
+        },
+        {
+          "@id": "stencila:InstructionMessage"
         },
         {
           "@id": "stencila:Math"
@@ -410,10 +410,10 @@
           "@id": "schema:CreativeWork"
         },
         {
-          "@id": "schema:Message"
+          "@id": "stencila:Directory"
         },
         {
-          "@id": "stencila:Directory"
+          "@id": "stencila:InstructionMessage"
         }
       ]
     },
@@ -514,9 +514,6 @@
           "@id": "schema:ListItem"
         },
         {
-          "@id": "schema:Message"
-        },
-        {
           "@id": "stencila:Admonition"
         },
         {
@@ -545,6 +542,9 @@
         },
         {
           "@id": "stencila:InstructionInline"
+        },
+        {
+          "@id": "stencila:InstructionMessage"
         },
         {
           "@id": "stencila:Link"

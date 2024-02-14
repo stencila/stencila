@@ -67,6 +67,7 @@ use super::insert_block::InsertBlock;
 use super::insert_inline::InsertInline;
 use super::instruction_block::InstructionBlock;
 use super::instruction_inline::InstructionInline;
+use super::instruction_message::InstructionMessage;
 use super::integer::Integer;
 use super::integer_validator::IntegerValidator;
 use super::link::Link;
@@ -75,7 +76,6 @@ use super::list_item::ListItem;
 use super::math_block::MathBlock;
 use super::math_inline::MathInline;
 use super::media_object::MediaObject;
-use super::message::Message;
 use super::modify_block::ModifyBlock;
 use super::modify_inline::ModifyInline;
 use super::modify_operation::ModifyOperation;
@@ -277,6 +277,8 @@ pub enum Node {
 
     InstructionInline(InstructionInline),
 
+    InstructionMessage(InstructionMessage),
+
     IntegerValidator(IntegerValidator),
 
     Link(Link),
@@ -290,8 +292,6 @@ pub enum Node {
     MathInline(MathInline),
 
     MediaObject(MediaObject),
-
-    Message(Message),
 
     ModifyBlock(ModifyBlock),
 

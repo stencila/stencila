@@ -2,7 +2,7 @@
 
 import { Author } from "./Author.js";
 import { Executable } from "./Executable.js";
-import { Message } from "./Message.js";
+import { InstructionMessage } from "./InstructionMessage.js";
 
 /**
  * Abstract base type for a document editing instruction.
@@ -14,7 +14,7 @@ export class Instruction extends Executable {
   /**
    * Messages involved in the instruction.
    */
-  messages: Message[];
+  messages: InstructionMessage[];
 
   /**
    * A list of candidates for the assignee property.
@@ -31,7 +31,7 @@ export class Instruction extends Executable {
    */
   authors?: Author[];
 
-  constructor(messages: Message[], options?: Partial<Instruction>) {
+  constructor(messages: InstructionMessage[], options?: Partial<Instruction>) {
     super();
     this.type = "Instruction";
     if (options) Object.assign(this, options);
@@ -42,6 +42,6 @@ export class Instruction extends Executable {
 /**
 * Create a new `Instruction`
 */
-export function instruction(messages: Message[], options?: Partial<Instruction>): Instruction {
+export function instruction(messages: InstructionMessage[], options?: Partial<Instruction>): Instruction {
   return new Instruction(messages, options);
 }

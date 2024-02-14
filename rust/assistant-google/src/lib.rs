@@ -13,7 +13,7 @@ use assistant::{
         tracing,
     },
     schema::{ImageObject, MessagePart},
-    Assistant, AssistantIO, GenerateOptions, GenerateOutput, GenerateTask, InstructionMessage,
+    Assistant, AssistantIO, GenerateOptions, GenerateOutput, GenerateTask, IsAssistantMessage,
 };
 
 const BASE_URL: &str = "https://generativelanguage.googleapis.com/v1";

@@ -30,7 +30,7 @@ use assistant::{
     },
     deserialize_option_regex,
     merge::Merge,
-    schema::Message,
+    schema::InstructionMessage,
     Assistant, AssistantIO, Embeddings, GenerateOptions, GenerateOutput, GenerateTask, Instruction,
     InstructionType,
 };
@@ -635,7 +635,7 @@ impl Assistant for SpecializedAssistant {
 
                         // Add the error to the instruction messages so that the assistant
                         // can use it to try to correct
-                        let message = Message {
+                        let message = InstructionMessage {
                             parts: vec![MessagePart::Text(format!("Error: {error}").into())],
                             ..Default::default()
                         };

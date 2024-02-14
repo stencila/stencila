@@ -13,7 +13,7 @@ use assistant::{
         tracing,
     },
     schema::MessagePart,
-    Assistant, AssistantIO, GenerateOptions, GenerateOutput, GenerateTask, InstructionMessage,
+    Assistant, AssistantIO, GenerateOptions, GenerateOutput, GenerateTask, IsAssistantMessage,
 };
 
 const BASE_URL: &str = "https://api.mistral.ai/v1";

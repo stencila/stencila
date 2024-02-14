@@ -254,7 +254,7 @@
       },
       "type": "array",
       "items": {
-        "$ref": "Message.schema.json"
+        "$ref": "InstructionMessage.schema.json"
       }
     },
     "candidates": {

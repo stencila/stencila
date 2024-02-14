@@ -8,16 +8,16 @@ use super::message_part::MessagePart;
 use super::person_or_organization_or_software_application::PersonOrOrganizationOrSoftwareApplication;
 use super::string::String;
 
-/// A message from a sender to one or more people, organizations or software application.
+/// A message within an `Instruction`.
 #[skip_serializing_none]
 #[serde_as]
 #[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, WalkNode, WriteNode, ReadNode, DomCodec, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 #[derive(derive_more::Display)]
-#[display(fmt = "Message")]
-pub struct Message {
+#[display(fmt = "InstructionMessage")]
+pub struct InstructionMessage {
     /// The type of this item.
-    pub r#type: MustBe!("Message"),
+    pub r#type: MustBe!("InstructionMessage"),
 
     /// The identifier for this item.
     #[strip(metadata)]
@@ -46,7 +46,7 @@ pub struct Message {
     #[serde(flatten)]
     #[html(flatten)]
     #[jats(flatten)]
-    pub options: Box<MessageOptions>,
+    pub options: Box<InstructionMessageOptions>,
 
     /// A unique identifier for a node within a document
     
@@ -58,16 +58,16 @@ pub struct Message {
 #[serde_as]
 #[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, WalkNode, WriteNode, ReadNode, DomCodec, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
-pub struct MessageOptions {
+pub struct InstructionMessageOptions {
     /// The severity level of the message.
     pub level: Option<MessageLevel>,
 }
 
-impl Message {
-    const NICK: &'static str = "msg";
+impl InstructionMessage {
+    const NICK: &'static str = "ime";
     
     pub fn node_type(&self) -> NodeType {
-        NodeType::Message
+        NodeType::InstructionMessage
     }
 
     pub fn node_id(&self) -> NodeId {

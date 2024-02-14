@@ -1,14 +1,14 @@
 {
   "$schema": "https://stencila.org/meta.schema.json",
-  "$id": "https://stencila.org/Message.schema.json",
-  "@id": "schema:Message",
-  "title": "Message",
-  "nick": "msg",
+  "$id": "https://stencila.org/InstructionMessage.schema.json",
+  "@id": "stencila:InstructionMessage",
+  "title": "InstructionMessage",
+  "nick": "ime",
   "extends": [
     "Entity"
   ],
   "category": "edits",
-  "description": "A message from a sender to one or more people, organizations or software application.",
+  "description": "A message within an `Instruction`.",
   "required": [
     "type",
     "parts"

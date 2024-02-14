@@ -66,6 +66,7 @@ InsertBlock = ForwardRef("InsertBlock")
 InsertInline = ForwardRef("InsertInline")
 InstructionBlock = ForwardRef("InstructionBlock")
 InstructionInline = ForwardRef("InstructionInline")
+InstructionMessage = ForwardRef("InstructionMessage")
 IntegerValidator = ForwardRef("IntegerValidator")
 Link = ForwardRef("Link")
 List = ForwardRef("List")
@@ -73,7 +74,6 @@ ListItem = ForwardRef("ListItem")
 MathBlock = ForwardRef("MathBlock")
 MathInline = ForwardRef("MathInline")
 MediaObject = ForwardRef("MediaObject")
-Message = ForwardRef("Message")
 ModifyBlock = ForwardRef("ModifyBlock")
 ModifyInline = ForwardRef("ModifyInline")
 ModifyOperation = ForwardRef("ModifyOperation")
@@ -199,6 +199,7 @@ Node = Union[
     InsertInline,
     InstructionBlock,
     InstructionInline,
+    InstructionMessage,
     IntegerValidator,
     Link,
     List,
@@ -206,7 +207,6 @@ Node = Union[
     MathBlock,
     MathInline,
     MediaObject,
-    Message,
     ModifyBlock,
     ModifyInline,
     ModifyOperation,

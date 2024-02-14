@@ -24,9 +24,6 @@
       "rdfs:comment": "The level of the heading.",
       "schema:domainIncludes": [
         {
-          "@id": "schema:Message"
-        },
-        {
           "@id": "stencila:CompilationMessage"
         },
         {
@@ -34,6 +31,9 @@
         },
         {
           "@id": "stencila:Heading"
+        },
+        {
+          "@id": "stencila:InstructionMessage"
         }
       ],
       "schema:rangeIncludes": {
@@ -57,9 +57,6 @@
         },
         {
           "@id": "schema:ListItem"
-        },
-        {
-          "@id": "schema:Message"
         },
         {
           "@id": "stencila:Admonition"
@@ -90,6 +87,9 @@
         },
         {
           "@id": "stencila:InstructionInline"
+        },
+        {
+          "@id": "stencila:InstructionMessage"
         },
         {
           "@id": "stencila:Link"
@@ -142,9 +142,6 @@
           "@id": "schema:ItemList"
         },
         {
-          "@id": "schema:Message"
-        },
-        {
           "@id": "stencila:Admonition"
         },
         {
@@ -161,6 +158,9 @@
         },
         {
           "@id": "stencila:Instruction"
+        },
+        {
+          "@id": "stencila:InstructionMessage"
         },
         {
           "@id": "stencila:Math"

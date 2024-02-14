@@ -1,9 +1,9 @@
-title: Message
-'@id': schema:Message
-nick: msg
+title: InstructionMessage
+'@id': stencila:InstructionMessage
+nick: ime
 extends: Entity
 category: edits
-description: A message from a sender to one or more people, organizations or software application.
+description: A message within an `Instruction`.
 required:
   - parts
 core:

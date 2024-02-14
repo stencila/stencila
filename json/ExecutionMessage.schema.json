@@ -3,7 +3,7 @@
   "$id": "https://stencila.org/ExecutionMessage.schema.json",
   "@id": "stencila:ExecutionMessage",
   "title": "ExecutionMessage",
-  "nick": "exm",
+  "nick": "eme",
   "extends": [
     "Entity"
   ],
