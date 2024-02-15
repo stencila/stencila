@@ -7,7 +7,7 @@ edition = "2021"
 app = { path = "../app" }
 codecs = { path = "../codecs" }
 common = { path = "../common" }
-fastembed = "2.0.1"
+fastembed = "2.1.1"
 format = { path = "../format" }
 merge = "0.1.0"
 node-authorship = { path = "../node-authorship" }
