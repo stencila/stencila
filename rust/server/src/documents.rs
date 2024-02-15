@@ -68,4 +68,19 @@ impl Documents {
 
         Ok(doc)
     }
+
+    /// Close a document by [`DocumentId`]
+    pub async fn close(&self, id: &DocumentId) -> Result<()> {
+        let uuid = id.uuid();
+
+        self.docs.write().await.remove(&uuid);
+
+        // TODO: When there are multiple docs for a path this will need to be revised.
+        self.paths
+            .write()
+            .await
+            .retain(|_, entry_uuid| entry_uuid != &uuid);
+
+        Ok(())
+    }
 }
