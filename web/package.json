@@ -93,7 +93,7 @@
     "pagedjs": "0.4.3",
     "prosemirror-model": "1.19.4",
     "prosemirror-state": "1.4.3",
-    "prosemirror-view": "1.32.7",
+    "prosemirror-view": "1.33.1",
     "split.js": "1.6.5",
     "tailwindcss": "3.4.1"
   },
