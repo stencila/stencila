@@ -19,7 +19,7 @@ use axum::{
         HeaderMap, HeaderValue, StatusCode,
     },
     response::{Html, IntoResponse, Response},
-    routing::get,
+    routing::{get, post},
     Json, Router,
 };
 use document::{Document, DocumentId, SyncDirection};
@@ -28,7 +28,7 @@ use rust_embed::RustEmbed;
 use codecs::{DecodeOptions, EncodeOptions};
 use common::{
     clap::{self, Args},
-    eyre,
+    eyre::{self, OptionExt},
     futures::{
         stream::{SplitSink, SplitStream},
         SinkExt, StreamExt,
@@ -156,6 +156,7 @@ pub async fn serve(
     let router = Router::new()
         .route("/~static/*path", get(serve_static))
         .route("/~open/*path", get(serve_open))
+        .route("/~close/*id", post(serve_close))
         .route("/~export/*id", get(serve_export))
         .route("/~ws/*id", get(serve_ws))
         .route("/*path", get(serve_document))
@@ -437,6 +438,11 @@ async fn serve_document(
         .await
         .map_err(InternalError::new)?;
     let doc_id = doc.id();
+    let name = path
+        .file_name()
+        .ok_or_eyre("File has no name")
+        .map_err(InternalError::new)?
+        .to_string_lossy();
 
     // Get various query parameters
     let mode = query
@@ -483,7 +489,10 @@ async fn serve_document(
             format!("<stencila-{view}-view doc={doc_id} view={view} access={access} theme={theme} format={format}></stencila-{view}-view>")
         }
     } else {
-        format!("<stencila-main-app doc={doc_id} view={view} access={access} theme={theme} format={format}></stencila-main-app>")
+        format!(
+            r#"<stencila-main-app docs='[{{"docId":"{doc_id}","path":"{path}","name":"{name}"}}]' view={view} access={access} theme={theme} format={format}></stencila-main-app>"#,
+            path = path.display()
+        )
     };
 
     // The version path segment for static assets (JS & CSS)
@@ -575,6 +584,20 @@ async fn serve_home(
     query: Query<HashMap<String, String>>,
 ) -> Result<Response, InternalError> {
     serve_document(state, Path(String::new()), query).await
+}
+
+/// Handle a request to close a document
+async fn serve_close(
+    State(ServerState { docs, .. }): State<ServerState>,
+    Path(id): Path<String>,
+) -> Result<Response, InternalError> {
+    let Ok(id) = DocumentId::from_str(&id) else {
+        return Ok((StatusCode::BAD_REQUEST, "Invalid document id").into_response());
+    };
+
+    docs.close(&id).await.map_err(InternalError::new)?;
+
+    Ok(StatusCode::OK.into_response())
 }
 
 /// Handle a request to export a document
