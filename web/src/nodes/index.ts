@@ -1,3 +1,4 @@
+import './author-role'
 import './code-chunk'
 import './code-expression'
 import './heading'
