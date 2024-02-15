@@ -57,7 +57,7 @@ export class NodeCard extends LitElement {
 
 /**
  * Generate the Tailwind classes for the parent element of a `<stencila-node-card>` element
- * 
+ *
  * @param view The view that the card is currently being rendered in
  */
 export const nodeCardParentStyles = (view: DocumentView) =>
@@ -65,7 +65,7 @@ export const nodeCardParentStyles = (view: DocumentView) =>
 
 /**
  * Generate the Tailwind classes for a `<stencila-node-card>` element
- * 
+ *
  * @param view The view that the card is currently being rendered in
  */
 export const nodeCardStyles = (view: DocumentView) =>
