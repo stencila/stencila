@@ -3,8 +3,8 @@ import { html } from 'lit'
 import { property } from 'lit/decorators.js'
 
 import { Executable } from './executable'
-import './helpers/node-card'
 import './helpers/node-authors'
+import { nodeCardParentStyles, nodeCardStyles } from './helpers/node-card'
 
 /**
  * Abstract base class for web components representing Stencila Schema `Instruction` node types
@@ -25,12 +25,12 @@ export abstract class Instruction extends Executable {
   assignee?: string
 
   override render() {
-    return html`
-      ${this.documentView() !== 'source'
-        ? html`<slot name="content"></slot>`
-        : ''}
+    const view = this.documentView()
 
-      <stencila-node-card type=${this.type}>
+    return html`<div class=${nodeCardParentStyles(view)}>
+      ${view !== 'source' ? html`<slot name="content"></slot>` : ''}
+
+      <stencila-node-card type=${this.type} class=${nodeCardStyles(view)}>
         <stencila-node-authors type=${this.type}>
           <slot name="authors"></slot>
         </stencila-node-authors>
@@ -41,6 +41,6 @@ export abstract class Instruction extends Executable {
           <slot name="suggestion"></slot>
         </div>
       </stencila-node-card>
-    `
+    </div>`
   }
 }
