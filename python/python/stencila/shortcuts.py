@@ -1,3 +1,4 @@
+import sys
 from typing import Iterable, Optional, Union
 
 from beartype import beartype
@@ -8,13 +9,12 @@ from .types import *
 
 # Our convertible type handles anything that is iterable (lists, tuples,
 # generators etc.)
-try:
-    # Python 3.10+
+if sys.version_info >= (3, 10):
     from typing import TypeAlias
 
     ConvertibleToInline: TypeAlias = Union[str, Inline, Iterable[Union[Inline, str]]]
     ConvertibleToBlocks: TypeAlias = Union[str, Block, Iterable[Union[Block, str]]]
-except ImportError:
+else:
     ConvertibleToInline = Union[str, Inline, Iterable[Union[Inline, str]]]
     ConvertibleToBlocks = Union[str, Block, Iterable[Union[Block, str]]]
 
@@ -133,7 +133,12 @@ def sti(code: str, content: ConvertibleToInline) -> StyledInline:
 
 
 @beartype
-def stk(content: ConvertibleToInline) -> Strong:
+def stk(content: ConvertibleToInline) -> Strikeout:
+    return Strikeout(convert_to_inlines(content))
+
+
+@beartype
+def stg(content: ConvertibleToInline) -> Strong:
     return Strong(convert_to_inlines(content))
 
 
@@ -148,23 +153,13 @@ def sup(content: ConvertibleToInline) -> Superscript:
 
 
 @beartype
-def t(content: ConvertibleToInline) -> Text:
-    return Text(convert_to_inlines(content))
+def t(content: str) -> Text:
+    return Text(str(content))
 
 
 @beartype
-def ul(content: ConvertibleToInline) -> Underline:
+def u(content: ConvertibleToInline) -> Underline:
     return Underline(convert_to_inlines(content))
-
-
-@beartype
-def stg(content: ConvertibleToInline) -> Strikeout:
-    return Strikeout(convert_to_inlines(content))
-
-
-@beartype
-def stg(url: str) -> VideoObject:
-    return VideoObject(url)
 
 
 @beartype
@@ -174,7 +169,9 @@ def adm(
     *,
     title: str | None = None,
 ) -> Admonition:
-    return Admonition(admonition_type, convert_to_blocks(content), title=title)
+    return Admonition(
+        admonition_type, convert_to_blocks(content), title=convert_to_inlines(title)
+    )
 
 
 @beartype
@@ -276,6 +273,7 @@ def isb(content: ConvertibleToBlocks) -> InsertBlock:
     return InsertBlock(content=convert_to_blocks(content))
 
 
+# TODO: these are currently broken because of the way List is used.
 @beartype
 def ol(items: ListItem) -> List_:
     return List_(items, order=ListOrder.Ascending)
@@ -293,7 +291,7 @@ def li(content: ConvertibleToInline) -> ListItem:
 
 @beartype
 def mb(code: str, *, lang: str | None = None) -> MathBlock:
-    return MathBlock(convert_to_blocks(code), math_language=lang)
+    return MathBlock(code, math_language=lang)
 
 
 @beartype
@@ -317,8 +315,8 @@ def sec(content: ConvertibleToBlocks) -> Section:
 
 
 @beartype
-def stb(content: ConvertibleToBlocks) -> StyledBlock:
-    return StyledBlock(convert_to_blocks(content))
+def stb(style: str, content: ConvertibleToBlocks) -> StyledBlock:
+    return StyledBlock(style, convert_to_blocks(content))
 
 
 @beartype
