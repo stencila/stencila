@@ -374,7 +374,6 @@
     "streetAddress": "schema:streetAddress",
     "styleLanguage": "stencila:styleLanguage",
     "suggestion": "stencila:suggestion",
-    "symbol": "stencila:symbol",
     "target": "schema:target",
     "targetProducts": "schema:targetProduct",
     "telephoneNumbers": "schema:telephone",
@@ -390,6 +389,7 @@
     "validator": "stencila:validator",
     "value": "schema:value",
     "values": "stencila:values",
+    "variable": "stencila:variable",
     "version": "schema:version",
     "volumeNumber": "schema:volumeNumber"
   }

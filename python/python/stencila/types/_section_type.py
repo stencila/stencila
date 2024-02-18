@@ -17,3 +17,4 @@ class SectionType(StrEnum):
     Results = "Results"
     Discussion = "Discussion"
     Conclusion = "Conclusion"
+    Iteration = "Iteration"

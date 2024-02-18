@@ -13,7 +13,7 @@ impl MarkdownCodec for ForBlock {
         context
             .push_str(&fence)
             .push_str(" for ")
-            .push_prop_str("symbol", &self.symbol)
+            .push_prop_str("variable", &self.variable)
             .push_str(" in ")
             .push_prop_str("code", &self.code);
 

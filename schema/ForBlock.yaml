@@ -9,21 +9,21 @@ markdown:
   derive: false
 proptest: {}
 required:
-  - symbol
+  - variable
   - content
 core:
   - otherwise
   - iterations
 properties:
-  symbol:
-    '@id': stencila:symbol
+  variable:
+    '@id': stencila:variable
     description: The name to give to the variable representing each item in the iterated array
     type: string
     strip: [code]
     proptest:
       min:
-        description: Generate a fixed symbol.
-        value: String::from("symbol")
+        description: Generate a fixed variable name.
+        value: String::from("item")
       low:
         description: |
           Generate a random string of up to 10 alphanumeric characters (and at most one underscore to avoid
@@ -79,9 +79,7 @@ properties:
     description: The content repeated for each iteration
     type: array
     items:
-      type: array
-      items:
-        $ref: Block
+      $ref: Section
     strip: [output]
     dom:
       elem: div

@@ -304,9 +304,9 @@
       }
     },
     {
-      "@id": "stencila:symbol",
+      "@id": "stencila:variable",
       "@type": "rdfs:Property",
-      "rdfs:label": "symbol",
+      "rdfs:label": "variable",
       "rdfs:comment": "The name to give to the variable representing each item in the iterated array",
       "schema:domainIncludes": {
         "@id": "stencila:ForBlock"
@@ -423,6 +423,9 @@
       "rdfs:comment": "The content repeated for each iteration",
       "schema:domainIncludes": {
         "@id": "stencila:ForBlock"
+      },
+      "schema:rangeIncludes": {
+        "@id": "stencila:Section"
       }
     }
   ]

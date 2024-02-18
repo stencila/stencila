@@ -23,3 +23,5 @@ anyOf:
     '@id': stencila:Discussion
   - const: Conclusion
     '@id': stencila:Conclusion
+  - const: Iteration
+    '@id': stencila:Iteration

@@ -11,6 +11,7 @@ export type SectionType =
   'Methods' |
   'Results' |
   'Discussion' |
-  'Conclusion';
+  'Conclusion' |
+  'Iteration';
 
 

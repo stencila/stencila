@@ -17,7 +17,7 @@
   "required": [
     "type",
     "code",
-    "symbol",
+    "variable",
     "content"
   ],
   "core": [
@@ -332,16 +332,16 @@
         "$ref": "Author.schema.json"
       }
     },
-    "symbol": {
-      "@id": "stencila:symbol",
+    "variable": {
+      "@id": "stencila:variable",
       "description": "The name to give to the variable representing each item in the iterated array",
       "strip": [
         "code"
       ],
       "proptest": {
         "min": {
-          "description": "Generate a fixed symbol.",
-          "value": "String::from(\"symbol\")"
+          "description": "Generate a fixed variable name.",
+          "value": "String::from(\"item\")"
         },
         "low": {
           "description": "Generate a random string of up to 10 alphanumeric characters (and at most one underscore to avoid\na clash with Markdown emphasis).\n",
@@ -428,7 +428,7 @@
       },
       "type": "array",
       "items": {
-        "type": "array"
+        "$ref": "Section.schema.json"
       }
     }
   }
