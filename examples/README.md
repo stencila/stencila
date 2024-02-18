@@ -2,6 +2,18 @@
 
 **Mainly for testing.**
 
+## `assistants`
+
+The [`assistants`](assistants) folder is for testing Stencila's specialized AI assistants.
+
+## `kernels`
+
+The [`kernels`](kernels) folder is for testing Stencila's execution kernels. Each subfolder contains examples related to one or more executable node types. Within those there are files illustrating the execution of those node types within one or more execution kernels. These examples are generally kept small so that they can be easily read as JSON when executed and outputted in the console e.g.
+
+```console
+cargo run -p cli execute examples/kernels/code-chunk/bash.md
+```
+
 ## `nodes`
 
 Each of the examples in the `nodes` directory is a Stencila `Article` containing examples of a particular type of document node. The primary purpose for these examples is providing a consistent set of tests fixtures across file formats.
@@ -15,7 +27,3 @@ When adding new examples, or updating existing ones, to updated derived files (i
 ```console
 make examples
 ```
-
-## `instructions`
-
-The [`instructions`](instructions) folder is for testing the performance of Stencila's AI assistants. Each subfolder has a `document.md` containing an example document, and several YAML files each containing and [`InstructionBlock`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/edits/instruction-block.md) or an [`InstructionInline`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/edits/instruction-inline.md). During testing, each instruction is executed within the context of the document.
