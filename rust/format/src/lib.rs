@@ -292,6 +292,11 @@ mod test {
 
     #[test]
     fn from_string() -> Result<()> {
+        assert_eq!(Format::from_string("Python")?, Format::Python);
+        assert_eq!(Format::from_string("python")?, Format::Python);
+        assert_eq!(Format::from_string("Py")?, Format::Python);
+        assert_eq!(Format::from_string("py")?, Format::Python);
+
         assert_eq!(Format::from_string("cborZst")?, Format::CborZst);
         assert_eq!(Format::from_string("cborzst")?, Format::CborZst);
 
