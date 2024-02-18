@@ -30,6 +30,7 @@ classifiers = [
 dependencies = [
     "dataclasses-json==0.6.4",
     'StrEnum==0.4.15;python_version<"3.11"',
+    "beartype==0.17.2"
 ]
 
 [project.urls]
@@ -62,7 +63,7 @@ packages = [{ include = "stencila", from = "python" }]
 python = "^3.8"
 dataclasses-json = "0.6.4"
 StrEnum = { version = "0.4.15", python = "<3.11" }
-beartype = "^0.17.0"
+beartype = "0.17.2"
 
 [tool.poetry.group.dev.dependencies]
 black = "24.2.0"

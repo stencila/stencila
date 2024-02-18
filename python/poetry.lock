@@ -2,13 +2,13 @@
 
 [[package]]
 name = "beartype"
-version = "0.17.1"
+version = "0.17.2"
 description = "Unbearably fast runtime type checking in pure Python."
 optional = false
 python-versions = ">=3.8.0"
 files = [
-    {file = "beartype-0.17.1-py3-none-any.whl", hash = "sha256:583deb076e312f5acc2e2928706af2facab1f4282be775ee619e6f42c290f423"},
-    {file = "beartype-0.17.1.tar.gz", hash = "sha256:001df1ce51c76f0a21c2183215b26254b667fd8b688a6cbe8f013907cdaaf9b3"},
+    {file = "beartype-0.17.2-py3-none-any.whl", hash = "sha256:c22b21e1f785cfcf5c4d3d13070f532b6243a3ad67e68d2298ff08d539847dce"},
+    {file = "beartype-0.17.2.tar.gz", hash = "sha256:e911e1ae7de4bccd15745f7643609d8732f64de5c2fb844e89cbbed1c5a8d495"},
 ]
 
 [package.extras]
@@ -646,13 +646,13 @@ files = [
 
 [[package]]
 name = "pip-api"
-version = "0.0.30"
+version = "0.0.33"
 description = "An unofficial, importable pip API"
 optional = false
 python-versions = ">=3.7"
 files = [
-    {file = "pip-api-0.0.30.tar.gz", hash = "sha256:a05df2c7aa9b7157374bcf4273544201a0c7bae60a9c65bcf84f3959ef3896f3"},
-    {file = "pip_api-0.0.30-py3-none-any.whl", hash = "sha256:2a0314bd31522eb9ffe8a99668b0d07fee34ebc537931e7b6483001dbedcbdc9"},
+    {file = "pip-api-0.0.33.tar.gz", hash = "sha256:1c2522ae21efcb034d89cc99f6cf1025293b31c63c29ee98b23f03a85f36bdae"},
+    {file = "pip_api-0.0.33-py3-none-any.whl", hash = "sha256:b8d6eb5a87d3a9e112a20a8e9d24a6fc12d4e1c94d7595eeaf74be11ad47276c"},
 ]
 
 [package.dependencies]
@@ -748,13 +748,13 @@ files = [
 
 [[package]]
 name = "py-serializable"
-version = "1.0.0"
+version = "1.0.1"
 description = "Library for serializing and deserializing Python Objects to and from JSON and XML."
 optional = false
 python-versions = ">=3.8,<4.0"
 files = [
-    {file = "py_serializable-1.0.0-py3-none-any.whl", hash = "sha256:845a9399a16550e8703c3fb0da4fbb746a4e5f6cc4c95647c315c71fd6567cd5"},
-    {file = "py_serializable-1.0.0.tar.gz", hash = "sha256:524df68c46315d7272959ae5296244e5a1e1e28330472ec214394162c39f545e"},
+    {file = "py_serializable-1.0.1-py3-none-any.whl", hash = "sha256:edcc51ac91a39e0cdde147463cae4dc34f5ab72907f7e71721ff3ecef3731a70"},
+    {file = "py_serializable-1.0.1.tar.gz", hash = "sha256:98b81e565c23b3cc2ac799f5096dc7e11cafe8215c551d20a1c16dd38a113861"},
 ]
 
 [package.dependencies]
@@ -977,13 +977,13 @@ typing-extensions = ">=3.7.4"
 
 [[package]]
 name = "urllib3"
-version = "2.2.0"
+version = "2.2.1"
 description = "HTTP library with thread-safe connection pooling, file post, and more."
 optional = false
 python-versions = ">=3.8"
 files = [
-    {file = "urllib3-2.2.0-py3-none-any.whl", hash = "sha256:ce3711610ddce217e6d113a2732fafad960a03fd0318c91faa79481e35c11224"},
-    {file = "urllib3-2.2.0.tar.gz", hash = "sha256:051d961ad0c62a94e50ecf1af379c3aba230c66c710493493560c0c223c49f20"},
+    {file = "urllib3-2.2.1-py3-none-any.whl", hash = "sha256:450b20ec296a467077128bff42b73080516e71b56ff59a60a02bef2232c4fa9d"},
+    {file = "urllib3-2.2.1.tar.gz", hash = "sha256:d0570876c61ab9e520d776c38acbbb5b05a776d3f9ff98a5c8fd5162a444cf19"},
 ]
 
 [package.extras]
@@ -1006,4 +1006,4 @@ files = [
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.8"
-content-hash = "5f7a7d4d68ee42d0f0fdf552f0a5f634000b8a9d1aec637857f4bb9bca68c7d8"
+content-hash = "1fb88786aaed9100543ded426bea154e73298331e11ea9975dd7697bc9413f03"
