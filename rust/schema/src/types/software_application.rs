@@ -238,6 +238,10 @@ pub struct SoftwareApplicationOptions {
     /// Version of the software.
     #[serde(alias = "software-version", alias = "software_version")]
     pub software_version: Option<String>,
+
+    /// Operating systems supported (e.g. Windows 7, OS X 10.6).
+    #[serde(alias = "operating-system", alias = "operating_system")]
+    pub operating_system: Option<String>,
 }
 
 impl SoftwareApplication {

@@ -327,6 +327,7 @@
     "noteType": "stencila:noteType",
     "notes": "schema:notes",
     "nulls": "stencila:nulls",
+    "operatingSystem": "schema:operatingSystem",
     "operations": "stencila:operations",
     "order": "schema:itemListOrder",
     "otherwise": "stencila:otherwise",

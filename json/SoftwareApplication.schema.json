@@ -575,6 +575,15 @@
         "software_version"
       ],
       "type": "string"
+    },
+    "operatingSystem": {
+      "@id": "schema:operatingSystem",
+      "description": "Operating systems supported (e.g. Windows 7, OS X 10.6).",
+      "aliases": [
+        "operating-system",
+        "operating_system"
+      ],
+      "type": "string"
     }
   }
 }

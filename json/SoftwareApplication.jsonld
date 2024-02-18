@@ -523,6 +523,18 @@
       "schema:rangeIncludes": {
         "@id": "schema:Text"
       }
+    },
+    {
+      "@id": "schema:operatingSystem",
+      "@type": "rdfs:Property",
+      "rdfs:label": "operatingSystem",
+      "rdfs:comment": "Operating systems supported (e.g. Windows 7, OS X 10.6).",
+      "schema:domainIncludes": {
+        "@id": "schema:SoftwareApplication"
+      },
+      "schema:rangeIncludes": {
+        "@id": "schema:Text"
+      }
     }
   ]
 }
