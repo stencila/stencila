@@ -42,7 +42,7 @@ impl Authorship {
 }
 
 impl VisitorMut for Authorship {
-    fn visit_inline_mut(&mut self, inline: &mut Inline) -> WalkControl {
+    fn visit_inline(&mut self, inline: &mut Inline) -> WalkControl {
         macro_rules! apply {
             ($($variant:ident),*) => {
                 use Inline::*;
@@ -69,7 +69,7 @@ impl VisitorMut for Authorship {
         WalkControl::Continue
     }
 
-    fn visit_block_mut(&mut self, block: &mut Block) -> WalkControl {
+    fn visit_block(&mut self, block: &mut Block) -> WalkControl {
         macro_rules! apply {
             ($($variant:ident),*) => {
                 use Block::*;
@@ -102,7 +102,7 @@ impl VisitorMut for Authorship {
         WalkControl::Continue
     }
 
-    fn visit_work_mut(&mut self, work: &mut CreativeWorkType) -> WalkControl {
+    fn visit_work(&mut self, work: &mut CreativeWorkType) -> WalkControl {
         macro_rules! apply {
             ($($variant:ident),*) => {
                 use CreativeWorkType::*;

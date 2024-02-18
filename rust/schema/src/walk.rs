@@ -1,6 +1,10 @@
+use std::future::Future;
+
+use common::{async_recursion::async_recursion, eyre::Result};
+
 use crate::{
-    Array, Block, Boolean, CreativeWorkType, Inline, Integer, ListItem, Node, Null, Number, Object,
-    TableCell, TableRow, UnsignedInteger,
+    Array, Block, Boolean, CreativeWorkType, IfBlockClause, Inline, Integer, ListItem, Node, Null,
+    Number, Object, TableCell, TableRow, UnsignedInteger,
 };
 
 /// Controls whether to continue walking over a node or not
@@ -61,6 +65,11 @@ pub trait Visitor: Sized {
         WalkControl::Continue
     }
 
+    /// Visit an `IfBlockClause` node
+    fn visit_if_block_clause(&mut self, inline: &IfBlockClause) -> WalkControl {
+        WalkControl::Continue
+    }
+
     /// Visit a `ListItem` node
     fn visit_list_item(&mut self, list_item: &ListItem) -> WalkControl {
         WalkControl::Continue
@@ -91,48 +100,132 @@ pub trait Visitor: Sized {
 
 /// A mutating node visitor
 ///
-/// Unlink [`Visitor`], the methods of [`VisitorMut`] are able to mutate both the visitor,
+/// Unlike [`Visitor`], the methods of [`VisitorMut`] are able to mutate both the visitor,
 /// and the visited node.
 #[allow(unused_variables)]
 pub trait VisitorMut: Sized {
     /// Visit, and potentially mutate, a node
-    fn visit_mut<T: WalkNode>(&mut self, node: &mut T) {
+    fn visit<T: WalkNode>(&mut self, node: &mut T) {
         node.walk_mut(self)
     }
 
     /// Visit, and potentially mutate, a `Node` node type
-    fn visit_node_mut(&mut self, node: &mut Node) -> WalkControl {
+    fn visit_node(&mut self, node: &mut Node) -> WalkControl {
         WalkControl::Continue
     }
 
     /// Visit, and potentially mutate, a `CreativeWork` node type
-    fn visit_work_mut(&mut self, work: &mut CreativeWorkType) -> WalkControl {
+    fn visit_work(&mut self, work: &mut CreativeWorkType) -> WalkControl {
         WalkControl::Continue
     }
 
     /// Visit, and potentially mutate, a `Block` node type
-    fn visit_block_mut(&mut self, block: &mut Block) -> WalkControl {
+    fn visit_block(&mut self, block: &mut Block) -> WalkControl {
         WalkControl::Continue
     }
 
     /// Visit, and potentially mutate, an `Inline` node type
-    fn visit_inline_mut(&mut self, inline: &mut Inline) -> WalkControl {
+    fn visit_inline(&mut self, inline: &mut Inline) -> WalkControl {
+        WalkControl::Continue
+    }
+
+    /// Visit an `IfBlockClause` node
+    fn visit_if_block_clause(&mut self, inline: &IfBlockClause) -> WalkControl {
         WalkControl::Continue
     }
 
     /// Visit a `ListItem` node
-    fn visit_list_item_mut(&mut self, list_item: &ListItem) -> WalkControl {
+    fn visit_list_item(&mut self, list_item: &ListItem) -> WalkControl {
         WalkControl::Continue
     }
 
     /// Visit a `TableRow` node
-    fn visit_table_row_mut(&mut self, table_row: &TableRow) -> WalkControl {
+    fn visit_table_row(&mut self, table_row: &TableRow) -> WalkControl {
         WalkControl::Continue
     }
 
     /// Visit a `TableCell` node
-    fn visit_table_cell_mut(&mut self, table_cell: &TableCell) -> WalkControl {
+    fn visit_table_cell(&mut self, table_cell: &TableCell) -> WalkControl {
         WalkControl::Continue
+    }
+
+    /// Enter a property
+    fn enter_property(&mut self, name: &str) {}
+
+    /// Exit a property
+    fn exit_property(&mut self) {}
+
+    /// Enter a node at an index
+    fn enter_index(&mut self, index: usize) {}
+
+    /// Exit a node at an index
+    fn exit_index(&mut self) {}
+}
+
+/// A mutating node visitor with asynchronous methods
+///
+/// Like [`VisitorMut`] but with async and fallible `visit_*` methods.
+#[allow(unused_variables, async_fn_in_trait)]
+pub trait VisitorAsync: Send + Sync {
+    /// Visit, and potentially mutate, a `Node` node type
+    fn visit_node(&mut self, node: &mut Node) -> impl Future<Output = Result<WalkControl>> + Send {
+        async { Ok(WalkControl::Continue) }
+    }
+
+    /// Visit, and potentially mutate, a `CreativeWork` node type
+    fn visit_work(
+        &mut self,
+        work: &mut CreativeWorkType,
+    ) -> impl Future<Output = Result<WalkControl>> + Send {
+        async { Ok(WalkControl::Continue) }
+    }
+
+    /// Visit, and potentially mutate, a `Block` node type
+    fn visit_block(
+        &mut self,
+        block: &mut Block,
+    ) -> impl Future<Output = Result<WalkControl>> + Send {
+        async { Ok(WalkControl::Continue) }
+    }
+
+    /// Visit, and potentially mutate, an `Inline` node type
+    fn visit_inline(
+        &mut self,
+        inline: &mut Inline,
+    ) -> impl Future<Output = Result<WalkControl>> + Send {
+        async { Ok(WalkControl::Continue) }
+    }
+
+    /// Visit an `IfBlockClause` node
+    fn visit_if_block_clause(
+        &mut self,
+        inline: &IfBlockClause,
+    ) -> impl Future<Output = Result<WalkControl>> + Send {
+        async { Ok(WalkControl::Continue) }
+    }
+
+    /// Visit a `ListItem` node
+    fn visit_list_item(
+        &mut self,
+        list_item: &ListItem,
+    ) -> impl Future<Output = Result<WalkControl>> + Send {
+        async { Ok(WalkControl::Continue) }
+    }
+
+    /// Visit a `TableRow` node
+    fn visit_table_row(
+        &mut self,
+        table_row: &TableRow,
+    ) -> impl Future<Output = Result<WalkControl>> + Send {
+        async { Ok(WalkControl::Continue) }
+    }
+
+    /// Visit a `TableCell` node
+    fn visit_table_cell(
+        &mut self,
+        table_cell: &TableCell,
+    ) -> impl Future<Output = Result<WalkControl>> + Send {
+        async { Ok(WalkControl::Continue) }
     }
 
     /// Enter a property
@@ -152,13 +245,19 @@ pub trait VisitorMut: Sized {
 ///
 /// The default implementation of both `walk` and `walk_mut`
 /// do nothing.
-#[allow(unused_variables)]
+#[allow(unused_variables, async_fn_in_trait)]
 pub trait WalkNode {
     /// Walk over a node's children
     fn walk<V: Visitor>(&self, visitor: &mut V) {}
 
     /// Walk over, and potentially mutate, a node's children
     fn walk_mut<V: VisitorMut>(&mut self, visitor: &mut V) {}
+
+    /// Walk over, and potentially mutate, a node's children asynchronously and fallibly
+    #[async_recursion]
+    async fn walk_async<V: VisitorAsync>(&mut self, visitor: &mut V) -> Result<()> {
+        Ok(())
+    }
 }
 
 impl WalkNode for Null {}
@@ -172,7 +271,7 @@ impl WalkNode for Object {}
 
 impl<T> WalkNode for Box<T>
 where
-    T: WalkNode,
+    T: WalkNode + Send,
 {
     fn walk<V: Visitor>(&self, visitor: &mut V) {
         self.as_ref().walk(visitor)
@@ -181,11 +280,16 @@ where
     fn walk_mut<V: VisitorMut>(&mut self, visitor: &mut V) {
         self.as_mut().walk_mut(visitor)
     }
+
+    #[async_recursion]
+    async fn walk_async<V: VisitorAsync>(&mut self, visitor: &mut V) -> Result<()> {
+        self.as_mut().walk_async(visitor).await
+    }
 }
 
 impl<T> WalkNode for Option<T>
 where
-    T: WalkNode,
+    T: WalkNode + Send,
 {
     fn walk<V: Visitor>(&self, visitor: &mut V) {
         if let Some(value) = self {
@@ -198,11 +302,20 @@ where
             value.walk_mut(visitor);
         }
     }
+
+    #[async_recursion]
+    async fn walk_async<V: VisitorAsync>(&mut self, visitor: &mut V) -> Result<()> {
+        if let Some(value) = self {
+            value.walk_async(visitor).await
+        } else {
+            Ok(())
+        }
+    }
 }
 
 impl<T> WalkNode for Vec<T>
 where
-    T: WalkNode,
+    T: WalkNode + Send,
 {
     fn walk<V: Visitor>(&self, visitor: &mut V) {
         for (index, node) in self.iter().enumerate() {
@@ -218,5 +331,16 @@ where
             node.walk_mut(visitor);
             visitor.exit_index();
         }
+    }
+
+    #[async_recursion]
+    async fn walk_async<V: VisitorAsync>(&mut self, visitor: &mut V) -> Result<()> {
+        for (index, node) in self.iter_mut().enumerate() {
+            visitor.enter_index(index);
+            node.walk_async(visitor).await?;
+            visitor.exit_index();
+        }
+
+        Ok(())
     }
 }

@@ -2,6 +2,7 @@ pub use monostate::MustBe;
 pub use serde_with::{self, serde_as, skip_serializing_none};
 
 pub use common::{
+    async_recursion::async_recursion,
     derive_more::{self, Deref, DerefMut},
     eyre::{bail, ErrReport, Result},
     itertools::Itertools,
@@ -26,7 +27,7 @@ pub use node_walk_derive::WalkNode;
 
 pub use crate::deserialize::*;
 
-pub use crate::walk::{Visitor, VisitorMut, WalkNode};
+pub use crate::walk::{Visitor, VisitorAsync, VisitorMut, WalkNode};
 
 #[cfg(feature = "proptest")]
 pub use crate::proptests::*;

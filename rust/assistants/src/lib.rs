@@ -204,7 +204,7 @@ struct InstructionCollector {
 }
 
 impl VisitorMut for InstructionCollector {
-    fn visit_inline_mut(&mut self, inline: &mut Inline) -> WalkControl {
+    fn visit_inline(&mut self, inline: &mut Inline) -> WalkControl {
         if let Inline::InstructionInline(instruction) = inline {
             let id = instruction.node_id();
             let instruction = Instruction::from(instruction.clone());
@@ -213,7 +213,7 @@ impl VisitorMut for InstructionCollector {
         WalkControl::Continue
     }
 
-    fn visit_block_mut(&mut self, block: &mut Block) -> WalkControl {
+    fn visit_block(&mut self, block: &mut Block) -> WalkControl {
         if let Block::InstructionBlock(instruction) = block {
             let id = instruction.node_id();
             let instruction = Instruction::from(instruction.clone());
@@ -230,7 +230,7 @@ struct ResultApplier {
 }
 
 impl VisitorMut for ResultApplier {
-    fn visit_inline_mut(&mut self, inline: &mut Inline) -> WalkControl {
+    fn visit_inline(&mut self, inline: &mut Inline) -> WalkControl {
         if let Inline::InstructionInline(instruction) = inline {
             if let Some(result) = self.results.remove(&instruction.node_id()) {
                 match result {
@@ -257,7 +257,7 @@ impl VisitorMut for ResultApplier {
         WalkControl::Continue
     }
 
-    fn visit_block_mut(&mut self, block: &mut Block) -> WalkControl {
+    fn visit_block(&mut self, block: &mut Block) -> WalkControl {
         if let Block::InstructionBlock(instruction) = block {
             if let Some(result) = self.results.remove(&instruction.node_id()) {
                 match result {
