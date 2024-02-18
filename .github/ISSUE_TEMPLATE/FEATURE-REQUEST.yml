@@ -2,7 +2,7 @@ name: "💡 Feature"
 description: Document a new feature
 title: "feat(<context>): <title>"
 labels:
-  - "question"
+  - "type: feature"
   - "needs triaging"
 projects:
   - stencila/8
