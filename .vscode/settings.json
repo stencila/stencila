@@ -50,6 +50,7 @@
         "dtype",
         "emax",
         "emin",
+        "fastembed",
         "haspopup",
         "implem",
         "indexmap",

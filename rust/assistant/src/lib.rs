@@ -1,6 +1,6 @@
 use std::{path::PathBuf, str::FromStr};
 
-use fastembed::{EmbeddingBase, EmbeddingModel, FlagEmbedding, InitOptions};
+use fastembed::{EmbeddingModel, InitOptions, TextEmbedding};
 use merge::Merge;
 
 use codecs::DecodeOptions;
@@ -260,18 +260,16 @@ impl Embeddings {
 
         // Informal perf tests during development indicated that using
         // a static improved speed substantially (rather than reloading for each call)
-        static MODEL: OnceCell<FlagEmbedding> = OnceCell::new();
+        static MODEL: OnceCell<TextEmbedding> = OnceCell::new();
 
         let model = match MODEL.get_or_try_init(|| {
-            FlagEmbedding::try_new(InitOptions {
+            TextEmbedding::try_new(InitOptions {
                 // This model was chosen good performance for a small size.
                 // For benchmarks see https://huggingface.co/spaces/mteb/leaderboard
                 model_name: EmbeddingModel::BGESmallENV15,
-                // model_name: EmbeddingModel::BGEBaseEN,
                 cache_dir: app::get_app_dir(DirType::Cache, true)
                     .unwrap_or_else(|_| PathBuf::from("."))
-                    .join("models")
-                    .join("bge-small-en-v1.5"),
+                    .join("fastembed"),
                 ..Default::default()
             })
         }) {
