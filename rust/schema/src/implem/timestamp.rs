@@ -1,4 +1,4 @@
-use crate::{prelude::*, TimeUnit, Timestamp, Duration};
+use crate::{prelude::*, Duration, TimeUnit, Timestamp};
 
 impl Timestamp {
     /// Get the current timestamp
@@ -13,7 +13,11 @@ impl Timestamp {
     /// Get the duration since another timestamp
     pub fn duration(&self, other: &Self) -> Result<Duration> {
         if self.time_unit != other.time_unit {
-            bail!("Time units of timestamps are different {} != {}", self.time_unit, other.time_unit)
+            bail!(
+                "Time units of timestamps are different {} != {}",
+                self.time_unit,
+                other.time_unit
+            )
         }
 
         if self.value < other.value {

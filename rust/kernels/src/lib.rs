@@ -29,17 +29,10 @@ pub fn default() -> Box<dyn Kernel> {
 }
 
 /// A collection of kernel instances associated with a document
+#[derive(Default)]
 pub struct Kernels {
     /// The kernel instances
     instances: Vec<(Box<dyn Kernel>, Box<dyn KernelInstance>)>,
-}
-
-impl Default for Kernels {
-    fn default() -> Self {
-        Self {
-            instances: Vec::default(),
-        }
-    }
 }
 
 impl fmt::Debug for Kernels {

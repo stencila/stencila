@@ -253,7 +253,7 @@ impl Executable for ForBlock {
             // Iterate over iterable, executing the content each time and adding to `iterations` field
             for node in &iterator {
                 // Set the loop's variable
-                if let Err(error) = executor.kernels.set(&self.variable, &node).await {
+                if let Err(error) = executor.kernels.set(&self.variable, node).await {
                     messages.push(ExecutionMessage::new(
                         MessageLevel::Error,
                         error.to_string(),
