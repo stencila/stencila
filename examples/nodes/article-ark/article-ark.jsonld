@@ -328,7 +328,7 @@
     {
       "@type": "stencila:ForBlock",
       "stencila:code": "items",
-      "stencila:symbol": "item",
+      "stencila:variable": "item",
       "stencila:content": [
         {
           "@type": "stencila:Paragraph",

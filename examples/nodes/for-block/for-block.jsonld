@@ -17,7 +17,7 @@
     {
       "@type": "stencila:ForBlock",
       "stencila:code": "[1,2,3]",
-      "stencila:symbol": "item",
+      "stencila:variable": "item",
       "stencila:content": [
         {
           "@type": "stencila:Paragraph",
@@ -47,7 +47,7 @@
       "@type": "stencila:ForBlock",
       "stencila:code": "[1,2,3]",
       "programmingLanguage": "python",
-      "stencila:symbol": "item",
+      "stencila:variable": "item",
       "stencila:content": [
         {
           "@type": "stencila:Paragraph",
@@ -72,12 +72,12 @@
     {
       "@type": "stencila:ForBlock",
       "stencila:code": "[['a', 'b'], ['c', 'd']]",
-      "stencila:symbol": "outer",
+      "stencila:variable": "outer",
       "stencila:content": [
         {
           "@type": "stencila:ForBlock",
           "stencila:code": "outer",
-          "stencila:symbol": "inner",
+          "stencila:variable": "inner",
           "stencila:content": [
             {
               "@type": "stencila:Paragraph",
@@ -108,7 +108,7 @@
     {
       "@type": "stencila:ForBlock",
       "stencila:code": "[]",
-      "stencila:symbol": "item",
+      "stencila:variable": "item",
       "stencila:content": [
         {
           "@type": "stencila:Paragraph",
@@ -144,7 +144,7 @@
     {
       "@type": "stencila:ForBlock",
       "stencila:code": "[]",
-      "stencila:symbol": "item",
+      "stencila:variable": "item",
       "stencila:content": [],
       "stencila:otherwise": []
     }

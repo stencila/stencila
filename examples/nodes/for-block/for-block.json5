@@ -13,7 +13,7 @@
     {
       type: "ForBlock",
       code: "[1,2,3]",
-      symbol: "item",
+      variable: "item",
       content: [
         {
           type: "Paragraph",
@@ -43,7 +43,7 @@
       type: "ForBlock",
       code: "[1,2,3]",
       programmingLanguage: "python",
-      symbol: "item",
+      variable: "item",
       content: [
         {
           type: "Paragraph",
@@ -68,12 +68,12 @@
     {
       type: "ForBlock",
       code: "[['a', 'b'], ['c', 'd']]",
-      symbol: "outer",
+      variable: "outer",
       content: [
         {
           type: "ForBlock",
           code: "outer",
-          symbol: "inner",
+          variable: "inner",
           content: [
             {
               type: "Paragraph",
@@ -104,7 +104,7 @@
     {
       type: "ForBlock",
       code: "[]",
-      symbol: "item",
+      variable: "item",
       content: [
         {
           type: "Paragraph",
@@ -140,7 +140,7 @@
     {
       type: "ForBlock",
       code: "[]",
-      symbol: "item",
+      variable: "item",
       content: [],
       otherwise: []
     }
