@@ -175,7 +175,7 @@ Support and degree of loss for node types:
 | [InsertInline](https://github.com/stencila/stencila/blob/main/docs/reference/schema/edits/insert_inline.md)               | ⚠️ High loss |            | Encoded as `{++{{content}}++}`                            |
 | [InstructionBlock](https://github.com/stencila/stencila/blob/main/docs/reference/schema/edits/instruction_block.md)       | ⚠️ High loss |            | Encoded using implemented function                        |
 | [InstructionInline](https://github.com/stencila/stencila/blob/main/docs/reference/schema/edits/instruction_inline.md)     | ⚠️ High loss |            | Encoded using implemented function                        |
-| [Message](https://github.com/stencila/stencila/blob/main/docs/reference/schema/edits/message.md)                          | ⚠️ High loss |            |                                                           |
+| [InstructionMessage](https://github.com/stencila/stencila/blob/main/docs/reference/schema/edits/instruction_message.md)   | ⚠️ High loss |            |                                                           |
 | [ModifyBlock](https://github.com/stencila/stencila/blob/main/docs/reference/schema/edits/modify_block.md)                 | ⚠️ High loss |            | Encoded using implemented function                        |
 | [ModifyInline](https://github.com/stencila/stencila/blob/main/docs/reference/schema/edits/modify_inline.md)               | ⚠️ High loss |            | Encoded using implemented function                        |
 | [ModifyOperation](https://github.com/stencila/stencila/blob/main/docs/reference/schema/edits/modify_operation.md)         | ⚠️ High loss |            |                                                           |

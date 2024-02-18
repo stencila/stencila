@@ -17,6 +17,7 @@ The `SectionType` type has these members:
 - `Results`
 - `Discussion`
 - `Conclusion`
+- `Iteration`
 
 ## Bindings
 

@@ -12,6 +12,7 @@ This document contains the help content for the `stencila` command-line program.
 * [`stencila log`↴](#stencila-log)
 * [`stencila inspect`↴](#stencila-inspect)
 * [`stencila convert`↴](#stencila-convert)
+* [`stencila execute`↴](#stencila-execute)
 * [`stencila serve`↴](#stencila-serve)
 * [`stencila assistants`↴](#stencila-assistants)
 * [`stencila repl`↴](#stencila-repl)
@@ -33,6 +34,7 @@ CLI subcommands and global options
 * `log` — Display the history of commits to the document
 * `inspect` — Inspect a document as JSON
 * `convert` — Convert a document between formats
+* `execute` — Execute a document
 * `serve` — Serve
 * `assistants` — List the available AI assistants
 * `repl` — A read-evaluate-print loop for AI assistants
@@ -49,7 +51,7 @@ CLI subcommands and global options
 
 * `--log-filter <LOG_FILTER>` — A filter for log entries
 
-  Default value: `hyper=info,mio=info,reqwest=info,tokio=info,tungstenite=info`
+  Default value: `hyper=info,mio=info,ort=error,reqwest=info,tokio=info,tungstenite=info`
 * `--log-format <LOG_FORMAT>` — The log format to use
 
   Default value: `auto`
@@ -320,6 +322,19 @@ Convert a document between formats
 
 * `--strip-types <STRIP_TYPES>` — A list of node types to strip
 * `--strip-props <STRIP_PROPS>` — A list of node properties to strip
+
+
+
+## `stencila execute`
+
+Execute a document
+
+**Usage:** `stencila execute <INPUT> [OUTPUT]`
+
+###### **Arguments:**
+
+* `<INPUT>` — The path of the file to execute
+* `<OUTPUT>` — The path of the file to write the executed document to
 
 
 
