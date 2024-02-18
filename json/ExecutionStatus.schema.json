@@ -119,30 +119,37 @@
   "anyOf": [
     {
       "@id": "stencila:Scheduled",
+      "description": "The execution of the node has been scheduled.",
       "const": "Scheduled"
     },
     {
-      "@id": "stencila:ScheduledPreviouslyFailed",
-      "const": "ScheduledPreviouslyFailed"
+      "@id": "stencila:Skipped",
+      "description": "The execution of the node has been skipped because it is unnecessary.",
+      "const": "Skipped"
+    },
+    {
+      "@id": "stencila:Empty",
+      "description": "The execution of the node has been skipped because it has code, or other property, that is empty.",
+      "const": "Empty"
     },
     {
       "@id": "stencila:Running",
+      "description": "The execution of the node is currently running",
       "const": "Running"
     },
     {
-      "@id": "stencila:RunningPreviouslyFailed",
-      "const": "RunningPreviouslyFailed"
-    },
-    {
       "@id": "stencila:Succeeded",
+      "description": "The execution of the node is succeed",
       "const": "Succeeded"
     },
     {
       "@id": "stencila:Failed",
+      "description": "The execution of the node is failed",
       "const": "Failed"
     },
     {
       "@id": "stencila:Cancelled",
+      "description": "The execution of the node was cancelled",
       "const": "Cancelled"
     }
   ]

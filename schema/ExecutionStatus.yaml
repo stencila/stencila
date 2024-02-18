@@ -6,15 +6,22 @@ description: Status of the most recent, including any current, execution of a do
 anyOf:
   - const: Scheduled
     '@id': stencila:Scheduled
-  - const: ScheduledPreviouslyFailed
-    '@id': stencila:ScheduledPreviouslyFailed
+    description: The execution of the node has been scheduled.
+  - const: Skipped
+    '@id': stencila:Skipped
+    description: The execution of the node has been skipped because it is unnecessary.
+  - const: Empty
+    '@id': stencila:Empty
+    description: The execution of the node has been skipped because it has code, or other property, that is empty.
   - const: Running
     '@id': stencila:Running
-  - const: RunningPreviouslyFailed
-    '@id': stencila:RunningPreviouslyFailed
+    description: The execution of the node is currently running
   - const: Succeeded
     '@id': stencila:Succeeded
+    description: The execution of the node is succeed
   - const: Failed
     '@id': stencila:Failed
+    description: The execution of the node is failed
   - const: Cancelled
     '@id': stencila:Cancelled
+    description: The execution of the node was cancelled

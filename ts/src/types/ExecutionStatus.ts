@@ -4,9 +4,9 @@
  */
 export type ExecutionStatus =
   'Scheduled' |
-  'ScheduledPreviouslyFailed' |
+  'Skipped' |
+  'Empty' |
   'Running' |
-  'RunningPreviouslyFailed' |
   'Succeeded' |
   'Failed' |
   'Cancelled';
