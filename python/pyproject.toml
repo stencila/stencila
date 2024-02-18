@@ -28,9 +28,9 @@ classifiers = [
 ]
 
 dependencies = [
-    "dataclasses-json==0.6.4",
-    'StrEnum==0.4.15;python_version<"3.11"',
-    "beartype==0.17.2"
+  "dataclasses-json==0.6.4",
+  'StrEnum==0.4.15;python_version<"3.11"',
+  "beartype==0.17.2",
 ]
 
 [project.urls]
@@ -91,34 +91,35 @@ omit = [
 # https://docs.astral.sh/ruff/
 line-length = 88
 select = [
-  'F',    # pyflakes
-  'E',    # codestyle
-  'W',    # warning
-  'C90',  # complexity
-  'N',    # pep-naming
-  'UP',   # upgrade
-  'S',    # bandit
-  'B',    # bug-bear
-  'A',    # builtins
-  'C4',   # comprehensions
-  'PIE',  # misc
-  'ISC',  # literal concat
-  'T20',  # print statements
-  'PT',   # pytest
-  'RET',  # returns
-  'SIM',  # simplify
-  'PTH',  # use pathlib
-  'Q',    # quotes
-  'PLR',  # refactor
-  'PLE',  # pylint errors
-  'I001', # isort
+  "F",    # pyflakes
+  "E",    # codestyle
+  "W",    # warning
+  "C90",  # complexity
+  "N",    # pep-naming
+  "UP",   # upgrade
+  "S",    # bandit
+  "B",    # bug-bear
+  "A",    # builtins
+  "C4",   # comprehensions
+  "PIE",  # misc
+  "ISC",  # literal concat
+  "T20",  # print statements
+  "PT",   # pytest
+  "RET",  # returns
+  "SIM",  # simplify
+  "PTH",  # use pathlib
+  "Q",    # quotes
+  "PLR",  # refactor
+  "PLE",  # pylint errors
+  "I001", # isort
 ]
-ignore = [
-  "B019",   # let's not worry about this.
-  "SIM108", # Ternary not that clear (opinion!)
-  "RET504", # This seems broken to me.
-  "N812",   # Common practice.
-]
+
+# ignore = [
+#   "B019",   # let's not worry about this.
+#   "SIM108", # Ternary not that clear (opinion!)
+#   "RET504", # This seems broken to me.
+#   "N812",   # Common practice.
+# ]
 
 # Automatically fixing is often premature.
 unfixable = [
@@ -129,16 +130,24 @@ unfixable = [
 src = ['python', 'tests']
 
 [tool.ruff.per-file-ignores]
-# Ignore ALL init import errors.
-#"__init__.py" = ['F401']
-
 # Ignore the import *, we need it to bring everything into the namespace for beartype.
-"shortcuts.py" = ['F405']
-"utilities.py" = ['F405']
-"**/types/*.py" = ['F405', 'F403', 'I001']
+"shortcuts.py" = ["F405"]
+"utilities.py" = ["F405"]
+
+"python/stencila/types/*.py" = [
+  "A002",
+  "A003",
+  "E402",
+  "E501",
+  "F401",
+  "F403",
+  "F405",
+  "I001",
+  "PLR0913",
+  "Q000",
+  "W293",
+]
 
 # Shadowing python builtins, but we don't want to break the old interface.
 "convert.py" = ['A002']
-
-## asserts and hard-coded values are fine in tests.
-"**/tests/*.py" = ["S101", "PLR2004"]
+# Generated files have lots of "issues".
