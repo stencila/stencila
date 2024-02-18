@@ -47,6 +47,7 @@ pub struct IfBlock {
     #[serde(alias = "clause")]
     #[serde(deserialize_with = "one_or_many")]
     #[strip(code)]
+    #[walk]
     #[cfg_attr(feature = "proptest-min", proptest(value = r#"vec![ibc("true", None::<String>, [p([t("If clause")])])]"#))]
     #[cfg_attr(feature = "proptest-low", proptest(strategy = r#"vec(IfBlockClause::arbitrary(), size_range(1..=3))"#))]
     #[cfg_attr(feature = "proptest-high", proptest(strategy = r#"vec(IfBlockClause::arbitrary(), size_range(1..=10))"#))]
