@@ -245,6 +245,20 @@ enum Command {
         strip_options: StripOptions,
     },
 
+    /// Execute a document
+    #[command(alias = "exec")]
+    Execute {
+        /// The path of the file to execute
+        ///
+        /// If not supplied the input content is read from `stdin`.
+        input: PathBuf,
+
+        /// The path of the file to write the executed document to
+        ///
+        /// If not supplied the output content is written to `stdout`.
+        output: Option<PathBuf>,
+    },
+
     /// Serve
     Serve(ServeOptions),
 
@@ -557,6 +571,19 @@ impl Cli {
                 .await?;
                 if !content.is_empty() {
                     let format = encode_options.format.unwrap_or(Format::Json);
+                    display::highlighted(&content, format)?;
+                }
+            }
+
+            Command::Execute { input, output } => {
+                let doc = Document::open(&input).await?;
+                doc.execute().await?;
+
+                let encode_options = codecs::EncodeOptions::default();
+                let format = encode_options.format.unwrap_or(Format::Text);
+
+                let content = doc.export(output.as_deref(), Some(encode_options)).await?;
+                if !content.is_empty() {
                     display::highlighted(&content, format)?;
                 }
             }

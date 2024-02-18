@@ -1,0 +1,9 @@
+[package]
+name = "node-execute"
+version = "0.0.0"
+edition = "2021"
+
+[dependencies]
+common = { path = "../common" }
+kernels = { path = "../kernels" }
+schema = { path = "../schema" }
