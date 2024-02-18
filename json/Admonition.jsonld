@@ -30,7 +30,7 @@
       }
     },
     {
-      "@id": "stencila:title",
+      "@id": "schema:headline",
       "@type": "rdfs:Property",
       "rdfs:label": "title",
       "rdfs:comment": "The title of the admonition.",

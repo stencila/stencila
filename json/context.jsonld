@@ -382,7 +382,7 @@
     "thumbnail": "schema:thumbnail",
     "timeUnit": "stencila:timeUnit",
     "timeUnits": "stencila:timeUnits",
-    "title": "stencila:title",
+    "title": "schema:headline",
     "transcript": "schema:transcript",
     "uniqueItems": "stencila:uniqueItems",
     "url": "schema:url",
