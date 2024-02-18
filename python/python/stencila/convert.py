@@ -7,22 +7,29 @@ from stencila.utilities import from_json, to_json
 
 async def from_string(string: str, format: Optional[str] = "json") -> Node:
     """
-    Decode a Stencila Schema node from a string
+    Decode a Stencila Schema node from a string.
 
-    :param str string: The string to decode to a node
-    :param str format: The format to decode from
-    :return: A Stencila Schema node
+    Args:
+        string (str): The string to decode to a node.
+        format (Optional[str]): The format to decode from. Defaults to "json".
+
+    Returns:
+        Node: A Stencila Schema node.
     """
     return from_json(await _stencila.convert.from_string(string, {"format": format}))
 
 
 async def from_path(path: str, format: Optional[str] = None) -> Node:
     """
-    Decode a Stencila Schema node from a filesystem path
+    Decode a Stencila Schema node from a filesystem path.
 
-    :param str path: The path to decode to a node
-    :param str format: The format to decode from (if not supplied, inferred from the path)
-    :return: A Stencila Schema node
+    Args:
+        path (str): The path to decode to a node.
+        format (Optional[str]): The format to decode from. If not supplied, it
+            is inferred from the path.
+
+    Returns:
+        Node: A Stencila Schema node.
     """
     return from_json(await _stencila.convert.from_path(path, {"format": format}))
 
@@ -35,13 +42,17 @@ async def to_string(
     compact: bool = False,
 ) -> str:
     """
-    Encode a Stencila Schema node to a string
+    Encode a Stencila Schema node to a string.
 
-    :param Node node: The node to encode
-    :param str format: The format to encode to
-    :param bool standalone: Whether to encode as a standalone document
-    :param bool compact: Whether to encode in compact form
-    :return: The node encoded as a string in the format
+    Args:
+        node (Node): The node to encode.
+        format (Optional[str]): The format to encode to. Defaults to "json".
+        standalone (bool): Whether to encode as a standalone document. Defaults
+            to False.
+        compact (bool): Whether to encode in compact form. Defaults to False.
+
+    Returns:
+        str: The node encoded as a string in the specified format.
     """
     return await _stencila.convert.to_string(
         to_json(node), {"format": format, "standalone": standalone, "compact": compact}
@@ -57,14 +68,18 @@ async def to_path(
     compact: bool = False,
 ):
     """
-    Encode a Stencila Schema node to a filesystem path
+    Encode a Stencila Schema node to a filesystem path.
 
-    :param Node node: The node to encode
-    :param str path: The path to encode the node to
-    :param str format: The format to encode to (if not supplied, inferred from the path)
-    :param bool standalone: Whether to encode as a standalone document
-    :param bool compact: Whether to encode in compact form
+    Args:
+        node (Node): The node to encode.
+        path (str): The path to encode the node to.
+        format (Optional[str]): The format to encode to. If not supplied, it is
+            inferred from the path.
+        standalone (bool): Whether to encode as a standalone document. Defaults
+            to False.
+        compact (bool): Whether to encode in compact form. Defaults to False.
     """
+
     return await _stencila.convert.to_path(
         to_json(node),
         path,
@@ -72,7 +87,7 @@ async def to_path(
     )
 
 
-async def from_to(
+async def from_to(  # noqa: PLR0913
     input: Optional[str] = None,
     output: Optional[str] = None,
     *,
@@ -82,14 +97,24 @@ async def from_to(
     to_compact=False,
 ) -> str:
     """
-    Convert a document from one format to another
+    Convert a document from one format to another.
 
-    :param str input: The input path (if not supplied, stdin will be read)
-    :param str output: The output path (if not supplied, the converted input will be returned)
-    :param str from_format: The format of the input (if not supplied, inferred from the input path)
-    :param str to_format: The format of the output (if not supplied, inferred from the output path)
-    :param bool to_standalone: Whether to encode as a standalone document
-    :param bool to_compact: Whether to encode in compact form
+    Args:
+        input (Optional[str]): The input path. If not supplied, stdin will be
+            read.
+        output (Optional[str]): The output path. If not supplied, the converted
+            input will be returned.
+        from_format (Optional[str]): The format of the input. If not supplied,
+            inferred from the input path.
+        to_format (Optional[str]): The format of the output. If not supplied,
+            inferred from the output path.
+        to_standalone (bool): Whether to encode as a standalone document.
+            Defaults to False.
+        to_compact (bool): Whether to encode in compact form. Defaults to
+            False.
+
+    Returns:
+        str: The converted document as a string, or the path to the converted document.
     """
     return await _stencila.convert.from_to(
         input if input else "",
