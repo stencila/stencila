@@ -1,7 +1,6 @@
 import '@shoelace-style/shoelace/dist/components/button/button'
 import '@shoelace-style/shoelace/dist/components/icon/icon'
-import '@shoelace-style/shoelace/dist/components/tooltip/tooltip'
-
+import SlTooltip from '@shoelace-style/shoelace/dist/components/tooltip/tooltip'
 import { apply, css } from '@twind/core'
 import { LitElement, html } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
@@ -35,6 +34,12 @@ export class UIIconButton extends LitElement {
   tooltip?: string
 
   /**
+   * The placement of the button's tooltip
+   */
+  @property({ attribute: 'tooltip-placement' })
+  tooltipPlacement?: SlTooltip['placement'] = 'top'
+
+  /**
    * Any custom classes to pass to the button element
    */
   @property()
@@ -60,7 +65,9 @@ export class UIIconButton extends LitElement {
 
   override render() {
     if (this.tooltip) {
-      return html`<sl-tooltip content=${this.tooltip}
+      return html`<sl-tooltip
+        content=${this.tooltip}
+        placement=${this.tooltipPlacement}
         >${this.renderButton()}</sl-tooltip
       >`
     } else {
