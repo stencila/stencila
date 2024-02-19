@@ -8,6 +8,7 @@ import { StencilaGutterMarker } from './component'
 
 // TODO: This should be all `Block` node types and should be
 // an array/function in @stencila/types
+// See https://github.com/stencila/stencila/issues/2044
 const gutterMarkerElements: readonly NodeType[] = [
   'Claim',
   'CodeBlock',
