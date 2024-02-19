@@ -165,8 +165,11 @@ export class DirectoryView extends LitElement {
   override render() {
     return html`
       <nav class="py-2 px-4 flex justify-end space-x-2">
+        <!--
+        TODO: Implement these buttons. See https://github.com/stencila/stencila/issues/2045
         <stencila-ui-icon-button icon="add-directory"></stencila-ui-icon-button>
         <stencila-ui-icon-button icon="add-file"></stencila-ui-icon-button>
+        -->
       </nav>
       <div
         class="border-neutral-200 bg-white rounded-t border border-b-0 h-[calc(100vh-5rem)] overflow-y-scroll px-0 pb-2 w-full"
