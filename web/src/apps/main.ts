@@ -1,5 +1,6 @@
 import { provide } from '@lit/context'
 import type SlTab from '@shoelace-style/shoelace/dist/components/tab/tab'
+import '@shoelace-style/shoelace/dist/components/tab/tab'
 import '@shoelace-style/shoelace/dist/components/tab-group/tab-group'
 import '@shoelace-style/shoelace/dist/components/tab-panel/tab-panel'
 import type { SlCloseEvent } from '@shoelace-style/shoelace/dist/events/events'
