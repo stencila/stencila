@@ -1,0 +1,41 @@
+
+# Same as Black.
+line-length = 88
+indent-width = 4
+
+# Assume Python 3.9 as lowest supported.
+target-version = "py39"
+
+[lint]
+# Enable Pyflakes (`F`) and a subset of the pycodestyle (`E`)  codes by default.
+# Unlike Flake8, Ruff doesn't enable pycodestyle warnings (`W`) or
+# McCabe complexity (`C901`) by default.
+select = [
+  'F', # pyflakes
+  'E', # codestyle
+  'W', # warning
+  # 'C90', # complexity
+  'N',  # pep-naming
+  'UP', # upgrade
+  # 'S',    # bandit
+  'B',   # bug-bear
+  'A',   # builtins
+  'C4',  # comprehensions
+  'PIE', # misc
+  'ISC', # literal concat
+  'T20', # print statements
+  'PT',  # pytest
+  'RET', # returns
+  'SIM', # simplify
+  'PTH', # use pathlib
+  'Q',   # quotes
+  # 'PLR',  # refactor
+  'PLE',  # pylint errors
+  'I001', # isort
+]
+ignore = [
+  "B019",   # let's not worry about this.
+  "SIM108", # Ternary not that clear (opinion!)
+  "RET504", # This seems broken to me.
+  "N812",   # Common practice.
+]
