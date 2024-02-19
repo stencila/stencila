@@ -109,7 +109,7 @@ export class App extends LitElement {
 
   // TODO: the header should move to it's own component & maintain its own state.
   private renderHeader() {
-    return html`<header class="w-full flex items-end h-14 max-h-20">
+    return html`<header class="w-full flex items-end h-3 max-h-3">
       <nav class="flex justify-end bg-neutral-100 h-full w-full">
         <div class="flex-shrink-0 flex-grow-0 flex items-center p-4">
           <div class="ml-20 flex space-x-4">
