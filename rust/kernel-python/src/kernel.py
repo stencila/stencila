@@ -188,7 +188,10 @@ try:
         from matplotlib.artist import Artist
         from matplotlib.figure import Figure
 
-        if isinstance(value, (Artist, Figure)):
+        if (
+            value == matplotlib.pyplot.show
+            or isinstance(value, (Artist, Figure))
+        ):
             return True
 
         # This is somewhat crude but allows for calls that return lists of
