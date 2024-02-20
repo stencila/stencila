@@ -410,7 +410,7 @@ def determine_type_and_hint(value: Any) -> tuple[str, Any]:
         return "Array", {"type": "ArrayHint", "length": len(value)}
     if NUMPY_AVAILABLE and isinstance(value, np.ndarray):  # pyright: ignore
         return "Array", ndarray_to_hint(value)
-    if NUMPY_AVAILABLE and isinstance(value, np.ndarray):  # pyright: ignore
+    if NUMPY_AVAILABLE and isinstance(value, pd.DataFrame):  # pyright: ignore
         return "Datatable", dataframe_to_hint(value)
     if isinstance(value, dict):
         typ = value.get("type")
