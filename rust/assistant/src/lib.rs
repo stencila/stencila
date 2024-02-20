@@ -42,6 +42,7 @@ pub use format;
 pub use merge;
 pub use node_authorship;
 pub use schema;
+pub use secrets;
 
 /// An instruction created within a document
 #[skip_serializing_none]
