@@ -6,15 +6,15 @@ use common::{
 
 use crate::{delete, list, set};
 
-/// Secrets
-#[derive(Parser)]
+/// Manage secrets used by Stencila (e.g. API keys)
+#[derive(Debug, Parser)]
 pub struct Cli {
     #[command(subcommand)]
     command: Option<Command>,
 }
 
 /// A command to perform with secrets
-#[derive(Subcommand)]
+#[derive(Debug, Subcommand)]
 enum Command {
     /// List the secrets used by Stencila
     List,
@@ -28,13 +28,13 @@ enum Command {
     Delete(Delete),
 }
 
-#[derive(Args)]
+#[derive(Debug, Args)]
 struct Set {
     /// The name of the secret
     name: String,
 }
 
-#[derive(Args)]
+#[derive(Debug, Args)]
 struct Delete {
     /// The name of the secret
     name: String,

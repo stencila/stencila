@@ -23,6 +23,7 @@ format = { path = "../format" }
 is-terminal = "0.4.12"
 node-strip = { path = "../node-strip" }
 rustyline = "13.0.0"
+secrets = { path = "../secrets" }
 server = { path = "../server" }
 syntect = "5.2.0"
 tracing-error = "0.2.0"
