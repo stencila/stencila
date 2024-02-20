@@ -228,7 +228,8 @@ try:
                     "type": "DatatableColumn",
                     "name": str(column_name),
                     "values": values,
-                    "validator": ndarray_to_validator(column),
+                    # ndarray and columns are noth the same, but we just need the dtype.
+                    "validator": ndarray_to_validator(column),  # type: ignore
                 }
             )
 
