@@ -379,8 +379,14 @@ export class SourceView extends TWLitElement {
   }
 
   protected override render() {
+    /* 
+      height offset for the source view container,
+      includes header height and tab container border
+    */
+    const heightOffset = '5rem - 1px'
+
     return html`
-      <div class="max-h-screen h-[calc(100vh-5rem)] relative">
+      <div class="h-full max-h-[calc(100vh-${heightOffset})] relative">
         <div id="codemirror" class="h-full ${this.codeMirrorCSS}"></div>
       </div>
       <div hidden ${ref(this.domElement)}>

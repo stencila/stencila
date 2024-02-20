@@ -151,7 +151,7 @@ export class App extends LitElement {
       this.theme = e.item.value
     }
 
-    return html` <stencila-ui-selector
+    return html`<stencila-ui-selector
       label="Theme"
       target=${this.theme}
       targetClass="theme-selector"
