@@ -5,6 +5,7 @@ import '@shoelace-style/shoelace/dist/components/tab-group/tab-group'
 import '@shoelace-style/shoelace/dist/components/tab-panel/tab-panel'
 import type { SlCloseEvent } from '@shoelace-style/shoelace/dist/events/events'
 import type { File } from '@stencila/types'
+import { apply, css } from '@twind/core'
 import { LitElement, html } from 'lit'
 import { customElement, property, state } from 'lit/decorators.js'
 
@@ -109,7 +110,7 @@ export class App extends LitElement {
 
   // TODO: the header should move to it's own component & maintain its own state.
   private renderHeader() {
-    return html`<header class="w-full flex items-end h-3 max-h-3">
+    return html`<header class="w-full flex items-end h-12 max-h-12">
       <nav class="flex justify-end bg-neutral-100 h-full w-full">
         <div class="flex-shrink-0 flex-grow-0 flex items-center p-4">
           <div class="ml-20 flex space-x-4">
@@ -150,7 +151,7 @@ export class App extends LitElement {
       this.theme = e.item.value
     }
 
-    return html` <stencila-ui-selector
+    return html`<stencila-ui-selector
       label="Theme"
       target=${this.theme}
       targetClass="theme-selector"
@@ -183,11 +184,61 @@ export class App extends LitElement {
       )
     }
 
+    const baseTabStyles = apply([
+      'relative',
+      'mr-1',
+      'bg-grey-200',
+      'border border-gray-200 border-b-0 rounded-t',
+    ])
+
+    const tabClasses = css`
+      &::part(base) {
+        color: #171817;
+        height: 2rem;
+        font-size: 14px;
+        font-weight: 500;
+      }
+      &[active] {
+        background-color: #ffffff;
+
+        &::part(base) {
+          font-weight: 400;
+        }
+
+        &::after {
+          content: '';
+          position: absolute;
+          height: 1px;
+          width: 100%;
+          background-color: #ffffff;
+          left: 0px;
+          bottom: -1px;
+        }
+      }
+    `
+
+    // disable the 'active-tab-indicator'
+    const tabGroupClasses = css`
+      &::part(active-tab-indicator) {
+        display: none;
+      }
+      &::part(tabs) {
+        border-bottom: 1px solid #dedede;
+      }
+    `
+
+    const tabPanelClasses = css`
+      &::part(base) {
+        padding-top: 0px;
+      }
+    `
+
     const content = this.docs
       ? this.docs.map(
           ({ docId, name }) => html`
             <sl-tab
               slot="nav"
+              class="${baseTabStyles} ${tabClasses}"
               panel=${docId}
               ?active=${docId === this.activeDoc}
               closable
@@ -195,7 +246,11 @@ export class App extends LitElement {
               <!-- TODO: disambiguate files with same name in different folders -->
               ${name}
             </sl-tab>
-            <sl-tab-panel name=${docId} ?active=${docId === this.activeDoc}>
+            <sl-tab-panel
+              name=${docId}
+              ?active=${docId === this.activeDoc}
+              class="${tabPanelClasses}"
+            >
               <stencila-ui-view-container
                 view=${this.contextObject.currentView}
               >
@@ -210,6 +265,7 @@ export class App extends LitElement {
 
     return html`<sl-tab-group
       @sl-close=${(event: SlCloseEvent) => closeTab(event)}
+      class="${tabGroupClasses}"
       >${content}</sl-tab-group
     >`
   }
