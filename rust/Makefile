@@ -31,6 +31,8 @@ fix:
 # Run linting checks
 lint:
 	cargo clippy --workspace --tests
+	ruff -n kernel-python/src/kernel.py
+	pyright kernel-python/src/kernel.py
 
 # Setup before running tests
 test-setup:

@@ -1,30 +1,108 @@
 #!/usr/bin/env python3
 
+# We are using `pyright` for type checking. We disable these as the imports are
+# not necessarily there. And the unbound variables occur because of the
+# optional imports.
+#
+# pyright: reportMissingImports=false
+# pyright: reportPossiblyUnboundVariable = false
+
+import io
 import json
 import os
 import resource
 import sys
 import traceback
-import io
+from typing import Any, Literal, TypedDict, Union
+
+# 3.9 does not have `type` or TypeAlias.
+PrimitiveType = Union[str, int, float, bool, None]
+
+
+# TODO: This is just a first pass at typing. It could be improved.
+#
+# We are partially constrained by relying on 3.9 and not wanting to to import
+# `typing_extensions`.
+#
+# `total = False` is used to allow for any of the fields to be missing.
+# Not the best, but NotRequired is 3.11+.
+#
+# What we have here is useful, however, because this provides an overview of
+# the excepted types that are returned via the API.
+class ArrayHint(TypedDict):
+    type: Literal["ArrayHint"]
+    length: int
+    itemTypes: list[str]
+    nulls: Union[int, None]
+    minimum: Union[PrimitiveType, None]
+    maximum: Union[PrimitiveType, None]
+
+
+class DatatableColumnHint(TypedDict):
+    type: Literal["DatatableColumnHint"]
+    name: str
+    itemType: PrimitiveType
+
+
+class DatatableHint(TypedDict):
+    type: Literal["DatatableHint"]
+    rows: int
+    columns: list[DatatableColumnHint]
+
+
+class Validator(TypedDict, total=False):
+    type: Literal[
+        "BooleanValidator",
+        "IntegerValidator",
+        "NumberValidator",
+        "TimestampValidator",
+        "DurationValidator",
+    ]
+    minimum: int
+
+
+class ArrayValidator(TypedDict):
+    type: Literal["ArrayValidator"]
+    itemsValidator: Union[Validator, None]
+
+
+class DatatableColumn(TypedDict):
+    type: Literal["DatatableColumn"]
+    name: str
+    values: list[PrimitiveType]
+    validator: Union[ArrayValidator, None]
+
+
+class Datatable(TypedDict):
+    type: Literal["Datatable"]
+    columns: list[DatatableColumn]
+
+
+class ImageObject(TypedDict):
+    type: Literal["ImageObject"]
+    contentUrl: str
+
 
 # During development, set DEV environment variable to True
-dev = os.getenv("DEV") == "true"
+DEV_MODE = os.getenv("DEV") == "true"
 
 # Define constants based on development status
-READY = "READY" if dev else "\U0010ACDC"
-LINE = "|" if dev else "\U0010ABBA"
-EXEC = "EXEC" if dev else "\U0010B522"
-EVAL = "EVAL" if dev else "\U001010CC"
-FORK = "FORK" if dev else "\U0010DE70"
-LIST = "LIST" if dev else "\U0010C155"
-GET = "GET" if dev else "\U0010A51A"
-SET = "SET" if dev else "\U00107070"
-REMOVE = "REMOVE" if dev else "\U0010C41C"
-END = "END" if dev else "\U0010CB40"
+READY = "READY" if DEV_MODE else "\U0010ACDC"
+LINE = "|" if DEV_MODE else "\U0010ABBA"
+EXEC = "EXEC" if DEV_MODE else "\U0010B522"
+EVAL = "EVAL" if DEV_MODE else "\U001010CC"
+FORK = "FORK" if DEV_MODE else "\U0010DE70"
+LIST = "LIST" if DEV_MODE else "\U0010C155"
+GET = "GET" if DEV_MODE else "\U0010A51A"
+SET = "SET" if DEV_MODE else "\U00107070"
+REMOVE = "REMOVE" if DEV_MODE else "\U0010C41C"
+END = "END" if DEV_MODE else "\U0010CB40"
 
 # Try to get the maximum number of file descriptors the process can have open
-# SC_OPEN_MAX "The maximum number of files that a process can have open at any time" sysconf(3)
-# RLIMIT_NOFILE "specifies a value one greater than the maximum file descriptor number that can be opened by this process." getrlimit(2)
+# SC_OPEN_MAX "The maximum number of files that a process can have open at any
+# time" sysconf(3)
+# RLIMIT_NOFILE "specifies a value one greater than the maximum file descriptor
+# number that can be opened by this process." getrlimit(2)
 try:
     MAXFD = os.sysconf("SC_OPEN_MAX")
 except Exception:
@@ -49,7 +127,7 @@ try:
     )
     NUMPY_FLOAT_TYPES = (np.half, np.single, np.double, np.longdouble)
 
-    def ndarray_to_hint(array):
+    def ndarray_to_hint(array: np.ndarray) -> ArrayHint:
         if array.dtype in NUMPY_BOOL_TYPES:
             items_type = "Boolean"
             convert_type = bool
@@ -83,25 +161,28 @@ try:
             "maximum": convert_type(np.nanmax(array)) if length else None,
         }
 
-    def ndarray_to_validator(value):
+    def ndarray_to_validator(value: np.ndarray) -> ArrayValidator:
+        # Help the type system out by predetermining the type.
+        validator: Validator | None
         if value.dtype in NUMPY_BOOL_TYPES:
-            validator = dict(type="BooleanValidator")
+            validator = {"type": "BooleanValidator"}
         elif value.dtype in NUMPY_INT_TYPES:
-            validator = dict(type="IntegerValidator")
+            validator = {"type": "IntegerValidator"}
         elif value.dtype in NUMPY_UINT_TYPES:
-            validator = dict(type="IntegerValidator", minimum=0)
+            # validator = {"type": "IntegerValidator", "minimum": 0}
+            validator = {"type": "IntegerValidator"}
         elif value.dtype in NUMPY_FLOAT_TYPES:
-            validator = dict(type="NumberValidator")
+            validator = {"type": "NumberValidator"}
         elif str(value.dtype) == "datetime64":
-            validator = dict(type="TimestampValidator")
+            validator = {"type": "TimestampValidator"}
         elif str(value.dtype) == "timedelta64":
-            validator = dict(type="DurationValidator")
+            validator = {"type": "DurationValidator"}
         else:
             validator = None
 
-        return dict(type="ArrayValidator", itemsValidator=validator)
+        return {"type": "ArrayValidator", "itemsValidator": validator}
 
-    def ndarray_to_array(array):
+    def ndarray_to_array(array: np.ndarray) -> list[PrimitiveType]:
         return array.tolist()
 
 except ImportError:
@@ -114,21 +195,22 @@ try:
 
     PANDAS_AVAILABLE = True
 
-    def dataframe_to_hint(df):
+    def dataframe_to_hint(df: pd.DataFrame) -> DatatableHint:
         columns = []
         for column_name in df.columns:
             column = df[column_name]
 
-            hint = ndarray_to_hint(column)
+            # We fudge the conversion here, and so break type hints
+            hint: DatatableColumnHint = ndarray_to_hint(column)  # type: ignore
             hint["type"] = "DatatableColumnHint"
             hint["name"] = str(column_name)
-            hint["itemType"] = hint["itemTypes"][0]
+            hint["itemType"] = hint["itemTypes"][0]  # type: ignore
 
             columns.append(hint)
 
         return {"type": "DatatableHint", "rows": len(df), "columns": columns}
 
-    def dataframe_to_datatable(df):
+    def dataframe_to_datatable(df: pd.DataFrame) -> Datatable:
         columns = []
         for column_name in df.columns:
             column = df[column_name]
@@ -146,20 +228,19 @@ try:
                     "type": "DatatableColumn",
                     "name": str(column_name),
                     "values": values,
-                    "validator": ndarray_to_validator(column),
+                    # ndarray and columns are noth the same, but we just need the dtype.
+                    "validator": ndarray_to_validator(column),  # type: ignore
                 }
             )
 
         return {"type": "Datatable", "columns": columns}
 
-    def dataframe_from_datatable(dt):
+    def dataframe_from_datatable(dt: Datatable) -> pd.DataFrame:
         columns = dt.get("columns") or []
-        data = dict(
-            [
-                (column.get("name") or "unnamed", column.get("values") or [])
-                for column in columns
-            ]
-        )
+        data = {
+            column.get("name") or "unnamed": column.get("values") or []
+            for column in columns
+        }
 
         return pd.DataFrame(data)
 
@@ -173,36 +254,35 @@ try:
 
     MATPLOTLIB_AVAILABLE = True
 
+    # Activate the `Agg` backend to avoid using the display .
+    # This also works on all platforms.
     matplotlib.use("Agg")
 
     # Monkey patch pyplot.show to return itself to
     # indicate that an image should be returned as an output
     # rather than launching a display
-    def show(*args, **kwargs):
+    def show(*args, **kwargs):  # noqa
         return matplotlib.pyplot.show
 
     matplotlib.pyplot.show = show
 
-    def is_matplotlib(value):
+    def is_matplotlib(value: Any) -> bool:
         """Is the value a matplotlib value or return of a matplotlib call?"""
         from matplotlib.artist import Artist
         from matplotlib.figure import Figure
 
-        if (
-            value == matplotlib.pyplot.show
-            or isinstance(value, Artist)
-            or isinstance(value, Figure)
-        ):
+        if value == matplotlib.pyplot.show or isinstance(value, (Artist, Figure)):
             return True
 
         # This is somewhat crude but allows for calls that return lists of
         # matplotlib types not just single objects e.g. `pyplot.plot()`
         rep = repr(value)
-        return rep.startswith("<matplotlib.") or rep.startswith("[<matplotlib.")
+        return rep.startswith(("<matplotlib.", "[<matplotlib."))
 
-    def matplotlib_to_image_object():
+    def matplotlib_to_image_object() -> ImageObject:
         """Convert the current matplotlib figure to a `ImageObject`"""
         import base64
+
         from matplotlib import pyplot
 
         image = io.BytesIO()
@@ -221,81 +301,81 @@ except ImportError:
 
 
 # Serialize a Python object as JSON (falling back to a string)
-def to_json(object):
-    if isinstance(object, (bool, int, float, str)):
-        return json.dumps(object)
+def to_json(obj: Any) -> str:
+    if isinstance(obj, (bool, int, float, str)):
+        return json.dumps(obj)
 
-    if NUMPY_AVAILABLE and isinstance(object, np.ndarray):
-        return json.dumps(ndarray_to_array(object))
+    if NUMPY_AVAILABLE and isinstance(obj, np.ndarray):  # pyright: ignore
+        return json.dumps(ndarray_to_array(obj))
 
-    if PANDAS_AVAILABLE and isinstance(object, pd.DataFrame):
-        return json.dumps(dataframe_to_datatable(object))
+    if PANDAS_AVAILABLE and isinstance(obj, pd.DataFrame):  # pyright: ignore
+        return json.dumps(dataframe_to_datatable(obj))
 
-    if MATPLOTLIB_AVAILABLE and is_matplotlib(object):
+    if MATPLOTLIB_AVAILABLE and is_matplotlib(obj):
         return json.dumps(matplotlib_to_image_object())
 
     try:
-        return json.dumps(object)
-    except:
-        return str(object)
+        return json.dumps(obj)
+    except:  # noqa: E722
+        return str(obj)
 
 
 # Deserialize a Python object from JSON (falling back to a string)
-def from_json(string):
-    object = json.loads(string)
+def from_json(string: str) -> Any:
+    obj = json.loads(string)
 
-    if isinstance(object, dict):
-        typ = object.get("type")
+    if isinstance(obj, dict):
+        typ = obj.get("type")
 
         if PANDAS_AVAILABLE and typ == "Datatable":
-            return dataframe_from_datatable(object)
+            return dataframe_from_datatable(obj)  # type: ignore
 
-    return object
+    return obj
 
 
 # Monkey patch `print` to encode individual objects (if no options used)
-def print(*objects, sep=" ", end="\n", file=sys.stdout, flush=False):
+def print(*objects, sep=" ", end="\n", file=sys.stdout, flush=False):  # noqa
     if sep != " " or end != "\n" or file != sys.stdout or flush:
-        return __builtins__.print(*objects, sep, end, file, flush)
-    for object in objects:
-        sys.stdout.write(to_json(object) + END + "\n")
+        __builtins__.print(*objects, sep, end, file, flush)
+    for obj in objects:
+        sys.stdout.write(to_json(obj) + END + "\n")
 
 
 # Create the initial context with monkey patched print
-context = {"print": print}
+CONTEXT: dict[str, Any] = {"print": print}
 
 
 # Execute lines of code
-def execute(lines):
+def execute(lines: list[str]) -> None:
     # If the last line is compilable as an `eval`-able
     # expression, then return it as a value. Otherwise
     # just execute all the lines
     rest, last = lines[:-1], lines[-1]
     try:
         last = compile(last, "<code>", "eval")
-    except:
+    except:  # noqa: E722
         compiled = compile("\n".join(lines), "<code>", "exec")
-        exec(compiled, context)
+        exec(compiled, CONTEXT)
     else:
         if rest:
             joined = "\n".join(rest)
             compiled = compile(joined, "<code>", "exec")
-            exec(compiled, context)
-        value = eval(last, context)
+            exec(compiled, CONTEXT)
+        value = eval(last, CONTEXT)
         if value is not None:
             sys.stdout.write(to_json(value))
 
 
 # Evaluate an expression
-def evaluate(expression):
+def evaluate(expression: str) -> None:
     if expression:
-        value = eval(expression, context)
+        value = eval(expression, CONTEXT)
         sys.stdout.write(to_json(value))
 
 
-# List variables in the context
-def list_variables():
-    for name, value in context.items():
+# List variables in the CONTEXT
+def list_variables() -> None:
+    for name, value in CONTEXT.items():
         if name == "print":
             continue
 
@@ -315,65 +395,64 @@ def list_variables():
 
 
 # Determine node type and value hint for a variable
-def determine_type_and_hint(value):
+# TODO: The return type of this needs some work. Look at th API expectations
+def determine_type_and_hint(value: Any) -> tuple[str, Any]:
     if value is None:
         return "Null", None
-    elif isinstance(value, bool):
+    if isinstance(value, bool):
         return "Boolean", value
-    elif isinstance(value, int):
+    if isinstance(value, int):
         return "Integer", value
-    elif isinstance(value, float):
+    if isinstance(value, float):
         return "Number", value
-    elif isinstance(value, str):
+    if isinstance(value, str):
         return "String", {"type": "StringHint", "chars": len(value)}
-    elif isinstance(value, (list, tuple)):
+    if isinstance(value, (list, tuple)):
         return "Array", {"type": "ArrayHint", "length": len(value)}
-    elif NUMPY_AVAILABLE and isinstance(value, np.ndarray):
+    if NUMPY_AVAILABLE and isinstance(value, np.ndarray):  # pyright: ignore
         return "Array", ndarray_to_hint(value)
-    elif PANDAS_AVAILABLE and isinstance(value, pd.DataFrame):
+    if NUMPY_AVAILABLE and isinstance(value, pd.DataFrame):  # pyright: ignore
         return "Datatable", dataframe_to_hint(value)
-    elif isinstance(value, dict):
+    if isinstance(value, dict):
         typ = value.get("type")
         if typ:
             return (str(typ), None)
-        else:
-            length = len(value)
-            keys = [str(key) for key in value.keys()]
-            values = [determine_type_and_hint(value)[1] for value in value.values()]
-            return (
-                "Object",
-                {
-                    "type": "ObjectHint",
-                    "length": length,
-                    "keys": keys,
-                    "values": values,
-                },
-            )
 
-    else:
-        return "Object", {"type": "Unknown"}
+        length = len(value)
+        keys = [str(key) for key in value]
+        values = [determine_type_and_hint(value)[1] for value in value.values()]
+        return (
+            "Object",
+            {
+                "type": "ObjectHint",
+                "length": length,
+                "keys": keys,
+                "values": values,
+            },
+        )
+
+    return "Object", {"type": "Unknown"}
 
 
 # Get a variable
-def get_variable(name):
-    value = context.get(name)
+def get_variable(name: str) -> None:
+    value = CONTEXT.get(name)
     if value is not None:
         sys.stdout.write(to_json(value))
 
 
 # Set a variable
-def set_variable(name, value):
-    context[name] = from_json(value)
+def set_variable(name: str, value: str) -> None:
+    CONTEXT[name] = from_json(value)
 
 
 # Remove a variable
-def remove_variable(name):
-    context.pop(name, None)
+def remove_variable(name: str) -> None:
+    CONTEXT.pop(name, None)
 
 
 # Fork the kernel instance
-def fork(pipes):
-
+def fork(pipes: list[str]) -> None:
     pid = os.fork()
     if pid == 0:
         # Close all file descriptors so that we're not interfering with
@@ -388,67 +467,73 @@ def fork(pipes):
         sys.stdout.write(str(pid))
 
 
-# Signal that ready to receive tasks
-for stream in (sys.stdout, sys.stderr):
-    stream.write(READY + "\n")
-
-# Handle tasks
-while True:
-    task = input().strip()
-    if not task:
-        continue
-
-    lines = task.split(LINE)
-
-    try:
-        task_type = lines[0]
-
-        if task_type == EXEC:
-            execute(lines[1:])
-        elif task_type == EVAL:
-            evaluate(lines[1])
-        elif task_type == LIST:
-            list_variables()
-        elif task_type == GET:
-            get_variable(lines[1])
-        elif task_type == SET:
-            set_variable(lines[1], lines[2])
-        elif task_type == REMOVE:
-            remove_variable(lines[1])
-        elif task_type == FORK:
-            fork(lines[1:])
-        else:
-            raise ValueError(f"Unrecognized task: {task_type}")
-
-    except KeyboardInterrupt:
-        pass
-
-    except Exception as e:
-        stack_trace = io.StringIO()
-        traceback.print_exc(file=stack_trace)
-        stack_trace = stack_trace.getvalue()
-
-        # Remove the first three lines (the header and where we were in `kernel.py`)
-        # and the last line which repeats the message
-        stack_trace = "\n".join(stack_trace.split("\n")[3:-1])
-
-        # Remove the "double" exception that can be caused by re-throwing the exception
-        position = stack_trace.find("During handling of the above exception")
-        if position:
-            stack_trace = stack_trace[:position].strip()
-
-        sys.stderr.write(
-            to_json(
-                {
-                    "type": "ExecutionMessage",
-                    "level": "Error",
-                    "message": str(e),
-                    "errorType": type(e).__name__,
-                    "stackTrace": stack_trace,
-                }
-            )
-            + "\n"
-        )
-
+def main() -> None:
+    # Signal that ready to receive tasks
     for stream in (sys.stdout, sys.stderr):
         stream.write(READY + "\n")
+
+    # Handle tasks
+    while True:
+        task = input().strip()
+        if not task:
+            continue
+
+        lines = task.split(LINE)
+
+        try:
+            task_type = lines[0]
+
+            if task_type == EXEC:
+                execute(lines[1:])
+            elif task_type == EVAL:
+                evaluate(lines[1])
+            elif task_type == LIST:
+                list_variables()
+            elif task_type == GET:
+                get_variable(lines[1])
+            elif task_type == SET:
+                set_variable(lines[1], lines[2])
+            elif task_type == REMOVE:
+                remove_variable(lines[1])
+            elif task_type == FORK:
+                fork(lines[1:])
+            else:
+                raise ValueError(f"Unrecognized task: {task_type}")
+
+        except KeyboardInterrupt:
+            pass
+
+        except Exception as e:
+            stack_trace = io.StringIO()
+            traceback.print_exc(file=stack_trace)
+            stack_trace = stack_trace.getvalue()
+
+            # Remove the first three lines (the header and where we were in `kernel.py`)
+            # and the last line which repeats the message
+            stack_trace = "\n".join(stack_trace.split("\n")[3:-1])
+
+            # Remove the "double" exception that can be caused by re-throwing
+            # the exception
+            position = stack_trace.find("During handling of the above exception")
+            if position:
+                stack_trace = stack_trace[:position].strip()
+
+            sys.stderr.write(
+                to_json(
+                    {
+                        "type": "ExecutionMessage",
+                        "level": "Error",
+                        "message": str(e),
+                        "errorType": type(e).__name__,
+                        "stackTrace": stack_trace,
+                    }
+                )
+                + "\n"
+            )
+
+        for stream in (sys.stdout, sys.stderr):
+            stream.write(READY + "\n")
+
+
+if __name__ == "__main__":
+    main()
