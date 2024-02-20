@@ -5,3 +5,6 @@ edition = "2021"
 
 [dependencies]
 comfy-table = "7.1.0"
+common = { path = "../common" }
+is-terminal = "0.4.12"
+rpassword = "7.3"
