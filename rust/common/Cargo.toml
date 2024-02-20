@@ -26,7 +26,7 @@ quote = "1.0.35"
 regex = "1.10.3"
 reqwest = { version = "0.11.24", features = ["json"] }
 serde = { version = "1.0.196", features = ["derive", "rc"] }
-serde_json = { version = "1.0.113", features = ["preserve_order"] }
+serde_json = { version = "1.0.114", features = ["preserve_order"] }
 serde_with = "3.6.1"
 serde_yaml = "0.9.32"
 similar = { version = "2.4.0", features = ["unicode"] }
