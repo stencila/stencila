@@ -4,7 +4,7 @@ use common::{
     eyre::Result,
 };
 
-use crate::{delete, list, set};
+use crate::{delete, list, name_validator, set};
 
 /// Manage secrets used by Stencila (e.g. API keys)
 #[derive(Debug, Parser)]
@@ -31,12 +31,14 @@ enum Command {
 #[derive(Debug, Args)]
 struct Set {
     /// The name of the secret
+    #[arg(value_parser = name_validator)]
     name: String,
 }
 
 #[derive(Debug, Args)]
 struct Delete {
     /// The name of the secret
+    #[arg(value_parser = name_validator)]
     name: String,
 }
 

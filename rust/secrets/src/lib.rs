@@ -5,7 +5,11 @@ use cli_utils::{
     ToStdout,
 };
 use common::{
-    derive_more::Deref, eyre::Result, once_cell::sync::Lazy, serde::Serialize,
+    derive_more::Deref,
+    eyre::{bail, Result},
+    itertools::Itertools,
+    once_cell::sync::Lazy,
+    serde::Serialize,
     serde_with::skip_serializing_none,
 };
 
@@ -104,6 +108,22 @@ static SECRETS: Lazy<Vec<Secret>> = Lazy::new(|| {
     ]
 });
 
+/// Validate a name is a known secret
+pub fn name_validator(name: &str) -> Result<String, String> {
+    let possible_values = SECRETS
+        .iter()
+        .map(|secret| secret.name.as_str())
+        .collect_vec();
+    if possible_values.contains(&name) {
+        Ok(name.to_string())
+    } else {
+        Err(format!(
+            "not a known secret name [{}]",
+            possible_values.join(", ")
+        ))
+    }
+}
+
 /// Create a keyring entry for the secret
 fn entry(name: &str) -> Result<keyring::Entry> {
     Ok(keyring::Entry::new(name, "stencila")?)
@@ -139,6 +159,10 @@ pub fn list() -> Result<SecretList> {
 
 /// Set a secret
 pub fn set(name: &str, value: &str) -> Result<()> {
+    if !SECRETS.iter().any(|secret| secret.name == name) {
+        bail!("Only secrets used by Stencila can be set by Stencila")
+    }
+
     Ok(entry(name)?.set_password(value)?)
 }
 
@@ -154,5 +178,9 @@ pub fn env_or_get(name: &str) -> Result<String> {
 
 /// Delete a secret
 pub fn delete(name: &str) -> Result<()> {
+    if !SECRETS.iter().any(|secret| secret.name == name) {
+        bail!("Only secrets used by Stencila can be deleted by Stencila")
+    }
+
     Ok(entry(name)?.delete_password()?)
 }
