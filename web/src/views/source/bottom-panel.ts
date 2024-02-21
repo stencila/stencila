@@ -54,8 +54,8 @@ class PanelElement extends LitElement {
 
     return html`
       <div class=${styles}>
-        ${this.renderLineWrapButton()} ${this.renderFormatSelect()}
-        ${this.renderWriteOnlyButton()}
+        ${this.renderLineWrapButton()} ${this.renderWriteOnlyButton()}
+        ${this.renderFormatSelect()}
       </div>
     `
   }
@@ -63,6 +63,7 @@ class PanelElement extends LitElement {
   private renderLineWrapButton = () => {
     return html`
       <stencila-ui-icon-button
+        class="mr-2"
         icon="line-wrap"
         type="toggle"
         tooltip=${`Turn ${this.sourceView.lineWrap ? 'off' : 'on'} line wrapping`}

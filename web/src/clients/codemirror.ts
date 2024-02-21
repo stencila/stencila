@@ -63,10 +63,10 @@ export class CodeMirrorClient extends FormatClient {
    * If true the client will not send messages from the server
    * back to the `editor`
    */
-  private _writeOnly: boolean
+  private isWriteOnly: boolean
 
   set writeOnly(value: boolean) {
-    this._writeOnly = value
+    this.isWriteOnly = value
   }
 
   /**
@@ -83,7 +83,7 @@ export class CodeMirrorClient extends FormatClient {
     writeOnly: boolean = false
   ) {
     super(id, access, format)
-    this._writeOnly = writeOnly
+    this.isWriteOnly = writeOnly
   }
 
   /**
@@ -281,7 +281,7 @@ export class CodeMirrorClient extends FormatClient {
       If not in `writeOnly` mode Dispatch the transaction, 
       ignoring any updates while doing so.
     */
-    if (!this._writeOnly) {
+    if (!this.isWriteOnly) {
       this.ignoreUpdates = true
       this.editor.dispatch(transaction)
       this.ignoreUpdates = false
