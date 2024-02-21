@@ -58,10 +58,11 @@ pub struct SecretList(Vec<Secret>);
 impl ToStdout for SecretList {
     fn to_terminal(&self) -> impl std::fmt::Display {
         let mut table = table::new();
-        table.set_header(["Name", "Value"]);
+        table.set_header(["Name", "Description", "Value"]);
         for secret in self.iter() {
             table.add_row([
                 Cell::new(&secret.name).add_attribute(Attribute::Bold),
+                Cell::new(&secret.description),
                 match &secret.redacted {
                     Some(redacted) => Cell::new(redacted).fg(Color::Green),
                     None => Cell::new(""),
