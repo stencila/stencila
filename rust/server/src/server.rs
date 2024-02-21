@@ -275,15 +275,19 @@ async fn list_secrets() -> Result<Response, InternalError> {
 /// Set a secret
 #[tracing::instrument]
 async fn set_secret(Path(name): Path<String>, value: String) -> Result<Response, InternalError> {
-    secrets::set(&name, &value).map_err(InternalError::new)?;
-    Ok(StatusCode::CREATED.into_response())
+    match secrets::set(&name, &value) {
+        Ok(..) => Ok(StatusCode::CREATED.into_response()),
+        Err(error) => Ok((StatusCode::BAD_REQUEST, error.to_string()).into_response()),
+    }
 }
 
 /// Delete a secret
 #[tracing::instrument]
 async fn delete_secret(Path(name): Path<String>) -> Result<Response, InternalError> {
-    secrets::delete(&name).map_err(InternalError::new)?;
-    Ok(StatusCode::NO_CONTENT.into_response())
+    match secrets::delete(&name) {
+        Ok(..) => Ok(StatusCode::NO_CONTENT.into_response()),
+        Err(error) => Ok((StatusCode::BAD_REQUEST, error.to_string()).into_response()),
+    }
 }
 
 /// Resolve a URL path into a file or directory path
