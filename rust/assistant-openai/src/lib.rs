@@ -1,6 +1,7 @@
-use std::{env, sync::Arc};
+use std::sync::Arc;
 
 use async_openai::{
+    config::OpenAIConfig,
     types::{
         ChatCompletionRequestAssistantMessage, ChatCompletionRequestMessage,
         ChatCompletionRequestMessageContentPart, ChatCompletionRequestMessageContentPartImage,
@@ -22,14 +23,14 @@ use assistant::{
         tracing,
     },
     schema::{ImageObject, MessagePart},
-    Assistant, AssistantIO, GenerateOptions, GenerateOutput, GenerateTask, IsAssistantMessage,
+    secrets, Assistant, AssistantIO, GenerateOptions, GenerateOutput, GenerateTask,
+    IsAssistantMessage,
 };
 
+/// The name of the env var or secret for the API key
 const API_KEY: &str = "OPENAI_API_KEY";
 
 /// An assistant running on OpenAI
-///
-/// The environment variable OPENAI_API_KEY must be set to use these assistants.
 pub struct OpenAIAssistant {
     /// The OpenAI name for a model including any tag e.g. "llama2:13b"
     ///
@@ -136,6 +137,14 @@ impl Assistant for OpenAIAssistant {
 }
 
 impl OpenAIAssistant {
+    /// Create a client with the correct API key
+    fn client() -> Result<Client<OpenAIConfig>> {
+        let api_key = secrets::env_or_get(API_KEY)?;
+        Ok(Client::with_config(
+            OpenAIConfig::new().with_api_key(api_key),
+        ))
+    }
+
     #[tracing::instrument(skip_all)]
     async fn chat_completion<'task>(
         &self,
@@ -261,7 +270,7 @@ impl OpenAIAssistant {
         );
 
         // Send the request
-        let client = Client::new();
+        let client = Self::client()?;
         let mut response = client.chat().create(request).await?;
 
         // Get the content of the first message
@@ -390,7 +399,7 @@ impl OpenAIAssistant {
         );
 
         // Send the request
-        let client = Client::new();
+        let client = Self::client()?;
         let mut response = client.images().create(request).await?;
 
         // Get the output
@@ -410,7 +419,7 @@ impl OpenAIAssistant {
 
 /// Get a list of all available OpenAI assistants
 ///
-/// If the `OPENAI_API_KEY` env var is not set returns an empty list.
+/// If the OpenAI API key is not available returns an empty list.
 /// Lists the assistants available for the account in lexical order.
 ///
 /// This mapping of model name to context_length and input/output types will need to be
@@ -420,12 +429,11 @@ impl OpenAIAssistant {
 /// remote APIs need to be called to get a list of available models.
 #[cached(time = 3600, result = true)]
 pub async fn list() -> Result<Vec<Arc<dyn Assistant>>> {
-    if env::var(API_KEY).is_err() {
-        tracing::debug!("The {API_KEY} environment variable is not set");
+    let Ok(client) = OpenAIAssistant::client() else {
+        tracing::debug!("The environment variable or secret `{API_KEY}` is not available");
         return Ok(vec![]);
-    }
+    };
 
-    let client = Client::new();
     let models = client.models().list().await?;
 
     let assistants = models
@@ -486,7 +494,7 @@ mod tests {
     async fn list_assistants() -> Result<()> {
         let list = list().await?;
 
-        if env::var(API_KEY).is_err() {
+        if secrets::env_or_get(API_KEY).is_err() {
             assert_eq!(list.len(), 0)
         } else {
             assert!(!list.is_empty())
@@ -497,7 +505,7 @@ mod tests {
 
     #[tokio::test]
     async fn perform_task() -> Result<()> {
-        if env::var(API_KEY).is_err() {
+        if secrets::env_or_get(API_KEY).is_err() {
             return Ok(());
         }
 

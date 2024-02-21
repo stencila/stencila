@@ -27,7 +27,7 @@ import {
   keymap,
   lineNumbers,
 } from '@codemirror/view'
-import { css as twCSS } from '@twind/core'
+import { apply, css as twCSS } from '@twind/core'
 import { html } from 'lit'
 import { customElement, property } from 'lit/decorators'
 import { ref, Ref, createRef } from 'lit/directives/ref'
@@ -412,8 +412,19 @@ export class SourceView extends TWLitElement {
   }
 
   protected override render() {
+    /* 
+      height offset for the source view container,
+      includes header height and tab container border
+    */
+    const heightOffset = '5rem-1px'
+
+    const styles = apply([
+      'relative',
+      `h-full max-h-[calc(100vh-${heightOffset})]`,
+    ])
+
     return html`
-      <div class="max-h-screen h-[calc(100vh-5rem)] relative">
+      <div class="${styles}">
         <div id="codemirror" class="h-full ${this.codeMirrorCSS}"></div>
       </div>
       <div hidden ${ref(this.domElement)}>
