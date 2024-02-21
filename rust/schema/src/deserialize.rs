@@ -105,7 +105,7 @@ where
     })
 }
 
-/// Deserialize a vector from one or many of the items
+/// Deserialize an optional vector from one or many of the items
 pub fn option_one_or_many<'de, T, D>(deserializer: D) -> Result<Option<Vec<T>>, D::Error>
 where
     T: DeserializeOwned,
@@ -118,7 +118,7 @@ where
     })
 }
 
-/// Deserialize struct from a string or object
+/// Deserialize a struct from a string or object
 #[allow(unused)]
 pub fn string_or_object<'de, T, D>(deserializer: D) -> Result<T, D::Error>
 where
@@ -131,7 +131,7 @@ where
     })
 }
 
-/// Deserialize struct from a string or object
+/// Deserialize an optional struct from a string or object
 pub fn option_string_or_object<'de, T, D>(deserializer: D) -> Result<Option<T>, D::Error>
 where
     T: DeserializeOwned + FromStr,
