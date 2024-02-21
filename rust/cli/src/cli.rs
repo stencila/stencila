@@ -289,6 +289,8 @@ enum Command {
         reps: u16,
     },
 
+    Secrets(secrets::cli::Cli),
+
     Config(ConfigOptions),
 }
 
@@ -727,6 +729,8 @@ impl Cli {
             }
 
             Command::Test { path, reps } => assistants::testing::test_example(&path, reps).await?,
+
+            Command::Secrets(secrets) => secrets.run().await?,
 
             Command::Config(options) => {
                 // TODO: Make options.dir an option, and if it not there, show all folders.

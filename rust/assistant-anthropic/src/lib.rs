@@ -1,4 +1,4 @@
-use std::{env, sync::Arc};
+use std::sync::Arc;
 
 use anthropic::{
     client::Client, config::AnthropicConfig, types::CompleteRequestBuilder, AI_PROMPT, HUMAN_PROMPT,
@@ -7,14 +7,14 @@ use anthropic::{
 use assistant::{
     common::{async_trait::async_trait, eyre::Result, itertools::Itertools, tracing},
     schema::MessagePart,
-    Assistant, AssistantIO, GenerateOptions, GenerateOutput, GenerateTask, IsAssistantMessage,
+    secrets, Assistant, AssistantIO, GenerateOptions, GenerateOutput, GenerateTask,
+    IsAssistantMessage,
 };
 
+/// The name of the env var or secret for the API key
 const API_KEY: &str = "ANTHROPIC_API_KEY";
 
 /// An assistant running on Anthropic
-///
-/// The environment variable ANTHROPIC_API_KEY must be set to use these assistants.
 pub struct AnthropicAssistant {
     /// The name of the model including its version e.g. "claude-2.1"
     model: String,
@@ -109,7 +109,8 @@ impl Assistant for AnthropicAssistant {
             .stop_sequences(vec![HUMAN_PROMPT.to_string()])
             .build()?;
 
-        let cfg = AnthropicConfig::new()?;
+        let mut cfg = AnthropicConfig::new()?;
+        cfg.api_key = secrets::env_or_get(API_KEY)?;
         let client = Client::try_from(cfg)?;
 
         let text = client
@@ -129,10 +130,10 @@ impl Assistant for AnthropicAssistant {
 /// Therefore, this uses a static list with versions and other info from
 /// https://docs.anthropic.com/claude/reference/input-and-output-sizes.
 ///
-/// If the `ANTHROPIC_API_KEY` env var is not set returns an empty list.
+/// If the Anthropic API key is not available returns an empty list.
 pub async fn list() -> Result<Vec<Arc<dyn Assistant>>> {
-    if env::var(API_KEY).is_err() {
-        tracing::debug!("The {API_KEY} environment variable is not set");
+    if secrets::env_or_get(API_KEY).is_err() {
+        tracing::debug!("The environment variable or secret `{API_KEY}` is not available");
         return Ok(vec![]);
     }
 
@@ -159,7 +160,7 @@ mod tests {
     async fn list_assistants() -> Result<()> {
         let list = list().await?;
 
-        if env::var(API_KEY).is_err() {
+        if secrets::env_or_get(API_KEY).is_err() {
             assert_eq!(list.len(), 0)
         } else {
             assert!(!list.is_empty())
@@ -170,7 +171,7 @@ mod tests {
 
     #[tokio::test]
     async fn perform_task() -> Result<()> {
-        if env::var(API_KEY).is_err() {
+        if secrets::env_or_get(API_KEY).is_err() {
             return Ok(());
         }
 

@@ -19,7 +19,7 @@ use axum::{
         HeaderMap, HeaderValue, StatusCode,
     },
     response::{Html, IntoResponse, Response},
-    routing::{get, post},
+    routing::{delete, get, post},
     Json, Router,
 };
 use document::{Document, DocumentId, SyncDirection};
@@ -155,10 +155,13 @@ pub async fn serve(
 
     let router = Router::new()
         .route("/~static/*path", get(serve_static))
-        .route("/~open/*path", get(serve_open))
-        .route("/~close/*id", post(serve_close))
-        .route("/~export/*id", get(serve_export))
-        .route("/~ws/*id", get(serve_ws))
+        .route("/~secrets", get(list_secrets))
+        .route("/~secrets/:name", post(set_secret))
+        .route("/~secrets/:name", delete(delete_secret))
+        .route("/~open/*path", get(open_document))
+        .route("/~close/:id", post(close_document))
+        .route("/~export/:id", get(export_document))
+        .route("/~ws/:id", get(serve_ws))
         .route("/*path", get(serve_document))
         .route("/", get(serve_home))
         .layer(TraceLayer::new_for_http())
@@ -263,6 +266,30 @@ async fn serve_static(
     Ok(StatusCode::NOT_FOUND.into_response())
 }
 
+/// List secrets
+#[tracing::instrument]
+async fn list_secrets() -> Result<Response, InternalError> {
+    Ok(Json(secrets::list().map_err(InternalError::new)?).into_response())
+}
+
+/// Set a secret
+#[tracing::instrument]
+async fn set_secret(Path(name): Path<String>, value: String) -> Result<Response, InternalError> {
+    match secrets::set(&name, &value) {
+        Ok(..) => Ok(StatusCode::CREATED.into_response()),
+        Err(error) => Ok((StatusCode::BAD_REQUEST, error.to_string()).into_response()),
+    }
+}
+
+/// Delete a secret
+#[tracing::instrument]
+async fn delete_secret(Path(name): Path<String>) -> Result<Response, InternalError> {
+    match secrets::delete(&name) {
+        Ok(..) => Ok(StatusCode::NO_CONTENT.into_response()),
+        Err(error) => Ok((StatusCode::BAD_REQUEST, error.to_string()).into_response()),
+    }
+}
+
 /// Resolve a URL path into a file or directory path
 ///
 /// This is an interim implementation and is likely to be replaced with
@@ -349,7 +376,7 @@ fn resolve_path(path: PathBuf) -> Result<Option<PathBuf>, InternalError> {
 
 /// Open a document and return its id
 #[tracing::instrument(skip(docs))]
-async fn serve_open(
+async fn open_document(
     State(ServerState {
         dir,
         raw,
@@ -587,7 +614,7 @@ async fn serve_home(
 }
 
 /// Handle a request to close a document
-async fn serve_close(
+async fn close_document(
     State(ServerState { docs, .. }): State<ServerState>,
     Path(id): Path<String>,
 ) -> Result<Response, InternalError> {
@@ -604,7 +631,7 @@ async fn serve_close(
 ///
 /// TODO: This should add correct MIME type to response
 /// and handle binary formats.
-async fn serve_export(
+async fn export_document(
     State(ServerState { docs, .. }): State<ServerState>,
     Path(id): Path<String>,
     Query(query): Query<HashMap<String, String>>,

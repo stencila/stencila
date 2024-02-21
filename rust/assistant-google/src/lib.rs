@@ -1,4 +1,4 @@
-use std::{env, sync::Arc};
+use std::sync::Arc;
 
 use cached::proc_macro::cached;
 
@@ -13,10 +13,13 @@ use assistant::{
         tracing,
     },
     schema::{ImageObject, MessagePart},
-    Assistant, AssistantIO, GenerateOptions, GenerateOutput, GenerateTask, IsAssistantMessage,
+    secrets, Assistant, AssistantIO, GenerateOptions, GenerateOutput, GenerateTask,
+    IsAssistantMessage,
 };
 
 const BASE_URL: &str = "https://generativelanguage.googleapis.com/v1";
+
+/// The name of the env var or secret for the API key
 const API_KEY: &str = "GOOGLE_AI_API_KEY";
 
 struct GoogleAssistant {
@@ -142,7 +145,7 @@ impl Assistant for GoogleAssistant {
                 "{}/models/{}:generateContent",
                 BASE_URL, self.model
             ))
-            .query(&[("key", env::var(API_KEY)?)])
+            .query(&[("key", secrets::env_or_get(API_KEY)?)])
             .json(&request)
             .send()
             .await?;
@@ -316,7 +319,7 @@ struct GenerationConfig {
 
 /// Get a list of available Google AI assistants
 ///
-/// Returns an empty list if the `GOOGLE_AI_API_KEY` env var is not set.
+/// Returns an empty list if the Google AI API key is not available.
 ///
 /// Memoized for an hour to reduce the number of times that the
 /// remote API need to be called to get a list of available models.
@@ -325,8 +328,8 @@ struct GenerationConfig {
 /// https://ai.google.dev/tutorials/rest_quickstart#list_models
 #[cached(time = 3600, result = true)]
 pub async fn list() -> Result<Vec<Arc<dyn Assistant>>> {
-    let Ok(key) = env::var(API_KEY) else {
-        tracing::debug!("The {API_KEY} environment variable is not set");
+    let Ok(key) = secrets::env_or_get(API_KEY) else {
+        tracing::debug!("The environment variable or secret `{API_KEY}` is not available");
         return Ok(vec![]);
     };
 
@@ -371,7 +374,7 @@ mod tests {
     async fn list_assistants() -> Result<()> {
         let list = list().await?;
 
-        if env::var(API_KEY).is_err() {
+        if secrets::env_or_get(API_KEY).is_err() {
             assert_eq!(list.len(), 0)
         } else {
             assert!(!list.is_empty())
@@ -382,7 +385,7 @@ mod tests {
 
     #[tokio::test]
     async fn perform_task() -> Result<()> {
-        if env::var(API_KEY).is_err() {
+        if secrets::env_or_get(API_KEY).is_err() {
             return Ok(());
         }
 
