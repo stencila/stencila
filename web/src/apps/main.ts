@@ -20,11 +20,12 @@ import '../ui/sidebar'
 import '../ui/tab'
 import '../ui/view-container'
 import '../ui/buttons/icon'
-import '../views/static'
-import '../views/live'
 import '../views/dynamic'
+import '../views/info'
+import '../views/live'
 import '../views/source'
 import '../views/split'
+import '../views/static'
 import '../views/visual'
 import { DirectoryView } from '../views/directory'
 import { VIEWS } from '../views/views'
@@ -256,6 +257,10 @@ export class App extends LitElement {
               >
                 ${this.renderDocumentView(docId)}
               </stencila-ui-view-container>
+              <!-- TODO: Temporarily placed here, may need container, not sure
+                but seems to me it should be in the same tab panel as the document
+                it is providing info for -->
+              <stencila-info-view doc=${docId}></stencila-info-view>
             </sl-tab-panel>
           `
         )

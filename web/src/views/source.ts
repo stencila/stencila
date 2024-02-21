@@ -30,10 +30,8 @@ import {
 import { apply, css as twCSS } from '@twind/core'
 import { html } from 'lit'
 import { customElement, property } from 'lit/decorators'
-import { ref, Ref, createRef } from 'lit/directives/ref'
 
 import { CodeMirrorClient } from '../clients/codemirror'
-import { DomClient } from '../clients/dom'
 import { MappingEntry } from '../clients/format'
 import { markdownHighlightStyle } from '../languages/markdown'
 import type { DocumentId, DocumentAccess } from '../types'
@@ -42,7 +40,6 @@ import { TWLitElement } from '../ui/twind'
 import { bottomPanel } from './source/bottom-panel'
 import { editorStyles } from './source/editorStyles'
 import { statusGutter } from './source/gutters'
-import { infoSideBar } from './source/infoSideBar'
 import { autoWrapKeys } from './source/keyMaps'
 
 /**
@@ -90,19 +87,6 @@ export class SourceView extends TWLitElement {
    */
   @property()
   displayMode?: 'single' | 'split' = 'single'
-
-  /**
-   * A read-only client which updates an invisible DOM element when the
-   * document changes on the server. We use this to extract custom elements
-   * for nodes to use in tooltips etc.
-   */
-  // @ts-expect-error "dom client is set, but not read"
-  private domClient: DomClient
-
-  /**
-   * A ref for the hidden `DomClient` element
-   */
-  public domElement: Ref<HTMLElement> = createRef()
 
   /**
    * A read-write client which sends and receives string patches
@@ -283,22 +267,8 @@ export class SourceView extends TWLitElement {
       bracketMatching(),
       autocompletion(),
       bottomPanel(this),
-      infoSideBar(this),
       editorStyles,
     ]
-  }
-
-  /**
-   * Override `LitElement.firstUpdated` so that `DomClient` is instantiated _after_ this
-   * element has a document `[root]` element in its `renderRoot`.
-   */
-  override firstUpdated(changedProperties: Map<string, string | boolean>) {
-    super.firstUpdated(changedProperties)
-
-    this.domClient = new DomClient(
-      this.doc,
-      this.renderRoot.querySelector('[root]') as HTMLElement
-    )
   }
 
   /**
@@ -393,9 +363,6 @@ export class SourceView extends TWLitElement {
     return html`
       <div class="${styles}">
         <div id="codemirror" class="h-full ${this.codeMirrorCSS}"></div>
-      </div>
-      <div hidden ${ref(this.domElement)}>
-        <stencila-article root></stencila-article>
       </div>
     `
   }
