@@ -40,7 +40,6 @@ import type { DocumentId, DocumentAccess } from '../types'
 import { TWLitElement } from '../ui/twind'
 
 import { bottomPanel } from './source/bottom-panel'
-import { editorStyles } from './source/editorStyles'
 import { statusGutter } from './source/gutters'
 import { infoSideBar } from './source/infoSideBar'
 import { autoWrapKeys } from './source/keyMaps'
@@ -300,7 +299,6 @@ export class SourceView extends TWLitElement {
       bracketMatching(),
       autocompletion(),
       bottomPanel(this),
-      editorStyles,
       clientReceiver,
     ]
 
@@ -399,12 +397,16 @@ export class SourceView extends TWLitElement {
    * This needs to be defined outside of the static styles property, as we need
    * to be able to access the instance property "displayMode" to determine the
    * height to use.
+   *
+   * TODO: we need to be able to dynamically set the max-width based status of the
+   * directory sidebar
    */
   private get codeMirrorCSS() {
     return twCSS`
       .cm-editor {
         height: 100%;
-        max-width: calc(100vw-4rem);
+        color: black;
+        ${this.displayMode === 'single' ? 'max-width: calc(100vw - 4rem);' : ''}
       }
     `
   }
