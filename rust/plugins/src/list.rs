@@ -2,7 +2,7 @@ use std::collections::HashMap;
 
 use app::{get_app_dir, DirType};
 use cli_utils::{
-    table::{self, Attribute, Cell},
+    table::{self, Attribute, Cell, Color},
     ToStdout,
 };
 use common::{
@@ -36,8 +36,6 @@ const PLUGINS_TOML_URL: &str =
 /// Filtering the list is possible, currently only using `options.installed`
 /// (but in the future may allow for text matching "search" filtering)
 pub async fn list(options: ListOptions) -> Result<PluginList> {
-    tracing::info!("Refreshing list of plugins and their manifests");
-
     let cache = get_app_dir(DirType::Plugins, true)?.join("manifests.json");
 
     if !options.refresh && cache.exists() {
@@ -45,6 +43,8 @@ pub async fn list(options: ListOptions) -> Result<PluginList> {
         let list = serde_json::from_str(&json)?;
         return Ok(list);
     }
+
+    tracing::info!("Refreshing list of plugins and their manifests");
 
     // Fetch the plugins list from the Stencila repo
     let response = get(PLUGINS_TOML_URL).await?;
@@ -96,6 +96,7 @@ pub async fn list(options: ListOptions) -> Result<PluginList> {
         .collect_vec();
 
     // Write the list to cache
+    tracing::debug!("Caching plugin manifests to {}", cache.display());
     write(cache, serde_json::to_string(&plugins)?).await?;
 
     Ok(PluginList(plugins))
@@ -119,9 +120,13 @@ pub struct PluginList(Vec<Plugin>);
 impl ToStdout for PluginList {
     fn to_terminal(&self) -> impl std::fmt::Display {
         let mut table = table::new();
-        table.set_header(["Name"]);
+        table.set_header(["Name", "Description", "Home"]);
         for plugin in self.iter() {
-            table.add_row([Cell::new(&plugin.name).add_attribute(Attribute::Bold)]);
+            table.add_row([
+                Cell::new(&plugin.name).add_attribute(Attribute::Bold),
+                Cell::new(&plugin.description),
+                Cell::new(&plugin.home).fg(Color::Blue),
+            ]);
         }
         table
     }

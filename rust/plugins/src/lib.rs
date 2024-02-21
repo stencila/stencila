@@ -61,7 +61,7 @@ pub struct Plugin {
     /// The name of the operating system platforms that the plugin supports
     ///
     /// If empty, assumed to work on all platforms.
-    #[serde(alias = "platform", deserialize_with = "Plugin::deserialize_platforms")]
+    #[serde(alias = "platform", default, deserialize_with = "Plugin::deserialize_platforms")]
     platforms: Vec<PluginPlatform>,
 }
 
