@@ -1044,6 +1044,7 @@ dependencies = [
  "is-terminal",
  "kernels",
  "node-strip",
+ "plugins",
  "rustyline",
  "secrets",
  "self-replace",
@@ -4215,6 +4216,17 @@ dependencies = [
  "quick-xml",
  "serde",
  "time",
+]
+
+[[package]]
+name = "plugins"
+version = "0.0.0"
+dependencies = [
+ "app",
+ "cli-utils",
+ "common",
+ "common-dev",
+ "semver",
 ]
 
 [[package]]

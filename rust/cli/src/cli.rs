@@ -305,7 +305,7 @@ enum Command {
     },
 
     Kernels(kernels::cli::Cli),
-
+    Plugins(plugins::cli::Cli),
     Secrets(secrets::cli::Cli),
 
     Config(ConfigOptions),
@@ -751,7 +751,7 @@ impl Cli {
             Command::Test { path, reps } => assistants::testing::test_example(&path, reps).await?,
 
             Command::Kernels(kernels) => kernels.run().await?,
-
+            Command::Plugins(plugins) => plugins.run().await?,
             Command::Secrets(secrets) => secrets.run().await?,
 
             Command::Config(options) => {
