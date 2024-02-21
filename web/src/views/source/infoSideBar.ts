@@ -12,7 +12,7 @@ import { SourceView } from '../source'
  * @param sourceView The `SourceView` that this extension is for
  * @returns An `Extension` for codemirror
  */
-const infoSideBar = (sourceView: SourceView): Extension => {
+const infoSideBarExtension = (sourceView: SourceView): Extension => {
   const infoSideBarPlugin = ViewPlugin.fromClass(
     class {
       /**
@@ -144,5 +144,20 @@ const infoSideBar = (sourceView: SourceView): Extension => {
 
   return infoSideBarPlugin
 }
+
+/**
+ * Override the scoller elements width to allow space for the sidebar
+ */
+const editorStyles = EditorView.theme({
+  '.cm-scroller': {
+    maxWidth: '70%',
+    height: 'content',
+  },
+})
+
+const infoSideBar = (sourceView: SourceView): Extension => [
+  infoSideBarExtension(sourceView),
+  editorStyles,
+]
 
 export { infoSideBar }
