@@ -55,11 +55,12 @@ class PanelElement extends LitElement {
     return html`
       <div class=${styles}>
         ${this.renderLineWrapButton()} ${this.renderFormatSelect()}
+        ${this.renderWriteOnlyButton()}
       </div>
     `
   }
 
-  private renderLineWrapButton() {
+  private renderLineWrapButton = () => {
     return html`
       <stencila-ui-icon-button
         icon="line-wrap"
@@ -72,7 +73,7 @@ class PanelElement extends LitElement {
     `
   }
 
-  private renderFormatSelect() {
+  private renderFormatSelect = () => {
     const changeEvent = (e: Event) =>
       (this.sourceView.format = (e.target as HTMLSelectElement).value)
 
@@ -94,7 +95,24 @@ class PanelElement extends LitElement {
     `
   }
 
-  private renderBreadcrumbs() {
+  private renderWriteOnlyButton = () => {
+    const clickEvent = () =>
+      (this.sourceView.writeOnly = !this.sourceView.writeOnly)
+
+    return html`
+      <stencila-ui-icon-button
+        icon="write-only"
+        type="toggle"
+        tooltip=${`
+          Turn ${this.sourceView.writeOnly ? 'off' : 'on'} write only mode
+        `}
+        .clickEvent=${clickEvent}
+        ?active=${this.sourceView.writeOnly}
+      ></stencila-ui-icon-button>
+    `
+  }
+
+  private renderBreadcrumbs = () => {
     return html`
       <sl-tooltip content="Current node path">
         <div class="text-xs leading-none flex items-center">

@@ -60,14 +60,30 @@ export class CodeMirrorClient extends FormatClient {
   private currentSelection?: SelectionRange
 
   /**
+   * If true the client will not send messages from the server
+   * back to the `editor`
+   */
+  private _writeOnly: boolean
+
+  set writeOnly(value: boolean) {
+    this._writeOnly = value
+  }
+
+  /**
    * Construct a new `CodeMirrorClient`
    *
    * @param id The id of the document
    * @param access The access level of the client
    * @param format The format of the editor content (e.g. "markdown")
    */
-  constructor(id: DocumentId, access: DocumentAccess, format: string) {
+  constructor(
+    id: DocumentId,
+    access: DocumentAccess,
+    format: string,
+    writeOnly: boolean = false
+  ) {
     super(id, access, format)
+    this._writeOnly = writeOnly
   }
 
   /**
@@ -261,10 +277,15 @@ export class CodeMirrorClient extends FormatClient {
       transaction = { changes }
     }
 
-    // Dispatch the transaction, ignoring any updates while doing so
-    this.ignoreUpdates = true
-    this.editor.dispatch(transaction)
-    this.ignoreUpdates = false
+    /*
+      If not in `writeOnly` mode Dispatch the transaction, 
+      ignoring any updates while doing so.
+    */
+    if (!this._writeOnly) {
+      this.ignoreUpdates = true
+      this.editor.dispatch(transaction)
+      this.ignoreUpdates = false
+    }
 
     // Call `FormatClient.receiveMessage` to update mapping and version
     super.receiveMessage(message)

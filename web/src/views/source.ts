@@ -85,6 +85,14 @@ export class SourceView extends TWLitElement {
   lineWrap: boolean = true
 
   /**
+   * Turn on/off the write only mode for the source view.
+   * This disables the SourceView instance from recieving
+   * and reacting to messages from the server.
+   */
+  @property({ attribute: 'write-only', type: Boolean })
+  writeOnly: boolean = false
+
+  /**
    * Where is this component rendered? Either as a single view or in a split
    * code & preview editor?
    */
@@ -119,6 +127,12 @@ export class SourceView extends TWLitElement {
    * `Compartment` for setting `CodeMirrorView.lineWrapping` extension
    */
   private lineWrappingConfig = new Compartment()
+
+  /**
+   * `Compartment` for setting codemirror extensions which rely
+   * on receiving messages from the `codeMirrorClient`
+   */
+  private clientRecieverConfig = new Compartment()
 
   /**
    * Array of CodeMirror `LanguageDescription` objects available for the edit view
@@ -249,6 +263,10 @@ export class SourceView extends TWLitElement {
 
     const lineWrapping = this.lineWrappingConfig.of(CodeMirrorView.lineWrapping)
 
+    const clientReceiver = this.clientRecieverConfig.of(
+      !this.writeOnly ? [statusGutter(this), infoSideBar(this)] : []
+    )
+
     const keyMaps = keymap.of([
       indentWithTab,
       ...historyKeymap,
@@ -264,14 +282,13 @@ export class SourceView extends TWLitElement {
         ? markdownHighlightStyle
         : defaultHighlightStyle
 
-    return [
+    const extensions = [
       langExt,
       keyMaps,
       history(),
       search({ top: true }),
       lineNumbers(),
       foldGutter(),
-      statusGutter(this),
       lineWrapping,
       autocompletion({ override: [this.stencilaCompleteOptions] }),
       dropCursor(),
@@ -283,9 +300,11 @@ export class SourceView extends TWLitElement {
       bracketMatching(),
       autocompletion(),
       bottomPanel(this),
-      infoSideBar(this),
       editorStyles,
+      clientReceiver,
     ]
+
+    return extensions
   }
 
   /**
@@ -317,7 +336,8 @@ export class SourceView extends TWLitElement {
         this.codeMirrorClient = new CodeMirrorClient(
           this.doc,
           this.access,
-          this.format
+          this.format,
+          this.writeOnly
         )
 
         this.codeMirrorView = new CodeMirrorView({
@@ -333,6 +353,17 @@ export class SourceView extends TWLitElement {
       this.dispatchEffect(
         this.lineWrappingConfig.reconfigure(
           this.lineWrap ? CodeMirrorView.lineWrapping : []
+        )
+      )
+    }
+
+    if (changedProperties.has('writeOnly')) {
+      // set codeMirrorClient property
+      this.codeMirrorClient.writeOnly = this.writeOnly
+      // remove/add required extensions
+      this.dispatchEffect(
+        this.clientRecieverConfig.reconfigure(
+          !this.writeOnly ? [statusGutter(this), infoSideBar(this)] : []
         )
       )
     }
