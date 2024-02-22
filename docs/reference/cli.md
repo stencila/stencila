@@ -17,6 +17,10 @@ This document contains the help content for the `stencila` command-line program.
 * [`stencila assistants`↴](#stencila-assistants)
 * [`stencila repl`↴](#stencila-repl)
 * [`stencila test`↴](#stencila-test)
+* [`stencila secrets`↴](#stencila-secrets)
+* [`stencila secrets list`↴](#stencila-secrets-list)
+* [`stencila secrets set`↴](#stencila-secrets-set)
+* [`stencila secrets delete`↴](#stencila-secrets-delete)
 * [`stencila config`↴](#stencila-config)
 
 ## `stencila`
@@ -39,6 +43,7 @@ CLI subcommands and global options
 * `assistants` — List the available AI assistants
 * `repl` — A read-evaluate-print loop for AI assistants
 * `test` — 
+* `secrets` — Manage secrets used by Stencila (e.g. API keys)
 * `config` — 
 
 ###### **Options:**
@@ -434,6 +439,54 @@ Mainly intended for prompt engineering during development of Stencila.
 * `-n`, `--reps <REPS>` — The number of repetitions
 
   Default value: `1`
+
+
+
+## `stencila secrets`
+
+Manage secrets used by Stencila (e.g. API keys)
+
+**Usage:** `stencila secrets [COMMAND]`
+
+###### **Subcommands:**
+
+* `list` — List the secrets used by Stencila
+* `set` — Set a secret used by Stencila
+* `delete` — Delete a secret previously set using Stencila
+
+
+
+## `stencila secrets list`
+
+List the secrets used by Stencila
+
+**Usage:** `stencila secrets list`
+
+
+
+## `stencila secrets set`
+
+Set a secret used by Stencila
+
+You will be prompted for the secret
+
+**Usage:** `stencila secrets set <NAME>`
+
+###### **Arguments:**
+
+* `<NAME>` — The name of the secret
+
+
+
+## `stencila secrets delete`
+
+Delete a secret previously set using Stencila
+
+**Usage:** `stencila secrets delete <NAME>`
+
+###### **Arguments:**
+
+* `<NAME>` — The name of the secret
 
 
 
