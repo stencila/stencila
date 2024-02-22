@@ -516,9 +516,12 @@ async fn serve_document(
             format!("<stencila-{view}-view doc={doc_id} view={view} access={access} theme={theme} format={format}></stencila-{view}-view>")
         }
     } else {
+        let path = path
+            .strip_prefix(&dir)
+            .map_err(InternalError::new)?
+            .display();
         format!(
             r#"<stencila-main-app docs='[{{"docId":"{doc_id}","path":"{path}","name":"{name}"}}]' view={view} access={access} theme={theme} format={format}></stencila-main-app>"#,
-            path = path.display()
         )
     };
 
