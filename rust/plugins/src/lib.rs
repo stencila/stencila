@@ -2,25 +2,36 @@ use std::{
     collections::HashMap,
     env,
     fs::create_dir_all,
+    net::TcpListener,
     path::{Path, PathBuf},
+    process::Stdio,
     str::FromStr,
+    sync::atomic::{AtomicU64, Ordering},
+    time::Duration,
 };
 
 use app::{get_app_dir, DirType};
 use semver::{Version, VersionReq};
 
 use common::{
-    eyre::{bail, eyre, Report, Result},
+    eyre::{bail, eyre, OptionExt, Report, Result},
     itertools::Itertools,
-    reqwest::{self, Url},
+    rand::{distributions::Alphanumeric, thread_rng, Rng},
+    reqwest::{self, header, Client, Url},
     serde::{self, Deserialize, Deserializer, Serialize, Serializer},
+    serde_json::{self, Value},
     serde_with::{DeserializeFromStr, SerializeDisplay},
     strum::{Display, EnumString},
-    tokio::process::Command,
+    tokio::{
+        self,
+        io::{AsyncBufRead, AsyncBufReadExt, AsyncWrite, AsyncWriteExt, BufReader, BufWriter},
+        process::{Child, ChildStdin, ChildStdout, Command},
+    },
     toml,
     which::which,
 };
 
+mod check;
 pub mod cli;
 mod install;
 mod list;
@@ -79,6 +90,17 @@ pub struct Plugin {
         deserialize_with = "Plugin::deserialize_platforms"
     )]
     platforms: Vec<PluginPlatform>,
+
+    /// The name of the message transport protocols that the plugin supports
+    #[serde(
+        alias = "transport",
+        default,
+        deserialize_with = "Plugin::deserialize_transports"
+    )]
+    transports: Vec<PluginTransport>,
+
+    /// The command to run the plugin
+    command: String,
 }
 
 impl Plugin {
@@ -207,6 +229,24 @@ impl Plugin {
         })
     }
 
+    /// Deserialize the supported transports for a plugin
+    fn deserialize_transports<'de, D>(deserializer: D) -> Result<Vec<PluginTransport>, D::Error>
+    where
+        D: Deserializer<'de>,
+    {
+        #[derive(Deserialize)]
+        #[serde(untagged, crate = "common::serde")]
+        enum OneOrMany {
+            One(PluginTransport),
+            Many(Vec<PluginTransport>),
+        }
+
+        Ok(match OneOrMany::deserialize(deserializer)? {
+            OneOrMany::One(one) => vec![one],
+            OneOrMany::Many(many) => many,
+        })
+    }
+
     /// Fetch the latest registry list of plugins from the Stencila repo
     pub async fn fetch_registry() -> Result<HashMap<String, String>> {
         // TODO: change URL to point to `main` before PR is merged
@@ -296,6 +336,11 @@ impl Plugin {
         }
 
         PluginStatus::UnavailableRuntime
+    }
+
+    /// Start an instance of a plugin
+    async fn start(&self, transport: Option<PluginTransport>) -> Result<PluginInstance> {
+        PluginInstance::start(self, transport).await
     }
 }
 
@@ -404,6 +449,21 @@ impl PluginPlatform {
     }
 }
 
+/// The message transport protocols that a plugin supports
+#[derive(
+    Debug, Display, Clone, EnumString, DeserializeFromStr, SerializeDisplay, PartialEq, Eq,
+)]
+#[strum(
+    ascii_case_insensitive,
+    serialize_all = "lowercase",
+    crate = "common::strum"
+)]
+#[serde_with(crate = "common::serde_with")]
+pub enum PluginTransport {
+    Stdio,
+    Http,
+}
+
 /// The status of a plugin on the current machine
 ///
 /// Install-ability determined based on the `runtimes` and `platforms` properties
@@ -427,6 +487,233 @@ pub enum PluginStatus {
     /// Not available on this operating system platform
     #[strum(to_string = "unavailable on this operating system")]
     UnavailablePlatform,
+}
+
+/// A running instance of a plugin
+pub struct PluginInstance {
+    /// The plugin child process
+    child: Child,
+
+    /// The transport used to exchange JSON-RPC messages with the plugin
+    transport: PluginTransport,
+
+    /// The client and URL to use if the transport is HTTP
+    http_client: Option<(Client, Url)>,
+
+    /// The stdin & stdout streams to use if the transport is stdio
+    stdio_streams: Option<(BufWriter<ChildStdin>, BufReader<ChildStdout>)>,
+}
+
+impl PluginInstance {
+    /// Start a plugin instance
+    async fn start(plugin: &Plugin, transport: Option<PluginTransport>) -> Result<Self> {
+        let mut args = plugin.command.split(' ').collect_vec();
+        let program = args.remove(0);
+        let dir = Plugin::plugin_dir(&plugin.name, false)?;
+
+        let mut command = Command::new(program);
+        command
+            .args(args)
+            .current_dir(dir)
+            .stdin(Stdio::piped())
+            .stdout(Stdio::piped())
+            .stderr(Stdio::piped());
+
+        let transport = transport
+            .or_else(|| {
+                if plugin.transports.contains(&PluginTransport::Stdio) {
+                    Some(PluginTransport::Stdio)
+                } else {
+                    plugin.transports.get(0).cloned()
+                }
+            })
+            .ok_or_else(|| eyre!("Plugin does not declare any transports"))?;
+        command.env("STENCILA_TRANSPORT", transport.to_string());
+
+        let http_client = if transport == PluginTransport::Http {
+            let mut rng = thread_rng();
+            let mut port: u16;
+            loop {
+                // Generate a random port number within the IANA recommended range for dynamic
+                // or private ports and attempt to bind to it to check if it's available
+                port = rng.gen_range(49152..=65535);
+                match TcpListener::bind(("127.0.0.1", port)) {
+                    Ok(_) => break,     // If binding succeeds, the port is likely available
+                    Err(_) => continue, // If binding fails, try another port
+                }
+            }
+            command.env("STENCILA_PORT", port.to_string());
+
+            let token: String = rng
+                .sample_iter(&Alphanumeric)
+                .take(36)
+                .map(char::from)
+                .collect();
+            command.env("STENCILA_TOKEN", token.clone());
+
+            let mut headers = header::HeaderMap::new();
+            let mut auth_value = header::HeaderValue::try_from(format!("Bearer {token}"))?;
+            auth_value.set_sensitive(true);
+            headers.insert(header::AUTHORIZATION, auth_value);
+
+            let client = reqwest::Client::builder()
+                .default_headers(headers)
+                .connect_timeout(Duration::from_millis(10000))
+                .build()?;
+
+            let url = Url::parse(&format!("http://127.0.0.1:{}", port))?;
+
+            Some((client, url))
+        } else {
+            None
+        };
+
+        let mut child = command.spawn()?;
+
+        let stdio_streams = if transport == PluginTransport::Stdio {
+            // Create streams for input, output and errors
+            let stdin = child.stdin.take().ok_or_eyre("Child has no stdin handle")?;
+            let stdout = child
+                .stdout
+                .take()
+                .ok_or_eyre("Child has no stdout handle")?;
+
+            // Create stream readers and writers
+            let stdin_writer = BufWriter::new(stdin);
+            let stdout_reader = BufReader::new(stdout);
+
+            Some((stdin_writer, stdout_reader))
+        } else {
+            None
+        };
+
+        // TODO: instead of waiting here for server to start do retires in `call_http`
+        if transport == PluginTransport::Http {
+            tokio::time::sleep(Duration::from_millis(5000)).await;
+        }
+
+        Ok(Self {
+            child,
+            transport,
+            http_client,
+            stdio_streams,
+        })
+    }
+
+    /// Stop the plugin instance
+    async fn stop(&mut self) -> Result<()> {
+        self.child.kill().await?;
+
+        Ok(())
+    }
+
+    /// Call a method of the plugin instance
+    async fn call(&mut self, request: JsonRpcRequest) -> Result<Value> {
+        let response = match self.transport {
+            PluginTransport::Stdio => self.call_stdio(&request).await,
+            PluginTransport::Http => self.call_http(&request).await,
+        }?;
+
+        if response.id != request.id {
+            bail!("Response id does not match request id")
+        }
+
+        match response.result {
+            JsonRpcResult::Success { result } => Ok(result),
+            JsonRpcResult::Error { error } => bail!("{}", error.message),
+        }
+    }
+
+    /// Call a method of the plugin instance via stdio
+    async fn call_stdio(&mut self, request: &JsonRpcRequest) -> Result<JsonRpcResponse> {
+        let (writer, reader) = self
+            .stdio_streams
+            .as_mut()
+            .ok_or_else(|| eyre!("Stdio stream uninitialized"))?;
+
+        let request_json = serde_json::to_string(&request)? + "\n";
+        writer.write_all(request_json.as_bytes()).await?;
+        writer.flush().await?;
+
+        let Some(response_json) = reader.lines().next_line().await? else {
+            bail!("No response line")
+        };
+
+        Ok(serde_json::from_str(&response_json)?)
+    }
+
+    /// Call a method of the plugin instance via HTTP
+    async fn call_http(&self, request: &JsonRpcRequest) -> Result<JsonRpcResponse> {
+        let (client, url) = self
+            .http_client
+            .as_ref()
+            .ok_or_else(|| eyre!("HTTP client uninitialized"))?;
+
+        let response = client.post(url.clone()).json(&request).send().await?;
+
+        if let Err(error) = response.error_for_status_ref() {
+            let message = response.text().await?;
+            bail!("{error}: {message}");
+        }
+
+        Ok(response.json().await?)
+    }
+
+    /// Check the health of the plugin instance
+    async fn health(&mut self) -> Result<()> {
+        self.call(JsonRpcRequest::new("health", vec![])).await?;
+
+        Ok(())
+    }
+}
+
+static REQUEST_COUNTER: AtomicU64 = AtomicU64::new(0);
+
+#[derive(Serialize)]
+#[serde(crate = "common::serde")]
+pub struct JsonRpcRequest {
+    id: u64,
+    jsonrpc: String,
+    method: String,
+    params: Vec<Value>,
+}
+
+impl JsonRpcRequest {
+    pub fn new(method: &str, params: Vec<Value>) -> Self {
+        JsonRpcRequest {
+            jsonrpc: "2.0".to_string(),
+            id: REQUEST_COUNTER.fetch_add(1, Ordering::SeqCst),
+            method: method.to_string(),
+            params,
+        }
+    }
+}
+
+#[allow(unused)]
+#[derive(Deserialize)]
+#[serde(crate = "common::serde")]
+struct JsonRpcResponse {
+    jsonrpc: Option<String>,
+    id: u64,
+    #[serde(flatten)]
+    result: JsonRpcResult,
+}
+
+#[derive(Deserialize)]
+#[serde(crate = "common::serde")]
+#[serde(untagged)]
+enum JsonRpcResult {
+    Success { result: Value },
+    Error { error: JsonRpcError },
+}
+
+#[allow(unused)]
+#[derive(Deserialize)]
+#[serde(crate = "common::serde")]
+struct JsonRpcError {
+    code: i32,
+    message: String,
+    data: Option<Value>,
 }
 
 #[cfg(test)]

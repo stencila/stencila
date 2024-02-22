@@ -28,6 +28,7 @@ pub use maplit;
 pub use once_cell;
 pub use proc_macro2;
 pub use quote;
+pub use rand;
 pub use regex;
 pub use reqwest;
 pub use serde;

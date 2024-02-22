@@ -1407,6 +1407,7 @@ dependencies = [
  "once_cell",
  "proc-macro2",
  "quote",
+ "rand",
  "regex",
  "reqwest",
  "serde",

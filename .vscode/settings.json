@@ -95,6 +95,7 @@
         "rfind",
         "rhai",
         "rowspan",
+        "runtimes",
         "rustfmt",
         "schemars",
         "serde",
