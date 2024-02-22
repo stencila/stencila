@@ -60,7 +60,6 @@ export class VisualView extends ThemedView {
   /**
    * A ProseMirror editor view which the client interacts with
    */
-  // @ts-expect-error "prose mirror view is set, not read"
   private proseMirrorView: ProseMirrorView
 
   /**
