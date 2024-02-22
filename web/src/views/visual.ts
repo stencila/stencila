@@ -60,53 +60,60 @@ export class VisualView extends ThemedView {
   /**
    * A ProseMirror editor view which the client interacts with
    */
-  // @ts-expect-error "prose mirror view is set, not read"
   private proseMirrorView: ProseMirrorView
 
   /**
    * Override so that clients are instantiated _after_ this
    * element has a document `[root]` element in its `renderRoot`.
+   *
+   * If the `doc` property has changed, destroy and create the view again
    */
-  override firstUpdated(changedProperties: Map<string, string | boolean>) {
-    super.firstUpdated(changedProperties)
+  override update(changedProperties: Map<string, string | boolean>) {
+    super.update(changedProperties)
+    if (changedProperties.has('doc')) {
+      // destroy prosemirror view if it exists
+      if (this.proseMirrorView) {
+        this.proseMirrorView.destroy()
+      }
 
-    // Get the ProseMirror schema corresponding to the node type
-    // of the document
-    const tagName =
-      this.renderRoot.querySelector('[root]')?.tagName.toLowerCase() ??
-      'stencila-article'
-    let schema: Schema
-    let views: Record<string, NodeViewConstructor>
-    if (tagName === 'stencila-article') {
-      // eslint-disable-next-line no-extra-semi
-      ;({ schema, views } = schemas.article)
-    } else {
-      throw new Error(`No schema for element '${tagName}'`)
+      // Get the ProseMirror schema corresponding to the node type
+      // of the document
+      const tagName =
+        this.renderRoot.querySelector('[root]')?.tagName.toLowerCase() ??
+        'stencila-article'
+      let schema: Schema
+      let views: Record<string, NodeViewConstructor>
+      if (tagName === 'stencila-article') {
+        // eslint-disable-next-line no-extra-semi
+        ;({ schema, views } = schemas.article)
+      } else {
+        throw new Error(`No schema for element '${tagName}'`)
+      }
+
+      // Parse the document's DOM into a ProseMirror document
+      // and then remove it (because it will be redundant)
+      const doc = DOMParser.fromSchema(schema).parse(this.renderRoot)
+      this.renderRoot.firstElementChild.remove()
+
+      this.proseMirrorClient = new ProseMirrorClient(
+        this.doc,
+        this.access,
+        this.renderRoot as HTMLElement
+      )
+
+      this.proseMirrorView = new ProseMirrorView(this.renderRoot, {
+        state: EditorState.create({
+          doc,
+        }),
+        dispatchTransaction: this.proseMirrorClient.sendPatches(),
+        nodeViews: views,
+      })
+
+      // Attach the `DomClient` to the ProseMirror element
+      const proseMirrorElem = this.renderRoot.querySelector('.ProseMirror')
+        .firstElementChild as HTMLElement
+      this.domClient = new DomClient(this.doc, proseMirrorElem)
     }
-
-    // Parse the document's DOM into a ProseMirror document
-    // and then remove it (because it will be redundant)
-    const doc = DOMParser.fromSchema(schema).parse(this.renderRoot)
-    this.renderRoot.firstElementChild.remove()
-
-    this.proseMirrorClient = new ProseMirrorClient(
-      this.doc,
-      this.access,
-      this.renderRoot as HTMLElement
-    )
-
-    this.proseMirrorView = new ProseMirrorView(this.renderRoot, {
-      state: EditorState.create({
-        doc,
-      }),
-      dispatchTransaction: this.proseMirrorClient.sendPatches(),
-      nodeViews: views,
-    })
-
-    // Attach the `DomClient` to the ProseMirror element
-    const proseMirrorElem = this.renderRoot.querySelector('.ProseMirror')
-      .firstElementChild as HTMLElement
-    this.domClient = new DomClient(this.doc, proseMirrorElem)
   }
 
   override render() {

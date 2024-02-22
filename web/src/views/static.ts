@@ -31,15 +31,32 @@ export class StaticView extends ThemedView {
   fetch: boolean
 
   /**
+   * Fetch and set the current doc's html
+   */
+  private fetchHTML = () => {
+    new ExportClient(this.doc, 'dom').fetch().then((html) => {
+      this.shadowRoot.innerHTML = html
+    })
+  }
+
+  /**
    * Override to fetch document's HTML if necessary
    */
   override connectedCallback() {
     super.connectedCallback()
 
     if (this.fetch) {
-      new ExportClient(this.doc, 'dom').fetch().then((html) => {
-        this.shadowRoot.innerHTML = html
-      })
+      this.fetchHTML()
+    }
+  }
+
+  /**
+   * Override to re fetch the html if the `doc` property has updated
+   */
+  override update(changedProperties: Map<string, string | boolean>): void {
+    super.update(changedProperties)
+    if (changedProperties.has('doc') && this.fetch) {
+      this.fetchHTML()
     }
   }
 

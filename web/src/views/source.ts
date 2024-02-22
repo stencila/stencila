@@ -325,7 +325,7 @@ export class SourceView extends TWLitElement {
   override async update(changedProperties: Map<string, string | boolean>) {
     super.update(changedProperties)
 
-    if (changedProperties.has('format')) {
+    if (changedProperties.has('format') || changedProperties.has('doc')) {
       // Destroy the existing editor if there is one
       this.codeMirrorView?.destroy()
 
@@ -422,7 +422,6 @@ export class SourceView extends TWLitElement {
       'relative',
       `h-full max-h-[calc(100vh-${heightOffset})]`,
     ])
-
     return html`
       <div class="${styles}">
         <div id="codemirror" class="h-full ${this.codeMirrorCSS}"></div>
