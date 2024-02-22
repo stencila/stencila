@@ -13,7 +13,7 @@ use format::Format;
 pub use common;
 pub use format;
 pub use schema;
-use schema::{ExecutionMessage, Node, Variable};
+use schema::{ExecutionMessage, Node, SoftwareApplication, Variable};
 
 /// A kernel for executing code in some language
 ///
@@ -132,6 +132,9 @@ pub trait KernelInstance: Sync + Send {
     /// including those for other `Kernel`s.
     fn id(&self) -> String;
 
+    /// Get runtime information about the kernel instance.
+    async fn runtime(&mut self) -> Result<SoftwareApplication>;
+
     /// Get the status of the kernel instance
     async fn status(&self) -> Result<KernelStatus>;
 
@@ -227,7 +230,7 @@ pub mod tests {
 
     use common::{eyre::Report, indexmap::IndexMap, itertools::Itertools, tokio, tracing};
     use common_dev::pretty_assertions::assert_eq;
-    use schema::{Array, Null, Object, Paragraph, Primitive};
+    use schema::{Array, Null, Object, Paragraph, Primitive, SoftwareApplication};
 
     use super::*;
 
@@ -255,6 +258,12 @@ pub mod tests {
             }
             _ => Ok(None),
         }
+    }
+
+    pub async fn get_runtime(mut instance: Box<dyn KernelInstance>) -> Result<SoftwareApplication> {
+        instance.start_here().await?;
+        assert_eq!(instance.status().await?, KernelStatus::Ready);
+        Ok(instance.runtime().await?)
     }
 
     /// Test execution of code by a kernel instance
