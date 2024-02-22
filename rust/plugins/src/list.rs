@@ -31,10 +31,17 @@ use crate::{Plugin, PluginStatus};
 pub async fn list(options: ListArgs) -> Result<PluginList> {
     let cache = get_app_dir(DirType::Plugins, true)?.join("manifests.json");
 
+    // TODO: check modifcation time of cache and ignore if more than X hrs old
     if !options.refresh && cache.exists() {
-        let json = read_to_string(cache).await?;
-        let list = serde_json::from_str(&json)?;
-        return Ok(list);
+        // If no errors reading or deserializing (e.g. due to change in fields in plugins) then
+        // return cached list
+        if let Some(list) = read_to_string(&cache)
+            .await
+            .ok()
+            .and_then(|json| serde_json::from_str(&json).ok())
+        {
+            return Ok(list);
+        }
     }
 
     tracing::info!("Refreshing list of plugins and their manifests");
