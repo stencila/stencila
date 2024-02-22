@@ -14,6 +14,12 @@ import resource
 import sys
 import traceback
 from typing import Any, Literal, TypedDict, Union
+import warnings
+
+# We are suppressing all DeprecationWarning's here (as they show up as errors for the Kernel).
+# Specifically, we know that pkg_resources is deprecated (see issue XXXX).
+# TODO: This should be removed in the future.
+warnings.filterwarnings("ignore", category=DeprecationWarning)
 
 # 3.9 does not have `type` or TypeAlias.
 PrimitiveType = Union[str, int, float, bool, None]
@@ -88,6 +94,15 @@ class SoftwareApplication(TypedDict):
     name: str
     software_version: str
     operating_system: str
+
+
+# Used to track imports
+class SoftwareSourceCode(TypedDict):
+    type: Literal["SoftwareSourceCode"]
+    name: str
+    version: str
+    programming_language: str
+
 
 
 # During development, set DEV environment variable to True
@@ -382,7 +397,7 @@ def evaluate(expression: str) -> None:
         sys.stdout.write(to_json(value))
 
 
-def get_info():
+def get_info() -> None:
     import os
     import platform
     import sys
@@ -399,6 +414,20 @@ def get_info():
     }
 
     sys.stdout.write(json.dumps(sw_app) + END + "\n")
+
+
+# Return all of the imported packages
+def get_packages() -> None:
+    import pkg_resources
+
+    for pkg in pkg_resources.working_set:
+        ssc: SoftwareSourceCode = {
+            "type": "SoftwareSourceCode",
+            "name": pkg.project_name,
+            "programming_language": "python",
+            "version": pkg.version,
+        }
+        sys.stdout.write(json.dumps(ssc) + END + "\n")
 
 
 # List variables in the CONTEXT
@@ -515,8 +544,6 @@ def main() -> None:
                 execute(lines[1:])
             elif task_type == EVAL:
                 evaluate(lines[1])
-            elif task_type == INFO:
-                get_info()
             elif task_type == LIST:
                 list_variables()
             elif task_type == GET:
@@ -527,6 +554,10 @@ def main() -> None:
                 remove_variable(lines[1])
             elif task_type == FORK:
                 fork(lines[1:])
+            elif task_type == INFO:
+                get_info()
+            elif task_type == LIB:
+                get_packages()
             else:
                 raise ValueError(f"Unrecognized task: {task_type}")
 
