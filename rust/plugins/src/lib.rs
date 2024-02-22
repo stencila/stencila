@@ -24,7 +24,7 @@ use common::{
     strum::{Display, EnumString},
     tokio::{
         self,
-        io::{AsyncBufRead, AsyncBufReadExt, AsyncWrite, AsyncWriteExt, BufReader, BufWriter},
+        io::{AsyncBufReadExt, AsyncWriteExt, BufReader, BufWriter},
         process::{Child, ChildStdin, ChildStdout, Command},
     },
     toml,
@@ -734,6 +734,8 @@ home = "https://examples.org/stencila-super-plugin"
 install = "https://pypi.org/project/stencila-super-plugin"
 runtime = "python >=3,<4"
 platforms = ["Linux", "MacOS"]
+transports = ["stdio", "http"]
+command = "python ..."
 "#,
         )?;
         assert_eq!(plugin.name, "super-plugin");
@@ -756,6 +758,8 @@ home = "https://examples.org/windows-only"
 install = "https://github.com/example/windows-only"
 runtimes = ["Python", "python >=3"]
 platform = "windows"
+transports = ["http"]
+command = "python ..."
 "#,
         )?;
         assert_eq!(
