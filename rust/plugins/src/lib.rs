@@ -1,4 +1,10 @@
-use std::{collections::HashMap, env, fs::create_dir_all, path::PathBuf, str::FromStr};
+use std::{
+    collections::HashMap,
+    env,
+    fs::create_dir_all,
+    path::{Path, PathBuf},
+    str::FromStr,
+};
 
 use app::{get_app_dir, DirType};
 use semver::{Version, VersionReq};
@@ -10,6 +16,7 @@ use common::{
     serde::{self, Deserialize, Deserializer, Serialize, Serializer},
     serde_with::{DeserializeFromStr, SerializeDisplay},
     strum::{Display, EnumString},
+    tokio::process::Command,
     toml,
     which::which,
 };
@@ -321,22 +328,54 @@ impl PluginRuntime {
         self.path().is_ok()
     }
 
-    /*
     /// Get the version of the runtime
-    fn version(&self) -> Result<String> {
+    fn version(&self) -> Result<Version> {
         let path = self.path()?;
 
-        let child = Command
+        let output = std::process::Command::new(path).arg("--version").output()?;
+        let output = String::from_utf8(output.stdout)?;
 
         let version = match &self {
-            PluginRuntime::Python => {
-                output.splitn(2, ' ').nth(1)
-            },
-            PluginRuntime::Node => {
-
-            }
+            PluginRuntime::Python => output.strip_prefix("Python "),
+            PluginRuntime::Node => output.strip_prefix('v'),
         }
-    }*/
+        .ok_or_else(|| eyre!("Unable to extract version from output"))?
+        .trim();
+
+        let version = Version::parse(version)
+            .map_err(|error| eyre!("Unable to parse version `{version}`: {error}"))?;
+
+        Ok(version)
+    }
+
+    /// Install a plugin
+    async fn install(&self, url: &Url, dir: &Path) -> Result<()> {
+        match self {
+            PluginRuntime::Node => Self::install_node(url, dir).await,
+            PluginRuntime::Python => Self::install_python(url, dir).await,
+        }
+    }
+
+    /// Install a Node.js plugin
+    async fn install_node(url: &Url, dir: &Path) -> Result<()> {
+        let mut child = Command::new("npm")
+            .arg(format!("--prefix={}", dir.to_string_lossy()))
+            .arg("install")
+            .arg(url.to_string())
+            .spawn()?;
+
+        let status = child.wait().await?;
+        if !status.success() {
+            bail!("Install of Node.js plugin failed")
+        }
+
+        Ok(())
+    }
+
+    /// Install a Python plugin
+    async fn install_python(url: &Url, dir: &Path) -> Result<()> {
+        bail!("TODO")
+    }
 }
 
 /// An operating system platform that a plugin supports

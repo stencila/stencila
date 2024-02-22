@@ -10,7 +10,7 @@ use crate::Plugin;
 /// Install a plugin
 #[tracing::instrument]
 pub async fn install(name: &str) -> Result<()> {
-    tracing::debug!("Installing plugin `{}`", name);
+    tracing::debug!("Installing plugin `{name}`");
 
     // Get the latest manifest for the plugin
     let registry = Plugin::fetch_registry().await?;
@@ -26,6 +26,22 @@ pub async fn install(name: &str) -> Result<()> {
         create_dir_all(&dir).await?;
     }
 
+    // Do the install using the first compatible runtime
+    for (runtime, version_req) in &plugin.runtimes {
+        if !runtime.is_available() {
+            continue;
+        }
+
+        // Check that runtime version requirement for the plugin is met
+        let runtime_version = runtime.version()?;
+        if !version_req.matches(&runtime_version) {
+            bail!("Unable to install plugin `{name}`: it requires {runtime}{version_req} but only {runtime_version} is available")
+        }
+
+        // Dispatch to the runtime to do the installation
+        runtime.install(&plugin.install, &dir).await?;
+    }
+
     // Write the manifest into the dir
     // Do this last, when everything else has succeeded, because if this
     // file is present the plugin is assumed to be installed
@@ -33,7 +49,7 @@ pub async fn install(name: &str) -> Result<()> {
     write(&manifest, toml::to_string(&plugin)?).await?;
 
     tracing::info!(
-        "Successfully installed plugin {}@{}",
+        "Successfully installed plugin `{}` version `{}`",
         plugin.name,
         plugin.version,
     );
