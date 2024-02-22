@@ -60,7 +60,6 @@ impl Microkernel for PythonKernel {
 #[cfg(test)]
 mod tests {
     use common_dev::pretty_assertions::assert_eq;
-    use kernel_micro::schema::SoftwareApplicationOptions;
     use kernel_micro::{
         common::{
             eyre::{bail, Ok},
@@ -94,6 +93,37 @@ mod tests {
         assert!(sw.options.software_version.is_some());
         assert!(sw.options.software_version.unwrap().starts_with("3."));
         assert!(sw.options.operating_system.is_some());
+        Ok(())
+    }
+
+    #[test_log::test(tokio::test)]
+    async fn packages() -> Result<()> {
+        let Some(mut instance) = start_instance::<PythonKernel>().await? else {
+            return Ok(());
+        };
+        // This gives us the packages available.
+        let pkgs = instance.packages().await?;
+
+        if pkgs.is_empty() {
+            println!("Test not complete as no packages found");
+        } else {
+            for pkg in &pkgs {
+                // if let Some(pkg) = pkgs.first() {
+                let (.., messages) = instance.execute(&format!("import {}", pkg.name)).await?;
+                if messages
+                    .first()
+                    .and_then(|message| message.error_type.as_deref())
+                    == Some("ModuleNotFoundError")
+                {
+                    assert!(
+                        false,
+                        "Package {} not available, though it was listed in imports",
+                        pkg.name
+                    );
+                }
+            }
+        }
+
         Ok(())
     }
 

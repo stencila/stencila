@@ -33,7 +33,7 @@ use kernel::{
 
 // Re-exports for the convenience of internal crates implementing
 // the `Microkernel` trait
-use crate::schema::SoftwareApplication;
+use crate::schema::{SoftwareApplication, SoftwareSourceCode};
 
 /// A specification for a minimal, lightweight execution kernel in a spawned process
 #[async_trait]
@@ -325,13 +325,28 @@ impl KernelInstance for MicrokernelInstance {
     }
 
     async fn runtime(&mut self) -> Result<SoftwareApplication> {
-        let (mut nodes, messages) = self.send_receive(MicrokernelFlag::Info, None).await?;
+        let (mut nodes, messages) = self.send_receive(MicrokernelFlag::Info, []).await?;
         self.check_for_errors(messages, "getting info")?;
 
         match nodes.pop() {
             Some(Node::SoftwareApplication(var)) => Ok(var),
             _ => bail!("Expected a `SoftwareApplication`"),
         }
+    }
+
+    async fn packages(&mut self) -> Result<Vec<SoftwareSourceCode>> {
+        let (nodes, messages) = self.send_receive(MicrokernelFlag::Lib, []).await?;
+        self.check_for_errors(messages, "getting packages")?;
+
+        let mut v: Vec<SoftwareSourceCode> = vec![];
+        for node in nodes {
+            if let Node::SoftwareSourceCode(var) = node {
+                v.push(var);
+            } else {
+                bail!("Expected a `SoftwareSourceCode`, got {node:?}");
+            }
+        }
+        Ok(v)
     }
 
     async fn start(&mut self, directory: &Path) -> Result<()> {

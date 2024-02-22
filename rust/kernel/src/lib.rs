@@ -13,7 +13,7 @@ use format::Format;
 pub use common;
 pub use format;
 pub use schema;
-use schema::{ExecutionMessage, Node, SoftwareApplication, Variable};
+use schema::{ExecutionMessage, Node, SoftwareApplication, SoftwareSourceCode, Variable};
 
 /// A kernel for executing code in some language
 ///
@@ -132,9 +132,6 @@ pub trait KernelInstance: Sync + Send {
     /// including those for other `Kernel`s.
     fn id(&self) -> String;
 
-    /// Get runtime information about the kernel instance.
-    async fn runtime(&mut self) -> Result<SoftwareApplication>;
-
     /// Get the status of the kernel instance
     async fn status(&self) -> Result<KernelStatus>;
 
@@ -151,6 +148,12 @@ pub trait KernelInstance: Sync + Send {
     async fn start_here(&mut self) -> Result<()> {
         self.start(&std::env::current_dir()?).await
     }
+
+    /// Get runtime information about the kernel instance.
+    async fn runtime(&mut self) -> Result<SoftwareApplication>;
+
+    /// Get a list of packages available in the kernel instance.
+    async fn packages(&mut self) -> Result<Vec<SoftwareSourceCode>>;
 
     /// Stop the kernel
     async fn stop(&mut self) -> Result<()>;
