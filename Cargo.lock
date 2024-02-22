@@ -1426,6 +1426,7 @@ dependencies = [
  "tracing",
  "type-safe-id",
  "uuid",
+ "which",
  "xz2",
  "zip",
 ]
