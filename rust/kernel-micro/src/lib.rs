@@ -7,6 +7,10 @@ use std::{
 
 use which::which;
 
+pub use kernel::{
+    common, format, schema, tests, Kernel, KernelAvailability, KernelForks, KernelInstance,
+    KernelInterrupt, KernelKill, KernelSignal, KernelStatus, KernelTerminate,
+};
 use kernel::{
     common::{
         async_trait::async_trait,
@@ -29,10 +33,7 @@ use kernel::{
 
 // Re-exports for the convenience of internal crates implementing
 // the `Microkernel` trait
-pub use kernel::{
-    common, format, schema, tests, Kernel, KernelAvailability, KernelForks, KernelInstance,
-    KernelInterrupt, KernelKill, KernelSignal, KernelStatus, KernelTerminate,
-};
+use crate::schema::SoftwareApplication;
 
 /// A specification for a minimal, lightweight execution kernel in a spawned process
 #[async_trait]
@@ -256,6 +257,10 @@ enum MicrokernelFlag {
     Ready,
     /// Sent by Rust to signal a newline (`\n`) within the code of a task
     Line,
+    /// Sent by Rust to get information about the kernel
+    Info,
+    /// Sent by Rust to gather available libraries/imports.
+    Lib,
     /// Sent by Rust to signal the start of an `execute` task
     Exec,
     /// Sent by Rust to signal the start of an `evaluation` task
@@ -284,6 +289,8 @@ impl MicrokernelFlag {
         match self {
             Ready => "\u{10ACDC}",
             Line => "\u{10ABBA}",
+            Info => "\u{10EE15}",
+            Lib => "\u{10BEC4}",
             Exec => "\u{10B522}",
             Eval => "\u{1010CC}",
             Fork => "\u{10DE70}",
@@ -314,6 +321,16 @@ impl KernelInstance for MicrokernelInstance {
         match &self.signal_sender {
             Some(sender) => Ok(sender.clone()),
             None => bail!("Microkernel has not started yet!"),
+        }
+    }
+
+    async fn runtime(&mut self) -> Result<SoftwareApplication> {
+        let (mut nodes, messages) = self.send_receive(MicrokernelFlag::Info, None).await?;
+        self.check_for_errors(messages, "getting info")?;
+
+        match nodes.pop() {
+            Some(Node::SoftwareApplication(var)) => Ok(var),
+            _ => bail!("Expected a `SoftwareApplication`"),
         }
     }
 

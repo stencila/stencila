@@ -60,6 +60,7 @@ impl Microkernel for PythonKernel {
 #[cfg(test)]
 mod tests {
     use common_dev::pretty_assertions::assert_eq;
+    use kernel_micro::schema::SoftwareApplicationOptions;
     use kernel_micro::{
         common::{
             eyre::{bail, Ok},
@@ -81,6 +82,20 @@ mod tests {
     // ```sh
     // RUST_LOG=trace cargo test -p kernel-python -- --nocapture
     // ```
+
+    // Check for minimal information about python.
+    #[test_log::test(tokio::test)]
+    async fn runtime() -> Result<()> {
+        let Some(instance) = create_instance::<PythonKernel>().await? else {
+            return Ok(());
+        };
+        let sw = kernel_micro::tests::get_runtime(instance).await?;
+        assert_eq!(sw.name, "python");
+        assert!(sw.options.software_version.is_some());
+        assert!(sw.options.software_version.unwrap().starts_with("3."));
+        assert!(sw.options.operating_system.is_some());
+        Ok(())
+    }
 
     /// Standard kernel test for execution of code
     #[test_log::test(tokio::test)]

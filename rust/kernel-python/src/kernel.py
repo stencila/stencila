@@ -83,12 +83,21 @@ class ImageObject(TypedDict):
     contentUrl: str
 
 
+class SoftwareApplication(TypedDict):
+    type: Literal["SoftwareApplication"]
+    name: str
+    software_version: str
+    operating_system: str
+
+
 # During development, set DEV environment variable to True
 DEV_MODE = os.getenv("DEV") == "true"
 
 # Define constants based on development status
 READY = "READY" if DEV_MODE else "\U0010ACDC"
 LINE = "|" if DEV_MODE else "\U0010ABBA"
+INFO = "INFO" if DEV_MODE else "\U0010EE15"
+LIB = "LIB" if DEV_MODE else "\U0010BEC4"
 EXEC = "EXEC" if DEV_MODE else "\U0010B522"
 EVAL = "EVAL" if DEV_MODE else "\U001010CC"
 FORK = "FORK" if DEV_MODE else "\U0010DE70"
@@ -373,6 +382,25 @@ def evaluate(expression: str) -> None:
         sys.stdout.write(to_json(value))
 
 
+def get_info():
+    import os
+    import platform
+    import sys
+
+    pv = sys.version_info
+    os_name = os.name
+    platform = platform.platform()
+
+    sw_app: SoftwareApplication = {
+        "type": "SoftwareApplication",
+        "name": "python",
+        "software_version": f"{pv.major}.{pv.minor}.{pv.micro}",
+        "operating_system": f"{os_name} {platform}",
+    }
+
+    sys.stdout.write(json.dumps(sw_app) + END + "\n")
+
+
 # List variables in the CONTEXT
 def list_variables() -> None:
     for name, value in CONTEXT.items():
@@ -487,6 +515,8 @@ def main() -> None:
                 execute(lines[1:])
             elif task_type == EVAL:
                 evaluate(lines[1])
+            elif task_type == INFO:
+                get_info()
             elif task_type == LIST:
                 list_variables()
             elif task_type == GET:
