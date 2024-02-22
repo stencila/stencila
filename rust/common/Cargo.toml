@@ -42,5 +42,6 @@ toml = "0.8.10"
 tracing = { version = "0.1.40", features = ["log"] }
 type-safe-id = "0.2.1"
 uuid = "1.7.0"
+which = "6.0.0"
 xz2 = "0.1.7"
 zip = "0.6.6"

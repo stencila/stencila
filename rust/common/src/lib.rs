@@ -47,5 +47,6 @@ pub use toml;
 pub use tracing;
 pub use type_safe_id;
 pub use uuid;
+pub use which;
 pub use xz2;
 pub use zip;
