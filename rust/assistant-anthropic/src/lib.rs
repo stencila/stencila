@@ -109,8 +109,11 @@ impl Assistant for AnthropicAssistant {
             .stop_sequences(vec![HUMAN_PROMPT.to_string()])
             .build()?;
 
-        let mut cfg = AnthropicConfig::new()?;
-        cfg.api_key = secrets::env_or_get(API_KEY)?;
+        let cfg = AnthropicConfig {
+            api_key: secrets::env_or_get(API_KEY)?,
+            api_base: None,
+            default_model: None,
+        };
         let client = Client::try_from(cfg)?;
 
         let text = client
