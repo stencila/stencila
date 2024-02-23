@@ -14,6 +14,7 @@ import { THEMES } from '../themes/themes'
 import { withTwind } from '../twind'
 import type { DocumentId, DocumentView } from '../types'
 import type { UISelectorSelectedEvent } from '../ui/selector'
+import '../ui/config'
 import '../ui/directory-container'
 import '../ui/selector'
 import '../ui/sidebar'
@@ -100,6 +101,7 @@ export class App extends LitElement {
       class="font-sans flex flex-row bg-neutral-100 fixed top-0 left-0 min-h-screen w-full"
     >
       <stencila-ui-sidebar></stencila-ui-sidebar>
+      <stencila-ui-config-screen></stencila-ui-config-screen>
       <stencila-ui-directory-container></stencila-ui-directory-container>
 
       <div class="flex flex-col flex-grow">

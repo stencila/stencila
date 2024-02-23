@@ -63,6 +63,9 @@ export class UIIconButton extends LitElement {
   @property()
   type: 'toggle' | 'selected' = 'toggle'
 
+  @property()
+  size: string = '20px'
+
   override render() {
     if (this.tooltip) {
       return html`<sl-tooltip
@@ -125,7 +128,7 @@ export class UIIconButton extends LitElement {
       library="stencila"
       name="${icon}"
       class="${classes}"
-      style="font-size: 20px;"
+      style="font-size: ${this.size};"
     ></sl-icon>`
   }
 

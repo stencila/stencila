@@ -46,7 +46,9 @@ export class SplitView extends LitElement {
   @property()
   theme: string = 'default'
 
-  override render() {
+  override async render() {
+    // const test = await RestAPIClient.listSecrets()
+
     const dynamicStyles = apply([
       'py-11 px-16',
       'max-w-[65ch] lg:max-w-[120ch]',
