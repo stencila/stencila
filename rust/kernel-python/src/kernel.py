@@ -17,12 +17,6 @@ import traceback
 import warnings
 from typing import Any, Literal, TypedDict, Union
 
-# # We are suppressing all DeprecationWarning's here
-# # (as they show up as errors for the Kernel).
-# # Specifically, we know that pkg_resources is deprecated (see issue XXXX).
-# # TODO: This should be removed in the future.
-# warnings.filterwarnings("ignore", category=DeprecationWarning)
-
 # 3.9 does not have `type` or TypeAlias.
 PrimitiveType = Union[str, int, float, bool, None]
 
@@ -123,11 +117,11 @@ DEV_MODE = os.getenv("DEV") == "true"
 # Define constants based on development status
 READY = "READY" if DEV_MODE else "\U0010ACDC"
 LINE = "|" if DEV_MODE else "\U0010ABBA"
-INFO = "INFO" if DEV_MODE else "\U0010EE15"
-LIB = "LIB" if DEV_MODE else "\U0010BEC4"
 EXEC = "EXEC" if DEV_MODE else "\U0010B522"
 EVAL = "EVAL" if DEV_MODE else "\U001010CC"
 FORK = "FORK" if DEV_MODE else "\U0010DE70"
+INFO = "INFO" if DEV_MODE else "\U0010EE15"
+PKGS = "PKGS" if DEV_MODE else "\U0010BEC4"
 LIST = "LIST" if DEV_MODE else "\U0010C155"
 GET = "GET" if DEV_MODE else "\U0010A51A"
 SET = "SET" if DEV_MODE else "\U00107070"
@@ -195,7 +189,9 @@ logger.addHandler(handler)
 def log_warning(message, category, filename, lineno, file=None, line=None) -> None:  # type: ignore  # noqa: ANN001
     warning_details = {
         "warning_details": {
-            "category": str(category.__name__),  # pyright: ignore[reportAttributeAccessIssue]
+            "category": str(
+                category.__name__
+            ),  # pyright: ignore[reportAttributeAccessIssue]
             "filename": filename,
             "lineno": lineno,
             "line": line,
@@ -469,7 +465,7 @@ def evaluate(expression: str) -> None:
         value = eval(expression, CONTEXT)
         sys.stdout.write(to_json(value))
 
-
+# Get runtime information
 def get_info() -> None:
     import os
     import platform
@@ -489,16 +485,18 @@ def get_info() -> None:
     sys.stdout.write(json.dumps(sw_app) + END + "\n")
 
 
-# Return all of the imported packages
+# Get a list of packages available
+# Uses `importlib.metadata` rather than `pkg_resources`
+# which is deprecated (and less performant)
 def get_packages() -> None:
-    import pkg_resources
+    from importlib.metadata import distributions
 
-    for pkg in pkg_resources.working_set:
+    for distribution in distributions():
         ssc: SoftwareSourceCode = {
             "type": "SoftwareSourceCode",
-            "name": pkg.project_name,
+            "name": distribution.metadata["Name"],
             "programming_language": "python",
-            "version": pkg.version,
+            "version": distribution.version,
         }
         sys.stdout.write(json.dumps(ssc) + END + "\n")
 
@@ -617,6 +615,10 @@ def main() -> None:
                 execute(lines[1:])
             elif task_type == EVAL:
                 evaluate(lines[1])
+            elif task_type == INFO:
+                get_info()
+            elif task_type == PKGS:
+                get_packages()
             elif task_type == LIST:
                 list_variables()
             elif task_type == GET:
@@ -627,10 +629,6 @@ def main() -> None:
                 remove_variable(lines[1])
             elif task_type == FORK:
                 fork(lines[1:])
-            elif task_type == INFO:
-                get_info()
-            elif task_type == LIB:
-                get_packages()
             else:
                 raise ValueError(f"Unrecognized task: {task_type}")
 
