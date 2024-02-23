@@ -14,7 +14,7 @@ pub struct RKernel {
 
 impl Kernel for RKernel {
     fn id(&self) -> String {
-        "R".to_string()
+        "r".to_string()
     }
 
     fn availability(&self) -> KernelAvailability {
@@ -38,8 +38,6 @@ impl Kernel for RKernel {
     }
 
     fn supports_forks(&self) -> KernelForks {
-        // Uses R `os.fork()` which is only available on POSIX-based systems
-        // TODO: fix for R
         self.microkernel_supports_forks()
     }
 
@@ -225,16 +223,44 @@ print(a, b)",
         // Syntax error
         let (outputs, messages) = kernel.execute("bad ^ # syntax").await?;
         assert_eq!(messages[0].error_type.as_deref(), Some("SyntaxError"));
-        assert_eq!(messages[0].error_message, "invalid syntax (<code>, line 1)");
+        assert_eq!(messages[0].message, "invalid syntax (<code>, line 1)");
         assert!(messages[0].stack_trace.is_some());
         assert_eq!(outputs, vec![]);
 
         // Runtime error
         let (outputs, messages) = kernel.execute("foo").await?;
         assert_eq!(messages[0].error_type.as_deref(), Some("NameError"));
-        assert_eq!(messages[0].error_message, "name 'foo' is not defined");
+        assert_eq!(messages[0].message, "name 'foo' is not defined");
         assert!(messages[0].stack_trace.is_some());
         assert_eq!(outputs, vec![]);
+
+        Ok(())
+    }
+
+    /// Standard kernel test for getting runtime information
+    #[test_log::test(tokio::test)]
+    async fn info() -> Result<()> {
+        let Some(instance) = create_instance::<RKernel>().await? else {
+            return Ok(());
+        };
+
+        let sw = kernel_micro::tests::info(instance).await?;
+        assert_eq!(sw.name, "R");
+        assert!(sw.options.software_version.is_some());
+        assert!(sw.options.operating_system.is_some());
+
+        Ok(())
+    }
+
+    /// Standard kernel test for listing installed packages
+    #[test_log::test(tokio::test)]
+    async fn packages() -> Result<()> {
+        let Some(instance) = start_instance::<RKernel>().await? else {
+            return Ok(());
+        };
+
+        let pkgs = kernel_micro::tests::packages(instance).await?;
+        assert!(!pkgs.is_empty());
 
         Ok(())
     }

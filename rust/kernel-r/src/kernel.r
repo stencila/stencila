@@ -1,455 +1,180 @@
-#!/usr/bin/env python3
-
-import json
-import os
-import resource
-import sys
-import traceback
-from io import StringIO
-from typing import Any, Dict
+#!/usr/bin/env R
 
 # During development, set DEV environment variable to True
-dev = os.getenv("DEV") == "true"
+DEV_MODE = Sys.getenv("DEV") == "true"
 
 # Define constants based on development status
-READY = "READY" if dev else "\U0010ACDC"
-LINE = "|" if dev else "\U0010ABBA"
-EXEC = "EXEC" if dev else "\U0010B522"
-EVAL = "EVAL" if dev else "\U001010CC"
-FORK = "FORK" if dev else "\U0010DE70"
-LIST = "LIST" if dev else "\U0010C155"
-GET = "GET" if dev else "\U0010A51A"
-SET = "SET" if dev else "\U00107070"
-REMOVE = "REMOVE" if dev else "\U0010C41C"
-END = "END" if dev else "\U0010CB40"
+READY = ifelse(DEV_MODE, "READY", "\U0010ACDC")
+LINE = ifelse(DEV_MODE, "|", "\U0010ABBA")
+EXEC = ifelse(DEV_MODE, "EXEC", "\U0010B522")
+EVAL = ifelse(DEV_MODE, "EVAL", "\U001010CC")
+FORK = ifelse(DEV_MODE, "FORK", "\U0010DE70")
+INFO = ifelse(DEV_MODE, "INFO", "\U0010EE15")
+PKGS = ifelse(DEV_MODE, "PKGS", "\U0010BEC4")
+LIST = ifelse(DEV_MODE, "LIST", "\U0010C155")
+GET = ifelse(DEV_MODE, "GET", "\U0010A51A")
+SET = ifelse(DEV_MODE, "SET", "\U00107070")
+REMOVE = ifelse(DEV_MODE, "REMOVE", "\U0010C41C")
+END = ifelse(DEV_MODE, "END", "\U0010CB40")
 
-# Try to get the maximum number of file descriptors the process can have open
-# SC_OPEN_MAX "The maximum number of files that a process can have open at any time" sysconf(3)
-# RLIMIT_NOFILE "specifies a value one greater than the maximum file descriptor number that can be opened by this process." getrlimit(2)
-try:
-    MAXFD = os.sysconf("SC_OPEN_MAX")
-except Exception:
-    try:
-        MAXFD = resource.getrlimit(resource.RLIMIT_NOFILE)[1]
-    except Exception:
-        MAXFD = 256
+# Ensure that required packages are attached and installed
+requires <- function() {
+  # On Mac and Linux require `parallel` package for forking
+  # This is a base package (see `rownames(installed.packages(priority="base"))`)
+  # so we don't try to install it as with other packages
+  if (.Platform$OS.type == "unix") library(parallel)
 
-# Custom serialization and hints for numpy
-try:
-    import numpy as np
+  pkgs <- c("jsonlite", "base64enc")
 
-    NUMPY_AVAILABLE = True
-    NUMPY_BOOL_TYPES = (np.bool_,)
-    NUMPY_INT_TYPES = (np.byte, np.short, np.intc, np.int_, np.longlong)
-    NUMPY_UINT_TYPES = (
-        np.ubyte,
-        np.ushort,
-        np.uintc,
-        np.uint,
-        np.ulonglong,
-    )
-    NUMPY_FLOAT_TYPES = (np.half, np.single, np.double, np.longdouble)
+  install <- NULL
+  for (pkg in pkgs) {
+    if (!suppressWarnings(require(pkg, character.only = TRUE, quietly = TRUE))) {
+      install <- c(install, pkg)
+    }
+  }
 
-    def ndarray_to_hint(array):
-        if array.dtype in NUMPY_BOOL_TYPES:
-            items_type = "Boolean"
-            convert_type = bool
-        elif array.dtype in NUMPY_INT_TYPES:
-            items_type = "Integer"
-            convert_type = int
-        elif array.dtype in NUMPY_UINT_TYPES:
-            items_type = "UnsignedInteger"
-            convert_type = int
-        elif array.dtype in NUMPY_FLOAT_TYPES:
-            items_type = "Number"
-            convert_type = float
-        elif str(array.dtype).startswith("datetime64"):
-            items_type = "Timestamp"
-            convert_type = int
-        elif str(array.dtype).startswith("timedelta64"):
-            items_type = "Duration"
-            convert_type = int
-        else:
-            items_type = "String"
-            convert_type = str
+  if (length(install) > 0) {
+    # Ensure that the user has a place that they can install packages
+    # Note that `R_LIBS_USER` is set to a default value at R startup (if not already set)
+    lib <- Sys.getenv("R_LIBS_USER")
+    dir.create(lib, recursive = TRUE, showWarnings = FALSE)
+    # Add the lib to lib paths for any other installs in this session
+    .libPaths(lib)
+    for (pkg in install) {
+      install.packages(pkg, quiet = TRUE, repo = "https://cloud.r-project.org/")
+      require(pkg, character.only = TRUE, quietly = TRUE)
+    }
+  }
+}
 
-        length = np.size(array)
+# All of `invisible`, `capture.output` and `suppressMessages` are required
+# here to keep the call to `requires()` truly quiet on all platforms
+invisible(capture.output(suppressMessages(requires())))
 
-        return {
-            "type": "ArrayHint",
-            "length": length,
-            "itemTypes": [items_type],
-            "nulls": np.count_nonzero(np.isnan(array)) if length else None,
-            "minimum": convert_type(np.nanmin(array)) if length else None,
-            "maximum": convert_type(np.nanmax(array)) if length else None,
-        }
+# Get stdio streams
+stdin <- file("stdin", "r")
+stdout <- stdout()
+stderr <- stderr()
 
-    def ndarray_to_validator(value):
-        if value.dtype in NUMPY_BOOL_TYPES:
-            validator = dict(type="BooleanValidator")
-        elif value.dtype in NUMPY_INT_TYPES:
-            validator = dict(type="IntegerValidator")
-        elif value.dtype in NUMPY_UINT_TYPES:
-            validator = dict(type="IntegerValidator", minimum=0)
-        elif value.dtype in NUMPY_FLOAT_TYPES:
-            validator = dict(type="NumberValidator")
-        elif str(value.dtype) == "datetime64":
-            validator = dict(type="TimestampValidator")
-        elif str(value.dtype) == "timedelta64":
-            validator = dict(type="DurationValidator")
-        else:
-            validator = None
+# Functions to print an `ExecutionMessage` to stderr
+message <- function(msg, level, error_type = NULL) {
+  write(
+    paste0(
+      toJSON(
+        list(
+          type = "ExecutionMessage",
+          level = level,
+          message = msg,
+          error_type = error_type
+        ),
+        auto_unbox = T,
+        force = TRUE,
+        null = "null",
+        na = "null"
+      ),
+      END
+    ),
+    stderr
+  )
+}
+info <- function(msg) message(msg, "Info")
+warning <- function(msg) message(msg, "Warn")
+error <- function(error, error_type = "RuntimeError") message(error$message, "Error", error_type)
+interrupt <- function(condition, error_type = "Interrupt") message("Code execution was interrupted", "Error", error_type)
 
-        return dict(type="ArrayValidator", itemsValidator=validator)
+# Monkey patch `print` to encode individual objects
+print <- function(x, ...) write(paste0(toJSON(x, auto_unbox = T), END), stdout)
 
-    def ndarray_to_array(array):
-        return array.tolist()
-
-except ImportError:
-    NUMPY_AVAILABLE = False
-
-
-# Custom serialization and hints for pandas
-try:
-    import pandas as pd
-
-    PANDAS_AVAILABLE = True
-
-    def dataframe_to_hint(df):
-        columns = []
-        for column_name in df.columns:
-            column = df[column_name]
-
-            hint = ndarray_to_hint(column)
-            hint["type"] = "DatatableColumnHint"
-            hint["name"] = str(column_name)
-            hint["itemType"] = hint["itemTypes"][0]
-
-            columns.append(hint)
-
-        return {"type": "DatatableHint", "rows": len(df), "columns": columns}
-
-    def dataframe_to_datatable(df):
-        columns = []
-        for column_name in df.columns:
-            column = df[column_name]
-
-            values = column.tolist()
-            if column.dtype in NUMPY_BOOL_TYPES:
-                values = [bool(row) for row in values]
-            elif column.dtype in NUMPY_INT_TYPES or column.dtype in NUMPY_UINT_TYPES:
-                values = [int(row) for row in values]
-            elif column.dtype in NUMPY_FLOAT_TYPES:
-                values = [float(row) for row in values]
-
-            columns.append(
-                {
-                    "type": "DatatableColumn",
-                    "name": str(column_name),
-                    "values": values,
-                    "validator": ndarray_to_validator(column),
-                }
-            )
-
-        return {"type": "Datatable", "columns": columns}
-
-    def dataframe_from_datatable(dt):
-        columns = dt.get("columns") or []
-        data = dict(
-            [
-                (column.get("name") or "unnamed", column.get("values") or [])
-                for column in columns
-            ]
-        )
-
-        return pd.DataFrame(data)
-
-except ImportError:
-    PANDAS_AVAILABLE = False
-
-# Custom serialization for `matplotlib` plots
-try:
-    import matplotlib
-    import matplotlib.pyplot
-
-    MATPLOTLIB_AVAILABLE = True
-
-    matplotlib.use("Agg")
-
-    # Monkey patch pyplot.show to return itself to
-    # indicate that an image should be returned as an output
-    # rather than launching a display
-    def show(*args, **kwargs):
-        return matplotlib.pyplot.show
-
-    matplotlib.pyplot.show = show
-
-    def is_matplotlib(value):
-        """Is the value a matplotlib value or return of a matplotlib call?"""
-        from matplotlib.artist import Artist
-        from matplotlib.figure import Figure
-
-        if (
-            value == matplotlib.pyplot.show
-            or isinstance(value, Artist)
-            or isinstance(value, Figure)
-        ):
-            return True
-
-        # This is somewhat crude but allows for calls that return lists of
-        # matplotlib types not just single objects e.g. `pyplot.plot()`
-        rep = repr(value)
-        return rep.startswith("<matplotlib.") or rep.startswith("[<matplotlib.")
-
-    def matplotlib_to_image_object():
-        """Convert the current matplotlib figure to a `ImageObject`"""
-        import base64
-        import io
-        from matplotlib import pyplot
-
-        image = io.BytesIO()
-        pyplot.savefig(image, format="png")
-        pyplot.close()
-
-        url = "data:image/png;base64," + base64.encodebytes(image.getvalue()).decode()
-
-        return {
-            "type": "ImageObject",
-            "contentUrl": url,
-        }
-
-except ImportError:
-    MATPLOTLIB_AVAILABLE = False
-
-
-# Serialize a Python object as JSON (falling back to a string)
-def to_json(object):
-    if isinstance(object, (bool, int, float, str)):
-        return json.dumps(object)
-
-    if NUMPY_AVAILABLE and isinstance(object, np.ndarray):
-        return json.dumps(ndarray_to_array(object))
-
-    if PANDAS_AVAILABLE and isinstance(object, pd.DataFrame):
-        return json.dumps(dataframe_to_datatable(object))
-    
-    if MATPLOTLIB_AVAILABLE and is_matplotlib(object):
-        return json.dumps(matplotlib_to_image_object())
-
-    try:
-        return json.dumps(object)
-    except:
-        return str(object)
-
-
-# Deserialize a Python object from JSON (falling back to a string)
-def from_json(string):
-    object = json.loads(string)
-
-    if isinstance(object, dict):
-        typ = object.get("type")
-
-        if PANDAS_AVAILABLE and typ == "Datatable":
-            return dataframe_from_datatable(object)
-
-    return object
-
-
-# Monkey patch `print` to encode individual objects (if no options used)
-def print(*objects, sep=" ", end="\n", file=sys.stdout, flush=False):
-    if sep != " " or end != "\n" or file != sys.stdout or flush:
-        return __builtins__.print(*objects, sep, end, file, flush)
-    for object in objects:
-        sys.stdout.write(to_json(object) + END + "\n")
-
-
-# Create the initial context with monkey patched print
-context: Dict[str, Any] = {"print": print}
-
+# Expose `unbox` so that users can, for example, show a single number vector as a number
+unbox <- jsonlite::unbox
 
 # Execute lines of code
-def execute(lines):
-    # If the last line is compilable as an `eval`-able
-    # expression, then return it as a value. Otherwise
-    # just execute all the lines
-    rest, last = lines[:-1], lines[-1]
-    try:
-        last = compile(last, "<code>", "eval")
-    except:
-        compiled = compile("\n".join(lines), "<code>", "exec")
-        exec(compiled, context)
-    else:
-        if rest:
-            joined = "\n".join(rest)
-            compiled = compile(joined, "<code>", "exec")
-            exec(compiled, context)
-        value = eval(last, context)
-        if value is not None:
-            sys.stdout.write(to_json(value))
-
+execute <- function(lines) { }
 
 # Evaluate an expression
-def evaluate(expression):
-    if expression:
-        value = eval(expression, context)
-        sys.stdout.write(to_json(value))
+evaluate <- function(expression) {
+  compiled <- tryCatch(parse(text = expression), error = identity)
+  if (inherits(compiled, "simpleError")) {
+    error(compiled, "SyntaxError")
+  } else {
+    value <- tryCatch(
+      eval(compiled, envir, .GlobalEnv),
+      message = info,
+      warning = warning,
+      error = error,
+      interrupt = interrupt
+    )
+    if (!is.null(value)) {
+      print(value)
+    }
+  }
+}
 
+# Get runtime information
+get_info <- function() { }
+
+# Get a list of packages available
+get_packages <- function() { }
 
 # List variables in the context
-def list_variables():
-    for name, value in context.items():
-        if name == "print":
-            continue
-
-        native_type = type(value).__name__
-        node_type, hint = determine_type_and_hint(value)
-
-        variable = {
-            "type": "Variable",
-            "name": name,
-            "programmingLanguage": "Python",
-            "nativeType": native_type,
-            "nodeType": node_type,
-            "hint": hint,
-        }
-
-        sys.stdout.write(json.dumps(variable) + END + "\n")
-
-
-# Determine node type and value hint for a variable
-def determine_type_and_hint(value):
-    if value is None:
-        return "Null", None
-    elif isinstance(value, bool):
-        return "Boolean", value
-    elif isinstance(value, int):
-        return "Integer", value
-    elif isinstance(value, float):
-        return "Number", value
-    elif isinstance(value, str):
-        return "String", {"type": "StringHint", "chars": len(value)}
-    elif isinstance(value, (list, tuple)):
-        return "Array", {"type": "ArrayHint", "length": len(value)}
-    elif NUMPY_AVAILABLE and isinstance(value, np.ndarray):
-        return "Array", ndarray_to_hint(value)
-    elif PANDAS_AVAILABLE and isinstance(value, pd.DataFrame):
-        return "Datatable", dataframe_to_hint(value)
-    elif isinstance(value, dict):
-        typ = value.get("type")
-        if typ:
-            return (str(typ), None)
-        else:
-            length = len(value)
-            keys = [str(key) for key in value.keys()]
-            values = [determine_type_and_hint(value)[1] for value in value.values()]
-            return (
-                "Object",
-                {
-                    "type": "ObjectHint",
-                    "length": length,
-                    "keys": keys,
-                    "values": values,
-                },
-            )
-
-    else:
-        return "Object", {"type": "Unknown"}
-
+list_variables <- function() { }
 
 # Get a variable
-def get_variable(name):
-    value = context.get(name)
-    if value is not None:
-        sys.stdout.write(to_json(value))
-
+get_variable <- function(name) { }
 
 # Set a variable
-def set_variable(name, value):
-    context[name] = from_json(value)
-
+set_variable <- function(name, value) { }
 
 # Remove a variable
-def remove_variable(name):
-    context.pop(name, None)
-
+remove_variable <- function(name) { }
 
 # Fork the kernel instance
-def fork(pipes):
+fork <- function(pipes) { }
 
-    pid = os.fork()
-    if pid == 0:
-        # Close all file descriptors so that we're not interfering with
-        # parent's file descriptors and so stdin, stdout and stderr get replaced below
-        # using the right file descriptor indices (0, 1, 2).
-        os.closerange(0, MAXFD)
-        os.open(pipes[0], os.O_RDONLY)
-        os.open(pipes[1], os.O_WRONLY | os.O_TRUNC)
-        os.open(pipes[2], os.O_WRONLY | os.O_TRUNC)
-    else:
-        # Parent process: return pid of the fork
-        sys.stdout.write(str(pid))
+# Create environment in which code will be executed
+envir <- new.env()
 
+# Indicate that ready
+write(READY, stdout)
+write(READY, stderr)
 
-# Signal that ready to receive tasks
-for stream in (sys.stdout, sys.stderr):
-    stream.write(READY + "\n")
+task <<- NULL
+saved_task <<- NULL
+while (!is.null(stdin)) {
+  tryCatch({
+    # A SIGINT does not interrupt `readLines` but instead gets fired just after it when the next
+    # line is read. So, we have to save the task in case interrupt was inadvertently called during
+    # readline and then "replay" it on the next loop.
+    task <<- ifelse(is.null(saved_task), readLines(stdin, n = 1), saved_task)
 
-# Handle tasks
-while True:
-    task = input().strip()
-    if not task:
-        continue
+    # If there is no task from `readLines` it means `stdin` was closed, so exit gracefully
+    if (length(task) == 0) quit(save = "no")
 
-    lines = task.split(LINE)
+    lines <- strsplit(task, LINE, fixed = TRUE)[[1]]
 
-    try:
-        task_type = lines[0]
+    task_type <- lines[1]
+    switch(task_type,
+      EXEC = function() execute(lines[2:length(lines)]),
+      EVAL = function() evaluate(lines[2:length(lines)]),
+      INFO = get_info,
+      PKGS = get_packages,
+      LIST = list_variables,
+      GET = function() get_variable(lines[2]),
+      SET = function() set_variable(lines[2], lines[3]),
+      REMOVE = function() remove_variable(lines[2]),
+      FORK = function() fork(lines[2], lines[3]),
+      function() error(list(message = paste("Unrecognized task:", task_type), error_type = "MicrokernelError"))
+    )()
 
-        if task_type == EXEC:
-            execute(lines[1:])
-        elif task_type == EVAL:
-            evaluate(lines[1])
-        elif task_type == LIST:
-            list_variables()
-        elif task_type == GET:
-            get_variable(lines[1])
-        elif task_type == SET:
-            set_variable(lines[1], lines[2])
-        elif task_type == REMOVE:
-            remove_variable(lines[1])
-        elif task_type == FORK:
-            fork(lines[1:])
-        else:
-            raise ValueError(f"Unrecognized task: {task_type}")
+    saved_task <<- NULL
 
-    except KeyboardInterrupt:
-        pass
-
-    except Exception as e:
-        stack_trace = StringIO()
-        traceback.print_exc(file=stack_trace)
-        stack_trace = stack_trace.getvalue()
-
-        # Remove the first three lines (the header and where we were in `kernel.py`)
-        # and the last line which repeats the message
-        stack_trace = "\n".join(stack_trace.split("\n")[3:-1])
-
-        # Remove the "double" exception that can be caused by re-throwing the exception
-        position = stack_trace.find("During handling of the above exception")
-        if position:
-            stack_trace = stack_trace[:position].strip()
-
-        sys.stderr.write(
-            to_json(
-                {
-                    "type": "ExecutionError",
-                    "errorType": type(e).__name__,
-                    "errorMessage": str(e),
-                    "stackTrace": stack_trace,
-                }
-            )
-            + "\n"
-        )
-
-    for stream in (sys.stdout, sys.stderr):
-        stream.write(READY + "\n")
+    write(READY, stdout)
+    write(READY, stderr)
+  },
+  message = info,
+  warning = warning,
+  error = error,
+  interrupt = function(condition) {
+    saved_task <<- task
+  })
+}
