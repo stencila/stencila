@@ -66,6 +66,7 @@ mod tests {
             indexmap::IndexMap,
             tokio,
         },
+        schema::MessageLevel,
         schema::{
             Array, ArrayHint, ArrayValidator, BooleanValidator, Datatable, DatatableColumn,
             DatatableColumnHint, DatatableHint, Hint, IntegerValidator, Node, Null,
@@ -123,6 +124,45 @@ mod tests {
                 }
             }
         }
+
+        Ok(())
+    }
+
+    // Check that the logging is installed and captures warnings too.
+    #[test_log::test(tokio::test)]
+    async fn logging() -> Result<()> {
+        let Some(mut instance) = start_instance::<PythonKernel>().await? else {
+            return Ok(());
+        };
+        let (.., messages) = instance
+            .execute(
+                "
+import logging
+logger = logging.getLogger('just.a.test')
+logger.error('oh no')
+        ",
+            )
+            .await?;
+
+        assert_eq!(messages.len(), 1);
+        assert_eq!(messages.len(), 1);
+        let m = messages.first().unwrap();
+        assert_eq!(m.error_type.as_deref(), Some("just.a.test"));
+        assert_eq!(m.level, MessageLevel::Error);
+
+        let (.., messages) = instance
+            .execute(
+                "
+import warnings
+warnings.warn('This is a warning message', UserWarning)
+        ",
+            )
+            .await?;
+
+        assert_eq!(messages.len(), 1);
+        let m = messages.first().unwrap();
+        assert_eq!(m.error_type.as_deref(), Some("UserWarning"));
+        assert_eq!(m.level, MessageLevel::Warn);
 
         Ok(())
     }
@@ -201,8 +241,21 @@ print(a, b)",
     /// Standard kernel test for evaluation of expressions
     #[test_log::test(tokio::test)]
     async fn evaluation() -> Result<()> {
-        let Some(instance) = create_instance::<PythonKernel>().await? else {
+        let Some(mut instance) = create_instance::<PythonKernel>().await? else {
             return Ok(());
+        };
+
+        instance.start_here().await?;
+
+        // Deal with python exception message differences.
+        let sw = instance.runtime().await?;
+        let syntax_err = {
+            // After 3.9 the error message changed (we only support 3.9 onward).
+            if sw.options.software_version.unwrap().starts_with("3.9") {
+                Some("unexpected EOF while parsing (<string>, line 1)")
+            } else {
+                Some("invalid syntax (<string>, line 1)")
+            }
         };
 
         kernel_micro::tests::evaluation(
@@ -231,11 +284,7 @@ print(a, b)",
                     None,
                 ),
                 ("", Node::Null(Null), None),
-                (
-                    "@",
-                    Node::Null(Null),
-                    Some("invalid syntax (<string>, line 1)"),
-                ),
+                ("@", Node::Null(Null), syntax_err),
                 ("foo", Node::Null(Null), Some("name 'foo' is not defined")),
             ],
         )
