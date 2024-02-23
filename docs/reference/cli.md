@@ -22,6 +22,8 @@ This document contains the help content for the `stencila` command-line program.
 * [`stencila secrets set`↴](#stencila-secrets-set)
 * [`stencila secrets delete`↴](#stencila-secrets-delete)
 * [`stencila config`↴](#stencila-config)
+* [`stencila upgrade`↴](#stencila-upgrade)
+* [`stencila uninstall`↴](#stencila-uninstall)
 
 ## `stencila`
 
@@ -45,6 +47,8 @@ CLI subcommands and global options
 * `test` — 
 * `secrets` — Manage secrets used by Stencila (e.g. API keys)
 * `config` — 
+* `upgrade` — Upgrade to the latest version
+* `uninstall` — Uninstall this command line tool
 
 ###### **Options:**
 
@@ -506,6 +510,33 @@ Delete a secret previously set using Stencila
 
   Possible values: `true`, `false`
 
+
+
+
+## `stencila upgrade`
+
+Upgrade to the latest version
+
+**Usage:** `stencila upgrade [OPTIONS]`
+
+###### **Options:**
+
+* `-f`, `--force` — Perform upgrade even if the current version is the latest
+
+  Possible values: `true`, `false`
+
+* `-c`, `--check` — Check for an available upgrade but do not install it
+
+  Possible values: `true`, `false`
+
+
+
+
+## `stencila uninstall`
+
+Uninstall this command line tool
+
+**Usage:** `stencila uninstall`
 
 
 
