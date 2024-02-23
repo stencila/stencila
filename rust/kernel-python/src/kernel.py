@@ -9,17 +9,19 @@
 
 import io
 import json
+import logging
 import os
 import resource
 import sys
 import traceback
-from typing import Any, Literal, TypedDict, Union
 import warnings
+from typing import Any, Literal, TypedDict, Union
 
-# We are suppressing all DeprecationWarning's here (as they show up as errors for the Kernel).
-# Specifically, we know that pkg_resources is deprecated (see issue XXXX).
-# TODO: This should be removed in the future.
-warnings.filterwarnings("ignore", category=DeprecationWarning)
+# # We are suppressing all DeprecationWarning's here
+# # (as they show up as errors for the Kernel).
+# # Specifically, we know that pkg_resources is deprecated (see issue XXXX).
+# # TODO: This should be removed in the future.
+# warnings.filterwarnings("ignore", category=DeprecationWarning)
 
 # 3.9 does not have `type` or TypeAlias.
 PrimitiveType = Union[str, int, float, bool, None]
@@ -104,6 +106,16 @@ class SoftwareSourceCode(TypedDict):
     programming_language: str
 
 
+STENCILA_LEVEL = Union[Literal["Error"], Literal["Warn"], Literal["Info"]]
+
+
+class ExecutionMessage(TypedDict, total=False):
+    type: Literal["ExecutionMessage"]
+    level: STENCILA_LEVEL
+    message: str
+    errorType: str
+    stackTrace: str
+
 
 # During development, set DEV environment variable to True
 DEV_MODE = os.getenv("DEV") == "true"
@@ -134,6 +146,67 @@ except Exception:
         MAXFD = resource.getrlimit(resource.RLIMIT_NOFILE)[1]
     except Exception:
         MAXFD = 256
+
+
+# We try and intercept the logging and warnings to write to stderr
+# 1. Install logging handler to write to stderr.
+# 2. Install a formatter to write log records as Stencila's `ExecutionMessage` format.
+# 3. Install a warnings handler to write warnings to stderr via logging.
+#
+LOGGING_TO_STENCILA: dict[str, STENCILA_LEVEL] = {
+    "CRITICAL": "Error",
+    "ERROR": "Error",
+    "WARNING": "Warn",
+    "INFO": "Info",
+}
+
+
+class StencilaFormatter(logging.Formatter):
+    def format(self, record: logging.LogRecord) -> str:  # noqa: ANN101
+        """Convert log record to JSON format."""
+        if hasattr(record, "warning_details"):
+            error_type = record.warning_details["category"]  # type: ignore
+        else:
+            error_type = record.name
+
+        em: ExecutionMessage = {
+            "type": "ExecutionMessage",
+            "level": LOGGING_TO_STENCILA.get(record.levelname, "Error"),
+            "message": record.getMessage(),
+            "errorType": error_type,
+        }
+        # Include additional warning details if present
+        # if hasattr(record, "warning_details"):
+        #     log_message.update(record.warning_details)
+        return json.dumps(em)
+
+
+# Configure handler to write to stderr
+handler = logging.StreamHandler(sys.stderr)
+handler.setFormatter(StencilaFormatter())
+
+
+# Get root logger and add handler
+logger = logging.getLogger()
+logger.addHandler(handler)
+
+
+# We ignore much of the extra information that warnings provide for now.
+def log_warning(message, category, filename, lineno, file=None, line=None) -> None:  # type: ignore  # noqa: ANN001
+    warning_details = {
+        "warning_details": {
+            "category": str(category.__name__),  # pyright: ignore[reportAttributeAccessIssue]
+            "filename": filename,
+            "lineno": lineno,
+            "line": line,
+            "file": file,
+        }
+    }
+    logger.warning(message, extra=warning_details)
+
+
+warnings.showwarning = log_warning
+
 
 # Custom serialization and hints for numpy
 try:
@@ -579,18 +652,15 @@ def main() -> None:
             if position:
                 stack_trace = stack_trace[:position].strip()
 
-            sys.stderr.write(
-                to_json(
-                    {
-                        "type": "ExecutionMessage",
-                        "level": "Error",
-                        "message": str(e),
-                        "errorType": type(e).__name__,
-                        "stackTrace": stack_trace,
-                    }
-                )
-                + "\n"
-            )
+            em: ExecutionMessage = {
+                "type": "ExecutionMessage",
+                "level": "Error",
+                "message": str(e),
+                "errorType": type(e).__name__,
+                "stackTrace": stack_trace,
+            }
+
+            sys.stderr.write(to_json(em) + "\n")
 
         for stream in (sys.stdout, sys.stderr):
             stream.write(READY + "\n")
