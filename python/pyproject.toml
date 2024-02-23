@@ -2,7 +2,7 @@
 
 [project]
 name = "stencila"
-version = "2.0.0-alpha.23"
+version = "2.0.0-alpha.24"
 description = "Python SDK for Stencila"
 readme = "README.md"
 requires-python = ">=3.8"
@@ -54,7 +54,7 @@ module-name = "stencila._stencila"
 
 [tool.poetry]
 name = "stencila"
-version = "2.0.0-alpha.23"
+version = "2.0.0-alpha.24"
 description = "Python SDK for Stencila"
 authors = ["Stencila and Contributors <hello@stencila.io>"]
 packages = [{ include = "stencila", from = "python" }]
