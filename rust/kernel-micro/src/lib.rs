@@ -777,7 +777,12 @@ impl MicrokernelInstance {
 
     /// Create an `Err` if messages from the kernel include an error
     fn check_for_errors(&self, messages: Vec<ExecutionMessage>, action: &str) -> Result<()> {
-        if !messages.is_empty() {
+        if !messages
+            .iter()
+            .filter(|m| m.level == MessageLevel::Error)
+            .next()
+            .is_none()
+        {
             bail!(
                 "While {action} in microkernel `{}`: {}",
                 self.id(),
