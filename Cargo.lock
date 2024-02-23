@@ -1127,7 +1127,7 @@ name = "codec-dom-derive"
 version = "0.0.0"
 dependencies = [
  "common",
- "darling 0.20.6",
+ "darling 0.20.7",
 ]
 
 [[package]]
@@ -1155,7 +1155,7 @@ name = "codec-html-derive"
 version = "0.0.0"
 dependencies = [
  "common",
- "darling 0.20.6",
+ "darling 0.20.7",
 ]
 
 [[package]]
@@ -1183,7 +1183,7 @@ name = "codec-jats-derive"
 version = "0.0.0"
 dependencies = [
  "common",
- "darling 0.20.6",
+ "darling 0.20.7",
 ]
 
 [[package]]
@@ -1263,7 +1263,7 @@ name = "codec-markdown-derive"
 version = "0.0.0"
 dependencies = [
  "common",
- "darling 0.20.6",
+ "darling 0.20.7",
 ]
 
 [[package]]
@@ -1702,12 +1702,12 @@ dependencies = [
 
 [[package]]
 name = "darling"
-version = "0.20.6"
+version = "0.20.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c376d08ea6aa96aafe61237c7200d1241cb177b7d3a542d791f2d118e9cbb955"
+checksum = "3a5d17510e4a1a87f323de70b7b1eaac1ee0e37866c6720b2d279452d0edf389"
 dependencies = [
- "darling_core 0.20.6",
- "darling_macro 0.20.6",
+ "darling_core 0.20.7",
+ "darling_macro 0.20.7",
 ]
 
 [[package]]
@@ -1726,9 +1726,9 @@ dependencies = [
 
 [[package]]
 name = "darling_core"
-version = "0.20.6"
+version = "0.20.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "33043dcd19068b8192064c704b3f83eb464f91f1ff527b44a4e2b08d9cdb8855"
+checksum = "a98eea36a7ff910fa751413d0895551143a8ea41d695d9798ec7d665df7f7f5e"
 dependencies = [
  "fnv",
  "ident_case",
@@ -1751,11 +1751,11 @@ dependencies = [
 
 [[package]]
 name = "darling_macro"
-version = "0.20.6"
+version = "0.20.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c5a91391accf613803c2a9bf9abccdbaa07c54b4244a5b64883f9c3c137c86be"
+checksum = "d6a366a3f90c5d59a4b91169775f88e52e8f71a0e7804cc98a8db2932cf4ed57"
 dependencies = [
- "darling_core 0.20.6",
+ "darling_core 0.20.7",
  "quote",
  "syn 2.0.50",
 ]
@@ -3639,7 +3639,7 @@ name = "node-strip-derive"
 version = "0.0.0"
 dependencies = [
  "common",
- "darling 0.20.6",
+ "darling 0.20.7",
 ]
 
 [[package]]
@@ -3654,7 +3654,7 @@ name = "node-walk-derive"
 version = "0.0.0"
 dependencies = [
  "common",
- "darling 0.20.6",
+ "darling 0.20.7",
 ]
 
 [[package]]
@@ -5252,7 +5252,7 @@ version = "3.6.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "865f9743393e638991566a8b7a479043c2c8da94a33e0a31f18214c9cae0a64d"
 dependencies = [
- "darling 0.20.6",
+ "darling 0.20.7",
  "proc-macro2",
  "quote",
  "syn 2.0.50",
