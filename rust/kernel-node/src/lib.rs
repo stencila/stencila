@@ -271,6 +271,34 @@ console.error("Error message");
         Ok(())
     }
 
+    /// Standard kernel test for getting runtime information
+    #[test_log::test(tokio::test)]
+    async fn info() -> Result<()> {
+        let Some(instance) = create_instance::<NodeKernel>().await? else {
+            return Ok(());
+        };
+
+        let sw = kernel_micro::tests::info(instance).await?;
+        assert_eq!(sw.name, "Node.js");
+        assert!(sw.options.software_version.is_some());
+        assert!(sw.options.operating_system.is_some());
+
+        Ok(())
+    }
+
+    /// Standard kernel test for listing installed packages
+    #[test_log::test(tokio::test)]
+    async fn packages() -> Result<()> {
+        let Some(instance) = start_instance::<NodeKernel>().await? else {
+            return Ok(());
+        };
+
+        let pkgs = kernel_micro::tests::packages(instance).await?;
+        assert!(!pkgs.is_empty());
+
+        Ok(())
+    }
+
     /// Standard kernel test for variable listing
     #[test_log::test(tokio::test)]
     async fn var_listing() -> Result<()> {
