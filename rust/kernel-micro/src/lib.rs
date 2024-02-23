@@ -7,10 +7,13 @@ use std::{
 
 use which::which;
 
+// Re-exports for the convenience of internal crates implementing
+// the `Microkernel` trait
 pub use kernel::{
     common, format, schema, tests, Kernel, KernelAvailability, KernelForks, KernelInstance,
     KernelInterrupt, KernelKill, KernelSignal, KernelStatus, KernelTerminate,
 };
+
 use kernel::{
     common::{
         async_trait::async_trait,
@@ -28,12 +31,11 @@ use kernel::{
         },
         tracing,
     },
-    schema::{ExecutionMessage, MessageLevel, Node, Null, Variable},
+    schema::{
+        ExecutionMessage, MessageLevel, Node, Null, SoftwareApplication, SoftwareSourceCode,
+        Variable,
+    },
 };
-
-// Re-exports for the convenience of internal crates implementing
-// the `Microkernel` trait
-use crate::schema::{SoftwareApplication, SoftwareSourceCode};
 
 /// A specification for a minimal, lightweight execution kernel in a spawned process
 #[async_trait]
@@ -257,16 +259,16 @@ enum MicrokernelFlag {
     Ready,
     /// Sent by Rust to signal a newline (`\n`) within the code of a task
     Line,
-    /// Sent by Rust to get information about the kernel
-    Info,
-    /// Sent by Rust to gather available libraries/imports.
-    Lib,
     /// Sent by Rust to signal the start of an `execute` task
     Exec,
     /// Sent by Rust to signal the start of an `evaluation` task
     Eval,
     /// Sent by Rust to signal the start of a `fork` task
     Fork,
+    /// Sent by Rust to get runtime information about the kernel
+    Info,
+    /// Sent by Rust to get a list of packages/libraries available to the kernel
+    Pkgs,
     /// Sent by Rust to signal the start of a `list` task
     List,
     /// Sent by Rust to signal the start of a `get` task
@@ -290,7 +292,7 @@ impl MicrokernelFlag {
             Ready => "\u{10ACDC}",
             Line => "\u{10ABBA}",
             Info => "\u{10EE15}",
-            Lib => "\u{10BEC4}",
+            Pkgs => "\u{10BEC4}",
             Exec => "\u{10B522}",
             Eval => "\u{1010CC}",
             Fork => "\u{10DE70}",
@@ -322,31 +324,6 @@ impl KernelInstance for MicrokernelInstance {
             Some(sender) => Ok(sender.clone()),
             None => bail!("Microkernel has not started yet!"),
         }
-    }
-
-    async fn runtime(&mut self) -> Result<SoftwareApplication> {
-        let (mut nodes, messages) = self.send_receive(MicrokernelFlag::Info, []).await?;
-        self.check_for_errors(messages, "getting info")?;
-
-        match nodes.pop() {
-            Some(Node::SoftwareApplication(var)) => Ok(var),
-            _ => bail!("Expected a `SoftwareApplication`"),
-        }
-    }
-
-    async fn packages(&mut self) -> Result<Vec<SoftwareSourceCode>> {
-        let (nodes, messages) = self.send_receive(MicrokernelFlag::Lib, []).await?;
-        self.check_for_errors(messages, "getting packages")?;
-
-        let mut v: Vec<SoftwareSourceCode> = vec![];
-        for node in nodes {
-            if let Node::SoftwareSourceCode(var) = node {
-                v.push(var);
-            } else {
-                bail!("Expected a `SoftwareSourceCode`, got {node:?}");
-            }
-        }
-        Ok(v)
     }
 
     async fn start(&mut self, directory: &Path) -> Result<()> {
@@ -442,6 +419,30 @@ impl KernelInstance for MicrokernelInstance {
         Ok((output, messages))
     }
 
+    async fn info(&mut self) -> Result<SoftwareApplication> {
+        let (mut nodes, messages) = self.send_receive(MicrokernelFlag::Info, []).await?;
+        self.check_for_errors(messages, "getting info")?;
+
+        match nodes.pop() {
+            Some(Node::SoftwareApplication(node)) => Ok(node),
+            node => bail!("Expected a `SoftwareApplication`, got {node:?}"),
+        }
+    }
+
+    async fn packages(&mut self) -> Result<Vec<SoftwareSourceCode>> {
+        let (nodes, messages) = self.send_receive(MicrokernelFlag::Pkgs, []).await?;
+
+        self.check_for_errors(messages, "getting packages")?;
+
+        nodes
+            .into_iter()
+            .map(|node| match node {
+                Node::SoftwareSourceCode(ssc) => Ok(ssc),
+                _ => bail!("Expected a `SoftwareSourceCode`, got {node:?}"),
+            })
+            .collect::<Result<Vec<_>>>()
+    }
+
     async fn list(&mut self) -> Result<Vec<Variable>> {
         let (nodes, messages) = self.send_receive(MicrokernelFlag::List, []).await?;
 
@@ -451,7 +452,7 @@ impl KernelInstance for MicrokernelInstance {
             .into_iter()
             .map(|node| match node {
                 Node::Variable(var) => Ok(var),
-                _ => bail!("Expected a `Variable` got: {node:?}"),
+                _ => bail!("Expected a `Variable`, got: {node:?}"),
             })
             .collect::<Result<Vec<_>>>()
     }
@@ -777,11 +778,10 @@ impl MicrokernelInstance {
 
     /// Create an `Err` if messages from the kernel include an error
     fn check_for_errors(&self, messages: Vec<ExecutionMessage>, action: &str) -> Result<()> {
-        if !messages
+        if messages
             .iter()
-            .filter(|m| m.level == MessageLevel::Error)
-            .next()
-            .is_none()
+            .find(|m| m.level == MessageLevel::Error)
+            .is_some()
         {
             bail!(
                 "While {action} in microkernel `{}`: {}",

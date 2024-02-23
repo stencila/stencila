@@ -149,12 +149,6 @@ pub trait KernelInstance: Sync + Send {
         self.start(&std::env::current_dir()?).await
     }
 
-    /// Get runtime information about the kernel instance.
-    async fn runtime(&mut self) -> Result<SoftwareApplication>;
-
-    /// Get a list of packages available in the kernel instance.
-    async fn packages(&mut self) -> Result<Vec<SoftwareSourceCode>>;
-
     /// Stop the kernel
     async fn stop(&mut self) -> Result<()>;
 
@@ -163,6 +157,12 @@ pub trait KernelInstance: Sync + Send {
 
     /// Evaluate a code expression, without side effects, in the kernel instance
     async fn evaluate(&mut self, code: &str) -> Result<(Node, Vec<ExecutionMessage>)>;
+
+    /// Get runtime information about the kernel instance
+    async fn info(&mut self) -> Result<SoftwareApplication>;
+
+    /// Get a list of packages available in the kernel instance
+    async fn packages(&mut self) -> Result<Vec<SoftwareSourceCode>>;
 
     /// Get a list of variables in the kernel instance
     async fn list(&mut self) -> Result<Vec<Variable>>;
@@ -263,12 +263,6 @@ pub mod tests {
         }
     }
 
-    pub async fn get_runtime(mut instance: Box<dyn KernelInstance>) -> Result<SoftwareApplication> {
-        instance.start_here().await?;
-        assert_eq!(instance.status().await?, KernelStatus::Ready);
-        Ok(instance.runtime().await?)
-    }
-
     /// Test execution of code by a kernel instance
     ///
     /// All kernel instances must implement this method. This tests is
@@ -330,6 +324,24 @@ pub mod tests {
         }
 
         Ok(())
+    }
+
+    /// Test getting runtime info
+    pub async fn info(mut instance: Box<dyn KernelInstance>) -> Result<SoftwareApplication> {
+        instance.start_here().await?;
+        assert_eq!(instance.status().await?, KernelStatus::Ready);
+
+        instance.info().await
+    }
+
+    /// Test getting list of packages
+    pub async fn packages(
+        mut instance: Box<dyn KernelInstance>,
+    ) -> Result<Vec<SoftwareSourceCode>> {
+        instance.start_here().await?;
+        assert_eq!(instance.status().await?, KernelStatus::Ready);
+
+        instance.packages().await
     }
 
     /// Test printing of nodes by a kernel instance
