@@ -23,7 +23,8 @@ use kernel::{
     format::Format,
     schema::{
         ArrayHint, ExecutionMessage, Hint, MessageLevel, Node, NodeType, Null, ObjectHint,
-        StringHint, Unknown, Variable,
+        SoftwareApplication, SoftwareApplicationOptions, SoftwareSourceCode, StringHint, Unknown,
+        Variable,
     },
     Kernel, KernelAvailability, KernelForks, KernelInstance, KernelInterrupt, KernelKill,
     KernelSignal, KernelStatus, KernelTerminate,
@@ -221,6 +222,25 @@ impl<'lt> KernelInstance for RhaiKernelInstance<'lt> {
         self.set_status(KernelStatus::Ready)?;
 
         result
+    }
+
+    async fn info(&mut self) -> Result<SoftwareApplication> {
+        tracing::trace!("Getting Rhai runtime info");
+
+        Ok(SoftwareApplication {
+            name: "Rhai".to_string(),
+            options: Box::new(SoftwareApplicationOptions {
+                software_version: Some("1".to_string()),
+                ..Default::default()
+            }),
+            ..Default::default()
+        })
+    }
+
+    async fn packages(&mut self) -> Result<Vec<SoftwareSourceCode>> {
+        tracing::trace!("Getting Rhai packages");
+
+        Ok(vec![])
     }
 
     async fn list(&mut self) -> Result<Vec<Variable>> {
@@ -640,6 +660,34 @@ b",
             "Variable not found: foo (line 1, position 1)"
         );
         assert_eq!(outputs, vec![]);
+
+        Ok(())
+    }
+
+    /// Standard kernel test for getting runtime information
+    #[test_log::test(tokio::test)]
+    async fn info() -> Result<()> {
+        let Some(instance) = create_instance::<RhaiKernel>().await? else {
+            return Ok(());
+        };
+
+        let sw = kernel::tests::info(instance).await?;
+        assert_eq!(sw.name, "Rhai");
+        assert!(sw.options.software_version.is_some());
+        assert!(sw.options.software_version.unwrap().starts_with("1"));
+
+        Ok(())
+    }
+
+    /// Standard kernel test for listing installed packages
+    #[test_log::test(tokio::test)]
+    async fn packages() -> Result<()> {
+        let Some(instance) = start_instance::<RhaiKernel>().await? else {
+            return Ok(());
+        };
+
+        let pkgs = kernel::tests::packages(instance).await?;
+        assert!(pkgs.is_empty());
 
         Ok(())
     }
