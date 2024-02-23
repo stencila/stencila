@@ -23,6 +23,7 @@ use server::{serve, ServeOptions};
 use crate::{
     display,
     logging::{LoggingFormat, LoggingLevel},
+    uninstall, upgrade,
 };
 
 /// CLI subcommands and global options
@@ -292,6 +293,9 @@ enum Command {
     Secrets(secrets::cli::Cli),
 
     Config(ConfigOptions),
+
+    Upgrade(upgrade::Cli),
+    Uninstall(uninstall::Cli),
 }
 
 /// Command line arguments for stripping nodes
@@ -737,6 +741,9 @@ impl Cli {
                 let dir = app::get_app_dir(options.dir, options.ensure)?;
                 println!("{}", dir.display());
             }
+
+            Command::Upgrade(upgrade) => upgrade.run().await?,
+            Command::Uninstall(uninstall) => uninstall.run()?,
         }
 
         if wait {
