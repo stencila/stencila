@@ -393,7 +393,7 @@ except ImportError:
     MATPLOTLIB_AVAILABLE = False
 
 
-# Serialize a Python object as JSON (falling back to a string)
+# Serialize a Python object as JSON
 def to_json(obj: Any) -> str:
     if isinstance(obj, (bool, int, float, str)):
         return json.dumps(obj)
@@ -410,12 +410,15 @@ def to_json(obj: Any) -> str:
     try:
         return json.dumps(obj)
     except:  # noqa: E722
-        return str(obj)
+        return str(obj) # Fall back to serializing as a JSON string
 
 
-# Deserialize a Python object from JSON (falling back to a string)
+# Deserialize a Python object from JSON
 def from_json(string: str) -> Any:
-    obj = json.loads(string)
+    try:
+        obj = json.loads(string)
+    except:  # noqa: E722
+        return string # Fall back to deserializing as a string
 
     if isinstance(obj, dict):
         typ = obj.get("type")
@@ -465,6 +468,7 @@ def evaluate(expression: str) -> None:
         value = eval(expression, CONTEXT)
         sys.stdout.write(to_json(value))
 
+
 # Get runtime information
 def get_info() -> None:
     import os
@@ -498,6 +502,7 @@ def get_packages() -> None:
             "programming_language": "python",
             "version": distribution.version,
         }
+
         sys.stdout.write(json.dumps(ssc) + END + "\n")
 
 
@@ -539,7 +544,7 @@ def determine_type_and_hint(value: Any) -> tuple[str, Any]:
         return "Array", {"type": "ArrayHint", "length": len(value)}
     if NUMPY_AVAILABLE and isinstance(value, np.ndarray):  # pyright: ignore
         return "Array", ndarray_to_hint(value)
-    if NUMPY_AVAILABLE and isinstance(value, pd.DataFrame):  # pyright: ignore
+    if PANDAS_AVAILABLE and isinstance(value, pd.DataFrame):  # pyright: ignore
         return "Datatable", dataframe_to_hint(value)
     if isinstance(value, dict):
         typ = value.get("type")
