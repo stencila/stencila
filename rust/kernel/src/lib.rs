@@ -295,7 +295,7 @@ pub mod tests {
                     .collect_vec(),
                 "with code: {code}"
             );
-            assert_eq!(outputs, expected_outputs);
+            assert_eq!(outputs, expected_outputs, "with code: {code}");
         }
 
         Ok(())
