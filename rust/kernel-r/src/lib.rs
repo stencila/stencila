@@ -48,7 +48,7 @@ impl Kernel for RKernel {
 
 impl Microkernel for RKernel {
     fn executable_name(&self) -> String {
-        "R".to_string()
+        "Rscript".to_string()
     }
 
     fn microkernel_script(&self) -> String {
@@ -67,8 +67,9 @@ mod tests {
         },
         schema::{
             Array, ArrayHint, ArrayValidator, BooleanValidator, Datatable, DatatableColumn,
-            DatatableColumnHint, DatatableHint, Hint, IntegerValidator, Node, Null,
-            NumberValidator, Object, ObjectHint, Primitive, StringHint, Validator, Variable,
+            DatatableColumnHint, DatatableHint, EnumValidator, Hint, IntegerValidator, Node, Null,
+            NumberValidator, Object, ObjectHint, Primitive, StringHint, StringValidator, Validator,
+            Variable,
         },
         tests::{create_instance, start_instance},
     };
@@ -106,31 +107,24 @@ mod tests {
                 (
                     "
 print(1);
-print(2, 3);
-2 + 2",
-                    vec![
-                        Node::Integer(1),
-                        Node::Integer(2),
-                        Node::Integer(3),
-                        Node::Integer(4),
-                    ],
+print(2);
+2 + 1",
+                    vec![Node::Integer(1), Node::Integer(2), Node::Integer(3)],
                     vec![],
                 ),
                 // Imports in one code chunk are available in the next
                 (
                     "
-import sys
-from sys import argv",
+library(tools)
+to_ignore_library_output <- TRUE
+",
                     vec![],
                     vec![],
                 ),
                 (
                     "
-print(type(sys), type(argv))",
-                    vec![
-                        Node::String("<class 'module'>".to_string()),
-                        Node::String("<class 'list'>".to_string()),
-                    ],
+grep(\"package:tools\", search()) > 0",
+                    vec![Node::Boolean(true)],
                     vec![],
                 ),
                 // Variables set in one chunk are available in the next
@@ -143,7 +137,8 @@ b = 2",
                 ),
                 (
                     "
-print(a, b)",
+print(a)
+b",
                     vec![Node::Integer(1), Node::Integer(2)],
                     vec![],
                 ),
@@ -164,11 +159,10 @@ print(a, b)",
             vec![
                 ("1 + 1", Node::Integer(2), None),
                 ("2.0 * 2.2", Node::Number(4.4), None),
-                ("16 ** 0.5", Node::Number(4.0), None),
-                ("'a' + 'bc'", Node::String("abc".to_string()), None),
-                ("'ABC'.lower()", Node::String("abc".to_string()), None),
+                ("16 ** 0.5", Node::Integer(4), None),
+                ("paste0('a', 'bc')", Node::String("abc".to_string()), None),
                 (
-                    "[1, 2] + [3]",
+                    "c(c(1, 2), 3)",
                     Node::Array(Array(vec![
                         Primitive::Integer(1),
                         Primitive::Integer(2),
@@ -177,7 +171,7 @@ print(a, b)",
                     None,
                 ),
                 (
-                    "{**{'a': 1}, **{'b':2.3}}",
+                    "list(a=1, b=2.3)",
                     Node::Object(Object(IndexMap::from([
                         (String::from("a"), Primitive::Integer(1)),
                         (String::from("b"), Primitive::Number(2.3)),
@@ -188,9 +182,9 @@ print(a, b)",
                 (
                     "@",
                     Node::Null(Null),
-                    Some("invalid syntax (<string>, line 1)"),
+                    Some("<text>:1:1: unexpected '@'\n1: @\n    ^"),
                 ),
-                ("foo", Node::Null(Null), Some("name 'foo' is not defined")),
+                ("foo", Node::Null(Null), Some("object 'foo' not found")),
             ],
         )
         .await
@@ -206,9 +200,9 @@ print(a, b)",
         kernel_micro::tests::printing(
             instance,
             r#"print('str')"#,
-            r#"print('str1', 'str2')"#,
-            r#"print(None, True, 1, 2.3, 'str', [1, 2.3, 'str'], {'a':1, 'b':2.3, 'c':'str'})"#,
-            r#"print({'type':'Paragraph', 'content':[]})"#,
+            r#"print('str1'); print('str2')"#,
+            r#"print(NULL); print(TRUE); print(1); print(2.3); print('str'); print(list(1, 2.3, 'str')); print(list(a=1, b=2.3, c='str'))"#,
+            r#"print(list(type='Paragraph', content=list()))"#,
         )
         .await
     }
@@ -223,15 +217,20 @@ print(a, b)",
         // Syntax error
         let (outputs, messages) = kernel.execute("bad ^ # syntax").await?;
         assert_eq!(messages[0].error_type.as_deref(), Some("SyntaxError"));
-        assert_eq!(messages[0].message, "invalid syntax (<code>, line 1)");
-        assert!(messages[0].stack_trace.is_some());
+        assert_eq!(
+            messages[0].message,
+            "<text>:2:0: unexpected end of input
+1: bad ^ # syntax
+   ^"
+        );
+        assert!(messages[0].stack_trace.is_none());
         assert_eq!(outputs, vec![]);
 
         // Runtime error
         let (outputs, messages) = kernel.execute("foo").await?;
-        assert_eq!(messages[0].error_type.as_deref(), Some("NameError"));
-        assert_eq!(messages[0].message, "name 'foo' is not defined");
-        assert!(messages[0].stack_trace.is_some());
+        assert_eq!(messages[0].error_type.as_deref(), Some("RuntimeError"));
+        assert_eq!(messages[0].message, "object 'foo' not found");
+        assert!(messages[0].stack_trace.is_none());
         assert_eq!(outputs, vec![]);
 
         Ok(())
@@ -275,26 +274,26 @@ print(a, b)",
         kernel_micro::tests::var_listing(
             instance,
             r#"
-nul = None
-bool = True
-int = 123
-num = 1.23
-str = "abc👍"
-arr = [1, 2, 3]
-obj = {'a':1, 'b':2.3}
-para = {'type':'Paragraph', 'content':[]}
+nul <- NULL
+bool <- TRUE
+int <- 123
+num <- 1.23
+str <- "abc👍"
+arr <- c(1, 2, 3)
+obj <- list(a=1, b=2.3)
+para <- list(type='Paragraph', content=list())
 "#,
             vec![
                 Variable {
                     name: "nul".to_string(),
-                    native_type: Some("NoneType".to_string()),
+                    native_type: Some("NULL".to_string()),
                     node_type: Some("Null".to_string()),
                     programming_language: Some("R".to_string()),
                     ..Default::default()
                 },
                 Variable {
                     name: "bool".to_string(),
-                    native_type: Some("bool".to_string()),
+                    native_type: Some("logical".to_string()),
                     node_type: Some("Boolean".to_string()),
                     hint: Some(Hint::Boolean(true)),
                     programming_language: Some("R".to_string()),
@@ -302,15 +301,15 @@ para = {'type':'Paragraph', 'content':[]}
                 },
                 Variable {
                     name: "int".to_string(),
-                    native_type: Some("int".to_string()),
-                    node_type: Some("Integer".to_string()),
+                    native_type: Some("numeric".to_string()),
+                    node_type: Some("Number".to_string()),
                     hint: Some(Hint::Integer(123)),
                     programming_language: Some("R".to_string()),
                     ..Default::default()
                 },
                 Variable {
                     name: "num".to_string(),
-                    native_type: Some("float".to_string()),
+                    native_type: Some("numeric".to_string()),
                     node_type: Some("Number".to_string()),
                     hint: Some(Hint::Number(1.23)),
                     programming_language: Some("R".to_string()),
@@ -318,7 +317,7 @@ para = {'type':'Paragraph', 'content':[]}
                 },
                 Variable {
                     name: "str".to_string(),
-                    native_type: Some("str".to_string()),
+                    native_type: Some("character".to_string()),
                     node_type: Some("String".to_string()),
                     hint: Some(Hint::StringHint(StringHint::new(4))),
                     programming_language: Some("R".to_string()),
@@ -326,10 +325,14 @@ para = {'type':'Paragraph', 'content':[]}
                 },
                 Variable {
                     name: "arr".to_string(),
-                    native_type: Some("list".to_string()),
+                    native_type: Some("numeric".to_string()),
                     node_type: Some("Array".to_string()),
                     hint: Some(Hint::ArrayHint(ArrayHint {
                         length: 3,
+                        item_types: Some(vec!["Number".to_string()]),
+                        minimum: Some(Primitive::Integer(1)),
+                        maximum: Some(Primitive::Integer(3)),
+                        nulls: Some(0),
                         ..Default::default()
                     })),
                     programming_language: Some("R".to_string()),
@@ -337,7 +340,7 @@ para = {'type':'Paragraph', 'content':[]}
                 },
                 Variable {
                     name: "obj".to_string(),
-                    native_type: Some("dict".to_string()),
+                    native_type: Some("list".to_string()),
                     node_type: Some("Object".to_string()),
                     hint: Some(Hint::ObjectHint(ObjectHint::new(
                         2,
@@ -349,7 +352,7 @@ para = {'type':'Paragraph', 'content':[]}
                 },
                 Variable {
                     name: "para".to_string(),
-                    native_type: Some("dict".to_string()),
+                    native_type: Some("list".to_string()),
                     node_type: Some("Paragraph".to_string()),
                     programming_language: Some("R".to_string()),
                     ..Default::default()
@@ -370,6 +373,7 @@ para = {'type':'Paragraph', 'content':[]}
     }
 
     /// `RKernel` specific test for `list` and `get` with `numpy.ndarray`s
+    #[ignore]
     #[test_log::test(tokio::test)]
     async fn numpy() -> Result<()> {
         let Some(mut instance) = start_instance::<RKernel>().await? else {
@@ -517,9 +521,9 @@ a4 = np.array([1.23, 4.56], dtype=np.float_)
         Ok(())
     }
 
-    /// `RKernel` specific test for `list` and `get` with `pandas.DataFrame`s
+    /// `RKernel` specific test for `list` and `get` with `data.frame`s
     #[test_log::test(tokio::test)]
-    async fn pandas_list_get() -> Result<()> {
+    async fn dataframe_list_get() -> Result<()> {
         let Some(mut instance) = start_instance::<RKernel>().await? else {
             return Ok(());
         };
@@ -527,54 +531,41 @@ a4 = np.array([1.23, 4.56], dtype=np.float_)
         let (.., messages) = instance
             .execute(
                 "
-import pandas as pd
-
-df1 = pd.DataFrame({
-    'c1': [True, False],
-    'c2': [1, 2],
-    'c3': [1.23, 4.56]
-})
+df1 = data.frame(
+    c1 = c(TRUE, NA, FALSE),
+    c2 = c(NA, 1, 2),
+    c3 = c(1.23, NA, 4.56),
+    c4 = c('a', 'b', NA),
+    c5 = as.factor(c('c', NA, 'd')),
+    stringsAsFactors = FALSE
+)
 ",
             )
             .await?;
         assert_eq!(messages, []);
 
         let list = instance.list().await?;
-
-        macro_rules! var {
-            ($name:expr) => {
-                list.iter().find(|var| var.name == $name).unwrap().clone()
-            };
-        }
-        macro_rules! get {
-            ($name:expr) => {
-                instance.get($name).await?.unwrap()
-            };
-        }
-
         assert_eq!(
-            var!("df1"),
-            Variable {
+            list.iter().find(|var| var.name == "df1").unwrap(),
+            &Variable {
                 name: "df1".to_string(),
-                native_type: Some("DataFrame".to_string()),
+                native_type: Some("data.frame".to_string()),
                 node_type: Some("Datatable".to_string()),
                 hint: Some(Hint::DatatableHint(DatatableHint::new(
-                    2,
+                    3,
                     vec![
                         DatatableColumnHint {
                             name: "c1".to_string(),
                             item_type: "Boolean".to_string(),
-                            minimum: Some(Primitive::Boolean(false)),
-                            maximum: Some(Primitive::Boolean(true)),
-                            nulls: Some(0),
+                            nulls: Some(1),
                             ..Default::default()
                         },
                         DatatableColumnHint {
                             name: "c2".to_string(),
-                            item_type: "Integer".to_string(),
+                            item_type: "Number".to_string(),
                             minimum: Some(Primitive::Integer(1)),
                             maximum: Some(Primitive::Integer(2)),
-                            nulls: Some(0),
+                            nulls: Some(1),
                             ..Default::default()
                         },
                         DatatableColumnHint {
@@ -582,7 +573,21 @@ df1 = pd.DataFrame({
                             item_type: "Number".to_string(),
                             minimum: Some(Primitive::Number(1.23)),
                             maximum: Some(Primitive::Number(4.56)),
-                            nulls: Some(0),
+                            nulls: Some(1),
+                            ..Default::default()
+                        },
+                        DatatableColumnHint {
+                            name: "c4".to_string(),
+                            item_type: "String".to_string(),
+                            minimum: Some(Primitive::String("a".to_string())),
+                            maximum: Some(Primitive::String("b".to_string())),
+                            nulls: Some(1),
+                            ..Default::default()
+                        },
+                        DatatableColumnHint {
+                            name: "c5".to_string(),
+                            item_type: "String".to_string(),
+                            nulls: Some(1),
                             ..Default::default()
                         }
                     ]
@@ -591,12 +596,17 @@ df1 = pd.DataFrame({
                 ..Default::default()
             },
         );
+
         assert_eq!(
-            get!("df1"),
+            instance.get("df1").await?.unwrap(),
             Node::Datatable(Datatable::new(vec![
                 DatatableColumn {
                     name: "c1".to_string(),
-                    values: vec![Primitive::Boolean(true), Primitive::Boolean(false)],
+                    values: vec![
+                        Primitive::Boolean(true),
+                        Primitive::Null(Null),
+                        Primitive::Boolean(false)
+                    ],
                     validator: Some(ArrayValidator {
                         items_validator: Some(Box::new(Validator::BooleanValidator(
                             BooleanValidator::new()
@@ -607,10 +617,14 @@ df1 = pd.DataFrame({
                 },
                 DatatableColumn {
                     name: "c2".to_string(),
-                    values: vec![Primitive::Integer(1), Primitive::Integer(2)],
+                    values: vec![
+                        Primitive::Null(Null),
+                        Primitive::Integer(1),
+                        Primitive::Integer(2)
+                    ],
                     validator: Some(ArrayValidator {
-                        items_validator: Some(Box::new(Validator::IntegerValidator(
-                            IntegerValidator::new()
+                        items_validator: Some(Box::new(Validator::NumberValidator(
+                            NumberValidator::new()
                         ))),
                         ..Default::default()
                     }),
@@ -618,10 +632,47 @@ df1 = pd.DataFrame({
                 },
                 DatatableColumn {
                     name: "c3".to_string(),
-                    values: vec![Primitive::Number(1.23), Primitive::Number(4.56)],
+                    values: vec![
+                        Primitive::Number(1.23),
+                        Primitive::Null(Null),
+                        Primitive::Number(4.56)
+                    ],
                     validator: Some(ArrayValidator {
                         items_validator: Some(Box::new(Validator::NumberValidator(
                             NumberValidator::new()
+                        ))),
+                        ..Default::default()
+                    }),
+                    ..Default::default()
+                },
+                DatatableColumn {
+                    name: "c4".to_string(),
+                    values: vec![
+                        Primitive::String("a".to_string()),
+                        Primitive::String("b".to_string()),
+                        Primitive::Null(Null),
+                    ],
+                    validator: Some(ArrayValidator {
+                        items_validator: Some(Box::new(Validator::StringValidator(
+                            StringValidator::new()
+                        ))),
+                        ..Default::default()
+                    }),
+                    ..Default::default()
+                },
+                DatatableColumn {
+                    name: "c5".to_string(),
+                    values: vec![
+                        Primitive::String("c".to_string()),
+                        Primitive::Null(Null),
+                        Primitive::String("d".to_string())
+                    ],
+                    validator: Some(ArrayValidator {
+                        items_validator: Some(Box::new(Validator::EnumValidator(
+                            EnumValidator::new(vec![
+                                Node::String("c".to_string()),
+                                Node::String("d".to_string())
+                            ])
                         ))),
                         ..Default::default()
                     }),
@@ -633,9 +684,9 @@ df1 = pd.DataFrame({
         Ok(())
     }
 
-    /// `RKernel` specific test to test round-trip `set`/`get` with `pandas.DataFrame`s
+    /// `RKernel` specific test to test round-trip `set`/`get` with `data.frame`s
     #[test_log::test(tokio::test)]
-    async fn pandas_set_get() -> Result<()> {
+    async fn dataframe_set_get() -> Result<()> {
         let Some(mut instance) = start_instance::<RKernel>().await? else {
             return Ok(());
         };
@@ -678,12 +729,9 @@ df1 = pd.DataFrame({
 
         instance.set("dt", &dt_in).await?;
 
-        let (output, messages) = instance.evaluate("type(dt)").await?;
+        let (output, messages) = instance.evaluate("class(dt)").await?;
         assert_eq!(messages, []);
-        assert_eq!(
-            output,
-            Node::String("<class 'pandas.core.frame.DataFrame'>".to_string())
-        );
+        assert_eq!(output, Node::String("data.frame".to_string()));
 
         let dt_out = instance.get("dt").await?;
         assert_eq!(dt_out, dt_out);
@@ -692,6 +740,7 @@ df1 = pd.DataFrame({
     }
 
     /// `RKernel` specific test for getting a `matplotlib` plot as output
+    #[ignore]
     #[test_log::test(tokio::test)]
     async fn matplotlib() -> Result<()> {
         let Some(mut instance) = start_instance::<RKernel>().await? else {
@@ -741,41 +790,25 @@ plt.show()",
         let (outputs, messages) = instance
             .execute(
                 r#"
-import sys
-from datetime import datetime
-from glob import *
+library(tools)
 
-print(type(sys), type(datetime), type(glob))
+class(toRd)
 "#,
             )
             .await?;
         assert_eq!(messages, vec![]);
-        assert_eq!(
-            outputs,
-            vec![
-                Node::String("<class 'module'>".to_string()),
-                Node::String("<class 'type'>".to_string()),
-                Node::String("<class 'function'>".to_string())
-            ]
-        );
+        assert_eq!(outputs, vec![Node::String("function".to_string())]);
 
         let mut fork = instance.fork().await?;
         let (outputs, messages) = fork
             .execute(
                 r#"
-print(type(sys), type(datetime), type(glob))
+class(toRd)
 "#,
             )
             .await?;
         assert_eq!(messages, vec![]);
-        assert_eq!(
-            outputs,
-            vec![
-                Node::String("<class 'module'>".to_string()),
-                Node::String("<class 'type'>".to_string()),
-                Node::String("<class 'function'>".to_string())
-            ]
-        );
+        assert_eq!(outputs, vec![Node::String("function".to_string())]);
 
         Ok(())
     }
@@ -791,21 +824,20 @@ print(type(sys), type(datetime), type(glob))
             instance,
             "
 # Setup step
-from time import sleep
-sleep(0.1)
-value = 1
+Sys.sleep(0.1)
+value <- 1
 value",
             Some(
                 "
 # Interrupt step
-sleep(100)
+Sys.sleep(100)
 value = 2",
             ),
             None,
             Some(
                 "
 # Kill step
-sleep(100)",
+Sys.sleep(100)",
             ),
         )
         .await
@@ -819,43 +851,5 @@ sleep(100)",
         };
 
         kernel_micro::tests::stop(instance).await
-    }
-
-    /// `RKernel` specific test that imported modules are available in functions
-    ///
-    /// This is a regression test for a bug found during usage with v1.
-    /// Before the associated fix would get error "name 'time' is not defined"
-    #[tokio::test]
-    async fn imports() -> Result<()> {
-        let Some(mut instance) = start_instance::<RKernel>().await? else {
-            return Ok(());
-        };
-
-        // Import a module and a function from another module in one task
-        let (outputs, messages) = instance
-            .execute(
-                "
-import time
-from datetime import datetime
-",
-            )
-            .await?;
-        assert_eq!(messages, []);
-        assert_eq!(outputs, []);
-
-        // Check that both can be used from within a function in another task
-        let (outputs, messages) = instance
-            .execute(
-                "
-def func():
-    return (time.time(), datetime.now())
-
-func()",
-            )
-            .await?;
-        assert_eq!(messages, []);
-        assert_eq!(outputs.len(), 1);
-
-        Ok(())
     }
 }
