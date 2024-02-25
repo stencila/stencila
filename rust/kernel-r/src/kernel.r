@@ -58,16 +58,23 @@ stderr <- stderr()
 
 # Functions to print an `ExecutionMessage` to stderr
 message <- function(msg, level, error_type = NULL) {
+  message <- list(
+    type = "ExecutionMessage",
+    level = level,
+    message = msg,
+    errorType = error_type
+  )
+
+  stack_trace <- paste(capture.output(traceback()), collapse = "\n")
+  if (!startsWith(stack_trace, "No traceback available")) {
+    message$stackTrace <- stack_trace
+  }
+
   write(
     paste0(
       toJSON(
-        list(
-          type = "ExecutionMessage",
-          level = level,
-          message = msg,
-          error_type = error_type
-        ),
-        auto_unbox = T,
+        message,
+        auto_unbox = TRUE,
         force = TRUE,
         null = "null",
         na = "null"
@@ -82,14 +89,200 @@ warning <- function(msg) message(msg, "Warn")
 error <- function(error, error_type = "RuntimeError") message(error$message, "Error", error_type)
 interrupt <- function(condition, error_type = "Interrupt") message("Code execution was interrupted", "Error", error_type)
 
+# Serialize an R object as JSON
+to_json <- function(value) {
+  if (is.data.frame(value)) {
+    value <- dataframe_to_datatable(value)
+  } 
+  
+  toJSON(
+    value,
+    auto_unbox = TRUE,
+    force = TRUE,
+    null = "null",
+    na = "null"
+  )
+}
+
+# Deserialize an R object from JSON
+from_json <- function(json) {
+  value <- try(fromJSON(json, simplifyVector = FALSE), silent = TRUE)
+
+  if (inherits(value, "try-error")) {
+    json # Fallback to deserializing as string
+  } else if (is.list(value) && length(value$type) != 0) {
+    switch(value$type,
+      Datatable = dataframe_from_datatable,
+      identity
+    )(value)
+  } else {
+    value
+  }
+}
+
+# Create a Stencila ArrayHint from an R vector
+vector_to_array_hint <- function(values) {
+  list(
+    type = "ArrayHint",
+    length = unbox(length(values)),
+    item_types = switch(class(values),
+      logical = list(unbox("Boolean")),
+      numeric = list(unbox("Number")),
+      double = list(unbox("Number")),
+      factor = list(unbox("String")),
+      character = list(unbox("String")),
+      default = NULL
+    ),
+    minimum = unbox(min(values)),
+    maximum = unbox(max(values)),
+    nulls = unbox(sum(is.na(values)))
+  )
+}
+
+# Create a Stencila DatatableHint for an R data.frame
+dataframe_to_datatable_hint <- function(df) {
+  row_names <- attr(df, "row.names")
+  if (!identical(row_names, seq_len(nrow(df)))) {
+    columns <- list(vector_to_datatable_column_hint("name", row_names))
+  } else {
+    columns <- NULL
+  }
+
+  columns <- c(columns, Filter(function(column) !is.null(column), lapply(colnames(df), function(colname) {
+    vector_to_datatable_column_hint(colname, df[[colname]])
+  })))
+
+  list(
+    type = unbox("DatatableHint"),
+    rows = unbox(nrow(df)),
+    columns = columns
+  )
+}
+
+# Create a Stencila DatatableColumnHint from an R vector representing a data.frame column
+vector_to_datatable_column_hint <- function(name, values) {
+  list(
+    type = unbox("DatatableColumnHint"),
+    name = unbox(name),
+    item_type = switch(class(values),
+      logical = unbox("Boolean"),
+      integer = unbox("Integer"),
+      numeric = unbox("Number"),
+      double = unbox("Number"),
+      factor = unbox("String"),
+      character = unbox("String"),
+      default = NULL
+    ),
+    minimum = if (is.numeric(values) || is.character(values)) { unbox(min(values, na.rm = TRUE)) } else { NULL },
+    maximum = if (is.numeric(values) || is.character(values)) { unbox(max(values, na.rm = TRUE)) } else { NULL },
+    nulls = unbox(sum(is.na(values)))
+  )
+}
+
+
+# Create a Stencila Datatable from an R data.frame
+dataframe_to_datatable <- function(df) {
+  row_names <- attr(df, "row.names")
+  if (!identical(row_names, seq_len(nrow(df)))) {
+    columns <- list(vector_to_datatable_column("name", row_names))
+  } else {
+    columns <- NULL
+  }
+
+  columns <- c(columns, Filter(function(column) !is.null(column), lapply(colnames(df), function(colname) {
+    vector_to_datatable_column(colname, df[[colname]])
+  })))
+  
+  list(
+    type = unbox("Datatable"),
+    columns = columns
+  )
+}
+
+# Create a Stencila DatatableColumn from an R vector representing a data.frame column
+#
+# Because a factor's levels are always a character vector, factors are converted into a
+# column with `validator.items` of type `EnumValidator` with `values` containing the levels.
+vector_to_datatable_column <- function(name, values) {
+  if (is.factor(values)) {
+    validator <- list(type = unbox("EnumValidator"), values = levels(values))
+    values <- as.character.factor(values)
+  } else if (is.logical(values)) {
+    validator <- list(type = unbox("BooleanValidator"))
+  } else if (is.numeric(values)) {
+    validator <- list(type = unbox("NumberValidator"))
+  } else if (is.character(values)) {
+    validator <- list(type = unbox("StringValidator"))
+  } else {
+    validator <- NULL
+  }
+
+  list(
+    type = unbox("DatatableColumn"),
+    name = unbox(name),
+    validator = list(type = unbox("ArrayValidator"), itemsValidator = validator),
+    values = values
+  )
+}
+
+# Create an R data.frame from a Stencila Datatable
+dataframe_from_datatable <- function(dt) {
+  columns = list()
+  for(column in dt$columns) {
+    name <- column$name
+    validator <- column$validator
+    values <- column$values
+    if (validator$type == "BooleanValidator") {
+      columns[[name]] <- as.logical(values)
+    } else if (validator$type == "IntegerValidator") {
+      columns[[name]] <- as.integer(values)
+    } else if (validator$type == "NumberValidator") {
+      columns[[name]] <- as.number(values)
+    } else if (validator$type == "StringValidator") {
+      columns[[name]] <- as.character(values)
+    } else if (validator$type == "EnumValidator") {
+      columns[[name]] <- as.factor(values, levels = validator$values)
+    } else {
+      columns[[name]] <- values
+    }
+  }
+  as.data.frame(columns)
+}
+
 # Monkey patch `print` to encode individual objects
-print <- function(x, ...) write(paste0(toJSON(x, auto_unbox = T), END), stdout)
+print <- function(x, ...) write(paste0(to_json(x), END), stdout)
 
 # Expose `unbox` so that users can, for example, show a single number vector as a number
 unbox <- jsonlite::unbox
 
+# Create environment in which code will be executed
+envir <- new.env()
+
 # Execute lines of code
-execute <- function(lines) { }
+execute <- function(lines) {
+  code <- paste0(lines, collapse = "\n")
+  compiled <- tryCatch(parse(text = code), error = identity)
+  if (inherits(compiled, "simpleError")) {
+    error(compiled, "SyntaxError")
+  } else {
+    value <- tryCatch(
+      eval(compiled, envir, .GlobalEnv),
+      message = info,
+      warning = warning,
+      error = error,
+      interrupt = interrupt
+    )
+
+    if (!is.null(value)) {
+      # Only return value if last line is not blank, a comment, or an assignment
+      last <- tail(lines, 1)
+      blank <- nchar(trimws(last)) == 0
+      comment <- startsWith(last, "#")
+      assignment <- grepl("^\\s*\\w+\\s*(<-|=)\\s*", last)
+      if (!blank && !comment && !assignment) print(value)
+    }
+  }
+}
 
 # Evaluate an expression
 evaluate <- function(expression) {
@@ -104,35 +297,137 @@ evaluate <- function(expression) {
       error = error,
       interrupt = interrupt
     )
-    if (!is.null(value)) {
-      print(value)
-    }
+
+    print(value)
   }
 }
 
 # Get runtime information
-get_info <- function() { }
+get_info <- function() {
+  print(list(
+    type = unbox("SoftwareApplication"),
+    name = unbox("R"),
+    softwareVersion = unbox(paste(version$major, version$minor, sep = ".")),
+    operatingSystem = unbox(paste(version$os, version$arch))
+  ))
+}
 
 # Get a list of packages available
-get_packages <- function() { }
+get_packages <- function() {
+  pkgs <- installed.packages()
+  for (name in rownames(pkgs)) {
+    print(list(
+      type = unbox("SoftwareSourceCode"),
+      programmingLanguage = unbox("R"),
+      name = unbox(name),
+      version = unbox(pkgs[name, "Version"])
+    ))
+  }
+}
 
 # List variables in the context
-list_variables <- function() { }
+list_variables <- function() {
+  vars <- ls(envir = envir)
+  for (name in vars) {
+    value <- get(name, envir = envir)
+    native_type <- class(value)
+    result <- node_type_and_hint(value)
+
+    print(list(
+      type = unbox("Variable"),
+      programmingLanguage = unbox("R"),
+      name = unbox(name),
+      nativeType = unbox(native_type),
+      nodeType = unbox(result$node_type),
+      hint = result$hint
+    ))
+  }
+}
+
+# Get the node type and a hint for an R value
+node_type_and_hint <- function(value) {
+  if (length(value) == 0 && is.null(value)) {
+    list(node_type = "Null")
+  } else if (length(value) == 1) {
+    if (is.logical(value)) {
+      list(node_type = "Boolean", hint = unbox(value))
+    } else if (is.integer(value)) {
+      list(node_type = "Integer", hint = unbox(value))
+    } else if (is.numeric(value) || is.double(value)) {
+      list(node_type = "Number", hint = unbox(value))
+    } else if (is.character(value)) {
+      list(node_type = "String", hint = list(
+        type = unbox("StringHint"),
+        chars = unbox(nchar(value))
+      ))
+    } else {
+      list(node_type = NULL, hint = NULL)
+    }
+  } else if (is.data.frame(value)) {
+    list(node_type = "Datatable", hint = dataframe_to_datatable_hint(value))
+  } else if (is.list(value)) {
+    if (length(value$type) == 1) {
+      list(node_type = value$type)
+    } else {
+      keys <- names(value)
+      if (is.null(keys)) {
+        list(node_type = "Array", hint = list(
+          type = unbox("ArrayHint"),
+          length = unbox(length(value))
+        ))
+      } else {
+        values <- lapply(value, function(item) node_type_and_hint(item)$hint)
+        names(values) <- NULL
+        list(node_type = "Object", hint = list(
+          type = unbox("ObjectHint"),
+          length = unbox(length(value)),
+          keys = keys,
+          values = values
+        ))
+      }
+    }
+  } else {
+    list(node_type = "Array", hint = vector_to_array_hint(value))
+  }
+}
 
 # Get a variable
-get_variable <- function(name) { }
+get_variable <- function(name) {
+  value <- try(get(name, envir = envir), silent = TRUE)
+  if (!inherits(value, "try-error")) {
+    print(value)
+  }
+}
 
 # Set a variable
-set_variable <- function(name, value) { }
+set_variable <- function(name, value) {
+  assign(name, from_json(value), envir = envir)
+}
 
 # Remove a variable
-remove_variable <- function(name) { }
+remove_variable <- function(name) {
+  remove(list = name, envir = envir)
+}
 
 # Fork the kernel instance
-fork <- function(pipes) { }
-
-# Create environment in which code will be executed
-envir <- new.env()
+# The `eval_safe` function of https://github.com/jeroen/unix provides an alternative 
+# implementation of fork-exec for R. We might use it in the future.
+fork <- function(pipes) {
+  # The Rust process will kill the child so use `estranged` to avoid zombie processes
+  # (because this process still has an entry for the child)
+  process <- parallel:::mcfork(estranged = TRUE)
+  if (!inherits(process, "masterProcess")) {
+    # Parent process: return pid of the fork
+    print(unbox(process$pid))
+  } else {
+    # Close file descriptors so that we're not interfering with
+    # parent's file descriptors
+    closeAllConnections()
+    stdin <<- file(pipes[1], open = "r", raw = TRUE)
+    stdout <<- file(pipes[2], open = "w", raw = TRUE)
+    stderr <<- file(pipes[3], open = "w", raw = TRUE)
+  }
+}
 
 # Indicate that ready
 write(READY, stdout)
@@ -145,36 +440,43 @@ while (!is.null(stdin)) {
     # A SIGINT does not interrupt `readLines` but instead gets fired just after it when the next
     # line is read. So, we have to save the task in case interrupt was inadvertently called during
     # readline and then "replay" it on the next loop.
-    task <<- ifelse(is.null(saved_task), readLines(stdin, n = 1), saved_task)
+    task <<- readLines(stdin, n = 1) #ifelse(is.null(saved_task), readLines(stdin, n = 1), saved_task)
+    saved_task <<- NULL
 
     # If there is no task from `readLines` it means `stdin` was closed, so exit gracefully
     if (length(task) == 0) quit(save = "no")
 
     lines <- strsplit(task, LINE, fixed = TRUE)[[1]]
-
     task_type <- lines[1]
-    switch(task_type,
-      EXEC = function() execute(lines[2:length(lines)]),
-      EVAL = function() evaluate(lines[2:length(lines)]),
-      INFO = get_info,
-      PKGS = get_packages,
-      LIST = list_variables,
-      GET = function() get_variable(lines[2]),
-      SET = function() set_variable(lines[2], lines[3]),
-      REMOVE = function() remove_variable(lines[2]),
-      FORK = function() fork(lines[2], lines[3]),
-      function() error(list(message = paste("Unrecognized task:", task_type), error_type = "MicrokernelError"))
-    )()
 
-    saved_task <<- NULL
+    # Ignore if, for some reason, line was empty
+    if (is.na(task_type)) {
+      return
+    }
 
-    write(READY, stdout)
-    write(READY, stderr)
+    if (task_type == EXEC) {
+      if (length(lines) > 1) execute(lines[2:length(lines)])
+    }
+    else if (task_type == EVAL) evaluate(lines[2])
+    else if (task_type == INFO) get_info()
+    else if (task_type == PKGS) get_packages()
+    else if (task_type == LIST) list_variables()
+    else if (task_type == GET) get_variable(lines[2])
+    else if (task_type == SET) set_variable(lines[2], lines[3])
+    else if (task_type == REMOVE) remove_variable(lines[2])
+    else if (task_type == FORK) fork(lines[2:length(lines)])
+    else error(list(message = paste("Unrecognized task:", task_type), error_type = "MicrokernelError"))
   },
   message = info,
   warning = warning,
   error = error,
   interrupt = function(condition) {
-    saved_task <<- task
+    if (DEV_MODE) quit(save = "no")
+    else saved_task <<- task
   })
+
+  write(READY, stdout)
+  flush(stdout)
+  write(READY, stderr)
+  flush(stderr)
 }
