@@ -13,7 +13,7 @@ pub struct RKernel {
 }
 
 impl Kernel for RKernel {
-    fn id(&self) -> String {
+    fn name(&self) -> String {
         "r".to_string()
     }
 

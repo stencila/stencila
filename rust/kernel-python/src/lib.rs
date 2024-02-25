@@ -13,7 +13,7 @@ pub struct PythonKernel {
 }
 
 impl Kernel for PythonKernel {
-    fn id(&self) -> String {
+    fn name(&self) -> String {
         "python".to_string()
     }
 

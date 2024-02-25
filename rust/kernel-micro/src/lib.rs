@@ -122,9 +122,9 @@ pub trait Microkernel: Sync + Send + Kernel {
     fn microkernel_create_instance(&self, index: u64) -> Result<Box<dyn KernelInstance>> {
         // Assign an id for the instance using the index, if necessary, to ensure it is unique
         let id = if index == 0 {
-            self.id()
+            self.name()
         } else {
-            format!("{}-{index}", self.id())
+            format!("{}-{index}", self.name())
         };
 
         // Get the path to the executable, failing early if it can not be found
@@ -133,7 +133,7 @@ pub trait Microkernel: Sync + Send + Kernel {
         // Always write the script file, even if it already exists, to allow for changes
         // to the microkernel's script
         let kernels_dir = app::get_app_dir(app::DirType::Kernels, true)?;
-        let script_file = kernels_dir.join(self.id());
+        let script_file = kernels_dir.join(self.name());
         write(&script_file, self.microkernel_script())?;
 
         // Replace placeholder in args with the script path
@@ -307,7 +307,7 @@ impl MicrokernelFlag {
 
 #[async_trait]
 impl KernelInstance for MicrokernelInstance {
-    fn id(&self) -> String {
+    fn name(&self) -> String {
         self.id.clone()
     }
 
@@ -393,7 +393,7 @@ impl KernelInstance for MicrokernelInstance {
                 };
 
                 if let Err(error) = kill(Pid::from_raw(self.pid as i32), Signal::SIGKILL) {
-                    tracing::warn!("While killing `{}` kernel: {error}", self.id())
+                    tracing::warn!("While killing `{}` kernel: {error}", self.name())
                 }
             }
         }
@@ -522,7 +522,7 @@ impl KernelInstance for MicrokernelInstance {
             let Some(Node::Integer(pid)) = outputs.first() else {
                 bail!(
                     "Did not receive pid for fork of microkernel `{}`",
-                    self.id()
+                    self.name()
                 )
             };
             let pid = *pid as u32;
@@ -714,7 +714,7 @@ impl MicrokernelInstance {
             if status != *previous {
                 tracing::trace!(
                     "Status of `{}` kernel changed from `{previous}` to `{status}`",
-                    self.id()
+                    self.name()
                 );
                 *previous = status;
                 true
@@ -750,7 +750,7 @@ impl MicrokernelInstance {
     /// Send a task to this microkernel instance
     async fn send(&mut self, flag: MicrokernelFlag, code: &str) -> Result<()> {
         let Some(input) = self.input.as_mut() else {
-            bail!("Microkernel `{}` has not been started yet!", self.id());
+            bail!("Microkernel `{}` has not been started yet!", self.name());
         };
 
         match input {
@@ -781,7 +781,7 @@ impl MicrokernelInstance {
         if messages.iter().any(|m| m.level == MessageLevel::Error) {
             bail!(
                 "While {action} in microkernel `{}`: {}",
-                self.id(),
+                self.name(),
                 messages.into_iter().map(|message| message.message).join("")
             )
         } else {

@@ -25,10 +25,10 @@ use schema::{ExecutionMessage, Node, SoftwareApplication, SoftwareSourceCode, Va
 /// This trait specifies the kernel and its capabilities (similar to a Jupyter "kernel spec")
 /// The `KernelInstance` trait is the interface for instances of kernels.
 pub trait Kernel: Sync + Send {
-    /// Get the id of the kernel
+    /// Get the name of the kernel
     ///
-    /// This id should be unique amongst all kernels.
-    fn id(&self) -> String;
+    /// This name should be unique amongst all kernels.
+    fn name(&self) -> String;
 
     /// Get the availability of the kernel on the current machine
     fn availability(&self) -> KernelAvailability;
@@ -126,11 +126,11 @@ pub enum KernelForks {
 /// An instance of a kernel
 #[async_trait]
 pub trait KernelInstance: Sync + Send {
-    /// Get the id of the kernel instance
+    /// Get the name of the kernel instance
     ///
-    /// This id should be unique amongst all kernel instances,
+    /// This name should be unique amongst all kernel instances,
     /// including those for other `Kernel`s.
-    fn id(&self) -> String;
+    fn name(&self) -> String;
 
     /// Get the status of the kernel instance
     async fn status(&self) -> Result<KernelStatus>;
@@ -178,7 +178,7 @@ pub trait KernelInstance: Sync + Send {
 
     /// Create a fork of the kernel instance
     async fn fork(&mut self) -> Result<Box<dyn KernelInstance>> {
-        bail!("Kernel `{}` does not support forks", self.id())
+        bail!("Kernel `{}` does not support forks", self.name())
     }
 }
 
