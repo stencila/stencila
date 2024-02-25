@@ -70,7 +70,7 @@
       "$ref": "AdmonitionType.schema.json"
     },
     "title": {
-      "@id": "stencila:title",
+      "@id": "schema:headline",
       "description": "The title of the admonition.",
       "proptest": {
         "min": {

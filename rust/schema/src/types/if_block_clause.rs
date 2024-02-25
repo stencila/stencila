@@ -65,6 +65,12 @@ pub struct IfBlockClause {
     #[jats(attr = "language")]
     pub programming_language: Option<String>,
 
+    /// Whether this clause is the active clause in the parent `IfBlock` node
+    #[serde(alias = "is-active", alias = "is_active")]
+    #[strip(output)]
+    #[cfg_attr(feature = "proptest", proptest(value = "None"))]
+    pub is_active: Option<Boolean>,
+
     /// The content to render if the result is truthy
     #[serde(deserialize_with = "one_or_many")]
     #[walk]
@@ -184,12 +190,6 @@ pub struct IfBlockClauseOptions {
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     #[dom(elem = "span")]
     pub authors: Option<Vec<Author>>,
-
-    /// Whether this clause is the active clause in the parent `IfBlock` node
-    #[serde(alias = "is-active", alias = "is_active")]
-    #[strip(output)]
-    #[cfg_attr(feature = "proptest", proptest(value = "None"))]
-    pub is_active: Option<Boolean>,
 }
 
 impl IfBlockClause {

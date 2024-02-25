@@ -20,9 +20,9 @@ use codec::{
         shortcuts::{dei, isi, mi, rei, stk, sub, sup, t},
         BooleanValidator, Button, Cite, CiteGroup, CodeExpression, CodeInline, Cord,
         DateTimeValidator, DateValidator, DurationValidator, EnumValidator, Inline,
-        InstructionInline, InstructionInlineOptions, IntegerValidator, Message, MessagePart,
-        ModifyInline, Node, NumberValidator, Parameter, ParameterOptions, StringValidator,
-        StyledInline, TimeValidator, TimestampValidator, Validator,
+        InstructionInline, InstructionInlineOptions, InstructionMessage, IntegerValidator,
+        MessagePart, ModifyInline, Node, NumberValidator, Parameter, ParameterOptions,
+        StringValidator, StyledInline, TimeValidator, TimestampValidator, Validator,
     },
 };
 
@@ -627,7 +627,7 @@ fn instruction_inline(input: &str) -> IResult<&str, Inline> {
         ),
         |(assignee, text, content)| {
             Inline::InstructionInline(InstructionInline {
-                messages: vec![Message {
+                messages: vec![InstructionMessage {
                     parts: vec![MessagePart::Text(text.trim().into())],
                     ..Default::default()
                 }],

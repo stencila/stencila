@@ -169,6 +169,8 @@ export function hydrate(value: types.Node): types.Node {
       return Object.setPrototypeOf(value, types.InstructionBlock.prototype);
     case "InstructionInline":
       return Object.setPrototypeOf(value, types.InstructionInline.prototype);
+    case "InstructionMessage":
+      return Object.setPrototypeOf(value, types.InstructionMessage.prototype);
     case "IntegerValidator":
       return Object.setPrototypeOf(value, types.IntegerValidator.prototype);
     case "Link":
@@ -187,8 +189,6 @@ export function hydrate(value: types.Node): types.Node {
       return Object.setPrototypeOf(value, types.MathInline.prototype);
     case "MediaObject":
       return Object.setPrototypeOf(value, types.MediaObject.prototype);
-    case "Message":
-      return Object.setPrototypeOf(value, types.Message.prototype);
     case "ModifyBlock":
       return Object.setPrototypeOf(value, types.ModifyBlock.prototype);
     case "ModifyInline":

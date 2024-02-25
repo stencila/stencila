@@ -6,7 +6,7 @@ content:
     value: A simple for loop
 - type: ForBlock
   code: '[1,2,3]'
-  symbol: item
+  variable: item
   content:
   - type: Paragraph
     content:
@@ -21,7 +21,7 @@ content:
 - type: ForBlock
   code: '[1,2,3]'
   programmingLanguage: python
-  symbol: item
+  variable: item
   content:
   - type: Paragraph
     content:
@@ -33,11 +33,11 @@ content:
     value: Nested for loops
 - type: ForBlock
   code: '[[''a'', ''b''], [''c'', ''d'']]'
-  symbol: outer
+  variable: outer
   content:
   - type: ForBlock
     code: outer
-    symbol: inner
+    variable: inner
     content:
     - type: Paragraph
       content:
@@ -51,7 +51,7 @@ content:
     value: With an else clause
 - type: ForBlock
   code: '[]'
-  symbol: item
+  variable: item
   content:
   - type: Paragraph
     content:
@@ -68,6 +68,6 @@ content:
     value: With no content in 'content' or 'otherwise'
 - type: ForBlock
   code: '[]'
-  symbol: item
+  variable: item
   content: []
   otherwise: []

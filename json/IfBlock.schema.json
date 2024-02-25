@@ -250,6 +250,7 @@
       "strip": [
         "code"
       ],
+      "walk": true,
       "proptest": {
         "min": {
           "description": "A single fixed clause with a single paragraph.",

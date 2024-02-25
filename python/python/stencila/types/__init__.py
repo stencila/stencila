@@ -91,6 +91,7 @@ from ._insert_inline import InsertInline
 from ._instruction import Instruction
 from ._instruction_block import InstructionBlock
 from ._instruction_inline import InstructionInline
+from ._instruction_message import InstructionMessage
 from ._int_or_str import IntOrStr
 from ._integer_validator import IntegerValidator
 from ._label_type import LabelType
@@ -103,7 +104,6 @@ from ._math import Math
 from ._math_block import MathBlock
 from ._math_inline import MathInline
 from ._media_object import MediaObject
-from ._message import Message
 from ._message_level import MessageLevel
 from ._message_part import MessagePart
 from ._modify_block import ModifyBlock
@@ -274,6 +274,7 @@ __all__ = [
     'Instruction',
     'InstructionBlock',
     'InstructionInline',
+    'InstructionMessage',
     'IntOrStr',
     'IntegerValidator',
     'LabelType',
@@ -286,7 +287,6 @@ __all__ = [
     'MathBlock',
     'MathInline',
     'MediaObject',
-    'Message',
     'MessageLevel',
     'MessagePart',
     'ModifyBlock',

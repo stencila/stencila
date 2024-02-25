@@ -153,6 +153,10 @@
     {
       "@id": "stencila:Conclusion",
       "const": "Conclusion"
+    },
+    {
+      "@id": "stencila:Iteration",
+      "const": "Iteration"
     }
   ]
 }

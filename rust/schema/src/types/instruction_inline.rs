@@ -14,8 +14,8 @@ use super::execution_required::ExecutionRequired;
 use super::execution_status::ExecutionStatus;
 use super::execution_tag::ExecutionTag;
 use super::inline::Inline;
+use super::instruction_message::InstructionMessage;
 use super::integer::Integer;
-use super::message::Message;
 use super::string::String;
 use super::suggestion_inline_type::SuggestionInlineType;
 use super::timestamp::Timestamp;
@@ -50,7 +50,7 @@ pub struct InstructionInline {
     #[serde(deserialize_with = "one_or_many")]
     #[cfg_attr(feature = "proptest", proptest(value = "Default::default()"))]
     #[dom(elem = "div")]
-    pub messages: Vec<Message>,
+    pub messages: Vec<InstructionMessage>,
 
     /// The content to which the instruction applies.
     #[serde(default, deserialize_with = "option_one_or_many")]
@@ -204,7 +204,7 @@ impl InstructionInline {
         NodeId::new(Self::NICK, &self.uid)
     }
     
-    pub fn new(messages: Vec<Message>) -> Self {
+    pub fn new(messages: Vec<InstructionMessage>) -> Self {
         Self {
             messages,
             ..Default::default()

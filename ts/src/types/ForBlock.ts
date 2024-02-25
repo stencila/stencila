@@ -1,9 +1,9 @@
 // Generated file; do not edit. See https://github.com/stencila/stencila/tree/main/rust/schema-gen
 
-import { Array } from "./Array.js";
 import { Block } from "./Block.js";
 import { CodeExecutable } from "./CodeExecutable.js";
 import { Cord } from "./Cord.js";
+import { Section } from "./Section.js";
 
 /**
  * Repeat a block content for each item in an array.
@@ -15,7 +15,7 @@ export class ForBlock extends CodeExecutable {
   /**
    * The name to give to the variable representing each item in the iterated array
    */
-  symbol: string;
+  variable: string;
 
   /**
    * The content to repeat for each item
@@ -30,14 +30,14 @@ export class ForBlock extends CodeExecutable {
   /**
    * The content repeated for each iteration
    */
-  iterations?: Array[];
+  iterations?: Section[];
 
-  constructor(code: Cord, symbol: string, content: Block[], options?: Partial<ForBlock>) {
+  constructor(code: Cord, variable: string, content: Block[], options?: Partial<ForBlock>) {
     super(code);
     this.type = "ForBlock";
     if (options) Object.assign(this, options);
     this.code = code;
-    this.symbol = symbol;
+    this.variable = variable;
     this.content = content;
   }
 }
@@ -45,6 +45,6 @@ export class ForBlock extends CodeExecutable {
 /**
 * Create a new `ForBlock`
 */
-export function forBlock(code: Cord, symbol: string, content: Block[], options?: Partial<ForBlock>): ForBlock {
-  return new ForBlock(code, symbol, content, options);
+export function forBlock(code: Cord, variable: string, content: Block[], options?: Partial<ForBlock>): ForBlock {
+  return new ForBlock(code, variable, content, options);
 }

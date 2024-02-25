@@ -24,6 +24,11 @@ export class SoftwareApplication extends CreativeWork {
    */
   softwareVersion?: string;
 
+  /**
+   * Operating systems supported (e.g. Windows 7, OS X 10.6).
+   */
+  operatingSystem?: string;
+
   constructor(name: string, options?: Partial<SoftwareApplication>) {
     super();
     this.type = "SoftwareApplication";

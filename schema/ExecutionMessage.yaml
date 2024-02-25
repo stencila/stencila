@@ -1,6 +1,6 @@
 title: ExecutionMessage
 '@id': stencila:ExecutionMessage
-nick: exm
+nick: eme
 extends: Entity
 category: code
 status: alpha

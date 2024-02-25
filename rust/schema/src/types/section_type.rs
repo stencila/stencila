@@ -26,4 +26,6 @@ pub enum SectionType {
     Discussion,
 
     Conclusion,
+
+    Iteration,
 }

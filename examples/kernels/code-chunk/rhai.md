@@ -1,0 +1,3 @@
+```exec
+print("Hello world")
+```

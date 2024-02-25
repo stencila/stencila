@@ -266,9 +266,6 @@
           "@id": "schema:ItemList"
         },
         {
-          "@id": "schema:Message"
-        },
-        {
           "@id": "stencila:Admonition"
         },
         {
@@ -285,6 +282,9 @@
         },
         {
           "@id": "stencila:Instruction"
+        },
+        {
+          "@id": "stencila:InstructionMessage"
         },
         {
           "@id": "stencila:Math"
@@ -304,9 +304,9 @@
       }
     },
     {
-      "@id": "stencila:symbol",
+      "@id": "stencila:variable",
       "@type": "rdfs:Property",
-      "rdfs:label": "symbol",
+      "rdfs:label": "variable",
       "rdfs:comment": "The name to give to the variable representing each item in the iterated array",
       "schema:domainIncludes": {
         "@id": "stencila:ForBlock"
@@ -332,9 +332,6 @@
         },
         {
           "@id": "schema:ListItem"
-        },
-        {
-          "@id": "schema:Message"
         },
         {
           "@id": "stencila:Admonition"
@@ -365,6 +362,9 @@
         },
         {
           "@id": "stencila:InstructionInline"
+        },
+        {
+          "@id": "stencila:InstructionMessage"
         },
         {
           "@id": "stencila:Link"
@@ -423,6 +423,9 @@
       "rdfs:comment": "The content repeated for each iteration",
       "schema:domainIncludes": {
         "@id": "stencila:ForBlock"
+      },
+      "schema:rangeIncludes": {
+        "@id": "stencila:Section"
       }
     }
   ]

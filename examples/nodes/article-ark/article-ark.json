@@ -170,7 +170,7 @@
     },
     {
       "type": "ForBlock",
-      "symbol": "item",
+      "variable": "item",
       "code": "items",
       "content": [
         {

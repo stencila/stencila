@@ -7,7 +7,9 @@ edition = "2021"
 codecs = { path = "../codecs" }
 common = { path = "../common" }
 format = { path = "../format" }
+kernels = { path = "../kernels" }
 json-patch = "1.2.0"
+node-execute = { path = "../node-execute" }
 node-map = { path = "../node-map" }
 node-store = { path = "../node-store" }
 notify = { version = "6.1.1", default-features = false, features = ["macos_kqueue"] }

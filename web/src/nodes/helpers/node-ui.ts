@@ -56,6 +56,9 @@ const nodeTypeUIMap: Partial<Record<NodeType, NodeTypeUI>> = {
   ThematicBreak:    { ...shoelaceIcon('hr'),                   ...nodeColours('slate')   },
 }
 
+/**
+ * Get the UI specifications for a node type
+ */
 export const nodeUi = (nodeType: NodeType): Required<NodeTypeUI> => {
   const ui = nodeTypeUIMap[nodeType]
   return {
@@ -67,11 +70,20 @@ export const nodeUi = (nodeType: NodeType): Required<NodeTypeUI> => {
   }
 }
 
+/**
+ * Get the title for a node type
+ */
 export const nodeTitle = (nodeType: NodeType) =>
   nodeTypeUIMap[nodeType]?.title ?? nodeType.replace(/([A-Z])/g, ' $1').trim()
 
+/**
+ * Get the (background) colour for a node type
+ */
 export const nodeColour = (nodeType: NodeType) =>
   nodeTypeUIMap[nodeType]?.colour ?? DEFAULT_COLOUR
 
+/**
+ * Get the border colour for a node type
+ */
 export const nodeBorderColour = (nodeType: NodeType) =>
   nodeTypeUIMap[nodeType]?.borderColour ?? DEFAULT_BORDER_COLOUR

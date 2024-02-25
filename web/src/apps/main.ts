@@ -1,29 +1,33 @@
 import { provide } from '@lit/context'
+import type SlTab from '@shoelace-style/shoelace/dist/components/tab/tab'
+import '@shoelace-style/shoelace/dist/components/tab/tab'
+import '@shoelace-style/shoelace/dist/components/tab-group/tab-group'
+import '@shoelace-style/shoelace/dist/components/tab-panel/tab-panel'
+import type { SlCloseEvent } from '@shoelace-style/shoelace/dist/events/events'
+import type { File } from '@stencila/types'
+import { apply, css } from '@twind/core'
 import { LitElement, html } from 'lit'
 import { customElement, property, state } from 'lit/decorators.js'
 
-// import logo from '../images/stencilaIcon.svg'
 import { SidebarContext, sidebarContext } from '../contexts/sidebar-context'
 import { THEMES } from '../themes/themes'
 import { withTwind } from '../twind'
 import type { DocumentId, DocumentView } from '../types'
 import type { UISelectorSelectedEvent } from '../ui/selector'
-import { VIEWS } from '../views/views'
-
 import '../ui/directory-container'
 import '../ui/selector'
 import '../ui/sidebar'
 import '../ui/tab'
 import '../ui/view-container'
 import '../ui/buttons/icon'
-
 import '../views/static'
 import '../views/live'
 import '../views/dynamic'
 import '../views/source'
 import '../views/split'
 import '../views/visual'
-import '../views/directory'
+import { DirectoryView } from '../views/directory'
+import { VIEWS } from '../views/views'
 
 import './main.css'
 
@@ -39,14 +43,26 @@ import './shoelace'
 @withTwind()
 export class App extends LitElement {
   /**
-   * The id of the current document (if any)
+   * The currently open documents
    *
-   * The app can be opened with a document or not. If there is no `doc` attribute
-   * (e.g. because the server could not resolve a file from the URL path)
-   * then the app should offer some suggestions.
+   * This property is initialized (as an HTML attribute) with one document id,
+   * by the server, based on the URL path (including paths that resolved to main.*,
+   * index.*, or README.* in the home directory of the server (the directory it was started in)).
+   *
+   * While the app is running [document id, file name] pairs are added or removed
+   * from this list (e.g. by clicking on the directory tree, closing a tab).
+   *
+   * A list is used here (rather than say an object with `DocumentId` as the key)
+   * to allow for reordering of tabs by the user.
    */
-  @property()
-  doc?: DocumentId
+  @property({ type: Array })
+  docs: (File & { docId: DocumentId })[] = []
+
+  /**
+   * The id of the document, in `docs`, that is currently active
+   */
+  @state()
+  activeDoc: DocumentId | null
 
   /**
    * The current view of the current document
@@ -71,12 +87,6 @@ export class App extends LitElement {
   format: string = 'markdown'
 
   /**
-   * The name of the editor tab which is active.
-   */
-  @property()
-  activeTab: string = ''
-
-  /**
    * This context enables components to:
    * - open the files viewer
    * - change the view by clicking on a sidebar button
@@ -93,28 +103,16 @@ export class App extends LitElement {
       <stencila-ui-directory-container></stencila-ui-directory-container>
 
       <div class="flex flex-col flex-grow">
-        ${this.renderHeader()}
-
-        <stencila-ui-view-container view=${this.contextObject.currentView}>
-          ${this.renderView()}
-        </stencila-ui-view-container>
+        ${this.renderHeader()} ${this.renderTabGroup()}
       </div>
     </div> `
   }
 
   // TODO: the header should move to it's own component & maintain its own state.
   private renderHeader() {
-    return html`<header class="w-full flex items-end h-20 max-h-20">
-      <nav class="flex bg-neutral-100 h-full w-full">
-        <div class="flex-grow flex items-end h-full relative z-10 space-x-1">
-          <stencila-ui-editor-tab ?active=${true}
-            >README</stencila-ui-editor-tab
-          >
-        </div>
-        <div class="flex-shrink-0 flex-grow-0 flex items-center p-5">
-          <div class="flex-grow justify-start flex flex-row space-x-4">
-            ${this.renderViewSelect()} ${this.renderThemeSelect()}
-          </div>
+    return html`<header class="w-full flex items-end h-12 max-h-12">
+      <nav class="flex justify-end bg-neutral-100 h-full w-full">
+        <div class="flex-shrink-0 flex-grow-0 flex items-center p-4">
           <div class="ml-20 flex space-x-4">
             <stencila-ui-icon-button
               icon="status"
@@ -128,6 +126,7 @@ export class App extends LitElement {
     </header>`
   }
 
+  // @ts-expect-error "will use soon enough"
   private renderViewSelect() {
     const clickEvent = (e: UISelectorSelectedEvent['detail']) => {
       this.contextObject = {
@@ -146,12 +145,13 @@ export class App extends LitElement {
     </stencila-ui-selector>`
   }
 
+  // @ts-expect-error "will use soon enough"
   private renderThemeSelect() {
     const clickEvent = (e: UISelectorSelectedEvent['detail']) => {
       this.theme = e.item.value
     }
 
-    return html` <stencila-ui-selector
+    return html`<stencila-ui-selector
       label="Theme"
       target=${this.theme}
       targetClass="theme-selector"
@@ -172,12 +172,110 @@ export class App extends LitElement {
   }
   /* eslint-enable lit/attribute-value-entities */
 
-  private renderView() {
+  private renderTabGroup() {
+    const closeTab = (event: SlCloseEvent) => {
+      const tab = event.target as SlTab
+      this.shadowRoot.dispatchEvent(
+        new CustomEvent('stencila-close-document', {
+          bubbles: true,
+          composed: true,
+          detail: { docId: tab.panel },
+        })
+      )
+    }
+
+    const baseTabStyles = apply([
+      'relative',
+      'mr-1',
+      'bg-grey-200',
+      'border border-gray-200 border-b-0 rounded-t',
+    ])
+
+    const tabClasses = css`
+      &::part(base) {
+        color: #171817;
+        height: 2rem;
+        font-size: 14px;
+        font-weight: 500;
+      }
+      &[active] {
+        background-color: #ffffff;
+
+        &::part(base) {
+          font-weight: 400;
+        }
+
+        &::after {
+          content: '';
+          position: absolute;
+          height: 1px;
+          width: 100%;
+          background-color: #ffffff;
+          left: 0px;
+          bottom: -1px;
+        }
+      }
+    `
+
+    // disable the 'active-tab-indicator'
+    const tabGroupClasses = css`
+      &::part(active-tab-indicator) {
+        display: none;
+      }
+      &::part(tabs) {
+        border-bottom: 1px solid #dedede;
+      }
+    `
+
+    const tabPanelClasses = css`
+      &::part(base) {
+        padding-top: 0px;
+      }
+    `
+
+    const content = this.docs
+      ? this.docs.map(
+          ({ docId, name }) => html`
+            <sl-tab
+              slot="nav"
+              class="${baseTabStyles} ${tabClasses}"
+              panel=${docId}
+              ?active=${docId === this.activeDoc}
+              closable
+            >
+              <!-- TODO: disambiguate files with same name in different folders -->
+              ${name}
+            </sl-tab>
+            <sl-tab-panel
+              name=${docId}
+              ?active=${docId === this.activeDoc}
+              class="${tabPanelClasses}"
+            >
+              <stencila-ui-view-container
+                view=${this.contextObject.currentView}
+              >
+                ${this.renderDocumentView(docId)}
+              </stencila-ui-view-container>
+            </sl-tab-panel>
+          `
+        )
+      : // TODO: Render a welcome screen
+        // See https://github.com/stencila/stencila/issues/2027
+        html`Welcome!`
+
+    return html`<sl-tab-group
+      @sl-close=${(event: SlCloseEvent) => closeTab(event)}
+      class="${tabGroupClasses}"
+      >${content}</sl-tab-group
+    >`
+  }
+
+  private renderDocumentView(docId: DocumentId) {
     switch (this.contextObject.currentView) {
       case 'static':
         return html`<stencila-static-view
           view="static"
-          doc=${this.doc}
+          doc=${docId}
           theme=${this.theme}
           fetch
         ></stencila-static-view>`
@@ -185,28 +283,28 @@ export class App extends LitElement {
       case 'live':
         return html`<stencila-live-view
           view="live"
-          doc=${this.doc}
+          doc=${docId}
           theme=${this.theme}
         ></stencila-live-view>`
 
       case 'dynamic':
         return html`<stencila-dynamic-view
           view="dynamic"
-          doc=${this.doc}
+          doc=${docId}
           theme=${this.theme}
         ></stencila-dynamic-view>`
 
       case 'source':
         return html`<stencila-source-view
           view="source"
-          doc=${this.doc}
+          doc=${docId}
           format=${this.format}
         ></stencila-source-view>`
 
       case 'split':
         return html`<stencila-split-view
           view="split"
-          doc=${this.doc}
+          doc=${docId}
           format=${this.format}
           theme=${this.theme}
         ></stencila-split-view>`
@@ -214,14 +312,14 @@ export class App extends LitElement {
       case 'visual':
         return html`<stencila-visual-view
           view="visual"
-          doc=${this.doc}
+          doc=${docId}
           theme=${this.theme}
         ></stencila-visual-view>`
 
       case 'directory':
         return html`<stencila-live-view
           view="live"
-          doc=${this.doc}
+          doc=${docId}
           theme=${this.theme}
         ></stencila-live-view>`
 
@@ -237,7 +335,7 @@ export class App extends LitElement {
     // This allows query parameters e.g ?view=source to be effective.
     this.contextObject = {
       currentView: this.view,
-      directoryOpen: false,
+      directoryOpen: true,
     }
 
     // Event listener for updating whether the directory view is open or closed
@@ -253,7 +351,59 @@ export class App extends LitElement {
       }
     )
 
-    // Event for changing the view
+    // Event listener for opening a document.
+    // Makes the opened document the active document.
+    // If the document is already open, makes it the active document.
+    this.shadowRoot.addEventListener(
+      'stencila-open-document',
+      async (e: Event & { detail: File }) => {
+        const file = e.detail
+
+        const index = this.docs.findIndex((doc) => doc.path == file.path)
+        if (index < 0) {
+          const docId = await DirectoryView.openPath(file.path)
+          this.docs.push({ docId, ...file })
+          this.activeDoc = docId
+          this.requestUpdate()
+        } else {
+          const docId = this.docs[index].docId
+          if (docId !== this.activeDoc) {
+            this.activeDoc = docId
+            this.requestUpdate()
+          }
+        }
+      }
+    )
+
+    // Event listener for closing a document
+    // If the closed document is the active document, makes the document
+    // before it the active document (unless closing the very fast document)
+    this.shadowRoot.addEventListener(
+      'stencila-close-document',
+      async (e: Event & { detail: { docId: DocumentId } }) => {
+        const { docId } = e.detail
+
+        const index = this.docs.findIndex((doc) => doc.docId === docId)
+        if (index > -1) {
+          this.docs.splice(index, 1)
+          if (docId === this.activeDoc) {
+            if (index == 0) {
+              this.activeDoc =
+                this.docs.length === 0 ? null : this.docs[0].docId
+            } else {
+              this.activeDoc = this.docs[index - 1].docId
+            }
+          }
+          this.requestUpdate()
+        }
+
+        // Close the document on the server. This is a clean up task
+        // which should not block the rendering so is not awaited here.
+        DirectoryView.closeDocument(docId)
+      }
+    )
+
+    // Event listener for changing the view
     this.shadowRoot.addEventListener(
       'stencila-view-change',
       (

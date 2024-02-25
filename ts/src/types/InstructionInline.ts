@@ -2,7 +2,7 @@
 
 import { Inline } from "./Inline.js";
 import { Instruction } from "./Instruction.js";
-import { Message } from "./Message.js";
+import { InstructionMessage } from "./InstructionMessage.js";
 import { SuggestionInlineType } from "./SuggestionInlineType.js";
 
 /**
@@ -22,7 +22,7 @@ export class InstructionInline extends Instruction {
    */
   suggestion?: SuggestionInlineType;
 
-  constructor(messages: Message[], options?: Partial<InstructionInline>) {
+  constructor(messages: InstructionMessage[], options?: Partial<InstructionInline>) {
     super(messages);
     this.type = "InstructionInline";
     if (options) Object.assign(this, options);
@@ -33,6 +33,6 @@ export class InstructionInline extends Instruction {
 /**
 * Create a new `InstructionInline`
 */
-export function instructionInline(messages: Message[], options?: Partial<InstructionInline>): InstructionInline {
+export function instructionInline(messages: InstructionMessage[], options?: Partial<InstructionInline>): InstructionInline {
   return new InstructionInline(messages, options);
 }

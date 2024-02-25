@@ -24,9 +24,6 @@
       "rdfs:comment": "The severity level of the message.",
       "schema:domainIncludes": [
         {
-          "@id": "schema:Message"
-        },
-        {
           "@id": "stencila:CompilationMessage"
         },
         {
@@ -34,6 +31,9 @@
         },
         {
           "@id": "stencila:Heading"
+        },
+        {
+          "@id": "stencila:InstructionMessage"
         }
       ],
       "schema:rangeIncludes": {

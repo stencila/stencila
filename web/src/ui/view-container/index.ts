@@ -50,7 +50,9 @@ export class UIViewContainer extends LitElement {
 
     const { inner, outer } = classes[this.view ?? 'live']
 
-    return html` <div class="bg-white border border-grey-200 h-full ${outer}">
+    return html` <div
+      class="bg-white border border-grey-200 h-full border-t-0 ${outer}"
+    >
       <div class="flex flex-row h-full">
         <div class=${inner}><slot></slot></div>
         <div class="grow ${!this._hasSide ? 'hidden' : ''}">

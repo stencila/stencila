@@ -25,6 +25,8 @@ export class UISidebar extends LitElement {
     >
       <stencila-ui-icon-button
         icon="sidebar"
+        tooltip="${this.context.directoryOpen ? 'Close' : 'Open'} file explorer"
+        tooltip-placement=${'right'}
         .clickEvent=${() => {
           this.emitEvent('stencila-directory-toggle', {
             directoryOpen: !this.context.directoryOpen,
@@ -35,6 +37,8 @@ export class UISidebar extends LitElement {
       <div class="flex flex-col space-y-9 text-xl">
         <stencila-ui-icon-button
           icon="visual-view"
+          tooltip="Visual editor"
+          tooltip-placement=${'right'}
           .clickEvent=${() => {
             this.emitEvent('stencila-view-change', {
               currentView: 'visual',
@@ -45,6 +49,8 @@ export class UISidebar extends LitElement {
         ></stencila-ui-icon-button>
         <stencila-ui-icon-button
           icon="code-view"
+          tooltip="Source editor"
+          tooltip-placement=${'right'}
           .clickEvent=${() => {
             this.emitEvent('stencila-view-change', {
               currentView: 'source',
@@ -54,6 +60,8 @@ export class UISidebar extends LitElement {
         ></stencila-ui-icon-button>
         <stencila-ui-icon-button
           icon="split-view"
+          tooltip="Split view"
+          tooltip-placement=${'right'}
           .clickEvent=${() => {
             this.emitEvent('stencila-view-change', {
               currentView: 'split',
@@ -61,7 +69,11 @@ export class UISidebar extends LitElement {
           }}
           ?active=${this.context.currentView === 'split'}
         ></stencila-ui-icon-button>
-        <stencila-ui-icon-button icon="settings"></stencila-ui-icon-button>
+        <stencila-ui-icon-button
+          icon="settings"
+          tooltip="Settings (coming soon!)"
+          tooltip-placement=${'right'}
+        ></stencila-ui-icon-button>
       </div>
     </div> `
   }

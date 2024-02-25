@@ -5,7 +5,7 @@
       type: "InstructionBlock",
       messages: [
         {
-          type: "Message",
+          type: "InstructionMessage",
           parts: [
             {
               type: "Text",
@@ -19,7 +19,7 @@
       type: "InstructionBlock",
       messages: [
         {
-          type: "Message",
+          type: "InstructionMessage",
           parts: [
             {
               type: "Text",
@@ -34,7 +34,7 @@
       type: "InstructionBlock",
       messages: [
         {
-          type: "Message",
+          type: "InstructionMessage",
           parts: [
             {
               type: "Text",
@@ -59,7 +59,7 @@
       type: "InstructionBlock",
       messages: [
         {
-          type: "Message",
+          type: "InstructionMessage",
           parts: [
             {
               type: "Text",

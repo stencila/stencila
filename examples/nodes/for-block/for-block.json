@@ -13,7 +13,7 @@
     },
     {
       "type": "ForBlock",
-      "symbol": "item",
+      "variable": "item",
       "code": "[1,2,3]",
       "content": [
         {
@@ -42,7 +42,7 @@
     },
     {
       "type": "ForBlock",
-      "symbol": "item",
+      "variable": "item",
       "programmingLanguage": "python",
       "code": "[1,2,3]",
       "content": [
@@ -68,12 +68,12 @@
     },
     {
       "type": "ForBlock",
-      "symbol": "outer",
+      "variable": "outer",
       "code": "[['a', 'b'], ['c', 'd']]",
       "content": [
         {
           "type": "ForBlock",
-          "symbol": "inner",
+          "variable": "inner",
           "code": "outer",
           "content": [
             {
@@ -104,7 +104,7 @@
     },
     {
       "type": "ForBlock",
-      "symbol": "item",
+      "variable": "item",
       "code": "[]",
       "content": [
         {
@@ -140,7 +140,7 @@
     },
     {
       "type": "ForBlock",
-      "symbol": "item",
+      "variable": "item",
       "code": "[]",
       "content": [],
       "otherwise": []

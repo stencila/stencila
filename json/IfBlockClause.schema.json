@@ -22,7 +22,8 @@
   "core": [
     "id",
     "autoExec",
-    "programmingLanguage"
+    "programmingLanguage",
+    "isActive"
   ],
   "properties": {
     "type": {

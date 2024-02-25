@@ -160,9 +160,6 @@
           "@id": "schema:ItemList"
         },
         {
-          "@id": "schema:Message"
-        },
-        {
           "@id": "stencila:Admonition"
         },
         {
@@ -179,6 +176,9 @@
         },
         {
           "@id": "stencila:Instruction"
+        },
+        {
+          "@id": "stencila:InstructionMessage"
         },
         {
           "@id": "stencila:Math"
@@ -410,10 +410,10 @@
           "@id": "schema:CreativeWork"
         },
         {
-          "@id": "schema:Message"
+          "@id": "stencila:Directory"
         },
         {
-          "@id": "stencila:Directory"
+          "@id": "stencila:InstructionMessage"
         }
       ]
     },
@@ -517,6 +517,18 @@
       "@type": "rdfs:Property",
       "rdfs:label": "softwareVersion",
       "rdfs:comment": "Version of the software.",
+      "schema:domainIncludes": {
+        "@id": "schema:SoftwareApplication"
+      },
+      "schema:rangeIncludes": {
+        "@id": "schema:Text"
+      }
+    },
+    {
+      "@id": "schema:operatingSystem",
+      "@type": "rdfs:Property",
+      "rdfs:label": "operatingSystem",
+      "rdfs:comment": "Operating systems supported (e.g. Windows 7, OS X 10.6).",
       "schema:domainIncludes": {
         "@id": "schema:SoftwareApplication"
       },

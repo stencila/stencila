@@ -12,11 +12,18 @@ This document contains the help content for the `stencila` command-line program.
 * [`stencila log`↴](#stencila-log)
 * [`stencila inspect`↴](#stencila-inspect)
 * [`stencila convert`↴](#stencila-convert)
+* [`stencila execute`↴](#stencila-execute)
 * [`stencila serve`↴](#stencila-serve)
 * [`stencila assistants`↴](#stencila-assistants)
 * [`stencila repl`↴](#stencila-repl)
 * [`stencila test`↴](#stencila-test)
+* [`stencila secrets`↴](#stencila-secrets)
+* [`stencila secrets list`↴](#stencila-secrets-list)
+* [`stencila secrets set`↴](#stencila-secrets-set)
+* [`stencila secrets delete`↴](#stencila-secrets-delete)
 * [`stencila config`↴](#stencila-config)
+* [`stencila upgrade`↴](#stencila-upgrade)
+* [`stencila uninstall`↴](#stencila-uninstall)
 
 ## `stencila`
 
@@ -33,11 +40,15 @@ CLI subcommands and global options
 * `log` — Display the history of commits to the document
 * `inspect` — Inspect a document as JSON
 * `convert` — Convert a document between formats
+* `execute` — Execute a document
 * `serve` — Serve
 * `assistants` — List the available AI assistants
 * `repl` — A read-evaluate-print loop for AI assistants
 * `test` — 
+* `secrets` — Manage secrets used by Stencila (e.g. API keys)
 * `config` — 
+* `upgrade` — Upgrade to the latest version
+* `uninstall` — Uninstall this command line tool
 
 ###### **Options:**
 
@@ -49,7 +60,7 @@ CLI subcommands and global options
 
 * `--log-filter <LOG_FILTER>` — A filter for log entries
 
-  Default value: `hyper=info,mio=info,reqwest=info,tokio=info,tungstenite=info`
+  Default value: `hyper=info,mio=info,ort=error,reqwest=info,tokio=info,tungstenite=info`
 * `--log-format <LOG_FORMAT>` — The log format to use
 
   Default value: `auto`
@@ -323,6 +334,19 @@ Convert a document between formats
 
 
 
+## `stencila execute`
+
+Execute a document
+
+**Usage:** `stencila execute <INPUT> [OUTPUT]`
+
+###### **Arguments:**
+
+* `<INPUT>` — The path of the file to execute
+* `<OUTPUT>` — The path of the file to write the executed document to
+
+
+
 ## `stencila serve`
 
 Serve
@@ -422,6 +446,54 @@ Mainly intended for prompt engineering during development of Stencila.
 
 
 
+## `stencila secrets`
+
+Manage secrets used by Stencila (e.g. API keys)
+
+**Usage:** `stencila secrets [COMMAND]`
+
+###### **Subcommands:**
+
+* `list` — List the secrets used by Stencila
+* `set` — Set a secret used by Stencila
+* `delete` — Delete a secret previously set using Stencila
+
+
+
+## `stencila secrets list`
+
+List the secrets used by Stencila
+
+**Usage:** `stencila secrets list`
+
+
+
+## `stencila secrets set`
+
+Set a secret used by Stencila
+
+You will be prompted for the secret
+
+**Usage:** `stencila secrets set <NAME>`
+
+###### **Arguments:**
+
+* `<NAME>` — The name of the secret
+
+
+
+## `stencila secrets delete`
+
+Delete a secret previously set using Stencila
+
+**Usage:** `stencila secrets delete <NAME>`
+
+###### **Arguments:**
+
+* `<NAME>` — The name of the secret
+
+
+
 ## `stencila config`
 
 **Usage:** `stencila config [OPTIONS]`
@@ -438,6 +510,33 @@ Mainly intended for prompt engineering during development of Stencila.
 
   Possible values: `true`, `false`
 
+
+
+
+## `stencila upgrade`
+
+Upgrade to the latest version
+
+**Usage:** `stencila upgrade [OPTIONS]`
+
+###### **Options:**
+
+* `-f`, `--force` — Perform upgrade even if the current version is the latest
+
+  Possible values: `true`, `false`
+
+* `-c`, `--check` — Check for an available upgrade but do not install it
+
+  Possible values: `true`, `false`
+
+
+
+
+## `stencila uninstall`
+
+Uninstall this command line tool
+
+**Usage:** `stencila uninstall`
 
 
 

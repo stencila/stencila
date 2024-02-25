@@ -154,7 +154,7 @@ content:
       value: This is a figure
 - type: ForBlock
   code: items
-  symbol: item
+  variable: item
   content:
   - type: Paragraph
     content:

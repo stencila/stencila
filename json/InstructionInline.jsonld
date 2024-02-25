@@ -210,7 +210,7 @@
         "@id": "stencila:Instruction"
       },
       "schema:rangeIncludes": {
-        "@id": "schema:Message"
+        "@id": "stencila:InstructionMessage"
       }
     },
     {
@@ -250,9 +250,6 @@
           "@id": "schema:ItemList"
         },
         {
-          "@id": "schema:Message"
-        },
-        {
           "@id": "stencila:Admonition"
         },
         {
@@ -269,6 +266,9 @@
         },
         {
           "@id": "stencila:Instruction"
+        },
+        {
+          "@id": "stencila:InstructionMessage"
         },
         {
           "@id": "stencila:Math"
@@ -306,9 +306,6 @@
           "@id": "schema:ListItem"
         },
         {
-          "@id": "schema:Message"
-        },
-        {
           "@id": "stencila:Admonition"
         },
         {
@@ -337,6 +334,9 @@
         },
         {
           "@id": "stencila:InstructionInline"
+        },
+        {
+          "@id": "stencila:InstructionMessage"
         },
         {
           "@id": "stencila:Link"

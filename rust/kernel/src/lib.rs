@@ -33,8 +33,18 @@ pub trait Kernel: Sync + Send {
     /// Get the availability of the kernel on the current machine
     fn availability(&self) -> KernelAvailability;
 
+    /// Is the kernel available on the current machine
+    fn is_available(&self) -> bool {
+        matches!(self.availability(), KernelAvailability::Available)
+    }
+
     /// Get the languages supported by the kernel
     fn supports_languages(&self) -> Vec<Format>;
+
+    /// Does the kernel support a particular language?
+    fn supports_language(&self, format: &Format) -> bool {
+        self.supports_languages().contains(format)
+    }
 
     /// Does the kernel support the interrupt signal?
     fn supports_interrupt(&self) -> KernelInterrupt;

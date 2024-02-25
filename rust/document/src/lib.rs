@@ -18,6 +18,7 @@ use common::{
     type_safe_id::{StaticType, TypeSafeId},
 };
 use format::Format;
+use kernels::Kernels;
 use node_store::{inspect_store, load_store, ReadNode, WriteNode, WriteStore};
 use schema::{Article, Node};
 
@@ -121,6 +122,8 @@ pub struct LogEntry {
     pub message: String,
 }
 
+type DocumentKernels = Arc<RwLock<Kernels>>;
+
 type DocumentStore = Arc<RwLock<WriteStore>>;
 
 type DocumentWatchSender = watch::Sender<Node>;
@@ -150,6 +153,9 @@ pub struct Document {
     /// The document's id
     id: DocumentId,
 
+    /// The document's execution kernels
+    kernels: DocumentKernels,
+
     /// The document's Automerge store with a [`Node`] at its root
     store: DocumentStore,
 
@@ -172,6 +178,8 @@ impl Document {
     fn init(store: WriteStore, path: Option<PathBuf>) -> Result<Self> {
         let id = DocumentId::new();
 
+        let kernels = DocumentKernels::default();
+
         let node = Node::load(&store)?;
 
         let (watch_sender, watch_receiver) = watch::channel(node);
@@ -185,6 +193,7 @@ impl Document {
 
         Ok(Self {
             id,
+            kernels,
             store,
             path,
             watch_receiver,
@@ -435,5 +444,20 @@ impl Document {
             .collect_vec();
 
         Ok(entries)
+    }
+
+    /// Execute the document
+    #[tracing::instrument(skip_all)]
+    pub async fn execute(&self) -> Result<()> {
+        tracing::trace!("Executing document");
+
+        let mut root = self.load().await?;
+        let mut kernels = self.kernels.write().await;
+
+        node_execute::execute(&mut root, &mut kernels).await?;
+
+        self.dump(&root).await?;
+
+        Ok(())
     }
 }

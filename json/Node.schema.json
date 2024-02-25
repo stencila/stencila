@@ -213,6 +213,9 @@
       "$ref": "InstructionInline.schema.json"
     },
     {
+      "$ref": "InstructionMessage.schema.json"
+    },
+    {
       "$ref": "IntegerValidator.schema.json"
     },
     {
@@ -232,9 +235,6 @@
     },
     {
       "$ref": "MediaObject.schema.json"
-    },
-    {
-      "$ref": "Message.schema.json"
     },
     {
       "$ref": "ModifyBlock.schema.json"

@@ -9,9 +9,9 @@ class ExecutionStatus(StrEnum):
     """
 
     Scheduled = "Scheduled"
-    ScheduledPreviouslyFailed = "ScheduledPreviouslyFailed"
+    Skipped = "Skipped"
+    Empty = "Empty"
     Running = "Running"
-    RunningPreviouslyFailed = "RunningPreviouslyFailed"
     Succeeded = "Succeeded"
     Failed = "Failed"
     Cancelled = "Cancelled"

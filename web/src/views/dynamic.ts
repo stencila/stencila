@@ -52,19 +52,21 @@ export class DynamicView extends ThemedView {
    * Override so that clients are instantiated _after_ this
    * element has a document `[data-root]` element in its `renderRoot`.
    */
-  override firstUpdated(changedProperties: Map<string, string | boolean>) {
-    super.firstUpdated(changedProperties)
+  override update(changedProperties: Map<string, string | boolean>): void {
+    super.update(changedProperties)
 
-    this.domClient = new DomClient(
-      this.doc,
-      this.renderRoot.firstElementChild as HTMLElement
-    )
+    if (changedProperties.has('doc')) {
+      this.domClient = new DomClient(
+        this.doc,
+        this.renderRoot.firstElementChild as HTMLElement
+      )
 
-    this.nodesClient = new NodesClient(
-      this.doc,
-      this.access,
-      this.renderRoot as HTMLElement
-    )
+      this.nodesClient = new NodesClient(
+        this.doc,
+        this.access,
+        this.renderRoot as HTMLElement
+      )
+    }
   }
 
   override render() {

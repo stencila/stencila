@@ -42,5 +42,7 @@ export type DocumentView =
  */
 export type MainContextEvent =
   | 'stencila-directory-toggle'
+  | 'stencila-open-document'
+  | 'stencila-close-document'
   | 'stencila-view-change'
   | 'stencila-settings-toggle'

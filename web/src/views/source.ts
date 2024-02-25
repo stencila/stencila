@@ -27,7 +27,7 @@ import {
   keymap,
   lineNumbers,
 } from '@codemirror/view'
-import { css as twCSS } from '@twind/core'
+import { apply, css as twCSS } from '@twind/core'
 import { html } from 'lit'
 import { customElement, property } from 'lit/decorators'
 import { ref, Ref, createRef } from 'lit/directives/ref'
@@ -40,7 +40,6 @@ import type { DocumentId, DocumentAccess } from '../types'
 import { TWLitElement } from '../ui/twind'
 
 import { bottomPanel } from './source/bottom-panel'
-import { editorStyles } from './source/editorStyles'
 import { statusGutter } from './source/gutters'
 import { infoSideBar } from './source/infoSideBar'
 import { autoWrapKeys } from './source/keyMaps'
@@ -85,6 +84,14 @@ export class SourceView extends TWLitElement {
   lineWrap: boolean = true
 
   /**
+   * Turn on/off the write only mode for the source view.
+   * This disables the SourceView instance from recieving
+   * and reacting to messages from the server.
+   */
+  @property({ attribute: 'write-only', type: Boolean })
+  writeOnly: boolean = false
+
+  /**
    * Where is this component rendered? Either as a single view or in a split
    * code & preview editor?
    */
@@ -119,6 +126,12 @@ export class SourceView extends TWLitElement {
    * `Compartment` for setting `CodeMirrorView.lineWrapping` extension
    */
   private lineWrappingConfig = new Compartment()
+
+  /**
+   * `Compartment` for setting codemirror extensions which rely
+   * on receiving messages from the `codeMirrorClient`
+   */
+  private clientRecieverConfig = new Compartment()
 
   /**
    * Array of CodeMirror `LanguageDescription` objects available for the edit view
@@ -249,6 +262,10 @@ export class SourceView extends TWLitElement {
 
     const lineWrapping = this.lineWrappingConfig.of(CodeMirrorView.lineWrapping)
 
+    const clientReceiver = this.clientRecieverConfig.of(
+      !this.writeOnly ? [statusGutter(this), infoSideBar(this)] : []
+    )
+
     const keyMaps = keymap.of([
       indentWithTab,
       ...historyKeymap,
@@ -264,14 +281,13 @@ export class SourceView extends TWLitElement {
         ? markdownHighlightStyle
         : defaultHighlightStyle
 
-    return [
+    const extensions = [
       langExt,
       keyMaps,
       history(),
       search({ top: true }),
       lineNumbers(),
       foldGutter(),
-      statusGutter(this),
       lineWrapping,
       autocompletion({ override: [this.stencilaCompleteOptions] }),
       dropCursor(),
@@ -283,9 +299,10 @@ export class SourceView extends TWLitElement {
       bracketMatching(),
       autocompletion(),
       bottomPanel(this),
-      infoSideBar(this),
-      editorStyles,
+      clientReceiver,
     ]
+
+    return extensions
   }
 
   /**
@@ -308,7 +325,7 @@ export class SourceView extends TWLitElement {
   override async update(changedProperties: Map<string, string | boolean>) {
     super.update(changedProperties)
 
-    if (changedProperties.has('format')) {
+    if (changedProperties.has('format') || changedProperties.has('doc')) {
       // Destroy the existing editor if there is one
       this.codeMirrorView?.destroy()
 
@@ -317,7 +334,8 @@ export class SourceView extends TWLitElement {
         this.codeMirrorClient = new CodeMirrorClient(
           this.doc,
           this.access,
-          this.format
+          this.format,
+          this.writeOnly
         )
 
         this.codeMirrorView = new CodeMirrorView({
@@ -333,6 +351,17 @@ export class SourceView extends TWLitElement {
       this.dispatchEffect(
         this.lineWrappingConfig.reconfigure(
           this.lineWrap ? CodeMirrorView.lineWrapping : []
+        )
+      )
+    }
+
+    if (changedProperties.has('writeOnly')) {
+      // set codeMirrorClient property
+      this.codeMirrorClient.writeOnly = this.writeOnly
+      // remove/add required extensions
+      this.dispatchEffect(
+        this.clientRecieverConfig.reconfigure(
+          !this.writeOnly ? [statusGutter(this), infoSideBar(this)] : []
         )
       )
     }
@@ -368,19 +397,33 @@ export class SourceView extends TWLitElement {
    * This needs to be defined outside of the static styles property, as we need
    * to be able to access the instance property "displayMode" to determine the
    * height to use.
+   *
+   * TODO: we need to be able to dynamically set the max-width based status of the
+   * directory sidebar
    */
   private get codeMirrorCSS() {
     return twCSS`
       .cm-editor {
         height: 100%;
-        max-width: calc(100vw-4rem);
+        color: black;
+        ${this.displayMode === 'single' ? 'max-width: calc(100vw - 4rem);' : ''}
       }
     `
   }
 
   protected override render() {
+    /* 
+      height offset for the source view container,
+      includes header height and tab container border
+    */
+    const heightOffset = '5rem-1px'
+
+    const styles = apply([
+      'relative',
+      `h-full max-h-[calc(100vh-${heightOffset})]`,
+    ])
     return html`
-      <div class="max-h-screen h-[calc(100vh-5rem)] relative">
+      <div class="${styles}">
         <div id="codemirror" class="h-full ${this.codeMirrorCSS}"></div>
       </div>
       <div hidden ${ref(this.domElement)}>

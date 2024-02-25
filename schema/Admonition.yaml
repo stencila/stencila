@@ -31,7 +31,7 @@ properties:
         description: Generate an arbitrary admonition type.
         strategy: AdmonitionType::arbitrary()
   title:
-    '@id': stencila:title
+    '@id': schema:headline
     description: The title of the admonition.
     type: array
     items:

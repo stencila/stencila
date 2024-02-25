@@ -9,9 +9,9 @@
 The `ExecutionStatus` type has these members:
 
 - `Scheduled`
-- `ScheduledPreviouslyFailed`
+- `Skipped`
+- `Empty`
 - `Running`
-- `RunningPreviouslyFailed`
 - `Succeeded`
 - `Failed`
 - `Cancelled`

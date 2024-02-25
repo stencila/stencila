@@ -25,3 +25,7 @@ properties:
     '@id': schema:softwareVersion
     description: Version of the software.
     type: string
+  operatingSystem:
+    '@id': schema:operatingSystem
+    description: Operating systems supported (e.g. Windows 7, OS X 10.6).
+    type: string

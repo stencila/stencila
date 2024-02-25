@@ -10,6 +10,8 @@ markdown:
 proptest: {}
 required:
   - content
+core:
+  - isActive
 properties:
   isActive:
     '@id': stencila:isActive

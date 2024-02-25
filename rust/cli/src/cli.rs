@@ -23,6 +23,7 @@ use server::{serve, ServeOptions};
 use crate::{
     display,
     logging::{LoggingFormat, LoggingLevel},
+    uninstall, upgrade,
 };
 
 /// CLI subcommands and global options
@@ -43,7 +44,7 @@ pub struct Cli {
     /// syntax such as `tokio=debug`.
     #[arg(
         long,
-        default_value = "hyper=info,mio=info,reqwest=info,tokio=info,tungstenite=info",
+        default_value = "hyper=info,mio=info,ort=error,reqwest=info,tokio=info,tungstenite=info",
         global = true
     )]
     pub log_filter: String,
@@ -245,6 +246,20 @@ enum Command {
         strip_options: StripOptions,
     },
 
+    /// Execute a document
+    #[command(alias = "exec")]
+    Execute {
+        /// The path of the file to execute
+        ///
+        /// If not supplied the input content is read from `stdin`.
+        input: PathBuf,
+
+        /// The path of the file to write the executed document to
+        ///
+        /// If not supplied the output content is written to `stdout`.
+        output: Option<PathBuf>,
+    },
+
     /// Serve
     Serve(ServeOptions),
 
@@ -275,7 +290,12 @@ enum Command {
         reps: u16,
     },
 
+    Secrets(secrets::cli::Cli),
+
     Config(ConfigOptions),
+
+    Upgrade(upgrade::Cli),
+    Uninstall(uninstall::Cli),
 }
 
 /// Command line arguments for stripping nodes
@@ -561,6 +581,19 @@ impl Cli {
                 }
             }
 
+            Command::Execute { input, output } => {
+                let doc = Document::open(&input).await?;
+                doc.execute().await?;
+
+                let encode_options = codecs::EncodeOptions::default();
+                let format = encode_options.format.unwrap_or(Format::Text);
+
+                let content = doc.export(output.as_deref(), Some(encode_options)).await?;
+                if !content.is_empty() {
+                    display::highlighted(&content, format)?;
+                }
+            }
+
             Command::Serve(options) => serve(options).await?,
 
             Command::Assistants => {
@@ -701,11 +734,16 @@ impl Cli {
 
             Command::Test { path, reps } => assistants::testing::test_example(&path, reps).await?,
 
+            Command::Secrets(secrets) => secrets.run().await?,
+
             Command::Config(options) => {
                 // TODO: Make options.dir an option, and if it not there, show all folders.
                 let dir = app::get_app_dir(options.dir, options.ensure)?;
                 println!("{}", dir.display());
             }
+
+            Command::Upgrade(upgrade) => upgrade.run().await?,
+            Command::Uninstall(uninstall) => uninstall.run()?,
         }
 
         if wait {

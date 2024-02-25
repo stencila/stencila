@@ -2,7 +2,6 @@
 
 use crate::prelude::*;
 
-use super::array::Array;
 use super::author::Author;
 use super::automatic_execution::AutomaticExecution;
 use super::block::Block;
@@ -17,6 +16,7 @@ use super::execution_required::ExecutionRequired;
 use super::execution_status::ExecutionStatus;
 use super::execution_tag::ExecutionTag;
 use super::integer::Integer;
+use super::section::Section;
 use super::string::String;
 use super::timestamp::Timestamp;
 
@@ -67,11 +67,11 @@ pub struct ForBlock {
 
     /// The name to give to the variable representing each item in the iterated array
     #[strip(code)]
-    #[cfg_attr(feature = "proptest-min", proptest(value = r#"String::from("symbol")"#))]
+    #[cfg_attr(feature = "proptest-min", proptest(value = r#"String::from("item")"#))]
     #[cfg_attr(feature = "proptest-low", proptest(regex = r#"[a-zA-Z_][a-zA-Z0-9]{0,9}"#))]
     #[cfg_attr(feature = "proptest-high", proptest(regex = r#"[^\p{C}]{1,100}"#))]
     #[cfg_attr(feature = "proptest-max", proptest(strategy = r#"String::arbitrary()"#))]
-    pub symbol: String,
+    pub variable: String,
 
     /// The content to repeat for each item
     #[serde(deserialize_with = "one_or_many")]
@@ -100,7 +100,7 @@ pub struct ForBlock {
     #[strip(output)]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     #[dom(elem = "div")]
-    pub iterations: Option<Vec<Array>>,
+    pub iterations: Option<Vec<Section>>,
 
     /// Non-core optional fields
     #[serde(flatten)]
@@ -223,10 +223,10 @@ impl ForBlock {
         NodeId::new(Self::NICK, &self.uid)
     }
     
-    pub fn new(code: Cord, symbol: String, content: Vec<Block>) -> Self {
+    pub fn new(code: Cord, variable: String, content: Vec<Block>) -> Self {
         Self {
             code,
-            symbol,
+            variable,
             content,
             ..Default::default()
         }

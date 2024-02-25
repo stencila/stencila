@@ -1,3 +1,7 @@
+import '@shoelace-style/shoelace/dist/components/icon/icon'
+import '@shoelace-style/shoelace/dist/components/tree/tree'
+import '@shoelace-style/shoelace/dist/components/tree-item/tree-item'
+
 import type { File, Directory } from '@stencila/types'
 import { css } from '@twind/core'
 import { LitElement, TemplateResult, html } from 'lit'
@@ -7,6 +11,8 @@ import { DirectoryClient } from '../clients/directory'
 import { ObjectClient } from '../clients/object'
 import { config, withTwind } from '../twind'
 import type { DocumentId } from '../types'
+
+import '../ui/buttons/icon'
 
 /**
  * Tree view of a directory
@@ -57,7 +63,7 @@ export class DirectoryView extends LitElement {
     super.connectedCallback()
 
     if (this.doc === undefined) {
-      this.doc = await DirectoryView.openFile('*')
+      this.doc = await DirectoryView.openPath('*')
     }
 
     this.objectClient = new ObjectClient(this.doc)
@@ -70,7 +76,7 @@ export class DirectoryView extends LitElement {
   }
 
   /**
-   * Open a file on the server
+   * Open a document by path on the server
    *
    * Returns the id of the document which can be used to open a view for the
    * document (by setting the `doc` attribute of the view element) e.g.
@@ -80,14 +86,38 @@ export class DirectoryView extends LitElement {
    *
    * @param path The path of the file
    */
-  static async openFile(path: string): Promise<DocumentId> {
-    const response = await fetch('/~open/' + path)
+  static async openPath(path: string): Promise<DocumentId> {
+    const response = await fetch(`/~open/${path}`)
     if (response.status !== 200) {
       // TODO: Better error handling
       console.error(response)
     }
     const doc = await response.json()
     return doc.id
+  }
+
+  /**
+   * A handler for when a user requests a file to be opened by clicking
+   * on a tree item.
+   *
+   * @param file The `File` node to be opened
+   */
+  openFile(file: File) {
+    const event = new CustomEvent('stencila-open-document', {
+      bubbles: true,
+      composed: true,
+      detail: file,
+    })
+    this.dispatchEvent(event)
+  }
+
+  /**
+   * Close a document on the server
+   *
+   * @param path The id of the document
+   */
+  static async closeDocument(docId: DocumentId) {
+    await fetch(`/~close/${docId}`, { method: 'POST' })
   }
 
   /**
@@ -135,8 +165,11 @@ export class DirectoryView extends LitElement {
   override render() {
     return html`
       <nav class="py-2 px-4 flex justify-end space-x-2">
+        <!--
+        TODO: Implement these buttons. See https://github.com/stencila/stencila/issues/2045
         <stencila-ui-icon-button icon="add-directory"></stencila-ui-icon-button>
         <stencila-ui-icon-button icon="add-file"></stencila-ui-icon-button>
+        -->
       </nav>
       <div
         class="border-neutral-200 bg-white rounded-t border border-b-0 h-[calc(100vh-5rem)] overflow-y-scroll px-0 pb-2 w-full"
@@ -191,6 +224,7 @@ export class DirectoryView extends LitElement {
     return html`<sl-tree-item
       title=${file.name}
       class=${this.generateSelectedItemStyles()}
+      @click=${() => this.openFile(file)}
       ><sl-icon name="file"></sl-icon>
       ${this.renderLabel(file.name)}
     </sl-tree-item>`

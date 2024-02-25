@@ -1,4 +1,4 @@
-use std::{env, sync::Arc};
+use std::sync::Arc;
 
 use cached::proc_macro::cached;
 
@@ -13,10 +13,13 @@ use assistant::{
         tracing,
     },
     schema::MessagePart,
-    Assistant, AssistantIO, GenerateOptions, GenerateOutput, GenerateTask, InstructionMessage,
+    secrets, Assistant, AssistantIO, GenerateOptions, GenerateOutput, GenerateTask,
+    IsAssistantMessage,
 };
 
 const BASE_URL: &str = "https://api.mistral.ai/v1";
+
+/// The name of the env var or secret for the API key
 const API_KEY: &str = "MISTRAL_API_KEY";
 
 struct MistralAssistant {
@@ -109,7 +112,7 @@ impl Assistant for MistralAssistant {
         let response = self
             .client
             .post(format!("{BASE_URL}/chat/completions"))
-            .bearer_auth(env::var(API_KEY)?)
+            .bearer_auth(secrets::env_or_get(API_KEY)?)
             .json(&request)
             .send()
             .await?;
@@ -205,8 +208,8 @@ enum ChatRole {
 /// remote API need to be called to get a list of available models.
 #[cached(time = 3600, result = true)]
 pub async fn list() -> Result<Vec<Arc<dyn Assistant>>> {
-    let Ok(key) = env::var(API_KEY) else {
-        tracing::debug!("The {API_KEY} environment variable is not set");
+    let Ok(key) = secrets::env_or_get(API_KEY) else {
+        tracing::debug!("The environment variable or secret `{API_KEY}` is not available");
         return Ok(vec![]);
     };
 
@@ -250,7 +253,7 @@ mod tests {
     async fn list_assistants() -> Result<()> {
         let list = list().await?;
 
-        if env::var(API_KEY).is_err() {
+        if secrets::env_or_get(API_KEY).is_err() {
             assert_eq!(list.len(), 0)
         } else {
             assert!(!list.is_empty())
@@ -261,7 +264,7 @@ mod tests {
 
     #[tokio::test]
     async fn perform_task() -> Result<()> {
-        if env::var(API_KEY).is_err() {
+        if secrets::env_or_get(API_KEY).is_err() {
             return Ok(());
         }
 

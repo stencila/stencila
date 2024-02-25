@@ -6,7 +6,7 @@
       "type": "InstructionBlock",
       "messages": [
         {
-          "type": "Message",
+          "type": "InstructionMessage",
           "parts": [{ "type": "Text", "value": "4x10 table" }]
         }
       ]
@@ -16,7 +16,7 @@
       "assignee": "insert-table",
       "messages": [
         {
-          "type": "Message",
+          "type": "InstructionMessage",
           "parts": [
             {
               "type": "Text",
@@ -30,7 +30,7 @@
       "type": "InstructionBlock",
       "messages": [
         {
-          "type": "Message",
+          "type": "InstructionMessage",
           "parts": [{ "type": "Text", "value": "Improve this paragraph." }]
         }
       ],
@@ -46,7 +46,7 @@
       "assignee": "anne",
       "messages": [
         {
-          "type": "Message",
+          "type": "InstructionMessage",
           "parts": [
             { "type": "Text", "value": "please improve this paragraph." }
           ]

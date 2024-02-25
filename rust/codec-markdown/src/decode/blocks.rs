@@ -345,8 +345,8 @@ pub fn for_block(input: &str) -> IResult<&str, ForBlock> {
                 )),
             )),
         )),
-        |((symbol, expr), lang)| ForBlock {
-            symbol,
+        |((variable, expr), lang)| ForBlock {
+            variable,
             code: Cord::new(expr.trim()),
             programming_language: lang.map(|lang| lang.trim().to_string()),
             ..Default::default()
@@ -587,7 +587,7 @@ mod tests {
         assert_eq!(
             for_block("::: for item in expr").unwrap().1,
             ForBlock {
-                symbol: "item".to_string(),
+                variable: "item".to_string(),
                 code: "expr".into(),
                 ..Default::default()
             }
@@ -597,7 +597,7 @@ mod tests {
         assert_eq!(
             for_block(":::for item  in    expr").unwrap().1,
             ForBlock {
-                symbol: "item".to_string(),
+                variable: "item".to_string(),
                 code: "expr".into(),
                 ..Default::default()
             }
@@ -607,7 +607,7 @@ mod tests {
         assert_eq!(
             for_block("::: for item in expr {python}").unwrap().1,
             ForBlock {
-                symbol: "item".to_string(),
+                variable: "item".to_string(),
                 code: "expr".into(),
                 programming_language: Some("python".to_string()),
                 ..Default::default()
@@ -618,7 +618,7 @@ mod tests {
         assert_eq!(
             for_block("::: for i in 1:10").unwrap().1,
             ForBlock {
-                symbol: "i".to_string(),
+                variable: "i".to_string(),
                 code: "1:10".into(),
                 ..Default::default()
             }
@@ -628,7 +628,7 @@ mod tests {
                 .unwrap()
                 .1,
             ForBlock {
-                symbol: "row".to_string(),
+                variable: "row".to_string(),
                 code: "select * from table".into(),
                 programming_language: Some("sql".to_string()),
                 ..Default::default()

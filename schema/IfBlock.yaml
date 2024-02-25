@@ -17,6 +17,7 @@ properties:
     items:
       $ref: IfBlockClause
     strip: [code]
+    walk: true
     dom:
       elem: div
     html:

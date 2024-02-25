@@ -16,7 +16,7 @@ properties:
       and potentially further instructions for refinement by the user.
     type: array
     items:
-      $ref: Message
+      $ref: InstructionMessage
     dom:
       elem: div
   candidates:
