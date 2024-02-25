@@ -46,8 +46,7 @@ impl fmt::Debug for Kernels {
 impl Kernels {
     /// Create a kernel instance
     ///
-    /// The `language` argument can be the name of a programming language, or
-    /// the id of an existing kernel.
+    /// The `language` argument can be the name of a kernel or a programming language
     async fn create_instance(&mut self, language: Option<&str>) -> Result<&mut dyn KernelInstance> {
         let kernel = match language {
             Some(language) => 'block: {
@@ -65,7 +64,7 @@ impl Kernels {
                     }
                 }
 
-                bail!("No kernel available with id, or that supports language, `{language}`")
+                bail!("No kernel available with name, or that supports language, `{language}`")
             }
             None => default(),
         };
