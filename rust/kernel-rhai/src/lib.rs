@@ -40,7 +40,7 @@ pub struct RhaiKernel {
 }
 
 impl Kernel for RhaiKernel {
-    fn id(&self) -> String {
+    fn name(&self) -> String {
         "rhai".to_string()
     }
 
@@ -72,9 +72,9 @@ impl Kernel for RhaiKernel {
         // Assign an id for the instance using the index, if necessary, to ensure it is unique
         let index = self.instances.fetch_add(1, Ordering::SeqCst);
         let id = if index == 0 {
-            self.id()
+            self.name()
         } else {
-            format!("{}-{index}", self.id())
+            format!("{}-{index}", self.name())
         };
 
         Ok(Box::new(RhaiKernelInstance::new(id)))
@@ -106,7 +106,7 @@ pub struct RhaiKernelInstance<'lt> {
 
 #[async_trait]
 impl<'lt> KernelInstance for RhaiKernelInstance<'lt> {
-    fn id(&self) -> String {
+    fn name(&self) -> String {
         self.id.clone()
     }
 
@@ -135,7 +135,7 @@ impl<'lt> KernelInstance for RhaiKernelInstance<'lt> {
 
         let status = self.get_status();
         if status != KernelStatus::Ready {
-            bail!("Kernel `{}` is not ready; status is `{status}`", self.id())
+            bail!("Kernel `{}` is not ready; status is `{status}`", self.name())
         }
 
         self.set_status(KernelStatus::Busy)?;
@@ -196,7 +196,7 @@ impl<'lt> KernelInstance for RhaiKernelInstance<'lt> {
 
         let status = self.get_status();
         if status != KernelStatus::Ready {
-            bail!("Kernel `{}` is not ready; status is `{status}`", self.id())
+            bail!("Kernel `{}` is not ready; status is `{status}`", self.name())
         }
 
         if code.trim().is_empty() {
@@ -385,7 +385,7 @@ impl<'lt> RhaiKernelInstance<'lt> {
             if status != *previous {
                 tracing::trace!(
                     "Status of `{}` kernel changed from `{previous}` to `{status}`",
-                    self.id()
+                    self.name()
                 );
                 *previous = status;
                 true

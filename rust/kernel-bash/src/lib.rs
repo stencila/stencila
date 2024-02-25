@@ -13,7 +13,7 @@ pub struct BashKernel {
 }
 
 impl Kernel for BashKernel {
-    fn id(&self) -> String {
+    fn name(&self) -> String {
         "bash".to_string()
     }
 

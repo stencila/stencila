@@ -13,7 +13,7 @@ pub struct NodeKernel {
 }
 
 impl Kernel for NodeKernel {
-    fn id(&self) -> String {
+    fn name(&self) -> String {
         "node".to_string()
     }
 

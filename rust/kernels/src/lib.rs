@@ -54,7 +54,7 @@ impl Kernels {
                 let format = Format::from_name(language).ok();
 
                 for kernel in list() {
-                    if kernel.id() == language {
+                    if kernel.name() == language {
                         break 'block kernel;
                     }
 
@@ -99,7 +99,7 @@ impl Kernels {
                 return Ok(Some(instance.as_mut()));
             };
 
-            if instance.id() == language {
+            if instance.name() == language {
                 return Ok(Some(instance.as_mut()));
             }
 
