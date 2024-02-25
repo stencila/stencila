@@ -135,7 +135,10 @@ impl<'lt> KernelInstance for RhaiKernelInstance<'lt> {
 
         let status = self.get_status();
         if status != KernelStatus::Ready {
-            bail!("Kernel `{}` is not ready; status is `{status}`", self.name())
+            bail!(
+                "Kernel `{}` is not ready; status is `{status}`",
+                self.name()
+            )
         }
 
         self.set_status(KernelStatus::Busy)?;
@@ -196,7 +199,10 @@ impl<'lt> KernelInstance for RhaiKernelInstance<'lt> {
 
         let status = self.get_status();
         if status != KernelStatus::Ready {
-            bail!("Kernel `{}` is not ready; status is `{status}`", self.name())
+            bail!(
+                "Kernel `{}` is not ready; status is `{status}`",
+                self.name()
+            )
         }
 
         if code.trim().is_empty() {
@@ -231,6 +237,7 @@ impl<'lt> KernelInstance for RhaiKernelInstance<'lt> {
             name: "Rhai".to_string(),
             options: Box::new(SoftwareApplicationOptions {
                 software_version: Some("1".to_string()),
+                operating_system: Some(std::env::consts::OS.to_string()),
                 ..Default::default()
             }),
             ..Default::default()
@@ -675,6 +682,7 @@ b",
         assert_eq!(sw.name, "Rhai");
         assert!(sw.options.software_version.is_some());
         assert!(sw.options.software_version.unwrap().starts_with('1'));
+        assert!(sw.options.operating_system.is_some());
 
         Ok(())
     }
