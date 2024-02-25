@@ -91,17 +91,36 @@ interrupt <- function(condition, error_type = "Interrupt") message("Code executi
 
 # Serialize an R object as JSON
 to_json <- function(value) {
-  if (is.data.frame(value)) {
-    value <- dataframe_to_datatable(value)
-  } 
-  
-  toJSON(
-    value,
-    auto_unbox = TRUE,
-    force = TRUE,
-    null = "null",
-    na = "null"
-  )
+  if (inherits(value, "recordedplot") || inherits(value, "ggplot")) {
+    toJSON(plot_to_image_object(value))
+  } else if (inherits(value, "table")) {
+    # The functions `summary` and `table` return class "table" results
+    # Currently, just "print" them. In the future, we may convert these to Datatables.
+    toJSON(unbox(paste(utils::capture.output(base::print(value)), collapse = "\n")))
+  } else if (is.data.frame(value)) {
+    toJSON(dataframe_to_datatable(value), na = "null")
+  } else if (
+    is.null(value) ||
+    is.logical(value) ||
+    is.numeric(value) ||
+    is.character(value) ||
+    is.matrix(value) ||
+    is.array(value) ||
+    is.vector(value) ||
+    is.list(value)
+  ) {
+    # Return value because, for these types, `toJSON()` will convert
+    # to the appropriate JSON type e.g. a matrix to an array of arrays
+    toJSON(
+      value,
+      auto_unbox = TRUE,
+      force = TRUE,
+      null = "null",
+      na = "null"
+    )
+  } else {
+    toJSON(unbox(paste(utils::capture.output(base::print(value)), collapse = "\n")))
+  }
 }
 
 # Deserialize an R object from JSON
@@ -249,6 +268,31 @@ dataframe_from_datatable <- function(dt) {
   as.data.frame(columns)
 }
 
+# Convert a R plot to an `ImageObject`
+plot_to_image_object <- function(value, options = list(), format = "png") {
+  # Create a new graphics device for the format, with a temporary path.
+  # The tempdir check is needed when forking.
+  filename <- tempfile(fileext = paste0(".", format), tmpdir = tempdir(check=TRUE))
+  width <- try(as.numeric(options$width))
+  height <- try(as.numeric(options$height))
+
+  func <- get(format)
+  func(
+    filename,
+    width = ifelse(is.numeric(width) && length(width) == 1, width, 10),
+    height = ifelse(is.numeric(height) && length(width) == 1, height, 10),
+    units = "cm",
+    res = 150
+  )
+  base::print(value)
+  grDevices::dev.off()
+
+  list(
+    type = unbox("ImageObject"),
+    contentUrl = unbox(paste0("data:image/", format, ";base64,", base64encode(filename)))
+  )
+}
+
 # Monkey patch `print` to encode individual objects
 print <- function(x, ...) write(paste0(to_json(x), END), stdout)
 
@@ -265,6 +309,20 @@ execute <- function(lines) {
   if (inherits(compiled, "simpleError")) {
     error(compiled, "SyntaxError")
   } else {
+    # Set a default graphics device to avoid window popping up or a `Rplot.pdf`
+    # polluting local directory. 
+    # `CairoPNG` is preferred instead of `png` to avoid "a forked child should not open a graphics device"
+    # which arises because X11 can not be used in a forked environment.
+    # The tempdir `check` is needed when forking.
+    file <- tempfile(tmpdir = tempdir(check=TRUE))
+    tryCatch(
+      Cairo::CairoPNG(file),
+      error = function(cond) png(file, type = "cairo")
+    )
+    # Device control must be enabled for recordPlot() to work
+    dev.control("enable")
+
+    # Execute the code
     value <- tryCatch(
       eval(compiled, envir, .GlobalEnv),
       message = info,
@@ -272,6 +330,18 @@ execute <- function(lines) {
       error = error,
       interrupt = interrupt
     )
+
+    # Ignore any values that are not visible
+    if (!withVisible(value)$visible) {
+      value <- NULL
+    }
+
+    # Capture plot and clear device
+    rec_plot <- recordPlot()
+    if (!is.null(rec_plot[[1]])) {
+      value <- rec_plot
+    }
+    dev.off()  
 
     if (!is.null(value)) {
       # Only return value if last line is not blank, a comment, or an assignment

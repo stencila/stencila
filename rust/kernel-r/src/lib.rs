@@ -372,155 +372,6 @@ para <- list(type='Paragraph', content=list())
         kernel_micro::tests::var_management(instance).await
     }
 
-    /// `RKernel` specific test for `list` and `get` with `numpy.ndarray`s
-    #[ignore]
-    #[test_log::test(tokio::test)]
-    async fn numpy() -> Result<()> {
-        let Some(mut instance) = start_instance::<RKernel>().await? else {
-            return Ok(());
-        };
-
-        let (.., messages) = instance
-            .execute(
-                "
-import numpy as np
-
-a1 = np.array([True, False], dtype=np.bool_)
-a2 = np.array([-1, 0, 1], dtype=np.int_)
-a3 = np.array([1, 2 , 3], dtype=np.uint)
-a4 = np.array([1.23, 4.56], dtype=np.float_)
-# TODO: implement handling for these
-#a5 = np.array(['2020-01-01', '2020-01-02', '2020-01-03'], dtype=np.datetime64)
-#a6 = np.array([], dtype=np.timedelta64)
-",
-            )
-            .await?;
-        assert_eq!(messages, []);
-
-        let list = instance.list().await?;
-
-        macro_rules! var {
-            ($name:expr) => {
-                list.iter().find(|var| var.name == $name).unwrap().clone()
-            };
-        }
-        macro_rules! get {
-            ($name:expr) => {
-                instance.get($name).await?.unwrap()
-            };
-        }
-
-        assert_eq!(
-            var!("a1"),
-            Variable {
-                name: "a1".to_string(),
-                native_type: Some("ndarray".to_string()),
-                node_type: Some("Array".to_string()),
-                hint: Some(Hint::ArrayHint(ArrayHint {
-                    length: 2,
-                    item_types: Some(vec!["Boolean".to_string()]),
-                    minimum: Some(Primitive::Boolean(false)),
-                    maximum: Some(Primitive::Boolean(true)),
-                    nulls: Some(0),
-                    ..Default::default()
-                })),
-                programming_language: Some("R".to_string()),
-                ..Default::default()
-            },
-        );
-        assert_eq!(
-            get!("a1"),
-            Node::Array(Array(vec![
-                Primitive::Boolean(true),
-                Primitive::Boolean(false)
-            ]))
-        );
-
-        assert_eq!(
-            var!("a2"),
-            Variable {
-                name: "a2".to_string(),
-                native_type: Some("ndarray".to_string()),
-                node_type: Some("Array".to_string()),
-                hint: Some(Hint::ArrayHint(ArrayHint {
-                    length: 3,
-                    item_types: Some(vec!["Integer".to_string()]),
-                    minimum: Some(Primitive::Integer(-1)),
-                    maximum: Some(Primitive::Integer(1)),
-                    nulls: Some(0),
-                    ..Default::default()
-                })),
-                programming_language: Some("R".to_string()),
-                ..Default::default()
-            },
-        );
-        assert_eq!(
-            get!("a2"),
-            Node::Array(Array(vec![
-                Primitive::Integer(-1),
-                Primitive::Integer(0),
-                Primitive::Integer(1)
-            ]))
-        );
-
-        assert_eq!(
-            var!("a3"),
-            Variable {
-                name: "a3".to_string(),
-                native_type: Some("ndarray".to_string()),
-                node_type: Some("Array".to_string()),
-                hint: Some(Hint::ArrayHint(ArrayHint {
-                    length: 3,
-                    item_types: Some(vec!["UnsignedInteger".to_string()]),
-                    minimum: Some(Primitive::Integer(1)),
-                    maximum: Some(Primitive::Integer(3)),
-                    nulls: Some(0),
-                    ..Default::default()
-                })),
-                programming_language: Some("R".to_string()),
-                ..Default::default()
-            },
-        );
-        assert_eq!(
-            get!("a3"),
-            Node::Array(Array(vec![
-                Primitive::Integer(1),
-                Primitive::Integer(2),
-                Primitive::Integer(3)
-            ]))
-        );
-
-        assert_eq!(
-            var!("a4"),
-            Variable {
-                name: "a4".to_string(),
-                native_type: Some("ndarray".to_string()),
-                node_type: Some("Array".to_string()),
-                hint: Some(Hint::ArrayHint(ArrayHint {
-                    length: 2,
-                    item_types: Some(vec!["Number".to_string()]),
-                    minimum: Some(Primitive::Number(1.23)),
-                    maximum: Some(Primitive::Number(4.56)),
-                    nulls: Some(0),
-                    ..Default::default()
-                })),
-                programming_language: Some("R".to_string()),
-                ..Default::default()
-            },
-        );
-        assert_eq!(
-            get!("a4"),
-            Node::Array(Array(vec![
-                Primitive::Number(1.23),
-                Primitive::Number(4.56)
-            ]))
-        );
-
-        // TODO: asserts for a5, a6
-
-        Ok(())
-    }
-
     /// `RKernel` specific test for `list` and `get` with `data.frame`s
     #[test_log::test(tokio::test)]
     async fn dataframe_list_get() -> Result<()> {
@@ -739,25 +590,15 @@ df1 = data.frame(
         Ok(())
     }
 
-    /// `RKernel` specific test for getting a `matplotlib` plot as output
-    #[ignore]
+    /// `RKernel` specific test for getting a `plot` as output
     #[test_log::test(tokio::test)]
-    async fn matplotlib() -> Result<()> {
+    async fn plot() -> Result<()> {
         let Some(mut instance) = start_instance::<RKernel>().await? else {
             return Ok(());
         };
 
-        let (outputs, messages) = instance
-            .execute(
-                "
-import matplotlib.pyplot as plt
-
-plt.plot([1, 2], [3, 4]);
-plt.show()",
-            )
-            .await?;
+        let (outputs, messages) = instance.execute("plot(1)").await?;
         assert_eq!(messages, []);
-
         assert_eq!(outputs.len(), 1);
 
         if let Some(Node::ImageObject(image)) = outputs.get(0) {
