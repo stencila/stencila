@@ -1036,6 +1036,7 @@ dependencies = [
  "document",
  "format",
  "is-terminal",
+ "kernels",
  "node-strip",
  "rustyline",
  "secrets",
