@@ -4,12 +4,13 @@
 # to be included here because they are configured in the root `Cargo.toml`.
 *
 !Cargo.*
-!rust
-!rust-toolchain.toml
+!package*.json
+!assistants/builtin
 !json/context.jsonld
 !node/Cargo.toml
 !node/src
 !python/Cargo.toml
 !python/src
-!package*.json
+!rust
+!rust-toolchain.toml
 !web
