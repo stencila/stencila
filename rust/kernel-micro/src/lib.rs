@@ -425,7 +425,7 @@ impl KernelInstance for MicrokernelInstance {
 
         match nodes.pop() {
             Some(Node::SoftwareApplication(node)) => Ok(node),
-            node => bail!("Expected a `SoftwareApplication`, got {node:?}"),
+            node => bail!("Expected a `SoftwareApplication`, got {node:#?}"),
         }
     }
 
@@ -438,7 +438,7 @@ impl KernelInstance for MicrokernelInstance {
             .into_iter()
             .map(|node| match node {
                 Node::SoftwareSourceCode(ssc) => Ok(ssc),
-                _ => bail!("Expected a `SoftwareSourceCode`, got {node:?}"),
+                _ => bail!("Expected a `SoftwareSourceCode`, got {node:#?}"),
             })
             .collect::<Result<Vec<_>>>()
     }
@@ -452,7 +452,7 @@ impl KernelInstance for MicrokernelInstance {
             .into_iter()
             .map(|node| match node {
                 Node::Variable(var) => Ok(var),
-                _ => bail!("Expected a `Variable`, got: {node:?}"),
+                _ => bail!("Expected a `Variable`, got: {node:#?}"),
             })
             .collect::<Result<Vec<_>>>()
     }
