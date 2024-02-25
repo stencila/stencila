@@ -138,7 +138,7 @@ impl Cli {
                         if let Some(filter) = &filter {
                             package.name.to_lowercase().contains(&filter.to_lowercase())
                         } else {
-                            false
+                            true
                         }
                     })
                     .sorted_by(|a, b| a.name.cmp(&b.name));
