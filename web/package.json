@@ -59,7 +59,7 @@
     "lint": "eslint 'src/**/*.ts' && prettier --check .",
     "test": "tsc --skipLibCheck --noEmit",
     "start": "parcel watch",
-    "build": "NODE_ENV=production parcel build --no-scope-hoist --log-level verbose",
+    "build": "cross-env NODE_ENV=production parcel build --no-scope-hoist --log-level verbose",
     "unused": "depcheck --quiet --ignores '@parcel/*,parcel-*,postcss-*,prosemirror-*' --ignore-patterns '.eslintrc*'"
   },
   "dependencies": {
@@ -101,6 +101,7 @@
     "@parcel/compressor-brotli": "2.11.0",
     "@parcel/compressor-gzip": "2.11.0",
     "@parcel/transformer-typescript-tsc": "2.11.0",
+    "cross-env": "7.0.3",
     "parcel": "2.11.0",
     "parcel-reporter-static-files-copy": "1.5.3",
     "postcss-import": "15.1.0",
