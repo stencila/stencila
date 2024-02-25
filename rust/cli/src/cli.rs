@@ -28,7 +28,7 @@ use crate::{
 
 /// CLI subcommands and global options
 #[derive(Debug, Parser)]
-#[command(name = "stencila", author, version, about, long_about)]
+#[command(name = "stencila", author, version, about, long_about, styles = Cli::styles())]
 pub struct Cli {
     #[command(subcommand)]
     command: Command,
@@ -65,6 +65,20 @@ pub struct Cli {
     /// Output a link to more easily report an issue
     #[arg(long, global = true)]
     pub error_link: bool,
+}
+
+impl Cli {
+    pub fn styles() -> clap::builder::Styles {
+        use clap::builder::styling::*;
+        Styles::styled()
+            .header(AnsiColor::Blue.on_default().bold())
+            .usage(AnsiColor::Cyan.on_default())
+            .literal(AnsiColor::Cyan.on_default())
+            .valid(AnsiColor::Green.on_default())
+            .invalid(AnsiColor::Yellow.on_default())
+            .error(AnsiColor::Red.on_default().bold())
+            .placeholder(AnsiColor::Green.on_default())
+    }
 }
 
 #[derive(Debug, Subcommand)]
