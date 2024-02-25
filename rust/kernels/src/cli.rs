@@ -10,15 +10,15 @@ use kernel::{
 
 use crate::list;
 
-/// Execution kernels
-#[derive(Parser)]
+/// Manage execution kernels
+#[derive(Debug, Parser)]
 pub struct Cli {
     #[command(subcommand)]
     command: Option<Command>,
 }
 
 /// A command to perform with kernels
-#[derive(Subcommand, Default)]
+#[derive(Debug, Subcommand, Default)]
 enum Command {
     /// List kernels available (default)
     #[default]
