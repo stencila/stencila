@@ -46,7 +46,7 @@ pub fn get_app_dir(dir_type: DirType, mut ensure: bool) -> Result<PathBuf> {
             DirType::Kernels => dirs.config_dir().join("kernels"),
         }
     };
-    
+
     if ensure && !dir.exists() {
         create_dir_all(dir.clone())?;
     }
