@@ -3040,7 +3040,6 @@ dependencies = [
  "app",
  "kernel",
  "nix 0.28.0",
- "which",
 ]
 
 [[package]]
