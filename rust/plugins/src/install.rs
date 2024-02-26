@@ -13,14 +13,18 @@ pub async fn install(name: &str) -> Result<()> {
     tracing::debug!("Installing plugin `{name}`");
 
     // Get the latest manifest for the plugin
-    let registry = Plugin::fetch_registry().await?;
-    let Some(url) = registry.get(name) else {
-        bail!("Plugin `{name}` not in registry");
+    let plugin = if name.starts_with("http://") || name.starts_with("https://") {
+        Plugin::fetch_manifest(name).await?
+    } else {
+        let registry = Plugin::fetch_registry().await?;
+        let Some(url) = registry.get(name) else {
+            bail!("Plugin `{name}` not in registry");
+        };
+        Plugin::fetch_manifest_with(name, url).await?
     };
-    let plugin = Plugin::fetch_manifest(name, url).await?;
 
     // If the plugin directory already exists then uninstall it
-    let dir = Plugin::plugin_dir(name, true)?;
+    let dir = Plugin::plugin_dir(&plugin.name, true)?;
     if dir.exists() {
         remove_dir_all(&dir).await?;
         create_dir_all(&dir).await?;
@@ -59,6 +63,9 @@ pub async fn install(name: &str) -> Result<()> {
 
 #[derive(Debug, Default, Args)]
 pub struct InstallArgs {
-    /// The name of the plugin to install
+    /// The name or URL of the plugin to install
+    ///
+    /// If a URL is supplied it should be a URL to the manifest TOML file of the plugin.
+    /// e.g. https://example.org/plugin/stencila-plugin.toml
     pub name: String,
 }

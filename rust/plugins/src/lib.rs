@@ -112,6 +112,15 @@ pub struct Plugin {
 
     /// The command to run the plugin
     command: String,
+
+
+    /// The plugin is not in the `plugins.toml` registry
+    ///
+    /// This is by default `false` but is set to `true` for installed
+    /// plugins that are found in the plugins dir but are not in the
+    /// registry.
+    #[serde(default)]
+    unregistered: bool,
 }
 
 impl Plugin {
@@ -274,8 +283,29 @@ impl Plugin {
         Ok(toml::from_str(&toml)?)
     }
 
+    /// Fetch the manifest for a plugin using a URL
+    pub async fn fetch_manifest(url: &str) -> Result<Self> {
+        {
+            let response = reqwest::get(url).await?;
+            if let Err(error) = response.error_for_status_ref() {
+                let message = response.text().await?;
+                bail!("While fetching plugin from {url}: {error}: {message}");
+            }
+
+            let toml = response.text().await?;
+            let plugin: Plugin = toml::from_str(&toml)
+                .map_err(|error| eyre!("While deserializing plugin: {error}"))?;
+
+            Ok::<Plugin, Report>(plugin)
+        }
+        .map_err(|error| eyre!("Error fetching manifest from {url}: {error}"))
+    }
+
     /// Fetch the manifest for a plugin using its URL in the registry
-    pub async fn fetch_manifest(name: &str, url: &str) -> Result<Self> {
+    ///
+    /// Checks that the name in the manifest is the same as supplied to
+    /// this function.
+    pub async fn fetch_manifest_with(name: &str, url: &str) -> Result<Self> {
         {
             let response = reqwest::get(url).await?;
             if let Err(error) = response.error_for_status_ref() {

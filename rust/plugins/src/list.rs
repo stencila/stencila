@@ -1,4 +1,7 @@
-use std::{fs, time::Duration};
+use std::{
+    fs::{self, read_dir},
+    time::Duration,
+};
 
 use app::{get_app_dir, DirType};
 use cli_utils::{
@@ -34,7 +37,8 @@ const CACHE_EXPIRY_SECS: u64 = 6 * 60 * 60;
 /// Filtering the list is possible, currently only using `options.installed`
 /// (but in the future may allow for text matching "search" filtering)
 pub async fn list(args: ListArgs) -> Result<PluginList> {
-    let cache = get_app_dir(DirType::Plugins, true)?.join("manifests.json");
+    let plugins_dir = get_app_dir(DirType::Plugins, true)?;
+    let cache = plugins_dir.join("manifests.json");
 
     let cache_has_expired = || {
         if let Ok(metadata) = fs::metadata(&cache) {
@@ -58,7 +62,7 @@ pub async fn list(args: ListArgs) -> Result<PluginList> {
         vec![]
     };
 
-    let plugins = if plugins.is_empty() {
+    let mut plugins = if plugins.is_empty() {
         tracing::info!("Refreshing list of plugins and their manifests");
 
         // Fetch the plugins list from the Stencila repo
@@ -70,7 +74,7 @@ pub async fn list(args: ListArgs) -> Result<PluginList> {
         // providing some visibility)
         let futures = plugins
             .iter()
-            .map(|(name, url)| async move { Plugin::fetch_manifest(name, url).await });
+            .map(|(name, url)| async move { Plugin::fetch_manifest_with(name, url).await });
 
         let plugins = future::join_all(futures)
             .await
@@ -86,13 +90,34 @@ pub async fn list(args: ListArgs) -> Result<PluginList> {
 
         // Write the list to cache
         tracing::debug!("Caching plugin manifests to {}", cache.display());
-        write(cache, serde_json::to_string(&plugins)?).await?;
+        write(cache, serde_json::to_string_pretty(&plugins)?).await?;
 
         plugins
     } else {
         plugins
     };
 
+    // Add plugins in plugins directory that are not in the registry list
+    for plugin_dir in read_dir(plugins_dir)?
+        .flatten()
+        .filter(|entry| entry.path().is_dir())
+    {
+        let plugin_name = plugin_dir.file_name().to_string_lossy().to_string();
+        if !plugins.iter().any(|plugin| plugin.name == plugin_name) {
+            match Plugin::read_manifest(&plugin_name) {
+                Ok(mut plugin) => {
+                    plugin.unregistered = true;
+                    plugins.push(plugin)
+                }
+                Err(error) => {
+                    tracing::warn!("Error reading manifest for plugin `{plugin_name}`: {error}");
+                    continue;
+                }
+            }
+        }
+    }
+
+    // Filter according to args
     let plugins = plugins
         .into_iter()
         .filter(|plugin| {
@@ -147,7 +172,11 @@ impl ToStdout for PluginList {
         for plugin in self.iter() {
             let (status, enabled) = plugin.availability();
             table.add_row([
-                Cell::new(&plugin.name).add_attribute(Attribute::Bold),
+                if plugin.unregistered {
+                    Cell::new(&[&plugin.name, "\n(unregistered)"].concat())
+                } else {
+                    Cell::new(&plugin.name).add_attribute(Attribute::Bold)
+                },
                 Cell::new(&plugin.description),
                 Cell::new(&plugin.home).fg(Color::Blue),
                 match status {

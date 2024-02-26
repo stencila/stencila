@@ -15,7 +15,7 @@ pub async fn uninstall(name: &str) -> Result<()> {
     let dir = Plugin::plugin_dir(name, false)?;
     if dir.exists() {
         remove_dir_all(dir).await?;
-        tracing::info!("Successfully uninstalled plugin {}", name);
+        tracing::info!("🗑️ Successfully uninstalled plugin {}", name);
     } else {
         tracing::warn!("Plugin {} does not appear to be installed", name);
     }
