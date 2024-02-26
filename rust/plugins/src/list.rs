@@ -1,3 +1,5 @@
+use std::{fs, time::Duration};
+
 use app::{get_app_dir, DirType};
 use cli_utils::{
     table::{self, Attribute, Cell, Color},
@@ -17,6 +19,9 @@ use common::{
 
 use crate::{Plugin, PluginEnabled, PluginStatus};
 
+/// The number of seconds before the cache of plugin manifests expires
+const CACHE_EXPIRY_SECS: u64 = 6 * 60 * 60;
+
 /// Get a list of plugins
 ///
 /// Fetches the `plugins.toml` file at the root of the Stencila repository
@@ -31,23 +36,28 @@ use crate::{Plugin, PluginEnabled, PluginStatus};
 pub async fn list(args: ListArgs) -> Result<PluginList> {
     let cache = get_app_dir(DirType::Plugins, true)?.join("manifests.json");
 
-    // TODO: check modification time of cache and ignore if more than X hrs old
-    let plugins = if !args.refresh && cache.exists() {
+    let cache_has_expired = || {
+        if let Ok(metadata) = fs::metadata(&cache) {
+            if let Ok(modified) = metadata.modified() {
+                if let Ok(elapsed) = modified.elapsed() {
+                    return elapsed > Duration::from_secs(CACHE_EXPIRY_SECS);
+                }
+            }
+        }
+        false
+    };
+    let plugins = if !args.refresh && cache.exists() && !cache_has_expired() {
         // If no errors reading or deserializing (e.g. due to change in fields in plugins) then
-        // return cached list
-        if let Some(list) = read_to_string(&cache)
+        // use cached list
+        read_to_string(&cache)
             .await
             .ok()
             .and_then(|json| serde_json::from_str(&json).ok())
-        {
-            list
-        } else {
-            vec![]
-        }
-    }  else {
+            .unwrap_or_default()
+    } else {
         vec![]
     };
-    
+
     let plugins = if plugins.is_empty() {
         tracing::info!("Refreshing list of plugins and their manifests");
 
