@@ -2080,9 +2080,9 @@ dependencies = [
 
 [[package]]
 name = "fastembed"
-version = "3.1.1"
+version = "3.1.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "18cdf23fa0727891526619109c65a61d0eaf3da4f8f19a891656beb442fb28f1"
+checksum = "11fc711bebca85e30d483250706c29d58ecde091747acba72aa86ff0b3130d7c"
 dependencies = [
  "anyhow",
  "hf-hub",
@@ -2091,6 +2091,7 @@ dependencies = [
  "rayon",
  "serde_json",
  "tokenizers",
+ "variant_count",
 ]
 
 [[package]]
@@ -6370,6 +6371,16 @@ name = "valuable"
 version = "0.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "830b7e5d4d90034032940e4ace0d9a9a057e7a45cd94e6c007832e39edb82f6d"
+
+[[package]]
+name = "variant_count"
+version = "1.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "aae2faf80ac463422992abf4de234731279c058aaf33171ca70277c98406b124"
+dependencies = [
+ "quote",
+ "syn 1.0.109",
+]
 
 [[package]]
 name = "vcpkg"
