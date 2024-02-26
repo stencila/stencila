@@ -15,14 +15,19 @@ use kernel_rhai::RhaiKernel;
 pub mod cli;
 
 /// Get a list of available kernels
-pub fn list() -> Vec<Box<dyn Kernel>> {
-    vec![
+pub async fn list() -> Vec<Box<dyn Kernel>> {
+    let mut kernels = vec![
         Box::<BashKernel>::default() as Box<dyn Kernel>,
         Box::<NodeKernel>::default() as Box<dyn Kernel>,
         Box::<PythonKernel>::default() as Box<dyn Kernel>,
         Box::<RKernel>::default() as Box<dyn Kernel>,
         Box::<RhaiKernel>::default() as Box<dyn Kernel>,
-    ]
+    ];
+
+    let provided_by_plugins = &mut plugins::kernels::list().await;
+    kernels.append(provided_by_plugins);
+
+    kernels
 }
 
 /// Get the default kernel (used when no language is specified)
@@ -52,7 +57,7 @@ impl Kernels {
             Some(language) => 'block: {
                 let format = Format::from_name(language).ok();
 
-                for kernel in list() {
+                for kernel in list().await {
                     if kernel.name() == language {
                         break 'block kernel;
                     }

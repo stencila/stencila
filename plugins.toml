@@ -1,7 +1,7 @@
-# Add plugins name and the URL to its manifest file in alphabeical order of name.
+# Add plugin name, and the URL to its `stencila-plugin.toml` file, in alphabeical order of name.
 #
-# The plugin name used here, should be the same as its manifest file.
-# If it is not the plugin will be ignored.
+# The plugin name used here, should be the same as its `stencila-plugin.toml` file.
+# If it is not, the plugin will be ignored.
 
 node-example = "https://raw.githubusercontent.com/stencila/plugin-example-node/main/stencila-plugin.toml"
 python-example = "https://raw.githubusercontent.com/stencila/plugin-example-python/main/stencila-plugin.toml"

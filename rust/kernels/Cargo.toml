@@ -11,3 +11,4 @@ kernel-node = { path = "../kernel-node" }
 kernel-python = { path = "../kernel-python" }
 kernel-r = { path = "../kernel-r" }
 kernel-rhai = { path = "../kernel-rhai" }
+plugins = { path = "../plugins" }

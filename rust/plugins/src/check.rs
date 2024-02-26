@@ -1,3 +1,4 @@
+use cli_utils::{message, Message};
 use common::{
     clap::{self, Args},
     eyre::Result,
@@ -6,9 +7,9 @@ use common::{
 
 use crate::{Plugin, PluginTransport};
 
-/// Install a plugin
+/// Check a plugin
 #[tracing::instrument]
-pub async fn check(name: &str, transport: Option<PluginTransport>) -> Result<()> {
+pub async fn check(name: &str, transport: Option<PluginTransport>) -> Result<Message> {
     tracing::debug!("Checking plugin `{name}`");
 
     let plugin = Plugin::read_manifest(name)?;
@@ -22,15 +23,14 @@ pub async fn check(name: &str, transport: Option<PluginTransport>) -> Result<()>
     // Stop the plugin instance
     instance.stop().await?;
 
-    tracing::info!(
+    Ok(message!(
         "💯 Successfully checked plugin `{}` version `{}`",
         plugin.name,
-        plugin.version,
-    );
-
-    Ok(())
+        plugin.version
+    ))
 }
 
+/// Check a plugin
 #[derive(Debug, Default, Args)]
 pub struct CheckArgs {
     /// The name of the plugin to install
@@ -38,4 +38,10 @@ pub struct CheckArgs {
 
     /// The message transport to check the plugin with
     pub transport: Option<PluginTransport>,
+}
+
+impl CheckArgs {
+    pub async fn run(self) -> Result<Message> {
+        check(&self.name, self.transport).await
+    }
 }

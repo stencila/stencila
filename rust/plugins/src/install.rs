@@ -1,3 +1,4 @@
+use cli_utils::{message, Message};
 use common::{
     clap::{self, Args},
     eyre::{bail, Result},
@@ -5,11 +6,11 @@ use common::{
     toml, tracing,
 };
 
-use crate::Plugin;
+use crate::{Plugin, MANIFEST_FILENAME};
 
 /// Install a plugin
 #[tracing::instrument]
-pub async fn install(name: &str) -> Result<()> {
+pub async fn install(name: &str) -> Result<Message> {
     tracing::debug!("Installing plugin `{name}`");
 
     // Get the latest manifest for the plugin
@@ -24,11 +25,13 @@ pub async fn install(name: &str) -> Result<()> {
     };
 
     // If the plugin directory already exists then uninstall it
-    let dir = Plugin::plugin_dir(&plugin.name, true)?;
+    let dir = Plugin::plugin_dir(&plugin.name, false)?;
     if dir.exists() {
         remove_dir_all(&dir).await?;
-        create_dir_all(&dir).await?;
     }
+
+    // Make sure the directory is present
+    create_dir_all(&dir).await?;
 
     // Do the install using the first compatible runtime
     for (runtime, version_req) in &plugin.runtimes {
@@ -49,18 +52,17 @@ pub async fn install(name: &str) -> Result<()> {
     // Write the manifest into the dir
     // Do this last, when everything else has succeeded, because if this
     // file is present the plugin is assumed to be installed
-    let manifest = dir.join("manifest.toml");
+    let manifest = dir.join(MANIFEST_FILENAME);
     write(&manifest, toml::to_string(&plugin)?).await?;
 
-    tracing::info!(
+    Ok(message!(
         "🚀 Successfully installed plugin `{}` version `{}`",
         plugin.name,
-        plugin.version,
-    );
-
-    Ok(())
+        plugin.version
+    ))
 }
 
+/// Install a plugin
 #[derive(Debug, Default, Args)]
 pub struct InstallArgs {
     /// The name or URL of the plugin to install
@@ -68,4 +70,10 @@ pub struct InstallArgs {
     /// If a URL is supplied it should be a URL to the manifest TOML file of the plugin.
     /// e.g. https://example.org/plugin/stencila-plugin.toml
     pub name: String,
+}
+
+impl InstallArgs {
+    pub async fn run(self) -> Result<Message> {
+        install(&self.name).await
+    }
 }

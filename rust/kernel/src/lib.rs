@@ -3,6 +3,7 @@ use std::path::Path;
 use common::{
     async_trait::async_trait,
     eyre::{bail, Result},
+    serde::{Deserialize, Serialize},
     strum::Display,
     tokio::sync::{mpsc, watch},
 };
@@ -63,8 +64,9 @@ pub trait Kernel: Sync + Send {
 }
 
 /// The availability of a kernel on the current machine
-#[derive(Display)]
+#[derive(Debug, Display, Clone, Copy, Serialize, Deserialize)]
 #[strum(serialize_all = "lowercase")]
+#[serde(rename_all = "lowercase", crate = "common::serde")]
 pub enum KernelAvailability {
     /// Available on this machine
     Available,
@@ -78,12 +80,14 @@ pub enum KernelAvailability {
 ///
 /// The interrupt signal is used to stop the execution task the
 /// kernel instance is current performing.
-#[derive(Display)]
+#[derive(Debug, Display, Default, Clone, Copy, Serialize, Deserialize)]
 #[strum(serialize_all = "lowercase")]
+#[serde(rename_all = "lowercase", crate = "common::serde")]
 pub enum KernelInterrupt {
     /// Kernel supports interrupt signal on this machine
     Yes,
     /// Kernel does not support interrupt signal on this machine
+    #[default]
     No,
 }
 
@@ -91,12 +95,14 @@ pub enum KernelInterrupt {
 ///
 /// The terminate signal is used to stop the kernel instance gracefully
 /// (e.g. completing any current execution tasks)
-#[derive(Display)]
+#[derive(Debug, Display, Default, Clone, Copy, Serialize, Deserialize)]
 #[strum(serialize_all = "lowercase")]
+#[serde(rename_all = "lowercase", crate = "common::serde")]
 pub enum KernelTerminate {
     /// Kernel supports terminate signal on this machine
     Yes,
     /// Kernel does not support terminate signal on this machine
+    #[default]
     No,
 }
 
@@ -104,22 +110,26 @@ pub enum KernelTerminate {
 ///
 /// The kill signal is used to stop the kernel instance forcefully
 /// (i.e. to exit immediately, aborting any current execution tasks)
-#[derive(Display)]
+#[derive(Debug, Display, Default, Clone, Copy, Serialize, Deserialize)]
 #[strum(serialize_all = "lowercase")]
+#[serde(rename_all = "lowercase", crate = "common::serde")]
 pub enum KernelKill {
     /// Kernel supports kill signal on this machine
     Yes,
     /// Kernel does not support kill signal on this machine
+    #[default]
     No,
 }
 
 /// Whether a kernel supports forking on the current machine
-#[derive(Display)]
+#[derive(Debug, Display, Default, Clone, Copy, Serialize, Deserialize)]
 #[strum(serialize_all = "lowercase")]
+#[serde(rename_all = "lowercase", crate = "common::serde")]
 pub enum KernelForks {
     /// Kernel supports forking on this machine
     Yes,
     /// Kernel does not support forking on this machine
+    #[default]
     No,
 }
 

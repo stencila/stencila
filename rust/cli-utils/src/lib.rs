@@ -11,6 +11,9 @@ use common::{serde::Serialize, serde_json};
 
 pub use rpassword;
 
+mod message;
+pub use message::*;
+
 pub mod table;
 
 /// A trait for displaying an object to stdout

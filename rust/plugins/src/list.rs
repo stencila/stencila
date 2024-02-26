@@ -36,7 +36,7 @@ const CACHE_EXPIRY_SECS: u64 = 6 * 60 * 60;
 ///
 /// Filtering the list is possible, currently only using `options.installed`
 /// (but in the future may allow for text matching "search" filtering)
-pub async fn list(args: ListArgs) -> Result<PluginList> {
+pub async fn list(args: ListArgs) -> Result<Vec<Plugin>> {
     let plugins_dir = get_app_dir(DirType::Plugins, true)?;
     let cache = plugins_dir.join("manifests.json");
 
@@ -98,15 +98,20 @@ pub async fn list(args: ListArgs) -> Result<PluginList> {
     };
 
     // Add plugins in plugins directory that are not in the registry list
-    for plugin_dir in read_dir(plugins_dir)?
+    // (i.e. installed from URL or using symlink)
+    for entry in read_dir(plugins_dir)?
         .flatten()
-        .filter(|entry| entry.path().is_dir())
+        .filter(|entry| entry.path().is_dir() || entry.path().is_symlink())
     {
-        let plugin_name = plugin_dir.file_name().to_string_lossy().to_string();
-        if !plugins.iter().any(|plugin| plugin.name == plugin_name) {
+        let plugin_name = entry.file_name().to_string_lossy().to_string();
+        let linked = entry.path().is_symlink();
+        let unregistered = !plugins.iter().any(|plugin| plugin.name == plugin_name);
+
+        if linked || unregistered {
             match Plugin::read_manifest(&plugin_name) {
                 Ok(mut plugin) => {
-                    plugin.unregistered = true;
+                    plugin.unregistered = unregistered;
+                    plugin.linked = linked;
                     plugins.push(plugin)
                 }
                 Err(error) => {
@@ -134,9 +139,10 @@ pub async fn list(args: ListArgs) -> Result<PluginList> {
         })
         .collect_vec();
 
-    Ok(PluginList(plugins))
+    Ok(plugins)
 }
 
+/// List plugins
 #[derive(Debug, Default, Args)]
 pub struct ListArgs {
     /// Force refresh of plugin manifests
@@ -160,6 +166,15 @@ pub struct ListArgs {
     enabled: bool,
 }
 
+impl ListArgs {
+    pub async fn run(self) -> Result<PluginList> {
+        Ok(PluginList(list(self).await?))
+    }
+}
+
+/// A list of plugins
+///
+/// Implements `ToStdout` for terminal display of the list
 #[derive(Default, Deref, Serialize, Deserialize)]
 #[serde(crate = "common::serde")]
 pub struct PluginList(Vec<Plugin>);
@@ -171,9 +186,20 @@ impl ToStdout for PluginList {
 
         for plugin in self.iter() {
             let (status, enabled) = plugin.availability();
+
+            let suffix = if plugin.unregistered && plugin.linked {
+                Some("(unregistered, linked)")
+            } else if plugin.unregistered {
+                Some("(unregistered)")
+            } else if plugin.linked {
+                Some("(linked)")
+            } else {
+                None
+            };
+
             table.add_row([
-                if plugin.unregistered {
-                    Cell::new(&[&plugin.name, "\n(unregistered)"].concat())
+                if let Some(suffix) = suffix {
+                    Cell::new(&[&plugin.name, "\n", suffix].concat())
                 } else {
                     Cell::new(&plugin.name).add_attribute(Attribute::Bold)
                 },

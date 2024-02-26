@@ -11,10 +11,12 @@ use std::{
 };
 
 use app::{get_app_dir, DirType};
+use kernels::PluginKernel;
+use list::{list, ListArgs};
 use semver::{Version, VersionReq};
 
 use common::{
-    eyre::{bail, eyre, OptionExt, Report, Result},
+    eyre::{bail, eyre, Context, OptionExt, Report, Result},
     itertools::Itertools,
     rand::{distributions::Alphanumeric, thread_rng, Rng},
     reqwest::{self, header, Client, Url},
@@ -36,12 +38,14 @@ pub mod cli;
 mod disable;
 mod enable;
 mod install;
+pub mod kernels;
+mod link;
 mod list;
 mod uninstall;
 
 /// The name of the manifest file within a plugin's installation
 /// directory. Changing this value will break existing installations.
-const MANIFEST_FILENAME: &str = "manifest.toml";
+pub const MANIFEST_FILENAME: &str = "stencila-plugin.toml";
 
 /// The name of the disabled indicator file within a plugin's installation
 /// directory. Changing this value will break enabled/disabled status
@@ -50,7 +54,9 @@ const DISABLED_FILENAME: &str = "disabled";
 
 /// The specification of a plugin
 ///
-/// This specification
+/// This specification provides details of the plugin, including
+/// its requirements, how to install it, how to run it, and the
+/// services it provides.
 #[derive(Debug, Deserialize, Serialize)]
 #[serde(crate = "common::serde")]
 pub struct Plugin {
@@ -113,7 +119,6 @@ pub struct Plugin {
     /// The command to run the plugin
     command: String,
 
-
     /// The plugin is not in the `plugins.toml` registry
     ///
     /// This is by default `false` but is set to `true` for installed
@@ -121,6 +126,17 @@ pub struct Plugin {
     /// registry.
     #[serde(default)]
     unregistered: bool,
+
+    /// The plugin is installed using a symbolic link to a local directory
+    ///
+    /// This is by default `false` but is set to `true` for installed
+    /// plugins that are found in the plugins dir with a symlink.
+    #[serde(default)]
+    linked: bool,
+
+    /// The execution kernels provided by the plugin
+    #[serde(default)]
+    kernels: Vec<PluginKernel>,
 }
 
 impl Plugin {
@@ -341,11 +357,25 @@ impl Plugin {
         Ok(dir)
     }
 
-    /// Read the plugin from its installed manifest
+    /// Read the plugin from a manifest file
+    pub fn read_manifest_from(path: &Path) -> Result<Self> {
+        let manifest = std::fs::read_to_string(&path)
+            .wrap_err_with(|| eyre!("While reading plugin from `{}`", path.display()))?;
+
+        let plugin = toml::from_str(&manifest)
+            .wrap_err_with(|| eyre!("While parsing plugin from `{}`", path.display()))?;
+
+        Ok(plugin)
+    }
+
+    /// Read the plugin from the manifest in ints directory
     pub fn read_manifest(name: &str) -> Result<Self> {
         let path = Plugin::plugin_dir(name, false)?.join(MANIFEST_FILENAME);
-        let manifest = std::fs::read_to_string(path)?;
-        Ok(toml::from_str(&manifest)?)
+        if !path.exists() {
+            bail!("Plugin `{name}` does not have a `{MANIFEST_FILENAME}` file")
+        }
+
+        Self::read_manifest_from(&path)
     }
 
     /// Read whether the plugin is enabled or not
@@ -584,6 +614,20 @@ pub enum PluginEnabled {
     NotApplicable,
     Yes,
     No,
+}
+
+/// Get a list of plugins available
+///
+/// Intended for modules in this crate to be able to infallibly
+/// get a list of plugins (to avoid breaking some other functionality)
+async fn plugins() -> Vec<Plugin> {
+    match list(ListArgs::default()).await {
+        Ok(plugins) => plugins,
+        Err(error) => {
+            tracing::warn!("While getting list of plugins: {error}");
+            return vec![];
+        }
+    }
 }
 
 /// A running instance of a plugin
