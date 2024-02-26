@@ -41,7 +41,7 @@ requires <- function() {
     # Add the lib to lib paths for any other installs in this session
     .libPaths(lib)
     for (pkg in install) {
-      install.packages(pkg, quiet = TRUE, repo = "https://cloud.r-project.org/")
+      install.packages(pkg, quiet = TRUE, repos = "https://cloud.r-project.org/")
       require(pkg, character.only = TRUE, quietly = TRUE)
     }
   }
