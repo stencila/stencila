@@ -39,7 +39,7 @@ import { markdownHighlightStyle } from '../languages/markdown'
 import type { DocumentId, DocumentAccess } from '../types'
 import { TWLitElement } from '../ui/twind'
 
-import { bottomPanel } from './source/bottom-panel'
+import { bottomPanel } from './source/bottomPanel'
 import { statusGutter } from './source/gutters'
 import { infoSideBar } from './source/infoSideBar'
 import { autoWrapKeys } from './source/keyMaps'
@@ -90,6 +90,13 @@ export class SourceView extends TWLitElement {
    */
   @property({ attribute: 'write-only', type: Boolean })
   writeOnly: boolean = false
+
+  /**
+   *  Turn on/off the node gutter markers.
+   *  Gutters will be disabled automatically in the "wite-only" mode.
+   */
+  @property({ attribute: 'gutter-markers' })
+  gutterMarkers: boolean = true
 
   /**
    * Where is this component rendered? Either as a single view or in a split
@@ -356,12 +363,24 @@ export class SourceView extends TWLitElement {
     }
 
     if (changedProperties.has('writeOnly')) {
-      // set codeMirrorClient property
-      this.codeMirrorClient.writeOnly = this.writeOnly
-      // remove/add required extensions
+      // set codeMirrorClient property if initiated
+      if (this.codeMirrorClient) {
+        this.codeMirrorClient.writeOnly = this.writeOnly
+      }
+      const extensions = []
+      if (!this.writeOnly) {
+        extensions.push(infoSideBar(this))
+        if (this.gutterMarkers) {
+          extensions.push(statusGutter(this))
+        }
+      }
+      this.dispatchEffect(this.clientRecieverConfig.reconfigure(extensions))
+    }
+
+    if (changedProperties.has('gutterMarkers')) {
       this.dispatchEffect(
         this.clientRecieverConfig.reconfigure(
-          !this.writeOnly ? [statusGutter(this), infoSideBar(this)] : []
+          this.gutterMarkers && !this.writeOnly ? statusGutter(this) : []
         )
       )
     }

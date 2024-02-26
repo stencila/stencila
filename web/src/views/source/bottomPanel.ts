@@ -54,8 +54,8 @@ class PanelElement extends LitElement {
 
     return html`
       <div class=${styles}>
-        ${this.renderLineWrapButton()} ${this.renderWriteOnlyButton()}
-        ${this.renderFormatSelect()}
+        ${this.renderLineWrapButton()}${this.renderGutterMarkerButton()}
+        ${this.renderWriteOnlyButton()}${this.renderFormatSelect()}
       </div>
     `
   }
@@ -70,6 +70,41 @@ class PanelElement extends LitElement {
         .clickEvent=${() =>
           (this.sourceView.lineWrap = !this.sourceView.lineWrap)}
         ?active=${this.sourceView.lineWrap}
+      ></stencila-ui-icon-button>
+    `
+  }
+
+  private renderGutterMarkerButton = () => {
+    const clickEvent = () => {
+      this.sourceView.gutterMarkers = !this.sourceView.gutterMarkers
+    }
+
+    return html`
+      <stencila-ui-icon-button
+        class="mr-2"
+        icon="gutter-markers"
+        type="toggle"
+        tooltip=${`Turn ${this.sourceView.gutterMarkers ? 'off' : 'on'} gutter markers`}
+        ?active=${this.sourceView.gutterMarkers}
+        ?disabled=${this.sourceView.writeOnly}
+        .clickEvent=${clickEvent}
+      ></stencila-ui-icon-button>
+    `
+  }
+
+  private renderWriteOnlyButton = () => {
+    const clickEvent = () =>
+      (this.sourceView.writeOnly = !this.sourceView.writeOnly)
+
+    return html`
+      <stencila-ui-icon-button
+        icon="write-only"
+        type="toggle"
+        tooltip=${`
+          Turn ${this.sourceView.writeOnly ? 'off' : 'on'} write only mode
+        `}
+        .clickEvent=${clickEvent}
+        ?active=${this.sourceView.writeOnly}
       ></stencila-ui-icon-button>
     `
   }
@@ -93,23 +128,6 @@ class PanelElement extends LitElement {
           )}
         </select>
       </sl-tooltip>
-    `
-  }
-
-  private renderWriteOnlyButton = () => {
-    const clickEvent = () =>
-      (this.sourceView.writeOnly = !this.sourceView.writeOnly)
-
-    return html`
-      <stencila-ui-icon-button
-        icon="write-only"
-        type="toggle"
-        tooltip=${`
-          Turn ${this.sourceView.writeOnly ? 'off' : 'on'} write only mode
-        `}
-        .clickEvent=${clickEvent}
-        ?active=${this.sourceView.writeOnly}
-      ></stencila-ui-icon-button>
     `
   }
 
