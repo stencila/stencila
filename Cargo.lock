@@ -3817,9 +3817,9 @@ dependencies = [
 
 [[package]]
 name = "ollama-rs"
-version = "0.1.6"
+version = "0.1.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "8d4afa0fc3b4baa5804364e94580210bed42caa6513e26ca2f4aca3e482578a1"
+checksum = "6ee48e21359d1a897e180d612319de5e348a9247629aefc1f73147d78b4b859c"
 dependencies = [
  "reqwest",
  "serde",
