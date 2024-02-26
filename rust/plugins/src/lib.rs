@@ -379,12 +379,19 @@ impl Plugin {
 
     /// Read the plugin from the manifest in ints directory
     pub fn read_manifest(name: &str) -> Result<Self> {
-        let path = Plugin::plugin_dir(name, false)?.join(MANIFEST_FILENAME);
-        if !path.exists() {
-            bail!("Plugin `{name}` does not have a `{MANIFEST_FILENAME}` file")
+        let dir = Plugin::plugin_dir(name, false)?;
+
+        let manifest = dir.join(MANIFEST_FILENAME);
+        if !manifest.exists() {
+            bail!("Plugin `{name}` does not have a `{MANIFEST_FILENAME}` file. Is it installed?")
         }
 
-        Self::read_manifest_from(&path)
+        let mut plugin = Self::read_manifest_from(&manifest)?;
+        if dir.is_symlink() {
+            plugin.linked = true;
+        }
+
+        Ok(plugin)
     }
 
     /// Read whether the plugin is enabled or not
