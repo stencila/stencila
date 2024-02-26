@@ -6,6 +6,8 @@ use common::{
 
 use crate::{
     check::{check, CheckArgs},
+    disable::{disable, DisableArgs},
+    enable::{enable, EnableArgs},
     install::{install, InstallArgs},
     list::{list, ListArgs},
     uninstall::{uninstall, UninstallArgs},
@@ -30,6 +32,12 @@ enum Command {
     /// Uninstall a plugin
     Uninstall(UninstallArgs),
 
+    /// Enable a plugin
+    Enable(EnableArgs),
+
+    /// Disable a plugin
+    Disable(DisableArgs),
+
     /// Check a plugin
     Check(CheckArgs),
 }
@@ -46,6 +54,8 @@ impl Cli {
             Command::List(options) => list(options).await?.to_stdout(),
             Command::Install(InstallArgs { name }) => install(&name).await?,
             Command::Uninstall(UninstallArgs { name }) => uninstall(&name).await?,
+            Command::Enable(EnableArgs { name }) => enable(&name).await?,
+            Command::Disable(DisableArgs { name }) => disable(&name).await?,
             Command::Check(CheckArgs { name, transport }) => check(&name, transport).await?,
         }
 

@@ -49,7 +49,7 @@ pub async fn install(name: &str) -> Result<()> {
     write(&manifest, toml::to_string(&plugin)?).await?;
 
     tracing::info!(
-        "Successfully installed plugin `{}` version `{}`",
+        "🚀 Successfully installed plugin `{}` version `{}`",
         plugin.name,
         plugin.version,
     );

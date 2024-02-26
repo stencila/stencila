@@ -23,7 +23,7 @@ pub async fn check(name: &str, transport: Option<PluginTransport>) -> Result<()>
     instance.stop().await?;
 
     tracing::info!(
-        "Successfully checked plugin `{}` version `{}`",
+        "💯 Successfully checked plugin `{}` version `{}`",
         plugin.name,
         plugin.version,
     );

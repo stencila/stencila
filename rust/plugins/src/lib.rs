@@ -1,7 +1,7 @@
 use std::{
     collections::HashMap,
     env,
-    fs::create_dir_all,
+    fs::{create_dir_all, remove_file, File},
     net::TcpListener,
     path::{Path, PathBuf},
     process::Stdio,
@@ -27,15 +27,26 @@ use common::{
         io::{AsyncBufReadExt, AsyncWriteExt, BufReader, BufWriter},
         process::{Child, ChildStdin, ChildStdout, Command},
     },
-    toml,
+    toml, tracing,
     which::which,
 };
 
 mod check;
 pub mod cli;
+mod disable;
+mod enable;
 mod install;
 mod list;
 mod uninstall;
+
+/// The name of the manifest file within a plugin's installation
+/// directory. Changing this value will break existing installations.
+const MANIFEST_FILENAME: &str = "manifest.toml";
+
+/// The name of the disabled indicator file within a plugin's installation
+/// directory. Changing this value will break enabled/disabled status
+/// for installed plugins.
+const DISABLED_FILENAME: &str = "disabled";
 
 /// The specification of a plugin
 ///
@@ -140,7 +151,7 @@ impl Plugin {
     where
         S: Serializer,
     {
-        serializer.serialize_str(&url.to_string())
+        serializer.serialize_str(url.as_ref())
     }
 
     /// Deserialize the supported runtimes specifications for a plugin
@@ -197,7 +208,7 @@ impl Plugin {
 
     /// Serialize the supported runtimes specifications for a plugin
     fn serialize_runtimes<S>(
-        runtimes: &Vec<(PluginRuntime, VersionReq)>,
+        runtimes: &[(PluginRuntime, VersionReq)],
         serializer: S,
     ) -> Result<S::Ok, S::Error>
     where
@@ -276,7 +287,7 @@ impl Plugin {
             let plugin: Plugin = toml::from_str(&toml)
                 .map_err(|error| eyre!("While deserializing plugin `{name}`: {error}"))?;
 
-            if &plugin.name != name {
+            if plugin.name != name {
                 bail!(
                     "Plugin name is not the same as in plugin list: `{}` != `{}`",
                     plugin.name,
@@ -302,40 +313,79 @@ impl Plugin {
 
     /// Read the plugin from its installed manifest
     pub fn read_manifest(name: &str) -> Result<Self> {
-        let manifest = Plugin::plugin_dir(name, false)?.join("manifest.toml");
-        let manifest = std::fs::read_to_string(manifest)?;
+        let path = Plugin::plugin_dir(name, false)?.join(MANIFEST_FILENAME);
+        let manifest = std::fs::read_to_string(path)?;
         Ok(toml::from_str(&manifest)?)
     }
 
-    /// The availability of the plugin on the current machine
-    pub fn availability(&self) -> PluginStatus {
+    /// Read whether the plugin is enabled or not
+    pub fn read_enabled(name: &str) -> Result<PluginEnabled> {
+        let path = Plugin::plugin_dir(name, false)?.join(DISABLED_FILENAME);
+        if path.exists() {
+            Ok(PluginEnabled::No)
+        } else {
+            Ok(PluginEnabled::Yes)
+        }
+    }
+
+    /// Disable the plugin on the current machine
+    pub fn disable(name: &str) -> Result<()> {
+        let path = Plugin::plugin_dir(name, true)?.join(DISABLED_FILENAME);
+        File::create(path)?;
+
+        Ok(())
+    }
+
+    /// Enable the plugin on the current machine
+    pub fn enable(name: &str) -> Result<()> {
+        let path = Plugin::plugin_dir(name, true)?.join(DISABLED_FILENAME);
+        remove_file(path)?;
+
+        Ok(())
+    }
+
+    /// The installation status of the plugin on the current machine
+    pub fn availability(&self) -> (PluginStatus, PluginEnabled) {
         // Check if already installed and if so if up-to-date
         if let Ok(installed) = Plugin::read_manifest(&self.name) {
+            let enabled = Plugin::read_enabled(&self.name).unwrap_or_default();
             return if installed.version == self.version {
-                PluginStatus::InstalledLatest(self.version.clone())
+                (PluginStatus::InstalledLatest(self.version.clone()), enabled)
             } else {
-                PluginStatus::InstalledOutdated(installed.version, self.version.clone())
+                (
+                    PluginStatus::InstalledOutdated(installed.version, self.version.clone()),
+                    enabled,
+                )
             };
         };
 
         // Check if available on the current platform
         if !self.platforms.is_empty() {
             let Ok(current_platform) = PluginPlatform::current() else {
-                return PluginStatus::UnavailablePlatform;
+                return (
+                    PluginStatus::UnavailablePlatform,
+                    PluginEnabled::NotApplicable,
+                );
             };
             if !self.platforms.contains(&current_platform) {
-                return PluginStatus::UnavailablePlatform;
+                return (
+                    PluginStatus::UnavailablePlatform,
+                    PluginEnabled::NotApplicable,
+                );
             }
         }
 
         // Check if runtime is available
         for (runtime, ..) in &self.runtimes {
             if runtime.is_available() {
-                return PluginStatus::Installable;
+                return (PluginStatus::Installable, PluginEnabled::NotApplicable);
             }
         }
 
-        PluginStatus::UnavailableRuntime
+        (
+            PluginStatus::UnavailableRuntime,
+            PluginEnabled::NotApplicable,
+        )
     }
 
     /// Start an instance of a plugin
@@ -419,7 +469,13 @@ impl PluginRuntime {
 
     /// Install a Python plugin
     async fn install_python(url: &Url, dir: &Path) -> Result<()> {
-        bail!("TODO")
+        tracing::error!(
+            "TODO: install from {} into {}",
+            url.to_string(),
+            dir.display()
+        );
+
+        Ok(())
     }
 }
 
@@ -489,6 +545,17 @@ pub enum PluginStatus {
     UnavailablePlatform,
 }
 
+/// Whether a plugin has been disabled on the current machine
+#[derive(Debug, Display, Default, Clone, PartialEq, Eq)]
+#[strum(serialize_all = "lowercase")]
+pub enum PluginEnabled {
+    #[default]
+    #[strum(serialize = "na")]
+    NotApplicable,
+    Yes,
+    No,
+}
+
 /// A running instance of a plugin
 pub struct PluginInstance {
     /// The plugin child process
@@ -524,7 +591,7 @@ impl PluginInstance {
                 if plugin.transports.contains(&PluginTransport::Stdio) {
                     Some(PluginTransport::Stdio)
                 } else {
-                    plugin.transports.get(0).cloned()
+                    plugin.transports.first().cloned()
                 }
             })
             .ok_or_else(|| eyre!("Plugin does not declare any transports"))?;
