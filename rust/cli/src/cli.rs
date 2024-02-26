@@ -347,7 +347,10 @@ impl DecodeOptions {
         strip_options: StripOptions,
         losses: codecs::LossesResponse,
     ) -> codecs::DecodeOptions {
-        let (format, codec) = codecs::format_or_codec(format_or_codec);
+        let codec = format_or_codec
+            .as_ref()
+            .and_then(|name| codecs::codec_maybe(name));
+        let format = format_or_codec.map(|name| Format::from_name(&name));
 
         codecs::DecodeOptions {
             codec,
@@ -394,7 +397,10 @@ impl EncodeOptions {
         strip_options: StripOptions,
         losses: codecs::LossesResponse,
     ) -> codecs::EncodeOptions {
-        let (format, codec) = codecs::format_or_codec(format_or_codec);
+        let codec = format_or_codec
+            .as_ref()
+            .and_then(|name| codecs::codec_maybe(name));
+        let format = format_or_codec.map(|name| Format::from_name(&name));
 
         let compact = self
             .compact
@@ -487,7 +493,7 @@ impl Cli {
                 let doc = Document::open(&doc).await?;
 
                 let options = options.build(to, strip_options, losses);
-                let format = options.format.unwrap_or(Format::Text);
+                let format = options.format.clone().unwrap_or(Format::Text);
 
                 let content = doc.export(dest.as_deref(), Some(options)).await?;
                 if !content.is_empty() {
@@ -602,7 +608,7 @@ impl Cli {
                 doc.execute().await?;
 
                 let encode_options = codecs::EncodeOptions::default();
-                let format = encode_options.format.unwrap_or(Format::Text);
+                let format = encode_options.format.clone().unwrap_or(Format::Text);
 
                 let content = doc.export(output.as_deref(), Some(encode_options)).await?;
                 if !content.is_empty() {

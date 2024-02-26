@@ -50,7 +50,7 @@ pub trait Codec: Sync + Send {
 
     /// The level of support that the codec provides for decoding from a format
     #[allow(unused)]
-    fn supports_from_format(&self, format: Format) -> CodecSupport {
+    fn supports_from_format(&self, format: &Format) -> CodecSupport {
         CodecSupport::None
     }
 
@@ -58,7 +58,7 @@ pub trait Codec: Sync + Send {
     fn supports_from_formats(&self) -> BTreeMap<Format, CodecSupport> {
         Format::iter()
             .filter_map(|format| {
-                let support = self.supports_from_format(format);
+                let support = self.supports_from_format(&format);
                 support.is_supported().then_some((format, support))
             })
             .collect()
@@ -99,7 +99,7 @@ pub trait Codec: Sync + Send {
 
     /// The level of support that the codec provides for encoding to a format
     #[allow(unused)]
-    fn supports_to_format(&self, format: Format) -> CodecSupport {
+    fn supports_to_format(&self, format: &Format) -> CodecSupport {
         CodecSupport::None
     }
 
@@ -107,7 +107,7 @@ pub trait Codec: Sync + Send {
     fn supports_to_formats(&self) -> BTreeMap<Format, CodecSupport> {
         Format::iter()
             .filter_map(|format| {
-                let support = self.supports_to_format(format);
+                let support = self.supports_to_format(&format);
                 support.is_supported().then_some((format, support))
             })
             .collect()

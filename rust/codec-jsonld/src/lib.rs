@@ -54,14 +54,14 @@ impl Codec for JsonLdCodec {
         Status::Beta
     }
 
-    fn supports_from_format(&self, format: Format) -> CodecSupport {
+    fn supports_from_format(&self, format: &Format) -> CodecSupport {
         match format {
             Format::JsonLd => CodecSupport::NoLoss,
             _ => CodecSupport::None,
         }
     }
 
-    fn supports_to_format(&self, format: Format) -> CodecSupport {
+    fn supports_to_format(&self, format: &Format) -> CodecSupport {
         match format {
             Format::JsonLd => CodecSupport::NoLoss,
             _ => CodecSupport::None,

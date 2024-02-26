@@ -23,7 +23,7 @@ impl Codec for MarkdownCodec {
         Status::Alpha
     }
 
-    fn supports_from_format(&self, format: Format) -> CodecSupport {
+    fn supports_from_format(&self, format: &Format) -> CodecSupport {
         use CodecSupport::*;
         match format {
             Format::Markdown => LowLoss,
@@ -31,7 +31,7 @@ impl Codec for MarkdownCodec {
         }
     }
 
-    fn supports_to_format(&self, format: Format) -> CodecSupport {
+    fn supports_to_format(&self, format: &Format) -> CodecSupport {
         use CodecSupport::*;
         match format {
             Format::Markdown => LowLoss,

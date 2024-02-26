@@ -359,7 +359,7 @@ impl Plugin {
 
     /// Read the plugin from a manifest file
     pub fn read_manifest_from(path: &Path) -> Result<Self> {
-        let manifest = std::fs::read_to_string(&path)
+        let manifest = std::fs::read_to_string(path)
             .wrap_err_with(|| eyre!("While reading plugin from `{}`", path.display()))?;
 
         let plugin = toml::from_str(&manifest)
@@ -625,7 +625,7 @@ async fn plugins() -> Vec<Plugin> {
         Ok(plugins) => plugins,
         Err(error) => {
             tracing::warn!("While getting list of plugins: {error}");
-            return vec![];
+            vec![]
         }
     }
 }

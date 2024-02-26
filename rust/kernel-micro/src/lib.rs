@@ -29,8 +29,7 @@ use kernel::{
             process::{Child, ChildStderr, ChildStdin, ChildStdout, Command},
             sync::{mpsc, watch},
         },
-        tracing,
-        which
+        tracing, which,
     },
     schema::{
         ExecutionMessage, MessageLevel, Node, Null, SoftwareApplication, SoftwareSourceCode,

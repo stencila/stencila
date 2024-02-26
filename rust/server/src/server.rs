@@ -645,9 +645,7 @@ async fn export_document(
 
     let doc = docs.by_id(&id).await.map_err(InternalError::new)?;
 
-    let format = query
-        .get("format")
-        .and_then(|format| Format::from_name(format).ok());
+    let format = query.get("format").map(|format| Format::from_name(format));
 
     let dom = query.get("dom").and_then(|dom| dom.parse().ok());
 
@@ -825,7 +823,7 @@ async fn handle_ws_format(ws: WebSocket, doc: Arc<Document>, capability: &str, f
     let format = format.parse().ok();
 
     let decode_options = DecodeOptions {
-        format,
+        format: format.clone(),
         ..Default::default()
     };
 

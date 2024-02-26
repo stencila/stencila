@@ -1,6 +1,7 @@
 use comfy_table::{
     modifiers::{UTF8_ROUND_CORNERS, UTF8_SOLID_INNER_BORDERS},
-    presets::UTF8_FULL, ContentArrangement,
+    presets::UTF8_FULL,
+    ContentArrangement,
 };
 
 // Re-exports
