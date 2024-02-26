@@ -510,7 +510,7 @@ impl PluginRuntime {
             PluginRuntime::Python => output.strip_prefix("Python "),
             PluginRuntime::Node => output.strip_prefix('v'),
         }
-        .ok_or_else(|| eyre!("Unable to extract version from output"))?
+        .ok_or_else(|| eyre!("Unable to extract version using {:?}", self.path()))?
         .trim();
 
         let version = Version::parse(version)
@@ -545,11 +545,30 @@ impl PluginRuntime {
 
     /// Install a Python plugin
     async fn install_python(url: &Url, dir: &Path) -> Result<()> {
-        tracing::error!(
-            "TODO: install from {} into {}",
-            url.to_string(),
-            dir.display()
-        );
+        // Create the virtual environment
+        let mut child = Command::new("python3")
+            .arg("-m")
+            .arg("venv")
+            .arg(format!("{}", dir.to_string_lossy()))
+            .spawn()?;
+        let status = child.wait().await?;
+        if !status.success() {
+            bail!("Could not create venv for plugin")
+        }
+
+        // Install from the url using the version of pip that we just installed.
+        // TODO: Check the windows path for pip
+        let pip_path = dir.join("bin").join("pip");
+
+        // We're going to assume that the url is a valid pypi url
+        let mut child = Command::new(pip_path)
+            .arg("install")
+            .arg(url.to_string())
+            .spawn()?;
+        let status = child.wait().await?;
+        if !status.success() {
+            bail!("Could not install {} into venv", url)
+        }
 
         Ok(())
     }
