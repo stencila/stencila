@@ -9,11 +9,12 @@ name = "stencila"
 path = "src/main.rs"
 
 [features]
+default = ["assistants/fastembed"]
 tokio-console = ["console-subscriber"]
 
 [dependencies]
 app = { path = "../app" }
-assistants = { path = "../assistants" }
+assistants = { path = "../assistants", default-features = false }
 codecs = { path = "../codecs" }
 color-eyre = { version = "0.6.2", features = ["issue-url"] }
 common = { path = "../common" }

@@ -1,16 +1,14 @@
-use std::{path::PathBuf, str::FromStr};
+use std::str::FromStr;
 
-use fastembed::{EmbeddingModel, InitOptions, TextEmbedding};
 use merge::Merge;
 
 use codecs::DecodeOptions;
 use common::{
     async_trait::async_trait,
     clap::{self, Args, ValueEnum},
-    eyre::{bail, eyre, Result},
+    eyre::{bail, Result},
     inflector::Inflector,
     itertools::Itertools,
-    once_cell::sync::OnceCell,
     regex::Regex,
     serde::{de::Error, Deserialize, Deserializer, Serialize},
     serde_json,
@@ -35,7 +33,6 @@ use schema::{
 };
 
 // Export crates for the convenience of dependant crates
-use app::DirType;
 pub use codecs;
 pub use common;
 pub use format;
@@ -259,26 +256,34 @@ impl Embeddings {
         // Store a copy of the strings.
         self.texts = Some(texts.iter().map(|s| s.as_ref().to_string()).collect());
 
-        // Informal perf tests during development indicated that using
-        // a static improved speed substantially (rather than reloading for each call)
-        static MODEL: OnceCell<TextEmbedding> = OnceCell::new();
+        #[cfg(feature = "fastembed")]
+        {
+            use std::path::PathBuf;
+            use fastembed::{EmbeddingModel, InitOptions, TextEmbedding};
+            use app::DirType;
+            use common::{eyre::eyre, once_cell::sync::OnceCell};
 
-        let model = match MODEL.get_or_try_init(|| {
-            TextEmbedding::try_new(InitOptions {
-                // This model was chosen good performance for a small size.
-                // For benchmarks see https://huggingface.co/spaces/mteb/leaderboard
-                model_name: EmbeddingModel::BGESmallENV15,
-                cache_dir: app::get_app_dir(DirType::Cache, true)
-                    .unwrap_or_else(|_| PathBuf::from("."))
-                    .join("fastembed"),
-                ..Default::default()
-            })
-        }) {
-            Ok(model) => model,
-            Err(error) => bail!(error),
-        };
+            // Informal perf tests during development indicated that using
+            // a static improved speed substantially (rather than reloading for each call)
+            static MODEL: OnceCell<TextEmbedding> = OnceCell::new();
 
-        self.vectors = Some(model.embed(texts, None).map_err(|error| eyre!(error))?);
+            let model = match MODEL.get_or_try_init(|| {
+                TextEmbedding::try_new(InitOptions {
+                    // This model was chosen good performance for a small size.
+                    // For benchmarks see https://huggingface.co/spaces/mteb/leaderboard
+                    model_name: EmbeddingModel::BGESmallENV15,
+                    cache_dir: app::get_app_dir(DirType::Cache, true)
+                        .unwrap_or_else(|_| PathBuf::from("."))
+                        .join("fastembed"),
+                    ..Default::default()
+                })
+            }) {
+                Ok(model) => model,
+                Err(error) => bail!(error),
+            };
+
+            self.vectors = Some(model.embed(texts, None).map_err(|error| eyre!(error))?);
+        }
 
         Ok(())
     }
