@@ -88,7 +88,7 @@ pub fn check() -> JoinHandle<Option<String>> {
         match check.await {
             Ok(version) => version,
             Err(error) => {
-                tracing::warn!("While checking for upgrade: {error}");
+                tracing::debug!("While checking for upgrade: {error}");
                 None
             }
         }
