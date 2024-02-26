@@ -88,10 +88,10 @@ mod tests {
     // https://github.com/stencila/stencila/issues/2078
     macro_rules! skip_on_ci {
         () => {
-            //if std::env::var("CI").is_ok() {
-            //    println!("Skipping test on CI");
-            //    return Ok(());
-            //}
+            if std::env::var("CI").is_ok() {
+                println!("Skipping test on CI");
+                return Ok(());
+            }
         };
     }
 

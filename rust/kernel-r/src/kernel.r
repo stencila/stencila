@@ -19,13 +19,21 @@ END = ifelse(DEV_MODE, "END", "\U0010CB40")
 
 # Ensure that required packages are attached and installed
 requires <- function() {
-  # On Mac and Linux require `parallel` package for forking
-  # This is a base package (see `rownames(installed.packages(priority="base"))`)
-  # so we don't try to install it as with other packages
-  if (.Platform$OS.type == "unix") library(parallel)
-
   pkgs <- c("jsonlite", "base64enc")
 
+  if (.Platform$OS.type == "unix") {
+    # On Mac and Linux...
+
+    # Attach `parallel` package for forking
+    # This is a base package (see `rownames(installed.packages(priority="base"))`)
+    # so we don't try to install it as with other packages
+    library(parallel)
+
+    # Require Cairo to support creating new graphics devices in forks
+    pkgs <- c(pkgs, "Cairo")
+  }
+
+  # Determine which packages need to be installed
   install <- NULL
   for (pkg in pkgs) {
     if (!suppressWarnings(require(pkg, character.only = TRUE, quietly = TRUE))) {
@@ -167,7 +175,7 @@ dataframe_to_datatable_hint <- function(df) {
     columns <- NULL
   }
 
-  columns <- c(columns, Filter(function(column) !is.null(column), lapply(colnames(df), function(colname) {
+  columns <- c(columns, Filter(function(column)!is.null(column), lapply(colnames(df), function(colname) {
     vector_to_datatable_column_hint(colname, df[[colname]])
   })))
 
@@ -208,10 +216,10 @@ dataframe_to_datatable <- function(df) {
     columns <- NULL
   }
 
-  columns <- c(columns, Filter(function(column) !is.null(column), lapply(colnames(df), function(colname) {
+  columns <- c(columns, Filter(function(column)!is.null(column), lapply(colnames(df), function(colname) {
     vector_to_datatable_column(colname, df[[colname]])
   })))
-  
+
   list(
     type = unbox("Datatable"),
     columns = columns
@@ -247,7 +255,7 @@ vector_to_datatable_column <- function(name, values) {
 # Create an R data.frame from a Stencila Datatable
 dataframe_from_datatable <- function(dt) {
   columns = list()
-  for(column in dt$columns) {
+  for (column in dt$columns) {
     name <- column$name
     validator <- column$validator
     values <- column$values
@@ -272,7 +280,7 @@ dataframe_from_datatable <- function(dt) {
 plot_to_image_object <- function(value, options = list(), format = "png") {
   # Create a new graphics device for the format, with a temporary path.
   # The tempdir check is needed when forking.
-  filename <- tempfile(fileext = paste0(".", format), tmpdir = tempdir(check=TRUE))
+  filename <- tempfile(fileext = paste0(".", format), tmpdir = tempdir(check = TRUE))
   width <- try(as.numeric(options$width))
   height <- try(as.numeric(options$height))
 
@@ -314,7 +322,7 @@ execute <- function(lines) {
     # `CairoPNG` is preferred instead of `png` to avoid "a forked child should not open a graphics device"
     # which arises because X11 can not be used in a forked environment.
     # The tempdir `check` is needed when forking.
-    file <- tempfile(tmpdir = tempdir(check=TRUE))
+    file <- tempfile(tmpdir = tempdir(check = TRUE))
     tryCatch(
       Cairo::CairoPNG(file),
       error = function(cond) png(file, type = "cairo")
@@ -341,7 +349,7 @@ execute <- function(lines) {
     if (!is.null(rec_plot[[1]])) {
       value <- rec_plot
     }
-    dev.off()  
+    dev.off()
 
     if (!is.null(value)) {
       # Only return value if last line is not blank, a comment, or an assignment
