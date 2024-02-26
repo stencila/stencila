@@ -22,7 +22,7 @@ export class Person extends Entity {
 
   override render() {
     return html`<div class="my-1">
-      <span class="items-center flex">
+      <span class="items-center flex leading-3 text-base">
         <sl-icon name="person-circle" class="pr-2"></sl-icon>
         ${this.givenNames} ${this.familyNames}
       </span>

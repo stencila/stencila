@@ -19,9 +19,9 @@ export class SoftwareApplication extends Entity {
   name: string
 
   override render() {
-    return html`<div class="my-1">
-      <span class="items-center flex">
-        <sl-icon name="window-fullscreen" class="pr-2"></sl-icon>
+    return html`<div class="my-1 text-xs">
+      <span class="items-center flex text-sm pl-6">
+        <!-- <sl-icon name="window-fullscreen" class="pr-2"></sl-icon> -->
         ${this.name}
       </span>
     </div>`
