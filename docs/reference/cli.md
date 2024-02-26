@@ -17,6 +17,10 @@ This document contains the help content for the `stencila` command-line program.
 * [`stencila assistants`↴](#stencila-assistants)
 * [`stencila repl`↴](#stencila-repl)
 * [`stencila test`↴](#stencila-test)
+* [`stencila kernels`↴](#stencila-kernels)
+* [`stencila kernels list`↴](#stencila-kernels-list)
+* [`stencila kernels info`↴](#stencila-kernels-info)
+* [`stencila kernels packages`↴](#stencila-kernels-packages)
 * [`stencila secrets`↴](#stencila-secrets)
 * [`stencila secrets list`↴](#stencila-secrets-list)
 * [`stencila secrets set`↴](#stencila-secrets-set)
@@ -45,6 +49,7 @@ CLI subcommands and global options
 * `assistants` — List the available AI assistants
 * `repl` — A read-evaluate-print loop for AI assistants
 * `test` — 
+* `kernels` — Manage execution kernels
 * `secrets` — Manage secrets used by Stencila (e.g. API keys)
 * `config` — 
 * `upgrade` — Upgrade to the latest version
@@ -443,6 +448,57 @@ Mainly intended for prompt engineering during development of Stencila.
 * `-n`, `--reps <REPS>` — The number of repetitions
 
   Default value: `1`
+
+
+
+## `stencila kernels`
+
+Manage execution kernels
+
+**Usage:** `stencila kernels [COMMAND]`
+
+###### **Subcommands:**
+
+* `list` — List the kernels available
+* `info` — Get information about a kernel
+* `packages` — List packages available to a kernel
+
+
+
+## `stencila kernels list`
+
+List the kernels available
+
+**Usage:** `stencila kernels list`
+
+
+
+## `stencila kernels info`
+
+Get information about a kernel
+
+Mainly used to check the version of the kernel runtime and operating system for debugging purpose.
+
+**Usage:** `stencila kernels info <NAME>`
+
+###### **Arguments:**
+
+* `<NAME>` — The name of the kernel to get information for
+
+
+
+## `stencila kernels packages`
+
+List packages available to a kernel
+
+Mainly used to check libraries available to a kernel for debugging purpose.
+
+**Usage:** `stencila kernels packages <NAME> [FILTER]`
+
+###### **Arguments:**
+
+* `<NAME>` — The name of the kernel to list packages for
+* `<FILTER>` — A filter on the name of the kernel
 
 
 
