@@ -636,7 +636,7 @@ df1 = data.frame(
         assert_eq!(messages, []);
         assert_eq!(outputs.len(), 1);
 
-        if let Some(Node::ImageObject(image)) = outputs.get(0) {
+        if let Some(Node::ImageObject(image)) = outputs.first() {
             assert!(image.content_url.starts_with("data:image/png;base64"));
         } else {
             bail!("Expected an image, got: {outputs:?}")
