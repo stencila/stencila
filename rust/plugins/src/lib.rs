@@ -10,12 +10,15 @@ use std::{
     time::Duration,
 };
 
-use app::{get_app_dir, DirType};
-use kernels::PluginKernel;
-use list::{list, ListArgs};
 use semver::{Version, VersionReq};
 
+use app::{get_app_dir, DirType};
+use cli_utils::{
+    table::{self, Attribute, Cell, Color},
+    ToStdout,
+};
 use common::{
+    derive_more::Deref,
     eyre::{bail, eyre, Context, OptionExt, Report, Result},
     itertools::Itertools,
     rand::{distributions::Alphanumeric, thread_rng, Rng},
@@ -23,6 +26,7 @@ use common::{
     serde::{self, Deserialize, Deserializer, Serialize, Serializer},
     serde_json::{self, Value},
     serde_with::{DeserializeFromStr, SerializeDisplay},
+    serde_yaml,
     strum::{Display, EnumString},
     tokio::{
         self,
@@ -32,16 +36,21 @@ use common::{
     toml, tracing,
     which::which,
 };
+use kernels::PluginKernel;
+
+use list::{list, ListArgs};
 
 mod check;
-pub mod cli;
 mod disable;
 mod enable;
 mod install;
-pub mod kernels;
 mod link;
 mod list;
+mod show;
 mod uninstall;
+
+pub mod cli;
+pub mod kernels;
 
 /// The name of the manifest file within a plugin's installation
 /// directory. Changing this value will break existing installations.
@@ -627,6 +636,66 @@ async fn plugins() -> Vec<Plugin> {
             tracing::warn!("While getting list of plugins: {error}");
             vec![]
         }
+    }
+}
+
+/// Implement `ToStdout` to display a plugin as YAML (may get more fancy in the future).
+impl ToStdout for Plugin {
+    fn to_terminal(&self) -> impl std::fmt::Display {
+        serde_yaml::to_string(self).unwrap_or_else(|_| String::from("Unable to show plugin"))
+    }
+}
+
+/// A list of plugins
+#[derive(Default, Deref, Serialize, Deserialize)]
+#[serde(crate = "common::serde")]
+pub struct PluginList(Vec<Plugin>);
+
+/// Implement `ToStdout` to display a list of plugins as a table.
+impl ToStdout for PluginList {
+    fn to_terminal(&self) -> impl std::fmt::Display {
+        let mut table = table::new();
+        table.set_header(["Name", "Description", "Home", "Version", "Enabled"]);
+
+        for plugin in self.iter() {
+            let (status, enabled) = plugin.availability();
+
+            let suffix = if plugin.unregistered && plugin.linked {
+                Some("(unregistered, linked)")
+            } else if plugin.unregistered {
+                Some("(unregistered)")
+            } else if plugin.linked {
+                Some("(linked)")
+            } else {
+                None
+            };
+
+            table.add_row([
+                if let Some(suffix) = suffix {
+                    Cell::new(&[&plugin.name, "\n", suffix].concat())
+                } else {
+                    Cell::new(&plugin.name).add_attribute(Attribute::Bold)
+                },
+                Cell::new(&plugin.description),
+                Cell::new(&plugin.home).fg(Color::Blue),
+                match status {
+                    PluginStatus::InstalledLatest(version) => Cell::new(version).fg(Color::Green),
+                    PluginStatus::InstalledOutdated(installed, latest) => {
+                        Cell::new(format!("{installed} → {latest}")).fg(Color::DarkYellow)
+                    }
+                    PluginStatus::Installable => Cell::new(status).fg(Color::Cyan),
+                    PluginStatus::UnavailableRuntime => Cell::new(status).fg(Color::DarkGrey),
+                    PluginStatus::UnavailablePlatform => Cell::new(status).fg(Color::Red),
+                },
+                match enabled {
+                    PluginEnabled::NotApplicable => Cell::new(""),
+                    PluginEnabled::Yes => Cell::new("yes").fg(Color::Green),
+                    PluginEnabled::No => Cell::new("no").fg(Color::DarkGrey),
+                },
+            ]);
+        }
+
+        table
     }
 }
 

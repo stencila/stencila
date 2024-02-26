@@ -6,7 +6,7 @@ use common::{
 
 use crate::{
     check::CheckArgs, disable::DisableArgs, enable::EnableArgs, install::InstallArgs,
-    link::LinkArgs, list::ListArgs, uninstall::UninstallArgs,
+    link::LinkArgs, list::ListArgs, show::ShowArgs, uninstall::UninstallArgs,
 };
 
 /// Manage plugins
@@ -24,6 +24,7 @@ enum Command {
     Link(LinkArgs),
     Enable(EnableArgs),
     Disable(DisableArgs),
+    Show(ShowArgs),
     Check(CheckArgs),
 }
 
@@ -41,6 +42,7 @@ impl Cli {
             Command::Link(args) => args.run().await?.to_stdout(),
             Command::Enable(args) => args.run().await?.to_stdout(),
             Command::Disable(args) => args.run().await?.to_stdout(),
+            Command::Show(args) => args.run().await?.to_stdout(),
             Command::Check(args) => args.run().await?.to_stdout(),
         }
 
