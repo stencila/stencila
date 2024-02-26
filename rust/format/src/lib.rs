@@ -1,6 +1,7 @@
 //! Provides the `Format` enum and utility functions for working with document formats
 
 use std::{
+    fmt::Display,
     path::{Path, PathBuf},
     str::FromStr,
 };
@@ -8,12 +9,11 @@ use std::{
 use common::{
     eyre::{Report, Result},
     serde_with::{DeserializeFromStr, SerializeDisplay},
-    strum::{Display, EnumIter},
+    strum::EnumIter,
 };
 
 #[derive(
     Debug,
-    Display,
     Default,
     Clone,
     PartialOrd,
@@ -24,11 +24,7 @@ use common::{
     SerializeDisplay,
     DeserializeFromStr,
 )]
-#[strum(
-    serialize_all = "lowercase",
-    ascii_case_insensitive,
-    crate = "common::strum"
-)]
+#[strum(crate = "common::strum")]
 #[serde_with(crate = "common::serde_with")]
 pub enum Format {
     // Grouped and ordered as most appropriate for documentation
@@ -180,10 +176,10 @@ impl Format {
             "avi" => Avi,
             "bash" => Bash,
             "cbor" => Cbor,
-            "cborzst" => CborZst,
+            "cborzst" | "cbor.zstd" => CborZst,
             "debug" => Debug,
-            "directory" => Directory,
-            "dom" => Dom,
+            "directory" | "dir" => Directory,
+            "dom" | "dom.html" => Dom,
             "flac" => Flac,
             "gif" => Gif,
             "html" => Html,
@@ -204,12 +200,14 @@ impl Format {
             "r" => R,
             "rhai" => Rhai,
             "shell" | "sh" => Shell,
+            "sta" => Article,
             "svg" => Svg,
             "text" | "txt" => Text,
             "wav" => Wav,
             "webm" => WebM,
             "webp" => WebP,
             "yaml" | "yml" => Yaml,
+            "unknown" => Unknown,
             _ => Other(name.to_string()),
         }
     }
@@ -319,8 +317,55 @@ impl FromStr for Format {
     }
 }
 
+impl Display for Format {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        use Format::*;
+        f.write_str(match self {
+            Aac => "aac",
+            Article => "sta",
+            Avi => "avi",
+            Bash => "bash",
+            Cbor => "cbor",
+            CborZst => "cbor.zstd",
+            Debug => "Debug",
+            Directory => "dir",
+            Dom => "dom.html",
+            Flac => "flac",
+            Gif => "gif",
+            Html => "html",
+            Jats => "jats",
+            JavaScript => "js",
+            Jpeg => "jpeg",
+            Json => "json",
+            Json5 => "json5",
+            JsonLd => "jsonld",
+            Markdown => "md",
+            Mkv => "mkv",
+            Mp3 => "mp3",
+            Mp4 => "mp4",
+            Ogg => "ogg",
+            Ogv => "ogv",
+            Png => "png",
+            Python => "py",
+            R => "r",
+            Rhai => "rhai",
+            Shell => "sh",
+            Svg => "svg",
+            Text => "txt",
+            Wav => "wav",
+            WebM => "webm",
+            WebP => "webp",
+            Yaml => "yaml",
+            Other(name) => name,
+            Unknown => "unknown",
+        })
+    }
+}
+
 #[cfg(test)]
 mod test {
+    use common::strum::IntoEnumIterator;
+
     use super::*;
 
     #[test]
@@ -347,6 +392,15 @@ mod test {
             Format::Other("foo".to_string())
         );
         assert_eq!(Format::from_url("foo")?, Format::Other("foo".to_string()));
+
+        Ok(())
+    }
+
+    #[test]
+    fn roundtrip() -> Result<()> {
+        for format in Format::iter() {
+            assert_eq!(format, Format::from_str(&format.to_string())?)
+        }
 
         Ok(())
     }
