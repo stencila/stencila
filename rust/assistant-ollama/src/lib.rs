@@ -204,7 +204,9 @@ impl Assistant for OllamaAssistant {
         map_option!(repeat_penalty);
         map_option!(temperature);
         map_option!(seed);
-        map_option!(stop);
+        if let Some(value) = &options.stop {
+            opts = opts.stop(vec![value.clone()]);
+        }
         if let Some(value) = options.max_tokens {
             opts = opts.num_predict(value as i32);
         }
