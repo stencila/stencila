@@ -1,4 +1,10 @@
-import { BlockInfo, EditorView, gutter, GutterMarker } from '@codemirror/view'
+import {
+  BlockInfo,
+  EditorView,
+  gutter,
+  GutterMarker,
+  ViewUpdate,
+} from '@codemirror/view'
 import type { NodeType } from '@stencila/types'
 
 import { MappingEntry } from '../../../clients/format'
@@ -87,8 +93,7 @@ const statusGutter = (sourceView: SourceView) => [
   gutter({
     lineMarker: (view: EditorView, line: BlockInfo) => {
       // fetch nodes and filter out any node types that are not part of the
-      // guttermarkers object
-      // also checks some positional
+      // gutterMarkerElements object.
       const nodes = sourceView
         .getNodesAt(line.from)
         .filter((node) => gutterMarkerElements.includes(node.nodeType))

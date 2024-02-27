@@ -63,7 +63,7 @@ class PanelElement extends LitElement {
   private renderLineWrapButton = () => {
     return html`
       <stencila-ui-icon-button
-        class="mr-2"
+        class="mr-4"
         icon="line-wrap"
         type="toggle"
         tooltip=${`Turn ${this.sourceView.lineWrap ? 'off' : 'on'} line wrapping`}
@@ -81,7 +81,7 @@ class PanelElement extends LitElement {
 
     return html`
       <stencila-ui-icon-button
-        class="mr-2"
+        class="mr-4"
         icon="gutter-markers"
         type="toggle"
         tooltip=${`Turn ${this.sourceView.gutterMarkers ? 'off' : 'on'} gutter markers`}
@@ -98,6 +98,7 @@ class PanelElement extends LitElement {
 
     return html`
       <stencila-ui-icon-button
+        class="mr-4"
         icon="write-only"
         type="toggle"
         tooltip=${`
@@ -113,7 +114,7 @@ class PanelElement extends LitElement {
     const changeEvent = (e: Event) =>
       (this.sourceView.format = (e.target as HTMLSelectElement).value)
 
-    const styles = apply(['w-28 h-full', 'mx-3 pl-2', 'bg-white', 'rounded-sm'])
+    const styles = apply(['w-28 h-full', 'pl-2', 'bg-white', 'rounded-sm'])
     return html`
       <sl-tooltip content="Switch format">
         <select class=${styles} @change=${changeEvent}>
