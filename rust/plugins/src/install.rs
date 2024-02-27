@@ -35,12 +35,12 @@ pub async fn install(name: &str) -> Result<Message> {
 
     // Do the install using the first compatible runtime
     for (runtime, version_req) in &plugin.runtimes {
-        if !runtime.is_available() {
+        if !runtime.is_available(None) {
             continue;
         }
 
         // Check that runtime version requirement for the plugin is met
-        let runtime_version = runtime.version()?;
+        let runtime_version = runtime.version(None)?;
         if !version_req.matches(&runtime_version) {
             bail!("Unable to install plugin `{name}`: it requires {runtime}{version_req} but only {runtime_version} is available")
         }

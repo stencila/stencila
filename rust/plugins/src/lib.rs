@@ -454,7 +454,7 @@ impl Plugin {
 
         // Check if runtime is available
         for (runtime, ..) in &self.runtimes {
-            if runtime.is_available() {
+            if runtime.is_available(None) {
                 return (PluginStatus::Installable, PluginEnabled::NotApplicable);
             }
         }
@@ -500,7 +500,14 @@ pub enum PluginRuntime {
 
 impl PluginRuntime {
     /// Get the path of the runtime executable
-    fn path(&self) -> Result<PathBuf> {
+    fn path(&self, for_plugin: Option<Plugin>) -> Result<PathBuf> {
+        if let Some(plugin) = for_plugin {
+            let dir = Plugin::plugin_dir(&plugin.name, false)?;
+            if dir.exists() {
+                // It is installed
+            }
+        }
+
         let name = if cfg!(windows) {
             format!("{self}.exe")
         } else {
@@ -511,22 +518,24 @@ impl PluginRuntime {
     }
 
     /// Is the runtime available of the current machine
-    fn is_available(&self) -> bool {
-        self.path().is_ok()
+    fn is_available(&self, for_plugin: Option<Plugin>) -> bool {
+        self.path(for_plugin).is_ok()
     }
 
     /// Get the version of the runtime
-    fn version(&self) -> Result<Version> {
-        let path = self.path()?;
+    fn version(&self, for_plugin: Option<Plugin>) -> Result<Version> {
+        let path = self.path(for_plugin)?;
 
-        let output = std::process::Command::new(path).arg("--version").output()?;
+        let output = std::process::Command::new(path.clone())
+            .arg("--version")
+            .output()?;
         let output = String::from_utf8(output.stdout)?;
 
         let version = match &self {
             PluginRuntime::Python => output.strip_prefix("Python "),
             PluginRuntime::Node => output.strip_prefix('v'),
         }
-        .ok_or_else(|| eyre!("Unable to extract version using {:?}", self.path()))?
+        .ok_or_else(|| eyre!("Unable to extract version using {:?}", path))?
         .trim();
 
         let version = Version::parse(version)
