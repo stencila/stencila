@@ -10,6 +10,7 @@ use std::{
     time::Duration,
 };
 
+use kernel::Kernel;
 use semver::{Version, VersionReq};
 
 use app::{get_app_dir, DirType};
@@ -23,7 +24,7 @@ use common::{
     itertools::Itertools,
     rand::{distributions::Alphanumeric, thread_rng, Rng},
     reqwest::{self, header, Client, Url},
-    serde::{self, Deserialize, Deserializer, Serialize, Serializer},
+    serde::{self, de::DeserializeOwned, Deserialize, Deserializer, Serialize, Serializer},
     serde_json::{self, Value},
     serde_with::{DeserializeFromStr, SerializeDisplay},
     serde_yaml,
@@ -66,7 +67,7 @@ const DISABLED_FILENAME: &str = "disabled";
 /// This specification provides details of the plugin, including
 /// its requirements, how to install it, how to run it, and the
 /// services it provides.
-#[derive(Debug, Deserialize, Serialize)]
+#[derive(Debug, Clone, Deserialize, Serialize)]
 #[serde(crate = "common::serde")]
 pub struct Plugin {
     /// The name of the plugin, should be unique across all plugins
@@ -464,6 +465,21 @@ impl Plugin {
         )
     }
 
+    /// Get a list of kernels provided by the plugin
+    ///
+    /// Each kernel is bound to this plugin so that it can
+    /// be started (by starting the plugin first).
+    fn kernels(&self) -> Vec<Box<dyn Kernel>> {
+        self.kernels
+            .clone()
+            .into_iter()
+            .map(|mut kernel| {
+                kernel.bind(self);
+                Box::new(kernel) as Box<dyn Kernel>
+            })
+            .collect()
+    }
+
     /// Start an instance of a plugin
     async fn start(&self, transport: Option<PluginTransport>) -> Result<PluginInstance> {
         PluginInstance::start(self, transport).await
@@ -471,7 +487,7 @@ impl Plugin {
 }
 
 /// A runtime that a plugin supports
-#[derive(Debug, Display, EnumString, PartialEq, Eq)]
+#[derive(Debug, Display, Clone, EnumString, PartialEq, Eq)]
 #[strum(
     ascii_case_insensitive,
     serialize_all = "lowercase",
@@ -622,7 +638,9 @@ impl PluginRuntime {
 }
 
 /// An operating system platform that a plugin supports
-#[derive(Debug, Display, EnumString, DeserializeFromStr, SerializeDisplay, PartialEq, Eq)]
+#[derive(
+    Debug, Display, Clone, EnumString, DeserializeFromStr, SerializeDisplay, PartialEq, Eq,
+)]
 #[strum(
     ascii_case_insensitive,
     serialize_all = "lowercase",
@@ -900,7 +918,13 @@ impl PluginInstance {
     }
 
     /// Call a method of the plugin instance
-    async fn call(&mut self, request: JsonRpcRequest) -> Result<Value> {
+    async fn call<P, R>(&mut self, method: &str, params: P) -> Result<R>
+    where
+        P: Serialize,
+        R: DeserializeOwned,
+    {
+        let request = JsonRpcRequest::new(method, params)?;
+
         let response = match self.transport {
             PluginTransport::Stdio => self.call_stdio(&request).await,
             PluginTransport::Http => self.call_http(&request).await,
@@ -910,10 +934,12 @@ impl PluginInstance {
             bail!("Response id does not match request id")
         }
 
-        match response.result {
-            JsonRpcResult::Success { result } => Ok(result),
+        let result = match response.result {
+            JsonRpcResult::Success { result } => result,
             JsonRpcResult::Error { error } => bail!("{}", error.message),
-        }
+        };
+
+        Ok(serde_json::from_value(result)?)
     }
 
     /// Call a method of the plugin instance via stdio
@@ -924,12 +950,17 @@ impl PluginInstance {
             .ok_or_else(|| eyre!("Stdio stream uninitialized"))?;
 
         let request_json = serde_json::to_string(&request)? + "\n";
+
+        tracing::trace!("Sending to plugin: {request_json}");
+
         writer.write_all(request_json.as_bytes()).await?;
         writer.flush().await?;
 
         let Some(response_json) = reader.lines().next_line().await? else {
             bail!("No response line")
         };
+
+        tracing::trace!("Received from plugin: {response_json}");
 
         Ok(serde_json::from_str(&response_json)?)
     }
@@ -952,8 +983,16 @@ impl PluginInstance {
     }
 
     /// Check the health of the plugin instance
+    ///
+    /// Currently plugins can return any payload and this method
+    /// just traces the payload.
     async fn health(&mut self) -> Result<()> {
-        self.call(JsonRpcRequest::new("health", vec![])).await?;
+        let result = self.call::<(), Value>("health", ()).await?;
+
+        tracing::trace!(
+            "Health response from plugin: {}",
+            serde_json::to_string(&result).unwrap_or_default()
+        );
 
         Ok(())
     }
@@ -964,20 +1003,23 @@ static REQUEST_COUNTER: AtomicU64 = AtomicU64::new(0);
 #[derive(Serialize)]
 #[serde(crate = "common::serde")]
 pub struct JsonRpcRequest {
-    id: u64,
     jsonrpc: String,
+    id: u64,
     method: String,
-    params: Vec<Value>,
+    params: Value,
 }
 
 impl JsonRpcRequest {
-    pub fn new(method: &str, params: Vec<Value>) -> Self {
-        JsonRpcRequest {
+    pub fn new<P>(method: &str, params: P) -> Result<Self>
+    where
+        P: Serialize,
+    {
+        Ok(JsonRpcRequest {
             jsonrpc: "2.0".to_string(),
             id: REQUEST_COUNTER.fetch_add(1, Ordering::SeqCst),
             method: method.to_string(),
-            params,
-        }
+            params: serde_json::to_value(params)?,
+        })
     }
 }
 
