@@ -33,7 +33,7 @@ use common::{
         io::{AsyncBufReadExt, AsyncWriteExt, BufReader, BufWriter},
         process::{Child, ChildStdin, ChildStdout, Command},
     },
-    toml, tracing,
+    toml, tracing, which,
     which::which,
 };
 use kernels::PluginKernel;
@@ -572,6 +572,53 @@ impl PluginRuntime {
 
         Ok(())
     }
+
+    /// Build the command to run the plugin.
+    /// This should provide the correct binary and arguments to run the plugin in this dir.
+    async fn get_command(&self, command_str: &str, dir: &Path) -> Result<Command> {
+        match self {
+            PluginRuntime::Node => Self::get_command_node(command_str, dir).await,
+            PluginRuntime::Python => Self::get_command_python(command_str, dir).await,
+        }
+    }
+
+    async fn get_command_node(command_str: &str, dir: &Path) -> Result<Command> {
+        // For node, we assume the command is available globally.
+        let mut args = command_str.split(' ').collect_vec();
+        let program = args.remove(0);
+        let mut command = Command::new(program);
+        command.args(args).current_dir(dir);
+        Ok(command)
+    }
+
+    async fn get_command_python(command_str: &str, dir: &Path) -> Result<Command> {
+        // For python, we need to locate the command in the venv.
+        let mut args = command_str.split(' ').collect_vec();
+        let executable = args.remove(0);
+
+        // Python venvs have a different bin dir on windows.
+        let script_dir = if cfg!(target_os = "windows") {
+            "Scripts"
+        } else {
+            "bin"
+        };
+        let python_bin = dir.join(script_dir);
+
+        // Fudge the PATH to include just the venv bin/Scripts folder. Then use which to find the
+        // command. We do it this way because windows scripts/commands might have suffixes like
+        // cmd, and which deals with all this palaver. This seems to be the best way to get which
+        // to work.
+        let original_path = env::var("PATH").unwrap_or_default();
+        env::set_var("PATH", &*python_bin.to_string_lossy());
+        let program = which::which(executable)?;
+        // Reset the PATH.
+        env::set_var("PATH", &original_path);
+
+        // Build our command.
+        let mut command = Command::new(program);
+        command.args(args).current_dir(dir);
+        Ok(command)
+    }
 }
 
 /// An operating system platform that a plugin supports
@@ -743,14 +790,23 @@ pub struct PluginInstance {
 impl PluginInstance {
     /// Start a plugin instance
     async fn start(plugin: &Plugin, transport: Option<PluginTransport>) -> Result<Self> {
-        let mut args = plugin.command.split(' ').collect_vec();
-        let program = args.remove(0);
         let dir = Plugin::plugin_dir(&plugin.name, false)?;
+        let mut command = plugin
+            .runtimes
+            .first()
+            .ok_or(eyre!("Plugin does not declare any runtimes"))?
+            .0
+            .get_command(&plugin.command, &dir)
+            .await?;
 
-        let mut command = Command::new(program);
+        // let mut command = {
+        //     // TODO: Fix this. We're just getting the first runtime here!
+        //     for (runtime, ..) in &plugin.runtimes {
+        //         runtime.get_command(&plugin.command, &dir).await?
+        //     }
+        // };
+
         command
-            .args(args)
-            .current_dir(dir)
             .stdin(Stdio::piped())
             .stdout(Stdio::piped())
             .stderr(Stdio::piped());
