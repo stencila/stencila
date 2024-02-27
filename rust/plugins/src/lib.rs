@@ -620,15 +620,11 @@ impl PluginRuntime {
         };
         let python_bin = dir.join(script_dir);
 
-        // Fudge the PATH to include just the venv bin/Scripts folder. Then use which to find the
-        // command. We do it this way because windows scripts/commands might have suffixes like
-        // cmd, and which deals with all this palaver. This seems to be the best way to get which
-        // to work.
-        let original_path = env::var("PATH").unwrap_or_default();
-        env::set_var("PATH", &*python_bin.to_string_lossy());
-        let program = which::which(executable)?;
-        // Reset the PATH.
-        env::set_var("PATH", &original_path);
+        // Use which_in to find the command in the venv. This function has a terrible undocumented
+        // interface. If the executable contains a path separator, then it will use the CWD arg.
+        // Otherwise, this arg is ignored, and the path string (like $PATH) us used. We only pass it one
+        // path, so we don't have to worry about OS specific path separators. Yeesh.
+        let program = which::which_in(executable, Some(python_bin.as_os_str()), dir)?;
 
         // Build our command.
         let mut command = Command::new(program);
