@@ -8,8 +8,8 @@ use common::{
 use kernels::Kernels;
 use schema::{
     walk::{VisitorAsync, WalkControl, WalkNode},
-    Array, Block, CodeChunk, CodeExpression, Duration, ExecutionMessage, ExecutionStatus, ForBlock,
-    IfBlock, IfBlockClause, Inline, MessageLevel, Node, NodeId, Null, Primitive, Section,
+    Array, Article, Block, CodeChunk, CodeExpression, Duration, ExecutionMessage, ExecutionStatus,
+    ForBlock, IfBlock, IfBlockClause, Inline, MessageLevel, Node, NodeId, Null, Primitive, Section,
     SectionType, Timestamp,
 };
 
@@ -37,6 +37,17 @@ struct Executor<'lt> {
 }
 
 impl<'lt> VisitorAsync for Executor<'lt> {
+    async fn visit_node(&mut self, node: &mut Node) -> Result<WalkControl> {
+        // Note: Currently unable to check for self.node_id as with
+        // blocks and inlines (because `Node` does not have a node_id method)
+
+        use Node::*;
+        Ok(match node {
+            Article(node) => node.execute(self).await,
+            _ => WalkControl::Continue,
+        })
+    }
+
     async fn visit_block(&mut self, block: &mut Block) -> Result<WalkControl> {
         if let Some(node_id) = &self.node_id {
             if let Some(block_node_id) = &block.node_id() {
@@ -126,6 +137,35 @@ fn execution_duration(started: &Timestamp, ended: &Timestamp) -> Option<Duration
             .duration(started)
             .expect("should use compatible timestamps"),
     )
+}
+
+impl Executable for Article {
+    #[tracing::instrument(skip_all)]
+    async fn execute<'lt>(&mut self, executor: &mut Executor<'lt>) -> WalkControl {
+        tracing::trace!("Executing Article {}", self.node_id());
+
+        let mut messages = Vec::new();
+        let started = Timestamp::now();
+
+        if let Err(error) = self.content.walk_async(executor).await {
+            messages.push(error_to_message("While executing content", error));
+        }
+
+        let ended = Timestamp::now();
+
+        // TODO: set execution_status based on the execution status of
+        // child executable nodes
+
+        // TODO: set execution_required based on execution status
+
+        self.options.execution_status = execution_status(&messages);
+        self.options.execution_messages = execution_messages(messages);
+        self.options.execution_duration = execution_duration(&started, &ended);
+        self.options.execution_ended = Some(ended);
+        self.options.execution_count.get_or_insert(0).add_assign(1);
+
+        WalkControl::Break
+    }
 }
 
 impl Executable for CodeChunk {
@@ -299,7 +339,7 @@ impl Executable for ForBlock {
                 // Clone the content, execute it and add it as an iteration
                 let mut content = self.content.clone();
                 if let Err(error) = content.walk_async(executor).await {
-                    messages.push(error_to_message("While executing otherwise", error));
+                    messages.push(error_to_message("While executing iteration", error));
                 }
                 iterations.push(Section {
                     section_type: Some(SectionType::Iteration),
