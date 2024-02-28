@@ -37,7 +37,7 @@ import { DomClient } from '../clients/dom'
 import { MappingEntry } from '../clients/format'
 import { ObjectClient } from '../clients/object'
 import { markdownHighlightStyle } from '../languages/markdown'
-import type { DocumentId, DocumentAccess } from '../types'
+import type { DocumentId, DocumentAccess, NodeId } from '../types'
 import { TWLitElement } from '../ui/twind'
 
 import { bottomPanel } from './source/bottom-panel'
@@ -251,16 +251,6 @@ export class SourceView extends TWLitElement {
   }
 
   /**
-   * Send an 'execute' operation on the selection of the document
-   *
-   * @returns false to tell CodeMirror that this does not change the editor state
-   */
-  private executeSelection(view: CodeMirrorView): boolean {
-    this.codeMirrorClient.sendSpecial('execute', view.state.selection.main)
-    return false
-  }
-
-  /**
    * Get the CodeMirror editor view extensions
    */
   private async getViewExtensions(): Promise<Extension[]> {
@@ -284,7 +274,24 @@ export class SourceView extends TWLitElement {
       ...completionKeymap,
       ...searchKeymap,
       { key: 'Ctrl-Space', run: startCompletion },
-      { key: 'Ctrl-Enter', run: (view) => this.executeSelection(view) },
+      {
+        key: 'Ctrl-Shift-Enter',
+        run: () => {
+          this.codeMirrorClient.sendCommand('execute-document')
+          return false
+        },
+      },
+      {
+        key: 'Ctrl-Enter',
+        run: (view) => {
+          // TODO: select the ids of nodes that are located at or between
+          // selection. Should consider multicursor selections, not just main
+          // const {from, to} = view.state.selection.main
+          const nodeIds: NodeId[] = []
+          this.codeMirrorClient.sendCommand('execute-nodes', nodeIds)
+          return false
+        },
+      },
       ...autoWrapKeys,
     ])
 

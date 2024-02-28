@@ -25,6 +25,7 @@ use common::{
     },
     tracing,
 };
+use schema::NodeId;
 
 use crate::Document;
 
@@ -56,6 +57,7 @@ pub struct FormatPatch {
 pub enum FormatOperation {
     Content(ContentOperation),
     Mapping(MappingOperation),
+    Command(CommandOperation),
 }
 
 impl FormatOperation {
@@ -166,7 +168,7 @@ pub struct ContentOperation {
 
 /// The type of an operation
 #[derive(Debug, Default, Serialize, Deserialize, PartialEq, Eq)]
-#[serde(crate = "common::serde", rename_all = "lowercase")]
+#[serde(rename_all = "lowercase", crate = "common::serde")]
 enum ContentOperationType {
     /// Reset content
     #[default]
@@ -186,6 +188,33 @@ enum ContentOperationType {
 
     /// Update the current selection of the user (sent by clients only)
     Selection,
+}
+
+/// An operation specifying a command on the document, or nodes within it
+#[skip_serializing_none]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq)]
+#[serde(crate = "common::serde")]
+pub struct CommandOperation {
+    /// The type of command
+    r#command: CommandOperationCommand,
+
+    /// The ids of the nodes that the command applies to, if any
+    #[serde(alias = "nodeIds")]
+    node_ids: Option<Vec<NodeId>>,
+}
+
+/// The command of a command operation
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq)]
+#[serde(rename_all = "kebab-case", crate = "common::serde")]
+enum CommandOperationCommand {
+    /// Save the document
+    SaveDocument,
+
+    /// Execute the entire document
+    ExecuteDocument,
+
+    /// Execute specific nodes within the document
+    ExecuteNodes,
 }
 
 impl Document {
@@ -215,7 +244,7 @@ impl Document {
         )));
         let version = Arc::new(AtomicU32::new(1));
 
-        // Start task to receive incoming `StringPatch`s from the client, apply them
+        // Start task to receive incoming patches from the client, apply them
         // to the buffer, and update the document's root node
         if let Some(mut patch_receiver) = patch_receiver {
             let current_clone = current.clone();
@@ -251,6 +280,7 @@ impl Document {
                     // Apply the patch to the current content
                     let mut updated = false;
                     for op in patch.ops {
+                        use CommandOperationCommand::*;
                         use ContentOperationType::*;
                         use FormatOperation::*;
                         match op {
@@ -308,6 +338,23 @@ impl Document {
                                 tracing::debug!("Selection operation {from}-{to}")
                             }
 
+                            Command(CommandOperation {
+                                command: ExecuteDocument,
+                                ..
+                            }) => {
+                                // TODO
+                                tracing::warn!("TODO: Execute the document")
+                            }
+
+                            Command(CommandOperation {
+                                command: ExecuteNodes,
+                                node_ids: Some(node_ids),
+                                ..
+                            }) => {
+                                // TODO
+                                tracing::warn!("TODO: Execute a nodes {node_ids:?}")
+                            }
+
                             _ => tracing::warn!("Client sent invalid operation"),
                         }
                     }
@@ -331,7 +378,7 @@ impl Document {
         }
 
         // Start task to listen for changes to the document's root node,
-        // convert them to a `StringPatch` and send to the client
+        // convert them to a patch and send to the client
         if let Some(patch_sender) = patch_sender {
             let mut node_receiver = self.watch_receiver.clone();
             tokio::spawn(async move {
