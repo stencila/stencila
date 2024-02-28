@@ -66,12 +66,16 @@ class StatusGutterMarker extends GutterMarker {
 
   node: MappingEntry
 
+  doc: string
+
   constructor(
+    doc: string,
     node: MappingEntry,
     objectClient: ObjectClient,
     defaultLineHeight: number
   ) {
     super()
+    this.doc = doc
     this.node = node
     this.objectClient = objectClient
     this.defaultLineHeight = defaultLineHeight
@@ -83,6 +87,8 @@ class StatusGutterMarker extends GutterMarker {
     ) as StatusGutterMarkerEl
 
     dom.defaultLineHeight = this.defaultLineHeight
+    dom.doc = this.doc
+    dom.nodeId = this.node.nodeId
 
     return dom
   }
@@ -94,17 +100,29 @@ const execStatusGutter = (
 ) => [
   gutter({
     lineMarker: (view: EditorView, line: BlockInfo) => {
-      const node = sourceView.getNodeAt(line.from)
-      if (node && ExecutableTypeList.includes(node.nodeType)) {
+      const blockNode = sourceView.getNodeAt(line.from)
+
+      // find the inline executables within that line
+      // const inlineExecutables = sourceView
+      //   .getNodesBetween(line.from, line.to)
+      //   .filter(
+      //     (node) =>
+      //       ExecutableTypeList.includes(node.nodeType) &&
+      //       InlineTypeList.includes(node.nodeType)
+      //   )
+
+      if (blockNode && ExecutableTypeList.includes(blockNode.nodeType)) {
         // check this first line of a block node
-        if (node.start >= line.from && node.start < line.to) {
+        if (blockNode.start >= line.from && blockNode.start < line.to) {
           return new StatusGutterMarker(
-            node,
+            sourceView.doc,
+            blockNode,
             objectClient,
             view.defaultLineHeight
           )
         }
       }
+
       return null
       // TODO check line for inline Executables
     },

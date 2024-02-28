@@ -291,4 +291,30 @@ export abstract class FormatClient extends Client {
 
     return nodes
   }
+
+  /**
+   * Return a list of nodes within the given range
+   *
+   * Will ONLY include nodes that start and end within the range
+   *
+   * If no nodes are found or the range start is greater than the range end,
+   * will return an empty array.
+   */
+  public nodesInRange(from: number, to: number): MappingEntry[] {
+    let start = 0
+    let end = 0
+
+    const nodes: MappingEntry[] = []
+    if (from >= to) {
+      return nodes
+    }
+    for (const entry of this.mapping) {
+      start += entry.start
+      end += entry.end
+      if (start >= from && start < to && end > from && end <= to) {
+        nodes.push({ ...entry, start, end })
+      }
+    }
+    return nodes
+  }
 }

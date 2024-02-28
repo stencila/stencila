@@ -318,7 +318,7 @@ export class SourceView extends TWLitElement {
   }
 
   override connectedCallback = (): void => {
-    this.objectClient = new ObjectClient(this.doc)
+    super.connectedCallback()
   }
 
   /**
@@ -332,6 +332,7 @@ export class SourceView extends TWLitElement {
       this.doc,
       this.renderRoot.querySelector('[root]') as HTMLElement
     )
+    this.objectClient = new ObjectClient(this.doc)
   }
 
   /**
@@ -411,6 +412,17 @@ export class SourceView extends TWLitElement {
     position = position ?? this.codeMirrorView.state.selection.main.from
 
     return this.codeMirrorClient.nodesAt(position)
+  }
+
+  /**
+   * Get the list of nodes within the provided range.
+   * Only returns complete nodes within the range. nodes that start or finish ou
+   *
+   * @param from the starting position of the range
+   * @param to the ending position of the range
+   */
+  public getNodesBetween(from: number, to: number): MappingEntry[] {
+    return this.codeMirrorClient.nodesInRange(from, to)
   }
 
   /**
