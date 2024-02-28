@@ -5,4 +5,4 @@ edition = "2021"
 
 [dependencies]
 assistant = { path = "../assistant" }
-ollama-rs = { version = "0.1.6", features = ["rustls", "stream"] }
+ollama-rs = { version = "0.1.7", features = ["rustls", "stream"] }

@@ -9,6 +9,7 @@ use kernel::{
 use kernel_bash::BashKernel;
 use kernel_node::NodeKernel;
 use kernel_python::PythonKernel;
+use kernel_r::RKernel;
 use kernel_rhai::RhaiKernel;
 
 pub mod cli;
@@ -19,6 +20,7 @@ pub fn list() -> Vec<Box<dyn Kernel>> {
         Box::<BashKernel>::default() as Box<dyn Kernel>,
         Box::<NodeKernel>::default() as Box<dyn Kernel>,
         Box::<PythonKernel>::default() as Box<dyn Kernel>,
+        Box::<RKernel>::default() as Box<dyn Kernel>,
         Box::<RhaiKernel>::default() as Box<dyn Kernel>,
     ]
 }
@@ -44,15 +46,14 @@ impl fmt::Debug for Kernels {
 impl Kernels {
     /// Create a kernel instance
     ///
-    /// The `language` argument can be the name of a programming language, or
-    /// the id of an existing kernel.
+    /// The `language` argument can be the name of a kernel or a programming language
     async fn create_instance(&mut self, language: Option<&str>) -> Result<&mut dyn KernelInstance> {
         let kernel = match language {
             Some(language) => 'block: {
                 let format = Format::from_name(language).ok();
 
                 for kernel in list() {
-                    if kernel.id() == language {
+                    if kernel.name() == language {
                         break 'block kernel;
                     }
 
@@ -63,7 +64,7 @@ impl Kernels {
                     }
                 }
 
-                bail!("No kernel available with id, or that supports language, `{language}`")
+                bail!("No kernel available with name, or that supports language, `{language}`")
             }
             None => default(),
         };
@@ -97,7 +98,7 @@ impl Kernels {
                 return Ok(Some(instance.as_mut()));
             };
 
-            if instance.id() == language {
+            if instance.name() == language {
                 return Ok(Some(instance.as_mut()));
             }
 

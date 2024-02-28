@@ -34,9 +34,9 @@ slug = "0.1.5"
 smart-default = "0.7.1"
 smol_str = "0.2.1"
 strum = { version = "0.26.1", features = ["derive"] }
-syn = "2.0.50"
+syn = "2.0.51"
 tar = "0.4.40"
-tempfile = "3.10.0"
+tempfile = "3.10.1"
 tokio = { version = "1.36.0", features = ["full", "tracing"] }
 toml = "0.8.10"
 tracing = { version = "0.1.40", features = ["log"] }

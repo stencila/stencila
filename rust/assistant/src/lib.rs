@@ -258,10 +258,10 @@ impl Embeddings {
 
         #[cfg(feature = "fastembed")]
         {
-            use std::path::PathBuf;
-            use fastembed::{EmbeddingModel, InitOptions, TextEmbedding};
             use app::DirType;
             use common::{eyre::eyre, once_cell::sync::OnceCell};
+            use fastembed::{EmbeddingModel, InitOptions, TextEmbedding};
+            use std::path::PathBuf;
 
             // Informal perf tests during development indicated that using
             // a static improved speed substantially (rather than reloading for each call)

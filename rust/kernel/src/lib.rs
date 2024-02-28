@@ -13,7 +13,7 @@ use format::Format;
 pub use common;
 pub use format;
 pub use schema;
-use schema::{ExecutionMessage, Node, Variable};
+use schema::{ExecutionMessage, Node, SoftwareApplication, SoftwareSourceCode, Variable};
 
 /// A kernel for executing code in some language
 ///
@@ -25,10 +25,10 @@ use schema::{ExecutionMessage, Node, Variable};
 /// This trait specifies the kernel and its capabilities (similar to a Jupyter "kernel spec")
 /// The `KernelInstance` trait is the interface for instances of kernels.
 pub trait Kernel: Sync + Send {
-    /// Get the id of the kernel
+    /// Get the name of the kernel
     ///
-    /// This id should be unique amongst all kernels.
-    fn id(&self) -> String;
+    /// This name should be unique amongst all kernels.
+    fn name(&self) -> String;
 
     /// Get the availability of the kernel on the current machine
     fn availability(&self) -> KernelAvailability;
@@ -126,11 +126,11 @@ pub enum KernelForks {
 /// An instance of a kernel
 #[async_trait]
 pub trait KernelInstance: Sync + Send {
-    /// Get the id of the kernel instance
+    /// Get the name of the kernel instance
     ///
-    /// This id should be unique amongst all kernel instances,
+    /// This name should be unique amongst all kernel instances,
     /// including those for other `Kernel`s.
-    fn id(&self) -> String;
+    fn name(&self) -> String;
 
     /// Get the status of the kernel instance
     async fn status(&self) -> Result<KernelStatus>;
@@ -158,6 +158,12 @@ pub trait KernelInstance: Sync + Send {
     /// Evaluate a code expression, without side effects, in the kernel instance
     async fn evaluate(&mut self, code: &str) -> Result<(Node, Vec<ExecutionMessage>)>;
 
+    /// Get runtime information about the kernel instance
+    async fn info(&mut self) -> Result<SoftwareApplication>;
+
+    /// Get a list of packages available in the kernel instance
+    async fn packages(&mut self) -> Result<Vec<SoftwareSourceCode>>;
+
     /// Get a list of variables in the kernel instance
     async fn list(&mut self) -> Result<Vec<Variable>>;
 
@@ -172,7 +178,7 @@ pub trait KernelInstance: Sync + Send {
 
     /// Create a fork of the kernel instance
     async fn fork(&mut self) -> Result<Box<dyn KernelInstance>> {
-        bail!("Kernel `{}` does not support forks", self.id())
+        bail!("Kernel `{}` does not support forks", self.name())
     }
 }
 
@@ -227,7 +233,7 @@ pub mod tests {
 
     use common::{eyre::Report, indexmap::IndexMap, itertools::Itertools, tokio, tracing};
     use common_dev::pretty_assertions::assert_eq;
-    use schema::{Array, Null, Object, Paragraph, Primitive};
+    use schema::{Array, Null, Object, Paragraph, Primitive, SoftwareApplication};
 
     use super::*;
 
@@ -289,7 +295,7 @@ pub mod tests {
                     .collect_vec(),
                 "with code: {code}"
             );
-            assert_eq!(outputs, expected_outputs);
+            assert_eq!(outputs, expected_outputs, "with code: {code}");
         }
 
         Ok(())
@@ -318,6 +324,24 @@ pub mod tests {
         }
 
         Ok(())
+    }
+
+    /// Test getting runtime info
+    pub async fn info(mut instance: Box<dyn KernelInstance>) -> Result<SoftwareApplication> {
+        instance.start_here().await?;
+        assert_eq!(instance.status().await?, KernelStatus::Ready);
+
+        instance.info().await
+    }
+
+    /// Test getting list of packages
+    pub async fn packages(
+        mut instance: Box<dyn KernelInstance>,
+    ) -> Result<Vec<SoftwareSourceCode>> {
+        instance.start_here().await?;
+        assert_eq!(instance.status().await?, KernelStatus::Ready);
+
+        instance.packages().await
     }
 
     /// Test printing of nodes by a kernel instance

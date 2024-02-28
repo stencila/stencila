@@ -44,6 +44,11 @@
       ],
       "author": [
         {
+          "@type": "SoftwareApplication",
+          "@id": "super-editor",
+          "name": "Super-editor"
+        },
+        {
           "@type": "Person",
           "familyName": [
             "Baboon"
@@ -55,11 +60,6 @@
         {
           "@type": "Organization",
           "name": "Acme Corp"
-        },
-        {
-          "@type": "SoftwareApplication",
-          "@id": "super-editor",
-          "name": "Super-editor"
         }
       ]
     }

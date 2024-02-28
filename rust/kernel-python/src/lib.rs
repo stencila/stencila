@@ -13,7 +13,7 @@ pub struct PythonKernel {
 }
 
 impl Kernel for PythonKernel {
-    fn id(&self) -> String {
+    fn name(&self) -> String {
         "python".to_string()
     }
 
@@ -66,6 +66,7 @@ mod tests {
             indexmap::IndexMap,
             tokio,
         },
+        schema::MessageLevel,
         schema::{
             Array, ArrayHint, ArrayValidator, BooleanValidator, Datatable, DatatableColumn,
             DatatableColumnHint, DatatableHint, Hint, IntegerValidator, Node, Null,
@@ -156,8 +157,21 @@ print(a, b)",
     /// Standard kernel test for evaluation of expressions
     #[test_log::test(tokio::test)]
     async fn evaluation() -> Result<()> {
-        let Some(instance) = create_instance::<PythonKernel>().await? else {
+        let Some(mut instance) = create_instance::<PythonKernel>().await? else {
             return Ok(());
+        };
+
+        instance.start_here().await?;
+
+        // Deal with python exception message differences.
+        let sw = instance.info().await?;
+        let syntax_err = {
+            // After 3.9 the error message changed (we only support 3.9 onward).
+            if sw.options.software_version.unwrap().starts_with("3.9") {
+                Some("unexpected EOF while parsing (<string>, line 1)")
+            } else {
+                Some("invalid syntax (<string>, line 1)")
+            }
         };
 
         kernel_micro::tests::evaluation(
@@ -186,15 +200,50 @@ print(a, b)",
                     None,
                 ),
                 ("", Node::Null(Null), None),
-                (
-                    "@",
-                    Node::Null(Null),
-                    Some("invalid syntax (<string>, line 1)"),
-                ),
+                ("@", Node::Null(Null), syntax_err),
                 ("foo", Node::Null(Null), Some("name 'foo' is not defined")),
             ],
         )
         .await
+    }
+
+    /// Check that the logging is installed and captures warnings too.
+    #[test_log::test(tokio::test)]
+    async fn logging() -> Result<()> {
+        let Some(mut instance) = start_instance::<PythonKernel>().await? else {
+            return Ok(());
+        };
+        let (.., messages) = instance
+            .execute(
+                "
+import logging
+logger = logging.getLogger('just.a.test')
+logger.error('oh no')
+        ",
+            )
+            .await?;
+
+        assert_eq!(messages.len(), 1);
+        assert_eq!(messages.len(), 1);
+        let m = messages.first().unwrap();
+        assert_eq!(m.error_type.as_deref(), Some("just.a.test"));
+        assert_eq!(m.level, MessageLevel::Error);
+
+        let (.., messages) = instance
+            .execute(
+                "
+import warnings
+warnings.warn('This is a warning message', UserWarning)
+        ",
+            )
+            .await?;
+
+        assert_eq!(messages.len(), 1);
+        let m = messages.first().unwrap();
+        assert_eq!(m.error_type.as_deref(), Some("UserWarning"));
+        assert_eq!(m.level, MessageLevel::Warn);
+
+        Ok(())
     }
 
     /// Standard kernel test for printing nodes
@@ -234,6 +283,35 @@ print(a, b)",
         assert_eq!(messages[0].message, "name 'foo' is not defined");
         assert!(messages[0].stack_trace.is_some());
         assert_eq!(outputs, vec![]);
+
+        Ok(())
+    }
+
+    /// Standard kernel test for getting runtime information
+    #[test_log::test(tokio::test)]
+    async fn info() -> Result<()> {
+        let Some(instance) = create_instance::<PythonKernel>().await? else {
+            return Ok(());
+        };
+
+        let sw = kernel_micro::tests::info(instance).await?;
+        assert_eq!(sw.name, "python");
+        assert!(sw.options.software_version.is_some());
+        assert!(sw.options.software_version.unwrap().starts_with("3."));
+        assert!(sw.options.operating_system.is_some());
+
+        Ok(())
+    }
+
+    /// Standard kernel test for listing installed packages
+    #[test_log::test(tokio::test)]
+    async fn packages() -> Result<()> {
+        let Some(instance) = start_instance::<PythonKernel>().await? else {
+            return Ok(());
+        };
+
+        let pkgs = kernel_micro::tests::packages(instance).await?;
+        assert!(!pkgs.is_empty());
 
         Ok(())
     }
