@@ -8,13 +8,17 @@ use kernels::Kernels;
 use schema::{
     walk::{VisitorAsync, WalkControl, WalkNode},
     Array, Block, CodeChunk, CodeExpression, Duration, ExecutionMessage, ExecutionStatus, ForBlock,
-    IfBlock, IfBlockClause, Inline, MessageLevel, Node, Null, Primitive, Section, SectionType,
-    Timestamp,
+    IfBlock, IfBlockClause, Inline, MessageLevel, Node, NodeId, Null, Primitive, Section,
+    SectionType, Timestamp,
 };
 
 /// Walk over a node and execute it and all its child nodes
-pub async fn execute<T: WalkNode>(node: &mut T, kernels: &mut Kernels) -> Result<()> {
-    let mut executor = Executor { kernels };
+pub async fn execute<T: WalkNode>(
+    node: &mut T,
+    kernels: &mut Kernels,
+    node_id: Option<NodeId>,
+) -> Result<()> {
+    let mut executor = Executor { kernels, node_id };
     node.walk_async(&mut executor).await
 }
 
@@ -22,11 +26,25 @@ pub async fn execute<T: WalkNode>(node: &mut T, kernels: &mut Kernels) -> Result
 /// execution tasks from nodes
 
 struct Executor<'lt> {
+    /// The kernels that will be used for execution
     kernels: &'lt mut Kernels,
+
+    /// The node that should be executed
+    ///
+    /// If `None` then the entire document will be executed.
+    node_id: Option<NodeId>,
 }
 
 impl<'lt> VisitorAsync for Executor<'lt> {
     async fn visit_block(&mut self, block: &mut Block) -> Result<WalkControl> {
+        if let Some(node_id) = &self.node_id {
+            if let Some(block_node_id) = &block.node_id() {
+                if block_node_id == node_id {
+                    return Ok(WalkControl::Continue);
+                }
+            }
+        }
+
         use Block::*;
         Ok(match block {
             // TODO: CallBlock(node) => node.execute(self).await,
@@ -42,6 +60,14 @@ impl<'lt> VisitorAsync for Executor<'lt> {
     }
 
     async fn visit_inline(&mut self, inline: &mut Inline) -> Result<WalkControl> {
+        if let Some(node_id) = &self.node_id {
+            if let Some(inline_node_id) = &inline.node_id() {
+                if inline_node_id == node_id {
+                    return Ok(WalkControl::Continue);
+                }
+            }
+        }
+
         use Inline::*;
         Ok(match inline {
             CodeExpression(node) => node.execute(self).await,

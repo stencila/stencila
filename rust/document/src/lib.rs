@@ -20,7 +20,7 @@ use common::{
 use format::Format;
 use kernels::Kernels;
 use node_store::{inspect_store, load_store, ReadNode, WriteNode, WriteStore};
-use schema::{Article, Node};
+use schema::{Article, Node, NodeId};
 
 mod sync_directory;
 mod sync_file;
@@ -447,14 +447,14 @@ impl Document {
     }
 
     /// Execute the document
-    #[tracing::instrument(skip_all)]
-    pub async fn execute(&self) -> Result<()> {
+    #[tracing::instrument(skip(self))]
+    pub async fn execute(&self, node_id: Option<NodeId>) -> Result<()> {
         tracing::trace!("Executing document");
 
         let mut root = self.load().await?;
         let mut kernels = self.kernels.write().await;
 
-        node_execute::execute(&mut root, &mut kernels).await?;
+        node_execute::execute(&mut root, &mut kernels, node_id).await?;
 
         self.dump(&root).await?;
 

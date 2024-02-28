@@ -28,7 +28,7 @@ use common::{
     },
     glob::{glob, glob_with, MatchOptions},
     itertools::Itertools,
-    serde::{de::DeserializeOwned, Serialize},
+    serde::{de::DeserializeOwned, Deserialize, Serialize},
     serde_json,
     tokio::{
         self,
@@ -43,6 +43,7 @@ use common::{
 };
 use document::{Document, DocumentId, SyncDirection};
 use format::Format;
+use node_id::NodeId;
 
 use crate::{
     errors::InternalError,
@@ -216,6 +217,7 @@ pub fn router() -> Router<ServerState> {
     Router::new()
         .route("/open/*path", get(open_document))
         .route("/:id/close", post(close_document))
+        .route("/:id/execute", post(execute_document))
         .route("/:id/export", get(export_document))
         .route("/:id/websocket", get(websocket_for_document))
 }
@@ -462,6 +464,12 @@ async fn open_document(
     .into_response())
 }
 
+/// Parse a string as a `DocumentId` and return the corresponding document
+async fn doc_by_id(docs: &Arc<Documents>, id: &str) -> Result<Arc<Document>> {
+    let id = DocumentId::from_str(&id)?;
+    docs.by_id(&id).await
+}
+
 /// Handle a request to close a document
 async fn close_document(
     State(ServerState { docs, .. }): State<ServerState>,
@@ -476,6 +484,29 @@ async fn close_document(
     Ok(StatusCode::OK.into_response())
 }
 
+/// Parameters in the body of a `execute_document` request
+#[derive(Deserialize)]
+#[serde(crate = "common::serde")]
+struct ExecuteDocumentParams {
+    #[serde(alias = "nodeId")]
+    node_id: Option<NodeId>,
+}
+
+/// Handle a request to execute a document
+async fn execute_document(
+    State(ServerState { docs, .. }): State<ServerState>,
+    Path(id): Path<String>,
+    Json(ExecuteDocumentParams { node_id }): Json<ExecuteDocumentParams>,
+) -> Result<Response, InternalError> {
+    let Ok(doc) = doc_by_id(&docs, &id).await else {
+        return Ok((StatusCode::BAD_REQUEST, "Invalid document id").into_response());
+    };
+
+    doc.execute(node_id).await.map_err(InternalError::new)?;
+
+    Ok(StatusCode::OK.into_response())
+}
+
 /// Handle a request to export a document
 ///
 /// TODO: This should add correct MIME type to response
@@ -485,11 +516,9 @@ async fn export_document(
     Path(id): Path<String>,
     Query(query): Query<HashMap<String, String>>,
 ) -> Result<Response, InternalError> {
-    let Ok(id) = DocumentId::from_str(&id) else {
+    let Ok(doc) = doc_by_id(&docs, &id).await else {
         return Ok((StatusCode::BAD_REQUEST, "Invalid document id").into_response());
     };
-
-    let doc = docs.by_id(&id).await.map_err(InternalError::new)?;
 
     let format = query
         .get("format")
@@ -519,11 +548,9 @@ async fn websocket_for_document(
     ws: WebSocketUpgrade,
     Path(id): Path<String>,
 ) -> Result<Response, InternalError> {
-    let Ok(id) = DocumentId::from_str(&id) else {
+    let Ok(doc) = doc_by_id(&docs, &id).await else {
         return Ok((StatusCode::BAD_REQUEST, "Invalid document id").into_response());
     };
-
-    let doc = docs.by_id(&id).await.map_err(InternalError::new)?;
 
     // TODO: Change the allowed protocols based on the users permissions
     let mut protocols = vec![

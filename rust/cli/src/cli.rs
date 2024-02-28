@@ -599,7 +599,7 @@ impl Cli {
 
             Command::Execute { input, output } => {
                 let doc = Document::open(&input).await?;
-                doc.execute().await?;
+                doc.execute(None).await?;
 
                 let encode_options = codecs::EncodeOptions::default();
                 let format = encode_options.format.unwrap_or(Format::Text);
