@@ -295,12 +295,17 @@ export abstract class FormatClient extends Client {
   /**
    * Return a list of nodes within the given range
    *
-   * Will ONLY include nodes that start and end within the range
+   * Will ONLY include nodes that start and end within the range,
+   * unless the `allowPartailNodes`
    *
    * If no nodes are found or the range start is greater than the range end,
    * will return an empty array.
    */
-  public nodesInRange(from: number, to: number): MappingEntry[] {
+  public nodesInRange(
+    from: number,
+    to: number,
+    allowPartialNodes: boolean = false
+  ): MappingEntry[] {
     let start = 0
     let end = 0
 
@@ -311,7 +316,13 @@ export abstract class FormatClient extends Client {
     for (const entry of this.mapping) {
       start += entry.start
       end += entry.end
-      if (start >= from && start < to && end > from && end <= to) {
+      // If condition set, get nodes within or partialy within the range,
+      // else only include complete nodes within the range
+      if (allowPartialNodes) {
+        if ((start >= from && start <= to) || (end >= from && end <= to)) {
+          nodes.push({ ...entry, start, end })
+        }
+      } else if (start >= from && start < to && end > from && end <= to) {
         nodes.push({ ...entry, start, end })
       }
     }

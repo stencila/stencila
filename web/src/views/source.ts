@@ -37,13 +37,13 @@ import { DomClient } from '../clients/dom'
 import { MappingEntry } from '../clients/format'
 import { ObjectClient } from '../clients/object'
 import { markdownHighlightStyle } from '../languages/markdown'
-import type { DocumentId, DocumentAccess, NodeId } from '../types'
+import type { DocumentId, DocumentAccess } from '../types'
 import { TWLitElement } from '../ui/twind'
 
 import { bottomPanel } from './source/bottom-panel'
 import { nodeTypeGutter, execStatusGutter } from './source/gutters'
 import { infoSideBar } from './source/infoSideBar'
-import { autoWrapKeys } from './source/keyMaps'
+import { serverActionKeys, autoWrapKeys } from './source/keyMaps'
 
 /**
  * Source code editor for a document
@@ -274,31 +274,7 @@ export class SourceView extends TWLitElement {
       ...completionKeymap,
       ...searchKeymap,
       { key: 'Ctrl-Space', run: startCompletion },
-      {
-        key: 'Ctrl-S',
-        run: () => {
-          this.codeMirrorClient.sendCommand('save-document')
-          return false
-        },
-      },
-      {
-        key: 'Ctrl-Shift-Enter',
-        run: () => {
-          this.codeMirrorClient.sendCommand('execute-document')
-          return false
-        },
-      },
-      {
-        key: 'Ctrl-Enter',
-        run: (view) => {
-          // TODO: select the ids of nodes that are located at or between
-          // selection. Should consider multicursor selections, not just main
-          // const {from, to} = view.state.selection.main
-          const nodeIds: NodeId[] = []
-          this.codeMirrorClient.sendCommand('execute-nodes', nodeIds)
-          return false
-        },
-      },
+      ...serverActionKeys(this.codeMirrorClient),
       ...autoWrapKeys,
     ])
 
@@ -360,15 +336,15 @@ export class SourceView extends TWLitElement {
       // Destroy the existing editor if there is one
       this.codeMirrorView?.destroy()
 
+      this.codeMirrorClient = new CodeMirrorClient(
+        this.doc,
+        this.access,
+        this.format,
+        this.writeOnly
+      )
+
       // Setup client and editor for the format
       this.getViewExtensions().then((extensions) => {
-        this.codeMirrorClient = new CodeMirrorClient(
-          this.doc,
-          this.access,
-          this.format,
-          this.writeOnly
-        )
-
         this.codeMirrorView = new CodeMirrorView({
           extensions: [this.codeMirrorClient.sendPatches(), ...extensions],
           parent: this.renderRoot.querySelector('#codemirror'),
