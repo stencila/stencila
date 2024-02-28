@@ -1,6 +1,6 @@
 export * from "./types/index.js";
 
-export { BlockType } from "./blockType.js";
-export { ExecutableType } from "./executableType.js";
-export { InlineType } from "./inlineType.js";
-export { NodeType } from "./nodeType.js";
+export { BlockType, BlockTypeList } from "./blockType.js";
+export { ExecutableType, ExecutableTypeList } from "./executableType.js";
+export { InlineType, InlineTypeList } from "./inlineType.js";
+export { NodeType, NodeTypeList } from "./nodeType.js";

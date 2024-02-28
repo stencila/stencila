@@ -35,12 +35,13 @@ import { ref, Ref, createRef } from 'lit/directives/ref'
 import { CodeMirrorClient } from '../clients/codemirror'
 import { DomClient } from '../clients/dom'
 import { MappingEntry } from '../clients/format'
+import { ObjectClient } from '../clients/object'
 import { markdownHighlightStyle } from '../languages/markdown'
 import type { DocumentId, DocumentAccess } from '../types'
 import { TWLitElement } from '../ui/twind'
 
 import { bottomPanel } from './source/bottom-panel'
-import { statusGutter } from './source/gutters'
+import { nodeTypeGutter, execStatusGutter } from './source/gutters'
 import { infoSideBar } from './source/infoSideBar'
 import { autoWrapKeys } from './source/keyMaps'
 
@@ -116,6 +117,11 @@ export class SourceView extends TWLitElement {
    * for the source code to and from the server
    */
   private codeMirrorClient: CodeMirrorClient
+
+  /**
+   * `ObjectClient` isntance for current docuement
+   */
+  private objectClient: ObjectClient
 
   /**
    * A CodeMirror editor view which the client interacts with
@@ -263,7 +269,13 @@ export class SourceView extends TWLitElement {
     const lineWrapping = this.lineWrappingConfig.of(CodeMirrorView.lineWrapping)
 
     const clientReceiver = this.clientRecieverConfig.of(
-      !this.writeOnly ? [statusGutter(this), infoSideBar(this)] : []
+      !this.writeOnly
+        ? [
+            execStatusGutter(this, this.objectClient),
+            nodeTypeGutter(this),
+            infoSideBar(this),
+          ]
+        : []
     )
 
     const keyMaps = keymap.of([
@@ -303,6 +315,10 @@ export class SourceView extends TWLitElement {
     ]
 
     return extensions
+  }
+
+  override connectedCallback = (): void => {
+    this.objectClient = new ObjectClient(this.doc)
   }
 
   /**
@@ -357,11 +373,19 @@ export class SourceView extends TWLitElement {
 
     if (changedProperties.has('writeOnly')) {
       // set codeMirrorClient property
-      this.codeMirrorClient.writeOnly = this.writeOnly
+      if (this.codeMirrorClient) {
+        this.codeMirrorClient.writeOnly = this.writeOnly
+      }
       // remove/add required extensions
       this.dispatchEffect(
         this.clientRecieverConfig.reconfigure(
-          !this.writeOnly ? [statusGutter(this), infoSideBar(this)] : []
+          !this.writeOnly
+            ? [
+                execStatusGutter(this, this.objectClient),
+                nodeTypeGutter(this),
+                infoSideBar(this),
+              ]
+            : []
         )
       )
     }
