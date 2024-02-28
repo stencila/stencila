@@ -3,6 +3,7 @@ use std::ops::AddAssign;
 use common::{
     eyre::{Report, Result},
     itertools::Itertools,
+    tracing,
 };
 use kernels::Kernels;
 use schema::{
@@ -128,7 +129,10 @@ fn execution_duration(started: &Timestamp, ended: &Timestamp) -> Option<Duration
 }
 
 impl Executable for CodeChunk {
+    #[tracing::instrument(skip_all)]
     async fn execute<'lt>(&mut self, executor: &mut Executor<'lt>) -> WalkControl {
+        tracing::trace!("Executing CodeChunk {}", self.node_id());
+
         // Execute code (if it is not empty) in kernels
         let code = self.code.trim();
         if !code.is_empty() {
@@ -168,7 +172,10 @@ impl Executable for CodeChunk {
 }
 
 impl Executable for CodeExpression {
+    #[tracing::instrument(skip_all)]
     async fn execute<'lt>(&mut self, executor: &mut Executor<'lt>) -> WalkControl {
+        tracing::trace!("Executing CodeExpression {}", self.node_id());
+
         // Evaluate code (if it is not empty) in kernels
         let code = self.code.trim();
         if !code.is_empty() {
@@ -204,7 +211,10 @@ impl Executable for CodeExpression {
 }
 
 impl Executable for ForBlock {
+    #[tracing::instrument(skip_all)]
     async fn execute<'lt>(&mut self, executor: &mut Executor<'lt>) -> WalkControl {
+        tracing::trace!("Executing ForBlock {}", self.node_id());
+
         // Ensure iterations array and clear any existing iterations
         let iterations = self.iterations.get_or_insert_with(Vec::new);
         iterations.clear();
@@ -336,7 +346,10 @@ impl Executable for ForBlock {
 }
 
 impl Executable for IfBlock {
+    #[tracing::instrument(skip_all)]
     async fn execute<'lt>(&mut self, executor: &mut Executor<'lt>) -> WalkControl {
+        tracing::trace!("Executing IfBlock {}", self.node_id());
+
         if !self.clauses.is_empty() {
             let started = Timestamp::now();
 
@@ -373,7 +386,10 @@ impl Executable for IfBlock {
 }
 
 impl Executable for IfBlockClause {
+    #[tracing::instrument(skip_all)]
     async fn execute<'lt>(&mut self, executor: &mut Executor<'lt>) -> WalkControl {
+        tracing::trace!("Executing IfBlockClause {}", self.node_id());
+
         let mut messages = Vec::new();
         let started = Timestamp::now();
 
