@@ -557,6 +557,7 @@ async fn websocket_for_document(
         "read.dom.stencila.org".to_string(),
         "read.debug.stencila.org".to_string(),
         "read.object.stencila.org".to_string(),
+        "read.directory.stencila.org".to_string(),
     ];
 
     // Protocols only permitted if sync direction includes `Out`
@@ -576,7 +577,6 @@ async fn websocket_for_document(
         Format::Yaml,
     ] {
         protocols.push(format!("read.{format}.stencila.org"));
-        protocols.push(format!("write.{format}.stencila.org"));
         protocols.push(format!("write.{format}.stencila.org"));
     }
 
