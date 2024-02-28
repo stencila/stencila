@@ -2,7 +2,7 @@ title: ExecutionRequired
 '@id': stencila:ExecutionRequired
 extends: Enumeration
 category: flow
-description: Under which circumstances the document node should be automatically executed.
+description: Whether, and why, the execution of a node is required or not.
 default: NeverExecuted
 anyOf:
   - const: 'No'
