@@ -87,7 +87,7 @@ export class DirectoryView extends LitElement {
    * @param path The path of the file
    */
   static async openPath(path: string): Promise<DocumentId> {
-    const response = await fetch(`/~open/${path}`)
+    const response = await fetch(`/~documents/open/${path}`)
     if (response.status !== 200) {
       // TODO: Better error handling
       console.error(response)
@@ -117,7 +117,7 @@ export class DirectoryView extends LitElement {
    * @param path The id of the document
    */
   static async closeDocument(docId: DocumentId) {
-    await fetch(`/~close/${docId}`, { method: 'POST' })
+    await fetch(`/~documents/${docId}/close`, { method: 'POST' })
   }
 
   /**

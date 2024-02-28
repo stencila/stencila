@@ -26,7 +26,7 @@ This module has several classes of clients which provide different types of acce
 
 Some clients are read-only: they can not send any changes to the document, only receive them. Other clients are read-write but will only send changes related to certain node types. Having different JavaScript classes for clients with different capabilities adds an additional layer of security because only minimum the necessary code is running in the browser.
 
-Each client instance is associated with a single document and communicates with the server over a WebSocket connection at `/~ws/<DOCUMENT_ID>`. The server routes incoming and outgoing messages between the client and the document. A single browser window may have several instances of more than one class of client.
+Each client instance is associated with a single document and communicates with the server over a WebSocket connection at `/~documents/<DOCUMENT_ID>/websocket`. The server routes incoming and outgoing messages between the client and the document. A single browser window may have several instances of more than one class of client.
 
 ### WebSocket subprotocols
 

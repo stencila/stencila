@@ -59,7 +59,7 @@ export abstract class Client {
   private connect(id: DocumentId, subprotocol: string) {
     const protocol = window.location.protocol === 'http:' ? 'ws' : 'wss'
     const host = window.location.host
-    const url = `${protocol}://${host}/~ws/${id}`
+    const url = `${protocol}://${host}/~documents/${id}/websocket`
 
     this.ws = new WebSocket(url, subprotocol + '.stencila.org')
 
