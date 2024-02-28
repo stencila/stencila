@@ -28,13 +28,19 @@ class StatusGutterMarkerEl extends LitElement {
   private execute = async (): Promise<void> => {
     await fetch(`/~documents/${this.doc}/execute`, {
       method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
       body: JSON.stringify({ nodeId: this.nodeId }),
     })
   }
 
-  private interupt = async (): Promise<void> => {
-    await fetch(`/~documents/${this.doc}/interupt`, {
+  private interrupt = async (): Promise<void> => {
+    await fetch(`/~documents/${this.doc}/interrupt`, {
       method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
       body: JSON.stringify({ nodeId: this.nodeId }),
     })
   }
