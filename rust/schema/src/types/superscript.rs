@@ -44,14 +44,14 @@ pub struct Superscript {
 }
 
 impl Superscript {
-    const NICK: &'static str = "sup";
+    const NICK: [u8; 3] = [115, 117, 112];
     
     pub fn node_type(&self) -> NodeType {
         NodeType::Superscript
     }
 
     pub fn node_id(&self) -> NodeId {
-        NodeId::new(Self::NICK, &self.uid)
+        NodeId::new(&Self::NICK, &self.uid)
     }
     
     pub fn new(content: Vec<Inline>) -> Self {

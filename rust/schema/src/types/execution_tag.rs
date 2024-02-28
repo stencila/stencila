@@ -38,14 +38,14 @@ pub struct ExecutionTag {
 }
 
 impl ExecutionTag {
-    const NICK: &'static str = "ext";
+    const NICK: [u8; 3] = [101, 120, 116];
     
     pub fn node_type(&self) -> NodeType {
         NodeType::ExecutionTag
     }
 
     pub fn node_id(&self) -> NodeId {
-        NodeId::new(Self::NICK, &self.uid)
+        NodeId::new(&Self::NICK, &self.uid)
     }
     
     pub fn new(name: String, value: String, is_global: Boolean) -> Self {

@@ -27,14 +27,14 @@ pub struct Unknown {
 }
 
 impl Unknown {
-    const NICK: &'static str = "unk";
+    const NICK: [u8; 3] = [117, 110, 107];
     
     pub fn node_type(&self) -> NodeType {
         NodeType::Unknown
     }
 
     pub fn node_id(&self) -> NodeId {
-        NodeId::new(Self::NICK, &self.uid)
+        NodeId::new(&Self::NICK, &self.uid)
     }
     
     pub fn new() -> Self {

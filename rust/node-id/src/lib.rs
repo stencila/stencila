@@ -1,11 +1,16 @@
-use std::fmt;
+use std::{
+    fmt::{self, Write},
+    str,
+};
 
 #[cfg(debug_assertions)]
 use std::sync::atomic::{AtomicU64, Ordering};
 
+use common::eyre::bail;
 #[allow(unused)]
 use common::{
-    bs58, derive_more::Deref, once_cell::sync::Lazy, serde_with::SerializeDisplay, uuid::Uuid,
+    bs58, derive_more::Deref, eyre::Report, once_cell::sync::Lazy, serde_with::DeserializeFromStr,
+    serde_with::SerializeDisplay, uuid::Uuid,
 };
 
 /// A unique id for a node
@@ -74,17 +79,17 @@ impl PartialEq for NodeUid {
 }
 
 /// A unique id for a node including a short nickname for the type of node
-#[derive(Clone, PartialEq, Eq, Hash, SerializeDisplay)]
+#[derive(Clone, PartialEq, Eq, Hash, SerializeDisplay, DeserializeFromStr)]
 #[serde_with(crate = "common::serde_with")]
 pub struct NodeId {
-    nick: &'static str,
+    nick: [u8; 3],
     uid: Vec<u8>,
 }
 
 impl NodeId {
-    pub fn new(nick: &'static str, uid: &[u8]) -> Self {
+    pub fn new(nick: &'static [u8; 3], uid: &[u8]) -> Self {
         Self {
-            nick,
+            nick: *nick,
             uid: uid.into(),
         }
     }
@@ -92,7 +97,10 @@ impl NodeId {
 
 impl fmt::Display for NodeId {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        f.write_str(self.nick)?;
+        f.write_char(self.nick[0] as char)?;
+        f.write_char(self.nick[1] as char)?;
+        f.write_char(self.nick[2] as char)?;
+
         f.write_str("_")?;
 
         let id = bs58::encode(&self.uid).into_string();
@@ -103,5 +111,23 @@ impl fmt::Display for NodeId {
 impl fmt::Debug for NodeId {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         f.write_str(&self.to_string())
+    }
+}
+
+impl str::FromStr for NodeId {
+    type Err = Report;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        let bytes = s.as_bytes();
+
+        if bytes.len() < 5 || bytes[3] != b'_' {
+            bail!("Invalid node id")
+        }
+
+        let nick = [bytes[0], bytes[1], bytes[2]];
+
+        let uid = bs58::decode(&bytes[4..]).into_vec()?;
+
+        Ok(Self { nick, uid })
     }
 }

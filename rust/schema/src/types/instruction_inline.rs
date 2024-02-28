@@ -194,14 +194,14 @@ pub struct InstructionInlineOptions {
 }
 
 impl InstructionInline {
-    const NICK: &'static str = "isi";
+    const NICK: [u8; 3] = [105, 115, 105];
     
     pub fn node_type(&self) -> NodeType {
         NodeType::InstructionInline
     }
 
     pub fn node_id(&self) -> NodeId {
-        NodeId::new(Self::NICK, &self.uid)
+        NodeId::new(&Self::NICK, &self.uid)
     }
     
     pub fn new(messages: Vec<InstructionMessage>) -> Self {

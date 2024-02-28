@@ -43,14 +43,14 @@ pub struct CompilationMessage {
 }
 
 impl CompilationMessage {
-    const NICK: &'static str = "cme";
+    const NICK: [u8; 3] = [99, 109, 101];
     
     pub fn node_type(&self) -> NodeType {
         NodeType::CompilationMessage
     }
 
     pub fn node_id(&self) -> NodeId {
-        NodeId::new(Self::NICK, &self.uid)
+        NodeId::new(&Self::NICK, &self.uid)
     }
     
     pub fn new(level: MessageLevel, message: String) -> Self {

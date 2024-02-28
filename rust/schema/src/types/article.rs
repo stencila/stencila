@@ -297,14 +297,14 @@ pub struct ArticleOptions {
 }
 
 impl Article {
-    const NICK: &'static str = "art";
+    const NICK: [u8; 3] = [97, 114, 116];
     
     pub fn node_type(&self) -> NodeType {
         NodeType::Article
     }
 
     pub fn node_id(&self) -> NodeId {
-        NodeId::new(Self::NICK, &self.uid)
+        NodeId::new(&Self::NICK, &self.uid)
     }
     
     pub fn new(content: Vec<Block>) -> Self {

@@ -43,14 +43,14 @@ pub struct Text {
 }
 
 impl Text {
-    const NICK: &'static str = "txt";
+    const NICK: [u8; 3] = [116, 120, 116];
     
     pub fn node_type(&self) -> NodeType {
         NodeType::Text
     }
 
     pub fn node_id(&self) -> NodeId {
-        NodeId::new(Self::NICK, &self.uid)
+        NodeId::new(&Self::NICK, &self.uid)
     }
     
     pub fn new(value: Cord) -> Self {

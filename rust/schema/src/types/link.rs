@@ -60,14 +60,14 @@ pub struct Link {
 }
 
 impl Link {
-    const NICK: &'static str = "lin";
+    const NICK: [u8; 3] = [108, 105, 110];
     
     pub fn node_type(&self) -> NodeType {
         NodeType::Link
     }
 
     pub fn node_id(&self) -> NodeId {
-        NodeId::new(Self::NICK, &self.uid)
+        NodeId::new(&Self::NICK, &self.uid)
     }
     
     pub fn new(content: Vec<Inline>, target: String) -> Self {

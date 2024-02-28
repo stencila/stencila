@@ -213,14 +213,14 @@ pub struct ForBlockOptions {
 }
 
 impl ForBlock {
-    const NICK: &'static str = "frb";
+    const NICK: [u8; 3] = [102, 114, 98];
     
     pub fn node_type(&self) -> NodeType {
         NodeType::ForBlock
     }
 
     pub fn node_id(&self) -> NodeId {
-        NodeId::new(Self::NICK, &self.uid)
+        NodeId::new(&Self::NICK, &self.uid)
     }
     
     pub fn new(code: Cord, variable: String, content: Vec<Block>) -> Self {

@@ -159,14 +159,14 @@ pub struct ButtonOptions {
 }
 
 impl Button {
-    const NICK: &'static str = "but";
+    const NICK: [u8; 3] = [98, 117, 116];
     
     pub fn node_type(&self) -> NodeType {
         NodeType::Button
     }
 
     pub fn node_id(&self) -> NodeId {
-        NodeId::new(Self::NICK, &self.uid)
+        NodeId::new(&Self::NICK, &self.uid)
     }
     
     pub fn new(code: Cord, name: String) -> Self {

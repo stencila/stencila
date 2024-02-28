@@ -31,14 +31,14 @@ pub struct StringHint {
 }
 
 impl StringHint {
-    const NICK: &'static str = "sth";
+    const NICK: [u8; 3] = [115, 116, 104];
     
     pub fn node_type(&self) -> NodeType {
         NodeType::StringHint
     }
 
     pub fn node_id(&self) -> NodeId {
-        NodeId::new(Self::NICK, &self.uid)
+        NodeId::new(&Self::NICK, &self.uid)
     }
     
     pub fn new(chars: Integer) -> Self {

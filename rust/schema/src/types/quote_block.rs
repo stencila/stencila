@@ -70,14 +70,14 @@ pub struct QuoteBlockOptions {
 }
 
 impl QuoteBlock {
-    const NICK: &'static str = "qtb";
+    const NICK: [u8; 3] = [113, 116, 98];
     
     pub fn node_type(&self) -> NodeType {
         NodeType::QuoteBlock
     }
 
     pub fn node_id(&self) -> NodeId {
-        NodeId::new(Self::NICK, &self.uid)
+        NodeId::new(&Self::NICK, &self.uid)
     }
     
     pub fn new(content: Vec<Block>) -> Self {

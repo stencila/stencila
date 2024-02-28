@@ -48,14 +48,14 @@ pub struct ReplaceBlock {
 }
 
 impl ReplaceBlock {
-    const NICK: &'static str = "rpb";
+    const NICK: [u8; 3] = [114, 112, 98];
     
     pub fn node_type(&self) -> NodeType {
         NodeType::ReplaceBlock
     }
 
     pub fn node_id(&self) -> NodeId {
-        NodeId::new(Self::NICK, &self.uid)
+        NodeId::new(&Self::NICK, &self.uid)
     }
     
     pub fn new(content: Vec<Block>, replacement: Vec<Block>) -> Self {

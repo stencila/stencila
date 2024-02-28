@@ -39,14 +39,14 @@ pub struct StringValidator {
 }
 
 impl StringValidator {
-    const NICK: &'static str = "stv";
+    const NICK: [u8; 3] = [115, 116, 118];
     
     pub fn node_type(&self) -> NodeType {
         NodeType::StringValidator
     }
 
     pub fn node_id(&self) -> NodeId {
-        NodeId::new(Self::NICK, &self.uid)
+        NodeId::new(&Self::NICK, &self.uid)
     }
     
     pub fn new() -> Self {

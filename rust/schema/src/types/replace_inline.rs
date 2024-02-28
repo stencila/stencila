@@ -48,14 +48,14 @@ pub struct ReplaceInline {
 }
 
 impl ReplaceInline {
-    const NICK: &'static str = "rpi";
+    const NICK: [u8; 3] = [114, 112, 105];
     
     pub fn node_type(&self) -> NodeType {
         NodeType::ReplaceInline
     }
 
     pub fn node_id(&self) -> NodeId {
-        NodeId::new(Self::NICK, &self.uid)
+        NodeId::new(&Self::NICK, &self.uid)
     }
     
     pub fn new(content: Vec<Inline>, replacement: Vec<Inline>) -> Self {

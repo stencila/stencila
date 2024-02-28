@@ -232,14 +232,14 @@ pub struct CollectionOptions {
 }
 
 impl Collection {
-    const NICK: &'static str = "col";
+    const NICK: [u8; 3] = [99, 111, 108];
     
     pub fn node_type(&self) -> NodeType {
         NodeType::Collection
     }
 
     pub fn node_id(&self) -> NodeId {
-        NodeId::new(Self::NICK, &self.uid)
+        NodeId::new(&Self::NICK, &self.uid)
     }
     
     pub fn new(parts: Vec<CreativeWorkType>) -> Self {

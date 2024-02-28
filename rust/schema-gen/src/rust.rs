@@ -761,8 +761,13 @@ pub struct {title}Options {{
 
         let nick = match &schema.nick {
             Some(nick) => nick.to_lowercase(),
-            None => title.to_lowercase()[..3].to_string(),
+            None => title.to_lowercase(),
         };
+        let nick = nick.as_bytes();
+        let nick = format!(
+            "const NICK: [u8; 3] = [{}, {}, {}];",
+            nick[0], nick[1], nick[2]
+        );
 
         write(
             path,
@@ -783,14 +788,14 @@ pub struct {title} {{
 }}{options}
 
 impl {title} {{
-    const NICK: &'static str = "{nick}";
+    {nick}
     
     pub fn node_type(&self) -> NodeType {{
         NodeType::{title}
     }}
 
     pub fn node_id(&self) -> NodeId {{
-        NodeId::new(Self::NICK, &self.uid)
+        NodeId::new(&Self::NICK, &self.uid)
     }}
     {new}
 }}

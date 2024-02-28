@@ -125,14 +125,14 @@ pub struct PersonOptions {
 }
 
 impl Person {
-    const NICK: &'static str = "per";
+    const NICK: [u8; 3] = [112, 101, 114];
     
     pub fn node_type(&self) -> NodeType {
         NodeType::Person
     }
 
     pub fn node_id(&self) -> NodeId {
-        NodeId::new(Self::NICK, &self.uid)
+        NodeId::new(&Self::NICK, &self.uid)
     }
     
     pub fn new() -> Self {

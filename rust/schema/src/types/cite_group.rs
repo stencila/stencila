@@ -33,14 +33,14 @@ pub struct CiteGroup {
 }
 
 impl CiteGroup {
-    const NICK: &'static str = "ctg";
+    const NICK: [u8; 3] = [99, 116, 103];
     
     pub fn node_type(&self) -> NodeType {
         NodeType::CiteGroup
     }
 
     pub fn node_id(&self) -> NodeId {
-        NodeId::new(Self::NICK, &self.uid)
+        NodeId::new(&Self::NICK, &self.uid)
     }
     
     pub fn new(items: Vec<Cite>) -> Self {

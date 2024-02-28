@@ -112,14 +112,14 @@ pub struct PostalAddressOptions {
 }
 
 impl PostalAddress {
-    const NICK: &'static str = "pos";
+    const NICK: [u8; 3] = [112, 111, 115];
     
     pub fn node_type(&self) -> NodeType {
         NodeType::PostalAddress
     }
 
     pub fn node_id(&self) -> NodeId {
-        NodeId::new(Self::NICK, &self.uid)
+        NodeId::new(&Self::NICK, &self.uid)
     }
     
     pub fn new() -> Self {

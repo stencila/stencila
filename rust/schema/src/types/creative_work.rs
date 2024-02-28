@@ -232,14 +232,14 @@ pub struct CreativeWorkOptions {
 }
 
 impl CreativeWork {
-    const NICK: &'static str = "cre";
+    const NICK: [u8; 3] = [99, 114, 101];
     
     pub fn node_type(&self) -> NodeType {
         NodeType::CreativeWork
     }
 
     pub fn node_id(&self) -> NodeId {
-        NodeId::new(Self::NICK, &self.uid)
+        NodeId::new(&Self::NICK, &self.uid)
     }
     
     pub fn new() -> Self {

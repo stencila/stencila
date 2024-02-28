@@ -173,14 +173,14 @@ pub struct IncludeBlockOptions {
 }
 
 impl IncludeBlock {
-    const NICK: &'static str = "inc";
+    const NICK: [u8; 3] = [105, 110, 99];
     
     pub fn node_type(&self) -> NodeType {
         NodeType::IncludeBlock
     }
 
     pub fn node_id(&self) -> NodeId {
-        NodeId::new(Self::NICK, &self.uid)
+        NodeId::new(&Self::NICK, &self.uid)
     }
     
     pub fn new(source: String) -> Self {

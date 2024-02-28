@@ -44,14 +44,14 @@ pub struct Underline {
 }
 
 impl Underline {
-    const NICK: &'static str = "und";
+    const NICK: [u8; 3] = [117, 110, 100];
     
     pub fn node_type(&self) -> NodeType {
         NodeType::Underline
     }
 
     pub fn node_id(&self) -> NodeId {
-        NodeId::new(Self::NICK, &self.uid)
+        NodeId::new(&Self::NICK, &self.uid)
     }
     
     pub fn new(content: Vec<Inline>) -> Self {

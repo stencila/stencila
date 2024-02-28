@@ -80,14 +80,14 @@ pub struct PropertyValueOptions {
 }
 
 impl PropertyValue {
-    const NICK: &'static str = "pro";
+    const NICK: [u8; 3] = [112, 114, 111];
     
     pub fn node_type(&self) -> NodeType {
         NodeType::PropertyValue
     }
 
     pub fn node_id(&self) -> NodeId {
-        NodeId::new(Self::NICK, &self.uid)
+        NodeId::new(&Self::NICK, &self.uid)
     }
     
     pub fn new(value: Primitive) -> Self {

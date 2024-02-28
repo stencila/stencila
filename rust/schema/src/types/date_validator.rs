@@ -34,14 +34,14 @@ pub struct DateValidator {
 }
 
 impl DateValidator {
-    const NICK: &'static str = "dav";
+    const NICK: [u8; 3] = [100, 97, 118];
     
     pub fn node_type(&self) -> NodeType {
         NodeType::DateValidator
     }
 
     pub fn node_id(&self) -> NodeId {
-        NodeId::new(Self::NICK, &self.uid)
+        NodeId::new(&Self::NICK, &self.uid)
     }
     
     pub fn new() -> Self {

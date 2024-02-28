@@ -38,14 +38,14 @@ pub struct DateTime {
 }
 
 impl DateTime {
-    const NICK: &'static str = "dti";
+    const NICK: [u8; 3] = [100, 116, 105];
     
     pub fn node_type(&self) -> NodeType {
         NodeType::DateTime
     }
 
     pub fn node_id(&self) -> NodeId {
-        NodeId::new(Self::NICK, &self.uid)
+        NodeId::new(&Self::NICK, &self.uid)
     }
     
     pub fn new(value: String) -> Self {

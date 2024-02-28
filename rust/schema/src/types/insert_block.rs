@@ -43,14 +43,14 @@ pub struct InsertBlock {
 }
 
 impl InsertBlock {
-    const NICK: &'static str = "inb";
+    const NICK: [u8; 3] = [105, 110, 98];
     
     pub fn node_type(&self) -> NodeType {
         NodeType::InsertBlock
     }
 
     pub fn node_id(&self) -> NodeId {
-        NodeId::new(Self::NICK, &self.uid)
+        NodeId::new(&Self::NICK, &self.uid)
     }
     
     pub fn new(content: Vec<Block>) -> Self {

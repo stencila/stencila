@@ -74,14 +74,14 @@ pub struct CodeInlineOptions {
 }
 
 impl CodeInline {
-    const NICK: &'static str = "cdi";
+    const NICK: [u8; 3] = [99, 100, 105];
     
     pub fn node_type(&self) -> NodeType {
         NodeType::CodeInline
     }
 
     pub fn node_id(&self) -> NodeId {
-        NodeId::new(Self::NICK, &self.uid)
+        NodeId::new(&Self::NICK, &self.uid)
     }
     
     pub fn new(code: Cord) -> Self {

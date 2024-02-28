@@ -33,14 +33,14 @@ pub struct TupleValidator {
 }
 
 impl TupleValidator {
-    const NICK: &'static str = "tuv";
+    const NICK: [u8; 3] = [116, 117, 118];
     
     pub fn node_type(&self) -> NodeType {
         NodeType::TupleValidator
     }
 
     pub fn node_id(&self) -> NodeId {
-        NodeId::new(Self::NICK, &self.uid)
+        NodeId::new(&Self::NICK, &self.uid)
     }
     
     pub fn new() -> Self {

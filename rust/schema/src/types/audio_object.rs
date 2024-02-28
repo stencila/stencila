@@ -307,14 +307,14 @@ pub struct AudioObjectOptions {
 }
 
 impl AudioObject {
-    const NICK: &'static str = "aud";
+    const NICK: [u8; 3] = [97, 117, 100];
     
     pub fn node_type(&self) -> NodeType {
         NodeType::AudioObject
     }
 
     pub fn node_id(&self) -> NodeId {
-        NodeId::new(Self::NICK, &self.uid)
+        NodeId::new(&Self::NICK, &self.uid)
     }
     
     pub fn new(content_url: String) -> Self {

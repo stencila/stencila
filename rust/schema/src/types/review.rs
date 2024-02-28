@@ -241,14 +241,14 @@ pub struct ReviewOptions {
 }
 
 impl Review {
-    const NICK: &'static str = "rev";
+    const NICK: [u8; 3] = [114, 101, 118];
     
     pub fn node_type(&self) -> NodeType {
         NodeType::Review
     }
 
     pub fn node_id(&self) -> NodeId {
-        NodeId::new(Self::NICK, &self.uid)
+        NodeId::new(&Self::NICK, &self.uid)
     }
     
     pub fn new() -> Self {

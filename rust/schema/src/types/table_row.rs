@@ -49,14 +49,14 @@ pub struct TableRow {
 }
 
 impl TableRow {
-    const NICK: &'static str = "tbr";
+    const NICK: [u8; 3] = [116, 98, 114];
     
     pub fn node_type(&self) -> NodeType {
         NodeType::TableRow
     }
 
     pub fn node_id(&self) -> NodeId {
-        NodeId::new(Self::NICK, &self.uid)
+        NodeId::new(&Self::NICK, &self.uid)
     }
     
     pub fn new(cells: Vec<TableCell>) -> Self {

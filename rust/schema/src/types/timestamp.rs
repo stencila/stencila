@@ -42,14 +42,14 @@ pub struct Timestamp {
 }
 
 impl Timestamp {
-    const NICK: &'static str = "tst";
+    const NICK: [u8; 3] = [116, 115, 116];
     
     pub fn node_type(&self) -> NodeType {
         NodeType::Timestamp
     }
 
     pub fn node_id(&self) -> NodeId {
-        NodeId::new(Self::NICK, &self.uid)
+        NodeId::new(&Self::NICK, &self.uid)
     }
     
     pub fn new(value: Integer, time_unit: TimeUnit) -> Self {
