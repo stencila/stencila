@@ -338,6 +338,7 @@ export class App extends LitElement {
     this.contextObject = {
       currentView: this.view,
       directoryOpen: true,
+      configOpen: false,
     }
 
     // Event listener for updating whether the directory view is open or closed
@@ -414,6 +415,17 @@ export class App extends LitElement {
         this.contextObject = {
           ...this.contextObject,
           currentView: e.detail.currentView,
+        }
+      }
+    )
+
+    // Event listener for toggling the config panel.
+    this.shadowRoot.addEventListener(
+      'stencila-config-toggle',
+      (e: Event & { detail: Required<Pick<SidebarContext, 'configOpen'>> }) => {
+        this.contextObject = {
+          ...this.contextObject,
+          configOpen: e.detail.configOpen,
         }
       }
     )

@@ -3,6 +3,7 @@ import { LitElement, html } from 'lit'
 import { customElement } from 'lit/decorators.js'
 
 import { SidebarContext, sidebarContext } from '../../contexts/sidebar-context'
+import { emitSidebarEvent } from '../../events/sidebar'
 import { withTwind } from '../../twind'
 import { MainContextEvent } from '../../types'
 
@@ -71,8 +72,14 @@ export class UISidebar extends LitElement {
         ></stencila-ui-icon-button>
         <stencila-ui-icon-button
           icon="settings"
-          tooltip="Settings (coming soon!)"
+          tooltip="Settings"
           tooltip-placement=${'right'}
+          .clickEvent=${() => {
+            this.emitEvent('stencila-config-toggle', {
+              configOpen: !this.context.configOpen,
+            })
+          }}
+          ?active=${this.context.configOpen}
         ></stencila-ui-icon-button>
       </div>
     </div> `
@@ -88,12 +95,7 @@ export class UISidebar extends LitElement {
     name: MainContextEvent,
     detail?: Pick<SidebarContext, T>
   ): void {
-    const event = new CustomEvent(name, {
-      bubbles: true,
-      composed: true,
-      detail,
-    })
-
+    const event = emitSidebarEvent(name, detail)
     this.dispatchEvent(event)
   }
 }

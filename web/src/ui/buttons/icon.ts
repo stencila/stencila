@@ -17,7 +17,7 @@ import { withTwind } from '../../twind'
 @withTwind()
 export class UIIconButton extends LitElement {
   /**
-   * The ref used by the draggable slider.
+   * The ref used by this button.
    */
   private ref: Ref<HTMLElement> = createRef()
 

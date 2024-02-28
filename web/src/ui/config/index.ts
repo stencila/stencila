@@ -5,23 +5,11 @@ import { customElement, state } from 'lit/decorators.js'
 
 import { RestAPIClient } from '../../clients/RestAPIClient'
 import { SidebarContext, sidebarContext } from '../../contexts/sidebar-context'
+import { emitSidebarEvent } from '../../events/sidebar'
 import { withTwind } from '../../twind'
 import type { Secret } from '../../types/api'
 
-type ICON_KEYS =
-  | 'ANTHROPIC_API_KEY'
-  | 'GOOGLE_AI_API_KEY'
-  | 'OPENAI_API_KEY'
-  | 'OLLAMA_API_KEY'
-  | 'MISTRAL_API_KEY'
-
-const API_ICONS: Record<ICON_KEYS, string> = {
-  ANTHROPIC_API_KEY: 'settings',
-  GOOGLE_AI_API_KEY: 'google-LOGO',
-  OPENAI_API_KEY: 'open-ai-LOGO',
-  OLLAMA_API_KEY: 'ollama-LOGO',
-  MISTRAL_API_KEY: 'mistral-LOGO',
-}
+import { API_ICONS, ICON_KEYS } from './icons'
 
 /**
  * UI config screen
@@ -41,49 +29,72 @@ export class ConfigScreen extends LitElement {
   protected secrets: Secret[] = []
 
   override render() {
-    return html` <div
-        class="w-screen h-screen overflow-none fixed top-0 left-0 bg-white z-10 opacity-50"
-      ></div>
-      <div
-        class="flex w-screen min-h-screen fixed top-0 left-0 z-[12] items-center justify-center"
-      >
-        <div
-          class="shadow rounded-md w-full max-w-[528px] min-h-[588px] px-6 pb-6 pt-[18px] inline-flex flex-col justify-start items-start bg-blue-50"
-        >
-          <header
-            class="self-stretch h-9 flex-row justify-start items-start gap-3 flex border-b-2 border-blue-200"
-          >
-            <div
-              class="grow shrink basis-0 text-blue-900 text-base flex items-center gap-3"
-            >
-              <sl-icon
-                library="stencila"
-                name="settings"
-                class="fill-blue-900"
-              ></sl-icon>
-              Settings
-            </div>
-            <div class="grow shrink basis-0 text-base flex items-end gap-3 h-6">
-              <stencila-ui-icon-button
-                icon="close-button"
-                size="14px"
-                class="ml-auto"
-              ></stencila-ui-icon-button>
-            </div>
-          </header>
-
-          <div class="flex-grow my-[18px] mr-auto">
-            ${this.secrets.map((secret) => this.renderSecret(secret))}
-          </div>
-
-          <footer class="flex w-full justify-end items-center gap-4">
-            <button>discard</button>
-            ${this.renderButton()}
-          </footer>
-        </div>
-      </div>`
+    return html`${this.renderOverlay()} ${this.renderConfigPanel()}`
   }
 
+  /**
+   * Render the panel section - which sites on top of the overlay.
+   */
+  private renderConfigPanel() {
+    return html`<div
+      class="${this.context.configOpen
+        ? 'top-1/2 -translate-y-1/2'
+        : 'top-full'} transition-all fixed left-1/2 -translate-x-1/2 z-[12] w-full max-w-[528px] min-h-[588px]"
+    >
+      <div
+        class="shadow rounded-md m-5 px-6 pb-6 pt-[18px] inline-flex flex-col justify-start items-start bg-blue-50"
+      >
+        <header
+          class="self-stretch h-9 flex-row justify-start items-start gap-3 flex border-b-2 border-blue-200"
+        >
+          <div
+            class="grow shrink basis-0 text-blue-900 text-base flex items-center gap-3"
+          >
+            <sl-icon
+              library="stencila"
+              name="settings"
+              class="fill-blue-900"
+            ></sl-icon>
+            Settings
+          </div>
+          <div class="grow shrink basis-0 text-base flex items-end gap-3 h-6">
+            <stencila-ui-icon-button
+              icon="close-button"
+              size="14px"
+              class="ml-auto"
+              .clickEvent=${this.handleClose}
+            ></stencila-ui-icon-button>
+          </div>
+        </header>
+
+        <div class="flex-grow my-[18px] mr-auto">
+          ${this.secrets.map((secret) => this.renderSecret(secret))}
+        </div>
+
+        <footer class="flex w-full justify-end items-center gap-4">
+          <button>discard</button>
+          ${this.renderButton()}
+        </footer>
+      </div>
+    </div>`
+  }
+
+  /**
+   * Renders the background overlay for the component.
+   */
+  private renderOverlay() {
+    return html`<div
+      class="transition w-screen h-screen overflow-none fixed top-0 left-0  z-10 bg-white ${this
+        .context.configOpen
+        ? 'opacity-50 pointer-events-all cursor-pointer'
+        : 'opacity-0 pointer-events-none'}"
+      @click=${this.handleClose}
+    ></div>`
+  }
+
+  /**
+   * Renders the save button.
+   */
   private renderButton() {
     const theme = this.tw.theme()
     const buttonDefault = theme.colors['blue-700'] as string
@@ -123,6 +134,9 @@ export class ConfigScreen extends LitElement {
     return html`<sl-button class="${styles}">Save</sl-button>`
   }
 
+  /**
+   * Renders an individual secret.
+   */
   private renderSecret(secret: Secret) {
     const { name, title, description, redacted } = secret
     const icon = API_ICONS[name as ICON_KEYS] ?? ''
@@ -146,6 +160,9 @@ export class ConfigScreen extends LitElement {
     </div>`
   }
 
+  /**
+   * Render an individual input field (as seen in the list of secrets).
+   */
   private renderInputField(value: string) {
     const styles = css`
       &::part(form-control) {
@@ -188,11 +205,21 @@ export class ConfigScreen extends LitElement {
     `
   }
 
+  /**
+   * Handle the "close" event - to hide the config panel. Updates the sidebar
+   * context's `configOpen` value.
+   */
+  private handleClose = () => {
+    const event = emitSidebarEvent('stencila-config-toggle', {
+      configOpen: false,
+    })
+    this.dispatchEvent(event)
+  }
+
   override async firstUpdated() {
     const secrets = await RestAPIClient.listSecrets()
 
     if (secrets.status === 'success') {
-      console.log(secrets.response)
       this.secrets = secrets.response
     }
   }
