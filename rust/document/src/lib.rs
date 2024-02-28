@@ -8,7 +8,7 @@ use common::{
     clap::{self, ValueEnum},
     eyre::{bail, Result},
     itertools::Itertools,
-    serde::Serialize,
+    serde::{Deserialize, Serialize},
     strum::{Display, EnumString},
     tokio::{
         self,
@@ -27,6 +27,8 @@ mod sync_file;
 mod sync_format;
 mod sync_nodes;
 mod sync_object;
+mod task_command;
+mod task_update;
 
 /// The document type
 ///
@@ -122,6 +124,35 @@ pub struct LogEntry {
     pub message: String,
 }
 
+/// A command on a document, or nodes within it
+#[derive(Debug, Display, Serialize, Deserialize, PartialEq, Eq)]
+#[strum(serialize_all = "kebab-case")]
+#[serde(tag = "command", rename_all = "kebab-case", crate = "common::serde")]
+enum Command {
+    /// Save the document
+    SaveDocument,
+
+    /// Execute the entire document
+    ExecuteDocument,
+
+    /// Execute specific nodes within the document
+    ExecuteNodes(CommandNodeIds),
+
+    /// Interrupt the entire document
+    InterruptDocument,
+
+    /// Interrupt specific nodes within the document
+    InterruptNodes(CommandNodeIds),
+}
+
+/// The node ids for commands that require them
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq)]
+#[serde(crate = "common::serde")]
+struct CommandNodeIds {
+    #[serde(alias = "nodeIds")]
+    node_ids: Vec<NodeId>,
+}
+
 type DocumentKernels = Arc<RwLock<Kernels>>;
 
 type DocumentStore = Arc<RwLock<WriteStore>>;
@@ -132,22 +163,19 @@ type DocumentWatchReceiver = watch::Receiver<Node>;
 type DocumentUpdateSender = mpsc::Sender<Node>;
 type DocumentUpdateReceiver = mpsc::Receiver<Node>;
 
+type DocumentCommandSender = mpsc::Sender<Command>;
+type DocumentCommandReceiver = mpsc::Receiver<Command>;
+
 /// A document
 ///
 /// Each document has:
 ///
-/// - A unique `id` which is used for things like establishing a
-///   WebSocket connection to it
-///
+/// - A unique `id` which is used for things like establishing a WebSocket connection to it
 /// - An Automerge `store` that has a [`Node`] at its root.
-///
 /// - An optional `path` that the `store` can be read from, and written to.
-///
-/// - A `watch_receiver` which can be cloned to watch for changes
-///   to the root [`Node`].
-///
-/// - An `update_sender` which can be cloned to send updates to the
-///   root [`Node`].
+/// - A `watch_receiver` which can be cloned to watch for changes to the root [`Node`].
+/// - An `update_sender` which can be cloned to send updates to the root [`Node`].
+/// - A `command_sender` which can be cloned to send commands to the document
 #[derive(Debug)]
 pub struct Document {
     /// The document's id
@@ -167,29 +195,41 @@ pub struct Document {
 
     /// A channel sender for sending updates to the root [`Node`]
     update_sender: DocumentUpdateSender,
+
+    /// A channel sender for sending commands to the document
+    command_sender: DocumentCommandSender,
 }
 
 impl Document {
     /// Initialize a new document
     ///
-    /// This initializes the document's "watch" and "update" channels and starts the
-    /// `update_task` to respond to incoming updates to the root node of the document.
+    /// This initializes the document's "watch", "update", and "command" channels and
+    /// starts its background tasks.
     #[tracing::instrument(skip(store))]
     fn init(store: WriteStore, path: Option<PathBuf>) -> Result<Self> {
         let id = DocumentId::new();
 
         let kernels = DocumentKernels::default();
 
+        // Load the node from the store to initialize the watch channel
         let node = Node::load(&store)?;
-
         let (watch_sender, watch_receiver) = watch::channel(node);
-        let (update_sender, update_receiver) = mpsc::channel(8);
 
+        // Create an `Arc` for the store so it can be cloned for the document's
+        // background tasks
         let store = Arc::new(RwLock::new(store));
+
+        // Start the update task
         let store_clone = store.clone();
+        let (update_sender, update_receiver) = mpsc::channel(8);
         tokio::spawn(
             async move { Self::update_task(store_clone, update_receiver, watch_sender).await },
         );
+
+        // Start the command task
+        let store_clone = store.clone();
+        let (command_sender, command_receiver) = mpsc::channel(256);
+        tokio::spawn(async move { Self::command_task(store_clone, command_receiver).await });
 
         Ok(Self {
             id,
@@ -198,6 +238,7 @@ impl Document {
             path,
             watch_receiver,
             update_sender,
+            command_sender,
         })
     }
 
@@ -290,44 +331,6 @@ impl Document {
     async fn dump(&self, node: &Node) -> Result<()> {
         let mut store = self.store.write().await;
         node.dump(&mut store)
-    }
-
-    /// Async task to update the document's store and notify watchers of the update
-    async fn update_task(
-        store: DocumentStore,
-        mut update_receiver: DocumentUpdateReceiver,
-        watch_sender: DocumentWatchSender,
-    ) {
-        tracing::debug!("Document update task started");
-
-        while let Some(node) = update_receiver.recv().await {
-            tracing::trace!("Document node updated");
-
-            // Dump the node to the store
-            let mut store = store.write().await;
-            if let Err(error) = node.dump(&mut store) {
-                tracing::error!("While dumping node to store: {error}");
-            }
-
-            // Load the node from the store. This is necessary, rather than just
-            // sending watchers the incoming node, because the incoming node
-            // may be partial (e.g. may be missing `id` or other fields) but watchers
-            // need complete nodes (e.g `id` for HTML)
-            let node = match Node::load(&*store) {
-                Ok(node) => node,
-                Err(error) => {
-                    tracing::error!("While loading node from store: {error}");
-                    continue;
-                }
-            };
-
-            // Send the node to watchers
-            if let Err(error) = watch_sender.send(node) {
-                tracing::error!("While notifying watchers: {error}");
-            }
-        }
-
-        tracing::debug!("Document update task stopped");
     }
 
     /// Inspect a document
@@ -447,6 +450,8 @@ impl Document {
     }
 
     /// Execute the document
+    /// TODO: refactor this for CLI use only (i.e not init-ing the do
+    /// first) so that it is similar to `convert`
     #[tracing::instrument(skip(self))]
     pub async fn execute(&self, node_id: Option<NodeId>) -> Result<()> {
         tracing::trace!("Executing document");

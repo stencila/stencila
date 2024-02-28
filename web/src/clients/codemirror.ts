@@ -209,7 +209,12 @@ export class CodeMirrorClient extends FormatClient {
    * @param nodeIds The ids of the specific nodes to apply the command to
    */
   public sendCommand(
-    command: 'save-document' | 'execute-document' | 'execute-nodes',
+    command:
+      | 'save-document'
+      | 'execute-document'
+      | 'execute-nodes'
+      | 'interrupt-document'
+      | 'interrupt-nodes',
     nodeIds: NodeId[] = []
   ) {
     // Ensure any buffered operations are sent first

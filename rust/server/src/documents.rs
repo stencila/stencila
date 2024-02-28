@@ -28,7 +28,7 @@ use common::{
     },
     glob::{glob, glob_with, MatchOptions},
     itertools::Itertools,
-    serde::{de::DeserializeOwned, Deserialize, Serialize},
+    serde::{de::DeserializeOwned, Serialize},
     serde_json,
     tokio::{
         self,
@@ -43,7 +43,6 @@ use common::{
 };
 use document::{Document, DocumentId, SyncDirection};
 use format::Format;
-use node_id::NodeId;
 
 use crate::{
     errors::InternalError,
@@ -217,7 +216,6 @@ pub fn router() -> Router<ServerState> {
     Router::new()
         .route("/open/*path", get(open_document))
         .route("/:id/close", post(close_document))
-        .route("/:id/execute", post(execute_document))
         .route("/:id/export", get(export_document))
         .route("/:id/websocket", get(websocket_for_document))
 }
@@ -484,29 +482,6 @@ async fn close_document(
     Ok(StatusCode::OK.into_response())
 }
 
-/// Parameters in the body of a `execute_document` request
-#[derive(Deserialize)]
-#[serde(crate = "common::serde")]
-struct ExecuteDocumentParams {
-    #[serde(alias = "nodeId")]
-    node_id: Option<NodeId>,
-}
-
-/// Handle a request to execute a document
-async fn execute_document(
-    State(ServerState { docs, .. }): State<ServerState>,
-    Path(id): Path<String>,
-    Json(ExecuteDocumentParams { node_id }): Json<ExecuteDocumentParams>,
-) -> Result<Response, InternalError> {
-    let Ok(doc) = doc_by_id(&docs, &id).await else {
-        return Ok((StatusCode::BAD_REQUEST, "Invalid document id").into_response());
-    };
-
-    doc.execute(node_id).await.map_err(InternalError::new)?;
-
-    Ok(StatusCode::OK.into_response())
-}
-
 /// Handle a request to export a document
 ///
 /// TODO: This should add correct MIME type to response
@@ -625,7 +600,7 @@ async fn websocket_handler(ws: WebSocket, doc: Arc<Document>, dir: PathBuf) {
     } else if format == "object" {
         websocket_object_protocol(ws, doc, capability).await;
     } else if format == "directory" {
-        websocket_directory_protocol(ws, doc, dir).await;
+        websocket_directory_protocol(ws, doc, capability, dir).await;
     } else {
         websocket_format_protocol(ws, doc, capability, format).await;
     }
@@ -634,7 +609,7 @@ async fn websocket_handler(ws: WebSocket, doc: Arc<Document>, dir: PathBuf) {
 /// Handle a WebSocket connection using the "nodes" protocol
 #[tracing::instrument(skip(ws, doc))]
 async fn websocket_nodes_protocol(ws: WebSocket, doc: Arc<Document>, capability: &str) {
-    tracing::trace!("WebSocket `nodes` connection");
+    tracing::trace!("WebSocket `nodes` protocol connection");
 
     let (.., ws_receiver) = ws.split();
 
@@ -649,7 +624,7 @@ async fn websocket_nodes_protocol(ws: WebSocket, doc: Arc<Document>, capability:
 /// Handle a WebSocket connection using the "object" protocol
 #[tracing::instrument(skip(ws, doc))]
 async fn websocket_object_protocol(ws: WebSocket, doc: Arc<Document>, capability: &str) {
-    tracing::trace!("WebSocket `object` connection");
+    tracing::trace!("WebSocket `object` protocol connection");
 
     let (ws_sender, ws_receiver) = ws.split();
 
@@ -666,8 +641,13 @@ async fn websocket_object_protocol(ws: WebSocket, doc: Arc<Document>, capability
 
 /// Handle a WebSocket connection using the "directory" protocol
 #[tracing::instrument(skip(ws, doc))]
-async fn websocket_directory_protocol(ws: WebSocket, doc: Arc<Document>, dir: PathBuf) {
-    tracing::trace!("WebSocket `directory` connection");
+async fn websocket_directory_protocol(
+    ws: WebSocket,
+    doc: Arc<Document>,
+    capability: &str,
+    dir: PathBuf,
+) {
+    tracing::trace!("WebSocket `directory` protocol connection");
 
     let (ws_sender, ws_receiver) = ws.split();
 
@@ -690,7 +670,7 @@ async fn websocket_format_protocol(
     capability: &str,
     format: &str,
 ) {
-    tracing::trace!("WebSocket `format` connection");
+    tracing::trace!("WebSocket `format` protocol connection");
 
     let (ws_sender, ws_receiver) = ws.split();
 

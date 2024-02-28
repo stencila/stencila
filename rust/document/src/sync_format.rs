@@ -25,9 +25,8 @@ use common::{
     },
     tracing,
 };
-use schema::NodeId;
 
-use crate::Document;
+use crate::{Command, Document};
 
 /// A patch to apply to a string representing the document in a particular format
 ///
@@ -57,7 +56,7 @@ pub struct FormatPatch {
 pub enum FormatOperation {
     Content(ContentOperation),
     Mapping(MappingOperation),
-    Command(CommandOperation),
+    Command(Command),
 }
 
 impl FormatOperation {
@@ -190,33 +189,6 @@ enum ContentOperationType {
     Selection,
 }
 
-/// An operation specifying a command on the document, or nodes within it
-#[skip_serializing_none]
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq)]
-#[serde(crate = "common::serde")]
-pub struct CommandOperation {
-    /// The type of command
-    r#command: CommandOperationCommand,
-
-    /// The ids of the nodes that the command applies to, if any
-    #[serde(alias = "nodeIds")]
-    node_ids: Option<Vec<NodeId>>,
-}
-
-/// The command of a command operation
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq)]
-#[serde(rename_all = "kebab-case", crate = "common::serde")]
-enum CommandOperationCommand {
-    /// Save the document
-    SaveDocument,
-
-    /// Execute the entire document
-    ExecuteDocument,
-
-    /// Execute specific nodes within the document
-    ExecuteNodes,
-}
-
 impl Document {
     /// Synchronize the document with a string buffer
     ///
@@ -243,6 +215,11 @@ impl Document {
             initial_mapping.clone(),
         )));
         let version = Arc::new(AtomicU32::new(1));
+
+        // Clone the command sender so that commands can be received
+        // and forwarded to the `command_task`
+        // TODO: make this None if the client does not have the capability to send commands
+        let command_sender = Some(self.command_sender.clone());
 
         // Start task to receive incoming patches from the client, apply them
         // to the buffer, and update the document's root node
@@ -280,16 +257,16 @@ impl Document {
                     // Apply the patch to the current content
                     let mut updated = false;
                     for op in patch.ops {
-                        use CommandOperationCommand::*;
-                        use ContentOperationType::*;
-                        use FormatOperation::*;
                         match op {
-                            Content(ContentOperation { r#type: Reset, .. }) => {
+                            FormatOperation::Content(ContentOperation {
+                                r#type: ContentOperationType::Reset,
+                                ..
+                            }) => {
                                 tracing::warn!("Client attempted to reset string")
                             }
 
-                            Content(ContentOperation {
-                                r#type: Insert,
+                            FormatOperation::Content(ContentOperation {
+                                r#type: ContentOperationType::Insert,
                                 from: Some(from),
                                 to: None,
                                 insert: Some(insert),
@@ -298,8 +275,8 @@ impl Document {
                                 updated = true;
                             }
 
-                            Content(ContentOperation {
-                                r#type: Delete,
+                            FormatOperation::Content(ContentOperation {
+                                r#type: ContentOperationType::Delete,
                                 from: Some(from),
                                 to: Some(to),
                                 insert: None,
@@ -308,8 +285,8 @@ impl Document {
                                 updated = true;
                             }
 
-                            Content(ContentOperation {
-                                r#type: Replace,
+                            FormatOperation::Content(ContentOperation {
+                                r#type: ContentOperationType::Replace,
                                 from: Some(from),
                                 to: Some(to),
                                 insert: Some(insert),
@@ -318,8 +295,8 @@ impl Document {
                                 updated = true;
                             }
 
-                            Content(ContentOperation {
-                                r#type: Viewport,
+                            FormatOperation::Content(ContentOperation {
+                                r#type: ContentOperationType::Viewport,
                                 from: Some(from),
                                 to: Some(to),
                                 insert: None,
@@ -328,8 +305,8 @@ impl Document {
                                 tracing::debug!("Viewport operation {from}-{to}")
                             }
 
-                            Content(ContentOperation {
-                                r#type: Selection,
+                            FormatOperation::Content(ContentOperation {
+                                r#type: ContentOperationType::Selection,
                                 from: Some(from),
                                 to: Some(to),
                                 insert: None,
@@ -338,21 +315,16 @@ impl Document {
                                 tracing::debug!("Selection operation {from}-{to}")
                             }
 
-                            Command(CommandOperation {
-                                command: ExecuteDocument,
-                                ..
-                            }) => {
-                                // TODO
-                                tracing::warn!("TODO: Execute the document")
-                            }
-
-                            Command(CommandOperation {
-                                command: ExecuteNodes,
-                                node_ids: Some(node_ids),
-                                ..
-                            }) => {
-                                // TODO
-                                tracing::warn!("TODO: Execute a nodes {node_ids:?}")
+                            FormatOperation::Command(command) => {
+                                if let Some(command_sender) = &command_sender {
+                                    if let Err(error) = command_sender.send(command).await {
+                                        tracing::error!("While sending document command: {error}");
+                                    }
+                                } else {
+                                    tracing::warn!(
+                                        "Received a command from client without a command sender"
+                                    )
+                                }
                             }
 
                             _ => tracing::warn!("Client sent invalid operation"),

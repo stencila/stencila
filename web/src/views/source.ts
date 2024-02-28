@@ -275,6 +275,13 @@ export class SourceView extends TWLitElement {
       ...searchKeymap,
       { key: 'Ctrl-Space', run: startCompletion },
       {
+        key: 'Ctrl-S',
+        run: () => {
+          this.codeMirrorClient.sendCommand('save-document')
+          return false
+        },
+      },
+      {
         key: 'Ctrl-Shift-Enter',
         run: () => {
           this.codeMirrorClient.sendCommand('execute-document')
