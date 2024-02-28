@@ -176,10 +176,16 @@ impl Schemas {
                     .expect("should always exist")
             };
 
-            let node_types = node_types
+            let type_union = node_types
                 .iter()
                 .filter_map(|schema| schema.r#ref.as_ref())
                 .map(|title| format!("  | \"{title}\""))
+                .join("\n");
+
+            let type_list = node_types
+                .iter()
+                .filter_map(|schema| schema.r#ref.as_ref())
+                .map(|title| format!("  \"{title}\","))
                 .join("\n");
 
             write(
@@ -188,7 +194,11 @@ impl Schemas {
                     r"{GENERATED_COMMENT}
 
 export type {name}Type =
-{node_types};
+{type_union};
+
+export const {name}TypeList = [
+{type_list}
+];
 "
                 ),
             )

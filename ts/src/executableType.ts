@@ -16,3 +16,21 @@ export type ExecutableType =
   | "InstructionBlock"
   | "InstructionInline"
   | "Parameter";
+
+export const ExecutableTypeList = [
+  "Button",
+  "CallArgument",
+  "CallBlock",
+  "CodeChunk",
+  "CodeExecutable",
+  "CodeExpression",
+  "ForBlock",
+  "Form",
+  "IfBlock",
+  "IfBlockClause",
+  "IncludeBlock",
+  "Instruction",
+  "InstructionBlock",
+  "InstructionInline",
+  "Parameter",
+];

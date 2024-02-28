@@ -25,3 +25,30 @@ export type BlockType =
   | "StyledBlock"
   | "Table"
   | "ThematicBreak";
+
+export const BlockTypeList = [
+  "Admonition",
+  "CallBlock",
+  "Claim",
+  "CodeBlock",
+  "CodeChunk",
+  "DeleteBlock",
+  "Figure",
+  "ForBlock",
+  "Form",
+  "Heading",
+  "IfBlock",
+  "IncludeBlock",
+  "InsertBlock",
+  "InstructionBlock",
+  "List",
+  "MathBlock",
+  "ModifyBlock",
+  "Paragraph",
+  "QuoteBlock",
+  "ReplaceBlock",
+  "Section",
+  "StyledBlock",
+  "Table",
+  "ThematicBreak",
+];
