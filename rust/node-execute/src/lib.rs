@@ -8,9 +8,9 @@ use common::{
 use kernels::Kernels;
 use schema::{
     walk::{VisitorAsync, WalkControl, WalkNode},
-    Array, Article, Block, CodeChunk, CodeExpression, Duration, ExecutionMessage, ExecutionStatus,
-    ForBlock, IfBlock, IfBlockClause, Inline, MessageLevel, Node, NodeId, Null, Primitive, Section,
-    SectionType, Timestamp,
+    Array, Article, Block, CodeChunk, CodeExpression, Duration, ExecutionMessage,
+    ExecutionRequired, ExecutionStatus, ForBlock, IfBlock, IfBlockClause, Inline, MessageLevel,
+    Node, NodeId, Null, Primitive, Section, SectionType, Timestamp,
 };
 
 /// Walk over a node and execute it and all its child nodes
@@ -112,13 +112,51 @@ fn error_to_message(context: &str, error: Report) -> ExecutionMessage {
     }
 }
 
-/// Create a value for `execution_status` from a vector of `ExecutionMessage`s
+/// Create a value for `execution_status` based on a vector of `ExecutionMessage`s
 fn execution_status(messages: &[ExecutionMessage]) -> Option<ExecutionStatus> {
-    messages
-        .iter()
-        .any(|message| message.level == MessageLevel::Error)
-        .then_some(ExecutionStatus::Failed)
-        .or(Some(ExecutionStatus::Succeeded))
+    let mut has_warnings = false;
+    let mut has_errors = false;
+    let mut has_exceptions = false;
+    for ExecutionMessage { level, .. } in messages {
+        match level {
+            MessageLevel::Warning => {
+                has_warnings = true;
+            }
+            MessageLevel::Error => {
+                has_errors = true;
+            }
+            MessageLevel::Exception => {
+                has_exceptions = true;
+            }
+            _ => {}
+        }
+    }
+
+    let status = if has_exceptions {
+        ExecutionStatus::Exceptions
+    } else if has_errors {
+        ExecutionStatus::Errors
+    } else if has_warnings {
+        ExecutionStatus::Warnings
+    } else {
+        ExecutionStatus::Succeeded
+    };
+
+    Some(status)
+}
+
+/// Create a value for `execution_required` from an `Option<ExecutionStatus>`
+fn execution_required(execution_status: &Option<ExecutionStatus>) -> Option<ExecutionRequired> {
+    let Some(status) = execution_status else {
+        return None;
+    };
+
+    match status {
+        ExecutionStatus::Errors | ExecutionStatus::Exceptions => {
+            Some(ExecutionRequired::ExecutionFailed)
+        }
+        _ => Some(ExecutionRequired::No),
+    }
 }
 
 /// Create a value for `execution_messages` from a vector of `ExecutionMessage`s
@@ -159,6 +197,7 @@ impl Executable for Article {
         // TODO: set execution_required based on execution status
 
         self.options.execution_status = execution_status(&messages);
+        self.options.execution_required = execution_required(&self.options.execution_status);
         self.options.execution_messages = execution_messages(messages);
         self.options.execution_duration = execution_duration(&started, &ended);
         self.options.execution_ended = Some(ended);
@@ -196,12 +235,14 @@ impl Executable for CodeChunk {
             };
 
             self.options.execution_status = execution_status(&messages);
+            self.options.execution_required = execution_required(&self.options.execution_status);
             self.options.execution_messages = execution_messages(messages);
             self.options.execution_duration = execution_duration(&started, &ended);
             self.options.execution_ended = Some(ended);
             self.options.execution_count.get_or_insert(0).add_assign(1);
         } else {
             self.options.execution_status = Some(ExecutionStatus::Empty);
+            self.options.execution_required = Some(ExecutionRequired::No);
             self.options.execution_messages = None;
             self.options.execution_ended = None;
             self.options.execution_duration = None;
@@ -235,12 +276,14 @@ impl Executable for CodeExpression {
             self.output = Some(Box::new(output));
 
             self.options.execution_status = execution_status(&messages);
+            self.options.execution_required = execution_required(&self.options.execution_status);
             self.options.execution_messages = execution_messages(messages);
             self.options.execution_duration = execution_duration(&started, &ended);
             self.options.execution_ended = Some(ended);
             self.options.execution_count.get_or_insert(0).add_assign(1);
         } else {
             self.options.execution_status = Some(ExecutionStatus::Empty);
+            self.options.execution_required = Some(ExecutionRequired::No);
             self.options.execution_messages = None;
             self.options.execution_ended = None;
             self.options.execution_duration = None;
@@ -370,12 +413,14 @@ impl Executable for ForBlock {
 
         if not_empty {
             self.options.execution_status = execution_status(&messages);
+            self.options.execution_required = execution_required(&self.options.execution_status);
             self.options.execution_messages = execution_messages(messages);
             self.options.execution_duration = execution_duration(&started, &ended);
             self.options.execution_ended = Some(ended);
             self.options.execution_count.get_or_insert(0).add_assign(1);
         } else {
             self.options.execution_status = Some(ExecutionStatus::Empty);
+            self.options.execution_required = Some(ExecutionRequired::No);
             self.options.execution_messages = None;
             self.options.execution_ended = None;
             self.options.execution_duration = None;
@@ -411,11 +456,13 @@ impl Executable for IfBlock {
             let ended = Timestamp::now();
 
             self.options.execution_status = Some(ExecutionStatus::Succeeded);
+            self.options.execution_required = execution_required(&self.options.execution_status);
             self.options.execution_duration = execution_duration(&started, &ended);
             self.options.execution_ended = Some(ended);
             self.options.execution_count.get_or_insert(0).add_assign(1);
         } else {
             self.options.execution_status = Some(ExecutionStatus::Empty);
+            self.options.execution_required = Some(ExecutionRequired::No);
             self.options.execution_messages = None;
             self.options.execution_ended = None;
             self.options.execution_duration = None;
@@ -482,6 +529,7 @@ impl Executable for IfBlockClause {
         let ended = Timestamp::now();
 
         self.options.execution_status = execution_status(&messages);
+        self.options.execution_required = execution_required(&self.options.execution_status);
         self.options.execution_messages = execution_messages(messages);
         self.options.execution_duration = execution_duration(&started, &ended);
         self.options.execution_ended = Some(ended);
