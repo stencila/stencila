@@ -356,6 +356,7 @@ impl DecodeOptions {
             strip_types: strip_options.strip_types,
             strip_props: strip_options.strip_props,
             losses,
+            ..Default::default()
         }
     }
 }
@@ -599,7 +600,7 @@ impl Cli {
 
             Command::Execute { input, output } => {
                 let doc = Document::open(&input).await?;
-                doc.execute(None).await?;
+                doc.execute().await?;
 
                 let encode_options = codecs::EncodeOptions::default();
                 let format = encode_options.format.unwrap_or(Format::Text);
