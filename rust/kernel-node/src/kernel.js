@@ -75,6 +75,7 @@ const context = {
   ...inheritedVariables,
   require,
   console,
+  process,
 };
 vm.createContext(context);
 
