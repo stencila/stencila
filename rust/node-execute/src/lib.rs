@@ -1,17 +1,22 @@
-use std::ops::AddAssign;
-
-use common::{
-    eyre::{Report, Result},
-    itertools::Itertools,
-    tracing,
-};
+use common::eyre::Result;
 use kernels::Kernels;
 use schema::{
     walk::{VisitorAsync, WalkControl, WalkNode},
-    Array, Article, Block, CodeChunk, CodeExpression, Duration, ExecutionMessage,
-    ExecutionRequired, ExecutionStatus, ForBlock, IfBlock, IfBlockClause, Inline, MessageLevel,
-    Node, NodeId, Null, Primitive, Section, SectionType, Timestamp,
+    Block, Inline, Node, NodeId,
 };
+
+mod prelude;
+
+mod article;
+mod call_block;
+mod code_chunk;
+mod code_expression;
+mod for_block;
+mod if_block;
+mod include_block;
+mod instruction;
+mod math;
+mod styled;
 
 /// Walk over a node and execute it and all its child nodes
 pub async fn execute<T: WalkNode>(
@@ -21,6 +26,17 @@ pub async fn execute<T: WalkNode>(
 ) -> Result<()> {
     let mut executor = Executor { kernels, node_id };
     node.walk_async(&mut executor).await
+}
+
+/// A trait for an executable node
+trait Executable {
+    /// Execute the node
+    ///
+    /// Note that this method is intentionally infallible because we want
+    /// executable nodes to handle any errors associated with their execution
+    /// and record them in `execution_messages` so that they are visible
+    /// to the user.
+    async fn execute(&mut self, executor: &mut Executor) -> WalkControl;
 }
 
 /// A visitor that walks over a tree of nodes and collects
@@ -85,456 +101,9 @@ impl<'lt> VisitorAsync for Executor<'lt> {
             CodeExpression(node) => node.execute(self).await,
             // TODO: InstructionInline(node) => node.execute(self).await,
             // TODO: MathInline(node) => node.execute(self).await,
+            // TODO: Parameter(node) => node.execute(self).await,
             // TODO: StyledInline(node) => node.execute(self).await,
             _ => WalkControl::Continue,
         })
-    }
-}
-
-/// A trait for an executable node
-trait Executable {
-    /// Execute the node
-    ///
-    /// Note that this method is intentionally infallible because we want
-    /// executable nodes to handle any errors associated with their execution
-    /// and record them in `execution_messages` so that they are visible
-    /// to the user.
-    async fn execute(&mut self, executor: &mut Executor) -> WalkControl;
-}
-
-/// Create an `ExecutionMessage` from an `eyre::Report`
-fn error_to_message(context: &str, error: Report) -> ExecutionMessage {
-    ExecutionMessage {
-        level: MessageLevel::Error,
-        message: error.to_string(),
-        stack_trace: Some(context.to_string()),
-        ..Default::default()
-    }
-}
-
-/// Create a value for `execution_status` based on a vector of `ExecutionMessage`s
-fn execution_status(messages: &[ExecutionMessage]) -> Option<ExecutionStatus> {
-    let mut has_warnings = false;
-    let mut has_errors = false;
-    let mut has_exceptions = false;
-    for ExecutionMessage { level, .. } in messages {
-        match level {
-            MessageLevel::Warning => {
-                has_warnings = true;
-            }
-            MessageLevel::Error => {
-                has_errors = true;
-            }
-            MessageLevel::Exception => {
-                has_exceptions = true;
-            }
-            _ => {}
-        }
-    }
-
-    let status = if has_exceptions {
-        ExecutionStatus::Exceptions
-    } else if has_errors {
-        ExecutionStatus::Errors
-    } else if has_warnings {
-        ExecutionStatus::Warnings
-    } else {
-        ExecutionStatus::Succeeded
-    };
-
-    Some(status)
-}
-
-/// Create a value for `execution_required` from an `Option<ExecutionStatus>`
-fn execution_required(execution_status: &Option<ExecutionStatus>) -> Option<ExecutionRequired> {
-    let Some(status) = execution_status else {
-        return None;
-    };
-
-    match status {
-        ExecutionStatus::Errors | ExecutionStatus::Exceptions => {
-            Some(ExecutionRequired::ExecutionFailed)
-        }
-        _ => Some(ExecutionRequired::No),
-    }
-}
-
-/// Create a value for `execution_messages` from a vector of `ExecutionMessage`s
-fn execution_messages(messages: Vec<ExecutionMessage>) -> Option<Vec<ExecutionMessage>> {
-    if !messages.is_empty() {
-        Some(messages)
-    } else {
-        None
-    }
-}
-
-/// Create a value for `execution_duration` from start and end timestamps
-fn execution_duration(started: &Timestamp, ended: &Timestamp) -> Option<Duration> {
-    Some(
-        ended
-            .duration(started)
-            .expect("should use compatible timestamps"),
-    )
-}
-
-impl Executable for Article {
-    #[tracing::instrument(skip_all)]
-    async fn execute<'lt>(&mut self, executor: &mut Executor<'lt>) -> WalkControl {
-        tracing::trace!("Executing Article {}", self.node_id());
-
-        let mut messages = Vec::new();
-        let started = Timestamp::now();
-
-        if let Err(error) = self.content.walk_async(executor).await {
-            messages.push(error_to_message("While executing content", error));
-        }
-
-        let ended = Timestamp::now();
-
-        // TODO: set execution_status based on the execution status of
-        // child executable nodes
-
-        // TODO: set execution_required based on execution status
-
-        self.options.execution_status = execution_status(&messages);
-        self.options.execution_required = execution_required(&self.options.execution_status);
-        self.options.execution_messages = execution_messages(messages);
-        self.options.execution_duration = execution_duration(&started, &ended);
-        self.options.execution_ended = Some(ended);
-        self.options.execution_count.get_or_insert(0).add_assign(1);
-
-        WalkControl::Break
-    }
-}
-
-impl Executable for CodeChunk {
-    #[tracing::instrument(skip_all)]
-    async fn execute<'lt>(&mut self, executor: &mut Executor<'lt>) -> WalkControl {
-        tracing::trace!("Executing CodeChunk {}", self.node_id());
-
-        // Execute code (if it is not empty) in kernels
-        let code = self.code.trim();
-        if !code.is_empty() {
-            let started = Timestamp::now();
-            let (outputs, messages) = executor
-                .kernels
-                .execute(code, self.programming_language.as_deref())
-                .await
-                .unwrap_or_else(|error| {
-                    (
-                        vec![],
-                        vec![error_to_message("While executing code", error)],
-                    )
-                });
-            let ended = Timestamp::now();
-
-            self.outputs = if !outputs.is_empty() {
-                Some(outputs)
-            } else {
-                None
-            };
-
-            self.options.execution_status = execution_status(&messages);
-            self.options.execution_required = execution_required(&self.options.execution_status);
-            self.options.execution_messages = execution_messages(messages);
-            self.options.execution_duration = execution_duration(&started, &ended);
-            self.options.execution_ended = Some(ended);
-            self.options.execution_count.get_or_insert(0).add_assign(1);
-        } else {
-            self.options.execution_status = Some(ExecutionStatus::Empty);
-            self.options.execution_required = Some(ExecutionRequired::No);
-            self.options.execution_messages = None;
-            self.options.execution_ended = None;
-            self.options.execution_duration = None;
-        }
-
-        WalkControl::Break
-    }
-}
-
-impl Executable for CodeExpression {
-    #[tracing::instrument(skip_all)]
-    async fn execute<'lt>(&mut self, executor: &mut Executor<'lt>) -> WalkControl {
-        tracing::trace!("Executing CodeExpression {}", self.node_id());
-
-        // Evaluate code (if it is not empty) in kernels
-        let code = self.code.trim();
-        if !code.is_empty() {
-            let started = Timestamp::now();
-            let (output, messages) = executor
-                .kernels
-                .evaluate(code, self.programming_language.as_deref())
-                .await
-                .unwrap_or_else(|error| {
-                    (
-                        Node::Null(Null),
-                        vec![error_to_message("While evaluating expression", error)],
-                    )
-                });
-            let ended = Timestamp::now();
-
-            self.output = Some(Box::new(output));
-
-            self.options.execution_status = execution_status(&messages);
-            self.options.execution_required = execution_required(&self.options.execution_status);
-            self.options.execution_messages = execution_messages(messages);
-            self.options.execution_duration = execution_duration(&started, &ended);
-            self.options.execution_ended = Some(ended);
-            self.options.execution_count.get_or_insert(0).add_assign(1);
-        } else {
-            self.options.execution_status = Some(ExecutionStatus::Empty);
-            self.options.execution_required = Some(ExecutionRequired::No);
-            self.options.execution_messages = None;
-            self.options.execution_ended = None;
-            self.options.execution_duration = None;
-        }
-
-        WalkControl::Break
-    }
-}
-
-impl Executable for ForBlock {
-    #[tracing::instrument(skip_all)]
-    async fn execute<'lt>(&mut self, executor: &mut Executor<'lt>) -> WalkControl {
-        tracing::trace!("Executing ForBlock {}", self.node_id());
-
-        // Ensure iterations array and clear any existing iterations
-        let iterations = self.iterations.get_or_insert_with(Vec::new);
-        iterations.clear();
-
-        let started = Timestamp::now();
-        let mut messages = Vec::new();
-
-        let mut not_empty = false;
-
-        let code = self.code.trim();
-        if !code.is_empty() {
-            not_empty = true;
-
-            // Evaluate code in kernels to get the iterable
-            let (output, mut code_messages) = executor
-                .kernels
-                .evaluate(code, self.programming_language.as_deref())
-                .await
-                .unwrap_or_else(|error| {
-                    (
-                        Node::Null(Null),
-                        vec![error_to_message("While evaluating expression", error)],
-                    )
-                });
-            messages.append(&mut code_messages);
-
-            // Derive an iterator from the code's output value
-            let iterator = match output {
-                Node::Null(..) => vec![],
-                Node::Boolean(bool) => {
-                    if bool {
-                        vec![output]
-                    } else {
-                        vec![]
-                    }
-                }
-                Node::Integer(int) => {
-                    if int > 0 {
-                        (0..(int as u64)).map(Node::UnsignedInteger).collect_vec()
-                    } else {
-                        vec![]
-                    }
-                }
-                Node::UnsignedInteger(uint) => {
-                    if uint > 0 {
-                        (0..uint).map(Node::UnsignedInteger).collect_vec()
-                    } else {
-                        vec![]
-                    }
-                }
-                Node::Number(num) => {
-                    if num > 0. {
-                        (0..(num as u64)).map(Node::UnsignedInteger).collect_vec()
-                    } else {
-                        vec![]
-                    }
-                }
-                Node::String(string) => string
-                    .chars()
-                    .map(|char| Node::String(char.to_string()))
-                    .collect_vec(),
-                Node::Array(array) => array.iter().map(|item| item.clone().into()).collect_vec(),
-                Node::Object(object) => object
-                    .iter()
-                    .map(|(key, value)| {
-                        Node::Array(Array(vec![Primitive::String(key.clone()), value.clone()]))
-                    })
-                    .collect_vec(),
-                _ => vec![],
-            };
-
-            // Iterate over iterable, executing the content each time and adding to `iterations` field
-            for node in &iterator {
-                // Set the loop's variable
-                if let Err(error) = executor.kernels.set(&self.variable, node).await {
-                    messages.push(ExecutionMessage::new(
-                        MessageLevel::Error,
-                        error.to_string(),
-                    ));
-                };
-
-                // Clone the content, execute it and add it as an iteration
-                let mut content = self.content.clone();
-                if let Err(error) = content.walk_async(executor).await {
-                    messages.push(error_to_message("While executing iteration", error));
-                }
-                iterations.push(Section {
-                    section_type: Some(SectionType::Iteration),
-                    content,
-                    ..Default::default()
-                });
-            }
-
-            // Remove the loop's variable
-            if let Err(error) = executor.kernels.remove(&self.variable).await {
-                messages.push(ExecutionMessage::new(
-                    MessageLevel::Error,
-                    error.to_string(),
-                ));
-            };
-        }
-
-        // If there were no iterations and `otherwise` is some, then execute that
-        if let (true, Some(otherwise)) = (iterations.is_empty(), self.otherwise.as_mut()) {
-            not_empty = true;
-
-            if let Err(error) = otherwise.walk_async(executor).await {
-                messages.push(error_to_message("While executing otherwise", error))
-            }
-        }
-
-        let ended = Timestamp::now();
-
-        if not_empty {
-            self.options.execution_status = execution_status(&messages);
-            self.options.execution_required = execution_required(&self.options.execution_status);
-            self.options.execution_messages = execution_messages(messages);
-            self.options.execution_duration = execution_duration(&started, &ended);
-            self.options.execution_ended = Some(ended);
-            self.options.execution_count.get_or_insert(0).add_assign(1);
-        } else {
-            self.options.execution_status = Some(ExecutionStatus::Empty);
-            self.options.execution_required = Some(ExecutionRequired::No);
-            self.options.execution_messages = None;
-            self.options.execution_ended = None;
-            self.options.execution_duration = None;
-        }
-
-        WalkControl::Break
-    }
-}
-
-impl Executable for IfBlock {
-    #[tracing::instrument(skip_all)]
-    async fn execute<'lt>(&mut self, executor: &mut Executor<'lt>) -> WalkControl {
-        tracing::trace!("Executing IfBlock {}", self.node_id());
-
-        if !self.clauses.is_empty() {
-            let started = Timestamp::now();
-
-            // Explicitly re-set all clauses to inactive so it is possible to shortcut
-            // evaluation by breaking on the first truthy clause
-            for clause in self.clauses.iter_mut() {
-                clause.is_active = Some(false);
-            }
-
-            // Iterate over clauses breaking on the first that is active
-            for clause in self.clauses.iter_mut() {
-                clause.execute(executor).await;
-
-                if clause.is_active.unwrap_or_default() {
-                    break;
-                }
-            }
-
-            let ended = Timestamp::now();
-
-            self.options.execution_status = Some(ExecutionStatus::Succeeded);
-            self.options.execution_required = execution_required(&self.options.execution_status);
-            self.options.execution_duration = execution_duration(&started, &ended);
-            self.options.execution_ended = Some(ended);
-            self.options.execution_count.get_or_insert(0).add_assign(1);
-        } else {
-            self.options.execution_status = Some(ExecutionStatus::Empty);
-            self.options.execution_required = Some(ExecutionRequired::No);
-            self.options.execution_messages = None;
-            self.options.execution_ended = None;
-            self.options.execution_duration = None;
-        }
-
-        WalkControl::Break
-    }
-}
-
-impl Executable for IfBlockClause {
-    #[tracing::instrument(skip_all)]
-    async fn execute<'lt>(&mut self, executor: &mut Executor<'lt>) -> WalkControl {
-        tracing::trace!("Executing IfBlockClause {}", self.node_id());
-
-        let mut messages = Vec::new();
-        let started = Timestamp::now();
-
-        let code = self.code.trim();
-        if !code.is_empty() {
-            // Evaluate code in kernels
-            let (output, mut code_messages) = executor
-                .kernels
-                .evaluate(code, self.programming_language.as_deref())
-                .await
-                .unwrap_or_else(|error| {
-                    (
-                        Node::Null(Null),
-                        vec![error_to_message("While evaluating clause", error)],
-                    )
-                });
-            messages.append(&mut code_messages);
-
-            // Determine truthy-ness of the code's output value
-            let truthy = match &output {
-                Node::Null(..) => false,
-                Node::Boolean(bool) => *bool,
-                Node::Integer(int) => *int > 0,
-                Node::UnsignedInteger(uint) => *uint > 0,
-                Node::Number(number) => *number > 0.,
-                Node::String(string) => !string.is_empty(),
-                Node::Array(array) => !array.is_empty(),
-                Node::Object(object) => !object.is_empty(),
-                _ => true,
-            };
-
-            // Execute nodes in content if truthy
-            if truthy {
-                if let Err(error) = self.content.walk_async(executor).await {
-                    messages.push(error_to_message("While executing content", error))
-                };
-            }
-
-            self.is_active = truthy.then_some(true).or(Some(false));
-        } else {
-            // If code is empty then this is an `else` clause so will always
-            // be active (if the `IfBlock` got this far in its execution)
-            if let Err(error) = self.content.walk_async(executor).await {
-                messages.push(error_to_message("While executing content", error))
-            };
-
-            self.is_active = Some(true);
-        }
-
-        let ended = Timestamp::now();
-
-        self.options.execution_status = execution_status(&messages);
-        self.options.execution_required = execution_required(&self.options.execution_status);
-        self.options.execution_messages = execution_messages(messages);
-        self.options.execution_duration = execution_duration(&started, &ended);
-        self.options.execution_ended = Some(ended);
-        self.options.execution_count.get_or_insert(0).add_assign(1);
-
-        WalkControl::Break
     }
 }
