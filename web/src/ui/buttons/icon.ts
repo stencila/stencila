@@ -66,6 +66,13 @@ export class UIIconButton extends LitElement {
   @property()
   size: string = '20px'
 
+  /**
+   * If consumer prefers to supply their own colours, then we can ignore what
+   * the colours that have been set up here.
+   */
+  @property({ type: Boolean })
+  ignoreColours: boolean = false
+
   override render() {
     if (this.tooltip) {
       return html`<sl-tooltip
@@ -120,8 +127,12 @@ export class UIIconButton extends LitElement {
     const classes = apply([
       'transition-all duration-300 ease-in-out',
       'stroke-none',
-      stateColour[state],
-      state !== 'active' ? 'group-hover:fill-grey-900' : 'drop-shadow-2xl',
+      !this.ignoreColours ? stateColour[state] : '',
+      !this.ignoreColours
+        ? state !== 'active'
+          ? 'group-hover:fill-grey-900'
+          : 'drop-shadow-2xl'
+        : '',
     ])
 
     return html`<sl-icon

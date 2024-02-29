@@ -39,7 +39,7 @@ export class ConfigScreen extends LitElement {
     return html`<div
       class="${this.context.configOpen
         ? 'top-1/2 -translate-y-1/2'
-        : 'top-full'} transition-all fixed left-1/2 -translate-x-1/2 z-[12] w-full max-w-[528px] min-h-[588px]"
+        : 'top-full'} transition-all duration-300 fixed left-1/2 -translate-x-1/2 z-[12] w-full max-w-[528px] min-h-[588px]"
     >
       <div
         class="shadow rounded-md m-5 px-6 pb-6 pt-[18px] inline-flex flex-col justify-start items-start bg-blue-50"
@@ -61,8 +61,9 @@ export class ConfigScreen extends LitElement {
             <stencila-ui-icon-button
               icon="close-button"
               size="14px"
-              class="ml-auto"
+              class="ml-auto fill-blue-400 hover:fill-blue-800"
               .clickEvent=${this.handleClose}
+              ?ignoreColours=${true}
             ></stencila-ui-icon-button>
           </div>
         </header>
@@ -73,7 +74,7 @@ export class ConfigScreen extends LitElement {
 
         <footer class="flex w-full justify-end items-center gap-4">
           <button>discard</button>
-          ${this.renderButton()}
+          <stencila-ui-button>Save me</stencila-ui-button>
         </footer>
       </div>
     </div>`
@@ -93,48 +94,6 @@ export class ConfigScreen extends LitElement {
   }
 
   /**
-   * Renders the save button.
-   */
-  private renderButton() {
-    const theme = this.tw.theme()
-    const buttonDefault = theme.colors['blue-700'] as string
-    const buttonHover = theme.colors['blue-800'] as string
-    const white = theme.colors['white'] as string
-    const fontSize = '14px'
-
-    const styles = css`
-      &::part(base) {
-        --sl-input-height-medium: 26px;
-
-        border-radius: 3px;
-        border-width: 0;
-        box-shadow: 0px 1px 0px 0px rgba(255, 255, 255, 0.25) inset;
-        background-color: ${buttonDefault};
-        color: ${white};
-        line-height: 0;
-        display: flex;
-        flex-direction: row;
-        font-size: ${fontSize};
-        align-items: center;
-        justify-content: center;
-        font-weight: 500;
-        padding: 6px 36px;
-
-        &:hover {
-          background-color: ${buttonHover};
-        }
-      }
-
-      &::part(label) {
-        margin: auto;
-        display: contents;
-      }
-    `
-
-    return html`<sl-button class="${styles}">Save</sl-button>`
-  }
-
-  /**
    * Renders an individual secret.
    */
   private renderSecret(secret: Secret) {
@@ -144,14 +103,16 @@ export class ConfigScreen extends LitElement {
     return html`<div
       class="px-6 w-full max-w-[382px] justify-start items-start gap-3 inline-flex"
     >
-      <sl-icon library="stencila" name="${icon}" class="text-base"></sl-icon>
-      <div
-        class="flex-col w-full justify-start items-start gap-1.5 inline-flex"
-      >
-        <div class="justify-start items-center gap-1.5 inline-flex">
-          <div class="text-blue-900 text-xs font-normal">${title}</div>
+      <sl-icon
+        library="stencila"
+        name="${icon}"
+        class="text-2xl opacity-70 flex-shrink-0 flex-grow-0"
+      ></sl-icon>
+      <div class="flex-col w-full justify-start items-start inline-flex">
+        <div class="text-blue-900 text-xs font-normal leading-relaxed">
+          ${title}
         </div>
-        <div class="opacity-60 text-blue-900 text-xs gap-1.5 font-normal">
+        <div class="opacity-60 text-blue-900 text-xs font-normal mb-2">
           ${description}
         </div>
 
