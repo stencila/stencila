@@ -22,9 +22,9 @@ mod styled;
 pub async fn execute<T: WalkNode>(
     node: &mut T,
     kernels: &mut Kernels,
-    node_id: Option<NodeId>,
+    node_ids: Option<Vec<NodeId>>,
 ) -> Result<()> {
-    let mut executor = Executor { kernels, node_id };
+    let mut executor = Executor { kernels, node_ids };
     node.walk_async(&mut executor).await
 }
 
@@ -46,16 +46,21 @@ struct Executor<'lt> {
     /// The kernels that will be used for execution
     kernels: &'lt mut Kernels,
 
-    /// The node that should be executed
+    /// The nodes that should be executed
     ///
     /// If `None` then the entire document will be executed.
-    node_id: Option<NodeId>,
+    node_ids: Option<Vec<NodeId>>,
 }
 
 impl<'lt> VisitorAsync for Executor<'lt> {
     async fn visit_node(&mut self, node: &mut Node) -> Result<WalkControl> {
-        // Note: Currently unable to check for self.node_id as with
-        // blocks and inlines (because `Node` does not have a node_id method)
+        if let Some(node_ids) = &self.node_ids {
+            if let Some(node_id) = &node.node_id() {
+                if !node_ids.contains(node_id) {
+                    return Ok(WalkControl::Continue);
+                }
+            }
+        }
 
         use Node::*;
         Ok(match node {
@@ -65,9 +70,9 @@ impl<'lt> VisitorAsync for Executor<'lt> {
     }
 
     async fn visit_block(&mut self, block: &mut Block) -> Result<WalkControl> {
-        if let Some(node_id) = &self.node_id {
-            if let Some(block_node_id) = &block.node_id() {
-                if block_node_id == node_id {
+        if let Some(node_ids) = &self.node_ids {
+            if let Some(node_id) = &block.node_id() {
+                if !node_ids.contains(node_id) {
                     return Ok(WalkControl::Continue);
                 }
             }
@@ -88,9 +93,9 @@ impl<'lt> VisitorAsync for Executor<'lt> {
     }
 
     async fn visit_inline(&mut self, inline: &mut Inline) -> Result<WalkControl> {
-        if let Some(node_id) = &self.node_id {
-            if let Some(inline_node_id) = &inline.node_id() {
-                if inline_node_id == node_id {
+        if let Some(node_ids) = &self.node_ids {
+            if let Some(node_id) = &inline.node_id() {
+                if !node_ids.contains(node_id) {
                     return Ok(WalkControl::Continue);
                 }
             }

@@ -1,6 +1,6 @@
 use common::tracing;
 use node_store::ReadNode;
-use schema::Node;
+use schema::{Node, NodeId};
 
 use crate::{
     Command, Document, DocumentCommandReceiver, DocumentKernels, DocumentStore,
@@ -22,8 +22,9 @@ impl Document {
             tracing::trace!("Document command `{}` received", command.to_string());
 
             match command {
-                Command::ExecuteDocument => {
-                    execute_document(&store, &kernels, &update_sender).await
+                Command::ExecuteDocument => execute(&store, &kernels, None, &update_sender).await,
+                Command::ExecuteNodes(command) => {
+                    execute(&store, &kernels, Some(command.node_ids), &update_sender).await
                 }
                 _ => {
                     tracing::warn!("TODO: handle {command} command");
@@ -35,9 +36,10 @@ impl Document {
     }
 }
 
-async fn execute_document(
+async fn execute(
     store: &DocumentStore,
     kernels: &DocumentKernels,
+    node_ids: Option<Vec<NodeId>>,
     update_sender: &DocumentUpdateSender,
 ) {
     // Load the root node from the store
@@ -55,7 +57,7 @@ async fn execute_document(
     // receive updates for individual nodes after they are updated
 
     // Execute the root node
-    node_execute::execute(&mut root, &mut kernels, None)
+    node_execute::execute(&mut root, &mut kernels, node_ids)
         .await
         .unwrap();
 

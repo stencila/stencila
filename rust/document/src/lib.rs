@@ -463,13 +463,13 @@ impl Document {
     /// TODO: refactor this for CLI use only (i.e not init-ing the do
     /// first) so that it is similar to `convert`
     #[tracing::instrument(skip(self))]
-    pub async fn execute(&self, node_id: Option<NodeId>) -> Result<()> {
+    pub async fn execute(&self) -> Result<()> {
         tracing::trace!("Executing document");
 
         let mut root = self.load().await?;
         let mut kernels = self.kernels.write().await;
 
-        node_execute::execute(&mut root, &mut kernels, node_id).await?;
+        node_execute::execute(&mut root, &mut kernels, None).await?;
 
         self.dump(&root).await?;
 
