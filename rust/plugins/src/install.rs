@@ -30,9 +30,6 @@ pub async fn install(name: &str) -> Result<Message> {
         remove_dir_all(&dir).await?;
     }
 
-    // Make sure the directory is present
-    create_dir_all(&dir).await?;
-
     // Do the install using the first compatible runtime
     for (runtime, version_req) in &plugin.runtimes {
         if !runtime.is_available(None) {
@@ -44,6 +41,9 @@ pub async fn install(name: &str) -> Result<Message> {
         if !version_req.matches(&runtime_version) {
             bail!("Unable to install plugin `{name}`: it requires {runtime}{version_req} but only {runtime_version} is available")
         }
+
+        // Make sure the directory is present
+        create_dir_all(&dir).await?;
 
         // Dispatch to the runtime to do the installation
         runtime.install(&plugin.install, &dir).await?;
