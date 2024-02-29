@@ -1,4 +1,5 @@
 import '@shoelace-style/shoelace/dist/components/tooltip/tooltip'
+import '@shoelace-style/shoelace/dist/components/icon/icon'
 
 import { Extension } from '@codemirror/state'
 import { showPanel, Panel, EditorView } from '@codemirror/view'
@@ -54,9 +55,26 @@ class PanelElement extends LitElement {
 
     return html`
       <div class=${styles}>
-        ${this.renderLineWrapButton()} ${this.renderWriteOnlyButton()}
-        ${this.renderFormatSelect()}
+        ${this.renderDocExecuteButton()}${this.renderLineWrapButton()}
+        ${this.renderWriteOnlyButton()} ${this.renderFormatSelect()}
       </div>
+    `
+  }
+
+  private renderDocExecuteButton = () => {
+    const styles = apply(['mr-4', 'w-5 h-full'])
+
+    return html`
+      <sl-tooltip content="Execute Document">
+        <button class=${styles} @click=${() => console.log('execute')}>
+          <sl-icon
+            library="default"
+            name="play-circle"
+            style="font-size: 20px;"
+          >
+          </sl-icon>
+        </button>
+      </sl-tooltip>
     `
   }
 
