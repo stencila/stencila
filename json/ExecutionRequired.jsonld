@@ -12,7 +12,7 @@
       "@id": "stencila:ExecutionRequired",
       "@type": "rdfs:Class",
       "rdfs:label": "ExecutionRequired",
-      "rdfs:comment": "Under which circumstances the document node should be automatically executed.",
+      "rdfs:comment": "Whether, and why, the execution of a node is required or not.",
       "rdfs:subClassOf": {
         "@id": "schema:Enumeration"
       }

@@ -11,5 +11,6 @@ class MessageLevel(StrEnum):
     Trace = "Trace"
     Debug = "Debug"
     Info = "Info"
-    Warn = "Warn"
+    Warning = "Warning"
     Error = "Error"
+    Exception = "Exception"

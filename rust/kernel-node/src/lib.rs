@@ -256,7 +256,7 @@ console.error("Error message");
                     ..Default::default()
                 },
                 ExecutionMessage {
-                    level: MessageLevel::Warn,
+                    level: MessageLevel::Warning,
                     message: "Warning message".to_string(),
                     ..Default::default()
                 },
