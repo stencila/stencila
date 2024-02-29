@@ -500,11 +500,13 @@ pub enum PluginRuntime {
 
 impl PluginRuntime {
     /// Get the path of the runtime executable
+    /// If the plugin is installed, the path to the installed plugin is returned.
     fn path(&self, for_plugin: Option<Plugin>) -> Result<PathBuf> {
         if let Some(plugin) = for_plugin {
             let dir = Plugin::plugin_dir(&plugin.name, false)?;
             if dir.exists() {
-                // It is installed
+                // Assume the plugin is installed.
+                // TODO: We should look for the runtime in the place provided.
             }
         }
 
@@ -598,6 +600,12 @@ impl PluginRuntime {
         Ok(())
     }
 
+    // async fn find_program(&self, program: str, dir: Path) -> Result<Path>:
+    //     match self {
+    //         PluginRuntime::Node => Self::find_program_node(program, dir).await,
+    //         PluginRuntime::Python => Self::find_program_python(program, dir).await,
+    //     }
+
     /// Build the command to run the plugin.
     /// This should provide the correct binary and arguments to run the plugin in this dir.
     async fn get_command(&self, command_str: &str, dir: &Path) -> Result<Command> {
@@ -621,19 +629,25 @@ impl PluginRuntime {
         let mut args = command_str.split(' ').collect_vec();
         let executable = args.remove(0);
 
+        let mut script_dir = dir.to_path_buf();
+
+        if dir.is_symlink() {
+            // if the plugin is linked, then we need to use the python from the venv
+            script_dir.push(".venv");
+        }
+
         // Python venvs have a different bin dir on windows.
-        let script_dir = if cfg!(target_os = "windows") {
-            "Scripts"
+        if cfg!(target_os = "windows") {
+            script_dir.push("Scripts")
         } else {
-            "bin"
+            script_dir.push("bin")
         };
-        let python_bin = dir.join(script_dir);
 
         // Use which_in to find the command in the venv. This function has a terrible undocumented
         // interface. If the executable contains a path separator, then it will use the CWD arg.
         // Otherwise, this arg is ignored, and the path string (like $PATH) us used. We only pass it one
         // path, so we don't have to worry about OS specific path separators. Yeesh.
-        let program = which::which_in(executable, Some(python_bin.as_os_str()), dir)?;
+        let program = which::which_in(executable, Some(script_dir.as_os_str()), dir)?;
 
         // Build our command.
         let mut command = Command::new(program);
