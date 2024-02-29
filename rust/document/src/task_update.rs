@@ -16,8 +16,8 @@ impl Document {
     ///
     /// This task takes a write lock on the document's `store` for each update.
     pub(super) async fn update_task(
-        store: DocumentStore,
         mut update_receiver: DocumentUpdateReceiver,
+        store: DocumentStore,
         watch_sender: DocumentWatchSender,
     ) {
         tracing::debug!("Document update task started");

@@ -341,7 +341,7 @@ impl Document {
                             codecs::from_str(current_content, decode_options.clone()).await
                         {
                             if let Err(error) = update_sender.send(node).await {
-                                tracing::error!("While sending node update: {error}");
+                                tracing::error!("While sending root update: {error}");
                             }
                         }
                     }
