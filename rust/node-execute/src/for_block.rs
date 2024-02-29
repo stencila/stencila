@@ -100,12 +100,14 @@ impl Executable for ForBlock {
                 });
             }
 
-            // Remove the loop's variable
-            if let Err(error) = executor.kernels.remove(&self.variable).await {
-                messages.push(ExecutionMessage::new(
-                    MessageLevel::Error,
-                    error.to_string(),
-                ));
+            // Remove the loop's variable (if it was set)
+            if !iterations.is_empty() {
+                if let Err(error) = executor.kernels.remove(&self.variable).await {
+                    messages.push(ExecutionMessage::new(
+                        MessageLevel::Error,
+                        error.to_string(),
+                    ));
+                }
             };
         }
 
