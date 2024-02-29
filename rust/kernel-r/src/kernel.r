@@ -93,9 +93,9 @@ message <- function(msg, level, error_type = NULL) {
   )
 }
 info <- function(msg) message(msg, "Info")
-warning <- function(msg) message(msg, "Warn")
-error <- function(error, error_type = "RuntimeError") message(error$message, "Error", error_type)
-interrupt <- function(condition, error_type = "Interrupt") message("Code execution was interrupted", "Error", error_type)
+warning <- function(msg) message(msg, "Warning")
+exception <- function(error, error_type = "RuntimeError") message(error$message, "Exception", error_type)
+interrupt <- function(condition, error_type = "Interrupt") message("Code execution was interrupted", "Exception", error_type)
 
 # Serialize an R object as JSON
 to_json <- function(value) {
@@ -315,7 +315,7 @@ execute <- function(lines) {
   code <- paste0(lines, collapse = "\n")
   compiled <- tryCatch(parse(text = code), error = identity)
   if (inherits(compiled, "simpleError")) {
-    error(compiled, "SyntaxError")
+    exception(compiled, "SyntaxError")
   } else {
     # Set a default graphics device to avoid window popping up or a `Rplot.pdf`
     # polluting local directory. 
@@ -335,7 +335,7 @@ execute <- function(lines) {
       eval(compiled, envir, .GlobalEnv),
       message = info,
       warning = warning,
-      error = error,
+      error = exception,
       interrupt = interrupt
     )
 
@@ -366,13 +366,13 @@ execute <- function(lines) {
 evaluate <- function(expression) {
   compiled <- tryCatch(parse(text = expression), error = identity)
   if (inherits(compiled, "simpleError")) {
-    error(compiled, "SyntaxError")
+    exception(compiled, "SyntaxError")
   } else {
     value <- tryCatch(
       eval(compiled, envir, .GlobalEnv),
       message = info,
       warning = warning,
-      error = error,
+      error = exception,
       interrupt = interrupt
     )
 
@@ -543,11 +543,11 @@ while (!is.null(stdin)) {
     else if (task_type == SET) set_variable(lines[2], lines[3])
     else if (task_type == REMOVE) remove_variable(lines[2])
     else if (task_type == FORK) fork(lines[2:length(lines)])
-    else error(list(message = paste("Unrecognized task:", task_type), error_type = "MicrokernelError"))
+    else exception(list(message = paste("Unrecognized task:", task_type), error_type = "MicrokernelError"))
   },
   message = info,
   warning = warning,
-  error = error,
+  error = exception,
   interrupt = function(condition) {
     if (DEV_MODE) quit(save = "no")
     else saved_task <<- task

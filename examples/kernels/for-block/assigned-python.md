@@ -1,6 +1,5 @@
 ```python exec
-# TODO: Replace with a parameter
-items = [1,2,3]
+items = [1, 2, 3]
 ```
 
 ::: for item in items

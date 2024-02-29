@@ -220,16 +220,26 @@ impl Document {
         let store = Arc::new(RwLock::new(store));
 
         // Start the update task
-        let store_clone = store.clone();
         let (update_sender, update_receiver) = mpsc::channel(8);
+        let store_clone = store.clone();
         tokio::spawn(
-            async move { Self::update_task(store_clone, update_receiver, watch_sender).await },
+            async move { Self::update_task(update_receiver, store_clone, watch_sender).await },
         );
 
         // Start the command task
-        let store_clone = store.clone();
         let (command_sender, command_receiver) = mpsc::channel(256);
-        tokio::spawn(async move { Self::command_task(store_clone, command_receiver).await });
+        let store_clone = store.clone();
+        let kernels_clone = kernels.clone();
+        let update_sender_clone = update_sender.clone();
+        tokio::spawn(async move {
+            Self::command_task(
+                command_receiver,
+                store_clone,
+                kernels_clone,
+                update_sender_clone,
+            )
+            .await
+        });
 
         Ok(Self {
             id,
@@ -453,13 +463,13 @@ impl Document {
     /// TODO: refactor this for CLI use only (i.e not init-ing the do
     /// first) so that it is similar to `convert`
     #[tracing::instrument(skip(self))]
-    pub async fn execute(&self, node_id: Option<NodeId>) -> Result<()> {
+    pub async fn execute(&self) -> Result<()> {
         tracing::trace!("Executing document");
 
         let mut root = self.load().await?;
         let mut kernels = self.kernels.write().await;
 
-        node_execute::execute(&mut root, &mut kernels, node_id).await?;
+        node_execute::execute(&mut root, &mut kernels, None).await?;
 
         self.dump(&root).await?;
 

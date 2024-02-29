@@ -8,7 +8,9 @@ export type ExecutionStatus =
   'Empty' |
   'Running' |
   'Succeeded' |
-  'Failed' |
-  'Cancelled';
+  'Warnings' |
+  'Errors' |
+  'Exceptions' |
+  'Interrupted';
 
 

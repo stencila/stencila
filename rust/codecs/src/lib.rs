@@ -140,6 +140,12 @@ pub async fn from_path(path: &Path, options: Option<DecodeOptions>) -> Result<No
     Ok(node)
 }
 
+/// Decode a Stencila Schema node from a URL (http://, https://, or file://)
+#[tracing::instrument]
+pub async fn from_url(url: &str, options: Option<DecodeOptions>) -> Result<Node> {
+    bail!("TODO:")
+}
+
 /// Decode a Stencila Schema node from a file system path with decoding losses
 #[tracing::instrument]
 pub async fn from_path_with_losses(

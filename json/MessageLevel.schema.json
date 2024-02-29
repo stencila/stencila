@@ -132,14 +132,20 @@
       "const": "Info"
     },
     {
-      "@id": "stencila:Warn",
+      "@id": "stencila:Warning",
       "description": "A warning message",
-      "const": "Warn"
+      "const": "Warning"
     },
     {
       "@id": "stencila:Error",
       "description": "An error message",
       "const": "Error"
+    },
+    {
+      "@id": "stencila:Exception",
+      "description": "An exception message",
+      "$comment": "Differs from an error in that it causes execution to be interrupted.\nIn contrast, an error message can arise from a source, a log emitter for example,\nwhich does not interrupt execution.\n",
+      "const": "Exception"
     }
   ]
 }

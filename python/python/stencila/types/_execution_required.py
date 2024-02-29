@@ -5,7 +5,7 @@ from .prelude import *
 
 class ExecutionRequired(StrEnum):
     """
-    Under which circumstances the document node should be automatically executed.
+    Whether, and why, the execution of a node is required or not.
     """
 
     No = "No"
@@ -13,6 +13,6 @@ class ExecutionRequired(StrEnum):
     SemanticsChanged = "SemanticsChanged"
     DependenciesChanged = "DependenciesChanged"
     DependenciesFailed = "DependenciesFailed"
-    Failed = "Failed"
+    ExecutionFailed = "ExecutionFailed"
     KernelRestarted = "KernelRestarted"
     UserRequested = "UserRequested"

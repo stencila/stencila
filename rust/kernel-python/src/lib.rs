@@ -241,7 +241,7 @@ warnings.warn('This is a warning message', UserWarning)
         assert_eq!(messages.len(), 1);
         let m = messages.first().unwrap();
         assert_eq!(m.error_type.as_deref(), Some("UserWarning"));
-        assert_eq!(m.level, MessageLevel::Warn);
+        assert_eq!(m.level, MessageLevel::Warning);
 
         Ok(())
     }

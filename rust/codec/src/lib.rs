@@ -343,6 +343,12 @@ pub struct DecodeOptions {
     /// format it may be necessary to specify this option.
     pub format: Option<Format>,
 
+    /// The media type to decode from
+    ///
+    /// In some cases (e.g. when decoding content from a HTTP response) the
+    /// IANA Media Type (MIME) will be known or need to be specified.
+    pub media_type: Option<String>,
+
     /// Scopes defining which properties of nodes should be stripped before decoding
     #[serde(skip_serializing_if = "Vec::is_empty")]
     pub strip_scopes: Vec<StripScope>,

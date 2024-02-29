@@ -63,7 +63,7 @@ console.info = (message) =>
   );
 console.warn = (message) =>
   stderr.write(
-    `{"type":"ExecutionMessage","level":"Warn","message":"${message}"}${END}\n`
+    `{"type":"ExecutionMessage","level":"Warning","message":"${message}"}${END}\n`
   );
 console.error = (message) =>
   stderr.write(
@@ -75,6 +75,7 @@ const context = {
   ...inheritedVariables,
   require,
   console,
+  process,
 };
 vm.createContext(context);
 
@@ -334,7 +335,7 @@ rl.on("line", (task) => {
     } else {
       const msg = {
         type: "ExecutionMessage",
-        level: "Error",
+        level: "Exception",
         message: error.message ?? error.toString(),
       };
       if (error.name) msg.errorType = error.name;

@@ -1,6 +1,6 @@
 // Generated file; do not edit. See https://github.com/stencila/stencila/tree/main/rust/schema-gen
 /**
- * Under which circumstances the document node should be automatically executed.
+ * Whether, and why, the execution of a node is required or not.
  */
 export type ExecutionRequired =
   'No' |
@@ -8,7 +8,7 @@ export type ExecutionRequired =
   'SemanticsChanged' |
   'DependenciesChanged' |
   'DependenciesFailed' |
-  'Failed' |
+  'ExecutionFailed' |
   'KernelRestarted' |
   'UserRequested';
 

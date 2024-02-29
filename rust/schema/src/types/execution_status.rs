@@ -18,7 +18,11 @@ pub enum ExecutionStatus {
 
     Succeeded,
 
-    Failed,
+    Warnings,
 
-    Cancelled,
+    Errors,
+
+    Exceptions,
+
+    Interrupted,
 }
