@@ -326,10 +326,19 @@ export class SourceView extends TWLitElement {
       this.renderRoot.querySelector('[root]') as HTMLElement
     )
     this.objectClient = new ObjectClient(this.doc)
-    this.objectClient.subscribe((_, state) => {
-      this.codeMirrorView.dispatch({
-        effects: executableEffect.of({ id: 'root', node: state.node as Node }),
-      })
+    this.objectClient.subscribe((patch, state) => {
+      const exeUpdated = !!patch.ops.find(({ path }) =>
+        /execution(?:Status|Required)/g.test(path)
+      )
+      console.log(exeUpdated)
+      if (exeUpdated) {
+        this.codeMirrorView.dispatch({
+          effects: executableEffect.of({
+            id: 'root',
+            node: state.node as Node,
+          }),
+        })
+      }
     })
   }
 
