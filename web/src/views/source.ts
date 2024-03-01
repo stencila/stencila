@@ -27,6 +27,7 @@ import {
   keymap,
   lineNumbers,
 } from '@codemirror/view'
+import { Node } from '@stencila/types'
 import { apply, css as twCSS } from '@twind/core'
 import { html } from 'lit'
 import { customElement, property } from 'lit/decorators'
@@ -37,13 +38,14 @@ import { DomClient } from '../clients/dom'
 import { MappingEntry } from '../clients/format'
 import { ObjectClient } from '../clients/object'
 import { markdownHighlightStyle } from '../languages/markdown'
-import type { DocumentId, DocumentAccess } from '../types'
+import type { DocumentId, DocumentAccess, NodeId } from '../types'
 import { TWLitElement } from '../ui/twind'
 
 import { bottomPanel } from './source/bottom-panel'
 import { nodeTypeGutter, execStatusGutter } from './source/gutters'
 import { infoSideBar } from './source/infoSideBar'
 import { serverActionKeys, autoWrapKeys } from './source/keyMaps'
+import { executableEffect, execuateState } from './source/state'
 
 /**
  * Source code editor for a document
@@ -302,6 +304,7 @@ export class SourceView extends TWLitElement {
       autocompletion(),
       bottomPanel(this),
       clientReceiver,
+      execuateState,
     ]
 
     return extensions
@@ -323,6 +326,11 @@ export class SourceView extends TWLitElement {
       this.renderRoot.querySelector('[root]') as HTMLElement
     )
     this.objectClient = new ObjectClient(this.doc)
+    this.objectClient.subscribe((_, state) => {
+      this.codeMirrorView.dispatch({
+        effects: executableEffect.of({ id: 'root', node: state.node as Node }),
+      })
+    })
   }
 
   /**
@@ -413,6 +421,14 @@ export class SourceView extends TWLitElement {
    */
   public getNodesBetween(from: number, to: number): MappingEntry[] {
     return this.codeMirrorClient.nodesInRange(from, to)
+  }
+
+  public execute = (nodeIds: NodeId[] = []) => {
+    if (nodeIds.length > 0) {
+      this.codeMirrorClient.sendCommand('execute-nodes', nodeIds)
+    } else {
+      this.codeMirrorClient.sendCommand('execute-document')
+    }
   }
 
   /**

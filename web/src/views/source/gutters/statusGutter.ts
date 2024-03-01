@@ -26,26 +26,28 @@ class StatusGutterMarkerEl extends LitElement {
   doc: string
 
   private execute = async (): Promise<void> => {
-    await fetch(`/~documents/${this.doc}/execute`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ nodeId: this.nodeId }),
-    })
+    console.log('Execute: ', this.nodeId)
+    // await fetch(`/~documents/${this.doc}/execute`, {
+    //   method: 'POST',
+    //   headers: {
+    //     'Content-Type': 'application/json',
+    //   },
+    //   body: JSON.stringify({ nodeId: this.nodeId }),
+    // })
   }
 
-  private interrupt = async (): Promise<void> => {
-    await fetch(`/~documents/${this.doc}/interrupt`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ nodeId: this.nodeId }),
-    })
-  }
+  // private interrupt = async (): Promise<void> => {
+  //   await fetch(`/~documents/${this.doc}/interrupt`, {
+  //     method: 'POST',
+  //     headers: {
+  //       'Content-Type': 'application/json',
+  //     },
+  //     body: JSON.stringify({ nodeId: this.nodeId }),
+  //   })
+  // }
 
   protected override render = () => {
+    const { text, icon } = executableIcon(this.execStatus, this.execRequired)
     const styles = apply([
       'flex items-center justify-center',
       `w-[${this.defaultLineHeight}px] h-[${this.defaultLineHeight}px]`,
@@ -54,20 +56,11 @@ class StatusGutterMarkerEl extends LitElement {
       'text-base',
     ])
 
-    return html`<sl-tooltip
-      placement=${this.tooltipPlacement}
-      content=${`Execute`}
-    >
+    return html`<sl-tooltip placement=${this.tooltipPlacement} content=${text}>
       <button class=${styles} @click=${this.execute}>
-        ${this.renderIcon()}
+        <sl-icon library=${icon.library} name=${icon.name}></sl-icon>
       </button>
     </sl-tooltip>`
-  }
-
-  renderIcon = () => {
-    const { iconLibrary, icon } = executableIcon(this.execRequired)
-
-    return html`<sl-icon library=${iconLibrary} name=${icon}></sl-icon>`
   }
 }
 
