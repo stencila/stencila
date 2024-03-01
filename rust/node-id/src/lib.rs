@@ -87,11 +87,24 @@ pub struct NodeId {
 }
 
 impl NodeId {
+    /// Create a new node id
     pub fn new(nick: &'static [u8; 3], uid: &[u8]) -> Self {
         Self {
             nick: *nick,
             uid: uid.into(),
         }
+    }
+
+    /// Get the node type nickname of the node id
+    pub fn nick(&self) -> &str {
+        str::from_utf8(&self.nick).expect("node type nicknames should always be utf8")
+    }
+
+    /// Get the unique id part of the node id
+    ///
+    /// Note that this id is unique within a document, not universally.
+    pub fn uid(&self) -> &[u8] {
+        &self.uid
     }
 }
 
