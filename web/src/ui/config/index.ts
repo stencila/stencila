@@ -1,7 +1,8 @@
 import { consume } from '@lit/context'
-import { Twind, css } from '@twind/core'
+import { getFormControls } from '@shoelace-style/shoelace/dist/utilities/form.js'
 import { LitElement, html } from 'lit'
 import { customElement, state } from 'lit/decorators.js'
+import { Ref, createRef, ref } from 'lit/directives/ref'
 
 import { RestAPIClient } from '../../clients/RestAPIClient'
 import { SidebarContext, sidebarContext } from '../../contexts/sidebar-context'
@@ -10,6 +11,26 @@ import { withTwind } from '../../twind'
 import type { Secret } from '../../types/api'
 
 import { API_ICONS, ICON_KEYS } from './icons'
+
+/**
+ * State that manages a secrets value from the API & keeps track of the
+ * modified state.
+ */
+type SecretState = {
+  original: Secret
+  modifiedValue?: string
+}
+
+/**
+ * The name of each secret (mapped on to the API_ICONS - likely to change
+ * to something more solid).
+ */
+type SecretName = keyof typeof API_ICONS
+
+/**
+ * Status of saving the state of the current form.
+ */
+type SavedState = 'idle' | 'saving' | 'done' | 'error'
 
 /**
  * UI config screen
@@ -22,14 +43,35 @@ export class ConfigScreen extends LitElement {
   @consume({ context: sidebarContext, subscribe: true })
   context: SidebarContext
 
-  // Set the type on the `tw` var
-  private tw: Twind
-
+  /**
+   * Store all secrets found in the API & all modifications to them.
+   */
   @state()
-  protected secrets: Secret[] = []
+  private secrets: {
+    [Property in SecretName]?: SecretState
+  }
+
+  /**
+   * The state as it changes when
+   */
+  @state()
+  private savedState: SavedState = 'idle'
+
+  /**
+   * Using a ref for the form element so we can reset it.
+   *
+   * @private
+   * @type {Ref<HTMLFormElement>}
+   * @memberof ConfigScreen
+   */
+  private formRef: Ref<HTMLFormElement> = createRef()
 
   override render() {
-    return html`${this.renderOverlay()} ${this.renderConfigPanel()}`
+    return html`<stencila-ui-overlay
+        .isOpen=${this.context.configOpen}
+        .handleClose=${this.handleClose}
+      ></stencila-ui-overlay>
+      ${this.renderConfigPanel()}`
   }
 
   /**
@@ -69,35 +111,49 @@ export class ConfigScreen extends LitElement {
         </header>
 
         <div class="flex-grow my-[18px] mr-auto">
-          ${this.secrets.map((secret) => this.renderSecret(secret))}
+          <form novalidate ${ref(this.formRef)}>
+            ${this.getSecretsKeys().map((secret) => {
+              if (this.secrets[secret]) {
+                return this.renderSecret(this.secrets[secret])
+              }
+              return html``
+            })}
+          </form>
         </div>
 
-        <footer class="flex w-full justify-end items-center gap-4">
-          <button>discard</button>
-          <stencila-ui-button>Save me</stencila-ui-button>
+        <footer class="flex w-full justify-end">
+          <stencila-ui-button
+            theme="blue-inline-text--small"
+            class="inline-block h-auto"
+            >Discard</stencila-ui-button
+          >
+          <stencila-ui-button
+            theme="blue-solid"
+            class="inline-block h-auto"
+            .clickEvent=${() => {
+              this.handleSave()
+            }}
+            .disabled=${this.savedState === 'saving'}
+            >Save me</stencila-ui-button
+          >
         </footer>
       </div>
     </div>`
   }
 
-  /**
-   * Renders the background overlay for the component.
-   */
-  private renderOverlay() {
-    return html`<div
-      class="transition w-screen h-screen overflow-none fixed top-0 left-0  z-10 bg-white ${this
-        .context.configOpen
-        ? 'opacity-50 pointer-events-all cursor-pointer'
-        : 'opacity-0 pointer-events-none'}"
-      @click=${this.handleClose}
-    ></div>`
+  private getSecretsKeys() {
+    if (!this.secrets) {
+      return [] as SecretName[]
+    }
+
+    return Object.keys(this.secrets) as SecretName[]
   }
 
   /**
    * Renders an individual secret.
    */
-  private renderSecret(secret: Secret) {
-    const { name, title, description, redacted } = secret
+  private renderSecret(secret: SecretState) {
+    const { name, title, description, redacted } = secret.original
     const icon = API_ICONS[name as ICON_KEYS] ?? ''
 
     return html`<div
@@ -116,54 +172,37 @@ export class ConfigScreen extends LitElement {
           ${description}
         </div>
 
-        ${this.renderInputField(redacted ?? '')}
+        <stencila-ui-input-field
+          defaultValue=${redacted ?? ''}
+          value=${secret.modifiedValue ?? redacted ?? ''}
+          .changeEvent=${this.handleInputChangeEvent(secret)}
+        ></stencila-ui-input-field>
       </div>
     </div>`
   }
 
   /**
-   * Render an individual input field (as seen in the list of secrets).
+   * Handles changes to an input field:
+   * - updates the state for the specific secret
+   * - keeps track of any modifications to the secret
    */
-  private renderInputField(value: string) {
-    const styles = css`
-      &::part(form-control) {
-        --sl-input-border-radius-small: 3px;
-        --sl-input-font-size-small: 10px;
-        --sl-input-color: #999999;
-        --sl-input-border-color: none;
-        --sl-input-border-width: 0;
-        --sl-input-border-color-focus: transparent;
-        --sl-focus-ring-width: 1px;
-        --sl-input-focus-ring-color: #092d77;
-        --sl-input-height-small: 20px;
-      }
+  private handleInputChangeEvent(secret: SecretState) {
+    return (element: HTMLInputElement) => {
+      secret.modifiedValue = element.value
+    }
+  }
 
-      &::part(form-control) {
-        width: 100%;
-      }
-
-      &::part(input) {
-        --sl-input-spacing-small: 8px;
-        padding: 4px var(--sl-input-spacing-small);
-        box-shadow: 0px 0px 4px 0px rgba(0, 0, 0, 0.25) inset;
-      }
-
-      &::part(form-control-help-text) {
-        padding: 0 var(--sl-input-spacing-small);
-        color: var(--sl-input-focus-ring-color);
-      }
-    `
-
-    return html`
-      <div class="mb-5 w-full">
-        <sl-input
-          class="${styles} w-full"
-          size="small"
-          value=${value}
-          help-text="&nbsp;"
-        ></sl-input>
-      </div>
-    `
+  /**
+   * Find the secrets that have been modified.
+   */
+  private filterModifiedSecrets() {
+    return this.getSecretsKeys()
+      .filter((key) => {
+        return this.secrets[key].modifiedValue
+      })
+      .map((key) => {
+        return this.secrets[key]
+      })
   }
 
   /**
@@ -171,17 +210,78 @@ export class ConfigScreen extends LitElement {
    * context's `configOpen` value.
    */
   private handleClose = () => {
+    this.resetModifiedSecrets()
     const event = emitSidebarEvent('stencila-config-toggle', {
       configOpen: false,
     })
     this.dispatchEvent(event)
+
+    if (this.formRef.value) {
+      const formControls = getFormControls(this.formRef.value)
+
+      console.log(formControls)
+    }
   }
 
-  override async firstUpdated() {
+  private async handleSave() {
+    const toUpdate = this.filterModifiedSecrets()
+
+    this.savedState = 'saving'
+
+    const savedAPIs = Promise.allSettled(
+      toUpdate.map((secret) => {
+        return RestAPIClient.setSecret(
+          secret.original.name,
+          secret.modifiedValue
+        )
+      })
+    )
+
+    await savedAPIs
+
+    // TODO - handle rejections correctly by examining the savedAPIs output.
+
+    // get the secrets form the server.
+    // - ensures we get all updates to secrets
+    // - resets modified values
+    await this.getSecrets()
+
+    this.savedState = 'done'
+  }
+
+  private resetModifiedSecrets() {
+    const toMutate = {
+      ...this.secrets,
+    }
+    for (const secret of this.filterModifiedSecrets()) {
+      secret.modifiedValue = undefined
+      toMutate[secret.original.name as SecretName] = { ...secret }
+    }
+
+    this.secrets = { ...toMutate }
+    this.requestUpdate()
+  }
+
+  /**
+   * Retrieve the secrets from the API.
+   */
+  private async getSecrets() {
     const secrets = await RestAPIClient.listSecrets()
 
     if (secrets.status === 'success') {
-      this.secrets = secrets.response
+      this.secrets = secrets.response.reduce<typeof this.secrets>(
+        (acc, secret) => {
+          acc[secret.name as SecretName] = {
+            original: secret,
+          }
+          return acc
+        },
+        {}
+      )
     }
+  }
+
+  override async firstUpdated() {
+    await this.getSecrets()
   }
 }

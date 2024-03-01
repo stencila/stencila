@@ -26,6 +26,7 @@ export const config = defineConfig({
         '2xl': '0 0 0.15em rgba(37, 104, 239, 1)',
       },
       colors: {
+        transparent: 'transparent',
         white: '#fff',
         brand: {
           blue: '#2568ef',
