@@ -246,6 +246,11 @@ pub trait WriteNode {
         bail_type!("method `Write::insert_prop` not implemented for type `{type}`")
     }
 
+    /// Insert a node into an existing object of an Automerge store
+    fn insert_into(&self, _store: &mut WriteStore, _obj_id: &ObjId) -> Result<()> {
+        bail_type!("method `Write::insert_into` not implemented for type `{type}`")
+    }
+
     /// Put a node into an existing property of an Automerge store
     fn put_prop(&self, _store: &mut WriteStore, _obj_id: &ObjId, _prop: Prop) -> Result<()> {
         bail_type!("method `Write::put_prop` not implemented for type `{type}`")

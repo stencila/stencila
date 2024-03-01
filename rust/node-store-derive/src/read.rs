@@ -1,6 +1,6 @@
 use common::{
     proc_macro2::TokenStream,
-    quote::quote,
+    quote::{format_ident, quote},
     syn::{parse_macro_input, Attribute, Data, DataEnum, DataStruct, DeriveInput, Fields},
 };
 
@@ -33,17 +33,18 @@ pub fn derive_struct(input: &DeriveInput, data: &DataStruct) -> TokenStream {
             .unwrap_or_default();
 
         let field = if field_name == "r#type" {
+            // Skip reading type because it is implied
             continue;
         } else if field_name == "uid" {
+            // Make the ObjId for this object the node's `uid`
             quote! {
                 node.uid = NodeUid::from(obj_id.to_bytes());
             }
         } else if field_name == "options" {
+            // Load options from the current object (ie. options are "flattened")
+            let options_name = format_ident!("{struct_name}Options");
             quote! {
-                let prop = node_store::Prop::Map("options".to_string());
-                if store.get(obj_id, prop.clone())?.is_some() {
-                    node.options.load_from(store, &obj_id, prop)?;
-                }
+                node.options = Box::new(#options_name::load_map(store, &obj_id)?);
             }
         } else {
             quote! {
@@ -55,10 +56,8 @@ pub fn derive_struct(input: &DeriveInput, data: &DataStruct) -> TokenStream {
     }
     methods.extend(quote! {
         fn load_map<S: node_store::ReadStore>(store: &S, obj_id: &node_store::ObjId) -> common::eyre::Result<Self> {
-            // Create a new node
             let mut node = Self::default();
 
-            // Load each field from the store
             #fields
 
             Ok(node)

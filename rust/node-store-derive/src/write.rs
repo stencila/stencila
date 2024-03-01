@@ -33,20 +33,22 @@ pub fn derive_struct(input: &DeriveInput, data: &DataStruct) -> TokenStream {
             .unwrap_or_default();
 
         let field = if field_name == "r#type" {
-            // Always put the `type` to the store
+            // Always put the `type` to the Automerge map
             quote! {
                 store.put::<_,_,&str>(obj_id, "type", stringify!(#struct_name))?;
-                keys.remove("type");
             }
         } else if field_name == "uid" {
-            // Never put the uid in the store (because we use the obj_id on load)
+            // Never put the uid into the Automerge map (because we use the ObjId on load)
             continue;
-        } else {
-            // Put fields that are in both map and store
+        } else if field_name == "options" {
+            // Sync options into the Automerge map (i.e. "flatten" them)
             quote! {
-                let field_name = stringify!(#field_ident);
-                self.#field_ident.put_prop(store, obj_id, field_name.into())?;
-                keys.remove(field_name);
+                self.options.sync_map(store, obj_id)?;
+            }
+        } else {
+            // Put other fields into the Automerge map as props
+            quote! {
+                self.#field_ident.put_prop(store, obj_id, stringify!(#field_ident).into())?;
             }
         };
         fields.extend(field);
@@ -55,16 +57,7 @@ pub fn derive_struct(input: &DeriveInput, data: &DataStruct) -> TokenStream {
         fn sync_map(&self, store: &mut node_store::WriteStore, obj_id: &node_store::ObjId) -> common::eyre::Result<()> {
             use node_store::automerge::{ReadDoc, transaction::Transactable};
 
-            // Get the keys of the store map
-            let mut keys: std::collections::HashSet<String> = store.keys(obj_id).collect();
-
-            // Put fields into the store map
             #fields
-
-            // Remove keys that are in the store map but not in the struct
-            for key in keys {
-                store.delete(obj_id, key.as_str())?;
-            }
 
             Ok(())
         }
@@ -80,30 +73,43 @@ pub fn derive_struct(input: &DeriveInput, data: &DataStruct) -> TokenStream {
             .unwrap_or_default();
 
         let field = if field_name == "r#type" {
+            // Always put the `type` to the Automerge map
             quote! {
-                store.put::<_,_,&str>(&prop_obj_id, "type", stringify!(#struct_name))?;
+                store.put::<_,_,&str>(&obj_id, "type", stringify!(#struct_name))?;
             }
         } else if field_name == "uid" {
-            // Never put the uid in the store (because we use the obj_id on load)
+            // Never put the uid in the Automerge map (because we use the obj_id on load)
             continue;
-        } else {
+        } else if field_name == "options" {
+            // Insert options into the Automerge map (i.e. "flatten" them)
             quote! {
-                self.#field_ident.insert_prop(store, &prop_obj_id, stringify!(#field_ident).into())?;
+                self.options.insert_into(store, obj_id)?;
+            }
+        } else {
+            // Insert other fields into the Automerge map as properties
+            quote! {
+                self.#field_ident.insert_prop(store, &obj_id, stringify!(#field_ident).into())?;
             }
         };
         fields.extend(field);
     }
     methods.extend(quote! {
         fn insert_prop(&self, store: &mut node_store::WriteStore, obj_id: &node_store::ObjId, prop: node_store::Prop) -> common::eyre::Result<()> {
-            use node_store::{ReadStore, ObjType, Prop, automerge::{transaction::Transactable}};
+            use node_store::{ObjType, Prop, automerge::{transaction::Transactable}};
 
-            // Create the new map in the store
-            let prop_obj_id = match prop {
+            let prop_obj_id = match prop.clone() {
                 Prop::Map(key) => store.put_object(obj_id, key, ObjType::Map)?,
                 Prop::Seq(index) => store.insert_object(obj_id, index, ObjType::Map)?,
             };
 
-            // Insert fields into the new map
+            self.insert_into(store, &prop_obj_id)?;
+
+            Ok(())
+        }
+
+        fn insert_into(&self, store: &mut node_store::WriteStore, obj_id: &node_store::ObjId) -> common::eyre::Result<()> {
+            use node_store::automerge::transaction::Transactable;
+            
             #fields
 
             Ok(())
