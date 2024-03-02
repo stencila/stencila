@@ -7,14 +7,14 @@ expression: specs
     "status": "stable",
     "supports_from_formats": {
       "cbor": "NoLoss",
-      "cborzst": "NoLoss"
+      "cbor.zstd": "NoLoss"
     },
     "supports_from_bytes": true,
     "supports_from_string": false,
     "supports_from_path": true,
     "supports_to_formats": {
       "cbor": "NoLoss",
-      "cborzst": "NoLoss"
+      "cbor.zstd": "NoLoss"
     },
     "supports_to_bytes": true,
     "supports_to_string": false,
@@ -53,7 +53,7 @@ expression: specs
     "supports_from_string": true,
     "supports_from_path": true,
     "supports_to_formats": {
-      "dom": "NoLoss"
+      "dom.html": "NoLoss"
     },
     "supports_to_bytes": false,
     "supports_to_string": true,
