@@ -397,7 +397,11 @@ impl SpecializedAssistant {
             task.output = output;
         }
 
-        task.format = self.generated_format.or(self.format).unwrap_or(FORMAT);
+        task.format = self
+            .generated_format
+            .clone()
+            .or(self.format.clone())
+            .unwrap_or(FORMAT);
 
         task
     }
@@ -433,7 +437,11 @@ impl SpecializedAssistant {
                 codecs::to_string(
                     document,
                     Some(EncodeOptions {
-                        format: self.document_format.or(self.format).or(Some(FORMAT)),
+                        format: self
+                            .document_format
+                            .clone()
+                            .or(self.format.clone())
+                            .or(Some(FORMAT)),
                         ..encode_options.clone()
                     }),
                 )
@@ -446,7 +454,11 @@ impl SpecializedAssistant {
                 content += &codecs::to_string(
                     node,
                     Some(EncodeOptions {
-                        format: self.content_format.or(self.format).or(Some(FORMAT)),
+                        format: self
+                            .content_format
+                            .clone()
+                            .or(self.format.clone())
+                            .or(Some(FORMAT)),
                         ..encode_options.clone()
                     }),
                 )

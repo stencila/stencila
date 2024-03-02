@@ -40,9 +40,9 @@ impl Schemas {
 
         for file in glob(dest.join("*.md").as_os_str().to_str().unwrap())?.flatten() {
             let name = file.file_stem().unwrap().to_string_lossy().to_string();
-            let format = Format::from_name(&name)?;
+            let format = Format::from_name(&name);
 
-            let Ok(codec) = codecs::get(None, Some(format), None) else {
+            let Ok(codec) = codecs::get(None, Some(&format), None) else {
                 continue;
             };
 
@@ -114,7 +114,7 @@ impl Schemas {
 
                     let encoding = codec_support(codec.supports_to_type(node_type));
                     let decoding = codec_support(codec.supports_from_type(node_type));
-                    let notes = td(Schemas::docs_format_notes(schema, format));
+                    let notes = td(Schemas::docs_format_notes(schema, format.clone()));
 
                     rows.push(tr([title, encoding, decoding, notes]));
                 }
@@ -159,7 +159,7 @@ impl Schemas {
 
     /// Generates notes for a schema and format
     pub fn docs_format_notes(schema: &Schema, template: Format) -> Vec<Inline> {
-        if let (Format::Html, Some(HtmlOptions { special, elem, .. })) = (template, &schema.html) {
+        if let (Format::Html, Some(HtmlOptions { special, elem, .. })) = (&template, &schema.html) {
             if *special {
                 if let Some(elem) = elem {
                     vec![
@@ -187,7 +187,7 @@ impl Schemas {
                 vec![t("Encoded using derived function")]
             }
         } else if let (Format::Jats, Some(JatsOptions { elem, special, .. })) =
-            (template, &schema.jats)
+            (&template, &schema.jats)
         {
             if *special {
                 if let Some(elem) = elem {
@@ -218,7 +218,7 @@ impl Schemas {
             Some(MarkdownOptions {
                 derive, template, ..
             }),
-        ) = (template, &schema.markdown)
+        ) = (&template, &schema.markdown)
         {
             if !derive {
                 vec![t("Encoded using implemented function")]

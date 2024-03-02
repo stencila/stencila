@@ -24,7 +24,7 @@ impl Codec for Json5Codec {
         Status::Stable
     }
 
-    fn supports_from_format(&self, format: Format) -> CodecSupport {
+    fn supports_from_format(&self, format: &Format) -> CodecSupport {
         match format {
             Format::Json5 => CodecSupport::NoLoss,
             _ => CodecSupport::None,
@@ -41,7 +41,7 @@ impl Codec for Json5Codec {
         Ok((node, Losses::none()))
     }
 
-    fn supports_to_format(&self, format: Format) -> CodecSupport {
+    fn supports_to_format(&self, format: &Format) -> CodecSupport {
         match format {
             Format::Json5 => CodecSupport::NoLoss,
             _ => CodecSupport::None,

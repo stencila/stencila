@@ -681,14 +681,14 @@ impl GenerateOutput {
     ) -> Result<Self> {
         let format = match task.format {
             Format::Unknown => Format::Markdown,
-            _ => task.format,
+            _ => task.format.clone(),
         };
 
         // Decode text to an article
         let node = codecs::from_str(
             &text,
             Some(DecodeOptions {
-                format: Some(format),
+                format: Some(format.clone()),
                 ..Default::default()
             }),
         )

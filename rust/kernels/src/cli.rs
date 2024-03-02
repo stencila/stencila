@@ -72,7 +72,7 @@ impl Cli {
                     "Kill",
                 ]);
 
-                for kernel in list() {
+                for kernel in list().await {
                     use KernelAvailability::*;
 
                     let availability = kernel.availability();

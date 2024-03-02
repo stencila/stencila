@@ -21,7 +21,7 @@ impl Codec for TextCodec {
         Status::Alpha
     }
 
-    fn supports_to_format(&self, format: Format) -> CodecSupport {
+    fn supports_to_format(&self, format: &Format) -> CodecSupport {
         match format {
             Format::Text => CodecSupport::HighLoss,
             _ => CodecSupport::None,

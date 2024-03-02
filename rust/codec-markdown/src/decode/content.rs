@@ -692,7 +692,7 @@ pub fn decode_blocks(
                     };
 
                     let content_url = current_url.to_string();
-                    let media_object = if let Ok(format) = Format::from_string(&content_url) {
+                    let media_object = if let Ok(format) = Format::from_url(&content_url) {
                         if format.is_audio() {
                             Inline::AudioObject(AudioObject {
                                 content_url,

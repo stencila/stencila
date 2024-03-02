@@ -15,14 +15,19 @@ use kernel_rhai::RhaiKernel;
 pub mod cli;
 
 /// Get a list of available kernels
-pub fn list() -> Vec<Box<dyn Kernel>> {
-    vec![
+pub async fn list() -> Vec<Box<dyn Kernel>> {
+    let mut kernels = vec![
         Box::<BashKernel>::default() as Box<dyn Kernel>,
         Box::<NodeKernel>::default() as Box<dyn Kernel>,
         Box::<PythonKernel>::default() as Box<dyn Kernel>,
         Box::<RKernel>::default() as Box<dyn Kernel>,
         Box::<RhaiKernel>::default() as Box<dyn Kernel>,
-    ]
+    ];
+
+    let provided_by_plugins = &mut plugins::kernels::list().await;
+    kernels.append(provided_by_plugins);
+
+    kernels
 }
 
 /// Get the default kernel (used when no language is specified)
@@ -50,17 +55,15 @@ impl Kernels {
     async fn create_instance(&mut self, language: Option<&str>) -> Result<&mut dyn KernelInstance> {
         let kernel = match language {
             Some(language) => 'block: {
-                let format = Format::from_name(language).ok();
+                let format = Format::from_name(language);
 
-                for kernel in list() {
+                for kernel in list().await {
                     if kernel.name() == language {
                         break 'block kernel;
                     }
 
-                    if let Some(format) = format {
-                        if kernel.supports_language(&format) && kernel.is_available() {
-                            break 'block kernel;
-                        }
+                    if kernel.supports_language(&format) && kernel.is_available() {
+                        break 'block kernel;
                     }
                 }
 
@@ -91,7 +94,7 @@ impl Kernels {
     /// If no language specified, and there is at least one kernel instance, returns the
     /// first instance.
     fn get_instance(&mut self, language: Option<&str>) -> Result<Option<&mut dyn KernelInstance>> {
-        let format = language.and_then(|lang| Format::from_name(lang).ok());
+        let format = language.map(Format::from_name);
 
         for (kernel, instance) in self.instances.iter_mut() {
             let Some(language) = language else {
@@ -102,8 +105,8 @@ impl Kernels {
                 return Ok(Some(instance.as_mut()));
             }
 
-            if let Some(format) = format {
-                if kernel.supports_language(&format) {
+            if let Some(format) = &format {
+                if kernel.supports_language(format) {
                     return Ok(Some(instance.as_mut()));
                 }
             }

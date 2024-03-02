@@ -1044,6 +1044,7 @@ dependencies = [
  "is-terminal",
  "kernels",
  "node-strip",
+ "plugins",
  "rustyline",
  "secrets",
  "self-replace",
@@ -1406,6 +1407,7 @@ dependencies = [
  "once_cell",
  "proc-macro2",
  "quote",
+ "rand",
  "regex",
  "reqwest",
  "serde",
@@ -1425,6 +1427,7 @@ dependencies = [
  "tracing",
  "type-safe-id",
  "uuid",
+ "which",
  "xz2",
  "zip",
 ]
@@ -3038,7 +3041,6 @@ dependencies = [
  "app",
  "kernel",
  "nix 0.28.0",
- "which",
 ]
 
 [[package]]
@@ -3089,6 +3091,7 @@ dependencies = [
  "kernel-python",
  "kernel-r",
  "kernel-rhai",
+ "plugins",
 ]
 
 [[package]]
@@ -4228,6 +4231,18 @@ dependencies = [
  "quick-xml",
  "serde",
  "time",
+]
+
+[[package]]
+name = "plugins"
+version = "0.0.0"
+dependencies = [
+ "app",
+ "cli-utils",
+ "common",
+ "common-dev",
+ "kernel",
+ "semver",
 ]
 
 [[package]]

@@ -22,7 +22,7 @@ impl Codec for CborCodec {
         Status::Stable
     }
 
-    fn supports_from_format(&self, format: Format) -> CodecSupport {
+    fn supports_from_format(&self, format: &Format) -> CodecSupport {
         match format {
             Format::Cbor => CodecSupport::NoLoss,
             Format::CborZst => CodecSupport::NoLoss,
@@ -30,7 +30,7 @@ impl Codec for CborCodec {
         }
     }
 
-    fn supports_to_format(&self, format: Format) -> CodecSupport {
+    fn supports_to_format(&self, format: &Format) -> CodecSupport {
         match format {
             Format::Cbor => CodecSupport::NoLoss,
             Format::CborZst => CodecSupport::NoLoss,

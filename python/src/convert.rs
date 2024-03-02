@@ -34,10 +34,7 @@ impl TryInto<codecs::DecodeOptions> for DecodeOptions {
 
     fn try_into(self) -> PyResult<codecs::DecodeOptions> {
         Ok(codecs::DecodeOptions {
-            format: match self.format {
-                Some(format) => Some(Format::from_name(&format).map_err(value_error)?),
-                None => None,
-            },
+            format: self.format.as_ref().map(|format| Format::from_name(format)),
             ..Default::default()
         })
     }
@@ -70,10 +67,7 @@ impl TryInto<codecs::EncodeOptions> for EncodeOptions {
 
     fn try_into(self) -> PyResult<codecs::EncodeOptions> {
         Ok(codecs::EncodeOptions {
-            format: match self.format {
-                Some(format) => Some(Format::from_name(&format).map_err(value_error)?),
-                None => None,
-            },
+            format: self.format.as_ref().map(|format| Format::from_name(format)),
             standalone: self.standalone,
             compact: self.compact,
             ..Default::default()
