@@ -495,9 +495,7 @@ async fn export_document(
         return Ok((StatusCode::BAD_REQUEST, "Invalid document id").into_response());
     };
 
-    let format = query
-        .get("format")
-        .and_then(|format| Format::from_name(format).ok());
+    let format = query.get("format").map(|format| Format::from_name(format));
 
     let dom = query.get("dom").and_then(|dom| dom.parse().ok());
 
@@ -674,7 +672,7 @@ async fn websocket_format_protocol(
     let format = format.parse().ok();
 
     let decode_options = DecodeOptions {
-        format,
+        format: format.clone(),
         ..Default::default()
     };
 
