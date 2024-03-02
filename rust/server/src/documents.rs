@@ -609,16 +609,7 @@ async fn websocket_handler(ws: WebSocket, doc: Arc<Document>, dir: PathBuf) {
 /// Handle a WebSocket connection using the "nodes" protocol
 #[tracing::instrument(skip(ws, doc))]
 async fn websocket_nodes_protocol(ws: WebSocket, doc: Arc<Document>, capability: &str) {
-    tracing::trace!("WebSocket `nodes` protocol connection");
-
-    let (.., ws_receiver) = ws.split();
-
-    let (in_sender, in_receiver) = channel(1024);
-    receive_websocket_messages(ws_receiver, in_sender);
-
-    if let Err(error) = doc.sync_nodes(in_receiver).await {
-        tracing::error!("While syncing nodes for WebSocket client: {error}")
-    }
+    tracing::trace!("TODO: implement WebSocket `nodes` protocol connection");
 }
 
 /// Handle a WebSocket connection using the "object" protocol
