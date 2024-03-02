@@ -1,5 +1,5 @@
 ```rhai exec
-x = 3
+let x = 3
 ```
 
 ::: if x == 1
