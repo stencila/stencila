@@ -23,7 +23,6 @@
   "type": "module",
   "source": [
     "src/apps/main.ts",
-    "src/apps/main.css",
     "src/images/favicon.png",
     "src/themes/default.css",
     "src/themes/latex.css",
