@@ -295,9 +295,8 @@ impl Plugin {
 
     /// Fetch the latest registry list of plugins from the Stencila repo
     pub async fn fetch_registry() -> Result<HashMap<String, String>> {
-        // TODO: change URL to point to `main` before PR is merged
         const PLUGINS_TOML_URL: &str =
-            "https://raw.githubusercontent.com/stencila/stencila/feature/plugins/plugins.toml";
+            "https://raw.githubusercontent.com/stencila/stencila/main/plugins.toml";
 
         let response = reqwest::get(PLUGINS_TOML_URL).await?;
         if let Err(error) = response.error_for_status_ref() {
