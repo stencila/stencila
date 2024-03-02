@@ -6,7 +6,8 @@ export type MessageLevel =
   'Trace' |
   'Debug' |
   'Info' |
-  'Warn' |
-  'Error';
+  'Warning' |
+  'Error' |
+  'Exception';
 
 

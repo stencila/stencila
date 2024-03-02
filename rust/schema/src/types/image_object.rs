@@ -307,14 +307,14 @@ pub struct ImageObjectOptions {
 }
 
 impl ImageObject {
-    const NICK: &'static str = "img";
+    const NICK: [u8; 3] = [105, 109, 103];
     
     pub fn node_type(&self) -> NodeType {
         NodeType::ImageObject
     }
 
     pub fn node_id(&self) -> NodeId {
-        NodeId::new(Self::NICK, &self.uid)
+        NodeId::new(&Self::NICK, &self.uid)
     }
     
     pub fn new(content_url: String) -> Self {

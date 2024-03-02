@@ -87,6 +87,7 @@ pub struct ForBlock {
     /// The content to render if there are no items
     #[serde(default, deserialize_with = "option_one_or_many")]
     #[strip(code)]
+    #[walk]
     #[cfg_attr(feature = "proptest-min", proptest(value = r#"None"#))]
     #[cfg_attr(feature = "proptest-low", proptest(strategy = r#"option::of(vec_blocks_non_recursive(2))"#))]
     #[cfg_attr(feature = "proptest-high", proptest(strategy = r#"option::of(vec_blocks_non_recursive(2))"#))]
@@ -98,6 +99,7 @@ pub struct ForBlock {
     #[serde(alias = "iteration")]
     #[serde(default, deserialize_with = "option_one_or_many")]
     #[strip(output)]
+    #[walk]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     #[dom(elem = "div")]
     pub iterations: Option<Vec<Section>>,
@@ -213,14 +215,14 @@ pub struct ForBlockOptions {
 }
 
 impl ForBlock {
-    const NICK: &'static str = "frb";
+    const NICK: [u8; 3] = [102, 114, 98];
     
     pub fn node_type(&self) -> NodeType {
         NodeType::ForBlock
     }
 
     pub fn node_id(&self) -> NodeId {
-        NodeId::new(Self::NICK, &self.uid)
+        NodeId::new(&Self::NICK, &self.uid)
     }
     
     pub fn new(code: Cord, variable: String, content: Vec<Block>) -> Self {

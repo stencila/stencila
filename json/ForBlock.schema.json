@@ -364,6 +364,7 @@
       "strip": [
         "code"
       ],
+      "walk": true,
       "proptest": {
         "min": {
           "description": "A single simple paragraph.",
@@ -392,6 +393,7 @@
       "strip": [
         "code"
       ],
+      "walk": true,
       "proptest": {
         "min": {
           "description": "No otherwise clause.",
@@ -423,6 +425,7 @@
       "strip": [
         "output"
       ],
+      "walk": true,
       "dom": {
         "elem": "div"
       },

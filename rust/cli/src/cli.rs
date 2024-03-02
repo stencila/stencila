@@ -44,7 +44,7 @@ pub struct Cli {
     /// syntax such as `tokio=debug`.
     #[arg(
         long,
-        default_value = "hyper=info,mio=info,ort=error,reqwest=info,tokio=info,tungstenite=info",
+        default_value = "globset=warn,hyper=info,ignore=warn,mio=info,notify=warn,ort=error,reqwest=info,tokio=info,tungstenite=info",
         global = true
     )]
     pub log_filter: String,
@@ -356,6 +356,7 @@ impl DecodeOptions {
             strip_types: strip_options.strip_types,
             strip_props: strip_options.strip_props,
             losses,
+            ..Default::default()
         }
     }
 }

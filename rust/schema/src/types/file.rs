@@ -37,14 +37,14 @@ pub struct File {
 }
 
 impl File {
-    const NICK: &'static str = "fil";
+    const NICK: [u8; 3] = [102, 105, 108];
     
     pub fn node_type(&self) -> NodeType {
         NodeType::File
     }
 
     pub fn node_id(&self) -> NodeId {
-        NodeId::new(Self::NICK, &self.uid)
+        NodeId::new(&Self::NICK, &self.uid)
     }
     
     pub fn new(name: String, path: String) -> Self {

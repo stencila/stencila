@@ -311,14 +311,14 @@ pub struct VideoObjectOptions {
 }
 
 impl VideoObject {
-    const NICK: &'static str = "vid";
+    const NICK: [u8; 3] = [118, 105, 100];
     
     pub fn node_type(&self) -> NodeType {
         NodeType::VideoObject
     }
 
     pub fn node_id(&self) -> NodeId {
-        NodeId::new(Self::NICK, &self.uid)
+        NodeId::new(&Self::NICK, &self.uid)
     }
     
     pub fn new(content_url: String) -> Self {

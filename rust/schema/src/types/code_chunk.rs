@@ -218,14 +218,14 @@ pub struct CodeChunkOptions {
 }
 
 impl CodeChunk {
-    const NICK: &'static str = "cdc";
+    const NICK: [u8; 3] = [99, 100, 99];
     
     pub fn node_type(&self) -> NodeType {
         NodeType::CodeChunk
     }
 
     pub fn node_id(&self) -> NodeId {
-        NodeId::new(Self::NICK, &self.uid)
+        NodeId::new(&Self::NICK, &self.uid)
     }
     
     pub fn new(code: Cord) -> Self {

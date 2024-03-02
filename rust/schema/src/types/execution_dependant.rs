@@ -42,14 +42,14 @@ pub struct ExecutionDependant {
 }
 
 impl ExecutionDependant {
-    const NICK: &'static str = "exd";
+    const NICK: [u8; 3] = [101, 120, 100];
     
     pub fn node_type(&self) -> NodeType {
         NodeType::ExecutionDependant
     }
 
     pub fn node_id(&self) -> NodeId {
-        NodeId::new(Self::NICK, &self.uid)
+        NodeId::new(&Self::NICK, &self.uid)
     }
     
     pub fn new(dependant_relation: ExecutionDependantRelation, dependant_node: ExecutionDependantNode) -> Self {

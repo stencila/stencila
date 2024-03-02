@@ -53,14 +53,14 @@ pub struct Section {
 }
 
 impl Section {
-    const NICK: &'static str = "sec";
+    const NICK: [u8; 3] = [115, 101, 99];
     
     pub fn node_type(&self) -> NodeType {
         NodeType::Section
     }
 
     pub fn node_id(&self) -> NodeId {
-        NodeId::new(Self::NICK, &self.uid)
+        NodeId::new(&Self::NICK, &self.uid)
     }
     
     pub fn new(content: Vec<Block>) -> Self {

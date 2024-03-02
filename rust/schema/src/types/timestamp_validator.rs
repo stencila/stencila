@@ -40,14 +40,14 @@ pub struct TimestampValidator {
 }
 
 impl TimestampValidator {
-    const NICK: &'static str = "tsv";
+    const NICK: [u8; 3] = [116, 115, 118];
     
     pub fn node_type(&self) -> NodeType {
         NodeType::TimestampValidator
     }
 
     pub fn node_id(&self) -> NodeId {
-        NodeId::new(Self::NICK, &self.uid)
+        NodeId::new(&Self::NICK, &self.uid)
     }
     
     pub fn new() -> Self {

@@ -66,14 +66,14 @@ pub struct ParagraphOptions {
 }
 
 impl Paragraph {
-    const NICK: &'static str = "pgh";
+    const NICK: [u8; 3] = [112, 103, 104];
     
     pub fn node_type(&self) -> NodeType {
         NodeType::Paragraph
     }
 
     pub fn node_id(&self) -> NodeId {
-        NodeId::new(Self::NICK, &self.uid)
+        NodeId::new(&Self::NICK, &self.uid)
     }
     
     pub fn new(content: Vec<Inline>) -> Self {

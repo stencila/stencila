@@ -100,7 +100,7 @@ class SoftwareSourceCode(TypedDict):
     programming_language: str
 
 
-STENCILA_LEVEL = Union[Literal["Error"], Literal["Warn"], Literal["Info"]]
+STENCILA_LEVEL = Union[Literal["Error"], Literal["Warning"], Literal["Info"]]
 
 
 class ExecutionMessage(TypedDict, total=False):
@@ -148,9 +148,9 @@ except Exception:
 # 3. Install a warnings handler to write warnings to stderr via logging.
 #
 LOGGING_TO_STENCILA: dict[str, STENCILA_LEVEL] = {
-    "CRITICAL": "Error",
+    "CRITICAL": "Exception",
     "ERROR": "Error",
-    "WARNING": "Warn",
+    "WARNING": "Warning",
     "INFO": "Info",
 }
 
@@ -397,6 +397,9 @@ except ImportError:
 def to_json(obj: Any) -> str:
     if isinstance(obj, (bool, int, float, str)):
         return json.dumps(obj)
+    
+    if isinstance(obj, range):
+        return json.dumps(list(obj))
 
     if NUMPY_AVAILABLE and isinstance(obj, np.ndarray):  # pyright: ignore
         return json.dumps(ndarray_to_array(obj))
@@ -657,7 +660,7 @@ def main() -> None:
 
             em: ExecutionMessage = {
                 "type": "ExecutionMessage",
-                "level": "Error",
+                "level": "Exception",
                 "message": str(e),
                 "errorType": type(e).__name__,
                 "stackTrace": stack_trace,

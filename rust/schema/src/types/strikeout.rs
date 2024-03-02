@@ -44,14 +44,14 @@ pub struct Strikeout {
 }
 
 impl Strikeout {
-    const NICK: &'static str = "stk";
+    const NICK: [u8; 3] = [115, 116, 107];
     
     pub fn node_type(&self) -> NodeType {
         NodeType::Strikeout
     }
 
     pub fn node_id(&self) -> NodeId {
-        NodeId::new(Self::NICK, &self.uid)
+        NodeId::new(&Self::NICK, &self.uid)
     }
     
     pub fn new(content: Vec<Inline>) -> Self {

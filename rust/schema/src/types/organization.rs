@@ -116,14 +116,14 @@ pub struct OrganizationOptions {
 }
 
 impl Organization {
-    const NICK: &'static str = "org";
+    const NICK: [u8; 3] = [111, 114, 103];
     
     pub fn node_type(&self) -> NodeType {
         NodeType::Organization
     }
 
     pub fn node_id(&self) -> NodeId {
-        NodeId::new(Self::NICK, &self.uid)
+        NodeId::new(&Self::NICK, &self.uid)
     }
     
     pub fn new() -> Self {

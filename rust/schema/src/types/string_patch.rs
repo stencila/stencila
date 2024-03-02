@@ -33,14 +33,14 @@ pub struct StringPatch {
 }
 
 impl StringPatch {
-    const NICK: &'static str = "stp";
+    const NICK: [u8; 3] = [115, 116, 112];
     
     pub fn node_type(&self) -> NodeType {
         NodeType::StringPatch
     }
 
     pub fn node_id(&self) -> NodeId {
-        NodeId::new(Self::NICK, &self.uid)
+        NodeId::new(&Self::NICK, &self.uid)
     }
     
     pub fn new(operations: Vec<StringOperation>) -> Self {

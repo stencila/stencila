@@ -93,14 +93,14 @@ pub struct MathInlineOptions {
 }
 
 impl MathInline {
-    const NICK: &'static str = "mti";
+    const NICK: [u8; 3] = [109, 116, 105];
     
     pub fn node_type(&self) -> NodeType {
         NodeType::MathInline
     }
 
     pub fn node_id(&self) -> NodeId {
-        NodeId::new(Self::NICK, &self.uid)
+        NodeId::new(&Self::NICK, &self.uid)
     }
     
     pub fn new(code: Cord) -> Self {

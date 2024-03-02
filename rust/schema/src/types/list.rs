@@ -74,14 +74,14 @@ pub struct ListOptions {
 }
 
 impl List {
-    const NICK: &'static str = "lst";
+    const NICK: [u8; 3] = [108, 115, 116];
     
     pub fn node_type(&self) -> NodeType {
         NodeType::List
     }
 
     pub fn node_id(&self) -> NodeId {
-        NodeId::new(Self::NICK, &self.uid)
+        NodeId::new(&Self::NICK, &self.uid)
     }
     
     pub fn new(items: Vec<ListItem>, order: ListOrder) -> Self {

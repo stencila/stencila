@@ -101,14 +101,14 @@ pub struct StyledBlockOptions {
 }
 
 impl StyledBlock {
-    const NICK: &'static str = "stb";
+    const NICK: [u8; 3] = [115, 116, 98];
     
     pub fn node_type(&self) -> NodeType {
         NodeType::StyledBlock
     }
 
     pub fn node_id(&self) -> NodeId {
-        NodeId::new(Self::NICK, &self.uid)
+        NodeId::new(&Self::NICK, &self.uid)
     }
     
     pub fn new(code: Cord, content: Vec<Block>) -> Self {

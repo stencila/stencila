@@ -44,14 +44,14 @@ pub struct Strong {
 }
 
 impl Strong {
-    const NICK: &'static str = "str";
+    const NICK: [u8; 3] = [115, 116, 114];
     
     pub fn node_type(&self) -> NodeType {
         NodeType::Strong
     }
 
     pub fn node_id(&self) -> NodeId {
-        NodeId::new(Self::NICK, &self.uid)
+        NodeId::new(&Self::NICK, &self.uid)
     }
     
     pub fn new(content: Vec<Inline>) -> Self {

@@ -42,14 +42,14 @@ pub struct DeleteBlock {
 }
 
 impl DeleteBlock {
-    const NICK: &'static str = "deb";
+    const NICK: [u8; 3] = [100, 101, 98];
     
     pub fn node_type(&self) -> NodeType {
         NodeType::DeleteBlock
     }
 
     pub fn node_id(&self) -> NodeId {
-        NodeId::new(Self::NICK, &self.uid)
+        NodeId::new(&Self::NICK, &self.uid)
     }
     
     pub fn new(content: Vec<Block>) -> Self {

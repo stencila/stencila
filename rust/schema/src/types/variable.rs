@@ -50,14 +50,14 @@ pub struct Variable {
 }
 
 impl Variable {
-    const NICK: &'static str = "var";
+    const NICK: [u8; 3] = [118, 97, 114];
     
     pub fn node_type(&self) -> NodeType {
         NodeType::Variable
     }
 
     pub fn node_id(&self) -> NodeId {
-        NodeId::new(Self::NICK, &self.uid)
+        NodeId::new(&Self::NICK, &self.uid)
     }
     
     pub fn new(name: String) -> Self {

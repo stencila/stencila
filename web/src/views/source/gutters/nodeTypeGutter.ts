@@ -8,9 +8,9 @@ import { customElement, property } from 'lit/decorators'
 import { nodeBorderColour, nodeUi } from '../../../nodes/helpers/node-ui'
 import { withTwind } from '../../../twind'
 
-@customElement('stencila-gutter-marker')
+@customElement('stencila-node-gutter-marker')
 @withTwind()
-class StencilaGutterMarker extends LitElement {
+class NodeGutterMarkerEl extends LitElement {
   @property({ type: Boolean })
   isFirstLine: boolean
 
@@ -112,4 +112,4 @@ class StencilaGutterMarker extends LitElement {
   }
 }
 
-export { StencilaGutterMarker }
+export { NodeGutterMarkerEl }

@@ -76,14 +76,14 @@ pub struct DefinedTermOptions {
 }
 
 impl DefinedTerm {
-    const NICK: &'static str = "def";
+    const NICK: [u8; 3] = [100, 101, 102];
     
     pub fn node_type(&self) -> NodeType {
         NodeType::DefinedTerm
     }
 
     pub fn node_id(&self) -> NodeId {
-        NodeId::new(Self::NICK, &self.uid)
+        NodeId::new(&Self::NICK, &self.uid)
     }
     
     pub fn new(name: String) -> Self {

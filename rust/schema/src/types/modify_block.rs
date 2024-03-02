@@ -49,14 +49,14 @@ pub struct ModifyBlock {
 }
 
 impl ModifyBlock {
-    const NICK: &'static str = "mdb";
+    const NICK: [u8; 3] = [109, 100, 98];
     
     pub fn node_type(&self) -> NodeType {
         NodeType::ModifyBlock
     }
 
     pub fn node_id(&self) -> NodeId {
-        NodeId::new(Self::NICK, &self.uid)
+        NodeId::new(&Self::NICK, &self.uid)
     }
     
     pub fn new(content: Vec<Block>, operations: Vec<ModifyOperation>) -> Self {

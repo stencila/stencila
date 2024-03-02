@@ -43,14 +43,14 @@ pub struct InsertInline {
 }
 
 impl InsertInline {
-    const NICK: &'static str = "ini";
+    const NICK: [u8; 3] = [105, 110, 105];
     
     pub fn node_type(&self) -> NodeType {
         NodeType::InsertInline
     }
 
     pub fn node_id(&self) -> NodeId {
-        NodeId::new(Self::NICK, &self.uid)
+        NodeId::new(&Self::NICK, &self.uid)
     }
     
     pub fn new(content: Vec<Inline>) -> Self {

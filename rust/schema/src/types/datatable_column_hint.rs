@@ -45,14 +45,14 @@ pub struct DatatableColumnHint {
 }
 
 impl DatatableColumnHint {
-    const NICK: &'static str = "dch";
+    const NICK: [u8; 3] = [100, 99, 104];
     
     pub fn node_type(&self) -> NodeType {
         NodeType::DatatableColumnHint
     }
 
     pub fn node_id(&self) -> NodeId {
-        NodeId::new(Self::NICK, &self.uid)
+        NodeId::new(&Self::NICK, &self.uid)
     }
     
     pub fn new(name: String, item_type: String) -> Self {
