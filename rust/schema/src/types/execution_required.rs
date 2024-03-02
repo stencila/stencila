@@ -20,6 +20,10 @@ pub enum ExecutionRequired {
 
     ExecutionFailed,
 
+    ExecutionCancelled,
+
+    ExecutionInterrupted,
+
     KernelRestarted,
 
     UserRequested,

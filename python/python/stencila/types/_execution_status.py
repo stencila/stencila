@@ -9,6 +9,7 @@ class ExecutionStatus(StrEnum):
     """
 
     Scheduled = "Scheduled"
+    Pending = "Pending"
     Skipped = "Skipped"
     Empty = "Empty"
     Running = "Running"
@@ -16,4 +17,5 @@ class ExecutionStatus(StrEnum):
     Warnings = "Warnings"
     Errors = "Errors"
     Exceptions = "Exceptions"
+    Cancelled = "Cancelled"
     Interrupted = "Interrupted"

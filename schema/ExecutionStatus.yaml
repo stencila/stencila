@@ -6,7 +6,10 @@ description: Status of the most recent, including any current, execution of a do
 anyOf:
   - const: Scheduled
     '@id': stencila:Scheduled
-    description: Execution of the node has been scheduled.
+    description: Execution of the node has been scheduled for some time in the future.
+  - const: Pending
+    '@id': stencila:Pending
+    description: Execution of the node is pending.
   - const: Skipped
     '@id': stencila:Skipped
     description: Execution of the node has been skipped because it is unnecessary.
@@ -28,6 +31,9 @@ anyOf:
   - const: Exceptions
     '@id': stencila:Exceptions
     description: Execution of the node did not complete because there was an exception message.
+  - const: Cancelled
+    '@id': stencila:Cancelled
+    description: Execution of the node was pending but was cancelled.
   - const: Interrupted
     '@id': stencila:Interrupted
-    description: Execution of the node was interrupted.
+    description: Execution of the node was running but was interrupted.

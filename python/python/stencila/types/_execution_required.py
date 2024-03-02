@@ -14,5 +14,7 @@ class ExecutionRequired(StrEnum):
     DependenciesChanged = "DependenciesChanged"
     DependenciesFailed = "DependenciesFailed"
     ExecutionFailed = "ExecutionFailed"
+    ExecutionCancelled = "ExecutionCancelled"
+    ExecutionInterrupted = "ExecutionInterrupted"
     KernelRestarted = "KernelRestarted"
     UserRequested = "UserRequested"

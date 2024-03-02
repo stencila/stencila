@@ -144,8 +144,18 @@
     },
     {
       "@id": "stencila:ExecutionFailed",
-      "description": "Re-execution is required because execution failed (there were errors or exceptions) last time\nit was executed.\n",
+      "description": "Re-execution is required because execution failed (there were errors or exceptions) the\nlast time it was executed.\n",
       "const": "ExecutionFailed"
+    },
+    {
+      "@id": "stencila:ExecutionCancelled",
+      "description": "Re-execution may be required because execution was pending but was cancelled.\n",
+      "const": "ExecutionCancelled"
+    },
+    {
+      "@id": "stencila:ExecutionInterrupted",
+      "description": "Re-execution is required because execution was interrupted the last time it was executed.\n",
+      "const": "ExecutionInterrupted"
     },
     {
       "@id": "stencila:KernelRestarted",

@@ -119,8 +119,13 @@
   "anyOf": [
     {
       "@id": "stencila:Scheduled",
-      "description": "Execution of the node has been scheduled.",
+      "description": "Execution of the node has been scheduled for some time in the future.",
       "const": "Scheduled"
+    },
+    {
+      "@id": "stencila:Pending",
+      "description": "Execution of the node is pending.",
+      "const": "Pending"
     },
     {
       "@id": "stencila:Skipped",
@@ -158,8 +163,13 @@
       "const": "Exceptions"
     },
     {
+      "@id": "stencila:Cancelled",
+      "description": "Execution of the node was pending but was cancelled.",
+      "const": "Cancelled"
+    },
+    {
       "@id": "stencila:Interrupted",
-      "description": "Execution of the node was interrupted.",
+      "description": "Execution of the node was running but was interrupted.",
       "const": "Interrupted"
     }
   ]
