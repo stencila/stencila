@@ -28,6 +28,12 @@ No iterations
 
 :::
 
+::: for int in range(1, 4)
+
+{{ int }}
+
+:::
+
 ::: for int in [1, 2, 3]
 
 {{ int }}
