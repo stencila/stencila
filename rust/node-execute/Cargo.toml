@@ -4,6 +4,9 @@ version = "0.0.0"
 edition = "2021"
 
 [dependencies]
+codecs = { path = "../codecs" }
 common = { path = "../common" }
 kernels = { path = "../kernels" }
+node-patch = { path = "../node-patch" }
+node-store = { path = "../node-store" }
 schema = { path = "../schema" }

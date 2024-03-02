@@ -1,11 +1,31 @@
 use schema::{IfBlock, IfBlockClause};
 
-use crate::prelude::*;
+use crate::{interrupt_impl, pending_impl, prelude::*};
 
 impl Executable for IfBlock {
     #[tracing::instrument(skip_all)]
-    async fn execute<'lt>(&mut self, executor: &mut Executor<'lt>) -> WalkControl {
-        tracing::trace!("Executing IfBlock {}", self.node_id());
+    async fn pending(&mut self, executor: &mut Executor) -> WalkControl {
+        let node_id = self.node_id();
+        tracing::debug!("Pending IfBlock {node_id}");
+
+        pending_impl!(executor, &node_id);
+
+        // Break so that clauses (and `content` in clauses) are not made pending
+        WalkControl::Break
+    }
+
+    #[tracing::instrument(skip_all)]
+    async fn execute(&mut self, executor: &mut Executor) -> WalkControl {
+        let node_id = self.node_id();
+        tracing::trace!("Executing IfBlock {node_id}");
+
+        executor.replace_properties(
+            &node_id,
+            [
+                (Property::ExecutionStatus, ExecutionStatus::Running.into()),
+                (Property::ExecutionMessages, Value::None),
+            ],
+        );
 
         if !self.clauses.is_empty() {
             let started = Timestamp::now();
@@ -17,8 +37,18 @@ impl Executable for IfBlock {
             }
 
             // Iterate over clauses breaking on the first that is active
-            for clause in self.clauses.iter_mut() {
+            // and determine execution status based on highest status of executed clauses
+            let mut status = ExecutionStatus::Succeeded;
+            let last_index = self.clauses.len() - 1;
+            for (index, clause) in self.clauses.iter_mut().enumerate() {
+                executor.is_last = index == last_index;
                 clause.execute(executor).await;
+
+                if let Some(clause_status) = &clause.options.execution_status {
+                    if clause_status > &status {
+                        status = clause_status.clone();
+                    }
+                }
 
                 if clause.is_active.unwrap_or_default() {
                     break;
@@ -27,36 +57,79 @@ impl Executable for IfBlock {
 
             let ended = Timestamp::now();
 
-            self.options.execution_status = Some(ExecutionStatus::Succeeded);
-            self.options.execution_required = execution_required(&self.options.execution_status);
-            self.options.execution_duration = execution_duration(&started, &ended);
-            self.options.execution_ended = Some(ended);
-            self.options.execution_count.get_or_insert(0).add_assign(1);
+            let required = execution_required(&status);
+            let duration = execution_duration(&started, &ended);
+            let count = self.options.execution_count.unwrap_or_default() + 1;
+
+            executor.replace_properties(
+                &node_id,
+                [
+                    (Property::ExecutionStatus, status.into()),
+                    (Property::ExecutionRequired, required.into()),
+                    (Property::ExecutionDuration, duration.into()),
+                    (Property::ExecutionEnded, ended.into()),
+                    (Property::ExecutionCount, count.into()),
+                ],
+            );
         } else {
-            self.options.execution_status = Some(ExecutionStatus::Empty);
-            self.options.execution_required = Some(ExecutionRequired::No);
-            self.options.execution_messages = None;
-            self.options.execution_ended = None;
-            self.options.execution_duration = None;
+            executor.replace_properties(
+                &node_id,
+                [
+                    (Property::ExecutionStatus, ExecutionStatus::Empty.into()),
+                    (Property::ExecutionRequired, ExecutionRequired::No.into()),
+                    (Property::ExecutionDuration, Value::None),
+                    (Property::ExecutionEnded, Value::None),
+                ],
+            );
         }
 
         WalkControl::Break
+    }
+
+    #[tracing::instrument(skip_all)]
+    async fn interrupt(&mut self, executor: &mut Executor) -> WalkControl {
+        let node_id = self.node_id();
+        tracing::debug!("Interrupting IfBlock {node_id}");
+
+        interrupt_impl!(self, executor, &node_id);
+
+        // Continue to interrupt `clauses` and any executable nodes within them
+        WalkControl::Continue
     }
 }
 
 impl Executable for IfBlockClause {
     #[tracing::instrument(skip_all)]
-    async fn execute<'lt>(&mut self, executor: &mut Executor<'lt>) -> WalkControl {
-        tracing::trace!("Executing IfBlockClause {}", self.node_id());
+    async fn pending(&mut self, _executor: &mut Executor) -> WalkControl {
+        // No change to execution status because not every clause will be
+        // executed (breaks on first truthy) so setting to `Pending` here
+        // could never be overwritten.
+        WalkControl::Break
+    }
+
+    #[tracing::instrument(skip_all)]
+    async fn execute(&mut self, executor: &mut Executor) -> WalkControl {
+        let node_id = self.node_id();
+        tracing::trace!("Executing IfBlockClause {node_id}");
+
+        executor.replace_properties(
+            &node_id,
+            [
+                (Property::ExecutionStatus, ExecutionStatus::Running.into()),
+                (Property::ExecutionMessages, Value::None),
+            ],
+        );
 
         let mut messages = Vec::new();
         let started = Timestamp::now();
 
         let code = self.code.trim();
-        if !code.is_empty() {
+        let (is_active, mut status) = if !code.is_empty() {
             // Evaluate code in kernels
             let (output, mut code_messages) = executor
                 .kernels
+                .write()
+                .await
                 .evaluate(code, self.programming_language.as_deref())
                 .await
                 .unwrap_or_else(|error| {
@@ -87,26 +160,63 @@ impl Executable for IfBlockClause {
                 };
             }
 
-            self.is_active = truthy.then_some(true).or(Some(false));
-        } else {
-            // If code is empty then this is an `else` clause so will always
+            (truthy, ExecutionStatus::Running)
+        } else if code.is_empty() && executor.is_last {
+            // If code is empty and this is the last clause then this is an `else` clause so will always
             // be active (if the `IfBlock` got this far in its execution)
             if let Err(error) = self.content.walk_async(executor).await {
                 messages.push(error_to_message("While executing content", error))
             };
 
-            self.is_active = Some(true);
-        }
+            (true, ExecutionStatus::Running)
+        } else {
+            // Just skip if empty code and not last
+            (false, ExecutionStatus::Empty)
+        };
+
+        let messages = (!messages.is_empty()).then_some(messages);
 
         let ended = Timestamp::now();
 
-        self.options.execution_status = execution_status(&messages);
-        self.options.execution_required = execution_required(&self.options.execution_status);
-        self.options.execution_messages = execution_messages(messages);
-        self.options.execution_duration = execution_duration(&started, &ended);
-        self.options.execution_ended = Some(ended);
-        self.options.execution_count.get_or_insert(0).add_assign(1);
+        if status != ExecutionStatus::Skipped {
+            status = execution_status(&messages)
+        }
+        let required = execution_required(&status);
+        let duration = execution_duration(&started, &ended);
+        let count = self.options.execution_count.unwrap_or_default() + 1;
+
+        // Update `is_active` on `self` so that parent `IfBlock` can break
+        // on first active clause
+        self.is_active = Some(is_active);
+
+        // Update `execution_status` on `self` so that parent `IfBlock`
+        // can update its status based on clauses
+        self.options.execution_status = Some(status.clone());
+
+        executor.replace_properties(
+            &node_id,
+            [
+                (Property::IsActive, is_active.into()),
+                (Property::ExecutionStatus, status.into()),
+                (Property::ExecutionRequired, required.into()),
+                (Property::ExecutionMessages, messages.into()),
+                (Property::ExecutionDuration, duration.into()),
+                (Property::ExecutionEnded, ended.into()),
+                (Property::ExecutionCount, count.into()),
+            ],
+        );
 
         WalkControl::Break
+    }
+
+    #[tracing::instrument(skip_all)]
+    async fn interrupt(&mut self, executor: &mut Executor) -> WalkControl {
+        let node_id = self.node_id();
+        tracing::debug!("Interrupting IfBlockClause {node_id}");
+
+        interrupt_impl!(self, executor, &node_id);
+
+        // Continue to interrupt executable nodes in `content`
+        WalkControl::Continue
     }
 }

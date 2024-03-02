@@ -1917,6 +1917,7 @@ dependencies = [
  "kernels",
  "node-execute",
  "node-map",
+ "node-patch",
  "node-store",
  "notify",
  "schema",
@@ -3595,8 +3596,11 @@ dependencies = [
 name = "node-execute"
 version = "0.0.0"
 dependencies = [
+ "codecs",
  "common",
  "kernels",
+ "node-patch",
+ "node-store",
  "schema",
 ]
 
@@ -3612,6 +3616,15 @@ name = "node-map"
 version = "0.0.0"
 dependencies = [
  "common",
+ "schema",
+]
+
+[[package]]
+name = "node-patch"
+version = "0.0.0"
+dependencies = [
+ "common",
+ "node-store",
  "schema",
 ]
 
