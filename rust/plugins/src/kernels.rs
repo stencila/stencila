@@ -152,7 +152,7 @@ impl KernelInstance for PluginKernelInstance {
         todo!()
     }
 
-    async fn start(&mut self, directory: &Path) -> Result<()> {
+    async fn start(&mut self, _directory: &Path) -> Result<()> {
         #[derive(Serialize)]
         #[serde(crate = "common::serde")]
         struct Params {
