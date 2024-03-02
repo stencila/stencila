@@ -41,7 +41,7 @@ import { markdownHighlightStyle } from '../languages/markdown'
 import type { DocumentId, DocumentAccess, NodeId } from '../types'
 import { TWLitElement } from '../ui/twind'
 
-import { bottomPanel } from './source/bottom-panel'
+import { bottomPanel } from './source/bottomPanel'
 import { nodeTypeGutter, execStatusGutter } from './source/gutters'
 import { infoSideBar } from './source/infoSideBar'
 import { serverActionKeys, autoWrapKeys } from './source/keyMaps'
@@ -93,6 +93,13 @@ export class SourceView extends TWLitElement {
    */
   @property({ attribute: 'write-only', type: Boolean })
   writeOnly: boolean = false
+
+  /**
+   *  Turn on/off the node gutter markers.
+   *  Gutters will be disabled automatically in "writeOnly" mode.
+   */
+  @property({ attribute: 'gutter-markers' })
+  gutterMarkers: boolean = true
 
   /**
    * Where is this component rendered? Either as a single view or in a split

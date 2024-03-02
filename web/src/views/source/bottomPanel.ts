@@ -1,20 +1,15 @@
 import '@shoelace-style/shoelace/dist/components/tooltip/tooltip'
-import '@shoelace-style/shoelace/dist/components/icon/icon'
 
 import { Extension } from '@codemirror/state'
 import { showPanel, Panel, EditorView } from '@codemirror/view'
-import { ExecutionRequired, ExecutionStatus } from '@stencila/types'
 import { apply } from '@twind/core'
 import { LitElement, html } from 'lit'
 import { customElement, property } from 'lit/decorators'
 
 import { MappingEntry } from '../../clients/format'
-import { executableIcon } from '../../nodes/helpers/node-executables'
 import { withTwind } from '../../twind'
 import { SourceView } from '../source'
-
 import '../../ui/buttons/icon'
-import { executableEffect, ExecEffectValue } from './state'
 
 const FORMATS = {
   markdown: 'Markdown',
@@ -35,18 +30,6 @@ class PanelElement extends LitElement {
 
   @property({ type: Object })
   sourceView: SourceView
-
-  /**
-   * `ExecutionStatus` of the root node
-   */
-  @property({ type: String, attribute: 'exec-status' })
-  execStatus: ExecutionStatus
-
-  /**
-   * `ExecutionRequired` of the root node
-   */
-  @property({ type: String, attribute: 'exec-required' })
-  execRequired: ExecutionRequired = 'NeverExecuted'
 
   protected override render() {
     const styles = apply([
@@ -71,34 +54,16 @@ class PanelElement extends LitElement {
 
     return html`
       <div class=${styles}>
-        ${this.renderDocExecuteButton()}${this.renderLineWrapButton()}
-        ${this.renderWriteOnlyButton()} ${this.renderFormatSelect()}
+        ${this.renderLineWrapButton()}${this.renderGutterMarkerButton()}
+        ${this.renderWriteOnlyButton()}${this.renderFormatSelect()}
       </div>
-    `
-  }
-
-  // TODO create reusable LitElement for this, to be used for the gutter markers as well
-  private renderDocExecuteButton = () => {
-    const styles = apply(['mr-4', 'w-5 h-full'])
-    const { text, icon } = executableIcon(this.execStatus, this.execRequired)
-    return html`
-      <sl-tooltip content=${text}>
-        <button class=${styles} @click=${() => this.sourceView.execute()}>
-          <sl-icon
-            library=${icon.library}
-            name=${icon.name}
-            style="font-size: 20px;"
-          >
-          </sl-icon>
-        </button>
-      </sl-tooltip>
     `
   }
 
   private renderLineWrapButton = () => {
     return html`
       <stencila-ui-icon-button
-        class="mr-2"
+        class="mr-4"
         icon="line-wrap"
         type="toggle"
         tooltip=${`Turn ${this.sourceView.lineWrap ? 'off' : 'on'} line wrapping`}
@@ -109,11 +74,47 @@ class PanelElement extends LitElement {
     `
   }
 
+  private renderGutterMarkerButton = () => {
+    const clickEvent = () => {
+      this.sourceView.gutterMarkers = !this.sourceView.gutterMarkers
+    }
+
+    return html`
+      <stencila-ui-icon-button
+        class="mr-4"
+        icon="gutter-markers"
+        type="toggle"
+        tooltip=${`Turn ${this.sourceView.gutterMarkers ? 'off' : 'on'} gutter markers`}
+        ?active=${this.sourceView.gutterMarkers}
+        ?disabled=${this.sourceView.writeOnly}
+        .clickEvent=${clickEvent}
+      ></stencila-ui-icon-button>
+    `
+  }
+
+  private renderWriteOnlyButton = () => {
+    const clickEvent = () =>
+      (this.sourceView.writeOnly = !this.sourceView.writeOnly)
+
+    return html`
+      <stencila-ui-icon-button
+        class="mr-4"
+        icon="write-only"
+        type="toggle"
+        tooltip=${`
+          Turn ${this.sourceView.writeOnly ? 'off' : 'on'} write only mode
+        `}
+        .clickEvent=${clickEvent}
+        ?active=${this.sourceView.writeOnly}
+      ></stencila-ui-icon-button>
+    `
+  }
+
   private renderFormatSelect = () => {
     const changeEvent = (e: Event) =>
       (this.sourceView.format = (e.target as HTMLSelectElement).value)
 
-    const styles = apply(['w-28 h-full', 'mx-3 pl-2', 'bg-white', 'rounded-sm'])
+    const styles = apply(['w-28 h-full', 'pl-2', 'bg-white', 'rounded-sm'])
     return html`
       <sl-tooltip content="Switch format">
         <select class=${styles} @change=${changeEvent}>
@@ -128,23 +129,6 @@ class PanelElement extends LitElement {
           )}
         </select>
       </sl-tooltip>
-    `
-  }
-
-  private renderWriteOnlyButton = () => {
-    const clickEvent = () =>
-      (this.sourceView.writeOnly = !this.sourceView.writeOnly)
-
-    return html`
-      <stencila-ui-icon-button
-        icon="write-only"
-        type="toggle"
-        tooltip=${`
-          Turn ${this.sourceView.writeOnly ? 'off' : 'on'} write only mode
-        `}
-        .clickEvent=${clickEvent}
-        ?active=${this.sourceView.writeOnly}
-      ></stencila-ui-icon-button>
     `
   }
 
@@ -181,33 +165,7 @@ const panel = (sourceView: SourceView) => (): Panel => {
 
   return {
     dom,
-    update(update) {
-      // find executable status transactions
-      const trValues: ExecEffectValue[] = []
-      update.transactions.forEach((t) => {
-        t.effects.forEach((e) => {
-          if (e.is(executableEffect) && e.value.id === 'root') {
-            trValues.push(e.value)
-          }
-        })
-      })
-
-      if (trValues.length > 0) {
-        const update = trValues[trValues.length - 1]
-        // update the `dom` properties with latest status / required
-        dom.setAttribute(
-          'exec-status',
-          // @ts-expect-error "type `Node` is not aware of `executionStatus` property"
-          update.node.executionStatus
-        )
-        dom.setAttribute(
-          'exec-required',
-          // @ts-expect-error "type `Node` is not aware of `executionRequired` property"
-          update.node.executionRequired
-        )
-      }
-
-      // update breadcrumbs
+    update() {
       dom.setAttribute('breadcrumbs', JSON.stringify(sourceView.getNodesAt()))
     },
   }

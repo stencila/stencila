@@ -134,8 +134,7 @@ const nodeTypeGutter = (sourceView: SourceView) => [
   gutter({
     lineMarker: (view: EditorView, line: BlockInfo) => {
       // fetch nodes and filter out any node types that are not part of the
-      // guttermarkers object
-      // also checks some positional
+      // gutterMarkerElements object.
       const nodes = sourceView
         .getNodesAt(line.from)
         .filter((node) => BlockTypeList.includes(node.nodeType))
