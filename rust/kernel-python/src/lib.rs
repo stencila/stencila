@@ -192,6 +192,15 @@ print(a, b)",
                     None,
                 ),
                 (
+                    "range(4, 7)",
+                    Node::Array(Array(vec![
+                        Primitive::Integer(4),
+                        Primitive::Integer(5),
+                        Primitive::Integer(6),
+                    ])),
+                    None,
+                ),
+                (
                     "{**{'a': 1}, **{'b':2.3}}",
                     Node::Object(Object(IndexMap::from([
                         (String::from("a"), Primitive::Integer(1)),

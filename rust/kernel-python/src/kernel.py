@@ -397,6 +397,9 @@ except ImportError:
 def to_json(obj: Any) -> str:
     if isinstance(obj, (bool, int, float, str)):
         return json.dumps(obj)
+    
+    if isinstance(obj, range):
+        return json.dumps(list(obj))
 
     if NUMPY_AVAILABLE and isinstance(obj, np.ndarray):  # pyright: ignore
         return json.dumps(ndarray_to_array(obj))
