@@ -87,6 +87,7 @@ pub struct ForBlock {
     /// The content to render if there are no items
     #[serde(default, deserialize_with = "option_one_or_many")]
     #[strip(code)]
+    #[walk]
     #[cfg_attr(feature = "proptest-min", proptest(value = r#"None"#))]
     #[cfg_attr(feature = "proptest-low", proptest(strategy = r#"option::of(vec_blocks_non_recursive(2))"#))]
     #[cfg_attr(feature = "proptest-high", proptest(strategy = r#"option::of(vec_blocks_non_recursive(2))"#))]
@@ -98,6 +99,7 @@ pub struct ForBlock {
     #[serde(alias = "iteration")]
     #[serde(default, deserialize_with = "option_one_or_many")]
     #[strip(output)]
+    #[walk]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     #[dom(elem = "div")]
     pub iterations: Option<Vec<Section>>,
