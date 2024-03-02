@@ -1,77 +1,94 @@
-use common::tracing;
-use node_store::ReadNode;
-use schema::{Article, Node, NodeId};
+use common::{
+    tokio::{self, task::JoinHandle},
+    tracing,
+};
+use node_execute::{execute, interrupt};
 
 use crate::{
-    Command, Document, DocumentCommandReceiver, DocumentKernels, DocumentStore,
-    DocumentUpdateSender,
+    Command, CommandNodeIds, Document, DocumentCommandReceiver, DocumentKernels,
+    DocumentPatchSender, DocumentStore,
 };
 
 impl Document {
     /// Asynchronous task to coalesce and perform document commands
+    #[tracing::instrument(skip_all)]
     pub(super) async fn command_task(
         mut command_receiver: DocumentCommandReceiver,
         store: DocumentStore,
         kernels: DocumentKernels,
-        update_sender: DocumentUpdateSender,
+        patch_sender: DocumentPatchSender,
     ) {
         tracing::debug!("Document command task started");
 
-        // Receive commands
-        while let Some(command) = command_receiver.recv().await {
-            tracing::trace!("Document command `{}` received", command.to_string());
+        let mut current: Option<(Command, JoinHandle<()>)> = None;
+        while let Some(new_command) = command_receiver.recv().await {
+            tracing::trace!("Document command `{}` received", new_command.to_string());
 
-            match command {
-                Command::ExecuteDocument => execute(&store, &kernels, None, &update_sender).await,
-                Command::ExecuteNodes(command) => {
-                    execute(&store, &kernels, Some(command.node_ids), &update_sender).await
+            use Command::*;
+
+            if let Some((current_command, current_task)) = &current {
+                if !current_task.is_finished() {
+                    match (&new_command, current_command) {
+                        (ExecuteDocument, ExecuteDocument) => {
+                            tracing::info!(
+                                "Ignoring document execution command: already executing"
+                            );
+
+                            continue;
+                        }
+                        (InterruptDocument, ExecuteDocument) => {
+                            tracing::info!("Interrupting document execution");
+
+                            current_task.abort();
+                            if let Err(error) = interrupt(
+                                store.clone(),
+                                kernels.clone(),
+                                patch_sender.clone(),
+                                None,
+                            )
+                            .await
+                            {
+                                tracing::error!("While interrupting document: {error}")
+                            }
+
+                            continue;
+                        }
+                        _ => {}
+                    }
+                }
+            }
+
+            match new_command {
+                ExecuteDocument => {
+                    let store = store.clone();
+                    let kernels = kernels.clone();
+                    let patch_sender = patch_sender.clone();
+                    let task = tokio::spawn(async move {
+                        if let Err(error) = execute(store, kernels, patch_sender, None).await {
+                            tracing::error!("While executing document: {error}")
+                        }
+                    });
+                    current = Some((new_command, task));
+                }
+                ExecuteNodes(command) => {
+                    let store = store.clone();
+                    let kernels = kernels.clone();
+                    let patch_sender = patch_sender.clone();
+                    let task = tokio::spawn(async move {
+                        if let Err(error) =
+                            execute(store, kernels, patch_sender, Some(command.node_ids)).await
+                        {
+                            tracing::error!("While executing nodes: {error}")
+                        }
+                    });
+                    current = Some((Command::ExecuteNodes(CommandNodeIds::default()), task));
                 }
                 _ => {
-                    tracing::warn!("TODO: handle {command} command");
+                    tracing::warn!("TODO: handle {new_command} command");
                 }
             }
         }
 
         tracing::debug!("Document command task stopped");
-    }
-}
-
-async fn execute(
-    store: &DocumentStore,
-    kernels: &DocumentKernels,
-    node_ids: Option<Vec<NodeId>>,
-    update_sender: &DocumentUpdateSender,
-) {
-    // Load the root node from the store
-    let mut root = {
-        // This is within a block to ensure that the lock on `store` gets
-        // dropped before execution
-        let store = store.read().await;
-        Node::load(&*store).unwrap()
-    };
-
-    let mut kernels = kernels.write().await;
-
-    // TODO: this executes the entire document and then sends a single update.
-    // Instead, have a `node_execute` function that takes a channel which can
-    // receive updates for individual nodes after they are updated
-
-    // TODO: remove this temporary hack to get the execution status to running
-    // and send an update
-    if let Node::Article(Article { options, .. }) = &mut root {
-        options.execution_status = Some(schema::ExecutionStatus::Running);
-        if let Err(error) = update_sender.send(root.clone()).await {
-            tracing::error!("While sending root update: {error}");
-        }
-    }
-
-    // Execute the root node
-    node_execute::execute(&mut root, &mut kernels, node_ids)
-        .await
-        .unwrap();
-
-    // Send the updated root node to the store
-    if let Err(error) = update_sender.send(root).await {
-        tracing::error!("While sending root update: {error}");
     }
 }

@@ -19,13 +19,13 @@ use common::{
 };
 use format::Format;
 use kernels::Kernels;
+use node_patch::NodePatchSender;
 use node_store::{inspect_store, load_store, ReadNode, WriteNode, WriteStore};
 use schema::{Article, Node, NodeId};
 
 mod sync_directory;
 mod sync_file;
 mod sync_format;
-mod sync_nodes;
 mod sync_object;
 mod task_command;
 mod task_update;
@@ -125,7 +125,7 @@ pub struct LogEntry {
 }
 
 /// A command on a document, or nodes within it
-#[derive(Debug, Display, Serialize, Deserialize, PartialEq, Eq)]
+#[derive(Debug, Display, Clone, Serialize, Deserialize, PartialEq, Eq)]
 #[strum(serialize_all = "kebab-case")]
 #[serde(tag = "command", rename_all = "kebab-case", crate = "common::serde")]
 enum Command {
@@ -146,7 +146,7 @@ enum Command {
 }
 
 /// The node ids for commands that require them
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq)]
+#[derive(Debug, Default, Clone, Serialize, Deserialize, PartialEq, Eq)]
 #[serde(crate = "common::serde")]
 struct CommandNodeIds {
     #[serde(alias = "nodeIds")]
@@ -162,6 +162,8 @@ type DocumentWatchReceiver = watch::Receiver<Node>;
 
 type DocumentUpdateSender = mpsc::Sender<Node>;
 type DocumentUpdateReceiver = mpsc::Receiver<Node>;
+
+type DocumentPatchSender = NodePatchSender;
 
 type DocumentCommandSender = mpsc::Sender<Command>;
 type DocumentCommandReceiver = mpsc::Receiver<Command>;
@@ -196,6 +198,9 @@ pub struct Document {
     /// A channel sender for sending updates to the root [`Node`]
     update_sender: DocumentUpdateSender,
 
+    /// A channel sender for sending patches to the root [`Node`]
+    patch_sender: DocumentPatchSender,
+
     /// A channel sender for sending commands to the document
     command_sender: DocumentCommandSender,
 }
@@ -221,22 +226,23 @@ impl Document {
 
         // Start the update task
         let (update_sender, update_receiver) = mpsc::channel(8);
+        let (patch_sender, patch_receiver) = mpsc::unbounded_channel();
         let store_clone = store.clone();
-        tokio::spawn(
-            async move { Self::update_task(update_receiver, store_clone, watch_sender).await },
-        );
+        tokio::spawn(async move {
+            Self::update_task(update_receiver, patch_receiver, store_clone, watch_sender).await
+        });
 
         // Start the command task
         let (command_sender, command_receiver) = mpsc::channel(256);
         let store_clone = store.clone();
         let kernels_clone = kernels.clone();
-        let update_sender_clone = update_sender.clone();
+        let patch_sender_clone = patch_sender.clone();
         tokio::spawn(async move {
             Self::command_task(
                 command_receiver,
                 store_clone,
                 kernels_clone,
-                update_sender_clone,
+                patch_sender_clone,
             )
             .await
         });
@@ -248,6 +254,7 @@ impl Document {
             path,
             watch_receiver,
             update_sender,
+            patch_sender,
             command_sender,
         })
     }
@@ -460,18 +467,13 @@ impl Document {
     }
 
     /// Execute the document
-    /// TODO: refactor this for CLI use only (i.e not init-ing the do
+    /// TODO: refactor this for CLI use only (i.e not init-ing the doc
     /// first) so that it is similar to `convert`
     #[tracing::instrument(skip(self))]
     pub async fn execute(&self) -> Result<()> {
         tracing::trace!("Executing document");
 
-        let mut root = self.load().await?;
-        let mut kernels = self.kernels.write().await;
-
-        node_execute::execute(&mut root, &mut kernels, None).await?;
-
-        self.dump(&root).await?;
+        //TODO node_execute::execute(self.store.clone(), self.kernels.clone()).await?;
 
         Ok(())
     }
