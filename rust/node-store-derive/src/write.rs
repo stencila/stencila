@@ -109,7 +109,7 @@ pub fn derive_struct(input: &DeriveInput, data: &DataStruct) -> TokenStream {
 
         fn insert_into(&self, store: &mut node_store::WriteStore, obj_id: &node_store::ObjId) -> common::eyre::Result<()> {
             use node_store::automerge::transaction::Transactable;
-            
+
             #fields
 
             Ok(())

@@ -26,11 +26,7 @@ where
     S: ReadStore,
     T: ReadNode,
 {
-    T::load_prop(
-        store,
-        &obj_id(node_id)?,
-        property.into_prop(),
-    )
+    T::load_prop(store, &obj_id(node_id)?, property.into_prop())
 }
 
 /// Get the Automerge [`ObjId`] corresponding to the [`NodeId`] of the patch
@@ -213,12 +209,7 @@ impl From<ExecutionStatus> for Value {
 
 impl From<Vec<ExecutionMessage>> for Value {
     fn from(value: Vec<ExecutionMessage>) -> Self {
-        Value::Many(
-            value
-                .into_iter()
-                .map(Node::ExecutionMessage)
-                .collect_vec(),
-        )
+        Value::Many(value.into_iter().map(Node::ExecutionMessage).collect_vec())
     }
 }
 
@@ -230,11 +221,6 @@ impl From<Vec<Block>> for Value {
 
 impl From<Vec<Section>> for Value {
     fn from(value: Vec<Section>) -> Self {
-        Value::Many(
-            value
-                .into_iter()
-                .map(Node::Section)
-                .collect_vec(),
-        )
+        Value::Many(value.into_iter().map(Node::Section).collect_vec())
     }
 }

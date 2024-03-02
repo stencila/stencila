@@ -464,7 +464,7 @@ async fn open_document(
 
 /// Parse a string as a `DocumentId` and return the corresponding document
 async fn doc_by_id(docs: &Arc<Documents>, id: &str) -> Result<Arc<Document>> {
-    let id = DocumentId::from_str(&id)?;
+    let id = DocumentId::from_str(id)?;
     docs.by_id(&id).await
 }
 
@@ -607,8 +607,8 @@ async fn websocket_handler(ws: WebSocket, doc: Arc<Document>, dir: PathBuf) {
 }
 
 /// Handle a WebSocket connection using the "nodes" protocol
-#[tracing::instrument(skip(ws, doc))]
-async fn websocket_nodes_protocol(ws: WebSocket, doc: Arc<Document>, capability: &str) {
+#[tracing::instrument(skip(_ws, _doc))]
+async fn websocket_nodes_protocol(_ws: WebSocket, _doc: Arc<Document>, _capability: &str) {
     tracing::trace!("TODO: implement WebSocket `nodes` protocol connection");
 }
 

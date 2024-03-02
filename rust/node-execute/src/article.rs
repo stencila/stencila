@@ -1,6 +1,6 @@
 use schema::Article;
 
-use crate::{pending_impl, interrupt_impl, prelude::*};
+use crate::{interrupt_impl, pending_impl, prelude::*};
 
 impl Executable for Article {
     #[tracing::instrument(skip_all)]
