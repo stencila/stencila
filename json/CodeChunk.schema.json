@@ -407,6 +407,9 @@
       "strip": [
         "output"
       ],
+      "serde": {
+        "deserializeWith": "none"
+      },
       "dom": {
         "elem": "div"
       },

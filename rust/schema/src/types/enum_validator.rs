@@ -23,6 +23,7 @@ pub struct EnumValidator {
 
     /// A node is valid if it is equal to any of these values.
     #[serde(alias = "value")]
+    #[serde(default)]
     pub values: Vec<Node>,
 
     /// A unique identifier for a node within a document

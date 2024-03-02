@@ -27,6 +27,7 @@ pub struct DatatableColumn {
 
     /// The data values of the column.
     #[serde(alias = "value")]
+    #[serde(default)]
     pub values: Vec<Primitive>,
 
     /// The validator to use to validate data in the column.

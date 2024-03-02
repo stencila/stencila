@@ -69,9 +69,6 @@ const BOX_PROPERTIES: &[&str] = &[
     "Variable.value",
 ];
 
-/// Properties which can not allow deserialization from one or many items
-const NO_ONE_OR_MANY: &[&str] = &["DatatableColumn.values", "EnumValidator.values"];
-
 const KEYWORDS: &[&str; 52] = &[
     "as", "break", "const", "continue", "crate", "else", "enum", "extern", "false", "fn", "for",
     "if", "impl", "in", "let", "loop", "match", "mod", "move", "mut", "pub", "ref", "return",
@@ -515,13 +512,16 @@ pub enum NodeType {{
                 let mut args = vec!["default".to_string()];
 
                 if let Some(deserialize_with) = &serde.deserialize_with {
-                    args.push(format!("deserialize_with = \"{deserialize_with}\""));
+                    // `deserializeWith: none` is used in the schema to avoid the
+                    // default behavior for arrays below (which is problematic for
+                    // arrays of `Node` or `Primitive` (since they can be arrays themselves))
+                    if deserialize_with != "none" {
+                        args.push(format!("deserialize_with = \"{deserialize_with}\""));
+                    }
                 }
 
                 attrs.push(format!("#[serde({})]", args.join(", ")))
-            } else if property.is_array()
-                && !NO_ONE_OR_MANY.contains(&format!("{title}.{name}").as_str())
-            {
+            } else if property.is_array() {
                 if property.is_required {
                     attrs.push("#[serde(deserialize_with = \"one_or_many\")]".to_string())
                 } else {

@@ -95,7 +95,7 @@ pub struct CodeChunk {
 
     /// Outputs from executing the chunk.
     #[serde(alias = "output")]
-    #[serde(default, deserialize_with = "option_one_or_many")]
+    #[serde(default)]
     #[strip(output)]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     #[dom(elem = "div")]
