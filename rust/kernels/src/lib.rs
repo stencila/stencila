@@ -1,4 +1,7 @@
-use std::fmt;
+use std::{
+    fmt,
+    path::{Path, PathBuf},
+};
 
 use kernel::{
     common::eyre::{bail, Result},
@@ -36,10 +39,23 @@ pub fn default() -> Box<dyn Kernel> {
 }
 
 /// A collection of kernel instances associated with a document
-#[derive(Default)]
 pub struct Kernels {
+    /// The home directory of the kernels
+    ///
+    /// Used to start each kernel in the home directory of the document
+    home: PathBuf,
+
     /// The kernel instances
     instances: Vec<(Box<dyn Kernel>, Box<dyn KernelInstance>)>,
+}
+
+impl Default for Kernels {
+    fn default() -> Self {
+        Self {
+            home: std::env::current_dir().expect("should always be a current dir"),
+            instances: Vec::new(),
+        }
+    }
 }
 
 impl fmt::Debug for Kernels {
@@ -49,6 +65,14 @@ impl fmt::Debug for Kernels {
 }
 
 impl Kernels {
+    /// Create a new set of kernels
+    pub fn new(home: &Path) -> Self {
+        Self {
+            home: home.to_path_buf(),
+            instances: Vec::new(),
+        }
+    }
+
     /// Create a kernel instance
     ///
     /// The `language` argument can be the name of a kernel or a programming language
@@ -73,7 +97,7 @@ impl Kernels {
         };
 
         let mut instance = kernel.create_instance()?;
-        instance.start_here().await?; // TODO: start elsewhere?
+        instance.start(&self.home).await?;
         self.instances.push((kernel, instance));
 
         let instance = self

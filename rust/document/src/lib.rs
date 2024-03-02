@@ -6,7 +6,7 @@ use std::{
 use codecs::{DecodeOptions, EncodeOptions};
 use common::{
     clap::{self, ValueEnum},
-    eyre::{bail, Result},
+    eyre::{bail, eyre, Result},
     itertools::Itertools,
     serde::{Deserialize, Serialize},
     strum::{Display, EnumString},
@@ -183,14 +183,17 @@ pub struct Document {
     /// The document's id
     id: DocumentId,
 
+    /// The document's home directory
+    home: PathBuf,
+
+    /// The filesystem path to the document's Automerge store
+    path: Option<PathBuf>,
+
     /// The document's execution kernels
     kernels: DocumentKernels,
 
     /// The document's Automerge store with a [`Node`] at its root
     store: DocumentStore,
-
-    /// The filesystem path to the document's Automerge store
-    path: Option<PathBuf>,
 
     /// A channel receiver for watching for changes to the root [`Node`]
     watch_receiver: DocumentWatchReceiver,
@@ -211,10 +214,11 @@ impl Document {
     /// This initializes the document's "watch", "update", and "command" channels and
     /// starts its background tasks.
     #[tracing::instrument(skip(store))]
-    fn init(store: WriteStore, path: Option<PathBuf>) -> Result<Self> {
+    fn init(store: WriteStore, home: PathBuf, path: Option<PathBuf>) -> Result<Self> {
         let id = DocumentId::new();
 
-        let kernels = DocumentKernels::default();
+        // Create the document's kernels with the same home directory
+        let kernels = Arc::new(RwLock::new(Kernels::new(&home)));
 
         // Load the node from the store to initialize the watch channel
         let node = Node::load(&store)?;
@@ -234,12 +238,14 @@ impl Document {
 
         // Start the command task
         let (command_sender, command_receiver) = mpsc::channel(256);
+        let home_clone = home.clone();
         let store_clone = store.clone();
         let kernels_clone = kernels.clone();
         let patch_sender_clone = patch_sender.clone();
         tokio::spawn(async move {
             Self::command_task(
                 command_receiver,
+                home_clone,
                 store_clone,
                 kernels_clone,
                 patch_sender_clone,
@@ -249,9 +255,10 @@ impl Document {
 
         Ok(Self {
             id,
+            home,
+            path,
             kernels,
             store,
-            path,
             watch_receiver,
             update_sender,
             patch_sender,
@@ -266,7 +273,9 @@ impl Document {
         let mut store = WriteStore::new();
         root.dump(&mut store)?;
 
-        Self::init(store, None)
+        let home = std::env::current_dir()?;
+
+        Self::init(store, home, None)
     }
 
     /// Create a new document
@@ -312,7 +321,12 @@ impl Document {
         let mut store = WriteStore::new();
         root.write(&mut store, &path, &message).await?;
 
-        Self::init(store, Some(path))
+        let home = path
+            .parent()
+            .ok_or_else(|| eyre!("path has no parent; is it a file?"))?
+            .to_path_buf();
+
+        Self::init(store, home, Some(path))
     }
 
     /// Open an existing document
@@ -321,15 +335,20 @@ impl Document {
     /// uses `codec` to import from the path and dump into a new store.
     #[tracing::instrument]
     pub async fn open(path: &Path) -> Result<Self> {
+        let home = path
+            .parent()
+            .ok_or_else(|| eyre!("path has no parent; is it a file?"))?
+            .to_path_buf();
+
         let format = Format::from_path(path)?;
         if format.is_store() {
             let store = load_store(path).await?;
-            Self::init(store, Some(path.to_path_buf()))
+            Self::init(store, home, Some(path.to_path_buf()))
         } else {
             let root = codecs::from_path(path, None).await?;
             let mut store = WriteStore::new();
             root.dump(&mut store)?;
-            Self::init(store, None)
+            Self::init(store, home, None)
         }
     }
 

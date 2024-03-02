@@ -1,4 +1,7 @@
-use std::sync::Arc;
+use std::{
+    path::{Path, PathBuf},
+    sync::Arc,
+};
 
 use common::{
     eyre::Result,
@@ -32,6 +35,7 @@ mod styled;
 
 /// Walk over a root node and execute it and child nodes
 pub async fn execute(
+    home: PathBuf,
     store: Arc<RwLock<WriteStore>>,
     kernels: Arc<RwLock<Kernels>>,
     patch_sender: NodePatchSender,
@@ -44,13 +48,14 @@ pub async fn execute(
         Node::load(&*store).unwrap()
     };
 
-    let mut executor = Executor::new(store, kernels, patch_sender, node_ids);
+    let mut executor = Executor::new(home, store, kernels, patch_sender, node_ids);
     executor.pending(&mut root).await?;
     executor.execute(&mut root).await
 }
 
 /// Walk over a root node and interrupt it and child nodes
 pub async fn interrupt(
+    home: PathBuf,
     store: Arc<RwLock<WriteStore>>,
     kernels: Arc<RwLock<Kernels>>,
     patch_sender: NodePatchSender,
@@ -63,7 +68,7 @@ pub async fn interrupt(
         Node::load(&*store).unwrap()
     };
 
-    let mut executor = Executor::new(store, kernels, patch_sender, node_ids);
+    let mut executor = Executor::new(home, store, kernels, patch_sender, node_ids);
     executor.interrupt(&mut root).await
 }
 
@@ -86,6 +91,11 @@ trait Executable {
 
 /// A visitor that walks over a tree of nodes and executes them
 pub struct Executor {
+    /// The home directory of the document being executed
+    ///
+    /// Used to resolve relative file paths in `IncludeBlock` and `CallBlock` nodes.
+    home: PathBuf,
+
     /// The store of the root node
     store: Arc<RwLock<WriteStore>>,
 
@@ -123,12 +133,14 @@ enum Phase {
 impl Executor {
     /// Create a new executor
     fn new(
+        home: PathBuf,
         store: Arc<RwLock<WriteStore>>,
         kernels: Arc<RwLock<Kernels>>,
         patch_sender: NodePatchSender,
         node_ids: Option<NodeIds>,
     ) -> Self {
         Self {
+            home,
             store,
             kernels,
             patch_sender,
@@ -157,6 +169,11 @@ impl Executor {
         self.phase = Phase::Interrupt;
         self.is_last = false;
         root.walk_async(self).await
+    }
+
+    /// Get the home directory of the executor
+    pub fn home(&self) -> &Path {
+        &self.home
     }
 
     /// Obtain a write lock to the kernels
@@ -248,7 +265,7 @@ impl VisitorAsync for Executor {
             CodeChunk(node) => self.visit_executable(node).await,
             ForBlock(node) => self.visit_executable(node).await,
             IfBlock(node) => self.visit_executable(node).await,
-            // TODO: IncludeBlock(node) => self.visit_executable(node).await,
+            IncludeBlock(node) => self.visit_executable(node).await,
             // TODO: InstructionBlock(node) => self.visit_executable(node).await,
             // TODO: MathBlock(node) => self.visit_executable(node).await,
             // TODO: StyledBlock(node) => self.visit_executable(node).await,

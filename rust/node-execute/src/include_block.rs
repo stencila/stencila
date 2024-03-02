@@ -35,12 +35,18 @@ impl Executable for IncludeBlock {
         if !source.is_empty() {
             let mut messages = Vec::new();
 
-            // Resolve the source into a URL (including `file://` URL)
-            let url = source; // TODO
+            // Resolve the source into a fully qualified URL (including `file://` URL)
+            let url = if source.starts_with("http://") || source.starts_with("http://") {
+                source.to_string()
+            } else {
+                // Make the path relative to the home dir of execution
+                let path = executor.home().join(source);
+                ["file://", &path.to_string_lossy()].concat()
+            };
 
             // Decode the URL
             let mut included: Option<Vec<Block>> = match codecs::from_url(
-                url,
+                &url,
                 Some(DecodeOptions {
                     media_type: self.media_type.clone(),
                     ..Default::default()

@@ -1,3 +1,5 @@
+use std::path::PathBuf;
+
 use common::{
     tokio::{self, task::JoinHandle},
     tracing,
@@ -14,6 +16,7 @@ impl Document {
     #[tracing::instrument(skip_all)]
     pub(super) async fn command_task(
         mut command_receiver: DocumentCommandReceiver,
+        home: PathBuf,
         store: DocumentStore,
         kernels: DocumentKernels,
         patch_sender: DocumentPatchSender,
@@ -41,6 +44,7 @@ impl Document {
 
                             current_task.abort();
                             if let Err(error) = interrupt(
+                                home.clone(),
                                 store.clone(),
                                 kernels.clone(),
                                 patch_sender.clone(),
@@ -60,23 +64,27 @@ impl Document {
 
             match new_command {
                 ExecuteDocument => {
+                    let home = home.clone();
                     let store = store.clone();
                     let kernels = kernels.clone();
                     let patch_sender = patch_sender.clone();
                     let task = tokio::spawn(async move {
-                        if let Err(error) = execute(store, kernels, patch_sender, None).await {
+                        if let Err(error) = execute(home, store, kernels, patch_sender, None).await
+                        {
                             tracing::error!("While executing document: {error}")
                         }
                     });
                     current = Some((new_command, task));
                 }
                 ExecuteNodes(command) => {
+                    let home = home.clone();
                     let store = store.clone();
                     let kernels = kernels.clone();
                     let patch_sender = patch_sender.clone();
                     let task = tokio::spawn(async move {
                         if let Err(error) =
-                            execute(store, kernels, patch_sender, Some(command.node_ids)).await
+                            execute(home, store, kernels, patch_sender, Some(command.node_ids))
+                                .await
                         {
                             tracing::error!("While executing nodes: {error}")
                         }
