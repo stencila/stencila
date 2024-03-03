@@ -11,8 +11,9 @@ The `MessageLevel` type has these members:
 - `Trace`
 - `Debug`
 - `Info`
-- `Warn`
+- `Warning`
 - `Error`
+- `Exception`
 
 ## Bindings
 

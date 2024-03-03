@@ -162,7 +162,7 @@ Support and degree of loss for node types:
 | [Function](https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/function.md)                         | ⚠️ High loss |            |                                                           |
 | [IfBlock](https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/if_block.md)                          | ⚠️ High loss |            | Encoded using implemented function                        |
 | [IfBlockClause](https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/if_block_clause.md)             | ⚠️ High loss |            | Encoded using implemented function                        |
-| [IncludeBlock](https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/include_block.md)                | ⚠️ High loss |            | Encoded as `/{{source}}\n\n`                              |
+| [IncludeBlock](https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/include_block.md)                | ⚠️ High loss |            | Encoded using implemented function                        |
 | [Parameter](https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/parameter.md)                       | 🔷 Low loss   | 🔷 Low loss | Encoded using implemented function                        |
 | [Variable](https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/variable.md)                         | ⚠️ High loss |            |                                                           |
 | **Style**                                                                                                                 |
