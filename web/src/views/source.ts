@@ -337,7 +337,6 @@ export class SourceView extends TWLitElement {
       const exeUpdated = !!patch.ops.find(({ path }) =>
         /execution(?:Status|Required)/g.test(path)
       )
-      console.log(exeUpdated)
       if (exeUpdated) {
         this.codeMirrorView.dispatch({
           effects: executableEffect.of({
@@ -439,11 +438,33 @@ export class SourceView extends TWLitElement {
     return this.codeMirrorClient.nodesInRange(from, to)
   }
 
+  /**
+   * Method to send an 'execute' command via the 'codeMirrorClient'.
+   * Nodes can be specified via the `nodesIds` param.
+   * Defaults to to the whole document if no nodes provided.
+   *
+   * @param nodeIds nodes to apply the command
+   */
   public execute = (nodeIds: NodeId[] = []) => {
     if (nodeIds.length > 0) {
       this.codeMirrorClient.sendCommand('execute-nodes', nodeIds)
     } else {
       this.codeMirrorClient.sendCommand('execute-document')
+    }
+  }
+
+  /**
+   * Method to send an 'interupt' command via the 'codeMirrorClient'.
+   * Nodes can be specified via the `nodesIds` param.
+   * Defaults to to the whole document if no nodes provided.
+   *
+   * @param nodeIds nodes to apply the command
+   */
+  public interrupt = (nodeIds: NodeId[] = []) => {
+    if (nodeIds.length > 0) {
+      this.codeMirrorClient.sendCommand('interrupt-nodes', nodeIds)
+    } else {
+      this.codeMirrorClient.sendCommand('interrupt-document')
     }
   }
 

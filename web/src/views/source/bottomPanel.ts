@@ -2,14 +2,18 @@ import '@shoelace-style/shoelace/dist/components/tooltip/tooltip'
 
 import { Extension } from '@codemirror/state'
 import { showPanel, Panel, EditorView } from '@codemirror/view'
+import { ExecutionStatus, ExecutionRequired } from '@stencila/types'
 import { apply } from '@twind/core'
 import { LitElement, html } from 'lit'
 import { customElement, property } from 'lit/decorators'
 
 import { MappingEntry } from '../../clients/format'
+import { executableIcon } from '../../nodes/helpers/node-executables'
 import { withTwind } from '../../twind'
 import { SourceView } from '../source'
+
 import '../../ui/buttons/icon'
+import { ExecEffectValue, executableEffect } from './state'
 
 const FORMATS = {
   markdown: 'Markdown',
@@ -30,6 +34,18 @@ class PanelElement extends LitElement {
 
   @property({ type: Object })
   sourceView: SourceView
+
+  /**
+   * `ExecutionStatus` of the root node
+   */
+  @property({ type: String, attribute: 'exec-status' })
+  execStatus: ExecutionStatus
+
+  /**
+   * `ExecutionRequired` of the root node
+   */
+  @property({ type: String, attribute: 'exec-required' })
+  execRequired: ExecutionRequired = 'NeverExecuted'
 
   protected override render() {
     const styles = apply([
@@ -54,9 +70,34 @@ class PanelElement extends LitElement {
 
     return html`
       <div class=${styles}>
+        ${this.renderDocExecuteButton()}
         ${this.renderLineWrapButton()}${this.renderGutterMarkerButton()}
         ${this.renderWriteOnlyButton()}${this.renderFormatSelect()}
       </div>
+    `
+  }
+
+  // TODO create reusable LitElement for this, to be used for the gutter markers as well
+  private renderDocExecuteButton = () => {
+    const styles = apply(['mr-4', 'w-5 h-full'])
+    const { text, icon } = executableIcon(this.execStatus, this.execRequired)
+    return html`
+      <sl-tooltip content=${text}>
+        <button
+          class=${styles}
+          @click=${() =>
+            this.execStatus === 'Running'
+              ? this.sourceView.execute()
+              : this.sourceView.interrupt()}
+        >
+          <sl-icon
+            library=${icon.library}
+            name=${icon.name}
+            style="font-size: 20px;"
+          >
+          </sl-icon>
+        </button>
+      </sl-tooltip>
     `
   }
 
@@ -165,7 +206,32 @@ const panel = (sourceView: SourceView) => (): Panel => {
 
   return {
     dom,
-    update() {
+    update: (update) => {
+      // find executable status transactions
+      const trValues: ExecEffectValue[] = []
+      update.transactions.forEach((t) => {
+        t.effects.forEach((e) => {
+          if (e.is(executableEffect) && e.value.id === 'root') {
+            trValues.push(e.value)
+          }
+        })
+      })
+
+      if (trValues.length > 0) {
+        const update = trValues[trValues.length - 1]
+        // update the `dom` properties with latest status / required
+        dom.setAttribute(
+          'exec-status',
+          // @ts-expect-error "type `Node` is not aware of `executionStatus` property"
+          update.node.executionStatus
+        )
+        dom.setAttribute(
+          'exec-required',
+          // @ts-expect-error "type `Node` is not aware of `executionRequired` property"
+          update.node.executionRequired
+        )
+      }
+
       dom.setAttribute('breadcrumbs', JSON.stringify(sourceView.getNodesAt()))
     },
   }
