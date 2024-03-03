@@ -1,4 +1,4 @@
-# Examples with `ForBlock` nodes
+# `ForBlock` execution examples
 
 ## `standalone-*.md`
 

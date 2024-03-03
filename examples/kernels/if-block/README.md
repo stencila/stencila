@@ -1,4 +1,4 @@
-# Examples with `IfBlock` nodes
+# `IfBlock` execution examples
 
 ## `standalone-*.md`
 
