@@ -110,7 +110,7 @@ impl Executable for ForBlock {
                 .collect_vec();
 
             // Update `iterations` and then load back from the store. This is necessary so that we obtain distinct
-            // `NodeId`s for the executable nodes from the store(they will just be cloned ids now) in each
+            // `NodeId`s for the executable nodes from the store (they will just be cloned ids now) in each
             // iteration so that when they are executed, the correct node is updated
             let mut iterations: Vec<Section> = match executor
                 .swap_property(&node_id, Property::Iterations, iterations.into())
@@ -118,7 +118,6 @@ impl Executable for ForBlock {
             {
                 Ok(iterations) => iterations,
                 Err(error) => {
-                    tracing::error!("{error}");
                     messages.push(error_to_message("While loading iterations", error));
                     Vec::new()
                 }
