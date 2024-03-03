@@ -47,6 +47,9 @@ import { infoSideBar } from './source/infoSideBar'
 import { serverActionKeys, autoWrapKeys } from './source/keyMaps'
 import { executableEffect, execuateState } from './source/state'
 
+// ms amount to debounce dispatching execution status updates
+const EXE_STATUS_DEBOUNCE = 500
+
 /**
  * Source code editor for a document
  *
@@ -333,17 +336,26 @@ export class SourceView extends TWLitElement {
       this.renderRoot.querySelector('[root]') as HTMLElement
     )
     this.objectClient = new ObjectClient(this.doc)
+
+    let timer: string | number | NodeJS.Timeout
+
     this.objectClient.subscribe((patch, state) => {
       const exeUpdated = !!patch.ops.find(({ path }) =>
         /execution(?:Status|Required)/g.test(path)
       )
       if (exeUpdated) {
-        this.codeMirrorView.dispatch({
-          effects: executableEffect.of({
-            id: 'root',
-            node: state.node as Node,
-          }),
-        })
+        // buffer view dispatches to avoid to many is quick succession
+        clearTimeout(timer)
+        timer = setTimeout(
+          () =>
+            this.codeMirrorView.dispatch({
+              effects: executableEffect.of({
+                id: 'root',
+                node: state.node as Node,
+              }),
+            }),
+          EXE_STATUS_DEBOUNCE
+        )
       }
     })
   }
