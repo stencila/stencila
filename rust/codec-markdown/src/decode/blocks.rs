@@ -500,7 +500,9 @@ mod tests {
             }
         );
         assert_eq!(
-            call_block(r#"<< file.md(parAm_eter_1="string")"#).unwrap().1,
+            call_block(r#"<< file.md(parAm_eter_1="string")"#)
+                .unwrap()
+                .1,
             CallBlock {
                 source: "file.md".to_string(),
                 arguments: vec![CallArgument {
@@ -512,7 +514,9 @@ mod tests {
             }
         );
         assert_eq!(
-            call_block("<< file.md(a=1.23 b=symbol c='string')").unwrap().1,
+            call_block("<< file.md(a=1.23 b=symbol c='string')")
+                .unwrap()
+                .1,
             CallBlock {
                 source: "file.md".to_string(),
                 arguments: vec![

@@ -26,7 +26,7 @@ impl MarkdownCodec for IncludeBlock {
                 context
                     .push_str(prefix)
                     .push_str("format=")
-                    .push_prop_str("media_type", &media_type);
+                    .push_prop_str("media_type", media_type);
                 prefix = " ";
             }
 
@@ -34,7 +34,7 @@ impl MarkdownCodec for IncludeBlock {
                 context
                     .push_str(prefix)
                     .push_str("select=")
-                    .push_prop_str("select", &select);
+                    .push_prop_str("select", select);
             }
 
             context.push_str("}");
