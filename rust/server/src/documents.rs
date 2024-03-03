@@ -534,8 +534,8 @@ async fn websocket_for_document(
 
     // Protocols only permitted if sync direction includes `Out`
     if matches!(sync, Some(SyncDirection::Out | SyncDirection::InOut)) {
-        /// Note that there is no `read.directory` protocol: directories
-        /// are read using `read.object` protocol
+        // Note that there is no `read.directory` protocol: directories
+        // are read using `read.object` protocol
         protocols.push("write.directory.stencila.org".to_string())
     }
 
