@@ -87,8 +87,8 @@ class PanelElement extends LitElement {
           class=${styles}
           @click=${() =>
             this.execStatus === 'Running'
-              ? this.sourceView.execute()
-              : this.sourceView.interrupt()}
+              ? this.sourceView.interrupt()
+              : this.sourceView.execute()}
         >
           <sl-icon
             library=${icon.library}
@@ -134,8 +134,9 @@ class PanelElement extends LitElement {
   }
 
   private renderWriteOnlyButton = () => {
-    const clickEvent = () =>
-      (this.sourceView.writeOnly = !this.sourceView.writeOnly)
+    const clickEvent = () => {
+      this.sourceView.writeOnly = !this.sourceView.writeOnly
+    }
 
     return html`
       <stencila-ui-icon-button
@@ -152,8 +153,9 @@ class PanelElement extends LitElement {
   }
 
   private renderFormatSelect = () => {
-    const changeEvent = (e: Event) =>
-      (this.sourceView.format = (e.target as HTMLSelectElement).value)
+    const changeEvent = (e: Event) => {
+      this.sourceView.format = (e.target as HTMLSelectElement).value
+    }
 
     const styles = apply(['w-28 h-full', 'pl-2', 'bg-white', 'rounded-sm'])
     return html`

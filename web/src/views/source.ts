@@ -403,6 +403,20 @@ export class SourceView extends TWLitElement {
         )
       )
     }
+
+    if (changedProperties.has('gutterMarkers') && !this.writeOnly) {
+      const baseConfig = [
+        execStatusGutter(this, this.objectClient),
+        infoSideBar(this),
+      ]
+      this.dispatchEffect(
+        this.clientRecieverConfig.reconfigure(
+          this.gutterMarkers
+            ? [...baseConfig, nodeTypeGutter(this)]
+            : baseConfig
+        )
+      )
+    }
   }
 
   /**
