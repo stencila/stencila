@@ -100,7 +100,9 @@ class SoftwareSourceCode(TypedDict):
     programming_language: str
 
 
-STENCILA_LEVEL = Union[Literal["Error"], Literal["Warning"], Literal["Info"]]
+STENCILA_LEVEL = Union[
+    Literal["Exception"], Literal["Error"], Literal["Warning"], Literal["Info"]
+]
 
 
 class ExecutionMessage(TypedDict, total=False):
