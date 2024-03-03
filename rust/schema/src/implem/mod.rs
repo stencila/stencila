@@ -23,6 +23,7 @@ mod for_block;
 mod heading;
 mod if_block;
 mod if_block_clause;
+mod include_block;
 mod inline;
 mod insert_block;
 mod insert_inline;

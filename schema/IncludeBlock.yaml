@@ -5,7 +5,7 @@ category: flow
 description: Include block content from an external source (e.g. file, URL).
 status: under-development
 markdown:
-  template: '/{{source}}\n\n'
+  derive: false
 proptest: {}
 required:
   - source
