@@ -1,8 +1,9 @@
-use std::path::Path;
+use std::path::{Path, PathBuf};
 
 use codec::{
     common::{
         eyre::{bail, eyre, Result},
+        reqwest::Client,
         tracing,
     },
     schema::Node,
@@ -138,7 +139,30 @@ pub async fn from_path(path: &Path, options: Option<DecodeOptions>) -> Result<No
 /// Decode a Stencila Schema node from a URL (http://, https://, or file://)
 #[tracing::instrument]
 pub async fn from_url(url: &str, options: Option<DecodeOptions>) -> Result<Node> {
-    bail!("TODO:")
+    if url.starts_with("https://") || url.starts_with("http://") {
+        // TODO: If a format or media type is specified in options than
+        // use that, otherwise use the `Content-Type` header, otherwise
+        // (or maybe if plain text / octet stream) then use path.
+        // This is just a temporary hack
+        let options = Some(DecodeOptions {
+            format: Some(Format::Markdown),
+            ..options.unwrap_or_default()
+        });
+
+        // TODO: Enable HTTP caching to avoid unnecessary requests
+        let response = Client::new().get(url).send().await?;
+        if let Err(error) = response.error_for_status_ref() {
+            let message = response.text().await?;
+            bail!("{error}: {message}")
+        }
+
+        let text = response.text().await?;
+        from_str(&text, options).await
+    } else if let Some(path) = url.strip_prefix("file://") {
+        from_path(&PathBuf::from(path), options).await
+    } else {
+        bail!("unknown URL protocol: {url}")
+    }
 }
 
 /// Decode a Stencila Schema node from a file system path with decoding losses

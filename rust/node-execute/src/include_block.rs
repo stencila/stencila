@@ -1,5 +1,5 @@
 use codecs::DecodeOptions;
-use schema::{Block, IncludeBlock};
+use schema::{Article, Block, IncludeBlock};
 
 use crate::{interrupt_impl, pending_impl, prelude::*};
 
@@ -36,7 +36,7 @@ impl Executable for IncludeBlock {
             let mut messages = Vec::new();
 
             // Resolve the source into a fully qualified URL (including `file://` URL)
-            let url = if source.starts_with("http://") || source.starts_with("http://") {
+            let url = if source.starts_with("https://") || source.starts_with("http://") {
                 source.to_string()
             } else {
                 // Make the path relative to the home dir of execution
@@ -45,7 +45,7 @@ impl Executable for IncludeBlock {
             };
 
             // Decode the URL
-            let mut included: Option<Vec<Block>> = match codecs::from_url(
+            let content: Option<Vec<Block>> = match codecs::from_url(
                 &url,
                 Some(DecodeOptions {
                     media_type: self.media_type.clone(),
@@ -54,22 +54,43 @@ impl Executable for IncludeBlock {
             )
             .await
             {
-                Ok(_node) => {
-                    // Transform the decoded source into a blocks
-                    let blocks = vec![]; // TODO node.into();
-                    Some(blocks)
+                Ok(node) => {
+                    // Transform the decoded node into a blocks
+                    match node {
+                        Node::Article(Article { content, .. }) => Some(content),
+                        _ => {
+                            messages.push(ExecutionMessage::new(
+                                MessageLevel::Error,
+                                "Expected source to be an article, got `{node}`".to_string(),
+                            ));
+                            None
+                        }
+                    }
                 }
                 Err(error) => {
-                    messages.push(error_to_message("While executing code", error));
+                    messages.push(error_to_message("While decoding source", error));
                     None
                 }
             };
 
             // TODO: Implement sub-selecting from included based on `select`
 
-            // Execute the included content
-            if let Err(error) = included.walk_async(executor).await {
-                messages.push(error_to_message("While executing included content", error));
+            // Update the iterations in the store to get store ids for when it
+            // is executed
+            let mut content: Vec<Block> = match executor
+                .swap_property(&node_id, Property::Content, content.into())
+                .await
+            {
+                Ok(content) => content,
+                Err(error) => {
+                    messages.push(error_to_message("While loading content", error));
+                    Vec::new()
+                }
+            };
+
+            // Execute the content
+            if let Err(error) = content.walk_async(executor).await {
+                messages.push(error_to_message("While executing content", error));
             }
 
             let messages = (!messages.is_empty()).then_some(messages);
@@ -84,9 +105,9 @@ impl Executable for IncludeBlock {
             executor.replace_properties(
                 &node_id,
                 [
-                    (Property::Content, included.into()),
                     (Property::ExecutionStatus, status.into()),
                     (Property::ExecutionRequired, required.into()),
+                    (Property::ExecutionMessages, messages.into()),
                     (Property::ExecutionDuration, duration.into()),
                     (Property::ExecutionEnded, ended.into()),
                     (Property::ExecutionCount, count.into()),
