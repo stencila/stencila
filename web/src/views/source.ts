@@ -27,7 +27,6 @@ import {
   keymap,
   lineNumbers,
 } from '@codemirror/view'
-import { Node } from '@stencila/types'
 import { apply, css as twCSS } from '@twind/core'
 import { html } from 'lit'
 import { customElement, property } from 'lit/decorators'
@@ -45,10 +44,7 @@ import { bottomPanel } from './source/bottomPanel'
 import { nodeTypeGutter, execStatusGutter } from './source/gutters'
 import { infoSideBar } from './source/infoSideBar'
 import { serverActionKeys, autoWrapKeys } from './source/keyMaps'
-import { executableEffect, execuateState } from './source/state'
-
-// ms amount to debounce dispatching execution status updates
-const EXE_STATUS_DEBOUNCE = 500
+import { objectClientState, setObjectClient } from './source/state'
 
 /**
  * Source code editor for a document
@@ -272,11 +268,7 @@ export class SourceView extends TWLitElement {
 
     const clientReceiver = this.clientRecieverConfig.of(
       !this.writeOnly
-        ? [
-            execStatusGutter(this, this.objectClient),
-            nodeTypeGutter(this),
-            infoSideBar(this),
-          ]
+        ? [execStatusGutter(this), nodeTypeGutter(this), infoSideBar(this)]
         : []
     )
 
@@ -314,7 +306,7 @@ export class SourceView extends TWLitElement {
       autocompletion(),
       bottomPanel(this),
       clientReceiver,
-      execuateState,
+      objectClientState,
     ]
 
     return extensions
@@ -336,28 +328,6 @@ export class SourceView extends TWLitElement {
       this.renderRoot.querySelector('[root]') as HTMLElement
     )
     this.objectClient = new ObjectClient(this.doc)
-
-    let timer: string | number | NodeJS.Timeout
-
-    this.objectClient.subscribe((patch, state) => {
-      const exeUpdated = !!patch.ops.find(({ path }) =>
-        /execution(?:Status|Required)/g.test(path)
-      )
-      if (exeUpdated) {
-        // buffer view dispatches to avoid to many is quick succession
-        clearTimeout(timer)
-        timer = setTimeout(
-          () =>
-            this.codeMirrorView.dispatch({
-              effects: executableEffect.of({
-                id: 'root',
-                node: state.node as Node,
-              }),
-            }),
-          EXE_STATUS_DEBOUNCE
-        )
-      }
-    })
   }
 
   /**
@@ -385,6 +355,11 @@ export class SourceView extends TWLitElement {
           parent: this.renderRoot.querySelector('#codemirror'),
         })
 
+        // set the objectClient into codemirror state
+        this.codeMirrorView.dispatch({
+          effects: setObjectClient.of(this.objectClient),
+        })
+
         this.codeMirrorClient.receivePatches(this.codeMirrorView)
       })
     }
@@ -406,21 +381,15 @@ export class SourceView extends TWLitElement {
       this.dispatchEffect(
         this.clientRecieverConfig.reconfigure(
           !this.writeOnly
-            ? [
-                execStatusGutter(this, this.objectClient),
-                nodeTypeGutter(this),
-                infoSideBar(this),
-              ]
+            ? [execStatusGutter(this), nodeTypeGutter(this), infoSideBar(this)]
             : []
         )
       )
     }
 
+    // update `gutterMarkers` if enabled
     if (changedProperties.has('gutterMarkers') && !this.writeOnly) {
-      const baseConfig = [
-        execStatusGutter(this, this.objectClient),
-        infoSideBar(this),
-      ]
+      const baseConfig = [execStatusGutter(this), infoSideBar(this)]
       this.dispatchEffect(
         this.clientRecieverConfig.reconfigure(
           this.gutterMarkers

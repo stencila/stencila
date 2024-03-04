@@ -1,9 +1,10 @@
 import { BlockInfo, EditorView, gutter, GutterMarker } from '@codemirror/view'
-import { BlockTypeList, ExecutableTypeList } from '@stencila/types'
+import { BlockTypeList, ExecutableTypeList, Node } from '@stencila/types'
 
 import { MappingEntry } from '../../../clients/format'
 import { ObjectClient } from '../../../clients/object'
 import { SourceView } from '../../source'
+import { objectClientState } from '../state'
 
 import { NodeGutterMarkerEl } from './nodeTypeGutter'
 import { StatusGutterMarkerEl } from './statusGutter'
@@ -43,7 +44,7 @@ class NodeGutterMarker extends GutterMarker {
     return node.end > line.from && node.end <= line.to + 1
   }
 
-  override toDOM = (): Node => {
+  override toDOM = () => {
     const dom = document.createElement(
       'stencila-node-gutter-marker'
     ) as NodeGutterMarkerEl
@@ -68,20 +69,22 @@ class StatusGutterMarker extends GutterMarker {
 
   doc: string
 
+  exeCount: number = 0
+
   constructor(
     doc: string,
     node: MappingEntry,
-    objectClient: ObjectClient,
+    count: number,
     defaultLineHeight: number
   ) {
     super()
     this.doc = doc
     this.node = node
-    this.objectClient = objectClient
+    this.exeCount = count
     this.defaultLineHeight = defaultLineHeight
   }
 
-  override toDOM(): Node {
+  override toDOM() {
     const dom = document.createElement(
       'stencila-status-gutter-marker'
     ) as StatusGutterMarkerEl
@@ -89,15 +92,13 @@ class StatusGutterMarker extends GutterMarker {
     dom.defaultLineHeight = this.defaultLineHeight
     dom.doc = this.doc
     dom.nodeId = this.node.nodeId
+    dom.count = this.exeCount
 
     return dom
   }
 }
 
-const execStatusGutter = (
-  sourceView: SourceView,
-  objectClient: ObjectClient
-) => [
+const execStatusGutter = (sourceView: SourceView) => [
   gutter({
     lineMarker: (view: EditorView, line: BlockInfo) => {
       const blockNode = sourceView.getNodeAt(line.from)
@@ -112,12 +113,25 @@ const execStatusGutter = (
       //   )
 
       if (blockNode && ExecutableTypeList.includes(blockNode.nodeType)) {
+        let count = 0
+
+        const objectClient = view.state.field(objectClientState)
+
+        if (objectClient) {
+          const node: Node = objectClient.getNode(blockNode.nodeId)
+          // @ts-expect-error "type `Node` is not aware of `executionCount` property"
+          if (node.executionCount) {
+            // @ts-expect-error "same as above"
+            count = node.executionCount
+          }
+        }
+
         // check this first line of a block node
         if (blockNode.start >= line.from && blockNode.start < line.to) {
           return new StatusGutterMarker(
             sourceView.doc,
             blockNode,
-            objectClient,
+            count,
             view.defaultLineHeight
           )
         }

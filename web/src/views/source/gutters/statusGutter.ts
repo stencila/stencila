@@ -5,7 +5,7 @@ import { apply } from '@twind/core'
 import { LitElement, html } from 'lit'
 import { customElement, property } from 'lit/decorators'
 
-import { executableIcon } from '../../../nodes/helpers/node-executables'
+// import { executableIcon } from '../../../nodes/helpers/node-executables'
 import { withTwind } from '../../../twind'
 
 @customElement('stencila-status-gutter-marker')
@@ -14,10 +14,11 @@ class StatusGutterMarkerEl extends LitElement {
   @property({ type: Number })
   defaultLineHeight: number
 
+  @property({ type: String })
   execRequired: ExecutionRequired = 'NeverExecuted'
-  execStatus: ExecutionStatus
 
-  tooltipPlacement?: SlTooltip['placement'] = 'top'
+  @property({ type: String })
+  execStatus: ExecutionStatus
 
   @property({ type: String })
   nodeId: string
@@ -25,41 +26,26 @@ class StatusGutterMarkerEl extends LitElement {
   @property({ type: String })
   doc: string
 
-  private execute = async (): Promise<void> => {
-    console.log('Execute: ', this.nodeId)
-    // await fetch(`/~documents/${this.doc}/execute`, {
-    //   method: 'POST',
-    //   headers: {
-    //     'Content-Type': 'application/json',
-    //   },
-    //   body: JSON.stringify({ nodeId: this.nodeId }),
-    // })
-  }
+  @property({ type: Number })
+  count: number = 0
 
-  // private interrupt = async (): Promise<void> => {
-  //   await fetch(`/~documents/${this.doc}/interrupt`, {
-  //     method: 'POST',
-  //     headers: {
-  //       'Content-Type': 'application/json',
-  //     },
-  //     body: JSON.stringify({ nodeId: this.nodeId }),
-  //   })
-  // }
+  tooltipPlacement?: SlTooltip['placement'] = 'top'
 
   protected override render = () => {
-    const { text, icon } = executableIcon(this.execStatus, this.execRequired)
+    // const { text, icon } = executableIcon(this.execStatus, this.execRequired)
     const styles = apply([
       'flex items-center justify-center',
       `w-[${this.defaultLineHeight}px] h-[${this.defaultLineHeight}px]`,
       'bg-white',
-      'border rounded',
-      'text-base',
+      'border rounded-full',
+      'text-xs leading-none',
     ])
 
-    return html`<sl-tooltip placement=${this.tooltipPlacement} content=${text}>
-      <button class=${styles} @click=${this.execute}>
-        <sl-icon library=${icon.library} name=${icon.name}></sl-icon>
-      </button>
+    return html`<sl-tooltip
+      placement=${this.tooltipPlacement}
+      content=${'times executed: ' + this.count}
+    >
+      <div class=${styles}><span>${this.count}</span></div>
     </sl-tooltip>`
   }
 }

@@ -13,8 +13,7 @@ import { withTwind } from '../../twind'
 import { SourceView } from '../source'
 
 import '../../ui/buttons/icon'
-import { ExecEffectValue, executableEffect } from './state'
-
+import { objectClientState } from './state'
 const FORMATS = {
   markdown: 'Markdown',
   html: 'HTML',
@@ -209,29 +208,26 @@ const panel = (sourceView: SourceView) => (): Panel => {
   return {
     dom,
     update: (update) => {
-      // find executable status transactions
-      const trValues: ExecEffectValue[] = []
-      update.transactions.forEach((t) => {
-        t.effects.forEach((e) => {
-          if (e.is(executableEffect) && e.value.id === 'root') {
-            trValues.push(e.value)
-          }
-        })
-      })
+      // const exeState = update.state.field(executionState)
 
-      if (trValues.length > 0) {
-        const update = trValues[trValues.length - 1]
-        // update the `dom` properties with latest status / required
-        dom.setAttribute(
-          'exec-status',
-          // @ts-expect-error "type `Node` is not aware of `executionStatus` property"
-          update.node.executionStatus
-        )
-        dom.setAttribute(
-          'exec-required',
-          // @ts-expect-error "type `Node` is not aware of `executionRequired` property"
-          update.node.executionRequired
-        )
+      const objectClient = update.state.field(objectClientState)
+      if (objectClient) {
+        const docNode = objectClient.getNode()
+
+        // @ts-expect-error "type `Node` is not aware of these properties
+        if (docNode.executionStatus && docNode.executionRequired) {
+          // update the `dom` properties with latest status / required
+          dom.setAttribute(
+            'exec-status',
+            // @ts-expect-error "type `Node` is not aware of `executionStatus` property"
+            docNode.executionStatus
+          )
+          dom.setAttribute(
+            'exec-required',
+            // @ts-expect-error "type `Node` is not aware of `executionRequired` property"
+            docNode.executionRequired
+          )
+        }
       }
 
       dom.setAttribute('breadcrumbs', JSON.stringify(sourceView.getNodesAt()))
