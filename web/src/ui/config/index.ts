@@ -1,36 +1,14 @@
 import { consume } from '@lit/context'
-import { getFormControls } from '@shoelace-style/shoelace/dist/utilities/form.js'
 import { LitElement, html } from 'lit'
 import { customElement, state } from 'lit/decorators.js'
-import { Ref, createRef, ref } from 'lit/directives/ref'
 
 import { RestAPIClient } from '../../clients/RestAPIClient'
 import { SidebarContext, sidebarContext } from '../../contexts/sidebar-context'
 import { emitSidebarEvent } from '../../events/sidebar'
 import { withTwind } from '../../twind'
-import type { Secret } from '../../types/api'
 
 import { API_ICONS, ICON_KEYS } from './icons'
-
-/**
- * State that manages a secrets value from the API & keeps track of the
- * modified state.
- */
-type SecretState = {
-  original: Secret
-  modifiedValue?: string
-}
-
-/**
- * The name of each secret (mapped on to the API_ICONS - likely to change
- * to something more solid).
- */
-type SecretName = keyof typeof API_ICONS
-
-/**
- * Status of saving the state of the current form.
- */
-type SavedState = 'idle' | 'saving' | 'done' | 'error'
+import { SavedState, SecretName, SecretState } from './types'
 
 /**
  * UI config screen
@@ -56,15 +34,6 @@ export class ConfigScreen extends LitElement {
    */
   @state()
   private savedState: SavedState = 'idle'
-
-  /**
-   * Using a ref for the form element so we can reset it.
-   *
-   * @private
-   * @type {Ref<HTMLFormElement>}
-   * @memberof ConfigScreen
-   */
-  private formRef: Ref<HTMLFormElement> = createRef()
 
   override render() {
     return html`<stencila-ui-overlay
@@ -111,20 +80,21 @@ export class ConfigScreen extends LitElement {
         </header>
 
         <div class="flex-grow my-[18px] mr-auto">
-          <form novalidate ${ref(this.formRef)}>
-            ${this.getSecretsKeys().map((secret) => {
-              if (this.secrets[secret]) {
-                return this.renderSecret(this.secrets[secret])
-              }
-              return html``
-            })}
-          </form>
+          ${this.getSecretsKeys().map((secret) => {
+            if (this.secrets[secret]) {
+              return this.renderSecret(this.secrets[secret])
+            }
+            return html``
+          })}
         </div>
 
         <footer class="flex w-full justify-end">
           <stencila-ui-button
             theme="blue-inline-text--small"
             class="inline-block h-auto"
+            .clickEvent=${() => {
+              this.handleClose()
+            }}
             >Discard</stencila-ui-button
           >
           <stencila-ui-button
@@ -141,6 +111,9 @@ export class ConfigScreen extends LitElement {
     </div>`
   }
 
+  /**
+   * Helper to correctly type the secrets we get back from the API.
+   */
   private getSecretsKeys() {
     if (!this.secrets) {
       return [] as SecretName[]
@@ -155,6 +128,10 @@ export class ConfigScreen extends LitElement {
   private renderSecret(secret: SecretState) {
     const { name, title, description, redacted } = secret.original
     const icon = API_ICONS[name as ICON_KEYS] ?? ''
+    const inputValue =
+      (this.context.configOpen ? secret.modifiedValue : undefined) ??
+      redacted ??
+      ''
 
     return html`<div
       class="px-6 w-full max-w-[382px] justify-start items-start gap-3 inline-flex"
@@ -174,7 +151,8 @@ export class ConfigScreen extends LitElement {
 
         <stencila-ui-input-field
           defaultValue=${redacted ?? ''}
-          value=${secret.modifiedValue ?? redacted ?? ''}
+          value=${inputValue}
+          .isConfigOpen=${this.context.configOpen ?? false}
           .changeEvent=${this.handleInputChangeEvent(secret)}
         ></stencila-ui-input-field>
       </div>
@@ -215,12 +193,6 @@ export class ConfigScreen extends LitElement {
       configOpen: false,
     })
     this.dispatchEvent(event)
-
-    if (this.formRef.value) {
-      const formControls = getFormControls(this.formRef.value)
-
-      console.log(formControls)
-    }
   }
 
   private async handleSave() {
@@ -237,16 +209,20 @@ export class ConfigScreen extends LitElement {
       })
     )
 
-    await savedAPIs
-
-    // TODO - handle rejections correctly by examining the savedAPIs output.
+    const results = await savedAPIs
+    const hasError = results.some((result) => {
+      return (
+        result.status === 'rejected' ||
+        (result.status === 'fulfilled' && result.value.status === 'error')
+      )
+    })
 
     // get the secrets form the server.
     // - ensures we get all updates to secrets
     // - resets modified values
-    await this.getSecrets()
+    const getSecrets = await this.getSecrets()
 
-    this.savedState = 'done'
+    this.savedState = hasError || !getSecrets ? 'error' : 'done'
   }
 
   private resetModifiedSecrets() {
@@ -266,9 +242,13 @@ export class ConfigScreen extends LitElement {
    * Retrieve the secrets from the API.
    */
   private async getSecrets() {
-    const secrets = await RestAPIClient.listSecrets()
+    try {
+      const secrets = await RestAPIClient.listSecrets()
 
-    if (secrets.status === 'success') {
+      if (secrets.status === 'error') {
+        return false
+      }
+
       this.secrets = secrets.response.reduce<typeof this.secrets>(
         (acc, secret) => {
           acc[secret.name as SecretName] = {
@@ -278,6 +258,10 @@ export class ConfigScreen extends LitElement {
         },
         {}
       )
+
+      return true
+    } catch {
+      return false
     }
   }
 

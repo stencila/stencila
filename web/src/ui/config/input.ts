@@ -1,5 +1,5 @@
 import { css } from '@twind/core'
-import { LitElement, html } from 'lit'
+import { LitElement, PropertyValueMap, html } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
 import { Ref, createRef, ref } from 'lit/directives/ref'
 
@@ -8,7 +8,7 @@ import { withTwind } from '../../twind'
 /**
  * UI Input field
  *
- * A shoelace styled Lit input field
+ * A shoelace styled Lit input field for our config panel.
  */
 @customElement('stencila-ui-input-field')
 @withTwind()
@@ -25,13 +25,32 @@ export class UIInput extends LitElement {
   @property()
   value: string | undefined = undefined
 
+  /**
+   * Callback to fire when input value changes
+   */
   @property()
   changeEvent: (element: HTMLInputElement) => void | undefined
+
+  /**
+   * Tracks the config screen's visibility. Used to determine whether to reset
+   * the field or not.
+   */
+  @property({ type: Boolean })
+  isConfigOpen: boolean = false
 
   /**
    * The ref used by this component.
    */
   private ref: Ref<HTMLInputElement> = createRef()
+
+  /**
+   * Using a ref for the form element so we can reset it. This is a work around
+   * - wrapping the shoelace component removes our ability to directly
+   * manipulate the internal input state. It does mean that each input has its
+   * own form. If we add a form outside of this component in the future, we may
+   * encounter nesting issues.
+   */
+  private formRef: Ref<HTMLFormElement> = createRef()
 
   override render() {
     const styles = css`
@@ -68,15 +87,15 @@ export class UIInput extends LitElement {
     `
 
     return html`
-      <div class="mb-5 w-full">
+      <form novalidate ${ref(this.formRef)} class="mb-5 w-full">
         <sl-input
           class="${styles} w-full"
           size="small"
-          defaultValue=${this.defaultValue}
           value=${this.value}
+          defaultValue=${this.defaultValue}
           ${ref(this.ref)}
         ></sl-input>
-      </div>
+      </form>
     `
   }
 
@@ -85,8 +104,23 @@ export class UIInput extends LitElement {
    */
   override firstUpdated() {
     const selfRef = this.ref.value
+
     this.ref.value.addEventListener('sl-input', () => {
       this.changeEvent && this.changeEvent(selfRef)
     })
+  }
+
+  /**
+   * Check that the config is closed, then get the form to reset (clearing any
+   * fields that are dirty).
+   */
+  protected override update(
+    changedProperties: PropertyValueMap<this> | Map<PropertyKey, unknown>
+  ): void {
+    super.update(changedProperties)
+
+    if (!this.isConfigOpen && this.formRef.value) {
+      this.formRef.value.reset()
+    }
   }
 }
