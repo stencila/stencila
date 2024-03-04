@@ -97,14 +97,14 @@ pub struct MathBlockOptions {
 }
 
 impl MathBlock {
-    const NICK: &'static str = "mtb";
+    const NICK: [u8; 3] = [109, 116, 98];
     
     pub fn node_type(&self) -> NodeType {
         NodeType::MathBlock
     }
 
     pub fn node_id(&self) -> NodeId {
-        NodeId::new(Self::NICK, &self.uid)
+        NodeId::new(&Self::NICK, &self.uid)
     }
     
     pub fn new(code: Cord) -> Self {

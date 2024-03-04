@@ -184,14 +184,14 @@ pub struct CallBlockOptions {
 }
 
 impl CallBlock {
-    const NICK: &'static str = "clb";
+    const NICK: [u8; 3] = [99, 108, 98];
     
     pub fn node_type(&self) -> NodeType {
         NodeType::CallBlock
     }
 
     pub fn node_id(&self) -> NodeId {
-        NodeId::new(Self::NICK, &self.uid)
+        NodeId::new(&Self::NICK, &self.uid)
     }
     
     pub fn new(source: String, arguments: Vec<CallArgument>) -> Self {

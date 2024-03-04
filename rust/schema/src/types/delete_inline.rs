@@ -43,14 +43,14 @@ pub struct DeleteInline {
 }
 
 impl DeleteInline {
-    const NICK: &'static str = "dei";
+    const NICK: [u8; 3] = [100, 101, 105];
     
     pub fn node_type(&self) -> NodeType {
         NodeType::DeleteInline
     }
 
     pub fn node_id(&self) -> NodeId {
-        NodeId::new(Self::NICK, &self.uid)
+        NodeId::new(&Self::NICK, &self.uid)
     }
     
     pub fn new(content: Vec<Inline>) -> Self {

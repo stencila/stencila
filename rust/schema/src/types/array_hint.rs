@@ -46,14 +46,14 @@ pub struct ArrayHint {
 }
 
 impl ArrayHint {
-    const NICK: &'static str = "arh";
+    const NICK: [u8; 3] = [97, 114, 104];
     
     pub fn node_type(&self) -> NodeType {
         NodeType::ArrayHint
     }
 
     pub fn node_id(&self) -> NodeId {
-        NodeId::new(Self::NICK, &self.uid)
+        NodeId::new(&Self::NICK, &self.uid)
     }
     
     pub fn new(length: Integer) -> Self {

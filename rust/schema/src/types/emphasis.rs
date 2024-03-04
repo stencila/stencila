@@ -44,14 +44,14 @@ pub struct Emphasis {
 }
 
 impl Emphasis {
-    const NICK: &'static str = "emp";
+    const NICK: [u8; 3] = [101, 109, 112];
     
     pub fn node_type(&self) -> NodeType {
         NodeType::Emphasis
     }
 
     pub fn node_id(&self) -> NodeId {
-        NodeId::new(Self::NICK, &self.uid)
+        NodeId::new(&Self::NICK, &self.uid)
     }
     
     pub fn new(content: Vec<Inline>) -> Self {

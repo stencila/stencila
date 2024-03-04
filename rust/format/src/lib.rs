@@ -1,36 +1,31 @@
 //! Provides the `Format` enum and utility functions for working with document formats
 
-use std::path::{Path, PathBuf};
+use std::{
+    fmt::Display,
+    path::{Path, PathBuf},
+    str::FromStr,
+};
 
 use common::{
-    clap::{self, ValueEnum},
-    eyre::{eyre, Result},
-    serde::{Deserialize, Serialize},
-    strum::{Display, EnumIter, EnumString},
+    eyre::{Report, Result},
+    serde_with::{DeserializeFromStr, SerializeDisplay},
+    strum::EnumIter,
 };
 
 #[derive(
     Debug,
-    Display,
     Default,
     Clone,
-    Copy,
     PartialOrd,
     PartialEq,
     Eq,
     Ord,
-    ValueEnum,
     EnumIter,
-    EnumString,
-    Serialize,
-    Deserialize,
+    SerializeDisplay,
+    DeserializeFromStr,
 )]
-#[strum(
-    serialize_all = "lowercase",
-    ascii_case_insensitive,
-    crate = "common::strum"
-)]
-#[serde(rename_all = "lowercase", crate = "common::serde")]
+#[strum(crate = "common::strum")]
+#[serde_with(crate = "common::serde_with")]
 pub enum Format {
     // Grouped and ordered as most appropriate for documentation
     // CRDTs
@@ -78,6 +73,8 @@ pub enum Format {
     Directory,
     // Development focussed formats
     Debug,
+    // Other arbitrary format, not listed above
+    Other(String),
     // Unknown format
     #[default]
     Unknown,
@@ -123,6 +120,7 @@ impl Format {
             WebM => "WebM",
             WebP => "WebP",
             Yaml => "YAML",
+            Other(name) => name,
             Unknown => "Unknown",
         }
     }
@@ -171,20 +169,47 @@ impl Format {
     }
 
     /// Resolve a [`Format`] from a name for the format
-    pub fn from_name(name: &str) -> Result<Self> {
+    pub fn from_name(name: &str) -> Self {
         use Format::*;
-
-        Ok(match name.to_lowercase().trim() {
-            // Only aliases listed here
+        match name.to_lowercase().trim() {
+            "aac" => Aac,
+            "avi" => Avi,
+            "bash" => Bash,
+            "cbor" => Cbor,
+            "cborzst" | "cbor.zstd" => CborZst,
+            "debug" => Debug,
+            "directory" | "dir" => Directory,
+            "dom" | "dom.html" => Dom,
+            "flac" => Flac,
+            "gif" => Gif,
+            "html" => Html,
+            "jats" | "jats.xml" => Jats,
+            "javascript" | "js" => JavaScript,
+            "jpeg" => Jpeg,
+            "json" => Json,
+            "json5" => Json5,
+            "jsonld" | "json-ld" => JsonLd,
+            "markdown" | "md" => Markdown,
+            "mkv" => Mkv,
+            "mp3" => Mp3,
+            "mp4" => Mp4,
+            "ogg" => Ogg,
+            "ogv" => Ogv,
+            "png" => Png,
+            "python" | "py" => Python,
+            "r" => R,
+            "rhai" => Rhai,
+            "shell" | "sh" => Shell,
             "sta" => Article,
-            "js" => JavaScript,
-            "md" => Markdown,
-            "py" => Python,
-            "sh" => Shell,
-            "txt" => Text,
-            "yml" => Yaml,
-            _ => Format::try_from(name).map_err(|_| eyre!("No format matching name `{name}`"))?,
-        })
+            "svg" => Svg,
+            "text" | "txt" => Text,
+            "wav" => Wav,
+            "webm" => WebM,
+            "webp" => WebP,
+            "yaml" | "yml" => Yaml,
+            "unknown" => Unknown,
+            _ => Other(name.to_string()),
+        }
     }
 
     /// Resolve a [`Format`] from a file path
@@ -193,12 +218,10 @@ impl Format {
             return Ok(Format::Directory);
         }
 
+        // Catch "double extensions" here
         let path_string = path.to_string_lossy();
         if path_string.ends_with(".dom.html") {
             return Ok(Format::Dom);
-        }
-        if path_string.ends_with(".json-ld") {
-            return Ok(Format::JsonLd);
         }
         if path_string.ends_with(".jats.xml") {
             return Ok(Format::Jats);
@@ -215,11 +238,11 @@ impl Format {
             },
         };
 
-        Self::from_name(&name.to_string_lossy())
+        Ok(Self::from_name(&name.to_string_lossy()))
     }
 
-    /// Resolve a [`Format`] from a string (e.g. a URL)
-    pub fn from_string<S: AsRef<str>>(string: S) -> Result<Self> {
+    /// Resolve a [`Format`] from a URL
+    pub fn from_url<S: AsRef<str>>(string: S) -> Result<Self> {
         Self::from_path(&PathBuf::from(string.as_ref()))
     }
 
@@ -247,7 +270,7 @@ impl Format {
                 } else {
                     media_type
                 };
-                Self::from_name(name)
+                Ok(Self::from_name(name))
             }
         }
     }
@@ -286,28 +309,98 @@ impl Format {
     }
 }
 
+impl FromStr for Format {
+    type Err = Report;
+
+    fn from_str(name: &str) -> Result<Self> {
+        Ok(Format::from_name(name))
+    }
+}
+
+impl Display for Format {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        use Format::*;
+        f.write_str(match self {
+            Aac => "aac",
+            Article => "sta",
+            Avi => "avi",
+            Bash => "bash",
+            Cbor => "cbor",
+            CborZst => "cbor.zstd",
+            Debug => "debug",
+            Directory => "directory",
+            Dom => "dom.html",
+            Flac => "flac",
+            Gif => "gif",
+            Html => "html",
+            Jats => "jats",
+            JavaScript => "js",
+            Jpeg => "jpeg",
+            Json => "json",
+            Json5 => "json5",
+            JsonLd => "jsonld",
+            Markdown => "markdown",
+            Mkv => "mkv",
+            Mp3 => "mp3",
+            Mp4 => "mp4",
+            Ogg => "ogg",
+            Ogv => "ogv",
+            Png => "png",
+            Python => "python",
+            R => "r",
+            Rhai => "rhai",
+            Shell => "shell",
+            Svg => "svg",
+            Text => "text",
+            Wav => "wav",
+            WebM => "webm",
+            WebP => "webp",
+            Yaml => "yaml",
+            Other(name) => name,
+            Unknown => "unknown",
+        })
+    }
+}
+
 #[cfg(test)]
 mod test {
+    use common::strum::IntoEnumIterator;
+
     use super::*;
 
     #[test]
-    fn from_string() -> Result<()> {
-        assert_eq!(Format::from_string("Python")?, Format::Python);
-        assert_eq!(Format::from_string("python")?, Format::Python);
-        assert_eq!(Format::from_string("Py")?, Format::Python);
-        assert_eq!(Format::from_string("py")?, Format::Python);
+    fn from_url() -> Result<()> {
+        assert_eq!(Format::from_url("Python")?, Format::Python);
+        assert_eq!(Format::from_url("python")?, Format::Python);
+        assert_eq!(Format::from_url("Py")?, Format::Python);
+        assert_eq!(Format::from_url("py")?, Format::Python);
 
-        assert_eq!(Format::from_string("cborZst")?, Format::CborZst);
-        assert_eq!(Format::from_string("cborzst")?, Format::CborZst);
+        assert_eq!(Format::from_url("cborZst")?, Format::CborZst);
+        assert_eq!(Format::from_url("cborzst")?, Format::CborZst);
 
-        assert_eq!(Format::from_string("mp3")?, Format::Mp3);
+        assert_eq!(Format::from_url("mp3")?, Format::Mp3);
 
-        assert_eq!(Format::from_string("file.avi")?, Format::Avi);
+        assert_eq!(Format::from_url("file.avi")?, Format::Avi);
 
         assert_eq!(
-            Format::from_string("https://example.org/cat.mp4")?,
+            Format::from_url("https://example.org/cat.mp4")?,
             Format::Mp4
         );
+
+        assert_eq!(
+            Format::from_url("file.foo")?,
+            Format::Other("foo".to_string())
+        );
+        assert_eq!(Format::from_url("foo")?, Format::Other("foo".to_string()));
+
+        Ok(())
+    }
+
+    #[test]
+    fn roundtrip() -> Result<()> {
+        for format in Format::iter() {
+            assert_eq!(format, Format::from_str(&format.to_string())?)
+        }
 
         Ok(())
     }

@@ -3,6 +3,7 @@ use std::path::Path;
 use common::{
     async_trait::async_trait,
     eyre::{bail, Result},
+    serde::{Deserialize, Serialize},
     strum::Display,
     tokio::sync::{mpsc, watch},
 };
@@ -13,7 +14,7 @@ use format::Format;
 pub use common;
 pub use format;
 pub use schema;
-use schema::{ExecutionMessage, Node, Variable};
+use schema::{ExecutionMessage, Node, SoftwareApplication, SoftwareSourceCode, Variable};
 
 /// A kernel for executing code in some language
 ///
@@ -25,10 +26,10 @@ use schema::{ExecutionMessage, Node, Variable};
 /// This trait specifies the kernel and its capabilities (similar to a Jupyter "kernel spec")
 /// The `KernelInstance` trait is the interface for instances of kernels.
 pub trait Kernel: Sync + Send {
-    /// Get the id of the kernel
+    /// Get the name of the kernel
     ///
-    /// This id should be unique amongst all kernels.
-    fn id(&self) -> String;
+    /// This name should be unique amongst all kernels.
+    fn name(&self) -> String;
 
     /// Get the availability of the kernel on the current machine
     fn availability(&self) -> KernelAvailability;
@@ -63,8 +64,9 @@ pub trait Kernel: Sync + Send {
 }
 
 /// The availability of a kernel on the current machine
-#[derive(Display)]
+#[derive(Debug, Display, Clone, Copy, Serialize, Deserialize)]
 #[strum(serialize_all = "lowercase")]
+#[serde(rename_all = "lowercase", crate = "common::serde")]
 pub enum KernelAvailability {
     /// Available on this machine
     Available,
@@ -78,12 +80,14 @@ pub enum KernelAvailability {
 ///
 /// The interrupt signal is used to stop the execution task the
 /// kernel instance is current performing.
-#[derive(Display)]
+#[derive(Debug, Display, Default, Clone, Copy, Serialize, Deserialize)]
 #[strum(serialize_all = "lowercase")]
+#[serde(rename_all = "lowercase", crate = "common::serde")]
 pub enum KernelInterrupt {
     /// Kernel supports interrupt signal on this machine
     Yes,
     /// Kernel does not support interrupt signal on this machine
+    #[default]
     No,
 }
 
@@ -91,12 +95,14 @@ pub enum KernelInterrupt {
 ///
 /// The terminate signal is used to stop the kernel instance gracefully
 /// (e.g. completing any current execution tasks)
-#[derive(Display)]
+#[derive(Debug, Display, Default, Clone, Copy, Serialize, Deserialize)]
 #[strum(serialize_all = "lowercase")]
+#[serde(rename_all = "lowercase", crate = "common::serde")]
 pub enum KernelTerminate {
     /// Kernel supports terminate signal on this machine
     Yes,
     /// Kernel does not support terminate signal on this machine
+    #[default]
     No,
 }
 
@@ -104,33 +110,37 @@ pub enum KernelTerminate {
 ///
 /// The kill signal is used to stop the kernel instance forcefully
 /// (i.e. to exit immediately, aborting any current execution tasks)
-#[derive(Display)]
+#[derive(Debug, Display, Default, Clone, Copy, Serialize, Deserialize)]
 #[strum(serialize_all = "lowercase")]
+#[serde(rename_all = "lowercase", crate = "common::serde")]
 pub enum KernelKill {
     /// Kernel supports kill signal on this machine
     Yes,
     /// Kernel does not support kill signal on this machine
+    #[default]
     No,
 }
 
 /// Whether a kernel supports forking on the current machine
-#[derive(Display)]
+#[derive(Debug, Display, Default, Clone, Copy, Serialize, Deserialize)]
 #[strum(serialize_all = "lowercase")]
+#[serde(rename_all = "lowercase", crate = "common::serde")]
 pub enum KernelForks {
     /// Kernel supports forking on this machine
     Yes,
     /// Kernel does not support forking on this machine
+    #[default]
     No,
 }
 
 /// An instance of a kernel
 #[async_trait]
 pub trait KernelInstance: Sync + Send {
-    /// Get the id of the kernel instance
+    /// Get the name of the kernel instance
     ///
-    /// This id should be unique amongst all kernel instances,
+    /// This name should be unique amongst all kernel instances,
     /// including those for other `Kernel`s.
-    fn id(&self) -> String;
+    fn name(&self) -> String;
 
     /// Get the status of the kernel instance
     async fn status(&self) -> Result<KernelStatus>;
@@ -158,6 +168,12 @@ pub trait KernelInstance: Sync + Send {
     /// Evaluate a code expression, without side effects, in the kernel instance
     async fn evaluate(&mut self, code: &str) -> Result<(Node, Vec<ExecutionMessage>)>;
 
+    /// Get runtime information about the kernel instance
+    async fn info(&mut self) -> Result<SoftwareApplication>;
+
+    /// Get a list of packages available in the kernel instance
+    async fn packages(&mut self) -> Result<Vec<SoftwareSourceCode>>;
+
     /// Get a list of variables in the kernel instance
     async fn list(&mut self) -> Result<Vec<Variable>>;
 
@@ -172,7 +188,7 @@ pub trait KernelInstance: Sync + Send {
 
     /// Create a fork of the kernel instance
     async fn fork(&mut self) -> Result<Box<dyn KernelInstance>> {
-        bail!("Kernel `{}` does not support forks", self.id())
+        bail!("Kernel `{}` does not support forks", self.name())
     }
 }
 
@@ -227,7 +243,7 @@ pub mod tests {
 
     use common::{eyre::Report, indexmap::IndexMap, itertools::Itertools, tokio, tracing};
     use common_dev::pretty_assertions::assert_eq;
-    use schema::{Array, Null, Object, Paragraph, Primitive};
+    use schema::{Array, Null, Object, Paragraph, Primitive, SoftwareApplication};
 
     use super::*;
 
@@ -289,7 +305,7 @@ pub mod tests {
                     .collect_vec(),
                 "with code: {code}"
             );
-            assert_eq!(outputs, expected_outputs);
+            assert_eq!(outputs, expected_outputs, "with code: {code}");
         }
 
         Ok(())
@@ -318,6 +334,24 @@ pub mod tests {
         }
 
         Ok(())
+    }
+
+    /// Test getting runtime info
+    pub async fn info(mut instance: Box<dyn KernelInstance>) -> Result<SoftwareApplication> {
+        instance.start_here().await?;
+        assert_eq!(instance.status().await?, KernelStatus::Ready);
+
+        instance.info().await
+    }
+
+    /// Test getting list of packages
+    pub async fn packages(
+        mut instance: Box<dyn KernelInstance>,
+    ) -> Result<Vec<SoftwareSourceCode>> {
+        instance.start_here().await?;
+        assert_eq!(instance.status().await?, KernelStatus::Ready);
+
+        instance.packages().await
     }
 
     /// Test printing of nodes by a kernel instance

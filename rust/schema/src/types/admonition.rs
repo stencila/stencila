@@ -96,14 +96,14 @@ pub struct AdmonitionOptions {
 }
 
 impl Admonition {
-    const NICK: &'static str = "adm";
+    const NICK: [u8; 3] = [97, 100, 109];
     
     pub fn node_type(&self) -> NodeType {
         NodeType::Admonition
     }
 
     pub fn node_id(&self) -> NodeId {
-        NodeId::new(Self::NICK, &self.uid)
+        NodeId::new(&Self::NICK, &self.uid)
     }
     
     pub fn new(admonition_type: AdmonitionType, content: Vec<Block>) -> Self {

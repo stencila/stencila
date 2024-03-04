@@ -119,38 +119,58 @@
   "anyOf": [
     {
       "@id": "stencila:Scheduled",
-      "description": "The execution of the node has been scheduled.",
+      "description": "Execution of the node has been scheduled for some time in the future.",
       "const": "Scheduled"
     },
     {
+      "@id": "stencila:Pending",
+      "description": "Execution of the node is pending.",
+      "const": "Pending"
+    },
+    {
       "@id": "stencila:Skipped",
-      "description": "The execution of the node has been skipped because it is unnecessary.",
+      "description": "Execution of the node has been skipped because it is unnecessary.",
       "const": "Skipped"
     },
     {
       "@id": "stencila:Empty",
-      "description": "The execution of the node has been skipped because it has code, or other property, that is empty.",
+      "description": "Execution of the node has been skipped because it has code, or other property, that is empty.",
       "const": "Empty"
     },
     {
       "@id": "stencila:Running",
-      "description": "The execution of the node is currently running",
+      "description": "The node is currently being executed.",
       "const": "Running"
     },
     {
       "@id": "stencila:Succeeded",
-      "description": "The execution of the node is succeed",
+      "description": "Execution of the node completed without warning, error, or exception messages.",
       "const": "Succeeded"
     },
     {
-      "@id": "stencila:Failed",
-      "description": "The execution of the node is failed",
-      "const": "Failed"
+      "@id": "stencila:Warnings",
+      "description": "Execution of the node completed but with warning messages.",
+      "const": "Warnings"
+    },
+    {
+      "@id": "stencila:Errors",
+      "description": "Execution of the node completed but with error messages.",
+      "const": "Errors"
+    },
+    {
+      "@id": "stencila:Exceptions",
+      "description": "Execution of the node did not complete because there was an exception message.",
+      "const": "Exceptions"
     },
     {
       "@id": "stencila:Cancelled",
-      "description": "The execution of the node was cancelled",
+      "description": "Execution of the node was pending but was cancelled.",
       "const": "Cancelled"
+    },
+    {
+      "@id": "stencila:Interrupted",
+      "description": "Execution of the node was running but was interrupted.",
+      "const": "Interrupted"
     }
   ]
 }

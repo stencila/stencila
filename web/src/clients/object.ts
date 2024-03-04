@@ -11,7 +11,7 @@ import { Client } from './client'
  * This state is synced with state of the node on the Stencila server
  * through `ObjectPatch`s sent by the server.
  */
-interface ObjectState {
+export interface ObjectState {
   /**
    * The root node which the object represents
    */
@@ -166,23 +166,24 @@ export class ObjectClient extends Client {
 
   /**
    * Get a node from within the object using its node id
+   * If `nodeId` is not given return the root node by default
    */
-  public getNode(nodeId: NodeId): Node {
-    const path = this.state.map[nodeId]
-
-    if (path === undefined) {
-      throw new Error(`No node with id ${nodeId}`)
-    }
-
+  public getNode(nodeId?: NodeId): Node {
     let node = this.state.node
-    for (const segment of path) {
-      // @ts-expect-error "node really should be a Node and not an object"
-      node = node[segment]
-      if (node === undefined) {
-        throw new Error(`Invalid path for node ${nodeId}`)
+    if (nodeId) {
+      const path = this.state.map[nodeId]
+
+      if (path === undefined) {
+        throw new Error(`No node with id ${nodeId}`)
+      }
+      for (const segment of path) {
+        // @ts-expect-error "node really should be a Node and not an object"
+        node = node[segment]
+        if (node === undefined) {
+          throw new Error(`Invalid path for node ${nodeId}`)
+        }
       }
     }
-
     return node as Node
   }
 }

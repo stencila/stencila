@@ -6,9 +6,9 @@ use std::{
 use codecs::{DecodeOptions, EncodeOptions};
 use common::{
     clap::{self, ValueEnum},
-    eyre::{bail, Result},
+    eyre::{bail, eyre, Result},
     itertools::Itertools,
-    serde::Serialize,
+    serde::{Deserialize, Serialize},
     strum::{Display, EnumString},
     tokio::{
         self,
@@ -19,14 +19,16 @@ use common::{
 };
 use format::Format;
 use kernels::Kernels;
+use node_patch::NodePatchSender;
 use node_store::{inspect_store, load_store, ReadNode, WriteNode, WriteStore};
-use schema::{Article, Node};
+use schema::{Article, Node, NodeId};
 
 mod sync_directory;
 mod sync_file;
 mod sync_format;
-mod sync_nodes;
 mod sync_object;
+mod task_command;
+mod task_update;
 
 /// The document type
 ///
@@ -122,6 +124,35 @@ pub struct LogEntry {
     pub message: String,
 }
 
+/// A command on a document, or nodes within it
+#[derive(Debug, Display, Clone, Serialize, Deserialize, PartialEq, Eq)]
+#[strum(serialize_all = "kebab-case")]
+#[serde(tag = "command", rename_all = "kebab-case", crate = "common::serde")]
+enum Command {
+    /// Save the document
+    SaveDocument,
+
+    /// Execute the entire document
+    ExecuteDocument,
+
+    /// Execute specific nodes within the document
+    ExecuteNodes(CommandNodeIds),
+
+    /// Interrupt the entire document
+    InterruptDocument,
+
+    /// Interrupt specific nodes within the document
+    InterruptNodes(CommandNodeIds),
+}
+
+/// The node ids for commands that require them
+#[derive(Debug, Default, Clone, Serialize, Deserialize, PartialEq, Eq)]
+#[serde(crate = "common::serde")]
+struct CommandNodeIds {
+    #[serde(alias = "nodeIds")]
+    node_ids: Vec<NodeId>,
+}
+
 type DocumentKernels = Arc<RwLock<Kernels>>;
 
 type DocumentStore = Arc<RwLock<WriteStore>>;
@@ -132,26 +163,31 @@ type DocumentWatchReceiver = watch::Receiver<Node>;
 type DocumentUpdateSender = mpsc::Sender<Node>;
 type DocumentUpdateReceiver = mpsc::Receiver<Node>;
 
+type DocumentPatchSender = NodePatchSender;
+
+type DocumentCommandSender = mpsc::Sender<Command>;
+type DocumentCommandReceiver = mpsc::Receiver<Command>;
+
 /// A document
 ///
 /// Each document has:
 ///
-/// - A unique `id` which is used for things like establishing a
-///   WebSocket connection to it
-///
+/// - A unique `id` which is used for things like establishing a WebSocket connection to it
 /// - An Automerge `store` that has a [`Node`] at its root.
-///
 /// - An optional `path` that the `store` can be read from, and written to.
-///
-/// - A `watch_receiver` which can be cloned to watch for changes
-///   to the root [`Node`].
-///
-/// - An `update_sender` which can be cloned to send updates to the
-///   root [`Node`].
+/// - A `watch_receiver` which can be cloned to watch for changes to the root [`Node`].
+/// - An `update_sender` which can be cloned to send updates to the root [`Node`].
+/// - A `command_sender` which can be cloned to send commands to the document
 #[derive(Debug)]
 pub struct Document {
     /// The document's id
     id: DocumentId,
+
+    /// The document's home directory
+    home: PathBuf,
+
+    /// The filesystem path to the document's Automerge store
+    path: Option<PathBuf>,
 
     /// The document's execution kernels
     kernels: DocumentKernels,
@@ -159,45 +195,74 @@ pub struct Document {
     /// The document's Automerge store with a [`Node`] at its root
     store: DocumentStore,
 
-    /// The filesystem path to the document's Automerge store
-    path: Option<PathBuf>,
-
     /// A channel receiver for watching for changes to the root [`Node`]
     watch_receiver: DocumentWatchReceiver,
 
     /// A channel sender for sending updates to the root [`Node`]
     update_sender: DocumentUpdateSender,
+
+    /// A channel sender for sending patches to the root [`Node`]
+    patch_sender: DocumentPatchSender,
+
+    /// A channel sender for sending commands to the document
+    command_sender: DocumentCommandSender,
 }
 
 impl Document {
     /// Initialize a new document
     ///
-    /// This initializes the document's "watch" and "update" channels and starts the
-    /// `update_task` to respond to incoming updates to the root node of the document.
+    /// This initializes the document's "watch", "update", and "command" channels and
+    /// starts its background tasks.
     #[tracing::instrument(skip(store))]
-    fn init(store: WriteStore, path: Option<PathBuf>) -> Result<Self> {
+    fn init(store: WriteStore, home: PathBuf, path: Option<PathBuf>) -> Result<Self> {
         let id = DocumentId::new();
 
-        let kernels = DocumentKernels::default();
+        // Create the document's kernels with the same home directory
+        let kernels = Arc::new(RwLock::new(Kernels::new(&home)));
 
+        // Load the node from the store to initialize the watch channel
         let node = Node::load(&store)?;
-
         let (watch_sender, watch_receiver) = watch::channel(node);
-        let (update_sender, update_receiver) = mpsc::channel(8);
 
+        // Create an `Arc` for the store so it can be cloned for the document's
+        // background tasks
         let store = Arc::new(RwLock::new(store));
+
+        // Start the update task
+        let (update_sender, update_receiver) = mpsc::channel(8);
+        let (patch_sender, patch_receiver) = mpsc::unbounded_channel();
         let store_clone = store.clone();
-        tokio::spawn(
-            async move { Self::update_task(store_clone, update_receiver, watch_sender).await },
-        );
+        tokio::spawn(async move {
+            Self::update_task(update_receiver, patch_receiver, store_clone, watch_sender).await
+        });
+
+        // Start the command task
+        let (command_sender, command_receiver) = mpsc::channel(256);
+        let home_clone = home.clone();
+        let store_clone = store.clone();
+        let kernels_clone = kernels.clone();
+        let patch_sender_clone = patch_sender.clone();
+        tokio::spawn(async move {
+            Self::command_task(
+                command_receiver,
+                home_clone,
+                store_clone,
+                kernels_clone,
+                patch_sender_clone,
+            )
+            .await
+        });
 
         Ok(Self {
             id,
+            home,
+            path,
             kernels,
             store,
-            path,
             watch_receiver,
             update_sender,
+            patch_sender,
+            command_sender,
         })
     }
 
@@ -208,7 +273,9 @@ impl Document {
         let mut store = WriteStore::new();
         root.dump(&mut store)?;
 
-        Self::init(store, None)
+        let home = std::env::current_dir()?;
+
+        Self::init(store, home, None)
     }
 
     /// Create a new document
@@ -254,7 +321,12 @@ impl Document {
         let mut store = WriteStore::new();
         root.write(&mut store, &path, &message).await?;
 
-        Self::init(store, Some(path))
+        let home = path
+            .parent()
+            .ok_or_else(|| eyre!("path has no parent; is it a file?"))?
+            .to_path_buf();
+
+        Self::init(store, home, Some(path))
     }
 
     /// Open an existing document
@@ -263,15 +335,20 @@ impl Document {
     /// uses `codec` to import from the path and dump into a new store.
     #[tracing::instrument]
     pub async fn open(path: &Path) -> Result<Self> {
+        let home = path
+            .parent()
+            .ok_or_else(|| eyre!("path has no parent; is it a file?"))?
+            .to_path_buf();
+
         let format = Format::from_path(path)?;
         if format.is_store() {
             let store = load_store(path).await?;
-            Self::init(store, Some(path.to_path_buf()))
+            Self::init(store, home, Some(path.to_path_buf()))
         } else {
             let root = codecs::from_path(path, None).await?;
             let mut store = WriteStore::new();
             root.dump(&mut store)?;
-            Self::init(store, None)
+            Self::init(store, home, None)
         }
     }
 
@@ -290,44 +367,6 @@ impl Document {
     async fn dump(&self, node: &Node) -> Result<()> {
         let mut store = self.store.write().await;
         node.dump(&mut store)
-    }
-
-    /// Async task to update the document's store and notify watchers of the update
-    async fn update_task(
-        store: DocumentStore,
-        mut update_receiver: DocumentUpdateReceiver,
-        watch_sender: DocumentWatchSender,
-    ) {
-        tracing::debug!("Document update task started");
-
-        while let Some(node) = update_receiver.recv().await {
-            tracing::trace!("Document node updated");
-
-            // Dump the node to the store
-            let mut store = store.write().await;
-            if let Err(error) = node.dump(&mut store) {
-                tracing::error!("While dumping node to store: {error}");
-            }
-
-            // Load the node from the store. This is necessary, rather than just
-            // sending watchers the incoming node, because the incoming node
-            // may be partial (e.g. may be missing `id` or other fields) but watchers
-            // need complete nodes (e.g `id` for HTML)
-            let node = match Node::load(&*store) {
-                Ok(node) => node,
-                Err(error) => {
-                    tracing::error!("While loading node from store: {error}");
-                    continue;
-                }
-            };
-
-            // Send the node to watchers
-            if let Err(error) = watch_sender.send(node) {
-                tracing::error!("While notifying watchers: {error}");
-            }
-        }
-
-        tracing::debug!("Document update task stopped");
     }
 
     /// Inspect a document
@@ -447,16 +486,13 @@ impl Document {
     }
 
     /// Execute the document
-    #[tracing::instrument(skip_all)]
+    /// TODO: refactor this for CLI use only (i.e not init-ing the doc
+    /// first) so that it is similar to `convert`
+    #[tracing::instrument(skip(self))]
     pub async fn execute(&self) -> Result<()> {
         tracing::trace!("Executing document");
 
-        let mut root = self.load().await?;
-        let mut kernels = self.kernels.write().await;
-
-        node_execute::execute(&mut root, &mut kernels).await?;
-
-        self.dump(&root).await?;
+        //TODO node_execute::execute(self.store.clone(), self.kernels.clone()).await?;
 
         Ok(())
     }

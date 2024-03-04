@@ -24,10 +24,10 @@ use crate::decode::inlines::inlines_or_text;
 
 use super::{
     blocks::{
-        admonition, call, claim, code_chunk, delete_block, else_block, end, figure, for_block,
-        form, if_elif, include, insert_block, instruct_block_end, instruct_block_start, math_block,
-        modify_block, modify_block_separator, replace_block, replace_block_separator, section,
-        styled_block, table,
+        admonition, call_block, claim, code_chunk, delete_block, else_block, end, figure,
+        for_block, form, if_elif, include_block, insert_block, instruct_block_end,
+        instruct_block_start, math_block, modify_block, modify_block_separator, replace_block,
+        replace_block_separator, section, styled_block, table,
     },
     inlines::inlines,
 };
@@ -235,9 +235,9 @@ pub fn decode_blocks(
 
                     let block = if let Ok((.., math_block)) = math_block(trimmed) {
                         Some(Block::MathBlock(math_block))
-                    } else if let Ok((.., include)) = include(trimmed) {
+                    } else if let Ok((.., include)) = include_block(trimmed) {
                         Some(Block::IncludeBlock(include))
-                    } else if let Ok((.., call)) = call(trimmed) {
+                    } else if let Ok((.., call)) = call_block(trimmed) {
                         Some(Block::CallBlock(call))
                     } else if let Ok((.., (assignee, text, has_content))) =
                         instruct_block_start(trimmed)
@@ -692,7 +692,7 @@ pub fn decode_blocks(
                     };
 
                     let content_url = current_url.to_string();
-                    let media_object = if let Ok(format) = Format::from_string(&content_url) {
+                    let media_object = if let Ok(format) = Format::from_url(&content_url) {
                         if format.is_audio() {
                             Inline::AudioObject(AudioObject {
                                 content_url,

@@ -304,14 +304,14 @@ pub struct TableOptions {
 }
 
 impl Table {
-    const NICK: &'static str = "tbl";
+    const NICK: [u8; 3] = [116, 98, 108];
     
     pub fn node_type(&self) -> NodeType {
         NodeType::Table
     }
 
     pub fn node_id(&self) -> NodeId {
-        NodeId::new(Self::NICK, &self.uid)
+        NodeId::new(&Self::NICK, &self.uid)
     }
     
     pub fn new(rows: Vec<TableRow>) -> Self {

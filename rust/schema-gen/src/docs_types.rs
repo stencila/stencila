@@ -378,7 +378,7 @@ fn formats(title: &str, schema: &Schema) -> Vec<Block> {
 
     let node_type = NodeType::try_from(title).ok();
     for format in Format::iter() {
-        let Ok(codec) = codecs::get(None, Some(format), None) else {
+        let Ok(codec) = codecs::get(None, Some(&format), None) else {
             continue;
         };
 

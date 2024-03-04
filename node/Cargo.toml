@@ -1,7 +1,7 @@
 [package]
 edition = "2021"
 name = "node"
-version = "2.0.0-alpha.23"
+version = "2.0.0-alpha.24"
 
 [lib]
 crate-type = ["cdylib"]
@@ -9,8 +9,8 @@ crate-type = ["cdylib"]
 [dependencies]
 codecs = { path = "../rust/codecs" }
 common = { path = "../rust/common" }
-napi = { version = "2.15.2", default-features = false, features = ["async", "napi8"] }
-napi-derive = "2.15.2"
+napi = { version = "2.16.0", default-features = false, features = ["async", "napi8"] }
+napi-derive = "2.16.0"
 schema = { path = "../rust/schema" }
 
 [build-dependencies]

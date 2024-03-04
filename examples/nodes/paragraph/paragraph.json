@@ -37,6 +37,11 @@
       ],
       "authors": [
         {
+          "type": "SoftwareApplication",
+          "id": "super-editor",
+          "name": "Super-editor"
+        },
+        {
           "type": "Person",
           "givenNames": ["Bob"],
           "familyNames": ["Baboon"]
@@ -44,11 +49,6 @@
         {
           "type": "Organization",
           "name": "Acme Corp"
-        },
-        {
-          "type": "SoftwareApplication",
-          "id": "super-editor",
-          "name": "Super-editor"
         }
       ]
     }

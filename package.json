@@ -11,16 +11,16 @@
     "node": ">=18"
   },
   "devDependencies": {
-    "@arethetypeswrong/cli": "0.13.10",
+    "@arethetypeswrong/cli": "0.15.0",
     "@types/benchmark": "2.1.5",
     "@types/jest": "29.5.12",
     "@types/tmp": "0.2.6",
-    "@typescript-eslint/eslint-plugin": "7.0.2",
-    "@typescript-eslint/parser": "7.0.2",
+    "@typescript-eslint/eslint-plugin": "7.1.0",
+    "@typescript-eslint/parser": "7.1.0",
     "benchmark": "2.1.4",
     "better-npm-audit": "3.7.3",
     "depcheck": "1.4.7",
-    "eslint": "8.56.0",
+    "eslint": "8.57.0",
     "eslint-plugin-import": "2.29.1",
     "eslint-plugin-lit": "1.11.0",
     "eslint-plugin-wc": "2.0.4",
@@ -28,10 +28,10 @@
     "prettier": "3.2.5",
     "process": "0.11.10",
     "publint": "0.2.7",
-    "tmp": "0.2.1",
+    "tmp": "0.2.3",
     "ts-jest": "29.1.2",
     "tsup": "8.0.2",
     "typescript": "5.3.3",
-    "wrangler": "3.28.3"
+    "wrangler": "3.30.1"
   }
 }

@@ -42,14 +42,14 @@ pub struct Duration {
 }
 
 impl Duration {
-    const NICK: &'static str = "dur";
+    const NICK: [u8; 3] = [100, 117, 114];
     
     pub fn node_type(&self) -> NodeType {
         NodeType::Duration
     }
 
     pub fn node_id(&self) -> NodeId {
-        NodeId::new(Self::NICK, &self.uid)
+        NodeId::new(&Self::NICK, &self.uid)
     }
     
     pub fn new(value: Integer, time_unit: TimeUnit) -> Self {

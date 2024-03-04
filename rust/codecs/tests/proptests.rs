@@ -31,10 +31,10 @@ fn roundtrip(
     decode_options: Option<DecodeOptions>,
 ) -> Result<Node> {
     block_on(async {
-        let codec = codecs::get(None, Some(format), None)?;
+        let codec = codecs::get(None, Some(&format), None)?;
 
         let encode_options = Some(EncodeOptions {
-            format: Some(format),
+            format: Some(format.clone()),
             ..encode_options.unwrap_or_default()
         });
 

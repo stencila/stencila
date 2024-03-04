@@ -16,7 +16,7 @@ export class ExportClient {
       dom?: boolean
     } = {}
   ) {
-    this.url = `/~export/${doc}?format=${format}&dom=${options.dom ?? false}`
+    this.url = `/~documents/${doc}/export?format=${format}&dom=${options.dom ?? false}`
   }
 
   /**

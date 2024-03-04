@@ -23,7 +23,8 @@ use kernel::{
     format::Format,
     schema::{
         ArrayHint, ExecutionMessage, Hint, MessageLevel, Node, NodeType, Null, ObjectHint,
-        StringHint, Unknown, Variable,
+        SoftwareApplication, SoftwareApplicationOptions, SoftwareSourceCode, StringHint, Unknown,
+        Variable,
     },
     Kernel, KernelAvailability, KernelForks, KernelInstance, KernelInterrupt, KernelKill,
     KernelSignal, KernelStatus, KernelTerminate,
@@ -39,7 +40,7 @@ pub struct RhaiKernel {
 }
 
 impl Kernel for RhaiKernel {
-    fn id(&self) -> String {
+    fn name(&self) -> String {
         "rhai".to_string()
     }
 
@@ -71,9 +72,9 @@ impl Kernel for RhaiKernel {
         // Assign an id for the instance using the index, if necessary, to ensure it is unique
         let index = self.instances.fetch_add(1, Ordering::SeqCst);
         let id = if index == 0 {
-            self.id()
+            self.name()
         } else {
-            format!("{}-{index}", self.id())
+            format!("{}-{index}", self.name())
         };
 
         Ok(Box::new(RhaiKernelInstance::new(id)))
@@ -105,7 +106,7 @@ pub struct RhaiKernelInstance<'lt> {
 
 #[async_trait]
 impl<'lt> KernelInstance for RhaiKernelInstance<'lt> {
-    fn id(&self) -> String {
+    fn name(&self) -> String {
         self.id.clone()
     }
 
@@ -134,7 +135,10 @@ impl<'lt> KernelInstance for RhaiKernelInstance<'lt> {
 
         let status = self.get_status();
         if status != KernelStatus::Ready {
-            bail!("Kernel `{}` is not ready; status is `{status}`", self.id())
+            bail!(
+                "Kernel `{}` is not ready; status is `{status}`",
+                self.name()
+            )
         }
 
         self.set_status(KernelStatus::Busy)?;
@@ -195,7 +199,10 @@ impl<'lt> KernelInstance for RhaiKernelInstance<'lt> {
 
         let status = self.get_status();
         if status != KernelStatus::Ready {
-            bail!("Kernel `{}` is not ready; status is `{status}`", self.id())
+            bail!(
+                "Kernel `{}` is not ready; status is `{status}`",
+                self.name()
+            )
         }
 
         if code.trim().is_empty() {
@@ -221,6 +228,26 @@ impl<'lt> KernelInstance for RhaiKernelInstance<'lt> {
         self.set_status(KernelStatus::Ready)?;
 
         result
+    }
+
+    async fn info(&mut self) -> Result<SoftwareApplication> {
+        tracing::trace!("Getting Rhai runtime info");
+
+        Ok(SoftwareApplication {
+            name: "Rhai".to_string(),
+            options: Box::new(SoftwareApplicationOptions {
+                software_version: Some("1".to_string()),
+                operating_system: Some(std::env::consts::OS.to_string()),
+                ..Default::default()
+            }),
+            ..Default::default()
+        })
+    }
+
+    async fn packages(&mut self) -> Result<Vec<SoftwareSourceCode>> {
+        tracing::trace!("Getting Rhai packages");
+
+        Ok(vec![])
     }
 
     async fn list(&mut self) -> Result<Vec<Variable>> {
@@ -365,7 +392,7 @@ impl<'lt> RhaiKernelInstance<'lt> {
             if status != *previous {
                 tracing::trace!(
                     "Status of `{}` kernel changed from `{previous}` to `{status}`",
-                    self.id()
+                    self.name()
                 );
                 *previous = status;
                 true
@@ -640,6 +667,35 @@ b",
             "Variable not found: foo (line 1, position 1)"
         );
         assert_eq!(outputs, vec![]);
+
+        Ok(())
+    }
+
+    /// Standard kernel test for getting runtime information
+    #[test_log::test(tokio::test)]
+    async fn info() -> Result<()> {
+        let Some(instance) = create_instance::<RhaiKernel>().await? else {
+            return Ok(());
+        };
+
+        let sw = kernel::tests::info(instance).await?;
+        assert_eq!(sw.name, "Rhai");
+        assert!(sw.options.software_version.is_some());
+        assert!(sw.options.software_version.unwrap().starts_with('1'));
+        assert!(sw.options.operating_system.is_some());
+
+        Ok(())
+    }
+
+    /// Standard kernel test for listing installed packages
+    #[test_log::test(tokio::test)]
+    async fn packages() -> Result<()> {
+        let Some(instance) = start_instance::<RhaiKernel>().await? else {
+            return Ok(());
+        };
+
+        let pkgs = kernel::tests::packages(instance).await?;
+        assert!(pkgs.is_empty());
 
         Ok(())
     }

@@ -49,14 +49,14 @@ pub struct QuoteInline {
 }
 
 impl QuoteInline {
-    const NICK: &'static str = "qti";
+    const NICK: [u8; 3] = [113, 116, 105];
     
     pub fn node_type(&self) -> NodeType {
         NodeType::QuoteInline
     }
 
     pub fn node_id(&self) -> NodeId {
-        NodeId::new(Self::NICK, &self.uid)
+        NodeId::new(&Self::NICK, &self.uid)
     }
     
     pub fn new(content: Vec<Inline>) -> Self {

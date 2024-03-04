@@ -2,7 +2,7 @@
 
 [project]
 name = "stencila"
-version = "2.0.0-alpha.23"
+version = "2.0.0-alpha.24"
 description = "Python SDK for Stencila"
 readme = "README.md"
 requires-python = ">=3.8"
@@ -54,7 +54,7 @@ module-name = "stencila._stencila"
 
 [tool.poetry]
 name = "stencila"
-version = "2.0.0-alpha.23"
+version = "2.0.0-alpha.24"
 description = "Python SDK for Stencila"
 authors = ["Stencila and Contributors <hello@stencila.io>"]
 packages = [{ include = "stencila", from = "python" }]
@@ -67,9 +67,9 @@ beartype = "0.17.2"
 
 [tool.poetry.group.dev.dependencies]
 black = "24.2.0"
-coverage = "7.4.1"
+coverage = "7.4.3"
 maturin = "1.4.0"
-pip-audit = "2.7.1"
+pip-audit = "2.7.2"
 pytest = "7.4.4"
 pytest-asyncio = "0.23.5"
 pytest-benchmark = "4.0.0"

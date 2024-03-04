@@ -147,14 +147,14 @@ pub struct FormOptions {
 }
 
 impl Form {
-    const NICK: &'static str = "frm";
+    const NICK: [u8; 3] = [102, 114, 109];
     
     pub fn node_type(&self) -> NodeType {
         NodeType::Form
     }
 
     pub fn node_id(&self) -> NodeId {
-        NodeId::new(Self::NICK, &self.uid)
+        NodeId::new(&Self::NICK, &self.uid)
     }
     
     pub fn new(content: Vec<Block>) -> Self {

@@ -193,14 +193,14 @@ pub struct IfBlockClauseOptions {
 }
 
 impl IfBlockClause {
-    const NICK: &'static str = "ibc";
+    const NICK: [u8; 3] = [105, 98, 99];
     
     pub fn node_type(&self) -> NodeType {
         NodeType::IfBlockClause
     }
 
     pub fn node_id(&self) -> NodeId {
-        NodeId::new(Self::NICK, &self.uid)
+        NodeId::new(&Self::NICK, &self.uid)
     }
     
     pub fn new(code: Cord, content: Vec<Block>) -> Self {

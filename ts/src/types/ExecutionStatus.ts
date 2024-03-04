@@ -4,11 +4,15 @@
  */
 export type ExecutionStatus =
   'Scheduled' |
+  'Pending' |
   'Skipped' |
   'Empty' |
   'Running' |
   'Succeeded' |
-  'Failed' |
-  'Cancelled';
+  'Warnings' |
+  'Errors' |
+  'Exceptions' |
+  'Cancelled' |
+  'Interrupted';
 
 

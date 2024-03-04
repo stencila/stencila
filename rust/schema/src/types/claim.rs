@@ -289,14 +289,14 @@ pub struct ClaimOptions {
 }
 
 impl Claim {
-    const NICK: &'static str = "cla";
+    const NICK: [u8; 3] = [99, 108, 97];
     
     pub fn node_type(&self) -> NodeType {
         NodeType::Claim
     }
 
     pub fn node_id(&self) -> NodeId {
-        NodeId::new(Self::NICK, &self.uid)
+        NodeId::new(&Self::NICK, &self.uid)
     }
     
     pub fn new(claim_type: ClaimType, content: Vec<Block>) -> Self {

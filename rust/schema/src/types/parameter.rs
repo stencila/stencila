@@ -179,14 +179,14 @@ pub struct ParameterOptions {
 }
 
 impl Parameter {
-    const NICK: &'static str = "par";
+    const NICK: [u8; 3] = [112, 97, 114];
     
     pub fn node_type(&self) -> NodeType {
         NodeType::Parameter
     }
 
     pub fn node_id(&self) -> NodeId {
-        NodeId::new(Self::NICK, &self.uid)
+        NodeId::new(&Self::NICK, &self.uid)
     }
     
     pub fn new(name: String) -> Self {

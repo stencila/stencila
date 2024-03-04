@@ -26,7 +26,7 @@ use common::{
     tracing,
 };
 
-use crate::Document;
+use crate::{Command, Document};
 
 /// A patch to apply to a string representing the document in a particular format
 ///
@@ -56,6 +56,7 @@ pub struct FormatPatch {
 pub enum FormatOperation {
     Content(ContentOperation),
     Mapping(MappingOperation),
+    Command(Command),
 }
 
 impl FormatOperation {
@@ -166,7 +167,7 @@ pub struct ContentOperation {
 
 /// The type of an operation
 #[derive(Debug, Default, Serialize, Deserialize, PartialEq, Eq)]
-#[serde(crate = "common::serde", rename_all = "lowercase")]
+#[serde(rename_all = "lowercase", crate = "common::serde")]
 enum ContentOperationType {
     /// Reset content
     #[default]
@@ -215,7 +216,12 @@ impl Document {
         )));
         let version = Arc::new(AtomicU32::new(1));
 
-        // Start task to receive incoming `StringPatch`s from the client, apply them
+        // Clone the command sender so that commands can be received
+        // and forwarded to the `command_task`
+        // TODO: make this None if the client does not have the capability to send commands
+        let command_sender = Some(self.command_sender.clone());
+
+        // Start task to receive incoming patches from the client, apply them
         // to the buffer, and update the document's root node
         if let Some(mut patch_receiver) = patch_receiver {
             let current_clone = current.clone();
@@ -251,15 +257,16 @@ impl Document {
                     // Apply the patch to the current content
                     let mut updated = false;
                     for op in patch.ops {
-                        use ContentOperationType::*;
-                        use FormatOperation::*;
                         match op {
-                            Content(ContentOperation { r#type: Reset, .. }) => {
+                            FormatOperation::Content(ContentOperation {
+                                r#type: ContentOperationType::Reset,
+                                ..
+                            }) => {
                                 tracing::warn!("Client attempted to reset string")
                             }
 
-                            Content(ContentOperation {
-                                r#type: Insert,
+                            FormatOperation::Content(ContentOperation {
+                                r#type: ContentOperationType::Insert,
                                 from: Some(from),
                                 to: None,
                                 insert: Some(insert),
@@ -268,8 +275,8 @@ impl Document {
                                 updated = true;
                             }
 
-                            Content(ContentOperation {
-                                r#type: Delete,
+                            FormatOperation::Content(ContentOperation {
+                                r#type: ContentOperationType::Delete,
                                 from: Some(from),
                                 to: Some(to),
                                 insert: None,
@@ -278,8 +285,8 @@ impl Document {
                                 updated = true;
                             }
 
-                            Content(ContentOperation {
-                                r#type: Replace,
+                            FormatOperation::Content(ContentOperation {
+                                r#type: ContentOperationType::Replace,
                                 from: Some(from),
                                 to: Some(to),
                                 insert: Some(insert),
@@ -288,8 +295,8 @@ impl Document {
                                 updated = true;
                             }
 
-                            Content(ContentOperation {
-                                r#type: Viewport,
+                            FormatOperation::Content(ContentOperation {
+                                r#type: ContentOperationType::Viewport,
                                 from: Some(from),
                                 to: Some(to),
                                 insert: None,
@@ -298,14 +305,26 @@ impl Document {
                                 tracing::debug!("Viewport operation {from}-{to}")
                             }
 
-                            Content(ContentOperation {
-                                r#type: Selection,
+                            FormatOperation::Content(ContentOperation {
+                                r#type: ContentOperationType::Selection,
                                 from: Some(from),
                                 to: Some(to),
                                 insert: None,
                             }) => {
                                 // TODO
                                 tracing::debug!("Selection operation {from}-{to}")
+                            }
+
+                            FormatOperation::Command(command) => {
+                                if let Some(command_sender) = &command_sender {
+                                    if let Err(error) = command_sender.send(command).await {
+                                        tracing::error!("While sending document command: {error}");
+                                    }
+                                } else {
+                                    tracing::warn!(
+                                        "Received a command from client without a command sender"
+                                    )
+                                }
                             }
 
                             _ => tracing::warn!("Client sent invalid operation"),
@@ -322,7 +341,7 @@ impl Document {
                             codecs::from_str(current_content, decode_options.clone()).await
                         {
                             if let Err(error) = update_sender.send(node).await {
-                                tracing::error!("While sending node update: {error}");
+                                tracing::error!("While sending root update: {error}");
                             }
                         }
                     }
@@ -331,7 +350,7 @@ impl Document {
         }
 
         // Start task to listen for changes to the document's root node,
-        // convert them to a `StringPatch` and send to the client
+        // convert them to a patch and send to the client
         if let Some(patch_sender) = patch_sender {
             let mut node_receiver = self.watch_receiver.clone();
             tokio::spawn(async move {

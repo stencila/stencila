@@ -295,14 +295,14 @@ pub struct FigureOptions {
 }
 
 impl Figure {
-    const NICK: &'static str = "fig";
+    const NICK: [u8; 3] = [102, 105, 103];
     
     pub fn node_type(&self) -> NodeType {
         NodeType::Figure
     }
 
     pub fn node_id(&self) -> NodeId {
-        NodeId::new(Self::NICK, &self.uid)
+        NodeId::new(&Self::NICK, &self.uid)
     }
     
     pub fn new(content: Vec<Block>) -> Self {

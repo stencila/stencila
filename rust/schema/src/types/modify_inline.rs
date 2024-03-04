@@ -49,14 +49,14 @@ pub struct ModifyInline {
 }
 
 impl ModifyInline {
-    const NICK: &'static str = "mdi";
+    const NICK: [u8; 3] = [109, 100, 105];
     
     pub fn node_type(&self) -> NodeType {
         NodeType::ModifyInline
     }
 
     pub fn node_id(&self) -> NodeId {
-        NodeId::new(Self::NICK, &self.uid)
+        NodeId::new(&Self::NICK, &self.uid)
     }
     
     pub fn new(content: Vec<Inline>, operations: Vec<ModifyOperation>) -> Self {

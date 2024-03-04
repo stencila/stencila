@@ -39,14 +39,14 @@ pub struct StringOperation {
 }
 
 impl StringOperation {
-    const NICK: &'static str = "sto";
+    const NICK: [u8; 3] = [115, 116, 111];
     
     pub fn node_type(&self) -> NodeType {
         NodeType::StringOperation
     }
 
     pub fn node_id(&self) -> NodeId {
-        NodeId::new(Self::NICK, &self.uid)
+        NodeId::new(&Self::NICK, &self.uid)
     }
     
     pub fn new(start_position: UnsignedInteger) -> Self {

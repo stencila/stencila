@@ -33,14 +33,14 @@ pub struct ThematicBreak {
 }
 
 impl ThematicBreak {
-    const NICK: &'static str = "thb";
+    const NICK: [u8; 3] = [116, 104, 98];
     
     pub fn node_type(&self) -> NodeType {
         NodeType::ThematicBreak
     }
 
     pub fn node_id(&self) -> NodeId {
-        NodeId::new(Self::NICK, &self.uid)
+        NodeId::new(&Self::NICK, &self.uid)
     }
     
     pub fn new() -> Self {

@@ -27,11 +27,12 @@ setup:
 fix:
 	cargo clippy --workspace --tests --fix --allow-dirty
 	cargo fmt --all
+	ruff check --no-cache --fix kernel-python/src/kernel.py
 
 # Run linting checks
 lint:
 	cargo clippy --workspace --tests
-	ruff -n kernel-python/src/kernel.py
+	ruff check --no-cache kernel-python/src/kernel.py
 	pyright kernel-python/src/kernel.py
 
 # Setup before running tests

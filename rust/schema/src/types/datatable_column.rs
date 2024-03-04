@@ -27,6 +27,7 @@ pub struct DatatableColumn {
 
     /// The data values of the column.
     #[serde(alias = "value")]
+    #[serde(default)]
     pub values: Vec<Primitive>,
 
     /// The validator to use to validate data in the column.
@@ -39,14 +40,14 @@ pub struct DatatableColumn {
 }
 
 impl DatatableColumn {
-    const NICK: &'static str = "dtc";
+    const NICK: [u8; 3] = [100, 116, 99];
     
     pub fn node_type(&self) -> NodeType {
         NodeType::DatatableColumn
     }
 
     pub fn node_id(&self) -> NodeId {
-        NodeId::new(Self::NICK, &self.uid)
+        NodeId::new(&Self::NICK, &self.uid)
     }
     
     pub fn new(name: String, values: Vec<Primitive>) -> Self {

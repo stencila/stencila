@@ -29,7 +29,7 @@ impl Codec for YamlCodec {
         Status::Stable
     }
 
-    fn supports_from_format(&self, format: Format) -> CodecSupport {
+    fn supports_from_format(&self, format: &Format) -> CodecSupport {
         match format {
             Format::Yaml => CodecSupport::NoLoss,
             _ => CodecSupport::None,
@@ -46,7 +46,7 @@ impl Codec for YamlCodec {
         Ok((node, Losses::none()))
     }
 
-    fn supports_to_format(&self, format: Format) -> CodecSupport {
+    fn supports_to_format(&self, format: &Format) -> CodecSupport {
         match format {
             Format::Yaml => CodecSupport::NoLoss,
             _ => CodecSupport::None,

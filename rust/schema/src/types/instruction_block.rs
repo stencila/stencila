@@ -194,14 +194,14 @@ pub struct InstructionBlockOptions {
 }
 
 impl InstructionBlock {
-    const NICK: &'static str = "isb";
+    const NICK: [u8; 3] = [105, 115, 98];
     
     pub fn node_type(&self) -> NodeType {
         NodeType::InstructionBlock
     }
 
     pub fn node_id(&self) -> NodeId {
-        NodeId::new(Self::NICK, &self.uid)
+        NodeId::new(&Self::NICK, &self.uid)
     }
     
     pub fn new(messages: Vec<InstructionMessage>) -> Self {

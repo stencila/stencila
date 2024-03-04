@@ -34,14 +34,14 @@ pub struct ModifyOperation {
 }
 
 impl ModifyOperation {
-    const NICK: &'static str = "mdo";
+    const NICK: [u8; 3] = [109, 100, 111];
     
     pub fn node_type(&self) -> NodeType {
         NodeType::ModifyOperation
     }
 
     pub fn node_id(&self) -> NodeId {
-        NodeId::new(Self::NICK, &self.uid)
+        NodeId::new(&Self::NICK, &self.uid)
     }
     
     pub fn new(target: String, value: Box<StringPatchOrPrimitive>) -> Self {

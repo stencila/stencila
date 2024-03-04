@@ -72,14 +72,14 @@ pub struct ThingOptions {
 }
 
 impl Thing {
-    const NICK: &'static str = "thi";
+    const NICK: [u8; 3] = [116, 104, 105];
     
     pub fn node_type(&self) -> NodeType {
         NodeType::Thing
     }
 
     pub fn node_id(&self) -> NodeId {
-        NodeId::new(Self::NICK, &self.uid)
+        NodeId::new(&Self::NICK, &self.uid)
     }
     
     pub fn new() -> Self {

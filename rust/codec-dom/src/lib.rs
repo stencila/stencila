@@ -23,7 +23,7 @@ impl Codec for DomCodec {
         Status::UnderDevelopment
     }
 
-    fn supports_to_format(&self, format: Format) -> CodecSupport {
+    fn supports_to_format(&self, format: &Format) -> CodecSupport {
         match format {
             Format::Dom => CodecSupport::NoLoss,
             _ => CodecSupport::None,

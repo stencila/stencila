@@ -11,7 +11,7 @@
   "status": "under-development",
   "proptest": {},
   "markdown": {
-    "template": "/{{source}}\\n\\n"
+    "derive": false
   },
   "required": [
     "type",

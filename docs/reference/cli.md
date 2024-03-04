@@ -17,7 +17,26 @@ This document contains the help content for the `stencila` command-line program.
 * [`stencila assistants`↴](#stencila-assistants)
 * [`stencila repl`↴](#stencila-repl)
 * [`stencila test`↴](#stencila-test)
+* [`stencila kernels`↴](#stencila-kernels)
+* [`stencila kernels list`↴](#stencila-kernels-list)
+* [`stencila kernels info`↴](#stencila-kernels-info)
+* [`stencila kernels packages`↴](#stencila-kernels-packages)
+* [`stencila plugins`↴](#stencila-plugins)
+* [`stencila plugins list`↴](#stencila-plugins-list)
+* [`stencila plugins install`↴](#stencila-plugins-install)
+* [`stencila plugins uninstall`↴](#stencila-plugins-uninstall)
+* [`stencila plugins link`↴](#stencila-plugins-link)
+* [`stencila plugins enable`↴](#stencila-plugins-enable)
+* [`stencila plugins disable`↴](#stencila-plugins-disable)
+* [`stencila plugins show`↴](#stencila-plugins-show)
+* [`stencila plugins check`↴](#stencila-plugins-check)
+* [`stencila secrets`↴](#stencila-secrets)
+* [`stencila secrets list`↴](#stencila-secrets-list)
+* [`stencila secrets set`↴](#stencila-secrets-set)
+* [`stencila secrets delete`↴](#stencila-secrets-delete)
 * [`stencila config`↴](#stencila-config)
+* [`stencila upgrade`↴](#stencila-upgrade)
+* [`stencila uninstall`↴](#stencila-uninstall)
 
 ## `stencila`
 
@@ -39,7 +58,12 @@ CLI subcommands and global options
 * `assistants` — List the available AI assistants
 * `repl` — A read-evaluate-print loop for AI assistants
 * `test` — 
+* `kernels` — Manage execution kernels
+* `plugins` — Manage plugins
+* `secrets` — Manage secrets used by Stencila (e.g. API keys)
 * `config` — 
+* `upgrade` — Upgrade to the latest version
+* `uninstall` — Uninstall this command line tool
 
 ###### **Options:**
 
@@ -51,7 +75,7 @@ CLI subcommands and global options
 
 * `--log-filter <LOG_FILTER>` — A filter for log entries
 
-  Default value: `hyper=info,mio=info,ort=error,reqwest=info,tokio=info,tungstenite=info`
+  Default value: `globset=warn,hyper=info,ignore=warn,mio=info,notify=warn,ort=error,reqwest=info,tokio=info,tungstenite=info`
 * `--log-format <LOG_FORMAT>` — The log format to use
 
   Default value: `auto`
@@ -88,9 +112,6 @@ Create a new document
 
 * `-s`, `--source <SOURCE>` — The source file to import from
 * `-f`, `--format <FORMAT>` — The format of the source file
-
-  Possible values: `article`, `dom`, `html`, `jats`, `markdown`, `text`, `bash`, `shell`, `java-script`, `python`, `r`, `rhai`, `json`, `json5`, `json-ld`, `cbor`, `cbor-zst`, `yaml`, `gif`, `jpeg`, `png`, `svg`, `web-p`, `aac`, `flac`, `mp3`, `ogg`, `wav`, `avi`, `mkv`, `mp4`, `ogv`, `web-m`, `directory`, `debug`, `unknown`
-
 * `--codec <CODEC>` — The codec to use to decode the source
 * `-o`, `--overwrite` — Overwrite the document if it already exists
 
@@ -437,6 +458,239 @@ Mainly intended for prompt engineering during development of Stencila.
 
 
 
+## `stencila kernels`
+
+Manage execution kernels
+
+**Usage:** `stencila kernels [COMMAND]`
+
+###### **Subcommands:**
+
+* `list` — List the kernels available
+* `info` — Get information about a kernel
+* `packages` — List packages available to a kernel
+
+
+
+## `stencila kernels list`
+
+List the kernels available
+
+**Usage:** `stencila kernels list`
+
+
+
+## `stencila kernels info`
+
+Get information about a kernel
+
+Mainly used to check the version of the kernel runtime and operating system for debugging purpose.
+
+**Usage:** `stencila kernels info <NAME>`
+
+###### **Arguments:**
+
+* `<NAME>` — The name of the kernel to get information for
+
+
+
+## `stencila kernels packages`
+
+List packages available to a kernel
+
+Mainly used to check libraries available to a kernel for debugging purpose.
+
+**Usage:** `stencila kernels packages <NAME> [FILTER]`
+
+###### **Arguments:**
+
+* `<NAME>` — The name of the kernel to list packages for
+* `<FILTER>` — A filter on the name of the kernel
+
+
+
+## `stencila plugins`
+
+Manage plugins
+
+**Usage:** `stencila plugins [COMMAND]`
+
+###### **Subcommands:**
+
+* `list` — List plugins
+* `install` — Install a plugin
+* `uninstall` — Uninstall a plugin
+* `link` — Link to a local plugin
+* `enable` — Enable a plugin
+* `disable` — Disable a plugin
+* `show` — Show details of a plugin
+* `check` — Check a plugin
+
+
+
+## `stencila plugins list`
+
+List plugins
+
+**Usage:** `stencila plugins list [OPTIONS]`
+
+###### **Options:**
+
+* `-r`, `--refresh` — Force refresh of plugin manifests
+
+  Possible values: `true`, `false`
+
+* `--installed` — Only list installed plugins
+
+  Possible values: `true`, `false`
+
+* `--installable` — Only list installable plugins
+
+  Possible values: `true`, `false`
+
+* `-o`, `--outdated` — Only list installed but outdated plugins
+
+  Possible values: `true`, `false`
+
+* `-e`, `--enabled` — Only list installed and enabled plugins
+
+  Possible values: `true`, `false`
+
+
+
+
+## `stencila plugins install`
+
+Install a plugin
+
+**Usage:** `stencila plugins install <NAME>`
+
+###### **Arguments:**
+
+* `<NAME>` — The name or URL of the plugin to install
+
+
+
+## `stencila plugins uninstall`
+
+Uninstall a plugin
+
+**Usage:** `stencila plugins uninstall <NAME>`
+
+###### **Arguments:**
+
+* `<NAME>` — The name of the plugin to uninstall
+
+
+
+## `stencila plugins link`
+
+Link to a local plugin
+
+**Usage:** `stencila plugins link <DIRECTORY>`
+
+###### **Arguments:**
+
+* `<DIRECTORY>` — The directory to link to
+
+
+
+## `stencila plugins enable`
+
+Enable a plugin
+
+**Usage:** `stencila plugins enable <NAME>`
+
+###### **Arguments:**
+
+* `<NAME>` — The name of the plugin to enable
+
+
+
+## `stencila plugins disable`
+
+Disable a plugin
+
+**Usage:** `stencila plugins disable <NAME>`
+
+###### **Arguments:**
+
+* `<NAME>` — The name of the plugin to disable
+
+
+
+## `stencila plugins show`
+
+Show details of a plugin
+
+**Usage:** `stencila plugins show <NAME>`
+
+###### **Arguments:**
+
+* `<NAME>` — The name of the plugin to install
+
+
+
+## `stencila plugins check`
+
+Check a plugin
+
+**Usage:** `stencila plugins check <NAME>`
+
+###### **Arguments:**
+
+* `<NAME>` — The name of the plugin to install
+
+
+
+## `stencila secrets`
+
+Manage secrets used by Stencila (e.g. API keys)
+
+**Usage:** `stencila secrets [COMMAND]`
+
+###### **Subcommands:**
+
+* `list` — List the secrets used by Stencila
+* `set` — Set a secret used by Stencila
+* `delete` — Delete a secret previously set using Stencila
+
+
+
+## `stencila secrets list`
+
+List the secrets used by Stencila
+
+**Usage:** `stencila secrets list`
+
+
+
+## `stencila secrets set`
+
+Set a secret used by Stencila
+
+You will be prompted for the secret
+
+**Usage:** `stencila secrets set <NAME>`
+
+###### **Arguments:**
+
+* `<NAME>` — The name of the secret
+
+
+
+## `stencila secrets delete`
+
+Delete a secret previously set using Stencila
+
+**Usage:** `stencila secrets delete <NAME>`
+
+###### **Arguments:**
+
+* `<NAME>` — The name of the secret
+
+
+
 ## `stencila config`
 
 **Usage:** `stencila config [OPTIONS]`
@@ -447,12 +701,39 @@ Mainly intended for prompt engineering during development of Stencila.
 
   Default value: `config`
 
-  Possible values: `config`, `cache`, `assistants`, `kernels`
+  Possible values: `config`, `cache`, `assistants`, `plugins`, `kernels`
 
 * `--ensure`
 
   Possible values: `true`, `false`
 
+
+
+
+## `stencila upgrade`
+
+Upgrade to the latest version
+
+**Usage:** `stencila upgrade [OPTIONS]`
+
+###### **Options:**
+
+* `-f`, `--force` — Perform upgrade even if the current version is the latest
+
+  Possible values: `true`, `false`
+
+* `-c`, `--check` — Check for an available upgrade but do not install it
+
+  Possible values: `true`, `false`
+
+
+
+
+## `stencila uninstall`
+
+Uninstall this command line tool
+
+**Usage:** `stencila uninstall`
 
 
 

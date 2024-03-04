@@ -8,7 +8,7 @@ use napi_derive::napi;
 use codecs::{Format, LossesResponse};
 use common::{eyre, serde_json};
 
-use crate::utilities::{generic_failure, invalid_arg};
+use crate::utilities::generic_failure;
 
 /// Decoding options
 #[napi(object)]
@@ -28,10 +28,7 @@ impl TryInto<codecs::DecodeOptions> for DecodeOptions {
 
     fn try_into(self) -> Result<codecs::DecodeOptions> {
         Ok(codecs::DecodeOptions {
-            format: match self.format {
-                Some(format) => Some(Format::from_name(&format).map_err(invalid_arg)?),
-                None => None,
-            },
+            format: self.format.as_ref().map(|format| Format::from_name(format)),
             losses: self
                 .losses
                 .map(LossesResponse::from)
@@ -71,10 +68,7 @@ impl TryInto<codecs::EncodeOptions> for EncodeOptions {
 
     fn try_into(self) -> Result<codecs::EncodeOptions> {
         Ok(codecs::EncodeOptions {
-            format: match self.format {
-                Some(format) => Some(Format::from_name(&format).map_err(invalid_arg)?),
-                None => None,
-            },
+            format: self.format.as_ref().map(|format| Format::from_name(format)),
             standalone: self.standalone,
             compact: self.compact,
             losses: self

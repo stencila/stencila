@@ -2,7 +2,7 @@ This article attempts to have at least one of each node type. Nodes are intentio
 
 This is a paragraph with ![audio](https://example.org/cat.mp3), `code expression`{exec}, `inline code`{--, delete--}, _emphasis_, ![image](https://example.org/cat.jpg){++, insert++}, [link](https://example.org), $inline math$, [^1], &[parameter], <q>inline quote</q>{~~, old~>, new~~}, [styled inline]{text-blue-400}, ~~strikeout~~, **strong emphasis**, ~subscript~, ^superscript^, <u>underline</u>, ![video](https://example.org/cat.mp4).
 
-/this/is/a/call()
+<< this/is/a/call()
 
 ::: statement
 
@@ -38,7 +38,7 @@ This is an if block
 
 :::
 
-/this/is/an/include
+<< this/is/an/include
 
 ++
 

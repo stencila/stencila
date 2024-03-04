@@ -23,11 +23,12 @@ use server::{serve, ServeOptions};
 use crate::{
     display,
     logging::{LoggingFormat, LoggingLevel},
+    uninstall, upgrade,
 };
 
 /// CLI subcommands and global options
 #[derive(Debug, Parser)]
-#[command(name = "stencila", author, version, about, long_about)]
+#[command(name = "stencila", author, version, about, long_about, styles = Cli::styles())]
 pub struct Cli {
     #[command(subcommand)]
     command: Command,
@@ -43,7 +44,7 @@ pub struct Cli {
     /// syntax such as `tokio=debug`.
     #[arg(
         long,
-        default_value = "hyper=info,mio=info,ort=error,reqwest=info,tokio=info,tungstenite=info",
+        default_value = "globset=warn,hyper=info,ignore=warn,mio=info,notify=warn,ort=error,reqwest=info,tokio=info,tungstenite=info",
         global = true
     )]
     pub log_filter: String,
@@ -64,6 +65,20 @@ pub struct Cli {
     /// Output a link to more easily report an issue
     #[arg(long, global = true)]
     pub error_link: bool,
+}
+
+impl Cli {
+    pub fn styles() -> clap::builder::Styles {
+        use clap::builder::styling::*;
+        Styles::styled()
+            .header(AnsiColor::Blue.on_default().bold())
+            .usage(AnsiColor::Cyan.on_default())
+            .literal(AnsiColor::Cyan.on_default())
+            .valid(AnsiColor::Green.on_default())
+            .invalid(AnsiColor::Yellow.on_default())
+            .error(AnsiColor::Red.on_default().bold())
+            .placeholder(AnsiColor::Green.on_default())
+    }
 }
 
 #[derive(Debug, Subcommand)]
@@ -289,9 +304,14 @@ enum Command {
         reps: u16,
     },
 
+    Kernels(kernels::cli::Cli),
+    Plugins(plugins::cli::Cli),
     Secrets(secrets::cli::Cli),
 
     Config(ConfigOptions),
+
+    Upgrade(upgrade::Cli),
+    Uninstall(uninstall::Cli),
 }
 
 /// Command line arguments for stripping nodes
@@ -327,7 +347,10 @@ impl DecodeOptions {
         strip_options: StripOptions,
         losses: codecs::LossesResponse,
     ) -> codecs::DecodeOptions {
-        let (format, codec) = codecs::format_or_codec(format_or_codec);
+        let codec = format_or_codec
+            .as_ref()
+            .and_then(|name| codecs::codec_maybe(name));
+        let format = format_or_codec.map(|name| Format::from_name(&name));
 
         codecs::DecodeOptions {
             codec,
@@ -336,6 +359,7 @@ impl DecodeOptions {
             strip_types: strip_options.strip_types,
             strip_props: strip_options.strip_props,
             losses,
+            ..Default::default()
         }
     }
 }
@@ -374,7 +398,10 @@ impl EncodeOptions {
         strip_options: StripOptions,
         losses: codecs::LossesResponse,
     ) -> codecs::EncodeOptions {
-        let (format, codec) = codecs::format_or_codec(format_or_codec);
+        let codec = format_or_codec
+            .as_ref()
+            .and_then(|name| codecs::codec_maybe(name));
+        let format = format_or_codec.map(|name| Format::from_name(&name));
 
         let compact = self
             .compact
@@ -467,7 +494,7 @@ impl Cli {
                 let doc = Document::open(&doc).await?;
 
                 let options = options.build(to, strip_options, losses);
-                let format = options.format.unwrap_or(Format::Text);
+                let format = options.format.clone().unwrap_or(Format::Text);
 
                 let content = doc.export(dest.as_deref(), Some(options)).await?;
                 if !content.is_empty() {
@@ -582,7 +609,7 @@ impl Cli {
                 doc.execute().await?;
 
                 let encode_options = codecs::EncodeOptions::default();
-                let format = encode_options.format.unwrap_or(Format::Text);
+                let format = encode_options.format.clone().unwrap_or(Format::Text);
 
                 let content = doc.export(output.as_deref(), Some(encode_options)).await?;
                 if !content.is_empty() {
@@ -730,6 +757,8 @@ impl Cli {
 
             Command::Test { path, reps } => assistants::testing::test_example(&path, reps).await?,
 
+            Command::Kernels(kernels) => kernels.run().await?,
+            Command::Plugins(plugins) => plugins.run().await?,
             Command::Secrets(secrets) => secrets.run().await?,
 
             Command::Config(options) => {
@@ -737,6 +766,9 @@ impl Cli {
                 let dir = app::get_app_dir(options.dir, options.ensure)?;
                 println!("{}", dir.display());
             }
+
+            Command::Upgrade(upgrade) => upgrade.run().await?,
+            Command::Uninstall(uninstall) => uninstall.run()?,
         }
 
         if wait {

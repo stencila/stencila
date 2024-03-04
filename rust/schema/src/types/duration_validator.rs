@@ -40,14 +40,14 @@ pub struct DurationValidator {
 }
 
 impl DurationValidator {
-    const NICK: &'static str = "duv";
+    const NICK: [u8; 3] = [100, 117, 118];
     
     pub fn node_type(&self) -> NodeType {
         NodeType::DurationValidator
     }
 
     pub fn node_id(&self) -> NodeId {
-        NodeId::new(Self::NICK, &self.uid)
+        NodeId::new(&Self::NICK, &self.uid)
     }
     
     pub fn new() -> Self {

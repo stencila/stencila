@@ -10,6 +10,8 @@ pub enum ExecutionStatus {
     #[default]
     Scheduled,
 
+    Pending,
+
     Skipped,
 
     Empty,
@@ -18,7 +20,13 @@ pub enum ExecutionStatus {
 
     Succeeded,
 
-    Failed,
+    Warnings,
+
+    Errors,
+
+    Exceptions,
 
     Cancelled,
+
+    Interrupted,
 }

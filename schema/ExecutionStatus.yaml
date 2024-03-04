@@ -6,22 +6,34 @@ description: Status of the most recent, including any current, execution of a do
 anyOf:
   - const: Scheduled
     '@id': stencila:Scheduled
-    description: The execution of the node has been scheduled.
+    description: Execution of the node has been scheduled for some time in the future.
+  - const: Pending
+    '@id': stencila:Pending
+    description: Execution of the node is pending.
   - const: Skipped
     '@id': stencila:Skipped
-    description: The execution of the node has been skipped because it is unnecessary.
+    description: Execution of the node has been skipped because it is unnecessary.
   - const: Empty
     '@id': stencila:Empty
-    description: The execution of the node has been skipped because it has code, or other property, that is empty.
+    description: Execution of the node has been skipped because it has code, or other property, that is empty.
   - const: Running
     '@id': stencila:Running
-    description: The execution of the node is currently running
+    description: The node is currently being executed.
   - const: Succeeded
     '@id': stencila:Succeeded
-    description: The execution of the node is succeed
-  - const: Failed
-    '@id': stencila:Failed
-    description: The execution of the node is failed
+    description: Execution of the node completed without warning, error, or exception messages.
+  - const: Warnings
+    '@id': stencila:Warnings
+    description: Execution of the node completed but with warning messages.
+  - const: Errors
+    '@id': stencila:Errors
+    description: Execution of the node completed but with error messages.
+  - const: Exceptions
+    '@id': stencila:Exceptions
+    description: Execution of the node did not complete because there was an exception message.
   - const: Cancelled
     '@id': stencila:Cancelled
-    description: The execution of the node was cancelled
+    description: Execution of the node was pending but was cancelled.
+  - const: Interrupted
+    '@id': stencila:Interrupted
+    description: Execution of the node was running but was interrupted.

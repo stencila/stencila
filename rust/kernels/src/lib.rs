@@ -1,4 +1,7 @@
-use std::fmt;
+use std::{
+    fmt,
+    path::{Path, PathBuf},
+};
 
 use kernel::{
     common::eyre::{bail, Result},
@@ -9,18 +12,25 @@ use kernel::{
 use kernel_bash::BashKernel;
 use kernel_node::NodeKernel;
 use kernel_python::PythonKernel;
+use kernel_r::RKernel;
 use kernel_rhai::RhaiKernel;
 
 pub mod cli;
 
 /// Get a list of available kernels
-pub fn list() -> Vec<Box<dyn Kernel>> {
-    vec![
+pub async fn list() -> Vec<Box<dyn Kernel>> {
+    let mut kernels = vec![
         Box::<BashKernel>::default() as Box<dyn Kernel>,
         Box::<NodeKernel>::default() as Box<dyn Kernel>,
         Box::<PythonKernel>::default() as Box<dyn Kernel>,
+        Box::<RKernel>::default() as Box<dyn Kernel>,
         Box::<RhaiKernel>::default() as Box<dyn Kernel>,
-    ]
+    ];
+
+    let provided_by_plugins = &mut plugins::kernels::list().await;
+    kernels.append(provided_by_plugins);
+
+    kernels
 }
 
 /// Get the default kernel (used when no language is specified)
@@ -29,10 +39,23 @@ pub fn default() -> Box<dyn Kernel> {
 }
 
 /// A collection of kernel instances associated with a document
-#[derive(Default)]
 pub struct Kernels {
+    /// The home directory of the kernels
+    ///
+    /// Used to start each kernel in the home directory of the document
+    home: PathBuf,
+
     /// The kernel instances
     instances: Vec<(Box<dyn Kernel>, Box<dyn KernelInstance>)>,
+}
+
+impl Default for Kernels {
+    fn default() -> Self {
+        Self {
+            home: std::env::current_dir().expect("should always be a current dir"),
+            instances: Vec::new(),
+        }
+    }
 }
 
 impl fmt::Debug for Kernels {
@@ -42,34 +65,39 @@ impl fmt::Debug for Kernels {
 }
 
 impl Kernels {
+    /// Create a new set of kernels
+    pub fn new(home: &Path) -> Self {
+        Self {
+            home: home.to_path_buf(),
+            instances: Vec::new(),
+        }
+    }
+
     /// Create a kernel instance
     ///
-    /// The `language` argument can be the name of a programming language, or
-    /// the id of an existing kernel.
+    /// The `language` argument can be the name of a kernel or a programming language
     async fn create_instance(&mut self, language: Option<&str>) -> Result<&mut dyn KernelInstance> {
         let kernel = match language {
             Some(language) => 'block: {
-                let format = Format::from_name(language).ok();
+                let format = Format::from_name(language);
 
-                for kernel in list() {
-                    if kernel.id() == language {
+                for kernel in list().await {
+                    if kernel.name() == language {
                         break 'block kernel;
                     }
 
-                    if let Some(format) = format {
-                        if kernel.supports_language(&format) && kernel.is_available() {
-                            break 'block kernel;
-                        }
+                    if kernel.supports_language(&format) && kernel.is_available() {
+                        break 'block kernel;
                     }
                 }
 
-                bail!("No kernel available with id, or that supports language, `{language}`")
+                bail!("No kernel available with name, or that supports language, `{language}`")
             }
             None => default(),
         };
 
         let mut instance = kernel.create_instance()?;
-        instance.start_here().await?; // TODO: start elsewhere?
+        instance.start(&self.home).await?;
         self.instances.push((kernel, instance));
 
         let instance = self
@@ -90,19 +118,19 @@ impl Kernels {
     /// If no language specified, and there is at least one kernel instance, returns the
     /// first instance.
     fn get_instance(&mut self, language: Option<&str>) -> Result<Option<&mut dyn KernelInstance>> {
-        let format = language.and_then(|lang| Format::from_name(lang).ok());
+        let format = language.map(Format::from_name);
 
         for (kernel, instance) in self.instances.iter_mut() {
             let Some(language) = language else {
                 return Ok(Some(instance.as_mut()));
             };
 
-            if instance.id() == language {
+            if instance.name() == language {
                 return Ok(Some(instance.as_mut()));
             }
 
-            if let Some(format) = format {
-                if kernel.supports_language(&format) {
+            if let Some(format) = &format {
+                if kernel.supports_language(format) {
                     return Ok(Some(instance.as_mut()));
                 }
             }

@@ -29,14 +29,14 @@ impl Codec for DirectoryCodec {
         Status::UnderDevelopment
     }
 
-    fn supports_from_format(&self, format: Format) -> CodecSupport {
+    fn supports_from_format(&self, format: &Format) -> CodecSupport {
         match format {
             Format::Directory => CodecSupport::NoLoss,
             _ => CodecSupport::None,
         }
     }
 
-    fn supports_to_format(&self, _format: Format) -> CodecSupport {
+    fn supports_to_format(&self, _format: &Format) -> CodecSupport {
         CodecSupport::None
     }
 

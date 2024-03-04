@@ -44,14 +44,14 @@ pub struct Subscript {
 }
 
 impl Subscript {
-    const NICK: &'static str = "sub";
+    const NICK: [u8; 3] = [115, 117, 98];
     
     pub fn node_type(&self) -> NodeType {
         NodeType::Subscript
     }
 
     pub fn node_id(&self) -> NodeId {
-        NodeId::new(Self::NICK, &self.uid)
+        NodeId::new(&Self::NICK, &self.uid)
     }
     
     pub fn new(content: Vec<Inline>) -> Self {

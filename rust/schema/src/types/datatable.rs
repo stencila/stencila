@@ -238,14 +238,14 @@ pub struct DatatableOptions {
 }
 
 impl Datatable {
-    const NICK: &'static str = "dtb";
+    const NICK: [u8; 3] = [100, 116, 98];
     
     pub fn node_type(&self) -> NodeType {
         NodeType::Datatable
     }
 
     pub fn node_id(&self) -> NodeId {
-        NodeId::new(Self::NICK, &self.uid)
+        NodeId::new(&Self::NICK, &self.uid)
     }
     
     pub fn new(columns: Vec<DatatableColumn>) -> Self {

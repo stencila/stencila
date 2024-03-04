@@ -1,7 +1,7 @@
 import { Extension, SelectionRange, TransactionSpec } from '@codemirror/state'
 import { EditorView, ViewUpdate } from '@codemirror/view'
 
-import { type DocumentAccess, type DocumentId } from '../types'
+import type { NodeId, DocumentAccess, DocumentId } from '../types'
 
 import { FormatOperation, FormatPatch, FormatClient } from './format'
 
@@ -200,19 +200,23 @@ export class CodeMirrorClient extends FormatClient {
   }
 
   /**
-   * Send a special operation to the server
+   * Send a command to the server
    *
-   * The `from` and `to` character positions are resolved into document node(s)
-   * on the server and the operation is applied there.
+   * This method is for sending commands (e.g. `execute-nodes`), rather than
+   * editing operations, to the document.
    *
-   * @param type The type of the operation
+   * @param command The name of the command
+   * @param nodeIds The ids of the specific nodes to apply the command to
    */
-  public sendSpecial(type: 'execute', selection: SelectionRange) {
-    const { from, to } = selection
-    if (from === undefined) {
-      console.error('Current selection is undefined')
-    }
-
+  public sendCommand(
+    command:
+      | 'save-document'
+      | 'execute-document'
+      | 'execute-nodes'
+      | 'interrupt-document'
+      | 'interrupt-nodes',
+    nodeIds: NodeId[] = []
+  ) {
     // Ensure any buffered operations are sent first
     this.sendBufferedOperations()
 
@@ -221,9 +225,8 @@ export class CodeMirrorClient extends FormatClient {
       version: this.version,
       ops: [
         {
-          type,
-          from,
-          to,
+          command,
+          nodeIds,
         },
       ],
     }

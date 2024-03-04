@@ -64,14 +64,14 @@ pub struct InstructionMessageOptions {
 }
 
 impl InstructionMessage {
-    const NICK: &'static str = "ime";
+    const NICK: [u8; 3] = [105, 109, 101];
     
     pub fn node_type(&self) -> NodeType {
         NodeType::InstructionMessage
     }
 
     pub fn node_id(&self) -> NodeId {
-        NodeId::new(Self::NICK, &self.uid)
+        NodeId::new(&Self::NICK, &self.uid)
     }
     
     pub fn new(parts: Vec<MessagePart>) -> Self {

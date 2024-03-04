@@ -1,6 +1,7 @@
 use comfy_table::{
     modifiers::{UTF8_ROUND_CORNERS, UTF8_SOLID_INNER_BORDERS},
     presets::UTF8_FULL,
+    ContentArrangement,
 };
 
 // Re-exports
@@ -15,6 +16,7 @@ pub fn new() -> Table {
     table
         .load_preset(UTF8_FULL)
         .apply_modifier(UTF8_ROUND_CORNERS)
-        .apply_modifier(UTF8_SOLID_INNER_BORDERS);
+        .apply_modifier(UTF8_SOLID_INNER_BORDERS)
+        .set_content_arrangement(ContentArrangement::Dynamic);
     table
 }

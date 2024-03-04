@@ -184,14 +184,14 @@ pub struct CodeExpressionOptions {
 }
 
 impl CodeExpression {
-    const NICK: &'static str = "cde";
+    const NICK: [u8; 3] = [99, 100, 101];
     
     pub fn node_type(&self) -> NodeType {
         NodeType::CodeExpression
     }
 
     pub fn node_id(&self) -> NodeId {
-        NodeId::new(Self::NICK, &self.uid)
+        NodeId::new(&Self::NICK, &self.uid)
     }
     
     pub fn new(code: Cord) -> Self {

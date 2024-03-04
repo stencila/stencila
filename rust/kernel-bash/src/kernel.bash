@@ -12,6 +12,8 @@ if [ "$DEV" == "true" ]; then
   EXEC="EXEC"
   EVAL="EVAL"
   FORK="FORK"
+  INFO="INFO"
+  PKGS="PKGS"
   LIST="LIST"
   GET="GET"
   SET="SET"
@@ -23,6 +25,8 @@ else
   EXEC=$(printf "\U10B522")
   EVAL=$(printf "\U1010CC")
   FORK=$(printf "\U10DE70")
+  INFO=$(printf "\U0010EE15")
+  PKGS=$(printf "\U0010BEC4")
   LIST=$(printf "\U10C155")
   GET=$(printf "\U10A51A")
   SET=$(printf "\U107070")
@@ -78,6 +82,13 @@ do
     "$EVAL")
       # Evaluate second line (integer expressions only)
       eval "echo $((${stencila_lines[1]}))"
+      ;;
+    "$INFO")
+      # Return runtime information
+      echo "{\"type\":\"SoftwareApplication\",\"name\":\"Bash\",\"softwareVersion\":\"$BASH_VERSION\",\"operatingSystem\":\"$(uname -s)\"}"
+      ;;
+    "$PKGS")
+      # Return an empty list of packages
       ;;
     "$LIST")
       # Return a list of variables (with limited type info and END flag after each)

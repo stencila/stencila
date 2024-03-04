@@ -192,14 +192,14 @@ pub struct CallArgumentOptions {
 }
 
 impl CallArgument {
-    const NICK: &'static str = "cla";
+    const NICK: [u8; 3] = [99, 108, 97];
     
     pub fn node_type(&self) -> NodeType {
         NodeType::CallArgument
     }
 
     pub fn node_id(&self) -> NodeId {
-        NodeId::new(Self::NICK, &self.uid)
+        NodeId::new(&Self::NICK, &self.uid)
     }
     
     pub fn new(name: String, code: Cord) -> Self {

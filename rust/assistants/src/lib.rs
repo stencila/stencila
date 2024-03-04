@@ -243,9 +243,9 @@ impl VisitorMut for ResultApplier {
                     }
                     Err(error) => {
                         tracing::error!("Instruction failed: {}", error.to_string());
-                        instruction.options.execution_status = Some(ExecutionStatus::Failed);
+                        instruction.options.execution_status = Some(ExecutionStatus::Exceptions);
                         instruction.options.execution_messages = Some(vec![ExecutionMessage::new(
-                            MessageLevel::Error,
+                            MessageLevel::Exception,
                             error.to_string(),
                         )]);
                     }
@@ -269,9 +269,9 @@ impl VisitorMut for ResultApplier {
                         instruction.options.execution_status = Some(ExecutionStatus::Succeeded);
                     }
                     Err(error) => {
-                        instruction.options.execution_status = Some(ExecutionStatus::Failed);
+                        instruction.options.execution_status = Some(ExecutionStatus::Exceptions);
                         instruction.options.execution_messages = Some(vec![ExecutionMessage::new(
-                            MessageLevel::Error,
+                            MessageLevel::Exception,
                             error.to_string(),
                         )]);
                     }
