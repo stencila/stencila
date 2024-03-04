@@ -15,4 +15,3 @@ assistant-mistral = { path = "../assistant-mistral" }
 assistant-ollama = { path = "../assistant-ollama" }
 assistant-openai = { path = "../assistant-openai" }
 assistant-specialized = { path = "../assistant-specialized" }
-codecs = { path = "../codecs" }
