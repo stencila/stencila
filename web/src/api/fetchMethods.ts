@@ -69,7 +69,7 @@ type HandleRequestParams<ResponsePayload> = RequestParams & {
  * }
  * @return {*}
  */
-const handleRequest = async <ResponsePayload,>({
+const handleRequest = async <ResponsePayload>({
   url,
   identifier,
   init,
