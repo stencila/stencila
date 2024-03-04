@@ -42,7 +42,6 @@ import { TWLitElement } from '../ui/twind'
 
 import { bottomPanel } from './source/bottomPanel'
 import { nodeTypeGutter, execStatusGutter } from './source/gutters'
-import { infoSideBar } from './source/infoSideBar'
 import { serverActionKeys, autoWrapKeys } from './source/keyMaps'
 import { objectClientState, setObjectClient } from './source/state'
 
@@ -267,9 +266,7 @@ export class SourceView extends TWLitElement {
     const lineWrapping = this.lineWrappingConfig.of(CodeMirrorView.lineWrapping)
 
     const clientReceiver = this.clientRecieverConfig.of(
-      !this.writeOnly
-        ? [execStatusGutter(this), nodeTypeGutter(this), infoSideBar(this)]
-        : []
+      !this.writeOnly ? [execStatusGutter(this), nodeTypeGutter(this)] : []
     )
 
     const keyMaps = keymap.of([
@@ -380,16 +377,14 @@ export class SourceView extends TWLitElement {
       // remove/add required extensions
       this.dispatchEffect(
         this.clientRecieverConfig.reconfigure(
-          !this.writeOnly
-            ? [execStatusGutter(this), nodeTypeGutter(this), infoSideBar(this)]
-            : []
+          !this.writeOnly ? [execStatusGutter(this), nodeTypeGutter(this)] : []
         )
       )
     }
 
     // update `gutterMarkers` if enabled
     if (changedProperties.has('gutterMarkers') && !this.writeOnly) {
-      const baseConfig = [execStatusGutter(this), infoSideBar(this)]
+      const baseConfig = [execStatusGutter(this)]
       this.dispatchEffect(
         this.clientRecieverConfig.reconfigure(
           this.gutterMarkers
