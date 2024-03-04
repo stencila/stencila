@@ -29,9 +29,7 @@ const serverActionKeys = (client: CodeMirrorClient): KeyBinding[] => [
       for (const { from, to } of selectedRanges) {
         const selectedNodeIds = client
           .nodesInRange(from, to, true)
-          .filter((node) => {
-            ExecutableTypeList.includes(node.nodeType)
-          })
+          .filter((node) => ExecutableTypeList.includes(node.nodeType))
           .map((node) => node.nodeId)
         nodeIds.push(...selectedNodeIds)
       }
