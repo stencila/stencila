@@ -27,25 +27,25 @@ import {
   keymap,
   lineNumbers,
 } from '@codemirror/view'
-import { Node } from '@stencila/types'
+import { consume } from '@lit/context'
 import { apply, css as twCSS } from '@twind/core'
 import { html } from 'lit'
 import { customElement, property } from 'lit/decorators'
-import { ref, Ref, createRef } from 'lit/directives/ref'
 
 import { CodeMirrorClient } from '../clients/codemirror'
-import { DomClient } from '../clients/dom'
 import { MappingEntry } from '../clients/format'
 import { ObjectClient } from '../clients/object'
+import { InfoViewContext, infoviewContext } from '../contexts/infoview-context'
 import { markdownHighlightStyle } from '../languages/markdown'
 import type { DocumentId, DocumentAccess, NodeId } from '../types'
 import { TWLitElement } from '../ui/twind'
 
 import { bottomPanel } from './source/bottomPanel'
 import { nodeTypeGutter, execStatusGutter } from './source/gutters'
-import { infoSideBar } from './source/infoSideBar'
 import { serverActionKeys, autoWrapKeys } from './source/keyMaps'
-import { executableEffect, execuateState } from './source/state'
+import { nodeInfoUpdate } from './source/nodeInfoUpdate'
+import { objectClientState, setObjectClient } from './source/state'
+import './info'
 
 /**
  * Source code editor for a document
@@ -108,18 +108,8 @@ export class SourceView extends TWLitElement {
   @property()
   displayMode?: 'single' | 'split' = 'single'
 
-  /**
-   * A read-only client which updates an invisible DOM element when the
-   * document changes on the server. We use this to extract custom elements
-   * for nodes to use in tooltips etc.
-   */
-  // @ts-expect-error "dom client is set, but not read"
-  private domClient: DomClient
-
-  /**
-   * A ref for the hidden `DomClient` element
-   */
-  public domElement: Ref<HTMLElement> = createRef()
+  @consume({ context: infoviewContext, subscribe: true })
+  infoViewContext: InfoViewContext
 
   /**
    * A read-write client which sends and receives string patches
@@ -268,13 +258,7 @@ export class SourceView extends TWLitElement {
     const lineWrapping = this.lineWrappingConfig.of(CodeMirrorView.lineWrapping)
 
     const clientReceiver = this.clientRecieverConfig.of(
-      !this.writeOnly
-        ? [
-            execStatusGutter(this, this.objectClient),
-            nodeTypeGutter(this),
-            infoSideBar(this),
-          ]
-        : []
+      !this.writeOnly ? [execStatusGutter(this), nodeTypeGutter(this)] : []
     )
 
     const keyMaps = keymap.of([
@@ -311,7 +295,8 @@ export class SourceView extends TWLitElement {
       autocompletion(),
       bottomPanel(this),
       clientReceiver,
-      execuateState,
+      objectClientState,
+      nodeInfoUpdate(this),
     ]
 
     return extensions
@@ -328,25 +313,7 @@ export class SourceView extends TWLitElement {
   override firstUpdated(changedProperties: Map<string, string | boolean>) {
     super.firstUpdated(changedProperties)
 
-    this.domClient = new DomClient(
-      this.doc,
-      this.renderRoot.querySelector('[root]') as HTMLElement
-    )
     this.objectClient = new ObjectClient(this.doc)
-    this.objectClient.subscribe((patch, state) => {
-      const exeUpdated = !!patch.ops.find(({ path }) =>
-        /execution(?:Status|Required)/g.test(path)
-      )
-      console.log(exeUpdated)
-      if (exeUpdated) {
-        this.codeMirrorView.dispatch({
-          effects: executableEffect.of({
-            id: 'root',
-            node: state.node as Node,
-          }),
-        })
-      }
-    })
   }
 
   /**
@@ -374,6 +341,11 @@ export class SourceView extends TWLitElement {
           parent: this.renderRoot.querySelector('#codemirror'),
         })
 
+        // set the objectClient into codemirror state
+        this.codeMirrorView.dispatch({
+          effects: setObjectClient.of(this.objectClient),
+        })
+
         this.codeMirrorClient.receivePatches(this.codeMirrorView)
       })
     }
@@ -394,13 +366,19 @@ export class SourceView extends TWLitElement {
       // remove/add required extensions
       this.dispatchEffect(
         this.clientRecieverConfig.reconfigure(
-          !this.writeOnly
-            ? [
-                execStatusGutter(this, this.objectClient),
-                nodeTypeGutter(this),
-                infoSideBar(this),
-              ]
-            : []
+          !this.writeOnly ? [execStatusGutter(this), nodeTypeGutter(this)] : []
+        )
+      )
+    }
+
+    // update `gutterMarkers` if enabled
+    if (changedProperties.has('gutterMarkers') && !this.writeOnly) {
+      const baseConfig = [execStatusGutter(this)]
+      this.dispatchEffect(
+        this.clientRecieverConfig.reconfigure(
+          this.gutterMarkers
+            ? [...baseConfig, nodeTypeGutter(this)]
+            : baseConfig
         )
       )
     }
@@ -439,11 +417,33 @@ export class SourceView extends TWLitElement {
     return this.codeMirrorClient.nodesInRange(from, to)
   }
 
+  /**
+   * Method to send an 'execute' command via the 'codeMirrorClient'.
+   * Nodes can be specified via the `nodesIds` param.
+   * Defaults to to the whole document if no nodes provided.
+   *
+   * @param nodeIds nodes to apply the command
+   */
   public execute = (nodeIds: NodeId[] = []) => {
     if (nodeIds.length > 0) {
       this.codeMirrorClient.sendCommand('execute-nodes', nodeIds)
     } else {
       this.codeMirrorClient.sendCommand('execute-document')
+    }
+  }
+
+  /**
+   * Method to send an 'interupt' command via the 'codeMirrorClient'.
+   * Nodes can be specified via the `nodesIds` param.
+   * Defaults to to the whole document if no nodes provided.
+   *
+   * @param nodeIds nodes to apply the command
+   */
+  public interrupt = (nodeIds: NodeId[] = []) => {
+    if (nodeIds.length > 0) {
+      this.codeMirrorClient.sendCommand('interrupt-nodes', nodeIds)
+    } else {
+      this.codeMirrorClient.sendCommand('interrupt-document')
     }
   }
 
@@ -455,37 +455,47 @@ export class SourceView extends TWLitElement {
    * This needs to be defined outside of the static styles property, as we need
    * to be able to access the instance property "displayMode" to determine the
    * height to use.
-   *
-   * TODO: we need to be able to dynamically set the max-width based status of the
-   * directory sidebar
    */
   private get codeMirrorCSS() {
     return twCSS`
       .cm-editor {
         height: 100%;
         color: black;
-        ${this.displayMode === 'single' ? 'max-width: calc(100vw - 4rem);' : ''}
-      }
+        &.cm-focused {
+          outline: none;
+        }
+      }      
     `
   }
 
   protected override render() {
     /* 
-      height offset for the source view container,
+      Height offset for the source view container,
       includes header height and tab container border
     */
     const heightOffset = '5rem-1px'
 
     const styles = apply([
-      'relative',
-      `h-full max-h-[calc(100vh-${heightOffset})]`,
+      'relative flex',
+      `w-full h-full max-h-[calc(100vh-${heightOffset})]`,
     ])
+
+    const infoViewStyles = apply([
+      `${this.infoViewContext.infoViewOpen ? 'w-full' : 'w-0'}`,
+      'max-w-[40%]',
+      'border-l border-grey-200',
+      'transition-w duration-200',
+    ])
+
     return html`
       <div class="${styles}">
-        <div id="codemirror" class="h-full ${this.codeMirrorCSS}"></div>
-      </div>
-      <div hidden ${ref(this.domElement)}>
-        <stencila-article root></stencila-article>
+        <div id="codemirror" class="h-full w-full ${this.codeMirrorCSS}"></div>
+        ${this.displayMode === 'single'
+          ? html`<stencila-info-view
+              doc=${this.doc}
+              class=${infoViewStyles}
+            ></stencila-info-view>`
+          : ''}
       </div>
     `
   }

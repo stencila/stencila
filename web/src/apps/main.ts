@@ -9,6 +9,7 @@ import { apply, css } from '@twind/core'
 import { LitElement, html } from 'lit'
 import { customElement, property, state } from 'lit/decorators.js'
 
+import { InfoViewContext, infoviewContext } from '../contexts/infoview-context'
 import { SidebarContext, sidebarContext } from '../contexts/sidebar-context'
 import { THEMES } from '../themes/themes'
 import { withTwind } from '../twind'
@@ -99,6 +100,14 @@ export class App extends LitElement {
   @state()
   contextObject: SidebarContext
 
+  /**
+   * This context enables opening and closing the
+   * info view panel
+   */
+  @provide({ context: infoviewContext })
+  @state()
+  infoViewContext: InfoViewContext
+
   override render() {
     return html`<div
       class="font-sans flex flex-row bg-neutral-100 fixed top-0 left-0 min-h-screen w-full"
@@ -115,6 +124,13 @@ export class App extends LitElement {
 
   // TODO: the header should move to it's own component & maintain its own state.
   private renderHeader() {
+    const infoClickEvent = () => {
+      this.infoViewContext = {
+        ...this.infoViewContext,
+        infoViewOpen: !this.infoViewContext.infoViewOpen,
+      }
+    }
+
     return html`<header class="w-full flex items-end h-12 max-h-12">
       <nav class="flex justify-end bg-neutral-100 h-full w-full">
         <div class="flex-shrink-0 flex-grow-0 flex items-center p-4">
@@ -123,7 +139,11 @@ export class App extends LitElement {
               icon="status"
               ?disabled=${true}
             ></stencila-ui-icon-button>
-            <stencila-ui-icon-button icon="info"></stencila-ui-icon-button>
+            <stencila-ui-icon-button
+              icon="info"
+              .clickEvent=${() => infoClickEvent()}
+              ?active=${this.infoViewContext.infoViewOpen}
+            ></stencila-ui-icon-button>
             <stencila-ui-icon-button icon="print"></stencila-ui-icon-button>
           </div>
         </div>
@@ -344,6 +364,11 @@ export class App extends LitElement {
       configOpen: false,
     }
 
+    // Instantiate the info context based on the view
+    this.infoViewContext = {
+      infoViewOpen: this.view === 'source' ? true : false,
+    }
+
     // Event listener for updating whether the directory view is open or closed
     this.shadowRoot.addEventListener(
       'stencila-directory-toggle',
@@ -429,6 +454,19 @@ export class App extends LitElement {
         this.contextObject = {
           ...this.contextObject,
           configOpen: e.detail.configOpen,
+        }
+      }
+    )
+
+    // Event Listener for updating current info node
+    this.shadowRoot.addEventListener(
+      'stencila-infoview-node',
+      (
+        e: Event & { detail: Required<Pick<InfoViewContext, 'currentNodeId'>> }
+      ) => {
+        this.infoViewContext = {
+          ...this.infoViewContext,
+          currentNodeId: e.detail.currentNodeId,
         }
       }
     )

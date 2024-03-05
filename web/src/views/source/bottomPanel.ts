@@ -2,15 +2,18 @@ import '@shoelace-style/shoelace/dist/components/tooltip/tooltip'
 
 import { Extension } from '@codemirror/state'
 import { showPanel, Panel, EditorView } from '@codemirror/view'
+import { ExecutionStatus, ExecutionRequired } from '@stencila/types'
 import { apply } from '@twind/core'
 import { LitElement, html } from 'lit'
 import { customElement, property } from 'lit/decorators'
 
 import { MappingEntry } from '../../clients/format'
+import { executableIcon } from '../../nodes/helpers/node-executables'
 import { withTwind } from '../../twind'
 import { SourceView } from '../source'
-import '../../ui/buttons/icon'
 
+import '../../ui/buttons/icon'
+import { objectClientState } from './state'
 const FORMATS = {
   markdown: 'Markdown',
   html: 'HTML',
@@ -30,6 +33,18 @@ class PanelElement extends LitElement {
 
   @property({ type: Object })
   sourceView: SourceView
+
+  /**
+   * `ExecutionStatus` of the root node
+   */
+  @property({ type: String, attribute: 'exec-status' })
+  execStatus: ExecutionStatus
+
+  /**
+   * `ExecutionRequired` of the root node
+   */
+  @property({ type: String, attribute: 'exec-required' })
+  execRequired: ExecutionRequired = 'NeverExecuted'
 
   protected override render() {
     const styles = apply([
@@ -54,9 +69,34 @@ class PanelElement extends LitElement {
 
     return html`
       <div class=${styles}>
+        ${this.renderDocExecuteButton()}
         ${this.renderLineWrapButton()}${this.renderGutterMarkerButton()}
         ${this.renderWriteOnlyButton()}${this.renderFormatSelect()}
       </div>
+    `
+  }
+
+  // TODO create reusable LitElement for this, to be used for the gutter markers as well
+  private renderDocExecuteButton = () => {
+    const styles = apply(['mr-4', 'w-5 h-full'])
+    const { text, icon } = executableIcon(this.execStatus, this.execRequired)
+    return html`
+      <sl-tooltip content=${text}>
+        <button
+          class=${styles}
+          @click=${() =>
+            this.execStatus === 'Running'
+              ? this.sourceView.interrupt()
+              : this.sourceView.execute()}
+        >
+          <sl-icon
+            library=${icon.library}
+            name=${icon.name}
+            style="font-size: 20px;"
+          >
+          </sl-icon>
+        </button>
+      </sl-tooltip>
     `
   }
 
@@ -93,8 +133,9 @@ class PanelElement extends LitElement {
   }
 
   private renderWriteOnlyButton = () => {
-    const clickEvent = () =>
-      (this.sourceView.writeOnly = !this.sourceView.writeOnly)
+    const clickEvent = () => {
+      this.sourceView.writeOnly = !this.sourceView.writeOnly
+    }
 
     return html`
       <stencila-ui-icon-button
@@ -111,8 +152,9 @@ class PanelElement extends LitElement {
   }
 
   private renderFormatSelect = () => {
-    const changeEvent = (e: Event) =>
-      (this.sourceView.format = (e.target as HTMLSelectElement).value)
+    const changeEvent = (e: Event) => {
+      this.sourceView.format = (e.target as HTMLSelectElement).value
+    }
 
     const styles = apply(['w-28 h-full', 'pl-2', 'bg-white', 'rounded-sm'])
     return html`
@@ -165,7 +207,29 @@ const panel = (sourceView: SourceView) => (): Panel => {
 
   return {
     dom,
-    update() {
+    update: (update) => {
+      // const exeState = update.state.field(executionState)
+
+      const objectClient = update.state.field(objectClientState)
+      if (objectClient) {
+        const docNode = objectClient.getNode()
+
+        // @ts-expect-error "type `Node` is not aware of these properties
+        if (docNode.executionStatus && docNode.executionRequired) {
+          // update the `dom` properties with latest status / required
+          dom.setAttribute(
+            'exec-status',
+            // @ts-expect-error "type `Node` is not aware of `executionStatus` property"
+            docNode.executionStatus
+          )
+          dom.setAttribute(
+            'exec-required',
+            // @ts-expect-error "type `Node` is not aware of `executionRequired` property"
+            docNode.executionRequired
+          )
+        }
+      }
+
       dom.setAttribute('breadcrumbs', JSON.stringify(sourceView.getNodesAt()))
     },
   }

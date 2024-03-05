@@ -313,7 +313,7 @@ export abstract class FormatClient extends Client {
     let end = 0
 
     const nodes: MappingEntry[] = []
-    if (from >= to) {
+    if (from > to) {
       return nodes
     }
     for (const entry of this.mapping) {
@@ -322,13 +322,14 @@ export abstract class FormatClient extends Client {
       // If condition set, get nodes within or partialy within the range,
       // else only include complete nodes within the range
       if (allowPartialNodes) {
-        if ((start >= from && start <= to) || (end >= from && end <= to)) {
+        if ((from >= start && from < end) || (to >= start && to < end)) {
           nodes.push({ ...entry, start, end })
         }
       } else if (start >= from && start < to && end > from && end <= to) {
         nodes.push({ ...entry, start, end })
       }
     }
+    console.log(nodes)
     return nodes
   }
 }
