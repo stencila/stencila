@@ -591,7 +591,11 @@ pub enum NodeType {{
             if let Some(dom) = &property.dom {
                 let mut args = Vec::new();
 
-                if let Some(elem) = &dom.elem {
+                if dom.skip {
+                    args.push(format!("skip"));
+                } else if let Some(with) = &dom.with {
+                    args.push(format!("with = \"{with}\""));
+                } else if let Some(elem) = &dom.elem {
                     args.push(format!("elem = \"{elem}\""));
                 } else if let Some(attr) = &dom.attr {
                     args.push(format!("attr = \"{attr}\""));

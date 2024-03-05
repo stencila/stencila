@@ -6,7 +6,10 @@ use common::{
     inflector::Inflector,
     proc_macro2::TokenStream,
     quote::quote,
-    syn::{parse_macro_input, Data, DataEnum, DeriveInput, Fields, Ident, PathSegment, Type},
+    syn::{
+        parse_macro_input, parse_str, Data, DataEnum, DeriveInput, Fields, Ident, Path,
+        PathSegment, Type,
+    },
 };
 
 #[derive(FromDeriveInput)]
@@ -23,10 +26,16 @@ struct FieldAttr {
     ty: Type,
 
     #[darling(default)]
+    skip: bool,
+
+    #[darling(default)]
     elem: Option<String>,
 
     #[darling(default)]
     attr: Option<String>,
+
+    #[darling(default)]
+    with: Option<String>,
 }
 
 /// Derive the `DomCodec` trait for a `struct` or an `enum`
@@ -90,6 +99,31 @@ fn derive_struct(type_attr: TypeAttr) -> TokenStream {
             options.extend(quote! {
                 self.#field_name.to_dom(context);
             });
+        } else if field_attr.skip {
+            return;
+        } else if let Some(with) = field_attr.with.as_deref() {
+            let Type::Path(type_path) = field_attr.ty else {
+                return
+            };
+            let Some(PathSegment{ident: field_type,..}) = type_path.path.segments.last() else {
+                return
+            };
+            
+            let func = parse_str::<Path>(with).expect("invalid DOM `with` option");
+
+            let tokens = if field_type == "Option" {
+                quote! {
+                    if let Some(value) = self.#field_name.as_ref() {
+                        #func(stringify!(#field_name), value, context);
+                    }
+                }
+            } else {
+                quote! {
+                    #func(stringify!(#field_name), &self.#field_name, context);
+                }
+            };
+
+            children.extend(tokens);
         } else if matches!(field_attr.elem.as_deref(), Some("none")) {
             children.extend(quote! {
                 self.#field_name.to_dom(context);

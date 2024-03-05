@@ -572,6 +572,11 @@ pub struct DomOptions {
     #[default = true]
     pub derive: bool,
 
+    /// Whether to skip encoding a property to DOM HTML
+    #[serde(skip_serializing_if = "is_false")]
+    #[default = false]
+    pub skip: bool,
+
     /// The HTML element name for a property
     ///
     /// If not supplied the property will be encoded as an attribute
@@ -583,6 +588,11 @@ pub struct DomOptions {
     /// Should only be used if `elem` is `None`. If not supplied, defaults
     /// to the name of the attribute converted to kebab-case.
     pub attr: Option<String>,
+
+    /// The name of a function to use to encode a property to DOM HTML
+    ///
+    /// If specified, `elem` and `attr` will be ignored.
+    pub with: Option<String>
 }
 
 /// Options for conversion to/from HTML
