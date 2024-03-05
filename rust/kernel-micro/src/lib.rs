@@ -17,7 +17,7 @@ pub use kernel::{
 use kernel::{
     common::{
         async_trait::async_trait,
-        eyre::{bail, OptionExt, Result},
+        eyre::{bail, eyre, Context, OptionExt, Result},
         itertools::Itertools,
         serde_json,
         strum::Display,
@@ -367,6 +367,15 @@ impl KernelInstance for MicrokernelInstance {
 
         // Setup signalling channel
         self.signal_sender = Some(Self::setup_signals_channel(self.id.clone(), pid));
+
+        // Check status of the process in case start up errors
+        // have caused it to fail
+        let status = self
+            .get_status()
+            .wrap_err_with(|| eyre!("Unable to check status of starting kernel"))?;
+        if matches!(status, KernelStatus::Failed | KernelStatus::Stopped) {
+            bail!("Startup of `{}` kernel failed; perhaps the runtime version on this machine is not supported?", self.name())
+        }
 
         self.set_status(KernelStatus::Ready)?;
 
