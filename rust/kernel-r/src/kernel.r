@@ -69,7 +69,7 @@ message <- function(msg, level, error_type = NULL) {
   message <- list(
     type = "ExecutionMessage",
     level = level,
-    message = msg,
+    message = as.character(ifelse(is.list(msg) && "message" %in% names(msg), msg$message, msg)),
     errorType = error_type
   )
 
@@ -94,7 +94,7 @@ message <- function(msg, level, error_type = NULL) {
 }
 info <- function(msg) message(msg, "Info")
 warning <- function(msg) message(msg, "Warning")
-exception <- function(error, error_type = "RuntimeError") message(error$message, "Exception", error_type)
+exception <- function(error, error_type = "RuntimeError") message(error, "Exception", error_type)
 interrupt <- function(condition, error_type = "Interrupt") message("Code execution was interrupted", "Exception", error_type)
 
 # Serialize an R object as JSON
