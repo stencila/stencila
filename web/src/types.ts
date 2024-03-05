@@ -31,10 +31,11 @@ export type DocumentAccess =
 export type DocumentView =
   | 'static'
   | 'live'
+  | 'interactive'
+  | 'visual'
   | 'dynamic'
   | 'source'
   | 'split'
-  | 'visual'
   | 'directory'
 
 /**
