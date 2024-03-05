@@ -27,6 +27,7 @@ import {
   keymap,
   lineNumbers,
 } from '@codemirror/view'
+import { consume } from '@lit/context'
 import { apply, css as twCSS } from '@twind/core'
 import { html } from 'lit'
 import { customElement, property } from 'lit/decorators'
@@ -36,6 +37,7 @@ import { CodeMirrorClient } from '../clients/codemirror'
 import { DomClient } from '../clients/dom'
 import { MappingEntry } from '../clients/format'
 import { ObjectClient } from '../clients/object'
+import { InfoViewContext, infoviewContext } from '../contexts/infoview-context'
 import { markdownHighlightStyle } from '../languages/markdown'
 import type { DocumentId, DocumentAccess, NodeId } from '../types'
 import { TWLitElement } from '../ui/twind'
@@ -43,7 +45,9 @@ import { TWLitElement } from '../ui/twind'
 import { bottomPanel } from './source/bottomPanel'
 import { nodeTypeGutter, execStatusGutter } from './source/gutters'
 import { serverActionKeys, autoWrapKeys } from './source/keyMaps'
+import { nodeInfoUpdate } from './source/nodeInfoUpdate'
 import { objectClientState, setObjectClient } from './source/state'
+import './info'
 
 /**
  * Source code editor for a document
@@ -105,6 +109,9 @@ export class SourceView extends TWLitElement {
    */
   @property()
   displayMode?: 'single' | 'split' = 'single'
+
+  @consume({ context: infoviewContext, subscribe: true })
+  infoViewContext: InfoViewContext
 
   /**
    * A read-only client which updates an invisible DOM element when the
@@ -304,6 +311,7 @@ export class SourceView extends TWLitElement {
       bottomPanel(this),
       clientReceiver,
       objectClientState,
+      nodeInfoUpdate(this),
     ]
 
     return extensions
@@ -475,25 +483,41 @@ export class SourceView extends TWLitElement {
       .cm-editor {
         height: 100%;
         color: black;
-        ${this.displayMode === 'single' ? 'max-width: calc(100vw - 4rem);' : ''}
-      }
+        &.cm-focused {
+          outline: none;
+        }
+      }      
     `
   }
 
   protected override render() {
     /* 
-      height offset for the source view container,
+      Height offset for the source view container,
       includes header height and tab container border
     */
     const heightOffset = '5rem-1px'
 
     const styles = apply([
-      'relative',
-      `h-full max-h-[calc(100vh-${heightOffset})]`,
+      'relative flex',
+      `w-full h-full max-h-[calc(100vh-${heightOffset})]`,
     ])
+
+    const infoViewStyles = apply([
+      `${this.infoViewContext.infoViewOpen ? 'w-full' : 'w-0'}`,
+      'max-w-1/3',
+      'border-l border-grey-200',
+      'transition-w duration-200',
+    ])
+
     return html`
       <div class="${styles}">
         <div id="codemirror" class="h-full ${this.codeMirrorCSS}"></div>
+        ${this.displayMode === 'single'
+          ? html`<stencila-info-view
+              doc=${this.doc}
+              class=${infoViewStyles}
+            ></stencila-info-view>`
+          : ''}
       </div>
       <div hidden ${ref(this.domElement)}>
         <stencila-article root></stencila-article>
