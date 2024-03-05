@@ -31,10 +31,8 @@ import { consume } from '@lit/context'
 import { apply, css as twCSS } from '@twind/core'
 import { html } from 'lit'
 import { customElement, property } from 'lit/decorators'
-import { ref, Ref, createRef } from 'lit/directives/ref'
 
 import { CodeMirrorClient } from '../clients/codemirror'
-import { DomClient } from '../clients/dom'
 import { MappingEntry } from '../clients/format'
 import { ObjectClient } from '../clients/object'
 import { InfoViewContext, infoviewContext } from '../contexts/infoview-context'
@@ -112,19 +110,6 @@ export class SourceView extends TWLitElement {
 
   @consume({ context: infoviewContext, subscribe: true })
   infoViewContext: InfoViewContext
-
-  /**
-   * A read-only client which updates an invisible DOM element when the
-   * document changes on the server. We use this to extract custom elements
-   * for nodes to use in tooltips etc.
-   */
-  // @ts-expect-error "dom client is set, but not read"
-  private domClient: DomClient
-
-  /**
-   * A ref for the hidden `DomClient` element
-   */
-  public domElement: Ref<HTMLElement> = createRef()
 
   /**
    * A read-write client which sends and receives string patches
@@ -328,10 +313,6 @@ export class SourceView extends TWLitElement {
   override firstUpdated(changedProperties: Map<string, string | boolean>) {
     super.firstUpdated(changedProperties)
 
-    this.domClient = new DomClient(
-      this.doc,
-      this.renderRoot.querySelector('[root]') as HTMLElement
-    )
     this.objectClient = new ObjectClient(this.doc)
   }
 
