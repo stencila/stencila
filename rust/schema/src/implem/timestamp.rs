@@ -1,3 +1,5 @@
+use common::inflector::Inflector;
+
 use crate::{prelude::*, Duration, TimeUnit, Timestamp};
 
 impl Timestamp {
@@ -29,6 +31,14 @@ impl Timestamp {
             time_unit: self.time_unit.clone(),
             ..Default::default()
         })
+    }
+
+    /// Encode a timestamp as a DOM HTML attribute
+    ///
+    /// This is lossy with respect to the `timeUnit` of the timestamp but produces
+    /// a far more compact representation compared to the default JSON string
+    pub fn to_dom_attr(name: &str, timestamp: &Self, context: &mut DomEncodeContext) {
+        context.push_attr(&name.to_kebab_case(), &timestamp.value.to_string());
     }
 
     pub fn to_jats_special(&self) -> (String, Losses) {

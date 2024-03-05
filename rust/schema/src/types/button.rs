@@ -79,35 +79,41 @@ pub struct ButtonOptions {
     /// A digest of the content, semantics and dependencies of the node.
     #[serde(alias = "compilation-digest", alias = "compilation_digest")]
     #[strip(execution)]
+    #[dom(skip)]
     pub compilation_digest: Option<CompilationDigest>,
 
     /// Messages generated while compiling the code.
     #[serde(alias = "compilation-messages", alias = "compilation_messages", alias = "compilationMessage", alias = "compilation-message", alias = "compilation_message")]
     #[serde(default, deserialize_with = "option_one_or_many")]
     #[strip(execution)]
+    #[dom(elem = "div")]
     pub compilation_messages: Option<Vec<CompilationMessage>>,
 
     /// The `compilationDigest` of the node when it was last executed.
     #[serde(alias = "execution-digest", alias = "execution_digest")]
     #[strip(execution)]
+    #[dom(skip)]
     pub execution_digest: Option<CompilationDigest>,
 
     /// The upstream dependencies of this node.
     #[serde(alias = "execution-dependencies", alias = "execution_dependencies", alias = "executionDependency", alias = "execution-dependency", alias = "execution_dependency")]
     #[serde(default, deserialize_with = "option_one_or_many")]
     #[strip(execution)]
+    #[dom(elem = "div")]
     pub execution_dependencies: Option<Vec<ExecutionDependency>>,
 
     /// The downstream dependants of this node.
     #[serde(alias = "execution-dependants", alias = "execution_dependants", alias = "executionDependant", alias = "execution-dependant", alias = "execution_dependant")]
     #[serde(default, deserialize_with = "option_one_or_many")]
     #[strip(execution)]
+    #[dom(elem = "div")]
     pub execution_dependants: Option<Vec<ExecutionDependant>>,
 
     /// Tags in the code which affect its execution.
     #[serde(alias = "execution-tags", alias = "execution_tags", alias = "executionTag", alias = "execution-tag", alias = "execution_tag")]
     #[serde(default, deserialize_with = "option_one_or_many")]
     #[strip(execution)]
+    #[dom(elem = "div")]
     pub execution_tags: Option<Vec<ExecutionTag>>,
 
     /// A count of the number of times that the node has been executed.
@@ -133,17 +139,20 @@ pub struct ButtonOptions {
     /// The timestamp when the last execution ended.
     #[serde(alias = "execution-ended", alias = "execution_ended")]
     #[strip(execution)]
+    #[dom(with = "Timestamp::to_dom_attr")]
     pub execution_ended: Option<Timestamp>,
 
     /// Duration of the last execution.
     #[serde(alias = "execution-duration", alias = "execution_duration")]
     #[strip(execution)]
+    #[dom(with = "Duration::to_dom_attr")]
     pub execution_duration: Option<Duration>,
 
     /// Messages emitted while executing the node.
     #[serde(alias = "execution-messages", alias = "execution_messages", alias = "executionMessage", alias = "execution-message", alias = "execution_message")]
     #[serde(default, deserialize_with = "option_one_or_many")]
     #[strip(execution)]
+    #[dom(elem = "div")]
     pub execution_messages: Option<Vec<ExecutionMessage>>,
 
     /// The authors of the executable code.

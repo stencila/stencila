@@ -91,6 +91,7 @@ pub struct IncludeBlockOptions {
     #[serde(alias = "compilation-digest", alias = "compilation_digest")]
     #[strip(execution)]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
+    #[dom(skip)]
     pub compilation_digest: Option<CompilationDigest>,
 
     /// Messages generated while compiling the code.
@@ -98,12 +99,14 @@ pub struct IncludeBlockOptions {
     #[serde(default, deserialize_with = "option_one_or_many")]
     #[strip(execution)]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
+    #[dom(elem = "div")]
     pub compilation_messages: Option<Vec<CompilationMessage>>,
 
     /// The `compilationDigest` of the node when it was last executed.
     #[serde(alias = "execution-digest", alias = "execution_digest")]
     #[strip(execution)]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
+    #[dom(skip)]
     pub execution_digest: Option<CompilationDigest>,
 
     /// The upstream dependencies of this node.
@@ -111,6 +114,7 @@ pub struct IncludeBlockOptions {
     #[serde(default, deserialize_with = "option_one_or_many")]
     #[strip(execution)]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
+    #[dom(elem = "div")]
     pub execution_dependencies: Option<Vec<ExecutionDependency>>,
 
     /// The downstream dependants of this node.
@@ -118,6 +122,7 @@ pub struct IncludeBlockOptions {
     #[serde(default, deserialize_with = "option_one_or_many")]
     #[strip(execution)]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
+    #[dom(elem = "div")]
     pub execution_dependants: Option<Vec<ExecutionDependant>>,
 
     /// Tags in the code which affect its execution.
@@ -125,6 +130,7 @@ pub struct IncludeBlockOptions {
     #[serde(default, deserialize_with = "option_one_or_many")]
     #[strip(execution)]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
+    #[dom(elem = "div")]
     pub execution_tags: Option<Vec<ExecutionTag>>,
 
     /// A count of the number of times that the node has been executed.
@@ -155,12 +161,14 @@ pub struct IncludeBlockOptions {
     #[serde(alias = "execution-ended", alias = "execution_ended")]
     #[strip(execution)]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
+    #[dom(with = "Timestamp::to_dom_attr")]
     pub execution_ended: Option<Timestamp>,
 
     /// Duration of the last execution.
     #[serde(alias = "execution-duration", alias = "execution_duration")]
     #[strip(execution)]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
+    #[dom(with = "Duration::to_dom_attr")]
     pub execution_duration: Option<Duration>,
 
     /// Messages emitted while executing the node.
@@ -168,6 +176,7 @@ pub struct IncludeBlockOptions {
     #[serde(default, deserialize_with = "option_one_or_many")]
     #[strip(execution)]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
+    #[dom(elem = "div")]
     pub execution_messages: Option<Vec<ExecutionMessage>>,
 }
 
