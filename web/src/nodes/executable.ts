@@ -1,15 +1,8 @@
 import {
   AutomaticExecution,
-  CompilationDigest,
-  CompilationMessage,
-  Duration,
-  ExecutionDependant,
-  ExecutionDependency,
-  ExecutionMessage,
   ExecutionRequired,
   ExecutionStatus,
   ExecutionTag,
-  Timestamp,
 } from '@stencila/types'
 import { html } from 'lit'
 import { property } from 'lit/decorators.js'
@@ -25,21 +18,6 @@ export abstract class Executable extends Entity {
   @property({ attribute: 'auto-exec' })
   autoExec?: AutomaticExecution
 
-  @property({ attribute: 'compilation-digest', type: Object })
-  compilationDigest?: CompilationDigest
-
-  @property({ attribute: 'compilation-errors', type: Array })
-  compilationMessages?: CompilationMessage[]
-
-  @property({ attribute: 'execution-digest', type: Object })
-  executionDigest?: CompilationDigest
-
-  @property({ attribute: 'execution-dependencies', type: Array })
-  executionDependencies?: ExecutionDependency[]
-
-  @property({ attribute: 'execution-dependants', type: Array })
-  executionDependants?: ExecutionDependant[]
-
   @property({ attribute: 'execution-tags', type: Array })
   executionTags?: ExecutionTag[]
 
@@ -49,31 +27,16 @@ export abstract class Executable extends Entity {
   @property({ attribute: 'execution-required' })
   executionRequired?: ExecutionRequired
 
-  @property({ attribute: 'execution-kernel' })
-  executionKernel?: string
-
   @property({ attribute: 'execution-status' })
   executionStatus?: ExecutionStatus
 
-  @property({ attribute: 'execution-ended', type: Object })
-  executionEnded?: Timestamp
+  @property({ attribute: 'execution-ended', type: Number })
+  executionEnded?: number
 
-  @property({ attribute: 'execution-duration', type: Object })
-  executionDuration?: Duration
+  @property({ attribute: 'execution-duration', type: Number })
+  executionDuration?: number
 
-  @property({ attribute: 'execution-errors', type: Array })
-  executionMessages?: ExecutionMessage[]
-
-  /**
-   * Render the `compilationMessages` and `executionMessages` of the node
-   *
-   * For use by derived custom elements to provide a consistent presentation of
-   * errors for a node.
-   *
-   * TODO: Implement this and other methods for rendering properties of executable nodes
-   * https://github.com/stencila/stencila/issues/1786
-   */
-  protected renderMessages() {
-    return html`<div part="messages"></div>`
+  protected renderActionButtons() {
+    return html`<div>TODO: action buttons</div>`
   }
 }

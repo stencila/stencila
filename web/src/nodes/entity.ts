@@ -1,4 +1,4 @@
-import { LitElement } from 'lit'
+import { html, LitElement } from 'lit'
 
 import { DirectoryAction, directoryActionEvent } from '../clients/directory'
 import { nodePatchEvent, NodePatch } from '../clients/nodes'
@@ -79,5 +79,52 @@ export abstract class Entity extends LitElement {
     to?: string
   ) {
     this.dispatchEvent(directoryActionEvent({ type, path, to }))
+  }
+
+  /**
+   * Default rendering method that dispatches to a view specific method
+   *
+   * In general, derived components should not need to override this but
+   * should instead override `render<VIEW>` methods.
+   */
+  override render() {
+    const view = this.documentView()
+    switch (view) {
+      case 'static':
+      case 'live':
+        return this.renderStaticView()
+      case 'interactive':
+        return this.renderInteractiveView()
+      case 'dynamic':
+        return this.renderDynamicView()
+      case 'visual':
+        return this.renderVisualView()
+      case 'source':
+        return this.renderSourceView()
+      default:
+        return html`Not implemented`
+    }
+  }
+
+  renderStaticView() {
+    return html`Not implemented`
+  }
+
+  renderInteractiveView() {
+    // Default is to render the static view since most
+    // nodes will be the same in both views.
+    return this.renderStaticView()
+  }
+
+  renderDynamicView() {
+    return html`Not implemented`
+  }
+
+  renderVisualView() {
+    return html`Not implemented`
+  }
+
+  renderSourceView() {
+    return html`Not implemented`
   }
 }

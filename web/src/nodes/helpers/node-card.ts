@@ -43,13 +43,16 @@ export class NodeCard extends LitElement {
 
     return html`
       <div class=${headerStyles}>
-        <span class="items-center font-medium flex" style="font-bold">
+        <span class="items-center font-bold flex">
           <sl-icon library=${iconLibrary} name=${icon} class="pr-2"></sl-icon>
           ${title}
         </span>
+        <span class="items-center font-bold flex">
+          <slot name="header-right"></slot>
+        </span>
       </div>
       <div class=${bodyStyles}>
-        <slot></slot>
+        <slot name="body"></slot>
       </div>
     `
   }
