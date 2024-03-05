@@ -499,7 +499,6 @@ export class SourceView extends TWLitElement {
       `w-full h-full max-h-[calc(100vh-${heightOffset})]`,
     ])
 
-    // 'max-w-[40%]',
     const infoViewStyles = apply([
       `${this.infoViewContext.infoViewOpen ? 'w-full' : 'w-0'}`,
       'max-w-[40%]',
