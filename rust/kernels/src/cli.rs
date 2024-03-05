@@ -1,10 +1,15 @@
-use cli_utils::table::{self, Attribute, Cell, CellAlignment, Color};
+use cli_utils::{
+    table::{self, Attribute, Cell, CellAlignment, Color},
+    Code, ToStdout,
+};
 use kernel::{
     common::{
         clap::{self, Args, Parser, Subcommand},
         eyre::Result,
         itertools::Itertools,
+        serde_yaml,
     },
+    format::Format,
     schema::StringOrNumber,
     KernelAvailability, KernelForks, KernelInterrupt, KernelKill, KernelTerminate,
 };
@@ -36,6 +41,8 @@ enum Command {
     /// Mainly used to check libraries available to a kernel
     /// for debugging purpose.
     Packages(Packages),
+
+    Execute(Execute),
 }
 
 #[derive(Debug, Args)]
@@ -54,6 +61,25 @@ struct Packages {
     /// Only packages whose name contains this string will be included
     /// (case insensitive)
     filter: Option<String>,
+}
+
+/// Execute some code in a kernel
+///
+/// Creates a temporary kernel instance, executes one or more lines of code,
+/// and returns any decoded outputs and execution messages.
+/// 
+/// Mainly intended for quick testing of kernels during development.
+#[derive(Debug, Args)]
+#[clap(alias = "exec")]
+struct Execute {
+    /// The name of the kernel to execute code in
+    name: String,
+
+    /// The code to execute
+    ///
+    /// Escaped newline characters (i.e. "\n") in the code will be transformed into new lines
+    /// before passing to the kernel.
+    code: String,
 }
 
 impl Cli {
@@ -158,6 +184,22 @@ impl Cli {
                 }
 
                 println!("{table}");
+            }
+            Command::Execute(Execute { name, code }) => {
+                let mut kernels = Kernels::default();
+                let instance = kernels.create_instance(Some(&name)).await?;
+
+                let code = code.replace("\\n", "\n");
+                let (outputs, messages) = instance.execute(&code).await?;
+
+                // TODO: creates a `Map` output type that can be used to display sections with headers
+                // instead of the following printlns
+
+                println!("Outputs");
+                Code::new(Format::Yaml, &serde_yaml::to_string(&outputs)?).to_stdout();
+
+                println!("Messages");
+                Code::new(Format::Yaml, &serde_yaml::to_string(&messages)?).to_stdout();
             }
         }
 

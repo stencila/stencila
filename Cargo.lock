@@ -1041,6 +1041,7 @@ version = "2.0.0-alpha.24"
 dependencies = [
  "app",
  "assistants",
+ "cli-utils",
  "codecs",
  "color-eyre",
  "common",
@@ -1055,7 +1056,6 @@ dependencies = [
  "secrets",
  "self-replace",
  "server",
- "syntect",
  "tracing-error",
  "tracing-subscriber",
  "yansi",
@@ -1075,8 +1075,10 @@ version = "0.0.0"
 dependencies = [
  "comfy-table",
  "common",
+ "format",
  "is-terminal",
  "rpassword",
+ "syntect",
 ]
 
 [[package]]

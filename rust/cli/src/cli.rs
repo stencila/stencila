@@ -6,6 +6,7 @@ use rustyline::{error::ReadlineError, DefaultEditor};
 use yansi::Color;
 
 use app::DirType;
+use cli_utils::{Code, ToStdout};
 use common::{
     chrono::{Local, SecondsFormat, TimeZone},
     clap::{self, error::ErrorKind, Args, Parser, Subcommand},
@@ -21,7 +22,6 @@ use node_strip::StripScope;
 use server::{serve, ServeOptions};
 
 use crate::{
-    display,
     logging::{LoggingFormat, LoggingLevel},
     uninstall, upgrade,
 };
@@ -498,7 +498,7 @@ impl Cli {
 
                 let content = doc.export(dest.as_deref(), Some(options)).await?;
                 if !content.is_empty() {
-                    display::highlighted(&content, format)?;
+                    Code::new(format, &content).to_stdout();
                 }
             }
 
@@ -573,7 +573,7 @@ impl Cli {
 
             Command::Inspect { doc } => {
                 let json = Document::inspect(&doc).await?;
-                display::highlighted(&json, Format::Json)?;
+                Code::new(Format::Json, &json).to_stdout();
             }
 
             Command::Convert {
@@ -600,7 +600,7 @@ impl Cli {
                 .await?;
                 if !content.is_empty() {
                     let format = encode_options.format.unwrap_or(Format::Json);
-                    display::highlighted(&content, format)?;
+                    Code::new(format, &content).to_stdout();
                 }
             }
 
@@ -613,7 +613,7 @@ impl Cli {
 
                 let content = doc.export(output.as_deref(), Some(encode_options)).await?;
                 if !content.is_empty() {
-                    display::highlighted(&content, format)?;
+                    Code::new(format, &content).to_stdout();
                 }
             }
 
@@ -719,7 +719,7 @@ impl Cli {
                             } else if line == "?options" {
                                 // Print the current options as JSON
                                 let json = serde_json::to_string(&options_parser.options)?;
-                                display::highlighted(&json, Format::Json)?;
+                                Code::new(Format::Json, &json).to_stdout();
                             } else {
                                 // Create an instruction from the user
                                 let instruction = Instruction::block_text(line);
@@ -742,7 +742,7 @@ impl Cli {
 
                                 // Display the generated text
                                 let yaml = serde_yaml::to_string(&output)?;
-                                display::highlighted(&yaml, Format::Markdown)?;
+                                Code::new(Format::Yaml, &yaml).to_stdout();
                             }
                         }
                         Err(ReadlineError::Interrupted) | Err(ReadlineError::Eof) => {
