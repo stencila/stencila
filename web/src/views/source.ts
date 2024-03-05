@@ -474,9 +474,6 @@ export class SourceView extends TWLitElement {
    * This needs to be defined outside of the static styles property, as we need
    * to be able to access the instance property "displayMode" to determine the
    * height to use.
-   *
-   * TODO: we need to be able to dynamically set the max-width based status of the
-   * directory sidebar
    */
   private get codeMirrorCSS() {
     return twCSS`
@@ -502,6 +499,7 @@ export class SourceView extends TWLitElement {
       `w-full h-full max-h-[calc(100vh-${heightOffset})]`,
     ])
 
+    // 'max-w-[40%]',
     const infoViewStyles = apply([
       `${this.infoViewContext.infoViewOpen ? 'w-full' : 'w-0'}`,
       'max-w-[40%]',
@@ -511,16 +509,13 @@ export class SourceView extends TWLitElement {
 
     return html`
       <div class="${styles}">
-        <div id="codemirror" class="h-full ${this.codeMirrorCSS}"></div>
+        <div id="codemirror" class="h-full w-full ${this.codeMirrorCSS}"></div>
         ${this.displayMode === 'single'
           ? html`<stencila-info-view
               doc=${this.doc}
               class=${infoViewStyles}
             ></stencila-info-view>`
           : ''}
-      </div>
-      <div hidden ${ref(this.domElement)}>
-        <stencila-article root></stencila-article>
       </div>
     `
   }
