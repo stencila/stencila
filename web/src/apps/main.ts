@@ -15,12 +15,16 @@ import { THEMES } from '../themes/themes'
 import { withTwind } from '../twind'
 import type { DocumentId, DocumentView } from '../types'
 import type { UISelectorSelectedEvent } from '../ui/selector'
+import '../ui/buttons/button'
+import '../ui/buttons/icon'
+import '../ui/config'
+import '../ui/config/overlay'
+import '../ui/config/input'
 import '../ui/directory-container'
 import '../ui/selector'
 import '../ui/sidebar'
 import '../ui/tab'
 import '../ui/view-container'
-import '../ui/buttons/icon'
 import '../views/static'
 import '../views/live'
 import '../views/dynamic'
@@ -109,6 +113,7 @@ export class App extends LitElement {
       class="font-sans flex flex-row bg-neutral-100 fixed top-0 left-0 min-h-screen w-full"
     >
       <stencila-ui-sidebar></stencila-ui-sidebar>
+      <stencila-ui-config-screen></stencila-ui-config-screen>
       <stencila-ui-directory-container></stencila-ui-directory-container>
 
       <div class="flex flex-col flex-grow">
@@ -356,6 +361,7 @@ export class App extends LitElement {
     this.contextObject = {
       currentView: this.view,
       directoryOpen: true,
+      configOpen: false,
     }
 
     // Instantiate the info context based on the view
@@ -441,6 +447,18 @@ export class App extends LitElement {
       }
     )
 
+    // Event listener for toggling the config panel.
+    this.shadowRoot.addEventListener(
+      'stencila-config-toggle',
+      (e: Event & { detail: Required<Pick<SidebarContext, 'configOpen'>> }) => {
+        this.contextObject = {
+          ...this.contextObject,
+          configOpen: e.detail.configOpen,
+        }
+      }
+    )
+
+    // Event Listener for updating current info node
     this.shadowRoot.addEventListener(
       'stencila-infoview-node',
       (
