@@ -42,6 +42,7 @@ import { bottomPanel } from './source/bottomPanel'
 import { editorStyles } from './source/editorStyles'
 import { execStatusGutter, nodeTypeGutter } from './source/gutters'
 import { autoWrapKeys, serverActionKeys } from './source/keyMaps'
+import { nodeInfoUpdate } from './source/nodeInfoUpdate'
 import { objectClientState, setObjectClient } from './source/state'
 
 /**
