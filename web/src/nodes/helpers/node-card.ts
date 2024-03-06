@@ -27,6 +27,7 @@ export class NodeCard extends LitElement {
     const { iconLibrary, icon, title, colour, borderColour } = nodeUi(this.type)
 
     const headerStyles = apply([
+      'flex justify-between items-center',
       'w-full',
       'p-4',
       `bg-[${borderColour}]`,
@@ -35,7 +36,7 @@ export class NodeCard extends LitElement {
     ])
 
     const bodyStyles = apply([
-      'w-full',
+      'w-full h-full',
       'p-4',
       `bg-[${colour}]`,
       `border border-[${borderColour}] rounded-b`,
