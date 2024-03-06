@@ -1,7 +1,11 @@
 import { html } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
 
+import './widgets/field'
+import './widgets/collapsable'
 import './helpers/node-card'
+import { withTwind } from '../twind'
+
 import { CodeExecutable } from './code-executable'
 
 /**
@@ -13,6 +17,7 @@ import { CodeExecutable } from './code-executable'
  * @see https://github.com/stencila/stencila/blob/main/docs/reference/schema/code/code-chunk.md
  */
 @customElement('stencila-code-chunk')
+@withTwind()
 export class CodeChunk extends CodeExecutable {
   @property()
   label?: string
@@ -37,15 +42,13 @@ export class CodeChunk extends CodeExecutable {
    */
   override renderDynamicView() {
     return html`<stencila-node-card type="CodeChunk">
-      <span slot="header-right">
-        ${this.renderExecutableButtons()}
-      </span>
+      <span slot="header-right">${this.renderExecutableButtons()}</span>
       <div slot="body">
-        <p>Last executed: ${this.executionEnded}</p>
-        <p>Duration: ${this.executionDuration}</p>
+        ${this.renderTimeFields()}
         <!-- TODO: readonly codemirror editor -->
         <slot name="code"></slot>
         <slot name="outputs"></slot>
+        <slot name="execution-messages"></slot>
         <div>
           ${this.renderLabel()}
           <slot name="caption"></slot>
@@ -59,13 +62,11 @@ export class CodeChunk extends CodeExecutable {
    * code, label, caption (because they are editable in the editor).
    */
   override renderSourceView() {
-    return html`<stencila-node-card type="CodeChunk">
-      <span slot="header-right">
-        ${this.renderExecutableButtons()}
-      </span>
-      <div slot="body">
-        <p>Last executed: ${this.executionEnded}</p>
-        <p>Duration: ${this.executionDuration}</p>
+    return html`<stencila-node-card type="CodeChunk" class="block h-full">
+      <span slot="header-right">${this.renderExecutableButtons()}</span>
+      <div slot="body" class="h-full">
+        ${this.renderTimeFields()}
+        <slot name="execution-messages"></slot>
         <slot name="outputs"></slot>
       </div>
     </stencila-node-card>`

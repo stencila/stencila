@@ -1,12 +1,10 @@
-import { html } from 'lit'
+import { LitElement, html } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
 
 import { DomClient } from '../clients/dom'
 import { NodesClient } from '../clients/nodes'
 import '../nodes'
 import type { DocumentId, DocumentAccess } from '../types'
-
-import { ThemedView } from './themed'
 
 /**
  * Dynamic view of a document
@@ -15,7 +13,7 @@ import { ThemedView } from './themed'
  * allows for the user to change input values (e.g. the `value` of a `Parameter` node)
  */
 @customElement('stencila-dynamic-view')
-export class DynamicView extends ThemedView {
+export class DynamicView extends LitElement {
   /**
    * The id of the document
    */

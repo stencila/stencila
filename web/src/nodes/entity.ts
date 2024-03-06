@@ -1,4 +1,4 @@
-import { html, LitElement } from 'lit'
+import { css, html, LitElement } from 'lit'
 
 import { DirectoryAction, directoryActionEvent } from '../clients/directory'
 import { nodePatchEvent, NodePatch } from '../clients/nodes'
