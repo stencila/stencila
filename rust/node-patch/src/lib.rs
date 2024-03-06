@@ -7,7 +7,7 @@ use node_store::{
 };
 use schema::{
     Block, Duration, ExecutionMessage, ExecutionRequired, ExecutionStatus, Node, NodeId, Section,
-    Timestamp,
+    SuggestionBlockType, Timestamp,
 };
 
 /// Replace a property of a node with a value
@@ -113,6 +113,7 @@ pub enum Property {
     Iterations,
     Output,
     Outputs,
+    Suggestion,
 }
 
 impl Property {
@@ -210,6 +211,17 @@ impl From<ExecutionStatus> for Value {
 impl From<Vec<ExecutionMessage>> for Value {
     fn from(value: Vec<ExecutionMessage>) -> Self {
         Value::Many(value.into_iter().map(Node::ExecutionMessage).collect_vec())
+    }
+}
+
+impl From<SuggestionBlockType> for Value {
+    fn from(value: SuggestionBlockType) -> Self {
+        Value::One(match value {
+            SuggestionBlockType::InsertBlock(block) => Node::InsertBlock(block),
+            SuggestionBlockType::ModifyBlock(block) => Node::ModifyBlock(block),
+            SuggestionBlockType::ReplaceBlock(block) => Node::ReplaceBlock(block),
+            SuggestionBlockType::DeleteBlock(block) => Node::DeleteBlock(block),
+        })
     }
 }
 

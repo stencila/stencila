@@ -3,6 +3,7 @@ use std::{
     path::{Path, PathBuf},
 };
 
+use context::KernelContext;
 use kernel::{
     common::eyre::{bail, Result},
     format::Format,
@@ -71,6 +72,19 @@ impl Kernels {
             home: home.to_path_buf(),
             instances: Vec::new(),
         }
+    }
+
+    /// Get the context of each kernel instance
+    pub async fn kernel_contexts(&mut self) -> Vec<KernelContext> {
+        let mut contexts = Vec::new();
+        for (.., instance) in self.instances.iter_mut() {
+            contexts.push(KernelContext {
+                info: instance.info().await.unwrap_or_default(),
+                packages: instance.packages().await.unwrap_or_default(),
+                variables: instance.list().await.unwrap_or_default(),
+            })
+        }
+        contexts
     }
 
     /// Create a kernel instance

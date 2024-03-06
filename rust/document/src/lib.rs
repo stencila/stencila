@@ -1,3 +1,5 @@
+#![recursion_limit = "256"]
+
 use std::{
     path::{Path, PathBuf},
     sync::Arc,
@@ -13,15 +15,16 @@ use common::{
     tokio::{
         self,
         sync::{mpsc, watch, RwLock},
+        time::{sleep, Duration},
     },
     tracing,
     type_safe_id::{StaticType, TypeSafeId},
 };
 use format::Format;
 use kernels::Kernels;
-use node_patch::NodePatchSender;
+use node_patch::{load_property, replace_property, NodePatchSender, Property};
 use node_store::{inspect_store, load_store, ReadNode, WriteNode, WriteStore};
-use schema::{Article, Node, NodeId};
+use schema::{Article, ExecutionStatus, Node, NodeId};
 
 mod sync_directory;
 mod sync_file;
@@ -178,6 +181,7 @@ type DocumentCommandReceiver = mpsc::Receiver<Command>;
 /// - A `watch_receiver` which can be cloned to watch for changes to the root [`Node`].
 /// - An `update_sender` which can be cloned to send updates to the root [`Node`].
 /// - A `command_sender` which can be cloned to send commands to the document
+#[allow(unused)]
 #[derive(Debug)]
 pub struct Document {
     /// The document's id
@@ -486,13 +490,49 @@ impl Document {
     }
 
     /// Execute the document
-    /// TODO: refactor this for CLI use only (i.e not init-ing the doc
-    /// first) so that it is similar to `convert`
+    ///
+    /// This is intended to be called from the CLI. It waits for the document to
+    /// finish executing before returning.
     #[tracing::instrument(skip(self))]
     pub async fn execute(&self) -> Result<()> {
         tracing::trace!("Executing document");
 
-        //TODO node_execute::execute(self.store.clone(), self.kernels.clone()).await?;
+        // TODO: these two lines are just to get the id of the root node
+        // but requires loading the entire do. The root node's id is fixed so
+        // this should not be necessary
+        let root = self.load().await?;
+        let node_id = root.node_id().expect("should have a root id");
+
+        // Set the execution status of the root node to `Pending`
+        // so that the following wait loop does not finish immediately.
+        // Although the `command_task` will also do this, because it happens
+        // asynchronously, we can't rely on hit to be done before reaching the loop
+        {
+            let mut store = self.store.write().await;
+            replace_property(
+                &mut *store,
+                &node_id,
+                Property::ExecutionStatus,
+                ExecutionStatus::Pending.into(),
+            )?;
+        }
+
+        // Send the command to execute the whole document
+        self.command_sender.send(Command::ExecuteDocument).await?;
+
+        // Wait for the execution status to no longer be pending or running
+        loop {
+            let status: ExecutionStatus = {
+                let store = self.store.read().await;
+                load_property(&*store, &node_id, Property::ExecutionStatus)?
+            };
+
+            if !matches!(status, ExecutionStatus::Pending | ExecutionStatus::Running) {
+                break;
+            }
+
+            sleep(Duration::from_millis(100)).await;
+        }
 
         Ok(())
     }

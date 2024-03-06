@@ -1,13 +1,13 @@
-use codecs::DecodeOptions;
-use schema::{Article, Block, IncludeBlock};
+use assistants::assistant::GenerateOptions;
+use schema::{InstructionBlock, SuggestionBlockType};
 
 use crate::{interrupt_impl, pending_impl, prelude::*};
 
-impl Executable for IncludeBlock {
+impl Executable for InstructionBlock {
     #[tracing::instrument(skip_all)]
     async fn pending(&mut self, executor: &mut Executor) -> WalkControl {
         let node_id = self.node_id();
-        tracing::debug!("Pending IncludeBlock {node_id}");
+        tracing::debug!("Pending InstructionBlock {node_id}");
 
         pending_impl!(executor, &node_id);
 
@@ -18,7 +18,7 @@ impl Executable for IncludeBlock {
     #[tracing::instrument(skip_all)]
     async fn execute(&mut self, executor: &mut Executor) -> WalkControl {
         let node_id = self.node_id();
-        tracing::trace!("Executing IncludeBlock {node_id}");
+        tracing::trace!("Executing InstructionBlock {node_id}");
 
         executor.replace_properties(
             &node_id,
@@ -28,68 +28,43 @@ impl Executable for IncludeBlock {
             ],
         );
 
-        // Include the source (if it is not empty)
-        let source = self.source.trim();
-        if !source.is_empty() {
+        if !self.messages.is_empty() {
             let started = Timestamp::now();
-            let mut messages = Vec::new();
 
-            // Resolve the source into a fully qualified URL (including `file://` URL)
-            let url = if source.starts_with("https://") || source.starts_with("http://") {
-                source.to_string()
-            } else {
-                // Make the path relative to the home dir of execution
-                let path = executor.home().join(source);
-                ["file://", &path.to_string_lossy()].concat()
-            };
-
-            // Decode the URL
-            let content: Option<Vec<Block>> = match codecs::from_url(
-                &url,
-                Some(DecodeOptions {
-                    media_type: self.media_type.clone(),
-                    ..Default::default()
-                }),
+            // Get the `assistants` crate to execute this instruction
+            let (suggestion, mut messages) = match assistants::execute_instruction(
+                self.clone(),
+                executor.context().await,
+                GenerateOptions::default(),
             )
             .await
             {
-                Ok(node) => {
-                    // Transform the decoded node into a blocks
-                    match node {
-                        Node::Article(Article { content, .. }) => Some(content),
-                        _ => {
-                            messages.push(ExecutionMessage::new(
-                                MessageLevel::Error,
-                                "Expected source to be an article, got `{node}`".to_string(),
-                            ));
-                            None
-                        }
-                    }
-                }
+                Ok(output) => (
+                    Some(output.to_suggestion_block(self.content.is_none())),
+                    Vec::new(),
+                ),
+                Err(error) => (
+                    None,
+                    vec![error_to_message("While performing instruction", error)],
+                ),
+            };
+
+            // Insert the suggestion into the store, so that it can be executed in
+            // the next step
+            let mut suggestion: Option<SuggestionBlockType> = match executor
+                .swap_property(&node_id, Property::Suggestion, suggestion.into())
+                .await
+            {
+                Ok(suggestion) => suggestion,
                 Err(error) => {
-                    messages.push(error_to_message("While decoding source", error));
+                    messages.push(error_to_message("While loading content", error));
                     None
                 }
             };
 
-            // TODO: Implement sub-selecting from included based on `select`
-
-            // Update the iterations in the store to get store ids for when it
-            // is executed
-            let mut content: Vec<Block> = match executor
-                .swap_property(&node_id, Property::Content, content.into())
-                .await
-            {
-                Ok(content) => content,
-                Err(error) => {
-                    messages.push(error_to_message("While loading content", error));
-                    Vec::new()
-                }
-            };
-
-            // Execute the content
-            if let Err(error) = content.walk_async(executor).await {
-                messages.push(error_to_message("While executing content", error));
+            // Execute the suggestion
+            if let Err(error) = suggestion.walk_async(executor).await {
+                messages.push(error_to_message("While executing suggestion", error));
             }
 
             let messages = (!messages.is_empty()).then_some(messages);
@@ -130,7 +105,7 @@ impl Executable for IncludeBlock {
     #[tracing::instrument(skip_all)]
     async fn interrupt(&mut self, executor: &mut Executor) -> WalkControl {
         let node_id = self.node_id();
-        tracing::debug!("Interrupting IncludeBlock {node_id}");
+        tracing::debug!("Interrupting InstructionBlock {node_id}");
 
         interrupt_impl!(self, executor, &node_id);
 

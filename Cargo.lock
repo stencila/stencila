@@ -199,6 +199,7 @@ dependencies = [
  "app",
  "codecs",
  "common",
+ "context",
  "fastembed",
  "format",
  "merge",
@@ -277,7 +278,6 @@ dependencies = [
  "assistant-ollama",
  "assistant-openai",
  "assistant-specialized",
- "codecs",
 ]
 
 [[package]]
@@ -1567,6 +1567,14 @@ name = "constant_time_eq"
 version = "0.1.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "245097e9a4535ee1e3e3931fcfcd55a796a44c643e8596ff6566d68f09b87bbc"
+
+[[package]]
+name = "context"
+version = "0.0.0"
+dependencies = [
+ "common",
+ "schema",
+]
 
 [[package]]
 name = "convert_case"
@@ -3093,6 +3101,7 @@ name = "kernels"
 version = "0.0.0"
 dependencies = [
  "cli-utils",
+ "context",
  "kernel",
  "kernel-bash",
  "kernel-node",
@@ -3401,6 +3410,7 @@ dependencies = [
  "memo-map",
  "self_cell",
  "serde",
+ "serde_json",
 ]
 
 [[package]]
@@ -3607,8 +3617,10 @@ dependencies = [
 name = "node-execute"
 version = "0.0.0"
 dependencies = [
+ "assistants",
  "codecs",
  "common",
+ "context",
  "kernels",
  "node-patch",
  "node-store",
