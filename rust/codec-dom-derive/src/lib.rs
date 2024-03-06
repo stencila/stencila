@@ -108,7 +108,7 @@ fn derive_struct(type_attr: TypeAttr) -> TokenStream {
             let Some(PathSegment{ident: field_type,..}) = type_path.path.segments.last() else {
                 return
             };
-            
+
             let func = parse_str::<Path>(with).expect("invalid DOM `with` option");
 
             let tokens = if field_type == "Option" {

@@ -478,7 +478,7 @@ impl SpecializedAssistant {
             static ENVIRONMENT: Lazy<Environment> =
                 Lazy::new(SpecializedAssistant::template_environment);
 
-            let prompt = ENVIRONMENT.render_str(&template, &task)?.trim().to_string();
+            let prompt = ENVIRONMENT.render_str(template, &task)?.trim().to_string();
             task.system_prompt = Some(prompt);
         }
 

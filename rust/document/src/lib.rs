@@ -510,7 +510,7 @@ impl Document {
         {
             let mut store = self.store.write().await;
             replace_property(
-                &mut *store,
+                &mut store,
                 &node_id,
                 Property::ExecutionStatus,
                 ExecutionStatus::Pending.into(),

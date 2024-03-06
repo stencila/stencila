@@ -67,7 +67,7 @@ struct Packages {
 ///
 /// Creates a temporary kernel instance, executes one or more lines of code,
 /// and returns any decoded outputs and execution messages.
-/// 
+///
 /// Mainly intended for quick testing of kernels during development.
 #[derive(Debug, Args)]
 #[clap(alias = "exec")]

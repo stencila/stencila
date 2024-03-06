@@ -592,7 +592,7 @@ pub struct DomOptions {
     /// The name of a function to use to encode a property to DOM HTML
     ///
     /// If specified, `elem` and `attr` will be ignored.
-    pub with: Option<String>
+    pub with: Option<String>,
 }
 
 /// Options for conversion to/from HTML
