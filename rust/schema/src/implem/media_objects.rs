@@ -141,6 +141,30 @@ impl ImageObject {
     }
 }
 
+impl DomCodec for ImageObject {
+    fn to_dom(&self, context: &mut DomEncodeContext) {
+        context
+            .enter_node(self.node_type(), self.node_id())
+            .enter_elem("img")
+            .push_attr("src", &self.content_url)
+            .exit_elem();
+
+        if let Some(title) = &self.title {
+            context.push_slot_fn("span", "title", |context| title.to_dom(context));
+        }
+
+        if let Some(caption) = &self.caption {
+            context.push_slot_fn("span", "caption", |context| caption.to_dom(context));
+        }
+
+        if let Some(authors) = &self.options.authors {
+            context.push_slot_fn("div", "authors", |context| authors.to_dom(context));
+        }
+
+        context.exit_node();
+    }
+}
+
 impl MarkdownCodec for ImageObject {
     fn to_markdown(&self, context: &mut MarkdownEncodeContext) {
         to_markdown!(self, context, lost_options!(self.options, thumbnail))

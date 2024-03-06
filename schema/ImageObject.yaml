@@ -4,6 +4,8 @@ nick: img
 extends: MediaObject
 category: works
 description: An image file.
+dom:
+  derive: false
 html:
   elem: img
   special: true

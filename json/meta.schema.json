@@ -337,7 +337,7 @@
           "type": "string"
         },
         "skip": {
-          "description": "Whether to skip a property",
+          "description": "Whether to skip encoding a property to DOM HTML",
           "type": "boolean"
         },
         "with": {
