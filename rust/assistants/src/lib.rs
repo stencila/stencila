@@ -1,25 +1,19 @@
 #![recursion_limit = "256"]
 
-use std::{cmp::Ordering, collections::HashMap, sync::Arc};
+use std::{cmp::Ordering, sync::Arc};
 
 use assistant::{
     common::{
-        async_recursion::async_recursion,
         eyre::{bail, eyre, Result},
         futures::future::join_all,
         itertools::Itertools,
         tracing,
     },
-    schema::{
-        walk::{VisitorMut, WalkControl, WalkNode},
-        Block, ExecutionMessage, ExecutionStatus, Inline, MessageLevel, Node, NodeId,
-    },
+    context::Context,
     Assistant, GenerateOptions, GenerateOutput, GenerateTask, Instruction,
 };
 
 pub use assistant;
-
-pub mod testing;
 
 /// Get a list of available assistants in descending preference rank
 pub async fn list() -> Vec<Arc<dyn Assistant>> {
@@ -56,85 +50,25 @@ pub async fn list() -> Vec<Arc<dyn Assistant>> {
         .collect_vec()
 }
 
-/// Perform all the instructions within a root document
-#[tracing::instrument(skip_all)]
-pub async fn perform_document<'doc>(
-    document: &'doc mut Node,
-    options: &GenerateOptions,
-) -> Result<()> {
-    let clone = document.clone();
-    perform_instructions(document, Some(&clone), options).await
-}
-
-/// Perform the instructions within a node
-#[tracing::instrument(skip_all)]
-pub async fn perform_instructions<'doc, T>(
-    node: &mut T,
-    document: Option<&'doc Node>,
-    options: &GenerateOptions,
-) -> Result<()>
+/// Execute an instruction
+pub async fn execute_instruction<T>(
+    instruction: T,
+    context: Context,
+    options: GenerateOptions,
+) -> Result<GenerateOutput>
 where
-    T: WalkNode,
+    Instruction: From<T>,
 {
-    // Collect instructions within the node/s
-    let mut collector = InstructionCollector::default();
-    node.walk_mut(&mut collector);
+    let instruction = Instruction::from(instruction);
 
-    // Perform instructions in parallel and put results into a hash map
-    // so they can be applied to the instructions
-    let futures = collector
-        .instructions
-        .into_iter()
-        .map(|(id, instruction)| async move {
-            (
-                id,
-                perform_instruction(instruction, document, options).await,
-            )
-        });
-    let results = join_all(futures).await.into_iter().collect();
-
-    // Apply the results to the collected instructions
-    let mut applier = ResultApplier { results };
-    node.walk_mut(&mut applier);
-
-    Ok(())
-}
-
-/// Perform an instruction and return the generated output
-#[tracing::instrument(skip_all)]
-#[async_recursion]
-pub async fn perform_instruction<'doc: 'async_recursion>(
-    instruction: Instruction,
-    document: Option<&'doc Node>,
-    options: &GenerateOptions,
-) -> Result<GenerateOutput> {
     let mut task = GenerateTask {
         instruction,
-        document,
+        context: Some(context),
         ..Default::default()
     };
 
-    let assistant = match get_assistant(&mut task).await {
-        Err(error) => {
-            tracing::warn!("While getting assistant: {}", error);
-            return Err(error);
-        }
-        Ok(assistant) => assistant,
-    };
-
-    // Perform the task
-    let mut output = match assistant.perform_task(&task, options).await {
-        Err(error) => {
-            tracing::warn!("While performing task: {}", error);
-            return Err(error);
-        }
-        Ok(output) => output,
-    };
-
-    // Recursively perform any instructions within the output nodes
-    perform_instructions(&mut output.nodes, document, options).await?;
-
-    Ok(output)
+    let assistant = get_assistant(&mut task).await?;
+    assistant.perform_task(&task, &options).await
 }
 
 /// Get the assistant for a task
@@ -142,7 +76,7 @@ pub async fn perform_instruction<'doc: 'async_recursion>(
 /// If the task's instruction has an `assignee` (and assignee exists and supports the
 /// task) then returns that assistant. Otherwise returns the assignee with the highest
 /// suitability score for the task.
-pub async fn get_assistant<'doc>(task: &mut GenerateTask<'doc>) -> Result<Arc<dyn Assistant>> {
+pub async fn get_assistant(task: &mut GenerateTask) -> Result<Arc<dyn Assistant>> {
     let assistants = list().await;
 
     let assistant = if let Some(assignee) = task.instruction.assignee() {
@@ -194,92 +128,4 @@ pub async fn get_assistant<'doc>(task: &mut GenerateTask<'doc>) -> Result<Arc<dy
     };
 
     Ok(assistant.clone())
-}
-
-/// A node visitor which collects instructions
-#[derive(Default)]
-struct InstructionCollector {
-    /// A map of instructions by their id
-    instructions: HashMap<NodeId, Instruction>,
-}
-
-impl VisitorMut for InstructionCollector {
-    fn visit_inline(&mut self, inline: &mut Inline) -> WalkControl {
-        if let Inline::InstructionInline(instruction) = inline {
-            let id = instruction.node_id();
-            let instruction = Instruction::from(instruction.clone());
-            self.instructions.insert(id, instruction);
-        }
-        WalkControl::Continue
-    }
-
-    fn visit_block(&mut self, block: &mut Block) -> WalkControl {
-        if let Block::InstructionBlock(instruction) = block {
-            let id = instruction.node_id();
-            let instruction = Instruction::from(instruction.clone());
-            self.instructions.insert(id, instruction);
-        }
-        WalkControl::Continue
-    }
-}
-
-/// A node visitor which applies generation results to instructions
-struct ResultApplier {
-    /// A map of generation results by instruction id
-    results: HashMap<NodeId, Result<GenerateOutput>>,
-}
-
-impl VisitorMut for ResultApplier {
-    fn visit_inline(&mut self, inline: &mut Inline) -> WalkControl {
-        if let Inline::InstructionInline(instruction) = inline {
-            if let Some(result) = self.results.remove(&instruction.node_id()) {
-                match result {
-                    Ok(output) => {
-                        instruction.messages.push(output.to_message());
-                        instruction.options.suggestion =
-                            Some(output.to_suggestion_inline(instruction.content.is_none()));
-
-                        instruction.options.execution_status = Some(ExecutionStatus::Succeeded);
-                    }
-                    Err(error) => {
-                        tracing::error!("Instruction failed: {}", error.to_string());
-                        instruction.options.execution_status = Some(ExecutionStatus::Failed);
-                        instruction.options.execution_messages = Some(vec![ExecutionMessage::new(
-                            MessageLevel::Error,
-                            error.to_string(),
-                        )]);
-                    }
-                }
-            } else {
-                tracing::debug!("Instruction has no id and/or result: {instruction:?}")
-            }
-        }
-        WalkControl::Continue
-    }
-
-    fn visit_block(&mut self, block: &mut Block) -> WalkControl {
-        if let Block::InstructionBlock(instruction) = block {
-            if let Some(result) = self.results.remove(&instruction.node_id()) {
-                match result {
-                    Ok(output) => {
-                        instruction.messages.push(output.to_message());
-                        instruction.options.suggestion =
-                            Some(output.to_suggestion_block(instruction.content.is_none()));
-
-                        instruction.options.execution_status = Some(ExecutionStatus::Succeeded);
-                    }
-                    Err(error) => {
-                        instruction.options.execution_status = Some(ExecutionStatus::Failed);
-                        instruction.options.execution_messages = Some(vec![ExecutionMessage::new(
-                            MessageLevel::Error,
-                            error.to_string(),
-                        )]);
-                    }
-                }
-            } else {
-                tracing::debug!("Instruction has no id and/or result: {instruction:?}")
-            }
-        }
-        WalkControl::Continue
-    }
 }

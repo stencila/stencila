@@ -283,12 +283,53 @@ export abstract class FormatClient extends Client {
       start += entry.start
       end += entry.end
       if (position >= start && position < end) {
-        if (!nodes.find((existing) => existing.nodeId === entry.nodeId)) {
+        if (
+          !nodes.find((existing) => existing.nodeId === entry.nodeId) &&
+          !entry.property
+        ) {
           nodes.push({ ...entry, start, end })
         }
       }
     }
 
+    return nodes
+  }
+
+  /**
+   * Return a list of nodes within the given range
+   *
+   * Will ONLY include nodes that start and end within the range,
+   * unless the `allowPartailNodes`
+   *
+   * If no nodes are found or the range start is greater than the range end,
+   * will return an empty array.
+   */
+  public nodesInRange(
+    from: number,
+    to: number,
+    allowPartialNodes: boolean = false
+  ): MappingEntry[] {
+    let start = 0
+    let end = 0
+
+    const nodes: MappingEntry[] = []
+    if (from > to) {
+      return nodes
+    }
+    for (const entry of this.mapping) {
+      start += entry.start
+      end += entry.end
+      // If condition set, get nodes within or partialy within the range,
+      // else only include complete nodes within the range
+      if (allowPartialNodes) {
+        if ((from >= start && from < end) || (to >= start && to < end)) {
+          nodes.push({ ...entry, start, end })
+        }
+      } else if (start >= from && start < to && end > from && end <= to) {
+        nodes.push({ ...entry, start, end })
+      }
+    }
+    console.log(nodes)
     return nodes
   }
 }

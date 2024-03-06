@@ -47,14 +47,14 @@ pub struct CodeLocation {
 }
 
 impl CodeLocation {
-    const NICK: &'static str = "cdl";
+    const NICK: [u8; 3] = [99, 100, 108];
     
     pub fn node_type(&self) -> NodeType {
         NodeType::CodeLocation
     }
 
     pub fn node_id(&self) -> NodeId {
-        NodeId::new(Self::NICK, &self.uid)
+        NodeId::new(&Self::NICK, &self.uid)
     }
     
     pub fn new() -> Self {

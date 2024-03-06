@@ -245,14 +245,14 @@ pub struct CommentOptions {
 }
 
 impl Comment {
-    const NICK: &'static str = "com";
+    const NICK: [u8; 3] = [99, 111, 109];
     
     pub fn node_type(&self) -> NodeType {
         NodeType::Comment
     }
 
     pub fn node_id(&self) -> NodeId {
-        NodeId::new(Self::NICK, &self.uid)
+        NodeId::new(&Self::NICK, &self.uid)
     }
     
     pub fn new(content: Vec<Block>) -> Self {

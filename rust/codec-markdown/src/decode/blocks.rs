@@ -103,13 +103,18 @@ pub fn math_block(input: &str) -> IResult<&str, MathBlock> {
     )(input)
 }
 
-/// Parse an [`Include`] node
-pub fn include(input: &str) -> IResult<&str, IncludeBlock> {
+/// Parse an [`IncludeBlock`] node
+pub fn include_block(input: &str) -> IResult<&str, IncludeBlock> {
     map(
         all_consuming(preceded(
-            char('/'),
-            // Exclude '(' from source to avoid clash with a `Call`
-            tuple((is_not("({"), opt(curly_attrs))),
+            terminated(tag("<<"), multispace0),
+            tuple((
+                // Do not allow '(' or '{' in `source` to avoid clash with a `CallBlock`
+                // and curly attrs. Not this still allows for spaces in name, including
+                // at the end (this is trimmed on execution)
+                is_not("({"),
+                opt(curly_attrs),
+            )),
         )),
         |(source, options)| {
             let mut options: HashMap<String, _> = options.unwrap_or_default().into_iter().collect();
@@ -125,11 +130,11 @@ pub fn include(input: &str) -> IResult<&str, IncludeBlock> {
     )(input)
 }
 
-/// Parse a [`Call`] node
-pub fn call(input: &str) -> IResult<&str, CallBlock> {
+/// Parse a [`CallBlock`] node
+pub fn call_block(input: &str) -> IResult<&str, CallBlock> {
     map(
         all_consuming(preceded(
-            char('/'),
+            terminated(tag("<<"), multispace0),
             tuple((
                 is_not("("),
                 delimited(
@@ -176,16 +181,16 @@ fn call_arg(input: &str) -> IResult<&str, CallArgument> {
     )(input)
 }
 
-/// Start an [`InstructBlock`]
+/// Start an [`InstructionBlock`]
 pub fn instruct_block_start(input: &str) -> IResult<&str, (Option<&str>, &str, bool)> {
-    let (input, has_content) = if let Some(stripped) = input.strip_suffix("%>") {
+    let (input, has_content) = if let Some(stripped) = input.strip_suffix(":::") {
         (stripped, true)
     } else {
         (input, false)
     };
 
     let (remains, (assignee, text)) = all_consuming(preceded(
-        pair(tag("%%"), multispace0),
+        pair(tag("//"), multispace0),
         pair(
             opt(delimited(char('@'), assignee, multispace1)),
             is_not("\n"),
@@ -193,11 +198,6 @@ pub fn instruct_block_start(input: &str) -> IResult<&str, (Option<&str>, &str, b
     ))(input)?;
 
     Ok((remains, (assignee, text.trim(), has_content)))
-}
-
-/// End an [`InstructBlock`] with content
-pub fn instruct_block_end(input: &str) -> IResult<&str, &str> {
-    all_consuming(tag("%%"))(input)
 }
 
 /// Parse the start or end an [`InsertBlock`] node
@@ -474,16 +474,16 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_calls() {
+    fn test_call_block() {
         assert_eq!(
-            call("/file.md()").unwrap().1,
+            call_block("<< file.md()").unwrap().1,
             CallBlock {
                 source: "file.md".to_string(),
                 ..Default::default()
             }
         );
         assert_eq!(
-            call("/file.md(a=1)").unwrap().1,
+            call_block("<< file.md(a=1)").unwrap().1,
             CallBlock {
                 source: "file.md".to_string(),
                 arguments: vec![CallArgument {
@@ -495,7 +495,9 @@ mod tests {
             }
         );
         assert_eq!(
-            call(r#"/file.md(parAm_eter_1="string")"#).unwrap().1,
+            call_block(r#"<< file.md(parAm_eter_1="string")"#)
+                .unwrap()
+                .1,
             CallBlock {
                 source: "file.md".to_string(),
                 arguments: vec![CallArgument {
@@ -507,7 +509,9 @@ mod tests {
             }
         );
         assert_eq!(
-            call("/file.md(a=1.23 b=symbol c='string')").unwrap().1,
+            call_block("<< file.md(a=1.23 b=symbol c='string')")
+                .unwrap()
+                .1,
             CallBlock {
                 source: "file.md".to_string(),
                 arguments: vec![
@@ -531,7 +535,7 @@ mod tests {
             }
         );
         assert_eq!(
-            call("/file.md(a=1,b = 2  , c=3, d =4)").unwrap().1,
+            call_block("<< file.md(a=1,b = 2  , c=3, d =4)").unwrap().1,
             CallBlock {
                 source: "file.md".to_string(),
                 arguments: vec![
@@ -642,7 +646,7 @@ mod tests {
     }
 
     #[test]
-    fn test_if() {
+    fn test_if_block() {
         // Simple
         assert_eq!(
             if_elif("::: if expr").unwrap().1 .1,

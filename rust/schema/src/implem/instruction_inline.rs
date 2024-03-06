@@ -8,7 +8,7 @@ impl MarkdownCodec for InstructionInline {
             .enter_node(self.node_type(), self.node_id())
             .merge_losses(lost_options!(self, id, auto_exec))
             .merge_losses(lost_exec_options!(self))
-            .push_str("{%% ");
+            .push_str("{// ");
 
         if let Some(assignee) = &self.options.assignee {
             context.push_str("@").push_str(assignee).push_str(" ");
@@ -26,11 +26,11 @@ impl MarkdownCodec for InstructionInline {
 
         if let Some(content) = &self.content {
             context
-                .push_str("%>")
+                .push_str("/>")
                 .push_prop_fn("content", |context| content.to_markdown(context));
         };
 
-        context.push_str("%%}");
+        context.push_str("//}");
 
         if let Some(suggestion) = &self.options.suggestion {
             context.push_prop_fn("suggestion", |context| suggestion.to_markdown(context));

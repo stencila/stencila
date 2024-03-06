@@ -43,6 +43,7 @@ properties:
     items:
       $ref: Block
     strip: [code]
+    walk: true
     dom:
       elem: div
     proptest:
@@ -62,6 +63,7 @@ properties:
     items:
       $ref: Block
     strip: [code]
+    walk: true
     dom:
       elem: div
     proptest:
@@ -81,5 +83,6 @@ properties:
     items:
       $ref: Section
     strip: [output]
+    walk: true
     dom:
       elem: div

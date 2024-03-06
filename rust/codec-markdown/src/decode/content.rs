@@ -14,7 +14,8 @@ use codec::{
         AudioObject, Block, CodeChunk, Cord, DeleteBlock, Heading, IfBlock, IfBlockClause,
         ImageObject, Inline, InsertBlock, InstructionBlock, InstructionBlockOptions,
         InstructionMessage, LabelType, Link, ListItem, MessagePart, ModifyBlock, Note, NoteType,
-        Paragraph, ReplaceBlock, Table, TableCell, TableRow, TableRowType, VideoObject,
+        Paragraph, ReplaceBlock, SuggestionBlockType, Table, TableCell, TableRow, TableRowType,
+        VideoObject,
     },
     Losses,
 };
@@ -24,8 +25,8 @@ use crate::decode::inlines::inlines_or_text;
 
 use super::{
     blocks::{
-        admonition, call, claim, code_chunk, delete_block, else_block, end, figure, for_block,
-        form, if_elif, include, insert_block, instruct_block_end, instruct_block_start, math_block,
+        admonition, call_block, claim, code_chunk, delete_block, else_block, end, figure,
+        for_block, form, if_elif, include_block, insert_block, instruct_block_start, math_block,
         modify_block, modify_block_separator, replace_block, replace_block_separator, section,
         styled_block, table,
     },
@@ -235,9 +236,9 @@ pub fn decode_blocks(
 
                     let block = if let Ok((.., math_block)) = math_block(trimmed) {
                         Some(Block::MathBlock(math_block))
-                    } else if let Ok((.., include)) = include(trimmed) {
+                    } else if let Ok((.., include)) = include_block(trimmed) {
                         Some(Block::IncludeBlock(include))
-                    } else if let Ok((.., call)) = call(trimmed) {
+                    } else if let Ok((.., call)) = call_block(trimmed) {
                         Some(Block::CallBlock(call))
                     } else if let Ok((.., (assignee, text, has_content))) =
                         instruct_block_start(trimmed)
@@ -260,21 +261,22 @@ pub fn decode_blocks(
                         } else {
                             Some(block)
                         }
-                    } else if instruct_block_end(trimmed).is_ok() {
-                        if let Some(Block::InstructionBlock(current)) = divs.pop_back() {
-                            Some(Block::InstructionBlock(InstructionBlock {
-                                content: Some(blocks.pop_div()),
-                                ..current
-                            }))
-                        } else {
-                            Some(p([t(trimmed)]))
-                        }
                     } else if insert_block(trimmed).is_ok() {
                         if let Some(Block::InsertBlock(current)) = divs.pop_back() {
-                            Some(Block::InsertBlock(InsertBlock {
+                            let insert = InsertBlock {
                                 content: blocks.pop_div(),
                                 ..current
-                            }))
+                            };
+
+                            if let Some(Block::InstructionBlock(instruction)) =
+                                blocks.blocks.last_mut()
+                            {
+                                instruction.options.suggestion =
+                                    Some(SuggestionBlockType::InsertBlock(insert));
+                                None
+                            } else {
+                                Some(Block::InsertBlock(insert))
+                            }
                         } else {
                             blocks.push_div();
                             divs.push_back(Block::InsertBlock(InsertBlock::default()));
@@ -282,10 +284,20 @@ pub fn decode_blocks(
                         }
                     } else if delete_block(trimmed).is_ok() {
                         if let Some(Block::DeleteBlock(current)) = divs.pop_back() {
-                            Some(Block::DeleteBlock(DeleteBlock {
+                            let delete = DeleteBlock {
                                 content: blocks.pop_div(),
                                 ..current
-                            }))
+                            };
+
+                            if let Some(Block::InstructionBlock(instruction)) =
+                                blocks.blocks.last_mut()
+                            {
+                                instruction.options.suggestion =
+                                    Some(SuggestionBlockType::DeleteBlock(delete));
+                                None
+                            } else {
+                                Some(Block::DeleteBlock(delete))
+                            }
                         } else {
                             blocks.push_div();
                             divs.push_back(Block::DeleteBlock(DeleteBlock::default()));
@@ -293,10 +305,20 @@ pub fn decode_blocks(
                         }
                     } else if replace_block(trimmed).is_ok() {
                         if let Some(Block::ReplaceBlock(current)) = divs.pop_back() {
-                            Some(Block::ReplaceBlock(ReplaceBlock {
+                            let replace = ReplaceBlock {
                                 replacement: blocks.pop_div(),
                                 ..current
-                            }))
+                            };
+
+                            if let Some(Block::InstructionBlock(instruction)) =
+                                blocks.blocks.last_mut()
+                            {
+                                instruction.options.suggestion =
+                                    Some(SuggestionBlockType::ReplaceBlock(replace));
+                                None
+                            } else {
+                                Some(Block::ReplaceBlock(replace))
+                            }
                         } else {
                             blocks.push_div();
                             divs.push_back(Block::ReplaceBlock(ReplaceBlock::default()));
@@ -550,13 +572,9 @@ pub fn decode_blocks(
                                 claim.content = blocks.pop_div();
                                 Block::Claim(claim)
                             }
-                            Block::DeleteBlock(mut block) => {
-                                block.content = blocks.pop_div();
-                                Block::DeleteBlock(block)
-                            }
-                            Block::InsertBlock(mut block) => {
-                                block.content = blocks.pop_div();
-                                Block::InsertBlock(block)
+                            Block::InstructionBlock(mut instruction) => {
+                                instruction.content = Some(blocks.pop_div());
+                                Block::InstructionBlock(instruction)
                             }
                             Block::Section(mut section) => {
                                 section.content = blocks.pop_div();
@@ -692,7 +710,7 @@ pub fn decode_blocks(
                     };
 
                     let content_url = current_url.to_string();
-                    let media_object = if let Ok(format) = Format::from_string(&content_url) {
+                    let media_object = if let Ok(format) = Format::from_url(&content_url) {
                         if format.is_audio() {
                             Inline::AudioObject(AudioObject {
                                 content_url,

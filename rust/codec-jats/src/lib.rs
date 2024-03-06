@@ -25,7 +25,7 @@ impl Codec for JatsCodec {
         Status::UnderDevelopment
     }
 
-    fn supports_from_format(&self, format: Format) -> CodecSupport {
+    fn supports_from_format(&self, format: &Format) -> CodecSupport {
         use CodecSupport::*;
         match format {
             Format::Jats => LowLoss,
@@ -33,7 +33,7 @@ impl Codec for JatsCodec {
         }
     }
 
-    fn supports_to_format(&self, format: Format) -> CodecSupport {
+    fn supports_to_format(&self, format: &Format) -> CodecSupport {
         use CodecSupport::*;
         match format {
             Format::Jats => LowLoss,

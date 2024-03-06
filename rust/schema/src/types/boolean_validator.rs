@@ -27,14 +27,14 @@ pub struct BooleanValidator {
 }
 
 impl BooleanValidator {
-    const NICK: &'static str = "bov";
+    const NICK: [u8; 3] = [98, 111, 118];
     
     pub fn node_type(&self) -> NodeType {
         NodeType::BooleanValidator
     }
 
     pub fn node_id(&self) -> NodeId {
-        NodeId::new(Self::NICK, &self.uid)
+        NodeId::new(&Self::NICK, &self.uid)
     }
     
     pub fn new() -> Self {

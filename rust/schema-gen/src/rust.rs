@@ -69,9 +69,6 @@ const BOX_PROPERTIES: &[&str] = &[
     "Variable.value",
 ];
 
-/// Properties which can not allow deserialization from one or many items
-const NO_ONE_OR_MANY: &[&str] = &["DatatableColumn.values", "EnumValidator.values"];
-
 const KEYWORDS: &[&str; 52] = &[
     "as", "break", "const", "continue", "crate", "else", "enum", "extern", "false", "fn", "for",
     "if", "impl", "in", "let", "loop", "match", "mod", "move", "mut", "pub", "ref", "return",
@@ -515,13 +512,16 @@ pub enum NodeType {{
                 let mut args = vec!["default".to_string()];
 
                 if let Some(deserialize_with) = &serde.deserialize_with {
-                    args.push(format!("deserialize_with = \"{deserialize_with}\""));
+                    // `deserializeWith: none` is used in the schema to avoid the
+                    // default behavior for arrays below (which is problematic for
+                    // arrays of `Node` or `Primitive` (since they can be arrays themselves))
+                    if deserialize_with != "none" {
+                        args.push(format!("deserialize_with = \"{deserialize_with}\""));
+                    }
                 }
 
                 attrs.push(format!("#[serde({})]", args.join(", ")))
-            } else if property.is_array()
-                && !NO_ONE_OR_MANY.contains(&format!("{title}.{name}").as_str())
-            {
+            } else if property.is_array() {
                 if property.is_required {
                     attrs.push("#[serde(deserialize_with = \"one_or_many\")]".to_string())
                 } else {
@@ -588,10 +588,17 @@ pub enum NodeType {{
             }
 
             // Add #[dom] attribute for field if necessary
-            if let Some(dom) = &property.dom {
+            if let (true, Some(dom)) = (
+                schema.dom.as_ref().map(|dom| dom.derive).unwrap_or(true),
+                &property.dom,
+            ) {
                 let mut args = Vec::new();
 
-                if let Some(elem) = &dom.elem {
+                if dom.skip {
+                    args.push("skip".to_string());
+                } else if let Some(with) = &dom.with {
+                    args.push(format!("with = \"{with}\""));
+                } else if let Some(elem) = &dom.elem {
                     args.push(format!("elem = \"{elem}\""));
                 } else if let Some(attr) = &dom.attr {
                     args.push(format!("attr = \"{attr}\""));
@@ -761,8 +768,13 @@ pub struct {title}Options {{
 
         let nick = match &schema.nick {
             Some(nick) => nick.to_lowercase(),
-            None => title.to_lowercase()[..3].to_string(),
+            None => title.to_lowercase(),
         };
+        let nick = nick.as_bytes();
+        let nick = format!(
+            "const NICK: [u8; 3] = [{}, {}, {}];",
+            nick[0], nick[1], nick[2]
+        );
 
         write(
             path,
@@ -783,14 +795,14 @@ pub struct {title} {{
 }}{options}
 
 impl {title} {{
-    const NICK: &'static str = "{nick}";
+    {nick}
     
     pub fn node_type(&self) -> NodeType {{
         NodeType::{title}
     }}
 
     pub fn node_id(&self) -> NodeId {{
-        NodeId::new(Self::NICK, &self.uid)
+        NodeId::new(&Self::NICK, &self.uid)
     }}
     {new}
 }}

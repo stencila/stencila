@@ -20,7 +20,7 @@ impl Codec for HtmlCodec {
         Status::UnderDevelopment
     }
 
-    fn supports_to_format(&self, format: Format) -> CodecSupport {
+    fn supports_to_format(&self, format: &Format) -> CodecSupport {
         match format {
             Format::Html => CodecSupport::LowLoss,
             _ => CodecSupport::None,

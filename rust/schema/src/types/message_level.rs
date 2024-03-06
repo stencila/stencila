@@ -14,7 +14,9 @@ pub enum MessageLevel {
 
     Info,
 
-    Warn,
+    Warning,
 
     Error,
+
+    Exception,
 }

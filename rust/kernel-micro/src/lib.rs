@@ -7,10 +7,17 @@ use std::{
 
 use which::which;
 
+// Re-exports for the convenience of internal crates implementing
+// the `Microkernel` trait
+pub use kernel::{
+    common, format, schema, tests, Kernel, KernelAvailability, KernelForks, KernelInstance,
+    KernelInterrupt, KernelKill, KernelSignal, KernelStatus, KernelTerminate,
+};
+
 use kernel::{
     common::{
         async_trait::async_trait,
-        eyre::{bail, OptionExt, Result},
+        eyre::{bail, eyre, Context, OptionExt, Result},
         itertools::Itertools,
         serde_json,
         strum::Display,
@@ -22,16 +29,12 @@ use kernel::{
             process::{Child, ChildStderr, ChildStdin, ChildStdout, Command},
             sync::{mpsc, watch},
         },
-        tracing,
+        tracing, which,
     },
-    schema::{ExecutionMessage, MessageLevel, Node, Null, Variable},
-};
-
-// Re-exports for the convenience of internal crates implementing
-// the `Microkernel` trait
-pub use kernel::{
-    common, format, schema, tests, Kernel, KernelAvailability, KernelForks, KernelInstance,
-    KernelInterrupt, KernelKill, KernelSignal, KernelStatus, KernelTerminate,
+    schema::{
+        ExecutionMessage, MessageLevel, Node, Null, SoftwareApplication, SoftwareSourceCode,
+        Variable,
+    },
 };
 
 /// A specification for a minimal, lightweight execution kernel in a spawned process
@@ -119,9 +122,9 @@ pub trait Microkernel: Sync + Send + Kernel {
     fn microkernel_create_instance(&self, index: u64) -> Result<Box<dyn KernelInstance>> {
         // Assign an id for the instance using the index, if necessary, to ensure it is unique
         let id = if index == 0 {
-            self.id()
+            self.name()
         } else {
-            format!("{}-{index}", self.id())
+            format!("{}-{index}", self.name())
         };
 
         // Get the path to the executable, failing early if it can not be found
@@ -130,7 +133,7 @@ pub trait Microkernel: Sync + Send + Kernel {
         // Always write the script file, even if it already exists, to allow for changes
         // to the microkernel's script
         let kernels_dir = app::get_app_dir(app::DirType::Kernels, true)?;
-        let script_file = kernels_dir.join(self.id());
+        let script_file = kernels_dir.join(self.name());
         write(&script_file, self.microkernel_script())?;
 
         // Replace placeholder in args with the script path
@@ -262,6 +265,10 @@ enum MicrokernelFlag {
     Eval,
     /// Sent by Rust to signal the start of a `fork` task
     Fork,
+    /// Sent by Rust to get runtime information about the kernel
+    Info,
+    /// Sent by Rust to get a list of packages/libraries available to the kernel
+    Pkgs,
     /// Sent by Rust to signal the start of a `list` task
     List,
     /// Sent by Rust to signal the start of a `get` task
@@ -284,6 +291,8 @@ impl MicrokernelFlag {
         match self {
             Ready => "\u{10ACDC}",
             Line => "\u{10ABBA}",
+            Info => "\u{10EE15}",
+            Pkgs => "\u{10BEC4}",
             Exec => "\u{10B522}",
             Eval => "\u{1010CC}",
             Fork => "\u{10DE70}",
@@ -298,7 +307,7 @@ impl MicrokernelFlag {
 
 #[async_trait]
 impl KernelInstance for MicrokernelInstance {
-    fn id(&self) -> String {
+    fn name(&self) -> String {
         self.id.clone()
     }
 
@@ -359,6 +368,15 @@ impl KernelInstance for MicrokernelInstance {
         // Setup signalling channel
         self.signal_sender = Some(Self::setup_signals_channel(self.id.clone(), pid));
 
+        // Check status of the process in case start up errors
+        // have caused it to fail
+        let status = self
+            .get_status()
+            .wrap_err_with(|| eyre!("Unable to check status of starting kernel"))?;
+        if matches!(status, KernelStatus::Failed | KernelStatus::Stopped) {
+            bail!("Startup of `{}` kernel failed; perhaps the runtime version on this machine is not supported?", self.name())
+        }
+
         self.set_status(KernelStatus::Ready)?;
 
         Ok(())
@@ -384,7 +402,7 @@ impl KernelInstance for MicrokernelInstance {
                 };
 
                 if let Err(error) = kill(Pid::from_raw(self.pid as i32), Signal::SIGKILL) {
-                    tracing::warn!("While killing `{}` kernel: {error}", self.id())
+                    tracing::warn!("While killing `{}` kernel: {error}", self.name())
                 }
             }
         }
@@ -410,6 +428,30 @@ impl KernelInstance for MicrokernelInstance {
         Ok((output, messages))
     }
 
+    async fn info(&mut self) -> Result<SoftwareApplication> {
+        let (mut nodes, messages) = self.send_receive(MicrokernelFlag::Info, []).await?;
+        self.check_for_errors(messages, "getting info")?;
+
+        match nodes.pop() {
+            Some(Node::SoftwareApplication(node)) => Ok(node),
+            node => bail!("Expected a `SoftwareApplication`, got {node:#?}"),
+        }
+    }
+
+    async fn packages(&mut self) -> Result<Vec<SoftwareSourceCode>> {
+        let (nodes, messages) = self.send_receive(MicrokernelFlag::Pkgs, []).await?;
+
+        self.check_for_errors(messages, "getting packages")?;
+
+        nodes
+            .into_iter()
+            .map(|node| match node {
+                Node::SoftwareSourceCode(ssc) => Ok(ssc),
+                _ => bail!("Expected a `SoftwareSourceCode`, got {node:#?}"),
+            })
+            .collect::<Result<Vec<_>>>()
+    }
+
     async fn list(&mut self) -> Result<Vec<Variable>> {
         let (nodes, messages) = self.send_receive(MicrokernelFlag::List, []).await?;
 
@@ -419,7 +461,7 @@ impl KernelInstance for MicrokernelInstance {
             .into_iter()
             .map(|node| match node {
                 Node::Variable(var) => Ok(var),
-                _ => bail!("Expected a `Variable` got: {node:?}"),
+                _ => bail!("Expected a `Variable`, got: {node:#?}"),
             })
             .collect::<Result<Vec<_>>>()
     }
@@ -489,7 +531,7 @@ impl KernelInstance for MicrokernelInstance {
             let Some(Node::Integer(pid)) = outputs.first() else {
                 bail!(
                     "Did not receive pid for fork of microkernel `{}`",
-                    self.id()
+                    self.name()
                 )
             };
             let pid = *pid as u32;
@@ -681,7 +723,7 @@ impl MicrokernelInstance {
             if status != *previous {
                 tracing::trace!(
                     "Status of `{}` kernel changed from `{previous}` to `{status}`",
-                    self.id()
+                    self.name()
                 );
                 *previous = status;
                 true
@@ -717,7 +759,7 @@ impl MicrokernelInstance {
     /// Send a task to this microkernel instance
     async fn send(&mut self, flag: MicrokernelFlag, code: &str) -> Result<()> {
         let Some(input) = self.input.as_mut() else {
-            bail!("Microkernel `{}` has not been started yet!", self.id());
+            bail!("Microkernel `{}` has not been started yet!", self.name());
         };
 
         match input {
@@ -745,10 +787,10 @@ impl MicrokernelInstance {
 
     /// Create an `Err` if messages from the kernel include an error
     fn check_for_errors(&self, messages: Vec<ExecutionMessage>, action: &str) -> Result<()> {
-        if !messages.is_empty() {
+        if messages.iter().any(|m| m.level == MessageLevel::Error) {
             bail!(
                 "While {action} in microkernel `{}`: {}",
-                self.id(),
+                self.name(),
                 messages.into_iter().map(|message| message.message).join("")
             )
         } else {

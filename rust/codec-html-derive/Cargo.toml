@@ -8,4 +8,4 @@ proc_macro = true
 
 [dependencies]
 common = { path = "../common" }
-darling = "0.20.6"
+darling = "0.20.8"

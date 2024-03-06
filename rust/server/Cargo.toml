@@ -1,6 +1,6 @@
 [package]
 name = "server"
-version = "2.0.0-alpha.23"
+version = "2.0.0-alpha.25"
 authors = ["Nokome Bentley <nokome@stencila.io"]
 edition = "2021"
 
@@ -10,10 +10,11 @@ codecs = { path = "../codecs" }
 common = { path = "../common" }
 document = { path = "../document" }
 format = { path = "../format" }
+node-id = { path = "../node-id" }
 mime_guess = "2.0.4"
-rust-embed = { version = "8.2.0", features = ["interpolate-folder-path", "include-exclude"] }
+rust-embed = { version = "8.3.0", features = ["interpolate-folder-path", "include-exclude"] }
 secrets = { path = "../secrets" }
-tower-http = { version = "0.5.1", features = ["trace"] }
+tower-http = { version = "0.5.2", features = ["trace"] }
 
 [dev-dependencies]
 common-dev = { path = "../common-dev" }

@@ -8,6 +8,7 @@
 
 const child_process = require("child_process");
 const fs = require("fs");
+const os = require("os");
 const readline = require("readline");
 const vm = require("vm");
 
@@ -18,6 +19,8 @@ const LINE = dev ? "|" : new RegExp("\u{10ABBA}", "g");
 const EXEC = dev ? "EXEC" : "\u{10B522}";
 const EVAL = dev ? "EVAL" : "\u{1010CC}";
 const FORK = dev ? "FORK" : "\u{10DE70}";
+const INFO = dev ? "INFO" : "\u{10EE15}";
+const PKGS = dev ? "PKGS" : "\u{10BEC4}";
 const LIST = dev ? "LIST" : "\u{10C155}";
 const GET = dev ? "GET" : "\u{10A51A}";
 const SET = dev ? "SET" : "\u{107070}";
@@ -60,7 +63,7 @@ console.info = (message) =>
   );
 console.warn = (message) =>
   stderr.write(
-    `{"type":"ExecutionMessage","level":"Warn","message":"${message}"}${END}\n`
+    `{"type":"ExecutionMessage","level":"Warning","message":"${message}"}${END}\n`
   );
 console.error = (message) =>
   stderr.write(
@@ -72,6 +75,7 @@ const context = {
   ...inheritedVariables,
   require,
   console,
+  process,
 };
 vm.createContext(context);
 
@@ -154,7 +158,7 @@ function execute(lines) {
 
   const code = lines.join("\n");
 
-  let output = vm.runInContext(code, context, { breakOnSigint: true });
+  const output = vm.runInContext(code, context, { breakOnSigint: true });
   if (output !== undefined && !lastLineIsAssignment) {
     stdout.write(JSON.stringify(output));
   }
@@ -165,6 +169,36 @@ function evaluate(expression) {
   const value = vm.runInContext(expression, context, { breakOnSigint: true });
   if (value !== undefined) {
     stdout.write(JSON.stringify(value));
+  }
+}
+
+// Get runtime information
+function info() {
+  const info = {
+    type: "SoftwareApplication",
+    name: "Node.js",
+    softwareVersion: process.version,
+    operatingSystem: `${os.type()} ${os.arch()} ${os.release()}`,
+  };
+  stdout.write(JSON.stringify(info));
+}
+
+// Get a list of packages available
+async function packages() {
+  const { execFileSync } = require("child_process");
+
+  const out = execFileSync("npm", ["list", "--depth=0", "--json"]);
+  const dependencies = JSON.parse(out).dependencies;
+
+  for (const [name, { version }] of Object.entries(dependencies)) {
+    const ssc = {
+      type: "SoftwareSourceCode",
+      programmingLanguage: "JavaScript",
+      name,
+      version,
+    };
+
+    stdout.write(`${JSON.stringify(ssc)}${END}\n`);
   }
 }
 
@@ -277,6 +311,10 @@ rl.on("line", (task) => {
           return execute(lines.slice(1));
         case EVAL:
           return evaluate(lines[1]);
+        case INFO:
+          return info();
+        case PKGS:
+          return packages();
         case LIST:
           return list();
         case GET:
@@ -297,7 +335,7 @@ rl.on("line", (task) => {
     } else {
       const msg = {
         type: "ExecutionMessage",
-        level: "Error",
+        level: "Exception",
         message: error.message ?? error.toString(),
       };
       if (error.name) msg.errorType = error.name;

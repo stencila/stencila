@@ -34,14 +34,14 @@ pub struct DateTimeValidator {
 }
 
 impl DateTimeValidator {
-    const NICK: &'static str = "dtv";
+    const NICK: [u8; 3] = [100, 116, 118];
     
     pub fn node_type(&self) -> NodeType {
         NodeType::DateTimeValidator
     }
 
     pub fn node_id(&self) -> NodeId {
-        NodeId::new(Self::NICK, &self.uid)
+        NodeId::new(&Self::NICK, &self.uid)
     }
     
     pub fn new() -> Self {

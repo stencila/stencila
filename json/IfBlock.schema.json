@@ -63,6 +63,9 @@
       "strip": [
         "execution"
       ],
+      "dom": {
+        "skip": true
+      },
       "$ref": "CompilationDigest.schema.json"
     },
     "compilationMessages": {
@@ -78,6 +81,9 @@
       "strip": [
         "execution"
       ],
+      "dom": {
+        "elem": "div"
+      },
       "type": "array",
       "items": {
         "$ref": "CompilationMessage.schema.json"
@@ -93,6 +99,9 @@
       "strip": [
         "execution"
       ],
+      "dom": {
+        "skip": true
+      },
       "$ref": "CompilationDigest.schema.json"
     },
     "executionDependencies": {
@@ -108,6 +117,9 @@
       "strip": [
         "execution"
       ],
+      "dom": {
+        "elem": "div"
+      },
       "type": "array",
       "items": {
         "$ref": "ExecutionDependency.schema.json"
@@ -126,6 +138,9 @@
       "strip": [
         "execution"
       ],
+      "dom": {
+        "elem": "div"
+      },
       "type": "array",
       "items": {
         "$ref": "ExecutionDependant.schema.json"
@@ -144,6 +159,9 @@
       "strip": [
         "execution"
       ],
+      "dom": {
+        "elem": "div"
+      },
       "type": "array",
       "items": {
         "$ref": "ExecutionTag.schema.json"
@@ -209,6 +227,9 @@
       "strip": [
         "execution"
       ],
+      "dom": {
+        "with": "Timestamp::to_dom_attr"
+      },
       "$ref": "Timestamp.schema.json"
     },
     "executionDuration": {
@@ -221,6 +242,9 @@
       "strip": [
         "execution"
       ],
+      "dom": {
+        "with": "Duration::to_dom_attr"
+      },
       "$ref": "Duration.schema.json"
     },
     "executionMessages": {
@@ -236,6 +260,9 @@
       "strip": [
         "execution"
       ],
+      "dom": {
+        "elem": "div"
+      },
       "type": "array",
       "items": {
         "$ref": "ExecutionMessage.schema.json"

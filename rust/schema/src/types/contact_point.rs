@@ -87,14 +87,14 @@ pub struct ContactPointOptions {
 }
 
 impl ContactPoint {
-    const NICK: &'static str = "con";
+    const NICK: [u8; 3] = [99, 111, 110];
     
     pub fn node_type(&self) -> NodeType {
         NodeType::ContactPoint
     }
 
     pub fn node_id(&self) -> NodeId {
-        NodeId::new(Self::NICK, &self.uid)
+        NodeId::new(&Self::NICK, &self.uid)
     }
     
     pub fn new() -> Self {

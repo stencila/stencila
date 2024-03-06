@@ -1,6 +1,6 @@
 # Execution Required
 
-**Under which circumstances the document node should be automatically executed.**
+**Whether, and why, the execution of a node is required or not.**
 
 **`@id`**: `stencila:ExecutionRequired`
 
@@ -13,7 +13,9 @@ The `ExecutionRequired` type has these members:
 - `SemanticsChanged`
 - `DependenciesChanged`
 - `DependenciesFailed`
-- `Failed`
+- `ExecutionFailed`
+- `ExecutionCancelled`
+- `ExecutionInterrupted`
 - `KernelRestarted`
 - `UserRequested`
 

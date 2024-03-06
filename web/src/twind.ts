@@ -26,6 +26,7 @@ export const config = defineConfig({
         '2xl': '0 0 0.15em rgba(37, 104, 239, 1)',
       },
       colors: {
+        transparent: 'transparent',
         white: '#fff',
         brand: {
           blue: '#2568ef',
@@ -42,9 +43,9 @@ export const config = defineConfig({
 
           '100': '#fefefe',
           '150': '#f2f2f2',
-          '200': '#DEDEDE',
-          '300': '#C7C7C7',
-          '400': '#B0B0B0',
+          '200': '#dedede',
+          '300': '#c7c7c7',
+          '400': '#b0b0b0',
           '500': '#999999',
           '600': '#808080',
           '700': '#666666',
@@ -52,9 +53,19 @@ export const config = defineConfig({
           '900': '#333333',
         },
         black: '#171817',
-        green: {
+        greene: {
           '000': '#f5fff5',
-          200: '#D9F2D9',
+          100: '#e5ffe5',
+          200: '#d9f2d9',
+          900: '#0B4C46',
+        },
+        blue: {
+          50: '#f1f5fe',
+          200: '#b1c9fa',
+          400: '#77a0f5',
+          700: '#2568ef',
+          800: '#174bb3',
+          900: '#092d77',
         },
       },
     },
@@ -64,3 +75,14 @@ export const config = defineConfig({
 })
 
 export const withTwind = () => install(config)
+
+export type TwTheme = {
+  [index: string]: {
+    [index: string]:
+      | string
+      | string[]
+      | {
+          [index: string]: string
+        }
+  }
+}

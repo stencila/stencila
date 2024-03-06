@@ -1,6 +1,6 @@
 {
   "name": "@stencila/node",
-  "version": "2.0.0-alpha.23",
+  "version": "2.0.0-alpha.25",
   "description": "Stencila SDK for Node.js",
   "license": "Apache-2.0",
   "author": "Nokome Bentley <nokome@stencila.io>",
@@ -93,6 +93,6 @@
     "@napi-rs/cli": "2.18.0"
   },
   "dependencies": {
-    "@stencila/types": "2.0.0-alpha.23"
+    "@stencila/types": "2.0.0-alpha.25"
   }
 }

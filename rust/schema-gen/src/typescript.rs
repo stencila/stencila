@@ -10,6 +10,7 @@ use common::{
     async_recursion::async_recursion,
     eyre::{bail, Context, Report, Result},
     futures::future::try_join_all,
+    indexmap::IndexMap,
     inflector::Inflector,
     itertools::Itertools,
     tokio::fs::{self, create_dir_all, remove_file, write},
@@ -134,28 +135,75 @@ impl Schemas {
         )
         .await?;
 
-        // Create a nodeType.ts file with a discriminated union of node type names
-        let nodes = self
-            .schemas
-            .get("Node")
-            .and_then(|schema| schema.any_of.as_ref())
-            .expect("should always exist");
-        let node_types = nodes
-            .iter()
-            .filter_map(|schema| schema.r#ref.as_ref())
-            .map(|title| format!("  | \"{title}\""))
-            .join("\n");
-        write(
-            dest.join("nodeType.ts"),
-            format!(
-                r"{GENERATED_COMMENT}
+        // Create a nodeType.ts, blockType.ts etc with a discriminated union of node type names
+        for (name, filename, descendants) in [
+            ("Node", "nodeType.ts", false),
+            ("Block", "blockType.ts", false),
+            ("Inline", "inlineType.ts", false),
+            ("Executable", "executableType.ts", true),
+        ] {
+            let node_types = if descendants {
+                let mut node_types = Vec::new();
+                for (descendent_name, descendent_schema) in &self.schemas {
+                    fn is_descendent(
+                        schemas: &IndexMap<String, Schema>,
+                        base: &str,
+                        nest: &Schema,
+                    ) -> bool {
+                        if nest.extends.contains(&base.to_string()) {
+                            return true;
+                        }
+                        nest.extends
+                            .iter()
+                            .any(|extend| is_descendent(schemas, base, &schemas[extend]))
+                    }
 
-export type NodeType =
-{node_types};
+                    if is_descendent(&self.schemas, name, descendent_schema) {
+                        node_types.push(Schema {
+                            r#ref: Some(descendent_name.to_string()),
+                            ..Default::default()
+                        });
+                    }
+                }
+                node_types.sort_by(|a, b| a.r#ref.cmp(&b.r#ref));
+                node_types
+            } else {
+                self.schemas
+                    .get(name)
+                    .expect("should always exist")
+                    .any_of
+                    .clone()
+                    .expect("should always exist")
+            };
+
+            let type_union = node_types
+                .iter()
+                .filter_map(|schema| schema.r#ref.as_ref())
+                .map(|title| format!("  | \"{title}\""))
+                .join("\n");
+
+            let type_list = node_types
+                .iter()
+                .filter_map(|schema| schema.r#ref.as_ref())
+                .map(|title| format!("  \"{title}\","))
+                .join("\n");
+
+            write(
+                dest.join(filename),
+                format!(
+                    r"{GENERATED_COMMENT}
+
+export type {name}Type =
+{type_union};
+
+export const {name}TypeList = [
+{type_list}
+];
 "
-            ),
-        )
-        .await?;
+                ),
+            )
+            .await?;
+        }
 
         // Populate the import and cases of the `hydrate` function
         let hydrate = dest.join("hydrate.ts");

@@ -31,7 +31,7 @@ impl Codec for DebugCodec {
         false
     }
 
-    fn supports_to_format(&self, format: Format) -> CodecSupport {
+    fn supports_to_format(&self, format: &Format) -> CodecSupport {
         match format {
             Format::Debug => CodecSupport::LowLoss,
             _ => CodecSupport::None,

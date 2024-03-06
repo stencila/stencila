@@ -52,14 +52,14 @@ pub struct Note {
 }
 
 impl Note {
-    const NICK: &'static str = "not";
+    const NICK: [u8; 3] = [110, 111, 116];
     
     pub fn node_type(&self) -> NodeType {
         NodeType::Note
     }
 
     pub fn node_id(&self) -> NodeId {
-        NodeId::new(Self::NICK, &self.uid)
+        NodeId::new(&Self::NICK, &self.uid)
     }
     
     pub fn new(note_type: NoteType, content: Vec<Block>) -> Self {

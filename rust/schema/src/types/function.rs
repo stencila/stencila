@@ -52,14 +52,14 @@ pub struct FunctionOptions {
 }
 
 impl Function {
-    const NICK: &'static str = "fun";
+    const NICK: [u8; 3] = [102, 117, 110];
     
     pub fn node_type(&self) -> NodeType {
         NodeType::Function
     }
 
     pub fn node_id(&self) -> NodeId {
-        NodeId::new(Self::NICK, &self.uid)
+        NodeId::new(&Self::NICK, &self.uid)
     }
     
     pub fn new(name: String, parameters: Vec<Parameter>) -> Self {

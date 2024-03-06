@@ -21,6 +21,8 @@ properties:
     '@id': stencila:message
     description: The text of the message.
     type: string
+    dom:
+      elem: pre
   errorType:
     '@id': stencila:errorType
     description: The type of error e.g. "SyntaxError", "ZeroDivisionError".
@@ -34,9 +36,13 @@ properties:
     '@id': stencila:codeLocation
     description: The location that the error occurred or other message emanated from.
     $ref: CodeLocation
+    dom:
+      elem: div
   stackTrace:
     '@id': stencila:stackTrace
     aliases:
       - trace
     description: Stack trace leading up to the error.
     type: string
+    dom:
+      elem: pre

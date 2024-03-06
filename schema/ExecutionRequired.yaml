@@ -2,7 +2,7 @@ title: ExecutionRequired
 '@id': stencila:ExecutionRequired
 extends: Enumeration
 category: flow
-description: Under which circumstances the document node should be automatically executed.
+description: Whether, and why, the execution of a node is required or not.
 default: NeverExecuted
 anyOf:
   - const: 'No'
@@ -23,17 +23,26 @@ anyOf:
   - const: DependenciesChanged
     '@id': stencila:DependenciesChanged
     description: |
-      Re-execution is required because the semantics of one or more dependencies (including transitive dependencies) 
-      changed since it was last executed.
+      Re-execution is required because the semantics of one or more dependencies (including
+      transitive dependencies) changed since it was last executed.
   - const: DependenciesFailed
     '@id': stencila:DependenciesFailed
     description: |
-      Re-execution is required because one or more dependencies (including transitive dependencies) failed when it was
-      last executed.
-  - const: Failed
-    '@id': stencila:Failed
+      Re-execution is required because one or more dependencies (including transitive dependencies)
+      failed when it was last executed.
+  - const: ExecutionFailed
+    '@id': stencila:ExecutionFailed
     description: |
-      Re-execution is required because the node failed last time it was executed.
+      Re-execution is required because execution failed (there were errors or exceptions) the
+      last time it was executed.
+  - const: ExecutionCancelled
+    '@id': stencila:ExecutionCancelled
+    description: |
+      Re-execution may be required because execution was pending but was cancelled.
+  - const: ExecutionInterrupted
+    '@id': stencila:ExecutionInterrupted
+    description: |
+      Re-execution is required because execution was interrupted the last time it was executed.
   - const: KernelRestarted
     '@id': stencila:KernelRestarted
     description: |

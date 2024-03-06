@@ -53,14 +53,14 @@ pub struct ArrayValidator {
 }
 
 impl ArrayValidator {
-    const NICK: &'static str = "arv";
+    const NICK: [u8; 3] = [97, 114, 118];
     
     pub fn node_type(&self) -> NodeType {
         NodeType::ArrayValidator
     }
 
     pub fn node_id(&self) -> NodeId {
-        NodeId::new(Self::NICK, &self.uid)
+        NodeId::new(&Self::NICK, &self.uid)
     }
     
     pub fn new() -> Self {

@@ -13,7 +13,7 @@ pub struct BashKernel {
 }
 
 impl Kernel for BashKernel {
-    fn id(&self) -> String {
+    fn name(&self) -> String {
         "bash".to_string()
     }
 
@@ -212,6 +212,34 @@ echo $value",
         assert_eq!(messages.len(), 1);
         assert!(messages[0].message.ends_with("foo: command not found\n"));
         assert_eq!(outputs, vec![]);
+
+        Ok(())
+    }
+
+    /// Standard kernel test for getting runtime information
+    #[test_log::test(tokio::test)]
+    async fn info() -> Result<()> {
+        let Some(instance) = create_instance::<BashKernel>().await? else {
+            return Ok(());
+        };
+
+        let sw = kernel_micro::tests::info(instance).await?;
+        assert_eq!(sw.name, "Bash");
+        assert!(sw.options.software_version.is_some());
+        assert!(sw.options.operating_system.is_some());
+
+        Ok(())
+    }
+
+    /// Standard kernel test for listing installed packages
+    #[test_log::test(tokio::test)]
+    async fn packages() -> Result<()> {
+        let Some(instance) = start_instance::<BashKernel>().await? else {
+            return Ok(());
+        };
+
+        let pkgs = kernel_micro::tests::packages(instance).await?;
+        assert!(pkgs.is_empty());
 
         Ok(())
     }

@@ -37,14 +37,14 @@ pub struct AuthorRole {
 }
 
 impl AuthorRole {
-    const NICK: &'static str = "aut";
+    const NICK: [u8; 3] = [97, 117, 116];
     
     pub fn node_type(&self) -> NodeType {
         NodeType::AuthorRole
     }
 
     pub fn node_id(&self) -> NodeId {
-        NodeId::new(Self::NICK, &self.uid)
+        NodeId::new(&Self::NICK, &self.uid)
     }
     
     pub fn new(author: PersonOrOrganizationOrSoftwareApplication, role_name: AuthorRoleName) -> Self {

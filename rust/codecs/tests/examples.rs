@@ -341,7 +341,7 @@ async fn examples() -> Result<()> {
             let mut file = path.parent().expect("should have parent").join(prefix);
             file.set_extension(extension.as_str());
 
-            let codec = codecs::get(None, Some(config.format), None)?;
+            let codec = codecs::get(None, Some(&config.format), None)?;
 
             let mut original = node.clone();
 
@@ -358,7 +358,7 @@ async fn examples() -> Result<()> {
                 original.strip(&targets);
 
                 let encode_options = Some(EncodeOptions {
-                    format: Some(config.format),
+                    format: Some(config.format.clone()),
                     ..config.encode.options.clone()
                 });
 
@@ -415,7 +415,7 @@ async fn examples() -> Result<()> {
 
             if file.exists() && !config.decode.skip {
                 let decode_options = Some(DecodeOptions {
-                    format: Some(config.format),
+                    format: Some(config.format.clone()),
                     ..config.decode.options.clone()
                 });
 

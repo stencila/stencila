@@ -45,6 +45,9 @@
       "aliases": [
         "value"
       ],
+      "serde": {
+        "deserializeWith": "none"
+      },
       "type": "array",
       "items": {
         "$ref": "Node.schema.json"

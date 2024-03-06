@@ -38,14 +38,14 @@ pub struct Date {
 }
 
 impl Date {
-    const NICK: &'static str = "dae";
+    const NICK: [u8; 3] = [100, 97, 101];
     
     pub fn node_type(&self) -> NodeType {
         NodeType::Date
     }
 
     pub fn node_id(&self) -> NodeId {
-        NodeId::new(Self::NICK, &self.uid)
+        NodeId::new(&Self::NICK, &self.uid)
     }
     
     pub fn new(value: String) -> Self {

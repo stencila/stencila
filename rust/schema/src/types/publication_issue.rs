@@ -248,14 +248,14 @@ pub struct PublicationIssueOptions {
 }
 
 impl PublicationIssue {
-    const NICK: &'static str = "pbi";
+    const NICK: [u8; 3] = [112, 98, 105];
     
     pub fn node_type(&self) -> NodeType {
         NodeType::PublicationIssue
     }
 
     pub fn node_id(&self) -> NodeId {
-        NodeId::new(Self::NICK, &self.uid)
+        NodeId::new(&Self::NICK, &self.uid)
     }
     
     pub fn new() -> Self {

@@ -1,16 +1,15 @@
-use std::{path::PathBuf, str::FromStr};
+use std::str::FromStr;
 
-use fastembed::{EmbeddingModel, InitOptions, TextEmbedding};
+use context::Context;
 use merge::Merge;
 
 use codecs::DecodeOptions;
 use common::{
     async_trait::async_trait,
     clap::{self, Args, ValueEnum},
-    eyre::{bail, eyre, Result},
+    eyre::{bail, Result},
     inflector::Inflector,
     itertools::Itertools,
-    once_cell::sync::OnceCell,
     regex::Regex,
     serde::{de::Error, Deserialize, Deserializer, Serialize},
     serde_json,
@@ -35,9 +34,9 @@ use schema::{
 };
 
 // Export crates for the convenience of dependant crates
-use app::DirType;
 pub use codecs;
 pub use common;
+pub use context;
 pub use format;
 pub use merge;
 pub use node_authorship;
@@ -259,26 +258,34 @@ impl Embeddings {
         // Store a copy of the strings.
         self.texts = Some(texts.iter().map(|s| s.as_ref().to_string()).collect());
 
-        // Informal perf tests during development indicated that using
-        // a static improved speed substantially (rather than reloading for each call)
-        static MODEL: OnceCell<TextEmbedding> = OnceCell::new();
+        #[cfg(feature = "fastembed")]
+        {
+            use app::DirType;
+            use common::{eyre::eyre, once_cell::sync::OnceCell};
+            use fastembed::{EmbeddingModel, InitOptions, TextEmbedding};
+            use std::path::PathBuf;
 
-        let model = match MODEL.get_or_try_init(|| {
-            TextEmbedding::try_new(InitOptions {
-                // This model was chosen good performance for a small size.
-                // For benchmarks see https://huggingface.co/spaces/mteb/leaderboard
-                model_name: EmbeddingModel::BGESmallENV15,
-                cache_dir: app::get_app_dir(DirType::Cache, true)
-                    .unwrap_or_else(|_| PathBuf::from("."))
-                    .join("fastembed"),
-                ..Default::default()
-            })
-        }) {
-            Ok(model) => model,
-            Err(error) => bail!(error),
-        };
+            // Informal perf tests during development indicated that using
+            // a static improved speed substantially (rather than reloading for each call)
+            static MODEL: OnceCell<TextEmbedding> = OnceCell::new();
 
-        self.vectors = Some(model.embed(texts, None).map_err(|error| eyre!(error))?);
+            let model = match MODEL.get_or_try_init(|| {
+                TextEmbedding::try_new(InitOptions {
+                    // This model was chosen good performance for a small size.
+                    // For benchmarks see https://huggingface.co/spaces/mteb/leaderboard
+                    model_name: EmbeddingModel::BGESmallENV15,
+                    cache_dir: app::get_app_dir(DirType::Cache, true)
+                        .unwrap_or_else(|_| PathBuf::from("."))
+                        .join("fastembed"),
+                    ..Default::default()
+                })
+            }) {
+                Ok(model) => model,
+                Err(error) => bail!(error),
+            };
+
+            self.vectors = Some(model.embed(texts, None).map_err(|error| eyre!(error))?);
+        }
 
         Ok(())
     }
@@ -331,14 +338,18 @@ impl Embeddings {
 #[skip_serializing_none]
 #[derive(Debug, Default, Clone, Serialize)]
 #[serde(crate = "common::serde")]
-pub struct GenerateTask<'doc> {
+pub struct GenerateTask {
     /// The instruction provided by the user
     pub instruction: Instruction,
 
-    /// The document that the instruction is contained within
-    /// (usually an `Article`).
-    #[serde(skip)]
-    pub document: Option<&'doc Node>,
+    /// The context of the instruction
+    ///
+    /// This is available to assistants so that they can tailor
+    /// their responses given the broader context of the document
+    /// that the instruction is within. For specialized list_assistants
+    /// it is available as the variable `context` within the
+    /// system prompt template.
+    pub context: Option<Context>,
 
     /// The input type of the task
     pub input: AssistantIO,
@@ -375,7 +386,7 @@ pub struct GenerateTask<'doc> {
     pub system_prompt: Option<String>,
 }
 
-impl<'doc> GenerateTask<'doc> {
+impl GenerateTask {
     /// Create a generation task from an instruction
     pub fn new(instruction: Instruction) -> Self {
         // Pull the text out of the instruction here.
@@ -668,22 +679,22 @@ impl GenerateOutput {
     ///
     /// If the output format of the task in unknown (i.e. was not specified)
     /// then assumes it is Markdown.
-    pub async fn from_text<'task>(
+    pub async fn from_text(
         assistant: &dyn Assistant,
-        task: &GenerateTask<'task>,
+        task: &GenerateTask,
         options: &GenerateOptions,
         text: String,
     ) -> Result<Self> {
         let format = match task.format {
             Format::Unknown => Format::Markdown,
-            _ => task.format,
+            _ => task.format.clone(),
         };
 
         // Decode text to an article
         let node = codecs::from_str(
             &text,
             Some(DecodeOptions {
-                format: Some(format),
+                format: Some(format.clone()),
                 ..Default::default()
             }),
         )
@@ -786,9 +797,9 @@ impl GenerateOutput {
     }
 
     /// Create a `GenerateOutput` from a URL with a specific media type
-    pub async fn from_url<'task>(
+    pub async fn from_url(
         assistant: &dyn Assistant,
-        _task: &GenerateTask<'task>,
+        _task: &GenerateTask,
         media_type: &str,
         url: String,
     ) -> Result<Self> {
@@ -1183,7 +1194,7 @@ pub trait Assistant: Sync + Send {
 /// the system prompt, and each user and assistant message, are being sent to
 /// and processed by the assistant.
 #[allow(unused)]
-pub fn test_task_repeat_word<'lt>() -> GenerateTask<'lt> {
+pub fn test_task_repeat_word() -> GenerateTask {
     GenerateTask {
         system_prompt: Some(
             "When asked to repeat a word, you should repeat it in ALL CAPS. Do not provide any other notes, explanation or content.".to_string(),

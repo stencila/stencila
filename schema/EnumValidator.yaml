@@ -16,3 +16,6 @@ properties:
     type: array
     items:
       $ref: Node
+    serde:
+      # Avoid default `one_or_many` deserialize which can't be used for this array of primitives
+      deserializeWith: none

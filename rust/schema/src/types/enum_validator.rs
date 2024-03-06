@@ -23,6 +23,7 @@ pub struct EnumValidator {
 
     /// A node is valid if it is equal to any of these values.
     #[serde(alias = "value")]
+    #[serde(default)]
     pub values: Vec<Node>,
 
     /// A unique identifier for a node within a document
@@ -32,14 +33,14 @@ pub struct EnumValidator {
 }
 
 impl EnumValidator {
-    const NICK: &'static str = "env";
+    const NICK: [u8; 3] = [101, 110, 118];
     
     pub fn node_type(&self) -> NodeType {
         NodeType::EnumValidator
     }
 
     pub fn node_id(&self) -> NodeId {
-        NodeId::new(Self::NICK, &self.uid)
+        NodeId::new(&Self::NICK, &self.uid)
     }
     
     pub fn new(values: Vec<Node>) -> Self {

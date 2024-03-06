@@ -6,7 +6,6 @@ edition = "2021"
 [dependencies]
 app = { path = "../app" }
 kernel = { path = "../kernel" }
-which = "6.0.0"
 
 [target.'cfg(unix)'.dependencies]
-nix = { version = "0.27.1", features = ["fs", "signal"] }
+nix = { version = "0.28.0", features = ["fs", "signal"] }

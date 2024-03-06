@@ -254,14 +254,14 @@ pub struct MediaObjectOptions {
 }
 
 impl MediaObject {
-    const NICK: &'static str = "med";
+    const NICK: [u8; 3] = [109, 101, 100];
     
     pub fn node_type(&self) -> NodeType {
         NodeType::MediaObject
     }
 
     pub fn node_id(&self) -> NodeId {
-        NodeId::new(Self::NICK, &self.uid)
+        NodeId::new(&Self::NICK, &self.uid)
     }
     
     pub fn new(content_url: String) -> Self {

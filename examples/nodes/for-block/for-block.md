@@ -8,7 +8,7 @@ This paragraph will be repeated with a different value for `item`{exec}
 
 With a programming language specified
 
-::: for item in [1,2,3]{python}
+::: for item in [1,2,3] {python}
 
 This content is repeated
 

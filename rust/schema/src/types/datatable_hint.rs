@@ -37,14 +37,14 @@ pub struct DatatableHint {
 }
 
 impl DatatableHint {
-    const NICK: &'static str = "dth";
+    const NICK: [u8; 3] = [100, 116, 104];
     
     pub fn node_type(&self) -> NodeType {
         NodeType::DatatableHint
     }
 
     pub fn node_id(&self) -> NodeId {
-        NodeId::new(Self::NICK, &self.uid)
+        NodeId::new(&Self::NICK, &self.uid)
     }
     
     pub fn new(rows: Integer, columns: Vec<DatatableColumnHint>) -> Self {

@@ -48,14 +48,14 @@ pub struct CompilationDigest {
 }
 
 impl CompilationDigest {
-    const NICK: &'static str = "cmd";
+    const NICK: [u8; 3] = [99, 109, 100];
     
     pub fn node_type(&self) -> NodeType {
         NodeType::CompilationDigest
     }
 
     pub fn node_id(&self) -> NodeId {
-        NodeId::new(Self::NICK, &self.uid)
+        NodeId::new(&Self::NICK, &self.uid)
     }
     
     pub fn new(state_digest: UnsignedInteger) -> Self {

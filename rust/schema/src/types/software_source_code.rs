@@ -261,14 +261,14 @@ pub struct SoftwareSourceCodeOptions {
 }
 
 impl SoftwareSourceCode {
-    const NICK: &'static str = "ssc";
+    const NICK: [u8; 3] = [115, 115, 99];
     
     pub fn node_type(&self) -> NodeType {
         NodeType::SoftwareSourceCode
     }
 
     pub fn node_id(&self) -> NodeId {
-        NodeId::new(Self::NICK, &self.uid)
+        NodeId::new(&Self::NICK, &self.uid)
     }
     
     pub fn new(name: String, programming_language: String) -> Self {

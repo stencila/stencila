@@ -1,17 +1,37 @@
-%% 4x10 table
+An insert instruction with no assignee:
 
-%% @insert-table top five highest mountains, with height in metres
+// insert a 4x10 table
 
-%% Improve this paragraph.
-%>
+An insert instruction with an assignee:
 
-Target paragraph.
+// @insert-table top five highest mountains, with height in metres
 
-%%
+An edit instruction (has content) with no assignee:
 
-%% @anne please improve this paragraph.
-%>
+// improve this paragraph
+:::
 
-Another paragraph.
+The paragraph to be improved.
 
-%%
+:::
+
+An edit instruction with an assignee:
+
+// @anne please improve this paragraph
+:::
+
+Another paragraph to be improved.
+
+:::
+
+An insert instruction with an assignee and a suggestion:
+
+// @assistant insert a code chunk
+
+++
+
+```exec
+some code
+```
+
+++

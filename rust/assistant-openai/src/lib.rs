@@ -146,9 +146,9 @@ impl OpenAIAssistant {
     }
 
     #[tracing::instrument(skip_all)]
-    async fn chat_completion<'task>(
+    async fn chat_completion(
         &self,
-        task: &GenerateTask<'task>,
+        task: &GenerateTask,
         options: &GenerateOptions,
     ) -> Result<GenerateOutput> {
         tracing::debug!("Sending chat completion request");
@@ -284,9 +284,9 @@ impl OpenAIAssistant {
     }
 
     #[tracing::instrument(skip_all)]
-    async fn create_image<'task>(
+    async fn create_image(
         &self,
-        task: &GenerateTask<'task>,
+        task: &GenerateTask,
         options: &GenerateOptions,
     ) -> Result<GenerateOutput> {
         tracing::debug!("Sending create image request");

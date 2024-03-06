@@ -247,14 +247,14 @@ pub struct PeriodicalOptions {
 }
 
 impl Periodical {
-    const NICK: &'static str = "pdl";
+    const NICK: [u8; 3] = [112, 100, 108];
     
     pub fn node_type(&self) -> NodeType {
         NodeType::Periodical
     }
 
     pub fn node_id(&self) -> NodeId {
-        NodeId::new(Self::NICK, &self.uid)
+        NodeId::new(&Self::NICK, &self.uid)
     }
     
     pub fn new() -> Self {

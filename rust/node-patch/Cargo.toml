@@ -1,0 +1,9 @@
+[package]
+name = "node-patch"
+version = "0.0.0"
+edition = "2021"
+
+[dependencies]
+common = { path = "../common" }
+node-store = { path = "../node-store" }
+schema = { path = "../schema" }

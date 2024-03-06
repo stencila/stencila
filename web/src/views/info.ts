@@ -1,12 +1,14 @@
 import '@shoelace-style/shoelace/dist/components/icon/icon'
 import '@shoelace-style/shoelace/dist/components/tree/tree'
 import '@shoelace-style/shoelace/dist/components/tree-item/tree-item'
+import { consume } from '@lit/context'
 import { css } from '@twind/core'
 import { LitElement, html } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
 import { ref, Ref, createRef } from 'lit/directives/ref'
 
 import { DomClient } from '../clients/dom'
+import { InfoViewContext, infoviewContext } from '../contexts/infoview-context'
 import { withTwind } from '../twind'
 import type { DocumentId } from '../types'
 
@@ -16,7 +18,7 @@ import type { DocumentId } from '../types'
  * This is the rightmost panel in both the writer and reader apps. It provides
  * summary information about the document (e.g. authors, summary metrics
  * about AI usage).
- * 
+ *
  * Uses a `DomClient` instance to maintain the a DOM of the document in sync with
  * its state on the server.
  *
@@ -35,6 +37,9 @@ export class InfoView extends LitElement {
   @property()
   doc: DocumentId
 
+  @consume({ context: infoviewContext, subscribe: true })
+  context: InfoViewContext
+
   /**
    * A read-only client which updates a (mostly) invisible DOM element when the
    * document changes on the server.
@@ -49,6 +54,8 @@ export class InfoView extends LitElement {
    */
   public domElement: Ref<HTMLElement> = createRef()
 
+  private currentNode: HTMLElement
+
   /**
    * Override `LitElement.firstUpdated` so that `DomClient` is instantiated _after_ this
    * element has a document `[root]` element in its `renderRoot`.
@@ -62,6 +69,23 @@ export class InfoView extends LitElement {
     )
   }
 
+  override async update(changedProperties: Map<string, string | boolean>) {
+    super.update(changedProperties)
+    const { currentNodeId } = this.context
+
+    if (this.currentNode && this.currentNode.id !== currentNodeId) {
+      this.currentNode.classList.remove('show')
+    }
+
+    if (currentNodeId) {
+      this.currentNode = this.domElement.value.querySelector(
+        `#${currentNodeId}`
+      )
+      if (this.currentNode) {
+        this.currentNode.classList.add('show')
+      }
+    }
+  }
 
   // TODO: listen for events from other views for this document
   // for changes to the selected node and set the class of the element

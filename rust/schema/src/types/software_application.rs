@@ -245,14 +245,14 @@ pub struct SoftwareApplicationOptions {
 }
 
 impl SoftwareApplication {
-    const NICK: &'static str = "sap";
+    const NICK: [u8; 3] = [115, 97, 112];
     
     pub fn node_type(&self) -> NodeType {
         NodeType::SoftwareApplication
     }
 
     pub fn node_id(&self) -> NodeId {
-        NodeId::new(Self::NICK, &self.uid)
+        NodeId::new(&Self::NICK, &self.uid)
     }
     
     pub fn new(name: String) -> Self {

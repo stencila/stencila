@@ -1,8 +1,9 @@
-use std::path::Path;
+use std::path::{Path, PathBuf};
 
 use codec::{
     common::{
         eyre::{bail, eyre, Result},
+        reqwest::Client,
         tracing,
     },
     schema::Node,
@@ -32,23 +33,18 @@ pub fn list() -> Vec<Box<dyn Codec>> {
     ]
 }
 
-/// Resolve whether an optional string is a format or codec name
-///
-/// If the string matches the name of a format then assume it is a format, otherwise assume it is a codec name
-pub fn format_or_codec(format_or_codec: Option<String>) -> (Option<Format>, Option<String>) {
-    match format_or_codec {
-        Some(format_or_codec) => match Format::from_string(format_or_codec.to_lowercase()) {
-            Ok(format) => (Some(format), None),
-            Err(..) => (None, Some(format_or_codec)),
-        },
-        None => (None, None),
-    }
+/// Resolve whether an optional string is a codec
+pub fn codec_maybe(name: &str) -> Option<String> {
+    list()
+        .iter()
+        .any(|codec| codec.name() == name)
+        .then(|| name.to_string())
 }
 
 /// Get the codec for a given format
 pub fn get(
     name: Option<&String>,
-    format: Option<Format>,
+    format: Option<&Format>,
     direction: Option<CodecDirection>,
 ) -> Result<Box<dyn Codec>> {
     if let Some(name) = name {
@@ -107,10 +103,10 @@ pub async fn from_str_with_losses(
 
     let format = options
         .as_ref()
-        .and_then(|options| options.format)
+        .and_then(|options| options.format.clone())
         .unwrap_or(Format::Json);
 
-    let codec = get(codec, Some(format), Some(CodecDirection::Decode))?;
+    let codec = get(codec, Some(&format), Some(CodecDirection::Decode))?;
 
     NodeUid::reset();
 
@@ -140,6 +136,35 @@ pub async fn from_path(path: &Path, options: Option<DecodeOptions>) -> Result<No
     Ok(node)
 }
 
+/// Decode a Stencila Schema node from a URL (http://, https://, or file://)
+#[tracing::instrument]
+pub async fn from_url(url: &str, options: Option<DecodeOptions>) -> Result<Node> {
+    if url.starts_with("https://") || url.starts_with("http://") {
+        // TODO: If a format or media type is specified in options than
+        // use that, otherwise use the `Content-Type` header, otherwise
+        // (or maybe if plain text / octet stream) then use path.
+        // This is just a temporary hack
+        let options = Some(DecodeOptions {
+            format: Some(Format::Markdown),
+            ..options.unwrap_or_default()
+        });
+
+        // TODO: Enable HTTP caching to avoid unnecessary requests
+        let response = Client::new().get(url).send().await?;
+        if let Err(error) = response.error_for_status_ref() {
+            let message = response.text().await?;
+            bail!("{error}: {message}")
+        }
+
+        let text = response.text().await?;
+        from_str(&text, options).await
+    } else if let Some(path) = url.strip_prefix("file://") {
+        from_path(&PathBuf::from(path), options).await
+    } else {
+        bail!("unknown URL protocol: {url}")
+    }
+}
+
 /// Decode a Stencila Schema node from a file system path with decoding losses
 #[tracing::instrument]
 pub async fn from_path_with_losses(
@@ -148,12 +173,12 @@ pub async fn from_path_with_losses(
 ) -> Result<(Node, Losses)> {
     let codec = options.as_ref().and_then(|options| options.codec.as_ref());
 
-    let format = match options.as_ref().and_then(|options| options.format) {
+    let format = match options.as_ref().and_then(|options| options.format.clone()) {
         Some(format) => format,
         None => Format::from_path(path)?,
     };
 
-    let codec = get(codec, Some(format), Some(CodecDirection::Decode))?;
+    let codec = get(codec, Some(&format), Some(CodecDirection::Decode))?;
 
     NodeUid::reset();
 
@@ -209,10 +234,10 @@ pub async fn to_string_with(
 
     let format = options
         .as_ref()
-        .and_then(|options| options.format)
+        .and_then(|options| options.format.clone())
         .unwrap_or(Format::Json);
 
-    let codec = get(codec, Some(format), Some(CodecDirection::Encode))?;
+    let codec = get(codec, Some(&format), Some(CodecDirection::Encode))?;
 
     let options = Some(EncodeOptions {
         format: Some(format),
@@ -259,12 +284,12 @@ pub async fn to_path_with_losses(
 ) -> Result<Losses> {
     let codec = options.as_ref().and_then(|options| options.codec.as_ref());
 
-    let format = match options.as_ref().and_then(|options| options.format) {
+    let format = match options.as_ref().and_then(|options| options.format.clone()) {
         Some(format) => format,
         None => Format::from_path(path)?,
     };
 
-    let codec = get(codec, Some(format), Some(CodecDirection::Encode))?;
+    let codec = get(codec, Some(&format), Some(CodecDirection::Encode))?;
 
     let options = Some(EncodeOptions {
         format: Some(format),

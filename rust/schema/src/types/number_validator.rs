@@ -46,14 +46,14 @@ pub struct NumberValidator {
 }
 
 impl NumberValidator {
-    const NICK: &'static str = "nuv";
+    const NICK: [u8; 3] = [110, 117, 118];
     
     pub fn node_type(&self) -> NodeType {
         NodeType::NumberValidator
     }
 
     pub fn node_id(&self) -> NodeId {
-        NodeId::new(Self::NICK, &self.uid)
+        NodeId::new(&Self::NICK, &self.uid)
     }
     
     pub fn new() -> Self {

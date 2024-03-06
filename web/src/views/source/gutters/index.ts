@@ -1,36 +1,13 @@
 import { BlockInfo, EditorView, gutter, GutterMarker } from '@codemirror/view'
-import type { NodeType } from '@stencila/types'
+import { BlockTypeList, ExecutableTypeList, Node } from '@stencila/types'
 
 import { MappingEntry } from '../../../clients/format'
+import { ObjectClient } from '../../../clients/object'
 import { SourceView } from '../../source'
+import { objectClientState } from '../state'
 
-import { StencilaGutterMarker } from './component'
-
-// TODO: This should be all `Block` node types and should be
-// an array/function in @stencila/types
-// See https://github.com/stencila/stencila/issues/2044
-const gutterMarkerElements: readonly NodeType[] = [
-  'Claim',
-  'CodeBlock',
-  'CodeChunk',
-  'DeleteBlock',
-  'Figure',
-  'ForBlock',
-  'Heading',
-  'IfBlock',
-  'InsertBlock',
-  'InstructionBlock',
-  'List',
-  'MathBlock',
-  'ModifyBlock',
-  'Paragraph',
-  'QuoteBlock',
-  'ReplaceBlock',
-  'Section',
-  'StyledBlock',
-  'Table',
-  'ThematicBreak',
-] as const
+import { NodeGutterMarkerEl } from './nodeTypeGutter'
+import { StatusGutterMarkerEl } from './statusGutter'
 
 class NodeGutterMarker extends GutterMarker {
   /**
@@ -67,10 +44,10 @@ class NodeGutterMarker extends GutterMarker {
     return node.end > line.from && node.end <= line.to + 1
   }
 
-  override toDOM = (): Node => {
+  override toDOM = () => {
     const dom = document.createElement(
-      'stencila-gutter-marker'
-    ) as StencilaGutterMarker
+      'stencila-node-gutter-marker'
+    ) as NodeGutterMarkerEl
 
     dom.isFirstLine = this.checkFirstLine(this.nodes[0], this.line)
     dom.isLastLine = this.checkLastLine(this.nodes[0], this.line)
@@ -83,15 +60,98 @@ class NodeGutterMarker extends GutterMarker {
   }
 }
 
-const statusGutter = (sourceView: SourceView) => [
+class StatusGutterMarker extends GutterMarker {
+  defaultLineHeight: number
+
+  objectClient: ObjectClient
+
+  node: MappingEntry
+
+  doc: string
+
+  exeCount: number = 0
+
+  constructor(
+    doc: string,
+    node: MappingEntry,
+    count: number,
+    defaultLineHeight: number
+  ) {
+    super()
+    this.doc = doc
+    this.node = node
+    this.exeCount = count
+    this.defaultLineHeight = defaultLineHeight
+  }
+
+  override toDOM() {
+    const dom = document.createElement(
+      'stencila-status-gutter-marker'
+    ) as StatusGutterMarkerEl
+
+    dom.defaultLineHeight = this.defaultLineHeight
+    dom.doc = this.doc
+    dom.nodeId = this.node.nodeId
+    dom.count = this.exeCount
+
+    return dom
+  }
+}
+
+const execStatusGutter = (sourceView: SourceView) => [
+  gutter({
+    lineMarker: (view: EditorView, line: BlockInfo) => {
+      const blockNode = sourceView.getNodeAt(line.from)
+
+      // find the inline executables within that line
+      // const inlineExecutables = sourceView
+      //   .getNodesBetween(line.from, line.to)
+      //   .filter(
+      //     (node) =>
+      //       ExecutableTypeList.includes(node.nodeType) &&
+      //       InlineTypeList.includes(node.nodeType)
+      //   )
+
+      if (blockNode && ExecutableTypeList.includes(blockNode.nodeType)) {
+        let count = 0
+
+        const objectClient = view.state.field(objectClientState)
+
+        if (objectClient) {
+          const node: Node = objectClient.getNode(blockNode.nodeId)
+          // @ts-expect-error "type `Node` is not aware of `executionCount` property"
+          if (node.executionCount) {
+            // @ts-expect-error "same as above"
+            count = node.executionCount
+          }
+        }
+
+        // check this first line of a block node
+        if (blockNode.start >= line.from && blockNode.start < line.to) {
+          return new StatusGutterMarker(
+            sourceView.doc,
+            blockNode,
+            count,
+            view.defaultLineHeight
+          )
+        }
+      }
+
+      return null
+      // TODO check line for inline Executables
+    },
+    initialSpacer: () => null,
+  }),
+]
+
+const nodeTypeGutter = (sourceView: SourceView) => [
   gutter({
     lineMarker: (view: EditorView, line: BlockInfo) => {
       // fetch nodes and filter out any node types that are not part of the
-      // guttermarkers object
-      // also checks some positional
+      // gutterMarkerElements object.
       const nodes = sourceView
         .getNodesAt(line.from)
-        .filter((node) => gutterMarkerElements.includes(node.nodeType))
+        .filter((node) => BlockTypeList.includes(node.nodeType))
 
       if (nodes.length > 0) {
         // useful debugging log - logs out line info and nodes picked up
@@ -113,4 +173,9 @@ const statusGutter = (sourceView: SourceView) => [
   }),
 ]
 
-export { statusGutter, StencilaGutterMarker }
+export {
+  nodeTypeGutter,
+  execStatusGutter,
+  NodeGutterMarkerEl,
+  StatusGutterMarkerEl,
+}

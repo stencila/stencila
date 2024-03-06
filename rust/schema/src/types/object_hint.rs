@@ -42,14 +42,14 @@ pub struct ObjectHint {
 }
 
 impl ObjectHint {
-    const NICK: &'static str = "obh";
+    const NICK: [u8; 3] = [111, 98, 104];
     
     pub fn node_type(&self) -> NodeType {
         NodeType::ObjectHint
     }
 
     pub fn node_id(&self) -> NodeId {
-        NodeId::new(Self::NICK, &self.uid)
+        NodeId::new(&Self::NICK, &self.uid)
     }
     
     pub fn new(length: Integer, keys: Vec<String>, values: Vec<Hint>) -> Self {

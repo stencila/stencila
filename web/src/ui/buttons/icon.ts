@@ -17,7 +17,7 @@ import { withTwind } from '../../twind'
 @withTwind()
 export class UIIconButton extends LitElement {
   /**
-   * The ref used by the draggable slider.
+   * The ref used by this button.
    */
   private ref: Ref<HTMLElement> = createRef()
 
@@ -62,6 +62,16 @@ export class UIIconButton extends LitElement {
 
   @property()
   type: 'toggle' | 'selected' = 'toggle'
+
+  @property()
+  size: string = '20px'
+
+  /**
+   * If consumer prefers to supply their own colours, then we can ignore what
+   * the colours that have been set up here.
+   */
+  @property({ type: Boolean })
+  ignoreColours: boolean = false
 
   override render() {
     if (this.tooltip) {
@@ -117,15 +127,19 @@ export class UIIconButton extends LitElement {
     const classes = apply([
       'transition-all duration-300 ease-in-out',
       'stroke-none',
-      stateColour[state],
-      state !== 'active' ? 'group-hover:fill-grey-900' : 'drop-shadow-2xl',
+      !this.ignoreColours ? stateColour[state] : '',
+      !this.ignoreColours
+        ? state !== 'active'
+          ? 'group-hover:fill-grey-900'
+          : 'drop-shadow-2xl'
+        : '',
     ])
 
     return html`<sl-icon
       library="stencila"
       name="${icon}"
       class="${classes}"
-      style="font-size: 20px;"
+      style="font-size: ${this.size};"
     ></sl-icon>`
   }
 

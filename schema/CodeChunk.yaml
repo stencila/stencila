@@ -69,6 +69,9 @@ properties:
     type: array
     items:
       $ref: Node
+    serde:
+      # Avoid default `option_one_or_many` deserialize which can't be used for this array of nodes
+      deserializeWith: none
     dom:
       elem: div
   executionPure:

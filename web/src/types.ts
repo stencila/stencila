@@ -46,3 +46,4 @@ export type MainContextEvent =
   | 'stencila-close-document'
   | 'stencila-view-change'
   | 'stencila-settings-toggle'
+  | 'stencila-config-toggle'

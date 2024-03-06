@@ -20,7 +20,7 @@ impl MarkdownCodec for ForBlock {
         if let Some(lang) = &self.programming_language {
             if !lang.is_empty() {
                 context
-                    .push_str("{")
+                    .push_str(" {")
                     .push_prop_str("programming_language", lang)
                     .push_str("}");
             }

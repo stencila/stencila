@@ -1,11 +1,19 @@
 type: Article
 content:
+- type: Paragraph
+  content:
+  - type: Text
+    value: 'An insert instruction with no assignee:'
 - type: InstructionBlock
   messages:
   - type: InstructionMessage
     parts:
     - type: Text
-      value: 4x10 table
+      value: insert a 4x10 table
+- type: Paragraph
+  content:
+  - type: Text
+    value: 'An insert instruction with an assignee:'
 - type: InstructionBlock
   messages:
   - type: InstructionMessage
@@ -13,26 +21,50 @@ content:
     - type: Text
       value: top five highest mountains, with height in metres
   assignee: insert-table
+- type: Paragraph
+  content:
+  - type: Text
+    value: 'An edit instruction (has content) with no assignee:'
 - type: InstructionBlock
   messages:
   - type: InstructionMessage
     parts:
     - type: Text
-      value: Improve this paragraph.
+      value: improve this paragraph
   content:
   - type: Paragraph
     content:
     - type: Text
-      value: Target paragraph.
+      value: The paragraph to be improved.
+- type: Paragraph
+  content:
+  - type: Text
+    value: 'An edit instruction with an assignee:'
 - type: InstructionBlock
   messages:
   - type: InstructionMessage
     parts:
     - type: Text
-      value: please improve this paragraph.
+      value: please improve this paragraph
   content:
   - type: Paragraph
     content:
     - type: Text
-      value: Another paragraph.
+      value: Another paragraph to be improved.
   assignee: anne
+- type: Paragraph
+  content:
+  - type: Text
+    value: 'An insert instruction with an assignee and a suggestion:'
+- type: InstructionBlock
+  messages:
+  - type: InstructionMessage
+    parts:
+    - type: Text
+      value: insert a code chunk
+  assignee: assistant
+  suggestion:
+    type: InsertBlock
+    content:
+    - type: CodeChunk
+      code: some code

@@ -80,14 +80,14 @@ pub struct BrandOptions {
 }
 
 impl Brand {
-    const NICK: &'static str = "bra";
+    const NICK: [u8; 3] = [98, 114, 97];
     
     pub fn node_type(&self) -> NodeType {
         NodeType::Brand
     }
 
     pub fn node_id(&self) -> NodeId {
-        NodeId::new(Self::NICK, &self.uid)
+        NodeId::new(&Self::NICK, &self.uid)
     }
     
     pub fn new(name: String) -> Self {

@@ -335,6 +335,14 @@
         "elem": {
           "description": "The HTML element name for a property\n\nIf not supplied the property will be encoded as an attribute on the parent element.",
           "type": "string"
+        },
+        "skip": {
+          "description": "Whether to skip encoding a property to DOM HTML",
+          "type": "boolean"
+        },
+        "with": {
+          "description": "The name of a function to use to encode a property to DOM HTML\n\nIf specified, `elem` and `attr` will be ignored.",
+          "type": "string"
         }
       },
       "additionalProperties": false

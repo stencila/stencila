@@ -33,14 +33,16 @@ import { customElement, property } from 'lit/decorators'
 
 import { CodeMirrorClient } from '../clients/codemirror'
 import { MappingEntry } from '../clients/format'
+import { ObjectClient } from '../clients/object'
 import { markdownHighlightStyle } from '../languages/markdown'
-import type { DocumentId, DocumentAccess } from '../types'
+import type { DocumentId, DocumentAccess, NodeId } from '../types'
 import { TWLitElement } from '../ui/twind'
 
-import { bottomPanel } from './source/bottom-panel'
+import { bottomPanel } from './source/bottomPanel'
 import { editorStyles } from './source/editorStyles'
-import { statusGutter } from './source/gutters'
-import { autoWrapKeys } from './source/keyMaps'
+import { execStatusGutter, nodeTypeGutter } from './source/gutters'
+import { autoWrapKeys, serverActionKeys } from './source/keyMaps'
+import { objectClientState, setObjectClient } from './source/state'
 
 /**
  * Source code editor for a document
@@ -82,6 +84,21 @@ export class SourceView extends TWLitElement {
   lineWrap: boolean = true
 
   /**
+   * Turn on/off the write only mode for the source view.
+   * This disables the SourceView instance from recieving
+   * and reacting to messages from the server.
+   */
+  @property({ attribute: 'write-only', type: Boolean })
+  writeOnly: boolean = false
+
+  /**
+   *  Turn on/off the node gutter markers.
+   *  Gutters will be disabled automatically in "writeOnly" mode.
+   */
+  @property({ attribute: 'gutter-markers', type: Boolean })
+  gutterMarkers: boolean = true
+
+  /**
    * Where is this component rendered? Either as a single view or in a split
    * code & preview editor?
    */
@@ -95,6 +112,11 @@ export class SourceView extends TWLitElement {
   private codeMirrorClient: CodeMirrorClient
 
   /**
+   * `ObjectClient` instance for current document
+   */
+  private objectClient: ObjectClient
+
+  /**
    * A CodeMirror editor view which the client interacts with
    */
   private codeMirrorView: CodeMirrorView
@@ -103,6 +125,12 @@ export class SourceView extends TWLitElement {
    * `Compartment` for setting `CodeMirrorView.lineWrapping` extension
    */
   private lineWrappingConfig = new Compartment()
+
+  /**
+   * `Compartment` for setting codemirror extensions which rely
+   * on receiving messages from the `codeMirrorClient`
+   */
+  private clientRecieverConfig = new Compartment()
 
   /**
    * Array of CodeMirror `LanguageDescription` objects available for the edit view
@@ -216,16 +244,6 @@ export class SourceView extends TWLitElement {
   }
 
   /**
-   * Send an 'execute' operation on the selection of the document
-   *
-   * @returns false to tell CodeMirror that this does not change the editor state
-   */
-  private executeSelection(view: CodeMirrorView): boolean {
-    this.codeMirrorClient.sendSpecial('execute', view.state.selection.main)
-    return false
-  }
-
-  /**
    * Get the CodeMirror editor view extensions
    */
   private async getViewExtensions(): Promise<Extension[]> {
@@ -233,13 +251,17 @@ export class SourceView extends TWLitElement {
 
     const lineWrapping = this.lineWrappingConfig.of(CodeMirrorView.lineWrapping)
 
+    const clientReceiver = this.clientRecieverConfig.of(
+      !this.writeOnly ? [execStatusGutter(this), nodeTypeGutter(this)] : []
+    )
+
     const keyMaps = keymap.of([
       indentWithTab,
       ...historyKeymap,
       ...completionKeymap,
       ...searchKeymap,
       { key: 'Ctrl-Space', run: startCompletion },
-      { key: 'Ctrl-Enter', run: (view) => this.executeSelection(view) },
+      ...serverActionKeys(this.codeMirrorClient),
       ...autoWrapKeys,
     ])
 
@@ -248,14 +270,13 @@ export class SourceView extends TWLitElement {
         ? markdownHighlightStyle
         : defaultHighlightStyle
 
-    return [
+    const extensions = [
       langExt,
       keyMaps,
       history(),
       search({ top: true }),
       lineNumbers(),
       foldGutter(),
-      statusGutter(this),
       lineWrapping,
       autocompletion({ override: [this.stencilaCompleteOptions] }),
       dropCursor(),
@@ -268,7 +289,26 @@ export class SourceView extends TWLitElement {
       autocompletion(),
       bottomPanel(this),
       editorStyles,
+      clientReceiver,
+      objectClientState,
+      nodeInfoUpdate(this),
     ]
+
+    return extensions
+  }
+
+  override connectedCallback = (): void => {
+    super.connectedCallback()
+  }
+
+  /**
+   * Override `LitElement.firstUpdated` so that `DomClient` is instantiated _after_ this
+   * element has a document `[root]` element in its `renderRoot`.
+   */
+  override firstUpdated(changedProperties: Map<string, string | boolean>) {
+    super.firstUpdated(changedProperties)
+
+    this.objectClient = new ObjectClient(this.doc)
   }
 
   /**
@@ -278,21 +318,27 @@ export class SourceView extends TWLitElement {
   override async update(changedProperties: Map<string, string | boolean>) {
     super.update(changedProperties)
 
-    if (changedProperties.has('format')) {
+    if (changedProperties.has('format') || changedProperties.has('doc')) {
       // Destroy the existing editor if there is one
       this.codeMirrorView?.destroy()
 
+      this.codeMirrorClient = new CodeMirrorClient(
+        this.doc,
+        this.access,
+        this.format,
+        this.writeOnly
+      )
+
       // Setup client and editor for the format
       this.getViewExtensions().then((extensions) => {
-        this.codeMirrorClient = new CodeMirrorClient(
-          this.doc,
-          this.access,
-          this.format
-        )
-
         this.codeMirrorView = new CodeMirrorView({
           extensions: [this.codeMirrorClient.sendPatches(), ...extensions],
           parent: this.renderRoot.querySelector('#codemirror'),
+        })
+
+        // set the objectClient into codemirror state
+        this.codeMirrorView.dispatch({
+          effects: setObjectClient.of(this.objectClient),
         })
 
         this.codeMirrorClient.receivePatches(this.codeMirrorView)
@@ -303,6 +349,31 @@ export class SourceView extends TWLitElement {
       this.dispatchEffect(
         this.lineWrappingConfig.reconfigure(
           this.lineWrap ? CodeMirrorView.lineWrapping : []
+        )
+      )
+    }
+
+    if (changedProperties.has('writeOnly')) {
+      // set codeMirrorClient property
+      if (this.codeMirrorClient) {
+        this.codeMirrorClient.writeOnly = this.writeOnly
+      }
+      // remove/add required extensions
+      this.dispatchEffect(
+        this.clientRecieverConfig.reconfigure(
+          !this.writeOnly ? [execStatusGutter(this), nodeTypeGutter(this)] : []
+        )
+      )
+    }
+
+    // update `gutterMarkers` if enabled
+    if (changedProperties.has('gutterMarkers') && !this.writeOnly) {
+      const baseConfig = [execStatusGutter(this)]
+      this.dispatchEffect(
+        this.clientRecieverConfig.reconfigure(
+          this.gutterMarkers
+            ? [...baseConfig, nodeTypeGutter(this)]
+            : baseConfig
         )
       )
     }
@@ -331,6 +402,47 @@ export class SourceView extends TWLitElement {
   }
 
   /**
+   * Get the list of nodes within the provided range.
+   * Only returns complete nodes within the range. nodes that start or finish ou
+   *
+   * @param from the starting position of the range
+   * @param to the ending position of the range
+   */
+  public getNodesBetween(from: number, to: number): MappingEntry[] {
+    return this.codeMirrorClient.nodesInRange(from, to)
+  }
+
+  /**
+   * Method to send an 'execute' command via the 'codeMirrorClient'.
+   * Nodes can be specified via the `nodesIds` param.
+   * Defaults to to the whole document if no nodes provided.
+   *
+   * @param nodeIds nodes to apply the command
+   */
+  public execute = (nodeIds: NodeId[] = []) => {
+    if (nodeIds.length > 0) {
+      this.codeMirrorClient.sendCommand('execute-nodes', nodeIds)
+    } else {
+      this.codeMirrorClient.sendCommand('execute-document')
+    }
+  }
+
+  /**
+   * Method to send an 'interupt' command via the 'codeMirrorClient'.
+   * Nodes can be specified via the `nodesIds` param.
+   * Defaults to to the whole document if no nodes provided.
+   *
+   * @param nodeIds nodes to apply the command
+   */
+  public interrupt = (nodeIds: NodeId[] = []) => {
+    if (nodeIds.length > 0) {
+      this.codeMirrorClient.sendCommand('interrupt-nodes', nodeIds)
+    } else {
+      this.codeMirrorClient.sendCommand('interrupt-document')
+    }
+  }
+
+  /**
    * CSS styling for the CodeMirror editor
    *
    * Overrides some of the default styles used by CodeMirror.
@@ -343,21 +455,24 @@ export class SourceView extends TWLitElement {
     return twCSS`
       .cm-editor {
         height: 100%;
-        max-width: calc(100vw-4rem);
-      }
+        color: black;
+        &.cm-focused {
+          outline: none;
+        }
+      }      
     `
   }
 
   protected override render() {
     /* 
-      height offset for the source view container,
+      Height offset for the source view container,
       includes header height and tab container border
     */
     const heightOffset = '5rem-1px'
 
     const styles = apply([
-      'relative',
-      `h-full max-h-[calc(100vh-${heightOffset})]`,
+      'relative flex',
+      `w-full h-full max-h-[calc(100vh-${heightOffset})]`,
     ])
 
     return html`

@@ -8,7 +8,7 @@ impl MarkdownCodec for InstructionBlock {
             .enter_node(self.node_type(), self.node_id())
             .merge_losses(lost_options!(self, id, auto_exec))
             .merge_losses(lost_exec_options!(self))
-            .push_str("%% ");
+            .push_str("// ");
 
         if let Some(assignee) = &self.options.assignee {
             context.push_str("@").push_str(assignee).push_str(" ");
@@ -16,19 +16,19 @@ impl MarkdownCodec for InstructionBlock {
 
         if let Some(part) = self
             .messages
-            .first()
+            .last()
             .and_then(|message| message.parts.first())
         {
             context
-                .push_prop_fn("message", |context| part.to_markdown(context))
+                .push_prop_fn("messages", |context| part.to_markdown(context))
                 .newline();
         }
 
         if let Some(content) = &self.content {
             context
-                .push_str("%>\n\n")
+                .push_str(":::\n\n")
                 .push_prop_fn("content", |context| content.to_markdown(context))
-                .push_str("%%\n");
+                .push_str(":::\n");
         };
 
         context.newline();

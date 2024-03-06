@@ -74,14 +74,14 @@ pub struct CodeBlockOptions {
 }
 
 impl CodeBlock {
-    const NICK: &'static str = "cdb";
+    const NICK: [u8; 3] = [99, 100, 98];
     
     pub fn node_type(&self) -> NodeType {
         NodeType::CodeBlock
     }
 
     pub fn node_id(&self) -> NodeId {
-        NodeId::new(Self::NICK, &self.uid)
+        NodeId::new(&Self::NICK, &self.uid)
     }
     
     pub fn new(code: Cord) -> Self {

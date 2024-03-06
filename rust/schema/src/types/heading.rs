@@ -72,14 +72,14 @@ pub struct HeadingOptions {
 }
 
 impl Heading {
-    const NICK: &'static str = "hea";
+    const NICK: [u8; 3] = [104, 101, 97];
     
     pub fn node_type(&self) -> NodeType {
         NodeType::Heading
     }
 
     pub fn node_id(&self) -> NodeId {
-        NodeId::new(Self::NICK, &self.uid)
+        NodeId::new(&Self::NICK, &self.uid)
     }
     
     pub fn new(level: Integer, content: Vec<Inline>) -> Self {

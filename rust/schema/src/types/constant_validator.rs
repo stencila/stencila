@@ -31,14 +31,14 @@ pub struct ConstantValidator {
 }
 
 impl ConstantValidator {
-    const NICK: &'static str = "cov";
+    const NICK: [u8; 3] = [99, 111, 118];
     
     pub fn node_type(&self) -> NodeType {
         NodeType::ConstantValidator
     }
 
     pub fn node_id(&self) -> NodeId {
-        NodeId::new(Self::NICK, &self.uid)
+        NodeId::new(&Self::NICK, &self.uid)
     }
     
     pub fn new(value: Box<Node>) -> Self {

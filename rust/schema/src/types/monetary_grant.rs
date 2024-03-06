@@ -93,14 +93,14 @@ pub struct MonetaryGrantOptions {
 }
 
 impl MonetaryGrant {
-    const NICK: &'static str = "mon";
+    const NICK: [u8; 3] = [109, 111, 110];
     
     pub fn node_type(&self) -> NodeType {
         NodeType::MonetaryGrant
     }
 
     pub fn node_id(&self) -> NodeId {
-        NodeId::new(Self::NICK, &self.uid)
+        NodeId::new(&Self::NICK, &self.uid)
     }
     
     pub fn new() -> Self {
