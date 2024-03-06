@@ -477,12 +477,7 @@ impl SpecializedAssistant {
             static ENVIRONMENT: Lazy<Environment> =
                 Lazy::new(SpecializedAssistant::template_environment);
 
-            // To avoid clash with Jinja tags it is necessary to escape the opening
-            // opening of inline instructions in Markdown templates
-            let template = template.replace("{%%", "{_%%");
-            let rendered = ENVIRONMENT.render_str(&template, &task)?.trim().to_string();
-            let prompt = rendered.replace("{_%%", "{%%");
-
+            let prompt = ENVIRONMENT.render_str(&template, &task)?.trim().to_string();
             task.system_prompt = Some(prompt);
         }
 

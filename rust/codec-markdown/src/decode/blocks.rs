@@ -181,16 +181,16 @@ fn call_arg(input: &str) -> IResult<&str, CallArgument> {
     )(input)
 }
 
-/// Start an [`InstructBlock`]
+/// Start an [`InstructionBlock`]
 pub fn instruct_block_start(input: &str) -> IResult<&str, (Option<&str>, &str, bool)> {
-    let (input, has_content) = if let Some(stripped) = input.strip_suffix("%>") {
+    let (input, has_content) = if let Some(stripped) = input.strip_suffix(":::") {
         (stripped, true)
     } else {
         (input, false)
     };
 
     let (remains, (assignee, text)) = all_consuming(preceded(
-        pair(tag("%%"), multispace0),
+        pair(tag("//"), multispace0),
         pair(
             opt(delimited(char('@'), assignee, multispace1)),
             is_not("\n"),
@@ -198,11 +198,6 @@ pub fn instruct_block_start(input: &str) -> IResult<&str, (Option<&str>, &str, b
     ))(input)?;
 
     Ok((remains, (assignee, text.trim(), has_content)))
-}
-
-/// End an [`InstructBlock`] with content
-pub fn instruct_block_end(input: &str) -> IResult<&str, &str> {
-    all_consuming(tag("%%"))(input)
 }
 
 /// Parse the start or end an [`InsertBlock`] node

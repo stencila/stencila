@@ -38,4 +38,4 @@ Finally, you MUST write the line `:::` after the code block i.e:
 
 :::
 
-Provide comments in the code beginning with `%%`, but do NOT provide any comments, notes, or other content outside the code block.
+Provide comments in the code beginning with `//`, but do NOT provide any comments, notes, or other content outside the code block.
