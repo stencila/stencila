@@ -2,7 +2,7 @@ import '@shoelace-style/shoelace/dist/components/icon/icon'
 import '@shoelace-style/shoelace/dist/components/tree/tree'
 import '@shoelace-style/shoelace/dist/components/tree-item/tree-item'
 import { consume } from '@lit/context'
-import { apply, css } from '@twind/core'
+import { css } from '@twind/core'
 import { LitElement, html } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
 import { ref, Ref, createRef } from 'lit/directives/ref'
@@ -10,6 +10,7 @@ import { ref, Ref, createRef } from 'lit/directives/ref'
 import { DomClient } from '../clients/dom'
 import { InfoViewContext, infoviewContext } from '../contexts/infoview-context'
 import { withTwind } from '../twind'
+import '../nodes'
 import type { DocumentId } from '../types'
 
 /**
@@ -92,18 +93,20 @@ export class InfoView extends LitElement {
   // in the dom that has that id to "show".
 
   override render() {
-    const containerClasses = apply(['h-full', 'p-4'])
-
     const domElementClasses = css`
       width: 100%;
       height: 100%;
-      & section *:not(.show) {
+      & section > *:not(.show) {
         display: none;
+      }
+      & [root] {
+        display: block;
+        height: 100%;
       }
     `
 
     return html`
-      <div class=${containerClasses}>
+      <div class="h-full">
         <div class=${domElementClasses} ${ref(this.domElement)}>
           <stencila-article root></stencila-article>
         </div>

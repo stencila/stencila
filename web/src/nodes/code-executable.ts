@@ -1,6 +1,7 @@
 import '@shoelace-style/shoelace/dist/components/icon/icon'
 import { html } from 'lit'
 import { property } from 'lit/decorators.js'
+import moment from 'moment'
 
 import { Executable } from './executable'
 
@@ -23,7 +24,7 @@ export abstract class CodeExecutable extends Executable {
   protected renderExecutableButtons() {
     return html`<span>
       <sl-icon name="play"></sl-icon>
-  </span>`
+    </span>`
   }
 
   /**
@@ -45,5 +46,22 @@ export abstract class CodeExecutable extends Executable {
   protected renderSourceViewHeader() {
     return this.renderVisualViewHeader()
   }
-}
 
+  /**
+   * Render the fields displaying when the
+   * last run was, and the duration of the last run
+   */
+  protected renderTimeFields() {
+    return html`
+      <stencila-basic-node-field icon-name="clock" icon-library="default">
+        <span slot="content">${moment(this.executionEnded).fromNow()}</span>
+      </stencila-basic-node-field>
+      <stencila-basic-node-field
+        icon-name="clock-history"
+        icon-library="default"
+      >
+        <span slot="content">${this.executionDuration}ms</span>
+      </stencila-basic-node-field>
+    `
+  }
+}
