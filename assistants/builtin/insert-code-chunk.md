@@ -54,17 +54,22 @@ Structure: {{ variable.hint|tojson(true) }}
 
 {% endfor %}
 
-# Examples
+{% if context.code_chunks %}
+# Existing Code
 
-Examples of code within the document:
+Here are some examples of code that has already been defined in this document.
+You can use these examples as a guide to writing new code.
+You can also assume that any functions and variables defined in these code chunks are available for use in new code chunks.
 
 {% for chunk in context.code_chunks %}
 ```{{ chunk.programmingLanguage }}
 {{ chunk.code }}
 ```
 {% endfor %}
+{% else %}
+# Example
 
-Examples of user instructions and valid responses follow.
+Here is an example of a user instruction and a response.
 
 User:
 
@@ -75,3 +80,6 @@ Assistant:
 ```r exec
 plot(x, y)
 ```
+
+{% endif %}
+
