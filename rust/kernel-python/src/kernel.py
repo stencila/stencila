@@ -384,7 +384,8 @@ try:
         pyplot.savefig(image, format="png")
         pyplot.close()
 
-        url = "data:image/png;base64," + base64.encodebytes(image.getvalue()).decode()
+        # Use `b64encode` instead of `encodebytes` to avoid newlines every 76 characters
+        url = "data:image/png;base64," + base64.b64encode(image.getvalue()).decode()
 
         return {
             "type": "ImageObject",
