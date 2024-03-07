@@ -1,6 +1,12 @@
 ---
 # Test using `edit-code-chunk` to translate a document.
 ---
+```python exec
+# Currently, we use this to boot up the python kernel.
+# But we should not need to do this in the future.
+import sys
+sys.version
+```
 
 // @edit-code-chunk translate this to python.
 :::

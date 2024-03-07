@@ -31,13 +31,15 @@ Operating system: {{ kernel.info.operatingSystem }}
 
 ### Packages
 
-These {{ kernel.info.name }} packages are available:
+For {{ kernel.info.name }}, the following packages are installed:
 
 {% for package in kernel.packages %}
-- {{ package.name }} {{ package.version }}
-{% endfor %}
+- {{ package.name }} {{ package.version }} {% endfor %}
 
 You can use your knowledge about these packages to assist in editing the code.
+ONLY USE packages that are available in this list.
+DO NOT assume you can install new packages.
+If there is a package that would make assistance easier, you can suggest it in COMMENTS ONLY.
 
 ### Variables
 
@@ -54,6 +56,7 @@ If appropriate, use these variables to assist in editing the code.
 {% endfor %}
 
 
-Here is the code chunk that requires editing, according to the instructions given:
+Here is the code chunk that requires editing, according to the instructions given above:
+Remember not to use packages that are not installed.
 
 {{ content_formatted }}
