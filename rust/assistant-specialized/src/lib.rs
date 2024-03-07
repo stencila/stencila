@@ -35,6 +35,9 @@ use assistant::{
     InstructionType,
 };
 
+mod jinja;
+use jinja::{describe_variable, minijinja_error_to_eyre, trim_end_chars, trim_start_chars};
+
 /// Default preference rank
 const PREFERENCE_RANK: u8 = 50;
 
@@ -319,17 +322,6 @@ where
     })
 }
 
-/// Expand a `minijinja` error to include the sources of the error (location etc)
-fn minijinja_error_to_eyre(error: minijinja::Error) -> eyre::Report {
-    let mut error = &error as &dyn std::error::Error;
-    let mut message = format!("{error:#}");
-    while let Some(source) = error.source() {
-        message.push_str(&format!("\n{:#}", source));
-        error = source;
-    }
-    eyre!(message)
-}
-
 const SYSTEM_PROMPT_TEMPLATE_NAME: &str = "system_prompt";
 
 impl SpecializedAssistant {
@@ -390,18 +382,10 @@ impl SpecializedAssistant {
         let mut env = Environment::new();
         env.set_undefined_behavior(UndefinedBehavior::Strict);
 
-        env.add_filter("trim_start_chars", |content: &str, length: u32| -> String {
-            let current_length = content.chars().count();
-            content
-                .chars()
-                .skip(current_length.saturating_sub(length as usize))
-                .take(length as usize)
-                .collect()
-        });
+        env.add_filter("trim_start_chars", trim_start_chars);
+        env.add_filter("trim_end_chars", trim_end_chars);
 
-        env.add_filter("trim_end_chars", |content: &str, length: u32| -> String {
-            content.chars().take(length as usize).collect()
-        });
+        env.add_filter("describe_variable", describe_variable);
 
         env.add_template_owned(SYSTEM_PROMPT_TEMPLATE_NAME, prompt)
             .map_err(minijinja_error_to_eyre)?;
@@ -493,8 +477,9 @@ impl SpecializedAssistant {
             task.content_formatted = Some(content);
         }
 
-        // Update other properties of the task related to the delegate (is any)
+        // Update other properties of the task related to the delegate (if any)
         if let Some(delegate) = delegate {
+            // TODO: set task.delegate
             task.context_length = Some(delegate.context_length());
         }
 
