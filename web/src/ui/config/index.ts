@@ -211,7 +211,7 @@ export class ConfigScreen extends LitElement {
       toUpdate.map((secret) => {
         return RestAPIClient.setSecret(
           secret.original.name,
-          `value=${secret.modifiedValue}`
+          secret.modifiedValue
         )
       })
     )
