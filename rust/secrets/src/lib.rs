@@ -158,12 +158,21 @@ pub fn list() -> Result<SecretList> {
 }
 
 /// Set a secret
+/// 
+/// If the value is a blank string then delete the entry
 pub fn set(name: &str, value: &str) -> Result<()> {
     if !SECRETS.iter().any(|secret| secret.name == name) {
         bail!("Only secrets used by Stencila can be set by Stencila")
     }
 
-    Ok(entry(name)?.set_password(value)?)
+    let secret_entry = entry(name)?;
+    if value.trim().is_empty() {
+        secret_entry.delete_password()?;
+    } else {
+        secret_entry.set_password(value)?;
+    }
+
+    Ok(())
 }
 
 /// Get a secret
