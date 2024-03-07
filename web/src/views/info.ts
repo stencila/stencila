@@ -72,18 +72,38 @@ export class InfoView extends LitElement {
 
   override async update(changedProperties: Map<string, string | boolean>) {
     super.update(changedProperties)
-    const { currentNodeId } = this.context
-
+    const { currentNodeId, currentParentNodes } = this.context
     if (this.currentNode && this.currentNode.id !== currentNodeId) {
-      this.currentNode.classList.remove('show')
+      const showing = this.domElement.value.querySelector('.show')
+      if (showing) {
+        showing.classList.remove('show')
+      }
+      this.domElement.value.querySelectorAll('[active-child]').forEach((el) => {
+        el.removeAttribute('active-child')
+      })
     }
 
     if (currentNodeId) {
       this.currentNode = this.domElement.value.querySelector(
         `#${currentNodeId}`
       )
+      // if node is at top level in doc append show
       if (this.currentNode) {
-        this.currentNode.classList.add('show')
+        if (!currentParentNodes) {
+          this.currentNode.classList.add('show')
+        } else {
+          // ID of the highest ancestor node
+          currentParentNodes.forEach((id, idx, arr) => {
+            const el = this.domElement.value.querySelector(`#${id}`)
+
+            if (el) {
+              el.setAttribute('active-child', arr[idx - 1] ?? currentNodeId)
+              if (idx === arr.length - 1) {
+                el.classList.add('show')
+              }
+            }
+          })
+        }
       }
     }
   }

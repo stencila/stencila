@@ -462,11 +462,12 @@ export class App extends LitElement {
     this.shadowRoot.addEventListener(
       'stencila-infoview-node',
       (
-        e: Event & { detail: Required<Pick<InfoViewContext, 'currentNodeId'>> }
+        e: Event & { detail: Required<Omit<InfoViewContext, 'infoViewOpen'>> }
       ) => {
         this.infoViewContext = {
           ...this.infoViewContext,
           currentNodeId: e.detail.currentNodeId,
+          currentParentNodes: e.detail.currentParentNodes,
         }
       }
     )

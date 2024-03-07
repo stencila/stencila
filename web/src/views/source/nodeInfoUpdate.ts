@@ -11,16 +11,21 @@ const nodeInfoUpdate = (sourceView: SourceView): Extension =>
 
         const cursor = view.state.selection.main.head
 
-        const currentNode = sourceView
+        const currentNodes = sourceView
           .getNodesAt(cursor)
-          .filter((node) => !['Text', 'Article'].includes(node.nodeType))[0]
+          .filter((node) => !['Text', 'Article'].includes(node.nodeType))
 
+        const primeNode = currentNodes.shift()
+
+        const parentNodes = currentNodes.map((node) => node.nodeId)
         sourceView.dispatchEvent(
           new CustomEvent('stencila-infoview-node', {
             bubbles: true,
             composed: true,
             detail: {
-              currentNodeId: currentNode ? currentNode.nodeId : undefined,
+              currentNodeId: primeNode ? primeNode.nodeId : undefined,
+              currentParentNodes:
+                parentNodes.length > 0 ? parentNodes : undefined,
             },
           })
         )
