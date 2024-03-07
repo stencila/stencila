@@ -69,7 +69,7 @@ type HandleRequestParams<ResponsePayload> = RequestParams & {
  * }
  * @return {*}
  */
-const handleRequest = async <ResponsePayload>({
+const handleRequest = async <ResponsePayload,>({
   url,
   identifier,
   init,
@@ -131,10 +131,12 @@ export class APIAccess {
       init,
       identifier,
       code,
-      callback: () => ({
-        status: 'success' as const,
-        identifier,
-      }),
+      callback: () => {
+        return {
+          status: 'success' as const,
+          identifier,
+        }
+      },
     })
   }
 

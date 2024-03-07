@@ -29,7 +29,13 @@ export class UIInput extends LitElement {
    * Callback to fire when input value changes
    */
   @property()
-  changeEvent: (element: HTMLInputElement) => void | undefined
+  changeEvent: ((element: HTMLInputElement) => void) | undefined
+
+  /**
+   * Callback to fire when clearing the field
+   */
+  @property()
+  clearEvent: (() => void) | undefined
 
   /**
    * Tracks the config screen's visibility. Used to determine whether to reset
@@ -67,17 +73,18 @@ export class UIInput extends LitElement {
         --sl-input-border-color-focus: transparent;
         --sl-focus-ring-width: 1px;
         --sl-input-focus-ring-color: #092d77;
-        --sl-input-height-small: 28px;
+        --sl-input-height-small: 36px;
+        width: 100%;
       }
 
-      &::part(form-control) {
-        width: 100%;
+      &::part(base) {
+        box-shadow: 0px 0px 4px 0px rgba(0, 0, 0, 0.25) inset;
       }
 
       &::part(input) {
         --sl-input-spacing-small: 8px;
+        background: none;
         padding: 4px var(--sl-input-spacing-small);
-        box-shadow: 0px 0px 4px 0px rgba(0, 0, 0, 0.25) inset;
       }
 
       &::part(form-control-help-text) {
@@ -93,8 +100,17 @@ export class UIInput extends LitElement {
           size="small"
           value=${this.value}
           defaultValue=${this.defaultValue}
+          clearable
+          spellcheck=${false}
           ${ref(this.ref)}
-        ></sl-input>
+        >
+          <sl-icon
+            slot="clear-icon"
+            name="close-outline"
+            library="stencila"
+            class="fill-grey-600 text-xl hover:fill-black"
+          ></sl-icon>
+        </sl-input>
       </form>
     `
   }
@@ -107,6 +123,10 @@ export class UIInput extends LitElement {
 
     this.ref.value.addEventListener('sl-input', () => {
       this.changeEvent && this.changeEvent(selfRef)
+    })
+
+    this.ref.value.addEventListener('sl-clear', () => {
+      this.clearEvent && this.clearEvent()
     })
   }
 

@@ -53,7 +53,7 @@ export class ConfigScreen extends LitElement {
         : 'top-full'} transition-all duration-300 fixed left-1/2 -translate-x-1/2 z-[12] w-full max-w-[528px] min-h-[588px]"
     >
       <div
-        class="shadow rounded-md m-5 px-6 pb-6 pt-[18px] inline-flex flex-col justify-start items-start bg-blue-50"
+        class="shadow rounded-md m-5 px-6 pb-6 pt-[18px] inline-flex flex-col justify-start items-start bg-blue-50 border border-blue-200"
       >
         <header
           class="self-stretch h-9 flex-row justify-start items-start gap-3 flex border-b-2 border-blue-200"
@@ -104,7 +104,7 @@ export class ConfigScreen extends LitElement {
               this.handleSave()
             }}
             .disabled=${this.savedState === 'saving'}
-            >Save me</stencila-ui-button
+            >Save</stencila-ui-button
           >
         </footer>
       </div>
@@ -154,6 +154,7 @@ export class ConfigScreen extends LitElement {
           value=${inputValue}
           .isConfigOpen=${this.context.configOpen ?? false}
           .changeEvent=${this.handleInputChangeEvent(secret)}
+          .clearEvent=${this.handleInputClearEvent(secret)}
         ></stencila-ui-input-field>
       </div>
     </div>`
@@ -170,13 +171,19 @@ export class ConfigScreen extends LitElement {
     }
   }
 
+  private handleInputClearEvent(secret: SecretState) {
+    return () => {
+      secret.modifiedValue = ''
+    }
+  }
+
   /**
    * Find the secrets that have been modified.
    */
   private filterModifiedSecrets() {
     return this.getSecretsKeys()
       .filter((key) => {
-        return this.secrets[key].modifiedValue
+        return this.secrets[key].modifiedValue !== undefined
       })
       .map((key) => {
         return this.secrets[key]
@@ -204,7 +211,7 @@ export class ConfigScreen extends LitElement {
       toUpdate.map((secret) => {
         return RestAPIClient.setSecret(
           secret.original.name,
-          secret.modifiedValue
+          `value=${secret.modifiedValue}`
         )
       })
     )
