@@ -375,27 +375,6 @@ impl SpecializedAssistant {
             expected_nodes.apply(&mut self.options)?;
         }
 
-        // pub transform_nodes: Option<NodeType>,
-        //
-        // /// The pattern for the type of node that filtered for after transform in applied
-        // #[serde(
-        //     deserialize_with = "deserialize_option_regex",
-        //     default,
-        //     skip_serializing
-        // )]
-        // pub filter_nodes: Option<Regex>,
-        //
-        // /// The number of nodes to take after filtering
-        // pub take_nodes: Option<usize>,
-        //
-        // /// A pattern for the type and number of nodes that should be generated
-        // #[serde(
-        //     deserialize_with = "deserialize_option_regex",
-        //     default,
-        //     skip_serializing
-        // )]
-        // pub assert_nodes: Option<Regex>,
-
         Ok(())
     }
 
