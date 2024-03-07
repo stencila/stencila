@@ -24,7 +24,6 @@ use assistant::{
         glob::glob,
         inflector::Inflector,
         itertools::Itertools,
-        once_cell::sync::Lazy,
         regex::Regex,
         serde::{de::Error, Deserialize, Deserializer, Serialize},
         serde_yaml, tracing,
@@ -264,6 +263,10 @@ pub struct SpecializedAssistant {
     #[serde(skip_deserializing)]
     system_prompt: Option<String>,
 
+    /// The template environment for the system prompt (if any)
+    #[serde(skip_deserializing)]
+    template_env: Option<Environment<'static>>,
+
     /// The maximum number of retries for generating valid nodes
     max_retries: Option<u8>,
 
@@ -316,6 +319,19 @@ where
     })
 }
 
+/// Expand a `minijinja` error to include the sources of the error (location etc)
+fn minijinja_error_to_eyre(error: minijinja::Error) -> eyre::Report {
+    let mut error = &error as &dyn std::error::Error;
+    let mut message = format!("{error:#}");
+    while let Some(source) = error.source() {
+        message.push_str(&format!("\n{:#}", source));
+        error = source;
+    }
+    eyre!(message)
+}
+
+const SYSTEM_PROMPT_TEMPLATE_NAME: &str = "system_prompt";
+
 impl SpecializedAssistant {
     // Added for testing
     // TODO: Wrap these in test / debug assertions?
@@ -345,22 +361,52 @@ impl SpecializedAssistant {
 
         // Parse header into an assistant
         let mut assistant: SpecializedAssistant = serde_yaml::from_str(&header)?;
-        // Add prompts if not blank
-        fn not_blank(prompt: String) -> Option<String> {
+        assistant.id = id.to_string();
+        assistant.description = parts.next().unwrap_or_else(|| "No description".to_string());
+
+        // If the system prompt is blank then make it None
+        let prompt = parts.next().and_then(|prompt| {
             let trimmed = prompt.trim();
             if trimmed.is_empty() {
                 None
             } else {
                 Some(trimmed.to_string())
             }
+        });
+
+        // If there is a system prompt then instantiate a template environment for it
+        if let Some(prompt) = prompt {
+            assistant.template_env = Some(Self::template_environment(prompt.clone())?);
+            assistant.system_prompt = Some(prompt);
         }
-        assistant.id = id.to_string();
-        assistant.description = parts.next().unwrap_or_else(|| "No description".to_string());
-        assistant.system_prompt = parts.next().and_then(not_blank);
 
         assistant.init()?;
 
         Ok(assistant)
+    }
+
+    /// Create a template environment for rendering prompts
+    fn template_environment(prompt: String) -> Result<Environment<'static>> {
+        let mut env = Environment::new();
+        env.set_undefined_behavior(UndefinedBehavior::Strict);
+
+        env.add_filter("trim_start_chars", |content: &str, length: u32| -> String {
+            let current_length = content.chars().count();
+            content
+                .chars()
+                .skip(current_length.saturating_sub(length as usize))
+                .take(length as usize)
+                .collect()
+        });
+
+        env.add_filter("trim_end_chars", |content: &str, length: u32| -> String {
+            content.chars().take(length as usize).collect()
+        });
+
+        env.add_template_owned(SYSTEM_PROMPT_TEMPLATE_NAME, prompt)
+            .map_err(minijinja_error_to_eyre)?;
+
+        Ok(env)
     }
 
     /// Initialize the assistant
@@ -452,37 +498,19 @@ impl SpecializedAssistant {
             task.context_length = Some(delegate.context_length());
         }
 
-        // Render the user prompt template with the task as context
-        if let Some(template) = &self.system_prompt {
-            static ENVIRONMENT: Lazy<Environment> =
-                Lazy::new(SpecializedAssistant::template_environment);
-
-            let prompt = ENVIRONMENT.render_str(template, &task)?.trim().to_string();
+        // If the assistant has a template env (and this a system prompt)
+        // then render the prompt with the task as its context
+        if let Some(env) = &self.template_env {
+            let template = env.get_template(SYSTEM_PROMPT_TEMPLATE_NAME)?;
+            let prompt = template
+                .render(&task)
+                .map_err(minijinja_error_to_eyre)?
+                .trim()
+                .to_string();
             task.system_prompt = Some(prompt);
         }
 
         Ok(task)
-    }
-
-    /// Create a template environment for rendering prompts
-    fn template_environment() -> Environment<'static> {
-        let mut env = Environment::new();
-        env.set_undefined_behavior(UndefinedBehavior::Chainable);
-
-        env.add_filter("trim_start_chars", |content: &str, length: u32| -> String {
-            let current_length = content.chars().count();
-            content
-                .chars()
-                .skip(current_length.saturating_sub(length as usize))
-                .take(length as usize)
-                .collect()
-        });
-
-        env.add_filter("trim_end_chars", |content: &str, length: u32| -> String {
-            content.chars().take(length as usize).collect()
-        });
-
-        env
     }
 
     /// Get the first assistant in the list of delegates capable to performing task
