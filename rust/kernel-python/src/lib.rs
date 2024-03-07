@@ -454,6 +454,25 @@ para = {'type':'Paragraph', 'content':[]}
         .await
     }
 
+    /// Custom Python kernel test for variable listing to ensure some globals
+    /// and imported modules are excluded
+    #[test_log::test(tokio::test)]
+    async fn var_listing_excluded() -> Result<()> {
+        let Some(mut instance) = start_instance::<PythonKernel>().await? else {
+            return Ok(());
+        };
+
+        // Import a module to check that does not appear in the list
+        instance.execute("import datetime").await?;
+
+        let vars = instance.list().await?;
+        assert!(!vars.iter().any(|var| var.name == "__builtins__"
+            || var.name == "print"
+            || var.name == "datetime"));
+
+        Ok(())
+    }
+
     /// Standard kernel test for variable management
     #[test_log::test(tokio::test)]
     async fn var_management() -> Result<()> {

@@ -14,6 +14,7 @@ import os
 import resource
 import sys
 import traceback
+import types
 import warnings
 from typing import Any, Literal, TypedDict, Union
 
@@ -512,7 +513,7 @@ def get_packages() -> None:
 # List variables in the CONTEXT
 def list_variables() -> None:
     for name, value in CONTEXT.items():
-        if name == "print":
+        if name in ("__builtins__", "print") or isinstance(value, types.ModuleType):
             continue
 
         native_type = type(value).__name__
