@@ -209,10 +209,14 @@ export class ConfigScreen extends LitElement {
 
     const savedAPIs = Promise.allSettled(
       toUpdate.map((secret) => {
-        return RestAPIClient.setSecret(
-          secret.original.name,
-          `value=${secret.modifiedValue}`
-        )
+        if (secret.modifiedValue.trim().length === 0) {
+          return RestAPIClient.deleteSecret(secret.original.name)
+        } else {
+          return RestAPIClient.setSecret(
+            secret.original.name,
+            secret.modifiedValue
+          )
+        }
       })
     )
 
