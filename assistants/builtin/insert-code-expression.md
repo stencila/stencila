@@ -62,6 +62,7 @@ This code may contain variables and functions that can be used in the code expre
 {{ chunk.code }}
 ```
 {% endfor %}
+{% endif %}
 
 # Examples
 
