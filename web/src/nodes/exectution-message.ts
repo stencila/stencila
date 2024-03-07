@@ -1,5 +1,5 @@
 import '@shoelace-style/shoelace/dist/components/icon/icon'
-import './widgets/collapsable'
+import './widgets/collapsable-field'
 import { MessageLevel } from '@stencila/types'
 import { html, css } from 'lit'
 import { customElement, property } from 'lit/decorators'
@@ -18,6 +18,7 @@ export class ExecutionMessage extends Entity {
   level: MessageLevel
 
   // override the styles property to set the `<pre>` styles
+  // TODO - sort this out, get the pre elements wrapped in divs from the server
   static override styles = css`
     slot::slotted(pre) {
       padding: 1rem;

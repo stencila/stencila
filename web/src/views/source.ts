@@ -482,7 +482,7 @@ export class SourceView extends TWLitElement {
 
     const infoViewStyles = apply([
       `${this.infoViewContext.infoViewOpen ? 'w-full' : 'w-0'}`,
-      'max-w-[40%]',
+      'max-w-[35%]',
       'border-l border-grey-200',
       'transition-w duration-200',
     ])

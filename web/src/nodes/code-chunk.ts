@@ -1,8 +1,8 @@
 import { html } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
 
-import './widgets/field'
-import './widgets/collapsable'
+import './widgets/basic-field'
+import './widgets/collapsable-field'
 import './helpers/node-card'
 import { withTwind } from '../twind'
 

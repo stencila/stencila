@@ -1,8 +1,10 @@
+import { css } from '@twind/core'
 import { html, LitElement } from 'lit'
+import { property } from 'lit/decorators'
 
 import { DirectoryAction, directoryActionEvent } from '../clients/directory'
 import { nodePatchEvent, NodePatch } from '../clients/nodes'
-import { DocumentAccess, DocumentView } from '../types'
+import { DocumentAccess, DocumentView, NodeId } from '../types'
 
 /**
  * Abstract base class for web components representing Stencila Schema `Entity` node types
@@ -17,6 +19,13 @@ import { DocumentAccess, DocumentView } from '../types'
  * because `id` is already a property of `HTMLElement` from which this is derived.
  */
 export abstract class Entity extends LitElement {
+  /**
+   * The Id of a child node that is/or contains,
+   * a currently selected node in the sourceView
+   */
+  @property({ type: String, attribute: 'active-child' })
+  activeChild: NodeId
+
   /**
    * Select the closest element matching a selector
    *
@@ -89,6 +98,7 @@ export abstract class Entity extends LitElement {
    */
   override render() {
     const view = this.documentView()
+
     switch (view) {
       case 'static':
       case 'live':
@@ -100,6 +110,23 @@ export abstract class Entity extends LitElement {
       case 'visual':
         return this.renderVisualView()
       case 'source':
+        if (this.activeChild) {
+          const parentNodeStyles = css`
+            & slot[name='content']::slotted(*) {
+              visibility: hidden;
+
+              & #${this.activeChild} {
+                visibility: visible;
+              }
+            }
+          `
+
+          return html`
+            <div class=${parentNodeStyles}>
+              <slot name="content"></slot>
+            </div>
+          `
+        }
         return this.renderSourceView()
       default:
         return html`Not implemented`

@@ -5,7 +5,7 @@ import { withTwind } from '../../twind'
 
 @customElement('stencila-basic-node-field')
 @withTwind()
-export class NodeField extends LitElement {
+export class BasicNodeField extends LitElement {
   @property({ attribute: 'icon-name' })
   iconName: string
 
