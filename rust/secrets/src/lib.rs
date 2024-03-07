@@ -71,7 +71,7 @@ impl ToStdout for SecretList {
                     Some(redacted) => Cell::new(redacted).fg(Color::Green),
                     None => Cell::new(""),
                 }
-                .set_alignment(CellAlignment::Right),
+                .set_alignment(CellAlignment::Left),
             ]);
         }
         table
@@ -134,22 +134,8 @@ pub fn list() -> Result<SecretList> {
     SECRETS
         .iter()
         .map(|secret| {
-            let redacted = entry(&secret.name)?.get_password().ok().map(|value| {
-                [
-                    "●".repeat(12),
-                    value
-                        .chars()
-                        .rev()
-                        .take(5)
-                        .collect::<String>()
-                        .chars()
-                        .rev()
-                        .collect::<String>(),
-                ]
-                .concat()
-            });
             Ok(Secret {
-                redacted,
+                redacted: entry(&secret.name)?.get_password().ok().map(redact),
                 ..secret.clone()
             })
         })
@@ -157,8 +143,36 @@ pub fn list() -> Result<SecretList> {
         .map(SecretList)
 }
 
+/// Redact a secret
+///
+/// Returns a string with the same number of characters as the secret but all
+/// but the last three characters redacted. If the secret is less than 6 characters
+/// then all characters will be redacted.
+fn redact(value: String) -> String {
+    let chars = value.chars();
+    let chars_count = chars.clone().count();
+
+    const CLEAR_CHARS_AT_END: usize = 3;
+
+    if chars_count <= CLEAR_CHARS_AT_END * 2 {
+        "●".repeat(chars_count)
+    } else {
+        [
+            "●".repeat(chars_count - CLEAR_CHARS_AT_END),
+            chars
+                .rev()
+                .take(CLEAR_CHARS_AT_END)
+                .collect::<String>()
+                .chars()
+                .rev()
+                .collect::<String>(),
+        ]
+        .concat()
+    }
+}
+
 /// Set a secret
-/// 
+///
 /// If the value is a blank string then delete the entry
 pub fn set(name: &str, value: &str) -> Result<()> {
     if !SECRETS.iter().any(|secret| secret.name == name) {
