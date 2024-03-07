@@ -6,7 +6,7 @@ def womble_size(age: int, diet: str) -> int:
       'carrots': 0.5,
       'cheezels': 1.9,
     }.get(diet, 1.0)
-    return age * 1.5 + multiplier * 3.0
+    return age * 1.5 + diet_multiplier * 3.0
 ```
 
 // @insert-code-chunk get the size of a 5 year-old carrot eating womble.
