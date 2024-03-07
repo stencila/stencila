@@ -15,12 +15,11 @@ This document contains the help content for the `stencila` command-line program.
 * [`stencila execute`↴](#stencila-execute)
 * [`stencila serve`↴](#stencila-serve)
 * [`stencila assistants`↴](#stencila-assistants)
-* [`stencila repl`↴](#stencila-repl)
-* [`stencila test`↴](#stencila-test)
 * [`stencila kernels`↴](#stencila-kernels)
 * [`stencila kernels list`↴](#stencila-kernels-list)
 * [`stencila kernels info`↴](#stencila-kernels-info)
 * [`stencila kernels packages`↴](#stencila-kernels-packages)
+* [`stencila kernels execute`↴](#stencila-kernels-execute)
 * [`stencila plugins`↴](#stencila-plugins)
 * [`stencila plugins list`↴](#stencila-plugins-list)
 * [`stencila plugins install`↴](#stencila-plugins-install)
@@ -56,8 +55,6 @@ CLI subcommands and global options
 * `execute` — Execute a document
 * `serve` — Serve
 * `assistants` — List the available AI assistants
-* `repl` — A read-evaluate-print loop for AI assistants
-* `test` — 
 * `kernels` — Manage execution kernels
 * `plugins` — Manage plugins
 * `secrets` — Manage secrets used by Stencila (e.g. API keys)
@@ -350,12 +347,16 @@ Convert a document between formats
 
 Execute a document
 
-**Usage:** `stencila execute <INPUT> [OUTPUT]`
+**Usage:** `stencila execute [OPTIONS] <INPUT> [OUTPUT]`
 
 ###### **Arguments:**
 
 * `<INPUT>` — The path of the file to execute
 * `<OUTPUT>` — The path of the file to write the executed document to
+
+###### **Options:**
+
+* `-t`, `--to <TO>` — The format to encode to (or codec to use)
 
 
 
@@ -402,62 +403,6 @@ List the available AI assistants
 
 
 
-## `stencila repl`
-
-A read-evaluate-print loop for AI assistants
-
-Mainly intended for prompt engineering during development of Stencila.
-
-**Usage:** `stencila repl [OPTIONS] [TRANSFORM_NODES] [FILTER_NODES] [TAKE_NODES] [ASSERT_NODES]`
-
-###### **Arguments:**
-
-* `<TRANSFORM_NODES>` — The type of node that each decoded node should be transformed to
-* `<FILTER_NODES>` — The pattern for the type of node that filtered for after transform in applied
-* `<TAKE_NODES>` — The number of nodes to take after filtering
-* `<ASSERT_NODES>` — A pattern for the type and number of nodes that should be generated
-
-###### **Options:**
-
-* `-d`, `--document <DOCUMENT>` — The path of the document to use in the context
-* `--assistant <ASSISTANT>` — The name of the assistant to use
-* `--mirostat <MIROSTAT>` — Enable Mirostat sampling for controlling perplexity
-* `--mirostat-eta <MIROSTAT_ETA>` — Influences how quickly the algorithm responds to feedback from the generated text
-* `--mirostat-tau <MIROSTAT_TAU>` — Controls the balance between coherence and diversity of the output
-* `--num-ctx <NUM_CTX>` — Sets the size of the context window used to generate the next token
-* `--num-gqa <NUM_GQA>` — The number of GQA groups in the transformer layer
-* `--num-gpu <NUM_GPU>` — The number of layers to send to the GPU(s)
-* `--num-thread <NUM_THREAD>` — Sets the number of threads to use during computation
-* `--repeat-last-n <REPEAT_LAST_N>` — Sets how far back for the model to look back to prevent repetition
-* `--repeat-penalty <REPEAT_PENALTY>` — Sets how strongly to penalize repetitions
-* `--temperature <TEMPERATURE>` — The temperature of the model
-* `--seed <SEED>` — Sets the random number seed to use for generation
-* `--stop <STOP>` — Sets the stop sequences to use
-* `--max-tokens <MAX_TOKENS>` — The maximum number of tokens to generate
-* `--tfs-z <TFS_Z>` — Tail free sampling is used to reduce the impact of less probable tokens from the output
-* `--top-k <TOP_K>` — Reduces the probability of generating nonsense
-* `--top-p <TOP_P>` — Works together with top-k
-* `--image-quality <IMAGE_QUALITY>` — The quality of the image that will be generated
-* `--image-style <IMAGE_STYLE>` — The style of the generated images. Must be one of `vivid` or `natural`
-
-
-
-## `stencila test`
-
-**Usage:** `stencila test [OPTIONS] <PATH>`
-
-###### **Arguments:**
-
-* `<PATH>` — The path of test directory or file
-
-###### **Options:**
-
-* `-n`, `--reps <REPS>` — The number of repetitions
-
-  Default value: `1`
-
-
-
 ## `stencila kernels`
 
 Manage execution kernels
@@ -469,6 +414,7 @@ Manage execution kernels
 * `list` — List the kernels available
 * `info` — Get information about a kernel
 * `packages` — List packages available to a kernel
+* `execute` — Execute some code in a kernel
 
 
 
@@ -506,6 +452,23 @@ Mainly used to check libraries available to a kernel for debugging purpose.
 
 * `<NAME>` — The name of the kernel to list packages for
 * `<FILTER>` — A filter on the name of the kernel
+
+
+
+## `stencila kernels execute`
+
+Execute some code in a kernel
+
+Creates a temporary kernel instance, executes one or more lines of code, and returns any decoded outputs and execution messages.
+
+Mainly intended for quick testing of kernels during development.
+
+**Usage:** `stencila kernels execute <NAME> <CODE>`
+
+###### **Arguments:**
+
+* `<NAME>` — The name of the kernel to execute code in
+* `<CODE>` — The code to execute
 
 
 
