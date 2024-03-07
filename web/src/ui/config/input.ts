@@ -94,7 +94,12 @@ export class UIInput extends LitElement {
     `
 
     return html`
-      <form novalidate ${ref(this.formRef)} class="mb-5 w-full">
+      <form
+        novalidate
+        onsubmit="return false;"
+        ${ref(this.formRef)}
+        class="mb-5 w-full"
+      >
         <sl-input
           class="${styles} w-full"
           size="small"
