@@ -64,7 +64,8 @@ export class RestAPIClient {
       identifier: name,
       init: {
         method: 'POST',
-        headers: { 'Content-Type': 'text/plain', body: value },
+        headers: { 'Content-Type': 'text/plain' },
+        body: value,
       },
     })
   }
