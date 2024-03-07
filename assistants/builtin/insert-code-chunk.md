@@ -39,8 +39,7 @@ Operating system: {{ kernel.info.operatingSystem }}
 These {{ kernel.info.name }} packages are available:
 
 {% for package in kernel.packages %}
-- {{ package.name }} {{ package.version }}
-{% endfor %}
+- {{ package.name }} {{ package.version }} {% endfor %}
 
 ### Variables
 
