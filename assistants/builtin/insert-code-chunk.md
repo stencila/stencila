@@ -46,9 +46,7 @@ These {{ kernel.info.name }} packages are available:
 These variables are defined in {{ kernel.info.name }}:
 
 {% for variable in kernel.variables %} 
-Name: {{ variable.name }}
-Type: {{ variable.nativeType }}
-Structure: {{ variable.hint|tojson(true) }}
+{{ variable|describe_variable }}
 {% endfor %}
 
 {% endfor %}
