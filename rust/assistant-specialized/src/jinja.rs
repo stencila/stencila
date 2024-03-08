@@ -2,7 +2,7 @@
 
 use assistant::{
     common::eyre::{eyre, Report},
-    schema::{ArrayHint, Hint, Variable},
+    schema::{ArrayHint, DatatableColumnHint, DatatableHint, Hint, Variable},
 };
 use minijinja::{value::ViaDeserialize, Error};
 
@@ -32,6 +32,39 @@ pub fn trim_end_chars(content: &str, length: u32) -> String {
     content.chars().take(length as usize).collect()
 }
 
+fn describe_array_hint(hint: &ArrayHint) -> String {
+    let mut lines = vec![format!(" with length {}", hint.length)];
+    if let Some(item_types) = &hint.item_types {
+        lines.push(format!(
+            "containing values of the following types: {}",
+            item_types.join(",")
+        ));
+    }
+    if let Some(minimum) = &hint.minimum {
+        lines.push(format!("with a minimum value of: {minimum}"));
+    }
+    if let Some(maximum) = &hint.maximum {
+        lines.push(format!("with a maximum value of: {maximum}"));
+    }
+    if let Some(nulls) = &hint.nulls {
+        lines.push(format!("containing {nulls} null values"));
+    }
+    lines.join("\n    - ")
+}
+
+fn describe_datatable_hint(hint: &DatatableHint) -> String {
+    let mut header = format!(" with {} rows", hint.rows);
+    if hint.columns.is_empty() {
+        return header;
+    }
+    header += &format!(", with these columns:");
+    let mut lines = vec![header];
+    for column in &hint.columns {
+        lines.push(format!("`{}`: type {}", column.name, column.item_type));
+    }
+    lines.join("\n    - ")
+}
+
 /// Create an Markdown description of a `Variable` as a list item with a
 /// nested child list describing its characteristics.
 pub fn describe_variable(variable: ViaDeserialize<Variable>) -> String {
@@ -46,35 +79,8 @@ pub fn describe_variable(variable: ViaDeserialize<Variable>) -> String {
     };
 
     match hint {
-        Hint::ArrayHint(ArrayHint {
-            length,
-            item_types,
-            minimum,
-            maximum,
-            nulls,
-            ..
-        }) => {
-            desc += &format!("\n    - with length {length}");
-
-            if let Some(item_types) = item_types {
-                desc += &format!(
-                    "\n    - containing values of the following types: {}",
-                    item_types.join(", ")
-                );
-            }
-
-            if let Some(minimum) = minimum {
-                desc += &format!("\n    - with a minimum value of: {minimum}");
-            }
-
-            if let Some(maximum) = maximum {
-                desc += &format!("\n    - with a maximum value of: {maximum}");
-            }
-
-            if let Some(nulls) = nulls {
-                desc += &format!("\n    - containing {nulls} null values");
-            }
-        }
+        Hint::ArrayHint(hint) => desc += &describe_array_hint(hint),
+        Hint::DatatableHint(hint) => desc += &describe_datatable_hint(hint),
         _ => {
             // TODO handle all the other hint types
         }
