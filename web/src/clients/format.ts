@@ -329,7 +329,6 @@ export abstract class FormatClient extends Client {
         nodes.push({ ...entry, start, end })
       }
     }
-    console.log(nodes)
     return nodes
   }
 }
