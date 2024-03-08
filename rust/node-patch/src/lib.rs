@@ -6,8 +6,7 @@ use node_store::{
     ReadNode, ReadStore, WriteNode, WriteStore,
 };
 use schema::{
-    Block, Duration, ExecutionMessage, ExecutionRequired, ExecutionStatus, Node, NodeId, Section,
-    SuggestionBlockType, Timestamp,
+    Block, Duration, ExecutionMessage, ExecutionRequired, ExecutionStatus, Node, NodeId, Section, SuggestionBlockType, SuggestionInlineType, Timestamp
 };
 
 /// Replace a property of a node with a value
@@ -221,6 +220,17 @@ impl From<SuggestionBlockType> for Value {
             SuggestionBlockType::ModifyBlock(block) => Node::ModifyBlock(block),
             SuggestionBlockType::ReplaceBlock(block) => Node::ReplaceBlock(block),
             SuggestionBlockType::DeleteBlock(block) => Node::DeleteBlock(block),
+        })
+    }
+}
+
+impl From<SuggestionInlineType> for Value {
+    fn from(value: SuggestionInlineType) -> Self {
+        Value::One(match value {
+            SuggestionInlineType::InsertInline(block) => Node::InsertInline(block),
+            SuggestionInlineType::ModifyInline(block) => Node::ModifyInline(block),
+            SuggestionInlineType::ReplaceInline(block) => Node::ReplaceInline(block),
+            SuggestionInlineType::DeleteInline(block) => Node::DeleteInline(block),
         })
     }
 }

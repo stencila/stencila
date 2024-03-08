@@ -33,6 +33,7 @@ mod for_block;
 mod if_block;
 mod include_block;
 mod instruction_block;
+mod instruction_inline;
 mod math;
 mod styled;
 
@@ -338,7 +339,7 @@ impl VisitorAsync for Executor {
 
         let control = match inline {
             CodeExpression(node) => self.visit_executable(node).await,
-            // TODO: InstructionInline(node) => self.visit_executable(node).await,
+            InstructionInline(node) => self.visit_executable(node).await,
             // TODO: MathInline(node) => self.visit_executable(node).await,
             // TODO: Parameter(node) => self.visit_executable(node).await,
             // TODO: StyledInline(node) => self.visit_executable(node).await,
