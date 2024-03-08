@@ -120,10 +120,25 @@ export class InfoView extends LitElement {
     const domElementClasses = css`
       width: 100%;
       height: 100%;
+
+      /* hide all non-active node trees */
       & section > *:not(.show) {
         display: none;
       }
+
+      /* set the [root] element to block display to allow full height */
       & [root] {
+        display: block;
+        height: 100%;
+      }
+
+      /* set all elements to block with full height to allow full space */
+      & [root],
+      slot[name='content']::slotted(*),
+      slot[name='items']::slotted(*),
+      [slot='content'],
+      [slot='items'],
+      [active-child] {
         display: block;
         height: 100%;
       }
@@ -133,7 +148,10 @@ export class InfoView extends LitElement {
         visibility: visible;
       }
 
-      /* hide previous and following siblings from the dom */
+      /*
+        hide previous and following siblings from the dom 
+        to avoid white space
+      */
       & *:has(~ .active-node),
       .active-node ~ * {
         display: none;
