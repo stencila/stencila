@@ -99,6 +99,10 @@ impl Executable for InstructionBlock {
             );
         }
 
+        // TODO: consider only adding instructions which have been accepted, since those which have
+        // not yet been accepted are probably of no value to add to the context for assistants
+        executor.context.push_instruction_block(self);
+
         WalkControl::Break
     }
 

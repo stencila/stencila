@@ -46,6 +46,7 @@
         "datetime",
         "Deno",
         "dependants",
+        "Deque",
         "divs",
         "dtype",
         "emax",

@@ -84,7 +84,7 @@ impl Executable for CodeChunk {
 
         // If the code chunk succeeded add it to the context
         if add_to_context {
-            executor.context.code_chunks.push(self.clone());
+            executor.context.push_code_chunk(self);
         }
 
         WalkControl::Break

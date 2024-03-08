@@ -172,10 +172,9 @@ impl Executor {
         self.phase = Phase::Execute;
         self.is_last = false;
 
-        // TODO: This clears the context which is fine if were are executing the
-        // whole document but not if we're only executing one or a few nodes, in
-        // which case we want to keep the existing context because we won't walk
-        // all nodes.
+        // Create a new context before walking the tree. Note that
+        // this means that instructions will on "see" the other nodes that
+        // precede them in the document.
         self.context = Context::default();
 
         root.walk_async(self).await
@@ -263,6 +262,8 @@ impl Executor {
 
 impl VisitorAsync for Executor {
     async fn visit_node(&mut self, node: &mut Node) -> Result<WalkControl> {
+        // If the executor has node ids (i.e. is only executing some nodes, not the entire
+        // document) then do not execute this node if it is not in the node ids.
         if let Some(node_ids) = &self.node_ids {
             if let Some(node_id) = &node.node_id() {
                 if !node_ids.contains(node_id) {
@@ -281,6 +282,17 @@ impl VisitorAsync for Executor {
     }
 
     async fn visit_block(&mut self, block: &mut Block) -> Result<WalkControl> {
+        use Block::*;
+
+        // If the block is of a type that is collected in the execution context
+        // then do that. Executable nodes should not be added here. Instead they should
+        // only be added to the context at the end of their `execute` method is successful
+        if let Paragraph(paragraph) = &block {
+            self.context.push_paragraph(paragraph)
+        }
+
+        // If the executor has node ids (i.e. is only executing some nodes, not the entire
+        // document) then do not execute this block if it is not in the node ids.
         if let Some(node_ids) = &self.node_ids {
             if let Some(node_id) = &block.node_id() {
                 if !node_ids.contains(node_id) {
@@ -289,7 +301,6 @@ impl VisitorAsync for Executor {
             }
         }
 
-        use Block::*;
         let control = match block {
             // TODO: CallBlock(node) => self.visit_executable(node).await,
             CodeChunk(node) => self.visit_executable(node).await,
@@ -306,6 +317,17 @@ impl VisitorAsync for Executor {
     }
 
     async fn visit_inline(&mut self, inline: &mut Inline) -> Result<WalkControl> {
+        use Inline::*;
+
+        // If the inline is of a type that is collected in the execution context
+        // then do that. Executable nodes should not be added here. Instead they should
+        // only be added to the context at the end of their `execute` method is successful
+        if let Text(text) = &inline {
+            self.context.push_text(text)
+        }
+
+        // If the executor has node ids (i.e. is only executing some nodes, not the entire
+        // document) then do not execute this inline if it is not in the node ids.
         if let Some(node_ids) = &self.node_ids {
             if let Some(node_id) = &inline.node_id() {
                 if !node_ids.contains(node_id) {
@@ -314,7 +336,6 @@ impl VisitorAsync for Executor {
             }
         }
 
-        use Inline::*;
         let control = match inline {
             CodeExpression(node) => self.visit_executable(node).await,
             // TODO: InstructionInline(node) => self.visit_executable(node).await,
