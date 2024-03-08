@@ -15,17 +15,38 @@ import { nodeCardParentStyles, nodeCardStyles } from './helpers/node-card'
 @customElement('stencila-list')
 @withTwind()
 export class List extends Entity {
-  override render() {
+  override renderStaticView() {
     const view = this.documentView()
+    return html`
+      <div class=${nodeCardParentStyles(view)}>
+        <slot name="items"></slot>
+        <stencila-node-card type="List" class=${nodeCardStyles(view)}>
+          <stencila-node-authors type="List">
+            <slot name="authors"></slot>
+          </stencila-node-authors>
+        </stencila-node-card>
+      </div>
+    `
+  }
 
-    return html`<div class=${nodeCardParentStyles(view)}></div>
-      ${view !== 'source' ? html`<slot name="items"></slot>` : ''}
+  override renderDynamicView() {
+    return this.renderStaticView()
+  }
 
-      <stencila-node-card type="List" class=${nodeCardStyles(view)}>
-        <stencila-node-authors type="List">
-          <slot name="authors"></slot>
-        </stencila-node-authors>
-      </stencila-node-card>
-    </div>`
+  override renderVisualView() {
+    return this.renderDynamicView()
+  }
+
+  override renderSourceView() {
+    const view = this.documentView()
+    return html`
+      <div class=${nodeCardParentStyles(view)}>
+        <stencila-node-card type="List" class=${nodeCardStyles(view)}>
+          <stencila-node-authors type="List">
+            <slot name="authors"></slot>
+          </stencila-node-authors>
+        </stencila-node-card>
+      </div>
+    `
   }
 }

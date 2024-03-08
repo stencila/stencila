@@ -114,16 +114,13 @@ export abstract class Entity extends LitElement {
           const parentNodeStyles = css`
             & slot[name='content']::slotted(*) {
               visibility: hidden;
-
-              & #${this.activeChild} {
-                visibility: visible;
-              }
             }
           `
 
           return html`
             <div class=${parentNodeStyles}>
               <slot name="content"></slot>
+              <slot name="items"></slot>
             </div>
           `
         }

@@ -15,28 +15,38 @@ import { nodeCardParentStyles, nodeCardStyles } from './helpers/node-card'
 @customElement('stencila-paragraph')
 @withTwind()
 export class Paragraph extends Entity {
-  override renderSourceView() {
+  override renderStaticView() {
     const view = this.documentView()
-    return html`<div class=${nodeCardParentStyles(view)}>
-      <stencila-node-card type="Paragraph" class=${nodeCardStyles(view)}>
-        <stencila-node-authors type="Paragraph">
-          <slot name="authors"></slot>
-        </stencila-node-authors>
-      </stencila-node-card>
-    </div>`
+    return html`
+      <div class=${nodeCardParentStyles(view)}>
+        <slot name="content"></slot>
+        <stencila-node-card type="Paragraph" class=${nodeCardStyles(view)}>
+          <stencila-node-authors type="Paragraph">
+            <slot name="authors"></slot>
+          </stencila-node-authors>
+        </stencila-node-card>
+      </div>
+    `
   }
 
-  // override render() {
-  //   const view = this.documentView()
-  //   return html`<div class=${nodeCardParentStyles(view)}>
-  //     ${view !== 'source' ? html`<slot name="content"></slot>` : ''}
-  //     <stencila-node-card type="Paragraph" class=${nodeCardStyles(view)}>
-  //       <stencila-node-authors type="Paragraph">
-  //         <slot name="authors"></slot>
-  //       </stencila-node-authors>
-  //     </stencila-node-card>
-  //   </div>`
-  // }
+  override renderDynamicView() {
+    return this.renderStaticView()
+  }
 
-  // override this.render
+  override renderVisualView() {
+    return this.renderDynamicView()
+  }
+
+  override renderSourceView() {
+    const view = this.documentView()
+    return html`
+      <div class=${nodeCardParentStyles(view)}>
+        <stencila-node-card type="Paragraph" class=${nodeCardStyles(view)}>
+          <stencila-node-authors type="Paragraph">
+            <slot name="authors"></slot>
+          </stencila-node-authors>
+        </stencila-node-card>
+      </div>
+    `
+  }
 }
