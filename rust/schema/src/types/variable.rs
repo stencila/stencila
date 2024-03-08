@@ -40,8 +40,12 @@ pub struct Variable {
     /// The value of the variable.
     pub value: Option<Box<Node>>,
 
-    /// A hint of the value and/or structure of the variable.
+    /// A hint to the value and/or structure of the variable.
     pub hint: Option<Hint>,
+
+    /// A textual hint to the value and/or structure of the variable.
+    #[serde(alias = "native-hint", alias = "native_hint")]
+    pub native_hint: Option<String>,
 
     /// A unique identifier for a node within a document
     

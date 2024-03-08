@@ -12,6 +12,7 @@ core:
   - nodeType
   - value
   - hint
+  - nativeHint
 properties:
   name:
     '@id': schema:name
@@ -39,5 +40,12 @@ properties:
     $ref: Node
   hint:
     '@id': stencila:hint
-    description: A hint of the value and/or structure of the variable.
+    description: A hint to the value and/or structure of the variable.
     $ref: Hint
+  nativeHint:
+    '@id': stencila:nativeHint
+    description: A textual hint to the value and/or structure of the variable.
+    $comment: |
+      Can be used instead of, or in addition to, `hint` to provide less structured, but potentially more informative,
+      summaries of the variable usually generated within the programming language environment e.g. using R's `summary` function.
+    type: string

@@ -322,6 +322,7 @@
     "minimum": "stencila:minimum",
     "multipleOf": "stencila:multipleOf",
     "name": "schema:name",
+    "nativeHint": "stencila:nativeHint",
     "nativeType": "stencila:nativeType",
     "nodeType": "stencila:nodeType",
     "noteType": "stencila:noteType",
