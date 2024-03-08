@@ -27,7 +27,7 @@ impl Executable for CodeExpression {
         );
 
         let code = self.code.trim();
-        if !code.is_empty() {
+        let add_to_context = if !code.is_empty() {
             let started = Timestamp::now();
 
             let (output, messages) = executor
@@ -56,7 +56,7 @@ impl Executable for CodeExpression {
                 &node_id,
                 [
                     (Property::Output, output.into()),
-                    (Property::ExecutionStatus, status.into()),
+                    (Property::ExecutionStatus, status.clone().into()),
                     (Property::ExecutionRequired, required.into()),
                     (Property::ExecutionMessages, messages.into()),
                     (Property::ExecutionDuration, duration.into()),
@@ -64,6 +64,8 @@ impl Executable for CodeExpression {
                     (Property::ExecutionCount, count.into()),
                 ],
             );
+
+            matches!(status, ExecutionStatus::Succeeded)
         } else {
             executor.replace_properties(
                 &node_id,
@@ -75,6 +77,13 @@ impl Executable for CodeExpression {
                     (Property::ExecutionEnded, Value::None),
                 ],
             );
+
+            false
+        };
+
+        // If the code expression succeeded add it to the context
+        if add_to_context {
+            executor.context.push_code_expression(self);
         }
 
         WalkControl::Break
