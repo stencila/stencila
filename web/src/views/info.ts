@@ -74,6 +74,7 @@ export class InfoView extends LitElement {
     super.update(changedProperties)
     const { currentNodeId, currentParentNodes } = this.context
     if (this.currentNode && this.currentNode.id !== currentNodeId) {
+      this.currentNode.classList.remove('active-node')
       const showing = this.domElement.value.querySelector('.show')
       if (showing) {
         showing.classList.remove('show')
@@ -87,6 +88,7 @@ export class InfoView extends LitElement {
       this.currentNode = this.domElement.value.querySelector(
         `#${currentNodeId}`
       )
+      this.currentNode.classList.add('active-node')
       // if node is at top level in doc append show
       if (this.currentNode) {
         if (!currentParentNodes) {
@@ -98,6 +100,8 @@ export class InfoView extends LitElement {
 
             if (el) {
               el.setAttribute('active-child', arr[idx - 1] ?? currentNodeId)
+
+              // show to topmost element
               if (idx === arr.length - 1) {
                 el.classList.add('show')
               }
@@ -122,6 +126,17 @@ export class InfoView extends LitElement {
       & [root] {
         display: block;
         height: 100%;
+      }
+
+      /* make sure the active node is visible */
+      & .active-node {
+        visibility: visible;
+      }
+
+      /* hide previous and following siblings from the dom */
+      & *:has(~ .active-node),
+      .active-node ~ * {
+        display: none;
       }
     `
 
