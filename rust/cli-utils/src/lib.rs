@@ -11,6 +11,9 @@ use common::{serde::Serialize, serde_json};
 
 pub use rpassword;
 
+mod code;
+pub use code::*;
+
 mod message;
 pub use message::*;
 

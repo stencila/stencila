@@ -614,16 +614,16 @@ fn superscript(input: &str) -> IResult<&str, Inline> {
 fn instruction_inline(input: &str) -> IResult<&str, Inline> {
     map(
         delimited(
-            terminated(tag("{%%"), multispace0),
+            terminated(tag("{//"), multispace0),
             tuple((
                 opt(delimited(char('@'), assignee, multispace1)),
                 map(
-                    many_till(anychar, peek(alt((tag("%>"), tag("%%}"))))),
+                    many_till(anychar, peek(alt((tag("/>"), tag("//}"))))),
                     |(chars, ..)| -> String { chars.iter().collect() },
                 ),
-                opt(preceded(tag("%>"), take_until("%%}"))),
+                opt(preceded(tag("/>"), take_until("//}"))),
             )),
-            tag("%%}"),
+            tag("//}"),
         ),
         |(assignee, text, content)| {
             Inline::InstructionInline(InstructionInline {

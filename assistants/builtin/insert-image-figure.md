@@ -17,8 +17,8 @@ The system prompt template renders to a `Figure` with new instructions to create
 
 ::: figure
 
-%% @insert-figure-caption {{ instruction_text }}
+// @insert-figure-caption {{ instruction_text }}
 
-{%% @insert-inline-image {{ instruction_text }} %%}
+{// @insert-inline-image {{ instruction_text }} //}
 
 :::

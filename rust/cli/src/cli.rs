@@ -1,17 +1,14 @@
 use std::path::PathBuf;
 
-use assistants::assistant::{GenerateOptions, Instruction};
-use color_eyre::owo_colors::OwoColorize;
-use rustyline::{error::ReadlineError, DefaultEditor};
 use yansi::Color;
 
 use app::DirType;
+use cli_utils::{Code, ToStdout};
 use common::{
     chrono::{Local, SecondsFormat, TimeZone},
-    clap::{self, error::ErrorKind, Args, Parser, Subcommand},
+    clap::{self, Args, Parser, Subcommand},
     eyre::{eyre, Result},
     itertools::Itertools,
-    serde_json, serde_yaml,
     tokio::{self},
     tracing,
 };
@@ -21,7 +18,6 @@ use node_strip::StripScope;
 use server::{serve, ServeOptions};
 
 use crate::{
-    display,
     logging::{LoggingFormat, LoggingLevel},
     uninstall, upgrade,
 };
@@ -272,6 +268,13 @@ enum Command {
         ///
         /// If not supplied the output content is written to `stdout`.
         output: Option<PathBuf>,
+
+        /// The format to encode to (or codec to use)
+        ///
+        /// Defaults to inferring the format from the file name extension
+        /// of the `output`. If no `output` is supplied, defaults to JSON.
+        #[arg(long, short)]
+        to: Option<String>,
     },
 
     /// Serve
@@ -279,30 +282,6 @@ enum Command {
 
     /// List the available AI assistants
     Assistants,
-
-    /// A read-evaluate-print loop for AI assistants
-    ///
-    /// Mainly intended for prompt engineering during development of Stencila.
-    Repl {
-        /// The path of the document to use in the context
-        ///
-        /// For testing, you probably want this to be an example Markdown file
-        /// but it can be any of the formats supported by Stencila.
-        #[arg(long, short)]
-        document: Option<PathBuf>,
-
-        #[clap(flatten)]
-        options: GenerateOptions,
-    },
-
-    Test {
-        /// The path of test directory or file
-        path: PathBuf,
-
-        /// The number of repetitions
-        #[arg(long, short = 'n', alias = "num", default_value_t = 1)]
-        reps: u16,
-    },
 
     Kernels(kernels::cli::Cli),
     Plugins(plugins::cli::Cli),
@@ -498,7 +477,7 @@ impl Cli {
 
                 let content = doc.export(dest.as_deref(), Some(options)).await?;
                 if !content.is_empty() {
-                    display::highlighted(&content, format)?;
+                    Code::new(format, &content).to_stdout();
                 }
             }
 
@@ -573,7 +552,7 @@ impl Cli {
 
             Command::Inspect { doc } => {
                 let json = Document::inspect(&doc).await?;
-                display::highlighted(&json, Format::Json)?;
+                Code::new(Format::Json, &json).to_stdout();
             }
 
             Command::Convert {
@@ -600,20 +579,29 @@ impl Cli {
                 .await?;
                 if !content.is_empty() {
                     let format = encode_options.format.unwrap_or(Format::Json);
-                    display::highlighted(&content, format)?;
+                    Code::new(format, &content).to_stdout();
                 }
             }
 
-            Command::Execute { input, output } => {
+            Command::Execute { input, output, to } => {
                 let doc = Document::open(&input).await?;
                 doc.execute().await?;
 
-                let encode_options = codecs::EncodeOptions::default();
-                let format = encode_options.format.clone().unwrap_or(Format::Text);
+                let format = to.map(|to| Format::from_name(&to));
 
-                let content = doc.export(output.as_deref(), Some(encode_options)).await?;
+                let content = doc
+                    .export(
+                        output.as_deref(),
+                        Some(codecs::EncodeOptions {
+                            format: format.clone(),
+                            ..Default::default()
+                        }),
+                    )
+                    .await?;
+
                 if !content.is_empty() {
-                    display::highlighted(&content, format)?;
+                    let format = format.unwrap_or(Format::Json);
+                    Code::new(format, &content).to_stdout();
                 }
             }
 
@@ -659,103 +647,6 @@ impl Cli {
                     }
                 }
             }
-
-            Command::Repl {
-                mut document,
-                options,
-            } => {
-                #[derive(Parser)]
-                struct GenerateOptionsParser {
-                    #[command(flatten)]
-                    options: GenerateOptions,
-                }
-                let mut options_parser = GenerateOptionsParser { options };
-
-                let mut reader = DefaultEditor::new()?;
-                loop {
-                    let line = reader.readline(">> ");
-                    match line {
-                        Ok(line) => {
-                            let line = line.as_str().trim();
-
-                            reader.add_history_entry(line)?;
-
-                            if let Some(document_path) = line.strip_prefix("--document") {
-                                // Set the document to use
-                                document = Some(PathBuf::from(document_path.trim()));
-                            } else if line == "?document" {
-                                // Print the document being used
-                                println!(
-                                    "{}",
-                                    document
-                                        .as_ref()
-                                        .map_or(
-                                            "No context document; use `--document` to specify one"
-                                                .to_string(),
-                                            |path| path.to_str().unwrap_or_default().to_string()
-                                        )
-                                        .cyan()
-                                )
-                            } else if line.starts_with('-') {
-                                // Update option/s
-                                let mut args = vec!["options"];
-                                args.append(&mut line.split_whitespace().collect_vec());
-                                match options_parser.try_update_from(&args) {
-                                    Ok(..) => {
-                                        println!("{}", "Options were updated".cyan());
-                                    }
-                                    Err(error) => {
-                                        let mut cmd = clap::Command::new("options");
-                                        match error.kind() {
-                                            ErrorKind::DisplayHelp => {
-                                                println!("{}", error.format(&mut cmd))
-                                            }
-                                            _ => {
-                                                println!("{}", error.format(&mut cmd))
-                                            }
-                                        }
-                                    }
-                                }
-                            } else if line == "?options" {
-                                // Print the current options as JSON
-                                let json = serde_json::to_string(&options_parser.options)?;
-                                display::highlighted(&json, Format::Json)?;
-                            } else {
-                                // Create an instruction from the user
-                                let instruction = Instruction::block_text(line);
-
-                                // Import any document or node
-                                let document = match &document {
-                                    Some(path) => Some(codecs::from_path(path, None).await?),
-                                    None => None,
-                                };
-
-                                // Execute the task
-                                let output = assistants::perform_instruction(
-                                    instruction,
-                                    document.as_ref(),
-                                    &options_parser.options,
-                                )
-                                .await?;
-
-                                let output = output.display();
-
-                                // Display the generated text
-                                let yaml = serde_yaml::to_string(&output)?;
-                                display::highlighted(&yaml, Format::Markdown)?;
-                            }
-                        }
-                        Err(ReadlineError::Interrupted) | Err(ReadlineError::Eof) => {
-                            break;
-                        }
-                        Err(error) => {
-                            println!("Error: {error:?}");
-                        }
-                    }
-                }
-            }
-
-            Command::Test { path, reps } => assistants::testing::test_example(&path, reps).await?,
 
             Command::Kernels(kernels) => kernels.run().await?,
             Command::Plugins(plugins) => plugins.run().await?,

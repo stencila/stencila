@@ -28,11 +28,10 @@ impl Executable for IncludeBlock {
             ],
         );
 
-        let started = Timestamp::now();
-
         // Include the source (if it is not empty)
         let source = self.source.trim();
         if !source.is_empty() {
+            let started = Timestamp::now();
             let mut messages = Vec::new();
 
             // Resolve the source into a fully qualified URL (including `file://` URL)

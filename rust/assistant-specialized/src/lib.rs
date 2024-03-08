@@ -7,6 +7,7 @@
 
 use std::{fs::read_to_string, sync::Arc};
 
+use assistant::{GenerateContent, Nodes};
 #[cfg(not(debug_assertions))]
 use cached::proc_macro::once;
 use minijinja::{Environment, UndefinedBehavior};
@@ -14,7 +15,7 @@ use rust_embed::RustEmbed;
 
 use app::{get_app_dir, DirType};
 use assistant::common::eyre;
-use assistant::schema::{MessagePart, NodeType};
+use assistant::schema::{Block, CodeBlock, Cord, MessagePart, NodeType};
 use assistant::{
     codecs::{self, EncodeOptions, Format, LossesResponse},
     common::{
@@ -146,6 +147,18 @@ const FORMAT: Format = Format::Markdown;
 /// Default maximum retries
 const MAX_RETRIES: u8 = 1;
 
+/// Debug mode
+#[derive(Default, Deserialize)]
+#[serde(rename_all = "kebab-case", crate = "assistant::common::serde")]
+enum Debug {
+    // No debugging
+    #[default]
+    No,
+    /// Echo the rendered system prompt as a Markdown code block
+    /// in the suggestion. Useful for debugging system prompt templates.
+    Echo,
+}
+
 /// A custom assistant
 /// TODO: Remove this when the options are being used.
 #[allow(dead_code)]
@@ -179,6 +192,10 @@ pub struct SpecializedAssistant {
         default = "default_delegates"
     )]
     delegates: Vec<String>,
+
+    /// The debug mode to use when executing the assistant
+    #[serde(default)]
+    debug: Debug,
 
     /// The type of input for the generation task delegated
     /// to base assistants
@@ -386,7 +403,7 @@ impl SpecializedAssistant {
     ///
     /// This should be called before selecting an assistant to delegate to
     /// (since the input and output type of the task influences that)
-    fn merge_task<'task>(&self, task: &GenerateTask<'task>) -> GenerateTask<'task> {
+    fn merge_task(&self, task: &GenerateTask) -> GenerateTask {
         let mut task = task.clone();
 
         if let Some(input) = self.task_input {
@@ -416,11 +433,11 @@ impl SpecializedAssistant {
     /// Prepare a `GenerateTask` with the system prompt, rendered user prompt of
     /// this assistant, and other details
     #[tracing::instrument(skip_all)]
-    async fn prepare_task<'task>(
+    async fn prepare_task(
         &self,
-        mut task: GenerateTask<'task>,
+        mut task: GenerateTask,
         delegate: Option<&dyn Assistant>,
-    ) -> Result<GenerateTask<'task>> {
+    ) -> Result<GenerateTask> {
         if let Some(system_prompt) = &self.system_prompt {
             task.system_prompt = Some(system_prompt.clone());
         }
@@ -431,22 +448,6 @@ impl SpecializedAssistant {
             // Reduce log level for losses. Consider further reducing to `Ignore`.
             losses: LossesResponse::Debug,
             ..Default::default()
-        };
-        if let Some(document) = &task.document {
-            task.document_formatted = Some(
-                codecs::to_string(
-                    document,
-                    Some(EncodeOptions {
-                        format: self
-                            .document_format
-                            .clone()
-                            .or(self.format.clone())
-                            .or(Some(FORMAT)),
-                        ..encode_options.clone()
-                    }),
-                )
-                .await?,
-            )
         };
         if let Some(nodes) = &task.instruction.content() {
             let mut content = String::new();
@@ -477,12 +478,7 @@ impl SpecializedAssistant {
             static ENVIRONMENT: Lazy<Environment> =
                 Lazy::new(SpecializedAssistant::template_environment);
 
-            // To avoid clash with Jinja tags it is necessary to escape the opening
-            // opening of inline instructions in Markdown templates
-            let template = template.replace("{%%", "{_%%");
-            let rendered = ENVIRONMENT.render_str(&template, &task)?.trim().to_string();
-            let prompt = rendered.replace("{_%%", "{%%");
-
+            let prompt = ENVIRONMENT.render_str(template, &task)?.trim().to_string();
             task.system_prompt = Some(prompt);
         }
 
@@ -512,10 +508,7 @@ impl SpecializedAssistant {
 
     /// Get the first assistant in the list of delegates capable to performing task
     #[tracing::instrument(skip_all)]
-    async fn first_available_delegate<'task>(
-        &self,
-        task: &GenerateTask<'task>,
-    ) -> Result<Arc<dyn Assistant>> {
+    async fn first_available_delegate(&self, task: &GenerateTask) -> Result<Arc<dyn Assistant>> {
         for id in &self.delegates {
             let (provider, _model) = id
                 .split('/')
@@ -606,19 +599,32 @@ impl Assistant for SpecializedAssistant {
         let task = self.merge_task(task);
         let options = self.merge_options(options);
 
-        let output = if self.delegates.is_empty() {
-            // No delegates, so simply render the template into an output
+        let output = if matches!(self.debug, Debug::Echo) {
+            // Debug echo so just render the prompt into a Markdown
+            // code block in the output
 
-            // Update the task, to render template, before performing it
             let task = self.prepare_task(task, None).await?;
+            let prompt = task.system_prompt.clone().unwrap_or_default();
 
-            GenerateOutput::from_text(
-                self,
-                &task,
-                &options,
-                task.system_prompt.clone().unwrap_or_default(),
-            )
-            .await?
+            GenerateOutput {
+                prompter: None,
+                generator: self.to_software_application(),
+                content: GenerateContent::Text(prompt.clone()),
+                format: Format::Markdown,
+                nodes: Nodes::Blocks(vec![Block::CodeBlock(CodeBlock {
+                    code: Cord::new(prompt.clone()),
+                    ..Default::default()
+                })]),
+            }
+        } else if self.delegates.is_empty() {
+            // No delegates, so simply render the template into output.
+            // This differs from `Debug::Echo` in that the prompt is decoded into nodes
+            // (including transformations associated with `expected_nodes`) in the call to `from_text`.
+
+            let task = self.prepare_task(task, None).await?;
+            let prompt = task.system_prompt.clone().unwrap_or_default();
+
+            GenerateOutput::from_text(self, &task, &options, prompt).await?
         } else {
             // Get the first available assistant to delegate to
             let delegate = self.first_available_delegate(&task).await?;

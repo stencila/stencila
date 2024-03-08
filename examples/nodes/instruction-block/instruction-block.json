@@ -3,11 +3,29 @@
   "type": "Article",
   "content": [
     {
+      "type": "Paragraph",
+      "content": [
+        {
+          "type": "Text",
+          "value": "An insert instruction with no assignee:"
+        }
+      ]
+    },
+    {
       "type": "InstructionBlock",
       "messages": [
         {
           "type": "InstructionMessage",
-          "parts": [{ "type": "Text", "value": "4x10 table" }]
+          "parts": [{ "type": "Text", "value": "insert a 4x10 table" }]
+        }
+      ]
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        {
+          "type": "Text",
+          "value": "An insert instruction with an assignee:"
         }
       ]
     },
@@ -27,17 +45,37 @@
       ]
     },
     {
+      "type": "Paragraph",
+      "content": [
+        {
+          "type": "Text",
+          "value": "An edit instruction (has content) with no assignee:"
+        }
+      ]
+    },
+    {
       "type": "InstructionBlock",
       "messages": [
         {
           "type": "InstructionMessage",
-          "parts": [{ "type": "Text", "value": "Improve this paragraph." }]
+          "parts": [{ "type": "Text", "value": "improve this paragraph" }]
         }
       ],
       "content": [
         {
           "type": "Paragraph",
-          "content": [{ "type": "Text", "value": "Target paragraph." }]
+          "content": [
+            { "type": "Text", "value": "The paragraph to be improved." }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        {
+          "type": "Text",
+          "value": "An edit instruction with an assignee:"
         }
       ]
     },
@@ -48,16 +86,41 @@
         {
           "type": "InstructionMessage",
           "parts": [
-            { "type": "Text", "value": "please improve this paragraph." }
+            { "type": "Text", "value": "please improve this paragraph" }
           ]
         }
       ],
       "content": [
         {
           "type": "Paragraph",
-          "content": [{ "type": "Text", "value": "Another paragraph." }]
+          "content": [
+            { "type": "Text", "value": "Another paragraph to be improved." }
+          ]
         }
       ]
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        {
+          "type": "Text",
+          "value": "An insert instruction with an assignee and a suggestion:"
+        }
+      ]
+    },
+    {
+      "type": "InstructionBlock",
+      "assignee": "assistant",
+      "messages": [
+        {
+          "type": "InstructionMessage",
+          "parts": [{ "type": "Text", "value": "insert a code chunk" }]
+        }
+      ],
+      "suggestion": {
+        "type": "InsertBlock",
+        "content": [{ "type": "CodeChunk", "code": "some code" }]
+      }
     }
   ]
 }

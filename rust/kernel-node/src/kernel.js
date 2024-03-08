@@ -195,7 +195,7 @@ async function packages() {
       type: "SoftwareSourceCode",
       programmingLanguage: "JavaScript",
       name,
-      softwareVersion: version,
+      version,
     };
 
     stdout.write(`${JSON.stringify(ssc)}${END}\n`);

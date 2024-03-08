@@ -588,11 +588,14 @@ pub enum NodeType {{
             }
 
             // Add #[dom] attribute for field if necessary
-            if let Some(dom) = &property.dom {
+            if let (true, Some(dom)) = (
+                schema.dom.as_ref().map(|dom| dom.derive).unwrap_or(true),
+                &property.dom,
+            ) {
                 let mut args = Vec::new();
 
                 if dom.skip {
-                    args.push(format!("skip"));
+                    args.push("skip".to_string());
                 } else if let Some(with) = &dom.with {
                     args.push(format!("with = \"{with}\""));
                 } else if let Some(elem) = &dom.elem {

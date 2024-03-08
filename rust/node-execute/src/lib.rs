@@ -1,3 +1,5 @@
+#![recursion_limit = "256"]
+
 use std::{
     path::{Path, PathBuf},
     sync::Arc,
@@ -8,6 +10,7 @@ use common::{
     tokio::sync::{RwLock, RwLockWriteGuard},
     tracing,
 };
+use context::Context;
 use kernels::Kernels;
 use node_patch::{
     load_property, replace_property, NodePatch, NodePatchSender, Operation, Property, Value,
@@ -29,7 +32,7 @@ mod code_expression;
 mod for_block;
 mod if_block;
 mod include_block;
-mod instruction;
+mod instruction_block;
 mod math;
 mod styled;
 
@@ -116,6 +119,9 @@ pub struct Executor {
     /// The phase of execution
     phase: Phase,
 
+    /// The document context
+    context: Context,
+
     /// Whether the current node is the last in a set
     ///
     /// Used for `IfBlock` (and possibly others) to control behavior of execution
@@ -123,7 +129,10 @@ pub struct Executor {
     is_last: bool,
 }
 
-/// A phase of an `Executor`
+/// A phase of an [`Executor`]
+///
+/// These phases determine which method of each [`Executable`] is called as
+/// the executor walks over the root node.
 enum Phase {
     Pending,
     Execute,
@@ -146,6 +155,7 @@ impl Executor {
             patch_sender,
             node_ids,
             phase: Phase::Pending,
+            context: Context::default(),
             is_last: false,
         }
     }
@@ -161,6 +171,13 @@ impl Executor {
     async fn execute(&mut self, root: &mut Node) -> Result<()> {
         self.phase = Phase::Execute;
         self.is_last = false;
+
+        // TODO: This clears the context which is fine if were are executing the
+        // whole document but not if we're only executing one or a few nodes, in
+        // which case we want to keep the existing context because we won't walk
+        // all nodes.
+        self.context = Context::default();
+
         root.walk_async(self).await
     }
 
@@ -181,6 +198,19 @@ impl Executor {
     /// Used by [`Executable`] nodes to execute and evaluate code and manage variables.
     pub async fn kernels(&self) -> RwLockWriteGuard<Kernels> {
         self.kernels.write().await
+    }
+
+    /// Get the document context
+    ///
+    /// Returns the nodes collected during walking the root node
+    /// and updates it with kernels.
+    ///
+    /// Used by [`Executable`] nodes to pass to assistants to be used
+    /// in their system prompts.
+    pub async fn context(&mut self) -> Context {
+        let kernels = self.kernels().await.kernel_contexts().await;
+        self.context.kernels = kernels;
+        self.context.clone()
     }
 
     /// Load a property of a node from the store
@@ -266,7 +296,7 @@ impl VisitorAsync for Executor {
             ForBlock(node) => self.visit_executable(node).await,
             IfBlock(node) => self.visit_executable(node).await,
             IncludeBlock(node) => self.visit_executable(node).await,
-            // TODO: InstructionBlock(node) => self.visit_executable(node).await,
+            InstructionBlock(node) => self.visit_executable(node).await,
             // TODO: MathBlock(node) => self.visit_executable(node).await,
             // TODO: StyledBlock(node) => self.visit_executable(node).await,
             _ => WalkControl::Continue,

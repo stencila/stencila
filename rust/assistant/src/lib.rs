@@ -1,5 +1,6 @@
 use std::str::FromStr;
 
+use context::Context;
 use merge::Merge;
 
 use codecs::DecodeOptions;
@@ -35,6 +36,7 @@ use schema::{
 // Export crates for the convenience of dependant crates
 pub use codecs;
 pub use common;
+pub use context;
 pub use format;
 pub use merge;
 pub use node_authorship;
@@ -336,14 +338,18 @@ impl Embeddings {
 #[skip_serializing_none]
 #[derive(Debug, Default, Clone, Serialize)]
 #[serde(crate = "common::serde")]
-pub struct GenerateTask<'doc> {
+pub struct GenerateTask {
     /// The instruction provided by the user
     pub instruction: Instruction,
 
-    /// The document that the instruction is contained within
-    /// (usually an `Article`).
-    #[serde(skip)]
-    pub document: Option<&'doc Node>,
+    /// The context of the instruction
+    ///
+    /// This is available to assistants so that they can tailor
+    /// their responses given the broader context of the document
+    /// that the instruction is within. For specialized list_assistants
+    /// it is available as the variable `context` within the
+    /// system prompt template.
+    pub context: Option<Context>,
 
     /// The input type of the task
     pub input: AssistantIO,
@@ -380,7 +386,7 @@ pub struct GenerateTask<'doc> {
     pub system_prompt: Option<String>,
 }
 
-impl<'doc> GenerateTask<'doc> {
+impl GenerateTask {
     /// Create a generation task from an instruction
     pub fn new(instruction: Instruction) -> Self {
         // Pull the text out of the instruction here.
@@ -673,9 +679,9 @@ impl GenerateOutput {
     ///
     /// If the output format of the task in unknown (i.e. was not specified)
     /// then assumes it is Markdown.
-    pub async fn from_text<'task>(
+    pub async fn from_text(
         assistant: &dyn Assistant,
-        task: &GenerateTask<'task>,
+        task: &GenerateTask,
         options: &GenerateOptions,
         text: String,
     ) -> Result<Self> {
@@ -791,9 +797,9 @@ impl GenerateOutput {
     }
 
     /// Create a `GenerateOutput` from a URL with a specific media type
-    pub async fn from_url<'task>(
+    pub async fn from_url(
         assistant: &dyn Assistant,
-        _task: &GenerateTask<'task>,
+        _task: &GenerateTask,
         media_type: &str,
         url: String,
     ) -> Result<Self> {
@@ -1188,7 +1194,7 @@ pub trait Assistant: Sync + Send {
 /// the system prompt, and each user and assistant message, are being sent to
 /// and processed by the assistant.
 #[allow(unused)]
-pub fn test_task_repeat_word<'lt>() -> GenerateTask<'lt> {
+pub fn test_task_repeat_word() -> GenerateTask {
     GenerateTask {
         system_prompt: Some(
             "When asked to repeat a word, you should repeat it in ALL CAPS. Do not provide any other notes, explanation or content.".to_string(),
