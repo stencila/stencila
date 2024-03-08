@@ -37,9 +37,14 @@ export class Variable extends Entity {
   value?: Node;
 
   /**
-   * A hint of the value and/or structure of the variable.
+   * A hint to the value and/or structure of the variable.
    */
   hint?: Hint;
+
+  /**
+   * A textual hint to the value and/or structure of the variable.
+   */
+  nativeHint?: string;
 
   constructor(name: string, options?: Partial<Variable>) {
     super();
