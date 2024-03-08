@@ -62,7 +62,9 @@ export class CodeChunk extends CodeExecutable {
    * code, label, caption (because they are editable in the editor).
    */
   override renderSourceView() {
-    return html`<stencila-node-card type="CodeChunk" class="block h-full">
+    const nodeCardStyles = ['flex flex-col', 'h-full']
+
+    return html`<stencila-node-card type="CodeChunk" class=${nodeCardStyles}>
       <span slot="header-right">${this.renderExecutableButtons()}</span>
       <div slot="body" class="h-full">
         ${this.renderTimeFields()}

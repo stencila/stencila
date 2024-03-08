@@ -112,6 +112,7 @@ export abstract class Entity extends LitElement {
       case 'source':
         if (this.activeChild) {
           const parentNodeStyles = css`
+            height: 100%;
             & slot[name='content']::slotted(*) {
               visibility: hidden;
             }
