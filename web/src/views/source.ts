@@ -98,7 +98,7 @@ export class SourceView extends TWLitElement {
    *  Turn on/off the node gutter markers.
    *  Gutters will be disabled automatically in "writeOnly" mode.
    */
-  @property({ attribute: 'gutter-markers' })
+  @property({ attribute: 'gutter-markers', type: Boolean })
   gutterMarkers: boolean = true
 
   /**

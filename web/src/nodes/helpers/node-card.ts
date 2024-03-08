@@ -32,7 +32,7 @@ export class NodeCard extends LitElement {
       'p-4',
       `bg-[${borderColour}]`,
       `border border-[${borderColour}] rounded-t`,
-      'font-medium',
+      'font-medium text-base',
     ])
 
     const bodyStyles = apply([
