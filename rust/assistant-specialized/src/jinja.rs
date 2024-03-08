@@ -2,7 +2,7 @@
 
 use assistant::{
     common::eyre::{eyre, Report},
-    schema::{ArrayHint, DatatableColumnHint, DatatableHint, Hint, Variable},
+    schema::{ArrayHint, DatatableHint, Hint, Variable},
 };
 use minijinja::{value::ViaDeserialize, Error};
 
