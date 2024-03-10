@@ -78,6 +78,9 @@
       "$ref": "ImageObject.schema.json"
     },
     {
+      "$ref": "InstructionStatus.schema.json"
+    },
+    {
       "$ref": "LabelType.schema.json"
     },
     {

@@ -92,6 +92,7 @@ export * from "./Instruction.js";
 export * from "./InstructionBlock.js";
 export * from "./InstructionInline.js";
 export * from "./InstructionMessage.js";
+export * from "./InstructionStatus.js";
 export * from "./Integer.js";
 export * from "./IntegerOrString.js";
 export * from "./IntegerValidator.js";

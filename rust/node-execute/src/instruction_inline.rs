@@ -1,5 +1,5 @@
 use assistants::assistant::GenerateOptions;
-use schema::{InstructionInline, SuggestionInlineType};
+use schema::{InstructionInline, InstructionStatus, SuggestionInlineType};
 
 use crate::{interrupt_impl, pending_impl, prelude::*};
 
@@ -50,7 +50,7 @@ impl Executable for InstructionInline {
             };
 
             // Insert the suggestion into the store, so that it can be executed in
-            // the next step
+            // the next step (if so configured) and update the instruction status
             let mut suggestion: Option<SuggestionInlineType> = match executor
                 .swap_property(&node_id, Property::Suggestion, suggestion.into())
                 .await
@@ -61,8 +61,10 @@ impl Executable for InstructionInline {
                     None
                 }
             };
+            executor.replace_property(&node_id, Property::InstructionStatus, InstructionStatus::Proposed.into());
 
             // Execute the suggestion
+            // TODO: This requires configurable rules around when, if at all, suggestions are executed.
             if let Err(error) = suggestion.walk_async(executor).await {
                 messages.push(error_to_message("While executing suggestion", error));
             }

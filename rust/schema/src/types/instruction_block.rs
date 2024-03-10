@@ -15,6 +15,7 @@ use super::execution_required::ExecutionRequired;
 use super::execution_status::ExecutionStatus;
 use super::execution_tag::ExecutionTag;
 use super::instruction_message::InstructionMessage;
+use super::instruction_status::InstructionStatus;
 use super::integer::Integer;
 use super::string::String;
 use super::suggestion_block_type::SuggestionBlockType;
@@ -187,6 +188,12 @@ pub struct InstructionBlockOptions {
     #[cfg_attr(feature = "proptest-high", proptest(strategy = r#"option::of(r"[a-zA-Z][a-zA-Z\-_/.@]")"#))]
     #[cfg_attr(feature = "proptest-max", proptest(strategy = r#"option::of(String::arbitrary())"#))]
     pub assignee: Option<String>,
+
+    /// Whether the instruction has a suggestion that has been proposed, accepted, revised, or rejected.
+    #[serde(alias = "instruction-status", alias = "instruction_status")]
+    #[strip(metadata)]
+    #[cfg_attr(feature = "proptest", proptest(value = "None"))]
+    pub instruction_status: Option<InstructionStatus>,
 
     /// The authors of the instruction.
     #[serde(alias = "author")]

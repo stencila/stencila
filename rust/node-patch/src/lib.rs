@@ -6,7 +6,7 @@ use node_store::{
     ReadNode, ReadStore, WriteNode, WriteStore,
 };
 use schema::{
-    Block, Duration, ExecutionMessage, ExecutionRequired, ExecutionStatus, Node, NodeId, Section, SuggestionBlockType, SuggestionInlineType, Timestamp
+    Block, Duration, ExecutionMessage, ExecutionRequired, ExecutionStatus, InstructionStatus, Node, NodeId, Section, SuggestionBlockType, SuggestionInlineType, Timestamp
 };
 
 /// Replace a property of a node with a value
@@ -108,6 +108,7 @@ pub enum Property {
     ExecutionMessages,
     ExecutionRequired,
     ExecutionStatus,
+    InstructionStatus,
     IsActive,
     Iterations,
     Output,
@@ -203,6 +204,12 @@ impl From<ExecutionRequired> for Value {
 
 impl From<ExecutionStatus> for Value {
     fn from(value: ExecutionStatus) -> Self {
+        Value::One(Node::String(value.to_string()))
+    }
+}
+
+impl From<InstructionStatus> for Value {
+    fn from(value: InstructionStatus) -> Self {
         Value::One(Node::String(value.to_string()))
     }
 }
