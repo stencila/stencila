@@ -1,7 +1,5 @@
 use syntect::{
-    easy::HighlightLines,
-    highlighting::{Style, ThemeSet},
-    parsing::SyntaxSet,
+    easy::HighlightLines, highlighting::ThemeSet, parsing::SyntaxSet,
     util::as_24_bit_terminal_escaped,
 };
 
@@ -53,13 +51,16 @@ impl ToStdout for Code {
         let mut highlighted = String::new();
         let mut highlighter = HighlightLines::new(syntax, &THEMES.themes["Solarized (light)"]);
         for line in self.content.lines() {
-            let Ok(ranges): Result<Vec<(Style, &str)>, _> =
-                highlighter.highlight_line(line, &SYNTAXES)
-            else {
-                continue;
+            // Long lines can take a very long time to highlight so skip those
+            let line = if line.len() > 500 {
+                line.to_string()
+            } else if let Ok(ranges) = highlighter.highlight_line(line, &SYNTAXES) {
+                as_24_bit_terminal_escaped(&ranges[..], false)
+            } else {
+                line.to_string()
             };
-            let escaped = as_24_bit_terminal_escaped(&ranges[..], false);
-            highlighted.push_str(&escaped);
+
+            highlighted.push_str(&line);
             highlighted.push('\n');
         }
 
