@@ -330,6 +330,19 @@
       },
       "type": "string"
     },
+    "instructionStatus": {
+      "@id": "stencila:instructionStatus",
+      "description": "Whether the instruction has a suggestion that has been proposed, accepted, revised, or rejected.",
+      "$comment": "Note that `Instruction` nodes also have an `executionStatus` property. This property is distinct in that\nit captures the status of the instruction after at least one execution i.e. once it has the `suggestion`\nproperty populated.\n",
+      "aliases": [
+        "instruction-status",
+        "instruction_status"
+      ],
+      "strip": [
+        "metadata"
+      ],
+      "$ref": "InstructionStatus.schema.json"
+    },
     "authors": {
       "@id": "schema:author",
       "description": "The authors of the instruction.",

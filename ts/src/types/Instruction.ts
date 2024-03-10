@@ -3,6 +3,7 @@
 import { Author } from "./Author.js";
 import { Executable } from "./Executable.js";
 import { InstructionMessage } from "./InstructionMessage.js";
+import { InstructionStatus } from "./InstructionStatus.js";
 
 /**
  * Abstract base type for a document editing instruction.
@@ -25,6 +26,11 @@ export class Instruction extends Executable {
    * An identifier for the agent assigned to perform the instruction
    */
   assignee?: string;
+
+  /**
+   * Whether the instruction has a suggestion that has been proposed, accepted, revised, or rejected.
+   */
+  instructionStatus?: InstructionStatus;
 
   /**
    * The authors of the instruction.

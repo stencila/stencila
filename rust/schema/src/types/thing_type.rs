@@ -27,6 +27,7 @@ use super::figure::Figure;
 use super::form_derive_action::FormDeriveAction;
 use super::grant::Grant;
 use super::image_object::ImageObject;
+use super::instruction_status::InstructionStatus;
 use super::label_type::LabelType;
 use super::list_item::ListItem;
 use super::list_order::ListOrder;
@@ -106,6 +107,8 @@ pub enum ThingType {
     Grant(Grant),
 
     ImageObject(ImageObject),
+
+    InstructionStatus(InstructionStatus),
 
     LabelType(LabelType),
 

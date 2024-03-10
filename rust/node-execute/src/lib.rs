@@ -230,6 +230,14 @@ impl Executor {
         load_property(&*store, node_id, property)
     }
 
+    /// Replace a property of a node
+    pub fn replace_property(&self, node_id: &NodeId, property: Property, value: Value) {
+        self.send_patch(NodePatch {
+            node_id: node_id.clone(),
+            ops: vec![Operation::replace_property(property, value)],
+        })
+    }
+
     /// Replace several properties of a node
     pub fn replace_properties<P>(&self, node_id: &NodeId, pairs: P)
     where

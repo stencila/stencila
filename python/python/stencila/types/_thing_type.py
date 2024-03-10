@@ -27,6 +27,7 @@ Figure = ForwardRef("Figure")
 FormDeriveAction = ForwardRef("FormDeriveAction")
 Grant = ForwardRef("Grant")
 ImageObject = ForwardRef("ImageObject")
+InstructionStatus = ForwardRef("InstructionStatus")
 LabelType = ForwardRef("LabelType")
 ListItem = ForwardRef("ListItem")
 ListOrder = ForwardRef("ListOrder")
@@ -79,6 +80,7 @@ ThingType = Union[
     FormDeriveAction,
     Grant,
     ImageObject,
+    InstructionStatus,
     LabelType,
     ListItem,
     ListOrder,
