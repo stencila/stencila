@@ -3,10 +3,10 @@ import { customElement, property } from 'lit/decorators.js'
 
 import './widgets/basic-field'
 import './widgets/collapsable-field'
-import './helpers/node-card'
 import { withTwind } from '../twind'
 
 import { CodeExecutable } from './code-executable'
+import { nodeCardStyles } from './helpers/node-card'
 
 /**
  * Web component representing a Stencila Schema `CodeExpression` node
@@ -61,7 +61,11 @@ export class CodeExpression extends CodeExecutable {
    * code, label, caption (because they are editable in the editor).
    */
   override renderSourceView() {
-    return html`<stencila-node-card type="CodeExpression" class="block h-full">
+    console.log(nodeCardStyles(this.documentView()))
+    return html`<stencila-node-card
+      type="CodeExpression"
+      class=${nodeCardStyles(this.documentView())}
+    >
       <span slot="header-right">${this.renderExecutableButtons()}</span>
       <div slot="body" class="h-full">
         ${this.renderTimeFields()}
