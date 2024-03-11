@@ -3,10 +3,10 @@ import { customElement, property } from 'lit/decorators.js'
 
 import './widgets/basic-field'
 import './widgets/collapsable-field'
-import './helpers/node-card'
 import { withTwind } from '../twind'
 
 import { CodeExecutable } from './code-executable'
+import { nodeCardStyles } from './helpers/node-card'
 
 /**
  * Web component representing a Stencila Schema `CodeChunk` node
@@ -62,9 +62,10 @@ export class CodeChunk extends CodeExecutable {
    * code, label, caption (because they are editable in the editor).
    */
   override renderSourceView() {
-    const nodeCardStyles = ['flex flex-col', 'h-full']
-
-    return html`<stencila-node-card type="CodeChunk" class=${nodeCardStyles}>
+    return html`<stencila-node-card
+      type="CodeChunk"
+      class=${nodeCardStyles(this.documentView())}
+    >
       <span slot="header-right">${this.renderExecutableButtons()}</span>
       <div slot="body" class="h-full">
         ${this.renderTimeFields()}
