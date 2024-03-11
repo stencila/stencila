@@ -13,10 +13,9 @@ import logging
 import os
 import resource
 import sys
-import traceback
 import types
 import warnings
-from typing import Any, Literal, TypedDict, Union
+from typing import Any, Literal, Optional, TypedDict, Union, get_type_hints, Callable
 
 # 3.9 does not have `type` or TypeAlias.
 PrimitiveType = Union[str, int, float, bool, None]
@@ -99,6 +98,16 @@ class SoftwareSourceCode(TypedDict):
     name: str
     version: str
     programming_language: str
+
+
+class Variable(TypedDict):
+    type: Literal["Variable"]
+    name: str
+    programming_language: Literal["Python"]
+    native_type: str
+    node_type: str
+    hint: Any
+    native_hint: Optional[str]
 
 
 STENCILA_LEVEL = Union[
@@ -192,9 +201,7 @@ logger.addHandler(handler)
 def log_warning(message, category, filename, lineno, file=None, line=None) -> None:  # type: ignore  # noqa: ANN001
     warning_details = {
         "warning_details": {
-            "category": str(
-                category.__name__
-            ),  # pyright: ignore[reportAttributeAccessIssue]
+            "category": str(category.__name__),  # pyright: ignore[reportAttributeAccessIssue]
             "filename": filename,
             "lineno": lineno,
             "line": line,
@@ -417,7 +424,7 @@ def to_json(obj: Any) -> str:
     try:
         return json.dumps(obj)
     except:  # noqa: E722
-        return str(obj) # Fall back to serializing as a JSON string
+        return str(obj)  # Fall back to serializing as a JSON string
 
 
 # Deserialize a Python object from JSON
@@ -425,7 +432,7 @@ def from_json(string: str) -> Any:
     try:
         obj = json.loads(string)
     except:  # noqa: E722
-        return string # Fall back to deserializing as a string
+        return string  # Fall back to deserializing as a string
 
     if isinstance(obj, dict):
         typ = obj.get("type")
@@ -521,14 +528,16 @@ def list_variables() -> None:
 
         native_type = type(value).__name__
         node_type, hint = determine_type_and_hint(value)
+        native_hint = determine_native_hint(value)
 
-        variable = {
+        variable: Variable = {
             "type": "Variable",
             "name": name,
-            "programmingLanguage": "Python",
-            "nativeType": native_type,
-            "nodeType": node_type,
+            "programming_language": "Python",
+            "native_type": native_type,
+            "node_type": node_type,
             "hint": hint,
+            "native_hint": native_hint,
         }
 
         sys.stdout.write(json.dumps(variable) + END + "\n")
@@ -572,6 +581,34 @@ def determine_type_and_hint(value: Any) -> tuple[str, Any]:
         )
 
     return "Object", {"type": "Unknown"}
+
+
+def determine_native_hint(value: Any) -> str:
+    """Determine the native hint for a variable.
+
+    This should be a markdownable-like description.
+    """
+
+    if isinstance(value, Callable):
+        try:
+            th = get_type_hints(value)
+            text = f"""The function is described by `get_types_hints` as:
+{th}
+"""
+        except Exception:
+            text = ""
+
+        doc = value.__doc__
+        if doc:
+            text += f"""The docstring of the function is:
+{doc}
+"""
+        return text
+
+    # Default (which works fine with many types)
+    return f"""The `repr` of this value is:
+`{value!r}`
+"""
 
 
 # Get a variable
