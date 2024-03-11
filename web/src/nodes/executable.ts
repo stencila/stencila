@@ -4,6 +4,7 @@ import {
   ExecutionStatus,
   ExecutionTag,
 } from '@stencila/types'
+import { apply } from '@twind/core'
 import { html } from 'lit'
 import { property } from 'lit/decorators.js'
 import './exectution-message'
@@ -36,6 +37,24 @@ export abstract class Executable extends Entity {
 
   @property({ attribute: 'execution-duration', type: Number })
   executionDuration?: number
+
+  /**
+   * In dynamic view, the executable code can be read and run, but not changed.
+   * So display programming language read only and provide buttons for actions
+   */
+  protected renderExecutableButtons() {
+    const containerClasses = apply(['flex flex-row'])
+    const dividerClasses = apply(['h-4 w-0', 'border border-black', 'mx-2'])
+    return html`
+      <div class=${containerClasses}>
+        <sl-icon name="git"></sl-icon>
+        <div class=${dividerClasses}></div>
+        <sl-icon name="skip-end"></sl-icon>
+        <div class=${dividerClasses}></div>
+        <sl-icon name="play"></sl-icon>
+      </div>
+    `
+  }
 
   protected renderActionButtons() {
     return html`<div>TODO: action buttons</div>`

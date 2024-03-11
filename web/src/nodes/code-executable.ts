@@ -18,16 +18,6 @@ export abstract class CodeExecutable extends Executable {
   programmingLanguage?: string
 
   /**
-   * In dynamic view, the executable code can be read and run, but not changed.
-   * So display programming language read only and provide buttons for actions
-   */
-  protected renderExecutableButtons() {
-    return html`<span>
-      <sl-icon name="play"></sl-icon>
-    </span>`
-  }
-
-  /**
    * In visual view, the executable code can be edited and run. So provide
    * a selector for programming language and buttons for actions.
    */
