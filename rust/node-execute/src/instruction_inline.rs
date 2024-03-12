@@ -61,7 +61,11 @@ impl Executable for InstructionInline {
                     None
                 }
             };
-            executor.replace_property(&node_id, Property::InstructionStatus, InstructionStatus::Proposed.into());
+            executor.replace_property(
+                &node_id,
+                Property::InstructionStatus,
+                InstructionStatus::Proposed.into(),
+            );
 
             // Execute the suggestion
             // TODO: This requires configurable rules around when, if at all, suggestions are executed.
