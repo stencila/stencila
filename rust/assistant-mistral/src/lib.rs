@@ -109,6 +109,10 @@ impl Assistant for MistralAssistant {
             random_seed: options.seed,
         };
 
+        if options.dry_run {
+            return GenerateOutput::empty(self);
+        }
+
         let response = self
             .client
             .post(format!("{BASE_URL}/chat/completions"))

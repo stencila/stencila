@@ -6,7 +6,8 @@ use node_store::{
     ReadNode, ReadStore, WriteNode, WriteStore,
 };
 use schema::{
-    Block, Duration, ExecutionMessage, ExecutionRequired, ExecutionStatus, InstructionStatus, Node, NodeId, Section, SuggestionBlockType, SuggestionInlineType, Timestamp
+    Block, Duration, ExecutionMessage, ExecutionRequired, ExecutionStatus, InstructionStatus, Node,
+    NodeId, Section, SuggestionBlockType, SuggestionInlineType, Timestamp,
 };
 
 /// Replace a property of a node with a value

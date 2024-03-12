@@ -461,6 +461,15 @@ pub struct GenerateOptions {
     #[arg(long)]
     pub assistant: Option<String>,
 
+    /// Prepare a generation task (e.g. render a system prompt) but do not actually generate content
+    ///
+    /// Assistant implementations should respect this option by returning an empty `GenerateOutput`
+    /// from `perform_task` at the last possible moment before generation (usually just before an API request is made).
+    #[arg(long)]
+    #[serde(default)]
+    #[merge(strategy = merge::bool::overwrite_false)]
+    pub dry_run: bool,
+
     /// Enable Mirostat sampling for controlling perplexity.
     ///
     /// Supported by Ollama.
@@ -675,6 +684,19 @@ pub struct GenerateOutput {
 }
 
 impl GenerateOutput {
+    /// Create an empty `GenerateOutput`
+    ///
+    /// Usually only used when the `--dry-run` flag is used.
+    pub fn empty(assistant: &dyn Assistant) -> Result<Self> {
+        Ok(Self {
+            prompter: None,
+            generator: assistant.to_software_application(),
+            content: GenerateContent::Text(String::new()),
+            format: Format::Unknown,
+            nodes: Nodes::Blocks(vec![]),
+        })
+    }
+
     /// Create a `GenerateOutput` from text
     ///
     /// If the output format of the task in unknown (i.e. was not specified)
