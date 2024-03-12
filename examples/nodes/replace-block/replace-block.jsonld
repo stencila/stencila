@@ -51,6 +51,58 @@
           ]
         }
       ]
+    },
+    {
+      "@type": "stencila:ReplaceBlock",
+      "stencila:suggestionStatus": "Accepted",
+      "stencila:content": [
+        {
+          "@type": "stencila:Paragraph",
+          "stencila:content": [
+            {
+              "@type": "Text",
+              "value": "Old paragraph"
+            }
+          ]
+        }
+      ],
+      "stencila:replacement": [
+        {
+          "@type": "stencila:Paragraph",
+          "stencila:content": [
+            {
+              "@type": "Text",
+              "value": "Accepted new paragraph"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "@type": "stencila:ReplaceBlock",
+      "stencila:suggestionStatus": "Rejected",
+      "stencila:content": [
+        {
+          "@type": "stencila:Paragraph",
+          "stencila:content": [
+            {
+              "@type": "Text",
+              "value": "Old paragraph"
+            }
+          ]
+        }
+      ],
+      "stencila:replacement": [
+        {
+          "@type": "stencila:Paragraph",
+          "stencila:content": [
+            {
+              "@type": "Text",
+              "value": "Rejected new paragraph"
+            }
+          ]
+        }
+      ]
     }
   ]
 }

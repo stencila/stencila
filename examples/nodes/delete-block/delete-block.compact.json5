@@ -1,1 +1,1 @@
-{type: "Article",content: [{type: "DeleteBlock",content: [{type: "Paragraph",content: [{type: "Text",value: "Deleted paragraph"}]}]}]}
+{type: "Article",content: [{type: "DeleteBlock",content: [{type: "Paragraph",content: [{type: "Text",value: "Proposed deleted paragraph"}]}]},{type: "DeleteBlock",suggestionStatus: "Accepted",content: [{type: "Paragraph",content: [{type: "Text",value: "Accepted deleted paragraph"}]}]},{type: "DeleteBlock",suggestionStatus: "Rejected",content: [{type: "Paragraph",content: [{type: "Text",value: "Rejected deleted paragraph"}]}]}]}

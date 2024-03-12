@@ -14,7 +14,7 @@
     "special": true
   },
   "markdown": {
-    "template": "++\\n\\n{{content}}++\\n\\n"
+    "derive": false
   },
   "required": [
     "type",

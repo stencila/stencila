@@ -11,7 +11,7 @@
   "description": "A suggestion to replace some block content with new block content.",
   "proptest": {},
   "markdown": {
-    "template": "~~\\n\\n{{content}}~>\\n\\n{{replacement}}~~\\n\\n"
+    "derive": false
   },
   "required": [
     "type",

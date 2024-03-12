@@ -261,7 +261,7 @@ pub fn decode_blocks(
                         } else {
                             Some(block)
                         }
-                    } else if insert_block(trimmed).is_ok() {
+                    } else if let Ok((.., insert)) = insert_block(trimmed) {
                         if let Some(Block::InsertBlock(current)) = divs.pop_back() {
                             let insert = InsertBlock {
                                 content: blocks.pop_div(),
@@ -279,10 +279,10 @@ pub fn decode_blocks(
                             }
                         } else {
                             blocks.push_div();
-                            divs.push_back(Block::InsertBlock(InsertBlock::default()));
+                            divs.push_back(Block::InsertBlock(insert));
                             None
                         }
-                    } else if delete_block(trimmed).is_ok() {
+                    } else if let Ok((.., delete)) = delete_block(trimmed) {
                         if let Some(Block::DeleteBlock(current)) = divs.pop_back() {
                             let delete = DeleteBlock {
                                 content: blocks.pop_div(),
@@ -300,10 +300,10 @@ pub fn decode_blocks(
                             }
                         } else {
                             blocks.push_div();
-                            divs.push_back(Block::DeleteBlock(DeleteBlock::default()));
+                            divs.push_back(Block::DeleteBlock(delete));
                             None
                         }
-                    } else if replace_block(trimmed).is_ok() {
+                    } else if let Ok((.., replace)) = replace_block(trimmed) {
                         if let Some(Block::ReplaceBlock(current)) = divs.pop_back() {
                             let replace = ReplaceBlock {
                                 replacement: blocks.pop_div(),
@@ -321,7 +321,7 @@ pub fn decode_blocks(
                             }
                         } else {
                             blocks.push_div();
-                            divs.push_back(Block::ReplaceBlock(ReplaceBlock::default()));
+                            divs.push_back(Block::ReplaceBlock(replace));
                             None
                         }
                     } else if replace_block_separator(trimmed).is_ok() {

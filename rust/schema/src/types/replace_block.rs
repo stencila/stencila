@@ -9,12 +9,11 @@ use super::suggestion_status::SuggestionStatus;
 /// A suggestion to replace some block content with new block content.
 #[skip_serializing_none]
 #[serde_as]
-#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, WalkNode, WriteNode, ReadNode, DomCodec, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec)]
+#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, WalkNode, WriteNode, ReadNode, DomCodec, HtmlCodec, JatsCodec, TextCodec)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 #[cfg_attr(feature = "proptest", derive(Arbitrary))]
 #[derive(derive_more::Display)]
 #[display(fmt = "ReplaceBlock")]
-#[markdown(template = "~~\n\n{{content}}~>\n\n{{replacement}}~~\n\n")]
 pub struct ReplaceBlock {
     /// The type of this item.
     #[cfg_attr(feature = "proptest", proptest(value = "Default::default()"))]

@@ -13,7 +13,37 @@
           "stencila:content": [
             {
               "@type": "Text",
-              "value": "Inserted paragraph"
+              "value": "Proposed inserted paragraph"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "@type": "stencila:InsertBlock",
+      "stencila:suggestionStatus": "Accepted",
+      "stencila:content": [
+        {
+          "@type": "stencila:Paragraph",
+          "stencila:content": [
+            {
+              "@type": "Text",
+              "value": "Accepted inserted paragraph"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "@type": "stencila:InsertBlock",
+      "stencila:suggestionStatus": "Rejected",
+      "stencila:content": [
+        {
+          "@type": "stencila:Paragraph",
+          "stencila:content": [
+            {
+              "@type": "Text",
+              "value": "Rejected inserted paragraph"
             }
           ]
         }

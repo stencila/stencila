@@ -11,7 +11,7 @@
   "description": "A suggestion to delete some block content.",
   "proptest": {},
   "markdown": {
-    "template": "--\\n\\n{{content}}--\\n\\n"
+    "derive": false
   },
   "required": [
     "type",

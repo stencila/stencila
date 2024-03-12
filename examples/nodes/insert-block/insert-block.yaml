@@ -5,4 +5,18 @@ content:
   - type: Paragraph
     content:
     - type: Text
-      value: Inserted paragraph
+      value: Proposed inserted paragraph
+- type: InsertBlock
+  suggestionStatus: Accepted
+  content:
+  - type: Paragraph
+    content:
+    - type: Text
+      value: Accepted inserted paragraph
+- type: InsertBlock
+  suggestionStatus: Rejected
+  content:
+  - type: Paragraph
+    content:
+    - type: Text
+      value: Rejected inserted paragraph

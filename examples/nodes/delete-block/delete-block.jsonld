@@ -13,7 +13,37 @@
           "stencila:content": [
             {
               "@type": "Text",
-              "value": "Deleted paragraph"
+              "value": "Proposed deleted paragraph"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "@type": "stencila:DeleteBlock",
+      "stencila:suggestionStatus": "Accepted",
+      "stencila:content": [
+        {
+          "@type": "stencila:Paragraph",
+          "stencila:content": [
+            {
+              "@type": "Text",
+              "value": "Accepted deleted paragraph"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "@type": "stencila:DeleteBlock",
+      "stencila:suggestionStatus": "Rejected",
+      "stencila:content": [
+        {
+          "@type": "stencila:Paragraph",
+          "stencila:content": [
+            {
+              "@type": "Text",
+              "value": "Rejected deleted paragraph"
             }
           ]
         }

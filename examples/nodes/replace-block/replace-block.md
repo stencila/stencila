@@ -15,3 +15,23 @@ A new code chunk
 Another new paragraph
 
 ~~
+
+~~ accepted
+
+Old paragraph
+
+~>
+
+Accepted new paragraph
+
+~~
+
+~~ rejected
+
+Old paragraph
+
+~>
+
+Rejected new paragraph
+
+~~

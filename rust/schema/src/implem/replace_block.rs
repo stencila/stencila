@@ -1,23 +1,13 @@
 use codec_losses::lost_options;
 
-use crate::{prelude::*, InsertBlock};
+use crate::{prelude::*, ReplaceBlock};
 
-impl InsertBlock {
-    pub fn to_jats_special(&self) -> (String, Losses) {
-        let (content, mut losses) = self.content.to_jats();
-
-        losses.add("InsertBlock@");
-
-        (content, losses)
-    }
-}
-
-impl MarkdownCodec for InsertBlock {
+impl MarkdownCodec for ReplaceBlock {
     fn to_markdown(&self, context: &mut MarkdownEncodeContext) {
         context
             .enter_node(self.node_type(), self.node_id())
             .merge_losses(lost_options!(self, id))
-            .push_str("++");
+            .push_str("~~");
 
         if let Some(status) = &self.suggestion_status {
             context
@@ -28,7 +18,9 @@ impl MarkdownCodec for InsertBlock {
         context
             .push_str("\n\n")
             .push_prop_fn("content", |context| self.content.to_markdown(context))
-            .push_str("++\n")
+            .push_str("~>\n\n")
+            .push_prop_fn("replacement", |context| self.replacement.to_markdown(context))
+            .push_str("~~\n")
             .exit_node()
             .newline();
     }

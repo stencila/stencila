@@ -1,6 +1,6 @@
 //! Parsing of Stencila custom Markdown extensions for `Block` nodes
 
-use std::collections::HashMap;
+use std::{collections::HashMap, str::FromStr};
 
 use nom::{
     branch::alt,
@@ -15,9 +15,7 @@ use nom::{
 use codec::{
     common::itertools::Itertools,
     schema::{
-        Admonition, Block, CallArgument, CallBlock, Claim, CodeChunk, Cord, Figure, ForBlock, Form,
-        FormDeriveAction, FormOptions, IfBlockClause, IncludeBlock, Inline, IntegerOrString,
-        LabelType, MathBlock, Node, Section, StyledBlock, Table, Text,
+        Admonition, Block, CallArgument, CallBlock, Claim, CodeChunk, Cord, DeleteBlock, Figure, ForBlock, Form, FormDeriveAction, FormOptions, IfBlockClause, IncludeBlock, Inline, InsertBlock, IntegerOrString, LabelType, MathBlock, Node, ReplaceBlock, Section, StyledBlock, SuggestionStatus, Table, Text
     },
 };
 
@@ -200,19 +198,55 @@ pub fn instruct_block_start(input: &str) -> IResult<&str, (Option<&str>, &str, b
     Ok((remains, (assignee, text.trim(), has_content)))
 }
 
-/// Parse the start or end an [`InsertBlock`] node
-pub fn insert_block(input: &str) -> IResult<&str, &str> {
-    all_consuming(tag("++"))(input)
+/// Parse the start or end of an [`InsertBlock`] node
+pub fn insert_block(input: &str) -> IResult<&str, InsertBlock> {
+    map(
+        all_consuming(preceded(
+            tag("++"),
+            opt(preceded(
+                multispace0,
+                alt((tag("accepted"), tag("rejected"))),
+            )),
+        )),
+        |status| InsertBlock {
+            suggestion_status: status.and_then(|status| SuggestionStatus::from_str(status).ok()),
+            ..Default::default()
+        },
+    )(input)
 }
 
 /// Parse the start or end of a [`DeleteBlock`] node
-pub fn delete_block(input: &str) -> IResult<&str, &str> {
-    all_consuming(tag("--"))(input)
+pub fn delete_block(input: &str) -> IResult<&str, DeleteBlock> {
+    map(
+        all_consuming(preceded(
+            tag("--"),
+            opt(preceded(
+                multispace0,
+                alt((tag("accepted"), tag("rejected"))),
+            )),
+        )),
+        |status| DeleteBlock {
+            suggestion_status: status.and_then(|status| SuggestionStatus::from_str(status).ok()),
+            ..Default::default()
+        },
+    )(input)
 }
 
 /// Parse the start or end of a [`ReplaceBlock`] node
-pub fn replace_block(input: &str) -> IResult<&str, &str> {
-    all_consuming(tag("~~"))(input)
+pub fn replace_block(input: &str) -> IResult<&str, ReplaceBlock> {
+    map(
+        all_consuming(preceded(
+            tag("~~"),
+            opt(preceded(
+                multispace0,
+                alt((tag("accepted"), tag("rejected"))),
+            )),
+        )),
+        |status| ReplaceBlock {
+            suggestion_status: status.and_then(|status| SuggestionStatus::from_str(status).ok()),
+            ..Default::default()
+        },
+    )(input)
 }
 
 /// Parse the separator of a [`ReplaceBlock`] node
