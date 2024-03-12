@@ -3,12 +3,8 @@ name = "assistants"
 version = "0.0.0"
 edition = "2021"
 
-[features]
-default = ["fastembed"]
-fastembed = ["assistant/fastembed"]
-
 [dependencies]
-assistant = { path = "../assistant", default-features = false }
+assistant = { path = "../assistant" }
 assistant-anthropic = { path = "../assistant-anthropic" }
 assistant-google = { path = "../assistant-google" }
 assistant-mistral = { path = "../assistant-mistral" }

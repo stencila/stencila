@@ -131,10 +131,12 @@ export class APIAccess {
       init,
       identifier,
       code,
-      callback: () => ({
-        status: 'success' as const,
-        identifier,
-      }),
+      callback: () => {
+        return {
+          status: 'success' as const,
+          identifier,
+        }
+      },
     })
   }
 
