@@ -14,6 +14,7 @@ use common::{
 };
 use document::{Document, DocumentType, SyncDirection};
 use format::Format;
+use node_execute::ExecuteOptions;
 use node_strip::StripScope;
 use server::{serve, ServeOptions};
 
@@ -275,6 +276,9 @@ enum Command {
         /// of the `output`. If no `output` is supplied, defaults to JSON.
         #[arg(long, short)]
         to: Option<String>,
+
+        #[clap(flatten)]
+        options: ExecuteOptions,
     },
 
     /// Serve
@@ -583,9 +587,14 @@ impl Cli {
                 }
             }
 
-            Command::Execute { input, output, to } => {
+            Command::Execute {
+                input,
+                output,
+                to,
+                options,
+            } => {
                 let doc = Document::open(&input).await?;
-                doc.execute().await?;
+                doc.execute(options).await?;
 
                 let format = to.map(|to| Format::from_name(&to));
 

@@ -22,6 +22,7 @@ use common::{
 };
 use format::Format;
 use kernels::Kernels;
+use node_execute::ExecuteOptions;
 use node_patch::{load_property, replace_property, NodePatchSender, Property};
 use node_store::{inspect_store, load_store, ReadNode, WriteNode, WriteStore};
 use schema::{Article, ExecutionStatus, Node, NodeId};
@@ -136,7 +137,7 @@ enum Command {
     SaveDocument,
 
     /// Execute the entire document
-    ExecuteDocument,
+    ExecuteDocument(ExecuteOptions),
 
     /// Execute specific nodes within the document
     ExecuteNodes(CommandNodeIds),
@@ -494,7 +495,7 @@ impl Document {
     /// This is intended to be called from the CLI. It waits for the document to
     /// finish executing before returning.
     #[tracing::instrument(skip(self))]
-    pub async fn execute(&self) -> Result<()> {
+    pub async fn execute(&self, options: ExecuteOptions) -> Result<()> {
         tracing::trace!("Executing document");
 
         // TODO: these two lines are just to get the id of the root node
@@ -518,7 +519,7 @@ impl Document {
         }
 
         // Send the command to execute the whole document
-        self.command_sender.send(Command::ExecuteDocument).await?;
+        self.command_sender.send(Command::ExecuteDocument(options)).await?;
 
         // Wait for the execution status to no longer be pending or running
         loop {

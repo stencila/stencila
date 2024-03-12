@@ -1,5 +1,5 @@
 use assistants::assistant::GenerateOptions;
-use schema::{InstructionInline, InstructionStatus, SuggestionInlineType};
+use schema::{InstructionInline, SuggestionInlineType};
 
 use crate::{interrupt_impl, pending_impl, prelude::*};
 
@@ -18,6 +18,15 @@ impl Executable for InstructionInline {
     #[tracing::instrument(skip_all)]
     async fn execute(&mut self, executor: &mut Executor) -> WalkControl {
         let node_id = self.node_id();
+
+        if !executor.should_execute_instruction_inline(self) {
+            tracing::debug!("Skipping InstructionInline {node_id}");
+
+            executor.context.push_instruction_inline(self);
+
+            return WalkControl::Break;
+        }
+
         tracing::trace!("Executing InstructionInline {node_id}");
 
         executor.replace_properties(
@@ -35,7 +44,10 @@ impl Executable for InstructionInline {
             let (suggestion, mut messages) = match assistants::execute_instruction(
                 self.clone(),
                 executor.context().await,
-                GenerateOptions::default(),
+                GenerateOptions {
+                    dry_run: executor.options.dry_run,
+                    ..Default::default()
+                },
             )
             .await
             {
@@ -61,11 +73,6 @@ impl Executable for InstructionInline {
                     None
                 }
             };
-            executor.replace_property(
-                &node_id,
-                Property::InstructionStatus,
-                InstructionStatus::Proposed.into(),
-            );
 
             // Execute the suggestion
             // TODO: This requires configurable rules around when, if at all, suggestions are executed.
@@ -105,8 +112,6 @@ impl Executable for InstructionInline {
             );
         }
 
-        // TODO: consider only adding instructions which have been accepted, since those which have
-        // not yet been accepted are probably of no value to add to the context for assistants
         executor.context.push_instruction_inline(self);
 
         WalkControl::Break

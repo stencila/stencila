@@ -32,14 +32,14 @@ impl Document {
             if let Some((current_command, current_task)) = &current {
                 if !current_task.is_finished() {
                     match (&new_command, current_command) {
-                        (ExecuteDocument, ExecuteDocument) => {
+                        (ExecuteDocument(..), ExecuteDocument(..)) => {
                             tracing::info!(
                                 "Ignoring document execution command: already executing"
                             );
 
                             continue;
                         }
-                        (InterruptDocument, ExecuteDocument) => {
+                        (InterruptDocument, ExecuteDocument(..)) => {
                             tracing::info!("Interrupting document execution");
 
                             current_task.abort();
@@ -62,14 +62,15 @@ impl Document {
                 }
             }
 
-            match new_command {
-                ExecuteDocument => {
+            match new_command.clone() {
+                ExecuteDocument(options) => {
                     let home = home.clone();
                     let store = store.clone();
                     let kernels = kernels.clone();
                     let patch_sender = patch_sender.clone();
                     let task = tokio::spawn(async move {
-                        if let Err(error) = execute(home, store, kernels, patch_sender, None).await
+                        if let Err(error) =
+                            execute(home, store, kernels, patch_sender, None, Some(options)).await
                         {
                             tracing::error!("While executing document: {error}")
                         }
@@ -82,9 +83,15 @@ impl Document {
                     let kernels = kernels.clone();
                     let patch_sender = patch_sender.clone();
                     let task = tokio::spawn(async move {
-                        if let Err(error) =
-                            execute(home, store, kernels, patch_sender, Some(command.node_ids))
-                                .await
+                        if let Err(error) = execute(
+                            home,
+                            store,
+                            kernels,
+                            patch_sender,
+                            Some(command.node_ids),
+                            None,
+                        )
+                        .await
                         {
                             tracing::error!("While executing nodes: {error}")
                         }

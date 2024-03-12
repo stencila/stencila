@@ -6,7 +6,9 @@ use std::{
 };
 
 use common::{
+    clap::{self, Args},
     eyre::Result,
+    serde::{Deserialize, Serialize},
     tokio::sync::{RwLock, RwLockWriteGuard},
     tracing,
 };
@@ -18,7 +20,8 @@ use node_patch::{
 use node_store::{ReadNode, WriteStore};
 use schema::{
     walk::{VisitorAsync, WalkControl, WalkNode},
-    Block, Inline, Node, NodeId,
+    Block, Inline, InstructionBlock, InstructionInline, Node, NodeId, SuggestionBlockType,
+    SuggestionInlineType, SuggestionStatus,
 };
 
 type NodeIds = Vec<NodeId>;
@@ -44,6 +47,7 @@ pub async fn execute(
     kernels: Arc<RwLock<Kernels>>,
     patch_sender: NodePatchSender,
     node_ids: Option<NodeIds>,
+    options: Option<ExecuteOptions>,
 ) -> Result<()> {
     let mut root = {
         // This is within a block to ensure that the lock on `store` gets
@@ -52,7 +56,7 @@ pub async fn execute(
         Node::load(&*store).unwrap()
     };
 
-    let mut executor = Executor::new(home, store, kernels, patch_sender, node_ids);
+    let mut executor = Executor::new(home, store, kernels, patch_sender, node_ids, options);
     executor.pending(&mut root).await?;
     executor.execute(&mut root).await
 }
@@ -72,7 +76,7 @@ pub async fn interrupt(
         Node::load(&*store).unwrap()
     };
 
-    let mut executor = Executor::new(home, store, kernels, patch_sender, node_ids);
+    let mut executor = Executor::new(home, store, kernels, patch_sender, node_ids, None);
     executor.interrupt(&mut root).await
 }
 
@@ -128,6 +132,49 @@ pub struct Executor {
     /// Used for `IfBlock` (and possibly others) to control behavior of execution
     /// of child nodes.
     is_last: bool,
+
+    /// Options for execution
+    options: ExecuteOptions,
+}
+
+#[derive(Debug, Default, Clone, Serialize, Deserialize, PartialEq, Eq, Args)]
+#[serde(default, crate = "common::serde")]
+pub struct ExecuteOptions {
+    /// Skip executing instructions
+    ///
+    /// By default, instructions with no suggestions, or with suggestions that have
+    /// been rejected will be executed. Use this flag to skip executing all instructions.
+    #[arg(long)]
+    skip_instructions: bool,
+
+    /// Re-execute instructions with suggestions that have not yet been reviewed
+    ///
+    /// By default, an instruction that has a suggestion that has not yet be reviewed
+    /// (i.e. has a suggestion status that is empty) will not be re-executed. Use this
+    /// flag to force these instructions to be re-executed.
+    #[arg(long)]
+    force_unreviewed: bool,
+
+    /// Re-execute instructions with suggestions that have been accepted.
+    ///
+    /// By default, an instruction that has a suggestion that has been accepted, will
+    /// not be re-executed. Use this flag to force these instructions to be re-executed.
+    #[arg(long)]
+    force_accepted: bool,
+
+    /// Skip re-executing instructions with suggestions that have been rejected
+    ///
+    /// By default, instructions that have a suggestion that has been rejected, will be
+    /// re-executed. Use this flag to skip re-execution of these instructions.
+    #[arg(long)]
+    skip_rejected: bool,
+
+    /// Prepare, but do not actually perform, execution tasks
+    ///
+    /// Currently only supported by assistants where is is useful for debugging the
+    /// rendering of system prompts without making a potentially slow API request.
+    #[arg(long)]
+    dry_run: bool,
 }
 
 /// A phase of an [`Executor`]
@@ -148,6 +195,7 @@ impl Executor {
         kernels: Arc<RwLock<Kernels>>,
         patch_sender: NodePatchSender,
         node_ids: Option<NodeIds>,
+        options: Option<ExecuteOptions>,
     ) -> Self {
         Self {
             home,
@@ -158,6 +206,7 @@ impl Executor {
             phase: Phase::Pending,
             context: Context::default(),
             is_last: false,
+            options: options.unwrap_or_default(),
         }
     }
 
@@ -211,6 +260,75 @@ impl Executor {
         let kernels = self.kernels().await.kernel_contexts().await;
         self.context.kernels = kernels;
         self.context.clone()
+    }
+
+    /// Should the executor execute an `Instruction` based on the the
+    /// status of its suggestion.
+    pub fn should_execute_instruction(&self, status: &Option<SuggestionStatus>) -> bool {
+        let Some(status) = status else {
+            // Re-execute unreviewed only if `force_unreviewed`
+            return self.options.force_unreviewed;
+        };
+
+        use SuggestionStatus::*;
+        match status {
+            // Re-execute proposed only if `force_unreviewed`
+            Proposed => self.options.force_unreviewed,
+            // Re-execute accepted only if `force_accepted`
+            Accepted => self.options.force_accepted,
+            // Re-execute rejected unless `skip_reject`
+            Rejected => self.options.skip_rejected,
+        }
+    }
+
+    /// Should the executor execute an `InstructionBlock`
+    pub fn should_execute_instruction_block(&self, instruction: &InstructionBlock) -> bool {
+        let suggestion = &instruction.options.suggestion;
+
+        // Respect `skip_instructions`
+        if self.options.skip_instructions {
+            return false;
+        }
+
+        let Some(suggestion) = suggestion else {
+            // Execute instructions without suggestions
+            return true;
+        };
+
+        use SuggestionBlockType::*;
+        let status = match suggestion {
+            DeleteBlock(block) => &block.suggestion_status,
+            InsertBlock(block) => &block.suggestion_status,
+            ModifyBlock(block) => &block.suggestion_status,
+            ReplaceBlock(block) => &block.suggestion_status,
+        };
+
+        self.should_execute_instruction(status)
+    }
+
+    /// Should the executor execute an `InstructionInline`
+    pub fn should_execute_instruction_inline(&self, instruction: &InstructionInline) -> bool {
+        let suggestion = &instruction.options.suggestion;
+
+        // Respect `skip_instructions`
+        if self.options.skip_instructions {
+            return false;
+        }
+
+        let Some(suggestion) = suggestion else {
+            // Execute instructions without suggestions
+            return true;
+        };
+
+        use SuggestionInlineType::*;
+        let status = match suggestion {
+            DeleteInline(inline) => &inline.suggestion_status,
+            InsertInline(inline) => &inline.suggestion_status,
+            ModifyInline(inline) => &inline.suggestion_status,
+            ReplaceInline(inline) => &inline.suggestion_status,
+        };
+
+        self.should_execute_instruction(status)
     }
 
     /// Load a property of a node from the store

@@ -30,7 +30,7 @@ use schema::{
     NodeType, Organization, OrganizationOptions, PersonOrOrganization,
     PersonOrOrganizationOrSoftwareApplication, ReplaceBlock, ReplaceInline, SoftwareApplication,
     SoftwareApplicationOptions, StringOrNumber, SuggestionBlockType, SuggestionInlineType,
-    VideoObject,
+    SuggestionStatus, VideoObject,
 };
 
 // Export crates for the convenience of dependant crates
@@ -928,11 +928,13 @@ impl GenerateOutput {
         if insert {
             SuggestionInlineType::InsertInline(InsertInline {
                 content: self.nodes.into_inlines(),
+                suggestion_status: Some(SuggestionStatus::Proposed),
                 ..Default::default()
             })
         } else {
             SuggestionInlineType::ReplaceInline(ReplaceInline {
                 replacement: self.nodes.into_inlines(),
+                suggestion_status: Some(SuggestionStatus::Proposed),
                 ..Default::default()
             })
         }
@@ -944,11 +946,13 @@ impl GenerateOutput {
         if insert {
             SuggestionBlockType::InsertBlock(InsertBlock {
                 content: self.nodes.into_blocks(),
+                suggestion_status: Some(SuggestionStatus::Proposed),
                 ..Default::default()
             })
         } else {
             SuggestionBlockType::ReplaceBlock(ReplaceBlock {
                 replacement: self.nodes.into_blocks(),
+                suggestion_status: Some(SuggestionStatus::Proposed),
                 ..Default::default()
             })
         }

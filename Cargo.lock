@@ -1051,6 +1051,7 @@ dependencies = [
  "format",
  "is-terminal",
  "kernels",
+ "node-execute",
  "node-strip",
  "plugins",
  "rustyline",
