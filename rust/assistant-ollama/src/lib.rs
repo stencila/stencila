@@ -219,6 +219,10 @@ impl Assistant for OllamaAssistant {
 
         request.options = Some(opts);
 
+        if options.dry_run {
+            return GenerateOutput::empty(self);
+        }
+
         let response = self
             .client
             .send_chat_messages(request)

@@ -116,6 +116,10 @@ impl Assistant for AnthropicAssistant {
         };
         let client = Client::try_from(cfg)?;
 
+        if options.dry_run {
+            return GenerateOutput::empty(self);
+        }
+
         let text = client
             .complete(complete_request)
             .await?
@@ -136,7 +140,7 @@ impl Assistant for AnthropicAssistant {
 /// If the Anthropic API key is not available returns an empty list.
 pub async fn list() -> Result<Vec<Arc<dyn Assistant>>> {
     if secrets::env_or_get(API_KEY).is_err() {
-        tracing::debug!("The environment variable or secret `{API_KEY}` is not available");
+        tracing::trace!("The environment variable or secret `{API_KEY}` is not available");
         return Ok(vec![]);
     }
 

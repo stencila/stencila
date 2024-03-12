@@ -7,7 +7,6 @@
 
 use std::{fs::read_to_string, sync::Arc};
 
-use assistant::{GenerateContent, Nodes};
 #[cfg(not(debug_assertions))]
 use cached::proc_macro::once;
 use minijinja::{Environment, UndefinedBehavior};
@@ -15,7 +14,7 @@ use rust_embed::RustEmbed;
 
 use app::{get_app_dir, DirType};
 use assistant::common::eyre;
-use assistant::schema::{Block, CodeBlock, Cord, MessagePart, NodeType};
+use assistant::schema::{MessagePart, NodeType};
 use assistant::{
     codecs::{self, EncodeOptions, Format, LossesResponse},
     common::{
@@ -149,18 +148,6 @@ const FORMAT: Format = Format::Markdown;
 /// Default maximum retries
 const MAX_RETRIES: u8 = 1;
 
-/// Debug mode
-#[derive(Default, Deserialize)]
-#[serde(rename_all = "kebab-case", crate = "assistant::common::serde")]
-enum Debug {
-    // No debugging
-    #[default]
-    No,
-    /// Echo the rendered system prompt as a Markdown code block
-    /// in the suggestion. Useful for debugging system prompt templates.
-    Echo,
-}
-
 /// A custom assistant
 /// TODO: Remove this when the options are being used.
 #[allow(dead_code)]
@@ -194,10 +181,6 @@ pub struct SpecializedAssistant {
         default = "default_delegates"
     )]
     delegates: Vec<String>,
-
-    /// The debug mode to use when executing the assistant
-    #[serde(default)]
-    debug: Debug,
 
     /// The type of input for the generation task delegated
     /// to base assistants
@@ -450,6 +433,7 @@ impl SpecializedAssistant {
         if let Some(system_prompt) = &self.system_prompt {
             task.system_prompt = Some(system_prompt.clone());
         }
+
         // Encode document and content with these defaults
         let encode_options = EncodeOptions {
             // Do not use compact encodings
@@ -492,6 +476,12 @@ impl SpecializedAssistant {
                 .map_err(minijinja_error_to_eyre)?
                 .trim()
                 .to_string();
+
+            tracing::debug!(
+                "Rendered system prompt for assistant `{}`\n\n{prompt}",
+                self.id()
+            );
+
             task.system_prompt = Some(prompt);
         }
 
@@ -591,28 +581,15 @@ impl Assistant for SpecializedAssistant {
         let task = self.merge_task(task);
         let options = self.merge_options(options);
 
-        let output = if matches!(self.debug, Debug::Echo) {
-            // Debug echo so just render the prompt into a Markdown
-            // code block in the output
+        let output = if options.dry_run {
+            // Dry run so just prepare the task but return an empty output
+            let _task = self.prepare_task(task, None).await?;
 
-            let task = self.prepare_task(task, None).await?;
-            let prompt = task.system_prompt.clone().unwrap_or_default();
-
-            GenerateOutput {
-                prompter: None,
-                generator: self.to_software_application(),
-                content: GenerateContent::Text(prompt.clone()),
-                format: Format::Markdown,
-                nodes: Nodes::Blocks(vec![Block::CodeBlock(CodeBlock {
-                    code: Cord::new(prompt.clone()),
-                    ..Default::default()
-                })]),
-            }
+            GenerateOutput::empty(self)?
         } else if self.delegates.is_empty() {
             // No delegates, so simply render the template into output.
-            // This differs from `Debug::Echo` in that the prompt is decoded into nodes
+            // This differs from `options.dry_run` in that the prompt is decoded into nodes
             // (including transformations associated with `expected_nodes`) in the call to `from_text`.
-
             let task = self.prepare_task(task, None).await?;
             let prompt = task.system_prompt.clone().unwrap_or_default();
 
