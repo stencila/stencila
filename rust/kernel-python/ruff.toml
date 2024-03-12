@@ -36,4 +36,5 @@ select = [
 ignore = [
   "PLR",
   "ANN401", # We use Any sometimes.
+  "ANN101", # We use Any sometimes.
 ]
