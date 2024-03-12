@@ -8,3 +8,8 @@ with open('local_defs.py') as f:
 ```
 
 // @insert-code-chunk compute something using all the local variables you know of
+
+
+## Planets
+
+// @insert-code-chunk assess what shaped rocket can best escape mars.

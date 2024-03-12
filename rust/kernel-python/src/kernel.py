@@ -16,6 +16,7 @@ import sys
 import traceback
 import types
 import warnings
+from dataclasses import dataclass, field
 from typing import Any, Callable, Literal, Optional, TypedDict, Union, get_type_hints
 
 # 3.9 does not have `type` or TypeAlias.
@@ -128,18 +129,18 @@ class ExecutionMessage(TypedDict, total=False):
 DEV_MODE = os.getenv("DEV") == "true"
 
 # Define constants based on development status
-READY = "READY" if DEV_MODE else "\U0010ACDC"
-LINE = "|" if DEV_MODE else "\U0010ABBA"
-EXEC = "EXEC" if DEV_MODE else "\U0010B522"
-EVAL = "EVAL" if DEV_MODE else "\U001010CC"
-FORK = "FORK" if DEV_MODE else "\U0010DE70"
-INFO = "INFO" if DEV_MODE else "\U0010EE15"
-PKGS = "PKGS" if DEV_MODE else "\U0010BEC4"
-LIST = "LIST" if DEV_MODE else "\U0010C155"
-GET = "GET" if DEV_MODE else "\U0010A51A"
+READY = "READY" if DEV_MODE else "\U0010acdc"
+LINE = "|" if DEV_MODE else "\U0010abba"
+EXEC = "EXEC" if DEV_MODE else "\U0010b522"
+EVAL = "EVAL" if DEV_MODE else "\U001010cc"
+FORK = "FORK" if DEV_MODE else "\U0010de70"
+INFO = "INFO" if DEV_MODE else "\U0010ee15"
+PKGS = "PKGS" if DEV_MODE else "\U0010bec4"
+LIST = "LIST" if DEV_MODE else "\U0010c155"
+GET = "GET" if DEV_MODE else "\U0010a51a"
 SET = "SET" if DEV_MODE else "\U00107070"
-REMOVE = "REMOVE" if DEV_MODE else "\U0010C41C"
-END = "END" if DEV_MODE else "\U0010CB40"
+REMOVE = "REMOVE" if DEV_MODE else "\U0010c41c"
+END = "END" if DEV_MODE else "\U0010cb40"
 
 # Try to get the maximum number of file descriptors the process can have open
 # SC_OPEN_MAX "The maximum number of files that a process can have open at any
@@ -169,7 +170,7 @@ LOGGING_TO_STENCILA: dict[str, STENCILA_LEVEL] = {
 
 
 class StencilaFormatter(logging.Formatter):
-    def format(self, record: logging.LogRecord) -> str:  # noqa: ANN101
+    def format(self, record: logging.LogRecord) -> str:
         """Convert log record to JSON format."""
         if hasattr(record, "warning_details"):
             error_type = record.warning_details["category"]  # type: ignore
@@ -213,6 +214,24 @@ def log_warning(message, category, filename, lineno, file=None, line=None) -> No
 
 
 warnings.showwarning = log_warning
+
+
+@dataclass
+class NativeHint:
+    """A helper class for building up a native hint"""
+
+    parts: list[str] = field(default_factory=list)
+
+    def push_head(self, part: str) -> None:
+        self.parts.append("")
+        self.parts.append(part)
+
+    def push_data(self, part: str) -> None:
+        """Note that the string here might have newlines in it"""
+        self.parts.append(part)
+
+    def to_string(self) -> str:
+        return "\n".join(self.parts)
 
 
 # Custom serialization and hints for numpy
@@ -347,6 +366,17 @@ try:
         }
 
         return pd.DataFrame(data)
+
+    def get_native_pandas_hint(value: pd.DataFrame) -> str:
+        nh = NativeHint()
+        nh.push_head("The dtypes of the Dataframe are:")
+        nh.push_data(repr(value.dtypes))
+        nh.push_head("The first few rows of the Dataframe are:")
+        nh.push_data(repr(value.head(3)))
+        nh.push_head("`describe` returns:")
+        nh.push_data(repr(value.describe()))
+
+        return nh.to_string()
 
 except ImportError:
     PANDAS_AVAILABLE = False
@@ -584,32 +614,35 @@ def determine_type_and_hint(value: Any) -> tuple[str, Any]:
     return "Object", {"type": "Unknown"}
 
 
+def get_native_callable_hint(value: Callable) -> str:
+    nh = NativeHint()
+    try:
+        # get_type_hints is a bit unreliable, but we'll try it.
+        th = get_type_hints(value)
+        nh.push_head("The function is described by `get_types_hints` as:")
+        nh.push_data(str(th))
+    except Exception:
+        pass
+
+    doc = value.__doc__
+    if doc:
+        nh.push_head("The docstring of the function is:")
+        nh.push_data(doc)
+
+    return nh.to_string()
+
+
 def determine_native_hint(value: Any) -> str:
-    """Determine the native hint for a variable.
-
-    This should be a markdownable-like description.
-    """
-
     if isinstance(value, Callable):
-        try:
-            th = get_type_hints(value)
-            text = f"""The function is described by `get_types_hints` as:
-{th}
-"""
-        except Exception:
-            text = ""
-
-        doc = value.__doc__
-        if doc:
-            text += f"""The docstring of the function is:
-{doc}
-"""
-        return text
+        return get_native_callable_hint(value)
+    if PANDAS_AVAILABLE and isinstance(value, pd.DataFrame):
+        return get_native_pandas_hint(value)
 
     # Default (which works fine with many types)
-    return f"""The `repr` of this value is:
-`{value!r}`
-"""
+    nh = NativeHint()
+    nh.push_head("The `repr` of this value is:")
+    nh.push_data(repr(value))
+    return nh.to_string()
 
 
 # Get a variable
