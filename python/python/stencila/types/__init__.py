@@ -92,7 +92,6 @@ from ._instruction import Instruction
 from ._instruction_block import InstructionBlock
 from ._instruction_inline import InstructionInline
 from ._instruction_message import InstructionMessage
-from ._instruction_status import InstructionStatus
 from ._int_or_str import IntOrStr
 from ._integer_validator import IntegerValidator
 from ._label_type import LabelType
@@ -160,6 +159,7 @@ from ._suggestion_block import SuggestionBlock
 from ._suggestion_block_type import SuggestionBlockType
 from ._suggestion_inline import SuggestionInline
 from ._suggestion_inline_type import SuggestionInlineType
+from ._suggestion_status import SuggestionStatus
 from ._superscript import Superscript
 from ._table import Table
 from ._table_cell import TableCell
@@ -276,7 +276,6 @@ __all__ = [
     'InstructionBlock',
     'InstructionInline',
     'InstructionMessage',
-    'InstructionStatus',
     'IntOrStr',
     'IntegerValidator',
     'LabelType',
@@ -344,6 +343,7 @@ __all__ = [
     'SuggestionBlockType',
     'SuggestionInline',
     'SuggestionInlineType',
+    'SuggestionStatus',
     'Superscript',
     'Table',
     'TableCell',

@@ -27,7 +27,6 @@ use super::figure::Figure;
 use super::form_derive_action::FormDeriveAction;
 use super::grant::Grant;
 use super::image_object::ImageObject;
-use super::instruction_status::InstructionStatus;
 use super::label_type::LabelType;
 use super::list_item::ListItem;
 use super::list_order::ListOrder;
@@ -47,6 +46,7 @@ use super::review::Review;
 use super::section_type::SectionType;
 use super::software_application::SoftwareApplication;
 use super::software_source_code::SoftwareSourceCode;
+use super::suggestion_status::SuggestionStatus;
 use super::table::Table;
 use super::table_cell_type::TableCellType;
 use super::table_row_type::TableRowType;
@@ -108,8 +108,6 @@ pub enum ThingType {
 
     ImageObject(ImageObject),
 
-    InstructionStatus(InstructionStatus),
-
     LabelType(LabelType),
 
     ListItem(ListItem),
@@ -147,6 +145,8 @@ pub enum ThingType {
     SoftwareApplication(SoftwareApplication),
 
     SoftwareSourceCode(SoftwareSourceCode),
+
+    SuggestionStatus(SuggestionStatus),
 
     Table(Table),
 

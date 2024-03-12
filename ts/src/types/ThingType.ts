@@ -24,7 +24,6 @@ import { type Figure } from "./Figure.js";
 import { type FormDeriveAction } from "./FormDeriveAction.js";
 import { type Grant } from "./Grant.js";
 import { type ImageObject } from "./ImageObject.js";
-import { type InstructionStatus } from "./InstructionStatus.js";
 import { type LabelType } from "./LabelType.js";
 import { type ListItem } from "./ListItem.js";
 import { type ListOrder } from "./ListOrder.js";
@@ -44,6 +43,7 @@ import { type Review } from "./Review.js";
 import { type SectionType } from "./SectionType.js";
 import { type SoftwareApplication } from "./SoftwareApplication.js";
 import { type SoftwareSourceCode } from "./SoftwareSourceCode.js";
+import { type SuggestionStatus } from "./SuggestionStatus.js";
 import { type Table } from "./Table.js";
 import { type TableCellType } from "./TableCellType.js";
 import { type TableRowType } from "./TableRowType.js";
@@ -79,7 +79,6 @@ export type ThingType =
   FormDeriveAction |
   Grant |
   ImageObject |
-  InstructionStatus |
   LabelType |
   ListItem |
   ListOrder |
@@ -99,6 +98,7 @@ export type ThingType =
   SectionType |
   SoftwareApplication |
   SoftwareSourceCode |
+  SuggestionStatus |
   Table |
   TableCellType |
   TableRowType |

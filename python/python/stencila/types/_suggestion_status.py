@@ -3,12 +3,11 @@
 from .prelude import *
 
 
-class InstructionStatus(StrEnum):
+class SuggestionStatus(StrEnum):
     """
     The status of an instruction.
     """
 
     Proposed = "Proposed"
     Accepted = "Accepted"
-    RevisionsRequested = "RevisionsRequested"
     Rejected = "Rejected"

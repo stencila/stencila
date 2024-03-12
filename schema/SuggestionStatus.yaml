@@ -1,5 +1,5 @@
-title: InstructionStatus
-'@id': stencila:InstructionStatus
+title: SuggestionStatus
+'@id': stencila:SuggestionStatus
 extends: Enumeration
 category: edits
 description: The status of an instruction.
@@ -10,9 +10,6 @@ anyOf:
   - const: Accepted
     '@id': stencila:Accepted
     description: The suggestion has been accepted.
-  - const: RevisionsRequested
-    '@id': stencila:RevisionsRequested
-    description: Revisions to the suggestion have been requested.
   - const: Rejected
     '@id': stencila:Rejected
     description: The suggestion has been rejected.

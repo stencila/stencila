@@ -2,10 +2,9 @@
 /**
  * The status of an instruction.
  */
-export type InstructionStatus =
+export type SuggestionStatus =
   'Proposed' |
   'Accepted' |
-  'RevisionsRequested' |
   'Rejected';
 
 

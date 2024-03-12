@@ -1,6 +1,6 @@
 {
-  "@id": "https://stencila.org/InstructionStatus",
-  "name": "InstructionStatus",
+  "@id": "https://stencila.org/SuggestionStatus",
+  "name": "SuggestionStatus",
   "license": "https://creativecommons.org/publicdomain/zero/1.0/",
   "@context": {
     "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
@@ -9,9 +9,9 @@
   },
   "@graph": [
     {
-      "@id": "stencila:InstructionStatus",
+      "@id": "stencila:SuggestionStatus",
       "@type": "rdfs:Class",
-      "rdfs:label": "InstructionStatus",
+      "rdfs:label": "SuggestionStatus",
       "rdfs:comment": "The status of an instruction.",
       "rdfs:subClassOf": {
         "@id": "schema:Enumeration"

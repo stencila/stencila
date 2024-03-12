@@ -238,18 +238,6 @@
       }
     },
     {
-      "@id": "stencila:instructionStatus",
-      "@type": "rdfs:Property",
-      "rdfs:label": "instructionStatus",
-      "rdfs:comment": "Whether the instruction has a suggestion that has been proposed, accepted, revised, or rejected.",
-      "schema:domainIncludes": {
-        "@id": "stencila:Instruction"
-      },
-      "schema:rangeIncludes": {
-        "@id": "stencila:InstructionStatus"
-      }
-    },
-    {
       "@id": "schema:author",
       "@type": "rdfs:Property",
       "rdfs:label": "authors",

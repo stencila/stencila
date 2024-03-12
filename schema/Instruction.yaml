@@ -54,15 +54,6 @@ properties:
       max:
         description: Generate an arbitrary assignee id using any characters
         strategy: option::of(String::arbitrary())
-  instructionStatus:
-    '@id': stencila:instructionStatus
-    description: Whether the instruction has a suggestion that has been proposed, accepted, revised, or rejected.
-    $comment: |
-      Note that `Instruction` nodes also have an `executionStatus` property. This property is distinct in that
-      it captures the status of the instruction after at least one execution i.e. once it has the `suggestion`
-      property populated.
-    strip: [metadata]
-    $ref: InstructionStatus
   authors:
     '@id': schema:author
     description: The authors of the instruction.

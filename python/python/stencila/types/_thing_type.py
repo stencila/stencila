@@ -27,7 +27,6 @@ Figure = ForwardRef("Figure")
 FormDeriveAction = ForwardRef("FormDeriveAction")
 Grant = ForwardRef("Grant")
 ImageObject = ForwardRef("ImageObject")
-InstructionStatus = ForwardRef("InstructionStatus")
 LabelType = ForwardRef("LabelType")
 ListItem = ForwardRef("ListItem")
 ListOrder = ForwardRef("ListOrder")
@@ -47,6 +46,7 @@ Review = ForwardRef("Review")
 SectionType = ForwardRef("SectionType")
 SoftwareApplication = ForwardRef("SoftwareApplication")
 SoftwareSourceCode = ForwardRef("SoftwareSourceCode")
+SuggestionStatus = ForwardRef("SuggestionStatus")
 Table = ForwardRef("Table")
 TableCellType = ForwardRef("TableCellType")
 TableRowType = ForwardRef("TableRowType")
@@ -80,7 +80,6 @@ ThingType = Union[
     FormDeriveAction,
     Grant,
     ImageObject,
-    InstructionStatus,
     LabelType,
     ListItem,
     ListOrder,
@@ -100,6 +99,7 @@ ThingType = Union[
     SectionType,
     SoftwareApplication,
     SoftwareSourceCode,
+    SuggestionStatus,
     Table,
     TableCellType,
     TableRowType,

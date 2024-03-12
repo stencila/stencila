@@ -1,6 +1,7 @@
 // Generated file; do not edit. See https://github.com/stencila/stencila/tree/main/rust/schema-gen
 
 import { Entity } from "./Entity.js";
+import { SuggestionStatus } from "./SuggestionStatus.js";
 
 /**
  * Abstract base type for nodes that indicate a suggested change to content.
@@ -8,6 +9,11 @@ import { Entity } from "./Entity.js";
 export class Suggestion extends Entity {
   // @ts-expect-error 'not assignable to the same property in base type'
   type: "Suggestion";
+
+  /**
+   * The status of the suggestion including whether it is proposed, accepted, or rejected.
+   */
+  suggestionStatus?: SuggestionStatus;
 
   constructor(options?: Partial<Suggestion>) {
     super();

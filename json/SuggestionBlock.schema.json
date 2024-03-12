@@ -15,7 +15,8 @@
     "content"
   ],
   "core": [
-    "id"
+    "id",
+    "suggestionStatus"
   ],
   "properties": {
     "type": {
@@ -35,6 +36,18 @@
         "attr": "id"
       },
       "type": "string"
+    },
+    "suggestionStatus": {
+      "@id": "stencila:suggestionStatus",
+      "description": "The status of the suggestion including whether it is proposed, accepted, or rejected.",
+      "aliases": [
+        "suggestion-status",
+        "suggestion_status"
+      ],
+      "strip": [
+        "metadata"
+      ],
+      "$ref": "SuggestionStatus.schema.json"
     },
     "content": {
       "@id": "stencila:content",

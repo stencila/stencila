@@ -1,8 +1,8 @@
 {
   "$schema": "https://stencila.org/meta.schema.json",
-  "$id": "https://stencila.org/InstructionStatus.schema.json",
-  "@id": "stencila:InstructionStatus",
-  "title": "InstructionStatus",
+  "$id": "https://stencila.org/SuggestionStatus.schema.json",
+  "@id": "stencila:SuggestionStatus",
+  "title": "SuggestionStatus",
   "extends": [
     "Enumeration"
   ],
@@ -126,11 +126,6 @@
       "@id": "stencila:Accepted",
       "description": "The suggestion has been accepted.",
       "const": "Accepted"
-    },
-    {
-      "@id": "stencila:RevisionsRequested",
-      "description": "Revisions to the suggestion have been requested.",
-      "const": "RevisionsRequested"
     },
     {
       "@id": "stencila:Rejected",

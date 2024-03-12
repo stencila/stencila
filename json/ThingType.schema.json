@@ -78,9 +78,6 @@
       "$ref": "ImageObject.schema.json"
     },
     {
-      "$ref": "InstructionStatus.schema.json"
-    },
-    {
       "$ref": "LabelType.schema.json"
     },
     {
@@ -136,6 +133,9 @@
     },
     {
       "$ref": "SoftwareSourceCode.schema.json"
+    },
+    {
+      "$ref": "SuggestionStatus.schema.json"
     },
     {
       "$ref": "Table.schema.json"
