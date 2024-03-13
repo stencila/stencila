@@ -42,8 +42,12 @@ impl DomCodec for Array {
     fn to_dom(&self, context: &mut DomEncodeContext) {
         context.enter_elem("stencila-array");
 
-        for value in self.iter() {
+        for (index, value) in self.iter().enumerate() {
+            context
+                .enter_elem("stencila-array-item")
+                .push_attr("index", &index.to_string());
             value.to_dom(context);
+            context.exit_elem();
         }
 
         context.exit_elem();

@@ -136,8 +136,14 @@ fn derive_struct(type_attr: TypeAttr) -> TokenStream {
                 return
             };
 
-            let tokens = quote! {
-                context.push_slot_fn(#elem, stringify!(#field_name), |context| self.#field_name.to_dom(context));
+            let tokens = if field_type == "Cord" {
+                quote! {
+                    context.enter_slot(#elem, stringify!(#field_name)).push_text(&self.#field_name).exit_slot();
+                }
+            } else {
+                quote! {
+                    context.push_slot_fn(#elem, stringify!(#field_name), |context| self.#field_name.to_dom(context));
+                }
             };
 
             let tokens = if field_type == "Option" {

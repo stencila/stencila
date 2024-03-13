@@ -11,6 +11,9 @@
   "description": "Textual content.",
   "$comment": "Intended mostly for use for inline text e.g. the text in a paragraph.\n\nDiffers from the primitive `String` type in that it has a `type` and `id` property.\nThe `id` property allows use to identify text nodes with a sequence of inline nodes\nfor better diffing.\n\nAlso, in Rust, the `value` property is implemented as a CRDT.\n",
   "proptest": {},
+  "dom": {
+    "derive": false
+  },
   "html": {
     "elem": "span"
   },

@@ -20,3 +20,12 @@ where
         Self::new(Cord::new(value))
     }
 }
+
+impl DomCodec for Text {
+    fn to_dom(&self, context: &mut DomEncodeContext) {
+        context
+            .enter_node(self.node_type(), self.node_id())
+            .push_text(&self.to_value_string())
+            .exit_elem();
+    }
+}
