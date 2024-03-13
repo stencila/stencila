@@ -6,6 +6,7 @@ import { withTwind } from '../twind'
 import { Entity } from './entity'
 import './helpers/node-authors'
 import { nodeCardParentStyles, nodeCardStyles } from './helpers/node-card'
+import './widgets/node-detail-card'
 
 type CharacterStats = {
   words: number
@@ -27,21 +28,64 @@ export class Paragraph extends Entity {
   private renderViewInfo(displayContent: boolean = false) {
     const view = this.documentView()
 
+    console.log(displayContent)
+
     return html`
-      <div class=${nodeCardParentStyles(view)}>
-        <slot name="content" class=${displayContent ? 'hidden' : ''}></slot>
+      <div class=${nodeCardParentStyles(view)} slot="body">
+        <slot name="content"></slot>
         <stencila-node-card type="Paragraph" class=${nodeCardStyles(view)}>
-          <stencila-basic-node-field slot="body" icon-name="authors">
-            <div slot="content" class="text-sm">
-              Word count<br />
-              <ul class="py-1 pl-3">
-                <li class="text-xs">Words: ${this.characterStats?.words}</li>
-                <li class="text-xs">
-                  Characters: ${this.characterStats?.charactersExcludingSpaces}
-                </li>
-              </ul>
+          <!-- TODO: This is the component to refactor -->
+          <div
+            class="flex flex-row items-start justify-start gap-x-2 w-full mb-4 text-black"
+            slot="body"
+          >
+            <div class="pt-0.5">
+              <sl-icon
+                name="hash-number"
+                library="stencila"
+                class="text-base"
+              ></sl-icon>
             </div>
-          </stencila-basic-node-field>
+            <div class="grow ml-3">
+              <div class="grid grid-cols-5">
+                <div class="flex flex-col col-span-4">
+                  <span class="text-sm leading-tight col-span-2"
+                    >${this.characterStats?.words ?? 0} words</span
+                  >
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- <stencila-ui-node-detail-card
+            label="Writer"
+            slot="body"
+            title="Kusal Ekanayake"
+            content="Dragonfly Data Science"
+            colour="black"
+          >
+            <div slot="content">This is content</div>
+            <div slot="sidebar">3 days ago</div>
+          </stencila-ui-node-detail-card> -->
+          <!-- <stencila-basic-node-field slot="body" icon-name="authors">
+            <div slot="content">
+              <div class="grid grid-cols-5">
+                <div class="flex flex-col col-span-4">
+                  <span class="text-xxs leading-tight">Writer</span>
+                  <span class="text-sm leading-tight col-span-2"
+                    >Kusal Ekanayake</span
+                  >
+                  <span class="text-xs leading-tight"
+                    >Dragonfly Data Science</span
+                  >
+                </div>
+                <div
+                  class="col-span-1 text-[8px] leading-tight text-right flex justify-self-center"
+                >
+                  3 Days <br />ago
+                </div>
+              </div>
+            </div>
+          </stencila-basic-node-field> -->
           <stencila-node-authors type="Paragraph">
             <slot name="authors"></slot>
           </stencila-node-authors>

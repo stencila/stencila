@@ -68,6 +68,9 @@ export const config = defineConfig({
           900: '#092d77',
         },
       },
+      fontSize: {
+        xxs: '0.625rem',
+      },
     },
   },
 
