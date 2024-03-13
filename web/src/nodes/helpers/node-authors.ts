@@ -39,7 +39,7 @@ export class NodeAuthors extends LitElement {
   override render() {
     const borderColour = nodeBorderColour(this.type)
 
-    return html`<div class=${this.hasItems ? `block` : 'hidden'}>
+    return html`<div class="block">
       <span class="items-center flex">
         <sl-icon name="authors" library="stencila" class="pr-2"></sl-icon
         >Authors</span

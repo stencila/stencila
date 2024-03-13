@@ -69,7 +69,7 @@ export const config = defineConfig({
         },
       },
       fontSize: {
-        xxs: '0.625rem',
+        '2xs': '0.625rem',
       },
     },
   },
