@@ -2,7 +2,11 @@
 
 ## `hello-world-*.md`
 
-Has a single `CodeChunk` that outputs "Hello world!".
+Has a single `CodeChunk` that outputs the `String` "Hello world!".
+
+## `output-types-*.md`
+
+Has a `CodeChunk`s that output various types of nodes. Useful for testing the rendering of outputs.
 
 ## `sleeps-*.md`
 
