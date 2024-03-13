@@ -15,7 +15,7 @@ import { nodeCardStyles } from './helpers/node-card'
 @withTwind()
 export class ForBlock extends CodeExecutable {
   override renderStaticView() {
-    return html` <stencila-node-card type="ForBlock">
+    return html`<stencila-node-card type="ForBlock">
         <div slot="body" class="h-full">
           <slot name="code"></slot>
         </div>
