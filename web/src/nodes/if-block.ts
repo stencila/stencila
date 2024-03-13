@@ -20,13 +20,11 @@ export class IfBlock extends Executable {
 
   override renderDynamicView() {
     return html`
-      <stencila-node-card
-        type="IfBlock"
-        class=${nodeCardStyles(this.documentView())}
-      >
+      <stencila-node-card type="IfBlock">
         <span slot="header-right">${this.renderExecutableButtons()}</span>
         <div slot="body" class="h-full">
           <slot name="execution-messages"></slot>
+          <slot name="authors"></slot>
         </div>
       </stencila-node-card>
       <slot name="clauses"></slot>
@@ -55,13 +53,4 @@ export class IfBlock extends Executable {
       </stencila-node-card>
     `
   }
-
-  // ${this.renderTimeFields()}
-  // private renderClauses() {
-  //   return html`
-  //     <div>
-  //       <slot name="clauses"></slot>
-  //     </div>
-  //   `
-  // }
 }

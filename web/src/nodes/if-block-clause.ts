@@ -1,5 +1,5 @@
 import { html } from 'lit'
-import { customElement } from 'lit/decorators.js'
+import { customElement, property } from 'lit/decorators.js'
 
 import { withTwind } from '../twind'
 
@@ -52,17 +52,36 @@ export class IfBlockClause extends CodeExecutable {
   //   })
   // }
 
+  /**
+   * will be true if this clause is the current 'path' of the parent `IfBlock`
+   */
+  @property({ type: Boolean, attribute: 'is-active' })
+  isActive: boolean
+
+  override renderDynamicView() {
+    return html`
+      <stencila-node-card type="IfBlockClause">
+        <div slot="body" class="h-full">
+          <slot name="code"></slot>
+          <slot name="execution-messages"></slot>
+          <slot name="authors"></slot>
+        </div>
+      </stencila-node-card>
+    `
+  }
+
   override renderSourceView() {
-    return html` <stencila-node-card
-      type="IfBlockClause"
-      class=${nodeCardStyles(this.documentView())}
-    >
-      <span slot="header-right">${this.renderExecutableButtons()}</span>
-      <div slot="body" class="h-full">
-        <slot name="execution-messages"></slot>
-        <slot name="authors"></slot>
-      </div>
-    </stencila-node-card>`
+    return html`
+      <stencila-node-card
+        type="IfBlockClause"
+        class=${nodeCardStyles(this.documentView())}
+      >
+        <div slot="body" class="h-full">
+          <slot name="execution-messages"></slot>
+          <slot name="authors"></slot>
+        </div>
+      </stencila-node-card>
+    `
   }
   // override render() {
   //   return html` <div>${this.renderHeader()} ${this.renderContent()}</div> `

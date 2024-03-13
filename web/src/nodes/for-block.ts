@@ -15,10 +15,7 @@ import { nodeCardStyles } from './helpers/node-card'
 @withTwind()
 export class ForBlock extends CodeExecutable {
   override renderStaticView() {
-    return html` <stencila-node-card
-        type="ForBlock"
-        class=${nodeCardStyles(this.documentView())}
-      >
+    return html` <stencila-node-card type="ForBlock">
         <div slot="body" class="h-full">
           <slot name="code"></slot>
         </div>
@@ -28,10 +25,7 @@ export class ForBlock extends CodeExecutable {
 
   override renderDynamicView() {
     return html`
-      <stencila-node-card
-        type="ForBlock"
-        class=${nodeCardStyles(this.documentView())}
-      >
+      <stencila-node-card type="ForBlock">
         <span slot="header-right">${this.renderExecutableButtons()}</span>
         <div slot="body" class="h-full">
           <slot name="code"></slot>
