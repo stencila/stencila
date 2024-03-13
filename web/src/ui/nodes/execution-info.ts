@@ -1,3 +1,4 @@
+import { css } from '@twind/core'
 import { LitElement, html } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
 
@@ -19,9 +20,15 @@ export class UIExecutionInfo extends LitElement {
   colour: string = 'black'
 
   override render() {
+    const classes = css`
+      :host {
+        margin-top: var(--mt, 0);
+      }
+    `
+
     return html`<div
       class="flex flex-row gap-x-3 w-full text-${this
-        .colour} stencila-ui-execution-info"
+        .colour} stencila-ui-execution-info ${classes}"
     >
       <div class="pt-0.5 grow-0 shrink-0">
         <slot name="icon">Icon is missing</slot>

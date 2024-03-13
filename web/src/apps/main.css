@@ -16,3 +16,25 @@ body {
     Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
     'Segoe UI Symbol';
 }
+
+/**
+ * Overrides for specific custom elements
+ **/
+
+/**
+ * Custom variables used within the components.
+ **/
+:root {
+  --mt: 0;
+}
+
+/**
+ * Execution info blocks
+ **/
+stencila-ui-execution-info {
+  background: red !important;
+  --mt: 0;
+}
+stencila-ui-execution-info + stencila-ui-execution-info {
+  --mt: 0.75rem;
+}
