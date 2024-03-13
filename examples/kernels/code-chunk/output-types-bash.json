@@ -1,0 +1,86 @@
+{
+  "$schema": "https://stencila.org/Article.schema.json",
+  "@context": "https://stencila.org/context.jsonld",
+  "type": "Article",
+  "content": [
+    {
+      "type": "Paragraph",
+      "content": [
+        {
+          "type": "Text",
+          "value": "The "
+        },
+        {
+          "type": "CodeInline",
+          "code": "bash"
+        },
+        {
+          "type": "Text",
+          "value": " kernel supports outputting most primitive node types via JSON parsing of "
+        },
+        {
+          "type": "CodeInline",
+          "code": "stdout"
+        },
+        {
+          "type": "Text",
+          "value": ". The custom "
+        },
+        {
+          "type": "CodeInline",
+          "code": "print"
+        },
+        {
+          "type": "Text",
+          "value": " function allow separation of outputs (rather than just a single sting):"
+        }
+      ]
+    },
+    {
+      "type": "CodeChunk",
+      "code": "print true 1 2.34\nprint \"string\"\nprint '[1, 2, 3]'\necho '{\"a\": 1, \"b\": 2}'",
+      "programmingLanguage": "bash",
+      "outputs": [
+        true,
+        1,
+        2.34,
+        "string",
+        [
+          1,
+          2,
+          3
+        ],
+        {
+          "a": 1,
+          "b": 2
+        }
+      ],
+      "executionCount": 1,
+      "executionRequired": "No",
+      "executionStatus": "Succeeded",
+      "executionEnded": {
+        "type": "Timestamp",
+        "value": 1710299947278,
+        "timeUnit": "Millisecond"
+      },
+      "executionDuration": {
+        "type": "Duration",
+        "value": 42,
+        "timeUnit": "Millisecond"
+      }
+    }
+  ],
+  "executionCount": 1,
+  "executionRequired": "No",
+  "executionStatus": "Succeeded",
+  "executionEnded": {
+    "type": "Timestamp",
+    "value": 1710299947278,
+    "timeUnit": "Millisecond"
+  },
+  "executionDuration": {
+    "type": "Duration",
+    "value": 42,
+    "timeUnit": "Millisecond"
+  }
+}

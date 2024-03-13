@@ -1,0 +1,103 @@
+{
+  "$schema": "https://stencila.org/Article.schema.json",
+  "@context": "https://stencila.org/context.jsonld",
+  "type": "Article",
+  "content": [
+    {
+      "type": "CodeChunk",
+      "code": "warning('a warning')\nstop('an error')",
+      "programmingLanguage": "r",
+      "executionCount": 1,
+      "executionRequired": "ExecutionFailed",
+      "executionStatus": "Exceptions",
+      "executionEnded": {
+        "type": "Timestamp",
+        "value": 1710300999723,
+        "timeUnit": "Millisecond"
+      },
+      "executionDuration": {
+        "type": "Duration",
+        "value": 1013,
+        "timeUnit": "Millisecond"
+      },
+      "executionMessages": [
+        {
+          "type": "ExecutionMessage",
+          "level": "Warning",
+          "message": "a warning"
+        },
+        {
+          "type": "ExecutionMessage",
+          "level": "Exception",
+          "message": "an error",
+          "errorType": "RuntimeError"
+        }
+      ]
+    },
+    {
+      "type": "CodeChunk",
+      "code": "if # This is a syntax error",
+      "programmingLanguage": "r",
+      "executionCount": 1,
+      "executionRequired": "ExecutionFailed",
+      "executionStatus": "Exceptions",
+      "executionEnded": {
+        "type": "Timestamp",
+        "value": 1710300999768,
+        "timeUnit": "Millisecond"
+      },
+      "executionDuration": {
+        "type": "Duration",
+        "value": 45,
+        "timeUnit": "Millisecond"
+      },
+      "executionMessages": [
+        {
+          "type": "ExecutionMessage",
+          "level": "Exception",
+          "message": "<text>:2:0: unexpected end of input\n1: if # This is a syntax error\n   ^",
+          "errorType": "SyntaxError"
+        }
+      ]
+    },
+    {
+      "type": "CodeChunk",
+      "code": "foo # This is a runtime error",
+      "programmingLanguage": "r",
+      "executionCount": 1,
+      "executionRequired": "ExecutionFailed",
+      "executionStatus": "Exceptions",
+      "executionEnded": {
+        "type": "Timestamp",
+        "value": 1710300999797,
+        "timeUnit": "Millisecond"
+      },
+      "executionDuration": {
+        "type": "Duration",
+        "value": 28,
+        "timeUnit": "Millisecond"
+      },
+      "executionMessages": [
+        {
+          "type": "ExecutionMessage",
+          "level": "Exception",
+          "message": "object 'foo' not found",
+          "errorType": "RuntimeError"
+        }
+      ]
+    }
+  ],
+  "executionCount": 1,
+  "executionRequired": "No",
+  "executionStatus": "Succeeded",
+  "executionEnded": {
+    "type": "Timestamp",
+    "value": 1710300999797,
+    "timeUnit": "Millisecond"
+  },
+  "executionDuration": {
+    "type": "Duration",
+    "value": 1087,
+    "timeUnit": "Millisecond"
+  }
+}

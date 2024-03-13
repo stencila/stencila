@@ -132,10 +132,6 @@ generated:
 	cargo run -p schema-gen
 	cargo run -p cli-gen > ../docs/reference/cli.md
 
-# Update files generated for examples
-examples:
-	UPDATE_EXAMPLES=true cargo test -p codecs --test examples
-
 # Clean the ../target dir
 clean:
 	cargo clean --target-dir ../target

@@ -11,8 +11,10 @@ The [`assistants`](assistants) folder is for testing Stencila's specialized AI a
 The [`kernels`](kernels) folder is for testing Stencila's execution kernels. Each subfolder contains examples related to one or more executable node types. Within those there are files illustrating the execution of those node types within one or more execution kernels. These examples are generally kept small so that they can be easily read as JSON when executed and outputted in the console e.g.
 
 ```console
-cargo run -p cli execute examples/kernels/code-chunk/bash.md
+cargo run -p cli execute examples/kernels/code-chunk/hello-world-bash.md --to yaml
 ```
+
+The `make kernels` recipe executes all `kernels/**/*.md` files into sibling `kernels/**/*.json` files. At present these are not snapshot tested for changes, but are likely to be in the future.
 
 ## `nodes`
 
