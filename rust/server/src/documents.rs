@@ -560,6 +560,13 @@ async fn websocket_for_document(
         protocols.push(format!("{access}.nodes.stencila.org"));
     }
 
+    // During development allow `write.dom` protocol so that source view
+    // can be used for viewing DOM HTML
+    #[cfg(debug_assertions)]
+    {
+        protocols.push("write.dom.stencila.org".to_string());
+    }
+
     let response = ws
         .protocols(protocols)
         .on_upgrade(move |ws| websocket_handler(ws, doc, dir));
