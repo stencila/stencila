@@ -113,15 +113,20 @@ export abstract class Entity extends LitElement {
         if (this.activeChild) {
           const parentNodeStyles = css`
             height: 100%;
-            & slot[name='content']::slotted(*) {
+            & slot[name='content']::slotted(*),
+            slot[name='items']::slotted(*),
+            slot[name='clauses']::slotted(*) {
               visibility: hidden;
             }
           `
-
+          /*
+            render the slots which can contain the active child nodes
+          */
           return html`
             <div class=${parentNodeStyles}>
               <slot name="content"></slot>
               <slot name="items"></slot>
+              <slot name="clauses"></slot>
             </div>
           `
         }

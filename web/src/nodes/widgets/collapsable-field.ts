@@ -19,7 +19,7 @@ export class CollapsibleNodeField extends LitElement {
 
   override render() {
     const contentClasses = apply([
-      this.collapsed ? 'max-h-0' : 'max-h-64',
+      this.collapsed ? 'max-h-0' : 'max-h-[1000px]',
       'transition-max-h duration-200',
     ])
 

@@ -4,6 +4,7 @@ import { customElement } from 'lit/decorators.js'
 import { withTwind } from '../twind'
 
 import { Executable } from './executable'
+import { nodeCardStyles } from './helpers/node-card'
 
 /**
  * Web component representing a Stencila Schema `IfBlock` node
@@ -13,19 +14,54 @@ import { Executable } from './executable'
 @customElement('stencila-if-block')
 @withTwind()
 export class IfBlock extends Executable {
-  override render() {
-    return html` <div>${this.renderHeader()} ${this.renderClauses()}</div> `
+  override renderStaticView() {
+    return html`<div></div>`
   }
 
-  private renderHeader() {
-    return html` <div contenteditable="false">${this.renderMessages()}</div> `
-  }
-
-  private renderClauses() {
+  override renderDynamicView() {
     return html`
-      <div>
-        <slot name="clauses"></slot>
-      </div>
+      <stencila-node-card
+        type="IfBlock"
+        class=${nodeCardStyles(this.documentView())}
+      >
+        <span slot="header-right">${this.renderExecutableButtons()}</span>
+        <div slot="body" class="h-full">
+          <slot name="execution-messages"></slot>
+        </div>
+      </stencila-node-card>
+      <slot name="clauses"></slot>
     `
   }
+
+  override renderVisualView() {
+    return this.renderDynamicView()
+  }
+
+  override renderInteractiveView() {
+    return this.renderDynamicView()
+  }
+
+  override renderSourceView() {
+    return html`
+      <stencila-node-card
+        type="IfBlock"
+        class=${nodeCardStyles(this.documentView())}
+      >
+        <span slot="header-right">${this.renderExecutableButtons()}</span>
+        <div slot="body" class="h-full">
+          <slot name="execution-messages"></slot>
+          <slot name="authors"></slot>
+        </div>
+      </stencila-node-card>
+    `
+  }
+
+  // ${this.renderTimeFields()}
+  // private renderClauses() {
+  //   return html`
+  //     <div>
+  //       <slot name="clauses"></slot>
+  //     </div>
+  //   `
+  // }
 }
