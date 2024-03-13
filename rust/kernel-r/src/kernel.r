@@ -277,27 +277,27 @@ dataframe_from_datatable <- function(dt) {
 }
 
 # Convert a R plot to an `ImageObject`
-plot_to_image_object <- function(value, options = list(), format = "png") {
+plot_to_image_object <- function(value, options = list()) {
   # Create a new graphics device for the format, with a temporary path.
   # The tempdir check is needed when forking.
-  filename <- tempfile(fileext = paste0(".", format), tmpdir = tempdir(check = TRUE))
+  filename <- tempfile(fileext = paste0(".png"), tmpdir = tempdir(check = TRUE))
   width <- try(as.numeric(options$width))
   height <- try(as.numeric(options$height))
 
-  func <- get(format)
-  func(
+  # Width and height should be in pixel
+  res <- 300 # pixels per inch
+  png(
     filename,
-    width = ifelse(is.numeric(width) && length(width) == 1, width, 10),
-    height = ifelse(is.numeric(height) && length(width) == 1, height, 10),
-    units = "cm",
-    res = 150
+    width = ifelse(is.numeric(width) && length(width) == 1, width, 15) / 2.542 * res,
+    height = ifelse(is.numeric(height) && length(width) == 1, height, 15) / 2.542 * res,
+    res = res
   )
   base::print(value)
   grDevices::dev.off()
 
   list(
     type = unbox("ImageObject"),
-    contentUrl = unbox(paste0("data:image/", format, ";base64,", base64encode(filename)))
+    contentUrl = unbox(paste0("data:image/png;base64,", base64encode(filename)))
   )
 }
 
