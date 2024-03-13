@@ -20,14 +20,14 @@ export class Paragraph extends Entity {
     return html`
       <div class=${nodeCardParentStyles(view)}>
         <slot name="content"></slot>
-        <stencila-node-card type="Paragraph" class=${nodeCardStyles(view)}>
-          <stencila-node-authors type="Paragraph">
-            <slot name="authors"></slot>
-          </stencila-node-authors>
-        </stencila-node-card>
       </div>
     `
   }
+  // <stencila-node-card type="Paragraph" class=${nodeCardStyles(view)}>
+  //   <stencila-node-authors type="Paragraph">
+  //     <slot name="authors"></slot>
+  //   </stencila-node-authors>
+  // </stencila-node-card>
 
   override renderDynamicView() {
     return this.renderStaticView()
