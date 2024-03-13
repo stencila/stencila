@@ -1,0 +1,92 @@
+{
+  "$schema": "https://stencila.org/Article.schema.json",
+  "@context": "https://stencila.org/context.jsonld",
+  "type": "Article",
+  "content": [
+    {
+      "type": "CodeChunk",
+      "code": "Sys.sleep(1)",
+      "programmingLanguage": "r",
+      "executionCount": 1,
+      "executionRequired": "No",
+      "executionStatus": "Succeeded",
+      "executionEnded": {
+        "type": "Timestamp",
+        "value": 1710300010096,
+        "timeUnit": "Millisecond"
+      },
+      "executionDuration": {
+        "type": "Duration",
+        "value": 1847,
+        "timeUnit": "Millisecond"
+      }
+    },
+    {
+      "type": "CodeChunk",
+      "code": "Sys.sleep(2)",
+      "programmingLanguage": "r",
+      "executionCount": 1,
+      "executionRequired": "No",
+      "executionStatus": "Succeeded",
+      "executionEnded": {
+        "type": "Timestamp",
+        "value": 1710300012146,
+        "timeUnit": "Millisecond"
+      },
+      "executionDuration": {
+        "type": "Duration",
+        "value": 2050,
+        "timeUnit": "Millisecond"
+      }
+    },
+    {
+      "type": "CodeChunk",
+      "code": "Sys.sleep(4)",
+      "programmingLanguage": "r",
+      "executionCount": 1,
+      "executionRequired": "No",
+      "executionStatus": "Succeeded",
+      "executionEnded": {
+        "type": "Timestamp",
+        "value": 1710300016165,
+        "timeUnit": "Millisecond"
+      },
+      "executionDuration": {
+        "type": "Duration",
+        "value": 4019,
+        "timeUnit": "Millisecond"
+      }
+    },
+    {
+      "type": "CodeChunk",
+      "code": "Sys.sleep(8)",
+      "programmingLanguage": "r",
+      "executionCount": 1,
+      "executionRequired": "No",
+      "executionStatus": "Succeeded",
+      "executionEnded": {
+        "type": "Timestamp",
+        "value": 1710300024192,
+        "timeUnit": "Millisecond"
+      },
+      "executionDuration": {
+        "type": "Duration",
+        "value": 8026,
+        "timeUnit": "Millisecond"
+      }
+    }
+  ],
+  "executionCount": 1,
+  "executionRequired": "No",
+  "executionStatus": "Succeeded",
+  "executionEnded": {
+    "type": "Timestamp",
+    "value": 1710300024192,
+    "timeUnit": "Millisecond"
+  },
+  "executionDuration": {
+    "type": "Duration",
+    "value": 15943,
+    "timeUnit": "Millisecond"
+  }
+}

@@ -1,0 +1,44 @@
+{
+  "$schema": "https://stencila.org/Article.schema.json",
+  "@context": "https://stencila.org/context.jsonld",
+  "type": "Article",
+  "content": [
+    {
+      "type": "Paragraph",
+      "content": [
+        {
+          "type": "CodeExpression",
+          "code": "1 + 2 + 3",
+          "programmingLanguage": "bash",
+          "output": 6,
+          "executionCount": 1,
+          "executionRequired": "No",
+          "executionStatus": "Succeeded",
+          "executionEnded": {
+            "type": "Timestamp",
+            "value": 1710300028449,
+            "timeUnit": "Millisecond"
+          },
+          "executionDuration": {
+            "type": "Duration",
+            "value": 36,
+            "timeUnit": "Millisecond"
+          }
+        }
+      ]
+    }
+  ],
+  "executionCount": 1,
+  "executionRequired": "No",
+  "executionStatus": "Succeeded",
+  "executionEnded": {
+    "type": "Timestamp",
+    "value": 1710300028450,
+    "timeUnit": "Millisecond"
+  },
+  "executionDuration": {
+    "type": "Duration",
+    "value": 37,
+    "timeUnit": "Millisecond"
+  }
+}

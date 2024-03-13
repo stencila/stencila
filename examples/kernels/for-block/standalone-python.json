@@ -1,0 +1,819 @@
+{
+  "$schema": "https://stencila.org/Article.schema.json",
+  "@context": "https://stencila.org/context.jsonld",
+  "type": "Article",
+  "content": [
+    {
+      "type": "ForBlock",
+      "code": "None",
+      "programmingLanguage": "python",
+      "variable": "item",
+      "content": [
+        {
+          "type": "Paragraph",
+          "content": [
+            {
+              "type": "Text",
+              "value": "No iterations"
+            }
+          ]
+        }
+      ],
+      "iterations": [],
+      "executionCount": 1,
+      "executionRequired": "No",
+      "executionStatus": "Succeeded",
+      "executionEnded": {
+        "type": "Timestamp",
+        "value": 1710300049995,
+        "timeUnit": "Millisecond"
+      },
+      "executionDuration": {
+        "type": "Duration",
+        "value": 1514,
+        "timeUnit": "Millisecond"
+      }
+    },
+    {
+      "type": "ForBlock",
+      "code": "True",
+      "variable": "item",
+      "content": [
+        {
+          "type": "Paragraph",
+          "content": [
+            {
+              "type": "CodeExpression",
+              "code": " item "
+            }
+          ]
+        }
+      ],
+      "iterations": [
+        {
+          "type": "Section",
+          "content": [
+            {
+              "type": "Paragraph",
+              "content": [
+                {
+                  "type": "CodeExpression",
+                  "code": " item ",
+                  "output": true,
+                  "executionCount": 1,
+                  "executionRequired": "No",
+                  "executionStatus": "Succeeded",
+                  "executionEnded": {
+                    "type": "Timestamp",
+                    "value": 1710300050004,
+                    "timeUnit": "Millisecond"
+                  },
+                  "executionDuration": {
+                    "type": "Duration",
+                    "value": 3,
+                    "timeUnit": "Millisecond"
+                  }
+                }
+              ]
+            }
+          ],
+          "sectionType": "Iteration"
+        }
+      ],
+      "executionCount": 1,
+      "executionRequired": "No",
+      "executionStatus": "Succeeded",
+      "executionEnded": {
+        "type": "Timestamp",
+        "value": 1710300050006,
+        "timeUnit": "Millisecond"
+      },
+      "executionDuration": {
+        "type": "Duration",
+        "value": 11,
+        "timeUnit": "Millisecond"
+      }
+    },
+    {
+      "type": "ForBlock",
+      "code": "3",
+      "variable": "int",
+      "content": [
+        {
+          "type": "Paragraph",
+          "content": [
+            {
+              "type": "CodeExpression",
+              "code": " int "
+            }
+          ]
+        }
+      ],
+      "iterations": [
+        {
+          "type": "Section",
+          "content": [
+            {
+              "type": "Paragraph",
+              "content": [
+                {
+                  "type": "CodeExpression",
+                  "code": " int ",
+                  "output": 0,
+                  "executionCount": 1,
+                  "executionRequired": "No",
+                  "executionStatus": "Succeeded",
+                  "executionEnded": {
+                    "type": "Timestamp",
+                    "value": 1710300050016,
+                    "timeUnit": "Millisecond"
+                  },
+                  "executionDuration": {
+                    "type": "Duration",
+                    "value": 3,
+                    "timeUnit": "Millisecond"
+                  }
+                }
+              ]
+            }
+          ],
+          "sectionType": "Iteration"
+        },
+        {
+          "type": "Section",
+          "content": [
+            {
+              "type": "Paragraph",
+              "content": [
+                {
+                  "type": "CodeExpression",
+                  "code": " int ",
+                  "output": 1,
+                  "executionCount": 1,
+                  "executionRequired": "No",
+                  "executionStatus": "Succeeded",
+                  "executionEnded": {
+                    "type": "Timestamp",
+                    "value": 1710300050024,
+                    "timeUnit": "Millisecond"
+                  },
+                  "executionDuration": {
+                    "type": "Duration",
+                    "value": 4,
+                    "timeUnit": "Millisecond"
+                  }
+                }
+              ]
+            }
+          ],
+          "sectionType": "Iteration"
+        },
+        {
+          "type": "Section",
+          "content": [
+            {
+              "type": "Paragraph",
+              "content": [
+                {
+                  "type": "CodeExpression",
+                  "code": " int ",
+                  "output": 2,
+                  "executionCount": 1,
+                  "executionRequired": "No",
+                  "executionStatus": "Succeeded",
+                  "executionEnded": {
+                    "type": "Timestamp",
+                    "value": 1710300050031,
+                    "timeUnit": "Millisecond"
+                  },
+                  "executionDuration": {
+                    "type": "Duration",
+                    "value": 3,
+                    "timeUnit": "Millisecond"
+                  }
+                }
+              ]
+            }
+          ],
+          "sectionType": "Iteration"
+        }
+      ],
+      "executionCount": 1,
+      "executionRequired": "No",
+      "executionStatus": "Succeeded",
+      "executionEnded": {
+        "type": "Timestamp",
+        "value": 1710300050035,
+        "timeUnit": "Millisecond"
+      },
+      "executionDuration": {
+        "type": "Duration",
+        "value": 29,
+        "timeUnit": "Millisecond"
+      }
+    },
+    {
+      "type": "ForBlock",
+      "code": "3.0",
+      "variable": "int",
+      "content": [
+        {
+          "type": "Paragraph",
+          "content": [
+            {
+              "type": "CodeExpression",
+              "code": " int "
+            }
+          ]
+        }
+      ],
+      "iterations": [
+        {
+          "type": "Section",
+          "content": [
+            {
+              "type": "Paragraph",
+              "content": [
+                {
+                  "type": "CodeExpression",
+                  "code": " int ",
+                  "output": 0,
+                  "executionCount": 1,
+                  "executionRequired": "No",
+                  "executionStatus": "Succeeded",
+                  "executionEnded": {
+                    "type": "Timestamp",
+                    "value": 1710300050052,
+                    "timeUnit": "Millisecond"
+                  },
+                  "executionDuration": {
+                    "type": "Duration",
+                    "value": 5,
+                    "timeUnit": "Millisecond"
+                  }
+                }
+              ]
+            }
+          ],
+          "sectionType": "Iteration"
+        },
+        {
+          "type": "Section",
+          "content": [
+            {
+              "type": "Paragraph",
+              "content": [
+                {
+                  "type": "CodeExpression",
+                  "code": " int ",
+                  "output": 1,
+                  "executionCount": 1,
+                  "executionRequired": "No",
+                  "executionStatus": "Succeeded",
+                  "executionEnded": {
+                    "type": "Timestamp",
+                    "value": 1710300050062,
+                    "timeUnit": "Millisecond"
+                  },
+                  "executionDuration": {
+                    "type": "Duration",
+                    "value": 4,
+                    "timeUnit": "Millisecond"
+                  }
+                }
+              ]
+            }
+          ],
+          "sectionType": "Iteration"
+        },
+        {
+          "type": "Section",
+          "content": [
+            {
+              "type": "Paragraph",
+              "content": [
+                {
+                  "type": "CodeExpression",
+                  "code": " int ",
+                  "output": 2,
+                  "executionCount": 1,
+                  "executionRequired": "No",
+                  "executionStatus": "Succeeded",
+                  "executionEnded": {
+                    "type": "Timestamp",
+                    "value": 1710300050072,
+                    "timeUnit": "Millisecond"
+                  },
+                  "executionDuration": {
+                    "type": "Duration",
+                    "value": 5,
+                    "timeUnit": "Millisecond"
+                  }
+                }
+              ]
+            }
+          ],
+          "sectionType": "Iteration"
+        }
+      ],
+      "executionCount": 1,
+      "executionRequired": "No",
+      "executionStatus": "Succeeded",
+      "executionEnded": {
+        "type": "Timestamp",
+        "value": 1710300050076,
+        "timeUnit": "Millisecond"
+      },
+      "executionDuration": {
+        "type": "Duration",
+        "value": 41,
+        "timeUnit": "Millisecond"
+      }
+    },
+    {
+      "type": "ForBlock",
+      "code": "\"123\"",
+      "variable": "char",
+      "content": [
+        {
+          "type": "Paragraph",
+          "content": [
+            {
+              "type": "CodeExpression",
+              "code": " char "
+            }
+          ]
+        }
+      ],
+      "iterations": [
+        {
+          "type": "Section",
+          "content": [
+            {
+              "type": "Paragraph",
+              "content": [
+                {
+                  "type": "CodeExpression",
+                  "code": " char ",
+                  "output": "1",
+                  "executionCount": 1,
+                  "executionRequired": "No",
+                  "executionStatus": "Succeeded",
+                  "executionEnded": {
+                    "type": "Timestamp",
+                    "value": 1710300050092,
+                    "timeUnit": "Millisecond"
+                  },
+                  "executionDuration": {
+                    "type": "Duration",
+                    "value": 4,
+                    "timeUnit": "Millisecond"
+                  }
+                }
+              ]
+            }
+          ],
+          "sectionType": "Iteration"
+        },
+        {
+          "type": "Section",
+          "content": [
+            {
+              "type": "Paragraph",
+              "content": [
+                {
+                  "type": "CodeExpression",
+                  "code": " char ",
+                  "output": "2",
+                  "executionCount": 1,
+                  "executionRequired": "No",
+                  "executionStatus": "Succeeded",
+                  "executionEnded": {
+                    "type": "Timestamp",
+                    "value": 1710300050101,
+                    "timeUnit": "Millisecond"
+                  },
+                  "executionDuration": {
+                    "type": "Duration",
+                    "value": 5,
+                    "timeUnit": "Millisecond"
+                  }
+                }
+              ]
+            }
+          ],
+          "sectionType": "Iteration"
+        },
+        {
+          "type": "Section",
+          "content": [
+            {
+              "type": "Paragraph",
+              "content": [
+                {
+                  "type": "CodeExpression",
+                  "code": " char ",
+                  "output": "3",
+                  "executionCount": 1,
+                  "executionRequired": "No",
+                  "executionStatus": "Succeeded",
+                  "executionEnded": {
+                    "type": "Timestamp",
+                    "value": 1710300050111,
+                    "timeUnit": "Millisecond"
+                  },
+                  "executionDuration": {
+                    "type": "Duration",
+                    "value": 5,
+                    "timeUnit": "Millisecond"
+                  }
+                }
+              ]
+            }
+          ],
+          "sectionType": "Iteration"
+        }
+      ],
+      "executionCount": 1,
+      "executionRequired": "No",
+      "executionStatus": "Succeeded",
+      "executionEnded": {
+        "type": "Timestamp",
+        "value": 1710300050115,
+        "timeUnit": "Millisecond"
+      },
+      "executionDuration": {
+        "type": "Duration",
+        "value": 39,
+        "timeUnit": "Millisecond"
+      }
+    },
+    {
+      "type": "ForBlock",
+      "code": "range(1, 4)",
+      "variable": "int",
+      "content": [
+        {
+          "type": "Paragraph",
+          "content": [
+            {
+              "type": "CodeExpression",
+              "code": " int "
+            }
+          ]
+        }
+      ],
+      "iterations": [
+        {
+          "type": "Section",
+          "content": [
+            {
+              "type": "Paragraph",
+              "content": [
+                {
+                  "type": "CodeExpression",
+                  "code": " int ",
+                  "output": 1,
+                  "executionCount": 1,
+                  "executionRequired": "No",
+                  "executionStatus": "Succeeded",
+                  "executionEnded": {
+                    "type": "Timestamp",
+                    "value": 1710300050132,
+                    "timeUnit": "Millisecond"
+                  },
+                  "executionDuration": {
+                    "type": "Duration",
+                    "value": 5,
+                    "timeUnit": "Millisecond"
+                  }
+                }
+              ]
+            }
+          ],
+          "sectionType": "Iteration"
+        },
+        {
+          "type": "Section",
+          "content": [
+            {
+              "type": "Paragraph",
+              "content": [
+                {
+                  "type": "CodeExpression",
+                  "code": " int ",
+                  "output": 2,
+                  "executionCount": 1,
+                  "executionRequired": "No",
+                  "executionStatus": "Succeeded",
+                  "executionEnded": {
+                    "type": "Timestamp",
+                    "value": 1710300050142,
+                    "timeUnit": "Millisecond"
+                  },
+                  "executionDuration": {
+                    "type": "Duration",
+                    "value": 5,
+                    "timeUnit": "Millisecond"
+                  }
+                }
+              ]
+            }
+          ],
+          "sectionType": "Iteration"
+        },
+        {
+          "type": "Section",
+          "content": [
+            {
+              "type": "Paragraph",
+              "content": [
+                {
+                  "type": "CodeExpression",
+                  "code": " int ",
+                  "output": 3,
+                  "executionCount": 1,
+                  "executionRequired": "No",
+                  "executionStatus": "Succeeded",
+                  "executionEnded": {
+                    "type": "Timestamp",
+                    "value": 1710300050150,
+                    "timeUnit": "Millisecond"
+                  },
+                  "executionDuration": {
+                    "type": "Duration",
+                    "value": 4,
+                    "timeUnit": "Millisecond"
+                  }
+                }
+              ]
+            }
+          ],
+          "sectionType": "Iteration"
+        }
+      ],
+      "executionCount": 1,
+      "executionRequired": "No",
+      "executionStatus": "Succeeded",
+      "executionEnded": {
+        "type": "Timestamp",
+        "value": 1710300050155,
+        "timeUnit": "Millisecond"
+      },
+      "executionDuration": {
+        "type": "Duration",
+        "value": 39,
+        "timeUnit": "Millisecond"
+      }
+    },
+    {
+      "type": "ForBlock",
+      "code": "[1, 2, 3]",
+      "variable": "int",
+      "content": [
+        {
+          "type": "Paragraph",
+          "content": [
+            {
+              "type": "CodeExpression",
+              "code": " int "
+            }
+          ]
+        }
+      ],
+      "iterations": [
+        {
+          "type": "Section",
+          "content": [
+            {
+              "type": "Paragraph",
+              "content": [
+                {
+                  "type": "CodeExpression",
+                  "code": " int ",
+                  "output": 1,
+                  "executionCount": 1,
+                  "executionRequired": "No",
+                  "executionStatus": "Succeeded",
+                  "executionEnded": {
+                    "type": "Timestamp",
+                    "value": 1710300050171,
+                    "timeUnit": "Millisecond"
+                  },
+                  "executionDuration": {
+                    "type": "Duration",
+                    "value": 6,
+                    "timeUnit": "Millisecond"
+                  }
+                }
+              ]
+            }
+          ],
+          "sectionType": "Iteration"
+        },
+        {
+          "type": "Section",
+          "content": [
+            {
+              "type": "Paragraph",
+              "content": [
+                {
+                  "type": "CodeExpression",
+                  "code": " int ",
+                  "output": 2,
+                  "executionCount": 1,
+                  "executionRequired": "No",
+                  "executionStatus": "Succeeded",
+                  "executionEnded": {
+                    "type": "Timestamp",
+                    "value": 1710300050180,
+                    "timeUnit": "Millisecond"
+                  },
+                  "executionDuration": {
+                    "type": "Duration",
+                    "value": 4,
+                    "timeUnit": "Millisecond"
+                  }
+                }
+              ]
+            }
+          ],
+          "sectionType": "Iteration"
+        },
+        {
+          "type": "Section",
+          "content": [
+            {
+              "type": "Paragraph",
+              "content": [
+                {
+                  "type": "CodeExpression",
+                  "code": " int ",
+                  "output": 3,
+                  "executionCount": 1,
+                  "executionRequired": "No",
+                  "executionStatus": "Succeeded",
+                  "executionEnded": {
+                    "type": "Timestamp",
+                    "value": 1710300050190,
+                    "timeUnit": "Millisecond"
+                  },
+                  "executionDuration": {
+                    "type": "Duration",
+                    "value": 5,
+                    "timeUnit": "Millisecond"
+                  }
+                }
+              ]
+            }
+          ],
+          "sectionType": "Iteration"
+        }
+      ],
+      "executionCount": 1,
+      "executionRequired": "No",
+      "executionStatus": "Succeeded",
+      "executionEnded": {
+        "type": "Timestamp",
+        "value": 1710300050194,
+        "timeUnit": "Millisecond"
+      },
+      "executionDuration": {
+        "type": "Duration",
+        "value": 39,
+        "timeUnit": "Millisecond"
+      }
+    },
+    {
+      "type": "ForBlock",
+      "code": "dict(a = 1, b = 2, c = 3)",
+      "variable": "pair",
+      "content": [
+        {
+          "type": "Paragraph",
+          "content": [
+            {
+              "type": "CodeExpression",
+              "code": " f\"{pair[0]}: {pair[1]}\" "
+            }
+          ]
+        }
+      ],
+      "iterations": [
+        {
+          "type": "Section",
+          "content": [
+            {
+              "type": "Paragraph",
+              "content": [
+                {
+                  "type": "CodeExpression",
+                  "code": " f\"{pair[0]}: {pair[1]}\" ",
+                  "output": "a: 1",
+                  "executionCount": 1,
+                  "executionRequired": "No",
+                  "executionStatus": "Succeeded",
+                  "executionEnded": {
+                    "type": "Timestamp",
+                    "value": 1710300050214,
+                    "timeUnit": "Millisecond"
+                  },
+                  "executionDuration": {
+                    "type": "Duration",
+                    "value": 5,
+                    "timeUnit": "Millisecond"
+                  }
+                }
+              ]
+            }
+          ],
+          "sectionType": "Iteration"
+        },
+        {
+          "type": "Section",
+          "content": [
+            {
+              "type": "Paragraph",
+              "content": [
+                {
+                  "type": "CodeExpression",
+                  "code": " f\"{pair[0]}: {pair[1]}\" ",
+                  "output": "b: 2",
+                  "executionCount": 1,
+                  "executionRequired": "No",
+                  "executionStatus": "Succeeded",
+                  "executionEnded": {
+                    "type": "Timestamp",
+                    "value": 1710300050226,
+                    "timeUnit": "Millisecond"
+                  },
+                  "executionDuration": {
+                    "type": "Duration",
+                    "value": 6,
+                    "timeUnit": "Millisecond"
+                  }
+                }
+              ]
+            }
+          ],
+          "sectionType": "Iteration"
+        },
+        {
+          "type": "Section",
+          "content": [
+            {
+              "type": "Paragraph",
+              "content": [
+                {
+                  "type": "CodeExpression",
+                  "code": " f\"{pair[0]}: {pair[1]}\" ",
+                  "output": "c: 3",
+                  "executionCount": 1,
+                  "executionRequired": "No",
+                  "executionStatus": "Succeeded",
+                  "executionEnded": {
+                    "type": "Timestamp",
+                    "value": 1710300050236,
+                    "timeUnit": "Millisecond"
+                  },
+                  "executionDuration": {
+                    "type": "Duration",
+                    "value": 5,
+                    "timeUnit": "Millisecond"
+                  }
+                }
+              ]
+            }
+          ],
+          "sectionType": "Iteration"
+        }
+      ],
+      "executionCount": 1,
+      "executionRequired": "No",
+      "executionStatus": "Succeeded",
+      "executionEnded": {
+        "type": "Timestamp",
+        "value": 1710300050242,
+        "timeUnit": "Millisecond"
+      },
+      "executionDuration": {
+        "type": "Duration",
+        "value": 47,
+        "timeUnit": "Millisecond"
+      }
+    }
+  ],
+  "executionCount": 1,
+  "executionRequired": "No",
+  "executionStatus": "Succeeded",
+  "executionEnded": {
+    "type": "Timestamp",
+    "value": 1710300050242,
+    "timeUnit": "Millisecond"
+  },
+  "executionDuration": {
+    "type": "Duration",
+    "value": 1761,
+    "timeUnit": "Millisecond"
+  }
+}

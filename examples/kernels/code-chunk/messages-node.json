@@ -1,0 +1,117 @@
+{
+  "$schema": "https://stencila.org/Article.schema.json",
+  "@context": "https://stencila.org/context.jsonld",
+  "type": "Article",
+  "content": [
+    {
+      "type": "CodeChunk",
+      "code": "console.debug('a debug message')\nconsole.info('an info message')\nconsole.warn('a warning message')\nconsole.error('an error message')",
+      "programmingLanguage": "node",
+      "outputs": [
+        true
+      ],
+      "executionCount": 1,
+      "executionRequired": "ExecutionFailed",
+      "executionStatus": "Errors",
+      "executionEnded": {
+        "type": "Timestamp",
+        "value": 1710300610338,
+        "timeUnit": "Millisecond"
+      },
+      "executionDuration": {
+        "type": "Duration",
+        "value": 363,
+        "timeUnit": "Millisecond"
+      },
+      "executionMessages": [
+        {
+          "type": "ExecutionMessage",
+          "level": "Debug",
+          "message": "a debug message"
+        },
+        {
+          "type": "ExecutionMessage",
+          "level": "Info",
+          "message": "an info message"
+        },
+        {
+          "type": "ExecutionMessage",
+          "level": "Warning",
+          "message": "a warning message"
+        },
+        {
+          "type": "ExecutionMessage",
+          "level": "Error",
+          "message": "an error message"
+        }
+      ]
+    },
+    {
+      "type": "CodeChunk",
+      "code": "if // This is a syntax error",
+      "programmingLanguage": "node",
+      "executionCount": 1,
+      "executionRequired": "ExecutionFailed",
+      "executionStatus": "Exceptions",
+      "executionEnded": {
+        "type": "Timestamp",
+        "value": 1710300610350,
+        "timeUnit": "Millisecond"
+      },
+      "executionDuration": {
+        "type": "Duration",
+        "value": 11,
+        "timeUnit": "Millisecond"
+      },
+      "executionMessages": [
+        {
+          "type": "ExecutionMessage",
+          "level": "Exception",
+          "message": "Unexpected end of input",
+          "errorType": "SyntaxError",
+          "stackTrace": "evalmachine.<anonymous>:1\nif // This is a syntax error\n                            \n\nSyntaxError: Unexpected end of input\n    at new Script (node:vm:99:7)\n    at createScript (node:vm:247:10)\n    at Object.runInContext (node:vm:278:10)\n    at execute (/home/nokome/.config/stencila/kernels/node:161:21)\n    at /home/nokome/.config/stencila/kernels/node:311:18\n    at Interface.<anonymous> (/home/nokome/.config/stencila/kernels/node:331:7)\n    at Interface.emit (node:events:514:28)\n    at [_onLine] [as _onLine] (node:internal/readline/interface:416:12)\n    at [_normalWrite] [as _normalWrite] (node:internal/readline/interface:610:22)\n    at Socket.ondata (node:internal/readline/interface:243:23)"
+        }
+      ]
+    },
+    {
+      "type": "CodeChunk",
+      "code": "foo // This is a runtime error",
+      "programmingLanguage": "node",
+      "executionCount": 1,
+      "executionRequired": "ExecutionFailed",
+      "executionStatus": "Exceptions",
+      "executionEnded": {
+        "type": "Timestamp",
+        "value": 1710300610359,
+        "timeUnit": "Millisecond"
+      },
+      "executionDuration": {
+        "type": "Duration",
+        "value": 8,
+        "timeUnit": "Millisecond"
+      },
+      "executionMessages": [
+        {
+          "type": "ExecutionMessage",
+          "level": "Exception",
+          "message": "foo is not defined",
+          "errorType": "ReferenceError",
+          "stackTrace": "evalmachine.<anonymous>:1\nfoo // This is a runtime error\n^\n\nReferenceError: foo is not defined\n    at evalmachine.<anonymous>:1:1\n    at sigintHandlersWrap (node:vm:258:12)\n    at Script.runInContext (node:vm:131:14)\n    at Object.runInContext (node:vm:279:6)\n    at execute (/home/nokome/.config/stencila/kernels/node:161:21)\n    at /home/nokome/.config/stencila/kernels/node:311:18\n    at Interface.<anonymous> (/home/nokome/.config/stencila/kernels/node:331:7)\n    at Interface.emit (node:events:514:28)\n    at [_onLine] [as _onLine] (node:internal/readline/interface:416:12)\n    at [_normalWrite] [as _normalWrite] (node:internal/readline/interface:610:22)"
+        }
+      ]
+    }
+  ],
+  "executionCount": 1,
+  "executionRequired": "No",
+  "executionStatus": "Succeeded",
+  "executionEnded": {
+    "type": "Timestamp",
+    "value": 1710300610359,
+    "timeUnit": "Millisecond"
+  },
+  "executionDuration": {
+    "type": "Duration",
+    "value": 384,
+    "timeUnit": "Millisecond"
+  }
+}

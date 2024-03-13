@@ -1,0 +1,169 @@
+{
+  "$schema": "https://stencila.org/Article.schema.json",
+  "@context": "https://stencila.org/context.jsonld",
+  "type": "Article",
+  "content": [
+    {
+      "type": "CodeChunk",
+      "code": "x = 3",
+      "programmingLanguage": "r",
+      "executionCount": 1,
+      "executionRequired": "No",
+      "executionStatus": "Succeeded",
+      "executionEnded": {
+        "type": "Timestamp",
+        "value": 1710300059414,
+        "timeUnit": "Millisecond"
+      },
+      "executionDuration": {
+        "type": "Duration",
+        "value": 977,
+        "timeUnit": "Millisecond"
+      }
+    },
+    {
+      "type": "IfBlock",
+      "clauses": [
+        {
+          "type": "IfBlockClause",
+          "code": "x == 1",
+          "isActive": false,
+          "content": [
+            {
+              "type": "Paragraph",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": "x is "
+                },
+                {
+                  "type": "CodeExpression",
+                  "code": " x "
+                }
+              ]
+            }
+          ],
+          "executionCount": 1,
+          "executionRequired": "No",
+          "executionStatus": "Succeeded",
+          "executionEnded": {
+            "type": "Timestamp",
+            "value": 1710300059422,
+            "timeUnit": "Millisecond"
+          },
+          "executionDuration": {
+            "type": "Duration",
+            "value": 7,
+            "timeUnit": "Millisecond"
+          }
+        },
+        {
+          "type": "IfBlockClause",
+          "code": "x == 2",
+          "isActive": false,
+          "content": [
+            {
+              "type": "Paragraph",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": "x is "
+                },
+                {
+                  "type": "CodeExpression",
+                  "code": " x "
+                }
+              ]
+            }
+          ],
+          "executionCount": 1,
+          "executionRequired": "No",
+          "executionStatus": "Succeeded",
+          "executionEnded": {
+            "type": "Timestamp",
+            "value": 1710300059465,
+            "timeUnit": "Millisecond"
+          },
+          "executionDuration": {
+            "type": "Duration",
+            "value": 43,
+            "timeUnit": "Millisecond"
+          }
+        },
+        {
+          "type": "IfBlockClause",
+          "code": "",
+          "isActive": true,
+          "content": [
+            {
+              "type": "Paragraph",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": "x is "
+                },
+                {
+                  "type": "CodeExpression",
+                  "code": " x ",
+                  "output": 3,
+                  "executionCount": 1,
+                  "executionRequired": "No",
+                  "executionStatus": "Succeeded",
+                  "executionEnded": {
+                    "type": "Timestamp",
+                    "value": 1710300059473,
+                    "timeUnit": "Millisecond"
+                  },
+                  "executionDuration": {
+                    "type": "Duration",
+                    "value": 8,
+                    "timeUnit": "Millisecond"
+                  }
+                }
+              ]
+            }
+          ],
+          "executionCount": 1,
+          "executionRequired": "No",
+          "executionStatus": "Succeeded",
+          "executionEnded": {
+            "type": "Timestamp",
+            "value": 1710300059473,
+            "timeUnit": "Millisecond"
+          },
+          "executionDuration": {
+            "type": "Duration",
+            "value": 8,
+            "timeUnit": "Millisecond"
+          }
+        }
+      ],
+      "executionCount": 1,
+      "executionRequired": "No",
+      "executionStatus": "Succeeded",
+      "executionEnded": {
+        "type": "Timestamp",
+        "value": 1710300059473,
+        "timeUnit": "Millisecond"
+      },
+      "executionDuration": {
+        "type": "Duration",
+        "value": 59,
+        "timeUnit": "Millisecond"
+      }
+    }
+  ],
+  "executionCount": 1,
+  "executionRequired": "No",
+  "executionStatus": "Succeeded",
+  "executionEnded": {
+    "type": "Timestamp",
+    "value": 1710300059473,
+    "timeUnit": "Millisecond"
+  },
+  "executionDuration": {
+    "type": "Duration",
+    "value": 1036,
+    "timeUnit": "Millisecond"
+  }
+}

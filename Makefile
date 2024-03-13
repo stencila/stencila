@@ -91,7 +91,7 @@ generated:
 
 # Generate examples in alternative formats
 examples:
-	make -C rust examples
+	make -C examples
 .PHONY: examples
 
 # Clean up development artifacts

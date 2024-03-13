@@ -1,0 +1,249 @@
+{
+  "$schema": "https://stencila.org/Article.schema.json",
+  "@context": "https://stencila.org/context.jsonld",
+  "type": "Article",
+  "content": [
+    {
+      "type": "ForBlock",
+      "code": "range(2)",
+      "programmingLanguage": "python",
+      "variable": "a",
+      "content": [
+        {
+          "type": "ForBlock",
+          "code": "range(2)",
+          "variable": "b",
+          "content": [
+            {
+              "type": "Paragraph",
+              "content": [
+                {
+                  "type": "CodeExpression",
+                  "code": " f\"{a} x {b} = {a * b}\" "
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "iterations": [
+        {
+          "type": "Section",
+          "content": [
+            {
+              "type": "ForBlock",
+              "code": "range(2)",
+              "variable": "b",
+              "content": [
+                {
+                  "type": "Paragraph",
+                  "content": [
+                    {
+                      "type": "CodeExpression",
+                      "code": " f\"{a} x {b} = {a * b}\" "
+                    }
+                  ]
+                }
+              ],
+              "iterations": [
+                {
+                  "type": "Section",
+                  "content": [
+                    {
+                      "type": "Paragraph",
+                      "content": [
+                        {
+                          "type": "CodeExpression",
+                          "code": " f\"{a} x {b} = {a * b}\" ",
+                          "output": "0 x 0 = 0",
+                          "executionCount": 1,
+                          "executionRequired": "No",
+                          "executionStatus": "Succeeded",
+                          "executionEnded": {
+                            "type": "Timestamp",
+                            "value": 1710300045348,
+                            "timeUnit": "Millisecond"
+                          },
+                          "executionDuration": {
+                            "type": "Duration",
+                            "value": 2,
+                            "timeUnit": "Millisecond"
+                          }
+                        }
+                      ]
+                    }
+                  ],
+                  "sectionType": "Iteration"
+                },
+                {
+                  "type": "Section",
+                  "content": [
+                    {
+                      "type": "Paragraph",
+                      "content": [
+                        {
+                          "type": "CodeExpression",
+                          "code": " f\"{a} x {b} = {a * b}\" ",
+                          "output": "0 x 1 = 0",
+                          "executionCount": 1,
+                          "executionRequired": "No",
+                          "executionStatus": "Succeeded",
+                          "executionEnded": {
+                            "type": "Timestamp",
+                            "value": 1710300045353,
+                            "timeUnit": "Millisecond"
+                          },
+                          "executionDuration": {
+                            "type": "Duration",
+                            "value": 3,
+                            "timeUnit": "Millisecond"
+                          }
+                        }
+                      ]
+                    }
+                  ],
+                  "sectionType": "Iteration"
+                }
+              ],
+              "executionCount": 1,
+              "executionRequired": "No",
+              "executionStatus": "Succeeded",
+              "executionEnded": {
+                "type": "Timestamp",
+                "value": 1710300045355,
+                "timeUnit": "Millisecond"
+              },
+              "executionDuration": {
+                "type": "Duration",
+                "value": 14,
+                "timeUnit": "Millisecond"
+              }
+            }
+          ],
+          "sectionType": "Iteration"
+        },
+        {
+          "type": "Section",
+          "content": [
+            {
+              "type": "ForBlock",
+              "code": "range(2)",
+              "variable": "b",
+              "content": [
+                {
+                  "type": "Paragraph",
+                  "content": [
+                    {
+                      "type": "CodeExpression",
+                      "code": " f\"{a} x {b} = {a * b}\" "
+                    }
+                  ]
+                }
+              ],
+              "iterations": [
+                {
+                  "type": "Section",
+                  "content": [
+                    {
+                      "type": "Paragraph",
+                      "content": [
+                        {
+                          "type": "CodeExpression",
+                          "code": " f\"{a} x {b} = {a * b}\" ",
+                          "output": "1 x 0 = 0",
+                          "executionCount": 1,
+                          "executionRequired": "No",
+                          "executionStatus": "Succeeded",
+                          "executionEnded": {
+                            "type": "Timestamp",
+                            "value": 1710300045364,
+                            "timeUnit": "Millisecond"
+                          },
+                          "executionDuration": {
+                            "type": "Duration",
+                            "value": 2,
+                            "timeUnit": "Millisecond"
+                          }
+                        }
+                      ]
+                    }
+                  ],
+                  "sectionType": "Iteration"
+                },
+                {
+                  "type": "Section",
+                  "content": [
+                    {
+                      "type": "Paragraph",
+                      "content": [
+                        {
+                          "type": "CodeExpression",
+                          "code": " f\"{a} x {b} = {a * b}\" ",
+                          "output": "1 x 1 = 1",
+                          "executionCount": 1,
+                          "executionRequired": "No",
+                          "executionStatus": "Succeeded",
+                          "executionEnded": {
+                            "type": "Timestamp",
+                            "value": 1710300045371,
+                            "timeUnit": "Millisecond"
+                          },
+                          "executionDuration": {
+                            "type": "Duration",
+                            "value": 3,
+                            "timeUnit": "Millisecond"
+                          }
+                        }
+                      ]
+                    }
+                  ],
+                  "sectionType": "Iteration"
+                }
+              ],
+              "executionCount": 1,
+              "executionRequired": "No",
+              "executionStatus": "Succeeded",
+              "executionEnded": {
+                "type": "Timestamp",
+                "value": 1710300045374,
+                "timeUnit": "Millisecond"
+              },
+              "executionDuration": {
+                "type": "Duration",
+                "value": 17,
+                "timeUnit": "Millisecond"
+              }
+            }
+          ],
+          "sectionType": "Iteration"
+        }
+      ],
+      "executionCount": 1,
+      "executionRequired": "No",
+      "executionStatus": "Succeeded",
+      "executionEnded": {
+        "type": "Timestamp",
+        "value": 1710300045377,
+        "timeUnit": "Millisecond"
+      },
+      "executionDuration": {
+        "type": "Duration",
+        "value": 1521,
+        "timeUnit": "Millisecond"
+      }
+    }
+  ],
+  "executionCount": 1,
+  "executionRequired": "No",
+  "executionStatus": "Succeeded",
+  "executionEnded": {
+    "type": "Timestamp",
+    "value": 1710300045377,
+    "timeUnit": "Millisecond"
+  },
+  "executionDuration": {
+    "type": "Duration",
+    "value": 1521,
+    "timeUnit": "Millisecond"
+  }
+}

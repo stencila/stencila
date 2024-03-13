@@ -1,0 +1,70 @@
+{
+  "$schema": "https://stencila.org/Article.schema.json",
+  "@context": "https://stencila.org/context.jsonld",
+  "type": "Article",
+  "content": [
+    {
+      "type": "Paragraph",
+      "content": [
+        {
+          "type": "Text",
+          "value": "The "
+        },
+        {
+          "type": "CodeInline",
+          "code": "node"
+        },
+        {
+          "type": "Text",
+          "value": " kernel supports outputting most primitive node types:"
+        }
+      ]
+    },
+    {
+      "type": "CodeChunk",
+      "code": "console.log(true, 1, 2.34, \"string\", [1, 2, 3], { a: 1, b: 2 });",
+      "programmingLanguage": "node",
+      "outputs": [
+        true,
+        1,
+        2.34,
+        "string",
+        [
+          1,
+          2,
+          3
+        ],
+        {
+          "a": 1,
+          "b": 2
+        }
+      ],
+      "executionCount": 1,
+      "executionRequired": "No",
+      "executionStatus": "Succeeded",
+      "executionEnded": {
+        "type": "Timestamp",
+        "value": 1710299948612,
+        "timeUnit": "Millisecond"
+      },
+      "executionDuration": {
+        "type": "Duration",
+        "value": 318,
+        "timeUnit": "Millisecond"
+      }
+    }
+  ],
+  "executionCount": 1,
+  "executionRequired": "No",
+  "executionStatus": "Succeeded",
+  "executionEnded": {
+    "type": "Timestamp",
+    "value": 1710299948613,
+    "timeUnit": "Millisecond"
+  },
+  "executionDuration": {
+    "type": "Duration",
+    "value": 319,
+    "timeUnit": "Millisecond"
+  }
+}

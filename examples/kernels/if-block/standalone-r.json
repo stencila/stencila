@@ -1,0 +1,359 @@
+{
+  "$schema": "https://stencila.org/Article.schema.json",
+  "@context": "https://stencila.org/context.jsonld",
+  "type": "Article",
+  "content": [
+    {
+      "type": "IfBlock",
+      "clauses": [
+        {
+          "type": "IfBlockClause",
+          "code": "NULL",
+          "programmingLanguage": "r",
+          "isActive": false,
+          "content": [
+            {
+              "type": "Paragraph",
+              "content": [
+                {
+                  "type": "CodeInline",
+                  "code": "NULL"
+                },
+                {
+                  "type": "Text",
+                  "value": " is falsy"
+                }
+              ]
+            }
+          ],
+          "executionCount": 1,
+          "executionRequired": "No",
+          "executionStatus": "Succeeded",
+          "executionEnded": {
+            "type": "Timestamp",
+            "value": 1710300071209,
+            "timeUnit": "Millisecond"
+          },
+          "executionDuration": {
+            "type": "Duration",
+            "value": 951,
+            "timeUnit": "Millisecond"
+          }
+        },
+        {
+          "type": "IfBlockClause",
+          "code": "NA",
+          "isActive": false,
+          "content": [
+            {
+              "type": "Paragraph",
+              "content": [
+                {
+                  "type": "CodeInline",
+                  "code": "NA"
+                },
+                {
+                  "type": "Text",
+                  "value": " is falsy"
+                }
+              ]
+            }
+          ],
+          "executionCount": 1,
+          "executionRequired": "No",
+          "executionStatus": "Succeeded",
+          "executionEnded": {
+            "type": "Timestamp",
+            "value": 1710300071247,
+            "timeUnit": "Millisecond"
+          },
+          "executionDuration": {
+            "type": "Duration",
+            "value": 37,
+            "timeUnit": "Millisecond"
+          }
+        },
+        {
+          "type": "IfBlockClause",
+          "code": "FALSE",
+          "isActive": false,
+          "content": [
+            {
+              "type": "Paragraph",
+              "content": [
+                {
+                  "type": "CodeInline",
+                  "code": "FALSE"
+                },
+                {
+                  "type": "Text",
+                  "value": " is falsy"
+                }
+              ]
+            }
+          ],
+          "executionCount": 1,
+          "executionRequired": "No",
+          "executionStatus": "Succeeded",
+          "executionEnded": {
+            "type": "Timestamp",
+            "value": 1710300071253,
+            "timeUnit": "Millisecond"
+          },
+          "executionDuration": {
+            "type": "Duration",
+            "value": 6,
+            "timeUnit": "Millisecond"
+          }
+        },
+        {
+          "type": "IfBlockClause",
+          "code": "-1",
+          "isActive": false,
+          "content": [
+            {
+              "type": "Paragraph",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": "Non-positive integers are falsy"
+                }
+              ]
+            }
+          ],
+          "executionCount": 1,
+          "executionRequired": "No",
+          "executionStatus": "Succeeded",
+          "executionEnded": {
+            "type": "Timestamp",
+            "value": 1710300071259,
+            "timeUnit": "Millisecond"
+          },
+          "executionDuration": {
+            "type": "Duration",
+            "value": 6,
+            "timeUnit": "Millisecond"
+          }
+        },
+        {
+          "type": "IfBlockClause",
+          "code": "0",
+          "isActive": false,
+          "content": [
+            {
+              "type": "Paragraph",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": "Non-positive unsigned integers are falsy"
+                }
+              ]
+            }
+          ],
+          "executionCount": 1,
+          "executionRequired": "No",
+          "executionStatus": "Succeeded",
+          "executionEnded": {
+            "type": "Timestamp",
+            "value": 1710300071265,
+            "timeUnit": "Millisecond"
+          },
+          "executionDuration": {
+            "type": "Duration",
+            "value": 6,
+            "timeUnit": "Millisecond"
+          }
+        },
+        {
+          "type": "IfBlockClause",
+          "code": "-1.0",
+          "isActive": false,
+          "content": [
+            {
+              "type": "Paragraph",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": "Non-positive numbers are falsy"
+                }
+              ]
+            }
+          ],
+          "executionCount": 1,
+          "executionRequired": "No",
+          "executionStatus": "Succeeded",
+          "executionEnded": {
+            "type": "Timestamp",
+            "value": 1710300071271,
+            "timeUnit": "Millisecond"
+          },
+          "executionDuration": {
+            "type": "Duration",
+            "value": 6,
+            "timeUnit": "Millisecond"
+          }
+        },
+        {
+          "type": "IfBlockClause",
+          "code": "\"\"",
+          "isActive": false,
+          "content": [
+            {
+              "type": "Paragraph",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": "Empty strings are falsy"
+                }
+              ]
+            }
+          ],
+          "executionCount": 1,
+          "executionRequired": "No",
+          "executionStatus": "Succeeded",
+          "executionEnded": {
+            "type": "Timestamp",
+            "value": 1710300071277,
+            "timeUnit": "Millisecond"
+          },
+          "executionDuration": {
+            "type": "Duration",
+            "value": 6,
+            "timeUnit": "Millisecond"
+          }
+        },
+        {
+          "type": "IfBlockClause",
+          "code": "numeric()",
+          "isActive": false,
+          "content": [
+            {
+              "type": "Paragraph",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": "Empty vectors are falsy"
+                }
+              ]
+            }
+          ],
+          "executionCount": 1,
+          "executionRequired": "No",
+          "executionStatus": "Succeeded",
+          "executionEnded": {
+            "type": "Timestamp",
+            "value": 1710300071284,
+            "timeUnit": "Millisecond"
+          },
+          "executionDuration": {
+            "type": "Duration",
+            "value": 7,
+            "timeUnit": "Millisecond"
+          }
+        },
+        {
+          "type": "IfBlockClause",
+          "code": "list()",
+          "isActive": false,
+          "content": [
+            {
+              "type": "Paragraph",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": "Empty lists are falsy"
+                }
+              ]
+            }
+          ],
+          "executionCount": 1,
+          "executionRequired": "No",
+          "executionStatus": "Succeeded",
+          "executionEnded": {
+            "type": "Timestamp",
+            "value": 1710300071291,
+            "timeUnit": "Millisecond"
+          },
+          "executionDuration": {
+            "type": "Duration",
+            "value": 7,
+            "timeUnit": "Millisecond"
+          }
+        },
+        {
+          "type": "IfBlockClause",
+          "code": "",
+          "isActive": true,
+          "content": [
+            {
+              "type": "Paragraph",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": "Evaluated in "
+                },
+                {
+                  "type": "CodeExpression",
+                  "code": " version$version.string ",
+                  "output": "R version 4.3.0 (2023-04-21)",
+                  "executionCount": 1,
+                  "executionRequired": "No",
+                  "executionStatus": "Succeeded",
+                  "executionEnded": {
+                    "type": "Timestamp",
+                    "value": 1710300071303,
+                    "timeUnit": "Millisecond"
+                  },
+                  "executionDuration": {
+                    "type": "Duration",
+                    "value": 12,
+                    "timeUnit": "Millisecond"
+                  }
+                }
+              ]
+            }
+          ],
+          "executionCount": 1,
+          "executionRequired": "No",
+          "executionStatus": "Succeeded",
+          "executionEnded": {
+            "type": "Timestamp",
+            "value": 1710300071303,
+            "timeUnit": "Millisecond"
+          },
+          "executionDuration": {
+            "type": "Duration",
+            "value": 12,
+            "timeUnit": "Millisecond"
+          }
+        }
+      ],
+      "executionCount": 1,
+      "executionRequired": "No",
+      "executionStatus": "Succeeded",
+      "executionEnded": {
+        "type": "Timestamp",
+        "value": 1710300071303,
+        "timeUnit": "Millisecond"
+      },
+      "executionDuration": {
+        "type": "Duration",
+        "value": 1045,
+        "timeUnit": "Millisecond"
+      }
+    }
+  ],
+  "executionCount": 1,
+  "executionRequired": "No",
+  "executionStatus": "Succeeded",
+  "executionEnded": {
+    "type": "Timestamp",
+    "value": 1710300071303,
+    "timeUnit": "Millisecond"
+  },
+  "executionDuration": {
+    "type": "Duration",
+    "value": 1045,
+    "timeUnit": "Millisecond"
+  }
+}

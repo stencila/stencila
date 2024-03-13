@@ -1,0 +1,92 @@
+{
+  "$schema": "https://stencila.org/Article.schema.json",
+  "@context": "https://stencila.org/context.jsonld",
+  "type": "Article",
+  "content": [
+    {
+      "type": "CodeChunk",
+      "code": "// A sleep function which can be called at top level\n// without using await (which is not supported in\n// Node.js's `vm` module)\nfunction sleep(seconds) {\n    const startTime = new Date().getTime();\n    let currentTime = null;\n    do {\n        currentTime = new Date().getTime();\n    } while (currentTime - startTime < seconds * 1000);\n}\n\nsleep(1)",
+      "programmingLanguage": "node",
+      "executionCount": 1,
+      "executionRequired": "No",
+      "executionStatus": "Succeeded",
+      "executionEnded": {
+        "type": "Timestamp",
+        "value": 1710299975488,
+        "timeUnit": "Millisecond"
+      },
+      "executionDuration": {
+        "type": "Duration",
+        "value": 1406,
+        "timeUnit": "Millisecond"
+      }
+    },
+    {
+      "type": "CodeChunk",
+      "code": "sleep(2)",
+      "programmingLanguage": "node",
+      "executionCount": 1,
+      "executionRequired": "No",
+      "executionStatus": "Succeeded",
+      "executionEnded": {
+        "type": "Timestamp",
+        "value": 1710299977490,
+        "timeUnit": "Millisecond"
+      },
+      "executionDuration": {
+        "type": "Duration",
+        "value": 2001,
+        "timeUnit": "Millisecond"
+      }
+    },
+    {
+      "type": "CodeChunk",
+      "code": "sleep(4)",
+      "programmingLanguage": "node",
+      "executionCount": 1,
+      "executionRequired": "No",
+      "executionStatus": "Succeeded",
+      "executionEnded": {
+        "type": "Timestamp",
+        "value": 1710299981492,
+        "timeUnit": "Millisecond"
+      },
+      "executionDuration": {
+        "type": "Duration",
+        "value": 4001,
+        "timeUnit": "Millisecond"
+      }
+    },
+    {
+      "type": "CodeChunk",
+      "code": "sleep(8)",
+      "programmingLanguage": "node",
+      "executionCount": 1,
+      "executionRequired": "No",
+      "executionStatus": "Succeeded",
+      "executionEnded": {
+        "type": "Timestamp",
+        "value": 1710299989493,
+        "timeUnit": "Millisecond"
+      },
+      "executionDuration": {
+        "type": "Duration",
+        "value": 8001,
+        "timeUnit": "Millisecond"
+      }
+    }
+  ],
+  "executionCount": 1,
+  "executionRequired": "No",
+  "executionStatus": "Succeeded",
+  "executionEnded": {
+    "type": "Timestamp",
+    "value": 1710299989493,
+    "timeUnit": "Millisecond"
+  },
+  "executionDuration": {
+    "type": "Duration",
+    "value": 15411,
+    "timeUnit": "Millisecond"
+  }
+}
