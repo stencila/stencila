@@ -83,7 +83,6 @@ export class InfoView extends LitElement {
         el.removeAttribute('active-child')
       })
     }
-
     if (currentNodeId) {
       this.currentNode = this.domElement.value.querySelector(
         `#${currentNodeId}`
@@ -121,8 +120,8 @@ export class InfoView extends LitElement {
       width: 100%;
       height: 100%;
 
-      /* hide all non-active node trees */
-      & section > *:not(.show) {
+      /* hide all non-active node trees at the root level */
+      & [root] > section > *:not(.show) {
         display: none;
       }
 
@@ -136,8 +135,10 @@ export class InfoView extends LitElement {
       & [root],
       slot[name='content']::slotted(*),
       slot[name='items']::slotted(*),
+      slot[name='clauses']::slotted(*),
       [slot='content'],
       [slot='items'],
+      [slot='clauses'],
       [active-child] {
         display: block;
         height: 100%;
@@ -153,7 +154,9 @@ export class InfoView extends LitElement {
         to avoid white space
       */
       & *:has(~ .active-node),
-      .active-node ~ * {
+      *:has(~ [active-child]),
+      .active-node ~ *,
+      [active-child] ~ * {
         display: none;
       }
     `

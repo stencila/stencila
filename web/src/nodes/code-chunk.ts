@@ -69,8 +69,8 @@ export class CodeChunk extends CodeExecutable {
       <span slot="header-right">${this.renderExecutableButtons()}</span>
       <div slot="body" class="h-full">
         ${this.renderTimeFields()}
-        <slot name="execution-messages"></slot>
         <slot name="outputs"></slot>
+        <slot name="execution-messages"></slot>
       </div>
     </stencila-node-card>`
   }

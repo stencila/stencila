@@ -43,11 +43,11 @@ export abstract class Executable extends Entity {
    * So display programming language read only and provide buttons for actions
    */
   protected renderExecutableButtons() {
-    const containerClasses = apply(['flex flex-row'])
+    const containerClasses = apply(['flex flex-row', 'text-base text-black'])
     const dividerClasses = apply(['h-4 w-0', 'border border-black', 'mx-2'])
     return html`
       <div class=${containerClasses}>
-        <sl-icon name="git"></sl-icon>
+        <sl-icon name="deps-tree" library="stencila"></sl-icon>
         <div class=${dividerClasses}></div>
         <sl-icon name="skip-end"></sl-icon>
         <div class=${dividerClasses}></div>

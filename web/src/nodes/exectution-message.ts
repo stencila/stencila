@@ -34,6 +34,7 @@ export class ExecutionMessage extends Entity {
       overflow-x: auto;
     }
   `
+
   override render() {
     return html`
       <stencila-collapsible-node-field
@@ -43,8 +44,12 @@ export class ExecutionMessage extends Entity {
       >
         <span slot="title">Messages</span>
         <div slot="content" class="overflow-hidden py-2">
-          <slot name="message"></slot>
-          <slot name="stack-trace"></slot>
+          <div>
+            <slot name="message"></slot>
+          </div>
+          <div>
+            <slot name="stack-trace"></slot>
+          </div>
         </div>
       </stencila-collapsible-node-field>
     `

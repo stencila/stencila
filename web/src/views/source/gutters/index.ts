@@ -112,7 +112,11 @@ const execStatusGutter = (sourceView: SourceView) => [
       //       InlineTypeList.includes(node.nodeType)
       //   )
 
-      if (blockNode && ExecutableTypeList.includes(blockNode.nodeType)) {
+      if (
+        blockNode &&
+        BlockTypeList.includes(blockNode.nodeType) &&
+        ExecutableTypeList.includes(blockNode.nodeType)
+      ) {
         let count = 0
 
         const objectClient = view.state.field(objectClientState)

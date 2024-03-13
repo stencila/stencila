@@ -74,5 +74,5 @@ export const nodeCardParentStyles = (view: DocumentView) =>
  */
 export const nodeCardStyles = (view: DocumentView) =>
   view !== 'source'
-    ? 'hidden absolute z-10 top-full right-0 group-hover:block'
+    ? 'absolute z-10 top-full right-0 group-hover:block'
     : 'flex flex-col h-full'

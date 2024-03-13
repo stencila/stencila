@@ -56,12 +56,15 @@ export class CodeExpression extends CodeExecutable {
     </stencila-node-card>`
   }
 
+  override renderVisualView() {
+    return this.renderDynamicView()
+  }
+
   /**
    * In source view render everything as in dynamic view except for
    * code, label, caption (because they are editable in the editor).
    */
   override renderSourceView() {
-    console.log(nodeCardStyles(this.documentView()))
     return html`<stencila-node-card
       type="CodeExpression"
       class=${nodeCardStyles(this.documentView())}

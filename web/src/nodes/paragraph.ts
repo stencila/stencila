@@ -42,9 +42,7 @@ export class Paragraph extends Entity {
     return html`
       <div class=${nodeCardParentStyles(view)}>
         <stencila-node-card type="Paragraph" class=${nodeCardStyles(view)}>
-          <stencila-node-authors type="Paragraph">
-            <slot name="authors"></slot>
-          </stencila-node-authors>
+          <slot name="authors"></slot>
         </stencila-node-card>
       </div>
     `
