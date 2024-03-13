@@ -2,19 +2,19 @@ import { apply } from '@twind/core'
 import { LitElement, html } from 'lit'
 import { customElement, property } from 'lit/decorators'
 
-import '../../ui/buttons/chevron'
-import { withTwind } from '../../twind'
+import '../../../buttons/chevron'
+import { withTwind } from '../../../../twind'
 
 @customElement('stencila-collapsible-node-field')
 @withTwind()
-export class CollapsibleNodeField extends LitElement {
+export class UICollapsibleNodeField extends LitElement {
   @property({ attribute: 'icon-name' })
   iconName: string
 
   @property({ attribute: 'icon-library' })
   iconLibrary: 'stencila' | 'default' = 'stencila'
 
-  @property()
+  @property({ type: Boolean })
   collapsed: boolean = true
 
   override render() {

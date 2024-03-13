@@ -3,8 +3,12 @@ import { customElement } from 'lit/decorators.js'
 
 import { withTwind } from '../twind'
 
+import '../ui/nodes/card'
+import '../ui/nodes/actions/execution-actions'
+import '../ui/nodes/properties/authors'
+import '../ui/nodes/properties/execution-details'
+
 import { CodeExecutable } from './code-executable'
-import { nodeCardStyles } from './helpers/node-card'
 
 /**
  * Web component representing a Stencila Schema `For` node
@@ -15,44 +19,39 @@ import { nodeCardStyles } from './helpers/node-card'
 @withTwind()
 export class ForBlock extends CodeExecutable {
   override renderStaticView() {
-    return html` <stencila-node-card type="ForBlock">
+    return html` <stencila-ui-node-card type="ForBlock">
         <div slot="body" class="h-full">
           <slot name="code"></slot>
         </div>
-      </stencila-node-card>
+      </stencila-ui-node-card>
       <slot name="iterations"></slot>`
   }
 
   override renderDynamicView() {
     return html`
-      <stencila-node-card type="ForBlock">
-        <span slot="header-right">${this.renderExecutableButtons()}</span>
+      <stencila-ui-node-card type="ForBlock" view="dynamic">
+        <span slot="header-right">
+          <stencila-ui-node-execution-actions></stencila-ui-node-execution-actions>
+        </span>
         <div slot="body" class="h-full">
           <slot name="code"></slot>
-          ${this.renderTimeFields()}
           <slot name="execution-messages"></slot>
         </div>
-      </stencila-node-card>
+      </stencila-ui-node-card>
       <slot name="iterations"></slot>
     `
   }
 
-  override renderVisualView() {
-    return this.renderDynamicView()
-  }
-
   override renderSourceView() {
     return html`
-      <stencila-node-card
-        type="ForBlock"
-        class=${nodeCardStyles(this.documentView())}
-      >
-        <span slot="header-right">${this.renderExecutableButtons()}</span>
+      <stencila-ui-node-card type="ForBlock" view="source">
+        <span slot="header-right">
+          </stencila-ui-node-execution-actions></stencila-ui-node-execution-actions>
+        </span>
         <div slot="body" class="h-full">
-          ${this.renderTimeFields()}
           <slot name="execution-messages"></slot>
         </div>
-      </stencila-node-card>
+      </stencila-ui-node-card>
     `
   }
 }

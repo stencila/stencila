@@ -2,9 +2,9 @@ import { html } from 'lit'
 import { customElement } from 'lit/decorators.js'
 
 import { withTwind } from '../twind'
+import { nodeCardStyles } from '../ui/nodes/card'
 
 import { Executable } from './executable'
-import { nodeCardStyles } from './helpers/node-card'
 
 /**
  * Web component representing a Stencila Schema `IfBlock` node
@@ -20,13 +20,13 @@ export class IfBlock extends Executable {
 
   override renderDynamicView() {
     return html`
-      <stencila-node-card type="IfBlock">
+      <stencila-ui-node-card type="IfBlock">
         <span slot="header-right">${this.renderExecutableButtons()}</span>
         <div slot="body" class="h-full">
           <slot name="execution-messages"></slot>
           <slot name="authors"></slot>
         </div>
-      </stencila-node-card>
+      </stencila-ui-node-card>
       <slot name="clauses"></slot>
     `
   }
@@ -41,7 +41,7 @@ export class IfBlock extends Executable {
 
   override renderSourceView() {
     return html`
-      <stencila-node-card
+      <stencila-ui-node-card
         type="IfBlock"
         class=${nodeCardStyles(this.documentView())}
       >
@@ -50,7 +50,7 @@ export class IfBlock extends Executable {
           <slot name="execution-messages"></slot>
           <slot name="authors"></slot>
         </div>
-      </stencila-node-card>
+      </stencila-ui-node-card>
     `
   }
 }

@@ -5,8 +5,8 @@ import { apply } from '@twind/core'
 import { LitElement, html } from 'lit'
 import { customElement, property } from 'lit/decorators'
 
-import { nodeBorderColour, nodeUi } from '../../../nodes/helpers/node-ui'
 import { withTwind } from '../../../twind'
+import { nodeBorderColour, nodeUi } from '../../../ui/nodes/icons-and-colours'
 
 @customElement('stencila-node-gutter-marker')
 @withTwind()

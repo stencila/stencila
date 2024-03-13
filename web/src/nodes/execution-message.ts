@@ -1,5 +1,4 @@
 import '@shoelace-style/shoelace/dist/components/icon/icon'
-import './widgets/collapsable-field'
 import { MessageLevel } from '@stencila/types'
 import { html, css } from 'lit'
 import { customElement, property } from 'lit/decorators'
@@ -10,12 +9,17 @@ import { Entity } from './entity'
 
 /**
  * Web component representing a Stencila Schema `ExecutionMessage` node
+ *
+ * @see https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/execution-message.md
  */
 @customElement('stencila-execution-message')
 @withTwind()
 export class ExecutionMessage extends Entity {
   @property({ type: String })
   level: MessageLevel
+
+  // TODO: factor this out into <stencila-ui-node-execution-messages> (note plural because
+  // that's the name of the property.
 
   // override the styles property to set the `<pre>` styles
   // TODO - sort this out, get the pre elements wrapped in divs from the server
@@ -37,7 +41,7 @@ export class ExecutionMessage extends Entity {
 
   override render() {
     return html`
-      <stencila-collapsible-node-field
+      <stencila-ui-node-collapsible-property
         icon-name="terminal"
         icon-library="default"
         class="my-1"
@@ -51,7 +55,7 @@ export class ExecutionMessage extends Entity {
             <slot name="stack-trace"></slot>
           </div>
         </div>
-      </stencila-collapsible-node-field>
+      </stencila-ui-node-collapsible-property>
     `
   }
 }

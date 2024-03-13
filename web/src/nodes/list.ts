@@ -2,10 +2,10 @@ import { html } from 'lit'
 import { customElement } from 'lit/decorators'
 
 import { withTwind } from '../twind'
+import { nodeCardParentStyles, nodeCardStyles } from '../ui/nodes/card'
+import '../ui/nodes/properties/authors'
 
 import { Entity } from './entity'
-import './helpers/node-authors'
-import { nodeCardParentStyles, nodeCardStyles } from './helpers/node-card'
 
 /**
  * Web component representing a Stencila Schema `List` node
@@ -20,11 +20,11 @@ export class List extends Entity {
     return html`
       <div class=${nodeCardParentStyles(view)}>
         <slot name="items"></slot>
-        <stencila-node-card type="List" class=${nodeCardStyles(view)}>
-          <stencila-node-authors type="List">
+        <stencila-ui-node-card type="List" class=${nodeCardStyles(view)}>
+          <stencila-ui-node-authors type="List">
             <slot name="authors"></slot>
-          </stencila-node-authors>
-        </stencila-node-card>
+          </stencila-ui-node-authors>
+        </stencila-ui-node-card>
       </div>
     `
   }
@@ -41,11 +41,11 @@ export class List extends Entity {
     const view = this.documentView()
     return html`
       <div class=${nodeCardParentStyles(view)}>
-        <stencila-node-card type="List" class=${nodeCardStyles(view)}>
-          <stencila-node-authors type="List">
+        <stencila-ui-node-card type="List" class=${nodeCardStyles(view)}>
+          <stencila-ui-node-authors type="List">
             <slot name="authors"></slot>
-          </stencila-node-authors>
-        </stencila-node-card>
+          </stencila-ui-node-authors>
+        </stencila-ui-node-card>
       </div>
     `
   }

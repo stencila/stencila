@@ -2,9 +2,10 @@ import { NodeType } from '@stencila/types'
 import { html } from 'lit'
 import { property } from 'lit/decorators.js'
 
+import { nodeCardParentStyles, nodeCardStyles } from '../ui/nodes/card'
+import '../ui/nodes/properties/authors'
+
 import { Executable } from './executable'
-import './helpers/node-authors'
-import { nodeCardParentStyles, nodeCardStyles } from './helpers/node-card'
 
 /**
  * Abstract base class for web components representing Stencila Schema `Instruction` node types
@@ -30,17 +31,17 @@ export abstract class Instruction extends Executable {
     return html`<div class=${nodeCardParentStyles(view)}>
       ${view !== 'source' ? html`<slot name="content"></slot>` : ''}
 
-      <stencila-node-card type=${this.type} class=${nodeCardStyles(view)}>
-        <stencila-node-authors type=${this.type}>
+      <stencila-ui-node-card type=${this.type} class=${nodeCardStyles(view)}>
+        <stencila-ui-node-authors type=${this.type}>
           <slot name="authors"></slot>
-        </stencila-node-authors>
+        </stencila-ui-node-authors>
         <div hidden>
           <!-- TODO -->
           <slot name="messages"></slot>
           <slot name="content"></slot>
           <slot name="suggestion"></slot>
         </div>
-      </stencila-node-card>
+      </stencila-ui-node-card>
     </div>`
   }
 }

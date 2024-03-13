@@ -8,11 +8,11 @@ import { LitElement, html } from 'lit'
 import { customElement, property } from 'lit/decorators'
 
 import { MappingEntry } from '../../clients/format'
-import { executableIcon } from '../../nodes/helpers/node-executables'
 import { withTwind } from '../../twind'
+import '../../ui/buttons/icon'
 import { SourceView } from '../source'
 
-import '../../ui/buttons/icon'
+import { executableIcon } from './node-executables'
 import { objectClientState } from './state'
 const FORMATS = {
   markdown: 'Markdown',
