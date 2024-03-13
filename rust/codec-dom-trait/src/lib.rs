@@ -52,7 +52,10 @@ atom!(f64, "number");
 
 impl DomCodec for String {
     fn to_dom(&self, context: &mut DomEncodeContext) {
-        context.push_text(self);
+        context
+            .enter_elem("stencila-string")
+            .push_text(self)
+            .exit_elem();
     }
 
     fn to_dom_attr(&self, name: &str, context: &mut DomEncodeContext) {

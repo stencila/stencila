@@ -12,6 +12,8 @@ $comment: |
   for better diffing.
   
   Also, in Rust, the `value` property is implemented as a CRDT.
+dom:
+  derive: false
 html:
   elem: span
 jats:
