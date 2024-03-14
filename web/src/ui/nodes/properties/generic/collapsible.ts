@@ -41,7 +41,7 @@ export class UICollapsibleNodeField extends LitElement {
             class="text-base"
           ></sl-icon>`}
 
-          <div class=${`grow ${this.iconName && 'ml-4'}`}>
+          <div class=${`grow select-none ${this.iconName && 'ml-4'}`}>
             <slot name="title"></slot>
           </div>
           <stencila-chevron-button

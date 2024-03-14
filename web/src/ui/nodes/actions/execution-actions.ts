@@ -15,15 +15,22 @@ export class UINodeExecutionActions extends LitElement {
   value: number
 
   override render() {
-    const containerClasses = apply(['flex flex-row', 'text-base text-black'])
-    const dividerClasses = apply(['h-4 w-0', 'border border-black', 'mx-2'])
+    const containerClasses = apply([
+      'flex flex-row items-center gap-x-4',
+      'text-black',
+    ])
+    const dividerClasses = apply([
+      'h-4 w-0',
+      'border border-black',
+      'mix-blend-multiply opacity-50',
+    ])
     return html`
       <div class=${containerClasses}>
-        <sl-icon name="deps-tree" library="stencila"></sl-icon>
+        <sl-icon name="deps-tree" library="stencila" class="text-xl"></sl-icon>
         <div class=${dividerClasses}></div>
-        <sl-icon name="skip-end"></sl-icon>
+        <sl-icon name="skip" library="stencila" class="text-2xl"></sl-icon>
         <div class=${dividerClasses}></div>
-        <sl-icon name="play"></sl-icon>
+        <sl-icon name="play" library="stencila" class="text-base"></sl-icon>
       </div>
     `
   }

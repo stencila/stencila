@@ -45,12 +45,13 @@ export class CodeChunk extends CodeExecutable {
    * with execution actions and details and code read-only and collapsed.
    */
   override renderDynamicView() {
+    const { borderColour } = nodeUi('CodeChunk')
     return html`<stencila-ui-node-card type="CodeChunk" view="dynamic">
       <span slot="header-right">
         <stencila-ui-node-execution-actions>
         </stencila-ui-node-execution-actions>
       </span>
-      <div slot="body">
+      <div slot="body" class="border-t border-black/30">
         <stencila-ui-node-execution-details
           auto-exec=${this.autoExec}
           .tags=${this.executionTags}
@@ -59,6 +60,7 @@ export class CodeChunk extends CodeExecutable {
           count=${this.executionCount}
           ended=${this.executionEnded}
           duration=${this.executionDuration}
+          headerBg=${borderColour}
         >
           <slot name="execution-dependencies"></slot>
           <slot name="execution-dependants"></slot>
@@ -102,7 +104,7 @@ export class CodeChunk extends CodeExecutable {
       <span slot="header-right">
         <stencila-ui-node-execution-actions></stencila-ui-node-execution-actions>
       </span>
-      <div slot="body">
+      <div slot="body" class="border-t border-black/30">
         <stencila-ui-node-execution-details
           auto-exec=${this.autoExec}
           .tags=${this.executionTags}
