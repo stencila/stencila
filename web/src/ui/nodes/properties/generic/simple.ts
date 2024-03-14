@@ -21,7 +21,9 @@ export class UINodeSimpleProperty extends LitElement {
   tooltipContent?: string
 
   override render() {
-    const inner = html`<div class="flex flex-row w-full mb-4">
+    const content = html`<slot></slot>`
+
+    return html`<div class="flex flex-row w-full">
       <div class="pt-0.5">
         <sl-icon
           name=${this.iconName}
@@ -30,16 +32,13 @@ export class UINodeSimpleProperty extends LitElement {
         ></sl-icon>
       </div>
       <div class="grow ml-4">
-        <slot></slot>
+        <sl-tooltip
+          content=${this.tooltipContent}
+          placement="top-start"
+          .disabled=${(this.tooltipContent?.length ?? 0) === 0}
+          ><span>${content}</span></sl-tooltip
+        >
       </div>
     </div>`
-
-    return this.tooltipContent
-      ? html`
-          <sl-tooltip content=${this.tooltipContent} placement="top-start"
-            >${inner}</sl-tooltip
-          >
-        `
-      : inner
   }
 }

@@ -39,7 +39,7 @@ export class UINodeCard extends LitElement {
     const headerStyles = apply([
       'flex justify-between items-center',
       'w-full',
-      'p-4',
+      'px-6 py-3',
       `bg-[${borderColour}]`,
       `border border-[${borderColour}] ${this.view === 'source' ? '' : 'rounded-t'}`,
       'font-medium',
@@ -47,7 +47,6 @@ export class UINodeCard extends LitElement {
 
     const bodyStyles = apply([
       'w-full h-full',
-      'p-4',
       `bg-[${colour}]`,
       `border border-[${borderColour}] rounded-b`,
     ])
@@ -55,7 +54,11 @@ export class UINodeCard extends LitElement {
     return html` <div class=${cardStyles}>
       <div class=${headerStyles}>
         <span class="items-center font-bold flex">
-          <sl-icon library=${iconLibrary} name=${icon} class="pr-2"></sl-icon>
+          <sl-icon
+            library=${iconLibrary}
+            name=${icon}
+            class=${`pr-2 text-2xl`}
+          ></sl-icon>
           ${title}
         </span>
         <span class="items-center font-bold flex">
