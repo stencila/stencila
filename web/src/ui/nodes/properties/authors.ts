@@ -3,16 +3,15 @@ import { NodeType } from '@stencila/types'
 import { html, LitElement } from 'lit'
 import { customElement, property, state } from 'lit/decorators'
 
-import { withTwind } from '../../twind'
-
-import { nodeBorderColour } from './node-ui'
+import { withTwind } from '../../../twind'
+import { nodeBorderColour } from '../icons-and-colours'
 
 /**
- * A component to render the `authors` property of a node
+ * A component for displaying the `authors` property of a node
  */
-@customElement('stencila-node-authors')
+@customElement('stencila-ui-node-authors')
 @withTwind()
-export class NodeAuthors extends LitElement {
+export class UINodeAuthors extends LitElement {
   /**
    * The type of node that the `authors` property is on
    *

@@ -38,7 +38,7 @@ import { ObjectClient } from '../clients/object'
 import { InfoViewContext, infoviewContext } from '../contexts/infoview-context'
 import { markdownHighlightStyle } from '../languages/markdown'
 import type { DocumentId, DocumentAccess, NodeId } from '../types'
-import { TWLitElement } from '../ui/twind'
+import { TWLitElement } from '../ui/twind-lit'
 
 import { bottomPanel } from './source/bottomPanel'
 import { nodeTypeGutter, execStatusGutter } from './source/gutters'

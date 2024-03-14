@@ -5,7 +5,7 @@ import { Ref, createRef, ref } from 'lit/directives/ref'
 import Split from 'split.js'
 
 import { withTwind } from '../../twind'
-import { TWLitElement } from '../twind'
+import { TWLitElement } from '../twind-lit'
 
 /**
  * Drag Split

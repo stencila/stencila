@@ -7,14 +7,14 @@ import { customElement, property } from 'lit/decorators'
 import { withTwind } from '../../twind'
 import { DocumentView } from '../../types'
 
-import { nodeUi } from './node-ui'
+import { nodeUi } from './icons-and-colours'
 
 /**
  * A component for displaying information about a node type (e.g. a `Heading` or `Table`)
  */
-@customElement('stencila-node-card')
+@customElement('stencila-ui-node-card')
 @withTwind()
-export class NodeCard extends LitElement {
+export class UINodeCard extends LitElement {
   /**
    * The type of node that this card is for
    *
@@ -23,15 +23,25 @@ export class NodeCard extends LitElement {
   @property()
   type: NodeType
 
+  /**
+   * The view that this card is within
+   *
+   * Used for adapting styling for the view.
+   */
+  @property()
+  view: DocumentView
+
   override render() {
     const { iconLibrary, icon, title, colour, borderColour } = nodeUi(this.type)
+
+    const cardStyles = this.view === 'source' ? 'flex flex-col h-full' : 'my-2'
 
     const headerStyles = apply([
       'flex justify-between items-center',
       'w-full',
       'p-4',
       `bg-[${borderColour}]`,
-      `border border-[${borderColour}] rounded-t`,
+      `border border-[${borderColour}] ${this.view === 'source' ? '' : 'rounded-t'}`,
       'font-medium',
     ])
 
@@ -42,7 +52,7 @@ export class NodeCard extends LitElement {
       `border border-[${borderColour}] rounded-b`,
     ])
 
-    return html`
+    return html` <div class=${cardStyles}>
       <div class=${headerStyles}>
         <span class="items-center font-bold flex">
           <sl-icon library=${iconLibrary} name=${icon} class="pr-2"></sl-icon>
@@ -55,23 +65,14 @@ export class NodeCard extends LitElement {
       <div class=${bodyStyles}>
         <slot name="body"></slot>
       </div>
-    `
+    </div>`
   }
 }
 
-/**
- * Generate the Tailwind classes for the parent element of a `<stencila-node-card>` element
- *
- * @param view The view that the card is currently being rendered in
- */
+// TODO: delete these
 export const nodeCardParentStyles = (view: DocumentView) =>
   view !== 'source' ? 'group relative' : ''
 
-/**
- * Generate the Tailwind classes for a `<stencila-node-card>` element
- *
- * @param view The view that the card is currently being rendered in
- */
 export const nodeCardStyles = (view: DocumentView) =>
   view !== 'source'
     ? 'absolute z-10 top-full right-0 group-hover:block'

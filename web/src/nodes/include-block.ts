@@ -2,7 +2,6 @@ import { html } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
 
 import { Executable } from './executable'
-import { nodeCardStyles } from './helpers/node-card'
 
 /**
  * Web component representing a Stencila Schema `IncludeBlock` node
@@ -21,7 +20,7 @@ export class IncludeBlock extends Executable {
 
   override renderStaticView() {
     return html`
-      <stencila-node-card type="InlcudeBlock">
+      <stencila-ui-node-card type="InlcudeBlock">
         <div slot="body"><span>source: </span><span>${this.source}</span></div>
       </stencila-node-card>
     `
@@ -29,7 +28,7 @@ export class IncludeBlock extends Executable {
 
   override renderDynamicView() {
     return html`
-      <stencila-node-card type="InlcudeBlock">
+      <stencila-ui-node-card type="InlcudeBlock">
         <div slot="body"><span>source: </span><span>${this.source}</span></div>
         <slot name="authors"></slot>
         <slot name="output"></slot>
@@ -43,9 +42,9 @@ export class IncludeBlock extends Executable {
 
   override renderSourceView() {
     return html`
-      <stencila-node-card
+      <stencila-ui-node-card
         type="InlcudeBlock"
-        class=${nodeCardStyles(this.documentView())}
+        view="source"
       >
         <div slot="body">icon</span><span>${this.source}</span></div>
         <slot name="authors"></slot>
