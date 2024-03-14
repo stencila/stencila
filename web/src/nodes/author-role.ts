@@ -1,5 +1,5 @@
 import { MutationController } from '@lit-labs/observers/mutation-controller'
-import { AuthorRoleName, NodeType } from '@stencila/types'
+import { AuthorRoleName } from '@stencila/types'
 import { html } from 'lit'
 import { customElement, property, state } from 'lit/decorators'
 
@@ -31,7 +31,7 @@ export class AuthorRole extends Entity {
   lastModified: number
 
   @state()
-  private type: NodeType
+  private type: 'Person' | 'Organization' | 'SoftwareApplication'
 
   @state()
   private $id: string
@@ -43,6 +43,7 @@ export class AuthorRole extends Entity {
    * An observer to watch this element, including slotted children,
    * and call `getAuthor` on any mutations
    */
+  // @ts-expect-error because does not appear to be used
   private observer = new MutationController(this, {
     config: { subtree: true, attributes: true },
     callback: () => this.getAuthor(),
@@ -61,16 +62,16 @@ export class AuthorRole extends Entity {
         const person = inner as Person
         this.type = 'Person'
         this.name = `${(person.givenNames ?? []).join(' ')} ${(person.familyNames ?? []).join(' ')}`
+      } else if (inner.tagName.toLowerCase() === 'stencila-organization') {
+        const app = inner as Organization
+        this.type = 'Organization'
+        this.name = app.name
       } else if (
         inner.tagName.toLowerCase() === 'stencila-software-application'
       ) {
         const app = inner as SoftwareApplication
         this.type = 'SoftwareApplication'
         this.$id = app.$id
-        this.name = app.name
-      } else if (inner.tagName.toLowerCase() === 'stencila-organization') {
-        const app = inner as Organization
-        this.type = 'Organization'
         this.name = app.name
       }
     }

@@ -1,4 +1,4 @@
-import { AuthorRoleName, NodeType } from '@stencila/types'
+import { AuthorRoleName } from '@stencila/types'
 import { LitElement, html } from 'lit'
 import { customElement, property } from 'lit/decorators'
 
@@ -32,7 +32,7 @@ export class UIAuthor extends LitElement {
    * Might be useful for determining default icons etc.
    */
   @property()
-  type: NodeType
+  type: 'Person' | 'Organization' | 'SoftwareApplication'
 
   /**
    * The id of the author
