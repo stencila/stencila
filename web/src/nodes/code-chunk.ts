@@ -59,7 +59,7 @@ export class CodeChunk extends CodeExecutable {
           count=${this.executionCount}
           ended=${this.executionEnded}
           duration=${this.executionDuration}
-          headerBg=${borderColour}
+          header-bg=${borderColour}
         >
           <slot name="execution-dependencies"></slot>
           <slot name="execution-dependants"></slot>
@@ -112,7 +112,7 @@ export class CodeChunk extends CodeExecutable {
           count=${this.executionCount}
           ended=${this.executionEnded}
           duration=${this.executionDuration}
-          headerBg=${borderColour}
+          header-bg=${borderColour}
         >
           <slot name="execution-dependencies"></slot>
           <slot name="execution-dependants"></slot>

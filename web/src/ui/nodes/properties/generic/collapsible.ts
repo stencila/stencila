@@ -17,7 +17,7 @@ export class UICollapsibleNodeField extends LitElement {
   @property({ type: Boolean })
   collapsed: boolean = true
 
-  @property()
+  @property({ attribute: 'header-bg' })
   headerBg: string | undefined = undefined
 
   @property({ attribute: 'wrapper-css' })

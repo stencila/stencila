@@ -49,14 +49,14 @@ export class UINodeExecutionDetails extends LitElement {
   @property({ type: Number })
   duration?: number
 
-  @property()
+  @property({ attribute: 'header-bg' })
   headerBg: string | undefined = undefined
 
   override render() {
     return html`
       <stencila-collapsible-node-field
         .collapsed=${false}
-        headerBg=${this.headerBg}
+        header-bg=${this.headerBg}
         wrapper-css="border-t border-black/30"
       >
         <div slot="title">Details</div>
