@@ -15,24 +15,60 @@ export class UINodeExecutionEnded extends LitElement {
   @property({ type: Number })
   value?: number | undefined
 
-  override render() {
-    // TODO: Add a setInterval or similar to refresh the humanized representation
-    // every minute or so
+  private interval: NodeJS.Timeout
 
-    // TODO: show the ISO 8601 date/time in the tooltip
+  /**
+   * A string representation of the last execution,
+   * relative to the current time
+   */
+  private relativeTime: string = '-'
 
-    const value =
+  /**
+   * Set the `relativeTime` property and request the element update
+   */
+  private updateRelativeTime = () => {
+    this.relativeTime =
       this.value === undefined || this.value === 0
         ? '-'
         : moment(this.value).fromNow()
+    this.requestUpdate()
+  }
+
+  /**
+   * When connected, set the relative time to update every minute
+   */
+  override connectedCallback(): void {
+    super.connectedCallback()
+
+    this.updateRelativeTime()
+
+    this.interval = setInterval(() => {
+      this.updateRelativeTime()
+    }, 1000 * 60)
+  }
+
+  /**
+   * Clear the interval
+   */
+  override disconnectedCallback(): void {
+    super.disconnectedCallback()
+    clearInterval(this.interval)
+  }
+
+  override render() {
+    const isoFormat = this.value
+      ? moment(this.value).format('YYYY-MM-DDTHH:mm:ss')
+      : null
 
     return html`
       <stencila-ui-node-simple-property
         icon-name="clock"
         icon-library="default"
-        tooltip-content="Last execution ended at ${this.value}"
+        tooltip-content="${isoFormat
+          ? `Last exectution ended at: ${isoFormat}`
+          : 'No previous executions'}"
       >
-        ${value}
+        ${this.relativeTime}
       </stencila-ui-node-simple-property>
     `
   }

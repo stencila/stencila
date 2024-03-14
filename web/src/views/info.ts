@@ -108,7 +108,7 @@ export class InfoView extends LitElement {
           })
         }
       }
-      console.log(this.currentNode)
+      // console.log(this.currentNode)
     }
   }
 
