@@ -67,7 +67,7 @@ beartype = "0.17.2"
 
 [tool.poetry.group.dev.dependencies]
 black = "24.2.0"
-coverage = "7.4.3"
+coverage = "7.4.4"
 maturin = "1.5.0"
 pip-audit = "2.7.2"
 pytest = "7.4.4"

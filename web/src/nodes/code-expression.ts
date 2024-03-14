@@ -7,6 +7,7 @@ import '../ui/nodes/card'
 import '../ui/nodes/actions/execution-actions'
 import '../ui/nodes/properties/authors'
 import '../ui/nodes/properties/execution-details'
+import '../ui/nodes/properties/execution-messages'
 
 import { CodeExecutable } from './code-executable'
 
@@ -61,7 +62,7 @@ export class CodeExpression extends CodeExecutable {
           <slot name="execution-dependants"></slot>
         </stencila-ui-node-execution-details>
 
-        <stencila-ui-node-authors>
+        <stencila-ui-node-authors type="CodeExpression">
           <slot name="authors"></slot>
         </stencila-ui-node-authors>
 
@@ -114,7 +115,7 @@ export class CodeExpression extends CodeExecutable {
           <slot name="execution-dependants"></slot>
         </stencila-ui-node-execution-details>
 
-        <stencila-ui-node-authors>
+        <stencila-ui-node-authors type="CodeExpression">
           <slot name="authors"></slot>
         </stencila-ui-node-authors>
 

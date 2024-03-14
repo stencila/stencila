@@ -1,12 +1,14 @@
 import { html } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
 
-import { withTwind } from '../twind'
-
 import '../ui/nodes/card'
 import '../ui/nodes/actions/execution-actions'
 import '../ui/nodes/properties/authors'
 import '../ui/nodes/properties/execution-details'
+import '../ui/nodes/properties/execution-messages'
+
+import { withTwind } from '../twind'
+import { nodeUi } from '../ui/nodes/icons-and-colours'
 
 import { CodeExecutable } from './code-executable'
 
@@ -43,6 +45,7 @@ export class CodeChunk extends CodeExecutable {
    * with execution actions and details and code read-only and collapsed.
    */
   override renderDynamicView() {
+    const { borderColour } = nodeUi('CodeChunk')
     return html`<stencila-ui-node-card type="CodeChunk" view="dynamic">
       <span slot="header-right">
         <stencila-ui-node-execution-actions>
@@ -57,12 +60,13 @@ export class CodeChunk extends CodeExecutable {
           count=${this.executionCount}
           ended=${this.executionEnded}
           duration=${this.executionDuration}
+          header-bg=${borderColour}
         >
           <slot name="execution-dependencies"></slot>
           <slot name="execution-dependants"></slot>
         </stencila-ui-node-execution-details>
 
-        <stencila-ui-node-authors>
+        <stencila-ui-node-authors type="CodeChunk">
           <slot name="authors"></slot>
         </stencila-ui-node-authors>
 
@@ -95,6 +99,7 @@ export class CodeChunk extends CodeExecutable {
    * code, label, caption (because they are displayed in the source code).
    */
   override renderSourceView() {
+    const { borderColour } = nodeUi('CodeChunk')
     return html`<stencila-ui-node-card type="CodeChunk" view="source">
       <span slot="header-right">
         <stencila-ui-node-execution-actions></stencila-ui-node-execution-actions>
@@ -108,12 +113,13 @@ export class CodeChunk extends CodeExecutable {
           count=${this.executionCount}
           ended=${this.executionEnded}
           duration=${this.executionDuration}
+          header-bg=${borderColour}
         >
           <slot name="execution-dependencies"></slot>
           <slot name="execution-dependants"></slot>
         </stencila-ui-node-execution-details>
 
-        <stencila-ui-node-authors>
+        <stencila-ui-node-authors type="CodeChunk">
           <slot name="authors"></slot>
         </stencila-ui-node-authors>
 

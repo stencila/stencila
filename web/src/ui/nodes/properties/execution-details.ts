@@ -9,6 +9,7 @@ import { customElement, property } from 'lit/decorators'
 
 import { withTwind } from '../../../twind'
 
+import './generic/collapsible'
 import './execution-count'
 import './execution-duration'
 import './execution-ended'
@@ -48,21 +49,33 @@ export class UINodeExecutionDetails extends LitElement {
   @property({ type: Number })
   duration?: number
 
+  @property({ attribute: 'header-bg' })
+  headerBg: string | undefined = undefined
+
   override render() {
     return html`
-      <stencila-ui-node-execution-state
-        status=${this.status}
-        required=${this.required}
-      ></stencila-ui-node-execution-state>
-      <stencila-ui-node-execution-count
-        value=${this.count}
-      ></stencila-ui-node-execution-count>
-      <stencila-ui-node-execution-ended
-        value=${this.ended}
-      ></stencila-ui-node-execution-ended>
-      <stencila-ui-node-execution-duration
-        value=${this.duration}
-      ></stencila-ui-node-execution-duration>
+      <stencila-ui-node-collapsible-property
+        .collapsed=${false}
+        header-bg=${this.headerBg}
+        wrapper-css="border-t border-black/30"
+      >
+        <div slot="title">Details</div>
+        <div class="px-6 py-3 flex flex-col gap-y-3" slot="content">
+          <stencila-ui-node-execution-state
+            status=${this.status}
+            required=${this.required}
+          ></stencila-ui-node-execution-state>
+          <stencila-ui-node-execution-count
+            value=${this.count}
+          ></stencila-ui-node-execution-count>
+          <stencila-ui-node-execution-ended
+            value=${this.ended}
+          ></stencila-ui-node-execution-ended>
+          <stencila-ui-node-execution-duration
+            value=${this.duration}
+          ></stencila-ui-node-execution-duration>
+        </div>
+      </stencila-ui-node-collapsible-property>
     `
   }
 }

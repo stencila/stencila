@@ -28,7 +28,9 @@ export class UINodeAuthors extends LitElement {
   @state()
   private hasItems = false
 
-  override firstUpdated() {
+  override firstUpdated(changedProperties: Map<string, string | boolean>) {
+    super.firstUpdated(changedProperties)
+
     const slot: HTMLSlotElement = this.shadowRoot.querySelector('slot')
     if (slot) {
       this.hasItems = slot.assignedElements({ flatten: true }).length !== 0

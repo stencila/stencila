@@ -37,7 +37,7 @@ const nodeTypeUIMap: Partial<Record<NodeType, NodeTypeUI>> = {
   Admonition:       { ...stencilaIcon('admonition'),           ...nodeColours('violet')  },
   Claim:            { ...shoelaceIcon('postage'),              ...nodeColours('orange') },
   CodeBlock:        { ...shoelaceIcon('braces'),               ...nodeColours('fuchsia')  },
-  CodeChunk:        { ...shoelaceIcon('braces-asterisk'),      ...nodeColours('fuchsia') },
+  CodeChunk:        { ...stencilaIcon('code-chunk'),           ...nodeColours('fuchsia') },
   DeleteBlock:      { ...shoelaceIcon('dash-circle'),          ...nodeColours('red')    },
   Figure:           { ...shoelaceIcon('image'),                ...nodeColours('gray') },
   ForBlock:         { ...stencilaIcon('for-block'),            ...nodeColours('pink')    },

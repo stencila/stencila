@@ -1,62 +1,41 @@
-import '@shoelace-style/shoelace/dist/components/icon/icon'
 import { MessageLevel } from '@stencila/types'
-import { html, css } from 'lit'
+import { html } from 'lit'
 import { customElement, property } from 'lit/decorators'
 import '../ui/nodes/properties/generic/collapsible'
 
 import { withTwind } from '../twind'
+
+import '../ui/nodes/properties/execution-message'
 
 import { Entity } from './entity'
 
 /**
  * Web component representing a Stencila Schema `ExecutionMessage` node
  *
- * @see https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/execution-message.md
+ * Note: This is a "pass-through" component: properties and slots are just passed through
+ * to the `<stencila-ui-node-execution-message>` component. This is done to maintain
+ * a consistent pattern in how we implement components for node properties.
+ *
+ * @see https://github.com/stencila/stencila/blob/main/docs/reference/schema/code/execution-message.md
  */
 @customElement('stencila-execution-message')
 @withTwind()
 export class ExecutionMessage extends Entity {
-  @property({ type: String })
+  @property()
   level: MessageLevel
 
-  // TODO: factor this out into <stencila-ui-node-execution-messages> (note plural because
-  // that's the name of the property.
-
-  // override the styles property to set the `<pre>` styles
-  // TODO - sort this out, get the pre elements wrapped in divs from the server
-  static override styles = css`
-    slot::slotted(pre) {
-      padding: 1rem;
-      margin-top: 0.5rem !important;
-      background-color: white;
-      border: 1px solid red;
-      border-radius: 5px;
-    }
-    slot[name='message']::slotted(pre) {
-      text-wrap: wrap;
-    }
-    slot[name='stack-trace']::slotted(pre) {
-      overflow-x: auto;
-    }
-  `
+  @property({ attribute: 'error-type' })
+  errorType: string
 
   override render() {
     return html`
-      <stencila-ui-node-collapsible-property
-        icon-name="terminal"
-        icon-library="default"
-        class="my-1"
+      <stencila-ui-node-execution-message
+        level=${this.level}
+        error-type=${this.errorType}
       >
-        <span slot="title">Messages</span>
-        <div slot="content" class="overflow-hidden py-2">
-          <div>
-            <slot name="message"></slot>
-          </div>
-          <div>
-            <slot name="stack-trace"></slot>
-          </div>
-        </div>
-      </stencila-ui-node-collapsible-property>
+        <slot name="message" slot="message"></slot>
+        <slot name="stack-trace" slot="stack-trace"></slot>
+      </stencila-ui-node-execution-message>
     `
   }
 }

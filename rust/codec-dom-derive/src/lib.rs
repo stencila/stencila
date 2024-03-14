@@ -136,9 +136,19 @@ fn derive_struct(type_attr: TypeAttr) -> TokenStream {
                 return
             };
 
-            let tokens = if field_type == "Cord" {
+
+            let tokens = if  field_type == "Cord" || field_type == "String" 
+            {
+                // Avoid having <stencila-string> wrapping text for the few `Cord` and `String` properties represented as slots
                 quote! {
                     context.enter_slot(#elem, stringify!(#field_name)).push_text(&self.#field_name).exit_slot();
+                }
+            } else if struct_name == "ExecutionMessage" && field_name == "stack_trace" {
+                // Avoid having <stencila-string> wrapping text for the few `Option<String>` properties represented as slots
+                quote! {
+                    if let Some(text) = &self.#field_name {
+                        context.enter_slot(#elem, stringify!(#field_name)).push_text(text).exit_slot();
+                    }
                 }
             } else {
                 quote! {
