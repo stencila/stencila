@@ -5,26 +5,45 @@
   "content": [
     {
       "type": "CodeChunk",
-      "code": "import logging\n\nlogger = logging.getLogger('test')\nlogger.debug('a debug message')\nlogger.info('some info')\nlogger.warn('a warning')\nlogger.error('an error')",
+      "code": "import logging\n\nlogger = logging.getLogger('test')\nlogger.setLevel('DEBUG')\nlogger.debug('a debug message')\nlogger.info('some info')\nlogger.warn('a warning')\nlogger.error('an error')",
       "programmingLanguage": "python",
       "executionCount": 1,
       "executionRequired": "ExecutionFailed",
       "executionStatus": "Errors",
       "executionEnded": {
         "type": "Timestamp",
-        "value": 1710300787175,
+        "value": 1710456671986,
         "timeUnit": "Millisecond"
       },
       "executionDuration": {
         "type": "Duration",
-        "value": 2082,
+        "value": 1020,
         "timeUnit": "Millisecond"
       },
       "executionMessages": [
         {
           "type": "ExecutionMessage",
+          "level": "Debug",
+          "message": "a debug message",
+          "errorType": "test"
+        },
+        {
+          "type": "ExecutionMessage",
+          "level": "Info",
+          "message": "some info",
+          "errorType": "test"
+        },
+        {
+          "type": "ExecutionMessage",
+          "level": "Warning",
+          "message": "a warning",
+          "errorType": "test"
+        },
+        {
+          "type": "ExecutionMessage",
           "level": "Error",
-          "message": "{\"type\": \"ExecutionMessage\", \"level\": \"Warning\", \"message\": \"a warning\", \"errorType\": \"test\"}\n{\"type\": \"ExecutionMessage\", \"level\": \"Error\", \"message\": \"an error\", \"errorType\": \"test\"}\n"
+          "message": "an error",
+          "errorType": "test"
         }
       ]
     },
@@ -37,12 +56,12 @@
       "executionStatus": "Exceptions",
       "executionEnded": {
         "type": "Timestamp",
-        "value": 1710300787180,
+        "value": 1710456671989,
         "timeUnit": "Millisecond"
       },
       "executionDuration": {
         "type": "Duration",
-        "value": 4,
+        "value": 3,
         "timeUnit": "Millisecond"
       },
       "executionMessages": [
@@ -64,12 +83,12 @@
       "executionStatus": "Exceptions",
       "executionEnded": {
         "type": "Timestamp",
-        "value": 1710300787184,
+        "value": 1710456671991,
         "timeUnit": "Millisecond"
       },
       "executionDuration": {
         "type": "Duration",
-        "value": 4,
+        "value": 2,
         "timeUnit": "Millisecond"
       },
       "executionMessages": [
@@ -78,7 +97,7 @@
           "level": "Exception",
           "message": "name 'foo' is not defined",
           "errorType": "NameError",
-          "stackTrace": "File \"/home/nokome/.config/stencila/kernels/python\", line 466, in execute\n    value = eval(last, CONTEXT)\n            ^^^^^^^^^^^^^^^^^^^\n  File \"<code>\", line 1, in <module>\nNameError: name 'foo' is not define"
+          "stackTrace": "File \"/home/nokome/.config/stencila/kernels/python\", line 463, in execute\n    value = eval(last, CONTEXT)\n            ^^^^^^^^^^^^^^^^^^^\n  File \"<code>\", line 1, in <module>\nNameError: name 'foo' is not define"
         }
       ]
     }
@@ -88,12 +107,12 @@
   "executionStatus": "Succeeded",
   "executionEnded": {
     "type": "Timestamp",
-    "value": 1710300787184,
+    "value": 1710456671991,
     "timeUnit": "Millisecond"
   },
   "executionDuration": {
     "type": "Duration",
-    "value": 2091,
+    "value": 1025,
     "timeUnit": "Millisecond"
   }
 }

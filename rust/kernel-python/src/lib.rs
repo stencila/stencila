@@ -222,21 +222,56 @@ print(a, b)",
         let Some(mut instance) = start_instance::<PythonKernel>().await? else {
             return Ok(());
         };
+
         let (.., messages) = instance
             .execute(
                 "
 import logging
 logger = logging.getLogger('just.a.test')
 logger.error('oh no')
-        ",
+",
             )
             .await?;
 
         assert_eq!(messages.len(), 1);
-        assert_eq!(messages.len(), 1);
         let m = messages.first().unwrap();
         assert_eq!(m.error_type.as_deref(), Some("just.a.test"));
         assert_eq!(m.level, MessageLevel::Error);
+
+        let (.., messages) = instance
+            .execute(
+                "
+import logging
+logger = logging.getLogger('just.a.test')
+logger.setLevel('DEBUG')
+logger.debug('debug message')
+logger.info('info message')
+logger.warn('warning message')
+logger.error('error message')
+",
+            )
+            .await?;
+
+        assert_eq!(messages.len(), 4);
+
+        let mut messages = messages.into_iter();
+
+        let m = messages.next().unwrap();
+        assert_eq!(m.level, MessageLevel::Debug);
+        assert_eq!(m.message, "debug message");
+
+        let m = messages.next().unwrap();
+        assert_eq!(m.level, MessageLevel::Info);
+        assert_eq!(m.message, "info message");
+
+        let m = messages.next().unwrap();
+        assert_eq!(m.level, MessageLevel::Warning);
+        assert_eq!(m.message, "warning message");
+
+        let m = messages.next().unwrap();
+        assert_eq!(m.level, MessageLevel::Error);
+        assert_eq!(m.message, "error message");
+
 
         let (.., messages) = instance
             .execute(

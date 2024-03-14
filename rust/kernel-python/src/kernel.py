@@ -148,12 +148,12 @@ except Exception:
 # 1. Install logging handler to write to stderr.
 # 2. Install a formatter to write log records as Stencila's `ExecutionMessage` format.
 # 3. Install a warnings handler to write warnings to stderr via logging.
-#
 LOGGING_TO_STENCILA: dict[str, STENCILA_LEVEL] = {
     "CRITICAL": "Exception",
     "ERROR": "Error",
     "WARNING": "Warning",
     "INFO": "Info",
+    "DEBUG": "Debug",
 }
 
 
@@ -171,10 +171,7 @@ class StencilaFormatter(logging.Formatter):
             "message": record.getMessage(),
             "errorType": error_type,
         }
-        # Include additional warning details if present
-        # if hasattr(record, "warning_details"):
-        #     log_message.update(record.warning_details)
-        return json.dumps(em)
+        return json.dumps(em) + END
 
 
 # Configure handler to write to stderr
