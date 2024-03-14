@@ -6,8 +6,8 @@ from tempfile import NamedTemporaryFile
 
 import pytest
 
-from stencila.convert import to_string, from_string, from_path, to_path, from_to
-from stencila.types import Article, Paragraph, Text, Strong, Emphasis
+from stencila.convert import from_path, from_string, from_to, to_path, to_string
+from stencila.types import Article, Emphasis, Paragraph, Strong, Text
 
 
 @pytest.mark.skip(reason="Article.__init__ broken due to more than one base type")

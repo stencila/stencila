@@ -1,7 +1,7 @@
 from typing import Optional
 
 from stencila import _stencila
-from stencila.types import Node
+from stencila.stencila_types import Node
 from stencila.utilities import from_json, to_json
 
 

@@ -5,8 +5,8 @@ from typing import Iterable, Iterator, Union
 import pytest
 from beartype.roar import BeartypeCallHintParamViolation
 
-from stencila import shortcuts as S
-from stencila import types as T
+from stencila import shortcuts as S  # noqa: N812
+from stencila import stencila_types as T  # noqa: N812
 from stencila.convert import to_string
 
 TOS = partial(to_string, format="md")
@@ -19,13 +19,13 @@ def lots_of_numbers() -> Iterable[str]:
 
 
 def lots_of_numbers_and_stuff() -> Iterator[Union[str, T.Inline]]:
-    a_space = T.Text(" ")
+    a_space = T.Text(value=" ")
 
     yield from lots_of_numbers()
 
-    yield T.Link(target="https://example.com", content=[T.Text("Example")])
+    yield T.Link(target="https://example.com", content=[T.Text(value="Example")])
     yield a_space
-    yield T.Strong(content=[T.Text("So Strong")])
+    yield T.Strong(content=[T.Text(value="So Strong")])
     yield a_space
     yield 11 * 11
     yield a_space
@@ -42,7 +42,7 @@ class NotAnInline:
 # Start testing -----------------
 async def test_emphasis():
     assert await TOS(S.em("Banana")) == "_Banana_"
-    assert await TOS(S.em(T.Text("Banana"))) == "_Banana_"
+    assert await TOS(S.em(T.Text(value="Banana"))) == "_Banana_"
 
     with pytest.raises(BeartypeCallHintParamViolation):
         await TOS(S.em(T.ImageObject(content_url="")))  # type: ignore

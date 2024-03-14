@@ -64,6 +64,7 @@ python = "^3.8"
 dataclasses-json = "0.6.4"
 StrEnum = { version = "0.4.15", python = "<3.11" }
 beartype = "0.17.2"
+cattrs = "^23.2.3"
 
 [tool.poetry.group.dev.dependencies]
 black = "24.3.0"
@@ -75,6 +76,7 @@ pytest-asyncio = "0.23.5.post1"
 pytest-benchmark = "4.0.0"
 
 [tool.pytest.ini_options]
+addopts = "-s"
 python_files = ["test_*.py", "bench_*.py"]
 python_functions = ["test_*", "bench_*"]
 asyncio_mode = "auto"
@@ -135,6 +137,7 @@ src = ['python', 'tests']
 "utilities.py" = ["F405"]
 
 "python/stencila/stencila_types.py" = ["E501"]
+"python/tests/*.py" = ["S101"]
 
 # Shadowing python builtins, but we don't want to break the old interface.
 "convert.py" = ['A002']
