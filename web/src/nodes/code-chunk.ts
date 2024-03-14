@@ -50,7 +50,7 @@ export class CodeChunk extends CodeExecutable {
         <stencila-ui-node-execution-actions>
         </stencila-ui-node-execution-actions>
       </span>
-      <div slot="body" class="border-t border-black/30">
+      <div slot="body">
         <stencila-ui-node-execution-details
           auto-exec=${this.autoExec}
           .tags=${this.executionTags}
@@ -103,7 +103,7 @@ export class CodeChunk extends CodeExecutable {
       <span slot="header-right">
         <stencila-ui-node-execution-actions></stencila-ui-node-execution-actions>
       </span>
-      <div slot="body" class="border-t border-black/30">
+      <div slot="body">
         <stencila-ui-node-execution-details
           auto-exec=${this.autoExec}
           .tags=${this.executionTags}

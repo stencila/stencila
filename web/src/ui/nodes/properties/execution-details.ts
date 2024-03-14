@@ -57,6 +57,7 @@ export class UINodeExecutionDetails extends LitElement {
       <stencila-collapsible-node-field
         .collapsed=${false}
         headerBg=${this.headerBg}
+        wrapper-css="border-t border-black/30"
       >
         <div slot="title">Details</div>
         <div class="px-6 py-3 flex flex-col gap-y-3" slot="content">

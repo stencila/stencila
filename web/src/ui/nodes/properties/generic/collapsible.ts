@@ -20,6 +20,9 @@ export class UICollapsibleNodeField extends LitElement {
   @property()
   headerBg: string | undefined = undefined
 
+  @property({ attribute: 'wrapper-css' })
+  wrapperCSS: string | undefined = undefined
+
   override render() {
     const contentClasses = apply([
       this.collapsed ? 'max-h-0' : 'max-h-[1000px]',
@@ -28,7 +31,7 @@ export class UICollapsibleNodeField extends LitElement {
 
     return html`
       <div
-        class="overflow-hidden"
+        class=${`overflow-hidden ${this.wrapperCSS ?? ''}`}
         @click=${() => (this.collapsed = !this.collapsed)}
       >
         <div
