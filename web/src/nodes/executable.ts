@@ -6,7 +6,6 @@ import {
 } from '@stencila/types'
 import { html } from 'lit'
 import { property } from 'lit/decorators.js'
-import './exectution-message'
 
 import './execution-message'
 import { Entity } from './entity'
