@@ -5,9 +5,9 @@ import { customElement, property } from 'lit/decorators'
 import '../../../buttons/chevron'
 import { withTwind } from '../../../../twind'
 
-@customElement('stencila-collapsible-node-field')
+@customElement('stencila-ui-node-collapsible-property')
 @withTwind()
-export class UICollapsibleNodeField extends LitElement {
+export class UINodeCollapsibleProperty extends LitElement {
   @property({ attribute: 'icon-name' })
   iconName: string
 

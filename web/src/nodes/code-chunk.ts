@@ -7,6 +7,7 @@ import '../ui/nodes/card'
 import '../ui/nodes/actions/execution-actions'
 import '../ui/nodes/properties/authors'
 import '../ui/nodes/properties/execution-details'
+import '../ui/nodes/properties/execution-messages'
 
 import { CodeExecutable } from './code-executable'
 
