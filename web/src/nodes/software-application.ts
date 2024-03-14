@@ -1,9 +1,9 @@
-import '@shoelace-style/shoelace/dist/components/icon/icon'
-
 import { html } from 'lit'
 import { customElement, property } from 'lit/decorators'
 
 import { withTwind } from '../twind'
+
+import '../ui/nodes/author'
 
 import { Entity } from './entity'
 
@@ -15,15 +15,17 @@ import { Entity } from './entity'
 @customElement('stencila-software-application')
 @withTwind()
 export class SoftwareApplication extends Entity {
+  @property({ attribute: '@id' })
+  $id?: string
+
   @property()
   name: string
 
   override render() {
-    return html`<div class="my-1 text-xs">
-      <span class="items-center flex text-sm pl-6">
-        <!-- <sl-icon name="window-fullscreen" class="pr-2"></sl-icon> -->
-        ${this.name}
-      </span>
-    </div>`
+    return html`<stencila-ui-author
+      type="SoftwareApplication"
+      _id=${this.$id}
+      name=${this.name}
+    ></stencila-ui-author>`
   }
 }

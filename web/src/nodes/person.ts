@@ -1,13 +1,17 @@
-import '@shoelace-style/shoelace/dist/components/icon/icon'
 import { html } from 'lit'
 import { customElement, property } from 'lit/decorators'
 
 import { withTwind } from '../twind'
 
+import '../ui/nodes/author'
+
 import { Entity } from './entity'
 
 /**
  * Web component representing a Stencila Schema `Person` node
+ *
+ * Note: currently this only implements a very few of the properties
+ * of a `Person`. Properties such as `affiliations` are missing form this component at this time.
  *
  * @see https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/person.md
  */
@@ -21,11 +25,11 @@ export class Person extends Entity {
   familyNames?: string[]
 
   override render() {
-    return html`<div class="my-1">
-      <span class="items-center flex leading-3 text-base">
-        <sl-icon name="person-circle" class="pr-2"></sl-icon>
-        ${this.givenNames} ${this.familyNames}
-      </span>
-    </div>`
+    const name = `${(this.givenNames ?? []).join(' ')} ${(this.familyNames ?? []).join(' ')}`
+
+    return html`<stencila-ui-author
+      type="Person"
+      name=${name}
+    ></stencila-ui-author>`
   }
 }
