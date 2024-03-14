@@ -1,6 +1,7 @@
 import { MessageLevel } from '@stencila/types'
 import { html } from 'lit'
 import { customElement, property } from 'lit/decorators'
+import '../ui/nodes/properties/generic/collapsible'
 
 import { withTwind } from '../twind'
 
