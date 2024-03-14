@@ -15,13 +15,16 @@ export class UINodeExecutionEnded extends LitElement {
   @property({ type: Number })
   value?: number | undefined
 
-  private interval: NodeJS.Timeout
-
   /**
    * A string representation of the last execution,
    * relative to the current time
    */
   private relativeTime: string = '-'
+
+  /**
+   * Interval used to update the relative time
+   */
+  private updateRelativeTimeInterval: NodeJS.Timeout
 
   /**
    * Set the `relativeTime` property and request the element update
@@ -42,7 +45,7 @@ export class UINodeExecutionEnded extends LitElement {
 
     this.updateRelativeTime()
 
-    this.interval = setInterval(() => {
+    this.updateRelativeTimeInterval = setInterval(() => {
       this.updateRelativeTime()
     }, 1000 * 60)
   }
@@ -52,7 +55,7 @@ export class UINodeExecutionEnded extends LitElement {
    */
   override disconnectedCallback(): void {
     super.disconnectedCallback()
-    clearInterval(this.interval)
+    clearInterval(this.updateRelativeTimeInterval)
   }
 
   override render() {
@@ -65,7 +68,7 @@ export class UINodeExecutionEnded extends LitElement {
         icon-name="clock"
         icon-library="default"
         tooltip-content="${isoFormat
-          ? `Last exectution ended at: ${isoFormat}`
+          ? `Last execution ended at: ${isoFormat}`
           : 'No previous executions'}"
       >
         ${this.relativeTime}
