@@ -3,7 +3,7 @@ import { customElement, property } from 'lit/decorators'
 
 import { withTwind } from '../twind'
 
-import '../ui/nodes/author'
+import '../ui/nodes/properties/author'
 
 import { Entity } from './entity'
 
@@ -27,9 +27,9 @@ export class Person extends Entity {
   override render() {
     const name = `${(this.givenNames ?? []).join(' ')} ${(this.familyNames ?? []).join(' ')}`
 
-    return html`<stencila-ui-author
+    return html`<stencila-ui-node-author
       type="Person"
       name=${name}
-    ></stencila-ui-author>`
+    ></stencila-ui-node-author>`
   }
 }

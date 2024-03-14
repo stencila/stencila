@@ -3,7 +3,7 @@ import { customElement, property } from 'lit/decorators'
 
 import { withTwind } from '../twind'
 
-import '../ui/nodes/author'
+import '../ui/nodes/properties/author'
 
 import { Entity } from './entity'
 
@@ -22,10 +22,10 @@ export class SoftwareApplication extends Entity {
   name: string
 
   override render() {
-    return html`<stencila-ui-author
+    return html`<stencila-ui-node-author
       type="SoftwareApplication"
       _id=${this.$id}
       name=${this.name}
-    ></stencila-ui-author>`
+    ></stencila-ui-node-author>`
   }
 }

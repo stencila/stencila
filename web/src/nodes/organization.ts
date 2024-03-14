@@ -5,7 +5,7 @@ import { customElement, property } from 'lit/decorators'
 
 import { withTwind } from '../twind'
 
-import '../ui/nodes/author'
+import '../ui/nodes/properties/author'
 
 import { Entity } from './entity'
 
@@ -21,9 +21,9 @@ export class Organization extends Entity {
   name: string
 
   override render() {
-    return html`<stencila-ui-author
+    return html`<stencila-ui-node-author
       type="Organization"
       name=${this.name}
-    ></stencila-ui-author>`
+    ></stencila-ui-node-author>`
   }
 }

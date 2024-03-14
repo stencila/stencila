@@ -5,7 +5,7 @@ import { customElement, property, state } from 'lit/decorators'
 
 import { withTwind } from '../twind'
 
-import '../ui/nodes/author'
+import '../ui/nodes/properties/author'
 
 import { Entity } from './entity'
 import { Organization } from './organization'
@@ -16,7 +16,7 @@ import { SoftwareApplication } from './software-application'
  * Web component representing a Stencila Schema `AuthorRole` node
  *
  * To unify an `AuthorRole` with other types that can be an author (e.g `Person`)
- * into a `<stencila-ui-author>` it is necessary to reach into the default slot
+ * into a `<stencila-ui-node-author>` it is necessary to reach into the default slot
  * of this component and extract `name` etc from it.
  *
  * @see https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/author-role.md
@@ -79,13 +79,13 @@ export class AuthorRole extends Entity {
 
   override render() {
     return html`
-      <stencila-ui-author
+      <stencila-ui-node-author
         type=${this.type}
         _id=${this.$id}
         name=${this.name}
         role=${this.roleName}
         timestamp=${this.lastModified}
-      ></stencila-ui-author>
+      ></stencila-ui-node-author>
 
       <div hidden><slot></slot></div>
     `

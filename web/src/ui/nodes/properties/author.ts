@@ -2,7 +2,7 @@ import { AuthorRoleName } from '@stencila/types'
 import { LitElement, html } from 'lit'
 import { customElement, property } from 'lit/decorators'
 
-import { withTwind } from '../../twind'
+import { withTwind } from '../../../twind'
 
 /**
  * A component for displaying an `Author` within the `authors` property of nodes
@@ -23,9 +23,9 @@ import { withTwind } from '../../twind'
  * exposes properties that the various types can bind to. Properties are used rather than slots to maintain
  * typing and because they are all simple atomic values.
  */
-@customElement('stencila-ui-author')
+@customElement('stencila-ui-node-author')
 @withTwind()
-export class UIAuthor extends LitElement {
+export class UINodeAuthor extends LitElement {
   /**
    * The type of node that is the author
    *
