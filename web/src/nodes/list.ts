@@ -2,7 +2,7 @@ import { html } from 'lit'
 import { customElement } from 'lit/decorators'
 
 import { withTwind } from '../twind'
-import { nodeCardParentStyles, nodeCardStyles } from '../ui/nodes/card'
+import { nodeCardParentStyles } from '../ui/nodes/card'
 import '../ui/nodes/properties/authors'
 
 import { Entity } from './entity'
