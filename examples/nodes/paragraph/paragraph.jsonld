@@ -19,7 +19,7 @@
       "stencila:content": [
         {
           "@type": "Text",
-          "value": "Paragraph two, has one person author."
+          "value": "Paragraph two has one person author."
         }
       ],
       "author": [
@@ -39,7 +39,7 @@
       "stencila:content": [
         {
           "@type": "Text",
-          "value": "Paragraph three, has three authors or different types."
+          "value": "Paragraph three has three authors of different types: a software application, a person, and organization"
         }
       ],
       "author": [
@@ -60,6 +60,81 @@
         {
           "@type": "Organization",
           "name": "Acme Corp"
+        }
+      ]
+    },
+    {
+      "@type": "stencila:Paragraph",
+      "stencila:content": [
+        {
+          "@type": "Text",
+          "value": "Paragraph four has four author roles. These provide additional information for each author such as role and time."
+        }
+      ],
+      "author": [
+        {
+          "@type": "stencila:AuthorRole",
+          "author": {
+            "@type": "Person",
+            "familyName": [
+              "Coyote"
+            ],
+            "givenName": [
+              "Carol"
+            ]
+          },
+          "roleName": "Instructor",
+          "stencila:lastModified": {
+            "@type": "Timestamp",
+            "value": 1710370000000,
+            "stencila:timeUnit": "Millisecond"
+          }
+        },
+        {
+          "@type": "stencila:AuthorRole",
+          "author": {
+            "@type": "SoftwareApplication",
+            "@id": "stencila/insert-blocks",
+            "name": "Insert Blocks"
+          },
+          "roleName": "Prompter",
+          "stencila:lastModified": {
+            "@type": "Timestamp",
+            "value": 1710370005000,
+            "stencila:timeUnit": "Millisecond"
+          }
+        },
+        {
+          "@type": "stencila:AuthorRole",
+          "author": {
+            "@type": "SoftwareApplication",
+            "@id": "mistral/mistral-medium",
+            "name": "Mistral"
+          },
+          "roleName": "Generator",
+          "stencila:lastModified": {
+            "@type": "Timestamp",
+            "value": 1710370006000,
+            "stencila:timeUnit": "Millisecond"
+          }
+        },
+        {
+          "@type": "stencila:AuthorRole",
+          "author": {
+            "@type": "Person",
+            "familyName": [
+              "Duck"
+            ],
+            "givenName": [
+              "Daphne"
+            ]
+          },
+          "roleName": "Verifier",
+          "stencila:lastModified": {
+            "@type": "Timestamp",
+            "value": 1710371000000,
+            "stencila:timeUnit": "Millisecond"
+          }
         }
       ]
     }

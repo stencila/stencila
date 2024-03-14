@@ -589,7 +589,7 @@ pub struct DomOptions {
     /// to the name of the attribute converted to kebab-case.
     pub attr: Option<String>,
 
-    /// The name of a function to use to encode a property to DOM HTML
+    /// The name of a function to use to encode a property to an attribute
     ///
     /// If specified, `elem` and `attr` will be ignored.
     pub with: Option<String>,

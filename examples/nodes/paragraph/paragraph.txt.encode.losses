@@ -1,5 +1,8 @@
 Article#: 1
+AuthorRole#: 4
+Integer@: 4
 Organization#: 1
-Paragraph#: 3
-Person#: 2
-SoftwareApplication#: 1
+Paragraph#: 4
+Person#: 4
+SoftwareApplication#: 3
+Timestamp#: 4

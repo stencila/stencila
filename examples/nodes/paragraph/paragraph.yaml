@@ -7,7 +7,7 @@ content:
 - type: Paragraph
   content:
   - type: Text
-    value: Paragraph two, has one person author.
+    value: Paragraph two has one person author.
   authors:
   - type: Person
     familyNames:
@@ -17,7 +17,7 @@ content:
 - type: Paragraph
   content:
   - type: Text
-    value: Paragraph three, has three authors or different types.
+    value: 'Paragraph three has three authors of different types: a software application, a person, and organization'
   authors:
   - type: SoftwareApplication
     id: super-editor
@@ -29,3 +29,52 @@ content:
     - Bob
   - type: Organization
     name: Acme Corp
+- type: Paragraph
+  content:
+  - type: Text
+    value: Paragraph four has four author roles. These provide additional information for each author such as role and time.
+  authors:
+  - type: AuthorRole
+    author:
+      type: Person
+      familyNames:
+      - Coyote
+      givenNames:
+      - Carol
+    roleName: Instructor
+    lastModified:
+      type: Timestamp
+      value: 1710370000000
+      timeUnit: Millisecond
+  - type: AuthorRole
+    author:
+      type: SoftwareApplication
+      id: stencila/insert-blocks
+      name: Insert Blocks
+    roleName: Prompter
+    lastModified:
+      type: Timestamp
+      value: 1710370005000
+      timeUnit: Millisecond
+  - type: AuthorRole
+    author:
+      type: SoftwareApplication
+      id: mistral/mistral-medium
+      name: Mistral
+    roleName: Generator
+    lastModified:
+      type: Timestamp
+      value: 1710370006000
+      timeUnit: Millisecond
+  - type: AuthorRole
+    author:
+      type: Person
+      familyNames:
+      - Duck
+      givenNames:
+      - Daphne
+    roleName: Verifier
+    lastModified:
+      type: Timestamp
+      value: 1710371000000
+      timeUnit: Millisecond

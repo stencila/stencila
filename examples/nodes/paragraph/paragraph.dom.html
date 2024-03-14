@@ -1,4 +1,4 @@
-<stencila-article id=art_1111111B root>
+<stencila-article id=art_1111111R root>
   <section slot=content>
     <stencila-paragraph id=pgh_11111112>
       <p slot=content>
@@ -11,7 +11,7 @@
         </stencila-person>
       </div>
       <p slot=content>
-        <stencila-text id=txt_11111113>Paragraph two, has one person author.</stencila-text>
+        <stencila-text id=txt_11111113>Paragraph two has one person author.</stencila-text>
       </p>
     </stencila-paragraph>
     <stencila-paragraph id=pgh_1111111A>
@@ -24,7 +24,30 @@
         </stencila-organization>
       </div>
       <p slot=content>
-        <stencila-text id=txt_11111116>Paragraph three, has three authors or different types.</stencila-text>
+        <stencila-text id=txt_11111116>Paragraph three has three authors of different types: a software application, a person, and organization</stencila-text>
+      </p>
+    </stencila-paragraph>
+    <stencila-paragraph id=pgh_1111111Q>
+      <div slot=authors>
+        <stencila-author-role id=aut_1111111E role-name=Instructor last-modified=1710370000000>
+          <stencila-person id=per_1111111C family-names='["Coyote"]' given-names='["Carol"]'>
+          </stencila-person>
+        </stencila-author-role>
+        <stencila-author-role id=aut_1111111H role-name=Prompter last-modified=1710370005000>
+          <stencila-software-application id=sap_1111111F @id=stencila/insert-blocks name='Insert Blocks'>
+          </stencila-software-application>
+        </stencila-author-role>
+        <stencila-author-role id=aut_1111111L role-name=Generator last-modified=1710370006000>
+          <stencila-software-application id=sap_1111111J @id=mistral/mistral-medium name=Mistral>
+          </stencila-software-application>
+        </stencila-author-role>
+        <stencila-author-role id=aut_1111111P role-name=Verifier last-modified=1710371000000>
+          <stencila-person id=per_1111111M family-names='["Duck"]' given-names='["Daphne"]'>
+          </stencila-person>
+        </stencila-author-role>
+      </div>
+      <p slot=content>
+        <stencila-text id=txt_1111111B>Paragraph four has four author roles. These provide additional information for each author such as role and time.</stencila-text>
       </p>
     </stencila-paragraph>
   </section>
