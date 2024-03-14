@@ -1225,10 +1225,13 @@ pub fn test_task_repeat_word() -> GenerateTask {
     }
 }
 
+#[allow(unused)]
 #[cfg(test)]
 
 mod tests {
     use super::*;
+
+    #[cfg(feature = "fastembed")]
     #[test]
     fn create_embeddings_and_compare_them() -> Result<()> {
         let mut e1 = Embeddings::default();
