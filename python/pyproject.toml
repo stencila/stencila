@@ -134,19 +134,7 @@ src = ['python', 'tests']
 "shortcuts.py" = ["F405"]
 "utilities.py" = ["F405"]
 
-"python/stencila/types/*.py" = [
-  "A002",
-  "A003",
-  "E402",
-  "E501",
-  "F401",
-  "F403",
-  "F405",
-  "I001",
-  "PLR0913",
-  "Q000",
-  "W293",
-]
+"python/stencila/stencila_types.py" = ["E501"]
 
 # Shadowing python builtins, but we don't want to break the old interface.
 "convert.py" = ['A002']
