@@ -16,12 +16,12 @@ export class UINodeExecutionMessages extends LitElement {
   override render() {
     return html`
       <stencila-ui-node-collapsible-property
+        .collapsed=${false}
         icon-name="terminal"
         icon-library="default"
-        class="my-1"
       >
         <span slot="title">Messages</span>
-        <div slot="content">
+        <div class="px-6 py-3 flex flex-col gap-y-3" slot="content">
           <slot></slot>
         </div>
       </stencila-ui-node-collapsible-property>

@@ -10,7 +10,7 @@ import { Entity } from './entity'
 
 /**
  * Web component representing a Stencila Schema `ExecutionMessage` node
- * 
+ *
  * Note: This is a "pass-through" component: properties and slots are just passed through
  * to the `<stencila-ui-node-execution-message>` component. This is done to maintain
  * a consistent pattern in how we implement components for node properties.
