@@ -66,7 +66,7 @@ export class CodeChunk extends CodeExecutable {
           <slot name="execution-dependants"></slot>
         </stencila-ui-node-execution-details>
 
-        <stencila-ui-node-authors>
+        <stencila-ui-node-authors type="CodeChunk">
           <slot name="authors"></slot>
         </stencila-ui-node-authors>
 
@@ -119,7 +119,7 @@ export class CodeChunk extends CodeExecutable {
           <slot name="execution-dependants"></slot>
         </stencila-ui-node-execution-details>
 
-        <stencila-ui-node-authors>
+        <stencila-ui-node-authors type="CodeChunk">
           <slot name="authors"></slot>
         </stencila-ui-node-authors>
 
