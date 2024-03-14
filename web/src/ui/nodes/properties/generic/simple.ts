@@ -21,7 +21,7 @@ export class UINodeSimpleProperty extends LitElement {
   tooltipContent?: string
 
   override render() {
-    const inner = html`<div class="flex flex-row w-full mb-4">
+    const inner = html`<div class="flex flex-row w-full">
       <div class="pt-0.5">
         <sl-icon
           name=${this.iconName}

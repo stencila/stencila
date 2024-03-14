@@ -8,6 +8,8 @@ import '../ui/nodes/actions/execution-actions'
 import '../ui/nodes/properties/authors'
 import '../ui/nodes/properties/execution-details'
 
+import { nodeUi } from '../ui/nodes/icons-and-colours'
+
 import { CodeExecutable } from './code-executable'
 
 /**
@@ -95,6 +97,7 @@ export class CodeChunk extends CodeExecutable {
    * code, label, caption (because they are displayed in the source code).
    */
   override renderSourceView() {
+    const { borderColour } = nodeUi('CodeChunk')
     return html`<stencila-ui-node-card type="CodeChunk" view="source">
       <span slot="header-right">
         <stencila-ui-node-execution-actions></stencila-ui-node-execution-actions>
@@ -108,6 +111,7 @@ export class CodeChunk extends CodeExecutable {
           count=${this.executionCount}
           ended=${this.executionEnded}
           duration=${this.executionDuration}
+          headerBg=${borderColour}
         >
           <slot name="execution-dependencies"></slot>
           <slot name="execution-dependants"></slot>
