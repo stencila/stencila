@@ -939,7 +939,7 @@ mod tests {
         Ok(())
     }
 
-    //#[ignore]
+    #[ignore = "reinstate when embedding is reinstated"]
     #[test]
     fn suitability_score_works_as_expected() -> Result<()> {
         let mut task_improve_wording =
