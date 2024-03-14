@@ -2,6 +2,7 @@ import '@shoelace-style/shoelace/dist/components/icon/icon'
 import { MessageLevel } from '@stencila/types'
 import { html, css } from 'lit'
 import { customElement, property } from 'lit/decorators'
+import '../ui/nodes/properties/generic/collapsible'
 
 import { withTwind } from '../twind'
 
