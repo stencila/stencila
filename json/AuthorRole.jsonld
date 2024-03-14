@@ -48,6 +48,18 @@
       "schema:rangeIncludes": {
         "@id": "stencila:AuthorRoleName"
       }
+    },
+    {
+      "@id": "stencila:lastModified",
+      "@type": "rdfs:Property",
+      "rdfs:label": "lastModified",
+      "rdfs:comment": "Timestamp of most recent modification by the author in the role.",
+      "schema:domainIncludes": {
+        "@id": "stencila:AuthorRole"
+      },
+      "schema:rangeIncludes": {
+        "@id": "schema:Timestamp"
+      }
     }
   ]
 }

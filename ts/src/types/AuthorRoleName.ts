@@ -4,6 +4,7 @@
  */
 export type AuthorRoleName =
   'Writer' |
+  'Verifier' |
   'Instructor' |
   'Prompter' |
   'Generator';

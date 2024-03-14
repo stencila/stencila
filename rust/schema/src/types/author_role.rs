@@ -5,6 +5,7 @@ use crate::prelude::*;
 use super::author_role_name::AuthorRoleName;
 use super::person_or_organization_or_software_application::PersonOrOrganizationOrSoftwareApplication;
 use super::string::String;
+use super::timestamp::Timestamp;
 
 /// An author and their role.
 #[skip_serializing_none]
@@ -29,6 +30,11 @@ pub struct AuthorRole {
     /// A role played by the author.
     #[serde(alias = "role-name", alias = "role_name")]
     pub role_name: AuthorRoleName,
+
+    /// Timestamp of most recent modification by the author in the role.
+    #[serde(alias = "last-modified", alias = "last_modified")]
+    #[dom(with = "Timestamp::to_dom_attr")]
+    pub last_modified: Option<Timestamp>,
 
     /// A unique identifier for a node within a document
     

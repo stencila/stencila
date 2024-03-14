@@ -9,6 +9,7 @@ class AuthorRoleName(StrEnum):
     """
 
     Writer = "Writer"
+    Verifier = "Verifier"
     Instructor = "Instructor"
     Prompter = "Prompter"
     Generator = "Generator"

@@ -6,6 +6,8 @@ description: An author and their role.
 required:
   - author
   - roleName
+core:
+  - lastModified
 properties:
   author:
     '@id': schema:author
@@ -20,3 +22,9 @@ properties:
     '@id': schema:roleName
     description: A role played by the author.
     $ref: AuthorRoleName
+  lastModified:
+    '@id': stencila:lastModified
+    description: Timestamp of most recent modification by the author in the role.
+    $ref: Timestamp
+    dom:
+      with: Timestamp::to_dom_attr

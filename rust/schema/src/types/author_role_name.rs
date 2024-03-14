@@ -10,6 +10,8 @@ pub enum AuthorRoleName {
     #[default]
     Writer,
 
+    Verifier,
+
     Instructor,
 
     Prompter,

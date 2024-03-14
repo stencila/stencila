@@ -14,7 +14,9 @@
     "roleName"
   ],
   "core": [
-    "id"
+    "id",
+    "lastModified",
+    "format"
   ],
   "properties": {
     "type": {
@@ -61,6 +63,18 @@
         "role_name"
       ],
       "$ref": "AuthorRoleName.schema.json"
+    },
+    "lastModified": {
+      "@id": "stencila:lastModified",
+      "description": "Timestamp of most recent modification by the author in the role.",
+      "aliases": [
+        "last-modified",
+        "last_modified"
+      ],
+      "dom": {
+        "with": "Timestamp::to_dom_attr"
+      },
+      "$ref": "Timestamp.schema.json"
     }
   }
 }

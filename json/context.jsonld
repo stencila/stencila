@@ -301,6 +301,7 @@
     "keywords": "schema:keywords",
     "label": "stencila:label",
     "labelType": "stencila:labelType",
+    "lastModified": "stencila:lastModified",
     "legalName": "schema:legalName",
     "length": "stencila:length",
     "level": "stencila:level",

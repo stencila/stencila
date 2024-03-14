@@ -3,6 +3,7 @@
 import { AuthorRoleName } from "./AuthorRoleName.js";
 import { PersonOrOrganizationOrSoftwareApplication } from "./PersonOrOrganizationOrSoftwareApplication.js";
 import { Role } from "./Role.js";
+import { Timestamp } from "./Timestamp.js";
 
 /**
  * An author and their role.
@@ -20,6 +21,11 @@ export class AuthorRole extends Role {
    * A role played by the author.
    */
   roleName: AuthorRoleName;
+
+  /**
+   * Timestamp of most recent modification by the author in the role.
+   */
+  lastModified?: Timestamp;
 
   constructor(author: PersonOrOrganizationOrSoftwareApplication, roleName: AuthorRoleName, options?: Partial<AuthorRole>) {
     super();
