@@ -1,10 +1,13 @@
 //! Functions used as filters and elsewhere in `minijinja` templates
 
 use assistant::{
-    common::eyre::{eyre, Report},
-    schema::{ArrayHint, DatatableHint, Hint, Variable},
+    common::eyre::{eyre, Report, Result},
+    schema::{
+        ArrayHint, Block, DatatableHint, Hint, InsertBlock, InstructionBlock, MathBlock,
+        MessagePart, SuggestionBlockType, SuggestionStatus, Variable,
+    },
 };
-use minijinja::{value::ViaDeserialize, Error};
+use minijinja::{value::ViaDeserialize, Error, Value};
 
 /// Expand a `minijinja` error to include the sources of the error (location etc)
 pub fn minijinja_error_to_eyre(error: Error) -> Report {
@@ -109,4 +112,117 @@ fn describe_datatable_hint(hint: &DatatableHint) -> String {
         lines.push(line);
     }
     lines.join("\n    - ")
+}
+
+/// Generate user/assistant pairs of strings for `InstructionBlock`s
+/// to render into system prompts for few-shot, in-context learning
+fn insert_block_shots<F>(
+    instructions: ViaDeserialize<Vec<InstructionBlock>>,
+    examples: ViaDeserialize<Vec<(String, String)>>,
+    assignee: &str,
+    extractor: F,
+) -> Result<Value, Error>
+where
+    F: Fn(Block) -> Option<String>,
+{
+    let instructions = instructions.0;
+    let examples = examples.0;
+
+    let mut shots: Vec<(String, String)> = instructions
+        .into_iter()
+        .filter_map(|instruction| {
+            if instruction.options.assignee.as_deref() != Some(assignee) {
+                return None;
+            }
+
+            // Get the first user text instruction. Ignore intermediate user messages involved in refinement.
+            let user = instruction
+                .messages
+                .first()
+                .and_then(|message| message.parts.first())
+                .and_then(|part| match part {
+                    MessagePart::Text(text) => Some(text.to_value_string()),
+                    _ => None,
+                });
+
+            // Get accepted inserted block
+            let block = instruction.options.suggestion.and_then(|suggestion| {
+                if let SuggestionBlockType::InsertBlock(InsertBlock {
+                    suggestion_status,
+                    mut content,
+                    ..
+                }) = suggestion
+                {
+                    if suggestion_status != Some(SuggestionStatus::Accepted) {
+                        None
+                    } else {
+                        (!content.is_empty()).then_some(content.swap_remove(0))
+                    }
+                } else {
+                    None
+                }
+            });
+
+            // Extract string from the block
+            let assistant = match block {
+                Some(block) => extractor(block),
+                None => None,
+            };
+
+            user.zip(assistant)
+        })
+        .collect();
+
+    // Augment the collected shots with provided examples
+    let examples_len = examples.len();
+    for example in examples {
+        if shots.len() >= examples_len {
+            break;
+        }
+        shots.push(example)
+    }
+
+    Ok(Value::from_serializable(&shots))
+}
+
+/// Generate example shots for the 'insert-code-chunk' assistant
+pub fn insert_code_chunk_shots(
+    instructions: ViaDeserialize<Vec<InstructionBlock>>,
+    examples: ViaDeserialize<Vec<(String, String)>>,
+) -> Result<Value, Error> {
+    insert_block_shots(
+        instructions,
+        examples,
+        "insert-code-chunk",
+        |block: Block| match block {
+            Block::CodeChunk(block) => Some(block.code.to_string()),
+            _ => None,
+        },
+    )
+}
+
+/// Generate example shots for the 'insert-math-block' assistant
+pub fn insert_math_block_shots(
+    instructions: ViaDeserialize<Vec<InstructionBlock>>,
+    examples: ViaDeserialize<Vec<(String, String)>>,
+) -> Result<Value, Error> {
+    insert_block_shots(
+        instructions,
+        examples,
+        "insert-math-block",
+        |block| match block {
+            Block::MathBlock(MathBlock {
+                math_language,
+                code,
+                ..
+            }) => {
+                let lang = math_language.map(|lang| lang.to_lowercase());
+                (lang.is_none()
+                    || lang.as_deref() == Some("latex")
+                    || lang.as_deref() == Some("tex"))
+                .then_some(code.to_string())
+            }
+            _ => None,
+        },
+    )
 }

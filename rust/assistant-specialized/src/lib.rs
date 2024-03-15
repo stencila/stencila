@@ -35,7 +35,10 @@ use assistant::{
 };
 
 mod jinja;
-use jinja::{describe_variable, minijinja_error_to_eyre, trim_end_chars, trim_start_chars};
+use jinja::{
+    describe_variable, insert_code_chunk_shots, insert_math_block_shots, minijinja_error_to_eyre,
+    trim_end_chars, trim_start_chars,
+};
 
 /// Default preference rank
 const PREFERENCE_RANK: u8 = 50;
@@ -369,6 +372,9 @@ impl SpecializedAssistant {
         env.add_filter("trim_end_chars", trim_end_chars);
 
         env.add_filter("describe_variable", describe_variable);
+
+        env.add_filter("insert_code_chunk_shots", insert_code_chunk_shots);
+        env.add_filter("insert_math_block_shots", insert_math_block_shots);
 
         env.add_template_owned(SYSTEM_PROMPT_TEMPLATE_NAME, prompt)
             .map_err(minijinja_error_to_eyre)?;
