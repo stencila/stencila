@@ -10,10 +10,11 @@
 
 This package provides Python classes for types in the [Stencila Schema](https://github.com/stencila/stencila/tree/main/schema#readme) and bindings to core [Stencila Rust](https://github.com/stencila/stencila/tree/main/rust#readme) functions.
 
-The primary intended audience is developers who want to develop their own tools on top of Stencila's core functionality. For example, with this package you could construct Stencila documents programmatically using Python and write them to multiple formats (e.g. Markdown, JATS XML, PDF).
+The primary intended audience is developers who want to develop their own tools on top of Stencila's core functionality. 
+For example, with this package you could construct Stencila documents programmatically using Python and write them to multiple formats (e.g. Markdown, JATS XML, PDF).
 
 > [!IMPORTANT]
-> At present, there are only bindings to functions for format conversion, but future versions will expand this scope to include document management (e.g branching and merging) and execution.
+> At present, there are only bindings to functions for format conversion, but future versions will expand this scope to include document management (e.g. branching and merging) and execution.
 
 ## 📦 Install
 
@@ -30,11 +31,13 @@ python -m pip install stencila
 
 ### Types
 
-The `types` module contains representations of all types in the Stencila Schema.
+The `stencila_types.py` file contains representations of all types in the Stencila Schema.
+(This will be moved to separate modules in the future.)
 
 #### Object types
 
-Object types (aka product types) in the Stencila Schema are represented as a `dataclass`. At present the `__init__` function requires keywords to be used (this is likely to be improved soon).
+Object types (aka product types) in the Stencila Schema are represented as a `dataclass`, using the `kw_only` attribute.
+This means that all fields are keyword-only arguments.
 
 For example, to construct an article with a single "Hello world!" paragraph, you can construct `Article`, `Paragraph` and `Text`:
 
@@ -46,15 +49,14 @@ article = Article(content=[Paragraph(content=[Text(value="Hello world!")])])
 assert isinstance(article, Article)
 assert isinstance(article, CreativeWork)
 assert isinstance(article, Thing)
-
 assert isinstance(article.content[0], Paragraph)
-
 assert isinstance(article.content[0].content[0], Text)
 ```
 
 #### Union types
 
-Union types (aka sum types) in the Stencila Schema are represented as `typing.Union`. For example, the `Block` union type is defined like so:
+Union types (aka sum types) in the Stencila Schema are represented as `typing.Union`.
+For example, the `Block` union type is defined like so:
 
 ```py
 Block = Union[
@@ -89,6 +91,27 @@ class CitationIntent(StrEnum):
     CitesAsRecommendedReading = "CitesAsRecommendedReading"
     CitesAsRelated = "CitesAsRelated"
 ```
+
+
+### Shortcuts
+
+Constructing Stencila documents from Python can be verbose. To make it easier, there are some shortcuts in the `stencila.shortcuts` module.
+This module provides a number of short functions (e.g. `art` for `Article`, `p` for `Paragraph`) that take the most common arguments for a type and return an instance of that type.
+For example:
+
+```py
+# Don't import short names. Use a module alias.
+from stencila import shortcuts as S
+from stencila.types import Article, CreativeWork, Paragraph, Text, Thing
+
+# Unwieldy!
+article = Article(content=[Paragraph(content=[Text(value="Hello world!")])])
+
+# Equivalent
+article = S.art(S.p("Hello world!"))
+```
+
+In addition to being more concise, these functions have runtime type checking using [beartype](https://beartype.readthedocs.io/en/latest/), and will raise an error if the arguments are not of the expected type.
 
 ### Conversion
 
@@ -222,7 +245,7 @@ make test
 
 ### Code organization
 
-#### `types` module
+#### `stencila_types` module
 
 Most of the types are generated from the Stencila Schema by the Rust [`schema-gen`](https://github.com/stencila/stencila/tree/main/rust/schema-gen#readme) crate. See there for contributing instructions.
 
