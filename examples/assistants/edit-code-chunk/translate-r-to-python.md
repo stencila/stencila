@@ -1,5 +1,5 @@
 ---
-# Test using `edit-code-chunk` to translate a document.
+# Test using `edit-code-chunk` to translate code.
 ---
 ```python exec
 # Currently, we use this to boot up the python kernel.

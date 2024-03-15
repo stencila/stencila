@@ -1,4 +1,6 @@
-
+---
+# Test chained instructions with `insert-code-chunk` using R.
+---
 
 // @insert-code-chunk to read in 'data.csv' using R.
 

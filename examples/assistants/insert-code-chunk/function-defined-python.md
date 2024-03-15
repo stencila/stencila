@@ -1,3 +1,7 @@
+---
+# Test `insert-code-chunk` makes use of functions defined in the kernel.
+---
+
 ```python exec
 def womble_size(age: int, diet: str) -> int:
     """Womble size depends on age and diet"""

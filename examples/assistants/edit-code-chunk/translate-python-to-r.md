@@ -1,5 +1,5 @@
 ---
-# Test using `edit-code-chunk` to translate a document.
+# Test using `edit-code-chunk` to translate code.
 ---
 
 // @edit-code-chunk translate this to R.
