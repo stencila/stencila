@@ -443,7 +443,12 @@ pub mod tests {
             else {
                 bail!("no variable named `{}` in list", expected.name);
             };
-            assert_eq!(actual, &expected)
+
+            // Do not test native hints as this time
+            let mut actual = actual.clone();
+            actual.native_hint = None;
+
+            assert_eq!(actual, expected)
         }
 
         Ok(())

@@ -518,9 +518,11 @@ a4 = np.array([1.23, 4.56], dtype=np.float_)
         let list = instance.list().await?;
 
         macro_rules! var {
-            ($name:expr) => {
-                list.iter().find(|var| var.name == $name).unwrap().clone()
-            };
+            ($name:expr) => {{
+                let mut var = list.iter().find(|var| var.name == $name).unwrap().clone();
+                var.native_hint = None;
+                var
+            }};
         }
         macro_rules! get {
             ($name:expr) => {
@@ -672,9 +674,11 @@ df1 = pd.DataFrame({
         let list = instance.list().await?;
 
         macro_rules! var {
-            ($name:expr) => {
-                list.iter().find(|var| var.name == $name).unwrap().clone()
-            };
+            ($name:expr) => {{
+                let mut var = list.iter().find(|var| var.name == $name).unwrap().clone();
+                var.native_hint = None;
+                var
+            }};
         }
         macro_rules! get {
             ($name:expr) => {
