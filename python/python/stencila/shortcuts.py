@@ -1,5 +1,6 @@
 import sys
-from typing import Iterable, Optional, Union
+from collections.abc import Iterable
+from typing import Optional, Union
 
 from beartype import beartype
 
@@ -281,7 +282,6 @@ def isb(content: ConvertibleToBlocks) -> T.InsertBlock:
     return T.InsertBlock(content=convert_to_blocks(content))
 
 
-# TODO: these are currently broken because of the way List is used.
 @beartype
 def ol(items: list[T.ListItem]) -> T.List:
     return T.List(items=items, order=T.ListOrder.Ascending)
@@ -293,8 +293,8 @@ def ul(items: list[T.ListItem]) -> T.List:
 
 
 @beartype
-def li(content: ConvertibleToInline) -> T.ListItem:
-    return T.ListItem(content=convert_to_inlines(content))
+def li(content: ConvertibleToBlocks) -> T.ListItem:
+    return T.ListItem(content=convert_to_blocks(content))
 
 
 @beartype
@@ -303,7 +303,7 @@ def mb(code: str, *, lang: str | None = None) -> T.MathBlock:
 
 
 @beartype
-def p(*args: ConvertibleToInline) -> T.Paragraph:
+def p(*args: Union[T.Inline, str]) -> T.Paragraph:
     return T.Paragraph(content=convert_to_inlines(args))
 
 
@@ -343,17 +343,17 @@ def tr(cells: list[T.TableCell]) -> T.TableRow:
 
 
 @beartype
-def th(content: ConvertibleToInline) -> T.TableCell:
+def th(content: ConvertibleToBlocks) -> T.TableCell:
     return T.TableCell(
-        content=convert_to_inlines(content),
+        content=convert_to_blocks(content),
         cell_type=T.TableCellType.HeaderCell,
     )
 
 
 @beartype
-def td(content: ConvertibleToInline) -> T.TableCell:
+def td(content: ConvertibleToBlocks) -> T.TableCell:
     return T.TableCell(
-        content=convert_to_inlines(content),
+        content=convert_to_blocks(content),
         cell_type=T.TableCellType.DataCell,
     )
 

@@ -1,4 +1,5 @@
 import json
+import re
 
 from cattrs.preconf.json import make_converter
 
@@ -11,45 +12,51 @@ def from_json(json_string: str) -> T.Node:
     """
     Create a `Node` from a JSON string
     """
-    dcts = json.loads(json_string)
-    typ = dcts.get("type")
-    if type is None:
-        raise ValueError(
-            f"JSON string does not contain a `type` attribute: {json_string}"
-        )
-    # TODO: Handle error
-    cls = getattr(T, typ)
-    return cls(**dcts)
+    # TODO: JSON_CONVERTER is not used here as it currently breaks.
+    # We do it manually below.
+
+    return from_value(json.loads(json_string))
 
 
-# TODO: add more typing here. Should just be basic stuff + dict + list?
-# def from_value(value: Any) -> T.Node:  # pragma: no cover
-#     """
-#     Create a `Node` from a value
-#     """
-#     # TODO: Handle Entity and tuple. When will this happen?
-#     if value is None or isinstance(value, (bool, int, float, str)):
-#         return value
-#
-#     if isinstance(value, list):
-#         for index, item in enumerate(value):
-#             value[index] = from_value(item)
-#         return value
-#
-#     typ = value.pop("type", None)
-#
-#     # TODO: This should fail?
-#     if typ is None:
-#         return value
-#
-#     for attr in value:
-#         value[attr] = from_value(value[attr])
-#
-#     try:
-#         cls = getattr(T, typ)
-#         return cls(**value)
-#     except AttributeError:
-#         raise ValueError(f"Unexpected type for `Node`: {typ}") from None
+# https://stackoverflow.com/questions/1175208/
+# elegant-python-function-to-convert-camelcase-to-snake-case
+CAMEL_TO_SNAKE_RE = re.compile("((?<=[a-z0-9])[A-Z]|(?!^)[A-Z](?=[a-z]))")
+
+
+def camel_to_snake(name: str):
+    return CAMEL_TO_SNAKE_RE.sub(r"_\1", name).lower()
+
+
+def from_value(value) -> T.Node | list[T.Node]:  # pragma: no cover
+    """
+    Create a `Node` from a value
+    """
+    if value is None or isinstance(value, (bool, int, float, str)):
+        return value
+
+    # Handle lists.
+    if isinstance(value, list):
+        return [from_value(v) for v in value]
+
+    # We should be a dictionary
+    if not isinstance(value, dict):
+        raise ValueError(f"Unexpected type for `Node`: {type(value)}")
+
+    typ = value.pop("type")
+
+    if typ is None:
+        raise ValueError("Missing `type` entry for `Node`")
+
+    cls = getattr(T, typ, None)
+
+    if cls is None:
+        raise ValueError(f"`{typ}` is not a valid Stencila Type")
+
+    # Resolve the attributes
+    kwargs = {camel_to_snake(nm): from_value(v) for (nm, v) in value.items()}
+
+    # value is a dictionary of attributes
+    return cls(**kwargs)
 
 
 def to_json(node: T.Node) -> str:
