@@ -113,7 +113,11 @@ class Variable(TypedDict):
 
 
 STENCILA_LEVEL = Union[
-    Literal["Exception"], Literal["Error"], Literal["Warning"], Literal["Info"]
+    Literal["Exception"],
+    Literal["Error"],
+    Literal["Warning"],
+    Literal["Info"],
+    Literal["Debug"],
 ]
 
 
@@ -200,7 +204,9 @@ logger.addHandler(handler)
 def log_warning(message, category, filename, lineno, file=None, line=None) -> None:  # type: ignore  # noqa: ANN001
     warning_details = {
         "warning_details": {
-            "category": str(category.__name__),  # pyright: ignore[reportAttributeAccessIssue]
+            "category": str(
+                category.__name__
+            ),  # pyright: ignore[reportAttributeAccessIssue]
             "filename": filename,
             "lineno": lineno,
             "line": line,
