@@ -54,18 +54,20 @@ const PREFERENCE_RANK: u8 = 50;
 /// that will usually be preferred.
 const DELEGATES: &[&str] = &[
     // Text-to-text
+    "openai/gpt-4-0125-preview",
     "openai/gpt-4-1106-preview",
+    "google/gemini-1.0-pro-latest",
     "openai/gpt-4-0613",
     "openai/gpt-4-0314",
+    "mistral/mistral-large-latest",
     "anthropic/claude-2.1",
     "anthropic/claude-2.0",
     "anthropic/claude-instant-1.2",
-    "mistral/mistral-medium",
-    "google/gemini-pro",
+    "mistral/mistral-medium-latest",
     "openai/gpt-3.5-turbo-1106",
     "openai/gpt-3.5-turbo-0613",
     "openai/gpt-3.5-turbo-0301",
-    "mistral/mistral-small",
+    "mistral/mistral-small-latest",
     "mistral/mistral-tiny",
     "ollama/llama2:latest",
     // Text-to-image,
