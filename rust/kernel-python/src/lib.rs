@@ -272,7 +272,6 @@ logger.error('error message')
         assert_eq!(m.level, MessageLevel::Error);
         assert_eq!(m.message, "error message");
 
-
         let (.., messages) = instance
             .execute(
                 "

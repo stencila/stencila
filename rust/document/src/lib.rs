@@ -519,7 +519,9 @@ impl Document {
         }
 
         // Send the command to execute the whole document
-        self.command_sender.send(Command::ExecuteDocument(options)).await?;
+        self.command_sender
+            .send(Command::ExecuteDocument(options))
+            .await?;
 
         // Wait for the execution status to no longer be pending or running
         loop {

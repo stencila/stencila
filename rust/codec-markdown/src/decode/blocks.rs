@@ -15,7 +15,10 @@ use nom::{
 use codec::{
     common::itertools::Itertools,
     schema::{
-        Admonition, Block, CallArgument, CallBlock, Claim, CodeChunk, Cord, DeleteBlock, Figure, ForBlock, Form, FormDeriveAction, FormOptions, IfBlockClause, IncludeBlock, Inline, InsertBlock, IntegerOrString, LabelType, MathBlock, Node, ReplaceBlock, Section, StyledBlock, SuggestionStatus, Table, Text
+        Admonition, Block, CallArgument, CallBlock, Claim, CodeChunk, Cord, DeleteBlock, Figure,
+        ForBlock, Form, FormDeriveAction, FormOptions, IfBlockClause, IncludeBlock, Inline,
+        InsertBlock, IntegerOrString, LabelType, MathBlock, Node, ReplaceBlock, Section,
+        StyledBlock, SuggestionStatus, Table, Text,
     },
 };
 
