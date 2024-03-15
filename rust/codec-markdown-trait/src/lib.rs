@@ -12,7 +12,7 @@ pub trait MarkdownCodec {
 }
 
 /// Encode a node that implements `MarkdownCodec` to Markdown
-/// 
+///
 /// A convenience function to save the caller from having to create a context etc.
 pub fn to_markdown<T>(node: &T) -> String
 where
