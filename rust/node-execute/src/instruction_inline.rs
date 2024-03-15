@@ -22,8 +22,6 @@ impl Executable for InstructionInline {
         if !executor.should_execute_instruction_inline(self) {
             tracing::debug!("Skipping InstructionInline {node_id}");
 
-            executor.context.push_instruction_inline(self);
-
             return WalkControl::Break;
         }
 
@@ -111,8 +109,6 @@ impl Executable for InstructionInline {
                 ],
             );
         }
-
-        executor.context.push_instruction_inline(self);
 
         WalkControl::Break
     }

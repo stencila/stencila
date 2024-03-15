@@ -411,11 +411,13 @@ impl VisitorAsync for Executor {
     async fn visit_block(&mut self, block: &mut Block) -> Result<WalkControl> {
         use Block::*;
 
-        // If the block is of a type that is collected in the execution context
-        // then do that. Executable nodes should not be added here. Instead they should
-        // only be added to the context at the end of their `execute` method is successful
-        if let Paragraph(paragraph) = &block {
-            self.context.push_paragraph(paragraph)
+        // If the block is of a type that is collected in the execution context then do that.
+        match block {
+            CodeChunk(node) => self.context.push_code_chunk(node),
+            InstructionBlock(node) => self.context.push_instruction_block(node),
+            MathBlock(node) => self.context.push_math_block(node),
+            Paragraph(node) => self.context.push_paragraph(node),
+            _ => {}
         }
 
         // If the executor has node ids (i.e. is only executing some nodes, not the entire
@@ -446,11 +448,13 @@ impl VisitorAsync for Executor {
     async fn visit_inline(&mut self, inline: &mut Inline) -> Result<WalkControl> {
         use Inline::*;
 
-        // If the inline is of a type that is collected in the execution context
-        // then do that. Executable nodes should not be added here. Instead they should
-        // only be added to the context at the end of their `execute` method is successful
-        if let Text(text) = &inline {
-            self.context.push_text(text)
+        // If the inline is of a type that is collected in the execution context then do that.
+        match inline {
+            CodeExpression(node) => self.context.push_code_expression(node),
+            InstructionInline(node) => self.context.push_instruction_inline(node),
+            MathInline(node) => self.context.push_math_inline(node),
+            Text(node) => self.context.push_text(node),
+            _ => {}
         }
 
         // If the executor has node ids (i.e. is only executing some nodes, not the entire

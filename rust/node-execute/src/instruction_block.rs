@@ -10,7 +10,7 @@ impl Executable for InstructionBlock {
 
         if executor.should_execute_instruction_block(self) {
             tracing::debug!("Pending InstructionBlock {node_id}");
-            
+
             pending_impl!(executor, &node_id);
         }
 
@@ -24,8 +24,6 @@ impl Executable for InstructionBlock {
 
         if !executor.should_execute_instruction_block(self) {
             tracing::debug!("Skipping InstructionBlock {node_id}");
-
-            executor.context.push_instruction_block(self);
 
             return WalkControl::Break;
         }
@@ -50,7 +48,7 @@ impl Executable for InstructionBlock {
                 GenerateOptions {
                     dry_run: executor.options.dry_run,
                     ..Default::default()
-                }
+                },
             )
             .await
             {
