@@ -1129,6 +1129,10 @@ pub trait Assistant: Sync + Send {
         SoftwareApplication {
             id: Some(self.id()),
             name: self.name(),
+            options: Box::new(SoftwareApplicationOptions {
+                version: Some(StringOrNumber::String(self.version())),
+                ..Default::default()
+            }),
             ..Default::default()
         }
     }
