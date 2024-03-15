@@ -37,7 +37,7 @@ use assistant::{
 mod jinja;
 use jinja::{
     describe_variable, insert_code_chunk_shots, insert_math_block_shots, minijinja_error_to_eyre,
-    trim_end_chars, trim_start_chars,
+    to_markdown, trim_end_chars, trim_start_chars,
 };
 
 /// Default preference rank
@@ -367,6 +367,8 @@ impl SpecializedAssistant {
     fn template_environment(prompt: String) -> Result<Environment<'static>> {
         let mut env = Environment::new();
         env.set_undefined_behavior(UndefinedBehavior::Strict);
+
+        env.add_filter("to_markdown", to_markdown);
 
         env.add_filter("trim_start_chars", trim_start_chars);
         env.add_filter("trim_end_chars", trim_end_chars);
@@ -701,7 +703,7 @@ fn list_local() -> Result<Vec<Arc<dyn Assistant>>> {
     let dir = get_app_dir(DirType::Assistants, false)?;
 
     tracing::debug!(
-        "Attempting to reading assistants from `{}` (if it exists)",
+        "Attempting to read assistants from `{}` (if it exists)",
         dir.display()
     );
 

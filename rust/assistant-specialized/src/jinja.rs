@@ -1,13 +1,14 @@
 //! Functions used as filters and elsewhere in `minijinja` templates
 
+use minijinja::{value::ViaDeserialize, Error, Value};
+
 use assistant::{
     common::eyre::{eyre, Report, Result},
     schema::{
         ArrayHint, Block, DatatableHint, Hint, InsertBlock, InstructionBlock, MathBlock,
-        MessagePart, SuggestionBlockType, SuggestionStatus, Variable,
+        MessagePart, Node, SuggestionBlockType, SuggestionStatus, Variable,
     },
 };
-use minijinja::{value::ViaDeserialize, Error, Value};
 
 /// Expand a `minijinja` error to include the sources of the error (location etc)
 pub fn minijinja_error_to_eyre(error: Error) -> Report {
@@ -18,6 +19,11 @@ pub fn minijinja_error_to_eyre(error: Error) -> Report {
         error = source;
     }
     eyre!(message)
+}
+
+/// Generate a Markdown representation of a Stencila node
+pub fn to_markdown(node: ViaDeserialize<Node>) -> String {
+    codec_markdown_trait::to_markdown(&node.0)
 }
 
 /// Trim the starting characters from a string so that it is no longer than `length`

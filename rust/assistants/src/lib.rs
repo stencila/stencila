@@ -96,7 +96,7 @@ pub async fn get_assistant(task: &mut GenerateTask) -> Result<Arc<dyn Assistant>
             bail!("The assigned assistant `{id}` does not support this task")
         }
 
-        tracing::debug!("Using assistant matching id: {}", assistant.id());
+        tracing::debug!("Using assistant with id: {}", assistant.id());
         assistant
     } else {
         // It is tempting to use the position_max iterator method here but, in the case of
@@ -120,7 +120,7 @@ pub async fn get_assistant(task: &mut GenerateTask) -> Result<Arc<dyn Assistant>
             .ok_or_else(|| eyre!("Best assistant not in list of assistants!?"))?;
 
         tracing::debug!(
-            "Found assistant {}, with best score {}",
+            "Found assistant `{}`, with best score {}",
             assistant.id(),
             max
         );
