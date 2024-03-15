@@ -21,6 +21,7 @@ export const config = defineConfig({
     extend: {
       fontFamily: {
         sans: ['Lato', 'Montserrat'],
+        mono: ['IBM Plex Mono', 'monospace'],
       },
       dropShadow: {
         '2xl': '0 0 0.15em rgba(37, 104, 239, 1)',
