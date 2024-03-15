@@ -54,13 +54,13 @@ export class UINodeExecutionDetails extends LitElement {
 
   override render() {
     return html`
-      <stencila-ui-node-collapsible-property
-        .collapsed=${false}
+      <stencila-ui-node-collapsible-details
         header-bg=${this.headerBg}
+        title="Details"
         wrapper-css="border-t border-black/30"
+        .collapsed=${false}
       >
-        <div slot="title">Details</div>
-        <div class="px-6 py-3 flex flex-col gap-y-3" slot="content">
+        <div class="flex flex-col gap-y-3">
           <stencila-ui-node-execution-state
             status=${this.status}
             required=${this.required}
@@ -75,7 +75,7 @@ export class UINodeExecutionDetails extends LitElement {
             value=${this.duration}
           ></stencila-ui-node-execution-duration>
         </div>
-      </stencila-ui-node-collapsible-property>
+      </stencila-ui-node-collapsible-details>
     `
   }
 }

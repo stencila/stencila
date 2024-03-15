@@ -20,7 +20,10 @@ export const config = defineConfig({
     ...theme,
     extend: {
       fontFamily: {
-        sans: ['Lato', 'Montserrat'],
+        sans: ['Inter', 'Lato', 'Montserrat'],
+      },
+      fontSize: {
+        '2xs': '0.625rem',
       },
       dropShadow: {
         '2xl': '0 0 0.15em rgba(37, 104, 239, 1)',

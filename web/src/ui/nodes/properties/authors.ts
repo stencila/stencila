@@ -6,6 +6,8 @@ import { customElement, property, state } from 'lit/decorators'
 import { withTwind } from '../../../twind'
 import { nodeBorderColour } from '../icons-and-colours'
 
+import '../collapsible-card'
+
 /**
  * A component for displaying the `authors` property of a node
  */
@@ -40,13 +42,13 @@ export class UINodeAuthors extends LitElement {
   override render() {
     const borderColour = nodeBorderColour(this.type)
 
-    return html`<div class=${this.hasItems ? `block` : 'hidden'}>
-      <span class="items-center flex">
-        <sl-icon name="authors" library="stencila" class="pr-2"></sl-icon
-        >Authors</span
-      >
-      <div class=${`border-b border-[${borderColour}] rounded-full my-2`}></div>
+    return html`<stencila-ui-node-collapsible-details
+      icon-name="authors"
+      header-bg=${borderColour}
+      title="Authors"
+      wrapper-css=${this.hasItems ? '' : 'hidden'}
+    >
       <slot></slot>
-    </div>`
+    </stencila-ui-node-collapsible-details>`
   }
 }
