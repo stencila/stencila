@@ -19,7 +19,9 @@ impl MarkdownCodec for ReplaceBlock {
             .push_str("\n\n")
             .push_prop_fn("content", |context| self.content.to_markdown(context))
             .push_str("~>\n\n")
-            .push_prop_fn("replacement", |context| self.replacement.to_markdown(context))
+            .push_prop_fn("replacement", |context| {
+                self.replacement.to_markdown(context)
+            })
             .push_str("~~\n")
             .exit_node()
             .newline();
