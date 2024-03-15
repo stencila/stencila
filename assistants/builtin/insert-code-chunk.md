@@ -10,7 +10,7 @@ instruction-examples:
 expected-nodes: CodeChunk
 ---
 
-An assistant specialized for inserting a new executable `CodeChunk`. Note that other assistants are specialized for inserting code chunks that create figures and tables with captions (`insert-code-figure` and `insert-code-table`).
+An assistant specialized for inserting an executable `CodeChunk`. Note that other assistants are specialized for inserting code chunks that create figures and tables with captions (`insert-code-figure` and `insert-code-table`).
 
 ---
 
@@ -26,7 +26,7 @@ The code
 
 Provide comments in the code but do NOT provide any comments or other content outside of the code block.
 
-# Languages
+# Programming languages
 
 The following language runtimes are available.
 
