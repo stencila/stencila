@@ -140,11 +140,18 @@ pub struct Executor {
 #[derive(Debug, Default, Clone, Serialize, Deserialize, PartialEq, Eq, Args)]
 #[serde(default, crate = "common::serde")]
 pub struct ExecuteOptions {
+    /// Skip executing code
+    ///
+    /// By default, code-based nodes in the document (e.g. `CodeChunk`, `CodeExpression`, `ForBlock`)
+    /// nodes will be executed if they are stale. Use this flag to skip executing all code-based nodes.
+    #[arg(long)]
+    skip_code: bool,
+
     /// Skip executing instructions
     ///
     /// By default, instructions with no suggestions, or with suggestions that have
     /// been rejected will be executed. Use this flag to skip executing all instructions.
-    #[arg(long)]
+    #[arg(long, alias = "skip-inst")]
     skip_instructions: bool,
 
     /// Re-execute instructions with suggestions that have not yet been reviewed
@@ -260,6 +267,11 @@ impl Executor {
         let kernels = self.kernels().await.kernel_contexts().await;
         self.context.kernels = kernels;
         self.context.clone()
+    }
+
+    /// Should the executor execute a code-based node (derived from `CodeExecutable`)
+    pub fn should_execute_code(&self) -> bool {
+        !self.options.skip_code
     }
 
     /// Should the executor execute an `Instruction` based on the the

@@ -16,6 +16,13 @@ impl Executable for CodeExpression {
     #[tracing::instrument(skip_all)]
     async fn execute(&mut self, executor: &mut Executor) -> WalkControl {
         let node_id = self.node_id();
+
+        if !executor.should_execute_code() {
+            tracing::debug!("Skipping CodeExpression {node_id}");
+
+            return WalkControl::Break;
+        }
+
         tracing::trace!("Executing CodeExpression {node_id}");
 
         executor.replace_properties(
