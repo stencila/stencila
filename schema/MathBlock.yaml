@@ -4,6 +4,8 @@ nick: mtb
 extends: Math
 category: math
 description: A block of math, e.g an equation, to be treated as block content.
+dom:
+  derive: false
 html:
   elem: math
 jats:
